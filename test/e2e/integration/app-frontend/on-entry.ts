@@ -36,9 +36,14 @@ describe('On Entry', () => {
     cy.get(appFrontend.selectInstance.tableBody).find('tr').should('have.length', instanceIdExamples.length);
 
     // Verify order of rows (they should be sorted with the latest instance at the bottom)
-    cy.get(appFrontend.selectInstance.tableBody).find('tr').eq(0).should('contain.text', 'Bar Baz');
-    cy.get(appFrontend.selectInstance.tableBody).find('tr').eq(1).should('contain.text', 'Ola Nordmann');
-    cy.get(appFrontend.selectInstance.tableBody).find('tr').eq(2).should('contain.text', 'Foo Bar');
+    cy.get(appFrontend.selectInstance.tableBody).find('tr').eq(0).find('td').eq(1).should('contain.text', 'Bar Baz');
+    cy.get(appFrontend.selectInstance.tableBody)
+      .find('tr')
+      .eq(1)
+      .find('td')
+      .eq(1)
+      .should('contain.text', 'Ola Nordmann');
+    cy.get(appFrontend.selectInstance.tableBody).find('tr').eq(2).find('td').eq(1).should('contain.text', 'Foo Bar');
 
     cy.get(appFrontend.selectInstance.tableBody).find('tr').eq(1).as('tableRow');
     cy.get('@tableRow')
@@ -55,6 +60,64 @@ describe('On Entry', () => {
     // The instance does not actually exist, we pretended it did by mocking
     // the response, so trying to fetch it will fail
     cy.get(appFrontend.instanceErrorCode).should('have.text', 'Ukjent feil');
+  });
+
+  const createIntercept = (defaultSelectedOption: number) => ({
+    id: 'ttd/frontend-test',
+    org: 'ttd',
+    title: {
+      nb: 'frontend-test',
+      en: 'frontend-test ENGLISH',
+    },
+    dataTypes: [],
+    onEntry: {
+      show: 'select-instance',
+      instanceSelection: {
+        sortDirection: 'desc',
+        rowsPerPageOptions: [1, 2, 3],
+        defaultSelectedOption,
+      },
+    },
+  });
+  it('is possible to paginate the instances and select default rows per page', () => {
+    cy.intercept('**/applicationmetadata', createIntercept(1));
+    cy.startAppInstance(appFrontend.apps.frontendTest);
+    cy.get(appFrontend.closeButton).should('be.visible');
+    cy.get(appFrontend.selectInstance.container).should('be.visible');
+    cy.get(appFrontend.selectInstance.tableBody).find('tr').should('have.length', 2);
+
+    // Verify order of rows (they should be sorted with the latest instance at the top)
+    cy.get(appFrontend.selectInstance.tableBody).find('tr').eq(0).find('td').eq(1).should('contain.text', 'Foo Bar');
+    cy.get(appFrontend.selectInstance.tableBody)
+      .find('tr')
+      .eq(1)
+      .find('td')
+      .eq(1)
+      .should('contain.text', 'Ola Nordmann');
+
+    cy.get(appFrontend.selectInstance.tableBody)
+      .find('tr')
+      .eq(1)
+      .as('tableRow')
+      .find('td')
+      .eq(1)
+      .should('have.text', 'Ola Nordmann');
+
+    cy.get(appFrontend.selectInstance.nexPageButton).click();
+
+    cy.get(appFrontend.selectInstance.tableBody)
+      .find('tr')
+      .eq(0)
+      .as('tableRow')
+      .find('td')
+      .eq(1)
+      .should('have.text', 'Bar Baz');
+  });
+
+  it('will utilize index 0 when defaultSelectedOption is assigned an invalid index number', () => {
+    cy.intercept('**/applicationmetadata', createIntercept(5));
+    cy.startAppInstance(appFrontend.apps.frontendTest);
+    cy.get(appFrontend.selectInstance.tableBody).find('tr').should('have.length', 1);
   });
 
   it('is possible to create a new instance', () => {

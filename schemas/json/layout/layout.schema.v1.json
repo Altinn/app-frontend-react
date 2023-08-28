@@ -42,7 +42,7 @@
           "type": "string",
           "title": "Type",
           "description": "The component type.",
-          "enum": ["ActionButton", "AddressComponent", "AttachmentList", "Button", "ButtonGroup", "Checkboxes", "Custom", "Datepicker", "Dropdown", "FileUpload", "FileUploadWithTag", "Grid", "Group", "Header", "Image", "Input", "InstanceInformation", "InstantiationButton", "IFrame", "Likert","Link", "List", "MultipleSelect", "NavigationButtons", "NavigationBar", "Panel", "Paragraph", "PrintButton", "RadioButtons", "Summary", "TextArea"]
+          "enum": ["Accordion", "AccordionGroup","ActionButton", "AddressComponent", "Alert", "AttachmentList", "Button", "ButtonGroup", "Checkboxes", "Custom", "Datepicker", "Dropdown", "FileUpload", "FileUploadWithTag", "Grid", "Group", "Header", "Image", "Input", "InstanceInformation", "InstantiationButton", "IFrame", "Likert","Link", "List", "MultipleSelect", "NavigationButtons", "NavigationBar", "Panel", "Paragraph", "PrintButton", "RadioButtons", "Summary", "TextArea"]
         },
         "required": {
           "title": "Required",
@@ -128,8 +128,11 @@
       },
       "required": ["id", "type"],
       "allOf": [
+        { "if": {"properties": {"type": { "const": "Accordion"}}}, "then": {"$ref": "#/definitions/accordionComponent"}},
+        { "if": {"properties": {"type": { "const": "AccordionGroup"}}}, "then": {"$ref": "#/definitions/accordionGroupComponent"}},
         { "if": {"properties": {"type": { "const": "ActionButton"}}}, "then": {"$ref": "#/definitions/actionButtonComponent"}},
         { "if": {"properties": {"type": { "const": "AddressComponent"}}}, "then": { "$ref": "#/definitions/addressComponent"}},
+        { "if": {"properties": {"type": { "const": "Alert"}}}, "then": {"$ref": "#/definitions/alertComponent"}},
         { "if": {"properties": {"type": { "const": "AttachmentList"}}}, "then": { "$ref": "#/definitions/attachmentListComponent"}},
         { "if": {"properties": {"type": { "const": "ButtonGroup"}}}, "then": { "$ref": "#/definitions/buttonGroupComponent"}},
         { "if": {"properties": {"type": { "const": "Checkboxes"}}}, "then": { "$ref": "#/definitions/radioAndCheckboxComponents"}},
@@ -158,6 +161,45 @@
         { "if": {"properties": {"type": { "const": "List"}}}, "then": {"$ref": "#/definitions/listComponent"}},
         { "if": { "properties": { "type": { "const": "MapComponent" } } }, "then": { "$ref": "#/definitions/mapComponent" }}
       ]
+    },
+    "accordionComponent": {
+      "properties": {
+        "children": {
+          "title": "Children",
+          "type": "array",
+          "description": "An array of the \"id\" of child components belonging to the accordion.",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": ["children"]
+    },
+    "accordionGroupComponent": {
+      "properties": {
+        "children": {
+          "title": "Children",
+          "type": "array",
+          "description": "An array of the \"id\" of child components belonging to the accordion group.",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": ["children"]
+    },
+    "alertComponent": {
+      "properties": {
+        "severity": {
+          "title": "Severity",
+          "description": "The severity of the alert.",
+          "type": "string",
+          "enum": ["success", "warning", "danger", "info"]
+        }
+      },
+      "required": ["severity"]
     },
     "headerComponent": {
       "properties": {
@@ -253,6 +295,9 @@
         "mapping": {
           "$ref": "#/definitions/mapping",
           "description": "Optionally used to map options"
+        },
+        "queryParameters": {
+          "$ref": "#/definitions/queryParameters"
         }
       },
       "required": ["optionsId"]
@@ -345,6 +390,9 @@
         "mapping": {
           "$ref": "#/definitions/mapping",
           "description": "Creates a new app instance with data collected from a stateless part of the app."
+        },
+        "queryParameters": {
+          "$ref": "#/definitions/queryParameters"
         }
       }
     },
@@ -515,10 +563,26 @@
           "title": "Text",
           "description": "The text or text resource ID to be rendered in the cell",
           "type": "string"
+        },
+        "help": {
+          "title": "Help text",
+          "description": "The help text or text resource ID to be rendered in the cell",
+          "type": "string"
         }
       },
       "$ref": "#/definitions/tableColumnOptions",
       "required": ["text"]
+    },
+    "gridLabelText": {
+      "properties": {
+        "labelFrom": {
+          "title": "Label from",
+          "description": "The ID of the component to be used to render text resources in the cell",
+          "type": "string"
+        }
+      },
+      "$ref": "#/definitions/tableColumnOptions",
+      "required": ["labelFrom"]
     },
     "gridCellComponent": {
       "properties": {
@@ -910,6 +974,9 @@
           "$ref": "#/definitions/mapping",
           "description": "Optionally used to map options"
         },
+        "queryParameters": {
+          "$ref": "#/definitions/queryParameters"
+        },
         "autocomplete": {
           "$ref": "#/definitions/autocomplete"
         }
@@ -1207,6 +1274,22 @@
       "additionalProperties": {
         "type": "string"
       }
+    },
+    "queryParameters": {
+      "type": "object",
+      "title": "Query parameters",
+      "description": "Fixed query parameters to add to the url.",
+      "patternProperties": {
+        "^.+$": {
+          "type": "string",
+          "title": "Query parameter value"
+        }
+      },
+      "examples": [
+        {
+          "level": "1"
+        }
+      ]
     },
     "iframeComponent": {
       "type": "object",

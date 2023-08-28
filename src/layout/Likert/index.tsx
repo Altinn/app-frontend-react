@@ -1,13 +1,14 @@
 import React from 'react';
 
-import { FD } from 'src/features/formData2/Compatibility';
-import { useSelectedValueToText } from 'src/hooks/useSelectedValueToText';
+import { getOptionList } from 'src/hooks/useOptionList';
+import { getSelectedValueToText } from 'src/hooks/useSelectedValueToText';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { LikertComponent } from 'src/layout/Likert/LikertComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { LayoutStyle } from 'src/types';
 import type { ExprResolved } from 'src/features/expressions/types';
-import type { PropsFromGenericComponent } from 'src/layout';
+import type { DisplayDataProps, PropsFromGenericComponent } from 'src/layout';
+import type { IDataModelBindingsSimple } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ILayoutCompLikert } from 'src/layout/Likert/types';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
@@ -22,17 +23,17 @@ export class Likert extends FormComponent<'Likert'> {
     return props.node.item.layout === LayoutStyle.Table || props.overrideItemProps?.layout === LayoutStyle.Table;
   }
 
-  renderWithLabel(): boolean {
-    return false;
-  }
-
-  useDisplayData(node: LayoutNodeFromType<'Likert'>): string {
-    const value = FD.usePick(node.item.dataModelBindings?.simpleBinding);
-    if (typeof value !== 'string') {
+  getDisplayData(
+    node: LayoutNodeFromType<'Likert'>,
+    { formData, langTools, uiConfig, options }: DisplayDataProps,
+  ): string {
+    if (!node.item.dataModelBindings?.simpleBinding) {
       return '';
     }
 
-    return useSelectedValueToText(node.item, value) || '';
+    const value = formData[node.item.dataModelBindings.simpleBinding] || '';
+    const optionList = getOptionList(node.item, langTools.textResources, formData, uiConfig.repeatingGroups, options);
+    return getSelectedValueToText(value, langTools, optionList) || '';
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'Likert'>): JSX.Element | null {
@@ -47,10 +48,16 @@ export class Likert extends FormComponent<'Likert'> {
 
 export const Config = {
   def: new Likert(),
+  rendersWithLabel: false as const,
 };
 
 export type TypeConfig = {
   layout: ILayoutCompLikert;
   nodeItem: ExprResolved<ILayoutCompLikert>;
   nodeObj: LayoutNode;
+  // TODO: description/help only works on mobile, as it uses the ControlledRadioGroup component
+  // Ideally, it should be possible to use it on desktop as well, or the mobile mode should also not display
+  // anything here. Fixing this requires some refactoring.
+  validTextResourceBindings: 'title' | 'description' | 'help';
+  validDataModelBindings: IDataModelBindingsSimple;
 };

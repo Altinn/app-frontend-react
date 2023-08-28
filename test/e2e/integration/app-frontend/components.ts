@@ -2,10 +2,8 @@ import path from 'path';
 
 import texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
-import { Common } from 'test/e2e/pageobjects/common';
 
 const appFrontend = new AppFrontend();
-const mui = new Common();
 
 describe('UI Components', () => {
   it('Image component with help text', () => {
@@ -48,8 +46,10 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.uploadingAnimation).should('be.visible');
     cy.get(appFrontend.changeOfName.uploadSuccess).should('exist');
 
-    const loadScript = '<script> setTimeout(() => location.reload(), 1000); </script>';
-    cy.get('body').invoke('append', loadScript);
+    cy.window().then((win) => {
+      setTimeout(() => win.location.reload(), 1000);
+    });
+
     cy.get(appFrontend.changeOfName.downloadAttachment).click();
 
     const downloadsFolder = Cypress.config('downloadsFolder');
@@ -66,14 +66,14 @@ describe('UI Components', () => {
       force: true,
     });
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('be.visible');
-    cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).select('address');
+    cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).dsSelect('Adresse');
     cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
     cy.wait('@saveTags');
     cy.get(appFrontend.changeOfName.uploadWithTag.uploaded).then((table) => {
       cy.wrap(table).should('be.visible');
-      cy.wrap(table).find(mui.tableBody).find('tr').should('have.length', 1);
-      cy.wrap(table).find(mui.tableBody).find(mui.tableElement).eq(1).should('have.text', 'Adresse');
-      cy.wrap(table).find(mui.tableBody).find(mui.tableElement).last().find('button').click();
+      cy.wrap(table).find('tbody').find('tr').should('have.length', 1);
+      cy.wrap(table).find('tbody > tr > td').eq(2).should('have.text', 'Adresse');
+      cy.wrap(table).find('tbody > tr > td').last().find('button').click();
     });
     cy.snapshot('components:attachment-with-tags');
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).find('button:contains("Slett")').click();
@@ -88,12 +88,13 @@ describe('UI Components', () => {
       force: true,
     });
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('be.visible');
-    cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).select('address');
+    cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).dsSelect('Adresse');
     cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
     cy.wait('@saveTags');
 
-    const loadScript = '<script> setTimeout(() => location.reload(), 1000); </script>';
-    cy.get('body').invoke('append', loadScript);
+    cy.window().then((win) => {
+      setTimeout(() => win.location.reload(), 1000);
+    });
 
     cy.get(appFrontend.changeOfName.downloadAttachment).click();
 
@@ -167,11 +168,26 @@ describe('UI Components', () => {
 
   it('address component fetches post place from zip code', () => {
     cy.goto('changename');
+
+    // Mock zip code API, so that we don't rely on external services for our tests
+    cy.intercept('GET', 'https://api.bring.com/shippingguide/api/postalCode.json**', (req) => {
+      req.reply((res) => {
+        res.send({
+          body: {
+            postalCodeType: 'NORMAL',
+            result: 'KARDEMOMME BY', // Intentionally wrong, to test that our mock is used
+            valid: true,
+          },
+        });
+      });
+    }).as('zipCodeApi');
+
     cy.get(appFrontend.changeOfName.address.street_name).type('Sesame Street 1A');
     cy.get(appFrontend.changeOfName.address.street_name).blur();
-    cy.get(appFrontend.changeOfName.address.zip_code).type('0174');
+    cy.get(appFrontend.changeOfName.address.zip_code).type('0123');
     cy.get(appFrontend.changeOfName.address.zip_code).blur();
-    cy.get(appFrontend.changeOfName.address.post_place).should('have.value', 'OSLO');
+    cy.get(appFrontend.changeOfName.address.post_place).should('have.value', 'KARDEMOMME BY');
+    cy.get('@zipCodeApi').its('request.url').should('include', '0123');
   });
 
   it('radios, checkboxes and other components can be readOnly', () => {
@@ -292,22 +308,55 @@ describe('UI Components', () => {
     });
   });
 
-  it('should countdown remaining letters', () => {
-    cy.goto('changename');
-    cy.get('#form-content-newFirstName').contains('Du har 4 tegn igjen');
-    cy.get(appFrontend.changeOfName.newFirstName).type('Per');
-    cy.get('#form-content-newFirstName').contains('Du har 1 tegn igjen');
-    cy.get(appFrontend.changeOfName.newFirstName).type('r');
-    cy.get('#form-content-newFirstName').contains('Du har 0 tegn igjen');
-    cy.get(appFrontend.changeOfName.newFirstName).type('r');
-    cy.get('#form-content-newFirstName').contains('Du har overskredet maks antall tegn med 1');
+  [4, 5].forEach((maxLength) => {
+    it(`should countdown remaining letters of ${maxLength} and display validation`, () => {
+      cy.interceptLayout('changename', (component) => {
+        if (component.type === 'Input' && component.id === 'newFirstName') {
+          component.maxLength = maxLength;
+        }
+      });
 
-    // This field triggers validation, but the countdown error is not yet visible in the error report, because this
-    // countdown circumvents the normal validation flow and is not affected by triggers.
-    // @see https://github.com/Altinn/app-frontend-react/issues/1263
-    cy.get(appFrontend.errorReport).should('be.visible');
-    cy.get(appFrontend.errorReport).should('contain.text', 'Må summeres opp til 100%');
-    cy.get(appFrontend.errorReport).should('not.contain.text', 'Du har overskredet maks antall tegn med 1');
-    cy.snapshot('components:text-countdown');
+      cy.goto('changename');
+      cy.get('#form-content-newFirstName').contains(`Du har ${maxLength} av ${maxLength} tegn igjen`);
+      cy.get(appFrontend.changeOfName.newFirstName).type('Per');
+      cy.get('#form-content-newFirstName').contains(`Du har ${maxLength - 3} av ${maxLength} tegn igjen`);
+      cy.get(appFrontend.changeOfName.newFirstName).type('r');
+      cy.get('#form-content-newFirstName').contains(`Du har ${maxLength - 4} av ${maxLength} tegn igjen`);
+      cy.get(appFrontend.changeOfName.newFirstName).type('rrr');
+      cy.get('#form-content-newFirstName').contains(`Du har overskredet maks antall tegn med ${7 - maxLength}`);
+
+      // Display data model validation below component if maxLength in layout and datamodel is different
+      if (maxLength !== 4) {
+        cy.get('#form-content-newFirstName').should('contain', 'Bruk 4 eller færre tegn');
+      } else {
+        cy.get('#form-content-newFirstName').should('not.contain', 'Bruk 4 eller færre tegn');
+      }
+      cy.get(appFrontend.errorReport).should('be.visible');
+      cy.get(appFrontend.errorReport).should('contain.text', 'Må summeres opp til 100%');
+      cy.get(appFrontend.errorReport).should('contain.text', 'Bruk 4 eller færre tegn');
+    });
+  });
+
+  it('should remember values after refreshing', () => {
+    cy.goto('changename');
+    cy.get(appFrontend.changeOfName.dateOfEffect).should('have.value', '');
+    cy.fillOut('changename');
+    cy.gotoNavPage('form');
+
+    cy.get(appFrontend.changeOfName.sources).dsSelect('Digitaliseringsdirektoratet');
+    cy.get(appFrontend.changeOfName.reference).dsSelect('Sophie Salt');
+    cy.get(appFrontend.changeOfName.reference2).dsSelect('Dole');
+    cy.reloadAndWait();
+
+    cy.get(appFrontend.changeOfName.newFirstName).should('have.value', 'a');
+    cy.get(appFrontend.changeOfName.newLastName).should('have.value', 'a');
+    cy.get(appFrontend.changeOfName.confirmChangeName).find('input').should('be.checked');
+    cy.get(appFrontend.changeOfName.reasonRelationship).should('have.value', 'test');
+    cy.get(appFrontend.changeOfName.dateOfEffect).should('not.have.value', '');
+    cy.get('#form-content-fileUpload-changename').find('td').first().should('contain.text', 'test.pdf');
+
+    cy.get(appFrontend.changeOfName.sources).should('have.value', 'Digitaliseringsdirektoratet');
+    cy.get(appFrontend.changeOfName.reference).should('have.value', 'Sophie Salt');
+    cy.get(appFrontend.changeOfName.reference2).should('have.value', 'Dole');
   });
 });

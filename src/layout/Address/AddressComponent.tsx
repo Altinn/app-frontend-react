@@ -3,16 +3,15 @@ import React from 'react';
 import { TextField } from '@digdir/design-system-react';
 import axios from 'axios';
 
+import { Label } from 'src/components/form/Label';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useLanguage } from 'src/hooks/useLanguage';
+import classes from 'src/layout/Address/AddressComponent.module.css';
 import { useStateDeepEqual } from 'src/hooks/useStateDeepEqual';
-import { AddressLabel } from 'src/layout/Address/AddressLabel';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { IComponentValidations } from 'src/types';
-
-import 'src/layout/Address/AddressComponent.css';
+import type { IComponentValidations } from 'src/utils/validation/types';
 
 export type IAddressComponentProps = PropsFromGenericComponent<'AddressComponent'>;
 
@@ -147,7 +146,7 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
         if (axios.isCancel(err)) {
           // Intentionally ignored
         } else {
-          console.error(err);
+          window.logError(`AddressComponent (${id}):\n`, err);
         }
       }
     };
@@ -156,7 +155,7 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
     return function cleanup() {
       source.cancel('ComponentWillUnmount');
     };
-  }, [formData.zipCode, langAsString, source, onSaveField, validations, setPostPlace, setValidations]);
+  }, [formData.zipCode, langAsString, source, onSaveField, validations, setPostPlace, id]);
 
   const updateField = (key: AddressKeys, saveImmediately: boolean, event: any): void => {
     const changedFieldValue: string = event.target.value;
@@ -232,12 +231,13 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
 
   return (
     <div
-      className='address-component'
+      className={classes.addressComponent}
       key={`address_component_${id}`}
     >
       <div>
-        <AddressLabel
-          labelKey={'address_component.address'}
+        <Label
+          labelText={lang('address_component.address')}
+          helpText={undefined}
           id={`address_address_${id}`}
           required={required}
           readOnly={readOnly}
@@ -261,8 +261,9 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
 
       {!simplified && (
         <div>
-          <AddressLabel
-            labelKey={'address_component.care_of'}
+          <Label
+            labelText={lang('address_component.care_of')}
+            helpText={undefined}
             id={`address_care_of_${id}`}
             required={required}
             readOnly={readOnly}
@@ -284,16 +285,17 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
         </div>
       )}
 
-      <div className='address-component-postplace-zipCode'>
-        <div className='address-component-zipCode'>
-          <AddressLabel
-            labelKey='address_component.zip_code'
+      <div className={classes.addressComponentPostplaceZipCode}>
+        <div className={classes.addressComponentZipCode}>
+          <Label
+            labelText={lang('address_component.zip_code')}
+            helpText={undefined}
             id={`address_zip_code_${id}`}
             required={required}
             readOnly={readOnly}
             labelSettings={labelSettings}
           />
-          <div className={'address-component-small-inputs'}>
+          <div className={classes.addressComponentSmallInputs}>
             <TextField
               id={`address_zip_code_${id}`}
               isValid={allValidations.zipCode?.errors?.length === 0}
@@ -312,9 +314,10 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
             : null}
         </div>
 
-        <div className='address-component-postplace'>
-          <AddressLabel
-            labelKey='address_component.post_place'
+        <div className={classes.addressComponentPostplace}>
+          <Label
+            labelText={lang('address_component.post_place')}
+            helpText={undefined}
             id={`address_post_place_${id}`}
             required={required}
             readOnly={true}
@@ -339,15 +342,16 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
 
       {!simplified && (
         <div>
-          <AddressLabel
-            labelKey='address_component.house_number'
+          <Label
+            labelText={lang('address_component.house_number')}
+            helpText={undefined}
             id={`address_house_number_${id}`}
             required={required}
             readOnly={readOnly}
             labelSettings={labelSettings}
           />
           <p>{lang('address_component.house_number_helper')}</p>
-          <div className={'address-component-small-inputs'}>
+          <div className={classes.addressComponentSmallInputs}>
             <TextField
               id={`address_house_number_${id}`}
               isValid={allValidations.houseNumber?.errors?.length === 0}

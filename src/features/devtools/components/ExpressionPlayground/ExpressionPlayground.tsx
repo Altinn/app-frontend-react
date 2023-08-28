@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
 
-import { Checkbox, FieldSet, Select, Tabs } from '@digdir/design-system-react';
+import { Checkbox, Fieldset, Select, Tabs } from '@digdir/design-system-react';
 import cn from 'classnames';
 
 import classes from 'src/features/devtools/components/ExpressionPlayground/ExpressionPlayground.module.css';
@@ -54,7 +54,7 @@ export const ExpressionPlayground = () => {
       if (lastOutput.value === newValue && lastOutput.isError === isError) {
         return false;
       }
-      const newOutputs = [{ value: newValue, isError }, ...outputs];
+      const newOutputs = [{ value: newValue, isError }, ...outputs.filter((o) => (!isError ? !o.isError : true))];
       setOutputs(newOutputs.slice(0, 10));
       return true;
     },
@@ -67,7 +67,9 @@ export const ExpressionPlayground = () => {
 
   useEffect(() => {
     if (!input || input.length <= 0) {
-      setOutputs([{ value: '', isError: false }]);
+      if (!outputs[0] || outputs[0]?.value !== '') {
+        setOutputs([{ value: '', isError: false }]);
+      }
       return;
     }
 
@@ -125,7 +127,9 @@ export const ExpressionPlayground = () => {
         setOutputWithHistory(JSON.stringify(out), false);
       }
     } catch (e) {
-      setOutputs([{ value: e.message, isError: true }]);
+      if (!outputs[0] || outputs[0]?.value !== e.message) {
+        setOutputs([{ value: e.message, isError: true }]);
+      }
     }
   }, [input, forPage, forComponentId, formData, mostDataSources, nodes, showAllSteps, outputs, setOutputWithHistory]);
 
@@ -175,7 +179,7 @@ export const ExpressionPlayground = () => {
           )}
         </SplitView>
         <div className={classes.rightColumn}>
-          <FieldSet legend={'Kjør uttrykk i kontekst av komponent'}>
+          <Fieldset legend={'Kjør uttrykk i kontekst av komponent'}>
             <Select
               value={`${forPage}|${forComponentId}`}
               onChange={(value) => {
@@ -212,13 +216,15 @@ export const ExpressionPlayground = () => {
                   resetOutputHistory();
                   setShowAllSteps(ev.target.checked);
                 }}
-                label={'Vis alle steg i evalueringen'}
-              />
+                value='nothing'
+              >
+                Vis alle steg i evalueringen
+              </Checkbox>
             </div>
-          </FieldSet>
+          </Fieldset>
           <br />
           <br />
-          <FieldSet legend={'Dokumentasjon'}>
+          <Fieldset legend={'Dokumentasjon'}>
             Les mer om uttrykk{' '}
             <a
               href={'https://docs.altinn.studio/nb/app/development/logic/expressions/'}
@@ -227,7 +233,7 @@ export const ExpressionPlayground = () => {
             >
               i dokumentasjonen
             </a>
-          </FieldSet>
+          </Fieldset>
         </div>
       </SplitView>
     </div>

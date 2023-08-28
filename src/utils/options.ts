@@ -1,4 +1,4 @@
-import { getParsedLanguageFromText, replaceTextResourceParams } from 'src/language/sharedLanguage';
+import { replaceTextResourceParams } from 'src/language/sharedLanguage';
 import {
   getBaseGroupDataModelBindingFromKeyWithIndexIndicators,
   getGroupDataModelBinding,
@@ -8,17 +8,23 @@ import {
 } from 'src/utils/databindings';
 import type { IFormData } from 'src/features/formData';
 import type { IOptionResources } from 'src/hooks/useGetOptions';
-import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { ILayout } from 'src/layout/layout';
 import type { IMapping, IOption, IOptions, IOptionsMetaData, IOptionSource, IRepeatingGroups } from 'src/types';
 import type { IDataSources } from 'src/types/shared';
 
-export function getOptionLookupKey({ id, mapping }: IOptionsMetaData) {
-  if (!mapping) {
+export function getOptionLookupKey({ id, mapping, fixedQueryParameters }: IOptionsMetaData) {
+  if (!mapping && !fixedQueryParameters) {
     return id;
   }
 
-  return JSON.stringify({ id, mapping });
+  const keyObject: any = { id };
+  if (mapping) {
+    keyObject.mapping = mapping;
+  }
+  if (fixedQueryParameters) {
+    keyObject.fixedQueryParameters = fixedQueryParameters;
+  }
+  return JSON.stringify(keyObject);
 }
 
 interface IGetOptionLookupKeysParam extends IOptionsMetaData {
@@ -33,6 +39,7 @@ interface IOptionLookupKeys {
 export function getOptionLookupKeys({
   id,
   mapping,
+  fixedQueryParameters,
   secure,
   repeatingGroups,
 }: IGetOptionLookupKeysParam): IOptionLookupKeys {
@@ -52,17 +59,17 @@ export function getOptionLookupKeys({
         };
         delete newMapping[mappingKey];
         newMapping[newMappingKey] = mapping[mappingKey];
-        lookupKeys.push({ id, mapping: newMapping, secure });
+        lookupKeys.push({ id, mapping: newMapping, fixedQueryParameters, secure });
       }
     });
 
     return {
       keys: lookupKeys,
-      keyWithIndexIndicator: { id, mapping, secure },
+      keyWithIndexIndicator: { id, mapping, fixedQueryParameters, secure },
     };
   }
 
-  lookupKeys.push({ id, mapping, secure });
+  lookupKeys.push({ id, mapping, fixedQueryParameters, secure });
   return {
     keys: lookupKeys,
   };
@@ -215,14 +222,4 @@ export function duplicateOptionFilter(currentOption: IOption, currentIndex: numb
     }
   }
   return true;
-}
-
-export function formatLabelForSelect(option: IOption, langAsString: IUseLanguage['langAsString']): React.ReactNode {
-  if (option.description) {
-    return getParsedLanguageFromText(
-      `<b>${langAsString(option.label ?? option.value)}</b><br><span>${langAsString(option.description)}</span>`,
-    );
-  } else {
-    return getParsedLanguageFromText(`<span>${langAsString(option.label ?? option.value)}</span>`);
-  }
 }

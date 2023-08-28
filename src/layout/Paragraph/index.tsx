@@ -12,17 +12,20 @@ export class Paragraph extends PresentationComponent<'Paragraph'> {
     return <ParagraphComponent {...props} />;
   }
 
-  renderWithLabel(): boolean {
-    return false;
+  canRenderInAccordion(): boolean {
+    return true;
   }
 }
 
 export const Config = {
   def: new Paragraph(),
+  rendersWithLabel: false as const,
 };
 
 export type TypeConfig = {
   layout: ILayoutCompParagraph;
   nodeItem: ExprResolved<ILayoutCompParagraph>;
   nodeObj: LayoutNode;
+  validTextResourceBindings: 'title' | 'help';
+  validDataModelBindings: undefined;
 };

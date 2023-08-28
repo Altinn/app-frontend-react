@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
 
-import { Button, ButtonSize, ButtonVariant } from '@digdir/design-system-react';
+import { Button } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
 import { Add as AddIcon } from '@navikt/ds-icons';
 
@@ -75,8 +75,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
       id={`add-button-${id}`}
       onClick={handleOnAddButtonClick}
       onKeyUp={handleOnAddKeypress}
-      variant={ButtonVariant.Outline}
-      size={ButtonSize.Medium}
+      variant='outline'
       icon={<AddIcon aria-hidden='true' />}
       iconPlacement='left'
       fullWidth
@@ -166,7 +165,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
   const isNested = node.parent instanceof LayoutNode;
 
   if (edit?.mode === 'likert') {
-    return <RepeatingGroupsLikertContainer id={id} />;
+    return <RepeatingGroupsLikertContainer node={node} />;
   }
 
   const displayBtn =

@@ -2,15 +2,14 @@ import React from 'react';
 
 import { formatNumericText } from '@digdir/design-system-react';
 
-import { FD } from 'src/features/formData2/Compatibility';
-import { useMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
+import { getMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
 import { InputComponent } from 'src/layout/Input/InputComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutCompInput } from 'src/layout/Input/types';
-import type { IInputFormatting } from 'src/layout/layout';
+import type { IDataModelBindingsSimple, IInputFormatting, TextBindingsForFormComponents } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -20,13 +19,19 @@ export class Input extends FormComponent<'Input'> {
     return <InputComponent {...props} />;
   }
 
-  useDisplayData(node: LayoutNodeFromType<'Input'>): string {
-    const text = FD.usePick(node.item.dataModelBindings?.simpleBinding);
-    if (typeof text !== 'string') {
+  getDisplayData(node: LayoutNodeFromType<'Input'>, { formData, langTools }): string {
+    if (!node.item.dataModelBindings?.simpleBinding) {
       return '';
     }
 
-    const numberFormatting = useMapToReactNumberConfig(node.item.formatting as IInputFormatting, text);
+    const text = formData[node.item.dataModelBindings.simpleBinding] || '';
+
+    const numberFormatting = getMapToReactNumberConfig(
+      node.item.formatting as IInputFormatting | undefined,
+      text,
+      langTools,
+    );
+
     if (numberFormatting?.number) {
       return formatNumericText(text, numberFormatting.number);
     }
@@ -42,10 +47,13 @@ export class Input extends FormComponent<'Input'> {
 
 export const Config = {
   def: new Input(),
+  rendersWithLabel: true as const,
 };
 
 export type TypeConfig = {
   layout: ILayoutCompInput;
   nodeItem: ExprResolved<ILayoutCompInput>;
   nodeObj: LayoutNode;
+  validTextResourceBindings: TextBindingsForFormComponents;
+  validDataModelBindings: IDataModelBindingsSimple;
 };

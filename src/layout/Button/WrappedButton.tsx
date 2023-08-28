@@ -1,14 +1,14 @@
 import React from 'react';
 
-import { Button, ButtonColor, ButtonVariant } from '@digdir/design-system-react';
+import { Button } from '@digdir/design-system-react';
 
 import { ButtonLoader } from 'src/layout/Button/ButtonLoader';
-import classes from 'src/layout/Button/WrappedButton.module.css';
 
 export interface BaseButtonProps {
   onClick: (...args) => void;
   busyWithId?: string | null;
   disabled?: boolean;
+  message?: string;
 }
 
 export interface ButtonProps extends BaseButtonProps {
@@ -16,19 +16,23 @@ export interface ButtonProps extends BaseButtonProps {
   children: React.ReactNode;
 }
 
+export type ButtonVariant = Parameters<typeof Button>[0]['variant'];
+export type ButtonColor = Parameters<typeof Button>[0]['color'];
+
 interface Props extends ButtonProps {
   variant?: ButtonVariant;
   color?: ButtonColor;
 }
 
 export const WrappedButton = ({
-  variant = ButtonVariant.Outline,
-  color = ButtonColor.Primary,
+  variant = 'outline',
+  color = 'primary',
   onClick,
   id,
   children,
   busyWithId,
   disabled,
+  message,
 }: Props) => {
   const somethingIsLoading = !!busyWithId;
   const thisIsLoading = busyWithId === id;
@@ -38,16 +42,21 @@ export const WrappedButton = ({
     }
   };
   return (
-    <Button
-      className={thisIsLoading ? classes.loading : undefined}
-      variant={variant}
-      color={color}
-      onClick={handleClick}
-      id={id}
-      disabled={disabled}
-    >
-      {children}
-      {thisIsLoading && <ButtonLoader />}
-    </Button>
+    <>
+      <ButtonLoader isLoading={thisIsLoading}>
+        <Button
+          data-is-loading={thisIsLoading ? 'true' : 'false'}
+          size='small'
+          variant={variant}
+          color={color}
+          onClick={handleClick}
+          id={id}
+          disabled={disabled || thisIsLoading}
+        >
+          {children}
+        </Button>
+      </ButtonLoader>
+      {message && <span style={{ position: 'absolute' }}>{message}</span>}
+    </>
   );
 };

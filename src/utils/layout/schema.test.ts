@@ -1,12 +1,16 @@
 import Ajv from 'ajv';
+import addFormats from 'ajv-formats';
 import dotenv from 'dotenv';
+import JsonPointer from 'jsonpointer';
 import fs from 'node:fs';
+import applicationMetadataSchema from 'schemas/json/application/application-metadata.schema.v1.json';
 import numberFormatSchema from 'schemas/json/component/number-format.schema.v1.json';
 import expressionSchema from 'schemas/json/layout/expression.schema.v1.json';
 import layoutSchema from 'schemas/json/layout/layout.schema.v1.json';
+import textResourcesSchema from 'schemas/json/text-resources/text-resources.schema.v1.json';
 import type { ErrorObject } from 'ajv';
 
-import { getAllLayoutSets } from 'src/utils/layout/getAllLayoutSets';
+import { getAllApps, getAllLayoutSets } from 'src/utils/layout/getAllLayoutSets';
 
 describe('Layout schema', () => {
   describe('All schemas should be valid', () => {
@@ -74,6 +78,99 @@ describe('Layout schema', () => {
           expect(ignoreSomeErrors(validate.errors)).toEqual([]);
         });
       }
+    }
+  });
+
+  describe('All known text resource files should validate against the text resource schema', () => {
+    const env = dotenv.config();
+    const dir = env.parsed?.ALTINN_ALL_APPS_DIR;
+    if (!dir) {
+      it('did not find any apps', () => {
+        expect(true).toBeTruthy();
+      });
+      console.warn(
+        'ALTINN_ALL_APPS_DIR should be set, please create a .env file and point it to a directory containing all known apps',
+      );
+      return;
+    }
+
+    const ajv = new Ajv();
+    const validate = ajv.compile(textResourcesSchema);
+
+    for (const app of getAllApps(dir)) {
+      const folder = `${dir}/${app}/App/config/texts/`;
+      if (!fs.existsSync(folder)) {
+        continue;
+      }
+      const resourceFiles = fs.readdirSync(folder);
+      for (const resourceFile of resourceFiles) {
+        if (!resourceFile.match(/^resource\.[a-z]{2}\.json$/)) {
+          continue;
+        }
+        let resources: any;
+        try {
+          const content = fs.readFileSync(`${folder}/${resourceFile}`, 'utf-8');
+          resources = JSON.parse(content);
+        } catch (e) {
+          console.error(`Failed to parse ${folder}/${resourceFile}`, e);
+          continue;
+        }
+
+        it(`${app}/${resourceFile}`, () => {
+          validate(resources);
+          expect(
+            (validate.errors || []).map((err) => {
+              const pointer = JsonPointer.compile(err.instancePath);
+              const value = pointer.get(resources);
+              return { ...err, value };
+            }),
+          ).toEqual([]);
+        });
+      }
+    }
+  });
+
+  describe('All known applicationmetadata files should validate against the applicationmetadata schema', () => {
+    const env = dotenv.config();
+    const dir = env.parsed?.ALTINN_ALL_APPS_DIR;
+    if (!dir) {
+      it('did not find any apps', () => {
+        expect(true).toBeTruthy();
+      });
+      console.warn(
+        'ALTINN_ALL_APPS_DIR should be set, please create a .env file and point it to a directory containing all known apps',
+      );
+      return;
+    }
+
+    const ajv = new Ajv();
+    addFormats(ajv);
+    const validate = ajv.compile(applicationMetadataSchema);
+
+    for (const app of getAllApps(dir)) {
+      const metaDataFile = `${dir}/${app}/App/config/applicationmetadata.json`;
+      if (!fs.existsSync(metaDataFile)) {
+        continue;
+      }
+      let metadata: any;
+      try {
+        const content = fs.readFileSync(metaDataFile, 'utf-8');
+        metadata = JSON.parse(content);
+      } catch (e) {
+        console.error(`Failed to parse ${metaDataFile}`, e);
+        continue;
+      }
+
+      it(metaDataFile, () => {
+        validate(metadata);
+        expect(
+          (validate.errors || []).map((err) => {
+            const pointer = JsonPointer.compile(err.instancePath);
+            const value = pointer.get(metadata);
+            return { ...err, value };
+          }),
+        ).toEqual([]);
+      });
     }
   });
 });

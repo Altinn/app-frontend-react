@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { FieldSet } from '@digdir/design-system-react';
+import { LegacyFieldSet } from '@digdir/design-system-react';
 import cn from 'classnames';
-import type { RadioButton } from '@digdir/design-system-react';
+import type { LegacyRadioButton } from '@digdir/design-system-react';
 
 import classes from 'src/components/form/RadioGroup.module.css';
 
@@ -11,8 +11,9 @@ export interface IRadioGroupProps {
   description?: React.ReactNode;
   helpText?: React.ReactNode;
   error?: React.ReactNode;
-  children: React.ReactElement<typeof RadioButton> | React.ReactElement<typeof RadioButton>[];
+  children: React.ReactElement<typeof LegacyRadioButton> | React.ReactElement<typeof LegacyRadioButton>[];
   shouldDisplayHorizontally?: boolean;
+  disabled?: boolean;
 }
 
 export const RadioGroup = ({
@@ -22,12 +23,14 @@ export const RadioGroup = ({
   children,
   error,
   shouldDisplayHorizontally,
+  disabled = false,
 }: IRadioGroupProps) => (
-  <FieldSet
+  <LegacyFieldSet
     legend={legend}
     description={description}
     helpText={helpText}
     error={error}
+    disabled={disabled}
   >
     <div
       role='radiogroup'
@@ -37,5 +40,5 @@ export const RadioGroup = ({
     >
       {children}
     </div>
-  </FieldSet>
+  </LegacyFieldSet>
 );

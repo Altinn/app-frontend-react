@@ -1,16 +1,29 @@
 import React from 'react';
 
 import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspector/DefaultNodeInspector';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import {
+  type DisplayData,
+  type DisplayDataProps,
+  type EmptyFieldValidation,
+  getDisplayDataPropsFromState,
+  type PropsFromGenericComponent,
+  type SchemaValidation,
+} from 'src/layout/index';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
+import { getFieldName } from 'src/utils/formComponentUtils';
 import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
+import { buildValidationObject } from 'src/utils/validation/validationHelpers';
+import type { IFormData } from 'src/features/formData';
 import type { ComponentTypeConfigs } from 'src/layout/components';
-import type { PropsFromGenericComponent } from 'src/layout/index';
-import type { ComponentTypes } from 'src/layout/layout';
+import type { ComponentTypes, ITextResourceBindings } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { AnyItem, HierarchyDataSources, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { ISchemaValidationError } from 'src/utils/validation/schemaValidation';
+import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
 
 /**
  * This enum is used to distinguish purely presentational components
@@ -25,7 +38,7 @@ export enum ComponentType {
 
 const defaultGenerator = new SimpleComponentHierarchyGenerator();
 
-abstract class AnyComponent<Type extends ComponentTypes> {
+export abstract class AnyComponent<Type extends ComponentTypes> {
   /**
    * Given properties from GenericComponent, render this layout component
    */
@@ -46,11 +59,8 @@ abstract class AnyComponent<Type extends ComponentTypes> {
     return false;
   }
 
-  /**
-   * Return false to render this component without the label (in GenericComponent.tsx)
-   */
-  renderWithLabel(): boolean {
-    return true;
+  shouldRenderInAutomaticPDF(node: LayoutNodeFromType<Type>): boolean {
+    return !node.item.renderAsSummary;
   }
 
   /**
@@ -64,6 +74,20 @@ abstract class AnyComponent<Type extends ComponentTypes> {
    * Return true to allow this component to be rendered in a ButtonGroup
    */
   canRenderInButtonGroup(): boolean {
+    return false;
+  }
+
+  /**
+   * Return true to allow this component to be rendered in an Accordion
+   */
+  canRenderInAccordion(): boolean {
+    return false;
+  }
+
+  /**
+   * Return true to allow this component to be rendered in an AccordionGroup
+   */
+  canRenderInAccordionGroup(): boolean {
     return false;
   }
 
@@ -108,7 +132,7 @@ export interface SummaryRendererProps<Type extends ComponentTypes> {
   overrides?: ISummaryComponent['overrides'];
 }
 
-abstract class _FormComponent<Type extends ComponentTypes> extends AnyComponent<Type> {
+abstract class _FormComponent<Type extends ComponentTypes> extends AnyComponent<Type> implements DisplayData<Type> {
   /**
    * Given a node (with group-index-aware data model bindings), this method should return a proper 'value' for the
    * current component/node. This value will be used to display form data in a repeating group table, and when rendering
@@ -116,7 +140,12 @@ abstract class _FormComponent<Type extends ComponentTypes> extends AnyComponent<
    * @see renderSummary
    * @see renderCompactSummary
    */
-  abstract useDisplayData(node: LayoutNodeFromType<Type>): string;
+  abstract getDisplayData(node: LayoutNodeFromType<Type>, displayDataProps: DisplayDataProps): string;
+
+  useDisplayData(node: LayoutNodeFromType<Type>): string {
+    const displayDataProps = useAppSelector(getDisplayDataPropsFromState);
+    return this.getDisplayData(node, displayDataProps);
+  }
 
   /**
    * Render a summary for this component. For most components, this will return a:
@@ -149,10 +178,66 @@ abstract class _FormComponent<Type extends ComponentTypes> extends AnyComponent<
 
 export abstract class ActionComponent<Type extends ComponentTypes> extends AnyComponent<Type> {
   readonly type = ComponentType.Action;
+
+  shouldRenderInAutomaticPDF() {
+    return false;
+  }
 }
 
-export abstract class FormComponent<Type extends ComponentTypes> extends _FormComponent<Type> {
+export abstract class FormComponent<Type extends ComponentTypes>
+  extends _FormComponent<Type>
+  implements EmptyFieldValidation, SchemaValidation
+{
   readonly type = ComponentType.Form;
+
+  runEmptyFieldValidation(
+    node: LayoutNodeFromType<Type>,
+    { formData, langTools }: IValidationContext,
+    overrideFormData?: IFormData,
+  ): IValidationObject[] {
+    if (!node.item.required) {
+      return [];
+    }
+
+    const formDataToValidate = { ...formData, ...overrideFormData };
+    const validationObjects: IValidationObject[] = [];
+
+    const bindings = Object.entries(node.item.dataModelBindings ?? {});
+    for (const [bindingKey, field] of bindings) {
+      const data = formDataToValidate[field];
+
+      if (!data?.length) {
+        const fieldName = getFieldName(node.item.textResourceBindings as ITextResourceBindings, langTools, bindingKey);
+
+        validationObjects.push(
+          buildValidationObject(
+            node,
+            'errors',
+            langTools.langAsString('form_filler.error_required', [fieldName]),
+            bindingKey,
+          ),
+        );
+      }
+    }
+    return validationObjects;
+  }
+
+  runSchemaValidation(node: LayoutNodeFromType<Type>, schemaErrors: ISchemaValidationError[]): IValidationObject[] {
+    const validationObjects: IValidationObject[] = [];
+    for (const error of schemaErrors) {
+      if (node.item.dataModelBindings) {
+        const bindings = Object.entries(node.item.dataModelBindings);
+        for (const [bindingKey, bindingField] of bindings) {
+          if (bindingField === error.bindingField) {
+            validationObjects.push(
+              buildValidationObject(node, 'errors', error.message, bindingKey, error.invalidDataType),
+            );
+          }
+        }
+      }
+    }
+    return validationObjects;
+  }
 }
 
 export abstract class ContainerComponent<Type extends ComponentTypes> extends _FormComponent<Type> {

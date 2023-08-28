@@ -5,18 +5,31 @@ import { Select } from '@digdir/design-system-react';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
+import { useFormattedOptions } from 'src/hooks/useFormattedOptions';
 import { useGetOptions } from 'src/hooks/useGetOptions';
 import { useHasChangedIgnoreUndefined } from 'src/hooks/useHasChangedIgnoreUndefined';
 import { useLanguage } from 'src/hooks/useLanguage';
-import { duplicateOptionFilter, formatLabelForSelect, getOptionLookupKey } from 'src/utils/options';
+import { duplicateOptionFilter, getOptionLookupKey } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IDropdownProps = PropsFromGenericComponent<'Dropdown'>;
 
 export function DropdownComponent({ node, formData, handleDataChange, isValid, overrideDisplay }: IDropdownProps) {
-  const { optionsId, preselectedOptionIndex, id, readOnly, mapping, source, textResourceBindings } = node.item;
+  const {
+    optionsId,
+    options: staticOptions,
+    preselectedOptionIndex,
+    id,
+    readOnly,
+    mapping,
+    queryParameters,
+    source,
+    textResourceBindings,
+  } = node.item;
   const { langAsString } = useLanguage();
-  const options = useGetOptions({ optionsId, mapping, source })?.filter(duplicateOptionFilter);
+  const options = (useGetOptions({ optionsId, mapping, queryParameters, source }) || staticOptions)?.filter(
+    duplicateOptionFilter,
+  );
   const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });
   const fetchingOptions = useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading);
   const hasSelectedInitial = React.useRef(false);
@@ -47,15 +60,7 @@ export function DropdownComponent({ node, formData, handleDataChange, isValid, o
     }
   }, [optionsHasChanged, formData, setValue]);
 
-  const optionsMap = React.useMemo(
-    () =>
-      options?.map((option) => ({
-        label: langAsString(option.label ?? option.value),
-        formattedLabel: formatLabelForSelect(option, langAsString),
-        value: option.value,
-      })) || [],
-    [langAsString, options],
-  );
+  const formattedOptions = useFormattedOptions(options);
 
   return (
     <>
@@ -71,7 +76,7 @@ export function DropdownComponent({ node, formData, handleDataChange, isValid, o
           value={value}
           disabled={readOnly}
           error={!isValid}
-          options={optionsMap}
+          options={formattedOptions}
           aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
         />
       )}

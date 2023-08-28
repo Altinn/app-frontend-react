@@ -3,6 +3,9 @@ import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { Common } from 'test/e2e/pageobjects/common';
 
 import { Triggers } from 'src/types';
+import { BackendValidationSeverity } from 'src/utils/validation/backendValidationSeverity';
+import type { ILayoutCompInput } from 'src/layout/Input/types';
+import type { BackendValidationIssue } from 'src/utils/validation/types';
 
 const appFrontend = new AppFrontend();
 const mui = new Common();
@@ -79,13 +82,12 @@ describe('Validation', () => {
       const field = appFrontend.changeOfName.newMiddleName;
       cy.get(field).clear();
       cy.get(field).type(value);
-      cy.get(appFrontend.fieldValidation(field, realType)).should('have.text', message);
+      cy.get(`#form-content-newMiddleName`).findByRole('alert', { name: message }).should('exist');
 
       // Should not have any other messages
-      for (const otherType of Object.keys(validationTypeMap)) {
-        const realOtherType = otherType as keyof typeof validationTypeMap;
-        if (realOtherType !== realType) {
-          cy.get(appFrontend.fieldValidation(field, realOtherType)).should('not.exist');
+      for (const [otherType, { message: otherMessage }] of Object.entries(validationTypeMap)) {
+        if (otherType !== realType) {
+          cy.findByRole('alert', { name: otherMessage }).should('not.exist');
         }
       }
     }
@@ -109,11 +111,11 @@ describe('Validation', () => {
       .should('contain.text', texts.next);
 
     // Make sure all the buttons in the form are now inside errorReport, not outside of it.
-    // - 4 of the button roles belong to each of the errors in the report
+    // - 5 of the button roles belong to each of the errors in the report
     // - 2 of the button roles belong to the buttons on the bottom of the form (print, next)
     cy.get(appFrontend.errorReport)
       .findAllByRole('button')
-      .should('have.length', 4 + 2);
+      .should('have.length', 5 + 2);
 
     const lastNameError = appFrontend.fieldValidation(appFrontend.changeOfName.newLastName);
     cy.get(lastNameError).should('exist').should('not.be.inViewport');
@@ -141,6 +143,24 @@ describe('Validation', () => {
 
     cy.get(lastNameError).should('exist').should('be.inViewport');
     cy.get(appFrontend.changeOfName.newLastName).should('be.focused');
+  });
+
+  it('Process should not continue if any validation fails, even if unmappable', () => {
+    cy.goto('changename');
+    cy.fillOut('changename');
+
+    cy.get(appFrontend.grid.bolig.percent).numberFormatClear();
+    cy.get(appFrontend.grid.studie.percent).numberFormatClear();
+    cy.get(appFrontend.grid.kredittkort.percent).numberFormatClear();
+    cy.get(appFrontend.grid.kredittkort.percent).type('44');
+    cy.get(appFrontend.grid.studie.percent).type('56');
+
+    // When filling out the credit card field with 44%, there is a special validation that triggers and is added to
+    // a field on a hidden page. Even though this should not happen, we should still not be able to continue, as
+    // submitting the form now when there is a validation error should not be possible - and attempting it will cause
+    // the dreaded 'unknown error' message to appear.
+    cy.get(appFrontend.sendinButton).click();
+    cy.get(appFrontend.errorReport).should('contain.text', 'Valideringsmelding på felt som aldri vises');
   });
 
   it('Validation on uploaded attachment type', () => {
@@ -218,6 +238,7 @@ describe('Validation', () => {
     for (const { text, shouldFocus } of expectedErrors) {
       cy.get(appFrontend.errorReport).should('contain.text', text);
       cy.get(`button:contains("${text}")`).click();
+      // eslint-disable-next-line cypress/unsafe-to-chain-command
       cy.focused().closest('[data-componentid]').should('have.attr', 'data-componentid', shouldFocus);
     }
   });
@@ -257,9 +278,36 @@ describe('Validation', () => {
     cy.get(appFrontend.group.comments).should('not.exist');
     cy.get(appFrontend.fieldValidation('comments')).should('not.exist');
     cy.get(appFrontend.errorReport).should('not.exist');
+
+    // Setting single field validation to trigger on the 'sendersName' component
+    cy.changeLayout((component: ILayoutCompInput) => {
+      if (component.id === 'sendersName' && component.type === 'Input') {
+        // Make sure changing this field triggers single field validation
+        component.triggers = [Triggers.Validation];
+      }
+    });
+
+    cy.intercept('GET', '**/validate', [
+      {
+        code: 'Tullevalidering',
+        description: 'Tullevalidering',
+        field: 'Endringsmelding-grp-9786.Avgiver-grp-9787.OppgavegiverNavn-datadef-68.value',
+        severity: BackendValidationSeverity.Error,
+        scope: null,
+        targetId: 'sendersName',
+      },
+    ] as BackendValidationIssue[]);
+
+    // Verify that validation message is shown, but also make sure only one error message is shown
+    // (there is a hidden layout that also binds to the same location, and a bug caused it to show
+    // up twice because of that component on the hidden layout)
+    cy.gotoNavPage('hide');
+    cy.get(appFrontend.group.sendersName).type('hello world');
+    cy.get(appFrontend.errorReport).should('contain.text', 'Tullevalidering');
+    cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 1);
   });
 
-  it('Validation messages should only show up once', () => {
+  it('List component: validation messages should only show up once', () => {
     cy.goto('datalist');
     cy.get(appFrontend.nextButton).click();
     cy.get(appFrontend.errorReport)
@@ -279,10 +327,13 @@ describe('Validation', () => {
 
     cy.get(appFrontend.group.prefill.liten).dsCheck();
     cy.get(appFrontend.group.prefill.stor).dsCheck();
-    cy.get(appFrontend.nextButton).click();
+    cy.get(appFrontend.nextButton).clickAndGone();
+    cy.navPage('repeating').should('have.attr', 'aria-current', 'page');
 
-    // Check that showGroupToContinue is focused
+    // Check that showGroupToContinue can be focused when clicked
     cy.get(appFrontend.nextButton).click();
+    cy.navPage('repeating').should('have.attr', 'aria-current', 'page');
+
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 1);
     cy.get(appFrontend.errorReport).findByText(texts.requiredOpenRepGroup).click();
     cy.get(appFrontend.group.showGroupToContinue).find('input').should('be.focused');
@@ -413,6 +464,7 @@ describe('Validation', () => {
     cy.get(appFrontend.group.editContainer).should('not.exist');
     cy.get(appFrontend.errorReport).should('not.exist');
     cy.get(appFrontend.nextButton).click();
+    cy.navPage('repeating').should('have.attr', 'aria-current', 'page');
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 2);
     cy.get(appFrontend.errorReport).findByText('Du må fylle ut 1.').click();
     cy.get(appFrontend.group.row(2).currentValue).should('be.focused');
@@ -434,6 +486,7 @@ describe('Validation', () => {
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').eq(2).find('td').eq(0).should('have.text', '');
     cy.get(appFrontend.group.row(2).currentValue).should('not.exist');
     cy.get(appFrontend.nextButton).click();
+    cy.navPage('repeating').should('have.attr', 'aria-current', 'page');
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 1);
     cy.get(appFrontend.errorReport).findByText('Du må fylle ut 2. endre verdi til').click();
     cy.get(appFrontend.group.row(2).newValue).should('be.focused');
@@ -467,6 +520,7 @@ describe('Validation', () => {
     // Note that we're testing expected functionality here, but if you're actually implementing this in an app, you
     // should trigger validation before saving and closing the group row, so that the user cannot reach this state
     // (although they still could if refreshing the page, so it's not the best idea).
+    // eslint-disable-next-line cypress/unsafe-to-chain-command
     cy.focused().should('have.text', 'Du må fylle ut 2. endre verdi til');
 
     // Clicking the next validation message should focus the component already open in editing mode

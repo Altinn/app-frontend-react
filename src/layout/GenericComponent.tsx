@@ -13,7 +13,7 @@ import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
-import { FormComponentContext } from 'src/layout/index';
+import { FormComponentContext, shouldComponentRenderLabel } from 'src/layout/index';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { makeGetFocus } from 'src/selectors/getLayoutData';
 import { Triggers } from 'src/types';
@@ -21,7 +21,7 @@ import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { ISingleFieldValidation } from 'src/features/formData/formDataTypes';
 import type { IComponentProps, IFormComponentContext, PropsFromGenericComponent } from 'src/layout/index';
-import type { ComponentTypes, IGridStyling } from 'src/layout/layout';
+import type { ComponentTypes, IDataModelBindings, IGridStyling, ITextResourceBindings } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { AnyItem, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
@@ -91,6 +91,8 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
 }: IGenericComponentProps<Type>) {
   let item = node.item;
   const id = item.id;
+  const textBindings = node.item.textResourceBindings as ITextResourceBindings;
+  const dataModelBindings = node.item.dataModelBindings as IDataModelBindings;
 
   if (overrideItemProps) {
     item = {
@@ -106,7 +108,7 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
   const GetFocusSelector = makeGetFocus();
   const hasValidationMessages = node.hasValidationMessages('any');
   const hidden = node.isHidden();
-  const { lang } = useLanguage();
+  const { lang, langAsString } = useLanguage();
 
   const formData = FD.useBindings(node.item.dataModelBindings, 'current');
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
@@ -117,6 +119,24 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
     (state) => state.formValidations.validations[currentView]?.[id],
     shallowEqual,
   );
+
+  const filterValidationErrors = () => {
+    const maxLength = node.item?.maxLength;
+
+    if (!maxLength) {
+      return componentValidations?.simpleBinding;
+    }
+
+    // If maxLength is set in both schema and component, don't display the schema error message
+    const errorMessageMaxLength = langAsString('validation_errors.maxLength', [maxLength]) as string;
+    const componentErrors = componentValidations?.simpleBinding?.errors || [];
+    const updatedErrors = componentErrors.filter((error: string) => error !== errorMessageMaxLength);
+
+    return {
+      ...componentValidations.simpleBinding,
+      errors: updatedErrors,
+    };
+  };
 
   const formComponentContext = useMemo<IFormComponentContext>(
     () => ({
@@ -149,7 +169,7 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
   const handleDataChange: IComponentProps['handleDataChange'] = (value, options = {}) => {
     const { key = 'simpleBinding', validate = true } = options;
 
-    if (!item.dataModelBindings || !item.dataModelBindings[key]) {
+    if (!dataModelBindings || !dataModelBindings[key]) {
       return;
     }
 
@@ -162,7 +182,7 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
       return;
     }
 
-    const dataModelBinding = item.dataModelBindings[key];
+    const dataModelBinding = dataModelBindings[key];
     const singleFieldValidation: ISingleFieldValidation | undefined =
       item.triggers && item.triggers.includes(Triggers.Validation)
         ? {
@@ -199,8 +219,8 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
     return (
       <Label
         key={`label-${id}`}
-        labelText={lang(item.textResourceBindings?.title)}
-        helpText={lang(item.textResourceBindings?.help)}
+        labelText={lang(textBindings?.title)}
+        helpText={lang(textBindings?.help)}
         id={id}
         readOnly={item.readOnly}
         required={item.required}
@@ -210,14 +230,14 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
   };
 
   const RenderDescription = () => {
-    if (!item.textResourceBindings?.description) {
+    if (!textBindings?.description) {
       return null;
     }
 
     return (
       <Description
         key={`description-${id}`}
-        description={lang(item.textResourceBindings?.description)}
+        description={lang(textBindings?.description)}
         id={id}
       />
     );
@@ -231,9 +251,9 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
     return (
       <Legend
         key={`legend-${id}`}
-        labelText={lang(item.textResourceBindings?.title)}
-        descriptionText={lang(item.textResourceBindings?.description)}
-        helpText={lang(item.textResourceBindings?.help)}
+        labelText={lang(textBindings?.title)}
+        descriptionText={lang(textBindings?.description)}
+        helpText={lang(textBindings?.help)}
         id={id}
         required={item.required}
         labelSettings={item.labelSettings}
@@ -287,22 +307,22 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
   return (
     <FormComponentContext.Provider value={formComponentContext}>
       <Grid
+        data-componentbaseid={item.baseComponentId || item.id}
         data-componentid={item.id}
+        data-componenttype={item.type}
         ref={gridRef}
         item={true}
         container={true}
         {...gridBreakpoints(item.grid)}
         key={`grid-${id}`}
         className={classNames(
-          'form-group',
-          'a-form-group',
           classes.container,
           gridToClasses(item.grid?.labelGrid, classes),
           pageBreakStyles(item.pageBreak),
         )}
         alignItems='baseline'
       >
-        {layoutComponent.renderWithLabel() && overrideDisplay?.renderLabel !== false && (
+        {shouldComponentRenderLabel(node.item.type) && overrideDisplay?.renderLabel !== false && (
           <Grid
             item={true}
             {...gridBreakpoints(item.grid?.labelGrid)}
@@ -318,7 +338,7 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
           {...gridBreakpoints(item.grid?.innerGrid)}
         >
           <RenderComponent {...componentProps} />
-          {showValidationMessages && renderValidationMessagesForComponent(componentValidations?.simpleBinding, id)}
+          {showValidationMessages && renderValidationMessagesForComponent(filterValidationErrors(), id)}
         </Grid>
       </Grid>
     </FormComponentContext.Provider>

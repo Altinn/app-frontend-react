@@ -5,7 +5,10 @@ import { Grid } from '@material-ui/core';
 import { Delete as DeleteIcon, Edit as EditIcon, ErrorColored as ErrorIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
 
+import { getDisplayDataPropsFromState, implementsDisplayData } from '..';
+
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
@@ -15,7 +18,7 @@ import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { HRepGroup, ILayoutGroup } from 'src/layout/Group/types';
-import type { ITextResourceBindings } from 'src/types';
+import type { ITextResourceBindings } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IRepeatingGroupTableRowProps {
@@ -36,7 +39,7 @@ export interface IRepeatingGroupTableRowProps {
 }
 
 function getTableTitle(textResourceBindings: ITextResourceBindings) {
-  return textResourceBindings.tableTitle ?? textResourceBindings.title ?? '';
+  return textResourceBindings?.tableTitle ?? textResourceBindings?.title ?? '';
 }
 
 function getEditButtonText(
@@ -45,8 +48,12 @@ function getEditButtonText(
   textResourceBindings: ITextResourceBindings | undefined,
 ) {
   const buttonTextKey = isEditing
-    ? textResourceBindings?.edit_button_close ?? 'general.save_and_close'
-    : textResourceBindings?.edit_button_open ?? 'general.edit_alt';
+    ? textResourceBindings?.edit_button_close
+      ? textResourceBindings?.edit_button_close
+      : 'general.save_and_close'
+    : textResourceBindings?.edit_button_open
+    ? textResourceBindings?.edit_button_open
+    : 'general.edit_alt';
   return langTools.langAsString(buttonTextKey);
 }
 
@@ -99,8 +106,9 @@ export function RepeatingGroupTableRow({
   } as ExprResolved<ILayoutGroup['textResourceBindings']>;
 
   const tableNodes = getTableNodes(index) || [];
+  const displayDataProps = useAppSelector(getDisplayDataPropsFromState);
   const displayData = tableNodes.map((node) =>
-    'useDisplayData' in node.def ? node.def.useDisplayData(node as any) : '',
+    implementsDisplayData(node.def) ? node.def.getDisplayData(node as any, displayDataProps) : '',
   );
   const firstCellData = displayData.find((c) => !!c);
   const isEditingRow = index === editIndex;
@@ -144,7 +152,7 @@ export function RepeatingGroupTableRow({
             <TableCell key={`${n.item.id}-${index}`}>
               <span
                 className={classes.contentFormatting}
-                style={getColumnStylesRepeatingGroups(n.item, columnSettings)}
+                style={getColumnStylesRepeatingGroups(n, columnSettings)}
               >
                 {isEditingRow ? null : displayData[idx]}
               </span>
@@ -181,7 +189,7 @@ export function RepeatingGroupTableRow({
                     key={n.item.id}
                   >
                     <b className={cn(classes.contentFormatting, classes.spaceAfterContent)}>
-                      {lang(getTableTitle(n.item.textResourceBindings || {}))}:
+                      {lang(getTableTitle(n.item.textResourceBindings))}:
                     </b>
                     <span className={classes.contentFormatting}>{displayData[i]}</span>
                     {i < length - 1 && <div style={{ height: 8 }} />}
@@ -211,6 +219,7 @@ export function RepeatingGroupTableRow({
                   aria-controls={isEditingRow ? `group-edit-container-${id}-${index}` : undefined}
                   variant='quiet'
                   color='secondary'
+                  size='small'
                   icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
                   iconPlacement='right'
                   onClick={onEditClick}
@@ -259,6 +268,7 @@ export function RepeatingGroupTableRow({
                 aria-controls={isEditingRow ? `group-edit-container-${id}-${index}` : undefined}
                 variant='quiet'
                 color='secondary'
+                size='small'
                 icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
                 iconPlacement='right'
                 onClick={onEditClick}
@@ -340,6 +350,7 @@ const DeleteElement = ({
       color='danger'
       icon={<DeleteIcon aria-hidden='true' />}
       iconPlacement='right'
+      size='small'
       disabled={deleting}
       onClick={() => handleDeleteClick(popoverOpen, setPopoverOpen, () => onDeleteClick(index), edit?.alertOnDelete)}
       aria-label={`${deleteButtonText}-${firstCellData}`}

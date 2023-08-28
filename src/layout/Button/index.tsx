@@ -16,17 +16,20 @@ export class Button extends ActionComponent<'Button'> {
     return true;
   }
 
-  renderWithLabel(): boolean {
-    return false;
+  canRenderInAccordion(): boolean {
+    return true;
   }
 }
 
 export const Config = {
   def: new Button(),
+  rendersWithLabel: false as const,
 };
 
 export type TypeConfig = {
   layout: ILayoutCompButton;
   nodeItem: ExprResolved<ILayoutCompButton>;
   nodeObj: LayoutNode;
+  validTextResourceBindings: 'title';
+  validDataModelBindings: undefined;
 };

@@ -155,6 +155,7 @@ export function nn(): FixedLanguageList {
       validate_changes: 'Validér endringar',
       value: 'Verdi',
       version: 'Versjon',
+      wait_for_attachments: 'Vent litt, vi prosesserer vedlegg',
     },
     group: {
       row_error: 'Ei av radene er ikkje fylt ut riktig. Dette må bli retta før skjema kan sendast inn.',
@@ -168,7 +169,7 @@ export function nn(): FixedLanguageList {
     },
     input_components: {
       character_limit_sr_label: 'Tekstfeltet kan innehalde maks {0} teikn.',
-      remaining_characters: 'Du har {0} teikn igjen',
+      remaining_characters: 'Du har {0} av {1} teikn igjen',
       exceeded_max_limit: 'Du har overskride maks teikn med {0}',
     },
     instance_selection: {

@@ -15,11 +15,7 @@ export class Custom extends FormComponent<'Custom'> {
     return <CustomWebComponent {...props} />;
   }
 
-  renderWithLabel(): boolean {
-    return false;
-  }
-
-  useDisplayData(node: LayoutNodeFromType<'Custom'>): string {
+  getDisplayData(node: LayoutNodeFromType<'Custom'>): string {
     const data = node.getFormData();
     return Object.values(data).join(', ');
   }
@@ -28,14 +24,25 @@ export class Custom extends FormComponent<'Custom'> {
     const displayData = this.useDisplayData(targetNode);
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
+
+  canRenderInButtonGroup(): boolean {
+    return true;
+  }
+
+  canRenderInTable(): boolean {
+    return true;
+  }
 }
 
 export const Config = {
   def: new Custom(),
+  rendersWithLabel: false as const,
 };
 
 export type TypeConfig = {
   layout: ILayoutCompCustom;
   nodeItem: ExprResolved<ILayoutCompCustom>;
   nodeObj: LayoutNode;
+  validTextResourceBindings: 'title';
+  validDataModelBindings: undefined;
 };

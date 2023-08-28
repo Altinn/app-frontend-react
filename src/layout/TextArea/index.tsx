@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { FD } from 'src/features/formData2/Compatibility';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { TextAreaComponent } from 'src/layout/TextArea/TextAreaComponent';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { IDataModelBindingsSimple, TextBindingsForFormComponents } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ILayoutCompTextArea } from 'src/layout/TextArea/types';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
@@ -16,9 +16,12 @@ export class TextArea extends FormComponent<'TextArea'> {
     return <TextAreaComponent {...props} />;
   }
 
-  useDisplayData(node: LayoutNodeFromType<'TextArea'>): string {
-    const value = FD.usePick(node.item.dataModelBindings?.simpleBinding);
-    return typeof value === 'string' ? value : '';
+  getDisplayData(node: LayoutNodeFromType<'TextArea'>, { formData }): string {
+    if (!node.item.dataModelBindings?.simpleBinding) {
+      return '';
+    }
+
+    return formData[node.item.dataModelBindings.simpleBinding] || '';
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'TextArea'>): JSX.Element | null {
@@ -29,10 +32,13 @@ export class TextArea extends FormComponent<'TextArea'> {
 
 export const Config = {
   def: new TextArea(),
+  rendersWithLabel: true as const,
 };
 
 export type TypeConfig = {
   layout: ILayoutCompTextArea;
   nodeItem: ExprResolved<ILayoutCompTextArea>;
   nodeObj: LayoutNode;
+  validTextResourceBindings: TextBindingsForFormComponents;
+  validDataModelBindings: IDataModelBindingsSimple;
 };

@@ -17,11 +17,15 @@ export class ButtonGroup extends ContainerComponent<'ButtonGroup'> {
     return <ButtonGroupComponent {...props} />;
   }
 
+  shouldRenderInAutomaticPDF() {
+    return false;
+  }
+
   hierarchyGenerator(): ComponentHierarchyGenerator<'ButtonGroup'> {
     return this._hierarchyGenerator;
   }
 
-  useDisplayData(_node: LayoutNodeFromType<'ButtonGroup'>): string {
+  getDisplayData(_node: LayoutNodeFromType<'ButtonGroup'>): string {
     return '';
   }
 
@@ -36,10 +40,13 @@ export class ButtonGroup extends ContainerComponent<'ButtonGroup'> {
 
 export const Config = {
   def: new ButtonGroup(),
+  rendersWithLabel: true as const,
 };
 
 export type TypeConfig = {
   layout: ILayoutCompButtonGroup;
   nodeItem: ILayoutCompButtonGroupInHierarchy;
   nodeObj: LayoutNode;
+  validTextResourceBindings: 'title';
+  validDataModelBindings: undefined;
 };

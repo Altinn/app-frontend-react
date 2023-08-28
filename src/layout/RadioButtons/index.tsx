@@ -1,12 +1,13 @@
 import React from 'react';
 
-import { FD } from 'src/features/formData2/Compatibility';
-import { useSelectedValueToText } from 'src/hooks/useSelectedValueToText';
+import { getOptionList } from 'src/hooks/useOptionList';
+import { getSelectedValueToText } from 'src/hooks/useSelectedValueToText';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { RadioButtonContainerComponent } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { ExprResolved } from 'src/features/expressions/types';
-import type { PropsFromGenericComponent } from 'src/layout';
+import type { DisplayDataProps, PropsFromGenericComponent } from 'src/layout';
+import type { IDataModelBindingsSimple, TextBindingsForLabel } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ILayoutCompRadioButtons } from 'src/layout/RadioButtons/types';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
@@ -17,13 +18,15 @@ export class RadioButtons extends FormComponent<'RadioButtons'> {
     return <RadioButtonContainerComponent {...props} />;
   }
 
-  renderWithLabel(): boolean {
-    return false;
-  }
-
-  useDisplayData(node: LayoutNodeFromType<'RadioButtons'>): string {
-    const value = FD.usePick(node.item.dataModelBindings?.simpleBinding);
-    return useSelectedValueToText(node.item, typeof value === 'string' ? value : '') || '';
+  getDisplayData(
+    node: LayoutNodeFromType<'RadioButtons'>,
+    { formData, langTools, uiConfig, options }: DisplayDataProps,
+  ): string {
+    const value = node.item.dataModelBindings?.simpleBinding
+      ? formData[node.item.dataModelBindings.simpleBinding] || ''
+      : '';
+    const optionList = getOptionList(node.item, langTools.textResources, formData, uiConfig.repeatingGroups, options);
+    return getSelectedValueToText(value, langTools, optionList) || '';
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'RadioButtons'>): JSX.Element | null {
@@ -34,10 +37,15 @@ export class RadioButtons extends FormComponent<'RadioButtons'> {
 
 export const Config = {
   def: new RadioButtons(),
+  rendersWithLabel: false as const,
 };
 
 export type TypeConfig = {
   layout: ILayoutCompRadioButtons;
   nodeItem: ExprResolved<ILayoutCompRadioButtons>;
   nodeObj: LayoutNode;
+  // We don't render the label in GenericComponent, but we still need the
+  // text resource bindings for rendering them on our own
+  validTextResourceBindings: TextBindingsForLabel;
+  validDataModelBindings: IDataModelBindingsSimple;
 };

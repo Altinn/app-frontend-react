@@ -30,7 +30,7 @@ export function MapComponentSummary({ targetNode }: IMapComponentSummary) {
   const classes = useStyles();
   const layers = targetNode.item.layers;
   const formData = targetNode.def.useDisplayData(targetNode);
-  const location = formData ? parseLocation(formData) : undefined;
+  const location = parseLocation(formData);
   const { lang } = useLanguage();
 
   const footerText = location ? lang('map_component.selectedLocation', [location.latitude, location.longitude]) : null;

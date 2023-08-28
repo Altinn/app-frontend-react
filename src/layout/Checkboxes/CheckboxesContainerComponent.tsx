@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { CheckboxGroup, CheckboxGroupVariant } from '@digdir/design-system-react';
+import { LegacyCheckboxGroup } from '@digdir/design-system-react';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
@@ -35,12 +35,13 @@ export const CheckboxContainerComponent = ({
     layout,
     readOnly,
     mapping,
+    queryParameters,
     source,
     textResourceBindings,
     required,
     labelSettings,
   } = node.item;
-  const apiOptions = useGetOptions({ optionsId, mapping, source });
+  const apiOptions = useGetOptions({ optionsId, mapping, queryParameters, source });
   const calculatedOptions = apiOptions || options || defaultOptions;
   const hasSelectedInitial = React.useRef(false);
   const optionsHasChanged = useHasChangedIgnoreUndefined(apiOptions);
@@ -109,12 +110,12 @@ export const CheckboxContainerComponent = ({
       key={`checkboxes_group_${id}`}
       onBlur={handleBlur}
     >
-      <CheckboxGroup
+      <LegacyCheckboxGroup
         compact={false}
         disabled={readOnly}
         onChange={(values) => handleChange(values)}
         legend={overrideDisplay?.renderLegend === false ? null : labelText}
-        description={textResourceBindings?.description && langAsString(textResourceBindings.description)}
+        description={textResourceBindings?.description && lang(textResourceBindings.description)}
         error={!isValid}
         fieldSetProps={{
           'aria-label': overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined,
@@ -125,8 +126,8 @@ export const CheckboxContainerComponent = ({
             layout,
             optionsCount: calculatedOptions.length,
           })
-            ? CheckboxGroupVariant.Horizontal
-            : CheckboxGroupVariant.Vertical
+            ? 'horizontal'
+            : 'vertical'
         }
         items={calculatedOptions.map((option) => ({
           name: option.value,

@@ -12,7 +12,8 @@ interface Props {
 
 export function NodeInspectorDataModelBindings({ dataModelBindings }: Props) {
   const schema = useBindingSchema(dataModelBindings);
-  const results = FD.useBindings(dataModelBindings);
+  const bindings = dataModelBindings || {};
+  const results = FD.useBindings(bindings);
 
   return (
     <Value
@@ -21,14 +22,14 @@ export function NodeInspectorDataModelBindings({ dataModelBindings }: Props) {
       className={classes.typeObject}
     >
       <dl className={classes.propertyList}>
-        {Object.keys(dataModelBindings).map((key) => (
+        {Object.keys(bindings).map((key) => (
           <Value
             key={key}
             property={key}
             className={classes.typeLongString}
           >
             <em>Råverdi: </em>
-            {dataModelBindings[key]}
+            {bindings[key]}
             <br />
             <em>Resultat: </em>
             <div className={classes.json}>{JSON.stringify(results[key], null, 2)}</div>

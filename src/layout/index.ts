@@ -1,12 +1,18 @@
 import { createContext } from 'react';
 
+import { type IUseLanguage, staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { ComponentConfigs } from 'src/layout/components';
+import type { IAttachments } from 'src/features/attachments';
+import type { IFormData } from 'src/features/formData';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
-import type { ComponentTypes, IGrid } from 'src/layout/layout';
-import type { LayoutComponent } from 'src/layout/LayoutComponent';
-import type { IComponentValidations } from 'src/types';
+import type { ComponentRendersLabel, ComponentTypes, IGrid } from 'src/layout/layout';
+import type { AnyComponent, LayoutComponent } from 'src/layout/LayoutComponent';
+import type { IOptions, IRuntimeState, IUiConfig } from 'src/types';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { AnyItem, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { ISchemaValidationError } from 'src/utils/validation/schemaValidation';
+import type { IComponentValidations, IValidationContext, IValidationObject } from 'src/utils/validation/types';
 
 export type ComponentClassMap = {
   [K in keyof typeof ComponentConfigs]: (typeof ComponentConfigs)[K]['def'];
@@ -70,4 +76,97 @@ export function getLayoutComponentObject<T extends keyof ComponentClassMap>(type
   return undefined as any;
 }
 
+export function shouldComponentRenderLabel<T extends ComponentTypes>(type: T): ComponentRendersLabel<T> {
+  return ComponentConfigs[type].rendersWithLabel;
+}
+
 export type DefGetter = typeof getLayoutComponentObject;
+
+export function implementsAnyValidation<Type extends ComponentTypes>(component: AnyComponent<Type>): boolean {
+  return (
+    'runEmptyFieldValidation' in component ||
+    'runComponentValidation' in component ||
+    'runSchemaValidation' in component
+  );
+}
+
+export interface EmptyFieldValidation {
+  runEmptyFieldValidation: (
+    node: LayoutNode,
+    validationContext: IValidationContext,
+    overrideFormData?: IFormData,
+  ) => IValidationObject[];
+}
+
+export function implementsEmptyFieldValidation<Type extends ComponentTypes>(
+  component: AnyComponent<Type>,
+): component is typeof component & EmptyFieldValidation {
+  return 'runEmptyFieldValidation' in component;
+}
+
+export interface ComponentValidation {
+  runComponentValidation: (
+    node: LayoutNode,
+    validationContext: IValidationContext,
+    overrideFormData?: IFormData,
+  ) => IValidationObject[];
+}
+
+export function implementsComponentValidation<Type extends ComponentTypes>(
+  component: AnyComponent<Type>,
+): component is typeof component & ComponentValidation {
+  return 'runComponentValidation' in component;
+}
+
+export interface SchemaValidation {
+  runSchemaValidation: (node: LayoutNode, schemaValidations: ISchemaValidationError[]) => IValidationObject[];
+}
+
+export function implementsSchemaValidation<Type extends ComponentTypes>(
+  component: AnyComponent<Type>,
+): component is typeof component & SchemaValidation {
+  return 'runSchemaValidation' in component;
+}
+
+export interface GroupValidation {
+  runGroupValidations: (
+    node: LayoutNode,
+    validationContext: IValidationContext,
+    onlyInRowIndex?: number,
+  ) => IValidationObject[];
+}
+
+export function implementsGroupValidation<Type extends ComponentTypes>(
+  component: AnyComponent<Type>,
+): component is typeof component & GroupValidation {
+  return 'runGroupValidations' in component;
+}
+
+export interface DisplayDataProps {
+  formData: IFormData;
+  attachments: IAttachments;
+  options: IOptions;
+  uiConfig: IUiConfig;
+  langTools: IUseLanguage;
+}
+
+export interface DisplayData<Type extends ComponentTypes> {
+  getDisplayData(node: LayoutNodeFromType<Type>, displayDataProps: DisplayDataProps): string;
+  useDisplayData(node: LayoutNodeFromType<Type>): string;
+}
+
+export function implementsDisplayData<Type extends ComponentTypes>(
+  component: AnyComponent<Type>,
+): component is typeof component & DisplayData<Type> {
+  return 'getDisplayData' in component && 'useDisplayData' in component;
+}
+
+export function getDisplayDataPropsFromState(state: IRuntimeState): DisplayDataProps {
+  return {
+    formData: state.formData.formData,
+    attachments: state.attachments.attachments,
+    options: state.optionState.options,
+    uiConfig: state.formLayout.uiConfig,
+    langTools: staticUseLanguageFromState(state),
+  };
+}

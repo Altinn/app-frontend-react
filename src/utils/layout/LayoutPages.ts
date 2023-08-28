@@ -1,7 +1,9 @@
 import type { $Values } from 'utility-types';
 
+import { runValidationOnNodes } from 'src/utils/validation/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
 
 /**
  * A tool when you have more than one LayoutPage (i.e. a full layout set). It can help you look up components
@@ -14,7 +16,10 @@ export class LayoutPages<
 > {
   private readonly objects: Collection;
 
-  public constructor(private currentView?: keyof Collection, objects?: Collection) {
+  public constructor(
+    private currentView?: keyof Collection,
+    objects?: Collection,
+  ) {
     this.objects = objects || ({} as any);
     for (const layoutKey of Object.keys(this.objects)) {
       const layout = this.objects[layoutKey];
@@ -85,6 +90,14 @@ export class LayoutPages<
     return this.objects;
   }
 
+  public allNodes(): LayoutNode[] {
+    return Object.values(this.objects).flatMap((layout) => layout.flat(true));
+  }
+
+  public allPageKeys(): string[] {
+    return Object.keys(this.objects);
+  }
+
   public flat<L extends keyof Collection>(exceptLayout?: L) {
     return [
       ...Object.keys(this.objects)
@@ -92,5 +105,12 @@ export class LayoutPages<
         .map((key) => this.objects[key])
         .flat(),
     ] as $Values<Omit<Collection, L>>[];
+  }
+
+  /**
+   * Runs frontend validations for all nodes in the layout set, and returns an array of IValidationObject.
+   */
+  public runValidations(validationContext: IValidationContext): IValidationObject[] {
+    return runValidationOnNodes(this.allNodes(), validationContext);
   }
 }

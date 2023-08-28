@@ -49,7 +49,7 @@ export function* initRepeatingGroupsSaga({
         );
       }
     }
-    yield put(ValidationActions.updateValidations({ validations }));
+    yield put(ValidationActions.updateValidations({ validationResult: { validations }, merge: false }));
   }
 
   // Open by default
@@ -102,5 +102,4 @@ export function* initRepeatingGroupsSaga({
       }
     });
   yield put(FormLayoutActions.initRepeatingGroupsFulfilled({ updated: newGroups }));
-  yield put(FormDynamicsActions.checkIfConditionalRulesShouldRun({}));
 }

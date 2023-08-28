@@ -4,8 +4,6 @@ import 'core-js/stable/structured-clone'; // https://github.com/jsdom/jsdom/issu
 
 import { TextDecoder, TextEncoder } from 'util';
 
-import { featureToggles } from 'src/features/toggles';
-
 // https://jestjs.io/docs/manual-mocks#mocking-methods-which-are-not-implemented-in-jsdom
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
@@ -28,7 +26,12 @@ Object.defineProperty(document, 'fonts', {
 // org and app is assigned to window object, so to avoid 'undefined' in tests, they need to be set
 window.org = 'ttd';
 window.app = 'test';
-window.featureToggles = featureToggles;
+window.logError = jest.fn();
+window.logWarn = jest.fn();
+window.logInfo = jest.fn();
+window.logErrorOnce = jest.fn();
+window.logWarnOnce = jest.fn();
+window.logInfoOnce = jest.fn();
 jest.setTimeout(10000);
 
 jest.mock('axios');

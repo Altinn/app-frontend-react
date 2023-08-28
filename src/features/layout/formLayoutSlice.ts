@@ -1,8 +1,8 @@
-import { call, put, takeLatest } from 'redux-saga/effects';
+import { put, takeLatest } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
 import { DataListsActions } from 'src/features/dataLists/dataListsSlice';
-import { checkIfConditionalRulesShouldRunSaga } from 'src/features/dynamics/conditionalRenderingSagas';
+import { removeHiddenValidationsSaga } from 'src/features/dynamics/conditionalRenderingSagas';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import {
   fetchLayoutSetsSaga,
@@ -24,7 +24,6 @@ import {
 } from 'src/features/layout/update/updateFormLayoutSagas';
 import { OptionsActions } from 'src/features/options/optionsSlice';
 import { createSagaSlice } from 'src/redux/sagaSlice';
-import type { IUpdateLayouts } from 'src/features/layout/formLayoutTypes';
 import type * as LayoutTypes from 'src/features/layout/formLayoutTypes';
 import type { ILayouts } from 'src/layout/layout';
 import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
@@ -191,6 +190,7 @@ export const formLayoutSlice = () => {
           },
         }),
         updateHiddenComponents: mkAction<LayoutTypes.IUpdateHiddenComponents>({
+          takeEvery: removeHiddenValidationsSaga,
           reducer: (state, action) => {
             const { componentsToHide } = action.payload;
             state.uiConfig.hiddenFields = componentsToHide;
@@ -327,12 +327,9 @@ export const formLayoutSlice = () => {
             state.uiConfig.keepScrollPos = undefined;
           },
         }),
-        updateLayouts: mkAction<IUpdateLayouts>({
-          *takeEvery() {
-            yield call(checkIfConditionalRulesShouldRunSaga, { payload: {}, type: '' });
-          },
+        updateLayouts: mkAction<ILayouts>({
           reducer: (state, action) => {
-            state.layouts = { ...state.layouts, ...action.payload.layouts };
+            state.layouts = { ...state.layouts, ...action.payload };
           },
         }),
         toggleExpandedWidth: mkAction<void>({
