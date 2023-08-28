@@ -144,7 +144,3 @@ export interface IRepGroupDelRow {
   groupId: string;
   index: number;
 }
-
-export interface IUpdateLayouts {
-  layouts: ILayouts;
-}
