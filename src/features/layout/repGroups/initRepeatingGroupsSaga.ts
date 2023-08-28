@@ -6,12 +6,13 @@ import { SagaFetchFormDataCompat } from 'src/features/formData2/Compatibility';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { selectFormLayouts } from 'src/features/layout/update/updateFormLayoutSagas';
 import { ValidationActions } from 'src/features/validation/validationSlice';
+import { groupIsRepeatingExt } from 'src/layout/Group/tools';
 import { getRepeatingGroupFilteredIndices, getRepeatingGroups } from 'src/utils/formLayout';
 import { selectNotNull } from 'src/utils/sagas';
 import { removeGroupValidationsByIndex } from 'src/utils/validation/validation';
 import type { IFormData } from 'src/features/formData';
 import type { IInitRepeatingGroups } from 'src/features/layout/formLayoutTypes';
-import type { ILayoutGroup } from 'src/layout/Group/types';
+import type { CompGroupExternal } from 'src/layout/Group/config.generated';
 import type { IRepeatingGroups, IRuntimeState } from 'src/types';
 
 export function* initRepeatingGroupsSaga({
@@ -55,12 +56,12 @@ export function* initRepeatingGroupsSaga({
   const newGroupKeys = Object.keys(newGroups || {});
   const groupContainers = Object.values(state.formLayout.layouts || {})
     .flatMap((e) => e)
-    .filter((e) => e && e.type === 'Group') as ILayoutGroup[];
+    .filter((e) => e && e.type === 'Group') as CompGroupExternal[];
 
   newGroupKeys.forEach((key) => {
     const group = newGroups[key];
-    const container = groupContainers.find((element) => element.id === key) as ILayoutGroup;
-    if (container && group.index >= 0) {
+    const container = groupContainers.find((element) => element.id === key);
+    if (container && group.index >= 0 && groupIsRepeatingExt(container)) {
       const filteredIndexList = getRepeatingGroupFilteredIndices(formData, container.edit?.filter);
 
       if (container.edit?.openByDefault === 'first') {

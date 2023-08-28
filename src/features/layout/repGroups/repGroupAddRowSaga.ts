@@ -4,9 +4,10 @@ import type { SagaIterator } from 'redux-saga';
 
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { selectFormLayoutState } from 'src/features/layout/update/updateFormLayoutSagas';
+import { groupIsRepeatingExt } from 'src/layout/Group/tools';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
 import type { IRepGroupAddRow } from 'src/features/layout/formLayoutTypes';
-import type { ILayoutGroup } from 'src/layout/Group/types';
+import type { CompGroupExternal } from 'src/layout/Group/config.generated';
 import type { IRepeatingGroups } from 'src/types';
 
 export function* repGroupAddRowSaga({ payload: { groupId } }: PayloadAction<IRepGroupAddRow>): SagaIterator {
@@ -35,14 +36,14 @@ export function* repGroupAddRowSaga({ payload: { groupId } }: PayloadAction<IRep
       },
     };
 
-    const groupContainer = currentLayout.find((element) => element.id === groupId) as ILayoutGroup | undefined;
+    const groupContainer = currentLayout.find((element) => element.id === groupId) as CompGroupExternal | undefined;
     const children = groupContainer?.children || [];
     const childGroups = currentLayout.filter((element) => {
       if (element.type !== 'Group') {
         return false;
       }
 
-      if (groupContainer?.edit?.multiPage) {
+      if (groupContainer && groupIsRepeatingExt(groupContainer) && groupContainer.edit?.multiPage) {
         return children.find((c) => c.split(':')[1] === element.id);
       }
 
@@ -54,7 +55,8 @@ export function* repGroupAddRowSaga({ payload: { groupId } }: PayloadAction<IRep
       updatedRepeatingGroups[groupId] = {
         index: -1,
         baseGroupId: group.id,
-        dataModelBinding: group.dataModelBindings?.group,
+        dataModelBinding:
+          group.type === 'Group' && 'dataModelBindings' in group ? group.dataModelBindings?.group : undefined,
         editIndex: -1,
         multiPageIndex: -1,
       };

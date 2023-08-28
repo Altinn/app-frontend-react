@@ -5,7 +5,8 @@ import { FD } from 'src/features/formData2/Compatibility';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { buildInstanceContext } from 'src/utils/instanceContext';
 import { getOptionLookupKey, getRelevantFormDataForOptionSource, setupSourceOptions } from 'src/utils/options';
-import type { IMapping, IOption, IOptionSource, ITextResource } from 'src/types';
+import type { IMapping, IOption, IOptionSource } from 'src/layout/common.generated';
+import type { ITextResource } from 'src/types';
 import type { IDataSources } from 'src/types/shared';
 
 interface IUseGetOptionsParams {
