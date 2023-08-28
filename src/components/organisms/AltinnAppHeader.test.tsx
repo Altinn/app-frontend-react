@@ -115,7 +115,7 @@ describe('organisms/AltinnAppHeader', () => {
   it('Should render Organisation logo if logo options are set', () => {
     renderComponent({
       party: partyPerson,
-      logo: { source: 'org', showAppOwnerInHeader: false },
+      logo: { source: 'org', displayAppOwnerNameInHeader: false },
     });
     expect(screen.getByRole('img')).toHaveAttribute('src', 'https://altinncdn.no/orgs/mockOrg/mockOrg.png');
   });

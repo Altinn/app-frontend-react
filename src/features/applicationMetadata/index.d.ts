@@ -2,7 +2,7 @@ import type { IDataType, ITitle } from 'src/types/shared';
 
 type ILogoOptions = {
   source: 'org' | 'resource';
-  showAppOwnerInHeader: boolean;
+  displayAppOwnerNameInHeader: boolean;
 };
 
 export interface IApplicationMetadata {

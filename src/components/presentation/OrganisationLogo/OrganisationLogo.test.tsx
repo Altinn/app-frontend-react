@@ -19,7 +19,7 @@ describe('OrganisationLogo', () => {
   it('Should get img src from organisations when logo.source is set to "org" in applicationMetadata', () => {
     renderComponent({
       source: 'org',
-      showAppOwnerInHeader: false,
+      displayAppOwnerNameInHeader: false,
     });
     expect(screen.getByRole('img')).toHaveAttribute('src', 'https://altinncdn.no/orgs/mockOrg/mockOrg.png');
   });
@@ -27,7 +27,7 @@ describe('OrganisationLogo', () => {
   it('Should not display appOwner when "showAppOwner" is set to false', () => {
     renderComponent({
       source: 'org',
-      showAppOwnerInHeader: false,
+      displayAppOwnerNameInHeader: false,
     });
 
     expect(screen.queryByText('Mockdepartementet')).not.toBeInTheDocument();
@@ -36,7 +36,7 @@ describe('OrganisationLogo', () => {
   it('Should display appOwner when "showAppOwner" is set to true', async () => {
     renderComponent({
       source: 'org',
-      showAppOwnerInHeader: true,
+      displayAppOwnerNameInHeader: true,
     });
 
     expect(await screen.findByText('Mockdepartementet')).toBeInTheDocument();

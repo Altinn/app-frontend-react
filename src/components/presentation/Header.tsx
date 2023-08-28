@@ -7,7 +7,7 @@ import classes from 'src/components/presentation/Header.module.css';
 import { Progress } from 'src/components/presentation/Progress';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
-import { selectShowAppOwnerInHeader } from 'src/selectors/logo';
+import { selectdisplayAppOwnerNameInHeader } from 'src/selectors/logo';
 import { ProcessTaskType } from 'src/types';
 import type { PresentationType } from 'src/types';
 
@@ -19,7 +19,7 @@ export interface IHeaderProps {
 
 export const Header = ({ type, header, appOwner }: IHeaderProps) => {
   const showProgressSettings = useAppSelector((state) => state.formLayout.uiConfig.showProgress);
-  const showAppOwnerInHeader = useAppSelector(selectShowAppOwnerInHeader);
+  const displayAppOwnerNameInHeader = useAppSelector(selectdisplayAppOwnerNameInHeader);
   const showProgress = type !== ProcessTaskType.Archived && showProgressSettings;
 
   const { lang } = useLanguage();
@@ -34,7 +34,7 @@ export const Header = ({ type, header, appOwner }: IHeaderProps) => {
         spacing={2}
       >
         <Grid item>
-          {!showAppOwnerInHeader && (
+          {!displayAppOwnerNameInHeader && (
             <Grid item>
               <span>{appOwner}</span>
             </Grid>

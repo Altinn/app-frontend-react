@@ -302,8 +302,8 @@ export function getAppLogoAltText(orgs: IAltinnOrgs | null, org: string | undefi
   return getOrgName(orgs, org, langTools);
 }
 
-export function getShowAppOwnerInHeader(applicationMetadata: IApplicationMetadata | null) {
-  return applicationMetadata?.logo?.showAppOwnerInHeader ?? false;
+export function getdisplayAppOwnerNameInHeader(applicationMetadata: IApplicationMetadata | null) {
+  return applicationMetadata?.logo?.displayAppOwnerNameInHeader ?? false;
 }
 
 export function getUseAppLogoOrgSource(applicationMetadata: IApplicationMetadata) {

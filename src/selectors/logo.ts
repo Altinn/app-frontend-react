@@ -3,14 +3,14 @@ import { createSelector } from 'reselect';
 import {
   getAppLogoAltText,
   getAppLogoUrl,
-  getShowAppOwnerInHeader,
+  getdisplayAppOwnerNameInHeader,
   getUseAppLogoOrgSource,
 } from 'src/language/sharedLanguage';
 import { selectLangTools, selectOrg } from 'src/selectors/language';
 import { appMetaDataSelector, selectAllOrgs } from 'src/selectors/simpleSelectors';
 
 export const selectUseAppLogoOrgSource = createSelector(appMetaDataSelector, getUseAppLogoOrgSource);
-export const selectShowAppOwnerInHeader = createSelector(appMetaDataSelector, getShowAppOwnerInHeader);
+export const selectdisplayAppOwnerNameInHeader = createSelector(appMetaDataSelector, getdisplayAppOwnerNameInHeader);
 export const selectAppLogoAltText = createSelector(selectAllOrgs, selectOrg, selectLangTools, getAppLogoAltText);
 export const selectAppLogoUrl = createSelector(
   selectAllOrgs,
