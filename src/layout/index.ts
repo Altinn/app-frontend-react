@@ -6,11 +6,10 @@ import type { IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
 import type { IGrid } from 'src/layout/common.generated';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
-import type { ComponentRendersLabel, ComponentTypes } from 'src/layout/layout';
+import type { CompInternal, ComponentRendersLabel, ComponentTypes } from 'src/layout/layout';
 import type { AnyComponent, LayoutComponent } from 'src/layout/LayoutComponent';
 import type { IOptions, IRuntimeState, IUiConfig } from 'src/types';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
-import type { AnyItem } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ISchemaValidationError } from 'src/utils/validation/schemaValidation';
 import type { IComponentValidations, IValidationContext, IValidationObject } from 'src/utils/validation/types';
@@ -54,7 +53,7 @@ export interface IComponentProps {
 
 export interface PropsFromGenericComponent<T extends ComponentTypes = ComponentTypes> extends IComponentProps {
   node: LayoutNode<T>;
-  overrideItemProps?: Partial<Omit<AnyItem<T>, 'id'>>;
+  overrideItemProps?: Partial<Omit<CompInternal<T>, 'id'>>;
   overrideDisplay?: IGenericComponentProps<T>['overrideDisplay'];
 }
 

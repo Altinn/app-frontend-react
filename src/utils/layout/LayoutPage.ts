@@ -1,7 +1,6 @@
 import { runValidationOnNodes } from 'src/utils/validation/validation';
-import type { ComponentExceptGroup } from 'src/layout/layout';
+import type { CompInternal, ComponentExceptGroup } from 'src/layout/layout';
 import type { IUiConfig } from 'src/types';
-import type { AnyItem } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
@@ -44,7 +43,7 @@ export class LayoutPage implements LayoutObject {
    * Looks for a matching component upwards in the hierarchy, returning the first one (or undefined if
    * none can be found). Implemented here for parity with LayoutNode
    */
-  public closest(matching: (item: AnyItem) => boolean, traversePages = true): LayoutNode | undefined {
+  public closest(matching: (item: CompInternal) => boolean, traversePages = true): LayoutNode | undefined {
     const out = this.children(matching);
     if (out) {
       return out;
@@ -68,8 +67,8 @@ export class LayoutPage implements LayoutObject {
    * here for parity with LayoutNode.
    */
   public children(): LayoutNode[];
-  public children(matching: (item: AnyItem) => boolean): LayoutNode | undefined;
-  public children(matching?: (item: AnyItem) => boolean): any {
+  public children(matching: (item: CompInternal) => boolean): LayoutNode | undefined;
+  public children(matching?: (item: CompInternal) => boolean): any {
     if (!matching) {
       return this.directChildren;
     }

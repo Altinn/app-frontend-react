@@ -17,9 +17,8 @@ import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGen
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { IFormData } from 'src/features/formData';
-import type { ComponentTypes, ITextResourceBindings } from 'src/layout/layout';
+import type { CompInternal, ComponentTypes, HierarchyDataSources, ITextResourceBindings } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import type { AnyItem, HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -98,7 +97,7 @@ export abstract class AnyComponent<Type extends ComponentTypes> {
   }
 
   makeNode(
-    item: AnyItem<Type>,
+    item: CompInternal<Type>,
     parent: LayoutNode | LayoutPage,
     top: LayoutPage,
     dataSources: HierarchyDataSources,

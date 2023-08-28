@@ -10,9 +10,8 @@ import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { CompGroupNonRepeatingExternal, CompGroupRepeatingExternal } from 'src/layout/Group/config.generated';
 import type { CompHeaderExternal } from 'src/layout/Header/config.generated';
 import type { CompInputExternal } from 'src/layout/Input/config.generated';
-import type { ILayout, ILayouts } from 'src/layout/layout';
+import type { CompInternal, HierarchyDataSources, ILayout, ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
-import type { AnyItem, HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IValidations } from 'src/utils/validation/types';
 
@@ -193,8 +192,8 @@ describe('Hierarchical layout tools', () => {
   describe('generateHierarchy', () => {
     it('should resolve a very simple layout', () => {
       const root = new LayoutPage();
-      const top1 = new BaseLayoutNode(components.top1 as AnyItem, root, root, dataSources) as LayoutNode;
-      const top2 = new BaseLayoutNode(components.top2 as AnyItem, root, root, dataSources) as LayoutNode;
+      const top1 = new BaseLayoutNode(components.top1 as CompInternal, root, root, dataSources) as LayoutNode;
+      const top2 = new BaseLayoutNode(components.top2 as CompInternal, root, root, dataSources) as LayoutNode;
       root._addChild(top1);
       root._addChild(top2);
 

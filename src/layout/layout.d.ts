@@ -1,5 +1,20 @@
+import type { $Keys, PickByValue } from 'utility-types';
+
+import type { IDevToolsState } from 'src/features/devtools/data/types';
+import type { ContextDataSources } from 'src/features/expressions/ExprContext';
+import type { ComponentCategory } from 'src/layout/common';
 import type { ComponentConfigs, ComponentTypeConfigs } from 'src/layout/components.generated';
 import type { CompGroupExternal } from 'src/layout/Group/config.generated';
+import type { ComponentClassMapTypes } from 'src/layout/index';
+import type {
+  ActionComponent,
+  ContainerComponent,
+  FormComponent,
+  PresentationComponent,
+} from 'src/layout/LayoutComponent';
+import type { IValidations } from 'src/types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 export interface ILayouts {
   [id: string]: ILayout | undefined;
@@ -54,3 +69,60 @@ export type ITextResourceBindings<T extends ComponentTypes = ComponentTypes> =
   ComponentTypeConfigs[T]['nodeItem']['textResourceBindings'];
 
 export type ILayout = CompOrGroupExternal[];
+
+/**
+ * These keys are not defined anywhere in the actual form layout files, but are added by the hierarchy.
+ */
+interface HierarchyExtensions {
+  // These will be set if the component is inside a repeating group
+  baseComponentId?: string;
+  baseDataModelBindings?: IDataModelBindings;
+  multiPageIndex?: number;
+}
+
+/**
+ * Any item inside a hierarchy. Note that a LayoutNode _contains_ an item. The LayoutNode itself is an instance of the
+ * LayoutNode class, while _an item_ is the object inside it that is somewhat similar to layout objects.
+ */
+type NodeItem<T extends ComponentTypes> = ComponentTypeConfigs[T]['nodeItem'];
+
+export type CompInternal<T extends ComponentTypes = ComponentTypes> = NodeItem<T> & HierarchyExtensions;
+
+/**
+ * Any parent object of a LayoutNode (with for example repeating groups, the parent can be the group node, but above
+ * that there will be a LayoutPage).
+ */
+export type ParentNode = LayoutNode | LayoutPage;
+
+export type TypeFromConfig<T extends CompInternal | CompExternal> = T extends { type: infer Type }
+  ? Type extends ComponentTypes
+    ? Type
+    : ComponentTypes
+  : ComponentTypes;
+
+export interface HierarchyDataSources extends ContextDataSources {
+  validations: IValidations;
+  devTools: IDevToolsState;
+}
+
+export type LayoutNodeFromObj<T> = T extends { type: infer Type }
+  ? Type extends ComponentTypes
+    ? LayoutNode<Type>
+    : LayoutNode
+  : LayoutNode;
+
+export type TypesFromCategory<Type extends ComponentCategory> = $Keys<PickByValue<ComponentClassMapTypes, Type>>;
+
+export type DefFromCategory<C extends ComponentCategory> = C extends 'presentation'
+  ? PresentationComponent<any>
+  : C extends 'form'
+  ? FormComponent<any>
+  : C extends 'action'
+  ? ActionComponent<any>
+  : C extends 'container'
+  ? ContainerComponent<any>
+  : never;
+
+export type LayoutNodeFromCategory<Type> = Type extends ComponentCategory
+  ? LayoutNode<TypesFromCategory<Type>> & DefFromCategory<Type>
+  : LayoutNode;

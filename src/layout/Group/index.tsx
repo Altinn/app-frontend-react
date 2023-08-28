@@ -10,8 +10,8 @@ import { runValidationOnNodes } from 'src/utils/validation/validation';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { IFormData } from 'src/features/formData';
 import type { ComponentValidation, GroupValidation, PropsFromGenericComponent } from 'src/layout';
+import type { CompInternal, HierarchyDataSources } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { AnyItem, HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -96,7 +96,7 @@ export class Group extends GroupDef implements GroupValidation, ComponentValidat
   }
 
   makeNode(
-    item: AnyItem<'Group'>,
+    item: CompInternal<'Group'>,
     parent: LayoutNode | LayoutPage,
     top: LayoutPage,
     dataSources: HierarchyDataSources,

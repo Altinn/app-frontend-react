@@ -14,9 +14,9 @@ import { _private } from 'src/utils/layout/hierarchy';
 import { generateEntireHierarchy, generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { FunctionTest, SharedTestContext, SharedTestContextList } from 'src/features/expressions/shared';
 import type { Expression } from 'src/features/expressions/types';
+import type { HierarchyDataSources } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
 import type { IApplicationSettings } from 'src/types/shared';
-import type { HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 

@@ -11,7 +11,7 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
 import { _private, dataSourcesFromState } from 'src/utils/layout/hierarchy';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutNodeFromObj } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNodeFromObj } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 

@@ -1,9 +1,15 @@
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { DefGetter } from 'src/layout';
-import type { CompExternalExact, ComponentTypes, ILayout, ILayouts } from 'src/layout/layout';
+import type {
+  CompExternalExact,
+  CompInternal,
+  ComponentTypes,
+  HierarchyDataSources,
+  ILayout,
+  ILayouts,
+} from 'src/layout/layout';
 import type { IRepeatingGroups, ITextResource } from 'src/types';
-import type { AnyItem, HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export type UnprocessedItem<T extends ComponentTypes = ComponentTypes> = CompExternalExact<T>;
@@ -19,11 +25,11 @@ export interface CommonChildFactoryProps {
 }
 
 export interface ChildFactoryProps<T extends ComponentTypes> extends CommonChildFactoryProps {
-  item: UnprocessedItem<T> | AnyItem<T>;
+  item: UnprocessedItem<T> | CompInternal<T>;
 }
 
 export type ChildFactory<T extends ComponentTypes> = (props: ChildFactoryProps<T>) => LayoutNode;
-export type ChildMutator<T extends ComponentTypes = ComponentTypes> = (item: AnyItem<T>) => void;
+export type ChildMutator<T extends ComponentTypes = ComponentTypes> = (item: CompInternal<T>) => void;
 
 export type HierarchyContext = {
   id: string;
@@ -222,7 +228,7 @@ export class HierarchyGenerator {
 
     const allMutators = [...ctx.mutators, ...directMutators, ...recursiveMutators];
     for (const mutator of allMutators) {
-      mutator(clone as AnyItem<T>);
+      mutator(clone as CompInternal<T>);
     }
 
     const instance = this.getInstance(clone.type);

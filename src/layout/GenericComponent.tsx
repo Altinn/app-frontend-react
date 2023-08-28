@@ -21,14 +21,13 @@ import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { ISingleFieldValidation } from 'src/features/formData/formDataTypes';
 import type { IGridStyling } from 'src/layout/common.generated';
 import type { IComponentProps, IFormComponentContext, PropsFromGenericComponent } from 'src/layout/index';
-import type { ComponentTypes, ITextResourceBindings } from 'src/layout/layout';
+import type { CompInternal, ComponentTypes, ITextResourceBindings } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
-import type { AnyItem } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IGenericComponentProps<Type extends ComponentTypes> {
   node: LayoutNode<Type>;
-  overrideItemProps?: Partial<Omit<AnyItem<Type>, 'id'>>;
+  overrideItemProps?: Partial<Omit<CompInternal<Type>, 'id'>>;
   overrideDisplay?: {
     directRender?: true;
     renderLabel?: false;

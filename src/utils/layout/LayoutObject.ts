@@ -1,12 +1,11 @@
-import type { ComponentExceptGroup } from 'src/layout/layout';
-import type { AnyItem } from 'src/utils/layout/hierarchy.types';
+import type { CompInternal, ComponentExceptGroup } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 /**
  * A layout object describes functionality implemented for both a LayoutPage (aka layout) and a
  * LayoutNode (aka an instance of a component inside a layout, or possibly inside a repeating group).
  */
-export interface LayoutObject<Item extends AnyItem = AnyItem, Child extends LayoutNode = LayoutNode> {
+export interface LayoutObject<Item extends CompInternal = CompInternal, Child extends LayoutNode = LayoutNode> {
   /**
    * Looks for a matching component upwards in the hierarchy, returning the first one (or undefined if
    * none can be found)

@@ -5,15 +5,16 @@ import { runValidationOnNodes } from 'src/utils/validation/validation';
 import type { ComponentClassMap } from 'src/layout';
 import type { ComponentCategory } from 'src/layout/common';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated';
-import type { ComponentExceptGroup, ComponentTypes } from 'src/layout/layout';
-import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type {
-  AnyItem,
+  CompInternal,
+  ComponentExceptGroup,
+  ComponentTypes,
   HierarchyDataSources,
   LayoutNodeFromCategory,
   ParentNode,
-  TypeFromAnyItem,
-} from 'src/utils/layout/hierarchy.types';
+  TypeFromConfig,
+} from 'src/layout/layout';
+import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
 import type {
@@ -29,8 +30,10 @@ import type { IValidationOptions } from 'src/utils/validation/validation';
  * A LayoutNode wraps a component with information about its parent, allowing you to traverse a component (or an
  * instance of a component inside a repeating group), finding other components near it.
  */
-export class BaseLayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTypes = TypeFromAnyItem<Item>>
-  implements LayoutObject
+export class BaseLayoutNode<
+  Item extends CompInternal = CompInternal,
+  Type extends ComponentTypes = TypeFromConfig<Item>,
+> implements LayoutObject
 {
   public readonly itemWithExpressions: Item;
   public readonly def: ComponentClassMap[Type];
@@ -62,7 +65,7 @@ export class BaseLayoutNode<Item extends AnyItem = AnyItem, Type extends Compone
    * Looks for a matching component upwards in the hierarchy, returning the first one (or undefined if
    * none can be found).
    */
-  public closest(matching: (item: AnyItem) => boolean): this | LayoutNode | undefined {
+  public closest(matching: (item: CompInternal) => boolean): this | LayoutNode | undefined {
     if (matching(this.item)) {
       return this;
     }
@@ -107,9 +110,9 @@ export class BaseLayoutNode<Item extends AnyItem = AnyItem, Type extends Compone
    * the row number, otherwise you'll most likely just find a component on the first row.
    */
   public children(): LayoutNode[];
-  public children(matching: (item: AnyItem) => boolean, onlyInRowIndex?: number): LayoutNode | undefined;
+  public children(matching: (item: CompInternal) => boolean, onlyInRowIndex?: number): LayoutNode | undefined;
   public children(matching: undefined, onlyInRowIndex?: number): LayoutNode[];
-  public children(matching?: (item: AnyItem) => boolean, onlyInRowIndex?: number): any {
+  public children(matching?: (item: CompInternal) => boolean, onlyInRowIndex?: number): any {
     const list = this.childrenAsList(onlyInRowIndex);
     if (!matching) {
       return list;
