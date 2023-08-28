@@ -1,5 +1,7 @@
-import { createContext } from 'react';
+import { createContext, useMemo } from 'react';
 
+import { FD } from 'src/features/formData2/Compatibility';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { type IUseLanguage, staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { ComponentConfigs } from 'src/layout/components';
 import type { IAttachments } from 'src/features/attachments';
@@ -161,12 +163,17 @@ export function implementsDisplayData<Type extends ComponentTypes>(
   return 'getDisplayData' in component && 'useDisplayData' in component;
 }
 
-export function getDisplayDataPropsFromState(state: IRuntimeState): DisplayDataProps {
+function getDisplayDataPropsFromState(state: IRuntimeState): Omit<DisplayDataProps, 'formData'> {
   return {
-    formData: state.formData.formData,
     attachments: state.attachments.attachments,
     options: state.optionState.options,
     uiConfig: state.formLayout.uiConfig,
     langTools: staticUseLanguageFromState(state),
   };
+}
+
+export function useDisplayDataProps(): DisplayDataProps {
+  const tmp = useAppSelector(getDisplayDataPropsFromState);
+  const formData = FD.useAsDotMap();
+  return useMemo(() => ({ ...tmp, formData }), [tmp, formData]);
 }

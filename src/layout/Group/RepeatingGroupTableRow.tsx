@@ -5,10 +5,9 @@ import { Grid } from '@material-ui/core';
 import { Delete as DeleteIcon, Edit as EditIcon, ErrorColored as ErrorIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
 
-import { getDisplayDataPropsFromState, implementsDisplayData } from '..';
+import { implementsDisplayData, useDisplayDataProps } from '..';
 
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
@@ -106,7 +105,7 @@ export function RepeatingGroupTableRow({
   } as ExprResolved<ILayoutGroup['textResourceBindings']>;
 
   const tableNodes = getTableNodes(index) || [];
-  const displayDataProps = useAppSelector(getDisplayDataPropsFromState);
+  const displayDataProps = useDisplayDataProps();
   const displayData = tableNodes.map((node) =>
     implementsDisplayData(node.def) ? node.def.getDisplayData(node as any, displayDataProps) : '',
   );

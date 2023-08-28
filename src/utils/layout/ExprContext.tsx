@@ -5,6 +5,7 @@ import {
   runExpressionsForLayouts,
   shouldUpdate,
 } from 'src/features/dynamics/conditionalRenderingSagas';
+import { FD } from 'src/features/formData2/Compatibility';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -82,7 +83,7 @@ export function useResolvedNode<T>(selector: string | undefined | T | LayoutNode
 function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
   const _currentHiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
   const tracks = useAppSelector((state) => state.formLayout.uiConfig.tracks);
-  const formData = useAppSelector((state) => state.formData.formData);
+  const formData = FD.useAsDotMap();
   const rules = useAppSelector((state) => state.formDynamics.conditionalRendering);
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
   const _dataSources = useAppSelector(dataSourcesFromState);

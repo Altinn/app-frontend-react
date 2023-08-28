@@ -1,14 +1,13 @@
 import React from 'react';
 
 import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspector/DefaultNodeInspector';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import {
   type DisplayData,
   type DisplayDataProps,
   type EmptyFieldValidation,
-  getDisplayDataPropsFromState,
   type PropsFromGenericComponent,
   type SchemaValidation,
+  useDisplayDataProps,
 } from 'src/layout/index';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { getFieldName } from 'src/utils/formComponentUtils';
@@ -143,7 +142,7 @@ abstract class _FormComponent<Type extends ComponentTypes> extends AnyComponent<
   abstract getDisplayData(node: LayoutNodeFromType<Type>, displayDataProps: DisplayDataProps): string;
 
   useDisplayData(node: LayoutNodeFromType<Type>): string {
-    const displayDataProps = useAppSelector(getDisplayDataPropsFromState);
+    const displayDataProps = useDisplayDataProps();
     return this.getDisplayData(node, displayDataProps);
   }
 
