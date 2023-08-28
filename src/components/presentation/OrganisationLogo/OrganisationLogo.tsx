@@ -1,6 +1,6 @@
 import React from 'react';
 
-import classes from 'src/components/presentation/CustomLogo.module.css';
+import classes from 'src/components/presentation/OrganisationLogo/OrganisationLogo.module.css';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { selectAppOwner } from 'src/selectors/language';
 import { selectAppLogoAltText, selectAppLogoUrl, selectShowAppOwnerInHeader } from 'src/selectors/logo';
