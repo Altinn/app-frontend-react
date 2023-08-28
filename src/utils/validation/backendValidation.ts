@@ -97,6 +97,7 @@ export function mapValidationIssues(
   issues: BackendValidationIssue[],
   resolvedNodes: LayoutPages,
   langTools: IUseLanguage,
+  respectTracks = true,
 ): IValidationObject[] {
   if (!resolvedNodes) {
     return [];
@@ -105,8 +106,7 @@ export function mapValidationIssues(
   const allNodes = resolvedNodes
     .allNodes()
     .filter(
-      (node) =>
-        !node.isHidden({ respectTracks: true }) && !('renderAsSummary' in node.item && node.item.renderAsSummary),
+      (node) => !node.isHidden({ respectTracks }) && !('renderAsSummary' in node.item && node.item.renderAsSummary),
     );
 
   const validationOutputs: IValidationObject[] = [];
