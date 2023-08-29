@@ -120,6 +120,9 @@
     },
     "messageBoxConfig": {
       "$ref": "#/definitions/messageBoxConfig"
+    },
+    "logo": {
+      "$ref": "#/definitions/logo"
     }
   },
   "definitions": {
@@ -549,6 +552,17 @@
           }
         }
       ]
+    },
+    "logo": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string",
+          "title": "Source",
+          "description": "The source of the logo. Can be a \"org\" or \"resource\"",
+          "enum": ["org", "resource"]
+        }
+      }
     }
   }
 }
