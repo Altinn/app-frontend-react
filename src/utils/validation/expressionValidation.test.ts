@@ -2,6 +2,7 @@ import dot from 'dot-object';
 import fs from 'node:fs';
 
 import { getHierarchyDataSourcesMock } from 'src/__mocks__/hierarchyMock';
+import { convertLayouts, type Layouts } from 'src/features/expressions/shared';
 import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
 import { buildAuthContext } from 'src/utils/authContext';
 import { getRepeatingGroups } from 'src/utils/formLayout';
@@ -11,7 +12,7 @@ import {
   resolveExpressionValidationConfig,
   runExpressionValidationsOnNode,
 } from 'src/utils/validation/expressionValidation';
-import type { ILayout } from 'src/layout/layout';
+import type { IRepeatingGroups } from 'src/types';
 import type { IApplicationSettings } from 'src/types/shared';
 import type { HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
 import type {
@@ -33,7 +34,7 @@ type ExpressionValidationTest = {
   }[];
   validationConfig: IExpressionValidationConfig;
   formData: object;
-  layout: ILayout;
+  layouts: Layouts;
 };
 
 function getSharedTests() {
@@ -53,7 +54,7 @@ function getSharedTests() {
 
 describe('Expression validation shared tests', () => {
   const sharedTests = getSharedTests();
-  it.each(sharedTests)('$name', ({ name, expects, validationConfig, formData, layout }) => {
+  it.each(sharedTests)('$name', ({ name, expects, validationConfig, formData, layouts }) => {
     const langTools = staticUseLanguageForTests({
       textResources: [],
     });
@@ -74,14 +75,16 @@ describe('Expression validation shared tests', () => {
       langTools,
     } as any as IValidationContext;
 
-    const repeatingGroups = getRepeatingGroups(layout, dataSources.formData);
-    const currentLayout = 'page';
-    const rootCollection = resolvedNodesInLayouts(
-      { [currentLayout]: layout },
-      currentLayout,
-      repeatingGroups,
-      dataSources,
-    );
+    const _layouts = convertLayouts(layouts);
+    let repeatingGroups: IRepeatingGroups = {};
+    for (const key of Object.keys(_layouts)) {
+      repeatingGroups = {
+        ...repeatingGroups,
+        ...getRepeatingGroups(_layouts[key] || [], dataSources.formData),
+      };
+    }
+
+    const rootCollection = resolvedNodesInLayouts(_layouts, '', repeatingGroups, dataSources);
 
     const nodes = rootCollection.allNodes();
     const validationObjects: IValidationMessage<ValidationSeverity>[] = [];
