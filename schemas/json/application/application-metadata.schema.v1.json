@@ -568,6 +568,7 @@
           "description": "A boolean indicating if the app owner name should be displayed in the header next to the logo."
         }
       },
+      "required": ["source"],
       "additionalProperties": false
     }
   }
