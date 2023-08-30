@@ -12,12 +12,13 @@ import { httpPost } from 'src/utils/network/networking';
 import { isAxiosError } from 'src/utils/network/sharedNetworking';
 import { fileUploadUrl } from 'src/utils/urls/appUrlHelper';
 import { customEncodeURI } from 'src/utils/urls/urlHelper';
-import { BackendValidationSeverity, getValidationMessage } from 'src/utils/validation/backendValidation';
+import { getValidationMessage } from 'src/utils/validation/backendValidation';
+import { BackendValidationSeverity } from 'src/utils/validation/backendValidationSeverity';
 import type { IAttachment } from 'src/features/attachments';
 import type { IUploadAttachmentAction } from 'src/features/attachments/upload/uploadAttachmentActions';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { IRuntimeState } from 'src/types';
-import type { IComponentValidations, IValidationIssue } from 'src/utils/validation/types';
+import type { BackendValidationIssue, IComponentValidations } from 'src/utils/validation/types';
 
 export function* uploadAttachmentSaga({
   payload: { file, attachmentType, tmpAttachmentId, componentId, dataModelBindings, index },
@@ -75,14 +76,15 @@ export function* uploadAttachmentSaga({
       }),
     );
 
-    if (dataModelBindings && (dataModelBindings.simpleBinding || dataModelBindings.list)) {
+    if (dataModelBindings && ('simpleBinding' in dataModelBindings || 'list' in dataModelBindings)) {
       yield put(
         FormDataActions.update({
           componentId,
           data: response.data.id,
-          field: dataModelBindings.simpleBinding
-            ? `${dataModelBindings.simpleBinding}`
-            : `${dataModelBindings.list}[${index}]`,
+          field:
+            'simpleBinding' in dataModelBindings
+              ? `${dataModelBindings.simpleBinding}`
+              : `${dataModelBindings.list}[${index}]`,
         }),
       );
     }
@@ -90,7 +92,7 @@ export function* uploadAttachmentSaga({
     let validations: IComponentValidations;
 
     if (backendFeatures?.jsonObjectInDataResponse && isAxiosError(err) && err.response?.data?.result) {
-      const validationIssues: IValidationIssue[] = err.response.data.result;
+      const validationIssues: BackendValidationIssue[] = err.response.data.result;
 
       validations = {
         simpleBinding: {

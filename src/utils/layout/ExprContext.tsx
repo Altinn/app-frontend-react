@@ -9,9 +9,10 @@ import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
-import { _private, dataSourcesFromState } from 'src/utils/layout/hierarchy';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutNodeFromObj } from 'src/utils/layout/hierarchy.types';
+import { _private, selectDataSourcesFromState } from 'src/utils/layout/hierarchy';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNodeFromObj } from 'src/layout/layout';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 export const ExprContext = React.createContext<LayoutPages | undefined>(undefined);
@@ -56,7 +57,7 @@ export const useExprContext = () => useContext(ExprContext);
 export function useResolvedNode<T>(selector: string | undefined | T | LayoutNode): LayoutNodeFromObj<T> | undefined {
   const context = useExprContext();
 
-  if (typeof selector === 'object' && selector !== null && selector instanceof LayoutNode) {
+  if (typeof selector === 'object' && selector !== null && selector instanceof BaseLayoutNode) {
     return selector as any;
   }
 
@@ -85,7 +86,7 @@ function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
   const formData = useAppSelector((state) => state.formData.formData);
   const rules = useAppSelector((state) => state.formDynamics.conditionalRendering);
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
-  const dataSources = useAppSelector(dataSourcesFromState);
+  const dataSources = useAppSelector(selectDataSourcesFromState);
   const dispatch = useAppDispatch();
 
   useEffect(() => {

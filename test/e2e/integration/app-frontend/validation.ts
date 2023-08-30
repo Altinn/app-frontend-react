@@ -2,7 +2,9 @@ import texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { Common } from 'test/e2e/pageobjects/common';
 
-import { Triggers } from 'src/types';
+import { Triggers } from 'src/layout/common.generated';
+import { BackendValidationSeverity } from 'src/utils/validation/backendValidationSeverity';
+import type { BackendValidationIssue } from 'src/utils/validation/types';
 
 const appFrontend = new AppFrontend();
 const mui = new Common();
@@ -142,6 +144,24 @@ describe('Validation', () => {
     cy.get(appFrontend.changeOfName.newLastName).should('be.focused');
   });
 
+  it('Process should not continue if any validation fails, even if unmappable', () => {
+    cy.goto('changename');
+    cy.fillOut('changename');
+
+    cy.get(appFrontend.grid.bolig.percent).numberFormatClear();
+    cy.get(appFrontend.grid.studie.percent).numberFormatClear();
+    cy.get(appFrontend.grid.kredittkort.percent).numberFormatClear();
+    cy.get(appFrontend.grid.kredittkort.percent).type('44');
+    cy.get(appFrontend.grid.studie.percent).type('56');
+
+    // When filling out the credit card field with 44%, there is a special validation that triggers and is added to
+    // a field on a hidden page. Even though this should not happen, we should still not be able to continue, as
+    // submitting the form now when there is a validation error should not be possible - and attempting it will cause
+    // the dreaded 'unknown error' message to appear.
+    cy.get(appFrontend.sendinButton).click();
+    cy.get(appFrontend.errorReport).should('contain.text', 'Valideringsmelding på felt som aldri vises');
+  });
+
   it('Validation on uploaded attachment type', () => {
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.png', { force: true });
@@ -257,6 +277,33 @@ describe('Validation', () => {
     cy.get(appFrontend.group.comments).should('not.exist');
     cy.get(appFrontend.fieldValidation('comments')).should('not.exist');
     cy.get(appFrontend.errorReport).should('not.exist');
+
+    // Setting single field validation to trigger on the 'sendersName' component
+    cy.changeLayout((component) => {
+      if (component.id === 'sendersName' && component.type === 'Input') {
+        // Make sure changing this field triggers single field validation
+        component.triggers = [Triggers.Validation];
+      }
+    });
+
+    cy.intercept('GET', '**/validate', [
+      {
+        code: 'Tullevalidering',
+        description: 'Tullevalidering',
+        field: 'Endringsmelding-grp-9786.Avgiver-grp-9787.OppgavegiverNavn-datadef-68.value',
+        severity: BackendValidationSeverity.Error,
+        scope: null,
+        targetId: 'sendersName',
+      },
+    ] as BackendValidationIssue[]);
+
+    // Verify that validation message is shown, but also make sure only one error message is shown
+    // (there is a hidden layout that also binds to the same location, and a bug caused it to show
+    // up twice because of that component on the hidden layout)
+    cy.gotoNavPage('hide');
+    cy.get(appFrontend.group.sendersName).type('hello world');
+    cy.get(appFrontend.errorReport).should('contain.text', 'Tullevalidering');
+    cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 1);
   });
 
   it('List component: validation messages should only show up once', () => {
@@ -271,7 +318,10 @@ describe('Validation', () => {
 
   it('Clicking the error report should focus the correct field', () => {
     cy.interceptLayout('group', (component) => {
-      if (component.id === 'comments' || component.id === 'newValue' || component.id === 'currentValue') {
+      if (
+        (component.id === 'comments' || component.id === 'newValue' || component.id === 'currentValue') &&
+        (component.type === 'Input' || component.type === 'TextArea')
+      ) {
         component.required = true;
       }
     });
@@ -343,7 +393,12 @@ describe('Validation', () => {
     cy.get(appFrontend.prevButton).click();
 
     cy.changeLayout((component) => {
-      if (component.type === 'Group' && component.id === 'mainGroup' && component.tableColumns) {
+      if (
+        component.type === 'Group' &&
+        component.id === 'mainGroup' &&
+        'tableColumns' in component &&
+        component.tableColumns
+      ) {
         // As the component is hidden in edit mode, and not shown in the table for editing, it should not be
         // showing any validation messages.
         component.tableColumns.currentValue.showInExpandedEdit = false;
@@ -374,7 +429,7 @@ describe('Validation', () => {
     cy.get(appFrontend.errorReport).should('not.exist');
 
     cy.changeLayout((component) => {
-      if (component.type === 'Group' && component.id === 'mainGroup' && component.edit) {
+      if (component.type === 'Group' && component.id === 'mainGroup' && 'edit' in component && component.edit) {
         // In the 'onlyTable' mode, there is no option to edit a row, so we should not open the row in edit mode
         // to focus a component either.
         component.edit.mode = 'onlyTable';
@@ -390,7 +445,12 @@ describe('Validation', () => {
     cy.get(appFrontend.group.editContainer).should('not.exist');
 
     cy.changeLayout((component) => {
-      if (component.type === 'Group' && component.id === 'mainGroup' && component.tableColumns) {
+      if (
+        component.type === 'Group' &&
+        component.id === 'mainGroup' &&
+        'tableColumns' in component &&
+        component.tableColumns
+      ) {
         component.tableColumns.currentValue.editInTable = undefined;
         component.tableColumns.newValue.editInTable = true;
       }
@@ -426,7 +486,12 @@ describe('Validation', () => {
     cy.get(appFrontend.group.editContainer).should('not.exist');
 
     cy.changeLayout((component) => {
-      if (component.type === 'Group' && component.id === 'mainGroup' && component.tableColumns) {
+      if (
+        component.type === 'Group' &&
+        component.id === 'mainGroup' &&
+        'tableColumns' in component &&
+        component.tableColumns
+      ) {
         // Components that are not editable in the table, when using the 'onlyTable' mode, are implicitly hidden
         component.tableColumns.currentValue.editInTable = false;
       }
@@ -444,7 +509,14 @@ describe('Validation', () => {
     cy.get(appFrontend.group.row(2).newValue).should('be.focused');
 
     cy.changeLayout((component) => {
-      if (component.type === 'Group' && component.id === 'mainGroup' && component.edit && component.tableColumns) {
+      if (
+        component.type === 'Group' &&
+        component.id === 'mainGroup' &&
+        'edit' in component &&
+        component.edit &&
+        'tableColumns' in component &&
+        component.tableColumns
+      ) {
         // In regular mode, if the edit button is hidden, we should not open the row in edit mode to focus a component
         // because this isn't a mode the user would be able to reach either.
         component.edit.mode = 'showTable';

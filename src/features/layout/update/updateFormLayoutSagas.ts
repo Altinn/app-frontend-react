@@ -8,8 +8,8 @@ import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
+import { Triggers } from 'src/layout/common.generated';
 import { getLayoutOrderFromTracks, selectLayoutOrder } from 'src/selectors/getLayoutOrder';
-import { Triggers } from 'src/types';
 import {
   getCurrentDataTypeForApplication,
   getCurrentDataTypeId,
@@ -33,10 +33,10 @@ import {
 import type { ICalculatePageOrderAndMoveToNextPage, IUpdateCurrentView } from 'src/features/layout/formLayoutTypes';
 import type { IRuntimeState, IUiConfig } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
-import type { IValidationIssue } from 'src/utils/validation/types';
+import type { BackendValidationIssue } from 'src/utils/validation/types';
 
 export const selectFormLayoutState = (state: IRuntimeState) => state.formLayout;
-export const selectFormData = (state: IRuntimeState) => state.formData;
+export const selectFormData = (state: IRuntimeState) => state.formData.formData;
 export const selectFormLayouts = (state: IRuntimeState) => state.formLayout.layouts;
 export const selectAttachmentState = (state: IRuntimeState) => state.attachments;
 export const selectValidations = (state: IRuntimeState) => state.formValidations.validations;
@@ -121,7 +121,7 @@ export function* updateCurrentViewSaga({
       );
 
       const validationOptions = runValidations === Triggers.ValidatePage ? options : undefined;
-      const serverValidations: IValidationIssue[] =
+      const serverValidations: BackendValidationIssue[] =
         instanceId && currentTaskDataId
           ? yield call(httpGet, getDataValidationUrl(instanceId, currentTaskDataId), validationOptions)
           : [];
