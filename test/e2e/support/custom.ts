@@ -156,7 +156,7 @@ const knownWcagViolations: KnownViolation[] = [
     nodeLength: 1,
   },
   {
-    spec: 'stateless-anonymous-app/validation.ts',
+    spec: 'anonymous-stateless-app/validation.ts',
     test: 'Should show validation message for missing name',
     id: 'list',
     nodeLength: 1,
