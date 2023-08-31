@@ -33,10 +33,6 @@ export interface IOptionResources {
 }
 
 export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, source }: IUseGetOptionsParams) => {
-  const relevantFormData = useAppSelector(
-    (state) => (source && getRelevantFormDataForOptionSource(state.formData.formData, source)) || {},
-    shallowEqual,
-  );
   const { instanceId } = window;
   const { data: instance } = useCurrentInstanceQuery(instanceId || '', !!instanceId);
   const { data: applicationMetadata } = useApplicationMetadataQuery();
@@ -89,7 +85,7 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, sou
     mapping,
     queryParameters,
     secure,
-    !!instanceId && !!layouts && !!optionsId && !!formData,
+    !!instanceId && !!optionsId && !!formData,
   );
 
   useEffect(() => {
@@ -102,7 +98,7 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, sou
     }
 
     const instanceContext = buildInstanceContext(instance);
-
+    const relevantFormData = (source && formData && getRelevantFormDataForOptionSource(formData, source)) || {};
     const dataSources: IDataSources = {
       dataModel: relevantFormData,
       applicationSettings: applicationSettings || {},
@@ -125,7 +121,6 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, sou
   }, [
     applicationSettings,
     optionsId,
-    relevantFormData,
     instance,
     mapping,
     repeatingGroups,
@@ -135,6 +130,7 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, sou
     relevantTextResources.helpText,
     queryParameters,
     fetchedOptions,
+    formData,
   ]);
   return options;
 };
