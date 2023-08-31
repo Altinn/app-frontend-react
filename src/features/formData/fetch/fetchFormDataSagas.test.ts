@@ -3,7 +3,6 @@ import { expectSaga } from 'redux-saga-test-plan';
 import type { AxiosError, AxiosRequestHeaders } from 'axios';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { DataModelActions } from 'src/features/datamodel/datamodelSlice';
 import {
   fetchFormDataInitialSaga,
   fetchFormDataSaga,
@@ -313,7 +312,6 @@ describe('fetchFormDataSagas', () => {
         [select(processStateSelector), processState],
       ])
       .take(InstanceDataActions.getFulfilled)
-      .take(DataModelActions.fetchJsonSchemaFulfilled)
       .call(fetchFormDataInitialSaga)
       .run();
   });
@@ -326,7 +324,6 @@ describe('fetchFormDataSagas', () => {
         [select(appMetaDataSelector), appMetadata],
         [select(makeGetAllowAnonymousSelector()), false],
       ])
-      .take(DataModelActions.fetchJsonSchemaFulfilled)
       .call(fetchFormDataInitialSaga)
       .run();
   });
