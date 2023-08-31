@@ -19,7 +19,7 @@ import type { IFooterLayout } from 'src/features/footer/types';
 import type { ILayoutSets, ISimpleInstance } from 'src/types';
 import type { IAltinnOrgs, IApplicationSettings, IProfile } from 'src/types/shared';
 
-export const doPartyValidation = (partyId: string) => httpPost(getPartyValidationUrl(partyId));
+export const doPartyValidation = async (partyId: string) => (await httpPost(getPartyValidationUrl(partyId))).data;
 
 export const fetchActiveInstances = (partyId: string): Promise<ISimpleInstance[]> =>
   httpGet(getActiveInstancesUrl(partyId));
