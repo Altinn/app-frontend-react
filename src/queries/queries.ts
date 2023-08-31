@@ -6,6 +6,7 @@ import {
   currentPartyUrl,
   getActiveInstancesUrl,
   getFooterLayoutUrl,
+  getJsonSchemaUrl,
   getLayoutSetsUrl,
   getPartyValidationUrl,
   profileApiUrl,
@@ -43,3 +44,5 @@ export const fetchOrgs = (): Promise<{ orgs: IAltinnOrgs }> =>
 export const fetchUserProfile = (): Promise<IProfile> => httpGet(profileApiUrl);
 
 export const fetchRefreshJwtToken = () => httpGet(refreshJwtTokenUrl);
+
+export const fetchDataModelSchema = (dataTypeName: string) => httpGet(getJsonSchemaUrl() + dataTypeName);

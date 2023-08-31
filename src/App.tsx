@@ -8,6 +8,7 @@ import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { useApplicationMetadataQuery } from 'src/hooks/queries/useApplicationMetadataQuery';
 import { useApplicationSettingsQuery } from 'src/hooks/queries/useApplicationSettingsQuery';
+import { useCurrentDataModelSchemaQuery } from 'src/hooks/queries/useCurrentDataModelSchemaQuery';
 import { useFooterLayoutQuery } from 'src/hooks/queries/useFooterLayoutQuery';
 import { useCurrentPartyQuery } from 'src/hooks/queries/useGetCurrentPartyQuery';
 import { usePartiesQuery } from 'src/hooks/queries/useGetPartiesQuery';
@@ -31,6 +32,7 @@ export const App = () => {
   const { isError: hasLayoutSetError } = useLayoutSetsQuery();
   const { isError: hasOrgsError } = useOrgsQuery();
   useFooterLayoutQuery(!!applicationMetadata?.features?.footer);
+  useCurrentDataModelSchemaQuery();
 
   const componentIsReady = applicationSettings && applicationMetadata;
   const componentHasError =
