@@ -1,9 +1,11 @@
-import { call, put, select, take } from 'redux-saga/effects';
+import { all, call, put, select, take } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
+import { DataModelActions } from 'src/features/datamodel/datamodelSlice';
 import { FormDynamicsActions } from 'src/features/dynamics/formDynamicsSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FormRulesActions } from 'src/features/formRules/rulesSlice';
+import { InstanceDataActions } from 'src/features/instanceData/instanceDataSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import {
@@ -11,6 +13,7 @@ import {
   currentSelectedPartyIdSelector,
   instanceDataSelector,
   layoutSetsSelector,
+  processStateSelector,
 } from 'src/selectors/simpleSelectors';
 import { getCurrentTaskDataElementId, getDataTypeByLayoutSetId, isStatelessApp } from 'src/utils/appMetadata';
 import { convertModelToDataBinding } from 'src/utils/databindings';
@@ -24,6 +27,7 @@ import {
   redirectToUpgrade,
 } from 'src/utils/urls/appUrlHelper';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { IProcessState } from 'src/features/process';
 import type { ILayoutSets } from 'src/types';
 import type { IInstance } from 'src/types/shared';
 
@@ -121,12 +125,17 @@ function* fetchFormDataStateless(applicationMetadata: IApplicationMetadata) {
 export function* watchFetchFormDataInitialSaga(): SagaIterator {
   while (true) {
     yield take(FormDataActions.fetchInitial);
+    const processState: IProcessState = yield select(processStateSelector);
+    const instance: IInstance = yield select(instanceDataSelector);
     const application: IApplicationMetadata = yield select(appMetaDataSelector);
     if (isStatelessApp(application)) {
+      yield take(DataModelActions.fetchJsonSchemaFulfilled);
       const allowAnonymous = yield select(makeGetAllowAnonymousSelector());
       if (!allowAnonymous) {
         yield waitFor((state) => currentSelectedPartyIdSelector(state) !== undefined);
       }
+    } else if (!processState || !instance || processState.taskId !== instance.process?.currentTask?.elementId) {
+      yield all([take(InstanceDataActions.getFulfilled), take(DataModelActions.fetchJsonSchemaFulfilled)]);
     }
     yield call(fetchFormDataInitialSaga);
   }
