@@ -8,31 +8,23 @@ import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useCurrentDataModelName } from 'src/hooks/useDataModelSchema';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
-enum ServerStateCacheKey {
-  DataModelSchemas = 'fetchDataModelSchemas',
-}
-
 export const useCurrentDataModelSchemaQuery = (): UseQueryResult<JSONSchema7> => {
   const dispatch = useAppDispatch();
   const { fetchDataModelSchema } = useAppQueriesContext();
   const dataModelName = useCurrentDataModelName();
-  return useQuery(
-    [ServerStateCacheKey.DataModelSchemas, dataModelName],
-    () => fetchDataModelSchema(dataModelName || ''),
-    {
-      enabled: !!dataModelName,
-      onSuccess: (schema) => {
-        dispatch(DataModelActions.fetchFulfilled({ id: dataModelName || '', schema }));
-      },
-      onError: (error: HttpClientError) => {
-        if (error.status === 404) {
-          dispatch(DataModelActions.fetchRejected({ error: null }));
-          window.logWarn('Data model schema not found:\n', error);
-        } else {
-          dispatch(DataModelActions.fetchRejected({ error }));
-          window.logError('Data model schema request failed:\n', error);
-        }
-      },
+  return useQuery(['fetchDataModelSchemas', dataModelName], () => fetchDataModelSchema(dataModelName || ''), {
+    enabled: !!dataModelName,
+    onSuccess: (schema) => {
+      dispatch(DataModelActions.fetchFulfilled({ id: dataModelName || '', schema }));
     },
-  );
+    onError: (error: HttpClientError) => {
+      if (error.status === 404) {
+        dispatch(DataModelActions.fetchRejected({ error: null }));
+        window.logWarn('Data model schema not found:\n', error);
+      } else {
+        dispatch(DataModelActions.fetchRejected({ error }));
+        window.logError('Data model schema request failed:\n', error);
+      }
+    },
+  });
 };
