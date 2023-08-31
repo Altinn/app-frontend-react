@@ -8,6 +8,7 @@ import { useFormDataQuery } from 'src/hooks/queries/useFormdataQuery';
 import { useGetOptionsQuery } from 'src/hooks/queries/useGetOptionsQuery';
 import { useLayoutSetsQuery } from 'src/hooks/queries/useLayoutSetsQuery';
 import { useLayoutsQuery } from 'src/hooks/queries/useLayoutsQuery';
+import { useRepeatingGroupsQuery } from 'src/hooks/queries/useRepeatingGroupsQuery';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getCurrentTaskDataElementId, getLayoutSetIdForApplication } from 'src/utils/appMetadata';
 import { convertModelToDataBinding } from 'src/utils/databindings';
@@ -47,13 +48,15 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, sou
     instance || null,
     layoutSets || null,
   );
+
   const { data: fetchedFormData } = useFormDataQuery(
     instanceId || '',
     currentTaskDataElementId || '',
-    !!currentTaskDataElementId,
+    !!currentTaskDataElementId && !!instanceId,
   );
 
   const { data: applicationSettings } = useApplicationSettingsQuery();
+
   const formData = fetchedFormData && convertModelToDataBinding(fetchedFormData);
 
   const relevantTextResources: IOptionResources = useAppSelector((state) => {
@@ -67,11 +70,15 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, sou
     };
   }, shallowEqual);
 
-  const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
-
   const layoutSetId = getLayoutSetIdForApplication(applicationMetadata || null, instance, layoutSets);
-
   const { data: layouts } = useLayoutsQuery(layoutSetId || '', !!layoutSetId);
+
+  const { data: repeatingGroups } = useRepeatingGroupsQuery(
+    instanceId || '',
+    currentTaskDataElementId || '',
+    layouts || null,
+    !!instanceId && !!currentTaskDataElementId && !!layouts,
+  );
 
   const [options, setOptions] = useState<IOption[] | undefined>(undefined);
 
