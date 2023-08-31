@@ -13,6 +13,7 @@ import 'src/features/styleInjection';
 
 import { AppWrapper } from '@altinn/altinn-design-system';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import { App } from 'src/App';
 import { ErrorBoundary } from 'src/components/ErrorBoundary';
@@ -27,19 +28,19 @@ import { ExprContextWrapper } from 'src/utils/layout/ExprContext';
 
 import 'src/index.css';
 
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      staleTime: 10 * 60 * 1000,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   const { store, sagaMiddleware } = setupStore();
   initSagas(sagaMiddleware);
-
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        staleTime: 10 * 60 * 1000,
-        refetchOnWindowFocus: false,
-      },
-    },
-  });
 
   const container = document.getElementById('root');
   const root = container && createRoot(container);
@@ -58,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
                       </DevTools>
                     </ExprContextWrapper>
                   </DataModelSchemaContextWrapper>
+                  <ReactQueryDevtools initialIsOpen={false} />
                 </AppQueriesContextProvider>
               </QueryClientProvider>
             </ErrorBoundary>

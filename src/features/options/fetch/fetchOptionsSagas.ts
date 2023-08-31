@@ -4,6 +4,7 @@ import type { SagaIterator } from 'redux-saga';
 
 import { OptionsActions } from 'src/features/options/optionsSlice';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
+import { queryClient } from 'src/index';
 import {
   getKeyIndex,
   getKeyWithoutIndex,
@@ -130,6 +131,12 @@ export function* fetchSpecificOptionSaga({
     });
 
     const options: IOption[] = yield call(httpGet, url);
+
+    //This is a temporary solution while we use both Saga and Tanstack Query.
+    if (options) {
+      queryClient.setQueryData([optionsId], options);
+    }
+
     yield put(OptionsActions.fetchFulfilled({ key, options }));
   } catch (error) {
     yield put(OptionsActions.fetchRejected({ key, error }));

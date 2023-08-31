@@ -67,21 +67,17 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, sou
     };
   }, shallowEqual);
 
-  console.log(formData);
-
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
 
   const layoutSetId = getLayoutSetIdForApplication(applicationMetadata || null, instance, layoutSets);
 
   const { data: layouts } = useLayoutsQuery(layoutSetId || '', !!layoutSetId);
-  console.log(layouts);
 
   const [options, setOptions] = useState<IOption[] | undefined>(undefined);
 
   const { data: fetchedOptions } = useGetOptionsQuery(
     instanceId || '',
-    layouts,
-    optionsId,
+    optionsId || '',
     formData,
     mapping,
     queryParameters,

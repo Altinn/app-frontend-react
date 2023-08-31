@@ -49,7 +49,7 @@ export const fetchLayout = (instanceId: string | null): Promise<ILayoutSets> => 
 export const fetchFormData = (instanceId: string, currentTaskDataElementId: string): Promise<IFormData> =>
   httpGet(getFetchFormDataUrl(instanceId, currentTaskDataElementId));
 
-export const fetchOptions = ({
+export const fetchOptions = (
   optionsId,
   formData,
   language,
@@ -57,7 +57,7 @@ export const fetchOptions = ({
   fixedQueryParameters,
   secure,
   instanceId,
-}: IGetOptionsUrlParams): Promise<IGetOptionsUrlParams> =>
+): Promise<IGetOptionsUrlParams> =>
   httpGet(getOptionsUrl({ optionsId, formData, language, dataMapping, fixedQueryParameters, secure, instanceId }));
 
 export const fetchOrgs = (): Promise<{ orgs: IAltinnOrgs }> =>
