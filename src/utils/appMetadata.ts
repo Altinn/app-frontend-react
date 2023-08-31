@@ -20,7 +20,7 @@ export const onEntryValuesThatHaveState: string[] = ['new-instance', 'select-ins
  * @returns the layout set for the application if present
  */
 export function getLayoutSetIdForApplication(
-  application: IApplication,
+  application: IApplication | null,
   instance?: IInstance | null,
   layoutSets?: ILayoutSets | null,
 ): string | undefined {

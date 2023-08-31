@@ -9,6 +9,7 @@ import {
   getFooterLayoutUrl,
   getLayoutSetsUrl,
   getLayoutsUrl,
+  getOptionsUrl,
   getPartyValidationUrl,
   instancesControllerUrl,
   profileApiUrl,
@@ -21,6 +22,7 @@ import type { IFooterLayout } from 'src/features/footer/types';
 import type { IFormData } from 'src/features/formData';
 import type { ILayoutSets, ISimpleInstance } from 'src/types';
 import type { IAltinnOrgs, IApplicationSettings, IProfile } from 'src/types/shared';
+import type { IGetOptionsUrlParams } from 'src/utils/urls/appUrlHelper';
 
 export const doPartyValidation = (partyId: string) => httpPost(getPartyValidationUrl(partyId));
 
@@ -46,6 +48,17 @@ export const fetchLayout = (instanceId: string | null): Promise<ILayoutSets> => 
 
 export const fetchFormData = (instanceId: string, currentTaskDataElementId: string): Promise<IFormData> =>
   httpGet(getFetchFormDataUrl(instanceId, currentTaskDataElementId));
+
+export const fetchOptions = ({
+  optionsId,
+  formData,
+  language,
+  dataMapping,
+  fixedQueryParameters,
+  secure,
+  instanceId,
+}: IGetOptionsUrlParams): Promise<IGetOptionsUrlParams> =>
+  httpGet(getOptionsUrl({ optionsId, formData, language, dataMapping, fixedQueryParameters, secure, instanceId }));
 
 export const fetchOrgs = (): Promise<{ orgs: IAltinnOrgs }> =>
   httpGet(orgsListUrl, {

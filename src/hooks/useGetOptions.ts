@@ -5,13 +5,14 @@ import { useApplicationMetadataQuery } from 'src/hooks/queries/useApplicationMet
 import { useApplicationSettingsQuery } from 'src/hooks/queries/useApplicationSettingsQuery';
 import { useCurrentInstanceQuery } from 'src/hooks/queries/useCurrentInstanceQuery';
 import { useFormDataQuery } from 'src/hooks/queries/useFormdataQuery';
+import { useGetOptionsQuery } from 'src/hooks/queries/useGetOptionsQuery';
 import { useLayoutSetsQuery } from 'src/hooks/queries/useLayoutSetsQuery';
 import { useLayoutsQuery } from 'src/hooks/queries/useLayoutsQuery';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getCurrentTaskDataElementId, getLayoutSetIdForApplication } from 'src/utils/appMetadata';
 import { convertModelToDataBinding } from 'src/utils/databindings';
 import { buildInstanceContext } from 'src/utils/instanceContext';
-import { getOptionLookupKey, getRelevantFormDataForOptionSource, setupSourceOptions } from 'src/utils/options';
+import { getRelevantFormDataForOptionSource, setupSourceOptions } from 'src/utils/options';
 import type { IMapping, IOption, IOptionSource } from 'src/layout/common.generated';
 import type { ITextResource } from 'src/types';
 import type { IDataSources } from 'src/types/shared';
@@ -20,6 +21,7 @@ interface IUseGetOptionsParams {
   optionsId: string | undefined;
   mapping?: IMapping;
   queryParameters?: Record<string, string>;
+  secure?: boolean;
   source?: IOptionSource;
 }
 
@@ -29,7 +31,7 @@ export interface IOptionResources {
   helpText?: ITextResource;
 }
 
-export const useGetOptions = ({ optionsId, mapping, queryParameters, source }: IUseGetOptionsParams) => {
+export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, source }: IUseGetOptionsParams) => {
   const relevantFormData = useAppSelector(
     (state) => (source && getRelevantFormDataForOptionSource(state.formData.formData, source)) || {},
     shallowEqual,
@@ -74,14 +76,22 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, source }: I
   const { data: layouts } = useLayoutsQuery(layoutSetId || '', !!layoutSetId);
   console.log(layouts);
 
-  const optionState = useAppSelector((state) => state.optionState.options);
-  // console.log(optionState);
   const [options, setOptions] = useState<IOption[] | undefined>(undefined);
+
+  const { data: fetchedOptions } = useGetOptionsQuery(
+    instanceId || '',
+    layouts,
+    optionsId,
+    formData,
+    mapping,
+    queryParameters,
+    secure,
+    !!instanceId && !!layouts && !!optionsId && !!formData,
+  );
 
   useEffect(() => {
     if (optionsId) {
-      const key = getOptionLookupKey({ id: optionsId, mapping, fixedQueryParameters: queryParameters });
-      setOptions(optionState[key]?.options);
+      setOptions(fetchedOptions);
     }
 
     if (!source || !repeatingGroups || !relevantTextResources.label) {
@@ -115,14 +125,13 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, source }: I
     relevantFormData,
     instance,
     mapping,
-    optionState,
     repeatingGroups,
     source,
     relevantTextResources.label,
     relevantTextResources.description,
     relevantTextResources.helpText,
     queryParameters,
+    fetchedOptions,
   ]);
-
   return options;
 };
