@@ -1,3 +1,6 @@
+import type { AxiosRequestConfig } from 'axios';
+import type { JSONSchema7 } from 'json-schema';
+
 import { httpPost } from 'src/utils/network/networking';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import {
@@ -45,4 +48,7 @@ export const fetchUserProfile = (): Promise<IProfile> => httpGet(profileApiUrl);
 
 export const fetchRefreshJwtToken = () => httpGet(refreshJwtTokenUrl);
 
-export const fetchDataModelSchema = (dataTypeName: string) => httpGet(getJsonSchemaUrl() + dataTypeName);
+export const fetchDataModelSchema = (dataTypeName: string): Promise<JSONSchema7> =>
+  httpGet(getJsonSchemaUrl() + dataTypeName);
+
+export const fetchFormData = (url: string, options?: AxiosRequestConfig): Promise<any> => httpGet(url, options);

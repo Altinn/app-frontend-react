@@ -2,7 +2,6 @@ import { put } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
-import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { IsLoadingActions } from 'src/features/isLoading/isLoadingSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { PdfActions } from 'src/features/pdf/data/pdfSlice';
@@ -73,7 +72,6 @@ export const queueSlice = () => {
       }),
       startInitialDataTaskQueue: mkAction<void>({
         *takeEvery(): SagaIterator {
-          yield put(FormDataActions.fetchInitial());
           yield put(FormLayoutActions.fetch());
           yield put(FormLayoutActions.fetchSettings());
           yield put(PdfActions.initial());
@@ -103,7 +101,6 @@ export const queueSlice = () => {
       startInitialStatelessQueue: mkAction<void>({
         *takeLatest(): SagaIterator {
           yield put(IsLoadingActions.startStatelessIsLoading());
-          yield put(FormDataActions.fetchInitial());
           yield put(FormLayoutActions.fetch());
           yield put(FormLayoutActions.fetchSettings());
           yield put(QueueActions.startInitialStatelessQueueFulfilled());
