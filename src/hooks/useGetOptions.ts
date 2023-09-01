@@ -73,8 +73,6 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, sou
     };
   }, shallowEqual);
 
-  // const newRelevantTextResources =
-
   const { data: fetchedOptions } = useGetOptionsQuery(
     instanceId || '',
     optionsId || '',
