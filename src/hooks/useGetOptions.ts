@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { shallowEqual } from 'react-redux';
 
 import { useApplicationMetadataQuery } from 'src/hooks/queries/useApplicationMetadataQuery';
@@ -10,6 +10,7 @@ import { useLayoutSetsQuery } from 'src/hooks/queries/useLayoutSetsQuery';
 import { useLayoutsQuery } from 'src/hooks/queries/useLayoutsQuery';
 import { useRepeatingGroupsQuery } from 'src/hooks/queries/useRepeatingGroupsQuery';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useStateDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { getCurrentTaskDataElementId, getLayoutSetIdForApplication } from 'src/utils/appMetadata';
 import { convertModelToDataBinding } from 'src/utils/databindings';
 import { buildInstanceContext } from 'src/utils/instanceContext';
@@ -33,10 +34,11 @@ export interface IOptionResources {
 }
 
 export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, source }: IUseGetOptionsParams) => {
+  const [options, setOptions] = useStateDeepEqual<IOption[] | undefined>(undefined);
   const { instanceId } = window;
   const { data: instance } = useCurrentInstanceQuery(instanceId || '', !!instanceId);
   const { data: applicationMetadata } = useApplicationMetadataQuery();
-
+  const { data: applicationSettings } = useApplicationSettingsQuery();
   const { data: layoutSets } = useLayoutSetsQuery();
 
   const currentTaskDataElementId = getCurrentTaskDataElementId(
@@ -44,16 +46,21 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, sou
     instance || null,
     layoutSets || null,
   );
-
   const { data: fetchedFormData } = useFormDataQuery(
     instanceId || '',
     currentTaskDataElementId || '',
     !!currentTaskDataElementId && !!instanceId,
   );
-
-  const { data: applicationSettings } = useApplicationSettingsQuery();
-
   const formData = fetchedFormData && convertModelToDataBinding(fetchedFormData);
+
+  const layoutSetId = getLayoutSetIdForApplication(applicationMetadata || null, instance, layoutSets);
+  const { data: layouts } = useLayoutsQuery(layoutSetId || '', !!layoutSetId);
+  const { data: repeatingGroups } = useRepeatingGroupsQuery(
+    instanceId || '',
+    currentTaskDataElementId || '',
+    layouts || null,
+    !!instanceId && !!currentTaskDataElementId && !!layouts,
+  );
 
   const relevantTextResources: IOptionResources = useAppSelector((state) => {
     const { label, description, helpText } = source || {};
@@ -66,17 +73,7 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, sou
     };
   }, shallowEqual);
 
-  const layoutSetId = getLayoutSetIdForApplication(applicationMetadata || null, instance, layoutSets);
-  const { data: layouts } = useLayoutsQuery(layoutSetId || '', !!layoutSetId);
-
-  const { data: repeatingGroups } = useRepeatingGroupsQuery(
-    instanceId || '',
-    currentTaskDataElementId || '',
-    layouts || null,
-    !!instanceId && !!currentTaskDataElementId && !!layouts,
-  );
-
-  const [options, setOptions] = useState<IOption[] | undefined>(undefined);
+  // const newRelevantTextResources =
 
   const { data: fetchedOptions } = useGetOptionsQuery(
     instanceId || '',
@@ -89,7 +86,7 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, sou
   );
 
   useEffect(() => {
-    if (optionsId) {
+    if (fetchedOptions) {
       setOptions(fetchedOptions);
     }
 
@@ -97,8 +94,8 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, sou
       return;
     }
 
+    const relevantFormData = (formData && getRelevantFormDataForOptionSource(formData, source)) || {};
     const instanceContext = buildInstanceContext(instance);
-    const relevantFormData = (source && formData && getRelevantFormDataForOptionSource(formData, source)) || {};
     const dataSources: IDataSources = {
       dataModel: relevantFormData,
       applicationSettings: applicationSettings || {},
@@ -120,17 +117,15 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, sou
     );
   }, [
     applicationSettings,
-    optionsId,
     instance,
-    mapping,
     repeatingGroups,
     source,
     relevantTextResources.label,
     relevantTextResources.description,
     relevantTextResources.helpText,
-    queryParameters,
     fetchedOptions,
     formData,
+    setOptions,
   ]);
   return options;
 };
