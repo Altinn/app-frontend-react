@@ -40,7 +40,6 @@ export function useFormDataQuery(): UseQueryResult<IFormData> {
 
   const instance = useAppSelector((state) => state.instanceData.instance);
   const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
-
   const statelessDataType = isStateless ? getDataTypeByLayoutSetId(appMetaData?.onEntry?.show, layoutSets) : undefined;
   const currentTaskDataId = getCurrentTaskDataElementId(appMetaData, instance, layoutSets);
 
@@ -58,8 +57,14 @@ export function useFormDataQuery(): UseQueryResult<IFormData> {
     };
   }
 
+  // We also add the current task id to the query key, so that the query is refetched when the task changes. This
+  // is needed because we have logic waiting for the form data to be fetched before we can continue (even if the
+  // data element used is the same one between two different tasks - in which case it could also have been changed
+  // on the server).
+  const currentTaskId = instance?.process?.currentTask?.elementId;
+
   const { fetchFormData } = useAppQueriesContext();
-  const out = useQuery(['fetchFormData', url], () => fetchFormData(url || '', options), {
+  const out = useQuery(['fetchFormData', url, currentTaskId], () => fetchFormData(url || '', options), {
     enabled: isEnabled && url !== undefined,
     onSuccess: (formDataAsObj) => {
       const formData = convertModelToDataBinding(formDataAsObj);
