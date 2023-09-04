@@ -1,5 +1,4 @@
 import { deleteAttachmentSaga } from 'src/features/attachments/delete/deleteAttachmentSagas';
-import { watchMapAttachmentsSaga } from 'src/features/attachments/map/mapAttachmentsSagas';
 import { updateAttachmentSaga } from 'src/features/attachments/update/updateAttachmentSagas';
 import { uploadAttachmentSaga } from 'src/features/attachments/upload/uploadAttachmentSagas';
 import { createSagaSlice } from 'src/redux/sagaSlice';
@@ -135,9 +134,6 @@ export const attachmentSlice = () => {
           }
           state.attachments[componentId][index] = newAttachment;
         },
-      }),
-      mapAttachments: mkAction<void>({
-        saga: () => watchMapAttachmentsSaga,
       }),
       mapAttachmentsFulfilled: mkAction<IMapAttachmentsActionFulfilled>({
         reducer: (state, action) => {

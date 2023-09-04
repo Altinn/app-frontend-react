@@ -1,31 +1,15 @@
-import { all, call, put, select, take, takeLatest } from 'redux-saga/effects';
+import { put, select } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
-import { ApplicationMetadataActions } from 'src/features/applicationMetadata/applicationMetadataSlice';
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
-import { FormDataActions } from 'src/features/formData/formDataSlice';
-import { InstanceDataActions } from 'src/features/instanceData/instanceDataSlice';
-import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { getCurrentTaskData } from 'src/utils/appMetadata';
-import { mapAttachmentListToAttachments } from 'src/utils/attachment';
+import { getKeyIndex } from 'src/utils/databindings';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
 import type { ILayouts } from 'src/layout/layout';
 import type { ILayoutSets, IRuntimeState } from 'src/types';
 import type { IData, IInstance } from 'src/types/shared';
-
-export function* watchMapAttachmentsSaga(): SagaIterator {
-  yield all([
-    take(FormDataActions.fetchFulfilled),
-    take(FormLayoutActions.fetchFulfilled),
-    take(FormLayoutActions.updateCurrentViewFulfilled),
-    take(InstanceDataActions.getFulfilled),
-    take(ApplicationMetadataActions.getFulfilled),
-  ]);
-  yield call(mapAttachments);
-  yield takeLatest(AttachmentActions.mapAttachments, mapAttachments);
-}
 
 export const SelectInstanceData = (state: IRuntimeState): IData[] | undefined => state.instanceData.instance?.data;
 export const SelectInstance = (state: IRuntimeState): IInstance | null => state.instanceData.instance;
@@ -34,6 +18,86 @@ export const SelectApplicationMetaData = (state: IRuntimeState): IApplicationMet
 export const SelectFormData = (state: IRuntimeState): IFormData => state.formData.formData;
 export const SelectFormLayouts = (state: IRuntimeState): ILayouts | null => state.formLayout.layouts;
 export const SelectFormLayoutSets = (state: IRuntimeState): ILayoutSets | null => state.formLayout.layoutsets;
+
+export function mapAttachmentListToAttachments(
+  data: IData[],
+  defaultElementId: string | undefined,
+  formData: IFormData,
+  layouts: ILayouts,
+): IAttachments {
+  const attachments: IAttachments = {};
+  const allComponents = Object.values(layouts).flat();
+
+  data.forEach((element: IData) => {
+    const baseComponentId = element.dataType;
+    if (element.id === defaultElementId || baseComponentId === 'ref-data-as-pdf') {
+      return;
+    }
+
+    const component = allComponents.find((c) => c?.id === baseComponentId);
+    if (!component || (component.type !== 'FileUpload' && component.type !== 'FileUploadWithTag')) {
+      return;
+    }
+
+    let [key, index] = convertToDashedComponentId(
+      baseComponentId,
+      formData,
+      element.id,
+      component.maxNumberOfAttachments > 1,
+    );
+
+    if (!key) {
+      key = baseComponentId;
+      index = attachments[key]?.length || 0;
+    }
+
+    if (!attachments[key]) {
+      attachments[key] = [];
+    }
+
+    attachments[key][index] = {
+      uploaded: true,
+      deleting: false,
+      updating: false,
+      name: element.filename,
+      size: element.size,
+      tags: element.tags,
+      id: element.id,
+    };
+  });
+
+  return attachments;
+}
+
+function convertToDashedComponentId(
+  baseComponentId: string,
+  formData: IFormData,
+  attachmentUuid: string,
+  hasIndex: boolean,
+): [string, number] {
+  const formDataKey = Object.keys(formData).find((key) => formData[key] === attachmentUuid);
+
+  if (!formDataKey) {
+    return ['', 0];
+  }
+
+  const groups = getKeyIndex(formDataKey);
+  let componentId: string;
+  let index: number;
+  if (hasIndex) {
+    const groupSuffix = groups.length > 1 ? `-${groups.slice(0, groups.length - 1).join('-')}` : '';
+
+    componentId = `${baseComponentId}${groupSuffix}`;
+    index = groups[groups.length - 1];
+  } else {
+    const groupSuffix = groups.length ? `-${groups.join('-')}` : '';
+
+    componentId = `${baseComponentId}${groupSuffix}`;
+    index = 0;
+  }
+
+  return [componentId, index];
+}
 
 export function* mapAttachments(): SagaIterator {
   try {
