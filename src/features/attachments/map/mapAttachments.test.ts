@@ -1,21 +1,13 @@
-import { select } from 'redux-saga/effects';
-import { expectSaga } from 'redux-saga-test-plan';
-
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
-import {
-  mapAttachments,
-  SelectApplicationMetaData,
-  SelectFormData,
-  SelectFormLayouts,
-  SelectFormLayoutSets,
-  SelectInstance,
-  SelectInstanceData,
-} from 'src/features/attachments/map/mapAttachmentsSagas';
-import { selectFormLayouts } from 'src/features/layout/update/updateFormLayoutSagas';
+import { mapAttachmentListToAttachments } from 'src/features/attachments/map/mapAttachments';
+import { getCurrentTaskData } from 'src/utils/appMetadata';
+import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IAttachment, IAttachments } from 'src/features/attachments';
+import type { IFormData } from 'src/features/formData';
 import type { CompFileUploadExternal } from 'src/layout/FileUpload/config.generated';
 import type { CompGroupRepeatingExternal } from 'src/layout/Group/config.generated';
+import type { ILayoutSets } from 'src/types';
+import type { IData, IInstance } from 'src/types/shared';
 
 type MakeOptional = 'displayMode' | 'maxFileSizeInMB' | 'minNumberOfAttachments' | 'maxNumberOfAttachments';
 type BasicComp = Omit<CompFileUploadExternal, MakeOptional> & Partial<Pick<CompFileUploadExternal, MakeOptional>>;
@@ -47,12 +39,15 @@ describe('mapAttachments', () => {
     ...defaultAttachmentProps,
   });
 
-  const mockInstanceData = (attachment: IAttachment, component: any): any => ({
-    filename: attachment.name,
-    ...attachment,
-    ...defaultDataTypeProps,
-    dataType: component.id,
-  });
+  const mockInstanceData = (attachment: IAttachment, component: any) =>
+    ({
+      filename: attachment.name,
+      ...attachment,
+      ...defaultDataTypeProps,
+      dataType: component.id,
+      created: '2021-01-01',
+      lastChanged: '2021-01-01',
+    }) as IData;
 
   it('should map attachments to repeating group rows', () => {
     const state = getInitialStateMock();
@@ -117,31 +112,28 @@ describe('mapAttachments', () => {
       [`${multiUploaderInRepeatingGroup.id}-0`]: [mockedAttachments[3], mockedAttachments[4]],
     };
 
-    state.formData.formData = {
+    const formData: IFormData = {
       'Outside.AttachmentsWithBindings[0]': mockedAttachments[1].id,
       'Group[0].SingleAttachment': mockedAttachments[2].id,
       'Group[0].MultiAttachment[0]': mockedAttachments[3].id,
       'Group[0].MultiAttachment[1]': mockedAttachments[4].id,
     };
 
-    state.instanceData.instance?.data.push(
+    const instanceData: IData[] = [
       mockInstanceData(mockedAttachments[0], basicUploader),
       mockInstanceData(mockedAttachments[1], basicUploaderWithBindings),
       mockInstanceData(mockedAttachments[2], uploaderInRepeatingGroup),
       mockInstanceData(mockedAttachments[3], multiUploaderInRepeatingGroup),
       mockInstanceData(mockedAttachments[4], multiUploaderInRepeatingGroup),
+    ];
+
+    const defaultElement = getCurrentTaskData(
+      state.applicationMetadata.applicationMetadata || (null as unknown as IApplicationMetadata),
+      state.instanceData.instance || (null as unknown as IInstance),
+      state.formLayout.layoutsets || (null as unknown as ILayoutSets),
     );
 
-    return expectSaga(mapAttachments)
-      .provide([
-        [select(SelectInstanceData), SelectInstanceData(state)],
-        [select(SelectInstance), SelectInstance(state)],
-        [select(SelectApplicationMetaData), SelectApplicationMetaData(state)],
-        [select(SelectFormLayoutSets), SelectFormLayoutSets(state)],
-        [select(SelectFormData), SelectFormData(state)],
-        [select(SelectFormLayouts), selectFormLayouts(state)],
-      ])
-      .put(AttachmentActions.mapAttachmentsFulfilled({ attachments: expected }))
-      .run();
+    const out = mapAttachmentListToAttachments(instanceData, defaultElement?.id, formData, state.formLayout.layouts);
+    expect(out).toEqual(expected);
   });
 });
