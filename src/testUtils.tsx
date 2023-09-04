@@ -15,11 +15,13 @@ import { setupStore } from 'src/redux/store';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { ExprContextWrapper, useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { AppQueriesContext } from 'src/contexts/appQueriesContext';
+import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { IFooterLayout } from 'src/features/footer/types';
 import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
-import type { ComponentTypes } from 'src/layout/layout';
+import type { CompExternalExact, CompTypes } from 'src/layout/layout';
 import type { AppStore, RootState } from 'src/redux/store';
-import type { IRuntimeState } from 'src/types';
-import type { AnyItem } from 'src/utils/layout/hierarchy.types';
+import type { ILayoutSets, IRuntimeState } from 'src/types';
+import type { IProfile } from 'src/types/shared';
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   preloadedState?: PreloadedState<RootState>;
@@ -34,18 +36,22 @@ export const renderWithProviders = (
   function Wrapper({ children }: React.PropsWithChildren) {
     const theme = createTheme(AltinnAppTheme);
 
-    const mockedQueries = {
-      doPartyValidation: () => Promise.resolve({ data: { isValid: true, validParties: [] } }),
+    const allMockedQueries = {
+      doPartyValidation: () => Promise.resolve({ isValid: true, validParties: [] }),
       fetchActiveInstances: () => Promise.resolve([]),
-      fetchApplicationMetadata: () => Promise.resolve({}),
+      fetchApplicationMetadata: () => Promise.resolve({} as unknown as IApplicationMetadata),
       fetchCurrentParty: () => Promise.resolve({}),
       fetchApplicationSettings: () => Promise.resolve({}),
-      fetchFooterLayout: () => Promise.resolve({}),
-      fetchLayoutSets: () => Promise.resolve([]),
-      fetchOrgs: () => Promise.resolve({}),
-      fetchUserProfile: () => Promise.resolve({}),
-      ...queries,
+      fetchFooterLayout: () => Promise.resolve({} as unknown as IFooterLayout),
+      fetchLayoutSets: () => Promise.resolve({} as unknown as ILayoutSets),
+      fetchOrgs: () => Promise.resolve({ orgs: {} }),
+      fetchUserProfile: () => Promise.resolve({} as unknown as IProfile),
+      fetchDataModelSchema: () => Promise.resolve({}),
+      fetchParties: () => Promise.resolve({}),
+      fetchRefreshJwtToken: () => Promise.resolve({}),
+      fetchFormData: () => Promise.resolve({}),
     } as AppQueriesContext;
+    const mockedQueries = { ...allMockedQueries, ...queries };
 
     const client = new QueryClient({
       logger: {
@@ -85,16 +91,16 @@ export const renderWithProviders = (
   };
 };
 
-export interface RenderGenericComponentTestProps<T extends ComponentTypes> {
+export interface RenderGenericComponentTestProps<T extends CompTypes> {
   type: T;
   renderer: (props: PropsFromGenericComponent<T>) => JSX.Element;
-  component?: Partial<AnyItem<T>>;
+  component?: Partial<CompExternalExact<T>>;
   genericProps?: Partial<PropsFromGenericComponent<T>>;
   manipulateState?: (state: IRuntimeState) => void;
   manipulateStore?: (store: ReturnType<typeof setupStore>['store']) => void;
 }
 
-export function renderGenericComponentTest<T extends ComponentTypes>({
+export function renderGenericComponentTest<T extends CompTypes>({
   type,
   renderer,
   component,
@@ -144,6 +150,8 @@ export const mockMediaQuery = (maxWidth: number) => {
       onchange: null,
       addListener: jest.fn(),
       removeListener: jest.fn(),
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
     }));
   };
 
@@ -203,27 +211,4 @@ export const mockComponentProps: IComponentProps & { id: string } = {
   legend: () => {
     throw new Error('Rendered mock legend, override this yourself');
   },
-};
-
-export const createStorageMock = (): Storage => {
-  let storage: Record<string, string> = {};
-  return {
-    setItem: (key, value) => {
-      storage[key] = value || '';
-    },
-    getItem: (key) => (key in storage ? storage[key] : null),
-    clear: () => {
-      storage = {};
-    },
-    removeItem: (key) => {
-      delete storage[key];
-    },
-    get length() {
-      return Object.keys(storage).length;
-    },
-    key: (i) => {
-      const keys = Object.keys(storage);
-      return keys[i] || null;
-    },
-  };
 };

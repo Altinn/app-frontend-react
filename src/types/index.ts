@@ -1,24 +1,9 @@
-import type Ajv from 'ajv/dist/core';
-
-import type { ExprUnresolved, ExprVal } from 'src/features/expressions/types';
+import { Triggers } from 'src/layout/common.generated';
+import type { ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
 import type { IKeepComponentScrollPos } from 'src/features/layout/formLayoutTypes';
+import type { ILayoutNavigation, IMapping, IOption } from 'src/layout/common.generated';
 import type { RootState } from 'src/redux/store';
-
-export interface IComponentBindingValidation {
-  errors?: string[];
-  warnings?: string[];
-  info?: string[];
-  success?: string[];
-  fixed?: string[];
-}
-
-export type ValidationKey = keyof IComponentBindingValidation;
-export type ValidationKeyOrAny = ValidationKey | 'any';
-
-export interface IComponentValidations {
-  [id: string]: IComponentBindingValidation | undefined;
-}
 
 export interface IFormFileUploaderWithTag {
   chosenOptions: IOptionsChosen;
@@ -47,7 +32,7 @@ export interface ILayoutSet {
 export interface ILayoutSettings {
   pages: IPagesSettings;
   components?: IComponentsSettings;
-  receiptLayoutName: string;
+  receiptLayoutName?: string;
 }
 
 export interface IPagesSettings {
@@ -66,32 +51,12 @@ export interface IComponentsSettings {
   excludeFromPdf?: string[];
 }
 
-export interface ILayoutNavigation {
-  next?: string;
-  previous?: string;
-}
-
 export interface INavigationConfig {
   [id: string]: ILayoutNavigation | undefined;
 }
 
-export interface IOption {
-  label: string;
-  value: any;
-  description?: string;
-  helpText?: string;
-}
-
 export interface IOptions {
   [key: string]: IOptionData | undefined;
-}
-
-export interface IOptionSource {
-  group: string;
-  label: string;
-  value: string;
-  description?: string;
-  helpText?: string;
 }
 
 export interface IOptionsActualData {
@@ -101,6 +66,7 @@ export interface IOptionsActualData {
 export interface IOptionsMetaData {
   id: string;
   mapping?: IMapping;
+  fixedQueryParameters?: Record<string, string>;
   loading?: boolean;
   secure?: boolean;
 }
@@ -134,12 +100,6 @@ export interface IRuleObject {
 export type IRuntimeState = RootState;
 export type IRuntimeStore = IRuntimeState;
 
-export interface ISchemaValidator {
-  rootElementPath: string;
-  schema: any;
-  validator: Ajv;
-}
-
 export interface ISimpleInstance {
   id: string;
   lastChanged: string;
@@ -153,23 +113,8 @@ export interface ITextResource {
   variables?: IVariable[];
 }
 
-export interface ITextResourceBindings {
-  [id: string]: string | undefined;
-}
-
-export interface IValidationIssue {
-  code: string;
-  description: string;
-  field: string;
-  scope: string | null;
-  severity: Severity;
-  targetId: string;
-  source?: string;
-  customTextKey?: string;
-}
-
-export interface IHiddenLayoutsExpressions {
-  [layoutKey: string]: ExprVal.Boolean | undefined;
+export interface IHiddenLayoutsExternal {
+  [layoutKey: string]: ExprValToActualOrExpr<ExprVal.Boolean> | undefined;
 }
 
 export interface IUiConfig {
@@ -220,20 +165,7 @@ export interface ITracks {
   /**
    * List of expressions containing logic used to show/hide certain layouts.
    */
-  hiddenExpr: ExprUnresolved<IHiddenLayoutsExpressions>;
-}
-
-export interface IValidationResult {
-  invalidDataTypes: boolean;
-  validations: IValidations;
-}
-
-export interface IValidations {
-  [id: string]: ILayoutValidations;
-}
-
-export interface ILayoutValidations {
-  [id: string]: IComponentValidations;
+  hiddenExpr: IHiddenLayoutsExternal;
 }
 
 export interface IVariable {
@@ -251,30 +183,6 @@ export enum ProcessTaskType {
 
 export enum PresentationType {
   Stateless = 'stateless',
-}
-
-export enum LayoutStyle {
-  Column = 'column',
-  Row = 'row',
-  Table = 'table',
-}
-
-export enum Severity {
-  Unspecified = 0,
-  Error = 1,
-  Warning = 2,
-  Informational = 3,
-  Fixed = 4,
-  Success = 5,
-}
-
-export enum Triggers {
-  Validation = 'validation',
-  CalculatePageOrder = 'calculatePageOrder',
-  ValidatePage = 'validatePage',
-  ValidateCurrentAndPreviousPages = 'validateCurrentAndPreviousPages',
-  ValidateAllPages = 'validateAllPages',
-  ValidateRow = 'validateRow',
 }
 
 export type TriggersPageValidation =
@@ -296,60 +204,8 @@ export function reducePageValidations(triggers?: Triggers[]): TriggersPageValida
     : undefined;
 }
 
-/**
- * Filters an IValidations object to only include validations for the given TriggersPageValidation trigger.
- */
-export function filterPageValidations(
-  validations: IValidations,
-  trigger: TriggersPageValidation,
-  currentView: string,
-  pageOrder: string[],
-): IValidations {
-  if (trigger === Triggers.ValidateAllPages) {
-    return validations;
-  }
-
-  if (trigger === Triggers.ValidateCurrentAndPreviousPages) {
-    const index = pageOrder.indexOf(currentView);
-    const previousPages = pageOrder.slice(0, index + 1);
-    return Object.fromEntries(Object.entries(validations).filter(([page]) => previousPages.includes(page)));
-  }
-
-  if (trigger === Triggers.ValidatePage) {
-    return { [currentView]: validations[currentView] };
-  }
-
-  return {};
-}
-
-export interface ILabelSettings {
-  optionalIndicator?: boolean;
-}
-
 export enum DateFlags {
   Today = 'today',
-}
-
-/**
- * A 'mapping' is an object pointing from data model paths to query parameters. It is used to make options lookups
- * (and similar) configurable in a way that lets you (for example) implement searching. If you map the data model
- * path where a search string is stored, you can make the app automatically fetch new options from the backend every
- * time the search string changes.
- *
- * When used in repeating groups, it is expected you put index placeholders inside the data model path, so if your
- * group is bound to 'MyModel.Persons' and you're looking up 'MyModel.Persons.FirstName', the path to the data model
- * should be 'MyModel.Persons[{0}].FirstName'. This way, {0} is replaced with the current row index in the repeating
- * group at runtime.
- *
- * Format:
- * {
- *   'path.to.dataModel': 'queryParam',
- * }
- *
- * @see https://docs.altinn.studio/app/development/data/options/#pass-query-parameters-when-fetching-options
- */
-export interface IMapping {
-  [dataModelPath: string]: string;
 }
 
 export interface IFetchSpecificOptionSaga {
@@ -357,6 +213,7 @@ export interface IFetchSpecificOptionSaga {
   formData?: IFormData;
   language?: string;
   dataMapping?: IMapping;
+  fixedQueryParameters?: Record<string, string>;
   secure?: boolean;
   instanceId?: string;
 }

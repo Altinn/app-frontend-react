@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
 
+import { createSelector } from 'reselect';
+
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { staticUseLanguageFromState, useLanguage } from 'src/hooks/useLanguage';
@@ -7,9 +9,8 @@ import { getLayoutComponentObject } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
 import { buildInstanceContext } from 'src/utils/instanceContext';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
-import type { ILayouts } from 'src/layout/layout';
+import type { CompInternal, HierarchyDataSources, ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups, IRuntimeState, ITextResource } from 'src/types';
-import type { AnyItem, HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 /**
@@ -53,9 +54,9 @@ function resolvedNodesInLayouts(
         dataSources,
         config,
         resolvingPerRow: false,
-      }) as unknown as AnyItem;
+      }) as unknown as CompInternal;
 
-      if (node.isRepGroup()) {
+      if (node.isType('Group') && node.isRepGroup()) {
         for (const row of node.item.rows) {
           if (!row) {
             continue;
@@ -108,6 +109,9 @@ function rewriteTextResourceBindings(collection: LayoutPages, textResources: ITe
 export function dataSourcesFromState(state: IRuntimeState): HierarchyDataSources {
   return {
     formData: state.formData.formData,
+    attachments: state.attachments.attachments,
+    uiConfig: state.formLayout.uiConfig,
+    options: state.optionState.options,
     applicationSettings: state.applicationSettings.applicationSettings,
     instanceContext: buildInstanceContext(state.instanceData?.instance),
     hiddenFields: new Set(state.formLayout.uiConfig.hiddenFields),
@@ -117,6 +121,8 @@ export function dataSourcesFromState(state: IRuntimeState): HierarchyDataSources
     langTools: staticUseLanguageFromState(state),
   };
 }
+
+export const selectDataSourcesFromState = createSelector(dataSourcesFromState, (data) => data);
 
 function innerResolvedLayoutsFromState(
   layouts: ILayouts | null,
@@ -150,23 +156,28 @@ export function resolvedLayoutsFromState(state: IRuntimeState) {
  * and trades verbosity and code duplication for performance and caching.
  */
 function useResolvedExpressions() {
-  const state = useAppSelector((state) => state);
-  const instance = state.instanceData?.instance;
-  const formData = state.formData.formData;
-  const process = state.process;
-  const applicationSettings = state.applicationSettings.applicationSettings;
-  const hiddenFields = state.formLayout.uiConfig.hiddenFields;
-  const validations = state.formValidations.validations;
-  const layouts = state.formLayout.layouts;
-  const currentView = state.formLayout.uiConfig.currentView;
-  const repeatingGroups = state.formLayout.uiConfig.repeatingGroups;
-  const textResources = state.textResources.resources;
-  const devTools = state.devTools;
+  const instance = useAppSelector((state) => state.instanceData?.instance);
+  const formData = useAppSelector((state) => state.formData.formData);
+  const attachments = useAppSelector((state) => state.attachments.attachments);
+  const uiConfig = useAppSelector((state) => state.formLayout.uiConfig);
+  const options = useAppSelector((state) => state.optionState.options);
+  const process = useAppSelector((state) => state.process);
+  const applicationSettings = useAppSelector((state) => state.applicationSettings.applicationSettings);
+  const hiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
+  const validations = useAppSelector((state) => state.formValidations.validations);
+  const layouts = useAppSelector((state) => state.formLayout.layouts);
+  const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
+  const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
+  const textResources = useAppSelector((state) => state.textResources.resources);
+  const devTools = useAppSelector((state) => state.devTools);
   const langTools = useLanguage();
 
   const dataSources: HierarchyDataSources = useMemo(
     () => ({
       formData,
+      attachments,
+      uiConfig,
+      options,
       applicationSettings,
       instanceContext: buildInstanceContext(instance),
       authContext: buildAuthContext(process),
@@ -175,7 +186,19 @@ function useResolvedExpressions() {
       devTools,
       langTools,
     }),
-    [formData, applicationSettings, instance, process, hiddenFields, validations, devTools, langTools],
+    [
+      formData,
+      attachments,
+      uiConfig,
+      options,
+      applicationSettings,
+      instance,
+      process,
+      hiddenFields,
+      validations,
+      devTools,
+      langTools,
+    ],
   );
 
   return useMemo(

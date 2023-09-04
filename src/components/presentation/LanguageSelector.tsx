@@ -8,7 +8,7 @@ import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { useGetAppLanguageQuery } from 'src/services/LanguageApi';
 
-export const LanguageSelector = () => {
+export const LanguageSelector = ({ hideLabel }: { hideLabel?: boolean }) => {
   const { langAsString, selectedLanguage } = useLanguage();
 
   const { data: appLanguages, isError: appLanguageError } = useGetAppLanguageQuery();
@@ -34,9 +34,9 @@ export const LanguageSelector = () => {
 
   if (appLanguages) {
     return (
-      <div style={{ minWidth: 150 }}>
+      <div style={{ minWidth: 160 }}>
         <Select
-          label={langAsString('language.selector.label')}
+          label={!hideLabel ? langAsString('language.selector.label') : undefined}
           options={optionsMap || []}
           onChange={(value) => handleAppLanguageChange(value)}
           value={selectedLanguage}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 import { Panel } from '@altinn/altinn-design-system';
+import { Button } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
@@ -8,28 +9,24 @@ import { EditIconButton } from 'src/components/EditIconButton';
 import { FullWidthGroupWrapper } from 'src/components/form/FullWidthGroupWrapper';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { getVariant } from 'src/components/form/Panel';
-import { SuccessIconButton } from 'src/components/SuccessIconButton';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { CustomIcon } from 'src/layout/Panel/CustomPanelIcon';
-import { makeGetHidden } from 'src/selectors/getLayoutData';
-import { useResolvedNode } from 'src/utils/layout/ExprContext';
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { CompGroupNonRepeatingPanelInternal } from 'src/layout/Group/config.generated';
+import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 
 export interface IPanelGroupContainerProps {
-  id: string;
+  node: LayoutNodeForGroup<CompGroupNonRepeatingPanelInternal>;
 }
 
-export function PanelReferenceGroupContainer({ id }: IPanelGroupContainerProps) {
+export function PanelReferenceGroupContainer({ node }: IPanelGroupContainerProps) {
   const dispatch = useAppDispatch();
-  const GetHiddenSelector = makeGetHidden();
-  const node = useResolvedNode(id) as LayoutNodeFromType<'Group'>;
+
   const container = node.item.panel ? node.item : undefined;
   const [open, setOpen] = useState<boolean>(!container?.panel?.groupReference);
-  const hidden = useAppSelector((state) => GetHiddenSelector(state, { id }));
+  const hidden = node.isHidden();
   const textResourceBindings = node?.item.textResourceBindings;
   const { lang } = useLanguage();
 
@@ -54,7 +51,7 @@ export function PanelReferenceGroupContainer({ id }: IPanelGroupContainerProps) 
     setOpen(true);
   };
 
-  if (hidden || !container || !node) {
+  if (hidden || !container) {
     return null;
   }
 
@@ -128,11 +125,13 @@ export function PanelReferenceGroupContainer({ id }: IPanelGroupContainerProps) 
                         />
                       ))}
                       <Grid item>
-                        <SuccessIconButton
+                        <Button
                           id={`save-reference-button-${container.id}`}
-                          label={lang('general.save')}
                           onClick={handleSave}
-                        />
+                          size='small'
+                        >
+                          {lang('general.save')}
+                        </Button>
                       </Grid>
                     </>
                   ) : (

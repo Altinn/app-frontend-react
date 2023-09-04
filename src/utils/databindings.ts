@@ -3,9 +3,11 @@ import { dot, object } from 'dot-object';
 import { getParentGroup } from 'src/utils/validation/validation';
 import type { IAttachment, IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
-import type { ILayoutCompFileUpload } from 'src/layout/FileUpload/types';
-import type { IDataModelBindings, ILayout } from 'src/layout/layout';
-import type { IMapping, IRepeatingGroup, IRepeatingGroups } from 'src/types';
+import type { IDataModelBindingsList, IDataModelBindingsSimple, IMapping } from 'src/layout/common.generated';
+import type { CompFileUploadExternal } from 'src/layout/FileUpload/config.generated';
+import type { CompFileUploadWithTagExternal } from 'src/layout/FileUploadWithTag/config.generated';
+import type { CompExternal, CompOrGroupExternal, IDataModelBindings, ILayout } from 'src/layout/layout';
+import type { IRepeatingGroup, IRepeatingGroups } from 'src/types';
 
 /**
  * Converts the formdata in store (that is flat) to a JSON
@@ -39,7 +41,7 @@ export const GLOBAL_INDEX_KEY_INDICATOR_REGEX = /\[{\d+}]/g;
  * Converts JSON to the flat datamodel used in Redux data store
  * @param data The form data as JSON
  */
-export function convertModelToDataBinding(data: any): any {
+export function convertModelToDataBinding(data: any): IFormData {
   return flattenObject(data);
 }
 
@@ -104,9 +106,8 @@ export function getIndexCombinations(
   }
 
   const repeatingGroupValues = Object.values(repeatingGroups);
-  const mainGroupMaxIndex = repeatingGroupValues.find(
-    (group) => group.dataModelBinding === baseGroupBindings[0],
-  )?.index;
+  const mainGroupMaxIndex = repeatingGroupValues.find((group) => group.dataModelBinding === baseGroupBindings[0])
+    ?.index;
 
   if (mainGroupMaxIndex === undefined) {
     return combinations;
@@ -167,7 +168,7 @@ export function getKeyIndex(keyWithIndex: string): number[] {
  * Converts JSON to the flat datamodel used in Redux data store
  * @param data The form data as JSON
  */
-export function flattenObject(data: any): any {
+export function flattenObject(data: any): IFormData {
   const flat = dot(data);
 
   for (const key of Object.keys(flat)) {
@@ -198,7 +199,7 @@ export function getGroupDataModelBinding(repeatingGroup: IRepeatingGroup, groupI
   if (parentGroup) {
     const splitId = groupId.split('-');
     const parentIndex = Number.parseInt(splitId[splitId.length - 1], 10);
-    const parentDataBinding = parentGroup.dataModelBindings?.group;
+    const parentDataBinding = 'dataModelBindings' in parentGroup ? parentGroup.dataModelBindings?.group : undefined;
     const indexedParentDataBinding = `${parentDataBinding}[${parentIndex}]`;
     if (repeatingGroup.dataModelBinding && parentDataBinding) {
       return repeatingGroup.dataModelBinding.replace(parentDataBinding, indexedParentDataBinding);
@@ -230,22 +231,46 @@ export function removeGroupData(
   return result;
 }
 
+function hasBindings(component: CompOrGroupExternal): component is Extract<CompExternal, { dataModelBindings: any }> {
+  return 'dataModelBindings' in component;
+}
+
+function hasSimpleBinding(binding: IDataModelBindings | undefined): binding is IDataModelBindingsSimple {
+  return !!(binding && 'simpleBinding' in binding && binding.simpleBinding);
+}
+
+function hasListBinding(binding: IDataModelBindings | undefined): binding is IDataModelBindingsList {
+  return !!(binding && 'list' in binding && binding.list);
+}
+
+function compHasSimpleBinding(
+  component: CompOrGroupExternal,
+): component is CompOrGroupExternal & { dataModelBindings: IDataModelBindingsSimple } {
+  return hasBindings(component) && hasSimpleBinding(component.dataModelBindings);
+}
+
+function compHasListBinding(
+  component: CompOrGroupExternal,
+): component is CompOrGroupExternal & { dataModelBindings: IDataModelBindingsList } {
+  return hasBindings(component) && hasListBinding(component.dataModelBindings);
+}
+
 export function removeAttachmentReference(
   formData: IFormData,
   attachmentId: string,
   attachments: IAttachments,
-  dataModelBindings: IDataModelBindings,
+  dataModelBindings: IDataModelBindings<'FileUpload' | 'FileUploadWithTag'>,
   componentId: string,
 ): IFormData {
-  if (!dataModelBindings || (!dataModelBindings.simpleBinding && !dataModelBindings.list)) {
+  if (!hasSimpleBinding(dataModelBindings) && !hasListBinding(dataModelBindings)) {
     return formData;
   }
 
   const result = { ...formData };
 
-  if (dataModelBindings.simpleBinding && typeof result[dataModelBindings.simpleBinding] === 'string') {
+  if (hasSimpleBinding(dataModelBindings) && typeof result[dataModelBindings.simpleBinding] === 'string') {
     delete result[dataModelBindings.simpleBinding];
-  } else if (dataModelBindings.list) {
+  } else if (hasListBinding(dataModelBindings)) {
     let index = -1;
     const dataModelWithoutIndex = getKeyWithoutIndex(dataModelBindings.list);
     for (const key in result) {
@@ -304,7 +329,7 @@ export function deleteGroupData(
 
 interface FoundAttachment {
   attachment: IAttachment;
-  component: ILayoutCompFileUpload;
+  component: CompFileUploadExternal | CompFileUploadWithTagExternal;
   componentId: string;
   index: number;
 }
@@ -329,12 +354,14 @@ export function findChildAttachments(
   for (const key of formDataKeys) {
     const dataBinding = getKeyWithoutIndex(key);
     const component = components.find(
-      (c) => c.dataModelBindings?.simpleBinding === dataBinding || c.dataModelBindings?.list === dataBinding,
-    ) as unknown as ILayoutCompFileUpload;
+      (c) =>
+        (compHasSimpleBinding(c) && c.dataModelBindings?.simpleBinding === dataBinding) ||
+        (compHasListBinding(c) && c.dataModelBindings?.list === dataBinding),
+    ) as unknown as CompFileUploadExternal | CompFileUploadWithTagExternal;
 
     if (component) {
       const groupKeys = getKeyIndex(key);
-      if (component.dataModelBindings?.list) {
+      if (compHasListBinding(component)) {
         groupKeys.pop();
       }
 
@@ -370,34 +397,4 @@ export function mapFormData(formData: IFormData, mapping: IMapping | undefined) 
     mappedFormData[target] = formData[source];
   });
   return mappedFormData;
-}
-
-export function getFormDataFromFieldKey(
-  fieldKey: string,
-  dataModelBindings: IDataModelBindings | undefined,
-  formData: any,
-  groupDataBinding?: string,
-  index?: number,
-) {
-  let dataModelBindingKey = dataModelBindings && dataModelBindings[fieldKey];
-  if (groupDataBinding) {
-    dataModelBindingKey = dataModelBindingKey.replace(groupDataBinding, `${groupDataBinding}[${index}]`);
-  }
-  let value = formData[dataModelBindingKey];
-  if (fieldKey === 'list') {
-    value = [];
-    for (const key of Object.keys(formData)) {
-      if (key.startsWith(dataModelBindingKey) && key.substring(dataModelBindingKey.length).match(/^\[\d+]$/)) {
-        const lastIndex = getKeyIndex(key).pop();
-        if (lastIndex !== undefined) {
-          value[lastIndex] = formData[key];
-        }
-      }
-    }
-    if (!value.length) {
-      value = undefined;
-    }
-  }
-
-  return value;
 }

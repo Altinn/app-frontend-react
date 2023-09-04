@@ -12,9 +12,12 @@ import {
   parseFileUploadComponentWithTagValidationObject,
   smartLowerCaseFirst,
 } from 'src/utils/formComponentUtils';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { IAttachment, IAttachments } from 'src/features/attachments';
-import type { IGridStyling, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/layout';
-import type { AnyItem } from 'src/utils/layout/hierarchy.types';
+import type { IGridStyling, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/common.generated';
+import type { CompExternal, CompInternal } from 'src/layout/layout';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 describe('formComponentUtils', () => {
   const mockAttachments: IAttachments = {
@@ -162,7 +165,7 @@ describe('formComponentUtils', () => {
     });
 
     it('should return generic field name when fieldKey, shortName and title are all not available', () => {
-      const result = getFieldName({ something: 'someTextKey' }, mockLangTools);
+      const result = getFieldName({}, mockLangTools);
       expect(result).toEqual('dette feltet');
     });
   });
@@ -324,15 +327,15 @@ describe('formComponentUtils', () => {
   });
   describe('getColumnStylesRepeatingGroups', () => {
     it('should return undefined if columnSettings does not contain specified baseComponentId', () => {
-      const tableItem = { baseComponentId: 'headerName1' } as AnyItem;
+      const node = fakeLayoutNode({ baseComponentId: 'headerName1' });
       const columnSettings = { headerName2: { width: '100px' } };
-      expect(getColumnStylesRepeatingGroups(tableItem, columnSettings)).toBeUndefined();
+      expect(getColumnStylesRepeatingGroups(node, columnSettings)).toBeUndefined();
     });
 
     it('should set textAlignment to alignText property of columnSettings if present', () => {
-      const tableItem = { baseComponentId: 'headerName1' } as AnyItem;
+      const node = fakeLayoutNode({ baseComponentId: 'headerName1' });
       const columnSettings: ITableColumnFormatting = { headerName1: { width: '100px', alignText: 'center' } };
-      const columnStyles = getColumnStylesRepeatingGroups(tableItem, columnSettings);
+      const columnStyles = getColumnStylesRepeatingGroups(node, columnSettings);
       expect(columnStyles).toEqual({
         '--cell-max-number-of-lines': 2,
         '--cell-text-alignment': 'center',
@@ -341,14 +344,14 @@ describe('formComponentUtils', () => {
     });
 
     it('should set textAlignment to getTextAlignment(tableHeader) if alignText is not present in columnSettings', () => {
-      const tableItem: AnyItem = {
+      const node = fakeLayoutNode({
         baseComponentId: 'headerName1',
         id: 'headerName1',
         type: 'Input',
         formatting: { number: {} },
-      };
+      });
       const columnSettings: ITableColumnFormatting = { headerName1: { width: '100px' } };
-      const columnStyles = getColumnStylesRepeatingGroups(tableItem, columnSettings);
+      const columnStyles = getColumnStylesRepeatingGroups(node, columnSettings);
       expect(columnStyles).toEqual({
         '--cell-max-number-of-lines': 2,
         '--cell-text-alignment': 'right',
@@ -357,9 +360,9 @@ describe('formComponentUtils', () => {
     });
 
     it('should return columnStyles object if columnSettings is provided and contains specified baseComponentId', () => {
-      const tableItem = { baseComponentId: 'headerName1' } as AnyItem;
+      const node = fakeLayoutNode({ baseComponentId: 'headerName1' });
       const columnSettings: ITableColumnFormatting = { headerName1: { width: '100px' } };
-      const columnStyles = getColumnStylesRepeatingGroups(tableItem, columnSettings);
+      const columnStyles = getColumnStylesRepeatingGroups(node, columnSettings);
       expect(columnStyles).toBeDefined();
     });
   });
@@ -390,3 +393,6 @@ describe('formComponentUtils', () => {
     });
   });
 });
+
+const fakeLayoutNode = (item: Partial<CompExternal> & Partial<CompInternal>) =>
+  new BaseLayoutNode(item as any, new LayoutPage(), new LayoutPage(), {} as any) as LayoutNode;

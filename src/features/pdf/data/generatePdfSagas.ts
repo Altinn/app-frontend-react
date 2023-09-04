@@ -13,21 +13,19 @@ import { PartyActions } from 'src/features/party/partySlice';
 import { PDF_LAYOUT_NAME, PdfActions } from 'src/features/pdf/data/pdfSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { TextResourcesActions } from 'src/features/textResources/textResourcesSlice';
-import { getLayoutComponentObject } from 'src/layout';
-import { ComponentType } from 'src/layout/LayoutComponent';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
-import { topLevelComponents } from 'src/utils/formLayout';
+import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpGet } from 'src/utils/network/networking';
 import { pdfPreviewMode, shouldGeneratePdf } from 'src/utils/pdf';
 import { getPdfFormatUrl } from 'src/utils/urls/appUrlHelper';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
-import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { IPdfFormat, IPdfMethod } from 'src/features/pdf/data/types';
-import type { ILayoutCompInstanceInformation } from 'src/layout/InstanceInformation/types';
-import type { ILayout, ILayoutComponentOrGroup, ILayouts } from 'src/layout/layout';
-import type { ILayoutCompSummary } from 'src/layout/Summary/types.d';
+import type { CompInstanceInformationExternal } from 'src/layout/InstanceInformation/config.generated';
+import type { ILayout, ILayouts } from 'src/layout/layout';
+import type { CompSummaryExternal } from 'src/layout/Summary/config.generated';
 import type { ILayoutSets, IRuntimeState, IUiConfig } from 'src/types';
 import type { IInstance } from 'src/types/shared';
+import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 const layoutSetsSelector = (state: IRuntimeState) => state.formLayout.layoutsets;
 const layoutsSelector = (state: IRuntimeState) => state.formLayout.layouts;
@@ -37,10 +35,10 @@ const applicationMetadataSelector = (state: IRuntimeState) => state.applicationM
 const pdfFormatSelector = (state: IRuntimeState) => state.pdf.pdfFormat;
 const pdfMethodSelector = (state: IRuntimeState) => state.pdf.method;
 
-function generateAutomaticLayout(pdfFormat: IPdfFormat, uiConfig: IUiConfig, layouts: ILayouts): ILayout {
+function generateAutomaticLayout(pdfFormat: IPdfFormat, uiConfig: IUiConfig, resolvedNodes: LayoutPages): ILayout {
   const automaticPdfLayout: ILayout = [];
 
-  const instanceInformation: ExprUnresolved<ILayoutCompInstanceInformation> = {
+  const instanceInformation: CompInstanceInformationExternal = {
     id: '__pdf__instance-information',
     type: 'InstanceInformation',
     elements: {
@@ -60,35 +58,24 @@ function generateAutomaticLayout(pdfFormat: IPdfFormat, uiConfig: IUiConfig, lay
   const hiddenPages = new Set(uiConfig.tracks.hidden);
   const pageOrder = uiConfig.tracks.order;
 
-  Object.entries(layouts)
-    .filter(([pageRef]) => !excludedPages.has(pageRef))
-    .filter(([pageRef]) => !hiddenPages.has(pageRef))
-    .filter(([pageRef]) => pageOrder?.includes(pageRef))
+  Object.entries(resolvedNodes.all())
+    .filter(([pageName]) => !excludedPages.has(pageName) && !hiddenPages.has(pageName) && pageOrder?.includes(pageName))
     .sort(([pA], [pB]) => (pageOrder ? pageOrder.indexOf(pA) - pageOrder.indexOf(pB) : 0))
-    .map(([pageRef, layout]) => [
-      pageRef,
-      topLevelComponents(layout ?? []).filter((component) => !excludedComponents.has(component.id)),
-    ])
-    .flatMap(
-      ([pageRef, components]: [string, ILayout]) =>
-        components?.map((component) => [pageRef, component]) as [string, ILayoutComponentOrGroup][],
+    .map(
+      ([pageName, layoutPage]) =>
+        [pageName, layoutPage.children().filter((node) => !excludedComponents.has(node.item.id))] as const,
     )
-    .map(([pageRef, component]) => {
-      const layoutComponent = getLayoutComponentObject(component.type);
-
-      if (
-        component.type === 'Group' ||
-        layoutComponent.type === ComponentType.Form ||
-        layoutComponent.type === ComponentType.Presentation
-      ) {
+    .flatMap(([pageName, nodes]) => nodes?.map((node) => [pageName, node] as const))
+    .map(([pageName, node]) => {
+      if (node.def.shouldRenderInAutomaticPDF(node as any)) {
         return {
-          id: `__pdf__${component.id}`,
+          id: `__pdf__${node.item.id}`,
           type: 'Summary',
-          componentRef: component.id,
-          pageRef,
+          componentRef: node.item.id,
+          pageRef: pageName,
           excludedChildren: pdfFormat?.excludedComponents,
-          largeGroup: component.type === 'Group' && (!component.maxCount || component.maxCount <= 1),
-        } as ExprUnresolved<ILayoutCompSummary>;
+          largeGroup: node.isType('Group') && (node.isNonRepGroup() || node.isNonRepPanelGroup()),
+        } as CompSummaryExternal;
       }
       return null;
     })
@@ -103,20 +90,22 @@ function generateAutomaticLayout(pdfFormat: IPdfFormat, uiConfig: IUiConfig, lay
 
 function* generatePdfSaga(): SagaIterator {
   try {
-    const layouts: ILayouts = yield select(layoutsSelector);
-    const uiConfig: IUiConfig = yield select(uiConfigSelector);
-    const pdfFormat: IPdfFormat = yield select(pdfFormatSelector);
     const method: IPdfMethod = yield select(pdfMethodSelector);
 
     if (method == 'auto') {
       // Automatic layout
-      const pdfLayout = generateAutomaticLayout(pdfFormat, uiConfig, layouts);
+      const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
+      const uiConfig: IUiConfig = yield select(uiConfigSelector);
+      const pdfFormat: IPdfFormat = yield select(pdfFormatSelector);
+
+      const pdfLayout = generateAutomaticLayout(pdfFormat, uiConfig, resolvedNodes);
       yield put(FormLayoutActions.updateLayouts({ [PDF_LAYOUT_NAME]: pdfLayout }));
     }
 
     yield put(PdfActions.generateFulfilled());
   } catch (error) {
     yield put(PdfActions.generateRejected({ error }));
+    window.logError('PDF generation failed:\n', error);
   }
 }
 

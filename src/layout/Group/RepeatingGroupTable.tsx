@@ -5,22 +5,21 @@ import cn from 'classnames';
 
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
+import { CompCategory } from 'src/layout/common';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { GridRowRenderer } from 'src/layout/Grid/GridComponent';
 import { nodesFromGridRows } from 'src/layout/Grid/tools';
 import classes from 'src/layout/Group/RepeatingGroup.module.css';
 import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
 import { RepeatingGroupTableRow } from 'src/layout/Group/RepeatingGroupTableRow';
-import { ComponentType } from 'src/layout/LayoutComponent';
 import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
-import type { GridComponent, GridRow } from 'src/layout/Grid/types';
-import type { HRepGroup } from 'src/layout/Group/types';
-import type { ITableColumnFormatting } from 'src/layout/layout';
-import type { ITextResourceBindings } from 'src/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { GridRowsInternal, ITableColumnFormatting } from 'src/layout/common.generated';
+import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
+import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
+import type { ITextResourceBindings } from 'src/layout/layout';
 
 export interface IRepeatingGroupTableProps {
-  node: LayoutNode<HRepGroup, 'Group'>;
+  node: LayoutNodeForGroup<CompGroupRepeatingInternal>;
   repeatingGroupIndex: number;
   editIndex: number;
   setEditIndex: (index: number, forceValidation?: boolean) => void;
@@ -29,16 +28,20 @@ export interface IRepeatingGroupTableProps {
   multiPageIndex?: number;
   deleting: boolean;
   filteredIndexes?: number[] | null;
-  rowsBefore?: GridRow<GridComponent>[];
-  rowsAfter?: GridRow<GridComponent>[];
+  rowsBefore?: GridRowsInternal;
+  rowsAfter?: GridRowsInternal;
 }
 
 function getTableTitle(textResourceBindings: ITextResourceBindings) {
-  if (textResourceBindings.tableTitle) {
-    return textResourceBindings.tableTitle;
+  if (!textResourceBindings) {
+    return '';
   }
-  if (textResourceBindings.title) {
-    return textResourceBindings.title;
+
+  if ('tableTitle' in textResourceBindings && textResourceBindings.tableTitle) {
+    return textResourceBindings?.tableTitle;
+  }
+  if ('title' in textResourceBindings && textResourceBindings.title) {
+    return textResourceBindings?.title;
   }
   return '';
 }
@@ -73,7 +76,7 @@ export function RepeatingGroupTable({
         const { id, baseComponentId } = child.item;
         return !!(tableHeaders.includes(id) || (baseComponentId && tableHeaders.includes(baseComponentId)));
       }
-      return child.isComponentType(ComponentType.Form);
+      return child.isCategory(CompCategory.Form);
     });
 
     // Sort using the order from tableHeaders
@@ -148,7 +151,7 @@ export function RepeatingGroupTable({
 
   const extraCells = [...(displayEditColumn ? [null] : []), ...(displayDeleteColumn ? [null] : [])];
 
-  function RenderExtraRows({ rows, where }: { rows: GridRow<GridComponent>[] | undefined; where: 'Before' | 'After' }) {
+  function RenderExtraRows({ rows, where }: { rows: GridRowsInternal | undefined; where: 'Before' | 'After' }) {
     if (isEmpty || !rows) {
       return null;
     }
@@ -185,6 +188,7 @@ export function RepeatingGroupTable({
             row={{ ...row, cells: [...row.cells, ...extraCells] }}
             isNested={isNested}
             mutableColumnSettings={columnSettings}
+            node={node}
           />
         ))}
       </>
@@ -216,13 +220,13 @@ export function RepeatingGroupTable({
                 <TableCell
                   key={n.item.id}
                   className={classes.tableCellFormatting}
-                  style={getColumnStylesRepeatingGroups(n.item, columnSettings)}
+                  style={getColumnStylesRepeatingGroups(n, columnSettings)}
                 >
                   <span
                     className={classes.contentFormatting}
-                    style={getColumnStylesRepeatingGroups(n.item, columnSettings)}
+                    style={getColumnStylesRepeatingGroups(n, columnSettings)}
                   >
-                    {lang(getTableTitle(n.item.textResourceBindings || {}))}
+                    {lang(getTableTitle('textResourceBindings' in n.item ? n.item.textResourceBindings : {}))}
                   </span>
                 </TableCell>
               ))}

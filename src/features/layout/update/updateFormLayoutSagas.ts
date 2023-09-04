@@ -8,8 +8,8 @@ import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
+import { Triggers } from 'src/layout/common.generated';
 import { getLayoutOrderFromTracks, selectLayoutOrder } from 'src/selectors/getLayoutOrder';
-import { filterPageValidations, Triggers } from 'src/types';
 import {
   getCurrentDataTypeForApplication,
   getCurrentDataTypeId,
@@ -18,25 +18,27 @@ import {
 } from 'src/utils/appMetadata';
 import { convertDataBindingToModel } from 'src/utils/databindings';
 import { getLayoutsetForDataElement } from 'src/utils/layout';
+import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpPost } from 'src/utils/network/networking';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { waitFor } from 'src/utils/sagas';
 import { getCalculatePageOrderUrl, getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
-import { runClientSideValidation } from 'src/utils/validation/runClientSideValidation';
+import { mapValidationIssues } from 'src/utils/validation/backendValidation';
 import {
-  canFormBeSaved,
-  mapDataElementValidationToRedux,
-  mergeValidationObjects,
-} from 'src/utils/validation/validation';
-import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
+  containsErrors,
+  createValidationResult,
+  filterValidationObjectsByPage,
+  validationContextFromState,
+} from 'src/utils/validation/validationHelpers';
 import type { ICalculatePageOrderAndMoveToNextPage, IUpdateCurrentView } from 'src/features/layout/formLayoutTypes';
-import type { IRuntimeState, IUiConfig, IValidationIssue } from 'src/types';
+import type { IRuntimeState, IUiConfig } from 'src/types';
+import type { LayoutPages } from 'src/utils/layout/LayoutPages';
+import type { BackendValidationIssue } from 'src/utils/validation/types';
 
 export const selectFormLayoutState = (state: IRuntimeState) => state.formLayout;
-export const selectFormData = (state: IRuntimeState) => state.formData;
+export const selectFormData = (state: IRuntimeState) => state.formData.formData;
 export const selectFormLayouts = (state: IRuntimeState) => state.formLayout.layouts;
 export const selectAttachmentState = (state: IRuntimeState) => state.attachments;
-export const selectValidations = (state: IRuntimeState) => state.formValidations.validations;
 export const selectOptions = (state: IRuntimeState) => state.optionState.options;
 export const selectAllLayouts = (state: IRuntimeState) => state.formLayout.uiConfig.tracks.order;
 export const selectCurrentLayout = (state: IRuntimeState) => state.formLayout.uiConfig.currentView;
@@ -72,7 +74,7 @@ export function* updateCurrentViewSaga({
     }
 
     const state: IRuntimeState = yield select();
-    const langTools = staticUseLanguageFromState(state);
+    const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
     const visibleLayouts: string[] | null = yield select(selectLayoutOrder);
     const viewCacheKey = state.formLayout.uiConfig.currentViewCacheKey;
     const instanceId = state.instanceData.instance?.id;
@@ -103,46 +105,42 @@ export function* updateCurrentViewSaga({
         }),
       );
     } else {
-      const { validationResult, componentSpecificValidations, emptyFieldsValidations } = runClientSideValidation(state);
       const currentView = state.formLayout.uiConfig.currentView;
+      const frontendValidationObjects = resolvedNodes?.runValidations(validationContextFromState(state)) ?? [];
+
       const options: AxiosRequestConfig = {
         headers: {
           LayoutId: currentView,
         },
       };
-      const currentTaskDataId =
-        state.applicationMetadata.applicationMetadata &&
-        getCurrentTaskDataElementId(
-          state.applicationMetadata.applicationMetadata,
-          state.instanceData.instance,
-          state.formLayout.layoutsets,
-        );
-      const layoutState: ILayoutState = state.formLayout;
-
-      const validationOptions = runValidations === Triggers.ValidatePage ? options : undefined;
-      const serverValidation: IValidationIssue[] | undefined =
-        instanceId && currentTaskDataId
-          ? yield call(httpGet, getDataValidationUrl(instanceId, currentTaskDataId), validationOptions)
-          : undefined;
-
-      // update validation state
-      const mappedValidations = mapDataElementValidationToRedux(serverValidation, layoutState.layouts || {}, langTools);
-
-      validationResult.validations = mergeValidationObjects(
-        validationResult.validations,
-        componentSpecificValidations,
-        emptyFieldsValidations,
-        mappedValidations,
+      const currentTaskDataId = getCurrentTaskDataElementId(
+        state.applicationMetadata.applicationMetadata,
+        state.instanceData.instance,
+        state.formLayout.layoutsets,
       );
 
-      const validations = filterPageValidations(
-        validationResult.validations,
+      const validationOptions = runValidations === Triggers.ValidatePage ? options : undefined;
+      const serverValidations: BackendValidationIssue[] =
+        instanceId && currentTaskDataId
+          ? yield call(httpGet, getDataValidationUrl(instanceId, currentTaskDataId), validationOptions)
+          : [];
+
+      const serverValidationObjects = mapValidationIssues(
+        serverValidations,
+        resolvedNodes,
+        staticUseLanguageFromState(state),
+      );
+
+      const validationObjects = filterValidationObjectsByPage(
+        [...frontendValidationObjects, ...serverValidationObjects],
         runValidations,
         currentView,
         visibleLayouts ?? [],
       );
 
-      yield put(ValidationActions.updateValidations({ validations }));
+      const validationResult = createValidationResult(validationObjects);
+
+      yield put(ValidationActions.updateValidations({ validationResult, merge: true }));
 
       /*
        * If only the current page or the previous pages are validated, this makes no difference.
@@ -150,17 +148,14 @@ export function* updateCurrentViewSaga({
        * navigate to the next page; but if the error is on a future page, we should not prevent the user from navigating
        * to the next page.
        */
-      const validationsToCheckBeforeNavigation = filterPageValidations(
-        validations,
+      const validationsToCheckBeforeNavigation = filterValidationObjectsByPage(
+        validationObjects,
         Triggers.ValidateCurrentAndPreviousPages,
         currentView,
         visibleLayouts ?? [],
       );
 
-      if (
-        state.formLayout.uiConfig.returnToView ||
-        canFormBeSaved({ validations: validationsToCheckBeforeNavigation, invalidDataTypes: false })
-      ) {
+      if (state.formLayout.uiConfig.returnToView || !containsErrors(validationsToCheckBeforeNavigation)) {
         if (!skipPageCaching && currentViewCacheKey) {
           localStorage.setItem(currentViewCacheKey, newView);
         }
@@ -182,6 +177,7 @@ export function* updateCurrentViewSaga({
     }
   } catch (error) {
     yield put(FormLayoutActions.updateCurrentViewRejected({ error }));
+    window.logError('Update view failed:\n', error);
   }
 }
 
@@ -319,10 +315,12 @@ export function* watchInitialCalculatePageOrderAndMoveToNextPageSaga(): SagaIter
     const pageTriggers = state.formLayout.uiConfig.pageTriggers;
     const appHasCalculateTrigger =
       pageTriggers?.includes(Triggers.CalculatePageOrder) ||
-      Object.keys(layouts).some((layout) =>
-        layouts[layout]?.some(
-          (element) => element.type === 'NavigationButtons' && element.triggers?.includes(Triggers.CalculatePageOrder),
-        ),
+      Object.keys(layouts).some(
+        (layout) =>
+          layouts[layout]?.some(
+            (element) =>
+              element.type === 'NavigationButtons' && element.triggers?.includes(Triggers.CalculatePageOrder),
+          ),
       );
     if (appHasCalculateTrigger) {
       yield put(

@@ -3,12 +3,16 @@ import type React from 'react';
 import printStyles from 'src/styles/print.module.css';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import type { IAttachment } from 'src/features/attachments';
-import type { ExprResolved } from 'src/features/expressions/types';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type { IGridStyling, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/layout';
-import type { IPageBreak } from 'src/layout/layout.d';
-import type { IComponentValidations, ITextResourceBindings } from 'src/types';
-import type { AnyItem } from 'src/utils/layout/hierarchy.types';
+import type {
+  IGridStyling,
+  IPageBreakInternal,
+  ITableColumnFormatting,
+  ITableColumnProperties,
+} from 'src/layout/common.generated';
+import type { ITextResourceBindings } from 'src/layout/layout';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { IComponentValidations } from 'src/utils/validation/types';
 
 export interface IComponentFormData {
   [binding: string]: string | undefined;
@@ -44,35 +48,35 @@ export function getFileUploadComponentValidations(
 }
 
 export function getFileUploadWithTagComponentValidations(
-  validationMessages: IComponentValidations | undefined,
+  componentValidations: IComponentValidations | undefined,
   validationState: Array<{ id: string; message: string }>,
-): Array<{ id: string; message: string }> {
-  const result: Array<{ id: string; message: string }> = [];
-  validationMessages = validationMessages && JSON.parse(JSON.stringify(validationMessages));
-
-  if (!validationMessages || !validationMessages.simpleBinding) {
-    validationMessages = {
+): {
+  attachmentValidationMessages: Array<{ id: string; message: string }>;
+  hasValidationMessages: boolean;
+  validationMessages: { errors: string[] };
+} {
+  let result: Array<{ id: string; message: string }> = [];
+  componentValidations = componentValidations && JSON.parse(JSON.stringify(componentValidations));
+  if (!componentValidations || !componentValidations.simpleBinding) {
+    componentValidations = {
       simpleBinding: {
         errors: [],
         warnings: [],
       },
     };
   }
-  if (
-    validationMessages.simpleBinding !== undefined &&
-    validationMessages.simpleBinding.errors &&
-    validationMessages.simpleBinding.errors.length > 0
-  ) {
-    parseFileUploadComponentWithTagValidationObject(validationMessages.simpleBinding.errors as string[]).forEach(
-      (validation) => {
-        result.push(validation);
-      },
-    );
+  if (componentValidations?.simpleBinding?.errors && componentValidations.simpleBinding.errors.length > 0) {
+    result = [...result, ...parseFileUploadComponentWithTagValidationObject(componentValidations.simpleBinding.errors)];
   }
-  validationState.forEach((validation) => {
-    result.push(validation);
-  });
-  return result;
+  result = [...result, ...validationState];
+
+  return {
+    attachmentValidationMessages: result.filter(isAttachmentError),
+    hasValidationMessages: result.some((validation) => isNotAttachmentError(validation)),
+    validationMessages: {
+      errors: result.filter(isNotAttachmentError).map((el) => el.message),
+    },
+  };
 }
 
 export const parseFileUploadComponentWithTagValidationObject = (
@@ -106,21 +110,21 @@ export const atleastOneTagExists = (attachments: IAttachment[]): boolean => {
 };
 
 export function getFieldName(
-  textResourceBindings: ITextResourceBindings | undefined,
+  textResourceBindings: ITextResourceBindings,
   langTools: IUseLanguage,
   fieldKey?: string,
 ): string | undefined {
   const { langAsString } = langTools;
 
-  if (fieldKey) {
+  if (fieldKey && fieldKey !== 'simpleBinding') {
     return smartLowerCaseFirst(langAsString(`form_filler.${fieldKey}`));
   }
 
-  if (textResourceBindings?.shortName) {
+  if (textResourceBindings && 'shortName' in textResourceBindings && textResourceBindings.shortName) {
     return langAsString(textResourceBindings.shortName);
   }
 
-  if (textResourceBindings?.title) {
+  if (textResourceBindings && 'title' in textResourceBindings && textResourceBindings.title) {
     return smartLowerCaseFirst(langAsString(textResourceBindings.title));
   }
 
@@ -201,7 +205,7 @@ export const gridBreakpoints = (grid?: IGridStyling) => {
   };
 };
 
-export const pageBreakStyles = (pageBreak: ExprResolved<IPageBreak> | undefined) => {
+export const pageBreakStyles = (pageBreak: IPageBreakInternal | undefined) => {
   if (!pageBreak) {
     return {};
   }
@@ -216,11 +220,11 @@ export const pageBreakStyles = (pageBreak: ExprResolved<IPageBreak> | undefined)
   };
 };
 
-export function getTextAlignment(component: AnyItem): 'left' | 'center' | 'right' {
-  if (component.type !== 'Input') {
+export function getTextAlignment(node: LayoutNode): 'left' | 'center' | 'right' {
+  if (!node.isType('Input')) {
     return 'left';
   }
-  const formatting = component.formatting;
+  const formatting = node.item.formatting;
   if (formatting && formatting.align) {
     return formatting.align;
   }
@@ -230,8 +234,11 @@ export function getTextAlignment(component: AnyItem): 'left' | 'center' | 'right
   return 'left';
 }
 
-export function getColumnStylesRepeatingGroups(tableItem: AnyItem, columnSettings: ITableColumnFormatting | undefined) {
-  const column = columnSettings && columnSettings[tableItem.baseComponentId || tableItem.id];
+export function getColumnStylesRepeatingGroups(
+  tableItem: LayoutNode,
+  columnSettings: ITableColumnFormatting | undefined,
+) {
+  const column = columnSettings && columnSettings[tableItem.item.baseComponentId || tableItem.item.id];
   if (!column) {
     return;
   }

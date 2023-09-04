@@ -3,32 +3,32 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { AxiosRequestConfig } from 'axios';
 import type { SagaIterator } from 'redux-saga';
 
-import { FormDynamicsActions } from 'src/features/dynamics/formDynamicsSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { ProcessActions } from 'src/features/process/processSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
-import { Severity } from 'src/types';
 import { getCurrentDataTypeForApplication, getCurrentTaskDataElementId, isStatelessApp } from 'src/utils/appMetadata';
 import { convertDataBindingToModel, convertModelToDataBinding, filterOutInvalidData } from 'src/utils/databindings';
+import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpPost } from 'src/utils/network/networking';
 import { httpGet, httpPut } from 'src/utils/network/sharedNetworking';
 import { waitFor } from 'src/utils/sagas';
 import { dataElementUrl, getStatelessFormDataUrl, getValidationUrl } from 'src/utils/urls/appUrlHelper';
-import { runClientSideValidation } from 'src/utils/validation/runClientSideValidation';
+import { mapValidationIssues } from 'src/utils/validation/backendValidation';
 import {
-  canFormBeSaved,
-  hasValidationsOfSeverity,
-  mapDataElementValidationToRedux,
-  mergeValidationObjects,
-} from 'src/utils/validation/validation';
+  containsErrors,
+  createValidationResult,
+  validationContextFromState,
+} from 'src/utils/validation/validationHelpers';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IFormData } from 'src/features/formData';
 import type { IUpdateFormData } from 'src/features/formData/formDataTypes';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
-import type { IRuntimeState, IRuntimeStore, IUiConfig, IValidationIssue } from 'src/types';
+import type { IRuntimeState, IRuntimeStore, IUiConfig } from 'src/types';
+import type { LayoutPages } from 'src/utils/layout/LayoutPages';
+import type { BackendValidationIssue } from 'src/utils/validation/types';
 
 const LayoutSelector: (store: IRuntimeStore) => ILayoutState = (store: IRuntimeStore) => store.formLayout;
 const getApplicationMetaData = (store: IRuntimeState) => store.applicationMetadata?.applicationMetadata;
@@ -41,42 +41,43 @@ const selectUiConfig = (state: IRuntimeState) => state.formLayout.uiConfig;
 export function* submitFormSaga(): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
-    const { validationResult, componentSpecificValidations, emptyFieldsValidations } = runClientSideValidation(state);
-
-    validationResult.validations = mergeValidationObjects(
-      validationResult.validations,
-      componentSpecificValidations,
-      emptyFieldsValidations,
-    );
-    const { validations } = validationResult;
-    if (!canFormBeSaved(validationResult)) {
-      yield put(ValidationActions.updateValidations({ validations }));
+    const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
+    const validationObjects = resolvedNodes.runValidations(validationContextFromState(state));
+    const validationResult = createValidationResult(validationObjects);
+    if (containsErrors(validationObjects)) {
+      yield put(ValidationActions.updateValidations({ validationResult, merge: false }));
       return yield put(FormDataActions.submitRejected({ error: null }));
     }
 
     yield call(putFormData, {});
-    yield call(submitComplete, state);
+    yield call(submitComplete, state, resolvedNodes);
     yield put(FormDataActions.submitFulfilled());
   } catch (error) {
-    console.error(error);
+    window.logError('Submit form data failed:\n', error);
     yield put(FormDataActions.submitRejected({ error }));
   }
 }
 
-function* submitComplete(state: IRuntimeState) {
+function* submitComplete(state: IRuntimeState, resolvedNodes: LayoutPages) {
   // run validations against the datamodel
   const instanceId = state.instanceData.instance?.id;
-  const serverValidation: IValidationIssue[] | undefined = instanceId
+  const serverValidations: BackendValidationIssue[] | undefined = instanceId
     ? yield call(httpGet, getValidationUrl(instanceId))
     : undefined;
 
   // update validation state
-  const langTools = staticUseLanguageFromState(state);
   const layoutState: ILayoutState = yield select(LayoutSelector);
-  const mappedValidations = mapDataElementValidationToRedux(serverValidation, layoutState.layouts, langTools);
-  yield put(ValidationActions.updateValidations({ validations: mappedValidations }));
-  const hasErrors = hasValidationsOfSeverity(mappedValidations, Severity.Error);
-  if (hasErrors) {
+  const validationObjects = mapValidationIssues(
+    serverValidations ?? [],
+    resolvedNodes,
+    staticUseLanguageFromState(state),
+    false, // Do not filter anything. When we're submitting, all validation messages should be displayed, even if
+    // they're for hidden pages, etc, because the instance will be in a broken state if we just carry on submitting
+    // when the server tells us we're not allowed to.
+  );
+  const validationResult = createValidationResult(validationObjects);
+  yield put(ValidationActions.updateValidations({ validationResult, merge: false }));
+  if (containsErrors(validationObjects)) {
     // we have validation errors or warnings that should be shown, do not submit
     return yield put(FormDataActions.submitRejected({ error: null }));
   }
@@ -171,9 +172,10 @@ export function* putFormData({ field, componentId }: SaveDataParams) {
 
   const url = dataElementUrl(defaultDataElementGuid);
   let lastSavedModel = state.formData.formData;
+  const abortController = new AbortController();
   try {
     const { data, options } = createFormDataRequest(state, model, field, componentId);
-    const responseData = yield call(httpPut, url, data, options);
+    const responseData = yield call(httpPut, url, data, { ...options, signal: abortController.signal });
     lastSavedModel = yield call(handleChangedFields, responseData?.changedFields, formDataCopy);
   } catch (error) {
     if (error.response && error.response.status === 303) {
@@ -189,9 +191,15 @@ export function* putFormData({ field, componentId }: SaveDataParams) {
     } else {
       throw error;
     }
+  } finally {
+    if (yield cancelled()) {
+      // If the saga were cancelled (takeLatest), we would abort the HTTP request/promise
+      // to ensure we do not update the redux-state with staled data.
+      abortController.abort();
+      window.logInfo('Request aborted due to saga cancellation');
+    }
+    yield put(FormDataActions.savingEnded({ model: lastSavedModel }));
   }
-
-  yield put(FormDataActions.savingEnded({ model: lastSavedModel }));
 }
 
 /**
@@ -275,7 +283,7 @@ export function* saveFormDataSaga({
 
     yield put(FormDataActions.submitFulfilled());
   } catch (error) {
-    console.error(error);
+    window.logError('Save form data failed:\n', error);
     yield put(FormDataActions.submitRejected({ error }));
   }
 }
@@ -326,13 +334,12 @@ export function* postStatelessData({ field, componentId }: SaveDataParams) {
       );
       const formData = convertModelToDataBinding(response?.data);
       yield put(FormDataActions.fetchFulfilled({ formData }));
-      yield put(FormDynamicsActions.checkIfConditionalRulesShouldRun({}));
     } finally {
       if (yield cancelled()) {
         // If the saga were cancelled (takeLatest), we would abort the HTTP request/promise
         // to ensure we do not update the redux-state with staled data.
         abortController.abort();
-        console.warn('Request aborted due to saga cancellation');
+        window.logInfo('Request aborted due to saga cancellation');
       }
     }
   }

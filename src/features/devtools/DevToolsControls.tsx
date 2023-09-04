@@ -3,8 +3,12 @@ import React from 'react';
 import { Tabs } from '@digdir/design-system-react';
 
 import { DevHiddenFunctionality } from 'src/features/devtools/components/DevHiddenFunctionality/DevHiddenFunctionality';
+import { DevLanguageSelector } from 'src/features/devtools/components/DevLanguageSelector/DevLanguageSelector';
 import { DevNavigationButtons } from 'src/features/devtools/components/DevNavigationButtons/DevNavigationButtons';
+import { DevToolsLogs } from 'src/features/devtools/components/DevToolsLogs/DevToolsLogs';
+import { DownloadXMLButton } from 'src/features/devtools/components/DownloadXMLButton/DownloadXMLButton';
 import { ExpressionPlayground } from 'src/features/devtools/components/ExpressionPlayground/ExpressionPlayground';
+import { FeatureToggles } from 'src/features/devtools/components/FeatureToggles/FeatureToggles';
 import { LayoutInspector } from 'src/features/devtools/components/LayoutInspector/LayoutInspector';
 import { NodeInspector } from 'src/features/devtools/components/NodeInspector/NodeInspector';
 import { PDFPreviewButton } from 'src/features/devtools/components/PDFPreviewButton/PDFPreviewButton';
@@ -38,8 +42,14 @@ export const DevToolsControls = () => {
                 <DevHiddenFunctionality />
                 <VersionSwitcher />
                 <PermissionsEditor />
+                <DevLanguageSelector />
+                <DownloadXMLButton />
               </div>
             ),
+          },
+          {
+            name: DevToolsTab.Logs,
+            content: <DevToolsLogs />,
           },
           {
             name: DevToolsTab.Layout,
@@ -52,6 +62,10 @@ export const DevToolsControls = () => {
           {
             name: DevToolsTab.Expressions,
             content: <ExpressionPlayground />,
+          },
+          {
+            name: DevToolsTab.FeatureToggles,
+            content: <FeatureToggles />,
           },
         ]}
       />

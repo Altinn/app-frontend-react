@@ -10,15 +10,15 @@ import {
   selectHiddenFieldsState,
   selectInstanceState,
   selectLayoutSetsState,
-  selectLayoutsState,
-  selectValidationsState,
 } from 'src/features/validation/singleFieldValidationSagas';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
-import { Severity } from 'src/types';
+import { resolvedLayoutsFromState, ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpGet } from 'src/utils/network/networking';
 import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
-import type { IRuntimeState, IValidationIssue, IValidations } from 'src/types';
+import { BackendValidationSeverity } from 'src/utils/validation/backendValidationSeverity';
+import type { IRuntimeState } from 'src/types';
+import type { BackendValidationIssue, IValidationObject } from 'src/utils/validation/types';
 
 describe('singleFieldValidationSagas', () => {
   let mockState: IRuntimeState;
@@ -41,24 +41,25 @@ describe('singleFieldValidationSagas', () => {
       },
     };
 
-    const validationIssues: IValidationIssue[] = [
+    const validationIssues: BackendValidationIssue[] = [
       {
         code: 'error',
         description: mockErrorMessage,
         field: 'Group.prop1',
         scope: null,
-        severity: Severity.Error,
+        severity: BackendValidationSeverity.Error,
         targetId: '',
       },
     ];
-    const mappedValidations: IValidations = {
-      FormLayout: {
-        field1: {
-          simpleBinding: {
-            errors: [mockErrorMessage],
-          },
-        },
-      },
+    const validationError: IValidationObject = {
+      empty: false,
+      componentId: 'field1',
+      pageKey: 'FormLayout',
+      bindingKey: 'simpleBinding',
+      severity: 'errors',
+      message: mockErrorMessage,
+      invalidDataTypes: false,
+      rowIndices: [],
     };
 
     return expectSaga(runSingleFieldValidationSaga, {
@@ -70,18 +71,18 @@ describe('singleFieldValidationSagas', () => {
       },
     })
       .provide([
+        [select(), mockState],
         [select(selectApplicationMetadataState), mockState.applicationMetadata.applicationMetadata],
-        [select(selectLayoutsState), mockState.formLayout.layouts],
         [select(selectHiddenFieldsState), mockState.formLayout.uiConfig.hiddenFields],
         [select(selectInstanceState), mockState.instanceData.instance],
         [select(selectLayoutSetsState), mockState.formLayout.layoutsets],
         [select(staticUseLanguageFromState), staticUseLanguageFromState(mockState)],
-        [select(selectValidationsState), mockState.formValidations.validations],
+        [select(ResolvedNodesSelector), resolvedLayoutsFromState(mockState)],
         [call(httpGet, url, options), validationIssues],
       ])
       .put(
-        ValidationActions.runSingleFieldValidationFulfilled({
-          validations: mappedValidations,
+        ValidationActions.addValidations({
+          validationObjects: [validationError],
         }),
       )
       .run();
@@ -109,12 +110,11 @@ describe('singleFieldValidationSagas', () => {
     })
       .provide([
         [select(selectApplicationMetadataState), mockState.applicationMetadata.applicationMetadata],
-        [select(selectLayoutsState), mockState.formLayout.layouts],
         [select(selectHiddenFieldsState), mockState.formLayout.uiConfig.hiddenFields],
         [select(selectInstanceState), mockState.instanceData.instance],
         [select(selectLayoutSetsState), mockState.formLayout.layoutsets],
         [select(staticUseLanguageFromState), staticUseLanguageFromState(mockState)],
-        [select(selectValidationsState), mockState.formValidations.validations],
+        [select(ResolvedNodesSelector), resolvedLayoutsFromState(mockState)],
         [call(httpGet, url, options), throwError(error)],
       ])
       .put(ValidationActions.runSingleFieldValidationRejected({ error }))

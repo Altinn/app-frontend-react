@@ -21,7 +21,7 @@ export class AppFrontend {
 
   //Common
   public loadingAnimation = 'rect[role="presentation"]';
-  public header = '.a-modal-header';
+  public header = '#main-content > header';
   public closeButton = '[data-testid="form-close-button"]';
   public backButton = '[data-testid="form-back-button"]';
   public attachmentIcon = '.reg-attachment';
@@ -122,7 +122,6 @@ export class AppFrontend {
   //message - task_1
   public message = {
     header: '#appen-for-test-av-app-frontend',
-    attachmentList: '.attachmentList-title',
     logo: '#altinnLogo',
     logoFormContent: '#form-content-altinnLogo',
   };
@@ -150,7 +149,7 @@ export class AppFrontend {
     uploadWithTag: {
       uploadZone: '#fileUploadWithTags-changename',
       editWindow: '[id^="attachment-edit-window"]',
-      tagsDropDown: '[id^="attachment-tag-dropdown"]',
+      tagsDropDown: 'input[id^="attachment-tag-dropdown"]',
       saveTag: '[id^="attachment-save-tag-button"]',
       uploaded: '#tagFile',
       error: '[id^="attachment-error"]',
@@ -164,7 +163,7 @@ export class AppFrontend {
     deleteAttachment: '[data-testid^="attachment-delete"]',
     popOverDeleteButton: '[data-testid="warning-popover-delete-button"]',
     popOverCancelButton: '[data-testid="warning-popover-cancel-button"]',
-    uploadedTable: '#altinn-file-listfileUpload-changename',
+    uploadedTable: '#file-upload-table',
     downloadAttachment: '[data-testid="attachment-download"]',
     uploadSuccess: '[data-testid="checkmark-success"]',
     uploadDropZone: '#altinn-drop-zone-fileUpload-changename',
@@ -257,8 +256,6 @@ export class AppFrontend {
   public reporteeSelection = {
     appHeader: '[data-testid="AltinnAppHeader"]',
     searchReportee: 'input[placeholder="Søk etter aktør"]',
-    checkbox: 'input[type="checkbox"]',
-    seeSubUnits: '.ai.ai-expand-circle',
     reportee: '[data-testid="AltinnParty-PartyWrapper"][id^=party-]',
     subUnits: '[data-testid="AltinnParty-SubUnitWrapper"]',
     error: '#party-selection-error',
@@ -271,6 +268,7 @@ export class AppFrontend {
     table: '#instance-selection-table',
     tableBody: '#instance-selection-table-body',
     newInstance: '#new-instance-button',
+    nexPageButton: 'button[aria-label="Neste side i tabell"]',
   };
 
   public signingTest = {
@@ -295,11 +293,12 @@ export function makeUploaderSelectors<T extends Type>(
 ) {
   const tableSelector =
     type === 'tagged'
-      ? `#form-content-${id}-${row} div[data-testid=tagFile] > div > table`
+      ? `#form-content-${id}-${row} [data-testid=tagFile]`
       : `#altinn-fileuploader-${id}-${row} [data-testid="file-upload-table"]`;
   const statusIdx = type === 'tagged' ? 4 : 3;
 
   return {
+    fileUploader: `#altinn-fileuploader-${id}-${row}`,
     stateKey: `${id}-${row}`,
     dropZoneContainer: `#altinn-drop-zone-${id}-${row}`,
     dropZone: `#altinn-drop-zone-${id}-${row} input[type=file]`,
@@ -308,7 +307,7 @@ export function makeUploaderSelectors<T extends Type>(
       status: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) > td:nth-child(${statusIdx})`,
       deleteBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) [data-testid^="attachment-delete"]`,
       ...(type === 'tagged' && {
-        tagSelector: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) select`,
+        tagSelector: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) input`,
         tagSave: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) button[id^=attachment-save-tag-button]`,
         editBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) td:last-of-type button:contains("Rediger")`,
         deleteBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) button:contains("Slett")`,

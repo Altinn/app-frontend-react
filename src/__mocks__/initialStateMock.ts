@@ -6,7 +6,7 @@ import { getInstanceDataStateMock } from 'src/__mocks__/instanceDataStateMock';
 import { partyMock } from 'src/__mocks__/partyMock';
 import { getProcessStateMock } from 'src/__mocks__/processMock';
 import { getProfileStateMock } from 'src/__mocks__/profileStateMock';
-import type { IDevToolsState } from 'src/features/devtools/data/types';
+import { DevToolsTab } from 'src/features/devtools/data/types';
 import type { IRuntimeState } from 'src/types';
 
 export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRuntimeState {
@@ -18,7 +18,25 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
     attachments: {
       attachments: {},
     },
-    devTools: {} as unknown as IDevToolsState,
+    devTools: {
+      activeTab: DevToolsTab.General,
+      isOpen: false,
+      hasBeenOpen: false,
+      pdfPreview: false,
+      hiddenComponents: 'hide',
+      layoutInspector: {
+        selectedComponentId: undefined,
+      },
+      nodeInspector: {
+        selectedNodeId: undefined,
+      },
+      exprPlayground: {
+        expression: undefined,
+        forPage: undefined,
+        forComponentId: undefined,
+      },
+      logs: [],
+    },
     formData: getFormDataStateMock(),
     formDataModel: {
       error: null,
@@ -64,7 +82,7 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
             nb: 'Mockdepartementet',
             nn: 'Mockdepartementet',
           },
-          logo: '',
+          logo: 'https://altinncdn.no/orgs/mockOrg/mockOrg.png',
           orgnr: '',
           homepage: '',
           environments: ['tt02', 'production'],
@@ -148,6 +166,10 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
               key: 'referencedGroup[2].inputField',
             },
           ],
+        },
+        {
+          id: 'accordion.title',
+          value: 'This is a title',
         },
       ],
       error: null,

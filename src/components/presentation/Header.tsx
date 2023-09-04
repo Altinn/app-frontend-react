@@ -1,11 +1,13 @@
 import React from 'react';
 
+import { Heading } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
-import classNames from 'classnames';
 
+import classes from 'src/components/presentation/Header.module.css';
 import { Progress } from 'src/components/presentation/Progress';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
+import { selectDisplayAppOwnerNameInHeader } from 'src/selectors/logo';
 import { ProcessTaskType } from 'src/types';
 import type { PresentationType } from 'src/types';
 
@@ -17,48 +19,45 @@ export interface IHeaderProps {
 
 export const Header = ({ type, header, appOwner }: IHeaderProps) => {
   const showProgressSettings = useAppSelector((state) => state.formLayout.uiConfig.showProgress);
+  const displayAppOwnerNameInHeader = useAppSelector(selectDisplayAppOwnerNameInHeader);
   const showProgress = type !== ProcessTaskType.Archived && showProgressSettings;
+
   const { lang } = useLanguage();
 
   return (
-    <header
-      className={classNames('modal-header', 'a-modal-header', {
-        'a-modal-background-success': type === ProcessTaskType.Archived,
-      })}
-    >
-      <div className='a-iconText a-iconText-background a-iconText-large'>
-        <Grid
-          container
-          direction='row'
-          justifyContent='space-between'
-          wrap='nowrap'
-          spacing={2}
-        >
-          <Grid item>
+    <header className={classes.wrapper}>
+      <Grid
+        container
+        direction='row'
+        justifyContent='space-between'
+        wrap='nowrap'
+        spacing={2}
+      >
+        <Grid item>
+          {!displayAppOwnerNameInHeader && (
             <Grid item>
               <span>{appOwner}</span>
             </Grid>
-            <Grid item>
-              <h1 className='a-iconText-text mb-0'>
-                <span
-                  className='a-iconText-text-large'
-                  data-testid='presentation-heading'
-                >
-                  {type === ProcessTaskType.Archived ? <span>{lang('receipt.receipt')}</span> : header}
-                </span>
-              </h1>
-            </Grid>
-          </Grid>
-          {showProgress && (
-            <Grid
-              item
-              aria-live='polite'
-            >
-              <Progress />
-            </Grid>
           )}
+          <Grid item>
+            <Heading
+              level={1}
+              size='medium'
+              data-testid='presentation-heading'
+            >
+              {type === ProcessTaskType.Archived ? <span>{lang('receipt.receipt')}</span> : header}
+            </Heading>
+          </Grid>
         </Grid>
-      </div>
+        {showProgress && (
+          <Grid
+            item
+            aria-live='polite'
+          >
+            <Progress />
+          </Grid>
+        )}
+      </Grid>
     </header>
   );
 };

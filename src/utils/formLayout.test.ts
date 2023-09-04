@@ -4,7 +4,6 @@ import {
   getRepeatingGroups,
   mapFileUploadersWithTag,
   removeRepeatingGroupFromUIConfig,
-  topLevelComponents,
 } from 'src/utils/formLayout';
 import type { IAttachmentState } from 'src/features/attachments';
 import type { ILayout } from 'src/layout/layout';
@@ -33,7 +32,7 @@ const testLayout: ILayout = [
     id: 'field1',
     type: 'Input',
     dataModelBindings: {
-      simple: 'Group1.prop1',
+      simpleBinding: 'Group1.prop1',
     },
     textResourceBindings: {
       title: 'Title',
@@ -45,7 +44,7 @@ const testLayout: ILayout = [
     id: 'field2',
     type: 'Input',
     dataModelBindings: {
-      simple: 'Group1.Group2.prop1',
+      simpleBinding: 'Group1.Group2.prop1',
     },
     textResourceBindings: {
       title: 'Title',
@@ -228,7 +227,7 @@ describe('getRepeatingGroups', () => {
         id: 'field1',
         type: 'Input',
         dataModelBindings: {
-          simple: 'Group.prop1',
+          simpleBinding: 'Group.prop1',
         },
         textResourceBindings: {
           title: 'Title',
@@ -240,7 +239,7 @@ describe('getRepeatingGroups', () => {
         id: 'field2',
         type: 'Input',
         dataModelBindings: {
-          simple: 'Group2.prop1',
+          simpleBinding: 'Group2.prop1',
         },
         textResourceBindings: {
           title: 'Title',
@@ -291,6 +290,9 @@ describe('getRepeatingGroups', () => {
         type: 'Input',
         textResourceBindings: {
           title: 'Title',
+        },
+        dataModelBindings: {
+          simpleBinding: 'field1Input',
         },
         readOnly: false,
         required: false,
@@ -383,7 +385,6 @@ describe('mapFileUploadersWithTag', () => {
           description: 'VedleggsTestBeskrivelse',
           tagTitle: 'Datatype',
         },
-        dataModelBindings: {},
         maxFileSizeInMB: 25,
         maxNumberOfAttachments: 15,
         minNumberOfAttachments: 1,
@@ -401,7 +402,6 @@ describe('mapFileUploadersWithTag', () => {
           description: 'VedleggsTestBeskrivelse',
           tagTitle: 'Datatype',
         },
-        dataModelBindings: {},
         maxFileSizeInMB: 25,
         maxNumberOfAttachments: 15,
         minNumberOfAttachments: 1,
@@ -419,7 +419,6 @@ describe('mapFileUploadersWithTag', () => {
           description: 'VedleggsTestBeskrivelse',
           tagTitle: 'Datatype',
         },
-        dataModelBindings: {},
         maxFileSizeInMB: 25,
         maxNumberOfAttachments: 15,
         minNumberOfAttachments: 1,
@@ -523,27 +522,37 @@ describe('findChildren', () => {
       {
         id: 'field1',
         type: 'Input',
+        dataModelBindings: {
+          simpleBinding: 'binding1',
+        },
       },
       {
         id: 'group1',
         type: 'Group',
         children: ['0:field2', '1:field3'],
         edit: { multiPage: true },
+        maxCount: 2,
       },
       {
         id: 'field2',
         required: true,
         type: 'Input',
+        dataModelBindings: {
+          simpleBinding: 'binding2',
+        },
       },
       {
         id: 'field3',
         required: false,
         type: 'Input',
+        dataModelBindings: {
+          simpleBinding: 'binding3',
+        },
       },
     ];
 
     const result1 = findChildren(layout, {
-      matching: (c) => c.required === true,
+      matching: (c) => 'required' in c && c.required === true,
       rootGroupId: 'group1',
     });
 
@@ -563,6 +572,9 @@ describe('findChildren', () => {
       {
         id: 'field1',
         type: 'Input',
+        dataModelBindings: {
+          simpleBinding: 'binding1',
+        },
       },
       {
         id: 'group0',
@@ -580,21 +592,30 @@ describe('findChildren', () => {
         id: 'field2',
         required: true,
         type: 'Input',
+        dataModelBindings: {
+          simpleBinding: 'binding2',
+        },
       },
       {
         id: 'field3',
         required: false,
         type: 'Input',
+        dataModelBindings: {
+          simpleBinding: 'binding3',
+        },
       },
       {
         id: 'field4',
         required: true,
         type: 'Input',
+        dataModelBindings: {
+          simpleBinding: 'binding4',
+        },
       },
     ];
 
     const result1 = findChildren(layout, {
-      matching: (c) => c.required === true,
+      matching: (c) => 'required' in c && c.required === true,
     });
 
     expect(result1).toHaveLength(2);
@@ -606,27 +627,6 @@ describe('findChildren', () => {
 
     expect(result2).toHaveLength(3);
     expect(result2.map((c) => c.id)).toEqual(['field2', 'field3', 'field4']);
-  });
-});
-
-function onlyIds(layout: ILayout): string[] {
-  return layout.map((c) => c.id);
-}
-
-describe('topLevelComponents', () => {
-  it('should only return the test layout group', () => {
-    const output = topLevelComponents(testLayout);
-    expect(onlyIds(output)).toEqual(['Group1']);
-  });
-  it('should also include a free-standing top level component', () => {
-    const output = topLevelComponents([
-      ...testLayout,
-      {
-        id: 'freeStanding',
-        type: 'Button',
-      },
-    ]);
-    expect(onlyIds(output)).toEqual(['Group1', 'freeStanding']);
   });
 });
 

@@ -2,18 +2,23 @@ import dot from 'dot-object';
 
 import { ExprRuntimeError, NodeNotFound, NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import { prettyErrors, prettyErrorsToConsole } from 'src/features/expressions/prettyErrors';
+import type { IAttachments } from 'src/features/attachments';
 import type { EvalExprOptions } from 'src/features/expressions/index';
 import type { ExprConfig, Expression } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
+import type { IOptions, IUiConfig } from 'src/types';
 import type { IApplicationSettings, IAuthContext, IInstanceContext } from 'src/types/shared';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 export interface ContextDataSources {
   instanceContext: IInstanceContext | null;
   applicationSettings: IApplicationSettings | null;
   formData: IFormData;
+  attachments: IAttachments;
+  uiConfig: IUiConfig;
+  options: IOptions;
   authContext: Partial<IAuthContext> | null;
   hiddenFields: Set<string>;
   langTools: IUseLanguage;
@@ -69,7 +74,7 @@ export class ExprContext {
   /**
    * Utility function used to get the LayoutNode for this context, or fail if the node was not found
    */
-  public failWithoutNode(): LayoutNode | LayoutPage {
+  public failWithoutNode(): LayoutNode | BaseLayoutNode | LayoutPage {
     if (this.node instanceof NodeNotFoundWithoutContext) {
       throw new NodeNotFound(this, this.node);
     }

@@ -1,7 +1,10 @@
-import type { AnyItem, HComponent } from 'src/utils/layout/hierarchy.types';
+import { runValidationOnNodes } from 'src/utils/validation/validation';
+import type { CompExceptGroup, CompInternal } from 'src/layout/layout';
+import type { IUiConfig } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
+import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
 
 /**
  * The layout page is a class containing an entire page/form layout, with all components/nodes within it. It
@@ -40,7 +43,7 @@ export class LayoutPage implements LayoutObject {
    * Looks for a matching component upwards in the hierarchy, returning the first one (or undefined if
    * none can be found). Implemented here for parity with LayoutNode
    */
-  public closest(matching: (item: AnyItem) => boolean, traversePages = true): LayoutNode | undefined {
+  public closest(matching: (item: CompInternal) => boolean, traversePages = true): LayoutNode | undefined {
     const out = this.children(matching);
     if (out) {
       return out;
@@ -64,8 +67,8 @@ export class LayoutPage implements LayoutObject {
    * here for parity with LayoutNode.
    */
   public children(): LayoutNode[];
-  public children(matching: (item: AnyItem) => boolean): LayoutNode | undefined;
-  public children(matching?: (item: AnyItem) => boolean): any {
+  public children(matching: (item: CompInternal) => boolean): LayoutNode | undefined;
+  public children(matching?: (item: CompInternal) => boolean): any {
     if (!matching) {
       return this.directChildren;
     }
@@ -86,7 +89,7 @@ export class LayoutPage implements LayoutObject {
    * @param includeGroups If true, also includes the group nodes
    */
   public flat(includeGroups: true): LayoutNode[];
-  public flat(includeGroups: false): LayoutNode<HComponent>[];
+  public flat(includeGroups: false): LayoutNode<CompExceptGroup>[];
   public flat(includeGroups: boolean): LayoutNode[] {
     if (!includeGroups) {
       return this.allChildren.filter((c) => c.item.type !== 'Group');
@@ -129,5 +132,39 @@ export class LayoutPage implements LayoutObject {
       myKey,
       collection,
     };
+  }
+
+  /**
+   * Runs frontend validations for all nodes in the layout, and returns an array of IValidationObject.
+   */
+  public runValidations(validationContext: IValidationContext): IValidationObject[] {
+    return runValidationOnNodes(this.allChildren, validationContext);
+  }
+
+  public isHiddenViaTracks(uiConfig: IUiConfig): boolean {
+    const myKey = this.top.myKey;
+    if (myKey === uiConfig.currentView) {
+      // If this is the current view, then it's never hidden. This avoids settings fields as hidden when
+      // code caused this to be the current view even if it's not in the common order.
+      return false;
+    }
+
+    if (myKey === uiConfig.receiptLayoutName) {
+      // If this is the custom receipt layout, then it's never hidden.
+      return false;
+    }
+
+    if (myKey === uiConfig.pdfLayoutName) {
+      // If this is the pdf layout, then it's never hidden.
+      return false;
+    }
+
+    const { order } = uiConfig.tracks || {};
+    if (!order) {
+      // If no tracks are provided, then we can't determine if this is hidden or not
+      return false;
+    }
+
+    return !order.includes(myKey);
   }
 }

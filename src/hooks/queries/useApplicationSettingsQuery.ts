@@ -7,21 +7,23 @@ import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import type { IApplicationSettings } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
-enum ServerStateCacheKey {
-  ApplicationSettings = 'fetchApplicationSettings',
-}
-
 export const useApplicationSettingsQuery = (): UseQueryResult<IApplicationSettings> => {
   const dispatch = useAppDispatch();
   const { fetchApplicationSettings } = useAppQueriesContext();
-  return useQuery([ServerStateCacheKey.ApplicationSettings], fetchApplicationSettings, {
+  return useQuery(['fetchApplicationSettings'], fetchApplicationSettings, {
     onSuccess: (settings) => {
       // Update the Redux Store ensures that legacy code has access to the data without using the Tanstack Query Cache
       dispatch(ApplicationSettingsActions.fetchApplicationSettingsFulfilled({ settings }));
     },
     onError: (error: HttpClientError) => {
-      // Update the Redux Store ensures that legacy code has access to the data without using the Tanstack Query Cache
-      dispatch(ApplicationSettingsActions.fetchApplicationSettingsRejected({ error }));
+      if (error.status === 404) {
+        dispatch(ApplicationSettingsActions.fetchApplicationSettingsRejected({ error: null }));
+        window.logWarn('Application settings not found:\n', error);
+      } else {
+        // Update the Redux Store ensures that legacy code has access to the data without using the Tanstack Query Cache
+        dispatch(ApplicationSettingsActions.fetchApplicationSettingsRejected({ error }));
+        window.logError('Fetching application settings failed:\n', error);
+      }
     },
   });
 };

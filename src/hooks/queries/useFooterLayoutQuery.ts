@@ -12,14 +12,10 @@ const handleErrorAsSuccessful = (dispatch: AppDispatch): void => {
   dispatch(FooterLayoutActions.fetchFulfilled({ footerLayout: null }));
 };
 
-enum ServerStateCacheKey {
-  FetchFooterLayout = 'fetchFooterLayout',
-}
-
 export const useFooterLayoutQuery = (enabled?: boolean): UseQueryResult<IFooterLayout> => {
   const dispatch = useAppDispatch();
   const { fetchFooterLayout } = useAppQueriesContext();
-  return useQuery([ServerStateCacheKey.FetchFooterLayout], fetchFooterLayout, {
+  return useQuery(['fetchFooterLayout'], fetchFooterLayout, {
     enabled,
     onSuccess: (footerLayout) => {
       // Update the Redux Store ensures that legacy code has access to the data without using the Tanstack Query Cache
@@ -34,6 +30,7 @@ export const useFooterLayoutQuery = (enabled?: boolean): UseQueryResult<IFooterL
       }
       // Update the Redux Store ensures that legacy code has access to the data without using the Tanstack Query Cache
       dispatch(FooterLayoutActions.fetchRejected({ error }));
+      window.logError('Fetching footer failed:\n', error);
     },
   });
 };

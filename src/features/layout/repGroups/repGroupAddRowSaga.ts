@@ -2,14 +2,15 @@ import { put, select } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 
-import { FormDynamicsActions } from 'src/features/dynamics/formDynamicsSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { selectFormLayoutState } from 'src/features/layout/update/updateFormLayoutSagas';
+import { groupIsRepeatingExt } from 'src/layout/Group/tools';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
-import type { ILayoutGroup } from 'src/layout/Group/types';
+import type { IRepGroupAddRow } from 'src/features/layout/formLayoutTypes';
+import type { CompGroupExternal } from 'src/layout/Group/config.generated';
 import type { IRepeatingGroups } from 'src/types';
 
-export function* repGroupAddRowSaga({ payload: { groupId } }: PayloadAction<{ groupId: string }>): SagaIterator {
+export function* repGroupAddRowSaga({ payload: { groupId } }: PayloadAction<IRepGroupAddRow>): SagaIterator {
   try {
     const formLayoutState: ILayoutState = yield select(selectFormLayoutState);
     const repeatingGroups = formLayoutState.uiConfig.repeatingGroups;
@@ -35,14 +36,14 @@ export function* repGroupAddRowSaga({ payload: { groupId } }: PayloadAction<{ gr
       },
     };
 
-    const groupContainer = currentLayout.find((element) => element.id === groupId) as ILayoutGroup | undefined;
+    const groupContainer = currentLayout.find((element) => element.id === groupId) as CompGroupExternal | undefined;
     const children = groupContainer?.children || [];
     const childGroups = currentLayout.filter((element) => {
       if (element.type !== 'Group') {
         return false;
       }
 
-      if (groupContainer?.edit?.multiPage) {
+      if (groupContainer && groupIsRepeatingExt(groupContainer) && groupContainer.edit?.multiPage) {
         return children.find((c) => c.split(':')[1] === element.id);
       }
 
@@ -54,15 +55,16 @@ export function* repGroupAddRowSaga({ payload: { groupId } }: PayloadAction<{ gr
       updatedRepeatingGroups[groupId] = {
         index: -1,
         baseGroupId: group.id,
-        dataModelBinding: group.dataModelBindings?.group,
+        dataModelBinding:
+          group.type === 'Group' && 'dataModelBindings' in group ? group.dataModelBindings?.group : undefined,
         editIndex: -1,
         multiPageIndex: -1,
       };
     });
 
     yield put(FormLayoutActions.repGroupAddRowFulfilled({ updated: updatedRepeatingGroups }));
-    yield put(FormDynamicsActions.checkIfConditionalRulesShouldRun({}));
   } catch (error) {
     yield put(FormLayoutActions.repGroupAddRowRejected({ error }));
+    window.logError(`Adding row to repeating group (${groupId}) failed:\n`, error);
   }
 }

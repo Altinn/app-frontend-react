@@ -2,33 +2,32 @@ import React from 'react';
 
 import { formatNumericText } from '@digdir/design-system-react';
 
-import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
+import { getMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
+import { InputDef } from 'src/layout/Input/config.def.generated';
 import { InputComponent } from 'src/layout/Input/InputComponent';
-import { FormComponent } from 'src/layout/LayoutComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { ILayoutCompInput } from 'src/layout/Input/types';
-import type { IInputFormatting } from 'src/layout/layout';
+import type { IInputFormatting } from 'src/layout/Input/config.generated';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class Input extends FormComponent<'Input'> {
+export class Input extends InputDef {
   render(props: PropsFromGenericComponent<'Input'>): JSX.Element | null {
     return <InputComponent {...props} />;
   }
 
-  useDisplayData(node: LayoutNodeFromType<'Input'>): string {
-    const formData = useAppSelector((state) => state.formData.formData);
+  getDisplayData(node: LayoutNode<'Input'>, { formData, langTools }): string {
     if (!node.item.dataModelBindings?.simpleBinding) {
       return '';
     }
 
     const text = formData[node.item.dataModelBindings.simpleBinding] || '';
 
-    const numberFormatting = useMapToReactNumberConfig(node.item.formatting as IInputFormatting, text);
+    const numberFormatting = getMapToReactNumberConfig(
+      node.item.formatting as IInputFormatting | undefined,
+      text,
+      langTools,
+    );
 
     if (numberFormatting?.number) {
       return formatNumericText(text, numberFormatting.number);
@@ -42,13 +41,3 @@ export class Input extends FormComponent<'Input'> {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 }
-
-export const Config = {
-  def: new Input(),
-};
-
-export type TypeConfig = {
-  layout: ILayoutCompInput;
-  nodeItem: ExprResolved<ILayoutCompInput>;
-  nodeObj: LayoutNode;
-};

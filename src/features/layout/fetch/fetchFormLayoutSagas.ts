@@ -5,27 +5,28 @@ import { preProcessItem, preProcessLayout } from 'src/features/expressions/valid
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
-import { ComponentConfigs } from 'src/layout/components';
+import { ComponentConfigs } from 'src/layout/components.generated';
 import { getLayoutSetIdForApplication } from 'src/utils/appMetadata';
 import { httpGet } from 'src/utils/network/networking';
 import { getLayoutSetsUrl, getLayoutSettingsUrl, getLayoutsUrl } from 'src/utils/urls/appUrlHelper';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
-import type { ExprObjConfig, ExprUnresolved, ExprVal } from 'src/features/expressions/types';
-import type { ComponentTypes, ILayout, ILayouts } from 'src/layout/layout';
-import type { IHiddenLayoutsExpressions, ILayoutSets, ILayoutSettings, IRuntimeState } from 'src/types';
+import type { ExprObjConfig, ExprVal } from 'src/features/expressions/types';
+import type { ILayoutFileExternal } from 'src/layout/common.generated';
+import type { CompTypes, ILayout, ILayouts } from 'src/layout/layout';
+import type { IHiddenLayoutsExternal, ILayoutSets, ILayoutSettings, IRuntimeState } from 'src/types';
 import type { IInstance } from 'src/types/shared';
 
 export const layoutSetsSelector = (state: IRuntimeState) => state.formLayout.layoutsets;
 export const instanceSelector = (state: IRuntimeState) => state.instanceData.instance;
 export const applicationMetadataSelector = (state: IRuntimeState) => state.applicationMetadata.applicationMetadata;
 
-type ComponentTypeCaseMapping = { [key: string]: ComponentTypes };
+type ComponentTypeCaseMapping = { [key: string]: CompTypes };
 let componentTypeCaseMapping: ComponentTypeCaseMapping | undefined = undefined;
 function getCaseMapping(): ComponentTypeCaseMapping {
   if (!componentTypeCaseMapping) {
     componentTypeCaseMapping = {};
     for (const type in ComponentConfigs) {
-      componentTypeCaseMapping[type.toLowerCase()] = type as ComponentTypes;
+      componentTypeCaseMapping[type.toLowerCase()] = type as CompTypes;
     }
   }
 
@@ -50,12 +51,15 @@ export function* fetchLayoutSaga(): SagaIterator {
     const instance: IInstance | null = yield select(instanceSelector);
     const applicationMetadata: IApplicationMetadata = yield select(applicationMetadataSelector);
     const layoutSetId = getLayoutSetIdForApplication(applicationMetadata, instance, layoutSets);
-    const layoutResponse: any = yield call(httpGet, getLayoutsUrl(layoutSetId || null));
+    const layoutResponse: ILayoutFileExternal | { [key: string]: ILayoutFileExternal } = yield call(
+      httpGet,
+      getLayoutsUrl(layoutSetId || null),
+    );
     const layouts: ILayouts = {};
     const navigationConfig: any = {};
-    const hiddenLayoutsExpressions: ExprUnresolved<IHiddenLayoutsExpressions> = {};
+    const hiddenLayoutsExpressions: IHiddenLayoutsExternal = {};
     let firstLayoutKey: string;
-    if (layoutResponse.data?.layout) {
+    if ('data' in layoutResponse && 'layout' in layoutResponse.data && layoutResponse.data.layout) {
       layouts.FormLayout = layoutResponse.data.layout;
       hiddenLayoutsExpressions.FormLayout = layoutResponse.data.hidden;
       firstLayoutKey = 'FormLayout';
@@ -74,9 +78,10 @@ export function* fetchLayoutSaga(): SagaIterator {
       }
 
       orderedLayoutKeys.forEach((key) => {
-        layouts[key] = cleanLayout(layoutResponse[key].data.layout);
-        hiddenLayoutsExpressions[key] = layoutResponse[key].data.hidden;
-        navigationConfig[key] = layoutResponse[key].data.navigation;
+        const file: ILayoutFileExternal = layoutResponse[key];
+        layouts[key] = cleanLayout(file.data.layout);
+        hiddenLayoutsExpressions[key] = file.data.hidden;
+        navigationConfig[key] = file.data.navigation;
       });
     }
 
@@ -108,16 +113,13 @@ export function* fetchLayoutSaga(): SagaIterator {
   } catch (error) {
     yield put(FormLayoutActions.fetchRejected({ error }));
     yield put(QueueActions.dataTaskQueueError({ error }));
+    window.logError('Fetching form layout failed:\n', error);
   }
 }
 
 export function* watchFetchFormLayoutSaga(): SagaIterator {
   while (true) {
-    yield all([
-      take(FormLayoutActions.fetch),
-      take(FormDataActions.fetchInitial),
-      take(FormDataActions.fetchFulfilled),
-    ]);
+    yield all([take(FormLayoutActions.fetch), take(FormDataActions.fetchFulfilled)]);
     yield call(fetchLayoutSaga);
   }
 }
@@ -137,6 +139,7 @@ export function* fetchLayoutSettingsSaga(): SagaIterator {
       yield put(FormLayoutActions.fetchSettingsFulfilled({ settings: null }));
     } else {
       yield put(FormLayoutActions.fetchSettingsRejected({ error }));
+      window.logError('Fetching layout settings failed:\n', error);
     }
   }
 }
@@ -158,6 +161,7 @@ export function* fetchLayoutSetsSaga(): SagaIterator {
       yield put(FormLayoutActions.fetchSetsFulfilled({ layoutSets: null }));
     } else {
       yield put(FormLayoutActions.fetchSetsRejected({ error }));
+      window.logError('Fetching layout sets failed:\n', error);
     }
   }
 }

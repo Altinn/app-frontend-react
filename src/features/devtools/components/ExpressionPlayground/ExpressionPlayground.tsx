@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
 
-import { Checkbox, FieldSet, Select, Tabs } from '@digdir/design-system-react';
+import { Checkbox, Fieldset, Select, Tabs } from '@digdir/design-system-react';
 import cn from 'classnames';
 
 import classes from 'src/features/devtools/components/ExpressionPlayground/ExpressionPlayground.module.css';
@@ -13,7 +13,7 @@ import { asExpression } from 'src/features/expressions/validation';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useExprContext } from 'src/utils/layout/ExprContext';
-import { dataSourcesFromState } from 'src/utils/layout/hierarchy';
+import { selectDataSourcesFromState } from 'src/utils/layout/hierarchy';
 import type { ExprConfig, Expression, ExprFunction } from 'src/features/expressions/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -39,7 +39,7 @@ export const ExpressionPlayground = () => {
   ]);
   const nodes = useExprContext();
   const currentPage = nodes?.current()?.top.myKey;
-  const dataSources = useAppSelector(dataSourcesFromState);
+  const dataSources = useAppSelector(selectDataSourcesFromState);
 
   const setOutputWithHistory = useCallback(
     (newValue: string, isError: boolean): boolean => {
@@ -51,7 +51,7 @@ export const ExpressionPlayground = () => {
       if (lastOutput.value === newValue && lastOutput.isError === isError) {
         return false;
       }
-      const newOutputs = [{ value: newValue, isError }, ...outputs];
+      const newOutputs = [{ value: newValue, isError }, ...outputs.filter((o) => (!isError ? !o.isError : true))];
       setOutputs(newOutputs.slice(0, 10));
       return true;
     },
@@ -64,7 +64,9 @@ export const ExpressionPlayground = () => {
 
   useEffect(() => {
     if (!input || input.length <= 0) {
-      setOutputs([{ value: '', isError: false }]);
+      if (!outputs[0] || outputs[0]?.value !== '') {
+        setOutputs([{ value: '', isError: false }]);
+      }
       return;
     }
 
@@ -117,7 +119,9 @@ export const ExpressionPlayground = () => {
         setOutputWithHistory(JSON.stringify(out), false);
       }
     } catch (e) {
-      setOutputs([{ value: e.message, isError: true }]);
+      if (!outputs[0] || outputs[0]?.value !== e.message) {
+        setOutputs([{ value: e.message, isError: true }]);
+      }
     }
   }, [input, forPage, forComponentId, dataSources, nodes, showAllSteps, outputs, setOutputWithHistory]);
 
@@ -167,7 +171,7 @@ export const ExpressionPlayground = () => {
           )}
         </SplitView>
         <div className={classes.rightColumn}>
-          <FieldSet legend={'Kjør uttrykk i kontekst av komponent'}>
+          <Fieldset legend={'Kjør uttrykk i kontekst av komponent'}>
             <Select
               value={`${forPage}|${forComponentId}`}
               onChange={(value) => {
@@ -204,13 +208,15 @@ export const ExpressionPlayground = () => {
                   resetOutputHistory();
                   setShowAllSteps(ev.target.checked);
                 }}
-                label={'Vis alle steg i evalueringen'}
-              />
+                value='nothing'
+              >
+                Vis alle steg i evalueringen
+              </Checkbox>
             </div>
-          </FieldSet>
+          </Fieldset>
           <br />
           <br />
-          <FieldSet legend={'Dokumentasjon'}>
+          <Fieldset legend={'Dokumentasjon'}>
             Les mer om uttrykk{' '}
             <a
               href={'https://docs.altinn.studio/nb/app/development/logic/expressions/'}
@@ -219,7 +225,7 @@ export const ExpressionPlayground = () => {
             >
               i dokumentasjonen
             </a>
-          </FieldSet>
+          </Fieldset>
         </div>
       </SplitView>
     </div>

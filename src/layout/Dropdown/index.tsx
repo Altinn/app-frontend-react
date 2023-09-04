@@ -1,30 +1,27 @@
 import React from 'react';
 
-import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useSelectedValueToText } from 'src/hooks/useSelectedValueToText';
+import { getOptionList } from 'src/features/options/getOptionList';
+import { getSelectedValueToText } from 'src/features/options/getSelectedValueToText';
+import { DropdownDef } from 'src/layout/Dropdown/config.def.generated';
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
-import { FormComponent } from 'src/layout/LayoutComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import type { ExprResolved } from 'src/features/expressions/types';
-import type { PropsFromGenericComponent } from 'src/layout';
-import type { ILayoutCompDropdown } from 'src/layout/Dropdown/types';
+import type { DisplayDataProps, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class Dropdown extends FormComponent<'Dropdown'> {
+export class Dropdown extends DropdownDef {
   render(props: PropsFromGenericComponent<'Dropdown'>): JSX.Element | null {
     return <DropdownComponent {...props} />;
   }
 
-  useDisplayData(node: LayoutNodeFromType<'Dropdown'>): string {
-    const formData = useAppSelector((state) => state.formData.formData);
+  getDisplayData(node: LayoutNode<'Dropdown'>, { formData, langTools, options, uiConfig }: DisplayDataProps): string {
     if (!node.item.dataModelBindings?.simpleBinding) {
       return '';
     }
 
     const value = formData[node.item.dataModelBindings.simpleBinding] || '';
-    return useSelectedValueToText(node.item, value) || '';
+    const optionList = getOptionList(node.item, langTools.textResources, formData, uiConfig.repeatingGroups, options);
+    return getSelectedValueToText(value, langTools, optionList) || '';
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'Dropdown'>): JSX.Element | null {
@@ -32,13 +29,3 @@ export class Dropdown extends FormComponent<'Dropdown'> {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 }
-
-export const Config = {
-  def: new Dropdown(),
-};
-
-export type TypeConfig = {
-  layout: ILayoutCompDropdown;
-  nodeItem: ExprResolved<ILayoutCompDropdown>;
-  nodeObj: LayoutNode;
-};

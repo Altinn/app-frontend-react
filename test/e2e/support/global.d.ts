@@ -2,8 +2,8 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 
 import type { user } from 'test/e2e/support/auth';
 
-import type { ExprUnresolved } from 'src/features/expressions/types';
-import type { ILayoutComponentOrGroup, ILayouts } from 'src/layout/layout';
+import type { ILayoutFileExternal } from 'src/layout/common.generated';
+import type { CompOrGroupExternal, ILayouts } from 'src/layout/layout';
 import type { ILayoutSets, IRuntimeState } from 'src/types';
 
 export type FrontendTestTask = 'message' | 'changename' | 'group' | 'likert' | 'datalist' | 'confirm';
@@ -113,8 +113,8 @@ declare global {
        */
       interceptLayout(
         taskName: FrontendTestTask | string,
-        mutator?: (component: ExprUnresolved<ILayoutComponentOrGroup>) => void,
-        wholeLayoutMutator?: (layoutSet: any) => void,
+        mutator?: (component: CompOrGroupExternal) => void,
+        wholeLayoutMutator?: (layoutSet: { [pageName: string]: ILayoutFileExternal }) => void,
       ): Chainable<null>;
 
       /**
@@ -123,7 +123,7 @@ declare global {
        * fetched. This performs the same actions as changing properties in the layout via the developer tools.
        */
       changeLayout(
-        mutator?: (component: ExprUnresolved<ILayoutComponentOrGroup>) => void,
+        mutator?: (component: CompOrGroupExternal) => void,
         allLayoutsMutator?: (layouts: ILayouts) => void,
       ): Chainable<null>;
 
@@ -189,6 +189,11 @@ declare global {
        * Runs the wcag tests on the app and notifies us of any violations (using axe/ally)
        */
       testWcag(): Chainable<null>;
+
+      /**
+       * Useful when taking snapshots; clear all selections and wait for the app to finish loading and stabilizing.
+       */
+      clearSelectionAndWait(viewport?: 'desktop' | 'tablet' | 'mobile'): Chainable<null>;
     }
   }
 }

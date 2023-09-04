@@ -1,4 +1,3 @@
-import { AxiosError } from 'axios';
 import { call, put, select } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
@@ -8,16 +7,18 @@ import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
-import { Severity } from 'src/types';
 import { getFileUploadComponentValidations } from 'src/utils/formComponentUtils';
 import { httpPost } from 'src/utils/network/networking';
+import { isAxiosError } from 'src/utils/network/sharedNetworking';
 import { fileUploadUrl } from 'src/utils/urls/appUrlHelper';
 import { customEncodeURI } from 'src/utils/urls/urlHelper';
-import { getValidationMessage } from 'src/utils/validation/validationHelpers';
+import { getValidationMessage } from 'src/utils/validation/backendValidation';
+import { BackendValidationSeverity } from 'src/utils/validation/backendValidationSeverity';
 import type { IAttachment } from 'src/features/attachments';
 import type { IUploadAttachmentAction } from 'src/features/attachments/upload/uploadAttachmentActions';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type { IComponentValidations, IRuntimeState, IValidationIssue } from 'src/types';
+import type { IRuntimeState } from 'src/types';
+import type { BackendValidationIssue, IComponentValidations } from 'src/utils/validation/types';
 
 export function* uploadAttachmentSaga({
   payload: { file, attachmentType, tmpAttachmentId, componentId, dataModelBindings, index },
@@ -32,8 +33,8 @@ export function* uploadAttachmentSaga({
     yield put(
       ValidationActions.updateComponentValidations({
         componentId,
-        layoutId: currentView,
-        validations: newValidations,
+        pageKey: currentView,
+        validationResult: { validations: newValidations },
       }),
     );
 
@@ -75,30 +76,31 @@ export function* uploadAttachmentSaga({
       }),
     );
 
-    if (dataModelBindings && (dataModelBindings.simpleBinding || dataModelBindings.list)) {
+    if (dataModelBindings && ('simpleBinding' in dataModelBindings || 'list' in dataModelBindings)) {
       yield put(
         FormDataActions.update({
           componentId,
           data: response.data.id,
-          field: dataModelBindings.simpleBinding
-            ? `${dataModelBindings.simpleBinding}`
-            : `${dataModelBindings.list}[${index}]`,
+          field:
+            'simpleBinding' in dataModelBindings
+              ? `${dataModelBindings.simpleBinding}`
+              : `${dataModelBindings.list}[${index}]`,
         }),
       );
     }
   } catch (err) {
     let validations: IComponentValidations;
 
-    if (backendFeatures?.jsonObjectInDataResponse && err instanceof AxiosError && err.response?.data?.result) {
-      const validationIssues: IValidationIssue[] = err.response.data.result;
+    if (backendFeatures?.jsonObjectInDataResponse && isAxiosError(err) && err.response?.data?.result) {
+      const validationIssues: BackendValidationIssue[] = err.response.data.result;
 
       validations = {
         simpleBinding: {
           errors: validationIssues
-            .filter((v) => v.severity === Severity.Error)
+            .filter((v) => v.severity === BackendValidationSeverity.Error)
             .map((v) => getValidationMessage(v, langTools)),
           warnings: validationIssues
-            .filter((v) => v.severity === Severity.Warning)
+            .filter((v) => v.severity === BackendValidationSeverity.Warning)
             .map((v) => getValidationMessage(v, langTools)),
         },
       };
@@ -109,8 +111,8 @@ export function* uploadAttachmentSaga({
     yield put(
       ValidationActions.updateComponentValidations({
         componentId,
-        layoutId: currentView,
-        validations,
+        pageKey: currentView,
+        validationResult: { validations },
       }),
     );
     yield put(

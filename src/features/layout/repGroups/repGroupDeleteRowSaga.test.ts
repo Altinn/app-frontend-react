@@ -3,7 +3,6 @@ import { expectSaga } from 'redux-saga-test-plan';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
-import { FormDynamicsActions } from 'src/features/dynamics/formDynamicsSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { repGroupDeleteRowSaga } from 'src/features/layout/repGroups/repGroupDeleteRowSaga';
@@ -12,10 +11,10 @@ import {
   selectFormData,
   selectFormLayoutState,
   selectOptions,
-  selectValidations,
 } from 'src/features/layout/update/updateFormLayoutSagas';
 import { OptionsActions } from 'src/features/options/optionsSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
+import { resolvedLayoutsFromState, ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import type { IAttachment } from 'src/features/attachments';
 import type { IDataModelBindings } from 'src/layout/layout';
 import type { IRuntimeState } from 'src/types';
@@ -40,7 +39,7 @@ describe('repGroupDeleteRowSaga', function () {
         dataModelBinding: 'Group',
       },
     };
-    const dataModelBinding: IDataModelBindings = {
+    const dataModelBinding: IDataModelBindings<'FileUpload' | 'FileUploadWithTag'> = {
       simpleBinding: 'Group.attachmentRef',
     };
     state.formLayout.layouts?.FormLayout?.push({
@@ -83,7 +82,7 @@ describe('repGroupDeleteRowSaga', function () {
         [select(selectFormLayoutState), selectFormLayoutState(state)],
         [select(selectFormData), selectFormData(state)],
         [select(selectAttachmentState), selectAttachmentState(state)],
-        [select(selectValidations), selectValidations(state)],
+        [select(ResolvedNodesSelector), resolvedLayoutsFromState(state)],
         [select(selectOptions), selectOptions(state)],
         [
           take(AttachmentActions.deleteAttachmentFulfilled),
@@ -94,16 +93,25 @@ describe('repGroupDeleteRowSaga', function () {
           }),
         ],
       ])
-      .put(FormDynamicsActions.checkIfConditionalRulesShouldRun({}))
       .put(
         AttachmentActions.deleteAttachment({
           attachment,
           attachmentType: 'uploader',
           componentId: 'uploader-0',
-          dataModelBindings: {},
+          dataModelBindings: undefined,
         }),
       )
-      .put(ValidationActions.updateValidations({ validations: {} }))
+      .put(
+        ValidationActions.updateLayoutValidation({
+          pageKey: 'FormLayout',
+          validationResult: {
+            validations: { 'uploader-0': {} },
+            invalidDataTypes: false,
+            fixedValidations: [],
+          },
+          merge: true,
+        }),
+      )
       .put(OptionsActions.setOptions({ options: {} }))
       .put(
         FormLayoutActions.repGroupDeleteRowFulfilled({

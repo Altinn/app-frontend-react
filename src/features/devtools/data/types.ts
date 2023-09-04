@@ -15,6 +15,13 @@ export type IDevToolsState = {
     forPage: string | undefined;
     forComponentId: string | undefined;
   };
+  logs: IDevToolsLog[];
+};
+
+export type IDevToolsLog = {
+  index: number;
+  level: 'info' | 'warn' | 'error';
+  message: string;
 };
 
 export enum DevToolsTab {
@@ -22,4 +29,6 @@ export enum DevToolsTab {
   Layout = 'Layout',
   Components = 'Komponenter',
   Expressions = 'Uttrykk',
+  FeatureToggles = 'Beta-funksjonalitet',
+  Logs = 'Logger',
 }

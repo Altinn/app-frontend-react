@@ -26,14 +26,14 @@ export function* deleteAttachmentSaga({
     yield put(
       ValidationActions.updateComponentValidations({
         componentId,
-        layoutId: currentView,
-        validations: newValidations,
+        pageKey: currentView,
+        validationResult: { validations: newValidations },
       }),
     );
 
     const response: AxiosResponse = yield call(httpDelete, dataElementUrl(attachment.id));
     if (response.status === 200) {
-      if (dataModelBindings && (dataModelBindings.simpleBinding || dataModelBindings.list)) {
+      if (dataModelBindings && ('simpleBinding' in dataModelBindings || 'list' in dataModelBindings)) {
         yield put(
           FormDataActions.deleteAttachmentReference({
             attachmentId: attachment.id,
@@ -57,8 +57,8 @@ export function* deleteAttachmentSaga({
     yield put(
       ValidationActions.updateComponentValidations({
         componentId,
-        layoutId: currentView,
-        validations,
+        pageKey: currentView,
+        validationResult: { validations },
       }),
     );
     yield put(
@@ -68,6 +68,6 @@ export function* deleteAttachmentSaga({
         componentId,
       }),
     );
-    console.error(err);
+    window.logError('Delete attachment:\n', err);
   }
 }

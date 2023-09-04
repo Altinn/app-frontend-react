@@ -1,33 +1,46 @@
 import { getLayoutComponentObject } from 'src/layout';
 import { DataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { ComponentClassMap } from 'src/layout';
-import type { HNonRepGroup, HRepGroup } from 'src/layout/Group/types';
-import type { ComponentTypes, IDataModelBindings } from 'src/layout/layout';
-import type { ComponentType } from 'src/layout/LayoutComponent';
-import type { IComponentBindingValidation, IComponentValidations, ValidationKeyOrAny } from 'src/types';
-import type { IComponentFormData } from 'src/utils/formComponentUtils';
+import { runValidationOnNodes } from 'src/utils/validation/validation';
+import type { CompClassMap } from 'src/layout';
+import type { CompCategory } from 'src/layout/common';
+import type { ComponentTypeConfigs } from 'src/layout/components.generated';
 import type {
-  AnyItem,
-  HComponent,
+  CompExceptGroup,
+  CompInternal,
+  CompTypes,
   HierarchyDataSources,
-  LayoutNodeFromComponentType,
-  LayoutNodeFromType,
+  LayoutNodeFromCategory,
   ParentNode,
-  TypeFromAnyItem,
-} from 'src/utils/layout/hierarchy.types';
+  TypeFromConfig,
+} from 'src/layout/layout';
+import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
+import type {
+  IComponentBindingValidation,
+  IComponentValidations,
+  IValidationContext,
+  IValidationObject,
+  ValidationKeyOrAny,
+} from 'src/utils/validation/types';
+import type { IValidationOptions } from 'src/utils/validation/validation';
+
+export interface IsHiddenOptions {
+  respectLegacy?: boolean;
+  respectDevTools?: boolean;
+  respectTracks?: boolean;
+}
 
 /**
  * A LayoutNode wraps a component with information about its parent, allowing you to traverse a component (or an
  * instance of a component inside a repeating group), finding other components near it.
  */
-export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTypes = TypeFromAnyItem<Item>>
+export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type extends CompTypes = TypeFromConfig<Item>>
   implements LayoutObject
 {
   public readonly itemWithExpressions: Item;
-  public readonly def: ComponentClassMap[Type];
+  public readonly def: CompClassMap[Type];
 
   public constructor(
     public item: Item,
@@ -36,31 +49,27 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
     private readonly dataSources: HierarchyDataSources,
     public readonly rowIndex?: number,
   ) {
-    this.itemWithExpressions = structuredClone(this.item);
     this.def = getLayoutComponentObject(item.type as any);
+    this.itemWithExpressions = structuredClone(item);
   }
 
-  public isType<T extends ComponentTypes>(type: T): this is LayoutNodeFromType<T> {
+  public isType<T extends CompTypes>(type: T): this is LayoutNode<T> {
     return this.item.type === type;
   }
 
-  public isComponentType<T extends ComponentType>(type: T): this is LayoutNodeFromComponentType<T> {
-    return this.def.type === type;
+  public isCategory<T extends CompCategory>(category: T): this is LayoutNodeFromCategory<T> {
+    return this.def.type === category;
   }
 
-  public isRepGroup(): this is LayoutNode<HRepGroup, 'Group'> {
-    return this.item.type === 'Group' && typeof this.item.maxCount === 'number' && this.item.maxCount > 1;
-  }
-
-  public isNonRepGroup(): this is LayoutNode<HNonRepGroup, 'Group'> {
-    return this.item.type === 'Group' && (!this.item.maxCount || this.item.maxCount <= 1);
+  public pageKey(): string {
+    return this.top.top.myKey;
   }
 
   /**
    * Looks for a matching component upwards in the hierarchy, returning the first one (or undefined if
    * none can be found).
    */
-  public closest(matching: (item: AnyItem) => boolean): this | LayoutNode | undefined {
+  public closest(matching: (item: CompInternal) => boolean): this | LayoutNode | undefined {
     if (matching(this.item)) {
       return this;
     }
@@ -96,7 +105,7 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
 
   private childrenAsList(onlyInRowIndex?: number): LayoutNode[] {
     const hierarchy = this.def.hierarchyGenerator() as unknown as ComponentHierarchyGenerator<Type>;
-    return hierarchy.childrenFromNode(this as unknown as LayoutNodeFromType<Type>, onlyInRowIndex);
+    return hierarchy.childrenFromNode(this as unknown as LayoutNode<Type>, onlyInRowIndex);
   }
 
   /**
@@ -105,9 +114,9 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
    * the row number, otherwise you'll most likely just find a component on the first row.
    */
   public children(): LayoutNode[];
-  public children(matching: (item: AnyItem) => boolean, onlyInRowIndex?: number): LayoutNode | undefined;
+  public children(matching: (item: CompInternal) => boolean, onlyInRowIndex?: number): LayoutNode | undefined;
   public children(matching: undefined, onlyInRowIndex?: number): LayoutNode[];
-  public children(matching?: (item: AnyItem) => boolean, onlyInRowIndex?: number): any {
+  public children(matching?: (item: CompInternal) => boolean, onlyInRowIndex?: number): any {
     const list = this.childrenAsList(onlyInRowIndex);
     if (!matching) {
       return list;
@@ -131,10 +140,10 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
    *        children of nested groups regardless of row-index.
    */
   public flat(includeGroups: true, onlyInRowIndex?: number): LayoutNode[];
-  public flat(includeGroups: false, onlyInRowIndex?: number): LayoutNode<HComponent>[];
+  public flat(includeGroups: false, onlyInRowIndex?: number): LayoutNode<CompExceptGroup>[];
   public flat(includeGroups: boolean, onlyInRowIndex?: number): LayoutNode[] {
-    const out: LayoutNode[] = [];
-    const recurse = (item: LayoutNode, rowIndex?: number) => {
+    const out: BaseLayoutNode[] = [];
+    const recurse = (item: BaseLayoutNode, rowIndex?: number) => {
       if (includeGroups || item.item.type !== 'Group') {
         out.push(item);
       }
@@ -144,14 +153,16 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
     };
 
     recurse(this, onlyInRowIndex);
-    return out;
+    return out as LayoutNode[];
   }
 
   /**
    * Checks if this field should be hidden. This also takes into account the group this component is in, so the
    * methods returns true if the component is inside a hidden group.
    */
-  public isHidden(respectLegacy = true, respectDevTools = true): boolean {
+  public isHidden(options: IsHiddenOptions = {}): boolean {
+    const { respectLegacy = true, respectDevTools = true, respectTracks = false } = options;
+
     const hiddenList = respectLegacy ? this.dataSources.hiddenFields : new Set();
     if (respectDevTools && this.dataSources.devTools.isOpen && this.dataSources.devTools.hiddenComponents !== 'hide') {
       return false;
@@ -165,7 +176,12 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
       return true;
     }
 
-    if (this.parent instanceof LayoutNode && this.parent.isRepGroup() && typeof this.rowIndex === 'number') {
+    if (
+      this.parent instanceof BaseLayoutNode &&
+      this.parent.isType('Group') &&
+      this.parent.isRepGroup() &&
+      typeof this.rowIndex === 'number'
+    ) {
       const isHiddenRow = this.parent.item.rows[this.rowIndex]?.groupExpressions?.hiddenRow;
       if (isHiddenRow) {
         return true;
@@ -192,12 +208,20 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
       }
     }
 
-    return this.parent instanceof LayoutNode && this.parent.isHidden(respectLegacy);
+    if (
+      respectTracks &&
+      this.parent instanceof LayoutPage &&
+      this.parent.isHiddenViaTracks(this.dataSources.uiConfig)
+    ) {
+      return true;
+    }
+
+    return this.parent instanceof BaseLayoutNode && this.parent.isHidden(options);
   }
 
   private firstDataModelBinding() {
     const firstBinding = Object.keys(this.item.dataModelBindings || {}).shift();
-    if (firstBinding && this.item.dataModelBindings) {
+    if (firstBinding && 'dataModelBindings' in this.item && this.item.dataModelBindings) {
       return this.item.dataModelBindings[firstBinding];
     }
 
@@ -222,7 +246,7 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
   public transposeDataModel(dataModel: string, rowIndex?: number): string {
     const firstBinding = this.firstDataModelBinding();
     if (!firstBinding) {
-      if (this.parent instanceof LayoutNode) {
+      if (this.parent instanceof BaseLayoutNode) {
         return this.parent.transposeDataModel(dataModel, this.rowIndex);
       }
 
@@ -240,7 +264,8 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
         break;
       }
 
-      const arrayIndex = ours.parentIndex === lastIdx && this.isRepGroup() ? rowIndex : ours.arrayIndex;
+      const arrayIndex =
+        ours.parentIndex === lastIdx && this.isType('Group') && this.isRepGroup() ? rowIndex : ours.arrayIndex;
 
       if (arrayIndex === undefined) {
         continue;
@@ -261,10 +286,10 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
   /**
    * Returns all the current validations for this node. There will be different validations per binding.
    */
-  public getValidations(binding: keyof IDataModelBindings | string): IComponentBindingValidation;
+  public getValidations(binding: string): IComponentBindingValidation;
   public getValidations(binding?: undefined): IComponentValidations;
   public getValidations(binding?: string): IComponentBindingValidation | IComponentValidations {
-    const pageKey = this.top.top.myKey;
+    const pageKey = this.pageKey();
     const page = this.dataSources.validations[pageKey] || {};
     const component = page[this.item.id] || {};
 
@@ -349,7 +374,7 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
    * Gets the current form data for this component
    */
   public getFormData(): IComponentFormData {
-    if (!this.item.dataModelBindings) {
+    if (!('dataModelBindings' in this.item) || !this.item.dataModelBindings) {
       return {};
     }
 
@@ -365,4 +390,29 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
 
     return formDataObj;
   }
+
+  public getRowIndices(): number[] {
+    const rowIndices: number[] = [];
+    if (typeof this.rowIndex !== 'undefined') {
+      rowIndices.splice(0, 0, this.rowIndex);
+    }
+    if (this.parent instanceof BaseLayoutNode) {
+      const parentIndices = this.parent.getRowIndices();
+      if (parentIndices) {
+        rowIndices.splice(0, 0, ...parentIndices);
+      }
+    }
+    return rowIndices;
+  }
+
+  /**
+   * Runs frontend validations for this node and returns an array of IValidationObject
+   */
+  runValidations(validationContext: IValidationContext, options?: IValidationOptions): IValidationObject[] {
+    return runValidationOnNodes([this as LayoutNode], validationContext, options);
+  }
 }
+
+export type LayoutNode<Type extends CompTypes = CompTypes> = Type extends CompTypes
+  ? ComponentTypeConfigs[Type]['nodeObj']
+  : BaseLayoutNode;

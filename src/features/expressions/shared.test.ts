@@ -14,9 +14,9 @@ import { _private } from 'src/utils/layout/hierarchy';
 import { generateEntireHierarchy, generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { FunctionTest, SharedTestContext, SharedTestContextList } from 'src/features/expressions/shared';
 import type { Expression } from 'src/features/expressions/types';
+import type { HierarchyDataSources } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
 import type { IApplicationSettings } from 'src/types/shared';
-import type { HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
@@ -33,7 +33,7 @@ function findComponent(context: FunctionTest['context'], collection: LayoutPages
   if (component && rowIndices && rowIndices.length) {
     const componentId2 = `${component}-${rowIndices.slice(0, rowIndices.length - 1).join('-')}`.replace(/-+$/, '');
     const foundMaybeGroup = collection.findById(componentId2);
-    if (foundMaybeGroup && foundMaybeGroup.isRepGroup()) {
+    if (foundMaybeGroup && foundMaybeGroup.isType('Group') && foundMaybeGroup.isRepGroup()) {
       // Special case for using a group component with a row index, looking up within the
       // group context, but actually pointing to a row inside the group. This is supported
       // in useExpressions() itself, but evalExpr() requires the context of an actual component
@@ -60,6 +60,7 @@ describe('Expressions shared function tests', () => {
         context,
         layouts,
         dataModel,
+        attachments,
         instance,
         permissions,
         frontendSettings,
@@ -74,6 +75,7 @@ describe('Expressions shared function tests', () => {
         const dataSources: HierarchyDataSources = {
           ...getHierarchyDataSourcesMock(),
           formData: dataModel ? dot.dot(dataModel) : {},
+          attachments: attachments ?? {},
           instanceContext: buildInstanceContext(instance),
           applicationSettings: frontendSettings || ({} as IApplicationSettings),
           authContext: buildAuthContext(permissions),
@@ -166,10 +168,11 @@ describe('Expressions shared context tests', () => {
   describe.each(sharedTests.content)('$folderName', (folder) => {
     it.each(folder.content)(
       '$name',
-      ({ layouts, dataModel, instance, frontendSettings, permissions, expectedContexts }) => {
+      ({ layouts, dataModel, attachments, instance, frontendSettings, permissions, expectedContexts }) => {
         const dataSources: HierarchyDataSources = {
           ...getHierarchyDataSourcesMock(),
           formData: dataModel ? dot.dot(dataModel) : {},
+          attachments: attachments ?? {},
           instanceContext: buildInstanceContext(instance),
           applicationSettings: frontendSettings || ({} as IApplicationSettings),
           authContext: buildAuthContext(permissions),

@@ -6,10 +6,10 @@ import { Grid, makeStyles, Typography } from '@material-ui/core';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { parseLocation } from 'src/layout/Map/MapComponent';
 import { markerIcon } from 'src/layout/Map/MapIcons';
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IMapComponentSummary {
-  targetNode: LayoutNodeFromType<'Map'>;
+  targetNode: LayoutNode<'Map'>;
 }
 
 export const useStyles = makeStyles(() => ({
@@ -30,7 +30,7 @@ export function MapComponentSummary({ targetNode }: IMapComponentSummary) {
   const classes = useStyles();
   const layers = targetNode.item.layers;
   const formData = targetNode.def.useDisplayData(targetNode);
-  const location = formData ? parseLocation(formData) : undefined;
+  const location = parseLocation(formData);
   const { lang } = useLanguage();
 
   const footerText = location ? lang('map_component.selectedLocation', [location.latitude, location.longitude]) : null;

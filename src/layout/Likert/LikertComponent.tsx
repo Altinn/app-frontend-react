@@ -1,13 +1,14 @@
 import React from 'react';
 
-import { TableCell, TableRow, Typography } from '@material-ui/core';
+import { TableCell, TableRow } from '@digdir/design-system-react';
+import { Typography } from '@material-ui/core';
 
 import { RadioButton } from 'src/components/form/RadioButton';
 import { useLanguage } from 'src/hooks/useLanguage';
+import { LayoutStyle } from 'src/layout/common.generated';
 import classes from 'src/layout/Likert/LikertComponent.module.css';
 import { ControlledRadioGroup } from 'src/layout/RadioButtons/ControlledRadioGroup';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
-import { LayoutStyle } from 'src/types';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
 import { getPlainTextFromNode } from 'src/utils/stringHelper';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -31,7 +32,7 @@ export const LikertComponent = (props: PropsFromGenericComponent<'Likert'>) => {
 
 const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
   const { node, componentValidations, legend, isValid } = props;
-  const { selected, handleChange, calculatedOptions, handleBlur } = useRadioButtons(props);
+  const { selected, handleChange, calculatedOptions, handleBlur, fetchingOptions } = useRadioButtons(props);
   const { lang, langAsString } = useLanguage();
 
   const id = node.item.id;
@@ -44,17 +45,20 @@ const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
     <TableRow
       aria-labelledby={rowLabelId}
       data-componentid={node.item.id}
+      data-is-loading={fetchingOptions ? 'true' : 'false'}
+      className={classes.likertTableRow}
     >
-      <th
+      <TableCell
         scope='row'
         id={rowLabelId}
-        className={classes.likertTableHeader}
+        className={classes.likertTableRowHeader}
+        variant='header'
       >
         <Typography component={'div'}>
           <RenderLegend />
           {renderValidationMessagesForComponent(componentValidations?.simpleBinding, id)}
         </Typography>
-      </th>
+      </TableCell>
       {calculatedOptions?.map((option, colIndex) => {
         const colLabelId = `${groupContainerId}-likert-columnheader-${colIndex}`;
         const inputId = `${id}-${colIndex}`;
@@ -62,21 +66,22 @@ const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
         return (
           <TableCell
             key={option.value}
-            align={'center'}
-            style={{ padding: '10px', lineHeight: 0 }}
+            className={classes.likertTableCell}
             onBlur={handleBlur}
           >
-            <RadioButton
-              aria-labelledby={`${rowLabelId} ${colLabelId}`}
-              checked={isChecked}
-              onChange={handleChange}
-              value={option.value}
-              label={`${getPlainTextFromNode(lang(texts?.title))} ${langAsString(option.label)}`}
-              hideLabel={true}
-              name={rowLabelId}
-              radioId={inputId}
-              error={!isValid}
-            />
+            <div className={classes.radioButtonContainer}>
+              <RadioButton
+                aria-labelledby={`${rowLabelId} ${colLabelId}`}
+                checked={isChecked}
+                onChange={handleChange}
+                value={option.value}
+                label={`${getPlainTextFromNode(lang(texts?.title))} ${langAsString(option.label)}`}
+                hideLabel={true}
+                name={rowLabelId}
+                radioId={inputId}
+                error={!isValid}
+              />
+            </div>
           </TableCell>
         );
       })}

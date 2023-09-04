@@ -6,15 +6,19 @@ import userEvent from '@testing-library/user-event';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { PanelReferenceGroupContainer } from 'src/layout/Panel/PanelReferenceGroupContainer';
 import { renderWithProviders } from 'src/testUtils';
-import type { ExprUnresolved } from 'src/features/expressions/types';
+import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
-import type { ILayoutGroup } from 'src/layout/Group/types';
+import type {
+  CompGroupNonRepeatingPanelExternal,
+  CompGroupNonRepeatingPanelInternal,
+} from 'src/layout/Group/config.generated';
+import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { ILayout } from 'src/layout/layout';
 import type { RootState } from 'src/redux/store';
 
 describe('PanelGroupContainer', () => {
   const initialState = getInitialStateMock();
-  const container: ExprUnresolved<ILayoutGroup> = {
+  const container: CompGroupNonRepeatingPanelExternal = {
     id: 'group',
     type: 'Group',
     children: ['input1', 'input2'],
@@ -83,7 +87,7 @@ describe('PanelGroupContainer', () => {
   });
 
   it('should open panel when clicking add and close when clicking save,', async () => {
-    const containerWithNoChildrenWithGroupReference: ExprUnresolved<ILayoutGroup> = {
+    const containerWithNoChildrenWithGroupReference: CompGroupNonRepeatingPanelExternal = {
       ...container,
       children: [],
       textResourceBindings: {
@@ -120,20 +124,9 @@ describe('PanelGroupContainer', () => {
   });
 
   it('should display nothing if group is hidden', async () => {
-    const stateWithHidden: Partial<RootState> = {
-      formLayout: {
-        ...state,
-        uiConfig: {
-          ...state.uiConfig,
-          hiddenFields: ['group'],
-        },
-      },
-    };
-
     render({
-      container,
+      container: { ...container, hidden: true },
       components: groupComponents,
-      customState: stateWithHidden,
     });
 
     const customIcon = screen.queryByTestId('panel-group-container');
@@ -142,7 +135,7 @@ describe('PanelGroupContainer', () => {
 });
 
 interface TestProps {
-  container: ExprUnresolved<ILayoutGroup>;
+  container: CompGroupNonRepeatingPanelExternal;
   components?: ILayout | undefined;
   customState?: Partial<RootState>;
 }
@@ -166,5 +159,14 @@ const render = ({ container, components, customState }: TestProps) => {
     children: [],
   });
 
-  renderWithProviders(<PanelReferenceGroupContainer id={'group'} />, { preloadedState });
+  renderWithProviders(<WrappedComponent id={'group'} />, { preloadedState });
+};
+
+const WrappedComponent = ({ id }: { id: string }) => {
+  const node = useResolvedNode(id);
+  if (!node) {
+    throw new Error('Node not found');
+  }
+
+  return <PanelReferenceGroupContainer node={node as LayoutNodeForGroup<CompGroupNonRepeatingPanelInternal>} />;
 };

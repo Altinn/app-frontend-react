@@ -89,96 +89,153 @@ interface KnownViolation extends Pick<axe.Result, 'id'> {
 // TODO: Fix all violations and remove this list
 const knownWcagViolations: KnownViolation[] = [
   {
-    spec: 'app-frontend/all-process-steps.ts',
+    spec: 'frontend-test/all-process-steps.ts',
     test: 'Should be possible to fill out all steps from beginning to end',
     id: 'landmark-unique',
     nodeLength: 1,
     countTowardsExpected: false,
   },
   {
-    spec: 'app-frontend/all-process-steps.ts',
+    spec: 'frontend-test/all-process-steps.ts',
     test: 'Should be possible to fill out all steps from beginning to end',
     id: 'list',
     nodeLength: 2,
   },
   {
-    spec: 'app-frontend/grid.ts',
+    spec: 'frontend-test/grid.ts',
     test: 'should work with basic table functionality',
     id: 'list',
     nodeLength: 1,
   },
   {
-    spec: 'app-frontend/group.ts',
+    spec: 'frontend-test/group.ts',
     test: 'Validation on group',
     id: 'color-contrast',
     nodeLength: 1,
   },
   {
-    spec: 'app-frontend/group.ts',
+    spec: 'frontend-test/group.ts',
     test: 'Validation on group',
     id: 'list',
     nodeLength: 1,
   },
   {
-    spec: 'app-frontend/group.ts',
+    spec: 'frontend-test/group.ts',
     test: 'Opens delete warning popup when alertOnDelete is true and deletes on confirm',
     id: 'aria-dialog-name',
     nodeLength: 1,
   },
   {
-    spec: 'app-frontend/hide-row-in-group.ts',
-    test: 'should be possible to hide rows when "Endre fra" is greater or equals to [...]',
-    id: 'aria-valid-attr-value',
-    nodeLength: 3,
-  },
-  {
-    spec: 'app-frontend/hide-row-in-group.ts',
+    spec: 'frontend-test/hide-row-in-group.ts',
     test: 'should be possible to hide rows when "Endre fra" is greater or equals to [...]',
     id: 'heading-order',
     nodeLength: 1,
   },
   {
-    spec: 'app-frontend/likert.ts',
+    spec: 'frontend-test/likert.ts',
     test: 'Should show validation message for required likert',
     id: 'list',
     nodeLength: 2,
   },
   {
-    spec: 'app-frontend/on-entry.ts',
+    spec: 'frontend-test/on-entry.ts',
     test: 'is possible to select an existing instance',
     id: 'svg-img-alt',
     nodeLength: 3,
   },
   {
-    spec: 'app-frontend/reportee-selection.ts',
+    spec: 'frontend-test/reportee-selection.ts',
     test: 'Prompts for party when doNotPromptForParty = false, on instantiation with multiple possible parties',
     id: 'label',
     nodeLength: 2,
   },
   {
-    spec: 'signing/double-signing.ts',
+    spec: 'signing-test/double-signing.ts',
     test: 'accountant -> manager -> auditor',
     id: 'list',
     nodeLength: 1,
   },
   {
-    spec: 'app-stateless-anonymous/validation.ts',
+    spec: 'anonymous-stateless-app/validation.ts',
     test: 'Should show validation message for missing name',
     id: 'list',
     nodeLength: 1,
   },
 ];
 
-Cypress.Commands.add('snapshot', (name: string) => {
+Cypress.Commands.add('clearSelectionAndWait', (viewport) => {
   cy.get('#readyForPrint').should('exist');
 
+  // Find focused element and blur it, to ensure that we don't get any focus outlines or styles in the snapshot.
   cy.window().then((win) => {
-    // Find focused element and blur it, to ensure that we don't get any focus outlines or styles in the snapshot.
     const focused = win.document.activeElement;
     if (focused && 'blur' in focused && typeof focused.blur === 'function') {
       focused.blur();
     }
+  });
 
+  // eslint-disable-next-line cypress/unsafe-to-chain-command
+  cy.focused().should('not.exist');
+
+  // Wait for elements marked as loading are not loading anymore
+  cy.get('[data-is-loading=true]').should('not.exist');
+
+  if (viewport) {
+    cy.get(`html.viewport-is-${viewport}`).should('be.visible');
+  }
+
+  // Work around slow state updates in Dropdown (possibly in combination with preselectedOptionIndex)
+  cy.window().then((win) => {
+    const state = win.reduxStore.getState();
+    cy.waitUntil(() => {
+      const allDropdowns = win.document.querySelectorAll('[data-componenttype="Dropdown"]');
+      const asArray = Array.from(allDropdowns);
+      for (const dropdown of asArray) {
+        const inputInside = dropdown.querySelector('input');
+        if (!inputInside) {
+          return false;
+        }
+        const baseId = dropdown.getAttribute('data-componentbaseid');
+        const currentPageName = state.formLayout.uiConfig.currentView;
+        const currentPage = state.formLayout.layouts && state.formLayout.layouts[currentPageName];
+        const componentDef = currentPage?.find((c) => c.id === baseId);
+        if (!componentDef) {
+          throw new Error(`Could not find component definition for dropdown with id ${baseId}`);
+        }
+        if (
+          componentDef.type === 'Dropdown' &&
+          componentDef.preselectedOptionIndex !== undefined &&
+          !inputInside.value
+        ) {
+          return false;
+        }
+
+        const activeDescendant = dropdown.getAttribute('aria-activedescendant');
+        if (!activeDescendant) {
+          return true;
+        }
+        const activeDescendantElement = win.document.getElementById(activeDescendant);
+        if ((activeDescendant && !inputInside.value) || !activeDescendantElement) {
+          // Dropdown has selected value, but this has not yet been reflected in the input field value.
+          // We should wait until this has happened.
+          return false;
+        }
+      }
+
+      return true;
+    });
+  });
+});
+
+Cypress.Commands.add('snapshot', (name: string) => {
+  cy.clearSelectionAndWait();
+
+  // Running wcag tests before taking snapshot, because the resizing of the viewport can cause some elements to
+  // re-render and go slightly out of sync with the proper state of the application. One example is the Dropdown
+  // component, which can sometimes render without all the options (and selected value) a short time after resizing.
+  cy.testWcag();
+
+  cy.window().then((win) => {
     const { innerWidth, innerHeight } = win;
     cy.readFile('test/percy.css').then((percyCSS) => {
       cy.log(`Taking snapshot with Percy: ${name}`);
@@ -192,7 +249,7 @@ Cypress.Commands.add('snapshot', (name: string) => {
       };
       for (const [viewport, { width, height }] of Object.entries(viewportSizes)) {
         cy.viewport(width, height);
-        cy.get(`html.viewport-is-${viewport}`).should('be.visible');
+        cy.clearSelectionAndWait(viewport as keyof typeof viewportSizes);
         cy.percySnapshot(`${name} (${viewport})`, { percyCSS, widths: [width] });
       }
 
@@ -204,7 +261,7 @@ Cypress.Commands.add('snapshot', (name: string) => {
     });
   });
 
-  cy.testWcag();
+  cy.clearSelectionAndWait();
 });
 
 Cypress.Commands.add('testWcag', () => {

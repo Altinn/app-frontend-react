@@ -153,6 +153,7 @@ export function en() {
       validate_changes: 'Validate changes',
       value: 'Value',
       version: 'Version',
+      wait_for_attachments: 'Hold on, we are processing attachments',
     },
     group: {
       row_error: 'One of the rows is incorrectly filled out. This has to bee fixed before the schema can be submitted.',
@@ -166,7 +167,7 @@ export function en() {
     },
     input_components: {
       character_limit_sr_label: 'Textfield has a maximum length of {0} characters',
-      remaining_characters: 'You have {0} characters left',
+      remaining_characters: 'You have {0} of {1} characters left',
       exceeded_max_limit: 'You have exceeded the maximum limit with {0} characters',
     },
     instance_selection: {

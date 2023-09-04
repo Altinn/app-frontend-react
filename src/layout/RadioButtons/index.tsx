@@ -1,32 +1,28 @@
 import React from 'react';
 
-import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useSelectedValueToText } from 'src/hooks/useSelectedValueToText';
-import { FormComponent } from 'src/layout/LayoutComponent';
+import { getOptionList } from 'src/features/options/getOptionList';
+import { getSelectedValueToText } from 'src/features/options/getSelectedValueToText';
+import { RadioButtonsDef } from 'src/layout/RadioButtons/config.def.generated';
 import { RadioButtonContainerComponent } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import type { ExprResolved } from 'src/features/expressions/types';
-import type { PropsFromGenericComponent } from 'src/layout';
+import type { DisplayDataProps, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { ILayoutCompRadioButtons } from 'src/layout/RadioButtons/types';
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class RadioButtons extends FormComponent<'RadioButtons'> {
+export class RadioButtons extends RadioButtonsDef {
   render(props: PropsFromGenericComponent<'RadioButtons'>): JSX.Element | null {
     return <RadioButtonContainerComponent {...props} />;
   }
 
-  renderWithLabel(): boolean {
-    return false;
-  }
-
-  useDisplayData(node: LayoutNodeFromType<'RadioButtons'>): string {
-    const formData = useAppSelector((state) => state.formData.formData);
+  getDisplayData(
+    node: LayoutNode<'RadioButtons'>,
+    { formData, langTools, uiConfig, options }: DisplayDataProps,
+  ): string {
     const value = node.item.dataModelBindings?.simpleBinding
       ? formData[node.item.dataModelBindings.simpleBinding] || ''
       : '';
-    return useSelectedValueToText(node.item, value) || '';
+    const optionList = getOptionList(node.item, langTools.textResources, formData, uiConfig.repeatingGroups, options);
+    return getSelectedValueToText(value, langTools, optionList) || '';
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'RadioButtons'>): JSX.Element | null {
@@ -34,13 +30,3 @@ export class RadioButtons extends FormComponent<'RadioButtons'> {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 }
-
-export const Config = {
-  def: new RadioButtons(),
-};
-
-export type TypeConfig = {
-  layout: ILayoutCompRadioButtons;
-  nodeItem: ExprResolved<ILayoutCompRadioButtons>;
-  nodeObj: LayoutNode;
-};

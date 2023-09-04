@@ -7,13 +7,15 @@ import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
+import { Triggers } from 'src/layout/common.generated';
 import classes from 'src/layout/NavigationButtons/NavigationButtonsComponent.module.css';
 import { selectLayoutOrder } from 'src/selectors/getLayoutOrder';
-import { reducePageValidations, Triggers } from 'src/types';
+import { reducePageValidations } from 'src/types';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { IKeepComponentScrollPos } from 'src/features/layout/formLayoutTypes';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { ILayoutNavigation, INavigationConfig } from 'src/types';
+import type { ILayoutNavigation } from 'src/layout/common.generated';
+import type { INavigationConfig } from 'src/types';
 export type INavigationButtons = PropsFromGenericComponent<'NavigationButtons'>;
 
 export function NavigationButtonsComponent({ node }: INavigationButtons) {
@@ -119,6 +121,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
         <Grid item>
           <Button
             ref={refPrev}
+            size='small'
             onClick={onClickPrevious}
             disabled={disableBack}
           >
@@ -130,6 +133,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
         <Grid item>
           <Button
             ref={refNext}
+            size='small'
             onClick={OnClickNext}
             disabled={disableNext}
           >

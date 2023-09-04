@@ -7,23 +7,24 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import { getFormLayoutGroupMock } from 'src/__mocks__/formLayoutGroupMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
-import { GroupContainerTester } from 'src/layout/Group/GroupContainerTestUtills';
+import { Triggers } from 'src/layout/common.generated';
+import { GroupContainer } from 'src/layout/Group/GroupContainer';
 import { setupStore } from 'src/redux/store';
 import { mockMediaQuery, renderWithProviders } from 'src/testUtils';
-import { Triggers } from 'src/types';
-import type { ExprUnresolved } from 'src/features/expressions/types';
+import { useResolvedNode } from 'src/utils/layout/ExprContext';
+import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
 import type { IUpdateRepeatingGroupsEditIndex } from 'src/features/layout/formLayoutTypes';
-import type { ILayoutGroup } from 'src/layout/Group/types';
-import type { ComponentInGroup } from 'src/layout/layout';
+import type { CompGroupRepeatingExternal } from 'src/layout/Group/config.generated';
+import type { CompExternal } from 'src/layout/layout';
 
 const mockContainer = getFormLayoutGroupMock();
 
 interface IRender {
-  container?: ExprUnresolved<ILayoutGroup>;
+  container?: CompGroupRepeatingExternal;
 }
 
 function render({ container = mockContainer }: IRender = {}) {
-  const mockComponents: ExprUnresolved<ComponentInGroup[]> = [
+  const mockComponents: CompExternal[] = [
     {
       id: 'field1',
       type: 'Input',
@@ -82,12 +83,14 @@ function render({ container = mockContainer }: IRender = {}) {
     },
   });
 
-  const mockLayout = {
+  const initialMock = getInitialStateMock();
+  const mockLayout: ILayoutState = {
+    ...initialMock.formLayout,
     layouts: {
       FormLayout: [group, ...mockComponents],
     },
     uiConfig: {
-      hiddenFields: [],
+      ...initialMock.formLayout.uiConfig,
       repeatingGroups: {
         'container-closed-id': {
           index: 3,
@@ -98,10 +101,9 @@ function render({ container = mockContainer }: IRender = {}) {
           editIndex: 0,
         },
       },
-      autosave: false,
       currentView: 'FormLayout',
     },
-  } as any;
+  };
 
   const mockData = {
     formData: {
@@ -133,6 +135,15 @@ function render({ container = mockContainer }: IRender = {}) {
   return store;
 }
 
+export function GroupContainerTester(props: { id: string }) {
+  const node = useResolvedNode(props.id);
+  if (!node || !(node.isType('Group') && node.isRepGroup())) {
+    throw new Error(`Could not resolve node with id ${props.id}, or unexpected node type`);
+  }
+
+  return <GroupContainer node={node} />;
+}
+
 const { setScreenWidth } = mockMediaQuery(992);
 
 describe('GroupContainer', () => {
@@ -142,7 +153,7 @@ describe('GroupContainer', () => {
   });
 
   it('should render add new button with custom label when supplied', () => {
-    const mockContainerWithLabel: ExprUnresolved<ILayoutGroup> = {
+    const mockContainerWithLabel: CompGroupRepeatingExternal = {
       textResourceBindings: {
         add_button: 'person',
       },
@@ -174,7 +185,7 @@ describe('GroupContainer', () => {
 
   it('calls setMultiPageIndex when adding a group element', async () => {
     const user = userEvent.setup();
-    const multiPageContainer: ExprUnresolved<ILayoutGroup> = {
+    const multiPageContainer: CompGroupRepeatingExternal = {
       ...mockContainer,
       edit: {
         ...mockContainer.edit,

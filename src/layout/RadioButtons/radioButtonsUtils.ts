@@ -1,7 +1,5 @@
 import React, { useMemo } from 'react';
 
-import { makeStyles } from '@material-ui/core/styles';
-
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useGetOptions } from 'src/hooks/useGetOptions';
@@ -9,28 +7,14 @@ import { useHasChangedIgnoreUndefined } from 'src/hooks/useHasChangedIgnoreUndef
 import { getOptionLookupKey } from 'src/utils/options';
 import type { IRadioButtonsContainerProps } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 
-export const useRadioStyles = makeStyles(() => ({
-  legend: {
-    color: '#000000',
-    fontFamily: 'Altinn-DIN',
-  },
-  formControl: {
-    alignItems: 'flex-start',
-    marginBottom: '0.75rem',
-    wordBreak: 'break-word',
-    '& > span:last-child': {
-      marginTop: 9,
-    },
-  },
-}));
-
 export const useRadioButtons = ({ node, handleDataChange, formData }: IRadioButtonsContainerProps) => {
-  const { optionsId, options, preselectedOptionIndex, mapping, source } = node.item;
-  const apiOptions = useGetOptions({ optionsId, mapping, source });
-  const calculatedOptions = useMemo(() => apiOptions || options || [], [apiOptions, options]);
+  const { optionsId, options, preselectedOptionIndex, mapping, queryParameters, source } = node.item;
+  const apiOptions = useGetOptions({ optionsId, mapping, queryParameters, source });
+  const _calculatedOptions = useMemo(() => apiOptions || options, [apiOptions, options]);
+  const calculatedOptions = _calculatedOptions || [];
   const optionsHasChanged = useHasChangedIgnoreUndefined(apiOptions);
   const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });
-  const fetchingOptions =
+  const _fetchingOptions =
     useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading) || undefined;
   const {
     value: selected,
@@ -38,18 +22,22 @@ export const useRadioButtons = ({ node, handleDataChange, formData }: IRadioButt
     saveValue,
   } = useDelayedSavedState(handleDataChange, formData?.simpleBinding ?? '', 200);
 
+  const shouldPreselectItem =
+    !formData?.simpleBinding &&
+    typeof preselectedOptionIndex !== 'undefined' &&
+    preselectedOptionIndex >= 0 &&
+    _calculatedOptions &&
+    preselectedOptionIndex < _calculatedOptions.length;
+
+  const fetchingOptions =
+    _fetchingOptions ?? (_calculatedOptions === undefined ? true : shouldPreselectItem ? true : undefined);
+
   React.useEffect(() => {
-    const shouldPreselectItem =
-      !formData?.simpleBinding &&
-      typeof preselectedOptionIndex !== 'undefined' &&
-      preselectedOptionIndex >= 0 &&
-      calculatedOptions &&
-      preselectedOptionIndex < calculatedOptions.length;
     if (shouldPreselectItem) {
-      const preSelectedValue = calculatedOptions[preselectedOptionIndex].value;
+      const preSelectedValue = _calculatedOptions[preselectedOptionIndex].value;
       setValue(preSelectedValue, true);
     }
-  }, [formData?.simpleBinding, calculatedOptions, setValue, preselectedOptionIndex]);
+  }, [_calculatedOptions, setValue, preselectedOptionIndex, shouldPreselectItem]);
 
   React.useEffect(() => {
     if (optionsHasChanged && formData.simpleBinding) {

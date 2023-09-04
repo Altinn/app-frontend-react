@@ -1,3 +1,4 @@
+import type { IOnEntry } from 'src/features/applicationMetadata';
 import type { IProcessPermissions } from 'src/features/process';
 import type { FixedLanguageList } from 'src/language/languages';
 
@@ -31,10 +32,6 @@ export interface IApplicationLogic {
   autoCreate?: boolean;
   classRef?: string;
   schemaRef?: string;
-}
-
-export interface IOnEntry {
-  show: 'new-instance' | 'startpage' | string;
 }
 
 export interface IAttachment {
@@ -116,12 +113,14 @@ export interface IInstanceState {
   isMarkedForHardDelete: boolean;
   isArchived: boolean;
 }
+
 // Language translations for altinn
 export type ILanguage =
   | FixedLanguageList
   | {
       [key: string]: string | ILanguage;
     };
+
 // Language for the rendered alltinn app
 export interface IAppLanguage {
   language: string; // Language code
@@ -278,59 +277,3 @@ export type IAuthContext = {
   read: boolean;
   write: boolean;
 } & { [action in IActionType]: boolean };
-
-export type HTMLAutoCompleteValues =
-  | 'on'
-  | 'off'
-  | 'name'
-  | 'honorific-prefix'
-  | 'given-name'
-  | 'additional-name'
-  | 'family-name'
-  | 'honorific-suffix'
-  | 'nickname'
-  | 'email'
-  | 'username'
-  | 'new-password'
-  | 'current-password'
-  | 'one-time-code'
-  | 'organization-title'
-  | 'organization'
-  | 'street-address'
-  | 'address-line1'
-  | 'address-line2'
-  | 'address-line3'
-  | 'address-level4'
-  | 'address-level3'
-  | 'address-level2'
-  | 'address-level1'
-  | 'country'
-  | 'country-name'
-  | 'postal-code'
-  | 'cc-name'
-  | 'cc-given-name'
-  | 'cc-additional-name'
-  | 'cc-family-name'
-  | 'cc-number'
-  | 'cc-exp'
-  | 'cc-exp-month'
-  | 'cc-exp-year'
-  | 'cc-csc'
-  | 'cc-type'
-  | 'transaction-currency'
-  | 'transaction-amount'
-  | 'language'
-  | 'bday'
-  | 'bday-day'
-  | 'bday-month'
-  | 'bday-year'
-  | 'sex'
-  | 'tel'
-  | 'tel-country-code'
-  | 'tel-national'
-  | 'tel-area-code'
-  | 'tel-local'
-  | 'tel-extension'
-  | 'impp'
-  | 'url'
-  | 'photo';
