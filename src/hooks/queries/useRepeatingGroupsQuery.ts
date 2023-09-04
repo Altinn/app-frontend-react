@@ -24,7 +24,6 @@ export const useRepeatingGroupsQuery = (
     () => fetchFormData(instanceId, currentTaskDataId).then((formData) => mapResponse(formData, layouts)),
     {
       enabled,
-      onSuccess: (repeatingGroups) => {},
       onError: (error: HttpClientError) => {
         window.logError('Fetching FormData failed:\n', error);
       },

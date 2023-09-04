@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { shallowEqual } from 'react-redux';
 
 import { useApplicationMetadataQuery } from 'src/hooks/queries/useApplicationMetadataQuery';
 import { useApplicationSettingsQuery } from 'src/hooks/queries/useApplicationSettingsQuery';
@@ -9,7 +8,8 @@ import { useGetOptionsQuery } from 'src/hooks/queries/useGetOptionsQuery';
 import { useLayoutSetsQuery } from 'src/hooks/queries/useLayoutSetsQuery';
 import { useLayoutsQuery } from 'src/hooks/queries/useLayoutsQuery';
 import { useRepeatingGroupsQuery } from 'src/hooks/queries/useRepeatingGroupsQuery';
-import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useTextResourcesQuery } from 'src/hooks/queries/useTextResourcesQuery';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { useStateDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { getCurrentTaskDataElementId, getLayoutSetIdForApplication } from 'src/utils/appMetadata';
 import { convertModelToDataBinding } from 'src/utils/databindings';
@@ -35,6 +35,7 @@ export interface IOptionResources {
 
 export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, source }: IUseGetOptionsParams) => {
   const [options, setOptions] = useStateDeepEqual<IOption[] | undefined>(undefined);
+  const { selectedLanguage } = useLanguage();
   const { instanceId } = window;
   const { data: instance } = useCurrentInstanceQuery(instanceId || '', !!instanceId);
   const { data: applicationMetadata } = useApplicationMetadataQuery();
@@ -62,16 +63,8 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, sou
     !!instanceId && !!currentTaskDataElementId && !!layouts,
   );
 
-  const relevantTextResources: IOptionResources = useAppSelector((state) => {
-    const { label, description, helpText } = source || {};
-    const resources = state.textResources.resources;
-    const findResourceById = (id?: string) => resources.find((resource) => resource.id === id);
-    return {
-      label: findResourceById(label),
-      description: findResourceById(description),
-      helpText: findResourceById(helpText),
-    };
-  }, shallowEqual);
+  const { label, description, helpText } = source || {};
+  const { data: textResource } = useTextResourcesQuery(selectedLanguage, !!selectedLanguage);
 
   const { data: fetchedOptions } = useGetOptionsQuery(
     instanceId || '',
@@ -88,9 +81,16 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, sou
       setOptions(fetchedOptions);
     }
 
-    if (!source || !repeatingGroups || !relevantTextResources.label) {
+    if (!source || !repeatingGroups) {
       return;
     }
+
+    const findResourceById = (id?: string) => textResource?.resources?.find((resource) => resource.id === id);
+    const relevantTextResources = {
+      label: findResourceById(label),
+      description: findResourceById(description),
+      helpText: findResourceById(helpText),
+    };
 
     const relevantFormData = (formData && getRelevantFormDataForOptionSource(formData, source)) || {};
     const instanceContext = buildInstanceContext(instance);
@@ -103,11 +103,7 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, sou
     setOptions(
       setupSourceOptions({
         source,
-        relevantTextResources: {
-          label: relevantTextResources.label,
-          description: relevantTextResources.description,
-          helpText: relevantTextResources.helpText,
-        },
+        relevantTextResources,
         relevantFormData,
         repeatingGroups,
         dataSources,
@@ -118,12 +114,13 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, sou
     instance,
     repeatingGroups,
     source,
-    relevantTextResources.label,
-    relevantTextResources.description,
-    relevantTextResources.helpText,
     fetchedOptions,
     formData,
     setOptions,
+    label,
+    description,
+    helpText,
+    textResource?.resources,
   ]);
   return options;
 };
