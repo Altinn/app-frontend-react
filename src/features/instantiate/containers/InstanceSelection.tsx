@@ -163,7 +163,7 @@ export function InstanceSelection({ instances, onNewInstance }: IInstanceSelecti
                     onClick={() => openInstance(instance.id)}
                     onMouseDown={(ev) => {
                       // Open new tab on middle mouse click
-                      if (ev.button === 1) {
+                      if (ev.button === 1 || ev.ctrlKey) {
                         ev.preventDefault();
                         openInTab(getInstanceUiUrl(instance.id));
                       }
