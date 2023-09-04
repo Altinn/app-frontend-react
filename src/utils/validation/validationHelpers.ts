@@ -15,9 +15,8 @@ import type {
   ValidationSeverity,
 } from 'src/utils/validation/types';
 
-export function validationContextFromState(state: IRuntimeState): IValidationContext {
+export function validationContextFromState(state: IRuntimeState): Omit<IValidationContext, 'formData'> {
   return {
-    formData: state.formData.formData,
     langTools: staticUseLanguageFromState(state),
     attachments: state.attachments.attachments,
     application: state.applicationMetadata.applicationMetadata,

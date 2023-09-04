@@ -162,26 +162,22 @@ describe('Entrypoint', () => {
   });
 
   test('should display MissingRolesError if getFormData has returned 403', async () => {
-    const mockState: IRuntimeState = {
-      ...mockInitialState,
-      formData: {
-        ...mockInitialState.formData,
-        error: { config: {}, response: { status: 403 } } as AxiosError,
+    render({
+      queries: {
+        fetchFormData: () => Promise.reject({ response: { status: 403 } } as AxiosError),
       },
-    };
-    mockStore = createStore(mockReducer, mockState);
-    render({ store: mockStore });
+    });
 
     const missingRolesText = await screen.findByText('Du mangler rettigheter for å se denne tjenesten.');
     expect(missingRolesText).not.toBeNull();
   });
 
   function render({
-    store,
+    store = undefined,
     allowAnonymous = false,
     queries,
   }: {
-    store: any;
+    store?: any;
     allowAnonymous?: boolean;
     queries?: Partial<AppQueriesContext>;
   }) {
@@ -189,8 +185,7 @@ describe('Entrypoint', () => {
       <MemoryRouter>
         <Entrypoint allowAnonymous={allowAnonymous} />
       </MemoryRouter>,
-      { store },
-      queries,
+      { store, queries },
     );
   }
 });

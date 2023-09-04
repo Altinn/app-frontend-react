@@ -8,14 +8,6 @@ import type { IRuntimeState } from 'src/types';
  * @param state the redux state
  */
 const getHasErrorsSelector = (state: IRuntimeState) => {
-  const exceptIfIncludes = (maybeError: Error | null, lookFor: string): Error | null => {
-    if (maybeError && maybeError.message?.includes(lookFor)) {
-      return null;
-    }
-
-    return maybeError;
-  };
-
   const error =
     state.party.error ||
     state.process.error ||
@@ -32,9 +24,7 @@ const getHasErrorsSelector = (state: IRuntimeState) => {
     state.applicationSettings.error ||
     state.textResources.error ||
     state.formDynamics.error ||
-    state.formRules.error ||
-    // 403 in formData handles with MissingRolesError, see Entrypoint.tsx
-    exceptIfIncludes(state.formData.error, '403');
+    state.formRules.error;
 
   return error !== null;
 };

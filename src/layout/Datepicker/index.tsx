@@ -28,7 +28,7 @@ export class Datepicker extends DatepickerDef implements ComponentValidation {
 
     const dateFormat = getDateFormat(node.item.format, selectedLanguage);
     const data = formData[node.item.dataModelBindings?.simpleBinding] || '';
-    return formatISOString(data, dateFormat) ?? '';
+    return formatISOString(data, dateFormat) ?? data;
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'Datepicker'>): JSX.Element | null {

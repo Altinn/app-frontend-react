@@ -223,14 +223,18 @@ describe('RepeatingGroupTable', () => {
     preloadedState.formLayout = newLayout || layout;
     preloadedState.attachments.attachments = attachments;
     preloadedState.textResources.resources = textResources;
-    preloadedState.formData.formData = data;
 
     const { container } = renderWithProviders(
       <RenderGroupTable
         id={group.id}
         {...allProps}
       />,
-      { preloadedState },
+      {
+        preloadedState,
+        queries: {
+          fetchFormData: () => Promise.resolve(data),
+        },
+      },
     );
 
     return container;

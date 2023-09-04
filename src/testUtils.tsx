@@ -5,11 +5,13 @@ import { MemoryRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { createTheme, MuiThemeProvider } from '@material-ui/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render as rtlRender } from '@testing-library/react';
+import dot from 'dot-object';
 import type { RenderOptions } from '@testing-library/react';
 import type { PreloadedState } from 'redux';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { AppQueriesContextProvider } from 'src/contexts/appQueriesContext';
+import { FormDataProvider } from 'src/features/formData2/FormDataContext';
 import { DataModelSchemaContextWrapper } from 'src/hooks/useDataModelSchema';
 import { setupStore } from 'src/redux/store';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
@@ -17,6 +19,7 @@ import { ExprContextWrapper, useResolvedNode } from 'src/utils/layout/ExprContex
 import type { AppQueriesContext } from 'src/contexts/appQueriesContext';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IFooterLayout } from 'src/features/footer/types';
+import type { IFormData } from 'src/features/formData';
 import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
 import type { CompExternalExact, CompTypes } from 'src/layout/layout';
 import type { AppStore, RootState } from 'src/redux/store';
@@ -26,12 +29,19 @@ import type { IProfile } from 'src/types/shared';
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   preloadedState?: PreloadedState<RootState>;
   store?: AppStore;
+  queries?: Partial<AppQueriesContext>;
+  formData?: IFormData;
 }
 
 export const renderWithProviders = (
   component: any,
-  { preloadedState = {}, store = setupStore(preloadedState).store, ...renderOptions }: ExtendedRenderOptions = {},
-  queries?: Partial<AppQueriesContext>,
+  {
+    preloadedState = {},
+    store = setupStore(preloadedState).store,
+    queries,
+    formData,
+    ...renderOptions
+  }: ExtendedRenderOptions = {},
 ) => {
   function Wrapper({ children }: React.PropsWithChildren) {
     const theme = createTheme(AltinnAppTheme);
@@ -49,7 +59,8 @@ export const renderWithProviders = (
       fetchDataModelSchema: () => Promise.resolve({}),
       fetchParties: () => Promise.resolve({}),
       fetchRefreshJwtToken: () => Promise.resolve({}),
-      fetchFormData: () => Promise.resolve({}),
+      fetchFormData: () => Promise.resolve(formData ? dot.dot(formData) : {}),
+      putFormData: () => Promise.resolve({}),
     } as AppQueriesContext;
     const mockedQueries = { ...allMockedQueries, ...queries };
 
@@ -73,7 +84,9 @@ export const renderWithProviders = (
           <MuiThemeProvider theme={theme}>
             <Provider store={store}>
               <DataModelSchemaContextWrapper>
-                <ExprContextWrapper>{children}</ExprContextWrapper>
+                <FormDataProvider>
+                  <ExprContextWrapper>{children}</ExprContextWrapper>
+                </FormDataProvider>
               </DataModelSchemaContextWrapper>
             </Provider>
           </MuiThemeProvider>

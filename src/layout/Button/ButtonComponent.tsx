@@ -50,27 +50,21 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
     );
   }
 
-  const submitTask = ({ componentId }: { componentId: string }) => {
+  const submitTask = () => {
     if (!disabled) {
-      const { org, app, instanceId } = window;
       if (currentTaskType === 'data') {
-        dispatch(
-          FormDataActions.submit({
-            url: `${window.location.origin}/${org}/${app}/api/${instanceId}`,
-            componentId,
-          }),
-        );
+        dispatch(FormDataActions.submit({ componentId: id }));
       } else if (currentTaskType === 'confirmation' && processActionsFeature) {
-        dispatch(ProcessActions.complete({ componentId, action: 'confirm' }));
+        dispatch(ProcessActions.complete({ componentId: id, action: 'confirm' }));
       } else {
-        dispatch(ProcessActions.complete({ componentId }));
+        dispatch(ProcessActions.complete({ componentId: id }));
       }
     }
   };
   return (
     <div style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}>
       <SubmitButton
-        onClick={() => submitTask({ componentId: id })}
+        onClick={() => submitTask()}
         id={id}
         busyWithId={busyWithId}
         disabled={disabled}

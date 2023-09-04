@@ -2,7 +2,6 @@ import React from 'react';
 
 import { screen } from '@testing-library/react';
 
-import { getFormDataStateMock } from 'src/__mocks__/formDataStateMock';
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { GenericComponent } from 'src/layout/GenericComponent';
@@ -45,12 +44,6 @@ const render = (props: Partial<CompExternal> = {}) => {
     },
   });
 
-  const formData = getFormDataStateMock({
-    formData: {
-      mockDataBinding: 'value',
-    },
-  });
-
   const Wrapper = () => {
     const node = useResolvedNode('mockId');
     return node ? <GenericComponent node={node} /> : null;
@@ -60,7 +53,9 @@ const render = (props: Partial<CompExternal> = {}) => {
     preloadedState: {
       ...getInitialStateMock(),
       formLayout,
-      formData,
+    },
+    formData: {
+      mockDataBinding: 'value',
     },
   });
 };

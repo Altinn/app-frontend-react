@@ -2,7 +2,6 @@ import React from 'react';
 
 import configureStore from 'redux-mock-store';
 
-import { getFormDataStateMock } from 'src/__mocks__/formDataStateMock';
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
@@ -90,15 +89,7 @@ describe('SummaryGroupComponent', () => {
       },
     });
 
-    const formData = getFormDataStateMock({
-      formData: {
-        'mockGroup[0].mockDataBinding1': '1',
-        'mockGroup[0].mockDataBinding2': '2',
-      },
-    });
-
     const initialState: any = getInitialStateMock({
-      formData,
       formLayout,
       textResources: {
         error: null,
@@ -146,6 +137,12 @@ describe('SummaryGroupComponent', () => {
       );
     }
 
-    return renderWithProviders(<Wrapper />, { store: mockStore });
+    return renderWithProviders(<Wrapper />, {
+      store: mockStore,
+      formData: {
+        'mockGroup[0].mockDataBinding1': '1',
+        'mockGroup[0].mockDataBinding2': '2',
+      },
+    });
   }
 });

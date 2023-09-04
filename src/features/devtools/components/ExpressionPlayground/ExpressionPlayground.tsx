@@ -16,7 +16,7 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import { selectDataSourcesFromState } from 'src/utils/layout/hierarchy';
 import type { ExprConfig, Expression, ExprFunction } from 'src/features/expressions/types';
-import type { HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
+import type { HierarchyDataSources } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 

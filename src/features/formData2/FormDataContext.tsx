@@ -88,6 +88,10 @@ const performSave = async (
   }
 };
 
+/**
+ * PRIORITY: Update this to use all the logic in the newer src/hooks/queries/useFormDataQuery.ts, and/or add mutation
+ * support to that hook.
+ */
 const useFormDataQuery = (): FormDataStorageExtended & FormDataStorageInternal => {
   const { fetchFormData, putFormData } = useAppQueriesContext();
   const useMultiPart = useAppSelector(
@@ -152,8 +156,6 @@ const useFormDataQuery = (): FormDataStorageExtended & FormDataStorageInternal =
 
 export function FormDataProvider({ children }) {
   const { dispatch, ...rest } = useFormDataQuery();
-  window.deprecated = window.deprecated || {};
-  window.deprecated.currentFormData = NewFD.useAsDotMap();
 
   return (
     <Provider

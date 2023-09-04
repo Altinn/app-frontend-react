@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { FD } from 'src/features/formData2/Compatibility';
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
 import { getOptionList } from 'src/features/options/getOptionList';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -39,7 +40,7 @@ export class MultipleSelect extends MultipleSelectDef {
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'MultipleSelect'>): JSX.Element | null {
-    const formData = useAppSelector((state) => state.formData.formData);
+    const formData = FD.useAsDotMap();
     const langTools = useLanguage();
     const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
     const options = useAppSelector((state) => state.optionState.options);

@@ -11,8 +11,6 @@ import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
 
 export const initialState: IFormDataState = {
   submittingId: '',
-  error: null,
-  reFetch: false,
 };
 
 const isProcessAction = (action: AnyAction) =>
