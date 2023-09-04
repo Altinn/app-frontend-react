@@ -17,6 +17,7 @@ import { ExprContextWrapper, useResolvedNode } from 'src/utils/layout/ExprContex
 import type { AppQueriesContext } from 'src/contexts/appQueriesContext';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IFooterLayout } from 'src/features/footer/types';
+import type { IFormData } from 'src/features/formData';
 import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
 import type { CompExternalExact, CompTypes } from 'src/layout/layout';
 import type { AppStore, RootState } from 'src/redux/store';
@@ -50,7 +51,12 @@ export const renderWithProviders = (
       fetchParties: () => Promise.resolve({}),
       fetchRefreshJwtToken: () => Promise.resolve({}),
       fetchFormData: () => Promise.resolve({}),
-    } as AppQueriesContext;
+      fetchFormDataForOptions: () => Promise.resolve({} as unknown as IFormData),
+      fetchCurrentInstance: () => Promise.resolve({}),
+      fetchLayout: () => Promise.resolve({}),
+      fetchOptions: () => Promise.resolve({}),
+      fetchTextResources: () => Promise.resolve({}),
+    } as unknown as AppQueriesContext;
     const mockedQueries = { ...allMockedQueries, ...queries };
 
     const client = new QueryClient({
