@@ -24,7 +24,9 @@ describe('Receipt', () => {
     );
     cy.get(appFrontend.feedback).should('contain.text', 'Firmanavn: Foo bar AS');
     cy.get(appFrontend.feedback).should('contain.text', 'Org.nr: 12345678901');
-    cy.get(appFrontend.feedback).should('contain.text', 'Navn: Ola');
+
+    const userFirstName = Cypress.env('defaultFirstName');
+    cy.get(appFrontend.feedback).should('contain.text', `Navn: ${userFirstName}`);
     cy.get(appFrontend.feedback).should('contain.text', 'ID: 1364');
 
     cy.snapshot('stateless:feedback');
