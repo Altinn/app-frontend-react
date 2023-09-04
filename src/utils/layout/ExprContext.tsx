@@ -10,7 +10,7 @@ import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
-import { _private, dataSourcesFromState } from 'src/utils/layout/hierarchy';
+import { _private, selectDataSourcesFromState } from 'src/utils/layout/hierarchy';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { HierarchyDataSources, LayoutNodeFromObj } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -87,7 +87,7 @@ function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
   const formData = FD.useAsDotMap();
   const rules = useAppSelector((state) => state.formDynamics.conditionalRendering);
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
-  const _dataSources = useAppSelector(dataSourcesFromState);
+  const _dataSources = useAppSelector(selectDataSourcesFromState);
   const dataSources: HierarchyDataSources = useMemo(() => ({ ..._dataSources, formData }), [_dataSources, formData]);
   const dispatch = useAppDispatch();
 

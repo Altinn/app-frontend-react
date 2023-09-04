@@ -14,7 +14,7 @@ import { FD } from 'src/features/formData2/Compatibility';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useExprContext } from 'src/utils/layout/ExprContext';
-import { dataSourcesFromState } from 'src/utils/layout/hierarchy';
+import { selectDataSourcesFromState } from 'src/utils/layout/hierarchy';
 import type { ExprConfig, Expression, ExprFunction } from 'src/features/expressions/types';
 import type { HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -41,7 +41,7 @@ export const ExpressionPlayground = () => {
   ]);
   const nodes = useExprContext();
   const currentPage = nodes?.current()?.top.myKey;
-  const mostDataSources = useAppSelector(dataSourcesFromState);
+  const mostDataSources = useAppSelector(selectDataSourcesFromState);
   const formData = FD.useAsDotMap('current');
 
   const setOutputWithHistory = useCallback(

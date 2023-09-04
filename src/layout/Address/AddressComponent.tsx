@@ -6,8 +6,8 @@ import axios from 'axios';
 import { Label } from 'src/components/form/Label';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useLanguage } from 'src/hooks/useLanguage';
-import classes from 'src/layout/Address/AddressComponent.module.css';
 import { useStateDeepEqual } from 'src/hooks/useStateDeepEqual';
+import classes from 'src/layout/Address/AddressComponent.module.css';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -155,7 +155,7 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
     return function cleanup() {
       source.cancel('ComponentWillUnmount');
     };
-  }, [formData.zipCode, langAsString, source, onSaveField, validations, setPostPlace, id]);
+  }, [formData.zipCode, langAsString, source, onSaveField, validations, setPostPlace, id, setValidations]);
 
   const updateField = (key: AddressKeys, saveImmediately: boolean, event: any): void => {
     const changedFieldValue: string = event.target.value;
