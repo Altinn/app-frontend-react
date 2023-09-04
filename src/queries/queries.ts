@@ -42,7 +42,7 @@ export const fetchCurrentParty = () => httpGet(currentPartyUrl);
 
 export const fetchFooterLayout = (): Promise<IFooterLayout> => httpGet(getFooterLayoutUrl());
 
-export const fetchFormData = (instanceId: string, currentTaskDataElementId: string): Promise<IFormData> =>
+export const fetchFormDataForOptions = (instanceId: string, currentTaskDataElementId: string): Promise<IFormData> =>
   httpGet(getFetchFormDataUrl(instanceId, currentTaskDataElementId));
 
 export const fetchLayoutSets = (): Promise<ILayoutSets> => httpGet(getLayoutSetsUrl());

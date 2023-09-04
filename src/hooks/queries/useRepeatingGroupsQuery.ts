@@ -17,11 +17,11 @@ export const useRepeatingGroupsQuery = (
   layouts: ILayouts,
   enabled?: boolean,
 ): UseQueryResult<IRepeatingGroups> => {
-  const { fetchFormData } = useAppQueriesContext();
+  const { fetchFormDataForOptions } = useAppQueriesContext();
 
   return useQuery(
     [ServerStateCacheKey.RepeatingGroups, instanceId, currentTaskDataId],
-    () => fetchFormData(instanceId, currentTaskDataId).then((formData) => mapResponse(formData, layouts)),
+    () => fetchFormDataForOptions(instanceId, currentTaskDataId).then((formData) => mapResponse(formData, layouts)),
     {
       enabled,
       onError: (error: HttpClientError) => {

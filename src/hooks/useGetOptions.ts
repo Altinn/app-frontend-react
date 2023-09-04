@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useApplicationMetadataQuery } from 'src/hooks/queries/useApplicationMetadataQuery';
 import { useApplicationSettingsQuery } from 'src/hooks/queries/useApplicationSettingsQuery';
 import { useCurrentInstanceQuery } from 'src/hooks/queries/useCurrentInstanceQuery';
-import { useFormDataQuery } from 'src/hooks/queries/useFormdataQuery';
+import { useFormDataForOptionsQuery } from 'src/hooks/queries/useFormdataForOptionsQuery';
 import { useGetOptionsQuery } from 'src/hooks/queries/useGetOptionsQuery';
 import { useLayoutSetsQuery } from 'src/hooks/queries/useLayoutSetsQuery';
 import { useLayoutsQuery } from 'src/hooks/queries/useLayoutsQuery';
@@ -47,7 +47,7 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, sou
     instance || null,
     layoutSets || null,
   );
-  const { data: fetchedFormData } = useFormDataQuery(
+  const { data: fetchedFormData } = useFormDataForOptionsQuery(
     instanceId || '',
     currentTaskDataElementId || '',
     !!currentTaskDataElementId && !!instanceId,

@@ -8,16 +8,16 @@ import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 enum ServerStateCacheKey {
   FormData = 'formData',
 }
-export const useFormDataQuery = (
+export const useFormDataForOptionsQuery = (
   instanceId: string,
   currentTaskDataId: string,
   enabled?: boolean,
 ): UseQueryResult<IRepeatingGroups> => {
-  const { fetchFormData } = useAppQueriesContext();
+  const { fetchFormDataForOptions } = useAppQueriesContext();
 
   return useQuery(
     [ServerStateCacheKey.FormData, instanceId, currentTaskDataId],
-    () => fetchFormData(instanceId, currentTaskDataId),
+    () => fetchFormDataForOptions(instanceId, currentTaskDataId),
     {
       enabled,
       onSuccess: () => {},
