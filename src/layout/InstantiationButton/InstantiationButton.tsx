@@ -1,7 +1,6 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 
-import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { InstanceDataActions } from 'src/features/instanceData/instanceDataSlice';
 import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
@@ -33,7 +32,6 @@ export const InstantiationButton = ({ children, ...props }: Props) => {
   React.useEffect(() => {
     if (isSuccess && data) {
       dispatch(InstanceDataActions.getFulfilled({ instanceData: data }));
-      dispatch(AttachmentActions.mapAttachments());
       dispatch(InstantiationActions.instantiateFulfilled({ instanceId: data.id }));
     }
   }, [isSuccess, data, dispatch]);

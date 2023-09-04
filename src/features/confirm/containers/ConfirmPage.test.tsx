@@ -24,11 +24,7 @@ describe('ConfirmPage', () => {
       <MemoryRouter>
         <ConfirmPage {...props} />
       </MemoryRouter>,
-      {
-        preloadedState: getInitialStateMock({
-          attachments: { attachments: {} },
-        }),
-      },
+      { preloadedState: getInitialStateMock() },
     );
     const title = screen.getByText('Se over svarene dine før du sender inn');
     expect(title).toBeInTheDocument();
@@ -42,11 +38,7 @@ describe('ConfirmPage', () => {
       <MemoryRouter>
         <ConfirmPage {...props} />
       </MemoryRouter>,
-      {
-        preloadedState: getInitialStateMock({
-          attachments: { attachments: {} },
-        }),
-      },
+      { preloadedState: getInitialStateMock() },
     );
     const pdf = screen.getByText('mockApp.pdf');
     expect(pdf).toBeInTheDocument();
@@ -62,11 +54,7 @@ describe('ConfirmPage', () => {
       <MemoryRouter>
         <ConfirmPage {...props} />
       </MemoryRouter>,
-      {
-        preloadedState: getInitialStateMock({
-          attachments: { attachments: {} },
-        }),
-      },
+      { preloadedState: getInitialStateMock() },
     );
     const dispatch = jest.spyOn(store, 'dispatch');
 

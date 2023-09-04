@@ -1,23 +1,16 @@
-import { put, select } from 'redux-saga/effects';
-import type { SagaIterator } from 'redux-saga';
+import { useEffect } from 'react';
+
+import deepEqual from 'fast-deep-equal';
 
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getCurrentTaskData } from 'src/utils/appMetadata';
 import { getKeyIndex } from 'src/utils/databindings';
-import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
 import type { ILayouts } from 'src/layout/layout';
-import type { ILayoutSets, IRuntimeState } from 'src/types';
-import type { IData, IInstance } from 'src/types/shared';
-
-export const SelectInstanceData = (state: IRuntimeState): IData[] | undefined => state.instanceData.instance?.data;
-export const SelectInstance = (state: IRuntimeState): IInstance | null => state.instanceData.instance;
-export const SelectApplicationMetaData = (state: IRuntimeState): IApplicationMetadata | null =>
-  state.applicationMetadata.applicationMetadata;
-export const SelectFormData = (state: IRuntimeState): IFormData => state.formData.formData;
-export const SelectFormLayouts = (state: IRuntimeState): ILayouts | null => state.formLayout.layouts;
-export const SelectFormLayoutSets = (state: IRuntimeState): ILayoutSets | null => state.formLayout.layoutsets;
+import type { IData } from 'src/types/shared';
 
 export function mapAttachmentListToAttachments(
   data: IData[],
@@ -99,31 +92,42 @@ function convertToDashedComponentId(
   return [componentId, index];
 }
 
-export function* mapAttachments(): SagaIterator {
-  try {
-    const instance = yield select(SelectInstance);
-    const applicationMetadata = yield select(SelectApplicationMetaData);
-    const layoutSets: ILayoutSets = yield select(SelectFormLayoutSets);
-    const defaultElement = getCurrentTaskData(applicationMetadata, instance, layoutSets);
+function useMappedAttachments() {
+  const applicationMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
+  const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
+  const formData = useAppSelector((state) => state.formData.formData);
+  const layouts = useAppSelector((state) => state.formLayout.layouts);
+  const instance = useAppSelector((state) => state.instanceData.instance);
+  const instanceAttachments = useAppSelector((state) => state.instanceData.instance?.data);
 
-    const formData = yield select(SelectFormData);
-    const layouts = yield select(SelectFormLayouts);
+  const defaultElement =
+    applicationMetadata &&
+    instance &&
+    instance.data &&
+    layoutSets &&
+    getCurrentTaskData(applicationMetadata, instance, layoutSets);
 
-    const instanceAttachments: IData[] = yield select(SelectInstanceData);
-    const mappedAttachments: IAttachments = mapAttachmentListToAttachments(
-      instanceAttachments,
-      defaultElement?.id,
-      formData,
-      layouts,
-    );
-
-    yield put(
-      AttachmentActions.mapAttachmentsFulfilled({
-        attachments: mappedAttachments,
-      }),
-    );
-  } catch (error) {
-    yield put(AttachmentActions.mapAttachmentsRejected({ error }));
-    window.logError('Mapping attachments failed:\n', error);
+  if (instanceAttachments && layouts && defaultElement?.id) {
+    return mapAttachmentListToAttachments(instanceAttachments, defaultElement.id, formData, layouts);
   }
+
+  return undefined;
+}
+
+export function useMappedAttachmentsGenerator() {
+  const dispatch = useAppDispatch();
+  const currentState = useAppSelector((state) => state.attachments.attachments);
+  const initializedFor = useAppSelector((state) => state.attachments.initializedFor);
+  const attachments = useMappedAttachments();
+  const instanceAttachments = useAppSelector((state) => state.instanceData.instance?.data);
+
+  // Using a shortened list of attachment ids to check for changes
+  const shortList =
+    instanceAttachments?.reduce((acc, attachment) => acc + attachment.id.substring(0, 5), 'ids:') || 'ids:none';
+
+  useEffect(() => {
+    if (attachments && (!deepEqual(attachments, currentState) || initializedFor !== shortList)) {
+      dispatch(AttachmentActions.mapAttachmentsFulfilled({ attachments, initializedFor: shortList }));
+    }
+  }, [attachments, currentState, dispatch, shortList, initializedFor]);
 }

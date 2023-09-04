@@ -431,6 +431,7 @@ describe('mapFileUploadersWithTag', () => {
     ];
 
     const testAttachments: IAttachmentState = {
+      initializedFor: '',
       attachments: {
         'file-upload-with-tag1': [
           {

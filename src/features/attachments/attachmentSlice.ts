@@ -8,10 +8,7 @@ import type {
   IDeleteAttachmentActionRejected,
 } from 'src/features/attachments/delete/deleteAttachmentActions';
 import type { IAttachmentState } from 'src/features/attachments/index';
-import type {
-  IMapAttachmentsActionFulfilled,
-  IMapAttachmentsActionRejected,
-} from 'src/features/attachments/map/mapAttachmentsActions';
+import type { IMapAttachmentsActionFulfilled } from 'src/features/attachments/map/mapAttachmentsActions';
 import type {
   IUpdateAttachmentAction,
   IUpdateAttachmentActionFulfilled,
@@ -26,6 +23,7 @@ import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
 
 const initialState: IAttachmentState = {
   attachments: {},
+  initializedFor: '',
   error: undefined,
 };
 
@@ -137,13 +135,11 @@ export const attachmentSlice = () => {
       }),
       mapAttachmentsFulfilled: mkAction<IMapAttachmentsActionFulfilled>({
         reducer: (state, action) => {
-          const { attachments } = action.payload;
+          const { attachments, initializedFor } = action.payload;
           state.attachments = attachments;
-        },
-      }),
-      mapAttachmentsRejected: mkAction<IMapAttachmentsActionRejected>({
-        reducer: (state, action) => {
-          state.error = action.payload.error;
+          if (initializedFor) {
+            state.initializedFor = initializedFor;
+          }
         },
       }),
     },

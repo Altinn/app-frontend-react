@@ -2,6 +2,7 @@ import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 
 import { ProcessWrapper } from 'src/components/wrappers/ProcessWrapper';
+import { useMappedAttachmentsGenerator } from 'src/features/attachments/map/mapAttachments';
 import { Entrypoint } from 'src/features/entrypoint/Entrypoint';
 import { PartySelection } from 'src/features/instantiate/containers/PartySelection';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
@@ -78,6 +79,7 @@ const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | n
 
   useKeepAlive(applicationSettings.appOidcProvider, allowAnonymous);
   useUpdatePdfState(allowAnonymous);
+  useMappedAttachmentsGenerator();
   const { isFetching: isFormDataFetching } = useFormDataQuery();
 
   const hasComponentError = hasProfileError || hasCurrentPartyError || hasPartiesError;

@@ -6,6 +6,7 @@ describe('attachmentReducer', () => {
 
   it('should set deleting to true when deleteAttachment action is received', () => {
     const state: IAttachmentState = {
+      initializedFor: '',
       attachments: {
         someComponentId: [
           {
@@ -37,6 +38,7 @@ describe('attachmentReducer', () => {
 
   it('should set deleting to false when deleteAttachmentRejected action is received', () => {
     const state: IAttachmentState = {
+      initializedFor: '',
       attachments: {
         someComponentId: [
           {
@@ -67,6 +69,7 @@ describe('attachmentReducer', () => {
 
   it('should remove the attachment when deleteAttachmentFulfilled action is received', () => {
     const state: IAttachmentState = {
+      initializedFor: '',
       attachments: {
         someComponentId: [
           {

@@ -1,5 +1,6 @@
 export interface IAttachmentState {
   attachments: IAttachments;
+  initializedFor: string;
   error?: Error;
 }
 

@@ -335,6 +335,7 @@ const renderWithTag = ({ component, genericProps, attachments = getAttachments()
     },
     manipulateState: (state) => {
       state.attachments = {
+        initializedFor: '',
         attachments: {
           [testId]: attachments,
         },
