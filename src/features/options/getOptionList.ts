@@ -1,7 +1,8 @@
 import { getOptionLookupKey, getRelevantFormDataForOptionSource, setupSourceOptions } from 'src/utils/options';
 import type { IFormData } from 'src/features/formData';
 import type { IOption, ISelectionComponent } from 'src/layout/common.generated';
-import type { IOptions, IRepeatingGroups, ITextResource } from 'src/types';
+import type { IOptions, IRepeatingGroups } from 'src/types';
+import type { ITextResource } from 'src/types/shared';
 
 export function getOptionList(
   component: ISelectionComponent,

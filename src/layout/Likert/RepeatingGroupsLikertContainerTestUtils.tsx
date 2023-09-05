@@ -18,7 +18,7 @@ import type { IOption } from 'src/layout/common.generated';
 import type { CompGroupExternal, CompGroupRepeatingLikertExternal } from 'src/layout/Group/config.generated';
 import type { CompOrGroupExternal } from 'src/layout/layout';
 import type { CompLikertExternal } from 'src/layout/Likert/config.generated';
-import type { ITextResource } from 'src/types';
+import type { ITextResource } from 'src/types/shared';
 import type { ILayoutValidations } from 'src/utils/validation/types';
 
 export const defaultMockQuestions = [

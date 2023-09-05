@@ -1,12 +1,15 @@
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import type { JSX } from 'react';
 
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromCode } from 'src/language/languages';
 import { getParsedLanguageFromText, replaceParameters } from 'src/language/sharedLanguage';
+import { FormComponentContext } from 'src/layout';
+import type { IFormData } from 'src/features/formData';
 import type { FixedLanguageList } from 'src/language/languages';
-import type { IRuntimeState, ITextResource } from 'src/types';
-import type { ILanguage } from 'src/types/shared';
+import type { IRuntimeState } from 'src/types';
+import type { ILanguage, ITextResource } from 'src/types/shared';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type ValidParam = string | number | undefined;
 
@@ -58,14 +61,17 @@ const defaultLocale = 'nb';
  * You get two functions from this hook, and you can choose which one to use based on your needs:
  * - lang(key, params) usually returns a React element
  */
-export function useLanguage() {
+export function useLanguage(node?: LayoutNode) {
   const textResources = useAppSelector((state) => state.textResources.resources);
   const profileLanguage = useAppSelector((state) => state.profile.profile.profileSettingPreference.language);
   const selectedAppLanguage = useAppSelector((state) => state.profile.selectedAppLanguage);
+  const componentCtx = useContext(FormComponentContext);
+  const nearestNode = node || componentCtx?.node;
+  const formData = useAppSelector((state) => state.formData.formData);
 
   return useMemo(
-    () => staticUseLanguage(textResources, null, selectedAppLanguage, profileLanguage),
-    [profileLanguage, selectedAppLanguage, textResources],
+    () => staticUseLanguage(textResources, null, selectedAppLanguage, profileLanguage, formData, nearestNode),
+    [profileLanguage, selectedAppLanguage, textResources, nearestNode, formData],
   );
 }
 
@@ -76,8 +82,9 @@ export function staticUseLanguageFromState(state: IRuntimeState) {
   const textResources = state.textResources.resources;
   const profileLanguage = state.profile.profile.profileSettingPreference.language;
   const selectedAppLanguage = state.profile.selectedAppLanguage;
+  const formData = state.formData.formData;
 
-  return staticUseLanguage(textResources, null, selectedAppLanguage, profileLanguage);
+  return staticUseLanguage(textResources, null, selectedAppLanguage, profileLanguage, formData);
 }
 
 interface ILanguageState {
@@ -85,6 +92,7 @@ interface ILanguageState {
   language: ILanguage | null;
   selectedAppLanguage: string | undefined;
   profileLanguage: string | undefined;
+  formData: IFormData | undefined;
 }
 
 /**
@@ -97,8 +105,9 @@ export function staticUseLanguageForTests({
   language = null,
   profileLanguage = 'nb',
   selectedAppLanguage = undefined,
+  formData,
 }: Partial<ILanguageState> = {}) {
-  return staticUseLanguage(textResources, language, selectedAppLanguage, profileLanguage);
+  return staticUseLanguage(textResources, language, selectedAppLanguage, profileLanguage, formData);
 }
 
 function staticUseLanguage(
@@ -106,14 +115,13 @@ function staticUseLanguage(
   _language: ILanguage | null,
   selectedAppLanguage: string | undefined,
   profileLanguage: string | undefined,
+  formData: IFormData | undefined,
+  node?: LayoutNode,
 ): IUseLanguage {
   const langKey = selectedAppLanguage || profileLanguage || defaultLocale;
   const language = _language || getLanguageFromCode(langKey);
 
   /**
-   * TODO: Replace parameters when passed to text resources (e.g. {0}, {1}, etc.) with the actual values. Text resources
-   * can also use variables, so we should only use our parameters if no variable is present in the text resource config.
-   *
    * TODO: Clean away any markdown/HTML formatting when using the langAsString function. Even though we support
    * returning a string, we don't want to show markdown/HTML in the UI.
    *
@@ -129,7 +137,7 @@ function staticUseLanguage(
         return '';
       }
 
-      const textResource: string | undefined = getTextResourceByKey(key, textResources);
+      const textResource: string | undefined = getTextResourceByKey(key, textResources, node, formData);
       if (textResource !== key) {
         return getParsedLanguageFromText(textResource);
       }
@@ -144,7 +152,7 @@ function staticUseLanguage(
         return '';
       }
 
-      const textResource = getTextResourceByKey(key, textResources);
+      const textResource = getTextResourceByKey(key, textResources, node, formData);
       if (textResource !== key) {
         return textResource;
       }
@@ -158,7 +166,7 @@ function staticUseLanguage(
         return '';
       }
 
-      const textResource = getTextResourceByKey(key, textResources);
+      const textResource = getTextResourceByKey(key, textResources, node, formData);
       if (textResource !== key) {
         return textResource;
       }
@@ -183,7 +191,12 @@ function getLanguageFromKey(key: string, language: ILanguage) {
   return value;
 }
 
-function getTextResourceByKey(key: string, textResources: ITextResource[]) {
+function getTextResourceByKey(
+  key: string,
+  textResources: ITextResource[],
+  node: LayoutNode | undefined,
+  formData: IFormData | undefined,
+) {
   const textResource = textResources.find((resource) => resource.id === key);
   if (!textResource) {
     return key;
@@ -194,7 +207,21 @@ function getTextResourceByKey(key: string, textResources: ITextResource[]) {
   // TODO: When using a more performant data structure for text resources, we can do this recursively until we find
   // the target text resource.
   const resource = textResources.find((resource) => resource.id === textResource.value) || textResource;
-  return resource.value;
+  let out = resource.value;
+  if (resource && resource.variables) {
+    for (const idx in resource.variables) {
+      let value = resource.variables[idx].key;
+      const cleanPath = value.replaceAll(/\[\{\d+}]/g, '');
+      const transposedPath = node?.transposeDataModel(cleanPath);
+      if (transposedPath && formData && formData[transposedPath]) {
+        value = formData[transposedPath];
+      }
+      const regExp = new RegExp(`\\{${idx}\\}`, 'g');
+      out = out.replaceAll(regExp, value);
+    }
+  }
+
+  return out;
 }
 
 function getNestedObject(nestedObj: ILanguage, pathArr: string[]) {

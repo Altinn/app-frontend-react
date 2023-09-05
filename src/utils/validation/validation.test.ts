@@ -4,7 +4,8 @@ import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
 import { isOneOfError } from 'src/utils/validation/schemaValidation';
 import * as validation from 'src/utils/validation/validation';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type { IRepeatingGroups, ITextResource } from 'src/types';
+import type { IRepeatingGroups } from 'src/types';
+import type { ITextResource } from 'src/types/shared';
 import type { ILayoutValidations, IValidations } from 'src/utils/validation/types';
 
 // Mock dateformat

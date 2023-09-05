@@ -12,9 +12,8 @@ import {
   TextResourceSelector,
 } from 'src/features/queue/infoTask/infoTaskQueueSaga';
 import { QueueActions } from 'src/features/queue/queueSlice';
-import { TextResourcesActions } from 'src/features/textResources/textResourcesSlice';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
-import type { ITextResource } from 'src/types';
+import type { ITextResource } from 'src/types/shared';
 
 describe('infoTaskQueueSaga', () => {
   let textResources: ITextResource[];
@@ -76,7 +75,6 @@ describe('infoTaskQueueSaga', () => {
       .put(IsLoadingActions.startDataTaskIsLoading())
       .put(QueueActions.startInitialInfoTaskQueueFulfilled())
       .put(FormDataActions.fetchFulfilled({ formData: {} }))
-      .put(TextResourcesActions.replace())
       .put(IsLoadingActions.finishDataTaskIsLoading())
       .run();
   });

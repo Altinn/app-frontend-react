@@ -200,7 +200,6 @@ describe('utils > options', () => {
       const relevantTextResourceLabel: ITextResource = {
         id: 'dropdown.label',
         value: '{0}',
-        unparsedValue: '{0}',
         variables: [
           {
             key: 'someGroup[{0}].fieldUsedAsLabel',

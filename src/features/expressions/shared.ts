@@ -5,8 +5,7 @@ import type { Expression } from 'src/features/expressions/types';
 import type { IProcessPermissions } from 'src/features/process';
 import type { IProfileState } from 'src/features/profile';
 import type { ILayout, ILayouts } from 'src/layout/layout';
-import type { ITextResource } from 'src/types';
-import type { IApplicationSettings, IInstance } from 'src/types/shared';
+import type { IApplicationSettings, IInstance, ITextResource } from 'src/types/shared';
 
 export interface Layouts {
   [key: string]: {

@@ -10,8 +10,8 @@ import { convertModelToDataBinding } from 'src/utils/databindings';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { getFetchFormDataUrl } from 'src/utils/urls/appUrlHelper';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
-import type { IRuntimeState, ITextResource } from 'src/types';
-import type { IInstance } from 'src/types/shared';
+import type { IRuntimeState } from 'src/types';
+import type { IInstance, ITextResource } from 'src/types/shared';
 
 export const ApplicationMetadataSelector = (state: IRuntimeState) => state.applicationMetadata.applicationMetadata;
 export const TextResourceSelector = (state: IRuntimeState) => state.textResources.resources;
@@ -55,7 +55,6 @@ export function* startInitialInfoTaskQueueSaga(): SagaIterator {
     }
 
     yield put(FormDataActions.fetchFulfilled({ formData }));
-    yield put(TextResourcesActions.replace());
   }
 
   yield put(QueueActions.startInitialInfoTaskQueueFulfilled());

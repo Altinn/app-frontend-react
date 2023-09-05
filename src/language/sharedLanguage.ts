@@ -119,16 +119,14 @@ export const replaceParameters = (nameString: string | undefined, params: LangPa
 
 /**
  * Replaces all variables in text resources with values from relevant source.
- * @param textResources the original text resources
- * @param dataSources the data sources
- * @param repeatingGroups the repeating groups
- * @returns a new array with replaced values.
+ * @deprecated Do not use this, just call useLanguage() with a node object
  */
 export function replaceTextResourceParams(
   textResources: ITextResource[],
-  dataSources: IDataSources,
-  repeatingGroups?: any,
+  _dataSources: IDataSources,
+  _repeatingGroups?: any,
 ): ITextResource[] {
+  return textResources; /*
   const repeatingGroupResources: ITextResource[] = [];
   const mappedResources = textResources.map((textResource) => {
     const textResourceCopy = { ...textResource };
@@ -202,6 +200,7 @@ export function replaceTextResourceParams(
   });
 
   return mappedResources.concat(repeatingGroupResources);
+  */
 }
 
 export function getOrgName(

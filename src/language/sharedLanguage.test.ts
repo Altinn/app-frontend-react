@@ -47,7 +47,6 @@ describe('language.ts', () => {
         {
           id: 'mockId1',
           value: 'This is an {0} text.',
-          unparsedValue: 'This is an {0} text.',
           variables: [{ key: 'model.text.adjective', dataSource: 'dataModel.test' }],
         },
       ];
@@ -61,7 +60,6 @@ describe('language.ts', () => {
         {
           id: 'mockId1',
           value: 'This is an {0} text, {1}.',
-          unparsedValue: 'This is an {0} text, {1}.',
           variables: [
             { key: 'model.text.adjective', dataSource: 'dataModel.test' },
             { key: 'model.text.color', dataSource: 'dataModel.test' },
@@ -79,7 +77,6 @@ describe('language.ts', () => {
         {
           id: 'mockId',
           value: 'This is a green apple.',
-          unparsedValue: 'This is a {0} apple.',
           variables: [{ key: 'model.text.color', dataSource: 'dataModel.test' }],
         },
       ];
@@ -93,7 +90,6 @@ describe('language.ts', () => {
         {
           id: 'mockId',
           value: 'This is a text with a missing param: {0}.',
-          unparsedValue: 'This is a text with a missing param: {0}.',
           variables: [{ key: 'model.text.param', dataSource: 'dataModel.test' }],
         },
       ];
@@ -107,7 +103,6 @@ describe('language.ts', () => {
         {
           id: 'mockId',
           value: 'This: {0} depends on an invalid source.',
-          unparsedValue: 'This: {0} depends on an invalid source.',
           variables: [{ key: 'model.text.adjective', dataSource: 'api.invalidSource' }],
         },
       ];
@@ -121,7 +116,6 @@ describe('language.ts', () => {
         {
           id: 'mockId',
           value: 'mock value',
-          unparsedValue: 'mock value',
           variables: undefined,
         },
       ];
@@ -135,7 +129,6 @@ describe('language.ts', () => {
         {
           id: 'mockId',
           value: 'Hello, {0}!',
-          unparsedValue: 'Hello, {0}!',
           variables: [
             {
               key: 'model.group[{0}].animal',
@@ -162,7 +155,6 @@ describe('language.ts', () => {
         {
           id: 'mockId',
           value: 'This is a {0} apple. It will always be {0}. Yes, {0} is my favorite color.',
-          unparsedValue: 'This is a {0} apple. It will always be {0}. Yes, {0} is my favorite color.',
           variables: [{ key: 'model.text.color', dataSource: 'dataModel.test' }],
         },
       ];
@@ -178,7 +170,6 @@ describe('language.ts', () => {
         {
           id: 'mockId',
           value: 'This is a [link]({0}).',
-          unparsedValue: 'This is a [link]({0}).',
           variables: [{ key: 'homeBaseUrl', dataSource: 'applicationSettings' }],
         },
       ];
@@ -192,7 +183,6 @@ describe('language.ts', () => {
         {
           id: 'mockId',
           value: 'This is a [link]({0}).',
-          unparsedValue: 'This is a [link]({0}).',
           variables: [{ key: 'doesnotexists', dataSource: 'applicationSettings' }],
         },
       ];
@@ -206,7 +196,6 @@ describe('language.ts', () => {
         {
           id: 'mockId',
           value: 'The instance owner party id is {0}',
-          unparsedValue: 'The instance owner party id is {0}',
           variables: [{ key: 'instanceOwnerPartyId', dataSource: 'instanceContext' }],
         },
       ];
@@ -220,7 +209,6 @@ describe('language.ts', () => {
         {
           id: 'mockId',
           value: 'This is a [link]({0}).',
-          unparsedValue: 'This is a [link]({0}).',
           variables: [{ key: 'homeBaseUrl', dataSource: 'applicationSettings' }],
         },
       ];

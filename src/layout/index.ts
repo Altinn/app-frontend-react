@@ -62,12 +62,14 @@ export interface IFormComponentContext {
   grid?: IGrid;
   id?: string;
   baseComponentId?: string;
+  node?: LayoutNode;
 }
 
 export const FormComponentContext = createContext<IFormComponentContext>({
   grid: undefined,
   id: undefined,
   baseComponentId: undefined,
+  node: undefined,
 });
 
 export function getLayoutComponentObject<T extends keyof CompClassMap>(type: T): CompClassMap[T] {

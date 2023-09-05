@@ -18,7 +18,7 @@ import type { CompGroupRepeatingExternal, CompGroupRepeatingInternal } from 'src
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { IRepeatingGroupTableProps } from 'src/layout/Group/RepeatingGroupTable';
 import type { CompOrGroupExternal } from 'src/layout/layout';
-import type { ITextResource } from 'src/types';
+import type { ITextResource } from 'src/types/shared';
 
 (global as any).ResizeObserver = ResizeObserverModule;
 

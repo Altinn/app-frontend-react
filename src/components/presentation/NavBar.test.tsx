@@ -9,8 +9,7 @@ import { getProfileStateMock } from 'src/__mocks__/profileStateMock';
 import { getUiConfigStateMock } from 'src/__mocks__/uiConfigStateMock';
 import { NavBar } from 'src/components/presentation/NavBar';
 import { renderWithProviders } from 'src/testUtils';
-import type { ITextResource } from 'src/types';
-import type { IAppLanguage } from 'src/types/shared';
+import type { IAppLanguage, ITextResource } from 'src/types/shared';
 
 afterEach(() => mockAxios.reset());
 
