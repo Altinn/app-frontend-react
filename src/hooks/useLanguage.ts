@@ -237,16 +237,18 @@ function getTextResourceByKey(
     return key;
   }
 
-  // Checks if this text resource is a reference to another text resource.
-  // This is a common case when using likert component
-  // TODO: When using a more performant data structure for text resources, we can do this recursively until we find
-  // the target text resource.
-  const resource = textResources.find((resource) => resource.id === textResource.value) || textResource;
-  if (resource && resource.variables) {
-    return replaceVariables(resource.value, resource.variables, dataSources);
+  const value = textResource.variables
+    ? replaceVariables(textResource.value, textResource.variables, dataSources)
+    : textResource.value;
+
+  if (value === key) {
+    // Prevents infinite loops when a text resource references itself
+    return value;
   }
 
-  return resource.value;
+  // Always look up the text resource value recursively, in case it for example looks up a value in the data model
+  // that just points to another text resource (a common pattern in for example the Likert component).
+  return getTextResourceByKey(value, textResources, dataSources);
 }
 
 function replaceVariables(text: string, variables: IVariable[], dataSources: TextResourceVariablesDataSources) {
