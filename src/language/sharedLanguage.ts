@@ -103,20 +103,6 @@ const replaceRootTag = (domNode: DOMNode) => {
   }
 };
 
-export type LangParams = (string | undefined | number)[];
-export const replaceParameters = (nameString: string | undefined, params: LangParams) => {
-  if (nameString === undefined) {
-    return nameString;
-  }
-  let mutatingString = nameString;
-  params.forEach((param, index: number) => {
-    if (param !== undefined) {
-      mutatingString = mutatingString.replaceAll(`{${index}}`, `${param}`);
-    }
-  });
-  return mutatingString;
-};
-
 /**
  * Replaces all variables in text resources with values from relevant source.
  * @deprecated Do not use this, just call useLanguage() with a node object

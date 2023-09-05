@@ -3,7 +3,7 @@ import type { JSX } from 'react';
 
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromCode } from 'src/language/languages';
-import { getParsedLanguageFromText, replaceParameters } from 'src/language/sharedLanguage';
+import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
 import { FormComponentContext } from 'src/layout';
 import { buildInstanceContext } from 'src/utils/instanceContext';
 import type { IFormData } from 'src/features/formData';
@@ -277,3 +277,17 @@ function replaceVariables(text: string, variables: IVariable[], dataSources: Tex
 function getNestedObject(nestedObj: ILanguage, pathArr: string[]) {
   return pathArr.reduce((obj, key) => (obj && obj[key] !== 'undefined' ? obj[key] : undefined), nestedObj);
 }
+
+type LangParams = (string | undefined | number)[];
+const replaceParameters = (nameString: string | undefined, params: LangParams) => {
+  if (nameString === undefined) {
+    return nameString;
+  }
+  let mutatingString = nameString;
+  params.forEach((param, index: number) => {
+    if (param !== undefined) {
+      mutatingString = mutatingString.replaceAll(`{${index}}`, `${param}`);
+    }
+  });
+  return mutatingString;
+};
