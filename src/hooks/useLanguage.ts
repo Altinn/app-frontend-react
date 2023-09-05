@@ -5,10 +5,11 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromCode } from 'src/language/languages';
 import { getParsedLanguageFromText, replaceParameters } from 'src/language/sharedLanguage';
 import { FormComponentContext } from 'src/layout';
+import { buildInstanceContext } from 'src/utils/instanceContext';
 import type { IFormData } from 'src/features/formData';
 import type { FixedLanguageList } from 'src/language/languages';
 import type { IRuntimeState } from 'src/types';
-import type { ILanguage, ITextResource } from 'src/types/shared';
+import type { IApplicationSettings, IInstanceContext, ILanguage, ITextResource, IVariable } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type ValidParam = string | number | undefined;
@@ -32,6 +33,13 @@ export interface IUseLanguage {
    * may lead to unexpected behaviour.
    */
   langAsStringOrEmpty(key: ValidLanguageKey | string | undefined, params?: ValidParam[]): string;
+}
+
+interface TextResourceVariablesDataSources {
+  node: LayoutNode | undefined;
+  formData: IFormData;
+  applicationSettings: IApplicationSettings | null;
+  instanceContext: IInstanceContext | null;
 }
 
 /**
@@ -68,23 +76,42 @@ export function useLanguage(node?: LayoutNode) {
   const componentCtx = useContext(FormComponentContext);
   const nearestNode = node || componentCtx?.node;
   const formData = useAppSelector((state) => state.formData.formData);
+  const applicationSettings = useAppSelector((state) => state.applicationSettings.applicationSettings);
+  const instanceContext = useAppSelector((state) => buildInstanceContext(state.instanceData?.instance));
+  const dataSources: TextResourceVariablesDataSources = useMemo(
+    () => ({
+      node: nearestNode,
+      formData,
+      applicationSettings,
+      instanceContext,
+    }),
+    [nearestNode, formData, applicationSettings, instanceContext],
+  );
 
   return useMemo(
-    () => staticUseLanguage(textResources, null, selectedAppLanguage, profileLanguage, formData, nearestNode),
-    [profileLanguage, selectedAppLanguage, textResources, nearestNode, formData],
+    () => staticUseLanguage(textResources, null, selectedAppLanguage, profileLanguage, dataSources),
+    [profileLanguage, selectedAppLanguage, textResources, dataSources],
   );
 }
 
 /**
  * Static version of useLanguage() for use outside of React components. Can be used from sagas, etc.
  */
-export function staticUseLanguageFromState(state: IRuntimeState) {
+export function staticUseLanguageFromState(state: IRuntimeState, node?: LayoutNode) {
   const textResources = state.textResources.resources;
   const profileLanguage = state.profile.profile.profileSettingPreference.language;
   const selectedAppLanguage = state.profile.selectedAppLanguage;
   const formData = state.formData.formData;
+  const applicationSettings = state.applicationSettings.applicationSettings;
+  const instanceContext = buildInstanceContext(state.instanceData?.instance);
+  const dataSources: TextResourceVariablesDataSources = {
+    node,
+    formData,
+    applicationSettings,
+    instanceContext,
+  };
 
-  return staticUseLanguage(textResources, null, selectedAppLanguage, profileLanguage, formData);
+  return staticUseLanguage(textResources, null, selectedAppLanguage, profileLanguage, dataSources);
 }
 
 interface ILanguageState {
@@ -92,7 +119,7 @@ interface ILanguageState {
   language: ILanguage | null;
   selectedAppLanguage: string | undefined;
   profileLanguage: string | undefined;
-  formData: IFormData | undefined;
+  dataSources: TextResourceVariablesDataSources;
 }
 
 /**
@@ -105,9 +132,19 @@ export function staticUseLanguageForTests({
   language = null,
   profileLanguage = 'nb',
   selectedAppLanguage = undefined,
-  formData,
+  dataSources = {
+    instanceContext: {
+      instanceId: 'instanceId',
+      appId: 'org/app',
+      instanceOwnerPartyId: '12345',
+      instanceOwnerPartyType: 'person',
+    },
+    formData: {},
+    applicationSettings: {},
+    node: undefined,
+  },
 }: Partial<ILanguageState> = {}) {
-  return staticUseLanguage(textResources, language, selectedAppLanguage, profileLanguage, formData);
+  return staticUseLanguage(textResources, language, selectedAppLanguage, profileLanguage, dataSources);
 }
 
 function staticUseLanguage(
@@ -115,8 +152,7 @@ function staticUseLanguage(
   _language: ILanguage | null,
   selectedAppLanguage: string | undefined,
   profileLanguage: string | undefined,
-  formData: IFormData | undefined,
-  node?: LayoutNode,
+  dataSources: TextResourceVariablesDataSources,
 ): IUseLanguage {
   const langKey = selectedAppLanguage || profileLanguage || defaultLocale;
   const language = _language || getLanguageFromCode(langKey);
@@ -137,7 +173,7 @@ function staticUseLanguage(
         return '';
       }
 
-      const textResource: string | undefined = getTextResourceByKey(key, textResources, node, formData);
+      const textResource = getTextResourceByKey(key, textResources, dataSources);
       if (textResource !== key) {
         return getParsedLanguageFromText(textResource);
       }
@@ -152,7 +188,7 @@ function staticUseLanguage(
         return '';
       }
 
-      const textResource = getTextResourceByKey(key, textResources, node, formData);
+      const textResource = getTextResourceByKey(key, textResources, dataSources);
       if (textResource !== key) {
         return textResource;
       }
@@ -166,7 +202,7 @@ function staticUseLanguage(
         return '';
       }
 
-      const textResource = getTextResourceByKey(key, textResources, node, formData);
+      const textResource = getTextResourceByKey(key, textResources, dataSources);
       if (textResource !== key) {
         return textResource;
       }
@@ -194,8 +230,7 @@ function getLanguageFromKey(key: string, language: ILanguage) {
 function getTextResourceByKey(
   key: string,
   textResources: ITextResource[],
-  node: LayoutNode | undefined,
-  formData: IFormData | undefined,
+  dataSources: TextResourceVariablesDataSources,
 ) {
   const textResource = textResources.find((resource) => resource.id === key);
   if (!textResource) {
@@ -207,18 +242,33 @@ function getTextResourceByKey(
   // TODO: When using a more performant data structure for text resources, we can do this recursively until we find
   // the target text resource.
   const resource = textResources.find((resource) => resource.id === textResource.value) || textResource;
-  let out = resource.value;
   if (resource && resource.variables) {
-    for (const idx in resource.variables) {
-      let value = resource.variables[idx].key;
+    return replaceVariables(resource.value, resource.variables, dataSources);
+  }
+
+  return resource.value;
+}
+
+function replaceVariables(text: string, variables: IVariable[], dataSources: TextResourceVariablesDataSources) {
+  const { node, formData, instanceContext, applicationSettings } = dataSources;
+  let out = text;
+  for (const idx in variables) {
+    const variable = variables[idx];
+    let value = variables[idx].key;
+
+    if (variable.dataSource.startsWith('dataModel')) {
       const cleanPath = value.replaceAll(/\[\{\d+}]/g, '');
       const transposedPath = node?.transposeDataModel(cleanPath);
       if (transposedPath && formData && formData[transposedPath]) {
         value = formData[transposedPath];
       }
-      const regExp = new RegExp(`\\{${idx}\\}`, 'g');
-      out = out.replaceAll(regExp, value);
+    } else if (variable.dataSource === 'instanceContext') {
+      value = instanceContext && variable.key in instanceContext ? instanceContext[variable.key] : value;
+    } else if (variable.dataSource === 'applicationSettings') {
+      value = applicationSettings && variable.key in applicationSettings ? applicationSettings[variable.key] : value;
     }
+
+    out = out.replaceAll(`{${idx}}`, value);
   }
 
   return out;
