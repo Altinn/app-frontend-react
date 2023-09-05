@@ -260,7 +260,7 @@ function replaceVariables(text: string, variables: IVariable[], dataSources: Tex
 
     if (variable.dataSource.startsWith('dataModel')) {
       const cleanPath = value.replaceAll(/\[\{\d+}]/g, '');
-      const transposedPath = node?.transposeDataModel(cleanPath);
+      const transposedPath = node?.transposeDataModel(cleanPath) || value;
       if (transposedPath && formData && formData[transposedPath]) {
         value = formData[transposedPath];
       }
