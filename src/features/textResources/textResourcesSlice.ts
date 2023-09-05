@@ -3,8 +3,6 @@ import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
   IFetchTextResourcesFulfilled,
   IFetchTextResourcesRejected,
-  IReplaceTextResourcesFulfilled,
-  IReplaceTextResourcesRejected,
   ITextResourcesState,
 } from 'src/features/textResources/index';
 import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
@@ -31,18 +29,6 @@ export const textResourcesSlice = () => {
         },
       }),
       fetchRejected: mkAction<IFetchTextResourcesRejected>({
-        reducer: (state, action) => {
-          state.error = action.payload.error;
-        },
-      }),
-      replace: mkAction<void>({}),
-      replaceFulfilled: mkAction<IReplaceTextResourcesFulfilled>({
-        reducer: (state, action) => {
-          state.language = action.payload.language;
-          state.resources = action.payload.resources;
-        },
-      }),
-      replaceRejected: mkAction<IReplaceTextResourcesRejected>({
         reducer: (state, action) => {
           state.error = action.payload.error;
         },

@@ -14,12 +14,3 @@ export interface IFetchTextResourcesFulfilled {
 export interface IFetchTextResourcesRejected {
   error: Error | null;
 }
-
-export interface IReplaceTextResourcesFulfilled {
-  language: string | null;
-  resources: ITextResource[];
-}
-
-export interface IReplaceTextResourcesRejected {
-  error: Error;
-}
