@@ -65,8 +65,6 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, sou
     }
 
     if (!!source && !!repeatingGroups) {
-      console.log('fomrmData', formData);
-
       // should be solved with useLanguage hook in setupSourceOptions
       const relevantFormData = (formData && getRelevantFormDataForOptionSource(formData, source)) || {};
       const findResourceById = (id?: string) => textResource?.resources?.find((resource) => resource.id === id);
