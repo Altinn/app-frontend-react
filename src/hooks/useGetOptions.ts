@@ -32,22 +32,20 @@ export interface IOptionResources {
 }
 
 export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, source }: IUseGetOptionsParams) => {
+  const { instanceId } = window;
   const [options, setOptions] = useStateDeepEqual<IOption[] | undefined>(undefined);
   const { selectedLanguage } = useLanguage();
-  const { instanceId } = window;
+  const formData = useAppSelector((state) => state.formData.formData);
+  const repeatingGroups = useAppSelector((state) => state.formLayout?.uiConfig.repeatingGroups);
+
   const { data: instance } = useCurrentInstanceQuery(instanceId || '', !!instanceId);
   const { data: applicationMetadata } = useApplicationMetadataQuery();
   const { data: applicationSettings } = useApplicationSettingsQuery();
   const { data: layoutSets } = useLayoutSetsQuery();
-
-  const formData = useAppSelector((state) => state.formData.formData);
-  const repeatingGroups = useAppSelector((state) => state.formLayout?.uiConfig.repeatingGroups);
+  const { data: textResource } = useTextResourcesQuery(selectedLanguage, !!selectedLanguage);
 
   const layoutSetId = getLayoutSetIdForApplication(applicationMetadata || null, instance, layoutSets);
   const { data: layouts } = useLayoutsQuery(layoutSetId || '', !!layoutSetId);
-
-  const { label, description, helpText } = source || {};
-  const { data: textResource } = useTextResourcesQuery(selectedLanguage, !!selectedLanguage);
 
   const { data: fetchedOptions } = useGetOptionsQuery(
     instanceId || '',
@@ -58,6 +56,8 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, sou
     secure,
     !!instanceId && !!optionsId && !!formData,
   );
+
+  const { label, description, helpText } = source || {};
 
   useEffect(() => {
     if (fetchedOptions) {
