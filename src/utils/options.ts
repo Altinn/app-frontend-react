@@ -146,6 +146,14 @@ export function setupSourceOptions({
       options.push(option);
     }
   }
+  return [
+    {
+      value: 'hei',
+      label: 'Hei',
+      description: 'description',
+      helpText: 'helptext',
+    },
+  ];
   return options;
 }
 

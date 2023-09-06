@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { shallowEqual } from 'react-redux';
 
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useSourceOptions } from 'src/hooks/useSourceOptions';
 import { buildInstanceContext } from 'src/utils/instanceContext';
 import { getOptionLookupKey, getRelevantFormDataForOptionSource, setupSourceOptions } from 'src/utils/options';
 import type { IMapping, IOption, IOptionSource } from 'src/layout/common.generated';
@@ -26,6 +27,7 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, source }: I
     shallowEqual,
   );
   const instance = useAppSelector((state) => state.instanceData.instance);
+
   const relevantTextResources: IOptionResources = useAppSelector((state) => {
     const { label, description, helpText } = source || {};
     const resources = state.textResources.resourceMap;
@@ -35,10 +37,24 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, source }: I
       helpText: helpText ? resources[helpText] : undefined,
     };
   }, shallowEqual);
+
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
   const applicationSettings = useAppSelector((state) => state.applicationSettings?.applicationSettings);
   const optionState = useAppSelector((state) => state.optionState.options);
   const [options, setOptions] = useState<IOption[] | undefined>(undefined);
+
+  const instanceContext = buildInstanceContext(instance);
+  const dataSources: IDataSources = useMemo(
+    () => ({
+      dataModel: relevantFormData,
+      applicationSettings,
+      instanceContext,
+    }),
+    [relevantFormData, applicationSettings, instanceContext],
+  );
+  const sourceOptions = useSourceOptions({ source, dataSources, repeatingGroups, relevantTextResources });
+
+  console.log('SourceOptions: ', sourceOptions);
 
   useEffect(() => {
     if (optionsId) {
@@ -49,8 +65,6 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, source }: I
     if (!source || !repeatingGroups || !relevantTextResources.label) {
       return;
     }
-
-    const instanceContext = buildInstanceContext(instance);
 
     const dataSources: IDataSources = {
       dataModel: relevantFormData,
@@ -72,6 +86,7 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, source }: I
       }),
     );
   }, [
+    instanceContext,
     applicationSettings,
     optionsId,
     relevantFormData,
@@ -83,6 +98,7 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, source }: I
     relevantTextResources.label,
     relevantTextResources.description,
     relevantTextResources.helpText,
+    relevantTextResources,
     queryParameters,
   ]);
 
