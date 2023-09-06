@@ -1,5 +1,5 @@
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
-import { Triggers } from 'src/types';
+import { Triggers } from 'src/layout/common.generated';
 import type { IRuntimeState, TriggersPageValidation } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
@@ -112,11 +112,6 @@ export function containsErrors(validationObjects: IValidationObject[]): boolean 
  */
 export function hasInvalidDataTypes(validationObjects: IValidationObject[]): boolean {
   return removeFixedValidations(validationObjects).some((o) => !o.empty && o.invalidDataTypes);
-}
-
-// Preserves fixed validations, as these can fix validations on other components.
-export function filterValidationObjectsByComponentId(validations: IValidationObject[], componentId: string) {
-  return validations.filter((v) => v.componentId === componentId || (!v.empty && v.severity === 'fixed'));
 }
 
 // Preserves fixed validations, as these can fix validations on other components.

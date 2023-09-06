@@ -4,15 +4,15 @@ import {
   implementsEmptyFieldValidation,
   implementsSchemaValidation,
 } from 'src/layout';
+import { groupIsRepeatingExt } from 'src/layout/Group/tools';
 import { runExpressionValidationsOnNode } from 'src/utils/validation/expressionValidation';
 import { getSchemaValidationErrors } from 'src/utils/validation/schemaValidation';
 import { emptyValidation } from 'src/utils/validation/validationHelpers';
 import type { IAttachment } from 'src/features/attachments';
-import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type { ILayoutGroup } from 'src/layout/Group/types';
-import type { ILayout, ILayoutComponent, ILayouts } from 'src/layout/layout';
+import type { CompGroupExternal } from 'src/layout/Group/config.generated';
+import type { CompOrGroupExternal, ILayout, ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
@@ -42,7 +42,9 @@ export function runValidationOnNodes(
 ): IValidationObject[] {
   const nodesToValidate = nodes.filter(
     (node) =>
-      implementsAnyValidation(node.def) && !node.isHidden({ respectTracks: true }) && !node.item.renderAsSummary,
+      implementsAnyValidation(node.def) &&
+      !node.isHidden({ respectTracks: true }) &&
+      !('renderAsSummary' in node.item && node.item.renderAsSummary),
   );
 
   if (nodesToValidate.length === 0) {
@@ -93,21 +95,21 @@ export function runValidationOnNodes(
  * @see useResolvedNode
  * @see ResolvedNodesSelector
  */
-export function getParentGroup(groupId: string, layout: ILayout): ILayoutGroup | null {
+export function getParentGroup(groupId: string, layout: ILayout): CompGroupExternal | undefined {
   if (!groupId || !layout) {
-    return null;
+    return undefined;
   }
   return layout.find((element) => {
     if (element.id !== groupId && element.type === 'Group') {
       const childrenWithoutMultiPage = element.children?.map((childId) =>
-        element.edit?.multiPage ? childId.split(':')[1] : childId,
+        groupIsRepeatingExt(element) && element.edit?.multiPage ? childId.split(':')[1] : childId,
       );
       if (childrenWithoutMultiPage?.indexOf(groupId) > -1) {
         return true;
       }
     }
     return false;
-  }) as ILayoutGroup;
+  }) as CompGroupExternal | undefined;
 }
 
 /**
@@ -116,11 +118,13 @@ export function getParentGroup(groupId: string, layout: ILayout): ILayoutGroup |
  * @see useResolvedNode
  * @see ResolvedNodesSelector
  */
-export function getGroupChildren(groupId: string, layout: ILayout): ExprUnresolved<ILayoutGroup | ILayoutComponent>[] {
-  const layoutGroup = layout.find((element) => element.id === groupId) as ILayoutGroup;
+export function getGroupChildren(groupId: string, layout: ILayout): CompOrGroupExternal[] {
+  const layoutGroup = layout.find((element) => element.id === groupId) as CompGroupExternal;
   return layout.filter(
     (element) =>
-      layoutGroup?.children?.map((id) => (layoutGroup.edit?.multiPage ? id.split(':')[1] : id)).includes(element.id),
+      layoutGroup?.children
+        ?.map((id) => (groupIsRepeatingExt(layoutGroup) && layoutGroup.edit?.multiPage ? id.split(':')[1] : id))
+        .includes(element.id),
   );
 }
 
@@ -333,14 +337,14 @@ export function removeGroupValidationsByIndex(
 }
 
 function shiftChildGroupValidation(
-  group: ExprUnresolved<ILayoutGroup>,
+  group: CompGroupExternal,
   indexToShiftFrom: number,
   validations: IValidations,
   repeatingGroups: IRepeatingGroups,
   layout: ILayout,
   currentLayout: string,
 ) {
-  const result = JSON.parse(JSON.stringify(validations));
+  const result = structuredClone(validations);
   const highestIndexOfChildGroup = getHighestIndexOfChildGroup(group.id, repeatingGroups);
   const children = getGroupChildren(group.id, layout);
 
@@ -375,6 +379,7 @@ export function getHighestIndexOfChildGroup(group: string, repeatingGroups: IRep
 
 export function missingFieldsInLayoutValidations(
   layoutValidations: ILayoutValidations,
+  requiredValidationTextResources: string[],
   langTools: IUseLanguage,
 ): boolean {
   let result = false;
@@ -401,7 +406,15 @@ export function missingFieldsInLayoutValidations(
       }
 
       const errors = layoutValidations[component][binding]?.errors;
-      result = !!(errors && errors.length > 0 && errors.findIndex(lookForRequiredMsg) > -1);
+
+      const customRequiredValidationMessageExists = errors?.some((error) =>
+        requiredValidationTextResources.includes(error),
+      );
+
+      result = !!(
+        (errors && errors.length > 0 && errors.findIndex(lookForRequiredMsg) > -1) ||
+        customRequiredValidationMessageExists
+      );
     });
   });
 

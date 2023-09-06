@@ -10,8 +10,8 @@ import { buildInstanceContext } from 'src/utils/instanceContext';
 import { _private } from 'src/utils/layout/hierarchy';
 import { resolveExpressionValidationConfig } from 'src/utils/validation/expressionValidation';
 import { runValidationOnNodes } from 'src/utils/validation/validation';
+import type { HierarchyDataSources } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
-import type { HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
 import type {
   IExpressionValidationConfig,
   IValidationContext,

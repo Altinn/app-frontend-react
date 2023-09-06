@@ -13,6 +13,7 @@ import {
 } from 'src/features/layout/update/updateFormLayoutSagas';
 import { OptionsActions } from 'src/features/options/optionsSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
+import { groupIsRepeatingExt } from 'src/layout/Group/tools';
 import { shiftAttachmentRowInRepeatingGroup } from 'src/utils/attachment';
 import { findChildAttachments, removeGroupData } from 'src/utils/databindings';
 import { findChildren, removeRepeatingGroupFromUIConfig, splitDashedKey } from 'src/utils/formLayout';
@@ -24,15 +25,14 @@ import type {
   IDeleteAttachmentActionFulfilled,
   IDeleteAttachmentActionRejected,
 } from 'src/features/attachments/delete/deleteAttachmentActions';
-import type { IFormDataState } from 'src/features/formData';
+import type { IFormData } from 'src/features/formData';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
-import type { ILayoutGroup } from 'src/layout/Group/types';
+import type { IRepGroupDelRow } from 'src/features/layout/formLayoutTypes';
+import type { CompGroupExternal } from 'src/layout/Group/config.generated';
 import type { IOptions, IRepeatingGroups } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
-export function* repGroupDeleteRowSaga({
-  payload: { groupId, index },
-}: PayloadAction<{ groupId: string; index: number }>): SagaIterator {
+export function* repGroupDeleteRowSaga({ payload: { groupId, index } }: PayloadAction<IRepGroupDelRow>): SagaIterator {
   try {
     const formLayoutState: ILayoutState = yield select(selectFormLayoutState);
     const repeatingGroups = formLayoutState.uiConfig.repeatingGroups;
@@ -58,14 +58,14 @@ export function* repGroupDeleteRowSaga({
       },
     };
 
-    const groupContainer = currentLayout.find((element) => element.id === groupId) as ILayoutGroup | undefined;
+    const groupContainer = currentLayout.find((element) => element.id === groupId) as CompGroupExternal | undefined;
     const children = groupContainer?.children || [];
     const childGroups = currentLayout.filter((element) => {
       if (element.type !== 'Group') {
         return false;
       }
 
-      if (groupContainer?.edit?.multiPage) {
+      if (groupContainer && groupIsRepeatingExt(groupContainer) && groupContainer?.edit?.multiPage) {
         return children.find((c) => c.split(':')[1] === element.id);
       }
 
@@ -76,14 +76,14 @@ export function* repGroupDeleteRowSaga({
       updatedRepeatingGroups = removeRepeatingGroupFromUIConfig(updatedRepeatingGroups, group.id, index, true);
     });
 
-    const formDataState: IFormDataState = yield select(selectFormData);
+    const formData: IFormData = yield select(selectFormData);
     const attachments: IAttachmentState = yield select(selectAttachmentState);
     const options: IOptions = yield select(selectOptions);
     const repeatingGroup = repeatingGroups[groupId];
 
     // Find uploaded attachments inside group and delete them
     const childAttachments = findChildAttachments(
-      formDataState.formData,
+      formData,
       attachments.attachments,
       currentLayout,
       groupId,
@@ -102,7 +102,7 @@ export function* repGroupDeleteRowSaga({
           // Deleting attachment, but deliberately avoiding passing the dataModelBindings to avoid removing the formData
           // references. We're doing that ourselves here later, and having other sagas compete for it will cause race
           // conditions and lots of useless requests.
-          dataModelBindings: {},
+          dataModelBindings: undefined,
         }),
       );
 
@@ -141,7 +141,7 @@ export function* repGroupDeleteRowSaga({
       );
 
       // Remove the form data associated with the group
-      const updatedFormData = removeGroupData(formDataState.formData, index, currentLayout, groupId, repeatingGroup);
+      const updatedFormData = removeGroupData(formData, index, currentLayout, groupId, repeatingGroup);
 
       // Remove the validations associated with the group
       const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);

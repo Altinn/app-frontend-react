@@ -5,6 +5,7 @@ import type axe from 'axe-core';
 import type { Options as AxeOptions } from 'cypress-axe';
 
 import { breakpoints } from 'src/hooks/useIsMobile';
+import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
 import type { ILayouts } from 'src/layout/layout';
 
 const appFrontend = new AppFrontend();
@@ -89,74 +90,74 @@ interface KnownViolation extends Pick<axe.Result, 'id'> {
 // TODO: Fix all violations and remove this list
 const knownWcagViolations: KnownViolation[] = [
   {
-    spec: 'app-frontend/all-process-steps.ts',
+    spec: 'frontend-test/all-process-steps.ts',
     test: 'Should be possible to fill out all steps from beginning to end',
     id: 'landmark-unique',
     nodeLength: 1,
     countTowardsExpected: false,
   },
   {
-    spec: 'app-frontend/all-process-steps.ts',
+    spec: 'frontend-test/all-process-steps.ts',
     test: 'Should be possible to fill out all steps from beginning to end',
     id: 'list',
     nodeLength: 2,
   },
   {
-    spec: 'app-frontend/grid.ts',
+    spec: 'frontend-test/grid.ts',
     test: 'should work with basic table functionality',
     id: 'list',
     nodeLength: 1,
   },
   {
-    spec: 'app-frontend/group.ts',
+    spec: 'frontend-test/group.ts',
     test: 'Validation on group',
     id: 'color-contrast',
     nodeLength: 1,
   },
   {
-    spec: 'app-frontend/group.ts',
+    spec: 'frontend-test/group.ts',
     test: 'Validation on group',
     id: 'list',
     nodeLength: 1,
   },
   {
-    spec: 'app-frontend/group.ts',
+    spec: 'frontend-test/group.ts',
     test: 'Opens delete warning popup when alertOnDelete is true and deletes on confirm',
     id: 'aria-dialog-name',
     nodeLength: 1,
   },
   {
-    spec: 'app-frontend/hide-row-in-group.ts',
+    spec: 'frontend-test/hide-row-in-group.ts',
     test: 'should be possible to hide rows when "Endre fra" is greater or equals to [...]',
     id: 'heading-order',
     nodeLength: 1,
   },
   {
-    spec: 'app-frontend/likert.ts',
+    spec: 'frontend-test/likert.ts',
     test: 'Should show validation message for required likert',
     id: 'list',
     nodeLength: 2,
   },
   {
-    spec: 'app-frontend/on-entry.ts',
+    spec: 'frontend-test/on-entry.ts',
     test: 'is possible to select an existing instance',
     id: 'svg-img-alt',
     nodeLength: 3,
   },
   {
-    spec: 'app-frontend/reportee-selection.ts',
+    spec: 'frontend-test/reportee-selection.ts',
     test: 'Prompts for party when doNotPromptForParty = false, on instantiation with multiple possible parties',
     id: 'label',
     nodeLength: 2,
   },
   {
-    spec: 'signing/double-signing.ts',
+    spec: 'signing-test/double-signing.ts',
     test: 'accountant -> manager -> auditor',
     id: 'list',
     nodeLength: 1,
   },
   {
-    spec: 'app-stateless-anonymous/validation.ts',
+    spec: 'anonymous-stateless-app/validation.ts',
     test: 'Should show validation message for missing name',
     id: 'list',
     nodeLength: 1,
@@ -364,12 +365,37 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add('startStateFullFromStateless', () => {
+Cypress.Commands.add('startStatefulFromStateless', () => {
   cy.intercept('POST', '**/instances/create').as('createInstance');
-  cy.intercept('**/api/layoutsettings/statefull').as('getLayoutSettings');
   cy.get(appFrontend.instantiationButton).click();
   cy.wait('@createInstance').its('response.statusCode').should('eq', 201);
-  cy.wait('@getLayoutSettings');
+});
+
+Cypress.Commands.add('moveProcessNext', () => {
+  cy.url().then((url) => {
+    const maybeInstanceId = getInstanceIdRegExp().exec(url);
+    const instanceId = maybeInstanceId ? maybeInstanceId[1] : 'instance-id-not-found';
+    const baseUrl =
+      Cypress.env('environment') === 'local'
+        ? Cypress.config().baseUrl || ''
+        : `https://ttd.apps.${Cypress.config('baseUrl')?.slice(8)}`;
+    const urlPath = url.replace(baseUrl, '');
+    const org = urlPath.split(/[/#]/)[1];
+    const app = urlPath.split(/[/#]/)[2];
+    const requestUrl = `${baseUrl}/${org}/${app}/instances/${instanceId}/process/next`;
+
+    cy.getCookie('XSRF-TOKEN').then((xsrfToken) => {
+      cy.request({
+        method: 'PUT',
+        url: requestUrl,
+        headers: {
+          'X-XSRF-TOKEN': xsrfToken?.value,
+        },
+      })
+        .its('status')
+        .should('eq', 200);
+    });
+  });
 });
 
 Cypress.Commands.add('getReduxState', (selector) =>

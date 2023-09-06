@@ -8,8 +8,8 @@ import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
+import { Triggers } from 'src/layout/common.generated';
 import { getLayoutOrderFromTracks, selectLayoutOrder } from 'src/selectors/getLayoutOrder';
-import { Triggers } from 'src/types';
 import {
   getCurrentDataTypeForApplication,
   getCurrentDataTypeId,
@@ -36,10 +36,9 @@ import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { BackendValidationIssue } from 'src/utils/validation/types';
 
 export const selectFormLayoutState = (state: IRuntimeState) => state.formLayout;
-export const selectFormData = (state: IRuntimeState) => state.formData;
+export const selectFormData = (state: IRuntimeState) => state.formData.formData;
 export const selectFormLayouts = (state: IRuntimeState) => state.formLayout.layouts;
 export const selectAttachmentState = (state: IRuntimeState) => state.attachments;
-export const selectValidations = (state: IRuntimeState) => state.formValidations.validations;
 export const selectOptions = (state: IRuntimeState) => state.optionState.options;
 export const selectAllLayouts = (state: IRuntimeState) => state.formLayout.uiConfig.tracks.order;
 export const selectCurrentLayout = (state: IRuntimeState) => state.formLayout.uiConfig.currentView;

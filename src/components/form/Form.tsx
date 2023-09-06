@@ -9,6 +9,7 @@ import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
+import { getFieldName } from 'src/utils/formComponentUtils';
 import { extractBottomButtons, hasRequiredFields } from 'src/utils/formLayout';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import { getFormHasErrors, missingFieldsInLayoutValidations } from 'src/utils/validation/validation';
@@ -21,20 +22,29 @@ export function Form() {
   const page = nodes?.current();
   const pageKey = page?.top.myKey;
 
-  const requiredFieldsMissing = React.useMemo(() => {
-    if (validations && pageKey && validations[pageKey]) {
-      return missingFieldsInLayoutValidations(validations[pageKey], langTools);
-    }
-
-    return false;
-  }, [pageKey, langTools, validations]);
-
   const [mainNodes, errorReportNodes] = React.useMemo(() => {
     if (!page) {
       return [[], []];
     }
     return hasErrors ? extractBottomButtons(page) : [page.children(), []];
   }, [page, hasErrors]);
+
+  const requiredFieldsMissing = React.useMemo(() => {
+    if (validations && pageKey && validations[pageKey]) {
+      const requiredValidationTextResources: string[] = [];
+      page.flat(true).forEach((node) => {
+        const trb = node.item.textResourceBindings;
+        const fieldName = getFieldName(trb, langTools);
+        if ('required' in node.item && node.item.required && trb && 'requiredValidation' in trb) {
+          requiredValidationTextResources.push(langTools.langAsString(trb.requiredValidation, [fieldName]));
+        }
+      });
+
+      return missingFieldsInLayoutValidations(validations[pageKey], requiredValidationTextResources, langTools);
+    }
+
+    return false;
+  }, [validations, pageKey, page, langTools]);
 
   if (!page) {
     return null;

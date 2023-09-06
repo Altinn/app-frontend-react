@@ -1,5 +1,6 @@
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
+import { getBaseDataModelBindings } from 'src/utils/databindings';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { ExprConfig } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
@@ -140,7 +141,7 @@ export function runExpressionValidationsOnNode(
   overrideFormData?: IFormData,
 ): IValidationObject[] {
   const resolvedDataModelBindings = node.item.dataModelBindings;
-  const baseDataModelBindings = node.item.baseDataModelBindings ?? resolvedDataModelBindings;
+  const baseDataModelBindings = getBaseDataModelBindings(resolvedDataModelBindings);
 
   if (!customValidation || !resolvedDataModelBindings || !baseDataModelBindings) {
     return [];

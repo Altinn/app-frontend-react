@@ -86,7 +86,7 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
             nb: 'Mockdepartementet',
             nn: 'Mockdepartementet',
           },
-          logo: '',
+          logo: 'https://altinncdn.no/orgs/mockOrg/mockOrg.png',
           orgnr: '',
           homepage: '',
           environments: ['tt02', 'production'],

@@ -2,6 +2,7 @@ import { BackendValidationSeverity } from 'src/utils/validation/backendValidatio
 import { buildValidationObject, unmappedError } from 'src/utils/validation/validationHelpers';
 import { validationTexts } from 'src/utils/validation/validationTexts';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
+import type { IsHiddenOptions } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { BackendValidationIssue, IValidationObject, ValidationSeverity } from 'src/utils/validation/types';
 
@@ -97,6 +98,7 @@ export function mapValidationIssues(
   issues: BackendValidationIssue[],
   resolvedNodes: LayoutPages,
   langTools: IUseLanguage,
+  filterHidden: false | IsHiddenOptions = { respectTracks: true },
 ): IValidationObject[] {
   if (!resolvedNodes) {
     return [];
@@ -104,7 +106,11 @@ export function mapValidationIssues(
 
   const allNodes = resolvedNodes
     .allNodes()
-    .filter((node) => !node.isHidden({ respectTracks: true }) && !node.item.renderAsSummary);
+    .filter(
+      (node) =>
+        (filterHidden === false || !node.isHidden(filterHidden)) &&
+        !('renderAsSummary' in node.item && node.item.renderAsSummary),
+    );
 
   const validationOutputs: IValidationObject[] = [];
   for (const issue of issues) {
@@ -127,7 +133,7 @@ export function mapValidationIssues(
         continue;
       }
 
-      if (node.item.dataModelBindings) {
+      if ('dataModelBindings' in node.item && node.item.dataModelBindings) {
         const bindings = Object.entries(node.item.dataModelBindings);
         for (const [bindingKey, bindingField] of bindings) {
           if (bindingField === field) {
