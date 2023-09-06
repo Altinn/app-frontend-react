@@ -9,7 +9,7 @@ import type { IGrid } from 'src/layout/common.generated';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { CompInternal, CompRendersLabel, CompTypes } from 'src/layout/layout';
 import type { AnyComponent, LayoutComponent } from 'src/layout/LayoutComponent';
-import type { IOptions, IRuntimeState, IUiConfig } from 'src/types';
+import type { IOptions, IRuntimeState } from 'src/types';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ISchemaValidationError } from 'src/utils/validation/schemaValidation';
@@ -149,7 +149,6 @@ export interface DisplayDataProps {
   formData: IFormData;
   attachments: IAttachments;
   options: IOptions;
-  uiConfig: IUiConfig;
   langTools: IUseLanguage;
 }
 
@@ -169,7 +168,6 @@ function getDisplayDataPropsFromState(state: IRuntimeState): DisplayDataProps {
     formData: state.formData.formData,
     attachments: state.attachments.attachments,
     options: state.optionState.options,
-    uiConfig: state.formLayout.uiConfig,
     langTools: staticUseLanguageFromState(state),
   };
 }

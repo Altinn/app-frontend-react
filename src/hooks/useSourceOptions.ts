@@ -1,28 +1,60 @@
-import type { IOptionResources } from 'src/hooks/useGetOptions';
-import type { IOptionSource } from 'src/layout/common.generated';
-import type { IRepeatingGroups } from 'src/types';
-import type { IDataSources } from 'src/types/shared';
+import { useMemo } from 'react';
 
-interface ISourceOptionsArgs {
+import { pick } from 'dot-object';
+
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useLanguage } from 'src/hooks/useLanguage';
+import { convertDataBindingToModel, getKeyWithoutIndexIndicators } from 'src/utils/databindings';
+import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
+import type { IFormData } from 'src/features/formData';
+import type { IUseLanguage } from 'src/hooks/useLanguage';
+import type { IOption, IOptionSource } from 'src/layout/common.generated';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+
+interface IUseSourceOptionsArgs {
   source: IOptionSource | undefined;
-  dataSources: IDataSources;
-  repeatingGroups: IRepeatingGroups | undefined | null;
-  relevantTextResources: IOptionResources;
+  node: LayoutNode;
 }
 
-export const useSourceOptions = ({
-  source,
-  dataSources,
-  repeatingGroups = {},
-  relevantTextResources,
-}: ISourceOptionsArgs) => {
-  const repGroup = Object.values(repeatingGroups ?? {}).find((group) => group.dataModelBinding === source?.group);
+export const useSourceOptions = ({ source, node }: IUseSourceOptionsArgs): IOption[] | undefined => {
+  const formData = useAppSelector((state) => state.formData.formData);
+  const langTools = useLanguage(node);
 
-  if (!repGroup) {
+  return useMemo(() => getSourceOptions({ source, node, formData, langTools }), [source, node, formData, langTools]);
+};
+
+interface IGetSourceOptionsArgs extends IUseSourceOptionsArgs {
+  formData: IFormData;
+  langTools: IUseLanguage;
+}
+
+export function getSourceOptions({ source, node, formData, langTools }: IGetSourceOptionsArgs): IOption[] | undefined {
+  if (!source) {
     return undefined;
   }
 
-  console.log('Relevant: ', relevantTextResources);
+  const { group, value, label } = source;
+  const cleanValue = getKeyWithoutIndexIndicators(value);
+  const cleanGroup = getKeyWithoutIndexIndicators(group);
+  const groupPath = node.transposeDataModel(cleanGroup) || group;
+  const formDataAsObject = convertDataBindingToModel(formData);
+  const output: IOption[] = [];
 
-  return [];
-};
+  if (groupPath) {
+    const groupData = pick(groupPath, formDataAsObject);
+    if (groupData && Array.isArray(groupData)) {
+      for (const idx in groupData) {
+        const path = `${groupPath}[${idx}]`;
+        const valuePath = transposeDataBinding({ subject: cleanValue, currentLocation: path });
+        const valueValue = pick(valuePath, formDataAsObject);
+        const labelText = langTools.langAsStringUsingPathInDataModel(label, path);
+        output.push({
+          value: valueValue,
+          label: labelText,
+        });
+      }
+    }
+  }
+
+  return output;
+}

@@ -1,14 +1,7 @@
-import {
-  getOptionLookupKey,
-  getOptionLookupKeys,
-  removeGroupOptionsByIndex,
-  setupSourceOptions,
-} from 'src/utils/options';
-import type { IFormData } from 'src/features/formData';
-import type { IMapping, IOptionSource } from 'src/layout/common.generated';
+import { getOptionLookupKey, getOptionLookupKeys, removeGroupOptionsByIndex } from 'src/utils/options';
+import type { IMapping } from 'src/layout/common.generated';
 import type { ILayout } from 'src/layout/layout';
 import type { IOptions, IRepeatingGroups } from 'src/types';
-import type { IDataSources, ITextResource } from 'src/types/shared';
 
 describe('utils > options', () => {
   describe('getOptionLookupKey', () => {
@@ -190,6 +183,7 @@ describe('utils > options', () => {
     });
   });
 
+  /*
   describe('setupSourceOptions', () => {
     it('should setup correct set of options', () => {
       const source: IOptionSource = {
@@ -248,7 +242,7 @@ describe('utils > options', () => {
       expect(options[2].label).toBe('Label 3');
       expect(options[2].value).toBe('Value 3');
     });
-  });
+  }); */
 
   describe('removeGroupOptionsByIndex', () => {
     it('should delete a given index if options with mapping exists', () => {

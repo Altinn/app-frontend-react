@@ -250,10 +250,6 @@ export interface IDataSource {
   [key: string]: any;
 }
 
-export interface IDataSources {
-  [key: string]: IDataSource | null;
-}
-
 export interface IApplicationSettings {
   [source: string]: string;
 }

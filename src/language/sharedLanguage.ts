@@ -8,9 +8,8 @@ import { mangle } from 'marked-mangle';
 import type { DOMNode, Element, HTMLReactParserOptions } from 'html-react-parser';
 
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
-import type { IRawTextResource } from 'src/features/textResources';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type { IAltinnOrgs, IApplication, IDataSources, ITextResource } from 'src/types/shared';
+import type { IAltinnOrgs, IApplication } from 'src/types/shared';
 
 marked.use(mangle());
 
@@ -103,18 +102,6 @@ const replaceRootTag = (domNode: DOMNode) => {
     domNode.name = 'span';
   }
 };
-
-/**
- * Replaces all variables in text resources with values from relevant source.
- * @deprecated Do not use this, just call useLanguage() with a node object
- */
-export function replaceTextResourceParams<T extends IRawTextResource | ITextResource>(
-  textResources: T[],
-  _dataSources: IDataSources,
-  _repeatingGroups?: any,
-): T[] {
-  return textResources;
-}
 
 export function getOrgName(
   orgs: IAltinnOrgs | null,

@@ -5,6 +5,8 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromCode } from 'src/language/languages';
 import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
 import { FormComponentContext } from 'src/layout';
+import { getKeyWithoutIndexIndicators } from 'src/utils/databindings';
+import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { buildInstanceContext } from 'src/utils/instanceContext';
 import type { IFormData } from 'src/features/formData';
 import type { TextResourceMap } from 'src/features/textResources';
@@ -20,6 +22,11 @@ export interface IUseLanguage {
   selectedLanguage: string;
   lang(key: ValidLanguageKey | string | undefined, params?: ValidParam[]): string | JSX.Element | JSX.Element[] | null;
   langAsString(key: ValidLanguageKey | string | undefined, params?: ValidParam[]): string;
+  langAsStringUsingPathInDataModel(
+    key: ValidLanguageKey | string | undefined,
+    dataModelPath: string,
+    params?: ValidParam[],
+  ): string;
 
   /**
    * There are still some places that manipulate text resources directly, so exposing them here for now.
@@ -41,6 +48,7 @@ interface TextResourceVariablesDataSources {
   formData: IFormData;
   applicationSettings: IApplicationSettings | null;
   instanceContext: IInstanceContext | null;
+  dataModelPath?: string;
 }
 
 /**
@@ -217,6 +225,28 @@ function staticUseLanguage(
 
       return result;
     },
+    langAsStringUsingPathInDataModel(
+      key: ValidLanguageKey | string | undefined,
+      dataModelPath: string,
+      params?: ValidParam[],
+    ): string {
+      if (!key) {
+        return '';
+      }
+
+      const textResource = getTextResourceByKey(key, textResources, { ...dataSources, dataModelPath });
+      if (textResource !== key) {
+        return textResource;
+      }
+
+      const name = getLanguageFromKey(key, language);
+      const result = params ? replaceParameters(name, params) : name;
+      if (result === key) {
+        return '';
+      }
+
+      return result;
+    },
   };
 }
 
@@ -254,15 +284,17 @@ function getTextResourceByKey(
 }
 
 function replaceVariables(text: string, variables: IVariable[], dataSources: TextResourceVariablesDataSources) {
-  const { node, formData, instanceContext, applicationSettings } = dataSources;
+  const { node, formData, instanceContext, applicationSettings, dataModelPath } = dataSources;
   let out = text;
   for (const idx in variables) {
     const variable = variables[idx];
     let value = variables[idx].key;
 
     if (variable.dataSource.startsWith('dataModel')) {
-      const cleanPath = value.replaceAll(/\[\{\d+}]/g, '');
-      const transposedPath = node?.transposeDataModel(cleanPath) || value;
+      const cleanPath = getKeyWithoutIndexIndicators(value);
+      const transposedPath = dataModelPath
+        ? transposeDataBinding({ subject: cleanPath, currentLocation: dataModelPath })
+        : node?.transposeDataModel(cleanPath) || value;
       if (transposedPath && formData && formData[transposedPath]) {
         value = formData[transposedPath];
       }
