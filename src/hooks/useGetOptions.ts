@@ -25,13 +25,13 @@ export function useGetOptions({
   const sourceOptions = useSourceOptions({ source, node });
 
   return useMemo(() => {
+    if (sourceOptions) {
+      return sourceOptions;
+    }
+
     if (optionsId) {
       const key = getOptionLookupKey({ id: optionsId, mapping, fixedQueryParameters: queryParameters });
       return optionState[key]?.options;
-    }
-
-    if (sourceOptions) {
-      return sourceOptions;
     }
 
     return undefined;

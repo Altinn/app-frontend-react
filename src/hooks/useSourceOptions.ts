@@ -33,7 +33,7 @@ export function getSourceOptions({ source, node, formData, langTools }: IGetSour
     return undefined;
   }
 
-  const { group, value, label } = source;
+  const { group, value, label, helpText, description } = source;
   const cleanValue = getKeyWithoutIndexIndicators(value);
   const cleanGroup = getKeyWithoutIndexIndicators(group);
   const groupPath = node.transposeDataModel(cleanGroup) || group;
@@ -46,11 +46,11 @@ export function getSourceOptions({ source, node, formData, langTools }: IGetSour
       for (const idx in groupData) {
         const path = `${groupPath}[${idx}]`;
         const valuePath = transposeDataBinding({ subject: cleanValue, currentLocation: path });
-        const valueValue = pick(valuePath, formDataAsObject);
-        const labelText = langTools.langAsStringUsingPathInDataModel(label, path);
         output.push({
-          value: valueValue,
-          label: labelText,
+          value: pick(valuePath, formDataAsObject),
+          label: langTools.langAsStringUsingPathInDataModel(label, path),
+          description: langTools.langAsStringUsingPathInDataModel(description, path),
+          helpText: langTools.langAsStringUsingPathInDataModel(helpText, path),
         });
       }
     }
