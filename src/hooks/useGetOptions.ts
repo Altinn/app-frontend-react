@@ -42,11 +42,9 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, sou
   const { data: applicationMetadata } = useApplicationMetadataQuery();
   const { data: applicationSettings } = useApplicationSettingsQuery();
   const { data: layoutSets } = useLayoutSetsQuery();
-  const { data: textResource } = useTextResourcesQuery(selectedLanguage, !!selectedLanguage);
-
   const layoutSetId = getLayoutSetIdForApplication(applicationMetadata || null, instance, layoutSets);
   const { data: layouts } = useLayoutsQuery(layoutSetId || '', !!layoutSetId);
-
+  const { data: textResource } = useTextResourcesQuery(selectedLanguage, !!selectedLanguage);
   const { data: fetchedOptions } = useGetOptionsQuery(
     instanceId || '',
     optionsId || '',
