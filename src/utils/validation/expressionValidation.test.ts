@@ -8,12 +8,9 @@ import { buildAuthContext } from 'src/utils/authContext';
 import { getRepeatingGroups } from 'src/utils/formLayout';
 import { buildInstanceContext } from 'src/utils/instanceContext';
 import { _private } from 'src/utils/layout/hierarchy';
-import {
-  resolveExpressionValidationConfig,
-  runExpressionValidationsOnNode,
-} from 'src/utils/validation/expressionValidation';
+import { resolveExpressionValidationConfig } from 'src/utils/validation/expressionValidation';
+import { runValidationOnNodes } from 'src/utils/validation/validation';
 import type { IRepeatingGroups } from 'src/types';
-import type { IApplicationSettings } from 'src/types/shared';
 import type { HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
 import type {
   IExpressionValidationConfig,
@@ -21,6 +18,7 @@ import type {
   IValidationMessage,
   ValidationSeverity,
 } from 'src/utils/validation/types';
+import type { IValidationOptions } from 'src/utils/validation/validation';
 
 const { resolvedNodesInLayouts } = _private;
 
@@ -54,17 +52,24 @@ function getSharedTests() {
 
 describe('Expression validation shared tests', () => {
   const sharedTests = getSharedTests();
-  it.each(sharedTests)('$name', ({ name, expects, validationConfig, formData, layouts }) => {
+  it.each(sharedTests)('$name', ({ name: _, expects, validationConfig, formData, layouts }) => {
     const langTools = staticUseLanguageForTests({
       textResources: [],
     });
+
+    const hiddenFields = new Set<string>(
+      Object.values(layouts)
+        .filter((l) => l.data.hidden)
+        .flatMap((l) => l.data.layout)
+        .map((c) => c.id),
+    );
+
     const dataSources: HierarchyDataSources = {
       ...getHierarchyDataSourcesMock(),
       formData: dot.dot(formData),
-      attachments: {},
       instanceContext: buildInstanceContext(),
-      applicationSettings: {} as IApplicationSettings,
       authContext: buildAuthContext(undefined),
+      hiddenFields,
       langTools,
     };
 
@@ -85,15 +90,18 @@ describe('Expression validation shared tests', () => {
     }
 
     const rootCollection = resolvedNodesInLayouts(_layouts, '', repeatingGroups, dataSources);
-
     const nodes = rootCollection.allNodes();
-    const validationObjects: IValidationMessage<ValidationSeverity>[] = [];
-    for (const node of nodes) {
-      const result = runExpressionValidationsOnNode(node, validationContext);
-      validationObjects.push(...(result as IValidationMessage<ValidationSeverity>[]));
-    }
+    const options: IValidationOptions = {
+      skipComponentValidation: true,
+      skipEmptyFieldValidation: true,
+      skipSchemaValidation: true,
+    };
+    const validationObjects = runValidationOnNodes(nodes, validationContext, options).filter(
+      (o) => !o.empty,
+    ) as IValidationMessage<ValidationSeverity>[];
 
     expect(validationObjects.length).toEqual(expects.length);
+
     for (const validationObject of validationObjects) {
       const expected = expects.find(
         (expected) =>

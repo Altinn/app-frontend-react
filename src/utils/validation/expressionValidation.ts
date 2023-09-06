@@ -111,7 +111,7 @@ function resolveExpressionValidation(
  */
 export function resolveExpressionValidationConfig(config: IExpressionValidationConfig): IExpressionValidations {
   const resolvedDefinitions: { [name: string]: IExpressionValidationRefResolved } = {};
-  for (const [name, definition] of Object.entries(config.definitions)) {
+  for (const [name, definition] of Object.entries(config.definitions ?? {})) {
     const resolvedDefinition = resolveExpressionValidationDefinition(name, definition, resolvedDefinitions);
     if (!resolvedDefinition) {
       continue;
@@ -119,7 +119,7 @@ export function resolveExpressionValidationConfig(config: IExpressionValidationC
     resolvedDefinitions[name] = resolvedDefinition;
   }
   const resolvedExpressionValidationDefinitions: IExpressionValidations = {};
-  for (const [field, definitions] of Object.entries(config.validations)) {
+  for (const [field, definitions] of Object.entries(config.validations ?? {})) {
     for (const definition of definitions) {
       if (!resolvedExpressionValidationDefinitions[field]?.length) {
         resolvedExpressionValidationDefinitions[field] = [];

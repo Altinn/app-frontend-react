@@ -49,7 +49,10 @@ export function runValidationOnNodes(
     return [];
   }
 
-  const schemaErrors = getSchemaValidationErrors(validationContext, options?.overrideFormData);
+  const schemaErrors = !options?.skipSchemaValidation
+    ? getSchemaValidationErrors(validationContext, options?.overrideFormData)
+    : [];
+
   const validations: IValidationObject[] = [];
   for (const node of nodesToValidate) {
     const nodeValidations: IValidationObject[] = [];

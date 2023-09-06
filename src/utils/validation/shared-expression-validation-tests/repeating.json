@@ -1,18 +1,23 @@
 {
-  "name": "Should return an error if equals condition is met",
+  "name": "Should work in repeating groups",
   "expects": [
     {
       "message": "none is not allowed",
       "severity": "errors",
-      "field": "form.name",
-      "componentId": "name-input"
+      "field": "form.names[0].name",
+      "componentId": "name-input-0"
+    },
+    {
+      "message": "none is not allowed",
+      "severity": "errors",
+      "field": "form.names[2].name",
+      "componentId": "name-input-2"
     }
   ],
   "validationConfig": {
     "$schema": "https://altinncdn.no/schemas/json/validation/validation.schema.v1.json",
     "validations": {
-      "form.name": ["none-is-not-allowed"],
-      "form.email": ["none-is-not-allowed"]
+      "form.names.name": ["none-is-not-allowed"]
     },
     "definitions": {
       "none-is-not-allowed": {
@@ -24,8 +29,20 @@
   },
   "formData": {
     "form": {
-      "name": "none",
-      "email": "email@address.com"
+      "names": [
+        {
+          "name": "none"
+        },
+        {
+          "name": "John"
+        },
+        {
+          "name": "none"
+        },
+        {
+          "name": "Jane"
+        }
+      ]
     }
   },
   "layouts": {
@@ -34,17 +51,19 @@
       "data": {
         "layout": [
           {
+            "id": "names-group",
+            "type": "Group",
+            "dataModelBindings": {
+              "group": "form.names"
+            },
+            "maxCount": 99,
+            "children": ["name-input"]
+          },
+          {
             "id": "name-input",
             "type": "Input",
             "dataModelBindings": {
-              "simpleBinding": "form.name"
-            }
-          },
-          {
-            "id": "email-input",
-            "type": "Input",
-            "dataModelBindings": {
-              "simpleBinding": "form.email"
+              "simpleBinding": "form.names.name"
             }
           }
         ]

@@ -1,9 +1,9 @@
 {
-  "name": "Should return an error if equals condition is met",
+  "name": "Should return correct values when overriding a definition",
   "expects": [
     {
-      "message": "none is not allowed",
-      "severity": "errors",
+      "message": "this value could be wrong",
+      "severity": "warnings",
       "field": "form.name",
       "componentId": "name-input"
     }
@@ -11,8 +11,13 @@
   "validationConfig": {
     "$schema": "https://altinncdn.no/schemas/json/validation/validation.schema.v1.json",
     "validations": {
-      "form.name": ["none-is-not-allowed"],
-      "form.email": ["none-is-not-allowed"]
+      "form.name": [
+        {
+          "ref": "none-is-not-allowed",
+          "message": "this value could be wrong",
+          "severity": "warnings"
+        }
+      ]
     },
     "definitions": {
       "none-is-not-allowed": {
@@ -24,8 +29,7 @@
   },
   "formData": {
     "form": {
-      "name": "none",
-      "email": "email@address.com"
+      "name": "none"
     }
   },
   "layouts": {
@@ -38,13 +42,6 @@
             "type": "Input",
             "dataModelBindings": {
               "simpleBinding": "form.name"
-            }
-          },
-          {
-            "id": "email-input",
-            "type": "Input",
-            "dataModelBindings": {
-              "simpleBinding": "form.email"
             }
           }
         ]
