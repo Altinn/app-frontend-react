@@ -77,7 +77,8 @@ export function useLanguage(node?: LayoutNode) {
   const nearestNode = node || componentCtx?.node;
   const formData = useAppSelector((state) => state.formData.formData);
   const applicationSettings = useAppSelector((state) => state.applicationSettings.applicationSettings);
-  const instanceContext = useAppSelector((state) => buildInstanceContext(state.instanceData?.instance));
+  const instanceContext = buildInstanceContext(useAppSelector((state) => state.instanceData?.instance));
+
   const dataSources: TextResourceVariablesDataSources = useMemo(
     () => ({
       node: nearestNode,
