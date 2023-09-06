@@ -20,3 +20,6 @@ export const getSandboxProperties = (sandbox: ISandboxProperties | undefined): s
     )
     .join(' ');
 };
+
+export const filterObject = <T>(obj: Record<string, T>, fn: (obj: T) => boolean): Record<string, T> =>
+  Object.keys(obj).reduce((acc, key) => ({ ...acc, ...(fn(obj[key]) ? { [key]: obj[key] } : {}) }), {});
