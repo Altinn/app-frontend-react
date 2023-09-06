@@ -13,7 +13,12 @@ import type { IOptions, IRuntimeState } from 'src/types';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ISchemaValidationError } from 'src/utils/validation/schemaValidation';
-import type { IComponentValidations, IValidationContext, IValidationObject } from 'src/utils/validation/types';
+import type {
+  IComponentValidations,
+  IValidationContext,
+  IValidationObject,
+  ValidationContextGenerator,
+} from 'src/utils/validation/types';
 
 export type CompClassMap = {
   [K in keyof typeof ComponentConfigs]: (typeof ComponentConfigs)[K]['def'];
@@ -134,7 +139,7 @@ export function implementsSchemaValidation<Type extends CompTypes>(
 export interface GroupValidation {
   runGroupValidations: (
     node: LayoutNode,
-    validationContext: IValidationContext,
+    validationCtxGenerator: ValidationContextGenerator,
     onlyInRowIndex?: number,
   ) => IValidationObject[];
 }

@@ -30,12 +30,6 @@ export interface IUseLanguage {
   ): string;
 
   /**
-   * There are still some places that manipulate text resources directly, so exposing them here for now.
-   * @deprecated Please do not use this functionality in new code.
-   */
-  textResourceMap: TextResourceMap;
-
-  /**
    * @deprecated Please do not use this functionality in new code. This function looks up the key, but if the key is not
    * found in either text resources or the app language list, it will return an empty string (instead of the key itself,
    * as is default). This behaviour makes it impossible to hard-code texts by just using the raw text as keys, so it
@@ -171,9 +165,6 @@ function staticUseLanguage(
   /**
    * TODO: Clean away any markdown/HTML formatting when using the langAsString function. Even though we support
    * returning a string, we don't want to show markdown/HTML in the UI.
-   *
-   * TODO: Make text resources and language keys simpler and more performant to look up by using maps instead of
-   * arrays and deep objects.
    */
 
   return {
@@ -207,7 +198,6 @@ function staticUseLanguage(
       const name = getLanguageFromKey(key, language);
       return params ? replaceParameters(name, params) : name;
     },
-    textResourceMap: textResources,
     langAsStringOrEmpty: (key, params) => {
       if (!key) {
         return '';

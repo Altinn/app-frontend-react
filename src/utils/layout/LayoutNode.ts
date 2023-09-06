@@ -20,8 +20,8 @@ import type { LayoutObject } from 'src/utils/layout/LayoutObject';
 import type {
   IComponentBindingValidation,
   IComponentValidations,
-  IValidationContext,
   IValidationObject,
+  ValidationContextGenerator,
   ValidationKeyOrAny,
 } from 'src/utils/validation/types';
 import type { IValidationOptions } from 'src/utils/validation/validation';
@@ -387,8 +387,11 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
   /**
    * Runs frontend validations for this node and returns an array of IValidationObject
    */
-  runValidations(validationContext: IValidationContext, options?: IValidationOptions): IValidationObject[] {
-    return runValidationOnNodes([this as LayoutNode], validationContext, options);
+  runValidations(
+    validationCtxGenerator: ValidationContextGenerator,
+    options?: IValidationOptions,
+  ): IValidationObject[] {
+    return runValidationOnNodes([this as LayoutNode], validationCtxGenerator, options);
   }
 }
 
