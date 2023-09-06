@@ -112,12 +112,12 @@ function render({ container = mockContainer }: IRender = {}) {
   } as any;
 
   const mockTextResources = {
-    resources: [
-      { id: 'option.label', value: 'Value to be shown' },
-      { id: 'button.open', value: 'New open text' },
-      { id: 'button.close', value: 'New close text' },
-      { id: 'button.save', value: 'New save text' },
-    ],
+    resourceMap: {
+      'option.label': { value: 'Value to be shown' },
+      'button.open': { value: 'New open text' },
+      'button.close': { value: 'New close text' },
+      'button.save': { value: 'New save text' },
+    },
   } as any;
 
   const preloadedState = getInitialStateMock({
