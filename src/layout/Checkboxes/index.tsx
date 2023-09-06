@@ -28,7 +28,7 @@ export class Checkboxes extends CheckboxesDef {
     const value = node.item.dataModelBindings?.simpleBinding
       ? formData[node.item.dataModelBindings.simpleBinding] || ''
       : '';
-    const optionList = getOptionList(node.item, langTools.textResources, formData, repeatingGroups, options);
+    const optionList = getOptionList(node.item, langTools.textResourceMap, formData, repeatingGroups, options);
     return getCommaSeparatedOptionsToText(value, optionList, langTools);
   }
 

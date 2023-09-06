@@ -30,7 +30,7 @@ export class MultipleSelect extends MultipleSelectDef {
     }
 
     const value = formData[node.item.dataModelBindings.simpleBinding] || '';
-    const optionList = getOptionList(node.item, langTools.textResources, formData, repeatingGroups, options);
+    const optionList = getOptionList(node.item, langTools.textResourceMap, formData, repeatingGroups, options);
     return getCommaSeparatedOptionsToText(value, optionList, langTools);
   }
 

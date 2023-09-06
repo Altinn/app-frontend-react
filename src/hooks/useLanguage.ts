@@ -7,9 +7,10 @@ import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
 import { FormComponentContext } from 'src/layout';
 import { buildInstanceContext } from 'src/utils/instanceContext';
 import type { IFormData } from 'src/features/formData';
+import type { TextResourceMap } from 'src/features/textResources';
 import type { FixedLanguageList } from 'src/language/languages';
 import type { IRuntimeState } from 'src/types';
-import type { IApplicationSettings, IInstanceContext, ILanguage, ITextResource, IVariable } from 'src/types/shared';
+import type { IApplicationSettings, IInstanceContext, ILanguage, IVariable } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type ValidParam = string | number | undefined;
@@ -24,7 +25,7 @@ export interface IUseLanguage {
    * There are still some places that manipulate text resources directly, so exposing them here for now.
    * @deprecated Please do not use this functionality in new code.
    */
-  textResources: ITextResource[];
+  textResourceMap: TextResourceMap;
 
   /**
    * @deprecated Please do not use this functionality in new code. This function looks up the key, but if the key is not
@@ -70,7 +71,7 @@ const defaultLocale = 'nb';
  * - lang(key, params) usually returns a React element
  */
 export function useLanguage(node?: LayoutNode) {
-  const textResources = useAppSelector((state) => state.textResources.resources);
+  const textResources = useAppSelector((state) => state.textResources.resourceMap);
   const profileLanguage = useAppSelector((state) => state.profile.profile.profileSettingPreference.language);
   const selectedAppLanguage = useAppSelector((state) => state.profile.selectedAppLanguage);
   const componentCtx = useContext(FormComponentContext);
@@ -99,7 +100,7 @@ export function useLanguage(node?: LayoutNode) {
  * Static version of useLanguage() for use outside of React components. Can be used from sagas, etc.
  */
 export function staticUseLanguageFromState(state: IRuntimeState, node?: LayoutNode) {
-  const textResources = state.textResources.resources;
+  const textResources = state.textResources.resourceMap;
   const profileLanguage = state.profile.profile.profileSettingPreference.language;
   const selectedAppLanguage = state.profile.selectedAppLanguage;
   const formData = state.formData.formData;
@@ -116,7 +117,7 @@ export function staticUseLanguageFromState(state: IRuntimeState, node?: LayoutNo
 }
 
 interface ILanguageState {
-  textResources: ITextResource[];
+  textResources: TextResourceMap;
   language: ILanguage | null;
   selectedAppLanguage: string | undefined;
   profileLanguage: string | undefined;
@@ -129,7 +130,7 @@ interface ILanguageState {
  * even if the signature is updated).
  */
 export function staticUseLanguageForTests({
-  textResources = [],
+  textResources = {},
   language = null,
   profileLanguage = 'nb',
   selectedAppLanguage = undefined,
@@ -149,7 +150,7 @@ export function staticUseLanguageForTests({
 }
 
 function staticUseLanguage(
-  textResources: ITextResource[],
+  textResources: TextResourceMap,
   _language: ILanguage | null,
   selectedAppLanguage: string | undefined,
   profileLanguage: string | undefined,
@@ -197,7 +198,7 @@ function staticUseLanguage(
       const name = getLanguageFromKey(key, language);
       return params ? replaceParameters(name, params) : name;
     },
-    textResources,
+    textResourceMap: textResources,
     langAsStringOrEmpty: (key, params) => {
       if (!key) {
         return '';
@@ -230,10 +231,10 @@ function getLanguageFromKey(key: string, language: ILanguage) {
 
 function getTextResourceByKey(
   key: string,
-  textResources: ITextResource[],
+  textResources: TextResourceMap,
   dataSources: TextResourceVariablesDataSources,
 ) {
-  const textResource = textResources.find((resource) => resource.id === key);
+  const textResource = textResources[key];
   if (!textResource) {
     return key;
   }

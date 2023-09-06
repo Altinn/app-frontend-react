@@ -233,7 +233,6 @@ export interface IValidated {
 }
 
 export interface ITextResource {
-  id: string;
   value: string;
   variables?: IVariable[];
 }

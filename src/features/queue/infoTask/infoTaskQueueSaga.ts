@@ -14,7 +14,7 @@ import type { IRuntimeState } from 'src/types';
 import type { IInstance, ITextResource } from 'src/types/shared';
 
 export const ApplicationMetadataSelector = (state: IRuntimeState) => state.applicationMetadata.applicationMetadata;
-export const TextResourceSelector = (state: IRuntimeState) => state.textResources.resources;
+export const TextResourceSelector = (state: IRuntimeState) => state.textResources.resourceMap;
 export const InstanceDataSelector = (state: IRuntimeState) => state.instanceData.instance;
 
 export function* startInitialInfoTaskQueueSaga(): SagaIterator {

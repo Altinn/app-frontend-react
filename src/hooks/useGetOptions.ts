@@ -28,12 +28,11 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, source }: I
   const instance = useAppSelector((state) => state.instanceData.instance);
   const relevantTextResources: IOptionResources = useAppSelector((state) => {
     const { label, description, helpText } = source || {};
-    const resources = state.textResources.resources;
-    const findResourceById = (id?: string) => resources.find((resource) => resource.id === id);
+    const resources = state.textResources.resourceMap;
     return {
-      label: findResourceById(label),
-      description: findResourceById(description),
-      helpText: findResourceById(helpText),
+      label: label ? resources[label] : undefined,
+      description: description ? resources[description] : undefined,
+      helpText: helpText ? resources[helpText] : undefined,
     };
   }, shallowEqual);
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);

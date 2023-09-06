@@ -9,7 +9,8 @@ import { getProfileStateMock } from 'src/__mocks__/profileStateMock';
 import { getUiConfigStateMock } from 'src/__mocks__/uiConfigStateMock';
 import { NavBar } from 'src/components/presentation/NavBar';
 import { renderWithProviders } from 'src/testUtils';
-import type { IAppLanguage, ITextResource } from 'src/types/shared';
+import type { TextResourceMap } from 'src/features/textResources';
+import type { IAppLanguage } from 'src/types/shared';
 
 afterEach(() => mockAxios.reset());
 
@@ -18,7 +19,7 @@ interface RenderNavBarProps {
   hideCloseButton: boolean;
   showLanguageSelector: boolean;
   languageResponse?: IAppLanguage[];
-  textResources?: ITextResource[];
+  textResources?: TextResourceMap;
 }
 
 const renderNavBar = ({
@@ -26,7 +27,7 @@ const renderNavBar = ({
   showBackArrow,
   showLanguageSelector,
   languageResponse,
-  textResources = [],
+  textResources = {},
 }: RenderNavBarProps) => {
   const mockClose = jest.fn();
   const mockBack = jest.fn();
@@ -42,7 +43,7 @@ const renderNavBar = ({
       preloadedState: {
         profile: getProfileStateMock({ selectedAppLanguage: 'nb' }),
         textResources: {
-          resources: textResources,
+          resourceMap: textResources,
           language: 'nb',
           error: null,
         },
@@ -130,20 +131,17 @@ describe('NavBar', () => {
       hideCloseButton: false,
       showBackArrow: true,
       showLanguageSelector: true,
-      textResources: [
-        {
-          id: 'language.selector.label',
+      textResources: {
+        'language.selector.label': {
           value: 'Velg språk test',
         },
-        {
-          id: 'language.full_name.nb',
+        'language.full_name.nb': {
           value: 'Norsk test',
         },
-        {
-          id: 'language.full_name.en',
+        'language.full_name.en': {
           value: 'Engelsk test',
         },
-      ],
+      },
       languageResponse: [{ language: 'en' }, { language: 'nb' }],
     });
     await waitForElementToBeRemoved(screen.queryByRole('progressbar'));

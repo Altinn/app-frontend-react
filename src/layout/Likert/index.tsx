@@ -25,7 +25,7 @@ export class Likert extends LikertDef {
     }
 
     const value = formData[node.item.dataModelBindings.simpleBinding] || '';
-    const optionList = getOptionList(node.item, langTools.textResources, formData, uiConfig.repeatingGroups, options);
+    const optionList = getOptionList(node.item, langTools.textResourceMap, formData, uiConfig.repeatingGroups, options);
     return getSelectedValueToText(value, langTools, optionList) || '';
   }
 

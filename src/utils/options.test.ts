@@ -198,7 +198,6 @@ describe('utils > options', () => {
         value: 'someGroup[{0}].fieldUsedAsValue',
       };
       const relevantTextResourceLabel: ITextResource = {
-        id: 'dropdown.label',
         value: '{0}',
         variables: [
           {

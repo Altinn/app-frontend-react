@@ -1,12 +1,12 @@
 import { getOptionLookupKey, getRelevantFormDataForOptionSource, setupSourceOptions } from 'src/utils/options';
 import type { IFormData } from 'src/features/formData';
+import type { TextResourceMap } from 'src/features/textResources';
 import type { IOption, ISelectionComponent } from 'src/layout/common.generated';
 import type { IOptions, IRepeatingGroups } from 'src/types';
-import type { ITextResource } from 'src/types/shared';
 
 export function getOptionList(
   component: ISelectionComponent,
-  textResources: ITextResource[],
+  textResources: TextResourceMap,
   formData: IFormData,
   repeatingGroups: IRepeatingGroups | null,
   options: IOptions,
@@ -22,9 +22,7 @@ export function getOptionList(
     return options[key]?.options || [];
   }
   if (component.source) {
-    const relevantTextResourceLabel = textResources.find(
-      (resourceLabel) => resourceLabel.id === component.source?.label,
-    );
+    const relevantTextResourceLabel = textResources[component.source?.label];
     const reduxOptions =
       relevantTextResourceLabel &&
       setupSourceOptions({
