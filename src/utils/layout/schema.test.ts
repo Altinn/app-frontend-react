@@ -10,7 +10,7 @@ import layoutSchema from 'schemas/json/layout/layout.schema.v1.json';
 import textResourcesSchema from 'schemas/json/text-resources/text-resources.schema.v1.json';
 import type { ErrorObject } from 'ajv';
 
-import { ensureAppsDirIsSet, getAllApps, getAllLayoutSets } from 'src/utils/layout/getAllLayoutSets';
+import { ensureAppsDirIsSet, getAllApps, getAllLayoutSets } from 'src/test/allApps';
 import type { CompTypes } from 'src/layout/layout';
 
 function withValues(targetObject: any) {

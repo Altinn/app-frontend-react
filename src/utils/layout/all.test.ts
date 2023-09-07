@@ -1,6 +1,6 @@
 import { getHierarchyDataSourcesMock } from 'src/__mocks__/hierarchyMock';
 import { getLayoutComponentObject } from 'src/layout';
-import { ensureAppsDirIsSet, getAllLayoutSets } from 'src/utils/layout/getAllLayoutSets';
+import { ensureAppsDirIsSet, getAllLayoutSets } from 'src/test/allApps';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
