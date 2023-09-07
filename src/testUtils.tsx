@@ -17,12 +17,13 @@ import { ExprContextWrapper, useResolvedNode } from 'src/utils/layout/ExprContex
 import type { AppQueriesContext } from 'src/contexts/appQueriesContext';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IFooterLayout } from 'src/features/footer/types';
-import type { IFormData } from 'src/features/formData';
+import type { ITextResourcesState } from 'src/features/textResources';
 import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
 import type { CompExternalExact, CompTypes } from 'src/layout/layout';
 import type { AppStore, RootState } from 'src/redux/store';
-import type { ILayoutSets, IRuntimeState } from 'src/types';
+import type { ILayoutSets, IRuntimeState, ISimpleInstance } from 'src/types';
 import type { IProfile } from 'src/types/shared';
+import type { IGetOptionsUrlParams } from 'src/utils/urls/appUrlHelper';
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   preloadedState?: PreloadedState<RootState>;
@@ -51,12 +52,11 @@ export const renderWithProviders = (
       fetchParties: () => Promise.resolve({}),
       fetchRefreshJwtToken: () => Promise.resolve({}),
       fetchFormData: () => Promise.resolve({}),
-      fetchFormDataForOptions: () => Promise.resolve({} as unknown as IFormData),
-      fetchCurrentInstance: () => Promise.resolve({}),
-      fetchLayout: () => Promise.resolve({}),
-      fetchOptions: () => Promise.resolve({}),
-      fetchTextResources: () => Promise.resolve({}),
-    } as unknown as AppQueriesContext;
+      fetchCurrentInstance: () => Promise.resolve({} as unknown as ISimpleInstance),
+      fetchLayout: () => Promise.resolve({} as unknown as ILayoutSets),
+      fetchOptions: () => Promise.resolve({} as unknown as IGetOptionsUrlParams),
+      fetchTextResources: () => Promise.resolve({} as unknown as ITextResourcesState),
+    } as AppQueriesContext;
     const mockedQueries = { ...allMockedQueries, ...queries };
 
     const client = new QueryClient({

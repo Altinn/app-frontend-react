@@ -8,7 +8,6 @@ import {
   applicationSettingsApiUrl,
   currentPartyUrl,
   getActiveInstancesUrl,
-  getFetchFormDataUrl,
   getFooterLayoutUrl,
   getJsonSchemaUrl,
   getLayoutSetsUrl,
@@ -25,7 +24,6 @@ import { orgsListUrl } from 'src/utils/urls/urlHelper';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
-import type { IFormData } from 'src/features/formData';
 import type { ITextResourcesState } from 'src/features/textResources';
 import type { ILayoutSets, ISimpleInstance } from 'src/types';
 import type { IAltinnOrgs, IApplicationSettings, IProfile } from 'src/types/shared';
@@ -46,9 +44,6 @@ export const fetchCurrentInstance = (instanceId: string): Promise<ISimpleInstanc
 export const fetchCurrentParty = () => httpGet(currentPartyUrl);
 
 export const fetchFooterLayout = (): Promise<IFooterLayout> => httpGet(getFooterLayoutUrl());
-
-export const fetchFormDataForOptions = (instanceId: string, currentTaskDataElementId: string): Promise<IFormData> =>
-  httpGet(getFetchFormDataUrl(instanceId, currentTaskDataElementId));
 
 export const fetchLayoutSets = (): Promise<ILayoutSets> => httpGet(getLayoutSetsUrl());
 
