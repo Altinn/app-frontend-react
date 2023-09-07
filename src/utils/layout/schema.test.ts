@@ -1,6 +1,5 @@
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
-import dotenv from 'dotenv';
 import deepEqual from 'fast-deep-equal';
 import JsonPointer from 'jsonpointer';
 import fs from 'node:fs';
@@ -11,7 +10,7 @@ import layoutSchema from 'schemas/json/layout/layout.schema.v1.json';
 import textResourcesSchema from 'schemas/json/text-resources/text-resources.schema.v1.json';
 import type { ErrorObject } from 'ajv';
 
-import { getAllApps, getAllLayoutSets } from 'src/utils/layout/getAllLayoutSets';
+import { ensureAppsDirIsSet, getAllApps, getAllLayoutSets } from 'src/utils/layout/getAllLayoutSets';
 import type { CompTypes } from 'src/layout/layout';
 
 function withValues(targetObject: any) {
@@ -51,15 +50,8 @@ describe('Layout schema', () => {
   });
 
   describe('All known layout sets should validate against the layout schema', () => {
-    const env = dotenv.config();
-    const dir = env.parsed?.ALTINN_ALL_APPS_DIR;
+    const dir = ensureAppsDirIsSet();
     if (!dir) {
-      it('did not find any apps', () => {
-        expect(true).toBeTruthy();
-      });
-      console.warn(
-        'ALTINN_ALL_APPS_DIR should be set, please create a .env file and point it to a directory containing all known apps',
-      );
       return;
     }
 
@@ -86,15 +78,8 @@ describe('Layout schema', () => {
   });
 
   describe('All known text resource files should validate against the text resource schema', () => {
-    const env = dotenv.config();
-    const dir = env.parsed?.ALTINN_ALL_APPS_DIR;
+    const dir = ensureAppsDirIsSet();
     if (!dir) {
-      it('did not find any apps', () => {
-        expect(true).toBeTruthy();
-      });
-      console.warn(
-        'ALTINN_ALL_APPS_DIR should be set, please create a .env file and point it to a directory containing all known apps',
-      );
       return;
     }
 
@@ -129,15 +114,8 @@ describe('Layout schema', () => {
   });
 
   describe('All known applicationmetadata files should validate against the applicationmetadata schema', () => {
-    const env = dotenv.config();
-    const dir = env.parsed?.ALTINN_ALL_APPS_DIR;
+    const dir = ensureAppsDirIsSet();
     if (!dir) {
-      it('did not find any apps', () => {
-        expect(true).toBeTruthy();
-      });
-      console.warn(
-        'ALTINN_ALL_APPS_DIR should be set, please create a .env file and point it to a directory containing all known apps',
-      );
       return;
     }
 

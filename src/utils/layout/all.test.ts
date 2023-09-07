@@ -1,22 +1,13 @@
-import dotenv from 'dotenv';
-
 import { getHierarchyDataSourcesMock } from 'src/__mocks__/hierarchyMock';
 import { getLayoutComponentObject } from 'src/layout';
-import { getAllLayoutSets } from 'src/utils/layout/getAllLayoutSets';
+import { ensureAppsDirIsSet, getAllLayoutSets } from 'src/utils/layout/getAllLayoutSets';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
 
 describe('All known layout sets', () => {
-  const env = dotenv.config();
-  const dir = env.parsed?.ALTINN_ALL_APPS_DIR;
+  const dir = ensureAppsDirIsSet();
   if (!dir) {
-    it('did not find any apps', () => {
-      expect(true).toBeTruthy();
-    });
-    console.warn(
-      'ALTINN_ALL_APPS_DIR should be set, please create a .env file and point it to a directory containing all known apps',
-    );
     return;
   }
 

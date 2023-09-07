@@ -1,3 +1,4 @@
+import dotenv from 'dotenv';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -82,4 +83,23 @@ export function getAllApps(dir: string): string[] {
   }
 
   return out;
+}
+
+export function ensureAppsDirIsSet(runVoidTest = true) {
+  const env = dotenv.config();
+  const dir = env.parsed?.ALTINN_ALL_APPS_DIR;
+  if (!dir) {
+    if (runVoidTest) {
+      it('did not find any apps', () => {
+        expect(true).toBeTruthy();
+      });
+    }
+
+    console.warn(
+      'ALTINN_ALL_APPS_DIR should be set, please create a .env file and point it to a directory containing all known apps',
+    );
+    return false;
+  }
+
+  return dir;
 }
