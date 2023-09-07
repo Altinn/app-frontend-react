@@ -27,6 +27,7 @@ export const useDataListQuery = (
   const { instanceId } = window;
   const layouts = useAppSelector((state) => state.formLayout.layouts);
   const formData = useAppSelector((state) => state.formData.formData);
+  console.log(formData);
   const dispatch = useAppDispatch();
   const dataListTest = layouts
     ? (Object.values(layouts)
@@ -43,6 +44,19 @@ export const useDataListQuery = (
   pageNumber = pageNumber ? pageNumber.toString() : '0';
   sortColumn = sortColumn ? sortColumn.toString() : null;
   sortDirection = sortDirection ?? SortDirection.NotActive;
+
+  console.log(
+    dataListId,
+    formData,
+    language,
+    dataMapping,
+    secure,
+    instanceId,
+    pageSize,
+    pageNumber,
+    sortColumn,
+    sortDirection,
+  );
 
   return useQuery(
     [id, filter],
@@ -64,43 +78,52 @@ export const useDataListQuery = (
     {
       enabled: !!dataListTest && enabled,
       onSuccess: (result) => {
-        dispatch(
-          DataListsActions.fetching({
-            key: id || '',
-            metaData: result.paginationData,
-          }),
-        );
-        dispatch(
-          DataListsActions.setPageSize({
-            key: id || '',
-            size: parseInt(pageSize),
-          }),
-        );
-        dispatch(
-          DataListsActions.setPageNumber({
-            key: id || '',
-            pageNumber: parseInt(pageNumber),
-          }),
-        );
-        dispatch(
-          DataListsActions.setSort({
-            key: id || '',
-            sortColumn: result.paginationData.sortColumn,
-            sortDirection: result.paginationData.sortDirection,
-          }),
-        );
-        dispatch(
-          DataListsActions.setDataList({
-            dataLists: result.listItems,
-          }),
-        );
         // dispatch(
-        //   DataListsActions.update({
+        //   DataListsActions.fetching({
         //     key: id || '',
         //     metaData: result.paginationData,
-        //     listItems: result.listItems,
-        //     });
-        // )
+        //   }),
+        // );
+        // dispatch(
+        //   DataListsActions.setPageSize({
+        //     key: id || '',
+        //     size: parseInt(pageSize),
+        //   }),
+        // );
+        // dispatch(
+        //   DataListsActions.setPageNumber({
+        //     key: id || '',
+        //     pageNumber: parseInt(pageNumber),
+        //   }),
+        // );
+        // dispatch(
+        //   DataListsActions.setSort({
+        //     key: id || '',
+        //     sortColumn: result.paginationData.sortColumn,
+        //     sortDirection: result.paginationData.sortDirection,
+        //   }),
+        // );
+        // dispatch(
+        //   DataListsActions.setDataList({
+        //     dataLists: result.listItems,
+        //   }),
+        // );
+        dispatch(
+          DataListsActions.update({
+            key: id || '',
+            metaData: {
+              size: parseInt(pageSize),
+              pageNumber: parseInt(pageNumber),
+              sortColumn,
+              sortDirection,
+              dataListId,
+              mapping: dataMapping,
+            },
+            paginationData: {
+              ...result.paginationData,
+            },
+          }),
+        );
       },
       onError: (error: HttpClientError) => {
         window.logError('Fetching FormData failed:\n', error);
@@ -112,6 +135,7 @@ export const useDataListQuery = (
 const mapResponse = (dataList: IDataListData) => {
   const { listItems, _metaData } = dataList;
   console.log(dataList);
+  console.log(_metaData);
   return {
     listItems,
     paginationData: _metaData,

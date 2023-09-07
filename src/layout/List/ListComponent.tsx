@@ -29,10 +29,11 @@ export const ListComponent = ({ node, formData, handleDataChange, legend }: ILis
   // const dynamicDataList = useGetDataList({ id });
   const filter = createFilter(dataList);
   console.log(filter);
-  const dynamicDataListTemp = useDataListQuery(id, filter);
+  const { data: dynamicDataListTemp } = useDataListQuery(id, filter);
   console.log(dynamicDataListTemp);
   // const dynamicDataList = undefined;
-  const calculatedDataList = (dataList && dataList[id]?.listItems) || defaultDataList;
+  const calculatedDataList = (dynamicDataListTemp && dynamicDataListTemp.listItems) || defaultDataList;
+  console.log(calculatedDataList);
   const defaultPagination = pagination ? pagination.default : 0;
   const rowsPerPage = useAppSelector((state) => state.dataListState.dataLists[id]?.size || defaultPagination);
   const currentPage = useAppSelector((state) => state.dataListState.dataLists[id]?.pageNumber || 0);

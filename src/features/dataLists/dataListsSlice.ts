@@ -1,6 +1,7 @@
 import { fetchDataListsSaga, watchFinishedLoadingSaga } from 'src/features/dataLists/fetchDataListsSaga';
 import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
+  IDataListData,
   IDataListsState,
   IFetchDataListsFulfilledAction,
   IFetchDataListsRejectedAction,
@@ -97,15 +98,18 @@ export const dataListsSlice = () => {
           state.dataLists[key].sortDirection = sortDirection;
         },
       }),
-      // update: mkAction<ISetDataLists>({
-      //   reducer: (state, action) => {
-      //     const { key, dataLists } = action.payload;
-      //     state.dataLists[key] = {
-      //       ...state.dataLists,
-      //       ...dataLists,
-      //     };
-      //   },
-      // }),
+      update: mkAction<IDataListData>({
+        reducer: (state, action) => {
+          const { key, paginationData, metaData, listItems } = action.payload;
+          console.log('paginationData', paginationData);
+          state.dataLists[key] = {
+            ...(state.dataLists[key] || {}),
+            ...metaData,
+            id: key,
+            listItems,
+          };
+        },
+      }),
     },
   }));
 
