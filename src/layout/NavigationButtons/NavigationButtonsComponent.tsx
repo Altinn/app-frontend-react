@@ -1,4 +1,5 @@
 import React from 'react';
+import { shallowEqual } from 'react-redux';
 
 import { Button } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
@@ -9,12 +10,14 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { Triggers } from 'src/layout/common.generated';
 import classes from 'src/layout/NavigationButtons/NavigationButtonsComponent.module.css';
-import { selectLayoutOrder } from 'src/selectors/getLayoutOrder';
+import { getLayoutOrderFromTracks, selectLayoutOrder } from 'src/selectors/getLayoutOrder';
 import { reducePageValidations } from 'src/types';
+import { getNextView } from 'src/utils/formLayout';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { IKeepComponentScrollPos } from 'src/features/layout/formLayoutTypes';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutNavigation } from 'src/layout/common.generated';
+import type { IRuntimeState } from 'src/types';
 export type INavigationButtons = PropsFromGenericComponent<'NavigationButtons'>;
 
 export function NavigationButtonsComponent({ node }: INavigationButtons) {
@@ -31,7 +34,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
   const orderedLayoutKeys = useAppSelector(selectLayoutOrder);
   const returnToView = useAppSelector((state) => state.formLayout.uiConfig.returnToView);
   const pageTriggers = useAppSelector((state) => state.formLayout.uiConfig.pageTriggers);
-  const { next, previous } = useAppSelector((state) => getNavigationConfigForCurrentView(state));
+  const { next, previous } = useAppSelector((state) => getNavigationConfigForCurrentView(state), shallowEqual);
   const activeTriggers = triggers || pageTriggers;
   const nextTextKey = returnToView ? 'form_filler.back_to_summary' : textResourceBindings?.next || 'next';
   const backTextKey = textResourceBindings?.back || 'back';
