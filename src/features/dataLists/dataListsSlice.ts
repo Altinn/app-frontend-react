@@ -107,6 +107,7 @@ export const dataListsSlice = () => {
             ...metaData,
             id: key,
             listItems,
+            paginationData,
           };
         },
       }),

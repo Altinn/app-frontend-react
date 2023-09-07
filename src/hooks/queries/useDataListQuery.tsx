@@ -9,6 +9,7 @@ import { useLanguage } from 'src/hooks/useLanguage';
 import { SortDirection } from 'src/layout/List/types';
 import { getDataListsUrl } from 'src/utils/urls/appUrlHelper';
 import type { IDataListData } from 'src/features/dataLists';
+import type { IMapping } from 'src/layout/common.generated';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 export type Filter = {
   pageSize: string;
@@ -19,44 +20,25 @@ export type Filter = {
 export const useDataListQuery = (
   id: string | undefined,
   filter: Filter,
+  dataListId: string,
+  pagination: any,
+  secure?: boolean,
+  mapping?: IMapping,
   enabled?: boolean,
 ): UseQueryResult<IDataListData> => {
   const { fetchDataList } = useAppQueriesContext();
-  const langTools = useLanguage();
-  const language = langTools.selectedLanguage;
-  const { instanceId } = window;
-  const layouts = useAppSelector((state) => state.formLayout.layouts);
-  const formData = useAppSelector((state) => state.formData.formData);
-  console.log(formData);
   const dispatch = useAppDispatch();
-  const dataListTest = layouts
-    ? (Object.values(layouts)
-        .flatMap((layout) => layout)
-        .find((element: any) => element.id === id) as IDataListData | undefined)
-    : undefined;
+  const { selectedLanguage } = useLanguage();
+  const { instanceId } = window;
+  const formData = useAppSelector((state) => state.formData.formData);
 
   let { pageSize, pageNumber, sortColumn, sortDirection } = filter || {};
 
-  const { dataListId, secure, mapping: dataMapping, pagination } = dataListTest || {};
-  console.log(pagination.default, dataListTest);
   const paginationDefaultValue = pagination?.default ? pagination.default : 0;
   pageSize = pageSize ? pageSize : paginationDefaultValue;
   pageNumber = pageNumber ? pageNumber.toString() : '0';
   sortColumn = sortColumn ? sortColumn.toString() : null;
   sortDirection = sortDirection ?? SortDirection.NotActive;
-
-  console.log(
-    dataListId,
-    formData,
-    language,
-    dataMapping,
-    secure,
-    instanceId,
-    pageSize,
-    pageNumber,
-    sortColumn,
-    sortDirection,
-  );
 
   return useQuery(
     [id, filter],
@@ -65,8 +47,8 @@ export const useDataListQuery = (
         getDataListsUrl({
           dataListId,
           formData,
-          language,
-          dataMapping,
+          language: selectedLanguage,
+          dataMapping: mapping,
           secure,
           instanceId,
           pageSize,
@@ -76,38 +58,8 @@ export const useDataListQuery = (
         }),
       ).then((dataList) => mapResponse(dataList)),
     {
-      enabled: !!dataListTest && enabled,
+      enabled,
       onSuccess: (result) => {
-        // dispatch(
-        //   DataListsActions.fetching({
-        //     key: id || '',
-        //     metaData: result.paginationData,
-        //   }),
-        // );
-        // dispatch(
-        //   DataListsActions.setPageSize({
-        //     key: id || '',
-        //     size: parseInt(pageSize),
-        //   }),
-        // );
-        // dispatch(
-        //   DataListsActions.setPageNumber({
-        //     key: id || '',
-        //     pageNumber: parseInt(pageNumber),
-        //   }),
-        // );
-        // dispatch(
-        //   DataListsActions.setSort({
-        //     key: id || '',
-        //     sortColumn: result.paginationData.sortColumn,
-        //     sortDirection: result.paginationData.sortDirection,
-        //   }),
-        // );
-        // dispatch(
-        //   DataListsActions.setDataList({
-        //     dataLists: result.listItems,
-        //   }),
-        // );
         dispatch(
           DataListsActions.update({
             key: id || '',
@@ -117,7 +69,7 @@ export const useDataListQuery = (
               sortColumn,
               sortDirection,
               dataListId,
-              mapping: dataMapping,
+              mapping,
             },
             paginationData: {
               ...result.paginationData,

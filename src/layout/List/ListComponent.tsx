@@ -21,30 +21,15 @@ export type IListProps = PropsFromGenericComponent<'List'>;
 const defaultDataList: any[] = [];
 
 export const ListComponent = ({ node, formData, handleDataChange, legend }: IListProps) => {
-  const { tableHeaders, id, pagination, sortableColumns, tableHeadersMobile } = node.item;
-  const dataList = useAppSelector((state) => state.dataListState.dataLists[id]);
-  console.log(dataList);
+  const { tableHeaders, id, pagination, sortableColumns, tableHeadersMobile, mapping, secure, dataListId } = node.item;
   const { langAsString, language } = useLanguage();
   const RenderLegend = legend;
-  // const dynamicDataList = useGetDataList({ id });
-  const filter = createFilter(dataList);
-  console.log(filter);
-  const { data: dynamicDataListTemp } = useDataListQuery(id, filter);
-  console.log(dynamicDataListTemp);
-  // const dynamicDataList = undefined;
-  const calculatedDataList = (dynamicDataListTemp && dynamicDataListTemp.listItems) || defaultDataList;
-  console.log(calculatedDataList);
-  const defaultPagination = pagination ? pagination.default : 0;
-  const rowsPerPage = useAppSelector((state) => state.dataListState.dataLists[id]?.size || defaultPagination);
-  const currentPage = useAppSelector((state) => state.dataListState.dataLists[id]?.pageNumber || 0);
+  const dataList = useAppSelector((state) => state.dataListState.dataLists[id]);
 
-  const sortColumn = useAppSelector((state) => state.dataListState.dataLists[id]?.sortColumn || null);
-  const sortDirection = useAppSelector(
-    (state) => state.dataListState.dataLists[id]?.sortDirection || SortDirection.NotActive,
-  );
-  const totalItemsCount = useAppSelector(
-    (state) => state.dataListState.dataLists[id]?.paginationData?.totaltItemsCount || 0,
-  );
+  const filter = createFilter(dataList);
+  const { data: dynamicDataList } = useDataListQuery(id, filter, dataListId, pagination, secure, mapping);
+
+  const calculatedDataList = (dynamicDataList && dynamicDataList.listItems) || defaultDataList;
 
   const handleChange = ({ selectedValue: selectedValue }: ChangeProps<Record<string, string>>) => {
     for (const key in formData) {
@@ -109,11 +94,11 @@ export const ListComponent = ({ node, formData, handleDataChange, legend }: ILis
     if (pagination) {
       return (
         <Pagination
-          numberOfRows={totalItemsCount}
+          numberOfRows={dataList?.paginationData?.totalItemsCount}
           rowsPerPageOptions={pagination?.alternatives ? pagination?.alternatives : []}
-          rowsPerPage={rowsPerPage}
+          rowsPerPage={dataList?.size}
           onRowsPerPageChange={handleChangeRowsPerPage}
-          currentPage={currentPage}
+          currentPage={dataList?.pageNumber}
           setCurrentPage={handleChangeCurrentPage}
           descriptionTexts={((language && language['list_component']) || {}) as unknown as DescriptionText}
         />
@@ -132,8 +117,8 @@ export const ListComponent = ({ node, formData, handleDataChange, legend }: ILis
         handleSortChange({ previous, next, column });
       },
       sortable: sortableColumns ? sortableColumns : [],
-      currentlySortedColumn: sortColumn,
-      currentDirection: sortDirection,
+      currentlySortedColumn: dataList?.sortColumn,
+      currentDirection: dataList?.sortDirection,
     },
     rowSelection: {
       onSelectionChange: (row) => handleChange({ selectedValue: row }),
