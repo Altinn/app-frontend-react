@@ -24,24 +24,26 @@ export function getAllLayoutSets(dir: string): AppLayoutSet[] {
   const apps = getAllApps(dir);
   for (const app of apps) {
     const sets = [{ set: 'layouts', plain: true }];
-    try {
-      const content = fs.readFileSync(path.join(dir, app, 'App/ui/layout-sets.json'));
-      const layoutSets = JSON.parse(content.toString()) as ILayoutSets;
+    const layoutSetsPath = path.join(dir, app, 'App/ui/layout-sets.json');
+    if (fs.existsSync(layoutSetsPath)) {
+      const content = fs.readFileSync(layoutSetsPath);
+      const layoutSets = parseJsonTolerantly<ILayoutSets>(content.toString());
       sets.pop();
 
       for (const set of layoutSets.sets) {
         sets.push({ set: set.id, plain: false });
       }
-    } catch (e) {
-      // Intentionally empty
     }
 
     for (const set of sets) {
       const setPath = [dir, app, 'App/ui', set.set, set.plain ? '' : 'layouts'];
-      let layoutFiles: string[] = [];
-      try {
-        layoutFiles = fs.readdirSync(path.join(...setPath));
-      } catch (e) {
+      const layoutRoot = path.join(...setPath);
+      const layoutFiles: string[] = [];
+      if (fs.existsSync(layoutRoot)) {
+        layoutFiles.push(...fs.readdirSync(layoutRoot));
+      } else if (set.plain && fs.existsSync(path.join(...setPath, '../FormLayout.json'))) {
+        layoutFiles.push('../FormLayout.json');
+      } else {
         continue;
       }
 
