@@ -5,9 +5,9 @@ import userEvent from '@testing-library/user-event';
 import mockAxios from 'jest-mock-axios';
 
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
+import { getProfileStateMock } from 'src/__mocks__/profileStateMock';
 import { getUiConfigStateMock } from 'src/__mocks__/uiConfigStateMock';
-import NavBar from 'src/components/presentation/NavBar';
-import { getLanguageFromCode } from 'src/language/languages';
+import { NavBar } from 'src/components/presentation/NavBar';
 import { renderWithProviders } from 'src/testUtils';
 import type { ITextResource } from 'src/types';
 import type { IAppLanguage } from 'src/types/shared';
@@ -41,11 +41,7 @@ const renderNavBar = ({
     />,
     {
       preloadedState: {
-        language: {
-          selectedAppLanguage: 'nb',
-          language: getLanguageFromCode('nb'),
-          error: null,
-        },
+        profile: getProfileStateMock({ selectedAppLanguage: 'nb' }),
         textResources: {
           resources: textResources,
           language: 'nb',
@@ -90,7 +86,7 @@ describe('NavBar', () => {
       showLanguageSelector: false,
     });
     const closeButton = screen.getByRole('button', { name: /Lukk Skjema/i });
-    await act(() => userEvent.click(closeButton));
+    await userEvent.click(closeButton);
     expect(mockClose).toHaveBeenCalled();
   });
 
@@ -101,7 +97,7 @@ describe('NavBar', () => {
       showLanguageSelector: false,
     });
     expect(screen.queryAllByRole('button')).toHaveLength(0);
-    expect(screen.queryByTestId('altinn-back-button')).toBeNull();
+    expect(screen.queryByTestId('form-back-button')).toBeNull();
   });
 
   it('should render back button', async () => {
@@ -110,8 +106,8 @@ describe('NavBar', () => {
       showBackArrow: true,
       showLanguageSelector: false,
     });
-    const backButton = screen.getByTestId('altinn-back-button');
-    await act(() => userEvent.click(backButton));
+    const backButton = screen.getByTestId('form-back-button');
+    await userEvent.click(backButton);
     expect(mockBack).toHaveBeenCalled();
   });
   it('should render and change app language', async () => {
@@ -123,8 +119,12 @@ describe('NavBar', () => {
     });
     await waitForElementToBeRemoved(screen.queryByRole('progressbar'));
     const dropdown = screen.getByRole('combobox', { name: /Språk/i });
-    await act(() => userEvent.selectOptions(dropdown, 'en'));
-    expect(dropdown).toHaveValue('en');
+    await act(() => dropdown.click());
+    const en = screen.getByText(/Engelsk/i, { selector: '[role=option]' });
+    await act(() => en.click());
+
+    // Language now changed, so the value should be the language name in the selected language
+    expect(dropdown).toHaveValue('English');
   });
   it('should render app language with custom labels', async () => {
     renderNavBar({
@@ -149,7 +149,7 @@ describe('NavBar', () => {
     });
     await waitForElementToBeRemoved(screen.queryByRole('progressbar'));
     screen.getByRole('combobox', { name: /Velg språk test/i });
-    screen.getByRole('option', { name: /Norsk test/i });
-    screen.getByRole('option', { name: /Engelsk test/i });
+    screen.getByText(/Norsk test/i, { selector: '[role=option]' });
+    screen.getByText(/Engelsk test/i, { selector: '[role=option]' });
   });
 });

@@ -1,22 +1,23 @@
 import React from 'react';
 
-import { Button, ButtonColor, ButtonVariant } from '@altinn/altinn-design-system';
-import classNames from 'classnames';
+import { Button } from '@digdir/design-system-react';
 
 import { ButtonLoader } from 'src/layout/Button/ButtonLoader';
-import css from 'src/layout/Button/WrappedButton.module.css';
-import type { ButtonLoaderProps } from 'src/layout/Button/ButtonLoader';
 
 export interface BaseButtonProps {
   onClick: (...args) => void;
-  busyWithId?: string;
+  busyWithId?: string | null;
   disabled?: boolean;
+  message?: string;
 }
 
-export interface ButtonProps extends ButtonLoaderProps, BaseButtonProps {
+export interface ButtonProps extends BaseButtonProps {
   id: string;
   children: React.ReactNode;
 }
+
+export type ButtonVariant = Parameters<typeof Button>[0]['variant'];
+export type ButtonColor = Parameters<typeof Button>[0]['color'];
 
 interface Props extends ButtonProps {
   variant?: ButtonVariant;
@@ -24,14 +25,14 @@ interface Props extends ButtonProps {
 }
 
 export const WrappedButton = ({
-  variant = ButtonVariant.Outline,
-  color = ButtonColor.Primary,
+  variant = 'outline',
+  color = 'primary',
   onClick,
   id,
   children,
   busyWithId,
-  language,
   disabled,
+  message,
 }: Props) => {
   const somethingIsLoading = !!busyWithId;
   const thisIsLoading = busyWithId === id;
@@ -41,23 +42,21 @@ export const WrappedButton = ({
     }
   };
   return (
-    <span
-      className={classNames(
-        css['wrapped-button'],
-        somethingIsLoading && css['wrapped-button--loading'],
-        thisIsLoading && css['wrapped-button--busy'],
-      )}
-    >
-      <Button
-        variant={variant}
-        color={color}
-        onClick={handleClick}
-        id={id}
-        disabled={disabled}
-      >
-        {children}
-        {thisIsLoading && <ButtonLoader language={language} />}
-      </Button>
-    </span>
+    <>
+      <ButtonLoader isLoading={thisIsLoading}>
+        <Button
+          data-is-loading={thisIsLoading ? 'true' : 'false'}
+          size='small'
+          variant={variant}
+          color={color}
+          onClick={handleClick}
+          id={id}
+          disabled={disabled || thisIsLoading}
+        >
+          {children}
+        </Button>
+      </ButtonLoader>
+      {message && <span style={{ position: 'absolute' }}>{message}</span>}
+    </>
   );
 };

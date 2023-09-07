@@ -1,5 +1,17 @@
 export function en() {
   return {
+    altinn: {
+      standard_validation: {
+        file_content_type_not_allowed:
+          'It looks like you are trying to upload a file type that is not allowed. Please make sure that the file is actually the type it claims to be.',
+      },
+    },
+    actions: {
+      sign: 'Sign',
+      confirm: 'Confirm',
+      reject: 'Reject',
+      instantiate: 'Instantiate',
+    },
     address_component: {
       address: 'Street Address',
       care_of: 'C/O or other additional address',
@@ -46,6 +58,8 @@ export function en() {
       file_uploader_drag: 'Drag and drop or',
       file_uploader_find: 'find a file',
       file_uploader_list_delete: 'Delete attachment',
+      file_uploader_delete_warning: 'Are you sure you want to delete this attachment?',
+      file_uploader_delete_button_confirm: 'Yes, delete attachment',
       file_uploader_list_header_file_size: 'File size',
       file_uploader_list_header_name: 'Name',
       file_uploader_list_header_status: 'Status',
@@ -89,6 +103,7 @@ export function en() {
     },
     general: {
       action: 'Action',
+      accessibility: 'Accessibility',
       add_connection: 'Add connection',
       add_new: 'Add new',
       add: 'Add',
@@ -110,8 +125,10 @@ export function en() {
       edit_alt_error: 'Fix error here',
       edit_alt: 'Edit',
       edit: 'Edit',
+      empty_summary: 'You have not entered any information here',
       enabled: 'Enabled',
       error_message_with_colon: 'Error message:',
+      expand_form: 'Expand form',
       for: 'for',
       header_profile_icon_label: 'Profile icon button',
       label: 'Label',
@@ -136,11 +153,22 @@ export function en() {
       validate_changes: 'Validate changes',
       value: 'Value',
       version: 'Version',
+      wait_for_attachments: 'Hold on, we are processing attachments',
     },
     group: {
       row_error: 'One of the rows is incorrectly filled out. This has to bee fixed before the schema can be submitted.',
       row_popover_delete_message: 'Are you sure you want to delete this row?',
       row_popover_delete_button_confirm: 'Yes, delete the row',
+    },
+    iframe_component: {
+      unsupported_browser_title: 'Your browser is unsupported',
+      unsupported_browser:
+        'Your browser does not support iframes that use srcdoc. This may result in not being able to see all the content intended to be displayed here. We recommend trying a different browser.',
+    },
+    input_components: {
+      character_limit_sr_label: 'Textfield has a maximum length of {0} characters',
+      remaining_characters: 'You have {0} of {1} characters left',
+      exceeded_max_limit: 'You have exceeded the maximum limit with {0} characters',
     },
     instance_selection: {
       changed_by: 'Changed by',
@@ -159,6 +187,10 @@ export function en() {
       unknown_error_text: 'An unknown error occcurred, please try again later.',
       unknown_error_status: 'Unknow error',
       unknown_error_customer_support: 'If the problem persists, contact us at customer service at {0}.',
+      forbidden_action_error_title: 'You do not have permission to perform this action.',
+      forbidden_action_error_text: 'It looks like you do not have permission to perform this action.',
+      forbidden_action_error_status: '403 - Forbidden',
+      forbidden_action_error_customer_support: 'If you need help, contact us at customer service <br/> {0}.',
       authorization_error_main_title: 'You do not have permission to view this app.',
       authorization_error_instantiate_validation_title: 'You cannot start this service',
       authorization_error_rights: 'It looks like you do not have permission to start this service for {0}',
@@ -209,10 +241,14 @@ export function en() {
       unit_personal_number: 'pers. number',
       show_deleted: 'Show deleted',
       show_sub_unit: 'Show sub units',
+      why_seeing_this: 'Why am I seeing this?',
+      seeing_this_preference:
+        'You can change your [profile settings](https://altinn.no/ui/Profile) to not get prompted for party selection each time you start a new instance. You can find this setting under **Profile** > **Advanced settings** > **Do not ask what party I represent each time I start to fill in a new form**.',
+      seeing_this_override: 'This app has been configured to always prompt you for party selection.',
     },
-    popover: {
-      popover_button_helptext: 'Help',
-      popover_open: 'Popover open',
+    helptext: {
+      button_title: 'Help',
+      button_title_prefix: 'Helptext for',
     },
     receipt: {
       attachments: 'Attachments',
@@ -225,7 +261,7 @@ export function en() {
       ref_num: 'Reference number',
       sender: 'Sender',
       subtitle: 'A copy of your receipt has been sent to your archive',
-      title_part_is_submitted: 'is submitted',
+      title: 'Form is submitted',
       title_submitted: 'The following is submitted:',
     },
     receipt_platform: {
@@ -251,14 +287,16 @@ export function en() {
       generic_field: 'this field',
     },
     validation_errors: {
-      min: 'Minimum valid value is {0}',
-      max: 'Maximum valid value is {0}',
+      min: 'Minimum valid number is {0}',
+      max: 'Maximum valid number is {0}',
       minLength: 'Use {0} or more characters',
       maxLength: 'Use {0} or fewer characters',
       length: 'Number of characters allowed is {0}',
       pattern: 'Wrong format or value',
       required: 'Field is required',
       enum: 'Only the values {0} are permitted',
+      minItems: 'A minimum of {0} rows are required',
+      maxItems: 'A maximum of {0} rows are permitted',
     },
     map_component: {
       selectedLocation: 'Selected location: {0}° north, {1}° east',

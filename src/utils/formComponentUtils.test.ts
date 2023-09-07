@@ -1,111 +1,25 @@
-import parseHtmlToReact from 'html-react-parser';
-
-import { parseOptions } from 'src/language/sharedLanguage';
+import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import {
   atleastOneTagExists,
-  componentHasValidationMessages,
-  componentValidationsHandledByGenericComponent,
-  getDisplayFormData,
+  getColumnStyles,
+  getColumnStylesRepeatingGroups,
   getFieldName,
   getFileUploadComponentValidations,
-  getFormDataForComponentInRepeatingGroup,
   gridBreakpoints,
   isAttachmentError,
-  isComponentValid,
   isNotAttachmentError,
   parseFileUploadComponentWithTagValidationObject,
-  selectComponentTexts,
   smartLowerCaseFirst,
 } from 'src/utils/formComponentUtils';
-import type { IFormData } from 'src/features/form/data';
-import type { IGridStyling, ILayoutComponent, ISelectionComponentProps } from 'src/layout/layout';
-import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
-import type {
-  IComponentBindingValidation,
-  IComponentValidations,
-  IOptions,
-  IRepeatingGroups,
-  ITextResource,
-} from 'src/types';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { IAttachment, IAttachments } from 'src/features/attachments';
+import type { IGridStyling, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/common.generated';
+import type { CompExternal, CompInternal } from 'src/layout/layout';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 describe('formComponentUtils', () => {
-  const mockFormData: IFormData = {
-    mockBindingInput: 'test',
-    mockBindingCheckbox: 'optionValue1,optionValue2',
-    'group[0].checkbox': 'repOptionValue1,repOptionValue2,repOptionValue3',
-    mockBindingCheckboxWithMapping: 'mockOptionsWithMapping1,mockOptionsWithMapping2',
-    mockBindingDropdown: 'optionValue1',
-    mockBindingDropdownWithMapping: 'mockOptionsWithMapping1',
-    mockBindingRadioButtons: 'optionValue1',
-    mockBindingRadioButtonsWithMapping: 'mockOptionsWithMapping1',
-    mockBindingLikert: 'optionValue1',
-    mockBindingLikertWithMapping: 'mockOptionsWithMapping1',
-    mockBindingDropdownWithReduxOptions: 'mockReduxOptionValue',
-    'someGroup[0].fieldUsedAsValue': 'mockReduxOptionValue',
-    'someGroup[0].fieldUsedAsLabel': 'mockReduxOptionLabel',
-    mockBindingAttachmentSingle: '12345',
-    'mockBindingAttachmentMulti[0]': '123457',
-    'mockBindingAttachmentMulti[1]': '123456',
-  };
-  const mockTextResources: ITextResource[] = [
-    {
-      id: 'textKey1',
-      value: 'Value1',
-    },
-    {
-      id: 'textKey2',
-      value: 'Value2',
-    },
-    {
-      id: 'repTextKey1',
-      value: 'RepValue1',
-    },
-    {
-      id: 'repTextKey2',
-      value: 'RepValue2',
-    },
-    {
-      id: 'repTextKey3',
-      value: 'RepValue3',
-    },
-    {
-      id: 'dropdown.label',
-      value: 'Label value: {0}',
-      unparsedValue: 'Label value: {0}',
-      variables: [
-        {
-          key: 'someGroup[{0}].fieldUsedAsLabel',
-          dataSource: 'dataModel.default',
-        },
-      ],
-    },
-  ];
-  const mockOptions: IOptions = {
-    mockOption: {
-      id: 'mockOption',
-      options: [
-        { value: 'optionValue1', label: 'textKey1' },
-        { value: 'optionValue2', label: 'textKey2' },
-      ],
-    },
-    mockRepOption: {
-      id: 'mockRepOption',
-      options: [
-        { value: 'repOptionValue1', label: 'repTextKey1' },
-        { value: 'repOptionValue2', label: 'repTextKey2' },
-        { value: 'repOptionValue3', label: 'repTextKey3' },
-      ],
-    },
-    '{"id":"mockOptionsWithMapping","mapping":{"someDataField":"someUrlParam"}}': {
-      id: 'mockOptionsWithMapping',
-      mapping: { someDataField: 'someUrlParam' },
-      options: [
-        { value: 'mockOptionsWithMapping1', label: 'Value Mapping 1' },
-        { value: 'mockOptionsWithMapping2', label: 'Value Mapping 2' },
-      ],
-    },
-  };
   const mockAttachments: IAttachments = {
     upload: [
       {
@@ -165,356 +79,6 @@ describe('formComponentUtils', () => {
     },
   ];
 
-  const mockRepeatingGroups: IRepeatingGroups = {};
-
-  describe('getDisplayFormData', () => {
-    it('should return form data for a component', () => {
-      const inputComponent = {
-        type: 'Input',
-      } as ILayoutComponent;
-      const result = getDisplayFormData(
-        'mockBindingInput',
-        inputComponent,
-        inputComponent.id,
-        {},
-        mockFormData,
-        mockOptions,
-        mockTextResources,
-        mockRepeatingGroups,
-      );
-      expect(result).toEqual('test');
-    });
-
-    it('should return comma separated string of text resources for checkboxes with multiple values', () => {
-      const checkboxComponent = {
-        type: 'Checkboxes',
-        optionsId: 'mockOption',
-      } as ISelectionComponentProps;
-      const result = getDisplayFormData(
-        'mockBindingCheckbox',
-        checkboxComponent,
-        checkboxComponent.id,
-        mockAttachments,
-        mockFormData,
-        mockOptions,
-        mockTextResources,
-        mockRepeatingGroups,
-      );
-      expect(result).toEqual('Value1, Value2');
-    });
-
-    it('should return comma separated string of text resources for checkboxes with multiple values and mapping', () => {
-      const checkboxComponent = {
-        type: 'Checkboxes',
-        optionsId: 'mockOptionsWithMapping',
-        mapping: { someDataField: 'someUrlParam' },
-      } as unknown as ISelectionComponentProps;
-      const result = getDisplayFormData(
-        'mockBindingCheckboxWithMapping',
-        checkboxComponent,
-        checkboxComponent.id,
-        mockAttachments,
-        mockFormData,
-        mockOptions,
-        mockTextResources,
-        mockRepeatingGroups,
-      );
-      expect(result).toEqual('Value Mapping 1, Value Mapping 2');
-    });
-
-    it('should return object with text resources for checkboxes with multiple values when asObject parameter is true', () => {
-      const checkboxComponent = {
-        type: 'Checkboxes',
-        optionsId: 'mockOption',
-      } as ISelectionComponentProps;
-      const result = getDisplayFormData(
-        'mockBindingCheckbox',
-        checkboxComponent,
-        checkboxComponent.id,
-        mockAttachments,
-        mockFormData,
-        mockOptions,
-        mockTextResources,
-        mockRepeatingGroups,
-        true,
-      );
-      const expected = {
-        optionValue1: 'Value1',
-        optionValue2: 'Value2',
-      };
-      expect(result).toEqual(expected);
-    });
-
-    it.each(['Likert', 'Dropdown', 'RadioButtons'])('should return text resource for %s component', (type) => {
-      const component = {
-        type,
-        optionsId: 'mockOption',
-      } as ISelectionComponentProps;
-      const result = getDisplayFormData(
-        `mockBinding${type}`,
-        component,
-        component.id,
-        mockAttachments,
-        mockFormData,
-        mockOptions,
-        mockTextResources,
-        mockRepeatingGroups,
-      );
-      expect(result).toEqual('Value1');
-    });
-
-    it.each(['Likert', 'Dropdown', 'RadioButtons'])(
-      'should return text resource for %s component with mapping',
-      (type) => {
-        const component = {
-          type,
-          optionsId: 'mockOptionsWithMapping',
-          mapping: { someDataField: 'someUrlParam' },
-        } as unknown as ISelectionComponentProps;
-        const result = getDisplayFormData(
-          `mockBinding${type}WithMapping`,
-          component,
-          component.id,
-          mockAttachments,
-          mockFormData,
-          mockOptions,
-          mockTextResources,
-          mockRepeatingGroups,
-        );
-        expect(result).toEqual('Value Mapping 1');
-      },
-    );
-
-    it('should return text resource for radio button component', () => {
-      const radioButtonComponent = {
-        type: 'RadioButtons',
-        optionsId: 'mockOption',
-        id: 'some-id',
-      } as ISelectionComponentProps;
-      const result = getDisplayFormData(
-        'mockBindingRadioButtons',
-        radioButtonComponent,
-        radioButtonComponent.id,
-        mockAttachments,
-        mockFormData,
-        mockOptions,
-        mockTextResources,
-        mockRepeatingGroups,
-      );
-      expect(result).toEqual('Value1');
-    });
-
-    it('should return text resource for radio button component with mapping', () => {
-      const radioButtonComponentWithMapping = {
-        type: 'RadioButtons',
-        optionsId: 'mockOptionsWithMapping',
-        mapping: { someDataField: 'someUrlParam' },
-        id: 'some-id',
-      } as unknown as ISelectionComponentProps;
-      const result = getDisplayFormData(
-        'mockBindingRadioButtonsWithMapping',
-        radioButtonComponentWithMapping,
-        radioButtonComponentWithMapping.id,
-        mockAttachments,
-        mockFormData,
-        mockOptions,
-        mockTextResources,
-        mockRepeatingGroups,
-      );
-      expect(result).toEqual('Value Mapping 1');
-    });
-
-    it('should return correct label for dropdown setup with options from redux', () => {
-      const dropdownComponentWithReduxOptions = {
-        type: 'RadioButtons',
-        id: 'some-id',
-        source: {
-          group: 'someGroup',
-          label: 'dropdown.label',
-          value: 'someGroup[{0}].fieldUsedAsValue',
-        },
-      } as unknown as ISelectionComponentProps;
-
-      const repGroups: IRepeatingGroups = {
-        group1: {
-          index: 0,
-          dataModelBinding: 'someGroup',
-        },
-      };
-
-      const result = getDisplayFormData(
-        'mockBindingDropdownWithReduxOptions',
-        dropdownComponentWithReduxOptions,
-        dropdownComponentWithReduxOptions.id,
-        mockAttachments,
-        mockFormData,
-        mockOptions,
-        mockTextResources,
-        repGroups,
-      );
-
-      expect(result).toEqual('Label value: mockReduxOptionLabel');
-    });
-
-    it('should return a single attachment name for a FileUpload component', () => {
-      const component = {
-        id: 'upload',
-        type: 'FileUpload',
-        dataModelBindings: {
-          simpleBinding: 'mockBindingAttachmentSingle',
-        },
-      } as ILayoutComponent;
-      const result = getDisplayFormData(
-        component.dataModelBindings?.simpleBinding,
-        component,
-        component.id,
-        mockAttachments,
-        mockFormData,
-        mockOptions,
-        mockTextResources,
-        mockRepeatingGroups,
-      );
-      expect(result).toEqual('mockNameAttachment1');
-    });
-
-    it('should return multiple attachment names for a FileUpload component', () => {
-      const component = {
-        id: 'upload',
-        type: 'FileUpload',
-        dataModelBindings: {
-          list: 'mockBindingAttachmentMulti',
-        },
-      } as ILayoutComponent;
-      const result = getDisplayFormData(
-        component.dataModelBindings?.list,
-        component,
-        component.id,
-        mockAttachments,
-        mockFormData,
-        mockOptions,
-        mockTextResources,
-        mockRepeatingGroups,
-      );
-      expect(result).toEqual('mockNameAttachment3, mockNameAttachment2');
-    });
-  });
-
-  describe('getFormDataForComponentInRepeatingGroup', () => {
-    it('should return comma separated string of text resources for checkboxes with multiple values', () => {
-      const checkboxComponent = {
-        type: 'Checkboxes',
-        optionsId: 'mockRepOption',
-        dataModelBindings: {
-          simpleBinding: 'group.checkbox',
-        },
-      } as unknown as ISelectionComponentProps;
-      const result = getFormDataForComponentInRepeatingGroup(
-        mockFormData,
-        mockAttachments,
-        checkboxComponent,
-        0,
-        'group',
-        mockTextResources,
-        mockOptions,
-        mockRepeatingGroups,
-      );
-      expect(result).toEqual('RepValue1, RepValue2, RepValue3');
-    });
-  });
-
-  describe('componentValidationsHandledByGenericComponent', () => {
-    it('should return false when dataModelBinding is undefined', () => {
-      const result = componentValidationsHandledByGenericComponent(undefined, 'FileUpload');
-      expect(result).toEqual(false);
-    });
-
-    it('should return true when component type is Datepicker', () => {
-      const result = componentValidationsHandledByGenericComponent({ simpleBinding: 'group.superdate' }, 'Datepicker');
-      expect(result).toEqual(true);
-    });
-
-    it('should return true when component type is Input', () => {
-      const result = componentValidationsHandledByGenericComponent({ simpleBinding: 'group.secretnumber' }, 'Input');
-      expect(result).toEqual(true);
-    });
-  });
-
-  describe('selectComponentTexts', () => {
-    it('should return value of mapped textResourceBinding', () => {
-      const textResourceBindings = {
-        title: 'textKey2',
-      };
-      const result = selectComponentTexts(mockTextResources, textResourceBindings);
-
-      expect(result).toEqual({
-        title: parseHtmlToReact(`<span>Value2</span>`, parseOptions),
-      });
-    });
-
-    it('should return empty object when no textResourceBindings are provided', () => {
-      const result = selectComponentTexts(mockTextResources, undefined);
-
-      expect(result).toEqual({});
-    });
-
-    it('should return original key when textResourceBinding key is not found in textResources', () => {
-      const textResourceBindings = {
-        title: 'key-that-does-not-exist',
-      };
-      const result = selectComponentTexts(mockTextResources, textResourceBindings);
-
-      expect(result).toEqual({
-        title: 'key-that-does-not-exist',
-      });
-    });
-  });
-
-  describe('isComponentValid', () => {
-    it('should return false when validations has errors', () => {
-      const result = isComponentValid({
-        simpleBinding: {
-          errors: ['has error'],
-          warnings: [],
-        },
-      });
-
-      expect(result).toBe(false);
-    });
-
-    it('should return false when validations has errors and warnings', () => {
-      const result = isComponentValid({
-        simpleBinding: {
-          errors: ['has error'],
-          warnings: ['has warning'],
-        },
-      });
-
-      expect(result).toBe(false);
-    });
-
-    it('should return true when validations has warnings', () => {
-      const result = isComponentValid({
-        simpleBinding: {
-          errors: [],
-          warnings: ['has warnings'],
-        },
-      });
-
-      expect(result).toBe(true);
-    });
-
-    it('should return true when validations has no warnings or errors', () => {
-      const result = isComponentValid({
-        simpleBinding: {
-          errors: [],
-          warnings: [],
-        },
-      });
-
-      expect(result).toBe(true);
-    });
-  });
-
   describe('isAttachmentError', () => {
     it('should return true when error has attachmentId', () => {
       const error = {
@@ -567,21 +131,6 @@ describe('formComponentUtils', () => {
     });
   });
 
-  describe('componentHasValidationMessages', () => {
-    it.each(['errors', 'warnings', 'success', 'info'])(
-      'should return true if validation message exists in %p array',
-      (type: keyof IComponentBindingValidation) => {
-        const validations: IComponentValidations = {
-          simpleBinding: {
-            [type]: ['some message'],
-          },
-        };
-        const result = componentHasValidationMessages(validations);
-        expect(result).toEqual(true);
-      },
-    );
-  });
-
   describe('getFieldName', () => {
     const textResources = [
       { id: 'title', value: 'Component name' },
@@ -598,24 +147,25 @@ describe('formComponentUtils', () => {
         generic_field: 'dette feltet',
       },
     };
+    const mockLangTools = staticUseLanguageForTests({ textResources, language: mockLanguage });
 
     it('should return field text from languages when fieldKey is present', () => {
-      const result = getFieldName({ title: 'title' }, textResources, mockLanguage, 'address');
+      const result = getFieldName({ title: 'title' }, mockLangTools, 'address');
       expect(result).toEqual('gateadresse');
     });
 
     it('should return component shortName (textResourceBindings) when no fieldKey is present', () => {
-      const result = getFieldName({ title: 'title', shortName: 'short' }, textResources, mockLanguage);
+      const result = getFieldName({ title: 'title', shortName: 'short' }, mockLangTools);
       expect(result).toEqual('name');
     });
 
     it('should return component title (textResourceBindings) when no shortName (textResourceBindings) and no fieldKey is present', () => {
-      const result = getFieldName({ title: 'title' }, textResources, mockLanguage);
+      const result = getFieldName({ title: 'title' }, mockLangTools);
       expect(result).toEqual('component name');
     });
 
     it('should return generic field name when fieldKey, shortName and title are all not available', () => {
-      const result = getFieldName({ something: 'someTextKey' }, textResources, mockLanguage);
+      const result = getFieldName({}, mockLangTools);
       expect(result).toEqual('dette feltet');
     });
   });
@@ -643,6 +193,8 @@ describe('formComponentUtils', () => {
       { input: 'SaaB', expected: 'SaaB' },
       { input: 'S.a.a.B', expected: 'S.a.a.B' },
       { input: '¿Cómo te llamas?', expected: '¿cómo te llamas?' },
+      { input: undefined, expected: undefined },
+      { input: '', expected: '' },
     ])('Should convert $input to $expected', ({ input, expected }) => {
       expect(smartLowerCaseFirst(input)).toEqual(expected);
     });
@@ -660,8 +212,9 @@ describe('formComponentUtils', () => {
           },
         },
       };
+      const langTools = staticUseLanguageForTests({ language: mockLanguage.language });
 
-      const uploadValidation = getFileUploadComponentValidations('upload', mockLanguage.language);
+      const uploadValidation = getFileUploadComponentValidations('upload', langTools);
       expect(uploadValidation).toEqual({
         simpleBinding: {
           errors: ['Noe gikk galt under opplastingen av filen, prøv igjen senere.'],
@@ -669,7 +222,7 @@ describe('formComponentUtils', () => {
         },
       });
 
-      const updateValidation = getFileUploadComponentValidations('update', mockLanguage.language);
+      const updateValidation = getFileUploadComponentValidations('update', langTools);
       expect(updateValidation).toEqual({
         simpleBinding: {
           errors: ['Noe gikk galt under oppdatering av filens merking, prøv igjen senere.'],
@@ -677,11 +230,7 @@ describe('formComponentUtils', () => {
         },
       });
 
-      const updateValidationWithId = getFileUploadComponentValidations(
-        'update',
-        mockLanguage.language,
-        'mock-attachment-id',
-      );
+      const updateValidationWithId = getFileUploadComponentValidations('update', langTools, 'mock-attachment-id');
       expect(updateValidationWithId).toEqual({
         simpleBinding: {
           errors: [
@@ -691,7 +240,7 @@ describe('formComponentUtils', () => {
         },
       });
 
-      const deleteValidation = getFileUploadComponentValidations('delete', mockLanguage.language);
+      const deleteValidation = getFileUploadComponentValidations('delete', langTools);
       expect(deleteValidation).toEqual({
         simpleBinding: {
           errors: ['Noe gikk galt under slettingen av filen, prøv igjen senere.'],
@@ -776,4 +325,74 @@ describe('formComponentUtils', () => {
       expect(result.lg).toBeUndefined();
     });
   });
+  describe('getColumnStylesRepeatingGroups', () => {
+    it('should return undefined if columnSettings does not contain specified baseComponentId', () => {
+      const node = fakeLayoutNode({ baseComponentId: 'headerName1' });
+      const columnSettings = { headerName2: { width: '100px' } };
+      expect(getColumnStylesRepeatingGroups(node, columnSettings)).toBeUndefined();
+    });
+
+    it('should set textAlignment to alignText property of columnSettings if present', () => {
+      const node = fakeLayoutNode({ baseComponentId: 'headerName1' });
+      const columnSettings: ITableColumnFormatting = { headerName1: { width: '100px', alignText: 'center' } };
+      const columnStyles = getColumnStylesRepeatingGroups(node, columnSettings);
+      expect(columnStyles).toEqual({
+        '--cell-max-number-of-lines': 2,
+        '--cell-text-alignment': 'center',
+        '--cell-width': '100px',
+      });
+    });
+
+    it('should set textAlignment to getTextAlignment(tableHeader) if alignText is not present in columnSettings', () => {
+      const node = fakeLayoutNode({
+        baseComponentId: 'headerName1',
+        id: 'headerName1',
+        type: 'Input',
+        formatting: { number: {} },
+      });
+      const columnSettings: ITableColumnFormatting = { headerName1: { width: '100px' } };
+      const columnStyles = getColumnStylesRepeatingGroups(node, columnSettings);
+      expect(columnStyles).toEqual({
+        '--cell-max-number-of-lines': 2,
+        '--cell-text-alignment': 'right',
+        '--cell-width': '100px',
+      });
+    });
+
+    it('should return columnStyles object if columnSettings is provided and contains specified baseComponentId', () => {
+      const node = fakeLayoutNode({ baseComponentId: 'headerName1' });
+      const columnSettings: ITableColumnFormatting = { headerName1: { width: '100px' } };
+      const columnStyles = getColumnStylesRepeatingGroups(node, columnSettings);
+      expect(columnStyles).toBeDefined();
+    });
+  });
+
+  describe('getColumnStyles', () => {
+    it('should return CSS properties object with correct values based on columnSettings', () => {
+      const columnSettings: ITableColumnProperties = {
+        width: '100px',
+        textOverflow: { lineWrap: true, maxHeight: 3 },
+        alignText: 'center',
+      };
+      const columnStyles = getColumnStyles(columnSettings);
+      expect(columnStyles).toEqual({
+        '--cell-max-number-of-lines': 3,
+        '--cell-text-alignment': 'center',
+        '--cell-width': '100px',
+      });
+    });
+
+    it('should return CSS properties object with default value for "--cell-max-number-of-lines" if lineWrap is false', () => {
+      const columnSettings: ITableColumnProperties = {
+        width: '100px',
+        textOverflow: { lineWrap: false, maxHeight: 3 },
+        alignText: 'center',
+      };
+      const columnStyles = getColumnStyles(columnSettings);
+      expect(columnStyles['--cell-max-number-of-lines']).toEqual(0);
+    });
+  });
 });
+
+const fakeLayoutNode = (item: Partial<CompExternal> & Partial<CompInternal>) =>
+  new BaseLayoutNode(item as any, new LayoutPage(), new LayoutPage(), {} as any) as LayoutNode;

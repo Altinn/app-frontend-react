@@ -1,4 +1,6 @@
-export default class AppFrontend {
+import texts from 'test/e2e/fixtures/texts.json';
+
+export class AppFrontend {
   public apps = {
     /** @see https://dev.altinn.studio/repos/ttd/frontend-test */
     frontendTest: 'frontend-test',
@@ -8,6 +10,9 @@ export default class AppFrontend {
 
     /** @see https://dev.altinn.studio/repos/ttd/anonymous-stateless-app */
     anonymousStateless: 'anonymous-stateless-app',
+
+    /** @see https://dev.altinn.studio/repos/ttd/signing-test */
+    signingTest: 'signing-test',
   };
 
   //Start app instance page
@@ -16,30 +21,79 @@ export default class AppFrontend {
 
   //Common
   public loadingAnimation = 'rect[role="presentation"]';
-  public header = '.a-modal-header';
-  public closeButton = '.a-modal-close-icon';
-  public backButton = '.a-modal-back';
+  public header = '#main-content > header';
+  public closeButton = '[data-testid="form-close-button"]';
+  public backButton = '[data-testid="form-back-button"]';
   public attachmentIcon = '.reg-attachment';
   public sendinButton = '#sendInButton';
   public instantiationButton = '#instantiation-button';
   public errorReport = '[data-testid="ErrorReport"]';
   public altinnError = '[data-testid="AltinnError"]';
+  public instanceErrorCode = '[data-testid="StatusCode"]';
   public profileIconButton = '#profile-icon-button';
   public logOut = '#logout-menu-item';
   public logOutLink = 'a[href$="/ui/authentication/LogOut"]';
-  public designSystemPanel = '[data-testid="panel-content-wrapper"]';
+  public printButton = 'button:contains("Print / Lagre PDF")';
 
   public helpText = {
-    open: '.reg-help-outline',
-    close: '.reg-help-filled',
-    alert: 'div[role="alert"]',
+    open: 'button[aria-expanded=false]',
+    close: 'button[aria-expanded=true]',
+    alert: 'div[role="tooltip"]',
   };
 
   public navMenu = '#navigation-menu';
   public navMenuButtons = '#navigation-menu li > button';
   public navMenuCurrent = '#navigation-menu li > button[aria-current=page]';
+  public navMobileMenu = 'nav[data-testid=NavigationBar] button';
   public navButtons = '[data-testid=NavigationButtons]';
   public startAgain = '#startAgain';
+  public nextButton = `[data-testid=NavigationButtons] button:contains("${texts.next}")`;
+  public prevButton = `[data-testid=NavigationButtons] button:contains("${texts.prev}")`;
+  public backToSummaryButton = `[data-testid=NavigationButtons] button:contains("${texts.backToSummary}")`;
+
+  public grid = {
+    grid: '#page3-grid',
+    gridWithAll: '#all-grid-components',
+    showGridWithAll: '#show-all-components',
+    hasCreditCard: '#has-credit-card',
+    totalAmount: '#gjeld',
+    totalPercent: '#fordeling-total',
+    bolig: {
+      percent: '#fordeling-bolig',
+      percentComponent: 'div[data-componentid="fordeling-bolig"]',
+      percentSummary: 'div[data-testid="summary-fordeling-bolig"]',
+      amount: '#belop-bolig',
+      amountComponent: 'div[data-componentid="belop-bolig"]',
+      amountSummary: 'div[data-testid="summary-belop-bolig"]',
+      verified: '#innhentet-bolig',
+      verifiedComponent: 'div[data-componentid="innhentet-bolig"]',
+      verifiedSummary: 'div[data-testid="summary-innhentet-bolig"]',
+    },
+    studie: {
+      percent: '#fordeling-studie',
+      percentComponent: 'div[data-componentid="fordeling-studie"]',
+      percentSummary: 'div[data-testid="summary-fordeling-studie"]',
+      amount: '#belop-studie',
+      amountComponent: 'div[data-componentid="belop-studie"]',
+      amountSummary: 'div[data-testid="summary-belop-studie"]',
+      verified: '#innhentet-studie',
+      verifiedComponent: 'div[data-componentid="innhentet-studie"]',
+      verifiedSummary: 'div[data-testid="summary-innhentet-studie"]',
+    },
+    kredittkort: {
+      percent: '#fordeling-kredittkort',
+      percentComponent: 'div[data-componentid="fordeling-kredittkort"]',
+      percentSummary: 'div[data-testid="summary-fordeling-kredittkort"]',
+      amount: '#belop-kredittkort',
+      amountComponent: 'div[data-componentid="belop-kredittkort"]',
+      amountSummary: 'div[data-testid="summary-belop-kredittkort"]',
+      verified: '#innhentet-kredittkort',
+      verifiedComponent: 'div[data-componentid="innhentet-kredittkort"]',
+      verifiedSummary: 'div[data-testid="summary-innhentet-kredittkort"]',
+    },
+    summary: 'div[data-testid="summary-summaryGrid1"]',
+    summaryAll: 'div[data-testid="summary-summaryGrid2"]',
+  };
 
   //Receipt
   public receipt = {
@@ -60,17 +114,14 @@ export default class AppFrontend {
 
   public feedback = '#FeedbackContainer';
 
-  //field is a placeholder which has to be replaced with the selector value of the field
-  public fieldValidationError = '[id^="error_field"]';
-  public fieldValidationWarning = '[id^="warning_field"]';
-  public fieldValidationInfo = '[id^="info_field"]';
-  public fieldValidationSuccess = '[id^="success_field"]';
+  public fieldValidation(field: string, errorType: 'error' | 'warning' | 'info' | 'success' = 'error') {
+    return `[id^="${errorType}_${field.replace(/^#/, '')}"]`;
+  }
 
   //selectors for ttd/frontend-test app
   //message - task_1
   public message = {
     header: '#appen-for-test-av-app-frontend',
-    attachmentList: '.attachmentList-title',
     logo: '#altinnLogo',
     logoFormContent: '#form-content-altinnLogo',
   };
@@ -98,20 +149,26 @@ export default class AppFrontend {
     uploadWithTag: {
       uploadZone: '#fileUploadWithTags-changename',
       editWindow: '[id^="attachment-edit-window"]',
-      tagsDropDown: '[id^="attachment-tag-dropdown"]',
+      tagsDropDown: 'input[id^="attachment-tag-dropdown"]',
       saveTag: '[id^="attachment-save-tag-button"]',
-      delete: 'button[class*="makeStyles-deleteButton"]',
       uploaded: '#tagFile',
+      error: '[id^="attachment-error"]',
+      unwantedChar: String.fromCharCode(31),
     },
     reasonRelationship: '#reasonRelationship',
     summaryNameChanges: '#nameChanges',
     mobilenummer: '#mobilnummer',
     sources: '#sources',
     uploadingAnimation: '#loader-upload',
-    deleteAttachment: 'div[data-testid^="attachment-delete"]',
-    uploadedTable: '#altinn-file-listfileUpload-changename',
-    uploadSuccess: '.ai-check-circle',
+    deleteAttachment: '[data-testid^="attachment-delete"]',
+    popOverDeleteButton: '[data-testid="warning-popover-delete-button"]',
+    popOverCancelButton: '[data-testid="warning-popover-cancel-button"]',
+    uploadedTable: '#file-upload-table',
+    downloadAttachment: '[data-testid="attachment-download"]',
+    uploadSuccess: '[data-testid="checkmark-success"]',
     uploadDropZone: '#altinn-drop-zone-fileUpload-changename',
+    componentSummary: '[data-testid="summary-item-simple"]',
+    uploadError: '#error_fileUpload-changename',
   };
 
   //group - task 3
@@ -122,18 +179,18 @@ export default class AppFrontend {
       stor: 'input[name=stor]',
       svaer: 'input[name=svaer]',
       enorm: 'input[name=enorm]',
-      marked: 'input[name=prefill]',
     },
     showGroupToContinue: '#showGroupToContinue',
     mainGroup: '#group-mainGroup',
-    secondGroup: '#group-group-2',
+    overflowGroup: '#group-mainGroup2',
+    secondGroup: '#group-group2',
     secondGroup_newValue: 'input[id^="group2-endre-til"]',
     secondGroup_currentValue: 'input[id^="group2-endre-fra"]',
-    secondGroup_add: '[id^="add-button-group-2"]',
+    secondGroup_add: '[id^="add-button-group2"]',
     secondGroup_add_to_reference_group: '[id^="add-reference-button-group-reference"]',
     secondGroup_save: '[id^="save-reference-button-group-reference"]',
-    secondGroup_save_and_close: '[id^="add-button-grp-group-2"]',
-    secondGroup_table: '[id^="group-group-2-table"]',
+    secondGroup_save_and_close: '[id^="add-button-grp-group2"]',
+    secondGroup_table: '[id^="group-group2-table"]',
     subGroup: '[id^="group-subGroup"]',
     currentValue: 'input[id^="currentValue"]',
     navigationBarButton: '#form-content-nav2 > div > nav > button',
@@ -144,27 +201,34 @@ export default class AppFrontend {
     comments: 'input[id^="comments"]',
     saveSubGroup: 'button[id*="add-button-grp-subGroup"]',
     saveMainGroup: '#add-button-grp-mainGroup',
+    saveAndNextMainGroup: '#next-button-grp-mainGroup',
     editContainer: '[data-testid=group-edit-container]',
     sendersName: '#sendersName',
     summaryText: '#send-in-text',
-    next: 'button[aria-label="Neste"]',
-    back: 'button[aria-label="Tilbake"]',
-    mainGroupSummary: '[id^="mainGroup-"][id$="-summary"]',
+    next: `button:contains("${texts.next}")`,
+    back: `button:contains("${texts.back}")`,
+    mainGroupSummary: '[data-testid="summary-summary1"] [data-testid="display-group-container"]',
     mainGroupTableBody: '#group-mainGroup-table-body',
     options: '#reduxOptions',
-    tableErrors: '[data-testid=group-table-errors]',
+    hideRepeatingGroupRow: '#hideRepeatingGroupRow',
+    tableErrors: '#error_mainGroup',
     popOverDeleteButton: '[data-testid="warning-popover-delete-button"]',
     popOverCancelButton: '[data-testid="warning-popover-cancel-button"]',
     edit: '[data-testid=edit-button]',
     delete: '[data-testid=delete-button]',
-    rows: [0, 1].map((idx) => ({
-      uploadSingle: makeUploaderSelectors('mainUploaderSingle', idx, 3),
-      uploadMulti: makeUploaderSelectors('mainUploaderMulti', idx, 4),
-      editBtn: `#group-mainGroup-table-body > tr:nth-child(${idx + 1}) > td:nth-last-of-type(2n) button`,
-      deleteBtn: `#group-mainGroup-table-body > tr:nth-child(${idx + 1}) > td:last-of-type button`,
+    hideCommentField: '[id^="hideComment"]',
+    hiddenRowsInfoMsg: '[data-componentid="info-msg"]',
+    row: (idx: number) => ({
+      currentValue: `#currentValue-${idx}`,
+      newValue: `#newValue-${idx}`,
+      uploadSingle: makeUploaderSelectors('mainUploaderSingle', idx, 3, 'untagged'),
+      uploadMulti: makeUploaderSelectors('mainUploaderMulti', idx, 4, 'untagged'),
+      editBtn: `#group-mainGroup-table-body > tr:nth-child(${idx + 1}) [data-testid=edit-button]`,
+      deleteBtn: `#group-mainGroup-table-body > tr:nth-child(${idx + 1}) [data-testid=delete-button]`,
       nestedGroup: {
-        rows: [0, 1].map((subIdx) => ({
-          uploadTagMulti: makeUploaderSelectors('subUploader', `${idx}-${subIdx}`, 2, true),
+        row: (subIdx: number) => ({
+          comments: `#comments-${idx}-${subIdx}`,
+          uploadTagMulti: makeUploaderSelectors('subUploader', `${idx}-${subIdx}`, 2, 'tagged'),
           nestedDynamics: `#nestedDynamics-${idx}-${subIdx} input[type=checkbox]`,
           nestedOptions: [
             `#nestedOptions-${idx}-${subIdx} input[type=checkbox]:nth(0)`,
@@ -173,11 +237,11 @@ export default class AppFrontend {
           ],
           editBtn: `#group-subGroup-${idx}-table-body > tr:nth-child(${subIdx + 1}) > td:nth-last-of-type(2n) button`,
           deleteBtn: `#group-subGroup-${idx}-table-body > tr:nth-child(${subIdx + 1}) > td:last-of-type button`,
-        })),
+        }),
         groupContainer: `#group-subGroup-${idx}`,
         saveBtn: `#add-button-grp-subGroup-${idx}`,
       },
-    })),
+    }),
   };
 
   //Stateless-app
@@ -192,8 +256,6 @@ export default class AppFrontend {
   public reporteeSelection = {
     appHeader: '[data-testid="AltinnAppHeader"]',
     searchReportee: 'input[placeholder="Søk etter aktør"]',
-    checkbox: 'input[type="checkbox"]',
-    seeSubUnits: '.ai.ai-expand-circle',
     reportee: '[data-testid="AltinnParty-PartyWrapper"][id^=party-]',
     subUnits: '[data-testid="AltinnParty-SubUnitWrapper"]',
     error: '#party-selection-error',
@@ -206,39 +268,51 @@ export default class AppFrontend {
     table: '#instance-selection-table',
     tableBody: '#instance-selection-table-body',
     newInstance: '#new-instance-button',
+    nexPageButton: 'button[aria-label="Neste side i tabell"]',
+  };
+
+  public signingTest = {
+    incomeField: '#Input-income',
+    incomeSummary: '[data-testid="summary-Input-income"]',
+    submitButton: '#Button-submit',
+    signingButton: '#action-button-SigningButton',
+    managerConfirmPanel: '#form-content-Panel-confirm1',
+    auditorConfirmPanel: '#form-content-Panel-confirm2',
+    sentToAuditor: '#form-content-Header-noaccess',
+    noAccessPanel: '#form-content-Panel-noaccess',
   };
 }
 
-export const makeUploaderSelectors = (
+type Type = 'tagged' | 'untagged';
+
+export function makeUploaderSelectors<T extends Type>(
   id: string,
   row: number | string,
   tablePreviewColumn: number,
-  isTagged = false,
-) => {
-  const tableSelector = isTagged
-    ? `#form-content-${id}-${row} div[data-testid=tagFile] > div > table`
-    : `#altinn-fileuploader-${id}-${row} .file-upload-table`;
-  const statusIdx = isTagged ? 4 : 3;
+  type: T,
+) {
+  const tableSelector =
+    type === 'tagged'
+      ? `#form-content-${id}-${row} [data-testid=tagFile]`
+      : `#altinn-fileuploader-${id}-${row} [data-testid="file-upload-table"]`;
+  const statusIdx = type === 'tagged' ? 4 : 3;
 
   return {
+    fileUploader: `#altinn-fileuploader-${id}-${row}`,
     stateKey: `${id}-${row}`,
     dropZoneContainer: `#altinn-drop-zone-${id}-${row}`,
     dropZone: `#altinn-drop-zone-${id}-${row} input[type=file]`,
-    attachments: [...Array(5)].map((_, idx) => ({
+    attachments: (idx) => ({
       name: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) > td:nth-child(1)`,
       status: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) > td:nth-child(${statusIdx})`,
-      deleteBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) div[role=button]`,
-      ...(isTagged
-        ? {
-            tagSelector: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) select`,
-            tagSave: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) button[id^=attachment-save-tag-button]`,
-            editBtn: `${tableSelector} > tbody > tr:nth-child(${
-              idx + 1
-            }) td:last-of-type button[class*=editTextContainer]`,
-            deleteBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) button[class*=deleteButton]`,
-          }
-        : {}),
-    })),
+      deleteBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) [data-testid^="attachment-delete"]`,
+      ...(type === 'tagged' && {
+        tagSelector: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) input`,
+        tagSave: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) button[id^=attachment-save-tag-button]`,
+        editBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) td:last-of-type button:contains("Rediger")`,
+        deleteBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) button:contains("Slett")`,
+      }),
+    }),
     addMoreBtn: `#altinn-fileuploader-${id}-${row} > button`,
     tableRowPreview:
       typeof row === 'number'
@@ -249,4 +323,4 @@ export const makeUploaderSelectors = (
 
     test: '#group-subGroup-0-table-body > tr > td:nth-child(2)',
   };
-};
+}

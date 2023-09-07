@@ -3,55 +3,18 @@
 exports[`MultipleChoiceSummary MultipleChoiceSummary 1`] = `
 <DocumentFragment>
   <div
-    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-10"
-  >
-    <span
-      class="MuiTypography-root MuiTypography-body1"
-    >
-      TestLabel
-    </span>
-  </div>
-  <div
-    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2"
-  >
-    <button
-      class="MuiButtonBase-root MuiIconButton-root makeStyles-editButton-6"
-      tabindex="0"
-      type="button"
-    >
-      <span
-        class="MuiIconButton-label"
-      >
-        <p
-          class="MuiTypography-root makeStyles-change-8 MuiTypography-body1"
-        >
-          <span>
-            Endre
-          </span>
-          <i
-            aria-hidden="true"
-            class="fa fa-editing-file makeStyles-editIcon-7"
-          />
-        </p>
-      </span>
-      <span
-        class="MuiTouchRipple-root"
-      />
-    </button>
-  </div>
-  <div
     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12"
     data-testid="multiple-choice-summary"
   >
     <ul
-      class="MuiList-root MuiList-padding"
+      class="MuiList-root makeStyles-list-1 MuiList-padding"
     >
       <li
-        class="MuiListItem-root makeStyles-list-2 MuiListItem-gutters"
+        class="MuiListItem-root makeStyles-listItem-2 MuiListItem-gutters"
       >
         <div
           class="MuiListItemText-root"
-          id="1"
+          id="some-key"
         >
           <span
             class="MuiTypography-root makeStyles-data-3 MuiListItemText-primary MuiTypography-body1 MuiTypography-displayBlock"
@@ -61,11 +24,11 @@ exports[`MultipleChoiceSummary MultipleChoiceSummary 1`] = `
         </div>
       </li>
       <li
-        class="MuiListItem-root makeStyles-list-2 MuiListItem-gutters"
+        class="MuiListItem-root makeStyles-listItem-2 MuiListItem-gutters"
       >
         <div
           class="MuiListItemText-root"
-          id="2"
+          id="some-other-key"
         >
           <span
             class="MuiTypography-root makeStyles-data-3 MuiListItemText-primary MuiTypography-body1 MuiTypography-displayBlock"

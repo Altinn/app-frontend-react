@@ -1,35 +1,26 @@
-import * as React from 'react';
+import React from 'react';
 
+import { useLanguage } from 'src/hooks/useLanguage';
 import { InstantiationButton } from 'src/layout/InstantiationButton/InstantiationButton';
+import classes from 'src/layout/InstantiationButton/InstantiationButton.module.css';
+import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { IButtonProvidedProps } from 'src/layout/Button/ButtonComponent';
 
-export type IInstantiationButtonComponentProps = PropsFromGenericComponent<'InstantiationButton'>;
+export type IInstantiationButtonComponentReceivedProps = PropsFromGenericComponent<'InstantiationButton'>;
+export type IInstantiationButtonComponentProvidedProps = IButtonProvidedProps;
 
-const btnGroupStyle = {
-  marginTop: '3.6rem',
-  marginBottom: '0',
-};
+export function InstantiationButtonComponent({ node, ...componentProps }: IInstantiationButtonComponentReceivedProps) {
+  const props: IInstantiationButtonComponentProvidedProps = { ...componentProps, ...node.item, node };
+  const { lang } = useLanguage();
 
-const rowStyle = {
-  marginLeft: '0',
-};
-
-export function InstantiationButtonComponent({ text, ...props }: IInstantiationButtonComponentProps) {
+  const parentIsPage = props.node.parent instanceof LayoutPage;
   return (
-    <div className='container pl-0'>
-      <div
-        className='a-btn-group'
-        style={btnGroupStyle}
-      >
-        <div
-          className='row'
-          style={rowStyle}
-        >
-          <div className='pl-0 a-btn-sm-fullwidth'>
-            <InstantiationButton {...props}>{text}</InstantiationButton>
-          </div>
-        </div>
-      </div>
+    <div
+      className={classes.container}
+      style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}
+    >
+      <InstantiationButton {...props}>{lang(node.item.textResourceBindings?.title)}</InstantiationButton>
     </div>
   );
 }

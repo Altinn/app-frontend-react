@@ -3,13 +3,13 @@ import React from 'react';
 import { makeStyles, Typography } from '@material-ui/core';
 
 export interface IReceiptComponentProps {
-  body: string | JSX.Element | JSX.Element[];
-  title: string;
+  body: string | JSX.Element | JSX.Element[] | null;
+  title: string | JSX.Element | JSX.Element[] | null;
 }
 
 const useStyles = makeStyles(() => ({
   paddingTop24: {
-    paddingTop: '2.4rem',
+    paddingTop: '1.5rem',
   },
   wordBreak: {
     wordBreak: 'break-word',
@@ -32,5 +32,3 @@ export function ReceiptComponentSimple({ title, body }: IReceiptComponentProps) 
     </div>
   );
 }
-
-export default ReceiptComponentSimple;

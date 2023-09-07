@@ -1,8 +1,9 @@
-import * as React from 'react';
+import React from 'react';
 
-import { render as rtlRender, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 
-import AltinnReceipt from 'src/components/organisms/AltinnReceipt';
+import { ReceiptComponent } from 'src/components/organisms/AltinnReceipt';
+import { renderWithProviders } from 'src/testUtils';
 
 const render = (props = {}) => {
   const allProps = {
@@ -14,7 +15,7 @@ const render = (props = {}) => {
     ...props,
   };
 
-  rtlRender(<AltinnReceipt {...allProps} />);
+  renderWithProviders(<ReceiptComponent {...allProps} />);
 };
 
 const attachment1 = {

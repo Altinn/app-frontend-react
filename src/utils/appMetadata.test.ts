@@ -2,7 +2,6 @@ import { instanceOwner, partyTypesAllowed } from 'src/__mocks__/constants';
 import {
   getCurrentDataTypeForApplication,
   getCurrentDataTypeId,
-  getCurrentTaskData,
   getCurrentTaskDataElementId,
   getLayoutSetIdForApplication,
   isStatelessApp,
@@ -194,15 +193,6 @@ describe('appMetadata.ts', () => {
     });
   });
 
-  describe('getCurrentTaskData', () => {
-    const layoutSets: ILayoutSets = { sets: [] };
-    it('should return current task data', () => {
-      const result = getCurrentTaskData(application, instance, layoutSets);
-      const expected = instance.data.find((e) => e.id === 'datamodel-data-guid');
-      expect(result).toEqual(expected);
-    });
-  });
-
   describe('getCurrentDataTypeId', () => {
     it('should return connected dataTypeId in app metadata if no layout set is configured', () => {
       const layoutSets: ILayoutSets = { sets: [] };
@@ -215,9 +205,10 @@ describe('appMetadata.ts', () => {
       const instanceInConfirm: IInstance = {
         ...instance,
         process: {
+          started: '',
           ...instance.process,
           currentTask: {
-            ...(instance.process.currentTask as ITask),
+            ...(instance.process?.currentTask as ITask),
             flow: 3,
             elementId: 'Task_2',
             name: 'Bekreftelse',

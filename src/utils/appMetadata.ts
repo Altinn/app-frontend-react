@@ -1,4 +1,4 @@
-import { getInstanceIdRegExp } from 'src/utils';
+import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
 import { getLayoutsetForDataElement } from 'src/utils/layout';
 import type { ILayoutSets } from 'src/types';
 import type { IApplication, IInstance } from 'src/types/shared';
@@ -70,7 +70,7 @@ export function getCurrentDataTypeForApplication({
 export function isStatelessApp(application: IApplication | null) {
   const url = window.location.href; // This should probably be reconsidered when changing router.
   const expr = getInstanceIdRegExp({ prefix: '/instance' });
-  const match = url.match(expr);
+  const match = url?.match(expr);
   if (match) {
     // app can be setup as stateless but then go over to a statefull app
     return false;
@@ -85,7 +85,7 @@ export const getCurrentTaskDataElementId = (
   layoutSets: ILayoutSets | null,
 ) => {
   const currentDataTypeId = getCurrentDataTypeId(appMetaData, instance, layoutSets);
-  const currentTaskDataElement = instance?.data.find((element) => element.dataType === currentDataTypeId);
+  const currentTaskDataElement = (instance?.data || []).find((element) => element.dataType === currentDataTypeId);
   return currentTaskDataElement?.id;
 };
 
@@ -94,12 +94,16 @@ export const getCurrentTaskData = (appMetaData: IApplication, instance: IInstanc
   return instance.data.find((element) => element.dataType === currentDataTypeId);
 };
 
+/**
+ * @deprecated Prefer getCurrentDataTypeForApplication() instead, as this function should be unexported - it does
+ * not account for stateless apps.
+ */
 export const getCurrentDataTypeId = (
   appMetaData: IApplication | null,
   instance?: IInstance | null,
   layoutSets?: ILayoutSets | null,
 ) => {
-  const currentTaskId = instance?.process.currentTask?.elementId;
+  const currentTaskId = instance?.process?.currentTask?.elementId;
   if (currentTaskId === null || currentTaskId === undefined) {
     return undefined;
   }

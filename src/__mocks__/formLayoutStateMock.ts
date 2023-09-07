@@ -1,5 +1,5 @@
 import { getUiConfigStateMock } from 'src/__mocks__/uiConfigStateMock';
-import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
+import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
 
 export function getFormLayoutStateMock(customStates?: Partial<ILayoutState>): ILayoutState {
   const mockFormLayoutState: ILayoutState = {
@@ -24,7 +24,6 @@ export function getFormLayoutStateMock(customStates?: Partial<ILayoutState>): IL
           },
           readOnly: false,
           required: false,
-          disabled: false,
         },
         {
           id: 'field1',
@@ -37,7 +36,6 @@ export function getFormLayoutStateMock(customStates?: Partial<ILayoutState>): IL
           },
           readOnly: false,
           required: false,
-          disabled: false,
         },
         {
           id: 'field2',
@@ -50,7 +48,6 @@ export function getFormLayoutStateMock(customStates?: Partial<ILayoutState>): IL
           },
           readOnly: false,
           required: false,
-          disabled: false,
         },
         {
           id: 'field3',
@@ -63,7 +60,6 @@ export function getFormLayoutStateMock(customStates?: Partial<ILayoutState>): IL
           },
           readOnly: false,
           required: false,
-          disabled: false,
         },
       ],
     },

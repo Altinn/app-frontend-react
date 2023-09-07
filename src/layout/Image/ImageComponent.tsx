@@ -1,11 +1,11 @@
-import * as React from 'react';
+import React from 'react';
 
 import { Grid, makeStyles } from '@material-ui/core';
 
-import { useAppSelector } from 'src/common/hooks';
-import { HelpTextContainer } from 'src/features/form/components/HelpTextContainer';
+import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useLanguage } from 'src/hooks/useLanguage';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { IAltinnWindow } from 'src/types';
 
 export type IImageProps = PropsFromGenericComponent<'Image'>;
 
@@ -15,20 +15,18 @@ const useStyles = makeStyles({
   },
 });
 
-export function ImageComponent(props: IImageProps) {
+export function ImageComponent({ node }: IImageProps) {
+  const { lang, langAsString } = useLanguage();
+  const { id, image, textResourceBindings } = node.item;
   const classes = useStyles();
-  const language = useAppSelector((state) => state.profile.profile?.profileSettingPreference.language || 'nb');
-  const width = props.image?.width || '100%';
-  const align = props.image?.align || 'center';
-  const altText =
-    props.textResourceBindings?.altTextImg && props.getTextResourceAsString(props.textResourceBindings.altTextImg);
+  const languageKey = useAppSelector((state) => state.profile.profile?.profileSettingPreference.language || 'nb');
+  const width = image?.width || '100%';
+  const align = image?.align || 'center';
+  const altText = textResourceBindings?.altTextImg && langAsString(textResourceBindings.altTextImg);
 
-  let imgSrc = props.image?.src[language] || props.image?.src.nb || '';
+  let imgSrc = image?.src[languageKey] || image?.src.nb || '';
   if (imgSrc.startsWith('wwwroot')) {
-    imgSrc = imgSrc.replace(
-      'wwwroot',
-      `/${(window as Window as IAltinnWindow).org}/${(window as Window as IAltinnWindow).app}`,
-    );
+    imgSrc = imgSrc.replace('wwwroot', `/${window.org}/${window.app}`);
   }
 
   const imgType = imgSrc.slice(-3);
@@ -39,12 +37,13 @@ export function ImageComponent(props: IImageProps) {
       container
       direction='row'
       justifyContent={align}
+      spacing={1}
     >
       <Grid item={true}>
         {renderSvg ? (
           <object
             type='image/svg+xml'
-            id={props.id}
+            id={id}
             data={imgSrc}
             role={'presentation'}
           >
@@ -52,29 +51,29 @@ export function ImageComponent(props: IImageProps) {
               src={imgSrc}
               alt={altText}
               style={{
-                width: width,
+                width,
               }}
             />
           </object>
         ) : (
           <img
-            id={props.id}
+            id={id}
             src={imgSrc}
             alt={altText}
             style={{
-              width: width,
+              width,
             }}
           />
         )}
       </Grid>
-      {props.textResourceBindings?.help && (
+      {textResourceBindings?.help && (
         <Grid
           item={true}
           className={classes.spacing}
         >
           <HelpTextContainer
-            language={props.language}
-            helpText={props.getTextResource(props.textResourceBindings.help)}
+            helpText={lang(textResourceBindings.help)}
+            title={altText}
           />
         </Grid>
       )}

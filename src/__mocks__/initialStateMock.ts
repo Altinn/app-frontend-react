@@ -4,8 +4,9 @@ import { getFormDataStateMock } from 'src/__mocks__/formDataStateMock';
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
 import { getInstanceDataStateMock } from 'src/__mocks__/instanceDataStateMock';
 import { partyMock } from 'src/__mocks__/partyMock';
+import { getProcessStateMock } from 'src/__mocks__/processMock';
 import { getProfileStateMock } from 'src/__mocks__/profileStateMock';
-import { getLanguageFromCode } from 'src/language/languages';
+import { DevToolsTab } from 'src/features/devtools/data/types';
 import type { IRuntimeState } from 'src/types';
 
 export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRuntimeState {
@@ -16,6 +17,25 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
     },
     attachments: {
       attachments: {},
+    },
+    devTools: {
+      activeTab: DevToolsTab.General,
+      isOpen: false,
+      hasBeenOpen: false,
+      pdfPreview: false,
+      hiddenComponents: 'hide',
+      layoutInspector: {
+        selectedComponentId: undefined,
+      },
+      nodeInspector: {
+        selectedNodeId: undefined,
+      },
+      exprPlayground: {
+        expression: undefined,
+        forPage: undefined,
+        forComponentId: undefined,
+      },
+      logs: [],
     },
     formData: getFormDataStateMock(),
     formDataModel: {
@@ -40,6 +60,10 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
       error: null,
       invalidDataTypes: [],
     },
+    footerLayout: {
+      footerLayout: null,
+      error: null,
+    },
     instanceData: getInstanceDataStateMock(),
     instantiation: {
       error: null,
@@ -50,11 +74,6 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
       dataTask: false,
       stateless: null,
     },
-    language: {
-      language: getLanguageFromCode('nb'),
-      selectedAppLanguage: '',
-      error: null,
-    },
     organisationMetaData: {
       allOrgs: {
         mockOrg: {
@@ -63,7 +82,7 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
             nb: 'Mockdepartementet',
             nn: 'Mockdepartementet',
           },
-          logo: '',
+          logo: 'https://altinncdn.no/orgs/mockOrg/mockOrg.png',
           orgnr: '',
           homepage: '',
           environments: ['tt02', 'production'],
@@ -76,11 +95,13 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
       parties: [partyMock],
       selectedParty: partyMock,
     },
-    process: {
+    pdf: {
+      readyForPrint: false,
+      pdfFormat: null,
+      method: null,
       error: null,
-      taskType: null,
-      taskId: null,
     },
+    process: getProcessStateMock(),
     profile: getProfileStateMock(),
     queue: {
       appTask: { error: null, isDone: null },
@@ -95,6 +116,28 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
           id: 'option.from.rep.group.label',
           value: 'The value from the group is: {0}',
           unparsedValue: 'The value from the group is: {0}',
+          variables: [
+            {
+              dataSource: 'dataModel.skjema',
+              key: 'someGroup[{0}].labelField',
+            },
+          ],
+        },
+        {
+          id: 'option.from.rep.group.description',
+          value: 'Description: The value from the group is: {0}',
+          unparsedValue: 'Description: The value from the group is: {0}',
+          variables: [
+            {
+              dataSource: 'dataModel.skjema',
+              key: 'someGroup[{0}].labelField',
+            },
+          ],
+        },
+        {
+          id: 'option.from.rep.group.helpText',
+          value: 'Help Text: The value from the group is: {0}',
+          unparsedValue: 'Help Text: The value from the group is: {0}',
           variables: [
             {
               dataSource: 'dataModel.skjema',
@@ -124,6 +167,10 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
             },
           ],
         },
+        {
+          id: 'accordion.title',
+          value: 'This is a title',
+        },
       ],
       error: null,
       language: 'nb',
@@ -131,10 +178,14 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
     optionState: {
       options: {},
       error: null,
+      loading: false,
     },
     dataListState: {
       dataLists: {},
       error: null,
+      dataListCount: 0,
+      dataListLoadedCount: 0,
+      loading: false,
     },
     applicationSettings: {
       applicationSettings: applicationSettingsMock,

@@ -1,24 +1,30 @@
 import React from 'react';
 
-import { act, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import type { PreloadedState } from 'redux';
+import { screen } from '@testing-library/react';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { PanelGroupContainer } from 'src/layout/Panel/PanelGroupContainer';
+import { PanelReferenceGroupContainer } from 'src/layout/Panel/PanelReferenceGroupContainer';
 import { renderWithProviders } from 'src/testUtils';
-import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
-import type { ILayoutGroup } from 'src/layout/Group/types';
+import { useResolvedNode } from 'src/utils/layout/ExprContext';
+import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
+import type {
+  CompGroupNonRepeatingPanelExternal,
+  CompGroupNonRepeatingPanelInternal,
+} from 'src/layout/Group/config.generated';
+import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { ILayout } from 'src/layout/layout';
-import type { IPanelGroupContainerProps } from 'src/layout/Panel/PanelGroupContainer';
-import type { RootState } from 'src/store';
+import type { RootState } from 'src/redux/store';
 
 describe('PanelGroupContainer', () => {
   const initialState = getInitialStateMock();
-  const container: ILayoutGroup = {
-    id: 'group-id',
+  const container: CompGroupNonRepeatingPanelExternal = {
+    id: 'group',
     type: 'Group',
-    children: ['input-1', 'input-2'],
+    children: ['input1', 'input2'],
+    textResourceBindings: {
+      title: 'Title for PanelGoup',
+      body: 'Body for PanelGroup',
+    },
     panel: {
       variant: 'info',
     },
@@ -26,7 +32,7 @@ describe('PanelGroupContainer', () => {
 
   const groupComponents: ILayout = [
     {
-      id: 'input-1',
+      id: 'input1',
       type: 'Input',
       dataModelBindings: {
         simpleBinding: 'something',
@@ -36,10 +42,9 @@ describe('PanelGroupContainer', () => {
       },
       readOnly: false,
       required: false,
-      disabled: false,
     },
     {
-      id: 'input-2',
+      id: 'input2',
       type: 'Input',
       dataModelBindings: {
         simpleBinding: 'something.else',
@@ -49,13 +54,12 @@ describe('PanelGroupContainer', () => {
       },
       readOnly: false,
       required: false,
-      disabled: false,
     },
   ];
 
   const state: ILayoutState = {
     layouts: {
-      FormLayout: [container, ...groupComponents],
+      FormLayout: [],
     },
     uiConfig: {
       ...initialState.formLayout.uiConfig,
@@ -67,193 +71,65 @@ describe('PanelGroupContainer', () => {
   };
 
   it('should display panel with group children', async () => {
-    render(
-      {
-        container,
-        components: groupComponents,
+    render({
+      container,
+      components: groupComponents,
+      customState: {
+        formLayout: state,
       },
-      { formLayout: state },
-    );
+    });
 
-    const customIcon = await screen.queryByTestId('panel-group-container');
+    const customIcon = screen.queryByTestId('panel-group-container');
     expect(customIcon).toBeInTheDocument();
 
-    const firstInputTitle = await screen.queryByText('Title for first input');
+    const firstInputTitle = screen.queryByText('Title for first input');
     expect(firstInputTitle).toBeInTheDocument();
 
-    const secondInputTitle = await screen.queryByText('Title for second input');
+    const secondInputTitle = screen.queryByText('Title for second input');
     expect(secondInputTitle).toBeInTheDocument();
   });
 
-  it('should display panel with group children when referencing another group with correct index reference', async () => {
-    const components: ILayout = [
-      {
-        id: 'input-1',
-        type: 'Input',
-        dataModelBindings: {
-          simpleBinding: 'referencedGroup.inputField',
-        },
-        textResourceBindings: {
-          title: 'group.input.title',
-        },
-        readOnly: false,
-        required: false,
-        disabled: false,
-      },
-    ];
-    const containerWithGroupReference: ILayoutGroup = {
-      ...container,
-      textResourceBindings: {
-        add_label: 'Add new item',
-      },
-      panel: {
-        ...container.panel,
-        groupReference: {
-          group: 'referencedGroup',
-        },
-      },
-    };
-
+  it('should display title and body', async () => {
     render({
-      container: containerWithGroupReference,
-      components,
+      container,
+      components: groupComponents,
+      customState: {
+        formLayout: state,
+      },
     });
 
-    const user = userEvent.setup();
+    const title = screen.queryByText('Title for PanelGoup');
+    expect(title).toBeInTheDocument();
 
-    const addNewButton = await screen.getByText('Add new item');
-    await act(() => user.click(addNewButton));
-
-    const inputFieldTitle = await screen.queryByText('The value from the group is: Value from input field [2]');
-    expect(inputFieldTitle).toBeInTheDocument();
-  });
-
-  it('should display panel with referenced group children if no children is supplied', async () => {
-    const containerWithNoChildrenWithGroupReference: ILayoutGroup = {
-      ...container,
-      textResourceBindings: {
-        add_label: 'Add new item',
-      },
-      panel: {
-        ...container.panel,
-        groupReference: {
-          group: 'referencedGroup',
-        },
-      },
-    };
-
-    render({
-      container: containerWithNoChildrenWithGroupReference,
-      components: undefined,
-    });
-
-    const user = userEvent.setup();
-
-    const addNewButton = await screen.getByText('Add new item');
-    await act(() => user.click(addNewButton));
-
-    const firstInputTitle = await screen.queryByText('Referenced Group Input');
-    expect(firstInputTitle).toBeInTheDocument();
-  });
-
-  it('should open panel when clicking add and close when clicking save,', async () => {
-    const containerWithNoChildrenWithGroupReference: ILayoutGroup = {
-      ...container,
-      textResourceBindings: {
-        add_label: 'Add new item',
-      },
-      panel: {
-        ...container.panel,
-        groupReference: {
-          group: 'referencedGroup',
-        },
-      },
-    };
-
-    render({
-      container: containerWithNoChildrenWithGroupReference,
-      components: undefined,
-    });
-
-    const user = userEvent.setup();
-
-    // save should not be present when panel is closed
-    expect(await screen.queryByText('Lagre')).not.toBeInTheDocument();
-
-    await act(async () => user.click(await screen.getByText('Add new item')));
-
-    // save should appear and add should be hidden
-    expect(await screen.getByText('Lagre')).toBeInTheDocument();
-
-    expect(await screen.queryByText('Add new item')).not.toBeInTheDocument();
-
-    // pressing save should close panel and show add button again
-    await act(async () => user.click(await screen.getByText('Lagre')));
-
-    expect(await screen.getByText('Add new item')).toBeInTheDocument();
-  });
-
-  it('should display nothing if group is hidden', async () => {
-    const stateWithHidden: PreloadedState<RootState> = {
-      formLayout: {
-        ...state,
-        uiConfig: {
-          ...state.uiConfig,
-          hiddenFields: ['group-id'],
-        },
-      },
-    };
-
-    render(
-      {
-        container,
-        components: groupComponents,
-      },
-      stateWithHidden,
-    );
-
-    const customIcon = await screen.queryByTestId('panel-group-container');
-    expect(customIcon).not.toBeInTheDocument();
-  });
-
-  it('should display custom icon if supplied', async () => {
-    const containerWithCustomIcon = {
-      ...container,
-      panel: {
-        ...container.panel,
-        iconUrl: 'someIcon.svg',
-        iconAlt: 'some alt text',
-      },
-    };
-
-    render(
-      {
-        container: containerWithCustomIcon,
-        components: groupComponents,
-      },
-      { formLayout: state },
-    );
-
-    const customIcon = await screen.queryByTestId('custom-icon');
-    expect(customIcon).toBeInTheDocument();
-
-    const altText = await screen.queryByAltText('some alt text');
-    expect(altText).toBeInTheDocument();
+    const body = screen.queryByText('Body for PanelGroup');
+    expect(body).toBeInTheDocument();
   });
 });
 
-const render = (props: Partial<IPanelGroupContainerProps> = {}, customState: PreloadedState<RootState> = {}) => {
-  const allProps: IPanelGroupContainerProps = {
-    ...({} as IPanelGroupContainerProps),
-    ...props,
+interface TestProps {
+  container: CompGroupNonRepeatingPanelExternal;
+  components?: ILayout | undefined;
+  customState?: Partial<RootState>;
+}
+
+const render = ({ container, components, customState }: TestProps) => {
+  let preloadedState = getInitialStateMock() as RootState;
+  preloadedState = {
+    ...preloadedState,
+    ...customState,
   };
+  const formLayout = preloadedState.formLayout.layouts && preloadedState.formLayout.layouts['FormLayout'];
+  container && formLayout?.push(container);
+  formLayout?.push(...(components || []));
 
-  const { container } = renderWithProviders(<PanelGroupContainer {...allProps} />, {
-    preloadedState: {
-      ...getInitialStateMock(),
-      ...customState,
-    },
-  });
+  renderWithProviders(<WrappedComponent id={'group'} />, { preloadedState });
+};
 
-  return container;
+const WrappedComponent = ({ id }: { id: string }) => {
+  const node = useResolvedNode(id);
+  if (!node) {
+    throw new Error(`Could not find node with id ${id}`);
+  }
+
+  return <PanelReferenceGroupContainer node={node as LayoutNodeForGroup<CompGroupNonRepeatingPanelInternal>} />;
 };

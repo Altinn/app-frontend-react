@@ -1,0 +1,41 @@
+import { useLanguage } from 'src/hooks/useLanguage';
+import { formatNumber } from 'src/utils/formattingUtils';
+import type { IUseLanguage } from 'src/hooks/useLanguage';
+import type { IInputFormatting } from 'src/layout/Input/config.generated';
+import type { CurrencyFormattingOptions, UnitFormattingOptions } from 'src/utils/formattingUtils';
+
+export const useMapToReactNumberConfig = (formatting: IInputFormatting | undefined, value = ''): IInputFormatting => {
+  const langTools = useLanguage();
+  return getMapToReactNumberConfig(formatting, value, langTools);
+};
+
+export const getMapToReactNumberConfig = (
+  formatting: IInputFormatting | undefined,
+  value = '',
+  langTools: IUseLanguage,
+): IInputFormatting => {
+  const { selectedLanguage } = langTools;
+
+  if (!formatting?.currency && !formatting?.unit) {
+    return formatting ?? {};
+  }
+
+  const createOptions = (config: IInputFormatting) => {
+    if (config.currency) {
+      return { style: 'currency', currency: config.currency } as CurrencyFormattingOptions;
+    }
+    if (config.unit) {
+      return { style: 'unit', unit: config.unit } as UnitFormattingOptions;
+    }
+    return undefined;
+  };
+  // Check if position has been configured in dynamic formatting. Either prefix or suffix
+  const position = formatting?.position || undefined;
+
+  const numberFormatResult = {
+    ...formatNumber(value, selectedLanguage, createOptions(formatting), position),
+    ...formatting.number,
+  };
+
+  return { ...formatting, number: numberFormatResult };
+};

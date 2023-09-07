@@ -1,72 +1,70 @@
-import * as React from 'react';
+import React from 'react';
 
-import { Button, ButtonColor, ButtonVariant, PanelVariant, PopoverPanel } from '@altinn/altinn-design-system';
+import { Button, Popover } from '@digdir/design-system-react';
 import { makeStyles } from '@material-ui/core';
 
-import { getLanguageFromKey } from 'src/language/sharedLanguage';
-import type { ILanguage } from 'src/types/shared';
+import { useLanguage } from 'src/hooks/useLanguage';
 
 const useStyles = makeStyles({
   popoverButtonContainer: {
     display: 'flex',
-    marginTop: '1rem',
-    gap: '1rem',
+    marginTop: '0.625rem',
+    gap: '0.625rem',
   },
 });
 
 export interface IDeleteWarningPopover {
-  open: boolean;
-  setPopoverOpen: (open: boolean) => void;
   trigger: React.ReactNode;
-  language: ILanguage;
   onPopoverDeleteClick: () => void;
   onCancelClick: () => void;
   deleteButtonText: string;
   messageText: string;
-  side?: 'bottom' | 'left' | 'right' | 'top';
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  placement?: 'bottom' | 'left' | 'right' | 'top';
 }
 
 export function DeleteWarningPopover({
-  open,
-  setPopoverOpen,
   trigger,
-  language,
   onPopoverDeleteClick,
   onCancelClick,
   deleteButtonText,
   messageText,
-  side = 'bottom',
+  placement = 'bottom',
+  open,
+  setOpen,
 }: IDeleteWarningPopover) {
   const classes = useStyles();
+  const { lang } = useLanguage();
   return (
-    <PopoverPanel
-      variant={PanelVariant.Warning}
-      side={side}
-      open={open}
-      onOpenChange={setPopoverOpen}
-      showIcon={false}
-      forceMobileLayout={true}
+    <Popover
+      variant='warning'
+      placement={placement}
       trigger={trigger}
+      open={open}
+      onOpenChange={() => setOpen(!open)}
     >
       <div>{messageText}</div>
       <div className={classes.popoverButtonContainer}>
         <Button
           data-testid='warning-popover-delete-button'
-          variant={ButtonVariant.Filled}
-          color={ButtonColor.Danger}
+          variant='filled'
+          size='small'
+          color='danger'
           onClick={onPopoverDeleteClick}
         >
           {deleteButtonText}
         </Button>
         <Button
           data-testid='warning-popover-cancel-button'
-          variant={ButtonVariant.Quiet}
-          color={ButtonColor.Secondary}
+          variant='quiet'
+          size='small'
+          color='secondary'
           onClick={onCancelClick}
         >
-          {getLanguageFromKey('general.cancel', language)}
+          {lang('general.cancel')}
         </Button>
       </div>
-    </PopoverPanel>
+    </Popover>
   );
 }

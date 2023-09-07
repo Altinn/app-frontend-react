@@ -1,20 +1,20 @@
-import * as React from 'react';
+import React from 'react';
 
 import { createTheme, MuiThemeProvider, Typography } from '@material-ui/core';
 
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
-import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
-import { ProcessActions } from 'src/shared/resources/process/processSlice';
-import { AltinnAppTheme } from 'src/theme';
-import { getTextFromAppOrDefault } from 'src/utils/textResource';
+import { ReadyForPrint } from 'src/components/ReadyForPrint';
+import { ProcessActions } from 'src/features/process/processSlice';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useLanguage } from 'src/hooks/useLanguage';
+import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 
 const theme = createTheme(AltinnAppTheme);
 
-export default function Feedback() {
+export function Feedback() {
   const dispatch = useAppDispatch();
   const processState = useAppSelector((state) => state.process.taskType);
-  const textResources = useAppSelector((state) => state.textResources.resources);
-  const language = useAppSelector((state) => state.language.language);
+  const { lang } = useLanguage();
 
   React.useEffect(() => {
     if (processState) {
@@ -22,15 +22,11 @@ export default function Feedback() {
     }
   }, [processState, dispatch]);
 
-  if (!language) {
-    return null;
-  }
-
   return (
     <div id='FeedbackContainer'>
       <MuiThemeProvider theme={theme}>
-        <Typography variant='body1'>{getTextFromAppOrDefault('feedback.title', textResources, language)}</Typography>
-        <Typography variant='body1'>{getTextFromAppOrDefault('feedback.body', textResources, language)}</Typography>
+        <Typography variant='body1'>{lang('feedback.title')}</Typography>
+        <Typography variant='body1'>{lang('feedback.body')}</Typography>
       </MuiThemeProvider>
       <ReadyForPrint />
     </div>

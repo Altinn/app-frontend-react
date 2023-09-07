@@ -2,21 +2,15 @@ import React from 'react';
 
 import { screen } from '@testing-library/react';
 
-import { getFormDataStateMock, getFormLayoutStateMock, getInitialStateMock } from 'src/__mocks__/mocks';
+import { getFormDataStateMock } from 'src/__mocks__/formDataStateMock';
+import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
+import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { GenericComponent } from 'src/layout/GenericComponent';
-import { mockComponentProps, renderWithProviders } from 'src/testUtils';
-import type { IActualGenericComponentProps } from 'src/layout/GenericComponent';
+import { renderWithProviders } from 'src/testUtils';
+import { useResolvedNode } from 'src/utils/layout/ExprContext';
+import type { CompExternal } from 'src/layout/layout';
 
-const render = (props: Partial<IActualGenericComponentProps<any>> = {}) => {
-  const allProps: IActualGenericComponentProps<'Input'> = {
-    ...mockComponentProps,
-    id: 'mockId',
-    type: 'Input' as any,
-    textResourceBindings: {},
-    dataModelBindings: {},
-    ...props,
-  };
-
+const render = (props: Partial<CompExternal> = {}) => {
   const formLayout = getFormLayoutStateMock({
     layouts: {
       FormLayout: [
@@ -45,6 +39,7 @@ const render = (props: Partial<IActualGenericComponentProps<any>> = {}) => {
               xl: 3,
             },
           },
+          ...(props as any),
         },
       ],
     },
@@ -56,7 +51,12 @@ const render = (props: Partial<IActualGenericComponentProps<any>> = {}) => {
     },
   });
 
-  renderWithProviders(<GenericComponent {...allProps} />, {
+  const Wrapper = () => {
+    const node = useResolvedNode('mockId');
+    return node ? <GenericComponent node={node} /> : null;
+  };
+
+  return renderWithProviders(<Wrapper />, {
     preloadedState: {
       ...getInitialStateMock(),
       formLayout,
@@ -66,10 +66,12 @@ const render = (props: Partial<IActualGenericComponentProps<any>> = {}) => {
 };
 
 describe('GenericComponent', () => {
-  it('should render Unknown component when passing unknown type', () => {
-    render({ type: 'unknown-type' } as any);
+  it('should show an error in the logs when rendering an unknown component type', () => {
+    const spy = jest.spyOn(window, 'logWarnOnce').mockImplementation();
+    const { container } = render({ type: 'unknown-type' } as any);
 
-    expect(screen.getByText(/unknown component type/i)).toBeInTheDocument();
+    expect(spy).toHaveBeenCalledWith(`No component definition found for type 'unknown-type'`);
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('should render Input component when passing Input type', () => {
@@ -109,7 +111,7 @@ describe('GenericComponent', () => {
         title: 'titleKey',
         description: 'descriptionKey',
       },
-    });
+    } as any);
 
     expect(screen.queryByTestId('description-mockId')).not.toBeInTheDocument();
     expect(screen.queryByTestId('label-mockId')).not.toBeInTheDocument();

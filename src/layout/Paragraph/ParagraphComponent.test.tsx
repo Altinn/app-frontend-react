@@ -1,26 +1,35 @@
 import React from 'react';
 
-import { render as rtlRender, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 
 import { ParagraphComponent } from 'src/layout/Paragraph/ParagraphComponent';
-import type { IParagraphProps } from 'src/layout/Paragraph/ParagraphComponent';
+import { renderGenericComponentTest } from 'src/testUtils';
+import type { RenderGenericComponentTestProps } from 'src/testUtils';
 
 describe('ParagraphComponent', () => {
   it('should render with supplied text', () => {
     const textContent = 'paragraph text content';
-    render({ text: textContent });
+    render({
+      component: {
+        textResourceBindings: {
+          title: textContent,
+        },
+      },
+    });
 
     expect(screen.getByText(textContent)).toBeInTheDocument();
   });
 
   it('should render help text if help text is supplied', () => {
     render({
-      textResourceBindings: { help: 'this is the help text' },
+      component: {
+        textResourceBindings: { help: 'this is the help text' },
+      },
     });
 
     expect(
       screen.getByRole('button', {
-        name: /popover\.popover_button_helptext/i,
+        name: /Hjelp/i,
       }),
     ).toBeInTheDocument();
   });
@@ -31,38 +40,41 @@ describe('ParagraphComponent', () => {
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
-  it('should render in a <div> when a header text is supplied', () => {
+  it('should render in a <h3> when a header text is supplied', () => {
     const id = 'mock-id';
-    render({ id, text: <h3>Hello world</h3> });
+    render({ component: { id, textResourceBindings: { title: '### Hello world' } } });
 
-    expect(screen.getByTestId(`paragraph-component-${id}`).tagName).toEqual('DIV');
+    // eslint-disable-next-line testing-library/no-node-access
+    expect(screen.getByTestId(`paragraph-component-${id}`).children[0].tagName).toEqual('H3');
   });
 
-  it('should render in a <p> when regular text content is supplied', () => {
+  it('should render in a <span> when text content is HTML', () => {
     const id = 'mock-id';
     render({
-      id,
-      text: (
-        <>
-          Hello world with line
-          <br />
-          break
-        </>
-      ),
+      component: {
+        id,
+        textResourceBindings: {
+          title: 'Hello world with line<br>break',
+        },
+      },
     });
-
-    expect(screen.getByTestId(`paragraph-component-${id}`).tagName).toEqual('P');
+    // eslint-disable-next-line testing-library/no-node-access
+    expect(screen.getByTestId(`paragraph-component-${id}`).children[0].tagName).toEqual('SPAN');
   });
 });
 
-const render = (props: Partial<IParagraphProps> = {}) => {
-  const allProps = {
-    id: 'abc123',
+const render = ({ component, genericProps }: Partial<RenderGenericComponentTestProps<'Paragraph'>> = {}) => {
+  renderGenericComponentTest({
     type: 'Paragraph',
-    text: 'paragraph text content',
-    getTextResource: (key: string) => key,
-    ...props,
-  } as IParagraphProps;
-
-  rtlRender(<ParagraphComponent {...allProps} />);
+    renderer: (props) => <ParagraphComponent {...props} />,
+    component: {
+      id: 'abc123',
+      type: 'Paragraph',
+      textResourceBindings: {
+        title: 'paragraph text content',
+      },
+      ...component,
+    },
+    genericProps,
+  });
 };

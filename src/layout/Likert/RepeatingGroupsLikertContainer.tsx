@@ -1,80 +1,65 @@
-import * as React from 'react';
+import React from 'react';
 
-import { Grid, TableCell, Typography } from '@material-ui/core';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
+import { Table, TableBody, TableCell, TableHeader, TableRow } from '@digdir/design-system-react';
+import { Grid, Typography } from '@material-ui/core';
 
-import { useAppSelector } from 'src/common/hooks';
-import { useGetOptions } from 'src/components/hooks';
-import { AltinnSpinner, AltinnTable, AltinnTableBody, AltinnTableHeader, AltinnTableRow } from 'src/components/shared';
-import { ExprDefaultsForGroup } from 'src/features/expressions';
-import { useExpressions } from 'src/features/expressions/useExpressions';
+import { AltinnSpinner } from 'src/components/AltinnSpinner';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useGetOptions } from 'src/hooks/useGetOptions';
+import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
+import { useLanguage } from 'src/hooks/useLanguage';
+import { LayoutStyle } from 'src/layout/common.generated';
 import { GenericComponent } from 'src/layout/GenericComponent';
-import { LayoutStyle } from 'src/types';
-import { getTextResource } from 'src/utils/formComponentUtils';
+import classes from 'src/layout/Likert/LikertComponent.module.css';
 import { getOptionLookupKey } from 'src/utils/options';
-import type { ILayoutGroup } from 'src/layout/Group/types';
-import type { ILayoutComponent } from 'src/layout/layout';
-import type { IRadioButtonsContainerProps } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
-import type { ITextResource } from 'src/types';
+import type { IGenericComponentProps } from 'src/layout/GenericComponent';
+import type { CompGroupRepeatingLikertInternal } from 'src/layout/Group/config.generated';
+import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type RepeatingGroupsLikertContainerProps = {
-  id: string;
-  repeatingGroupDeepCopyComponents: ILayoutComponent[];
-  textResources: ITextResource[];
-  container: ILayoutGroup;
+  node: LayoutNodeForGroup<CompGroupRepeatingLikertInternal>;
 };
 
-export const RepeatingGroupsLikertContainer = ({
-  id,
-  repeatingGroupDeepCopyComponents,
-  textResources,
-  container,
-}: RepeatingGroupsLikertContainerProps) => {
-  const { optionsId, mapping, source, options } =
-    repeatingGroupDeepCopyComponents[0] as unknown as IRadioButtonsContainerProps;
-  const mobileView = useMediaQuery('(max-width:992px)'); // breakpoint on altinn-modal
-  const apiOptions = useGetOptions({ optionsId, mapping, source });
+export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertContainerProps) => {
+  const firstLikertChild = node?.children((item) => item.type === 'Likert') as LayoutNode<'Likert'> | undefined;
+  const { optionsId, mapping, queryParameters, source, options } = firstLikertChild?.item || {};
+  const mobileView = useIsMobileOrTablet();
+  const apiOptions = useGetOptions({ optionsId, mapping, queryParameters, source });
   const calculatedOptions = apiOptions || options || [];
   const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });
   const fetchingOptions = useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading);
+  const { lang } = useLanguage();
 
-  const textResourceBindings = useExpressions(container.textResourceBindings, {
-    forComponentId: container.id,
-    defaults: ExprDefaultsForGroup.textResourceBindings,
-  });
-
-  const getText = (key: string | undefined) => {
-    return key ? getTextResource(key, textResources) : undefined;
-  };
-
-  const title = getText(textResourceBindings?.title);
-  const description = getText(textResourceBindings?.description);
-  const leftColumnHeader = getText(textResourceBindings?.leftColumnHeader);
+  const id = node.item.id;
+  const hasDescription = !!node?.item.textResourceBindings?.description;
+  const hasTitle = !!node?.item.textResourceBindings?.title;
   const titleId = `likert-title-${id}`;
   const descriptionId = `likert-description-${id}`;
 
-  const Header = (
+  const Header = () => (
     <Grid
       item={true}
       xs={12}
+      data-componentid={node?.item.id}
     >
-      {title && (
+      {hasTitle && (
         <Typography
           component='div'
           variant='h3'
           style={{ width: '100%' }}
           id={titleId}
         >
-          {title}
+          {lang(node?.item.textResourceBindings?.title)}
         </Typography>
       )}
-      {description && (
+      {hasDescription && (
         <Typography
           variant='body1'
           gutterBottom
           id={descriptionId}
         >
-          {description}
+          {lang(node?.item.textResourceBindings?.description)}
         </Typography>
       )}
     </Grid>
@@ -86,17 +71,22 @@ export const RepeatingGroupsLikertContainer = ({
         item
         container
       >
-        {Header}
+        <Header />
         <div
           role='group'
-          aria-labelledby={(title && titleId) || undefined}
-          aria-describedby={(description && descriptionId) || undefined}
+          aria-labelledby={(hasTitle && titleId) || undefined}
+          aria-describedby={(hasDescription && descriptionId) || undefined}
         >
-          {repeatingGroupDeepCopyComponents.map((comp) => {
+          {node?.children().map((comp) => {
+            if (comp.isType('Group') || comp.isType('Summary')) {
+              window.logWarnOnce('Unexpected Group or Summary inside likert container:\n', comp.item.id);
+              return;
+            }
+
             return (
               <GenericComponent
-                key={comp.id}
-                {...(comp as ILayoutComponent)}
+                key={comp.item.id}
+                node={comp}
               />
             );
           })}
@@ -107,53 +97,59 @@ export const RepeatingGroupsLikertContainer = ({
 
   return (
     <>
-      {Header}
+      <Header />
       {fetchingOptions ? (
         <AltinnSpinner />
       ) : (
-        <AltinnTable
-          id={id}
-          tableLayout='auto'
-          wordBreak='normal'
-          aria-labelledby={(title && titleId) || undefined}
-          aria-describedby={(description && descriptionId) || undefined}
-        >
-          <AltinnTableHeader
-            id={`likert-table-header-${id}`}
-            padding={'dense'}
+        <div className={classes.likertTableContainer}>
+          <Table
+            id={id}
+            aria-labelledby={(hasTitle && titleId) || undefined}
+            aria-describedby={(hasDescription && descriptionId) || undefined}
           >
-            <AltinnTableRow>
-              <TableCell>{leftColumnHeader}</TableCell>
-              {calculatedOptions.map((option, index) => {
-                const colLabelId = `${id}-likert-columnheader-${index}`;
+            <TableHeader id={`likert-table-header-${id}`}>
+              <TableRow>
+                {node?.item.textResourceBindings?.leftColumnHeader ? (
+                  <TableCell>{lang(node?.item.textResourceBindings?.leftColumnHeader)}</TableCell>
+                ) : (
+                  <TableCell />
+                )}
+                {calculatedOptions.map((option, index) => {
+                  const colLabelId = `${id}-likert-columnheader-${index}`;
+                  return (
+                    <TableCell
+                      key={option.value}
+                      id={colLabelId}
+                      className={classes.likertTableHeaderTop}
+                    >
+                      {lang(option.label)}
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+            </TableHeader>
+            <TableBody id={`likert-table-body-${id}`}>
+              {node?.children().map((comp) => {
+                if (comp.isType('Group') || comp.isType('Summary')) {
+                  window.logWarnOnce('Unexpected Group or Summary inside likert container:\n', comp.item.id);
+                  return;
+                }
+
+                const override: IGenericComponentProps<'Likert'>['overrideItemProps'] = {
+                  layout: LayoutStyle.Table,
+                };
+
                 return (
-                  <TableCell
-                    key={option.value}
-                    id={colLabelId}
-                    align='center'
-                  >
-                    {getTextResource(option.label, textResources)}
-                  </TableCell>
+                  <GenericComponent
+                    key={comp.item.id}
+                    node={comp as LayoutNode<'Likert'>}
+                    overrideItemProps={override}
+                  />
                 );
               })}
-            </AltinnTableRow>
-          </AltinnTableHeader>
-          <AltinnTableBody
-            id={`likert-table-body-${id}`}
-            padding={'dense'}
-          >
-            {repeatingGroupDeepCopyComponents.map((comp) => {
-              return (
-                <GenericComponent
-                  key={comp.id}
-                  {...comp}
-                  layout={LayoutStyle.Table}
-                  groupContainerId={id}
-                />
-              );
-            })}
-          </AltinnTableBody>
-        </AltinnTable>
+            </TableBody>
+          </Table>
+        </div>
       )}
     </>
   );

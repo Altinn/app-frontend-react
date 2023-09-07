@@ -1,64 +1,54 @@
-import * as React from 'react';
+import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
 import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import mockAxios from 'jest-mock-axios';
 
-import { getInitialStateMock } from 'src/__mocks__/mocks';
-import { InstantiationButton } from 'src/layout/InstantiationButton/InstantiationButton';
-import { setupStore } from 'src/store';
-import { renderWithProviders } from 'src/testUtils';
-import type { InstantiationButtonProps as InstantiationButtonProps } from 'src/layout/InstantiationButton/InstantiationButton';
+import { InstantiationButtonComponent } from 'src/layout/InstantiationButton/InstantiationButtonComponent';
+import { renderGenericComponentTest } from 'src/testUtils';
 
-const render = ({ props = {} }) => {
-  const allProps = {
-    id: 'instantiate-button',
-    ...props,
-  } as InstantiationButtonProps;
-  const stateMock = getInitialStateMock();
-  const store = setupStore(stateMock);
-
-  const spy = jest.spyOn(store, 'dispatch');
-
-  renderWithProviders(
-    <MemoryRouter initialEntries={['/']}>
-      <Routes>
-        <Route
-          path={'/'}
-          element={<InstantiationButton {...allProps}>Instantiate</InstantiationButton>}
-        />
-        <Route
-          path='/instance/abc123'
-          element={<span>You are now looking at the instance</span>}
-        />
-      </Routes>
-    </MemoryRouter>,
-    {
-      store,
+const render = () => {
+  renderGenericComponentTest({
+    type: 'InstantiationButton',
+    component: {
+      textResourceBindings: {
+        title: 'Instantiate',
+      },
     },
-  );
-
-  return spy;
+    renderer: (props) => (
+      <MemoryRouter initialEntries={['/']}>
+        <Routes>
+          <Route
+            path={'/'}
+            element={<InstantiationButtonComponent {...props} />}
+          />
+          <Route
+            path='/instance/abc123'
+            element={<span>You are now looking at the instance</span>}
+          />
+        </Routes>
+      </MemoryRouter>
+    ),
+  });
 };
 
 describe('InstantiationButton', () => {
   it('should show button and it should be possible to click and start loading', async () => {
     mockAxios.reset();
-    const dispatch = render({});
+    render();
     expect(screen.getByText('Instantiate')).toBeInTheDocument();
 
-    expect(dispatch).toHaveBeenCalledTimes(0);
     expect(mockAxios).toHaveBeenCalledTimes(0);
 
-    expect(screen.queryByText('general.loading')).toBeNull();
+    expect(screen.queryByText('Laster innhold')).toBeNull();
 
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(() => userEvent.click(screen.getByRole('button')));
 
-    expect(dispatch).toHaveBeenCalledTimes(1);
     expect(mockAxios).toHaveBeenCalledTimes(1);
 
-    expect(screen.getByText('general.loading')).toBeInTheDocument();
+    expect(screen.getByText('Laster innhold')).toBeInTheDocument();
 
     await act(() => {
       mockAxios.mockResponse({ data: { id: 'abc123' } });

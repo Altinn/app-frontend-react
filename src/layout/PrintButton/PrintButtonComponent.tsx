@@ -1,21 +1,26 @@
 import React from 'react';
 
-import { Button, ButtonColor, ButtonVariant } from '@altinn/altinn-design-system';
+import { Button } from '@digdir/design-system-react';
 
-import { useAppSelector } from 'src/common/hooks';
-import { getTextFromAppOrDefault } from 'src/utils/textResource';
+import type { PropsFromGenericComponent } from '..';
 
-export const PrintButtonComponent = () => {
-  const textResources = useAppSelector((state) => state.textResources.resources);
-  const language = useAppSelector((state) => state.language.language);
+import { useLanguage } from 'src/hooks/useLanguage';
+import { LayoutPage } from 'src/utils/layout/LayoutPage';
+
+export const PrintButtonComponent = ({ node }: PropsFromGenericComponent<'PrintButton'>) => {
+  const { lang } = useLanguage();
+  const { textResourceBindings } = node.item;
+  const parentIsPage = node.parent instanceof LayoutPage;
 
   return (
     <Button
-      variant={ButtonVariant.Outline}
-      color={ButtonColor.Primary}
+      style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}
+      variant='outline'
+      color='primary'
+      size='small'
       onClick={window.print}
     >
-      {language && getTextFromAppOrDefault('general.print_button_text', textResources, language, undefined, true)}
+      {lang(textResourceBindings?.title ?? 'general.print_button_text')}
     </Button>
   );
 };

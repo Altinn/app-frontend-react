@@ -1,15 +1,15 @@
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 
-import { act, screen, waitFor } from '@testing-library/react';
-import mockAxios from 'jest-mock-axios';
+import { screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import { createStore } from 'redux';
 import type { AxiosError } from 'axios';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import Entrypoint from 'src/features/entrypoint/Entrypoint';
+import { Entrypoint } from 'src/features/entrypoint/Entrypoint';
 import { renderWithProviders } from 'src/testUtils';
-import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
+import type { AppQueriesContext } from 'src/contexts/appQueriesContext';
+import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IRuntimeState } from 'src/types';
 import type { IApplicationLogic } from 'src/types/shared';
 
@@ -35,15 +35,15 @@ describe('Entrypoint', () => {
     mockStore = createStore(mockReducer, mockInitialState);
   });
 
-  it('should show invalid party error if user has no valid parties', async () => {
-    render({ store: mockStore });
-    mockAxios.mockResponse({
-      data: {
-        valid: false,
-        validParties: [],
-        message: '',
+  test('should show invalid party error if user has no valid parties', async () => {
+    render({
+      store: mockStore,
+      queries: {
+        doPartyValidation: () => Promise.resolve({ valid: false, validParties: [], message: '' }),
       },
     });
+
+    await waitForElementToBeRemoved(screen.queryByText('Vent litt, vi henter det du trenger'));
 
     const invalidPartyText = await screen.findByText(
       'For å starte denne tjenesten må du ha tilganger som knytter deg til en privatperson.',
@@ -51,15 +51,8 @@ describe('Entrypoint', () => {
     expect(invalidPartyText).not.toBeNull();
   });
 
-  it('should show loader while fetching data then start instantiation by default ', async () => {
+  test('should show loader while fetching data then start instantiation by default ', async () => {
     render({ store: mockStore });
-    mockAxios.mockResponse({
-      data: {
-        valid: true,
-        validParties: [],
-        message: '',
-      },
-    });
 
     const contentLoader = await screen.findByText('Loading...');
     expect(contentLoader).not.toBeNull();
@@ -68,7 +61,7 @@ describe('Entrypoint', () => {
     expect(instantiationText).not.toBeNull();
   });
 
-  it('should show loader while fetching data then start statelessQueue if stateless app', async () => {
+  test('should show loader while fetching data then start statelessQueue if stateless app', async () => {
     const statelessApplication: IApplicationMetadata = {
       ...(mockInitialState.applicationMetadata.applicationMetadata as IApplicationMetadata),
       onEntry: {
@@ -82,15 +75,13 @@ describe('Entrypoint', () => {
     mockStore = createStore(mockReducer, mockStateWithStatelessApplication);
     mockStore.dispatch = jest.fn();
 
-    render({ store: mockStore });
-    mockAxios.mockResponse({
-      data: {
-        valid: true,
-        validParties: [],
-        message: '',
+    render({
+      store: mockStore,
+      queries: {
+        doPartyValidation: () => Promise.resolve({ valid: true, validParties: [], message: '' }),
       },
+      allowAnonymous: false,
     });
-
     const contentLoader = await screen.findByText('Loading...');
     expect(contentLoader).not.toBeNull();
 
@@ -102,7 +93,7 @@ describe('Entrypoint', () => {
     });
   });
 
-  it('should show loader while fetching data then start statelessQueue if stateless app with allowAnonymous', async () => {
+  test('should show loader while fetching data then start statelessQueue if stateless app with allowAnonymous', async () => {
     const statelessApplication: IApplicationMetadata = {
       ...(mockInitialState.applicationMetadata.applicationMetadata as IApplicationMetadata),
       onEntry: {
@@ -117,14 +108,7 @@ describe('Entrypoint', () => {
     mockStore = createStore(mockReducer, mockStateWithStatelessApplication);
     mockStore.dispatch = jest.fn();
 
-    render({ store: mockStore });
-    mockAxios.mockResponse({
-      data: {
-        valid: true,
-        validParties: [],
-        message: '',
-      },
-    });
+    render({ store: mockStore, allowAnonymous: true });
 
     const contentLoader = await screen.findByText('Loading...');
     expect(contentLoader).not.toBeNull();
@@ -137,7 +121,7 @@ describe('Entrypoint', () => {
     });
   });
 
-  it('should fetch active instances and display InstanceSelection.tsx if select-instance is configured', async () => {
+  test('should fetch active instances and display InstanceSelection.tsx if select-instance is configured', async () => {
     const application: IApplicationMetadata = {
       ...(mockInitialState.applicationMetadata.applicationMetadata as IApplicationMetadata),
       onEntry: {
@@ -150,41 +134,25 @@ describe('Entrypoint', () => {
     mockStateWithStatelessApplication.applicationMetadata.applicationMetadata = application;
     mockStore = createStore(mockReducer, mockStateWithStatelessApplication);
     mockStore.dispatch = jest.fn();
-    render({ store: mockStore });
 
-    await waitFor(() => {
-      expect(mockAxios.post).toHaveBeenCalled();
-    });
-
-    act(() => {
-      mockAxios.mockResponse({
-        data: {
-          valid: true,
-          validParties: [],
-          message: '',
-        },
-      });
-    });
-
-    await waitFor(() => {
-      expect(mockAxios.get).toHaveBeenCalled();
-    });
-
-    act(() => {
-      mockAxios.mockResponse({
-        data: [
-          {
-            id: 'some-id-1',
-            lastChanged: '28-01-1992',
-            lastChangedBy: 'Navn Navnesen',
-          },
-          {
-            id: 'some-id-2',
-            lastChanged: '06-03-1974',
-            lastChangedBy: 'Test Testesen',
-          },
-        ],
-      });
+    render({
+      store: mockStore,
+      queries: {
+        doPartyValidation: () => Promise.resolve({ valid: true, validParties: [], message: '' }),
+        fetchActiveInstances: () =>
+          Promise.resolve([
+            {
+              id: 'some-id-1',
+              lastChanged: '28-01-1992',
+              lastChangedBy: 'Navn Navnesen',
+            },
+            {
+              id: 'some-id-2',
+              lastChanged: '06-03-1974',
+              lastChangedBy: 'Test Testesen',
+            },
+          ]),
+      },
     });
 
     await waitFor(async () => {
@@ -193,7 +161,7 @@ describe('Entrypoint', () => {
     });
   });
 
-  it('should display MissingRolesError if getFormData has returned 403', async () => {
+  test('should display MissingRolesError if getFormData has returned 403', async () => {
     const mockState: IRuntimeState = {
       ...mockInitialState,
       formData: {
@@ -203,26 +171,26 @@ describe('Entrypoint', () => {
     };
     mockStore = createStore(mockReducer, mockState);
     render({ store: mockStore });
-    mockAxios.mockResponse({
-      data: {
-        valid: true,
-        validParties: [],
-        message: '',
-      },
-    });
 
-    await act(async () => {
-      const missingRolesText = await screen.findByText('Du mangler rettigheter for å se denne tjenesten.');
-      expect(missingRolesText).not.toBeNull();
-    });
+    const missingRolesText = await screen.findByText('Du mangler rettigheter for å se denne tjenesten.');
+    expect(missingRolesText).not.toBeNull();
   });
 
-  function render({ store }) {
+  function render({
+    store,
+    allowAnonymous = false,
+    queries,
+  }: {
+    store: any;
+    allowAnonymous?: boolean;
+    queries?: Partial<AppQueriesContext>;
+  }) {
     return renderWithProviders(
       <MemoryRouter>
-        <Entrypoint />
+        <Entrypoint allowAnonymous={allowAnonymous} />
       </MemoryRouter>,
       { store },
+      queries,
     );
   }
 });

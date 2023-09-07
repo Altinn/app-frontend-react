@@ -1,80 +1,84 @@
-import * as React from 'react';
+import React from 'react';
 import { Navigate } from 'react-router-dom';
 
 import type { AxiosError } from 'axios';
 
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
-import { AltinnContentIconFormData, AltinnContentLoader } from 'src/components/shared';
-import { Form } from 'src/features/form/containers/Form';
-import { ValidationActions } from 'src/features/form/validation/validationSlice';
-import InstanceSelection from 'src/features/instantiate/containers/InstanceSelection';
+import { AltinnContentIconFormData } from 'src/components/atoms/AltinnContentIconFormData';
+import { Form } from 'src/components/form/Form';
+import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoader';
+import { PresentationComponent } from 'src/components/wrappers/Presentation';
+import { InstanceSelection } from 'src/features/instantiate/containers/InstanceSelection';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
-import MissingRolesError from 'src/features/instantiate/containers/MissingRolesError';
-import NoValidPartiesError from 'src/features/instantiate/containers/NoValidPartiesError';
+import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
+import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
+import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
+import { PartyActions } from 'src/features/party/partySlice';
+import { QueueActions } from 'src/features/queue/queueSlice';
+import { ValidationActions } from 'src/features/validation/validationSlice';
+import { usePartyValidationMutation } from 'src/hooks/mutations/usePartyValidationMutation';
+import { useActiveInstancesQuery } from 'src/hooks/queries/useActiveInstancesQuery';
+import { useAlwaysPromptForParty } from 'src/hooks/useAlwaysPromptForParty';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
-import Presentation from 'src/shared/containers/Presentation';
-import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import { PresentationType, ProcessTaskType } from 'src/types';
 import { isStatelessApp } from 'src/utils/appMetadata';
-import { checkIfAxiosError, get, HttpStatusCodes, post } from 'src/utils/network/networking';
-import { getActiveInstancesUrl, getPartyValidationUrl } from 'src/utils/urls/appUrlHelper';
-import type { ShowTypes } from 'src/shared/resources/applicationMetadata';
-import type { ISimpleInstance } from 'src/types';
+import { checkIfAxiosError, HttpStatusCodes } from 'src/utils/network/networking';
+import type { ShowTypes } from 'src/features/applicationMetadata';
 
-export default function Entrypoint({ allowAnonymous }: any) {
+const titleKey = 'instantiate.starting';
+
+type EntrypointProps = {
+  allowAnonymous: boolean;
+};
+export function Entrypoint({ allowAnonymous }: EntrypointProps) {
   const [action, setAction] = React.useState<ShowTypes | null>(null);
-  const [partyValidation, setPartyValidation] = React.useState<any | null>(null);
-  const [activeInstances, setActiveInstances] = React.useState<ISimpleInstance[] | null>(null);
-  const applicationMetadata = useAppSelector((state) => state.applicationMetadata?.applicationMetadata);
   const selectedParty = useAppSelector((state) => state.party.selectedParty);
+  const { langAsStringOrEmpty } = useLanguage();
+
+  const {
+    data: partyValidation,
+    mutate: validatePartyMutate,
+    isError: hasPartyValidationError,
+  } = usePartyValidationMutation();
+
+  const shouldFetchActiveInstances = !!(
+    action === 'select-instance' &&
+    partyValidation?.valid &&
+    selectedParty &&
+    selectedParty.partyId
+  );
+  const { data: activeInstances, isError: hasActiveInstancesError } = useActiveInstancesQuery(
+    selectedParty?.partyId || '',
+    shouldFetchActiveInstances,
+  );
+
+  const applicationMetadata = useAppSelector((state) => state.applicationMetadata?.applicationMetadata);
   const statelessLoading = useAppSelector((state) => state.isLoading.stateless);
   const formDataError = useAppSelector((state) => state.formData.error);
   const appName = useAppSelector(selectAppName);
   const appOwner = useAppSelector(selectAppOwner);
+  const alwaysPromptForParty = useAlwaysPromptForParty();
   const dispatch = useAppDispatch();
+
+  const componentHasErrors = hasPartyValidationError || hasActiveInstancesError;
 
   const handleNewInstance = () => {
     setAction('new-instance');
   };
 
   React.useEffect(() => {
-    if (action === 'select-instance' && partyValidation?.valid && selectedParty) {
-      const fetchExistingInstances = async () => {
-        try {
-          const instances = await get(getActiveInstancesUrl(selectedParty.partyId));
-          setActiveInstances(instances || []);
-        } catch (err) {
-          console.error(err);
-          throw new Error('Server did not return active instances');
-        }
-      };
-
-      fetchExistingInstances();
+    if (!selectedParty) {
+      return;
     }
-  }, [action, partyValidation, selectedParty]);
 
-  React.useEffect(() => {
-    if (selectedParty) {
-      const validatatePartySelection = async () => {
-        if (!selectedParty) {
-          return;
-        }
-        try {
-          const { data } = await post(getPartyValidationUrl(selectedParty.partyId));
-          setPartyValidation(data);
-        } catch (err) {
-          console.error(err);
-          throw new Error('Server did not respond with party validation');
-        }
-      };
-
-      validatatePartySelection();
-    }
-  }, [selectedParty]);
+    validatePartyMutate(selectedParty.partyId);
+  }, [selectedParty, validatePartyMutate]);
 
   React.useEffect(() => {
     // If user comes back to entrypoint from an active instance we need to clear validation messages
-    dispatch(ValidationActions.updateValidations({ validations: {} }));
+    dispatch(ValidationActions.updateValidations({ validationResult: { validations: {} }, merge: false }));
   }, [dispatch]);
 
   React.useEffect(() => {
@@ -87,6 +91,15 @@ export default function Entrypoint({ allowAnonymous }: any) {
       }
     }
   }, [applicationMetadata]);
+
+  if (componentHasErrors) {
+    return <UnknownError />;
+  }
+
+  if (alwaysPromptForParty === true && !selectedParty) {
+    dispatch(PartyActions.setAutoRedirect(true));
+    return <Navigate to={'/partyselection/'} />;
+  }
 
   if (partyValidation?.valid === false) {
     if (partyValidation.validParties?.length === 0) {
@@ -108,24 +121,26 @@ export default function Entrypoint({ allowAnonymous }: any) {
     return <InstantiateContainer />;
   }
 
-  if (action === 'select-instance' && partyValidation?.valid && activeInstances !== null) {
-    if (activeInstances.length === 0) {
+  if (action === 'select-instance' && partyValidation?.valid && activeInstances !== undefined) {
+    if (activeInstances?.length === 0) {
       // no existing instances exist, we start instantiation
       return <InstantiateContainer />;
     }
-    return (
-      // let user decide if continuing on existing or starting new
-      <Presentation
-        header={appName || ''}
-        appOwner={appOwner}
-        type={ProcessTaskType.Unknown}
-      >
-        <InstanceSelection
-          instances={activeInstances}
-          onNewInstance={handleNewInstance}
-        />
-      </Presentation>
-    );
+    if (activeInstances) {
+      return (
+        // let user decide if continuing on existing or starting new
+        <PresentationComponent
+          header={appName || ''}
+          appOwner={appOwner}
+          type={ProcessTaskType.Unknown}
+        >
+          <InstanceSelection
+            instances={activeInstances}
+            onNewInstance={handleNewInstance}
+          />
+        </PresentationComponent>
+      );
+    }
   }
 
   // stateless view
@@ -135,7 +150,7 @@ export default function Entrypoint({ allowAnonymous }: any) {
     }
     if (statelessLoading === false) {
       return (
-        <Presentation
+        <PresentationComponent
           header={appName || ''}
           appOwner={appOwner}
           type={PresentationType.Stateless}
@@ -143,14 +158,14 @@ export default function Entrypoint({ allowAnonymous }: any) {
           <div>
             <Form />
           </div>
-        </Presentation>
+        </PresentationComponent>
       );
     }
   }
 
   return (
-    <Presentation
-      header=''
+    <PresentationComponent
+      header={langAsStringOrEmpty(titleKey)}
       type={ProcessTaskType.Unknown}
     >
       <AltinnContentLoader
@@ -159,6 +174,6 @@ export default function Entrypoint({ allowAnonymous }: any) {
       >
         <AltinnContentIconFormData />
       </AltinnContentLoader>
-    </Presentation>
+    </PresentationComponent>
   );
 }

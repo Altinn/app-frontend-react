@@ -1,6 +1,7 @@
 import { getFileEnding, removeFileEnding, shiftAttachmentRowInRepeatingGroup } from 'src/utils/attachment';
-import type { ILayoutComponent } from 'src/layout/layout';
-import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
+import type { IAttachment, IAttachments } from 'src/features/attachments';
+import type { CompFileUploadExternal } from 'src/layout/FileUpload/config.generated';
+import type { CompExternal } from 'src/layout/layout';
 
 describe('attachment utils', () => {
   describe('shiftAttachmentRowInRepeatingGroup', () => {
@@ -29,27 +30,42 @@ describe('attachment utils', () => {
       'otherNested-1-2': [mkAttachment('id15')],
     };
 
-    const mockComponents: ILayoutComponent[] = [
+    const genericFileUploadProps: Pick<
+      CompFileUploadExternal,
+      'maxFileSizeInMB' | 'maxNumberOfAttachments' | 'minNumberOfAttachments' | 'displayMode'
+    > = {
+      displayMode: 'simple',
+      maxFileSizeInMB: 15,
+      maxNumberOfAttachments: 15,
+      minNumberOfAttachments: 1,
+    };
+
+    const mockComponents: CompExternal[] = [
       {
         id: 'uploader',
         type: 'FileUpload',
-      } as ILayoutComponent,
+        ...genericFileUploadProps,
+      },
       {
         id: 'inGroup',
         type: 'FileUpload',
-      } as ILayoutComponent,
+        ...genericFileUploadProps,
+      },
       {
         id: 'otherInGroup',
         type: 'FileUpload',
-      } as ILayoutComponent,
+        ...genericFileUploadProps,
+      },
       {
         id: 'nested',
         type: 'FileUpload',
-      } as ILayoutComponent,
+        ...genericFileUploadProps,
+      },
       {
         id: 'otherNested',
         type: 'FileUpload',
-      } as ILayoutComponent,
+        ...genericFileUploadProps,
+      },
     ];
 
     const simplify = (attachments: IAttachments): { [key: string]: string[] } => {

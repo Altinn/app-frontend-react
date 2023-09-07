@@ -1,11 +1,15 @@
-import * as React from 'react';
+import React from 'react';
 
-import { Box, useTheme } from '@material-ui/core';
+import { Button } from '@digdir/design-system-react';
+import { Close, FullscreenEnter, FullscreenExit, Left } from '@navikt/ds-icons';
+import cn from 'classnames';
 
-import { useAppSelector } from 'src/common/hooks';
-import { CloseButton } from 'src/components/presentation/CloseButton';
 import { LanguageSelector } from 'src/components/presentation/LanguageSelector';
-import { getLanguageFromKey } from 'src/utils/sharedUtils';
+import classes from 'src/components/presentation/NavBar.module.css';
+import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useLanguage } from 'src/hooks/useLanguage';
 
 export interface INavBarProps {
   handleClose: () => void;
@@ -13,52 +17,80 @@ export interface INavBarProps {
   showBackArrow?: boolean;
 }
 
-const NavBar = (props: INavBarProps) => {
-  const hideCloseButton = useAppSelector((state) => state.formLayout.uiConfig.hideCloseButton);
-  const language = useAppSelector((state) => state.language.language || {});
-  const theme = useTheme();
+const expandIconStyle = { transform: 'rotate(45deg)' };
 
-  const showLanguageSelector = useAppSelector((state) => state.formLayout.uiConfig.showLanguageSelector);
+export const NavBar = (props: INavBarProps) => {
+  const dispatch = useAppDispatch();
+  const { langAsString } = useLanguage();
+  const { hideCloseButton, showLanguageSelector, showExpandWidthButton, expandedWidth } = useAppSelector(
+    (state) => state.formLayout.uiConfig,
+  );
+
+  const handleExpand = () => {
+    dispatch(FormLayoutActions.toggleExpandedWidth());
+  };
+
   return (
-    <Box
-      component={'nav'}
-      aria-label={getLanguageFromKey('navigation.main', language)}
-      width={'100%'}
-      display='flex'
-      justifyContent={'space-between'}
-      alignItems={'flex-end'}
-      className='mt-3'
+    <nav
+      className={classes.nav}
+      aria-label={langAsString('navigation.main')}
     >
       <div>
         {props.showBackArrow && (
-          <button
-            data-testid='altinn-back-button'
-            type='button'
-            className='a-modal-back a-js-tabable-popover'
-            aria-label={getLanguageFromKey('general.back', language)}
+          <Button
+            data-testid='form-back-button'
+            className={classes.buttonMargin}
             onClick={props.handleBack}
-          >
-            <span className='ai-stack'>
-              <i
-                className={`ai-stack-1x ai ${theme.direction === 'rtl' ? 'ai-arrowright' : 'ai-back'}`}
-                aria-hidden='true'
-              />
-            </span>
-            <span className='sr-only'>{getLanguageFromKey('general.back', language)}</span>
-          </button>
+            variant='quiet'
+            color='secondary'
+            size='small'
+            aria-label={langAsString('general.back')}
+            icon={<Left aria-hidden />}
+          />
         )}
       </div>
 
-      <Box
-        display='flex'
-        alignItems={'end'}
-      >
+      <div className={classes.wrapper}>
         {showLanguageSelector && <LanguageSelector />}
 
-        {!hideCloseButton && <CloseButton handleClose={props.handleClose} />}
-      </Box>
-    </Box>
+        {showExpandWidthButton && (
+          <Button
+            data-testid='form-expand-button'
+            className={cn(classes.buttonMargin, { [classes.hideExpandButtonMaxWidth]: !expandedWidth })}
+            onClick={handleExpand}
+            variant='quiet'
+            color='secondary'
+            size='small'
+            aria-label={langAsString('general.expand_form')}
+            icon={
+              expandedWidth ? (
+                <FullscreenExit
+                  style={expandIconStyle}
+                  aria-hidden
+                />
+              ) : (
+                <FullscreenEnter
+                  style={expandIconStyle}
+                  aria-hidden
+                />
+              )
+            }
+          />
+        )}
+
+        {!hideCloseButton && (
+          <Button
+            data-testid='form-close-button'
+            className={classes.buttonMargin}
+            onClick={props.handleClose}
+            variant='quiet'
+            color='secondary'
+            size='small'
+            aria-label={langAsString('general.close_schema')}
+            icon={<Close aria-hidden />}
+          />
+        )}
+      </div>
+    </nav>
   );
 };
-
-export default NavBar;

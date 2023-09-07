@@ -1,0 +1,108 @@
+.container {
+  height: 100%;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.list {
+  padding: 0 6px;
+  width: 100%;
+  list-style: none;
+}
+
+.list .list {
+  padding-left: 12px;
+}
+
+.list .repGroupRow .list {
+  padding-left: 24px;
+}
+
+.item {
+  font-family: monospace;
+  font-size: 0.8rem;
+  position: relative;
+}
+
+.item span {
+  cursor: default;
+}
+
+.item.active {
+  background-color: #ddd;
+}
+
+.item:hover {
+  background-color: #ccc;
+}
+
+.componentType {
+  width: 1px;
+  font-weight: bold;
+}
+
+.componentId {
+  position: absolute;
+  left: 180px;
+  white-space: nowrap;
+  font-style: italic;
+}
+
+.componentMetadata {
+  color: #333;
+  font-style: italic;
+  font-size: 0.8rem;
+  padding-left: 12px;
+}
+
+.properties,
+.richProperties {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: white;
+  padding: 4px;
+}
+
+.properties {
+  font-family: monospace;
+}
+
+.properties > textarea {
+  background: transparent;
+  font-family: monospace;
+  line-height: 1.2;
+  flex: 1;
+  resize: none;
+  font-size: 0.8rem;
+  border: none;
+  outline: none;
+  white-space: pre;
+  overflow-wrap: normal;
+  overflow-x: auto;
+}
+
+.header h3 {
+  margin-top: 0;
+  margin-right: 36px;
+  font-size: 1rem;
+}
+
+.header button {
+  height: 32px;
+  width: 32px;
+  position: absolute;
+  top: 36px;
+  right: 0;
+  z-index: 1001;
+}
+
+.headerLink {
+  font-size: 0.8rem;
+  margin-bottom: 12px;
+}
+
+.error {
+  color: red;
+}

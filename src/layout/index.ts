@@ -1,66 +1,42 @@
 import { createContext } from 'react';
-import type React from 'react';
 
-import { AddressComponent as Address } from 'src/layout/Address/AddressComponent';
-import { AttachmentListComponent } from 'src/layout/AttachmentList/AttachmentListComponent';
-import { ButtonComponent } from 'src/layout/Button/ButtonComponent';
-import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
-import { CustomWebComponent } from 'src/layout/Custom/CustomWebComponent';
-import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
-import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
-import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
-import { FileUploadWithTagComponent } from 'src/layout/FileUploadWithTag/FileUploadWithTagComponent';
-import { HeaderComponent } from 'src/layout/Header/HeaderComponent';
-import { ImageComponent } from 'src/layout/Image/ImageComponent';
-import { InputComponent } from 'src/layout/Input/InputComponent';
-import { InstantiationButtonComponent } from 'src/layout/InstantiationButton/InstantiationButtonComponent';
-import { LikertComponent } from 'src/layout/Likert/LikertComponent';
-import { ListComponent } from 'src/layout/List/ListComponent';
-import { MapComponent } from 'src/layout/Map/MapComponent';
-import { MultipleSelect } from 'src/layout/MultipleSelect/MultipleSelect';
-import { NavigationBar as NavigationBarComponent } from 'src/layout/NavigationBar/NavigationBar';
-import { NavigationButtons as NavigationButtonsComponent } from 'src/layout/NavigationButtons/NavigationButtons';
-import { PanelComponent } from 'src/layout/Panel/PanelComponent';
-import { ParagraphComponent } from 'src/layout/Paragraph/ParagraphComponent';
-import { PrintButtonComponent } from 'src/layout/PrintButton/PrintButtonComponent';
-import { RadioButtonContainerComponent } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
-import { TextAreaComponent } from 'src/layout/TextArea/TextAreaComponent';
-import type { ExprResolved } from 'src/features/expressions/types';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { type IUseLanguage, staticUseLanguageFromState } from 'src/hooks/useLanguage';
+import { ComponentConfigs } from 'src/layout/components.generated';
+import type { IAttachments } from 'src/features/attachments';
+import type { IFormData } from 'src/features/formData';
+import type { IGrid } from 'src/layout/common.generated';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
-import type { ComponentExceptGroup, ComponentExceptGroupAndSummary, IGrid, ILayoutComponent } from 'src/layout/layout';
-import type { ILanguage } from 'src/types/shared';
+import type { CompInternal, CompRendersLabel, CompTypes } from 'src/layout/layout';
+import type { AnyComponent, LayoutComponent } from 'src/layout/LayoutComponent';
+import type { IOptions, IRuntimeState, IUiConfig } from 'src/types';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { ISchemaValidationError } from 'src/utils/validation/schemaValidation';
+import type { IComponentValidations, IValidationContext, IValidationObject } from 'src/utils/validation/types';
 
-const components: {
-  [Type in ComponentExceptGroupAndSummary]: (props: any) => JSX.Element | null;
-} = {
-  AddressComponent: Address,
-  AttachmentList: AttachmentListComponent,
-  Button: ButtonComponent,
-  Checkboxes: CheckboxContainerComponent,
-  Custom: CustomWebComponent,
-  Datepicker: DatepickerComponent,
-  Dropdown: DropdownComponent,
-  FileUpload: FileUploadComponent,
-  FileUploadWithTag: FileUploadWithTagComponent,
-  Header: HeaderComponent,
-  Image: ImageComponent,
-  Input: InputComponent,
-  InstantiationButton: InstantiationButtonComponent,
-  Likert: LikertComponent,
-  Map: MapComponent,
-  MultipleSelect: MultipleSelect,
-  NavigationBar: NavigationBarComponent,
-  NavigationButtons: NavigationButtonsComponent,
-  Panel: PanelComponent,
-  Paragraph: ParagraphComponent,
-  PrintButton: PrintButtonComponent,
-  RadioButtons: RadioButtonContainerComponent,
-  TextArea: TextAreaComponent,
-  List: ListComponent,
+export type CompClassMap = {
+  [K in keyof typeof ComponentConfigs]: (typeof ComponentConfigs)[K]['def'];
 };
 
-export interface IComponentProps extends IGenericComponentProps {
+export type CompClassMapTypes = {
+  [K in keyof CompClassMap]: CompClassMap[K]['type'];
+};
+
+// noinspection JSUnusedLocalSymbols
+/**
+ * This type is only used to make sure all components exist and are correct in the list above. If any component is
+ * missing above, this type will give you an error.
+ */
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+const _componentsTypeCheck: {
+  [Type in CompTypes]: { def: LayoutComponent<Type> };
+} = {
+  ...ComponentConfigs,
+};
+
+export interface IComponentProps {
   handleDataChange: (
     value: string | undefined,
     options?: {
@@ -68,19 +44,19 @@ export interface IComponentProps extends IGenericComponentProps {
       validate?: boolean; // Defaults to true
     },
   ) => void;
-  getTextResource: (key: string) => React.ReactNode;
-  getTextResourceAsString: (key: string) => string;
-  language: ILanguage;
   shouldFocus: boolean;
-  text: React.ReactNode | string;
-  label: () => JSX.Element;
-  legend: () => JSX.Element;
+  label: () => JSX.Element | null;
+  legend: () => JSX.Element | null;
   formData: IComponentFormData;
   isValid?: boolean;
+  componentValidations?: IComponentValidations;
 }
 
-export type PropsFromGenericComponent<T extends ComponentExceptGroup> = IComponentProps &
-  ExprResolved<Omit<ILayoutComponent<T>, 'type'>>;
+export interface PropsFromGenericComponent<T extends CompTypes = CompTypes> extends IComponentProps {
+  node: LayoutNode<T>;
+  overrideItemProps?: Partial<Omit<CompInternal<T>, 'id'>>;
+  overrideDisplay?: IGenericComponentProps<T>['overrideDisplay'];
+}
 
 export interface IFormComponentContext {
   grid?: IGrid;
@@ -94,4 +70,108 @@ export const FormComponentContext = createContext<IFormComponentContext>({
   baseComponentId: undefined,
 });
 
-export default components;
+export function getLayoutComponentObject<T extends keyof CompClassMap>(type: T): CompClassMap[T] {
+  if (type && type in ComponentConfigs) {
+    return ComponentConfigs[type as keyof typeof ComponentConfigs].def as any;
+  }
+  return undefined as any;
+}
+
+export function shouldComponentRenderLabel<T extends CompTypes>(type: T): CompRendersLabel<T> {
+  return ComponentConfigs[type].rendersWithLabel;
+}
+
+export type DefGetter = typeof getLayoutComponentObject;
+
+export function implementsAnyValidation<Type extends CompTypes>(component: AnyComponent<Type>): boolean {
+  return (
+    'runEmptyFieldValidation' in component ||
+    'runComponentValidation' in component ||
+    'runSchemaValidation' in component
+  );
+}
+
+export interface EmptyFieldValidation {
+  runEmptyFieldValidation: (
+    node: LayoutNode,
+    validationContext: IValidationContext,
+    overrideFormData?: IFormData,
+  ) => IValidationObject[];
+}
+
+export function implementsEmptyFieldValidation<Type extends CompTypes>(
+  component: AnyComponent<Type>,
+): component is typeof component & EmptyFieldValidation {
+  return 'runEmptyFieldValidation' in component;
+}
+
+export interface ComponentValidation {
+  runComponentValidation: (
+    node: LayoutNode,
+    validationContext: IValidationContext,
+    overrideFormData?: IFormData,
+  ) => IValidationObject[];
+}
+
+export function implementsComponentValidation<Type extends CompTypes>(
+  component: AnyComponent<Type>,
+): component is typeof component & ComponentValidation {
+  return 'runComponentValidation' in component;
+}
+
+export interface SchemaValidation {
+  runSchemaValidation: (node: LayoutNode, schemaValidations: ISchemaValidationError[]) => IValidationObject[];
+}
+
+export function implementsSchemaValidation<Type extends CompTypes>(
+  component: AnyComponent<Type>,
+): component is typeof component & SchemaValidation {
+  return 'runSchemaValidation' in component;
+}
+
+export interface GroupValidation {
+  runGroupValidations: (
+    node: LayoutNode,
+    validationContext: IValidationContext,
+    onlyInRowIndex?: number,
+  ) => IValidationObject[];
+}
+
+export function implementsGroupValidation<Type extends CompTypes>(
+  component: AnyComponent<Type>,
+): component is typeof component & GroupValidation {
+  return 'runGroupValidations' in component;
+}
+
+export interface DisplayDataProps {
+  formData: IFormData;
+  attachments: IAttachments;
+  options: IOptions;
+  uiConfig: IUiConfig;
+  langTools: IUseLanguage;
+}
+
+export interface DisplayData<Type extends CompTypes> {
+  getDisplayData(node: LayoutNode<Type>, displayDataProps: DisplayDataProps): string;
+  useDisplayData(node: LayoutNode<Type>): string;
+}
+
+export function implementsDisplayData<Type extends CompTypes>(
+  component: AnyComponent<Type>,
+): component is typeof component & DisplayData<Type> {
+  return 'getDisplayData' in component && 'useDisplayData' in component;
+}
+
+function getDisplayDataPropsFromState(state: IRuntimeState): DisplayDataProps {
+  return {
+    formData: state.formData.formData,
+    attachments: state.attachments.attachments,
+    options: state.optionState.options,
+    uiConfig: state.formLayout.uiConfig,
+    langTools: staticUseLanguageFromState(state),
+  };
+}
+
+export function useDisplayDataProps(): DisplayDataProps {
+  return useAppSelector(getDisplayDataPropsFromState);
+}

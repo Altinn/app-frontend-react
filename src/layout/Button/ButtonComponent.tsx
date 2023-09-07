@@ -1,89 +1,83 @@
 import React from 'react';
 
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
-import { FormDataActions } from 'src/features/form/data/formDataSlice';
-import css from 'src/layout/Button/ButtonComponent.module.css';
+import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { ProcessActions } from 'src/features/process/processSlice';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useCanSubmitForm } from 'src/hooks/useCanSubmitForm';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { getComponentFromMode } from 'src/layout/Button/getComponentFromMode';
-import { SaveButton } from 'src/layout/Button/SaveButton';
 import { SubmitButton } from 'src/layout/Button/SubmitButton';
-import { ProcessActions } from 'src/shared/resources/process/processSlice';
-import { getLanguageFromKey } from 'src/utils/sharedUtils';
-import type { IComponentProps } from 'src/layout';
-import type { ButtonMode } from 'src/layout/Button/getComponentFromMode';
-import type { ILayoutCompButton } from 'src/layout/Button/types';
-import type { IAltinnWindow } from 'src/types';
+import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { PropsFromGenericComponent } from 'src/layout';
+import type { CompInternal } from 'src/layout/layout';
 
-export interface IButtonProvidedProps extends IComponentProps, ILayoutCompButton {
-  disabled: boolean;
-  id: string;
-  mode?: ButtonMode;
-  taskId?: string;
-}
+export type IButtonReceivedProps = PropsFromGenericComponent<'Button'>;
+export type IButtonProvidedProps =
+  | (PropsFromGenericComponent<'Button'> & CompInternal<'Button'>)
+  | (PropsFromGenericComponent<'InstantiationButton'> & CompInternal<'InstantiationButton'>);
 
-export const ButtonComponent = ({ mode, ...props }: IButtonProvidedProps) => {
+export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProps) => {
+  const { id, mode } = node.item;
+  const { lang } = useLanguage();
+  const props: IButtonProvidedProps = { ...componentProps, ...node.item, node };
+
   const dispatch = useAppDispatch();
-  const autoSave = useAppSelector((state) => state.formLayout.uiConfig.autoSave);
-  const submittingId = useAppSelector((state) => state.formData.submittingId);
-  const savingId = useAppSelector((state) => state.formData.savingId);
-  const ignoreWarnings = useAppSelector((state) => state.formData.ignoreWarnings);
-  const currentTaskType = useAppSelector((state) => state.instanceData.instance?.process.currentTask?.altinnTaskType);
+  const currentTaskType = useAppSelector((state) => state.instanceData.instance?.process?.currentTask?.altinnTaskType);
+  const processActionsFeature = useAppSelector(
+    (state) => state.applicationMetadata.applicationMetadata?.features?.processActions,
+  );
+  const { actions, write } = useAppSelector((state) => state.process);
+  const { canSubmit, busyWithId, message } = useCanSubmitForm();
+
+  const disabled =
+    !canSubmit ||
+    (processActionsFeature &&
+      ((currentTaskType === 'data' && !write) || (currentTaskType === 'confirmation' && !actions?.confirm)));
+
+  const parentIsPage = node.parent instanceof LayoutPage;
+
   if (mode && !(mode === 'save' || mode === 'submit')) {
     const GenericButton = getComponentFromMode(mode);
+    if (!GenericButton) {
+      return null;
+    }
+
     return (
-      <div className='container pl-0'>
-        <div className={css['button-group']}>
-          <div className={css['button-row']}>
-            <GenericButton {...props}>{props.text}</GenericButton>
-          </div>
-        </div>
+      <div style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}>
+        <GenericButton {...props}>{lang(node.item.textResourceBindings?.title)}</GenericButton>
       </div>
     );
   }
 
-  const saveFormData = () => {
-    dispatch(FormDataActions.submit({ componentId: 'saveBtn' }));
-  };
-
   const submitTask = ({ componentId }: { componentId: string }) => {
-    const { org, app, instanceId } = window as Window as IAltinnWindow;
-    if (currentTaskType === 'data') {
-      dispatch(
-        FormDataActions.submit({
-          url: `${window.location.origin}/${org}/${app}/api/${instanceId}`,
-          apiMode: 'Complete',
-          stopWithWarnings: !ignoreWarnings,
-          componentId,
-        }),
-      );
-    } else {
-      dispatch(ProcessActions.complete());
+    if (!disabled) {
+      const { org, app, instanceId } = window;
+      if (currentTaskType === 'data') {
+        dispatch(
+          FormDataActions.submit({
+            url: `${window.location.origin}/${org}/${app}/api/${instanceId}`,
+            componentId,
+          }),
+        );
+      } else if (currentTaskType === 'confirmation' && processActionsFeature) {
+        dispatch(ProcessActions.complete({ componentId, action: 'confirm' }));
+      } else {
+        dispatch(ProcessActions.complete({ componentId }));
+      }
     }
   };
-  const busyWithId = savingId || submittingId || '';
   return (
-    <div className='container pl-0'>
-      <div className={css['button-group']}>
-        <div className={css['button-row']}>
-          {autoSave === false && ( // can this be removed from the component?
-            <SaveButton
-              onClick={saveFormData}
-              id='saveBtn'
-              busyWithId={busyWithId}
-              language={props.language}
-            >
-              {getLanguageFromKey('general.save', props.language)}
-            </SaveButton>
-          )}
-          <SubmitButton
-            onClick={() => submitTask({ componentId: props.id })}
-            id={props.id}
-            language={props.language}
-            busyWithId={busyWithId}
-          >
-            {props.text}
-          </SubmitButton>
-        </div>
-      </div>
+    <div style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}>
+      <SubmitButton
+        onClick={() => submitTask({ componentId: id })}
+        id={id}
+        busyWithId={busyWithId}
+        disabled={disabled}
+        message={message}
+      >
+        {lang(node.item.textResourceBindings?.title)}
+      </SubmitButton>
     </div>
   );
 };

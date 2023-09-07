@@ -1,11 +1,10 @@
-import type { SortDirection } from '@altinn/altinn-design-system';
-
 import { mapFormData } from 'src/utils/databindings';
-import type { IFormData } from 'src/features/form/data';
-import type { IAltinnWindow, IMapping } from 'src/types';
+import { getQueryStringFromObject } from 'src/utils/urls/urlHelper';
+import type { IFormData } from 'src/features/formData';
+import type { IMapping } from 'src/layout/common.generated';
+import type { SortDirection } from 'src/layout/List/types';
 
-const altinnWindow = window as Window as IAltinnWindow;
-const { org, app } = altinnWindow;
+const { org, app } = window;
 const origin = window.location.origin;
 
 export const appPath = `${origin}/${org}/${app}`;
@@ -24,13 +23,13 @@ export const updateCookieUrl = (partyId: string) => `${appPath}/api/v1/parties/$
 export const textResourcesUrl = (language: string) => `${origin}/${org}/${app}/api/v1/texts/${language}`;
 
 export const fileUploadUrl = (attachmentType: string) =>
-  `${appPath}/instances/${altinnWindow.instanceId}/data?dataType=${attachmentType}`;
+  `${appPath}/instances/${window.instanceId}/data?dataType=${attachmentType}`;
 
-export const fileTagUrl = (dataGuid: string) => `${appPath}/instances/${altinnWindow.instanceId}/data/${dataGuid}/tags`;
+export const fileTagUrl = (dataGuid: string) => `${appPath}/instances/${window.instanceId}/data/${dataGuid}/tags`;
 
-export const dataElementUrl = (dataGuid: string) => `${appPath}/instances/${altinnWindow.instanceId}/data/${dataGuid}`;
+export const dataElementUrl = (dataGuid: string) => `${appPath}/instances/${window.instanceId}/data/${dataGuid}`;
 
-export const getProcessStateUrl = () => `${appPath}/instances/${altinnWindow.instanceId}/process`;
+export const getProcessStateUrl = () => `${appPath}/instances/${window.instanceId}/process`;
 
 export const getCreateInstancesUrl = (partyId: string) => `${appPath}/instances?instanceOwnerPartyId=${partyId}`;
 
@@ -39,11 +38,16 @@ export const getValidationUrl = (instanceId: string) => `${appPath}/instances/${
 export const getDataValidationUrl = (instanceId: string, dataGuid: string) =>
   `${appPath}/instances/${instanceId}/data/${dataGuid}/validate`;
 
-export const getProcessNextUrl = (taskId?: string | null) => {
-  if (taskId) {
-    return `${appPath}/instances/${altinnWindow.instanceId}/process/next?elementId=${encodeURIComponent(taskId)}`;
-  }
-  return `${appPath}/instances/${altinnWindow.instanceId}/process/next`;
+export const getPdfFormatUrl = (instanceId: string, dataGuid: string) =>
+  `${appPath}/instances/${instanceId}/data/${dataGuid}/pdf/format`;
+
+export const getProcessNextUrl = (taskId?: string | null, language?: string | null) => {
+  const queryString = getQueryStringFromObject({
+    elementId: taskId,
+    lang: language,
+  });
+
+  return `${appPath}/instances/${window.instanceId}/process/next${queryString}`;
 };
 
 export const getRedirectUrl = (returnUrl: string) => `${appPath}/api/v1/redirect?url=${encodeURIComponent(returnUrl)}`;
@@ -113,6 +117,7 @@ export const getLayoutSettingsUrl = (layoutset: string | null | undefined) => {
 };
 
 export const getLayoutSetsUrl = () => `${appPath}/api/layoutsets`;
+export const getFooterLayoutUrl = () => `${appPath}/api/v1/footer`;
 
 export const getFetchFormDataUrl = (instanceId: string, dataElementId: string) =>
   `${appPath}/instances/${instanceId}/data/${dataElementId}`;
@@ -149,7 +154,7 @@ export const getCalculatePageOrderUrl = (stateless: boolean) => {
   if (stateless) {
     return `${appPath}/v1/pages/order`;
   } else {
-    return `${appPath}/instances/${altinnWindow.instanceId}/pages/order`;
+    return `${appPath}/instances/${window.instanceId}/pages/order`;
   }
 };
 
@@ -160,9 +165,13 @@ export const getActiveInstancesUrl = (partyId: string) => `${appPath}/instances/
 
 export const getInstanceUiUrl = (instanceId: string) => `${appPath}#/instance/${instanceId}`;
 
+export const appFrontendCDNPath = 'https://altinncdn.no/toolkits/altinn-app-frontend';
+export const frontendVersionsCDN = `${appFrontendCDNPath}/index.json`;
+
 export interface IGetOptionsUrlParams {
   optionsId: string;
   dataMapping?: IMapping;
+  fixedQueryParameters?: Record<string, string>;
   formData?: IFormData;
   language?: string;
   secure?: boolean;
@@ -172,6 +181,7 @@ export interface IGetOptionsUrlParams {
 export const getOptionsUrl = ({
   optionsId,
   dataMapping,
+  fixedQueryParameters,
   formData,
   language,
   secure,
@@ -183,18 +193,18 @@ export const getOptionsUrl = ({
   } else {
     url = new URL(`${appPath}/api/options/${optionsId}`);
   }
-  let params: Record<string, string> = {};
+
+  const params: Record<string, string> = {};
 
   if (language) {
     params.language = language;
   }
+  if (fixedQueryParameters) {
+    Object.assign(params, fixedQueryParameters);
+  }
   if (formData && dataMapping) {
     const mapped = mapFormData(formData, dataMapping);
-
-    params = {
-      ...params,
-      ...mapped,
-    };
+    Object.assign(params, mapped);
   }
 
   url.search = new URLSearchParams(params).toString();

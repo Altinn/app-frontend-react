@@ -1,14 +1,21 @@
-import dot from 'dot-object';
-
 import {
   argTypeAt,
-  ExprDefaultsForComponent,
-  ExprDefaultsForGroup,
+  ExprConfigForComponent,
+  ExprConfigForGroup,
   ExprFunctions,
   ExprTypes,
+  getConfigFor,
 } from 'src/features/expressions';
 import { prettyErrors, prettyErrorsToConsole } from 'src/features/expressions/prettyErrors';
-import type { BaseValue, Expression, ExprFunction, FuncDef } from 'src/features/expressions/types';
+import { ExprVal } from 'src/features/expressions/types';
+import type {
+  ExprConfig,
+  Expression,
+  ExprFunction,
+  ExprObjConfig,
+  ExprValToActual,
+  FuncDef,
+} from 'src/features/expressions/types';
 import type { ILayout } from 'src/layout/layout';
 
 enum ValidationErrorMessage {
@@ -27,11 +34,11 @@ export interface ValidationContext {
   };
 }
 
-const validBasicTypes: { [key: string]: BaseValue } = {
-  boolean: 'boolean',
-  string: 'string',
-  bigint: 'number',
-  number: 'number',
+const validBasicTypes: { [key: string]: ExprVal } = {
+  boolean: ExprVal.Boolean,
+  string: ExprVal.String,
+  bigint: ExprVal.Number,
+  number: ExprVal.Number,
 };
 
 export class InvalidExpression extends Error {}
@@ -55,7 +62,7 @@ export function addError(
 function validateFunctionArg(
   func: ExprFunction,
   idx: number,
-  actual: (BaseValue | undefined)[],
+  actual: (ExprVal | undefined)[],
   ctx: ValidationContext,
   path: string[],
 ) {
@@ -79,7 +86,7 @@ function validateFunctionArg(
 
 function validateFunctionArgs(
   func: ExprFunction,
-  actual: (BaseValue | undefined)[],
+  actual: (ExprVal | undefined)[],
   ctx: ValidationContext,
   path: string[],
 ) {
@@ -92,7 +99,7 @@ function validateFunctionArgs(
 
 function validateFunctionArgLength(
   func: ExprFunction,
-  actual: (BaseValue | undefined)[],
+  actual: (ExprVal | undefined)[],
   ctx: ValidationContext,
   path: string[],
 ) {
@@ -108,24 +115,26 @@ function validateFunctionArgLength(
     return;
   }
 
-  if (actual.length !== minExpected) {
-    addError(
-      ctx,
-      path,
-      ValidationErrorMessage.ArgsWrongNum,
-      `${minExpected}${canSpread ? '+' : ''}`,
-      `${actual.length}`,
-    );
+  const maxExpected = ExprFunctions[func]?.args.length;
+  if (actual.length < minExpected || actual.length > maxExpected) {
+    let expected = `${minExpected}`;
+    if (canSpread) {
+      expected += '+';
+    } else if (maxExpected !== minExpected) {
+      expected += `-${maxExpected}`;
+    }
+
+    addError(ctx, path, ValidationErrorMessage.ArgsWrongNum, `${expected}`, `${actual.length}`);
   }
 }
 
 function validateFunction(
   funcName: any,
   rawArgs: any[],
-  argTypes: (BaseValue | undefined)[],
+  argTypes: (ExprVal | undefined)[],
   ctx: ValidationContext,
   path: string[],
-): BaseValue | undefined {
+): ExprVal | undefined {
   if (typeof funcName !== 'string') {
     addError(ctx, path, ValidationErrorMessage.InvalidType, typeof funcName);
     return;
@@ -161,7 +170,7 @@ function validateExpr(expr: any[], ctx: ValidationContext, path: string[]) {
   }
 
   const [func, ...rawArgs] = expr;
-  const args: (BaseValue | undefined)[] = [];
+  const args: (ExprVal | undefined)[] = [];
 
   for (const argIdx in rawArgs) {
     const idx = parseInt(argIdx) + 1;
@@ -171,7 +180,7 @@ function validateExpr(expr: any[], ctx: ValidationContext, path: string[]) {
   return validateFunction(func, rawArgs, args, ctx, [...path, '[0]']);
 }
 
-function validateRecursively(expr: any, ctx: ValidationContext, path: string[]): BaseValue | undefined {
+function validateRecursively(expr: any, ctx: ValidationContext, path: string[]): ExprVal | undefined {
   if (validBasicTypes[typeof expr]) {
     return validBasicTypes[typeof expr];
   }
@@ -191,8 +200,13 @@ function validateRecursively(expr: any, ctx: ValidationContext, path: string[]):
  * Checks anything and returns true if it _could_ be an expression (but is not guaranteed to be one, and does not
  * validate the expression). This is `asExpression` light, without any error logging to console if it fails.
  */
-export function canBeExpression(expr: any): expr is [] {
-  return Array.isArray(expr) && expr.length >= 1 && typeof expr[0] === 'string';
+export function canBeExpression(expr: any, checkIfValidFunction = false): expr is [] {
+  const firstPass = Array.isArray(expr) && expr.length >= 1 && typeof expr[0] === 'string';
+  if (checkIfValidFunction && firstPass) {
+    return expr[0] in ExprFunctions;
+  }
+
+  return firstPass;
 }
 
 /**
@@ -200,14 +214,14 @@ export function canBeExpression(expr: any): expr is [] {
  * parsed expression (ready to pass to evalExpr()), or undefined (if not a valid expression).
  *
  * @param obj Input, can be anything
- * @param defaultValue Default value (returned if the expression fails to validate)
+ * @param config Configuration and default value (the default is returned if the expression fails to validate)
  * @param errorText Error intro text used when printing to console or throwing an error
  */
 export function asExpression(
   obj: any,
-  defaultValue: any = undefined,
+  config?: ExprConfig,
   errorText = 'Invalid expression',
-): Expression | undefined {
+): Expression | ExprValToActual | undefined {
   if (typeof obj !== 'object' || obj === null || !Array.isArray(obj)) {
     return undefined;
   }
@@ -216,7 +230,13 @@ export function asExpression(
   validateRecursively(obj, ctx, []);
 
   if (Object.keys(ctx.errors).length) {
-    if (typeof defaultValue !== 'undefined') {
+    const pretty = prettyErrors({
+      input: obj,
+      errors: ctx.errors,
+      indentation: 1,
+    });
+
+    if (typeof config !== 'undefined' && !config.errorAsException) {
       const prettyPrinted = prettyErrorsToConsole({
         input: obj,
         errors: ctx.errors,
@@ -230,37 +250,35 @@ export function asExpression(
           `${errorText}:`,
           prettyPrinted.lines,
           '%cUsing default value instead:',
-          `  %c${defaultValue === null ? 'null' : defaultValue.toString()}%c`,
+          `  %c${config.defaultValue === null ? 'null' : (config.defaultValue as any).toString()}%c`,
         ].join('\n'),
         ...prettyPrinted.css,
         ...['', 'color: red;', ''],
       );
 
-      return defaultValue;
+      window.logError(`${errorText}:\n${pretty}`);
+
+      return config.defaultValue;
     }
 
-    const pretty = prettyErrors({
-      input: obj,
-      errors: ctx.errors,
-      indentation: 1,
-    });
     throw new InvalidExpression(`${errorText}:\n${pretty}`);
   }
 
   return obj as unknown as Expression;
 }
 
-export function preProcessItem(
-  input: any,
-  defaults: Record<string, any>,
+export function preProcessItem<T>(
+  input: T,
+  config: ExprObjConfig<any>,
   componentPath: string[],
   componentId: string,
 ): any {
   const pathStr = componentPath.join('.');
-  if (pathStr in defaults) {
+  const cfg = getConfigFor(componentPath, config);
+  if (cfg) {
     if (typeof input === 'object' && input !== null) {
       const errText = `Invalid expression when parsing ${pathStr} for "${componentId}"`;
-      return asExpression(input, defaults[pathStr], errText);
+      return asExpression(input, cfg, errText);
     }
 
     return input;
@@ -268,7 +286,7 @@ export function preProcessItem(
 
   if (typeof input === 'object' && !Array.isArray(input) && input !== null) {
     for (const property of Object.keys(input)) {
-      input[property] = preProcessItem(input[property], defaults, [...componentPath, property], componentId);
+      input[property] = preProcessItem(input[property], config, [...componentPath, property], componentId);
     }
   }
 
@@ -285,12 +303,12 @@ export function preProcessItem(
  * Please note: This mutates the layout array passed to the function, and returns nothing.
  */
 export function preProcessLayout(layout: ILayout) {
-  const defaults = dot.dot({
-    ...ExprDefaultsForComponent,
-    ...ExprDefaultsForGroup,
-  });
+  const config = {
+    ...ExprConfigForComponent,
+    ...ExprConfigForGroup,
+  };
 
   for (const comp of layout) {
-    preProcessItem(comp, defaults, [], comp.id);
+    preProcessItem(comp, config, [], comp.id);
   }
 }

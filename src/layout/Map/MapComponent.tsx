@@ -4,7 +4,8 @@ import { Map } from '@altinn/altinn-design-system';
 import { makeStyles, Typography } from '@material-ui/core';
 import type { Location } from '@altinn/altinn-design-system';
 
-import { getLanguageFromKey, getParsedLanguageFromKey } from 'src/utils/sharedUtils';
+import { useLanguage } from 'src/hooks/useLanguage';
+import { markerIcon } from 'src/layout/Map/MapIcons';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IMapComponentProps = PropsFromGenericComponent<'Map'>;
@@ -15,22 +16,15 @@ export const useStyles = makeStyles(() => ({
   },
 }));
 
-export function MapComponent({
-  formData,
-  handleDataChange,
-  language,
-  isValid,
-  readOnly,
-  layers,
-  centerLocation,
-  zoom,
-}: IMapComponentProps) {
+export function MapComponent({ formData, handleDataChange, isValid, node }: IMapComponentProps) {
+  const { readOnly, layers, centerLocation, zoom } = node.item;
   const classes = useStyles();
-  const location = formData.simpleBinding ? parseLocation(formData.simpleBinding) : undefined;
+  const location = parseLocation(formData.simpleBinding);
+  const { lang } = useLanguage();
 
   const footerText = location
-    ? getParsedLanguageFromKey('map_component.selectedLocation', language, [location.latitude, location.longitude])
-    : getLanguageFromKey('map_component.noSelectedLocation', language);
+    ? lang('map_component.selectedLocation', [location.latitude, location.longitude])
+    : lang('map_component.noSelectedLocation');
 
   const handleMapClicked = ({ latitude, longitude }: Location) => {
     const fractionDigits = 6;
@@ -46,16 +40,20 @@ export function MapComponent({
         markerLocation={location}
         readOnly={readOnly}
         onClick={handleMapClicked}
+        markerIcon={markerIcon}
       />
       <Typography className={classes.footer}>{footerText}</Typography>
     </div>
   );
 }
 
-export function parseLocation(locationString: string): Location | undefined {
+export function parseLocation(locationString: string | undefined): Location | undefined {
+  if (!locationString) {
+    return undefined;
+  }
   const latLonArray = locationString.split(',');
   if (latLonArray.length != 2) {
-    console.error(`Invalid location string: ${locationString}`);
+    window.logErrorOnce(`Invalid location string: ${locationString}`);
     return undefined;
   }
   const latString = latLonArray[0];
@@ -63,7 +61,7 @@ export function parseLocation(locationString: string): Location | undefined {
   const lat = parseFloat(latString);
   const lon = parseFloat(lonString);
   if (isNaN(lat) || isNaN(lon)) {
-    console.error(`Invalid location string: ${locationString}`);
+    window.logErrorOnce(`Invalid location string: ${locationString}`);
     return undefined;
   }
   return {

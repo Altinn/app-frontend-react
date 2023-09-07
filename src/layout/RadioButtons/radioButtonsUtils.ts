@@ -1,78 +1,20 @@
 import React, { useMemo } from 'react';
 
-import { makeStyles } from '@material-ui/core/styles';
-
-import { useAppSelector, useHasChangedIgnoreUndefined } from 'src/common/hooks';
-import { useGetOptions } from 'src/components/hooks';
-import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
+import { useGetOptions } from 'src/hooks/useGetOptions';
+import { useHasChangedIgnoreUndefined } from 'src/hooks/useHasChangedIgnoreUndefined';
 import { getOptionLookupKey } from 'src/utils/options';
 import type { IRadioButtonsContainerProps } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 
-export const useRadioStyles = makeStyles((theme) => ({
-  root: {
-    '&:hover': {
-      backgroundColor: 'transparent !important',
-    },
-  },
-  icon: {
-    borderRadius: '50%',
-    border: `2px solid ${theme.altinnPalette.primary.blueMedium}`,
-    width: 24,
-    height: 24,
-    backgroundColor: '#ffffff',
-    '$root.Mui-focusVisible &': {
-      outline: '2px solid #ff0000',
-      outlineOffset: 0,
-      outlineColor: theme.altinnPalette.primary.blueDark,
-    },
-    'input:hover ~ &': {
-      borderColor: theme.altinnPalette.primary.blueDark,
-    },
-    'input:disabled ~ &': {
-      boxShadow: 'none',
-      background: 'rgba(206,217,224,.5)',
-    },
-  },
-  checkedIcon: {
-    backgroundColor: '#ffffff',
-    '&:before': {
-      display: 'block',
-      width: 20,
-      height: 20,
-      backgroundImage: 'radial-gradient(#000,#000 30%,transparent 40%)',
-      content: '""',
-    },
-    'input:hover ~ &': {
-      borderColor: theme.altinnPalette.primary.blueDark,
-    },
-  },
-  legend: {
-    color: '#000000',
-  },
-  formControl: {
-    alignItems: 'flex-start',
-    marginBottom: '1.2rem',
-    wordBreak: 'break-word',
-    '& > span:last-child': {
-      marginTop: 9,
-    },
-  },
-}));
-
-export const useRadioButtons = ({
-  optionsId,
-  options,
-  handleDataChange,
-  preselectedOptionIndex,
-  formData,
-  mapping,
-  source,
-}: IRadioButtonsContainerProps) => {
-  const apiOptions = useGetOptions({ optionsId, mapping, source });
-  const calculatedOptions = useMemo(() => apiOptions || options || [], [apiOptions, options]);
+export const useRadioButtons = ({ node, handleDataChange, formData }: IRadioButtonsContainerProps) => {
+  const { optionsId, options, preselectedOptionIndex, mapping, queryParameters, source } = node.item;
+  const apiOptions = useGetOptions({ optionsId, mapping, queryParameters, source });
+  const _calculatedOptions = useMemo(() => apiOptions || options, [apiOptions, options]);
+  const calculatedOptions = _calculatedOptions || [];
   const optionsHasChanged = useHasChangedIgnoreUndefined(apiOptions);
   const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });
-  const fetchingOptions =
+  const _fetchingOptions =
     useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading) || undefined;
   const {
     value: selected,
@@ -80,18 +22,22 @@ export const useRadioButtons = ({
     saveValue,
   } = useDelayedSavedState(handleDataChange, formData?.simpleBinding ?? '', 200);
 
+  const shouldPreselectItem =
+    !formData?.simpleBinding &&
+    typeof preselectedOptionIndex !== 'undefined' &&
+    preselectedOptionIndex >= 0 &&
+    _calculatedOptions &&
+    preselectedOptionIndex < _calculatedOptions.length;
+
+  const fetchingOptions =
+    _fetchingOptions ?? (_calculatedOptions === undefined ? true : shouldPreselectItem ? true : undefined);
+
   React.useEffect(() => {
-    const shouldPreselectItem =
-      !formData?.simpleBinding &&
-      typeof preselectedOptionIndex !== 'undefined' &&
-      preselectedOptionIndex >= 0 &&
-      calculatedOptions &&
-      preselectedOptionIndex < calculatedOptions.length;
     if (shouldPreselectItem) {
-      const preSelectedValue = calculatedOptions[preselectedOptionIndex].value;
+      const preSelectedValue = _calculatedOptions[preselectedOptionIndex].value;
       setValue(preSelectedValue, true);
     }
-  }, [formData?.simpleBinding, calculatedOptions, setValue, preselectedOptionIndex]);
+  }, [_calculatedOptions, setValue, preselectedOptionIndex, shouldPreselectItem]);
 
   React.useEffect(() => {
     if (optionsHasChanged && formData.simpleBinding) {
@@ -104,7 +50,11 @@ export const useRadioButtons = ({
     setValue(event.target.value);
   };
 
-  const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+  const handleChangeRadioGroup = (value: string) => {
+    setValue(value);
+  };
+
+  const handleBlur: React.FocusEventHandler = (event) => {
     // Only set value instantly if moving focus outside of the radio group
     if (!event.currentTarget.contains(event.relatedTarget)) {
       saveValue();
@@ -112,6 +62,7 @@ export const useRadioButtons = ({
   };
   return {
     handleChange,
+    handleChangeRadioGroup,
     handleBlur,
     fetchingOptions,
     selected,

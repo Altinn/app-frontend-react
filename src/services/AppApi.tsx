@@ -3,21 +3,19 @@ import axios from 'axios';
 import type { BaseQueryFn } from '@reduxjs/toolkit/query/react';
 import type { AxiosError, AxiosRequestConfig } from 'axios';
 
-import type { IAltinnWindow } from 'src/types';
+const { org, app } = window;
+const origin = window.location.origin;
 
-const altinnWindow = window as Window as IAltinnWindow;
-const { org, app } = altinnWindow;
-const origin = altinnWindow.location.origin;
-
-const axiosBaseQuery = (
-  { baseUrl }: { baseUrl: string } = { baseUrl: '' },
-): BaseQueryFn<{
-  url: string;
-  method: AxiosRequestConfig['method'];
-  data?: AxiosRequestConfig['data'];
-  headers?: AxiosRequestConfig['headers'];
-}> => {
-  return async ({ url, method, data, headers }) => {
+const axiosBaseQuery =
+  (
+    { baseUrl }: { baseUrl: string } = { baseUrl: '' },
+  ): BaseQueryFn<{
+    url: string;
+    method: AxiosRequestConfig['method'];
+    data?: AxiosRequestConfig['data'];
+    headers?: AxiosRequestConfig['headers'];
+  }> =>
+  async ({ url, method, data, headers }) => {
     try {
       const result = await axios(baseUrl + url, { method, data, headers });
       return { data: result.data };
@@ -28,7 +26,6 @@ const axiosBaseQuery = (
       };
     }
   };
-};
 
 export enum TagTypes {
   Instances = 'Instances',

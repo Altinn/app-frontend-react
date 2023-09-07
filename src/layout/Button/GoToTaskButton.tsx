@@ -1,35 +1,36 @@
 import React from 'react';
 
-import { ButtonVariant } from '@altinn/altinn-design-system';
-
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
+import { ProcessActions } from 'src/features/process/processSlice';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useCanSubmitForm } from 'src/hooks/useCanSubmitForm';
 import { WrappedButton } from 'src/layout/Button/WrappedButton';
-import { ProcessActions } from 'src/shared/resources/process/processSlice';
-import { ProcessTaskType } from 'src/types';
-import type { ButtonProps } from 'src/layout/Button/WrappedButton';
+import type { IButtonProvidedProps } from 'src/layout/Button/ButtonComponent';
 
-export type Props = Omit<ButtonProps, 'onClick'> & { taskId: string };
-
-export const GoToTaskButton = ({ children, taskId, ...props }: Props) => {
+export const GoToTaskButton = ({ children, ...props }: React.PropsWithChildren<IButtonProvidedProps>) => {
   const dispatch = useAppDispatch();
+  const { canSubmit, busyWithId, message } = useCanSubmitForm();
+  const taskId = props.node.isType('Button') ? props.node.item.taskId : undefined;
   const availableProcessTasks = useAppSelector((state) => state.process.availableNextTasks);
-  const canGoToTask = availableProcessTasks && availableProcessTasks.includes(taskId);
+  const canGoToTask = canSubmit && availableProcessTasks && availableProcessTasks.includes(taskId || '');
   const navigateToTask = () => {
     if (canGoToTask) {
       dispatch(
         ProcessActions.complete({
           taskId,
-          processStep: ProcessTaskType.Unknown,
         }),
       );
     }
   };
+
   return (
     <WrappedButton
       disabled={!canGoToTask}
+      busyWithId={busyWithId}
+      message={message}
       onClick={navigateToTask}
       {...props}
-      variant={ButtonVariant.Outline}
+      variant={'outline'}
     >
       {children}
     </WrappedButton>

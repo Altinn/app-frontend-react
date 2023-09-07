@@ -1,53 +1,76 @@
 import React, { useState } from 'react';
 
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
-import { ValidationActions } from 'src/features/form/validation/validationSlice';
+import { ProcessActions } from 'src/features/process/processSlice';
+import { ValidationActions } from 'src/features/validation/validationSlice';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { SubmitButton } from 'src/layout/Button/SubmitButton';
-import { ProcessActions } from 'src/shared/resources/process/processSlice';
-import { ProcessTaskType } from 'src/types';
-import { get } from 'src/utils/network/networking';
-import { getTextFromAppOrDefault } from 'src/utils/textResource';
+import { useExprContext } from 'src/utils/layout/ExprContext';
+import { httpGet } from 'src/utils/network/networking';
 import { getValidationUrl } from 'src/utils/urls/appUrlHelper';
-import { mapDataElementValidationToRedux } from 'src/utils/validation';
+import { mapValidationIssues } from 'src/utils/validation/backendValidation';
+import { createValidationResult } from 'src/utils/validation/validationHelpers';
 import type { BaseButtonProps } from 'src/layout/Button/WrappedButton';
-import type { IAltinnWindow } from 'src/types';
-import type { ILanguage } from 'src/types/shared';
 
-export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: string; language: ILanguage }) => {
-  const textResources = useAppSelector((state) => state.textResources.resources);
+export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: string }) => {
+  const confirmingId = useAppSelector((state) => state.process.completingId);
+  const [validateId, setValidateId] = useState<string | null>(null);
+  const processActionsFeature = useAppSelector(
+    (state) => state.applicationMetadata.applicationMetadata?.features?.processActions,
+  );
+  const { actions } = useAppSelector((state) => state.process);
+  const disabled = processActionsFeature && !actions?.confirm;
+  const resolvedNodes = useExprContext();
+
   const dispatch = useAppDispatch();
-  const { instanceId } = window as Window as IAltinnWindow;
-  const [busyWithId, setBusyWithId] = useState('');
+  const langTools = useLanguage();
+  const { lang } = langTools;
+  const { instanceId } = window;
+
   const handleConfirmClick = () => {
-    setBusyWithId(props.id);
-    get(getValidationUrl(instanceId))
-      .then((data: any) => {
-        const mappedValidations = mapDataElementValidationToRedux(data, {}, textResources);
-        dispatch(
-          ValidationActions.updateValidations({
-            validations: mappedValidations,
-          }),
-        );
-        if (data.length === 0) {
+    if (!disabled && instanceId && resolvedNodes) {
+      setValidateId(props.id);
+      httpGet(getValidationUrl(instanceId))
+        .then((serverValidations: any) => {
+          const validationObjects = mapValidationIssues(serverValidations, resolvedNodes, langTools);
+          const validationResult = createValidationResult(validationObjects);
           dispatch(
-            ProcessActions.complete({
-              taskId: '',
-              processStep: ProcessTaskType.Unknown,
+            ValidationActions.updateValidations({
+              validationResult,
+              merge: false,
             }),
           );
-        }
-      })
-      .finally(() => {
-        setBusyWithId('');
-      });
+          if (serverValidations.length === 0) {
+            if (processActionsFeature) {
+              dispatch(ProcessActions.complete({ componentId: props.id, action: 'confirm' }));
+            } else {
+              dispatch(ProcessActions.complete({ componentId: props.id }));
+            }
+          }
+        })
+        .catch((error) => {
+          dispatch(ProcessActions.completeRejected({ error: JSON.parse(JSON.stringify(error)) }));
+          window.logError('Validating on confirm failed:\n', error);
+        })
+        .finally(() => {
+          setValidateId(null);
+        });
+    }
   };
+
+  const busyWithId = confirmingId || validateId || null;
+
   return (
-    <SubmitButton
-      {...props}
-      busyWithId={busyWithId}
-      onClick={handleConfirmClick}
-    >
-      {getTextFromAppOrDefault('confirm.button_text', textResources, props.language)}
-    </SubmitButton>
+    <div style={{ marginTop: 'var(--button-margin-top)' }}>
+      <SubmitButton
+        {...props}
+        busyWithId={busyWithId}
+        onClick={handleConfirmClick}
+        disabled={disabled}
+      >
+        {lang('confirm.button_text')}
+      </SubmitButton>
+    </div>
   );
 };

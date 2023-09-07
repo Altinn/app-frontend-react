@@ -1,14 +1,17 @@
-import * as React from 'react';
+import React from 'react';
 
 import MomentUtils from '@date-io/moment';
-import { Grid, Icon, makeStyles, useMediaQuery, useTheme } from '@material-ui/core';
+import { Grid, makeStyles } from '@material-ui/core';
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
+import { CalendarIcon } from '@navikt/aksel-icons';
 import moment from 'moment';
 import type { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
 
-import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
+import { useIsMobile } from 'src/hooks/useIsMobile';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { getDateConstraint, getDateFormat, getDateString } from 'src/utils/dateHelpers';
-import { getLanguageFromKey } from 'src/utils/sharedUtils';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 import 'src/layout/Datepicker/DatepickerComponent.css';
@@ -16,26 +19,21 @@ import 'src/styles/shared.css';
 
 export type IDatepickerProps = PropsFromGenericComponent<'Datepicker'>;
 
-const iconSize = '30px';
-
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     backgroundColor: 'white',
     boxSizing: 'border-box',
     height: '36px',
-    fontSize: '1.6rem',
-    fontFamily: 'Altinn-DIN',
-    borderWidth: '2px',
-    borderStyle: 'solid',
+    fontSize: '1rem',
+    fontFamily: 'inherit',
     borderRadius: 'var(--interactive_components-border_radius-normal)',
     marginBottom: '0px',
-    borderColor: theme.altinnPalette.primary.blueMedium,
+    outline: '1px solid var(--component-input-color-border-default)',
     '&:hover': {
-      borderColor: theme.altinnPalette.primary.blueDark,
+      outline: '2px solid var(--component-input-color-border-hover)',
     },
     '&:has(input:focus-visible)': {
-      outline: 'var(--component-input-color-outline-focus) auto var(--border_width-thin)',
-      outlineOffset: 'calc(var(--border_width-thin) + var(--border_width-standard))',
+      outline: 'var(--fds-focus-border-width) solid var(--fds-outer-focus-border-color)',
     },
   },
   input: {
@@ -43,13 +41,14 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: '12px',
   },
   invalid: {
-    borderColor: `${theme.altinnPalette.primary.red} !important`,
-    outlineColor: `${theme.altinnPalette.primary.red} !important`,
+    outlineColor: `var(--component-input-error-color-border-default)`,
+    '&:hover': {
+      outlineColor: `var(--component-input-error-color-border-default)`,
+    },
   },
   icon: {
-    fontSize: iconSize,
-    lineHeight: iconSize,
-    color: 'var(--colors-blue-900)',
+    fontSize: '1.75rem',
+    color: 'var(--semantic-text-neutral-default)',
   },
   iconButton: {
     padding: 3,
@@ -57,12 +56,13 @@ const useStyles = makeStyles((theme) => ({
       outline: 'none',
     },
     '&:focus-visible': {
-      outline: 'var(--interactive_components-colors-focus_outline) solid var(--border_width-standard)',
-      outlineOffset: 'var(--border_width-standard)',
+      outline: 'var(--fds-focus-border-width) solid var(--fds-outer-focus-border-color)',
+      outlineOffset: 'var(--fds-focus-border-width)',
+      boxShadow: '0 0 0 var(--fds-focus-border-width) var(--fds-inner-focus-border-color)',
     },
   },
   formHelperText: {
-    fontSize: '1.4rem',
+    fontSize: '0.875rem',
   },
   datepicker: {
     width: 'auto',
@@ -71,22 +71,22 @@ const useStyles = makeStyles((theme) => ({
   },
   dialog: {
     '& *': {
-      fontFamily: 'Altinn-DIN',
+      fontFamily: 'inherit',
     },
     '& .MuiTypography-h4': {
-      fontSize: '2.4rem',
+      fontSize: '1.5rem',
     },
     '& .MuiTypography-body1': {
-      fontSize: '1.8rem',
+      fontSize: '1.125rem',
     },
     '& .MuiTypography-body2': {
-      fontSize: '1.6rem',
+      fontSize: '1rem',
     },
     '& .MuiTypography-caption': {
-      fontSize: '1.6rem',
+      fontSize: '1rem',
     },
     '& .MuiTypography-subtitle1': {
-      fontSize: '1.6rem',
+      fontSize: '1rem',
     },
   },
 }));
@@ -103,28 +103,18 @@ class AltinnMomentUtils extends MomentUtils {
 // We dont use the built-in validation for the 3rd party component, so it is always empty string
 const emptyString = '';
 
-export function DatepickerComponent({
-  minDate,
-  maxDate,
-  format,
-  language,
-  formData,
-  timeStamp = true,
-  handleDataChange,
-  readOnly,
-  required,
-  id,
-  isValid,
-  textResourceBindings,
-}: IDatepickerProps) {
+export function DatepickerComponent({ node, formData, handleDataChange, isValid, overrideDisplay }: IDatepickerProps) {
   const classes = useStyles();
+  const profile = useAppSelector((state) => state.profile);
+  const { langAsString } = useLanguage();
+  const languageLocale = profile.selectedAppLanguage || profile.profile.profileSettingPreference.language;
+  const { minDate, maxDate, format, timeStamp = true, readOnly, required, id, textResourceBindings } = node.item;
 
   const calculatedMinDate = getDateConstraint(minDate, 'min');
   const calculatedMaxDate = getDateConstraint(maxDate, 'max');
 
-  const calculatedFormat = getDateFormat(format);
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const calculatedFormat = getDateFormat(format, languageLocale);
+  const isMobile = useIsMobile();
 
   const { value, setValue, saveValue, onPaste } = useDelayedSavedState(handleDataChange, formData?.simpleBinding ?? '');
 
@@ -147,9 +137,9 @@ export function DatepickerComponent({
 
   const mobileOnlyProps = isMobile
     ? {
-        cancelLabel: getLanguageFromKey('date_picker.cancel_label', language),
-        clearLabel: getLanguageFromKey('date_picker.clear_label', language),
-        todayLabel: getLanguageFromKey('date_picker.today_label', language),
+        cancelLabel: langAsString('date_picker.cancel_label'),
+        clearLabel: langAsString('date_picker.clear_label'),
+        todayLabel: langAsString('date_picker.today_label'),
       }
     : {};
 
@@ -186,7 +176,7 @@ export function DatepickerComponent({
             InputProps={{
               disableUnderline: true,
               error: !isValid,
-              readOnly: readOnly,
+              readOnly,
               classes: {
                 root: classes.root + (!isValid ? ` ${classes.invalid}` : '') + (readOnly ? ' disabled' : ''),
                 input: classes.input,
@@ -194,6 +184,10 @@ export function DatepickerComponent({
               ...(textResourceBindings?.description && {
                 'aria-describedby': `description-${id}`,
               }),
+            }}
+            inputProps={{
+              className: 'no-visual-testing',
+              'aria-label': overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined,
             }}
             DialogProps={{ className: classes.dialog }}
             PopoverProps={{ className: classes.dialog }}
@@ -203,24 +197,25 @@ export function DatepickerComponent({
               },
             }}
             KeyboardButtonProps={{
-              'aria-label': getLanguageFromKey('date_picker.aria_label_icon', language),
+              'aria-label': langAsString('date_picker.aria_label_icon'),
               id: 'date-icon-button',
               classes: {
                 root: classes.iconButton,
               },
             }}
             leftArrowButtonProps={{
-              'aria-label': getLanguageFromKey('date_picker.aria_label_left_arrow', language),
+              'aria-label': langAsString('date_picker.aria_label_left_arrow'),
               id: 'date-left-icon-button',
             }}
             rightArrowButtonProps={{
-              'aria-label': getLanguageFromKey('date_picker.aria_label_right_arrow', language),
+              'aria-label': langAsString('date_picker.aria_label_right_arrow'),
               id: 'date-right-icon-button',
             }}
             keyboardIcon={
-              <Icon
+              <CalendarIcon
                 id='date-icon'
-                className={`${classes.icon} ai ai-date`}
+                className={classes.icon}
+                aria-label={langAsString('date_picker.aria_label_icon')}
               />
             }
             className={classes.datepicker}

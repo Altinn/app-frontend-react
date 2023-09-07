@@ -1,57 +1,49 @@
-import * as React from 'react';
+import React, { useMemo } from 'react';
 
-import { Box } from '@material-ui/core';
+import { Select } from '@digdir/design-system-react';
 
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
-import { AltinnSpinner, Select } from 'src/components/shared';
-import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
+import { AltinnSpinner } from 'src/components/AltinnSpinner';
+import { ProfileActions } from 'src/features/profile/profileSlice';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { useGetAppLanguageQuery } from 'src/services/LanguageApi';
-import { LanguageActions } from 'src/shared/resources/language/languageSlice';
-import { getTextFromAppOrDefault } from 'src/utils/textResource';
 
-export const LanguageSelector = () => {
-  const language = useAppSelector((state) => state.language.language || {});
-  const { isSuccess, data, isLoading } = useGetAppLanguageQuery();
-  const selectedAppLanguage = useAppSelector(appLanguageStateSelector);
+export const LanguageSelector = ({ hideLabel }: { hideLabel?: boolean }) => {
+  const { langAsString, selectedLanguage } = useLanguage();
 
-  const textResources = useAppSelector((state) => state.textResources.resources);
+  const { data: appLanguages, isError: appLanguageError } = useGetAppLanguageQuery();
   const dispatch = useAppDispatch();
+
   const handleAppLanguageChange = (languageCode: string) => {
-    dispatch(LanguageActions.updateSelectedAppLanguage({ selected: languageCode }));
+    dispatch(ProfileActions.updateSelectedAppLanguage({ selected: languageCode }));
   };
 
-  return (
-    <Box
-      display='flex'
-      flexDirection='column'
-      className='mb-1'
-    >
-      {isLoading && <AltinnSpinner />}
-      {isSuccess && (
-        <>
-          <label
-            className='a-form-label'
-            htmlFor='app-language-select'
-          >
-            {getTextFromAppOrDefault('language.selector.label', textResources, language, undefined, true)}
-          </label>
-          <Select
-            options={data.map((l) => ({
-              value: l.language,
-              label: getTextFromAppOrDefault(
-                `language.full_name.${l.language}`,
-                textResources,
-                language,
-                undefined,
-                true,
-              ),
-            }))}
-            onChange={(ev) => handleAppLanguageChange(ev.target.value)}
-            value={selectedAppLanguage}
-            id='app-language-select'
-          />
-        </>
-      )}
-    </Box>
+  const optionsMap = useMemo(
+    () =>
+      appLanguages?.map((lang) => ({
+        label: langAsString(`language.full_name.${lang.language}`),
+        value: lang.language,
+      })),
+    [appLanguages, langAsString],
   );
+
+  if (appLanguageError) {
+    console.error('Failed to load app languages.');
+    return null;
+  }
+
+  if (appLanguages) {
+    return (
+      <div style={{ minWidth: 160 }}>
+        <Select
+          label={!hideLabel ? langAsString('language.selector.label') : undefined}
+          options={optionsMap || []}
+          onChange={(value) => handleAppLanguageChange(value)}
+          value={selectedLanguage}
+        />
+      </div>
+    );
+  }
+
+  return <AltinnSpinner />;
 };

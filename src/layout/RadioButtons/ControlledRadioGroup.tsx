@@ -1,84 +1,77 @@
 import React from 'react';
-import type { ChangeEventHandler, FocusEventHandler } from 'react';
 
-import { FormLabel } from '@material-ui/core';
-import FormControl from '@material-ui/core/FormControl';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import cn from 'classnames';
-
-import { AltinnSpinner } from 'src/components/shared';
-import { useRadioStyles } from 'src/layout/RadioButtons/radioButtonsUtils';
-import { StyledRadio } from 'src/layout/RadioButtons/StyledRadio';
+import { AltinnSpinner } from 'src/components/AltinnSpinner';
+import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
+import { RadioButton } from 'src/components/form/RadioButton';
+import { RadioGroup } from 'src/components/form/RadioGroup';
+import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
+import { useLanguage } from 'src/hooks/useLanguage';
+import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
 import { shouldUseRowLayout } from 'src/utils/layout';
-import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { IRadioButtonsContainerProps } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
-import type { IOption } from 'src/types';
 
-export interface IControlledRadioGroupProps extends IRadioButtonsContainerProps {
-  fetchingOptions: boolean | undefined;
-  selected: string | undefined;
-  handleBlur: FocusEventHandler<HTMLInputElement | HTMLButtonElement | HTMLDivElement>;
-  handleChange: ChangeEventHandler<HTMLInputElement | HTMLButtonElement>;
-  calculatedOptions: IOption[];
-}
+export type IControlledRadioGroupProps = IRadioButtonsContainerProps;
 
-export const ControlledRadioGroup = ({
-  id,
-  layout,
-  legend,
-  getTextResource,
-  validationMessages,
-  fetchingOptions,
-  selected,
-  readOnly,
-  handleBlur,
-  handleChange,
-  calculatedOptions,
-}: IControlledRadioGroupProps) => {
-  const classes = useRadioStyles();
-  const RenderLegend = legend;
+export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
+  const { node, isValid, overrideDisplay } = props;
+  const { id, layout, readOnly, textResourceBindings, required, showAsCard } = node.item;
+  const labelSettings = 'labelSettings' in node.item ? node.item.labelSettings : undefined;
+  const { selected, handleChange, handleBlur, fetchingOptions, calculatedOptions } = useRadioButtons(props);
+  const { lang, langAsString } = useLanguage();
+
+  const labelText = (
+    <span style={{ fontSize: '1rem', wordBreak: 'break-word' }}>
+      {lang(textResourceBindings?.title)}
+      <RequiredIndicator required={required} />
+      <OptionalIndicator
+        labelSettings={labelSettings}
+        required={required}
+      />
+    </span>
+  );
+
+  const hideLabel = overrideDisplay?.renderedInTable === true && calculatedOptions.length === 1;
+
   return (
-    <FormControl component='fieldset'>
-      <FormLabel
-        component='legend'
-        classes={{ root: cn(classes.legend) }}
-        id={`${id}-label`}
-      >
-        <RenderLegend />
-      </FormLabel>
+    <div>
       {fetchingOptions ? (
         <AltinnSpinner />
       ) : (
-        <RadioGroup
-          aria-labelledby={`${id}-label`}
-          name={id}
-          value={selected}
-          onBlur={handleBlur}
-          onChange={handleChange}
-          row={shouldUseRowLayout({
-            layout,
-            optionsCount: calculatedOptions.length,
-          })}
+        <div
           id={id}
+          onBlur={handleBlur}
         >
-          {calculatedOptions.map((option: any, index: number) => (
-            <React.Fragment key={index}>
-              <FormControlLabel
-                tabIndex={-1}
-                control={<StyledRadio />}
+          <RadioGroup
+            legend={overrideDisplay?.renderLegend === false ? null : labelText}
+            description={textResourceBindings?.description && lang(textResourceBindings.description)}
+            helpText={textResourceBindings?.help && lang(textResourceBindings.help)}
+            error={!isValid}
+            disabled={readOnly}
+            shouldDisplayHorizontally={shouldUseRowLayout({
+              layout,
+              optionsCount: calculatedOptions.length,
+            })}
+          >
+            {calculatedOptions.map((option) => (
+              <RadioButton
+                {...option}
+                label={langAsString(option.label)}
+                description={lang(option.description)}
+                helpText={lang(option.helpText)}
+                name={id}
+                key={option.value}
+                checked={option.value === selected}
+                showAsCard={showAsCard}
+                error={!isValid}
                 disabled={readOnly}
-                label={getTextResource(option.label)}
-                value={option.value}
-                classes={{ root: cn(classes.formControl) }}
+                onChange={handleChange}
+                hideLabel={hideLabel}
+                size='small'
               />
-              {validationMessages &&
-                selected === option.value &&
-                renderValidationMessagesForComponent(validationMessages.simpleBinding, id)}
-            </React.Fragment>
-          ))}
-        </RadioGroup>
+            ))}
+          </RadioGroup>
+        </div>
       )}
-    </FormControl>
+    </div>
   );
 };

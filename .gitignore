@@ -392,3 +392,11 @@ src/Altinn.Apps/AppTemplates/AspNet/App/Properties/launchSettings.json
 # Cypress environment settings
 /cypress.env.json
 /.env
+
+# Auto-generated files (run 'yarn gen')
+*.generated.ts
+*.generated.d.ts
+*.generated.tsx
+*.generated.json
+*.generated.schema.json
+layout.schema.v1.json

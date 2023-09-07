@@ -1,20 +1,32 @@
 import React from 'react';
 
-import { AltinnLoader } from 'src/components/shared';
-import css from 'src/layout/Button/ButtonLoader.module.css';
-import { getLanguageFromKey } from 'src/utils/sharedUtils';
-import type { ILanguage } from 'src/types/shared';
+import cn from 'classnames';
 
-export interface ButtonLoaderProps {
-  language: ILanguage;
-}
+import { AltinnLoader } from 'src/components/AltinnLoader';
+import { useLanguage } from 'src/hooks/useLanguage';
+import classes from 'src/layout/Button/ButtonLoader.module.css';
 
-export const ButtonLoader = ({ language }: ButtonLoaderProps) => {
+type ButtonLoaderProps = {
+  children: React.ReactNode;
+  isLoading?: boolean;
+} & React.HTMLProps<HTMLDivElement>;
+
+export const ButtonLoader = ({ children, isLoading, ...containerProps }: ButtonLoaderProps) => {
+  const { langAsString } = useLanguage();
+
   return (
-    <AltinnLoader
-      id={'altinn-button-loader'}
-      className={css['button-loader']}
-      srContent={getLanguageFromKey('general.loading', language)}
-    />
+    <div
+      {...containerProps}
+      className={cn(classes.wrapper, containerProps.className)}
+    >
+      {children}
+      {isLoading && (
+        <AltinnLoader
+          id={'altinn-button-loader'}
+          className={classes['button-loader']}
+          srContent={langAsString('general.loading')}
+        />
+      )}
+    </div>
   );
 };

@@ -2,20 +2,30 @@ import dot from 'dot-object';
 
 import { ExprRuntimeError, NodeNotFound, NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import { prettyErrors, prettyErrorsToConsole } from 'src/features/expressions/prettyErrors';
-import type { Expression } from 'src/features/expressions/types';
-import type { IFormData } from 'src/features/form/data';
-import type { IApplicationSettings, IInstanceContext } from 'src/types/shared';
-import type { LayoutNode, LayoutRootNode } from 'src/utils/layout/hierarchy';
+import type { IAttachments } from 'src/features/attachments';
+import type { EvalExprOptions } from 'src/features/expressions/index';
+import type { ExprConfig, Expression } from 'src/features/expressions/types';
+import type { IFormData } from 'src/features/formData';
+import type { IUseLanguage } from 'src/hooks/useLanguage';
+import type { IOptions, IUiConfig } from 'src/types';
+import type { IApplicationSettings, IAuthContext, IInstanceContext } from 'src/types/shared';
+import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 export interface ContextDataSources {
   instanceContext: IInstanceContext | null;
   applicationSettings: IApplicationSettings | null;
   formData: IFormData;
+  attachments: IAttachments;
+  uiConfig: IUiConfig;
+  options: IOptions;
+  authContext: Partial<IAuthContext> | null;
   hiddenFields: Set<string>;
+  langTools: IUseLanguage;
 }
 
 export interface PrettyErrorsOptions {
-  defaultValue?: any;
+  config?: ExprConfig;
   introText?: string;
 }
 
@@ -28,8 +38,9 @@ export class ExprContext {
 
   private constructor(
     public expr: Expression,
-    public node: LayoutNode<any> | LayoutRootNode<any> | NodeNotFoundWithoutContext,
+    public node: LayoutNode | LayoutPage | NodeNotFoundWithoutContext,
     public dataSources: ContextDataSources,
+    public callbacks: Pick<EvalExprOptions, 'onBeforeFunctionCall' | 'onAfterFunctionCall'>,
   ) {}
 
   /**
@@ -37,10 +48,11 @@ export class ExprContext {
    */
   public static withBlankPath(
     expr: Expression,
-    node: LayoutNode<any> | LayoutRootNode<any> | NodeNotFoundWithoutContext,
+    node: LayoutNode | LayoutPage | NodeNotFoundWithoutContext,
     dataSources: ContextDataSources,
+    callbacks: Pick<EvalExprOptions, 'onBeforeFunctionCall' | 'onAfterFunctionCall'>,
   ): ExprContext {
-    return new ExprContext(expr, node, dataSources);
+    return new ExprContext(expr, node, dataSources, callbacks);
   }
 
   /**
@@ -48,7 +60,12 @@ export class ExprContext {
    * inner part of the expression)
    */
   public static withPath(prevInstance: ExprContext, newPath: string[]) {
-    const newInstance = new ExprContext(prevInstance.expr, prevInstance.node, prevInstance.dataSources);
+    const newInstance = new ExprContext(
+      prevInstance.expr,
+      prevInstance.node,
+      prevInstance.dataSources,
+      prevInstance.callbacks,
+    );
     newInstance.path = newPath;
 
     return newInstance;
@@ -57,7 +74,7 @@ export class ExprContext {
   /**
    * Utility function used to get the LayoutNode for this context, or fail if the node was not found
    */
-  public failWithoutNode(): LayoutNode<any> | LayoutRootNode<any> {
+  public failWithoutNode(): LayoutNode | BaseLayoutNode | LayoutPage {
     if (this.node instanceof NodeNotFoundWithoutContext) {
       throw new NodeNotFound(this, this.node);
     }
@@ -104,7 +121,7 @@ export class ExprContext {
       const introText = options && 'introText' in options ? options.introText : 'Evaluated expression';
 
       const extra =
-        options && 'defaultValue' in options ? ['Using default value instead:', `  ${options.defaultValue}`] : [];
+        options && options.config ? ['Using default value instead:', `  ${options.config.defaultValue}`] : [];
 
       return [`${introText}:`, prettyPrinted, ...extra].join('\n');
     }
@@ -124,8 +141,8 @@ export class ExprContext {
       const introText = options && 'introText' in options ? options.introText : 'Evaluated expression:';
 
       const extra =
-        options && 'defaultValue' in options ? `\n%cUsing default value instead:\n  %c${options.defaultValue}%c` : '';
-      const extraCss = options && 'defaultValue' in options ? ['', 'color: red;', ''] : [];
+        options && options.config ? `\n%cUsing default value instead:\n  %c${options.config.defaultValue}%c` : '';
+      const extraCss = options && options.config ? ['', 'color: red;', ''] : [];
 
       return [`${introText}:\n${prettyPrinted.lines}${extra}`, ...prettyPrinted.css, ...extraCss];
     }

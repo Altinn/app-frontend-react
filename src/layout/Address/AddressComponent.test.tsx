@@ -1,54 +1,32 @@
-import * as React from 'react';
-import { Provider } from 'react-redux';
+import React from 'react';
 
-import { act, fireEvent, render as rtlRender, screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import mockAxios from 'jest-mock-axios';
-import configureStore from 'redux-mock-store';
 
 import { AddressComponent } from 'src/layout/Address/AddressComponent';
-import { mockComponentProps } from 'src/testUtils';
-import type { IAddressComponentProps } from 'src/layout/Address/AddressComponent';
+import { renderGenericComponentTest } from 'src/testUtils';
+import type { RenderGenericComponentTestProps } from 'src/testUtils';
 
-const render = (props: Partial<IAddressComponentProps> = {}) => {
-  const createStore = configureStore();
-  const mockLanguage = {
-    ux_editor: {
-      modal_configure_address_component_address: 'Adresse',
-      modal_configure_address_component_title_text_binding: 'Søk etter ledetekst for Adresse-komponenten',
-      modal_configure_address_component_care_of: 'C/O eller annen tilleggsadresse',
-      modal_configure_address_component_house_number: 'Bolignummer',
-      modal_configure_address_component_house_number_helper:
-        'Om addressen er felles for flere boenhenter må du oppgi' +
-        ' bolignummer. Den består av en bokstav og fire tall og skal være ført opp ved/på inngangsdøren din.',
-      modal_configure_address_component_post_place: 'Poststed',
-      modal_configure_address_component_simplified: 'Enkel',
-      modal_configure_address_component_zip_code: 'Postnr',
+const render = ({ component, genericProps }: Partial<RenderGenericComponentTestProps<'AddressComponent'>> = {}) => {
+  renderGenericComponentTest({
+    type: 'AddressComponent',
+    renderer: (props) => <AddressComponent {...props} />,
+    component: {
+      simplified: true,
+      readOnly: false,
+      required: false,
+      textResourceBindings: {},
+      ...component,
     },
-  };
-
-  const allProps: IAddressComponentProps = {
-    ...mockComponentProps,
-    formData: {
-      address: 'adresse 1',
+    genericProps: {
+      formData: {
+        address: 'adresse 1',
+      },
+      isValid: true,
+      ...genericProps,
     },
-    isValid: true,
-    simplified: true,
-    dataModelBindings: {},
-    language: mockLanguage,
-    readOnly: false,
-    required: false,
-    textResourceBindings: {},
-    ...props,
-  };
-
-  const mockStore = createStore({ language: { language: mockLanguage } });
-
-  rtlRender(
-    <Provider store={mockStore}>
-      <AddressComponent {...allProps} />
-    </Provider>,
-  );
+  });
 };
 
 const getField = ({ method, regex }) =>
@@ -60,11 +38,11 @@ const getAddressField = ({ useQuery = false, optional = false, required = false 
   const method = useQuery ? 'queryByRole' : 'getByRole';
   let regex;
   if (required) {
-    regex = /^address_component\.address form_filler\.required_label$/i;
+    regex = /^Gateadresse \*$/i;
   } else if (optional) {
-    regex = /^address_component\.address \(general\.optional\)$/i;
+    regex = /^Gateadresse \(Valgfri\)$/i;
   } else {
-    regex = /^address_component\.address$/i;
+    regex = /^Gateadresse$/i;
   }
 
   return getField({ method, regex });
@@ -73,11 +51,11 @@ const getZipCodeField = ({ useQuery = false, optional = false, required = false 
   const method = useQuery ? 'queryByRole' : 'getByRole';
   let regex;
   if (required) {
-    regex = /^address_component\.zip_code form_filler\.required_label$/i;
+    regex = /^Postnr \*$/i;
   } else if (optional) {
-    regex = /^address_component\.zip_code \(general\.optional\)$/i;
+    regex = /^Postnr \(Valgfri\)$/i;
   } else {
-    regex = /^address_component\.zip_code$/i;
+    regex = /^Postnr$/i;
   }
 
   return getField({ method, regex });
@@ -87,11 +65,11 @@ const getGareOfField = ({ useQuery = false, optional = false, required = false }
   const method = useQuery ? 'queryByRole' : 'getByRole';
   let regex;
   if (required) {
-    regex = /^address_component\.care_of form_filler\.required_label$/i;
+    regex = /^C\/O eller annen tilleggsadresse \*$/i;
   } else if (optional) {
-    regex = /^address_component\.care_of \(general\.optional\)$/i;
+    regex = /^C\/O eller annen tilleggsadresse \(Valgfri\)$/i;
   } else {
-    regex = /^address_component\.care_of$/i;
+    regex = /^C\/O eller annen tilleggsadresse$/i;
   }
 
   return getField({ method, regex });
@@ -101,17 +79,17 @@ const getHouseNumberField = ({ useQuery = false, optional = false, required = fa
   const method = useQuery ? 'queryByRole' : 'getByRole';
   let regex;
   if (required) {
-    regex = /^address_component\.house_number form_filler\.required_label$/i;
+    regex = /^Bolignummer \*$/i;
   } else if (optional) {
-    regex = /^address_component\.house_number \(general\.optional\)$/i;
+    regex = /^Bolignummer \(Valgfri\)$/i;
   } else {
-    regex = /^address_component\.house_number$/i;
+    regex = /^Bolignummer$/i;
   }
 
   return getField({ method, regex });
 };
 
-const getPostPlaceField = () => getField({ method: 'getByRole', regex: /^address_component\.post_place$/i });
+const getPostPlaceField = () => getField({ method: 'getByRole', regex: /^Poststed$/i });
 
 describe('AddressComponent', () => {
   jest.useFakeTimers();
@@ -125,7 +103,9 @@ describe('AddressComponent', () => {
 
   it('should return simplified version when simplified is true', () => {
     render({
-      simplified: true,
+      component: {
+        simplified: true,
+      },
     });
 
     expect(getAddressField()).toBeInTheDocument();
@@ -138,7 +118,9 @@ describe('AddressComponent', () => {
 
   it('should return complex version when simplified is false', () => {
     render({
-      simplified: false,
+      component: {
+        simplified: false,
+      },
     });
 
     expect(getAddressField()).toBeInTheDocument();
@@ -152,17 +134,22 @@ describe('AddressComponent', () => {
     const handleDataChange = jest.fn();
 
     render({
-      formData: {
-        address: '',
+      component: {
+        simplified: false,
       },
-      simplified: false,
-      handleDataChange,
+      genericProps: {
+        formData: {
+          address: '',
+        },
+        handleDataChange,
+      },
     });
 
     const address = getAddressField();
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
       await user.type(address, 'Slottsplassen 1');
-      fireEvent.blur(address);
+      await user.tab();
     });
 
     expect(handleDataChange).toHaveBeenCalledWith('Slottsplassen 1', {
@@ -174,18 +161,24 @@ describe('AddressComponent', () => {
     const handleDataChange = jest.fn();
 
     render({
-      formData: {
-        address: 'initial address',
+      genericProps: {
+        formData: {
+          address: 'initial address',
+        },
+        handleDataChange,
       },
-      simplified: false,
-      readOnly: true,
-      handleDataChange,
+      component: {
+        simplified: false,
+        readOnly: true,
+      },
     });
 
     const address = getAddressField();
+
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
       await user.type(address, 'Slottsplassen 1');
-      fireEvent.blur(address);
+      await user.tab();
     });
 
     expect(handleDataChange).not.toHaveBeenCalled();
@@ -194,21 +187,27 @@ describe('AddressComponent', () => {
   it('should show error message on blur if zipcode is invalid, and not call handleDataChange', async () => {
     const handleDataChange = jest.fn();
     render({
-      formData: {
-        address: 'a',
+      component: {
+        required: true,
+        simplified: false,
       },
-      required: true,
-      simplified: false,
-      handleDataChange,
+      genericProps: {
+        formData: {
+          address: 'a',
+        },
+        handleDataChange,
+      },
     });
 
     const field = getZipCodeField({ required: true });
+
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
       await user.type(field, '1');
-      fireEvent.blur(field);
+      await user.tab();
     });
 
-    const errorMessage = screen.getByText(/address_component\.validation_error_zipcode/i);
+    const errorMessage = screen.getByText(/Postnummer er ugyldig\. Et postnummer består kun av 4 siffer\./i);
 
     expect(handleDataChange).not.toHaveBeenCalled();
     expect(errorMessage).toBeInTheDocument();
@@ -217,13 +216,17 @@ describe('AddressComponent', () => {
   it('should update postplace on mount', async () => {
     const handleDataChange = jest.fn();
     render({
-      formData: {
-        address: 'a',
-        zipCode: '0001',
+      component: {
+        required: true,
+        simplified: false,
       },
-      required: true,
-      simplified: false,
-      handleDataChange,
+      genericProps: {
+        formData: {
+          address: 'a',
+          zipCode: '0001',
+        },
+        handleDataChange,
+      },
     });
 
     mockAxios.mockResponseFor(
@@ -245,21 +248,26 @@ describe('AddressComponent', () => {
     const handleDataChange = jest.fn();
 
     render({
-      formData: {
-        address: 'a',
-        zipCode: '1',
-        postPlace: '',
+      genericProps: {
+        formData: {
+          address: 'a',
+          zipCode: '1',
+          postPlace: '',
+        },
+        handleDataChange,
       },
-      required: true,
-      simplified: false,
-      handleDataChange,
+      component: {
+        required: true,
+        simplified: false,
+      },
     });
 
     const field = getZipCodeField({ required: true });
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
       await user.clear(field);
       await user.type(field, '0001');
-      fireEvent.blur(field);
+      await user.tab();
     });
 
     expect(handleDataChange).toHaveBeenCalledWith('0001', { key: 'zipCode' });
@@ -268,21 +276,25 @@ describe('AddressComponent', () => {
   it('should call handleDataChange for post place when zip code is cleared', async () => {
     const handleDataChange = jest.fn();
     render({
-      formData: {
-        address: 'a',
-        zipCode: '0001',
-        postPlace: 'Oslo',
+      genericProps: {
+        formData: {
+          address: 'a',
+          zipCode: '0001',
+          postPlace: 'Oslo',
+        },
+        handleDataChange,
       },
-      handleDataChange,
     });
 
     expect(screen.getByDisplayValue('0001')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Oslo')).toBeInTheDocument();
 
     const field = getZipCodeField();
+
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
       await user.clear(field);
-      fireEvent.blur(field);
+      await user.tab();
     });
 
     expect(handleDataChange).toHaveBeenCalledWith('', { key: 'zipCode' });
@@ -293,26 +305,32 @@ describe('AddressComponent', () => {
     const errorMessage = 'cannot be empty;';
     const handleDataChange = jest.fn();
     render({
-      formData: {
-        address: '',
-      },
-      required: true,
-      simplified: false,
-      handleDataChange,
-      componentValidations: {
-        address: {
-          errors: [errorMessage],
+      genericProps: {
+        formData: {
+          address: '',
         },
+        handleDataChange,
+        componentValidations: {
+          address: {
+            errors: [errorMessage],
+          },
+        },
+      },
+      component: {
+        required: true,
+        simplified: false,
       },
     });
 
-    expect(screen.queryByText(errorMessage)).toBeInTheDocument();
+    expect(screen.getByText(errorMessage)).toBeInTheDocument();
   });
 
   it('should display no extra markings when required is false, and labelSettings.optionalIndicator is not true', () => {
     render({
-      required: false,
-      simplified: false,
+      component: {
+        required: false,
+        simplified: false,
+      },
     });
     expect(getAddressField()).toBeInTheDocument();
     expect(getZipCodeField()).toBeInTheDocument();
@@ -323,8 +341,10 @@ describe('AddressComponent', () => {
 
   it('should display required labels when required is true', () => {
     render({
-      required: true,
-      simplified: false,
+      component: {
+        required: true,
+        simplified: false,
+      },
     });
 
     expect(getAddressField({ required: true })).toBeInTheDocument();
@@ -341,9 +361,11 @@ describe('AddressComponent', () => {
 
   it('should display optional labels when optionalIndicator is true', () => {
     render({
-      simplified: false,
-      labelSettings: {
-        optionalIndicator: true,
+      component: {
+        simplified: false,
+        labelSettings: {
+          optionalIndicator: true,
+        },
       },
     });
 
@@ -361,7 +383,9 @@ describe('AddressComponent', () => {
 
   it('should not display optional labels by default', () => {
     render({
-      simplified: false,
+      component: {
+        simplified: false,
+      },
     });
 
     expect(getAddressField({ useQuery: true, optional: true })).not.toBeInTheDocument();
@@ -378,8 +402,10 @@ describe('AddressComponent', () => {
 
   it('should not display optional labels when readonly is true', () => {
     render({
-      readOnly: true,
-      simplified: false,
+      component: {
+        readOnly: true,
+        simplified: false,
+      },
     });
 
     expect(getAddressField()).toBeInTheDocument();
@@ -396,10 +422,12 @@ describe('AddressComponent', () => {
 
   it('should not display optional labels when readonly is true, even when optionalIndicator is true', () => {
     render({
-      readOnly: true,
-      simplified: false,
-      labelSettings: {
-        optionalIndicator: true,
+      component: {
+        readOnly: true,
+        simplified: false,
+        labelSettings: {
+          optionalIndicator: true,
+        },
       },
     });
 
@@ -417,10 +445,9 @@ describe('AddressComponent', () => {
 
   it('should not display optional labels when required is true, even when optionalIndicator is true', () => {
     render({
-      required: true,
-      simplified: false,
-      labelSettings: {
-        optionalIndicator: true,
+      component: {
+        required: true,
+        simplified: false,
       },
     });
 

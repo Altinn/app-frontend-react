@@ -1,27 +1,35 @@
 import React from 'react';
 
-import { useAppSelector, useHasChangedIgnoreUndefined } from 'src/common/hooks';
-import { useGetOptions } from 'src/components/hooks';
-import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
-import { AltinnSpinner, Select } from 'src/components/shared';
-import { getOptionLookupKey } from 'src/utils/options';
+import { Select } from '@digdir/design-system-react';
+
+import { AltinnSpinner } from 'src/components/AltinnSpinner';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
+import { useFormattedOptions } from 'src/hooks/useFormattedOptions';
+import { useGetOptions } from 'src/hooks/useGetOptions';
+import { useHasChangedIgnoreUndefined } from 'src/hooks/useHasChangedIgnoreUndefined';
+import { useLanguage } from 'src/hooks/useLanguage';
+import { duplicateOptionFilter, getOptionLookupKey } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IDropdownProps = PropsFromGenericComponent<'Dropdown'>;
 
-export function DropdownComponent({
-  optionsId,
-  formData,
-  preselectedOptionIndex,
-  handleDataChange,
-  id,
-  readOnly,
-  isValid,
-  getTextResourceAsString,
-  mapping,
-  source,
-}: IDropdownProps) {
-  const options = useGetOptions({ optionsId, mapping, source });
+export function DropdownComponent({ node, formData, handleDataChange, isValid, overrideDisplay }: IDropdownProps) {
+  const {
+    optionsId,
+    options: staticOptions,
+    preselectedOptionIndex,
+    id,
+    readOnly,
+    mapping,
+    queryParameters,
+    source,
+    textResourceBindings,
+  } = node.item;
+  const { langAsString } = useLanguage();
+  const options = (useGetOptions({ optionsId, mapping, queryParameters, source }) || staticOptions)?.filter(
+    duplicateOptionFilter,
+  );
   const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });
   const fetchingOptions = useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading);
   const hasSelectedInitial = React.useRef(false);
@@ -52,9 +60,7 @@ export function DropdownComponent({
     }
   }, [optionsHasChanged, formData, setValue]);
 
-  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setValue(event.target.value);
-  };
+  const formattedOptions = useFormattedOptions(options);
 
   return (
     <>
@@ -62,18 +68,16 @@ export function DropdownComponent({
         <AltinnSpinner />
       ) : (
         <Select
-          id={id}
-          onChange={handleChange}
+          label={langAsString('general.choose')}
+          hideLabel={true}
+          inputId={id}
+          onChange={setValue}
           onBlur={saveValue}
           value={value}
           disabled={readOnly}
           error={!isValid}
-          options={
-            options?.map((option) => ({
-              label: getTextResourceAsString(option.label),
-              value: option.value,
-            })) || []
-          }
+          options={formattedOptions}
+          aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
         />
       )}
     </>

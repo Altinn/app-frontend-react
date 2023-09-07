@@ -1,40 +1,59 @@
-import * as React from 'react';
+import React from 'react';
+import { useDispatch } from 'react-redux';
 
-import { useAppSelector } from 'src/common/hooks';
-import InstantiationErrorPage from 'src/features/instantiate/containers/InstantiationErrorPage';
-import { getLanguageFromKey, getParsedLanguageFromKey } from 'src/utils/sharedUtils';
+import { Button } from '@digdir/design-system-react';
 
-function UnknownError() {
-  const language = useAppSelector((state) => state.language.language);
-  if (!language) {
-    return null;
+import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
+import { DevToolsTab } from 'src/features/devtools/data/types';
+import { InstantiationErrorPage } from 'src/features/instantiate/containers/InstantiationErrorPage';
+import { useIsDev } from 'src/hooks/useIsDev';
+import { useLanguage } from 'src/hooks/useLanguage';
+
+export function UnknownError() {
+  const isDev = useIsDev();
+  const { lang, langAsString } = useLanguage();
+  const dispatch = useDispatch();
+
+  function openLog() {
+    dispatch(DevToolsActions.open());
+    dispatch(DevToolsActions.setActiveTab({ tabName: DevToolsTab.Logs }));
   }
 
-  function getUnknownErrorContent() {
-    if (!language) {
-      return null;
-    }
-
-    const customerSupport = getParsedLanguageFromKey('instantiate.unknown_error_customer_support', language, [
-      getLanguageFromKey('general.customer_service_phone_number', language),
+  const createUnknownErrorContent = (): JSX.Element => {
+    const customerSupport = lang('instantiate.unknown_error_customer_support', [
+      langAsString('general.customer_service_phone_number'),
     ]);
 
     return (
       <>
-        {getLanguageFromKey('instantiate.unknown_error_text', language)}
+        {lang('instantiate.unknown_error_text')}
         <br />
         <br />
         {customerSupport}
+        {isDev && (
+          <>
+            <br />
+            <br />
+            Sjekk loggen for mer informasjon.
+            <br />
+            <br />
+            <Button
+              size='small'
+              onClick={openLog}
+            >
+              Vis logg
+            </Button>
+          </>
+        )}
       </>
     );
-  }
+  };
 
   return (
     <InstantiationErrorPage
-      title={getLanguageFromKey('instantiate.unknown_error_title', language)}
-      content={getUnknownErrorContent()}
-      statusCode={getLanguageFromKey('instantiate.unknown_error_status', language)}
+      title={lang('instantiate.unknown_error_title')}
+      content={createUnknownErrorContent()}
+      statusCode={langAsString('instantiate.unknown_error_status')}
     />
   );
 }
-export default UnknownError;

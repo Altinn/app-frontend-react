@@ -1,45 +1,66 @@
 import React from 'react';
 
 import { Map } from '@altinn/altinn-design-system';
-import { Typography } from '@material-ui/core';
+import { Grid, makeStyles, Typography } from '@material-ui/core';
 
-import { useAppSelector } from 'src/common/hooks';
-import { parseLocation, useStyles } from 'src/layout/Map/MapComponent';
-import { getLanguageFromKey, getParsedLanguageFromKey } from 'src/utils/sharedUtils';
-import type { ILayoutCompMap } from 'src/layout/Map/types';
+import { useLanguage } from 'src/hooks/useLanguage';
+import { parseLocation } from 'src/layout/Map/MapComponent';
+import { markerIcon } from 'src/layout/Map/MapIcons';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IMapComponentSummary {
-  component: ILayoutCompMap;
-  formData: any;
+  targetNode: LayoutNode<'Map'>;
 }
 
-function MapComponentSummary({ component, formData }: IMapComponentSummary) {
-  const classes = useStyles();
-  const layers = component.layers;
-  const location = formData ? parseLocation(formData) : undefined;
-  const language = useAppSelector((state) => state.language.language);
-  if (!language) {
-    return null;
-  }
+export const useStyles = makeStyles(() => ({
+  mapMargin: {
+    marginTop: 12,
+  },
+  footer: {
+    paddingTop: '12px',
+  },
+  emptyField: {
+    fontStyle: 'italic',
+    fontSize: '1rem',
+    lineHeight: 1.6875,
+  },
+}));
 
-  const footerText = location
-    ? getParsedLanguageFromKey('map_component.selectedLocation', language, [location.latitude, location.longitude])
-    : getLanguageFromKey('map_component.noSelectedLocation', language);
+export function MapComponentSummary({ targetNode }: IMapComponentSummary) {
+  const classes = useStyles();
+  const layers = targetNode.item.layers;
+  const formData = targetNode.def.useDisplayData(targetNode);
+  const location = parseLocation(formData);
+  const { lang } = useLanguage();
+
+  const footerText = location ? lang('map_component.selectedLocation', [location.latitude, location.longitude]) : null;
 
   return (
-    <>
-      {location && (
-        <Map
-          readOnly={true}
-          layers={layers}
-          centerLocation={location}
-          zoom={16}
-          markerLocation={location}
-        />
+    <Grid
+      item
+      xs={12}
+      className={location ? classes.mapMargin : undefined}
+    >
+      {location ? (
+        <>
+          <Map
+            readOnly={true}
+            layers={layers}
+            centerLocation={location}
+            zoom={16}
+            markerLocation={location}
+            markerIcon={markerIcon}
+          />
+          <Typography className={classes.footer}>{footerText}</Typography>
+        </>
+      ) : (
+        <Typography
+          variant='body1'
+          className={classes.emptyField}
+        >
+          {lang('general.empty_summary')}
+        </Typography>
       )}
-      <Typography className={classes.footer}>{footerText}</Typography>
-    </>
+    </Grid>
   );
 }
-
-export default MapComponentSummary;

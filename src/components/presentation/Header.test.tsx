@@ -4,7 +4,7 @@ import { screen } from '@testing-library/react';
 
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import Header from 'src/components/presentation/Header';
+import { Header } from 'src/components/presentation/Header';
 import { renderWithProviders } from 'src/testUtils';
 import { ProcessTaskType } from 'src/types';
 
@@ -22,12 +22,11 @@ describe('Header', () => {
     expect(screen.getByRole('banner')).toHaveTextContent('Test Header');
   });
 
-  it('should render with success modal and custom text when process is archived', () => {
+  it('should render with custom text when process is archived', () => {
     renderWithProviders(<Header type={ProcessTaskType.Archived} />, {
       preloadedState: getInitialStateMock(),
     });
     const header = screen.getByRole('banner');
-    expect(header).toHaveClass('a-modal-background-success');
     expect(header).toHaveTextContent('Kvittering');
   });
 

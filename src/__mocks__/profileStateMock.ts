@@ -1,5 +1,5 @@
 import { partyMock } from 'src/__mocks__/partyMock';
-import type { IProfileState } from 'src/shared/resources/profile';
+import type { IProfileState } from 'src/features/profile';
 
 export function getProfileStateMock(customStates?: Partial<IProfileState>): IProfileState {
   const profileStateMock = {
@@ -16,6 +16,7 @@ export function getProfileStateMock(customStates?: Partial<IProfileState>): IPro
         doNotPromptForParty: false,
       },
     },
+    selectedAppLanguage: '',
   };
 
   return {

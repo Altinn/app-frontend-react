@@ -1,136 +1,68 @@
 import React from 'react';
 
-import { AppBar, Grid, makeStyles, Typography } from '@material-ui/core';
+import { AppBar } from '@material-ui/core';
 
 import { AltinnLogo } from 'src/components/AltinnLogo';
 import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
-import AltinnAppHeaderMenu from 'src/components/organisms/AltinnAppHeaderMenu';
+import classes from 'src/components/organisms/AltinnAppHeader.module.css';
+import { AltinnAppHeaderMenu } from 'src/components/organisms/AltinnAppHeaderMenu';
+import { OrganisationLogo } from 'src/components/presentation/OrganisationLogo/OrganisationLogo';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { renderPartyName } from 'src/utils/party';
-import { getLanguageFromKey } from 'src/utils/sharedUtils';
-import type { ILanguage, IParty } from 'src/types/shared';
+import type { IParty } from 'src/types/shared';
 
 export interface IAltinnAppHeaderProps {
   /** The party of the instance owner */
   party: IParty | undefined;
   /** The party of the currently logged in user */
   userParty: IParty | undefined;
-  /** The color used for the logos in the header */
   logoColor: string;
-  /** The header background color */
   headerBackgroundColor: string;
-  /** the language resource */
-  language: ILanguage;
 }
 
-const useStyles = makeStyles(() => ({
-  altinnAppHeader: {
-    boxShadow: 'none',
-    WebkitBoxShadow: 'none',
-    MozBoxShadow: 'none',
-  },
-  mainContent: {
-    width: '100%',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    padding: 12,
-    '@media (min-width:576px)': {
-      maxWidth: 'none',
-      padding: 24,
-    },
-    '@media (min-width:760px)': {
-      maxWidth: 'none',
-    },
-    '@media (min-width:992px)': {
-      maxWidth: 'none',
-    },
-    '@media (min-width:1200px)': {
-      maxWidth: 1056,
-      paddingRight: 0,
-      paddingLeft: 0,
-    },
-  },
-  appHeaderText: {
-    fontSize: 14,
-  },
-}));
+export const AltinnAppHeader = ({ logoColor, headerBackgroundColor, party, userParty }: IAltinnAppHeaderProps) => {
+  const { langAsString } = useLanguage();
 
-export function AltinnAppHeader({
-  logoColor,
-  headerBackgroundColor,
-  party,
-  userParty,
-  language,
-}: IAltinnAppHeaderProps) {
-  const classes = useStyles();
+  const useOrganisationLogo = useAppSelector((state) => state.applicationMetadata.applicationMetadata?.logo != null);
 
   return (
     <AppBar
       data-testid='AltinnAppHeader'
       position='relative'
-      classes={{ root: classes.altinnAppHeader }}
+      classes={{ root: classes.appBar }}
       style={{ backgroundColor: headerBackgroundColor, color: logoColor }}
     >
       <LandmarkShortcuts
         shortcuts={[
           {
             id: 'main-content',
-            text: getLanguageFromKey('navigation.to_main_content', language),
+            text: langAsString('navigation.to_main_content'),
           },
         ]}
       />
-      <Grid
-        container={true}
-        className={classes.mainContent}
-        alignItems='center'
-      >
-        <Grid
-          container={true}
-          item={true}
-          xs={6}
-        >
-          <Grid item={true}>
-            <AltinnLogo color={logoColor} />
-          </Grid>
-        </Grid>
-        <Grid
-          container={true}
-          justifyContent='flex-end'
-          alignItems='center'
-          item={true}
-          xs={6}
-          spacing={1}
-        >
-          <Grid item={true}>
-            {party && userParty && party.partyId === userParty.partyId && (
-              <Typography className={classes.appHeaderText}>{renderPartyName(userParty)}</Typography>
-            )}
-            {party && userParty && party.partyId !== userParty.partyId && (
-              <Grid
-                container={true}
-                direction='column'
-                alignItems='flex-end'
-              >
-                <Grid item={true}>
-                  <Typography className={classes.appHeaderText}>{renderPartyName(userParty)}</Typography>
-                </Grid>
-                <Grid item={true}>
-                  <Typography className={classes.appHeaderText}>for {renderPartyName(party)}</Typography>
-                </Grid>
-              </Grid>
-            )}
-          </Grid>
-          <Grid item={true}>
-            <AltinnAppHeaderMenu
-              party={party}
-              logoColor={logoColor}
-              logoutText={getLanguageFromKey('general.log_out', language)}
-              ariaLabel={getLanguageFromKey('general.header_profile_icon_label', language)}
-            />
-          </Grid>
-        </Grid>
-      </Grid>
+      <div className={classes.container}>
+        {useOrganisationLogo && <OrganisationLogo />}
+        {!useOrganisationLogo && <AltinnLogo color={logoColor} />}
+        <div className={classes.wrapper}>
+          {party && userParty && party.partyId === userParty.partyId && (
+            <span className={classes.appBarText}>{renderPartyName(userParty)}</span>
+          )}
+          {party && userParty && party.partyId !== userParty.partyId && (
+            <>
+              <span className={classes.appBarText}>
+                {renderPartyName(userParty)} for {renderPartyName(party)}
+              </span>
+            </>
+          )}
+          <AltinnAppHeaderMenu
+            party={party}
+            logoColor={logoColor}
+            logoutText={langAsString('general.log_out')}
+            ariaLabel={langAsString('general.header_profile_icon_label')}
+          />
+        </div>
+      </div>
     </AppBar>
   );
-}
-
-export default AltinnAppHeader;
+};

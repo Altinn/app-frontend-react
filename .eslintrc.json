@@ -31,7 +31,9 @@
     "no-relative-import-paths",
     "preferred-import-path",
     "simple-import-sort",
-    "cypress"
+    "cypress",
+    "unused-imports",
+    "testing-library"
   ],
   "settings": {
     "import/extensions": [".js", ".jsx", ".ts", ".tsx"],
@@ -40,7 +42,8 @@
     },
     "react": {
       "version": "detect"
-    }
+    },
+    "testing-library/custom-queries": "off"
   },
   "ignorePatterns": [
     "node_modules",
@@ -51,6 +54,9 @@
     "schemas/**/*.json"
   ],
   "rules": {
+    "curly": ["error", "all"],
+    "object-shorthand": ["error", "always"],
+    "arrow-body-style": ["error", "as-needed"],
     "no-console": [
       "warn",
       {
@@ -66,7 +72,18 @@
     "jsx-a11y/no-autofocus": ["off"],
     "@typescript-eslint/no-explicit-any": ["off"],
     "import/no-unresolved": ["off"],
-    "@typescript-eslint/no-unused-vars": ["error", { "ignoreRestSiblings": true, "argsIgnorePattern": "^_" }],
+    "no-unused-vars": ["off"],
+    "@typescript-eslint/no-unused-vars": ["off"],
+    "unused-imports/no-unused-imports": ["error"],
+    "unused-imports/no-unused-vars": [
+      "warn",
+      {
+        "vars": "all",
+        "varsIgnorePattern": "^_",
+        "args": "all",
+        "argsIgnorePattern": "^_"
+      }
+    ],
     "@typescript-eslint/consistent-type-imports": ["warn"],
     "react-hooks/exhaustive-deps": ["error"],
     "prefer-template": ["warn"],
@@ -86,12 +103,28 @@
         "^/test/": "test/"
       }
     ],
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "ExportAllDeclaration",
+        "message": "Do not re-exports already exported symbols"
+      },
+      {
+        "selector": "ExportNamedDeclaration[source.type='Literal']",
+        "message": "Do not re-exports already exported symbols"
+      }
+    ],
+    "import/no-default-export": ["error"],
     "simple-import-sort/imports": [
       "error",
       {
         "groups": [
           [
-            // React related packages come first.
+            // Core-JS should always load its polyfills first.
+            "^\\u0000core.js$"
+          ],
+          [
+            // React then comes next.
             "^react[^\\u0000]*$",
             "^react.*\\u0000$"
           ],
@@ -144,6 +177,25 @@
       "files": ["*.js", "*.jsx"],
       "rules": {
         "@typescript-eslint/no-var-requires": ["off"]
+      }
+    },
+    {
+      "files": ["src/layout/*/index.tsx", "src/layout/LayoutComponent.tsx"],
+      "rules": {
+        "react-hooks/rules-of-hooks": "off"
+      }
+    },
+    {
+      "files": ["src/codegen/**/*.ts"],
+      "rules": {
+        "no-console": "off"
+      }
+    },
+    {
+      "files": ["*.test.ts", "*.test.tsx"],
+      "extends": ["plugin:testing-library/react"],
+      "rules": {
+        "testing-library/no-unnecessary-act": "error"
       }
     }
   ]

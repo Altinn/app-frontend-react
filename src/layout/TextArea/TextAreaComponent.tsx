@@ -1,21 +1,19 @@
-import * as React from 'react';
+import React from 'react';
 
-import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
+import { TextArea } from '@digdir/design-system-react';
+
+import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
+import { useLanguage } from 'src/hooks/useLanguage';
+import { createCharacterLimit } from 'src/utils/inputUtils';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 import 'src/styles/shared.css';
 
 export type ITextAreaProps = PropsFromGenericComponent<'TextArea'>;
 
-export function TextAreaComponent({
-  id,
-  formData,
-  readOnly,
-  isValid,
-  handleDataChange,
-  textResourceBindings,
-  saveWhileTyping,
-}: ITextAreaProps) {
+export function TextAreaComponent({ node, formData, isValid, handleDataChange, overrideDisplay }: ITextAreaProps) {
+  const { lang, langAsString } = useLanguage();
+  const { id, readOnly, textResourceBindings, saveWhileTyping, autocomplete, maxLength } = node.item;
   const suppliedValue = formData?.simpleBinding;
   const { value, setValue, saveValue, onPaste } = useDelayedSavedState(
     handleDataChange,
@@ -24,22 +22,23 @@ export function TextAreaComponent({
   );
 
   return (
-    <div className='a-form-group-items input-group p-0'>
-      <textarea
-        id={id}
-        onBlur={() => saveValue()}
-        onChange={(e) => setValue(e.target.value)}
-        onPaste={() => onPaste()}
-        readOnly={readOnly}
-        style={{ resize: 'none' }} // This is prone to change soon, implemented inline until then. See issue #1116
-        className={
-          (isValid ? 'form-control a-textarea ' : 'form-control a-textarea validation-error') +
-          (readOnly ? ' disabled' : '')
-        }
-        value={value}
-        data-testid={id}
-        aria-describedby={textResourceBindings ? `description-${id}` : undefined}
-      />
-    </div>
+    <TextArea
+      id={id}
+      onBlur={() => saveValue()}
+      onChange={(e) => setValue(e.target.value)}
+      onPaste={() => onPaste()}
+      readOnly={readOnly}
+      resize='vertical'
+      characterLimit={!readOnly && maxLength !== undefined ? createCharacterLimit(maxLength, lang) : undefined}
+      isValid={isValid}
+      value={value}
+      data-testid={id}
+      aria-describedby={
+        overrideDisplay?.renderedInTable !== true && textResourceBindings ? `description-${id}` : undefined
+      }
+      aria-label={overrideDisplay?.renderedInTable === true ? langAsString(textResourceBindings?.title) : undefined}
+      autoComplete={autocomplete}
+      style={{ height: '150px' }}
+    />
   );
 }

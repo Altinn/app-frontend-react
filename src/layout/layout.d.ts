@@ -1,90 +1,23 @@
-import type { TextField } from '@altinn/altinn-design-system';
-import type { GridSize } from '@material-ui/core';
+import type { $Keys, PickByValue } from 'utility-types';
 
-import type { ExpressionOr } from 'src/features/expressions/types';
-import type { IDataModelBindingsForAddress, ILayoutCompAddress } from 'src/layout/Address/types';
-import type { ILayoutCompAttachmentList } from 'src/layout/AttachmentList/types';
-import type { ILayoutCompButton } from 'src/layout/Button/types';
-import type { ILayoutCompCheckboxes } from 'src/layout/Checkboxes/types';
-import type { ILayoutCompCustom } from 'src/layout/Custom/types';
-import type { ILayoutCompDatepicker } from 'src/layout/Datepicker/types';
-import type { ILayoutCompDropdown } from 'src/layout/Dropdown/types';
-import type { ILayoutCompFileUpload } from 'src/layout/FileUpload/types';
-import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUploadWithTag/types';
-import type { IDataModelBindingsForGroup, ILayoutGroup } from 'src/layout/Group/types';
-import type { ILayoutCompHeader } from 'src/layout/Header/types';
-import type { ILayoutCompImage } from 'src/layout/Image/types';
-import type { ILayoutCompInput } from 'src/layout/Input/types';
-import type { ILayoutCompInstantiationButton } from 'src/layout/InstantiationButton/types';
-import type { ILayoutCompLikert } from 'src/layout/Likert/types';
-import type { IDataModelBindingsForList, ILayoutCompList } from 'src/layout/List/types';
-import type { ILayoutCompMap } from 'src/layout/Map/types';
-import type { ILayoutCompMultipleSelect } from 'src/layout/MultipleSelect/types';
-import type { ILayoutCompNavBar } from 'src/layout/NavigationBar/types';
-import type { ILayoutCompNavButtons } from 'src/layout/NavigationButtons/types';
-import type { ILayoutCompPanel } from 'src/layout/Panel/types';
-import type { ILayoutCompParagraph } from 'src/layout/Paragraph/types';
-import type { ILayoutCompPrintButton } from 'src/layout/PrintButton/types';
-import type { ILayoutCompRadioButtons } from 'src/layout/RadioButtons/types';
-import type { ILayoutCompSummary } from 'src/layout/Summary/types';
-import type { ILayoutCompTextArea } from 'src/layout/TextArea/types';
-import type { ILabelSettings, IMapping, IOption, IOptionSource, LayoutStyle, Triggers } from 'src/types';
+import type { IDevToolsState } from 'src/features/devtools/data/types';
+import type { ContextDataSources } from 'src/features/expressions/ExprContext';
+import type { CompCategory } from 'src/layout/common';
+import type { ComponentConfigs, ComponentTypeConfigs } from 'src/layout/components.generated';
+import type { CompGroupExternal } from 'src/layout/Group/config.generated';
+import type { CompClassMapTypes } from 'src/layout/index';
+import type {
+  ActionComponent,
+  ContainerComponent,
+  FormComponent,
+  PresentationComponent,
+} from 'src/layout/LayoutComponent';
+import type { IValidations } from 'src/types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 export interface ILayouts {
   [id: string]: ILayout | undefined;
-}
-
-/**
- * These keys are not defined anywhere in the actual form layout files, but have been snuck in here for convenience at
- * some point. They should instead be moved to IComponentProps or somewhere else, as they are computed values set in
- * app-frontend at some point, and not something the server-side sends us. Leaving them here as typings break without
- * them, but exposing them in a separate interface in order to make it clear these are on shaky ground.
- */
-interface NotInLayout {
-  baseComponentId?: string;
-  disabled?: boolean;
-}
-
-export interface ILayoutEntry<T extends ComponentTypes = ComponentTypes> extends NotInLayout {
-  id: string;
-  type: T;
-}
-
-export interface ILayoutCompBase<Type extends ComponentTypes = ComponentTypes> extends ILayoutEntry<Type> {
-  dataModelBindings?: IDataModelBindings;
-  readOnly?: ExpressionOr<'boolean'>;
-  required?: ExpressionOr<'boolean'>;
-  hidden?: ExpressionOr<'boolean'>;
-  textResourceBindings?: ITextResourceBindings;
-  grid?: IGrid;
-  triggers?: Triggers[];
-  labelSettings?: ILabelSettings;
-}
-
-interface ILayoutCompWillBeSavedWhileTyping {
-  saveWhileTyping?: boolean | number;
-}
-
-interface ISelectionComponent {
-  options?: IOption[];
-  optionsId?: string;
-  mapping?: IMapping;
-  secure?: boolean;
-  source?: IOptionSource;
-  preselectedOptionIndex?: number;
-}
-
-export interface IComponentRadioOrCheckbox<T extends Extract<ComponentTypes, 'RadioButtons' | 'Checkboxes' | 'Likert'>>
-  extends ILayoutCompBase<T>,
-    ISelectionComponent {
-  layout?: LayoutStyle;
-}
-
-type NumberFormatProps = Exclude<Parameters<typeof TextField>[0]['formatting'], undefined>['number'];
-
-export interface IInputFormatting {
-  number?: NumberFormatProps;
-  align?: 'right' | 'center' | 'left';
 }
 
 /**
@@ -92,98 +25,101 @@ export interface IInputFormatting {
  * definition. If you want to reference a particular component layout type you can either reference the individual
  * type (ex. ILayoutCompTextArea), or ILayoutComponent<'TextArea'>.
  */
-interface Map {
-  AddressComponent: ILayoutCompAddress;
-  AttachmentList: ILayoutCompAttachmentList;
-  Button: ILayoutCompButton;
-  Checkboxes: ILayoutCompCheckboxes;
-  Custom: ILayoutCompCustom;
-  Datepicker: ILayoutCompDatepicker;
-  Dropdown: ILayoutCompDropdown;
-  FileUpload: ILayoutCompFileUpload;
-  FileUploadWithTag: ILayoutCompFileUploadWithTag;
-  Group: ILayoutGroup;
-  Header: ILayoutCompHeader;
-  Image: ILayoutCompImage;
-  Input: ILayoutCompInput;
-  InstantiationButton: ILayoutCompInstantiationButton;
-  Likert: ILayoutCompLikert;
-  List: ILayoutCompList;
-  Map: ILayoutCompMap;
-  MultipleSelect: ILayoutCompMultipleSelect;
-  NavigationBar: ILayoutCompNavBar;
-  NavigationButtons: ILayoutCompNavButtons;
-  Panel: ILayoutCompPanel;
-  Paragraph: ILayoutCompParagraph;
-  PrintButton: ILayoutCompPrintButton;
-  RadioButtons: ILayoutCompRadioButtons;
-  Summary: ILayoutCompSummary;
-  TextArea: ILayoutCompTextArea;
-}
 
-export type ComponentTypes = keyof Map;
-type AllComponents = Map[ComponentTypes];
+export type CompTypes = keyof typeof ComponentConfigs & keyof ComponentTypeConfigs;
+type AllComponents = ComponentTypeConfigs[CompTypes]['layout'];
 
-export type ComponentExceptGroup = Exclude<ComponentTypes, 'Group'>;
-export type ComponentExceptGroupAndSummary = Exclude<ComponentExceptGroup, 'Summary'>;
+export type CompExceptGroup = Exclude<CompTypes, 'Group'>;
 
 /**
  * This type can be used to reference the layout declaration for a component. You can either use it to specify
  * any valid component:
  *
- *  const myComponent:ILayoutComponent = ...
+ *  const myComponent:CompExternal = ...
  *
  * Or a component of a specific known type (gives you more valid options):
  *
- *  const myImageComponent:ILayoutComponent<'Image'> = ...
+ *  const myImageComponent:CompExternal<'Image'> = ...
+ *
+ * @see CompInternal
+ * @see LayoutNode
  */
-export type ILayoutComponent<Type extends ComponentExceptGroup = ComponentExceptGroup> = Extract<
-  AllComponents,
-  { type: Type }
->;
+export type CompExternal<Type extends CompExceptGroup = CompExceptGroup> = Extract<AllComponents, { type: Type }>;
 
-export type ILayoutComponentOrGroup = ILayoutGroup | ILayoutComponent;
+/**
+ * Alternative version of the one above
+ */
+export type CompExternalExact<Type extends CompTypes> = ComponentTypeConfigs[Type]['layout'];
 
-export interface IDataModelBindingsSimple {
-  simpleBinding: string;
+export type CompOrGroupExternal = CompGroupExternal | CompExternal;
+
+export type CompRendersLabel<T extends CompTypes> = (typeof ComponentConfigs)[T]['rendersWithLabel'];
+
+/**
+ * This is the type you should use when referencing a specific component type, and will give
+ * you the correct data model bindings for that component.
+ */
+export type IDataModelBindings<T extends CompTypes = CompTypes> =
+  ComponentTypeConfigs[T]['nodeItem']['dataModelBindings'];
+
+export type ITextResourceBindings<T extends CompTypes = CompTypes> =
+  ComponentTypeConfigs[T]['nodeItem']['textResourceBindings'];
+
+export type ILayout = CompOrGroupExternal[];
+
+/**
+ * These keys are not defined anywhere in the actual form layout files, but are added by the hierarchy.
+ */
+interface HierarchyExtensions {
+  // These will be set if the component is inside a repeating group
+  baseComponentId?: string;
+  baseDataModelBindings?: IDataModelBindings;
+  multiPageIndex?: number;
 }
 
 /**
- * A middle ground between group and simple bindings, a list binding can be used to
- * store a list of primitive values, like string[].
+ * Any item inside a hierarchy. Note that a LayoutNode _contains_ an item. The LayoutNode itself is an instance of the
+ * LayoutNode class, while _an item_ is the object inside it that is somewhat similar to layout objects.
  */
-export interface IDataModelBindingsList {
-  list: string;
+type NodeItem<T extends CompTypes> = ComponentTypeConfigs[T]['nodeItem'];
+
+export type CompInternal<T extends CompTypes = CompTypes> = NodeItem<T> & HierarchyExtensions;
+
+/**
+ * Any parent object of a LayoutNode (with for example repeating groups, the parent can be the group node, but above
+ * that there will be a LayoutPage).
+ */
+export type ParentNode = LayoutNode | LayoutPage;
+
+export type TypeFromConfig<T extends CompInternal | CompExternal> = T extends { type: infer Type }
+  ? Type extends CompTypes
+    ? Type
+    : CompTypes
+  : CompTypes;
+
+export interface HierarchyDataSources extends ContextDataSources {
+  validations: IValidations;
+  devTools: IDevToolsState;
 }
 
-export type IDataModelBindings =
-  | (Partial<IDataModelBindingsSimple> &
-      Partial<IDataModelBindingsList> &
-      Partial<IDataModelBindingsForGroup> &
-      Partial<IDataModelBindingsForAddress>)
-  | IDataModelBindingsForList;
+export type LayoutNodeFromObj<T> = T extends { type: infer Type }
+  ? Type extends CompTypes
+    ? LayoutNode<Type>
+    : LayoutNode
+  : LayoutNode;
 
-export interface ITextResourceBindings {
-  [id: string]: ExpressionOr<'string'>;
-}
+export type TypesFromCategory<Type extends CompCategory> = $Keys<PickByValue<CompClassMapTypes, Type>>;
 
-export type ILayout = ILayoutComponentOrGroup[];
+export type DefFromCategory<C extends CompCategory> = C extends 'presentation'
+  ? PresentationComponent<any>
+  : C extends 'form'
+  ? FormComponent<any>
+  : C extends 'action'
+  ? ActionComponent<any>
+  : C extends 'container'
+  ? ContainerComponent<any>
+  : never;
 
-export type ISelectionComponentProps =
-  | ILayoutCompRadioButtons
-  | ILayoutCompCheckboxes
-  | ILayoutCompLikert
-  | ILayoutCompDropdown;
-
-export interface IGrid extends IGridStyling {
-  labelGrid?: IGridStyling;
-  innerGrid?: IGridStyling;
-}
-
-export interface IGridStyling {
-  xs?: GridSize;
-  sm?: GridSize;
-  md?: GridSize;
-  lg?: GridSize;
-  xl?: GridSize;
-}
+export type LayoutNodeFromCategory<Type> = Type extends CompCategory
+  ? LayoutNode<TypesFromCategory<Type>> & DefFromCategory<Type>
+  : LayoutNode;

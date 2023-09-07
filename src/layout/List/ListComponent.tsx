@@ -1,42 +1,26 @@
 import React from 'react';
 
-import {
-  Pagination,
-  RadioButton,
-  SortDirection,
-  Table,
-  TableBody,
-  TableCell,
-  TableFooter,
-  TableHeader,
-  TableRow,
-} from '@altinn/altinn-design-system';
-import type { ChangeProps, RowData, SortProps } from '@altinn/altinn-design-system';
+import { Pagination } from '@altinn/altinn-design-system';
+import { LegacyFieldSet, ResponsiveTable } from '@digdir/design-system-react';
+import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/src/components/Pagination/Pagination';
+import type { ChangeProps, ResponsiveTableConfig, SortProps } from '@digdir/design-system-react';
 
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
-import { useGetDataList } from 'src/components/hooks';
-import { DataListsActions } from 'src/shared/resources/dataLists/dataListsSlice';
-import { getLanguageFromKey } from 'src/utils/sharedUtils';
+import { DataListsActions } from 'src/features/dataLists/dataListsSlice';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useGetDataList } from 'src/hooks/useGetDataList';
+import { useLanguage } from 'src/hooks/useLanguage';
+import { SortDirection } from 'src/layout/List/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IListProps = PropsFromGenericComponent<'List'>;
 
 const defaultDataList: any[] = [];
-export interface rowValue {
-  [key: string]: string;
-}
 
-export const ListComponent = ({
-  tableHeaders,
-  id,
-  pagination,
-  formData,
-  handleDataChange,
-  getTextResourceAsString,
-  sortableColumns,
-  dataModelBindings,
-  language,
-}: IListProps) => {
+export const ListComponent = ({ node, formData, handleDataChange, legend }: IListProps) => {
+  const { tableHeaders, id, pagination, sortableColumns, tableHeadersMobile } = node.item;
+  const { langAsString, language } = useLanguage();
+  const RenderLegend = legend;
   const dynamicDataList = useGetDataList({ id });
   const calculatedDataList = dynamicDataList || defaultDataList;
   const defaultPagination = pagination ? pagination.default : 0;
@@ -51,50 +35,42 @@ export const ListComponent = ({
     (state) => state.dataListState.dataLists[id]?.paginationData?.totaltItemsCount || 0,
   );
 
-  const handleChange = ({ selectedValue }: ChangeProps) => {
+  const handleChange = ({ selectedValue: selectedValue }: ChangeProps<Record<string, string>>) => {
     for (const key in formData) {
-      handleDataChange(selectedValue[key], { key: key });
+      handleDataChange(selectedValue[key], { key });
     }
   };
 
-  const renderRow = (datalist) => {
-    const cells: JSX.Element[] = [];
-    for (const key of Object.keys(datalist)) {
-      cells.push(<TableCell key={`${key}_${datalist[key]}`}>{datalist[key]}</TableCell>);
-    }
-    return cells;
-  };
+  const tableHeadersValues = { ...tableHeaders };
+  for (const key in tableHeaders) {
+    tableHeadersValues[key] = langAsString(tableHeaders[key]);
+  }
 
-  const renderHeaders = (headers) => {
-    const cell: JSX.Element[] = [];
-    for (const header of headers) {
-      if ((sortableColumns || []).includes(header)) {
-        cell.push(
-          <TableCell
-            onChange={handleSortChange}
-            sortKey={header}
-            key={header}
-            sortDirecton={sortColumn === header ? sortDirection : SortDirection.NotActive}
-          >
-            {getTextResourceAsString(header)}
-          </TableCell>,
-        );
-      } else {
-        cell.push(<TableCell key={header}>{getTextResourceAsString(header)}</TableCell>);
+  const selectedRow: Record<string, string> = React.useMemo(() => {
+    let matchRow: boolean[] = [];
+    if (!formData || JSON.stringify(formData) === '{}') {
+      return {};
+    }
+    for (const row of calculatedDataList) {
+      for (const key in formData) {
+        matchRow.push(formData[key] === row[key]);
       }
+      if (!matchRow.includes(false)) {
+        return row;
+      }
+      matchRow = [];
     }
-    return cell;
-  };
+    return {};
+  }, [formData, calculatedDataList]);
 
   const dispatch = useAppDispatch();
 
-  const handleSortChange = ({ sortedColumn, previousSortDirection }: SortProps) => {
+  const handleSortChange = (props: SortProps & { column: string }) => {
     dispatch(
       DataListsActions.setSort({
         key: id || '',
-        sortColumn: sortedColumn,
-        sortDirection:
-          previousSortDirection === SortDirection.Descending ? SortDirection.Ascending : SortDirection.Descending,
+        sortColumn: props.column,
+        sortDirection: props.previous === SortDirection.Descending ? SortDirection.Ascending : SortDirection.Descending,
       }),
     );
   };
@@ -116,78 +92,51 @@ export const ListComponent = ({
       }),
     );
   };
-  const rowAsValue = (datalist) => {
-    const chosenRowData: rowValue = {};
-    for (const key in dataModelBindings) {
-      chosenRowData[key] = datalist[key];
+  const renderPagination = () => {
+    if (pagination) {
+      return (
+        <Pagination
+          numberOfRows={totalItemsCount}
+          rowsPerPageOptions={pagination?.alternatives ? pagination?.alternatives : []}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          currentPage={currentPage}
+          setCurrentPage={handleChangeCurrentPage}
+          descriptionTexts={((language && language['list_component']) || {}) as unknown as DescriptionText}
+        />
+      );
+    } else {
+      return undefined;
     }
-    return chosenRowData;
-  };
-  const rowAsValueString = (datalist) => {
-    return JSON.stringify(rowAsValue(datalist));
   };
 
-  const createLabelRadioButton = (datalist) => {
-    let label = '';
-    for (const key in formData) {
-      label += `${key} ${datalist[key]} `;
-    }
-    return label;
+  const config: ResponsiveTableConfig<Record<string, string>> = {
+    rows: calculatedDataList,
+    headers: tableHeadersValues,
+    showColumnsMobile: tableHeadersMobile,
+    columnSort: {
+      onSortChange: ({ column, next, previous }) => {
+        handleSortChange({ previous, next, column });
+      },
+      sortable: sortableColumns ? sortableColumns : [],
+      currentlySortedColumn: sortColumn,
+      currentDirection: sortDirection,
+    },
+    rowSelection: {
+      onSelectionChange: (row) => handleChange({ selectedValue: row }),
+      selectedValue: selectedRow,
+    },
+    footer: renderPagination(),
   };
 
   return (
-    <Table
-      selectRows={true}
-      onChange={handleChange}
-      selectedValue={formData as RowData}
+    <LegacyFieldSet
+      legend={<RenderLegend />}
+      style={{ width: '100%' }}
     >
-      <TableHeader>
-        <TableRow>
-          <TableCell radiobutton={true}></TableCell>
-          {renderHeaders(tableHeaders)}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {calculatedDataList.map((datalist) => {
-          return (
-            <TableRow
-              key={JSON.stringify(datalist)}
-              rowData={rowAsValue(datalist)}
-            >
-              <TableCell radiobutton={true}>
-                <RadioButton
-                  name={datalist}
-                  onChange={() => {
-                    // Intentionally empty to prevent double-selection
-                  }}
-                  value={rowAsValueString(datalist)}
-                  checked={rowAsValueString(datalist) === JSON.stringify(formData) ? true : false}
-                  label={createLabelRadioButton(datalist)}
-                  hideLabel={true}
-                ></RadioButton>
-              </TableCell>
-              {renderRow(datalist)}
-            </TableRow>
-          );
-        })}
-      </TableBody>
-      {pagination && (
-        <TableFooter>
-          <TableRow>
-            <TableCell colSpan={tableHeaders && 1 + tableHeaders?.length}>
-              <Pagination
-                numberOfRows={totalItemsCount}
-                rowsPerPageOptions={pagination.alternatives}
-                rowsPerPage={rowsPerPage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-                currentPage={currentPage}
-                setCurrentPage={handleChangeCurrentPage}
-                descriptionTexts={getLanguageFromKey('list_component', language)}
-              />
-            </TableCell>
-          </TableRow>
-        </TableFooter>
-      )}
-    </Table>
+      <div style={{ overflow: 'auto' }}>
+        <ResponsiveTable config={config}></ResponsiveTable>
+      </div>
+    </LegacyFieldSet>
   );
 };

@@ -1,84 +1,129 @@
-import * as React from 'react';
+import React from 'react';
 
-import { Grid, IconButton, makeStyles } from '@material-ui/core';
-import classNames from 'classnames';
+import { Button, Select } from '@digdir/design-system-react';
+import { Grid } from '@material-ui/core';
+import { CheckmarkCircleFillIcon } from '@navikt/aksel-icons';
 
-import { useAppDispatch } from 'src/common/hooks';
-import { AltinnButton, AltinnLoader } from 'src/components/shared';
-import { FileName } from 'src/layout/FileUpload/shared/render';
-import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
-import { AltinnAppTheme } from 'src/theme';
+import { AltinnLoader } from 'src/components/AltinnLoader';
+import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
+import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useFormattedOptions } from 'src/hooks/useFormattedOptions';
+import { useLanguage } from 'src/hooks/useLanguage';
+import { AttachmentFileName } from 'src/layout/FileUpload/FileUploadTable/AttachmentFileName';
+import { FileTableButtons } from 'src/layout/FileUpload/FileUploadTable/FileTableButtons';
+import classes from 'src/layout/FileUploadWithTag/EditWindowComponent.module.css';
 import { renderValidationMessages } from 'src/utils/render';
-import { getLanguageFromKey } from 'src/utils/sharedUtils';
+import type { IAttachment } from 'src/features/attachments';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { IAttachment } from 'src/shared/resources/attachments';
-import type { IOption } from 'src/types';
+import type { IOption } from 'src/layout/common.generated';
+import type { IRuntimeState } from 'src/types';
 
-const useStyles = makeStyles({
-  textContainer: {
-    whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis',
-    overflow: 'hidden',
-    color: '#000',
-    fontWeight: '500 !important' as any,
-    fontSize: '1.4rem',
-    minWidth: '0px',
-  },
-  editContainer: {
-    display: 'inline-block',
-    border: `2px dotted ${AltinnAppTheme.altinnPalette.primary.blueMedium}`,
-    padding: '12px',
-    width: '100%',
-    marginTop: '12px',
-    marginBottom: '12px',
-  },
-  deleteButton: {
-    padding: '0px',
-    color: 'black',
-    justifyContent: 'left',
-  },
-  select: {
-    fontSize: '1.6rem',
-    '&:focus': {
-      outline: `2px solid ${AltinnAppTheme.altinnPalette.primary.blueDark}`,
-    },
-  },
-});
-
-export interface EditWindowProps extends PropsFromGenericComponent<'FileUploadWithTag'> {
+export interface EditWindowProps {
+  node: PropsFromGenericComponent<'FileUploadWithTag'>['node'];
   attachment: IAttachment;
   mobileView: boolean;
   options?: IOption[];
-  onSave: (attachment: IAttachment) => void;
-  onDropdownDataChange: (id: string, value: string) => void;
   setEditIndex: (index: number) => void;
+  index: number;
+  editIndex: number;
   attachmentValidations: {
     id: string;
     message: string;
   }[];
+  validationsWithTag: {
+    id: string;
+    message: string;
+  }[];
+  setValidationsWithTag: (validationArray: { id: string; message: string }[]) => void;
 }
 
-export function EditWindowComponent(props: EditWindowProps): JSX.Element {
+export function EditWindowComponent({
+  attachment,
+  index,
+  editIndex,
+  attachmentValidations,
+  mobileView,
+  node,
+  options,
+  setEditIndex,
+  validationsWithTag,
+  setValidationsWithTag,
+}: EditWindowProps): React.JSX.Element {
   const dispatch = useAppDispatch();
-  const classes = useStyles();
+  const { id, baseComponentId, textResourceBindings, readOnly } = node.item;
+  const { lang, langAsString } = useLanguage();
 
-  const handleDeleteFile = () => {
-    dispatch(
-      AttachmentActions.deleteAttachment({
-        attachment: props.attachment,
-        componentId: props.id,
-        attachmentType: props.baseComponentId || props.id,
-        dataModelBindings: props.dataModelBindings,
-      }),
-    );
-    props.setEditIndex(-1);
+  const formattedOptions = useFormattedOptions(options);
+
+  const onDropdownDataChange = (attachmentId: string, value: string) => {
+    if (value !== undefined) {
+      const option = options?.find((o) => o.value === value);
+      if (option !== undefined) {
+        dispatch(
+          FormLayoutActions.updateFileUploaderWithTagChosenOptions({
+            componentId: id,
+            baseComponentId: baseComponentId || id,
+            id: attachmentId,
+            option,
+          }),
+        );
+      } else {
+        console.error(`Could not find option for ${value}`);
+      }
+    }
   };
 
-  const saveIsDisabled = props.attachment.updating === true || props.attachment.uploaded === false || props.readOnly;
+  const chosenOptions = useAppSelector(
+    (state: IRuntimeState) =>
+      (state.formLayout.uiConfig.fileUploadersWithTag &&
+        state.formLayout.uiConfig.fileUploadersWithTag[id]?.chosenOptions) ??
+      {},
+  );
+
+  const handleSave = (attachment: IAttachment) => {
+    if (chosenOptions[attachment.id] !== undefined && chosenOptions[attachment.id].length !== 0) {
+      setEditIndex(-1);
+      if (attachment.tags === undefined || chosenOptions[attachment.id] !== attachment.tags[0]) {
+        setAttachmentTag(attachment, chosenOptions[attachment.id]);
+      }
+      setValidationsWithTag(validationsWithTag.filter((obj) => obj.id !== attachment.id)); // Remove old validation if exists
+    } else {
+      const tmpValidations: { id: string; message: string }[] = [];
+      tmpValidations.push({
+        id: attachment.id,
+        message: `${langAsString('form_filler.file_uploader_validation_error_no_chosen_tag')} ${(
+          langAsString(textResourceBindings?.tagTitle || '') || ''
+        )
+          .toString()
+          .toLowerCase()}.`,
+      });
+      setValidationsWithTag(validationsWithTag.filter((obj) => obj.id !== tmpValidations[0].id).concat(tmpValidations));
+    }
+  };
+
+  const setAttachmentTag = (attachment: IAttachment, optionValue: string) => {
+    const option = options?.find((o) => o.value === optionValue);
+    if (option !== undefined) {
+      dispatch(
+        AttachmentActions.updateAttachment({
+          attachment,
+          componentId: id,
+          baseComponentId: baseComponentId || id,
+          tag: option.value,
+        }),
+      );
+    } else {
+      console.error(`Could not find option for ${optionValue}`);
+    }
+  };
+
+  const saveIsDisabled = attachment.updating === true || attachment.uploaded === false || readOnly;
 
   return (
     <div
-      id={`attachment-edit-window-${props.attachment.id}`}
+      id={`attachment-edit-window-${attachment.id}`}
       className={classes.editContainer}
     >
       <Grid
@@ -92,122 +137,121 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
           className={classes.textContainer}
           style={{ flexShrink: 1 }}
         >
-          <FileName>{props.attachment.name}</FileName>
+          <AttachmentFileName
+            attachment={attachment}
+            mobileView={mobileView}
+          />
         </Grid>
         <Grid
           className={classes.textContainer}
           style={{ flexShrink: 0 }}
         >
-          <div style={{ display: 'flex' }}>
-            {props.attachment.uploaded && (
-              <div style={{ marginLeft: '1.5rem', marginRight: '1.5rem' }}>
-                {!props.mobileView
-                  ? getLanguageFromKey('form_filler.file_uploader_list_status_done', props.language)
-                  : undefined}
-                <i
-                  className='ai ai-check-circle'
-                  aria-label={getLanguageFromKey('form_filler.file_uploader_list_status_done', props.language)}
+          <div className={classes.iconButtonWrapper}>
+            {attachment.uploaded && (
+              <div style={{ marginLeft: '0.9375rem', marginRight: '0.9375rem' }}>
+                {!mobileView ? lang('form_filler.file_uploader_list_status_done') : undefined}
+                <CheckmarkCircleFillIcon
+                  role='img'
+                  aria-hidden={!mobileView}
+                  aria-label={langAsString('form_filler.file_uploader_list_status_done')}
+                  className={classes.checkMark}
+                  data-testid='checkmark-success'
                 />
               </div>
             )}
-            {!props.attachment.uploaded && (
+            {!attachment.uploaded && (
               <AltinnLoader
-                id={`attachment-loader-upload-${props.attachment.id}`}
+                id={`attachment-loader-upload-${attachment.id}`}
                 style={{
                   width: '80px',
                 }}
-                srContent={getLanguageFromKey('general.loading', props.language)}
+                srContent={langAsString('general.loading')}
               />
             )}
             <div>
-              <IconButton
-                classes={{ root: classes.deleteButton }}
-                onClick={() => handleDeleteFile()}
-                tabIndex={0}
-              >
-                {getLanguageFromKey('general.delete', props.language)}
-                <i className='ai ai-trash' />
-              </IconButton>
+              <FileTableButtons
+                node={node}
+                index={index}
+                mobileView={mobileView}
+                editIndex={editIndex}
+                setEditIndex={setEditIndex}
+                attachment={attachment}
+                editWindowIsOpen={true}
+              />
             </div>
           </div>
         </Grid>
       </Grid>
-      <Grid>
-        {props.textResourceBindings?.tagTitle && <h6>{props.getTextResource(props.textResourceBindings?.tagTitle)}</h6>}
+      <Grid
+        container
+        direction='column'
+        className={classes.gap}
+      >
+        {textResourceBindings?.tagTitle && (
+          <label
+            className={classes.label}
+            htmlFor={`attachment-tag-dropdown-${attachment.id}`}
+          >
+            {lang(textResourceBindings?.tagTitle)}
+          </label>
+        )}
         <Grid
-          container={true}
-          spacing={1}
+          container
+          direction='row'
+          wrap='wrap'
+          className={classes.gap}
         >
           <Grid
             item={true}
+            style={{ minWidth: '150px' }}
             xs
           >
-            <select
-              id={`attachment-tag-dropdown-${props.attachment.id}`}
-              tabIndex={0}
-              defaultValue={props.attachment.tags && props.attachment.tags[0]}
+            <Select
+              inputId={`attachment-tag-dropdown-${attachment.id}`}
+              onChange={(value) => onDropdownDataChange(attachment.id, value)}
+              options={formattedOptions}
               disabled={saveIsDisabled}
-              className={classNames(classes.select, 'custom-select a-custom-select', {
-                'validation-error': props.attachmentValidations.filter((i) => i.id === props.attachment.id).length > 0,
-                'disabled !important': props.attachment.updating ? true : props.readOnly,
-              })}
-              onChange={(e) => props.onDropdownDataChange(props.attachment.id, e.target.value)}
-              onBlur={(e) => props.onDropdownDataChange(props.attachment.id, e.target.value)}
-            >
-              <option style={{ display: 'none' }} />
-              {props.options?.map((option) => (
-                <option
-                  key={option.value}
-                  value={option.value}
-                >
-                  {props.getTextResourceAsString(option.label)}
-                </option>
-              ))}
-            </select>
+              error={attachmentValidations.filter((i) => i.id === attachment.id).length > 0}
+              label={langAsString('general.choose')}
+              hideLabel={true}
+              value={chosenOptions[attachment.id]}
+            />
           </Grid>
           <Grid
             item={true}
             xs='auto'
           >
-            {props.attachment.updating ? (
+            {attachment.updating ? (
               <AltinnLoader
-                id={`attachment-loader-update-${props.attachment.id}`}
-                srContent={getLanguageFromKey('general.loading', props.language)}
+                id={`attachment-loader-update-${attachment.id}`}
+                srContent={langAsString('general.loading')}
                 style={{
                   height: '30px',
                   padding: '7px 34px 5px 28px',
                 }}
               />
             ) : (
-              <div
-                style={{
-                  marginTop: '-6px', // Adjust to be in line with dropdown
-                }}
+              <Button
+                size='small'
+                onClick={() => handleSave(attachment)}
+                id={`attachment-save-tag-button-${attachment.id}`}
+                disabled={saveIsDisabled}
               >
-                <AltinnButton
-                  btnText={getLanguageFromKey('general.save', props.language)}
-                  onClickFunction={() => props.onSave(props.attachment)}
-                  id={`attachment-save-tag-button-${props.attachment.id}`}
-                  disabled={saveIsDisabled}
-                />
-              </div>
+                {lang('general.save')}
+              </Button>
             )}
           </Grid>
         </Grid>
       </Grid>
-      {props.attachmentValidations.filter((i) => i.id === props.attachment.id).length > 0 ? (
+      {attachmentValidations.filter((i) => i.id === attachment.id).length > 0 ? (
         <div
           style={{
             whiteSpace: 'pre-wrap',
           }}
         >
           {renderValidationMessages(
-            props.attachmentValidations
-              .filter((i) => i.id === props.attachment.id)
-              .map((e) => {
-                return e.message;
-              }),
-            `attachment-error-${props.attachment.id}`,
+            attachmentValidations.filter((i) => i.id === attachment.id).map((e) => e.message),
+            `attachment-error-${attachment.id}`,
             'error',
           )}
         </div>

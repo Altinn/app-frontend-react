@@ -1,29 +1,43 @@
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 
-import { useAppSelector } from 'src/common/hooks';
-import { getTextResourceByKey } from 'src/utils/sharedUtils';
+import { useLanguage } from 'src/hooks/useLanguage';
+import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { ITextResource, ITextResourceBindings } from 'src/types';
+import type { CompInternal, ITextResourceBindings } from 'src/layout/layout';
 
 export type ICustomComponentProps = PropsFromGenericComponent<'Custom'> & {
   [key: string]: string | number | boolean | object | null | undefined;
 };
 
+export type IPassedOnProps = Omit<
+  PropsFromGenericComponent<'Custom'>,
+  'formData' | 'node' | 'componentValidations' | 'handleDataChange'
+> &
+  Omit<CompInternal<'Custom'>, 'tagName'> & {
+    [key: string]: string | number | boolean | object | null | undefined;
+    text: string | undefined;
+    getTextResourceAsString: (textResource: string | undefined) => string;
+  };
+
 export function CustomWebComponent({
-  tagName,
+  node,
   formData,
   componentValidations,
-  textResourceBindings,
-  dataModelBindings,
-  language,
-  hidden,
   handleDataChange,
-  ...passThroughProps
+  ...passThroughPropsFromGenericComponent
 }: ICustomComponentProps) {
+  const langTools = useLanguage();
+  const { language, langAsString } = langTools;
+  const { tagName, textResourceBindings, dataModelBindings, ...passThroughPropsFromNode } = node.item;
+  const passThroughProps: IPassedOnProps = {
+    ...passThroughPropsFromGenericComponent,
+    ...passThroughPropsFromNode,
+    text: langAsString(textResourceBindings?.title),
+    getTextResourceAsString: (textResource: string) => langAsString(textResource),
+  };
   const Tag = tagName;
   const wcRef = React.useRef<any>(null);
-  const textResources = useAppSelector((state) => state.textResources.resources);
 
   React.useLayoutEffect(() => {
     const { current } = wcRef;
@@ -43,11 +57,11 @@ export function CustomWebComponent({
   React.useLayoutEffect(() => {
     const { current } = wcRef;
     if (current) {
-      current.texts = getTextsForComponent(textResourceBindings || {}, textResources, false);
+      current.texts = getTextsForComponent(textResourceBindings, langTools);
       current.dataModelBindings = dataModelBindings;
       current.language = language;
     }
-  }, [wcRef, textResourceBindings, textResources, dataModelBindings, language]);
+  }, [wcRef, textResourceBindings, dataModelBindings, langTools, language]);
 
   React.useLayoutEffect(() => {
     const { current } = wcRef;
@@ -57,7 +71,7 @@ export function CustomWebComponent({
     }
   }, [formData, componentValidations]);
 
-  if (hidden || !Tag || !textResources) {
+  if (node.isHidden() || !Tag) {
     return null;
   }
 
@@ -65,7 +79,7 @@ export function CustomWebComponent({
   Object.keys(passThroughProps).forEach((key) => {
     let prop = passThroughProps[key];
     if (React.isValidElement(prop)) {
-      prop = ReactDOMServer.renderToStaticMarkup(prop);
+      prop = ReactDOMServer.renderToStaticMarkup(prop as any);
     } else if (['object', 'array'].includes(typeof prop)) {
       prop = JSON.stringify(passThroughProps[key]);
     }
@@ -83,18 +97,11 @@ export function CustomWebComponent({
   );
 }
 
-function getTextsForComponent(
-  textResourceBindings: ITextResourceBindings,
-  textResources: ITextResource[],
-  stringify = true,
-) {
+function getTextsForComponent(textResourceBindings: ITextResourceBindings<'Custom'>, langTools: IUseLanguage) {
   const result: any = {};
-  Object.keys(textResourceBindings).forEach((key) => {
-    result[key] = getTextResourceByKey(textResourceBindings[key], textResources);
+  const bindings = textResourceBindings || {};
+  Object.keys(bindings).forEach((key) => {
+    result[key] = langTools.langAsString(bindings[key]);
   });
-
-  if (stringify) {
-    return JSON.stringify(result);
-  }
   return result;
 }

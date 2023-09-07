@@ -1,26 +1,13 @@
 import React from 'react';
 
-import { act, fireEvent, screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { PreloadedState } from 'redux';
 
-import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
-import { mockComponentProps, renderWithProviders } from 'src/testUtils';
-import type { IDropdownProps } from 'src/layout/Dropdown/DropdownComponent';
-import type { RootState } from 'src/store';
+import { renderGenericComponentTest } from 'src/testUtils';
+import type { RenderGenericComponentTestProps } from 'src/testUtils';
 
-const render = (props: Partial<IDropdownProps> = {}, customState: PreloadedState<RootState> = {}) => {
-  const allProps: IDropdownProps = {
-    ...mockComponentProps,
-    optionsId: 'countries',
-    readOnly: false,
-    handleDataChange: jest.fn(),
-    getTextResourceAsString: (value) => value,
-    isValid: true,
-    ...props,
-  };
-
+const render = ({ component, genericProps }: Partial<RenderGenericComponentTestProps<'Dropdown'>> = {}) => {
   const countries = {
     id: 'countries',
     options: [
@@ -38,11 +25,21 @@ const render = (props: Partial<IDropdownProps> = {}, customState: PreloadedState
       },
     ],
   };
-
-  renderWithProviders(<DropdownComponent {...allProps} />, {
-    preloadedState: {
-      ...getInitialStateMock(),
-      optionState: {
+  renderGenericComponentTest({
+    type: 'Dropdown',
+    renderer: (props) => <DropdownComponent {...props} />,
+    component: {
+      optionsId: 'countries',
+      readOnly: false,
+      ...component,
+    },
+    genericProps: {
+      handleDataChange: jest.fn(),
+      isValid: true,
+      ...genericProps,
+    },
+    manipulateState: (state) => {
+      state.optionState = {
         options: {
           countries,
           loadingOptions: {
@@ -55,14 +52,15 @@ const render = (props: Partial<IDropdownProps> = {}, customState: PreloadedState
           name: '',
           message: '',
         },
-      },
+        loading: true,
+      };
     },
-    ...customState,
   });
 };
 
 describe('DropdownComponent', () => {
   jest.useFakeTimers();
+
   const user = userEvent.setup({
     advanceTimers: (time) => {
       act(() => {
@@ -74,21 +72,26 @@ describe('DropdownComponent', () => {
   it('should trigger handleDataChange when option is selected', async () => {
     const handleDataChange = jest.fn();
     render({
-      handleDataChange,
+      genericProps: {
+        handleDataChange,
+      },
     });
 
-    await act(() => user.selectOptions(screen.getByRole('combobox'), [screen.getByText('Sweden')]));
+    await act(() => user.click(screen.getByRole('combobox')));
+    await act(() => user.click(screen.getByText('Sweden')));
 
     expect(handleDataChange).not.toHaveBeenCalled();
 
     jest.runOnlyPendingTimers();
 
-    expect(handleDataChange).toHaveBeenCalledWith('sweden');
+    expect(handleDataChange).toHaveBeenCalledWith('sweden', { validate: true });
   });
 
   it('should show as disabled when readOnly is true', () => {
     render({
-      readOnly: true,
+      component: {
+        readOnly: true,
+      },
     });
 
     const select = screen.getByRole('combobox');
@@ -98,7 +101,9 @@ describe('DropdownComponent', () => {
 
   it('should not show as disabled when readOnly is false', () => {
     render({
-      readOnly: false,
+      component: {
+        readOnly: false,
+      },
     });
 
     const select = screen.getByRole('combobox');
@@ -109,45 +114,57 @@ describe('DropdownComponent', () => {
   it('should trigger handleDataChange when preselectedOptionIndex is set', () => {
     const handleDataChange = jest.fn();
     render({
-      preselectedOptionIndex: 2,
-      handleDataChange,
+      component: {
+        preselectedOptionIndex: 2,
+      },
+      genericProps: {
+        handleDataChange,
+      },
     });
 
-    expect(handleDataChange).toHaveBeenCalledWith('denmark');
+    expect(handleDataChange).toHaveBeenCalledWith('denmark', { validate: true });
     expect(handleDataChange).toHaveBeenCalledTimes(1);
   });
 
   it('should trigger handleDataChange instantly on blur', async () => {
     const handleDataChange = jest.fn();
     render({
-      preselectedOptionIndex: 2,
-      handleDataChange,
+      component: {
+        preselectedOptionIndex: 2,
+      },
+      genericProps: {
+        handleDataChange,
+      },
     });
 
-    expect(handleDataChange).toHaveBeenCalledWith('denmark');
+    expect(handleDataChange).toHaveBeenCalledWith('denmark', { validate: true });
     const select = screen.getByRole('combobox');
 
     await act(() => user.click(select));
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
 
-    await act(() => fireEvent.blur(select));
+    await act(() => user.tab());
 
-    expect(handleDataChange).toHaveBeenCalledWith('denmark');
+    expect(handleDataChange).toHaveBeenCalledWith('denmark', { validate: true });
     expect(handleDataChange).toHaveBeenCalledTimes(2);
   });
 
   it('should show spinner while waiting for options', () => {
     render({
-      optionsId: 'loadingOptions',
+      component: {
+        optionsId: 'loadingOptions',
+      },
     });
 
-    expect(screen.queryByTestId('altinn-spinner')).toBeInTheDocument();
+    expect(screen.getByTestId('altinn-spinner')).toBeInTheDocument();
   });
 
   it('should not show spinner when options are present', () => {
     render({
-      optionsId: 'countries',
+      component: {
+        optionsId: 'countries',
+      },
     });
 
     expect(screen.queryByTestId('altinn-spinner')).not.toBeInTheDocument();
@@ -156,37 +173,35 @@ describe('DropdownComponent', () => {
   it('should present replaced label if setup with values from repeating group in redux and trigger handleDataChanged with replaced values', async () => {
     const handleDataChange = jest.fn();
     render({
-      handleDataChange,
-      source: {
-        group: 'someGroup',
-        label: 'option.from.rep.group.label',
-        value: 'someGroup[{0}].valueField',
+      component: {
+        source: {
+          group: 'someGroup',
+          label: 'option.from.rep.group.label',
+          value: 'someGroup[{0}].valueField',
+        },
+      },
+      genericProps: {
+        handleDataChange,
       },
     });
 
-    await act(() =>
-      user.selectOptions(screen.getByRole('combobox'), [
-        screen.getByText('The value from the group is: Label for first'),
-      ]),
-    );
+    await act(() => user.click(screen.getByRole('combobox')));
+    await act(() => user.click(screen.getByText('The value from the group is: Label for first')));
 
     expect(handleDataChange).not.toHaveBeenCalled();
 
     jest.runOnlyPendingTimers();
 
-    expect(handleDataChange).toHaveBeenCalledWith('Value for first');
+    expect(handleDataChange).toHaveBeenCalledWith('Value for first', { validate: true });
 
-    await act(() =>
-      user.selectOptions(screen.getByRole('combobox'), [
-        screen.getByText('The value from the group is: Label for second'),
-      ]),
-    );
+    await act(() => user.click(screen.getByRole('combobox')));
+    await act(() => user.click(screen.getByText('The value from the group is: Label for second')));
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
 
     jest.runOnlyPendingTimers();
 
-    expect(handleDataChange).toHaveBeenCalledWith('Value for second');
+    expect(handleDataChange).toHaveBeenCalledWith('Value for second', { validate: true });
     expect(handleDataChange).toHaveBeenCalledTimes(2);
   });
 });

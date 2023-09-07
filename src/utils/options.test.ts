@@ -4,9 +4,10 @@ import {
   removeGroupOptionsByIndex,
   setupSourceOptions,
 } from 'src/utils/options';
-import type { IFormData } from 'src/features/form/data';
+import type { IFormData } from 'src/features/formData';
+import type { IMapping, IOptionSource } from 'src/layout/common.generated';
 import type { ILayout } from 'src/layout/layout';
-import type { IMapping, IOptions, IOptionSource, IRepeatingGroups } from 'src/types';
+import type { IOptions, IRepeatingGroups } from 'src/types';
 import type { IDataSources, ITextResource } from 'src/types/shared';
 
 describe('utils > options', () => {
@@ -196,7 +197,7 @@ describe('utils > options', () => {
         label: 'dropdown.label',
         value: 'someGroup[{0}].fieldUsedAsValue',
       };
-      const relevantTextResource: ITextResource = {
+      const relevantTextResourceLabel: ITextResource = {
         id: 'dropdown.label',
         value: '{0}',
         unparsedValue: '{0}',
@@ -228,7 +229,7 @@ describe('utils > options', () => {
 
       const options = setupSourceOptions({
         source,
-        relevantTextResource,
+        relevantTextResources: { label: relevantTextResourceLabel },
         relevantFormData,
         repeatingGroups,
         dataSources,

@@ -1,19 +1,19 @@
-import * as React from 'react';
+import React from 'react';
 import { Navigate } from 'react-router-dom';
 
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
+import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
+import { InstanceDataActions } from 'src/features/instanceData/instanceDataSlice';
 import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { WrappedButton } from 'src/layout/Button/WrappedButton';
 import { useInstantiateWithPrefillMutation } from 'src/services/InstancesApi';
-import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
-import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 import { mapFormData } from 'src/utils/databindings';
-import type { ButtonProps } from 'src/layout/Button/WrappedButton';
-import type { IInstantiationButtonComponentProps } from 'src/layout/InstantiationButton/InstantiationButtonComponent';
+import type { IInstantiationButtonComponentProvidedProps } from 'src/layout/InstantiationButton/InstantiationButtonComponent';
 
-export type InstantiationButtonProps = Omit<ButtonProps, 'onClick'> & Omit<IInstantiationButtonComponentProps, 'text'>;
+type Props = Omit<React.PropsWithChildren<IInstantiationButtonComponentProvidedProps>, 'text'>;
 
-export const InstantiationButton = ({ children, ...props }: InstantiationButtonProps) => {
+export const InstantiationButton = ({ children, ...props }: Props) => {
   const dispatch = useAppDispatch();
   const [instantiateWithPrefill, { isSuccess, data, isLoading, isError }] = useInstantiateWithPrefillMutation();
   const formData = useAppSelector((state) => state.formData.formData);

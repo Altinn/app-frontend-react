@@ -88,9 +88,7 @@ export function customEncodeURI(uri: string): string {
   return result;
 }
 
-export const logoutUrlAltinn = (url: string): string => {
-  return `${returnBaseUrlToAltinn(url)}ui/authentication/LogOut`;
-};
+export const logoutUrlAltinn = (url: string): string => `${returnBaseUrlToAltinn(url)}ui/authentication/LogOut`;
 
 // Storage is always returning https:// links for attachments.
 // on localhost (without https) this is a problem, so we make links
@@ -107,3 +105,17 @@ export const makeUrlRelativeIfSameDomain = (url: string, location: Location = wi
   }
   return url;
 };
+
+/**
+ * Returns an encoded query string from a key-value object, or an empty string if the object is empty.
+ * Also removes parameters that are empty, null, or undefined.
+ * Example: { a: 'b', c: 'd' } => '?a=b&c=d'
+ * Example: {} => ''
+ * Example: { a: 'b', c: null } => '?a=b'
+ */
+export function getQueryStringFromObject(obj: Record<string, string | null | undefined>): string {
+  const cleanObj = Object.fromEntries(Object.entries(obj).filter(([_, value]) => value)) as Record<string, string>;
+  const queryParams = new URLSearchParams(cleanObj);
+  const queryString = queryParams.toString();
+  return queryString ? `?${queryString}` : '';
+}
