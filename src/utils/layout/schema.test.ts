@@ -21,7 +21,7 @@ function withValues(targetObject: any) {
   };
 }
 
-describe('Layout schema', () => {
+describe('Layout schema (Do not expect all of these tests to pass)', () => {
   describe('All schemas should be valid', () => {
     const recurse = (dir: string) => {
       const files = fs.readdirSync(dir);
