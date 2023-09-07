@@ -16,6 +16,7 @@ import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { ExprContextWrapper, useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { AppQueriesContext } from 'src/contexts/appQueriesContext';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { ITextResourcesState } from 'src/features/textResources';
 import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
@@ -56,6 +57,7 @@ export const renderWithProviders = (
       fetchLayout: () => Promise.resolve({} as unknown as ILayoutSets),
       fetchOptions: () => Promise.resolve({} as unknown as IGetOptionsUrlParams),
       fetchTextResources: () => Promise.resolve({} as unknown as ITextResourcesState),
+      fetchDataList: () => Promise.resolve({} as unknown as IDataList),
     } as AppQueriesContext;
     const mockedQueries = { ...allMockedQueries, ...queries };
 
