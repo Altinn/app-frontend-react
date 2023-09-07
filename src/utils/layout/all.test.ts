@@ -5,7 +5,7 @@ import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
 
-describe('All known layout sets', () => {
+describe('All known layout sets should evaluate as a hierarchy', () => {
   const dir = ensureAppsDirIsSet();
   if (!dir) {
     return;

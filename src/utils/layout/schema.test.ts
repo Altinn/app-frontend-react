@@ -10,7 +10,7 @@ import layoutSchema from 'schemas/json/layout/layout.schema.v1.json';
 import textResourcesSchema from 'schemas/json/text-resources/text-resources.schema.v1.json';
 import type { ErrorObject } from 'ajv';
 
-import { ensureAppsDirIsSet, getAllApps, getAllLayoutSets } from 'src/test/allApps';
+import { ensureAppsDirIsSet, getAllApps, getAllLayoutSets, parseJsonTolerantly } from 'src/test/allApps';
 import type { CompTypes } from 'src/layout/layout';
 
 function withValues(targetObject: any) {
@@ -96,14 +96,8 @@ describe('Layout schema', () => {
         if (!resourceFile.match(/^resource\.[a-z]{2}\.json$/)) {
           continue;
         }
-        let resources: any;
-        try {
-          const content = fs.readFileSync(`${folder}/${resourceFile}`, 'utf-8');
-          resources = JSON.parse(content);
-        } catch (e) {
-          console.error(`Failed to parse ${folder}/${resourceFile}`, e);
-          continue;
-        }
+        const content = fs.readFileSync(`${folder}/${resourceFile}`, 'utf-8');
+        const resources = parseJsonTolerantly(content);
 
         it(`${app}/${resourceFile}`, () => {
           validate(resources);
@@ -128,14 +122,8 @@ describe('Layout schema', () => {
       if (!fs.existsSync(metaDataFile)) {
         continue;
       }
-      let metadata: any;
-      try {
-        const content = fs.readFileSync(metaDataFile, 'utf-8');
-        metadata = JSON.parse(content);
-      } catch (e) {
-        console.error(`Failed to parse ${metaDataFile}`, e);
-        continue;
-      }
+      const content = fs.readFileSync(metaDataFile, 'utf-8');
+      const metadata = parseJsonTolerantly(content);
 
       it(metaDataFile, () => {
         validate(metadata);
