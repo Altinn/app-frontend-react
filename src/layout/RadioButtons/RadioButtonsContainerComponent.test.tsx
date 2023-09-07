@@ -5,9 +5,9 @@ import userEvent from '@testing-library/user-event';
 
 import { LayoutStyle } from 'src/layout/common.generated';
 import { RadioButtonContainerComponent } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
-import { renderGenericComponentTest } from 'src/testUtils';
+import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { IOptionsState } from 'src/features/options';
-import type { RenderGenericComponentTestProps } from 'src/testUtils';
+import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
 const threeOptions = [
   {

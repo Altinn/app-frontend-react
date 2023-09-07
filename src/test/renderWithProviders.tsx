@@ -1,6 +1,5 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { MemoryRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import { createTheme, MuiThemeProvider } from '@material-ui/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -135,65 +134,6 @@ export function renderGenericComponentTest<T extends CompTypes>({
   return {
     ...renderWithProviders(<Wrapper />, { store }),
   };
-}
-
-export const mockMediaQuery = (maxWidth: number) => {
-  const setScreenWidth = (width: number) => {
-    Object.defineProperty(window, 'innerWidth', {
-      writable: true,
-      configurable: true,
-      value: width,
-    });
-    window.matchMedia = jest.fn().mockImplementation((query: string) => ({
-      matches: width <= maxWidth,
-      media: query,
-      onchange: null,
-      addListener: jest.fn(),
-      removeListener: jest.fn(),
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-    }));
-  };
-
-  return { setScreenWidth };
-};
-
-interface MemoryRouterWithRedirectingRootParams {
-  initialEntries?: string[];
-  basename?: string;
-  element?: JSX.Element | JSX.Element[] | null;
-  to: string;
-  children: JSX.Element | JSX.Element[] | null;
-}
-
-export function MemoryRouterWithRedirectingRoot({
-  initialEntries = [''],
-  basename = '/ttd/test',
-  element = null,
-  to,
-  children,
-}: MemoryRouterWithRedirectingRootParams) {
-  const Relocate = ({ navPath }) => (
-    <Navigate
-      to={navPath}
-      replace
-    />
-  );
-  return (
-    <MemoryRouter
-      initialEntries={initialEntries.map((e) => `${basename}${e}`)}
-      basename={basename}
-    >
-      {element}
-      <Routes>
-        <Route
-          path={'/'}
-          element={<Relocate navPath={to} />}
-        />
-        {children}
-      </Routes>
-    </MemoryRouter>
-  );
 }
 
 export const mockComponentProps: IComponentProps & { id: string } = {
