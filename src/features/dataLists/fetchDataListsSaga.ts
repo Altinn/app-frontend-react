@@ -138,7 +138,7 @@ export function* fetchSpecificDataListSaga({
       sortColumn,
       sortDirection,
     });
-
+    // queryClient.invalidateQueries([id]);
     const dataLists: IDataList = yield call(httpGet, url);
     yield put(
       DataListsActions.fetchFulfilled({

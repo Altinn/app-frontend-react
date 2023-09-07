@@ -23,6 +23,7 @@ import {
 } from 'src/utils/urls/appUrlHelper';
 import { orgsListUrl } from 'src/utils/urls/urlHelper';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { IFormData } from 'src/features/formData';
 import type { ITextResourcesState } from 'src/features/textResources';
@@ -63,6 +64,8 @@ export const fetchOptions = (
   instanceId,
 ): Promise<IGetOptionsUrlParams> =>
   httpGet(getOptionsUrl({ optionsId, formData, language, dataMapping, fixedQueryParameters, secure, instanceId }));
+
+export const fetchDataList = (url): Promise<IDataList> => httpGet(url);
 
 export const fetchOrgs = (): Promise<{ orgs: IAltinnOrgs }> =>
   httpGet(orgsListUrl, {

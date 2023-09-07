@@ -222,7 +222,7 @@ export interface IGetDataListsUrlParams {
   pageSize?: string;
   pageNumber?: string;
   sortDirection?: SortDirection;
-  sortColumn?: string;
+  sortColumn?: string | null;
 }
 
 export const getDataListsUrl = ({

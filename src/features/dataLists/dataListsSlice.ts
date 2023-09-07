@@ -75,7 +75,7 @@ export const dataListsSlice = () => {
         },
       }),
       setPageSize: mkAction<ISetDataListsPageSize>({
-        takeLatest: fetchDataListsSaga,
+        // takeLatest: fetchDataListsSaga,
         reducer: (state, action) => {
           const { key, size } = action.payload;
           state.dataLists[key].size = size;
@@ -83,20 +83,29 @@ export const dataListsSlice = () => {
         },
       }),
       setPageNumber: mkAction<ISetDataListsPageNumber>({
-        takeLatest: fetchDataListsSaga,
+        // takeLatest: fetchDataListsSaga,
         reducer: (state, action) => {
           const { key, pageNumber } = action.payload;
           state.dataLists[key].pageNumber = pageNumber;
         },
       }),
       setSort: mkAction<ISetSort>({
-        takeLatest: fetchDataListsSaga,
+        // takeLatest: fetchDataListsSaga,
         reducer: (state, action) => {
           const { key, sortColumn, sortDirection } = action.payload;
           state.dataLists[key].sortColumn = sortColumn;
           state.dataLists[key].sortDirection = sortDirection;
         },
       }),
+      // update: mkAction<ISetDataLists>({
+      //   reducer: (state, action) => {
+      //     const { key, dataLists } = action.payload;
+      //     state.dataLists[key] = {
+      //       ...state.dataLists,
+      //       ...dataLists,
+      //     };
+      //   },
+      // }),
     },
   }));
 

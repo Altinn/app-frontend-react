@@ -1,7 +1,6 @@
 import { put, takeLatest } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
-import { DataListsActions } from 'src/features/dataLists/dataListsSlice';
 import { removeHiddenValidationsSaga } from 'src/features/dynamics/conditionalRenderingSagas';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import {
@@ -98,7 +97,7 @@ export const formLayoutSlice = () => {
           },
           *takeLatest() {
             yield put(OptionsActions.fetch());
-            yield put(DataListsActions.fetch());
+            // yield put(DataListsActions.fetch());
           },
         }),
         fetchRejected: genericReject,
