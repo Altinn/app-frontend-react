@@ -2,8 +2,9 @@ import fs from 'node:fs';
 import type { JSONError, JSONSchema } from 'json-schema-library';
 
 import { getHierarchyDataSourcesMock } from 'src/__mocks__/hierarchyMock';
-import { findSchemaForBinding, isSchemaLookupError } from 'src/features/datamodel/findSchemaForBinding';
+import { lookupBindingInSchema } from 'src/features/datamodel/LookupBindingInSchema';
 import { dotNotationToPointer } from 'src/features/datamodel/notations';
+import { isSchemaLookupError } from 'src/features/datamodel/SimpleSchemaTraversal.tools';
 import { getLayoutComponentObject } from 'src/layout';
 import {
   ensureAppsDirIsSet,
@@ -50,7 +51,7 @@ describe('Data model lookups in real apps', () => {
           const schemaPath = dotNotationToPointer(binding);
           const readablePath = `${pageKey}/${node.item.id}/${bindingKey}`;
 
-          const result = findSchemaForBinding({
+          const result = lookupBindingInSchema({
             schema,
             bindingPointer: schemaPath,
             rootElementPath: rootPath,
