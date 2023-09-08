@@ -41,6 +41,7 @@ describe('Data model lookups in real apps', () => {
     }
 
     const draft = new Draft07(schemaCopy);
+    const failures: any[] = [];
 
     for (const [pageKey, layout] of Object.entries(nodes.all())) {
       for (const node of layout.flat(true)) {
@@ -52,30 +53,36 @@ describe('Data model lookups in real apps', () => {
 
           // Converts dot-notation to JsonPointer (including support for repeating groups)
           const schemaPath = `/${binding.replace(/\./g, '/')}`.replace(/\[(\d+)]\//g, (...a) => `/${a[1]}/`);
+          const readablePath = `${pageKey}/${node.item.id}/${bindingKey}`;
 
           try {
             const bindingSchema = draft.getSchema(schemaPath);
-            const path = `${pageKey}/${node.item.id}/${bindingKey}`;
 
             if (bindingSchema?.type === 'error') {
-              expect({ error: `Cannot locate schema for '${binding}' in '${path}'`, bindingSchema }).toBeNull();
+              failures.push({ error: 'Error type', message: bindingSchema.message, readablePath, schemaPath });
             } else if (bindingSchema) {
-              if (isValidBinding(bindingSchema, node, bindingKey)) {
-                expect(true).toBeTruthy();
-              } else {
-                expect({ error: 'Wrong type', bindingSchema, path }).toBeNull();
+              if (!isValidBinding(bindingSchema, node, bindingKey)) {
+                failures.push({ error: 'Wrong type', type: bindingSchema.type, readablePath });
               }
             } else {
-              expect({ error: `Cannot locate schema for '${binding}' in '${path}' (undefined)` }).toBeNull();
+              failures.push({
+                error: `Cannot locate schema for '${binding}' in '${readablePath}' (undefined)`,
+                readablePath,
+                schemaPath,
+              });
             }
           } catch (e) {
-            expect({ error: e }).toBeNull();
+            failures.push({
+              error: e instanceof Error ? e.message : e,
+              readablePath,
+              schemaPath,
+            });
           }
         }
       }
     }
 
-    expect(true).toBeTruthy();
+    expect(JSON.stringify(failures, null, 2)).toEqual('[]');
   });
 
   it('expected to find data model schema for all apps/sets (do not expect this to pass, broken apps exist)', () => {
