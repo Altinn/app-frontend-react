@@ -31,7 +31,6 @@ export const useDataListQuery = (
   const { selectedLanguage } = useLanguage();
   const { instanceId } = window;
   const formData = useAppSelector((state) => state.formData.formData);
-
   let { pageSize, pageNumber, sortColumn, sortDirection } = filter || {};
 
   const paginationDefaultValue = pagination?.default ? pagination.default : 0;
@@ -41,7 +40,7 @@ export const useDataListQuery = (
   sortDirection = sortDirection ?? SortDirection.NotActive;
 
   return useQuery(
-    [id, filter],
+    [id, filter, formData.Search],
     () =>
       fetchDataList(
         getDataListsUrl({
@@ -86,8 +85,6 @@ export const useDataListQuery = (
 
 const mapResponse = (dataList: IDataListData) => {
   const { listItems, _metaData } = dataList;
-  console.log(dataList);
-  console.log(_metaData);
   return {
     listItems,
     paginationData: _metaData,
