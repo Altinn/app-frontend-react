@@ -91,7 +91,7 @@ export const ListComponent = ({ node, formData, handleDataChange, legend }: ILis
     if (pagination) {
       return (
         <Pagination
-          numberOfRows={dataList?.paginationData?.totalItemsCount}
+          numberOfRows={dataList?.paginationData?.totaltItemsCount}
           rowsPerPageOptions={pagination?.alternatives ? pagination?.alternatives : []}
           rowsPerPage={dataList?.size}
           onRowsPerPageChange={handleChangeRowsPerPage}
@@ -145,82 +145,3 @@ const createFilter = (dataList: IDataLists): Filter => {
     sortDirection,
   };
 };
-
-// import { useQuery } from '@tanstack/react-query';
-// import type { UseQueryResult } from '@tanstack/react-query';
-
-// import { useAppQueriesContext } from 'src/contexts/appQueriesContext';
-// import { useAppSelector } from 'src/hooks/useAppSelector';
-// import { useLanguage } from 'src/hooks/useLanguage';
-// import { getDataListsUrl } from 'src/utils/urls/appUrlHelper';
-// import type { IDataList, IDataListData } from 'src/features/dataLists';
-// import type { SortDirection } from 'src/layout/List/types';
-// import type { IRepeatingGroups } from 'src/types';
-// import type { HttpClientError } from 'src/utils/network/sharedNetworking';
-// export type Filter = {
-//   pageSize: string;
-//   pageNumber: string;
-//   sortColumn: string;
-//   sortDirection: SortDirection;
-// };
-// export const useDataListQuery = (
-//   id: string | undefined,
-//   filter?: Filter,
-//   enabled?: boolean,
-// ): UseQueryResult<IRepeatingGroups> => {
-//   const { fetchDataList } = useAppQueriesContext();
-//   const langTools = useLanguage();
-//   const language = langTools.selectedLanguage;
-//   const { instanceId } = window;
-//   const layouts = useAppSelector((state) => state.formLayout.layouts);
-//   const formData = useAppSelector((state) => state.formData.formData);
-
-//   const dataListTest = layouts
-//     ? (Object.values(layouts)
-//         .flatMap((layout) => layout)
-//         .find((element: any) => element.id === id) as IDataListData | undefined)
-//     : undefined;
-
-//   const { dataListId, secure, mapping: dataMapping } = dataListTest || {};
-//   const { pageSize, pageNumber, sortColumn, sortDirection } = filter || {};
-
-//   return useQuery(
-//     [id, filter],
-//     () =>
-//       fetchDataList(
-//         getDataListsUrl({
-//           dataListId,
-//           formData,
-//           language,
-//           dataMapping,
-//           secure,
-//           instanceId,
-//           pageSize,
-//           pageNumber,
-//           sortColumn,
-//           sortDirection,
-//         }),
-//       ).then((dataList) => mapResponse(dataList)),
-//     {
-//       enabled: !!dataListTest && enabled,
-//       onSuccess: () => {},
-//       onError: (error: HttpClientError) => {
-//         window.logError('Fetching FormData failed:\n', error);
-//       },
-//     },
-//   );
-// };
-
-// const mapResponse = (dataList: IDataList) => {
-//   const { listItems, _metaData } = dataList;
-//   console.log(dataList);
-//   return {
-//     listItems,
-//     pageSize: _metaData.pageSize,
-//     rowsPerPage: _metaData.pageSize,
-//     pageNumber: _metaData.pageNumber,
-//     sortColumn: _metaData.sortColumn,
-//     sortDirection: _metaData.sortDirection,
-//     totalItemsCount: _metaData.totalItemsCount,
-//   };
-// };
