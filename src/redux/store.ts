@@ -12,7 +12,6 @@ import { appApi } from 'src/services/AppApi';
 export const setupStore = (preloadedState?: PreloadedState<RootState>) => {
   const sagaMiddleware: SagaMiddleware<any> = createSagaMiddleware();
   sagaMiddleware.setContext({ queryClient });
-  // test
   const middlewares = [sagaMiddleware, appApi.middleware];
   const actionLog: any[] = [];
 
