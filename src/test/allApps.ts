@@ -2,15 +2,28 @@ import dotenv from 'dotenv';
 import fs from 'node:fs';
 import path from 'node:path';
 
+import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { ILayoutFileExternal } from 'src/layout/common.generated';
 import type { ILayouts } from 'src/layout/layout';
-import type { ILayoutSets } from 'src/types';
+import type { ILayoutSet, ILayoutSets } from 'src/types';
 
 interface AppLayoutSet {
   appName: string;
+  appRoot: string;
   setName: string;
+  set: ILayoutSet | undefined;
   layouts: ILayouts;
   entireFiles: { [key: string]: unknown };
+}
+
+interface AppLayoutSetWithDataModelSchema extends AppLayoutSet {
+  modelPath: string;
+}
+
+interface InternalSet {
+  folder: string;
+  plain: boolean;
+  actualSet?: ILayoutSet;
 }
 
 /**
@@ -23,7 +36,7 @@ export function getAllLayoutSets(dir: string): AppLayoutSet[] {
   const out: AppLayoutSet[] = [];
   const apps = getAllApps(dir);
   for (const app of apps) {
-    const sets = [{ set: 'layouts', plain: true }];
+    const sets: InternalSet[] = [{ folder: 'layouts', plain: true }];
     const layoutSetsPath = path.join(dir, app, 'App/ui/layout-sets.json');
     if (fs.existsSync(layoutSetsPath)) {
       const content = fs.readFileSync(layoutSetsPath);
@@ -31,12 +44,12 @@ export function getAllLayoutSets(dir: string): AppLayoutSet[] {
       sets.pop();
 
       for (const set of layoutSets.sets) {
-        sets.push({ set: set.id, plain: false });
+        sets.push({ folder: set.id, plain: false, actualSet: set });
       }
     }
 
     for (const set of sets) {
-      const setPath = [dir, app, 'App/ui', set.set, set.plain ? '' : 'layouts'];
+      const setPath = [dir, app, 'App/ui', set.folder, set.plain ? '' : 'layouts'];
       const layoutRoot = path.join(...setPath);
       const layoutFiles: string[] = [];
       if (fs.existsSync(layoutRoot)) {
@@ -49,16 +62,19 @@ export function getAllLayoutSets(dir: string): AppLayoutSet[] {
 
       const layouts: ILayouts = {};
       const entireFiles: { [key: string]: unknown } = {};
-      for (const layoutFile of layoutFiles.filter((s) => !s.startsWith('.') && s.endsWith('.json'))) {
+      for (const layoutFile of layoutFiles.filter((s) => s.endsWith('.json'))) {
+        const basename = path.basename(layoutFile).replace('.json', '');
         const fileContent = fs.readFileSync(path.join(...setPath, layoutFile));
         const layoutContent = parseJsonTolerantly<ILayoutFileExternal>(fileContent.toString().trim());
-        layouts[layoutFile.replace('.json', '')] = layoutContent.data.layout;
-        entireFiles[layoutFile.replace('.json', '')] = layoutContent;
+        layouts[basename] = layoutContent.data.layout;
+        entireFiles[basename] = layoutContent;
       }
 
       out.push({
         appName: app,
-        setName: set.set,
+        appRoot: path.join(dir, app),
+        setName: set.folder,
+        set: set.actualSet,
         layouts,
         entireFiles,
       });
@@ -66,6 +82,65 @@ export function getAllLayoutSets(dir: string): AppLayoutSet[] {
   }
 
   return out;
+}
+
+export function getAllLayoutSetsWithDataModelSchema(dir: string): {
+  out: AppLayoutSetWithDataModelSchema[];
+  notFound: string[];
+} {
+  const out: AppLayoutSetWithDataModelSchema[] = [];
+  const notFound: string[] = [];
+  const allLayoutSets = getAllLayoutSets(dir);
+  for (const idx in allLayoutSets) {
+    const item = allLayoutSets[idx];
+    const appRoot = item.appRoot;
+    const set = item.set;
+    const appMetadata = getApplicationMetaData(appRoot);
+    const allDataTypes = appMetadata.dataTypes.filter((dt) => dt.appLogic?.classRef);
+
+    let dataType = set?.dataType;
+    if (!dataType && set?.tasks?.length === 1) {
+      const task = set.tasks[0];
+      dataType = allDataTypes.find((dt) => dt.taskId === task)?.id;
+    }
+    if (!dataType && allDataTypes.length === 1) {
+      dataType = allDataTypes[0].id;
+    }
+
+    const modelsDir = `${appRoot}/App/models`;
+    if (!fs.existsSync(modelsDir)) {
+      notFound.push(`${item.appName}/${item.setName} (no models dir)`);
+      continue;
+    }
+
+    const modelsDirFiles = fs.readdirSync(modelsDir);
+    const allDataTypesWithSchemaFiles = allDataTypes.filter((dt) => modelsDirFiles.includes(`${dt.id}.schema.json`));
+
+    if (!dataType && allDataTypesWithSchemaFiles.length === 1) {
+      dataType = allDataTypes[0].id;
+    }
+
+    if (!dataType) {
+      notFound.push(`${item.appName}/${item.setName} (no data type)`);
+      continue;
+    }
+
+    const modelPath = `${appRoot}/App/models/${dataType}.schema.json`;
+    const modelPathExists = modelsDirFiles.includes(`${dataType}.schema.json`);
+    if (!modelPathExists) {
+      notFound.push(`${item.appName}/${item.setName} (no model schema)`);
+      continue;
+    }
+
+    out.push({ ...item, modelPath });
+  }
+
+  return { out, notFound };
+}
+
+function getApplicationMetaData(appRoot: string) {
+  const appJson = fs.readFileSync(path.join(appRoot, 'App/config/applicationmetadata.json'), 'utf-8');
+  return parseJsonTolerantly<IApplicationMetadata>(appJson);
 }
 
 /**
