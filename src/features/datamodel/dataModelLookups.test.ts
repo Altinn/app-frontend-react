@@ -34,7 +34,7 @@ describe('Data model lookups in real apps', () => {
           const schemaPath = `/${binding.replace(/\./g, '/')}`.replace(/\[(\d+)]\//g, (...a) => `/${a[1]}/`);
 
           try {
-            const bindingSchema = draft.getSchema(schemaPath);
+            const bindingSchema = draft.getSchema({ pointer: schemaPath });
             const path = `${pageKey}/${component.id}/${bindingKey}`;
             if (bindingSchema?.type === 'error') {
               expect({ error: `Cannot locate schema for '${binding}' in '${path}'` }).toBeFalsy();

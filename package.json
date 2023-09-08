@@ -154,7 +154,7 @@
     "dot-object": "2.1.4",
     "eslint-plugin-preferred-import-path": "^1.1.0",
     "html-react-parser": "4.2.2",
-    "json-schema-library": "^7.4.7",
+    "json-schema-library": "^9.0.3",
     "jsonpointer": "5.0.1",
     "marked": "7.0.5",
     "marked-mangle": "^1.0.1",
