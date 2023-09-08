@@ -2,10 +2,11 @@ import dotenv from 'dotenv';
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { cleanLayout } from 'src/features/layout/fetch/fetchFormLayoutSagas';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { ILayoutFileExternal } from 'src/layout/common.generated';
 import type { ILayouts } from 'src/layout/layout';
-import type { ILayoutSet, ILayoutSets } from 'src/types';
+import type { ILayoutSet, ILayoutSets, IRepeatingGroups } from 'src/types';
 
 interface AppLayoutSet {
   appName: string;
@@ -66,7 +67,7 @@ export function getAllLayoutSets(dir: string): AppLayoutSet[] {
         const basename = path.basename(layoutFile).replace('.json', '');
         const fileContent = fs.readFileSync(path.join(...setPath, layoutFile));
         const layoutContent = parseJsonTolerantly<ILayoutFileExternal>(fileContent.toString().trim());
-        layouts[basename] = layoutContent.data.layout;
+        layouts[basename] = cleanLayout(layoutContent.data.layout, false);
         entireFiles[basename] = layoutContent;
       }
 
@@ -220,4 +221,20 @@ export function parseJsonTolerantly<T = any>(content: string): T {
 
     throw new Error(`Failed to parse JSON: ${e.message}`);
   }
+}
+
+export function generateSimpleRepeatingGroups(layouts: ILayouts) {
+  const out: IRepeatingGroups = {};
+  for (const layout of Object.values(layouts)) {
+    for (const component of layout || []) {
+      if (component.type === 'Group') {
+        out[component.id] = { index: 0 };
+        out[`${component.id}-0`] = { index: 0 };
+        out[`${component.id}-0-0`] = { index: 0 };
+        out[`${component.id}-0-0-0`] = { index: 0 };
+      }
+    }
+  }
+
+  return out;
 }

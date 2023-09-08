@@ -22,7 +22,7 @@ export function useBindingSchema<T extends IDataModelBindings | undefined>(bindi
       const schemaPath = `/${value.replace(/\./g, '/')}`.replace(/\[(\d+)]\//g, (...a) => `/${a[1]}/`);
 
       try {
-        const bindingSchema = currentSchema?.getSchema({ pointer: schemaPath });
+        const bindingSchema = currentSchema?.getSchema(schemaPath);
         if (bindingSchema?.type === 'error') {
           out[key] = null;
         } else {
