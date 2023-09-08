@@ -10,7 +10,6 @@ import { useDataListQuery } from 'src/hooks/queries/useDataListQuery';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
-import { queryClient } from 'src/index';
 import { SortDirection } from 'src/layout/List/types';
 import type { IDataLists } from 'src/features/dataLists';
 import type { Filter } from 'src/hooks/queries/useDataListQuery';
@@ -62,7 +61,6 @@ export const ListComponent = ({ node, formData, handleDataChange, legend }: ILis
   const dispatch = useAppDispatch();
 
   const handleSortChange = (props: SortProps & { column: string }) => {
-    queryClient.invalidateQueries([id]);
     dispatch(
       DataListsActions.setSort({
         key: id || '',
@@ -79,7 +77,6 @@ export const ListComponent = ({ node, formData, handleDataChange, legend }: ILis
         size: parseInt(event.target.value, 10),
       }),
     );
-    queryClient.invalidateQueries([id]);
   };
 
   const handleChangeCurrentPage = (newPage: number) => {

@@ -1,10 +1,9 @@
-import { call, fork, put, race, select, take } from 'redux-saga/effects';
+import { call, fork, getContext, put, race, select, take } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 
 import { OptionsActions } from 'src/features/options/optionsSlice';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
-import { queryClient } from 'src/index';
 import {
   getKeyIndex,
   getKeyWithoutIndex,
@@ -109,6 +108,7 @@ export function* fetchSpecificOptionSaga({
 }: IFetchSpecificOptionSaga): SagaIterator {
   const key = getOptionLookupKey({ id: optionsId, mapping: dataMapping, fixedQueryParameters });
   const instanceId = yield select(instanceIdSelector);
+  const queryClient = yield getContext('queryClient');
   try {
     const metaData: IOptionsMetaData = {
       id: optionsId,
