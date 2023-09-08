@@ -1,8 +1,9 @@
-import { Draft07 } from 'json-schema-library';
 import fs from 'node:fs';
 import type { JSONError, JSONSchema } from 'json-schema-library';
 
 import { getHierarchyDataSourcesMock } from 'src/__mocks__/hierarchyMock';
+import { findSchemaForBinding, isSchemaLookupError } from 'src/features/datamodel/findSchemaForBinding';
+import { dotNotationToPointer } from 'src/features/datamodel/notations';
 import { getLayoutComponentObject } from 'src/layout';
 import {
   ensureAppsDirIsSet,
@@ -35,12 +36,7 @@ describe('Data model lookups in real apps', () => {
 
     const schema = parseJsonTolerantly(fs.readFileSync(modelPath, 'utf-8'));
     const rootPath = getRootElementPath(schema);
-    const schemaCopy = structuredClone(schema);
-    if (rootPath) {
-      (schemaCopy as any).$ref = rootPath;
-    }
 
-    const draft = new Draft07(schemaCopy);
     const failures: any[] = [];
 
     for (const [pageKey, layout] of Object.entries(nodes.all())) {
@@ -51,32 +47,21 @@ describe('Data model lookups in real apps', () => {
             continue;
           }
 
-          // Converts dot-notation to JsonPointer (including support for repeating groups)
-          const schemaPath = `/${binding.replace(/\./g, '/')}`.replace(/\[(\d+)]\//g, (...a) => `/${a[1]}/`);
+          const schemaPath = dotNotationToPointer(binding);
           const readablePath = `${pageKey}/${node.item.id}/${bindingKey}`;
 
-          try {
-            const bindingSchema = draft.getSchema(schemaPath);
+          const result = findSchemaForBinding({
+            schema,
+            bindingPointer: schemaPath,
+            rootElementPath: rootPath,
+          });
 
-            if (bindingSchema?.type === 'error') {
-              failures.push({ error: 'Error type', message: bindingSchema.message, readablePath, schemaPath });
-            } else if (bindingSchema) {
-              if (!isValidBinding(bindingSchema, node, bindingKey)) {
-                failures.push({ error: 'Wrong type', type: bindingSchema.type, readablePath });
-              }
-            } else {
-              failures.push({
-                error: `Cannot locate schema for '${binding}' in '${readablePath}' (undefined)`,
-                readablePath,
-                schemaPath,
-              });
+          if (isSchemaLookupError(result)) {
+            failures.push({ ...result, readablePath, schemaPath });
+          } else {
+            if (!isValidBinding(result, node, bindingKey)) {
+              failures.push({ error: 'Wrong type', type: result.type, readablePath, schemaPath });
             }
-          } catch (e) {
-            failures.push({
-              error: e instanceof Error ? e.message : e,
-              readablePath,
-              schemaPath,
-            });
           }
         }
       }
@@ -89,6 +74,18 @@ describe('Data model lookups in real apps', () => {
     expect(notFound).toEqual([]);
   });
 });
+
+function typeIsSimple(type: string | string[] | undefined) {
+  if (Array.isArray(type)) {
+    const withoutNull = type.filter((t) => t !== 'null');
+    if (withoutNull.length === 1) {
+      return typeIsSimple(withoutNull[0]);
+    }
+    return false;
+  }
+
+  return type === 'string' || type === 'number' || type === 'integer' || type === 'boolean';
+}
 
 function isValidBinding(schema: JSONSchema | JSONError, node: LayoutNode, bindingKey: string) {
   if (node.isType('Group') && (node.isRepGroup() || node.isRepGroupLikert()) && schema.type === 'array') {
@@ -110,9 +107,7 @@ function isValidBinding(schema: JSONSchema | JSONError, node: LayoutNode, bindin
     return true;
   }
 
-  const isSimpleType =
-    schema.type === 'string' || schema.type === 'number' || schema.type === 'integer' || schema.type === 'boolean';
-
+  const isSimpleType = typeIsSimple(schema.type);
   if ((node.isType('List') || node.isType('AddressComponent')) && isSimpleType) {
     return true;
   }
