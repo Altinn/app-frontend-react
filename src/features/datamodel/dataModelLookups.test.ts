@@ -2,8 +2,8 @@ import fs from 'node:fs';
 import type { JSONError, JSONSchema } from 'json-schema-library';
 
 import { getHierarchyDataSourcesMock } from 'src/__mocks__/hierarchyMock';
-import { lookupBindingInSchema } from 'src/features/datamodel/LookupBindingInSchema';
 import { dotNotationToPointer } from 'src/features/datamodel/notations';
+import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
 import { isSchemaLookupError } from 'src/features/datamodel/SimpleSchemaTraversal.tools';
 import { getLayoutComponentObject } from 'src/layout';
 import {
@@ -77,14 +77,6 @@ describe('Data model lookups in real apps', () => {
 });
 
 function typeIsSimple(type: string | string[] | undefined) {
-  if (Array.isArray(type)) {
-    const withoutNull = type.filter((t) => t !== 'null');
-    if (withoutNull.length === 1) {
-      return typeIsSimple(withoutNull[0]);
-    }
-    return false;
-  }
-
   return type === 'string' || type === 'number' || type === 'integer' || type === 'boolean';
 }
 

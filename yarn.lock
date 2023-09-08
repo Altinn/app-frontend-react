@@ -4764,6 +4764,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/js-levenshtein@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "@types/js-levenshtein@npm:1.1.1"
+  checksum: 1d1ff1ee2ad551909e47f3ce19fcf85b64dc5146d3b531c8d26fc775492d36e380b32cf5ef68ff301e812c3b00282f37aac579ebb44498b94baff0ace7509769
+  languageName: node
+  linkType: hard
+
 "@types/jsdom@npm:^20.0.0":
   version: 20.0.0
   resolution: "@types/jsdom@npm:20.0.0"
@@ -5901,6 +5908,7 @@ __metadata:
     "@types/dompurify": 3.0.2
     "@types/dot-object": 2.1.2
     "@types/jest": 29.5.4
+    "@types/js-levenshtein": ^1.1.1
     "@types/json-pointer": ^1.0.31
     "@types/json-schema": ^7.0.11
     "@types/marked": 5.0.1

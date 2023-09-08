@@ -18,6 +18,7 @@ interface MissingRepeatingGroup extends BaseError {
 interface MissingProperty extends BaseError {
   error: 'missingProperty';
   property: string;
+  mostLikelyProperty: string | undefined;
   validProperties: string[];
 }
 

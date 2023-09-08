@@ -1,3 +1,4 @@
+import levenshtein from 'js-levenshtein';
 import pointer from 'json-pointer';
 import type { JSONSchema7, JSONSchema7Definition } from 'json-schema';
 
@@ -13,6 +14,10 @@ interface Props {
 
 type Ret = JSONSchema7 | SchemaLookupError;
 
+/**
+ * A simple JSON schema traversal tool that can be used to lookup a binding in a schema to find the
+ * corresponding JSON schema definition for that binding.
+ */
 class SimpleSchemaTraversal {
   private current: JSONSchema7;
   private fullPath: string[] = [''];
@@ -24,8 +29,25 @@ class SimpleSchemaTraversal {
     this.current = rootElementPath ? this.lookupRef(rootElementPath) : fullSchema;
   }
 
-  public getCurrent(): JSONSchema7 {
-    return this.resolveRef(this.current);
+  public getAsNonNullable(item = this.current): JSONSchema7 {
+    const resolved = this.resolveRef(item);
+    if (resolved && Array.isArray(resolved.type)) {
+      const nonNullables = resolved.type.filter((type) => type !== 'null');
+      if (nonNullables.length === 1) {
+        return {
+          ...resolved,
+          type: nonNullables[0],
+        };
+      }
+    }
+    if (resolved && resolved.oneOf) {
+      const nonNullables = resolved.oneOf.filter((type) => type && this.resolveRef(type).type !== 'null');
+      if (nonNullables.length === 1) {
+        return this.resolveRef(nonNullables[0]);
+      }
+    }
+
+    return resolved;
   }
 
   public getPath(): string {
@@ -54,12 +76,18 @@ class SimpleSchemaTraversal {
       });
     }
 
-    this.failIfRepeatingGroup(alternatives);
+    if (this.isRepeatingGroup(alternatives)) {
+      throw this.makeError('missingRepeatingGroup', {});
+    }
 
-    // PRIORITY: Check if one of the properties is similar to the one we are looking for, and suggest that
+    const sortedByLikeness = foundProperties.sort((a, b) => levenshtein(property, a) - levenshtein(property, b));
+    const mostLikelyProperty = sortedByLikeness[0];
+    const likeness = mostLikelyProperty && levenshtein(property, mostLikelyProperty);
+    const similarity = likeness && Math.round((1 - likeness / property.length) * 100);
 
     throw this.makeError('missingProperty', {
       property,
+      mostLikelyProperty: similarity && similarity > 50 ? mostLikelyProperty : undefined,
       validProperties: foundProperties,
     });
   }
@@ -91,15 +119,20 @@ class SimpleSchemaTraversal {
     return [false, ''];
   }
 
-  private failIfRepeatingGroup(alternatives: JSONSchema7[]): void {
-    if (this.isRepeatingGroup(alternatives)) {
-      throw this.makeError('missingRepeatingGroup', {});
-    }
-  }
-
   private isRepeatingGroup(alternatives: JSONSchema7[]): boolean {
-    // PRIORITY: Make sure repeating group is actually Object[]
-    return alternatives.some((alternative) => alternative.type === 'array' && alternative.items);
+    return alternatives.some((alternative) => {
+      if (alternative.type === 'array' && alternative.items) {
+        const items =
+          typeof alternative.items === 'object' && !Array.isArray(alternative.items)
+            ? this.resolveRef(alternative.items)
+            : undefined;
+
+        if (typeof items === 'object' && (items.type === 'object' || items.properties)) {
+          return true;
+        }
+      }
+      return false;
+    });
   }
 
   private lookupRef(path: string): JSONSchema7 {
@@ -111,10 +144,21 @@ class SimpleSchemaTraversal {
     throw this.makeError('referenceError', { reference: path });
   }
 
+  /**
+   * Resolve $ref that points to another place in the schema (maybe recursive),
+   * and resolve other rarities (like allOf that combines an empty schema)
+   */
   private resolveRef(item: JSONSchema7 | JSONSchema7Definition | undefined): JSONSchema7 {
     let current = item as JSONSchema7;
     while (current && typeof current === 'object' && '$ref' in current && current.$ref) {
       current = this.lookupRef(current.$ref);
+    }
+
+    if (current && typeof current === 'object' && 'allOf' in current && current.allOf) {
+      const nonEmptyAllOf = current.allOf.filter((i) => i !== null && i !== undefined && Object.keys(i).length > 0);
+      if (nonEmptyAllOf.length === 1) {
+        current = this.resolveRef(nonEmptyAllOf[0]);
+      }
     }
 
     return current;
@@ -153,6 +197,11 @@ type MinimalError<T extends ErrorUnion> = Omit<
   'isError' | 'error' | 'stoppedAtDotNotation' | 'stoppedAtPointer'
 >;
 
+/**
+ * Looks up a binding in a schema to find the corresponding JSON schema definition for that binding.
+ * Uses the SimpleSchemaTraversal class to do the actual lookup, but use this function instead of
+ * instantiating the class directly.
+ */
 export function lookupBindingInSchema(props: Props): Ret {
   const { schema, rootElementPath, bindingPointer } = props;
   const parts = bindingPointer.split('/').filter((part) => part !== '' && part !== '#');
@@ -167,7 +216,7 @@ export function lookupBindingInSchema(props: Props): Ret {
         traverser.gotoProperty(part);
       }
     }
-    return traverser.getCurrent();
+    return traverser.getAsNonNullable();
   } catch (error) {
     if (isSchemaLookupError(error)) {
       return error;
