@@ -8,10 +8,17 @@ export const getRootElementPath = (schema: any) => {
     // SERES workaround
     return schema.properties[schema.info.meldingsnavn]?.$ref || '';
   } else if (schema.properties) {
-    // Expect first property to contain $ref to schema
-    const rootKey: string = Object.keys(schema.properties)[0];
-    return schema.properties[rootKey].$ref;
+    const props = Object.keys(schema.properties);
+    const firstProp = props[0] ? schema.properties[props[0]] : undefined;
+    if (props.length === 1 && firstProp && firstProp.$ref) {
+      // While not really compliant with the json schema standard, we have some schemas that expect the root element
+      // to be a single property with a $ref to a definition. Typically, this root element is called 'Skjema', but
+      // not all schemas follow this convention. A good way to test this, is running this function against schemas
+      // in existing apps, and comparing it to the data model bindings used in the app.
+      return firstProp.$ref;
+    }
   }
+
   return '';
 };
 
