@@ -1,11 +1,9 @@
-import deepEqual from 'fast-deep-equal';
-import pointer from 'json-pointer';
 import fs from 'node:fs';
 import type { JSONSchema7 } from 'json-schema';
 
 import { getHierarchyDataSourcesMock } from 'src/__mocks__/hierarchyMock';
 import { dotNotationToPointer } from 'src/features/datamodel/notations';
-import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
+import { lookupBindingInSchema, prepareMetaData } from 'src/features/datamodel/SimpleSchemaTraversal';
 import { getLayoutComponentObject } from 'src/layout';
 import {
   ensureAppsDirIsSet,
@@ -13,7 +11,6 @@ import {
   getAllLayoutSetsWithDataModelSchema,
   parseJsonTolerantly,
 } from 'src/test/allApps';
-import { getKeyWithoutIndex } from 'src/utils/databindings';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { getRootElementPath } from 'src/utils/schemaUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -45,7 +42,7 @@ describe('Data model lookups in real apps', () => {
     const metaData = metaDataPath ? parseJsonTolerantly(fs.readFileSync(metaDataPath, 'utf-8')) : {};
     const rootPath = getRootElementPath(schema);
     const failures: any[] = [];
-    const metaDataElements = metaData.elements ?? metaData.Elements ?? {};
+    const metaDataElements = prepareMetaData(metaData.elements ?? metaData.Elements ?? {});
 
     for (const [pageKey, layout] of Object.entries(nodes.all())) {
       for (const node of layout.flat(true)) {
@@ -62,16 +59,8 @@ describe('Data model lookups in real apps', () => {
             schema,
             bindingPointer: schemaPath,
             rootElementPath: rootPath,
+            metaDataElements,
           });
-
-          const bindingWithoutIndexes = getKeyWithoutIndex(binding);
-          const metaDataResult = metaDataElements[bindingWithoutIndexes];
-          const jsonPointer = metaDataResult?.jsonSchemaPointer;
-          const pointerResult = jsonPointer ? pointer.get(schema, jsonPointer.replace(/^#/, '')) : undefined;
-
-          if (pointerResult && result && !deepEqual(pointerResult, result)) {
-            failures.push({ error: 'Pointer and schema lookup not equal', readablePath, schemaPath });
-          }
 
           if (error) {
             failures.push({ ...error, readablePath, schemaPath });

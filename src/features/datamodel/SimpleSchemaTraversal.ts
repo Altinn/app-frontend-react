@@ -4,12 +4,24 @@ import type { JSONSchema7, JSONSchema7Definition } from 'json-schema';
 
 import { pointerToDotNotation } from 'src/features/datamodel/notations';
 import { isSchemaLookupError } from 'src/features/datamodel/SimpleSchemaTraversal.tools';
+import { getKeyWithoutIndex } from 'src/utils/databindings';
 import type { SchemaLookupError } from 'src/features/datamodel/SimpleSchemaTraversal.tools';
+
+interface MetaDataObj {
+  jsonSchemaPointer?: string;
+  dataBindingName?: string | null;
+}
+
+interface MetaDataMap {
+  [key: string]: MetaDataObj;
+}
 
 interface Props {
   schema: JSONSchema7;
   bindingPointer: string;
   rootElementPath?: string;
+  metaDataElements?: MetaDataMap;
+  commonMetadataPrefix?: string;
 }
 
 /**
@@ -50,6 +62,23 @@ class SimpleSchemaTraversal {
 
   public getPath(): string {
     return this.fullPath.join('/');
+  }
+
+  public gotoPointer(jsonPointer: string): this {
+    for (const schema of [this.current, this.fullSchema]) {
+      try {
+        const found = pointer.get(schema, jsonPointer.replace(/^#/g, ''));
+        if (found) {
+          this.current = found as JSONSchema7;
+          this.fullPath = [''];
+          return this;
+        }
+      } catch (e) {
+        // Intentionally empty. If the metadata-based direct lookup fails, we'll move on to looking up manually.
+      }
+    }
+
+    throw this.makeError('referenceError', { reference: jsonPointer });
   }
 
   public gotoProperty(property: string): this {
@@ -203,11 +232,26 @@ type Ret = [JSONSchema7, undefined] | [undefined, SchemaLookupError];
  * instantiating the class directly.
  */
 export function lookupBindingInSchema(props: Props): Ret {
-  const { schema, rootElementPath, bindingPointer } = props;
-  const parts = bindingPointer.split('/').filter((part) => part !== '' && part !== '#');
+  const { schema, rootElementPath, bindingPointer, metaDataElements, commonMetadataPrefix } = props;
+  const bindingAsDotNotation = pointerToDotNotation(bindingPointer);
+  const bindingAsDotWithoutIndexes = getKeyWithoutIndex(bindingAsDotNotation);
+
+  const traverser = new SimpleSchemaTraversal(schema, rootElementPath);
+  const metaDataResult =
+    metaDataElements?.[bindingAsDotWithoutIndexes] ??
+    (commonMetadataPrefix ? metaDataElements?.[`${commonMetadataPrefix}.${bindingAsDotWithoutIndexes}`] : undefined);
 
   try {
-    const traverser = new SimpleSchemaTraversal(schema, rootElementPath);
+    if (metaDataResult?.jsonSchemaPointer) {
+      const pointerResult = traverser.gotoPointer(metaDataResult.jsonSchemaPointer);
+      return [pointerResult.getAsNonNullable(), undefined];
+    }
+  } catch (error) {
+    // Intentionally empty. If the metadata-based direct lookup fails, we'll move on to looking up manually.
+  }
+
+  try {
+    const parts = bindingPointer.split('/').filter((part) => part !== '' && part !== '#');
     for (const part of parts) {
       const isIndex = /^\d+$/.test(part);
       if (isIndex) {
@@ -223,4 +267,16 @@ export function lookupBindingInSchema(props: Props): Ret {
     }
     throw error;
   }
+}
+
+export function prepareMetaData(metaData: MetaDataMap): MetaDataMap {
+  const result: MetaDataMap = {};
+  for (const [key, value] of Object.entries(metaData)) {
+    result[key] = value;
+    if (value.dataBindingName) {
+      result[value.dataBindingName] = value;
+    }
+  }
+
+  return result;
 }
