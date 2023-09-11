@@ -12,8 +12,6 @@ interface Props {
   rootElementPath?: string;
 }
 
-type Ret = JSONSchema7 | SchemaLookupError;
-
 /**
  * A simple JSON schema traversal tool that can be used to lookup a binding in a schema to find the
  * corresponding JSON schema definition for that binding.
@@ -197,6 +195,8 @@ type MinimalError<T extends ErrorUnion> = Omit<
   'isError' | 'error' | 'stoppedAtDotNotation' | 'stoppedAtPointer'
 >;
 
+type Ret = [JSONSchema7, undefined] | [undefined, SchemaLookupError];
+
 /**
  * Looks up a binding in a schema to find the corresponding JSON schema definition for that binding.
  * Uses the SimpleSchemaTraversal class to do the actual lookup, but use this function instead of
@@ -216,10 +216,10 @@ export function lookupBindingInSchema(props: Props): Ret {
         traverser.gotoProperty(part);
       }
     }
-    return traverser.getAsNonNullable();
+    return [traverser.getAsNonNullable(), undefined];
   } catch (error) {
     if (isSchemaLookupError(error)) {
-      return error;
+      return [undefined, error];
     }
     throw error;
   }

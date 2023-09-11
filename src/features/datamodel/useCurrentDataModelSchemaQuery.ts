@@ -4,7 +4,7 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { useAppQueriesContext } from 'src/contexts/appQueriesContext';
 import { DataModelActions } from 'src/features/datamodel/datamodelSlice';
-import { useCurrentDataModelName } from 'src/features/datamodel/useDataModelSchema';
+import { useCurrentDataModelName } from 'src/features/datamodel/useBindingSchema';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 

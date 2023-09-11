@@ -1,10 +1,9 @@
 import fs from 'node:fs';
-import type { JSONError, JSONSchema } from 'json-schema-library';
+import type { JSONSchema7 } from 'json-schema';
 
 import { getHierarchyDataSourcesMock } from 'src/__mocks__/hierarchyMock';
 import { dotNotationToPointer } from 'src/features/datamodel/notations';
 import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
-import { isSchemaLookupError } from 'src/features/datamodel/SimpleSchemaTraversal.tools';
 import { getLayoutComponentObject } from 'src/layout';
 import {
   ensureAppsDirIsSet,
@@ -51,18 +50,16 @@ describe('Data model lookups in real apps', () => {
           const schemaPath = dotNotationToPointer(binding);
           const readablePath = `${pageKey}/${node.item.id}/${bindingKey}`;
 
-          const result = lookupBindingInSchema({
+          const [result, error] = lookupBindingInSchema({
             schema,
             bindingPointer: schemaPath,
             rootElementPath: rootPath,
           });
 
-          if (isSchemaLookupError(result)) {
-            failures.push({ ...result, readablePath, schemaPath });
-          } else {
-            if (!isValidBinding(result, node, bindingKey)) {
-              failures.push({ error: 'Wrong type', type: result.type, readablePath, schemaPath });
-            }
+          if (error) {
+            failures.push({ ...error, readablePath, schemaPath });
+          } else if (!isValidBinding(result, node, bindingKey)) {
+            failures.push({ error: 'Wrong type', type: result.type, readablePath, schemaPath });
           }
         }
       }
@@ -80,7 +77,7 @@ function typeIsSimple(type: string | string[] | undefined) {
   return type === 'string' || type === 'number' || type === 'integer' || type === 'boolean';
 }
 
-function isValidBinding(schema: JSONSchema | JSONError, node: LayoutNode, bindingKey: string) {
+function isValidBinding(schema: JSONSchema7, node: LayoutNode, bindingKey: string) {
   if (node.isType('Group') && (node.isRepGroup() || node.isRepGroupLikert()) && schema.type === 'array') {
     return true;
   }
