@@ -1,7 +1,6 @@
 import type { JSONSchema7 } from 'json-schema';
 
 interface BaseError {
-  isError: true;
   stoppedAtPointer: string;
   stoppedAtDotNotation: string;
 }
@@ -24,7 +23,8 @@ interface MissingProperty extends BaseError {
 
 interface MisCasedProperty extends BaseError {
   error: 'misCasedProperty';
-  foundProperty: string;
+  referencedName: string;
+  actualName: string;
 }
 
 interface NotAnArray extends BaseError {
@@ -39,10 +39,14 @@ export type SchemaLookupError =
   | MisCasedProperty
   | NotAnArray;
 
-export function isSchemaLookupError(error: JSONSchema7 | SchemaLookupError): error is SchemaLookupError {
-  return error && 'isError' in error && error.isError;
-}
+const errorMap: Record<SchemaLookupError['error'], true> = {
+  referenceError: true,
+  missingRepeatingGroup: true,
+  missingProperty: true,
+  misCasedProperty: true,
+  notAnArray: true,
+};
 
-export function isSchemaLookupSuccess(schema: JSONSchema7 | SchemaLookupError): schema is JSONSchema7 {
-  return !!schema && typeof schema === 'object' && !isSchemaLookupError(schema);
+export function isSchemaLookupError(error: JSONSchema7 | SchemaLookupError): error is SchemaLookupError {
+  return error && 'error' in error && errorMap[error.error];
 }

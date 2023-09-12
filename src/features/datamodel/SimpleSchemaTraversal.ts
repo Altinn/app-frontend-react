@@ -70,7 +70,8 @@ class SimpleSchemaTraversal {
     const [isMisCased, correctCasing] = this.isMisCased(property, foundProperties);
     if (isMisCased) {
       throw this.makeError('misCasedProperty', {
-        foundProperty: correctCasing,
+        actualName: correctCasing,
+        referencedName: property,
       });
     }
 
@@ -179,7 +180,6 @@ class SimpleSchemaTraversal {
 
   private makeError<T extends ErrorUnion>(type: T, error: MinimalError<T>): ErrorFromType<T> {
     return {
-      isError: true,
       error: type,
       stoppedAtPointer: this.getPath(),
       stoppedAtDotNotation: pointerToDotNotation(this.getPath()),
