@@ -8,6 +8,7 @@ import {
   applicationSettingsApiUrl,
   currentPartyUrl,
   getActiveInstancesUrl,
+  getDataModelMetaDataUrl,
   getFooterLayoutUrl,
   getJsonSchemaUrl,
   getLayoutSetsUrl,
@@ -18,6 +19,7 @@ import {
 } from 'src/utils/urls/appUrlHelper';
 import { orgsListUrl } from 'src/utils/urls/urlHelper';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { MetaDataResult } from 'src/features/datamodel/useCurrentDataModelMetaDataQuery';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { ILayoutSets, ISimpleInstance } from 'src/types';
 import type { IAltinnOrgs, IApplicationSettings, IProfile } from 'src/types/shared';
@@ -50,5 +52,8 @@ export const fetchRefreshJwtToken = () => httpGet(refreshJwtTokenUrl);
 
 export const fetchDataModelSchema = (dataTypeName: string): Promise<JSONSchema7> =>
   httpGet(getJsonSchemaUrl() + dataTypeName);
+
+export const fetchDataModelMetaData = (dataTypeName: string): Promise<MetaDataResult> =>
+  httpGet(getDataModelMetaDataUrl() + dataTypeName);
 
 export const fetchFormData = (url: string, options?: AxiosRequestConfig): Promise<any> => httpGet(url, options);

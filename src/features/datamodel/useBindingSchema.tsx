@@ -4,6 +4,7 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { dotNotationToPointer } from 'src/features/datamodel/notations';
 import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
+import { useCurrentDataModelMetaDataQuery } from 'src/features/datamodel/useCurrentDataModelMetaDataQuery';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getCurrentDataTypeForApplication } from 'src/utils/appMetadata';
 import { getRootElementPath } from 'src/utils/schemaUtils';
@@ -25,6 +26,7 @@ export function useCurrentDataModelName() {
 
 export function useBindingSchema<T extends IDataModelBindings | undefined>(bindings: T): AsSchema<T> | undefined {
   const dataModels = useAppSelector((state) => state.formDataModel.schemas);
+  const { data: modelMetaData } = useCurrentDataModelMetaDataQuery();
   const currentDataModelName = useCurrentDataModelName();
   const currentSchema =
     dataModels && currentDataModelName && currentDataModelName in dataModels && dataModels[currentDataModelName];
@@ -42,6 +44,7 @@ export function useBindingSchema<T extends IDataModelBindings | undefined>(bindi
           schema: currentSchema,
           rootElementPath,
           bindingPointer,
+          metaDataElements: modelMetaData?.elements,
         });
 
         out[key] = schema || null;
@@ -51,5 +54,5 @@ export function useBindingSchema<T extends IDataModelBindings | undefined>(bindi
     }
 
     return undefined;
-  }, [currentSchema, bindings]);
+  }, [currentSchema, bindings, modelMetaData]);
 }

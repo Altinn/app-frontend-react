@@ -3,7 +3,8 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { getHierarchyDataSourcesMock } from 'src/__mocks__/hierarchyMock';
 import { dotNotationToPointer } from 'src/features/datamodel/notations';
-import { lookupBindingInSchema, prepareMetaData } from 'src/features/datamodel/SimpleSchemaTraversal';
+import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
+import { prepareMetaData } from 'src/features/datamodel/useCurrentDataModelMetaDataQuery';
 import { getLayoutComponentObject } from 'src/layout';
 import {
   ensureAppsDirIsSet,

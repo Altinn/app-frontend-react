@@ -6,22 +6,13 @@ import { pointerToDotNotation } from 'src/features/datamodel/notations';
 import { isSchemaLookupError } from 'src/features/datamodel/SimpleSchemaTraversal.tools';
 import { getKeyWithoutIndex } from 'src/utils/databindings';
 import type { SchemaLookupError } from 'src/features/datamodel/SimpleSchemaTraversal.tools';
-
-interface MetaDataObj {
-  jsonSchemaPointer?: string;
-  dataBindingName?: string | null;
-}
-
-interface MetaDataMap {
-  [key: string]: MetaDataObj;
-}
+import type { MetaDataMap } from 'src/features/datamodel/useCurrentDataModelMetaDataQuery';
 
 interface Props {
   schema: JSONSchema7;
   bindingPointer: string;
   rootElementPath?: string;
   metaDataElements?: MetaDataMap;
-  commonMetadataPrefix?: string;
 }
 
 /**
@@ -232,15 +223,12 @@ type Ret = [JSONSchema7, undefined] | [undefined, SchemaLookupError];
  * instantiating the class directly.
  */
 export function lookupBindingInSchema(props: Props): Ret {
-  const { schema, rootElementPath, bindingPointer, metaDataElements, commonMetadataPrefix } = props;
+  const { schema, rootElementPath, bindingPointer, metaDataElements } = props;
   const bindingAsDotNotation = pointerToDotNotation(bindingPointer);
   const bindingAsDotWithoutIndexes = getKeyWithoutIndex(bindingAsDotNotation);
 
   const traverser = new SimpleSchemaTraversal(schema, rootElementPath);
-  const metaDataResult =
-    metaDataElements?.[bindingAsDotWithoutIndexes] ??
-    (commonMetadataPrefix ? metaDataElements?.[`${commonMetadataPrefix}.${bindingAsDotWithoutIndexes}`] : undefined);
-
+  const metaDataResult = metaDataElements?.[bindingAsDotWithoutIndexes];
   try {
     if (metaDataResult?.jsonSchemaPointer) {
       const pointerResult = traverser.gotoPointer(metaDataResult.jsonSchemaPointer);
@@ -267,16 +255,4 @@ export function lookupBindingInSchema(props: Props): Ret {
     }
     throw error;
   }
-}
-
-export function prepareMetaData(metaData: MetaDataMap): MetaDataMap {
-  const result: MetaDataMap = {};
-  for (const [key, value] of Object.entries(metaData)) {
-    result[key] = value;
-    if (value.dataBindingName) {
-      result[value.dataBindingName] = value;
-    }
-  }
-
-  return result;
 }
