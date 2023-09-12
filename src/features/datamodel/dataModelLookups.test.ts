@@ -58,7 +58,13 @@ describe('Data model lookups in real apps', () => {
           if (error) {
             failures.push({ ...error, readablePath, schemaPath });
           } else if (!isValidBinding(result, node, bindingKey)) {
-            failures.push({ error: 'Wrong type', type: result.type, readablePath, schemaPath });
+            failures.push({
+              error: 'Wrong type',
+              type: result.type,
+              nodeType: node.item.type,
+              readablePath,
+              schemaPath,
+            });
           }
         }
       }
