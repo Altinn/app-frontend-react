@@ -9,6 +9,7 @@ on:
       - 'yarn.lock'
       - '.github/workflows/cypress.yml'
   pull_request:
+    branches: [main]
     paths:
       - 'src/**'
       - 'test/**'
