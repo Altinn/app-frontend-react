@@ -45,6 +45,13 @@ class SimpleSchemaTraversal {
       }
     }
 
+    if (resolved && resolved.type === undefined && resolved.properties) {
+      return {
+        ...resolved,
+        type: 'object',
+      };
+    }
+
     return resolved;
   }
 
@@ -94,16 +101,18 @@ class SimpleSchemaTraversal {
   public gotoIndex(index: number): this {
     const alternatives = this.getAlternatives();
     for (const alternative of alternatives) {
-      if (alternative.type === 'array' && alternative.items) {
+      if (
+        (alternative.type === 'array' || (Array.isArray(alternative.type) && alternative.type.includes('array'))) &&
+        alternative.items
+      ) {
         this.current = alternative.items as JSONSchema7;
         this.fullPath.push(`${index}`);
         return this;
       }
     }
 
-    const actualType =
-      alternatives.length === 1 && typeof alternatives[0].type === 'string' ? alternatives[0].type : undefined;
-    throw this.makeError('notAnArray', { actualType });
+    const actual = alternatives.length === 1 ? this.getAsNonNullable(alternatives[0]) : undefined;
+    throw this.makeError('notAnArray', { actualType: typeof actual?.type === 'string' ? actual.type : undefined });
   }
 
   private isMisCased(property: string, foundProperties: string[]): [boolean, string] {
