@@ -4,7 +4,6 @@ import type { JSONSchema7 } from 'json-schema';
 import { getHierarchyDataSourcesMock } from 'src/__mocks__/hierarchyMock';
 import { dotNotationToPointer } from 'src/features/datamodel/notations';
 import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
-import { prepareMetaData } from 'src/features/datamodel/useCurrentDataModelMetaDataQuery';
 import { getLayoutComponentObject } from 'src/layout';
 import {
   ensureAppsDirIsSet,
@@ -24,11 +23,7 @@ describe('Data model lookups in real apps', () => {
 
   const all = getAllLayoutSetsWithDataModelSchema(dir);
   const { out: allLayoutSets, notFound } = all;
-  it.each(allLayoutSets)('$appName/$setName', ({ layouts, modelPath, metaDataPath }) => {
-    if (!modelPath) {
-      return;
-    }
-
+  it.each(allLayoutSets)('$appName/$setName', ({ layouts, modelPath }) => {
     const firstKey = Object.keys(layouts)[0];
     const repeatingGroups = generateSimpleRepeatingGroups(layouts);
     const nodes = generateEntireHierarchy(
@@ -40,10 +35,8 @@ describe('Data model lookups in real apps', () => {
     );
 
     const schema = parseJsonTolerantly(fs.readFileSync(modelPath, 'utf-8'));
-    const metaData = metaDataPath ? parseJsonTolerantly(fs.readFileSync(metaDataPath, 'utf-8')) : {};
     const rootPath = getRootElementPath(schema);
     const failures: any[] = [];
-    const metaDataElements = prepareMetaData(metaData.elements ?? metaData.Elements ?? {});
 
     for (const [pageKey, layout] of Object.entries(nodes.all())) {
       for (const node of layout.flat(true)) {
@@ -60,7 +53,6 @@ describe('Data model lookups in real apps', () => {
             schema,
             bindingPointer: schemaPath,
             rootElementPath: rootPath,
-            metaDataElements,
           });
 
           if (error) {

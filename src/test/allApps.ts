@@ -18,8 +18,7 @@ interface AppLayoutSet {
 }
 
 interface AppLayoutSetWithDataModelSchema extends AppLayoutSet {
-  modelPath?: string;
-  metaDataPath?: string;
+  modelPath: string;
 }
 
 interface InternalSet {
@@ -130,12 +129,12 @@ export function getAllLayoutSetsWithDataModelSchema(dir: string): {
     const modelPath = modelsDirFiles.includes(`${dataType}.schema.json`)
       ? `${appRoot}/App/models/${dataType}.schema.json`
       : undefined;
+    if (!modelPath) {
+      notFound.push(`${item.appName}/${item.setName} (no model schema)`);
+      continue;
+    }
 
-    const metaDataPath = modelsDirFiles.includes(`${dataType}.metadata.json`)
-      ? `${appRoot}/App/models/${dataType}.metadata.json`
-      : undefined;
-
-    out.push({ ...item, modelPath, metaDataPath });
+    out.push({ ...item, modelPath });
   }
 
   return { out, notFound };

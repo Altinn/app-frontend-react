@@ -48,7 +48,6 @@ export const renderWithProviders = (
       fetchParties: () => Promise.resolve({}),
       fetchRefreshJwtToken: () => Promise.resolve({}),
       fetchFormData: () => Promise.resolve({}),
-      fetchDataModelMetaData: () => Promise.resolve({ elements: {} }),
     } as AppQueriesContext;
     const mockedQueries = { ...allMockedQueries, ...queries };
 
