@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
@@ -19,6 +19,7 @@ import type { CompGroupExternal, CompGroupRepeatingLikertExternal } from 'src/la
 import type { CompOrGroupExternal } from 'src/layout/layout';
 import type { CompLikertExternal } from 'src/layout/Likert/config.generated';
 import type { ITextResource } from 'src/types';
+import type { IGetOptionsUrlParams } from 'src/utils/urls/appUrlHelper';
 import type { ILayoutValidations } from 'src/utils/validation/types';
 
 export const defaultMockQuestions = [
@@ -224,7 +225,7 @@ export const render = ({
       options: {
         'option-test': {
           id: 'option-test',
-          options: mockOptions,
+          options: [],
           loading: false,
         },
       },
@@ -233,13 +234,23 @@ export const render = ({
     },
   });
 
+  const fetchOptions = () => {
+    if (radioButtonProps?.optionsId === 'non-existing-options-id') {
+      return Promise.resolve(undefined as unknown as IGetOptionsUrlParams);
+    }
+    return Promise.resolve([...mockOptions] as unknown as IGetOptionsUrlParams);
+  };
   const mockStore = setupStore(preloadedState).store;
   const mockStoreDispatch = jest.fn();
   mockStore.dispatch = mockStoreDispatch;
   setScreenWidth(mobileView ? 600 : 1200);
-  renderWithProviders(<ContainerTester id={mockLikertContainer.id} />, {
-    store: mockStore,
-  });
+  renderWithProviders(
+    <ContainerTester id={mockLikertContainer.id} />,
+    {
+      store: mockStore,
+    },
+    { fetchOptions },
+  );
 
   return { mockStoreDispatch };
 };
@@ -253,24 +264,26 @@ export function ContainerTester(props: { id: string }) {
   return <RepeatingGroupsLikertContainer node={node} />;
 }
 
-export const validateTableLayout = (questions: IQuestion[], options: IOption[]) => {
+export const validateTableLayout = async (questions: IQuestion[], options: IOption[]) => {
   screen.getByRole('table');
 
   for (const option of defaultMockOptions) {
-    const columnHeader = screen.getByRole('columnheader', {
+    const columnHeader = await screen.findByRole('columnheader', {
       name: new RegExp(option.label),
     });
-    expect(columnHeader).toBeInTheDocument();
+    await waitFor(() => expect(columnHeader).toBeInTheDocument());
   }
 
-  validateRadioLayout(questions, options);
+  await validateRadioLayout(questions, options);
 };
 
-export const validateRadioLayout = (questions: IQuestion[], options: IOption[], mobileView = false) => {
+export const validateRadioLayout = async (questions: IQuestion[], options: IOption[], mobileView = false) => {
   if (mobileView) {
-    expect(screen.getAllByRole('radiogroup')).toHaveLength(questions.length);
+    const radioGroups = await screen.findAllByRole('radiogroup');
+    await waitFor(() => expect(radioGroups).toHaveLength(questions.length));
   } else {
-    expect(screen.getAllByRole('row')).toHaveLength(questions.length + 1);
+    const rows = await screen.findAllByRole('row');
+    await waitFor(() => expect(rows).toHaveLength(questions.length + 1));
   }
 
   for (const question of questions) {

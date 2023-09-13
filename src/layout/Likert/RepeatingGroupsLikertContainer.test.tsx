@@ -1,4 +1,4 @@
-import { act, screen, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import {
@@ -24,14 +24,14 @@ describe('RepeatingGroupsLikertContainer', () => {
   });
 
   describe('Desktop', () => {
-    it('should render table using options and not optionsId', () => {
+    it('should render table using options and not optionsId', async () => {
       render({
         radioButtonProps: {
           optionsId: 'non-existing-options-id',
           options: defaultMockOptions,
         },
       });
-      validateTableLayout(defaultMockQuestions, defaultMockOptions);
+      await validateTableLayout(defaultMockQuestions, defaultMockOptions);
     });
 
     it('should render title, description and left column header', () => {
@@ -50,17 +50,17 @@ describe('RepeatingGroupsLikertContainer', () => {
       expect(screen.getByRole('columnheader', { name: 'Test left column header' })).toBeInTheDocument();
     });
 
-    it('should render table with one selected row', () => {
+    it('should render table with one selected row', async () => {
       const questions = questionsWithAnswers({
         questions: defaultMockQuestions,
         selectedAnswers: [{ questionIndex: 1, answerValue: '2' }],
       });
       render({ mockQuestions: questions });
 
-      validateTableLayout(defaultMockQuestions, defaultMockOptions);
+      await validateTableLayout(defaultMockQuestions, defaultMockOptions);
     });
 
-    it('should render table with two selected row', () => {
+    it('should render table with two selected row', async () => {
       const selectedAnswers = [
         {
           questionIndex: 1,
@@ -78,10 +78,10 @@ describe('RepeatingGroupsLikertContainer', () => {
       });
 
       render({ mockQuestions: questions });
-      validateTableLayout(defaultMockQuestions, defaultMockOptions);
+      await validateTableLayout(defaultMockQuestions, defaultMockOptions);
     });
 
-    it('should render table with start binding', () => {
+    it('should render table with start binding', async () => {
       render({
         likertContainerProps: {
           edit: {
@@ -91,10 +91,10 @@ describe('RepeatingGroupsLikertContainer', () => {
         },
       });
 
-      validateTableLayout(defaultMockQuestions.slice(2), defaultMockOptions);
+      await validateTableLayout(defaultMockQuestions.slice(2), defaultMockOptions);
     });
 
-    it('should render table with end binding', () => {
+    it('should render table with end binding', async () => {
       render({
         likertContainerProps: {
           edit: {
@@ -104,10 +104,10 @@ describe('RepeatingGroupsLikertContainer', () => {
         },
       });
 
-      validateTableLayout(defaultMockQuestions.slice(0, 3), defaultMockOptions);
+      await validateTableLayout(defaultMockQuestions.slice(0, 3), defaultMockOptions);
     });
 
-    it('should render table with start and end binding', () => {
+    it('should render table with start and end binding', async () => {
       render({
         likertContainerProps: {
           edit: {
@@ -120,12 +120,12 @@ describe('RepeatingGroupsLikertContainer', () => {
         },
       });
 
-      validateTableLayout(defaultMockQuestions.slice(1, 3), defaultMockOptions);
+      await validateTableLayout(defaultMockQuestions.slice(1, 3), defaultMockOptions);
     });
 
     it('should render table view and click radiobuttons', async () => {
       const { mockStoreDispatch } = render();
-      validateTableLayout(defaultMockQuestions, defaultMockOptions);
+      await validateTableLayout(defaultMockQuestions, defaultMockOptions);
 
       const rad1 = screen.getByRole('row', {
         name: /Hvordan trives du på skolen/i,
@@ -159,7 +159,7 @@ describe('RepeatingGroupsLikertContainer', () => {
 
     it('should render standard view and use keyboard to navigate', async () => {
       const { mockStoreDispatch } = render();
-      validateTableLayout(defaultMockQuestions, defaultMockOptions);
+      await validateTableLayout(defaultMockQuestions, defaultMockOptions);
 
       await act(async () => {
         await user.tab();
@@ -180,7 +180,7 @@ describe('RepeatingGroupsLikertContainer', () => {
         Question: `nested-question-binding-${i}`,
       }));
       render({ mockQuestions, extraTextResources });
-      validateTableLayout(defaultMockQuestions, defaultMockOptions);
+      await validateTableLayout(defaultMockQuestions, defaultMockOptions);
       screen.getByRole('radio', { name: 'Hvordan trives du på skolen? Bra' });
       screen.getByRole('radio', { name: 'Hvordan trives du på skolen? Ok' });
       screen.getByRole('radio', { name: 'Hvordan trives du på skolen? Dårlig' });
@@ -196,7 +196,7 @@ describe('RepeatingGroupsLikertContainer', () => {
         label: `nested-option-binding-${i}`,
       }));
       render({ mockOptions, extraTextResources });
-      validateTableLayout(defaultMockQuestions, mockOptions);
+      await validateTableLayout(defaultMockQuestions, mockOptions);
       screen.getByRole('radio', { name: 'Hvordan trives du på skolen? Bra' });
       screen.getByRole('radio', { name: 'Hvordan trives du på skolen? Ok' });
       screen.getByRole('radio', { name: 'Hvordan trives du på skolen? Dårlig' });
@@ -248,7 +248,7 @@ describe('RepeatingGroupsLikertContainer', () => {
 
     it('should render mobile view and click radiobuttons', async () => {
       const { mockStoreDispatch } = render({ mobileView: true });
-      validateRadioLayout(defaultMockQuestions, defaultMockOptions, true);
+      await validateRadioLayout(defaultMockQuestions, defaultMockOptions, true);
       const rad1 = within(
         screen.getByRole('group', {
           name: /Hvordan trives du på skolen/i,
@@ -257,7 +257,6 @@ describe('RepeatingGroupsLikertContainer', () => {
       const btn1 = within(rad1).getByRole('radio', {
         name: /Bra/i,
       });
-
       expect(btn1).not.toBeChecked();
       await act(() => user.click(btn1));
       expect(mockStoreDispatch).not.toHaveBeenCalled();
@@ -282,14 +281,14 @@ describe('RepeatingGroupsLikertContainer', () => {
       expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(1, '3'));
     });
 
-    it('should render mobile view with selected values', () => {
+    it('should render mobile view with selected values', async () => {
       const questions = questionsWithAnswers({
         questions: defaultMockQuestions,
         selectedAnswers: [{ questionIndex: 2, answerValue: '2' }],
       });
 
       render({ mockQuestions: questions, mobileView: true });
-      validateRadioLayout(questions, defaultMockOptions, true);
+      await validateRadioLayout(questions, defaultMockOptions, true);
 
       // Validate that radio is selected
       const selectedRow = within(
@@ -310,11 +309,12 @@ describe('RepeatingGroupsLikertContainer', () => {
         mobileView: true,
       });
 
-      // Should have 2 alerts per validation error (one on the radio button and one below with the error message)
-      expect(screen.getAllByRole('alert')).toHaveLength(2 + 2);
+      await waitFor(() => {
+        expect(screen.getAllByRole('alert')).toHaveLength(2 + 2);
+      });
     });
 
-    it('should render mobile layout with start and end binding', () => {
+    it('should render mobile layout with start and end binding', async () => {
       render({
         mobileView: true,
         likertContainerProps: {
@@ -328,7 +328,7 @@ describe('RepeatingGroupsLikertContainer', () => {
         },
       });
 
-      validateRadioLayout(defaultMockQuestions.slice(1, 3), defaultMockOptions, true);
+      await validateRadioLayout(defaultMockQuestions.slice(1, 3), defaultMockOptions, true);
     });
   });
 });

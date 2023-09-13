@@ -26,6 +26,7 @@ Object.defineProperty(document, 'fonts', {
 // org and app is assigned to window object, so to avoid 'undefined' in tests, they need to be set
 window.org = 'ttd';
 window.app = 'test';
+window.instanceId = 'test-instance-id';
 window.logError = jest.fn();
 window.logWarn = jest.fn();
 window.logInfo = jest.fn();
