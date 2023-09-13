@@ -1,6 +1,8 @@
 import type { JSONSchema7 } from 'json-schema';
 
 interface BaseError {
+  fullPointer: string;
+  fullDotNotation: string;
   stoppedAtPointer: string;
   stoppedAtDotNotation: string;
 }

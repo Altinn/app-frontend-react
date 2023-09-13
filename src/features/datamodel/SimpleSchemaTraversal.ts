@@ -8,7 +8,7 @@ import type { SchemaLookupError } from 'src/features/datamodel/SimpleSchemaTrave
 
 interface Props {
   schema: JSONSchema7;
-  bindingPointer: string;
+  targetPointer: string;
   rootElementPath?: string;
 }
 
@@ -18,10 +18,11 @@ interface Props {
  */
 class SimpleSchemaTraversal {
   private current: JSONSchema7;
-  private fullPath: string[] = [''];
+  private currentPath: string[] = [''];
 
   constructor(
     private fullSchema: JSONSchema7,
+    private targetPointer: string,
     rootElementPath?: string,
   ) {
     this.current = rootElementPath ? this.lookupRef(rootElementPath) : fullSchema;
@@ -56,7 +57,7 @@ class SimpleSchemaTraversal {
   }
 
   public getPath(): string {
-    return this.fullPath.join('/');
+    return this.currentPath.join('/');
   }
 
   public gotoProperty(property: string): this {
@@ -66,7 +67,7 @@ class SimpleSchemaTraversal {
       if (alternative.properties) {
         if (alternative.properties[property]) {
           this.current = alternative.properties[property] as JSONSchema7;
-          this.fullPath.push(property);
+          this.currentPath.push(property);
           return this;
         }
 
@@ -106,7 +107,7 @@ class SimpleSchemaTraversal {
         alternative.items
       ) {
         this.current = alternative.items as JSONSchema7;
-        this.fullPath.push(`${index}`);
+        this.currentPath.push(`${index}`);
         return this;
       }
     }
@@ -190,6 +191,8 @@ class SimpleSchemaTraversal {
   private makeError<T extends ErrorUnion>(type: T, error: MinimalError<T>): ErrorFromType<T> {
     return {
       error: type,
+      fullPointer: this.targetPointer,
+      fullDotNotation: pointerToDotNotation(this.targetPointer),
       stoppedAtPointer: this.getPath(),
       stoppedAtDotNotation: pointerToDotNotation(this.getPath()),
       ...error,
@@ -201,7 +204,7 @@ type ErrorUnion = SchemaLookupError['error'];
 type ErrorFromType<T extends ErrorUnion> = Extract<SchemaLookupError, { error: T }>;
 type MinimalError<T extends ErrorUnion> = Omit<
   ErrorFromType<T>,
-  'isError' | 'error' | 'stoppedAtDotNotation' | 'stoppedAtPointer'
+  'isError' | 'error' | 'stoppedAtDotNotation' | 'stoppedAtPointer' | 'fullPointer' | 'fullDotNotation'
 >;
 
 type Ret = [JSONSchema7, undefined] | [undefined, SchemaLookupError];
@@ -212,11 +215,11 @@ type Ret = [JSONSchema7, undefined] | [undefined, SchemaLookupError];
  * instantiating the class directly.
  */
 export function lookupBindingInSchema(props: Props): Ret {
-  const { schema, rootElementPath, bindingPointer } = props;
+  const { schema, rootElementPath, targetPointer } = props;
 
   try {
-    const traverser = new SimpleSchemaTraversal(schema, rootElementPath);
-    const parts = bindingPointer.split('/').filter((part) => part !== '' && part !== '#');
+    const traverser = new SimpleSchemaTraversal(schema, targetPointer, rootElementPath);
+    const parts = targetPointer.split('/').filter((part) => part !== '' && part !== '#');
     for (const part of parts) {
       const isIndex = /^\d+$/.test(part);
       if (isIndex) {

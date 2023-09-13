@@ -314,5 +314,17 @@ export function en() {
       nextPage: 'Next page in the table',
       navigateLastPage: 'Navigate to the last page in the table',
     },
+    data_model_errors: {
+      referenceError:
+        'When looking up `{0}` in the data model, the lookup failed at `{1}`. It seems the reference `{2}` is not defined in the schema.',
+      missingPropertyWithCorrection:
+        'When looking up `{0}` in the data model, the property `{1}` was not found. Maybe it should say `{2}`?',
+      missingProperty:
+        'When looking up `{0}` in the data model, the property `{1}` was not found. Valid properties are: {2}',
+      missingRepeatingGroup:
+        'When looking up `{0}` in the data model, the path `{1}` looks to be defined as a repeating group, but there is no repeating group bound to this path in the layout configuration.',
+      notAnArray:
+        'When looking up `{0}` in the data model, the path `{1}` is not defined an array. According to the layout configuration this path should be part of a repeating group, but the data model schema disagrees. The actual type for `{1}` is `{2}`.',
+    },
   };
 }

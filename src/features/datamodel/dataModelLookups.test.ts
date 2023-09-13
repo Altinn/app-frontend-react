@@ -51,7 +51,7 @@ describe('Data model lookups in real apps', () => {
 
           const [result, error] = lookupBindingInSchema({
             schema,
-            bindingPointer: schemaPath,
+            targetPointer: schemaPath,
             rootElementPath: rootPath,
           });
 

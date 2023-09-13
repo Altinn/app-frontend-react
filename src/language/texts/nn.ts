@@ -317,5 +317,17 @@ export function nn(): FixedLanguageList {
       nextPage: 'Neste side i tabell',
       navigateLastPage: 'Naviger til siste side i tabell',
     },
+    data_model_errors: {
+      referenceError:
+        'Ved oppslag av `{0}` i datamodellen stoppa oppslaget på `{1}`. Det ser ut til at referansen `{2}` ikkje er definert i schemaet.',
+      missingPropertyWithCorrection:
+        'Ved oppslag av `{0}` i datamodellen blei ikkje eigenskapen `{1}` funnen. Kanskje det skulle stå `{2}`?',
+      missingProperty:
+        'Ved oppslag av `{0}` i datamodellen blei ikkje eigenskapen `{1}` funnen. Gyldige eigenskapar er: {2}',
+      missingRepeatingGroup:
+        'Ved oppslag av `{0}` i datamodellen ser det ut til at `{1}` er definert som ei gjentakande gruppe, men komponenten er ikkje inkludert i ei gjentakande gruppe i layout-konfigurasjonen.',
+      notAnArray:
+        'Ved oppslag av `{0}` i datamodellen ser det ut til at `{1}` ikkje er definert som ei liste. Ifølgje layout-konfigurasjonen skulle denne stien vere ein del av ei gjentakande gruppe-struktur, men datamodellen er ueinig. Faktisk type for `{1}` er `{2}`.',
+    },
   };
 }

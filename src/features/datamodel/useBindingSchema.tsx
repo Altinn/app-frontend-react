@@ -41,7 +41,7 @@ export function useBindingSchema<T extends IDataModelBindings | undefined>(bindi
         const [schema] = lookupBindingInSchema({
           schema: currentSchema,
           rootElementPath,
-          bindingPointer,
+          targetPointer: bindingPointer,
         });
 
         out[key] = schema || null;
