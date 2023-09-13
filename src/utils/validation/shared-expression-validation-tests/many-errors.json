@@ -8,16 +8,16 @@
       "componentId": "name-input"
     },
     {
-      "message": "email must be real",
-      "severity": "errors",
-      "field": "form.email",
-      "componentId": "email-input"
-    },
-    {
       "message": "string is too short",
       "severity": "errors",
       "field": "form.name",
       "componentId": "name-input"
+    },
+    {
+      "message": "email must be real",
+      "severity": "errors",
+      "field": "form.email",
+      "componentId": "email-input"
     },
     {
       "message": "string is too short",

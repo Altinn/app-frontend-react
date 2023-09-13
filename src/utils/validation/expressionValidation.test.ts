@@ -100,16 +100,20 @@ describe('Expression validation shared tests', () => {
       (o) => !o.empty,
     ) as IValidationMessage<ValidationSeverity>[];
 
-    expect(validationObjects.length).toEqual(expects.length);
+    // Format results in a way that makes it easier to compare
 
-    for (const validationObject of validationObjects) {
-      const expected = expects.find(
-        (expected) =>
-          expected.message === validationObject.message &&
-          expected.severity === validationObject.severity &&
-          expected.componentId === validationObject.componentId,
-      );
-      expect(expected).toBeDefined();
-    }
+    const result = JSON.stringify(
+      validationObjects.map(({ message, severity, componentId }) => ({ message, severity, componentId })),
+      null,
+      2,
+    );
+
+    const expectedResult = JSON.stringify(
+      expects.map(({ message, severity, componentId }) => ({ message, severity, componentId })),
+      null,
+      2,
+    );
+
+    expect(result).toEqual(expectedResult);
   });
 });

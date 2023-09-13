@@ -1,5 +1,5 @@
 {
-  "name": "Should work in repeating groups with hidden fields in some rows",
+  "name": "Should work in repeating groups with some hidden rows",
   "expects": [
     {
       "message": "none is not allowed",
@@ -55,15 +55,15 @@
               "group": "form.names"
             },
             "maxCount": 99,
-            "children": ["name-input"]
+            "children": ["name-input"],
+            "hiddenRow": ["dataModel", "form.names.hidden"]
           },
           {
             "id": "name-input",
             "type": "Input",
             "dataModelBindings": {
               "simpleBinding": "form.names.name"
-            },
-            "hidden": ["dataModel", "form.names.hidden"]
+            }
           }
         ]
       }
