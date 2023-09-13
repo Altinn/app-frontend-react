@@ -1,4 +1,5 @@
 import React from 'react';
+import type { JSX } from 'react';
 
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
 import { getOptionList } from 'src/features/options/getOptionList';
@@ -8,6 +9,7 @@ import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesCont
 import { CheckboxesDef } from 'src/layout/Checkboxes/config.def.generated';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import type { IFormData } from 'src/features/formData';
+import type { LayoutValidationCtx } from 'src/features/layoutValidation/types';
 import type { DisplayDataProps, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { IOptions, IRepeatingGroups } from 'src/types';
@@ -43,5 +45,9 @@ export class Checkboxes extends CheckboxesDef {
     const options = useAppSelector((state) => state.optionState.options);
     const summaryData = this.getSummaryData(targetNode, formData, langTools, repeatingGroups, options);
     return <MultipleChoiceSummary formData={summaryData} />;
+  }
+
+  validateDataModelBindings(ctx: LayoutValidationCtx<'Checkboxes'>): string[] {
+    return this.validateDataModelBindingsSimple(ctx);
   }
 }
