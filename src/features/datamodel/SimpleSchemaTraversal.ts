@@ -28,7 +28,7 @@ class SimpleSchemaTraversal {
     this.current = rootElementPath ? this.lookupRef(rootElementPath) : fullSchema;
   }
 
-  public getAsNonNullable(item = this.current): JSONSchema7 {
+  public get(item = this.current): JSONSchema7 {
     const resolved = this.resolveRef(item);
     if (resolved && Array.isArray(resolved.type)) {
       const nonNullables = resolved.type.filter((type) => type !== 'null');
@@ -56,7 +56,53 @@ class SimpleSchemaTraversal {
     return resolved;
   }
 
-  public getPath(): string {
+  public getAsResolved(item = this.current): JSONSchema7 {
+    const resolved = structuredClone(item);
+
+    const recursiveResolve = (obj: JSONSchema7 | JSONSchema7Definition) => {
+      if (typeof obj === 'object' && !Array.isArray(obj)) {
+        if (obj.$ref) {
+          const resolved = structuredClone(this.resolveRef(obj));
+          return recursiveResolve(resolved);
+        }
+        if (obj.properties) {
+          for (const key in obj.properties) {
+            obj.properties[key] = recursiveResolve(obj.properties[key]) as JSONSchema7Definition;
+          }
+          if (!obj.type) {
+            obj.type = 'object';
+          }
+        }
+        if (obj.items && typeof obj.items === 'object' && !Array.isArray(obj.items)) {
+          obj.items = recursiveResolve(obj.items) as JSONSchema7Definition;
+          if (!obj.type) {
+            obj.type = 'array';
+          }
+        }
+        if (obj.items && Array.isArray(obj.items)) {
+          (obj as any).items = obj.items.map((i) => recursiveResolve(i));
+          if (!obj.type) {
+            obj.type = 'array';
+          }
+        }
+        if (obj.allOf) {
+          (obj as any).allOf = obj.allOf.map((i) => recursiveResolve(i));
+        }
+        if (obj.anyOf) {
+          (obj as any).anyOf = obj.anyOf.map((i) => recursiveResolve(i));
+        }
+        if (obj.oneOf) {
+          (obj as any).oneOf = obj.oneOf.map((i) => recursiveResolve(i));
+        }
+      }
+
+      return obj;
+    };
+
+    return recursiveResolve(resolved) as JSONSchema7;
+  }
+
+  public getCurrentPath(): string {
     return this.currentPath.join('/');
   }
 
@@ -112,7 +158,7 @@ class SimpleSchemaTraversal {
       }
     }
 
-    const actual = alternatives.length === 1 ? this.getAsNonNullable(alternatives[0]) : undefined;
+    const actual = alternatives.length === 1 ? this.get(alternatives[0]) : undefined;
     throw this.makeError('notAnArray', { actualType: typeof actual?.type === 'string' ? actual.type : undefined });
   }
 
@@ -193,8 +239,8 @@ class SimpleSchemaTraversal {
       error: type,
       fullPointer: this.targetPointer,
       fullDotNotation: pointerToDotNotation(this.targetPointer),
-      stoppedAtPointer: this.getPath(),
-      stoppedAtDotNotation: pointerToDotNotation(this.getPath()),
+      stoppedAtPointer: this.getCurrentPath(),
+      stoppedAtDotNotation: pointerToDotNotation(this.getCurrentPath()),
       ...error,
     } as ErrorFromType<T>;
   }
@@ -228,7 +274,7 @@ export function lookupBindingInSchema(props: Props): Ret {
         traverser.gotoProperty(part);
       }
     }
-    return [traverser.getAsNonNullable(), undefined];
+    return [traverser.getAsResolved(), undefined];
   } catch (error) {
     if (isSchemaLookupError(error)) {
       return [undefined, error];
