@@ -37,7 +37,7 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, sou
   const { data: instance } = useCurrentInstanceQuery(instanceId || '', !!instanceId);
   const { data: applicationSettings } = useApplicationSettingsQuery();
   const { data: textResource } = useTextResourcesQuery(selectedLanguage, !!selectedLanguage);
-  const { data: fetchedOptions } = useGetOptionsQuery(
+  const { data: fetchedOptions, error: fetchFailed } = useGetOptionsQuery(
     instanceId || '',
     optionsId || '',
     formData,
@@ -46,17 +46,17 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, sou
     secure,
     !!instanceId && !!optionsId && !!formData,
   );
-  const [options, setOptions] = useStateDeepEqual<IOption[] | undefined>(fetchedOptions);
+  const [options, setOptions] = useStateDeepEqual<IOption[] | undefined>(undefined);
 
   const { label, description, helpText } = source || {};
 
   useEffect(() => {
-    if (fetchedOptions) {
+    if (fetchedOptions && !fetchFailed) {
       setOptions(fetchedOptions);
     }
 
     if (!!source && !!repeatingGroups) {
-      // should be solved with useLanguage hook in setupSourceOptions
+      // // should be solved with useLanguage hook in setupSourceOptions
       const relevantFormData = (formData && getRelevantFormDataForOptionSource(formData, source)) || {};
       const findResourceById = (id?: string) => textResource?.resources?.find((resource) => resource.id === id);
       const relevantTextResources = {
@@ -89,11 +89,12 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, secure, sou
     source,
     fetchedOptions,
     formData,
-    setOptions,
     label,
     description,
     helpText,
     textResource?.resources,
+    fetchFailed,
+    setOptions,
   ]);
   return options;
 };

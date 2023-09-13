@@ -106,6 +106,7 @@ export interface RenderGenericComponentTestProps<T extends CompTypes> {
   genericProps?: Partial<PropsFromGenericComponent<T>>;
   manipulateState?: (state: IRuntimeState) => void;
   manipulateStore?: (store: ReturnType<typeof setupStore>['store']) => void;
+  mockedQueries?: Partial<AppQueriesContext>;
 }
 
 export function renderGenericComponentTest<T extends CompTypes>({
@@ -115,6 +116,7 @@ export function renderGenericComponentTest<T extends CompTypes>({
   genericProps,
   manipulateState,
   manipulateStore,
+  mockedQueries,
 }: RenderGenericComponentTestProps<T>) {
   const realComponentDef = {
     id: 'my-test-component-id',
@@ -141,7 +143,7 @@ export function renderGenericComponentTest<T extends CompTypes>({
   manipulateStore && manipulateStore(store);
 
   return {
-    ...renderWithProviders(<Wrapper />, { store }),
+    ...renderWithProviders(<Wrapper />, { store }, mockedQueries),
   };
 }
 

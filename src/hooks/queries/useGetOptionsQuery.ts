@@ -27,7 +27,7 @@ export const useGetOptionsQuery = (
       onSuccess: () => {},
       onError: (error: HttpClientError) => {
         console.warn(error);
-        throw new Error('Failed to fetch options');
+        // throw new Error('Failed to fetch options');
       },
     },
   );
