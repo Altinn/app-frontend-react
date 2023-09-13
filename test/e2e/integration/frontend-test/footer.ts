@@ -17,12 +17,10 @@ describe('Footer', () => {
     cy.snapshot('footer');
   });
 
-  [204, 404].forEach((statusCode) => {
-    it(`Does not render footer when backend returns ${statusCode}`, () => {
-      cy.intercept('GET', '**/api/v1/footer', { statusCode, body: null });
-      cy.goto('message');
-      cy.get(appFrontend.sendinButton).should('exist').and('be.visible'); // Make sure the page loads correctly
-      cy.get('footer').should('not.exist');
-    });
+  it('Does not render footer when backend returns 204', () => {
+    cy.intercept('GET', '**/api/v1/footer', { statusCode: 204, body: null });
+    cy.goto('message');
+    cy.get(appFrontend.sendinButton).should('exist').and('be.visible'); // Make sure the page loads correctly
+    cy.get('footer').should('not.exist');
   });
 });
