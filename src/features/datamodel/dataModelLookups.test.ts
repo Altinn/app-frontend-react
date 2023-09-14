@@ -1,5 +1,4 @@
 import fs from 'node:fs';
-import type { JSONSchema7 } from 'json-schema';
 
 import { getHierarchyDataSourcesMock } from 'src/__mocks__/hierarchyMock';
 import { dotNotationToPointer } from 'src/features/datamodel/notations';
@@ -13,7 +12,7 @@ import {
 } from 'src/test/allApps';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { getRootElementPath } from 'src/utils/schemaUtils';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutValidationCtx } from 'src/features/layoutValidation/types';
 
 describe('Data model lookups in real apps', () => {
   const dir = ensureAppsDirIsSet();
@@ -40,30 +39,25 @@ describe('Data model lookups in real apps', () => {
 
     for (const [pageKey, layout] of Object.entries(nodes.all())) {
       for (const node of layout.flat(true)) {
-        const dataModelBindings = ('dataModelBindings' in node.item ? node.item.dataModelBindings || {} : {}) as any;
-        for (const [bindingKey, binding] of Object.entries(dataModelBindings)) {
-          if (!binding || typeof binding !== 'string') {
-            continue;
-          }
+        const ctx: LayoutValidationCtx<any> = {
+          node,
+          lookupBinding(binding: string) {
+            const schemaPath = dotNotationToPointer(binding);
+            return lookupBindingInSchema({
+              schema,
+              targetPointer: schemaPath,
+              rootElementPath: rootPath,
+            });
+          },
+        };
 
-          const schemaPath = dotNotationToPointer(binding);
-          const readablePath = `${pageKey}/${node.item.id}/${bindingKey}`;
-
-          const [result, error] = lookupBindingInSchema({
-            schema,
-            targetPointer: schemaPath,
-            rootElementPath: rootPath,
-          });
-
-          if (error) {
-            failures.push({ ...error, readablePath, schemaPath });
-          } else if (!isValidBinding(result, node, bindingKey)) {
+        if ('validateDataModelBindings' in node.def) {
+          const errors = node.def.validateDataModelBindings(ctx);
+          if (errors.length) {
             failures.push({
-              error: 'Wrong type',
-              type: result.type,
-              nodeType: node.item.type,
-              readablePath,
-              schemaPath,
+              pageKey,
+              component: node.item.baseComponentId || node.item.id,
+              errors,
             });
           }
         }
@@ -77,40 +71,3 @@ describe('Data model lookups in real apps', () => {
     expect(notFound).toEqual([]);
   });
 });
-
-function typeIsSimple(type: string | string[] | undefined) {
-  return type === 'string' || type === 'number' || type === 'integer' || type === 'boolean';
-}
-
-function isValidBinding(schema: JSONSchema7, node: LayoutNode, bindingKey: string) {
-  if (node.isType('Group') && (node.isRepGroup() || node.isRepGroupLikert()) && schema.type === 'array') {
-    return true;
-  }
-  if (
-    node.isType('Group') &&
-    (node.isNonRepGroup() || node.isNonRepPanelGroup()) &&
-    (schema.type === 'object' || schema.type === undefined)
-  ) {
-    return true;
-  }
-
-  if (
-    (node.isType('FileUpload') || node.isType('FileUploadWithTag')) &&
-    bindingKey === 'list' &&
-    schema.type === 'array'
-  ) {
-    return true;
-  }
-
-  const isSimpleType = typeIsSimple(schema.type);
-  if ((node.isType('List') || node.isType('AddressComponent')) && isSimpleType) {
-    return true;
-  }
-
-  // eslint-disable-next-line sonarjs/prefer-single-boolean-return
-  if (bindingKey === 'simpleBinding' && isSimpleType) {
-    return true;
-  }
-
-  return false;
-}

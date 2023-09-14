@@ -185,7 +185,7 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
     name = key,
   ): [string[], undefined] | [undefined, JSONSchema7] {
     const { node, lookupBinding } = ctx;
-    const value = (node.item.dataModelBindings as any)[key] || {};
+    const value = ((node.item.dataModelBindings as any) || {})[key] || '';
 
     if (!value) {
       if (isRequired) {

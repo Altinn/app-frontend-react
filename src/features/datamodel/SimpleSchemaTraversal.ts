@@ -57,7 +57,7 @@ class SimpleSchemaTraversal {
   }
 
   public getAsResolved(item = this.current): JSONSchema7 {
-    const resolved = structuredClone(item);
+    const resolved = structuredClone(this.get(item));
 
     const recursiveResolve = (obj: JSONSchema7 | JSONSchema7Definition) => {
       if (typeof obj === 'object' && !Array.isArray(obj)) {
