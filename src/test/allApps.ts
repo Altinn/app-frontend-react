@@ -7,6 +7,7 @@ import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { ILayoutFileExternal } from 'src/layout/common.generated';
 import type { ILayouts } from 'src/layout/layout';
 import type { ILayoutSet, ILayoutSets, IRepeatingGroups } from 'src/types';
+import type { IDataType } from 'src/types/shared';
 
 interface AppLayoutSet {
   appName: string;
@@ -19,6 +20,9 @@ interface AppLayoutSet {
 
 interface AppLayoutSetWithDataModelSchema extends AppLayoutSet {
   modelPath: string;
+  dataType: string;
+  appMetadata: IApplicationMetadata;
+  dataTypeDef: IDataType | undefined;
 }
 
 interface InternalSet {
@@ -126,6 +130,7 @@ export function getAllLayoutSetsWithDataModelSchema(dir: string): {
       continue;
     }
 
+    const dataTypeDef = appMetadata.dataTypes.find((dt) => dt.id === dataType);
     const modelPath = modelsDirFiles.includes(`${dataType}.schema.json`)
       ? `${appRoot}/App/models/${dataType}.schema.json`
       : undefined;
@@ -134,7 +139,7 @@ export function getAllLayoutSetsWithDataModelSchema(dir: string): {
       continue;
     }
 
-    out.push({ ...item, modelPath });
+    out.push({ ...item, modelPath, dataType, dataTypeDef, appMetadata });
   }
 
   return { out, notFound };

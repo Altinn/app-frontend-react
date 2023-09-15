@@ -219,7 +219,7 @@ class SimpleSchemaTraversal {
     return current;
   }
 
-  private getAlternatives(item = this.current): JSONSchema7[] {
+  public getAlternatives(item = this.current): JSONSchema7[] {
     const alternatives = [this.resolveRef(item)];
     const others = [item.allOf, item.anyOf, item.oneOf].map((list) => list?.map((i) => this.resolveRef(i)));
     for (const other of others) {
@@ -281,4 +281,24 @@ export function lookupBindingInSchema(props: Props): Ret {
     }
     throw error;
   }
+}
+
+export function lookupPropertiesInSchema(schema: JSONSchema7, rootElementPath: string): Set<string> {
+  const traverser = new SimpleSchemaTraversal(schema, '', rootElementPath);
+  const resolved = traverser.getAsResolved();
+  if (resolved.properties) {
+    return new Set(Object.keys(resolved.properties));
+  }
+
+  const alternatives = traverser.getAlternatives();
+  const properties = new Set<string>();
+  for (const alternative of alternatives) {
+    if (alternative.properties) {
+      for (const key of Object.keys(alternative.properties)) {
+        properties.add(key);
+      }
+    }
+  }
+
+  return properties;
 }

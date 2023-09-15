@@ -1,22 +1,23 @@
 import JsonPointer from 'jsonpointer';
 
-export const getRootElementPath = (schema: any) => {
+import type { IDataType } from 'src/types/shared';
+
+export const getRootElementPath = (schema: any, dataType: IDataType | undefined) => {
   if (![null, undefined].includes(schema.info?.rootNode)) {
     // If rootNode is defined in the schema
     return schema.info.rootNode;
-  } else if (schema.info?.meldingsnavn && schema.properties) {
+  }
+  if (schema.info?.meldingsnavn && schema.properties) {
     // SERES workaround
     return schema.properties[schema.info.meldingsnavn]?.$ref || '';
-  } else if (schema.properties) {
-    const props = Object.keys(schema.properties);
-    const firstProp = props[0] ? schema.properties[props[0]] : undefined;
-    if (props.length === 1 && firstProp && firstProp.$ref) {
-      // While not really compliant with the json schema standard, we have some schemas that expect the root element
-      // to be a single property with a $ref to a definition. Typically, this root element is called 'Skjema', but
-      // not all schemas follow this convention. A good way to test this, is running this function against schemas
-      // in existing apps, and comparing it to the data model bindings used in the app.
-      return firstProp.$ref;
-    }
+  }
+
+  const classRef = dataType?.appLogic?.classRef?.replace('Altinn.App.Models.', '');
+  if (classRef && schema.$defs?.[classRef]) {
+    return `#/$defs/${classRef}`;
+  }
+  if (classRef && schema.definitions?.[classRef]) {
+    return `#/definitions/${classRef}`;
   }
 
   return '';

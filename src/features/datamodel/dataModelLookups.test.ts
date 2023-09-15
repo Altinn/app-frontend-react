@@ -22,7 +22,7 @@ describe('Data model lookups in real apps', () => {
 
   const all = getAllLayoutSetsWithDataModelSchema(dir);
   const { out: allLayoutSets, notFound } = all;
-  it.each(allLayoutSets)('$appName/$setName', ({ layouts, modelPath }) => {
+  it.each(allLayoutSets)('$appName/$setName', ({ layouts, modelPath, dataTypeDef }) => {
     const firstKey = Object.keys(layouts)[0];
     const repeatingGroups = generateSimpleRepeatingGroups(layouts);
     const nodes = generateEntireHierarchy(
@@ -34,7 +34,7 @@ describe('Data model lookups in real apps', () => {
     );
 
     const schema = parseJsonTolerantly(fs.readFileSync(modelPath, 'utf-8'));
-    const rootPath = getRootElementPath(schema);
+    const rootPath = getRootElementPath(schema, dataTypeDef);
     const failures: any[] = [];
 
     for (const [pageKey, layout] of Object.entries(nodes.all())) {
