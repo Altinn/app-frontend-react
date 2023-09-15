@@ -344,7 +344,7 @@ describe('returnInstanceMetaDataObject', () => {
         },
       },
       languageData: {},
-      textResources: [],
+      textResources: {},
       profileData: {
         profile: {
           userId: 1,

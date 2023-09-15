@@ -110,11 +110,9 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
       userTask: { error: null, isDone: null },
     },
     textResources: {
-      resources: [
-        {
-          id: 'option.from.rep.group.label',
+      resourceMap: {
+        'option.from.rep.group.label': {
           value: 'The value from the group is: {0}',
-          unparsedValue: 'The value from the group is: {0}',
           variables: [
             {
               dataSource: 'dataModel.skjema',
@@ -122,10 +120,8 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
             },
           ],
         },
-        {
-          id: 'option.from.rep.group.description',
+        'option.from.rep.group.description': {
           value: 'Description: The value from the group is: {0}',
-          unparsedValue: 'Description: The value from the group is: {0}',
           variables: [
             {
               dataSource: 'dataModel.skjema',
@@ -133,10 +129,8 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
             },
           ],
         },
-        {
-          id: 'option.from.rep.group.helpText',
+        'option.from.rep.group.helpText': {
           value: 'Help Text: The value from the group is: {0}',
-          unparsedValue: 'Help Text: The value from the group is: {0}',
           variables: [
             {
               dataSource: 'dataModel.skjema',
@@ -144,10 +138,8 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
             },
           ],
         },
-        {
-          id: 'group.input.title',
+        'group.input.title': {
           value: 'The value from group is: {0}',
-          unparsedValue: 'The value from group is: {0}',
           variables: [
             {
               dataSource: 'dataModel.skjema',
@@ -155,10 +147,8 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
             },
           ],
         },
-        {
-          id: 'group.input.title-2',
+        'group.input.title-2': {
           value: 'The value from the group is: Value from input field [2]',
-          unparsedValue: 'The value from group is: {0}',
           variables: [
             {
               dataSource: 'dataModel.skjema',
@@ -166,11 +156,10 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
             },
           ],
         },
-        {
-          id: 'accordion.title',
+        'accordion.title': {
           value: 'This is a title',
         },
-      ],
+      },
       error: null,
       language: 'nb',
     },

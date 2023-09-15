@@ -12,7 +12,7 @@ import type { IFormData } from 'src/features/formData';
 import type { LayoutValidationCtx } from 'src/features/layoutValidation/types';
 import type { DisplayDataProps, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { IOptions, IRepeatingGroups } from 'src/types';
+import type { IOptions } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Checkboxes extends CheckboxesDef {
@@ -24,26 +24,24 @@ export class Checkboxes extends CheckboxesDef {
     node: LayoutNode<'Checkboxes'>,
     formData: IFormData,
     langTools: IUseLanguage,
-    repeatingGroups: IRepeatingGroups | null,
     options: IOptions,
   ): { [key: string]: string } {
     const value = node.item.dataModelBindings?.simpleBinding
       ? formData[node.item.dataModelBindings.simpleBinding] || ''
       : '';
-    const optionList = getOptionList(node.item, langTools.textResources, formData, repeatingGroups, options);
+    const optionList = getOptionList(node.item, options, langTools, node, formData);
     return getCommaSeparatedOptionsToText(value, optionList, langTools);
   }
 
-  getDisplayData(node: LayoutNode<'Checkboxes'>, { formData, langTools, uiConfig, options }: DisplayDataProps): string {
-    return Object.values(this.getSummaryData(node, formData, langTools, uiConfig.repeatingGroups, options)).join(', ');
+  getDisplayData(node: LayoutNode<'Checkboxes'>, { formData, langTools, options }: DisplayDataProps): string {
+    return Object.values(this.getSummaryData(node, formData, langTools, options)).join(', ');
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'Checkboxes'>): JSX.Element | null {
     const formData = useAppSelector((state) => state.formData.formData);
     const langTools = useLanguage();
-    const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
     const options = useAppSelector((state) => state.optionState.options);
-    const summaryData = this.getSummaryData(targetNode, formData, langTools, repeatingGroups, options);
+    const summaryData = this.getSummaryData(targetNode, formData, langTools, options);
     return <MultipleChoiceSummary formData={summaryData} />;
   }
 
