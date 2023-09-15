@@ -1,5 +1,5 @@
 import levenshtein from 'js-levenshtein';
-import pointer from 'json-pointer';
+import pointer from 'jsonpointer';
 import type { JSONSchema7, JSONSchema7Definition } from 'json-schema';
 
 import { pointerToDotNotation } from 'src/features/datamodel/notations';

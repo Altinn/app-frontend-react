@@ -4765,13 +4765,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/json-pointer@npm:^1.0.31":
-  version: 1.0.31
-  resolution: "@types/json-pointer@npm:1.0.31"
-  checksum: 1d24390dbd54a738968439de01a25b4cc646b0b3a43a318dae882b193321c7975ca465350f9e0cad0bf2222e0a0927c9652db625d2be50f09e35577477d5cd07
-  languageName: node
-  linkType: hard
-
 "@types/json-schema@npm:*, @types/json-schema@npm:^7.0.11, @types/json-schema@npm:^7.0.12, @types/json-schema@npm:^7.0.8, @types/json-schema@npm:^7.0.9":
   version: 7.0.12
   resolution: "@types/json-schema@npm:7.0.12"
@@ -5892,7 +5885,6 @@ __metadata:
     "@types/dot-object": 2.1.2
     "@types/jest": 29.5.4
     "@types/js-levenshtein": ^1.1.1
-    "@types/json-pointer": ^1.0.31
     "@types/json-schema": ^7.0.11
     "@types/marked": 5.0.1
     "@types/mime": 3.0.1
@@ -5952,7 +5944,6 @@ __metadata:
     jest-mock-axios: 4.7.2
     js-levenshtein: ^1.1.6
     jsdom: 22.1.0
-    json-pointer: ^0.6.2
     jsonpointer: 5.0.1
     lint-staged: 14.0.1
     marked: 7.0.5
@@ -9736,13 +9727,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"foreach@npm:^2.0.4":
-  version: 2.0.6
-  resolution: "foreach@npm:2.0.6"
-  checksum: f7b68494545ee41cbd0b0425ebf5386c265dc38ef2a9b0d5cd91a1b82172e939b4cf9387f8e0ebf6db4e368fc79ed323f2198424d5c774515ac3ed9b08901c0e
-  languageName: node
-  linkType: hard
-
 "foreground-child@npm:^3.1.0":
   version: 3.1.1
   resolution: "foreground-child@npm:3.1.1"
@@ -12625,15 +12609,6 @@ __metadata:
   version: 2.3.1
   resolution: "json-parse-even-better-errors@npm:2.3.1"
   checksum: 798ed4cf3354a2d9ccd78e86d2169515a0097a5c133337807cdf7f1fc32e1391d207ccfc276518cc1d7d8d4db93288b8a50ba4293d212ad1336e52a8ec0a941f
-  languageName: node
-  linkType: hard
-
-"json-pointer@npm:^0.6.2":
-  version: 0.6.2
-  resolution: "json-pointer@npm:0.6.2"
-  dependencies:
-    foreach: ^2.0.4
-  checksum: 668143014b16d7f90e6f0e6c2d756b00b799424f58d750794a79a24cbce595855b224f7861986aaff719579558fbab81fb83c7371f5e24aded9dc33b3838de30
   languageName: node
   linkType: hard
 
