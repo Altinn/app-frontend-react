@@ -101,7 +101,6 @@ export const dataListsSlice = () => {
       update: mkAction<IDataListData>({
         reducer: (state, action) => {
           const { key, paginationData, metaData, listItems } = action.payload;
-          console.log('paginationData', paginationData);
           state.dataLists[key] = {
             ...(state.dataLists[key] || {}),
             ...metaData,

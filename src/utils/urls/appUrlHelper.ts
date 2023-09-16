@@ -273,6 +273,5 @@ export const getDataListsUrl = ({
   }
 
   url.search = new URLSearchParams(params).toString();
-  console.log('url', url.toString());
   return url.toString();
 };
