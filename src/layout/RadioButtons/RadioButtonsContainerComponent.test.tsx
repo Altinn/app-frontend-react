@@ -1,13 +1,16 @@
 import React from 'react';
 
-import { act, fireEvent, screen } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { LayoutStyle } from 'src/layout/common.generated';
 import { RadioButtonContainerComponent } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 import { renderGenericComponentTest } from 'src/testUtils';
 import type { IOptionsState } from 'src/features/options';
+import type { ITextResourcesState } from 'src/features/textResources';
 import type { RenderGenericComponentTestProps } from 'src/testUtils';
+import type { IGetOptionsUrlParams } from 'src/utils/urls/appUrlHelper';
 
 const threeOptions = [
   {
@@ -26,11 +29,13 @@ const threeOptions = [
 
 const twoOptions = threeOptions.slice(1);
 
-const render = ({
-  component,
-  genericProps,
-  manipulateState,
-}: Partial<RenderGenericComponentTestProps<'RadioButtons'>> = {}) =>
+const render = (
+  { component, genericProps, manipulateState }: Partial<RenderGenericComponentTestProps<'RadioButtons'>> = {},
+  options,
+) => {
+  const fetchOptions = () => Promise.resolve([...options] as unknown as IGetOptionsUrlParams);
+  const fetchTextResources = () =>
+    Promise.resolve(getInitialStateMock().textResources as unknown as ITextResourcesState);
   renderGenericComponentTest({
     type: 'RadioButtons',
     renderer: (props) => <RadioButtonContainerComponent {...props} />,
@@ -67,7 +72,12 @@ const render = ({
             loading: true,
           };
         },
+    mockedQueries: {
+      fetchOptions,
+      fetchTextResources,
+    },
   });
+};
 
 const getRadio = ({ name, isChecked = false }) =>
   screen.getByRole('radio', {
@@ -86,49 +96,55 @@ describe('RadioButtonsContainerComponent', () => {
     },
   });
 
-  it('should call handleDataChange with value of preselectedOptionIndex when simpleBinding is not set', () => {
+  it('should call handleDataChange with value of preselectedOptionIndex when simpleBinding is not set', async () => {
     const handleChange = jest.fn();
-    render({
-      component: {
-        preselectedOptionIndex: 1,
-      },
-      genericProps: {
-        handleDataChange: handleChange,
-        formData: {
-          simpleBinding: undefined,
+    render(
+      {
+        component: {
+          preselectedOptionIndex: 1,
+        },
+        genericProps: {
+          handleDataChange: handleChange,
+          formData: {
+            simpleBinding: undefined,
+          },
         },
       },
-    });
+      threeOptions,
+    );
 
-    expect(handleChange).toHaveBeenCalledWith('sweden', { validate: true });
+    await waitFor(() => expect(handleChange).toHaveBeenCalledWith('sweden', { validate: true }));
   });
 
-  it('should not call handleDataChange when simpleBinding is set and preselectedOptionIndex', () => {
+  it('should not call handleDataChange when simpleBinding is set and preselectedOptionIndex', async () => {
     const handleChange = jest.fn();
-    render({
-      component: {
-        preselectedOptionIndex: 0,
-      },
-      genericProps: {
-        handleDataChange: handleChange,
-        formData: {
-          simpleBinding: 'denmark',
+    render(
+      {
+        component: {
+          preselectedOptionIndex: 0,
+        },
+        genericProps: {
+          handleDataChange: handleChange,
+          formData: {
+            simpleBinding: 'denmark',
+          },
         },
       },
-    });
+      threeOptions,
+    );
 
-    expect(getRadio({ name: 'Norway' })).toBeInTheDocument();
+    await waitFor(() => expect(getRadio({ name: 'Norway' })).toBeInTheDocument());
     expect(getRadio({ name: 'Sweden' })).toBeInTheDocument();
     expect(getRadio({ name: 'Denmark', isChecked: true })).toBeInTheDocument();
 
     expect(handleChange).not.toHaveBeenCalled();
   });
 
-  it('should not set any as selected when no binding and no preselectedOptionIndex is set', () => {
+  it('should not set any as selected when no binding and no preselectedOptionIndex is set', async () => {
     const handleChange = jest.fn();
-    render({ genericProps: { handleDataChange: handleChange } });
+    render({ genericProps: { handleDataChange: handleChange } }, threeOptions);
 
-    expect(getRadio({ name: 'Norway' })).toBeInTheDocument();
+    await waitFor(() => expect(getRadio({ name: 'Norway' })).toBeInTheDocument());
     expect(getRadio({ name: 'Sweden' })).toBeInTheDocument();
     expect(getRadio({ name: 'Denmark' })).toBeInTheDocument();
 
@@ -137,16 +153,19 @@ describe('RadioButtonsContainerComponent', () => {
 
   it('should call handleDataChange with updated value when selection changes', async () => {
     const handleChange = jest.fn();
-    render({
-      genericProps: {
-        handleDataChange: handleChange,
-        formData: {
-          simpleBinding: 'norway',
+    render(
+      {
+        genericProps: {
+          handleDataChange: handleChange,
+          formData: {
+            simpleBinding: 'norway',
+          },
         },
       },
-    });
+      threeOptions,
+    );
 
-    expect(getRadio({ name: 'Norway', isChecked: true })).toBeInTheDocument();
+    await waitFor(() => expect(getRadio({ name: 'Norway', isChecked: true })).toBeInTheDocument());
     expect(getRadio({ name: 'Sweden' })).toBeInTheDocument();
     expect(getRadio({ name: 'Denmark' })).toBeInTheDocument();
 
@@ -159,16 +178,19 @@ describe('RadioButtonsContainerComponent', () => {
 
   it('should call handleDataChange instantly on blur when the value has changed', async () => {
     const handleChange = jest.fn();
-    render({
-      genericProps: {
-        handleDataChange: handleChange,
-        formData: {
-          simpleBinding: 'norway',
+    render(
+      {
+        genericProps: {
+          handleDataChange: handleChange,
+          formData: {
+            simpleBinding: 'norway',
+          },
         },
       },
-    });
+      threeOptions,
+    );
 
-    const denmark = getRadio({ name: 'Denmark' });
+    const denmark = await waitFor(() => getRadio({ name: 'Denmark' }));
 
     expect(denmark).toBeInTheDocument();
 
@@ -183,13 +205,16 @@ describe('RadioButtonsContainerComponent', () => {
 
   it('should not call handleDataChange on blur when the value is unchanged', async () => {
     const handleChange = jest.fn();
-    render({
-      genericProps: {
-        handleDataChange: handleChange,
+    render(
+      {
+        genericProps: {
+          handleDataChange: handleChange,
+        },
       },
-    });
+      threeOptions,
+    );
 
-    expect(getRadio({ name: 'Denmark' })).toBeInTheDocument();
+    await waitFor(() => expect(getRadio({ name: 'Denmark' })).toBeInTheDocument());
 
     // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
@@ -201,106 +226,127 @@ describe('RadioButtonsContainerComponent', () => {
   });
 
   it('should show spinner while waiting for options', () => {
-    render({
-      component: {
-        optionsId: 'loadingOptions',
+    render(
+      {
+        component: {
+          optionsId: 'loadingOptions',
+        },
       },
-    });
+      threeOptions,
+    );
 
     expect(screen.getByRole('alert')).toBeInTheDocument();
   });
 
   it('should not show spinner when options are present', () => {
-    render({
-      component: {
-        optionsId: 'countries',
+    render(
+      {
+        component: {
+          optionsId: 'countries',
+        },
       },
-    });
+      threeOptions,
+    );
 
     expect(screen.queryByTestId('altinn-spinner')).not.toBeInTheDocument();
   });
 
   it('should show items in a row when layout is "row" and options count is 3', () => {
-    render({
-      component: {
-        optionsId: 'countries',
-        layout: LayoutStyle.Row,
+    render(
+      {
+        component: {
+          optionsId: 'countries',
+          layout: LayoutStyle.Row,
+        },
       },
-    });
+      threeOptions,
+    );
 
     expect(screen.queryByRole('radiogroup')).toHaveStyle('flex-direction: row;');
   });
 
   it('should show items in a row when layout is not defined, and options count is 2', () => {
-    render({
-      component: {
-        optionsId: 'countries',
-      },
-      manipulateState: (state) => {
-        state.optionState = {
-          options: {
-            countries: {
-              id: 'countries',
-              options: twoOptions,
+    render(
+      {
+        component: {
+          optionsId: 'countries',
+        },
+        manipulateState: (state) => {
+          state.optionState = {
+            options: {
+              countries: {
+                id: 'countries',
+                options: twoOptions,
+              },
             },
-          },
-        } as unknown as IOptionsState;
+          } as unknown as IOptionsState;
+        },
       },
-    });
+      twoOptions,
+    );
 
     expect(screen.queryByRole('radiogroup')).toHaveStyle('flex-direction: row;');
   });
 
   it('should show items in a column when layout is "column" and options count is 2 ', () => {
-    render({
-      component: {
-        optionsId: 'countries',
-        layout: LayoutStyle.Column,
-      },
-      manipulateState: (state) => {
-        state.optionState = {
-          options: {
-            countries: {
-              id: 'countries',
-              options: twoOptions,
+    render(
+      {
+        component: {
+          optionsId: 'countries',
+          layout: LayoutStyle.Column,
+        },
+        manipulateState: (state) => {
+          state.optionState = {
+            options: {
+              countries: {
+                id: 'countries',
+                options: twoOptions,
+              },
             },
-          },
-        } as unknown as IOptionsState;
+          } as unknown as IOptionsState;
+        },
       },
-    });
+      twoOptions,
+    );
 
     expect(screen.queryByRole('radiogroup')).toHaveStyle('flex-direction: column;');
   });
 
-  it('should show items in a columns when layout is not defined, and options count is 3', () => {
-    render({
-      component: {
-        optionsId: 'countries',
+  it('should show items in a columns when layout is not defined, and options count is 3', async () => {
+    render(
+      {
+        component: {
+          optionsId: 'countries',
+        },
       },
-    });
+      threeOptions,
+    );
 
-    expect(screen.queryByRole('radiogroup')).toHaveStyle('flex-direction: column;');
+    await waitFor(() => expect(screen.queryByRole('radiogroup')).toHaveStyle('flex-direction: column;'));
   });
 
   it('should present replaced label, description and help text if setup with values from repeating group in redux and trigger handleDataChanged with replaced values', async () => {
     const handleDataChange = jest.fn();
 
-    render({
-      component: {
-        source: {
-          group: 'someGroup',
-          label: 'option.from.rep.group.label',
-          description: 'option.from.rep.group.description',
-          helpText: 'option.from.rep.group.helpText',
-          value: 'someGroup[{0}].valueField',
+    render(
+      {
+        component: {
+          source: {
+            group: 'someGroup',
+            label: 'option.from.rep.group.label',
+            description: 'option.from.rep.group.description',
+            helpText: 'option.from.rep.group.helpText',
+            value: 'someGroup[{0}].valueField',
+          },
+        },
+        genericProps: {
+          handleDataChange,
         },
       },
-      genericProps: {
-        handleDataChange,
-      },
-    });
+      undefined,
+    );
 
-    expect(getRadio({ name: 'The value from the group is: Label for first' })).toBeInTheDocument();
+    await waitFor(() => expect(getRadio({ name: 'The value from the group is: Label for first' })).toBeInTheDocument());
     expect(getRadio({ name: 'The value from the group is: Label for second' })).toBeInTheDocument();
     expect(screen.getByText('Description: The value from the group is: Label for first')).toBeInTheDocument();
     expect(screen.getByText('Description: The value from the group is: Label for second')).toBeInTheDocument();

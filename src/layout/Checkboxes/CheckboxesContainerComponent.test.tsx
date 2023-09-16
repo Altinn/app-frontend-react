@@ -39,7 +39,6 @@ const render = ({ component, genericProps, optionState }: Props = {}, options) =
   const fetchOptions = () => Promise.resolve([...options] as unknown as IGetOptionsUrlParams);
   const fetchTextResources = () =>
     Promise.resolve(getInitialStateMock().textResources as unknown as ITextResourcesState);
-  //const fetchTextResources = () => Promise.resolve([...textResources] as unknown as ITextResourcesState);
   return renderGenericComponentTest({
     type: 'Checkboxes',
     renderer: (props) => <CheckboxContainerComponent {...props} />,
