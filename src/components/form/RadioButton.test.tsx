@@ -12,6 +12,21 @@ const defaultProps = {
   onChange: jest.fn(),
 };
 
+const ControlledRadioButton = (props: Partial<IRadioButtonProps> = {}) => {
+  const [value, setValue] = React.useState<string | undefined>(undefined);
+
+  return (
+    <RadioButton
+      {...defaultProps}
+      {...props}
+      id='radio-id-1'
+      label='radio button 1'
+      checked={value === 'radio-value'}
+      onChange={(event) => setValue(event.target.value)}
+    />
+  );
+};
+
 const render = (props: Partial<IRadioButtonProps> = {}) =>
   renderRTL(
     <RadioButton
@@ -40,5 +55,28 @@ describe('RadioButton', () => {
 
     expect(screen.getByRole('radio', { name: /Dette er en knapp/ })).toBeInTheDocument();
     expect(screen.getByText('Dette er en knapp')).toHaveClass('sr-only');
+  });
+
+  it('should focus the inner input element when clicking the "card" surrounding the radio button focus', async () => {
+    render({ label: 'Dette er en knapp', showAsCard: true });
+
+    await userEvent.click(screen.getByTestId('test-id-Dette er en knapp'));
+
+    expect(screen.getByRole('radio')).toHaveFocus();
+  });
+
+  it('should click the inner input element when clicking the description', async () => {
+    renderRTL(
+      <ControlledRadioButton
+        showAsCard={true}
+        description='Beskrivelsen'
+      />,
+    );
+
+    expect(screen.getByRole('radio', { name: /radio button 1/i })).not.toBeChecked();
+
+    await userEvent.click(screen.getByText('Beskrivelsen'));
+
+    expect(screen.getByRole('radio', { name: /radio button 1/i })).toBeChecked();
   });
 });
