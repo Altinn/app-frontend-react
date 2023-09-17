@@ -32,7 +32,6 @@ export const RadioButton = ({ showAsCard = false, label, helpText, hideLabel, ..
         onClick={() => {
           if (inputRef.current) {
             inputRef.current.click();
-            inputRef.current.focus();
           }
         }}
       >

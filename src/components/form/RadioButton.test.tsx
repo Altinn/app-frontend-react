@@ -62,7 +62,7 @@ describe('RadioButton', () => {
 
     await userEvent.click(screen.getByTestId('test-id-Dette er en knapp'));
 
-    expect(screen.getByRole('radio')).toHaveFocus();
+    expect(screen.getByRole('radio')).toBeChecked();
   });
 
   it('should click the inner input element when clicking the description', async () => {
