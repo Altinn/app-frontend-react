@@ -18,10 +18,10 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   IComponentValidations,
   ILayoutValidations,
-  IValidationContext,
   IValidationObject,
   IValidationResult,
   IValidations,
+  ValidationContextGenerator,
 } from 'src/utils/validation/types';
 
 export interface IValidationOptions {
@@ -37,9 +37,10 @@ export interface IValidationOptions {
  */
 export function runValidationOnNodes(
   nodes: LayoutNode[],
-  validationContext: IValidationContext,
+  ctxGenerator: ValidationContextGenerator,
   options?: IValidationOptions,
 ): IValidationObject[] {
+  const basicContext = ctxGenerator(undefined);
   const nodesToValidate = nodes.filter(
     (node) =>
       implementsAnyValidation(node.def) &&
@@ -52,31 +53,28 @@ export function runValidationOnNodes(
   }
 
   const schemaErrors = !options?.skipSchemaValidation
-    ? getSchemaValidationErrors(validationContext, options?.overrideFormData)
+    ? getSchemaValidationErrors(basicContext, options?.overrideFormData)
     : [];
 
   const validations: IValidationObject[] = [];
   for (const node of nodesToValidate) {
     const nodeValidations: IValidationObject[] = [];
+    const nodeContext = ctxGenerator(node);
 
     if (implementsEmptyFieldValidation(node.def) && !options?.skipEmptyFieldValidation) {
-      nodeValidations.push(
-        ...node.def.runEmptyFieldValidation(node as any, validationContext, options?.overrideFormData),
-      );
+      nodeValidations.push(...node.def.runEmptyFieldValidation(node as any, nodeContext, options?.overrideFormData));
     }
 
     if (implementsComponentValidation(node.def) && !options?.skipComponentValidation) {
-      nodeValidations.push(
-        ...node.def.runComponentValidation(node as any, validationContext, options?.overrideFormData),
-      );
+      nodeValidations.push(...node.def.runComponentValidation(node as any, nodeContext, options?.overrideFormData));
     }
 
     if (implementsSchemaValidation(node.def) && !options?.skipSchemaValidation) {
       nodeValidations.push(...node.def.runSchemaValidation(node as any, schemaErrors));
     }
 
-    if (validationContext.customValidation && !options?.skipCustomValidation) {
-      nodeValidations.push(...runExpressionValidationsOnNode(node, validationContext, options?.overrideFormData));
+    if (nodeContext.customValidation && !options?.skipCustomValidation) {
+      nodeValidations.push(...runExpressionValidationsOnNode(node, nodeContext, options?.overrideFormData));
     }
 
     if (nodeValidations.length) {

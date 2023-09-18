@@ -14,8 +14,8 @@ import type { HierarchyDataSources } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
 import type {
   IExpressionValidationConfig,
-  IValidationContext,
   IValidationMessage,
+  ValidationContextGenerator,
   ValidationSeverity,
 } from 'src/utils/validation/types';
 import type { IValidationOptions } from 'src/utils/validation/validation';
@@ -53,9 +53,7 @@ function getSharedTests() {
 describe('Expression validation shared tests', () => {
   const sharedTests = getSharedTests();
   it.each(sharedTests)('$name', ({ name: _, expects, validationConfig, formData, layouts }) => {
-    const langTools = staticUseLanguageForTests({
-      textResources: [],
-    });
+    const langTools = staticUseLanguageForTests();
 
     const hiddenFields = new Set<string>(
       Object.values(layouts)
@@ -75,10 +73,10 @@ describe('Expression validation shared tests', () => {
 
     const customValidation = resolveExpressionValidationConfig(validationConfig);
 
-    const validationContext = {
+    const ctxGenerator = (() => ({
       customValidation,
       langTools,
-    } as any as IValidationContext;
+    })) as unknown as ValidationContextGenerator;
 
     const _layouts = convertLayouts(layouts);
     let repeatingGroups: IRepeatingGroups = {};
@@ -96,7 +94,7 @@ describe('Expression validation shared tests', () => {
       skipEmptyFieldValidation: true,
       skipSchemaValidation: true,
     };
-    const validationObjects = runValidationOnNodes(nodes, validationContext, options).filter(
+    const validationObjects = runValidationOnNodes(nodes, ctxGenerator, options).filter(
       (o) => !o.empty,
     ) as IValidationMessage<ValidationSeverity>[];
 
