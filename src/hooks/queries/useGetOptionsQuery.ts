@@ -2,23 +2,23 @@ import { useQuery } from '@tanstack/react-query';
 import type { UseQueryResult } from '@tanstack/react-query';
 
 import { useAppQueriesContext } from 'src/contexts/appQueriesContext';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import type { IOption } from 'src/layout/common.generated';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 export const useGetOptionsQuery = (
-  instanceId: string,
-  optionsId: string,
-  formData,
+  optionsId: string | undefined,
   mapping,
   queryParameters,
   secure,
   enabled?: boolean,
 ): UseQueryResult<IOption[]> => {
   const { fetchOptions } = useAppQueriesContext();
+  const formData = useAppSelector((state) => state.formData.formData);
   const langTools = useLanguage();
   const language = langTools.selectedLanguage;
-
+  const { instanceId } = window;
   return useQuery(
     [optionsId],
     () => fetchOptions(optionsId, formData, language, mapping, queryParameters, secure, instanceId),
