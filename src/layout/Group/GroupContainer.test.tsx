@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
@@ -252,7 +252,7 @@ describe('GroupContainer', () => {
     const editButton = screen.getAllByRole('button', {
       name: /Lagre og lukk/i,
     })[0];
-    await user.click(editButton);
+    await act(() => user.click(editButton));
 
     const mockDispatchedAction: PayloadAction<IUpdateRepeatingGroupsEditIndex> = {
       payload: {
@@ -279,7 +279,7 @@ describe('GroupContainer', () => {
     const editButton = screen.getAllByRole('button', {
       name: /Lagre og lukk/i,
     })[1];
-    await user.click(editButton);
+    await act(() => user.click(editButton));
 
     const mockDispatchedAction: PayloadAction<IUpdateRepeatingGroupsEditIndex> = {
       payload: {
@@ -307,7 +307,7 @@ describe('GroupContainer', () => {
     const editButton = screen.getAllByRole('button', {
       name: /Lagre og lukk/i,
     })[1];
-    await user.click(editButton);
+    await act(() => user.click(editButton));
 
     const mockDispatchedAction: PayloadAction<IUpdateRepeatingGroupsEditIndex> = {
       payload: {
@@ -334,7 +334,7 @@ describe('GroupContainer', () => {
     const editButton = screen.getAllByRole('button', {
       name: /Lagre og lukk/i,
     })[1];
-    await user.click(editButton);
+    await act(() => user.click(editButton));
 
     const mockDispatchedAction: PayloadAction<IUpdateRepeatingGroupsEditIndex> = {
       payload: {
