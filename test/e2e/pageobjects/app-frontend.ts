@@ -288,6 +288,8 @@ export class AppFrontend {
   public expressionValidationTest = {
     kjønn: '#kjonn',
     bosted: '#bosted',
+    groupTag: 'input[id^=attachment-tag]',
+    uploaders: '[id^=Vedlegg-]',
   };
 }
 

@@ -57,7 +57,7 @@ describe('Expression validation', () => {
     cy.get(appFrontend.receipt.container).should('be.visible');
   });
 
-  it.only('should ignore hidden fields', () => {
+  it('should ignore hidden fields', () => {
     cy.findByRole('textbox', { name: /alder/i }).type('16');
     cy.findByRole('textbox', { name: /e-post/i }).type('test@test.test');
     cy.findByRole('textbox', { name: /telefonnummer/i }).type('45612378');
@@ -91,6 +91,66 @@ describe('Expression validation', () => {
     cy.findByRole('checkbox', { name: /bosted/i }).dsCheck();
     cy.get(appFrontend.errorReport).should('not.exist');
 
+    cy.findByRole('button', { name: /send inn/i }).click();
+    cy.get(appFrontend.receipt.container).should('be.visible');
+  });
+
+  it('should show validation messages for repeating groups', () => {
+    cy.gotoNavPage('Skjul felter');
+
+    cy.findByRole('checkbox', { name: /fornavn/i }).dsCheck();
+    cy.findByRole('checkbox', { name: /etternavn/i }).dsCheck();
+    cy.findByRole('checkbox', { name: /alder/i }).dsCheck();
+    cy.findByRole('checkbox', { name: /kjønn/i }).dsCheck();
+    cy.findByRole('checkbox', { name: /e-post/i }).dsCheck();
+    cy.findByRole('checkbox', { name: /telefon/i }).dsCheck();
+    cy.findByRole('checkbox', { name: /bosted/i }).dsCheck();
+
+    cy.gotoNavPage('CV');
+
+    for (let a = 0; a < 2; a++) {
+      cy.findByRole('button', { name: /legg til ny arbeidserfaring/i }).click();
+      cy.findByRole('textbox', { name: /arbeidsgiver/i }).type(`Digitaliseringsdirektoratet ${a + 1}`);
+      cy.findByRole('textbox', { name: /fra/i }).type('01.01.2020');
+      cy.findByRole('textbox', { name: /^til/i }).type('31.12.2020');
+      cy.findByRole('textbox', { name: /stilling/i }).type('Seniorutvikler');
+      cy.findByRole('textbox', { name: /beskrivelse/i }).type('flink');
+      cy.get(appFrontend.errorReport).should('contain.text', 'Beskrivelse kan ikke være flink');
+      cy.findByRole('textbox', { name: /beskrivelse/i }).clear();
+      cy.findByRole('textbox', { name: /beskrivelse/i }).type('Jobbet med Altinn Studio');
+      cy.get(appFrontend.errorReport).should('not.exist');
+
+      cy.get(appFrontend.expressionValidationTest.uploaders)
+        .last()
+        .selectFile('test/e2e/fixtures/test.pdf', { force: true });
+      cy.get(appFrontend.expressionValidationTest.groupTag).dsSelect('Sertifisering');
+      cy.findByRole('button', { name: /^lagre$/i }).click();
+
+      for (let p = 0; p < 2; p++) {
+        cy.findByRole('button', { name: /legg til ny prosjekt/i }).click();
+        cy.findByRole('textbox', { name: /tittel/i }).type(`Altinn ${p + 1}`);
+        cy.findAllByRole('textbox', { name: /beskrivelse/i })
+          .last()
+          .type('kult');
+        cy.get(appFrontend.errorReport).should('contain.text', 'Beskrivelse kan ikke være kult');
+        cy.findAllByRole('textbox', { name: /beskrivelse/i })
+          .last()
+          .clear();
+        cy.findAllByRole('textbox', { name: /beskrivelse/i })
+          .last()
+          .type('Laget Altinn Studio');
+        cy.get(appFrontend.errorReport).should('not.exist');
+        cy.findAllByRole('button', { name: /lagre og lukk/i })
+          .eq(2)
+          .click();
+      }
+
+      cy.findAllByRole('button', { name: /lagre og lukk/i })
+        .last()
+        .click();
+    }
+
+    cy.get(appFrontend.errorReport).should('not.exist');
     cy.findByRole('button', { name: /send inn/i }).click();
     cy.get(appFrontend.receipt.container).should('be.visible');
   });
