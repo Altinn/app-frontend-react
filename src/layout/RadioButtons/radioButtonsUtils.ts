@@ -9,7 +9,7 @@ import type { IRadioButtonsContainerProps } from 'src/layout/RadioButtons/RadioB
 
 export const useRadioButtons = ({ node, handleDataChange, formData }: IRadioButtonsContainerProps) => {
   const { optionsId, options, preselectedOptionIndex, mapping, queryParameters, secure, source } = node.item;
-  const apiOptions = useGetOptions({ optionsId, mapping, queryParameters, secure, source });
+  const apiOptions = useGetOptions({ optionsId, mapping, queryParameters, secure, source, node });
   const _calculatedOptions = useMemo(() => apiOptions || options, [apiOptions, options]);
   const calculatedOptions = _calculatedOptions || [];
   const optionsHasChanged = useHasChangedIgnoreUndefined(apiOptions);

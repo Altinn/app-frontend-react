@@ -3,6 +3,7 @@ import type { IDataType, ITitle } from 'src/types/shared';
 type ILogoOptions = {
   source: 'org' | 'resource';
   displayAppOwnerNameInHeader?: boolean;
+  size?: 'small' | 'medium' | 'large';
 };
 
 export interface IApplicationMetadata {
@@ -56,7 +57,6 @@ export interface IGetApplicationMetadataRejected {
 }
 
 export interface IBackendFeaturesState {
-  footer: boolean;
   multiPartSave: boolean;
   processActions: boolean;
   jsonObjectInDataResponse: boolean; // Extended attachment validation
