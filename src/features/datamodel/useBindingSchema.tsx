@@ -23,14 +23,29 @@ export function useCurrentDataModelName() {
   );
 }
 
-export function useBindingSchema<T extends IDataModelBindings | undefined>(bindings: T): AsSchema<T> | undefined {
+export function useCurrentDataModelSchema() {
   const dataModels = useAppSelector((state) => state.formDataModel.schemas);
   const currentDataModelName = useCurrentDataModelName();
-  const dataType = useAppSelector(
-    (state) => state.applicationMetadata.applicationMetadata?.dataTypes.find((dt) => dt.id === currentDataModelName),
+  return useMemo(() => {
+    if (dataModels && currentDataModelName && currentDataModelName in dataModels) {
+      return dataModels[currentDataModelName];
+    }
+
+    return undefined;
+  }, [dataModels, currentDataModelName]);
+}
+
+export function useCurrentDataModelType() {
+  const name = useCurrentDataModelName();
+
+  return useAppSelector(
+    (state) => state.applicationMetadata.applicationMetadata?.dataTypes.find((dt) => dt.id === name),
   );
-  const currentSchema =
-    dataModels && currentDataModelName && currentDataModelName in dataModels && dataModels[currentDataModelName];
+}
+
+export function useBindingSchema<T extends IDataModelBindings | undefined>(bindings: T): AsSchema<T> | undefined {
+  const currentSchema = useCurrentDataModelSchema();
+  const dataType = useCurrentDataModelType();
 
   return useMemo(() => {
     const resolvedBindings = bindings && Object.values(bindings).length ? { ...bindings } : undefined;

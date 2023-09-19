@@ -6,7 +6,7 @@ import { cleanLayout } from 'src/features/layout/fetch/fetchFormLayoutSagas';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { ILayoutFileExternal } from 'src/layout/common.generated';
 import type { ILayouts } from 'src/layout/layout';
-import type { ILayoutSet, ILayoutSets, IRepeatingGroups } from 'src/types';
+import type { ILayoutSet, ILayoutSets } from 'src/types';
 import type { IDataType } from 'src/types/shared';
 
 interface AppLayoutSet {
@@ -227,20 +227,4 @@ export function parseJsonTolerantly<T = any>(content: string): T {
 
     throw new Error(`Failed to parse JSON: ${e.message}`);
   }
-}
-
-export function generateSimpleRepeatingGroups(layouts: ILayouts) {
-  const out: IRepeatingGroups = {};
-  for (const layout of Object.values(layouts)) {
-    for (const component of layout || []) {
-      if (component.type === 'Group') {
-        out[component.id] = { index: 0 };
-        out[`${component.id}-0`] = { index: 0 };
-        out[`${component.id}-0-0`] = { index: 0 };
-        out[`${component.id}-0-0-0`] = { index: 0 };
-      }
-    }
-  }
-
-  return out;
 }
