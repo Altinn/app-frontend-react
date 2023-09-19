@@ -19,6 +19,7 @@ import { ErrorBoundary } from 'src/components/ErrorBoundary';
 import { ThemeWrapper } from 'src/components/ThemeWrapper';
 import { AppQueriesContextProvider } from 'src/contexts/appQueriesContext';
 import { DevTools } from 'src/features/devtools/DevTools';
+import { LayoutValidationProvider } from 'src/features/layoutValidation/useLayoutValidationCurrentPage';
 import * as queries from 'src/queries/queries';
 import { initSagas } from 'src/redux/sagas';
 import { setupStore } from 'src/redux/store';
@@ -51,9 +52,11 @@ document.addEventListener('DOMContentLoaded', () => {
               <QueryClientProvider client={queryClient}>
                 <AppQueriesContextProvider {...queries}>
                   <ExprContextWrapper>
-                    <DevTools>
-                      <App />
-                    </DevTools>
+                    <LayoutValidationProvider>
+                      <DevTools>
+                        <App />
+                      </DevTools>
+                    </LayoutValidationProvider>
                   </ExprContextWrapper>
                 </AppQueriesContextProvider>
               </QueryClientProvider>

@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
+import type { PropsWithChildren } from 'react';
 
 import { dotNotationToPointer } from 'src/features/datamodel/notations';
 import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
@@ -6,6 +7,7 @@ import { useCurrentDataModelSchema, useCurrentDataModelType } from 'src/features
 import { generateSimpleRepeatingGroups } from 'src/features/layout/repGroups/generateSimpleRepeatingGroups';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLayoutComponentObject } from 'src/layout';
+import { createStrictContext } from 'src/utils/createStrictContext';
 import { selectDataSourcesFromState } from 'src/utils/layout/hierarchy';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { getRootElementPath } from 'src/utils/schemaUtils';
@@ -28,8 +30,8 @@ export interface LayoutValidationProps {
  * You can call this without specifying the repeating groups state, as we'll generate a simple state for you where
  * every repeating group has one row (thus making every possible component appear in the layout).
  */
-export function useLayoutValidation(props: LayoutValidationProps) {
-  const { layout, repeatingGroups: _repeatingGroups, logErrors = true } = props;
+function useLayoutValidationGenerator(props: LayoutValidationProps) {
+  const { layout, repeatingGroups: _repeatingGroups, logErrors = false } = props;
   const repeatingGroups = useMemo(
     () => _repeatingGroups ?? generateSimpleRepeatingGroups({ layout }),
     [_repeatingGroups, layout],
@@ -69,7 +71,7 @@ export function useLayoutValidation(props: LayoutValidationProps) {
 
             if (logErrors) {
               for (const error of errors) {
-                window.logWarnOnce(`Validation errors for component '${id}': ${error}`);
+                window.logErrorOnce(`Validation errors for component '${id}': ${error}`);
               }
             }
           }
@@ -79,4 +81,16 @@ export function useLayoutValidation(props: LayoutValidationProps) {
 
     return failures;
   }, [schema, dataType, nodes, logErrors]);
+}
+
+const [Provider, useLayoutValidationCtx] = createStrictContext<LayoutValidationComponentErrors>();
+
+export const useLayoutValidationCurrentPage = useLayoutValidationCtx;
+
+export function LayoutValidationProvider(props: PropsWithChildren) {
+  const currentLayout = useAppSelector((state) =>
+    state.formLayout.layouts ? state.formLayout.layouts[state.formLayout.uiConfig.currentView] : undefined,
+  );
+  const value = useLayoutValidationGenerator({ layout: currentLayout, logErrors: true });
+  return <Provider value={value}>{props.children}</Provider>;
 }

@@ -11,7 +11,7 @@ import { SplitView } from 'src/features/devtools/components/SplitView/SplitView'
 import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
 import { DevToolsTab } from 'src/features/devtools/data/types';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
-import { useLayoutValidation } from 'src/features/layoutValidation/useLayoutValidation';
+import { useLayoutValidationCurrentPage } from 'src/features/layoutValidation/useLayoutValidationCurrentPage';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
 import { useExprContext } from 'src/utils/layout/ExprContext';
@@ -38,7 +38,7 @@ export const LayoutInspector = () => {
 
   const currentLayout = layouts?.[currentView];
   const matchingNodes = selectedComponent ? nodes?.findAllById(selectedComponent) || [] : [];
-  const validationErrors = useLayoutValidation({ layout: currentLayout });
+  const validationErrors = useLayoutValidationCurrentPage();
 
   useEffect(() => {
     setSelectedComponent(undefined);
