@@ -199,7 +199,8 @@ export function* calculatePageOrderAndMoveToNextPageSaga({
     const dataTypeId =
       getCurrentDataTypeForApplication({
         application: state.applicationMetadata.applicationMetadata,
-        layoutSets: state.formLayout.layoutsets || undefined,
+        instance: state.instanceData.instance,
+        layoutSets: state.formLayout.layoutsets,
       }) || null;
 
     const appIsStateless = isStatelessApp(state.applicationMetadata.applicationMetadata);

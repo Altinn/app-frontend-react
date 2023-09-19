@@ -130,7 +130,7 @@ describe('appMetadata.ts', () => {
       };
       const result = getCurrentDataTypeForApplication({
         application: statelessApplication,
-        instance: undefined,
+        instance: null,
         layoutSets,
       });
       const expected = 'Stateless';
@@ -144,6 +144,7 @@ describe('appMetadata.ts', () => {
       };
       const result = getCurrentDataTypeForApplication({
         application: statelessApplication,
+        instance: null,
         layoutSets,
       });
       const expected = 'Stateless';
@@ -163,7 +164,7 @@ describe('appMetadata.ts', () => {
         ...application,
         onEntry: { show: 'stateless' },
       };
-      const result = getLayoutSetIdForApplication(statelessApplication, undefined, layoutSets);
+      const result = getLayoutSetIdForApplication(statelessApplication, null, layoutSets);
       const expected = 'stateless';
       expect(result).toEqual(expected);
     });

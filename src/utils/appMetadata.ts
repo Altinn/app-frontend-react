@@ -59,8 +59,8 @@ export const onEntryValuesThatHaveState: string[] = ['new-instance', 'select-ins
  */
 export function getLayoutSetIdForApplication(
   application: IApplication,
-  instance?: IInstance | null,
-  layoutSets?: ILayoutSets | null,
+  instance: IInstance | null,
+  layoutSets: ILayoutSets | null,
 ): string | undefined {
   const showOnEntry = application?.onEntry?.show;
   if (isStatelessApp(application)) {
@@ -79,8 +79,8 @@ export function getLayoutSetIdForApplication(
 
 interface IGetDataTypeForApplicationParams {
   application: IApplication | null;
-  instance?: IInstance | null;
-  layoutSets?: ILayoutSets | null;
+  instance: IInstance | null;
+  layoutSets: ILayoutSets | null;
 }
 
 /**
