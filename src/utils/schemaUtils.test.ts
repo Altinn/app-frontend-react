@@ -47,7 +47,7 @@ describe('schemaUtils', () => {
         expect(result).toEqual('#/$defs/Test');
       });
 
-      it('should return path under first property when properties node is present with no info node', () => {
+      it('should not return path under first property when properties node is present with no info node', () => {
         const useSchema = {
           ...schema,
           properties: {
@@ -57,7 +57,7 @@ describe('schemaUtils', () => {
           },
         };
         const result = getRootElementPath(useSchema, undefined);
-        expect(result).toEqual('#/$defs/Test');
+        expect(result).toEqual('');
       });
     });
 
@@ -89,9 +89,9 @@ describe('schemaUtils', () => {
         expect(result).toEqual('#/definitions/Test');
       });
 
-      it('should return path under first property when properties node is present with no info node', () => {
+      it('should not return path under first property when properties node is present with no info node', () => {
         const result = getRootElementPath(schema, undefined);
-        expect(result).toEqual('#/definitions/Test');
+        expect(result).toEqual('');
       });
     });
 
