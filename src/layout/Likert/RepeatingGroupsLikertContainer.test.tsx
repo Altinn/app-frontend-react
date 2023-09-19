@@ -27,7 +27,7 @@ describe('RepeatingGroupsLikertContainer', () => {
     it('should render table using options and not optionsId', async () => {
       render({
         radioButtonProps: {
-          optionsId: 'non-existing-options-id',
+          optionsId: undefined,
           options: defaultMockOptions,
         },
       });
@@ -256,7 +256,7 @@ describe('RepeatingGroupsLikertContainer', () => {
         },
         mobileView: true,
       });
-      validateRadioLayout(
+      await validateRadioLayout(
         defaultMockQuestions.map((q) => ({ ...q, Question: `${leftColumnHeader} ${q.Question}` })),
         defaultMockOptions,
         true,

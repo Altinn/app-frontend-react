@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { screen, waitFor, within } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
@@ -234,12 +234,7 @@ export const render = ({
     },
   });
 
-  const fetchOptions = () => {
-    if (radioButtonProps?.optionsId === 'non-existing-options-id') {
-      return Promise.resolve(undefined as unknown as IGetOptionsUrlParams);
-    }
-    return Promise.resolve([...mockOptions] as unknown as IGetOptionsUrlParams);
-  };
+  const fetchOptions = () => Promise.resolve([...mockOptions] as unknown as IGetOptionsUrlParams);
   const mockStore = setupStore(preloadedState).store;
   const mockStoreDispatch = jest.fn();
   mockStore.dispatch = mockStoreDispatch;
@@ -271,7 +266,7 @@ export const validateTableLayout = async (questions: IQuestion[], options: IOpti
     const columnHeader = await screen.findByRole('columnheader', {
       name: new RegExp(option.label),
     });
-    await waitFor(() => expect(columnHeader).toBeInTheDocument());
+    expect(columnHeader).toBeInTheDocument();
   }
 
   await validateRadioLayout(questions, options);
@@ -280,20 +275,20 @@ export const validateTableLayout = async (questions: IQuestion[], options: IOpti
 export const validateRadioLayout = async (questions: IQuestion[], options: IOption[], mobileView = false) => {
   if (mobileView) {
     const radioGroups = await screen.findAllByRole('radiogroup');
-    await waitFor(() => expect(radioGroups).toHaveLength(questions.length));
+    expect(radioGroups).toHaveLength(questions.length);
   } else {
     const rows = await screen.findAllByRole('row');
-    await waitFor(() => expect(rows).toHaveLength(questions.length + 1));
+    expect(rows).toHaveLength(questions.length + 1);
   }
 
   for (const question of questions) {
     const row = mobileView
       ? within(
-          screen.getByRole('group', {
+          await screen.findByRole('group', {
             name: question.Question,
           }),
         ).getByRole('radiogroup')
-      : screen.getByRole('row', {
+      : await screen.findByRole('row', {
           name: question.Question,
         });
 

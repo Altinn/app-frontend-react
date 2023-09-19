@@ -3,10 +3,8 @@ import React from 'react';
 import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
 import { renderGenericComponentTest } from 'src/testUtils';
-import type { ITextResourcesState } from 'src/features/textResources';
 import type { RenderGenericComponentTestProps } from 'src/testUtils';
 import type { IGetOptionsUrlParams } from 'src/utils/urls/appUrlHelper';
 
@@ -29,10 +27,7 @@ const countries = {
 };
 
 const render = ({ component, genericProps }: Partial<RenderGenericComponentTestProps<'Dropdown'>> = {}, options) => {
-  countries;
   const fetchOptions = () => Promise.resolve([...options] as unknown as IGetOptionsUrlParams);
-  const fetchTextResources = () =>
-    Promise.resolve(getInitialStateMock().textResources as unknown as ITextResourcesState);
   renderGenericComponentTest({
     type: 'Dropdown',
     renderer: (props) => <DropdownComponent {...props} />,
@@ -65,7 +60,6 @@ const render = ({ component, genericProps }: Partial<RenderGenericComponentTestP
     },
     mockedQueries: {
       fetchOptions,
-      fetchTextResources,
     },
   });
 };
@@ -208,6 +202,7 @@ describe('DropdownComponent', () => {
     render(
       {
         component: {
+          optionsId: undefined,
           source: {
             group: 'someGroup',
             label: 'option.from.rep.group.label',

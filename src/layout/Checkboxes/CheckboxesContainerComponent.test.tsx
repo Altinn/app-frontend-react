@@ -3,12 +3,10 @@ import React from 'react';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
 import { LayoutStyle } from 'src/layout/common.generated';
 import { renderGenericComponentTest } from 'src/testUtils';
 import type { IOptionsState } from 'src/features/options';
-import type { ITextResourcesState } from 'src/features/textResources';
 import type { IOption } from 'src/layout/common.generated';
 import type { RenderGenericComponentTestProps } from 'src/testUtils';
 import type { IGetOptionsUrlParams } from 'src/utils/urls/appUrlHelper';
@@ -37,8 +35,6 @@ interface Props extends Partial<RenderGenericComponentTestProps<'Checkboxes'>> {
 
 const render = ({ component, genericProps, optionState }: Props = {}, options) => {
   const fetchOptions = () => Promise.resolve([...options] as unknown as IGetOptionsUrlParams);
-  const fetchTextResources = () =>
-    Promise.resolve(getInitialStateMock().textResources as unknown as ITextResourcesState);
   return renderGenericComponentTest({
     type: 'Checkboxes',
     renderer: (props) => <CheckboxContainerComponent {...props} />,
@@ -75,7 +71,6 @@ const render = ({ component, genericProps, optionState }: Props = {}, options) =
     },
     mockedQueries: {
       fetchOptions,
-      fetchTextResources,
     },
   });
 };
@@ -406,6 +401,7 @@ describe('CheckboxContainerComponent', () => {
       {
         genericProps: { handleDataChange },
         component: {
+          optionsId: undefined,
           source: {
             group: 'someGroup',
             label: 'option.from.rep.group.label',
