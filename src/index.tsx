@@ -13,7 +13,6 @@ import 'src/features/styleInjection';
 
 import { AppWrapper } from '@altinn/altinn-design-system';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import { App } from 'src/App';
 import { ErrorBoundary } from 'src/components/ErrorBoundary';
@@ -59,7 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
                       </DevTools>
                     </ExprContextWrapper>
                   </DataModelSchemaContextWrapper>
-                  <ReactQueryDevtools initialIsOpen={false} />
                 </AppQueriesContextProvider>
               </QueryClientProvider>
             </ErrorBoundary>
