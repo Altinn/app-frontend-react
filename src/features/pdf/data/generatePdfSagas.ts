@@ -1,7 +1,6 @@
 import { all, call, put, race, select, take } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
-import { DataListsActions } from 'src/features/dataLists/dataListsSlice';
 import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { InstanceDataActions } from 'src/features/instanceData/instanceDataSlice';
@@ -158,7 +157,6 @@ export function* watchPdfReadySaga(): SagaIterator {
     take(TextResourcesActions.fetchFulfilled),
     take(OrgsActions.fetchFulfilled),
     take(OptionsActions.loaded),
-    take(DataListsActions.loaded),
     take(IsLoadingActions.finishDataTaskIsLoading),
     race([
       take(FormLayoutActions.calculatePageOrderAndMoveToNextPageRejected),

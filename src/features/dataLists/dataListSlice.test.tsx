@@ -23,31 +23,13 @@ export const testState: IDataListsState = {
   },
   dataListsWithIndexIndicator: [],
   error: null,
-  dataListCount: 1,
-  dataListLoadedCount: 1,
-  loading: false,
 };
 
-describe('languageSlice', () => {
+describe('dataListSlice', () => {
   const slice = dataListsSlice();
   let state: IDataListsState;
   beforeEach(() => {
     state = testState;
-  });
-
-  it('handles fetchLanguageFulfilled action', () => {
-    const nextState = slice.reducer(
-      state,
-      DataListsActions.fetchFulfilled({
-        key: 'countries',
-        dataLists: countries,
-        metadata: null,
-      }),
-    );
-    expect(nextState.dataLists['countries'].loading).toBe(false);
-    expect(nextState.dataLists['countries'].listItems[0].Name).toBe('Norway');
-    expect(nextState.dataLists['countries'].listItems[0].Name).not.toBe('Italy');
-    expect(nextState.error).toBeNull();
   });
 
   it('handles fetchLanguageRejected action', () => {

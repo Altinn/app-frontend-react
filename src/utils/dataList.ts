@@ -17,14 +17,6 @@ interface IDataListLookupKeys {
   keyWithIndexIndicator?: IDataListsMetaData;
 }
 
-export function getDataListLookupKey({ id, mapping }: IDataListsMetaData) {
-  if (!mapping) {
-    return id;
-  }
-
-  return JSON.stringify({ id, mapping });
-}
-
 export function getDataListLookupKeys({
   id,
   mapping,

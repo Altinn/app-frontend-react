@@ -97,7 +97,6 @@ export const formLayoutSlice = () => {
           },
           *takeLatest() {
             yield put(OptionsActions.fetch());
-            // yield put(DataListsActions.fetch());
           },
         }),
         fetchRejected: genericReject,

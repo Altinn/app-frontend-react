@@ -47,9 +47,6 @@ const render = ({ component, genericProps }: Partial<RenderGenericComponentTestP
           name: '',
           message: '',
         },
-        dataListCount: 1,
-        dataListLoadedCount: 1,
-        loading: false,
       };
     },
     mockedQueries: {

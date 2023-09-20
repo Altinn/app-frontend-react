@@ -1,6 +1,5 @@
 import type { AnyAction } from 'redux';
 
-import { checkIfDataListShouldRefetchSaga } from 'src/features/dataLists/fetchDataListsSaga';
 import { autoSaveSaga, saveFormDataSaga, submitFormSaga } from 'src/features/formData/submit/submitFormDataSagas';
 import { deleteAttachmentReferenceSaga, updateFormDataSaga } from 'src/features/formData/update/updateFormDataSagas';
 import { checkIfRuleShouldRunSaga } from 'src/features/formRules/checkRulesSagas';
@@ -99,7 +98,7 @@ export const formDataSlice = () => {
       }),
       updateFulfilled: mkAction<IUpdateFormData>({
         takeLatest: [checkIfRuleShouldRunSaga, autoSaveSaga],
-        takeEvery: [checkIfOptionsShouldRefetchSaga, checkIfDataListShouldRefetchSaga],
+        takeEvery: [checkIfOptionsShouldRefetchSaga],
         reducer: (state, action) => {
           const { field, data, skipAutoSave } = action.payload;
           // Remove if data is null, undefined or empty string
