@@ -2482,21 +2482,31 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@date-io/core@npm:1.x, @date-io/core@npm:^1.3.13":
+"@date-io/core@npm:1.x":
   version: 1.3.13
   resolution: "@date-io/core@npm:1.3.13"
   checksum: 5a9e9d1de20f0346a3c7d2d5946190caef4bfb0b64d82ba1f4c566657a9192667c94ebe7f438d11d4286d9c190974daad4fb2159294225cd8af4d9a140239879
   languageName: node
   linkType: hard
 
-"@date-io/moment@npm:1.3.13":
-  version: 1.3.13
-  resolution: "@date-io/moment@npm:1.3.13"
+"@date-io/core@npm:^2.17.0":
+  version: 2.17.0
+  resolution: "@date-io/core@npm:2.17.0"
+  checksum: 008dfc79eb54256805113d76feca82fe0b08a245ecbfb2d53809e6a129dc201f9dbd053c8ad63512203ab1a13ff7f76de0edc31829588ef507d53307974c29a8
+  languageName: node
+  linkType: hard
+
+"@date-io/moment@npm:2.17.0":
+  version: 2.17.0
+  resolution: "@date-io/moment@npm:2.17.0"
   dependencies:
-    "@date-io/core": ^1.3.13
+    "@date-io/core": ^2.17.0
   peerDependencies:
     moment: ^2.24.0
-  checksum: c4847f9d1bf09bb22c1acc5806fc50825c0bdb52408c9fec8cc5f9a65f16a8014870b5890a0eeb73b2c53a6487c35acbd2ab2a5c49068ff5a5dccbcb5c9e654b
+  peerDependenciesMeta:
+    moment:
+      optional: true
+  checksum: 3009825c5c5fe78f2939b9de52a55272767c824e442afa3fd1897336636593cd5147b59263d778c0dad860d869f9abdfd51a25ccbd47e6f551c922b5cc4593ef
   languageName: node
   linkType: hard
 
@@ -5874,7 +5884,7 @@ __metadata:
     "@babel/preset-react": 7.22.5
     "@babel/runtime": ^7.21.0
     "@babel/runtime-corejs3": ^7.21.0
-    "@date-io/moment": 1.3.13
+    "@date-io/moment": 2.17.0
     "@digdir/design-system-react": ^0.24.0
     "@digdir/design-system-tokens": ^0.5.0
     "@material-ui/core": 4.12.4
