@@ -40,9 +40,6 @@ const render = ({ component, genericProps }: Partial<RenderGenericComponentTestP
     },
     manipulateState: (state) => {
       state.dataListState = {
-        dataLists: {
-          ['list-component-id']: { listItems: countries, id: 'countries' },
-        },
         error: {
           name: '',
           message: '',

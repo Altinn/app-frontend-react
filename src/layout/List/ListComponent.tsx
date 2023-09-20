@@ -1,17 +1,12 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { Pagination } from '@altinn/altinn-design-system';
 import { LegacyFieldSet, ResponsiveTable } from '@digdir/design-system-react';
 import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/src/components/Pagination/Pagination';
-import type { ChangeProps, ResponsiveTableConfig, SortProps } from '@digdir/design-system-react';
+import type { ChangeProps, ResponsiveTableConfig, SortDirection, SortProps } from '@digdir/design-system-react';
 
-import { DataListsActions } from 'src/features/dataLists/dataListsSlice';
 import { useDataListQuery } from 'src/hooks/queries/useDataListQuery';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
-import { SortDirection } from 'src/layout/List/types';
-import type { IDataLists } from 'src/features/dataLists';
 import type { Filter } from 'src/hooks/queries/useDataListQuery';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -20,15 +15,27 @@ export type IListProps = PropsFromGenericComponent<'List'>;
 const defaultDataList: any[] = [];
 
 export const ListComponent = ({ node, formData, handleDataChange, legend }: IListProps) => {
-  const { tableHeaders, id, pagination, sortableColumns, tableHeadersMobile, mapping, secure, dataListId } = node.item;
+  const { tableHeaders, pagination, sortableColumns, tableHeadersMobile, mapping, secure, dataListId } = node.item;
   const { langAsString, language } = useLanguage();
   const RenderLegend = legend;
-  const dataList = useAppSelector((state) => state.dataListState.dataLists[id]);
+  const [pageSize, setPageSize] = useState<number>(pagination?.default || 0);
+  const [pageNumber, setPageNumber] = useState<number>(0);
+  const [sortColumn, setSortColumn] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>('notActive');
 
-  const filter = createFilter(dataList);
-  const { data: dynamicDataList } = useDataListQuery(id, filter, dataListId, pagination, secure, mapping);
+  const filter = useMemo(
+    () =>
+      ({
+        pageSize,
+        pageNumber,
+        sortColumn,
+        sortDirection,
+      }) as Filter,
+    [pageNumber, pageSize, sortColumn, sortDirection],
+  );
+  const { data } = useDataListQuery(filter, dataListId, secure, mapping);
 
-  const calculatedDataList = (dynamicDataList && dynamicDataList.listItems) || defaultDataList;
+  const calculatedDataList = (data && data.listItems) || defaultDataList;
 
   const handleChange = ({ selectedValue: selectedValue }: ChangeProps<Record<string, string>>) => {
     for (const key in formData) {
@@ -58,44 +65,28 @@ export const ListComponent = ({ node, formData, handleDataChange, legend }: ILis
     return {};
   }, [formData, calculatedDataList]);
 
-  const dispatch = useAppDispatch();
-
   const handleSortChange = (props: SortProps & { column: string }) => {
-    dispatch(
-      DataListsActions.setSort({
-        key: id || '',
-        sortColumn: props.column,
-        sortDirection: props.previous === SortDirection.Descending ? SortDirection.Ascending : SortDirection.Descending,
-      }),
-    );
+    const { next, column } = props;
+    setSortColumn(column);
+    setSortDirection(next);
   };
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    dispatch(
-      DataListsActions.setPageSize({
-        key: id || '',
-        size: parseInt(event.target.value, 10),
-      }),
-    );
+    setPageSize(parseInt(event.target.value, 10));
   };
 
   const handleChangeCurrentPage = (newPage: number) => {
-    dispatch(
-      DataListsActions.setPageNumber({
-        key: id || '',
-        pageNumber: newPage,
-      }),
-    );
+    setPageNumber(newPage);
   };
   const renderPagination = () => {
     if (pagination) {
       return (
         <Pagination
-          numberOfRows={dataList?.paginationData?.totaltItemsCount}
+          numberOfRows={data?._metaData.totaltItemsCount}
           rowsPerPageOptions={pagination?.alternatives ? pagination?.alternatives : []}
-          rowsPerPage={dataList?.size}
+          rowsPerPage={pageSize}
           onRowsPerPageChange={handleChangeRowsPerPage}
-          currentPage={dataList?.pageNumber}
+          currentPage={pageNumber}
           setCurrentPage={handleChangeCurrentPage}
           descriptionTexts={((language && language['list_component']) || {}) as unknown as DescriptionText}
         />
@@ -114,8 +105,8 @@ export const ListComponent = ({ node, formData, handleDataChange, legend }: ILis
         handleSortChange({ previous, next, column });
       },
       sortable: sortableColumns ? sortableColumns : [],
-      currentlySortedColumn: dataList?.sortColumn,
-      currentDirection: dataList?.sortDirection,
+      currentlySortedColumn: data?._metaData.sortColumn,
+      currentDirection: data?._metaData.sortDirection,
     },
     rowSelection: {
       onSelectionChange: (row) => handleChange({ selectedValue: row }),
@@ -134,14 +125,4 @@ export const ListComponent = ({ node, formData, handleDataChange, legend }: ILis
       </div>
     </LegacyFieldSet>
   );
-};
-
-const createFilter = (dataList: IDataLists): Filter => {
-  const { size, pageNumber, sortColumn, sortDirection } = dataList || {};
-  return {
-    pageSize: size,
-    pageNumber,
-    sortColumn,
-    sortDirection,
-  };
 };

@@ -1,8 +1,9 @@
+import type { SortDirection } from '@digdir/design-system-react';
+
 import { mapFormData } from 'src/utils/databindings';
 import { getQueryStringFromObject } from 'src/utils/urls/urlHelper';
 import type { IFormData } from 'src/features/formData';
 import type { IMapping } from 'src/layout/common.generated';
-import type { SortDirection } from 'src/layout/List/types';
 
 const { org, app } = window;
 const origin = window.location.origin;
@@ -212,8 +213,7 @@ export const getOptionsUrl = ({
 };
 export interface IGetDataListsUrlParams {
   dataListId: string;
-  dataMapping?: IMapping;
-  formData?: IFormData;
+  mappedData?: Record<string, any>;
   language?: string;
   secure?: boolean;
   instanceId?: string;
@@ -225,8 +225,7 @@ export interface IGetDataListsUrlParams {
 
 export const getDataListsUrl = ({
   dataListId,
-  dataMapping,
-  formData,
+  mappedData,
   language,
   pageSize,
   pageNumber,
@@ -263,12 +262,10 @@ export const getDataListsUrl = ({
     params.sortDirection = sortDirection;
   }
 
-  if (formData && dataMapping) {
-    const mapped = mapFormData(formData, dataMapping);
-
+  if (mappedData) {
     params = {
       ...params,
-      ...mapped,
+      ...mappedData,
     };
   }
 
