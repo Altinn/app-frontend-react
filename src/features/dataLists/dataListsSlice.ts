@@ -1,4 +1,4 @@
-import { fetchDataListsSaga, watchFinishedLoadingSaga } from 'src/features/dataLists/fetchDataListsSaga';
+// import { fetchDataListsSaga, watchFinishedLoadingSaga } from 'src/features/dataLists/fetchDataListsSaga';
 import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
   IDataListData,
@@ -28,11 +28,11 @@ export const dataListsSlice = () => {
   const slice = createSagaSlice((mkAction: MkActionType<IDataListsState>) => ({
     name: 'dataListState',
     initialState,
-    extraSagas: [watchFinishedLoadingSaga],
+    // extraSagas: [watchFinishedLoadingSaga],
     actions: {
-      fetch: mkAction<void>({
-        takeEvery: fetchDataListsSaga,
-      }),
+      // fetch: mkAction<void>({
+      //   // takeEvery: fetchDataListsSaga,
+      // }),
       loaded: mkAction<void>({
         reducer: (state) => {
           state.loading = false;

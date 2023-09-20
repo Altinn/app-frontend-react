@@ -4,14 +4,14 @@ import type { UseQueryResult } from '@tanstack/react-query';
 import { useAppQueriesContext } from 'src/contexts/appQueriesContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
-import type { IOption } from 'src/layout/common.generated';
+import type { IMapping, IOption } from 'src/layout/common.generated';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 export const useGetOptionsQuery = (
   optionsId: string | undefined,
-  mapping,
-  queryParameters,
-  secure,
+  mapping?: IMapping,
+  queryParameters?: Record<string, string>,
+  secure?: boolean,
   enabled?: boolean,
 ): UseQueryResult<IOption[]> => {
   const { fetchOptions } = useAppQueriesContext();

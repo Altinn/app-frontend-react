@@ -7,10 +7,13 @@ import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { SortDirection } from 'src/layout/List/types';
+import { getDataListLookupKeys } from 'src/utils/dataList';
 import { getDataListsUrl } from 'src/utils/urls/appUrlHelper';
-import type { IDataListData } from 'src/features/dataLists';
+import type { IDataListData, IDataListsMetaData } from 'src/features/dataLists';
 import type { IMapping } from 'src/layout/common.generated';
+import type { IRepeatingGroups } from 'src/types';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
+
 export type Filter = {
   pageSize: string;
   pageNumber: string;
@@ -18,7 +21,7 @@ export type Filter = {
   sortDirection: SortDirection;
 };
 export const useDataListQuery = (
-  id: string | undefined,
+  id: string,
   filter: Filter,
   dataListId: string,
   pagination: any,
@@ -29,15 +32,16 @@ export const useDataListQuery = (
   const { fetchDataList } = useAppQueriesContext();
   const dispatch = useAppDispatch();
   const { selectedLanguage } = useLanguage();
-  const { instanceId } = window;
   const formData = useAppSelector((state) => state.formData.formData);
-  let { pageSize, pageNumber, sortColumn, sortDirection } = filter || {};
 
+  let { pageSize, pageNumber, sortColumn, sortDirection } = filter || {};
   const paginationDefaultValue = pagination?.default ? pagination.default : 0;
   pageSize = pageSize ? pageSize : paginationDefaultValue;
   pageNumber = pageNumber ? pageNumber.toString() : '0';
   sortColumn = sortColumn ? sortColumn.toString() : null;
   sortDirection = sortDirection ?? SortDirection.NotActive;
+
+  const dataListsWithIndexIndicators: IDataListsMetaData[] = SetIndexIndicators(id, secure, mapping);
 
   return useQuery(
     [id, filter, formData.Search],
@@ -49,7 +53,7 @@ export const useDataListQuery = (
           language: selectedLanguage,
           dataMapping: mapping,
           secure,
-          instanceId,
+          instanceId: window.instanceId,
           pageSize,
           pageNumber,
           sortColumn,
@@ -75,9 +79,14 @@ export const useDataListQuery = (
             },
           }),
         );
+        dispatch(
+          DataListsActions.setDataListsWithIndexIndicators({
+            dataListsWithIndexIndicators,
+          }),
+        );
       },
       onError: (error: HttpClientError) => {
-        window.logError('Fetching FormData failed:\n', error);
+        dispatch(DataListsActions.fetchRejected({ key: id, error }));
       },
     },
   );
@@ -90,3 +99,15 @@ const mapResponse = (dataList: IDataListData) => {
     paginationData: _metaData,
   };
 };
+
+function SetIndexIndicators(id: string, secure: boolean | undefined, mapping: IMapping | undefined) {
+  const repeatingGroups: IRepeatingGroups | null = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
+  const { keyWithIndexIndicator } = getDataListLookupKeys({
+    id,
+    secure,
+    repeatingGroups,
+    mapping,
+  });
+
+  return keyWithIndexIndicator ? ([keyWithIndexIndicator] as IDataListsMetaData[]) : [];
+}

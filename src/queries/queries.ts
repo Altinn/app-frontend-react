@@ -60,7 +60,7 @@ export const fetchOptions = (
 ): Promise<IGetOptionsUrlParams> =>
   httpGet(getOptionsUrl({ optionsId, formData, language, dataMapping, fixedQueryParameters, secure, instanceId }));
 
-export const fetchDataList = (url): Promise<IDataList> => httpGet(url);
+export const fetchDataList = (url: string): Promise<IDataList> => httpGet(url);
 
 export const fetchOrgs = (): Promise<{ orgs: IAltinnOrgs }> =>
   httpGet(orgsListUrl, {
