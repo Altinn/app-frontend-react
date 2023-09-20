@@ -154,4 +154,94 @@ describe('Expression validation', () => {
     cy.findByRole('button', { name: /send inn/i }).click();
     cy.get(appFrontend.receipt.container).should('be.visible');
   });
+
+  it('should work with hiddenRow', () => {
+    // Ability to save group row with errors
+    cy.interceptLayout('skjema', (c) => {
+      if (c.type === 'Group') {
+        (c as any).triggers = undefined;
+      }
+    });
+
+    cy.gotoNavPage('Skjul felter');
+
+    cy.findByRole('checkbox', { name: /fornavn/i }).dsCheck();
+    cy.findByRole('checkbox', { name: /etternavn/i }).dsCheck();
+    cy.findByRole('checkbox', { name: /alder/i }).dsCheck();
+    cy.findByRole('checkbox', { name: /kjønn/i }).dsCheck();
+    cy.findByRole('checkbox', { name: /e-post/i }).dsCheck();
+    cy.findByRole('checkbox', { name: /telefon/i }).dsCheck();
+    cy.findByRole('checkbox', { name: /bosted/i }).dsCheck();
+
+    cy.gotoNavPage('CV');
+
+    const rows: { stilling: string; error: boolean; prosjekter: { tittel: string; error: boolean }[] }[] = [
+      {
+        stilling: 'GyldigUtvikler',
+        error: false,
+        prosjekter: [
+          { tittel: 'GyldigProsjekt', error: false },
+          { tittel: 'UgyldigProsjekt', error: true },
+          { tittel: 'GyldigProsjekt', error: false },
+          { tittel: 'UgyldigProsjekt', error: true },
+        ],
+      },
+      {
+        stilling: 'UgyldigUtvikler',
+        error: true,
+        prosjekter: [
+          { tittel: 'UgyldigProsjekt', error: true },
+          { tittel: 'GyldigProsjekt', error: false },
+          { tittel: 'ErrorProsjekt', error: true },
+          { tittel: 'UgyldigProsjekt', error: true },
+        ],
+      },
+      {
+        stilling: 'UgyldigUtvikler',
+        error: true,
+        prosjekter: [],
+      },
+    ];
+
+    for (const row of rows) {
+      cy.findByRole('button', { name: /legg til ny arbeidserfaring/i }).click();
+      cy.findByRole('textbox', { name: /arbeidsgiver/i }).type('Digitaliseringsdirektoratet');
+      cy.findByRole('textbox', { name: /fra/i }).type('01.01.2020');
+      cy.findByRole('textbox', { name: /^til/i }).type('31.12.2020');
+      cy.findByRole('textbox', { name: /stilling/i }).type(row.stilling);
+      cy.findByRole('textbox', { name: /beskrivelse/i }).type(row.error ? 'flink' : 'Jobbet med Altinn Studio');
+
+      cy.get(appFrontend.expressionValidationTest.uploaders)
+        .last()
+        .selectFile('test/e2e/fixtures/test.pdf', { force: true });
+      cy.get(appFrontend.expressionValidationTest.groupTag).dsSelect('Sertifisering');
+      cy.findByRole('button', { name: /^lagre$/i }).click();
+
+      for (const prosjekt of row.prosjekter) {
+        cy.findByRole('button', { name: /legg til ny prosjekt/i }).click();
+        cy.findByRole('textbox', { name: /tittel/i }).type(prosjekt.tittel);
+        cy.findAllByRole('textbox', { name: /beskrivelse/i })
+          .last()
+          .type(prosjekt.error ? 'kult' : 'Laget Altinn Studio');
+        cy.findAllByRole('button', { name: /lagre og lukk/i })
+          .eq(-2)
+          .click();
+      }
+
+      cy.findAllByRole('button', { name: /lagre og lukk/i })
+        .last()
+        .click();
+    }
+
+    cy.findByRole('button', { name: /neste/i }).click();
+    cy.get(appFrontend.errorReport).should('be.visible');
+
+    cy.gotoNavPage('Skjul felter');
+    cy.findByRole('textbox', { name: /skjul rad basert på stilling/i }).type('UgyldigUtvikler');
+    cy.findByRole('textbox', { name: /skjul nøstet rad basert på prosjekt-tittel/i }).type('UgyldigProsjekt');
+    cy.get(appFrontend.errorReport).should('not.exist');
+
+    cy.findByRole('button', { name: /send inn/i }).click();
+    cy.get(appFrontend.receipt.container).should('be.visible');
+  });
 });
