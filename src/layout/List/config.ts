@@ -102,4 +102,14 @@ export const Config = new CG.component({
         .setTitle('Table Headers Mobile')
         .setDescription('An array of strings representing the columns that is chosen to be shown in the mobile view.'),
     ),
+  )
+  .addProperty(
+    new CG.prop(
+      'allowMarkupInColumns',
+      new CG.arr(new CG.str())
+        .optional()
+        .setTitle('Columns that should render output as markup')
+        .setDescription('An array of strings representing the columns that should render output as markup.')
+        .addExample(['description']),
+    ),
   );
