@@ -2,18 +2,20 @@ import { useQuery } from '@tanstack/react-query';
 import type { UseQueryResult } from '@tanstack/react-query';
 
 import { useAppQueriesContext } from 'src/contexts/appQueriesContext';
+import { OptionsActions } from 'src/features/options/optionsSlice';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { getOptionsUrl } from 'src/utils/urls/appUrlHelper';
 import type { IMapping, IOption } from 'src/layout/common.generated';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
-
 export const useGetOptionsQuery = (
   optionsId: string | undefined,
   mapping?: IMapping,
   queryParameters?: Record<string, string>,
   secure?: boolean,
 ): UseQueryResult<IOption[]> => {
+  const dispatch = useAppDispatch();
   const { fetchOptions } = useAppQueriesContext();
   const formData = useAppSelector((state) => state.formData.formData);
   const langTools = useLanguage();
@@ -35,8 +37,7 @@ export const useGetOptionsQuery = (
     queryFn: () => fetchOptions(url),
     enabled: !!optionsId,
     onError: (error: HttpClientError) => {
-      console.warn(error);
-      // throw new Error('Failed to fetch options');
+      dispatch(OptionsActions.fetchRejected({ error }));
     },
   });
 };
