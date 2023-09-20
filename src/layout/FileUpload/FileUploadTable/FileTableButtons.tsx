@@ -37,7 +37,9 @@ export function FileTableButtons({
   const { lang, langAsString } = useLanguage();
   const dispatch = useAppDispatch();
 
-  //Edit button
+  // const [isEditing, setIsEditing] = useState(false);
+
+  // Edit button
   const handleEdit = (index: number) => {
     if (editIndex === -1 || editIndex !== index) {
       setEditIndex(index);

@@ -68,44 +68,6 @@ describe('AttachmentWithTagSummaryComponent', () => {
         },
       },
     },
-    optionState: {
-      error: null,
-      options: {
-        a: {
-          id: 'a',
-          options: [
-            { value: 'a', label: 'aa option value' },
-            { value: 'b', label: 'ab option value' },
-            { value: 'c', label: 'ac option value' },
-          ],
-        },
-        b: {
-          id: 'a',
-          options: [
-            { value: 'a', label: 'ba option value' },
-            { value: 'b', label: 'bb option value' },
-            { value: 'c', label: 'bc option value' },
-          ],
-        },
-        c: {
-          id: 'a',
-          options: [
-            { value: 'a', label: 'ca option value' },
-            { value: 'b', label: 'cb option value' },
-            { value: 'c', label: 'cc option value' },
-          ],
-        },
-        ['{"id":"a","mapping":{"a":"b"}}']: {
-          id: 'a',
-          options: [
-            { value: 'a', label: 'da option value' },
-            { value: 'b', label: 'db option value' },
-            { value: 'c', label: 'dc option value' },
-          ],
-        },
-      },
-      loading: false,
-    },
   };
   test('should render file upload with tag without content with the text Du har ikke lagt inn informasjon her', () => {
     renderHelper(formLayoutItem);

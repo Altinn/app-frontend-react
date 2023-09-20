@@ -47,26 +47,6 @@ const render = ({ component, genericProps, optionState }: Props = {}, options: I
       handleDataChange: jest.fn(),
       ...genericProps,
     },
-    manipulateState: (state) => {
-      state.optionState = optionState || {
-        options: {
-          countries: {
-            id: 'countries',
-            options: threeOptions,
-          },
-          loadingOptions: {
-            id: 'loadingOptions',
-            options: undefined,
-            loading: true,
-          },
-        },
-        error: {
-          name: '',
-          message: '',
-        },
-        loading: true,
-      };
-    },
     mockedQueries: {
       fetchOptions: () => Promise.resolve(options || []),
     },

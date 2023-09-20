@@ -5,10 +5,6 @@ import { Grid } from '@material-ui/core';
 import { CheckmarkCircleFillIcon } from '@navikt/aksel-icons';
 
 import { AltinnLoader } from 'src/components/AltinnLoader';
-import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
-import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useFormattedOptions } from 'src/hooks/useFormattedOptions';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { AttachmentFileName } from 'src/layout/FileUpload/FileUploadTable/AttachmentFileName';
@@ -18,7 +14,6 @@ import { renderValidationMessages } from 'src/utils/render';
 import type { IAttachment } from 'src/features/attachments';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IOption } from 'src/layout/common.generated';
-import type { IRuntimeState } from 'src/types';
 
 export interface EditWindowProps {
   node: PropsFromGenericComponent<'FileUploadWithTag'>['node'];
@@ -48,41 +43,26 @@ export function EditWindowComponent({
   node,
   options,
   setEditIndex,
-  validationsWithTag,
-  setValidationsWithTag,
 }: EditWindowProps): React.JSX.Element {
-  const dispatch = useAppDispatch();
-  const { id, baseComponentId, textResourceBindings, readOnly } = node.item;
+  const { textResourceBindings, readOnly } = node.item;
   const { lang, langAsString } = useLanguage();
 
   const formattedOptions = useFormattedOptions(options);
 
-  const onDropdownDataChange = (attachmentId: string, value: string) => {
+  const onDropdownDataChange = (_attachmentId: string, value: string) => {
     if (value !== undefined) {
       const option = options?.find((o) => o.value === value);
       if (option !== undefined) {
-        dispatch(
-          FormLayoutActions.updateFileUploaderWithTagChosenOptions({
-            componentId: id,
-            baseComponentId: baseComponentId || id,
-            id: attachmentId,
-            option,
-          }),
-        );
+        // TODO: Save option to state, but save it to the backend later
       } else {
         console.error(`Could not find option for ${value}`);
       }
     }
   };
 
-  const chosenOptions = useAppSelector(
-    (state: IRuntimeState) =>
-      (state.formLayout.uiConfig.fileUploadersWithTag &&
-        state.formLayout.uiConfig.fileUploadersWithTag[id]?.chosenOptions) ??
-      {},
-  );
-
-  const handleSave = (attachment: IAttachment) => {
+  const handleSave = (_attachment: IAttachment) => {
+    // TODO: Implement with local state handling
+    /*
     if (chosenOptions[attachment.id] !== undefined && chosenOptions[attachment.id].length !== 0) {
       setEditIndex(-1);
       if (attachment.tags === undefined || chosenOptions[attachment.id] !== attachment.tags[0]) {
@@ -100,9 +80,10 @@ export function EditWindowComponent({
           .toLowerCase()}.`,
       });
       setValidationsWithTag(validationsWithTag.filter((obj) => obj.id !== tmpValidations[0].id).concat(tmpValidations));
-    }
+    }*/
   };
 
+  /*
   const setAttachmentTag = (attachment: IAttachment, optionValue: string) => {
     const option = options?.find((o) => o.value === optionValue);
     if (option !== undefined) {
@@ -117,7 +98,7 @@ export function EditWindowComponent({
     } else {
       console.error(`Could not find option for ${optionValue}`);
     }
-  };
+  };*/
 
   const saveIsDisabled = attachment.updating === true || attachment.uploaded === false || readOnly;
 
@@ -214,7 +195,7 @@ export function EditWindowComponent({
               error={attachmentValidations.filter((i) => i.id === attachment.id).length > 0}
               label={langAsString('general.choose')}
               hideLabel={true}
-              value={chosenOptions[attachment.id]}
+              value={'' /* chosenOptions[attachment.id]  TODO: Fix */}
             />
           </Grid>
           <Grid

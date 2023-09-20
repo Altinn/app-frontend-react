@@ -127,7 +127,6 @@ const createLayout = (
     },
     currentView: 'FormLayout',
     focus: null,
-    fileUploadersWithTag: {},
     navigationConfig: {},
     tracks: {
       order: null,
@@ -220,17 +219,6 @@ export const render = ({
     formData: mockData,
     formValidations: createFormValidationsForCurrentView(validations),
     textResources: createTextResource(mockQuestions, extraTextResources),
-    optionState: {
-      options: {
-        'option-test': {
-          id: 'option-test',
-          options: [],
-          loading: false,
-        },
-      },
-      error: null,
-      loading: false,
-    },
   });
 
   const mockStore = setupStore(preloadedState).store;

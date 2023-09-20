@@ -119,7 +119,6 @@ export interface IUiConfig {
   focus: string | null | undefined;
   hiddenFields: string[];
   repeatingGroups: IRepeatingGroups | null;
-  fileUploadersWithTag?: IFileUploadersWithTag;
   navigationConfig?: INavigationConfig;
   tracks: ITracks;
   excludePageFromPdf: string[] | null;

@@ -3,8 +3,6 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 
 import { getAttachments } from 'src/__mocks__/attachmentsMock';
-import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
-import { getUiConfigStateMock } from 'src/__mocks__/uiConfigStateMock';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { renderGenericComponentTest } from 'src/testUtils';
 import type { IAttachment } from 'src/features/attachments';
@@ -337,37 +335,6 @@ const renderWithTag = ({ component, genericProps, attachments = getAttachments()
       state.attachments = {
         attachments: {
           [testId]: attachments,
-        },
-      };
-      state.optionState = {
-        options: {
-          test: {
-            id: testId,
-            options: [
-              { value: 'attachment-tag-0', label: 'attachment-tag-label-0' },
-              { value: 'attachment-tag-1', label: 'attachment-tag-label-1' },
-              { value: 'attachment-tag-2', label: 'attachment-tag-label-2' },
-            ],
-            loading: false,
-          },
-        },
-        error: null,
-        loading: false,
-      };
-      state.formLayout = {
-        ...getFormLayoutStateMock(),
-        uiConfig: {
-          ...getUiConfigStateMock(),
-          fileUploadersWithTag: {
-            [testId]: {
-              editIndex,
-              chosenOptions: {
-                'attachment-id-0': 'attachment-tag-0',
-                'attachment-id-1': 'attachment-tag-1',
-                'attachment-id-2': 'attachment-tag-2',
-              },
-            },
-          },
         },
       };
     },

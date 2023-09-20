@@ -168,11 +168,10 @@ export function implementsDisplayData<Type extends CompTypes>(
   return 'getDisplayData' in component && 'useDisplayData' in component;
 }
 
-function getDisplayDataPropsFromState(state: IRuntimeState): DisplayDataProps {
+function getDisplayDataPropsFromState(state: IRuntimeState): Omit<DisplayDataProps, 'options'> {
   return {
     formData: state.formData.formData,
     attachments: state.attachments.attachments,
-    options: state.optionState.options,
     langTools: staticUseLanguageFromState(state),
   };
 }

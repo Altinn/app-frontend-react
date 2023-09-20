@@ -1,12 +1,12 @@
-import { put, select } from 'redux-saga/effects';
+import { select } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
-import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { selectAttachmentState, selectFormLayouts } from 'src/features/layout/update/updateFormLayoutSagas';
 import { mapFileUploadersWithTag } from 'src/utils/formLayout';
 import type { IAttachmentState } from 'src/features/attachments';
 import type { IFileUploadersWithTag } from 'src/types';
 
+// TODO: Remove this
 export function* mapFileUploaderWithTagSaga(): SagaIterator {
   const attachmentState: IAttachmentState = yield select(selectAttachmentState);
   const layouts = yield select(selectFormLayouts);
@@ -17,9 +17,4 @@ export function* mapFileUploaderWithTagSaga(): SagaIterator {
       ...mapFileUploadersWithTag(layouts[layoutKey], attachmentState),
     };
   });
-  yield put(
-    FormLayoutActions.updateFileUploadersWithTagFulfilled({
-      uploaders: newUploads,
-    }),
-  );
 }

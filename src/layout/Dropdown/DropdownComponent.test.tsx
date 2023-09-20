@@ -43,23 +43,6 @@ const render = (
       isValid: true,
       ...genericProps,
     },
-    manipulateState: (state) => {
-      state.optionState = {
-        options: {
-          countries,
-          loadingOptions: {
-            id: 'loadingOptions',
-            options: undefined,
-            loading: true,
-          },
-        },
-        error: {
-          name: '',
-          message: '',
-        },
-        loading: true,
-      };
-    },
     mockedQueries: {
       fetchOptions: () => Promise.resolve(options || []),
     },

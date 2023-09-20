@@ -1,8 +1,5 @@
 import React from 'react';
 
-import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import classes from 'src/layout/FileUpload/FileUploadTable/FileTableComponent.module.css';
 import { FileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRow';
@@ -11,7 +8,6 @@ import { atleastOneTagExists } from 'src/utils/formComponentUtils';
 import type { IAttachment } from 'src/features/attachments';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IOption } from 'src/layout/common.generated';
-import type { IRuntimeState } from 'src/types';
 
 export interface FileTableProps {
   node: PropsFromGenericComponent<'FileUpload' | 'FileUploadWithTag'>['node'];
@@ -38,15 +34,12 @@ export function FileTableComponent({
   validationsWithTag,
   setValidationsWithTag,
 }: FileTableProps): React.JSX.Element | null {
-  const dispatch = useAppDispatch();
   const { lang } = useLanguage();
-  const { id, baseComponentId, textResourceBindings, type } = node.item;
+  const { textResourceBindings, type } = node.item;
   const hasTag = type === 'FileUploadWithTag';
 
-  const editIndex = useAppSelector((state: IRuntimeState) => {
-    const fileUploadersWithTag = state.formLayout.uiConfig.fileUploadersWithTag;
-    return fileUploadersWithTag?.[id]?.editIndex ?? -1;
-  });
+  // TODO: Move this state closer to the consumer
+  const editIndex: number = 0;
 
   if (!attachments || attachments.length === 0) {
     return null;
@@ -60,14 +53,8 @@ export function FileTableComponent({
     return options?.find((option) => option.value === firstTag)?.label;
   };
 
-  const setEditIndex = (index: number) => {
-    dispatch(
-      FormLayoutActions.updateFileUploaderWithTagEditIndex({
-        componentId: id,
-        baseComponentId: baseComponentId || id,
-        index,
-      }),
-    );
+  const setEditIndex = (_index: number) => {
+    // TODO: Move this state closer to the consumer
   };
 
   return (
