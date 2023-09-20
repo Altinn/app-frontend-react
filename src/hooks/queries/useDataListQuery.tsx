@@ -39,22 +39,21 @@ export const useDataListQuery = (
     return {};
   }, [formData, mapping]);
 
+  const url = getDataListsUrl({
+    dataListId,
+    mappedData,
+    language: selectedLanguage,
+    secure,
+    instanceId: window.instanceId,
+    pageSize: `${pageSize}`,
+    pageNumber: `${pageNumber}`,
+    sortColumn,
+    sortDirection,
+  });
+
   return useQuery({
-    queryKey: [dataListId, filter, mappedData, selectedLanguage, secure, window.instanceId],
-    queryFn: () =>
-      fetchDataList(
-        getDataListsUrl({
-          dataListId,
-          mappedData,
-          language: selectedLanguage,
-          secure,
-          instanceId: window.instanceId,
-          pageSize: `${pageSize}`,
-          pageNumber: `${pageNumber}`,
-          sortColumn,
-          sortDirection,
-        }),
-      ),
+    queryKey: [url],
+    queryFn: () => fetchDataList(url),
     onError: (error: HttpClientError) => {
       dispatch(DataListsActions.fetchRejected({ error }));
     },

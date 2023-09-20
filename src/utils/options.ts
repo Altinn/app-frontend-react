@@ -5,11 +5,13 @@ import {
   keyHasIndexIndicators,
   replaceIndexIndicatorsWithIndexes,
 } from 'src/utils/databindings';
-import type { IFormData } from 'src/features/formData';
-import type { IMapping, IOption, IOptionSource } from 'src/layout/common.generated';
+import type { IMapping, IOption } from 'src/layout/common.generated';
 import type { ILayout } from 'src/layout/layout';
 import type { IOptions, IOptionsMetaData, IRepeatingGroups } from 'src/types';
 
+/**
+ * @deprecated
+ */
 export function getOptionLookupKey({ id, mapping, fixedQueryParameters }: IOptionsMetaData) {
   if (!mapping && !fixedQueryParameters) {
     return id;
@@ -34,6 +36,9 @@ interface IOptionLookupKeys {
   keyWithIndexIndicator?: IOptionsMetaData;
 }
 
+/**
+ * @deprecated
+ */
 export function getOptionLookupKeys({
   id,
   mapping,
@@ -73,22 +78,6 @@ export function getOptionLookupKeys({
   };
 }
 
-export function getRelevantFormDataForOptionSource(formData: IFormData, source: IOptionSource) {
-  const relevantFormData: IFormData = {};
-
-  if (!formData || !source) {
-    return relevantFormData;
-  }
-
-  Object.keys(formData).forEach((key) => {
-    if (key.includes(source.group)) {
-      relevantFormData[key] = formData[key];
-    }
-  });
-
-  return relevantFormData;
-}
-
 interface IRemoveGroupOptionsByIndexParams {
   groupId: string;
   index: number;
@@ -96,6 +85,10 @@ interface IRemoveGroupOptionsByIndexParams {
   options: IOptions;
   layout: ILayout;
 }
+
+/**
+ * @deprecated
+ */
 export function removeGroupOptionsByIndex({
   groupId,
   index,

@@ -7,10 +7,10 @@ import { LayoutStyle } from 'src/layout/common.generated';
 import { RadioButtonContainerComponent } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 import { renderGenericComponentTest } from 'src/testUtils';
 import type { IOptionsState } from 'src/features/options';
+import type { IOption } from 'src/layout/common.generated';
 import type { RenderGenericComponentTestProps } from 'src/testUtils';
-import type { IGetOptionsUrlParams } from 'src/utils/urls/appUrlHelper';
 
-const threeOptions = [
+const threeOptions: IOption[] = [
   {
     label: 'Norway',
     value: 'norway',
@@ -29,9 +29,8 @@ const twoOptions = threeOptions.slice(1);
 
 const render = (
   { component, genericProps, manipulateState }: Partial<RenderGenericComponentTestProps<'RadioButtons'>> = {},
-  options,
+  options: IOption[] | undefined,
 ) => {
-  const fetchOptions = () => Promise.resolve([...options] as unknown as IGetOptionsUrlParams);
   renderGenericComponentTest({
     type: 'RadioButtons',
     renderer: (props) => <RadioButtonContainerComponent {...props} />,
@@ -69,7 +68,7 @@ const render = (
           };
         },
     mockedQueries: {
-      fetchOptions,
+      fetchOptions: () => Promise.resolve(options || []),
     },
   });
 };

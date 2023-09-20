@@ -4,14 +4,12 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from '@digdir/desi
 import { Grid, Typography } from '@material-ui/core';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useGetOptions } from 'src/hooks/useGetOptions';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { LayoutStyle } from 'src/layout/common.generated';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Likert/LikertComponent.module.css';
-import { getOptionLookupKey } from 'src/utils/options';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { CompGroupRepeatingLikertInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
@@ -25,10 +23,18 @@ export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertCo
   const firstLikertChild = node?.children((item) => item.type === 'Likert') as LayoutNode<'Likert'> | undefined;
   const { optionsId, mapping, queryParameters, source, options, secure } = firstLikertChild?.item || {};
   const mobileView = useIsMobileOrTablet();
-  const apiOptions = useGetOptions({ optionsId, mapping, queryParameters, secure, source, node });
-  const calculatedOptions = apiOptions || options || [];
-  const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });
-  const fetchingOptions = useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading);
+  const { options: calculatedOptions, isFetching } = useGetOptions({
+    options,
+    optionsId,
+    mapping,
+    queryParameters,
+    secure,
+    source,
+    node,
+    formData: {
+      disable: 'I have read the code and know that core functionality will be missing',
+    },
+  });
   const { lang } = useLanguage();
 
   const id = node.item.id;
@@ -98,7 +104,7 @@ export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertCo
   return (
     <>
       <Header />
-      {fetchingOptions ? (
+      {isFetching ? (
         <AltinnSpinner />
       ) : (
         <div className={classes.likertTableContainer}>

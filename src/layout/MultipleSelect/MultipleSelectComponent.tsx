@@ -6,11 +6,10 @@ import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useFormattedOptions } from 'src/hooks/useFormattedOptions';
 import { useGetOptions } from 'src/hooks/useGetOptions';
 import { useLanguage } from 'src/hooks/useLanguage';
-import { duplicateOptionFilter } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IMultipleSelectProps = PropsFromGenericComponent<'MultipleSelect'>;
-
+const defaultSelectedOptions: string[] = [];
 export function MultipleSelectComponent({
   node,
   handleDataChange,
@@ -20,11 +19,26 @@ export function MultipleSelectComponent({
 }: IMultipleSelectProps) {
   const { options, optionsId, source, secure, mapping, queryParameters, id, readOnly, textResourceBindings } =
     node.item;
-  const apiOptions = useGetOptions({ optionsId, source, secure, mapping, queryParameters, node });
   const { value, setValue, saveValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding);
+  const selected = value && value.length > 0 ? value.split(',') : defaultSelectedOptions;
+  const { options: calculatedOptions } = useGetOptions({
+    options,
+    optionsId,
+    source,
+    secure,
+    mapping,
+    queryParameters,
+    node,
+    formData: {
+      type: 'multi',
+      values: selected,
+      setValues: (values) => {
+        setValue(values.join(','));
+      },
+    },
+    removeDuplicates: true,
+  });
   const { langAsString } = useLanguage();
-
-  const calculatedOptions = (apiOptions || options)?.filter(duplicateOptionFilter);
 
   const formattedOptions = useFormattedOptions(calculatedOptions, true);
 

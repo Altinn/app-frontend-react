@@ -12,7 +12,6 @@ import {
   getJsonSchemaUrl,
   getLayoutSetsUrl,
   getLayoutsUrl,
-  getOptionsUrl,
   getPartyValidationUrl,
   instancesControllerUrl,
   profileApiUrl,
@@ -25,9 +24,9 @@ import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { ITextResourcesState } from 'src/features/textResources';
+import type { IOption } from 'src/layout/common.generated';
 import type { ILayoutSets, ISimpleInstance } from 'src/types';
 import type { IAltinnOrgs, IApplicationSettings, IProfile } from 'src/types/shared';
-import type { IGetOptionsUrlParams } from 'src/utils/urls/appUrlHelper';
 
 export const doPartyValidation = async (partyId: string) => (await httpPost(getPartyValidationUrl(partyId))).data;
 
@@ -49,16 +48,7 @@ export const fetchLayoutSets = (): Promise<ILayoutSets> => httpGet(getLayoutSets
 
 export const fetchLayout = (instanceId: string | null): Promise<ILayoutSets> => httpGet(getLayoutsUrl(instanceId));
 
-export const fetchOptions = (
-  optionsId,
-  formData,
-  language,
-  dataMapping,
-  fixedQueryParameters,
-  secure,
-  instanceId,
-): Promise<IGetOptionsUrlParams> =>
-  httpGet(getOptionsUrl({ optionsId, formData, language, dataMapping, fixedQueryParameters, secure, instanceId }));
+export const fetchOptions = (url: string): Promise<IOption[]> => httpGet(url);
 
 export const fetchDataList = (url: string): Promise<IDataList> => httpGet(url);
 

@@ -24,7 +24,6 @@ import type { CompExternalExact, CompTypes } from 'src/layout/layout';
 import type { AppStore, RootState } from 'src/redux/store';
 import type { ILayoutSets, IRuntimeState, ISimpleInstance } from 'src/types';
 import type { IProfile } from 'src/types/shared';
-import type { IGetOptionsUrlParams } from 'src/utils/urls/appUrlHelper';
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   preloadedState?: PreloadedState<RootState>;
@@ -55,7 +54,7 @@ export const renderWithProviders = (
       fetchFormData: () => Promise.resolve({}),
       fetchCurrentInstance: () => Promise.resolve({} as unknown as ISimpleInstance),
       fetchLayout: () => Promise.resolve({} as unknown as ILayoutSets),
-      fetchOptions: () => Promise.resolve({} as unknown as IGetOptionsUrlParams),
+      fetchOptions: () => Promise.resolve([]),
       fetchTextResources: () => Promise.resolve({} as unknown as ITextResourcesState),
       fetchDataList: () => Promise.resolve({} as unknown as IDataList),
     } as AppQueriesContext;

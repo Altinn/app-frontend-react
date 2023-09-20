@@ -9,7 +9,6 @@ import { renderGenericComponentTest } from 'src/testUtils';
 import type { IOptionsState } from 'src/features/options';
 import type { IOption } from 'src/layout/common.generated';
 import type { RenderGenericComponentTestProps } from 'src/testUtils';
-import type { IGetOptionsUrlParams } from 'src/utils/urls/appUrlHelper';
 
 const threeOptions = [
   {
@@ -33,9 +32,8 @@ interface Props extends Partial<RenderGenericComponentTestProps<'Checkboxes'>> {
   options?: IOption[];
 }
 
-const render = ({ component, genericProps, optionState }: Props = {}, options) => {
-  const fetchOptions = () => Promise.resolve([...options] as unknown as IGetOptionsUrlParams);
-  return renderGenericComponentTest({
+const render = ({ component, genericProps, optionState }: Props = {}, options: IOption[] | undefined) =>
+  renderGenericComponentTest({
     type: 'Checkboxes',
     renderer: (props) => <CheckboxContainerComponent {...props} />,
     component: {
@@ -70,10 +68,9 @@ const render = ({ component, genericProps, optionState }: Props = {}, options) =
       };
     },
     mockedQueries: {
-      fetchOptions,
+      fetchOptions: () => Promise.resolve(options || []),
     },
   });
-};
 const getCheckbox = ({ name, isChecked = false }) =>
   screen.getByRole('checkbox', {
     name,

@@ -5,8 +5,8 @@ import userEvent from '@testing-library/user-event';
 
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
 import { renderGenericComponentTest } from 'src/testUtils';
+import type { IOption } from 'src/layout/common.generated';
 import type { RenderGenericComponentTestProps } from 'src/testUtils';
-import type { IGetOptionsUrlParams } from 'src/utils/urls/appUrlHelper';
 
 const countries = {
   id: 'countries',
@@ -23,11 +23,13 @@ const countries = {
       label: 'Denmark',
       value: 'denmark',
     },
-  ],
+  ] as IOption[],
 };
 
-const render = ({ component, genericProps }: Partial<RenderGenericComponentTestProps<'Dropdown'>> = {}, options) => {
-  const fetchOptions = () => Promise.resolve([...options] as unknown as IGetOptionsUrlParams);
+const render = (
+  { component, genericProps }: Partial<RenderGenericComponentTestProps<'Dropdown'>> = {},
+  options: IOption[] | undefined,
+) => {
   renderGenericComponentTest({
     type: 'Dropdown',
     renderer: (props) => <DropdownComponent {...props} />,
@@ -59,7 +61,7 @@ const render = ({ component, genericProps }: Partial<RenderGenericComponentTestP
       };
     },
     mockedQueries: {
-      fetchOptions,
+      fetchOptions: () => Promise.resolve(options || []),
     },
   });
 };

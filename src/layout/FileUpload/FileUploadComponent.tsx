@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useGetOptions } from 'src/hooks/useGetOptions';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { AttachmentsCounter } from 'src/layout/FileUpload/AttachmentsCounter';
@@ -17,7 +18,6 @@ import {
   getFileUploadWithTagComponentValidations,
   parseFileUploadComponentWithTagValidationObject,
 } from 'src/utils/formComponentUtils';
-import { getOptionLookupKey } from 'src/utils/options';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { IAttachment } from 'src/features/attachments';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -53,7 +53,18 @@ export function FileUploadComponent({ componentValidations, node }: IFileUploadW
   const langTools = useLanguage();
   const { lang, langAsString } = langTools;
 
-  const options = useAppSelector((state) => {
+  const mapping = 'mapping' in node.item && node.item.mapping ? node.item.mapping : undefined;
+  const optionsId = 'optionsId' in node.item ? node.item.optionsId : undefined;
+  const { options } = useGetOptions({
+    optionsId,
+    mapping,
+    node,
+    formData: {
+      disable: 'I have read the code and know that core functionality will be missing',
+    },
+  });
+  /*
+    const options = useAppSelector((state) => {
     const mapping = ('mapping' in node.item && node.item?.mapping) || undefined;
     const optionsId = 'optionsId' in node.item && node.item.optionsId;
     if (optionsId) {
@@ -67,6 +78,7 @@ export function FileUploadComponent({ componentValidations, node }: IFileUploadW
       return undefined;
     }
   });
+  */
 
   // Get data from validations based on hasTag.
   const { validationMessages, hasValidationMessages, ...otherValidationData } = hasTag

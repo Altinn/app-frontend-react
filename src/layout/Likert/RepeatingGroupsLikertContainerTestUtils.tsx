@@ -19,7 +19,6 @@ import type { IOption } from 'src/layout/common.generated';
 import type { CompGroupExternal, CompGroupRepeatingLikertExternal } from 'src/layout/Group/config.generated';
 import type { CompOrGroupExternal } from 'src/layout/layout';
 import type { CompLikertExternal } from 'src/layout/Likert/config.generated';
-import type { IGetOptionsUrlParams } from 'src/utils/urls/appUrlHelper';
 import type { ILayoutValidations } from 'src/utils/validation/types';
 
 export const defaultMockQuestions = [
@@ -42,7 +41,7 @@ export const generateMockFormData = (likertQuestions: IQuestion[]): Record<strin
     {},
   );
 
-export const defaultMockOptions = [
+export const defaultMockOptions: IOption[] = [
   {
     label: 'Bra',
     value: '1',
@@ -234,7 +233,6 @@ export const render = ({
     },
   });
 
-  const fetchOptions = () => Promise.resolve([...mockOptions] as unknown as IGetOptionsUrlParams);
   const mockStore = setupStore(preloadedState).store;
   const mockStoreDispatch = jest.fn();
   mockStore.dispatch = mockStoreDispatch;
@@ -244,7 +242,7 @@ export const render = ({
     {
       store: mockStore,
     },
-    { fetchOptions },
+    { fetchOptions: () => Promise.resolve(mockOptions) },
   );
 
   return { mockStoreDispatch };
