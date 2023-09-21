@@ -2,9 +2,9 @@ import React from 'react';
 
 import { Select } from '@digdir/design-system-react';
 
+import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useFormattedOptions } from 'src/hooks/useFormattedOptions';
-import { useGetOptions } from 'src/hooks/useGetOptions';
 import { useLanguage } from 'src/hooks/useLanguage';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -17,17 +17,11 @@ export function MultipleSelectComponent({
   isValid,
   overrideDisplay,
 }: IMultipleSelectProps) {
-  const { options, optionsId, source, secure, mapping, queryParameters, id, readOnly, textResourceBindings } =
-    node.item;
+  const { id, readOnly, textResourceBindings } = node.item;
   const { value, setValue, saveValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding);
   const selected = value && value.length > 0 ? value.split(',') : defaultSelectedOptions;
   const { options: calculatedOptions } = useGetOptions({
-    options,
-    optionsId,
-    source,
-    secure,
-    mapping,
-    queryParameters,
+    ...node.item,
     node,
     formData: {
       type: 'multi',

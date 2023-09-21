@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from '@digdir/desi
 import { Grid, Typography } from '@material-ui/core';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
-import { useGetOptions } from 'src/hooks/useGetOptions';
+import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { LayoutStyle } from 'src/layout/common.generated';
@@ -21,15 +21,9 @@ type RepeatingGroupsLikertContainerProps = {
 
 export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertContainerProps) => {
   const firstLikertChild = node?.children((item) => item.type === 'Likert') as LayoutNode<'Likert'> | undefined;
-  const { optionsId, mapping, queryParameters, source, options, secure } = firstLikertChild?.item || {};
   const mobileView = useIsMobileOrTablet();
   const { options: calculatedOptions, isFetching } = useGetOptions({
-    options,
-    optionsId,
-    mapping,
-    queryParameters,
-    secure,
-    source,
+    ...(firstLikertChild?.item || {}),
     node,
     formData: {
       disable: 'I have read the code and know that core functionality will be missing',

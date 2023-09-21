@@ -5,8 +5,8 @@ import { LegacyCheckboxGroup } from '@digdir/design-system-react';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
+import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
-import { useGetOptions } from 'src/hooks/useGetOptions';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { shouldUseRowLayout } from 'src/utils/layout';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -22,34 +22,14 @@ export const CheckboxContainerComponent = ({
   handleDataChange,
   overrideDisplay,
 }: ICheckboxContainerProps) => {
-  const {
-    id,
-    options,
-    optionsId,
-    preselectedOptionIndex,
-    layout,
-    readOnly,
-    mapping,
-    queryParameters,
-    source,
-    textResourceBindings,
-    required,
-    labelSettings,
-    secure,
-  } = node.item;
+  const { id, layout, readOnly, textResourceBindings, required, labelSettings } = node.item;
   const { lang, langAsString } = useLanguage();
   const { value, setValue, saveValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding ?? '', 200);
 
   const selected = value && value.length > 0 ? value.split(',') : defaultSelectedOptions;
   const { options: calculatedOptions, isFetching } = useGetOptions({
-    options,
-    optionsId,
-    mapping,
-    queryParameters,
-    secure,
-    source,
+    ...node.item,
     node,
-    preselectedOptionIndex,
     formData: {
       type: 'multi',
       values: selected,

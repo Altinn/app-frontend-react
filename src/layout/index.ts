@@ -1,15 +1,17 @@
-import { createContext } from 'react';
+import { createContext, useMemo } from 'react';
 
+import { useAllOptionsContext } from 'src/features/options/useAllOptions';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { type IUseLanguage, staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { ComponentConfigs } from 'src/layout/components.generated';
 import type { IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
+import type { AllOptionsMap } from 'src/features/options/useAllOptions';
 import type { IGrid } from 'src/layout/common.generated';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { CompInternal, CompRendersLabel, CompTypes } from 'src/layout/layout';
 import type { AnyComponent, LayoutComponent } from 'src/layout/LayoutComponent';
-import type { IOptions, IRuntimeState } from 'src/types';
+import type { IRuntimeState } from 'src/types';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ISchemaValidationError } from 'src/utils/validation/schemaValidation';
@@ -153,7 +155,7 @@ export function implementsGroupValidation<Type extends CompTypes>(
 export interface DisplayDataProps {
   formData: IFormData;
   attachments: IAttachments;
-  options: IOptions;
+  options: AllOptionsMap;
   langTools: IUseLanguage;
 }
 
@@ -177,5 +179,8 @@ function getDisplayDataPropsFromState(state: IRuntimeState): Omit<DisplayDataPro
 }
 
 export function useDisplayDataProps(): DisplayDataProps {
-  return useAppSelector(getDisplayDataPropsFromState);
+  const options = useAllOptionsContext();
+  const props = useAppSelector(getDisplayDataPropsFromState);
+
+  return useMemo(() => ({ options, ...props }), [options, props]);
 }

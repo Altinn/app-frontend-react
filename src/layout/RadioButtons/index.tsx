@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { getOptionList } from 'src/features/options/getOptionList';
 import { getSelectedValueToText } from 'src/features/options/getSelectedValueToText';
 import { RadioButtonsDef } from 'src/layout/RadioButtons/config.def.generated';
 import { RadioButtonContainerComponent } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
@@ -18,7 +17,7 @@ export class RadioButtons extends RadioButtonsDef {
     const value = node.item.dataModelBindings?.simpleBinding
       ? formData[node.item.dataModelBindings.simpleBinding] || ''
       : '';
-    const optionList = getOptionList(node.item, options, langTools, node, formData);
+    const optionList = options[node.item.id] || [];
     return getSelectedValueToText(value, langTools, optionList) || '';
   }
 

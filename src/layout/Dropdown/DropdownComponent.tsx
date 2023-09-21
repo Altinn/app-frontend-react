@@ -3,39 +3,22 @@ import React from 'react';
 import { Select } from '@digdir/design-system-react';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
+import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useFormattedOptions } from 'src/hooks/useFormattedOptions';
-import { useGetOptions } from 'src/hooks/useGetOptions';
 import { useLanguage } from 'src/hooks/useLanguage';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IDropdownProps = PropsFromGenericComponent<'Dropdown'>;
 
 export function DropdownComponent({ node, formData, handleDataChange, isValid, overrideDisplay }: IDropdownProps) {
-  const {
-    optionsId,
-    options: staticOptions,
-    preselectedOptionIndex,
-    id,
-    readOnly,
-    mapping,
-    queryParameters,
-    source,
-    textResourceBindings,
-    secure,
-  } = node.item;
+  const { id, readOnly, textResourceBindings } = node.item;
   const { langAsString } = useLanguage();
   const { value: selected, setValue, saveValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding, 200);
 
   const { options, isFetching } = useGetOptions({
-    options: staticOptions,
-    optionsId,
-    mapping,
-    queryParameters,
-    source,
-    secure,
+    ...node.item,
     node,
-    preselectedOptionIndex,
     formData: {
       type: 'single',
       value: selected,

@@ -1,16 +1,16 @@
 import React from 'react';
 
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
-import { getOptionList } from 'src/features/options/getOptionList';
+import { useAllOptionsContext } from 'src/features/options/useAllOptions';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { type IUseLanguage, useLanguage } from 'src/hooks/useLanguage';
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
 import { CheckboxesDef } from 'src/layout/Checkboxes/config.def.generated';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import type { IFormData } from 'src/features/formData';
+import type { AllOptionsMap } from 'src/features/options/useAllOptions';
 import type { DisplayDataProps, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { IOptions } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Checkboxes extends CheckboxesDef {
@@ -22,12 +22,12 @@ export class Checkboxes extends CheckboxesDef {
     node: LayoutNode<'Checkboxes'>,
     formData: IFormData,
     langTools: IUseLanguage,
-    options: IOptions,
+    options: AllOptionsMap,
   ): { [key: string]: string } {
     const value = node.item.dataModelBindings?.simpleBinding
       ? formData[node.item.dataModelBindings.simpleBinding] || ''
       : '';
-    const optionList = getOptionList(node.item, options, langTools, node, formData);
+    const optionList = options[node.item.id] || [];
     return getCommaSeparatedOptionsToText(value, optionList, langTools);
   }
 
@@ -38,7 +38,7 @@ export class Checkboxes extends CheckboxesDef {
   renderSummary({ targetNode }: SummaryRendererProps<'Checkboxes'>): JSX.Element | null {
     const formData = useAppSelector((state) => state.formData.formData);
     const langTools = useLanguage();
-    const options = useAppSelector((state) => state.optionState.options);
+    const options = useAllOptionsContext();
     const summaryData = this.getSummaryData(targetNode, formData, langTools, options);
     return <MultipleChoiceSummary formData={summaryData} />;
   }

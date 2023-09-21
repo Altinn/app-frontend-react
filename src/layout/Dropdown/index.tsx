@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { getOptionList } from 'src/features/options/getOptionList';
 import { getSelectedValueToText } from 'src/features/options/getSelectedValueToText';
 import { DropdownDef } from 'src/layout/Dropdown/config.def.generated';
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
@@ -20,7 +19,7 @@ export class Dropdown extends DropdownDef {
     }
 
     const value = formData[node.item.dataModelBindings.simpleBinding] || '';
-    const optionList = getOptionList(node.item, options, langTools, node, formData);
+    const optionList = options[node.item.id] || [];
     return getSelectedValueToText(value, langTools, optionList) || '';
   }
 

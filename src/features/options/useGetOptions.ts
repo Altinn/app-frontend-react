@@ -36,7 +36,7 @@ interface Props<T extends ValueType> {
   options?: IOption[];
 
   // Fetch options from API
-  optionsId: string | undefined;
+  optionsId?: string;
   secure?: boolean;
   mapping?: IMapping;
   queryParameters?: Record<string, string>;

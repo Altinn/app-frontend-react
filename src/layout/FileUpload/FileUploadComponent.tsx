@@ -4,9 +4,9 @@ import type { FileRejection } from 'react-dropzone';
 import { v4 as uuidv4 } from 'uuid';
 
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
+import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useGetOptions } from 'src/hooks/useGetOptions';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { AttachmentsCounter } from 'src/layout/FileUpload/AttachmentsCounter';
