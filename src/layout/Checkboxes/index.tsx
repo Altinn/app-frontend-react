@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
-import { useAllOptionsContext } from 'src/features/options/useAllOptions';
+import { useAllOptions } from 'src/features/options/useAllOptions';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { type IUseLanguage, useLanguage } from 'src/hooks/useLanguage';
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
@@ -38,7 +38,7 @@ export class Checkboxes extends CheckboxesDef {
   renderSummary({ targetNode }: SummaryRendererProps<'Checkboxes'>): JSX.Element | null {
     const formData = useAppSelector((state) => state.formData.formData);
     const langTools = useLanguage();
-    const options = useAllOptionsContext();
+    const options = useAllOptions();
     const summaryData = this.getSummaryData(targetNode, formData, langTools, options);
     return <MultipleChoiceSummary formData={summaryData} />;
   }

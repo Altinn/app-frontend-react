@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useAllOptionsContext } from 'src/features/options/useAllOptions';
+import { useAllOptions } from 'src/features/options/useAllOptions';
 import { useLanguage } from 'src/hooks/useLanguage';
 import classes from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent.module.css';
 import { useUploaderSummaryData } from 'src/layout/FileUpload/Summary/summary';
@@ -15,7 +15,7 @@ export function AttachmentSummaryComponent({ targetNode }: IAttachmentSummaryCom
   const attachments = useUploaderSummaryData(targetNode);
   const { lang, langAsString } = useLanguage();
   const component = targetNode.item;
-  const allOptions = useAllOptionsContext();
+  const allOptions = useAllOptions();
   const hasTag = component.type === 'FileUploadWithTag';
   const options = hasTag ? allOptions[component.id] : undefined;
 

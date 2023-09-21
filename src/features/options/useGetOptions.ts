@@ -55,7 +55,7 @@ const defaultOptions: IOption[] = [];
 export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResult {
   const { node, options, optionsId, secure, removeDuplicates, source, mapping, queryParameters } = props;
   const sourceOptions = useSourceOptions({ source, node });
-  const { data: fetchedOptions } = useGetOptionsQuery(optionsId, mapping, queryParameters, secure);
+  const { data: fetchedOptions, isFetching } = useGetOptionsQuery(optionsId, mapping, queryParameters, secure);
   const calculatedOptions = options || sourceOptions || fetchedOptions;
   usePreselectedOptionIndex(calculatedOptions, props);
   useRemoveStaleValues(calculatedOptions, props);
@@ -67,7 +67,7 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
       removeDuplicates && calculatedOptions
         ? calculatedOptions.filter(duplicateOptionFilter)
         : calculatedOptions || defaultOptions,
-    isFetching: !calculatedOptions,
+    isFetching: isFetching || !calculatedOptions,
   };
 }
 

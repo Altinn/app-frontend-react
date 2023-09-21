@@ -14,41 +14,62 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
  * function, and show summaries/PDF even if the source component has not been rendered yet.
  */
 export type AllOptionsMap = { [componentId: string]: IOption[] | undefined };
+type State = { map: AllOptionsMap; initiallyLoaded: boolean };
+
 export const allOptions: AllOptionsMap = {};
 
-const [Provider, useCtx] = createStrictContext<AllOptionsMap>();
+const [Provider, useCtx] = createStrictContext<State>();
 
-export const useAllOptionsContext = useCtx;
+export const useAllOptions = () => useCtx().map;
+export const useAllOptionsInitiallyLoaded = () => useCtx().initiallyLoaded;
 
 export function AllOptionsProvider({ children }: PropsWithChildren) {
   const nodes = useExprContext();
   const nodesWithOptions: LayoutNode[] = [];
 
+  let atLeastOneLoading = false;
   for (const node of nodes?.allNodes() || []) {
     if (
       ('options' in node.item && node.item.options) ||
       ('optionsId' in node.item && node.item.optionsId) ||
       ('source' in node.item && node.item.source)
     ) {
+      atLeastOneLoading = allOptions[node.item.id] === undefined ? true : atLeastOneLoading;
       nodesWithOptions.push(node);
     }
   }
 
   return (
-    <Provider value={allOptions}>
-      {children}
+    <>
       {nodesWithOptions.map((node) => (
         <DummyOptionsSaver
           key={node.item.id}
           node={node}
+          loadingCallback={(isFetching) => {
+            atLeastOneLoading = isFetching && allOptions[node.item.id] === undefined ? true : atLeastOneLoading;
+          }}
         />
       ))}
-    </Provider>
+      <Provider
+        value={{
+          map: allOptions,
+          initiallyLoaded: !atLeastOneLoading,
+        }}
+      >
+        {children}
+      </Provider>
+    </>
   );
 }
 
-function DummyOptionsSaver({ node }: { node: LayoutNode }) {
-  const { options: calculatedOptions } = useGetOptions({
+function DummyOptionsSaver({
+  node,
+  loadingCallback,
+}: {
+  node: LayoutNode;
+  loadingCallback: (isFetching: boolean) => void;
+}) {
+  const { options: calculatedOptions, isFetching } = useGetOptions({
     ...node.item,
     node,
     formData: {
@@ -57,6 +78,8 @@ function DummyOptionsSaver({ node }: { node: LayoutNode }) {
     },
   });
 
+  loadingCallback(isFetching);
   allOptions[node.item.id] = calculatedOptions;
+
   return <></>;
 }

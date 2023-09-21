@@ -1,6 +1,6 @@
 import { createContext, useMemo } from 'react';
 
-import { useAllOptionsContext } from 'src/features/options/useAllOptions';
+import { useAllOptions } from 'src/features/options/useAllOptions';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { type IUseLanguage, staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { ComponentConfigs } from 'src/layout/components.generated';
@@ -179,7 +179,7 @@ function getDisplayDataPropsFromState(state: IRuntimeState): Omit<DisplayDataPro
 }
 
 export function useDisplayDataProps(): DisplayDataProps {
-  const options = useAllOptionsContext();
+  const options = useAllOptions();
   const props = useAppSelector(getDisplayDataPropsFromState);
 
   return useMemo(() => ({ options, ...props }), [options, props]);
