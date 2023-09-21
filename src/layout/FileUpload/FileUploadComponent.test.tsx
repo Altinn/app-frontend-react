@@ -181,7 +181,7 @@ describe('FileUploadWithTagComponent', () => {
       ).not.toBeDisabled();
     });
 
-    it('should disable save button when readOnly=true', () => {
+    it('should disable save button when readOnly=true', async () => {
       const attachments = getAttachments({ count: 1 });
 
       renderWithTag({
@@ -215,8 +215,8 @@ describe('FileUploadWithTagComponent', () => {
       const attachments = getAttachments({ count: 1 });
       attachments[0].updating = true;
 
-      renderWithTag({ attachments, editIndex: 0 });
-
+      renderWithTag({ attachments });
+      await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
       expect(
         screen.queryByRole('button', {
           name: 'Lagre',
@@ -229,7 +229,7 @@ describe('FileUploadWithTagComponent', () => {
       attachments[0].tags = [];
 
       renderWithTag({ attachments });
-
+      await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
       expect(
         screen.getByRole('button', {
           name: 'Lagre',
@@ -242,7 +242,6 @@ describe('FileUploadWithTagComponent', () => {
       attachments[0].tags = ['tag1'];
 
       renderWithTag({ attachments });
-
       expect(
         screen.queryByRole('button', {
           name: 'Lagre',
