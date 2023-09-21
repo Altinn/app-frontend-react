@@ -5,19 +5,6 @@ import type { IKeepComponentScrollPos } from 'src/features/layout/formLayoutType
 import type { ILayoutNavigation, IMapping } from 'src/layout/common.generated';
 import type { RootState } from 'src/redux/store';
 
-export interface IFormFileUploaderWithTag {
-  chosenOptions: IOptionsChosen;
-  editIndex: number;
-}
-
-export interface IOptionsChosen {
-  [id: string]: string;
-}
-
-export interface IFileUploadersWithTag {
-  [componentId: string]: IFormFileUploaderWithTag | undefined;
-}
-
 export interface ILayoutSets {
   sets: ILayoutSet[];
   uiSettings?: Omit<IPagesSettings, 'order'>;

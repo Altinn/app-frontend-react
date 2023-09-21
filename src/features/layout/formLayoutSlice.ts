@@ -8,7 +8,6 @@ import {
   watchFetchFormLayoutSaga,
   watchFetchFormLayoutSettingsSaga,
 } from 'src/features/layout/fetch/fetchFormLayoutSagas';
-import { watchMapFileUploaderWithTagSaga } from 'src/features/layout/fileUpload/watchMapFileUploaderWithTagSaga';
 import { initRepeatingGroupsSaga } from 'src/features/layout/repGroups/initRepeatingGroupsSaga';
 import { repGroupAddRowSaga } from 'src/features/layout/repGroups/repGroupAddRowSaga';
 import { repGroupDeleteRowSaga } from 'src/features/layout/repGroups/repGroupDeleteRowSaga';
@@ -76,7 +75,7 @@ export const formLayoutSlice = () => {
     return {
       name: 'formLayout',
       initialState,
-      extraSagas: [watchMapFileUploaderWithTagSaga, watchInitialCalculatePageOrderAndMoveToNextPageSaga],
+      extraSagas: [watchInitialCalculatePageOrderAndMoveToNextPageSaga],
       actions: {
         fetch: mkAction<void>({
           saga: () => watchFetchFormLayoutSaga,

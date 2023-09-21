@@ -53,32 +53,13 @@ export function FileUploadComponent({ componentValidations, node }: IFileUploadW
   const langTools = useLanguage();
   const { lang, langAsString } = langTools;
 
-  const mapping = 'mapping' in node.item && node.item.mapping ? node.item.mapping : undefined;
-  const optionsId = 'optionsId' in node.item ? node.item.optionsId : undefined;
   const { options } = useGetOptions({
-    optionsId,
-    mapping,
+    ...node.item,
     node,
     formData: {
       disable: 'I have read the code and know that core functionality will be missing',
     },
   });
-  /*
-    const options = useAppSelector((state) => {
-    const mapping = ('mapping' in node.item && node.item?.mapping) || undefined;
-    const optionsId = 'optionsId' in node.item && node.item.optionsId;
-    if (optionsId) {
-      return state.optionState.options[
-        getOptionLookupKey({
-          id: optionsId,
-          mapping,
-        })
-      ]?.options;
-    } else {
-      return undefined;
-    }
-  });
-  */
 
   // Get data from validations based on hasTag.
   const { validationMessages, hasValidationMessages, ...otherValidationData } = hasTag
