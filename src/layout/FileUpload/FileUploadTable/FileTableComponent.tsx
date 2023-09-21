@@ -86,9 +86,11 @@ export function FileTableComponent({
 
           // Check if filter is applied and includes specified index.
           return canRenderRow ? (
-            <FileTableRowContextProvider value={ctx}>
+            <FileTableRowContextProvider
+              value={ctx}
+              key={`altinn-file-list-row-${attachment.id}`}
+            >
               <FileTableRow
-                key={`altinn-file-list-row-${attachment.id}`}
                 node={node}
                 attachment={attachment}
                 mobileView={mobileView}
@@ -96,8 +98,11 @@ export function FileTableComponent({
               />
             </FileTableRowContextProvider>
           ) : (
-            <FileTableRowContextProvider value={ctx}>
-              <tr key={`altinn-unchosen-option-attachment-row-${index}`}>
+            <FileTableRowContextProvider
+              value={ctx}
+              key={`altinn-unchosen-option-attachment-row-${index}`}
+            >
+              <tr>
                 <td
                   className={mobileView ? classes.fullGrid : ''}
                   colSpan={!mobileView ? 5 : 3}

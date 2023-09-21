@@ -21,7 +21,7 @@ export function DropdownComponent({ node, formData, handleDataChange, isValid, o
     node,
     formData: {
       type: 'single',
-      value: selected,
+      value: selected || formData?.simpleBinding,
       setValue,
     },
     removeDuplicates: true,

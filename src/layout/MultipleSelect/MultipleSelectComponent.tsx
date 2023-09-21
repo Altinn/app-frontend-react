@@ -18,7 +18,8 @@ export function MultipleSelectComponent({
   overrideDisplay,
 }: IMultipleSelectProps) {
   const { id, readOnly, textResourceBindings } = node.item;
-  const { value, setValue, saveValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding);
+  const { value: _value, setValue, saveValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding);
+  const value = _value ?? formData?.simpleBinding ?? '';
   const selected = value && value.length > 0 ? value.split(',') : defaultSelectedOptions;
   const { options: calculatedOptions } = useGetOptions({
     ...node.item,

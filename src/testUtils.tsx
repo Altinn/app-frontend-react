@@ -10,6 +10,7 @@ import type { PreloadedState } from 'redux';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { AppQueriesContextProvider } from 'src/contexts/appQueriesContext';
+import { AllOptionsProvider } from 'src/features/options/useAllOptions';
 import { DataModelSchemaContextWrapper } from 'src/hooks/useDataModelSchema';
 import { setupStore } from 'src/redux/store';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
@@ -80,7 +81,9 @@ export const renderWithProviders = (
           <MuiThemeProvider theme={theme}>
             <Provider store={store}>
               <DataModelSchemaContextWrapper>
-                <ExprContextWrapper>{children}</ExprContextWrapper>
+                <ExprContextWrapper>
+                  <AllOptionsProvider>{children}</AllOptionsProvider>
+                </ExprContextWrapper>
               </DataModelSchemaContextWrapper>
             </Provider>
           </MuiThemeProvider>

@@ -23,10 +23,11 @@ const threeOptions: IOption[] = [
   },
 ];
 
-const render = (
-  { component, genericProps }: Partial<RenderGenericComponentTestProps<'RadioButtons'>> = {},
-  options: IOption[] | undefined,
-) => {
+interface Props extends Partial<RenderGenericComponentTestProps<'RadioButtons'>> {
+  options?: IOption[];
+}
+
+const render = ({ component, genericProps, options }: Props = {}) => {
   renderGenericComponentTest({
     type: 'RadioButtons',
     renderer: (props) => <RadioButtonContainerComponent {...props} />,
@@ -42,7 +43,8 @@ const render = (
       ...genericProps,
     },
     mockedQueries: {
-      fetchOptions: () => Promise.resolve(options || []),
+      fetchOptions: () =>
+        options ? Promise.resolve(options) : Promise.reject(new Error('No options provided to render()')),
     },
   });
 };
@@ -53,48 +55,47 @@ const getRadio = ({ name, isChecked = false }) =>
     checked: isChecked,
   });
 
-describe('RadioButtonsContainerComponent', () => {
-  jest.useFakeTimers();
+const findRadio = ({ name, isChecked = false }) =>
+  screen.findByRole('radio', {
+    name,
+    checked: isChecked,
+  });
 
+describe('RadioButtonsContainerComponent', () => {
   it('should call handleDataChange with value of preselectedOptionIndex when simpleBinding is not set', async () => {
     const handleChange = jest.fn();
-    render(
-      {
-        component: {
-          preselectedOptionIndex: 1,
-        },
-        genericProps: {
-          handleDataChange: handleChange,
-          formData: {
-            simpleBinding: undefined,
-          },
+    render({
+      component: {
+        preselectedOptionIndex: 1,
+      },
+      genericProps: {
+        handleDataChange: handleChange,
+        formData: {
+          simpleBinding: undefined,
         },
       },
-      threeOptions,
-    );
+      options: threeOptions,
+    });
 
     await waitFor(() => expect(handleChange).toHaveBeenCalledWith('sweden', { validate: true }));
   });
 
   it('should not call handleDataChange when simpleBinding is set and preselectedOptionIndex', async () => {
     const handleChange = jest.fn();
-    render(
-      {
-        component: {
-          preselectedOptionIndex: 0,
-        },
-        genericProps: {
-          handleDataChange: handleChange,
-          formData: {
-            simpleBinding: 'denmark',
-          },
+    render({
+      component: {
+        preselectedOptionIndex: 0,
+      },
+      genericProps: {
+        handleDataChange: handleChange,
+        formData: {
+          simpleBinding: 'denmark',
         },
       },
-      threeOptions,
-    );
+      options: threeOptions,
+    });
 
-    await waitFor(() => expect(getRadio({ name: 'Norway' })).toBeInTheDocument());
-    expect(getRadio({ name: 'Sweden' })).toBeInTheDocument();
+    expect(await findRadio({ name: 'Sweden' })).toBeInTheDocument();
     expect(getRadio({ name: 'Denmark', isChecked: true })).toBeInTheDocument();
 
     expect(handleChange).not.toHaveBeenCalled();
@@ -102,7 +103,7 @@ describe('RadioButtonsContainerComponent', () => {
 
   it('should not set any as selected when no binding and no preselectedOptionIndex is set', async () => {
     const handleChange = jest.fn();
-    render({ genericProps: { handleDataChange: handleChange } }, threeOptions);
+    render({ genericProps: { handleDataChange: handleChange }, options: threeOptions });
 
     await waitFor(() => expect(getRadio({ name: 'Norway' })).toBeInTheDocument());
     expect(getRadio({ name: 'Sweden' })).toBeInTheDocument();
@@ -113,23 +114,26 @@ describe('RadioButtonsContainerComponent', () => {
 
   it('should call handleDataChange with updated value when selection changes', async () => {
     const handleChange = jest.fn();
-    render(
-      {
-        genericProps: {
-          handleDataChange: handleChange,
-          formData: {
-            simpleBinding: 'norway',
-          },
+    render({
+      genericProps: {
+        handleDataChange: handleChange,
+        formData: {
+          simpleBinding: 'norway',
         },
       },
-      threeOptions,
-    );
+      options: threeOptions,
+    });
 
-    await waitFor(() => expect(getRadio({ name: 'Norway', isChecked: true })).toBeInTheDocument());
+    await waitFor(() => {
+      expect(screen.queryByTestId('altinn-spinner')).not.toBeInTheDocument();
+    });
+
+    expect(await findRadio({ name: 'Norway', isChecked: true })).toBeInTheDocument();
     expect(getRadio({ name: 'Sweden' })).toBeInTheDocument();
-    expect(getRadio({ name: 'Denmark' })).toBeInTheDocument();
 
-    await userEvent.click(getRadio({ name: 'Denmark' }));
+    const denmark = await waitFor(() => getRadio({ name: 'Denmark' }));
+    expect(denmark).toBeInTheDocument();
+    await userEvent.click(denmark);
 
     expect(handleChange).not.toHaveBeenCalled();
     await waitFor(() => expect(handleChange).toHaveBeenCalledWith('denmark', { validate: true }));
@@ -137,41 +141,34 @@ describe('RadioButtonsContainerComponent', () => {
 
   it('should call handleDataChange instantly on blur when the value has changed', async () => {
     const handleChange = jest.fn();
-    render(
-      {
-        genericProps: {
-          handleDataChange: handleChange,
-          formData: {
-            simpleBinding: 'norway',
-          },
+    render({
+      genericProps: {
+        handleDataChange: handleChange,
+        formData: {
+          simpleBinding: 'norway',
         },
       },
-      threeOptions,
-    );
+      options: threeOptions,
+    });
 
     const denmark = await waitFor(() => getRadio({ name: 'Denmark' }));
 
     expect(denmark).toBeInTheDocument();
 
-    await userEvent.click(denmark);
-
     expect(handleChange).not.toHaveBeenCalled();
-
+    await userEvent.click(denmark);
     await userEvent.tab();
-
     expect(handleChange).toHaveBeenCalledWith('denmark', { validate: true });
   });
 
   it('should not call handleDataChange on blur when the value is unchanged', async () => {
     const handleChange = jest.fn();
-    render(
-      {
-        genericProps: {
-          handleDataChange: handleChange,
-        },
+    render({
+      genericProps: {
+        handleDataChange: handleChange,
       },
-      threeOptions,
-    );
+      options: threeOptions,
+    });
 
     await waitFor(() => expect(getRadio({ name: 'Denmark' })).toBeInTheDocument());
 
@@ -185,52 +182,47 @@ describe('RadioButtonsContainerComponent', () => {
   });
 
   it('should show spinner while waiting for options', () => {
-    render(
-      {
-        component: {
-          optionsId: 'loadingOptions',
-        },
+    render({
+      component: {
+        optionsId: 'loadingOptions',
       },
-      threeOptions,
-    );
+      options: threeOptions,
+    });
 
     expect(screen.getByRole('alert')).toBeInTheDocument();
   });
 
-  it('should not show spinner when options are present', () => {
-    render(
-      {
-        component: {
-          optionsId: 'countries',
-        },
+  it('should not show spinner when options are present', async () => {
+    render({
+      component: {
+        optionsId: 'countries',
       },
-      threeOptions,
-    );
+      options: threeOptions,
+    });
 
+    expect(screen.getByTestId('altinn-spinner')).toBeInTheDocument();
+    await waitFor(() => expect(getRadio({ name: 'Denmark' })).toBeInTheDocument());
     expect(screen.queryByTestId('altinn-spinner')).not.toBeInTheDocument();
   });
 
   it('should present replaced label, description and help text if setup with values from repeating group in redux and trigger handleDataChanged with replaced values', async () => {
     const handleDataChange = jest.fn();
 
-    render(
-      {
-        component: {
-          optionsId: undefined,
-          source: {
-            group: 'someGroup',
-            label: 'option.from.rep.group.label',
-            description: 'option.from.rep.group.description',
-            helpText: 'option.from.rep.group.helpText',
-            value: 'someGroup[{0}].valueField',
-          },
-        },
-        genericProps: {
-          handleDataChange,
+    render({
+      component: {
+        optionsId: undefined,
+        source: {
+          group: 'someGroup',
+          label: 'option.from.rep.group.label',
+          description: 'option.from.rep.group.description',
+          helpText: 'option.from.rep.group.helpText',
+          value: 'someGroup[{0}].valueField',
         },
       },
-      undefined,
-    );
+      genericProps: {
+        handleDataChange,
+      },
+    });
 
     await waitFor(() => expect(getRadio({ name: /The value from the group is: Label for first/ })).toBeInTheDocument());
     expect(getRadio({ name: /The value from the group is: Label for second/ })).toBeInTheDocument();
@@ -251,8 +243,8 @@ describe('RadioButtonsContainerComponent', () => {
       'Help Text: The value from the group is: Label for second',
     );
 
-    await userEvent.click(getRadio({ name: /The value from the group is: Label for first/ }));
     expect(handleDataChange).not.toHaveBeenCalled();
+    await userEvent.click(getRadio({ name: /The value from the group is: Label for first/ }));
     await waitFor(() => expect(handleDataChange).toHaveBeenCalledWith('Value for first', { validate: true }));
   });
 });

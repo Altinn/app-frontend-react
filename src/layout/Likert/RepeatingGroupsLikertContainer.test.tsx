@@ -1,4 +1,4 @@
-import { act, screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import {
@@ -13,16 +13,6 @@ import {
 } from 'src/layout/Likert/RepeatingGroupsLikertContainerTestUtils';
 
 describe('RepeatingGroupsLikertContainer', () => {
-  jest.useFakeTimers();
-
-  const user = userEvent.setup({
-    advanceTimers: (time) => {
-      act(() => {
-        jest.advanceTimersByTime(time);
-      });
-    },
-  });
-
   describe('Desktop', () => {
     it('should render table using options and not optionsId', async () => {
       render({
@@ -34,7 +24,7 @@ describe('RepeatingGroupsLikertContainer', () => {
       await validateTableLayout(defaultMockQuestions, defaultMockOptions);
     });
 
-    it('should render title, description and left column header', () => {
+    it('should render title, description and left column header', async () => {
       render({
         likertContainerProps: {
           textResourceBindings: {
@@ -44,8 +34,11 @@ describe('RepeatingGroupsLikertContainer', () => {
           },
         },
       });
+
       expect(screen.getByText('Test title')).toBeInTheDocument();
-      expect(screen.getByRole('table', { name: 'Test title' })).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByRole('table', { name: 'Test title' })).toBeInTheDocument();
+      });
       expect(screen.getByText('Test description')).toBeInTheDocument();
       expect(screen.getByRole('columnheader', { name: 'Test left column header' })).toBeInTheDocument();
     });
@@ -56,6 +49,10 @@ describe('RepeatingGroupsLikertContainer', () => {
         selectedAnswers: [{ questionIndex: 1, answerValue: '2' }],
       });
       render({ mockQuestions: questions });
+
+      await waitFor(() => {
+        expect(screen.getByRole('table')).toBeInTheDocument();
+      });
 
       await validateTableLayout(defaultMockQuestions, defaultMockOptions);
     });
@@ -78,6 +75,11 @@ describe('RepeatingGroupsLikertContainer', () => {
       });
 
       render({ mockQuestions: questions });
+
+      await waitFor(() => {
+        expect(screen.getByRole('table')).toBeInTheDocument();
+      });
+
       await validateTableLayout(defaultMockQuestions, defaultMockOptions);
     });
 
@@ -91,6 +93,10 @@ describe('RepeatingGroupsLikertContainer', () => {
         },
       });
 
+      await waitFor(() => {
+        expect(screen.getByRole('table')).toBeInTheDocument();
+      });
+
       await validateTableLayout(defaultMockQuestions.slice(2), defaultMockOptions);
     });
 
@@ -102,6 +108,10 @@ describe('RepeatingGroupsLikertContainer', () => {
             filter: [{ key: 'stop', value: '3' }],
           },
         },
+      });
+
+      await waitFor(() => {
+        expect(screen.getByRole('table')).toBeInTheDocument();
       });
 
       await validateTableLayout(defaultMockQuestions.slice(0, 3), defaultMockOptions);
@@ -120,11 +130,19 @@ describe('RepeatingGroupsLikertContainer', () => {
         },
       });
 
+      await waitFor(() => {
+        expect(screen.getByRole('table')).toBeInTheDocument();
+      });
+
       await validateTableLayout(defaultMockQuestions.slice(1, 3), defaultMockOptions);
     });
 
     it('should render table view and click radiobuttons', async () => {
       const { mockStoreDispatch } = render();
+      await waitFor(() => {
+        expect(screen.getByRole('table')).toBeInTheDocument();
+      });
+
       await validateTableLayout(defaultMockQuestions, defaultMockOptions);
 
       const rad1 = screen.getByRole('row', {
@@ -144,30 +162,28 @@ describe('RepeatingGroupsLikertContainer', () => {
 
       mockStoreDispatch.mockClear();
       expect(btn1).not.toBeChecked();
-      await act(() => user.click(btn1));
       expect(mockStoreDispatch).not.toHaveBeenCalled();
-      jest.runOnlyPendingTimers();
-      expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(0, '1'));
+      await userEvent.click(btn1);
+      await waitFor(() => expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(0, '1')));
 
       mockStoreDispatch.mockClear();
       expect(btn2).not.toBeChecked();
-      await act(() => user.click(btn2));
       expect(mockStoreDispatch).not.toHaveBeenCalledTimes(2);
-      jest.runOnlyPendingTimers();
-      expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(1, '3'));
+      await userEvent.click(btn2);
+      await waitFor(() => expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(1, '3')));
     });
 
     it('should render standard view and use keyboard to navigate', async () => {
       const { mockStoreDispatch } = render();
+      await waitFor(async () => {
+        expect(await screen.findAllByRole('columnheader')).toHaveLength(3);
+      });
       await validateTableLayout(defaultMockQuestions, defaultMockOptions);
 
-      await act(async () => {
-        await user.tab();
-        await user.keyboard('[Space]');
-      });
       expect(mockStoreDispatch).not.toHaveBeenCalled();
-      jest.runOnlyPendingTimers();
-      expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(0, '1'));
+      await userEvent.tab();
+      await userEvent.keyboard('[Space]');
+      await waitFor(() => expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(0, '1')));
     });
 
     it('should support nested binding for question text in data model', async () => {
@@ -180,6 +196,9 @@ describe('RepeatingGroupsLikertContainer', () => {
         Question: `nested-question-binding-${i}`,
       }));
       render({ mockQuestions, extraTextResources });
+      await waitFor(() => {
+        expect(screen.getByRole('table')).toBeInTheDocument();
+      });
       await validateTableLayout(defaultMockQuestions, defaultMockOptions);
       screen.getByRole('radio', { name: 'Hvordan trives du på skolen? Bra' });
       screen.getByRole('radio', { name: 'Hvordan trives du på skolen? Ok' });
@@ -196,6 +215,9 @@ describe('RepeatingGroupsLikertContainer', () => {
         label: `nested-option-binding-${i}`,
       }));
       render({ mockOptions, extraTextResources });
+      await waitFor(() => {
+        expect(screen.getByRole('table')).toBeInTheDocument();
+      });
       await validateTableLayout(defaultMockQuestions, mockOptions);
       screen.getByRole('radio', { name: 'Hvordan trives du på skolen? Bra' });
       screen.getByRole('radio', { name: 'Hvordan trives du på skolen? Ok' });
@@ -206,12 +228,18 @@ describe('RepeatingGroupsLikertContainer', () => {
       render({
         validations: createFormError(1),
       });
+      await waitFor(() => {
+        expect(screen.getByRole('table')).toBeInTheDocument();
+      });
       expect(screen.getByRole('alert')).toHaveTextContent('Feltet er påkrevd');
     });
 
     it('should render 2 alerts', async () => {
       render({
         validations: { ...createFormError(1), ...createFormError(2) },
+      });
+      await waitFor(() => {
+        expect(screen.getByRole('table')).toBeInTheDocument();
       });
       expect(screen.getAllByRole('alert')).toHaveLength(2);
     });
@@ -225,9 +253,11 @@ describe('RepeatingGroupsLikertContainer', () => {
           },
         },
       });
-      expect(screen.getByRole('table', { name: /Likert test title/i })).toHaveAccessibleDescription(
-        'This is a test description',
-      );
+      await waitFor(() => {
+        expect(screen.getByRole('table', { name: /Likert test title/i })).toHaveAccessibleDescription(
+          'This is a test description',
+        );
+      });
     });
   });
   describe('Mobile', () => {
@@ -273,10 +303,9 @@ describe('RepeatingGroupsLikertContainer', () => {
         name: /Bra/i,
       });
       expect(btn1).not.toBeChecked();
-      await act(() => user.click(btn1));
       expect(mockStoreDispatch).not.toHaveBeenCalled();
-      jest.runOnlyPendingTimers();
-      expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(0, '1'));
+      await userEvent.click(btn1);
+      await waitFor(() => expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(0, '1')));
       mockStoreDispatch.mockClear();
 
       const rad2 = screen.getByRole('radiogroup', {
@@ -288,10 +317,9 @@ describe('RepeatingGroupsLikertContainer', () => {
       });
 
       expect(btn2).not.toBeChecked();
-      await act(() => user.click(btn2));
       expect(mockStoreDispatch).not.toHaveBeenCalledTimes(2);
-      jest.runOnlyPendingTimers();
-      expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(1, '3'));
+      await userEvent.click(btn2);
+      await waitFor(() => expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(1, '3')));
     });
 
     it('should render mobile view with selected values', async () => {

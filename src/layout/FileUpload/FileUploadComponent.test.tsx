@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { getAttachments } from 'src/__mocks__/attachmentsMock';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
@@ -130,49 +131,48 @@ describe('FileUploadWithTagComponent', () => {
   });
 
   describe('updating', () => {
-    it('should show spinner in edit mode when file status has updating=true', () => {
+    it('should show spinner in edit mode when file status has updating=true', async () => {
       const attachments = getAttachments({ count: 1 });
       attachments[0].updating = true;
 
-      renderWithTag({ attachments, editIndex: 0 });
+      renderWithTag({ attachments });
+      await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
 
       expect(screen.getByText('Laster innhold')).toBeInTheDocument();
     });
 
-    it('should not show spinner in edit mode when file status has updating=false', () => {
+    it('should not show spinner in edit mode when file status has updating=false', async () => {
       const attachments = getAttachments({ count: 1 });
       attachments[0].updating = false;
 
-      renderWithTag({ attachments, editIndex: 0 });
+      renderWithTag({ attachments });
+      await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
 
       expect(screen.queryByText('Laster innhold')).not.toBeInTheDocument();
     });
   });
 
   describe('editing', () => {
-    it('should disable dropdown in edit mode when updating', () => {
+    it('should disable dropdown in edit mode when updating', async () => {
       const attachments = getAttachments({ count: 1 });
       attachments[0].updating = true;
 
-      renderWithTag({ attachments, editIndex: 0 });
+      renderWithTag({ attachments });
+      await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
 
       expect(screen.getByRole('combobox')).toBeDisabled();
     });
 
-    it('should not disable dropdown in edit mode when not updating', () => {
-      renderWithTag({
-        attachments: getAttachments({ count: 1 }),
-        editIndex: 0,
-      });
+    it('should not disable dropdown in edit mode when not updating', async () => {
+      renderWithTag({ attachments: getAttachments({ count: 1 }) });
+      await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
 
       expect(screen.getByRole('combobox')).not.toBeDisabled();
     });
 
-    it('should not disable save button', () => {
-      renderWithTag({
-        attachments: getAttachments({ count: 1 }),
-        editIndex: 0,
-      });
+    it('should not disable save button', async () => {
+      renderWithTag({ attachments: getAttachments({ count: 1 }) });
+      await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
 
       expect(
         screen.getByRole('button', {
@@ -187,8 +187,8 @@ describe('FileUploadWithTagComponent', () => {
       renderWithTag({
         component: { readOnly: true },
         attachments,
-        editIndex: 0,
       });
+      await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
 
       expect(
         screen.getByRole('button', {
@@ -197,11 +197,12 @@ describe('FileUploadWithTagComponent', () => {
       ).toBeDisabled();
     });
 
-    it('should disable save button when attachment.uploaded=false', () => {
+    it('should disable save button when attachment.uploaded=false', async () => {
       const attachments = getAttachments({ count: 1 });
       attachments[0].uploaded = false;
 
-      renderWithTag({ attachments, editIndex: 0 });
+      renderWithTag({ attachments });
+      await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
 
       expect(
         screen.getByRole('button', {
@@ -210,7 +211,7 @@ describe('FileUploadWithTagComponent', () => {
       ).toBeDisabled();
     });
 
-    it('should not show save button when attachment.updating=true', () => {
+    it('should not show save button when attachment.updating=true', async () => {
       const attachments = getAttachments({ count: 1 });
       attachments[0].updating = true;
 
@@ -223,7 +224,7 @@ describe('FileUploadWithTagComponent', () => {
       ).not.toBeInTheDocument();
     });
 
-    it('should automatically show attachments in edit mode for attachments without tags', () => {
+    it('should automatically show attachments in edit mode for attachments without tags', async () => {
       const attachments = getAttachments({ count: 1 });
       attachments[0].tags = [];
 
@@ -281,7 +282,6 @@ describe('FileUploadWithTagComponent', () => {
 
 interface Props extends Partial<RenderGenericComponentTestProps<'FileUpload'>> {
   attachments?: IAttachment[];
-  editIndex?: number;
 }
 
 const render = ({ component, genericProps, attachments = getAttachments() }: Props = {}) => {
@@ -309,7 +309,7 @@ const render = ({ component, genericProps, attachments = getAttachments() }: Pro
   });
 };
 
-const renderWithTag = ({ component, genericProps, attachments = getAttachments(), editIndex = -1 }: Props = {}) => {
+const renderWithTag = ({ component, genericProps, attachments = getAttachments() }: Props = {}) => {
   renderGenericComponentTest({
     type: 'FileUploadWithTag',
     renderer: (props) => <FileUploadComponent {...props} />,

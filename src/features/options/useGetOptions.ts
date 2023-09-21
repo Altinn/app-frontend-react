@@ -56,7 +56,8 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
   const { node, options, optionsId, secure, removeDuplicates, source, mapping, queryParameters } = props;
   const sourceOptions = useSourceOptions({ source, node });
   const { data: fetchedOptions, isFetching } = useGetOptionsQuery(optionsId, mapping, queryParameters, secure);
-  const calculatedOptions = options || sourceOptions || fetchedOptions;
+  const staticOptions = optionsId ? undefined : options;
+  const calculatedOptions = sourceOptions || fetchedOptions || staticOptions;
   usePreselectedOptionIndex(calculatedOptions, props);
   useRemoveStaleValues(calculatedOptions, props);
 

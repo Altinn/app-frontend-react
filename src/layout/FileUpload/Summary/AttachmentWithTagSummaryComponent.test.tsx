@@ -10,6 +10,30 @@ import type { CompFileUploadWithTagExternal } from 'src/layout/FileUploadWithTag
 import type { RootState } from 'src/redux/store';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
+const availableOptions = {
+  'https://local.altinn.cloud/ttd/test/api/options/a?language=nb&b=undefined': [
+    { value: 'a', label: 'aa option value' },
+    { value: 'b', label: 'ab option value' },
+    { value: 'c', label: 'ac option value' },
+  ],
+  'https://local.altinn.cloud/ttd/test/api/options/b?language=nb': [
+    { value: 'a', label: 'ba option value' },
+    { value: 'b', label: 'bb option value' },
+    { value: 'c', label: 'bc option value' },
+  ],
+  'https://local.altinn.cloud/ttd/test/api/options/c?language=nb': [
+    { value: 'a', label: 'ca option value' },
+    { value: 'b', label: 'cb option value' },
+    { value: 'c', label: 'cc option value' },
+  ],
+  d: [
+    // TODO: Figure out the full URL for this
+    { value: 'a', label: 'da option value' },
+    { value: 'b', label: 'db option value' },
+    { value: 'c', label: 'dc option value' },
+  ],
+};
+
 describe('AttachmentWithTagSummaryComponent', () => {
   const attachmentName = 'attachment-name-1';
   const formLayoutItem: CompFileUploadWithTagExternal = {
@@ -74,35 +98,44 @@ describe('AttachmentWithTagSummaryComponent', () => {
     const element = screen.getByTestId('attachment-with-tag-summary');
     expect(element).toHaveTextContent('Du har ikke lagt inn informasjon her');
   });
-  test('should contain attachments', () => {
+  test('should contain attachments', async () => {
     renderHelper(formLayoutItem, extendedState);
-    expect(screen.getByText(attachmentName)).toBeInTheDocument();
+    expect(await screen.findByText(attachmentName)).toBeInTheDocument();
   });
-  test('should render mapped option label', () => {
+  test('should render mapped option label', async () => {
     renderHelper(formLayoutItem, extendedState);
-    expect(screen.getByText('da option value')).toBeInTheDocument();
+    expect(await screen.findByText('da option value')).toBeInTheDocument();
   });
-  test('should render the text resource', () => {
+  test('should render the text resource', async () => {
     renderHelper({ ...formLayoutItem, optionsId: 'b', mapping: undefined }, extendedState);
-    expect(screen.getByText('the result')).toBeInTheDocument();
+    expect(await screen.findByText('the result')).toBeInTheDocument();
   });
-  test('should not render a text resource', () => {
+  test('should not render a text resource', async () => {
     renderHelper({ ...formLayoutItem, optionsId: 'c', mapping: undefined }, extendedState);
-    expect(screen.getByText('ca option value')).toBeInTheDocument();
+    expect(await screen.findByText('ca option value')).toBeInTheDocument();
   });
 
-  const renderHelper = (options: CompFileUploadWithTagExternal, extendState?: Partial<RootState>) => {
+  const renderHelper = (component: CompFileUploadWithTagExternal, extendState?: Partial<RootState>) => {
     function Wrapper() {
       const node = useResolvedNode('FileUploadWithTag') as LayoutNode<'FileUploadWithTag'>;
       return <AttachmentSummaryComponent targetNode={node} />;
     }
 
-    renderWithProviders(<Wrapper />, {
-      preloadedState: {
-        ...initialState,
-        ...mockState(options),
-        ...extendState,
+    renderWithProviders(
+      <Wrapper />,
+      {
+        preloadedState: {
+          ...initialState,
+          ...mockState(component),
+          ...extendState,
+        },
       },
-    });
+      {
+        fetchOptions: (url) =>
+          availableOptions[url]
+            ? Promise.resolve(availableOptions[url])
+            : Promise.reject(new Error(`No options available for ${url}`)),
+      },
+    );
   };
 });
