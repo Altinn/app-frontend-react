@@ -263,20 +263,13 @@ export const validateRadioLayout = async (questions: IQuestion[], options: IOpti
     const radioGroups = await screen.findAllByRole('radiogroup');
     expect(radioGroups).toHaveLength(questions.length);
   } else {
-    const rows = await screen.findAllByRole('row');
-    expect(rows).toHaveLength(questions.length + 1);
+    expect(await screen.findAllByRole('row')).toHaveLength(questions.length + 1);
   }
 
   for (const question of questions) {
-    const row = mobileView
-      ? within(
-          await screen.findByRole('group', {
-            name: question.Question,
-          }),
-        ).getByRole('radiogroup')
-      : await screen.findByRole('row', {
-          name: question.Question,
-        });
+    const row = await screen.findByRole(mobileView ? 'radiogroup' : 'row', {
+      name: question.Question,
+    });
 
     for (const option of options) {
       // Ideally we should use `getByRole` selector here, but the tests that use this function
