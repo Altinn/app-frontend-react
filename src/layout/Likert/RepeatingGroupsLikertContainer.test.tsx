@@ -349,6 +349,10 @@ describe('RepeatingGroupsLikertContainer', () => {
       });
 
       await waitFor(() => {
+        expect(screen.queryByRole('alert', { name: 'Laster innhold' })).not.toBeInTheDocument();
+      });
+
+      await waitFor(() => {
         expect(screen.getAllByRole('alert')).toHaveLength(2);
       });
     });
