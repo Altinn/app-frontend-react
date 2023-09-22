@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { useGetOptions } from 'src/features/options/useGetOptions';
@@ -26,18 +26,23 @@ export const useAllOptionsInitiallyLoaded = () => useCtx().initiallyLoaded;
 export function AllOptionsProvider({ children }: PropsWithChildren) {
   const nodes = useExprContext();
   const nodesWithOptions: LayoutNode[] = [];
+  const [numInitialFetchesDone, setNumInitialFetchesDone] = useState(0);
 
-  let atLeastOneLoading = false;
+  const loadingDone = useCallback(() => {
+    setNumInitialFetchesDone((prev) => prev + 1);
+  }, []);
+
   for (const node of nodes?.allNodes() || []) {
     if (
       ('options' in node.item && node.item.options) ||
       ('optionsId' in node.item && node.item.optionsId) ||
       ('source' in node.item && node.item.source)
     ) {
-      atLeastOneLoading = allOptions[node.item.id] === undefined ? true : atLeastOneLoading;
       nodesWithOptions.push(node);
     }
   }
+
+  const initiallyLoaded = numInitialFetchesDone === nodesWithOptions.length;
 
   return (
     <>
@@ -45,15 +50,13 @@ export function AllOptionsProvider({ children }: PropsWithChildren) {
         <DummyOptionsSaver
           key={node.item.id}
           node={node}
-          loadingCallback={(isFetching) => {
-            atLeastOneLoading = isFetching && allOptions[node.item.id] === undefined ? true : atLeastOneLoading;
-          }}
+          loadingDone={loadingDone}
         />
       ))}
       <Provider
         value={{
           map: allOptions,
-          initiallyLoaded: !atLeastOneLoading,
+          initiallyLoaded,
         }}
       >
         {children}
@@ -62,13 +65,8 @@ export function AllOptionsProvider({ children }: PropsWithChildren) {
   );
 }
 
-function DummyOptionsSaver({
-  node,
-  loadingCallback,
-}: {
-  node: LayoutNode;
-  loadingCallback: (isFetching: boolean) => void;
-}) {
+function DummyOptionsSaver({ node, loadingDone }: { node: LayoutNode; loadingDone: () => void }) {
+  const [initiallyFetched, setInitiallyFetched] = useState(false);
   const { options: calculatedOptions, isFetching } = useGetOptions({
     ...node.item,
     node,
@@ -78,8 +76,18 @@ function DummyOptionsSaver({
     },
   });
 
-  loadingCallback(isFetching);
-  allOptions[node.item.id] = calculatedOptions;
+  if (!isFetching) {
+    allOptions[node.item.id] = calculatedOptions;
+    if (!initiallyFetched) {
+      setInitiallyFetched(true);
+    }
+  }
+
+  useEffect(() => {
+    if (initiallyFetched) {
+      loadingDone();
+    }
+  }, [initiallyFetched, loadingDone]);
 
   return <></>;
 }
