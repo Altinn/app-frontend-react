@@ -224,12 +224,12 @@ describe('FileUploadWithTagComponent', () => {
       ).not.toBeInTheDocument();
     });
 
-    it('should automatically show attachments in edit mode for attachments without tags', async () => {
+    it('should automatically show attachments in edit mode for attachments without tags', () => {
       const attachments = getAttachments({ count: 1 });
       attachments[0].tags = [];
 
       renderWithTag({ attachments });
-      await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
+
       expect(
         screen.getByRole('button', {
           name: 'Lagre',
