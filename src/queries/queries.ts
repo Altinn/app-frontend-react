@@ -11,19 +11,15 @@ import {
   getFooterLayoutUrl,
   getJsonSchemaUrl,
   getLayoutSetsUrl,
-  getLayoutsUrl,
   getPartyValidationUrl,
-  instancesControllerUrl,
   profileApiUrl,
   refreshJwtTokenUrl,
-  textResourcesUrl,
   validPartiesUrl,
 } from 'src/utils/urls/appUrlHelper';
 import { orgsListUrl } from 'src/utils/urls/urlHelper';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
-import type { ITextResourcesState } from 'src/features/textResources';
 import type { IOption } from 'src/layout/common.generated';
 import type { ILayoutSets, ISimpleInstance } from 'src/types';
 import type { IAltinnOrgs, IApplicationSettings, IProfile } from 'src/types/shared';
@@ -37,16 +33,11 @@ export const fetchApplicationMetadata = (): Promise<IApplicationMetadata> => htt
 
 export const fetchApplicationSettings = (): Promise<IApplicationSettings> => httpGet(applicationSettingsApiUrl);
 
-export const fetchCurrentInstance = (instanceId: string): Promise<ISimpleInstance> =>
-  httpGet(`${instancesControllerUrl}/${instanceId}`);
-
 export const fetchCurrentParty = () => httpGet(currentPartyUrl);
 
 export const fetchFooterLayout = (): Promise<IFooterLayout> => httpGet(getFooterLayoutUrl());
 
 export const fetchLayoutSets = (): Promise<ILayoutSets> => httpGet(getLayoutSetsUrl());
-
-export const fetchLayout = (instanceId: string | null): Promise<ILayoutSets> => httpGet(getLayoutsUrl(instanceId));
 
 export const fetchOptions = (url: string): Promise<IOption[]> => httpGet(url);
 
@@ -60,9 +51,6 @@ export const fetchOrgs = (): Promise<{ orgs: IAltinnOrgs }> =>
 export const fetchParties = () => httpGet(validPartiesUrl);
 
 export const fetchRefreshJwtToken = () => httpGet(refreshJwtTokenUrl);
-
-export const fetchTextResources = (language: string): Promise<ITextResourcesState> =>
-  httpGet(textResourcesUrl(language));
 
 export const fetchUserProfile = (): Promise<IProfile> => httpGet(profileApiUrl);
 export const fetchDataModelSchema = (dataTypeName: string): Promise<JSONSchema7> =>

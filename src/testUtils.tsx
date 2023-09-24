@@ -19,11 +19,10 @@ import type { AppQueriesContext } from 'src/contexts/appQueriesContext';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
-import type { ITextResourcesState } from 'src/features/textResources';
 import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
 import type { CompExternalExact, CompTypes } from 'src/layout/layout';
 import type { AppStore, RootState } from 'src/redux/store';
-import type { ILayoutSets, IRuntimeState, ISimpleInstance } from 'src/types';
+import type { ILayoutSets, IRuntimeState } from 'src/types';
 import type { IProfile } from 'src/types/shared';
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
@@ -53,10 +52,7 @@ export const renderWithProviders = (
       fetchParties: () => Promise.resolve({}),
       fetchRefreshJwtToken: () => Promise.resolve({}),
       fetchFormData: () => Promise.resolve({}),
-      fetchCurrentInstance: () => Promise.resolve({} as unknown as ISimpleInstance),
-      fetchLayout: () => Promise.resolve({} as unknown as ILayoutSets),
       fetchOptions: () => Promise.resolve([]),
-      fetchTextResources: () => Promise.resolve({} as unknown as ITextResourcesState),
       fetchDataList: () => Promise.resolve({} as unknown as IDataList),
     } as AppQueriesContext;
     const mockedQueries = { ...allMockedQueries, ...queries };
