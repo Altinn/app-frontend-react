@@ -101,7 +101,7 @@ const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | n
         <Routes>
           <Route
             path='/'
-            element={<Entrypoint allowAnonymous={allowAnonymous} />}
+            element={<Entrypoint />}
           />
           <Route
             path='/partyselection/*'
