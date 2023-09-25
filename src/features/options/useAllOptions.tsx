@@ -157,10 +157,12 @@ function DummyOptionsSaver({ node, loadingDone }: { node: LayoutNode; loadingDon
     },
   });
 
-  if (!isFetching) {
-    allOptions[node.item.id] = calculatedOptions;
-    loadingDone();
-  }
+  useEffect(() => {
+    if (!isFetching) {
+      allOptions[node.item.id] = calculatedOptions;
+      loadingDone();
+    }
+  }, [isFetching, node.item.id, calculatedOptions, loadingDone]);
 
   return <></>;
 }
