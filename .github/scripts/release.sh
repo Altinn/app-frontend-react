@@ -187,7 +187,7 @@ else
       toolkits_rsync_opts+=( --include="${APP_MAJOR}/*" --include="${APP_MAJOR_MINOR}/*" )
     fi
     toolkits_rsync_opts+=( --exclude='*' )
-    schemas_rsync_opts=( -am --include='*/' --include="component/*" --include="layout/*"  --exclude='*' )
+    schemas_rsync_opts=( -am --include='*/' --include="component/*" --include="layout/*" --include="text-resources/*"  --exclude='*' )
     set -x
     rsync "${toolkits_rsync_opts[@]}" $TARGET $AZURE_STORAGE_ACCOUNT_NAME
     if [[ "$PRE_RELEASE" == "no" ]]; then
@@ -201,7 +201,7 @@ else
       AZCOPY_INCLUDE_REGEX+="|^$APP_MAJOR/.*|^$APP_MAJOR_MINOR/.*"
     fi
     AZCOPY_TOOLKITS_OPTS=( --include-regex="${AZCOPY_INCLUDE_REGEX}" )
-    AZCOPY_SCHEMAS_OPTS=( --include-regex="^component/.*|^layout/.*" )
+    AZCOPY_SCHEMAS_OPTS=( --include-regex="^component/.*|^layout/.*|^text-resources/.*" )
     AZCOPY_ADDITIONAL_OPTS=( --put-md5 --compare-hash=MD5 --delete-destination=true )
     if [[ "$SYNC_AZURE_CDN" == "no" ]]; then
       echo "Publish to azure cdn will run with --dry-run (toggle with --azure-sync-cdn). No files will actually be synced"
