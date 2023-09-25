@@ -165,7 +165,7 @@ export function Entrypoint({ allowAnonymous }: EntrypointProps) {
 
   return (
     <PresentationComponent
-      header={langAsStringOrEmpty(titleKey)}
+      header={lang('instantiate.starting')}
       type={ProcessTaskType.Unknown}
     >
       <AltinnContentLoader
