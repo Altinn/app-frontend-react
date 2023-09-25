@@ -109,6 +109,7 @@ export const redirectToUpgrade = (reqAuthLevel: string) => {
 };
 
 export const getJsonSchemaUrl = () => `${appPath}/api/jsonschema/`;
+export const getDataModelMetaDataUrl = () => `${appPath}/api/metadata/`;
 
 export const getLayoutSettingsUrl = (layoutset: string | null | undefined) => {
   if (layoutset === null || layoutset === undefined) {

@@ -5,10 +5,10 @@ import userEvent from '@testing-library/user-event';
 
 import { getAttachments } from 'src/__mocks__/attachmentsMock';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
-import { renderGenericComponentTest } from 'src/testUtils';
+import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { IAttachment } from 'src/features/attachments';
 import type { CompFileUploadWithTagExternal } from 'src/layout/FileUploadWithTag/config.generated';
-import type { RenderGenericComponentTestProps } from 'src/testUtils';
+import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
 const testId = 'mockId';
 

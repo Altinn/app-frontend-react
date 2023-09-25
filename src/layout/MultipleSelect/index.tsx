@@ -1,4 +1,5 @@
 import React from 'react';
+import type { JSX } from 'react';
 
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
 import { useAllOptions } from 'src/features/options/useAllOptions';
@@ -8,6 +9,7 @@ import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSumma
 import { MultipleSelectDef } from 'src/layout/MultipleSelect/config.def.generated';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
 import type { IFormData } from 'src/features/formData';
+import type { LayoutValidationCtx } from 'src/features/layoutValidation/types';
 import type { AllOptionsMap } from 'src/features/options/useAllOptions';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -43,5 +45,9 @@ export class MultipleSelect extends MultipleSelectDef {
     const options = useAllOptions();
     const summaryData = this.getSummaryData(targetNode, formData, langTools, options);
     return <MultipleChoiceSummary formData={summaryData} />;
+  }
+
+  validateDataModelBindings(ctx: LayoutValidationCtx<'MultipleSelect'>): string[] {
+    return this.validateDataModelBindingsSimple(ctx);
   }
 }

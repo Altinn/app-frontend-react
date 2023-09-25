@@ -16,7 +16,7 @@ const defaultDataList: any[] = [];
 
 export const ListComponent = ({ node, formData, handleDataChange, legend }: IListProps) => {
   const { tableHeaders, pagination, sortableColumns, tableHeadersMobile, mapping, secure, dataListId } = node.item;
-  const { langAsString, language } = useLanguage();
+  const { langAsString, language, lang } = useLanguage();
   const RenderLegend = legend;
   const [pageSize, setPageSize] = useState<number>(pagination?.default || 0);
   const [pageNumber, setPageNumber] = useState<number>(0);
@@ -112,6 +112,11 @@ export const ListComponent = ({ node, formData, handleDataChange, legend }: ILis
       onSelectionChange: (row) => handleChange({ selectedValue: row }),
       selectedValue: selectedRow,
     },
+    renderCell: Object.keys(tableHeaders).reduce(
+      // Add lang as the renderCell function for all inputs that are of type string.
+      (acc, next) => ({ ...acc, [next]: (v) => (typeof v === 'string' ? lang(v) : v) }),
+      {},
+    ),
     footer: renderPagination(),
   };
 

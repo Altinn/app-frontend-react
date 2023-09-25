@@ -19,8 +19,8 @@ import { ErrorBoundary } from 'src/components/ErrorBoundary';
 import { ThemeWrapper } from 'src/components/ThemeWrapper';
 import { AppQueriesContextProvider } from 'src/contexts/appQueriesContext';
 import { DevTools } from 'src/features/devtools/DevTools';
+import { LayoutValidationProvider } from 'src/features/layoutValidation/useLayoutValidationCurrentPage';
 import { AllOptionsProvider } from 'src/features/options/useAllOptions';
-import { DataModelSchemaContextWrapper } from 'src/hooks/useDataModelSchema';
 import * as queries from 'src/queries/queries';
 import { initSagas } from 'src/redux/sagas';
 import { setupStore } from 'src/redux/store';
@@ -52,15 +52,15 @@ document.addEventListener('DOMContentLoaded', () => {
             <ErrorBoundary>
               <QueryClientProvider client={queryClient}>
                 <AppQueriesContextProvider {...queries}>
-                  <DataModelSchemaContextWrapper>
-                    <ExprContextWrapper>
+                  <ExprContextWrapper>
+                    <LayoutValidationProvider>
                       <AllOptionsProvider>
                         <DevTools>
                           <App />
                         </DevTools>
                       </AllOptionsProvider>
-                    </ExprContextWrapper>
-                  </DataModelSchemaContextWrapper>
+                    </LayoutValidationProvider>
+                  </ExprContextWrapper>
                 </AppQueriesContextProvider>
               </QueryClientProvider>
             </ErrorBoundary>
