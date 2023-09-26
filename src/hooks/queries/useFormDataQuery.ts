@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { UseQueryResult } from '@tanstack/react-query';
 import type { AxiosRequestConfig } from 'axios';
 
-import { useAppQueriesContext } from 'src/contexts/appQueriesContext';
+import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { FormDynamicsActions } from 'src/features/dynamics/formDynamicsSlice';
 import { StatelessReadyState, useStatelessReadyState } from 'src/features/entrypoint/useStatelessReadyState';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
@@ -70,7 +70,7 @@ export function useFormDataQuery(): UseQueryResult<IFormData> {
   // on the server).
   const currentTaskId = instance?.process?.currentTask?.elementId;
 
-  const { fetchFormData } = useAppQueriesContext();
+  const { fetchFormData } = useAppQueries();
   const out = useQuery(['fetchFormData', url, currentTaskId], () => fetchFormData(url || '', options), {
     enabled: isEnabled && url !== undefined,
     onSuccess: (formDataAsObj) => {

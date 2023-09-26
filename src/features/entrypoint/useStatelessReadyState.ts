@@ -1,4 +1,4 @@
-import { usePartyValidationMutation } from 'src/hooks/mutations/usePartyValidationMutation';
+import { useLastMutationResult } from 'src/contexts/appQueriesContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { isStatelessApp } from 'src/utils/appMetadata';
@@ -19,11 +19,10 @@ export enum StatelessReadyState {
 
 export function useStatelessReadyState(triggerLoading?: () => void): StatelessReadyState {
   const applicationMetadata = useAppSelector((state) => state.applicationMetadata?.applicationMetadata);
-  const { data: partyValidation } = usePartyValidationMutation();
   const statelessLoading = useAppSelector((state) => state.isLoading.stateless);
-
   const allowAnonymousSelector = makeGetAllowAnonymousSelector();
   const allowAnonymous = useAppSelector(allowAnonymousSelector);
+  const partyValidation = useLastMutationResult('doPartyValidation');
 
   if (!isStatelessApp(applicationMetadata)) {
     return StatelessReadyState.NotStateless;
