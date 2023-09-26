@@ -122,6 +122,10 @@ export function AllOptionsProvider({ children }: PropsWithChildren) {
   }, [state]);
 
   useEffect(() => {
+    if (!nodes) {
+      return;
+    }
+
     const nodesFound: string[] = [];
     for (const node of nodes?.allNodes() || []) {
       if (isNodeOptionBased(node)) {
