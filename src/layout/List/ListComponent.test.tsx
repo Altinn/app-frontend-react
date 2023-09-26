@@ -72,14 +72,6 @@ const render = ({ component, genericProps }: Partial<RenderGenericComponentTestP
       legend: () => <span>legend</span>,
       ...genericProps,
     },
-    manipulateState: (state) => {
-      state.dataListState = {
-        error: {
-          name: '',
-          message: '',
-        },
-      };
-    },
     mockedQueries: {
       fetchDataList,
     },
@@ -100,6 +92,6 @@ describe('ListComponent', () => {
   it('should render columns as markup', async () => {
     render();
 
-    expect(screen.getByRole('link', { name: /Norwegian flag/ })).toBeInTheDocument();
+    expect(await screen.findByRole('link', { name: /Norwegian flag/ })).toBeInTheDocument();
   });
 });
