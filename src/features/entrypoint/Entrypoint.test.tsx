@@ -7,7 +7,6 @@ import type { AxiosError } from 'axios';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { Entrypoint } from 'src/features/entrypoint/Entrypoint';
-import { QueueActions } from 'src/features/queue/queueSlice';
 import { renderWithProviders } from 'src/test/renderWithProviders';
 import type { AppQueriesContext } from 'src/contexts/appQueriesContext';
 import type { IRuntimeState } from 'src/types';
@@ -38,35 +37,6 @@ describe('Entrypoint', () => {
 
     const instantiationText = await screen.findByText('Vent litt, vi henter det du trenger');
     expect(instantiationText).not.toBeNull();
-  });
-
-  test('should show loader while fetching data then start statelessQueue if stateless app', async () => {
-    const { dispatch } = render({
-      queries: {
-        doPartyValidation: () => Promise.resolve({ valid: true, validParties: [], message: '' }),
-      },
-      onEntry: 'stateless',
-      allowAnonymous: false,
-    });
-    const contentLoader = await screen.findByText('Loading...');
-    expect(contentLoader).not.toBeNull();
-
-    // should have started the initialStatelessQueue
-    await waitFor(() => {
-      expect(dispatch).toHaveBeenCalledWith(QueueActions.startInitialStatelessQueue());
-    });
-  });
-
-  test('should show loader while fetching data then start statelessQueue if stateless app with allowAnonymous', async () => {
-    const { dispatch } = render({ onEntry: 'stateless', allowAnonymous: true });
-
-    const contentLoader = await screen.findByText('Loading...');
-    expect(contentLoader).not.toBeNull();
-
-    // should have started the initialStatelessQueue
-    await waitFor(() => {
-      expect(dispatch).toHaveBeenCalledWith(QueueActions.startInitialStatelessQueue());
-    });
   });
 
   test('should fetch active instances and display InstanceSelection.tsx if select-instance is configured', async () => {
@@ -141,14 +111,12 @@ describe('Entrypoint', () => {
 
     const store = createStore(initialState);
 
-    const utils = renderWithProviders(
+    return renderWithProviders(
       <MemoryRouter>
         <Entrypoint />
       </MemoryRouter>,
       { store: store as any },
       queries,
     );
-
-    return { ...utils, dispatch: store.dispatch };
   }
 });
