@@ -61,8 +61,6 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
   usePreselectedOptionIndex(calculatedOptions, props);
   useRemoveStaleValues(calculatedOptions, props);
 
-  // TODO: Test that unselecting a preselected value from checkboxes still works
-
   return {
     options:
       removeDuplicates && calculatedOptions
