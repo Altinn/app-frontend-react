@@ -34,7 +34,7 @@ export function useStatelessReadyState(triggerLoading?: () => void): StatelessRe
     return StatelessReadyState.NotReady;
   }
 
-  if (statelessLoading) {
+  if (statelessLoading === null || statelessLoading) {
     triggerLoading && triggerLoading();
     return StatelessReadyState.Loading;
   }
