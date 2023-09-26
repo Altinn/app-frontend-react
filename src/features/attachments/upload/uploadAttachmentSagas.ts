@@ -91,9 +91,8 @@ export function* uploadAttachmentSaga({
   } catch (err) {
     let validations: IComponentValidations;
 
-    if (backendFeatures?.jsonObjectInDataResponse && isAxiosError(err) && err.response?.data?.result) {
-      const validationIssues: BackendValidationIssue[] = err.response.data.result;
-
+    if (backendFeatures?.jsonObjectInDataResponse && isAxiosError(err) && err.response?.data) {
+      const validationIssues: BackendValidationIssue[] = err.response.data.result ?? err.response.data;
       validations = {
         simpleBinding: {
           errors: validationIssues
