@@ -11,7 +11,10 @@ export const useApplicationSettingsQuery = (): UseQueryResult<IApplicationSettin
   const dispatch = useAppDispatch();
   const { fetchApplicationSettings } = useAppQueriesContext();
   return useQuery(['fetchApplicationSettings'], fetchApplicationSettings, {
-    onSuccess: () => {},
+    onSuccess: (settings) => {
+      // Update the Redux Store ensures that legacy code has access to the data without using the Tanstack Query Cache
+      dispatch(ApplicationSettingsActions.fetchApplicationSettingsFulfilled({ settings }));
+    },
     onError: (error: HttpClientError) => {
       if (error.status === 404) {
         dispatch(ApplicationSettingsActions.fetchApplicationSettingsRejected({ error: null }));
