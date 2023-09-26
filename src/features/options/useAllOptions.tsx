@@ -1,6 +1,8 @@
 import React, { useEffect, useReducer } from 'react';
 import type { PropsWithChildren } from 'react';
 
+import deepEqual from 'fast-deep-equal';
+
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { createStrictContext } from 'src/utils/createStrictContext';
@@ -14,43 +16,41 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
  * the page with the option-based component is rendered. This way we can use the 'displayValue' expression
  * function, and show summaries/PDF even if the source component has not been rendered yet.
  */
-export type AllOptionsMap = { [componentId: string]: IOption[] | undefined };
-type State = { map: AllOptionsMap; initiallyLoaded: boolean };
-
+export type AllOptionsMap = { [nodeId: string]: IOption[] | undefined };
 export const allOptions: AllOptionsMap = {};
 
 const [Provider, useCtx] = createStrictContext<State>();
 
-export const useAllOptions = () => useCtx().map;
-export const useAllOptionsInitiallyLoaded = () => useCtx().initiallyLoaded;
+export const useAllOptions = () => useCtx().nodes;
+export const useAllOptionsInitiallyLoaded = () => useCtx().allInitiallyLoaded;
 
-interface NodeOptionsInitiallyFetchedMap {
-  allFetched: boolean;
+interface State {
+  allInitiallyLoaded: boolean;
   currentTaskId?: string;
-  nodes: { [nodeId: string]: boolean };
+  nodes: AllOptionsMap;
 }
 type Actions =
-  | { type: 'nodeFetched'; nodeId: string }
+  | { type: 'nodeFetched'; nodeId: string; options: IOption[] }
   | { type: 'nodesFound'; nodesFound: string[] }
   | { type: 'setCurrentTask'; currentTaskId: string | undefined };
 
-const reducer = (state: NodeOptionsInitiallyFetchedMap, action: Actions) => {
+const reducer = (state: State, action: Actions) => {
   if (action.type === 'nodeFetched') {
-    if (state.nodes[action.nodeId]) {
+    const existingOptions = state.nodes[action.nodeId];
+    if (deepEqual(existingOptions, action.options)) {
       return state;
     }
     const newNodes = {
       ...state.nodes,
-      [action.nodeId]: true,
+      [action.nodeId]: action.options,
     };
-    const allFetched = Object.values(newNodes).every((v) => v);
     return {
       ...state,
-      allFetched,
+      allInitiallyLoaded: state.allInitiallyLoaded || Object.values(newNodes).every((v) => v),
       nodes: newNodes,
     };
   } else if (action.type === 'nodesFound') {
-    if (state.allFetched) {
+    if (state.allInitiallyLoaded) {
       return state;
     }
 
@@ -58,7 +58,7 @@ const reducer = (state: NodeOptionsInitiallyFetchedMap, action: Actions) => {
     let changes = false;
     for (const nodeId of action.nodesFound) {
       if (newNodes[nodeId] === undefined) {
-        newNodes[nodeId] = false;
+        newNodes[nodeId] = undefined;
         changes = true;
       }
     }
@@ -67,7 +67,7 @@ const reducer = (state: NodeOptionsInitiallyFetchedMap, action: Actions) => {
     }
     return {
       ...state,
-      allFetched: false,
+      allInitiallyLoaded: false,
       nodes: newNodes,
     };
   } else if (action.type === 'setCurrentTask') {
@@ -76,7 +76,7 @@ const reducer = (state: NodeOptionsInitiallyFetchedMap, action: Actions) => {
     }
 
     return {
-      allFetched: false,
+      allInitiallyLoaded: false,
       currentTaskId: action.currentTaskId,
       nodes: {},
     };
@@ -85,23 +85,39 @@ const reducer = (state: NodeOptionsInitiallyFetchedMap, action: Actions) => {
   return state;
 };
 
+function isNodeOptionBased(node: LayoutNode) {
+  return (
+    ('options' in node.item && node.item.options) ||
+    ('optionsId' in node.item && node.item.optionsId) ||
+    ('source' in node.item && node.item.source)
+  );
+}
+
 export function AllOptionsProvider({ children }: PropsWithChildren) {
   const nodes = useExprContext();
   const currentTaskId = useAppSelector((state) => state.process.taskId) ?? undefined;
-  const [state, dispatch] = useReducer(reducer, { allFetched: false, currentTaskId, nodes: {} });
+  const initialState: State = {
+    allInitiallyLoaded: false,
+    nodes: {},
+    currentTaskId,
+  };
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
     dispatch({ type: 'setCurrentTask', currentTaskId });
   }, [currentTaskId]);
 
   useEffect(() => {
+    // Update the global as well, so that we can use it in expressions
+    for (const nodeId of Object.keys(state.nodes)) {
+      allOptions[nodeId] = state.nodes[nodeId];
+    }
+  }, [state]);
+
+  useEffect(() => {
     const nodesFound: string[] = [];
     for (const node of nodes?.allNodes() || []) {
-      if (
-        ('options' in node.item && node.item.options) ||
-        ('optionsId' in node.item && node.item.optionsId) ||
-        ('source' in node.item && node.item.source)
-      ) {
+      if (isNodeOptionBased(node)) {
         nodesFound.push(node.item.id);
       }
     }
@@ -113,41 +129,28 @@ export function AllOptionsProvider({ children }: PropsWithChildren) {
 
   return (
     <>
-      {Object.keys(state.nodes).map((nodeId) => {
-        const node = nodes?.findById(nodeId);
-        if (!node) {
-          return null;
-        }
-        return (
+      {nodes
+        ?.allNodes()
+        .filter((n) => isNodeOptionBased(n))
+        .map((node) => (
           <DummyOptionsSaver
-            key={nodeId}
+            key={node.item.id}
             node={node}
-            loadingDone={() => {
-              if (state.nodes[nodeId]) {
-                return;
-              }
-
+            loadingDone={(options) => {
               dispatch({
                 type: 'nodeFetched',
-                nodeId,
+                nodeId: node.item.id,
+                options,
               });
             }}
           />
-        );
-      })}
-      <Provider
-        value={{
-          map: allOptions,
-          initiallyLoaded: Object.keys(state.nodes).length === 0 ? true : state.allFetched,
-        }}
-      >
-        {children}
-      </Provider>
+        ))}
+      <Provider value={state}>{children}</Provider>
     </>
   );
 }
 
-function DummyOptionsSaver({ node, loadingDone }: { node: LayoutNode; loadingDone: () => void }) {
+function DummyOptionsSaver({ node, loadingDone }: { node: LayoutNode; loadingDone: (options: IOption[]) => void }) {
   const { options: calculatedOptions, isFetching } = useGetOptions({
     ...node.item,
     node,
@@ -159,8 +162,7 @@ function DummyOptionsSaver({ node, loadingDone }: { node: LayoutNode; loadingDon
 
   useEffect(() => {
     if (!isFetching) {
-      allOptions[node.item.id] = calculatedOptions;
-      loadingDone();
+      loadingDone(calculatedOptions);
     }
   }, [isFetching, node.item.id, calculatedOptions, loadingDone]);
 
