@@ -20,9 +20,8 @@ export const ListComponent = ({ node, formData, handleDataChange, legend }: ILis
   const RenderLegend = legend;
   const [pageSize, setPageSize] = useState<number>(pagination?.default || 0);
   const [pageNumber, setPageNumber] = useState<number>(0);
-  const [sortColumn, setSortColumn] = useState<string | null>(null);
+  const [sortColumn, setSortColumn] = useState<string | undefined>(undefined);
   const [sortDirection, setSortDirection] = useState<SortDirection>('notActive');
-
   const filter = useMemo(
     () =>
       ({
@@ -34,7 +33,6 @@ export const ListComponent = ({ node, formData, handleDataChange, legend }: ILis
     [pageNumber, pageSize, sortColumn, sortDirection],
   );
   const { data } = useDataListQuery(filter, dataListId, secure, mapping);
-
   const calculatedDataList = (data && data.listItems) || defaultDataList;
 
   const handleChange = ({ selectedValue: selectedValue }: ChangeProps<Record<string, string>>) => {
@@ -66,7 +64,7 @@ export const ListComponent = ({ node, formData, handleDataChange, legend }: ILis
   }, [formData, calculatedDataList]);
 
   const handleSortChange = (props: SortProps & { column: string }) => {
-    const { next, column } = props;
+    const { column, next } = props;
     setSortColumn(column);
     setSortDirection(next);
   };
@@ -105,8 +103,8 @@ export const ListComponent = ({ node, formData, handleDataChange, legend }: ILis
         handleSortChange({ previous, next, column });
       },
       sortable: sortableColumns ? sortableColumns : [],
-      currentlySortedColumn: data?._metaData.sortColumn,
-      currentDirection: data?._metaData.sortDirection,
+      currentlySortedColumn: sortColumn,
+      currentDirection: sortDirection,
     },
     rowSelection: {
       onSelectionChange: (row) => handleChange({ selectedValue: row }),
