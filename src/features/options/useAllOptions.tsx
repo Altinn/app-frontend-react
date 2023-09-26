@@ -62,6 +62,13 @@ const reducer = (state: State, action: Actions) => {
         changes = true;
       }
     }
+    if (action.nodesFound.length === 0) {
+      return {
+        ...state,
+        allInitiallyLoaded: true,
+      };
+    }
+
     if (!changes) {
       return state;
     }
