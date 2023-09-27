@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { SortDirection } from '@digdir/design-system-react';
 import type { UseQueryResult } from '@tanstack/react-query';
 
-import { useAppQueriesContext } from 'src/contexts/appQueriesContext';
+import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { DataListsActions } from 'src/features/dataLists/dataListsSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -26,7 +26,7 @@ export const useDataListQuery = (
   secure?: boolean,
   mapping?: IMapping,
 ): UseQueryResult<IDataList> => {
-  const { fetchDataList } = useAppQueriesContext();
+  const { fetchDataList } = useAppQueries();
   const dispatch = useAppDispatch();
   const { selectedLanguage } = useLanguage();
   const formData = useAppSelector((state) => state.formData.formData);
