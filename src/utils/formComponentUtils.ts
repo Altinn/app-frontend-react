@@ -3,6 +3,7 @@ import type React from 'react';
 import printStyles from 'src/styles/print.module.css';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import type { IAttachment } from 'src/features/attachments';
+import type { IFormData } from 'src/features/formData';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type {
   IGridStyling,
@@ -14,9 +15,7 @@ import type { ITextResourceBindings } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IComponentValidations } from 'src/utils/validation/types';
 
-export interface IComponentFormData {
-  [binding: string]: string | undefined;
-}
+export type IComponentFormData = IFormData;
 
 export function getFileUploadComponentValidations(
   validationError: 'upload' | 'update' | 'delete' | null,

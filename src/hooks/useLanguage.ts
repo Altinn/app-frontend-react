@@ -279,7 +279,7 @@ function replaceVariables(text: string, variables: IVariable[], dataSources: Tex
   let out = text;
   for (const idx in variables) {
     const variable = variables[idx];
-    let value = variables[idx].key;
+    let value: string | undefined = variables[idx].key;
 
     if (variable.dataSource.startsWith('dataModel')) {
       const cleanPath = getKeyWithoutIndexIndicators(value);
@@ -305,7 +305,9 @@ function replaceVariables(text: string, variables: IVariable[], dataSources: Tex
       value = variable.defaultValue || value;
     }
 
-    out = out.replaceAll(`{${idx}}`, value);
+    if (value !== undefined) {
+      out = out.replaceAll(`{${idx}}`, value);
+    }
   }
 
   return out;

@@ -1,15 +1,19 @@
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import type { IAttachment, IAttachments } from 'src/features/attachments';
-import type { IFormData } from 'src/features/formData';
+import type { IFormData, PrimitiveValue } from 'src/features/formData';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export function extractListFromBinding(formData: IFormData, listBinding: string): string[] {
+export function extractListFromBinding(formData: IFormData, listBinding: string): PrimitiveValue[] {
   return Object.keys(formData)
     .filter((key) => key.startsWith(listBinding))
     .map((key) => formData[key]);
 }
 
-export function attachmentsFromUuids(componentId: string, uuids: string[], attachments: IAttachments): IAttachment[] {
+export function attachmentsFromUuids(
+  componentId: string,
+  uuids: PrimitiveValue[],
+  attachments: IAttachments,
+): IAttachment[] {
   if (!uuids.length) {
     return [];
   }

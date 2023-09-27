@@ -23,7 +23,7 @@ import {
   validationContextFromState,
 } from 'src/utils/validation/validationHelpers';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
-import type { IFormData } from 'src/features/formData';
+import type { IFormData, PrimitiveValue } from 'src/features/formData';
 import type { IUpdateFormData } from 'src/features/formData/formDataTypes';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
 import type { IRuntimeState, IRuntimeStore, IUiConfig } from 'src/types';
@@ -118,7 +118,7 @@ function createFormDataRequest(
 }
 
 function diffModels(current: IFormData, prev: IFormData) {
-  const changes: { [key: string]: string | null } = {};
+  const changes: { [key: string]: PrimitiveValue | null } = {};
   for (const key of Object.keys(current)) {
     if (current[key] !== prev[key]) {
       changes[key] = prev[key];

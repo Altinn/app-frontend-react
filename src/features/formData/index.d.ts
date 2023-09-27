@@ -26,6 +26,22 @@ export interface IFormDataState {
   reFetch?: boolean;
 }
 
+/**
+ * Any of the primitive values we support inside a data model
+ * TODO: Support more than strings
+ */
+export type PrimitiveValue = string | undefined; // | number | bigint | boolean | null;
+
+/**
+ * Form data, flattened to a simple key/value store
+ */
 export interface IFormData {
-  [dataFieldKey: string]: string;
+  [dataFieldKey: string]: PrimitiveValue;
+}
+
+/**
+ * Recursive structure/data model, as received from the backend
+ */
+export interface IDataModelData {
+  [key: string]: PrimitiveValue | IDataModelData | IDataModelData[];
 }
