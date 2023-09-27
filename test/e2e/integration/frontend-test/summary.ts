@@ -298,9 +298,13 @@ describe('Summary', () => {
       .should('contain.text', `Kommentarer : ${texts.emptySummary}`)
       .and('contain.text', `Nested uploader with tags : ${texts.emptySummary}`)
       .and('contain.text', `Vis tillegg : ${texts.emptySummary}`)
-      .and('contain.text', `hvor fikk du vite om skjemaet? : Altinn`)
       .and('contain.text', `Referanse : ${texts.emptySummary}`)
       .and('contain.text', `Skjul kommentar felt : ${texts.emptySummary}`);
+    cy.get('[data-testid=summary-group-component]')
+      .children()
+      .last()
+      .first()
+      .should('contain.text', `hvor fikk du vite om skjemaet? : Altinn`);
     cy.get('#summary-mainGroup-4 > [data-testid=summary-source-4] > div')
       .children()
       .last()
