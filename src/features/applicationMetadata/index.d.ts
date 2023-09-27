@@ -60,5 +60,4 @@ export interface IBackendFeaturesState {
   multiPartSave: boolean;
   processActions: boolean;
   jsonObjectInDataResponse: boolean; // Extended attachment validation
-  expressionValidation: boolean;
 }

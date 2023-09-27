@@ -62,8 +62,7 @@ type AppInternalProps = {
 };
 
 const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | null => {
-  const backendFeatures = useAppSelector((state) => state.applicationMetadata.applicationMetadata?.features);
-  useCustomValidationConfig(Boolean(backendFeatures?.expressionValidation));
+  useCustomValidationConfig();
   const allowAnonymousSelector = makeGetAllowAnonymousSelector();
   const allowAnonymous = useAppSelector(allowAnonymousSelector);
 

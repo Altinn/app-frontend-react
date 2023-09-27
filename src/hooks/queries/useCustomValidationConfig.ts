@@ -17,7 +17,7 @@ enum ServerStateCacheKey {
   ValidationConfig = 'validationConfig',
 }
 
-export const useCustomValidationConfig = (enabled: boolean): UseQueryResult<IExpressionValidationConfig | null> => {
+export const useCustomValidationConfig = (): UseQueryResult<IExpressionValidationConfig | null> => {
   const dispatch = useAppDispatch();
   const { fetchCustomValidationConfig } = useAppQueriesContext();
 
@@ -35,7 +35,7 @@ export const useCustomValidationConfig = (enabled: boolean): UseQueryResult<IExp
     }) ?? '';
 
   return useQuery([ServerStateCacheKey.ValidationConfig, dataTypeId], () => fetchCustomValidationConfig(dataTypeId), {
-    enabled: enabled && Boolean(dataTypeId?.length),
+    enabled: Boolean(dataTypeId?.length),
     onSuccess: (customValidationConfig) => {
       if (!customValidationConfig) {
         return;
