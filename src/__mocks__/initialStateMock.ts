@@ -25,7 +25,6 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
     devTools: {
       activeTab: DevToolsTab.General,
       isOpen: false,
-      hasBeenOpen: false,
       pdfPreview: false,
       hiddenComponents: 'hide',
       layoutInspector: {

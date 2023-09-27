@@ -1,12 +1,14 @@
 import React from 'react';
 
+import { HelpText, Radio } from '@digdir/design-system-react';
+
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
 import { RadioButton } from 'src/components/form/RadioButton';
-import { RadioGroup } from 'src/components/form/RadioGroup';
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { groupIsRepeatingLikert } from 'src/layout/Group/tools';
+import classes from 'src/layout/RadioButtons/ControlledRadioGroup.module.css';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
 import { shouldUseRowLayout } from 'src/utils/layout';
 import type { IRadioButtonsContainerProps } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
@@ -44,6 +46,10 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
   );
 
   const hideLabel = overrideDisplay?.renderedInTable === true && calculatedOptions.length === 1;
+  const shouldDisplayHorizontally = shouldUseRowLayout({
+    layout,
+    optionsCount: calculatedOptions.length,
+  });
 
   return (
     <div>
@@ -54,16 +60,24 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
           id={id}
           onBlur={handleBlur}
         >
-          <RadioGroup
-            legend={overrideDisplay?.renderLegend === false ? null : labelText}
-            description={textResourceBindings?.description && lang(textResourceBindings.description)}
-            helpText={textResourceBindings?.help && lang(textResourceBindings.help)}
+          <Radio.Group
+            legend={
+              overrideDisplay?.renderLegend === false ? null : (
+                <span className={classes.label}>
+                  {labelText}
+                  {textResourceBindings?.help ? (
+                    <HelpText title={langAsString(textResourceBindings?.help)}>
+                      {lang(textResourceBindings?.help)}
+                    </HelpText>
+                  ) : null}
+                </span>
+              )
+            }
+            description={lang(textResourceBindings?.description)}
             error={!isValid}
             disabled={readOnly}
-            shouldDisplayHorizontally={shouldUseRowLayout({
-              layout,
-              optionsCount: calculatedOptions.length,
-            })}
+            inline={shouldDisplayHorizontally}
+            role='radiogroup'
           >
             {calculatedOptions.map((option) => (
               <RadioButton
@@ -75,14 +89,13 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
                 key={option.value}
                 checked={option.value === selected}
                 showAsCard={showAsCard}
-                error={!isValid}
                 disabled={readOnly}
                 onChange={handleChange}
                 hideLabel={hideLabel}
                 size='small'
               />
             ))}
-          </RadioGroup>
+          </Radio.Group>
         </div>
       )}
     </div>
