@@ -55,7 +55,7 @@ function testConfirmationPage() {
     .find('a')
     .should('have.length', 5) // This is the number of process data tasks
     .first()
-    .should('contain.text', `${appFrontend.apps.frontendTest}.pdf`);
+    .should('contain.text', 'frontend-test.pdf');
 
   cy.get(appFrontend.confirm.uploadedAttachments)
     .last()
@@ -150,7 +150,7 @@ function testReceiptPage() {
     .find('a')
     .should('have.length', 5) // This is the number of process data tasks
     .first()
-    .should('contain.text', `${appFrontend.apps.frontendTest}.pdf`);
+    .should('contain.text', 'frontend-test.pdf');
 
   cy.get(appFrontend.receipt.uploadedAttachments)
     .last()

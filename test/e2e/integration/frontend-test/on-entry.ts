@@ -63,7 +63,7 @@ describe('On Entry', () => {
   });
 
   const createIntercept = (defaultSelectedOption: number) => ({
-    id: 'ttd/frontend-test',
+    id: 'ttd/frontend-test-v3',
     org: 'ttd',
     title: {
       nb: 'frontend-test',
@@ -124,7 +124,7 @@ describe('On Entry', () => {
     cy.startAppInstance(appFrontend.apps.frontendTest);
     cy.get(appFrontend.closeButton).should('be.visible');
     cy.get(appFrontend.selectInstance.container).should('be.visible');
-    cy.intercept('POST', `/ttd/frontend-test/instances?instanceOwnerPartyId*`).as('createdInstance');
+    cy.intercept('POST', `/ttd/frontend-test-v3/instances?instanceOwnerPartyId*`).as('createdInstance');
     cy.get(appFrontend.selectInstance.newInstance).click();
     cy.wait('@createdInstance').its('response.statusCode').should('eq', 201);
     cy.url().should('not.contain', instanceIdExamples[0]);

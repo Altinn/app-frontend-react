@@ -4,7 +4,7 @@
   "filename": "test.pdf",
   "contentType": "application/pdf",
   "selfLinks": {
-    "apps": "https://altinn3local.no/ttd/frontend-test/instances/"
+    "apps": "https://altinn3local.no/ttd/frontend-test-v3/instances/"
   },
   "size": 4,
   "locked": false,
