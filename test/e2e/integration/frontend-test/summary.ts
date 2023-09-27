@@ -271,6 +271,7 @@ describe('Summary', () => {
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.addNewItem).click();
     cy.get(appFrontend.group.editContainer).find(appFrontend.group.next).click();
+    cy.get(appFrontend.group.row(4).nestedGroup.row(0).nestedSource).should('have.value', 'Altinn');
     cy.get(appFrontend.group.saveSubGroup).click();
     cy.get(appFrontend.group.saveMainGroup).click();
     cy.gotoNavPage('summary');
@@ -297,6 +298,7 @@ describe('Summary', () => {
       .should('contain.text', `Kommentarer : ${texts.emptySummary}`)
       .and('contain.text', `Nested uploader with tags : ${texts.emptySummary}`)
       .and('contain.text', `Vis tillegg : ${texts.emptySummary}`)
+      .and('contain.text', `hvor fikk du vite om skjemaet? : Altinn`)
       .and('contain.text', `Referanse : ${texts.emptySummary}`)
       .and('contain.text', `Skjul kommentar felt : ${texts.emptySummary}`);
     cy.get('#summary-mainGroup-4 > [data-testid=summary-source-4] > div')
