@@ -20,7 +20,7 @@ describe('Stateless', () => {
     cy.get(appFrontend.stateless.name).type('test');
     cy.get(appFrontend.stateless.name).blur();
     cy.get(appFrontend.stateless.name).should('have.value', 'automation');
-    cy.get(appFrontend.header).should('contain.text', appFrontend.apps.stateless).and('contain.text', texts.ttd);
+    cy.get(appFrontend.header).should('contain.text', 'stateless-app').and('contain.text', texts.ttd);
     cy.snapshot('stateless');
   });
 

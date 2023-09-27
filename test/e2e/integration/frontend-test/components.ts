@@ -11,7 +11,7 @@ describe('UI Components', () => {
     cy.get('body').should('have.css', 'background-color', 'rgb(239, 239, 239)');
     cy.get(appFrontend.loadingAnimation).should('be.visible');
     cy.get(appFrontend.closeButton).should('be.visible');
-    cy.get(appFrontend.header).should('contain.text', appFrontend.apps.frontendTest).and('contain.text', texts.ttd);
+    cy.get(appFrontend.header).should('contain.text', 'frontend-test').and('contain.text', texts.ttd);
     cy.get(appFrontend.message.logo).then((image) => {
       cy.wrap(image).find('img').should('have.attr', 'alt', 'Altinn logo');
       cy.wrap(image)

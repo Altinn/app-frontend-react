@@ -74,7 +74,7 @@ function testConfirmationPage() {
     const maybeInstanceId = getInstanceIdRegExp().exec(url);
     const instanceId = maybeInstanceId ? maybeInstanceId[1] : 'instance-id-not-found';
     cy.get(appFrontend.confirm.body).contains(instanceId);
-    cy.get(appFrontend.confirm.body).should('contain.text', appFrontend.apps.frontendTest);
+    cy.get(appFrontend.confirm.body).should('contain.text', 'frontend-test');
   });
 }
 
