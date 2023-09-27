@@ -1,5 +1,5 @@
 import { createAction, createSlice } from '@reduxjs/toolkit';
-import { takeEvery, takeLatest } from 'redux-saga/effects';
+import { takeEvery } from 'redux-saga/effects';
 import type { CaseReducer, CaseReducerActions, CreateSliceOptions, PayloadAction, Slice } from '@reduxjs/toolkit';
 import type { WritableDraft } from 'immer/dist/types/types-external';
 import type { SagaIterator } from 'redux-saga';
@@ -22,12 +22,6 @@ export interface SagaAction<Payload, State> {
    * Spawns a saga on each action dispatched to the Store.
    */
   takeEvery?: PayloadSaga<Payload> | PayloadSaga<Payload>[];
-
-  /**
-   * Forks a saga on each action dispatched to the Store, and automatically cancels
-   * any previous saga task started previously if it's still running.
-   */
-  takeLatest?: PayloadSaga<Payload> | PayloadSaga<Payload>[];
 }
 
 export type ExtractPayload<Action> = Action extends SagaAction<infer Payload, any> ? Payload : never;
@@ -77,15 +71,11 @@ function asArray<T>(input: T | T[]): T[] {
   return Array.isArray(input) ? input : [input];
 }
 
-function asTake<Payload>(
-  method: 'takeLatest' | 'takeEvery',
-  actionName: string,
-  saga: PayloadSaga<Payload> | PayloadSaga<Payload>[],
-) {
+function asTakeEvery<Payload>(actionName: string, saga: PayloadSaga<Payload> | PayloadSaga<Payload>[]) {
   return asArray(saga).map(
     (target) =>
       function* (): SagaIterator {
-        yield method === 'takeLatest' ? takeLatest(actionName, target) : takeEvery(actionName, target);
+        yield takeEvery(actionName, target);
       },
   );
 }
@@ -125,12 +115,8 @@ export function createSagaSlice<
       rootSagas.push(...asArray(action.saga(actionName)));
     }
 
-    if ('takeLatest' in action && action.takeLatest) {
-      rootSagas.push(...asTake('takeLatest', actionName, action.takeLatest));
-    }
-
     if ('takeEvery' in action && action.takeEvery) {
-      rootSagas.push(...asTake('takeEvery', actionName, action.takeEvery));
+      rootSagas.push(...asTakeEvery(actionName, action.takeEvery));
     }
   }
 

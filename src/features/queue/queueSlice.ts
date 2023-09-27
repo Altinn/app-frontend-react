@@ -99,7 +99,7 @@ export const queueSlice = () => {
         },
       }),
       startInitialStatelessQueue: mkAction<void>({
-        *takeLatest(): SagaIterator {
+        *takeEvery(): SagaIterator {
           yield put(IsLoadingActions.startStatelessIsLoading());
           yield put(FormLayoutActions.fetch());
           yield put(FormLayoutActions.fetchSettings());
