@@ -1,24 +1,12 @@
-import { INDEX_KEY_INDICATOR_REGEX } from 'src/utils/databindings';
-import type { IFormData } from 'src/features/form/data';
-import type {
-  ComponentTypes,
-  IGroupEditProperties,
-  IGroupFilter,
-  ILayout,
-  ILayoutComponent,
-  ILayoutGroup,
-} from 'src/features/form/layout';
-import type { IAttachmentState } from 'src/shared/resources/attachments';
-import type {
-  IFileUploadersWithTag,
-  ILayoutNavigation,
-  ILayoutSets,
-  IMapping,
-  IOptionsChosen,
-  IRepeatingGroups,
-  ITextResourceBindings,
-} from 'src/types';
-import type { ITextResource } from 'src/types/shared';
+import { groupIsRepeatingExt, groupIsRepeatingLikertExt } from 'src/layout/Group/tools';
+import type { IAttachmentState } from 'src/features/attachments';
+import type { IFormData } from 'src/features/formData';
+import type { ILayoutNavigation } from 'src/layout/common.generated';
+import type { CompGroupExternal, IGroupEditPropertiesInternal, IGroupFilter } from 'src/layout/Group/config.generated';
+import type { CompExternal, ILayout } from 'src/layout/layout';
+import type { IFileUploadersWithTag, ILayoutSets, IOptionsChosen, IRepeatingGroups } from 'src/types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 interface SplitKey {
   baseComponentId: string;
@@ -54,9 +42,9 @@ export function splitDashedKey(componentId: string): SplitKey {
       const stringDepth = depth.join('-').toString();
       return {
         baseComponentId: [...parts, toConsider].join('-'),
-        stringDepth: stringDepth,
+        stringDepth,
         stringDepthWithLeadingDash: stringDepth ? `-${stringDepth}` : '',
-        depth: depth,
+        depth,
       };
     }
   }
@@ -84,18 +72,26 @@ const getMaxIndexInKeys = (keys: string[], nested = false) => {
   );
 };
 
+/**
+ * @deprecated Note: This functionality may not be present in the layout hierarchy, but prefer implementing it there
+ *   over continued usage of this functionality.
+ * @see useExprContext
+ * @see useResolvedNode
+ */
 export function getRepeatingGroups(formLayout: ILayout, formData: any) {
   const repeatingGroups: IRepeatingGroups = {};
 
   const groups = formLayout.filter((layoutElement) => layoutElement.type === 'Group');
 
   const childGroups: string[] = [];
-  groups.forEach((group: ILayoutGroup) => {
+  groups.forEach((group: CompGroupExternal) => {
     group.children?.forEach((childId: string) => {
       formLayout
         .filter((element) => {
-          if (element.type !== 'Group') return false;
-          if (group.edit?.multiPage) {
+          if (element.type !== 'Group') {
+            return false;
+          }
+          if (groupIsRepeatingExt(group) && group.edit?.multiPage) {
             return childId.split(':')[1] === element.id;
           }
           return element.id === childId;
@@ -107,12 +103,10 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
   // filter away groups that should be rendered as child groups
   const filteredGroups = groups.filter((group) => childGroups.indexOf(group.id) === -1);
 
-  filteredGroups.forEach((groupElement: ILayoutGroup) => {
-    if (groupElement.maxCount && groupElement.maxCount > 1) {
+  filteredGroups.forEach((groupElement: CompGroupExternal) => {
+    if (groupIsRepeatingExt(groupElement) || groupIsRepeatingLikertExt(groupElement)) {
       const groupFormData = Object.keys(formData)
-        .filter((key) => {
-          return groupElement.dataModelBindings?.group && key.startsWith(groupElement.dataModelBindings.group);
-        })
+        .filter((key) => groupElement.dataModelBindings?.group && key.startsWith(groupElement.dataModelBindings.group))
         .sort();
       if (groupFormData && groupFormData.length > 0) {
         const maxIndex = getMaxIndexInKeys(groupFormData);
@@ -126,27 +120,32 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
           };
           const groupElementChildGroups: string[] = [];
           groupElement.children?.forEach((id) => {
-            if (groupElement.edit?.multiPage && childGroups.includes(id.split(':')[1])) {
+            if (
+              groupIsRepeatingExt(groupElement) &&
+              groupElement.edit?.multiPage &&
+              childGroups.includes(id.split(':')[1])
+            ) {
               groupElementChildGroups.push(id.split(':')[1]);
             } else if (childGroups.includes(id)) {
               groupElementChildGroups.push(id);
             }
           });
           groupElementChildGroups.forEach((childGroupId: string) => {
-            const childGroup = groups.find((element) => element.id === childGroupId);
+            const childGroup = groups.find((element) => element.id === childGroupId) as CompGroupExternal;
             [...Array(index + 1)].forEach((_x: any, childGroupIndex: number) => {
               const groupId = `${childGroup?.id}-${childGroupIndex}`;
               repeatingGroups[groupId] = {
                 index: getIndexForNestedRepeatingGroup(
                   formData,
-                  childGroup?.dataModelBindings?.group,
+                  childGroup && 'dataModelBindings' in childGroup ? childGroup?.dataModelBindings?.group : undefined,
                   groupElement?.dataModelBindings?.group,
                   childGroupIndex,
                 ),
                 baseGroupId: childGroup?.id,
                 editIndex: -1,
                 multiPageIndex: -1,
-                dataModelBinding: childGroup?.dataModelBindings?.group,
+                dataModelBinding:
+                  childGroup && 'dataModelBindings' in childGroup ? childGroup?.dataModelBindings?.group : undefined,
               };
             });
           });
@@ -189,6 +188,12 @@ export function mapFileUploadersWithTag(formLayout: ILayout, attachmentState: IA
   return fileUploaders;
 }
 
+/**
+ * @deprecated Note: This functionality may not be present in the layout hierarchy, but prefer implementing it there
+ *   over continued usage of this functionality.
+ * @see useExprContext
+ * @see useResolvedNode
+ */
 function getIndexForNestedRepeatingGroup(
   formData: any,
   groupBinding: string | undefined,
@@ -200,9 +205,7 @@ function getIndexForNestedRepeatingGroup(
   }
   const indexedGroupBinding = groupBinding.replace(parentGroupBinding, `${parentGroupBinding}[${parentIndex}]`);
   const groupFormData = Object.keys(formData)
-    .filter((key) => {
-      return key.startsWith(indexedGroupBinding);
-    })
+    .filter((key) => key.startsWith(indexedGroupBinding))
     .sort();
   if (groupFormData && groupFormData.length > 0) {
     return getMaxIndexInKeys(groupFormData, true);
@@ -260,7 +263,7 @@ export function removeRepeatingGroupFromUIConfig(
 
 export const getRepeatingGroupStartStopIndex = (
   repeatingGroupIndex: number,
-  edit: IGroupEditProperties | undefined,
+  edit: Pick<IGroupEditPropertiesInternal, 'filter'> | undefined,
 ) => {
   if (typeof repeatingGroupIndex === 'undefined') {
     return { startIndex: 0, stopIndex: -1 };
@@ -273,133 +276,12 @@ export const getRepeatingGroupStartStopIndex = (
   return { startIndex, stopIndex };
 };
 
-export function createRepeatingGroupComponents(
-  container: ILayoutGroup,
-  renderComponents: (ILayoutComponent | ILayoutGroup)[],
-  repeatingGroupIndex: number,
-  textResources: ITextResource[],
-  hiddenFields?: string[],
-): Array<Array<ILayoutComponent | ILayoutGroup>> {
-  const componentArray: Array<Array<ILayoutComponent | ILayoutGroup>> = [];
-  const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(repeatingGroupIndex, container.edit);
-  for (let index = startIndex; index <= stopIndex; index++) {
-    componentArray.push(
-      createRepeatingGroupComponentsForIndex({
-        container,
-        renderComponents,
-        textResources,
-        index,
-        hiddenFields,
-      }),
-    );
-  }
-  return componentArray;
-}
-
-interface ICreateRepeatingGroupCoomponentsForIndexProps {
-  container: ILayoutGroup;
-  renderComponents: (ILayoutComponent | ILayoutGroup)[];
-  textResources: ITextResource[];
-  index: number;
-  hiddenFields?: string[];
-}
-
-export function createRepeatingGroupComponentsForIndex({
-  container,
-  renderComponents,
-  textResources,
-  index,
-  hiddenFields,
-}: ICreateRepeatingGroupCoomponentsForIndexProps) {
-  return renderComponents.map((component: ILayoutComponent | ILayoutGroup) => {
-    if (component.type === 'Group' && component.panel?.groupReference) {
-      // Do not treat as a regular group child as this is merely an option
-      // to add elements for another group from this group context
-      return {
-        ...component,
-        id: `${component.id}-${index}`,
-        baseComponentId: component.id, // used to indicate that it is a child group
-      };
-    }
-
-    const componentDeepCopy: ILayoutComponent | ILayoutGroup = JSON.parse(JSON.stringify(component));
-    const dataModelBindings = { ...componentDeepCopy.dataModelBindings };
-    const groupDataModelBinding = container.dataModelBindings?.group;
-    Object.keys(dataModelBindings).forEach((key) => {
-      dataModelBindings[key] = dataModelBindings[key].replace(
-        groupDataModelBinding,
-        `${groupDataModelBinding}[${index}]`,
-      );
-    });
-    const deepCopyId = `${componentDeepCopy.id}-${index}`;
-    componentDeepCopy.textResourceBindings = getVariableTextKeysForRepeatingGroupComponent(
-      textResources,
-      componentDeepCopy.textResourceBindings,
-      index,
-    );
-    const hidden = !!hiddenFields?.find((field) => field === `${deepCopyId}[${index}]`);
-    let mapping;
-    if ('mapping' in componentDeepCopy) {
-      mapping = setMappingForRepeatingGroupComponent(componentDeepCopy.mapping, index);
-    }
-    return {
-      ...componentDeepCopy,
-      textResourceBindings: componentDeepCopy.textResourceBindings,
-      dataModelBindings,
-      id: deepCopyId,
-      baseComponentId: componentDeepCopy.baseComponentId || componentDeepCopy.id,
-      hidden,
-      mapping,
-    };
-  });
-}
-
-export function setMappingForRepeatingGroupComponent(mapping: IMapping | undefined, index: number | undefined) {
-  if (mapping) {
-    const indexedMapping: IMapping = {
-      ...mapping,
-    };
-    const mappingsWithRepeatingGroupSources = Object.keys(mapping).filter((source) =>
-      source.match(INDEX_KEY_INDICATOR_REGEX),
-    );
-    mappingsWithRepeatingGroupSources.forEach((sourceMapping) => {
-      delete indexedMapping[sourceMapping];
-      const newSource = sourceMapping.replace(INDEX_KEY_INDICATOR_REGEX, `[${index}]`);
-      indexedMapping[newSource] = mapping[sourceMapping];
-      delete indexedMapping[sourceMapping];
-    });
-    return indexedMapping;
-  } else {
-    return undefined;
-  }
-}
-
-export function getVariableTextKeysForRepeatingGroupComponent(
-  textResources: ITextResource[],
-  textResourceBindings: ITextResourceBindings | undefined,
-  index: number,
-) {
-  const copyTextResourceBindings = { ...textResourceBindings };
-  if (textResources && textResourceBindings) {
-    const bindingsWithVariablesForRepeatingGroups = Object.keys(copyTextResourceBindings).filter((key) => {
-      const textKey = copyTextResourceBindings[key];
-      const textResource = textResources.find((text) => text.id === textKey);
-      return textResource && textResource.variables && textResource.variables.find((v) => v.key.indexOf('[{0}]') > -1);
-    });
-
-    bindingsWithVariablesForRepeatingGroups.forEach((key) => {
-      copyTextResourceBindings[key] = `${copyTextResourceBindings[key]}-${index}`;
-    });
-  }
-  return copyTextResourceBindings;
-}
-
 /**
  * Checks if there are required fields in this layout (or fields that potentially can be marked as required if some
  * dynamic behaviour dictates it).
  */
-export function hasRequiredFields(layout: ILayout): boolean {
-  return !!layout.find((c: ILayoutComponent) => c.required === true || Array.isArray(c.required));
+export function hasRequiredFields(page: LayoutPage): boolean {
+  return !!page.flat(true).find((n) => 'required' in n.item && n.item.required === true);
 }
 
 /**
@@ -410,16 +292,18 @@ export function hasRequiredFields(layout: ILayout): boolean {
  * @param options.matching Function which should return true for every component to be included in the returned list.
  *    If not provided, all components are returned.
  * @param options.rootGroupId Component id for a group to use as root, instead of iterating the entire layout.
- * @deprecated Use nodesInLayout() instead. TODO: Rewrite usages
+ * @deprecated Use LayoutNode instead. TODO: Rewrite usages
+ * @see useExprContext
+ * @see useResolvedNode
  */
 export function findChildren(
   layout: ILayout,
   options?: {
-    matching?: (component: ILayoutComponent) => boolean;
+    matching?: (component: CompExternal) => boolean;
     rootGroupId?: string;
   },
-): ILayoutComponent[] {
-  const out: ILayoutComponent[] = [];
+): CompExternal[] {
+  const out: CompExternal[] = [];
   const root: string = options?.rootGroupId || '';
   const toConsider = new Set<string>();
   const otherGroupComponents: { [groupId: string]: Set<string> } = {};
@@ -428,7 +312,7 @@ export function findChildren(
     for (const item of layout) {
       if (item.type === 'Group' && item.children) {
         for (const childId of item.children) {
-          const cleanId = item.edit?.multiPage ? childId.split(':')[1] : childId;
+          const cleanId = groupIsRepeatingExt(item) && item.edit?.multiPage ? childId.split(':')[1] : childId;
           if (item.id === root) {
             toConsider.add(cleanId);
           } else {
@@ -464,37 +348,20 @@ export function findChildren(
 }
 
 /**
- * Takes a layout and removes the components in it that belong to groups. This returns
- * only the top-level layout components.
- */
-export function topLevelComponents(layout: ILayout) {
-  const inGroup = new Set<string>();
-  layout.forEach((component) => {
-    if (component.type === 'Group') {
-      const childList = component.edit?.multiPage
-        ? component.children.map((childId) => childId.split(':')[1] || childId)
-        : component.children;
-      childList.forEach((childId) => inGroup.add(childId));
-    }
-  });
-  return layout.filter((component) => !inGroup.has(component.id));
-}
-
-/**
  * Takes a layout and splits it into two return parts; the last will contain
  * all the buttons on the bottom of the input layout, while the first returned
  * value is the input layout except for these extracted components.
  */
-export function extractBottomButtons(layout: ILayout) {
-  const extract = new Set<ComponentTypes>(['NavigationButtons', 'Button', 'PrintButton']);
-
-  const toMainLayout: ILayout = [];
-  const toErrorReport: ILayout = [];
-  for (const component of [...layout].reverse()) {
-    if (extract.has(component.type) && toMainLayout.length === 0) {
-      toErrorReport.push(component);
+export function extractBottomButtons(page: LayoutPage) {
+  const all = [...page.children()];
+  const toMainLayout: LayoutNode[] = [];
+  const toErrorReport: LayoutNode[] = [];
+  for (const node of all.reverse()) {
+    const isButtonLike = node.isType('ButtonGroup') || (node.def.canRenderInButtonGroup() && !node.isType('Custom'));
+    if (isButtonLike && toMainLayout.length === 0) {
+      toErrorReport.push(node);
     } else {
-      toMainLayout.push(component);
+      toMainLayout.push(node);
     }
   }
 
@@ -515,13 +382,14 @@ export function behavesLikeDataTask(task: string | null | undefined, layoutSets:
 }
 
 /**
- * (Deprecate this function) Returns the filtered indices of a repeating group.
+ * Returns the filtered indices of a repeating group.
  * This is a buggy implementation, but is used for backward compatibility until a new major version is released.
  * @see https://github.com/Altinn/app-frontend-react/issues/339#issuecomment-1286624933
  * @param formData IFormData
  * @param filter IGroupEditProperties.filter or undefined.
  * @returns a list of indices for repeating group elements after applying filters, or null if no filters are provided or if no elements match.
- * @deprecated
+ * @deprecated Refrain from using this function, prefer implementing filtering based on expressions instead
+ * @see https://github.com/Altinn/app-frontend-react/issues/584
  */
 export function getRepeatingGroupFilteredIndices(formData: IFormData, filter?: IGroupFilter[]): number[] | null {
   if (filter && filter.length > 0) {

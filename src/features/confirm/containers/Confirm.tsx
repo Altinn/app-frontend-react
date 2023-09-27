@@ -1,22 +1,22 @@
 import React from 'react';
 
-import { useAppDispatch, useAppSelector, useInstanceIdParams } from 'src/common/hooks';
-import { AltinnContentIconReceipt, AltinnContentLoader } from 'src/components/shared';
+import { AltinnContentIconReceipt } from 'src/components/atoms/AltinnContentIconReceipt';
+import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoader';
 import { ConfirmPage } from 'src/features/confirm/containers/ConfirmPage';
+import { InstanceDataActions } from 'src/features/instanceData/instanceDataSlice';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 import { selectAppName } from 'src/selectors/language';
-import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 
 export const Confirm = () => {
   const { instanceId } = useInstanceIdParams();
   const dispatch = useAppDispatch();
-  const pageProps = {
-    instance: useAppSelector((state) => state.instanceData.instance),
-    parties: useAppSelector((state) => state.party.parties),
-    applicationMetadata: useAppSelector((state) => state.applicationMetadata.applicationMetadata),
-    language: useAppSelector((state) => state.language.language),
-    appName: useAppSelector(selectAppName),
-    textResources: useAppSelector((state) => state.textResources.resources),
-  };
+  const instance = useAppSelector((state) => state.instanceData.instance);
+  const parties = useAppSelector((state) => state.party.parties);
+  const applicationMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
+  const appName = useAppSelector(selectAppName);
+
   React.useEffect(() => {
     dispatch(
       InstanceDataActions.get({
@@ -24,7 +24,6 @@ export const Confirm = () => {
       }),
     );
   }, [instanceId, dispatch]);
-  const { instance, parties } = pageProps;
   const isLoading = !instance || !parties;
   return (
     <div id='confirmcontainer'>
@@ -36,7 +35,12 @@ export const Confirm = () => {
           <AltinnContentIconReceipt />
         </AltinnContentLoader>
       ) : (
-        <ConfirmPage {...pageProps} />
+        <ConfirmPage
+          applicationMetadata={applicationMetadata}
+          instance={instance}
+          parties={parties}
+          appName={appName}
+        />
       )}
     </div>
   );

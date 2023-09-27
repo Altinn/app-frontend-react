@@ -17,12 +17,10 @@ jobs:
       - name: install node
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: '18'
 
       - name: install dependencies
         working-directory: app-frontend
-        env:
-          GITHUB_PACKAGES_PAT: ${{ secrets.GITHUB_TOKEN }}
         run: yarn --immutable
 
       - name: run build
@@ -39,12 +37,27 @@ jobs:
       - name: Run release script
         working-directory: app-frontend
         if: "!github.event.release.prerelease"
-        run: bash .github/scripts/release.sh --frontend . --cdn ../cdn --commit
+        run: |
+          bash .github/scripts/release.sh \
+           --frontend . \
+           --cdn ../cdn \
+           --commit \
+           --azure-sync-cdn \
+           --azure-sa-name "${{ secrets.STAGING_STORAGEACCOUNT_NAME }}" \
+           --azure-sa-token "${{ secrets.STAGING_ALTINN_CDN_SAS_TOKEN }}"
 
       - name: Run release script (pre-release)
         working-directory: app-frontend
         if: "github.event.release.prerelease"
-        run: bash .github/scripts/release.sh --frontend . --cdn ../cdn --commit --pre-release
+        run: |
+         bash .github/scripts/release.sh \
+           --frontend . \
+           --cdn ../cdn \
+           --commit \
+           --pre-release \
+           --azure-sync-cdn \
+           --azure-sa-name "${{ secrets.STAGING_STORAGEACCOUNT_NAME }}" \
+           --azure-sa-token "${{ secrets.STAGING_ALTINN_CDN_SAS_TOKEN }}"
 
       - name: Push to CDN
         working-directory: cdn

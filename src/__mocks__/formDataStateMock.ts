@@ -1,4 +1,4 @@
-import type { IFormDataState } from 'src/features/form/data';
+import type { IFormDataState } from 'src/features/formData';
 
 export function getFormDataStateMock(customState?: Partial<IFormDataState>) {
   const formData: IFormDataState = {
@@ -12,12 +12,10 @@ export function getFormDataStateMock(customState?: Partial<IFormDataState>) {
       'referencedGroup[1].inputField': 'Value from input field [1]',
       'referencedGroup[2].inputField': 'Value from input field [2]',
     },
-    hasSubmitted: false,
-    savingId: '',
+    lastSavedFormData: {},
     submittingId: '',
-    responseInstance: false,
     unsavedChanges: false,
-    ignoreWarnings: true,
+    saving: false,
   };
 
   return { ...formData, ...customState };

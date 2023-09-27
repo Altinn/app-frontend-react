@@ -5,11 +5,13 @@ on:
       - main
     paths:
       - 'src/**'
+      - 'yarn.lock'
       - '.github/workflows/unit-tests.yml'
   pull_request:
     types: [opened, synchronize, reopened]
     paths:
       - 'src/**'
+      - 'yarn.lock'
       - '.github/workflows/unit-tests.yml'
 
 jobs:
@@ -26,7 +28,7 @@ jobs:
       - name: install node
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: '18'
 
       - name: Get yarn cache directory path
         working-directory: app-frontend
@@ -43,8 +45,6 @@ jobs:
 
       - name: install dependencies
         working-directory: app-frontend
-        env:
-          GITHUB_PACKAGES_PAT: ${{ secrets.GITHUB_TOKEN }}
         run: yarn --immutable
 
       - name: type-check

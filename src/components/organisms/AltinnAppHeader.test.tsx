@@ -1,9 +1,13 @@
 import React from 'react';
 
-import { act, render, screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { AltinnAppHeader } from 'src/components/shared';
+import { appMetadataMock } from 'src/__mocks__/applicationMetadataMock';
+import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
+import { AltinnAppHeader } from 'src/components/organisms/AltinnAppHeader';
+import { renderWithProviders } from 'src/test/renderWithProviders';
+import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IParty } from 'src/types/shared';
 
 describe('organisms/AltinnAppHeader', () => {
@@ -31,60 +35,67 @@ describe('organisms/AltinnAppHeader', () => {
 
   const headerBackgroundColor = 'blue';
   const logoColor = 'blue';
-  const language = {
-    general: {
-      header_profile_icon_label: 'Profilikon meny',
-      log_out: 'Logg ut',
-    },
-  };
 
-  const renderComponent = (party: IParty, user = partyPerson) =>
-    render(
+  interface IRenderComponentProps {
+    party: IParty;
+    user?: IParty;
+    logo?: IApplicationMetadata['logo'];
+  }
+  const renderComponent = ({ party, user = partyPerson, logo }: IRenderComponentProps) =>
+    renderWithProviders(
       <AltinnAppHeader
         party={party}
         userParty={user}
         logoColor={logoColor}
         headerBackgroundColor={headerBackgroundColor}
-        language={language}
       />,
+      {
+        preloadedState: getInitialStateMock({
+          applicationMetadata: appMetadataMock({ logo }),
+        }),
+      },
     );
 
   it('should render private icon when party is person', () => {
-    renderComponent(partyPerson);
+    renderComponent({ party: partyPerson });
     const profileButton = screen.getByRole('button', {
-      name: /profilikon meny/i,
+      name: /Profil ikon knapp/i,
     });
+    // eslint-disable-next-line testing-library/no-node-access
     expect(profileButton.firstChild?.firstChild).toHaveClass('fa-private-circle-big');
   });
 
   it('should render private icon for user without ssn or org number', () => {
-    renderComponent(selfIdentifiedUser);
+    renderComponent({ party: selfIdentifiedUser });
     const profileButton = screen.getByRole('button', {
-      name: /profilikon meny/i,
+      name: /Profil ikon knapp/i,
     });
+    // eslint-disable-next-line testing-library/no-node-access
     expect(profileButton.firstChild?.firstChild).toHaveClass('fa-private-circle-big');
   });
 
   it('should render org icon when party is org', () => {
-    renderComponent(partyOrg);
+    renderComponent({ party: partyOrg });
     const profileButton = screen.getByRole('button', {
-      name: /profilikon meny/i,
+      name: /Profil ikon knapp/i,
     });
+    // eslint-disable-next-line testing-library/no-node-access
     expect(profileButton.firstChild?.firstChild).toHaveClass('fa-corp-circle-big');
   });
 
   it('should render menu with logout option when clicking profile icon', async () => {
-    renderComponent(partyOrg);
+    renderComponent({ party: partyOrg });
     expect(
       screen.queryByRole('link', {
         name: /logg ut/i,
         hidden: true,
       }),
     ).toBeNull();
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(() =>
       userEvent.click(
         screen.getByRole('button', {
-          name: /profilikon meny/i,
+          name: /Profil ikon knapp/i,
         }),
       ),
     );
@@ -94,5 +105,18 @@ describe('organisms/AltinnAppHeader', () => {
         hidden: true,
       }),
     ).toBeInTheDocument();
+  });
+
+  it('Should render Altinn logo if logo options are not set', () => {
+    renderComponent({ party: partyPerson });
+    expect(screen.getByRole('img')).toHaveAttribute('src', 'https://altinncdn.no/img/Altinn-logo-black.svg');
+  });
+
+  it('Should render Organisation logo if logo options are set', () => {
+    renderComponent({
+      party: partyPerson,
+      logo: { source: 'org', displayAppOwnerNameInHeader: false },
+    });
+    expect(screen.getByRole('img')).toHaveAttribute('src', 'https://altinncdn.no/orgs/mockOrg/mockOrg.png');
   });
 });

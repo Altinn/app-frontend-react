@@ -1,22 +1,22 @@
-import type { IFormData } from 'src/features/form/data';
 import type {
   IConditionalRenderingRule,
   IConditionalRenderingRules,
   IParameters,
   ISelectedFields,
-} from 'src/features/form/dynamics';
-import type { IAltinnWindow, IRepeatingGroup, IRepeatingGroups } from 'src/types';
+} from 'src/features/dynamics';
+import type { IFormData } from 'src/features/formData';
+import type { IRepeatingGroups } from 'src/types';
 
-/*
- * Runs conditional rendering rules, returns array of affected layout elements
+/**
+ * Runs conditional rendering rules, returns Set of hidden component IDs
  */
 export function runConditionalRenderingRules(
   rules: IConditionalRenderingRules | null,
   formData: IFormData | null,
-  repeatingGroups?: IRepeatingGroups,
+  repeatingGroups: IRepeatingGroups | null,
 ): Set<string> {
   const componentsToHide = new Set<string>();
-  if (!(window as Window as IAltinnWindow).conditionalRuleHandlerHelper) {
+  if (!window.conditionalRuleHandlerHelper) {
     // rules have not been initialized
     return componentsToHide;
   }
@@ -25,21 +25,20 @@ export function runConditionalRenderingRules(
     return componentsToHide;
   }
 
-  Object.keys(rules).forEach((key) => {
+  for (const key of Object.keys(rules)) {
     if (!key) {
-      return;
+      continue;
     }
 
     const connection: IConditionalRenderingRule = rules[key];
     if (connection.repeatingGroup) {
-      const repeatingGroup: IRepeatingGroup | undefined =
-        repeatingGroups && repeatingGroups[connection.repeatingGroup.groupId];
+      const repeatingGroup = repeatingGroups && repeatingGroups[connection.repeatingGroup.groupId];
       if (!repeatingGroup) {
-        return;
+        continue;
       }
 
       for (let index = 0; index <= repeatingGroup.index; index++) {
-        const connectionCopy: IConditionalRenderingRule = JSON.parse(JSON.stringify(connection));
+        const connectionCopy = structuredClone(connection);
         connectionCopy.inputParams = mapRepeatingGroupIndex({
           ruleObject: connectionCopy.inputParams,
           index,
@@ -51,11 +50,10 @@ export function runConditionalRenderingRules(
         });
 
         if (connection.repeatingGroup.childGroupId) {
-          const childGroup: IRepeatingGroup | undefined =
-            repeatingGroups && repeatingGroups[`${connection.repeatingGroup.childGroupId}-${index}`];
+          const childGroup = repeatingGroups && repeatingGroups[`${connection.repeatingGroup.childGroupId}-${index}`];
           if (childGroup) {
             for (let childIndex = 0; childIndex <= childGroup?.index; childIndex++) {
-              const connectionNestedCopy: IConditionalRenderingRule = JSON.parse(JSON.stringify(connectionCopy));
+              const connectionNestedCopy = structuredClone(connectionCopy);
               connectionNestedCopy.inputParams = mapRepeatingGroupIndex({
                 ruleObject: connectionCopy.inputParams,
                 index: childIndex,
@@ -76,7 +74,7 @@ export function runConditionalRenderingRules(
     } else {
       runConditionalRenderingRule(connection, formData, componentsToHide);
     }
-  });
+  }
 
   return componentsToHide;
 }
@@ -108,7 +106,7 @@ function runConditionalRenderingRule(
   hiddenFields: Set<string>,
 ) {
   const functionToRun = rule.selectedFunction;
-  const objectToUpdate = (window as Window as IAltinnWindow).conditionalRuleHandlerHelper[functionToRun]();
+  const objectToUpdate = window.conditionalRuleHandlerHelper[functionToRun]();
 
   // Map input object structure to input object defined in the conditional rendering rule connection
   const newObj = Object.keys(objectToUpdate).reduce((acc: any, elem: any) => {
@@ -117,7 +115,7 @@ function runConditionalRenderingRule(
     return acc;
   }, {});
 
-  const result = (window as any).conditionalRuleHandlerObject[functionToRun](newObj);
+  const result = window.conditionalRuleHandlerObject[functionToRun](newObj);
   const action = rule.selectedAction;
   const hide = (action === 'Show' && !result) || (action === 'Hide' && result);
   Object.keys(rule.selectedFields).forEach((elementToPerformActionOn) => {

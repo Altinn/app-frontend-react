@@ -1,5 +1,19 @@
-export function nb() {
+import type { FixedLanguageList } from 'src/language/languages';
+
+export function nb(): FixedLanguageList {
   return {
+    altinn: {
+      standard_validation: {
+        file_content_type_not_allowed:
+          'Det ser ut som du prøver å laste opp en filtype som ikke er tillatt. Sjekk at filen faktisk er av den typen den utgir seg for å være.',
+      },
+    },
+    actions: {
+      sign: 'Signer',
+      confirm: 'Bekreft',
+      reject: 'Avslå',
+      instantiate: 'Instansier',
+    },
     address_component: {
       address: 'Gateadresse',
       care_of: 'C/O eller annen tilleggsadresse',
@@ -10,7 +24,7 @@ export function nb() {
       simplified: 'Enkel',
       title_text_binding: 'Søk etter ledetekst for Adressekomponenten',
       zip_code: 'Postnr',
-      validation_error_zipcode: 'Postnummer er ugyldig',
+      validation_error_zipcode: 'Postnummer er ugyldig. Et postnummer består kun av 4 siffer.',
       validation_error_house_number: 'Bolignummer er ugyldig',
     },
     confirm: {
@@ -46,6 +60,8 @@ export function nb() {
       file_uploader_drag: 'Dra og slipp eller',
       file_uploader_find: 'let etter fil',
       file_uploader_list_delete: 'Slett vedlegg',
+      file_uploader_delete_warning: 'Er du sikker på at du vil slette dette vedlegget?',
+      file_uploader_delete_button_confirm: 'Ja, slett vedlegg',
       file_uploader_list_header_file_size: 'Filstørrelse',
       file_uploader_list_header_name: 'Navn',
       file_uploader_list_header_status: 'Status',
@@ -89,6 +105,7 @@ export function nb() {
     },
     general: {
       action: 'Handling',
+      accessibility: 'Tilgjengelighet',
       add_connection: 'Legg til tilkobling',
       add_new: 'Legg til ny',
       add: 'Legg til',
@@ -110,8 +127,10 @@ export function nb() {
       edit_alt_error: 'Rett feil her',
       edit_alt: 'Rediger',
       edit: 'Endre',
+      empty_summary: 'Du har ikke lagt inn informasjon her',
       enabled: 'Aktivert',
       error_message_with_colon: 'Feilmelding:',
+      expand_form: 'Utvid skjema',
       for: 'for',
       header_profile_icon_label: 'Profil ikon knapp',
       label: 'Navn',
@@ -136,11 +155,22 @@ export function nb() {
       validate_changes: 'Validér endringer',
       value: 'Verdi',
       version: 'Versjon',
+      wait_for_attachments: 'Vent litt, vi prosesserer vedlegg',
     },
     group: {
       row_error: 'En av radene er ikke fylt ut riktig, dette må fikses før skjema kan sendes inn',
       row_popover_delete_message: 'Er du sikker på at du vil slette denne raden?',
       row_popover_delete_button_confirm: 'Ja, slett raden',
+    },
+    iframe_component: {
+      unsupported_browser_title: 'Nettleseren din støttes ikke',
+      unsupported_browser:
+        'Nettleseren du bruker støtter ikke iframes som benytter seg av srcdoc. Dette kan føre til at du ikke ser all innholdet som er ment å vises her. Vi anbefaler deg å prøve en annen nettleser.',
+    },
+    input_components: {
+      character_limit_sr_label: 'Tekstfeltet kan inneholde maks {0} tegn',
+      remaining_characters: 'Du har {0} av {1} tegn igjen',
+      exceeded_max_limit: 'Du har overskredet maks antall tegn med {0}',
     },
     instance_selection: {
       changed_by: 'Endret av',
@@ -159,6 +189,10 @@ export function nb() {
       unknown_error_text: 'Det har skjedd en ukjent feil, vennligst prøv igjen senere.',
       unknown_error_status: 'Ukjent feil',
       unknown_error_customer_support: 'Om problemet vedvarer, ta kontakt med oss på brukerservice {0}.',
+      forbidden_action_error_title: 'Du mangler rettigheter til å utføre denne handlingen',
+      forbidden_action_error_text: 'Det ser ut til at du mangler rettigheter til å utføre denne handlingen.',
+      forbidden_action_error_status: '403 - Forbidden',
+      forbidden_action_error_customer_support: 'Hvis du trenger hjelp, ta kontakt med oss på brukerservice <br/> {0}.',
       authorization_error_main_title: 'Du mangler rettigheter for å se denne tjenesten.',
       authorization_error_instantiate_validation_title: 'Du kan ikke starte denne tjenesten',
       authorization_error_rights: 'Det ser ut til at du ikke har rettigheter til å starte denne tjenesten for {0}',
@@ -171,7 +205,7 @@ export function nb() {
       authorization_error_info_customer_service: 'Du kan også kontakte oss på brukerservice {0}.',
       authorization_error_instantiate_validation_info_customer_service:
         'Om du står fast kontakt oss på brukerservice {0}.',
-      starting: 'Hold deg fast, nå starter vi!',
+      starting: 'Vent litt, vi henter det du trenger',
     },
     language: {
       full_name: {
@@ -210,10 +244,14 @@ export function nb() {
       unit_personal_number: 'personnr.',
       show_deleted: 'Vis slettede',
       show_sub_unit: 'Vis underenheter',
+      why_seeing_this: 'Hvorfor ser jeg dette?',
+      seeing_this_preference:
+        'Du kan endre [profilinnstillingene](https://altinn.no/ui/Profile) dine for å ikke bli spurt om aktør hver gang du starter utfylling av et nytt skjema. Du finner denne innstillingen under **Profil** > **Avanserte innstillinger** > **Jeg ønsker ikke å bli spurt om aktør hver gang jeg starter utfylling av et nytt skjema**.',
+      seeing_this_override: 'Denne appen er satt opp til å alltid spørre om aktør.',
     },
-    popover: {
-      popover_button_helptext: 'Hjelp',
-      popover_open: 'Popover åpen',
+    helptext: {
+      button_title: 'Hjelp',
+      button_title_prefix: 'Hjelpetekst for',
     },
     receipt: {
       attachments: 'Vedlegg',
@@ -226,7 +264,7 @@ export function nb() {
       ref_num: 'Referansenummer',
       sender: 'Avsender',
       subtitle: 'Kopi av din kvittering er sendt til ditt arkiv',
-      title_part_is_submitted: 'er sendt inn',
+      title: 'Skjema er sendt inn',
       title_submitted: 'Følgende er sendt inn:',
     },
     receipt_platform: {
@@ -252,14 +290,16 @@ export function nb() {
       generic_field: 'dette feltet',
     },
     validation_errors: {
-      min: 'Minste gyldig verdi er {0}',
-      max: 'Største gyldig verdi er {0}',
+      min: 'Minste gyldig tall er {0}',
+      max: 'Største gyldig tall er {0}',
       minLength: 'Bruk {0} eller flere tegn',
       maxLength: 'Bruk {0} eller færre tegn',
       length: 'Antall tillatte tegn er {0}',
       pattern: 'Feil format eller verdi',
       required: 'Feltet er påkrevd',
       enum: 'Kun verdiene {0} er tillatt',
+      minItems: 'Minst {0} rader er påkrevd',
+      maxItems: 'Maks {0} rader er tillatt',
     },
     map_component: {
       selectedLocation: 'Valgt lokasjon: {0}° nord, {1}° øst',

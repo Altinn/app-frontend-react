@@ -1,9 +1,9 @@
-import * as React from 'react';
+import React from 'react';
 
 import { IconButton, makeStyles, Menu, MenuItem } from '@material-ui/core';
 
-import { AltinnIcon } from 'src/components/shared';
-import { logoutUrlAltinn } from 'src/utils/sharedUtils';
+import { AltinnIcon } from 'src/components/AltinnIcon';
+import { logoutUrlAltinn } from 'src/utils/urls/urlHelper';
 import type { IParty } from 'src/types/shared';
 
 export interface IAltinnAppHeaderMenuProps {
@@ -19,7 +19,6 @@ const useStyles = makeStyles({
     maxWidth: 100,
     padding: 0,
     top: 50,
-    right: 25,
   },
   menuItem: {
     fontSize: 16,
@@ -28,10 +27,15 @@ const useStyles = makeStyles({
   },
   iconButton: {
     padding: 0,
+    '&:focus-within': {
+      outline: 'var(--fds-focus-border-width) solid var(--fds-outer-focus-border-color)',
+      outlineOffset: 'var(--fds-focus-border-width)',
+      boxShadow: '0 0 0 var(--fds-focus-border-width) var(--fds-inner-focus-border-color)',
+    },
   },
 });
 
-function AltinnAppHeaderMenu(props: IAltinnAppHeaderMenuProps) {
+export function AltinnAppHeaderMenu(props: IAltinnAppHeaderMenuProps) {
   const { party, logoColor, ariaLabel, logoutText } = props;
   const [anchorEl, setAnchorEl] = React.useState(null);
   const classes = useStyles();
@@ -100,5 +104,3 @@ function AltinnAppHeaderMenu(props: IAltinnAppHeaderMenuProps) {
     </>
   );
 }
-
-export default AltinnAppHeaderMenu;

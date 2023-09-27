@@ -5,11 +5,11 @@ import { createTheme, MuiThemeProvider } from '@material-ui/core';
 import { screen, waitFor, within } from '@testing-library/react';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { InstantiateContainer } from 'src/features/instantiate/containers';
+import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
 import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
-import { setupStore } from 'src/store';
-import { renderWithProviders } from 'src/testUtils';
-import { AltinnAppTheme } from 'src/theme';
+import { setupStore } from 'src/redux/store';
+import { renderWithProviders } from 'src/test/renderWithProviders';
+import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { HttpStatusCodes } from 'src/utils/network/networking';
 import type { IRuntimeState } from 'src/types';
 
@@ -35,7 +35,7 @@ describe('InstantiateContainer', () => {
   const render = (initialState: Partial<IRuntimeState> = {}) => {
     const theme = createTheme(AltinnAppTheme);
     const stateMock = getInitialStateMock(initialState);
-    const mockStore = setupStore(stateMock);
+    const mockStore = setupStore(stateMock).store;
     mockStore.dispatch = jest.fn();
     const { store } = renderWithProviders(
       <MuiThemeProvider theme={theme}>
@@ -49,10 +49,13 @@ describe('InstantiateContainer', () => {
   };
 
   it('should show content loader on initial render and start instantiation if valid party', async () => {
+    // eslint-disable-next-line testing-library/render-result-naming-convention
     const mockDispatch = render();
 
     await waitFor(() => {
       expect(mockDispatch).toHaveBeenCalledWith(InstantiationActions.instantiate());
+    });
+    await waitFor(() => {
       expect(mockDispatch).toHaveBeenCalledTimes(1);
     });
 
@@ -60,40 +63,15 @@ describe('InstantiateContainer', () => {
     expect(contentLoader).toBeInTheDocument();
 
     const instantiationText = within(await screen.findByTestId('presentation-heading')).getByText(
-      'Hold deg fast, nå starter vi!',
+      'Vent litt, vi henter det du trenger',
     );
 
     expect(instantiationText).toBeInTheDocument();
     expect(screen.queryByText('Instance page')).not.toBeInTheDocument();
   });
 
-  it('should show header as "" when translations have not been initialized properly loader on initial render and start instantiation if valid party', async () => {
-    const mockDispatch = render({
-      language: {
-        language: {
-          instantiate: {
-            starting: 'instantiate.starting',
-          },
-        },
-        selectedAppLanguage: '',
-        error: null,
-      },
-    });
-
-    await waitFor(() => {
-      expect(mockDispatch).toHaveBeenCalledWith(InstantiationActions.instantiate());
-      expect(mockDispatch).toHaveBeenCalledTimes(1);
-    });
-
-    const contentLoader = await screen.findByText('Loading...');
-    expect(contentLoader).toBeInTheDocument();
-
-    const instantiationText = within(await screen.findByTestId('presentation-heading')).getByText('');
-
-    expect(instantiationText).toBeInTheDocument();
-  });
-
   it('should not call InstantiationActions.instantiate when no selected party', async () => {
+    // eslint-disable-next-line testing-library/render-result-naming-convention
     const mockDispatch = render({
       party: {
         parties: [],
@@ -117,7 +95,7 @@ describe('InstantiateContainer', () => {
     });
 
     expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
-    expect(screen.queryByText('Hold deg fast, nå starter vi!')).not.toBeInTheDocument();
+    expect(screen.queryByText('Vent litt, vi henter det du trenger')).not.toBeInTheDocument();
 
     expect(screen.getByText('Instance page')).toBeInTheDocument();
   });
@@ -125,7 +103,7 @@ describe('InstantiateContainer', () => {
   it('should show unknown error for generic errors', async () => {
     const error = {
       message: 'instantiation error',
-      name: 'instantiation error',
+      name: 'AxiosError',
       config: {},
       isAxiosError: true,
       response: {
@@ -147,7 +125,7 @@ describe('InstantiateContainer', () => {
   it('should show missing access when http status is forbidden', async () => {
     const error = {
       message: 'instantiation error',
-      name: 'instantiation error',
+      name: 'AxiosError',
       config: {},
       isAxiosError: true,
       response: {
@@ -170,7 +148,7 @@ describe('InstantiateContainer', () => {
   it('should show instantiation error page when axios error contains a message', async () => {
     const error = {
       message: 'instantiation error',
-      name: 'instantiation error',
+      name: 'AxiosError',
       config: {},
       isAxiosError: true,
       response: {

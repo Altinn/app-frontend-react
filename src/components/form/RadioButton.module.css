@@ -1,0 +1,41 @@
+.radioLabelContainer {
+  display: flex;
+  gap: var(--fds-spacing-1);
+  align-items: center;
+}
+
+.card {
+  border-radius: 6px;
+  background-color: var(--fds-semantic-background-subtle);
+  width: 100%;
+  padding-top: var(--fds-spacing-2);
+  padding-bottom: var(--fds-spacing-2);
+  margin-bottom: var(--fds-spacing-3);
+  cursor: pointer;
+}
+
+.card label {
+  width: 100%;
+}
+
+.card:hover {
+  background: var(--fds-semantic-surface-neutral-subtle-hover);
+}
+
+.card:active {
+  background: var(--fds-semantic-border-neutral-subtle);
+}
+
+.card:is(:checked, :has(:checked)) {
+  background: var(--fds-semantic-surface-neutral-selected);
+  box-shadow: 0 0 0 var(--fds-focus-border-width) var(--fds-semantic-border-primary-active);
+}
+
+.card:has(:focus-visible) {
+  --fds-focus-border-width: 3px;
+  background: var(--fds-semantic-surface-neutral-selected);
+
+  box-shadow: 0 0 0 var(--fds-focus-border-width) var(--fds-inner-focus-border-color);
+  outline: var(--fds-focus-border-width) solid var(--fds-outer-focus-border-color);
+  outline-offset: var(--fds-focus-border-width);
+}

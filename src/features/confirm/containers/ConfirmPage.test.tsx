@@ -4,21 +4,19 @@ import { MemoryRouter } from 'react-router-dom';
 import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { applicationMetadataMock } from 'src/__mocks__/applicationMetadataMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { applicationMetadataMock, getInstanceDataStateMock } from 'src/__mocks__/mocks';
-import { type Props as IConfirmPage, ConfirmPage } from 'src/features/confirm/containers/ConfirmPage';
-import { nb } from 'src/language/texts/nb';
-import { renderWithProviders } from 'src/testUtils';
+import { getInstanceDataStateMock } from 'src/__mocks__/instanceDataStateMock';
+import { ConfirmPage, type IConfirmPageProps } from 'src/features/confirm/containers/ConfirmPage';
+import { renderWithProviders } from 'src/test/renderWithProviders';
 import type { IInstance } from 'src/types/shared';
 
 describe('ConfirmPage', () => {
   const state = getInstanceDataStateMock();
-  const props: IConfirmPage = {
+  const props: IConfirmPageProps = {
     appName: 'Irrelevant',
     instance: state.instance as IInstance,
-    language: nb(),
     parties: [],
-    textResources: [],
     applicationMetadata: applicationMetadataMock,
   };
   it('should present confirm information when necessary data is present', () => {
@@ -58,6 +56,8 @@ describe('ConfirmPage', () => {
   });
 
   it('should show loading when clicking submit', async () => {
+    const user = userEvent.setup();
+    window.instanceId = state.instance?.id;
     const { store } = renderWithProviders(
       <MemoryRouter>
         <ConfirmPage {...props} />
@@ -78,9 +78,9 @@ describe('ConfirmPage', () => {
     expect(dispatch).toHaveBeenCalledTimes(0);
     expect(screen.queryByText(loadingText)).not.toBeInTheDocument();
     expect(submitBtn).toBeInTheDocument();
-    await act(() => userEvent.click(submitBtn));
+    await act(() => user.click(submitBtn));
 
-    expect(screen.queryByText(submitBtnText)).toBeInTheDocument();
+    expect(screen.getByText(submitBtnText)).toBeInTheDocument();
     expect(screen.getByText(loadingText)).toBeInTheDocument();
     expect(dispatch).toHaveBeenCalledTimes(0);
   });

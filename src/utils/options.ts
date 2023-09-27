@@ -5,26 +5,24 @@ import {
   keyHasIndexIndicators,
   replaceIndexIndicatorsWithIndexes,
 } from 'src/utils/databindings';
-import { replaceTextResourceParams } from 'src/utils/sharedUtils';
-import type { IFormData } from 'src/features/form/data';
-import type { ILayout } from 'src/features/form/layout';
-import type {
-  IMapping,
-  IOption,
-  IOptions,
-  IOptionsMetaData,
-  IOptionSource,
-  IRepeatingGroups,
-  ITextResource,
-} from 'src/types';
-import type { IDataSources } from 'src/types/shared';
+import type { IFormData } from 'src/features/formData';
+import type { IMapping, IOption, IOptionSource } from 'src/layout/common.generated';
+import type { ILayout } from 'src/layout/layout';
+import type { IOptions, IOptionsMetaData, IRepeatingGroups } from 'src/types';
 
-export function getOptionLookupKey({ id, mapping }: IOptionsMetaData) {
-  if (!mapping) {
+export function getOptionLookupKey({ id, mapping, fixedQueryParameters }: IOptionsMetaData) {
+  if (!mapping && !fixedQueryParameters) {
     return id;
   }
 
-  return JSON.stringify({ id, mapping });
+  const keyObject: any = { id };
+  if (mapping) {
+    keyObject.mapping = mapping;
+  }
+  if (fixedQueryParameters) {
+    keyObject.fixedQueryParameters = fixedQueryParameters;
+  }
+  return JSON.stringify(keyObject);
 }
 
 interface IGetOptionLookupKeysParam extends IOptionsMetaData {
@@ -39,6 +37,7 @@ interface IOptionLookupKeys {
 export function getOptionLookupKeys({
   id,
   mapping,
+  fixedQueryParameters,
   secure,
   repeatingGroups,
 }: IGetOptionLookupKeysParam): IOptionLookupKeys {
@@ -58,25 +57,20 @@ export function getOptionLookupKeys({
         };
         delete newMapping[mappingKey];
         newMapping[newMappingKey] = mapping[mappingKey];
-        lookupKeys.push({ id, mapping: newMapping, secure });
+        lookupKeys.push({ id, mapping: newMapping, fixedQueryParameters, secure });
       }
     });
 
     return {
       keys: lookupKeys,
-      keyWithIndexIndicator: { id, mapping, secure },
+      keyWithIndexIndicator: { id, mapping, fixedQueryParameters, secure },
     };
   }
 
-  lookupKeys.push({ id, mapping, secure });
+  lookupKeys.push({ id, mapping, fixedQueryParameters, secure });
   return {
     keys: lookupKeys,
   };
-}
-
-export function replaceOptionDataField(formData: IFormData, valueString: string, index: number) {
-  const indexedValueString = valueString.replace('{0}', index.toString());
-  return formData[indexedValueString];
 }
 
 export function getRelevantFormDataForOptionSource(formData: IFormData, source: IOptionSource) {
@@ -93,42 +87,6 @@ export function getRelevantFormDataForOptionSource(formData: IFormData, source: 
   });
 
   return relevantFormData;
-}
-
-interface ISetupSourceOptionsParams {
-  source: IOptionSource;
-  relevantTextResource: ITextResource;
-  relevantFormData: IFormData;
-  repeatingGroups: IRepeatingGroups | null;
-  dataSources: IDataSources;
-}
-
-export function setupSourceOptions({
-  source,
-  relevantTextResource,
-  relevantFormData,
-  repeatingGroups,
-  dataSources,
-}: ISetupSourceOptionsParams) {
-  const replacedOptionLabels = replaceTextResourceParams([relevantTextResource], dataSources, repeatingGroups);
-
-  const repGroup = Object.values(repeatingGroups || {}).find((group) => {
-    return group.dataModelBinding === source.group;
-  });
-
-  if (!repGroup) {
-    return undefined;
-  }
-
-  const options: IOption[] = [];
-  for (let i = 0; i <= repGroup.index; i++) {
-    const option: IOption = {
-      label: replacedOptionLabels[i + 1].value,
-      value: replaceOptionDataField(relevantFormData, source.value, i),
-    };
-    options.push(option);
-  }
-  return options;
 }
 
 interface IRemoveGroupOptionsByIndexParams {
@@ -159,9 +117,9 @@ export function removeGroupOptionsByIndex({
       newOptions[optionKey] = options[optionKey];
       return;
     }
-    const shouldBeDeleted = Object.keys(mapping).some((mappingKey) => {
-      return mappingKey.startsWith(`${groupDataBinding}[${index}]`);
-    });
+    const shouldBeDeleted = Object.keys(mapping).some((mappingKey) =>
+      mappingKey.startsWith(`${groupDataBinding}[${index}]`),
+    );
 
     if (shouldBeDeleted) {
       return;
@@ -174,9 +132,9 @@ export function removeGroupOptionsByIndex({
       };
       // the indexed to be deleted is lower than total indexes, shift all above
       for (let shiftIndex = index + 1; shiftIndex <= repeatingGroup.index + 1; shiftIndex++) {
-        const shouldBeShifted = Object.keys(mapping).filter((mappingKey) => {
-          return mappingKey.startsWith(`${groupDataBinding}[${shiftIndex}]`);
-        });
+        const shouldBeShifted = Object.keys(mapping).filter((mappingKey) =>
+          mappingKey.startsWith(`${groupDataBinding}[${shiftIndex}]`),
+        );
 
         shouldBeShifted?.forEach((key) => {
           const newKey = key.replace(`${groupDataBinding}[${shiftIndex}]`, `${groupDataBinding}[${shiftIndex - 1}]`);
@@ -196,4 +154,13 @@ export function removeGroupOptionsByIndex({
   });
 
   return newOptions;
+}
+
+export function duplicateOptionFilter(currentOption: IOption, currentIndex: number, options: IOption[]): boolean {
+  for (let i = 0; i < currentIndex; i++) {
+    if (currentOption.value === options[i].value) {
+      return false;
+    }
+  }
+  return true;
 }

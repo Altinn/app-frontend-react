@@ -1,7 +1,10 @@
-import type { ILayoutGroup } from 'src/features/form/layout';
+import type { CompGroupRepeatingExternal } from 'src/layout/Group/config.generated';
 
-export function getFormLayoutGroupMock(customMock?: Partial<ILayoutGroup>, children?: string[]): ILayoutGroup {
-  const mockLayoutGroup: ILayoutGroup = {
+export function getFormLayoutGroupMock(
+  customMock?: Partial<CompGroupRepeatingExternal>,
+  children?: string[],
+): CompGroupRepeatingExternal {
+  const mockLayoutGroup = {
     id: 'container-closed-id',
     type: 'Group',
     children: children || ['field1', 'field2', 'field3', 'field4'],
@@ -9,17 +12,17 @@ export function getFormLayoutGroupMock(customMock?: Partial<ILayoutGroup>, child
     dataModelBindings: {
       group: 'some-group',
     },
-  };
+  } as CompGroupRepeatingExternal;
   return {
     ...mockLayoutGroup,
     ...customMock,
   };
 }
 
-export function getMultiPageGroupMock(): ILayoutGroup {
+export function getMultiPageGroupMock(id = 'multipageGroup'): CompGroupRepeatingExternal {
   return {
     type: 'Group',
-    id: 'multipageGroup',
+    id,
     dataModelBindings: {
       group: 'multipageGroup',
     },

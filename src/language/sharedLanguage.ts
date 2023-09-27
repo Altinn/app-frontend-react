@@ -1,89 +1,101 @@
-import DOMPurify from 'dompurify';
-import parseHtmlToReact from 'html-react-parser';
-import { marked } from 'marked';
-import type { HTMLReactParserOptions } from 'html-react-parser';
+import React from 'react';
 
-import type { IAltinnOrgs, IApplication, IDataSources, ILanguage, ITextResource } from 'src/types/shared';
+import { Heading } from '@digdir/design-system-react';
+import DOMPurify from 'dompurify';
+import parseHtmlToReact, { domToReact } from 'html-react-parser';
+import { marked } from 'marked';
+import { mangle } from 'marked-mangle';
+import type { DOMNode, Element, HTMLReactParserOptions } from 'html-react-parser';
+
+import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { IUseLanguage } from 'src/hooks/useLanguage';
+import type { IAltinnOrgs, IApplication } from 'src/types/shared';
+
+marked.use(mangle());
 
 DOMPurify.addHook('afterSanitizeAttributes', (node) => {
   if (node.tagName === 'A') {
-    node.setAttribute('rel', 'noopener noreferrer');
-    node.setAttribute('target', '_blank');
+    const url = node.getAttribute('href') || '';
+    if (url.startsWith('http') && !url.match(/(local\.altinn|altinn\.no|altinn\.cloud|basefarm\.net)/)) {
+      node.classList.add('target-external');
+      node.setAttribute('rel', 'noopener noreferrer');
+    } else {
+      node.classList.add('target-internal');
+    }
+
+    if (node.classList.contains('same-window')) {
+      node.setAttribute('target', '_self');
+    } else {
+      node.setAttribute('target', '_blank');
+    }
   }
 });
 
-export function getLanguageFromKey(key: string | undefined, language: ILanguage) {
-  if (!key) {
-    return key;
-  }
-  const name = getNestedObject(language, key.split('.'));
-  if (!name) {
-    return key;
-  }
-  return name;
-}
-
-export function getNestedObject(nestedObj: any, pathArr: string[]) {
-  return pathArr.reduce((obj, key) => (obj && obj[key] !== 'undefined' ? obj[key] : undefined), nestedObj);
-}
-
-// Example: {getParsedLanguageFromKey('marked.markdown', language, ['hei', 'sann'])}
-export function getParsedLanguageFromKey(
-  key: string,
-  language: ILanguage,
-  params?: any[],
-  stringOutput?: false,
-): JSX.Element;
-export function getParsedLanguageFromKey(key: string, language: ILanguage, params?: any[], stringOutput?: true): string;
-export function getParsedLanguageFromKey(
-  key: string,
-  language: ILanguage,
-  params?: any[],
-  stringOutput?: boolean,
-): any {
-  const name = getLanguageFromKey(key, language);
-  const paramParsed = params ? replaceParameters(name, params) : name;
-
-  if (stringOutput) {
-    return paramParsed;
-  }
-  return getParsedLanguageFromText(paramParsed);
-}
-
 export const getParsedLanguageFromText = (
-  text: string,
-  options?: {
+  text: string | undefined,
+  purifyOptions?: {
     allowedTags?: string[];
     allowedAttr?: string[];
     disallowedTags?: string[];
   },
+  inline = true,
 ) => {
-  const dirty = marked.parse(text);
+  const dirty = marked.parse(text || '', { headerIds: false });
   const actualOptions: DOMPurify.Config = {};
-  if (options && options.allowedTags) {
-    actualOptions.ALLOWED_TAGS = options.allowedTags;
+  if (purifyOptions?.allowedTags) {
+    actualOptions.ALLOWED_TAGS = purifyOptions.allowedTags;
   }
 
-  if (options && options.allowedAttr) {
-    actualOptions.ALLOWED_ATTR = options.allowedAttr;
+  if (purifyOptions?.allowedAttr) {
+    actualOptions.ALLOWED_ATTR = purifyOptions.allowedAttr;
   }
 
-  if (options && options.disallowedTags) {
-    actualOptions.FORBID_TAGS = options.disallowedTags;
+  if (purifyOptions?.disallowedTags) {
+    actualOptions.FORBID_TAGS = purifyOptions.disallowedTags;
   }
 
   const clean = DOMPurify.sanitize(dirty, actualOptions);
-  return parseHtmlToReact(clean.toString().trim(), parseOptions);
+  return parseHtmlToReact(clean.toString().trim(), getParseOptions(inline));
 };
 
-export const parseOptions: HTMLReactParserOptions = {
-  replace: (domNode) => {
-    replaceRootTag(domNode);
-  },
-};
+function getParseOptions(inline = true): HTMLReactParserOptions {
+  return {
+    replace: (domNode) => {
+      if (inline) {
+        replaceRootTag(domNode);
+      }
+      return replaceElements(domNode, getParseOptions(inline));
+    },
+  };
+}
 
-const replaceRootTag = (domNode: any) => {
-  if (!domNode.parent && domNode.type === 'tag' && domNode.name === 'p') {
+function isElement(node: DOMNode): node is Element {
+  return node.type === 'tag';
+}
+
+function replaceElements(domNode: DOMNode, parserOptions: HTMLReactParserOptions) {
+  if (isElement(domNode) && domNode.name === 'h1') {
+    return React.createElement(Heading, { level: 1, size: 'large' }, domToReact(domNode.children, parserOptions));
+  }
+  if (isElement(domNode) && domNode.name === 'h2') {
+    return React.createElement(Heading, { level: 2, size: 'medium' }, domToReact(domNode.children, parserOptions));
+  }
+  if (isElement(domNode) && domNode.name === 'h3') {
+    return React.createElement(Heading, { level: 3, size: 'small' }, domToReact(domNode.children, parserOptions));
+  }
+  if (isElement(domNode) && domNode.name === 'h4') {
+    return React.createElement(Heading, { level: 4, size: 'xsmall' }, domToReact(domNode.children, parserOptions));
+  }
+  if (isElement(domNode) && domNode.name === 'h5') {
+    return React.createElement(Heading, { level: 5, size: 'xsmall' }, domToReact(domNode.children, parserOptions));
+  }
+  if (isElement(domNode) && domNode.name === 'h6') {
+    return React.createElement(Heading, { level: 6, size: 'xsmall' }, domToReact(domNode.children, parserOptions));
+  }
+}
+
+const replaceRootTag = (domNode: DOMNode) => {
+  if (isElement(domNode) && !domNode.parent && domNode.name === 'p') {
     // The root element from the `marked.parse` will in many cases result in a `p` tag, which is not what we want,
     // since the text might already be used in f.ex `p`, `button`, `label` tags etc.
     // Span is a better solution, although not perfect, as block level elements are not valid children (f.ex h1), but this should be less frequent.
@@ -91,152 +103,51 @@ const replaceRootTag = (domNode: any) => {
   }
 };
 
-const replaceParameters = (nameString: string | undefined, params: string[]) => {
-  if (nameString === undefined) {
-    return nameString;
-  }
-  let mutatingString = nameString;
-  params.forEach((param: string, index: number) => {
-    mutatingString = mutatingString.replaceAll(`{${index}}`, param);
-  });
-  return mutatingString;
-};
-
-export function getTextResourceByKey<T extends string | undefined>(
-  key: T,
-  textResources: ITextResource[] | null,
-): string | T {
-  if (!textResources || !key) {
-    return key;
-  }
-
-  const textResource = textResources.find((resource: ITextResource) => resource.id === key);
-  if (!textResource) {
-    return key;
-  }
-  // Checks if this text resource is a reference to another text resource.
-  // This is a common case when using likert component
-  const resource = textResources.find((resource) => resource.id === textResource.value) || textResource;
-  return resource.value;
-}
-
-/**
- * Replaces all variables in text resources with values from relevant source.
- * @param textResources the original text resources
- * @param dataSources the data sources
- * @param repeatingGroups the repeating groups
- * @returns a new array with replaced values.
- */
-export function replaceTextResourceParams(
-  textResources: ITextResource[],
-  dataSources: IDataSources,
-  repeatingGroups?: any,
-): ITextResource[] {
-  const repeatingGroupResources: ITextResource[] = [];
-  const mappedResources = textResources.map((textResource) => {
-    const textResourceCopy = { ...textResource };
-    if (textResourceCopy.variables) {
-      const variableForRepeatingGroup = textResourceCopy.variables.find(
-        (variable) => variable.key.indexOf('[{0}]') > -1,
-      );
-      if (repeatingGroups && variableForRepeatingGroup) {
-        const repeatingGroupId = Object.keys(repeatingGroups).find((groupId) => {
-          const id = variableForRepeatingGroup.key.split('[{0}]')[0];
-          return repeatingGroups[groupId].dataModelBinding === id;
-        });
-        const repeatingGroupIndex = repeatingGroupId !== undefined && repeatingGroups[repeatingGroupId]?.index;
-
-        for (let i = 0; i <= repeatingGroupIndex; ++i) {
-          const replaceValues: string[] = [];
-          textResourceCopy.variables.forEach((variable) => {
-            if (variable.dataSource.startsWith('dataModel')) {
-              if (variable.key.indexOf('[{0}]') > -1) {
-                const keyWithIndex = variable.key.replace('{0}', `${i}`);
-                replaceValues.push((dataSources.dataModel && dataSources.dataModel[keyWithIndex]) || '');
-              } else {
-                replaceValues.push((dataSources.dataModel && dataSources.dataModel[variable.key]) || '');
-              }
-            }
-          });
-          const newValue = replaceParameters(textResourceCopy.unparsedValue, replaceValues);
-
-          if (!newValue) {
-            continue;
-          }
-
-          if (textResourceCopy.repeating && textResourceCopy.id.endsWith(`-${i}`)) {
-            textResourceCopy.value = newValue;
-          } else if (
-            !textResourceCopy.repeating &&
-            textResources.findIndex((r) => r.id === `${textResourceCopy.id}-${i}`) === -1
-          ) {
-            const newId = `${textResourceCopy.id}-${i}`;
-            repeatingGroupResources.push({
-              ...textResourceCopy,
-              id: newId,
-              value: newValue,
-              repeating: true,
-            });
-          }
-        }
-      } else {
-        const replaceValues: string[] = [];
-        textResourceCopy.variables.forEach((variable) => {
-          if (variable.dataSource.startsWith('dataModel')) {
-            replaceValues.push((dataSources.dataModel && dataSources.dataModel[variable.key]) || variable.key);
-          } else if (variable.dataSource === 'applicationSettings') {
-            replaceValues.push(
-              (dataSources.applicationSettings && dataSources.applicationSettings[variable.key]) || variable.key,
-            );
-          } else if (variable.dataSource === 'instanceContext') {
-            replaceValues.push(
-              (dataSources.instanceContext && dataSources.instanceContext[variable.key]) || variable.key,
-            );
-          }
-        });
-
-        const newValue = replaceParameters(textResourceCopy.unparsedValue, replaceValues);
-        if (newValue && textResourceCopy.value !== newValue) {
-          textResourceCopy.value = newValue;
-        }
-      }
-    }
-    return textResourceCopy;
-  });
-
-  return mappedResources.concat(repeatingGroupResources);
-}
-
-export function getAppOwner(
-  textResources: ITextResource[],
+export function getOrgName(
   orgs: IAltinnOrgs | null,
   org: string | undefined,
-  userLanguage: string,
-) {
-  const appOwner = getTextResourceByKey('appOwner', textResources);
-  if (appOwner !== 'appOwner') {
-    return appOwner;
-  }
-
-  // if no text resource key is set, fetch from orgs
+  langTools: IUseLanguage,
+): string | undefined {
   if (orgs && typeof org === 'string' && orgs[org]) {
-    return orgs[org].name[userLanguage] || orgs[org].name.nb;
+    return orgs[org].name[langTools.selectedLanguage] || orgs[org].name.nb;
   }
 
   return undefined;
 }
 
+const appOwnerKey = 'appOwner';
+
+export function getAppOwner(orgs: IAltinnOrgs | null, org: string | undefined, langTools: IUseLanguage) {
+  const appOwner = langTools.langAsString(appOwnerKey);
+  if (appOwner !== appOwnerKey) {
+    return appOwner;
+  }
+
+  return getOrgName(orgs, org, langTools);
+}
+
+const appReceiverKey = 'appReceiver';
+
+export function getAppReceiver(
+  orgs: IAltinnOrgs | null,
+  org: string | undefined,
+  langTools: IUseLanguage,
+): string | undefined {
+  const appReceiver = langTools.langAsString(appReceiverKey);
+  if (appReceiver !== appReceiverKey) {
+    return appReceiver;
+  }
+
+  return getOrgName(orgs, org, langTools);
+}
+
 const appNameKey = 'appName';
 const oldAppNameKey = 'ServiceName';
 
-export function getAppName(
-  textResources: ITextResource[],
-  applicationMetadata: IApplication | null,
-  userLanguage: string,
-) {
-  let appName = getTextResourceByKey(appNameKey, textResources);
+export function getAppName(applicationMetadata: IApplication | null, langTools: IUseLanguage) {
+  let appName = langTools.langAsString(appNameKey);
   if (appName === appNameKey) {
-    appName = getTextResourceByKey(oldAppNameKey, textResources);
+    appName = langTools.langAsString(oldAppNameKey);
   }
 
   if (appName !== appNameKey && appName !== oldAppNameKey) {
@@ -245,8 +156,55 @@ export function getAppName(
 
   // if no text resource key is set, fetch from app metadata
   if (applicationMetadata) {
-    return applicationMetadata.title[userLanguage] || applicationMetadata.title.nb;
+    return applicationMetadata.title[langTools.selectedLanguage] || applicationMetadata.title.nb;
   }
 
   return undefined;
+}
+
+function getOrgLogo(orgs: IAltinnOrgs | null, org: string | undefined) {
+  if (orgs && typeof org === 'string' && orgs[org]) {
+    return orgs[org].logo;
+  }
+
+  return undefined;
+}
+
+const appLogoKey = 'appLogo.url';
+
+export function getAppLogoUrl(
+  orgs: IAltinnOrgs | null,
+  org: string | undefined,
+  langTools: IUseLanguage,
+  useOrgAsSource: boolean,
+) {
+  if (useOrgAsSource) {
+    return getOrgLogo(orgs, org);
+  }
+
+  const appLogo = langTools.langAsString(appLogoKey);
+  if (appLogo !== appLogoKey) {
+    return appLogo;
+  }
+
+  return getOrgLogo(orgs, org);
+}
+
+const appLogoAltTextKey = 'appLogo.altText';
+
+export function getAppLogoAltText(orgs: IAltinnOrgs | null, org: string | undefined, langTools: IUseLanguage) {
+  const altText = langTools.langAsString(appLogoAltTextKey);
+  if (altText !== appLogoAltTextKey) {
+    return altText;
+  }
+
+  return getOrgName(orgs, org, langTools);
+}
+
+export function getdisplayAppOwnerNameInHeader(applicationMetadata: IApplicationMetadata | null) {
+  return applicationMetadata?.logo?.displayAppOwnerNameInHeader ?? false;
+}
+
+export function getUseAppLogoOrgSource(applicationMetadata: IApplicationMetadata) {
+  return (applicationMetadata.logo?.source ?? 'org') === 'org';
 }

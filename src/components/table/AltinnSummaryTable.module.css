@@ -1,0 +1,22 @@
+.instanceMetaData {
+  margin-top: 36px;
+  box-shadow: none;
+  padding: 0;
+  height: auto;
+  width: auto;
+}
+
+.tableCell {
+  border-bottom: 0;
+  padding-right: 1.5625rem;
+}
+
+.tableRow {
+  height: auto;
+}
+
+@media print {
+  .instanceMetaData {
+    margin-bottom: 1.25rem;
+  }
+}

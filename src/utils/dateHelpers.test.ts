@@ -2,9 +2,10 @@ import moment from 'moment';
 
 import { DateFlags } from 'src/types/index';
 import {
-  DatePickerMaxDateDefault,
-  DatePickerMinDateDefault,
+  DatepickerMaxDateDefault,
+  DatepickerMinDateDefault,
   getDateConstraint,
+  getDateFormat,
   getDateString,
   getISOString,
 } from 'src/utils/dateHelpers';
@@ -33,6 +34,29 @@ describe('dateHelpers', () => {
       expect(moment(result).isSame(validISOString, 'day')).toEqual(true);
     });
   });
+
+  describe('getDateFormat', () => {
+    it('should return format if format is provided', () => {
+      const result = getDateFormat('YYYY-MM-DD');
+      expect(result).toEqual('YYYY-MM-DD');
+    });
+
+    it('should return english format', () => {
+      const result = getDateFormat(undefined, 'en');
+      expect(result).toEqual('MM/DD/YYYY');
+    });
+
+    it('should return norwegian format', () => {
+      const result = getDateFormat(undefined, 'nb');
+      expect(result).toEqual('DD.MM.YYYY');
+    });
+
+    it('should return norwegian format as default', () => {
+      const result = getDateFormat(undefined, undefined);
+      expect(result).toEqual('DD.MM.YYYY');
+    });
+  });
+
   describe('getDateString', () => {
     it.each([true, false])('should return a string that can be parsed as ISO_8601', (timestamp) => {
       const date = moment();
@@ -54,10 +78,10 @@ describe('dateHelpers', () => {
     it.each(['min', 'max'])('should return default min/max if input is undefined', (constraint: 'min' | 'max') => {
       const dateConstraint = getDateConstraint(undefined, constraint);
       if (constraint === 'min') {
-        expect(dateConstraint).toEqual(DatePickerMinDateDefault);
+        expect(dateConstraint).toEqual(DatepickerMinDateDefault);
       }
       if (constraint === 'max') {
-        expect(dateConstraint).toEqual(DatePickerMaxDateDefault);
+        expect(dateConstraint).toEqual(DatepickerMaxDateDefault);
       }
     });
     it.each([
@@ -70,10 +94,10 @@ describe('dateHelpers', () => {
     ])('should return default min/max if input is invalid', (invalidInput: string, constraint: 'min' | 'max') => {
       const dateConstraint = getDateConstraint(invalidInput, constraint);
       if (constraint === 'min') {
-        expect(dateConstraint).toEqual(DatePickerMinDateDefault);
+        expect(dateConstraint).toEqual(DatepickerMinDateDefault);
       }
       if (constraint === 'max') {
-        expect(dateConstraint).toEqual(DatePickerMaxDateDefault);
+        expect(dateConstraint).toEqual(DatepickerMaxDateDefault);
       }
     });
     it.each(['min', 'max'])('should return correct date if given DateFlags.Today', (constraint: 'min' | 'max') => {

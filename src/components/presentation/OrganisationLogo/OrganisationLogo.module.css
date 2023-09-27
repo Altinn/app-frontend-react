@@ -1,0 +1,28 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--fds-spacing-2);
+}
+
+.img {
+  width: 100%;
+}
+
+.small {
+  height: 32px;
+}
+
+.medium {
+  height: 50px;
+}
+
+.large {
+  height: 50px;
+}
+
+@media only screen and (min-width: 576px) {
+  .large {
+    height: 123px;
+  }
+}

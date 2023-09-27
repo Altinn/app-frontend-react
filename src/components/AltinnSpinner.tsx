@@ -1,10 +1,10 @@
-import * as React from 'react';
+import React from 'react';
 
 import { CircularProgress, createStyles, createTheme, makeStyles, Typography } from '@material-ui/core';
 import classNames from 'classnames';
 import type { ArgumentArray } from 'classnames';
 
-import altinnTheme from 'src/theme/altinnStudioTheme';
+import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 
 export interface IAltinnSpinnerComponentProvidedProps {
   id?: string;
@@ -12,7 +12,7 @@ export interface IAltinnSpinnerComponentProvidedProps {
   styleObj?: ArgumentArray;
 }
 
-const theme = createTheme(altinnTheme);
+const theme = createTheme(AltinnAppTheme);
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -32,21 +32,29 @@ const useStyles = makeStyles(() =>
   }),
 );
 
-const AltinnSpinner = (props: IAltinnSpinnerComponentProvidedProps) => {
+export const AltinnSpinner = (props: IAltinnSpinnerComponentProvidedProps) => {
+  const { id, spinnerText, styleObj } = props;
   const classes = useStyles(props);
 
   return (
     <div
-      className={classNames(props.styleObj)}
+      className={classNames(styleObj)}
       data-testid='altinn-spinner'
     >
       <CircularProgress
+        role='progressbar'
         className={classNames(classes.spinner)}
-        id={props.id ? props.id : undefined}
+        id={id}
       />
-      {props.spinnerText && <Typography className={classNames(classes.spinnerText)}>{props.spinnerText}</Typography>}
+
+      <Typography
+        className={classNames(classes.spinnerText)}
+        role='alert'
+        aria-busy={true}
+        aria-label={spinnerText || 'Laster innhold'}
+      >
+        {spinnerText || ''}
+      </Typography>
     </div>
   );
 };
-
-export default AltinnSpinner;

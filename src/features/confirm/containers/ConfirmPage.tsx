@@ -1,35 +1,32 @@
 import React from 'react';
 
+import { ReceiptComponent } from 'src/components/organisms/AltinnReceipt';
 import { ProcessNavigation } from 'src/components/presentation/ProcessNavigation';
-import { AltinnReceipt } from 'src/components/shared';
+import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { returnConfirmSummaryObject } from 'src/features/confirm/helpers/returnConfirmSummaryObject';
-import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
-import { getAttachmentGroupings, getInstancePdf } from 'src/utils/attachmentsUtils';
-import { mapInstanceAttachments } from 'src/utils/sharedUtils';
-import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
-import type { ITextResource } from 'src/types';
-import type { IInstance, ILanguage, IParty } from 'src/types/shared';
+import { useLanguage } from 'src/hooks/useLanguage';
+import { getAttachmentGroupings, getInstancePdf, mapInstanceAttachments } from 'src/utils/attachmentsUtils';
+import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { IInstance, IParty } from 'src/types/shared';
 
-export interface Props {
+export interface IConfirmPageProps {
   instance: IInstance | null;
   parties: IParty[] | null;
-  language: ILanguage | null;
   appName?: string;
-  textResources: ITextResource[];
   applicationMetadata: IApplicationMetadata | null;
 }
 
-export const ConfirmPage = ({ instance, parties, language, appName, textResources, applicationMetadata }: Props) => {
+export const ConfirmPage = ({ instance, parties, appName, applicationMetadata }: IConfirmPageProps) => {
+  const langTools = useLanguage();
+  const { lang } = langTools;
   const getInstanceMetaObject = () => {
     if (instance?.org && applicationMetadata) {
-      const instanceOwnerParty = parties?.find((party: IParty) => {
-        return party.partyId.toString() === instance.instanceOwner.partyId;
-      });
+      const instanceOwnerParty = parties?.find(
+        (party: IParty) => party.partyId.toString() === instance.instanceOwner.partyId,
+      );
       return returnConfirmSummaryObject({
-        languageData: language || undefined,
         instanceOwnerParty,
-        textResources,
+        langTools,
       });
     }
     return {};
@@ -46,25 +43,19 @@ export const ConfirmPage = ({ instance, parties, language, appName, textResource
     }
   };
 
-  if (!language) {
-    return null;
-  }
-
-  const getText = (id, params = undefined) => getTextFromAppOrDefault(id, textResources, language, params, true);
-
   return (
     <>
-      <AltinnReceipt
-        attachmentGroupings={getAttachmentGroupings(getAttachments(), applicationMetadata, textResources)}
-        body={appName && getTextFromAppOrDefault('confirm.body', textResources, language, [appName])}
-        collapsibleTitle={getText('confirm.attachments')}
+      <ReceiptComponent
+        attachmentGroupings={getAttachmentGroupings(getAttachments(), applicationMetadata, langTools)}
+        body={appName && lang('confirm.body', [appName])}
+        collapsibleTitle={lang('confirm.attachments')}
         hideCollapsibleCount={true}
         instanceMetaDataObject={getInstanceMetaObject()}
-        title={getText('confirm.title')}
-        titleSubmitted={getText('confirm.answers')}
+        title={lang('confirm.title')}
+        titleSubmitted={lang('confirm.answers')}
         pdf={getInstancePdf(instance?.data)}
       />
-      <ProcessNavigation language={language} />
+      <ProcessNavigation />
       <ReadyForPrint />
     </>
   );

@@ -1,8 +1,12 @@
 import fs from 'node:fs';
 
+import type { IAttachments } from 'src/features/attachments';
 import type { Expression } from 'src/features/expressions/types';
-import type { ILayout, ILayouts } from 'src/features/form/layout';
-import type { IApplicationSettings, IInstanceContext } from 'src/types/shared';
+import type { IProcessPermissions } from 'src/features/process';
+import type { IProfileState } from 'src/features/profile';
+import type { IRawTextResource } from 'src/features/textResources';
+import type { ILayout, ILayouts } from 'src/layout/layout';
+import type { IApplicationSettings, IInstance } from 'src/types/shared';
 
 export interface Layouts {
   [key: string]: {
@@ -16,10 +20,15 @@ export interface Layouts {
 
 export interface SharedTest {
   name: string;
+  disabledFrontend?: boolean;
   layouts?: Layouts;
   dataModel?: any;
-  instanceContext?: IInstanceContext;
+  attachments?: IAttachments;
+  instance?: IInstance;
+  permissions?: IProcessPermissions;
   frontendSettings?: IApplicationSettings;
+  textResources?: IRawTextResource[];
+  profileSettings?: Pick<IProfileState['profile']['profileSettingPreference'], 'language'>;
 }
 
 export interface SharedTestContext {

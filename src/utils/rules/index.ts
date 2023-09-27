@@ -1,11 +1,11 @@
-import type { IFormDataState } from 'src/features/form/data';
-import type { IRuleConnections } from 'src/features/form/dynamics';
-import type { ILayouts } from 'src/features/form/layout';
-import type { IRuleModelFieldElement } from 'src/features/form/rules';
+import type { IRuleConnections } from 'src/features/dynamics';
+import type { IFormData } from 'src/features/formData';
+import type { IRuleModelFieldElement } from 'src/features/formRules';
+import type { ILayouts } from 'src/layout/layout';
 
 export function checkIfRuleShouldRun(
   ruleConnectionState: IRuleConnections | null,
-  formDataState: Partial<IFormDataState>,
+  formData: IFormData,
   layouts: ILayouts | null,
   lastUpdatedDataBinding: string,
 ) {
@@ -38,15 +38,15 @@ export function checkIfRuleShouldRun(
     });
 
     if (shouldRunFunction) {
-      const objectToUpdate = (window as any).ruleHandlerHelper[functionToRun]();
+      const objectToUpdate = window.ruleHandlerHelper[functionToRun]();
       if (Object.keys(objectToUpdate).length >= 1) {
         const newObj = Object.keys(objectToUpdate).reduce((acc: any, elem: any) => {
           const inputParamBinding = connectionDef.inputParams[elem];
 
-          acc[elem] = formDataState.formData && formDataState.formData[inputParamBinding];
+          acc[elem] = formData && formData[inputParamBinding];
           return acc;
         }, {});
-        const result = (window as any).ruleHandlerObject[functionToRun](newObj);
+        const result = window.ruleHandlerObject[functionToRun](newObj);
         const updatedDataBinding = connectionDef.outParams.outParam0;
         let updatedComponent: string | undefined = undefined;
         Object.keys(layouts || {}).forEach((id) => {
@@ -56,13 +56,12 @@ export function checkIfRuleShouldRun(
               return;
             }
             let ruleDataBindingKey: string | undefined = undefined;
-            if (layoutElement.dataModelBindings) {
-              ruleDataBindingKey = Object.keys(layoutElement.dataModelBindings).find((dataBindingKey) => {
-                return (
+            if ('dataModelBindings' in layoutElement && layoutElement.dataModelBindings) {
+              ruleDataBindingKey = Object.keys(layoutElement.dataModelBindings).find(
+                (dataBindingKey) =>
                   layoutElement.dataModelBindings &&
-                  layoutElement.dataModelBindings[dataBindingKey] === connectionDef.outParams.outParam0
-                );
-              });
+                  layoutElement.dataModelBindings[dataBindingKey] === connectionDef.outParams.outParam0,
+              );
             }
 
             if (ruleDataBindingKey) {
@@ -91,24 +90,23 @@ export function checkIfRuleShouldRun(
 
 export function getRuleModelFields() {
   const ruleModelFields: IRuleModelFieldElement[] = [];
-  const windowObj = window as any;
-  if (!windowObj.ruleHandlerObject || !windowObj.conditionalRuleHandlerObject) {
+  if (!window.ruleHandlerObject || !window.conditionalRuleHandlerObject) {
     return ruleModelFields;
   }
 
-  Object.keys(windowObj.ruleHandlerObject).forEach((functionName) => {
+  Object.keys(window.ruleHandlerObject).forEach((functionName) => {
     const innerFuncObj = {
       name: functionName,
-      inputs: (window as any).ruleHandlerHelper[functionName](),
+      inputs: window.ruleHandlerHelper[functionName](),
       type: 'rule',
     };
     ruleModelFields.push(innerFuncObj);
   });
 
-  Object.keys(windowObj.conditionalRuleHandlerObject).forEach((functionName) => {
+  Object.keys(window.conditionalRuleHandlerObject).forEach((functionName) => {
     const innerFuncObj = {
       name: functionName,
-      inputs: (window as any).conditionalRuleHandlerHelper[functionName](),
+      inputs: window.conditionalRuleHandlerHelper[functionName](),
       type: 'condition',
     };
     ruleModelFields.push(innerFuncObj);

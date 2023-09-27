@@ -1,5 +1,5 @@
 import { checkIfRuleShouldRun, getRuleModelFields } from 'src/utils/rules';
-import type { IFormDataState } from 'src/features/form/data';
+import type { IFormData } from 'src/features/formData';
 
 const ruleHandleFn = (obj) => {
   obj.a = +obj.a;
@@ -10,7 +10,7 @@ const ruleHandleFn = (obj) => {
 
 describe('rules checkIfRuleShouldRun', () => {
   let mockRuleConnectionState: any;
-  let mockFormDataState: Partial<IFormDataState>;
+  let mockFormData: IFormData;
   let mockFormLayoutState: any;
   let mockLastUpdatedDataBinding: string;
   let mockRuleHandlerHelper;
@@ -19,11 +19,9 @@ describe('rules checkIfRuleShouldRun', () => {
 
   beforeEach(() => {
     mockRuleHandlerHelper = {
-      sum: () => {
-        return {
-          number: '1',
-        };
-      },
+      sum: () => ({
+        number: '1',
+      }),
     };
     mockRuleHandlerObject = {
       sum: ruleHandleFn,
@@ -79,26 +77,22 @@ describe('rules checkIfRuleShouldRun', () => {
         outParams: { outParam0: 'mockDataModelBinding4' },
       },
     };
-    mockFormDataState = {
-      error: null,
-      formData: {
-        mockDataModelBinding1: '1',
-      },
-      unsavedChanges: false,
+    mockFormData = {
+      mockDataModelBinding1: '1',
     };
     mockFormLayoutState = {
       error: null,
       layouts: mockLayout,
     };
     mockLastUpdatedDataBinding = 'mockDataModelBinding2';
-    (window as any).ruleHandlerHelper = mockRuleHandlerHelper;
-    (window as any).ruleHandlerObject = mockRuleHandlerObject;
+    window.ruleHandlerHelper = mockRuleHandlerHelper;
+    window.ruleHandlerObject = mockRuleHandlerObject;
   });
 
   it('should return true if rule should be triggered', () => {
     const rules = checkIfRuleShouldRun(
       mockRuleConnectionState,
-      mockFormDataState,
+      mockFormData,
       mockFormLayoutState.layouts,
       mockLastUpdatedDataBinding,
     );
@@ -111,7 +105,7 @@ describe('rules checkIfRuleShouldRun', () => {
 
     const rules = checkIfRuleShouldRun(
       mockRuleConnectionState,
-      mockFormDataState,
+      mockFormData,
       mockFormLayoutState.layouts,
       mockLastUpdatedDataBinding,
     );
@@ -123,7 +117,7 @@ describe('rules checkIfRuleShouldRun', () => {
 
     const rules = checkIfRuleShouldRun(
       mockRuleConnectionState,
-      mockFormDataState,
+      mockFormData,
       mockFormLayoutState.layouts,
       mockLastUpdatedDataBinding,
     );
@@ -157,7 +151,7 @@ describe('rules checkIfRuleShouldRun', () => {
     };
     const rules = checkIfRuleShouldRun(
       mockRuleConnectionState,
-      mockFormDataState,
+      mockFormData,
       mockFormLayoutState.layouts,
       mockLastUpdatedDataBinding,
     );
@@ -173,7 +167,7 @@ describe('rules checkIfRuleShouldRun', () => {
     };
     const rules = checkIfRuleShouldRun(
       mockRuleConnectionState,
-      mockFormDataState,
+      mockFormData,
       mockFormLayoutState.layouts,
       mockLastUpdatedDataBinding,
     );
@@ -189,7 +183,7 @@ describe('rules checkIfRuleShouldRun', () => {
           outParams: { outParam0: 'mockDataModelBinding4' },
         },
       },
-      mockFormDataState,
+      mockFormData,
       mockFormLayoutState.layouts,
       mockLastUpdatedDataBinding,
     );
@@ -209,7 +203,7 @@ describe('rules checkIfRuleShouldRun', () => {
           outParams: {},
         },
       },
-      mockFormDataState,
+      mockFormData,
       mockFormLayoutState.layouts,
       mockLastUpdatedDataBinding,
     );
@@ -232,7 +226,7 @@ describe('rules checkIfRuleShouldRun', () => {
     };
     const rules = checkIfRuleShouldRun(
       mockRuleConnectionState,
-      mockFormDataState,
+      mockFormData,
       mockFormLayoutState.layouts,
       mockLastUpdatedDataBinding,
     );
@@ -247,22 +241,18 @@ describe('rules getRuleModelFields', () => {
   let mockRuleHandlerObject: any;
 
   beforeEach(() => {
-    const numberFn = () => {
-      return {
-        number: 'number',
-      };
-    };
+    const numberFn = () => ({
+      number: 'number',
+    });
 
     mockRuleHandlerHelper = {
       sum: numberFn,
     };
     mockConditionalRuleHandlerHelper = {
       biggerThan10: numberFn,
-      lengthBiggerThan4: () => {
-        return {
-          value: 'value',
-        };
-      },
+      lengthBiggerThan4: () => ({
+        value: 'value',
+      }),
     };
     mockConditionalRuleHandlerObject = {
       biggerThan10: (obj) => {
@@ -289,12 +279,12 @@ describe('rules getRuleModelFields', () => {
       'var conditionalRuleHandlerHelper = { biggerThan10: () => { return { number: "number" }; }, smallerThan10:' +
       ' () => { return { number: "number" } }, lengthBiggerThan4: () => { return { value: "value" } } }';
 
-    const scriptEle = (window as any).document.createElement('script');
+    const scriptEle = window.document.createElement('script');
     scriptEle.innerHTML = mockRuleScript;
-    (window as any).ruleHandlerHelper = mockRuleHandlerHelper;
-    (window as any).conditionalRuleHandlerHelper = mockConditionalRuleHandlerHelper;
-    (window as any).conditionalRuleHandlerObject = mockConditionalRuleHandlerObject;
-    (window as any).ruleHandlerObject = mockRuleHandlerObject;
+    window.ruleHandlerHelper = mockRuleHandlerHelper;
+    window.conditionalRuleHandlerHelper = mockConditionalRuleHandlerHelper;
+    window.conditionalRuleHandlerObject = mockConditionalRuleHandlerObject;
+    window.ruleHandlerObject = mockRuleHandlerObject;
   });
 
   it('should return an array ', () => {

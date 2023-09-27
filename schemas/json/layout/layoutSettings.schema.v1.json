@@ -38,7 +38,7 @@
           "$ref": "#/definitions/excludeFromPdf"
         },
         "triggers": {
-          "$ref": "https://altinncdn.no/schemas/json/layout/layout.schema.v1.json#/definitions/triggers",
+          "$ref": "layout.schema.v1.json#/definitions/TriggerList",
           "title": "Triggers",
           "description": "Triggers that apply for all navigation components across all pages. Can be overrided at the component level."
         },
@@ -47,6 +47,20 @@
         },
         "showLanguageSelector": {
           "$ref": "#/definitions/showLanguageSelector"
+        },
+        "showExpandWidthButton": {
+          "$ref": "#/definitions/showExpandWidthButton"
+        },
+        "pdfLayoutName": {
+          "$ref": "#/definitions/pdfLayoutName"
+        },
+        "showProgress": {
+          "type": "boolean",
+          "title": "Show progress indicator",
+          "description": "Enables a progress indicator in the upper right corner of the app"
+        },
+        "autoSaveBehavior": {
+          "$ref": "#/definitions/autoSaveBehavior"
         }
       }
     },
@@ -77,6 +91,22 @@
       "additionalProperties": false,
       "description": "An attribute specifying if the translation dropdown menu should be visible",
       "type": "boolean"
+    },
+    "showExpandWidthButton": {
+      "additionalProperties": false,
+      "description": "An attribute for specifying whether the expand width button should be visible",
+      "type": "boolean"
+    },
+    "pdfLayoutName": {
+      "additionalProperties": false,
+      "description": "Name of a custom layout file to use for PDF creation instead of the automatically generated PDF.",
+      "type": "string"
+    },
+    "autoSaveBehavior": {
+      "additionalProperties": false,
+      "description": "An attribute specifying when the application will save form data. onChangeFormData saves on every interaction with form elements. onChangePage saves on every page change.",
+      "default": "onChangeFormData",
+      "enum": ["onChangeFormData", "onChangePage"]
     }
   }
 }

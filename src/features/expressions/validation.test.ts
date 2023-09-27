@@ -1,26 +1,25 @@
-import { evalExprInObj, ExprDefaultsForComponent, ExprDefaultsForGroup } from 'src/features/expressions/index';
+import { getHierarchyDataSourcesMock } from 'src/__mocks__/hierarchyMock';
+import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions/index';
 import { convertLayouts, getSharedTests } from 'src/features/expressions/shared';
 import { asExpression, preProcessLayout } from 'src/features/expressions/validation';
-import { nodesInLayouts } from 'src/utils/layout/hierarchy';
+import { getLayoutComponentObject } from 'src/layout';
+import { groupIsRepeatingExt } from 'src/layout/Group/tools';
+import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { Layouts } from 'src/features/expressions/shared';
-import type { ILayout, ILayoutComponentOrGroup, ILayoutGroup } from 'src/features/form/layout';
+import type { ILayout } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
-
-function isRepeatingGroup(component?: ILayoutComponentOrGroup): component is ILayoutGroup {
-  return !!(component && component.type === 'Group' && component.maxCount && component.maxCount > 1);
-}
 
 function generateRepeatingGroups(layout: ILayout) {
   const repeatingGroups: IRepeatingGroups = {};
   for (const component of layout) {
-    if (isRepeatingGroup(component)) {
+    if (component.type === 'Group' && groupIsRepeatingExt(component)) {
       repeatingGroups[component.id] = {
         index: 1,
         editIndex: -1,
       };
       for (const child of component.children) {
         const childElm = layout.find((c) => c.id === child);
-        if (isRepeatingGroup(childElm)) {
+        if (childElm?.type === 'Group' && groupIsRepeatingExt(childElm)) {
           repeatingGroups[`${childElm.id}-0`] = {
             index: 1,
             editIndex: -1,
@@ -41,22 +40,29 @@ function evalAllExpressions(layouts: Layouts) {
       ...generateRepeatingGroups(page.data.layout),
     };
   }
-  const nodes = nodesInLayouts(convertLayouts(layouts), Object.keys(layouts)[0], repeatingGroups);
+  const dataSources = getHierarchyDataSourcesMock();
+  const nodes = generateEntireHierarchy(
+    convertLayouts(layouts),
+    Object.keys(layouts)[0],
+    repeatingGroups,
+    dataSources,
+    getLayoutComponentObject,
+  );
   for (const page of Object.values(nodes.all())) {
     for (const node of page.flat(true)) {
+      const input = { ...node.item };
+      delete input['children'];
+      delete input['rows'];
+      delete input['childComponents'];
+
       evalExprInObj({
-        input: node.item,
+        input,
         node,
-        defaults: {
-          ...ExprDefaultsForComponent,
-          ...ExprDefaultsForGroup,
+        config: {
+          ...ExprConfigForComponent,
+          ...ExprConfigForGroup,
         },
-        dataSources: {
-          formData: {},
-          applicationSettings: {} as any,
-          instanceContext: {} as any,
-          hiddenFields: new Set(),
-        },
+        dataSources,
       });
     }
   }
@@ -76,12 +82,10 @@ describe('Expression validation', () => {
       const warningsExpected = t.expectsWarnings || [];
       const logSpy = jest.spyOn(console, 'log');
       if (warningsExpected.length > 0) {
-        logSpy.mockImplementation(() => {
-          return undefined;
-        });
+        logSpy.mockImplementation(() => undefined);
       }
 
-      const result: typeof tests['content'][number]['layouts'] = {};
+      const result: (typeof tests)['content'][number]['layouts'] = {};
       for (const page of Object.keys(t.layouts)) {
         const layout = t.layouts[page].data.layout;
         preProcessLayout(layout);

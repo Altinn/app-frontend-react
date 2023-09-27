@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import ContentLoader from 'react-content-loader';
 
 import { AltinnContentIcon } from 'src/components/atoms/AltinnContentIcon';
@@ -9,15 +9,11 @@ export interface IAltinnContentLoaderProps {
   children?: React.ReactNode;
 }
 
-export const AltinnContentLoader = ({ width = 400, height = 200, children }: IAltinnContentLoaderProps) => {
-  return (
-    <ContentLoader
-      height={height}
-      width={width}
-    >
-      {children ? children : <AltinnContentIcon />}
-    </ContentLoader>
-  );
-};
-
-export default AltinnContentLoader;
+export const AltinnContentLoader = ({ width = 400, height = 200, children }: IAltinnContentLoaderProps) => (
+  <ContentLoader
+    height={height}
+    width={width}
+  >
+    {children ? children : <AltinnContentIcon />}
+  </ContentLoader>
+);

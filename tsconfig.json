@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "outDir": "compiled",
     "module": "commonjs",
     "target": "es6",
     "downlevelIteration": true,
@@ -16,11 +15,28 @@
     "strictNullChecks": true,
     "noUnusedLocals": true,
     "esModuleInterop": true,
+    "strictBindCallApply": true,
+    "allowUnusedLabels": false,
+    "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
+    "forceConsistentCasingInFileNames": true,
     "paths": {
-      "src/*": ["src/*"]
-    }
+      "src/*": ["src/*"],
+      "test/*": ["test/*"],
+      "schemas/*": ["schemas/*"]
+    },
+    "allowSyntheticDefaultImports": true,
+    "exactOptionalPropertyTypes": false,
+    "strictFunctionTypes": false,
+    "strictPropertyInitialization": false,
+    "useUnknownInCatchVariables": false,
+    "noImplicitAny": false,
+    "noImplicitReturns": false,
+    "noImplicitOverride": false,
+    "noImplicitThis": false,
+    "noUncheckedIndexedAccess": false,
+    "noUnusedParameters": false
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "exclude": ["node_modules", "cypress"]
+  "exclude": ["node_modules/cypress"]
 }

@@ -1,28 +1,33 @@
-import { getInitialStateMock } from 'src/__mocks__/mocks';
+import { getHierarchyDataSourcesMock } from 'src/__mocks__/hierarchyMock';
+import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
+import { getLayoutComponentObject } from 'src/layout';
 import { getRepeatingGroups } from 'src/utils/formLayout';
-import {
-  layoutAsHierarchy,
-  layoutAsHierarchyWithRows,
-  LayoutNode,
-  LayoutRootNode,
-  LayoutRootNodeCollection,
-  nodesInLayout,
-  resolvedLayoutsFromState,
-  resolvedNodesInLayouts,
-} from 'src/utils/layout/hierarchy';
-import type { ContextDataSources } from 'src/features/expressions/ExprContext';
-import type { ILayout, ILayoutCompHeader, ILayoutCompInput, ILayoutGroup } from 'src/features/form/layout';
+import { _private, resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
+import { generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import { LayoutPages } from 'src/utils/layout/LayoutPages';
+import type { CompGroupNonRepeatingExternal, CompGroupRepeatingExternal } from 'src/layout/Group/config.generated';
+import type { CompHeaderExternal } from 'src/layout/Header/config.generated';
+import type { CompInputExternal } from 'src/layout/Input/config.generated';
+import type { CompInternal, HierarchyDataSources, ILayout, ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
-import type { AnyNode } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { IValidations } from 'src/utils/validation/types';
+
+const { resolvedNodesInLayouts } = _private;
 
 describe('Hierarchical layout tools', () => {
-  const header: Omit<ILayoutCompHeader, 'id'> = { type: 'Header', size: 'L' };
-  const input: Omit<ILayoutCompInput, 'id'> = {
+  const header: Omit<CompHeaderExternal, 'id'> = { type: 'Header', size: 'L' };
+  const input: Omit<CompInputExternal, 'id'> = {
     type: 'Input',
     hidden: ['equals', ['dataModel', 'Model.ShouldBeTrue'], 'true'],
+    dataModelBindings: {
+      simpleBinding: 'MyModel.Input',
+    },
   };
-  const group: Omit<ILayoutGroup, 'id' | 'children'> = { type: 'Group' };
-  const repGroup: Omit<ILayoutGroup, 'id' | 'children'> = {
+  const group: Omit<CompGroupNonRepeatingExternal, 'id' | 'children'> = { type: 'Group' };
+  const repGroup: Omit<CompGroupRepeatingExternal, 'id' | 'children' | 'dataModelBindings'> = {
     type: 'Group',
     maxCount: 3,
     hidden: ['equals', ['dataModel', 'Model.ShouldBeFalse'], 'false'],
@@ -73,7 +78,7 @@ describe('Hierarchical layout tools', () => {
           { key: 'stop', value: '2' },
         ],
       },
-    } as Omit<ILayoutGroup, 'children'>,
+    } as Omit<CompGroupRepeatingExternal, 'children'>,
     group3h: { id: 'group3_header', ...header },
     group3i: { id: 'group3_input', ...input },
     group3n: { id: 'group3nested', ...repGroup },
@@ -117,48 +122,15 @@ describe('Hierarchical layout tools', () => {
   ];
   const layouts = { FormLayout: layout };
 
-  describe('layoutAsHierarchy', () => {
-    it('should turn a layout into a hierarchy', () => {
-      const result = layoutAsHierarchy(layout);
-      expect(result).toEqual([
-        components.top1,
-        components.top2,
-        {
-          ...components.group1,
-          childComponents: [components.group1h, components.group1i],
-        },
-        {
-          ...components.group2,
-          childComponents: [
-            components.group2h,
-            components.group2i,
-            {
-              ...components.group2n,
-              childComponents: [components.group2nh, components.group2ni],
-            },
-          ],
-        },
-        {
-          ...components.group3,
-          childComponents: [
-            {
-              ...components.group3h,
-              multiPageIndex: 0,
-            },
-            {
-              ...components.group3i,
-              multiPageIndex: 1,
-            },
-            {
-              ...components.group3n,
-              childComponents: [components.group3nh, components.group3ni],
-              multiPageIndex: 2,
-            },
-          ],
-        },
-      ]);
-    });
-  });
+  const dataSources: HierarchyDataSources = {
+    ...getHierarchyDataSourcesMock(),
+    instanceContext: {
+      instanceId: 'abc-123',
+      appId: 'org/app',
+      instanceOwnerPartyId: 'test',
+      instanceOwnerPartyType: 'person',
+    },
+  };
 
   const repeatingGroups: IRepeatingGroups = {
     [components.group2.id]: {
@@ -217,117 +189,20 @@ describe('Hierarchical layout tools', () => {
     },
   };
 
-  describe('layoutAsHierarchyWithRows', () => {
-    it('should generate a hierarchy for a simple layout', () => {
-      const commonComponents = (row: number) => [
-        {
-          ...components.group2h,
-          id: `${components.group2h.id}-${row}`,
-          baseComponentId: components.group2h.id,
-        },
-        {
-          ...components.group2i,
-          id: `${components.group2i.id}-${row}`,
-          baseComponentId: components.group2i.id,
-          dataModelBindings: {
-            simpleBinding: `MyModel.Group2[${row}].Input`,
-          },
-          baseDataModelBindings: components.group2i.dataModelBindings,
-        },
-      ];
-
-      const nestedComponents = (row: number, nestedRow: number) => [
-        {
-          ...components.group2nh,
-          id: `${components.group2nh.id}-${row}-${nestedRow}`,
-          baseComponentId: components.group2nh.id,
-        },
-        {
-          ...components.group2ni,
-          id: `${components.group2ni.id}-${row}-${nestedRow}`,
-          baseComponentId: components.group2ni.id,
-          dataModelBindings: {
-            simpleBinding: `MyModel.Group2[${row}].Nested[${nestedRow}].Input`,
-          },
-          baseDataModelBindings: components.group2ni.dataModelBindings,
-        },
-      ];
-
-      const result = layoutAsHierarchyWithRows(layout, repeatingGroups);
-      expect(result).toEqual([
-        components.top1,
-        components.top2,
-        {
-          ...components.group1,
-          // This group is not repeating, so it should not output any rows:
-          childComponents: [components.group1h, components.group1i],
-        },
-        {
-          ...components.group2,
-          rows: [
-            {
-              index: 0,
-              items: [
-                ...commonComponents(0),
-                {
-                  ...components.group2n,
-                  id: `${components.group2n.id}-0`,
-                  baseComponentId: components.group2n.id,
-                  baseDataModelBindings: components.group2n.dataModelBindings,
-                  dataModelBindings: { group: 'MyModel.Group2[0].Nested' },
-                  rows: [
-                    {
-                      index: 0,
-                      items: nestedComponents(0, 0),
-                    },
-                    {
-                      index: 1,
-                      items: nestedComponents(0, 1),
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              index: 1,
-              items: [
-                ...commonComponents(1),
-                {
-                  ...components.group2n,
-                  id: `${components.group2n.id}-1`,
-                  baseComponentId: components.group2n.id,
-                  baseDataModelBindings: components.group2n.dataModelBindings,
-                  dataModelBindings: { group: 'MyModel.Group2[1].Nested' },
-                  rows: [
-                    {
-                      index: 0,
-                      items: nestedComponents(1, 0),
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-        { ...components.group3, rows: [] },
-      ]);
-    });
-  });
-
-  describe('nodesInLayout', () => {
+  describe('generateHierarchy', () => {
     it('should resolve a very simple layout', () => {
-      const root = new LayoutRootNode();
-      const top1 = new LayoutNode(components.top1, root, root);
-      const top2 = new LayoutNode(components.top2, root, root);
+      const root = new LayoutPage();
+      const top1 = new BaseLayoutNode(components.top1 as CompInternal, root, root, dataSources) as LayoutNode;
+      const top2 = new BaseLayoutNode(components.top2 as CompInternal, root, root, dataSources) as LayoutNode;
       root._addChild(top1);
       root._addChild(top2);
 
-      const result = nodesInLayout([components.top1, components.top2], {});
+      const result = generateHierarchy([components.top1, components.top2], {}, dataSources, getLayoutComponentObject);
       expect(result).toEqual(root);
     });
 
     it('should resolve a complex layout without groups', () => {
-      const nodes = nodesInLayout(layout, repeatingGroups);
+      const nodes = generateHierarchy(layout, repeatingGroups, dataSources, getLayoutComponentObject);
       const flatNoGroups = nodes.flat(false);
       expect(flatNoGroups.map((n) => n.item.id)).toEqual([
         // Top-level nodes:
@@ -356,39 +231,41 @@ describe('Hierarchical layout tools', () => {
     });
 
     it('should resolve a complex layout with groups', () => {
-      const nodes = nodesInLayout(layout, repeatingGroups);
+      const nodes = generateHierarchy(layout, repeatingGroups, dataSources, getLayoutComponentObject);
       const flatWithGroups = nodes.flat(true);
-      expect(flatWithGroups.map((n) => n.item.id)).toEqual([
-        // Top-level nodes:
-        components.top1.id,
-        components.top2.id,
-        components.group1h.id,
-        components.group1i.id,
-        components.group1.id,
+      expect(flatWithGroups.map((n) => n.item.id).sort()).toEqual(
+        [
+          // Top-level nodes:
+          components.top1.id,
+          components.top2.id,
+          components.group1h.id,
+          components.group1i.id,
+          components.group1.id,
 
-        // First row in group2
-        `${components.group2h.id}-0`,
-        `${components.group2i.id}-0`,
-        `${components.group2nh.id}-0-0`,
-        `${components.group2ni.id}-0-0`,
-        `${components.group2nh.id}-0-1`,
-        `${components.group2ni.id}-0-1`,
-        `${components.group2n.id}-0`,
+          // First row in group2
+          `${components.group2h.id}-0`,
+          `${components.group2i.id}-0`,
+          `${components.group2nh.id}-0-0`,
+          `${components.group2ni.id}-0-0`,
+          `${components.group2nh.id}-0-1`,
+          `${components.group2ni.id}-0-1`,
+          `${components.group2n.id}-0`,
 
-        // Second row in group2
-        `${components.group2h.id}-1`,
-        `${components.group2i.id}-1`,
-        `${components.group2nh.id}-1-0`,
-        `${components.group2ni.id}-1-0`,
-        `${components.group2n.id}-1`,
+          // Second row in group2
+          `${components.group2h.id}-1`,
+          `${components.group2i.id}-1`,
+          `${components.group2nh.id}-1-0`,
+          `${components.group2ni.id}-1-0`,
+          `${components.group2n.id}-1`,
 
-        components.group2.id,
-        components.group3.id,
-      ]);
+          components.group2.id,
+          components.group3.id,
+        ].sort(),
+      );
     });
 
     it('should enable traversal of layout', () => {
-      const nodes = nodesInLayout(layout, manyRepeatingGroups);
+      const nodes = generateHierarchy(layout, manyRepeatingGroups, dataSources, getLayoutComponentObject);
       const flatWithGroups = nodes.flat(true);
       const deepComponent = flatWithGroups.find((node) => node.item.id === `${components.group2nh.id}-2-2`);
       expect(deepComponent?.item.id).toEqual(`${components.group2nh.id}-2-2`);
@@ -496,7 +373,12 @@ describe('Hierarchical layout tools', () => {
           dataModelBindings: { simpleBinding: 'Group.Title' },
         },
       ];
-      const nodes = nodesInLayout(layout, getRepeatingGroups(layout, dataModel));
+      const nodes = generateHierarchy(
+        layout,
+        getRepeatingGroups(layout, dataModel),
+        dataSources,
+        getLayoutComponentObject,
+      );
 
       expect(nodes.findAllById('g1c').length).toEqual(3);
       expect(nodes.findAllById('g2c').length).toEqual(3);
@@ -507,7 +389,8 @@ describe('Hierarchical layout tools', () => {
   });
 
   describe('resolvedNodesInLayout', () => {
-    const dataSources: ContextDataSources = {
+    const dataSources: HierarchyDataSources = {
+      ...getHierarchyDataSourcesMock(),
       formData: {
         'Model.ShouldBeTrue': 'true',
         'Model.ShouldBeFalse': 'false',
@@ -516,9 +399,8 @@ describe('Hierarchical layout tools', () => {
         instanceId: 'test',
         instanceOwnerPartyId: 'test',
         appId: 'test',
+        instanceOwnerPartyType: 'unknown',
       },
-      applicationSettings: {},
-      hiddenFields: new Set(),
     };
 
     const nodes = resolvedNodesInLayouts(layouts, 'FormLayout', repeatingGroups, dataSources);
@@ -528,7 +410,7 @@ describe('Hierarchical layout tools', () => {
     const group2i = nodes.findById(`${components.group2i.id}-0`);
     const group2ni = nodes.findById(`${components.group2ni.id}-0-1`);
 
-    function uniqueHidden(nodes: AnyNode<any>[] | undefined): any[] | undefined {
+    function uniqueHidden(nodes: LayoutNode[] | undefined): any[] | undefined {
       if (!nodes) {
         return undefined;
       }
@@ -549,15 +431,15 @@ describe('Hierarchical layout tools', () => {
     expect(uniqueHidden(group2ni?.parent.parent.children())).toEqual(plain);
     expect(uniqueHidden(group2?.flat(true))).toEqual(plain);
     expect(uniqueHidden(group2?.flat(false))).toEqual(plain);
-    expect(uniqueHidden(nodes.current().flat(true))).toEqual(plain);
-    expect(uniqueHidden(nodes.current().children())).toEqual(plain);
+    expect(uniqueHidden(nodes.current()?.flat(true))).toEqual(plain);
+    expect(uniqueHidden(nodes.current()?.children())).toEqual(plain);
 
-    if (group2?.item.type === 'Group' && 'rows' in group2.item) {
-      expect(group2.item.rows[0].items[1].hidden).toEqual(true);
-      expect(group2.item.rows[0].items[2].hidden).toEqual(true);
-      const group2n = group2.item.rows[0].items[2];
-      if (group2n.type === 'Group' && 'rows' in group2n) {
-        expect(group2n.rows[0].items[1].hidden).toEqual(true);
+    if (group2?.isType('Group') && group2.isRepGroup()) {
+      expect(group2.item.rows[0]?.items[1].item.hidden).toEqual(true);
+      expect(group2.item.rows[0]?.items[2].item.hidden).toEqual(true);
+      const group2n = group2.item.rows[0]?.items[2];
+      if (group2n?.isType('Group') && group2n.isRepGroup()) {
+        expect(group2n.item.rows[0]?.items[1].item.hidden).toEqual(true);
       } else {
         expect(false).toEqual(true);
       }
@@ -566,25 +448,34 @@ describe('Hierarchical layout tools', () => {
     }
   });
 
-  describe('LayoutRootNodeCollection', () => {
+  describe('LayoutPages', () => {
     const layout1: ILayout = [components.top1, components.top2];
 
-    const layout2: ILayout = [
-      { ...components.top1, readOnly: true },
-      { ...components.top2, readOnly: true },
-    ];
+    const layout2: ILayout = [{ ...components.top1 }, { ...components.top2, readOnly: true }];
 
     const layouts = {
-      l1: nodesInLayout(layout1, {}),
-      l2: nodesInLayout(layout2, {}),
+      l1: generateHierarchy(layout1, {}, dataSources, getLayoutComponentObject),
+      l2: generateHierarchy(layout2, {}, dataSources, getLayoutComponentObject),
     };
 
-    const collection1 = new LayoutRootNodeCollection('l1', layouts);
-    const collection2 = new LayoutRootNodeCollection('l2', layouts);
+    const collection1 = new LayoutPages('l1', layouts);
+    const collection2 = new LayoutPages('l2', layouts);
 
     it('should find the component in the current layout first', () => {
-      expect(collection1?.findById(components.top1.id)?.item.readOnly).toBeUndefined();
-      expect(collection2?.findById(components.top1.id)?.item.readOnly).toEqual(true);
+      function expectReadOnly(
+        collection: LayoutPages<{ l1: LayoutPage; l2: LayoutPage }> | undefined,
+        id: string,
+        expected: true | undefined,
+      ) {
+        const item = collection?.findById(id)?.item;
+        const readOnly = item && 'readOnly' in item ? item.readOnly : undefined;
+        expect(readOnly).toEqual(expected);
+      }
+
+      expectReadOnly(collection1, components.top1.id, undefined);
+      expectReadOnly(collection1, components.top2.id, undefined);
+      expectReadOnly(collection2, components.top1.id, undefined);
+      expectReadOnly(collection2, components.top2.id, true);
     });
 
     it('should find the current layout', () => {
@@ -606,7 +497,7 @@ describe('Hierarchical layout tools', () => {
   });
 
   describe('transposeDataModel', () => {
-    const nodes = nodesInLayout(layout, manyRepeatingGroups);
+    const nodes = generateHierarchy(layout, manyRepeatingGroups, dataSources, getLayoutComponentObject);
     const inputNode = nodes.findById(`${components.group2ni.id}-2-2`);
     const topHeaderNode = nodes.findById(components.top1.id);
 
@@ -649,16 +540,74 @@ describe('Hierarchical layout tools', () => {
     expect(topHeaderNode?.transposeDataModel('MyModel.Group2.Nested.Age')).toEqual('MyModel.Group2.Nested.Age');
   });
 
+  describe('validation functions', () => {
+    const nestedId = `${components.group3ni.id}-1-2`;
+    const validations: IValidations = {
+      formLayout: {
+        [components.top1.id]: {
+          simpleBinding: {
+            errors: ['Some error'],
+            warnings: ['Some warning'],
+          },
+        },
+        [nestedId]: {
+          simpleBinding: {
+            errors: ['Some nested error'],
+            warnings: ['Some nested warning 1', 'Nested warning 2'],
+          },
+          otherBinding: {
+            warnings: ['Nested warning 3'],
+          },
+        },
+      },
+    };
+    const page = generateHierarchy(
+      layout,
+      manyRepeatingGroups,
+      { ...dataSources, validations },
+      getLayoutComponentObject,
+    );
+    page.registerCollection('formLayout', new LayoutPages<any>());
+    const nestedNode = page.findById(nestedId);
+    const topHeaderNode = page.findById(components.top1.id);
+
+    expect(topHeaderNode?.getValidations()).toEqual(validations.formLayout[components.top1.id]);
+    expect(topHeaderNode?.getUnifiedValidations()).toEqual(validations.formLayout[components.top1.id].simpleBinding);
+    expect(topHeaderNode?.getValidationMessages('warnings')).toEqual(['Some warning']);
+
+    expect(nestedNode?.getValidations()).toEqual(validations.formLayout[nestedId]);
+    expect(nestedNode?.getUnifiedValidations()).toEqual({
+      errors: ['Some nested error'],
+      warnings: ['Some nested warning 1', 'Nested warning 2', 'Nested warning 3'],
+    });
+    expect(nestedNode?.getValidationMessages('warnings')).toEqual([
+      'Some nested warning 1',
+      'Nested warning 2',
+      'Nested warning 3',
+    ]);
+    expect(nestedNode?.getValidationMessages('warnings', 'simpleBinding')).toEqual([
+      'Some nested warning 1',
+      'Nested warning 2',
+    ]);
+
+    expect(nestedNode?.hasDeepValidationMessages()).toEqual(true);
+    expect(page.findById(`${components.group3n.id}-1`)?.hasDeepValidationMessages()).toEqual(true);
+    expect(page.findById(components.group3.id)?.hasDeepValidationMessages()).toEqual(true);
+    expect(page.findById(components.group3.id)?.hasDeepValidationMessages('info')).toEqual(false);
+    expect(page.findById(`${components.group3n.id}-1`)?.hasValidationMessages('errors')).toEqual(false);
+    expect(page.findById(components.group3.id)?.hasValidationMessages('errors')).toEqual(false);
+  });
+
   describe('find functions', () => {
     const state = getInitialStateMock();
     (state.formLayout.layouts as any)['page2'] = layout;
     state.formLayout.uiConfig.repeatingGroups = manyRepeatingGroups;
     const resolved = resolvedLayoutsFromState(state);
 
-    const field3 = resolved.findById('field3');
+    const field3 = resolved?.findById('field3');
     expect(field3?.item.id).toEqual('field3');
 
-    const nested = resolved.findById(components.group2ni.id);
+    const nested = resolved?.findById(components.group2ni.id);
     expect(nested?.item.id).toEqual('group2nested_input-0-0');
     expect(nested?.closest((i) => i.id === components.top1.id)?.item.id).toEqual(components.top1.id);
 
@@ -666,12 +615,100 @@ describe('Hierarchical layout tools', () => {
     expect(nested?.closest((i) => i.id === 'field3')?.item.id).toEqual('field3');
 
     // Using 'findById' on the wrong page
-    expect(resolved.findLayout('page2').findById('field3')?.item.id).toEqual('field3');
+    expect(resolved?.findLayout('page2')?.findById('field3')?.item.id).toEqual('field3');
     expect(field3?.top.findAllById(components.group2i.id).map((i) => i.item.id)).toEqual([
       'group2_input-0',
       'group2_input-1',
       'group2_input-2',
       'group2_input-3',
     ]);
+  });
+
+  describe('panel with group reference', () => {
+    const pageWithMainGroup: ILayout = [
+      {
+        id: 'mainGroup',
+        type: 'Group',
+        children: ['child'],
+        maxCount: 3,
+        dataModelBindings: { group: 'MyModel.MainGroup' },
+      },
+      {
+        id: 'child',
+        type: 'Input',
+        dataModelBindings: { simpleBinding: 'MyModel.MainGroup.Child' },
+      },
+    ];
+
+    const pageWithPanelRef: ILayout = [
+      {
+        id: 'groupWithPanel',
+        type: 'Group',
+        children: ['panelChild'],
+        panel: {
+          groupReference: { group: 'mainGroup' },
+        },
+      },
+      {
+        id: 'panelChild',
+        type: 'Input',
+        dataModelBindings: { simpleBinding: 'MyModel.MainGroup.Child' },
+      },
+    ];
+
+    it.each([
+      {
+        name: 'group with panel reference defined on the page before the referenced group',
+        layouts: {
+          page1: pageWithPanelRef,
+          page2: pageWithMainGroup,
+        },
+      },
+      {
+        name: 'group with panel reference defined on the page after the referenced group',
+        layouts: {
+          page1: pageWithMainGroup,
+          page2: pageWithPanelRef,
+        },
+      },
+      {
+        name: 'group with panel reference defined after, on the same page as the referenced group',
+        layouts: {
+          page1: [...pageWithMainGroup, ...pageWithPanelRef],
+        },
+      },
+      {
+        name: 'group with panel reference defined before, on the same page as the referenced group',
+        layouts: {
+          page1: [...pageWithPanelRef, ...pageWithMainGroup],
+        },
+      },
+      {
+        name: 'group with panel reference defined after, on the page before the referenced group, in reverse order',
+        layouts: {
+          page1: [...pageWithMainGroup.reverse(), ...pageWithPanelRef.reverse()],
+        },
+      },
+    ])('$name', ({ layouts }) => {
+      const state = getInitialStateMock();
+      state.formLayout.layouts = layouts as ILayouts;
+      state.formLayout.uiConfig.repeatingGroups = {
+        mainGroup: {
+          index: 2,
+        },
+      };
+      state.formLayout.uiConfig.currentView = 'page1';
+      const resolved = resolvedLayoutsFromState(state);
+      const dataBindingFor = (id: string) => {
+        const item = resolved?.findById(id)?.item || undefined;
+        const dmBindings = item && 'dataModelBindings' in item ? item?.dataModelBindings : undefined;
+        return dmBindings && 'simpleBinding' in dmBindings ? dmBindings.simpleBinding : undefined;
+      };
+
+      expect(dataBindingFor('child-2')).toEqual('MyModel.MainGroup[2].Child');
+      expect(resolved?.findById('child-3')).toBeUndefined();
+      expect(resolved?.findById('panelChild-2')).toBeUndefined();
+      expect(dataBindingFor('panelChild-3')).toEqual('MyModel.MainGroup[3].Child');
+    });
   });
 });

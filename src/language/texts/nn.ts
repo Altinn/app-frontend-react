@@ -1,5 +1,19 @@
-export function nn() {
+import type { FixedLanguageList } from 'src/language/languages';
+
+export function nn(): FixedLanguageList {
   return {
+    altinn: {
+      standard_validation: {
+        file_content_type_not_allowed:
+          'Det ser ut som du prøver å lasta opp ein filtype som ikkje er tillaten. Sjekk at fila faktisk er av den typen han gir seg ut for å vera.',
+      },
+    },
+    actions: {
+      sign: 'Signer',
+      confirm: 'Bekreft',
+      reject: 'Avslå',
+      instantiate: 'Instansier',
+    },
     address_component: {
       address: 'Gateadresse',
       care_of: 'C/O eller annan tilleggsadresse',
@@ -10,7 +24,7 @@ export function nn() {
       simplified: 'Enkel',
       title_text_binding: 'Søk etter ledetekst for Adressekomponenten',
       zip_code: 'Postnr',
-      validation_error_zipcode: 'Postnummer er ugyldig',
+      validation_error_zipcode: 'Postnummer er ugyldig. Eit postnummer består berre av 4 siffer.',
       validation_error_house_number: 'Bustadnummer er ugyldig',
     },
     confirm: {
@@ -46,6 +60,8 @@ export function nn() {
       file_uploader_drag: 'Dra og slepp eller',
       file_uploader_find: 'leit etter fil',
       file_uploader_list_delete: 'Slett vedlegg',
+      file_uploader_delete_warning: 'Er du sikker på at du vil sletta dette vedlegget?',
+      file_uploader_delete_button_confirm: 'Ja, slett vedlegg',
       file_uploader_list_header_file_size: 'Filstorleik',
       file_uploader_list_header_name: 'Namn',
       file_uploader_list_header_status: 'Status',
@@ -65,7 +81,7 @@ export function nn() {
       file_uploader_validation_error_file_size: 'overskrid tillatt filstorleik.',
       file_uploader_validation_error_general_1: 'Det var eit problem med fila',
       file_uploader_validation_error_general_2:
-        '. Forsikre deg om at fila har rett filtype og ikkke overskrid maks filstorleik.',
+        '. Forsikre deg om at fila har rett filtype og ikkje overskrid maks filstorleik.',
       file_uploader_validation_error_upload: 'Noko gjekk galt under opplastinga av fila, prøv igjen seinare.',
       file_uploader_validation_error_update: 'Noko gjekk galt under oppdateringa av filas merking, prøv igjen seinare.',
       file_uploader_validation_error_no_chosen_tag: 'Du må velja',
@@ -89,6 +105,7 @@ export function nn() {
     },
     general: {
       action: 'Handling',
+      accessibility: 'Tilgjengelegheit',
       add_connection: 'Legg til tilkobling',
       add_new: 'Legg til ny',
       add: 'Legg til',
@@ -110,8 +127,10 @@ export function nn() {
       edit_alt_error: 'Rett feil her',
       edit_alt: 'Rediger',
       edit: 'Endre',
+      empty_summary: 'Du har ikkje lagt inn informasjon her',
       enabled: 'Aktivert',
       error_message_with_colon: 'Feilmelding:',
+      expand_form: 'Utvid skjema',
       for: 'for',
       header_profile_icon_label: 'Profil ikon knapp',
       label: 'Namn',
@@ -136,11 +155,22 @@ export function nn() {
       validate_changes: 'Validér endringar',
       value: 'Verdi',
       version: 'Versjon',
+      wait_for_attachments: 'Vent litt, vi prosesserer vedlegg',
     },
     group: {
       row_error: 'Ei av radene er ikkje fylt ut riktig. Dette må bli retta før skjema kan sendast inn.',
       row_popover_delete_message: 'Er du sikker på at du vil sletta denne rada?',
       row_popover_delete_button_confirm: 'Ja, slett rada',
+    },
+    iframe_component: {
+      unsupported_browser_title: 'Nettlesaren din støttas ikkje',
+      unsupported_browser:
+        'Nettlesaren di støttar ikkje iframes som brukar srcdoc. Dette kan føre til at du ikkje ser all innhaldet som er meint å visast her. Vi anbefalar deg å prøve ein annan nettlesar.',
+    },
+    input_components: {
+      character_limit_sr_label: 'Tekstfeltet kan innehalde maks {0} teikn.',
+      remaining_characters: 'Du har {0} av {1} teikn igjen',
+      exceeded_max_limit: 'Du har overskride maks teikn med {0}',
     },
     instance_selection: {
       changed_by: 'Endra av',
@@ -159,6 +189,10 @@ export function nn() {
       unknown_error_text: 'Det har skjedd ein ukjent feil, ver venleg prøv igjen seinare.',
       unknown_error_status: 'Ukjent feil',
       unknown_error_customer_support: 'Om problemet hald fram, ta kontakt med oss på brukarservice {0}.',
+      forbidden_action_error_title: 'Du manglar rett til å utføre denne handlinga',
+      forbidden_action_error_text: 'Det ser ut til at du ikkje har rett til å utføre denne handlinga.',
+      forbidden_action_error_status: '403 - Forbidden',
+      forbidden_action_error_customer_support: 'Om du treng hjelp, ta kontakt med oss på brukarservice <br/> {0}.',
       authorization_error_main_title: 'Du manglar rett til å sjå denne tenesta.',
       authorization_error_instantiate_validation_title: 'Du kan ikkje starte denne tenesta',
       authorization_error_rights: 'Det ser ut til at du ikkje har rett til å starte denne tenesta for {0}',
@@ -171,7 +205,7 @@ export function nn() {
       authorization_error_info_customer_service: 'Du kan også kontakte oss på brukarservice {0}.',
       authorization_error_instantiate_validation_info_customer_service:
         'Om du står fast kontakt oss på brukarservice {0}.',
-      starting: 'Hald på hatten, no startar vi!',
+      starting: 'Vent litt, vi hentar det du treng',
     },
     language: {
       full_name: {
@@ -210,10 +244,14 @@ export function nn() {
       unit_personal_number: 'personnr.',
       show_deleted: 'Vis sletta',
       show_sub_unit: 'Vis undereiningar',
+      why_seeing_this: 'Kvifor ser eg dette?',
+      seeing_this_preference:
+        'Du kan endra [profilinnstillingane](https://altinn.no/ui/Profile) dine for å ikkje bli spurt om aktør kvar gong du startar utfylling av eit nytt skjema. Du finn denne innstillinga under **Profil** > **Avanserte innstillingar** > **Eg ønskjer ikkje å bli spurt om aktør kvar gong eg startar utfylling av eit nytt skjema**.',
+      seeing_this_override: 'Denne appen er sett opp til å alltid spørja om aktør.',
     },
-    popover: {
-      popover_button_helptext: 'Hjelp',
-      popover_open: 'Popover open',
+    helptext: {
+      button_title: 'Hjelp',
+      button_title_prefix: 'Hjelpetekst for',
     },
     receipt: {
       attachments: 'Vedlegg',
@@ -226,7 +264,7 @@ export function nn() {
       ref_num: 'Referansenummer',
       sender: 'Avsendar',
       subtitle: 'Kopi av kvitteringa di er sendt til ditt arkiv',
-      title_part_is_submitted: 'er sendt inn',
+      title: 'Skjema er sendt inn',
       title_submitted: 'Følgjande er sendt inn:',
     },
     receipt_platform: {
@@ -252,14 +290,16 @@ export function nn() {
       generic_field: 'dette feltet',
     },
     validation_errors: {
-      min: 'Minste gyldige verdi er {0}',
-      max: 'Største gyldige verdi er {0}',
+      min: 'Minste gyldige tall er {0}',
+      max: 'Største gyldige tall er {0}',
       minLength: 'Bruk {0} eller fleire teikn',
       maxLength: 'Bruk {0} eller færre teikn',
       length: 'Antall tillatne teikn er {0}',
       pattern: 'Feil format eller verdi',
       required: 'Feltet er påkravd',
       enum: 'Kun verdiane {0} er tillatne',
+      minItems: 'Minst {0} radar er påkrevd',
+      maxItems: 'Maks {0} radar er tillatne',
     },
     map_component: {
       selectedLocation: 'Valt lokasjon: {0}° nord, {1}° øst',

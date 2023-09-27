@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MultipleChoiceSummary MultipleChoiceSummary 1`] = `
+<DocumentFragment>
+  <div
+    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12"
+    data-testid="multiple-choice-summary"
+  >
+    <ul
+      class="MuiList-root makeStyles-list-1 MuiList-padding"
+    >
+      <li
+        class="MuiListItem-root makeStyles-listItem-2 MuiListItem-gutters"
+      >
+        <div
+          class="MuiListItemText-root"
+          id="some-key"
+        >
+          <span
+            class="MuiTypography-root makeStyles-data-3 MuiListItemText-primary MuiTypography-body1 MuiTypography-displayBlock"
+          >
+            This is a text
+          </span>
+        </div>
+      </li>
+      <li
+        class="MuiListItem-root makeStyles-listItem-2 MuiListItem-gutters"
+      >
+        <div
+          class="MuiListItemText-root"
+          id="some-other-key"
+        >
+          <span
+            class="MuiTypography-root makeStyles-data-3 MuiListItemText-primary MuiTypography-body1 MuiTypography-displayBlock"
+          >
+            This is another text
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</DocumentFragment>
+`;

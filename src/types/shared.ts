@@ -1,7 +1,6 @@
-export interface IAltinnWindow extends Window {
-  org: string;
-  app: string;
-}
+import type { IOnEntry } from 'src/features/applicationMetadata';
+import type { IProcessPermissions } from 'src/features/process';
+import type { FixedLanguageList } from 'src/language/languages';
 
 export interface IApplication {
   createdBy: string;
@@ -35,15 +34,12 @@ export interface IApplicationLogic {
   schemaRef?: string;
 }
 
-export interface IOnEntry {
-  show: 'new-instance' | 'startpage' | string;
-}
-
 export interface IAttachment {
   name?: string;
   iconClass: string;
   url?: string;
   dataType: string;
+  includePDF?: boolean;
   tags?: string[];
 }
 
@@ -89,7 +85,7 @@ export interface IInstance {
   instanceState?: IInstanceState;
   lastChanged?: string;
   org: string;
-  process: IProcess;
+  process?: IProcess;
   selfLinks?: ISelfLinks | null;
   status?: IInstanceStatus | null;
   title?: ITitle | null;
@@ -109,6 +105,7 @@ export interface IInstanceOwner {
   partyId: string;
   personNumber?: string;
   organisationNumber?: string | null;
+  username?: string;
 }
 
 export interface IInstanceState {
@@ -116,10 +113,14 @@ export interface IInstanceState {
   isMarkedForHardDelete: boolean;
   isArchived: boolean;
 }
+
 // Language translations for altinn
-export interface ILanguage {
-  [key: string]: string | ILanguage;
-}
+export type ILanguage =
+  | FixedLanguageList
+  | {
+      [key: string]: string | ILanguage;
+    };
+
 // Language for the rendered alltinn app
 export interface IAppLanguage {
   language: string; // Language code
@@ -151,7 +152,7 @@ export interface IParty {
   isDeleted: boolean;
   onlyHierarchyElementWithNoAccess: boolean;
   person?: IPerson;
-  organisation?: IOrganisation;
+  organization?: IOrganisation;
   childParties?: IParty[];
 }
 
@@ -212,7 +213,7 @@ export interface ISelfLinks {
   platform: string;
 }
 
-export interface ITask {
+export type ITask = {
   flow: number;
   started: string;
   elementId: string;
@@ -220,7 +221,7 @@ export interface ITask {
   altinnTaskType: string;
   ended?: string | null;
   validated?: IValidated | null;
-}
+} & Partial<IProcessPermissions>;
 
 export interface ITitle {
   [key: string]: string;
@@ -232,16 +233,14 @@ export interface IValidated {
 }
 
 export interface ITextResource {
-  id: string;
   value: string;
-  unparsedValue?: string;
   variables?: IVariable[];
-  repeating?: boolean;
 }
 
 export interface IVariable {
   key: string;
   dataSource: string;
+  defaultValue?: string;
 }
 
 export interface IAttachmentGrouping {
@@ -252,17 +251,23 @@ export interface IDataSource {
   [key: string]: any;
 }
 
-export interface IDataSources {
-  [key: string]: IDataSource | null;
-}
-
 export interface IApplicationSettings {
   [source: string]: string;
 }
+
+export type InstanceOwnerPartyType = 'unknown' | 'org' | 'person' | 'selfIdentified';
 
 /** Describes an object with key values from current instance to be used in texts. */
 export interface IInstanceContext {
   instanceId: string;
   appId: string;
   instanceOwnerPartyId: string;
+  instanceOwnerPartyType: InstanceOwnerPartyType;
 }
+
+export type IActionType = 'instantiate' | 'confirm' | 'sign' | 'reject';
+
+export type IAuthContext = {
+  read: boolean;
+  write: boolean;
+} & { [action in IActionType]: boolean };
