@@ -15,7 +15,16 @@ describe('Summary', () => {
         component.hidden = ['equals', ['component', 'newFirstName'], 'hidePrevName'];
       }
     });
+
     cy.goto('changename');
+    //Fixing flaky test by making sure that options are loaded before testing them in the summary
+    cy.get(appFrontend.changeOfName.newFirstName).type('a');
+    cy.gotoNavPage('summary');
+    cy.get('[data-testid=summary-summary-2]').contains('a');
+    cy.gotoNavPage('form');
+    cy.get(appFrontend.changeOfName.newFirstName).clear();
+    cy.get(appFrontend.changeOfName.sources).should('have.value', 'Altinn');
+    cy.get(appFrontend.changeOfName.reference).should('be.visible');
     cy.gotoNavPage('summary');
 
     // Verify empty summary components
