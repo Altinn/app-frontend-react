@@ -5,6 +5,7 @@ import deepEqual from 'fast-deep-equal';
 
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useRealTaskType } from 'src/hooks/useProcess';
 import { ProcessTaskType } from 'src/types';
 import { createStrictContext } from 'src/utils/createStrictContext';
 import { useExprContext } from 'src/utils/layout/ExprContext';
@@ -103,7 +104,7 @@ function isNodeOptionBased(node: LayoutNode) {
 
 export function AllOptionsProvider({ children }: PropsWithChildren) {
   const nodes = useExprContext();
-  const currentTaskType = useAppSelector((state) => state.process.taskType);
+  const currentTaskType = useRealTaskType();
   const currentTaskId = useAppSelector((state) => state.process.taskId) ?? undefined;
   const initialState: State = {
     allInitiallyLoaded: false,
@@ -133,8 +134,9 @@ export function AllOptionsProvider({ children }: PropsWithChildren) {
       }
     }
 
-    // Make sure we dispatch if on the receipt page, so that we stop loading options and show the page
-    if (currentTaskType === ProcessTaskType.Archived || nodes) {
+    // Make sure we dispatch if on the receipt page and other non-node based pages, so that we
+    // stop loading options and show the page
+    if (nodes || currentTaskType !== ProcessTaskType.Data) {
       dispatch({
         type: 'nodesFound',
         nodesFound,
