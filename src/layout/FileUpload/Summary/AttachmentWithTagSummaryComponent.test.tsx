@@ -36,7 +36,6 @@ describe('AttachmentWithTagSummaryComponent', () => {
   });
   const extendedState: Partial<RootState> = {
     attachments: {
-      initializedFor: '',
       attachments: {
         ['FileUploadWithTag']: [
           {

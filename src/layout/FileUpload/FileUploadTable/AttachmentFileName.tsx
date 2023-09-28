@@ -8,18 +8,12 @@ import { dataElementUrl } from 'src/utils/urls/appUrlHelper';
 import { makeUrlRelativeIfSameDomain } from 'src/utils/urls/urlHelper';
 import type { IAttachment } from 'src/features/attachments';
 
-export const AttachmentFileName = ({
-  attachment,
-  mobileView,
-}: {
-  attachment: Pick<IAttachment, 'name' | 'size' | 'id' | 'uploaded'>;
-  mobileView: boolean;
-}) => {
+export const AttachmentFileName = ({ attachment, mobileView }: { attachment: IAttachment; mobileView: boolean }) => {
   const url = makeUrlRelativeIfSameDomain(dataElementUrl(attachment.id));
   const fileName = (
     <>
-      <span className={classes.truncate}>{removeFileEnding(attachment.name)}</span>
-      <span className={classes.extension}>{getFileEnding(attachment.name)}</span>
+      <span className={classes.truncate}>{removeFileEnding(attachment.data.filename)}</span>
+      <span className={classes.extension}>{getFileEnding(attachment.data.filename)}</span>
     </>
   );
 
@@ -27,7 +21,7 @@ export const AttachmentFileName = ({
     <span className={`${classes.file}`}>
       {!mobileView && (
         <FileExtensionIcon
-          fileEnding={getFileEnding(attachment.name)}
+          fileEnding={getFileEnding(attachment.data.filename)}
           className={`${classes.icon} ${attachment.uploaded ? classes.primaryColor : ''}`}
         />
       )}

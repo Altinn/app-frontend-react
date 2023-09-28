@@ -15,10 +15,7 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
       applicationMetadata: applicationMetadataMock,
       error: null,
     },
-    attachments: {
-      attachments: {},
-      initializedFor: '',
-    },
+    attachments: {},
     devTools: {
       activeTab: DevToolsTab.General,
       isOpen: false,

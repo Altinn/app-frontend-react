@@ -18,6 +18,7 @@ import { App } from 'src/App';
 import { ErrorBoundary } from 'src/components/ErrorBoundary';
 import { ThemeWrapper } from 'src/components/ThemeWrapper';
 import { AppQueriesContextProvider } from 'src/contexts/appQueriesContext';
+import { AttachmentsProvider } from 'src/features/attachments/AttachmentsContext';
 import { DevTools } from 'src/features/devtools/DevTools';
 import { LayoutValidationProvider } from 'src/features/layoutValidation/useLayoutValidationCurrentPage';
 import * as queries from 'src/queries/queries';
@@ -51,13 +52,15 @@ document.addEventListener('DOMContentLoaded', () => {
             <ErrorBoundary>
               <QueryClientProvider client={queryClient}>
                 <AppQueriesContextProvider {...queries}>
-                  <ExprContextWrapper>
-                    <LayoutValidationProvider>
-                      <DevTools>
-                        <App />
-                      </DevTools>
-                    </LayoutValidationProvider>
-                  </ExprContextWrapper>
+                  <AttachmentsProvider>
+                    <ExprContextWrapper>
+                      <LayoutValidationProvider>
+                        <DevTools>
+                          <App />
+                        </DevTools>
+                      </LayoutValidationProvider>
+                    </ExprContextWrapper>
+                  </AttachmentsProvider>
                 </AppQueriesContextProvider>
               </QueryClientProvider>
             </ErrorBoundary>

@@ -8,7 +8,6 @@ import type {
   IDeleteAttachmentActionRejected,
 } from 'src/features/attachments/delete/deleteAttachmentActions';
 import type { IAttachmentState } from 'src/features/attachments/index';
-import type { IMapAttachmentsActionFulfilled } from 'src/features/attachments/map/mapAttachmentsActions';
 import type {
   IUpdateAttachmentAction,
   IUpdateAttachmentActionFulfilled,
@@ -21,11 +20,7 @@ import type {
 } from 'src/features/attachments/upload/uploadAttachmentActions';
 import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
 
-const initialState: IAttachmentState = {
-  attachments: {},
-  initializedFor: '',
-  error: undefined,
-};
+const initialState: IAttachmentState = {};
 
 export let AttachmentActions: ActionsFromSlice<typeof attachmentSlice>;
 export const attachmentSlice = () => {
@@ -35,112 +30,103 @@ export const attachmentSlice = () => {
     actions: {
       uploadAttachment: mkAction<IUploadAttachmentAction>({
         takeEvery: uploadAttachmentSaga,
-        reducer: (state, action) => {
-          const { file, componentId, tmpAttachmentId } = action.payload;
-          if (!state.attachments[componentId]) {
-            state.attachments[componentId] = [];
-          }
-
-          state.attachments[componentId].push({
-            name: file.name,
-            size: file.size,
-            uploaded: false,
-            id: tmpAttachmentId,
-            tags: [],
-            deleting: false,
-            updating: false,
-          });
-        },
+        // reducer: (state, action) => {
+        //   const { file, componentId, tmpAttachmentId } = action.payload;
+        //   if (!state.attachments[componentId]) {
+        //     state.attachments[componentId] = [];
+        //   }
+        //
+        //   state.attachments[componentId].push({
+        //     name: file.name,
+        //     size: file.size,
+        //     uploaded: false,
+        //     id: tmpAttachmentId,
+        //     tags: [],
+        //     deleting: false,
+        //     updating: false,
+        //   });
+        // },
       }),
       uploadAttachmentFulfilled: mkAction<IUploadAttachmentActionFulfilled>({
-        reducer: (state, action) => {
-          const { attachment, componentId, tmpAttachmentId } = action.payload;
-          const index = state.attachments[componentId].findIndex((item) => item.id === tmpAttachmentId);
-          if (index < 0) {
-            return;
-          }
-
-          state.attachments[componentId][index] = attachment;
-        },
+        // reducer: (state, action) => {
+        //   const { attachment, componentId, tmpAttachmentId } = action.payload;
+        //   const index = state.attachments[componentId].findIndex((item) => item.id === tmpAttachmentId);
+        //   if (index < 0) {
+        //     return;
+        //   }
+        //
+        //   state.attachments[componentId][index] = attachment;
+        // },
       }),
       uploadAttachmentRejected: mkAction<IUploadAttachmentActionRejected>({
-        reducer: (state, action) => {
-          const { componentId, attachmentId } = action.payload;
-          state.attachments[componentId] = state.attachments[componentId].filter(
-            (attachment) => attachment.id !== attachmentId,
-          );
-        },
+        // reducer: (state, action) => {
+        //   const { componentId, attachmentId } = action.payload;
+        //   state.attachments[componentId] = state.attachments[componentId].filter(
+        //     (attachment) => attachment.id !== attachmentId,
+        //   );
+        // },
       }),
       updateAttachment: mkAction<IUpdateAttachmentAction>({
         takeEvery: updateAttachmentSaga,
-        reducer: (state, action) => {
-          const { attachment, componentId } = action.payload;
-          if (!state.attachments[componentId]) {
-            state.attachments[componentId] = [];
-          }
-          const newAttachment = { ...attachment, updating: true };
-          const index = state.attachments[componentId].findIndex((item) => item.id === attachment.id);
-
-          state.attachments[componentId][index] = newAttachment;
-        },
+        // reducer: (state, action) => {
+        //   const { attachment, componentId } = action.payload;
+        //   if (!state.attachments[componentId]) {
+        //     state.attachments[componentId] = [];
+        //   }
+        //   const newAttachment = { ...attachment, updating: true };
+        //   const index = state.attachments[componentId].findIndex((item) => item.id === attachment.id);
+        //
+        //   state.attachments[componentId][index] = newAttachment;
+        // },
       }),
       updateAttachmentFulfilled: mkAction<IUpdateAttachmentActionFulfilled>({
-        reducer: (state, action) => {
-          const { attachment, componentId } = action.payload;
-          const newAttachment = { ...attachment, updating: false };
-          const index = state.attachments[componentId].findIndex((item) => item.id === attachment.id);
-          state.attachments[componentId][index] = newAttachment;
-        },
+        // reducer: (state, action) => {
+        //   const { attachment, componentId } = action.payload;
+        //   const newAttachment = { ...attachment, updating: false };
+        //   const index = state.attachments[componentId].findIndex((item) => item.id === attachment.id);
+        //   state.attachments[componentId][index] = newAttachment;
+        // },
       }),
       updateAttachmentRejected: mkAction<IUpdateAttachmentActionRejected>({
-        reducer: (state, action) => {
-          const { attachment, componentId, tag } = action.payload;
-          const newAttachment = {
-            ...attachment,
-            tag,
-            updating: false,
-          };
-          const index = state.attachments[componentId].findIndex((item) => item.id === attachment.id);
-
-          state.attachments[componentId][index] = newAttachment;
-        },
+        // reducer: (state, action) => {
+        //   const { attachment, componentId, tag } = action.payload;
+        //   const newAttachment = {
+        //     ...attachment,
+        //     tag,
+        //     updating: false,
+        //   };
+        //   const index = state.attachments[componentId].findIndex((item) => item.id === attachment.id);
+        //
+        //   state.attachments[componentId][index] = newAttachment;
+        // },
       }),
       deleteAttachment: mkAction<IDeleteAttachmentAction>({
         takeEvery: deleteAttachmentSaga,
-        reducer: (state, action) => {
-          const { attachment, componentId } = action.payload;
-          const index = state.attachments[componentId].findIndex((element) => element.id === attachment.id);
-          if (index < 0) {
-            return;
-          }
-          state.attachments[componentId][index].deleting = true;
-        },
+        // reducer: (state, action) => {
+        //   const { attachment, componentId } = action.payload;
+        //   const index = state.attachments[componentId].findIndex((element) => element.id === attachment.id);
+        //   if (index < 0) {
+        //     return;
+        //   }
+        //   state.attachments[componentId][index].deleting = true;
+        // },
       }),
       deleteAttachmentFulfilled: mkAction<IDeleteAttachmentActionFulfilled>({
-        reducer: (state, action) => {
-          const { attachmentId: id, componentId } = action.payload;
-          state.attachments[componentId] = state.attachments[componentId].filter((attachment) => attachment.id !== id);
-        },
+        // reducer: (state, action) => {
+        //   const { attachmentId: id, componentId } = action.payload;
+        //   state.attachments[componentId] = state.attachments[componentId].filter((attachment) => attachment.id !== id);
+        // },
       }),
       deleteAttachmentRejected: mkAction<IDeleteAttachmentActionRejected>({
-        reducer: (state, action) => {
-          const { attachment, componentId } = action.payload;
-          const newAttachment = { ...attachment, deleting: false };
-          const index = state.attachments[componentId].findIndex((element) => element.id === attachment.id);
-          if (index < 0) {
-            return;
-          }
-          state.attachments[componentId][index] = newAttachment;
-        },
-      }),
-      mapAttachmentsFulfilled: mkAction<IMapAttachmentsActionFulfilled>({
-        reducer: (state, action) => {
-          const { attachments, initializedFor } = action.payload;
-          state.attachments = attachments;
-          if (initializedFor) {
-            state.initializedFor = initializedFor;
-          }
-        },
+        // reducer: (state, action) => {
+        //   const { attachment, componentId } = action.payload;
+        //   const newAttachment = { ...attachment, deleting: false };
+        //   const index = state.attachments[componentId].findIndex((element) => element.id === attachment.id);
+        //   if (index < 0) {
+        //     return;
+        //   }
+        //   state.attachments[componentId][index] = newAttachment;
+        // },
       }),
     },
   }));
