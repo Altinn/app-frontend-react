@@ -7,18 +7,19 @@ import ResizeObserverModule from 'resize-observer-polyfill';
 import { getFormLayoutGroupMock } from 'src/__mocks__/formLayoutGroupMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { RepeatingGroupTable } from 'src/layout/Group/RepeatingGroupTable';
-import { mockMediaQuery, renderWithProviders } from 'src/testUtils';
+import { mockMediaQuery } from 'src/test/mockMediaQuery';
+import { renderWithProviders } from 'src/test/renderWithProviders';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
+import type { TextResourceMap } from 'src/features/textResources';
 import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.generated';
 import type { IOption } from 'src/layout/common.generated';
 import type { CompGroupRepeatingExternal, CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { IRepeatingGroupTableProps } from 'src/layout/Group/RepeatingGroupTable';
 import type { CompOrGroupExternal } from 'src/layout/layout';
-import type { ITextResource } from 'src/types';
 
 (global as any).ResizeObserver = ResizeObserverModule;
 
@@ -57,7 +58,7 @@ describe('RepeatingGroupTable', () => {
   const group = getFormLayoutGroupMock({
     id: 'mock-container-id',
   });
-  const textResources: ITextResource[] = [{ id: 'option.label', value: 'Value to be shown' }];
+  const textResources: TextResourceMap = { 'option.label': { value: 'Value to be shown' } };
   const attachments: IAttachments = {};
   const options: IOption[] = [{ value: 'option.value', label: 'option.label' }];
   const components: CompOrGroupExternal[] = [
@@ -222,7 +223,7 @@ describe('RepeatingGroupTable', () => {
     const preloadedState = getInitialStateMock();
     preloadedState.formLayout = newLayout || layout;
     preloadedState.attachments.attachments = attachments;
-    preloadedState.textResources.resources = textResources;
+    preloadedState.textResources.resourceMap = textResources;
     preloadedState.formData.formData = data;
 
     const { container } = renderWithProviders(

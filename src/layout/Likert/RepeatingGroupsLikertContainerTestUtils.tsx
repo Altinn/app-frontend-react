@@ -5,20 +5,21 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { resourcesAsMap } from 'src/features/textResources/resourcesAsMap';
 import { RepeatingGroupsLikertContainer } from 'src/layout/Likert/RepeatingGroupsLikertContainer';
 import { setupStore } from 'src/redux/store';
-import { mockMediaQuery, renderWithProviders } from 'src/testUtils';
+import { mockMediaQuery } from 'src/test/mockMediaQuery';
+import { renderWithProviders } from 'src/test/renderWithProviders';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { IFormDataState } from 'src/features/formData';
 import type { IUpdateFormData } from 'src/features/formData/formDataTypes';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
-import type { ITextResourcesState } from 'src/features/textResources';
+import type { IRawTextResource, ITextResourcesState } from 'src/features/textResources';
 import type { IValidationState } from 'src/features/validation/validationSlice';
 import type { IOption } from 'src/layout/common.generated';
 import type { CompGroupExternal, CompGroupRepeatingLikertExternal } from 'src/layout/Group/config.generated';
 import type { CompOrGroupExternal } from 'src/layout/layout';
 import type { CompLikertExternal } from 'src/layout/Likert/config.generated';
-import type { ITextResource } from 'src/types';
 import type { ILayoutValidations } from 'src/utils/validation/types';
 
 export const defaultMockQuestions = [
@@ -155,8 +156,8 @@ const createFormValidationsForCurrentView = (validations: ILayoutValidations = {
   validations: { FormLayout: validations },
 });
 
-const createTextResource = (questions: IQuestion[], extraResources: ITextResource[]): ITextResourcesState => ({
-  resources: [
+const createTextResource = (questions: IQuestion[], extraResources: IRawTextResource[]): ITextResourcesState => ({
+  resourceMap: resourcesAsMap([
     {
       id: 'likert-questions',
       value: '{0}',
@@ -172,7 +173,7 @@ const createTextResource = (questions: IQuestion[], extraResources: ITextResourc
       value: question.Question,
     })),
     ...extraResources,
-  ],
+  ]),
   language: 'nb',
   error: null,
 });
@@ -190,7 +191,7 @@ interface IRenderProps {
   mockOptions: IOption[];
   radioButtonProps: Partial<CompLikertExternal>;
   likertContainerProps: Partial<CompGroupRepeatingLikertExternal>;
-  extraTextResources: ITextResource[];
+  extraTextResources: IRawTextResource[];
   validations: ILayoutValidations;
 }
 
@@ -270,19 +271,14 @@ export const validateRadioLayout = (questions: IQuestion[], options: IOption[], 
   if (mobileView) {
     expect(screen.getAllByRole('radiogroup')).toHaveLength(questions.length);
   } else {
+    // Header and questions
     expect(screen.getAllByRole('row')).toHaveLength(questions.length + 1);
   }
 
   for (const question of questions) {
-    const row = mobileView
-      ? within(
-          screen.getByRole('group', {
-            name: question.Question,
-          }),
-        ).getByRole('radiogroup')
-      : screen.getByRole('row', {
-          name: question.Question,
-        });
+    const row = screen.getByRole(mobileView ? 'radiogroup' : 'row', {
+      name: question.Question,
+    });
 
     for (const option of options) {
       // Ideally we should use `getByRole` selector here, but the tests that use this function
