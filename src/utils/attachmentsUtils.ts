@@ -1,15 +1,15 @@
 import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type { IApplication, IAttachment, IAttachmentGrouping, IData, IDataType } from 'src/types/shared';
+import type { IApplication, IAttachmentGrouping, IData, IDataType, IDisplayAttachment } from 'src/types/shared';
 
 export const mapInstanceAttachments = (
   data: IData[] | undefined,
   defaultElementIds: string[],
   platform?: boolean,
-): IAttachment[] => {
+): IDisplayAttachment[] => {
   if (!data) {
     return [];
   }
-  const tempAttachments: IAttachment[] = [];
+  const tempAttachments: IDisplayAttachment[] = [];
   data.forEach((dataElement: IData) => {
     if (defaultElementIds.indexOf(dataElement.dataType) > -1 || dataElement.dataType === 'ref-data-as-pdf') {
       return;
@@ -25,7 +25,7 @@ export const mapInstanceAttachments = (
   return tempAttachments;
 };
 
-export const getInstancePdf = (data: IData[] | undefined, platform?: boolean): IAttachment[] | undefined => {
+export const getInstancePdf = (data: IData[] | undefined, platform?: boolean): IDisplayAttachment[] | undefined => {
   if (!data) {
     return undefined;
   }
@@ -51,7 +51,7 @@ export const getInstancePdf = (data: IData[] | undefined, platform?: boolean): I
  * Gets the attachment groupings from a list of attachments.
  */
 export const getAttachmentGroupings = (
-  attachments: IAttachment[] | undefined,
+  attachments: IDisplayAttachment[] | undefined,
   applicationMetadata: IApplication | null,
   langTools: IUseLanguage,
 ): IAttachmentGrouping => {
@@ -61,7 +61,7 @@ export const getAttachmentGroupings = (
     return attachmentGroupings;
   }
 
-  attachments.forEach((attachment: IAttachment) => {
+  attachments.forEach((attachment: IDisplayAttachment) => {
     const grouping = getGroupingForAttachment(attachment, applicationMetadata);
     const title = langTools.langAsString(grouping);
     if (!attachmentGroupings[title]) {
@@ -78,7 +78,7 @@ export const getAttachmentGroupings = (
  * @param attachment the attachment
  * @param applicationMetadata the application metadata
  */
-export const getGroupingForAttachment = (attachment: IAttachment, applicationMetadata: IApplication): string => {
+export const getGroupingForAttachment = (attachment: IDisplayAttachment, applicationMetadata: IApplication): string => {
   if (!applicationMetadata || !applicationMetadata.dataTypes || !attachment) {
     return 'null';
   }
