@@ -1,3 +1,5 @@
+import type { AxiosError } from 'axios';
+
 import type { IUploadAttachmentAction } from 'src/features/attachments/upload/uploadAttachmentActions';
 import type { IData } from 'src/types/shared';
 
@@ -11,17 +13,17 @@ export interface IAttachmentsCtx {
 interface IAttachmentTemporary {
   filename: string;
   size: number;
-  id: string;
+}
+
+interface Metadata {
+  updating: boolean;
+  deleting: boolean;
+  error?: AxiosError;
 }
 
 export type IAttachment =
-  | { state: 'uploaded'; data: IData }
-  | { state: 'uploading'; data: IAttachmentTemporary }
-  | { state: 'upload-failed'; data: IAttachmentTemporary } // TODO: Add more info about reason?
-  | { state: 'deleting'; data: IData }
-  | { state: 'delete-failed'; data: IData } // TODO: Add more info about reason?
-  | { state: 'updating'; data: IData }
-  | { state: 'update-failed'; data: IData }; // TODO: Add more info about reason?
+  | ({ uploaded: true; data: IData } & Metadata)
+  | ({ uploaded: false; data: IAttachmentTemporary } & Metadata);
 
 export interface IAttachments {
   [attachmentComponentId: string]: IAttachment[] | undefined;
