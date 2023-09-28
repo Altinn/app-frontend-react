@@ -35,12 +35,12 @@ describe('Message', () => {
     cy.url().then((url) => {
       const instantiateUrl =
         Cypress.env('environment') === 'local'
-          ? 'http://local.altinn.cloud/ttd/frontend-test'
-          : 'https://ttd.apps.tt02.altinn.no/ttd/frontend-test/';
+          ? 'http://local.altinn.cloud/ttd/frontend-test-v3'
+          : 'https://ttd.apps.tt02.altinn.no/ttd/frontend-test-v3/';
       const maybeInstanceId = instanceIdExpr.exec(url);
       const instanceId = maybeInstanceId ? maybeInstanceId[1] : 'instance-id-not-found';
       cy.get(appFrontend.startAgain).contains(instanceId);
-      cy.get(appFrontend.startAgain).should('contain.text', appFrontend.apps.frontendTest);
+      cy.get(appFrontend.startAgain).should('contain.text', 'frontend-test');
       cy.get(appFrontend.startAgain).find('a:contains("her")').should('have.attr', 'href', instantiateUrl);
 
       cy.get('a:contains("Intern lenke i nytt vindu")')

@@ -2,17 +2,17 @@ import texts from 'test/e2e/fixtures/texts.json';
 
 export class AppFrontend {
   public apps = {
-    /** @see https://dev.altinn.studio/repos/ttd/frontend-test */
-    frontendTest: 'frontend-test',
+    /** @see https://dev.altinn.studio/repos/ttd/frontend-test-v3 */
+    frontendTest: 'frontend-test-v3',
 
-    /** @see https://dev.altinn.studio/repos/ttd/stateless-app */
-    stateless: 'stateless-app',
+    /** @see https://dev.altinn.studio/repos/ttd/stateless-app-v3 */
+    stateless: 'stateless-app-v3',
 
-    /** @see https://dev.altinn.studio/repos/ttd/anonymous-stateless-app */
-    anonymousStateless: 'anonymous-stateless-app',
+    /** @see https://dev.altinn.studio/repos/ttd/anonymous-stateless-app-v3 */
+    anonymousStateless: 'anonymous-stateless-app-v3',
 
-    /** @see https://dev.altinn.studio/repos/ttd/signing-test */
-    signingTest: 'signing-test',
+    /** @see https://dev.altinn.studio/repos/ttd/signing-test-v3 */
+    signingTest: 'signing-test-v3',
   };
 
   //Start app instance page

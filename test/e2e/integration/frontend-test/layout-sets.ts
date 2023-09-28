@@ -5,7 +5,7 @@ it('should be possible to render the app even if layout-sets are not configured'
   cy.intercept('GET', '**/api/layoutsets', { statusCode: 204, body: '' });
   cy.intercept('GET', '**/api/resource/FormLayout.json', {
     statusCode: 302,
-    headers: { location: '/ttd/frontend-test/api/layouts/message' },
+    headers: { location: '/ttd/frontend-test-v3/api/layouts/message' },
   });
 
   cy.goto('message');

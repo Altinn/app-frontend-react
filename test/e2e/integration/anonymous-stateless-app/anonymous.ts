@@ -17,9 +17,7 @@ describe('Anonymous (stateless)', () => {
     cy.get(appFrontend.profileIconButton).should('not.exist');
     cy.get(appFrontend.stateless.name).invoke('val').should('be.empty');
     cy.get(appFrontend.stateless.number).should('have.value', '1234');
-    cy.get(appFrontend.header)
-      .should('contain.text', appFrontend.apps.anonymousStateless)
-      .and('contain.text', texts.ttd);
+    cy.get(appFrontend.header).should('contain.text', 'anonymous-stateless-app').and('contain.text', texts.ttd);
   });
 
   it('should trigger data processing on changes in form fields', () => {
