@@ -2,13 +2,13 @@ import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 
 import { ProcessWrapper } from 'src/components/wrappers/ProcessWrapper';
+import { useCurrentDataModelSchemaQuery } from 'src/features/datamodel/useCurrentDataModelSchemaQuery';
 import { Entrypoint } from 'src/features/entrypoint/Entrypoint';
 import { PartySelection } from 'src/features/instantiate/containers/PartySelection';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { useApplicationMetadataQuery } from 'src/hooks/queries/useApplicationMetadataQuery';
 import { useApplicationSettingsQuery } from 'src/hooks/queries/useApplicationSettingsQuery';
-import { useCurrentDataModelSchemaQuery } from 'src/hooks/queries/useCurrentDataModelSchemaQuery';
 import { useFooterLayoutQuery } from 'src/hooks/queries/useFooterLayoutQuery';
 import { useFormDataQuery } from 'src/hooks/queries/useFormDataQuery';
 import { useCurrentPartyQuery } from 'src/hooks/queries/useGetCurrentPartyQuery';
@@ -32,7 +32,7 @@ export const App = () => {
   const { data: applicationMetadata, isError: hasApplicationMetadataError } = useApplicationMetadataQuery();
   const { isError: hasLayoutSetError } = useLayoutSetsQuery();
   const { isError: hasOrgsError } = useOrgsQuery();
-  useFooterLayoutQuery(!!applicationMetadata?.features?.footer);
+  useFooterLayoutQuery();
   useCurrentDataModelSchemaQuery();
 
   const componentIsReady = applicationSettings && applicationMetadata;
@@ -97,22 +97,20 @@ const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | n
   const isReadyToRenderRoutes = allowAnonymous !== undefined;
   if (isReadyToRenderRoutes) {
     return (
-      <>
-        <Routes>
-          <Route
-            path='/'
-            element={<Entrypoint allowAnonymous={allowAnonymous} />}
-          />
-          <Route
-            path='/partyselection/*'
-            element={<PartySelection />}
-          />
-          <Route
-            path='/instance/:partyId/:instanceGuid'
-            element={<ProcessWrapper isFetching={isFetching} />}
-          />
-        </Routes>
-      </>
+      <Routes>
+        <Route
+          path='/'
+          element={<Entrypoint />}
+        />
+        <Route
+          path='/partyselection/*'
+          element={<PartySelection />}
+        />
+        <Route
+          path='/instance/:partyId/:instanceGuid'
+          element={<ProcessWrapper isFetching={isFetching} />}
+        />
+      </Routes>
     );
   }
 

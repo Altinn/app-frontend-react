@@ -1,6 +1,5 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { MemoryRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import { createTheme, MuiThemeProvider } from '@material-ui/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -10,7 +9,6 @@ import type { PreloadedState } from 'redux';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { AppQueriesContextProvider } from 'src/contexts/appQueriesContext';
-import { DataModelSchemaContextWrapper } from 'src/hooks/useDataModelSchema';
 import { setupStore } from 'src/redux/store';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { ExprContextWrapper, useResolvedNode } from 'src/utils/layout/ExprContext';
@@ -37,12 +35,12 @@ export const renderWithProviders = (
     const theme = createTheme(AltinnAppTheme);
 
     const allMockedQueries = {
-      doPartyValidation: () => Promise.resolve({ isValid: true, validParties: [] }),
+      doPartyValidation: () => Promise.resolve({ valid: true, validParties: [], message: null }),
       fetchActiveInstances: () => Promise.resolve([]),
       fetchApplicationMetadata: () => Promise.resolve({} as unknown as IApplicationMetadata),
       fetchCurrentParty: () => Promise.resolve({}),
       fetchApplicationSettings: () => Promise.resolve({}),
-      fetchFooterLayout: () => Promise.resolve({} as unknown as IFooterLayout),
+      fetchFooterLayout: () => Promise.resolve({ footer: [] } as IFooterLayout),
       fetchLayoutSets: () => Promise.resolve({} as unknown as ILayoutSets),
       fetchOrgs: () => Promise.resolve({ orgs: {} }),
       fetchUserProfile: () => Promise.resolve({} as unknown as IProfile),
@@ -72,9 +70,7 @@ export const renderWithProviders = (
         <AppQueriesContextProvider {...mockedQueries}>
           <MuiThemeProvider theme={theme}>
             <Provider store={store}>
-              <DataModelSchemaContextWrapper>
-                <ExprContextWrapper>{children}</ExprContextWrapper>
-              </DataModelSchemaContextWrapper>
+              <ExprContextWrapper>{children}</ExprContextWrapper>
             </Provider>
           </MuiThemeProvider>
         </AppQueriesContextProvider>
@@ -135,65 +131,6 @@ export function renderGenericComponentTest<T extends CompTypes>({
   return {
     ...renderWithProviders(<Wrapper />, { store }),
   };
-}
-
-export const mockMediaQuery = (maxWidth: number) => {
-  const setScreenWidth = (width: number) => {
-    Object.defineProperty(window, 'innerWidth', {
-      writable: true,
-      configurable: true,
-      value: width,
-    });
-    window.matchMedia = jest.fn().mockImplementation((query: string) => ({
-      matches: width <= maxWidth,
-      media: query,
-      onchange: null,
-      addListener: jest.fn(),
-      removeListener: jest.fn(),
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-    }));
-  };
-
-  return { setScreenWidth };
-};
-
-interface MemoryRouterWithRedirectingRootParams {
-  initialEntries?: string[];
-  basename?: string;
-  element?: JSX.Element | JSX.Element[] | null;
-  to: string;
-  children: JSX.Element | JSX.Element[] | null;
-}
-
-export function MemoryRouterWithRedirectingRoot({
-  initialEntries = [''],
-  basename = '/ttd/test',
-  element = null,
-  to,
-  children,
-}: MemoryRouterWithRedirectingRootParams) {
-  const Relocate = ({ navPath }) => (
-    <Navigate
-      to={navPath}
-      replace
-    />
-  );
-  return (
-    <MemoryRouter
-      initialEntries={initialEntries.map((e) => `${basename}${e}`)}
-      basename={basename}
-    >
-      {element}
-      <Routes>
-        <Route
-          path={'/'}
-          element={<Relocate navPath={to} />}
-        />
-        {children}
-      </Routes>
-    </MemoryRouter>
-  );
 }
 
 export const mockComponentProps: IComponentProps & { id: string } = {
