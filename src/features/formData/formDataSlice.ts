@@ -96,7 +96,7 @@ export const formDataSlice = () => {
         takeEvery: updateFormDataSaga,
       }),
       updateFulfilled: mkAction<IUpdateFormData>({
-        takeLatest: [checkIfRuleShouldRunSaga, autoSaveSaga],
+        takeEvery: [checkIfRuleShouldRunSaga, autoSaveSaga],
         reducer: (state, action) => {
           const { field, data, skipAutoSave } = action.payload;
           // Remove if data is null, undefined or empty string
@@ -123,7 +123,7 @@ export const formDataSlice = () => {
         takeLatest: saveFormDataSaga,
       }),
       deleteAttachmentReference: mkAction<IDeleteAttachmentReference>({
-        takeLatest: deleteAttachmentReferenceSaga,
+        takeEvery: deleteAttachmentReferenceSaga,
       }),
     },
     extraReducers: (builder) => {
