@@ -272,6 +272,8 @@ describe('Summary', () => {
     cy.get(appFrontend.group.addNewItem).click();
     cy.get(appFrontend.group.editContainer).find(appFrontend.group.next).click();
     cy.get(appFrontend.group.row(4).nestedGroup.row(0).nestedSource).should('have.value', 'Altinn');
+    cy.get('[role=option][value="nordmann"]').should('exist');
+
     cy.get(appFrontend.group.saveSubGroup).click();
     cy.get(appFrontend.group.saveMainGroup).click();
     cy.gotoNavPage('summary');
