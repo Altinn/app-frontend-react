@@ -2,24 +2,9 @@ import { deleteAttachmentSaga } from 'src/features/attachments/delete/deleteAtta
 import { updateAttachmentSaga } from 'src/features/attachments/update/updateAttachmentSagas';
 import { uploadAttachmentSaga } from 'src/features/attachments/upload/uploadAttachmentSagas';
 import { createSagaSlice } from 'src/redux/sagaSlice';
-import type {
-  IDeleteAttachmentAction,
-  IDeleteAttachmentActionFulfilled,
-  IDeleteAttachmentActionRejected,
-} from 'src/features/attachments/delete/deleteAttachmentActions';
-import type { IAttachmentState } from 'src/features/attachments/index';
-import type {
-  IUpdateAttachmentAction,
-  IUpdateAttachmentActionFulfilled,
-  IUpdateAttachmentActionRejected,
-} from 'src/features/attachments/update/updateAttachmentActions';
-import type {
-  IUploadAttachmentAction,
-  IUploadAttachmentActionFulfilled,
-  IUploadAttachmentActionRejected,
-} from 'src/features/attachments/upload/uploadAttachmentActions';
 import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
 
+interface IAttachmentState {}
 const initialState: IAttachmentState = {};
 
 export let AttachmentActions: ActionsFromSlice<typeof attachmentSlice>;
@@ -28,7 +13,7 @@ export const attachmentSlice = () => {
     name: 'attachments',
     initialState,
     actions: {
-      uploadAttachment: mkAction<IUploadAttachmentAction>({
+      uploadAttachment: mkAction<any>({
         takeEvery: uploadAttachmentSaga,
         // reducer: (state, action) => {
         //   const { file, componentId, tmpAttachmentId } = action.payload;
@@ -47,7 +32,7 @@ export const attachmentSlice = () => {
         //   });
         // },
       }),
-      uploadAttachmentFulfilled: mkAction<IUploadAttachmentActionFulfilled>({
+      uploadAttachmentFulfilled: mkAction<any>({
         // reducer: (state, action) => {
         //   const { attachment, componentId, tmpAttachmentId } = action.payload;
         //   const index = state.attachments[componentId].findIndex((item) => item.id === tmpAttachmentId);
@@ -58,7 +43,7 @@ export const attachmentSlice = () => {
         //   state.attachments[componentId][index] = attachment;
         // },
       }),
-      uploadAttachmentRejected: mkAction<IUploadAttachmentActionRejected>({
+      uploadAttachmentRejected: mkAction<any>({
         // reducer: (state, action) => {
         //   const { componentId, attachmentId } = action.payload;
         //   state.attachments[componentId] = state.attachments[componentId].filter(
@@ -66,7 +51,7 @@ export const attachmentSlice = () => {
         //   );
         // },
       }),
-      updateAttachment: mkAction<IUpdateAttachmentAction>({
+      updateAttachment: mkAction<any>({
         takeEvery: updateAttachmentSaga,
         // reducer: (state, action) => {
         //   const { attachment, componentId } = action.payload;
@@ -79,7 +64,7 @@ export const attachmentSlice = () => {
         //   state.attachments[componentId][index] = newAttachment;
         // },
       }),
-      updateAttachmentFulfilled: mkAction<IUpdateAttachmentActionFulfilled>({
+      updateAttachmentFulfilled: mkAction<any>({
         // reducer: (state, action) => {
         //   const { attachment, componentId } = action.payload;
         //   const newAttachment = { ...attachment, updating: false };
@@ -87,7 +72,7 @@ export const attachmentSlice = () => {
         //   state.attachments[componentId][index] = newAttachment;
         // },
       }),
-      updateAttachmentRejected: mkAction<IUpdateAttachmentActionRejected>({
+      updateAttachmentRejected: mkAction<any>({
         // reducer: (state, action) => {
         //   const { attachment, componentId, tag } = action.payload;
         //   const newAttachment = {
@@ -100,7 +85,7 @@ export const attachmentSlice = () => {
         //   state.attachments[componentId][index] = newAttachment;
         // },
       }),
-      deleteAttachment: mkAction<IDeleteAttachmentAction>({
+      deleteAttachment: mkAction<any>({
         takeEvery: deleteAttachmentSaga,
         // reducer: (state, action) => {
         //   const { attachment, componentId } = action.payload;
@@ -111,13 +96,13 @@ export const attachmentSlice = () => {
         //   state.attachments[componentId][index].deleting = true;
         // },
       }),
-      deleteAttachmentFulfilled: mkAction<IDeleteAttachmentActionFulfilled>({
+      deleteAttachmentFulfilled: mkAction<any>({
         // reducer: (state, action) => {
         //   const { attachmentId: id, componentId } = action.payload;
         //   state.attachments[componentId] = state.attachments[componentId].filter((attachment) => attachment.id !== id);
         // },
       }),
-      deleteAttachmentRejected: mkAction<IDeleteAttachmentActionRejected>({
+      deleteAttachmentRejected: mkAction<any>({
         // reducer: (state, action) => {
         //   const { attachment, componentId } = action.payload;
         //   const newAttachment = { ...attachment, deleting: false };

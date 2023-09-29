@@ -10,13 +10,12 @@ import { getFileUploadComponentValidations } from 'src/utils/formComponentUtils'
 import { httpDelete, httpPost } from 'src/utils/network/networking';
 import { fileTagUrl } from 'src/utils/urls/appUrlHelper';
 import type { IAttachment } from 'src/features/attachments';
-import type { IUpdateAttachmentAction } from 'src/features/attachments/update/updateAttachmentActions';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { IRuntimeState } from 'src/types';
 
 export function* updateAttachmentSaga({
   payload: { attachment, componentId, baseComponentId, tag },
-}: PayloadAction<IUpdateAttachmentAction>): SagaIterator {
+}: PayloadAction<any>): SagaIterator {
   const state: IRuntimeState = yield select();
   const langTools: IUseLanguage = yield select(staticUseLanguageFromState);
   const currentView = state.formLayout.uiConfig.currentView;

@@ -19,7 +19,13 @@ export function mapAttachments(dataElements: IData[], nodes: LayoutPages): IAtta
       attachments[node.item.id] = [];
     }
     attachments[node.item.id]?.push({
-      state: 'uploaded',
+      uploaded: true,
+
+      // PRIORITY: These things needs to be stateful and could change at any time
+      deleting: false,
+      updating: false,
+      error: undefined,
+
       data,
     });
   }
