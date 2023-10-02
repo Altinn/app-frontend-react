@@ -10,7 +10,6 @@ import { formDynamicsSlice } from 'src/features/dynamics/formDynamicsSlice';
 import { footerLayoutSlice } from 'src/features/footer/data/footerLayoutSlice';
 import { formDataSlice } from 'src/features/formData/formDataSlice';
 import { formRulesSlice } from 'src/features/formRules/rulesSlice';
-import { instanceDataSlice } from 'src/features/instanceData/instanceDataSlice';
 import { instantiationSlice } from 'src/features/instantiate/instantiation/instantiationSlice';
 import { isLoadingSlice } from 'src/features/isLoading/isLoadingSlice';
 import { formLayoutSlice } from 'src/features/layout/formLayoutSlice';
@@ -39,7 +38,6 @@ const slices = [
   formDynamicsSlice,
   formLayoutSlice,
   formRulesSlice,
-  instanceDataSlice,
   instantiationSlice,
   isLoadingSlice,
   optionsSlice,

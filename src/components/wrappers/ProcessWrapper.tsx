@@ -11,14 +11,13 @@ import { PresentationComponent } from 'src/components/wrappers/Presentation';
 import classes from 'src/components/wrappers/ProcessWrapper.module.css';
 import { Confirm } from 'src/features/confirm/containers/Confirm';
 import { Feedback } from 'src/features/feedback/Feedback';
-import { InstanceDataActions } from 'src/features/instanceData/instanceDataSlice';
 import { ForbiddenError } from 'src/features/instantiate/containers/ForbiddenError';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { PDFView } from 'src/features/pdf/PDFView';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
+import { useGetInstanceData } from 'src/hooks/queries/useGetInstanceData';
 import { useApiErrorCheck } from 'src/hooks/useApiErrorCheck';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 import { useProcess } from 'src/hooks/useProcess';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
@@ -29,31 +28,18 @@ export interface IProcessWrapperProps {
 }
 
 export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
-  const instantiating = useAppSelector((state) => state.instantiation.instantiating);
   const isLoading = useAppSelector((state) => state.isLoading.dataTask);
   const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
   const { hasApiErrors } = useApiErrorCheck();
   const processError = useAppSelector((state) => state.process.error);
-  const { dispatch, process, appOwner, appName } = useProcess();
-
-  const instanceId = useAppSelector((state) => state.instantiation.instanceId);
-  const instanceIdFromUrl = useInstanceIdParams()?.instanceId;
-  window.instanceId = instanceIdFromUrl;
+  const { process, appOwner, appName } = useProcess();
 
   const { pdfPreview } = useAppSelector((state) => state.devTools);
   const [searchParams] = useSearchParams();
   const renderPDF = searchParams.get('pdf') === '1';
   const previewPDF = searchParams.get('pdf') === 'preview' || pdfPreview;
 
-  React.useEffect(() => {
-    if (!instantiating && !instanceId) {
-      dispatch(
-        InstanceDataActions.get({
-          instanceId: instanceIdFromUrl,
-        }),
-      );
-    }
-  }, [instantiating, instanceId, dispatch, instanceIdFromUrl]);
+  const { isFetching: isInstanceDataFetching } = useGetInstanceData();
 
   if (hasApiErrors) {
     if (checkIfAxiosError(processError)) {
@@ -91,7 +77,7 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
           appOwner={appOwner}
           type={taskType}
         >
-          {isLoading === false && isFetching !== true ? (
+          {isLoading === false && isFetching !== true && !isInstanceDataFetching ? (
             <>
               {taskType === ProcessTaskType.Data || behavesLikeDataTask(process.taskId, layoutSets) ? (
                 <Form />

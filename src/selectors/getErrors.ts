@@ -22,7 +22,6 @@ const getHasErrorsSelector = (state: IRuntimeState) => {
     state.profile.error ||
     state.formLayout.error ||
     state.footerLayout.error ||
-    state.instanceData.error ||
     state.applicationMetadata.error ||
     state.formDataModel.error ||
     state.optionState.error ||

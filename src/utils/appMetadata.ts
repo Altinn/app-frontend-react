@@ -79,7 +79,7 @@ export function getLayoutSetIdForApplication(
 
 interface IGetDataTypeForApplicationParams {
   application: IApplication | null;
-  instance: IInstance | null;
+  instance: IInstance | null | undefined;
   layoutSets: ILayoutSets | null;
 }
 
@@ -124,7 +124,7 @@ export function isStatelessApp(application: IApplication | null) {
 
 export const getCurrentTaskDataElementId = (
   application: IApplication | null,
-  instance: IInstance | null,
+  instance: IInstance | null | undefined,
   layoutSets: ILayoutSets | null,
 ) => {
   const currentDataTypeId = getCurrentDataTypeForApplication({ application, instance, layoutSets });

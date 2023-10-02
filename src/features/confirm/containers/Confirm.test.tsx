@@ -3,7 +3,6 @@ import { MemoryRouter } from 'react-router-dom';
 
 import { screen } from '@testing-library/react';
 
-import { getInstanceDataStateMock } from 'src/__mocks__/instanceDataStateMock';
 import { partyMock } from 'src/__mocks__/partyMock';
 import { Confirm } from 'src/features/confirm/containers/Confirm';
 import { renderWithProviders } from 'src/test/renderWithProviders';
@@ -28,7 +27,6 @@ describe('Confirm', () => {
       </MemoryRouter>,
       {
         preloadedState: {
-          instanceData: getInstanceDataStateMock(),
           party: {
             parties: [partyMock],
             selectedParty: partyMock,

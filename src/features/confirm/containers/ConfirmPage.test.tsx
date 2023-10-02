@@ -2,17 +2,17 @@ import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 
 import { act, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 
 import { applicationMetadataMock } from 'src/__mocks__/applicationMetadataMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { getInstanceDataStateMock } from 'src/__mocks__/instanceDataStateMock';
+import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { ConfirmPage, type IConfirmPageProps } from 'src/features/confirm/containers/ConfirmPage';
 import { renderWithProviders } from 'src/test/renderWithProviders';
 import type { IInstance } from 'src/types/shared';
 
 describe('ConfirmPage', () => {
-  const state = getInstanceDataStateMock();
+  const state = getInstanceDataMock();
   const props: IConfirmPageProps = {
     appName: 'Irrelevant',
     instance: state.instance as IInstance,

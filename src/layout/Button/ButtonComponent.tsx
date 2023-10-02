@@ -2,6 +2,7 @@ import React from 'react';
 
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { ProcessActions } from 'src/features/process/processSlice';
+import { useGetInstanceData } from 'src/hooks/queries/useGetInstanceData';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useCanSubmitForm } from 'src/hooks/useCanSubmitForm';
@@ -23,7 +24,7 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
   const props: IButtonProvidedProps = { ...componentProps, ...node.item, node };
 
   const dispatch = useAppDispatch();
-  const currentTaskType = useAppSelector((state) => state.instanceData.instance?.process?.currentTask?.altinnTaskType);
+  const currentTaskType = useGetInstanceData().data?.process?.currentTask?.altinnTaskType;
   const { actions, write } = useAppSelector((state) => state.process);
   const { canSubmit, busyWithId, message } = useCanSubmitForm();
 

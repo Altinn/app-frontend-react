@@ -3,8 +3,7 @@ import { Route, useLocation } from 'react-router-dom';
 
 import { screen } from '@testing-library/react';
 
-import { dataTypes, instanceOwner, partyMember, partyTypesAllowed, userProfile } from 'src/__mocks__/constants';
-import { getInstanceDataStateMock } from 'src/__mocks__/instanceDataStateMock';
+import { dataTypes, partyMember, partyTypesAllowed } from 'src/__mocks__/constants';
 import { getUiConfigStateMock } from 'src/__mocks__/uiConfigStateMock';
 import { ReceiptContainer, returnInstanceMetaDataObject } from 'src/features/receipt/ReceiptContainer';
 import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
@@ -12,6 +11,7 @@ import { MemoryRouterWithRedirectingRoot } from 'src/test/memoryRouterWithRedire
 import { renderWithProviders } from 'src/test/renderWithProviders';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import type { ILayout } from 'src/layout/layout';
+import type { IRuntimeState } from 'src/types';
 import type { IAltinnOrgs, IParty } from 'src/types/shared';
 
 interface IRender {
@@ -126,6 +126,7 @@ function getMockState({
       },
     },
     applicationMetadata: {
+      error: null,
       applicationMetadata: {
         id: 'ttd/ui-components',
         org: 'ttd',
@@ -151,9 +152,10 @@ function getMockState({
         ...receiptLayout,
       },
     },
+    /*
     instanceData: {
       instance: {
-        ...getInstanceDataStateMock().instance,
+        ...getInstanceDataMock(),
         id: exampleInstanceId,
         instanceOwner,
         org: 'ttd',
@@ -182,17 +184,17 @@ function getMockState({
         ],
         lastChanged: '2022-02-05T09:19:32.8858042Z' as any,
       },
-    },
+    }, */
     language: {
       language: {},
     },
     party: {
       parties: [partyMember],
     },
-    profile: {
-      profile: userProfile,
-    },
-  } as any;
+    // profile: {
+    //   profile: userProfile,
+    // },
+  } as Partial<IRuntimeState>;
 }
 
 const render = ({

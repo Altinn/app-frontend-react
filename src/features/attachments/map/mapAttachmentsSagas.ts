@@ -4,7 +4,6 @@ import type { SagaIterator } from 'redux-saga';
 import { ApplicationMetadataActions } from 'src/features/applicationMetadata/applicationMetadataSlice';
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
-import { InstanceDataActions } from 'src/features/instanceData/instanceDataSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { getCurrentTaskData } from 'src/utils/appMetadata';
 import { mapAttachmentListToAttachments } from 'src/utils/attachment';

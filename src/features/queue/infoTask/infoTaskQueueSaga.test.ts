@@ -2,7 +2,7 @@ import { select } from 'redux-saga/effects';
 import { expectSaga } from 'redux-saga-test-plan';
 
 import { applicationMetadataMock } from 'src/__mocks__/applicationMetadataMock';
-import { getInstanceDataStateMock } from 'src/__mocks__/instanceDataStateMock';
+import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { IsLoadingActions } from 'src/features/isLoading/isLoadingSlice';
 import {
@@ -30,7 +30,7 @@ describe('infoTaskQueueSaga', () => {
       .provide([
         [select(ApplicationMetadataSelector), applicationMetadataMock],
         [select(TextResourceSelector), textResources],
-        [select(InstanceDataSelector), getInstanceDataStateMock().instance],
+        [select(InstanceDataSelector), getInstanceDataMock().instance],
       ])
       .put(IsLoadingActions.startDataTaskIsLoading())
       .put(IsLoadingActions.finishDataTaskIsLoading())
@@ -61,7 +61,7 @@ describe('infoTaskQueueSaga', () => {
       ],
     };
 
-    const instanceData = getInstanceDataStateMock().instance;
+    const instanceData = getInstanceDataMock();
     return expectSaga(startInitialInfoTaskQueueSaga)
       .provide([
         [select(ApplicationMetadataSelector), applicationMetadata],

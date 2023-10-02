@@ -28,10 +28,10 @@ export interface IAltinnOrgs {
 }
 
 export interface IApplicationLogic {
-  allowAnonymousOnStateless?: boolean;
-  autoCreate?: boolean;
-  classRef?: string;
-  schemaRef?: string;
+  allowAnonymousOnStateless?: boolean | null;
+  autoCreate?: boolean | null;
+  classRef?: string | null;
+  schemaRef?: string | null;
 }
 
 export interface IAttachment {
@@ -64,15 +64,15 @@ export interface IData {
 
 export interface IDataType {
   id: string;
-  description?: string;
-  allowedContentTypes: string[];
-  allowedContributers?: string[];
-  appLogic?: IApplicationLogic;
-  taskId?: string;
-  maxSize?: number;
+  description?: string | null;
+  allowedContentTypes: string[] | null;
+  allowedContributers?: string[] | null;
+  appLogic?: IApplicationLogic | null;
+  taskId?: string | null;
+  maxSize?: number | null;
   maxCount: number;
   minCount: number;
-  grouping?: string;
+  grouping?: string | null;
 }
 
 export interface IInstance {
@@ -147,7 +147,7 @@ export interface IParty {
   partyTypeName?: number | null;
   orgNumber?: number | string | null;
   ssn: string;
-  unitType?: string;
+  unitType?: string | null;
   name: string;
   isDeleted: boolean;
   onlyHierarchyElementWithNoAccess: boolean;
@@ -178,7 +178,7 @@ export interface IPerson {
   addressMunicipalName: string;
   addressStreetName: string;
   addressHouseNumber: number;
-  addressHouseLetter: string;
+  addressHouseLetter: string | null;
   addressPostalCode: number;
   addressCity: string;
 }

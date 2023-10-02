@@ -7,9 +7,8 @@ import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoade
 import { ReceiptComponent } from 'src/components/organisms/AltinnReceipt';
 import { ReceiptComponentSimple } from 'src/components/organisms/AltinnReceiptSimple';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
-import { InstanceDataActions } from 'src/features/instanceData/instanceDataSlice';
 import { CustomReceipt } from 'src/features/receipt/CustomReceipt';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useGetInstanceData } from 'src/hooks/queries/useGetInstanceData';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -67,7 +66,6 @@ export const returnInstanceMetaDataObject = (
 };
 
 export const ReceiptContainer = () => {
-  const dispatch = useAppDispatch();
   const [attachments, setAttachments] = useState<IAttachment[]>([]);
   const [pdf, setPdf] = useState<IAttachment[] | undefined>(undefined);
   const [lastChangedDateTime, setLastChangedDateTime] = useState('');
@@ -76,7 +74,7 @@ export const ReceiptContainer = () => {
   const receiptLayoutName = useAppSelector((state) => state.formLayout.uiConfig.receiptLayoutName);
   const allOrgs = useAppSelector((state) => state.organisationMetaData.allOrgs);
   const applicationMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
-  const instance = useAppSelector((state) => state.instanceData.instance);
+  const instance = useGetInstanceData().data;
   const parties = useAppSelector((state) => state.party.parties);
   const layouts = useAppSelector(layoutsSelector);
   const langTools = useLanguage();
@@ -84,15 +82,7 @@ export const ReceiptContainer = () => {
 
   const origin = window.location.origin;
 
-  const { instanceGuid, instanceId } = useInstanceIdParams();
-
-  useEffect(() => {
-    dispatch(
-      InstanceDataActions.get({
-        instanceId,
-      }),
-    );
-  }, [instanceId, dispatch]);
+  const { instanceGuid } = useInstanceIdParams();
 
   useEffect(() => {
     if (allOrgs != null && instance && instance.org && allOrgs && parties && instanceGuid) {

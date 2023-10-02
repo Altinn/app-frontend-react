@@ -1,6 +1,6 @@
 import type { IInstance, IInstanceContext } from 'src/types/shared';
 
-export function buildInstanceContext(instance?: IInstance | null): IInstanceContext | null {
+export function buildInstanceContext(instance?: IInstance | null | undefined): IInstanceContext | null {
   if (!instance || !instance.instanceOwner) {
     return null;
   }

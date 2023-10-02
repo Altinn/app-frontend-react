@@ -12,6 +12,7 @@ import {
   getJsonSchemaUrl,
   getLayoutSetsUrl,
   getPartyValidationUrl,
+  instancesControllerUrl,
   profileApiUrl,
   refreshJwtTokenUrl,
   validPartiesUrl,
@@ -21,13 +22,16 @@ import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { IPartyValidationResponse } from 'src/features/party';
 import type { ILayoutSets, ISimpleInstance } from 'src/types';
-import type { IAltinnOrgs, IApplicationSettings, IProfile } from 'src/types/shared';
+import type { IAltinnOrgs, IApplicationSettings, IInstance, IProfile } from 'src/types/shared';
 
 export const doPartyValidation = async (partyId: string): Promise<IPartyValidationResponse> =>
   (await httpPost(getPartyValidationUrl(partyId))).data;
 
 export const fetchActiveInstances = (partyId: string): Promise<ISimpleInstance[]> =>
   httpGet(getActiveInstancesUrl(partyId));
+
+export const fetchInstanceData = (instanceId: string): Promise<IInstance> =>
+  httpGet(`${instancesControllerUrl}/${instanceId}`);
 
 export const fetchApplicationMetadata = (): Promise<IApplicationMetadata> => httpGet(applicationMetadataApiUrl);
 

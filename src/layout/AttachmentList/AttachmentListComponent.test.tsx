@@ -2,6 +2,7 @@ import React from 'react';
 
 import { screen } from '@testing-library/react';
 
+import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { AttachmentListComponent } from 'src/layout/AttachmentList/AttachmentListComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { IData } from 'src/types/shared';
@@ -13,7 +14,7 @@ describe('FileUploadComponent', () => {
   });
 });
 
-const render = () => {
+const render = () =>
   renderGenericComponentTest({
     type: 'AttachmentList',
     renderer: (props) => <AttachmentListComponent {...props} />,
@@ -23,11 +24,12 @@ const render = () => {
         title: 'Attachments',
       },
     },
-    manipulateState: (state) => {
-      if (state.instanceData.instance) {
+    queries: {
+      fetchInstanceData: () => {
+        const mock = getInstanceDataMock();
         const dataElement: IData = {
           id: 'test-data-element-1',
-          instanceGuid: state.instanceData.instance.id,
+          instanceGuid: mock.id,
           dataType: 'test-data-type-1',
           filename: 'testData1.pdf',
           contentType: 'application/pdf',
@@ -40,8 +42,9 @@ const render = () => {
           lastChanged: new Date('2021-01-01').toISOString(),
           lastChangedBy: 'testUser',
         };
-        state.instanceData.instance.data = [dataElement];
-      }
+        mock.data = [dataElement];
+
+        return Promise.resolve(mock);
+      },
     },
   });
-};

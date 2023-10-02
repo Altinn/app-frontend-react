@@ -8,6 +8,7 @@ import type { RenderOptions } from '@testing-library/react';
 import type { PreloadedState } from 'redux';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
+import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { AppQueriesContextProvider } from 'src/contexts/appQueriesContext';
 import { setupStore } from 'src/redux/store';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
@@ -48,6 +49,7 @@ export const renderWithProviders = (
       fetchParties: () => Promise.resolve({}),
       fetchRefreshJwtToken: () => Promise.resolve({}),
       fetchFormData: () => Promise.resolve({}),
+      fetchInstanceData: () => Promise.resolve(getInstanceDataMock()),
     } as AppQueriesContext;
     const mockedQueries = { ...allMockedQueries, ...queries };
 
@@ -94,6 +96,7 @@ export interface RenderGenericComponentTestProps<T extends CompTypes> {
   genericProps?: Partial<PropsFromGenericComponent<T>>;
   manipulateState?: (state: IRuntimeState) => void;
   manipulateStore?: (store: ReturnType<typeof setupStore>['store']) => void;
+  queries?: Partial<AppQueriesContext>;
 }
 
 export function renderGenericComponentTest<T extends CompTypes>({
@@ -103,6 +106,7 @@ export function renderGenericComponentTest<T extends CompTypes>({
   genericProps,
   manipulateState,
   manipulateStore,
+  queries,
 }: RenderGenericComponentTestProps<T>) {
   const realComponentDef = {
     id: 'my-test-component-id',
@@ -129,7 +133,7 @@ export function renderGenericComponentTest<T extends CompTypes>({
   manipulateStore && manipulateStore(store);
 
   return {
-    ...renderWithProviders(<Wrapper />, { store }),
+    ...renderWithProviders(<Wrapper />, { store }, queries),
   };
 }
 

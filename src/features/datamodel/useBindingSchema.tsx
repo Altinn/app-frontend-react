@@ -4,6 +4,7 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { dotNotationToPointer } from 'src/features/datamodel/notations';
 import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
+import { useGetInstanceData } from 'src/hooks/queries/useGetInstanceData';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getCurrentDataTypeForApplication } from 'src/utils/appMetadata';
 import { getRootElementPath } from 'src/utils/schemaUtils';
@@ -14,10 +15,11 @@ type AsSchema<T> = {
 };
 
 export function useCurrentDataModelName() {
+  const instance = useGetInstanceData().data;
   return useAppSelector((state) =>
     getCurrentDataTypeForApplication({
       application: state.applicationMetadata.applicationMetadata,
-      instance: state.instanceData.instance,
+      instance,
       layoutSets: state.formLayout.layoutsets,
     }),
   );

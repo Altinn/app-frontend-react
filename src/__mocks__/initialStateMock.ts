@@ -2,7 +2,6 @@ import { applicationMetadataMock } from 'src/__mocks__/applicationMetadataMock';
 import { applicationSettingsMock } from 'src/__mocks__/applicationSettingsMock';
 import { getFormDataStateMock } from 'src/__mocks__/formDataStateMock';
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
-import { getInstanceDataStateMock } from 'src/__mocks__/instanceDataStateMock';
 import { partyMock } from 'src/__mocks__/partyMock';
 import { getProcessStateMock } from 'src/__mocks__/processMock';
 import { getProfileStateMock } from 'src/__mocks__/profileStateMock';
@@ -63,7 +62,6 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
       footerLayout: null,
       error: null,
     },
-    instanceData: getInstanceDataStateMock(),
     instantiation: {
       error: null,
       instanceId: null,
