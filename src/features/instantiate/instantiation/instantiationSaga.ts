@@ -4,8 +4,9 @@ import type { SagaIterator } from 'redux-saga';
 
 import { InstanceDataActions } from 'src/features/instanceData/instanceDataSlice';
 import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
-import { httpPost, putWithoutConfig } from 'src/utils/network/networking';
-import { getCreateInstancesUrl, invalidateCookieUrl, redirectToUpgrade } from 'src/utils/urls/appUrlHelper';
+import { maybeAuthenticationRedirect } from 'src/utils/maybeAuthenticationRedirect';
+import { httpPost } from 'src/utils/network/networking';
+import { getCreateInstancesUrl } from 'src/utils/urls/appUrlHelper';
 import type { IRuntimeState } from 'src/types';
 import type { IParty } from 'src/types/shared';
 
@@ -20,13 +21,7 @@ export function* instantiationSaga(): SagaIterator {
     try {
       instanceResponse = yield call(httpPost, getCreateInstancesUrl(selectedParty.partyId));
     } catch (error) {
-      if (error.response && error.response.status === 403 && error.response.data) {
-        const reqAuthLevel = error.response.data.RequiredAuthenticationLevel;
-        if (reqAuthLevel) {
-          yield call(putWithoutConfig, invalidateCookieUrl);
-          yield call(redirectToUpgrade, reqAuthLevel);
-        }
-      }
+      yield call(maybeAuthenticationRedirect, error);
       throw error;
     }
 

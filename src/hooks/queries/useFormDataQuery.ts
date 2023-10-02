@@ -15,13 +15,8 @@ import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { ProcessTaskType } from 'src/types';
 import { getCurrentTaskDataElementId, getDataTypeByLayoutSetId, isStatelessApp } from 'src/utils/appMetadata';
 import { convertModelToDataBinding } from 'src/utils/databindings';
-import { putWithoutConfig } from 'src/utils/network/networking';
-import {
-  getFetchFormDataUrl,
-  getStatelessFormDataUrl,
-  invalidateCookieUrl,
-  redirectToUpgrade,
-} from 'src/utils/urls/appUrlHelper';
+import { maybeAuthenticationRedirect } from 'src/utils/maybeAuthenticationRedirect';
+import { getFetchFormDataUrl, getStatelessFormDataUrl } from 'src/utils/urls/appUrlHelper';
 import type { IFormData } from 'src/features/formData';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
@@ -88,20 +83,15 @@ export function useFormDataQuery(): UseQueryResult<IFormData> {
         window.logError('Fetching form data failed:\n', error);
       }
 
-      if (isStateless && error?.response?.status === 403 && error.response.data) {
-        const reqAuthLevel = (error.response.data as any).RequiredAuthenticationLevel;
-        if (reqAuthLevel) {
-          await putWithoutConfig(invalidateCookieUrl);
-          redirectToUpgrade(reqAuthLevel);
-        } else {
-          throw error;
-        }
+      const wasRedirected = await maybeAuthenticationRedirect(error);
+      if (!wasRedirected) {
+        throw error;
       }
     },
   });
 
   if (reFetchActive && !out.isFetching) {
-    out.refetch();
+    out.refetch().then();
   }
 
   return out;
