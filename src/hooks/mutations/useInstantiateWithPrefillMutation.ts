@@ -1,7 +1,19 @@
 import { useMutation } from '@tanstack/react-query';
 
 import { useAppMutations } from 'src/contexts/appQueriesContext';
-import type { Instantiation } from 'src/services/InstancesApi';
+
+export interface Prefill {
+  [key: string]: any;
+}
+
+export interface InstanceOwner {
+  partyId: string | undefined;
+}
+
+export interface Instantiation {
+  instanceOwner: InstanceOwner;
+  prefill: Prefill;
+}
 
 export function useInstantiateWithPrefillMutation() {
   const { doInstantiateWithPrefill } = useAppMutations();

@@ -23,7 +23,7 @@ import { orgsListUrl } from 'src/utils/urls/urlHelper';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { IPartyValidationResponse } from 'src/features/party';
-import type { Instantiation } from 'src/services/InstancesApi';
+import type { Instantiation } from 'src/hooks/mutations/useInstantiateWithPrefillMutation';
 import type { ILayoutSets, ISimpleInstance } from 'src/types';
 import type { IAltinnOrgs, IAppLanguage, IApplicationSettings, IInstance, IProfile } from 'src/types/shared';
 
