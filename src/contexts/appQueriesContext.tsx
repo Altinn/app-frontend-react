@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
+
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { createStrictContext } from 'src/utils/createStrictContext';
 import type * as queries from 'src/queries/queries';
@@ -26,7 +28,7 @@ interface ContextData {
 
 const [Provider, useContext] = createStrictContext<ContextData>();
 
-export const AppQueriesContextProvider = ({ children, ...allQueries }: React.PropsWithChildren<AppQueriesContext>) => {
+export const AppQueriesProvider = ({ children, ...allQueries }: React.PropsWithChildren<AppQueriesContext>) => {
   const queries = Object.fromEntries(Object.entries(allQueries).filter(([key]) => key.startsWith('fetch'))) as Queries;
   const mutations = Object.fromEntries(Object.entries(allQueries).filter(([key]) => key.startsWith('do'))) as Mutations;
 
@@ -39,10 +41,24 @@ export const AppQueriesContextProvider = ({ children, ...allQueries }: React.Pro
     }),
   ) as EnhancedMutations;
 
+  const queryClient = useMemo(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            retry: false,
+            staleTime: 10 * 60 * 1000,
+            refetchOnWindowFocus: false,
+          },
+        },
+      }),
+    [],
+  );
+
   return (
-    <>
+    <QueryClientProvider client={queryClient}>
       <Provider value={{ queries, mutations: enhancedMutations }}>{children}</Provider>
-    </>
+    </QueryClientProvider>
   );
 };
 

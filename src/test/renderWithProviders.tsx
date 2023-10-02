@@ -9,7 +9,7 @@ import type { PreloadedState } from 'redux';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
-import { AppQueriesContextProvider } from 'src/contexts/appQueriesContext';
+import { AppQueriesProvider } from 'src/contexts/appQueriesContext';
 import { setupStore } from 'src/redux/store';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { ExprContextWrapper, useResolvedNode } from 'src/utils/layout/ExprContext';
@@ -71,13 +71,13 @@ export const renderWithProviders = (
     });
     return (
       <QueryClientProvider client={client}>
-        <AppQueriesContextProvider {...mockedQueries}>
+        <AppQueriesProvider {...mockedQueries}>
           <MuiThemeProvider theme={theme}>
             <Provider store={store}>
               <ExprContextWrapper>{children}</ExprContextWrapper>
             </Provider>
           </MuiThemeProvider>
-        </AppQueriesContextProvider>
+        </AppQueriesProvider>
       </QueryClientProvider>
     );
   }

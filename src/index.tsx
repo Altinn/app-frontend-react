@@ -12,12 +12,11 @@ import 'src/features/logging';
 import 'src/features/styleInjection';
 
 import { AppWrapper } from '@altinn/altinn-design-system';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { App } from 'src/App';
 import { ErrorBoundary } from 'src/components/ErrorBoundary';
 import { ThemeWrapper } from 'src/components/ThemeWrapper';
-import { AppQueriesContextProvider } from 'src/contexts/appQueriesContext';
+import { AppQueriesProvider } from 'src/contexts/appQueriesContext';
 import { DevTools } from 'src/features/devtools/DevTools';
 import { LayoutValidationProvider } from 'src/features/layoutValidation/useLayoutValidationCurrentPage';
 import * as queries from 'src/queries/queries';
@@ -31,39 +30,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const { store, sagaMiddleware } = setupStore();
   initSagas(sagaMiddleware);
 
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        staleTime: 10 * 60 * 1000,
-        refetchOnWindowFocus: false,
-      },
-    },
-  });
-
   const container = document.getElementById('root');
   const root = container && createRoot(container);
   root?.render(
     <Provider store={store}>
-      <HashRouter>
-        <AppWrapper>
-          <ThemeWrapper>
-            <ErrorBoundary>
-              <QueryClientProvider client={queryClient}>
-                <AppQueriesContextProvider {...queries}>
-                  <ExprContextWrapper>
-                    <LayoutValidationProvider>
-                      <DevTools>
-                        <App />
-                      </DevTools>
-                    </LayoutValidationProvider>
-                  </ExprContextWrapper>
-                </AppQueriesContextProvider>
-              </QueryClientProvider>
-            </ErrorBoundary>
-          </ThemeWrapper>
-        </AppWrapper>
-      </HashRouter>
+      <ErrorBoundary>
+        <HashRouter>
+          <AppWrapper>
+            <AppQueriesProvider {...queries}>
+              <ThemeWrapper>
+                <ExprContextWrapper>
+                  <LayoutValidationProvider>
+                    <DevTools>
+                      <App />
+                    </DevTools>
+                  </LayoutValidationProvider>
+                </ExprContextWrapper>
+              </ThemeWrapper>
+            </AppQueriesProvider>
+          </AppWrapper>
+        </HashRouter>
+      </ErrorBoundary>
     </Provider>,
   );
 });
