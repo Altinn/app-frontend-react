@@ -7,10 +7,10 @@ import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { IsLoadingActions } from 'src/features/isLoading/isLoadingSlice';
 import {
   ApplicationMetadataSelector,
-  InstanceDataSelector,
   startInitialInfoTaskQueueSaga,
   TextResourceSelector,
 } from 'src/features/queue/infoTask/infoTaskQueueSaga';
+import { tmpSagaInstanceData } from 'src/hooks/queries/useGetInstanceData';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { TextResourceMap } from 'src/features/textResources';
 
@@ -25,16 +25,17 @@ describe('infoTaskQueueSaga', () => {
     };
   });
 
-  it('startInitialInfoTaskQueueSaga, text resources with no variables', () =>
-    expectSaga(startInitialInfoTaskQueueSaga)
+  it('startInitialInfoTaskQueueSaga, text resources with no variables', () => {
+    tmpSagaInstanceData.current = getInstanceDataMock();
+    return expectSaga(startInitialInfoTaskQueueSaga)
       .provide([
         [select(ApplicationMetadataSelector), applicationMetadataMock],
         [select(TextResourceSelector), textResources],
-        [select(InstanceDataSelector), getInstanceDataMock().instance],
       ])
       .put(IsLoadingActions.startDataTaskIsLoading())
       .put(IsLoadingActions.finishDataTaskIsLoading())
-      .run());
+      .run();
+  });
 
   it('startInitialInfoTaskQueueSaga, text resources with variables should load form data', () => {
     const textsWithVariables = {
@@ -61,12 +62,11 @@ describe('infoTaskQueueSaga', () => {
       ],
     };
 
-    const instanceData = getInstanceDataMock();
+    tmpSagaInstanceData.current = getInstanceDataMock();
     return expectSaga(startInitialInfoTaskQueueSaga)
       .provide([
         [select(ApplicationMetadataSelector), applicationMetadata],
         [select(TextResourceSelector), textsWithVariables],
-        [select(InstanceDataSelector), instanceData],
       ])
       .put(IsLoadingActions.startDataTaskIsLoading())
       .put(FormDataActions.fetchFulfilled({ formData: {} }))

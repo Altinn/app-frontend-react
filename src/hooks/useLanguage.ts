@@ -1,11 +1,11 @@
 import { useContext, useMemo } from 'react';
 import type { JSX } from 'react';
 
+import { tmpSagaInstanceData, useGetInstanceData } from 'src/hooks/queries/useGetInstanceData';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromCode } from 'src/language/languages';
 import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
 import { FormComponentContext } from 'src/layout';
-import { selectInstanceContext } from 'src/selectors/instanceContext';
 import { getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { buildInstanceContext } from 'src/utils/instanceContext';
@@ -73,7 +73,8 @@ export function useLanguage(node?: LayoutNode) {
   const nearestNode = node || componentCtx?.node;
   const formData = useAppSelector((state) => state.formData.formData);
   const applicationSettings = useAppSelector((state) => state.applicationSettings.applicationSettings);
-  const instanceContext = useAppSelector(selectInstanceContext);
+  const instance = useGetInstanceData().data;
+  const instanceContext = useMemo(() => buildInstanceContext(instance), [instance]);
 
   const dataSources: TextResourceVariablesDataSources = useMemo(
     () => ({
@@ -100,7 +101,7 @@ export function staticUseLanguageFromState(state: IRuntimeState, node?: LayoutNo
   const selectedAppLanguage = state.profile.selectedAppLanguage;
   const formData = state.formData.formData;
   const applicationSettings = state.applicationSettings.applicationSettings;
-  const instanceContext = buildInstanceContext(state.instanceData?.instance);
+  const instanceContext = buildInstanceContext(tmpSagaInstanceData.current);
   const dataSources: TextResourceVariablesDataSources = {
     node,
     formData,

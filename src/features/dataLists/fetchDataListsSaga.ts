@@ -3,6 +3,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 
 import { DataListsActions } from 'src/features/dataLists/dataListsSlice';
+import { tmpSagaInstanceData } from 'src/hooks/queries/useGetInstanceData';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { SortDirection } from 'src/layout/List/types';
 import { listStateSelector } from 'src/selectors/dataListStateSelector';
@@ -25,7 +26,6 @@ import type { IRepeatingGroups, IRuntimeState } from 'src/types';
 export const formLayoutSelector = (state: IRuntimeState): ILayouts | null => state.formLayout?.layouts;
 export const formDataSelector = (state: IRuntimeState) => state.formData.formData;
 export const dataListsSelector = (state: IRuntimeState): IDataLists => state.dataListState.dataLists;
-export const instanceIdSelector = (state: IRuntimeState): string | undefined => state.instanceData.instance?.id;
 export const repeatingGroupsSelector = (state: IRuntimeState) => state.formLayout?.uiConfig.repeatingGroups;
 
 export function* watchFinishedLoadingSaga(): SagaIterator {
@@ -106,7 +106,7 @@ export function* fetchSpecificDataListSaga({
   dataListId,
   paginationDefaultValue,
 }: IFetchSpecificDataListSaga): SagaIterator {
-  const instanceId = yield select(instanceIdSelector);
+  const instanceId = tmpSagaInstanceData.current?.id;
   try {
     const metaData: IDataListsMetaData = {
       id,

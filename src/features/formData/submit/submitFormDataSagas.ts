@@ -7,6 +7,7 @@ import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { ProcessActions } from 'src/features/process/processSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
+import { tmpSagaInstanceData } from 'src/hooks/queries/useGetInstanceData';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { getCurrentDataTypeForApplication, getCurrentTaskDataElementId, isStatelessApp } from 'src/utils/appMetadata';
@@ -58,9 +59,9 @@ export function* submitFormSaga(): SagaIterator {
   }
 }
 
-function* submitComplete(state: IRuntimeState, resolvedNodes: LayoutPages) {
+function* submitComplete(state: IRuntimeState, resolvedNodes: LayoutPages): SagaIterator {
   // run validations against the datamodel
-  const instanceId = state.instanceData.instance?.id;
+  const instanceId = tmpSagaInstanceData.current?.id;
   const serverValidations: BackendValidationIssue[] | undefined = instanceId
     ? yield call(httpGet, getValidationUrl(instanceId))
     : undefined;
@@ -316,9 +317,10 @@ export function* postStatelessData({ field, componentId }: SaveDataParams) {
     };
   }
 
+  const instance = tmpSagaInstanceData.current;
   const currentDataType = getCurrentDataTypeForApplication({
     application: state.applicationMetadata.applicationMetadata,
-    instance: state.instanceData.instance,
+    instance,
     layoutSets: state.formLayout.layoutsets,
   });
   if (currentDataType) {

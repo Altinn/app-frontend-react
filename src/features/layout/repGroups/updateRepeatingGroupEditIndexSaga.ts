@@ -5,6 +5,7 @@ import type { SagaIterator } from 'redux-saga';
 
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
+import { tmpSagaInstanceData } from 'src/hooks/queries/useGetInstanceData';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { Triggers } from 'src/layout/common.generated';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
@@ -29,6 +30,7 @@ export function* updateRepeatingGroupEditIndexSaga({
   try {
     const state: IRuntimeState = yield select();
     const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
+    const instance = tmpSagaInstanceData.current;
     const rowIndex = state.formLayout.uiConfig.repeatingGroups?.[group].editIndex;
     const groupNode = resolvedNodes.findById(group);
 
@@ -50,7 +52,7 @@ export function* updateRepeatingGroupEditIndexSaga({
         },
       };
 
-      if (!state.applicationMetadata.applicationMetadata || !state.instanceData.instance || !state.formLayout.layouts) {
+      if (!state.applicationMetadata.applicationMetadata || !instance || !state.formLayout.layouts) {
         yield put(
           FormLayoutActions.updateRepeatingGroupsEditIndexRejected({
             error: null,
@@ -62,7 +64,7 @@ export function* updateRepeatingGroupEditIndexSaga({
 
       const currentTaskDataId = getCurrentTaskDataElementId(
         state.applicationMetadata.applicationMetadata,
-        state.instanceData.instance,
+        instance,
         state.formLayout.layoutsets,
       );
 
@@ -78,7 +80,7 @@ export function* updateRepeatingGroupEditIndexSaga({
 
       const serverValidations: BackendValidationIssue[] = yield call(
         httpGet,
-        getDataValidationUrl(state.instanceData.instance.id, currentTaskDataId),
+        getDataValidationUrl(instance.id, currentTaskDataId),
         options,
       );
       const serverValidationObjects = mapValidationIssues(

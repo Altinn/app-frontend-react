@@ -37,6 +37,7 @@ export const renderWithProviders = (
 
     const allMockedQueries = {
       doPartyValidation: () => Promise.resolve({ valid: true, validParties: [], message: null }),
+      doInstantiateWithPrefill: () => Promise.resolve(getInstanceDataMock()),
       fetchActiveInstances: () => Promise.resolve([]),
       fetchApplicationMetadata: () => Promise.resolve({} as unknown as IApplicationMetadata),
       fetchCurrentParty: () => Promise.resolve({}),
@@ -50,6 +51,7 @@ export const renderWithProviders = (
       fetchRefreshJwtToken: () => Promise.resolve({}),
       fetchFormData: () => Promise.resolve({}),
       fetchInstanceData: () => Promise.resolve(getInstanceDataMock()),
+      fetchAppLanguages: () => Promise.resolve([]),
     } as AppQueriesContext;
     const mockedQueries = { ...allMockedQueries, ...queries };
 

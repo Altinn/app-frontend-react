@@ -3,16 +3,15 @@ import type { SagaIterator } from 'redux-saga';
 
 import { FormRulesActions } from 'src/features/formRules/rulesSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
+import { tmpSagaInstanceData } from 'src/hooks/queries/useGetInstanceData';
 import { getLayoutSetIdForApplication } from 'src/utils/appMetadata';
 import { httpGet } from 'src/utils/network/networking';
 import { getRuleModelFields } from 'src/utils/rules';
 import { getRulehandlerUrl } from 'src/utils/urls/appUrlHelper';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { ILayoutSets, IRuntimeState } from 'src/types';
-import type { IInstance } from 'src/types/shared';
 
 const layoutSetsSelector = (state: IRuntimeState) => state.formLayout.layoutsets;
-const instanceSelector = (state: IRuntimeState) => state.instanceData.instance;
 const applicationMetadataSelector = (state: IRuntimeState) => state.applicationMetadata.applicationMetadata;
 
 /**
@@ -21,7 +20,7 @@ const applicationMetadataSelector = (state: IRuntimeState) => state.applicationM
 export function* fetchRuleModelSaga(): SagaIterator {
   try {
     const layoutSets: ILayoutSets = yield select(layoutSetsSelector);
-    const instance: IInstance = yield select(instanceSelector);
+    const instance = tmpSagaInstanceData.current;
     const application: IApplicationMetadata = yield select(applicationMetadataSelector);
     const layoutSetId = getLayoutSetIdForApplication(application, instance, layoutSets);
 

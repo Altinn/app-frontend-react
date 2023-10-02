@@ -4,14 +4,15 @@ import { throwError } from 'redux-saga-test-plan/providers';
 import type { AxiosRequestConfig } from 'axios';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
+import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
 import {
   runSingleFieldValidationSaga,
   selectApplicationMetadataState,
   selectHiddenFieldsState,
-  selectInstanceState,
   selectLayoutSetsState,
 } from 'src/features/validation/singleFieldValidationSagas';
 import { ValidationActions } from 'src/features/validation/validationSlice';
+import { tmpSagaInstanceData } from 'src/hooks/queries/useGetInstanceData';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { resolvedLayoutsFromState, ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpGet } from 'src/utils/network/networking';
@@ -30,10 +31,8 @@ describe('singleFieldValidationSagas', () => {
   });
 
   it('runSingleFieldValidationSaga, single field validation is triggered', () => {
-    const instance = mockState.instanceData.instance;
-    if (!instance) {
-      throw new Error('Invalid mockState');
-    }
+    const instance = getInstanceDataMock();
+    tmpSagaInstanceData.current = instance;
     const url = getDataValidationUrl(instance.id, instance.data[0].id);
     const options: AxiosRequestConfig = {
       headers: {
@@ -74,7 +73,6 @@ describe('singleFieldValidationSagas', () => {
         [select(), mockState],
         [select(selectApplicationMetadataState), mockState.applicationMetadata.applicationMetadata],
         [select(selectHiddenFieldsState), mockState.formLayout.uiConfig.hiddenFields],
-        [select(selectInstanceState), mockState.instanceData.instance],
         [select(selectLayoutSetsState), mockState.formLayout.layoutsets],
         [select(staticUseLanguageFromState), staticUseLanguageFromState(mockState)],
         [select(ResolvedNodesSelector), resolvedLayoutsFromState(mockState)],
@@ -89,10 +87,8 @@ describe('singleFieldValidationSagas', () => {
   });
 
   it('runSingleFieldValidationSaga, single field validation error', () => {
-    const instance = mockState.instanceData.instance;
-    if (!instance) {
-      throw new Error('Invalid mockState');
-    }
+    const instance = getInstanceDataMock();
+    tmpSagaInstanceData.current = instance;
     const url = getDataValidationUrl(instance.id, instance.data[0].id);
     const options: AxiosRequestConfig = {
       headers: {
@@ -111,7 +107,6 @@ describe('singleFieldValidationSagas', () => {
       .provide([
         [select(selectApplicationMetadataState), mockState.applicationMetadata.applicationMetadata],
         [select(selectHiddenFieldsState), mockState.formLayout.uiConfig.hiddenFields],
-        [select(selectInstanceState), mockState.instanceData.instance],
         [select(selectLayoutSetsState), mockState.formLayout.layoutsets],
         [select(staticUseLanguageFromState), staticUseLanguageFromState(mockState)],
         [select(ResolvedNodesSelector), resolvedLayoutsFromState(mockState)],

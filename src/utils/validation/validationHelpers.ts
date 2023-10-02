@@ -1,3 +1,4 @@
+import { tmpSagaInstanceData } from 'src/hooks/queries/useGetInstanceData';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { Triggers } from 'src/layout/common.generated';
 import type { IRuntimeState, TriggersPageValidation } from 'src/types';
@@ -21,7 +22,7 @@ export function validationContextFromState(state: IRuntimeState, node: LayoutNod
     langTools: staticUseLanguageFromState(state, node),
     attachments: state.attachments.attachments,
     application: state.applicationMetadata.applicationMetadata,
-    instance: state.instanceData.instance,
+    instance: tmpSagaInstanceData.current,
     layoutSets: state.formLayout.layoutsets,
     schemas: state.formDataModel.schemas,
   };

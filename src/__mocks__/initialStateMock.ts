@@ -177,7 +177,6 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
       applicationSettings: applicationSettingsMock,
       error: null,
     },
-    appApi: {} as IRuntimeState['appApi'],
   };
 
   return {

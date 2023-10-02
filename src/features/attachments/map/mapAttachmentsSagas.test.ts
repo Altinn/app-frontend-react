@@ -2,6 +2,7 @@ import { select } from 'redux-saga/effects';
 import { expectSaga } from 'redux-saga-test-plan';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
+import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import {
   mapAttachments,
@@ -9,10 +10,9 @@ import {
   SelectFormData,
   SelectFormLayouts,
   SelectFormLayoutSets,
-  SelectInstance,
-  SelectInstanceData,
 } from 'src/features/attachments/map/mapAttachmentsSagas';
 import { selectFormLayouts } from 'src/features/layout/update/updateFormLayoutSagas';
+import { tmpSagaInstanceData } from 'src/hooks/queries/useGetInstanceData';
 import type { IAttachment, IAttachments } from 'src/features/attachments';
 import type { CompFileUploadExternal } from 'src/layout/FileUpload/config.generated';
 import type { CompGroupRepeatingExternal } from 'src/layout/Group/config.generated';
@@ -124,7 +124,8 @@ describe('mapAttachments', () => {
       'Group[0].MultiAttachment[1]': mockedAttachments[4].id,
     };
 
-    state.instanceData.instance?.data.push(
+    tmpSagaInstanceData.current = getInstanceDataMock();
+    tmpSagaInstanceData.current.data.push(
       mockInstanceData(mockedAttachments[0], basicUploader),
       mockInstanceData(mockedAttachments[1], basicUploaderWithBindings),
       mockInstanceData(mockedAttachments[2], uploaderInRepeatingGroup),
@@ -134,8 +135,6 @@ describe('mapAttachments', () => {
 
     return expectSaga(mapAttachments)
       .provide([
-        [select(SelectInstanceData), SelectInstanceData(state)],
-        [select(SelectInstance), SelectInstance(state)],
         [select(SelectApplicationMetaData), SelectApplicationMetaData(state)],
         [select(SelectFormLayoutSets), SelectFormLayoutSets(state)],
         [select(SelectFormData), SelectFormData(state)],

@@ -10,7 +10,7 @@ import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IInstance, IParty } from 'src/types/shared';
 
 export interface IConfirmPageProps {
-  instance: IInstance | null;
+  instance: IInstance | undefined;
   parties: IParty[] | null;
   appName?: string;
   applicationMetadata: IApplicationMetadata | null;

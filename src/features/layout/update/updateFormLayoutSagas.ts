@@ -7,6 +7,7 @@ import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
+import { tmpSagaInstanceData } from 'src/hooks/queries/useGetInstanceData';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { Triggers } from 'src/layout/common.generated';
 import { getLayoutOrderFromTracks, selectLayoutOrder } from 'src/selectors/getLayoutOrder';
@@ -72,7 +73,7 @@ export function* updateCurrentViewSaga({
     const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
     const visibleLayouts: string[] | null = yield select(selectLayoutOrder);
     const viewCacheKey = state.formLayout.uiConfig.currentViewCacheKey;
-    const instanceId = state.instanceData.instance?.id;
+    const instanceId = tmpSagaInstanceData.current?.id;
     if (!viewCacheKey) {
       yield put(FormLayoutActions.setCurrentViewCacheKey({ key: instanceId }));
     }
@@ -109,9 +110,10 @@ export function* updateCurrentViewSaga({
           LayoutId: currentView,
         },
       };
+      const instance = tmpSagaInstanceData.current;
       const currentTaskDataId = getCurrentTaskDataElementId(
         state.applicationMetadata.applicationMetadata,
-        state.instanceData.instance,
+        instance,
         state.formLayout.layoutsets,
       );
 
@@ -199,7 +201,7 @@ export function* calculatePageOrderAndMoveToNextPageSaga({
     const dataTypeId =
       getCurrentDataTypeForApplication({
         application: state.applicationMetadata.applicationMetadata,
-        instance: state.instanceData.instance,
+        instance: tmpSagaInstanceData.current,
         layoutSets: state.formLayout.layoutsets,
       }) || null;
 
@@ -207,7 +209,7 @@ export function* calculatePageOrderAndMoveToNextPageSaga({
     if (appIsStateless) {
       layoutSetId = state.applicationMetadata.applicationMetadata.onEntry?.show || null;
     } else {
-      const instance = state.instanceData.instance;
+      const instance = tmpSagaInstanceData.current;
       if (layoutSets != null) {
         layoutSetId = getLayoutsetForDataElement(instance, dataTypeId || undefined, layoutSets) || null;
       }

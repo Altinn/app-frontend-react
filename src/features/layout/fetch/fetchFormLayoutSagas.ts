@@ -5,6 +5,7 @@ import { preProcessItem, preProcessLayout } from 'src/features/expressions/valid
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
+import { tmpSagaInstanceData } from 'src/hooks/queries/useGetInstanceData';
 import { ComponentConfigs } from 'src/layout/components.generated';
 import { getLayoutSetIdForApplication } from 'src/utils/appMetadata';
 import { httpGet } from 'src/utils/network/networking';
@@ -14,10 +15,8 @@ import type { ExprObjConfig, ExprVal } from 'src/features/expressions/types';
 import type { ILayoutFileExternal } from 'src/layout/common.generated';
 import type { CompTypes, ILayout, ILayouts } from 'src/layout/layout';
 import type { IHiddenLayoutsExternal, ILayoutSets, ILayoutSettings, IRuntimeState } from 'src/types';
-import type { IInstance } from 'src/types/shared';
 
 export const layoutSetsSelector = (state: IRuntimeState) => state.formLayout.layoutsets;
-export const instanceSelector = (state: IRuntimeState) => state.instanceData.instance;
 export const applicationMetadataSelector = (state: IRuntimeState) => state.applicationMetadata.applicationMetadata;
 
 type ComponentTypeCaseMapping = { [key: string]: CompTypes };
@@ -48,7 +47,7 @@ export function cleanLayout(layout: ILayout, validateExpressions = true): ILayou
 export function* fetchLayoutSaga(): SagaIterator {
   try {
     const layoutSets: ILayoutSets | null = yield select(layoutSetsSelector);
-    const instance: IInstance | null = yield select(instanceSelector);
+    const instance = tmpSagaInstanceData.current;
     const applicationMetadata: IApplicationMetadata = yield select(applicationMetadataSelector);
     const layoutSetId = getLayoutSetIdForApplication(applicationMetadata, instance, layoutSets);
     const layoutResponse: ILayoutFileExternal | { [key: string]: ILayoutFileExternal } = yield call(
@@ -127,7 +126,7 @@ export function* watchFetchFormLayoutSaga(): SagaIterator {
 export function* fetchLayoutSettingsSaga(): SagaIterator {
   try {
     const layoutSets: ILayoutSets = yield select(layoutSetsSelector);
-    const instance: IInstance = yield select(instanceSelector);
+    const instance = tmpSagaInstanceData.current;
     const aplicationMetadataState: IApplicationMetadata = yield select(applicationMetadataSelector);
 
     const layoutSetId = getLayoutSetIdForApplication(aplicationMetadataState, instance, layoutSets);

@@ -3,7 +3,8 @@ import { Route, useLocation } from 'react-router-dom';
 
 import { screen } from '@testing-library/react';
 
-import { dataTypes, partyMember, partyTypesAllowed } from 'src/__mocks__/constants';
+import { dataTypes, instanceOwner, partyMember, partyTypesAllowed, userProfile } from 'src/__mocks__/constants';
+import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { getUiConfigStateMock } from 'src/__mocks__/uiConfigStateMock';
 import { ReceiptContainer, returnInstanceMetaDataObject } from 'src/features/receipt/ReceiptContainer';
 import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
@@ -12,7 +13,7 @@ import { renderWithProviders } from 'src/test/renderWithProviders';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import type { ILayout } from 'src/layout/layout';
 import type { IRuntimeState } from 'src/types';
-import type { IAltinnOrgs, IParty } from 'src/types/shared';
+import type { IAltinnOrgs, IInstance, IParty } from 'src/types/shared';
 
 interface IRender {
   populateStore?: boolean;
@@ -46,12 +47,7 @@ const DefinedRoutes = () => {
   );
 };
 
-function getMockState({
-  autoDeleteOnProcessEnd = false,
-  hasPdf = true,
-  setCustomReceipt = false,
-  receiptLayoutExist = false,
-}) {
+function buildInstance(hasPdf = true): IInstance {
   const pdfData = hasPdf
     ? [
         {
@@ -77,6 +73,38 @@ function getMockState({
       ]
     : [];
 
+  return {
+    ...getInstanceDataMock(),
+    id: exampleInstanceId,
+    instanceOwner,
+    org: 'ttd',
+    data: [
+      {
+        id: `${exampleDataGuid2}`,
+        instanceGuid: exampleGuid,
+        dataType: 'default',
+        contentType: 'application/xml',
+        blobStoragePath: `ttd/ui-components/${exampleGuid}/data/${exampleDataGuid2}`,
+        selfLinks: {
+          apps: `https://local.altinn.cloud/ttd/ui-components/instances/${exampleInstanceId}/data/${exampleDataGuid2}`,
+          platform: `https://platform.local.altinn.cloud/storage/api/v1/instances/${exampleInstanceId}/data/${exampleDataGuid2}`,
+        },
+        size: 1254,
+        locked: true,
+        refs: [],
+        isRead: true,
+        created: '2022-02-05T09:19:32.5897421Z' as any,
+        createdBy: '12345',
+        lastChanged: '2022-02-05T09:19:32.5897421Z' as any,
+        lastChangedBy: '12345',
+      },
+      ...pdfData,
+    ],
+    lastChanged: '2022-02-05T09:19:32.8858042Z' as any,
+  };
+}
+
+function getMockState({ autoDeleteOnProcessEnd = false, setCustomReceipt = false, receiptLayoutExist = false }) {
   const receipt: ILayout = [
     {
       id: 'ReceiptHeader',
@@ -111,6 +139,7 @@ function getMockState({
 
   return {
     organisationMetaData: {
+      error: null,
       allOrgs: {
         brg: {
           name: {
@@ -144,6 +173,8 @@ function getMockState({
       },
     },
     formLayout: {
+      error: null,
+      layoutsets: null,
       uiConfig: {
         ...getUiConfigStateMock(),
         ...customReceipt,
@@ -152,48 +183,19 @@ function getMockState({
         ...receiptLayout,
       },
     },
-    /*
-    instanceData: {
-      instance: {
-        ...getInstanceDataMock(),
-        id: exampleInstanceId,
-        instanceOwner,
-        org: 'ttd',
-        data: [
-          {
-            id: '${exampleDataGuid2}',
-            instanceGuid: exampleGuid,
-            dataType: 'default',
-            filename: null,
-            contentType: 'application/xml',
-            blobStoragePath: `ttd/ui-components/${exampleGuid}/data/${exampleDataGuid2}`,
-            selfLinks: {
-              apps: `https://local.altinn.cloud/ttd/ui-components/instances/${exampleInstanceId}/data/${exampleDataGuid2}`,
-              platform: `https://platform.local.altinn.cloud/storage/api/v1/instances/${exampleInstanceId}/data/${exampleDataGuid2}`,
-            },
-            size: 1254,
-            locked: true,
-            refs: [],
-            isRead: true,
-            created: '2022-02-05T09:19:32.5897421Z' as any,
-            createdBy: '12345',
-            lastChanged: '2022-02-05T09:19:32.5897421Z' as any,
-            lastChangedBy: '12345',
-          },
-          ...pdfData,
-        ],
-        lastChanged: '2022-02-05T09:19:32.8858042Z' as any,
-      },
-    }, */
     language: {
       language: {},
     },
     party: {
       parties: [partyMember],
+      error: null,
+      selectedParty: partyMember,
     },
-    // profile: {
-    //   profile: userProfile,
-    // },
+    profile: {
+      profile: userProfile,
+      error: null,
+      selectedAppLanguage: 'nb',
+    },
   } as Partial<IRuntimeState>;
 }
 
@@ -204,10 +206,16 @@ const render = ({
   setCustomReceipt = false,
   receiptLayoutExist = false,
 }: IRender = {}) => {
-  const mockState = getMockState({ hasPdf, autoDeleteOnProcessEnd, setCustomReceipt, receiptLayoutExist });
-  renderWithProviders(<DefinedRoutes />, {
-    preloadedState: populateStore ? mockState : {},
-  });
+  const mockState = getMockState({ autoDeleteOnProcessEnd, setCustomReceipt, receiptLayoutExist });
+  renderWithProviders(
+    <DefinedRoutes />,
+    {
+      preloadedState: populateStore ? mockState : {},
+    },
+    {
+      fetchInstanceData: () => Promise.resolve(buildInstance(hasPdf)),
+    },
+  );
 };
 
 describe('ReceiptContainer', () => {

@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { createSelector } from 'reselect';
 
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
-import { useGetInstanceData } from 'src/hooks/queries/useGetInstanceData';
+import { tmpSagaInstanceData, useGetInstanceData } from 'src/hooks/queries/useGetInstanceData';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { staticUseLanguageFromState, useLanguage } from 'src/hooks/useLanguage';
 import { getLayoutComponentObject } from 'src/layout';
@@ -98,7 +98,7 @@ export function dataSourcesFromState(state: IRuntimeState): HierarchyDataSources
     uiConfig: state.formLayout.uiConfig,
     options: state.optionState.options,
     applicationSettings: state.applicationSettings.applicationSettings,
-    instanceContext: buildInstanceContext(state.instanceData?.instance),
+    instanceContext: buildInstanceContext(tmpSagaInstanceData.current),
     hiddenFields: new Set(state.formLayout.uiConfig.hiddenFields),
     authContext: buildAuthContext(state.process),
     validations: state.formValidations.validations,

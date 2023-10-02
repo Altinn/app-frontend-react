@@ -4,6 +4,7 @@ import type { JSONSchema7 } from 'json-schema';
 import { httpPost } from 'src/utils/network/networking';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import {
+  applicationLanguagesUrl,
   applicationMetadataApiUrl,
   applicationSettingsApiUrl,
   currentPartyUrl,
@@ -13,6 +14,7 @@ import {
   getLayoutSetsUrl,
   getPartyValidationUrl,
   instancesControllerUrl,
+  instantiateUrl,
   profileApiUrl,
   refreshJwtTokenUrl,
   validPartiesUrl,
@@ -21,11 +23,15 @@ import { orgsListUrl } from 'src/utils/urls/urlHelper';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { IPartyValidationResponse } from 'src/features/party';
+import type { Instantiation } from 'src/services/InstancesApi';
 import type { ILayoutSets, ISimpleInstance } from 'src/types';
-import type { IAltinnOrgs, IApplicationSettings, IInstance, IProfile } from 'src/types/shared';
+import type { IAltinnOrgs, IAppLanguage, IApplicationSettings, IInstance, IProfile } from 'src/types/shared';
 
 export const doPartyValidation = async (partyId: string): Promise<IPartyValidationResponse> =>
   (await httpPost(getPartyValidationUrl(partyId))).data;
+
+export const doInstantiateWithPrefill = async (data: Instantiation): Promise<IInstance> =>
+  (await httpPost(instantiateUrl, undefined, data)).data;
 
 export const fetchActiveInstances = (partyId: string): Promise<ISimpleInstance[]> =>
   httpGet(getActiveInstancesUrl(partyId));
@@ -51,6 +57,8 @@ export const fetchOrgs = (): Promise<{ orgs: IAltinnOrgs }> =>
   });
 
 export const fetchUserProfile = (): Promise<IProfile> => httpGet(profileApiUrl);
+
+export const fetchAppLanguages = (): Promise<IAppLanguage[]> => httpGet(applicationLanguagesUrl);
 
 export const fetchRefreshJwtToken = () => httpGet(refreshJwtTokenUrl);
 

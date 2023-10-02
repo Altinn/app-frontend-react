@@ -5,6 +5,7 @@ import { ApplicationMetadataActions } from 'src/features/applicationMetadata/app
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
+import { tmpSagaInstanceData } from 'src/hooks/queries/useGetInstanceData';
 import { getCurrentTaskData } from 'src/utils/appMetadata';
 import { mapAttachmentListToAttachments } from 'src/utils/attachment';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
@@ -12,22 +13,20 @@ import type { IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
 import type { ILayouts } from 'src/layout/layout';
 import type { ILayoutSets, IRuntimeState } from 'src/types';
-import type { IData, IInstance } from 'src/types/shared';
+import type { IInstance } from 'src/types/shared';
 
 export function* watchMapAttachmentsSaga(): SagaIterator {
   yield all([
     take(FormDataActions.fetchFulfilled),
     take(FormLayoutActions.fetchFulfilled),
     take(FormLayoutActions.updateCurrentViewFulfilled),
-    take(InstanceDataActions.getFulfilled),
+    // PRIORITY: Wait until instance data is fetched
     take(ApplicationMetadataActions.getFulfilled),
   ]);
   yield call(mapAttachments);
   yield takeEvery(AttachmentActions.mapAttachments, mapAttachments);
 }
 
-export const SelectInstanceData = (state: IRuntimeState): IData[] | undefined => state.instanceData.instance?.data;
-export const SelectInstance = (state: IRuntimeState): IInstance | null => state.instanceData.instance;
 export const SelectApplicationMetaData = (state: IRuntimeState): IApplicationMetadata | null =>
   state.applicationMetadata.applicationMetadata;
 export const SelectFormData = (state: IRuntimeState): IFormData => state.formData.formData;
@@ -36,7 +35,8 @@ export const SelectFormLayoutSets = (state: IRuntimeState): ILayoutSets | null =
 
 export function* mapAttachments(): SagaIterator {
   try {
-    const instance = yield select(SelectInstance);
+    // PRIORITY: Wait until instance data is fetched
+    const instance = tmpSagaInstanceData.current as IInstance;
     const applicationMetadata = yield select(SelectApplicationMetaData);
     const layoutSets: ILayoutSets = yield select(SelectFormLayoutSets);
     const defaultElement = getCurrentTaskData(applicationMetadata, instance, layoutSets);
@@ -44,9 +44,9 @@ export function* mapAttachments(): SagaIterator {
     const formData = yield select(SelectFormData);
     const layouts = yield select(SelectFormLayouts);
 
-    const instanceAttachments: IData[] = yield select(SelectInstanceData);
+    const instanceData = instance.data;
     const mappedAttachments: IAttachments = mapAttachmentListToAttachments(
-      instanceAttachments,
+      instanceData,
       defaultElement?.id,
       formData,
       layouts,

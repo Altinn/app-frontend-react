@@ -2,7 +2,6 @@ import { call, put, select } from 'redux-saga/effects';
 import type { AxiosResponse } from 'axios';
 import type { SagaIterator } from 'redux-saga';
 
-import { InstanceDataActions } from 'src/features/instanceData/instanceDataSlice';
 import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
 import { maybeAuthenticationRedirect } from 'src/utils/maybeAuthenticationRedirect';
 import { httpPost } from 'src/utils/network/networking';
@@ -25,11 +24,7 @@ export function* instantiationSaga(): SagaIterator {
       throw error;
     }
 
-    yield put(
-      InstanceDataActions.getFulfilled({
-        instanceData: instanceResponse.data,
-      }),
-    );
+    // PRIORITY: Make sure the instance data is injected into useGetInstanceData()
     yield put(
       InstantiationActions.instantiateFulfilled({
         instanceId: instanceResponse.data.id,

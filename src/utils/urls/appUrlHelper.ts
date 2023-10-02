@@ -16,7 +16,9 @@ export const invalidateCookieUrl = `${appPath}/api/authentication/invalidatecook
 export const validPartiesUrl = `${appPath}/api/v1/parties?allowedtoinstantiatefilter=true`;
 export const currentPartyUrl = `${appPath}/api/authorization/parties/current?returnPartyObject=true`;
 export const instancesControllerUrl = `${appPath}/instances`;
+export const instantiateUrl = `${appPath}/instances/create`;
 export const refreshJwtTokenUrl = `${appPath}/api/authentication/keepAlive`;
+export const applicationLanguagesUrl = `${appPath}/api/v1/applicationlanguages`;
 
 export const updateCookieUrl = (partyId: string) => `${appPath}/api/v1/parties/${partyId}`;
 

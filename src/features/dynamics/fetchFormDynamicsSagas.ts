@@ -3,21 +3,20 @@ import type { SagaIterator } from 'redux-saga';
 
 import { FormDynamicsActions } from 'src/features/dynamics/formDynamicsSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
+import { tmpSagaInstanceData } from 'src/hooks/queries/useGetInstanceData';
 import { getLayoutSetIdForApplication } from 'src/utils/appMetadata';
 import { httpGet } from 'src/utils/network/networking';
 import { getFetchFormDynamicsUrl } from 'src/utils/urls/appUrlHelper';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { ILayoutSets, IRuntimeState } from 'src/types';
-import type { IInstance } from 'src/types/shared';
 
 const layoutSetsSelector = (state: IRuntimeState) => state.formLayout.layoutsets;
-const instanceSelector = (state: IRuntimeState) => state.instanceData.instance;
 const applicationMetadataSelector = (state: IRuntimeState) => state.applicationMetadata.applicationMetadata;
 
 export function* fetchDynamicsSaga(): SagaIterator {
   try {
     const layoutSets: ILayoutSets = yield select(layoutSetsSelector);
-    const instance: IInstance = yield select(instanceSelector);
+    const instance = tmpSagaInstanceData.current;
     const application: IApplicationMetadata = yield select(applicationMetadataSelector);
     const layoutSetId = getLayoutSetIdForApplication(application, instance, layoutSets);
     const url = getFetchFormDynamicsUrl(layoutSetId);

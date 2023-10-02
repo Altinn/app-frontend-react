@@ -4,7 +4,6 @@ import type { SagaIterator } from 'redux-saga';
 import { DataListsActions } from 'src/features/dataLists/dataListsSlice';
 import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
-import { InstanceDataActions } from 'src/features/instanceData/instanceDataSlice';
 import { IsLoadingActions } from 'src/features/isLoading/isLoadingSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { OptionsActions } from 'src/features/options/optionsSlice';
@@ -13,6 +12,7 @@ import { PartyActions } from 'src/features/party/partySlice';
 import { PDF_LAYOUT_NAME, PdfActions } from 'src/features/pdf/data/pdfSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { TextResourcesActions } from 'src/features/textResources/textResourcesSlice';
+import { tmpSagaInstanceData } from 'src/hooks/queries/useGetInstanceData';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpGet } from 'src/utils/network/networking';
@@ -24,13 +24,11 @@ import type { CompInstanceInformationExternal } from 'src/layout/InstanceInforma
 import type { ILayout, ILayouts } from 'src/layout/layout';
 import type { CompSummaryExternal } from 'src/layout/Summary/config.generated';
 import type { ILayoutSets, IRuntimeState, IUiConfig } from 'src/types';
-import type { IInstance } from 'src/types/shared';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 const layoutSetsSelector = (state: IRuntimeState) => state.formLayout.layoutsets;
 const layoutsSelector = (state: IRuntimeState) => state.formLayout.layouts;
 const uiConfigSelector = (state: IRuntimeState) => state.formLayout.uiConfig;
-const instanceSelector = (state: IRuntimeState) => state.instanceData.instance;
 const applicationMetadataSelector = (state: IRuntimeState) => state.applicationMetadata.applicationMetadata;
 const pdfFormatSelector = (state: IRuntimeState) => state.pdf.pdfFormat;
 const pdfMethodSelector = (state: IRuntimeState) => state.pdf.method;
@@ -112,12 +110,12 @@ function* generatePdfSaga(): SagaIterator {
 function* fetchPdfFormatSaga(): SagaIterator {
   const layoutSets: ILayoutSets = yield select(layoutSetsSelector);
   const uiConfig: IUiConfig = yield select(uiConfigSelector);
-  const instance: IInstance = yield select(instanceSelector);
+  const instance = tmpSagaInstanceData.current;
   const applicationMetadata: IApplicationMetadata = yield select(applicationMetadataSelector);
 
   const dataGuid = getCurrentTaskDataElementId(applicationMetadata, instance, layoutSets);
   let pdfFormat: IPdfFormat;
-  if (typeof dataGuid === 'string') {
+  if (typeof dataGuid === 'string' && instance) {
     try {
       pdfFormat = yield call(httpGet, getPdfFormatUrl(instance.id, dataGuid));
     } catch {
@@ -176,7 +174,7 @@ export function* watchInitialPdfSaga(): SagaIterator {
         take(QueueActions.startInitialDataTaskQueue),
         take(FormLayoutActions.fetchFulfilled),
         take(FormLayoutActions.fetchSettingsFulfilled),
-        take(InstanceDataActions.getFulfilled),
+        // take(InstanceDataActions.getFulfilled), // PRIORITY: Wait for instance data to fetch
       ]),
       stateChanged: take(PdfActions.pdfStateChanged),
       devTools: take(DevToolsActions.setPdfPreview),

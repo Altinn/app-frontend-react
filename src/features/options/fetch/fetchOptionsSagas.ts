@@ -3,6 +3,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 
 import { OptionsActions } from 'src/features/options/optionsSlice';
+import { tmpSagaInstanceData } from 'src/hooks/queries/useGetInstanceData';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import {
   getKeyIndex,
@@ -26,7 +27,6 @@ export const formDataSelector = (state: IRuntimeState) => state.formData.formDat
 export const optionsSelector = (state: IRuntimeState): IOptions => state.optionState.options;
 export const optionsWithIndexIndicatorsSelector = (state: IRuntimeState) =>
   state.optionState.optionsWithIndexIndicators;
-export const instanceIdSelector = (state: IRuntimeState): string | undefined => state.instanceData.instance?.id;
 export const repeatingGroupsSelector = (state: IRuntimeState) => state.formLayout?.uiConfig.repeatingGroups;
 
 export function* watchFinishedLoadingSaga(): SagaIterator {
@@ -107,7 +107,7 @@ export function* fetchSpecificOptionSaga({
   secure,
 }: IFetchSpecificOptionSaga): SagaIterator {
   const key = getOptionLookupKey({ id: optionsId, mapping: dataMapping, fixedQueryParameters });
-  const instanceId = yield select(instanceIdSelector);
+  const instanceId = tmpSagaInstanceData.current?.id;
   try {
     const metaData: IOptionsMetaData = {
       id: optionsId,

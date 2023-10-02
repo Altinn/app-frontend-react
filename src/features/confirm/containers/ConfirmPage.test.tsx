@@ -9,13 +9,11 @@ import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { ConfirmPage, type IConfirmPageProps } from 'src/features/confirm/containers/ConfirmPage';
 import { renderWithProviders } from 'src/test/renderWithProviders';
-import type { IInstance } from 'src/types/shared';
 
 describe('ConfirmPage', () => {
-  const state = getInstanceDataMock();
   const props: IConfirmPageProps = {
     appName: 'Irrelevant',
-    instance: state.instance as IInstance,
+    instance: getInstanceDataMock(),
     parties: [],
     applicationMetadata: applicationMetadataMock,
   };
@@ -57,7 +55,7 @@ describe('ConfirmPage', () => {
 
   it('should show loading when clicking submit', async () => {
     const user = userEvent.setup();
-    window.instanceId = state.instance?.id;
+    window.instanceId = getInstanceDataMock()?.id;
     const { store } = renderWithProviders(
       <MemoryRouter>
         <ConfirmPage {...props} />
