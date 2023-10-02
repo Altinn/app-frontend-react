@@ -1,6 +1,8 @@
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
+import { Likert } from 'test/e2e/pageobjects/likert';
 
 const appFrontend = new AppFrontend();
+const likertPage = new Likert();
 
 describe('PDF', () => {
   it('should generate PDF for message step', () => {
@@ -81,7 +83,7 @@ describe('PDF', () => {
     });
   });
 
-  it.only('should generate PDF for group step', () => {
+  it('should generate PDF for group step', () => {
     cy.goto('group');
     cy.findByRole('checkbox', { name: /liten/i }).dsCheck();
     cy.findByRole('checkbox', { name: /middels/i }).dsCheck();
@@ -91,18 +93,24 @@ describe('PDF', () => {
     cy.findByRole('checkbox', { name: /ja/i }).dsCheck();
 
     cy.get(appFrontend.group.edit).first().click();
+    cy.get(appFrontend.group.editContainer).should('be.visible');
     cy.get(appFrontend.group.editContainer).find(appFrontend.group.next).first().click();
+    cy.get(appFrontend.group.editContainer).find(appFrontend.group.back).should('be.visible');
     cy.get(appFrontend.group.editContainer).find(appFrontend.group.next).first().click();
     cy.get('#source-0').dsSelect('Digitaliseringsdirektoratet');
     cy.get('#reference-0').dsSelect('Sophie Salt');
     cy.get(appFrontend.group.edit).first().click();
+    cy.get(appFrontend.group.editContainer).should('not.exist');
 
     cy.get(appFrontend.group.edit).eq(1).click();
+    cy.get(appFrontend.group.editContainer).should('be.visible');
     cy.get(appFrontend.group.editContainer).find(appFrontend.group.next).first().click();
+    cy.get(appFrontend.group.editContainer).find(appFrontend.group.back).should('be.visible');
     cy.get(appFrontend.group.editContainer).find(appFrontend.group.next).first().click();
     cy.get('#source-1').dsSelect('Altinn');
     cy.get('#reference-1').dsSelect('Ola Nordmann');
     cy.get(appFrontend.group.edit).eq(1).click();
+    cy.get(appFrontend.group.editContainer).should('not.exist');
 
     cy.gotoNavPage('hide');
     cy.findByRole('textbox', { name: /oppgave giver/i }).type('Ola Nordmann');
@@ -130,6 +138,39 @@ describe('PDF', () => {
         'hvor fikk du vite om skjemaet? : Du har ikke lagt inn informasjon her',
       );
       cy.getSummary('Group title').should('contain.text', 'Referanse : Du har ikke lagt inn informasjon her');
+    });
+  });
+
+  it('should generate PDF for likert step', () => {
+    cy.goto('likert');
+    likertPage.selectOptionalRadios();
+    likertPage.selectRequiredRadios();
+
+    cy.testPdf(() => {
+      cy.findByRole('table').should('contain.text', 'Mottaker:Testdepartementet');
+
+      cy.getSummary('Skolearbeid').should('contain.text', 'Gjør du leksene dine? : Alltid');
+      cy.getSummary('Skolearbeid').should('contain.text', 'Fungerer kalkulatoren din? : Nesten alltid');
+      cy.getSummary('Skolearbeid').should('contain.text', 'Er pulten din ryddig? : Ofte');
+
+      cy.getSummary('Medvirkning').should('contain.text', 'Hører skolen på elevenes forslag? : Alltid');
+      cy.getSummary('Medvirkning').should(
+        'contain.text',
+        'Er dere elever med på å lage regler for hvordan dere skal ha det i klassen/gruppa? : Nesten alltid',
+      );
+      cy.getSummary('Medvirkning').should(
+        'contain.text',
+        'De voksne på skolen synes det er viktig at vi elever er greie med hverandre. : Ofte',
+      );
+    });
+  });
+
+  it('should generate PDF for datalist step', () => {
+    cy.gotoAndComplete('datalist');
+
+    cy.testPdf(() => {
+      cy.findByRole('table').should('contain.text', 'Mottaker:Testdepartementet');
+      cy.getSummary('Hvem gjelder saken?').should('contain.text', 'Caroline');
     });
   });
 });
