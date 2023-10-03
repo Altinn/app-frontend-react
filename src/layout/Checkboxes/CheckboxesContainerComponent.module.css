@@ -1,0 +1,16 @@
+/* Override design system component to enable horizontal layout
+  No longer supported with horizontal layout in design system.
+  Possible breaking change if we remove this option.
+  */
+.horizontal {
+  display: flex;
+  flex-direction: row;
+  gap: var(--fds-spacing-2);
+}
+
+.checkBoxLabelContainer {
+  display: flex;
+  gap: var(--fds-spacing-1);
+  align-items: center;
+  font-size: 1rem;
+}
