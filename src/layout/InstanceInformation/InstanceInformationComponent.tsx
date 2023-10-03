@@ -6,7 +6,7 @@ import Moment from 'moment';
 import type { PropsFromGenericComponent } from '..';
 
 import { AltinnSummaryTable } from 'src/components/table/AltinnSummaryTable';
-import { useGetInstanceData } from 'src/hooks/queries/useGetInstanceData';
+import { useInstance } from 'src/hooks/queries/useInstance';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { selectAppReceiver } from 'src/selectors/language';
@@ -61,7 +61,7 @@ export function InstanceInformationComponent({ node }: PropsFromGenericComponent
   const langTools = useLanguage();
   const { selectedLanguage } = langTools;
 
-  const instance = useGetInstanceData().data;
+  const instance = useInstance().data;
   const parties: IParty[] | null = useAppSelector((state: IRuntimeState) => state.party.parties);
   const appReceiver = useAppSelector(selectAppReceiver);
 

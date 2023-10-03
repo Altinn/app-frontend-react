@@ -10,7 +10,7 @@ import {
   startInitialInfoTaskQueueSaga,
   TextResourceSelector,
 } from 'src/features/queue/infoTask/infoTaskQueueSaga';
-import { tmpSagaInstanceData } from 'src/hooks/queries/useGetInstanceData';
+import { tmpSagaInstanceData } from 'src/hooks/queries/useInstance';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { TextResourceMap } from 'src/features/textResources';
 

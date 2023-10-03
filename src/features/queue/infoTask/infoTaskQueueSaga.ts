@@ -6,7 +6,8 @@ import { IsLoadingActions } from 'src/features/isLoading/isLoadingSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { mapAsResources } from 'src/features/textResources/resourcesAsMap';
 import { TextResourcesActions } from 'src/features/textResources/textResourcesSlice';
-import { tmpSagaInstanceData } from 'src/hooks/queries/useGetInstanceData';
+import { tmpSagaInstanceData } from 'src/hooks/queries/useInstance';
+import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { convertModelToDataBinding } from 'src/utils/databindings';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { waitFor } from 'src/utils/sagas';
@@ -68,7 +69,7 @@ export function* watchStartInitialInfoTaskQueueSaga(): SagaIterator {
   yield all([
     take(QueueActions.startInitialInfoTaskQueue),
     take(TextResourcesActions.fetchFulfilled),
-    // take(InstanceDataActions.getFulfilled), // PRIORITY: Wait until instance data is fetched
+    take(DeprecatedActions.instanceDataFetchFulfilled),
   ]);
   yield call(startInitialInfoTaskQueueSaga);
 }

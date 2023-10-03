@@ -12,7 +12,7 @@ import {
   SelectFormLayoutSets,
 } from 'src/features/attachments/map/mapAttachmentsSagas';
 import { selectFormLayouts } from 'src/features/layout/update/updateFormLayoutSagas';
-import { tmpSagaInstanceData } from 'src/hooks/queries/useGetInstanceData';
+import { tmpSagaInstanceData } from 'src/hooks/queries/useInstance';
 import type { IAttachment, IAttachments } from 'src/features/attachments';
 import type { CompFileUploadExternal } from 'src/layout/FileUpload/config.generated';
 import type { CompGroupRepeatingExternal } from 'src/layout/Group/config.generated';

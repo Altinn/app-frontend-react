@@ -8,8 +8,8 @@ import { PlusIcon } from '@navikt/aksel-icons';
 import { AltinnParty } from 'src/components/altinnParty';
 import { InstantiationContainer } from 'src/features/instantiate/containers/InstantiationContainer';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
-import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
 import { PartyActions } from 'src/features/party/partySlice';
+import { useInstance } from 'src/hooks/queries/useInstance';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -95,13 +95,14 @@ export const PartySelection = () => {
 
   const [hasSelected, setHasSelected] = React.useState(false);
   const navigate = useNavigate();
+  const { clearErrors } = useInstance();
 
   const onSelectParty = (party: IParty) => {
     dispatch(PartyActions.selectPartyFulfilled({ party: null }));
     setHasSelected(true);
     dispatch(PartyActions.selectParty({ party }));
     // Clear any previous instantiation errors.
-    dispatch(InstantiationActions.instantiateRejected({ error: null }));
+    clearErrors();
   };
 
   useEffect(() => {

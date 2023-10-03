@@ -7,7 +7,7 @@ import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { ProcessActions } from 'src/features/process/processSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
-import { tmpSagaInstanceData } from 'src/hooks/queries/useGetInstanceData';
+import { tmpSagaInstanceData } from 'src/hooks/queries/useInstance';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { getCurrentDataTypeForApplication, getCurrentTaskDataElementId, isStatelessApp } from 'src/utils/appMetadata';
@@ -156,10 +156,10 @@ function* waitForSaving() {
  * @see postStatelessData
  */
 export function* putFormData({ field, componentId }: SaveDataParams) {
-  const defaultDataElementGuid: string | undefined = yield select((state) =>
+  const defaultDataElementGuid: string | undefined = yield select((state: IRuntimeState) =>
     getCurrentTaskDataElementId(
       state.applicationMetadata.applicationMetadata,
-      state.instanceData.instance,
+      tmpSagaInstanceData.current,
       state.formLayout.layoutsets,
     ),
   );

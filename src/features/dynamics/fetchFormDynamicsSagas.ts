@@ -3,7 +3,7 @@ import type { SagaIterator } from 'redux-saga';
 
 import { FormDynamicsActions } from 'src/features/dynamics/formDynamicsSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
-import { tmpSagaInstanceData } from 'src/hooks/queries/useGetInstanceData';
+import { tmpSagaInstanceData } from 'src/hooks/queries/useInstance';
 import { getLayoutSetIdForApplication } from 'src/utils/appMetadata';
 import { httpGet } from 'src/utils/network/networking';
 import { getFetchFormDynamicsUrl } from 'src/utils/urls/appUrlHelper';

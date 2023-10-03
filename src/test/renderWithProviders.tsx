@@ -1,8 +1,8 @@
 import React from 'react';
 import { Provider } from 'react-redux';
+import { Route } from 'react-router-dom';
 
 import { createTheme, MuiThemeProvider } from '@material-ui/core';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render as rtlRender } from '@testing-library/react';
 import type { RenderOptions } from '@testing-library/react';
 import type { PreloadedState } from 'redux';
@@ -11,6 +11,7 @@ import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { AppQueriesProvider } from 'src/contexts/appQueriesContext';
 import { setupStore } from 'src/redux/store';
+import { MemoryRouterWithRedirectingRoot } from 'src/test/memoryRouterWithRedirectingRoot';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { ExprContextWrapper, useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { AppQueriesContext } from 'src/contexts/appQueriesContext';
@@ -25,11 +26,20 @@ import type { IProfile } from 'src/types/shared';
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   preloadedState?: PreloadedState<RootState>;
   store?: AppStore;
+  Router?: (props: React.PropsWithChildren) => React.ReactNode;
 }
+
+const exampleGuid = '75154373-aed4-41f7-95b4-e5b5115c2edc';
+const exampleInstanceId = `512345/${exampleGuid}`;
 
 export const renderWithProviders = (
   component: any,
-  { preloadedState = {}, store = setupStore(preloadedState).store, ...renderOptions }: ExtendedRenderOptions = {},
+  {
+    preloadedState = {},
+    store = setupStore(preloadedState).store,
+    Router,
+    ...renderOptions
+  }: ExtendedRenderOptions = {},
   queries?: Partial<AppQueriesContext>,
 ) => {
   function Wrapper({ children }: React.PropsWithChildren) {
@@ -38,6 +48,7 @@ export const renderWithProviders = (
     const allMockedQueries = {
       doPartyValidation: () => Promise.resolve({ valid: true, validParties: [], message: null }),
       doInstantiateWithPrefill: () => Promise.resolve(getInstanceDataMock()),
+      doInstantiate: () => Promise.resolve(getInstanceDataMock()),
       fetchActiveInstances: () => Promise.resolve([]),
       fetchApplicationMetadata: () => Promise.resolve({} as unknown as IApplicationMetadata),
       fetchCurrentParty: () => Promise.resolve({}),
@@ -55,22 +66,27 @@ export const renderWithProviders = (
     } as AppQueriesContext;
     const mockedQueries = { ...allMockedQueries, ...queries };
 
-    const client = new QueryClient({
-      logger: {
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        log: () => {},
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        warn: () => {},
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        error: () => {},
-      },
-      defaultOptions: {
-        mutations: { retry: false },
-        queries: { retry: false, staleTime: Infinity },
-      },
-    });
+    if (!Router) {
+      return (
+        <MemoryRouterWithRedirectingRoot to={`instance/${exampleInstanceId}`}>
+          <AppQueriesProvider {...mockedQueries}>
+            <MuiThemeProvider theme={theme}>
+              <Provider store={store}>
+                <ExprContextWrapper>
+                  <Route
+                    path={'instance/:partyId/:instanceGuid'}
+                    element={children}
+                  />
+                </ExprContextWrapper>
+              </Provider>
+            </MuiThemeProvider>
+          </AppQueriesProvider>
+        </MemoryRouterWithRedirectingRoot>
+      );
+    }
+
     return (
-      <QueryClientProvider client={client}>
+      <Router>
         <AppQueriesProvider {...mockedQueries}>
           <MuiThemeProvider theme={theme}>
             <Provider store={store}>
@@ -78,7 +94,7 @@ export const renderWithProviders = (
             </Provider>
           </MuiThemeProvider>
         </AppQueriesProvider>
-      </QueryClientProvider>
+      </Router>
     );
   }
 

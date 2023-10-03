@@ -2,8 +2,7 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
-import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
-import { useInstantiateWithPrefillMutation } from 'src/hooks/mutations/useInstantiateWithPrefillMutation';
+import { useInstance } from 'src/hooks/queries/useInstance';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { WrappedButton } from 'src/layout/Button/WrappedButton';
@@ -14,7 +13,8 @@ type Props = Omit<React.PropsWithChildren<IInstantiationButtonComponentProvidedP
 
 export const InstantiationButton = ({ children, ...props }: Props) => {
   const dispatch = useAppDispatch();
-  const { isSuccess, data, isLoading, isError, mutate: instantiateWithPrefill } = useInstantiateWithPrefillMutation();
+  const { instantiateWithPrefillMutation } = useInstance();
+  const { isSuccess, data, isLoading, isError, mutate: instantiateWithPrefill } = instantiateWithPrefillMutation;
   const formData = useAppSelector((state) => state.formData.formData);
   const party = useAppSelector((state) => state.party.selectedParty);
 
@@ -31,9 +31,7 @@ export const InstantiationButton = ({ children, ...props }: Props) => {
 
   React.useEffect(() => {
     if (isSuccess && data) {
-      // PRIORITY: Make sure the instance data is injected into useGetInstanceData()
       dispatch(AttachmentActions.mapAttachments());
-      dispatch(InstantiationActions.instantiateFulfilled({ instanceId: data.id }));
     }
   }, [isSuccess, data, dispatch]);
 

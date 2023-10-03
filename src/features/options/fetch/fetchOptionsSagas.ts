@@ -3,7 +3,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 
 import { OptionsActions } from 'src/features/options/optionsSlice';
-import { tmpSagaInstanceData } from 'src/hooks/queries/useGetInstanceData';
+import { tmpSagaInstanceData } from 'src/hooks/queries/useInstance';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import {
   getKeyIndex,

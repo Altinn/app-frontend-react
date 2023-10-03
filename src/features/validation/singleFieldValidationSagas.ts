@@ -4,7 +4,7 @@ import type { AxiosRequestConfig } from 'axios';
 import type { SagaIterator } from 'redux-saga';
 
 import { ValidationActions } from 'src/features/validation/validationSlice';
-import { tmpSagaInstanceData } from 'src/hooks/queries/useGetInstanceData';
+import { tmpSagaInstanceData } from 'src/hooks/queries/useInstance';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';

@@ -3,7 +3,7 @@ import React from 'react';
 import { IsLoadingActions } from 'src/features/isLoading/isLoadingSlice';
 import { ProcessActions } from 'src/features/process/processSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
-import { useGetInstanceData } from 'src/hooks/queries/useGetInstanceData';
+import { useInstance } from 'src/hooks/queries/useInstance';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
@@ -22,7 +22,7 @@ export function useRealTaskType() {
 export function useProcess() {
   const dispatch = useAppDispatch();
 
-  const instanceData = useGetInstanceData().data;
+  const instanceData = useInstance().data;
   const applicationMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
   const process = useAppSelector((state) => state.process);
 

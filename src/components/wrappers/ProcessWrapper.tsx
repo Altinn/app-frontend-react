@@ -15,7 +15,7 @@ import { ForbiddenError } from 'src/features/instantiate/containers/ForbiddenErr
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { PDFView } from 'src/features/pdf/PDFView';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
-import { useGetInstanceData } from 'src/hooks/queries/useGetInstanceData';
+import { useInstance } from 'src/hooks/queries/useInstance';
 import { useApiErrorCheck } from 'src/hooks/useApiErrorCheck';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useProcess } from 'src/hooks/useProcess';
@@ -39,7 +39,7 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
   const renderPDF = searchParams.get('pdf') === '1';
   const previewPDF = searchParams.get('pdf') === 'preview' || pdfPreview;
 
-  const { isFetching: isInstanceDataFetching } = useGetInstanceData();
+  const { isFetching: isInstanceDataFetching } = useInstance();
 
   if (hasApiErrors) {
     if (checkIfAxiosError(processError)) {

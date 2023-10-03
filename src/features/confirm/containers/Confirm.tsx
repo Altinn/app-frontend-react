@@ -3,12 +3,12 @@ import React from 'react';
 import { AltinnContentIconReceipt } from 'src/components/atoms/AltinnContentIconReceipt';
 import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoader';
 import { ConfirmPage } from 'src/features/confirm/containers/ConfirmPage';
-import { useGetInstanceData } from 'src/hooks/queries/useGetInstanceData';
+import { useInstance } from 'src/hooks/queries/useInstance';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { selectAppName } from 'src/selectors/language';
 
 export const Confirm = () => {
-  const instance = useGetInstanceData().data;
+  const instance = useInstance().data;
   const parties = useAppSelector((state) => state.party.parties);
   const applicationMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
   const appName = useAppSelector(selectAppName);

@@ -9,6 +9,7 @@ import {
   applicationSettingsApiUrl,
   currentPartyUrl,
   getActiveInstancesUrl,
+  getCreateInstancesUrl,
   getFooterLayoutUrl,
   getJsonSchemaUrl,
   getLayoutSetsUrl,
@@ -23,7 +24,7 @@ import { orgsListUrl } from 'src/utils/urls/urlHelper';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { IPartyValidationResponse } from 'src/features/party';
-import type { Instantiation } from 'src/hooks/mutations/useInstantiateWithPrefillMutation';
+import type { Instantiation } from 'src/hooks/queries/useInstance';
 import type { ILayoutSets, ISimpleInstance } from 'src/types';
 import type { IAltinnOrgs, IAppLanguage, IApplicationSettings, IInstance, IProfile } from 'src/types/shared';
 
@@ -32,6 +33,9 @@ export const doPartyValidation = async (partyId: string): Promise<IPartyValidati
 
 export const doInstantiateWithPrefill = async (data: Instantiation): Promise<IInstance> =>
   (await httpPost(instantiateUrl, undefined, data)).data;
+
+export const doInstantiate = async (partyId: string): Promise<IInstance> =>
+  (await httpPost(getCreateInstancesUrl(partyId))).data;
 
 export const fetchActiveInstances = (partyId: string): Promise<ISimpleInstance[]> =>
   httpGet(getActiveInstancesUrl(partyId));

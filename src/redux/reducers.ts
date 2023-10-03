@@ -10,7 +10,6 @@ import { formDynamicsSlice } from 'src/features/dynamics/formDynamicsSlice';
 import { footerLayoutSlice } from 'src/features/footer/data/footerLayoutSlice';
 import { formDataSlice } from 'src/features/formData/formDataSlice';
 import { formRulesSlice } from 'src/features/formRules/rulesSlice';
-import { instantiationSlice } from 'src/features/instantiate/instantiation/instantiationSlice';
 import { isLoadingSlice } from 'src/features/isLoading/isLoadingSlice';
 import { formLayoutSlice } from 'src/features/layout/formLayoutSlice';
 import { optionsSlice } from 'src/features/options/optionsSlice';
@@ -22,6 +21,7 @@ import { profileSlice } from 'src/features/profile/profileSlice';
 import { queueSlice } from 'src/features/queue/queueSlice';
 import { textResourcesSlice } from 'src/features/textResources/textResourcesSlice';
 import { validationSlice } from 'src/features/validation/validationSlice';
+import { deprecatedSlice } from 'src/redux/deprecatedSlice';
 import { resetRootSagas } from 'src/redux/sagaSlice';
 import type { SliceReducers } from 'src/redux/sagaSlice';
 
@@ -37,7 +37,6 @@ const slices = [
   formDynamicsSlice,
   formLayoutSlice,
   formRulesSlice,
-  instantiationSlice,
   isLoadingSlice,
   optionsSlice,
   orgsSlice,
@@ -48,6 +47,7 @@ const slices = [
   queueSlice,
   textResourcesSlice,
   validationSlice,
+  deprecatedSlice,
 ];
 
 type ReturnTypes<T extends Array<() => unknown>> = {

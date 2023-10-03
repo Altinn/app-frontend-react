@@ -1,62 +1,56 @@
 import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-import { createTheme, MuiThemeProvider } from '@material-ui/core';
 import { screen, waitFor, within } from '@testing-library/react';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
+import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
-import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
-import { setupStore } from 'src/redux/store';
 import { renderWithProviders } from 'src/test/renderWithProviders';
-import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { HttpStatusCodes } from 'src/utils/network/networking';
+import type { AppQueriesContext } from 'src/contexts/appQueriesContext';
 import type { IRuntimeState } from 'src/types';
+
+interface RenderProps {
+  queries?: Partial<AppQueriesContext>;
+  initialState?: Partial<IRuntimeState>;
+}
 
 describe('InstantiateContainer', () => {
   function DefinedRoutes() {
     return (
-      <>
-        <Routes>
+      <Routes>
+        <Route
+          path={'/ttd/test'}
+          element={<InstantiateContainer />}
+        >
           <Route
-            path={'/ttd/test'}
-            element={<InstantiateContainer />}
-          >
-            <Route
-              path='instance/:partyId/:instanceGuid/*'
-              element={<div>Instance page</div>}
-            />
-          </Route>
-        </Routes>
-      </>
+            path='instance/:partyId/:instanceGuid/*'
+            element={<div>Instance page</div>}
+          />
+        </Route>
+      </Routes>
     );
   }
 
-  const render = (initialState: Partial<IRuntimeState> = {}) => {
-    const theme = createTheme(AltinnAppTheme);
+  const render = ({ initialState, queries }: RenderProps) => {
     const stateMock = getInitialStateMock(initialState);
-    const mockStore = setupStore(stateMock).store;
-    mockStore.dispatch = jest.fn();
-    const { store } = renderWithProviders(
-      <MuiThemeProvider theme={theme}>
-        <BrowserRouter>
-          <DefinedRoutes />
-        </BrowserRouter>
-      </MuiThemeProvider>,
-      { preloadedState: initialState, store: mockStore },
+    return renderWithProviders(
+      <DefinedRoutes />,
+      {
+        preloadedState: stateMock,
+        Router: BrowserRouter,
+      },
+      queries,
     );
-    return store.dispatch;
   };
 
   it('should show content loader on initial render and start instantiation if valid party', async () => {
-    // eslint-disable-next-line testing-library/render-result-naming-convention
-    const mockDispatch = render();
-
-    await waitFor(() => {
-      expect(mockDispatch).toHaveBeenCalledWith(InstantiationActions.instantiate());
-    });
-    await waitFor(() => {
-      expect(mockDispatch).toHaveBeenCalledTimes(1);
+    const mockInstantiate = jest.fn().mockImplementation(() => Promise.resolve(getInstanceDataMock()));
+    render({
+      queries: {
+        doInstantiate: mockInstantiate,
+      },
     });
 
     const contentLoader = await screen.findByText('Loading...');
@@ -68,36 +62,49 @@ describe('InstantiateContainer', () => {
 
     expect(instantiationText).toBeInTheDocument();
     expect(screen.queryByText('Instance page')).not.toBeInTheDocument();
+    expect(mockInstantiate).toHaveBeenCalledTimes(1);
   });
 
   it('should not call InstantiationActions.instantiate when no selected party', async () => {
-    // eslint-disable-next-line testing-library/render-result-naming-convention
-    const mockDispatch = render({
-      party: {
-        parties: [],
-        error: null,
-        selectedParty: null,
+    const mockInstantiate = jest.fn();
+    render({
+      initialState: {
+        party: {
+          parties: [],
+          error: null,
+          selectedParty: null,
+        },
+      },
+      queries: {
+        doInstantiate: mockInstantiate,
       },
     });
 
     await waitFor(() => {
-      expect(mockDispatch).toHaveBeenCalledTimes(0);
+      expect(mockInstantiate).toHaveBeenCalledTimes(0);
     });
+
+    const contentLoader = await screen.findByText('Loading...');
+    expect(contentLoader).toBeInTheDocument();
   });
 
-  it('should redirect when instanceId is set', () => {
+  it('should redirect when instanceId is set', async () => {
+    const mockInstantiate = jest.fn();
+    const mockFetchInstanceData = jest.fn().mockImplementation(() => Promise.resolve(getInstanceDataMock()));
     render({
-      instantiation: {
-        error: null,
-        instanceId: '123456/75154373-aed4-41f7-95b4-e5b5115c2edc',
-        instantiating: false,
+      queries: {
+        doInstantiate: mockInstantiate,
+        fetchInstanceData: mockFetchInstanceData,
       },
     });
 
-    expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
-    expect(screen.queryByText('Vent litt, vi henter det du trenger')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+    });
 
     expect(screen.getByText('Instance page')).toBeInTheDocument();
+    expect(mockInstantiate).toHaveBeenCalledTimes(0);
+    expect(mockFetchInstanceData).toHaveBeenCalledTimes(1);
   });
 
   it('should show unknown error for generic errors', async () => {
@@ -111,11 +118,10 @@ describe('InstantiateContainer', () => {
       },
     };
 
+    const mockInstantiate = jest.fn().mockImplementation(() => Promise.reject(error));
     render({
-      instantiation: {
-        error,
-        instanceId: null,
-        instantiating: false,
+      queries: {
+        doInstantiate: mockInstantiate,
       },
     });
 
@@ -133,11 +139,10 @@ describe('InstantiateContainer', () => {
       },
     };
 
+    const mockInstantiate = jest.fn().mockImplementation(() => Promise.reject(error));
     render({
-      instantiation: {
-        error,
-        instanceId: null,
-        instantiating: false,
+      queries: {
+        doInstantiate: mockInstantiate,
       },
     });
 
@@ -159,11 +164,10 @@ describe('InstantiateContainer', () => {
       },
     };
 
+    const mockInstantiate = jest.fn().mockImplementation(() => Promise.reject(error));
     render({
-      instantiation: {
-        error,
-        instanceId: null,
-        instantiating: false,
+      queries: {
+        doInstantiate: mockInstantiate,
       },
     });
 

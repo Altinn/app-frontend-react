@@ -12,7 +12,8 @@ import { PartyActions } from 'src/features/party/partySlice';
 import { PDF_LAYOUT_NAME, PdfActions } from 'src/features/pdf/data/pdfSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { TextResourcesActions } from 'src/features/textResources/textResourcesSlice';
-import { tmpSagaInstanceData } from 'src/hooks/queries/useGetInstanceData';
+import { tmpSagaInstanceData } from 'src/hooks/queries/useInstance';
+import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpGet } from 'src/utils/network/networking';
@@ -174,7 +175,7 @@ export function* watchInitialPdfSaga(): SagaIterator {
         take(QueueActions.startInitialDataTaskQueue),
         take(FormLayoutActions.fetchFulfilled),
         take(FormLayoutActions.fetchSettingsFulfilled),
-        // take(InstanceDataActions.getFulfilled), // PRIORITY: Wait for instance data to fetch
+        take(DeprecatedActions.instanceDataFetchFulfilled),
       ]),
       stateChanged: take(PdfActions.pdfStateChanged),
       devTools: take(DevToolsActions.setPdfPreview),

@@ -5,7 +5,7 @@ import type { SagaIterator } from 'redux-saga';
 
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
-import { tmpSagaInstanceData } from 'src/hooks/queries/useGetInstanceData';
+import { tmpSagaInstanceData } from 'src/hooks/queries/useInstance';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { Triggers } from 'src/layout/common.generated';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';

@@ -62,11 +62,6 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
       footerLayout: null,
       error: null,
     },
-    instantiation: {
-      error: null,
-      instanceId: null,
-      instantiating: false,
-    },
     isLoading: {
       dataTask: false,
       stateless: null,
@@ -177,6 +172,7 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
       applicationSettings: applicationSettingsMock,
       error: null,
     },
+    deprecated: {},
   };
 
   return {

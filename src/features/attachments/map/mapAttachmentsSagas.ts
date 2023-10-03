@@ -5,7 +5,8 @@ import { ApplicationMetadataActions } from 'src/features/applicationMetadata/app
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
-import { tmpSagaInstanceData } from 'src/hooks/queries/useGetInstanceData';
+import { tmpSagaInstanceData } from 'src/hooks/queries/useInstance';
+import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { getCurrentTaskData } from 'src/utils/appMetadata';
 import { mapAttachmentListToAttachments } from 'src/utils/attachment';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
@@ -20,7 +21,7 @@ export function* watchMapAttachmentsSaga(): SagaIterator {
     take(FormDataActions.fetchFulfilled),
     take(FormLayoutActions.fetchFulfilled),
     take(FormLayoutActions.updateCurrentViewFulfilled),
-    // PRIORITY: Wait until instance data is fetched
+    take(DeprecatedActions.instanceDataFetchFulfilled),
     take(ApplicationMetadataActions.getFulfilled),
   ]);
   yield call(mapAttachments);
@@ -35,7 +36,6 @@ export const SelectFormLayoutSets = (state: IRuntimeState): ILayoutSets | null =
 
 export function* mapAttachments(): SagaIterator {
   try {
-    // PRIORITY: Wait until instance data is fetched
     const instance = tmpSagaInstanceData.current as IInstance;
     const applicationMetadata = yield select(SelectApplicationMetaData);
     const layoutSets: ILayoutSets = yield select(SelectFormLayoutSets);
