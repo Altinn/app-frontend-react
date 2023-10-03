@@ -1,14 +1,12 @@
 import React from 'react';
 
-import '@testing-library/jest-dom';
-
-import { act, fireEvent, screen } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
 import { LayoutStyle } from 'src/layout/common.generated';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
-import type { IOptionsState } from 'src/features/options';
+import type { IOption } from 'src/layout/common.generated';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
 const threeOptions = [
@@ -29,17 +27,15 @@ const threeOptions = [
 const twoOptions = threeOptions.slice(1);
 
 interface Props extends Partial<RenderGenericComponentTestProps<'Checkboxes'>> {
-  optionState?: IOptionsState;
+  options?: IOption[];
 }
 
-const render = ({ component, genericProps, optionState }: Props = {}) =>
+const render = ({ component, genericProps, options }: Props = {}) =>
   renderGenericComponentTest({
     type: 'Checkboxes',
     renderer: (props) => <CheckboxContainerComponent {...props} />,
     component: {
-      options: [],
       optionsId: 'countries',
-      preselectedOptionIndex: undefined,
       ...component,
     },
     genericProps: {
@@ -47,35 +43,18 @@ const render = ({ component, genericProps, optionState }: Props = {}) =>
       handleDataChange: jest.fn(),
       ...genericProps,
     },
-    manipulateState: (state) => {
-      state.optionState = optionState || {
-        options: {
-          countries: {
-            id: 'countries',
-            options: threeOptions,
-          },
-          loadingOptions: {
-            id: 'loadingOptions',
-            options: undefined,
-            loading: true,
-          },
-        },
-        error: {
-          name: '',
-          message: '',
-        },
-        loading: true,
-      };
+    mockedQueries: {
+      fetchOptions: () =>
+        options ? Promise.resolve(options) : Promise.reject(new Error('No options provided to render()')),
     },
   });
-
 const getCheckbox = ({ name, isChecked = false }) =>
   screen.getByRole('checkbox', {
     name,
     checked: isChecked,
   });
 
-describe('CheckboxContainerComponent', () => {
+describe('CheckboxesContainerComponent', () => {
   jest.useFakeTimers();
   const user = userEvent.setup({
     advanceTimers: (time) => {
@@ -85,7 +64,7 @@ describe('CheckboxContainerComponent', () => {
     },
   });
 
-  it('should call handleDataChange with value of preselectedOptionIndex when simpleBinding is not set', () => {
+  it('should call handleDataChange with value of preselectedOptionIndex when simpleBinding is not set', async () => {
     const handleChange = jest.fn();
     render({
       component: {
@@ -97,12 +76,15 @@ describe('CheckboxContainerComponent', () => {
           simpleBinding: undefined,
         },
       },
+      options: threeOptions,
     });
 
-    expect(handleChange).toHaveBeenCalledWith('sweden', { validate: true });
+    await waitFor(() => {
+      expect(handleChange).toHaveBeenCalledWith('sweden', { validate: true });
+    });
   });
 
-  it('should not call handleDataChange when simpleBinding is set and preselectedOptionIndex', () => {
+  it('should not call handleDataChange when simpleBinding is set and preselectedOptionIndex', async () => {
     const handleChange = jest.fn();
     render({
       component: {
@@ -114,16 +96,18 @@ describe('CheckboxContainerComponent', () => {
           simpleBinding: 'denmark',
         },
       },
+      options: threeOptions,
     });
 
-    expect(getCheckbox({ name: 'Norway' })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(getCheckbox({ name: 'Norway' })).toBeInTheDocument();
+    });
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark', isChecked: true })).toBeInTheDocument();
-
     expect(handleChange).not.toHaveBeenCalled();
   });
 
-  it('should show several checkboxes as selected based on values in simpleBinding', () => {
+  it('should show several checkboxes as selected based on values in simpleBinding', async () => {
     const handleChange = jest.fn();
     render({
       genericProps: {
@@ -132,23 +116,26 @@ describe('CheckboxContainerComponent', () => {
           simpleBinding: 'norway,denmark',
         },
       },
+      options: threeOptions,
     });
 
-    expect(getCheckbox({ name: 'Norway', isChecked: true })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(getCheckbox({ name: 'Norway', isChecked: true })).toBeInTheDocument();
+    });
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark', isChecked: true })).toBeInTheDocument();
-
     expect(handleChange).not.toHaveBeenCalledWith();
   });
 
-  it('should not set any as selected when no binding and no preselectedOptionIndex is set', () => {
+  it('should not set any as selected when no binding and no preselectedOptionIndex is set', async () => {
     const handleChange = jest.fn();
-    render({ genericProps: { handleDataChange: handleChange } });
+    render({ genericProps: { handleDataChange: handleChange }, options: threeOptions });
 
-    expect(getCheckbox({ name: 'Norway' })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(getCheckbox({ name: 'Norway' })).toBeInTheDocument();
+    });
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark' })).toBeInTheDocument();
-
     expect(handleChange).not.toHaveBeenCalled();
   });
 
@@ -161,12 +148,13 @@ describe('CheckboxContainerComponent', () => {
           simpleBinding: 'norway',
         },
       },
+      options: threeOptions,
     });
-
-    expect(getCheckbox({ name: 'Norway', isChecked: true })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(getCheckbox({ name: 'Norway', isChecked: true })).toBeInTheDocument();
+    });
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark' })).toBeInTheDocument();
-
     await act(() => user.click(getCheckbox({ name: 'Denmark' })));
 
     expect(handleChange).not.toHaveBeenCalled();
@@ -185,9 +173,11 @@ describe('CheckboxContainerComponent', () => {
           simpleBinding: 'norway,denmark',
         },
       },
+      options: threeOptions,
     });
-
-    expect(getCheckbox({ name: 'Norway', isChecked: true })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(getCheckbox({ name: 'Norway', isChecked: true })).toBeInTheDocument();
+    });
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark', isChecked: true })).toBeInTheDocument();
 
@@ -209,11 +199,14 @@ describe('CheckboxContainerComponent', () => {
           simpleBinding: 'norway',
         },
       },
+      options: threeOptions,
     });
 
-    const denmark = getCheckbox({ name: 'Denmark' });
-
-    expect(denmark).toBeInTheDocument();
+    let denmark: HTMLElement;
+    await waitFor(() => {
+      denmark = getCheckbox({ name: 'Denmark' });
+      expect(denmark).toBeInTheDocument();
+    });
 
     await act(() => user.click(denmark));
 
@@ -231,10 +224,12 @@ describe('CheckboxContainerComponent', () => {
       genericProps: {
         handleDataChange: handleChange,
       },
+      options: threeOptions,
     });
 
-    expect(getCheckbox({ name: 'Denmark' })).toBeInTheDocument();
-
+    await waitFor(() => {
+      expect(getCheckbox({ name: 'Denmark' })).toBeInTheDocument();
+    });
     // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(() => {
       fireEvent.focus(getCheckbox({ name: 'Denmark' }));
@@ -253,9 +248,12 @@ describe('CheckboxContainerComponent', () => {
           simpleBinding: '',
         },
       },
+      options: threeOptions,
     });
 
-    expect(getCheckbox({ name: 'Norway' })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(getCheckbox({ name: 'Norway' })).toBeInTheDocument();
+    });
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark' })).toBeInTheDocument();
 
@@ -273,71 +271,66 @@ describe('CheckboxContainerComponent', () => {
       component: {
         optionsId: 'loadingOptions',
       },
+      options: threeOptions,
     });
-
     expect(screen.getByTestId('altinn-spinner')).toBeInTheDocument();
   });
 
-  it('should show items in a row when layout is "row" and options count is 3', () => {
+  it('should show items in a row when layout is "row" and options count is 3', async () => {
     const { container } = render({
       component: {
         optionsId: 'countries',
         layout: LayoutStyle.Row,
       },
+      options: threeOptions,
     });
 
-    // eslint-disable-next-line
-    expect(container.querySelector('fieldset')).toHaveClass('horizontal');
+    await waitFor(() => {
+      // eslint-disable-next-line
+      expect(container.querySelector('fieldset')).toHaveClass('horizontal');
+    });
   });
 
-  it('should show items in a row when layout is not defined, and options count is 2', () => {
+  it('should show items in a row when layout is not defined, and options count is 2', async () => {
     const { container } = render({
       component: {
         optionsId: 'countries',
       },
-      optionState: {
-        options: {
-          countries: {
-            id: 'countries',
-            options: twoOptions,
-          },
-        },
-      } as unknown as IOptionsState,
+      options: twoOptions,
     });
 
-    // eslint-disable-next-line
-    expect(container.querySelector('fieldset')).toHaveClass('horizontal');
+    await waitFor(() => {
+      // eslint-disable-next-line
+      expect(container.querySelector('fieldset')).toHaveClass('horizontal');
+    });
   });
 
-  it('should show items in a column when layout is "column" and options count is 2 ', () => {
+  it('should show items in a column when layout is "column" and options count is 2 ', async () => {
     const { container } = render({
       component: {
         optionsId: 'countries',
         layout: LayoutStyle.Column,
       },
-      optionState: {
-        options: {
-          countries: {
-            id: 'countries',
-            options: twoOptions,
-          },
-        },
-      } as unknown as IOptionsState,
+
+      options: twoOptions,
     });
 
-    // eslint-disable-next-line
-    expect(container.querySelector('fieldset')).not.toHaveClass('horizontal');
+    await waitFor(() => {
+      // eslint-disable-next-line
+      expect(container.querySelector('fieldset')).not.toHaveClass('horizontal');
+    });
   });
 
-  it('should show items in a columns when layout is not defined, and options count is 3', () => {
+  it('should show items in a columns when layout is not defined, and options count is 3', async () => {
     const { container } = render({
       component: {
         optionsId: 'countries',
       },
+      options: threeOptions,
     });
 
     // eslint-disable-next-line
-    expect(container.querySelector('fieldset')).not.toHaveClass('horizontal');
+    await waitFor(() => expect(container.querySelector('fieldset')).not.toHaveClass('horizontal'));
   });
 
   it('should present replaced label if setup with values from repeating group in redux and trigger handleDataChanged with replaced values', async () => {
@@ -346,6 +339,7 @@ describe('CheckboxContainerComponent', () => {
     render({
       genericProps: { handleDataChange },
       component: {
+        optionsId: undefined,
         source: {
           group: 'someGroup',
           label: 'option.from.rep.group.label',
@@ -353,10 +347,13 @@ describe('CheckboxContainerComponent', () => {
           helpText: 'option.from.rep.group.helpText',
           value: 'someGroup[{0}].valueField',
         },
+        options: undefined,
       },
     });
 
-    expect(getCheckbox({ name: /The value from the group is: Label for first/ })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(getCheckbox({ name: /The value from the group is: Label for first/ })).toBeInTheDocument();
+    });
     expect(getCheckbox({ name: /The value from the group is: Label for second/ })).toBeInTheDocument();
     expect(screen.getByText(/Description: The value from the group is: Label for first/)).toBeInTheDocument();
     expect(screen.getByText(/Description: The value from the group is: Label for second/)).toBeInTheDocument();
