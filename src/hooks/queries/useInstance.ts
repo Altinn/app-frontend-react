@@ -110,7 +110,7 @@ export function useInstance() {
     if (!idFromUrl && instantiateWithPrefill.data?.id) {
       navigate(`instance/${instantiateWithPrefill.data.id}`);
     }
-  }, [instantiate.data.id, instantiateWithPrefill.data.id, idFromUrl, navigate]);
+  }, [instantiate.data?.id, instantiateWithPrefill.data?.id, idFromUrl, navigate]);
 
   return {
     data,
