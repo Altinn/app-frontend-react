@@ -19,6 +19,7 @@ import { ThemeWrapper } from 'src/components/ThemeWrapper';
 import { AppQueriesProvider } from 'src/contexts/appQueriesContext';
 import { DevTools } from 'src/features/devtools/DevTools';
 import { LayoutValidationProvider } from 'src/features/layoutValidation/useLayoutValidationCurrentPage';
+import { AllOptionsProvider } from 'src/features/options/useAllOptions';
 import * as queries from 'src/queries/queries';
 import { initSagas } from 'src/redux/sagas';
 import { setupStore } from 'src/redux/store';
@@ -41,9 +42,11 @@ document.addEventListener('DOMContentLoaded', () => {
               <ThemeWrapper>
                 <ExprContextWrapper>
                   <LayoutValidationProvider>
-                    <DevTools>
-                      <App />
-                    </DevTools>
+                    <AllOptionsProvider>
+                      <DevTools>
+                        <App />
+                      </DevTools>
+                    </AllOptionsProvider>
                   </LayoutValidationProvider>
                 </ExprContextWrapper>
               </ThemeWrapper>

@@ -9,6 +9,7 @@ import { combinedReducers } from 'src/redux/reducers';
 
 export const setupStore = (preloadedState?: PreloadedState<RootState>) => {
   const sagaMiddleware: SagaMiddleware<any> = createSagaMiddleware();
+  sagaMiddleware.setContext({ queryClient });
   const middlewares: Middleware[] = [sagaMiddleware];
   const actionLog: any[] = [];
 

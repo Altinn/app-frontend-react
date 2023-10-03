@@ -22,9 +22,11 @@ import {
 } from 'src/utils/urls/appUrlHelper';
 import { orgsListUrl } from 'src/utils/urls/urlHelper';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { IPartyValidationResponse } from 'src/features/party';
 import type { Instantiation } from 'src/hooks/queries/useInstance';
+import type { IOption } from 'src/layout/common.generated';
 import type { ILayoutSets, ISimpleInstance } from 'src/types';
 import type { IAltinnOrgs, IAppLanguage, IApplicationSettings, IInstance, IProfile } from 'src/types/shared';
 
@@ -49,23 +51,26 @@ export const fetchApplicationSettings = (): Promise<IApplicationSettings> => htt
 
 export const fetchCurrentParty = () => httpGet(currentPartyUrl);
 
-export const fetchParties = () => httpGet(validPartiesUrl);
-
 export const fetchFooterLayout = (): Promise<IFooterLayout> => httpGet(getFooterLayoutUrl());
 
 export const fetchLayoutSets = (): Promise<ILayoutSets> => httpGet(getLayoutSetsUrl());
+
+export const fetchOptions = (url: string): Promise<IOption[]> => httpGet(url);
+
+export const fetchDataList = (url: string): Promise<IDataList> => httpGet(url);
 
 export const fetchOrgs = (): Promise<{ orgs: IAltinnOrgs }> =>
   httpGet(orgsListUrl, {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
   });
 
-export const fetchUserProfile = (): Promise<IProfile> => httpGet(profileApiUrl);
+export const fetchParties = () => httpGet(validPartiesUrl);
 
 export const fetchAppLanguages = (): Promise<IAppLanguage[]> => httpGet(applicationLanguagesUrl);
 
 export const fetchRefreshJwtToken = () => httpGet(refreshJwtTokenUrl);
 
+export const fetchUserProfile = (): Promise<IProfile> => httpGet(profileApiUrl);
 export const fetchDataModelSchema = (dataTypeName: string): Promise<JSONSchema7> =>
   httpGet(getJsonSchemaUrl() + dataTypeName);
 

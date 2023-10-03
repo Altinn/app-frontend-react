@@ -10,12 +10,14 @@ import type { PreloadedState } from 'redux';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { AppQueriesProvider } from 'src/contexts/appQueriesContext';
+import { AllOptionsProvider } from 'src/features/options/useAllOptions';
 import { setupStore } from 'src/redux/store';
 import { MemoryRouterWithRedirectingRoot } from 'src/test/memoryRouterWithRedirectingRoot';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { ExprContextWrapper, useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { AppQueriesContext } from 'src/contexts/appQueriesContext';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
 import type { CompExternalExact, CompTypes } from 'src/layout/layout';
@@ -61,6 +63,8 @@ export const renderWithProviders = (
       fetchParties: () => Promise.resolve({}),
       fetchRefreshJwtToken: () => Promise.resolve({}),
       fetchFormData: () => Promise.resolve({}),
+      fetchOptions: () => Promise.resolve([]),
+      fetchDataList: () => Promise.resolve({} as unknown as IDataList),
       fetchInstanceData: () => Promise.resolve(getInstanceDataMock()),
       fetchAppLanguages: () => Promise.resolve([]),
     } as AppQueriesContext;
@@ -90,7 +94,9 @@ export const renderWithProviders = (
         <AppQueriesProvider {...mockedQueries}>
           <MuiThemeProvider theme={theme}>
             <Provider store={store}>
-              <ExprContextWrapper>{children}</ExprContextWrapper>
+              <ExprContextWrapper>
+                <AllOptionsProvider>{children}</AllOptionsProvider>
+              </ExprContextWrapper>
             </Provider>
           </MuiThemeProvider>
         </AppQueriesProvider>
@@ -114,7 +120,7 @@ export interface RenderGenericComponentTestProps<T extends CompTypes> {
   genericProps?: Partial<PropsFromGenericComponent<T>>;
   manipulateState?: (state: IRuntimeState) => void;
   manipulateStore?: (store: ReturnType<typeof setupStore>['store']) => void;
-  queries?: Partial<AppQueriesContext>;
+  mockedQueries?: Partial<AppQueriesContext>;
 }
 
 export function renderGenericComponentTest<T extends CompTypes>({
@@ -124,7 +130,7 @@ export function renderGenericComponentTest<T extends CompTypes>({
   genericProps,
   manipulateState,
   manipulateStore,
-  queries,
+  mockedQueries,
 }: RenderGenericComponentTestProps<T>) {
   const realComponentDef = {
     id: 'my-test-component-id',
@@ -151,7 +157,7 @@ export function renderGenericComponentTest<T extends CompTypes>({
   manipulateStore && manipulateStore(store);
 
   return {
-    ...renderWithProviders(<Wrapper />, { store }, queries),
+    ...renderWithProviders(<Wrapper />, { store }, mockedQueries),
   };
 }
 
