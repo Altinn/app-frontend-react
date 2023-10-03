@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { HelpText, Radio } from '@digdir/design-system-react';
 import type { RadioProps } from '@digdir/design-system-react';
@@ -21,6 +21,14 @@ export const RadioButton = ({ showAsCard = false, label, helpText, hideLabel, ..
       {helpText ? <HelpText title={getPlainTextFromNode(helpText)}>{helpText}</HelpText> : null}
     </div>
   );
+
+  useEffect(() => {
+    // Name attribute is not added by digdir design system
+    if (inputRef.current && rest.name) {
+      inputRef.current.name = rest.name;
+    }
+  }, [rest.name]);
+
   if (showAsCard) {
     return (
       /** This element is only clickable for visual
@@ -45,5 +53,12 @@ export const RadioButton = ({ showAsCard = false, label, helpText, hideLabel, ..
       </div>
     );
   }
-  return <Radio {...rest}>{Label}</Radio>;
+  return (
+    <Radio
+      {...rest}
+      ref={inputRef}
+    >
+      {Label}
+    </Radio>
+  );
 };

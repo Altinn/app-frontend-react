@@ -36,7 +36,6 @@ const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
   const { lang, langAsString } = useLanguage();
 
   const id = node.item.id;
-  const groupContainerId = node.closest((n) => n.type === 'Group')?.item.id;
   const RenderLegend = legend;
   const rowLabelId = `row-label-${id}`;
   const texts = node.item.textResourceBindings;
@@ -59,9 +58,7 @@ const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
           {renderValidationMessagesForComponent(componentValidations?.simpleBinding, id)}
         </Typography>
       </TableCell>
-      {calculatedOptions?.map((option, colIndex) => {
-        const colLabelId = `${groupContainerId}-likert-columnheader-${colIndex}`;
-        const inputId = `${id}-${colIndex}`;
+      {calculatedOptions?.map((option) => {
         const isChecked = selected === option.value;
         return (
           <TableCell
@@ -69,18 +66,14 @@ const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
             className={classes.likertTableCell}
             onBlur={handleBlur}
           >
-            <div className={classes.radioButtonContainer}>
-              <RadioButton
-                aria-labelledby={`${rowLabelId} ${colLabelId}`}
-                checked={isChecked}
-                onChange={handleChange}
-                value={option.value}
-                label={`${getPlainTextFromNode(lang(texts?.title))} ${langAsString(option.label)}`}
-                hideLabel={true}
-                name={rowLabelId}
-                id={inputId}
-              />
-            </div>
+            <RadioButton
+              checked={isChecked}
+              onChange={handleChange}
+              value={option.value}
+              label={`${getPlainTextFromNode(lang(texts?.title))} ${langAsString(option.label)}`}
+              hideLabel={true}
+              name={rowLabelId}
+            />
           </TableCell>
         );
       })}
