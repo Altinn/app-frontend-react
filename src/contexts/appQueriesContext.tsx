@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -28,6 +28,16 @@ interface ContextData {
 
 const [Provider, useContext] = createStrictContext<ContextData>();
 
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      staleTime: 10 * 60 * 1000,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
 export const AppQueriesProvider = ({ children, ...allQueries }: React.PropsWithChildren<AppQueriesContext>) => {
   const queries = Object.fromEntries(Object.entries(allQueries).filter(([key]) => key.startsWith('fetch'))) as Queries;
   const mutations = Object.fromEntries(Object.entries(allQueries).filter(([key]) => key.startsWith('do'))) as Mutations;
@@ -40,20 +50,6 @@ export const AppQueriesProvider = ({ children, ...allQueries }: React.PropsWithC
       return [key, { call: mutation, lastResult, setLastResult }];
     }),
   ) as EnhancedMutations;
-
-  const queryClient = useMemo(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            retry: false,
-            staleTime: 10 * 60 * 1000,
-            refetchOnWindowFocus: false,
-          },
-        },
-      }),
-    [],
-  );
 
   return (
     <QueryClientProvider client={queryClient}>

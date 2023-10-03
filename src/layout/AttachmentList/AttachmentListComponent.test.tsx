@@ -24,7 +24,7 @@ const render = () =>
         title: 'Attachments',
       },
     },
-    queries: {
+    mockedQueries: {
       fetchInstanceData: () => {
         const mock = getInstanceDataMock();
         const dataElement: IData = {
