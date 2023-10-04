@@ -101,7 +101,8 @@ export const CheckboxContainerComponent = ({
       >
         {calculatedOptions.map((option) => (
           <Checkbox
-            name={`${id}-${option.label.replace(/\s/g, '-')}`}
+            id={`${id}-${option.label.replace(/\s/g, '-')}`}
+            name={option.value}
             key={option.value}
             description={lang(option.description)}
             value={option.value}
