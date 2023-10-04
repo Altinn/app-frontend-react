@@ -7,7 +7,9 @@
   flex-direction: row;
   gap: var(--fds-spacing-2);
 }
-
+.horizontal div > {
+  display: block;
+}
 .checkBoxLabelContainer {
   display: flex;
   gap: var(--fds-spacing-1);
