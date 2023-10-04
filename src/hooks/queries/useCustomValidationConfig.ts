@@ -33,14 +33,18 @@ export const useCustomValidationConfig = (): UseQueryResult<IExpressionValidatio
   return useQuery(['fetchCustomValidationConfig', dataTypeId], () => fetchCustomValidationConfig(dataTypeId), {
     enabled: Boolean(dataTypeId?.length),
     onSuccess: (customValidationConfig) => {
-      if (!customValidationConfig) {
-        return;
+      if (customValidationConfig) {
+        const validationDefinition = resolveExpressionValidationConfig(customValidationConfig);
+        dispatch(CustomValidationActions.fetchCustomValidationsFulfilled(validationDefinition));
+      } else {
+        dispatch(CustomValidationActions.fetchCustomValidationsFulfilled(null));
       }
-      const validationDefinition = resolveExpressionValidationConfig(customValidationConfig);
-      dispatch(CustomValidationActions.fetchCustomValidationsFulfilled(validationDefinition));
     },
     onError: (error: AxiosError) => {
-      if (error.response?.status !== 404) {
+      if (error.response?.status === 404) {
+        dispatch(CustomValidationActions.fetchCustomValidationsRejected(null));
+        window.logWarn('App does not support custom validation using expressions');
+      } else {
         dispatch(CustomValidationActions.fetchCustomValidationsRejected(error));
         window.logError('Fetching validation configuration failed:\n', error);
       }
