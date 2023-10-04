@@ -9,11 +9,13 @@ import type { PreloadedState } from 'redux';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { AppQueriesContextProvider } from 'src/contexts/appQueriesContext';
+import { AllOptionsProvider } from 'src/features/options/useAllOptions';
 import { setupStore } from 'src/redux/store';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { ExprContextWrapper, useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { AppQueriesContext } from 'src/contexts/appQueriesContext';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
 import type { CompExternalExact, CompTypes } from 'src/layout/layout';
@@ -35,7 +37,7 @@ export const renderWithProviders = (
     const theme = createTheme(AltinnAppTheme);
 
     const allMockedQueries = {
-      doPartyValidation: () => Promise.resolve({ isValid: true, validParties: [] }),
+      doPartyValidation: () => Promise.resolve({ valid: true, validParties: [], message: null }),
       fetchActiveInstances: () => Promise.resolve([]),
       fetchApplicationMetadata: () => Promise.resolve({} as unknown as IApplicationMetadata),
       fetchCurrentParty: () => Promise.resolve({}),
@@ -49,6 +51,8 @@ export const renderWithProviders = (
       fetchRefreshJwtToken: () => Promise.resolve({}),
       fetchCustomValidationConfig: () => Promise.resolve(null),
       fetchFormData: () => Promise.resolve({}),
+      fetchOptions: () => Promise.resolve([]),
+      fetchDataList: () => Promise.resolve({} as unknown as IDataList),
     } as AppQueriesContext;
     const mockedQueries = { ...allMockedQueries, ...queries };
 
@@ -71,7 +75,9 @@ export const renderWithProviders = (
         <AppQueriesContextProvider {...mockedQueries}>
           <MuiThemeProvider theme={theme}>
             <Provider store={store}>
-              <ExprContextWrapper>{children}</ExprContextWrapper>
+              <ExprContextWrapper>
+                <AllOptionsProvider>{children}</AllOptionsProvider>
+              </ExprContextWrapper>
             </Provider>
           </MuiThemeProvider>
         </AppQueriesContextProvider>
@@ -95,6 +101,7 @@ export interface RenderGenericComponentTestProps<T extends CompTypes> {
   genericProps?: Partial<PropsFromGenericComponent<T>>;
   manipulateState?: (state: IRuntimeState) => void;
   manipulateStore?: (store: ReturnType<typeof setupStore>['store']) => void;
+  mockedQueries?: Partial<AppQueriesContext>;
 }
 
 export function renderGenericComponentTest<T extends CompTypes>({
@@ -104,6 +111,7 @@ export function renderGenericComponentTest<T extends CompTypes>({
   genericProps,
   manipulateState,
   manipulateStore,
+  mockedQueries,
 }: RenderGenericComponentTestProps<T>) {
   const realComponentDef = {
     id: 'my-test-component-id',
@@ -130,7 +138,7 @@ export function renderGenericComponentTest<T extends CompTypes>({
   manipulateStore && manipulateStore(store);
 
   return {
-    ...renderWithProviders(<Wrapper />, { store }),
+    ...renderWithProviders(<Wrapper />, { store }, mockedQueries),
   };
 }
 

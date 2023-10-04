@@ -6,6 +6,7 @@ import { useCurrentDataModelSchemaQuery } from 'src/features/datamodel/useCurren
 import { Entrypoint } from 'src/features/entrypoint/Entrypoint';
 import { PartySelection } from 'src/features/instantiate/containers/PartySelection';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
+import { useAllOptionsInitiallyLoaded } from 'src/features/options/useAllOptions';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { useApplicationMetadataQuery } from 'src/hooks/queries/useApplicationMetadataQuery';
 import { useApplicationSettingsQuery } from 'src/hooks/queries/useApplicationSettingsQuery';
@@ -81,9 +82,10 @@ const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | n
   useKeepAlive(applicationSettings.appOidcProvider, allowAnonymous);
   useUpdatePdfState(allowAnonymous);
   const { isFetching: isFormDataFetching } = useFormDataQuery();
+  const optionsInitiallyLoaded = useAllOptionsInitiallyLoaded();
 
   const hasComponentError = hasProfileError || hasCurrentPartyError || hasPartiesError;
-  const isFetching = isProfileFetching || isPartiesFetching || isFormDataFetching;
+  const isFetching = isProfileFetching || isPartiesFetching || isFormDataFetching || !optionsInitiallyLoaded;
 
   // Set the title of the app
   React.useEffect(() => {
@@ -99,22 +101,20 @@ const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | n
   const isReadyToRenderRoutes = allowAnonymous !== undefined;
   if (isReadyToRenderRoutes) {
     return (
-      <>
-        <Routes>
-          <Route
-            path='/'
-            element={<Entrypoint allowAnonymous={allowAnonymous} />}
-          />
-          <Route
-            path='/partyselection/*'
-            element={<PartySelection />}
-          />
-          <Route
-            path='/instance/:partyId/:instanceGuid'
-            element={<ProcessWrapper isFetching={isFetching} />}
-          />
-        </Routes>
-      </>
+      <Routes>
+        <Route
+          path='/'
+          element={<Entrypoint />}
+        />
+        <Route
+          path='/partyselection/*'
+          element={<PartySelection />}
+        />
+        <Route
+          path='/instance/:partyId/:instanceGuid'
+          element={<ProcessWrapper isFetching={isFetching} />}
+        />
+      </Routes>
     );
   }
 

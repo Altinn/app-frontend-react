@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { UseQueryResult } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
-import { useAppQueriesContext } from 'src/contexts/appQueriesContext';
+import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { CustomValidationActions } from 'src/features/customValidation/customValidationSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -13,13 +13,9 @@ import type { ILayoutSets } from 'src/types';
 import type { IInstance } from 'src/types/shared';
 import type { IExpressionValidationConfig } from 'src/utils/validation/types';
 
-enum ServerStateCacheKey {
-  ValidationConfig = 'validationConfig',
-}
-
 export const useCustomValidationConfig = (): UseQueryResult<IExpressionValidationConfig | null> => {
   const dispatch = useAppDispatch();
-  const { fetchCustomValidationConfig } = useAppQueriesContext();
+  const { fetchCustomValidationConfig } = useAppQueries();
 
   const appMetadata: IApplicationMetadata | null = useAppSelector(
     (state) => state.applicationMetadata.applicationMetadata,
@@ -34,7 +30,7 @@ export const useCustomValidationConfig = (): UseQueryResult<IExpressionValidatio
       layoutSets,
     }) ?? '';
 
-  return useQuery([ServerStateCacheKey.ValidationConfig, dataTypeId], () => fetchCustomValidationConfig(dataTypeId), {
+  return useQuery(['fetchCustomValidationConfig', dataTypeId], () => fetchCustomValidationConfig(dataTypeId), {
     enabled: Boolean(dataTypeId?.length),
     onSuccess: (customValidationConfig) => {
       if (!customValidationConfig) {
