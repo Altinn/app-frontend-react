@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Checkbox, HelpText } from '@digdir/design-system-react';
+import cn from 'classnames';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
@@ -89,7 +90,7 @@ export const CheckboxContainerComponent = ({
       onBlur={handleBlur}
     >
       <Checkbox.Group
-        className={horizontal ? classes.horizontal : undefined}
+        className={cn({ [classes.horizontal]: horizontal })}
         legend={labelText}
         description={lang(textResourceBindings?.description)}
         disabled={readOnly}
