@@ -3,6 +3,7 @@ import type { SagaIterator } from 'redux-saga';
 
 import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { tmpSagaInstanceData } from 'src/features/instance/InstanceContext';
 import { IsLoadingActions } from 'src/features/isLoading/isLoadingSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { OrgsActions } from 'src/features/orgs/orgsSlice';
@@ -10,7 +11,6 @@ import { PartyActions } from 'src/features/party/partySlice';
 import { PDF_LAYOUT_NAME, PdfActions } from 'src/features/pdf/data/pdfSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { TextResourcesActions } from 'src/features/textResources/textResourcesSlice';
-import { tmpSagaInstanceData } from 'src/hooks/queries/useInstance';
 import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';

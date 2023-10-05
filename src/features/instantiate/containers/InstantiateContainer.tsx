@@ -6,7 +6,7 @@ import { PresentationComponent } from 'src/components/wrappers/Presentation';
 import { InstantiateValidationError } from 'src/features/instantiate/containers/InstantiateValidationError';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
-import { useInstance } from 'src/hooks/queries/useInstance';
+import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
@@ -17,20 +17,20 @@ import { isAxiosError } from 'src/utils/network/sharedNetworking';
 
 export const InstantiateContainer = () => {
   changeBodyBackground(AltinnAppTheme.altinnPalette.primary.greyLight);
-  const instance = useInstance();
   const selectedParty = useAppSelector((state) => state.party.selectedParty);
   const { lang } = useLanguage();
+  const instantiation = useInstantiation();
 
   React.useEffect(() => {
-    const shouldCreateInstance = !!selectedParty && !instance.data && !instance.isFetching;
+    const shouldCreateInstance = !!selectedParty && !instantiation.lastResult && !instantiation.isLoading;
     if (shouldCreateInstance) {
-      instance.instantiate(selectedParty.partyId);
+      instantiation.instantiate(undefined, selectedParty.partyId);
     }
-  }, [selectedParty, instance]);
+  }, [selectedParty, instantiation]);
 
-  if (isAxiosError(instance.error)) {
-    const message = (instance.error.response?.data as any)?.message;
-    if (instance.error.response?.status === HttpStatusCodes.Forbidden) {
+  if (isAxiosError(instantiation.error)) {
+    const message = (instantiation.error.response?.data as any)?.message;
+    if (instantiation.error.response?.status === HttpStatusCodes.Forbidden) {
       if (message) {
         return <InstantiateValidationError message={message} />;
       }

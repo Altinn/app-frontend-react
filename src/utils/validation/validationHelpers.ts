@@ -1,4 +1,4 @@
-import { tmpSagaInstanceData } from 'src/hooks/queries/useInstance';
+import { tmpSagaInstanceData } from 'src/features/instance/InstanceContext';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { Triggers } from 'src/layout/common.generated';
 import type { IRuntimeState, TriggersPageValidation } from 'src/types';

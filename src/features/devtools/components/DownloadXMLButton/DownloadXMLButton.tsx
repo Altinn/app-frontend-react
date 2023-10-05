@@ -7,14 +7,14 @@ import { DownloadIcon, UploadIcon } from '@navikt/aksel-icons';
 import axios from 'axios';
 
 import { FormDataActions } from 'src/features/formData/formDataSlice';
-import { useInstanceData } from 'src/hooks/queries/useInstance';
+import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { getFetchFormDataUrl } from 'src/utils/urls/appUrlHelper';
 
 export const DownloadXMLButton = () => {
   const appMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
-  const instance = useInstanceData();
+  const instance = useLaxInstanceData();
   const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
   const dataElementId = getCurrentTaskDataElementId(appMetadata, instance, layoutSets);
   const dispatch = useDispatch();

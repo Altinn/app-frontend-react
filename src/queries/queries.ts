@@ -26,8 +26,8 @@ import { orgsListUrl } from 'src/utils/urls/urlHelper';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
+import type { Instantiation } from 'src/features/instantiate/InstantiationContext';
 import type { IPartyValidationResponse } from 'src/features/party';
-import type { Instantiation } from 'src/hooks/queries/useInstance';
 import type { IOption } from 'src/layout/common.generated';
 import type { ILayoutSets, ISimpleInstance } from 'src/types';
 import type {
@@ -63,8 +63,8 @@ export const doProcessNext = async (taskId?: string, language?: string, action?:
 export const fetchActiveInstances = (partyId: string): Promise<ISimpleInstance[]> =>
   httpGet(getActiveInstancesUrl(partyId));
 
-export const fetchInstanceData = (instanceId: string): Promise<IInstance> =>
-  httpGet(`${instancesControllerUrl}/${instanceId}`);
+export const fetchInstanceData = (partyId: string, instanceGuid: string): Promise<IInstance> =>
+  httpGet(`${instancesControllerUrl}/${partyId}/${instanceGuid}`);
 
 export const fetchProcessState = (instanceId: string): Promise<IProcess> => httpGet(getProcessStateUrl(instanceId));
 

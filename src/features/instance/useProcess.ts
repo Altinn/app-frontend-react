@@ -3,11 +3,11 @@ import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
-import { useInstanceData } from 'src/hooks/queries/useInstance';
+import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
-import type { ChangeInstanceData } from 'src/hooks/queries/useInstance';
+import type { ChangeInstanceData } from 'src/features/instance/InstanceContext';
 import type { IInstance } from 'src/types/shared';
 
 interface QueryProps {
@@ -45,7 +45,7 @@ export function useProcessEnhancement(instance: IInstance | undefined, changeDat
   }, [enhancedProcessState.data, changeData]);
 }
 
-export const useProcessData = () => useInstanceData()?.process;
+export const useProcessData = () => useLaxInstanceData()?.process;
 
 /**
  * This returns the task type of the current process task, as we got it from the backend

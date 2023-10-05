@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
+import { useProcessData } from 'src/features/instance/useProcess';
 import { ValidationActions } from 'src/features/validation/validationSlice';
-import { useProcessData } from 'src/hooks/queries/useProcess';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';

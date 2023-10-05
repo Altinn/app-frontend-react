@@ -7,7 +7,7 @@ import { useCurrentDataModelSchema, useCurrentDataModelType } from 'src/features
 import { generateSimpleRepeatingGroups } from 'src/features/layout/repGroups/generateSimpleRepeatingGroups';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLayoutComponentObject } from 'src/layout';
-import { createStrictContext } from 'src/utils/createStrictContext';
+import { createStrictContext } from 'src/utils/createContext';
 import { selectDataSourcesFromState } from 'src/utils/layout/hierarchy';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { getRootElementPath } from 'src/utils/schemaUtils';
@@ -83,9 +83,9 @@ function useLayoutValidationGenerator(props: LayoutValidationProps) {
   }, [schema, dataType, nodes, logErrors]);
 }
 
-const [Provider, useLayoutValidationCtx] = createStrictContext<LayoutValidationComponentErrors>();
+const { Provider, useCtx } = createStrictContext<LayoutValidationComponentErrors>();
 
-export const useLayoutValidationCurrentPage = useLayoutValidationCtx;
+export const useLayoutValidationCurrentPage = useCtx;
 
 export function LayoutValidationProvider(props: PropsWithChildren) {
   const currentLayout = useAppSelector((state) =>

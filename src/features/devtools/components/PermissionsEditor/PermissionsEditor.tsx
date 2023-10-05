@@ -4,8 +4,8 @@ import { useDispatch } from 'react-redux';
 import { Checkbox } from '@digdir/design-system-react';
 
 import classes from 'src/features/devtools/components/PermissionsEditor/PermissionsEditor.module.css';
+import { useProcessData, useTaskTypeFromBackend } from 'src/features/instance/useProcess';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
-import { useProcessData, useTaskTypeFromBackend } from 'src/hooks/queries/useProcess';
 import type { IGetProcessStateFulfilled } from 'src/features/process';
 
 export const PermissionsEditor = () => {

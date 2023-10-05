@@ -1,8 +1,7 @@
 import React from 'react';
 
 import { FormDataActions } from 'src/features/formData/formDataSlice';
-import { useProcessData } from 'src/hooks/queries/useProcess';
-import { useProcessNext } from 'src/hooks/queries/useProcessNext';
+import { useProcessData } from 'src/features/instance/useProcess';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useCanSubmitForm } from 'src/hooks/useCanSubmitForm';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -26,7 +25,7 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
   const currentTaskType = useProcessData()?.currentTask?.altinnTaskType;
   const { actions, write } = useProcessData()?.currentTask || {};
   const { canSubmit, busyWithId, message } = useCanSubmitForm();
-  const {} = useProcessNext(node);
+  // const {} = useProcessNext(node);
 
   const disabled =
     !canSubmit || (currentTaskType === 'data' && !write) || (currentTaskType === 'confirmation' && !actions?.confirm);

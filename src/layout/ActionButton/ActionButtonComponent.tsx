@@ -4,8 +4,8 @@ import { Button } from '@digdir/design-system-react';
 
 import type { PropsFromGenericComponent } from '..';
 
-import { useProcessData } from 'src/hooks/queries/useProcess';
-import { useProcessNext } from 'src/hooks/queries/useProcessNext';
+import { useProcessData } from 'src/features/instance/useProcess';
+import { useProcessNext } from 'src/features/instance/useProcessNext';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { ButtonLoader } from 'src/layout/Button/ButtonLoader';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';

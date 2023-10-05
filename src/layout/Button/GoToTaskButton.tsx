@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useProcessNextTasks } from 'src/hooks/queries/useProcessNextTasks';
+import { useProcessNextTasks } from 'src/features/instance/useProcessNextTasks';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useCanSubmitForm } from 'src/hooks/useCanSubmitForm';
 import { WrappedButton } from 'src/layout/Button/WrappedButton';

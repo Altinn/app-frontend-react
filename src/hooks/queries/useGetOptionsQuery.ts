@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { UseQueryResult } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
+import { useStrictInstance } from 'src/features/instance/InstanceContext';
 import { OptionsActions } from 'src/features/options/optionsSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -20,7 +21,7 @@ export const useGetOptionsQuery = (
   const formData = useAppSelector((state) => state.formData.formData);
   const langTools = useLanguage();
   const language = langTools.selectedLanguage;
-  const { instanceId } = window;
+  const instanceId = useStrictInstance().instanceId;
 
   const url = getOptionsUrl({
     optionsId: optionsId || '',

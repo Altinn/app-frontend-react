@@ -1,7 +1,7 @@
 import { useContext, useMemo } from 'react';
 import type { JSX } from 'react';
 
-import { tmpSagaInstanceData, useInstanceData } from 'src/hooks/queries/useInstance';
+import { tmpSagaInstanceData, useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromCode } from 'src/language/languages';
 import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
@@ -73,7 +73,7 @@ export function useLanguage(node?: LayoutNode) {
   const nearestNode = node || componentCtx?.node;
   const formData = useAppSelector((state) => state.formData.formData);
   const applicationSettings = useAppSelector((state) => state.applicationSettings.applicationSettings);
-  const instance = useInstanceData();
+  const instance = useLaxInstanceData();
   const instanceDataSources = useMemo(() => buildInstanceDataSources(instance), [instance]);
 
   const dataSources: TextResourceVariablesDataSources = useMemo(

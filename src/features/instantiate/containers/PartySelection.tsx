@@ -9,7 +9,6 @@ import { AltinnParty } from 'src/components/altinnParty';
 import { InstantiationContainer } from 'src/features/instantiate/containers/InstantiationContainer';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { PartyActions } from 'src/features/party/partySlice';
-import { useInstance } from 'src/hooks/queries/useInstance';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -95,14 +94,13 @@ export const PartySelection = () => {
 
   const [hasSelected, setHasSelected] = React.useState(false);
   const navigate = useNavigate();
-  const { clearErrors } = useInstance();
 
   const onSelectParty = (party: IParty) => {
     dispatch(PartyActions.selectPartyFulfilled({ party: null }));
     setHasSelected(true);
     dispatch(PartyActions.selectParty({ party }));
-    // Clear any previous instantiation errors.
-    clearErrors();
+
+    // PRIORITY: Clear any previous instantiation errors? This should probably instead be handled using error boundaries
   };
 
   useEffect(() => {

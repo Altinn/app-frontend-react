@@ -4,6 +4,7 @@ import { Route, Routes } from 'react-router-dom';
 import { ProcessWrapper } from 'src/components/wrappers/ProcessWrapper';
 import { useCurrentDataModelSchemaQuery } from 'src/features/datamodel/useCurrentDataModelSchemaQuery';
 import { Entrypoint } from 'src/features/entrypoint/Entrypoint';
+import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { PartySelection } from 'src/features/instantiate/containers/PartySelection';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { useAllOptionsInitiallyLoaded } from 'src/features/options/useAllOptions';
@@ -110,7 +111,11 @@ const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | n
         />
         <Route
           path='/instance/:partyId/:instanceGuid'
-          element={<ProcessWrapper isFetching={isFetching} />}
+          element={
+            <InstanceProvider>
+              <ProcessWrapper isFetching={isFetching} />
+            </InstanceProvider>
+          }
         />
       </Routes>
     );

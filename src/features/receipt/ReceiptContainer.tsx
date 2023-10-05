@@ -7,8 +7,8 @@ import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoade
 import { ReceiptComponent } from 'src/components/organisms/AltinnReceipt';
 import { ReceiptComponentSimple } from 'src/components/organisms/AltinnReceiptSimple';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
+import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { CustomReceipt } from 'src/features/receipt/CustomReceipt';
-import { useInstanceData } from 'src/hooks/queries/useInstance';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -74,7 +74,7 @@ export const ReceiptContainer = () => {
   const receiptLayoutName = useAppSelector((state) => state.formLayout.uiConfig.receiptLayoutName);
   const allOrgs = useAppSelector((state) => state.organisationMetaData.allOrgs);
   const applicationMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
-  const instance = useInstanceData();
+  const instance = useLaxInstanceData();
   const parties = useAppSelector((state) => state.party.parties);
   const layouts = useAppSelector(layoutsSelector);
   const langTools = useLanguage();

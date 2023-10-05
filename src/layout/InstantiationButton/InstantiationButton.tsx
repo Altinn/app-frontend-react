@@ -1,8 +1,7 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
 
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
-import { useInstance } from 'src/hooks/queries/useInstance';
+import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { WrappedButton } from 'src/layout/Button/WrappedButton';
@@ -13,37 +12,32 @@ type Props = Omit<React.PropsWithChildren<IInstantiationButtonComponentProvidedP
 
 export const InstantiationButton = ({ children, ...props }: Props) => {
   const dispatch = useAppDispatch();
-  const { instantiateWithPrefillMutation } = useInstance();
-  const { isSuccess, data, isLoading, isError, mutate: instantiateWithPrefill } = instantiateWithPrefillMutation;
+  const instantiation = useInstantiation();
   const formData = useAppSelector((state) => state.formData.formData);
   const party = useAppSelector((state) => state.party.selectedParty);
 
   const instantiate = () => {
     const prefill = mapFormData(formData, props.mapping);
-    instantiateWithPrefill({
+    instantiation.instantiateWithPrefill(props.node, {
       prefill,
       instanceOwner: {
         partyId: party?.partyId.toString(),
       },
     });
   };
-  const busyWithId = props.busyWithId || isLoading ? props.id : '';
+  const busyWithId = instantiation.isLoading ? props.id : '';
 
   React.useEffect(() => {
-    if (isSuccess && data) {
+    if (instantiation.lastResult) {
       dispatch(AttachmentActions.mapAttachments());
     }
-  }, [isSuccess, data, dispatch]);
+  }, [instantiation.lastResult, dispatch]);
 
   React.useEffect(() => {
-    if (isError) {
-      throw new Error('something went wrong trying to start new instance');
+    if (instantiation.error) {
+      throw new Error('Something went wrong trying to start new instance');
     }
-  }, [isError]);
-
-  if (data?.id) {
-    return <Navigate to={`/instance/${data.id}`} />;
-  }
+  }, [instantiation.error]);
 
   return (
     <WrappedButton

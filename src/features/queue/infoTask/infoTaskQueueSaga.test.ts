@@ -4,13 +4,13 @@ import { expectSaga } from 'redux-saga-test-plan';
 import { applicationMetadataMock } from 'src/__mocks__/applicationMetadataMock';
 import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { tmpSagaInstanceData } from 'src/features/instance/InstanceContext';
 import { IsLoadingActions } from 'src/features/isLoading/isLoadingSlice';
 import {
   ApplicationMetadataSelector,
   startInitialInfoTaskQueueSaga,
   TextResourceSelector,
 } from 'src/features/queue/infoTask/infoTaskQueueSaga';
-import { tmpSagaInstanceData } from 'src/hooks/queries/useInstance';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { TextResourceMap } from 'src/features/textResources';
 

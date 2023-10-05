@@ -4,9 +4,9 @@ import type { AxiosRequestConfig } from 'axios';
 import type { SagaIterator } from 'redux-saga';
 
 import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { tmpSagaInstanceData } from 'src/features/instance/InstanceContext';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
-import { tmpSagaInstanceData } from 'src/hooks/queries/useInstance';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { getCurrentDataTypeForApplication, getCurrentTaskDataElementId, isStatelessApp } from 'src/utils/appMetadata';

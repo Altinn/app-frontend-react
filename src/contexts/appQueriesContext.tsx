@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-import { createStrictContext } from 'src/utils/createStrictContext';
+import { createStrictContext } from 'src/utils/createContext';
 import type * as queries from 'src/queries/queries';
 
 type KeysStartingWith<T, U extends string> = {
@@ -26,7 +26,7 @@ interface ContextData {
   mutations: EnhancedMutations;
 }
 
-const [Provider, useContext] = createStrictContext<ContextData>();
+const { Provider, useCtx } = createStrictContext<ContextData>();
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -58,8 +58,8 @@ export const AppQueriesProvider = ({ children, ...allQueries }: React.PropsWithC
   );
 };
 
-export const useAppQueries = () => useContext().queries;
-export const useAppMutations = () => useContext().mutations;
+export const useAppQueries = () => useCtx().queries;
+export const useAppMutations = () => useCtx().mutations;
 export const useLastMutationResult = <K extends keyof Mutations>(
   key: K,
 ): Awaited<ReturnType<Mutations[K]>> | undefined => {

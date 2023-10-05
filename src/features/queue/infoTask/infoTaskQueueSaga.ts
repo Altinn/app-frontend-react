@@ -2,11 +2,11 @@ import { all, call, put, select, take } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
 import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { tmpSagaInstanceData } from 'src/features/instance/InstanceContext';
 import { IsLoadingActions } from 'src/features/isLoading/isLoadingSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { mapAsResources } from 'src/features/textResources/resourcesAsMap';
 import { TextResourcesActions } from 'src/features/textResources/textResourcesSlice';
-import { tmpSagaInstanceData } from 'src/hooks/queries/useInstance';
 import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { convertModelToDataBinding } from 'src/utils/databindings';
 import { httpGet } from 'src/utils/network/sharedNetworking';

@@ -1,9 +1,7 @@
-import { useState } from 'react';
-
 import { useMutation } from '@tanstack/react-query';
 
 import { useAppMutations } from 'src/contexts/appQueriesContext';
-import { useInstance } from 'src/hooks/queries/useInstance';
+import { useStrictInstance } from 'src/features/instance/InstanceContext';
 import { useLanguage } from 'src/hooks/useLanguage';
 import type { IActionType, IProcess } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -15,9 +13,8 @@ interface ProcessNextProps {
 
 export function useProcessNext(node: LayoutNode) {
   const { doProcessNext } = useAppMutations();
-  const { changeData: changeInstance } = useInstance();
+  const { changeData: changeInstance } = useStrictInstance();
   const language = useLanguage().selectedLanguage;
-  const [busyWithId, setBusyWithId] = useState<string | undefined>(undefined);
 
   const utils = useMutation({
     mutationFn: ({ taskId, action }: ProcessNextProps = {}) => {

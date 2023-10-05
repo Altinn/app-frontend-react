@@ -2,9 +2,9 @@ import { all, call, put, select, take } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
 import { preProcessItem, preProcessLayout } from 'src/features/expressions/validation';
+import { tmpSagaInstanceData } from 'src/features/instance/InstanceContext';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
-import { tmpSagaInstanceData } from 'src/hooks/queries/useInstance';
 import { ComponentConfigs } from 'src/layout/components.generated';
 import { getLayoutSetIdForApplication } from 'src/utils/appMetadata';
 import { httpGet } from 'src/utils/network/networking';

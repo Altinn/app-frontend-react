@@ -3,8 +3,8 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { AxiosRequestConfig } from 'axios';
 import type { SagaIterator } from 'redux-saga';
 
+import { tmpSagaInstanceData } from 'src/features/instance/InstanceContext';
 import { ValidationActions } from 'src/features/validation/validationSlice';
-import { tmpSagaInstanceData } from 'src/hooks/queries/useInstance';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';

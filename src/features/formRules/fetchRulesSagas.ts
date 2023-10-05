@@ -2,8 +2,8 @@ import { call, put, select } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
 import { FormRulesActions } from 'src/features/formRules/rulesSlice';
+import { tmpSagaInstanceData } from 'src/features/instance/InstanceContext';
 import { QueueActions } from 'src/features/queue/queueSlice';
-import { tmpSagaInstanceData } from 'src/hooks/queries/useInstance';
 import { getLayoutSetIdForApplication } from 'src/utils/appMetadata';
 import { httpGet } from 'src/utils/network/networking';
 import { getRuleModelFields } from 'src/utils/rules';

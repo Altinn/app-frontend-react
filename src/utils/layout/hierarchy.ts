@@ -3,9 +3,9 @@ import { useMemo } from 'react';
 import { createSelector } from 'reselect';
 
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
+import { tmpSagaInstanceData, useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { useProcessData } from 'src/features/instance/useProcess';
 import { allOptions } from 'src/features/options/useAllOptions';
-import { tmpSagaInstanceData, useInstanceData } from 'src/hooks/queries/useInstance';
-import { useProcessData } from 'src/hooks/queries/useProcess';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { staticUseLanguageFromState, useLanguage } from 'src/hooks/useLanguage';
 import { getLayoutComponentObject } from 'src/layout';
@@ -138,7 +138,7 @@ export function resolvedLayoutsFromState(state: IRuntimeState) {
  * and trades verbosity and code duplication for performance and caching.
  */
 function useResolvedExpressions() {
-  const instance = useInstanceData();
+  const instance = useLaxInstanceData();
   const formData = useAppSelector((state) => state.formData.formData);
   const attachments = useAppSelector((state) => state.attachments.attachments);
   const uiConfig = useAppSelector((state) => state.formLayout.uiConfig);

@@ -3,10 +3,10 @@ import type { PropsWithChildren } from 'react';
 
 import deepEqual from 'fast-deep-equal';
 
+import { useProcessData, useRealTaskType } from 'src/features/instance/useProcess';
 import { useGetOptions } from 'src/features/options/useGetOptions';
-import { useProcessData, useRealTaskType } from 'src/hooks/queries/useProcess';
 import { ProcessTaskType } from 'src/types';
-import { createStrictContext } from 'src/utils/createStrictContext';
+import { createStrictContext } from 'src/utils/createContext';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import type { IOption } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -20,7 +20,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 export type AllOptionsMap = { [nodeId: string]: IOption[] | undefined };
 export const allOptions: AllOptionsMap = {};
 
-const [Provider, useCtx] = createStrictContext<State>();
+const { Provider, useCtx } = createStrictContext<State>();
 
 export const useAllOptions = () => useCtx().nodes;
 export const useAllOptionsInitiallyLoaded = () => useCtx().allInitiallyLoaded;

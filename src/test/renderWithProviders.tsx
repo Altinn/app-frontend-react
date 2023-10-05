@@ -51,6 +51,7 @@ export const renderWithProviders = (
       doPartyValidation: () => Promise.resolve({ valid: true, validParties: [], message: null }),
       doInstantiateWithPrefill: () => Promise.resolve(getInstanceDataMock()),
       doInstantiate: () => Promise.resolve(getInstanceDataMock()),
+      doProcessNext: () => Promise.resolve(getInstanceDataMock().process),
       fetchActiveInstances: () => Promise.resolve([]),
       fetchApplicationMetadata: () => Promise.resolve({} as unknown as IApplicationMetadata),
       fetchCurrentParty: () => Promise.resolve({}),

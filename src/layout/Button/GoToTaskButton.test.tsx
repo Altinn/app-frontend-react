@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 
 import { ButtonComponent } from 'src/layout/Button/ButtonComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
@@ -23,7 +23,7 @@ const render = ({ component, genericProps }: Partial<RenderGenericComponentTestP
       ...genericProps,
     },
     mockedQueries: {
-      fetchNextProcessSteps: () => Promise.resolve(['a', 'b']),
+      fetchProcessNextSteps: () => Promise.resolve(['a', 'b']),
     },
     manipulateStore: (store) => {
       spy = jest.spyOn(store, 'dispatch').mockImplementation(() => undefined);

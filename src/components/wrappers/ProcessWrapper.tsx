@@ -11,12 +11,12 @@ import { PresentationComponent } from 'src/components/wrappers/Presentation';
 import classes from 'src/components/wrappers/ProcessWrapper.module.css';
 import { Confirm } from 'src/features/confirm/containers/Confirm';
 import { Feedback } from 'src/features/feedback/Feedback';
+import { useStrictInstance } from 'src/features/instance/InstanceContext';
+import { useRealTaskType } from 'src/features/instance/useProcess';
 import { ForbiddenError } from 'src/features/instantiate/containers/ForbiddenError';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { PDFView } from 'src/features/pdf/PDFView';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
-import { useInstance } from 'src/hooks/queries/useInstance';
-import { useRealTaskType } from 'src/hooks/queries/useProcess';
 import { useApiErrorCheck } from 'src/hooks/useApiErrorCheck';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useProcess } from 'src/hooks/useProcess';
@@ -30,7 +30,6 @@ export interface IProcessWrapperProps {
 export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
   const isLoading = useAppSelector((state) => state.isLoading.dataTask);
   const { hasApiErrors } = useApiErrorCheck();
-  const processError = useAppSelector((state) => state.process.error);
   const { appOwner, appName } = useProcess();
   const taskType = useRealTaskType();
 
@@ -39,7 +38,7 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
   const renderPDF = searchParams.get('pdf') === '1';
   const previewPDF = searchParams.get('pdf') === 'preview' || pdfPreview;
 
-  const { isFetching: isInstanceDataFetching } = useInstance();
+  const { isFetching: isInstanceDataFetching } = useStrictInstance();
 
   if (hasApiErrors) {
     if (checkIfAxiosError(processError)) {
