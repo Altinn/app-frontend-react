@@ -41,13 +41,8 @@ export const useCustomValidationConfig = (): UseQueryResult<IExpressionValidatio
       }
     },
     onError: (error: AxiosError) => {
-      if (error.response?.status === 404) {
-        dispatch(CustomValidationActions.fetchCustomValidationsRejected(null));
-        window.logWarn('App does not support custom validation using expressions');
-      } else {
-        dispatch(CustomValidationActions.fetchCustomValidationsRejected(error));
-        window.logError('Fetching validation configuration failed:\n', error);
-      }
+      dispatch(CustomValidationActions.fetchCustomValidationsRejected(error));
+      window.logError('Fetching validation configuration failed:\n', error);
     },
   });
 };
