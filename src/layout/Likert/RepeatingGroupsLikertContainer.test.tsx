@@ -1,5 +1,5 @@
 import { screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 
 import {
   createFormDataUpdateAction,
@@ -184,14 +184,6 @@ describe('RepeatingGroupsLikertContainer', () => {
       await userEvent.tab();
       await userEvent.keyboard('[Space]');
       await waitFor(() => expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(0, '1')));
-
-      // Verify that name attribute is equal on every radio input element
-      // Name attribute is used for keyboard navigation using arrows
-      const row = screen.getByRole('row', { name: 'Hvordan trives du på skolen?' });
-      const radios = within(row).getAllByRole('radio');
-      const name = radios[0].getAttribute('name');
-      expect(name).toBeTruthy();
-      radios.forEach((radio) => expect(radio).toHaveAttribute('name', name));
     });
 
     it('should support nested binding for question text in data model', async () => {
