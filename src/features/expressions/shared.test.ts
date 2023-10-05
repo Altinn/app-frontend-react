@@ -10,7 +10,7 @@ import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
 import { getLayoutComponentObject } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
 import { getRepeatingGroups, splitDashedKey } from 'src/utils/formLayout';
-import { buildInstanceContext } from 'src/utils/instanceContext';
+import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import { _private } from 'src/utils/layout/hierarchy';
 import { generateEntireHierarchy, generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { FunctionTest, SharedTestContext, SharedTestContextList } from 'src/features/expressions/shared';
@@ -79,7 +79,7 @@ describe('Expressions shared function tests', () => {
           ...getHierarchyDataSourcesMock(),
           formData: dataModel ? dot.dot(dataModel) : {},
           attachments: attachments ?? {},
-          instanceContext: buildInstanceContext(instance),
+          instanceDataSources: buildInstanceDataSources(instance),
           applicationSettings: frontendSettings || ({} as IApplicationSettings),
           authContext: buildAuthContext(permissions),
           langTools: staticUseLanguageForTests({
@@ -185,7 +185,7 @@ describe('Expressions shared context tests', () => {
           ...getHierarchyDataSourcesMock(),
           formData: dataModel ? dot.dot(dataModel) : {},
           attachments: attachments ?? {},
-          instanceContext: buildInstanceContext(instance),
+          instanceDataSources: buildInstanceDataSources(instance),
           applicationSettings: frontendSettings || ({} as IApplicationSettings),
           authContext: buildAuthContext(permissions),
         };

@@ -10,7 +10,7 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import { staticUseLanguageFromState, useLanguage } from 'src/hooks/useLanguage';
 import { getLayoutComponentObject } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
-import { buildInstanceContext } from 'src/utils/instanceContext';
+import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { CompInternal, HierarchyDataSources, ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups, IRuntimeState } from 'src/types';
@@ -100,7 +100,7 @@ export function dataSourcesFromState(state: IRuntimeState): HierarchyDataSources
     uiConfig: state.formLayout.uiConfig,
     options: allOptions,
     applicationSettings: state.applicationSettings.applicationSettings,
-    instanceContext: buildInstanceContext(tmpSagaInstanceData.current),
+    instanceDataSources: buildInstanceDataSources(tmpSagaInstanceData.current),
     hiddenFields: new Set(state.formLayout.uiConfig.hiddenFields),
     authContext: buildAuthContext(tmpSagaInstanceData.current?.process?.currentTask),
     validations: state.formValidations.validations,
@@ -160,7 +160,7 @@ function useResolvedExpressions() {
       uiConfig,
       options,
       applicationSettings,
-      instanceContext: buildInstanceContext(instance),
+      instanceDataSources: buildInstanceDataSources(instance),
       authContext: buildAuthContext(process?.currentTask),
       hiddenFields: new Set(hiddenFields),
       validations,

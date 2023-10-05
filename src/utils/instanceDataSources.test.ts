@@ -1,7 +1,7 @@
-import { buildInstanceContext } from 'src/utils/instanceContext';
-import type { IInstance, IInstanceContext } from 'src/types/shared';
+import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
+import type { IInstance, IInstanceDataSources } from 'src/types/shared';
 
-describe('instanceContext', () => {
+describe('instanceDataSources/instanceContext', () => {
   it('should build a valid instance context', () => {
     const partyId = '1337';
     const appId = 'tdd/enapp';
@@ -14,25 +14,25 @@ describe('instanceContext', () => {
       },
     } as IInstance;
 
-    const expected: IInstanceContext = {
+    const expected: IInstanceDataSources = {
       appId,
       instanceId: instaceId,
       instanceOwnerPartyId: partyId,
       instanceOwnerPartyType: 'unknown',
     };
-    const actual = buildInstanceContext(mockInstance);
+    const actual = buildInstanceDataSources(mockInstance);
 
     expect(actual).toEqual(expected);
   });
 
   it('should handle null input gracefully', () => {
-    const actual = buildInstanceContext(null);
+    const actual = buildInstanceDataSources(null);
 
     expect(actual).toBeNull();
   });
 
   it('should handle undefined input gracefully', () => {
-    const actual = buildInstanceContext(undefined);
+    const actual = buildInstanceDataSources(undefined);
 
     expect(actual).toBeNull();
   });

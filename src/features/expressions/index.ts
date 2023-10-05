@@ -26,7 +26,7 @@ import type {
 } from 'src/features/expressions/types';
 import type { CompGroupExternal } from 'src/layout/Group/config.generated';
 import type { CompExternal } from 'src/layout/layout';
-import type { IAuthContext, IInstanceContext } from 'src/types/shared';
+import type { IAuthContext, IInstanceDataSources } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface EvalExprOptions {
@@ -314,7 +314,7 @@ function defineFunc<Args extends readonly ExprVal[], Ret extends ExprVal>(
   return def;
 }
 
-const instanceContextKeys: { [key in keyof IInstanceContext]: true } = {
+const instanceDataSourcesKeys: { [key in keyof IInstanceDataSources]: true } = {
   instanceId: true,
   appId: true,
   instanceOwnerPartyId: true,
@@ -438,11 +438,11 @@ export const ExprFunctions = {
   }),
   instanceContext: defineFunc({
     impl(key): string | null {
-      if (key === null || instanceContextKeys[key] !== true) {
+      if (key === null || instanceDataSourcesKeys[key] !== true) {
         throw new ExprRuntimeError(this, `Unknown Instance context property ${key}`);
       }
 
-      return (this.dataSources.instanceContext && this.dataSources.instanceContext[key]) || null;
+      return (this.dataSources.instanceDataSources && this.dataSources.instanceDataSources[key]) || null;
     },
     args: [ExprVal.String] as const,
     returns: ExprVal.String,

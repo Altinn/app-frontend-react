@@ -31,7 +31,7 @@ describe('Expressions', () => {
         formData: {},
         applicationSettings: {},
         hiddenFields: new Set<string>(),
-        instanceContext: {},
+        instanceDataSources: {},
       } as ContextDataSources,
       node: new NodeNotFoundWithoutContext('test'),
     };

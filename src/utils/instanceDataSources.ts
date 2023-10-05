@@ -1,6 +1,6 @@
-import type { IInstance, IInstanceContext } from 'src/types/shared';
+import type { IInstance, IInstanceDataSources } from 'src/types/shared';
 
-export function buildInstanceContext(instance?: IInstance | null | undefined): IInstanceContext | null {
+export function buildInstanceDataSources(instance?: IInstance | null | undefined): IInstanceDataSources | null {
   if (!instance || !instance.instanceOwner) {
     return null;
   }

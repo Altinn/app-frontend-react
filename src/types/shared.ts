@@ -265,7 +265,7 @@ export interface IApplicationSettings {
 export type InstanceOwnerPartyType = 'unknown' | 'org' | 'person' | 'selfIdentified';
 
 /** Describes an object with key values from current instance to be used in texts. */
-export interface IInstanceContext {
+export interface IInstanceDataSources {
   instanceId: string;
   appId: string;
   instanceOwnerPartyId: string;
