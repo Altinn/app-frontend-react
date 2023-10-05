@@ -55,7 +55,9 @@ describe('Frontend urlHelper.ts', () => {
       );
     });
     it('should return the expected url for getProcessStateUrl', () => {
-      expect(getProcessStateUrl()).toBe('https://local.altinn.cloud/ttd/test/instances/12345/instanceId-1234/process');
+      expect(getProcessStateUrl('12345/instanceId-1234')).toBe(
+        'https://local.altinn.cloud/ttd/test/instances/12345/instanceId-1234/process',
+      );
     });
     it('should return the expected url for getCreateInstancesUrl', () => {
       expect(getCreateInstancesUrl('12345')).toBe(

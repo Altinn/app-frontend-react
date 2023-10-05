@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
-import { ProcessActions } from 'src/features/process/processSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
+import { useProcessData } from 'src/hooks/queries/useProcess';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -16,7 +16,7 @@ import type { BaseButtonProps } from 'src/layout/Button/WrappedButton';
 export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: string }) => {
   const confirmingId = useAppSelector((state) => state.process.completingId);
   const [validateId, setValidateId] = useState<string | null>(null);
-  const { actions } = useAppSelector((state) => state.process);
+  const { actions } = useProcessData()?.currentTask || {};
   const disabled = !actions?.confirm;
   const resolvedNodes = useExprContext();
 

@@ -1,10 +1,9 @@
 import React from 'react';
 
 import { FormDataActions } from 'src/features/formData/formDataSlice';
-import { ProcessActions } from 'src/features/process/processSlice';
-import { useInstance } from 'src/hooks/queries/useInstance';
+import { useProcessData } from 'src/hooks/queries/useProcess';
+import { useProcessNext } from 'src/hooks/queries/useProcessNext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useCanSubmitForm } from 'src/hooks/useCanSubmitForm';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { getComponentFromMode } from 'src/layout/Button/getComponentFromMode';
@@ -24,9 +23,10 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
   const props: IButtonProvidedProps = { ...componentProps, ...node.item, node };
 
   const dispatch = useAppDispatch();
-  const currentTaskType = useInstance().data?.process?.currentTask?.altinnTaskType;
-  const { actions, write } = useAppSelector((state) => state.process);
+  const currentTaskType = useProcessData()?.currentTask?.altinnTaskType;
+  const { actions, write } = useProcessData()?.currentTask || {};
   const { canSubmit, busyWithId, message } = useCanSubmitForm();
+  const {} = useProcessNext(node);
 
   const disabled =
     !canSubmit || (currentTaskType === 'data' && !write) || (currentTaskType === 'confirmation' && !actions?.confirm);

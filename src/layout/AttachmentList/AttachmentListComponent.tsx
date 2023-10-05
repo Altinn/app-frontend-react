@@ -3,7 +3,7 @@ import React from 'react';
 import { Grid, Typography } from '@material-ui/core';
 
 import { AltinnAttachment } from 'src/components/atoms/AltinnAttachment';
-import { useInstance } from 'src/hooks/queries/useInstance';
+import { useInstanceData } from 'src/hooks/queries/useInstance';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { selectAttachments, selectDataTypesByIds } from 'src/selectors/dataTypes';
@@ -14,7 +14,7 @@ export type IAttachmentListProps = PropsFromGenericComponent<'AttachmentList'>;
 export function AttachmentListComponent({ node }: IAttachmentListProps) {
   const { dataTypeIds, includePDF } = node.item;
   const { lang } = useLanguage();
-  const instance = useInstance().data;
+  const instance = useInstanceData();
   const dataForTask = useAppSelector(selectDataTypesByIds(dataTypeIds, instance));
   const attachments = useAppSelector(selectAttachments(includePDF, dataForTask, instance));
 

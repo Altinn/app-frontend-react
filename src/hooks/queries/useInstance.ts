@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useMutation, useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import { useAppMutations, useAppQueries } from 'src/contexts/appQueriesContext';
+import { useProcessEnhancement } from 'src/hooks/queries/useProcess';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 import { DeprecatedActions } from 'src/redux/deprecatedSlice';
@@ -24,6 +25,8 @@ export interface Instantiation {
   instanceOwner: InstanceOwner;
   prefill: Prefill;
 }
+
+export type ChangeInstanceData = (callback: (instance: IInstance | undefined) => IInstance | undefined) => void;
 
 // TODO: Remove this when no sagas, etc, are using it
 export const tmpSagaInstanceData: { current: IInstance | null } = { current: null };
@@ -76,17 +79,33 @@ function useInstantiateWithPrefillMutation() {
   });
 }
 
+function useSetGlobalState(potentialNewData: IInstance | undefined, setData: (data: IInstance | undefined) => void) {
+  useEffect(() => {
+    if (potentialNewData) {
+      setData(potentialNewData);
+      tmpSagaInstanceData.current = potentialNewData;
+    }
+  }, [potentialNewData, setData]);
+}
+
 export function useInstance() {
   const idFromUrl = useInstanceIdParams()?.instanceId;
   const instantiate = useInstantiateMutation();
   const instantiateWithPrefill = useInstantiateWithPrefillMutation();
   const fetchEnabled = !instantiate.data && !instantiateWithPrefill.data && !!idFromUrl;
   const instanceData = useGetInstanceDataQuery(fetchEnabled);
-  const data = instantiate.data ?? instantiateWithPrefill.data ?? instanceData.data;
+  // const data = instantiate.data ?? instantiateWithPrefill.data ?? instanceData.data;
   const navigate = useNavigate();
 
+  const [data, setData] = useState<IInstance | undefined>(undefined);
   const [error, setError] = useState<AxiosError | undefined>(undefined);
 
+  // Update data
+  useSetGlobalState(instanceData.data, setData);
+  useSetGlobalState(instantiate.data, setData);
+  useSetGlobalState(instantiateWithPrefill.data, setData);
+
+  // Update error states
   useEffect(() => {
     instanceData.error && setError(instanceData.error);
     instantiate.error && setError(instantiate.error);
@@ -97,12 +116,7 @@ export function useInstance() {
     }
   }, [instanceData.error, instantiate.error, instantiateWithPrefill.error]);
 
-  useEffect(() => {
-    if (data) {
-      tmpSagaInstanceData.current = data;
-    }
-  }, [data]);
-
+  // Redirect to the instance page when instantiation completes
   useEffect(() => {
     if (!idFromUrl && instantiate.data?.id) {
       navigate(`instance/${instantiate.data.id}`);
@@ -112,10 +126,28 @@ export function useInstance() {
     }
   }, [instantiate.data?.id, instantiateWithPrefill.data?.id, idFromUrl, navigate]);
 
+  const clearErrors = useCallback(() => {
+    setError(undefined);
+  }, []);
+
+  const changeData: ChangeInstanceData = useCallback((callback) => {
+    setData((prev) => {
+      const next = callback(prev);
+      if (next) {
+        tmpSagaInstanceData.current = next;
+        return next;
+      }
+      return prev;
+    });
+  }, []);
+
+  useProcessEnhancement(data, changeData);
+
   return {
     data,
     instanceId: idFromUrl,
-    clearErrors: () => setError(undefined),
+    clearErrors,
+    changeData,
 
     // Query states
     isLoading: instanceData.isLoading || instantiate.isLoading || instantiateWithPrefill.isLoading,
@@ -133,3 +165,5 @@ export function useInstance() {
     instantiateWithPrefillMutation: instantiateWithPrefill,
   };
 }
+
+export const useInstanceData = () => useInstance().data;

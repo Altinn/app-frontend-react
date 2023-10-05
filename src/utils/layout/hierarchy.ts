@@ -4,7 +4,8 @@ import { createSelector } from 'reselect';
 
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
 import { allOptions } from 'src/features/options/useAllOptions';
-import { tmpSagaInstanceData, useInstance } from 'src/hooks/queries/useInstance';
+import { tmpSagaInstanceData, useInstanceData } from 'src/hooks/queries/useInstance';
+import { useProcessData } from 'src/hooks/queries/useProcess';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { staticUseLanguageFromState, useLanguage } from 'src/hooks/useLanguage';
 import { getLayoutComponentObject } from 'src/layout';
@@ -101,7 +102,7 @@ export function dataSourcesFromState(state: IRuntimeState): HierarchyDataSources
     applicationSettings: state.applicationSettings.applicationSettings,
     instanceContext: buildInstanceContext(tmpSagaInstanceData.current),
     hiddenFields: new Set(state.formLayout.uiConfig.hiddenFields),
-    authContext: buildAuthContext(state.process),
+    authContext: buildAuthContext(tmpSagaInstanceData.current?.process?.currentTask),
     validations: state.formValidations.validations,
     devTools: state.devTools,
     langTools: staticUseLanguageFromState(state),
@@ -137,12 +138,12 @@ export function resolvedLayoutsFromState(state: IRuntimeState) {
  * and trades verbosity and code duplication for performance and caching.
  */
 function useResolvedExpressions() {
-  const instance = useInstance().data;
+  const instance = useInstanceData();
   const formData = useAppSelector((state) => state.formData.formData);
   const attachments = useAppSelector((state) => state.attachments.attachments);
   const uiConfig = useAppSelector((state) => state.formLayout.uiConfig);
   const options = allOptions;
-  const process = useAppSelector((state) => state.process);
+  const process = useProcessData();
   const applicationSettings = useAppSelector((state) => state.applicationSettings.applicationSettings);
   const hiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
   const validations = useAppSelector((state) => state.formValidations.validations);
@@ -160,7 +161,7 @@ function useResolvedExpressions() {
       options,
       applicationSettings,
       instanceContext: buildInstanceContext(instance),
-      authContext: buildAuthContext(process),
+      authContext: buildAuthContext(process?.currentTask),
       hiddenFields: new Set(hiddenFields),
       validations,
       devTools,

@@ -32,7 +32,7 @@ export const fileTagUrl = (dataGuid: string) => `${appPath}/instances/${window.i
 
 export const dataElementUrl = (dataGuid: string) => `${appPath}/instances/${window.instanceId}/data/${dataGuid}`;
 
-export const getProcessStateUrl = () => `${appPath}/instances/${window.instanceId}/process`;
+export const getProcessStateUrl = (instanceId: string) => `${appPath}/instances/${instanceId}/process`;
 
 export const getCreateInstancesUrl = (partyId: string) => `${appPath}/instances?instanceOwnerPartyId=${partyId}`;
 
@@ -44,7 +44,7 @@ export const getDataValidationUrl = (instanceId: string, dataGuid: string) =>
 export const getPdfFormatUrl = (instanceId: string, dataGuid: string) =>
   `${appPath}/instances/${instanceId}/data/${dataGuid}/pdf/format`;
 
-export const getProcessNextUrl = (taskId?: string | null, language?: string | null) => {
+export const getProcessNextUrl = (taskId?: string, language?: string) => {
   const queryString = getQueryStringFromObject({
     elementId: taskId,
     lang: language,

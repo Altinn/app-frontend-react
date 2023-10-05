@@ -16,7 +16,6 @@ import { optionsSlice } from 'src/features/options/optionsSlice';
 import { orgsSlice } from 'src/features/orgs/orgsSlice';
 import { partySlice } from 'src/features/party/partySlice';
 import { pdfSlice } from 'src/features/pdf/data/pdfSlice';
-import { processSlice } from 'src/features/process/processSlice';
 import { profileSlice } from 'src/features/profile/profileSlice';
 import { queueSlice } from 'src/features/queue/queueSlice';
 import { textResourcesSlice } from 'src/features/textResources/textResourcesSlice';
@@ -42,7 +41,6 @@ const slices = [
   orgsSlice,
   partySlice,
   pdfSlice,
-  processSlice,
   profileSlice,
   queueSlice,
   textResourcesSlice,

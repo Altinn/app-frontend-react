@@ -1,5 +1,4 @@
 import type { IOnEntry } from 'src/features/applicationMetadata';
-import type { IProcessPermissions } from 'src/features/process';
 import type { FixedLanguageList } from 'src/language/languages';
 
 export interface IApplication {
@@ -221,7 +220,15 @@ export type ITask = {
   altinnTaskType: string;
   ended?: string | null;
   validated?: IValidated | null;
-} & Partial<IProcessPermissions>;
+
+  read?: boolean | null;
+  write?: boolean | null;
+  actions?: IProcessActions | null;
+};
+
+export type IProcessActions = {
+  [k in IActionType]?: boolean;
+};
 
 export interface ITitle {
   [key: string]: string;

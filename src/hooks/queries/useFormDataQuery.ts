@@ -8,10 +8,10 @@ import { StatelessReadyState, useStatelessReadyState } from 'src/features/entryp
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FormRulesActions } from 'src/features/formRules/rulesSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
-import { useInstance } from 'src/hooks/queries/useInstance';
+import { useInstanceData } from 'src/hooks/queries/useInstance';
+import { useRealTaskType } from 'src/hooks/queries/useProcess';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useRealTaskType } from 'src/hooks/useProcess';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { ProcessTaskType } from 'src/types';
 import { getCurrentTaskDataElementId, getDataTypeByLayoutSetId, isStatelessApp } from 'src/utils/appMetadata';
@@ -39,7 +39,7 @@ export function useFormDataQuery(): UseQueryResult<IFormData> {
     isEnabled = false;
   }
 
-  const instance = useInstance().data;
+  const instance = useInstanceData();
   const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
   const statelessDataType = isStateless
     ? getDataTypeByLayoutSetId(appMetaData?.onEntry?.show, layoutSets, appMetaData)

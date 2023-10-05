@@ -4,8 +4,7 @@ import type { PropsWithChildren } from 'react';
 import deepEqual from 'fast-deep-equal';
 
 import { useGetOptions } from 'src/features/options/useGetOptions';
-import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useRealTaskType } from 'src/hooks/useProcess';
+import { useProcessData, useRealTaskType } from 'src/hooks/queries/useProcess';
 import { ProcessTaskType } from 'src/types';
 import { createStrictContext } from 'src/utils/createStrictContext';
 import { useExprContext } from 'src/utils/layout/ExprContext';
@@ -105,7 +104,7 @@ function isNodeOptionBased(node: LayoutNode) {
 export function AllOptionsProvider({ children }: PropsWithChildren) {
   const nodes = useExprContext();
   const currentTaskType = useRealTaskType();
-  const currentTaskId = useAppSelector((state) => state.process.taskId) ?? undefined;
+  const currentTaskId = useProcessData()?.currentTask?.elementId;
   const initialState: State = {
     allInitiallyLoaded: false,
     nodes: {},

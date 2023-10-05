@@ -3,7 +3,6 @@ import { applicationSettingsMock } from 'src/__mocks__/applicationSettingsMock';
 import { getFormDataStateMock } from 'src/__mocks__/formDataStateMock';
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
 import { partyMock } from 'src/__mocks__/partyMock';
-import { getProcessStateMock } from 'src/__mocks__/processMock';
 import { getProfileStateMock } from 'src/__mocks__/profileStateMock';
 import { DevToolsTab } from 'src/features/devtools/data/types';
 import type { IRuntimeState } from 'src/types';
@@ -93,7 +92,6 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
       method: null,
       error: null,
     },
-    process: getProcessStateMock(),
     profile: getProfileStateMock(),
     queue: {
       appTask: { error: null },

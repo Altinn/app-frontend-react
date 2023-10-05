@@ -4,8 +4,8 @@ import type { SagaIterator } from 'redux-saga';
 import { removeHiddenValidationsSaga } from 'src/features/dynamics/conditionalRenderingSagas';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import {
+  fetchLayoutSaga,
   fetchLayoutSetsSaga,
-  watchFetchFormLayoutSaga,
   watchFetchFormLayoutSettingsSaga,
 } from 'src/features/layout/fetch/fetchFormLayoutSagas';
 import { initRepeatingGroupsSaga } from 'src/features/layout/repGroups/initRepeatingGroupsSaga';
@@ -78,7 +78,7 @@ export const formLayoutSlice = () => {
       extraSagas: [watchInitialCalculatePageOrderAndMoveToNextPageSaga],
       actions: {
         fetch: mkAction<void>({
-          saga: () => watchFetchFormLayoutSaga,
+          takeEvery: fetchLayoutSaga,
         }),
         fetchFulfilled: mkAction<LayoutTypes.IFetchLayoutFulfilled>({
           reducer: (state, action) => {

@@ -67,6 +67,8 @@ export const renderWithProviders = (
       fetchDataList: () => Promise.resolve({} as unknown as IDataList),
       fetchInstanceData: () => Promise.resolve(getInstanceDataMock()),
       fetchAppLanguages: () => Promise.resolve([]),
+      fetchProcessState: () => Promise.resolve(getInstanceDataMock().process),
+      fetchProcessNextSteps: () => Promise.resolve([]),
     } as AppQueriesContext;
     const mockedQueries = { ...allMockedQueries, ...queries };
 

@@ -5,19 +5,18 @@ import { Checkbox } from '@digdir/design-system-react';
 
 import classes from 'src/features/devtools/components/PermissionsEditor/PermissionsEditor.module.css';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
-import { ProcessActions } from 'src/features/process/processSlice';
-import { useAppSelector } from 'src/hooks/useAppSelector';
-import type { IGetProcessStateFulfilled, IProcessPermissions } from 'src/features/process';
-import type { ProcessTaskType } from 'src/types';
+import { useProcessData, useTaskTypeFromBackend } from 'src/hooks/queries/useProcess';
+import type { IGetProcessStateFulfilled } from 'src/features/process';
 
 export const PermissionsEditor = () => {
-  const { read, write, actions, taskType, taskId } = useAppSelector((state) => state.process);
+  const { read, write, actions, elementId: taskId } = useProcessData()?.currentTask || {};
+  const taskType = useTaskTypeFromBackend();
   const dispatch = useDispatch();
 
   function handleChange(mutator: (obj: IProcessPermissions) => void) {
     const processState: IGetProcessStateFulfilled = {
       taskId,
-      taskType: taskType as ProcessTaskType,
+      taskType,
       read,
       write,
       actions: actions ?? {},

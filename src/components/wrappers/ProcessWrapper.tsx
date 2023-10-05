@@ -16,11 +16,11 @@ import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { PDFView } from 'src/features/pdf/PDFView';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
 import { useInstance } from 'src/hooks/queries/useInstance';
+import { useRealTaskType } from 'src/hooks/queries/useProcess';
 import { useApiErrorCheck } from 'src/hooks/useApiErrorCheck';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useProcess } from 'src/hooks/useProcess';
 import { ProcessTaskType } from 'src/types';
-import { behavesLikeDataTask } from 'src/utils/formLayout';
 import { checkIfAxiosError, HttpStatusCodes } from 'src/utils/network/networking';
 
 export interface IProcessWrapperProps {
@@ -29,10 +29,10 @@ export interface IProcessWrapperProps {
 
 export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
   const isLoading = useAppSelector((state) => state.isLoading.dataTask);
-  const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
   const { hasApiErrors } = useApiErrorCheck();
   const processError = useAppSelector((state) => state.process.error);
-  const { process, appOwner, appName } = useProcess();
+  const { appOwner, appName } = useProcess();
+  const taskType = useRealTaskType();
 
   const { pdfPreview } = useAppSelector((state) => state.devTools);
   const [searchParams] = useSearchParams();
@@ -50,11 +50,6 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
     }
     return <UnknownError />;
   }
-
-  if (!process?.taskType) {
-    return null;
-  }
-  const { taskType } = process;
 
   if (renderPDF) {
     return (
@@ -79,7 +74,7 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
         >
           {isLoading === false && isFetching !== true && !isInstanceDataFetching ? (
             <>
-              {taskType === ProcessTaskType.Data || behavesLikeDataTask(process.taskId, layoutSets) ? (
+              {taskType === ProcessTaskType.Data ? (
                 <Form />
               ) : taskType === ProcessTaskType.Confirm ? (
                 <Confirm />

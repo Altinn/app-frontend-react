@@ -22,8 +22,8 @@ const render = ({ component, genericProps }: Partial<RenderGenericComponentTestP
     genericProps: {
       ...genericProps,
     },
-    manipulateState: (state) => {
-      state.process.availableNextTasks = ['a', 'b'];
+    mockedQueries: {
+      fetchNextProcessSteps: () => Promise.resolve(['a', 'b']),
     },
     manipulateStore: (store) => {
       spy = jest.spyOn(store, 'dispatch').mockImplementation(() => undefined);

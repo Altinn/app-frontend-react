@@ -2,7 +2,6 @@ import { all, call, put, select, take } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
 import { preProcessItem, preProcessLayout } from 'src/features/expressions/validation';
-import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { tmpSagaInstanceData } from 'src/hooks/queries/useInstance';
@@ -113,13 +112,6 @@ export function* fetchLayoutSaga(): SagaIterator {
     yield put(FormLayoutActions.fetchRejected({ error }));
     yield put(QueueActions.dataTaskQueueError({ error }));
     window.logError('Fetching form layout failed:\n', error);
-  }
-}
-
-export function* watchFetchFormLayoutSaga(): SagaIterator {
-  while (true) {
-    yield all([take(FormLayoutActions.fetch), take(FormDataActions.fetchFulfilled)]);
-    yield call(fetchLayoutSaga);
   }
 }
 

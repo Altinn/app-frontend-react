@@ -3,9 +3,8 @@ import React from 'react';
 import { createTheme, MuiThemeProvider, Typography } from '@material-ui/core';
 
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
-import { ProcessActions } from 'src/features/process/processSlice';
+import { useTaskTypeFromBackend } from 'src/hooks/queries/useProcess';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 
@@ -13,7 +12,7 @@ const theme = createTheme(AltinnAppTheme);
 
 export function Feedback() {
   const dispatch = useAppDispatch();
-  const processState = useAppSelector((state) => state.process.taskType);
+  const processState = useTaskTypeFromBackend();
   const { lang } = useLanguage();
 
   React.useEffect(() => {

@@ -2,7 +2,7 @@ import type { AxiosRequestConfig } from 'axios';
 import type { JSONSchema7 } from 'json-schema';
 
 import { httpPost } from 'src/utils/network/networking';
-import { httpGet } from 'src/utils/network/sharedNetworking';
+import { httpGet, httpPut } from 'src/utils/network/sharedNetworking';
 import {
   applicationLanguagesUrl,
   applicationMetadataApiUrl,
@@ -14,6 +14,8 @@ import {
   getJsonSchemaUrl,
   getLayoutSetsUrl,
   getPartyValidationUrl,
+  getProcessNextUrl,
+  getProcessStateUrl,
   instancesControllerUrl,
   instantiateUrl,
   profileApiUrl,
@@ -28,7 +30,19 @@ import type { IPartyValidationResponse } from 'src/features/party';
 import type { Instantiation } from 'src/hooks/queries/useInstance';
 import type { IOption } from 'src/layout/common.generated';
 import type { ILayoutSets, ISimpleInstance } from 'src/types';
-import type { IAltinnOrgs, IAppLanguage, IApplicationSettings, IInstance, IProfile } from 'src/types/shared';
+import type {
+  IActionType,
+  IAltinnOrgs,
+  IAppLanguage,
+  IApplicationSettings,
+  IInstance,
+  IProcess,
+  IProfile,
+} from 'src/types/shared';
+
+/**
+ * Mutation functions (these should use httpPost or httpPut and start with 'do')
+ */
 
 export const doPartyValidation = async (partyId: string): Promise<IPartyValidationResponse> =>
   (await httpPost(getPartyValidationUrl(partyId))).data;
@@ -39,11 +53,22 @@ export const doInstantiateWithPrefill = async (data: Instantiation): Promise<IIn
 export const doInstantiate = async (partyId: string): Promise<IInstance> =>
   (await httpPost(getCreateInstancesUrl(partyId))).data;
 
+export const doProcessNext = async (taskId?: string, language?: string, action?: IActionType): Promise<IProcess> =>
+  httpPut(getProcessNextUrl(taskId, language), action ? { action } : null);
+
+/**
+ * Query functions (these should use httpGet and start with 'fetch')
+ */
+
 export const fetchActiveInstances = (partyId: string): Promise<ISimpleInstance[]> =>
   httpGet(getActiveInstancesUrl(partyId));
 
 export const fetchInstanceData = (instanceId: string): Promise<IInstance> =>
   httpGet(`${instancesControllerUrl}/${instanceId}`);
+
+export const fetchProcessState = (instanceId: string): Promise<IProcess> => httpGet(getProcessStateUrl(instanceId));
+
+export const fetchProcessNextSteps = (): Promise<string[]> => httpGet(getProcessNextUrl());
 
 export const fetchApplicationMetadata = (): Promise<IApplicationMetadata> => httpGet(applicationMetadataApiUrl);
 
