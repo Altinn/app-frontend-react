@@ -10,6 +10,7 @@ import type { PreloadedState } from 'redux';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { AppQueriesProvider } from 'src/contexts/appQueriesContext';
+import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
 import { AllOptionsProvider } from 'src/features/options/useAllOptions';
 import { setupStore } from 'src/redux/store';
 import { MemoryRouterWithRedirectingRoot } from 'src/test/memoryRouterWithRedirectingRoot';
@@ -79,12 +80,14 @@ export const renderWithProviders = (
           <AppQueriesProvider {...mockedQueries}>
             <MuiThemeProvider theme={theme}>
               <Provider store={store}>
-                <ExprContextWrapper>
-                  <Route
-                    path={'instance/:partyId/:instanceGuid'}
-                    element={children}
-                  />
-                </ExprContextWrapper>
+                <InstantiationProvider>
+                  <ExprContextWrapper>
+                    <Route
+                      path={'instance/:partyId/:instanceGuid'}
+                      element={children}
+                    />
+                  </ExprContextWrapper>
+                </InstantiationProvider>
               </Provider>
             </MuiThemeProvider>
           </AppQueriesProvider>

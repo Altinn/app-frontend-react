@@ -12,7 +12,6 @@ import { QueueActions } from 'src/features/queue/queueSlice';
 import { useApplicationMetadataQuery } from 'src/hooks/queries/useApplicationMetadataQuery';
 import { useApplicationSettingsQuery } from 'src/hooks/queries/useApplicationSettingsQuery';
 import { useFooterLayoutQuery } from 'src/hooks/queries/useFooterLayoutQuery';
-import { useFormDataQuery } from 'src/hooks/queries/useFormDataQuery';
 import { useCurrentPartyQuery } from 'src/hooks/queries/useGetCurrentPartyQuery';
 import { usePartiesQuery } from 'src/hooks/queries/useGetPartiesQuery';
 import { useLayoutSetsQuery } from 'src/hooks/queries/useLayoutSetsQuery';
@@ -80,11 +79,10 @@ const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | n
 
   useKeepAlive(applicationSettings.appOidcProvider, allowAnonymous);
   useUpdatePdfState(allowAnonymous);
-  const { isFetching: isFormDataFetching } = useFormDataQuery();
   const optionsInitiallyLoaded = useAllOptionsInitiallyLoaded();
 
   const hasComponentError = hasProfileError || hasCurrentPartyError || hasPartiesError;
-  const isFetching = isProfileFetching || isPartiesFetching || isFormDataFetching || !optionsInitiallyLoaded;
+  const isFetching = isProfileFetching || isPartiesFetching || !optionsInitiallyLoaded;
 
   // Set the title of the app
   React.useEffect(() => {

@@ -5,10 +5,13 @@ import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
-import { useProcessEnhancement } from 'src/features/instance/useProcess';
+import { FormDataProvider } from 'src/features/formData/FormDataContext';
+import { useProcessEnhancement, useRealTaskTypeById } from 'src/features/instance/useProcess';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
+import { IsLoadingActions } from 'src/features/isLoading/isLoadingSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { DeprecatedActions } from 'src/redux/deprecatedSlice';
+import { ProcessTaskType } from 'src/types';
 import { createLaxContext } from 'src/utils/createContext';
 import { maybeAuthenticationRedirect } from 'src/utils/maybeAuthenticationRedirect';
 import type { IInstance } from 'src/types/shared';
@@ -29,7 +32,6 @@ export interface InstanceContext {
   error: AxiosError | undefined;
 
   // Methods/utilities
-  // clearErrors: () => void;
   changeData: ChangeInstanceData;
 
   // Process navigation state
@@ -76,31 +78,32 @@ function useSetGlobalState(potentialNewData: IInstance | undefined, setData: (da
   }, [potentialNewData, setData]);
 }
 
-function useInstanceContext(partyId?: string, instanceGuid?: string) {
+export const InstanceProvider = ({ children }: { children: React.ReactNode }) => {
+  const { partyId, instanceGuid } = useParams();
+  const [busyWithId, setBusyWithId] = useState<string | undefined>(undefined);
+  const [processNavigationError, setProcessNavigationError] = useState<AxiosError | undefined>(undefined);
+  const dispatch = useAppDispatch();
+
   const instantiation = useInstantiation();
   const fetchEnabled = !(instantiation.isLoading || instantiation.lastResult);
-  const instanceData = useGetInstanceDataQuery(fetchEnabled, partyId, instanceGuid);
+  const fetchQuery = useGetInstanceDataQuery(fetchEnabled, partyId, instanceGuid);
 
   const [data, setData] = useState<IInstance | undefined>(undefined);
   const [error, setError] = useState<AxiosError | undefined>(undefined);
 
   // Update data
-  useSetGlobalState(instanceData.data, setData);
+  useSetGlobalState(fetchQuery.data, setData);
   useSetGlobalState(instantiation.lastResult, setData);
 
   // Update error states
   useEffect(() => {
-    instanceData.error && setError(instanceData.error);
+    fetchQuery.error && setError(fetchQuery.error);
     instantiation.error && setError(instantiation.error);
 
-    if (instanceData.error) {
+    if (fetchQuery.error) {
       tmpSagaInstanceData.current = null;
     }
-  }, [instanceData.error, instantiation.error]);
-
-  // const clearErrors = useCallback(() => {
-  //   setError(undefined);
-  // }, []);
+  }, [fetchQuery.error, instantiation.error]);
 
   const changeData: ChangeInstanceData = useCallback((callback) => {
     setData((prev) => {
@@ -115,24 +118,13 @@ function useInstanceContext(partyId?: string, instanceGuid?: string) {
 
   useProcessEnhancement(data, changeData);
 
-  return {
-    data,
-    // clearErrors,
-    changeData,
-
-    // Query states
-    isLoading: instanceData.isLoading,
-    isFetching: instanceData.isFetching,
-    isError: !!error,
-    error,
-  };
-}
-
-export const InstanceProvider = ({ children }: { children: React.ReactNode }) => {
-  const { partyId, instanceGuid } = useParams();
-  const instance = useInstanceContext(partyId, instanceGuid);
-  const [busyWithId, setBusyWithId] = useState<string | undefined>(undefined);
-  const [processNavigationError, setProcessNavigationError] = useState<AxiosError | undefined>(undefined);
+  const taskId = data?.process?.currentTask?.elementId;
+  const realTaskType = useRealTaskTypeById(taskId);
+  useEffect(() => {
+    if (realTaskType === ProcessTaskType.Data) {
+      dispatch(IsLoadingActions.startDataTaskIsLoading());
+    }
+  }, [dispatch, realTaskType]);
 
   if (!partyId || !instanceGuid) {
     throw new Error('Tried providing instance without partyId or instanceGuid');
@@ -145,12 +137,11 @@ export const InstanceProvider = ({ children }: { children: React.ReactNode }) =>
   return (
     <Provider
       value={{
-        data: instance.data,
-        isLoading: instance.isLoading,
-        isFetching: instance.isFetching,
-        error: instance.error,
-        // clearErrors: instance.clearErrors,
-        changeData: instance.changeData,
+        data,
+        isLoading: data ? false : fetchQuery.isLoading,
+        isFetching: fetchQuery.isFetching,
+        error,
+        changeData,
         partyId,
         instanceGuid,
         instanceId,
@@ -163,7 +154,7 @@ export const InstanceProvider = ({ children }: { children: React.ReactNode }) =>
         },
       }}
     >
-      {children}
+      <FormDataProvider>{children}</FormDataProvider>
     </Provider>
   );
 };
@@ -190,7 +181,7 @@ export const useStrictInstance = () => {
 export const useStrictInstanceData = () => {
   const data = useStrictInstance().data;
   if (!data) {
-    throw new Error('Tried using instance data outside of instance context provider, or before data was loaded');
+    throw new Error('Tried using instance data before data was loaded');
   }
 
   return data;

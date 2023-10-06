@@ -63,7 +63,7 @@ function useInstantiateWithPrefillMutation() {
   });
 }
 
-export function InstantiationContext({ children }: React.PropsWithChildren) {
+export function InstantiationProvider({ children }: React.PropsWithChildren) {
   const navigate = useNavigate();
   const instantiate = useInstantiateMutation();
   const instantiateWithPrefill = useInstantiateWithPrefillMutation();

@@ -3,16 +3,16 @@ import { Navigate } from 'react-router-dom';
 
 import type { AxiosError } from 'axios';
 
-import { AltinnContentIconFormData } from 'src/components/atoms/AltinnContentIconFormData';
 import { Form } from 'src/components/form/Form';
-import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoader';
 import { PresentationComponent } from 'src/components/wrappers/Presentation';
 import { StatelessReadyState, useStatelessReadyState } from 'src/features/entrypoint/useStatelessReadyState';
+import { FormDataProvider } from 'src/features/formData/FormDataContext';
 import { InstanceSelection } from 'src/features/instantiate/containers/InstanceSelection';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
+import { Loader } from 'src/features/isLoading/Loader';
 import { PartyActions } from 'src/features/party/partySlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
@@ -21,7 +21,6 @@ import { useActiveInstancesQuery } from 'src/hooks/queries/useActiveInstancesQue
 import { useAlwaysPromptForParty } from 'src/hooks/useAlwaysPromptForParty';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useLanguage } from 'src/hooks/useLanguage';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
 import { PresentationType, ProcessTaskType } from 'src/types';
 import { checkIfAxiosError, HttpStatusCodes } from 'src/utils/network/networking';
@@ -30,7 +29,6 @@ import type { ShowTypes } from 'src/features/applicationMetadata';
 export function Entrypoint() {
   const [action, setAction] = React.useState<ShowTypes | null>(null);
   const selectedParty = useAppSelector((state) => state.party.selectedParty);
-  const { lang } = useLanguage();
 
   const {
     data: partyValidation,
@@ -148,24 +146,12 @@ export function Entrypoint() {
         appOwner={appOwner}
         type={PresentationType.Stateless}
       >
-        <div>
+        <FormDataProvider>
           <Form />
-        </div>
+        </FormDataProvider>
       </PresentationComponent>
     );
   }
 
-  return (
-    <PresentationComponent
-      header={lang('instantiate.starting')}
-      type={ProcessTaskType.Unknown}
-    >
-      <AltinnContentLoader
-        width='100%'
-        height='400'
-      >
-        <AltinnContentIconFormData />
-      </AltinnContentLoader>
-    </PresentationComponent>
-  );
+  return <Loader />;
 }

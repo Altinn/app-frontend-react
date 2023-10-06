@@ -73,8 +73,12 @@ export function useTaskTypeFromBackend() {
  * @see useTaskTypeFromBackend
  */
 export function useRealTaskType() {
-  const taskType = useTaskTypeFromBackend();
   const taskId = useProcessData()?.currentTask?.elementId;
+  return useRealTaskTypeById(taskId || undefined);
+}
+
+export function useRealTaskTypeById(taskId: string | undefined) {
+  const taskType = useTaskTypeFromBackend();
   const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
   const isDataTask = behavesLikeDataTask(taskId, layoutSets);
   return isDataTask ? ProcessTaskType.Data : taskType;

@@ -18,6 +18,7 @@ import { ErrorBoundary } from 'src/components/ErrorBoundary';
 import { ThemeWrapper } from 'src/components/ThemeWrapper';
 import { AppQueriesProvider } from 'src/contexts/appQueriesContext';
 import { DevTools } from 'src/features/devtools/DevTools';
+import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
 import { LayoutValidationProvider } from 'src/features/layoutValidation/useLayoutValidationCurrentPage';
 import { AllOptionsProvider } from 'src/features/options/useAllOptions';
 import * as queries from 'src/queries/queries';
@@ -40,15 +41,17 @@ document.addEventListener('DOMContentLoaded', () => {
           <AppWrapper>
             <AppQueriesProvider {...queries}>
               <ThemeWrapper>
-                <ExprContextWrapper>
-                  <LayoutValidationProvider>
-                    <AllOptionsProvider>
-                      <DevTools>
-                        <App />
-                      </DevTools>
-                    </AllOptionsProvider>
-                  </LayoutValidationProvider>
-                </ExprContextWrapper>
+                <InstantiationProvider>
+                  <ExprContextWrapper>
+                    <LayoutValidationProvider>
+                      <AllOptionsProvider>
+                        <DevTools>
+                          <App />
+                        </DevTools>
+                      </AllOptionsProvider>
+                    </LayoutValidationProvider>
+                  </ExprContextWrapper>
+                </InstantiationProvider>
               </ThemeWrapper>
             </AppQueriesProvider>
           </AppWrapper>
