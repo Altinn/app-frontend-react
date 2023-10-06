@@ -38,7 +38,7 @@ const render = ({ onClick, busyWithId = '' }) => {
     <WrappedButton
       onClick={onClick}
       busyWithId={busyWithId}
-      id={'some-id'}
+      nodeId={'some-id'}
       disabled={false}
     >
       {buttonText}

@@ -29,8 +29,17 @@ export interface InstanceContext {
   error: AxiosError | undefined;
 
   // Methods/utilities
-  clearErrors: () => void;
+  // clearErrors: () => void;
   changeData: ChangeInstanceData;
+
+  // Process navigation state
+  processNavigation: {
+    busy: boolean;
+    busyWithId: string | undefined;
+    setBusyWithId: (id: string | undefined) => void;
+    error: AxiosError | undefined;
+    setError: (error: AxiosError | undefined) => void;
+  };
 }
 
 export type ChangeInstanceData = (callback: (instance: IInstance | undefined) => IInstance | undefined) => void;
@@ -89,9 +98,9 @@ function useInstanceContext(partyId?: string, instanceGuid?: string) {
     }
   }, [instanceData.error, instantiation.error]);
 
-  const clearErrors = useCallback(() => {
-    setError(undefined);
-  }, []);
+  // const clearErrors = useCallback(() => {
+  //   setError(undefined);
+  // }, []);
 
   const changeData: ChangeInstanceData = useCallback((callback) => {
     setData((prev) => {
@@ -108,7 +117,7 @@ function useInstanceContext(partyId?: string, instanceGuid?: string) {
 
   return {
     data,
-    clearErrors,
+    // clearErrors,
     changeData,
 
     // Query states
@@ -122,6 +131,8 @@ function useInstanceContext(partyId?: string, instanceGuid?: string) {
 export const InstanceProvider = ({ children }: { children: React.ReactNode }) => {
   const { partyId, instanceGuid } = useParams();
   const instance = useInstanceContext(partyId, instanceGuid);
+  const [busyWithId, setBusyWithId] = useState<string | undefined>(undefined);
+  const [processNavigationError, setProcessNavigationError] = useState<AxiosError | undefined>(undefined);
 
   if (!partyId || !instanceGuid) {
     throw new Error('Tried providing instance without partyId or instanceGuid');
@@ -138,17 +149,31 @@ export const InstanceProvider = ({ children }: { children: React.ReactNode }) =>
         isLoading: instance.isLoading,
         isFetching: instance.isFetching,
         error: instance.error,
-        clearErrors: instance.clearErrors,
+        // clearErrors: instance.clearErrors,
         changeData: instance.changeData,
         partyId,
         instanceGuid,
         instanceId,
+        processNavigation: {
+          busy: !!busyWithId,
+          busyWithId,
+          setBusyWithId,
+          error: processNavigationError,
+          setError: setProcessNavigationError,
+        },
       }}
     >
       {children}
     </Provider>
   );
 };
+
+/**
+ * There are strict and lax (relaxed) versions of both of these. The lax versions will return undefined if the context
+ * is not available, while the strict versions will throw an error. Always prefer the strict versions in code you
+ * know should only be used in instanceful contexts. Code paths that have to work in stateless/instanceless contexts
+ * should use the lax versions and handle the undefined case.
+ */
 
 export const useLaxInstance = () => useCtx();
 export const useLaxInstanceData = () => useLaxInstance()?.data;

@@ -20,7 +20,7 @@ export const buttonStyles: { [style in ActionButtonStyle]: { color: ButtonColor;
 export type IActionButton = PropsFromGenericComponent<'ActionButton'>;
 
 export function ActionButtonComponent({ node }: IActionButton) {
-  const { busyWithId, isLoading, mutate } = useProcessNext(node);
+  const { busyWithId, isLoading, mutate } = useProcessNext(node.item.id);
   const actionPermissions = useProcessData()?.currentTask?.actions;
   const { lang } = useLanguage();
 

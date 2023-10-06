@@ -17,7 +17,8 @@ export function Feedback() {
 
   React.useEffect(() => {
     if (processState) {
-      dispatch(ProcessActions.checkIfUpdated());
+      // PRIORITY: Re-implement
+      // dispatch(ProcessActions.checkIfUpdated());
     }
   }, [processState, dispatch]);
 

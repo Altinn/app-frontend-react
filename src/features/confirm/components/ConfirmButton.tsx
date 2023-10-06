@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 
 import { useProcessData } from 'src/features/instance/useProcess';
+import { useProcessNext } from 'src/features/instance/useProcessNext';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { SubmitButton } from 'src/layout/Button/SubmitButton';
 import { useExprContext } from 'src/utils/layout/ExprContext';
@@ -13,12 +13,15 @@ import { mapValidationIssues } from 'src/utils/validation/backendValidation';
 import { createValidationResult } from 'src/utils/validation/validationHelpers';
 import type { BaseButtonProps } from 'src/layout/Button/WrappedButton';
 
-export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: string }) => {
-  const confirmingId = useAppSelector((state) => state.process.completingId);
-  const [validateId, setValidateId] = useState<string | null>(null);
+type IConfirmButtonProps = Omit<BaseButtonProps, 'onClick'>;
+
+export const ConfirmButton = (props: IConfirmButtonProps) => {
+  const [validating, setValidating] = useState<boolean>(false);
   const { actions } = useProcessData()?.currentTask || {};
+  const { nodeId } = props;
   const disabled = !actions?.confirm;
   const resolvedNodes = useExprContext();
+  const { mutate: processNext, busyWithId: processNextBusyId } = useProcessNext(nodeId);
 
   const dispatch = useAppDispatch();
   const langTools = useLanguage();
@@ -27,7 +30,9 @@ export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: st
 
   const handleConfirmClick = () => {
     if (!disabled && instanceId && resolvedNodes) {
-      setValidateId(props.id);
+      setValidating(true);
+
+      // TODO: Do not handle validating here, do it generically in the useProcessNext hook instead
       httpGet(getValidationUrl(instanceId))
         .then((serverValidations: any) => {
           const validationObjects = mapValidationIssues(serverValidations, resolvedNodes, langTools);
@@ -39,20 +44,19 @@ export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: st
             }),
           );
           if (serverValidations.length === 0) {
-            dispatch(ProcessActions.complete({ componentId: props.id, action: 'confirm' }));
+            processNext({ action: 'confirm' });
           }
         })
         .catch((error) => {
-          dispatch(ProcessActions.completeRejected({ error: JSON.parse(JSON.stringify(error)) }));
           window.logError('Validating on confirm failed:\n', error);
         })
         .finally(() => {
-          setValidateId(null);
+          setValidating(false);
         });
     }
   };
 
-  const busyWithId = confirmingId || validateId || null;
+  const busyWithId = processNextBusyId || (validating ? nodeId : null) || null;
 
   return (
     <div style={{ marginTop: 'var(--button-margin-top)' }}>

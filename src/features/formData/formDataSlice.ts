@@ -1,5 +1,3 @@
-import type { AnyAction } from 'redux';
-
 import { autoSaveSaga, saveFormDataSaga, submitFormSaga } from 'src/features/formData/submit/submitFormDataSagas';
 import { deleteAttachmentReferenceSaga, updateFormDataSaga } from 'src/features/formData/update/updateFormDataSagas';
 import { checkIfRuleShouldRunSaga } from 'src/features/formRules/checkRulesSagas';
@@ -25,9 +23,6 @@ export const initialState: IFormDataState = {
   error: null,
   reFetch: false,
 };
-
-const isProcessAction = (action: AnyAction) =>
-  action.type === ProcessActions.completeFulfilled.type || action.type === ProcessActions.completeRejected.type;
 
 export let FormDataActions: ActionsFromSlice<typeof formDataSlice>;
 export const formDataSlice = () => {
@@ -124,13 +119,6 @@ export const formDataSlice = () => {
       deleteAttachmentReference: mkAction<IDeleteAttachmentReference>({
         takeEvery: deleteAttachmentReferenceSaga,
       }),
-    },
-    extraReducers: (builder) => {
-      builder
-        .addMatcher(isProcessAction, (state) => {
-          state.submittingId = '';
-        })
-        .addDefaultCase((state) => state);
     },
   }));
 

@@ -31,6 +31,7 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
   const isLoading = useAppSelector((state) => state.isLoading.dataTask);
   const { hasApiErrors } = useApiErrorCheck();
   const { appOwner, appName } = useProcess();
+  const { error: processError } = useStrictInstance().processNavigation;
   const taskType = useRealTaskType();
 
   const { pdfPreview } = useAppSelector((state) => state.devTools);
@@ -40,7 +41,7 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
 
   const { isFetching: isInstanceDataFetching } = useStrictInstance();
 
-  if (hasApiErrors) {
+  if (hasApiErrors || processError) {
     if (checkIfAxiosError(processError)) {
       const axiosError = processError as AxiosError;
       if (axiosError.status === HttpStatusCodes.Forbidden) {

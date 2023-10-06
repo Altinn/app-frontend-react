@@ -6,25 +6,28 @@ import { Checkbox } from '@digdir/design-system-react';
 import classes from 'src/features/devtools/components/PermissionsEditor/PermissionsEditor.module.css';
 import { useProcessData, useTaskTypeFromBackend } from 'src/features/instance/useProcess';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
-import type { IGetProcessStateFulfilled } from 'src/features/process';
 
 export const PermissionsEditor = () => {
-  const { read, write, actions, elementId: taskId } = useProcessData()?.currentTask || {};
-  const taskType = useTaskTypeFromBackend();
+  const { read: _read, write, actions, elementId: _taskId } = useProcessData()?.currentTask || {};
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const _taskType = useTaskTypeFromBackend();
   const dispatch = useDispatch();
 
-  function handleChange(mutator: (obj: IProcessPermissions) => void) {
-    const processState: IGetProcessStateFulfilled = {
-      taskId,
-      taskType,
-      read,
-      write,
-      actions: actions ?? {},
-    };
+  function handleChange(_mutator: (obj: any) => void) {
+    // function handleChange(mutator: (obj: IProcessPermissions) => void) {
+    // const processState: IGetProcessStateFulfilled = {
+    //   taskId,
+    //   taskType,
+    //   read,
+    //   write,
+    //   actions: actions ?? {},
+    // };
+    //
+    // mutator(processState);
 
-    mutator(processState);
-
-    dispatch(ProcessActions.getFulfilled(processState));
+    // PRIORITY: Fix this
+    // dispatch(ProcessActions.getFulfilled(processState));
     dispatch(FormLayoutActions.updateLayouts({}));
   }
 

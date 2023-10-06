@@ -2,6 +2,7 @@ import React from 'react';
 
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { useProcessData } from 'src/features/instance/useProcess';
+import { useProcessNext } from 'src/features/instance/useProcessNext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useCanSubmitForm } from 'src/hooks/useCanSubmitForm';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -25,7 +26,7 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
   const currentTaskType = useProcessData()?.currentTask?.altinnTaskType;
   const { actions, write } = useProcessData()?.currentTask || {};
   const { canSubmit, busyWithId, message } = useCanSubmitForm();
-  // const {} = useProcessNext(node);
+  const { mutate: processNext } = useProcessNext(node.item.id);
 
   const disabled =
     !canSubmit || (currentTaskType === 'data' && !write) || (currentTaskType === 'confirmation' && !actions?.confirm);
@@ -56,15 +57,15 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
           }),
         );
       } else if (currentTaskType === 'confirmation') {
-        dispatch(ProcessActions.complete({ componentId, action: 'confirm' }));
+        processNext({ action: 'confirm' });
       }
     }
   };
   return (
     <div style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}>
       <SubmitButton
+        nodeId={node.item.id}
         onClick={() => submitTask({ componentId: id })}
-        id={id}
         busyWithId={busyWithId}
         disabled={disabled}
         message={message}
