@@ -40,10 +40,9 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
   const instanceIdFromUrl = useInstanceIdParams()?.instanceId;
   window.instanceId = instanceIdFromUrl;
 
-  const { pdfPreview } = useAppSelector((state) => state.devTools);
   const [searchParams] = useSearchParams();
   const renderPDF = searchParams.get('pdf') === '1';
-  const previewPDF = searchParams.get('pdf') === 'preview' || pdfPreview;
+  const { pdfPreview: previewPDF } = useAppSelector((state) => state.devTools);
 
   React.useEffect(() => {
     if (!instantiating && !instanceId) {
