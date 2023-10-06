@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import { usePdfFormatQuery } from 'src/hooks/queries/usePdfFormatQuery';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLayoutComponentObject } from 'src/layout';
@@ -28,6 +30,13 @@ export const usePdfPage = (): LayoutPage | null => {
 
   const readyForPrint = !!layoutPages && !pdfFormatIsLoading;
 
+  const automaticPdfPage = useMemo(() => {
+    if (readyForPrint && method === 'auto') {
+      return generateAutomaticPage(pdfFormat!, tracks!, layoutPages!, dataSources, repeatingGroups!);
+    }
+    return null;
+  }, [readyForPrint, method, pdfFormat, tracks, layoutPages, dataSources, repeatingGroups]);
+
   if (!readyForPrint) {
     return null;
   }
@@ -35,11 +44,11 @@ export const usePdfPage = (): LayoutPage | null => {
   if (method === 'custom') {
     return customPdfPage!;
   } else {
-    return generateAutomaticLayout(pdfFormat!, tracks!, layoutPages, dataSources, repeatingGroups!);
+    return automaticPdfPage!;
   }
 };
 
-function generateAutomaticLayout(
+function generateAutomaticPage(
   pdfFormat: IPdfFormat,
   tracks: ITracks,
   layoutPages: LayoutPages,
@@ -48,6 +57,7 @@ function generateAutomaticLayout(
 ): LayoutPage {
   const automaticPdfLayout: ILayout = [];
 
+  // Add instance information
   const instanceInformation: CompInstanceInformationExternal = {
     id: '__pdf__instance-information',
     type: 'InstanceInformation',
@@ -68,6 +78,7 @@ function generateAutomaticLayout(
   const hiddenPages = new Set(tracks.hidden);
   const pageOrder = tracks.order;
 
+  // Iterate over all pages, and add all components that should be included in the automatic PDF as summary components
   Object.entries(layoutPages.all())
     .filter(([pageName]) => !excludedPages.has(pageName) && !hiddenPages.has(pageName) && pageOrder?.includes(pageName))
     .sort(([pA], [pB]) => (pageOrder ? pageOrder.indexOf(pA) - pageOrder.indexOf(pB) : 0))
@@ -94,6 +105,8 @@ function generateAutomaticLayout(
         automaticPdfLayout.push(summaryComponent);
       }
     });
+
+  // Generate the hierarchy for the automatic PDF layout
   const pdfPage = generateHierarchy(automaticPdfLayout, repeatingGroups, dataSources, getLayoutComponentObject);
   pdfPage.top = { myKey: PDF_LAYOUT_NAME, collection: layoutPages };
   return pdfPage;
