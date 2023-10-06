@@ -79,6 +79,8 @@ const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
                 hideLabel={true}
                 name={rowLabelId}
                 id={inputId}
+                // popoverOpen={popoverOpen}
+                // setPopoverOpen={setPopoverOpen}
               />
             </div>
           </TableCell>

@@ -21,7 +21,8 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
   const labelSettings = 'labelSettings' in node.item ? node.item.labelSettings : undefined;
   const { selected, handleChange, handleBlur, fetchingOptions, calculatedOptions } = useRadioButtons(props);
   const { lang, langAsString } = useLanguage();
-
+  console.log(node);
+  // console.log(popoverOpen);
   const getLabelPrefixForLikert = () => {
     if (
       node.parent.item.type === 'Group' &&
@@ -50,7 +51,7 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
     layout,
     optionsCount: calculatedOptions.length,
   });
-
+  console.log(calculatedOptions);
   return (
     <div>
       {fetchingOptions ? (
@@ -86,6 +87,7 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
                 description={lang(option.description)}
                 helpText={lang(option.helpText)}
                 name={id}
+                relatedComponentsId={option.relatedComponentsId}
                 key={option.value}
                 checked={option.value === selected}
                 showAsCard={showAsCard}
@@ -93,6 +95,8 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
                 onChange={handleChange}
                 hideLabel={hideLabel}
                 size='small'
+                // popoverOpen={popoverOpen}
+                // setPopoverOpen={setPopoverOpen}
               />
             ))}
           </Radio.Group>

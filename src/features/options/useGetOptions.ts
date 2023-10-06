@@ -60,7 +60,7 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
   const calculatedOptions = sourceOptions || fetchedOptions || staticOptions;
   usePreselectedOptionIndex(calculatedOptions, props);
   useRemoveStaleValues(calculatedOptions, props);
-
+  console.log(fetchedOptions);
   return {
     options:
       removeDuplicates && calculatedOptions
