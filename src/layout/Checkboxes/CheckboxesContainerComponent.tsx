@@ -111,7 +111,7 @@ export const CheckboxContainerComponent = ({
             size='small'
           >
             {
-              <span className={`${hideLabel ? 'sr-only' : ''} ${classes.checkBoxLabelContainer}`}>
+              <span className={cn({ 'sr-only': hideLabel }, classes.checkBoxLabelContainer)}>
                 {langAsString(option.label)}
                 {option.helpText && (
                   <HelpText title={getPlainTextFromNode(option.helpText)}>{lang(option.helpText)}</HelpText>
