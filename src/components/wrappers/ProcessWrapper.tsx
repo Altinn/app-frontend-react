@@ -30,7 +30,8 @@ export interface IProcessWrapperProps {
 
 export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
   const instantiating = useAppSelector((state) => state.instantiation.instantiating);
-  const isLoading = useAppSelector((state) => state.isLoading.dataTask);
+  const dataTaskIsLoading = useAppSelector((state) => state.isLoading.dataTask);
+  const isLoading = dataTaskIsLoading !== false || isFetching === true;
   const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
   const { hasApiErrors } = useApiErrorCheck();
   const processError = useAppSelector((state) => state.process.error);
@@ -70,6 +71,9 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
   const { taskType } = process;
 
   if (renderPDF) {
+    if (isLoading) {
+      return null;
+    }
     return (
       <PDFView
         appName={appName as string}
@@ -90,7 +94,7 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
           appOwner={appOwner}
           type={taskType}
         >
-          {isLoading === false && isFetching !== true ? (
+          {!isLoading ? (
             <>
               {taskType === ProcessTaskType.Data || behavesLikeDataTask(process.taskId, layoutSets) ? (
                 <Form />
@@ -114,7 +118,7 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
           )}
         </PresentationComponent>
       </div>
-      {previewPDF && (
+      {previewPDF && !isLoading && (
         <div className={cn(classes['content'], classes['hide-pdf'])}>
           <PDFView
             appName={appName as string}

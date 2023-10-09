@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 
-import { useAllOptionsInitiallyLoaded } from 'src/features/options/useAllOptions';
 import { usePdfFormatQuery } from 'src/hooks/queries/usePdfFormatQuery';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLayoutComponentObject } from 'src/layout';
@@ -19,7 +18,6 @@ const PDF_LAYOUT_NAME = '__pdf__';
 
 export const usePdfPage = (): LayoutPage | null => {
   const layoutPages = useExprContext();
-  const optionsLoaded = useAllOptionsInitiallyLoaded();
   const dataSources = useAppSelector(dataSourcesFromState);
   const tracks = useAppSelector((state) => state.formLayout.uiConfig.tracks);
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
@@ -30,7 +28,7 @@ export const usePdfPage = (): LayoutPage | null => {
 
   const { data: pdfFormat, isLoading: pdfFormatIsLoading } = usePdfFormatQuery(method === 'auto');
 
-  const readyForPrint = !!layoutPages && !pdfFormatIsLoading && optionsLoaded;
+  const readyForPrint = !!layoutPages && !pdfFormatIsLoading;
 
   const automaticPdfPage = useMemo(() => {
     if (readyForPrint && method === 'auto') {
