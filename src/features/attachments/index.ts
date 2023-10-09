@@ -1,6 +1,7 @@
 export interface IAttachmentState {
   attachments: IAttachments;
   error?: Error;
+  pendingMapping?: boolean;
 }
 
 export interface IAttachment {

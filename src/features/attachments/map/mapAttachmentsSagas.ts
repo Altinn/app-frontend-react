@@ -1,32 +1,17 @@
-import { all, call, put, select, take, takeEvery } from 'redux-saga/effects';
+import { put, select } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
-import { ApplicationMetadataActions } from 'src/features/applicationMetadata/applicationMetadataSlice';
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
-import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { tmpSagaInstanceData } from 'src/features/instance/InstanceContext';
-import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
-import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { getCurrentTaskData } from 'src/utils/appMetadata';
 import { mapAttachmentListToAttachments } from 'src/utils/attachment';
+import { waitFor } from 'src/utils/sagas';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
 import type { ILayouts } from 'src/layout/layout';
 import type { ILayoutSets, IRuntimeState } from 'src/types';
 import type { IInstance } from 'src/types/shared';
-
-export function* watchMapAttachmentsSaga(): SagaIterator {
-  yield all([
-    take(FormDataActions.fetchFulfilled),
-    take(FormLayoutActions.fetchFulfilled),
-    take(FormLayoutActions.updateCurrentViewFulfilled),
-    take(DeprecatedActions.instanceDataFetchFulfilled),
-    take(ApplicationMetadataActions.getFulfilled),
-  ]);
-  yield call(mapAttachments);
-  yield takeEvery(AttachmentActions.mapAttachments, mapAttachments);
-}
 
 export const SelectApplicationMetaData = (state: IRuntimeState): IApplicationMetadata | null =>
   state.applicationMetadata.applicationMetadata;
@@ -36,14 +21,16 @@ export const SelectFormLayoutSets = (state: IRuntimeState): ILayoutSets | null =
 
 export function* mapAttachments(): SagaIterator {
   try {
+    yield waitFor((state) => SelectApplicationMetaData(state) !== null);
+    yield waitFor((state) => SelectFormLayouts(state) !== null);
+    yield waitFor((state) => SelectFormData(state) !== null);
     const instance = tmpSagaInstanceData.current as IInstance;
+    const formData = yield select(SelectFormData);
     const applicationMetadata = yield select(SelectApplicationMetaData);
     const layoutSets: ILayoutSets = yield select(SelectFormLayoutSets);
-    const defaultElement = getCurrentTaskData(applicationMetadata, instance, layoutSets);
-
-    const formData = yield select(SelectFormData);
     const layouts = yield select(SelectFormLayouts);
 
+    const defaultElement = getCurrentTaskData(applicationMetadata, instance, layoutSets);
     const instanceData = instance.data;
     const mappedAttachments: IAttachments = mapAttachmentListToAttachments(
       instanceData,

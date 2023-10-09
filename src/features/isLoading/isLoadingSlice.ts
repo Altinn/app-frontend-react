@@ -1,4 +1,4 @@
-import { watcherFinishDataTaskIsloadingSaga } from 'src/features/isLoading/dataTaskIsLoadingSagas';
+import { watcherFinishDataTaskIsLoadingSaga } from 'src/features/isLoading/dataTaskIsLoadingSagas';
 import { watcherFinishStatelessIsLoadingSaga } from 'src/features/isLoading/statelessIsLoadingSagas';
 import { createSagaSlice } from 'src/redux/sagaSlice';
 import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
@@ -25,7 +25,7 @@ export const isLoadingSlice = () => {
         },
       }),
       finishDataTaskIsLoading: mkAction<void>({
-        saga: () => watcherFinishDataTaskIsloadingSaga,
+        saga: () => watcherFinishDataTaskIsLoadingSaga,
         reducer: (state) => {
           state.dataTask = false;
         },

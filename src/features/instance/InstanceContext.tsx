@@ -52,16 +52,11 @@ const { Provider, useCtx } = createLaxContext<InstanceContext>();
 export const tmpSagaInstanceData: { current: IInstance | null } = { current: null };
 
 function useGetInstanceDataQuery(enabled = false, partyId: string | undefined, instanceGuid: string | undefined) {
-  const dispatch = useAppDispatch();
-
   const { fetchInstanceData } = useAppQueries();
   return useQuery({
     queryKey: ['fetchInstanceData', partyId, instanceGuid],
     queryFn: () => fetchInstanceData(`${partyId}`, `${instanceGuid}`),
     enabled: enabled && !!partyId && !!instanceGuid,
-    onSuccess: () => {
-      dispatch(DeprecatedActions.instanceDataFetchFulfilled());
-    },
     onError: async (error: HttpClientError) => {
       await maybeAuthenticationRedirect(error);
       window.logError('Fetching instance data failed:\n', error);
@@ -69,13 +64,18 @@ function useGetInstanceDataQuery(enabled = false, partyId: string | undefined, i
   });
 }
 
-function useSetGlobalState(potentialNewData: IInstance | undefined, setData: (data: IInstance | undefined) => void) {
+function useSetGlobalState(
+  potentialNewData: IInstance | undefined,
+  setData: (data: IInstance | undefined) => void,
+  dispatch: ReturnType<typeof useAppDispatch>,
+) {
   useEffect(() => {
     if (potentialNewData) {
       setData(potentialNewData);
       tmpSagaInstanceData.current = potentialNewData;
+      dispatch(DeprecatedActions.instanceDataFetchFulfilled());
     }
-  }, [potentialNewData, setData]);
+  }, [potentialNewData, setData, dispatch]);
 }
 
 export const InstanceProvider = ({ children }: { children: React.ReactNode }) => {
@@ -92,8 +92,8 @@ export const InstanceProvider = ({ children }: { children: React.ReactNode }) =>
   const [error, setError] = useState<AxiosError | undefined>(undefined);
 
   // Update data
-  useSetGlobalState(fetchQuery.data, setData);
-  useSetGlobalState(instantiation.lastResult, setData);
+  useSetGlobalState(fetchQuery.data, setData, dispatch);
+  useSetGlobalState(instantiation.lastResult, setData, dispatch);
 
   // Update error states
   useEffect(() => {

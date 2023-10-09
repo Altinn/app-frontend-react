@@ -24,6 +24,7 @@ export interface IFormDataState {
 
   // Setting this to true will force a re-fetch of the form data.
   reFetch?: boolean;
+  pendingUrl?: string;
 }
 
 export interface IFormData {

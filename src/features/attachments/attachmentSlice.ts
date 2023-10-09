@@ -1,5 +1,5 @@
 import { deleteAttachmentSaga } from 'src/features/attachments/delete/deleteAttachmentSagas';
-import { watchMapAttachmentsSaga } from 'src/features/attachments/map/mapAttachmentsSagas';
+import { mapAttachments } from 'src/features/attachments/map/mapAttachmentsSagas';
 import { updateAttachmentSaga } from 'src/features/attachments/update/updateAttachmentSagas';
 import { uploadAttachmentSaga } from 'src/features/attachments/upload/uploadAttachmentSagas';
 import { createSagaSlice } from 'src/redux/sagaSlice';
@@ -28,6 +28,7 @@ import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
 const initialState: IAttachmentState = {
   attachments: {},
   error: undefined,
+  pendingMapping: false,
 };
 
 export let AttachmentActions: ActionsFromSlice<typeof attachmentSlice>;
@@ -137,12 +138,16 @@ export const attachmentSlice = () => {
         },
       }),
       mapAttachments: mkAction<void>({
-        saga: () => watchMapAttachmentsSaga,
+        takeEvery: mapAttachments,
+        reducer: (state) => {
+          state.pendingMapping = true;
+        },
       }),
       mapAttachmentsFulfilled: mkAction<IMapAttachmentsActionFulfilled>({
         reducer: (state, action) => {
           const { attachments } = action.payload;
           state.attachments = attachments;
+          state.pendingMapping = false;
         },
       }),
       mapAttachmentsRejected: mkAction<IMapAttachmentsActionRejected>({

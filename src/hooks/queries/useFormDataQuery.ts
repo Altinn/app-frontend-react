@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+
 import { useQuery } from '@tanstack/react-query';
 import type { UseQueryResult } from '@tanstack/react-query';
 import type { AxiosRequestConfig } from 'axios';
@@ -66,12 +68,18 @@ export function useFormDataQuery(): UseQueryResult<IFormData> {
   // on the server).
   const currentTaskId = instance?.process?.currentTask?.elementId;
 
+  useEffect(() => {
+    if (isEnabled && url !== undefined) {
+      dispatch(FormDataActions.fetchPending({ url }));
+    }
+  }, [dispatch, isEnabled, url]);
+
   const { fetchFormData } = useAppQueries();
   const out = useQuery(['fetchFormData', url, currentTaskId], () => fetchFormData(url || '', options), {
     enabled: isEnabled && url !== undefined,
     onSuccess: (formDataAsObj) => {
       const formData = convertModelToDataBinding(formDataAsObj);
-      dispatch(FormDataActions.fetchFulfilled({ formData }));
+      dispatch(FormDataActions.fetchFulfilled({ formData, url }));
       dispatch(FormRulesActions.fetch());
       dispatch(FormDynamicsActions.fetch());
     },

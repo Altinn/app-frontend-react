@@ -22,6 +22,7 @@ export const initialState: IFormDataState = {
   submittingId: '',
   error: null,
   reFetch: false,
+  pendingUrl: undefined,
 };
 
 export let FormDataActions: ActionsFromSlice<typeof formDataSlice>;
@@ -35,12 +36,20 @@ export const formDataSlice = () => {
           state.reFetch = true;
         },
       }),
+      fetchPending: mkAction<{ url: string }>({
+        reducer: (state, action) => {
+          state.pendingUrl = action.payload.url;
+        },
+      }),
       fetchFulfilled: mkAction<IFetchFormDataFulfilled>({
         reducer: (state, action) => {
-          const { formData } = action.payload;
+          const { formData, url } = action.payload;
           state.formData = formData;
           state.lastSavedFormData = formData;
           state.reFetch = false;
+          if (state.pendingUrl === url) {
+            state.pendingUrl = undefined;
+          }
         },
       }),
       fetchRejected: mkAction<IFormDataRejected>({

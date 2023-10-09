@@ -6,6 +6,7 @@ export interface IFetchFormData {
 
 export interface IFetchFormDataFulfilled {
   formData: any;
+  url?: string;
 }
 
 export interface IFormDataRejected {
