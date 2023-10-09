@@ -25,6 +25,7 @@ export function validationContextFromState(state: IRuntimeState, node: LayoutNod
     instance: tmpSagaInstanceData.current,
     layoutSets: state.formLayout.layoutsets,
     schemas: state.formDataModel.schemas,
+    customValidation: state.customValidation.customValidation,
   };
 }
 

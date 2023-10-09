@@ -16,6 +16,10 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
     attachments: {
       attachments: {},
     },
+    customValidation: {
+      customValidation: null,
+      error: null,
+    },
     devTools: {
       activeTab: DevToolsTab.General,
       isOpen: false,

@@ -10,6 +10,7 @@ import {
   currentPartyUrl,
   getActiveInstancesUrl,
   getCreateInstancesUrl,
+  getCustomValidationConfigUrl,
   getFooterLayoutUrl,
   getJsonSchemaUrl,
   getLayoutSetsUrl,
@@ -41,10 +42,7 @@ import type {
   IProcess,
   IProfile,
 } from 'src/types/shared';
-
-/**
- * Mutation functions (these should use httpPost or httpPut and start with 'do')
- */
+import type { IExpressionValidationConfig } from 'src/utils/validation/types';
 
 export const doPartyValidation = async (partyId: string): Promise<IPartyValidationResponse> =>
   (await httpPost(getPartyValidationUrl(partyId))).data;
@@ -97,7 +95,11 @@ export const fetchAppLanguages = (): Promise<IAppLanguage[]> => httpGet(applicat
 
 export const fetchRefreshJwtToken = () => httpGet(refreshJwtTokenUrl);
 
+export const fetchCustomValidationConfig = (dataTypeId: string): Promise<IExpressionValidationConfig | null> =>
+  httpGet(getCustomValidationConfigUrl(dataTypeId));
+
 export const fetchUserProfile = (): Promise<IProfile> => httpGet(profileApiUrl);
+
 export const fetchDataModelSchema = (dataTypeName: string): Promise<JSONSchema7> =>
   httpGet(getJsonSchemaUrl() + dataTypeName);
 
