@@ -1,5 +1,6 @@
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
+import { asExpression } from 'src/features/expressions/validation';
 import { getBaseDataModelBindings } from 'src/utils/databindings';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { ExprConfig } from 'src/features/expressions/types';
@@ -14,6 +15,12 @@ import type {
   IValidationContext,
   IValidationObject,
 } from 'src/utils/validation/types';
+
+const EXPR_CONFIG: ExprConfig<ExprVal.Boolean> = {
+  defaultValue: false,
+  returnType: ExprVal.Boolean,
+  resolvePerRow: false,
+};
 
 /**
  * Resolves a reusable expression validation definition.
@@ -38,12 +45,18 @@ function resolveExpressionValidationDefinition(
     resolvedDefinition = { ...reference, ...definitionWithoutRef };
   }
 
+  resolvedDefinition.condition = asExpression(
+    resolvedDefinition.condition,
+    EXPR_CONFIG,
+    `Custom validation:\nDefinition for ${name} has an invalid condition.`,
+  );
+
   if (!('message' in resolvedDefinition)) {
     window.logWarn(`Custom validation:\nDefinition for ${name} is missing a message.`);
     return null;
   }
 
-  if (!('condition' in resolvedDefinition)) {
+  if (typeof resolvedDefinition.condition === 'undefined') {
     window.logWarn(`Custom validation:\nDefinition for ${name} is missing a condition.`);
     return null;
   }
@@ -94,12 +107,18 @@ function resolveExpressionValidation(
     } as IExpressionValidation;
   }
 
+  expressionValidation.condition = asExpression(
+    expressionValidation.condition,
+    EXPR_CONFIG,
+    `Custom validation:\nValidation for ${field} has an invalid condition.`,
+  );
+
   if (!('message' in expressionValidation)) {
     window.logWarn(`Custom validation:\nValidation for ${field} is missing a message.`);
     return null;
   }
 
-  if (!('condition' in expressionValidation)) {
+  if (typeof expressionValidation.condition === 'undefined') {
     window.logWarn(`Custom validation:\nValidation for ${field} is missing a condition.`);
     return null;
   }
@@ -155,13 +174,6 @@ export function runExpressionValidationsOnNode(
       ...overrideFormData,
     },
   };
-  const config: ExprConfig<ExprVal.Any> = {
-    returnType: ExprVal.Any,
-    defaultValue: null,
-    resolvePerRow: false,
-    errorAsException: true,
-  };
-
   const validationObjects: IValidationObject[] = [];
 
   for (const [bindingKey, field] of Object.entries(baseDataModelBindings)) {
@@ -170,18 +182,14 @@ export function runExpressionValidationsOnNode(
       continue;
     }
     for (const validationDef of validationDefs) {
-      try {
-        const resolvedField = resolvedDataModelBindings[bindingKey];
-        const isInvalid = evalExpr(validationDef.condition, node, newDataSources, {
-          config,
-          positionalArguments: [resolvedField],
-        });
-        if (isInvalid) {
-          const message = langTools.langAsString(validationDef.message);
-          validationObjects.push(buildValidationObject(node, validationDef.severity, message, bindingKey));
-        }
-      } catch (e) {
-        window.logError(`Custom validation:\nValidation for ${field} failed to evaluate:\n`, e);
+      const resolvedField = resolvedDataModelBindings[bindingKey];
+      const isInvalid = evalExpr(validationDef.condition, node, newDataSources, {
+        config: EXPR_CONFIG,
+        positionalArguments: [resolvedField],
+      });
+      if (isInvalid) {
+        const message = langTools.langAsString(validationDef.message);
+        validationObjects.push(buildValidationObject(node, validationDef.severity, message, bindingKey));
       }
     }
   }

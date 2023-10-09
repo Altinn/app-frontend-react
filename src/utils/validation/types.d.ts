@@ -132,7 +132,7 @@ export interface BackendValidationIssue {
  */
 export type IExpressionValidation = {
   message: string;
-  condition: Expression;
+  condition: Expression | ExprValToActual;
   severity: ValidationSeverity;
 };
 
@@ -148,7 +148,7 @@ export type IExpressionValidations = {
  */
 export type IExpressionValidationRefResolved = {
   message: string;
-  condition: Expression;
+  condition: Expression | ExprValToActual;
   severity?: ValidationSeverity;
 };
 
@@ -160,7 +160,7 @@ export type IExpressionValidationRefUnresolved =
   | {
       // If extending using a reference, assume that message and condition are inherited if undefined. This must be verified at runtime.
       message?: string;
-      condition?: Expression;
+      condition?: Expression | ExprValToActual;
       severity?: ValidationSeverity;
       ref: string;
     };
