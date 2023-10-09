@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 import {
   runExpressionRules,
@@ -9,13 +9,14 @@ import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
+import { createLaxContext } from 'src/utils/createContext';
 import { _private, selectDataSourcesFromState } from 'src/utils/layout/hierarchy';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutNodeFromObj } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
-export const ExprContext = React.createContext<LayoutPages | undefined>(undefined);
+export const { Provider, useCtx } = createLaxContext<LayoutPages>();
 
 /**
  * React hook used for getting a memoized LayoutPages object where you can look up components.
@@ -32,7 +33,7 @@ export const ExprContextWrapper = (props: React.PropsWithChildren) => {
   const resolvedNodes = useLayoutsAsNodes();
   useLegacyHiddenComponents(resolvedNodes);
 
-  return <ExprContext.Provider value={resolvedNodes}>{props.children}</ExprContext.Provider>;
+  return <Provider value={resolvedNodes}>{props.children}</Provider>;
 };
 
 /**
@@ -42,7 +43,7 @@ export const ExprContextWrapper = (props: React.PropsWithChildren) => {
  *
  * Usually, if you're looking for a specific component/node, useResolvedNode() is better.
  */
-export const useExprContext = () => useContext(ExprContext);
+export const useExprContext = () => useCtx();
 
 /**
  * Given a selector, get a LayoutNode object

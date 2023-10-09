@@ -4,7 +4,7 @@ import { createSelector } from 'reselect';
 
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
 import { tmpSagaInstanceData, useLaxInstanceData } from 'src/features/instance/InstanceContext';
-import { useProcessData } from 'src/features/instance/useProcess';
+import { useLaxProcessData } from 'src/features/instance/useProcess';
 import { allOptions } from 'src/features/options/useAllOptions';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { staticUseLanguageFromState, useLanguage } from 'src/hooks/useLanguage';
@@ -143,7 +143,7 @@ function useResolvedExpressions() {
   const attachments = useAppSelector((state) => state.attachments.attachments);
   const uiConfig = useAppSelector((state) => state.formLayout.uiConfig);
   const options = allOptions;
-  const process = useProcessData();
+  const process = useLaxProcessData();
   const applicationSettings = useAppSelector((state) => state.applicationSettings.applicationSettings);
   const hiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
   const validations = useAppSelector((state) => state.formValidations.validations);

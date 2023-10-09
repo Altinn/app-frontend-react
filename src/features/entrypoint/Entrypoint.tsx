@@ -13,6 +13,7 @@ import { MissingRolesError } from 'src/features/instantiate/containers/MissingRo
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/isLoading/Loader';
+import { AllOptionsProvider } from 'src/features/options/useAllOptions';
 import { PartyActions } from 'src/features/party/partySlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
@@ -147,7 +148,9 @@ export function Entrypoint() {
         type={PresentationType.Stateless}
       >
         <FormDataProvider>
-          <Form />
+          <AllOptionsProvider>
+            <Form />
+          </AllOptionsProvider>
         </FormDataProvider>
       </PresentationComponent>
     );

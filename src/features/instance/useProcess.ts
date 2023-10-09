@@ -45,7 +45,7 @@ export function useProcessEnhancement(instance: IInstance | undefined, changeDat
   }, [enhancedProcessState.data, changeData]);
 }
 
-export const useProcessData = () => useLaxInstanceData()?.process;
+export const useLaxProcessData = () => useLaxInstanceData()?.process;
 
 /**
  * This returns the task type of the current process task, as we got it from the backend
@@ -53,7 +53,7 @@ export const useProcessData = () => useLaxInstanceData()?.process;
  * @see useRealTaskType
  */
 export function useTaskTypeFromBackend() {
-  const processData = useProcessData();
+  const processData = useLaxProcessData();
 
   if (processData?.ended) {
     return ProcessTaskType.Archived;
@@ -73,7 +73,7 @@ export function useTaskTypeFromBackend() {
  * @see useTaskTypeFromBackend
  */
 export function useRealTaskType() {
-  const taskId = useProcessData()?.currentTask?.elementId;
+  const taskId = useLaxProcessData()?.currentTask?.elementId;
   return useRealTaskTypeById(taskId || undefined);
 }
 

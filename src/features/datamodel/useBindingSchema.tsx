@@ -6,7 +6,7 @@ import { dotNotationToPointer } from 'src/features/datamodel/notations';
 import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { getCurrentDataTypeForApplication } from 'src/utils/appMetadata';
+import { getCurrentDataTypeForApplication, getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { getRootElementPath } from 'src/utils/schemaUtils';
 import type { IDataModelBindings } from 'src/layout/layout';
 
@@ -14,15 +14,23 @@ type AsSchema<T> = {
   [P in keyof T]: JSONSchema7 | null;
 };
 
+export function useCurrentDataModelGuid() {
+  const instance = useLaxInstanceData();
+  const application = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
+  const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
+
+  return getCurrentTaskDataElementId(application, instance, layoutSets);
+}
+
 export function useCurrentDataModelName() {
   const instance = useLaxInstanceData();
-  return useAppSelector((state) =>
-    getCurrentDataTypeForApplication({
-      application: state.applicationMetadata.applicationMetadata,
-      instance,
-      layoutSets: state.formLayout.layoutsets,
-    }),
-  );
+  const application = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
+  const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
+  return getCurrentDataTypeForApplication({
+    application,
+    instance,
+    layoutSets,
+  });
 }
 
 export function useCurrentDataModelSchema() {

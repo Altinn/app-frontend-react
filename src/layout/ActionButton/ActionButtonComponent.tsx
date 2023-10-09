@@ -4,7 +4,7 @@ import { Button } from '@digdir/design-system-react';
 
 import type { PropsFromGenericComponent } from '..';
 
-import { useProcessData } from 'src/features/instance/useProcess';
+import { useLaxProcessData } from 'src/features/instance/useProcess';
 import { useProcessNext } from 'src/features/instance/useProcessNext';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { ButtonLoader } from 'src/layout/Button/ButtonLoader';
@@ -21,7 +21,7 @@ export type IActionButton = PropsFromGenericComponent<'ActionButton'>;
 
 export function ActionButtonComponent({ node }: IActionButton) {
   const { busyWithId, isLoading, mutate } = useProcessNext(node.item.id);
-  const actionPermissions = useProcessData()?.currentTask?.actions;
+  const actionPermissions = useLaxProcessData()?.currentTask?.actions;
   const { lang } = useLanguage();
 
   const { action, buttonStyle, id, textResourceBindings } = node.item;

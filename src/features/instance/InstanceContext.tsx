@@ -5,11 +5,14 @@ import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
+import { DataModelSchemaProvider } from 'src/features/datamodel/DataModelSchemaProvider';
 import { FormDataProvider } from 'src/features/formData/FormDataContext';
 import { useProcessEnhancement, useRealTaskTypeById } from 'src/features/instance/useProcess';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import { IsLoadingActions } from 'src/features/isLoading/isLoadingSlice';
+import { AllOptionsProvider } from 'src/features/options/useAllOptions';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { LegacyProcessTriggersProvider } from 'src/hooks/useLegacyProcessTriggers';
 import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { ProcessTaskType } from 'src/types';
 import { createLaxContext } from 'src/utils/createContext';
@@ -154,7 +157,13 @@ export const InstanceProvider = ({ children }: { children: React.ReactNode }) =>
         },
       }}
     >
-      <FormDataProvider>{children}</FormDataProvider>
+      <LegacyProcessTriggersProvider>
+        <DataModelSchemaProvider>
+          <FormDataProvider>
+            <AllOptionsProvider>{children}</AllOptionsProvider>
+          </FormDataProvider>
+        </DataModelSchemaProvider>
+      </LegacyProcessTriggersProvider>
     </Provider>
   );
 };

@@ -37,7 +37,7 @@ const render = (submittingId: string) => {
       handleDataChange: jest.fn(),
     },
     manipulateState: (state) => {
-      state.formData.submittingId = submittingId;
+      state.formData.submitting.id = submittingId;
     },
   });
 };

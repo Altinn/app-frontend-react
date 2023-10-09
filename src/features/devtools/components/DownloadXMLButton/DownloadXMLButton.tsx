@@ -6,17 +6,14 @@ import { Button, Fieldset } from '@digdir/design-system-react';
 import { DownloadIcon, UploadIcon } from '@navikt/aksel-icons';
 import axios from 'axios';
 
+import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
-import { useAppSelector } from 'src/hooks/useAppSelector';
-import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { getFetchFormDataUrl } from 'src/utils/urls/appUrlHelper';
 
 export const DownloadXMLButton = () => {
-  const appMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
   const instance = useLaxInstanceData();
-  const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
-  const dataElementId = getCurrentTaskDataElementId(appMetadata, instance, layoutSets);
+  const dataElementId = useCurrentDataModelGuid();
   const dispatch = useDispatch();
 
   const downloadXML = async () => {

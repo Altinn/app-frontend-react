@@ -19,7 +19,7 @@ import { PDFView } from 'src/features/pdf/PDFView';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
 import { useApiErrorCheck } from 'src/hooks/useApiErrorCheck';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useProcess } from 'src/hooks/useProcess';
+import { selectAppName, selectAppOwner } from 'src/selectors/language';
 import { ProcessTaskType } from 'src/types';
 import { checkIfAxiosError, HttpStatusCodes } from 'src/utils/network/networking';
 
@@ -32,7 +32,8 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
   const dataTaskIsLoading = useAppSelector((state) => state.isLoading.dataTask);
   const isLoading = dataTaskIsLoading !== false || isFetching === true || isInstanceDataFetching;
   const { hasApiErrors } = useApiErrorCheck();
-  const { appOwner, appName } = useProcess();
+  const appName = useAppSelector(selectAppName);
+  const appOwner = useAppSelector(selectAppOwner);
   const { error: processError } = useStrictInstance().processNavigation;
   const taskType = useRealTaskType();
 

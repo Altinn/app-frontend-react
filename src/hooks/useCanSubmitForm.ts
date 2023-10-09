@@ -4,7 +4,7 @@ import { useLanguage } from 'src/hooks/useLanguage';
 
 export const useCanSubmitForm = (): { canSubmit: boolean; busyWithId?: string; message?: string } => {
   const { langAsString } = useLanguage();
-  const submittingId = useAppSelector((state) => state.formData.submittingId);
+  const submittingId = useAppSelector((state) => state.formData.submitting.id);
   const { busyWithId: instantiationBusyWithId } = useInstantiation();
   const attachments = useAppSelector((state) => state.attachments.attachments);
 

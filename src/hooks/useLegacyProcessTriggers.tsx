@@ -6,13 +6,15 @@ import { IsLoadingActions } from 'src/features/isLoading/isLoadingSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { selectAppName, selectAppOwner } from 'src/selectors/language';
 import { ProcessTaskType } from 'src/types';
+import { createStrictContext } from 'src/utils/createContext';
+
+const { Provider } = createStrictContext<undefined>();
 
 /**
  * @deprecated This is in conflict with the new instance context, and logic should be moved there
  */
-export function useProcess() {
+function useLegacyProcessTriggers() {
   const dispatch = useAppDispatch();
 
   const instanceData = useLaxInstanceData();
@@ -42,8 +44,10 @@ export function useProcess() {
         break;
     }
   }, [taskType, applicationMetadata, instanceData, dispatch]);
-
-  const appName = useAppSelector(selectAppName);
-  const appOwner = useAppSelector(selectAppOwner);
-  return { appOwner, appName };
 }
+
+export const LegacyProcessTriggersProvider = ({ children }: { children: React.ReactNode }) => {
+  useLegacyProcessTriggers();
+
+  return <Provider value={undefined}>{children}</Provider>;
+};

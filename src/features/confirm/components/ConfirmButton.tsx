@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { useProcessData } from 'src/features/instance/useProcess';
+import { useLaxProcessData } from 'src/features/instance/useProcess';
 import { useProcessNext } from 'src/features/instance/useProcessNext';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
@@ -17,7 +17,7 @@ type IConfirmButtonProps = Omit<BaseButtonProps, 'onClick'>;
 
 export const ConfirmButton = (props: IConfirmButtonProps) => {
   const [validating, setValidating] = useState<boolean>(false);
-  const { actions } = useProcessData()?.currentTask || {};
+  const { actions } = useLaxProcessData()?.currentTask || {};
   const { nodeId } = props;
   const disabled = !actions?.confirm;
   const resolvedNodes = useExprContext();

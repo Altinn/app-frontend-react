@@ -2,12 +2,10 @@ import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 
 import { ProcessWrapper } from 'src/components/wrappers/ProcessWrapper';
-import { useCurrentDataModelSchemaQuery } from 'src/features/datamodel/useCurrentDataModelSchemaQuery';
 import { Entrypoint } from 'src/features/entrypoint/Entrypoint';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { PartySelection } from 'src/features/instantiate/containers/PartySelection';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
-import { useAllOptionsInitiallyLoaded } from 'src/features/options/useAllOptions';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { useApplicationMetadataQuery } from 'src/hooks/queries/useApplicationMetadataQuery';
 import { useApplicationSettingsQuery } from 'src/hooks/queries/useApplicationSettingsQuery';
@@ -33,7 +31,6 @@ export const App = () => {
   const { isError: hasLayoutSetError } = useLayoutSetsQuery();
   const { isError: hasOrgsError } = useOrgsQuery();
   useFooterLayoutQuery();
-  useCurrentDataModelSchemaQuery();
 
   const componentIsReady = applicationSettings && applicationMetadata;
   const componentHasError =
@@ -77,10 +74,9 @@ const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | n
   const appOwner = useAppSelector(selectAppOwner);
 
   useKeepAlive(applicationSettings.appOidcProvider, allowAnonymous);
-  const optionsInitiallyLoaded = useAllOptionsInitiallyLoaded();
 
   const hasComponentError = hasProfileError || hasCurrentPartyError || hasPartiesError;
-  const isFetching = isProfileFetching || isPartiesFetching || !optionsInitiallyLoaded;
+  const isFetching = isProfileFetching || isPartiesFetching;
 
   // Set the title of the app
   React.useEffect(() => {

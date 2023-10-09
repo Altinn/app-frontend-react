@@ -5,6 +5,7 @@ import type { UseQueryResult } from '@tanstack/react-query';
 import type { AxiosRequestConfig } from 'axios';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
+import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { FormDynamicsActions } from 'src/features/dynamics/formDynamicsSlice';
 import { StatelessReadyState, useStatelessReadyState } from 'src/features/entrypoint/useStatelessReadyState';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
@@ -16,7 +17,7 @@ import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { ProcessTaskType } from 'src/types';
-import { getCurrentTaskDataElementId, getDataTypeByLayoutSetId, isStatelessApp } from 'src/utils/appMetadata';
+import { getDataTypeByLayoutSetId, isStatelessApp } from 'src/utils/appMetadata';
 import { convertModelToDataBinding } from 'src/utils/databindings';
 import { maybeAuthenticationRedirect } from 'src/utils/maybeAuthenticationRedirect';
 import { getFetchFormDataUrl, getStatelessFormDataUrl } from 'src/utils/urls/appUrlHelper';
@@ -46,7 +47,7 @@ export function useFormDataQuery(): UseQueryResult<IFormData> {
   const statelessDataType = isStateless
     ? getDataTypeByLayoutSetId(appMetaData?.onEntry?.show, layoutSets, appMetaData)
     : undefined;
-  const currentTaskDataId = getCurrentTaskDataElementId(appMetaData, instance, layoutSets);
+  const currentTaskDataId = useCurrentDataModelGuid();
 
   const url =
     isStateless && statelessDataType

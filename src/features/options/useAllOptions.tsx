@@ -3,7 +3,8 @@ import type { PropsWithChildren } from 'react';
 
 import deepEqual from 'fast-deep-equal';
 
-import { useProcessData, useRealTaskType } from 'src/features/instance/useProcess';
+import { useLaxProcessData, useRealTaskType } from 'src/features/instance/useProcess';
+import { Loader } from 'src/features/isLoading/Loader';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { ProcessTaskType } from 'src/types';
 import { createStrictContext } from 'src/utils/createContext';
@@ -104,7 +105,7 @@ function isNodeOptionBased(node: LayoutNode) {
 export function AllOptionsProvider({ children }: PropsWithChildren) {
   const nodes = useExprContext();
   const currentTaskType = useRealTaskType();
-  const currentTaskId = useProcessData()?.currentTask?.elementId;
+  const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
   const initialState: State = {
     allInitiallyLoaded: false,
     nodes: {},
@@ -143,24 +144,35 @@ export function AllOptionsProvider({ children }: PropsWithChildren) {
     }
   }, [nodes, currentTaskType]);
 
+  const dummies = nodes
+    ?.allNodes()
+    .filter((n) => isNodeOptionBased(n))
+    .map((node) => (
+      <DummyOptionsSaver
+        key={node.item.id}
+        node={node}
+        loadingDone={(options) => {
+          dispatch({
+            type: 'nodeFetched',
+            nodeId: node.item.id,
+            options,
+          });
+        }}
+      />
+    ));
+
+  if (!state.allInitiallyLoaded) {
+    return (
+      <>
+        {dummies}
+        <Loader />
+      </>
+    );
+  }
+
   return (
     <>
-      {nodes
-        ?.allNodes()
-        .filter((n) => isNodeOptionBased(n))
-        .map((node) => (
-          <DummyOptionsSaver
-            key={node.item.id}
-            node={node}
-            loadingDone={(options) => {
-              dispatch({
-                type: 'nodeFetched',
-                nodeId: node.item.id,
-                options,
-              });
-            }}
-          />
-        ))}
+      {dummies}
       <Provider value={state}>{children}</Provider>
     </>
   );

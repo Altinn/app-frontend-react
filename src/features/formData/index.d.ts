@@ -17,8 +17,14 @@ export interface IFormDataState {
   unsavedChanges: boolean;
   saving: boolean;
 
-  // The component IDs which triggered a submit (saving the form data in order to move to the next step)
-  submittingId: string;
+  // Indicates that form has been validated and is ready to move to the next process step (set when the submit button
+  // is clicked and validation is OK)
+  submitting: {
+    // The component IDs which triggered a submit (saving the form data in order to move to the next step)
+    id: string;
+
+    state: 'pending' | 'ready' | 'inactive';
+  };
 
   error: Error | null;
 

@@ -4,11 +4,11 @@ import { useDispatch } from 'react-redux';
 import { Checkbox } from '@digdir/design-system-react';
 
 import classes from 'src/features/devtools/components/PermissionsEditor/PermissionsEditor.module.css';
-import { useProcessData, useTaskTypeFromBackend } from 'src/features/instance/useProcess';
+import { useLaxProcessData, useTaskTypeFromBackend } from 'src/features/instance/useProcess';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 
 export const PermissionsEditor = () => {
-  const { read: _read, write, actions, elementId: _taskId } = useProcessData()?.currentTask || {};
+  const { read: _read, write, actions, elementId: _taskId } = useLaxProcessData()?.currentTask || {};
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const _taskType = useTaskTypeFromBackend();

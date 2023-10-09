@@ -89,10 +89,8 @@ function* submitComplete(state: IRuntimeState, resolvedNodes: LayoutPages): Saga
     yield put(FormLayoutActions.setCurrentViewCacheKey({ key: undefined }));
   }
 
-  // data has no validation errors, we complete the current step
-  // PRIORITY: Implement this
-  throw new Error('Yikes! This has not been implemented yet');
-  // return yield put(ProcessActions.complete());
+  // Data has no validation errors, we complete the current step
+  return yield put(FormDataActions.submitReady());
 }
 
 function createFormDataRequest(

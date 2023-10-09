@@ -1,9 +1,7 @@
 import React from 'react';
 
-import { FormDataActions } from 'src/features/formData/formDataSlice';
-import { useProcessData } from 'src/features/instance/useProcess';
+import { useLaxProcessData } from 'src/features/instance/useProcess';
 import { useProcessNext } from 'src/features/instance/useProcessNext';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useCanSubmitForm } from 'src/hooks/useCanSubmitForm';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { getComponentFromMode } from 'src/layout/Button/getComponentFromMode';
@@ -18,13 +16,12 @@ export type IButtonProvidedProps =
   | (PropsFromGenericComponent<'InstantiationButton'> & CompInternal<'InstantiationButton'>);
 
 export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProps) => {
-  const { id, mode } = node.item;
+  const { mode } = node.item;
   const { lang } = useLanguage();
   const props: IButtonProvidedProps = { ...componentProps, ...node.item, node };
 
-  const dispatch = useAppDispatch();
-  const currentTaskType = useProcessData()?.currentTask?.altinnTaskType;
-  const { actions, write } = useProcessData()?.currentTask || {};
+  const currentTaskType = useLaxProcessData()?.currentTask?.altinnTaskType;
+  const { actions, write } = useLaxProcessData()?.currentTask || {};
   const { canSubmit, busyWithId, message } = useCanSubmitForm();
   const { mutate: processNext } = useProcessNext(node.item.id);
 
@@ -46,16 +43,10 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
     );
   }
 
-  const submitTask = ({ componentId }: { componentId: string }) => {
+  const submitTask = () => {
     if (!disabled) {
-      const { org, app, instanceId } = window;
       if (currentTaskType === 'data') {
-        dispatch(
-          FormDataActions.submit({
-            url: `${window.location.origin}/${org}/${app}/api/${instanceId}`,
-            componentId,
-          }),
-        );
+        processNext({});
       } else if (currentTaskType === 'confirmation') {
         processNext({ action: 'confirm' });
       }
@@ -65,7 +56,7 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
     <div style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}>
       <SubmitButton
         nodeId={node.item.id}
-        onClick={() => submitTask({ componentId: id })}
+        onClick={() => submitTask()}
         busyWithId={busyWithId}
         disabled={disabled}
         message={message}

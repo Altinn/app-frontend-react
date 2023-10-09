@@ -19,7 +19,10 @@ export const initialState: IFormDataState = {
   lastSavedFormData: {},
   unsavedChanges: false,
   saving: false,
-  submittingId: '',
+  submitting: {
+    id: '',
+    state: 'inactive',
+  },
   error: null,
   reFetch: false,
   pendingUrl: undefined,
@@ -69,7 +72,8 @@ export const formDataSlice = () => {
         takeEvery: submitFormSaga,
         reducer: (state, action) => {
           const { componentId } = action.payload;
-          state.submittingId = componentId;
+          state.submitting.id = componentId;
+          state.submitting.state = 'pending';
         },
       }),
       submitFulfilled: mkAction<void>({
@@ -81,7 +85,19 @@ export const formDataSlice = () => {
         reducer: (state, action) => {
           const { error } = action.payload;
           state.error = error;
-          state.submittingId = '';
+          state.submitting.id = '';
+          state.submitting.state = 'inactive';
+        },
+      }),
+      submitReady: mkAction<void>({
+        reducer: (state) => {
+          state.submitting.state = 'ready';
+        },
+      }),
+      submitClear: mkAction<void>({
+        reducer: (state) => {
+          state.submitting.id = '';
+          state.submitting.state = 'inactive';
         },
       }),
       savingStarted: mkAction<void>({
