@@ -438,7 +438,7 @@
       "type": "array",
       "items": [
         { "const":  "argv" },
-        { "$ref": "#/definitions/string" }
+        { "$ref": "#/definitions/number" }
       ],
       "additionalItems": false
     }

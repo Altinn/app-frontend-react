@@ -4,33 +4,17 @@ import type { AxiosError } from 'axios';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { CustomValidationActions } from 'src/features/customValidation/customValidationSlice';
+import { useCurrentDataModelName } from 'src/features/datamodel/useBindingSchema';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { useAppSelector } from 'src/hooks/useAppSelector';
-import { getCurrentDataTypeForApplication } from 'src/utils/appMetadata';
 import { resolveExpressionValidationConfig } from 'src/utils/validation/expressionValidation';
-import type { IApplicationMetadata } from 'src/features/applicationMetadata';
-import type { ILayoutSets } from 'src/types';
-import type { IInstance } from 'src/types/shared';
 import type { IExpressionValidationConfig } from 'src/utils/validation/types';
 
 export const useCustomValidationConfig = (): UseQueryResult<IExpressionValidationConfig | null> => {
   const dispatch = useAppDispatch();
   const { fetchCustomValidationConfig } = useAppQueries();
+  const dataTypeId = useCurrentDataModelName();
 
-  const appMetadata: IApplicationMetadata | null = useAppSelector(
-    (state) => state.applicationMetadata.applicationMetadata,
-  );
-  const instance: IInstance | null = useAppSelector((state) => state.instanceData.instance);
-  const layoutSets: ILayoutSets | null = useAppSelector((state) => state.formLayout.layoutsets);
-
-  const dataTypeId =
-    getCurrentDataTypeForApplication({
-      application: appMetadata,
-      instance,
-      layoutSets,
-    }) ?? '';
-
-  return useQuery(['fetchCustomValidationConfig', dataTypeId], () => fetchCustomValidationConfig(dataTypeId), {
+  return useQuery(['fetchCustomValidationConfig', dataTypeId], () => fetchCustomValidationConfig(dataTypeId!), {
     enabled: Boolean(dataTypeId?.length),
     onSuccess: (customValidationConfig) => {
       if (customValidationConfig) {
