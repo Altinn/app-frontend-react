@@ -28,18 +28,17 @@ export interface IProcessWrapperProps {
 }
 
 export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
-  const isLoading = useAppSelector((state) => state.isLoading.dataTask);
+  const { isFetching: isInstanceDataFetching } = useStrictInstance();
+  const dataTaskIsLoading = useAppSelector((state) => state.isLoading.dataTask);
+  const isLoading = dataTaskIsLoading !== false || isFetching === true || isInstanceDataFetching;
   const { hasApiErrors } = useApiErrorCheck();
   const { appOwner, appName } = useProcess();
   const { error: processError } = useStrictInstance().processNavigation;
   const taskType = useRealTaskType();
 
-  const { pdfPreview } = useAppSelector((state) => state.devTools);
   const [searchParams] = useSearchParams();
   const renderPDF = searchParams.get('pdf') === '1';
-  const previewPDF = searchParams.get('pdf') === 'preview' || pdfPreview;
-
-  const { isFetching: isInstanceDataFetching } = useStrictInstance();
+  const previewPDF = useAppSelector((state) => state.devTools.pdfPreview);
 
   if (hasApiErrors || processError) {
     if (checkIfAxiosError(processError)) {
@@ -52,6 +51,9 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
   }
 
   if (renderPDF) {
+    if (isLoading) {
+      return null;
+    }
     return (
       <PDFView
         appName={appName as string}
@@ -72,7 +74,7 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
           appOwner={appOwner}
           type={taskType}
         >
-          {isLoading === false && isFetching !== true && !isInstanceDataFetching ? (
+          {!isLoading ? (
             <>
               {taskType === ProcessTaskType.Data ? (
                 <Form />
@@ -96,7 +98,7 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
           )}
         </PresentationComponent>
       </div>
-      {previewPDF && (
+      {previewPDF && !isLoading && (
         <div className={cn(classes['content'], classes['hide-pdf'])}>
           <PDFView
             appName={appName as string}

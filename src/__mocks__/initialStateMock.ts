@@ -86,12 +86,6 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
       parties: [partyMock],
       selectedParty: partyMock,
     },
-    pdf: {
-      readyForPrint: false,
-      pdfFormat: null,
-      method: null,
-      error: null,
-    },
     profile: getProfileStateMock(),
     queue: {
       appTask: { error: null },

@@ -67,6 +67,7 @@ export const renderWithProviders = (
       fetchFormData: () => Promise.resolve({}),
       fetchOptions: () => Promise.resolve([]),
       fetchDataList: () => Promise.resolve({} as unknown as IDataList),
+      fetchPdfFormat: () => Promise.resolve({ excludedPages: [], excludedComponents: [] }),
       fetchInstanceData: () => Promise.resolve(getInstanceDataMock()),
       fetchAppLanguages: () => Promise.resolve([]),
       fetchProcessState: () => Promise.resolve(getInstanceDataMock().process),

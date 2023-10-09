@@ -14,6 +14,7 @@ import {
   getJsonSchemaUrl,
   getLayoutSetsUrl,
   getPartyValidationUrl,
+  getPdfFormatUrl,
   getProcessNextUrl,
   getProcessStateUrl,
   instancesControllerUrl,
@@ -28,6 +29,7 @@ import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { Instantiation } from 'src/features/instantiate/InstantiationContext';
 import type { IPartyValidationResponse } from 'src/features/party';
+import type { IPdfFormat } from 'src/features/pdf/types';
 import type { IOption } from 'src/layout/common.generated';
 import type { ILayoutSets, ISimpleInstance } from 'src/types';
 import type {
@@ -100,3 +102,6 @@ export const fetchDataModelSchema = (dataTypeName: string): Promise<JSONSchema7>
   httpGet(getJsonSchemaUrl() + dataTypeName);
 
 export const fetchFormData = (url: string, options?: AxiosRequestConfig): Promise<any> => httpGet(url, options);
+
+export const fetchPdfFormat = (instanceId: string, dataGuid: string): Promise<IPdfFormat> =>
+  httpGet(getPdfFormatUrl(instanceId, dataGuid));
