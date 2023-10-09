@@ -42,7 +42,7 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
 
   const [searchParams] = useSearchParams();
   const renderPDF = searchParams.get('pdf') === '1';
-  const { pdfPreview: previewPDF } = useAppSelector((state) => state.devTools);
+  const previewPDF = useAppSelector((state) => state.devTools.pdfPreview);
 
   React.useEffect(() => {
     if (!instantiating && !instanceId) {
