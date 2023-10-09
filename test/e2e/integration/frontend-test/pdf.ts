@@ -27,10 +27,13 @@ describe('PDF', () => {
     cy.findByRole('textbox', { name: /når vil du at/i }).type('01012020');
     cy.findByRole('textbox', { name: /mobil nummer/i }).type('98765432');
     cy.get(appFrontend.changeOfName.sources).dsSelect('Digitaliseringsdirektoratet');
+    cy.get(appFrontend.changeOfName.reference).should('have.value', '');
+    cy.get(appFrontend.changeOfName.reference2).should('have.value', '');
     cy.get(appFrontend.changeOfName.reference).dsSelect('Sophie Salt');
     cy.get(appFrontend.changeOfName.reference2).dsSelect('Dole');
     cy.findByRole('textbox', { name: /gateadresse/i }).type('Økern 1');
     cy.findByRole('textbox', { name: /postnr/i }).type('0101');
+    cy.findByRole('textbox', { name: /poststed/i }).should('have.value', 'OSLO');
 
     cy.testPdf(() => {
       cy.findByRole('table').should('contain.text', 'Mottaker:Testdepartementet');
@@ -59,6 +62,8 @@ describe('PDF', () => {
     cy.findByRole('textbox', { name: /bruksnummer/i }).type('56');
     cy.findByRole('textbox', { name: /forklar din tilknytning til gårdsbruket/i }).type('Gris');
     cy.get(appFrontend.changeOfName.sources).dsSelect('Altinn');
+    cy.get(appFrontend.changeOfName.reference).should('have.value', '');
+    cy.get(appFrontend.changeOfName.reference2).should('have.value', '');
     cy.get(appFrontend.changeOfName.reference).dsSelect('Ola Nordmann');
     cy.get(appFrontend.changeOfName.reference2).dsSelect('Ole');
 
@@ -98,6 +103,7 @@ describe('PDF', () => {
     cy.get(appFrontend.group.editContainer).find(appFrontend.group.back).should('be.visible');
     cy.get(appFrontend.group.editContainer).find(appFrontend.group.next).first().click();
     cy.get('#source-0').dsSelect('Digitaliseringsdirektoratet');
+    cy.get('#reference-0').should('have.value', '');
     cy.get('#reference-0').dsSelect('Sophie Salt');
     cy.get(appFrontend.group.edit).first().click();
     cy.get(appFrontend.group.editContainer).should('not.exist');
@@ -108,6 +114,7 @@ describe('PDF', () => {
     cy.get(appFrontend.group.editContainer).find(appFrontend.group.back).should('be.visible');
     cy.get(appFrontend.group.editContainer).find(appFrontend.group.next).first().click();
     cy.get('#source-1').dsSelect('Altinn');
+    cy.get('#reference-1').should('have.value', '');
     cy.get('#reference-1').dsSelect('Ola Nordmann');
     cy.get(appFrontend.group.edit).eq(1).click();
     cy.get(appFrontend.group.editContainer).should('not.exist');

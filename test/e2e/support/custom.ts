@@ -479,6 +479,9 @@ Cypress.Commands.add('testPdf', (callback, returnToForm = false) => {
   // Make sure we blur any selected component before reload to trigger save
   cy.get('body').click();
 
+  // Wait for network to be idle before calling reload
+  cy.waitForNetworkIdle('*', '*', 500);
+
   // Visit the PDF page and reload
   cy.location('href').then((href) => {
     cy.visit(`${href}?pdf=1`);
