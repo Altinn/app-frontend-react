@@ -95,7 +95,7 @@ export const CheckboxContainerComponent = ({
         description={lang(textResourceBindings?.description)}
         disabled={readOnly}
         onChange={(values) => handleChange(values)}
-        hideLegend={!overrideDisplay?.renderLegend}
+        hideLegend={overrideDisplay?.renderLegend === false}
         error={!isValid}
         aria-label={ariaLabel}
         value={selected}
