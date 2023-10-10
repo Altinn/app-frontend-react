@@ -1,8 +1,4 @@
-import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { FixedLanguageList } from 'src/language/languages';
-
-// PRIORITY: Remove this type and only use IApplicationMetadata
-export type IApplication = IApplicationMetadata;
 
 export interface IAltinnOrg {
   name: ITitle;

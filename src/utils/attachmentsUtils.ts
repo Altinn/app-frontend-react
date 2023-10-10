@@ -1,5 +1,6 @@
+import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type { IApplication, IAttachment, IAttachmentGrouping, IData, IDataType } from 'src/types/shared';
+import type { IAttachment, IAttachmentGrouping, IData, IDataType } from 'src/types/shared';
 
 export const mapInstanceAttachments = (
   data: IData[] | undefined,
@@ -52,7 +53,7 @@ export const getInstancePdf = (data: IData[] | undefined, platform?: boolean): I
  */
 export const getAttachmentGroupings = (
   attachments: IAttachment[] | undefined,
-  applicationMetadata: IApplication | null,
+  applicationMetadata: IApplicationMetadata | null,
   langTools: IUseLanguage,
 ): IAttachmentGrouping => {
   const attachmentGroupings: IAttachmentGrouping = {};
@@ -78,7 +79,10 @@ export const getAttachmentGroupings = (
  * @param attachment the attachment
  * @param applicationMetadata the application metadata
  */
-export const getGroupingForAttachment = (attachment: IAttachment, applicationMetadata: IApplication): string => {
+export const getGroupingForAttachment = (
+  attachment: IAttachment,
+  applicationMetadata: IApplicationMetadata,
+): string => {
   if (!applicationMetadata || !applicationMetadata.dataTypes || !attachment) {
     return 'null';
   }

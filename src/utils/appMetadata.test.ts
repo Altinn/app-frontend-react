@@ -5,11 +5,12 @@ import {
   getLayoutSetIdForApplication,
   isStatelessApp,
 } from 'src/utils/appMetadata';
+import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { ILayoutSets } from 'src/types';
-import type { IApplication, IData, IInstance, ITask } from 'src/types/shared';
+import type { IData, IInstance, ITask } from 'src/types/shared';
 
 describe('appMetadata.ts', () => {
-  const application: IApplication = {
+  const application: IApplicationMetadata = {
     id: 'ttd/stateless-app-demo',
     org: 'ttd',
     title: {
