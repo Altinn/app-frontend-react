@@ -156,7 +156,11 @@ export function Entrypoint() {
     );
   }
 
-  console.log('debug, entrypoint', { action, statelessReady, partyValidation, activeInstances });
-
-  return <Loader reason='entrypoint' />;
+  return (
+    <FormDataProvider>
+      <AllOptionsProvider>
+        <Loader reason='entrypoint' />
+      </AllOptionsProvider>
+    </FormDataProvider>
+  );
 }

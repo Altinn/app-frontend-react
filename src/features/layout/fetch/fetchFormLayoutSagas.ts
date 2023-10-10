@@ -1,4 +1,4 @@
-import { all, call, put, select, take } from 'redux-saga/effects';
+import { call, put, select } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
 import { preProcessItem, preProcessLayout } from 'src/features/expressions/validation';
@@ -100,6 +100,7 @@ export function* fetchLayoutSaga(): SagaIterator {
         layouts,
         navigationConfig,
         hiddenLayoutsExpressions,
+        layoutSetId,
         taskId: instance?.process?.currentTask?.elementId,
       }),
     );
@@ -125,22 +126,15 @@ export function* fetchLayoutSettingsSaga(): SagaIterator {
 
   try {
     const settings: ILayoutSettings = yield call(httpGet, getLayoutSettingsUrl(layoutSetId));
-    yield put(FormLayoutActions.fetchSettingsFulfilled({ settings, taskId }));
+    yield put(FormLayoutActions.fetchSettingsFulfilled({ settings, taskId, layoutSetId }));
   } catch (error) {
     if (error?.response?.status === 404) {
       // We accept that the app does not have a settings.json as this is not default
-      yield put(FormLayoutActions.fetchSettingsFulfilled({ settings: null, taskId }));
+      yield put(FormLayoutActions.fetchSettingsFulfilled({ settings: null, taskId, layoutSetId }));
     } else {
       yield put(FormLayoutActions.fetchSettingsRejected({ error }));
       window.logError('Fetching layout settings failed:\n', error);
     }
-  }
-}
-
-export function* watchFetchFormLayoutSettingsSaga(): SagaIterator {
-  while (true) {
-    yield all([take(FormLayoutActions.fetchSettings), take(FormLayoutActions.fetchFulfilled)]);
-    yield call(fetchLayoutSettingsSaga);
   }
 }
 

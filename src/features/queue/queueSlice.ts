@@ -14,7 +14,7 @@ export const initialState: IQueueState = {
   appTask: { error: null },
   userTask: { error: null },
   infoTask: { error: null },
-  stateless: { error: null },
+  stateless: { error: null, working: false },
 };
 
 export let QueueActions: ActionsFromSlice<typeof queueSlice>;
@@ -41,18 +41,6 @@ export const queueSlice = () => {
           state.dataTask.error = error;
         },
       }),
-      infoTaskQueueError: mkAction<IQueueError>({
-        reducer: (state, action) => {
-          const { error } = action.payload;
-          state.infoTask.error = error;
-        },
-      }),
-      statelessQueueError: mkAction<IQueueError>({
-        reducer: (state, action) => {
-          const { error } = action.payload;
-          state.stateless.error = error;
-        },
-      }),
       startInitialAppTaskQueue: mkAction<void>({
         *takeEvery(): SagaIterator {
           yield put(TextResourcesActions.fetch());
@@ -72,6 +60,14 @@ export const queueSlice = () => {
         *takeEvery(): SagaIterator {
           yield put(FormLayoutActions.fetch());
           yield put(FormLayoutActions.fetchSettings());
+        },
+        reducer: (state) => {
+          state.stateless.working = true;
+        },
+      }),
+      finishInitialStatelessQueue: mkAction<void>({
+        reducer: (state) => {
+          state.stateless.working = false;
         },
       }),
     },

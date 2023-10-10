@@ -18,6 +18,7 @@ export interface IFetchLayoutFulfilled {
   layouts: ILayouts;
   navigationConfig?: INavigationConfig;
   hiddenLayoutsExpressions: IHiddenLayoutsExternal;
+  layoutSetId?: string;
   taskId?: string;
 }
 
@@ -28,6 +29,7 @@ export interface IFetchLayoutSetsFulfilled {
 export interface IFetchLayoutSettingsFulfilled {
   settings: ILayoutSettings | null;
   taskId?: string;
+  layoutSetId?: string;
 }
 
 export interface ISetCurrentViewCacheKey {

@@ -31,7 +31,7 @@ export function* fetchRuleModelSaga(): SagaIterator {
     window.document.body.appendChild(scriptEle);
     const ruleModelFields = getRuleModelFields();
 
-    yield put(FormRulesActions.fetchFulfilled({ ruleModel: ruleModelFields, taskId }));
+    yield put(FormRulesActions.fetchFulfilled({ ruleModel: ruleModelFields, taskId, layoutSetId }));
   } catch (error) {
     if (error.message?.includes('404')) {
       yield put(FormRulesActions.fetchRejected({ error: null }));

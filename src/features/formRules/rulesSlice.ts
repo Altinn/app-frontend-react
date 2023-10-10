@@ -7,6 +7,7 @@ const initialState: IFormRuleState = {
   model: [],
   fetching: false,
   fetched: false,
+  fetchedForLayoutSet: undefined,
   fetchedForTaskId: undefined,
   error: null,
 };
@@ -31,6 +32,7 @@ export const formRulesSlice = () => {
           state.fetching = false;
           state.error = null;
           state.model = action.payload.ruleModel;
+          state.fetchedForLayoutSet = action.payload.layoutSetId;
           state.fetchedForTaskId = action.payload.taskId;
         },
       }),

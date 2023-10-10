@@ -89,16 +89,6 @@ function useFormDataQuery(): UseQueryResult<IFormData> {
     }
   }, [dispatch, isEnabled, url]);
 
-  console.log('debug, fetchFormData', {
-    url,
-    isEnabled,
-    isStateless,
-    statelessDataType,
-    allowAnonymous,
-    currentPartyId,
-    options,
-  });
-
   const { fetchFormData } = useAppQueries();
   const out = useQuery(['fetchFormData', url, currentTaskId], () => fetchFormData(url || '', options), {
     enabled: isEnabled && url !== undefined,

@@ -8,6 +8,7 @@ export interface IFormRuleState {
   model: IRuleModelFieldElement[];
   fetching: boolean;
   fetched: boolean;
+  fetchedForLayoutSet?: string;
   fetchedForTaskId?: string;
   error: Error | null;
 }
@@ -15,6 +16,7 @@ export interface IFormRuleState {
 export interface IFetchRuleModelFulfilled {
   ruleModel: IRuleModelFieldElement[];
   taskId?: string;
+  layoutSetId?: string;
 }
 
 export interface IFetchRuleModelRejected {

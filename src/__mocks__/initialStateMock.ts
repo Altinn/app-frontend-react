@@ -91,7 +91,7 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
       appTask: { error: null },
       dataTask: { error: null },
       infoTask: { error: null },
-      stateless: { error: null },
+      stateless: { error: null, working: false },
       userTask: { error: null },
     },
     textResources: {
