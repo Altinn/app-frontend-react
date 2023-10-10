@@ -100,6 +100,7 @@ export function* fetchLayoutSaga(): SagaIterator {
         layouts,
         navigationConfig,
         hiddenLayoutsExpressions,
+        taskId: instance?.process?.currentTask?.elementId,
       }),
     );
     yield put(
@@ -116,18 +117,19 @@ export function* fetchLayoutSaga(): SagaIterator {
 }
 
 export function* fetchLayoutSettingsSaga(): SagaIterator {
-  try {
-    const layoutSets: ILayoutSets = yield select(layoutSetsSelector);
-    const instance = tmpSagaInstanceData.current;
-    const aplicationMetadataState: IApplicationMetadata = yield select(applicationMetadataSelector);
+  const layoutSets: ILayoutSets = yield select(layoutSetsSelector);
+  const instance = tmpSagaInstanceData.current;
+  const taskId = instance?.process?.currentTask?.elementId;
+  const applicationMetadataState: IApplicationMetadata = yield select(applicationMetadataSelector);
+  const layoutSetId = getLayoutSetIdForApplication(applicationMetadataState, instance, layoutSets);
 
-    const layoutSetId = getLayoutSetIdForApplication(aplicationMetadataState, instance, layoutSets);
+  try {
     const settings: ILayoutSettings = yield call(httpGet, getLayoutSettingsUrl(layoutSetId));
-    yield put(FormLayoutActions.fetchSettingsFulfilled({ settings }));
+    yield put(FormLayoutActions.fetchSettingsFulfilled({ settings, taskId }));
   } catch (error) {
     if (error?.response?.status === 404) {
       // We accept that the app does not have a settings.json as this is not default
-      yield put(FormLayoutActions.fetchSettingsFulfilled({ settings: null }));
+      yield put(FormLayoutActions.fetchSettingsFulfilled({ settings: null, taskId }));
     } else {
       yield put(FormLayoutActions.fetchSettingsRejected({ error }));
       window.logError('Fetching layout settings failed:\n', error);

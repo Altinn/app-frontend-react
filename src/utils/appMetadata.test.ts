@@ -65,6 +65,7 @@ describe('appMetadata.ts', () => {
     createdBy: 'lorang92',
     lastChanged: '2021-04-28T13:31:24.7328296Z',
     lastChangedBy: 'lorang92',
+    autoDeleteOnProcessEnd: false,
   };
   const instance: IInstance = {
     id: '512345/c32dc48c-7854-45ec-a32e-2a82c420c9bd',

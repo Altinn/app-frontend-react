@@ -7,6 +7,7 @@ const initialState: IFormRuleState = {
   model: [],
   fetching: false,
   fetched: false,
+  fetchedForTaskId: undefined,
   error: null,
 };
 
@@ -30,6 +31,7 @@ export const formRulesSlice = () => {
           state.fetching = false;
           state.error = null;
           state.model = action.payload.ruleModel;
+          state.fetchedForTaskId = action.payload.taskId;
         },
       }),
       fetchRejected: mkAction<IFetchRuleModelRejected>({

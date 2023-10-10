@@ -35,6 +35,7 @@ export function* fetchDynamicsSaga(): SagaIterator {
         apis: data.APIs,
         ruleConnection: data.ruleConnection,
         conditionalRendering: data.conditionalRendering,
+        layoutSetId,
       }),
     );
   } catch (error) {

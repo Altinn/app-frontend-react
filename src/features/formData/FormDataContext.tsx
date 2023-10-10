@@ -7,12 +7,12 @@ import type { AxiosRequestConfig } from 'axios/index';
 import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { FormDynamicsActions } from 'src/features/dynamics/formDynamicsSlice';
-import { StatelessReadyState, useStatelessReadyState } from 'src/features/entrypoint/useStatelessReadyState';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FormRulesActions } from 'src/features/formRules/rulesSlice';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useRealTaskType } from 'src/features/instance/useProcess';
 import { Loader } from 'src/features/isLoading/Loader';
+import { StatelessReadyState, useStatelessReadyState } from 'src/features/isLoading/useIsLoading';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -32,7 +32,7 @@ export const FormDataProvider = ({ children }) => {
   const { isLoading } = useFormDataQuery();
 
   if (isLoading) {
-    return <Loader />;
+    return <Loader reason='formdata' />;
   }
 
   return <Provider value={undefined}>{children}</Provider>;
@@ -88,6 +88,16 @@ function useFormDataQuery(): UseQueryResult<IFormData> {
       dispatch(FormDataActions.fetchPending({ url }));
     }
   }, [dispatch, isEnabled, url]);
+
+  console.log('debug, fetchFormData', {
+    url,
+    isEnabled,
+    isStateless,
+    statelessDataType,
+    allowAnonymous,
+    currentPartyId,
+    options,
+  });
 
   const { fetchFormData } = useAppQueries();
   const out = useQuery(['fetchFormData', url, currentTaskId], () => fetchFormData(url || '', options), {

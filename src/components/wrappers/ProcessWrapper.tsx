@@ -15,6 +15,7 @@ import { useStrictInstance } from 'src/features/instance/InstanceContext';
 import { useRealTaskType } from 'src/features/instance/useProcess';
 import { ForbiddenError } from 'src/features/instantiate/containers/ForbiddenError';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
+import { useIsLoading } from 'src/features/isLoading/useIsLoading';
 import { PDFView } from 'src/features/pdf/PDFView';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
 import { useApiErrorCheck } from 'src/hooks/useApiErrorCheck';
@@ -29,8 +30,8 @@ export interface IProcessWrapperProps {
 
 export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
   const { isFetching: isInstanceDataFetching } = useStrictInstance();
-  const dataTaskIsLoading = useAppSelector((state) => state.isLoading.dataTask);
-  const isLoading = dataTaskIsLoading !== false || isFetching === true || isInstanceDataFetching;
+  const isLoadingData = useIsLoading();
+  const isLoading = isLoadingData || isFetching === true || isInstanceDataFetching;
   const { hasApiErrors } = useApiErrorCheck();
   const appName = useAppSelector(selectAppName);
   const appOwner = useAppSelector(selectAppOwner);

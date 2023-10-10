@@ -3,7 +3,6 @@ import type { SagaIterator } from 'redux-saga';
 
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { tmpSagaInstanceData } from 'src/features/instance/InstanceContext';
-import { IsLoadingActions } from 'src/features/isLoading/isLoadingSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { mapAsResources } from 'src/features/textResources/resourcesAsMap';
 import { TextResourcesActions } from 'src/features/textResources/textResourcesSlice';
@@ -25,8 +24,6 @@ export function* startInitialInfoTaskQueueSaga(): SagaIterator {
   const textResourceMap: TextResourceMap = yield select(TextResourceSelector);
   yield waitFor(() => tmpSagaInstanceData.current !== null);
   const instance = tmpSagaInstanceData.current as IInstance;
-
-  yield put(IsLoadingActions.startDataTaskIsLoading());
 
   const textResourcesWithVariables = mapAsResources(textResourceMap).filter(
     (resource) => resource.variables && resource.variables.length > 0,
@@ -61,8 +58,6 @@ export function* startInitialInfoTaskQueueSaga(): SagaIterator {
 
     yield put(FormDataActions.fetchFulfilled({ formData }));
   }
-
-  yield put(IsLoadingActions.finishDataTaskIsLoading());
 }
 
 export function* watchStartInitialInfoTaskQueueSaga(): SagaIterator {

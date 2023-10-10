@@ -2,7 +2,6 @@ import { put } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
-import { IsLoadingActions } from 'src/features/isLoading/isLoadingSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { watchStartInitialInfoTaskQueueSaga } from 'src/features/queue/infoTask/infoTaskQueueSaga';
 import { TextResourcesActions } from 'src/features/textResources/textResourcesSlice';
@@ -71,7 +70,6 @@ export const queueSlice = () => {
       }),
       startInitialStatelessQueue: mkAction<void>({
         *takeEvery(): SagaIterator {
-          yield put(IsLoadingActions.startStatelessIsLoading());
           yield put(FormLayoutActions.fetch());
           yield put(FormLayoutActions.fetchSettings());
         },

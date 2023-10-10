@@ -29,6 +29,7 @@ export interface ILayoutState {
   error: Error | null;
   uiConfig: IUiConfig;
   layoutsets: ILayoutSets | null;
+  fetchedTaskId?: string;
 }
 
 export const initialState: ILayoutState = {
@@ -82,13 +83,14 @@ export const formLayoutSlice = () => {
         }),
         fetchFulfilled: mkAction<LayoutTypes.IFetchLayoutFulfilled>({
           reducer: (state, action) => {
-            const { layouts, navigationConfig, hiddenLayoutsExpressions } = action.payload;
+            const { layouts, navigationConfig, hiddenLayoutsExpressions, taskId } = action.payload;
             state.layouts = layouts;
             state.uiConfig.navigationConfig = navigationConfig;
             state.uiConfig.tracks.order = Object.keys(layouts);
             state.uiConfig.tracks.hiddenExpr = hiddenLayoutsExpressions;
             state.error = null;
             state.uiConfig.repeatingGroups = null;
+            state.fetchedTaskId = taskId;
           },
         }),
         fetchRejected: genericReject,
@@ -116,7 +118,7 @@ export const formLayoutSlice = () => {
         fetchSettingsFulfilled: mkAction<LayoutTypes.IFetchLayoutSettingsFulfilled>({
           takeEvery: findAndMoveToNextVisibleLayout,
           reducer: (state, action) => {
-            const { settings } = action.payload;
+            const { settings, taskId } = action.payload;
             state.uiConfig.receiptLayoutName = settings?.receiptLayoutName;
             if (settings && settings.pages) {
               updateCommonPageSettings(state, settings.pages);
@@ -143,6 +145,7 @@ export const formLayoutSlice = () => {
             state.uiConfig.pdfLayoutName = settings?.pages.pdfLayoutName;
             state.uiConfig.excludeComponentFromPdf = settings?.components?.excludeFromPdf ?? [];
             state.uiConfig.excludePageFromPdf = settings?.pages?.excludeFromPdf ?? [];
+            state.uiConfig.fetchedSettingsFor = taskId;
           },
         }),
         fetchSettingsRejected: genericReject,

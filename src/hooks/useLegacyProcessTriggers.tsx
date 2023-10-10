@@ -2,7 +2,6 @@ import React from 'react';
 
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useRealTaskType } from 'src/features/instance/useProcess';
-import { IsLoadingActions } from 'src/features/isLoading/isLoadingSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -36,10 +35,6 @@ function useLegacyProcessTriggers() {
       case ProcessTaskType.Feedback:
         dispatch(QueueActions.startInitialInfoTaskQueue());
         break;
-      case ProcessTaskType.Archived: {
-        dispatch(IsLoadingActions.finishDataTaskIsLoading());
-        break;
-      }
       default:
         break;
     }

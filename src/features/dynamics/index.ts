@@ -2,6 +2,7 @@ export interface IFormDynamicState {
   apis: any;
   ruleConnection: IRuleConnections | null;
   conditionalRendering: IConditionalRenderingRules | null;
+  fetchedForLayoutSet?: string;
   error: Error | null;
 }
 
@@ -21,6 +22,7 @@ export interface IFetchServiceConfigFulfilled {
   apis: any;
   ruleConnection: any;
   conditionalRendering: any;
+  layoutSetId?: string;
 }
 
 export interface IFetchServiceConfigRejected {

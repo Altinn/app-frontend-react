@@ -45,7 +45,7 @@ export function DataModelSchemaProvider({ children }: React.PropsWithChildren) {
   const dataModelName = useCurrentDataModelName();
 
   if (isLoading || !dataModelSchema || !dataModelName) {
-    return <Loader />;
+    return <Loader reason='data-model-schema' />;
   }
 
   return <Provider value={{ dataModelSchema, dataModelName }}>{children}</Provider>;

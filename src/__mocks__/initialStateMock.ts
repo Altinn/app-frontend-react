@@ -65,10 +65,6 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
       footerLayout: null,
       error: null,
     },
-    isLoading: {
-      dataTask: false,
-      stateless: null,
-    },
     organisationMetaData: {
       allOrgs: {
         mockOrg: {

@@ -165,7 +165,7 @@ export function AllOptionsProvider({ children }: PropsWithChildren) {
     return (
       <>
         {dummies}
-        <Loader />
+        <Loader reason='all-options' />
       </>
     );
   }

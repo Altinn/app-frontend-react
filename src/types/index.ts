@@ -100,6 +100,7 @@ export interface IUiConfig {
   showExpandWidthButton?: boolean;
   expandedWidth?: boolean;
   keepScrollPos?: IKeepComponentScrollPos;
+  fetchedSettingsFor?: string;
 }
 
 /**

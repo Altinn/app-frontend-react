@@ -5,7 +5,6 @@ import { applicationMetadataMock } from 'src/__mocks__/applicationMetadataMock';
 import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { tmpSagaInstanceData } from 'src/features/instance/InstanceContext';
-import { IsLoadingActions } from 'src/features/isLoading/isLoadingSlice';
 import {
   ApplicationMetadataSelector,
   startInitialInfoTaskQueueSaga,
@@ -32,8 +31,6 @@ describe('infoTaskQueueSaga', () => {
         [select(ApplicationMetadataSelector), applicationMetadataMock],
         [select(TextResourceSelector), textResources],
       ])
-      .put(IsLoadingActions.startDataTaskIsLoading())
-      .put(IsLoadingActions.finishDataTaskIsLoading())
       .run();
   });
 
@@ -68,9 +65,7 @@ describe('infoTaskQueueSaga', () => {
         [select(ApplicationMetadataSelector), applicationMetadata],
         [select(TextResourceSelector), textsWithVariables],
       ])
-      .put(IsLoadingActions.startDataTaskIsLoading())
       .put(FormDataActions.fetchFulfilled({ formData: {} }))
-      .put(IsLoadingActions.finishDataTaskIsLoading())
       .run();
   });
 });

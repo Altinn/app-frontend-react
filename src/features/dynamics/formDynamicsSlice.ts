@@ -29,6 +29,7 @@ export const formDynamicsSlice = () => {
           state.ruleConnection = action.payload.ruleConnection;
           state.conditionalRendering = action.payload.conditionalRendering;
           state.error = null;
+          state.fetchedForLayoutSet = action.payload.layoutSetId;
         },
       }),
       fetchRejected: mkAction<IFetchServiceConfigRejected>({

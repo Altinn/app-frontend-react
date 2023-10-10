@@ -21,6 +21,7 @@ export function* fetchRuleModelSaga(): SagaIterator {
   try {
     const layoutSets: ILayoutSets = yield select(layoutSetsSelector);
     const instance = tmpSagaInstanceData.current;
+    const taskId = instance?.process?.currentTask?.elementId;
     const application: IApplicationMetadata = yield select(applicationMetadataSelector);
     const layoutSetId = getLayoutSetIdForApplication(application, instance, layoutSets);
 
@@ -30,7 +31,7 @@ export function* fetchRuleModelSaga(): SagaIterator {
     window.document.body.appendChild(scriptEle);
     const ruleModelFields = getRuleModelFields();
 
-    yield put(FormRulesActions.fetchFulfilled({ ruleModel: ruleModelFields }));
+    yield put(FormRulesActions.fetchFulfilled({ ruleModel: ruleModelFields, taskId }));
   } catch (error) {
     if (error.message?.includes('404')) {
       yield put(FormRulesActions.fetchRejected({ error: null }));

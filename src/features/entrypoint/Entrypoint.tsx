@@ -5,7 +5,6 @@ import type { AxiosError } from 'axios';
 
 import { Form } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/wrappers/Presentation';
-import { StatelessReadyState, useStatelessReadyState } from 'src/features/entrypoint/useStatelessReadyState';
 import { FormDataProvider } from 'src/features/formData/FormDataContext';
 import { InstanceSelection } from 'src/features/instantiate/containers/InstanceSelection';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
@@ -13,6 +12,7 @@ import { MissingRolesError } from 'src/features/instantiate/containers/MissingRo
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/isLoading/Loader';
+import { StatelessReadyState, useStatelessReadyState } from 'src/features/isLoading/useIsLoading';
 import { AllOptionsProvider } from 'src/features/options/useAllOptions';
 import { PartyActions } from 'src/features/party/partySlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
@@ -156,5 +156,7 @@ export function Entrypoint() {
     );
   }
 
-  return <Loader />;
+  console.log('debug, entrypoint', { action, statelessReady, partyValidation, activeInstances });
+
+  return <Loader reason='entrypoint' />;
 }

@@ -7,14 +7,12 @@ import type { AxiosError } from 'axios';
 import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { DataModelSchemaProvider } from 'src/features/datamodel/DataModelSchemaProvider';
 import { FormDataProvider } from 'src/features/formData/FormDataContext';
-import { useProcessEnhancement, useRealTaskTypeById } from 'src/features/instance/useProcess';
+import { useProcessEnhancement } from 'src/features/instance/useProcess';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
-import { IsLoadingActions } from 'src/features/isLoading/isLoadingSlice';
 import { AllOptionsProvider } from 'src/features/options/useAllOptions';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { LegacyProcessTriggersProvider } from 'src/hooks/useLegacyProcessTriggers';
 import { DeprecatedActions } from 'src/redux/deprecatedSlice';
-import { ProcessTaskType } from 'src/types';
 import { createLaxContext } from 'src/utils/createContext';
 import { maybeAuthenticationRedirect } from 'src/utils/maybeAuthenticationRedirect';
 import type { IInstance } from 'src/types/shared';
@@ -132,14 +130,6 @@ export const InstanceProvider = ({ children }: { children: React.ReactNode }) =>
   }, []);
 
   useProcessEnhancement(data, changeData);
-
-  const taskId = data?.process?.currentTask?.elementId;
-  const realTaskType = useRealTaskTypeById(taskId);
-  useEffect(() => {
-    if (realTaskType === ProcessTaskType.Data) {
-      dispatch(IsLoadingActions.startDataTaskIsLoading());
-    }
-  }, [dispatch, realTaskType]);
 
   if (!partyId || !instanceGuid) {
     throw new Error('Tried providing instance without partyId or instanceGuid');

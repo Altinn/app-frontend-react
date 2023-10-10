@@ -1,18 +1,8 @@
-import type { IOnEntry } from 'src/features/applicationMetadata';
+import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { FixedLanguageList } from 'src/language/languages';
 
-export interface IApplication {
-  createdBy: string;
-  created: string;
-  dataTypes: IDataType[];
-  id: string;
-  lastChangedBy: string;
-  lastChanged: string;
-  org: string;
-  partyTypesAllowed: IPartyTypesAllowed;
-  title: ITitle;
-  onEntry?: IOnEntry;
-}
+// PRIORITY: Remove this type and only use IApplicationMetadata
+export type IApplication = IApplicationMetadata;
 
 export interface IAltinnOrg {
   name: ITitle;
