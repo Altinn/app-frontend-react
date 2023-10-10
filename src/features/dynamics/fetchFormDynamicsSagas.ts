@@ -4,11 +4,13 @@ import type { SagaIterator } from 'redux-saga';
 import { FormDynamicsActions } from 'src/features/dynamics/formDynamicsSlice';
 import { tmpSagaInstanceData } from 'src/features/instance/InstanceContext';
 import { QueueActions } from 'src/features/queue/queueSlice';
-import { getLayoutSetIdForApplication } from 'src/utils/appMetadata';
+import { getLayoutSetIdForApplication, isStatelessApp } from 'src/utils/appMetadata';
 import { httpGet } from 'src/utils/network/networking';
+import { waitFor } from 'src/utils/sagas';
 import { getFetchFormDynamicsUrl } from 'src/utils/urls/appUrlHelper';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { ILayoutSets, IRuntimeState } from 'src/types';
+import type { IInstance } from 'src/types/shared';
 
 const layoutSetsSelector = (state: IRuntimeState) => state.formLayout.layoutsets;
 const applicationMetadataSelector = (state: IRuntimeState) => state.applicationMetadata.applicationMetadata;
@@ -16,8 +18,13 @@ const applicationMetadataSelector = (state: IRuntimeState) => state.applicationM
 export function* fetchDynamicsSaga(): SagaIterator {
   try {
     const layoutSets: ILayoutSets = yield select(layoutSetsSelector);
-    const instance = tmpSagaInstanceData.current;
     const application: IApplicationMetadata = yield select(applicationMetadataSelector);
+
+    let instance: IInstance | null = null;
+    if (!isStatelessApp(application)) {
+      yield waitFor(() => tmpSagaInstanceData.current !== null);
+      instance = tmpSagaInstanceData.current;
+    }
     const layoutSetId = getLayoutSetIdForApplication(application, instance, layoutSets);
     const url = getFetchFormDynamicsUrl(layoutSetId);
 

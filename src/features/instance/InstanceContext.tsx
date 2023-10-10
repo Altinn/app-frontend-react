@@ -54,12 +54,17 @@ const { Provider, useCtx } = createLaxContext<InstanceContext>();
 // TODO: Remove this when no sagas, etc, are using it
 export const tmpSagaInstanceData: { current: IInstance | null } = { current: null };
 
-function useGetInstanceDataQuery(enabled = false, partyId: string | undefined, instanceGuid: string | undefined) {
+function useGetInstanceDataQuery(
+  enabled: boolean,
+  partyId: string | undefined,
+  instanceGuid: string | undefined,
+  taskId: string | undefined,
+) {
   const { fetchInstanceData } = useAppQueries();
   return useQuery({
-    queryKey: ['fetchInstanceData', partyId, instanceGuid],
-    queryFn: () => fetchInstanceData(`${partyId}`, `${instanceGuid}`),
-    enabled: enabled && !!partyId && !!instanceGuid,
+    queryKey: ['fetchInstanceData', partyId, instanceGuid, taskId],
+    queryFn: () => fetchInstanceData(partyId!, instanceGuid!),
+    enabled: enabled && typeof partyId === 'string' && typeof instanceGuid === 'string',
     onError: async (error: HttpClientError) => {
       await maybeAuthenticationRedirect(error);
       window.logError('Fetching instance data failed:\n', error);
@@ -87,12 +92,19 @@ export const InstanceProvider = ({ children }: { children: React.ReactNode }) =>
   const [processNavigationError, setProcessNavigationError] = useState<AxiosError | undefined>(undefined);
   const dispatch = useAppDispatch();
 
-  const instantiation = useInstantiation();
-  const fetchEnabled = !(instantiation.isLoading || instantiation.lastResult);
-  const fetchQuery = useGetInstanceDataQuery(fetchEnabled, partyId, instanceGuid);
-
   const [data, setData] = useState<IInstance | undefined>(undefined);
   const [error, setError] = useState<AxiosError | undefined>(undefined);
+
+  const instantiation = useInstantiation();
+
+  // We should always fetch the instance data again when moving between process steps. There are data elements that
+  // most likely will be added when this happens (when autoCreate = true), and we need to fetch them to know which
+  // UUIDs we need to fetch data model data from, etc.
+  const currentTaskId = data?.process?.currentTask?.elementId;
+  const fetchEnabled = instantiation.lastResult
+    ? instantiation.lastResult.process?.currentTask?.elementId !== currentTaskId
+    : true;
+  const fetchQuery = useGetInstanceDataQuery(fetchEnabled, partyId, instanceGuid, currentTaskId);
 
   // Update data
   useSetGlobalState(fetchQuery.data, setData, dispatch);
