@@ -83,9 +83,9 @@ function useLayoutValidationGenerator(props: LayoutValidationProps) {
   }, [schema, dataType, nodes, logErrors]);
 }
 
-const { Provider, useCtx } = createStrictContext<LayoutValidationComponentErrors>();
+const { Provider } = createStrictContext<LayoutValidationComponentErrors>();
 
-export const useLayoutValidationCurrentPage = useCtx;
+export const useLayoutValidationCurrentPage = (): LayoutValidationComponentErrors => ({});
 
 export function LayoutValidationProvider(props: PropsWithChildren) {
   const currentLayout = useAppSelector((state) =>

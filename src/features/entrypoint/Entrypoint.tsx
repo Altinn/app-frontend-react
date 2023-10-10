@@ -5,7 +5,7 @@ import type { AxiosError } from 'axios';
 
 import { Form } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/wrappers/Presentation';
-import { FormDataProvider } from 'src/features/formData/FormDataContext';
+import { FormProvider } from 'src/features/form/FormContext';
 import { InstanceSelection } from 'src/features/instantiate/containers/InstanceSelection';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
@@ -13,7 +13,6 @@ import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValid
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/isLoading/Loader';
 import { StatelessReadyState, useStatelessReadyState } from 'src/features/isLoading/useIsLoading';
-import { AllOptionsProvider } from 'src/features/options/useAllOptions';
 import { PartyActions } from 'src/features/party/partySlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
@@ -147,20 +146,16 @@ export function Entrypoint() {
         appOwner={appOwner}
         type={PresentationType.Stateless}
       >
-        <FormDataProvider>
-          <AllOptionsProvider>
-            <Form />
-          </AllOptionsProvider>
-        </FormDataProvider>
+        <FormProvider>
+          <Form />
+        </FormProvider>
       </PresentationComponent>
     );
   }
 
   return (
-    <FormDataProvider>
-      <AllOptionsProvider>
-        <Loader reason='entrypoint' />
-      </AllOptionsProvider>
-    </FormDataProvider>
+    <FormProvider>
+      <Loader reason='entrypoint' />
+    </FormProvider>
   );
 }

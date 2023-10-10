@@ -10,9 +10,8 @@ import type { PreloadedState } from 'redux';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { AppQueriesProvider } from 'src/contexts/appQueriesContext';
-import { FormDataProvider } from 'src/features/formData/FormDataContext';
+import { FormProvider } from 'src/features/form/FormContext';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
-import { AllOptionsProvider } from 'src/features/options/useAllOptions';
 import { setupStore } from 'src/redux/store';
 import { MemoryRouterWithRedirectingRoot } from 'src/test/memoryRouterWithRedirectingRoot';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
@@ -104,9 +103,7 @@ export const renderWithProviders = (
           <MuiThemeProvider theme={theme}>
             <Provider store={store}>
               <ExprContextWrapper>
-                <FormDataProvider>
-                  <AllOptionsProvider>{children}</AllOptionsProvider>
-                </FormDataProvider>
+                <FormProvider>{children}</FormProvider>
               </ExprContextWrapper>
             </Provider>
           </MuiThemeProvider>

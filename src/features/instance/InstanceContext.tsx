@@ -5,11 +5,9 @@ import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
-import { DataModelSchemaProvider } from 'src/features/datamodel/DataModelSchemaProvider';
-import { FormDataProvider } from 'src/features/formData/FormDataContext';
+import { FormProvider } from 'src/features/form/FormContext';
 import { useProcessEnhancement } from 'src/features/instance/useProcess';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
-import { AllOptionsProvider } from 'src/features/options/useAllOptions';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { LegacyProcessTriggersProvider } from 'src/hooks/useLegacyProcessTriggers';
 import { DeprecatedActions } from 'src/redux/deprecatedSlice';
@@ -160,11 +158,7 @@ export const InstanceProvider = ({ children }: { children: React.ReactNode }) =>
       }}
     >
       <LegacyProcessTriggersProvider>
-        <DataModelSchemaProvider>
-          <FormDataProvider>
-            <AllOptionsProvider>{children}</AllOptionsProvider>
-          </FormDataProvider>
-        </DataModelSchemaProvider>
+        <FormProvider>{children}</FormProvider>
       </LegacyProcessTriggersProvider>
     </Provider>
   );
