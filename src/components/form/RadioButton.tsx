@@ -5,6 +5,7 @@ import type { RadioProps } from '@digdir/design-system-react';
 
 import classes from 'src/components/form/RadioButton.module.css';
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { getPlainTextFromNode } from 'src/utils/stringHelper';
 
 export interface IRadioButtonProps extends Omit<RadioProps, 'children'> {
@@ -13,7 +14,8 @@ export interface IRadioButtonProps extends Omit<RadioProps, 'children'> {
   helpText?: React.ReactNode;
   hideLabel?: boolean;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  relatedComponentsId?: string[];
+  alertOnChange?: boolean;
+  selectedLabel?: string;
 }
 
 export const RadioButton = ({
@@ -22,7 +24,8 @@ export const RadioButton = ({
   helpText,
   hideLabel,
   onChange,
-  relatedComponentsId,
+  alertOnChange,
+  selectedLabel,
   ...rest
 }: IRadioButtonProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -33,69 +36,66 @@ export const RadioButton = ({
     </div>
   );
   const [popoverOpen, setPopoverOpen] = useState(false);
-  const [eventTest, setEventTest] = useState<React.ChangeEvent<HTMLInputElement>>();
+  const [tempEvent, setTempEvent] = useState<React.ChangeEvent<HTMLInputElement>>();
+  const { lang } = useLanguage();
 
+  const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (alertOnChange) {
+      event.preventDefault();
+      setPopoverOpen(true);
+      setTempEvent(event);
+    } else {
+      onChange(event);
+    }
+  };
   const confirmChange = () => {
-    onChange(eventTest as React.ChangeEvent<HTMLInputElement>);
+    onChange(tempEvent as React.ChangeEvent<HTMLInputElement>);
     setPopoverOpen(false);
   };
-  console.log(relatedComponentsId);
-  const test = true;
-  if (showAsCard) {
-    return (
-      /** This element is only clickable for visual
-         effects. A screen reader would only want to click
-         the inner input element of the DesignSystemRadioButton. **/
-      // eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions
-      <div
-        className={classes.card}
-        data-testid={`test-id-${label}`}
-        onClick={() => {
-          if (inputRef.current) {
-            inputRef.current.click();
-          }
-        }}
-      >
-        <Radio
-          {...rest}
-          onChange={onChange}
-          ref={inputRef}
-        >
-          {Label}
-        </Radio>
-      </div>
-    );
-  }
+
   const radioButton = (
     <Radio
-      onChange={(event) => {
-        event.preventDefault();
-        if (test) {
-          setPopoverOpen(true);
-          setEventTest(event);
-        } else {
-          onChange(event);
-        }
-      }}
       {...rest}
+      onChange={handleRadioChange}
+      ref={showAsCard ? inputRef : undefined}
     >
       {Label}
     </Radio>
   );
+  const cardElement = (
+    /** This element is only clickable for visual
+         effects. A screen reader would only want to click
+         the inner input element of the DesignSystemRadioButton. **/
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions
+    <div
+      className={classes.card}
+      data-testid={`test-id-${label}`}
+      onClick={() => {
+        if (inputRef.current) {
+          inputRef.current.click();
+        }
+      }}
+    >
+      {radioButton}
+    </div>
+  );
 
   if (popoverOpen) {
+    const alertText = selectedLabel
+      ? lang('form_filler.radio_button_change_warning_label', [`<strong>${selectedLabel}</strong>`])
+      : lang('form_filler.radio_button_change_warning');
     return (
       <DeleteWarningPopover
-        trigger={radioButton}
-        onPopoverDeleteClick={() => confirmChange()}
+        trigger={showAsCard ? cardElement : radioButton}
+        onPopoverDeleteClick={confirmChange}
         onCancelClick={() => setPopoverOpen(false)}
-        deleteButtonText={'Endre'}
-        messageText={`Er du sikker på at du vil bytte til denne? Utfylt data i *Forrige label* vil gå tapt`}
+        deleteButtonText={lang('form_filler.radio_button_change_confirm') as string}
+        messageText={alertText as string}
         open={popoverOpen}
         setOpen={setPopoverOpen}
       />
     );
   }
 
-  return radioButton;
+  return showAsCard ? cardElement : radioButton;
 };
