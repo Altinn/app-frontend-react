@@ -28,7 +28,7 @@ export function MultipleSelectComponent({
       type: 'multi',
       values: selected,
       setValues: (values) => {
-        setValue(values.join(','));
+        setValue(values.join(','), true);
       },
     },
     removeDuplicates: true,

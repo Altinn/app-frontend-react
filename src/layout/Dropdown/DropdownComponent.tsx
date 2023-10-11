@@ -22,7 +22,7 @@ export function DropdownComponent({ node, formData, handleDataChange, isValid, o
     formData: {
       type: 'single',
       value: selected,
-      setValue,
+      setValue: (value) => setValue(value, true),
     },
     removeDuplicates: true,
   });

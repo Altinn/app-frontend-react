@@ -42,7 +42,7 @@ export const CheckboxContainerComponent = ({
       type: 'multi',
       values: selected,
       setValues: (values) => {
-        setValue(values.join(','));
+        setValue(values.join(','), true);
       },
     },
   });

@@ -16,7 +16,7 @@ export const useRadioButtons = ({ node, handleDataChange, formData }: IRadioButt
     formData: {
       type: 'single',
       value: selected,
-      setValue,
+      setValue: (value) => setValue(value, true),
     },
   });
 
