@@ -6,6 +6,7 @@ import type { AxiosError } from 'axios';
 import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { FormDynamicsActions } from 'src/features/form/dynamics/formDynamicsSlice';
 import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
+import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/isLoading/Loader';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
@@ -37,7 +38,11 @@ function useDynamicsQuery() {
 export function DynamicsProvider({ children }: React.PropsWithChildren) {
   const query = useDynamicsQuery();
 
-  if (!query.data || query.isFetching) {
+  if (query.error) {
+    return <UnknownError />;
+  }
+
+  if (query.isFetching) {
     return <Loader reason='form-dynamics' />;
   }
 

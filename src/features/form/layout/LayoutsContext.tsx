@@ -8,6 +8,7 @@ import { cleanLayout } from 'src/features/form/layout/cleanLayout';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/isLoading/Loader';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
@@ -52,6 +53,10 @@ function useLayoutQuery() {
 export function LayoutsProvider({ children }: React.PropsWithChildren) {
   const query = useLayoutQuery();
   const data = query.data;
+
+  if (query.error) {
+    return <UnknownError />;
+  }
 
   if (!data || query.isFetching) {
     return <Loader reason='form-layout' />;

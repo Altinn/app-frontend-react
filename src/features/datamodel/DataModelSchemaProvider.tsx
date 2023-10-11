@@ -7,6 +7,7 @@ import type { JSONSchema7 } from 'json-schema';
 import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { DataModelActions } from 'src/features/datamodel/datamodelSlice';
 import { useCurrentDataModelName } from 'src/features/datamodel/useBindingSchema';
+import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/isLoading/Loader';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { createStrictContext } from 'src/utils/createContext';
@@ -41,8 +42,12 @@ const useDataModelSchemaQuery = (): UseQueryResult<JSONSchema7> => {
 };
 
 export function DataModelSchemaProvider({ children }: React.PropsWithChildren) {
-  const { data: dataModelSchema, isLoading } = useDataModelSchemaQuery();
+  const { data: dataModelSchema, isLoading, error } = useDataModelSchemaQuery();
   const dataModelName = useCurrentDataModelName();
+
+  if (error) {
+    return <UnknownError />;
+  }
 
   if (isLoading || !dataModelSchema || !dataModelName) {
     return <Loader reason='data-model-schema' />;

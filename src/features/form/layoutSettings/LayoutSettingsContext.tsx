@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
+import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/isLoading/Loader';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { createStrictContext } from 'src/utils/createContext';
@@ -34,6 +35,10 @@ function useLayoutSettingsQuery() {
 export function LayoutSettingsProvider({ children }: React.PropsWithChildren) {
   const query = useLayoutSettingsQuery();
   const data = query.data;
+
+  if (query.error) {
+    return <UnknownError />;
+  }
 
   if (!data || query.isFetching) {
     return <Loader reason='layout-settings' />;

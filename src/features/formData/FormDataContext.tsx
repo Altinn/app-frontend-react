@@ -9,6 +9,7 @@ import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useRealTaskType } from 'src/features/instance/useProcess';
+import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/isLoading/Loader';
 import { StatelessReadyState, useStatelessReadyState } from 'src/features/isLoading/useIsLoading';
 import { QueueActions } from 'src/features/queue/queueSlice';
@@ -27,7 +28,11 @@ import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 const { Provider } = createLaxContext<undefined>(undefined);
 
 export const FormDataProvider = ({ children }) => {
-  const { isLoading } = useFormDataQuery();
+  const { isLoading, error } = useFormDataQuery();
+
+  if (error) {
+    return <UnknownError />;
+  }
 
   if (isLoading) {
     return <Loader reason='formdata' />;

@@ -6,6 +6,7 @@ import type { AxiosError } from 'axios';
 import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
 import { FormRulesActions } from 'src/features/form/rules/rulesSlice';
+import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/isLoading/Loader';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
@@ -55,7 +56,11 @@ function clearExistingRules() {
 export function RulesProvider({ children }: React.PropsWithChildren) {
   const query = useRulesQuery();
 
-  if (!query.data || query.isFetching) {
+  if (query.error) {
+    return <UnknownError />;
+  }
+
+  if (query.isFetching) {
     return <Loader reason='form-rules' />;
   }
 
