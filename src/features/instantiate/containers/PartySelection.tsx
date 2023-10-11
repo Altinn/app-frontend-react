@@ -9,7 +9,6 @@ import { AltinnParty } from 'src/components/altinnParty';
 import { InstantiationContainer } from 'src/features/instantiate/containers/InstantiationContainer';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { useSelectPartyMutation } from 'src/hooks/mutations/useSelectPartyMutation';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
@@ -77,7 +76,6 @@ export const PartySelection = () => {
 
   const { mutate: selectPartyMutate, isSuccess: hasSelectedParty } = useSelectPartyMutation();
 
-  const dispatch = useAppDispatch();
   const parties = useAppSelector((state) => state.party.parties);
   const appMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
   const selectedParty = useAppSelector((state) => state.party.selectedParty);

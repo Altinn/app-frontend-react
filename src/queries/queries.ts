@@ -46,6 +46,7 @@ import type {
   IAppLanguage,
   IApplicationSettings,
   IInstance,
+  IParty,
   IProcess,
   IProfile,
 } from 'src/types/shared';
