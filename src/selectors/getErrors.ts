@@ -28,11 +28,11 @@ const getHasErrorsSelector = (state: IRuntimeState) => {
     state.optionState.error ||
     state.attachments.error ||
     state.dataListState.error ||
-    state.pdf.error ||
     state.applicationSettings.error ||
     state.textResources.error ||
     state.formDynamics.error ||
     state.formRules.error ||
+    state.customValidation.error ||
     // 403 in formData handles with MissingRolesError, see Entrypoint.tsx
     exceptIfIncludes(state.formData.error, '403');
 

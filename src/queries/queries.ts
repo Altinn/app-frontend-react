@@ -8,10 +8,12 @@ import {
   applicationSettingsApiUrl,
   currentPartyUrl,
   getActiveInstancesUrl,
+  getCustomValidationConfigUrl,
   getFooterLayoutUrl,
   getJsonSchemaUrl,
   getLayoutSetsUrl,
   getPartyValidationUrl,
+  getPdfFormatUrl,
   profileApiUrl,
   refreshJwtTokenUrl,
   validPartiesUrl,
@@ -21,9 +23,11 @@ import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { IPartyValidationResponse } from 'src/features/party';
+import type { IPdfFormat } from 'src/features/pdf/types';
 import type { IOption } from 'src/layout/common.generated';
 import type { ILayoutSets, ISimpleInstance } from 'src/types';
 import type { IAltinnOrgs, IApplicationSettings, IProfile } from 'src/types/shared';
+import type { IExpressionValidationConfig } from 'src/utils/validation/types';
 
 export const doPartyValidation = async (partyId: string): Promise<IPartyValidationResponse> =>
   (await httpPost(getPartyValidationUrl(partyId))).data;
@@ -54,8 +58,15 @@ export const fetchParties = () => httpGet(validPartiesUrl);
 
 export const fetchRefreshJwtToken = () => httpGet(refreshJwtTokenUrl);
 
+export const fetchCustomValidationConfig = (dataTypeId: string): Promise<IExpressionValidationConfig | null> =>
+  httpGet(getCustomValidationConfigUrl(dataTypeId));
+
 export const fetchUserProfile = (): Promise<IProfile> => httpGet(profileApiUrl);
+
 export const fetchDataModelSchema = (dataTypeName: string): Promise<JSONSchema7> =>
   httpGet(getJsonSchemaUrl() + dataTypeName);
 
 export const fetchFormData = (url: string, options?: AxiosRequestConfig): Promise<any> => httpGet(url, options);
+
+export const fetchPdfFormat = (instanceId: string, dataGuid: string): Promise<IPdfFormat> =>
+  httpGet(getPdfFormatUrl(instanceId, dataGuid));

@@ -18,6 +18,10 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
     attachments: {
       attachments: {},
     },
+    customValidation: {
+      customValidation: null,
+      error: null,
+    },
     devTools: {
       activeTab: DevToolsTab.General,
       isOpen: false,
@@ -93,12 +97,6 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
       error: null,
       parties: [partyMock],
       selectedParty: partyMock,
-    },
-    pdf: {
-      readyForPrint: false,
-      pdfFormat: null,
-      method: null,
-      error: null,
     },
     process: getProcessStateMock(),
     profile: getProfileStateMock(),

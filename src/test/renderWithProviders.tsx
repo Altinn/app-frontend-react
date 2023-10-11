@@ -49,9 +49,11 @@ export const renderWithProviders = (
       fetchDataModelSchema: () => Promise.resolve({}),
       fetchParties: () => Promise.resolve({}),
       fetchRefreshJwtToken: () => Promise.resolve({}),
+      fetchCustomValidationConfig: () => Promise.resolve(null),
       fetchFormData: () => Promise.resolve({}),
       fetchOptions: () => Promise.resolve([]),
       fetchDataList: () => Promise.resolve({} as unknown as IDataList),
+      fetchPdfFormat: () => Promise.resolve({ excludedPages: [], excludedComponents: [] }),
     } as AppQueriesContext;
     const mockedQueries = { ...allMockedQueries, ...queries };
 

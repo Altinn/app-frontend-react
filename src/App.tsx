@@ -10,6 +10,7 @@ import { useAllOptionsInitiallyLoaded } from 'src/features/options/useAllOptions
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { useApplicationMetadataQuery } from 'src/hooks/queries/useApplicationMetadataQuery';
 import { useApplicationSettingsQuery } from 'src/hooks/queries/useApplicationSettingsQuery';
+import { useCustomValidationConfig } from 'src/hooks/queries/useCustomValidationConfig';
 import { useFooterLayoutQuery } from 'src/hooks/queries/useFooterLayoutQuery';
 import { useFormDataQuery } from 'src/hooks/queries/useFormDataQuery';
 import { useCurrentPartyQuery } from 'src/hooks/queries/useGetCurrentPartyQuery';
@@ -21,7 +22,6 @@ import { useAlwaysPromptForParty } from 'src/hooks/useAlwaysPromptForParty';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useKeepAlive } from 'src/hooks/useKeepAlive';
-import { useUpdatePdfState } from 'src/hooks/useUpdatePdfState';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
 import type { IApplicationSettings } from 'src/types/shared';
@@ -62,6 +62,7 @@ type AppInternalProps = {
 };
 
 const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | null => {
+  useCustomValidationConfig();
   const allowAnonymousSelector = makeGetAllowAnonymousSelector();
   const allowAnonymous = useAppSelector(allowAnonymousSelector);
 
@@ -78,7 +79,6 @@ const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | n
   const appOwner = useAppSelector(selectAppOwner);
 
   useKeepAlive(applicationSettings.appOidcProvider, allowAnonymous);
-  useUpdatePdfState(allowAnonymous);
   const { isFetching: isFormDataFetching } = useFormDataQuery();
   const optionsInitiallyLoaded = useAllOptionsInitiallyLoaded();
 

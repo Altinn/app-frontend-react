@@ -3,6 +3,7 @@ import { combineReducers } from 'redux';
 import { applicationMetadataSlice } from 'src/features/applicationMetadata/applicationMetadataSlice';
 import { applicationSettingsSlice } from 'src/features/applicationSettings/applicationSettingsSlice';
 import { attachmentSlice } from 'src/features/attachments/attachmentSlice';
+import { customValidationSlice } from 'src/features/customValidation/customValidationSlice';
 import { dataListsSlice } from 'src/features/dataLists/dataListsSlice';
 import { formDataModelSlice } from 'src/features/datamodel/datamodelSlice';
 import { devToolsSlice } from 'src/features/devtools/data/devToolsSlice';
@@ -17,7 +18,6 @@ import { formLayoutSlice } from 'src/features/layout/formLayoutSlice';
 import { optionsSlice } from 'src/features/options/optionsSlice';
 import { orgsSlice } from 'src/features/orgs/orgsSlice';
 import { partySlice } from 'src/features/party/partySlice';
-import { pdfSlice } from 'src/features/pdf/data/pdfSlice';
 import { processSlice } from 'src/features/process/processSlice';
 import { profileSlice } from 'src/features/profile/profileSlice';
 import { queueSlice } from 'src/features/queue/queueSlice';
@@ -31,6 +31,7 @@ const slices = [
   applicationMetadataSlice,
   applicationSettingsSlice,
   attachmentSlice,
+  customValidationSlice,
   dataListsSlice,
   devToolsSlice,
   footerLayoutSlice,
@@ -45,7 +46,6 @@ const slices = [
   optionsSlice,
   orgsSlice,
   partySlice,
-  pdfSlice,
   processSlice,
   profileSlice,
   queueSlice,
