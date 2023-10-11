@@ -1,10 +1,8 @@
-import { selectPartySaga } from 'src/features/party/selectPartySagas';
 import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
   IGetPartiesFulfilled,
   IGetPartiesRejected,
   IPartyState,
-  ISelectParty,
   ISelectPartyFulfilled,
   ISelectPartyRejected,
 } from 'src/features/party/index';
@@ -32,9 +30,6 @@ export const partySlice = () => {
         reducer: (state, action) => {
           state.error = action.payload.error;
         },
-      }),
-      selectParty: mkAction<ISelectParty>({
-        takeEvery: selectPartySaga,
       }),
       selectPartyFulfilled: mkAction<ISelectPartyFulfilled>({
         reducer: (state, action) => {
