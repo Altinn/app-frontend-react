@@ -291,7 +291,13 @@ const common = {
               'server (allows for user/instance-specific options)',
           ),
       ),
-      new CG.prop('source', CG.common('IOptionSource').optional()),
+      new CG.prop(
+        'optionsMetadataMapping',
+        new CG.str()
+          .optional()
+          .setTitle('Options Metadata Mapping')
+          .setDescription('Mapping to datamodel field to store metadata for the options result.'),
+      ),
     ),
   ISelectionComponentFull: () =>
     new CG.obj(
