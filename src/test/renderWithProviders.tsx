@@ -50,6 +50,7 @@ export const renderWithProviders = (
 
     const allMockedQueries = {
       doPartyValidation: () => Promise.resolve({ valid: true, validParties: [], message: null }),
+      doSelectParty: () => Promise.resolve(null),
       doInstantiateWithPrefill: () => Promise.resolve(getInstanceDataMock()),
       doInstantiate: () => Promise.resolve(getInstanceDataMock()),
       doProcessNext: () => Promise.resolve(getInstanceDataMock().process),

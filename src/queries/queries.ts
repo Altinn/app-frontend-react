@@ -1,7 +1,7 @@
 import type { AxiosRequestConfig } from 'axios';
 import type { JSONSchema7 } from 'json-schema';
 
-import { httpPost } from 'src/utils/network/networking';
+import { httpPost, putWithoutConfig } from 'src/utils/network/networking';
 import { httpGet, httpPut } from 'src/utils/network/sharedNetworking';
 import {
   applicationLanguagesUrl,
@@ -26,6 +26,7 @@ import {
   instantiateUrl,
   profileApiUrl,
   refreshJwtTokenUrl,
+  updateCookieUrl,
   validPartiesUrl,
 } from 'src/utils/urls/appUrlHelper';
 import { orgsListUrl } from 'src/utils/urls/urlHelper';
@@ -52,6 +53,8 @@ import type { IExpressionValidationConfig } from 'src/utils/validation/types';
 
 export const doPartyValidation = async (partyId: string): Promise<IPartyValidationResponse> =>
   (await httpPost(getPartyValidationUrl(partyId))).data;
+
+export const doSelectParty = (partyId: string) => putWithoutConfig<IParty | null>(updateCookieUrl(partyId));
 
 export const doInstantiateWithPrefill = async (data: Instantiation): Promise<IInstance> =>
   (await httpPost(instantiateUrl, undefined, data)).data;
