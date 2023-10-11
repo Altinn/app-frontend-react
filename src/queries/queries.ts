@@ -11,6 +11,7 @@ import {
   getActiveInstancesUrl,
   getCreateInstancesUrl,
   getCustomValidationConfigUrl,
+  getFetchFormDynamicsUrl,
   getFooterLayoutUrl,
   getJsonSchemaUrl,
   getLayoutSetsUrl,
@@ -20,6 +21,7 @@ import {
   getPdfFormatUrl,
   getProcessNextUrl,
   getProcessStateUrl,
+  getRulehandlerUrl,
   instancesControllerUrl,
   instantiateUrl,
   profileApiUrl,
@@ -29,6 +31,7 @@ import {
 import { orgsListUrl } from 'src/utils/urls/urlHelper';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IDataList } from 'src/features/dataLists';
+import type { IFormDynamics } from 'src/features/dynamics';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { Instantiation } from 'src/features/instantiate/InstantiationContext';
 import type { IPartyValidationResponse } from 'src/features/party';
@@ -116,3 +119,9 @@ export const fetchFormData = (url: string, options?: AxiosRequestConfig): Promis
 
 export const fetchPdfFormat = (instanceId: string, dataGuid: string): Promise<IPdfFormat> =>
   httpGet(getPdfFormatUrl(instanceId, dataGuid));
+
+export const fetchDynamics = (layoutSetId?: string): Promise<{ data: IFormDynamics } | null> =>
+  httpGet(getFetchFormDynamicsUrl(layoutSetId));
+
+export const fetchRuleHandler = (layoutSetId?: string): Promise<string | null> =>
+  httpGet(getRulehandlerUrl(layoutSetId));

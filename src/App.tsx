@@ -10,12 +10,14 @@ import { QueueActions } from 'src/features/queue/queueSlice';
 import { useApplicationMetadataQuery } from 'src/hooks/queries/useApplicationMetadataQuery';
 import { useApplicationSettingsQuery } from 'src/hooks/queries/useApplicationSettingsQuery';
 import { useCustomValidationConfig } from 'src/hooks/queries/useCustomValidationConfig';
+import { useDynamicsQuery } from 'src/hooks/queries/useDynamicsQuery';
 import { useFooterLayoutQuery } from 'src/hooks/queries/useFooterLayoutQuery';
 import { useCurrentPartyQuery } from 'src/hooks/queries/useGetCurrentPartyQuery';
 import { usePartiesQuery } from 'src/hooks/queries/useGetPartiesQuery';
 import { useLayoutSetsQuery } from 'src/hooks/queries/useLayoutSetsQuery';
 import { useOrgsQuery } from 'src/hooks/queries/useOrgsQuery';
 import { useProfileQuery } from 'src/hooks/queries/useProfileQuery';
+import { useRulesQuery } from 'src/hooks/queries/useRulesQuery';
 import { useAlwaysPromptForParty } from 'src/hooks/useAlwaysPromptForParty';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -76,9 +78,11 @@ const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | n
   const appOwner = useAppSelector(selectAppOwner);
 
   useKeepAlive(applicationSettings.appOidcProvider, allowAnonymous);
+  const { isFetching: IsDynamicsFetching } = useDynamicsQuery(isFormDataSuccess);
+  const { isFetching: IsRulesFetching } = useRulesQuery(isFormDataSuccess);
 
   const hasComponentError = hasProfileError || hasCurrentPartyError || hasPartiesError;
-  const isFetching = isProfileFetching || isPartiesFetching;
+  const isFetching = isProfileFetching || isPartiesFetching || IsDynamicsFetching || IsRulesFetching;
 
   // Set the title of the app
   React.useEffect(() => {

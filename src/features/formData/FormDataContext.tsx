@@ -6,9 +6,7 @@ import type { AxiosRequestConfig } from 'axios/index';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
-import { FormDynamicsActions } from 'src/features/dynamics/formDynamicsSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
-import { FormRulesActions } from 'src/features/formRules/rulesSlice';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useRealTaskType } from 'src/features/instance/useProcess';
 import { Loader } from 'src/features/isLoading/Loader';
@@ -95,8 +93,6 @@ function useFormDataQuery(): UseQueryResult<IFormData> {
     onSuccess: (formDataAsObj) => {
       const formData = convertModelToDataBinding(formDataAsObj);
       dispatch(FormDataActions.fetchFulfilled({ formData, url }));
-      dispatch(FormRulesActions.fetch());
-      dispatch(FormDynamicsActions.fetch());
     },
     onError: async (error: HttpClientError) => {
       dispatch(FormDataActions.fetchRejected({ error }));

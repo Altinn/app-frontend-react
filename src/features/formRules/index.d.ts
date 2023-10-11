@@ -6,10 +6,6 @@ export interface IRuleModelFieldElement {
 
 export interface IFormRuleState {
   model: IRuleModelFieldElement[];
-  fetching: boolean;
-  fetched: boolean;
-  fetchedForLayoutSet?: string;
-  fetchedForTaskId?: string;
   error: Error | null;
 }
 

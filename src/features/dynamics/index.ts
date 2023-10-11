@@ -1,10 +1,12 @@
-export interface IFormDynamicState {
-  apis: any;
+export type IFormDynamics = {
+  APIs: any;
   ruleConnection: IRuleConnections | null;
   conditionalRendering: IConditionalRenderingRules | null;
-  fetchedForLayoutSet?: string;
+};
+
+export type IFormDynamicState = IFormDynamics & {
   error: Error | null;
-}
+};
 
 export interface IRuleConnection {
   inputParams: IParameters;
@@ -16,13 +18,6 @@ export interface IRuleConnection {
 
 export interface IRuleConnections {
   [id: string]: IRuleConnection;
-}
-
-export interface IFetchServiceConfigFulfilled {
-  apis: any;
-  ruleConnection: any;
-  conditionalRendering: any;
-  layoutSetId?: string;
 }
 
 export interface IFetchServiceConfigRejected {
