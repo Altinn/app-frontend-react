@@ -6,6 +6,7 @@ import cn from 'classnames';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
+import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -25,7 +26,7 @@ export const CheckboxContainerComponent = ({
   handleDataChange,
   overrideDisplay,
 }: ICheckboxContainerProps) => {
-  const { id, layout, readOnly, textResourceBindings, required, labelSettings } = node.item;
+  const { id, layout, readOnly, textResourceBindings, required, labelSettings, alertOnChange } = node.item;
   const { lang, langAsString } = useLanguage();
   const {
     value: _value,
@@ -46,11 +47,19 @@ export const CheckboxContainerComponent = ({
       },
     },
   });
+  const [checkedItems, setCheckedItems] = React.useState<string[]>(selected);
 
-  const handleChange = (checkedItems: string[]) => {
-    const checkedItemsString = checkedItems.join(',');
-    if (checkedItemsString !== value) {
-      setValue(checkedItems.join(','));
+  const handleChange = (checkedItems: string[], confirmedChange: boolean = false) => {
+    setCheckedItems(checkedItems);
+    const isBeingChecked = checkedItems.length > selected.length;
+    // if alertOnChange is true, we need to wait for the user to confirm the change
+    // checkedItems longer than selected means that the user has checked a new item
+    // this logic lets the user check new items without triggering the alert
+    if (!alertOnChange || confirmedChange || isBeingChecked) {
+      const checkedItemsString = checkedItems.join(',');
+      if (checkedItemsString !== value) {
+        setValue(checkedItems.join(','));
+      }
     }
   };
 
@@ -78,7 +87,6 @@ export const CheckboxContainerComponent = ({
     layout,
     optionsCount: calculatedOptions.length,
   });
-  const hideLabel = overrideDisplay?.renderedInTable === true && calculatedOptions.length === 1;
   const ariaLabel = overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined;
 
   return isFetching ? (
@@ -101,26 +109,95 @@ export const CheckboxContainerComponent = ({
         value={selected}
       >
         {calculatedOptions.map((option) => (
-          <Checkbox
+          <EnhancedCheckbox
             id={`${id}-${option.label.replace(/\s/g, '-')}`}
-            name={option.value}
             key={option.value}
-            description={lang(option.description)}
+            description={lang(option.description) as string}
             value={option.value}
             checked={selected.includes(option.value)}
-            size='small'
-          >
-            {
-              <span className={cn({ 'sr-only': hideLabel }, classes.checkBoxLabelContainer)}>
-                {langAsString(option.label)}
-                {option.helpText && (
-                  <HelpText title={getPlainTextFromNode(option.helpText)}>{lang(option.helpText)}</HelpText>
-                )}
-              </span>
-            }
-          </Checkbox>
+            alertOnChange={alertOnChange}
+            renderedInTable={overrideDisplay?.renderedInTable}
+            singleCheckbox={calculatedOptions.length === 1}
+            label={option.label}
+            helpText={option.helpText}
+            handleChange={handleChange}
+            checkedItems={checkedItems}
+          />
         ))}
       </Checkbox.Group>
     </div>
   );
+};
+
+interface ICheckboxProps {
+  id: string;
+  description?: string;
+  value: string;
+  label: string;
+  helpText?: string;
+  checked: boolean;
+  alertOnChange?: boolean;
+  renderedInTable?: boolean;
+  singleCheckbox?: boolean;
+  handleChange: (checkedItems: string[], confirmedChange: boolean) => void;
+  checkedItems: string[];
+}
+
+const EnhancedCheckbox = ({
+  id,
+  description,
+  value,
+  label,
+  helpText,
+  checked,
+  alertOnChange,
+  renderedInTable,
+  singleCheckbox,
+  handleChange,
+  checkedItems,
+}: ICheckboxProps) => {
+  const [popoverOpen, setPopoverOpen] = React.useState(false);
+  const { lang, langAsString } = useLanguage();
+  const hideLabel = renderedInTable === true && singleCheckbox;
+
+  const handleUncheck = () => {
+    setPopoverOpen(false);
+    handleChange(checkedItems, true);
+  };
+  const checkBox = (
+    <Checkbox
+      id={id}
+      name={value}
+      description={description}
+      value={value}
+      checked={checked}
+      size='small'
+      onChange={alertOnChange && checked ? () => setPopoverOpen(true) : undefined}
+    >
+      {
+        <span className={cn({ 'sr-only': hideLabel }, classes.checkBoxLabelContainer)}>
+          {langAsString(label)}
+          {helpText && <HelpText title={getPlainTextFromNode(helpText)}>{lang(helpText)}</HelpText>}
+        </span>
+      }
+    </Checkbox>
+  );
+
+  if (popoverOpen) {
+    return (
+      <DeleteWarningPopover
+        trigger={checkBox}
+        placement='left'
+        deleteButtonText={langAsString('group.row_popover_delete_button_confirm')}
+        messageText={langAsString('group.row_popover_delete_message')}
+        onCancelClick={() => {
+          setPopoverOpen(false);
+        }}
+        onPopoverDeleteClick={handleUncheck}
+        open={popoverOpen}
+        setOpen={setPopoverOpen}
+      />
+    );
+  }
+  return checkBox;
 };
