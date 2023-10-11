@@ -487,10 +487,12 @@ Cypress.Commands.add('testPdf', (callback, returnToForm = false) => {
   cy.reload();
 
   // Wait for readyForPrint, after this everything should be rendered so using timeout: 0
-  cy.get('#pdfView > #readyForPrint').then({ timeout: 0 }, () => {
-    // Run tests from callback
-    callback();
-  });
+  cy.get('#pdfView > #readyForPrint')
+    .should('exist')
+    .then({ timeout: 0 }, () => {
+      // Run tests from callback
+      callback();
+    });
 
   if (returnToForm) {
     cy.location('href').then((href) => {
