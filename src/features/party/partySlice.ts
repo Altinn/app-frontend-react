@@ -1,4 +1,3 @@
-import { getCurrentPartySaga, getPartiesSaga } from 'src/features/party/getPartiesSagas';
 import { selectPartySaga } from 'src/features/party/selectPartySagas';
 import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
@@ -24,12 +23,6 @@ export const partySlice = () => {
     name: 'party',
     initialState,
     actions: {
-      getParties: mkAction<void>({
-        takeEvery: getPartiesSaga,
-      }),
-      getCurrentParty: mkAction<void>({
-        takeEvery: getCurrentPartySaga,
-      }),
       getPartiesFulfilled: mkAction<IGetPartiesFulfilled>({
         reducer: (state, action) => {
           state.parties = action.payload.parties;
