@@ -12,7 +12,7 @@ import { createStrictContext } from 'src/utils/createContext';
 import type { ILayoutSettings } from 'src/types';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
-const { Provider, useCtx } = createStrictContext<ILayoutSettings>();
+const { Provider, useCtx } = createStrictContext<ILayoutSettings | undefined>();
 
 function useLayoutSettingsQuery() {
   const { fetchLayoutSettings } = useAppQueries();
@@ -40,7 +40,7 @@ export function LayoutSettingsProvider({ children }: React.PropsWithChildren) {
     return <UnknownError />;
   }
 
-  if (!data || query.isFetching) {
+  if (query.isFetching) {
     return <Loader reason='layout-settings' />;
   }
 
