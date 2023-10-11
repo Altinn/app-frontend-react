@@ -115,11 +115,11 @@ export const getDataModelMetaDataUrl = () => `${appPath}/api/metadata/`;
 
 export const getCustomValidationConfigUrl = (dataTypeId: string) => `${appPath}/api/validationconfig/${dataTypeId}`;
 
-export const getLayoutSettingsUrl = (layoutset: string | null | undefined) => {
-  if (layoutset === null || layoutset === undefined) {
+export const getLayoutSettingsUrl = (layoutSetId: string | undefined) => {
+  if (layoutSetId === undefined) {
     return `${appPath}/api/layoutsettings`;
   }
-  return `${appPath}/api/layoutsettings/${layoutset}`;
+  return `${appPath}/api/layoutsettings/${layoutSetId}`;
 };
 
 export const getLayoutSetsUrl = () => `${appPath}/api/layoutsets`;

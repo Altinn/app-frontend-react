@@ -2,7 +2,6 @@ import { takeEvery } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
 import { removeHiddenValidationsSaga } from 'src/features/dynamics/conditionalRenderingSagas';
-import { fetchLayoutSettingsSaga } from 'src/features/form/layout/fetch/fetchFormLayoutSagas';
 import { initRepeatingGroupsSaga } from 'src/features/form/layout/repGroups/initRepeatingGroupsSaga';
 import { repGroupAddRowSaga } from 'src/features/form/layout/repGroups/repGroupAddRowSaga';
 import { repGroupDeleteRowSaga } from 'src/features/form/layout/repGroups/repGroupDeleteRowSaga';
@@ -100,9 +99,6 @@ export const formLayoutSlice = () => {
           },
         }),
         fetchSetsRejected: genericReject,
-        fetchSettings: mkAction<void>({
-          takeEvery: fetchLayoutSettingsSaga,
-        }),
         fetchSettingsFulfilled: mkAction<LayoutTypes.IFetchLayoutSettingsFulfilled>({
           takeEvery: findAndMoveToNextVisibleLayout,
           reducer: (state, action) => {

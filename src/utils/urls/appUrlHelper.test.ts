@@ -440,7 +440,7 @@ describe('Frontend urlHelper.ts', () => {
 
   describe('getLayoutSettingsUrl', () => {
     it('should return default when no parameter is passed', () => {
-      const result = getLayoutSettingsUrl(null);
+      const result = getLayoutSettingsUrl(undefined);
 
       expect(result).toBe('https://local.altinn.cloud/ttd/test/api/layoutsettings');
     });

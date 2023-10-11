@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { preProcessItem } from 'src/features/expressions/validation';
-import { cleanLayout } from 'src/features/form/layout/fetch/fetchFormLayoutSagas';
+import { cleanLayout } from 'src/features/form/layout/cleanLayout';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
@@ -49,7 +49,7 @@ function useLayoutQuery() {
   });
 }
 
-export function FormLayoutProvider({ children }: React.PropsWithChildren) {
+export function LayoutsProvider({ children }: React.PropsWithChildren) {
   const query = useLayoutQuery();
   const data = query.data;
 

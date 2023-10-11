@@ -6,7 +6,6 @@ import type { SagaIterator } from 'redux-saga';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { tmpSagaInstanceData } from 'src/features/instance/InstanceContext';
-import { QueueActions } from 'src/features/queue/queueSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { Triggers } from 'src/layout/common.generated';
@@ -303,11 +302,7 @@ export function* findAndMoveToNextVisibleLayout(): SagaIterator {
 
 export function* watchInitialCalculatePageOrderAndMoveToNextPageSaga(): SagaIterator {
   while (true) {
-    yield all([
-      take(QueueActions.startInitialDataTaskQueue),
-      take(FormLayoutActions.fetchFulfilled),
-      take(FormLayoutActions.fetchSettingsFulfilled),
-    ]);
+    yield all([take(FormLayoutActions.fetchFulfilled), take(FormLayoutActions.fetchSettingsFulfilled)]);
     const state: IRuntimeState = yield select();
     const layouts = state.formLayout.layouts || {};
     const pageTriggers = state.formLayout.uiConfig.pageTriggers;

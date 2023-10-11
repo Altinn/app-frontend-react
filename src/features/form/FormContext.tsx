@@ -1,7 +1,8 @@
 import React from 'react';
 
 import { DataModelSchemaProvider } from 'src/features/datamodel/DataModelSchemaProvider';
-import { FormLayoutProvider } from 'src/features/form/layout/FormLayoutContext';
+import { LayoutsProvider } from 'src/features/form/layout/LayoutsContext';
+import { LayoutSettingsProvider } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { LayoutValidationProvider } from 'src/features/form/layoutValidation/useLayoutValidationCurrentPage';
 import { FormDataProvider } from 'src/features/formData/FormDataContext';
 import { AllOptionsProvider } from 'src/features/options/useAllOptions';
@@ -15,15 +16,17 @@ const { Provider } = createStrictContext();
 export function FormProvider({ children }: React.PropsWithChildren) {
   return (
     <Provider value={undefined}>
-      <FormLayoutProvider>
-        <FormDataProvider>
-          <DataModelSchemaProvider>
-            <AllOptionsProvider>
-              <LayoutValidationProvider>{children}</LayoutValidationProvider>
-            </AllOptionsProvider>
-          </DataModelSchemaProvider>
-        </FormDataProvider>
-      </FormLayoutProvider>
+      <LayoutsProvider>
+        <LayoutSettingsProvider>
+          <FormDataProvider>
+            <DataModelSchemaProvider>
+              <AllOptionsProvider>
+                <LayoutValidationProvider>{children}</LayoutValidationProvider>
+              </AllOptionsProvider>
+            </DataModelSchemaProvider>
+          </FormDataProvider>
+        </LayoutSettingsProvider>
+      </LayoutsProvider>
     </Provider>
   );
 }

@@ -25,11 +25,6 @@ function useLegacyProcessTriggers() {
       return;
     }
 
-    if (taskType === ProcessTaskType.Data) {
-      dispatch(QueueActions.startInitialDataTaskQueue());
-      return;
-    }
-
     switch (taskType) {
       case ProcessTaskType.Confirm:
       case ProcessTaskType.Feedback:

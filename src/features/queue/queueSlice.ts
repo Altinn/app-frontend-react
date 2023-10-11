@@ -1,8 +1,6 @@
 import { put } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
-import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
-import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { watchStartInitialInfoTaskQueueSaga } from 'src/features/queue/infoTask/infoTaskQueueSaga';
 import { TextResourcesActions } from 'src/features/textResources/textResourcesSlice';
 import { createSagaSlice } from 'src/redux/sagaSlice';
@@ -43,12 +41,6 @@ export const queueSlice = () => {
       startInitialAppTaskQueue: mkAction<void>({
         *takeEvery(): SagaIterator {
           yield put(TextResourcesActions.fetch());
-        },
-      }),
-      startInitialDataTaskQueue: mkAction<void>({
-        *takeEvery(): SagaIterator {
-          yield put(FormLayoutActions.fetchSettings());
-          yield put(AttachmentActions.mapAttachments());
         },
       }),
       startInitialInfoTaskQueue: mkAction<void>({

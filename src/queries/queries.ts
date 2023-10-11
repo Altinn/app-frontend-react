@@ -14,6 +14,7 @@ import {
   getFooterLayoutUrl,
   getJsonSchemaUrl,
   getLayoutSetsUrl,
+  getLayoutSettingsUrl,
   getLayoutsUrl,
   getPartyValidationUrl,
   getPdfFormatUrl,
@@ -34,7 +35,7 @@ import type { IPartyValidationResponse } from 'src/features/party';
 import type { IPdfFormat } from 'src/features/pdf/types';
 import type { ILayoutFileExternal, IOption } from 'src/layout/common.generated';
 import type { ILayoutCollection } from 'src/layout/layout';
-import type { ILayoutSets, ISimpleInstance } from 'src/types';
+import type { ILayoutSets, ILayoutSettings, ISimpleInstance } from 'src/types';
 import type {
   IActionType,
   IAltinnOrgs,
@@ -84,6 +85,9 @@ export const fetchLayoutSets = (): Promise<ILayoutSets> => httpGet(getLayoutSets
 
 export const fetchLayouts = (layoutSetId: string | undefined): Promise<ILayoutCollection | ILayoutFileExternal> =>
   httpGet(getLayoutsUrl(layoutSetId));
+
+export const fetchLayoutSettings = (layoutSetId: string | undefined): Promise<ILayoutSettings> =>
+  httpGet(getLayoutSettingsUrl(layoutSetId));
 
 export const fetchOptions = (url: string): Promise<IOption[]> => httpGet(url);
 

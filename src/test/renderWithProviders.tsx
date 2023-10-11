@@ -23,7 +23,7 @@ import type { IFooterLayout } from 'src/features/footer/types';
 import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
 import type { CompExternalExact, CompTypes } from 'src/layout/layout';
 import type { AppStore, RootState } from 'src/redux/store';
-import type { ILayoutSets, IRuntimeState } from 'src/types';
+import type { ILayoutSets, ILayoutSettings, IRuntimeState } from 'src/types';
 import type { IProfile } from 'src/types/shared';
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
@@ -60,6 +60,7 @@ export const renderWithProviders = (
       fetchFooterLayout: () => Promise.resolve({ footer: [] } as IFooterLayout),
       fetchLayoutSets: () => Promise.resolve({} as unknown as ILayoutSets),
       fetchLayouts: () => Promise.resolve({}),
+      fetchLayoutSettings: () => Promise.resolve({} as ILayoutSettings),
       fetchOrgs: () => Promise.resolve({ orgs: {} }),
       fetchUserProfile: () => Promise.resolve({} as unknown as IProfile),
       fetchDataModelSchema: () => Promise.resolve({}),
