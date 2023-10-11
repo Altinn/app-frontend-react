@@ -1,5 +1,5 @@
 import { createSagaSlice } from 'src/redux/sagaSlice';
-import type { IFetchRuleModelFulfilled, IFetchRuleModelRejected, IFormRuleState } from 'src/features/formRules/index';
+import type { IFetchRuleModelFulfilled, IFetchRuleModelRejected, IFormRuleState } from 'src/features/form/rules/index';
 import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
 
 const initialState: IFormRuleState = {
@@ -17,8 +17,6 @@ export const formRulesSlice = () => {
         reducer: (state, action) => {
           state.error = null;
           state.model = action.payload.ruleModel;
-          state.fetchedForLayoutSet = action.payload.layoutSetId;
-          state.fetchedForTaskId = action.payload.taskId;
         },
       }),
       fetchRejected: mkAction<IFetchRuleModelRejected>({

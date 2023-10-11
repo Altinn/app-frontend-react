@@ -1,6 +1,6 @@
+import { checkIfRuleShouldRunSaga } from 'src/features/form/rules/checkRulesSagas';
 import { autoSaveSaga, saveFormDataSaga, submitFormSaga } from 'src/features/formData/submit/submitFormDataSagas';
 import { deleteAttachmentReferenceSaga, updateFormDataSaga } from 'src/features/formData/update/updateFormDataSagas';
-import { checkIfRuleShouldRunSaga } from 'src/features/formRules/checkRulesSagas';
 import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
   IDeleteAttachmentReference,

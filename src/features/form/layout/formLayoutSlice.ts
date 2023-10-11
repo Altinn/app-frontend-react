@@ -1,7 +1,7 @@
 import { takeEvery } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
-import { removeHiddenValidationsSaga } from 'src/features/dynamics/conditionalRenderingSagas';
+import { removeHiddenValidationsSaga } from 'src/features/form/dynamics/conditionalRenderingSagas';
 import { initRepeatingGroupsSaga } from 'src/features/form/layout/repGroups/initRepeatingGroupsSaga';
 import { repGroupAddRowSaga } from 'src/features/form/layout/repGroups/repGroupAddRowSaga';
 import { repGroupDeleteRowSaga } from 'src/features/form/layout/repGroups/repGroupDeleteRowSaga';

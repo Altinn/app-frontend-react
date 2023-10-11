@@ -7,11 +7,11 @@ import { customValidationSlice } from 'src/features/customValidation/customValid
 import { dataListsSlice } from 'src/features/dataLists/dataListsSlice';
 import { formDataModelSlice } from 'src/features/datamodel/datamodelSlice';
 import { devToolsSlice } from 'src/features/devtools/data/devToolsSlice';
-import { formDynamicsSlice } from 'src/features/dynamics/formDynamicsSlice';
 import { footerLayoutSlice } from 'src/features/footer/data/footerLayoutSlice';
+import { formDynamicsSlice } from 'src/features/form/dynamics/formDynamicsSlice';
 import { formLayoutSlice } from 'src/features/form/layout/formLayoutSlice';
+import { formRulesSlice } from 'src/features/form/rules/rulesSlice';
 import { formDataSlice } from 'src/features/formData/formDataSlice';
-import { formRulesSlice } from 'src/features/formRules/rulesSlice';
 import { optionsSlice } from 'src/features/options/optionsSlice';
 import { orgsSlice } from 'src/features/orgs/orgsSlice';
 import { partySlice } from 'src/features/party/partySlice';

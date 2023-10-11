@@ -7,6 +7,7 @@ import type { AxiosError } from 'axios';
 import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useProcessEnhancement } from 'src/features/instance/useProcess';
+import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { LegacyProcessTriggersProvider } from 'src/hooks/useLegacyProcessTriggers';
@@ -136,6 +137,10 @@ export const InstanceProvider = ({ children }: { children: React.ReactNode }) =>
   // TODO: Remove this when no longer needed in sagas
   const instanceId = `${partyId}/${instanceGuid}`;
   window.instanceId = instanceId;
+
+  if (error) {
+    return <UnknownError />;
+  }
 
   return (
     <Provider

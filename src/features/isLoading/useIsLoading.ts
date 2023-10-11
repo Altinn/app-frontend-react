@@ -1,6 +1,4 @@
 import { useLastMutationResult } from 'src/contexts/appQueriesContext';
-import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
-import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useRealTaskType } from 'src/features/instance/useProcess';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
@@ -28,10 +26,6 @@ export function useStatelessReadyState(): StatelessReadyState {
   const partyValidation = useLastMutationResult('doPartyValidation');
   const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
 
-  const currentLayoutSetId = useCurrentLayoutSetId();
-  const dynamicsFetchedFor = useAppSelector((state) => state.formDynamics.fetchedForLayoutSet);
-  const rulesFetchedFor = useAppSelector((state) => state.formRules.fetchedForLayoutSet);
-
   if (!isStatelessApp(applicationMetadata)) {
     return StatelessReadyState.NotStateless;
   }
@@ -42,14 +36,7 @@ export function useStatelessReadyState(): StatelessReadyState {
   }
 
   if (!layoutSets) {
-    // We're loading, but layout-sets are loaded automatically using tanstack query. So we don't need to trigger,
-    // loading, and can just wait until the query is done. Layout-sets are required for stateless apps.
-    return StatelessReadyState.Loading;
-  }
-
-  const dynamicsLoaded = currentLayoutSetId === dynamicsFetchedFor;
-  const rulesLoaded = currentLayoutSetId === rulesFetchedFor;
-  if (!dynamicsLoaded || !rulesLoaded) {
+    // Layout-sets are required for stateless apps.
     return StatelessReadyState.Loading;
   }
 
@@ -57,19 +44,10 @@ export function useStatelessReadyState(): StatelessReadyState {
 }
 
 function useDataTaskIsLoading() {
-  const currentTaskId = useLaxInstanceData()?.process?.currentTask?.elementId;
   const formDataPending = useAppSelector((state) => state.formData.pendingUrl);
   const attachmentMappingPending = useAppSelector((state) => state.attachments.pendingMapping);
-  const rulesLoadedFor = useAppSelector((state) => state.formRules.fetchedForTaskId);
-  const dynamicsFetchedFor = useAppSelector((state) => state.formDynamics.fetchedForLayoutSet);
-  const currentLayoutSetId = useCurrentLayoutSetId();
 
-  return (
-    formDataPending !== undefined ||
-    attachmentMappingPending ||
-    currentTaskId !== rulesLoadedFor ||
-    currentLayoutSetId !== dynamicsFetchedFor
-  );
+  return formDataPending !== undefined || attachmentMappingPending;
 }
 
 export function useIsLoading() {

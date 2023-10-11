@@ -1,5 +1,5 @@
 import { createSagaSlice } from 'src/redux/sagaSlice';
-import type { IFetchServiceConfigRejected, IFormDynamics, IFormDynamicState } from 'src/features/dynamics/index';
+import type { IFetchServiceConfigRejected, IFormDynamics, IFormDynamicState } from 'src/features/form/dynamics/index';
 import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
 
 const initialState: IFormDynamicState = {
@@ -21,7 +21,6 @@ export const formDynamicsSlice = () => {
           state.ruleConnection = action.payload.ruleConnection;
           state.conditionalRendering = action.payload.conditionalRendering;
           state.error = null;
-          state.fetchedForLayoutSet = action.payload.layoutSetId;
         },
       }),
       fetchRejected: mkAction<IFetchServiceConfigRejected>({

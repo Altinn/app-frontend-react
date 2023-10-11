@@ -4,7 +4,7 @@ import type { SagaIterator } from 'redux-saga';
 
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { checkIfRuleShouldRun } from 'src/utils/rules';
-import type { IRuleConnections } from 'src/features/dynamics';
+import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { IFormData } from 'src/features/formData';
 import type { IUpdateFormData } from 'src/features/formData/formDataTypes';

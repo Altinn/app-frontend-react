@@ -85,14 +85,14 @@ export function InstantiationProvider({ children }: React.PropsWithChildren) {
     <Provider
       value={{
         instantiate: (node, instanceOwnerPartyId) => {
-          if (instantiate.data || instantiate.isLoading) {
+          if (instantiate.data || instantiate.isLoading || instantiate.error) {
             return;
           }
           setBusyWithId(node ? node.item.id : 'unknown');
           instantiate.mutate(instanceOwnerPartyId);
         },
         instantiateWithPrefill: (node, value) => {
-          if (instantiateWithPrefill.data || instantiateWithPrefill.isLoading) {
+          if (instantiateWithPrefill.data || instantiateWithPrefill.isLoading || instantiateWithPrefill.error) {
             return;
           }
           setBusyWithId(node ? node.item.id : 'unknown');

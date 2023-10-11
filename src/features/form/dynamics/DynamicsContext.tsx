@@ -1,20 +1,24 @@
-import { useQuery, type UseQueryResult } from '@tanstack/react-query';
+import React from 'react';
+
+import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
-import { FormDynamicsActions } from 'src/features/dynamics/formDynamicsSlice';
-import { useCurrentLayoutSetId } from 'src/features/layout/useLayouts';
+import { FormDynamicsActions } from 'src/features/form/dynamics/formDynamicsSlice';
+import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
+import { Loader } from 'src/features/isLoading/Loader';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import type { IFormDynamics } from 'src/features/dynamics';
+import { createStrictContext } from 'src/utils/createContext';
 
-export const useDynamicsQuery = (enabled: boolean): UseQueryResult<{ data: IFormDynamics } | null> => {
+const { Provider } = createStrictContext<undefined>();
+
+function useDynamicsQuery() {
   const dispatch = useAppDispatch();
   const { fetchDynamics } = useAppQueries();
   const layoutSetId = useCurrentLayoutSetId();
 
   return useQuery(['fetchDynamics', layoutSetId], () => fetchDynamics(layoutSetId), {
-    enabled,
     onSuccess: (dynamics) => {
       if (dynamics) {
         dispatch(FormDynamicsActions.fetchFulfilled(dynamics.data));
@@ -28,4 +32,14 @@ export const useDynamicsQuery = (enabled: boolean): UseQueryResult<{ data: IForm
       window.logError('Fetching dynamics failed:\n', error);
     },
   });
-};
+}
+
+export function DynamicsProvider({ children }: React.PropsWithChildren) {
+  const query = useDynamicsQuery();
+
+  if (!query.data || query.isFetching) {
+    return <Loader reason='form-dynamics' />;
+  }
+
+  return <Provider value={undefined}>{children}</Provider>;
+}

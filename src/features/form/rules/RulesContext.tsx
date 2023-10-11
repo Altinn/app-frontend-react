@@ -1,22 +1,27 @@
-import { useQuery, type UseQueryResult } from '@tanstack/react-query';
+import React from 'react';
+
+import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
-import { FormRulesActions } from 'src/features/formRules/rulesSlice';
-import { useCurrentLayoutSetId } from 'src/features/layout/useLayouts';
+import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
+import { FormRulesActions } from 'src/features/form/rules/rulesSlice';
+import { Loader } from 'src/features/isLoading/Loader';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { createStrictContext } from 'src/utils/createContext';
 import { getRuleModelFields } from 'src/utils/rules';
 
 const RULES_SCRIPT_ID = 'rules-script';
 
-export const useRulesQuery = (enabled: boolean): UseQueryResult<string | null> => {
+const { Provider } = createStrictContext<undefined>();
+
+const useRulesQuery = () => {
   const dispatch = useAppDispatch();
   const { fetchRuleHandler } = useAppQueries();
   const layoutSetId = useCurrentLayoutSetId();
 
   return useQuery(['fetchRules', layoutSetId], () => fetchRuleHandler(layoutSetId), {
-    enabled,
     onSuccess: (ruleModel) => {
       clearExistingRules();
       if (ruleModel) {
@@ -45,4 +50,14 @@ function clearExistingRules() {
   if (rulesScript) {
     rulesScript.remove();
   }
+}
+
+export function RulesProvider({ children }: React.PropsWithChildren) {
+  const query = useRulesQuery();
+
+  if (!query.data || query.isFetching) {
+    return <Loader reason='form-rules' />;
+  }
+
+  return <Provider value={undefined}>{children}</Provider>;
 }
