@@ -23,6 +23,10 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
   const { selected, handleChange, handleBlur, fetchingOptions, calculatedOptions } = useRadioButtons(props);
   const { lang, langAsString } = useLanguage();
   const selectedLabel = calculatedOptions.find((option) => option.value === selected)?.label;
+  const alertText = selectedLabel
+    ? lang('form_filler.radio_button_change_warning_label', [`<strong>${selectedLabel}</strong>`])
+    : lang('form_filler.radio_button_change_warning');
+  const confirmChangeText = lang('form_filler.radio_button_change_confirm');
 
   const getLabelPrefixForLikert = () => {
     if (
@@ -95,7 +99,8 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
                 hideLabel={hideLabel}
                 size='small'
                 alertOnChange={alertOnChange}
-                selectedLabel={selectedLabel}
+                alertText={alertText as string}
+                confirmChangeText={confirmChangeText as string}
               />
             ))}
           </Radio.Group>

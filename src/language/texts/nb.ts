@@ -89,7 +89,7 @@ export function nb(): FixedLanguageList {
       placeholder_user: 'OLA PRIVATPERSON',
       radio_button_change_warning_label: 'Utfylt data i {0} kan gå tapt',
       radio_button_change_warning: 'Utfylt data kan gå tapt',
-      radio_button_change_confirm: 'Endre',
+      radio_button_change_confirm: 'Bekreft',
       required_description: 'Obligatoriske felter er markert med *',
       required_label: '*',
       summary_item_change: 'Endre',

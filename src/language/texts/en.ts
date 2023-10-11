@@ -87,7 +87,7 @@ export function en() {
       placeholder_user: 'OLA PRIVATPERSON',
       radio_button_change_warning_label: 'The filled data in {0} may be lost',
       radio_button_change_warning: 'Filled data may be lost',
-      radio_button_change_confirm: 'Change',
+      radio_button_change_confirm: 'Confirm',
       required_description: 'Required fields are marked with *',
       required_label: '*',
       summary_item_change: 'Change',

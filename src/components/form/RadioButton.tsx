@@ -5,7 +5,6 @@ import type { RadioProps } from '@digdir/design-system-react';
 
 import classes from 'src/components/form/RadioButton.module.css';
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
-import { useLanguage } from 'src/hooks/useLanguage';
 import { getPlainTextFromNode } from 'src/utils/stringHelper';
 
 export interface IRadioButtonProps extends Omit<RadioProps, 'children'> {
@@ -15,7 +14,8 @@ export interface IRadioButtonProps extends Omit<RadioProps, 'children'> {
   hideLabel?: boolean;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   alertOnChange?: boolean;
-  selectedLabel?: string;
+  alertText?: string;
+  confirmChangeText?: string;
 }
 
 export const RadioButton = ({
@@ -25,7 +25,8 @@ export const RadioButton = ({
   hideLabel,
   onChange,
   alertOnChange,
-  selectedLabel,
+  alertText,
+  confirmChangeText,
   ...rest
 }: IRadioButtonProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -37,7 +38,6 @@ export const RadioButton = ({
   );
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [tempEvent, setTempEvent] = useState<React.ChangeEvent<HTMLInputElement>>();
-  const { lang } = useLanguage();
 
   const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (alertOnChange) {
@@ -81,15 +81,12 @@ export const RadioButton = ({
   );
 
   if (popoverOpen) {
-    const alertText = selectedLabel
-      ? lang('form_filler.radio_button_change_warning_label', [`<strong>${selectedLabel}</strong>`])
-      : lang('form_filler.radio_button_change_warning');
     return (
       <DeleteWarningPopover
         trigger={showAsCard ? cardElement : radioButton}
         onPopoverDeleteClick={confirmChange}
         onCancelClick={() => setPopoverOpen(false)}
-        deleteButtonText={lang('form_filler.radio_button_change_confirm') as string}
+        deleteButtonText={confirmChangeText as string}
         messageText={alertText as string}
         open={popoverOpen}
         setOpen={setPopoverOpen}
