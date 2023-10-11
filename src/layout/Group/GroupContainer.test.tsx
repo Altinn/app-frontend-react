@@ -6,15 +6,15 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 
 import { getFormLayoutGroupMock } from 'src/__mocks__/formLayoutGroupMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { Triggers } from 'src/layout/common.generated';
 import { GroupContainer } from 'src/layout/Group/GroupContainer';
 import { setupStore } from 'src/redux/store';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithProviders } from 'src/test/renderWithProviders';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
-import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
-import type { IUpdateRepeatingGroupsEditIndex } from 'src/features/layout/formLayoutTypes';
+import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
+import type { IUpdateRepeatingGroupsEditIndex } from 'src/features/form/layout/formLayoutTypes';
 import type { ITextResourcesState } from 'src/features/textResources';
 import type { CompGroupRepeatingExternal } from 'src/layout/Group/config.generated';
 import type { CompExternal } from 'src/layout/layout';

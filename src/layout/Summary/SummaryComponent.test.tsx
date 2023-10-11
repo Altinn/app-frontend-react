@@ -4,11 +4,11 @@ import { fireEvent, screen } from '@testing-library/react';
 
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { renderWithProviders } from 'src/test/renderWithProviders';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
-import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
+import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { CompInputExternal } from 'src/layout/Input/config.generated';
 import type { CompExternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';

@@ -3,13 +3,13 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
-import { FormDataActions } from 'src/features/formData/formDataSlice';
-import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import {
   selectAttachmentState,
   selectFormData,
   selectFormLayoutState,
-} from 'src/features/layout/update/updateFormLayoutSagas';
+} from 'src/features/form/layout/update/updateFormLayoutSagas';
+import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { groupIsRepeatingExt } from 'src/layout/Group/tools';
 import { shiftAttachmentRowInRepeatingGroup } from 'src/utils/attachment';
@@ -22,9 +22,9 @@ import type {
   IDeleteAttachmentActionFulfilled,
   IDeleteAttachmentActionRejected,
 } from 'src/features/attachments/delete/deleteAttachmentActions';
+import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
+import type { IRepGroupDelRow } from 'src/features/form/layout/formLayoutTypes';
 import type { IFormData } from 'src/features/formData';
-import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
-import type { IRepGroupDelRow } from 'src/features/layout/formLayoutTypes';
 import type { CompGroupExternal } from 'src/layout/Group/config.generated';
 import type { IRepeatingGroups } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';

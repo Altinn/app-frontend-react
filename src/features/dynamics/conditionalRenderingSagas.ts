@@ -10,7 +10,7 @@ import { Triggers } from 'src/layout/common.generated';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { ExprConfig } from 'src/features/expressions/types';
-import type { IUpdateHiddenComponents } from 'src/features/layout/formLayoutTypes';
+import type { IUpdateHiddenComponents } from 'src/features/form/layout/formLayoutTypes';
 import type { IHiddenLayoutsExternal, IRuntimeState } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { IValidations } from 'src/utils/validation/types';

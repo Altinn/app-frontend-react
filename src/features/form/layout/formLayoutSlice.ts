@@ -2,24 +2,20 @@ import { takeEvery } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
 import { removeHiddenValidationsSaga } from 'src/features/dynamics/conditionalRenderingSagas';
-import { FormDataActions } from 'src/features/formData/formDataSlice';
-import {
-  fetchLayoutSaga,
-  fetchLayoutSetsSaga,
-  fetchLayoutSettingsSaga,
-} from 'src/features/layout/fetch/fetchFormLayoutSagas';
-import { initRepeatingGroupsSaga } from 'src/features/layout/repGroups/initRepeatingGroupsSaga';
-import { repGroupAddRowSaga } from 'src/features/layout/repGroups/repGroupAddRowSaga';
-import { repGroupDeleteRowSaga } from 'src/features/layout/repGroups/repGroupDeleteRowSaga';
-import { updateRepeatingGroupEditIndexSaga } from 'src/features/layout/repGroups/updateRepeatingGroupEditIndexSaga';
+import { fetchLayoutSettingsSaga } from 'src/features/form/layout/fetch/fetchFormLayoutSagas';
+import { initRepeatingGroupsSaga } from 'src/features/form/layout/repGroups/initRepeatingGroupsSaga';
+import { repGroupAddRowSaga } from 'src/features/form/layout/repGroups/repGroupAddRowSaga';
+import { repGroupDeleteRowSaga } from 'src/features/form/layout/repGroups/repGroupDeleteRowSaga';
+import { updateRepeatingGroupEditIndexSaga } from 'src/features/form/layout/repGroups/updateRepeatingGroupEditIndexSaga';
 import {
   calculatePageOrderAndMoveToNextPageSaga,
   findAndMoveToNextVisibleLayout,
   updateCurrentViewSaga,
   watchInitialCalculatePageOrderAndMoveToNextPageSaga,
-} from 'src/features/layout/update/updateFormLayoutSagas';
+} from 'src/features/form/layout/update/updateFormLayoutSagas';
+import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { createSagaSlice } from 'src/redux/sagaSlice';
-import type * as LayoutTypes from 'src/features/layout/formLayoutTypes';
+import type * as LayoutTypes from 'src/features/form/layout/formLayoutTypes';
 import type { ILayouts } from 'src/layout/layout';
 import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
 import type { ILayoutSets, IPagesSettings, IRepeatingGroups, IUiConfig } from 'src/types';
@@ -29,9 +25,6 @@ export interface ILayoutState {
   error: Error | null;
   uiConfig: IUiConfig;
   layoutsets: ILayoutSets | null;
-  fetchedLayoutSetId?: string;
-  fetchedTaskId?: string;
-  fetchingLayouts?: boolean;
 }
 
 export const initialState: ILayoutState = {
@@ -56,9 +49,6 @@ export const initialState: ILayoutState = {
     excludeComponentFromPdf: null,
     pdfLayoutName: undefined,
     autoSaveBehavior: 'onChangeFormData',
-    fetchingSettings: false,
-    fetchedSettingsForLayoutSetId: undefined,
-    fetchedSettingsForTaskId: undefined,
   },
   layoutsets: null,
 };
@@ -83,30 +73,18 @@ export const formLayoutSlice = () => {
       initialState,
       extraSagas: [watchInitialCalculatePageOrderAndMoveToNextPageSaga],
       actions: {
-        fetch: mkAction<void>({
-          takeEvery: fetchLayoutSaga,
-          reducer: (state) => {
-            state.fetchingLayouts = true;
-          },
-        }),
         fetchFulfilled: mkAction<LayoutTypes.IFetchLayoutFulfilled>({
           reducer: (state, action) => {
-            const { layouts, navigationConfig, hiddenLayoutsExpressions, taskId, layoutSetId } = action.payload;
+            const { layouts, navigationConfig, hiddenLayoutsExpressions } = action.payload;
             state.layouts = layouts;
             state.uiConfig.navigationConfig = navigationConfig;
             state.uiConfig.tracks.order = Object.keys(layouts);
             state.uiConfig.tracks.hiddenExpr = hiddenLayoutsExpressions;
             state.error = null;
             state.uiConfig.repeatingGroups = null;
-            state.fetchedTaskId = taskId;
-            state.fetchedLayoutSetId = layoutSetId;
-            state.fetchingLayouts = false;
           },
         }),
         fetchRejected: genericReject,
-        fetchSets: mkAction<void>({
-          takeEvery: fetchLayoutSetsSaga,
-        }),
         fetchSetsFulfilled: mkAction<LayoutTypes.IFetchLayoutSetsFulfilled>({
           reducer: (state, action) => {
             const { layoutSets } = action.payload;
@@ -124,14 +102,11 @@ export const formLayoutSlice = () => {
         fetchSetsRejected: genericReject,
         fetchSettings: mkAction<void>({
           takeEvery: fetchLayoutSettingsSaga,
-          reducer: (state) => {
-            state.uiConfig.fetchingSettings = true;
-          },
         }),
         fetchSettingsFulfilled: mkAction<LayoutTypes.IFetchLayoutSettingsFulfilled>({
           takeEvery: findAndMoveToNextVisibleLayout,
           reducer: (state, action) => {
-            const { settings, taskId, layoutSetId } = action.payload;
+            const { settings } = action.payload;
             state.uiConfig.receiptLayoutName = settings?.receiptLayoutName;
             if (settings && settings.pages) {
               updateCommonPageSettings(state, settings.pages);
@@ -158,9 +133,6 @@ export const formLayoutSlice = () => {
             state.uiConfig.pdfLayoutName = settings?.pages.pdfLayoutName;
             state.uiConfig.excludeComponentFromPdf = settings?.components?.excludeFromPdf ?? [];
             state.uiConfig.excludePageFromPdf = settings?.pages?.excludeFromPdf ?? [];
-            state.uiConfig.fetchedSettingsForLayoutSetId = layoutSetId;
-            state.uiConfig.fetchedSettingsForTaskId = taskId;
-            state.uiConfig.fetchingSettings = false;
           },
         }),
         fetchSettingsRejected: genericReject,

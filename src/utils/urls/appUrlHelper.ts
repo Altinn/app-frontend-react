@@ -142,11 +142,11 @@ export const getFetchFormDynamicsUrl = (layoutSetId?: string) => {
   return `${appPath}/api/resource/RuleConfiguration.json`;
 };
 
-export const getLayoutsUrl = (layoutset: string | null) => {
-  if (layoutset === null) {
+export const getLayoutsUrl = (layoutSetId: string | undefined) => {
+  if (layoutSetId === undefined) {
     return `${appPath}/api/resource/FormLayout.json`;
   }
-  return `${appPath}/api/layouts/${layoutset}`;
+  return `${appPath}/api/layouts/${layoutSetId}`;
 };
 
 export const getRulehandlerUrl = (layoutset?: string) => {

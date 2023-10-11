@@ -5,7 +5,7 @@ import {
   runExpressionsForLayouts,
   shouldUpdate,
 } from 'src/features/dynamics/conditionalRenderingSagas';
-import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';

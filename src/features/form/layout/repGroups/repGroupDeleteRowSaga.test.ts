@@ -3,14 +3,14 @@ import { expectSaga } from 'redux-saga-test-plan';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
-import { FormDataActions } from 'src/features/formData/formDataSlice';
-import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
-import { repGroupDeleteRowSaga } from 'src/features/layout/repGroups/repGroupDeleteRowSaga';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { repGroupDeleteRowSaga } from 'src/features/form/layout/repGroups/repGroupDeleteRowSaga';
 import {
   selectAttachmentState,
   selectFormData,
   selectFormLayoutState,
-} from 'src/features/layout/update/updateFormLayoutSagas';
+} from 'src/features/form/layout/update/updateFormLayoutSagas';
+import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { resolvedLayoutsFromState, ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import type { IAttachment } from 'src/features/attachments';

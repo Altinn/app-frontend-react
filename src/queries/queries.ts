@@ -14,6 +14,7 @@ import {
   getFooterLayoutUrl,
   getJsonSchemaUrl,
   getLayoutSetsUrl,
+  getLayoutsUrl,
   getPartyValidationUrl,
   getPdfFormatUrl,
   getProcessNextUrl,
@@ -31,7 +32,8 @@ import type { IFooterLayout } from 'src/features/footer/types';
 import type { Instantiation } from 'src/features/instantiate/InstantiationContext';
 import type { IPartyValidationResponse } from 'src/features/party';
 import type { IPdfFormat } from 'src/features/pdf/types';
-import type { IOption } from 'src/layout/common.generated';
+import type { ILayoutFileExternal, IOption } from 'src/layout/common.generated';
+import type { ILayoutCollection } from 'src/layout/layout';
 import type { ILayoutSets, ISimpleInstance } from 'src/types';
 import type {
   IActionType,
@@ -79,6 +81,9 @@ export const fetchCurrentParty = () => httpGet(currentPartyUrl);
 export const fetchFooterLayout = (): Promise<IFooterLayout> => httpGet(getFooterLayoutUrl());
 
 export const fetchLayoutSets = (): Promise<ILayoutSets> => httpGet(getLayoutSetsUrl());
+
+export const fetchLayouts = (layoutSetId: string | undefined): Promise<ILayoutCollection | ILayoutFileExternal> =>
+  httpGet(getLayoutsUrl(layoutSetId));
 
 export const fetchOptions = (url: string): Promise<IOption[]> => httpGet(url);
 

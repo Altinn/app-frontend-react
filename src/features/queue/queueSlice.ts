@@ -2,7 +2,7 @@ import { put } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
-import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { watchStartInitialInfoTaskQueueSaga } from 'src/features/queue/infoTask/infoTaskQueueSaga';
 import { TextResourcesActions } from 'src/features/textResources/textResourcesSlice';
 import { createSagaSlice } from 'src/redux/sagaSlice';
@@ -14,7 +14,6 @@ export const initialState: IQueueState = {
   appTask: { error: null },
   userTask: { error: null },
   infoTask: { error: null },
-  stateless: { error: null, working: false },
 };
 
 export let QueueActions: ActionsFromSlice<typeof queueSlice>;
@@ -48,27 +47,12 @@ export const queueSlice = () => {
       }),
       startInitialDataTaskQueue: mkAction<void>({
         *takeEvery(): SagaIterator {
-          yield put(FormLayoutActions.fetch());
           yield put(FormLayoutActions.fetchSettings());
           yield put(AttachmentActions.mapAttachments());
         },
       }),
       startInitialInfoTaskQueue: mkAction<void>({
         saga: () => watchStartInitialInfoTaskQueueSaga,
-      }),
-      startInitialStatelessQueue: mkAction<void>({
-        *takeEvery(): SagaIterator {
-          yield put(FormLayoutActions.fetch());
-          yield put(FormLayoutActions.fetchSettings());
-        },
-        reducer: (state) => {
-          state.stateless.working = true;
-        },
-      }),
-      finishInitialStatelessQueue: mkAction<void>({
-        reducer: (state) => {
-          state.stateless.working = false;
-        },
       }),
     },
   }));

@@ -59,6 +59,7 @@ export const renderWithProviders = (
       fetchApplicationSettings: () => Promise.resolve({}),
       fetchFooterLayout: () => Promise.resolve({ footer: [] } as IFooterLayout),
       fetchLayoutSets: () => Promise.resolve({} as unknown as ILayoutSets),
+      fetchLayouts: () => Promise.resolve({}),
       fetchOrgs: () => Promise.resolve({ orgs: {} }),
       fetchUserProfile: () => Promise.resolve({} as unknown as IProfile),
       fetchDataModelSchema: () => Promise.resolve({}),

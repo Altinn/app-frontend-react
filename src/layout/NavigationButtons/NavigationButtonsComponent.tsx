@@ -4,7 +4,7 @@ import { shallowEqual } from 'react-redux';
 import { Button } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
 
-import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -14,7 +14,7 @@ import { getLayoutOrderFromTracks, selectLayoutOrder } from 'src/selectors/getLa
 import { reducePageValidations } from 'src/types';
 import { getNextView } from 'src/utils/formLayout';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { IKeepComponentScrollPos } from 'src/features/layout/formLayoutTypes';
+import type { IKeepComponentScrollPos } from 'src/features/form/layout/formLayoutTypes';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutNavigation } from 'src/layout/common.generated';
 import type { IRuntimeState } from 'src/types';

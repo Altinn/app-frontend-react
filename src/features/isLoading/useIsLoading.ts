@@ -1,9 +1,7 @@
 import { useLastMutationResult } from 'src/contexts/appQueriesContext';
+import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useRealTaskType } from 'src/features/instance/useProcess';
-import { useCurrentLayoutSetId } from 'src/features/layout/useCurrentLayoutSetId';
-import { QueueActions } from 'src/features/queue/queueSlice';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { ProcessTaskType } from 'src/types';
@@ -23,9 +21,7 @@ export enum StatelessReadyState {
   Ready,
 }
 
-export function useStatelessReadyState(triggerLoading?: () => void): StatelessReadyState {
-  const dispatch = useAppDispatch();
-
+export function useStatelessReadyState(): StatelessReadyState {
   const applicationMetadata = useAppSelector((state) => state.applicationMetadata?.applicationMetadata);
   const allowAnonymousSelector = makeGetAllowAnonymousSelector();
   const allowAnonymous = useAppSelector(allowAnonymousSelector);
@@ -35,11 +31,6 @@ export function useStatelessReadyState(triggerLoading?: () => void): StatelessRe
   const currentLayoutSetId = useCurrentLayoutSetId();
   const dynamicsFetchedFor = useAppSelector((state) => state.formDynamics.fetchedForLayoutSet);
   const rulesFetchedFor = useAppSelector((state) => state.formRules.fetchedForLayoutSet);
-  const statelessWorking = useAppSelector((state) => state.queue.stateless.working);
-  const isFetchingLayouts = useAppSelector((state) => state.formLayout.fetchingLayouts);
-  const isFetchingLayoutSettings = useAppSelector((state) => state.formLayout.uiConfig.fetchingSettings);
-  const layoutsFetchedFor = useAppSelector((state) => state.formLayout.fetchedLayoutSetId);
-  const layoutSettingsFetchedFor = useAppSelector((state) => state.formLayout.uiConfig.fetchedSettingsForLayoutSetId);
 
   if (!isStatelessApp(applicationMetadata)) {
     return StatelessReadyState.NotStateless;
@@ -56,24 +47,10 @@ export function useStatelessReadyState(triggerLoading?: () => void): StatelessRe
     return StatelessReadyState.Loading;
   }
 
-  const layoutsLoaded = currentLayoutSetId === layoutsFetchedFor;
-  const layoutSettingsLoaded = currentLayoutSetId === layoutSettingsFetchedFor;
-  if (!isFetchingLayouts && !isFetchingLayoutSettings && !layoutsLoaded && !layoutSettingsLoaded) {
-    triggerLoading && triggerLoading();
-    return StatelessReadyState.Loading;
-  }
-
   const dynamicsLoaded = currentLayoutSetId === dynamicsFetchedFor;
   const rulesLoaded = currentLayoutSetId === rulesFetchedFor;
-  if (!dynamicsLoaded || !rulesLoaded || !layoutsLoaded || !layoutSettingsLoaded) {
+  if (!dynamicsLoaded || !rulesLoaded) {
     return StatelessReadyState.Loading;
-  }
-
-  if (statelessWorking) {
-    // We're working, but we're not loading anything. This means we're actually finished loading and can tell
-    // that to the queue.
-    dispatch(QueueActions.finishInitialStatelessQueue());
-    return StatelessReadyState.Ready;
   }
 
   return StatelessReadyState.Ready;
@@ -81,8 +58,6 @@ export function useStatelessReadyState(triggerLoading?: () => void): StatelessRe
 
 function useDataTaskIsLoading() {
   const currentTaskId = useLaxInstanceData()?.process?.currentTask?.elementId;
-  const layoutsLoadedFor = useAppSelector((state) => state.formLayout.fetchedTaskId);
-  const layoutSettingsLoadedFor = useAppSelector((state) => state.formLayout.uiConfig.fetchedSettingsForTaskId);
   const formDataPending = useAppSelector((state) => state.formData.pendingUrl);
   const attachmentMappingPending = useAppSelector((state) => state.attachments.pendingMapping);
   const rulesLoadedFor = useAppSelector((state) => state.formRules.fetchedForTaskId);
@@ -90,8 +65,6 @@ function useDataTaskIsLoading() {
   const currentLayoutSetId = useCurrentLayoutSetId();
 
   return (
-    currentTaskId !== layoutsLoadedFor ||
-    currentTaskId !== layoutSettingsLoadedFor ||
     formDataPending !== undefined ||
     attachmentMappingPending ||
     currentTaskId !== rulesLoadedFor ||

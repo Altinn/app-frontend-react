@@ -2,11 +2,11 @@ import { put, select } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 
-import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
-import { selectFormLayoutState } from 'src/features/layout/update/updateFormLayoutSagas';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { selectFormLayoutState } from 'src/features/form/layout/update/updateFormLayoutSagas';
 import { groupIsRepeatingExt } from 'src/layout/Group/tools';
-import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
-import type { IRepGroupAddRow } from 'src/features/layout/formLayoutTypes';
+import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
+import type { IRepGroupAddRow } from 'src/features/form/layout/formLayoutTypes';
 import type { CompGroupExternal } from 'src/layout/Group/config.generated';
 import type { IRepeatingGroups } from 'src/types';
 

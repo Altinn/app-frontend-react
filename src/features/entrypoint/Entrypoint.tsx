@@ -14,7 +14,6 @@ import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/isLoading/Loader';
 import { StatelessReadyState, useStatelessReadyState } from 'src/features/isLoading/useIsLoading';
 import { PartyActions } from 'src/features/party/partySlice';
-import { QueueActions } from 'src/features/queue/queueSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { usePartyValidationMutation } from 'src/hooks/mutations/usePartyValidationMutation';
 import { useActiveInstancesQuery } from 'src/hooks/queries/useActiveInstancesQuery';
@@ -53,9 +52,7 @@ export function Entrypoint() {
   const appOwner = useAppSelector(selectAppOwner);
   const alwaysPromptForParty = useAlwaysPromptForParty();
   const dispatch = useAppDispatch();
-  const statelessReady = useStatelessReadyState(() => {
-    dispatch(QueueActions.startInitialStatelessQueue());
-  });
+  const statelessReady = useStatelessReadyState();
 
   const componentHasErrors = hasPartyValidationError || hasActiveInstancesError;
 

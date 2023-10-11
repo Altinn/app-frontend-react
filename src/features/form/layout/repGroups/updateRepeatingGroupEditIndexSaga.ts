@@ -3,8 +3,8 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { AxiosRequestConfig } from 'axios/index';
 import type { SagaIterator } from 'redux-saga';
 
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { tmpSagaInstanceData } from 'src/features/instance/InstanceContext';
-import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { Triggers } from 'src/layout/common.generated';
@@ -19,7 +19,7 @@ import {
   filterValidationObjectsByRowIndex,
   validationContextFromState,
 } from 'src/utils/validation/validationHelpers';
-import type { IUpdateRepeatingGroupsEditIndex } from 'src/features/layout/formLayoutTypes';
+import type { IUpdateRepeatingGroupsEditIndex } from 'src/features/form/layout/formLayoutTypes';
 import type { IRuntimeState } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { BackendValidationIssue } from 'src/utils/validation/types';

@@ -4,16 +4,16 @@ import { expectSaga } from 'redux-saga-test-plan';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import {
   calculatePageOrderAndMoveToNextPageSaga,
   findAndMoveToNextVisibleLayout,
   selectAllLayouts,
   selectCurrentLayout,
-} from 'src/features/layout/update/updateFormLayoutSagas';
+} from 'src/features/form/layout/update/updateFormLayoutSagas';
 import { selectLayoutOrder } from 'src/selectors/getLayoutOrder';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
-import type { ICalculatePageOrderAndMoveToNextPage } from 'src/features/layout/formLayoutTypes';
+import type { ICalculatePageOrderAndMoveToNextPage } from 'src/features/form/layout/formLayoutTypes';
 import type { IRuntimeState } from 'src/types';
 
 describe('updateLayoutSagas', () => {

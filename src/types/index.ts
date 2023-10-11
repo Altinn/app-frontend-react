@@ -1,6 +1,6 @@
 import { Triggers } from 'src/layout/common.generated';
 import type { ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
-import type { IKeepComponentScrollPos } from 'src/features/layout/formLayoutTypes';
+import type { IKeepComponentScrollPos } from 'src/features/form/layout/formLayoutTypes';
 import type { ILayoutNavigation } from 'src/layout/common.generated';
 import type { RootState } from 'src/redux/store';
 
@@ -99,9 +99,6 @@ export interface IUiConfig {
   showExpandWidthButton?: boolean;
   expandedWidth?: boolean;
   keepScrollPos?: IKeepComponentScrollPos;
-  fetchedSettingsForTaskId?: string;
-  fetchedSettingsForLayoutSetId?: string;
-  fetchingSettings?: boolean;
 }
 
 /**

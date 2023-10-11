@@ -3,7 +3,6 @@ export interface IQueueState {
   appTask: IQueueTask;
   userTask: IQueueTask;
   infoTask: IQueueTask;
-  stateless: IQueueTask & { working: boolean };
 }
 
 export interface IQueueTask {
