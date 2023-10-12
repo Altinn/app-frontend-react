@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 import type { UseQueryResult } from '@tanstack/react-query';
@@ -101,19 +101,13 @@ function useFormDataQuery(enabled: boolean): UseQueryResult<IFormData> {
   // on the server).
   const currentTaskId = instance?.process?.currentTask?.elementId;
 
-  useEffect(() => {
-    if (isEnabled && url !== undefined) {
-      dispatch(FormDataActions.fetchPending({ url }));
-    }
-  }, [dispatch, isEnabled, url]);
-
   const { fetchFormData } = useAppQueries();
   const out = useQuery({
     queryKey: ['fetchFormData', url, currentTaskId],
     queryFn: async () => flattenObject(await fetchFormData(url || '', options)),
     enabled: isEnabled && url !== undefined,
     onSuccess: (formData) => {
-      dispatch(FormDataActions.fetchFulfilled({ formData, url }));
+      dispatch(FormDataActions.fetchFulfilled({ formData }));
     },
     onError: async (error: HttpClientError) => {
       dispatch(FormDataActions.fetchRejected({ error }));

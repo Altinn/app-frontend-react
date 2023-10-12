@@ -4,7 +4,6 @@ import { deleteAttachmentReferenceSaga, updateFormDataSaga } from 'src/features/
 import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
   IDeleteAttachmentReference,
-  IFetchFormData,
   IFetchFormDataFulfilled,
   IFormDataRejected,
   ISaveAction,
@@ -25,7 +24,6 @@ export const initialState: IFormDataState = {
   },
   error: null,
   reFetch: false,
-  pendingUrl: undefined,
 };
 
 export let FormDataActions: ActionsFromSlice<typeof formDataSlice>;
@@ -34,25 +32,17 @@ export const formDataSlice = () => {
     name: 'formData',
     initialState,
     actions: {
-      fetch: mkAction<IFetchFormData>({
+      fetch: mkAction<void>({
         reducer: (state) => {
           state.reFetch = true;
         },
       }),
-      fetchPending: mkAction<{ url: string }>({
-        reducer: (state, action) => {
-          state.pendingUrl = action.payload.url;
-        },
-      }),
       fetchFulfilled: mkAction<IFetchFormDataFulfilled>({
         reducer: (state, action) => {
-          const { formData, url } = action.payload;
+          const { formData } = action.payload;
           state.formData = formData;
           state.lastSavedFormData = formData;
           state.reFetch = false;
-          if (state.pendingUrl === url) {
-            state.pendingUrl = undefined;
-          }
         },
       }),
       fetchRejected: mkAction<IFormDataRejected>({

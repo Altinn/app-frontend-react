@@ -40,7 +40,7 @@ export const DownloadXMLButton = () => {
           throw error;
         }
       });
-      dispatch(FormDataActions.fetch({ url: dataUrl }));
+      dispatch(FormDataActions.fetch());
     }
   };
   return (

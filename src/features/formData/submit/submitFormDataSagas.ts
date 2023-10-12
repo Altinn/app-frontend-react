@@ -187,7 +187,7 @@ export function* putFormData({ field, componentId }: SaveDataParams) {
         lastSavedModel = yield call(handleChangedFields, error.response.data?.changedFields, formDataCopy);
       } else {
         // No changedFields property returned, try to fetch
-        yield put(FormDataActions.fetch({ url }));
+        yield put(FormDataActions.fetch());
       }
     } else {
       throw error;

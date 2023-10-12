@@ -44,10 +44,7 @@ export function useStatelessReadyState(): StatelessReadyState {
 }
 
 function useDataTaskIsLoading() {
-  const formDataPending = useAppSelector((state) => state.formData.pendingUrl);
-  const attachmentMappingPending = useAppSelector((state) => state.attachments.pendingMapping);
-
-  return formDataPending !== undefined || attachmentMappingPending;
+  return useAppSelector((state) => state.attachments.pendingMapping);
 }
 
 export function useIsLoading() {
@@ -59,5 +56,5 @@ export function useIsLoading() {
     return stateless !== StatelessReadyState.Ready;
   }
 
-  return realTaskType === ProcessTaskType.Data && dataTaskIsLoading;
+  return realTaskType === ProcessTaskType.Data ? dataTaskIsLoading : false;
 }
