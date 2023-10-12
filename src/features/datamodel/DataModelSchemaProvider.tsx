@@ -14,8 +14,8 @@ import { createStrictContext } from 'src/utils/createContext';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 export interface IDataModelSchemaContext {
-  dataModelSchema: JSONSchema7;
-  dataModelName: string;
+  dataModelSchema: JSONSchema7 | undefined;
+  dataModelName: string | undefined;
 }
 
 const { Provider } = createStrictContext<IDataModelSchemaContext>();
@@ -24,7 +24,9 @@ const useDataModelSchemaQuery = (): UseQueryResult<JSONSchema7> => {
   const dispatch = useAppDispatch();
   const { fetchDataModelSchema } = useAppQueries();
   const dataModelName = useCurrentDataModelName();
-  return useQuery(['fetchDataModelSchemas', dataModelName], () => fetchDataModelSchema(dataModelName || ''), {
+  return useQuery({
+    queryKey: ['fetchDataModelSchemas', dataModelName],
+    queryFn: () => fetchDataModelSchema(dataModelName || ''),
     enabled: !!dataModelName,
     onSuccess: (schema) => {
       dispatch(DataModelActions.fetchFulfilled({ id: dataModelName || '', schema }));
@@ -49,7 +51,7 @@ export function DataModelSchemaProvider({ children }: React.PropsWithChildren) {
     return <UnknownError />;
   }
 
-  if (isLoading || !dataModelSchema || !dataModelName) {
+  if (isLoading && dataModelName) {
     return <Loader reason='data-model-schema' />;
   }
 
