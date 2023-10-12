@@ -165,8 +165,9 @@ function useInfoFormDataQuery(enabled: boolean) {
     queryKey: ['fetchFormData', urlsToFetch],
     queryFn: async () => {
       const out: IFormData = {};
-      for (const url of urlsToFetch) {
-        const fetchedData = await fetchFormData(url);
+      const promises = urlsToFetch.map((url) => fetchFormData(url));
+      const fetched = await Promise.all(promises);
+      for (const fetchedData of fetched) {
         const formData = flattenObject(fetchedData);
         for (const [key, value] of Object.entries(formData)) {
           out[key] = value;
