@@ -12,14 +12,13 @@ import { useRealTaskType } from 'src/features/instance/useProcess';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/isLoading/Loader';
 import { StatelessReadyState, useStatelessReadyState } from 'src/features/isLoading/useIsLoading';
-import { QueueActions } from 'src/features/queue/queueSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { ProcessTaskType } from 'src/types';
 import { getDataTypeByLayoutSetId, isStatelessApp } from 'src/utils/appMetadata';
 import { createLaxContext } from 'src/utils/createContext';
-import { convertModelToDataBinding } from 'src/utils/databindings';
+import { flattenObject } from 'src/utils/databindings';
 import { maybeAuthenticationRedirect } from 'src/utils/maybeAuthenticationRedirect';
 import { getFetchFormDataUrl, getStatelessFormDataUrl } from 'src/utils/urls/appUrlHelper';
 import type { IFormData } from 'src/features/formData/index';
@@ -28,7 +27,20 @@ import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 const { Provider } = createLaxContext<undefined>(undefined);
 
 export const FormDataProvider = ({ children }) => {
-  const { isLoading, error } = useFormDataQuery();
+  const taskType = useRealTaskType();
+  const isDataTask = taskType === ProcessTaskType.Data;
+  const isInfoTask =
+    taskType === ProcessTaskType.Confirm ||
+    taskType === ProcessTaskType.Feedback ||
+    taskType === ProcessTaskType.Archived;
+
+  const queryFormData = useFormDataQuery(isDataTask);
+  const queryInfoFormData = useInfoFormDataQuery(isInfoTask);
+  const { error, isLoading } = isDataTask
+    ? queryFormData
+    : isInfoTask
+    ? queryInfoFormData
+    : { error: undefined, isLoading: false };
 
   if (error) {
     return <UnknownError />;
@@ -41,7 +53,7 @@ export const FormDataProvider = ({ children }) => {
   return <Provider value={undefined}>{children}</Provider>;
 };
 
-function useFormDataQuery(): UseQueryResult<IFormData> {
+function useFormDataQuery(enabled: boolean): UseQueryResult<IFormData> {
   const dispatch = useAppDispatch();
   const reFetchActive = useAppSelector((state) => state.formData.reFetch);
   const appMetaData = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
@@ -56,6 +68,9 @@ function useFormDataQuery(): UseQueryResult<IFormData> {
     ? statelessReady === StatelessReadyState.Loading || statelessReady === StatelessReadyState.Ready
     : taskType === ProcessTaskType.Data;
   if (isStateless && !allowAnonymous && currentPartyId === undefined) {
+    isEnabled = false;
+  }
+  if (!enabled) {
     isEnabled = false;
   }
 
@@ -93,15 +108,15 @@ function useFormDataQuery(): UseQueryResult<IFormData> {
   }, [dispatch, isEnabled, url]);
 
   const { fetchFormData } = useAppQueries();
-  const out = useQuery(['fetchFormData', url, currentTaskId], () => fetchFormData(url || '', options), {
+  const out = useQuery({
+    queryKey: ['fetchFormData', url, currentTaskId],
+    queryFn: async () => flattenObject(await fetchFormData(url || '', options)),
     enabled: isEnabled && url !== undefined,
-    onSuccess: (formDataAsObj) => {
-      const formData = convertModelToDataBinding(formDataAsObj);
+    onSuccess: (formData) => {
       dispatch(FormDataActions.fetchFulfilled({ formData, url }));
     },
     onError: async (error: HttpClientError) => {
       dispatch(FormDataActions.fetchRejected({ error }));
-      dispatch(QueueActions.dataTaskQueueError({ error }));
       if (error.message?.includes('403')) {
         window.logInfo('Current party is missing roles');
       } else {
@@ -120,4 +135,49 @@ function useFormDataQuery(): UseQueryResult<IFormData> {
   }
 
   return out;
+}
+
+function useInfoFormDataQuery(enabled: boolean) {
+  const { fetchFormData } = useAppQueries();
+  const appMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
+  const textResources = useAppSelector((state) => state.textResources.resourceMap);
+  const instance = useLaxInstanceData();
+  const dispatch = useAppDispatch();
+
+  const urlsToFetch: string[] = [];
+  for (const resource of Object.values(textResources)) {
+    for (const variable of resource?.variables || []) {
+      const modelName = variable.dataSource.replace('dataModel.', '');
+      const dataType = appMetadata?.dataTypes.find((d) => d.id === modelName);
+      if (!dataType) {
+        continue;
+      }
+
+      const dataElement = instance?.data.find((e) => e.dataType === dataType.id);
+      if (!dataElement) {
+        continue;
+      }
+      urlsToFetch.push(getFetchFormDataUrl(instance?.id || '', dataElement.id));
+    }
+  }
+
+  return useQuery({
+    queryKey: ['fetchFormData', urlsToFetch],
+    queryFn: async () => {
+      const out: IFormData = {};
+      for (const url of urlsToFetch) {
+        const fetchedData = await fetchFormData(url);
+        const formData = flattenObject(fetchedData);
+        for (const [key, value] of Object.entries(formData)) {
+          out[key] = value;
+        }
+      }
+      return out;
+    },
+    enabled: enabled && urlsToFetch.length > 0,
+    onSuccess: (formDataAsObj) => {
+      const formData = flattenObject(formDataAsObj);
+      dispatch(FormDataActions.fetchFulfilled({ formData }));
+    },
+  });
 }

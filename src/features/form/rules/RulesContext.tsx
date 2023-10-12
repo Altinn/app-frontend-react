@@ -8,7 +8,6 @@ import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayout
 import { FormRulesActions } from 'src/features/form/rules/rulesSlice';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/isLoading/Loader';
-import { QueueActions } from 'src/features/queue/queueSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { createStrictContext } from 'src/utils/createContext';
 import { getRuleModelFields } from 'src/utils/rules';
@@ -39,7 +38,6 @@ const useRulesQuery = () => {
     },
     onError: (error: AxiosError) => {
       clearExistingRules();
-      dispatch(QueueActions.dataTaskQueueError({ error }));
       dispatch(FormRulesActions.fetchRejected({ error }));
       window.logError('Fetching RuleHandler failed:\n', error);
     },

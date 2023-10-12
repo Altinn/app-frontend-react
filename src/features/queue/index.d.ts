@@ -1,8 +1,5 @@
 export interface IQueueState {
-  dataTask: IQueueTask;
   appTask: IQueueTask;
-  userTask: IQueueTask;
-  infoTask: IQueueTask;
 }
 
 export interface IQueueTask {

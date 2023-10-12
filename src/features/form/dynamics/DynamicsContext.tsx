@@ -8,7 +8,6 @@ import { FormDynamicsActions } from 'src/features/form/dynamics/formDynamicsSlic
 import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/isLoading/Loader';
-import { QueueActions } from 'src/features/queue/queueSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { createStrictContext } from 'src/utils/createContext';
 
@@ -28,7 +27,6 @@ function useDynamicsQuery() {
       }
     },
     onError: (error: AxiosError) => {
-      dispatch(QueueActions.dataTaskQueueError({ error }));
       dispatch(FormDynamicsActions.fetchRejected({ error }));
       window.logError('Fetching dynamics failed:\n', error);
     },

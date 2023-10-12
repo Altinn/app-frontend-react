@@ -10,7 +10,7 @@ import { ValidationActions } from 'src/features/validation/validationSlice';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { getCurrentDataTypeForApplication, getCurrentTaskDataElementId, isStatelessApp } from 'src/utils/appMetadata';
-import { convertDataBindingToModel, convertModelToDataBinding, filterOutInvalidData } from 'src/utils/databindings';
+import { convertDataBindingToModel, filterOutInvalidData, flattenObject } from 'src/utils/databindings';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpPost } from 'src/utils/network/networking';
 import { httpGet, httpPut } from 'src/utils/network/sharedNetworking';
@@ -334,7 +334,7 @@ export function* postStatelessData({ field, componentId }: SaveDataParams) {
         },
         model,
       );
-      const formData = convertModelToDataBinding(response?.data);
+      const formData = flattenObject(response?.data);
       yield put(FormDataActions.fetchFulfilled({ formData }));
     } finally {
       if (yield cancelled()) {

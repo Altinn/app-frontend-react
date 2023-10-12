@@ -10,7 +10,6 @@ import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayout
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/isLoading/Loader';
-import { QueueActions } from 'src/features/queue/queueSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { createStrictContext } from 'src/utils/createContext';
@@ -44,7 +43,6 @@ function useLayoutQuery() {
     },
     onError: (error: HttpClientError) => {
       dispatch(FormLayoutActions.fetchRejected({ error }));
-      dispatch(QueueActions.dataTaskQueueError({ error }));
       window.logError('Fetching form layout failed:\n', error);
     },
   });

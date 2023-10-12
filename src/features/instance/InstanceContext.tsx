@@ -10,7 +10,6 @@ import { useProcessEnhancement } from 'src/features/instance/useProcess';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { LegacyProcessTriggersProvider } from 'src/hooks/useLegacyProcessTriggers';
 import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { createLaxContext } from 'src/utils/createContext';
 import { maybeAuthenticationRedirect } from 'src/utils/maybeAuthenticationRedirect';
@@ -162,9 +161,7 @@ export const InstanceProvider = ({ children }: { children: React.ReactNode }) =>
         },
       }}
     >
-      <LegacyProcessTriggersProvider>
-        <FormProvider>{children}</FormProvider>
-      </LegacyProcessTriggersProvider>
+      <FormProvider>{children}</FormProvider>
     </Provider>
   );
 };

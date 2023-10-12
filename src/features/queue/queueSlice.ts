@@ -1,17 +1,13 @@
 import { put } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
-import { watchStartInitialInfoTaskQueueSaga } from 'src/features/queue/infoTask/infoTaskQueueSaga';
 import { TextResourcesActions } from 'src/features/textResources/textResourcesSlice';
 import { createSagaSlice } from 'src/redux/sagaSlice';
 import type { IQueueError, IQueueState } from 'src/features/queue/index';
 import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
 
 export const initialState: IQueueState = {
-  dataTask: { error: null },
   appTask: { error: null },
-  userTask: { error: null },
-  infoTask: { error: null },
 };
 
 export let QueueActions: ActionsFromSlice<typeof queueSlice>;
@@ -26,25 +22,10 @@ export const queueSlice = () => {
           state.appTask.error = error;
         },
       }),
-      userTaskQueueError: mkAction<IQueueError>({
-        reducer: (state, action) => {
-          const { error } = action.payload;
-          state.userTask.error = error;
-        },
-      }),
-      dataTaskQueueError: mkAction<IQueueError>({
-        reducer: (state, action) => {
-          const { error } = action.payload;
-          state.dataTask.error = error;
-        },
-      }),
       startInitialAppTaskQueue: mkAction<void>({
         *takeEvery(): SagaIterator {
           yield put(TextResourcesActions.fetch());
         },
-      }),
-      startInitialInfoTaskQueue: mkAction<void>({
-        saga: () => watchStartInitialInfoTaskQueueSaga,
       }),
     },
   }));

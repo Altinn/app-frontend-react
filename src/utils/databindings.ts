@@ -34,16 +34,7 @@ export function filterOutInvalidData({ data, invalidKeys = [] }: { data: IFormDa
   return result;
 }
 
-export const INDEX_KEY_INDICATOR_REGEX = /\[{\d+}]/;
 export const GLOBAL_INDEX_KEY_INDICATOR_REGEX = /\[{\d+}]/g;
-
-/**
- * Converts JSON to the flat datamodel used in Redux data store
- * @param data The form data as JSON
- */
-export function convertModelToDataBinding(data: any): IFormData {
-  return flattenObject(data);
-}
 
 export function getKeyWithoutIndex(keyWithIndex: string): string {
   if (keyWithIndex?.indexOf('[') === -1) {
