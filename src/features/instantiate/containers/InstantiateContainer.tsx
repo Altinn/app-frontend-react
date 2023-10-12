@@ -48,6 +48,7 @@ export const InstantiateContainer = () => {
       <AltinnContentLoader
         width='100%'
         height='400'
+        reason='instantiating'
       >
         <AltinnContentIconFormData />
       </AltinnContentLoader>

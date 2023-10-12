@@ -13,13 +13,14 @@ export const Confirm = () => {
   const applicationMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
   const appName = useAppSelector(selectAppName);
 
-  const isLoading = !instance || !parties;
+  const missingRequirement = !instance ? 'instance' : !parties ? 'parties' : undefined;
   return (
     <div id='confirmcontainer'>
-      {isLoading ? (
+      {missingRequirement ? (
         <AltinnContentLoader
           width={705}
           height={561}
+          reason={`confirm-missing-${missingRequirement}`}
         >
           <AltinnContentIconReceipt />
         </AltinnContentLoader>

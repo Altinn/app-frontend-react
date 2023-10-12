@@ -31,7 +31,6 @@ export interface IProcessWrapperProps {
 export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
   const { isFetching: isInstanceDataFetching } = useStrictInstance();
   const isLoadingData = useIsLoading();
-  const isLoading = isLoadingData || isFetching === true || isInstanceDataFetching;
   const { hasApiErrors } = useApiErrorCheck();
   const appName = useAppSelector(selectAppName);
   const appOwner = useAppSelector(selectAppOwner);
@@ -41,6 +40,14 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
   const [searchParams] = useSearchParams();
   const renderPDF = searchParams.get('pdf') === '1';
   const previewPDF = useAppSelector((state) => state.devTools.pdfPreview);
+
+  const loadingReason = isLoadingData
+    ? 'loading'
+    : isFetching === true
+    ? 'fetching'
+    : isInstanceDataFetching
+    ? 'fetching-instance'
+    : undefined;
 
   if (hasApiErrors || processError) {
     if (checkIfAxiosError(processError)) {
@@ -53,7 +60,7 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
   }
 
   if (renderPDF) {
-    if (isLoading) {
+    if (loadingReason) {
       return null;
     }
     return (
@@ -76,7 +83,7 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
           appOwner={appOwner}
           type={taskType}
         >
-          {!isLoading ? (
+          {!loadingReason ? (
             <>
               {taskType === ProcessTaskType.Data ? (
                 <Form />
@@ -93,6 +100,7 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
               <AltinnContentLoader
                 width='100%'
                 height={700}
+                reason={`process-wrapper-${loadingReason}`}
               >
                 <AltinnContentIconFormData />
               </AltinnContentLoader>
@@ -100,7 +108,7 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
           )}
         </PresentationComponent>
       </div>
-      {previewPDF && !isLoading && (
+      {previewPDF && !loadingReason && (
         <div className={cn(classes['content'], classes['hide-pdf'])}>
           <PDFView
             appName={appName as string}

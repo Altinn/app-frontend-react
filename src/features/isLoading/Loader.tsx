@@ -18,17 +18,13 @@ export function Loader({ reason }: LoaderProps) {
       header={lang('instantiate.starting')}
       type={ProcessTaskType.Unknown}
     >
-      <div
-        data-testid='loader'
-        data-reason={reason}
+      <AltinnContentLoader
+        width='100%'
+        height='400'
+        reason={reason}
       >
-        <AltinnContentLoader
-          width='100%'
-          height='400'
-        >
-          <AltinnContentIconFormData />
-        </AltinnContentLoader>
-      </div>
+        <AltinnContentIconFormData />
+      </AltinnContentLoader>
     </PresentationComponent>
   );
 }

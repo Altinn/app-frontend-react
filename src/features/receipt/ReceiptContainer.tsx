@@ -116,9 +116,26 @@ export const ReceiptContainer = () => {
     }
   }, [instance, applicationMetadata]);
 
+  const requirementMissing = !attachments
+    ? 'attachments'
+    : !applicationMetadata
+    ? 'applicationMetadata'
+    : !instanceMetaObject
+    ? 'instanceMetaObject'
+    : !lastChangedDateTime
+    ? 'lastChangedDateTime'
+    : !allOrgs
+    ? 'allOrgs'
+    : !instance
+    ? 'instance'
+    : !parties
+    ? 'parties'
+    : undefined;
+
   return (
     <div id='ReceiptContainer'>
-      {attachments &&
+      {!requirementMissing &&
+      attachments &&
       applicationMetadata &&
       instanceMetaObject &&
       lastChangedDateTime &&
@@ -154,6 +171,7 @@ export const ReceiptContainer = () => {
         <AltinnContentLoader
           width={705}
           height={561}
+          reason={`receipt-missing-${requirementMissing}`}
         >
           <AltinnContentIconReceipt />
         </AltinnContentLoader>
