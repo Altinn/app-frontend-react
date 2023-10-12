@@ -182,14 +182,12 @@ const EnhancedCheckbox = ({
       }
     </Checkbox>
   );
-
   if (popoverOpen) {
     return (
       <DeleteWarningPopover
         trigger={checkBox}
-        placement='left'
-        deleteButtonText={langAsString('group.row_popover_delete_button_confirm')}
-        messageText={langAsString('group.row_popover_delete_message')}
+        deleteButtonText={lang('form_filler.alert_confirm') as string}
+        messageText={lang('form_filler.checkbox_alert') as string}
         onCancelClick={() => {
           setPopoverOpen(false);
         }}
