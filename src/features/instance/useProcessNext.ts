@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { useMutation } from '@tanstack/react-query';
 
@@ -18,8 +18,11 @@ interface ProcessNextProps {
   action?: IActionType;
 }
 
+type LoadingState = false | 'from-submit-ready' | 'form-submitting' | 'direct';
+
 export function useProcessNext(nodeId: string) {
   const dispatch = useAppDispatch();
+  const loadingRef = useRef<LoadingState>(false);
   const submittingState = useAppSelector((state) => state.formData.submitting.state);
   const realTaskType = useRealTaskType();
   const { doProcessNext } = useAppMutations();
@@ -27,21 +30,33 @@ export function useProcessNext(nodeId: string) {
   const { setBusyWithId, busyWithId, busy, setError } = processNavigation;
   const language = useLanguage().selectedLanguage;
 
-  const utils = useMutation({
-    mutationFn: ({ taskId, action }: ProcessNextProps = {}) => {
+  const setLoading = useCallback(
+    (state: LoadingState) => {
+      loadingRef.current = state;
       setBusyWithId(nodeId);
       setError(undefined);
-      return doProcessNext.call(taskId, language, action);
     },
-    onSuccess: (data: IProcess) => {
+    [nodeId, setBusyWithId, setError],
+  );
+
+  const setLoadingFinished = useCallback(
+    (error?: HttpClientError) => {
+      loadingRef.current = false;
       setBusyWithId(undefined);
-      setError(undefined);
+      setError(error);
+    },
+    [setBusyWithId, setError],
+  );
+
+  const utils = useMutation({
+    mutationFn: ({ taskId, action }: ProcessNextProps = {}) => doProcessNext.call(taskId, language, action),
+    onSuccess: (data: IProcess) => {
+      setLoadingFinished();
       doProcessNext.setLastResult(data);
       changeInstance((instance) => (instance ? { ...instance, process: data } : instance));
     },
     onError: (error: HttpClientError) => {
-      setBusyWithId(undefined);
-      setError(error);
+      setLoadingFinished(error);
       window.logError('Process next failed:\n', error);
     },
   });
@@ -49,15 +64,17 @@ export function useProcessNext(nodeId: string) {
   const nativeMutate = utils.mutate;
 
   useEffect(() => {
-    if (submittingState === 'ready') {
+    if (submittingState === 'ready' && loadingRef.current) {
+      setLoading('from-submit-ready');
       nativeMutate({});
       dispatch(FormDataActions.submitClear());
     }
-  }, [dispatch, nativeMutate, submittingState]);
+  }, [dispatch, nativeMutate, setLoading, submittingState]);
 
   const mutate = useCallback(
     (props?: ProcessNextProps) => {
-      if (realTaskType === ProcessTaskType.Data && submittingState === 'inactive') {
+      if (realTaskType === ProcessTaskType.Data && submittingState === 'inactive' && !loadingRef.current) {
+        setLoading('form-submitting');
         const { org, app } = window;
         dispatch(
           FormDataActions.submit({
@@ -68,9 +85,12 @@ export function useProcessNext(nodeId: string) {
         return;
       }
 
-      nativeMutate(props || {});
+      if (!loadingRef.current) {
+        setLoading('direct');
+        nativeMutate(props || {});
+      }
     },
-    [dispatch, instanceId, nodeId, realTaskType, submittingState, nativeMutate],
+    [realTaskType, submittingState, setLoading, dispatch, instanceId, nodeId, nativeMutate],
   );
 
   return {
