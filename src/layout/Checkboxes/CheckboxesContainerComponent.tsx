@@ -135,8 +135,8 @@ export const CheckboxContainerComponent = ({
           checked: selected.includes(option.value),
           hideLabel,
           label: langAsString(option.label),
-          description: langAsString(option.description),
-          helpText: option.helpText && langAsString(option.helpText),
+          description: lang(option.description),
+          helpText: option.helpText && lang(option.helpText),
         }))}
       />
     </div>
