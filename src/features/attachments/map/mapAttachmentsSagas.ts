@@ -25,6 +25,7 @@ export function* mapAttachments(): SagaIterator {
     yield waitFor((state) => SelectApplicationMetaData(state) !== null);
     yield waitFor((state) => SelectFormLayouts(state) !== null);
     yield waitFor((state) => SelectFormData(state) !== null);
+    yield waitFor(() => tmpSagaInstanceData.current !== null && tmpSagaProcessData.current !== null);
     const instance = tmpSagaInstanceData.current as IInstance;
     const process = tmpSagaProcessData.current as IProcess;
     const formData = yield select(SelectFormData);

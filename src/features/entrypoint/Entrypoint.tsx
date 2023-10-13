@@ -138,15 +138,15 @@ export function Entrypoint() {
   // Stateless view
   if (statelessReady === StatelessReadyState.Ready) {
     return (
-      <PresentationComponent
-        header={appName || ''}
-        appOwner={appOwner}
-        type={PresentationType.Stateless}
-      >
-        <FormProvider>
+      <FormProvider>
+        <PresentationComponent
+          header={appName || ''}
+          appOwner={appOwner}
+          type={PresentationType.Stateless}
+        >
           <Form />
-        </FormProvider>
-      </PresentationComponent>
+        </PresentationComponent>
+      </FormProvider>
     );
   }
 

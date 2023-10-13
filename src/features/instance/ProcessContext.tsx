@@ -7,6 +7,7 @@ import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/isLoading/Loader';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { ProcessTaskType } from 'src/types';
+import { useIsStatelessApp } from 'src/utils/appMetadata';
 import { createLaxContext } from 'src/utils/createContext';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 import type { IInstance, IProcess } from 'src/types/shared';
@@ -102,8 +103,16 @@ export function useRealTaskType() {
 }
 
 export function useRealTaskTypeById(taskId: string | undefined) {
+  const isStateless = useIsStatelessApp();
   const taskType = useTaskTypeFromBackend();
   const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
+
+  if (isStateless) {
+    // Stateless apps only have data tasks. As soon as they start creating an instance from that stateless step,
+    // useIsStatelessApp() will return false and we'll proceed as normal.
+    return ProcessTaskType.Data;
+  }
+
   const isDataTask = behavesLikeDataTask(taskId, layoutSets);
   return isDataTask ? ProcessTaskType.Data : taskType;
 }
