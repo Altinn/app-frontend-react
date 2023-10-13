@@ -149,10 +149,7 @@ function PreventNavigatingBackWrapper({
   const instantiating = useAppSelector((state) => state.instantiation.instantiating);
   const waitingToRedirectToInstance = useRef(false);
 
-  const hasInstanceData =
-    !!instanceData &&
-    !(Array.isArray(instanceData) && instanceData.length === 0) &&
-    !(instanceData && typeof instanceData === 'object' && Object.keys(instanceData).length === 0);
+  const hasInstanceData = instanceData && typeof instanceData === 'object' && Object.keys(instanceData).length > 0;
 
   if (path === 'instance' && waitingToRedirectToInstance.current) {
     waitingToRedirectToInstance.current = false;
