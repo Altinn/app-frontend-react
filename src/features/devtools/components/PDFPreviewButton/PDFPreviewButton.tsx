@@ -5,7 +5,7 @@ import { Button, Fieldset } from '@digdir/design-system-react';
 import { FilePdfIcon } from '@navikt/aksel-icons';
 
 import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
-import { useTaskTypeFromBackend } from 'src/features/instance/useProcess';
+import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
 import { ProcessTaskType } from 'src/types';
 
 export const PDFPreviewButton = () => {

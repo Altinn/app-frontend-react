@@ -52,16 +52,28 @@ import type {
 } from 'src/types/shared';
 import type { IExpressionValidationConfig } from 'src/utils/validation/types';
 
+const cleanUpInstanceData = async (_instance: IInstance | Promise<IInstance>) => {
+  const instance = await _instance;
+  if (instance && 'process' in instance) {
+    // Even though the process state is part of the instance data we fetch from the server, we don't want to expose it
+    // to the rest of the application. This is because the process state is also fetched separately, and that
+    // is the one we want to use, as it contains more information about permissions than the instance data provides.
+    delete instance.process;
+  }
+
+  return instance;
+};
+
 export const doPartyValidation = async (partyId: string): Promise<IPartyValidationResponse> =>
   (await httpPost(getPartyValidationUrl(partyId))).data;
 
 export const doSelectParty = (partyId: string) => putWithoutConfig<IParty | null>(updateCookieUrl(partyId));
 
 export const doInstantiateWithPrefill = async (data: Instantiation): Promise<IInstance> =>
-  (await httpPost(instantiateUrl, undefined, data)).data;
+  cleanUpInstanceData((await httpPost(instantiateUrl, undefined, data)).data);
 
 export const doInstantiate = async (partyId: string): Promise<IInstance> =>
-  (await httpPost(getCreateInstancesUrl(partyId))).data;
+  cleanUpInstanceData((await httpPost(getCreateInstancesUrl(partyId))).data);
 
 export const doProcessNext = async (taskId?: string, language?: string, action?: IActionType): Promise<IProcess> =>
   httpPut(getProcessNextUrl(taskId, language), action ? { action } : null);
@@ -74,7 +86,7 @@ export const fetchActiveInstances = (partyId: string): Promise<ISimpleInstance[]
   httpGet(getActiveInstancesUrl(partyId));
 
 export const fetchInstanceData = (partyId: string, instanceGuid: string): Promise<IInstance> =>
-  httpGet(`${instancesControllerUrl}/${partyId}/${instanceGuid}`);
+  cleanUpInstanceData(httpGet(`${instancesControllerUrl}/${partyId}/${instanceGuid}`));
 
 export const fetchProcessState = (instanceId: string): Promise<IProcess> => httpGet(getProcessStateUrl(instanceId));
 

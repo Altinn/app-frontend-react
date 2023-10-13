@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { useLaxProcessData } from 'src/features/instance/useProcess';
+import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useProcessNext } from 'src/features/instance/useProcessNext';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';

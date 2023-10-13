@@ -70,7 +70,6 @@ export interface IInstance {
   instanceState?: IInstanceState;
   lastChanged?: string;
   org: string;
-  process?: IProcess;
   selfLinks?: ISelfLinks | null;
   status?: IInstanceStatus | null;
   title?: ITitle | null;

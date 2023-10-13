@@ -5,6 +5,7 @@ import type { SagaIterator } from 'redux-saga';
 
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { tmpSagaInstanceData } from 'src/features/instance/InstanceContext';
+import { tmpSagaProcessData } from 'src/features/instance/ProcessContext';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { Triggers } from 'src/layout/common.generated';
@@ -62,11 +63,12 @@ export function* updateRepeatingGroupEditIndexSaga({
         return;
       }
 
-      const currentTaskDataId = getCurrentTaskDataElementId(
-        state.applicationMetadata.applicationMetadata,
+      const currentTaskDataId = getCurrentTaskDataElementId({
+        application: state.applicationMetadata.applicationMetadata,
         instance,
-        state.formLayout.layoutsets,
-      );
+        process: tmpSagaProcessData.current,
+        layoutSets: state.formLayout.layoutsets,
+      });
 
       if (!currentTaskDataId) {
         yield put(

@@ -1,4 +1,4 @@
-import type { IInstance } from 'src/types/shared';
+import type { IInstance, IProcess } from 'src/types/shared';
 
 export function getInstanceDataMock(): IInstance {
   return {
@@ -53,23 +53,26 @@ export function getInstanceDataMock(): IInstance {
     instanceState: undefined,
     lastChanged: new Date('2020-01-01').toISOString(),
     org: 'mockOrg',
-    process: {
-      started: '2020-01-01',
-      startEvent: null,
-      currentTask: {
-        flow: 1,
-        started: '2020-01-01',
-        elementId: 'mockElementId',
-        name: 'Task_1',
-        altinnTaskType: 'FormFilling',
-        ended: null,
-        validated: null,
-      },
-      ended: null,
-      endEvent: null,
-    },
     selfLinks: null,
     status: null,
     title: null,
+  };
+}
+
+export function getProcessDataMock(): IProcess {
+  return {
+    started: '2020-01-01',
+    startEvent: null,
+    currentTask: {
+      flow: 1,
+      started: '2020-01-01',
+      elementId: 'mockElementId',
+      name: 'Task_1',
+      altinnTaskType: 'FormFilling',
+      ended: null,
+      validated: null,
+    },
+    ended: null,
+    endEvent: null,
   };
 }

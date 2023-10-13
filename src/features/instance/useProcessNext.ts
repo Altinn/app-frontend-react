@@ -5,7 +5,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useAppMutations } from 'src/contexts/appQueriesContext';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { useStrictInstance } from 'src/features/instance/InstanceContext';
-import { useRealTaskType } from 'src/features/instance/useProcess';
+import { useRealTaskType } from 'src/features/instance/ProcessContext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';

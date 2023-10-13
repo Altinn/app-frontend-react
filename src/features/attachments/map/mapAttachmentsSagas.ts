@@ -3,6 +3,7 @@ import type { SagaIterator } from 'redux-saga';
 
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { tmpSagaInstanceData } from 'src/features/instance/InstanceContext';
+import { tmpSagaProcessData } from 'src/features/instance/ProcessContext';
 import { getCurrentTaskData } from 'src/utils/appMetadata';
 import { mapAttachmentListToAttachments } from 'src/utils/attachment';
 import { waitFor } from 'src/utils/sagas';
@@ -11,7 +12,7 @@ import type { IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
 import type { ILayouts } from 'src/layout/layout';
 import type { ILayoutSets, IRuntimeState } from 'src/types';
-import type { IInstance } from 'src/types/shared';
+import type { IInstance, IProcess } from 'src/types/shared';
 
 export const SelectApplicationMetaData = (state: IRuntimeState): IApplicationMetadata | null =>
   state.applicationMetadata.applicationMetadata;
@@ -25,12 +26,13 @@ export function* mapAttachments(): SagaIterator {
     yield waitFor((state) => SelectFormLayouts(state) !== null);
     yield waitFor((state) => SelectFormData(state) !== null);
     const instance = tmpSagaInstanceData.current as IInstance;
+    const process = tmpSagaProcessData.current as IProcess;
     const formData = yield select(SelectFormData);
-    const applicationMetadata = yield select(SelectApplicationMetaData);
+    const application = yield select(SelectApplicationMetaData);
     const layoutSets: ILayoutSets = yield select(SelectFormLayoutSets);
     const layouts = yield select(SelectFormLayouts);
 
-    const defaultElement = getCurrentTaskData(applicationMetadata, instance, layoutSets);
+    const defaultElement = getCurrentTaskData({ application, instance, layoutSets, process });
     const instanceData = instance.data;
     const mappedAttachments: IAttachments = mapAttachmentListToAttachments(
       instanceData,

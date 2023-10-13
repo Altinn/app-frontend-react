@@ -2,13 +2,14 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
-import { useTaskTypeFromBackend } from 'src/features/instance/useProcess';
+import { useLaxProcessData, useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
 import { ProcessTaskType } from 'src/types';
 
 function useProcessNextTasksQuery() {
   const { fetchProcessNextSteps } = useAppQueries();
   const instance = useLaxInstanceData();
-  const taskId = instance?.process?.currentTask?.elementId;
+  const process = useLaxProcessData();
+  const taskId = process?.currentTask?.elementId;
   const taskType = useTaskTypeFromBackend();
 
   return useQuery({

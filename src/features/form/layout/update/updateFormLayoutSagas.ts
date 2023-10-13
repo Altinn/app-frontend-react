@@ -6,13 +6,14 @@ import type { SagaIterator } from 'redux-saga';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { tmpSagaInstanceData } from 'src/features/instance/InstanceContext';
+import { tmpSagaProcessData } from 'src/features/instance/ProcessContext';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { Triggers } from 'src/layout/common.generated';
 import { getLayoutOrderFromTracks, selectLayoutOrder } from 'src/selectors/getLayoutOrder';
 import { getCurrentDataTypeForApplication, getCurrentTaskDataElementId, isStatelessApp } from 'src/utils/appMetadata';
 import { convertDataBindingToModel } from 'src/utils/databindings';
-import { getLayoutsetForDataElement } from 'src/utils/layout';
+import { getLayoutSetForDataElement } from 'src/utils/layout';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpPost } from 'src/utils/network/networking';
 import { httpGet } from 'src/utils/network/sharedNetworking';
@@ -111,12 +112,12 @@ export function* updateCurrentViewSaga({
           LayoutId: currentView,
         },
       };
-      const instance = tmpSagaInstanceData.current;
-      const currentTaskDataId = getCurrentTaskDataElementId(
-        state.applicationMetadata.applicationMetadata,
-        instance,
-        state.formLayout.layoutsets,
-      );
+      const currentTaskDataId = getCurrentTaskDataElementId({
+        application: state.applicationMetadata.applicationMetadata,
+        instance: tmpSagaInstanceData.current,
+        process: tmpSagaProcessData.current,
+        layoutSets: state.formLayout.layoutsets,
+      });
 
       const validationOptions = runValidations === Triggers.ValidatePage ? options : undefined;
       const serverValidations: BackendValidationIssue[] =
@@ -202,7 +203,7 @@ export function* calculatePageOrderAndMoveToNextPageSaga({
     const dataTypeId =
       getCurrentDataTypeForApplication({
         application: state.applicationMetadata.applicationMetadata,
-        instance: tmpSagaInstanceData.current,
+        process: tmpSagaProcessData.current,
         layoutSets: state.formLayout.layoutsets,
       }) || null;
 
@@ -210,9 +211,9 @@ export function* calculatePageOrderAndMoveToNextPageSaga({
     if (appIsStateless) {
       layoutSetId = state.applicationMetadata.applicationMetadata.onEntry?.show || null;
     } else {
-      const instance = tmpSagaInstanceData.current;
+      const process = tmpSagaProcessData.current;
       if (layoutSets != null) {
-        layoutSetId = getLayoutsetForDataElement(instance, dataTypeId || undefined, layoutSets) || null;
+        layoutSetId = getLayoutSetForDataElement(process, dataTypeId || undefined, layoutSets) || null;
       }
     }
     const layoutOrderResponse: AxiosResponse = yield call(

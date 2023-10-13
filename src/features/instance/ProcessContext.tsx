@@ -1,51 +1,53 @@
-import { useEffect } from 'react';
+import React from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
-import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
+import { Loader } from 'src/features/isLoading/Loader';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { ProcessTaskType } from 'src/types';
+import { createLaxContext } from 'src/utils/createContext';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
-import type { ChangeInstanceData } from 'src/features/instance/InstanceContext';
-import type { IInstance } from 'src/types/shared';
+import type { IInstance, IProcess } from 'src/types/shared';
 
-interface QueryProps {
-  instanceId: string | undefined;
-  taskId: string | undefined;
-}
+const { Provider, useCtx } = createLaxContext<IProcess>();
 
-function useProcessQuery({ instanceId, taskId }: QueryProps) {
+// TODO: Remove this when no sagas, etc, are using it
+export const tmpSagaProcessData: { current: IProcess | null } = { current: null };
+
+function useProcessQuery(instanceId: string) {
   const { fetchProcessState } = useAppQueries();
 
   return useQuery({
-    queryKey: ['fetchProcessState', instanceId, taskId],
-    queryFn: () => fetchProcessState(instanceId || ''),
-    enabled: !!instanceId && !!taskId,
+    queryKey: ['fetchProcessState', instanceId],
+    queryFn: () => fetchProcessState(instanceId),
+    onSuccess: (data) => {
+      tmpSagaProcessData.current = data;
+    },
+    onError: (error) => {
+      tmpSagaProcessData.current = null;
+      window.logError('Fetching process state failed:\n', error);
+    },
   });
 }
 
-export function useProcessEnhancement(instance: IInstance | undefined, changeData: ChangeInstanceData) {
-  const enhancedProcessState = useProcessQuery({
-    instanceId: instance?.id,
-    taskId: instance?.process?.currentTask?.elementId,
-  });
+export function ProcessProvider({ children, instance }: React.PropsWithChildren<{ instance: IInstance }>) {
+  const query = useProcessQuery(instance.id);
+  const data = query.data;
 
-  useEffect(() => {
-    if (enhancedProcessState.data) {
-      changeData((data) =>
-        data
-          ? {
-              ...data,
-              process: enhancedProcessState.data,
-            }
-          : data,
-      );
-    }
-  }, [enhancedProcessState.data, changeData]);
+  if (query.error) {
+    return <UnknownError />;
+  }
+
+  if (!data || query.isFetching) {
+    return <Loader reason='fetching-process' />;
+  }
+
+  return <Provider value={data}>{children}</Provider>;
 }
 
-export const useLaxProcessData = () => useLaxInstanceData()?.process;
+export const useLaxProcessData = () => useCtx();
 
 /**
  * This returns the task type of the current process task, as we got it from the backend

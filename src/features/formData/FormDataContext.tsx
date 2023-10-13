@@ -8,7 +8,7 @@ import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
-import { useRealTaskType } from 'src/features/instance/useProcess';
+import { useLaxProcessData, useRealTaskType } from 'src/features/instance/ProcessContext';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/isLoading/Loader';
 import { StatelessReadyState, useStatelessReadyState } from 'src/features/isLoading/useIsLoading';
@@ -63,6 +63,7 @@ function useFormDataQuery(enabled: boolean): UseQueryResult<IFormData> {
   const allowAnonymousSelector = makeGetAllowAnonymousSelector();
   const allowAnonymous = useAppSelector(allowAnonymousSelector);
   const isStateless = isStatelessApp(appMetaData);
+  const process = useLaxProcessData();
 
   let isEnabled = isStateless
     ? statelessReady === StatelessReadyState.Loading || statelessReady === StatelessReadyState.Ready
@@ -99,7 +100,7 @@ function useFormDataQuery(enabled: boolean): UseQueryResult<IFormData> {
   // is needed because we have logic waiting for the form data to be fetched before we can continue (even if the
   // data element used is the same one between two different tasks - in which case it could also have been changed
   // on the server).
-  const currentTaskId = instance?.process?.currentTask?.elementId;
+  const currentTaskId = process?.currentTask?.elementId;
 
   const { fetchFormData } = useAppQueries();
   const out = useQuery({

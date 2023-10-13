@@ -6,6 +6,7 @@ import type { SagaIterator } from 'redux-saga';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { tmpSagaInstanceData } from 'src/features/instance/InstanceContext';
+import { tmpSagaProcessData } from 'src/features/instance/ProcessContext';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
@@ -156,11 +157,12 @@ function* waitForSaving() {
  */
 export function* putFormData({ field, componentId }: SaveDataParams) {
   const defaultDataElementGuid: string | undefined = yield select((state: IRuntimeState) =>
-    getCurrentTaskDataElementId(
-      state.applicationMetadata.applicationMetadata,
-      tmpSagaInstanceData.current,
-      state.formLayout.layoutsets,
-    ),
+    getCurrentTaskDataElementId({
+      application: state.applicationMetadata.applicationMetadata,
+      instance: tmpSagaInstanceData.current,
+      process: tmpSagaProcessData.current,
+      layoutSets: state.formLayout.layoutsets,
+    }),
   );
   if (!defaultDataElementGuid) {
     return;
@@ -316,10 +318,9 @@ export function* postStatelessData({ field, componentId }: SaveDataParams) {
     };
   }
 
-  const instance = tmpSagaInstanceData.current;
   const currentDataType = getCurrentDataTypeForApplication({
     application: state.applicationMetadata.applicationMetadata,
-    instance,
+    process: tmpSagaProcessData.current,
     layoutSets: state.formLayout.layoutsets,
   });
   if (currentDataType) {

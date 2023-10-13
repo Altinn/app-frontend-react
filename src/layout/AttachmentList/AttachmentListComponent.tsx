@@ -4,6 +4,7 @@ import { Grid, Typography } from '@material-ui/core';
 
 import { AltinnAttachment } from 'src/components/atoms/AltinnAttachment';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { selectAttachments, selectDataTypesByIds } from 'src/selectors/dataTypes';
@@ -15,8 +16,9 @@ export function AttachmentListComponent({ node }: IAttachmentListProps) {
   const { dataTypeIds, includePDF } = node.item;
   const { lang } = useLanguage();
   const instance = useLaxInstanceData();
-  const dataForTask = useAppSelector(selectDataTypesByIds(dataTypeIds, instance));
-  const attachments = useAppSelector(selectAttachments(includePDF, dataForTask, instance));
+  const process = useLaxProcessData();
+  const dataForTask = useAppSelector(selectDataTypesByIds(dataTypeIds, instance, process));
+  const attachments = useAppSelector(selectAttachments(includePDF, dataForTask, process));
 
   return (
     <Grid

@@ -1,5 +1,5 @@
 import { useLastMutationResult } from 'src/contexts/appQueriesContext';
-import { useRealTaskType } from 'src/features/instance/useProcess';
+import { useRealTaskType } from 'src/features/instance/ProcessContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { ProcessTaskType } from 'src/types';

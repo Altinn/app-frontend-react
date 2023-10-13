@@ -4,6 +4,7 @@ import type { AxiosRequestConfig } from 'axios';
 import type { SagaIterator } from 'redux-saga';
 
 import { tmpSagaInstanceData } from 'src/features/instance/InstanceContext';
+import { tmpSagaProcessData } from 'src/features/instance/ProcessContext';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
@@ -34,14 +35,13 @@ export function* runSingleFieldValidationSaga({
   const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
   const node = resolvedNodes.findById(componentId);
 
-  const applicationMetadata: IApplicationMetadata = yield select(selectApplicationMetadataState);
+  const application: IApplicationMetadata | null = yield select(selectApplicationMetadataState);
   const instance = tmpSagaInstanceData.current;
+  const process = tmpSagaProcessData.current;
   const layoutSets: ILayoutSets = yield select(selectLayoutSetsState);
 
-  const currentTaskDataId: string | undefined =
-    applicationMetadata && getCurrentTaskDataElementId(applicationMetadata, instance, layoutSets);
-  const url: string | undefined | null =
-    instance && currentTaskDataId && getDataValidationUrl(instance.id, currentTaskDataId);
+  const currentTaskDataId = application && getCurrentTaskDataElementId({ application, instance, process, layoutSets });
+  const url = instance && currentTaskDataId && getDataValidationUrl(instance.id, currentTaskDataId);
 
   if (node && url && dataModelBinding) {
     const options: AxiosRequestConfig = {

@@ -12,7 +12,7 @@ import classes from 'src/components/wrappers/ProcessWrapper.module.css';
 import { Confirm } from 'src/features/confirm/containers/Confirm';
 import { Feedback } from 'src/features/feedback/Feedback';
 import { useStrictInstance } from 'src/features/instance/InstanceContext';
-import { useRealTaskType } from 'src/features/instance/useProcess';
+import { useRealTaskType } from 'src/features/instance/ProcessContext';
 import { ForbiddenError } from 'src/features/instantiate/containers/ForbiddenError';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { useIsLoading } from 'src/features/isLoading/useIsLoading';

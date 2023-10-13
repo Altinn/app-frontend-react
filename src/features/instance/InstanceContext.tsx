@@ -6,9 +6,10 @@ import type { AxiosError } from 'axios';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { FormProvider } from 'src/features/form/FormContext';
-import { useProcessEnhancement } from 'src/features/instance/useProcess';
+import { ProcessProvider } from 'src/features/instance/ProcessContext';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
+import { Loader } from 'src/features/isLoading/Loader';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { createLaxContext } from 'src/utils/createContext';
@@ -50,15 +51,10 @@ const { Provider, useCtx } = createLaxContext<InstanceContext>();
 // TODO: Remove this when no sagas, etc, are using it
 export const tmpSagaInstanceData: { current: IInstance | null } = { current: null };
 
-function useGetInstanceDataQuery(
-  enabled: boolean,
-  partyId: string | undefined,
-  instanceGuid: string | undefined,
-  taskId: string | undefined,
-) {
+function useGetInstanceDataQuery(enabled: boolean, partyId: string | undefined, instanceGuid: string | undefined) {
   const { fetchInstanceData } = useAppQueries();
   return useQuery({
-    queryKey: ['fetchInstanceData', partyId, instanceGuid, taskId],
+    queryKey: ['fetchInstanceData', partyId, instanceGuid],
     queryFn: () => fetchInstanceData(partyId!, instanceGuid!),
     enabled: enabled && typeof partyId === 'string' && typeof instanceGuid === 'string',
     onError: async (error: HttpClientError) => {
@@ -93,14 +89,13 @@ export const InstanceProvider = ({ children }: { children: React.ReactNode }) =>
 
   const instantiation = useInstantiation();
 
+  const fetchEnabled = !instantiation.lastResult;
+  const fetchQuery = useGetInstanceDataQuery(fetchEnabled, partyId, instanceGuid);
+
   // We should always fetch the instance data again when moving between process steps. There are data elements that
   // most likely will be added when this happens (when autoCreate = true), and we need to fetch them to know which
   // UUIDs we need to fetch data model data from, etc.
-  const currentTaskId = data?.process?.currentTask?.elementId;
-  const fetchEnabled = instantiation.lastResult
-    ? instantiation.lastResult.process?.currentTask?.elementId !== currentTaskId
-    : true;
-  const fetchQuery = useGetInstanceDataQuery(fetchEnabled, partyId, instanceGuid, currentTaskId);
+  // PRIORITY: Trigger this when moving between process steps
 
   // Update data
   useSetGlobalState(fetchQuery.data, setData, dispatch);
@@ -127,8 +122,6 @@ export const InstanceProvider = ({ children }: { children: React.ReactNode }) =>
     });
   }, []);
 
-  useProcessEnhancement(data, changeData);
-
   if (!partyId || !instanceGuid) {
     throw new Error('Tried providing instance without partyId or instanceGuid');
   }
@@ -139,6 +132,10 @@ export const InstanceProvider = ({ children }: { children: React.ReactNode }) =>
 
   if (error) {
     return <UnknownError />;
+  }
+
+  if (!data) {
+    return <Loader reason='instance' />;
   }
 
   return (
@@ -161,7 +158,9 @@ export const InstanceProvider = ({ children }: { children: React.ReactNode }) =>
         },
       }}
     >
-      <FormProvider>{children}</FormProvider>
+      <ProcessProvider instance={data}>
+        <FormProvider>{children}</FormProvider>
+      </ProcessProvider>
     </Provider>
   );
 };

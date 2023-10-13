@@ -3,7 +3,7 @@ import React from 'react';
 import { createTheme, MuiThemeProvider, Typography } from '@material-ui/core';
 
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
-import { useTaskTypeFromBackend } from 'src/features/instance/useProcess';
+import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';

@@ -4,7 +4,7 @@ import { Button } from '@digdir/design-system-react';
 
 import type { PropsFromGenericComponent } from '..';
 
-import { useLaxProcessData } from 'src/features/instance/useProcess';
+import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useProcessNext } from 'src/features/instance/useProcessNext';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { ButtonLoader } from 'src/layout/Button/ButtonLoader';

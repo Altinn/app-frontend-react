@@ -4,7 +4,7 @@ import { createSelector } from 'reselect';
 
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
 import { tmpSagaInstanceData, useLaxInstanceData } from 'src/features/instance/InstanceContext';
-import { useLaxProcessData } from 'src/features/instance/useProcess';
+import { tmpSagaProcessData, useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { allOptions } from 'src/features/options/useAllOptions';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { staticUseLanguageFromState, useLanguage } from 'src/hooks/useLanguage';
@@ -102,7 +102,7 @@ export function dataSourcesFromState(state: IRuntimeState): HierarchyDataSources
     applicationSettings: state.applicationSettings.applicationSettings,
     instanceDataSources: buildInstanceDataSources(tmpSagaInstanceData.current),
     hiddenFields: new Set(state.formLayout.uiConfig.hiddenFields),
-    authContext: buildAuthContext(tmpSagaInstanceData.current?.process?.currentTask),
+    authContext: buildAuthContext(tmpSagaProcessData.current?.currentTask),
     validations: state.formValidations.validations,
     devTools: state.devTools,
     langTools: staticUseLanguageFromState(state),

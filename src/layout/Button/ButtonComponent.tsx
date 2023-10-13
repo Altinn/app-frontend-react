@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useLaxProcessData } from 'src/features/instance/useProcess';
+import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useProcessNext } from 'src/features/instance/useProcessNext';
 import { useCanSubmitForm } from 'src/hooks/useCanSubmitForm';
 import { useLanguage } from 'src/hooks/useLanguage';

@@ -5,7 +5,7 @@ import { Checkbox } from '@digdir/design-system-react';
 
 import classes from 'src/features/devtools/components/PermissionsEditor/PermissionsEditor.module.css';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { useLaxProcessData, useTaskTypeFromBackend } from 'src/features/instance/useProcess';
+import { useLaxProcessData, useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
 
 export const PermissionsEditor = () => {
   const { read: _read, write, actions, elementId: _taskId } = useLaxProcessData()?.currentTask || {};

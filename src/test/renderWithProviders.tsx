@@ -8,7 +8,7 @@ import type { RenderOptions } from '@testing-library/react';
 import type { PreloadedState } from 'redux';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
+import { getInstanceDataMock, getProcessDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { AppQueriesProvider } from 'src/contexts/appQueriesContext';
 import { FormProvider } from 'src/features/form/FormContext';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
@@ -53,7 +53,7 @@ export const renderWithProviders = (
       doSelectParty: () => Promise.resolve(null),
       doInstantiateWithPrefill: () => Promise.resolve(getInstanceDataMock()),
       doInstantiate: () => Promise.resolve(getInstanceDataMock()),
-      doProcessNext: () => Promise.resolve(getInstanceDataMock().process),
+      doProcessNext: () => Promise.resolve(getProcessDataMock()),
       fetchActiveInstances: () => Promise.resolve([]),
       fetchApplicationMetadata: () => Promise.resolve({} as unknown as IApplicationMetadata),
       fetchCurrentParty: () => Promise.resolve({}),
@@ -76,7 +76,7 @@ export const renderWithProviders = (
       fetchRuleHandler: () => Promise.resolve(null),
       fetchInstanceData: () => Promise.resolve(getInstanceDataMock()),
       fetchAppLanguages: () => Promise.resolve([]),
-      fetchProcessState: () => Promise.resolve(getInstanceDataMock().process),
+      fetchProcessState: () => Promise.resolve(getProcessDataMock()),
       fetchProcessNextSteps: () => Promise.resolve([]),
     } as AppQueriesContext;
     const mockedQueries = { ...allMockedQueries, ...queries };
