@@ -25,13 +25,13 @@ export const CheckboxContainerComponent = ({
   handleDataChange,
   overrideDisplay,
 }: ICheckboxContainerProps) => {
-  const { id, layout, readOnly, textResourceBindings, required, labelSettings } = node.item;
+  const { id, layout, readOnly, textResourceBindings, dataModelBindings, required, labelSettings } = node.item;
   const { lang, langAsString } = useLanguage();
   const {
     value: _value,
     setValue,
     saveValue,
-  } = useDelayedSavedState(handleDataChange, formData?.simpleBinding ?? '', 200);
+  } = useDelayedSavedState(handleDataChange, dataModelBindings?.simpleBinding, formData?.simpleBinding ?? '', 200);
 
   const value = _value ?? formData?.simpleBinding ?? '';
   const selected = value && value.length > 0 ? value.split(',') : defaultSelectedOptions;

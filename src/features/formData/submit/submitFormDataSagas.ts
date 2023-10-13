@@ -8,6 +8,7 @@ import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { tmpSagaInstanceData } from 'src/features/instance/InstanceContext';
 import { tmpSagaProcessData } from 'src/features/instance/ProcessContext';
 import { ValidationActions } from 'src/features/validation/validationSlice';
+import { pathsChangedFromServer } from 'src/hooks/useDelayedSavedState';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { getCurrentDataTypeForApplication, getCurrentTaskDataElementId, isStatelessApp } from 'src/utils/appMetadata';
@@ -214,6 +215,7 @@ function* handleChangedFields(changedFields: IFormData | undefined, lastSavedFor
     return lastSavedFormData;
   }
 
+  pathsChangedFromServer.current = {};
   yield all(
     Object.keys(changedFields).map((field) => {
       // Simulating the update on lastSavedFormData as well, because we need to pretend these changes were here all
@@ -226,6 +228,7 @@ function* handleChangedFields(changedFields: IFormData | undefined, lastSavedFor
       } else {
         lastSavedFormData[field] = data;
       }
+      pathsChangedFromServer.current[field] = true;
 
       return put(
         FormDataActions.update({

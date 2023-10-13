@@ -5,11 +5,12 @@ import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import type { IRadioButtonsContainerProps } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 
 export const useRadioButtons = ({ node, handleDataChange, formData }: IRadioButtonsContainerProps) => {
+  const { dataModelBindings } = node.item;
   const {
     value: selected,
     setValue,
     saveValue,
-  } = useDelayedSavedState(handleDataChange, formData?.simpleBinding ?? '', 200);
+  } = useDelayedSavedState(handleDataChange, dataModelBindings?.simpleBinding, formData?.simpleBinding ?? '', 200);
   const { options: calculatedOptions, isFetching: fetchingOptions } = useGetOptions({
     ...node.item,
     node,

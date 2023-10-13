@@ -12,9 +12,13 @@ import type { PropsFromGenericComponent } from 'src/layout';
 export type IDropdownProps = PropsFromGenericComponent<'Dropdown'>;
 
 export function DropdownComponent({ node, formData, handleDataChange, isValid, overrideDisplay }: IDropdownProps) {
-  const { id, readOnly, textResourceBindings } = node.item;
+  const { id, readOnly, textResourceBindings, dataModelBindings } = node.item;
   const { langAsString } = useLanguage();
-  const { value: selected, setValue, saveValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding, 200);
+  const {
+    value: selected,
+    setValue,
+    saveValue,
+  } = useDelayedSavedState(handleDataChange, dataModelBindings?.simpleBinding, formData?.simpleBinding, 200);
 
   const { options, isFetching } = useGetOptions({
     ...node.item,
