@@ -8,6 +8,7 @@ import { cleanLayout } from 'src/features/form/layout/cleanLayout';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/isLoading/Loader';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
@@ -23,13 +24,14 @@ const { Provider, useCtx } = createStrictContext<ILayoutCollection>();
 
 function useLayoutQuery() {
   const { fetchLayouts } = useAppQueries();
+  const taskId = useLaxProcessData()?.currentTask?.elementId;
   const layoutSetId = useCurrentLayoutSetId();
   const dispatch = useAppDispatch();
   const instance = useLaxInstanceData();
   const applicationMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
 
   return useQuery({
-    queryKey: ['formLayouts', layoutSetId],
+    queryKey: ['formLayouts', layoutSetId, taskId],
     queryFn: () =>
       // TODO: Pre-process the layouts to validate expressions
       fetchLayouts(layoutSetId),

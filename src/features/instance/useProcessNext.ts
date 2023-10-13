@@ -5,7 +5,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useAppMutations } from 'src/contexts/appQueriesContext';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { useStrictInstance } from 'src/features/instance/InstanceContext';
-import { useRealTaskType } from 'src/features/instance/ProcessContext';
+import { useRealTaskType, useSetProcessData } from 'src/features/instance/ProcessContext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -26,9 +26,10 @@ export function useProcessNext(nodeId: string) {
   const submittingState = useAppSelector((state) => state.formData.submitting.state);
   const realTaskType = useRealTaskType();
   const { doProcessNext } = useAppMutations();
-  const { changeData: changeInstance, processNavigation, instanceId } = useStrictInstance();
+  const { processNavigation, instanceId, reFetch: reFetchInstanceData } = useStrictInstance();
   const { setBusyWithId, busyWithId, busy, setError } = processNavigation;
   const language = useLanguage().selectedLanguage;
+  const setProcessData = useSetProcessData();
 
   const setLoading = useCallback(
     (state: LoadingState) => {
@@ -50,10 +51,11 @@ export function useProcessNext(nodeId: string) {
 
   const utils = useMutation({
     mutationFn: ({ taskId, action }: ProcessNextProps = {}) => doProcessNext.call(taskId, language, action),
-    onSuccess: (data: IProcess) => {
+    onSuccess: async (data: IProcess) => {
       setLoadingFinished();
       doProcessNext.setLastResult(data);
-      changeInstance((instance) => (instance ? { ...instance, process: data } : instance));
+      setProcessData && setProcessData(data);
+      await reFetchInstanceData();
     },
     onError: (error: HttpClientError) => {
       setLoadingFinished(error);

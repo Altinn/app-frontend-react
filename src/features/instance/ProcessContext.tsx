@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 
@@ -11,7 +11,12 @@ import { createLaxContext } from 'src/utils/createContext';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 import type { IInstance, IProcess } from 'src/types/shared';
 
-const { Provider, useCtx } = createLaxContext<IProcess>();
+interface IProcessContext {
+  data: IProcess;
+  setData: (data: IProcess) => void;
+}
+
+const { Provider, useCtx } = createLaxContext<IProcessContext>();
 
 // TODO: Remove this when no sagas, etc, are using it
 export const tmpSagaProcessData: { current: IProcess | null } = { current: null };
@@ -34,7 +39,11 @@ function useProcessQuery(instanceId: string) {
 
 export function ProcessProvider({ children, instance }: React.PropsWithChildren<{ instance: IInstance }>) {
   const query = useProcessQuery(instance.id);
-  const data = query.data;
+  const [data, setData] = useState<IProcess | undefined>(undefined);
+
+  useEffect(() => {
+    setData(query.data);
+  }, [query.data]);
 
   if (query.error) {
     return <UnknownError />;
@@ -44,10 +53,23 @@ export function ProcessProvider({ children, instance }: React.PropsWithChildren<
     return <Loader reason='fetching-process' />;
   }
 
-  return <Provider value={data}>{children}</Provider>;
+  return (
+    <Provider
+      value={{
+        data,
+        setData: (data) => {
+          tmpSagaProcessData.current = data;
+          setData(data);
+        },
+      }}
+    >
+      {children}
+    </Provider>
+  );
 }
 
-export const useLaxProcessData = () => useCtx();
+export const useLaxProcessData = () => useCtx()?.data;
+export const useSetProcessData = () => useCtx()?.setData;
 
 /**
  * This returns the task type of the current process task, as we got it from the backend

@@ -33,6 +33,7 @@ export interface InstanceContext {
 
   // Methods/utilities
   changeData: ChangeInstanceData;
+  reFetch: () => Promise<void>;
 
   // Process navigation state
   processNavigation: {
@@ -84,18 +85,14 @@ export const InstanceProvider = ({ children }: { children: React.ReactNode }) =>
   const [processNavigationError, setProcessNavigationError] = useState<AxiosError | undefined>(undefined);
   const dispatch = useAppDispatch();
 
+  const [forceFetching, setForceFetching] = useState(false);
   const [data, setData] = useState<IInstance | undefined>(undefined);
   const [error, setError] = useState<AxiosError | undefined>(undefined);
 
   const instantiation = useInstantiation();
 
-  const fetchEnabled = !instantiation.lastResult;
+  const fetchEnabled = forceFetching || !instantiation.lastResult;
   const fetchQuery = useGetInstanceDataQuery(fetchEnabled, partyId, instanceGuid);
-
-  // We should always fetch the instance data again when moving between process steps. There are data elements that
-  // most likely will be added when this happens (when autoCreate = true), and we need to fetch them to know which
-  // UUIDs we need to fetch data model data from, etc.
-  // PRIORITY: Trigger this when moving between process steps
 
   // Update data
   useSetGlobalState(fetchQuery.data, setData, dispatch);
@@ -146,6 +143,10 @@ export const InstanceProvider = ({ children }: { children: React.ReactNode }) =>
         isFetching: fetchQuery.isFetching,
         error,
         changeData,
+        reFetch: async () => {
+          setForceFetching(true);
+          return void (await fetchQuery.refetch());
+        },
         partyId,
         instanceGuid,
         instanceId,
