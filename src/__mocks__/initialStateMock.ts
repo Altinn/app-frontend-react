@@ -85,9 +85,6 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
       selectedParty: partyMock,
     },
     profile: getProfileStateMock(),
-    queue: {
-      appTask: { error: null },
-    },
     textResources: {
       resourceMap: {
         'option.from.rep.group.label': {

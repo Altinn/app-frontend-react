@@ -16,7 +16,6 @@ import { optionsSlice } from 'src/features/options/optionsSlice';
 import { orgsSlice } from 'src/features/orgs/orgsSlice';
 import { partySlice } from 'src/features/party/partySlice';
 import { profileSlice } from 'src/features/profile/profileSlice';
-import { queueSlice } from 'src/features/queue/queueSlice';
 import { textResourcesSlice } from 'src/features/textResources/textResourcesSlice';
 import { validationSlice } from 'src/features/validation/validationSlice';
 import { deprecatedSlice } from 'src/redux/deprecatedSlice';
@@ -40,7 +39,6 @@ const slices = [
   orgsSlice,
   partySlice,
   profileSlice,
-  queueSlice,
   textResourcesSlice,
   validationSlice,
   deprecatedSlice,
