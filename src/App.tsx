@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Route, Routes } from 'react-router-dom';
 
 import { AltinnContentIconFormData } from 'src/components/atoms/AltinnContentIconFormData';
@@ -146,8 +146,21 @@ function PreventNavigatingBackWrapper({
 }: React.PropsWithChildren<{ path: 'root' | 'instance' | 'partySelection' }>) {
   const { langAsString } = useLanguage();
   const instanceData = useAppSelector((state) => state.instanceData.instance);
+  const instantiating = useAppSelector((state) => state.instantiation.instantiating);
+  const waitingToRedirectToInstance = useRef(false);
 
-  if (instanceData && path !== 'instance') {
+  const hasInstanceData =
+    !!instanceData &&
+    !(Array.isArray(instanceData) && instanceData.length === 0) &&
+    !(instanceData && typeof instanceData === 'object' && Object.keys(instanceData).length === 0);
+
+  if (path === 'instance' && waitingToRedirectToInstance.current) {
+    waitingToRedirectToInstance.current = false;
+  }
+
+  if (path === 'root' && instantiating) {
+    waitingToRedirectToInstance.current = true;
+  } else if (path !== 'instance' && hasInstanceData && !instantiating && !waitingToRedirectToInstance.current) {
     // When you have instance data, but you're looking at some other route in the application, it can only mean that you
     // pressed the history back button in the browser. This breaks the application, so we reload the page to get you
     // back to the correct state.
