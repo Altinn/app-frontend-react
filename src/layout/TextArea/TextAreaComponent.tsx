@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Textarea } from '@digdir/design-system-react';
+import { LegacyTextArea } from '@digdir/design-system-react';
 
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -22,14 +22,15 @@ export function TextAreaComponent({ node, formData, isValid, handleDataChange, o
   );
 
   return (
-    <Textarea
+    <LegacyTextArea
       id={id}
       onBlur={() => saveValue()}
       onChange={(e) => setValue(e.target.value)}
       onPaste={() => onPaste()}
       readOnly={readOnly}
+      resize='vertical'
       characterLimit={!readOnly && maxLength !== undefined ? createCharacterLimit(maxLength, lang) : undefined}
-      // isValid={isValid} TODO: Show error state somehow
+      isValid={isValid}
       value={value}
       data-testid={id}
       aria-describedby={

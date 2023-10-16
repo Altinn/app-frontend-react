@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Textfield } from '@digdir/design-system-react';
+import { LegacyTextField } from '@digdir/design-system-react';
 import axios from 'axios';
 
 import { Label } from 'src/components/form/Label';
@@ -243,9 +243,9 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
           readOnly={readOnly}
           labelSettings={labelSettings}
         />
-        <Textfield
+        <LegacyTextField
           id={`address_address_${id}`}
-          // isValid={allValidations.address?.errors?.length === 0} TODO: Show error state somehow
+          isValid={allValidations.address?.errors?.length === 0}
           value={address}
           onChange={updateField.bind(null, AddressKeys.address, false)}
           onBlur={updateField.bind(null, AddressKeys.address, true)}
@@ -269,9 +269,9 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
             readOnly={readOnly}
             labelSettings={labelSettings}
           />
-          <Textfield
+          <LegacyTextField
             id={`address_care_of_${id}`}
-            // isValid={allValidations.careOf?.errors?.length === 0} TODO: Show error state somehow
+            isValid={allValidations.careOf?.errors?.length === 0}
             value={careOf}
             onChange={updateField.bind(null, AddressKeys.careOf, false)}
             onBlur={updateField.bind(null, AddressKeys.careOf, true)}
@@ -296,9 +296,9 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
             labelSettings={labelSettings}
           />
           <div className={classes.addressComponentSmallInputs}>
-            <Textfield
+            <LegacyTextField
               id={`address_zip_code_${id}`}
-              // isValid={allValidations.zipCode?.errors?.length === 0} TODO: Show error state somehow
+              isValid={allValidations.zipCode?.errors?.length === 0}
               value={zipCode}
               onChange={updateField.bind(null, AddressKeys.zipCode, false)}
               onBlur={updateField.bind(null, AddressKeys.zipCode, true)}
@@ -323,9 +323,9 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
             readOnly={true}
             labelSettings={labelSettings}
           />
-          <Textfield
+          <LegacyTextField
             id={`address_post_place_${id}`}
-            // isValid={allValidations.postPlace?.errors?.length === 0} TODO: Show error state somehow
+            isValid={allValidations.postPlace?.errors?.length === 0}
             value={postPlace}
             readOnly={true}
             required={required}
@@ -352,9 +352,9 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
           />
           <p>{lang('address_component.house_number_helper')}</p>
           <div className={classes.addressComponentSmallInputs}>
-            <Textfield
+            <LegacyTextField
               id={`address_house_number_${id}`}
-              // isValid={allValidations.houseNumber?.errors?.length === 0} TODO: Show error state somehow
+              isValid={allValidations.houseNumber?.errors?.length === 0}
               value={houseNumber}
               onChange={updateField.bind(null, AddressKeys.houseNumber, false)}
               onBlur={updateField.bind(null, AddressKeys.houseNumber, true)}

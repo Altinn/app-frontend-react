@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { SearchField } from '@altinn/altinn-design-system';
-import { Textfield } from '@digdir/design-system-react';
+import { LegacyTextField } from '@digdir/design-system-react';
 
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -64,7 +64,7 @@ export function InputComponent({ node, isValid, formData, handleDataChange, over
           aria-describedby={textResourceBindings?.description ? `description-${id}` : undefined}
         ></SearchField>
       ) : (
-        <Textfield
+        <LegacyTextField
           key={inputKey}
           id={id}
           onBlur={onBlur}
@@ -72,12 +72,12 @@ export function InputComponent({ node, isValid, formData, handleDataChange, over
           onPaste={onPaste}
           characterLimit={!readOnly && maxLength !== undefined ? createCharacterLimit(maxLength, lang) : undefined}
           readOnly={readOnly}
-          // isValid={isValid} TODO: Show error state somehow
+          isValid={isValid}
           required={required}
           value={value}
           aria-label={ariaLabel}
           aria-describedby={textResourceBindings?.description ? `description-${id}` : undefined}
-          // formatting={reactNumberFormatConfig} TODO: implement react-number-format
+          formatting={reactNumberFormatConfig}
           autoComplete={autocomplete}
         />
       )}

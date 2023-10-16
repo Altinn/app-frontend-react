@@ -23,6 +23,12 @@ interface ExpressionResult {
   isError: boolean;
 }
 
+function getTabKeyAndValue(i: number, output: ExpressionResult) {
+  const key = `${i}-${output.value}`;
+  const value = i === 0 ? `Gjeldende resultat` : `Tidligere (-${i})`;
+  return { key, value };
+}
+
 export const ExpressionPlayground = () => {
   const input = useAppSelector((state) => state.devTools.exprPlayground.expression);
   const forPage = useAppSelector((state) => state.devTools.exprPlayground.forPage);
@@ -156,24 +162,24 @@ export const ExpressionPlayground = () => {
                 }}
               >
                 <Tabs.List>
-                  {outputs.map((_, i) => {
-                    const name = i === 0 ? `Gjeldende resultat` : `Tidligere (-${i})`;
+                  {outputs.map((output, i) => {
+                    const { key, value } = getTabKeyAndValue(i, output);
                     return (
                       <Tabs.Tab
-                        value={name}
-                        key={i}
+                        value={value}
+                        key={key}
                       >
-                        {name}
+                        {value}
                       </Tabs.Tab>
                     );
                   })}
                 </Tabs.List>
                 {outputs.map((output, i) => {
-                  const name = i === 0 ? `Gjeldende resultat` : `Tidligere (-${i})`;
+                  const { key, value } = getTabKeyAndValue(i, output);
                   return (
                     <Tabs.Content
-                      value={name}
-                      key={i}
+                      value={value}
+                      key={key}
                     >
                       <textarea
                         style={{ color: output.isError ? 'red' : 'black' }}
