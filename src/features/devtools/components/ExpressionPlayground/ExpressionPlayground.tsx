@@ -156,12 +156,13 @@ export const ExpressionPlayground = () => {
           {outputs.length > 1 && (
             <div className={classes.outputs}>
               <Tabs
+                size='small'
                 value={activeOutputTab}
                 onChange={(outputName) => {
                   setActiveOutputTab(outputName);
                 }}
               >
-                <Tabs.List>
+                <Tabs.List className={classes.tablist}>
                   {outputs.map((output, i) => {
                     const { key, value } = getTabKeyAndValue(i, output);
                     return (

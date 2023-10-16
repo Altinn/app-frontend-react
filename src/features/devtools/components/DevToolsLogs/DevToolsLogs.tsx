@@ -65,6 +65,7 @@ export const DevToolsLogs = () => {
         />
         <div className={classes.filterField}>
           <Textfield
+            size='small'
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             placeholder='Filtrer logger'

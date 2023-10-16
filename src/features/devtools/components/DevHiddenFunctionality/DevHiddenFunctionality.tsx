@@ -38,6 +38,7 @@ export function DevHiddenFunctionality() {
     <Fieldset legend='Skjulte komponenter'>
       <div>
         <ToggleGroup
+          size='small'
           onChange={(selectedValue) =>
             dispatch(
               DevToolsActions.setShowHiddenComponents({
