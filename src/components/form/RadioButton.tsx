@@ -1,10 +1,12 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 
 import { HelpText, Radio } from '@digdir/design-system-react';
 import type { RadioProps } from '@digdir/design-system-react';
 
+import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import classes from 'src/components/form/RadioButton.module.css';
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
+import { useAlertOnChange } from 'src/hooks/useAlertOnChange';
 import { getPlainTextFromNode } from 'src/utils/stringHelper';
 
 export interface IRadioButtonProps extends Omit<RadioProps, 'children'> {
@@ -36,27 +38,16 @@ export const RadioButton = ({
       {helpText ? <HelpText title={getPlainTextFromNode(helpText)}>{helpText}</HelpText> : null}
     </div>
   );
-  const [popoverOpen, setPopoverOpen] = useState(false);
-  const [tempEvent, setTempEvent] = useState<React.ChangeEvent<HTMLInputElement>>();
 
-  const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (alertOnChange) {
-      event.preventDefault();
-      setPopoverOpen(true);
-      setTempEvent(event);
-    } else {
-      onChange(event);
-    }
-  };
-  const confirmChange = () => {
-    onChange(tempEvent as React.ChangeEvent<HTMLInputElement>);
-    setPopoverOpen(false);
-  };
+  const { alertOpen, setAlertOpen, handleChange, confirmChange, cancelChange } = useAlertOnChange(
+    Boolean(alertOnChange),
+    onChange,
+  );
 
   const radioButton = (
     <Radio
       {...rest}
-      onChange={handleRadioChange}
+      onChange={handleChange}
       ref={showAsCard ? inputRef : undefined}
     >
       {Label}
@@ -80,19 +71,23 @@ export const RadioButton = ({
     </div>
   );
 
-  if (popoverOpen) {
-    return (
-      <DeleteWarningPopover
-        trigger={showAsCard ? cardElement : radioButton}
-        onPopoverDeleteClick={confirmChange}
-        onCancelClick={() => setPopoverOpen(false)}
-        deleteButtonText={confirmChangeText as string}
-        messageText={alertText as string}
-        open={popoverOpen}
-        setOpen={setPopoverOpen}
-      />
-    );
-  }
-
-  return showAsCard ? cardElement : radioButton;
+  return (
+    <ConditionalWrapper
+      condition={Boolean(alertOnChange)}
+      wrapper={(children) => (
+        <DeleteWarningPopover
+          onPopoverDeleteClick={confirmChange}
+          onCancelClick={cancelChange}
+          deleteButtonText={confirmChangeText as string}
+          messageText={alertText as string}
+          open={alertOpen}
+          setOpen={setAlertOpen}
+        >
+          {children}
+        </DeleteWarningPopover>
+      )}
+    >
+      {showAsCard ? cardElement : radioButton}
+    </ConditionalWrapper>
+  );
 };
