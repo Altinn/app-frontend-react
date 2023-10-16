@@ -47,7 +47,7 @@ export interface InstanceContext {
 
 export type ChangeInstanceData = (callback: (instance: IInstance | undefined) => IInstance | undefined) => void;
 
-const { Provider, useCtx } = createLaxContext<InstanceContext>();
+const { Provider, useCtx, useHasProvider } = createLaxContext<InstanceContext>();
 
 // TODO: Remove this when no sagas, etc, are using it
 export const tmpSagaInstanceData: { current: IInstance | null } = { current: null };
@@ -175,6 +175,7 @@ export const InstanceProvider = ({ children }: { children: React.ReactNode }) =>
 
 export const useLaxInstance = () => useCtx();
 export const useLaxInstanceData = () => useLaxInstance()?.data;
+export const useHasInstance = () => useHasProvider();
 
 export const useStrictInstance = () => {
   const instance = useLaxInstance();

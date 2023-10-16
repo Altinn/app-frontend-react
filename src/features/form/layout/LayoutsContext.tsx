@@ -7,7 +7,7 @@ import { preProcessItem } from 'src/features/expressions/validation';
 import { cleanLayout } from 'src/features/form/layout/cleanLayout';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
-import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { useHasInstance, useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/isLoading/Loader';
@@ -24,17 +24,20 @@ const { Provider, useCtx } = createStrictContext<ILayoutCollection>();
 
 function useLayoutQuery() {
   const { fetchLayouts } = useAppQueries();
-  const taskId = useLaxProcessData()?.currentTask?.elementId;
+  const hasInstance = useHasInstance();
+  const process = useLaxProcessData();
+  const taskId = process?.currentTask?.elementId;
   const layoutSetId = useCurrentLayoutSetId();
   const dispatch = useAppDispatch();
   const instance = useLaxInstanceData();
   const applicationMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
 
   return useQuery({
+    // Waiting to fetch layouts until we have an instance, if we're supposed to have one
+    enabled: hasInstance ? !!process : true,
+
     queryKey: ['formLayouts', layoutSetId, taskId],
-    queryFn: () =>
-      // TODO: Pre-process the layouts to validate expressions
-      fetchLayouts(layoutSetId),
+    queryFn: () => fetchLayouts(layoutSetId),
     onSuccess: (data) => {
       if (!data || !applicationMetadata) {
         return;

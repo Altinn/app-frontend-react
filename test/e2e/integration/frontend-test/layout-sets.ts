@@ -17,6 +17,10 @@ it('should be possible to render the app even if layout-sets are not configured'
   }).as('getDynamics');
 
   cy.goto('message');
+
+  // Wait for network to be idle
+  cy.waitForNetworkIdle('*', '*', 500);
+
   cy.findByRole('heading', { name: /Appen for test av app frontend/i }).should('exist');
 
   // Assert that requests are fired once
