@@ -136,7 +136,7 @@ export const LayoutInspector = () => {
             <Button
               onClick={() => setSelectedComponent(undefined)}
               variant='quiet'
-              color='secondary'
+              color='second'
               size='small'
               aria-label={'close'}
               icon={<Close aria-hidden />}
