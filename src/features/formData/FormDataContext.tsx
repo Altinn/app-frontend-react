@@ -169,7 +169,7 @@ function useInfoFormDataQuery(enabled: boolean) {
       }
       return out;
     },
-    enabled: enabled && urlsToFetch.length > 0,
+    enabled,
     onSuccess: (formDataAsObj) => {
       const formData = flattenObject(formDataAsObj);
       dispatch(FormDataActions.fetchFulfilled({ formData }));

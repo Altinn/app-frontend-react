@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { CustomValidationConfigProvider } from 'src/features/customValidation/CustomValidationContext';
 import { DataModelSchemaProvider } from 'src/features/datamodel/DataModelSchemaProvider';
 import { DynamicsProvider } from 'src/features/form/dynamics/DynamicsContext';
 import { LayoutsProvider } from 'src/features/form/layout/LayoutsContext';
@@ -18,21 +19,23 @@ const { Provider } = createStrictContext();
 export function FormProvider({ children }: React.PropsWithChildren) {
   return (
     <Provider value={undefined}>
-      <LayoutsProvider>
-        <LayoutSettingsProvider>
-          <FormDataProvider>
-            <DataModelSchemaProvider>
-              <DynamicsProvider>
-                <RulesProvider>
-                  <AllOptionsProvider>
-                    <LayoutValidationProvider>{children}</LayoutValidationProvider>
-                  </AllOptionsProvider>
-                </RulesProvider>
-              </DynamicsProvider>
-            </DataModelSchemaProvider>
-          </FormDataProvider>
-        </LayoutSettingsProvider>
-      </LayoutsProvider>
+      <CustomValidationConfigProvider>
+        <LayoutsProvider>
+          <LayoutSettingsProvider>
+            <FormDataProvider>
+              <DataModelSchemaProvider>
+                <DynamicsProvider>
+                  <RulesProvider>
+                    <AllOptionsProvider>
+                      <LayoutValidationProvider>{children}</LayoutValidationProvider>
+                    </AllOptionsProvider>
+                  </RulesProvider>
+                </DynamicsProvider>
+              </DataModelSchemaProvider>
+            </FormDataProvider>
+          </LayoutSettingsProvider>
+        </LayoutsProvider>
+      </CustomValidationConfigProvider>
     </Provider>
   );
 }
