@@ -150,23 +150,42 @@ export const ExpressionPlayground = () => {
           {outputs.length > 1 && (
             <div className={classes.outputs}>
               <Tabs
-                activeTab={activeOutputTab}
+                value={activeOutputTab}
                 onChange={(outputName) => {
                   setActiveOutputTab(outputName);
                 }}
-                items={outputs.map((output, i) => ({
-                  name: i === 0 ? `Gjeldende resultat` : `Tidligere (-${i})`,
-                  content: (
-                    <textarea
-                      style={{ color: output.isError ? 'red' : 'black' }}
-                      className={cn(classes.textbox, classes.output)}
-                      readOnly={true}
-                      value={output.value}
-                      placeholder={'Resultatet av uttrykket vises her'}
-                    />
-                  ),
-                }))}
-              />
+              >
+                <Tabs.List>
+                  {outputs.map((_, i) => {
+                    const name = i === 0 ? `Gjeldende resultat` : `Tidligere (-${i})`;
+                    return (
+                      <Tabs.Tab
+                        value={name}
+                        key={i}
+                      >
+                        {name}
+                      </Tabs.Tab>
+                    );
+                  })}
+                </Tabs.List>
+                {outputs.map((output, i) => {
+                  const name = i === 0 ? `Gjeldende resultat` : `Tidligere (-${i})`;
+                  return (
+                    <Tabs.Content
+                      value={name}
+                      key={i}
+                    >
+                      <textarea
+                        style={{ color: output.isError ? 'red' : 'black' }}
+                        className={cn(classes.textbox, classes.output)}
+                        readOnly={true}
+                        value={output.value}
+                        placeholder={'Resultatet av uttrykket vises her'}
+                      />
+                    </Tabs.Content>
+                  );
+                })}
+              </Tabs>
             </div>
           )}
         </SplitView>
