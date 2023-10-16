@@ -7,6 +7,7 @@ import type { AxiosError } from 'axios';
 import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { FormProvider } from 'src/features/form/FormContext';
 import { ProcessProvider } from 'src/features/instance/ProcessContext';
+import { ForbiddenError } from 'src/features/instantiate/containers/ForbiddenError';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import { Loader } from 'src/features/isLoading/Loader';
@@ -102,11 +103,12 @@ export const InstanceProvider = ({ children }: { children: React.ReactNode }) =>
   useEffect(() => {
     fetchQuery.error && setError(fetchQuery.error);
     instantiation.error && setError(instantiation.error);
+    processNavigationError && setError(processNavigationError);
 
     if (fetchQuery.error) {
       tmpSagaInstanceData.current = null;
     }
-  }, [fetchQuery.error, instantiation.error]);
+  }, [fetchQuery.error, instantiation.error, processNavigationError]);
 
   const changeData: ChangeInstanceData = useCallback((callback) => {
     setData((prev) => {
@@ -128,6 +130,10 @@ export const InstanceProvider = ({ children }: { children: React.ReactNode }) =>
   window.instanceId = instanceId;
 
   if (error) {
+    if (error.response?.status === 403) {
+      return <ForbiddenError />;
+    }
+
     return <UnknownError />;
   }
 
