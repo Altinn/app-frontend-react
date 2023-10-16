@@ -75,7 +75,14 @@ export function useProcessNext(nodeId: string) {
 
   const mutate = useCallback(
     (props?: ProcessNextProps) => {
-      if (realTaskType === ProcessTaskType.Data && submittingState === 'inactive' && !loadingRef.current) {
+      if (
+        realTaskType === ProcessTaskType.Data &&
+        submittingState === 'inactive' &&
+        !loadingRef.current &&
+        // Skipping the full form data submit if an action is set. Signing, rejecting, etc should not attempt to submit
+        // form data, as you probably only have read-access to the data model at this point.
+        !props?.action
+      ) {
         setLoading('form-submitting');
         const { org, app } = window;
         dispatch(
