@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 
@@ -15,6 +15,7 @@ import type { IInstance, IProcess } from 'src/types/shared';
 interface IProcessContext {
   data: IProcess;
   setData: (data: IProcess) => void;
+  reFetch: () => Promise<void>;
 }
 
 const { Provider, useCtx } = createLaxContext<IProcessContext>();
@@ -41,6 +42,8 @@ function useProcessQuery(instanceId: string) {
 export function ProcessProvider({ children, instance }: React.PropsWithChildren<{ instance: IInstance }>) {
   const query = useProcessQuery(instance.id);
   const [data, setData] = useState<IProcess | undefined>(undefined);
+  const reFetchNative = query.refetch;
+  const reFetch = useCallback(async () => void (await reFetchNative()), [reFetchNative]);
 
   useEffect(() => {
     setData(query.data);
@@ -50,7 +53,7 @@ export function ProcessProvider({ children, instance }: React.PropsWithChildren<
     return <UnknownError />;
   }
 
-  if (!data || query.isFetching) {
+  if (!data || query.isLoading) {
     return <Loader reason='fetching-process' />;
   }
 
@@ -62,6 +65,7 @@ export function ProcessProvider({ children, instance }: React.PropsWithChildren<
           tmpSagaProcessData.current = data;
           setData(data);
         },
+        reFetch,
       }}
     >
       {children}
@@ -71,6 +75,7 @@ export function ProcessProvider({ children, instance }: React.PropsWithChildren<
 
 export const useLaxProcessData = () => useCtx()?.data;
 export const useSetProcessData = () => useCtx()?.setData;
+export const useReFetchProcessData = () => useCtx()?.reFetch;
 
 /**
  * This returns the task type of the current process task, as we got it from the backend
