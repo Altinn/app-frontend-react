@@ -53,12 +53,12 @@ const { Provider, useCtx, useHasProvider } = createLaxContext<InstanceContext>()
 // TODO: Remove this when no sagas, etc, are using it
 export const tmpSagaInstanceData: { current: IInstance | null } = { current: null };
 
-function useGetInstanceDataQuery(enabled: boolean, partyId: string | undefined, instanceGuid: string | undefined) {
+function useGetInstanceDataQuery(enabled: boolean, partyId: string, instanceGuid: string) {
   const { fetchInstanceData } = useAppQueries();
   return useQuery({
     queryKey: ['fetchInstanceData', partyId, instanceGuid],
-    queryFn: () => fetchInstanceData(partyId!, instanceGuid!),
-    enabled: enabled && typeof partyId === 'string' && typeof instanceGuid === 'string',
+    queryFn: () => fetchInstanceData(partyId, instanceGuid),
+    enabled,
     onError: async (error: HttpClientError) => {
       await maybeAuthenticationRedirect(error);
       window.logError('Fetching instance data failed:\n', error);
@@ -82,6 +82,30 @@ function useSetGlobalState(
 
 export const InstanceProvider = ({ children }: { children: React.ReactNode }) => {
   const { partyId, instanceGuid } = useParams();
+
+  if (!partyId || !instanceGuid) {
+    return null;
+  }
+
+  return (
+    <InnerInstanceProvider
+      partyId={partyId}
+      instanceGuid={instanceGuid}
+    >
+      {children}
+    </InnerInstanceProvider>
+  );
+};
+
+const InnerInstanceProvider = ({
+  children,
+  partyId,
+  instanceGuid,
+}: {
+  children: React.ReactNode;
+  partyId: string;
+  instanceGuid: string;
+}) => {
   const [busyWithId, setBusyWithId] = useState<string | undefined>(undefined);
   const [processNavigationError, setProcessNavigationError] = useState<AxiosError | undefined>(undefined);
   const dispatch = useAppDispatch();
