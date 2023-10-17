@@ -2,21 +2,16 @@ import { useQuery } from '@tanstack/react-query';
 import type { UseQueryResult } from '@tanstack/react-query';
 
 import { useAppQueriesContext } from 'src/contexts/appQueriesContext';
-import { InstanceDataActions } from 'src/features/instanceData/instanceDataSlice';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import type { ISimpleInstance } from 'src/types';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 export const useActiveInstancesQuery = (partyId?: string, enabled?: boolean): UseQueryResult<ISimpleInstance[]> => {
-  const dispatch = useAppDispatch();
   const { fetchActiveInstances } = useAppQueriesContext();
   return useQuery(['getActiveInstances'], () => fetchActiveInstances(partyId || ''), {
     enabled,
-    onSuccess: (instanceData) => {
+    onSuccess: (active) => {
       // Sort array by last changed date
-      instanceData.sort((a, b) => new Date(a.lastChanged).getTime() - new Date(b.lastChanged).getTime());
-
-      dispatch(InstanceDataActions.getFulfilled({ instanceData }));
+      active.sort((a, b) => new Date(a.lastChanged).getTime() - new Date(b.lastChanged).getTime());
     },
     onError: (error: HttpClientError) => {
       console.warn(error);

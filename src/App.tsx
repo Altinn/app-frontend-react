@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Route, Routes } from 'react-router-dom';
 
+import { AltinnContentIconFormData } from 'src/components/atoms/AltinnContentIconFormData';
+import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoader';
+import { PresentationComponent } from 'src/components/wrappers/Presentation';
 import { ProcessWrapper } from 'src/components/wrappers/ProcessWrapper';
 import { Entrypoint } from 'src/features/entrypoint/Entrypoint';
 import { PartySelection } from 'src/features/instantiate/containers/PartySelection';
@@ -20,9 +23,11 @@ import { useAlwaysPromptForParty } from 'src/hooks/useAlwaysPromptForParty';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useKeepAlive } from 'src/hooks/useKeepAlive';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { useUpdatePdfState } from 'src/hooks/useUpdatePdfState';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
+import { ProcessTaskType } from 'src/types';
 import type { IApplicationSettings } from 'src/types/shared';
 
 import '@digdir/design-system-tokens/brand/altinn/tokens.css';
@@ -101,15 +106,27 @@ const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | n
         <Routes>
           <Route
             path='/'
-            element={<Entrypoint allowAnonymous={allowAnonymous} />}
+            element={
+              <PreventNavigatingBackWrapper path={'root'}>
+                <Entrypoint allowAnonymous={allowAnonymous} />
+              </PreventNavigatingBackWrapper>
+            }
           />
           <Route
             path='/partyselection/*'
-            element={<PartySelection />}
+            element={
+              <PreventNavigatingBackWrapper path={'partySelection'}>
+                <PartySelection />
+              </PreventNavigatingBackWrapper>
+            }
           />
           <Route
             path='/instance/:partyId/:instanceGuid'
-            element={<ProcessWrapper isFetching={isFetching} />}
+            element={
+              <PreventNavigatingBackWrapper path={'instance'}>
+                <ProcessWrapper isFetching={isFetching} />
+              </PreventNavigatingBackWrapper>
+            }
           />
         </Routes>
       </>
@@ -122,3 +139,44 @@ const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | n
 
   return null;
 };
+
+function PreventNavigatingBackWrapper({
+  children,
+  path,
+}: React.PropsWithChildren<{ path: 'root' | 'instance' | 'partySelection' }>) {
+  const { langAsString } = useLanguage();
+  const instanceData = useAppSelector((state) => state.instanceData.instance);
+  const instantiating = useAppSelector((state) => state.instantiation.instantiating);
+  const waitingToRedirectToInstance = useRef(false);
+
+  const hasInstanceData = instanceData && typeof instanceData === 'object' && Object.keys(instanceData).length > 0;
+
+  if (path === 'instance' && waitingToRedirectToInstance.current) {
+    waitingToRedirectToInstance.current = false;
+  }
+
+  if (path === 'root' && instantiating) {
+    waitingToRedirectToInstance.current = true;
+  } else if (path !== 'instance' && hasInstanceData && !instantiating && !waitingToRedirectToInstance.current) {
+    // When you have instance data, but you're looking at some other route in the application, it can only mean that you
+    // pressed the history back button in the browser. This breaks the application, so we reload the page to get you
+    // back to the correct state.
+
+    window.location.reload();
+    return (
+      <PresentationComponent
+        header={langAsString('instantiate.starting')}
+        type={ProcessTaskType.Unknown}
+      >
+        <AltinnContentLoader
+          width='100%'
+          height='400'
+        >
+          <AltinnContentIconFormData />
+        </AltinnContentLoader>
+      </PresentationComponent>
+    );
+  }
+
+  return <>{children}</>;
+}

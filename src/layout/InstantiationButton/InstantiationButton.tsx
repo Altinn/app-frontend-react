@@ -20,6 +20,7 @@ export const InstantiationButton = ({ children, ...props }: Props) => {
   const party = useAppSelector((state) => state.party.selectedParty);
 
   const instantiate = () => {
+    dispatch(InstantiationActions.instantiateWithPrefill());
     const prefill = mapFormData(formData, props.mapping);
     instantiateWithPrefill({
       prefill,
