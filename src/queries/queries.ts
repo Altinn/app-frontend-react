@@ -1,7 +1,7 @@
 import type { AxiosRequestConfig } from 'axios';
 import type { JSONSchema7 } from 'json-schema';
 
-import { httpPost } from 'src/utils/network/networking';
+import { httpGetWithHeaders, httpPost } from 'src/utils/network/networking';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import {
   applicationMetadataApiUrl,
@@ -24,7 +24,6 @@ import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { IPartyValidationResponse } from 'src/features/party';
 import type { IPdfFormat } from 'src/features/pdf/types';
-import type { IOption } from 'src/layout/common.generated';
 import type { ILayoutSets, ISimpleInstance } from 'src/types';
 import type { IAltinnOrgs, IApplicationSettings, IProfile } from 'src/types/shared';
 import type { IExpressionValidationConfig } from 'src/utils/validation/types';
@@ -45,7 +44,7 @@ export const fetchFooterLayout = (): Promise<IFooterLayout> => httpGet(getFooter
 
 export const fetchLayoutSets = (): Promise<ILayoutSets> => httpGet(getLayoutSetsUrl());
 
-export const fetchOptions = (url: string): Promise<IOption[]> => httpGet(url);
+export const fetchOptions = (url: string): Promise<any> => httpGetWithHeaders(url);
 
 export const fetchDataList = (url: string): Promise<IDataList> => httpGet(url);
 

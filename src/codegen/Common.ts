@@ -144,6 +144,13 @@ const common = {
         'Describes the location in the data model where the component should store its value(s). A simple ' +
           'binding is used for components that only store a single value, usually a string.',
       ),
+  IDataModelBindingsOptionsSimple: () =>
+    new CG.obj(new CG.prop('simpleBinding', new CG.str()), new CG.prop('metadata', new CG.str().optional()))
+      .setTitle('Data model binding')
+      .setDescription(
+        'Describes the location in the data model where the component should store its value(s). A simple ' +
+          'binding is used for components that only store a single value, usually a string.',
+      ),
   IDataModelBindingsList: () =>
     new CG.obj(new CG.prop('list', new CG.str()))
       .setTitle('Data model binding')
@@ -291,13 +298,7 @@ const common = {
               'server (allows for user/instance-specific options)',
           ),
       ),
-      new CG.prop(
-        'optionsMetadataMapping',
-        new CG.str()
-          .optional()
-          .setTitle('Options Metadata Mapping')
-          .setDescription('Mapping to datamodel field to store metadata for the options result.'),
-      ),
+      new CG.prop('source', CG.common('IOptionSource').optional()),
     ),
   ISelectionComponentFull: () =>
     new CG.obj(

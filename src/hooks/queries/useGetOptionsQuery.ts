@@ -14,6 +14,7 @@ export const useGetOptionsQuery = (
   mapping?: IMapping,
   queryParameters?: Record<string, string>,
   secure?: boolean,
+  setMetadata?: (value: string | undefined) => void,
 ): UseQueryResult<IOption[]> => {
   const dispatch = useAppDispatch();
   const { fetchOptions } = useAppQueries();
@@ -32,9 +33,19 @@ export const useGetOptionsQuery = (
     instanceId,
   });
 
+  const queryFunction = async (url: string) => {
+    const response = await fetchOptions(url);
+    const downstreamParameters: string = response.headers['Altinn-Downstreamparameters'];
+    console.log('downstreamParameters', downstreamParameters);
+    if (setMetadata && downstreamParameters) {
+      setMetadata(downstreamParameters);
+    }
+    return response.data;
+  };
+
   return useQuery({
     queryKey: [url],
-    queryFn: () => fetchOptions(url),
+    queryFn: () => queryFunction(url),
     enabled: !!optionsId,
     onError: (error: HttpClientError) => {
       dispatch(OptionsActions.fetchRejected({ error }));

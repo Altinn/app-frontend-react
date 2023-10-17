@@ -32,6 +32,8 @@ interface Props<T extends ValueType> {
         disable: 'I have read the code and know that core functionality will be missing';
       };
 
+  metadata?: Omit<ValueObj<'single'>, 'type' | 'value'>;
+
   // Simple options, static and pre-defined
   options?: IOption[];
 
@@ -53,9 +55,15 @@ export interface OptionsResult {
 const defaultOptions: IOption[] = [];
 
 export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResult {
-  const { node, options, optionsId, secure, removeDuplicates, source, mapping, queryParameters } = props;
+  const { node, options, optionsId, secure, removeDuplicates, source, mapping, queryParameters, metadata } = props;
   const sourceOptions = useSourceOptions({ source, node });
-  const { data: fetchedOptions, isFetching } = useGetOptionsQuery(optionsId, mapping, queryParameters, secure);
+  const { data: fetchedOptions, isFetching } = useGetOptionsQuery(
+    optionsId,
+    mapping,
+    queryParameters,
+    secure,
+    metadata?.setValue,
+  );
   const staticOptions = optionsId ? undefined : options;
   const calculatedOptions = sourceOptions || fetchedOptions || staticOptions;
   usePreselectedOptionIndex(calculatedOptions, props);
