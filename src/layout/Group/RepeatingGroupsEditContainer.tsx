@@ -179,7 +179,7 @@ function RepeatingGroupsEditContainerInternal({
         >
           <Grid item={true}>
             <Button
-              variant='quiet'
+              variant='tertiary'
               color='danger'
               size='small'
               icon={<DeleteIcon />}
@@ -223,8 +223,8 @@ function RepeatingGroupsEditContainerInternal({
                     <Button
                       icon={<Back aria-hidden='true' />}
                       size='small'
-                      variant='quiet'
-                      color='secondary'
+                      variant='tertiary'
+                      color='second'
                       onClick={() => setMultiPageIndex && setMultiPageIndex(multiPageIndex - 1)}
                     >
                       {lang('general.back')}
@@ -239,8 +239,8 @@ function RepeatingGroupsEditContainerInternal({
                       icon={<Next aria-hidden='true' />}
                       iconPlacement='right'
                       size='small'
-                      variant='quiet'
-                      color='secondary'
+                      variant='tertiary'
+                      color='second'
                       onClick={() => setMultiPageIndex && setMultiPageIndex(multiPageIndex + 1)}
                     >
                       {lang('general.next')}
@@ -259,8 +259,8 @@ function RepeatingGroupsEditContainerInternal({
                 <Button
                   id={`next-button-grp-${id}`}
                   onClick={nextClicked}
-                  variant='filled'
-                  color='primary'
+                  variant='primary'
+                  color='first'
                   size='small'
                 >
                   {lang(texts?.save_and_next_button ? texts?.save_and_next_button : 'general.save_and_next')}
@@ -272,8 +272,8 @@ function RepeatingGroupsEditContainerInternal({
                 <Button
                   id={`add-button-grp-${id}`}
                   onClick={saveClicked}
-                  variant={saveAndNextButtonVisible ? 'outline' : 'filled'}
-                  color='primary'
+                  variant={saveAndNextButtonVisible ? 'secondary' : 'primary'}
+                  color='first'
                   size='small'
                 >
                   {lang(texts?.save_button ? texts?.save_button : 'general.save_and_close')}

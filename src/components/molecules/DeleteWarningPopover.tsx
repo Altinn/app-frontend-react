@@ -14,7 +14,7 @@ const useStyles = makeStyles({
 });
 
 export interface IDeleteWarningPopover {
-  trigger: React.ReactNode;
+  children: React.ReactNode;
   onPopoverDeleteClick: () => void;
   onCancelClick: () => void;
   deleteButtonText: string;
@@ -25,7 +25,7 @@ export interface IDeleteWarningPopover {
 }
 
 export function DeleteWarningPopover({
-  trigger,
+  children,
   onPopoverDeleteClick,
   onCancelClick,
   deleteButtonText,
@@ -40,7 +40,7 @@ export function DeleteWarningPopover({
     <Popover
       variant='warning'
       placement={placement}
-      trigger={trigger}
+      trigger={children}
       open={open}
       onOpenChange={() => setOpen(!open)}
     >
@@ -48,7 +48,7 @@ export function DeleteWarningPopover({
       <div className={classes.popoverButtonContainer}>
         <Button
           data-testid='warning-popover-delete-button'
-          variant='filled'
+          variant='primary'
           size='small'
           color='danger'
           onClick={onPopoverDeleteClick}
@@ -57,9 +57,9 @@ export function DeleteWarningPopover({
         </Button>
         <Button
           data-testid='warning-popover-cancel-button'
-          variant='quiet'
+          variant='tertiary'
           size='small'
-          color='secondary'
+          color='second'
           onClick={onCancelClick}
         >
           {lang('general.cancel')}

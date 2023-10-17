@@ -24,8 +24,8 @@ interface Props extends ButtonProps {
 
 export const WrappedButton = ({
   nodeId,
-  variant = 'outline',
-  color = 'primary',
+  variant = 'secondary',
+  color = 'first',
   onClick,
   children,
   busyWithId,
