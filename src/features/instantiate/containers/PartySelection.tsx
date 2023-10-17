@@ -150,7 +150,7 @@ export const PartySelection = () => {
           >
             <Button
               size='small'
-              variant='outline'
+              variant='secondary'
               dashedBorder={true}
               icon={<PlusIcon aria-hidden />}
               onClick={() => setNumberOfPartiesShown(numberOfPartiesShown + 4)}
