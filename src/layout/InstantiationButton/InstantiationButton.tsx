@@ -31,7 +31,7 @@ export const InstantiationButton = ({ children, ...props }: Props) => {
     if (instantiation.lastResult) {
       dispatch(AttachmentActions.mapAttachments());
     }
-  }, [instantiation.lastResult, dispatch]);
+  }, [isSuccess, data, dispatch]);
 
   React.useEffect(() => {
     if (instantiation.error) {

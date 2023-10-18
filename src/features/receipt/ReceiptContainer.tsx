@@ -18,7 +18,7 @@ import { getAttachmentGroupings, getInstancePdf, mapInstanceAttachments } from '
 import { returnUrlToArchive } from 'src/utils/urls/urlHelper';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type { IAltinnOrgs, IAttachment, IParty } from 'src/types/shared';
+import type { IAltinnOrgs, IDisplayAttachment, IParty } from 'src/types/shared';
 
 export const returnInstanceMetaDataObject = (
   orgsData: IAltinnOrgs,
@@ -66,8 +66,9 @@ export const returnInstanceMetaDataObject = (
 };
 
 export const ReceiptContainer = () => {
-  const [attachments, setAttachments] = useState<IAttachment[]>([]);
-  const [pdf, setPdf] = useState<IAttachment[] | undefined>(undefined);
+  const dispatch = useAppDispatch();
+  const [attachments, setAttachments] = useState<IDisplayAttachment[]>([]);
+  const [pdf, setPdf] = useState<IDisplayAttachment[] | undefined>(undefined);
   const [lastChangedDateTime, setLastChangedDateTime] = useState('');
   const [instanceMetaObject, setInstanceMetaObject] = useState<SummaryDataObject>({});
 

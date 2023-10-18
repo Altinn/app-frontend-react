@@ -13,9 +13,7 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
       applicationMetadata: applicationMetadataMock,
       error: null,
     },
-    attachments: {
-      attachments: {},
-    },
+    attachments: {},
     customValidation: {
       customValidation: null,
       error: null,

@@ -2,7 +2,6 @@ import React from 'react';
 
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
-import { getUploaderSummaryData } from 'src/layout/FileUpload/Summary/summary';
 import { FileUploadWithTagDef } from 'src/layout/FileUploadWithTag/config.def.generated';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -10,7 +9,8 @@ import { attachmentIsMissingTag, attachmentsValid } from 'src/utils/validation/v
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { LayoutValidationCtx } from 'src/features/form/layoutValidation/types';
 import type { IFormData } from 'src/features/formData';
-import type { ComponentValidation, PropsFromGenericComponent } from 'src/layout';
+import type { LayoutValidationCtx } from 'src/features/layoutValidation/types';
+import type { ComponentValidation, DisplayDataProps, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
@@ -24,10 +24,8 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements Component
     return false;
   }
 
-  getDisplayData(node: LayoutNode<'FileUploadWithTag'>, { formData, attachments }): string {
-    return getUploaderSummaryData(node, formData, attachments)
-      .map((a) => a.name)
-      .join(', ');
+  getDisplayData(node: LayoutNode<'FileUploadWithTag'>, { attachments }: DisplayDataProps): string {
+    return (attachments[node.item.id] || []).map((a) => a.data.filename).join(', ');
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'FileUploadWithTag'>): JSX.Element | null {

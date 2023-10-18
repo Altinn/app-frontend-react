@@ -19,7 +19,7 @@ export interface IApplicationLogic {
   schemaRef?: string | null;
 }
 
-export interface IAttachment {
+export interface IDisplayAttachment {
   name?: string;
   iconClass: string;
   url?: string;
@@ -236,7 +236,7 @@ export interface IVariable {
 }
 
 export interface IAttachmentGrouping {
-  [title: string]: IAttachment[];
+  [title: string]: IDisplayAttachment[];
 }
 
 export interface IDataSource {
