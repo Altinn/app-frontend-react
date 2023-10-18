@@ -1,11 +1,12 @@
 import React from 'react';
 
+import { isAttachmentUploaded } from 'src/features/attachments';
 import { useLanguage } from 'src/hooks/useLanguage';
 import classes from 'src/layout/FileUpload/FileUploadTable/FileTableComponent.module.css';
 import { FileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRow';
 import { FileTableRowContextProvider } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
 import { EditWindowComponent } from 'src/layout/FileUploadWithTag/EditWindowComponent';
-import { atleastOneTagExists } from 'src/utils/formComponentUtils';
+import { atLeastOneTagExists } from 'src/utils/formComponentUtils';
 import type { IAttachment } from 'src/features/attachments';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IOption } from 'src/layout/common.generated';
@@ -47,7 +48,11 @@ export function FileTableComponent({
   const tagTitle =
     (textResourceBindings && 'tagTitle' in textResourceBindings && textResourceBindings?.tagTitle) || undefined;
   const label = (attachment: IAttachment) => {
-    const firstTag = attachment.tags && attachment.tags[0];
+    if (!isAttachmentUploaded(attachment)) {
+      return undefined;
+    }
+
+    const firstTag = attachment.data.tags && attachment.data.tags[0];
     return options?.find((option) => option.value === firstTag)?.label;
   };
 
@@ -57,7 +62,7 @@ export function FileTableComponent({
       data-testid={hasTag ? 'tagFile' : 'file-upload-table'}
       id={hasTag ? 'tagFile' : 'file-upload-table'}
     >
-      {(atleastOneTagExists(attachments) || !hasTag) && (
+      {(atLeastOneTagExists(attachments) || !hasTag) && (
         <thead>
           <tr
             className={classes.blueUnderline}
@@ -75,8 +80,9 @@ export function FileTableComponent({
       )}
       <tbody className={classes.tableBody}>
         {attachments.map((attachment, index: number) => {
-          const canRenderRow =
-            !hasTag || (attachment.tags !== undefined && attachment.tags.length > 0 && editIndex !== index);
+          const canRenderRow = isAttachmentUploaded(attachment)
+            ? !hasTag || (attachment.data.tags !== undefined && attachment.data.tags.length > 0 && editIndex !== index)
+            : false;
 
           const ctx: FileTableRowContext = {
             setEditIndex,
@@ -85,10 +91,10 @@ export function FileTableComponent({
           };
 
           // Check if filter is applied and includes specified index.
-          return canRenderRow ? (
+          return canRenderRow && isAttachmentUploaded(attachment) ? (
             <FileTableRowContextProvider
               value={ctx}
-              key={`altinn-file-list-row-${attachment.id}`}
+              key={`altinn-file-list-row-${attachment.data.id}`}
             >
               <FileTableRow
                 node={node}

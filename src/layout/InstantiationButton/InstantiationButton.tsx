@@ -1,8 +1,6 @@
 import React from 'react';
 
-import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { WrappedButton } from 'src/layout/Button/WrappedButton';
 import { mapFormData } from 'src/utils/databindings';
@@ -11,7 +9,6 @@ import type { IInstantiationButtonComponentProvidedProps } from 'src/layout/Inst
 type Props = Omit<React.PropsWithChildren<IInstantiationButtonComponentProvidedProps>, 'text'>;
 
 export const InstantiationButton = ({ children, ...props }: Props) => {
-  const dispatch = useAppDispatch();
   const instantiation = useInstantiation();
   const formData = useAppSelector((state) => state.formData.formData);
   const party = useAppSelector((state) => state.party.selectedParty);
@@ -26,12 +23,6 @@ export const InstantiationButton = ({ children, ...props }: Props) => {
     });
   };
   const busyWithId = instantiation.isLoading ? props.id : '';
-
-  React.useEffect(() => {
-    if (instantiation.lastResult) {
-      dispatch(AttachmentActions.mapAttachments());
-    }
-  }, [isSuccess, data, dispatch]);
 
   React.useEffect(() => {
     if (instantiation.error) {

@@ -1,5 +1,6 @@
 import type React from 'react';
 
+import { isAttachmentUploaded } from 'src/features/attachments';
 import printStyles from 'src/styles/print.module.css';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import type { IAttachment } from 'src/features/attachments';
@@ -101,12 +102,15 @@ export const isAttachmentError = (error: { id: string | null; message: string })
 
 export const isNotAttachmentError = (error: { id: string | null; message: string }): boolean => !error.id;
 
-export const atleastOneTagExists = (attachments: IAttachment[]): boolean => {
-  const totalTagCount: number = attachments
-    .map((attachment: IAttachment) => (attachment.tags?.length ? attachment.tags.length : 0))
-    .reduce((total, current) => total + current, 0);
+export const atLeastOneTagExists = (attachments: IAttachment[]): boolean => {
+  let totalTagCount = 0;
+  for (const attachment of attachments) {
+    if (isAttachmentUploaded(attachment)) {
+      totalTagCount += attachment.data.tags?.length || 0;
+    }
+  }
 
-  return totalTagCount !== undefined && totalTagCount >= 1;
+  return totalTagCount >= 1;
 };
 
 export function getFieldName(

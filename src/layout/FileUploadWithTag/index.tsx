@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { isAttachmentUploaded } from 'src/features/attachments';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
 import { FileUploadWithTagDef } from 'src/layout/FileUploadWithTag/config.def.generated';
@@ -9,7 +10,6 @@ import { attachmentIsMissingTag, attachmentsValid } from 'src/utils/validation/v
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { LayoutValidationCtx } from 'src/features/form/layoutValidation/types';
 import type { IFormData } from 'src/features/formData';
-import type { LayoutValidationCtx } from 'src/features/layoutValidation/types';
 import type { ComponentValidation, DisplayDataProps, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -44,12 +44,15 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements Component
   ): IValidationObject[] {
     const validations: IValidationObject[] = [];
     if (attachmentsValid(attachments, node.item)) {
-      const missingTagAttachments = attachments[node.item.id]
-        ?.filter((attachment) => attachmentIsMissingTag(attachment))
-        .map((attachment) => attachment.id);
+      const missingTagAttachmentIds: string[] = [];
+      for (const attachment of attachments[node.item.id] || []) {
+        if (isAttachmentUploaded(attachment) && attachmentIsMissingTag(attachment)) {
+          missingTagAttachmentIds.push(attachment.data.id);
+        }
+      }
 
-      if (missingTagAttachments?.length > 0) {
-        missingTagAttachments.forEach((missingId) => {
+      if (missingTagAttachmentIds?.length > 0) {
+        missingTagAttachmentIds.forEach((missingId) => {
           const message = `${
             missingId +
             AsciiUnitSeparator +

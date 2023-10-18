@@ -21,7 +21,6 @@ export function validationContextFromState(state: IRuntimeState, node: LayoutNod
   return {
     formData: state.formData.formData,
     langTools: staticUseLanguageFromState(state, node),
-    attachments: state.attachments.attachments,
     application: state.applicationMetadata.applicationMetadata,
     instance: tmpSagaInstanceData.current,
     process: tmpSagaProcessData.current,

@@ -46,3 +46,7 @@ export type IAttachment = UploadedAttachment | TemporaryAttachment;
 export interface IAttachments<T extends IAttachment = IAttachment> {
   [attachmentComponentId: string]: T[] | undefined;
 }
+
+export function isAttachmentUploaded(attachment: IAttachment): attachment is UploadedAttachment {
+  return attachment.uploaded;
+}

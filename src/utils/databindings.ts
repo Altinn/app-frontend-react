@@ -1,5 +1,6 @@
 import { dot, object } from 'dot-object';
 
+import { isAttachmentUploaded } from 'src/features/attachments';
 import { getParentGroup } from 'src/utils/validation/validation';
 import type { IAttachment, IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
@@ -262,7 +263,8 @@ export function removeAttachmentReference(
 
     deleteGroupData(result, dataModelBindings.list, index, true);
 
-    for (let laterIdx = index + 1; laterIdx <= attachments[componentId].length - 1; laterIdx++) {
+    const componentAttachments = attachments[componentId] || [];
+    for (let laterIdx = index + 1; laterIdx <= componentAttachments.length - 1; laterIdx++) {
       deleteGroupData(result, dataModelBindings.list, laterIdx, true, true);
     }
   }
@@ -335,9 +337,10 @@ export function findChildAttachments(
       }
 
       const componentId = component.id + (groupKeys.length ? `-${groupKeys.join('-')}` : '');
-      const foundIndex = (attachments[componentId] || []).findIndex((a) => a.id === formData[key]);
+      const componentAttachments = attachments[componentId] || [];
+      const foundIndex = componentAttachments.findIndex((a) => isAttachmentUploaded(a) && a.data.id === formData[key]);
       if (foundIndex > -1) {
-        const attachment = attachments[componentId][foundIndex];
+        const attachment = componentAttachments[foundIndex];
         out.push({
           attachment,
           component,

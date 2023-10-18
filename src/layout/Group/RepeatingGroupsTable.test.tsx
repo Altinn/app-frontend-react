@@ -10,7 +10,6 @@ import { RepeatingGroupTable } from 'src/layout/Group/RepeatingGroupTable';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithProviders } from 'src/test/renderWithProviders';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
-import type { IAttachments } from 'src/features/attachments';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { IFormData } from 'src/features/formData';
 import type { TextResourceMap } from 'src/features/textResources';
@@ -59,7 +58,6 @@ describe('RepeatingGroupTable', () => {
     id: 'mock-container-id',
   });
   const textResources: TextResourceMap = { 'option.label': { value: 'Value to be shown' } };
-  const attachments: IAttachments = {};
   const options: IOption[] = [{ value: 'option.value', label: 'option.label' }];
   const components: CompOrGroupExternal[] = [
     {
@@ -222,7 +220,6 @@ describe('RepeatingGroupTable', () => {
 
     const preloadedState = getInitialStateMock();
     preloadedState.formLayout = newLayout || layout;
-    preloadedState.attachments.attachments = attachments;
     preloadedState.textResources.resourceMap = textResources;
     preloadedState.formData.formData = data;
 
