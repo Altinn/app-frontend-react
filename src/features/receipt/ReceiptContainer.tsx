@@ -66,7 +66,6 @@ export const returnInstanceMetaDataObject = (
 };
 
 export const ReceiptContainer = () => {
-  const dispatch = useAppDispatch();
   const [attachments, setAttachments] = useState<IDisplayAttachment[]>([]);
   const [pdf, setPdf] = useState<IDisplayAttachment[] | undefined>(undefined);
   const [lastChangedDateTime, setLastChangedDateTime] = useState('');

@@ -60,21 +60,22 @@ describe('AttachmentWithTagSummaryComponent', () => {
     },
   });
   const extendedState: Partial<RootState> = {
-    attachments: {
-      attachments: {
-        ['FileUploadWithTag']: [
-          {
-            name: attachmentName,
-            id: 'attachment-id-1',
-            uploaded: true,
-            deleting: false,
-            updating: false,
-            size: 1200,
-            tags: ['a', 'b', 'c'],
-          },
-        ],
-      },
-    },
+    // TODO: Mock this in an instance data response instead
+    // attachments: {
+    //   attachments: {
+    //     ['FileUploadWithTag']: [
+    //       {
+    //         name: attachmentName,
+    //         id: 'attachment-id-1',
+    //         uploaded: true,
+    //         deleting: false,
+    //         updating: false,
+    //         size: 1200,
+    //         tags: ['a', 'b', 'c'],
+    //       },
+    //     ],
+    //   },
+    // },
     textResources: {
       language: 'nb',
       error: null,

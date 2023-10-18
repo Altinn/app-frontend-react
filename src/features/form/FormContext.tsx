@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { AttachmentsProvider } from 'src/features/attachments/AttachmentsContext';
 import { CustomValidationConfigProvider } from 'src/features/customValidation/CustomValidationContext';
 import { DataModelSchemaProvider } from 'src/features/datamodel/DataModelSchemaProvider';
 import { DynamicsProvider } from 'src/features/form/dynamics/DynamicsContext';
@@ -20,13 +21,15 @@ export function FormProvider({ children }: React.PropsWithChildren) {
         <LayoutSettingsProvider>
           <FormDataProvider>
             <DataModelSchemaProvider>
-              <DynamicsProvider>
-                <RulesProvider>
-                  <AllOptionsProvider>
-                    <LayoutValidationProvider>{children}</LayoutValidationProvider>
-                  </AllOptionsProvider>
-                </RulesProvider>
-              </DynamicsProvider>
+              <AttachmentsProvider>
+                <DynamicsProvider>
+                  <RulesProvider>
+                    <AllOptionsProvider>
+                      <LayoutValidationProvider>{children}</LayoutValidationProvider>
+                    </AllOptionsProvider>
+                  </RulesProvider>
+                </DynamicsProvider>
+              </AttachmentsProvider>
             </DataModelSchemaProvider>
           </FormDataProvider>
         </LayoutSettingsProvider>

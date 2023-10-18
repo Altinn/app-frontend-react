@@ -1,12 +1,13 @@
 import React from 'react';
 
 import { screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 
 import { getAttachments } from 'src/__mocks__/attachmentsMock';
+import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
-import type { IAttachment } from 'src/features/attachments';
+import type { UploadedAttachment } from 'src/features/attachments';
 import type { CompFileUploadWithTagExternal } from 'src/layout/FileUploadWithTag/config.generated';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
@@ -42,11 +43,14 @@ describe('FileUploadComponent', () => {
   });
 
   describe('file status', () => {
-    it('should show loading when file uploaded=false', () => {
-      const attachments = getAttachments({ count: 1 });
-      attachments[0].uploaded = false;
-
+    it('should show loading when file uploaded=false', async () => {
+      const attachments = getAttachments({ count: 0 });
       render({ attachments });
+
+      // Upload an attachment
+      const file = new File(['(⌐□_□)'], 'chucknorris.png', { type: 'image/png' });
+      const dropZone = screen.getByTestId(`altinn-drop-zone-${testId}`);
+      await userEvent.upload(dropZone, file);
 
       expect(screen.getByText('Laster innhold')).toBeInTheDocument();
     });
@@ -111,11 +115,14 @@ describe('FileUploadComponent', () => {
 
 describe('FileUploadWithTagComponent', () => {
   describe('uploaded', () => {
-    it('should show spinner when file status has uploaded=false', () => {
-      const attachments = getAttachments({ count: 1 });
-      attachments[0].uploaded = false;
-
+    it('should show spinner when file status has uploaded=false', async () => {
+      const attachments = getAttachments({ count: 0 });
       renderWithTag({ attachments });
+
+      // Upload an attachment
+      const file = new File(['(⌐□_□)'], 'chucknorris.png', { type: 'image/png' });
+      const dropZone = screen.getByTestId(`altinn-drop-zone-${testId}`);
+      await userEvent.upload(dropZone, file);
 
       expect(screen.getByText('Laster innhold')).toBeInTheDocument();
     });
@@ -198,10 +205,14 @@ describe('FileUploadWithTagComponent', () => {
     });
 
     it('should disable save button when attachment.uploaded=false', async () => {
-      const attachments = getAttachments({ count: 1 });
-      attachments[0].uploaded = false;
-
+      const attachments = getAttachments({ count: 0 });
       renderWithTag({ attachments });
+
+      // Upload an attachment
+      const file = new File(['(⌐□_□)'], 'chucknorris.png', { type: 'image/png' });
+      const dropZone = screen.getByTestId(`altinn-drop-zone-${testId}`);
+      await userEvent.upload(dropZone, file);
+
       await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
 
       expect(
@@ -226,7 +237,7 @@ describe('FileUploadWithTagComponent', () => {
 
     it('should automatically show attachments in edit mode for attachments without tags', () => {
       const attachments = getAttachments({ count: 1 });
-      attachments[0].tags = [];
+      attachments[0].data.tags = [];
 
       renderWithTag({ attachments });
 
@@ -239,7 +250,7 @@ describe('FileUploadWithTagComponent', () => {
 
     it('should not automatically show attachments in edit mode for attachments with tags', () => {
       const attachments = getAttachments({ count: 1 });
-      attachments[0].tags = ['tag1'];
+      attachments[0].data.tags = ['tag1'];
 
       renderWithTag({ attachments });
       expect(
@@ -280,7 +291,7 @@ describe('FileUploadWithTagComponent', () => {
 });
 
 interface Props extends Partial<RenderGenericComponentTestProps<'FileUpload'>> {
-  attachments?: IAttachment[];
+  attachments?: UploadedAttachment[];
 }
 
 const render = ({ component, genericProps, attachments = getAttachments() }: Props = {}) => {
@@ -300,10 +311,13 @@ const render = ({ component, genericProps, attachments = getAttachments() }: Pro
       isValid: true,
       ...genericProps,
     },
-    manipulateState: (state) => {
-      state.attachments.attachments = {
-        [testId]: attachments,
-      };
+    mockedQueries: {
+      fetchInstanceData: () => {
+        const mock = getInstanceDataMock();
+        mock.data.push(...attachments.map((a) => a.data));
+
+        return Promise.resolve(mock);
+      },
     },
   });
 };
@@ -330,12 +344,13 @@ const renderWithTag = ({ component, genericProps, attachments = getAttachments()
       isValid: true,
       ...genericProps,
     },
-    manipulateState: (state) => {
-      state.attachments = {
-        attachments: {
-          [testId]: attachments,
-        },
-      };
+    mockedQueries: {
+      fetchInstanceData: () => {
+        const mock = getInstanceDataMock();
+        mock.data.push(...attachments.map((a) => a.data));
+
+        return Promise.resolve(mock);
+      },
     },
   });
 };

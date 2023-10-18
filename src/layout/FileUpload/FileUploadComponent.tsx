@@ -3,10 +3,10 @@ import type { FileRejection } from 'react-dropzone';
 
 import { v4 as uuidv4 } from 'uuid';
 
+import { useAttachmentsFor } from 'src/features/attachments/AttachmentsContext';
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { AttachmentsCounter } from 'src/layout/FileUpload/AttachmentsCounter';
@@ -19,9 +19,7 @@ import {
   parseFileUploadComponentWithTagValidationObject,
 } from 'src/utils/formComponentUtils';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
-import type { IAttachment } from 'src/features/attachments';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { IRuntimeState } from 'src/types';
 import type { IComponentValidations } from 'src/utils/validation/types';
 
 export type IFileUploadWithTagProps = PropsFromGenericComponent<'FileUpload' | 'FileUploadWithTag'>;
@@ -47,7 +45,7 @@ export function FileUploadComponent({ componentValidations, node }: IFileUploadW
   const [validationsWithTag, setValidationsWithTag] = React.useState<Array<{ id: string; message: string }>>([]);
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useIsMobileOrTablet();
-  const attachments: IAttachment[] = useAppSelector((state: IRuntimeState) => state.attachments.attachments[id] || []);
+  const attachments = useAttachmentsFor(node);
 
   const hasTag = type === 'FileUploadWithTag';
   const langTools = useLanguage();
@@ -81,7 +79,7 @@ export function FileUploadComponent({ componentValidations, node }: IFileUploadW
     if (attachments.length >= maxNumberOfAttachments) {
       return false;
     }
-    return displayMode !== 'simple' || attachments.length === 0 || showFileUpload === true;
+    return displayMode !== 'simple' || attachments.length === 0 || showFileUpload;
   };
 
   const renderAddMoreAttachmentsButton = (): JSX.Element | null => {

@@ -1,8 +1,6 @@
 import { useLastMutationResult } from 'src/contexts/appQueriesContext';
-import { useRealTaskType } from 'src/features/instance/ProcessContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
-import { ProcessTaskType } from 'src/types';
 import { isStatelessApp } from 'src/utils/appMetadata';
 
 export enum StatelessReadyState {
@@ -43,18 +41,13 @@ export function useStatelessReadyState(): StatelessReadyState {
   return StatelessReadyState.Ready;
 }
 
-function useDataTaskIsLoading() {
-  return useAppSelector((state) => state.attachments.pendingMapping);
-}
-
 export function useIsLoading() {
   const stateless = useStatelessReadyState();
-  const dataTaskIsLoading = useDataTaskIsLoading();
-  const realTaskType = useRealTaskType();
 
   if (stateless !== StatelessReadyState.NotStateless) {
     return stateless !== StatelessReadyState.Ready;
   }
 
-  return realTaskType === ProcessTaskType.Data ? dataTaskIsLoading : false;
+  // TODO: Remove these two hooks. Everything should render the Loading component now, until their data is loaded.
+  return true;
 }

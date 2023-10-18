@@ -7,7 +7,7 @@ import type { AxiosRequestConfig } from 'axios';
 import type { WritableDraft } from 'immer/dist/types/types-external';
 
 import { useMappedAttachments } from 'src/features/attachments/map/mapAttachments';
-import { createStrictContext } from 'src/utils/createStrictContext';
+import { createStrictContext } from 'src/utils/createContext';
 import { httpPost } from 'src/utils/network/networking';
 import { fileUploadUrl } from 'src/utils/urls/appUrlHelper';
 import { customEncodeURI } from 'src/utils/urls/urlHelper';
@@ -20,7 +20,7 @@ import type {
 } from 'src/features/attachments/index';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-const [Provider, useContext] = createStrictContext<IAttachmentsCtx>();
+const { Provider, useCtx } = createStrictContext<IAttachmentsCtx>();
 
 interface ActionUpload extends AttachmentActionUpload {
   temporaryId: string;
@@ -160,9 +160,9 @@ function sortAttachmentsByName(a: IAttachment, b: IAttachment) {
   return 0;
 }
 
-export const useAttachments = () => useContext().attachments;
-export const useAttachmentsUploader = () => useContext().upload;
+export const useAttachments = () => useCtx().attachments;
+export const useAttachmentsUploader = () => useCtx().upload;
 export const useAttachmentsFor = (node: LayoutNode<'FileUploadWithTag' | 'FileUpload'>) => {
-  const { attachments } = useContext();
+  const { attachments } = useCtx();
   return attachments[node.item.id] || [];
 };

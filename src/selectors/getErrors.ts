@@ -24,7 +24,6 @@ const getHasErrorsSelector = (state: IRuntimeState) => {
     state.applicationMetadata.error ||
     state.formDataModel.error ||
     state.optionState.error ||
-    state.attachments.error ||
     state.dataListState.error ||
     state.applicationSettings.error ||
     state.textResources.error ||

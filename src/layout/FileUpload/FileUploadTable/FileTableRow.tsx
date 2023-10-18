@@ -3,6 +3,7 @@ import React from 'react';
 import { CheckmarkCircleFillIcon } from '@navikt/aksel-icons';
 
 import { AltinnLoader } from 'src/components/AltinnLoader';
+import { isAttachmentUploaded } from 'src/features/attachments';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { AttachmentFileName } from 'src/layout/FileUpload/FileUploadTable/AttachmentFileName';
 import { FileTableButtons } from 'src/layout/FileUpload/FileUploadTable/FileTableButtons';
@@ -25,13 +26,16 @@ export function FileTableRow({ node, attachment, mobileView, tagLabel }: IFileUp
   const { langAsString } = useLanguage();
   const hasTag = node.item.type === 'FileUploadWithTag';
 
-  const readableSize = `${(attachment.size / bytesInOneMB).toFixed(2)} ${langAsString('form_filler.file_uploader_mb')}`;
+  const readableSize = `${(attachment.data.size / bytesInOneMB).toFixed(2)} ${langAsString(
+    'form_filler.file_uploader_mb',
+  )}`;
+  const uniqueId = isAttachmentUploaded(attachment) ? attachment.data.id : attachment.data.temporaryId;
 
   return (
     <tr
-      key={attachment.id}
+      key={uniqueId}
       className={classes.blueUnderlineDotted}
-      id={`altinn-file-list-row-${attachment.id}`}
+      id={`altinn-file-list-row-${uniqueId}`}
       tabIndex={0}
     >
       <NameCell
@@ -64,11 +68,12 @@ const NameCell = ({
   hasTag,
 }: {
   mobileView: boolean;
-  attachment: Pick<IAttachment, 'name' | 'size' | 'id' | 'uploaded'>;
+  attachment: IAttachment;
   readableSize: string;
   hasTag: boolean;
 }) => {
   const { langAsString } = useLanguage();
+  const uniqueId = isAttachmentUploaded(attachment) ? attachment.data.id : attachment.data.temporaryId;
   return (
     <>
       <td>
@@ -96,7 +101,7 @@ const NameCell = ({
                 </div>
               ) : (
                 <AltinnLoader
-                  id={`attachment-loader-upload-${attachment.id}`}
+                  id={`attachment-loader-upload-${uniqueId}`}
                   className={classes.altinnLoader}
                   srContent={langAsString('general.loading')}
                 />

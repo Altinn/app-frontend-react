@@ -2,6 +2,7 @@ import React from 'react';
 
 import { FileCsvIcon, FileExcelIcon, FileIcon, FilePdfIcon, FileWordIcon } from '@navikt/aksel-icons';
 
+import { isAttachmentUploaded } from 'src/features/attachments';
 import classes from 'src/layout/FileUpload/FileUploadTable/AttachmentFileName.module.css';
 import { getFileEnding, removeFileEnding } from 'src/utils/attachment';
 import { dataElementUrl } from 'src/utils/urls/appUrlHelper';
@@ -9,7 +10,9 @@ import { makeUrlRelativeIfSameDomain } from 'src/utils/urls/urlHelper';
 import type { IAttachment } from 'src/features/attachments';
 
 export const AttachmentFileName = ({ attachment, mobileView }: { attachment: IAttachment; mobileView: boolean }) => {
-  const url = makeUrlRelativeIfSameDomain(dataElementUrl(attachment.id));
+  const url = isAttachmentUploaded(attachment)
+    ? makeUrlRelativeIfSameDomain(dataElementUrl(attachment.data.id))
+    : undefined;
   const fileName = (
     <>
       <span className={classes.truncate}>{removeFileEnding(attachment.data.filename)}</span>
@@ -26,7 +29,7 @@ export const AttachmentFileName = ({ attachment, mobileView }: { attachment: IAt
         />
       )}
       <div className={classes.truncate}>
-        {attachment.uploaded ? (
+        {attachment.uploaded && url ? (
           <a
             href={url}
             className={`${classes.download} ${classes.primaryColor}`}

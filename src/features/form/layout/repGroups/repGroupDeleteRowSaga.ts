@@ -12,16 +12,10 @@ import {
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { groupIsRepeatingExt } from 'src/layout/Group/tools';
-import { shiftAttachmentRowInRepeatingGroup } from 'src/utils/attachment';
 import { findChildAttachments, removeGroupData } from 'src/utils/databindings';
 import { findChildren, removeRepeatingGroupFromUIConfig, splitDashedKey } from 'src/utils/formLayout';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { createLayoutValidationResult, emptyValidation } from 'src/utils/validation/validationHelpers';
-import type { IAttachmentState } from 'src/features/attachments';
-import type {
-  IDeleteAttachmentActionFulfilled,
-  IDeleteAttachmentActionRejected,
-} from 'src/features/attachments/delete/deleteAttachmentActions';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { IRepGroupDelRow } from 'src/features/form/layout/formLayoutTypes';
 import type { IFormData } from 'src/features/formData';
