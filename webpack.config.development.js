@@ -1,6 +1,7 @@
 const ForkTsCheckerNotifierWebpackPlugin = require('fork-ts-checker-notifier-webpack-plugin');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const ReactRefreshTypeScript = require('react-refresh-typescript');
+const path = require('path');
 
 const common = require('./webpack.common');
 
@@ -49,12 +50,15 @@ module.exports = {
     historyApiFallback: true,
     allowedHosts: 'all',
     hot: true,
-    headers: { 'Access-Control-Allow-Origin': '*' },
+    headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': '*' },
     client: {
       overlay: {
         errors: true,
         warnings: false,
       },
+    },
+    static: {
+      directory: path.join(__dirname, 'dist'),
     },
   },
 };
