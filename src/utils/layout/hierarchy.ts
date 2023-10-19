@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { createSelector } from 'reselect';
 
-import { tmpSagaAttachmentsData, useAttachments } from 'src/features/attachments/AttachmentsContext';
+import { tmpSagaAttachmentsData } from 'src/features/attachments/AttachmentsContext';
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
 import { tmpSagaInstanceData, useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { tmpSagaProcessData, useLaxProcessData } from 'src/features/instance/ProcessContext';
@@ -141,7 +141,6 @@ export function resolvedLayoutsFromState(state: IRuntimeState) {
 function useResolvedExpressions() {
   const instance = useLaxInstanceData();
   const formData = useAppSelector((state) => state.formData.formData);
-  const attachments = useAttachments();
   const uiConfig = useAppSelector((state) => state.formLayout.uiConfig);
   const options = allOptions;
   const process = useLaxProcessData();
@@ -157,7 +156,7 @@ function useResolvedExpressions() {
   const dataSources: HierarchyDataSources = useMemo(
     () => ({
       formData,
-      attachments,
+      attachments: tmpSagaAttachmentsData.current || {},
       uiConfig,
       options,
       applicationSettings,
@@ -170,7 +169,6 @@ function useResolvedExpressions() {
     }),
     [
       formData,
-      attachments,
       uiConfig,
       options,
       applicationSettings,

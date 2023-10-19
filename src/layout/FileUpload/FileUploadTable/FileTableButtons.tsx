@@ -5,9 +5,9 @@ import { PencilIcon, TrashIcon } from '@navikt/aksel-icons';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
-import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
+import { isAttachmentUploaded } from 'src/features/attachments';
+import { useAttachmentsRemover } from 'src/features/attachments/AttachmentsContext';
 import { useAlertOnChange } from 'src/hooks/useAlertOnChange';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useLanguage } from 'src/hooks/useLanguage';
 import classes from 'src/layout/FileUpload/FileUploadTable/FileTableRow.module.css';
 import { useFileTableRowContext } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
@@ -22,12 +22,12 @@ interface IFileTableButtonsProps {
 }
 
 export function FileTableButtons({ node, attachment, mobileView, editWindowIsOpen }: IFileTableButtonsProps) {
-  const { id, baseComponentId, dataModelBindings, alertOnDelete, type } = node.item;
+  const { alertOnDelete, type } = node.item;
   const hasTag = type === 'FileUploadWithTag';
   const showEditButton = hasTag && !editWindowIsOpen;
   const { lang, langAsString } = useLanguage();
-  const dispatch = useAppDispatch();
   const { index, setEditIndex, editIndex } = useFileTableRowContext();
+  const removeAttachment = useAttachmentsRemover();
 
   // Edit button
   const handleEdit = (index: number) => {
@@ -39,14 +39,14 @@ export function FileTableButtons({ node, attachment, mobileView, editWindowIsOpe
   };
 
   const handleDeleteFile = () => {
-    dispatch(
-      AttachmentActions.deleteAttachment({
-        attachment,
-        attachmentType: baseComponentId ?? id,
-        componentId: id,
-        dataModelBindings,
-      }),
-    );
+    if (!isAttachmentUploaded(attachment)) {
+      return;
+    }
+
+    removeAttachment({
+      action: 'delete',
+      attachment,
+    }).then();
     editWindowIsOpen && setEditIndex(-1);
   };
 

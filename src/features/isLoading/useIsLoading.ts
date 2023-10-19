@@ -49,5 +49,5 @@ export function useIsLoading() {
   }
 
   // TODO: Remove these two hooks. Everything should render the Loading component now, until their data is loaded.
-  return true;
+  return false;
 }

@@ -168,6 +168,8 @@ function sortAttachmentsByName(a: IAttachment, b: IAttachment) {
 
 export const useAttachments = () => useCtx().attachments;
 export const useAttachmentsUploader = () => useCtx().upload;
+export const useAttachmentsUpdater = () => useCtx().update;
+export const useAttachmentsRemover = () => useCtx().remove;
 export const useAttachmentsFor = (node: LayoutNode<'FileUploadWithTag' | 'FileUpload'>) => {
   const { attachments } = useCtx();
   return attachments[node.item.id] || [];

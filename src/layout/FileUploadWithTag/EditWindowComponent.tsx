@@ -6,8 +6,7 @@ import { CheckmarkCircleFillIcon } from '@navikt/aksel-icons';
 
 import { AltinnLoader } from 'src/components/AltinnLoader';
 import { isAttachmentUploaded } from 'src/features/attachments';
-import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAttachmentsUpdater } from 'src/features/attachments/AttachmentsContext';
 import { useFormattedOptions } from 'src/hooks/useFormattedOptions';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { AttachmentFileName } from 'src/layout/FileUpload/FileUploadTable/AttachmentFileName';
@@ -44,16 +43,16 @@ export function EditWindowComponent({
   validationsWithTag,
   setValidationsWithTag,
 }: EditWindowProps): React.JSX.Element {
-  const { id, baseComponentId, textResourceBindings, readOnly } = node.item;
+  const { textResourceBindings, readOnly } = node.item;
   const { lang, langAsString } = useLanguage();
   const { setEditIndex } = useFileTableRowContext();
-  const dispatch = useAppDispatch();
   const uploadedAttachment = isAttachmentUploaded(attachment) ? attachment : undefined;
   const rawSelectedTag = uploadedAttachment?.data.tags ? uploadedAttachment.data.tags[0] : undefined;
   const [chosenOption, setChosenOption] = useState<IOption | undefined>(
     rawSelectedTag ? options?.find((o) => o.value === rawSelectedTag) : undefined,
   );
   const formattedOptions = useFormattedOptions(options);
+  const updateAttachment = useAttachmentsUpdater();
 
   const onDropdownDataChange = (value: string) => {
     if (value !== undefined) {
@@ -95,14 +94,15 @@ export function EditWindowComponent({
   };
 
   const setAttachmentTag = (option: IOption) => {
-    dispatch(
-      AttachmentActions.updateAttachment({
-        attachment,
-        componentId: id,
-        baseComponentId: baseComponentId || id,
-        tag: option.value,
-      }),
-    );
+    if (!isAttachmentUploaded(attachment)) {
+      return;
+    }
+
+    updateAttachment({
+      action: 'update',
+      attachment,
+      tags: [option.value],
+    }).then();
   };
 
   const saveIsDisabled = attachment.updating || !attachment.uploaded || readOnly;

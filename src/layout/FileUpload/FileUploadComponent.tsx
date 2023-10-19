@@ -1,12 +1,8 @@
 import React from 'react';
 import type { FileRejection } from 'react-dropzone';
 
-import { v4 as uuidv4 } from 'uuid';
-
-import { useAttachmentsFor } from 'src/features/attachments/AttachmentsContext';
-import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
+import { useAttachmentsFor, useAttachmentsUploader } from 'src/features/attachments/AttachmentsContext';
 import { useGetOptions } from 'src/features/options/useGetOptions';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { AttachmentsCounter } from 'src/layout/FileUpload/AttachmentsCounter';
@@ -27,7 +23,6 @@ export type IFileUploadWithTagProps = PropsFromGenericComponent<'FileUpload' | '
 export function FileUploadComponent({ componentValidations, node }: IFileUploadWithTagProps): React.JSX.Element {
   const {
     id,
-    baseComponentId,
     maxFileSizeInMB,
     readOnly,
     displayMode,
@@ -36,16 +31,15 @@ export function FileUploadComponent({ componentValidations, node }: IFileUploadW
     hasCustomFileEndings,
     validFileEndings,
     textResourceBindings,
-    dataModelBindings,
     type,
   } = node.item;
 
-  const dataDispatch = useAppDispatch();
   const [validations, setValidations] = React.useState<string[]>([]);
   const [validationsWithTag, setValidationsWithTag] = React.useState<Array<{ id: string; message: string }>>([]);
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useIsMobileOrTablet();
   const attachments = useAttachmentsFor(node);
+  const uploader = useAttachmentsUploader();
 
   const hasTag = type === 'FileUploadWithTag';
   const langTools = useLanguage();
@@ -103,7 +97,6 @@ export function FileUploadComponent({ componentValidations, node }: IFileUploadW
   };
 
   const handleDrop = (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
-    const fileType = baseComponentId || id;
     const totalAttachments = acceptedFiles.length + rejectedFiles.length + attachments.length;
 
     if (totalAttachments > maxNumberOfAttachments) {
@@ -115,17 +108,12 @@ export function FileUploadComponent({ componentValidations, node }: IFileUploadW
       return;
     }
     // we should upload all files, if any rejected files we should display an error
-    acceptedFiles.forEach((file: File, index) => {
-      dataDispatch(
-        AttachmentActions.uploadAttachment({
-          file,
-          attachmentType: fileType,
-          tmpAttachmentId: uuidv4(),
-          componentId: id,
-          dataModelBindings,
-          index: attachments.length + index,
-        }),
-      );
+    acceptedFiles.forEach((file: File) => {
+      uploader({
+        file,
+        node,
+        action: 'upload',
+      }).then();
     });
 
     if (acceptedFiles.length > 0) {

@@ -1,9 +1,4 @@
-import { createSagaSlice } from 'src/redux/sagaSlice';
-import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
-
-interface IAttachmentState {}
-const initialState: IAttachmentState = {};
-
+/*
 export let AttachmentActions: ActionsFromSlice<typeof attachmentSlice>;
 export const attachmentSlice = () => {
   const slice = createSagaSlice((mkAction: MkActionType<IAttachmentState>) => ({
@@ -116,3 +111,4 @@ export const attachmentSlice = () => {
   AttachmentActions = slice.actions;
   return slice;
 };
+*/
