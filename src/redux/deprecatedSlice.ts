@@ -11,6 +11,10 @@ export const deprecatedSlice = () => {
     initialState,
     actions: {
       instanceDataFetchFulfilled: mkAction<void>({}),
+
+      // TODO: Implement these
+      deleteAttachmentsInGroup: mkAction<{ groupId: string; index: number }>({}),
+      deleteAttachmentsInGroupFulfilled: mkAction<{ successful: boolean; groupId: string; index: number }>({}),
     },
   }));
 

@@ -1,6 +1,3 @@
-import { deleteAttachmentSaga } from 'src/features/attachments/delete/deleteAttachmentSagas';
-import { updateAttachmentSaga } from 'src/features/attachments/update/updateAttachmentSagas';
-import { uploadAttachmentSaga } from 'src/features/attachments/upload/uploadAttachmentSagas';
 import { createSagaSlice } from 'src/redux/sagaSlice';
 import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
 
@@ -14,7 +11,7 @@ export const attachmentSlice = () => {
     initialState,
     actions: {
       uploadAttachment: mkAction<any>({
-        takeEvery: uploadAttachmentSaga,
+        // takeEvery: uploadAttachmentSaga,
         // reducer: (state, action) => {
         //   const { file, componentId, tmpAttachmentId } = action.payload;
         //   if (!state.attachments[componentId]) {
@@ -52,7 +49,7 @@ export const attachmentSlice = () => {
         // },
       }),
       updateAttachment: mkAction<any>({
-        takeEvery: updateAttachmentSaga,
+        // takeEvery: updateAttachmentSaga,
         // reducer: (state, action) => {
         //   const { attachment, componentId } = action.payload;
         //   if (!state.attachments[componentId]) {
@@ -86,7 +83,7 @@ export const attachmentSlice = () => {
         // },
       }),
       deleteAttachment: mkAction<any>({
-        takeEvery: deleteAttachmentSaga,
+        // takeEvery: deleteAttachmentSaga,
         // reducer: (state, action) => {
         //   const { attachment, componentId } = action.payload;
         //   const index = state.attachments[componentId].findIndex((element) => element.id === attachment.id);

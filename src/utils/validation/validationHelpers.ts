@@ -1,3 +1,4 @@
+import { tmpSagaAttachmentsData } from 'src/features/attachments/AttachmentsContext';
 import { tmpSagaInstanceData } from 'src/features/instance/InstanceContext';
 import { tmpSagaProcessData } from 'src/features/instance/ProcessContext';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
@@ -21,7 +22,7 @@ export function validationContextFromState(state: IRuntimeState, node: LayoutNod
   return {
     formData: state.formData.formData,
     langTools: staticUseLanguageFromState(state, node),
-    attachments: state.attachments.attachments,
+    attachments: tmpSagaAttachmentsData.current || {},
     application: state.applicationMetadata.applicationMetadata,
     instance: tmpSagaInstanceData.current,
     process: tmpSagaProcessData.current,

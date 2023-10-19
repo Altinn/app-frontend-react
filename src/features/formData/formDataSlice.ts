@@ -1,9 +1,8 @@
 import { checkIfRuleShouldRunSaga } from 'src/features/form/rules/checkRulesSagas';
 import { autoSaveSaga, saveFormDataSaga, submitFormSaga } from 'src/features/formData/submit/submitFormDataSagas';
-import { deleteAttachmentReferenceSaga, updateFormDataSaga } from 'src/features/formData/update/updateFormDataSagas';
+import { updateFormDataSaga } from 'src/features/formData/update/updateFormDataSagas';
 import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
-  IDeleteAttachmentReference,
   IFetchFormDataFulfilled,
   IFormDataRejected,
   ISaveAction,
@@ -130,9 +129,6 @@ export const formDataSlice = () => {
       }),
       saveLatest: mkAction<ISaveAction>({
         takeLatest: saveFormDataSaga,
-      }),
-      deleteAttachmentReference: mkAction<IDeleteAttachmentReference>({
-        takeEvery: deleteAttachmentReferenceSaga,
       }),
     },
   }));

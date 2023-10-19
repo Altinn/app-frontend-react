@@ -1,19 +1,15 @@
-import { put, race, select, take } from 'redux-saga/effects';
+import { put, select, take } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 
-import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import {
-  selectAttachmentState,
-  selectFormData,
-  selectFormLayoutState,
-} from 'src/features/form/layout/update/updateFormLayoutSagas';
+import { selectFormData, selectFormLayoutState } from 'src/features/form/layout/update/updateFormLayoutSagas';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { groupIsRepeatingExt } from 'src/layout/Group/tools';
-import { findChildAttachments, removeGroupData } from 'src/utils/databindings';
-import { findChildren, removeRepeatingGroupFromUIConfig, splitDashedKey } from 'src/utils/formLayout';
+import { DeprecatedActions } from 'src/redux/deprecatedSlice';
+import { removeGroupData } from 'src/utils/databindings';
+import { removeRepeatingGroupFromUIConfig } from 'src/utils/formLayout';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { createLayoutValidationResult, emptyValidation } from 'src/utils/validation/validationHelpers';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
@@ -68,68 +64,12 @@ export function* repGroupDeleteRowSaga({ payload: { groupId, index } }: PayloadA
     });
 
     const formData: IFormData = yield select(selectFormData);
-    const attachments: IAttachmentState = yield select(selectAttachmentState);
     const repeatingGroup = repeatingGroups[groupId];
 
-    // Find uploaded attachments inside group and delete them
-    const childAttachments = findChildAttachments(
-      formData,
-      attachments.attachments,
-      currentLayout,
-      groupId,
-      repeatingGroup,
-      index,
-    );
-
-    let attachmentRemovalSuccessful = true;
-    for (const { attachment, component, componentId } of childAttachments) {
-      yield put(
-        AttachmentActions.deleteAttachment({
-          attachment,
-          attachmentType: component.id,
-          componentId,
-
-          // Deleting attachment, but deliberately avoiding passing the dataModelBindings to avoid removing the formData
-          // references. We're doing that ourselves here later, and having other sagas compete for it will cause race
-          // conditions and lots of useless requests.
-          dataModelBindings: undefined,
-        }),
-      );
-
-      while (true) {
-        const completion: {
-          fulfilled?: PayloadAction<IDeleteAttachmentActionFulfilled>;
-          rejected?: PayloadAction<IDeleteAttachmentActionRejected>;
-        } = yield race({
-          fulfilled: take(AttachmentActions.deleteAttachmentFulfilled),
-          rejected: take(AttachmentActions.deleteAttachmentRejected),
-        });
-        const attachmentId = completion.fulfilled?.payload.attachmentId || completion.rejected?.payload.attachment.id;
-        if (attachmentId !== attachment.id) {
-          // Some other attachment elsewhere had its event complete, we'll ignore it
-          continue;
-        }
-        if (completion.rejected) {
-          attachmentRemovalSuccessful = false;
-        }
-        break;
-      }
-    }
-
+    yield put(DeprecatedActions.deleteAttachmentsInGroup({ groupId, index }));
+    const attachmentRemoval: { successful: boolean } = yield take(DeprecatedActions.deleteAttachmentsInGroupFulfilled);
+    const attachmentRemovalSuccessful = attachmentRemoval.successful;
     if (attachmentRemovalSuccessful) {
-      const attachments: IAttachmentState = yield select(selectAttachmentState);
-      const splitLayoutElementId = splitDashedKey(groupId);
-      const childFileUploaders = findChildren(currentLayout, {
-        matching: (c) => c.type === 'FileUpload' || c.type === 'FileUploadWithTag',
-        rootGroupId: splitLayoutElementId.baseComponentId,
-      });
-      const updatedAttachments = shiftAttachmentRowInRepeatingGroup(
-        attachments.attachments,
-        childFileUploaders,
-        groupId,
-        index,
-      );
-
       // Remove the form data associated with the group
       const updatedFormData = removeGroupData(formData, index, currentLayout, groupId, repeatingGroup);
 
@@ -156,7 +96,6 @@ export function* repGroupDeleteRowSaga({ payload: { groupId, index } }: PayloadA
 
       yield put(FormLayoutActions.repGroupDeleteRowFulfilled({ updated: updatedRepeatingGroups }));
       yield put(FormDataActions.setFulfilled({ formData: updatedFormData }));
-      yield put(AttachmentActions.mapAttachmentsFulfilled({ attachments: updatedAttachments }));
       yield put(FormDataActions.saveEvery({}));
     } else {
       yield put(FormLayoutActions.repGroupDeleteRowCancelled({ groupId, index }));

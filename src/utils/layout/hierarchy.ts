@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 
 import { createSelector } from 'reselect';
 
+import { tmpSagaAttachmentsData, useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
 import { tmpSagaInstanceData, useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { tmpSagaProcessData, useLaxProcessData } from 'src/features/instance/ProcessContext';
@@ -96,7 +97,7 @@ function resolvedNodesInLayouts(
 export function dataSourcesFromState(state: IRuntimeState): HierarchyDataSources {
   return {
     formData: state.formData.formData,
-    attachments: state.attachments.attachments,
+    attachments: tmpSagaAttachmentsData.current || {},
     uiConfig: state.formLayout.uiConfig,
     options: allOptions,
     applicationSettings: state.applicationSettings.applicationSettings,
@@ -140,7 +141,7 @@ export function resolvedLayoutsFromState(state: IRuntimeState) {
 function useResolvedExpressions() {
   const instance = useLaxInstanceData();
   const formData = useAppSelector((state) => state.formData.formData);
-  const attachments = useAppSelector((state) => state.attachments.attachments);
+  const attachments = useAttachments();
   const uiConfig = useAppSelector((state) => state.formLayout.uiConfig);
   const options = allOptions;
   const process = useLaxProcessData();

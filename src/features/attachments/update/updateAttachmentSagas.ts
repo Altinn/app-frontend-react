@@ -1,18 +1,4 @@
-import { call, put, select } from 'redux-saga/effects';
-import type { PayloadAction } from '@reduxjs/toolkit';
-import type { AxiosRequestConfig } from 'axios';
-import type { SagaIterator } from 'redux-saga';
-
-import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
-import { ValidationActions } from 'src/features/validation/validationSlice';
-import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
-import { getFileUploadComponentValidations } from 'src/utils/formComponentUtils';
-import { httpDelete, httpPost } from 'src/utils/network/networking';
-import { fileTagUrl } from 'src/utils/urls/appUrlHelper';
-import type { IAttachment } from 'src/features/attachments';
-import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type { IRuntimeState } from 'src/types';
-
+/*
 export function* updateAttachmentSaga({
   payload: { attachment, componentId, baseComponentId, tag },
 }: PayloadAction<any>): SagaIterator {
@@ -113,3 +99,4 @@ export function* updateAttachmentSaga({
     );
   }
 }
+*/

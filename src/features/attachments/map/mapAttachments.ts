@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import type { IAttachments } from 'src/features/attachments';
 import type { IData } from 'src/types/shared';
@@ -34,7 +34,7 @@ export function mapAttachments(dataElements: IData[], nodes: LayoutPages): IAtta
 }
 
 export function useMappedAttachments() {
-  const data = useAppSelector((state) => state.instanceData.instance?.data);
+  const data = useLaxInstanceData()?.data;
   const nodes = useExprContext();
 
   return useMemo(() => {

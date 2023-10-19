@@ -1,25 +1,4 @@
-import { call, put, select } from 'redux-saga/effects';
-import type { PayloadAction } from '@reduxjs/toolkit';
-import type { AxiosRequestConfig, AxiosResponse } from 'axios';
-import type { SagaIterator } from 'redux-saga';
-
-import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
-import { FormDataActions } from 'src/features/formData/formDataSlice';
-import { ValidationActions } from 'src/features/validation/validationSlice';
-import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
-import { getFileUploadComponentValidations } from 'src/utils/formComponentUtils';
-import { httpPost } from 'src/utils/network/networking';
-import { isAxiosError } from 'src/utils/network/sharedNetworking';
-import { fileUploadUrl } from 'src/utils/urls/appUrlHelper';
-import { customEncodeURI } from 'src/utils/urls/urlHelper';
-import { getValidationMessage } from 'src/utils/validation/backendValidation';
-import { BackendValidationSeverity } from 'src/utils/validation/backendValidationSeverity';
-import type { IAttachment } from 'src/features/attachments';
-import type { IUploadAttachmentAction } from 'src/features/attachments/upload/uploadAttachmentActions';
-import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type { IRuntimeState } from 'src/types';
-import type { BackendValidationIssue, IComponentValidations } from 'src/utils/validation/types';
-
+/*
 export function* uploadAttachmentSaga({
   payload: { file, attachmentType, tmpAttachmentId, componentId, dataModelBindings, index },
 }: PayloadAction<IUploadAttachmentAction>): SagaIterator {
@@ -124,3 +103,4 @@ export function* uploadAttachmentSaga({
     );
   }
 }
+*/

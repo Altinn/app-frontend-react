@@ -34,6 +34,9 @@ interface ActionRemove {
 
 type InternalActions = ActionUpload | ActionRemove;
 
+// TODO: Remove this when no sagas, etc, are using it
+export const tmpSagaAttachmentsData: { current: IAttachments | null } = { current: null };
+
 function reducer(draft: WritableDraft<IAttachments<TemporaryAttachment>>, action: InternalActions) {
   const { node, temporaryId } = action;
   const { id } = node.item;
@@ -103,18 +106,21 @@ export const AttachmentsProvider = ({ children }: PropsWithChildren) => {
     }
 
     // PRIORITY: Return the proper ID of the attachment when it is uploaded
+    // PRIORITY: See uploadAttachmentSaga and make sure this code re-implements everything needed
     return temporaryId;
   }
 
   async function update() {
-    // PRIORITY: Implement
+    // PRIORITY: Implement. See updateAttachmentSaga
   }
 
   async function remove() {
-    // PRIORITY: Implement
+    // PRIORITY: Implement. If the target component also has a data model binding, remove the data from the data model
+    // as well. See deleteAttachmentSaga
   }
 
   const attachments = useMemo(() => mergeAndSort(temporary, uploaded), [temporary, uploaded]);
+  tmpSagaAttachmentsData.current = attachments;
 
   return (
     <Provider
