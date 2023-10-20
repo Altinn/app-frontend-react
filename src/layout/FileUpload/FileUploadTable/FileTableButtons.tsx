@@ -43,10 +43,7 @@ export function FileTableButtons({ node, attachment, mobileView, editWindowIsOpe
       return;
     }
 
-    removeAttachment({
-      action: 'delete',
-      attachment,
-    }).then();
+    removeAttachment({ attachment }).then();
     editWindowIsOpen && setEditIndex(-1);
   };
 

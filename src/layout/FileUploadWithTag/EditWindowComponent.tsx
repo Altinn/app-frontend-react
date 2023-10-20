@@ -99,7 +99,6 @@ export function EditWindowComponent({
     }
 
     updateAttachment({
-      action: 'update',
       attachment,
       tags: [option.value],
     }).then();

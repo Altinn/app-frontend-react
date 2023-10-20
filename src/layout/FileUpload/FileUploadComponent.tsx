@@ -39,7 +39,7 @@ export function FileUploadComponent({ componentValidations, node }: IFileUploadW
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useIsMobileOrTablet();
   const attachments = useAttachmentsFor(node);
-  const uploader = useAttachmentsUploader();
+  const uploadAttachment = useAttachmentsUploader();
 
   const hasTag = type === 'FileUploadWithTag';
   const langTools = useLanguage();
@@ -109,11 +109,7 @@ export function FileUploadComponent({ componentValidations, node }: IFileUploadW
     }
     // we should upload all files, if any rejected files we should display an error
     acceptedFiles.forEach((file: File) => {
-      uploader({
-        file,
-        node,
-        action: 'upload',
-      }).then();
+      uploadAttachment({ file, node }).then();
     });
 
     if (acceptedFiles.length > 0) {

@@ -3,28 +3,35 @@ import type { AxiosError } from 'axios';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
+export type FileUploaderNode = LayoutNode<'FileUpload' | 'FileUploadWithTag'>;
+
 export interface AttachmentActionUpload {
   action: 'upload';
   file: File;
-  node: LayoutNode<'FileUpload' | 'FileUploadWithTag'>;
+  node: FileUploaderNode;
 }
 
 export interface AttachmentActionUpdate {
   action: 'update';
   tags: string[];
+  node: FileUploaderNode;
   attachment: UploadedAttachment;
 }
 
 export interface AttachmentActionRemove {
   action: 'delete';
+  node: FileUploaderNode;
   attachment: UploadedAttachment;
 }
 
+export type RawAttachmentAction<T extends AttachmentActionUpload | AttachmentActionUpdate | AttachmentActionRemove> =
+  Omit<T, 'action'>;
+
 export interface IAttachmentsCtx {
   attachments: IAttachments;
-  upload(action: AttachmentActionUpload): Promise<string | undefined>;
-  update(action: AttachmentActionUpdate): Promise<void>;
-  remove(action: AttachmentActionRemove): Promise<void>;
+  upload(action: RawAttachmentAction<AttachmentActionUpload>): Promise<string | undefined>;
+  update(action: RawAttachmentAction<AttachmentActionUpdate>): Promise<void>;
+  remove(action: RawAttachmentAction<AttachmentActionRemove>): Promise<void>;
 }
 
 interface IAttachmentTemporary {
