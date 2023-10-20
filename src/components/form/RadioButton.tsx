@@ -15,12 +15,12 @@ export interface IRadioButtonProps extends Omit<RadioProps, 'children'> {
 
 export const RadioButton = ({ showAsCard = false, label, helpText, hideLabel, ...rest }: IRadioButtonProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const Label = (
+  const Label = label ? (
     <div className={`${hideLabel ? 'sr-only' : ''} ${classes.radioLabelContainer}`}>
       {label}
       {helpText ? <HelpText title={getPlainTextFromNode(helpText)}>{helpText}</HelpText> : null}
     </div>
-  );
+  ) : null;
   if (showAsCard) {
     return (
       /** This element is only clickable for visual
