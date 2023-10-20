@@ -12,8 +12,8 @@ export interface IEditButtonProps {
 export function EditButton(props: IEditButtonProps) {
   return (
     <Button
-      variant='quiet'
-      color='secondary'
+      variant='tertiary'
+      color='second'
       size='small'
       icon={<Edit aria-hidden={true} />}
       iconPlacement='right'
