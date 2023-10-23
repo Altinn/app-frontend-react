@@ -100,6 +100,7 @@ export function EditWindowComponent({
 
     updateAttachment({
       attachment,
+      node,
       tags: [option.value],
     }).then();
   };

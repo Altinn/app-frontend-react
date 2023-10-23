@@ -44,7 +44,7 @@ describe('Frontend urlHelper.ts', () => {
       );
     });
     it('should return the expected url for fileTagUrl', () => {
-      expect(fileTagUrl('dataGuid')).toBe(
+      expect(fileTagUrl('dataGuid', undefined)).toBe(
         'https://local.altinn.cloud/ttd/test/instances/12345/instanceId-1234/data/dataGuid/tags',
       );
     });

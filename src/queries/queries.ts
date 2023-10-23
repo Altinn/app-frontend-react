@@ -1,13 +1,16 @@
 import type { AxiosRequestConfig } from 'axios';
 import type { JSONSchema7 } from 'json-schema';
 
-import { httpPost, putWithoutConfig } from 'src/utils/network/networking';
+import { httpDelete, httpPost, putWithoutConfig } from 'src/utils/network/networking';
 import { httpGet, httpPut } from 'src/utils/network/sharedNetworking';
 import {
   applicationLanguagesUrl,
   applicationMetadataApiUrl,
   applicationSettingsApiUrl,
   currentPartyUrl,
+  dataElementUrl,
+  fileTagUrl,
+  fileUploadUrl,
   getActiveInstancesUrl,
   getCreateInstancesUrl,
   getCustomValidationConfigUrl,
@@ -30,7 +33,7 @@ import {
   updateCookieUrl,
   validPartiesUrl,
 } from 'src/utils/urls/appUrlHelper';
-import { orgsListUrl } from 'src/utils/urls/urlHelper';
+import { customEncodeURI, orgsListUrl } from 'src/utils/urls/urlHelper';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
@@ -47,6 +50,7 @@ import type {
   IAltinnOrgs,
   IAppLanguage,
   IApplicationSettings,
+  IData,
   IInstance,
   IParty,
   IProcess,
@@ -79,6 +83,46 @@ export const doInstantiate = async (partyId: string): Promise<IInstance> =>
 
 export const doProcessNext = async (taskId?: string, language?: string, action?: IActionType): Promise<IProcess> =>
   httpPut(getProcessNextUrl(taskId, language), action ? { action } : null);
+
+export const doAttachmentUpload = async (dataTypeId: string, file: File): Promise<IData> => {
+  const url = fileUploadUrl(dataTypeId);
+  let contentType: string;
+  if (!file.type) {
+    contentType = `application/octet-stream`;
+  } else if (file.name.toLowerCase().endsWith('.csv')) {
+    contentType = 'text/csv';
+  } else {
+    contentType = file.type;
+  }
+
+  const config: AxiosRequestConfig = {
+    headers: {
+      'Content-Type': contentType,
+      'Content-Disposition': `attachment; filename=${customEncodeURI(file.name)}`,
+    },
+  };
+
+  return (await httpPost(url, config, file)).data;
+};
+
+export const doAttachmentRemoveTag = async (dataGuid: string, tagToRemove: string): Promise<void> =>
+  (await httpDelete(fileTagUrl(dataGuid, tagToRemove))).data;
+
+export const doAttachmentAddTag = async (dataGuid: string, tagToAdd: string): Promise<void> =>
+  (
+    await httpPost(
+      fileTagUrl(dataGuid, undefined),
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+      JSON.stringify(tagToAdd),
+    )
+  ).data;
+
+export const doAttachmentDelete = async (dataGuid: string): Promise<void> =>
+  (await httpDelete(dataElementUrl(dataGuid))).data;
 
 /**
  * Query functions (these should use httpGet and start with 'fetch')

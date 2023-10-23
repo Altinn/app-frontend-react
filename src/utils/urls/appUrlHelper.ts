@@ -28,7 +28,13 @@ export const textResourcesUrl = (language: string) => `${origin}/${org}/${app}/a
 export const fileUploadUrl = (attachmentType: string) =>
   `${appPath}/instances/${window.instanceId}/data?dataType=${attachmentType}`;
 
-export const fileTagUrl = (dataGuid: string) => `${appPath}/instances/${window.instanceId}/data/${dataGuid}/tags`;
+export const fileTagUrl = (dataGuid: string, tag: string | undefined) => {
+  if (tag) {
+    return `${appPath}/instances/${window.instanceId}/data/${dataGuid}/tags/${tag}`;
+  }
+
+  return `${appPath}/instances/${window.instanceId}/data/${dataGuid}/tags`;
+};
 
 export const dataElementUrl = (dataGuid: string) => `${appPath}/instances/${window.instanceId}/data/${dataGuid}`;
 

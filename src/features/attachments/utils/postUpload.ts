@@ -1,11 +1,14 @@
 import { useEffect } from 'react';
 import type React from 'react';
 
+import { useMutation } from '@tanstack/react-query';
 import { useImmerReducer } from 'use-immer';
 import type { AxiosError } from 'axios';
 import type { WritableDraft } from 'immer/dist/types/types-external';
 
+import { useAppMutations } from 'src/contexts/appQueriesContext';
 import { useMappedAttachments } from 'src/features/attachments/utils/mapping';
+import { useStrictInstance } from 'src/features/instance/InstanceContext';
 import type {
   AttachmentActionRemove,
   AttachmentActionUpdate,
@@ -14,6 +17,7 @@ import type {
   UploadedAttachment,
 } from 'src/features/attachments';
 import type { SimpleAttachments } from 'src/features/attachments/utils/mapping';
+import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 type Update = AttachmentActionUpdate & { success: undefined };
 type UpdateFulfilled = AttachmentActionUpdate & { success: true };
@@ -146,11 +150,112 @@ export const usePostUpload = () => {
   };
 };
 
-const useUpdate = (_dispatch: Dispatch) => async (_action: RawAttachmentAction<AttachmentActionUpdate>) => {
-  // PRIORITY: Implement. See updateAttachmentSaga
+const useUpdate = (dispatch: Dispatch) => {
+  const { mutateAsync: removeTag } = useAttachmentsRemoveTagMutation();
+  const { mutateAsync: addTag } = useAttachmentsAddTagMutation();
+  const { changeData: changeInstanceData } = useStrictInstance();
+
+  return async (action: RawAttachmentAction<AttachmentActionUpdate>) => {
+    const { tags, attachment } = action;
+    const tagToAdd = tags.filter((t) => !attachment.data.tags?.includes(t));
+    const tagToRemove = attachment.data.tags?.filter((t) => !tags.includes(t)) || [];
+    const areEqual = tagToAdd.length && tagToRemove.length && tagToAdd[0] === tagToRemove[0];
+
+    // If there are no tags to add or remove, or if the tags are the same, do nothing.
+    if ((!tagToAdd.length && !tagToRemove.length) || areEqual) {
+      return;
+    }
+
+    dispatch({ ...action, action: 'update', success: undefined });
+    try {
+      if (tagToAdd.length) {
+        await Promise.all(tagToAdd.map((tag) => addTag({ dataGuid: attachment.data.id, tagToAdd: tag })));
+      }
+      if (tagToRemove.length) {
+        await Promise.all(tagToRemove.map((tag) => removeTag({ dataGuid: attachment.data.id, tagToRemove: tag })));
+      }
+      dispatch({ ...action, action: 'update', success: true });
+
+      changeInstanceData((instance) => {
+        if (instance?.data) {
+          return {
+            ...instance,
+            data: instance.data.map((dataElement) => {
+              if (dataElement.id === attachment.data.id) {
+                return {
+                  ...dataElement,
+                  tags,
+                };
+              }
+              return dataElement;
+            }),
+          };
+        }
+      });
+    } catch (error) {
+      dispatch({ ...action, action: 'update', success: false, error });
+    }
+  };
 };
 
-const useRemove = (_dispatch: Dispatch) => async (_action: RawAttachmentAction<AttachmentActionRemove>) => {
-  // PRIORITY: Implement. If the target component also has a data model binding, remove the data from the data model
-  // as well. See deleteAttachmentSaga
+const useRemove = (dispatch: Dispatch) => {
+  const { mutateAsync: deleteAttachment } = useAttachmentsDeleteMutation();
+  const { changeData: changeInstanceData } = useStrictInstance();
+
+  return async (action: RawAttachmentAction<AttachmentActionRemove>) => {
+    // PRIORITY: Remove validations?
+
+    dispatch({ ...action, action: 'delete', success: undefined });
+    try {
+      await deleteAttachment(action.attachment.data.id);
+      dispatch({ ...action, action: 'delete', success: true });
+
+      changeInstanceData((instance) => {
+        if (instance?.data) {
+          return {
+            ...instance,
+            data: instance.data.filter((d) => d.id !== action.attachment.data.id),
+          };
+        }
+      });
+    } catch (error) {
+      // TODO: Add validations?
+      dispatch({ ...action, action: 'delete', success: false, error });
+    }
+  };
 };
+
+function useAttachmentsAddTagMutation() {
+  const { doAttachmentAddTag } = useAppMutations();
+
+  return useMutation({
+    mutationFn: ({ dataGuid, tagToAdd }: { dataGuid: string; tagToAdd: string }) =>
+      doAttachmentAddTag.call(dataGuid, tagToAdd),
+    onError: (error: HttpClientError) => {
+      window.logError('Failed to add tag to attachment:\n', error);
+    },
+  });
+}
+
+function useAttachmentsRemoveTagMutation() {
+  const { doAttachmentRemoveTag } = useAppMutations();
+
+  return useMutation({
+    mutationFn: ({ dataGuid, tagToRemove }: { dataGuid: string; tagToRemove: string }) =>
+      doAttachmentRemoveTag.call(dataGuid, tagToRemove),
+    onError: (error: HttpClientError) => {
+      window.logError('Failed to remove tag from attachment:\n', error);
+    },
+  });
+}
+
+function useAttachmentsDeleteMutation() {
+  const { doAttachmentDelete } = useAppMutations();
+
+  return useMutation({
+    mutationFn: (dataGuid: string) => doAttachmentDelete.call(dataGuid),
+    onError: (error: HttpClientError) => {
+      window.logError('Failed to delete attachment:\n', error);
+    },
+  });
+}

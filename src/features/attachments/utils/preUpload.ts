@@ -1,13 +1,13 @@
 import type React from 'react';
 
+import { useMutation } from '@tanstack/react-query';
 import { useImmerReducer } from 'use-immer';
 import { v4 as uuidv4 } from 'uuid';
-import type { AxiosRequestConfig } from 'axios';
+import type { UseMutationOptions } from '@tanstack/react-query';
 import type { WritableDraft } from 'immer/dist/types/types-external';
 
-import { httpPost } from 'src/utils/network/networking';
-import { fileUploadUrl } from 'src/utils/urls/appUrlHelper';
-import { customEncodeURI } from 'src/utils/urls/urlHelper';
+import { useAppMutations } from 'src/contexts/appQueriesContext';
+import { useStrictInstance } from 'src/features/instance/InstanceContext';
 import type {
   AttachmentActionUpload,
   IAttachment,
@@ -15,7 +15,9 @@ import type {
   RawAttachmentAction,
   TemporaryAttachment,
 } from 'src/features/attachments';
+import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 interface ActionUpload extends AttachmentActionUpload {
   temporaryId: string;
@@ -70,41 +72,64 @@ export const usePreUpload = () => {
  * Do not use this directly, use the `useAttachmentsUploader` hook instead.
  * @see useAttachmentsUploader
  */
-export const useUpload = (dispatch: Dispatch) => async (action: RawAttachmentAction<AttachmentActionUpload>) => {
-  const { node, file } = action;
-  const temporaryId = uuidv4();
-  dispatch({ ...action, temporaryId, action: 'upload' });
-  const url = fileUploadUrl(node.item.baseComponentId || node.item.id);
+export const useUpload = (dispatch: Dispatch) => {
+  const { changeData: changeInstanceData } = useStrictInstance();
+  const { mutateAsync } = useAttachmentsUploadMutation();
 
-  // PRIORITY: Reset validations for the whole component? That does not make sense, what if you upload multiple files?
+  return async (action: RawAttachmentAction<AttachmentActionUpload>) => {
+    const { node, file } = action;
+    const temporaryId = uuidv4();
+    dispatch({ ...action, temporaryId, action: 'upload' });
 
-  let contentType: string;
-  if (!file.type) {
-    contentType = `application/octet-stream`;
-  } else if (file.name.toLowerCase().endsWith('.csv')) {
-    contentType = 'text/csv';
-  } else {
-    contentType = file.type;
-  }
+    // PRIORITY: Reset validations for the whole component? That does not make sense, what if you upload multiple files?
 
-  const config: AxiosRequestConfig = {
-    headers: {
-      'Content-Type': contentType,
-      'Content-Disposition': `attachment; filename=${customEncodeURI(file.name)}`,
+    try {
+      const reply = await mutateAsync({
+        dataTypeId: node.item.baseComponentId || node.item.id,
+        file,
+      });
+      if (!reply || !reply.blobStoragePath) {
+        throw new Error('Failed to upload attachment');
+      }
+
+      dispatch({ action: 'remove', node, temporaryId });
+      changeInstanceData((instance) => {
+        if (instance?.data && reply) {
+          return {
+            ...instance,
+            data: [...instance.data, reply],
+          };
+        }
+
+        return instance;
+      });
+
+      // PRIORITY: Make sure to update the form data for nodes inside repeating groups
+    } catch (error) {
+      // PRIORITY: Handle error, register a validation error
+      dispatch({ action: 'remove', node, temporaryId });
+    }
+
+    // PRIORITY: Return the proper ID of the attachment when it is uploaded
+    // PRIORITY: See uploadAttachmentSaga and make sure this code re-implements everything needed
+    return temporaryId;
+  };
+};
+
+interface MutationVariables {
+  dataTypeId: string;
+  file: File;
+}
+
+function useAttachmentsUploadMutation() {
+  const { doAttachmentUpload } = useAppMutations();
+
+  const options: UseMutationOptions<IData, HttpClientError, MutationVariables> = {
+    mutationFn: ({ dataTypeId, file }: MutationVariables) => doAttachmentUpload.call(dataTypeId, file),
+    onError: (error: HttpClientError) => {
+      window.logError('Failed to upload attachment:\n', error.message);
     },
   };
 
-  try {
-    await httpPost(url, config, file);
-    dispatch({ action: 'remove', node, temporaryId });
-    // PRIORITY: Add to instance data, causing mapping to occur
-    // PRIORITY: Make sure to update the form data for nodes inside repeating groups
-  } catch (error) {
-    // PRIORITY: Handle error, register a validation error
-    dispatch({ action: 'remove', node, temporaryId });
-  }
-
-  // PRIORITY: Return the proper ID of the attachment when it is uploaded
-  // PRIORITY: See uploadAttachmentSaga and make sure this code re-implements everything needed
-  return temporaryId;
-};
+  return useMutation(options);
+}
