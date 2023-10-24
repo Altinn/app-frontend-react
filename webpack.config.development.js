@@ -15,31 +15,35 @@ if (enableNotifier) {
   plugins.push(new ForkTsCheckerNotifierWebpackPlugin());
 }
 
-const useSourceMaps = !('WEBPACK_SOURCE_MAPS' in env) || env.WEBPACK_SOURCE_MAPS === 'true';
+const enableSourceMaps = !('WEBPACK_SOURCE_MAPS' in env) || env.WEBPACK_SOURCE_MAPS === 'true';
+const enableMinify = !('WEBPACK_MINIFY' in env) || env.WEBPACK_MINIFY === 'true';
 
 console.log('Starting Altinn 3 app-frontend-react development server');
 console.log('See template.env for available environment variables and how to set them');
 console.log('');
 console.log('Current settings:');
 console.log('WEBPACK_SILENT =', !enableNotifier);
-console.log('WEBPACK_SOURCE_MAPS =', useSourceMaps);
+console.log('WEBPACK_SOURCE_MAPS =', enableSourceMaps);
+console.log('WEBPACK_MINIFY =', enableMinify);
 console.log('====================================');
 
 module.exports = {
   ...common,
   mode: 'development',
-  devtool: useSourceMaps ? 'inline-source-map' : false,
+  devtool: enableSourceMaps ? 'inline-source-map' : false,
   performance: {
     // We should fix this here: https://github.com/Altinn/app-frontend-react/issues/1597
     hints: false,
   },
   optimization: {
-    minimizer: [
-      new EsbuildPlugin({
-        target: 'es2020',
-        css: true,
-      }),
-    ],
+    minimizer: enableMinify
+      ? [
+          new EsbuildPlugin({
+            target: 'es2020',
+            css: true,
+          }),
+        ]
+      : [],
   },
   module: {
     rules: [
