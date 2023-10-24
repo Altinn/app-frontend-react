@@ -19,7 +19,8 @@ module.exports = {
   mode: 'development',
   devtool: 'inline-source-map',
   performance: {
-    hints: 'warning',
+    // We should fix this here: https://github.com/Altinn/app-frontend-react/issues/1597
+    hints: false,
   },
   optimization: {
     minimizer: [
