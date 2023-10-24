@@ -84,6 +84,7 @@
     "cypress-plugin-tab": "1.0.5",
     "cypress-wait-until": "^2.0.0",
     "dotenv": "16.3.1",
+    "esbuild-loader": "^4.0.2",
     "eslint": "8.52.0",
     "eslint-config-prettier": "9.0.0",
     "eslint-plugin-cypress": "2.15.1",
