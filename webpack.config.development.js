@@ -1,3 +1,6 @@
+/* eslint-disable no-console */
+const env = require('dotenv').config().parsed;
+
 const ForkTsCheckerNotifierWebpackPlugin = require('fork-ts-checker-notifier-webpack-plugin');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
@@ -5,19 +8,27 @@ const { EsbuildPlugin } = require('esbuild-loader');
 
 const common = require('./webpack.common');
 
-const enableEnv = 'NOTIFY_ON_ERRORS';
-const enableNotifier = !(enableEnv in process.env) || process.env[enableEnv] === 'true';
-
+const enableNotifier = !('WEBPACK_SILENT' in env) || env.WEBPACK_SILENT === 'false';
 const plugins = [...common.plugins, new ReactRefreshWebpackPlugin()];
 
 if (enableNotifier) {
   plugins.push(new ForkTsCheckerNotifierWebpackPlugin());
 }
 
+const useSourceMaps = !('WEBPACK_SOURCE_MAPS' in env) || env.WEBPACK_SOURCE_MAPS === 'true';
+
+console.log('Starting Altinn 3 app-frontend-react development server');
+console.log('See template.env for available environment variables and how to set them');
+console.log('');
+console.log('Current settings:');
+console.log('WEBPACK_SILENT =', !enableNotifier);
+console.log('WEBPACK_SOURCE_MAPS =', useSourceMaps);
+console.log('====================================');
+
 module.exports = {
   ...common,
   mode: 'development',
-  devtool: 'inline-source-map',
+  devtool: useSourceMaps ? 'inline-source-map' : false,
   performance: {
     // We should fix this here: https://github.com/Altinn/app-frontend-react/issues/1597
     hints: false,
