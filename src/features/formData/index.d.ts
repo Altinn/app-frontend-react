@@ -18,13 +18,8 @@ export interface IFormDataState {
   saving: boolean;
 
   // Indicates that form has been validated and is ready to move to the next process step (set when the submit button
-  // is clicked and validation is OK)
-  submitting: {
-    // The component IDs which triggered a submit (saving the form data in order to move to the next step)
-    id: string;
-
-    state: 'pending' | 'ready' | 'inactive';
-  };
+  // is clicked and validation is OK). If validation fails, the state will be set back to 'inactive'.
+  submittingState: 'inactive' | 'validating' | 'validationSuccessful';
 
   error: Error | null;
 

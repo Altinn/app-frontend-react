@@ -2,7 +2,6 @@ import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import cn from 'classnames';
-import type { AxiosError } from 'axios';
 
 import { AltinnContentIconFormData } from 'src/components/atoms/AltinnContentIconFormData';
 import { Form } from 'src/components/form/Form';
@@ -13,7 +12,6 @@ import { Confirm } from 'src/features/confirm/containers/Confirm';
 import { Feedback } from 'src/features/feedback/Feedback';
 import { useStrictInstance } from 'src/features/instance/InstanceContext';
 import { useRealTaskType } from 'src/features/instance/ProcessContext';
-import { ForbiddenError } from 'src/features/instantiate/containers/ForbiddenError';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { useIsLoading } from 'src/features/isLoading/useIsLoading';
 import { PDFView } from 'src/features/pdf/PDFView';
@@ -22,7 +20,6 @@ import { useApiErrorCheck } from 'src/hooks/useApiErrorCheck';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
 import { ProcessTaskType } from 'src/types';
-import { checkIfAxiosError, HttpStatusCodes } from 'src/utils/network/networking';
 
 export interface IProcessWrapperProps {
   isFetching?: boolean;
@@ -34,7 +31,6 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
   const { hasApiErrors } = useApiErrorCheck();
   const appName = useAppSelector(selectAppName);
   const appOwner = useAppSelector(selectAppOwner);
-  const { error: processError } = useStrictInstance().processNavigation;
   const taskType = useRealTaskType();
 
   const [searchParams] = useSearchParams();
@@ -49,13 +45,7 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
     ? 'fetching-instance'
     : undefined;
 
-  if (hasApiErrors || processError) {
-    if (checkIfAxiosError(processError)) {
-      const axiosError = processError as AxiosError;
-      if (axiosError.status === HttpStatusCodes.Forbidden) {
-        return <ForbiddenError />;
-      }
-    }
+  if (hasApiErrors) {
     return <UnknownError />;
   }
 

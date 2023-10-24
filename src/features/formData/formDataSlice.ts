@@ -6,7 +6,6 @@ import type {
   IFetchFormDataFulfilled,
   IFormDataRejected,
   ISaveAction,
-  ISubmitDataAction,
   IUpdateFormData,
 } from 'src/features/formData/formDataTypes';
 import type { IFormData, IFormDataState } from 'src/features/formData/index';
@@ -17,10 +16,7 @@ export const initialState: IFormDataState = {
   lastSavedFormData: {},
   unsavedChanges: false,
   saving: false,
-  submitting: {
-    id: '',
-    state: 'inactive',
-  },
+  submittingState: 'inactive',
   error: null,
   reFetch: false,
 };
@@ -57,12 +53,10 @@ export const formDataSlice = () => {
           state.formData = formData;
         },
       }),
-      submit: mkAction<ISubmitDataAction>({
+      submit: mkAction<void>({
         takeEvery: submitFormSaga,
-        reducer: (state, action) => {
-          const { componentId } = action.payload;
-          state.submitting.id = componentId;
-          state.submitting.state = 'pending';
+        reducer: (state) => {
+          state.submittingState = 'validating';
         },
       }),
       submitFulfilled: mkAction<void>({
@@ -74,19 +68,17 @@ export const formDataSlice = () => {
         reducer: (state, action) => {
           const { error } = action.payload;
           state.error = error;
-          state.submitting.id = '';
-          state.submitting.state = 'inactive';
+          state.submittingState = 'inactive';
         },
       }),
       submitReady: mkAction<void>({
         reducer: (state) => {
-          state.submitting.state = 'ready';
+          state.submittingState = 'validationSuccessful';
         },
       }),
       submitClear: mkAction<void>({
         reducer: (state) => {
-          state.submitting.id = '';
-          state.submitting.state = 'inactive';
+          state.submittingState = 'inactive';
         },
       }),
       savingStarted: mkAction<void>({

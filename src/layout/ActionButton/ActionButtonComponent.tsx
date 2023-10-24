@@ -5,7 +5,7 @@ import { Button } from '@digdir/design-system-react';
 import type { PropsFromGenericComponent } from '..';
 
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
-import { useProcessNext } from 'src/features/instance/useProcessNext';
+import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { ButtonLoader } from 'src/layout/Button/ButtonLoader';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -20,7 +20,7 @@ export const buttonStyles: { [style in ActionButtonStyle]: { color: ButtonColor;
 export type IActionButton = PropsFromGenericComponent<'ActionButton'>;
 
 export function ActionButtonComponent({ node }: IActionButton) {
-  const { busyWithId, isLoading, mutate } = useProcessNext(node.item.id);
+  const { busyWithId, busy, next } = useProcessNavigation() || {};
   const actionPermissions = useLaxProcessData()?.currentTask?.actions;
   const { lang } = useLanguage();
 
@@ -29,8 +29,8 @@ export function ActionButtonComponent({ node }: IActionButton) {
   const isLoadingHere = busyWithId === id;
 
   function handleClick() {
-    if (!disabled && !isLoading) {
-      mutate({ action });
+    if (!disabled && !busy) {
+      next && next({ action, nodeId: id });
     }
   }
 
@@ -50,7 +50,7 @@ export function ActionButtonComponent({ node }: IActionButton) {
         id={`action-button-${id}`}
         variant={variant}
         color={color}
-        disabled={disabled || isLoadingHere || isLoading}
+        disabled={disabled || isLoadingHere || busy}
         onClick={handleClick}
       >
         {buttonText}

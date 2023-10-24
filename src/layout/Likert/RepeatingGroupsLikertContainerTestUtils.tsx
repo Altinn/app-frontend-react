@@ -210,10 +210,7 @@ export const render = ({
     formData: generateMockFormData(mockQuestions),
     lastSavedFormData: {},
     error: null,
-    submitting: {
-      id: '',
-      state: 'inactive',
-    },
+    submittingState: 'inactive',
     unsavedChanges: false,
     saving: false,
   };

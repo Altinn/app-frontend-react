@@ -1,8 +1,7 @@
 import React from 'react';
 
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
-import { useProcessNext } from 'src/features/instance/useProcessNext';
-import { useCanSubmitForm } from 'src/hooks/useCanSubmitForm';
+import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { getComponentFromMode } from 'src/layout/Button/getComponentFromMode';
 import { SubmitButton } from 'src/layout/Button/SubmitButton';
@@ -17,13 +16,12 @@ export type IButtonProvidedProps =
 
 export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProps) => {
   const { mode } = node.item;
-  const { lang } = useLanguage();
+  const { lang, langAsString } = useLanguage();
   const props: IButtonProvidedProps = { ...componentProps, ...node.item, node };
 
   const currentTaskType = useLaxProcessData()?.currentTask?.altinnTaskType;
   const { actions, write } = useLaxProcessData()?.currentTask || {};
-  const { canSubmit, busyWithId, message } = useCanSubmitForm();
-  const { mutate: processNext } = useProcessNext(node.item.id);
+  const { next, canSubmit, busyWithId, attachmentsPending } = useProcessNavigation() || {};
 
   const disabled =
     !canSubmit || (currentTaskType === 'data' && !write) || (currentTaskType === 'confirmation' && !actions?.confirm);
@@ -44,11 +42,11 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
   }
 
   const submitTask = () => {
-    if (!disabled) {
+    if (!disabled && next) {
       if (currentTaskType === 'data') {
-        processNext({});
+        next({ nodeId: node.item.id });
       } else if (currentTaskType === 'confirmation') {
-        processNext({ action: 'confirm' });
+        next({ nodeId: node.item.id, action: 'confirm' });
       }
     }
   };
@@ -59,7 +57,7 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
         onClick={() => submitTask()}
         busyWithId={busyWithId}
         disabled={disabled}
-        message={message}
+        message={attachmentsPending ? langAsString('general.wait_for_attachments') : undefined}
       >
         {lang(node.item.textResourceBindings?.title)}
       </SubmitButton>

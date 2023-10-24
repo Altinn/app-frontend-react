@@ -5,10 +5,10 @@ import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
+import { DisplayError } from 'src/features/errorHandling/DisplayError';
 import { FormProvider } from 'src/features/form/FormContext';
 import { ProcessProvider } from 'src/features/instance/ProcessContext';
-import { ForbiddenError } from 'src/features/instantiate/containers/ForbiddenError';
-import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
+import { ProcessNavigationProvider } from 'src/features/instance/ProcessNavigationContext';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import { Loader } from 'src/features/isLoading/Loader';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
@@ -35,15 +35,6 @@ export interface InstanceContext {
   // Methods/utilities
   changeData: ChangeInstanceData;
   reFetch: () => Promise<void>;
-
-  // Process navigation state
-  processNavigation: {
-    busy: boolean;
-    busyWithId: string | undefined;
-    setBusyWithId: (id: string | undefined) => void;
-    error: AxiosError | undefined;
-    setError: (error: AxiosError | undefined) => void;
-  };
 }
 
 export type ChangeInstanceData = (callback: (instance: IInstance | undefined) => IInstance | undefined) => void;
@@ -106,8 +97,6 @@ const InnerInstanceProvider = ({
   partyId: string;
   instanceGuid: string;
 }) => {
-  const [busyWithId, setBusyWithId] = useState<string | undefined>(undefined);
-  const [processNavigationError, setProcessNavigationError] = useState<AxiosError | undefined>(undefined);
   const dispatch = useAppDispatch();
 
   const [forceFetching, setForceFetching] = useState(false);
@@ -127,12 +116,11 @@ const InnerInstanceProvider = ({
   useEffect(() => {
     fetchQuery.error && setError(fetchQuery.error);
     instantiation.error && setError(instantiation.error);
-    processNavigationError && setError(processNavigationError);
 
     if (fetchQuery.error) {
       tmpSagaInstanceData.current = null;
     }
-  }, [fetchQuery.error, instantiation.error, processNavigationError]);
+  }, [fetchQuery.error, instantiation.error]);
 
   const changeData: ChangeInstanceData = useCallback((callback) => {
     setData((prev) => {
@@ -154,11 +142,7 @@ const InnerInstanceProvider = ({
   window.instanceId = instanceId;
 
   if (error) {
-    if (error.response?.status === 403) {
-      return <ForbiddenError />;
-    }
-
-    return <UnknownError />;
+    return <DisplayError error={error} />;
   }
 
   if (!data) {
@@ -180,17 +164,12 @@ const InnerInstanceProvider = ({
         partyId,
         instanceGuid,
         instanceId,
-        processNavigation: {
-          busy: !!busyWithId,
-          busyWithId,
-          setBusyWithId,
-          error: processNavigationError,
-          setError: setProcessNavigationError,
-        },
       }}
     >
       <ProcessProvider instance={data}>
-        <FormProvider>{children}</FormProvider>
+        <FormProvider>
+          <ProcessNavigationProvider>{children}</ProcessNavigationProvider>
+        </FormProvider>
       </ProcessProvider>
     </Provider>
   );

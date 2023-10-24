@@ -1,16 +1,9 @@
-import type { IDataModelBindings } from 'src/layout/layout';
-
 export interface IFetchFormDataFulfilled {
   formData: any;
 }
 
 export interface IFormDataRejected {
   error: Error | null;
-}
-
-export interface ISubmitDataAction {
-  url?: string;
-  componentId: string;
 }
 
 export interface ISingleFieldValidation {
@@ -31,10 +24,4 @@ export interface IUpdateFormData {
   componentId?: string;
   field: string;
   data: any;
-}
-
-export interface IDeleteAttachmentReference {
-  attachmentId: string;
-  componentId: string;
-  dataModelBindings: IDataModelBindings<'FileUpload' | 'FileUploadWithTag'>;
 }
