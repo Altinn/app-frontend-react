@@ -1,6 +1,7 @@
 const ForkTsCheckerNotifierWebpackPlugin = require('fork-ts-checker-notifier-webpack-plugin');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
-const ReactRefreshTypeScript = require('react-refresh-typescript');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const { EsbuildPlugin } = require('esbuild-loader');
 
 const common = require('./webpack.common');
 
@@ -20,27 +21,30 @@ module.exports = {
   performance: {
     hints: 'warning',
   },
+  optimization: {
+    minimizer: [
+      new EsbuildPlugin({
+        target: 'es2020',
+        css: true,
+      }),
+    ],
+  },
   module: {
     rules: [
-      ...common.module.rules,
       {
-        test: /\.tsx?/,
-        use: [
-          {
-            loader: 'ts-loader',
-            options: {
-              getCustomTransformers: () => ({
-                before: [ReactRefreshTypeScript()],
-              }),
-              transpileOnly: true,
-            },
-          },
-        ],
+        test: /\.[jt]sx?$/,
+        loader: 'esbuild-loader',
+        options: {
+          target: 'es2020',
+        },
       },
       {
-        enforce: 'pre',
-        test: /\.js$/,
-        loader: 'source-map-loader',
+        test: /\.css$/,
+        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+      },
+      {
+        test: /\.png$/,
+        type: 'asset/resource',
       },
     ],
   },
