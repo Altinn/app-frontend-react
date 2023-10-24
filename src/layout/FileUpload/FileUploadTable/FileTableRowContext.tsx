@@ -8,5 +8,5 @@ export interface FileTableRowContext {
 
 const { Provider, useCtx } = createStrictContext<FileTableRowContext>();
 
-export const FileTableRowContextProvider = Provider;
-export const useFileTableRowContext = () => useCtx();
+export const FileTableRowProvider = Provider;
+export const useFileTableRow = () => useCtx();

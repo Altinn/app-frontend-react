@@ -7,7 +7,7 @@ import type { UseMutationOptions } from '@tanstack/react-query';
 import type { WritableDraft } from 'immer/dist/types/types-external';
 
 import { useAppMutations } from 'src/contexts/appQueriesContext';
-import { useStrictInstance } from 'src/features/instance/InstanceContext';
+import { useLaxInstance } from 'src/features/instance/InstanceContext';
 import type {
   AttachmentActionUpload,
   IAttachment,
@@ -73,7 +73,7 @@ export const usePreUpload = () => {
  * @see useAttachmentsUploader
  */
 export const useUpload = (dispatch: Dispatch) => {
-  const { changeData: changeInstanceData } = useStrictInstance();
+  const { changeData: changeInstanceData } = useLaxInstance() || {};
   const { mutateAsync } = useAttachmentsUploadMutation();
 
   return async (action: RawAttachmentAction<AttachmentActionUpload>) => {
@@ -93,26 +93,26 @@ export const useUpload = (dispatch: Dispatch) => {
       }
 
       dispatch({ action: 'remove', node, temporaryId });
-      changeInstanceData((instance) => {
-        if (instance?.data && reply) {
-          return {
-            ...instance,
-            data: [...instance.data, reply],
-          };
-        }
+      changeInstanceData &&
+        changeInstanceData((instance) => {
+          if (instance?.data && reply) {
+            return {
+              ...instance,
+              data: [...instance.data, reply],
+            };
+          }
 
-        return instance;
-      });
+          return instance;
+        });
 
-      // PRIORITY: Make sure to update the form data for nodes inside repeating groups
+      return reply.id;
     } catch (error) {
       // PRIORITY: Handle error, register a validation error
       dispatch({ action: 'remove', node, temporaryId });
     }
 
-    // PRIORITY: Return the proper ID of the attachment when it is uploaded
     // PRIORITY: See uploadAttachmentSaga and make sure this code re-implements everything needed
-    return temporaryId;
+    return undefined;
   };
 };
 

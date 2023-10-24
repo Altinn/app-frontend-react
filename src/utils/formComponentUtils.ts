@@ -11,13 +11,18 @@ import type {
   ITableColumnFormatting,
   ITableColumnProperties,
 } from 'src/layout/common.generated';
-import type { ITextResourceBindings } from 'src/layout/layout';
+import type { CompInternal, CompTypes, IDataModelBindings, ITextResourceBindings } from 'src/layout/layout';
+import type { IDataModelBindingsForList } from 'src/layout/List/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IComponentValidations } from 'src/utils/validation/types';
 
-export interface IComponentFormData {
-  [binding: string]: string | undefined;
-}
+export type BindingToValues<B extends IDataModelBindings | undefined> = B extends undefined
+  ? { [key: string]: undefined }
+  : B extends IDataModelBindingsForList
+  ? { list: string[] | undefined }
+  : { [key in keyof B]: string | undefined };
+
+export type IComponentFormData<T extends CompTypes> = BindingToValues<CompInternal<T>['dataModelBindings']>;
 
 export function getFileUploadComponentValidations(
   validationError: 'upload' | 'update' | 'delete' | null,

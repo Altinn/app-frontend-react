@@ -8,7 +8,7 @@ import type { WritableDraft } from 'immer/dist/types/types-external';
 
 import { useAppMutations } from 'src/contexts/appQueriesContext';
 import { useMappedAttachments } from 'src/features/attachments/utils/mapping';
-import { useStrictInstance } from 'src/features/instance/InstanceContext';
+import { useLaxInstance } from 'src/features/instance/InstanceContext';
 import type {
   AttachmentActionRemove,
   AttachmentActionUpdate,
@@ -89,7 +89,7 @@ function postUploadedReducer(draft: WritableDraft<IAttachments<UploadedAttachmen
     }
     return draft;
   }
-  if (action.action === 'delete' && action.success === undefined) {
+  if (action.action === 'remove' && action.success === undefined) {
     const { attachment, node } = action;
 
     const attachments = draft[node.item.id];
@@ -101,7 +101,7 @@ function postUploadedReducer(draft: WritableDraft<IAttachments<UploadedAttachmen
     }
     return draft;
   }
-  if (action.action === 'delete' && action.success) {
+  if (action.action === 'remove' && action.success) {
     const { attachment, node } = action;
 
     const attachments = draft[node.item.id];
@@ -113,7 +113,7 @@ function postUploadedReducer(draft: WritableDraft<IAttachments<UploadedAttachmen
     }
     return draft;
   }
-  if (action.action === 'delete' && !action.success) {
+  if (action.action === 'remove' && !action.success) {
     const { attachment, node, error } = action;
 
     const attachments = draft[node.item.id];
@@ -153,7 +153,7 @@ export const usePostUpload = () => {
 const useUpdate = (dispatch: Dispatch) => {
   const { mutateAsync: removeTag } = useAttachmentsRemoveTagMutation();
   const { mutateAsync: addTag } = useAttachmentsAddTagMutation();
-  const { changeData: changeInstanceData } = useStrictInstance();
+  const { changeData: changeInstanceData } = useLaxInstance() || {};
 
   return async (action: RawAttachmentAction<AttachmentActionUpdate>) => {
     const { tags, attachment } = action;
@@ -176,22 +176,23 @@ const useUpdate = (dispatch: Dispatch) => {
       }
       dispatch({ ...action, action: 'update', success: true });
 
-      changeInstanceData((instance) => {
-        if (instance?.data) {
-          return {
-            ...instance,
-            data: instance.data.map((dataElement) => {
-              if (dataElement.id === attachment.data.id) {
-                return {
-                  ...dataElement,
-                  tags,
-                };
-              }
-              return dataElement;
-            }),
-          };
-        }
-      });
+      changeInstanceData &&
+        changeInstanceData((instance) => {
+          if (instance?.data) {
+            return {
+              ...instance,
+              data: instance.data.map((dataElement) => {
+                if (dataElement.id === attachment.data.id) {
+                  return {
+                    ...dataElement,
+                    tags,
+                  };
+                }
+                return dataElement;
+              }),
+            };
+          }
+        });
     } catch (error) {
       dispatch({ ...action, action: 'update', success: false, error });
     }
@@ -199,28 +200,29 @@ const useUpdate = (dispatch: Dispatch) => {
 };
 
 const useRemove = (dispatch: Dispatch) => {
-  const { mutateAsync: deleteAttachment } = useAttachmentsDeleteMutation();
-  const { changeData: changeInstanceData } = useStrictInstance();
+  const { mutateAsync: removeAttachment } = useAttachmentsRemoveMutation();
+  const { changeData: changeInstanceData } = useLaxInstance() || {};
 
   return async (action: RawAttachmentAction<AttachmentActionRemove>) => {
     // PRIORITY: Remove validations?
 
-    dispatch({ ...action, action: 'delete', success: undefined });
+    dispatch({ ...action, action: 'remove', success: undefined });
     try {
-      await deleteAttachment(action.attachment.data.id);
-      dispatch({ ...action, action: 'delete', success: true });
+      await removeAttachment(action.attachment.data.id);
+      dispatch({ ...action, action: 'remove', success: true });
 
-      changeInstanceData((instance) => {
-        if (instance?.data) {
-          return {
-            ...instance,
-            data: instance.data.filter((d) => d.id !== action.attachment.data.id),
-          };
-        }
-      });
+      changeInstanceData &&
+        changeInstanceData((instance) => {
+          if (instance?.data) {
+            return {
+              ...instance,
+              data: instance.data.filter((d) => d.id !== action.attachment.data.id),
+            };
+          }
+        });
     } catch (error) {
       // TODO: Add validations?
-      dispatch({ ...action, action: 'delete', success: false, error });
+      dispatch({ ...action, action: 'remove', success: false, error });
     }
   };
 };
@@ -249,11 +251,11 @@ function useAttachmentsRemoveTagMutation() {
   });
 }
 
-function useAttachmentsDeleteMutation() {
-  const { doAttachmentDelete } = useAppMutations();
+function useAttachmentsRemoveMutation() {
+  const { doAttachmentRemove } = useAppMutations();
 
   return useMutation({
-    mutationFn: (dataGuid: string) => doAttachmentDelete.call(dataGuid),
+    mutationFn: (dataGuid: string) => doAttachmentRemove.call(dataGuid),
     onError: (error: HttpClientError) => {
       window.logError('Failed to delete attachment:\n', error);
     },

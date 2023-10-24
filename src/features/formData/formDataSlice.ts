@@ -110,6 +110,17 @@ export const formDataSlice = () => {
           // Remove if data is null, undefined or empty string
           if (data === undefined || data === null || data === '') {
             delete state.formData[field];
+          } else if (Array.isArray(data)) {
+            // The list binding can be used to store array data. When the update action is called, it replaces
+            // the entire array with the new data.
+            for (const key of Object.keys(state.formData)) {
+              if (key.startsWith(`${field}[`)) {
+                delete state.formData[key];
+              }
+            }
+            for (let i = 0; i < data.length; i++) {
+              state.formData[`${field}[${i}]`] = data[i];
+            }
           } else {
             state.formData[field] = data;
           }

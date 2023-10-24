@@ -19,7 +19,7 @@ export interface AttachmentActionUpdate {
 }
 
 export interface AttachmentActionRemove {
-  action: 'delete';
+  action: 'remove';
   node: FileUploaderNode;
   attachment: UploadedAttachment;
 }

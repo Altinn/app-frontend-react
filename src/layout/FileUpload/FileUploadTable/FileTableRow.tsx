@@ -8,7 +8,7 @@ import { useLanguage } from 'src/hooks/useLanguage';
 import { AttachmentFileName } from 'src/layout/FileUpload/FileUploadTable/AttachmentFileName';
 import { FileTableButtons } from 'src/layout/FileUpload/FileUploadTable/FileTableButtons';
 import classes from 'src/layout/FileUpload/FileUploadTable/FileTableRow.module.css';
-import { useFileTableRowContext } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
+import { useFileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import type { IAttachment } from 'src/features/attachments';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -117,7 +117,7 @@ const NameCell = ({
 
 const FileTypeCell = ({ tagLabel }: { tagLabel: string | undefined }) => {
   const { langAsString } = useLanguage();
-  const { index } = useFileTableRowContext();
+  const { index } = useFileTableRow();
   return <td key={`attachment-tag-${index}`}>{tagLabel && langAsString(tagLabel)}</td>;
 };
 
@@ -160,22 +160,27 @@ interface IButtonCellContentProps {
 
 const ButtonCellContent = ({ deleting, node, mobileView, attachment }: IButtonCellContentProps) => {
   const { langAsString } = useLanguage();
-  return (
-    <td>
-      {deleting ? (
+
+  if (deleting) {
+    return (
+      <td>
         <AltinnLoader
           id='loader-delete'
           className={classes.deleteLoader}
           srContent={langAsString('general.loading')}
         />
-      ) : (
-        <FileTableButtons
-          node={node}
-          mobileView={mobileView}
-          attachment={attachment}
-          editWindowIsOpen={false}
-        />
-      )}
+      </td>
+    );
+  }
+
+  return (
+    <td>
+      <FileTableButtons
+        node={node}
+        mobileView={mobileView}
+        attachment={attachment}
+        editWindowIsOpen={false}
+      />
     </td>
   );
 };

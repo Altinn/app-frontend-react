@@ -1,3 +1,4 @@
+import deepEqual from 'fast-deep-equal';
 import { call, put, select } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
@@ -5,8 +6,10 @@ import type { SagaIterator } from 'redux-saga';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { implementsAnyValidation } from 'src/layout';
+import { flattenObject } from 'src/utils/databindings';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { createComponentValidationResult, validationContextFromState } from 'src/utils/validation/validationHelpers';
+import type { IFormData } from 'src/features/formData';
 import type { IUpdateFormData } from 'src/features/formData/formDataTypes';
 import type { IRuntimeState } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
@@ -53,7 +56,15 @@ function* runValidations(field: string, data: any, componentId: string | undefin
     return;
   }
 
-  const overrideFormData = { [field]: data?.length ? data : undefined };
+  const overrideFormData: IFormData = {};
+  if (typeof data === 'string' && data.length) {
+    overrideFormData[field] = data;
+  } else if (Array.isArray(data) && data.length) {
+    const flat = flattenObject(data);
+    for (const key of Object.keys(flat)) {
+      overrideFormData[`${field}${key}`] = flat[key];
+    }
+  }
 
   if (implementsAnyValidation(node.def)) {
     const validationObjects = node.runValidations((node) => validationContextFromState(state, node), {
@@ -83,30 +94,13 @@ function shouldUpdateFormData(currentData: any, newData: any): boolean {
     return true;
   }
 
+  if (Array.isArray(newData) && newData.length === 0 && !currentData) {
+    return false;
+  }
+
+  if (Array.isArray(newData) && Array.isArray(currentData)) {
+    return !deepEqual(newData, currentData);
+  }
+
   return currentData !== newData;
 }
-
-export const SelectFormData = (s: IRuntimeState) => s.formData.formData;
-
-/*
-export function* deleteAttachmentReferenceSaga({
-  payload: { attachmentId, componentId, dataModelBindings },
-}: PayloadAction<IDeleteAttachmentReference>): SagaIterator {
-  try {
-    const formData: IFormData = yield select(SelectFormData);
-
-    const updatedFormData = removeAttachmentReference(
-      formData,
-      attachmentId,
-      attachments,
-      dataModelBindings,
-      componentId,
-    );
-
-    yield put(FormDataActions.setFulfilled({ formData: updatedFormData }));
-    yield put(FormDataActions.saveEvery({ componentId }));
-  } catch (err) {
-    window.logError('Delete attachment reference failed:\n', err);
-  }
-}
-*/

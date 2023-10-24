@@ -57,7 +57,7 @@ export const renderWithProviders = (
       doAttachmentUpload: () => Promise.reject(null),
       doAttachmentRemoveTag: () => Promise.reject(null),
       doAttachmentAddTag: () => Promise.reject(null),
-      doAttachmentDelete: () => Promise.reject(null),
+      doAttachmentRemove: () => Promise.reject(null),
       fetchActiveInstances: () => Promise.resolve([]),
       fetchApplicationMetadata: () => Promise.resolve({} as unknown as IApplicationMetadata),
       fetchCurrentParty: () => Promise.resolve({}),
@@ -160,7 +160,7 @@ export function renderGenericComponentTest<T extends CompTypes>({
     const node = useResolvedNode(realComponentDef.id) as any;
     const props: PropsFromGenericComponent<T> = {
       node,
-      ...mockComponentProps,
+      ...(mockComponentProps as unknown as IComponentProps<T>),
       ...genericProps,
     };
 
@@ -179,7 +179,7 @@ export function renderGenericComponentTest<T extends CompTypes>({
   };
 }
 
-export const mockComponentProps: IComponentProps & { id: string } = {
+export const mockComponentProps: IComponentProps<CompTypes> & { id: string } = {
   id: 'component-id',
   formData: {},
   handleDataChange: () => {

@@ -121,7 +121,7 @@ export const doAttachmentAddTag = async (dataGuid: string, tagToAdd: string): Pr
     )
   ).data;
 
-export const doAttachmentDelete = async (dataGuid: string): Promise<void> =>
+export const doAttachmentRemove = async (dataGuid: string): Promise<void> =>
   (await httpDelete(dataElementUrl(dataGuid))).data;
 
 /**

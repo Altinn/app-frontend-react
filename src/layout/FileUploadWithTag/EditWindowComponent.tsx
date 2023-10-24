@@ -11,7 +11,7 @@ import { useFormattedOptions } from 'src/hooks/useFormattedOptions';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { AttachmentFileName } from 'src/layout/FileUpload/FileUploadTable/AttachmentFileName';
 import { FileTableButtons } from 'src/layout/FileUpload/FileUploadTable/FileTableButtons';
-import { useFileTableRowContext } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
+import { useFileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
 import classes from 'src/layout/FileUploadWithTag/EditWindowComponent.module.css';
 import { renderValidationMessages } from 'src/utils/render';
 import type { IAttachment } from 'src/features/attachments';
@@ -45,7 +45,7 @@ export function EditWindowComponent({
 }: EditWindowProps): React.JSX.Element {
   const { textResourceBindings, readOnly } = node.item;
   const { lang, langAsString } = useLanguage();
-  const { setEditIndex } = useFileTableRowContext();
+  const { setEditIndex } = useFileTableRow();
   const uploadedAttachment = isAttachmentUploaded(attachment) ? attachment : undefined;
   const rawSelectedTag = uploadedAttachment?.data.tags ? uploadedAttachment.data.tags[0] : undefined;
   const [chosenOption, setChosenOption] = useState<IOption | undefined>(

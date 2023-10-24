@@ -43,7 +43,7 @@ const _componentsTypeCheck: {
   ...ComponentConfigs,
 };
 
-export interface IComponentProps {
+export interface IComponentProps<T extends CompTypes> {
   handleDataChange: (
     value: string | undefined,
     options?: {
@@ -54,12 +54,12 @@ export interface IComponentProps {
   shouldFocus: boolean;
   label: () => JSX.Element | null;
   legend: () => JSX.Element | null;
-  formData: IComponentFormData;
+  formData: IComponentFormData<T>;
   isValid?: boolean;
   componentValidations?: IComponentValidations;
 }
 
-export interface PropsFromGenericComponent<T extends CompTypes = CompTypes> extends IComponentProps {
+export interface PropsFromGenericComponent<T extends CompTypes = CompTypes> extends IComponentProps<T> {
   node: LayoutNode<T>;
   overrideItemProps?: Partial<Omit<CompInternal<T>, 'id'>>;
   overrideDisplay?: IGenericComponentProps<T>['overrideDisplay'];

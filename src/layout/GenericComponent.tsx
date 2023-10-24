@@ -23,6 +23,7 @@ import type { IGridStyling } from 'src/layout/common.generated';
 import type { IComponentProps, IFormComponentContext, PropsFromGenericComponent } from 'src/layout/index';
 import type { CompInternal, CompTypes, ITextResourceBindings } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
+import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IGenericComponentProps<Type extends CompTypes> {
@@ -112,7 +113,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
   const hidden = node.isHidden();
   const { lang, langAsString } = useLanguage(node);
 
-  const formData = node.getFormData();
+  const formData = node.getFormData() as IComponentFormData<Type>;
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
   const isValid = !node.hasValidationMessages('errors');
 
@@ -169,7 +170,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     return null;
   }
 
-  const handleDataChange: IComponentProps['handleDataChange'] = (value, options = {}) => {
+  const handleDataChange: IComponentProps<Type>['handleDataChange'] = (value, options = {}) => {
     const { key = 'simpleBinding', validate = true } = options;
 
     if (!dataModelBindings || !dataModelBindings[key]) {
@@ -260,7 +261,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     );
   };
 
-  const fixedComponentProps: IComponentProps = {
+  const fixedComponentProps: IComponentProps<Type> = {
     handleDataChange,
     formData,
     isValid,

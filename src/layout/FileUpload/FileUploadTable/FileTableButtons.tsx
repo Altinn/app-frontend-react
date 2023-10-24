@@ -7,10 +7,11 @@ import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
 import { isAttachmentUploaded } from 'src/features/attachments';
 import { useAttachmentsRemover } from 'src/features/attachments/AttachmentsContext';
+import { useAttachmentsMappedToFormDataProvider } from 'src/features/attachments/useAttachmentsMappedToFormData';
 import { useAlertOnChange } from 'src/hooks/useAlertOnChange';
 import { useLanguage } from 'src/hooks/useLanguage';
 import classes from 'src/layout/FileUpload/FileUploadTable/FileTableRow.module.css';
-import { useFileTableRowContext } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
+import { useFileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
 import type { IAttachment } from 'src/features/attachments';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -26,8 +27,9 @@ export function FileTableButtons({ node, attachment, mobileView, editWindowIsOpe
   const hasTag = type === 'FileUploadWithTag';
   const showEditButton = hasTag && !editWindowIsOpen;
   const { lang, langAsString } = useLanguage();
-  const { index, setEditIndex, editIndex } = useFileTableRowContext();
+  const { index, setEditIndex, editIndex } = useFileTableRow();
   const removeAttachment = useAttachmentsRemover();
+  const mappingTools = useAttachmentsMappedToFormDataProvider();
 
   // Edit button
   const handleEdit = (index: number) => {
@@ -43,7 +45,9 @@ export function FileTableButtons({ node, attachment, mobileView, editWindowIsOpe
       return;
     }
 
-    removeAttachment({ attachment, node }).then();
+    removeAttachment({ attachment, node }).then(() => {
+      mappingTools.removeAttachment(attachment.data.id);
+    });
     editWindowIsOpen && setEditIndex(-1);
   };
 

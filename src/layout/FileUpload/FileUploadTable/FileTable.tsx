@@ -4,7 +4,7 @@ import { isAttachmentUploaded } from 'src/features/attachments';
 import { useLanguage } from 'src/hooks/useLanguage';
 import classes from 'src/layout/FileUpload/FileUploadTable/FileTableComponent.module.css';
 import { FileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRow';
-import { FileTableRowContextProvider } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
+import { FileTableRowProvider } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
 import { EditWindowComponent } from 'src/layout/FileUploadWithTag/EditWindowComponent';
 import { atLeastOneTagExists } from 'src/utils/formComponentUtils';
 import type { IAttachment } from 'src/features/attachments';
@@ -28,7 +28,7 @@ export interface FileTableProps {
   setValidationsWithTag?: (validationArray: { id: string; message: string }[]) => void;
 }
 
-export function FileTableComponent({
+export function FileTable({
   attachments,
   mobileView,
   node,
@@ -92,7 +92,7 @@ export function FileTableComponent({
 
           // Check if filter is applied and includes specified index.
           return canRenderRow && isAttachmentUploaded(attachment) ? (
-            <FileTableRowContextProvider
+            <FileTableRowProvider
               value={ctx}
               key={`altinn-file-list-row-${attachment.data.id}`}
             >
@@ -102,9 +102,9 @@ export function FileTableComponent({
                 mobileView={mobileView}
                 tagLabel={label(attachment)}
               />
-            </FileTableRowContextProvider>
+            </FileTableRowProvider>
           ) : (
-            <FileTableRowContextProvider
+            <FileTableRowProvider
               value={ctx}
               key={`altinn-unchosen-option-attachment-row-${index}`}
             >
@@ -126,7 +126,7 @@ export function FileTableComponent({
                   />
                 </td>
               </tr>
-            </FileTableRowContextProvider>
+            </FileTableRowProvider>
           );
         })}
       </tbody>

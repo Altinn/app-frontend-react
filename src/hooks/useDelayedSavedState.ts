@@ -16,7 +16,7 @@ interface PathMap {
 export const pathsChangedFromServer: { current: PathMap } = { current: {} };
 
 export function useDelayedSavedState(
-  handleDataChange: IComponentProps['handleDataChange'],
+  handleDataChange: IComponentProps<any>['handleDataChange'],
   dataModelBinding: string | undefined,
   formValue?: string,
   saveAfter?: number | boolean,
