@@ -108,21 +108,30 @@ export const doAttachmentUpload = async (dataTypeId: string, file: File): Promis
 export const doAttachmentRemoveTag = async (dataGuid: string, tagToRemove: string): Promise<void> =>
   (await httpDelete(fileTagUrl(dataGuid, tagToRemove))).data;
 
-export const doAttachmentAddTag = async (dataGuid: string, tagToAdd: string): Promise<void> =>
-  (
-    await httpPost(
-      fileTagUrl(dataGuid, undefined),
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
+export const doAttachmentAddTag = async (dataGuid: string, tagToAdd: string): Promise<void> => {
+  const response = await httpPost(
+    fileTagUrl(dataGuid, undefined),
+    {
+      headers: {
+        'Content-Type': 'application/json',
       },
-      JSON.stringify(tagToAdd),
-    )
-  ).data;
+    },
+    JSON.stringify(tagToAdd),
+  );
+  if (response.status !== 201) {
+    throw new Error('Failed to add tag to attachment');
+  }
 
-export const doAttachmentRemove = async (dataGuid: string): Promise<void> =>
-  (await httpDelete(dataElementUrl(dataGuid))).data;
+  return response.data;
+};
+
+export const doAttachmentRemove = async (dataGuid: string): Promise<void> => {
+  const response = await httpDelete(dataElementUrl(dataGuid));
+  if (response.status !== 204) {
+    throw new Error('Failed to remove attachment');
+  }
+  return response.data;
+};
 
 /**
  * Query functions (these should use httpGet and start with 'fetch')

@@ -9,6 +9,10 @@ import type { WritableDraft } from 'immer/dist/types/types-external';
 import { useAppMutations } from 'src/contexts/appQueriesContext';
 import { useMappedAttachments } from 'src/features/attachments/utils/mapping';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
+import { ValidationActions } from 'src/features/validation/validationSlice';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useLanguage } from 'src/hooks/useLanguage';
+import { getFileUploadComponentValidations } from 'src/utils/formComponentUtils';
 import type {
   AttachmentActionRemove,
   AttachmentActionUpdate,
@@ -154,9 +158,11 @@ const useUpdate = (dispatch: Dispatch) => {
   const { mutateAsync: removeTag } = useAttachmentsRemoveTagMutation();
   const { mutateAsync: addTag } = useAttachmentsAddTagMutation();
   const { changeData: changeInstanceData } = useLaxInstance() || {};
+  const langTools = useLanguage();
+  const reduxDispatch = useAppDispatch();
 
   return async (action: RawAttachmentAction<AttachmentActionUpdate>) => {
-    const { tags, attachment } = action;
+    const { tags, attachment, node } = action;
     const tagToAdd = tags.filter((t) => !attachment.data.tags?.includes(t));
     const tagToRemove = attachment.data.tags?.filter((t) => !tags.includes(t)) || [];
     const areEqual = tagToAdd.length && tagToRemove.length && tagToAdd[0] === tagToRemove[0];
@@ -165,6 +171,16 @@ const useUpdate = (dispatch: Dispatch) => {
     if ((!tagToAdd.length && !tagToRemove.length) || areEqual) {
       return;
     }
+
+    // Sets validations to empty.
+    const newValidations = getFileUploadComponentValidations(null, langTools);
+    reduxDispatch(
+      ValidationActions.updateComponentValidations({
+        componentId: node.item.id,
+        pageKey: node.top.top.myKey,
+        validationResult: { validations: newValidations },
+      }),
+    );
 
     dispatch({ ...action, action: 'update', success: undefined });
     try {
@@ -195,6 +211,15 @@ const useUpdate = (dispatch: Dispatch) => {
         });
     } catch (error) {
       dispatch({ ...action, action: 'update', success: false, error });
+
+      const validations = getFileUploadComponentValidations('update', langTools, attachment.data.id);
+      reduxDispatch(
+        ValidationActions.updateComponentValidations({
+          componentId: node.item.id,
+          pageKey: node.top.top.myKey,
+          validationResult: { validations },
+        }),
+      );
     }
   };
 };
@@ -202,9 +227,21 @@ const useUpdate = (dispatch: Dispatch) => {
 const useRemove = (dispatch: Dispatch) => {
   const { mutateAsync: removeAttachment } = useAttachmentsRemoveMutation();
   const { changeData: changeInstanceData } = useLaxInstance() || {};
+  const langTools = useLanguage();
+  const reduxDispatch = useAppDispatch();
 
   return async (action: RawAttachmentAction<AttachmentActionRemove>) => {
-    // PRIORITY: Remove validations?
+    const { node } = action;
+
+    // Sets validations to empty.
+    const newValidations = getFileUploadComponentValidations(null, langTools);
+    reduxDispatch(
+      ValidationActions.updateComponentValidations({
+        componentId: node.item.id,
+        pageKey: node.top.top.myKey,
+        validationResult: { validations: newValidations },
+      }),
+    );
 
     dispatch({ ...action, action: 'remove', success: undefined });
     try {
@@ -221,8 +258,16 @@ const useRemove = (dispatch: Dispatch) => {
           }
         });
     } catch (error) {
-      // TODO: Add validations?
       dispatch({ ...action, action: 'remove', success: false, error });
+
+      const validations = getFileUploadComponentValidations('delete', langTools);
+      reduxDispatch(
+        ValidationActions.updateComponentValidations({
+          componentId: node.item.id,
+          pageKey: node.top.top.myKey,
+          validationResult: { validations },
+        }),
+      );
     }
   };
 };

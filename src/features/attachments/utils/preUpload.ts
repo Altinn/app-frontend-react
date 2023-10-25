@@ -8,6 +8,14 @@ import type { WritableDraft } from 'immer/dist/types/types-external';
 
 import { useAppMutations } from 'src/contexts/appQueriesContext';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
+import { ValidationActions } from 'src/features/validation/validationSlice';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useLanguage } from 'src/hooks/useLanguage';
+import { getFileUploadComponentValidations } from 'src/utils/formComponentUtils';
+import { isAxiosError } from 'src/utils/network/sharedNetworking';
+import { getValidationMessage } from 'src/utils/validation/backendValidation';
+import { BackendValidationSeverity } from 'src/utils/validation/backendValidationSeverity';
 import type {
   AttachmentActionUpload,
   IAttachment,
@@ -18,6 +26,7 @@ import type {
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
+import type { BackendValidationIssue, IComponentValidations } from 'src/utils/validation/types';
 
 interface ActionUpload extends AttachmentActionUpload {
   temporaryId: string;
@@ -75,13 +84,24 @@ export const usePreUpload = () => {
 export const useUpload = (dispatch: Dispatch) => {
   const { changeData: changeInstanceData } = useLaxInstance() || {};
   const { mutateAsync } = useAttachmentsUploadMutation();
+  const langTools = useLanguage();
+  const reduxDispatch = useAppDispatch();
+  const backendFeatures = useAppSelector((state) => state.applicationMetadata.applicationMetadata?.features) || {};
 
   return async (action: RawAttachmentAction<AttachmentActionUpload>) => {
     const { node, file } = action;
     const temporaryId = uuidv4();
     dispatch({ ...action, temporaryId, action: 'upload' });
 
-    // PRIORITY: Reset validations for the whole component? That does not make sense, what if you upload multiple files?
+    // Sets validations to empty.
+    const newValidations = getFileUploadComponentValidations(null, langTools);
+    reduxDispatch(
+      ValidationActions.updateComponentValidations({
+        componentId: node.item.id,
+        pageKey: node.top.top.myKey,
+        validationResult: { validations: newValidations },
+      }),
+    );
 
     try {
       const reply = await mutateAsync({
@@ -106,12 +126,36 @@ export const useUpload = (dispatch: Dispatch) => {
         });
 
       return reply.id;
-    } catch (error) {
-      // PRIORITY: Handle error, register a validation error
+    } catch (err) {
       dispatch({ action: 'remove', node, temporaryId });
+
+      let validations: IComponentValidations;
+      if (backendFeatures.jsonObjectInDataResponse && isAxiosError(err) && err.response?.data) {
+        const validationIssues: BackendValidationIssue[] = err.response.data;
+
+        validations = {
+          simpleBinding: {
+            errors: validationIssues
+              .filter((v) => v.severity === BackendValidationSeverity.Error)
+              .map((v) => getValidationMessage(v, langTools)),
+            warnings: validationIssues
+              .filter((v) => v.severity === BackendValidationSeverity.Warning)
+              .map((v) => getValidationMessage(v, langTools)),
+          },
+        };
+      } else {
+        validations = getFileUploadComponentValidations('upload', langTools);
+      }
+
+      reduxDispatch(
+        ValidationActions.updateComponentValidations({
+          componentId: node.item.id,
+          pageKey: node.top.top.myKey,
+          validationResult: { validations },
+        }),
+      );
     }
 
-    // PRIORITY: See uploadAttachmentSaga and make sure this code re-implements everything needed
     return undefined;
   };
 };
