@@ -8,7 +8,8 @@
   "scripts": {
     "postinstall": "husky install",
     "gen": "node -r ts-node/register/transpile-only -r tsconfig-paths/register src/codegen/run.ts",
-    "copy-schemas": "node scripts/copy-schemas.js",
+    "copy-schemas": "node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/copy-schemas.ts",
+    "validate-all-app-layouts": "node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/validate-all-app-layouts.ts",
     "start": "yarn gen && yarn copy-schemas && cross-env NODE_ENV=development webpack-dev-server --config webpack.config.development.js --mode development --progress",
     "start:silent": "yarn gen && yarn copy-schemas && cross-env NOTIFY_ON_ERRORS=false yarn start",
     "build": "yarn gen && yarn copy-schemas && cross-env NODE_ENV=production webpack --config webpack.config.production.js --progress",

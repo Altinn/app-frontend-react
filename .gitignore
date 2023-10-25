@@ -400,3 +400,4 @@ src/Altinn.Apps/AppTemplates/AspNet/App/Properties/launchSettings.json
 *.generated.json
 *.generated.schema.json
 layout.schema.v1.json
+all-app-layout-errors.txt
