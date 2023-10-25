@@ -13,7 +13,7 @@ import { renderWithProviders } from 'src/test/renderWithProviders';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { IFormDataState } from 'src/features/formData';
-import type { IUpdateFormData } from 'src/features/formData/formDataTypes';
+import type { IUpdateFormDataSimple } from 'src/features/formData/formDataTypes';
 import type { IRawTextResource, ITextResourcesState } from 'src/features/textResources';
 import type { IValidationState } from 'src/features/validation/validationSlice';
 import type { IOption } from 'src/layout/common.generated';
@@ -98,7 +98,10 @@ const createRadioButton = (props: Partial<CompLikertExternal> | undefined): Comp
   ...props,
 });
 
-export const createFormDataUpdateAction = (index: number, optionValue: string): PayloadAction<IUpdateFormData> => ({
+export const createFormDataUpdateAction = (
+  index: number,
+  optionValue: string,
+): PayloadAction<IUpdateFormDataSimple> => ({
   payload: {
     componentId: `field1-${index}`,
     data: optionValue,

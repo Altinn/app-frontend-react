@@ -2,6 +2,7 @@ import React from 'react';
 
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import { createStrictContext } from 'src/utils/createContext';
 import type { IComponentProps } from 'src/layout';
 import type { IDataModelBindingsForList } from 'src/layout/List/config.generated';
@@ -10,7 +11,6 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 interface Props {
   node: LayoutNode<'FileUpload' | 'FileUploadWithTag'>;
   handleDataChange: IComponentProps<'FileUpload' | 'FileUploadWithTag'>['handleDataChange'];
-  formData: IComponentProps<'FileUpload' | 'FileUploadWithTag'>['formData'];
 }
 
 interface MappingTools {
@@ -18,10 +18,24 @@ interface MappingTools {
   removeAttachment: (uuid: string) => void;
 }
 
-const Noop: MappingTools = {
-  addAttachment: () => {},
-  removeAttachment: () => {},
-};
+const noop = (node: LayoutNode<'FileUpload' | 'FileUploadWithTag'>): MappingTools => ({
+  addAttachment: () => {
+    if (node.parent instanceof LayoutNodeForGroup && node.parent.isRepGroup()) {
+      window.logError(
+        'No valid data model binding for file uploader, cannot add attachment to form data. This is required ' +
+          'when using a file uploader inside a repeating group.',
+      );
+    }
+  },
+  removeAttachment: () => {
+    if (node.parent instanceof LayoutNodeForGroup && node.parent.isRepGroup()) {
+      window.logError(
+        'No valid data model binding for file uploader, cannot remove attachment from form data. This is required ' +
+          'when using a file uploader inside a repeating group.',
+      );
+    }
+  },
+});
 
 /**
  * This hook is used to provide functionality for the FileUpload and FileUploadWithTag components, where uploading
@@ -37,7 +51,7 @@ export function useAttachmentsMappedToFormData(props: Props): MappingTools {
   const forSimple = useMappingToolsForSimple(props);
   const bindings = props.node.item.dataModelBindings;
   if (!bindings) {
-    return Noop;
+    return noop(props.node);
   }
 
   if ('list' in bindings) {
@@ -47,24 +61,24 @@ export function useAttachmentsMappedToFormData(props: Props): MappingTools {
   return forSimple;
 }
 
-function useMappingToolsForList({ formData, node }: Props): MappingTools {
+function useMappingToolsForList({ node }: Props): MappingTools {
   const dispatch = useAppDispatch();
   const field = ((node.item.dataModelBindings || {}) as IDataModelBindingsForList).list;
   return {
     addAttachment: (uuid: string) => {
       dispatch(
-        FormDataActions.update({
+        FormDataActions.updateAddToList({
           field,
-          data: [...(formData[field] || []), uuid],
+          itemToAdd: uuid,
           componentId: node.item.id,
         }),
       );
     },
     removeAttachment: (uuid: string) => {
       dispatch(
-        FormDataActions.update({
+        FormDataActions.updateRemoveFromList({
           field,
-          data: formData[field]?.filter((id: string) => id !== uuid),
+          itemToRemove: uuid,
           componentId: node.item.id,
         }),
       );

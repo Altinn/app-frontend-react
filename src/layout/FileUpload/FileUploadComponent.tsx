@@ -28,7 +28,6 @@ export function FileUploadComponent({
   componentValidations,
   node,
   handleDataChange,
-  formData,
 }: IFileUploadWithTagProps): React.JSX.Element {
   const {
     id,
@@ -52,7 +51,6 @@ export function FileUploadComponent({
   const mappingTools = useAttachmentsMappedToFormData({
     handleDataChange,
     node,
-    formData,
   });
 
   const hasTag = type === 'FileUploadWithTag';

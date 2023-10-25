@@ -1,12 +1,17 @@
+import dot from 'dot-object';
+
 import { checkIfRuleShouldRunSaga } from 'src/features/form/rules/checkRulesSagas';
 import { autoSaveSaga, saveFormDataSaga, submitFormSaga } from 'src/features/formData/submit/submitFormDataSagas';
 import { updateFormDataSaga } from 'src/features/formData/update/updateFormDataSagas';
 import { createSagaSlice } from 'src/redux/sagaSlice';
+import { convertDataBindingToModel } from 'src/utils/databindings';
 import type {
   IFetchFormDataFulfilled,
   IFormDataRejected,
   ISaveAction,
-  IUpdateFormData,
+  IUpdateFormDataAddToList,
+  IUpdateFormDataRemoveFromList,
+  IUpdateFormDataSimple,
 } from 'src/features/formData/formDataTypes';
 import type { IFormData, IFormDataState } from 'src/features/formData/index';
 import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
@@ -92,32 +97,60 @@ export const formDataSlice = () => {
           state.lastSavedFormData = action.payload.model;
         },
       }),
-      update: mkAction<IUpdateFormData>({
+      update: mkAction<IUpdateFormDataSimple>({
         takeEvery: updateFormDataSaga,
       }),
-      updateFulfilled: mkAction<IUpdateFormData>({
+      updateFulfilled: mkAction<IUpdateFormDataSimple>({
         takeEvery: [checkIfRuleShouldRunSaga, autoSaveSaga],
         reducer: (state, action) => {
           const { field, data, skipAutoSave } = action.payload;
           // Remove if data is null, undefined or empty string
           if (data === undefined || data === null || data === '') {
             delete state.formData[field];
-          } else if (Array.isArray(data)) {
-            // The list binding can be used to store array data. When the update action is called, it replaces
-            // the entire array with the new data.
-            for (const key of Object.keys(state.formData)) {
-              if (key.startsWith(`${field}[`)) {
-                delete state.formData[key];
-              }
-            }
-            for (let i = 0; i < data.length; i++) {
-              state.formData[`${field}[${i}]`] = data[i];
-            }
           } else {
             state.formData[field] = data;
           }
           if (!skipAutoSave) {
             state.unsavedChanges = true;
+          }
+        },
+      }),
+      updateAddToList: mkAction<IUpdateFormDataAddToList>({
+        takeEvery: [checkIfRuleShouldRunSaga, autoSaveSaga],
+        reducer: (state, action) => {
+          const { field, itemToAdd } = action.payload;
+
+          // The list binding can be used to store array data. When the update action is called, it replaces
+          // the entire array with the new data.
+          let maxIndex = 0;
+          for (const key of Object.keys(state.formData)) {
+            if (key.startsWith(`${field}[`)) {
+              const afterBracket = key.substring(field.length + 1);
+              const index = parseInt(afterBracket.substring(0, afterBracket.indexOf(']')), 10);
+              if (index > maxIndex) {
+                maxIndex = index;
+              }
+            }
+          }
+          state.formData[`${field}[${maxIndex + 1}]`] = itemToAdd;
+          state.unsavedChanges = true;
+        },
+      }),
+      updateRemoveFromList: mkAction<IUpdateFormDataRemoveFromList>({
+        takeEvery: [checkIfRuleShouldRunSaga, autoSaveSaga],
+        reducer: (state, action) => {
+          const { field, itemToRemove } = action.payload;
+          const fullFormData = convertDataBindingToModel(state.formData);
+          const existingList = dot.pick(field, fullFormData) || [];
+          const newList = existingList.filter((item: string) => item !== itemToRemove);
+
+          for (const key of Object.keys(state.formData)) {
+            if (key.startsWith(`${field}[`)) {
+              delete state.formData[key];
+            }
+          }
+          for (let i = 0; i < newList.length; i++) {
+            state.formData[`${field}[${i}]`] = newList[i];
           }
         },
       }),

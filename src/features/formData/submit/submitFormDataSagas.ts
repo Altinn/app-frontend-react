@@ -236,6 +236,7 @@ function* handleChangedFields(changedFields: IFormData | undefined, lastSavedFor
           field,
           skipValidation: true,
           skipAutoSave: true,
+          componentId: '',
         }),
       );
     }),

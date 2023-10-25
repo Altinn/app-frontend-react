@@ -1,4 +1,3 @@
-import deepEqual from 'fast-deep-equal';
 import { call, put, select } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
@@ -6,17 +5,16 @@ import type { SagaIterator } from 'redux-saga';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { implementsAnyValidation } from 'src/layout';
-import { flattenObject } from 'src/utils/databindings';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { createComponentValidationResult, validationContextFromState } from 'src/utils/validation/validationHelpers';
 import type { IFormData } from 'src/features/formData';
-import type { IUpdateFormData } from 'src/features/formData/formDataTypes';
+import type { IUpdateFormDataSimple } from 'src/features/formData/formDataTypes';
 import type { IRuntimeState } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 export function* updateFormDataSaga({
   payload: { field, data, componentId, skipValidation, skipAutoSave, singleFieldValidation },
-}: PayloadAction<IUpdateFormData>): SagaIterator {
+}: PayloadAction<IUpdateFormDataSimple>): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
 
@@ -42,7 +40,12 @@ export function* updateFormDataSaga({
   }
 }
 
-function* runValidations(field: string, data: any, componentId: string | undefined, state: IRuntimeState) {
+function* runValidations(
+  field: string,
+  data: string | null | undefined,
+  componentId: string | undefined,
+  state: IRuntimeState,
+) {
   const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
   const node = componentId && resolvedNodes.findById(componentId);
   if (!node) {
@@ -59,11 +62,6 @@ function* runValidations(field: string, data: any, componentId: string | undefin
   const overrideFormData: IFormData = {};
   if (typeof data === 'string' && data.length) {
     overrideFormData[field] = data;
-  } else if (Array.isArray(data) && data.length) {
-    const flat = flattenObject(data);
-    for (const key of Object.keys(flat)) {
-      overrideFormData[`${field}${key}`] = flat[key];
-    }
   }
 
   if (implementsAnyValidation(node.def)) {
@@ -89,17 +87,9 @@ function* runValidations(field: string, data: any, componentId: string | undefin
   }
 }
 
-function shouldUpdateFormData(currentData: any, newData: any): boolean {
+function shouldUpdateFormData(currentData: string | null | undefined, newData: string | null | undefined): boolean {
   if (newData && newData !== '' && !currentData) {
     return true;
-  }
-
-  if (Array.isArray(newData) && newData.length === 0 && !currentData) {
-    return false;
-  }
-
-  if (Array.isArray(newData) && Array.isArray(currentData)) {
-    return !deepEqual(newData, currentData);
   }
 
   return currentData !== newData;

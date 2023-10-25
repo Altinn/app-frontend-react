@@ -21,7 +21,18 @@ export interface IUpdateFormData {
   skipValidation?: boolean;
   skipAutoSave?: boolean;
   singleFieldValidation?: ISingleFieldValidation;
-  componentId?: string;
+  componentId: string;
   field: string;
-  data: any;
+}
+
+export interface IUpdateFormDataSimple extends IUpdateFormData {
+  data: string | undefined | null;
+}
+
+export interface IUpdateFormDataAddToList extends IUpdateFormData {
+  itemToAdd: string;
+}
+
+export interface IUpdateFormDataRemoveFromList extends IUpdateFormData {
+  itemToRemove: string;
 }

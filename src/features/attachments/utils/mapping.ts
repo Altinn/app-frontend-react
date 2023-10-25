@@ -48,6 +48,11 @@ function mapAttachments(
       continue;
     }
 
+    if (dataType.appLogic?.classRef) {
+      // Data models are not attachments
+      continue;
+    }
+
     const matchingNodes = nodes.findAllById(data.dataType).filter((node) => {
       if (!validNodeType(node)) {
         window.logWarnOnce(
@@ -58,15 +63,6 @@ function mapAttachments(
       }
       return true;
     });
-
-    if (!matchingNodes.length) {
-      continue;
-    }
-
-    if (matchingNodes.length === 1 && validNodeType(matchingNodes[0])) {
-      addAttachment(attachments, matchingNodes[0], data);
-      continue;
-    }
 
     // If there are multiple matching nodes, we need to find the one that has formData matching the attachment ID.
     let found = false;
