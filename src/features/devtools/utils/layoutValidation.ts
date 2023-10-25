@@ -129,7 +129,7 @@ function getProperty(error: ErrorObject): string | undefined {
   const instancePaths = error.instancePath.split('/').slice(1);
 
   if (instancePaths.length === 0) {
-    undefined;
+    return undefined;
   }
 
   return instancePaths
