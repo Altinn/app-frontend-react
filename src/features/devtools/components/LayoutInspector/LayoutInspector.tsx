@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { Alert, Button } from '@digdir/design-system-react';
@@ -24,6 +24,14 @@ export const LayoutInspector = () => {
   const [propertiesHaveChanged, setPropertiesHaveChanged] = useState(false);
   const [error, setError] = useState<boolean>(false);
   const nodes = useExprContext();
+
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => {
+    if (textAreaRef.current) {
+      textAreaRef.current.style.height = 'auto';
+      textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
+    }
+  }, [componentProperties]);
 
   const dispatch = useDispatch();
   const setSelectedComponent = useCallback(
@@ -163,6 +171,7 @@ export const LayoutInspector = () => {
             />
           </div>
           <textarea
+            ref={textAreaRef}
             value={componentProperties ?? ''}
             onChange={handleChange}
             onKeyDown={(event) => {
@@ -177,6 +186,7 @@ export const LayoutInspector = () => {
           {error && <span className={classes.error}>Ugyldig JSON</span>}
           {propertiesHaveChanged && (
             <Button
+              fullWidth
               size='small'
               onClick={handleSave}
             >
