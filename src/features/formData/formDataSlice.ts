@@ -119,20 +119,19 @@ export const formDataSlice = () => {
         takeEvery: [checkIfRuleShouldRunSaga, autoSaveSaga],
         reducer: (state, action) => {
           const { field, itemToAdd } = action.payload;
+          const fullFormData = convertDataBindingToModel(state.formData);
+          const existingList = dot.pick(field, fullFormData) || [];
+          const newList = [...existingList, itemToAdd];
 
-          // The list binding can be used to store array data. When the update action is called, it replaces
-          // the entire array with the new data.
-          let maxIndex = 0;
           for (const key of Object.keys(state.formData)) {
             if (key.startsWith(`${field}[`)) {
-              const afterBracket = key.substring(field.length + 1);
-              const index = parseInt(afterBracket.substring(0, afterBracket.indexOf(']')), 10);
-              if (index > maxIndex) {
-                maxIndex = index;
-              }
+              delete state.formData[key];
             }
           }
-          state.formData[`${field}[${maxIndex + 1}]`] = itemToAdd;
+          for (let i = 0; i < newList.length; i++) {
+            state.formData[`${field}[${i}]`] = newList[i];
+          }
+
           state.unsavedChanges = true;
         },
       }),

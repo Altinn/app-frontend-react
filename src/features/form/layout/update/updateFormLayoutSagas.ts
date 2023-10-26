@@ -5,8 +5,6 @@ import type { SagaIterator } from 'redux-saga';
 
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
-import { tmpSagaInstanceData } from 'src/features/instance/InstanceContext';
-import { tmpSagaProcessData } from 'src/features/instance/ProcessContext';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { Triggers } from 'src/layout/common.generated';
@@ -74,7 +72,7 @@ export function* updateCurrentViewSaga({
     const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
     const visibleLayouts: string[] | null = yield select(selectLayoutOrder);
     const viewCacheKey = state.formLayout.uiConfig.currentViewCacheKey;
-    const instanceId = tmpSagaInstanceData.current?.id;
+    const instanceId = window.lastKnownInstance?.id;
     if (!viewCacheKey) {
       yield put(FormLayoutActions.setCurrentViewCacheKey({ key: instanceId }));
     }
@@ -113,8 +111,8 @@ export function* updateCurrentViewSaga({
       };
       const currentTaskDataId = getCurrentTaskDataElementId({
         application: state.applicationMetadata.applicationMetadata,
-        instance: tmpSagaInstanceData.current,
-        process: tmpSagaProcessData.current,
+        instance: window.lastKnownInstance,
+        process: window.lastKnownProcess,
         layoutSets: state.formLayout.layoutsets,
       });
 
@@ -202,7 +200,7 @@ export function* calculatePageOrderAndMoveToNextPageSaga({
     const dataTypeId =
       getCurrentDataTypeForApplication({
         application: state.applicationMetadata.applicationMetadata,
-        process: tmpSagaProcessData.current,
+        process: window.lastKnownProcess,
         layoutSets: state.formLayout.layoutsets,
       }) || null;
 
@@ -210,7 +208,7 @@ export function* calculatePageOrderAndMoveToNextPageSaga({
     if (appIsStateless) {
       layoutSetId = state.applicationMetadata.applicationMetadata.onEntry?.show || null;
     } else {
-      const process = tmpSagaProcessData.current;
+      const process = window.lastKnownProcess;
       if (layoutSets != null) {
         layoutSetId = getLayoutSetForDataElement(process, dataTypeId || undefined, layoutSets) || null;
       }

@@ -5,7 +5,6 @@ import type { AxiosRequestConfig } from 'axios';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
-import { tmpSagaInstanceData } from 'src/features/instance/InstanceContext';
 import {
   runSingleFieldValidationSaga,
   selectApplicationMetadataState,
@@ -32,7 +31,7 @@ describe('singleFieldValidationSagas', () => {
 
   it('runSingleFieldValidationSaga, single field validation is triggered', () => {
     const instance = getInstanceDataMock();
-    tmpSagaInstanceData.current = instance;
+    window.lastKnownInstance = instance;
     const url = getDataValidationUrl(instance.id, instance.data[0].id);
     const options: AxiosRequestConfig = {
       headers: {
@@ -88,7 +87,7 @@ describe('singleFieldValidationSagas', () => {
 
   it('runSingleFieldValidationSaga, single field validation error', () => {
     const instance = getInstanceDataMock();
-    tmpSagaInstanceData.current = instance;
+    window.lastKnownInstance = instance;
     const url = getDataValidationUrl(instance.id, instance.data[0].id);
     const options: AxiosRequestConfig = {
       headers: {

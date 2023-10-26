@@ -1,7 +1,9 @@
 import type { ToolkitStore } from '@reduxjs/toolkit/src/configureStore';
 
+import type { IAttachments } from 'src/features/attachments';
 import type { IFeatureTogglesOptionalMap } from 'src/features/toggles';
 import type { IRuleObject, IRules, IRuntimeState } from 'src/types';
+import type { IInstance, IProcess } from 'src/types/shared';
 
 declare global {
   interface Window {
@@ -37,5 +39,13 @@ declare global {
     logErrorOnce: (...args: any[]) => void;
     logWarnOnce: (...args: any[]) => void;
     logInfoOnce: (...args: any[]) => void;
+
+    /**
+     * Last known global states, sometimes used by Cypress tests, or otherwise in use while
+     * rewriting away from Redux Saga
+     */
+    lastKnownInstance?: IInstance;
+    lastKnownProcess?: IProcess;
+    lastKnownAttachments?: IAttachments;
   }
 }

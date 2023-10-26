@@ -41,9 +41,6 @@ export type ChangeInstanceData = (callback: (instance: IInstance | undefined) =>
 
 const { Provider, useCtx, useHasProvider } = createLaxContext<InstanceContext>();
 
-// TODO: Remove this when no sagas, etc, are using it
-export const tmpSagaInstanceData: { current: IInstance | null } = { current: null };
-
 function useGetInstanceDataQuery(enabled: boolean, partyId: string, instanceGuid: string) {
   const { fetchInstanceData } = useAppQueries();
   return useQuery({
@@ -65,7 +62,7 @@ function useSetGlobalState(
   useEffect(() => {
     if (potentialNewData) {
       setData(potentialNewData);
-      tmpSagaInstanceData.current = potentialNewData;
+      window.lastKnownInstance = potentialNewData;
       dispatch(DeprecatedActions.instanceDataFetchFulfilled());
     }
   }, [potentialNewData, setData, dispatch]);
@@ -118,7 +115,7 @@ const InnerInstanceProvider = ({
     instantiation.error && setError(instantiation.error);
 
     if (fetchQuery.error) {
-      tmpSagaInstanceData.current = null;
+      window.lastKnownInstance = undefined;
     }
   }, [fetchQuery.error, instantiation.error]);
 
@@ -126,7 +123,7 @@ const InnerInstanceProvider = ({
     setData((prev) => {
       const next = callback(prev);
       if (next) {
-        tmpSagaInstanceData.current = next;
+        window.lastKnownInstance = next;
         return next;
       }
       return prev;

@@ -4,8 +4,6 @@ import type { AxiosRequestConfig } from 'axios/index';
 import type { SagaIterator } from 'redux-saga';
 
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { tmpSagaInstanceData } from 'src/features/instance/InstanceContext';
-import { tmpSagaProcessData } from 'src/features/instance/ProcessContext';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { Triggers } from 'src/layout/common.generated';
@@ -31,7 +29,7 @@ export function* updateRepeatingGroupEditIndexSaga({
   try {
     const state: IRuntimeState = yield select();
     const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
-    const instance = tmpSagaInstanceData.current;
+    const instance = window.lastKnownInstance;
     const rowIndex = state.formLayout.uiConfig.repeatingGroups?.[group].editIndex;
     const groupNode = resolvedNodes.findById(group);
 
@@ -66,7 +64,7 @@ export function* updateRepeatingGroupEditIndexSaga({
       const currentTaskDataId = getCurrentTaskDataElementId({
         application: state.applicationMetadata.applicationMetadata,
         instance,
-        process: tmpSagaProcessData.current,
+        process: window.lastKnownProcess,
         layoutSets: state.formLayout.layoutsets,
       });
 

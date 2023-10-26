@@ -1,7 +1,7 @@
 import { useContext, useMemo } from 'react';
 import type { JSX } from 'react';
 
-import { tmpSagaInstanceData, useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromCode } from 'src/language/languages';
 import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
@@ -101,7 +101,7 @@ export function staticUseLanguageFromState(state: IRuntimeState, node?: LayoutNo
   const selectedAppLanguage = state.profile.selectedAppLanguage;
   const formData = state.formData.formData;
   const applicationSettings = state.applicationSettings.applicationSettings;
-  const instanceDataSources = buildInstanceDataSources(tmpSagaInstanceData.current);
+  const instanceDataSources = buildInstanceDataSources(window.lastKnownInstance);
   const dataSources: TextResourceVariablesDataSources = {
     node,
     formData,

@@ -2,10 +2,9 @@ import { useMemo } from 'react';
 
 import { createSelector } from 'reselect';
 
-import { tmpSagaAttachmentsData } from 'src/features/attachments/AttachmentsContext';
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
-import { tmpSagaInstanceData, useLaxInstanceData } from 'src/features/instance/InstanceContext';
-import { tmpSagaProcessData, useLaxProcessData } from 'src/features/instance/ProcessContext';
+import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { allOptions } from 'src/features/options/useAllOptions';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { staticUseLanguageFromState, useLanguage } from 'src/hooks/useLanguage';
@@ -97,13 +96,13 @@ function resolvedNodesInLayouts(
 export function dataSourcesFromState(state: IRuntimeState): HierarchyDataSources {
   return {
     formData: state.formData.formData,
-    attachments: tmpSagaAttachmentsData.current || {},
+    attachments: window.lastKnownAttachments || {},
     uiConfig: state.formLayout.uiConfig,
     options: allOptions,
     applicationSettings: state.applicationSettings.applicationSettings,
-    instanceDataSources: buildInstanceDataSources(tmpSagaInstanceData.current),
+    instanceDataSources: buildInstanceDataSources(window.lastKnownInstance),
     hiddenFields: new Set(state.formLayout.uiConfig.hiddenFields),
-    authContext: buildAuthContext(tmpSagaProcessData.current?.currentTask),
+    authContext: buildAuthContext(window.lastKnownProcess?.currentTask),
     validations: state.formValidations.validations,
     devTools: state.devTools,
     langTools: staticUseLanguageFromState(state),
@@ -156,7 +155,7 @@ function useResolvedExpressions() {
   const dataSources: HierarchyDataSources = useMemo(
     () => ({
       formData,
-      attachments: tmpSagaAttachmentsData.current || {},
+      attachments: window.lastKnownAttachments || {},
       uiConfig,
       options,
       applicationSettings,

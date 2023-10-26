@@ -5,8 +5,6 @@ import type { SagaIterator } from 'redux-saga';
 
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
-import { tmpSagaInstanceData } from 'src/features/instance/InstanceContext';
-import { tmpSagaProcessData } from 'src/features/instance/ProcessContext';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { pathsChangedFromServer } from 'src/hooks/useDelayedSavedState';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
@@ -62,7 +60,7 @@ export function* submitFormSaga(): SagaIterator {
 
 function* submitComplete(state: IRuntimeState, resolvedNodes: LayoutPages): SagaIterator {
   // run validations against the datamodel
-  const instanceId = tmpSagaInstanceData.current?.id;
+  const instanceId = window.lastKnownInstance?.id;
   const serverValidations: BackendValidationIssue[] | undefined = instanceId
     ? yield call(httpGet, getValidationUrl(instanceId))
     : undefined;
@@ -160,8 +158,8 @@ export function* putFormData({ field, componentId }: SaveDataParams) {
   const defaultDataElementGuid: string | undefined = yield select((state: IRuntimeState) =>
     getCurrentTaskDataElementId({
       application: state.applicationMetadata.applicationMetadata,
-      instance: tmpSagaInstanceData.current,
-      process: tmpSagaProcessData.current,
+      instance: window.lastKnownInstance,
+      process: window.lastKnownProcess,
       layoutSets: state.formLayout.layoutsets,
     }),
   );
@@ -324,7 +322,7 @@ export function* postStatelessData({ field, componentId }: SaveDataParams) {
 
   const currentDataType = getCurrentDataTypeForApplication({
     application: state.applicationMetadata.applicationMetadata,
-    process: tmpSagaProcessData.current,
+    process: window.lastKnownProcess,
     layoutSets: state.formLayout.layoutsets,
   });
   if (currentDataType) {

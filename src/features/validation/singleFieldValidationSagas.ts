@@ -3,8 +3,6 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { AxiosRequestConfig } from 'axios';
 import type { SagaIterator } from 'redux-saga';
 
-import { tmpSagaInstanceData } from 'src/features/instance/InstanceContext';
-import { tmpSagaProcessData } from 'src/features/instance/ProcessContext';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
@@ -36,8 +34,8 @@ export function* runSingleFieldValidationSaga({
   const node = resolvedNodes.findById(componentId);
 
   const application: IApplicationMetadata | null = yield select(selectApplicationMetadataState);
-  const instance = tmpSagaInstanceData.current;
-  const process = tmpSagaProcessData.current;
+  const instance = window.lastKnownInstance;
+  const process = window.lastKnownProcess;
   const layoutSets: ILayoutSets = yield select(selectLayoutSetsState);
 
   const currentTaskDataId = application && getCurrentTaskDataElementId({ application, instance, process, layoutSets });

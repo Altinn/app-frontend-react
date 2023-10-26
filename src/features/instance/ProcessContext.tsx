@@ -20,9 +20,6 @@ interface IProcessContext {
 
 const { Provider, useCtx } = createLaxContext<IProcessContext>();
 
-// TODO: Remove this when no sagas, etc, are using it
-export const tmpSagaProcessData: { current: IProcess | null } = { current: null };
-
 function useProcessQuery(instanceId: string) {
   const { fetchProcessState } = useAppQueries();
 
@@ -30,10 +27,10 @@ function useProcessQuery(instanceId: string) {
     queryKey: ['fetchProcessState', instanceId],
     queryFn: () => fetchProcessState(instanceId),
     onSuccess: (data) => {
-      tmpSagaProcessData.current = data;
+      window.lastKnownProcess = data;
     },
     onError: (error) => {
-      tmpSagaProcessData.current = null;
+      window.lastKnownProcess = undefined;
       window.logError('Fetching process state failed:\n', error);
     },
   });
@@ -62,7 +59,7 @@ export function ProcessProvider({ children, instance }: React.PropsWithChildren<
       value={{
         data,
         setData: (data) => {
-          tmpSagaProcessData.current = data;
+          window.lastKnownProcess = data;
           setData(data);
         },
         reFetch,

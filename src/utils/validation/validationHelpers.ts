@@ -1,6 +1,3 @@
-import { tmpSagaAttachmentsData } from 'src/features/attachments/AttachmentsContext';
-import { tmpSagaInstanceData } from 'src/features/instance/InstanceContext';
-import { tmpSagaProcessData } from 'src/features/instance/ProcessContext';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { Triggers } from 'src/layout/common.generated';
 import type { IRuntimeState, TriggersPageValidation } from 'src/types';
@@ -22,10 +19,10 @@ export function validationContextFromState(state: IRuntimeState, node: LayoutNod
   return {
     formData: state.formData.formData,
     langTools: staticUseLanguageFromState(state, node),
-    attachments: tmpSagaAttachmentsData.current || {},
+    attachments: window.lastKnownAttachments || {},
     application: state.applicationMetadata.applicationMetadata,
-    instance: tmpSagaInstanceData.current,
-    process: tmpSagaProcessData.current,
+    instance: window.lastKnownInstance || null,
+    process: window.lastKnownProcess || null,
     layoutSets: state.formLayout.layoutsets,
     schemas: state.formDataModel.schemas,
     customValidation: state.customValidation.customValidation,
