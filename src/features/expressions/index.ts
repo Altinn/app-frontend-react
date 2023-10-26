@@ -10,7 +10,7 @@ import {
 } from 'src/features/expressions/errors';
 import { ExprContext } from 'src/features/expressions/ExprContext';
 import { ExprVal } from 'src/features/expressions/types';
-import { addError, asExpression, canBeExpression } from 'src/features/expressions/validation';
+import { addError, asExpression, canBeExpression, validateRecursively } from 'src/features/expressions/validation';
 import { implementsDisplayData } from 'src/layout';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -243,6 +243,13 @@ export function argTypeAt(func: ExprFunction, argIndex: number): ExprVal | undef
   }
 
   return undefined;
+}
+
+export function isExpression(input: string | Expression | undefined): input is Expression {
+  if (!Array.isArray(input)) {
+    return false;
+  }
+  return validateRecursively(input, { errors: {} }, []) !== undefined;
 }
 
 function innerEvalExpr(context: ExprContext) {
