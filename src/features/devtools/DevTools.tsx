@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { OpenDevToolsButton } from 'src/features/devtools/components/OpenDevToolsButton/OpenDevToolsButton';
 import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
 import { DevToolsPanel } from 'src/features/devtools/DevToolsPanel';
-import { useLayoutValidation } from 'src/features/devtools/hooks/useLayoutValidation';
+import { useLayoutValidation } from 'src/features/devtools/layoutValidation/useLayoutValidation';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useIsDev } from 'src/hooks/useIsDev';
@@ -18,7 +18,7 @@ export const DevTools = ({ children }: IDevToolsProps) => {
   const panelOpen = useAppSelector((state) => state.devTools.isOpen);
   const dispatch = useAppDispatch();
 
-  useLayoutValidation(isDev || panelOpen);
+  useLayoutValidation();
 
   const setPanelOpen = useCallback(
     (open: boolean) => {

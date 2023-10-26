@@ -10,6 +10,7 @@ import {
   groupIsRepeatingLikertExt,
 } from 'src/layout/Group/tools';
 import { duplicateStringFilter } from 'src/utils/stringHelper';
+import type { LayoutValidationErrors } from 'src/features/devtools/layoutValidation/types';
 import type { CompOrGroupExternal, ILayouts } from 'src/layout/layout';
 
 export const LAYOUT_SCHEMA_NAME = 'layout.schema.v1.json';
@@ -40,11 +41,16 @@ export function createLayoutValidator(layoutSchema: JSONSchema7) {
  * @returns an array of human readable validation messages
  */
 export function validateLayoutSet(layoutSetId: string, layouts: ILayouts, validator: Ajv) {
-  const validationMessages: string[] = [];
+  const out: LayoutValidationErrors = {
+    [layoutSetId]: {},
+  };
+
   for (const [layoutName, layout] of Object.entries(layouts)) {
+    out[layoutSetId][layoutName] = {};
     for (const component of layout || []) {
       const { type, pointer } = getComponentTypeAndPointer(component);
       const isValid = validator.validate(`${LAYOUT_SCHEMA_NAME}${pointer}`, component);
+      out[layoutSetId][layoutName][component.id] = [];
 
       if (!isValid && validator.errors) {
         const errorMessages = validator.errors
@@ -53,7 +59,7 @@ export function validateLayoutSet(layoutSetId: string, layouts: ILayouts, valida
           .filter(duplicateStringFilter);
 
         if (errorMessages.length) {
-          validationMessages.push(
+          out[layoutSetId][layoutName][component.id].push(
             `Component ${layoutSetId}/${layoutName}.json/${
               component.id
             } (${type}) has errors in its configuration:\n- ${errorMessages.join('\n- ')}`,
@@ -62,7 +68,7 @@ export function validateLayoutSet(layoutSetId: string, layouts: ILayouts, valida
       }
     }
   }
-  return validationMessages;
+  return out;
 }
 
 /**

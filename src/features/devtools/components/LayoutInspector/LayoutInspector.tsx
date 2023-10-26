@@ -10,8 +10,8 @@ import { LayoutInspectorItem } from 'src/features/devtools/components/LayoutInsp
 import { SplitView } from 'src/features/devtools/components/SplitView/SplitView';
 import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
 import { DevToolsTab } from 'src/features/devtools/data/types';
+import { useLayoutValidationForPage } from 'src/features/devtools/layoutValidation/useLayoutValidation';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
-import { useLayoutValidationCurrentPage } from 'src/features/layoutValidation/useLayoutValidationCurrentPage';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
 import { useExprContext } from 'src/utils/layout/ExprContext';
@@ -38,7 +38,7 @@ export const LayoutInspector = () => {
 
   const currentLayout = layouts?.[currentView];
   const matchingNodes = selectedComponent ? nodes?.findAllById(selectedComponent) || [] : [];
-  const validationErrors = useLayoutValidationCurrentPage();
+  const validationErrorsForPage = useLayoutValidationForPage() || {};
 
   useEffect(() => {
     setSelectedComponent(undefined);
@@ -118,7 +118,7 @@ export const LayoutInspector = () => {
               key={component.id}
               component={component}
               selected={selectedComponent === component.id}
-              hasErrors={validationErrors[component.id] !== undefined}
+              hasErrors={validationErrorsForPage[component.id] !== undefined}
               onClick={() => setSelectedComponent(component.id)}
             />
           ))}
@@ -128,14 +128,14 @@ export const LayoutInspector = () => {
         <div className={classes.properties}>
           <div className={classes.header}>
             <h3>Egenskaper</h3>
-            {validationErrors[selectedComponent] && (
+            {validationErrorsForPage[selectedComponent] && (
               <Alert
                 className={classes.errorAlert}
                 severity={'warning'}
               >
                 <div className={classes.errorList}>
                   <ul>
-                    {validationErrors[selectedComponent].map((error) => (
+                    {validationErrorsForPage[selectedComponent].map((error) => (
                       <li key={error}>{getParsedLanguageFromText(error)}</li>
                     ))}
                   </ul>
