@@ -78,8 +78,11 @@ module.exports = {
         warnings: false,
       },
     },
-    static: {
-      directory: path.join(__dirname, 'dist'),
-    },
+    static: [
+      {
+        directory: path.join(__dirname, 'schemas'),
+        publicPath: '/schemas',
+      },
+    ],
   },
 };
