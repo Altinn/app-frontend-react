@@ -100,9 +100,9 @@ function useDataModelBindingsValidation(props: LayoutValidationProps) {
             failures[layoutSetId][pageName][id] = errors;
 
             if (logErrors) {
-              for (const error of errors) {
-                window.logErrorOnce(`Validation errors for component '${layoutSetId}/${pageName}/${id}': ${error}`);
-              }
+              window.logErrorOnce(
+                `Data model binding errors for component '${layoutSetId}/${pageName}/${id}':\n- ${errors.join('\n- ')}`,
+              );
             }
           }
         }

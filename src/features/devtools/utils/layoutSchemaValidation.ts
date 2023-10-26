@@ -48,7 +48,7 @@ export function validateLayoutSet(layoutSetId: string, layouts: ILayouts, valida
   for (const [layoutName, layout] of Object.entries(layouts)) {
     out[layoutSetId][layoutName] = {};
     for (const component of layout || []) {
-      const { type, pointer } = getComponentTypeAndPointer(component);
+      const pointer = getComponentPointer(component);
       const isValid = validator.validate(`${LAYOUT_SCHEMA_NAME}${pointer}`, component);
       out[layoutSetId][layoutName][component.id] = [];
 
@@ -56,14 +56,10 @@ export function validateLayoutSet(layoutSetId: string, layouts: ILayouts, valida
         const errorMessages = validator.errors
           .map(formatError)
           .filter((m) => m != null)
-          .filter(duplicateStringFilter);
+          .filter(duplicateStringFilter) as string[];
 
         if (errorMessages.length) {
-          out[layoutSetId][layoutName][component.id].push(
-            `Component ${layoutSetId}/${layoutName}.json/${
-              component.id
-            } (${type}) has errors in its configuration:\n- ${errorMessages.join('\n- ')}`,
-          );
+          out[layoutSetId][layoutName][component.id].push(...errorMessages);
         }
       }
     }
@@ -110,22 +106,22 @@ function removeExpressionRefsRecursive(schema: object) {
 /**
  * Workaround to only validate against one type of group component at a time.
  */
-function getComponentTypeAndPointer(component: CompOrGroupExternal): { type: string; pointer: string } {
+function getComponentPointer(component: CompOrGroupExternal): string {
   if (component.type === 'Group') {
     if (groupIsNonRepeatingExt(component)) {
-      return { type: 'Group', pointer: NON_REPEATING_GROUP_POINTER };
+      return NON_REPEATING_GROUP_POINTER;
     }
     if (groupIsNonRepeatingPanelExt(component)) {
-      return { type: 'Panel Group', pointer: NON_REPEATING_GROUP_PANEL_POINTER };
+      return NON_REPEATING_GROUP_PANEL_POINTER;
     }
     if (groupIsRepeatingLikertExt(component)) {
-      return { type: 'Likert group', pointer: REPEATING_GROUP_LIKERT_POINTER };
+      return REPEATING_GROUP_LIKERT_POINTER;
     }
     if (groupIsRepeatingExt(component)) {
-      return { type: 'Repeating group', pointer: REPEATING_GROUP_POINTER };
+      return REPEATING_GROUP_POINTER;
     }
   }
-  return { type: component.type, pointer: COMPONENT_POINTER };
+  return COMPONENT_POINTER;
 }
 
 /**
@@ -161,23 +157,23 @@ function formatError(error: DefinedError): string | null {
   const canBeExpression = error.parentSchema?.comment === 'expression';
 
   const property = getProperty(error);
-  const propertyString = property?.length ? `'${property}'` : '';
-  const propertyReference = property?.length ? ` in '${property}'` : '';
+  const propertyString = property?.length ? `\`${property}\`` : '';
+  const propertyReference = property?.length ? ` i \`${property}\`` : '';
 
   switch (error.keyword) {
     case 'additionalProperties':
-      return `Property '${error.params.additionalProperty}' is not allowed${propertyReference}`;
+      return `Egenskapen \`${error.params.additionalProperty}\` er ikke tillatt${propertyReference}`;
     case 'required':
-      return `Property '${error.params.missingProperty}' is required${propertyReference}`;
+      return `Egenskapen \`${error.params.missingProperty}\` er påkrevd${propertyReference}`;
     case 'pattern':
-      return `Invalid property value for ${propertyString}, value '${error.data}' does not match the pattern '${error.params.pattern}'`;
+      return `Ugyldig verdi for egenskapen ${propertyString}, verdien \`${error.data}\` samsvarer ikke med mønsteret \`${error.params.pattern}\``;
     case 'enum':
       const allowedValues = error.params.allowedValues.map((v) => `'${v}'`).join(', ');
-      return `Invalid property value for ${propertyString}, value '${error.data}' is not one of the allowed values: [${allowedValues}]`;
+      return `Ugyldig verdi for egenskapen ${propertyString}, verdien \`${error.data}\` er ikke blant de tillatte verdiene: \`[${allowedValues}]\``;
     case 'type':
-      return `Invalid property value for ${propertyString}, value '${error.data}' is not of type '${
+      return `Ugyldig verdi for egenskapen ${propertyString}, verdien \`${error.data}\` er ikke av typen \`${
         error.params.type
-      }' ${canBeExpression ? 'or an expression' : ''}`;
+      }\` ${canBeExpression ? 'eller et uttrykk' : ''}`;
     case 'if':
     case 'anyOf':
     case 'oneOf':

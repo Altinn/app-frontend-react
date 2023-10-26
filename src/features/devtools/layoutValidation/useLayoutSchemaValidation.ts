@@ -26,11 +26,16 @@ export function useLayoutSchemaValidation(enabled: boolean): LayoutValidationErr
   return useMemo(() => {
     if (enabled && layouts && validator && layoutSetId) {
       const validationMessages = validateLayoutSet(layoutSetId, layouts, validator);
-      for (const layoutSet of Object.values(validationMessages)) {
-        for (const layout of Object.values(layoutSet)) {
-          for (const components of Object.values(layout)) {
-            for (const message of components) {
-              window.logErrorOnce(message);
+
+      for (const [layoutSetId, layoutSet] of Object.entries(validationMessages)) {
+        for (const [pageName, layout] of Object.entries(layoutSet)) {
+          for (const [id, errors] of Object.entries(layout)) {
+            if (errors.length) {
+              window.logErrorOnce(
+                `Layout configuration errors for component '${layoutSetId}/${pageName}/${id}':\n- ${errors.join(
+                  '\n- ',
+                )}`,
+              );
             }
           }
         }
