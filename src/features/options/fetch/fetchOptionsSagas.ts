@@ -2,6 +2,7 @@ import { call, fork, put, race, select, take } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 
+import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { OptionsActions } from 'src/features/options/optionsSlice';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import {
@@ -10,14 +11,14 @@ import {
   getKeyWithoutIndexIndicators,
   replaceIndexIndicatorsWithIndexes,
 } from 'src/utils/databindings';
-import { httpGet } from 'src/utils/network/sharedNetworking';
+import { httpGetWithHeaders } from 'src/utils/network/networking';
 import { getOptionLookupKey, getOptionLookupKeys } from 'src/utils/options';
 import { selectNotNull } from 'src/utils/sagas';
 import { getOptionsUrl } from 'src/utils/urls/appUrlHelper';
 import type { IFormData } from 'src/features/formData';
 import type { IUpdateFormData } from 'src/features/formData/formDataTypes';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type { IOption, ISelectionComponent } from 'src/layout/common.generated';
+import type { IDataModelBindingsOptionsSimple, IOption, ISelectionComponent } from 'src/layout/common.generated';
 import type { ILayouts } from 'src/layout/layout';
 import type { IFetchSpecificOptionSaga, IOptions, IOptionsMetaData, IRepeatingGroups, IRuntimeState } from 'src/types';
 
@@ -53,7 +54,9 @@ export function* fetchOptionsSaga(): SagaIterator {
   const optionsWithIndexIndicators: IOptionsMetaData[] = [];
   for (const layoutId of Object.keys(layouts)) {
     for (const element of layouts[layoutId] || []) {
-      const { optionsId, mapping, queryParameters, secure } = element as ISelectionComponent;
+      const { optionsId, mapping, queryParameters, secure, dataModelBindings } = element as ISelectionComponent & {
+        dataModelBindings?: IDataModelBindingsOptionsSimple;
+      };
 
       // if we have index indicators we get up the lookup keys for existing indexes
       const { keys, keyWithIndexIndicator } =
@@ -84,6 +87,7 @@ export function* fetchOptionsSaga(): SagaIterator {
             dataMapping: mapping,
             fixedQueryParameters: queryParameters,
             secure,
+            dataModelBindings,
           });
           fetchedOptions.push(lookupKey);
         }
@@ -105,6 +109,7 @@ export function* fetchSpecificOptionSaga({
   dataMapping,
   fixedQueryParameters,
   secure,
+  dataModelBindings,
 }: IFetchSpecificOptionSaga): SagaIterator {
   const key = getOptionLookupKey({ id: optionsId, mapping: dataMapping, fixedQueryParameters });
   const instanceId = yield select(instanceIdSelector);
@@ -129,7 +134,18 @@ export function* fetchSpecificOptionSaga({
       instanceId,
     });
 
-    const options: IOption[] = yield call(httpGet, url);
+    const optionsResponse = yield call(httpGetWithHeaders, url);
+    const downstreamParameters: string = optionsResponse.headers['altinn-downstreamparameters'];
+    if (downstreamParameters && dataModelBindings?.metadata) {
+      yield put(
+        FormDataActions.update({
+          field: dataModelBindings?.metadata,
+          data: downstreamParameters,
+          skipValidation: true,
+        }),
+      );
+    }
+    const options = optionsResponse.data as IOption[];
     yield put(OptionsActions.fetchFulfilled({ key, options }));
   } catch (error) {
     yield put(OptionsActions.fetchRejected({ key, error }));

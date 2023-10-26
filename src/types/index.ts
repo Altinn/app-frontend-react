@@ -2,7 +2,12 @@ import { Triggers } from 'src/layout/common.generated';
 import type { ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
 import type { IKeepComponentScrollPos } from 'src/features/layout/formLayoutTypes';
-import type { ILayoutNavigation, IMapping, IOption } from 'src/layout/common.generated';
+import type {
+  IDataModelBindingsOptionsSimple,
+  ILayoutNavigation,
+  IMapping,
+  IOption,
+} from 'src/layout/common.generated';
 import type { RootState } from 'src/redux/store';
 
 export interface IFormFileUploaderWithTag {
@@ -216,6 +221,7 @@ export interface IFetchSpecificOptionSaga {
   fixedQueryParameters?: Record<string, string>;
   secure?: boolean;
   instanceId?: string;
+  dataModelBindings?: IDataModelBindingsOptionsSimple;
 }
 
 /**
