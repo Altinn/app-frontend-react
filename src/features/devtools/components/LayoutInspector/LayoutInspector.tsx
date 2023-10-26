@@ -118,7 +118,9 @@ export const LayoutInspector = () => {
               key={component.id}
               component={component}
               selected={selectedComponent === component.id}
-              hasErrors={validationErrorsForPage[component.id] !== undefined}
+              hasErrors={
+                validationErrorsForPage[component.id] !== undefined && validationErrorsForPage[component.id].length > 0
+              }
               onClick={() => setSelectedComponent(component.id)}
             />
           ))}
@@ -128,7 +130,7 @@ export const LayoutInspector = () => {
         <div className={classes.properties}>
           <div className={classes.header}>
             <h3>Egenskaper</h3>
-            {validationErrorsForPage[selectedComponent] && (
+            {validationErrorsForPage[selectedComponent] && validationErrorsForPage[selectedComponent].length > 0 && (
               <Alert
                 className={classes.errorAlert}
                 severity={'warning'}
