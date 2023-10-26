@@ -114,7 +114,13 @@
 
 .errorList {
   font-size: initial;
-  font-family: initial;
+  font-family: var(--font-family);
+}
+
+.errorList code {
+  background-color: #eee;
+  padding: 2px 4px;
+  border-radius: 4px;
 }
 
 .error {
