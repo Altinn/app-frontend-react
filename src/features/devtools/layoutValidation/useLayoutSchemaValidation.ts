@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
-import { createLayoutValidator, validateLayoutSet } from 'src/features/devtools/utils/layoutValidation';
+import { createLayoutValidator, validateLayoutSet } from 'src/features/devtools/utils/layoutSchemaValidation';
 import { useCurrentLayoutSetId } from 'src/features/layout/useLayouts';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import type { LayoutValidationErrors } from 'src/features/devtools/layoutValidation/types';
