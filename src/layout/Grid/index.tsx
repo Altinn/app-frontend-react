@@ -57,25 +57,29 @@ export class Grid extends GridDef {
     // Filter out errors for cells, these will be handled individually
     const errors = rawErrors.filter((e) => !e.instancePath.match(/^\/rows\/\d+\/cells\/\d+(\/.+)?/));
 
-    // Validate cell individually according to their type
-    for (const [i, row] of component.rows.entries()) {
-      for (const [j, cell] of row.cells.entries()) {
-        // If the cell type is undecidable, validate against empty schema
-        let cellPointer: string | null = null;
-        if (cell == null) {
-          // null is valid, no need to validate
-          continue;
-        } else if ('text' in cell) {
-          cellPointer = '#/definitions/GridCellText';
-        } else if ('labelFrom' in cell) {
-          cellPointer = '#/definitions/GridCellLabelFrom';
-        } else if ('component' in cell) {
-          cellPointer = '#/definitions/GridComponentRef';
-        }
-        const cellErrors = validatate(cellPointer, cell);
-        if (cellErrors) {
-          // Rewrite instancePath to start at the component root
-          errors.push(...cellErrors.map((e) => ({ ...e, instancePath: `/rows/${i}/cells/${j}${e.instancePath}` })));
+    if (Array.isArray(component.rows)) {
+      // Validate cell individually according to their type
+      for (const [i, row] of component.rows.entries()) {
+        if (Array.isArray(row?.cells)) {
+          for (const [j, cell] of row.cells.entries()) {
+            // If the cell type is undecidable, validate against empty schema
+            let cellPointer: string | null = null;
+            if (cell == null) {
+              // null is valid, no need to validate
+              continue;
+            } else if (typeof cell === 'object' && 'text' in cell) {
+              cellPointer = '#/definitions/GridCellText';
+            } else if (typeof cell === 'object' && 'labelFrom' in cell) {
+              cellPointer = '#/definitions/GridCellLabelFrom';
+            } else if (typeof cell === 'object' && 'component' in cell) {
+              cellPointer = '#/definitions/GridComponentRef';
+            }
+            const cellErrors = validatate(cellPointer, cell);
+            if (cellErrors) {
+              // Rewrite instancePath to start at the component root
+              errors.push(...cellErrors.map((e) => ({ ...e, instancePath: `/rows/${i}/cells/${j}${e.instancePath}` })));
+            }
+          }
         }
       }
     }
