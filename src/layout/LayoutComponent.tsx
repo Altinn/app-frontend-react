@@ -1,5 +1,6 @@
 import React from 'react';
 
+import type { ErrorObject } from 'ajv';
 import type { JSONSchema7 } from 'json-schema';
 
 import { lookupErrorAsText } from 'src/features/datamodel/lookupErrorAsText';
@@ -20,7 +21,13 @@ import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { IFormData } from 'src/features/formData';
-import type { CompInternal, CompTypes, HierarchyDataSources, ITextResourceBindings } from 'src/layout/layout';
+import type {
+  CompExternalExact,
+  CompInternal,
+  CompTypes,
+  HierarchyDataSources,
+  ITextResourceBindings,
+} from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -107,6 +114,19 @@ export abstract class AnyComponent<Type extends CompTypes> {
     rowIndex?: number,
   ): LayoutNode<Type> {
     return new BaseLayoutNode(item, parent, top, dataSources, rowIndex) as LayoutNode<Type>;
+  }
+
+  /**
+   * Base implementation of validateLayoutConfing.
+   * Override this if you need to use a more specific pointer or
+   * filter out some specific errors that are not already removed @see formatError
+   */
+  validateLayoutConfing(
+    component: CompExternalExact<Type>,
+    validatate: (pointer: string, component: CompExternalExact<Type>) => ErrorObject[] | undefined,
+  ): ErrorObject[] | undefined {
+    const schemaPointer = '#/definitions/AnyComponent';
+    return validatate(schemaPointer, component);
   }
 }
 

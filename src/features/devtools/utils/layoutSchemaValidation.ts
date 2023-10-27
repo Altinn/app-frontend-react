@@ -3,23 +3,12 @@ import Ajv from 'ajv';
 import type { DefinedError, ErrorObject } from 'ajv';
 import type { JSONSchema7 } from 'json-schema';
 
-import {
-  groupIsNonRepeatingExt,
-  groupIsNonRepeatingPanelExt,
-  groupIsRepeatingExt,
-  groupIsRepeatingLikertExt,
-} from 'src/layout/Group/tools';
+import { getLayoutComponentObject } from 'src/layout';
 import { duplicateStringFilter } from 'src/utils/stringHelper';
 import type { LayoutValidationErrors } from 'src/features/devtools/layoutValidation/types';
-import type { CompOrGroupExternal, ILayouts } from 'src/layout/layout';
+import type { CompExternalExact, CompTypes, ILayouts } from 'src/layout/layout';
 
 export const LAYOUT_SCHEMA_NAME = 'layout.schema.v1.json';
-
-const COMPONENT_POINTER = '#/definitions/AnyComponent';
-const NON_REPEATING_GROUP_POINTER = '#/definitions/CompGroupNonRepeating';
-const NON_REPEATING_GROUP_PANEL_POINTER = '#/definitions/CompGroupNonRepeatingPanel';
-const REPEATING_GROUP_POINTER = '#/definitions/CompGroupRepeating';
-const REPEATING_GROUP_LIKERT_POINTER = '#/definitions/CompGroupRepeatingLikert';
 
 /**
  * Create a validator for the layout schema.
@@ -45,15 +34,27 @@ export function validateLayoutSet(layoutSetId: string, layouts: ILayouts, valida
     [layoutSetId]: {},
   };
 
+  function validate<Type extends CompTypes>(
+    pointer: string,
+    component: CompExternalExact<Type>,
+  ): ErrorObject[] | undefined {
+    const isValid = validator.validate(`${LAYOUT_SCHEMA_NAME}${pointer}`, component);
+    if (!isValid && validator.errors) {
+      return validator.errors;
+    }
+    return undefined;
+  }
+
   for (const [layoutName, layout] of Object.entries(layouts)) {
     out[layoutSetId][layoutName] = {};
     for (const component of layout || []) {
-      const pointer = getComponentPointer(component);
-      const isValid = validator.validate(`${LAYOUT_SCHEMA_NAME}${pointer}`, component);
+      const def = getLayoutComponentObject(component.type);
+      const errors = def.validateLayoutConfing(component as any, validate);
+
       out[layoutSetId][layoutName][component.id] = [];
 
-      if (!isValid && validator.errors) {
-        const errorMessages = validator.errors
+      if (errors) {
+        const errorMessages = errors
           .map(formatError)
           .filter((m) => m != null)
           .filter(duplicateStringFilter) as string[];
@@ -101,27 +102,6 @@ function removeExpressionRefsRecursive(schema: object) {
       }
     }
   }
-}
-
-/**
- * Workaround to only validate against one type of group component at a time.
- */
-function getComponentPointer(component: CompOrGroupExternal): string {
-  if (component.type === 'Group') {
-    if (groupIsNonRepeatingExt(component)) {
-      return NON_REPEATING_GROUP_POINTER;
-    }
-    if (groupIsNonRepeatingPanelExt(component)) {
-      return NON_REPEATING_GROUP_PANEL_POINTER;
-    }
-    if (groupIsRepeatingLikertExt(component)) {
-      return REPEATING_GROUP_LIKERT_POINTER;
-    }
-    if (groupIsRepeatingExt(component)) {
-      return REPEATING_GROUP_POINTER;
-    }
-  }
-  return COMPONENT_POINTER;
 }
 
 /**
