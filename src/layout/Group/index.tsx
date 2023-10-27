@@ -139,7 +139,7 @@ export class Group extends GroupDef implements GroupValidation, ComponentValidat
    */
   validateLayoutConfing(
     component: CompExternalExact<'Group'>,
-    validatate: (pointer: string, component: CompExternalExact<'Group'>) => ErrorObject[] | undefined,
+    validatate: (pointer: string, data: unknown) => ErrorObject[] | undefined,
   ): ErrorObject[] | undefined {
     let schemaPointer = '#/definitions/AnyComponent';
     if (groupIsNonRepeatingExt(component)) {

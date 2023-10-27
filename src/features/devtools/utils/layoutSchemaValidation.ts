@@ -6,15 +6,17 @@ import type { JSONSchema7 } from 'json-schema';
 import { getLayoutComponentObject } from 'src/layout';
 import { duplicateStringFilter } from 'src/utils/stringHelper';
 import type { LayoutValidationErrors } from 'src/features/devtools/layoutValidation/types';
-import type { CompExternalExact, CompTypes, ILayouts } from 'src/layout/layout';
+import type { ILayouts } from 'src/layout/layout';
 
 export const LAYOUT_SCHEMA_NAME = 'layout.schema.v1.json';
+export const EMPTY_SCHEMA_NAME = '__empty__';
 
 /**
  * Create a validator for the layout schema.
  */
 export function createLayoutValidator(layoutSchema: JSONSchema7) {
   const ajv = new Ajv({
+    allErrors: true,
     messages: false,
     strict: false,
     strictTypes: false,
@@ -22,6 +24,7 @@ export function createLayoutValidator(layoutSchema: JSONSchema7) {
     verbose: true,
   });
   ajv.addSchema(removeExpressionRefs(layoutSchema), LAYOUT_SCHEMA_NAME);
+  ajv.addSchema({ additionalProperties: false }, EMPTY_SCHEMA_NAME);
   return ajv;
 }
 
@@ -34,11 +37,17 @@ export function validateLayoutSet(layoutSetId: string, layouts: ILayouts, valida
     [layoutSetId]: {},
   };
 
-  function validate<Type extends CompTypes>(
-    pointer: string,
-    component: CompExternalExact<Type>,
-  ): ErrorObject[] | undefined {
-    const isValid = validator.validate(`${LAYOUT_SCHEMA_NAME}${pointer}`, component);
+  /**
+   * Validation function passed to component classes.
+   * Component class decides which schema pointer to use and what data to validate.
+   * If pointer is null, it will validate against an empty schema with additionalProperties=false,
+   * to indicate that everything is invalid. Useful for grid cells where the type cannot be decided.
+   * Component classes can choose to modify the output errors before returning.
+   */
+  function validate(pointer: string | null, data: unknown): ErrorObject[] | undefined {
+    const isValid = pointer?.length
+      ? validator.validate(`${LAYOUT_SCHEMA_NAME}${pointer}`, data)
+      : validator.validate(EMPTY_SCHEMA_NAME, data);
     if (!isValid && validator.errors) {
       return validator.errors;
     }
