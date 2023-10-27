@@ -210,11 +210,10 @@ describe('DropdownComponent', () => {
       component: {
         optionsId: 'countries',
       },
-      options: countries.options,
     });
 
-    await userEvent.click(await screen.findByRole('combobox'));
-    const options = await screen.findAllByRole('option');
+    await act(() => user.click(screen.getByRole('combobox')));
+    const options = screen.getAllByRole('option');
 
     expect(options[0]).toHaveValue('norway');
     expect(options[1]).toHaveValue('sweden');
@@ -227,11 +226,10 @@ describe('DropdownComponent', () => {
         optionsId: 'countries',
         sortOrder: 'asc',
       },
-      options: countries.options,
     });
 
-    await userEvent.click(await screen.findByRole('combobox'));
-    const options = await screen.findAllByRole('option');
+    await act(() => user.click(screen.getByRole('combobox')));
+    const options = screen.getAllByRole('option');
 
     expect(options[0]).toHaveValue('denmark');
     expect(options[1]).toHaveValue('norway');
@@ -244,11 +242,10 @@ describe('DropdownComponent', () => {
         optionsId: 'countries',
         sortOrder: 'desc',
       },
-      options: countries.options,
     });
 
-    await userEvent.click(await screen.findByRole('combobox'));
-    const options = await screen.findAllByRole('option');
+    await act(() => user.click(screen.getByRole('combobox')));
+    const options = screen.getAllByRole('option');
 
     expect(options[0]).toHaveValue('sweden');
     expect(options[1]).toHaveValue('norway');
