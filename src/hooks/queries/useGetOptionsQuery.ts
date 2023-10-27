@@ -35,8 +35,7 @@ export const useGetOptionsQuery = (
 
   const queryFunction = async (url: string) => {
     const response = await fetchOptions(url);
-    const downstreamParameters: string = response.headers['Altinn-Downstreamparameters'];
-    console.log('downstreamParameters', downstreamParameters);
+    const downstreamParameters: string = response.headers['altinn-downstreamparameters'];
     if (setMetadata && downstreamParameters) {
       setMetadata(downstreamParameters);
     }
