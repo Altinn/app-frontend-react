@@ -49,6 +49,16 @@ function mergeValidationErrors(a: LayoutValidationErrors, b: LayoutValidationErr
   return out;
 }
 
+/**
+ * This is a workaround to prevent validating multiple times when going to a new process step.
+ */
+export function useIsLayoutLoaded(): boolean {
+  const currentLayoutSetId = useCurrentLayoutSetId();
+  const loadedLayoutSet = useAppSelector((state) => state.formLayout.layoutSetId);
+
+  return currentLayoutSetId === loadedLayoutSet;
+}
+
 const defaultLayouts: ILayouts = {};
 
 /**
@@ -71,11 +81,13 @@ function useDataModelBindingsValidation(props: LayoutValidationProps) {
     [layouts, currentPage, repeatingGroups, dataSources],
   );
 
+  const layoutLoaded = useIsLayoutLoaded();
+
   return useMemo(() => {
     const failures: LayoutValidationErrors = {
       [layoutSetId]: {},
     };
-    if (!schema) {
+    if (!schema || !layoutLoaded) {
       return failures;
     }
     const rootElementPath = getRootElementPath(schema, dataType);
@@ -110,7 +122,7 @@ function useDataModelBindingsValidation(props: LayoutValidationProps) {
     }
 
     return failures;
-  }, [schema, dataType, nodes, logErrors, layoutSetId]);
+  }, [layoutSetId, schema, layoutLoaded, dataType, nodes, logErrors]);
 }
 
 const Context = createContext<LayoutValidationErrors | undefined>(undefined);
