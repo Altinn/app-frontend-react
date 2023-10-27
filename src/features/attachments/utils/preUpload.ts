@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import type React from 'react';
 
 import { useMutation } from '@tanstack/react-query';
@@ -12,6 +13,7 @@ import { ValidationActions } from 'src/features/validation/validationSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
+import { useWaitForState } from 'src/hooks/useWaitForState';
 import { getFileUploadComponentValidations } from 'src/utils/formComponentUtils';
 import { isAxiosError } from 'src/utils/network/sharedNetworking';
 import { getValidationMessage } from 'src/utils/validation/backendValidation';
@@ -36,18 +38,27 @@ interface ActionRemove {
   action: 'remove';
   node: LayoutNode<'FileUploadWithTag' | 'FileUpload'>;
   temporaryId: string;
+  result: IData | false;
 }
 
 type Actions = ActionUpload | ActionRemove;
 
-function reducer(draft: WritableDraft<IAttachments<TemporaryAttachment>>, action: Actions) {
+interface State {
+  uploading: IAttachments<TemporaryAttachment>;
+  uploadedResults: {
+    [temporaryId: string]: IData | undefined;
+  };
+  failedTmpIds: string[];
+}
+
+function reducer(draft: WritableDraft<State>, action: Actions) {
   const { node, temporaryId } = action;
   const { id } = node.item;
 
   if (action.action === 'upload') {
     const { file } = action;
-    draft[id] = draft[id] || [];
-    (draft[id] as IAttachment[]).push({
+    draft.uploading[id] = draft.uploading[id] || [];
+    (draft.uploading[id] as IAttachment[]).push({
       uploaded: false,
       updating: false,
       deleting: false,
@@ -58,30 +69,62 @@ function reducer(draft: WritableDraft<IAttachments<TemporaryAttachment>>, action
       },
     });
   } else if (action.action === 'remove') {
-    const attachments = draft[id];
+    const attachments = draft.uploading[id];
     if (attachments) {
       const index = attachments.findIndex((a) => a.data.temporaryId === temporaryId);
       if (index !== -1) {
         attachments.splice(index, 1);
       }
     }
+    if (action.result) {
+      draft.uploadedResults[temporaryId] = action.result;
+    } else {
+      draft.failedTmpIds.push(temporaryId);
+    }
   }
 }
 
 type Dispatch = React.Dispatch<Actions>;
-const initialState: IAttachments<TemporaryAttachment> = {};
+const initialState: State = {
+  uploading: {},
+  uploadedResults: {},
+  failedTmpIds: [],
+};
 export const usePreUpload = () => {
   const [state, dispatch] = useImmerReducer(reducer, initialState);
   const upload = useUpload(dispatch);
+  const waitFor = useWaitForState<IData | false, State>({
+    cacheKey: ['attachments', 'preUpload'],
+    currentState: state,
+  });
 
-  return { state, upload };
+  const awaitUpload = useCallback(
+    (attachment: TemporaryAttachment) =>
+      waitFor((s, setRetVal) => {
+        const { uploadedResults, failedTmpIds } = s;
+        const { temporaryId } = attachment.data;
+        const result = uploadedResults[temporaryId];
+        if (result) {
+          setRetVal(result);
+          return true;
+        }
+        if (failedTmpIds.includes(temporaryId)) {
+          setRetVal(false);
+          return true;
+        }
+        return false;
+      }),
+    [waitFor],
+  );
+
+  return { state: state.uploading, upload, awaitUpload };
 };
 
 /**
  * Do not use this directly, use the `useAttachmentsUploader` hook instead.
  * @see useAttachmentsUploader
  */
-export const useUpload = (dispatch: Dispatch) => {
+const useUpload = (dispatch: Dispatch) => {
   const { changeData: changeInstanceData } = useLaxInstance() || {};
   const { mutateAsync } = useAttachmentsUploadMutation();
   const langTools = useLanguage();
@@ -112,7 +155,7 @@ export const useUpload = (dispatch: Dispatch) => {
         throw new Error('Failed to upload attachment');
       }
 
-      dispatch({ action: 'remove', node, temporaryId });
+      dispatch({ action: 'remove', node, temporaryId, result: reply });
       changeInstanceData &&
         changeInstanceData((instance) => {
           if (instance?.data && reply) {
@@ -127,7 +170,7 @@ export const useUpload = (dispatch: Dispatch) => {
 
       return reply.id;
     } catch (err) {
-      dispatch({ action: 'remove', node, temporaryId });
+      dispatch({ action: 'remove', node, temporaryId, result: false });
 
       let validations: IComponentValidations;
       if (backendFeatures.jsonObjectInDataResponse && isAxiosError(err) && err.response?.data) {

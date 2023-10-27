@@ -11,7 +11,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 const { Provider, useCtx } = createStrictContext<IAttachmentsCtx>();
 
 export const AttachmentsProvider = ({ children }: PropsWithChildren) => {
-  const { state: preUpload, upload } = usePreUpload();
+  const { state: preUpload, upload, awaitUpload } = usePreUpload();
   const { state: postUpload, update, remove } = usePostUpload();
 
   const attachments = useMemo(() => mergeAndSort(preUpload, postUpload), [preUpload, postUpload]);
@@ -24,6 +24,7 @@ export const AttachmentsProvider = ({ children }: PropsWithChildren) => {
         upload,
         update,
         remove,
+        awaitUpload,
       }}
     >
       {children}
@@ -35,6 +36,7 @@ export const useAttachments = () => useCtx().attachments;
 export const useAttachmentsUploader = () => useCtx().upload;
 export const useAttachmentsUpdater = () => useCtx().update;
 export const useAttachmentsRemover = () => useCtx().remove;
+export const useAttachmentsAwaiter = () => useCtx().awaitUpload;
 export const useAttachmentsFor = (node: LayoutNode<'FileUploadWithTag' | 'FileUpload'>) => {
   const { attachments } = useCtx();
   return attachments[node.item.id] || [];

@@ -257,6 +257,8 @@ const useRemove = (dispatch: Dispatch) => {
             };
           }
         });
+
+      return true;
     } catch (error) {
       dispatch({ ...action, action: 'remove', success: false, error });
 
@@ -268,6 +270,8 @@ const useRemove = (dispatch: Dispatch) => {
           validationResult: { validations },
         }),
       );
+
+      return false;
     }
   };
 };

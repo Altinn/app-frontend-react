@@ -1,4 +1,4 @@
-import { put, select, take } from 'redux-saga/effects';
+import { put, select } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 
@@ -7,7 +7,6 @@ import { selectFormData, selectFormLayoutState } from 'src/features/form/layout/
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { groupIsRepeatingExt } from 'src/layout/Group/tools';
-import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { removeGroupData } from 'src/utils/databindings';
 import { removeRepeatingGroupFromUIConfig } from 'src/utils/formLayout';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
@@ -66,40 +65,33 @@ export function* repGroupDeleteRowSaga({ payload: { groupId, index } }: PayloadA
     const formData: IFormData = yield select(selectFormData);
     const repeatingGroup = repeatingGroups[groupId];
 
-    yield put(DeprecatedActions.deleteAttachmentsInGroup({ groupId, index }));
-    const attachmentRemoval: { successful: boolean } = yield take(DeprecatedActions.deleteAttachmentsInGroupFulfilled);
-    const attachmentRemovalSuccessful = attachmentRemoval.successful;
-    if (attachmentRemovalSuccessful) {
-      // Remove the form data associated with the group
-      const updatedFormData = removeGroupData(formData, index, currentLayout, groupId, repeatingGroup);
+    // Remove the form data associated with the group
+    const updatedFormData = removeGroupData(formData, index, currentLayout, groupId, repeatingGroup);
 
-      // Remove the validations associated with the group
-      const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
-      const groupNode = resolvedNodes.findById(groupId);
-      if (groupNode) {
-        const children = groupNode.flat(true, index).filter((node) => node.item.id !== groupId);
-        const validationObjects = children.map((child) => emptyValidation(child));
-        const validationResult = createLayoutValidationResult(validationObjects);
-        yield put(
-          ValidationActions.updateLayoutValidation({
-            pageKey: groupNode.pageKey(),
-            validationResult,
-            merge: true,
-          }),
-        );
-      }
-
-      updatedRepeatingGroups[groupId].deletingIndex = updatedRepeatingGroups[groupId].deletingIndex?.filter(
-        (value) => value !== index,
+    // Remove the validations associated with the group
+    const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
+    const groupNode = resolvedNodes.findById(groupId);
+    if (groupNode) {
+      const children = groupNode.flat(true, index).filter((node) => node.item.id !== groupId);
+      const validationObjects = children.map((child) => emptyValidation(child));
+      const validationResult = createLayoutValidationResult(validationObjects);
+      yield put(
+        ValidationActions.updateLayoutValidation({
+          pageKey: groupNode.pageKey(),
+          validationResult,
+          merge: true,
+        }),
       );
-      updatedRepeatingGroups[groupId].editIndex = -1;
-
-      yield put(FormLayoutActions.repGroupDeleteRowFulfilled({ updated: updatedRepeatingGroups }));
-      yield put(FormDataActions.setFulfilled({ formData: updatedFormData }));
-      yield put(FormDataActions.saveEvery({}));
-    } else {
-      yield put(FormLayoutActions.repGroupDeleteRowCancelled({ groupId, index }));
     }
+
+    updatedRepeatingGroups[groupId].deletingIndex = updatedRepeatingGroups[groupId].deletingIndex?.filter(
+      (value) => value !== index,
+    );
+    updatedRepeatingGroups[groupId].editIndex = -1;
+
+    yield put(FormLayoutActions.repGroupDeleteRowFulfilled({ updated: updatedRepeatingGroups }));
+    yield put(FormDataActions.setFulfilled({ formData: updatedFormData }));
+    yield put(FormDataActions.saveEvery({}));
   } catch (error) {
     yield put(FormLayoutActions.repGroupDeleteRowRejected({ error }));
     window.logError(`Deleting row from repeating group (${groupId}) failed:\n`, error);
