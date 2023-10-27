@@ -1,5 +1,3 @@
-import { useRef } from 'react';
-
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -124,20 +122,10 @@ export function useMappedAttachments() {
   const currentTask = useLaxProcessData()?.currentTask?.elementId;
   const data = useLaxInstanceData()?.data;
   const nodes = useExprContext();
-  const lastData = useRef(data);
-  const lastResult = useRef<SimpleAttachments>();
 
   return useMemoDeepEqual(() => {
     if (data && nodes && application) {
-      if (lastData.current === data) {
-        // No need to re-map if the data is the same as last time. The nodes will change often, but the data
-        // will only change when new attachments are uploaded (or other data elements in the instance).
-        return lastResult.current;
-      }
-
-      lastData.current = data;
-      lastResult.current = mapAttachments(data, nodes, application, currentTask);
-      return lastResult.current;
+      return mapAttachments(data, nodes, application, currentTask);
     }
 
     return undefined;
