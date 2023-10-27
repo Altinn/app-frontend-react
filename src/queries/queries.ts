@@ -127,7 +127,7 @@ export const doAttachmentAddTag = async (dataGuid: string, tagToAdd: string): Pr
 
 export const doAttachmentRemove = async (dataGuid: string): Promise<void> => {
   const response = await httpDelete(dataElementUrl(dataGuid));
-  if (response.status !== 204) {
+  if (response.status !== 200) {
     throw new Error('Failed to remove attachment');
   }
   return response.data;

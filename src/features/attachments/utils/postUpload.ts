@@ -144,7 +144,7 @@ export const usePostUpload = () => {
   const remove = useRemove(dispatch);
 
   useEffect(() => {
-    dispatch({ action: 'replaceAll', attachments: fromInstance });
+    dispatch({ action: 'replaceAll', attachments: fromInstance || {} });
   }, [dispatch, fromInstance]);
 
   return {

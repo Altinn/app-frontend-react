@@ -1,8 +1,10 @@
-import { useMemo } from 'react';
+import { useRef } from 'react';
 
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
+import { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IData, IDataType } from 'src/types/shared';
@@ -70,6 +72,9 @@ function mapAttachments(
       const formData = node.getFormData();
       const simpleBinding = 'simpleBinding' in formData ? formData.simpleBinding : undefined;
       const listBinding = 'list' in formData ? formData.list : undefined;
+      const nodeIsInRepeatingGroup = node
+        .parents()
+        .some((parent) => parent instanceof LayoutNodeForGroup && parent.isRepGroup());
 
       if (simpleBinding && simpleBinding === data.id) {
         addAttachment(attachments, node, data);
@@ -78,6 +83,18 @@ function mapAttachments(
       }
 
       if (listBinding && Array.isArray(listBinding) && listBinding.some((binding) => binding === data.id)) {
+        addAttachment(attachments, node, data);
+        found = true;
+        break;
+      }
+
+      if (
+        !('simpleBinding' in formData) &&
+        !('list' in formData) &&
+        !nodeIsInRepeatingGroup &&
+        matchingNodes.length === 1
+      ) {
+        // We can safely assume the attachment belongs to this node.
         addAttachment(attachments, node, data);
         found = true;
         break;
@@ -107,12 +124,22 @@ export function useMappedAttachments() {
   const currentTask = useLaxProcessData()?.currentTask?.elementId;
   const data = useLaxInstanceData()?.data;
   const nodes = useExprContext();
+  const lastData = useRef(data);
+  const lastResult = useRef<SimpleAttachments>();
 
-  return useMemo(() => {
+  return useMemoDeepEqual(() => {
     if (data && nodes && application) {
-      return mapAttachments(data, nodes, application, currentTask);
+      if (lastData.current === data) {
+        // No need to re-map if the data is the same as last time. The nodes will change often, but the data
+        // will only change when new attachments are uploaded (or other data elements in the instance).
+        return lastResult.current;
+      }
+
+      lastData.current = data;
+      lastResult.current = mapAttachments(data, nodes, application, currentTask);
+      return lastResult.current;
     }
 
-    return {};
+    return undefined;
   }, [data, nodes, application, currentTask]);
 }

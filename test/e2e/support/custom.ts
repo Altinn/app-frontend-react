@@ -166,6 +166,7 @@ const knownWcagViolations: KnownViolation[] = [
 
 Cypress.Commands.add('clearSelectionAndWait', (viewport) => {
   cy.get('#readyForPrint').should('exist');
+  cy.findByRole('progressbar').should('not.exist');
 
   // Find focused element and blur it, to ensure that we don't get any focus outlines or styles in the snapshot.
   cy.window().then((win) => {
@@ -332,6 +333,7 @@ Cypress.Commands.add('testWcag', () => {
 Cypress.Commands.add('reloadAndWait', () => {
   cy.reload();
   cy.get('#readyForPrint').should('exist');
+  cy.findByRole('progressbar').should('not.exist');
   cy.injectAxe();
 });
 
