@@ -58,6 +58,8 @@ export function* fetchOptionsSaga(): SagaIterator {
         dataModelBindings?: IDataModelBindingsOptionsSimple;
       };
 
+      const metadataBinding = dataModelBindings?.metadata;
+
       // if we have index indicators we get up the lookup keys for existing indexes
       const { keys, keyWithIndexIndicator } =
         (optionsId &&
@@ -87,7 +89,7 @@ export function* fetchOptionsSaga(): SagaIterator {
             dataMapping: mapping,
             fixedQueryParameters: queryParameters,
             secure,
-            dataModelBindings,
+            metadataBinding,
           });
           fetchedOptions.push(lookupKey);
         }
@@ -109,7 +111,7 @@ export function* fetchSpecificOptionSaga({
   dataMapping,
   fixedQueryParameters,
   secure,
-  dataModelBindings,
+  metadataBinding,
 }: IFetchSpecificOptionSaga): SagaIterator {
   const key = getOptionLookupKey({ id: optionsId, mapping: dataMapping, fixedQueryParameters });
   const instanceId = yield select(instanceIdSelector);
@@ -136,10 +138,10 @@ export function* fetchSpecificOptionSaga({
 
     const optionsResponse = yield call(httpGetWithHeaders, url);
     const downstreamParameters: string = optionsResponse.headers['altinn-downstreamparameters'];
-    if (downstreamParameters && dataModelBindings?.metadata) {
+    if (downstreamParameters && metadataBinding) {
       yield put(
         FormDataActions.update({
-          field: dataModelBindings?.metadata,
+          field: metadataBinding,
           data: downstreamParameters,
           skipValidation: true,
         }),

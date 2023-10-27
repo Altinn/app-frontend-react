@@ -7,7 +7,7 @@ export enum HttpStatusCodes {
   Forbidden = 403,
 }
 
-export async function httpGet(url: string, options?: AxiosRequestConfig): Promise<any> {
+export async function httpGetWithHeadershttpGet(url: string, options?: AxiosRequestConfig): Promise<any> {
   const headers = options?.headers as RawAxiosRequestHeaders | undefined;
   const response: AxiosResponse = await axios.get(url, {
     ...options,
