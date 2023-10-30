@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
-import { Loader } from 'src/features/isLoading/Loader';
+import { Loader } from 'src/features/loading/Loader';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { ProcessTaskType } from 'src/types';
 import { useIsStatelessApp } from 'src/utils/appMetadata';

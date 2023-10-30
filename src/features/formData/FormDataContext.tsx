@@ -10,8 +10,7 @@ import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData, useRealTaskType } from 'src/features/instance/ProcessContext';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
-import { Loader } from 'src/features/isLoading/Loader';
-import { StatelessReadyState, useStatelessReadyState } from 'src/features/isLoading/useIsLoading';
+import { Loader } from 'src/features/loading/Loader';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
@@ -59,7 +58,6 @@ function useFormDataQuery(enabled: boolean): UseQueryResult<IFormData> {
   const appMetaData = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
   const currentPartyId = useAppSelector((state) => state.party.selectedParty?.partyId);
   const taskType = useRealTaskType();
-  const statelessReady = useStatelessReadyState();
   const allowAnonymousSelector = makeGetAllowAnonymousSelector();
   const allowAnonymous = useAppSelector(allowAnonymousSelector);
   const isStateless = isStatelessApp(appMetaData);
@@ -71,9 +69,7 @@ function useFormDataQuery(enabled: boolean): UseQueryResult<IFormData> {
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
   const currentTaskDataId = useCurrentDataModelGuid();
 
-  let isEnabled = isStateless
-    ? statelessReady === StatelessReadyState.Loading || statelessReady === StatelessReadyState.Ready
-    : taskType === ProcessTaskType.Data;
+  let isEnabled = isStateless ? true : taskType === ProcessTaskType.Data;
   if (isStateless && !allowAnonymous && currentPartyId === undefined) {
     isEnabled = false;
   }

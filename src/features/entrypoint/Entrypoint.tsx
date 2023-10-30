@@ -11,8 +11,7 @@ import { InstantiateContainer } from 'src/features/instantiate/containers/Instan
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
-import { Loader } from 'src/features/isLoading/Loader';
-import { StatelessReadyState, useStatelessReadyState } from 'src/features/isLoading/useIsLoading';
+import { Loader } from 'src/features/loading/Loader';
 import { PartyActions } from 'src/features/party/partySlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { usePartyValidationMutation } from 'src/hooks/mutations/usePartyValidationMutation';
@@ -22,6 +21,7 @@ import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
 import { PresentationType, ProcessTaskType } from 'src/types';
+import { useIsStatelessApp } from 'src/utils/appMetadata';
 import { checkIfAxiosError, HttpStatusCodes } from 'src/utils/network/networking';
 import type { ShowTypes } from 'src/features/applicationMetadata';
 
@@ -52,7 +52,7 @@ export function Entrypoint() {
   const appOwner = useAppSelector(selectAppOwner);
   const alwaysPromptForParty = useAlwaysPromptForParty();
   const dispatch = useAppDispatch();
-  const statelessReady = useStatelessReadyState();
+  const isStateless = useIsStatelessApp();
 
   const componentHasErrors = hasPartyValidationError || hasActiveInstancesError;
 
@@ -136,7 +136,7 @@ export function Entrypoint() {
   }
 
   // Stateless view
-  if (statelessReady === StatelessReadyState.Ready) {
+  if (isStateless) {
     return (
       <FormProvider>
         <PresentationComponent

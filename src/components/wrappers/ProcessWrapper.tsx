@@ -13,7 +13,6 @@ import { Feedback } from 'src/features/feedback/Feedback';
 import { useStrictInstance } from 'src/features/instance/InstanceContext';
 import { useRealTaskType } from 'src/features/instance/ProcessContext';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
-import { useIsLoading } from 'src/features/isLoading/useIsLoading';
 import { PDFView } from 'src/features/pdf/PDFView';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
 import { useApiErrorCheck } from 'src/hooks/useApiErrorCheck';
@@ -27,7 +26,6 @@ export interface IProcessWrapperProps {
 
 export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
   const { isFetching: isInstanceDataFetching } = useStrictInstance();
-  const isLoadingData = useIsLoading();
   const { hasApiErrors } = useApiErrorCheck();
   const appName = useAppSelector(selectAppName);
   const appOwner = useAppSelector(selectAppOwner);
@@ -37,13 +35,7 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
   const renderPDF = searchParams.get('pdf') === '1';
   const previewPDF = useAppSelector((state) => state.devTools.pdfPreview);
 
-  const loadingReason = isLoadingData
-    ? 'loading'
-    : isFetching === true
-    ? 'fetching'
-    : isInstanceDataFetching
-    ? 'fetching-instance'
-    : undefined;
+  const loadingReason = isFetching === true ? 'fetching' : isInstanceDataFetching ? 'fetching-instance' : undefined;
 
   if (hasApiErrors) {
     return <UnknownError />;

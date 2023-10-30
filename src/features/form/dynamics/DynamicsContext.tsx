@@ -7,7 +7,7 @@ import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { FormDynamicsActions } from 'src/features/form/dynamics/formDynamicsSlice';
 import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
-import { Loader } from 'src/features/isLoading/Loader';
+import { Loader } from 'src/features/loading/Loader';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { createStrictContext } from 'src/utils/createContext';
 

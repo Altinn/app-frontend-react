@@ -4,7 +4,7 @@ import type { PropsWithChildren } from 'react';
 import deepEqual from 'fast-deep-equal';
 
 import { useLaxProcessData, useRealTaskType } from 'src/features/instance/ProcessContext';
-import { Loader } from 'src/features/isLoading/Loader';
+import { Loader } from 'src/features/loading/Loader';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { ProcessTaskType } from 'src/types';
 import { createStrictContext } from 'src/utils/createContext';

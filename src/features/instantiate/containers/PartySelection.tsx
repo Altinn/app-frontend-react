@@ -96,8 +96,6 @@ export const PartySelection = () => {
 
   const onSelectParty = (party: IParty) => {
     selectPartyMutate(party);
-
-    // PRIORITY: Clear any previous instantiation errors? This should probably instead be handled using error boundaries
   };
 
   useEffect(() => {

@@ -10,7 +10,7 @@ import { FormProvider } from 'src/features/form/FormContext';
 import { ProcessProvider } from 'src/features/instance/ProcessContext';
 import { ProcessNavigationProvider } from 'src/features/instance/ProcessNavigationContext';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
-import { Loader } from 'src/features/isLoading/Loader';
+import { Loader } from 'src/features/loading/Loader';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { createLaxContext } from 'src/utils/createContext';
