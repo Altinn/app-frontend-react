@@ -29,48 +29,44 @@ export function useAttachmentDeletionInRepGroups(node: LayoutNodeForGroup) {
       const uploaders = node
         .flat(true, index)
         .filter((node) => node.item.type === 'FileUpload' || node.item.type === 'FileUploadWithTag') as UploaderNode[];
-      const promises: Promise<boolean>[] = [];
 
+      // This code is intentionally not parallelized, as especially LocalTest can't handle parallel requests to
+      // delete attachments. It might return a 500 if you try. To be safe, we do them one by one.
       for (const uploader of uploaders) {
         const files = attachments[uploader.item.id] ?? [];
         for (const file of files) {
           if (isAttachmentUploaded(file)) {
-            promises.push(
-              remove({
-                attachment: file,
-                node: uploader,
-              }),
-            );
+            const result = await remove({
+              attachment: file,
+              node: uploader,
+            });
+            if (!result) {
+              return false;
+            }
           } else {
-            promises.push(
-              (async () => {
-                const uploaded = await awaiter(file);
-                if (uploaded) {
-                  return await remove({
-                    attachment: {
-                      uploaded: true,
-                      deleting: false,
-                      updating: false,
-                      data: uploaded,
-                    },
-                    node: uploader,
-                  });
-                }
-                // If the attachment was never uploaded successfully, we don't need to remove
-                // it, and we can just continue as if removing it was successful.
-                return true;
-              })(),
-            );
+            const uploaded = await awaiter(file);
+            if (uploaded) {
+              const result = await remove({
+                attachment: {
+                  uploaded: true,
+                  deleting: false,
+                  updating: false,
+                  data: uploaded,
+                },
+                node: uploader,
+              });
+              if (!result) {
+                return false;
+              }
+            }
+            // If the attachment was never uploaded successfully, we don't need to remove
+            // it, and we can just continue as if removing it was successful.
+            return true;
           }
         }
       }
 
-      const results = await Promise.all(promises);
-      if (results.length === 0) {
-        return true;
-      }
-
-      return results.every((result) => result);
+      return true;
     },
   };
 }
