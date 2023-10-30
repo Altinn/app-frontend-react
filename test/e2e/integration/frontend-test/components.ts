@@ -257,17 +257,15 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.confirmChangeName).findByText('Dette er en beskrivelse.').should('be.visible');
     cy.get(appFrontend.changeOfName.confirmChangeName).findByRole('button').click();
     cy.get(appFrontend.changeOfName.confirmChangeName)
-      .findByRole('dialog', { name: 'Dette er en hjelpetekst.' })
-      .should('be.visible');
+      .findByRole('dialog')
+      .should('contain.text', 'Dette er en hjelpetekst.');
 
     cy.get(appFrontend.changeOfName.confirmChangeName).find('label').click();
     cy.get(appFrontend.changeOfName.reasons).should('be.visible');
 
     cy.get(appFrontend.changeOfName.reasons).findByText('Dette er en beskrivelse.').should('be.visible');
     cy.get(appFrontend.changeOfName.reasons).findByRole('button').click();
-    cy.get(appFrontend.changeOfName.reasons)
-      .findByRole('dialog', { name: 'Dette er en hjelpetekst.' })
-      .should('be.visible');
+    cy.get(appFrontend.changeOfName.reasons).findByRole('dialog').should('contain.text', 'Dette er en hjelpetekst.');
   });
 
   it("alert on change if radioButton or checkBox has 'alertOnChange' set to true", () => {
