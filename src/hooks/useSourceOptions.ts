@@ -2,11 +2,14 @@ import { useMemo } from 'react';
 
 import { pick } from 'dot-object';
 
-import { evalExpr, isExpression } from 'src/features/expressions';
+import { evalExpr } from 'src/features/expressions';
+import { ExprVal } from 'src/features/expressions/types';
+import { asExpression } from 'src/features/expressions/validation';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { convertDataBindingToModel, getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { selectDataSourcesFromState } from 'src/utils/layout/hierarchy';
+import { memoize } from 'src/utils/memoize';
 import type { IOption, IOptionSource } from 'src/layout/common.generated';
 import type { HierarchyDataSources } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -64,17 +67,36 @@ export function getSourceOptions({ source, node, dataSources }: IGetSourceOption
             langAsString: (key: string) => langTools.langAsStringUsingPathInDataModel(key, path),
           },
         };
+
+        const config = {
+          defaultValue: '',
+          returnType: ExprVal.String,
+          resolvePerRow: false,
+        };
+
+        const memoizedAsExpression = memoize(asExpression);
+
+        const labelExpression = memoizedAsExpression(label, config);
+        const descriptionExpression = memoizedAsExpression(description, config);
+        const helpTextExpression = memoizedAsExpression(helpText, config);
+
         output.push({
           value: pick(valuePath, formDataAsObject),
-          label: isExpression(label)
-            ? evalExpr(label, node, modifiedDataSources)
-            : langTools.langAsStringUsingPathInDataModel(label, path),
-          description: isExpression(description)
-            ? evalExpr(description, node, modifiedDataSources)
-            : langTools.langAsStringUsingPathInDataModel(description, path),
-          helpText: isExpression(helpText)
-            ? evalExpr(helpText, node, modifiedDataSources)
-            : langTools.langAsStringUsingPathInDataModel(helpText, path),
+          label: !Array.isArray(label)
+            ? langTools.langAsStringUsingPathInDataModel(label, path)
+            : Array.isArray(labelExpression)
+            ? evalExpr(labelExpression, node, modifiedDataSources)
+            : null,
+          description: !Array.isArray(description)
+            ? langTools.langAsStringUsingPathInDataModel(description, path)
+            : Array.isArray(descriptionExpression)
+            ? evalExpr(descriptionExpression, node, modifiedDataSources)
+            : null,
+          helpText: !Array.isArray(helpText)
+            ? langTools.langAsStringUsingPathInDataModel(helpText, path)
+            : Array.isArray(helpTextExpression)
+            ? evalExpr(helpTextExpression, node, modifiedDataSources)
+            : null,
         });
       }
     }

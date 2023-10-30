@@ -180,7 +180,7 @@ function validateExpr(expr: any[], ctx: ValidationContext, path: string[]) {
   return validateFunction(func, rawArgs, args, ctx, [...path, '[0]']);
 }
 
-export function validateRecursively(expr: any, ctx: ValidationContext, path: string[]): ExprVal | undefined {
+function validateRecursively(expr: any, ctx: ValidationContext, path: string[]): ExprVal | undefined {
   if (validBasicTypes[typeof expr]) {
     return validBasicTypes[typeof expr];
   }
