@@ -14,7 +14,7 @@ import type { IInstance, IProcess } from 'src/types/shared';
 
 interface IProcessContext {
   data: IProcess;
-  setData: (data: IProcess) => void;
+  setData: (data: IProcess | ((prevData: IProcess | undefined) => IProcess | undefined)) => void;
   reFetch: () => Promise<void>;
 }
 
@@ -59,8 +59,13 @@ export function ProcessProvider({ children, instance }: React.PropsWithChildren<
       value={{
         data,
         setData: (data) => {
-          window.lastKnownProcess = data;
-          setData(data);
+          if (typeof data === 'function') {
+            window.lastKnownProcess = data(window.lastKnownProcess);
+            setData(data);
+          } else {
+            window.lastKnownProcess = data;
+            setData(data);
+          }
         },
         reFetch,
       }}

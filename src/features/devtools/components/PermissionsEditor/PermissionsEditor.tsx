@@ -5,29 +5,31 @@ import { Checkbox } from '@digdir/design-system-react';
 
 import classes from 'src/features/devtools/components/PermissionsEditor/PermissionsEditor.module.css';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { useLaxProcessData, useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
+import { useLaxProcessData, useSetProcessData } from 'src/features/instance/ProcessContext';
+import type { ITask } from 'src/types/shared';
 
 export const PermissionsEditor = () => {
-  const { read: _read, write, actions, elementId: _taskId } = useLaxProcessData()?.currentTask || {};
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  const _taskType = useTaskTypeFromBackend();
+  // TODO: Fix this editor, as the process data is in a context _inside_ the DevTools context, so we cannot reach it
+
+  const { write, actions } = useLaxProcessData()?.currentTask || {};
   const dispatch = useDispatch();
+  const setProcessData = useSetProcessData();
 
-  function handleChange(_mutator: (obj: any) => void) {
-    // function handleChange(mutator: (obj: IProcessPermissions) => void) {
-    // const processState: IGetProcessStateFulfilled = {
-    //   taskId,
-    //   taskType,
-    //   read,
-    //   write,
-    //   actions: actions ?? {},
-    // };
-    //
-    // mutator(processState);
+  function handleChange(mutator: (obj: ITask) => ITask) {
+    setProcessData &&
+      setProcessData((processData) => {
+        const currentTask = processData?.currentTask;
+        if (currentTask) {
+          return {
+            ...processData,
+            currentTask: {
+              ...processData.currentTask,
+              ...mutator(currentTask),
+            },
+          };
+        }
+      });
 
-    // PRIORITY: Fix this
-    // dispatch(ProcessActions.getFulfilled(processState));
     dispatch(FormLayoutActions.updateLayouts({}));
   }
 
@@ -38,32 +40,56 @@ export const PermissionsEditor = () => {
     >
       <Checkbox
         size='small'
+        disabled={!setProcessData}
         checked={Boolean(write)}
-        onChange={(e) => handleChange((obj) => (obj.write = e.target.checked))}
+        onChange={(e) =>
+          handleChange((obj) => {
+            obj.write = e.target.checked;
+            return obj;
+          })
+        }
         value='nothing'
       >
         Write
       </Checkbox>
       <Checkbox
         size='small'
+        disabled={!setProcessData}
         checked={Boolean(actions?.confirm)}
-        onChange={(e) => handleChange((obj) => (obj.actions = { ...obj.actions, confirm: e.target.checked }))}
+        onChange={(e) =>
+          handleChange((obj) => {
+            obj.actions = { ...obj.actions, confirm: e.target.checked };
+            return obj;
+          })
+        }
         value='nothing'
       >
         Confirm
       </Checkbox>
       <Checkbox
         size='small'
+        disabled={!setProcessData}
         checked={Boolean(actions?.sign)}
-        onChange={(e) => handleChange((obj) => (obj.actions = { ...obj.actions, sign: e.target.checked }))}
+        onChange={(e) =>
+          handleChange((obj) => {
+            obj.actions = { ...obj.actions, sign: e.target.checked };
+            return obj;
+          })
+        }
         value='nothing'
       >
         Sign
       </Checkbox>
       <Checkbox
         size='small'
+        disabled={!setProcessData}
         checked={Boolean(actions?.reject)}
-        onChange={(e) => handleChange((obj) => (obj.actions = { ...obj.actions, reject: e.target.checked }))}
+        onChange={(e) =>
+          handleChange((obj) => {
+            obj.actions = { ...obj.actions, reject: e.target.checked };
+            return obj;
+          })
+        }
         value='nothing'
       >
         Reject
