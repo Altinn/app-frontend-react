@@ -26,7 +26,6 @@ function useLayoutQuery() {
   const { fetchLayouts } = useAppQueries();
   const hasInstance = useHasInstance();
   const process = useLaxProcessData();
-  const taskId = process?.currentTask?.elementId;
   const layoutSetId = useCurrentLayoutSetId();
   const dispatch = useAppDispatch();
   const instance = useLaxInstanceData();
@@ -36,7 +35,7 @@ function useLayoutQuery() {
     // Waiting to fetch layouts until we have an instance, if we're supposed to have one
     enabled: hasInstance ? !!process : true,
 
-    queryKey: ['formLayouts', layoutSetId, taskId],
+    queryKey: ['formLayouts', layoutSetId],
     queryFn: () => fetchLayouts(layoutSetId),
     onSuccess: (data) => {
       if (!data || !applicationMetadata) {

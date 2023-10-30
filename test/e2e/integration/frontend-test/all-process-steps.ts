@@ -40,9 +40,7 @@ describe('All process steps', () => {
 
     // When we first arrive to the receipt, we'll get the custom one because we intercepted and added it
     // to the redux state while filling out the form.
-    // TODO: Enable this again when we start supporting custom receipts again
-    // @see https://github.com/Altinn/app-frontend-react/issues/1468
-    // testCustomReceiptPage();
+    testCustomReceiptPage();
 
     // However, when the custom receipt test refreshes the page, we'll get the default receipt, because we lost
     // the redux state from before.
