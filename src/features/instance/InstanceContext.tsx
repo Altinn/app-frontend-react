@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
+import { LayoutValidationProvider } from 'src/features/devtools/layoutValidation/useLayoutValidation';
 import { DisplayError } from 'src/features/errorHandling/DisplayError';
 import { FormProvider } from 'src/features/form/FormContext';
 import { ProcessProvider } from 'src/features/instance/ProcessContext';
@@ -163,7 +164,9 @@ const InnerInstanceProvider = ({
     >
       <ProcessProvider instance={data}>
         <FormProvider>
-          <ProcessNavigationProvider>{children}</ProcessNavigationProvider>
+          <LayoutValidationProvider>
+            <ProcessNavigationProvider>{children}</ProcessNavigationProvider>
+          </LayoutValidationProvider>
         </FormProvider>
       </ProcessProvider>
     </Provider>

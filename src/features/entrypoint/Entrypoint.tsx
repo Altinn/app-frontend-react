@@ -5,6 +5,7 @@ import type { AxiosError } from 'axios';
 
 import { Form } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/wrappers/Presentation';
+import { LayoutValidationProvider } from 'src/features/devtools/layoutValidation/useLayoutValidation';
 import { FormProvider } from 'src/features/form/FormContext';
 import { InstanceSelection } from 'src/features/instantiate/containers/InstanceSelection';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
@@ -139,13 +140,15 @@ export function Entrypoint() {
   if (isStateless) {
     return (
       <FormProvider>
-        <PresentationComponent
-          header={appName || ''}
-          appOwner={appOwner}
-          type={PresentationType.Stateless}
-        >
-          <Form />
-        </PresentationComponent>
+        <LayoutValidationProvider>
+          <PresentationComponent
+            header={appName || ''}
+            appOwner={appOwner}
+            type={PresentationType.Stateless}
+          >
+            <Form />
+          </PresentationComponent>
+        </LayoutValidationProvider>
       </FormProvider>
     );
   }

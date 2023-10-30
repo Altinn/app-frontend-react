@@ -22,9 +22,9 @@ import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
-import type { CompExternalExact, CompTypes } from 'src/layout/layout';
+import type { CompExternalExact, CompTypes, ILayoutCollection } from 'src/layout/layout';
 import type { AppStore, RootState } from 'src/redux/store';
-import type { ILayoutSets, ILayoutSettings, IRuntimeState } from 'src/types';
+import type { ILayoutSets, IRuntimeState } from 'src/types';
 import type { IProfile } from 'src/types/shared';
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
@@ -49,6 +49,17 @@ export const renderWithProviders = (
   function Wrapper({ children }: React.PropsWithChildren) {
     const theme = createTheme(AltinnAppTheme);
 
+    const state = store?.getState();
+    const layouts = state?.formLayout.layouts || {};
+    const layoutsAsCollection: ILayoutCollection = {};
+    for (const key in layouts) {
+      layoutsAsCollection[key] = {
+        data: {
+          layout: layouts[key] || [],
+        },
+      };
+    }
+
     const allMockedQueries = {
       doPartyValidation: () => Promise.resolve({ valid: true, validParties: [], message: null }),
       doSelectParty: () => Promise.resolve(null),
@@ -65,8 +76,13 @@ export const renderWithProviders = (
       fetchApplicationSettings: () => Promise.resolve({}),
       fetchFooterLayout: () => Promise.resolve({ footer: [] } as IFooterLayout),
       fetchLayoutSets: () => Promise.resolve({} as unknown as ILayoutSets),
-      fetchLayouts: () => Promise.resolve({}),
-      fetchLayoutSettings: () => Promise.resolve({} as ILayoutSettings),
+      fetchLayouts: () => Promise.resolve(layoutsAsCollection),
+      fetchLayoutSettings: () =>
+        Promise.resolve({
+          pages: {
+            order: Object.keys(layouts),
+          },
+        }),
       fetchOrgs: () => Promise.resolve({ orgs: {} }),
       fetchUserProfile: () => Promise.resolve({} as unknown as IProfile),
       fetchDataModelSchema: () => Promise.resolve({}),

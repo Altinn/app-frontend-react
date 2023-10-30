@@ -3,7 +3,6 @@ import React from 'react';
 import { AttachmentsProvider } from 'src/features/attachments/AttachmentsContext';
 import { CustomValidationConfigProvider } from 'src/features/customValidation/CustomValidationContext';
 import { DataModelSchemaProvider } from 'src/features/datamodel/DataModelSchemaProvider';
-import { LayoutValidationProvider } from 'src/features/devtools/layoutValidation/useLayoutValidation';
 import { DynamicsProvider } from 'src/features/form/dynamics/DynamicsContext';
 import { LayoutsProvider } from 'src/features/form/layout/LayoutsContext';
 import { LayoutSettingsProvider } from 'src/features/form/layoutSettings/LayoutSettingsContext';
@@ -24,9 +23,7 @@ export function FormProvider({ children }: React.PropsWithChildren) {
               <AttachmentsProvider>
                 <DynamicsProvider>
                   <RulesProvider>
-                    <AllOptionsProvider>
-                      <LayoutValidationProvider>{children}</LayoutValidationProvider>
-                    </AllOptionsProvider>
+                    <AllOptionsProvider>{children}</AllOptionsProvider>
                   </RulesProvider>
                 </DynamicsProvider>
               </AttachmentsProvider>
