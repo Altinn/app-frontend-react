@@ -18,8 +18,9 @@ describe('UI Components', () => {
         .parentsUntil(appFrontend.message.logoFormContent)
         .eq(1)
         .should('have.css', 'justify-content', 'center');
-      cy.wrap(image).parent().siblings().find(appFrontend.helpText.open).click();
-      cy.get(appFrontend.helpText.alert).contains('Altinn logo').type('{esc}');
+      cy.wrap(image).parent().siblings().find(appFrontend.helpText.button).click();
+      cy.get(appFrontend.helpText.alert).should('contain.text', 'Altinn logo');
+      cy.get(appFrontend.helpText.alert).trigger('keydown', { keyCode: 27 }); // Press ESC key
       cy.get(appFrontend.helpText.alert).should('not.exist');
     });
     cy.get('body').should('have.css', 'background-color', 'rgb(239, 239, 239)');
