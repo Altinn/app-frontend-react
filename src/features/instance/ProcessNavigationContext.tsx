@@ -87,7 +87,7 @@ const { Provider, useCtx } = createLaxContext<ContextData>();
 
 export function ProcessNavigationProvider({ children }: React.PropsWithChildren) {
   const { perform, error } = useProcessNext();
-  const [busyWithId, setBusyWithId] = useState<string>('');
+  const [_busyWithId, setBusyWithId] = useState<string>('');
   const submittingState = useAppSelector((state) => state.formData.submittingState);
 
   const attachments = useAttachments();
@@ -96,12 +96,7 @@ export function ProcessNavigationProvider({ children }: React.PropsWithChildren)
       fileUploader?.some((attachment) => !attachment.uploaded || attachment.updating || attachment.deleting),
   );
 
-  useEffect(() => {
-    if (submittingState === 'validationSuccessful' || submittingState === 'inactive') {
-      setBusyWithId('');
-    }
-  }, [submittingState]);
-
+  const busyWithId = submittingState === 'inactive' ? '' : _busyWithId;
   if (error) {
     return <DisplayError error={error} />;
   }

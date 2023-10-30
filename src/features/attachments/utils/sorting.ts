@@ -1,19 +1,21 @@
 import type { IAttachment, IAttachments } from 'src/features/attachments/index';
 
-export function mergeAndSort(a: IAttachments, b: IAttachments) {
-  const result: IAttachments = structuredClone(a);
-  for (const nodeId in b) {
-    const next = b[nodeId];
-    const existing = result[nodeId];
-    if (existing && next) {
-      existing.push(...structuredClone(next));
-    } else if (!existing && next) {
-      result[nodeId] = structuredClone(b[nodeId]);
+export function mergeAndSort(...args: IAttachments[]) {
+  const result: IAttachments = {};
+  for (const map of args) {
+    for (const nodeId of Object.keys(map)) {
+      const next = map[nodeId];
+      const existing = result[nodeId];
+      if (existing && next) {
+        existing.push(...next);
+      } else if (!existing && next) {
+        result[nodeId] = [...next];
+      }
     }
   }
 
   // Sort all attachments by name
-  for (const nodeId in result) {
+  for (const nodeId in Object.keys(result)) {
     const attachments = result[nodeId];
     if (attachments) {
       attachments.sort(sortAttachmentsByName);

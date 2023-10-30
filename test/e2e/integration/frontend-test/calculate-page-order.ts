@@ -99,7 +99,7 @@ describe('Calculate Page Order', () => {
     cy.get(appFrontend.group.sendersName).clear();
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.saveMainGroup).click();
-    cy.addItemToGroup(1, 11, 'hidePrefill');
+    cy.addItemToGroup(1, 11, 'hidePrefill'); // This hides the 'prefill' page
     cy.get(appFrontend.navMenuButtons).should('have.length', 3);
 
     // Testing to make sure our required field hidden by an expression does not show up in the error report
@@ -109,7 +109,8 @@ describe('Calculate Page Order', () => {
     cy.get(appFrontend.errorReport).should('contain.text', 'Du må fylle ut oppgave giver navn');
 
     cy.gotoNavPage('repeating');
-    cy.get(appFrontend.group.row(1).deleteBtn).click();
+    cy.get(appFrontend.group.row(1).deleteBtn).click(); // This now unhides the 'prefill' page, as the row is deleted
+    cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 1);
 
     cy.gotoNavPage('hide');
 

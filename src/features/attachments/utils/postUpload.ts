@@ -4,7 +4,7 @@ import type React from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useImmerReducer } from 'use-immer';
 import type { AxiosError } from 'axios';
-import type { WritableDraft } from 'immer/dist/types/types-external';
+import type { ImmerReducer } from 'use-immer';
 
 import { useAppMutations } from 'src/contexts/appQueriesContext';
 import { useMappedAttachments } from 'src/features/attachments/utils/mapping';
@@ -36,7 +36,7 @@ type ActionReplaceAll = { action: 'replaceAll'; attachments: SimpleAttachments }
 type Actions = Update | UpdateFulfilled | UpdateRejected | Remove | RemoveFulfilled | RemoveRejected | ActionReplaceAll;
 type Dispatch = React.Dispatch<Actions>;
 
-function postUploadedReducer(draft: WritableDraft<IAttachments<UploadedAttachment>>, action: Actions) {
+const reducer: ImmerReducer<IAttachments<UploadedAttachment>, Actions> = (draft, action) => {
   if (action.action === 'replaceAll') {
     const { attachments } = action;
     const out: IAttachments<UploadedAttachment> = {};
@@ -132,14 +132,14 @@ function postUploadedReducer(draft: WritableDraft<IAttachments<UploadedAttachmen
   }
 
   throw new Error('Invalid action');
-}
+};
 
-const initialStatePostUpload: IAttachments<UploadedAttachment> = {};
+const initialState: IAttachments<UploadedAttachment> = {};
 
 export const usePostUpload = () => {
   const fromInstance = useMappedAttachments();
 
-  const [state, dispatch] = useImmerReducer(postUploadedReducer, initialStatePostUpload);
+  const [state, dispatch] = useImmerReducer(reducer, initialState);
   const update = useUpdate(dispatch);
   const remove = useRemove(dispatch);
 

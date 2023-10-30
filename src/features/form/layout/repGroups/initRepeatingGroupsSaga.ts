@@ -81,7 +81,11 @@ export function* initRepeatingGroupsSaga({
       // We add +1 to the index because it's entirely valid (and common) to be editing the last row in a group (bacause
       // that's what happens when you click the 'add' button). If we didn't add +1 here, the user could be editing the
       // last row in a group, and a server-sent change could cause the editing mode to disappear.
-      if (currentGroup.editIndex !== undefined && newGroup.index + 1 >= currentGroup.editIndex) {
+      if (
+        currentGroup.editIndex !== undefined &&
+        currentGroup.editIndex != -1 &&
+        newGroup.index + 1 >= currentGroup.editIndex
+      ) {
         newGroup.editIndex = currentGroup.editIndex;
       }
 

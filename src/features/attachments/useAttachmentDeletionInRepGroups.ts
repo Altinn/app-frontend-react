@@ -66,6 +66,10 @@ export function useAttachmentDeletionInRepGroups(node: LayoutNodeForGroup) {
       }
 
       const results = await Promise.all(promises);
+      if (results.length === 0) {
+        return true;
+      }
+
       return results.every((result) => result);
     },
   };

@@ -5,7 +5,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useImmerReducer } from 'use-immer';
 import { v4 as uuidv4 } from 'uuid';
 import type { UseMutationOptions } from '@tanstack/react-query';
-import type { WritableDraft } from 'immer/dist/types/types-external';
+import type { ImmerReducer } from 'use-immer';
 
 import { useAppMutations } from 'src/contexts/appQueriesContext';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
@@ -51,7 +51,7 @@ interface State {
   failedTmpIds: string[];
 }
 
-function reducer(draft: WritableDraft<State>, action: Actions) {
+const reducer: ImmerReducer<State, Actions> = (draft, action) => {
   const { node, temporaryId } = action;
   const { id } = node.item;
 
@@ -82,7 +82,7 @@ function reducer(draft: WritableDraft<State>, action: Actions) {
       draft.failedTmpIds.push(temporaryId);
     }
   }
-}
+};
 
 type Dispatch = React.Dispatch<Actions>;
 const initialState: State = {
