@@ -10,7 +10,7 @@ import { attachmentIsMissingTag, attachmentsValid } from 'src/utils/validation/v
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { IFormData } from 'src/features/formData';
-import type { ComponentValidation, PropsFromGenericComponent } from 'src/layout';
+import type { ComponentValidation, DisplayDataProps, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';

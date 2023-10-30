@@ -43,7 +43,7 @@ function useLayoutQuery() {
       }
       const currentViewCacheKey = instance?.id || applicationMetadata.id;
       // const taskId = instance?.process?.currentTask?.elementId;
-      legacyProcessLayouts({ input: data, dispatch, currentViewCacheKey });
+      legacyProcessLayouts({ input: data, dispatch, currentViewCacheKey, layoutSetId });
     },
     onError: (error: HttpClientError) => {
       dispatch(FormLayoutActions.fetchRejected({ error }));
@@ -79,9 +79,10 @@ interface LegacyProcessProps {
   input: ILayoutCollection | ILayoutFileExternal;
   dispatch: ReturnType<typeof useAppDispatch>;
   currentViewCacheKey: string;
+  layoutSetId?: string;
 }
 
-function legacyProcessLayouts({ input, dispatch, currentViewCacheKey }: LegacyProcessProps) {
+function legacyProcessLayouts({ input, dispatch, currentViewCacheKey, layoutSetId }: LegacyProcessProps) {
   const layouts: ILayouts = {};
   const navigationConfig: INavigationConfig = {};
   const hiddenLayoutsExpressions: IHiddenLayoutsExternal = {};
@@ -123,6 +124,7 @@ function legacyProcessLayouts({ input, dispatch, currentViewCacheKey }: LegacyPr
       layouts,
       navigationConfig,
       hiddenLayoutsExpressions,
+      layoutSetId: layoutSetId || null,
     }),
   );
   dispatch(

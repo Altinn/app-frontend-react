@@ -182,6 +182,7 @@ function getMockState({ autoDeleteOnProcessEnd = false, setCustomReceipt = false
       layouts: {
         ...receiptLayout,
       },
+      layoutSetId: null,
     },
     language: {
       language: {},
