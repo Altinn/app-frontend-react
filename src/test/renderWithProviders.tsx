@@ -90,22 +90,24 @@ export const renderWithProviders = (
 
     if (!Router) {
       return (
-        <MemoryRouterWithRedirectingRoot to={`instance/${exampleInstanceId}`}>
-          <AppQueriesProvider {...mockedQueries}>
-            <MuiThemeProvider theme={theme}>
-              <Provider store={store}>
-                <InstantiationProvider>
-                  <ExprContextWrapper>
-                    <Route
-                      path={'instance/:partyId/:instanceGuid'}
-                      element={children}
-                    />
-                  </ExprContextWrapper>
-                </InstantiationProvider>
-              </Provider>
-            </MuiThemeProvider>
-          </AppQueriesProvider>
-        </MemoryRouterWithRedirectingRoot>
+        <AppQueriesProvider {...mockedQueries}>
+          <MuiThemeProvider theme={theme}>
+            <Provider store={store}>
+              <ExprContextWrapper>
+                <MemoryRouterWithRedirectingRoot to={`instance/${exampleInstanceId}`}>
+                  <Route
+                    path={'instance/:partyId/:instanceGuid'}
+                    element={
+                      <InstantiationProvider>
+                        <FormProvider>{children}</FormProvider>
+                      </InstantiationProvider>
+                    }
+                  />
+                </MemoryRouterWithRedirectingRoot>
+              </ExprContextWrapper>
+            </Provider>
+          </MuiThemeProvider>
+        </AppQueriesProvider>
       );
     }
 
@@ -115,7 +117,9 @@ export const renderWithProviders = (
           <MuiThemeProvider theme={theme}>
             <Provider store={store}>
               <ExprContextWrapper>
-                <FormProvider>{children}</FormProvider>
+                <InstantiationProvider>
+                  <FormProvider>{children}</FormProvider>
+                </InstantiationProvider>
               </ExprContextWrapper>
             </Provider>
           </MuiThemeProvider>

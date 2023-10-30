@@ -26,7 +26,7 @@ interface ContextData {
   mutations: EnhancedMutations;
 }
 
-const { Provider, useCtx } = createStrictContext<ContextData>();
+const { Provider, useCtx } = createStrictContext<ContextData>({ name: 'AppQueriesContext' });
 
 export const queryClient = new QueryClient({
   defaultOptions: {

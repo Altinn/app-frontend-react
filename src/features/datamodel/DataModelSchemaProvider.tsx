@@ -18,7 +18,7 @@ export interface IDataModelSchemaContext {
   dataModelName: string | undefined;
 }
 
-const { Provider } = createStrictContext<IDataModelSchemaContext>();
+const { Provider } = createStrictContext<IDataModelSchemaContext>({ name: 'DataModelSchemaContext' });
 
 const useDataModelSchemaQuery = (): UseQueryResult<JSONSchema7> => {
   const dispatch = useAppDispatch();

@@ -11,7 +11,7 @@ import { Loader } from 'src/features/loading/Loader';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { createStrictContext } from 'src/utils/createContext';
 
-const { Provider } = createStrictContext<undefined>();
+const { Provider } = createStrictContext<undefined>({ name: 'DynamicsContext' });
 
 function useDynamicsQuery() {
   const dispatch = useAppDispatch();

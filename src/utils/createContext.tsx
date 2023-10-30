@@ -9,24 +9,22 @@ interface LaxContextProvider<T> extends ContextProvider<T | undefined> {
   useHasProvider: () => boolean;
 }
 
-type CreateStrictContextProps = {
-  options: {
-    errorMessage?: string;
-    name?: string;
-  };
+type StrictContextProps = {
+  errorMessage?: string;
+  name: string;
 };
 
 /**
  * A strict context must always be provided, and will throw an error if it is not. This is useful for contexts that
  * are required for the application to function.
  */
-export function createStrictContext<T>(props?: CreateStrictContextProps): ContextProvider<T> {
+export function createStrictContext<T>(props: StrictContextProps): ContextProvider<T> {
   const Context = React.createContext<T | undefined>(undefined);
 
   const useCtx = (): T => {
     const context = React.useContext(Context);
     if (context === undefined) {
-      throw new Error(props?.options.errorMessage || `${props?.options.name || ''} Context Provider is missing`);
+      throw new Error(props?.errorMessage || `${props.name} is missing`);
     }
     return context;
   };

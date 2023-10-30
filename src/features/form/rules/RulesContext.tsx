@@ -14,7 +14,7 @@ import { getRuleModelFields } from 'src/utils/rules';
 
 const RULES_SCRIPT_ID = 'rules-script';
 
-const { Provider } = createStrictContext<undefined>();
+const { Provider } = createStrictContext<undefined>({ name: 'RulesContext' });
 
 const useRulesQuery = () => {
   const dispatch = useAppDispatch();

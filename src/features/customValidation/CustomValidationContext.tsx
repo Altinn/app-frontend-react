@@ -13,7 +13,9 @@ import { createStrictContext } from 'src/utils/createContext';
 import { resolveExpressionValidationConfig } from 'src/utils/validation/expressionValidation';
 import type { IExpressionValidationConfig } from 'src/utils/validation/types';
 
-const { Provider, useCtx } = createStrictContext<IExpressionValidationConfig | null>();
+const { Provider, useCtx } = createStrictContext<IExpressionValidationConfig | null>({
+  name: 'CustomValidationContext',
+});
 
 const useCustomValidationConfigQuery = (
   dataTypeId: string | undefined,

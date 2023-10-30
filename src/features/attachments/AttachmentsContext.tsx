@@ -8,7 +8,7 @@ import { createStrictContext } from 'src/utils/createContext';
 import type { IAttachmentsCtx } from 'src/features/attachments/index';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-const { Provider, useCtx } = createStrictContext<IAttachmentsCtx>();
+const { Provider, useCtx } = createStrictContext<IAttachmentsCtx>({ name: 'AttachmentsContext' });
 
 export const AttachmentsProvider = ({ children }: PropsWithChildren) => {
   const { state: preUpload, upload, awaitUpload } = usePreUpload();

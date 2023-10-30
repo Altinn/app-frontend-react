@@ -20,7 +20,7 @@ import type { ILayoutCollection, ILayouts } from 'src/layout/layout';
 import type { IHiddenLayoutsExternal, INavigationConfig } from 'src/types';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
-const { Provider, useCtx } = createStrictContext<ILayoutCollection>();
+const { Provider, useCtx } = createStrictContext<ILayoutCollection>({ name: 'LayoutsContext' });
 
 function useLayoutQuery() {
   const { fetchLayouts } = useAppQueries();

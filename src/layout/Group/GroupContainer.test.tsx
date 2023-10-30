@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { act, screen } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
@@ -134,7 +134,20 @@ function render({ container = mockContainer }: IRender = {}) {
 
   mockStore.dispatch = jest.fn();
 
-  const { store } = renderWithProviders(<GroupContainerTester id={container?.id} />, { store: mockStore });
+  const { store } = renderWithProviders(
+    <GroupContainerTester id={container?.id} />,
+    { store: mockStore },
+    {
+      fetchLayouts: () =>
+        Promise.resolve({
+          FormLayout: {
+            data: {
+              layout: [group, ...mockComponents],
+            },
+          },
+        }),
+    },
+  );
 
   return store;
 }
@@ -156,7 +169,7 @@ describe('GroupContainer', () => {
     setScreenWidth(1200);
   });
 
-  it('should render add new button with custom label when supplied', () => {
+  it('should render add new button with custom label when supplied', async () => {
     const mockContainerWithLabel: CompGroupRepeatingExternal = {
       textResourceBindings: {
         add_button: 'person',
@@ -164,9 +177,10 @@ describe('GroupContainer', () => {
       ...mockContainer,
     };
     render({ container: mockContainerWithLabel });
-
-    const item = screen.getByText('Legg til ny person');
-    expect(item).toBeInTheDocument();
+    await waitFor(() => {
+      const item = screen.getByText('Legg til ny person');
+      expect(item).toBeInTheDocument();
+    });
   });
 
   it('should not show add button when maxOccurs is reached', () => {

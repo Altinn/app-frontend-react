@@ -55,16 +55,11 @@ const renderNavBar = ({
         }),
       },
     },
+    {
+      fetchAppLanguages: () =>
+        languageResponse ? Promise.resolve(languageResponse) : Promise.reject(new Error('No languages mocked')),
+    },
   );
-
-  if (languageResponse) {
-    mockAxios.mockResponseFor(
-      {
-        url: 'https://local.altinn.cloud/ttd/test/api/v1/applicationlanguages',
-      },
-      { data: languageResponse },
-    );
-  }
 
   return { mockClose, mockBack, mockAppLanguageChange };
 };
@@ -144,7 +139,8 @@ describe('NavBar', () => {
       },
       languageResponse: [{ language: 'en' }, { language: 'nb' }],
     });
-    await waitForElementToBeRemoved(screen.queryByRole('progressbar'));
+
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     screen.getByRole('combobox', { name: /Velg språk test/i });
     screen.getByText(/Norsk test/i, { selector: '[role=option]' });
     screen.getByText(/Engelsk test/i, { selector: '[role=option]' });

@@ -21,7 +21,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 export type AllOptionsMap = { [nodeId: string]: IOption[] | undefined };
 export const allOptions: AllOptionsMap = {};
 
-const { Provider, useCtx } = createStrictContext<State>();
+const { Provider, useCtx } = createStrictContext<State>({ name: 'AllOptionsContext' });
 
 export const useAllOptions = () => useCtx().nodes;
 export const useAllOptionsInitiallyLoaded = () => useCtx().allInitiallyLoaded;

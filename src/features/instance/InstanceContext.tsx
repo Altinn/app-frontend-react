@@ -28,7 +28,6 @@ export interface InstanceContext {
   data: IInstance | undefined;
 
   // Fetching/query states
-  isLoading: boolean;
   isFetching: boolean;
   error: AxiosError | undefined;
 
@@ -150,7 +149,6 @@ const InnerInstanceProvider = ({
     <Provider
       value={{
         data,
-        isLoading: data ? false : fetchQuery.isLoading,
         isFetching: fetchQuery.isFetching,
         error,
         changeData,

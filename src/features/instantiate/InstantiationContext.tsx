@@ -33,7 +33,7 @@ interface InstantiationContext {
   lastResult: IInstance | undefined;
 }
 
-const { Provider, useCtx } = createStrictContext<InstantiationContext>();
+const { Provider, useCtx } = createStrictContext<InstantiationContext>({ name: 'InstantiationContext' });
 
 function useInstantiateMutation() {
   const { doInstantiate } = useAppMutations();

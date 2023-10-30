@@ -99,7 +99,7 @@ function useMappingToolsForSimple({ handleDataChange }: Props): MappingTools {
 
 type ContextData = { mappingTools: MappingTools };
 
-const { Provider, useCtx } = createStrictContext<ContextData>();
+const { Provider, useCtx } = createStrictContext<ContextData>({ name: 'AttachmentsMappedToFormDataContext' });
 
 /**
  * If you need to provide the functionality of the useAttachmentsMappedToFormData hook deep in the component tree,

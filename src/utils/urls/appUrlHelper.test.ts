@@ -40,17 +40,17 @@ describe('Frontend urlHelper.ts', () => {
     });
     it('should return the expected url for fileUploadUrl', () => {
       expect(fileUploadUrl('dataGuid')).toBe(
-        'https://local.altinn.cloud/ttd/test/instances/12345/instanceId-1234/data?dataType=dataGuid',
+        'https://local.altinn.cloud/ttd/test/instances/test-instance-id/data?dataType=dataGuid',
       );
     });
     it('should return the expected url for fileTagUrl', () => {
       expect(fileTagUrl('dataGuid', undefined)).toBe(
-        'https://local.altinn.cloud/ttd/test/instances/12345/instanceId-1234/data/dataGuid/tags',
+        'https://local.altinn.cloud/ttd/test/instances/test-instance-id/data/dataGuid/tags',
       );
     });
     it('should return the expected url for dataElementUrl', () => {
       expect(dataElementUrl('dataGuid')).toBe(
-        'https://local.altinn.cloud/ttd/test/instances/12345/instanceId-1234/data/dataGuid',
+        'https://local.altinn.cloud/ttd/test/instances/test-instance-id/data/dataGuid',
       );
     });
     it('should return the expected url for getProcessStateUrl', () => {
@@ -75,11 +75,9 @@ describe('Frontend urlHelper.ts', () => {
     });
     it('should return the expected url for getProcessNextUrl', () => {
       expect(getProcessNextUrl('taskId')).toBe(
-        'https://local.altinn.cloud/ttd/test/instances/12345/instanceId-1234/process/next?elementId=taskId',
+        'https://local.altinn.cloud/ttd/test/instances/test-instance-id/process/next?elementId=taskId',
       );
-      expect(getProcessNextUrl()).toBe(
-        'https://local.altinn.cloud/ttd/test/instances/12345/instanceId-1234/process/next',
-      );
+      expect(getProcessNextUrl()).toBe('https://local.altinn.cloud/ttd/test/instances/test-instance-id/process/next');
     });
     it('should return the expected url for getRedirectUrl', () => {
       expect(getRedirectUrl('http://www.nrk.no')).toBe(
@@ -414,7 +412,7 @@ describe('Frontend urlHelper.ts', () => {
     it('should return stateful url if stateless is false', () => {
       const result = getCalculatePageOrderUrl(false);
 
-      expect(result).toBe('https://local.altinn.cloud/ttd/test/instances/12345/instanceId-1234/pages/order');
+      expect(result).toBe('https://local.altinn.cloud/ttd/test/instances/test-instance-id/pages/order');
     });
 
     it('should return stateless url if stateless is true', () => {

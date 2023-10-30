@@ -6,7 +6,7 @@ export interface FileTableRowContext {
   setEditIndex: (index: number) => void;
 }
 
-const { Provider, useCtx } = createStrictContext<FileTableRowContext>();
+const { Provider, useCtx } = createStrictContext<FileTableRowContext>({ name: 'FileTableRowContext' });
 
 export const FileTableRowProvider = Provider;
 export const useFileTableRow = () => useCtx();
