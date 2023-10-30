@@ -256,7 +256,7 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.confirmChangeName).findByText('Dette er en beskrivelse.').should('be.visible');
     cy.get(appFrontend.changeOfName.confirmChangeName).findByRole('button').click();
     cy.get(appFrontend.changeOfName.confirmChangeName)
-      .findByRole('tooltip', { name: 'Dette er en hjelpetekst.' })
+      .findByRole('dialog', { name: 'Dette er en hjelpetekst.' })
       .should('be.visible');
 
     cy.get(appFrontend.changeOfName.confirmChangeName).find('label').click();
@@ -265,7 +265,7 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.reasons).findByText('Dette er en beskrivelse.').should('be.visible');
     cy.get(appFrontend.changeOfName.reasons).findByRole('button').click();
     cy.get(appFrontend.changeOfName.reasons)
-      .findByRole('tooltip', { name: 'Dette er en hjelpetekst.' })
+      .findByRole('dialog', { name: 'Dette er en hjelpetekst.' })
       .should('be.visible');
   });
 
