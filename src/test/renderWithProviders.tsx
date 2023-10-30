@@ -5,6 +5,7 @@ import { Route } from 'react-router-dom';
 import { createTheme, MuiThemeProvider } from '@material-ui/core';
 import { render as rtlRender } from '@testing-library/react';
 import type { RenderOptions } from '@testing-library/react';
+import type { JSONSchema7 } from 'json-schema';
 import type { PreloadedState } from 'redux';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
@@ -79,6 +80,7 @@ export const renderWithProviders = (
       fetchDynamics: () => Promise.resolve(null),
       fetchRuleHandler: () => Promise.resolve(null),
       fetchTextResources: () => Promise.resolve({ language: 'nb', resources: [] }),
+      fetchLayoutSchema: () => Promise.resolve({} as JSONSchema7),
       fetchInstanceData: () => Promise.resolve(getInstanceDataMock()),
       fetchAppLanguages: () => Promise.resolve([]),
       fetchProcessState: () => Promise.resolve(getProcessDataMock()),

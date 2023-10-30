@@ -121,6 +121,7 @@ const createLayout = (
   layouts: {
     FormLayout: [container, ...components],
   },
+  layoutSetId: null,
   uiConfig: {
     hiddenFields: [],
     repeatingGroups: {

@@ -1,6 +1,7 @@
 import type { AxiosRequestConfig } from 'axios';
 import type { JSONSchema7 } from 'json-schema';
 
+import { LAYOUT_SCHEMA_NAME } from 'src/features/devtools/utils/layoutSchemaValidation';
 import { httpDelete, httpPost, putWithoutConfig } from 'src/utils/network/networking';
 import { httpGet, httpPut } from 'src/utils/network/sharedNetworking';
 import {
@@ -199,3 +200,13 @@ export const fetchRuleHandler = (layoutSetId?: string): Promise<string | null> =
 
 export const fetchTextResources = (selectedLanguage: string): Promise<ITextResourceResult> =>
   httpGet(textResourcesUrl(selectedLanguage));
+
+export const fetchLayoutSchema = (): Promise<JSONSchema7 | undefined> => {
+  // Hacky (and only) way to get the correct CDN url
+  const schemaBaseUrl = document
+    .querySelector('script[src$="altinn-app-frontend.js"]')
+    ?.getAttribute('src')
+    ?.replace('altinn-app-frontend.js', 'schemas/json/layout/');
+
+  return schemaBaseUrl ? httpGet(`${schemaBaseUrl}${LAYOUT_SCHEMA_NAME}`) : Promise.resolve(undefined);
+};
