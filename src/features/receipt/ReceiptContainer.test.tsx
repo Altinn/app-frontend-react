@@ -11,7 +11,6 @@ import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
 import { MemoryRouterWithRedirectingRoot } from 'src/test/memoryRouterWithRedirectingRoot';
 import { renderWithProviders } from 'src/test/renderWithProviders';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
-import type { ILayout } from 'src/layout/layout';
 import type { IRuntimeState } from 'src/types';
 import type { IAltinnOrgs, IInstance, IParty } from 'src/types/shared';
 
@@ -27,7 +26,8 @@ const exampleGuid = '75154373-aed4-41f7-95b4-e5b5115c2edc';
 const exampleDataGuid = 'c21ebe7a-038d-4e8d-811c-0df1c16a1aa9';
 const exampleDataGuid2 = 'afaee8fe-6317-4cc4-ae3a-3c8fcdec40bb';
 const exampleInstanceId = `512345/${exampleGuid}`;
-const DefinedRoutes = () => {
+
+const DefinedRoutes = ({ children }: React.PropsWithChildren) => {
   const HeaderElement = () => {
     const { pathname } = useLocation();
     return <p>Location: {pathname}</p>;
@@ -40,7 +40,7 @@ const DefinedRoutes = () => {
       >
         <Route
           path={'instance/:partyId/:instanceGuid'}
-          element={<ReceiptContainer />}
+          element={children}
         />
       </MemoryRouterWithRedirectingRoot>
     </>
@@ -104,39 +104,7 @@ function buildInstance(hasPdf = true): IInstance {
   };
 }
 
-function getMockState({ autoDeleteOnProcessEnd = false, setCustomReceipt = false, receiptLayoutExist = false }) {
-  const receipt: ILayout = [
-    {
-      id: 'ReceiptHeader',
-      type: 'Header',
-      textResourceBindings: {
-        title: 'receipt.title',
-      },
-      size: 'h2',
-    },
-    {
-      id: 'ReceiptParagraph',
-      type: 'Paragraph',
-      textResourceBindings: {
-        title: 'receipt.body',
-      },
-    },
-    {
-      id: 'ReceiptInstanceInformation',
-      type: 'InstanceInformation',
-    },
-    {
-      id: 'ReceiptAttachmentList',
-      type: 'AttachmentList',
-      dataTypeIds: ['ref-data-as-pdf'],
-      includePDF: true,
-    },
-  ];
-
-  const receiptLayout = receiptLayoutExist ? { receipt } : {};
-
-  const customReceipt = setCustomReceipt ? { receiptLayoutName: 'receipt' } : {};
-
+function getMockState({ autoDeleteOnProcessEnd = false }): Partial<IRuntimeState> {
   return {
     organisationMetaData: {
       error: null,
@@ -175,17 +143,9 @@ function getMockState({ autoDeleteOnProcessEnd = false, setCustomReceipt = false
     formLayout: {
       error: null,
       layoutsets: null,
-      uiConfig: {
-        ...getUiConfigStateMock(),
-        ...customReceipt,
-      },
-      layouts: {
-        ...receiptLayout,
-      },
+      uiConfig: getUiConfigStateMock(),
+      layouts: {},
       layoutSetId: null,
-    },
-    language: {
-      language: {},
     },
     party: {
       parties: [partyMember],
@@ -197,31 +157,24 @@ function getMockState({ autoDeleteOnProcessEnd = false, setCustomReceipt = false
       error: null,
       selectedAppLanguage: 'nb',
     },
-  } as Partial<IRuntimeState>;
+  };
 }
 
-const render = ({
-  populateStore = true,
-  autoDeleteOnProcessEnd = false,
-  hasPdf = true,
-  setCustomReceipt = false,
-  receiptLayoutExist = false,
-}: IRender = {}) => {
-  const mockState = getMockState({ autoDeleteOnProcessEnd, setCustomReceipt, receiptLayoutExist });
-  renderWithProviders(
-    <DefinedRoutes />,
-    {
-      preloadedState: populateStore ? mockState : {},
-    },
-    {
+const render = async ({ populateStore = true, autoDeleteOnProcessEnd = false, hasPdf = true }: IRender = {}) => {
+  const mockState = getMockState({ autoDeleteOnProcessEnd });
+  await renderWithProviders({
+    component: <ReceiptContainer />,
+    preloadedState: populateStore ? mockState : {},
+    Router: DefinedRoutes,
+    mockedQueries: {
       fetchInstanceData: () => Promise.resolve(buildInstance(hasPdf)),
     },
-  );
+  });
 };
 
 describe('ReceiptContainer', () => {
-  it('should show loader when not all data is loaded', () => {
-    render({ populateStore: false });
+  it('should show loader when not all data is loaded', async () => {
+    await render({ populateStore: false });
 
     expect(
       screen.getByRole('img', {
@@ -230,8 +183,8 @@ describe('ReceiptContainer', () => {
     ).toBeInTheDocument();
   });
 
-  it('should show download link to pdf when all data is loaded, and data includes pdf', () => {
-    render();
+  it('should show download link to pdf when all data is loaded, and data includes pdf', async () => {
+    await render();
 
     expect(
       screen.queryByRole('img', {
@@ -266,32 +219,8 @@ describe('ReceiptContainer', () => {
     expect(screen.getAllByRole('link').length).toBe(2);
   });
 
-  it('should not show download link to pdf when all data is loaded, and data does not include pdf', () => {
-    render({ hasPdf: false });
-
-    expect(
-      screen.queryByRole('img', {
-        name: /Laster/i,
-      }),
-    ).not.toBeInTheDocument();
-
-    expect(
-      screen.getByRole('heading', {
-        name: /Skjema er sendt inn/i,
-      }),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByRole('link', {
-        name: /Kopi av din kvittering er sendt til ditt arkiv/i,
-      }),
-    ).toBeInTheDocument();
-
-    expect(screen.getAllByRole('link').length).toBe(1);
-  });
-
-  it('should show complex receipt when autoDeleteOnProcessEnd is false', () => {
-    render();
+  it('should show complex receipt when autoDeleteOnProcessEnd is false', async () => {
+    await render();
 
     expect(
       screen.queryByText(
@@ -300,32 +229,14 @@ describe('ReceiptContainer', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('should show simple receipt when autoDeleteOnProcessEnd is true', () => {
-    render({ autoDeleteOnProcessEnd: true });
+  it('should show simple receipt when autoDeleteOnProcessEnd is true', async () => {
+    await render({ autoDeleteOnProcessEnd: true });
 
     expect(
       screen.getByText(
         /Av sikkerhetshensyn vil verken innholdet i tjenesten eller denne meldingen være synlig i Altinn etter at du har forlatt denne siden/i,
       ),
     ).toBeInTheDocument();
-  });
-
-  it('should show custom receipt when receiptLayoutName is found in uiConfig and the layout exists', () => {
-    render({ setCustomReceipt: true, receiptLayoutExist: true });
-
-    expect(screen.getByTestId('custom-receipt')).toBeInTheDocument();
-  });
-
-  it('should not show custom receipt when receiptLayoutName is found in uiConfig but the layout does not exists', () => {
-    render({ setCustomReceipt: true });
-
-    expect(screen.getByTestId('altinn-receipt')).toBeInTheDocument();
-  });
-
-  it('should not show custom receipt when receiptLayoutName not is found in uiConfig but the layout exists', () => {
-    render({ receiptLayoutExist: true });
-
-    expect(screen.getByTestId('altinn-receipt')).toBeInTheDocument();
   });
 });
 

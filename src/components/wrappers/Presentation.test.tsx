@@ -56,7 +56,7 @@ describe('Presentation', () => {
       writable: true,
     });
 
-    render({ type: ProcessTaskType.Data });
+    await render({ type: ProcessTaskType.Data });
 
     expect(window.location.href).not.toEqual(returnUrl);
 
@@ -86,7 +86,7 @@ describe('Presentation', () => {
       writable: true,
     });
 
-    render({ type: ProcessTaskType.Data }, stateWithErrorsAndWarnings);
+    await render({ type: ProcessTaskType.Data }, stateWithErrorsAndWarnings);
 
     expect(window.location.href).not.toEqual(returnUrlToMessagebox(origin, partyMock.partyId));
 
@@ -110,7 +110,7 @@ describe('Presentation', () => {
       writable: true,
     });
 
-    render({ type: ProcessTaskType.Data }, stateWithErrorsAndWarnings);
+    await render({ type: ProcessTaskType.Data }, stateWithErrorsAndWarnings);
 
     expect(window.location.href).not.toEqual(returnUrlToMessagebox(origin, partyMock.partyId));
 
@@ -124,8 +124,8 @@ describe('Presentation', () => {
     await flushPromises();
   });
 
-  it('should render children', () => {
-    render({
+  it('should render children', async () => {
+    await render({
       type: ProcessTaskType.Data,
       children: <div data-testid='child-component' />,
     });
@@ -133,16 +133,16 @@ describe('Presentation', () => {
     expect(screen.getByTestId('child-component')).toBeInTheDocument();
   });
 
-  it('the background color should be greyLight if type is "ProcessTaskType.Data"', () => {
-    render({ type: ProcessTaskType.Data });
+  it('the background color should be greyLight if type is "ProcessTaskType.Data"', async () => {
+    await render({ type: ProcessTaskType.Data });
 
     const appHeader = screen.getByTestId('AltinnAppHeader');
 
     expect(appHeader).toHaveStyle(`background-color: ${AltinnAppTheme.altinnPalette.primary.greyLight}`);
   });
 
-  it('the background color should be lightGreen if type is "ProcessTaskType.Archived"', () => {
-    render({ type: ProcessTaskType.Archived });
+  it('the background color should be lightGreen if type is "ProcessTaskType.Archived"', async () => {
+    await render({ type: ProcessTaskType.Archived });
 
     const appHeader = screen.getByTestId('AltinnAppHeader');
 
@@ -150,12 +150,12 @@ describe('Presentation', () => {
   });
 });
 
-const render = (props: Partial<IPresentationProvidedProps> = {}, preloadedState: any = undefined) => {
+const render = async (props: Partial<IPresentationProvidedProps> = {}, preloadedState: any = undefined) => {
   const allProps = {
     header: 'Header text',
     type: ProcessTaskType.Unknown,
     ...props,
   };
 
-  renderWithProviders(<PresentationComponent {...allProps} />, { preloadedState });
+  await renderWithProviders({ component: <PresentationComponent {...allProps} />, preloadedState });
 };

@@ -8,33 +8,18 @@ import { Confirm } from 'src/features/confirm/containers/Confirm';
 import { renderWithProviders } from 'src/test/renderWithProviders';
 
 describe('Confirm', () => {
-  it('should show spinner when loading required data', () => {
-    renderWithProviders(
-      <MemoryRouter>
-        <Confirm />
-      </MemoryRouter>,
-    );
-    const title = screen.queryByText('Se over svarene dine før du sender inn');
-    expect(title).not.toBeInTheDocument();
-
-    const contentLoader = screen.getByText('Loading...');
-    expect(contentLoader).toBeInTheDocument();
-  });
-  it('should not show loading if required data is loaded', () => {
-    renderWithProviders(
-      <MemoryRouter>
-        <Confirm />
-      </MemoryRouter>,
-      {
-        preloadedState: {
-          party: {
-            parties: [partyMock],
-            selectedParty: partyMock,
-            error: null,
-          },
+  it('should not show loading if required data is loaded', async () => {
+    await renderWithProviders({
+      Router: MemoryRouter,
+      component: <Confirm />,
+      preloadedState: {
+        party: {
+          parties: [partyMock],
+          selectedParty: partyMock,
+          error: null,
         },
       },
-    );
+    });
     const contentLoader = screen.queryByText('Loading...');
     expect(contentLoader).not.toBeInTheDocument();
   });

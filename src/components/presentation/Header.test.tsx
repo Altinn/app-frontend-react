@@ -9,37 +9,40 @@ import { renderWithProviders } from 'src/test/renderWithProviders';
 import { ProcessTaskType } from 'src/types';
 
 describe('Header', () => {
-  it('should render as expected with header title', () => {
-    renderWithProviders(
-      <Header
-        type={ProcessTaskType.Data}
-        header='Test Header'
-      />,
-      {
-        preloadedState: getInitialStateMock(),
-      },
-    );
+  it('should render as expected with header title', async () => {
+    await renderWithProviders({
+      component: (
+        <Header
+          type={ProcessTaskType.Data}
+          header='Test Header'
+        />
+      ),
+      preloadedState: getInitialStateMock(),
+    });
     expect(screen.getByRole('banner')).toHaveTextContent('Test Header');
   });
 
-  it('should render with custom text when process is archived', () => {
-    renderWithProviders(<Header type={ProcessTaskType.Archived} />, {
+  it('should render with custom text when process is archived', async () => {
+    await renderWithProviders({
+      component: <Header type={ProcessTaskType.Archived} />,
       preloadedState: getInitialStateMock(),
     });
     const header = screen.getByRole('banner');
     expect(header).toHaveTextContent('Kvittering');
   });
 
-  it('should not render progress', () => {
-    renderWithProviders(<Header type={ProcessTaskType.Data} />, {
+  it('should not render progress', async () => {
+    await renderWithProviders({
+      component: <Header type={ProcessTaskType.Data} />,
       preloadedState: getInitialStateMock(),
     });
     expect(screen.queryByRole('progressbar')).toBeNull();
   });
 
-  it('should render progress', () => {
+  it('should render progress', async () => {
     const mockFormLayout = getFormLayoutStateMock();
-    renderWithProviders(<Header type={ProcessTaskType.Data} />, {
+    await renderWithProviders({
+      component: <Header type={ProcessTaskType.Data} />,
       preloadedState: getInitialStateMock({
         formLayout: {
           ...mockFormLayout,
@@ -57,9 +60,10 @@ describe('Header', () => {
     });
     screen.getByRole('progressbar', { name: /Side 3 av 6/i });
   });
-  it('should not render progress when Archieved', () => {
+  it('should not render progress when Archieved', async () => {
     const mockFormLayout = getFormLayoutStateMock();
-    renderWithProviders(<Header type={ProcessTaskType.Archived} />, {
+    await renderWithProviders({
+      component: <Header type={ProcessTaskType.Archived} />,
       preloadedState: getInitialStateMock({
         formLayout: {
           ...mockFormLayout,

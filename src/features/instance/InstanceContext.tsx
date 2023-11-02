@@ -68,7 +68,13 @@ function useSetGlobalState(
   }, [potentialNewData, setData, dispatch]);
 }
 
-export const InstanceProvider = ({ children }: { children: React.ReactNode }) => {
+export const InstanceProvider = ({
+  children,
+  provideLayoutValidation = true,
+}: {
+  children: React.ReactNode;
+  provideLayoutValidation?: boolean;
+}) => {
   const { partyId, instanceGuid } = useParams();
 
   if (!partyId || !instanceGuid) {
@@ -79,6 +85,7 @@ export const InstanceProvider = ({ children }: { children: React.ReactNode }) =>
     <InnerInstanceProvider
       partyId={partyId}
       instanceGuid={instanceGuid}
+      provideLayoutValidation={provideLayoutValidation}
     >
       {children}
     </InnerInstanceProvider>
@@ -89,10 +96,12 @@ const InnerInstanceProvider = ({
   children,
   partyId,
   instanceGuid,
+  provideLayoutValidation,
 }: {
   children: React.ReactNode;
   partyId: string;
   instanceGuid: string;
+  provideLayoutValidation: boolean;
 }) => {
   const dispatch = useAppDispatch();
 
@@ -164,9 +173,9 @@ const InnerInstanceProvider = ({
     >
       <ProcessProvider instance={data}>
         <FormProvider>
-          <LayoutValidationProvider>
-            <ProcessNavigationProvider>{children}</ProcessNavigationProvider>
-          </LayoutValidationProvider>
+          <ProcessNavigationProvider>
+            {provideLayoutValidation ? <LayoutValidationProvider>{children}</LayoutValidationProvider> : children}
+          </ProcessNavigationProvider>
         </FormProvider>
       </ProcessProvider>
     </Provider>

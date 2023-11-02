@@ -34,11 +34,11 @@ describe('All known apps should work with layout validation', () => {
       show: setName,
     };
 
-    renderWithProviders(
-      <DummyValidateApp />,
-      { preloadedState },
-      { fetchLayoutSchema: () => Promise.resolve(layoutSchema) },
-    );
+    renderWithProviders({
+      component: <DummyValidateApp />,
+      preloadedState,
+      mockedQueries: { fetchLayoutSchema: () => Promise.resolve(layoutSchema) },
+    });
 
     await waitFor(async () => expect(await screen.findByTestId('loading')).not.toBeInTheDocument());
 

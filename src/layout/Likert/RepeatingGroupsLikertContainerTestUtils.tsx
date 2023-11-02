@@ -198,7 +198,7 @@ interface IRenderProps {
   validations: ILayoutValidations;
 }
 
-export const render = ({
+export const render = async ({
   mobileView = false,
   mockQuestions = defaultMockQuestions,
   mockOptions = defaultMockOptions,
@@ -230,13 +230,11 @@ export const render = ({
   const mockStoreDispatch = jest.fn();
   mockStore.dispatch = mockStoreDispatch;
   setScreenWidth(mobileView ? 600 : 1200);
-  renderWithProviders(
-    <ContainerTester id={mockLikertContainer.id} />,
-    {
-      store: mockStore,
-    },
-    { fetchOptions: () => Promise.resolve(mockOptions) },
-  );
+  await renderWithProviders({
+    component: <ContainerTester id={mockLikertContainer.id} />,
+    store: mockStore,
+    mockedQueries: { fetchOptions: () => Promise.resolve(mockOptions) },
+  });
 
   return { mockStoreDispatch };
 };

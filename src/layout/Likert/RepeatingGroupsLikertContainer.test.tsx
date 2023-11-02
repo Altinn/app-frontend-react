@@ -11,21 +11,25 @@ import {
   validateRadioLayout,
   validateTableLayout,
 } from 'src/layout/Likert/RepeatingGroupsLikertContainerTestUtils';
+import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 
 describe('RepeatingGroupsLikertContainer', () => {
   describe('Desktop', () => {
     it('should render table using options and not optionsId', async () => {
-      render({
+      await render({
         radioButtonProps: {
           optionsId: undefined,
           options: defaultMockOptions,
         },
       });
+      await waitFor(() => {
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+      });
       await validateTableLayout(defaultMockQuestions, defaultMockOptions);
     });
 
     it('should render title, description and left column header', async () => {
-      render({
+      await render({
         likertContainerProps: {
           textResourceBindings: {
             title: 'Test title',
@@ -33,6 +37,9 @@ describe('RepeatingGroupsLikertContainer', () => {
             leftColumnHeader: 'Test left column header',
           },
         },
+      });
+      await waitFor(() => {
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
       });
 
       expect(screen.getByText('Test title')).toBeInTheDocument();
@@ -48,7 +55,7 @@ describe('RepeatingGroupsLikertContainer', () => {
         questions: defaultMockQuestions,
         selectedAnswers: [{ questionIndex: 1, answerValue: '2' }],
       });
-      render({ mockQuestions: questions });
+      await render({ mockQuestions: questions });
 
       await waitFor(() => {
         expect(screen.getByRole('table')).toBeInTheDocument();
@@ -74,7 +81,7 @@ describe('RepeatingGroupsLikertContainer', () => {
         selectedAnswers,
       });
 
-      render({ mockQuestions: questions });
+      await render({ mockQuestions: questions });
 
       await waitFor(() => {
         expect(screen.getByRole('table')).toBeInTheDocument();
@@ -84,7 +91,7 @@ describe('RepeatingGroupsLikertContainer', () => {
     });
 
     it('should render table with start binding', async () => {
-      render({
+      await render({
         likertContainerProps: {
           edit: {
             mode: 'likert',
@@ -101,7 +108,7 @@ describe('RepeatingGroupsLikertContainer', () => {
     });
 
     it('should render table with end binding', async () => {
-      render({
+      await render({
         likertContainerProps: {
           edit: {
             mode: 'likert',
@@ -118,7 +125,7 @@ describe('RepeatingGroupsLikertContainer', () => {
     });
 
     it('should render table with start and end binding', async () => {
-      render({
+      await render({
         likertContainerProps: {
           edit: {
             mode: 'likert',
@@ -138,7 +145,7 @@ describe('RepeatingGroupsLikertContainer', () => {
     });
 
     it('should render table view and click radiobuttons', async () => {
-      const { mockStoreDispatch } = render();
+      const { mockStoreDispatch } = await render();
       await waitFor(() => {
         expect(screen.getByRole('table')).toBeInTheDocument();
       });
@@ -174,16 +181,19 @@ describe('RepeatingGroupsLikertContainer', () => {
     });
 
     it('should render standard view and use keyboard to navigate', async () => {
-      const { mockStoreDispatch } = render();
+      const { mockStoreDispatch } = await render();
       await waitFor(async () => {
         expect(await screen.findAllByRole('columnheader')).toHaveLength(3);
       });
       await validateTableLayout(defaultMockQuestions, defaultMockOptions);
 
-      expect(mockStoreDispatch).not.toHaveBeenCalled();
+      expect(mockStoreDispatch).toHaveBeenCalledTimes(1);
+      expect(mockStoreDispatch).toHaveBeenCalledWith(DeprecatedActions.instanceDataFetchFulfilled());
+
       await userEvent.tab();
       await userEvent.keyboard('[Space]');
       await waitFor(() => expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(0, '1')));
+      expect(mockStoreDispatch).toHaveBeenCalledTimes(2);
     });
 
     it('should support nested binding for question text in data model', async () => {
@@ -195,7 +205,7 @@ describe('RepeatingGroupsLikertContainer', () => {
         ...question,
         Question: `nested-question-binding-${i}`,
       }));
-      render({ mockQuestions, extraTextResources });
+      await render({ mockQuestions, extraTextResources });
       await waitFor(() => {
         expect(screen.getByRole('table')).toBeInTheDocument();
       });
@@ -214,7 +224,7 @@ describe('RepeatingGroupsLikertContainer', () => {
         ...option,
         label: `nested-option-binding-${i}`,
       }));
-      render({ mockOptions, extraTextResources });
+      await render({ mockOptions, extraTextResources });
       await waitFor(() => {
         expect(screen.getByRole('table')).toBeInTheDocument();
       });
@@ -225,7 +235,7 @@ describe('RepeatingGroupsLikertContainer', () => {
     });
 
     it('should render error message', async () => {
-      render({
+      await render({
         validations: createFormError(1),
       });
       await waitFor(() => {
@@ -235,7 +245,7 @@ describe('RepeatingGroupsLikertContainer', () => {
     });
 
     it('should render 2 alerts', async () => {
-      render({
+      await render({
         validations: { ...createFormError(1), ...createFormError(2) },
       });
       await waitFor(() => {
@@ -245,7 +255,7 @@ describe('RepeatingGroupsLikertContainer', () => {
     });
 
     it('should display title and description', async () => {
-      render({
+      await render({
         likertContainerProps: {
           textResourceBindings: {
             title: 'Likert test title',
@@ -262,7 +272,7 @@ describe('RepeatingGroupsLikertContainer', () => {
   });
   describe('Mobile', () => {
     it('should display title and description', async () => {
-      render({
+      await render({
         likertContainerProps: {
           textResourceBindings: {
             title: 'Likert test title',
@@ -278,7 +288,7 @@ describe('RepeatingGroupsLikertContainer', () => {
 
     it('should prefix leftColumnHeader to each radio group legend', async () => {
       const leftColumnHeader = 'Hvor fornøyd eller misfornøyd er du med:';
-      render({
+      await render({
         likertContainerProps: {
           textResourceBindings: {
             leftColumnHeader,
@@ -294,7 +304,7 @@ describe('RepeatingGroupsLikertContainer', () => {
     });
 
     it('should render mobile view and click radiobuttons', async () => {
-      const { mockStoreDispatch } = render({ mobileView: true });
+      const { mockStoreDispatch } = await render({ mobileView: true });
       await validateRadioLayout(defaultMockQuestions, defaultMockOptions, true);
       const rad1 = screen.getByRole('radiogroup', {
         name: /Hvordan trives du på skolen/i,
@@ -303,9 +313,13 @@ describe('RepeatingGroupsLikertContainer', () => {
         name: /Bra/i,
       });
       expect(btn1).not.toBeChecked();
-      expect(mockStoreDispatch).not.toHaveBeenCalled();
+
+      expect(mockStoreDispatch).toHaveBeenCalledTimes(1);
+      expect(mockStoreDispatch).toHaveBeenCalledWith(DeprecatedActions.instanceDataFetchFulfilled());
+
       await userEvent.click(btn1);
       await waitFor(() => expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(0, '1')));
+      expect(mockStoreDispatch).toHaveBeenCalledTimes(2);
       mockStoreDispatch.mockClear();
 
       const rad2 = screen.getByRole('radiogroup', {
@@ -328,7 +342,7 @@ describe('RepeatingGroupsLikertContainer', () => {
         selectedAnswers: [{ questionIndex: 2, answerValue: '2' }],
       });
 
-      render({ mockQuestions: questions, mobileView: true });
+      await render({ mockQuestions: questions, mobileView: true });
       await validateRadioLayout(questions, defaultMockOptions, true);
 
       // Validate that radio is selected
@@ -343,7 +357,7 @@ describe('RepeatingGroupsLikertContainer', () => {
     });
 
     it('should render error message', async () => {
-      render({
+      await render({
         validations: { ...createFormError(1), ...createFormError(2) },
         mobileView: true,
       });
@@ -358,7 +372,7 @@ describe('RepeatingGroupsLikertContainer', () => {
     });
 
     it('should render mobile layout with start and end binding', async () => {
-      render({
+      await render({
         mobileView: true,
         likertContainerProps: {
           edit: {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 
 import { screen, waitFor, within } from '@testing-library/react';
 
@@ -17,12 +17,12 @@ interface RenderProps {
 }
 
 describe('InstantiateContainer', () => {
-  function DefinedRoutes() {
+  function DefinedRoutes({ children }: React.PropsWithChildren) {
     return (
       <Routes>
         <Route
           path={'/ttd/test'}
-          element={<InstantiateContainer />}
+          element={children}
         >
           <Route
             path='instance/:partyId/:instanceGuid/*'
@@ -35,19 +35,17 @@ describe('InstantiateContainer', () => {
 
   const render = ({ initialState, queries }: RenderProps) => {
     const stateMock = getInitialStateMock(initialState);
-    return renderWithProviders(
-      <DefinedRoutes />,
-      {
-        preloadedState: stateMock,
-        Router: BrowserRouter,
-      },
-      queries,
-    );
+    return renderWithProviders({
+      Router: DefinedRoutes,
+      component: <InstantiateContainer />,
+      preloadedState: stateMock,
+      mockedQueries: queries,
+    });
   };
 
   it('should show content loader on initial render and start instantiation if valid party', async () => {
     const mockInstantiate = jest.fn().mockImplementation(() => Promise.resolve(getInstanceDataMock()));
-    render({
+    await render({
       queries: {
         doInstantiate: mockInstantiate,
       },
@@ -67,7 +65,7 @@ describe('InstantiateContainer', () => {
 
   it('should not call InstantiationActions.instantiate when no selected party', async () => {
     const mockInstantiate = jest.fn();
-    render({
+    await render({
       initialState: {
         party: {
           parties: [],
@@ -91,7 +89,7 @@ describe('InstantiateContainer', () => {
   it('should redirect when instanceId is set', async () => {
     const mockInstantiate = jest.fn();
     const mockFetchInstanceData = jest.fn().mockImplementation(() => Promise.resolve(getInstanceDataMock()));
-    render({
+    await render({
       queries: {
         doInstantiate: mockInstantiate,
         fetchInstanceData: mockFetchInstanceData,
@@ -119,7 +117,7 @@ describe('InstantiateContainer', () => {
     };
 
     const mockInstantiate = jest.fn().mockImplementation(() => Promise.reject(error));
-    render({
+    await render({
       queries: {
         doInstantiate: mockInstantiate,
       },
@@ -140,7 +138,7 @@ describe('InstantiateContainer', () => {
     };
 
     const mockInstantiate = jest.fn().mockImplementation(() => Promise.reject(error));
-    render({
+    await render({
       queries: {
         doInstantiate: mockInstantiate,
       },
@@ -165,7 +163,7 @@ describe('InstantiateContainer', () => {
     };
 
     const mockInstantiate = jest.fn().mockImplementation(() => Promise.reject(error));
-    render({
+    await render({
       queries: {
         doInstantiate: mockInstantiate,
       },

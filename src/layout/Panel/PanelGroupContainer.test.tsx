@@ -72,7 +72,7 @@ describe('PanelGroupContainer', () => {
   };
 
   it('should display panel with group children', async () => {
-    render({
+    await render({
       container,
       components: groupComponents,
       customState: {
@@ -91,7 +91,7 @@ describe('PanelGroupContainer', () => {
   });
 
   it('should display title and body', async () => {
-    render({
+    await render({
       container,
       components: groupComponents,
       customState: {
@@ -113,7 +113,7 @@ interface TestProps {
   customState?: Partial<RootState>;
 }
 
-const render = ({ container, components, customState }: TestProps) => {
+const render = async ({ container, components, customState }: TestProps) => {
   let preloadedState = getInitialStateMock() as RootState;
   preloadedState = {
     ...preloadedState,
@@ -123,7 +123,7 @@ const render = ({ container, components, customState }: TestProps) => {
   container && formLayout?.push(container);
   formLayout?.push(...(components || []));
 
-  renderWithProviders(<WrappedComponent id={'group'} />, { preloadedState });
+  await renderWithProviders({ component: <WrappedComponent id={'group'} />, preloadedState });
 };
 
 const WrappedComponent = ({ id }: { id: string }) => {

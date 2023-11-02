@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import { Route } from 'react-router-dom';
 
 import { createTheme, MuiThemeProvider } from '@material-ui/core';
-import { render as rtlRender } from '@testing-library/react';
+import { render as rtlRender, waitFor } from '@testing-library/react';
 import type { RenderOptions } from '@testing-library/react';
 import type { JSONSchema7 } from 'json-schema';
 import type { PreloadedState } from 'redux';
@@ -12,11 +12,16 @@ import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getInstanceDataMock, getProcessDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { AppQueriesProvider } from 'src/contexts/appQueriesContext';
 import { FormProvider } from 'src/features/form/FormContext';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { generateSimpleRepeatingGroups } from 'src/features/form/layout/repGroups/generateSimpleRepeatingGroups';
+import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { setupStore } from 'src/redux/store';
 import { MemoryRouterWithRedirectingRoot } from 'src/test/memoryRouterWithRedirectingRoot';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
-import { ExprContextWrapper, useResolvedNode } from 'src/utils/layout/ExprContext';
+import { ExprContextWrapper, useExprContext, useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { AppQueriesContext } from 'src/contexts/appQueriesContext';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IDataList } from 'src/features/dataLists';
@@ -28,24 +33,26 @@ import type { ILayoutSets, IRuntimeState } from 'src/types';
 import type { IProfile } from 'src/types/shared';
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
+  component: React.ReactElement;
   preloadedState?: PreloadedState<RootState>;
   store?: AppStore;
   Router?: (props: React.PropsWithChildren) => React.ReactNode;
+  waitUntilLoaded?: boolean;
+  mockedQueries?: Partial<AppQueriesContext>;
 }
 
 const exampleGuid = '75154373-aed4-41f7-95b4-e5b5115c2edc';
 const exampleInstanceId = `512345/${exampleGuid}`;
 
-export const renderWithProviders = (
-  component: any,
-  {
-    preloadedState = {},
-    store = setupStore(preloadedState).store,
-    Router,
-    ...renderOptions
-  }: ExtendedRenderOptions = {},
-  queries?: Partial<AppQueriesContext>,
-) => {
+export const renderWithProviders = async ({
+  component,
+  preloadedState = {},
+  store = setupStore(preloadedState).store,
+  Router,
+  mockedQueries = {},
+  waitUntilLoaded = true,
+  ...renderOptions
+}: ExtendedRenderOptions) => {
   function Wrapper({ children }: React.PropsWithChildren) {
     const theme = createTheme(AltinnAppTheme);
 
@@ -59,8 +66,9 @@ export const renderWithProviders = (
         },
       };
     }
+    const applicationMetaData = state?.applicationMetadata.applicationMetadata || ({} as IApplicationMetadata);
 
-    const allMockedQueries = {
+    const allMockedQueries: AppQueriesContext = {
       doPartyValidation: () => Promise.resolve({ valid: true, validParties: [], message: null }),
       doSelectParty: () => Promise.resolve(null),
       doInstantiateWithPrefill: () => Promise.resolve(getInstanceDataMock()),
@@ -71,7 +79,7 @@ export const renderWithProviders = (
       doAttachmentAddTag: () => Promise.reject(null),
       doAttachmentRemove: () => Promise.reject(null),
       fetchActiveInstances: () => Promise.resolve([]),
-      fetchApplicationMetadata: () => Promise.resolve({} as unknown as IApplicationMetadata),
+      fetchApplicationMetadata: () => Promise.resolve(applicationMetaData),
       fetchCurrentParty: () => Promise.resolve({}),
       fetchApplicationSettings: () => Promise.resolve({}),
       fetchFooterLayout: () => Promise.resolve({ footer: [] } as IFooterLayout),
@@ -101,12 +109,16 @@ export const renderWithProviders = (
       fetchAppLanguages: () => Promise.resolve([]),
       fetchProcessState: () => Promise.resolve(getProcessDataMock()),
       fetchProcessNextSteps: () => Promise.resolve([]),
-    } as AppQueriesContext;
-    const mockedQueries = { ...allMockedQueries, ...queries };
+    };
+
+    const queries = {
+      ...allMockedQueries,
+      ...mockedQueries,
+    };
 
     if (!Router) {
       return (
-        <AppQueriesProvider {...mockedQueries}>
+        <AppQueriesProvider {...queries}>
           <MuiThemeProvider theme={theme}>
             <Provider store={store}>
               <ExprContextWrapper>
@@ -115,7 +127,9 @@ export const renderWithProviders = (
                     path={'instance/:partyId/:instanceGuid'}
                     element={
                       <InstantiationProvider>
-                        <FormProvider>{children}</FormProvider>
+                        <InstanceProvider provideLayoutValidation={false}>
+                          <FormProvider>{children}</FormProvider>
+                        </InstanceProvider>
                       </InstantiationProvider>
                     }
                   />
@@ -129,12 +143,14 @@ export const renderWithProviders = (
 
     return (
       <Router>
-        <AppQueriesProvider {...mockedQueries}>
+        <AppQueriesProvider {...queries}>
           <MuiThemeProvider theme={theme}>
             <Provider store={store}>
               <ExprContextWrapper>
                 <InstantiationProvider>
-                  <FormProvider>{children}</FormProvider>
+                  <InstanceProvider provideLayoutValidation={false}>
+                    <FormProvider>{children}</FormProvider>
+                  </InstanceProvider>
                 </InstantiationProvider>
               </ExprContextWrapper>
             </Provider>
@@ -144,13 +160,21 @@ export const renderWithProviders = (
     );
   }
 
-  return {
+  const out = {
     store,
     ...rtlRender(component, {
       wrapper: Wrapper,
       ...renderOptions,
     }),
   };
+
+  if (waitUntilLoaded) {
+    // This little magic is needed to wait for the initial state to be loaded. It will catch both the loading state
+    // in renderGenericComponentTest() below, but also the <Loader /> component.
+    await waitFor(() => expect(out.queryByText('Loading...')).not.toBeInTheDocument());
+  }
+
+  return out;
 };
 
 export interface RenderGenericComponentTestProps<T extends CompTypes> {
@@ -161,9 +185,10 @@ export interface RenderGenericComponentTestProps<T extends CompTypes> {
   manipulateState?: (state: IRuntimeState) => void;
   manipulateStore?: (store: ReturnType<typeof setupStore>['store']) => void;
   mockedQueries?: Partial<AppQueriesContext>;
+  waitUntilLoaded?: boolean;
 }
 
-export function renderGenericComponentTest<T extends CompTypes>({
+export async function renderGenericComponentTest<T extends CompTypes>({
   type,
   renderer,
   component,
@@ -179,12 +204,49 @@ export function renderGenericComponentTest<T extends CompTypes>({
   } as any;
 
   const Wrapper = () => {
+    const dispatch = useAppDispatch();
+    const layouts = useAppSelector((state) => state.formLayout.layouts);
+    const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
+    const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
+
+    const waitingFor: string[] = [];
+    if (!layouts) {
+      waitingFor.push('layouts');
+    }
+    if (!currentView) {
+      waitingFor.push('currentView');
+    }
+    if (!repeatingGroups) {
+      waitingFor.push('repeatingGroups');
+    }
+
+    if (waitingFor.length === 1 && waitingFor[0] === 'repeatingGroups' && layouts) {
+      dispatch(FormLayoutActions.initRepeatingGroupsFulfilled({ updated: generateSimpleRepeatingGroups(layouts) }));
+    }
+
+    const root = useExprContext();
     const node = useResolvedNode(realComponentDef.id) as any;
     const props: PropsFromGenericComponent<T> = {
       node,
       ...(mockComponentProps as unknown as IComponentProps<T>),
       ...genericProps,
     };
+
+    if (!node) {
+      return (
+        <>
+          <div>Node not found: {realComponentDef.id}</div>
+          {root ? (
+            <div>All other nodes loaded</div>
+          ) : (
+            <>
+              <div>Loading...</div>
+              <div>Waiting for {waitingFor.join(', ')}</div>
+            </>
+          )}
+        </>
+      );
+    }
 
     return renderer(props);
   };
@@ -197,7 +259,7 @@ export function renderGenericComponentTest<T extends CompTypes>({
   manipulateStore && manipulateStore(store);
 
   return {
-    ...renderWithProviders(<Wrapper />, { store }, mockedQueries),
+    ...(await renderWithProviders({ component: <Wrapper />, store, mockedQueries })),
   };
 }
 

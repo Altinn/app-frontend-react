@@ -7,24 +7,26 @@ import { renderWithProviders } from 'src/test/renderWithProviders';
 import type { IHelpTextContainerProps } from 'src/components/form/HelpTextContainer';
 
 describe('HelpTextContainer', () => {
-  const render = (props?: Partial<IHelpTextContainerProps>) => {
-    renderWithProviders(
-      <HelpTextContainer
-        helpText={'Help text content'}
-        {...props}
-      />,
-    );
+  const render = async (props?: Partial<IHelpTextContainerProps>) => {
+    await renderWithProviders({
+      component: (
+        <HelpTextContainer
+          helpText={'Help text content'}
+          {...props}
+        />
+      ),
+    });
   };
 
-  it('receives correct accessible title', () => {
-    render();
+  it('receives correct accessible title', async () => {
+    await render();
     expect(
       screen.getByRole('button', {
         name: /Hjelp/i,
       }),
     ).toBeInTheDocument();
 
-    render({ title: 'My labelname' });
+    await render({ title: 'My labelname' });
 
     expect(
       screen.getByRole('button', {

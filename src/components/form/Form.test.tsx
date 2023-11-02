@@ -62,14 +62,14 @@ describe('Form', () => {
     },
   ];
 
-  it('should render components and groups', () => {
-    renderForm();
+  it('should render components and groups', async () => {
+    await render();
     expect(screen.getByText('First title')).toBeInTheDocument();
     expect(screen.getByText('Second title')).toBeInTheDocument();
     expect(screen.getByText('Third title')).toBeInTheDocument();
   });
 
-  it('should render DisplayGroupContainer and children if group is non repeating', () => {
+  it('should render DisplayGroupContainer and children if group is non repeating', async () => {
     const layoutWithNonRepGroup: ILayout = [
       ...mockComponents,
       {
@@ -94,13 +94,13 @@ describe('Form', () => {
       },
     ];
 
-    renderForm(layoutWithNonRepGroup);
+    await render(layoutWithNonRepGroup);
     const container = screen.getByTestId('display-group-container');
     expect(container).toBeInTheDocument();
     expect(within(container).getByText('Title from non repeating child')).toBeInTheDocument();
   });
 
-  it('should render PanelGroupContainer and children if group has panel prop', () => {
+  it('should render PanelGroupContainer and children if group has panel prop', async () => {
     const layoutWithPanelGroup: ILayout = [
       ...mockComponents,
       {
@@ -128,13 +128,13 @@ describe('Form', () => {
       },
     ];
 
-    renderForm(layoutWithPanelGroup);
+    await render(layoutWithPanelGroup);
     const container = screen.getByTestId('panel-group-container');
     expect(container).toBeInTheDocument();
     expect(within(container).getByText('Title from panel child')).toBeInTheDocument();
   });
 
-  it('should render navbar', () => {
+  it('should render navbar', async () => {
     const layoutWithNavBar: ILayout = [
       ...mockComponents,
       {
@@ -142,18 +142,18 @@ describe('Form', () => {
         type: 'NavigationBar',
       } as CompExternal,
     ];
-    renderForm(layoutWithNavBar);
+    await render(layoutWithNavBar);
     expect(screen.getByRole('navigation')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '1. FormLayout' })).toBeInTheDocument();
   });
 
-  it('should not render ErrorReport when there are no validation errors', () => {
-    renderForm(mockComponents);
+  it('should not render ErrorReport when there are no validation errors', async () => {
+    await render(mockComponents);
     expect(screen.queryByTestId('ErrorReport')).not.toBeInTheDocument();
   });
 
-  it('should render ErrorReport when there are validation errors', () => {
-    renderForm(
+  it('should render ErrorReport when there are validation errors', async () => {
+    await render(
       mockComponents,
       mockValidations({
         component1: {
@@ -166,8 +166,8 @@ describe('Form', () => {
     expect(screen.getByTestId('ErrorReport')).toBeInTheDocument();
   });
 
-  it('should render ErrorReport when there are unmapped validation errors', () => {
-    renderForm(
+  it('should render ErrorReport when there are unmapped validation errors', async () => {
+    await render(
       mockComponents,
       mockValidations({
         unmapped: {
@@ -180,8 +180,8 @@ describe('Form', () => {
     expect(screen.getByTestId('ErrorReport')).toBeInTheDocument();
   });
 
-  it('should separate NavigationButtons and display them inside ErrorReport', () => {
-    renderForm(
+  it('should separate NavigationButtons and display them inside ErrorReport', async () => {
+    await render(
       [
         ...mockComponents,
         {
@@ -205,7 +205,7 @@ describe('Form', () => {
     expect(within(errorReport).getByTestId('NavigationButtons')).toBeInTheDocument();
   });
 
-  it('should render a summary component', () => {
+  it('should render a summary component', async () => {
     const summaryComponent = [
       ...mockComponents,
       {
@@ -214,30 +214,31 @@ describe('Form', () => {
         componentRef: 'field1',
       } as CompSummaryExternal,
     ];
-    renderForm(summaryComponent as ILayout);
+    await render(summaryComponent as ILayout);
     expect(screen.getByTestId('summary-the-summary')).toBeInTheDocument();
   });
 
-  function renderForm(layout = mockComponents, customState: PreloadedState<RootState> = {}) {
-    renderWithProviders(
-      <MemoryRouterWithRedirectingRoot to={'/instance/123456/75154373-aed4-41f7-95b4-e5b5115c2edc'}>
-        <Route
-          path={'/instance/:partyId/:instanceGuid'}
-          element={<Form />}
-        />
-      </MemoryRouterWithRedirectingRoot>,
-      {
-        preloadedState: {
-          ...getInitialStateMock(),
-          ...customState,
-          formLayout: getFormLayoutStateMock({
-            layouts: {
-              FormLayout: layout,
-            },
-          }),
-        },
+  async function render(layout = mockComponents, customState: PreloadedState<RootState> = {}) {
+    await renderWithProviders({
+      component: <Form />,
+      Router: ({ children }: React.PropsWithChildren) => (
+        <MemoryRouterWithRedirectingRoot to={'/instance/123456/75154373-aed4-41f7-95b4-e5b5115c2edc'}>
+          <Route
+            path={'/instance/:partyId/:instanceGuid'}
+            element={children}
+          />
+        </MemoryRouterWithRedirectingRoot>
+      ),
+      preloadedState: {
+        ...getInitialStateMock(),
+        ...customState,
+        formLayout: getFormLayoutStateMock({
+          layouts: {
+            FormLayout: layout,
+          },
+        }),
       },
-    );
+    });
   }
 
   function mockValidations(validations: RootState['formValidations']['validations'][string]): Partial<RootState> {

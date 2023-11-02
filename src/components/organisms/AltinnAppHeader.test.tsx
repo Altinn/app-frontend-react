@@ -42,19 +42,19 @@ describe('organisms/AltinnAppHeader', () => {
     logo?: IApplicationMetadata['logo'];
   }
   const renderComponent = ({ party, user = partyPerson, logo }: IRenderComponentProps) =>
-    renderWithProviders(
-      <AltinnAppHeader
-        party={party}
-        userParty={user}
-        logoColor={logoColor}
-        headerBackgroundColor={headerBackgroundColor}
-      />,
-      {
-        preloadedState: getInitialStateMock({
-          applicationMetadata: appMetadataMock({ logo }),
-        }),
-      },
-    );
+    renderWithProviders({
+      component: (
+        <AltinnAppHeader
+          party={party}
+          userParty={user}
+          logoColor={logoColor}
+          headerBackgroundColor={headerBackgroundColor}
+        />
+      ),
+      preloadedState: getInitialStateMock({
+        applicationMetadata: appMetadataMock({ logo }),
+      }),
+    });
 
   it('should render private icon when party is person', () => {
     renderComponent({ party: partyPerson });

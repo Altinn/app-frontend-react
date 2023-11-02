@@ -11,8 +11,8 @@ describe('MessageBanner', () => {
   const mockState = getInitialStateMock();
   const mockMessageKey: ValidLanguageKey = 'form_filler.required_description';
 
-  it('should have grey background by default', () => {
-    renderWithProviders(<MessageBanner messageKey={mockMessageKey} />, { preloadedState: mockState });
+  it('should have grey background by default', async () => {
+    await renderWithProviders({ component: <MessageBanner messageKey={mockMessageKey} />, preloadedState: mockState });
 
     const messageBanner = screen.getByTestId('MessageBanner-container');
     expect(messageBanner).toBeInTheDocument();
@@ -22,14 +22,16 @@ describe('MessageBanner', () => {
     expect(backgroundColor).toEqual(regularColor);
   });
 
-  it('should have red background when error==true', () => {
-    renderWithProviders(
-      <MessageBanner
-        messageKey={mockMessageKey}
-        error={true}
-      />,
-      { preloadedState: mockState },
-    );
+  it('should have red background when error==true', async () => {
+    await renderWithProviders({
+      component: (
+        <MessageBanner
+          messageKey={mockMessageKey}
+          error={true}
+        />
+      ),
+      preloadedState: mockState,
+    });
 
     const messageBanner: HTMLElement = screen.getByTestId('MessageBanner-container');
     expect(messageBanner).toBeInTheDocument();

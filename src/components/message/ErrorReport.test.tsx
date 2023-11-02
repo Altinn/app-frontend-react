@@ -21,17 +21,18 @@ describe('ErrorReport', () => {
       formValidations: mockValidationState,
     });
 
-    return renderWithProviders(<ErrorReport nodes={[]} />, {
+    return renderWithProviders({
+      component: <ErrorReport nodes={[]} />,
       preloadedState: initialState,
     });
   };
 
-  it('should not render when there are no errors', () => {
-    render({});
+  it('should not render when there are no errors', async () => {
+    await render({});
     expect(screen.queryByTestId('ErrorReport')).not.toBeInTheDocument();
   });
 
-  it('should list unmapped errors as unclickable', () => {
+  it('should list unmapped errors as unclickable', async () => {
     const validations = {
       unmapped: {
         // unmapped layout
@@ -45,7 +46,7 @@ describe('ErrorReport', () => {
       },
     };
 
-    render(validations);
+    await render(validations);
     expect(screen.getByTestId('ErrorReport')).toBeInTheDocument();
 
     // Unmapped errors should not be clickable
@@ -55,7 +56,7 @@ describe('ErrorReport', () => {
     expect(errorNode.parentElement?.tagName).toEqual('LI');
   });
 
-  it('should list mapped error as clickable', () => {
+  it('should list mapped error as clickable', async () => {
     const validations = {
       page1: {
         someComponent: {
@@ -66,7 +67,7 @@ describe('ErrorReport', () => {
       },
     };
 
-    render(validations);
+    await render(validations);
     expect(screen.getByTestId('ErrorReport')).toBeInTheDocument();
 
     const errorNode = screen.getByText('some mapped error');

@@ -25,7 +25,7 @@ interface IRender {
   container?: CompGroupRepeatingExternal;
 }
 
-function render({ container = mockContainer }: IRender = {}) {
+async function render({ container = mockContainer }: IRender = {}) {
   const mockComponents: CompExternal[] = [
     {
       id: 'field1',
@@ -134,10 +134,10 @@ function render({ container = mockContainer }: IRender = {}) {
 
   mockStore.dispatch = jest.fn();
 
-  const { store } = renderWithProviders(
-    <GroupContainerTester id={container?.id} />,
-    { store: mockStore },
-    {
+  const { store } = await renderWithProviders({
+    component: <GroupContainerTester id={container?.id} />,
+    store: mockStore,
+    mockedQueries: {
       fetchLayouts: () =>
         Promise.resolve({
           FormLayout: {
@@ -147,7 +147,7 @@ function render({ container = mockContainer }: IRender = {}) {
           },
         }),
     },
-  );
+  });
 
   return store;
 }
@@ -176,26 +176,26 @@ describe('GroupContainer', () => {
       },
       ...mockContainer,
     };
-    render({ container: mockContainerWithLabel });
+    await render({ container: mockContainerWithLabel });
     await waitFor(() => {
       const item = screen.getByText('Legg til ny person');
       expect(item).toBeInTheDocument();
     });
   });
 
-  it('should not show add button when maxOccurs is reached', () => {
+  it('should not show add button when maxOccurs is reached', async () => {
     const mockContainerWithMaxCount = {
       ...mockContainer,
       maxCount: 3,
     };
-    render({ container: mockContainerWithMaxCount });
+    await render({ container: mockContainerWithMaxCount });
 
     const addButton = screen.queryByText('Legg til ny');
     expect(addButton).not.toBeInTheDocument();
   });
 
-  it('should show option label when displaying selection components', () => {
-    render({ container: getFormLayoutGroupMock({ id: 'container-in-edit-mode-id' }) });
+  it('should show option label when displaying selection components', async () => {
+    await render({ container: getFormLayoutGroupMock({ id: 'container-in-edit-mode-id' }) });
 
     const item = screen.getByText('Value to be shown');
     expect(item).toBeInTheDocument();
@@ -212,7 +212,7 @@ describe('GroupContainer', () => {
       children: ['0:field1', '0:field2', '1:field3', '1:field4'],
     };
     // eslint-disable-next-line testing-library/render-result-naming-convention
-    const store = render({ container: multiPageContainer });
+    const store = await render({ container: multiPageContainer });
 
     const addButton = screen.getAllByRole('button', {
       name: /Legg til ny/i,
@@ -238,7 +238,7 @@ describe('GroupContainer', () => {
     };
     const user = userEvent.setup();
     // eslint-disable-next-line testing-library/render-result-naming-convention
-    const store = render({ container: mockContainerInEditModeWithTrigger });
+    const store = await render({ container: mockContainerInEditModeWithTrigger });
 
     const editButton = screen.getAllByRole('button', {
       name: /Lagre og lukk/i,
@@ -254,7 +254,7 @@ describe('GroupContainer', () => {
       type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
     };
 
-    expect(store.dispatch).toHaveBeenCalledTimes(1);
+    expect(store.dispatch).toHaveBeenCalledTimes(2);
     expect(store.dispatch).toHaveBeenCalledWith(mockDispatchedAction);
   });
 
@@ -264,7 +264,7 @@ describe('GroupContainer', () => {
       id: 'container-in-edit-mode-id',
     };
     // eslint-disable-next-line testing-library/render-result-naming-convention
-    const store = render({ container: mockContainerInEditMode });
+    const store = await render({ container: mockContainerInEditMode });
     const user = userEvent.setup();
 
     const editButton = screen.getAllByRole('button', {
@@ -280,7 +280,7 @@ describe('GroupContainer', () => {
       type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
     };
 
-    expect(store.dispatch).toHaveBeenCalledTimes(1);
+    expect(store.dispatch).toHaveBeenCalledTimes(2);
     expect(store.dispatch).toHaveBeenCalledWith(mockDispatchedAction);
   });
 
@@ -291,7 +291,7 @@ describe('GroupContainer', () => {
       triggers: [Triggers.Validation],
     };
     // eslint-disable-next-line testing-library/render-result-naming-convention
-    const store = render({ container: mockContainerInEditModeWithTrigger });
+    const store = await render({ container: mockContainerInEditModeWithTrigger });
     const user = userEvent.setup();
 
     const editButton = screen.getAllByRole('button', {
@@ -308,7 +308,7 @@ describe('GroupContainer', () => {
       type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
     };
 
-    expect(store.dispatch).toHaveBeenCalledTimes(1);
+    expect(store.dispatch).toHaveBeenCalledTimes(2);
     expect(store.dispatch).toHaveBeenCalledWith(mockDispatchedAction);
   });
 
@@ -319,7 +319,7 @@ describe('GroupContainer', () => {
       triggers: [Triggers.ValidateRow],
     };
     // eslint-disable-next-line testing-library/render-result-naming-convention
-    const store = render({ container: mockContainerInEditModeWithTrigger });
+    const store = await render({ container: mockContainerInEditModeWithTrigger });
     const user = userEvent.setup();
 
     const editButton = screen.getAllByRole('button', {
@@ -336,7 +336,7 @@ describe('GroupContainer', () => {
       type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
     };
 
-    expect(store.dispatch).toHaveBeenCalledTimes(1);
+    expect(store.dispatch).toHaveBeenCalledTimes(2);
     expect(store.dispatch).toHaveBeenCalledWith(mockDispatchedAction);
   });
 
@@ -346,7 +346,7 @@ describe('GroupContainer', () => {
       id: 'container-in-edit-mode-id',
     };
     // eslint-disable-next-line testing-library/render-result-naming-convention
-    const store = render({ container: mockContainerInEditMode });
+    const store = await render({ container: mockContainerInEditMode });
     const user = userEvent.setup();
 
     const editButton = screen.getAllByRole('button', {
@@ -362,57 +362,57 @@ describe('GroupContainer', () => {
       type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
     };
 
-    expect(store.dispatch).toHaveBeenCalledTimes(1);
+    expect(store.dispatch).toHaveBeenCalledTimes(2);
     expect(store.dispatch).toHaveBeenCalledWith(mockDispatchedAction);
   });
 
-  it('should display "Add new" button when edit.addButton is undefined', () => {
-    render();
+  it('should display "Add new" button when edit.addButton is undefined', async () => {
+    await render();
 
     const addButton = screen.getByText('Legg til ny');
     expect(addButton).toBeInTheDocument();
   });
 
-  it('should not display "Add new" button when edit.addButton is false', () => {
+  it('should not display "Add new" button when edit.addButton is false', async () => {
     const mockContainerDisabledAddButton = {
       ...mockContainer,
       edit: {
         addButton: false,
       },
     };
-    render({ container: mockContainerDisabledAddButton });
+    await render({ container: mockContainerDisabledAddButton });
 
     const addButton = screen.queryByText('Legg til ny');
     expect(addButton).not.toBeInTheDocument();
   });
 
-  it('should display "Add new" button when edit.addButton is true', () => {
+  it('should display "Add new" button when edit.addButton is true', async () => {
     const mockContainerDisabledAddButton = {
       ...mockContainer,
       edit: {
         addButton: true,
       },
     };
-    render({ container: mockContainerDisabledAddButton });
+    await render({ container: mockContainerDisabledAddButton });
 
     const addButton = screen.getByText('Legg til ny');
     expect(addButton).toBeInTheDocument();
   });
 
-  it('should display textResourceBindings.edit_button_open as edit button if present when opening', () => {
+  it('should display textResourceBindings.edit_button_open as edit button if present when opening', async () => {
     const mockContainerWithEditButtonOpen = {
       ...mockContainer,
       textResourceBindings: {
         edit_button_open: 'button.open',
       },
     };
-    render({ container: mockContainerWithEditButtonOpen });
+    await render({ container: mockContainerWithEditButtonOpen });
 
     const openButtons = screen.getAllByText('New open text');
     expect(openButtons).toHaveLength(4);
   });
 
-  it('should display textResourceBindings.edit_button_close as edit button if present when closing', () => {
+  it('should display textResourceBindings.edit_button_close as edit button if present when closing', async () => {
     const mockContainerWithEditButtonClose = {
       ...mockContainer,
       id: 'container-in-edit-mode-id',
@@ -420,13 +420,13 @@ describe('GroupContainer', () => {
         edit_button_close: 'button.close',
       },
     };
-    render({ container: mockContainerWithEditButtonClose });
+    await render({ container: mockContainerWithEditButtonClose });
 
     const closeButtons = screen.getAllByText('New close text');
     expect(closeButtons).toHaveLength(1);
   });
 
-  it('should display textResourceBindings.save_button as save button if present', () => {
+  it('should display textResourceBindings.save_button as save button if present', async () => {
     const mockContainerWithAddButton = {
       ...mockContainer,
       id: 'container-in-edit-mode-id',
@@ -434,7 +434,7 @@ describe('GroupContainer', () => {
         save_button: 'button.save',
       },
     };
-    render({ container: mockContainerWithAddButton });
+    await render({ container: mockContainerWithAddButton });
 
     const saveButton = screen.getByText('New save text');
     expect(saveButton).toBeInTheDocument();

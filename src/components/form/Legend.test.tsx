@@ -10,7 +10,7 @@ describe('Legend', () => {
   const requiredMarking = '*';
   const optionalMarking = 'Valgfri';
 
-  function renderLegendComponent(props: Partial<IFormLegendProps> = {}) {
+  async function render(props: Partial<IFormLegendProps> = {}) {
     const defaultProps: IFormLegendProps = {
       id: 'label1',
       labelText: 'label.text',
@@ -20,33 +20,35 @@ describe('Legend', () => {
       labelSettings: {},
     };
 
-    return renderWithProviders(
-      <Legend
-        {...defaultProps}
-        {...props}
-      />,
-    );
+    return await renderWithProviders({
+      component: (
+        <Legend
+          {...defaultProps}
+          {...props}
+        />
+      ),
+    });
   }
 
-  it('should render legend', () => {
-    renderLegendComponent();
+  it('should render legend', async () => {
+    await render();
     expect(screen.getByText('label.text')).toBeInTheDocument();
   });
 
-  it('should render required marking when field is required', () => {
-    renderLegendComponent({ required: true });
+  it('should render required marking when field is required', async () => {
+    await render({ required: true });
     expect(screen.getByText(requiredMarking)).toBeTruthy();
   });
 
-  it('should render optional marking when labelSettings.optionalIndicator is true', () => {
-    renderLegendComponent({
+  it('should render optional marking when labelSettings.optionalIndicator is true', async () => {
+    await render({
       labelSettings: { optionalIndicator: true },
     });
     expect(screen.getByText(`(${optionalMarking})`)).toBeTruthy();
   });
 
-  it('should not render optional marking when required, even if labelSettings.optionalIndicator is true', () => {
-    renderLegendComponent({
+  it('should not render optional marking when required, even if labelSettings.optionalIndicator is true', async () => {
+    await render({
       labelSettings: { optionalIndicator: true },
       required: true,
     });

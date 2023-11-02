@@ -48,6 +48,7 @@ const render = ({ component, genericProps, options }: Props = {}) =>
         options ? Promise.resolve(options) : Promise.reject(new Error('No options provided to render()')),
     },
   });
+
 const getCheckbox = ({ name, isChecked = false }) =>
   screen.getByRole('checkbox', {
     name,
@@ -66,7 +67,7 @@ describe('CheckboxesContainerComponent', () => {
 
   it('should call handleDataChange with value of preselectedOptionIndex when simpleBinding is not set', async () => {
     const handleChange = jest.fn();
-    render({
+    await render({
       component: {
         preselectedOptionIndex: 1,
       },
@@ -86,7 +87,7 @@ describe('CheckboxesContainerComponent', () => {
 
   it('should not call handleDataChange when simpleBinding is set and preselectedOptionIndex', async () => {
     const handleChange = jest.fn();
-    render({
+    await render({
       component: {
         preselectedOptionIndex: 0,
       },
@@ -109,7 +110,7 @@ describe('CheckboxesContainerComponent', () => {
 
   it('should show several checkboxes as selected based on values in simpleBinding', async () => {
     const handleChange = jest.fn();
-    render({
+    await render({
       genericProps: {
         handleDataChange: handleChange,
         formData: {
@@ -129,7 +130,7 @@ describe('CheckboxesContainerComponent', () => {
 
   it('should not set any as selected when no binding and no preselectedOptionIndex is set', async () => {
     const handleChange = jest.fn();
-    render({ genericProps: { handleDataChange: handleChange }, options: threeOptions });
+    await render({ genericProps: { handleDataChange: handleChange }, options: threeOptions });
 
     await waitFor(() => {
       expect(getCheckbox({ name: 'Norway' })).toBeInTheDocument();
@@ -141,7 +142,7 @@ describe('CheckboxesContainerComponent', () => {
 
   it('should call handleDataChange with updated values when selection changes', async () => {
     const handleChange = jest.fn();
-    render({
+    await render({
       genericProps: {
         handleDataChange: handleChange,
         formData: {
@@ -166,7 +167,7 @@ describe('CheckboxesContainerComponent', () => {
 
   it('should call handleDataChange with updated values when deselecting item', async () => {
     const handleChange = jest.fn();
-    render({
+    await render({
       genericProps: {
         handleDataChange: handleChange,
         formData: {
@@ -192,7 +193,7 @@ describe('CheckboxesContainerComponent', () => {
 
   it('should call handleDataChange instantly on blur when the value has changed', async () => {
     const handleChange = jest.fn();
-    render({
+    await render({
       genericProps: {
         handleDataChange: handleChange,
         formData: {
@@ -220,7 +221,7 @@ describe('CheckboxesContainerComponent', () => {
 
   it('should not call handleDataChange on blur when the value is unchanged', async () => {
     const handleChange = jest.fn();
-    render({
+    await render({
       genericProps: {
         handleDataChange: handleChange,
       },
@@ -241,7 +242,7 @@ describe('CheckboxesContainerComponent', () => {
 
   it('should call handleDataChange onBlur with no commas in string when starting with empty string formData', async () => {
     const handleChange = jest.fn();
-    render({
+    await render({
       genericProps: {
         handleDataChange: handleChange,
         formData: {
@@ -266,8 +267,8 @@ describe('CheckboxesContainerComponent', () => {
     expect(handleChange).toHaveBeenCalledWith('denmark', { validate: true });
   });
 
-  it('should show spinner while waiting for options', () => {
-    render({
+  it('should show spinner while waiting for options', async () => {
+    await render({
       component: {
         optionsId: 'loadingOptions',
       },
@@ -277,7 +278,7 @@ describe('CheckboxesContainerComponent', () => {
   });
 
   it('should show items in a row when layout is "row" and options count is 3', async () => {
-    const { container } = render({
+    const { container } = await render({
       component: {
         optionsId: 'countries',
         layout: LayoutStyle.Row,
@@ -292,7 +293,7 @@ describe('CheckboxesContainerComponent', () => {
   });
 
   it('should show items in a row when layout is not defined, and options count is 2', async () => {
-    const { container } = render({
+    const { container } = await render({
       component: {
         optionsId: 'countries',
       },
@@ -306,7 +307,7 @@ describe('CheckboxesContainerComponent', () => {
   });
 
   it('should show items in a column when layout is "column" and options count is 2 ', async () => {
-    const { container } = render({
+    const { container } = await render({
       component: {
         optionsId: 'countries',
         layout: LayoutStyle.Column,
@@ -322,7 +323,7 @@ describe('CheckboxesContainerComponent', () => {
   });
 
   it('should show items in a columns when layout is not defined, and options count is 3', async () => {
-    const { container } = render({
+    const { container } = await render({
       component: {
         optionsId: 'countries',
       },
@@ -336,7 +337,7 @@ describe('CheckboxesContainerComponent', () => {
   it('should present replaced label if setup with values from repeating group in redux and trigger handleDataChanged with replaced values', async () => {
     const handleDataChange = jest.fn();
 
-    render({
+    await render({
       genericProps: { handleDataChange },
       component: {
         optionsId: undefined,

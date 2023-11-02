@@ -83,12 +83,12 @@ describe('RepeatingGroupsEditContainer', () => {
     if (multiPageGroup.edit) {
       multiPageGroup.edit.saveAndNextButton = true;
     }
-    render({ setEditIndex, setMultiPageIndex, editIndex: 0 });
+    await render({ setEditIndex, setMultiPageIndex, editIndex: 0 });
     await user.click(screen.getByRole('button', { name: /Lagre og åpne neste/i }));
     expect(setEditIndex).toHaveBeenCalledWith(1, true);
   });
 
-  const render = (props: Partial<IRepeatingGroupsEditContainer> = {}) => {
+  const render = async (props: Partial<IRepeatingGroupsEditContainer> = {}) => {
     const allProps: Omit<IRepeatingGroupsEditContainer, 'node'> = {
       editIndex: 1,
       setEditIndex: jest.fn(),
@@ -100,13 +100,15 @@ describe('RepeatingGroupsEditContainer', () => {
     preloadedState.formLayout.layouts = { FormLayout: layout };
     preloadedState.textResources.resourceMap = textResources;
 
-    renderWithProviders(
-      <RenderRepGroupEditContainer
-        id={'group'}
-        {...allProps}
-      />,
-      { preloadedState },
-    );
+    await renderWithProviders({
+      component: (
+        <RenderRepGroupEditContainer
+          id={'group'}
+          {...allProps}
+        />
+      ),
+      preloadedState,
+    });
   };
 });
 

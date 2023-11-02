@@ -97,7 +97,7 @@ describe('AttachmentWithTagSummaryComponent', () => {
     },
   };
   test('should render file upload with tag without content with the text Du har ikke lagt inn informasjon her', async () => {
-    renderHelper(formLayoutItem);
+    await render(formLayoutItem);
     await waitFor(() => {
       expect(screen.queryByTestId('loader')).not.toBeInTheDocument();
     });
@@ -105,32 +105,32 @@ describe('AttachmentWithTagSummaryComponent', () => {
     expect(element).toHaveTextContent('Du har ikke lagt inn informasjon her');
   });
   test('should contain attachments', async () => {
-    renderHelper(formLayoutItem, extendedState);
+    await render(formLayoutItem, extendedState);
     expect(await screen.findByText(attachmentName)).toBeInTheDocument();
   });
   test('should render mapped option label', async () => {
-    renderHelper({ ...formLayoutItem, optionsId: 'd' }, extendedState);
+    await render({ ...formLayoutItem, optionsId: 'd' }, extendedState);
     await waitFor(() => {
       expect(screen.queryByTestId('loader')).not.toBeInTheDocument();
     });
     expect(await screen.findByText('da option value')).toBeInTheDocument();
   });
   test('should render the text resource', async () => {
-    renderHelper({ ...formLayoutItem, optionsId: 'b', mapping: undefined }, extendedState);
+    await render({ ...formLayoutItem, optionsId: 'b', mapping: undefined }, extendedState);
     await waitFor(() => {
       expect(screen.queryByTestId('loader')).not.toBeInTheDocument();
     });
     expect(await screen.findByText('the result')).toBeInTheDocument();
   });
   test('should not render a text resource', async () => {
-    renderHelper({ ...formLayoutItem, optionsId: 'c', mapping: undefined }, extendedState);
+    await render({ ...formLayoutItem, optionsId: 'c', mapping: undefined }, extendedState);
     await waitFor(() => {
       expect(screen.queryByTestId('loader')).not.toBeInTheDocument();
     });
     expect(await screen.findByText('ca option value')).toBeInTheDocument();
   });
 
-  const renderHelper = (component: CompFileUploadWithTagExternal, extendState?: Partial<RootState>) => {
+  const render = async (component: CompFileUploadWithTagExternal, extendState?: Partial<RootState>) => {
     function Wrapper() {
       const node = useResolvedNode('FileUploadWithTag') as LayoutNode<'FileUploadWithTag'>;
       const allOptionsFetched = useAllOptionsInitiallyLoaded();
@@ -146,21 +146,19 @@ describe('AttachmentWithTagSummaryComponent', () => {
       return <AttachmentSummaryComponent targetNode={node} />;
     }
 
-    renderWithProviders(
-      <Wrapper />,
-      {
-        preloadedState: {
-          ...initialState,
-          ...mockState(component),
-          ...extendState,
-        },
+    await renderWithProviders({
+      component: <Wrapper />,
+      preloadedState: {
+        ...initialState,
+        ...mockState(component),
+        ...extendState,
       },
-      {
+      mockedQueries: {
         fetchOptions: (url) =>
           availableOptions[url]
             ? Promise.resolve(availableOptions[url])
             : Promise.reject(new Error(`No options available for ${url}`)),
       },
-    );
+    });
   };
 });

@@ -118,17 +118,17 @@ describe('RepeatingGroupTable', () => {
 
   const repeatingGroupIndex = 3;
 
-  it('should render table header when table has entries', () => {
+  it('should render table header when table has entries', async () => {
     // eslint-disable-next-line testing-library/render-result-naming-convention
-    const container = render();
+    const container = await render();
     // eslint-disable-next-line testing-library/no-node-access
     const tableHeader = container.querySelector(`#group-${group.id}-table-header`);
     expect(tableHeader).toBeInTheDocument();
   });
 
-  it('should not render table header when table has no entries', () => {
+  it('should not render table header when table has no entries', async () => {
     // eslint-disable-next-line testing-library/render-result-naming-convention
-    const container = render({
+    const container = await render({
       repeatingGroupIndex: -1,
     });
     // eslint-disable-next-line testing-library/no-node-access
@@ -148,7 +148,7 @@ describe('RepeatingGroupTable', () => {
         return;
       }
 
-      render({}, layout);
+      await render({}, layout);
 
       await act(() => user.click(screen.getAllByRole('button', { name: /slett/i })[0]));
 
@@ -168,7 +168,7 @@ describe('RepeatingGroupTable', () => {
 
     it('should trigger onClickRemove on delete-button click', async () => {
       const onClickRemove = jest.fn();
-      render({ onClickRemove });
+      await render({ onClickRemove });
 
       await act(() => user.click(screen.getAllByRole('button', { name: /slett/i })[0]));
 
@@ -177,7 +177,7 @@ describe('RepeatingGroupTable', () => {
 
     it('should trigger setEditIndex on edit-button click', async () => {
       const setEditIndex = jest.fn();
-      render({ setEditIndex });
+      await render({ setEditIndex });
 
       await act(() => user.click(screen.getAllByRole('button', { name: /rediger/i })[0]));
 
@@ -191,8 +191,8 @@ describe('RepeatingGroupTable', () => {
       setScreenWidth(768);
     });
 
-    it('should render edit and delete buttons as icons for screens smaller thnn 786px', () => {
-      render();
+    it('should render edit and delete buttons as icons for screens smaller thnn 786px', async () => {
+      await render();
 
       const iconButtonsDelete = screen.getAllByTestId(/delete-button/i);
       const iconButtonsEdit = screen.getAllByTestId(/edit-button/i);
@@ -208,7 +208,7 @@ describe('RepeatingGroupTable', () => {
     });
   });
 
-  const render = (props: Partial<IRepeatingGroupTableProps> = {}, newLayout?: ILayoutState) => {
+  const render = async (props: Partial<IRepeatingGroupTableProps> = {}, newLayout?: ILayoutState) => {
     const allProps: IRepeatingGroupTableProps = {
       ...({} as IRepeatingGroupTableProps),
       editIndex: -1,
@@ -224,13 +224,15 @@ describe('RepeatingGroupTable', () => {
     preloadedState.textResources.resourceMap = textResources;
     preloadedState.formData.formData = data;
 
-    const { container } = renderWithProviders(
-      <RenderGroupTable
-        id={group.id}
-        {...allProps}
-      />,
-      { preloadedState },
-    );
+    const { container } = await renderWithProviders({
+      component: (
+        <RenderGroupTable
+          id={group.id}
+          {...allProps}
+        />
+      ),
+      preloadedState,
+    });
 
     return container;
   };

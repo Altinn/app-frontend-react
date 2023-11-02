@@ -7,9 +7,9 @@ import { AttachmentListComponent } from 'src/layout/AttachmentList/AttachmentLis
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { IData } from 'src/types/shared';
 
-describe('FileUploadComponent', () => {
-  it('should render default AttachmentList component', () => {
-    render();
+describe('AttachmentListComponent', () => {
+  it('should render default AttachmentList component', async () => {
+    await render();
     expect(screen.getByText('Attachments')).toBeInTheDocument();
   });
 });

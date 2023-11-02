@@ -122,12 +122,12 @@ describe('SummaryGroupComponent', () => {
     mockHandleDataChange = jest.fn();
   });
 
-  test('SummaryGroupComponent -- should match snapshot', () => {
-    const { asFragment } = renderSummaryGroupComponent();
+  test('SummaryGroupComponent -- should match snapshot', async () => {
+    const { asFragment } = await render();
     expect(asFragment()).toMatchSnapshot();
   });
 
-  function renderSummaryGroupComponent() {
+  async function render() {
     function Wrapper() {
       const summaryNode = useResolvedNode('mySummary') as LayoutNode<'Summary'>;
       const groupNode = useResolvedNode('groupComponent') as LayoutNode<'Group'>;
@@ -142,6 +142,6 @@ describe('SummaryGroupComponent', () => {
       );
     }
 
-    return renderWithProviders(<Wrapper />, { store: mockStore });
+    return await renderWithProviders({ component: <Wrapper />, store: mockStore });
   }
 });

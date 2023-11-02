@@ -12,8 +12,8 @@ import { renderWithProviders } from 'src/test/renderWithProviders';
 import type { IInstanceSelectionProps } from 'src/features/instantiate/containers/InstanceSelection';
 import type { IRuntimeState, ISimpleInstance } from 'src/types';
 
-const renderInstanceSelection = (store: Store, props: IInstanceSelectionProps) =>
-  renderWithProviders(<InstanceSelection {...props} />, { store });
+const render = async (store: Store, props: IInstanceSelectionProps) =>
+  await renderWithProviders({ component: <InstanceSelection {...props} />, store });
 
 const { setScreenWidth } = mockMediaQuery(992);
 const user = userEvent.setup();
@@ -45,9 +45,9 @@ describe('InstanceSelection', () => {
     ];
   });
 
-  it('should show full size table for larger devices', () => {
+  it('should show full size table for larger devices', async () => {
     // eslint-disable-next-line testing-library/render-result-naming-convention
-    const rendered = renderInstanceSelection(mockStore, {
+    const rendered = await render(mockStore, {
       instances: mockActiveInstances,
       onNewInstance: mockStartNewInstance,
     });
@@ -56,11 +56,11 @@ describe('InstanceSelection', () => {
     expect(altinnTable).not.toBeNull();
   });
 
-  it('should display mobile table for smaller devices', () => {
+  it('should display mobile table for smaller devices', async () => {
     // Set screen size to mobile
     setScreenWidth(600);
     // eslint-disable-next-line testing-library/render-result-naming-convention
-    const rendered = renderInstanceSelection(mockStore, {
+    const rendered = await render(mockStore, {
       instances: mockActiveInstances,
       onNewInstance: mockStartNewInstance,
     });
@@ -70,7 +70,7 @@ describe('InstanceSelection', () => {
   });
 
   it('should display active instances', async () => {
-    renderInstanceSelection(mockStore, {
+    await render(mockStore, {
       instances: mockActiveInstances,
       onNewInstance: mockStartNewInstance,
     });
@@ -89,7 +89,7 @@ describe('InstanceSelection', () => {
   });
 
   it('pressing "Start på nytt" should trigger callback', async () => {
-    renderInstanceSelection(mockStore, {
+    await render(mockStore, {
       instances: mockActiveInstances,
       onNewInstance: mockStartNewInstance,
     });
@@ -99,7 +99,7 @@ describe('InstanceSelection', () => {
   });
 
   it('should trigger openInstance on editButton click', async () => {
-    renderInstanceSelection(mockStore, {
+    await render(mockStore, {
       instances: mockActiveInstances,
       onNewInstance: mockStartNewInstance,
     });
@@ -119,7 +119,7 @@ describe('InstanceSelection', () => {
   it('should trigger openInstance on editButton click during mobile view', async () => {
     // Set screen size to mobile
     setScreenWidth(600);
-    renderInstanceSelection(mockStore, {
+    await render(mockStore, {
       instances: mockActiveInstances,
       onNewInstance: mockStartNewInstance,
     });

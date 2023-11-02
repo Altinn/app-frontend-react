@@ -30,8 +30,8 @@ interface Props extends Partial<RenderGenericComponentTestProps<'Dropdown'>> {
   options?: IOption[];
 }
 
-const render = ({ component, genericProps, options }: Props = {}) => {
-  renderGenericComponentTest({
+const render = async ({ component, genericProps, options }: Props = {}) => {
+  await renderGenericComponentTest({
     type: 'Dropdown',
     renderer: (props) => <DropdownComponent {...props} />,
     component: {
@@ -46,7 +46,7 @@ const render = ({ component, genericProps, options }: Props = {}) => {
     },
     mockedQueries: {
       fetchOptions: () =>
-        options ? Promise.resolve(options) : Promise.reject(new Error('No options provided to render()')),
+        options ? Promise.resolve(options) : Promise.reject(new Error('No options provided to await render()')),
     },
   });
 };
@@ -54,7 +54,7 @@ const render = ({ component, genericProps, options }: Props = {}) => {
 describe('DropdownComponent', () => {
   it('should trigger handleDataChange when option is selected', async () => {
     const handleDataChange = jest.fn();
-    render({
+    await render({
       genericProps: {
         handleDataChange,
       },
@@ -70,7 +70,7 @@ describe('DropdownComponent', () => {
   });
 
   it('should show as disabled when readOnly is true', async () => {
-    render({
+    await render({
       component: {
         readOnly: true,
       },
@@ -82,7 +82,7 @@ describe('DropdownComponent', () => {
   });
 
   it('should not show as disabled when readOnly is false', async () => {
-    render({
+    await render({
       component: {
         readOnly: false,
       },
@@ -95,7 +95,7 @@ describe('DropdownComponent', () => {
 
   it('should trigger handleDataChange when preselectedOptionIndex is set', async () => {
     const handleDataChange = jest.fn();
-    render({
+    await render({
       component: {
         preselectedOptionIndex: 2,
       },
@@ -111,7 +111,7 @@ describe('DropdownComponent', () => {
 
   it('should trigger handleDataChange instantly on blur', async () => {
     const handleDataChange = jest.fn();
-    render({
+    await render({
       component: {
         preselectedOptionIndex: 2,
       },
@@ -133,7 +133,7 @@ describe('DropdownComponent', () => {
   });
 
   it('should show spinner', async () => {
-    render({
+    await render({
       component: {
         optionsId: 'countries',
       },
@@ -145,7 +145,7 @@ describe('DropdownComponent', () => {
 
   it('should present replaced label if setup with values from repeating group in redux and trigger handleDataChanged with replaced values', async () => {
     const handleDataChange = jest.fn();
-    render({
+    await render({
       component: {
         optionsId: undefined,
         source: {
@@ -174,7 +174,7 @@ describe('DropdownComponent', () => {
   });
 
   it('should present the options list in the order it is provided when sortOrder is not specified', async () => {
-    render({
+    await render({
       component: {
         optionsId: 'countries',
       },
@@ -190,7 +190,7 @@ describe('DropdownComponent', () => {
   });
 
   it('should present the provided options list sorted alphabetically in ascending order when providing sortOrder "asc"', async () => {
-    render({
+    await render({
       component: {
         optionsId: 'countries',
         sortOrder: 'asc',
@@ -207,7 +207,7 @@ describe('DropdownComponent', () => {
   });
 
   it('should present the provided options list sorted alphabetically in descending order when providing sortOrder "desc"', async () => {
-    render({
+    await render({
       component: {
         optionsId: 'countries',
         sortOrder: 'desc',

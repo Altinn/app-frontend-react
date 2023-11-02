@@ -22,7 +22,7 @@ interface RenderNavBarProps {
   textResources?: TextResourceMap;
 }
 
-const renderNavBar = ({
+const render = async ({
   hideCloseButton,
   showBackArrow,
   showLanguageSelector,
@@ -33,40 +33,40 @@ const renderNavBar = ({
   const mockBack = jest.fn();
   const mockAppLanguageChange = jest.fn();
 
-  renderWithProviders(
-    <NavBar
-      handleClose={mockClose}
-      handleBack={mockBack}
-      showBackArrow={showBackArrow}
-    />,
-    {
-      preloadedState: {
-        profile: getProfileStateMock({ selectedAppLanguage: 'nb' }),
-        textResources: {
-          resourceMap: textResources,
-          language: 'nb',
-          error: null,
-        },
-        formLayout: getFormLayoutStateMock({
-          uiConfig: getUiConfigStateMock({
-            hideCloseButton,
-            showLanguageSelector,
-          }),
-        }),
+  await renderWithProviders({
+    component: (
+      <NavBar
+        handleClose={mockClose}
+        handleBack={mockBack}
+        showBackArrow={showBackArrow}
+      />
+    ),
+    preloadedState: {
+      profile: getProfileStateMock({ selectedAppLanguage: 'nb' }),
+      textResources: {
+        resourceMap: textResources,
+        language: 'nb',
+        error: null,
       },
+      formLayout: getFormLayoutStateMock({
+        uiConfig: getUiConfigStateMock({
+          hideCloseButton,
+          showLanguageSelector,
+        }),
+      }),
     },
-    {
+    mockedQueries: {
       fetchAppLanguages: () =>
         languageResponse ? Promise.resolve(languageResponse) : Promise.reject(new Error('No languages mocked')),
     },
-  );
+  });
 
   return { mockClose, mockBack, mockAppLanguageChange };
 };
 
 describe('NavBar', () => {
-  it('should render nav', () => {
-    renderNavBar({
+  it('should render nav', async () => {
+    await render({
       hideCloseButton: true,
       showBackArrow: false,
       showLanguageSelector: false,
@@ -75,7 +75,7 @@ describe('NavBar', () => {
   });
 
   it('should render close button', async () => {
-    const { mockClose } = renderNavBar({
+    const { mockClose } = await render({
       hideCloseButton: false,
       showBackArrow: false,
       showLanguageSelector: false,
@@ -85,8 +85,8 @@ describe('NavBar', () => {
     expect(mockClose).toHaveBeenCalled();
   });
 
-  it('should hide close button and back button', () => {
-    renderNavBar({
+  it('should hide close button and back button', async () => {
+    await render({
       hideCloseButton: true,
       showBackArrow: false,
       showLanguageSelector: false,
@@ -96,7 +96,7 @@ describe('NavBar', () => {
   });
 
   it('should render back button', async () => {
-    const { mockBack } = renderNavBar({
+    const { mockBack } = await render({
       hideCloseButton: true,
       showBackArrow: true,
       showLanguageSelector: false,
@@ -106,7 +106,7 @@ describe('NavBar', () => {
     expect(mockBack).toHaveBeenCalled();
   });
   it('should render and change app language', async () => {
-    renderNavBar({
+    await render({
       hideCloseButton: false,
       showBackArrow: true,
       showLanguageSelector: true,
@@ -122,7 +122,7 @@ describe('NavBar', () => {
     expect(dropdown).toHaveValue('English');
   });
   it('should render app language with custom labels', async () => {
-    renderNavBar({
+    await render({
       hideCloseButton: false,
       showBackArrow: true,
       showLanguageSelector: true,

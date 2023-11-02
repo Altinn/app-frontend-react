@@ -10,7 +10,7 @@ import type { ISoftValidationProps, SoftValidationVariant } from 'src/components
 import type { IFormComponentContext } from 'src/layout';
 import type { IRuntimeState } from 'src/types';
 
-const render = (
+const render = async (
   props: Partial<ISoftValidationProps> = {},
   suppliedState: Partial<IRuntimeState> = {},
   suppliedContext: Partial<IFormComponentContext> = {},
@@ -21,24 +21,24 @@ const render = (
     ...props,
   };
 
-  renderWithProviders(
-    <FormComponentContext.Provider value={suppliedContext}>
-      <SoftValidations {...allProps} />
-    </FormComponentContext.Provider>,
-    {
-      preloadedState: {
-        ...getInitialStateMock(),
-        ...suppliedState,
-      },
+  await renderWithProviders({
+    component: (
+      <FormComponentContext.Provider value={suppliedContext}>
+        <SoftValidations {...allProps} />
+      </FormComponentContext.Provider>
+    ),
+    preloadedState: {
+      ...getInitialStateMock(),
+      ...suppliedState,
     },
-  );
+  });
 };
 
 describe('SoftValidations', () => {
   it.each(['info', 'warning', 'success'])(
     'for variant %p it should render the message',
-    (variant: SoftValidationVariant) => {
-      render({ variant });
+    async (variant: SoftValidationVariant) => {
+      await render({ variant });
 
       const message = screen.getByText('Some message');
       expect(message).toBeInTheDocument();

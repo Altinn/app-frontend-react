@@ -19,8 +19,8 @@ describe('DropzoneComponent', () => {
   const validFileEndings = '';
   const textResourceBindings = {};
 
-  it('should include aria-describedby for description if textResourceBindings.description is present', () => {
-    renderDropzone({
+  it('should include aria-describedby for description if textResourceBindings.description is present', async () => {
+    await render({
       textResourceBindings: {
         description: 'description',
       },
@@ -29,13 +29,13 @@ describe('DropzoneComponent', () => {
     expect(dropzone.getAttribute('aria-describedby')).toContain(`description-${id}`);
   });
 
-  it('should not include aria-describedby for description if textResourceBindings.description is not present', () => {
-    renderDropzone();
+  it('should not include aria-describedby for description if textResourceBindings.description is not present', async () => {
+    await render();
     const dropzone = screen.getByTestId(`altinn-drop-zone-${id}`);
     expect(dropzone.getAttribute('aria-describedby')).not.toContain(`description-${id}`);
   });
 
-  function renderDropzone(props: Partial<IDropzoneComponentProps> = {}) {
+  async function render(props: Partial<IDropzoneComponentProps> = {}) {
     const defaultProps = {
       id,
       isMobile,
@@ -49,11 +49,13 @@ describe('DropzoneComponent', () => {
       validFileEndings,
       textResourceBindings,
     } as IDropzoneComponentProps;
-    renderWithProviders(
-      <DropzoneComponent
-        {...defaultProps}
-        {...props}
-      />,
-    );
+    await renderWithProviders({
+      component: (
+        <DropzoneComponent
+          {...defaultProps}
+          {...props}
+        />
+      ),
+    });
   }
 });

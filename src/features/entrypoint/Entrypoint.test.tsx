@@ -15,7 +15,7 @@ describe('Entrypoint', () => {
   const mockInitialState = getInitialStateMock();
 
   test('should show invalid party error if user has no valid parties', async () => {
-    render({
+    await render({
       queries: {
         doPartyValidation: () => Promise.resolve({ valid: false, validParties: [], message: '' }),
       },
@@ -30,7 +30,7 @@ describe('Entrypoint', () => {
   });
 
   test('should show loader while fetching data then start instantiation by default ', async () => {
-    render();
+    await render();
 
     const contentLoader = await screen.findByText('Loading...');
     expect(contentLoader).not.toBeNull();
@@ -40,7 +40,7 @@ describe('Entrypoint', () => {
   });
 
   test('should fetch active instances and display InstanceSelection.tsx if select-instance is configured', async () => {
-    render({
+    await render({
       onEntry: 'select-instance',
       queries: {
         doPartyValidation: () => Promise.resolve({ valid: true, validParties: [], message: '' }),
@@ -67,7 +67,7 @@ describe('Entrypoint', () => {
   });
 
   test('should display MissingRolesError if getFormData has returned 403', async () => {
-    render({
+    await render({
       state: {
         formData: {
           ...mockInitialState.formData,
@@ -111,12 +111,11 @@ describe('Entrypoint', () => {
 
     const store = createStore(initialState);
 
-    return renderWithProviders(
-      <MemoryRouter>
-        <Entrypoint />
-      </MemoryRouter>,
-      { store: store as any },
-      queries,
-    );
+    return renderWithProviders({
+      store: store as any,
+      Router: MemoryRouter,
+      component: <Entrypoint />,
+      mockedQueries: queries,
+    });
   }
 });

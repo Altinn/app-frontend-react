@@ -8,24 +8,25 @@ import { OrganisationLogo } from 'src/components/presentation/OrganisationLogo/O
 import { renderWithProviders } from 'src/test/renderWithProviders';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 
-const renderComponent = (logo: IApplicationMetadata['logo']) =>
-  renderWithProviders(<OrganisationLogo />, {
+const render = async (logo: IApplicationMetadata['logo']) =>
+  await renderWithProviders({
+    component: <OrganisationLogo />,
     preloadedState: getInitialStateMock({
       applicationMetadata: appMetadataMock({ logo }),
     }),
   });
 
 describe('OrganisationLogo', () => {
-  it('Should get img src from organisations when logo.source is set to "org" in applicationMetadata', () => {
-    renderComponent({
+  it('Should get img src from organisations when logo.source is set to "org" in applicationMetadata', async () => {
+    await render({
       source: 'org',
       displayAppOwnerNameInHeader: false,
     });
     expect(screen.getByRole('img')).toHaveAttribute('src', 'https://altinncdn.no/orgs/mockOrg/mockOrg.png');
   });
 
-  it('Should not display appOwner when "showAppOwner" is set to false', () => {
-    renderComponent({
+  it('Should not display appOwner when "showAppOwner" is set to false', async () => {
+    await render({
       source: 'org',
       displayAppOwnerNameInHeader: false,
     });
@@ -34,7 +35,7 @@ describe('OrganisationLogo', () => {
   });
 
   it('Should display appOwner when "showAppOwner" is set to true', async () => {
-    renderComponent({
+    await render({
       source: 'org',
       displayAppOwnerNameInHeader: true,
     });

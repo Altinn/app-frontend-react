@@ -17,13 +17,12 @@ describe('ConfirmPage', () => {
     parties: [],
     applicationMetadata: applicationMetadataMock,
   };
-  it('should present confirm information when necessary data is present', () => {
-    renderWithProviders(
-      <MemoryRouter>
-        <ConfirmPage {...props} />
-      </MemoryRouter>,
-      { preloadedState: getInitialStateMock() },
-    );
+  it('should present confirm information when necessary data is present', async () => {
+    await renderWithProviders({
+      preloadedState: getInitialStateMock(),
+      Router: MemoryRouter,
+      component: <ConfirmPage {...props} />,
+    });
     const title = screen.getByText('Se over svarene dine før du sender inn');
     expect(title).toBeInTheDocument();
 
@@ -31,13 +30,12 @@ describe('ConfirmPage', () => {
     expect(contentLoader).not.toBeInTheDocument();
   });
 
-  it('should present pdf as part of previously submitted data', () => {
-    renderWithProviders(
-      <MemoryRouter>
-        <ConfirmPage {...props} />
-      </MemoryRouter>,
-      { preloadedState: getInitialStateMock() },
-    );
+  it('should present pdf as part of previously submitted data', async () => {
+    await renderWithProviders({
+      preloadedState: getInitialStateMock(),
+      Router: MemoryRouter,
+      component: <ConfirmPage {...props} />,
+    });
     const pdf = screen.getByText('mockApp.pdf');
     expect(pdf).toBeInTheDocument();
 
@@ -48,12 +46,11 @@ describe('ConfirmPage', () => {
   it('should show loading when clicking submit', async () => {
     const user = userEvent.setup();
     window.instanceId = getInstanceDataMock()?.id;
-    const { store } = renderWithProviders(
-      <MemoryRouter>
-        <ConfirmPage {...props} />
-      </MemoryRouter>,
-      { preloadedState: getInitialStateMock() },
-    );
+    const { store } = await renderWithProviders({
+      preloadedState: getInitialStateMock(),
+      Router: MemoryRouter,
+      component: <ConfirmPage {...props} />,
+    });
     const dispatch = jest.spyOn(store, 'dispatch');
 
     const submitBtnText = /send inn/i;
