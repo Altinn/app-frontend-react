@@ -14,8 +14,8 @@ describe('AttachmentListComponent', () => {
   });
 });
 
-const render = () =>
-  renderGenericComponentTest({
+const render = async () =>
+  await renderGenericComponentTest({
     type: 'AttachmentList',
     renderer: (props) => <AttachmentListComponent {...props} />,
     component: {

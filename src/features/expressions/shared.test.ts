@@ -3,7 +3,7 @@ import dot from 'dot-object';
 import { getHierarchyDataSourcesMock } from 'src/__mocks__/hierarchyMock';
 import { evalExpr } from 'src/features/expressions';
 import { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
-import { convertLayouts, getSharedTests } from 'src/features/expressions/shared';
+import { convertInstanceDataToAttachments, convertLayouts, getSharedTests } from 'src/features/expressions/shared';
 import { asExpression } from 'src/features/expressions/validation';
 import { resourcesAsMap } from 'src/features/textResources/resourcesAsMap';
 import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
@@ -62,7 +62,7 @@ describe('Expressions shared function tests', () => {
         context,
         layouts,
         dataModel,
-        attachments,
+        instanceDataElements,
         instance,
         permissions,
         frontendSettings,
@@ -78,7 +78,7 @@ describe('Expressions shared function tests', () => {
         const dataSources: HierarchyDataSources = {
           ...getHierarchyDataSourcesMock(),
           formData: dataModel ? dot.dot(dataModel) : {},
-          attachments: attachments ?? {},
+          attachments: convertInstanceDataToAttachments(instanceDataElements),
           instanceDataSources: buildInstanceDataSources(instance),
           applicationSettings: frontendSettings || ({} as IApplicationSettings),
           authContext: buildAuthContext(permissions),
@@ -180,11 +180,11 @@ describe('Expressions shared context tests', () => {
   describe.each(sharedTests.content)('$folderName', (folder) => {
     it.each(folder.content)(
       '$name',
-      ({ layouts, dataModel, attachments, instance, frontendSettings, permissions, expectedContexts }) => {
+      ({ layouts, dataModel, instanceDataElements, instance, frontendSettings, permissions, expectedContexts }) => {
         const dataSources: HierarchyDataSources = {
           ...getHierarchyDataSourcesMock(),
           formData: dataModel ? dot.dot(dataModel) : {},
-          attachments: attachments ?? {},
+          attachments: convertInstanceDataToAttachments(instanceDataElements),
           instanceDataSources: buildInstanceDataSources(instance),
           applicationSettings: frontendSettings || ({} as IApplicationSettings),
           authContext: buildAuthContext(permissions),

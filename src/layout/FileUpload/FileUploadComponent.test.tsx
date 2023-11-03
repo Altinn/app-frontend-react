@@ -117,7 +117,7 @@ describe('FileUploadWithTagComponent', () => {
   describe('uploaded', () => {
     it('should show spinner when file status has uploaded=false', async () => {
       const attachments = getAttachments({ count: 0 });
-      renderWithTag({ attachments });
+      await renderWithTag({ attachments });
 
       // Upload an attachment
       const file = new File(['(⌐□_□)'], 'chucknorris.png', { type: 'image/png' });
@@ -127,11 +127,11 @@ describe('FileUploadWithTagComponent', () => {
       expect(screen.getByText('Laster innhold')).toBeInTheDocument();
     });
 
-    it('should not show spinner when file status has uploaded=true', () => {
+    it('should not show spinner when file status has uploaded=true', async () => {
       const attachments = getAttachments({ count: 1 });
       attachments[0].uploaded = true;
 
-      renderWithTag({ attachments });
+      await renderWithTag({ attachments });
 
       expect(screen.queryByText('Laster innhold')).not.toBeInTheDocument();
     });
@@ -142,7 +142,7 @@ describe('FileUploadWithTagComponent', () => {
       const attachments = getAttachments({ count: 1 });
       attachments[0].updating = true;
 
-      renderWithTag({ attachments });
+      await renderWithTag({ attachments });
       await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
 
       expect(screen.getByText('Laster innhold')).toBeInTheDocument();
@@ -152,7 +152,7 @@ describe('FileUploadWithTagComponent', () => {
       const attachments = getAttachments({ count: 1 });
       attachments[0].updating = false;
 
-      renderWithTag({ attachments });
+      await renderWithTag({ attachments });
       await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
 
       expect(screen.queryByText('Laster innhold')).not.toBeInTheDocument();
@@ -164,21 +164,21 @@ describe('FileUploadWithTagComponent', () => {
       const attachments = getAttachments({ count: 1 });
       attachments[0].updating = true;
 
-      renderWithTag({ attachments });
+      await renderWithTag({ attachments });
       await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
 
       expect(screen.getByRole('combobox')).toBeDisabled();
     });
 
     it('should not disable dropdown in edit mode when not updating', async () => {
-      renderWithTag({ attachments: getAttachments({ count: 1 }) });
+      await renderWithTag({ attachments: getAttachments({ count: 1 }) });
       await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
 
       expect(screen.getByRole('combobox')).not.toBeDisabled();
     });
 
     it('should not disable save button', async () => {
-      renderWithTag({ attachments: getAttachments({ count: 1 }) });
+      await renderWithTag({ attachments: getAttachments({ count: 1 }) });
       await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
 
       expect(
@@ -191,7 +191,7 @@ describe('FileUploadWithTagComponent', () => {
     it('should disable save button when readOnly=true', async () => {
       const attachments = getAttachments({ count: 1 });
 
-      renderWithTag({
+      await renderWithTag({
         component: { readOnly: true },
         attachments,
       });
@@ -206,7 +206,7 @@ describe('FileUploadWithTagComponent', () => {
 
     it('should disable save button when attachment.uploaded=false', async () => {
       const attachments = getAttachments({ count: 0 });
-      renderWithTag({ attachments });
+      await renderWithTag({ attachments });
 
       // Upload an attachment
       const file = new File(['(⌐□_□)'], 'chucknorris.png', { type: 'image/png' });
@@ -226,7 +226,7 @@ describe('FileUploadWithTagComponent', () => {
       const attachments = getAttachments({ count: 1 });
       attachments[0].updating = true;
 
-      renderWithTag({ attachments });
+      await renderWithTag({ attachments });
       await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
       expect(
         screen.queryByRole('button', {
@@ -235,11 +235,11 @@ describe('FileUploadWithTagComponent', () => {
       ).not.toBeInTheDocument();
     });
 
-    it('should automatically show attachments in edit mode for attachments without tags', () => {
+    it('should automatically show attachments in edit mode for attachments without tags', async () => {
       const attachments = getAttachments({ count: 1 });
       attachments[0].data.tags = [];
 
-      renderWithTag({ attachments });
+      await renderWithTag({ attachments });
 
       expect(
         screen.getByRole('button', {
@@ -248,11 +248,11 @@ describe('FileUploadWithTagComponent', () => {
       ).toBeInTheDocument();
     });
 
-    it('should not automatically show attachments in edit mode for attachments with tags', () => {
+    it('should not automatically show attachments in edit mode for attachments with tags', async () => {
       const attachments = getAttachments({ count: 1 });
       attachments[0].data.tags = ['tag1'];
 
-      renderWithTag({ attachments });
+      await renderWithTag({ attachments });
       expect(
         screen.queryByRole('button', {
           name: 'Lagre',
@@ -262,8 +262,8 @@ describe('FileUploadWithTagComponent', () => {
   });
 
   describe('files', () => {
-    it('should display drop area when max attachments is not reached', () => {
-      renderWithTag({
+    it('should display drop area when max attachments is not reached', async () => {
+      await renderWithTag({
         component: { maxNumberOfAttachments: 3 },
         attachments: getAttachments({ count: 2 }),
       });
@@ -275,8 +275,8 @@ describe('FileUploadWithTagComponent', () => {
       ).toBeInTheDocument();
     });
 
-    it('should not display drop area when max attachments is reached', () => {
-      renderWithTag({
+    it('should not display drop area when max attachments is reached', async () => {
+      await renderWithTag({
         component: { maxNumberOfAttachments: 3 },
         attachments: getAttachments({ count: 3 }),
       });
@@ -294,8 +294,8 @@ interface Props extends Partial<RenderGenericComponentTestProps<'FileUpload'>> {
   attachments?: UploadedAttachment[];
 }
 
-const render = ({ component, genericProps, attachments = getAttachments() }: Props = {}) => {
-  renderGenericComponentTest({
+const render = async ({ component, genericProps, attachments = getAttachments() }: Props = {}) => {
+  await renderGenericComponentTest({
     type: 'FileUpload',
     renderer: (props) => <FileUploadComponent {...props} />,
     component: {
@@ -322,8 +322,8 @@ const render = ({ component, genericProps, attachments = getAttachments() }: Pro
   });
 };
 
-const renderWithTag = ({ component, genericProps, attachments = getAttachments() }: Props = {}) => {
-  renderGenericComponentTest({
+const renderWithTag = async ({ component, genericProps, attachments = getAttachments() }: Props = {}) => {
+  await renderGenericComponentTest({
     type: 'FileUploadWithTag',
     renderer: (props) => <FileUploadComponent {...props} />,
     component: {

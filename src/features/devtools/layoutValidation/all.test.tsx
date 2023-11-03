@@ -34,7 +34,7 @@ describe('All known apps should work with layout validation', () => {
       show: setName,
     };
 
-    renderWithProviders({
+    await renderWithProviders({
       component: <DummyValidateApp />,
       preloadedState,
       mockedQueries: { fetchLayoutSchema: () => Promise.resolve(layoutSchema) },

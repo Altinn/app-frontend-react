@@ -166,7 +166,9 @@ const render = async ({ container, components, customState }: TestProps) => {
 const WrappedComponent = ({ id }: { id: string }) => {
   const node = useResolvedNode(id);
   if (!node) {
-    throw new Error('Node not found');
+    // This string is magic, as renderWithProviders() will wait for this string to disappear before
+    // resolving the promise
+    return <div>Loading...</div>;
   }
 
   return <PanelReferenceGroupContainer node={node as LayoutNodeForGroup<CompGroupNonRepeatingPanelInternal>} />;

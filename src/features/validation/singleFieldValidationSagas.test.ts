@@ -4,7 +4,7 @@ import { throwError } from 'redux-saga-test-plan/providers';
 import type { AxiosRequestConfig } from 'axios';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
+import { getInstanceDataMock, getProcessDataMock } from 'src/__mocks__/instanceDataStateMock';
 import {
   runSingleFieldValidationSaga,
   selectApplicationMetadataState,
@@ -32,6 +32,7 @@ describe('singleFieldValidationSagas', () => {
   it('runSingleFieldValidationSaga, single field validation is triggered', () => {
     const instance = getInstanceDataMock();
     window.lastKnownInstance = instance;
+    window.lastKnownProcess = getProcessDataMock();
     const url = getDataValidationUrl(instance.id, instance.data[0].id);
     const options: AxiosRequestConfig = {
       headers: {
@@ -88,6 +89,7 @@ describe('singleFieldValidationSagas', () => {
   it('runSingleFieldValidationSaga, single field validation error', () => {
     const instance = getInstanceDataMock();
     window.lastKnownInstance = instance;
+    window.lastKnownProcess = getProcessDataMock();
     const url = getDataValidationUrl(instance.id, instance.data[0].id);
     const options: AxiosRequestConfig = {
       headers: {

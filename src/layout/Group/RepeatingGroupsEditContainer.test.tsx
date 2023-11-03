@@ -113,12 +113,17 @@ describe('RepeatingGroupsEditContainer', () => {
 });
 
 function RenderRepGroupEditContainer(props: Omit<IRepeatingGroupsEditContainer, 'node'> & { id: string }) {
-  const node = useResolvedNode(props.id) as LayoutNodeForGroup<CompGroupRepeatingInternal>;
+  const node = useResolvedNode(props.id);
+  if (!node) {
+    // This string is magic, as renderWithProviders() will wait for this string to disappear before
+    // resolving the promise
+    return <div>Loading...</div>;
+  }
 
   return (
     <RepeatingGroupsEditContainer
       {...props}
-      node={node}
+      node={node as LayoutNodeForGroup<CompGroupRepeatingInternal>}
     />
   );
 }

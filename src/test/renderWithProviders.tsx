@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
 import { Route } from 'react-router-dom';
 
@@ -27,7 +27,7 @@ import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
-import type { CompExternalExact, CompTypes, ILayoutCollection } from 'src/layout/layout';
+import type { CompExternalExact, CompTypes, ILayoutCollection, ILayouts } from 'src/layout/layout';
 import type { AppStore, RootState } from 'src/redux/store';
 import type { ILayoutSets, IRuntimeState } from 'src/types';
 import type { IProfile } from 'src/types/shared';
@@ -57,7 +57,7 @@ export const renderWithProviders = async ({
     const theme = createTheme(AltinnAppTheme);
 
     const state = store?.getState();
-    const layouts = state?.formLayout.layouts || {};
+    const layouts = JSON.parse(JSON.stringify(state?.formLayout.layouts || {})) as ILayouts;
     const layoutsAsCollection: ILayoutCollection = {};
     for (const key in layouts) {
       layoutsAsCollection[key] = {
@@ -220,9 +220,12 @@ export async function renderGenericComponentTest<T extends CompTypes>({
       waitingFor.push('repeatingGroups');
     }
 
-    if (waitingFor.length === 1 && waitingFor[0] === 'repeatingGroups' && layouts) {
-      dispatch(FormLayoutActions.initRepeatingGroupsFulfilled({ updated: generateSimpleRepeatingGroups(layouts) }));
-    }
+    const waitingForString = waitingFor.join(', ');
+    useEffect(() => {
+      if (waitingForString === 'repeatingGroups' && layouts) {
+        dispatch(FormLayoutActions.initRepeatingGroupsFulfilled({ updated: generateSimpleRepeatingGroups(layouts) }));
+      }
+    }, [dispatch, layouts, waitingForString]);
 
     const root = useExprContext();
     const node = useResolvedNode(realComponentDef.id) as any;
@@ -241,7 +244,7 @@ export async function renderGenericComponentTest<T extends CompTypes>({
           ) : (
             <>
               <div>Loading...</div>
-              <div>Waiting for {waitingFor.join(', ')}</div>
+              <div>Waiting for {waitingForString}</div>
             </>
           )}
         </>

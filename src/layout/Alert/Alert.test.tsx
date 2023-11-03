@@ -33,13 +33,13 @@ describe('Alert', () => {
   });
 });
 
-const render = ({
+const render = async ({
   severity = 'info',
   hidden,
   title,
   body,
 }: Partial<CompAlertInternal> & { title?: string; body?: string } = {}) =>
-  renderGenericComponentTest<'Alert'>({
+  await renderGenericComponentTest<'Alert'>({
     type: 'Alert',
     renderer: (props) => <Alert {...props} />,
     component: {

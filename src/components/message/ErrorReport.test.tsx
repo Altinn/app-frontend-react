@@ -9,7 +9,7 @@ import type { IValidationState } from 'src/features/validation/validationSlice';
 import type { IValidations } from 'src/utils/validation/types';
 
 describe('ErrorReport', () => {
-  const render = (validations: Partial<IValidations>) => {
+  const render = async (validations: Partial<IValidations>) => {
     const mockValidationState: IValidationState = {
       validations: {
         ...(validations as any),
@@ -21,7 +21,7 @@ describe('ErrorReport', () => {
       formValidations: mockValidationState,
     });
 
-    return renderWithProviders({
+    return await renderWithProviders({
       component: <ErrorReport nodes={[]} />,
       preloadedState: initialState,
     });

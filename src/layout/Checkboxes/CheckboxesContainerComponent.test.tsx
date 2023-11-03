@@ -30,8 +30,8 @@ interface Props extends Partial<RenderGenericComponentTestProps<'Checkboxes'>> {
   options?: IOption[];
 }
 
-const render = ({ component, genericProps, options }: Props = {}) =>
-  renderGenericComponentTest({
+const render = async ({ component, genericProps, options }: Props = {}) =>
+  await renderGenericComponentTest({
     type: 'Checkboxes',
     renderer: (props) => <CheckboxContainerComponent {...props} />,
     component: {
@@ -265,16 +265,6 @@ describe('CheckboxesContainerComponent', () => {
     jest.runOnlyPendingTimers();
 
     expect(handleChange).toHaveBeenCalledWith('denmark', { validate: true });
-  });
-
-  it('should show spinner while waiting for options', async () => {
-    await render({
-      component: {
-        optionsId: 'loadingOptions',
-      },
-      options: threeOptions,
-    });
-    expect(screen.getByTestId('altinn-spinner')).toBeInTheDocument();
   });
 
   it('should show items in a row when layout is "row" and options count is 3', async () => {

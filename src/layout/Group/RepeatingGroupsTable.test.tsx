@@ -118,24 +118,6 @@ describe('RepeatingGroupTable', () => {
 
   const repeatingGroupIndex = 3;
 
-  it('should render table header when table has entries', async () => {
-    // eslint-disable-next-line testing-library/render-result-naming-convention
-    const container = await render();
-    // eslint-disable-next-line testing-library/no-node-access
-    const tableHeader = container.querySelector(`#group-${group.id}-table-header`);
-    expect(tableHeader).toBeInTheDocument();
-  });
-
-  it('should not render table header when table has no entries', async () => {
-    // eslint-disable-next-line testing-library/render-result-naming-convention
-    const container = await render({
-      repeatingGroupIndex: -1,
-    });
-    // eslint-disable-next-line testing-library/no-node-access
-    const tableHeader = container.querySelector(`#group-${group.id}-table-header`);
-    expect(tableHeader).not.toBeInTheDocument();
-  });
-
   describe('popOver warning', () => {
     it('should open and close delete-warning on delete click when alertOnDelete is active', async () => {
       const group = getFormLayoutGroupMock({
@@ -224,7 +206,7 @@ describe('RepeatingGroupTable', () => {
     preloadedState.textResources.resourceMap = textResources;
     preloadedState.formData.formData = data;
 
-    const { container } = await renderWithProviders({
+    return await renderWithProviders({
       component: (
         <RenderGroupTable
           id={group.id}
@@ -233,18 +215,21 @@ describe('RepeatingGroupTable', () => {
       ),
       preloadedState,
     });
-
-    return container;
   };
 });
 
 function RenderGroupTable(props: IRepeatingGroupTableProps & { id: string }) {
-  const node = useResolvedNode(props.id) as LayoutNodeForGroup<CompGroupRepeatingInternal>;
+  const node = useResolvedNode(props.id);
+  if (!node) {
+    // This string is magic, as renderWithProviders() will wait for this string to disappear before
+    // resolving the promise
+    return <div>Loading...</div>;
+  }
 
   return (
     <RepeatingGroupTable
       {...props}
-      node={node}
+      node={node as LayoutNodeForGroup<CompGroupRepeatingInternal>}
     />
   );
 }

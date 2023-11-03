@@ -8,8 +8,8 @@ import mockAxios from 'jest-mock-axios';
 import { InstantiationButtonComponent } from 'src/layout/InstantiationButton/InstantiationButtonComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 
-const render = () => {
-  renderGenericComponentTest({
+const render = async () => {
+  await renderGenericComponentTest({
     type: 'InstantiationButton',
     component: {
       textResourceBindings: {
@@ -36,7 +36,7 @@ const render = () => {
 describe('InstantiationButton', () => {
   it('should show button and it should be possible to click and start loading', async () => {
     mockAxios.reset();
-    render();
+    await render();
     expect(screen.getByText('Instantiate')).toBeInTheDocument();
 
     expect(mockAxios).toHaveBeenCalledTimes(0);

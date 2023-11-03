@@ -93,7 +93,7 @@ export function useDelayedSavedState(
   }, [formValue, setImmediateState, saveAfterMs, dataModelBinding]);
 
   useEffect(() => {
-    if (saveAfter === false) {
+    if (saveAfter === false || !immediateStateChangedRef.current) {
       return;
     }
 
@@ -112,6 +112,7 @@ export function useDelayedSavedState(
       setSkipNextValidation(skipValidation && !saveImmediately && !saveNextChangeImmediately);
       if (saveImmediately || saveNextChangeImmediately) {
         updateFormData(newValue, skipValidation);
+        immediateStateChangedRef.current = false;
       }
     },
     saveValue: (): void => {

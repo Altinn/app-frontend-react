@@ -5,6 +5,7 @@ import { userEvent } from '@testing-library/user-event';
 
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { NavigationBarComponent } from 'src/layout/NavigationBar/NavigationBarComponent';
+import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
@@ -15,10 +16,10 @@ interface Props extends Partial<RenderGenericComponentTestProps<'NavigationBar'>
   dispatch?: (...props: any[]) => any;
 }
 
-const render = ({ dispatch = jest.fn() }: Props = {}) => {
+const render = async ({ dispatch = jest.fn() }: Props = {}) => {
   // eslint-disable-next-line testing-library/await-async-events
   const user = userEvent.setup();
-  renderGenericComponentTest({
+  await renderGenericComponentTest({
     type: 'NavigationBar',
     renderer: (props) => <NavigationBarComponent {...props} />,
     component: {
@@ -115,7 +116,7 @@ describe('NavigationBar', () => {
     });
 
     it('should show navigation menu, and not show navigation menu toggle button', async () => {
-      render();
+      await render();
 
       expect(screen.getByTestId('navigation-menu')).toHaveProperty('hidden', false);
 
@@ -128,7 +129,7 @@ describe('NavigationBar', () => {
 
     it('should dispatch action when navigating to another page', async () => {
       const dispatchMock = jest.fn();
-      const { user } = render({ dispatch: dispatchMock });
+      const { user } = await render({ dispatch: dispatchMock });
 
       const btn = screen.getByText(/3\./i);
       expect(btn).toHaveTextContent(/^3\. page3$/);
@@ -146,7 +147,7 @@ describe('NavigationBar', () => {
 
     it('should not dispatch action when navigating to the same page', async () => {
       const dispatchMock = jest.fn();
-      const { user } = render({ dispatch: dispatchMock });
+      const { user } = await render({ dispatch: dispatchMock });
 
       await act(() =>
         user.click(
@@ -156,7 +157,8 @@ describe('NavigationBar', () => {
         ),
       );
 
-      expect(dispatchMock).not.toHaveBeenCalled();
+      expect(dispatchMock).toHaveBeenCalledTimes(1);
+      expect(dispatchMock).toHaveBeenCalledWith(DeprecatedActions.instanceDataFetchFulfilled());
     });
   });
 
@@ -166,7 +168,7 @@ describe('NavigationBar', () => {
     });
 
     it('should automatically focus the first item in the navigation menu when it is displayed', async () => {
-      const { user } = render();
+      const { user } = await render();
 
       const toggleButton = screen.getByRole('button', {
         name: /1\/3 page1/i,
@@ -183,7 +185,7 @@ describe('NavigationBar', () => {
 
     it('should dispatch action when navigating to another page', async () => {
       const dispatchMock = jest.fn();
-      const { user } = render({ dispatch: dispatchMock });
+      const { user } = await render({ dispatch: dispatchMock });
 
       await act(() =>
         user.click(
@@ -212,7 +214,7 @@ describe('NavigationBar', () => {
 
     it('should not dispatch action when navigating to the same page', async () => {
       const dispatchMock = jest.fn();
-      const { user } = render({ dispatch: dispatchMock });
+      const { user } = await render({ dispatch: dispatchMock });
 
       await act(() =>
         user.click(
@@ -230,7 +232,8 @@ describe('NavigationBar', () => {
         ),
       );
 
-      expect(dispatchMock).not.toHaveBeenCalled();
+      expect(dispatchMock).toHaveBeenCalledTimes(1);
+      expect(dispatchMock).toHaveBeenCalledWith(DeprecatedActions.instanceDataFetchFulfilled());
     });
   });
 });

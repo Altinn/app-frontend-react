@@ -19,8 +19,8 @@ describe('Accordion', () => {
   });
 });
 
-const render = ({ title }: { title?: string } = {}) =>
-  renderGenericComponentTest<'Accordion'>({
+const render = async ({ title }: { title?: string } = {}) =>
+  await renderGenericComponentTest<'Accordion'>({
     type: 'Accordion',
     renderer: (props) => <Accordion {...props} />,
     component: {

@@ -125,9 +125,14 @@ describe('SummaryComponent', () => {
 
   const render = async (props: { componentRef: string }, validations: IValidations = {}, mockLayout = layoutMock()) => {
     function Wrapper() {
-      const node = useResolvedNode('mySummary') as LayoutNode<'Summary'>;
+      const node = useResolvedNode('mySummary');
+      if (!node) {
+        // This string is magic, as renderWithProviders() will wait for this string to disappear before
+        // resolving the promise
+        return <div>Loading...</div>;
+      }
 
-      return <SummaryComponent summaryNode={node} />;
+      return <SummaryComponent summaryNode={node as LayoutNode<'Summary'>} />;
     }
 
     const layoutPage = mockLayout.layouts && mockLayout.layouts[pageId];

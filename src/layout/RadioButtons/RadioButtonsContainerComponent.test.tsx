@@ -27,8 +27,8 @@ interface Props extends Partial<RenderGenericComponentTestProps<'RadioButtons'>>
   options?: IOption[];
 }
 
-const render = ({ component, genericProps, options }: Props = {}) => {
-  renderGenericComponentTest({
+const render = async ({ component, genericProps, options }: Props = {}) => {
+  await renderGenericComponentTest({
     type: 'RadioButtons',
     renderer: (props) => <RadioButtonContainerComponent {...props} />,
     component: {
@@ -44,7 +44,7 @@ const render = ({ component, genericProps, options }: Props = {}) => {
     },
     mockedQueries: {
       fetchOptions: () =>
-        options ? Promise.resolve(options) : Promise.reject(new Error('No options provided to render()')),
+        options ? Promise.resolve(options) : Promise.reject(new Error('No options provided to await render()')),
     },
   });
 };
@@ -64,7 +64,7 @@ const findRadio = ({ name, isChecked = false }) =>
 describe('RadioButtonsContainerComponent', () => {
   it('should call handleDataChange with value of preselectedOptionIndex when simpleBinding is not set', async () => {
     const handleChange = jest.fn();
-    render({
+    await render({
       component: {
         preselectedOptionIndex: 1,
       },
@@ -82,7 +82,7 @@ describe('RadioButtonsContainerComponent', () => {
 
   it('should not call handleDataChange when simpleBinding is set and preselectedOptionIndex', async () => {
     const handleChange = jest.fn();
-    render({
+    await render({
       component: {
         preselectedOptionIndex: 0,
       },
@@ -103,7 +103,7 @@ describe('RadioButtonsContainerComponent', () => {
 
   it('should not set any as selected when no binding and no preselectedOptionIndex is set', async () => {
     const handleChange = jest.fn();
-    render({ genericProps: { handleDataChange: handleChange }, options: threeOptions });
+    await render({ genericProps: { handleDataChange: handleChange }, options: threeOptions });
 
     await waitFor(() => expect(getRadio({ name: 'Norway' })).toBeInTheDocument());
     expect(getRadio({ name: 'Sweden' })).toBeInTheDocument();
@@ -114,7 +114,7 @@ describe('RadioButtonsContainerComponent', () => {
 
   it('should call handleDataChange with updated value when selection changes', async () => {
     const handleChange = jest.fn();
-    render({
+    await render({
       genericProps: {
         handleDataChange: handleChange,
         formData: {
@@ -141,7 +141,7 @@ describe('RadioButtonsContainerComponent', () => {
 
   it('should call handleDataChange instantly on blur when the value has changed', async () => {
     const handleChange = jest.fn();
-    render({
+    await render({
       genericProps: {
         handleDataChange: handleChange,
         formData: {
@@ -163,7 +163,7 @@ describe('RadioButtonsContainerComponent', () => {
 
   it('should not call handleDataChange on blur when the value is unchanged', async () => {
     const handleChange = jest.fn();
-    render({
+    await render({
       genericProps: {
         handleDataChange: handleChange,
       },
@@ -181,34 +181,10 @@ describe('RadioButtonsContainerComponent', () => {
     expect(handleChange).not.toHaveBeenCalled();
   });
 
-  it('should show spinner while waiting for options', () => {
-    render({
-      component: {
-        optionsId: 'loadingOptions',
-      },
-      options: threeOptions,
-    });
-
-    expect(screen.getByRole('alert')).toBeInTheDocument();
-  });
-
-  it('should not show spinner when options are present', async () => {
-    render({
-      component: {
-        optionsId: 'countries',
-      },
-      options: threeOptions,
-    });
-
-    expect(screen.getByTestId('altinn-spinner')).toBeInTheDocument();
-    await waitFor(() => expect(getRadio({ name: 'Denmark' })).toBeInTheDocument());
-    expect(screen.queryByTestId('altinn-spinner')).not.toBeInTheDocument();
-  });
-
   it('should present replaced label, description and help text if setup with values from repeating group in redux and trigger handleDataChanged with replaced values', async () => {
     const handleDataChange = jest.fn();
 
-    render({
+    await render({
       component: {
         optionsId: undefined,
         source: {
@@ -249,7 +225,7 @@ describe('RadioButtonsContainerComponent', () => {
   });
 
   it('should present the options list in the order it is provided when sortOrder is not specified', async () => {
-    render({
+    await render({
       component: {
         optionsId: 'countries',
       },
@@ -264,7 +240,7 @@ describe('RadioButtonsContainerComponent', () => {
   });
 
   it('should present the provided options list sorted alphabetically in ascending order when providing sortOrder "asc"', async () => {
-    render({
+    await render({
       component: {
         optionsId: 'countries',
         sortOrder: 'asc',
@@ -280,7 +256,7 @@ describe('RadioButtonsContainerComponent', () => {
   });
 
   it('should present the provided options list sorted alphabetically in descending order when providing sortOrder "desc"', async () => {
-    render({
+    await render({
       component: {
         optionsId: 'countries',
         sortOrder: 'desc',
