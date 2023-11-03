@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import type { AxiosResponse } from 'axios';
 
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';

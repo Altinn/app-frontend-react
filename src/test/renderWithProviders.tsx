@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render as rtlRender } from '@testing-library/react';
 import type { RenderOptions } from '@testing-library/react';
 import type { AxiosResponse } from 'axios';
+import type { JSONSchema7 } from 'json-schema';
 import type { PreloadedState } from 'redux';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
@@ -40,6 +41,7 @@ export const renderWithProviders = (
 
     const allMockedQueries = {
       doPartyValidation: () => Promise.resolve({ valid: true, validParties: [], message: null }),
+      doSelectParty: () => Promise.resolve(null),
       fetchActiveInstances: () => Promise.resolve([]),
       fetchApplicationMetadata: () => Promise.resolve({} as unknown as IApplicationMetadata),
       fetchCurrentParty: () => Promise.resolve({}),
@@ -56,6 +58,10 @@ export const renderWithProviders = (
       fetchOptions: () => Promise.resolve({ data: [], headers: {} } as unknown as AxiosResponse<IOption[], any>),
       fetchDataList: () => Promise.resolve({} as unknown as IDataList),
       fetchPdfFormat: () => Promise.resolve({ excludedPages: [], excludedComponents: [] }),
+      fetchDynamics: () => Promise.resolve(null),
+      fetchRuleHandler: () => Promise.resolve(null),
+      fetchTextResources: () => Promise.resolve({ language: 'nb', resources: [] }),
+      fetchLayoutSchema: () => Promise.resolve({} as JSONSchema7),
     } as AppQueriesContext;
     const mockedQueries = { ...allMockedQueries, ...queries };
 

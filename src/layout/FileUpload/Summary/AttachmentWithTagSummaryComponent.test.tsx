@@ -66,6 +66,7 @@ describe('AttachmentWithTagSummaryComponent', () => {
       layouts: {
         FormLayout: [formLayoutItem],
       },
+      layoutSetId: null,
       uiConfig: initialState.formLayout.uiConfig,
       layoutsets: initialState.formLayout.layoutsets,
       error: null,

@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 
 import { useGetOptionsQuery } from 'src/hooks/queries/useGetOptionsQuery';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { useSourceOptions } from 'src/hooks/useSourceOptions';
 import { duplicateOptionFilter } from 'src/utils/options';
 import type { IMapping, IOption, IOptionSource } from 'src/layout/common.generated';
@@ -45,6 +46,8 @@ interface Props<T extends ValueType> {
 
   // Fetch options from repeating group
   source?: IOptionSource;
+
+  sortOrder?: SortOrder;
 }
 
 export interface OptionsResult {
@@ -54,8 +57,17 @@ export interface OptionsResult {
 
 const defaultOptions: IOption[] = [];
 
+type SortOrder = 'asc' | 'desc';
+const compareOptionAlphabetically =
+  (sortOrder: SortOrder = 'asc', language: string = 'nb') =>
+  (a: IOption, b: IOption) => {
+    const comparison = a.label.localeCompare(b.label, language, { sensitivity: 'base', numeric: true });
+    return sortOrder === 'asc' ? comparison : -comparison;
+  };
+
 export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResult {
-  const { node, options, optionsId, secure, removeDuplicates, source, mapping, queryParameters, metadata } = props;
+  const { node, options, optionsId, secure, removeDuplicates, source, mapping, queryParameters, sortOrder, metadata } =
+    props;
   const sourceOptions = useSourceOptions({ source, node });
   const staticOptions = optionsId ? undefined : options;
   const setMetadata = metadata?.setValue;
@@ -65,14 +77,19 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
   if (!!setMetadata && downstreamParameters) {
     setMetadata(downstreamParameters);
   }
+  const { selectedLanguage } = useLanguage();
   usePreselectedOptionIndex(calculatedOptions, props);
   useRemoveStaleValues(calculatedOptions, props);
 
+  const optionsWithoutDuplicates =
+    removeDuplicates && calculatedOptions
+      ? calculatedOptions.filter(duplicateOptionFilter)
+      : calculatedOptions || defaultOptions;
+
   return {
-    options:
-      removeDuplicates && calculatedOptions
-        ? calculatedOptions.filter(duplicateOptionFilter)
-        : calculatedOptions || defaultOptions,
+    options: sortOrder
+      ? optionsWithoutDuplicates.toSorted(compareOptionAlphabetically(sortOrder, selectedLanguage))
+      : optionsWithoutDuplicates,
     isFetching: isFetching || !calculatedOptions,
   };
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { act, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { NavigationBarComponent } from 'src/layout/NavigationBar/NavigationBarComponent';
@@ -28,6 +28,7 @@ const render = ({ dispatch = jest.fn() }: Props = {}) => {
       state.formLayout = {
         error: null,
         layoutsets: null,
+        layoutSetId: null,
         uiConfig: {
           tracks: {
             order: ['page1', 'page2', 'page3'],

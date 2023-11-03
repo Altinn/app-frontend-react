@@ -1,7 +1,8 @@
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import type { JSONSchema7 } from 'json-schema';
 
-import { httpGetWithHeaders, httpPost } from 'src/utils/network/networking';
+import { LAYOUT_SCHEMA_NAME } from 'src/features/devtools/utils/layoutSchemaValidation';
+import { httpGetWithHeaders, httpPost, putWithoutConfig } from 'src/utils/network/networking';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import {
   applicationMetadataApiUrl,
@@ -9,28 +10,36 @@ import {
   currentPartyUrl,
   getActiveInstancesUrl,
   getCustomValidationConfigUrl,
+  getFetchFormDynamicsUrl,
   getFooterLayoutUrl,
   getJsonSchemaUrl,
   getLayoutSetsUrl,
   getPartyValidationUrl,
   getPdfFormatUrl,
+  getRulehandlerUrl,
   profileApiUrl,
   refreshJwtTokenUrl,
+  textResourcesUrl,
+  updateCookieUrl,
   validPartiesUrl,
 } from 'src/utils/urls/appUrlHelper';
 import { orgsListUrl } from 'src/utils/urls/urlHelper';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IDataList } from 'src/features/dataLists';
+import type { IFormDynamics } from 'src/features/dynamics';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { IPartyValidationResponse } from 'src/features/party';
 import type { IPdfFormat } from 'src/features/pdf/types';
+import type { ITextResourceResult } from 'src/features/textResources';
 import type { IOption } from 'src/layout/common.generated';
 import type { ILayoutSets, ISimpleInstance } from 'src/types';
-import type { IAltinnOrgs, IApplicationSettings, IProfile } from 'src/types/shared';
+import type { IAltinnOrgs, IApplicationSettings, IParty, IProfile } from 'src/types/shared';
 import type { IExpressionValidationConfig } from 'src/utils/validation/types';
 
 export const doPartyValidation = async (partyId: string): Promise<IPartyValidationResponse> =>
   (await httpPost(getPartyValidationUrl(partyId))).data;
+
+export const doSelectParty = (partyId: string) => putWithoutConfig<IParty | null>(updateCookieUrl(partyId));
 
 export const fetchActiveInstances = (partyId: string): Promise<ISimpleInstance[]> =>
   httpGet(getActiveInstancesUrl(partyId));
@@ -70,3 +79,22 @@ export const fetchFormData = (url: string, options?: AxiosRequestConfig): Promis
 
 export const fetchPdfFormat = (instanceId: string, dataGuid: string): Promise<IPdfFormat> =>
   httpGet(getPdfFormatUrl(instanceId, dataGuid));
+
+export const fetchDynamics = (layoutSetId?: string): Promise<{ data: IFormDynamics } | null> =>
+  httpGet(getFetchFormDynamicsUrl(layoutSetId));
+
+export const fetchRuleHandler = (layoutSetId?: string): Promise<string | null> =>
+  httpGet(getRulehandlerUrl(layoutSetId));
+
+export const fetchTextResources = (selectedLanguage: string): Promise<ITextResourceResult> =>
+  httpGet(textResourcesUrl(selectedLanguage));
+
+export const fetchLayoutSchema = (): Promise<JSONSchema7 | undefined> => {
+  // Hacky (and only) way to get the correct CDN url
+  const schemaBaseUrl = document
+    .querySelector('script[src$="altinn-app-frontend.js"]')
+    ?.getAttribute('src')
+    ?.replace('altinn-app-frontend.js', 'schemas/json/layout/');
+
+  return schemaBaseUrl ? httpGet(`${schemaBaseUrl}${LAYOUT_SCHEMA_NAME}`) : Promise.resolve(undefined);
+};

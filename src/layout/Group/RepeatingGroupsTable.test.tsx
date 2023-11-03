@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { act, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import ResizeObserverModule from 'resize-observer-polyfill';
 
 import { getFormLayoutGroupMock } from 'src/__mocks__/formLayoutGroupMock';
@@ -30,6 +30,7 @@ const getLayout = (group: CompGroupRepeatingExternal, components: CompOrGroupExt
     layouts: {
       FormLayout: [group, ...components],
     },
+    layoutSetId: null,
     uiConfig: {
       hiddenFields: [],
       repeatingGroups: {
@@ -155,7 +156,7 @@ describe('RepeatingGroupTable', () => {
 
       expect(screen.getByText('Er du sikker på at du vil slette denne raden?')).toBeInTheDocument();
 
-      await act(() => user.click(screen.getAllByRole('button', { name: /slett/i })[0]));
+      await act(() => user.click(screen.getAllByRole('button', { name: /avbryt/i })[0]));
 
       expect(screen.queryByText('Er du sikker på at du vil slette denne raden?')).not.toBeInTheDocument();
     });

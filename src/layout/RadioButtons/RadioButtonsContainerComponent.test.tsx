@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import type { AxiosResponse } from 'axios';
 
 import { RadioButtonContainerComponent } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
@@ -235,19 +235,66 @@ describe('RadioButtonsContainerComponent', () => {
     await userEvent.click(
       screen.getByRole('button', { name: 'Help Text: The value from the group is: Label for first' }),
     );
-    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+    expect(await screen.findByRole('dialog')).toHaveTextContent(
       'Help Text: The value from the group is: Label for first',
     );
 
     await userEvent.click(
       screen.getByRole('button', { name: 'Help Text: The value from the group is: Label for second' }),
     );
-    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+    expect(await screen.findByRole('dialog')).toHaveTextContent(
       'Help Text: The value from the group is: Label for second',
     );
 
     expect(handleDataChange).not.toHaveBeenCalled();
     await userEvent.click(getRadio({ name: /The value from the group is: Label for first/ }));
     await waitFor(() => expect(handleDataChange).toHaveBeenCalledWith('Value for first', { validate: true }));
+  });
+
+  it('should present the options list in the order it is provided when sortOrder is not specified', async () => {
+    render({
+      component: {
+        optionsId: 'countries',
+      },
+      options: threeOptions,
+    });
+
+    const options = await screen.findAllByRole('radio');
+
+    expect(options[0].getAttribute('value')).toBe('norway');
+    expect(options[1].getAttribute('value')).toBe('sweden');
+    expect(options[2].getAttribute('value')).toBe('denmark');
+  });
+
+  it('should present the provided options list sorted alphabetically in ascending order when providing sortOrder "asc"', async () => {
+    render({
+      component: {
+        optionsId: 'countries',
+        sortOrder: 'asc',
+      },
+      options: threeOptions,
+    });
+
+    const options = await screen.findAllByRole('radio');
+
+    expect(options[0].getAttribute('value')).toBe('denmark');
+    expect(options[1].getAttribute('value')).toBe('norway');
+    expect(options[2].getAttribute('value')).toBe('sweden');
+  });
+
+  it('should present the provided options list sorted alphabetically in descending order when providing sortOrder "desc"', async () => {
+    render({
+      component: {
+        optionsId: 'countries',
+        sortOrder: 'desc',
+      },
+      options: threeOptions,
+    });
+
+    const options = await screen.findAllByRole('radio');
+
+    expect(options[0].getAttribute('value')).toBe('sweden');
+    expect(options[1].getAttribute('value')).toBe('norway');
+    expect(options[2].getAttribute('value')).toBe('denmark');
   });
 });
