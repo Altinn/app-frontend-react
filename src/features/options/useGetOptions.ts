@@ -57,15 +57,14 @@ const defaultOptions: IOption[] = [];
 export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResult {
   const { node, options, optionsId, secure, removeDuplicates, source, mapping, queryParameters, metadata } = props;
   const sourceOptions = useSourceOptions({ source, node });
-  const { data: fetchedOptions, isFetching } = useGetOptionsQuery(
-    optionsId,
-    mapping,
-    queryParameters,
-    secure,
-    metadata?.setValue,
-  );
   const staticOptions = optionsId ? undefined : options;
-  const calculatedOptions = sourceOptions || fetchedOptions || staticOptions;
+  const setMetadata = metadata?.setValue;
+  const { data: fetchedOptions, isFetching } = useGetOptionsQuery(optionsId, mapping, queryParameters, secure);
+  const calculatedOptions = sourceOptions || fetchedOptions?.data || staticOptions;
+  const downstreamParameters: string = fetchedOptions?.headers['altinn-downstreamparameters'];
+  if (!!setMetadata && downstreamParameters) {
+    setMetadata(downstreamParameters);
+  }
   usePreselectedOptionIndex(calculatedOptions, props);
   useRemoveStaleValues(calculatedOptions, props);
 
