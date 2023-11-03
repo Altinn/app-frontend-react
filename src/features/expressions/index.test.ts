@@ -107,7 +107,7 @@ describe('Expressions', () => {
       const node = new NodeNotFoundWithoutContext('test');
 
       const result = evalExpr(['formatDate', '2023-10-26T13:12:38.069Z'], node, dataSources);
-      expect(result).toEqual('10/26/2023');
+      expect(result).toEqual('10/26/23');
     });
 
     it('should be able to specify a custom format in which the date should be formatted', () => {
@@ -120,7 +120,7 @@ describe('Expressions', () => {
       } as ContextDataSources;
       const node = new NodeNotFoundWithoutContext('test');
 
-      const result = evalExpr(['formatDate', '2023-10-26T13:12:38.069Z', 'DD.MM'], node, dataSources);
+      const result = evalExpr(['formatDate', '2023-10-26T13:12:38.069Z', 'dd.MM'], node, dataSources);
       expect(result).toEqual('26.10');
     });
   });

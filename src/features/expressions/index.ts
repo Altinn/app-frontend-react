@@ -1,5 +1,4 @@
 import dot from 'dot-object';
-import moment from 'moment';
 import type { Mutable } from 'utility-types';
 
 import {
@@ -11,9 +10,10 @@ import {
 } from 'src/features/expressions/errors';
 import { ExprContext } from 'src/features/expressions/ExprContext';
 import { ExprVal } from 'src/features/expressions/types';
-import { addError, asExpression, canBeExpression, validateRecursively } from 'src/features/expressions/validation';
+import { addError, asExpression, canBeExpression } from 'src/features/expressions/validation';
 import { implementsDisplayData } from 'src/layout';
-import { getDateFormat } from 'src/utils/dateHelpers';
+import { isDate } from 'src/utils/dateHelpers';
+import { formatDateLocale } from 'src/utils/formatDateLocale';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
@@ -245,13 +245,6 @@ export function argTypeAt(func: ExprFunction, argIndex: number): ExprVal | undef
   }
 
   return undefined;
-}
-
-export function isExpression(input: string | Expression | undefined): input is Expression {
-  if (!Array.isArray(input)) {
-    return false;
-  }
-  return validateRecursively(input, { errors: {} }, []) !== undefined;
 }
 
 function innerEvalExpr(context: ExprContext) {
@@ -589,11 +582,10 @@ export const ExprFunctions = {
   formatDate: defineFunc({
     impl(date: string, format: string | null): string | null {
       const { selectedLanguage } = this.dataSources.langTools;
-      const momentDate = moment(date);
-      if (!momentDate.isValid()) {
+      if (!isDate(date)) {
         return null;
       }
-      return momentDate.format(getDateFormat(format ?? undefined, selectedLanguage));
+      return formatDateLocale(selectedLanguage, new Date(date), format ?? undefined);
     },
     minArguments: 1,
     args: [ExprVal.String, ExprVal.String] as const,
