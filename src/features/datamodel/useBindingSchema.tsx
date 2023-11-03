@@ -5,7 +5,7 @@ import type { JSONSchema7 } from 'json-schema';
 import { dotNotationToPointer } from 'src/features/datamodel/notations';
 import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { getCurrentDataTypeForApplication } from 'src/utils/appMetadata';
+import { getCurrentDataTypeForApplication, getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { getRootElementPath } from 'src/utils/schemaUtils';
 import type { IDataModelBindings } from 'src/layout/layout';
 
@@ -40,6 +40,16 @@ export function useCurrentDataModelType() {
 
   return useAppSelector(
     (state) => state.applicationMetadata.applicationMetadata?.dataTypes.find((dt) => dt.id === name),
+  );
+}
+
+export function useCurrentDataElementId() {
+  return useAppSelector((state) =>
+    getCurrentTaskDataElementId(
+      state.applicationMetadata.applicationMetadata,
+      state.instanceData.instance,
+      state.formLayout.layoutsets,
+    ),
   );
 }
 

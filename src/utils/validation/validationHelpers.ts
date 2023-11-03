@@ -28,13 +28,13 @@ export function validationContextFromState(state: IRuntimeState, node: LayoutNod
   };
 }
 
-export function buildValidationObject(
+export function buildValidationObject<T extends ValidationSeverity>(
   node: LayoutNode,
-  severity: ValidationSeverity,
+  severity: T,
   message: string,
   bindingKey = 'simpleBinding',
   invalidDataTypes = false,
-): IValidationObject {
+): IValidationMessage<T> {
   return {
     empty: false,
     componentId: node.item.id,
@@ -56,7 +56,7 @@ export function emptyValidation(node: LayoutNode): IValidationObject {
   };
 }
 
-export function unmappedError(severity: ValidationSeverity, message: string): IValidationObject {
+export function unmappedError<T extends ValidationSeverity>(severity: T, message: string): IValidationMessage<T> {
   return {
     empty: false,
     componentId: 'unmapped',

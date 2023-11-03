@@ -21,6 +21,7 @@ import { AppQueriesContextProvider } from 'src/contexts/appQueriesContext';
 import { DevTools } from 'src/features/devtools/DevTools';
 import { LayoutValidationProvider } from 'src/features/devtools/layoutValidation/useLayoutValidation';
 import { AllOptionsProvider } from 'src/features/options/useAllOptions';
+import { ValidationProvider } from 'src/features/validation/validationProvider';
 import * as queries from 'src/queries/queries';
 import { initSagas } from 'src/redux/sagas';
 import { setupStore } from 'src/redux/store';
@@ -52,15 +53,17 @@ document.addEventListener('DOMContentLoaded', () => {
             <ErrorBoundary>
               <QueryClientProvider client={queryClient}>
                 <AppQueriesContextProvider {...queries}>
-                  <ExprContextWrapper>
-                    <LayoutValidationProvider>
-                      <AllOptionsProvider>
-                        <DevTools>
-                          <App />
-                        </DevTools>
-                      </AllOptionsProvider>
-                    </LayoutValidationProvider>
-                  </ExprContextWrapper>
+                  <ValidationProvider>
+                    <ExprContextWrapper>
+                      <LayoutValidationProvider>
+                        <AllOptionsProvider>
+                          <DevTools>
+                            <App />
+                          </DevTools>
+                        </AllOptionsProvider>
+                      </LayoutValidationProvider>
+                    </ExprContextWrapper>
+                  </ValidationProvider>
                 </AppQueriesContextProvider>
               </QueryClientProvider>
             </ErrorBoundary>
