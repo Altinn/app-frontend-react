@@ -27,7 +27,7 @@ export interface IRepeatingGroupTableProps {
   setMultiPageIndex?: (index: number) => void;
   multiPageIndex?: number;
   deleting: boolean;
-  filteredIndexes?: number[] | null;
+  // filteredIndexes?: number[] | null;
   rowsBefore?: GridRowsInternal;
   rowsAfter?: GridRowsInternal;
 }
@@ -41,7 +41,6 @@ export function RepeatingGroupTable({
   setMultiPageIndex,
   multiPageIndex,
   deleting,
-  filteredIndexes,
   rowsBefore,
   rowsAfter,
 }: IRepeatingGroupTableProps): JSX.Element | null {
@@ -80,8 +79,10 @@ export function RepeatingGroupTable({
   const tableNodes = getTableNodes(0);
 
   // Values adjusted for filter
-  const numRows = filteredIndexes ? filteredIndexes.length : repeatingGroupIndex + 1;
-  const editRowIndex = filteredIndexes ? filteredIndexes.indexOf(editIndex) : editIndex;
+  // const numRows = filteredIndexes ? filteredIndexes.length : repeatingGroupIndex + 1;
+  // const editRowIndex = filteredIndexes ? filteredIndexes.indexOf(editIndex) : editIndex;
+  const numRows = repeatingGroupIndex + 1;
+  const editRowIndex = editIndex;
 
   const isEmpty = numRows === 0;
   const showTableHeader = numRows > 0 && !(numRows == 1 && editRowIndex == 0);
@@ -127,7 +128,7 @@ export function RepeatingGroupTable({
         setEditIndex={setEditIndex}
         multiPageIndex={multiPageIndex}
         setMultiPageIndex={setMultiPageIndex}
-        filteredIndexes={filteredIndexes}
+        // filteredIndexes={filteredIndexes}
       />
     );
 
@@ -234,9 +235,9 @@ export function RepeatingGroupTable({
               const rowHasErrors = !!children.find((c) => c.hasValidationMessages());
 
               // Check if filter is applied and includes specified index.
-              if (filteredIndexes && !filteredIndexes.includes(index)) {
-                return null;
-              }
+              // if (filteredIndexes && !filteredIndexes.includes(index)) {
+              //   return null;
+              // }
 
               const isTableRowHidden =
                 node.item.type === 'Group' && 'rows' in node.item && node.item.rows[index]?.groupExpressions?.hiddenRow;

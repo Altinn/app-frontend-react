@@ -202,7 +202,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
       delete (props.item as any)['children'];
       const item = props.item as CompGroupExternal;
       const me = ctx.generator.makeNode(props);
-
+      console.log(props);
       const rows: HRepGroupRows = [];
       const lastIndex = (ctx.generator.repeatingGroups || {})[props.item.id]?.index;
       const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(
