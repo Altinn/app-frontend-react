@@ -5,8 +5,7 @@ import { userEvent } from '@testing-library/user-event';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { PanelReferenceGroupContainer } from 'src/layout/Panel/PanelReferenceGroupContainer';
-import { renderWithProviders } from 'src/test/renderWithProviders';
-import { useResolvedNode } from 'src/utils/layout/ExprContext';
+import { renderWithNode } from 'src/test/renderWithProviders';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type {
   CompGroupNonRepeatingPanelExternal,
@@ -160,16 +159,9 @@ const render = async ({ container, components, customState }: TestProps) => {
     children: [],
   });
 
-  await renderWithProviders({ component: <WrappedComponent id={'group'} />, preloadedState });
-};
-
-const WrappedComponent = ({ id }: { id: string }) => {
-  const node = useResolvedNode(id);
-  if (!node) {
-    // This string is magic, as renderWithProviders() will wait for this string to disappear before
-    // resolving the promise
-    return <div>Loading...</div>;
-  }
-
-  return <PanelReferenceGroupContainer node={node as LayoutNodeForGroup<CompGroupNonRepeatingPanelInternal>} />;
+  await renderWithNode<LayoutNodeForGroup<CompGroupNonRepeatingPanelInternal>>({
+    nodeId: 'group',
+    renderer: ({ node }) => <PanelReferenceGroupContainer node={node} />,
+    preloadedState,
+  });
 };

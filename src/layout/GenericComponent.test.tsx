@@ -6,8 +6,7 @@ import { getFormDataStateMock } from 'src/__mocks__/formDataStateMock';
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { GenericComponent } from 'src/layout/GenericComponent';
-import { renderWithProviders } from 'src/test/renderWithProviders';
-import { useResolvedNode } from 'src/utils/layout/ExprContext';
+import { renderWithNode } from 'src/test/renderWithProviders';
 import type { CompExternal } from 'src/layout/layout';
 
 const render = async (props: Partial<CompExternal> = {}) => {
@@ -51,13 +50,9 @@ const render = async (props: Partial<CompExternal> = {}) => {
     },
   });
 
-  const Wrapper = () => {
-    const node = useResolvedNode('mockId');
-    return node ? <GenericComponent node={node} /> : null;
-  };
-
-  return await renderWithProviders({
-    component: <Wrapper />,
+  return await renderWithNode({
+    nodeId: props.id || 'mockId',
+    renderer: ({ node }) => <GenericComponent node={node} />,
     preloadedState: {
       ...getInitialStateMock(),
       formLayout,

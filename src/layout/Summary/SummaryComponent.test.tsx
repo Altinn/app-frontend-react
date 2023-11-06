@@ -6,8 +6,7 @@ import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import { renderWithProviders } from 'src/test/renderWithProviders';
-import { useResolvedNode } from 'src/utils/layout/ExprContext';
+import { renderWithNode } from 'src/test/renderWithProviders';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { CompInputExternal } from 'src/layout/Input/config.generated';
 import type { CompExternal } from 'src/layout/layout';
@@ -124,17 +123,6 @@ describe('SummaryComponent', () => {
   });
 
   const render = async (props: { componentRef: string }, validations: IValidations = {}, mockLayout = layoutMock()) => {
-    function Wrapper() {
-      const node = useResolvedNode('mySummary');
-      if (!node) {
-        // This string is magic, as renderWithProviders() will wait for this string to disappear before
-        // resolving the promise
-        return <div>Loading...</div>;
-      }
-
-      return <SummaryComponent summaryNode={node as LayoutNode<'Summary'>} />;
-    }
-
     const layoutPage = mockLayout.layouts && mockLayout.layouts[pageId];
     layoutPage?.push({
       type: 'Summary',
@@ -142,8 +130,9 @@ describe('SummaryComponent', () => {
       componentRef: props.componentRef,
     });
 
-    return await renderWithProviders({
-      component: <Wrapper />,
+    return await renderWithNode<LayoutNode<'Summary'>>({
+      nodeId: 'mySummary',
+      renderer: ({ node }) => <SummaryComponent summaryNode={node} />,
       preloadedState: {
         ...getInitialStateMock(),
         formLayout: mockLayout,

@@ -8,8 +8,7 @@ import { getFormLayoutGroupMock } from 'src/__mocks__/formLayoutGroupMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { RepeatingGroupTable } from 'src/layout/Group/RepeatingGroupTable';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
-import { renderWithProviders } from 'src/test/renderWithProviders';
-import { useResolvedNode } from 'src/utils/layout/ExprContext';
+import { renderWithNode } from 'src/test/renderWithProviders';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { IFormData } from 'src/features/formData';
 import type { TextResourceMap } from 'src/features/textResources';
@@ -206,30 +205,15 @@ describe('RepeatingGroupTable', () => {
     preloadedState.textResources.resourceMap = textResources;
     preloadedState.formData.formData = data;
 
-    return await renderWithProviders({
-      component: (
-        <RenderGroupTable
-          id={group.id}
+    return await renderWithNode<LayoutNodeForGroup<CompGroupRepeatingInternal>>({
+      nodeId: group.id,
+      renderer: ({ node }) => (
+        <RepeatingGroupTable
           {...allProps}
+          node={node}
         />
       ),
       preloadedState,
     });
   };
 });
-
-function RenderGroupTable(props: IRepeatingGroupTableProps & { id: string }) {
-  const node = useResolvedNode(props.id);
-  if (!node) {
-    // This string is magic, as renderWithProviders() will wait for this string to disappear before
-    // resolving the promise
-    return <div>Loading...</div>;
-  }
-
-  return (
-    <RepeatingGroupTable
-      {...props}
-      node={node as LayoutNodeForGroup<CompGroupRepeatingInternal>}
-    />
-  );
-}

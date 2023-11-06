@@ -6,13 +6,12 @@ import { getFormDataStateMock } from 'src/__mocks__/formDataStateMock';
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
-import { renderWithProviders } from 'src/test/renderWithProviders';
-import { useResolvedNode } from 'src/utils/layout/ExprContext';
+import { renderWithNode } from 'src/test/renderWithProviders';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 describe('SummaryGroupComponent', () => {
   let mockHandleDataChange: () => void;
-  let mockStore;
+  let mockStore: any;
 
   beforeAll(() => {
     const createStore = configureStore();
@@ -128,20 +127,20 @@ describe('SummaryGroupComponent', () => {
   });
 
   async function render() {
-    function Wrapper() {
-      const summaryNode = useResolvedNode('mySummary') as LayoutNode<'Summary'>;
-      const groupNode = useResolvedNode('groupComponent') as LayoutNode<'Group'>;
-
-      return (
-        <SummaryGroupComponent
-          changeText={'Change'}
-          onChangeClick={mockHandleDataChange}
-          summaryNode={summaryNode}
-          targetNode={groupNode}
-        />
-      );
-    }
-
-    return await renderWithProviders({ component: <Wrapper />, store: mockStore });
+    return await renderWithNode<LayoutNode<'Summary'>>({
+      nodeId: 'mySummary',
+      renderer: ({ node, root }) => {
+        const groupNode = root.findById('groupComponent') as LayoutNode<'Group'>;
+        return (
+          <SummaryGroupComponent
+            changeText={'Change'}
+            onChangeClick={mockHandleDataChange}
+            summaryNode={node}
+            targetNode={groupNode}
+          />
+        );
+      },
+      store: mockStore,
+    });
   }
 });

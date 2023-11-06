@@ -11,12 +11,12 @@ import { Triggers } from 'src/layout/common.generated';
 import { GroupContainer } from 'src/layout/Group/GroupContainer';
 import { setupStore } from 'src/redux/store';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
-import { renderWithProviders } from 'src/test/renderWithProviders';
-import { useResolvedNode } from 'src/utils/layout/ExprContext';
+import { renderWithNode } from 'src/test/renderWithProviders';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { IUpdateRepeatingGroupsEditIndex } from 'src/features/form/layout/formLayoutTypes';
 import type { ITextResourcesState } from 'src/features/textResources';
-import type { CompGroupRepeatingExternal } from 'src/layout/Group/config.generated';
+import type { CompGroupRepeatingExternal, CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
+import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { CompExternal } from 'src/layout/layout';
 
 const mockContainer = getFormLayoutGroupMock();
@@ -134,8 +134,9 @@ async function render({ container = mockContainer }: IRender = {}) {
 
   mockStore.dispatch = jest.fn();
 
-  const { store } = await renderWithProviders({
-    component: <GroupContainerTester id={container?.id} />,
+  const { store } = await renderWithNode<LayoutNodeForGroup<CompGroupRepeatingInternal>>({
+    renderer: ({ node }) => <GroupContainer node={node} />,
+    nodeId: container.id,
     store: mockStore,
     mockedQueries: {
       fetchLayouts: () =>
@@ -150,15 +151,6 @@ async function render({ container = mockContainer }: IRender = {}) {
   });
 
   return store;
-}
-
-export function GroupContainerTester(props: { id: string }) {
-  const node = useResolvedNode(props.id);
-  if (!node || !(node.isType('Group') && node.isRepGroup())) {
-    throw new Error(`Could not resolve node with id ${props.id}, or unexpected node type`);
-  }
-
-  return <GroupContainer node={node} />;
 }
 
 const { setScreenWidth } = mockMediaQuery(992);

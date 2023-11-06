@@ -1,15 +1,15 @@
 import React from 'react';
 
-import { screen, waitFor } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { useAllOptionsInitiallyLoaded } from 'src/features/options/useAllOptions';
-import { useAppSelector } from 'src/hooks/useAppSelector';
+import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
-import { renderWithProviders } from 'src/test/renderWithProviders';
-import { useResolvedNode } from 'src/utils/layout/ExprContext';
+import { renderWithNode } from 'src/test/renderWithProviders';
 import type { CompFileUploadWithTagExternal } from 'src/layout/FileUploadWithTag/config.generated';
 import type { RootState } from 'src/redux/store';
+import type { IRuntimeState } from 'src/types';
+import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 const availableOptions = {
@@ -38,7 +38,7 @@ const availableOptions = {
 describe('AttachmentWithTagSummaryComponent', () => {
   const attachmentName = 'attachment-name-1';
   const formLayoutItem: CompFileUploadWithTagExternal = {
-    id: 'FileUploadWithTag',
+    id: 'myComponent',
     type: 'FileUploadWithTag',
     textResourceBindings: {},
     optionsId: 'a',
@@ -61,22 +61,6 @@ describe('AttachmentWithTagSummaryComponent', () => {
     },
   });
   const extendedState: Partial<RootState> = {
-    // TODO: Mock this in an instance data response instead
-    // attachments: {
-    //   attachments: {
-    //     ['FileUploadWithTag']: [
-    //       {
-    //         name: attachmentName,
-    //         id: 'attachment-id-1',
-    //         uploaded: true,
-    //         deleting: false,
-    //         updating: false,
-    //         size: 1200,
-    //         tags: ['a', 'b', 'c'],
-    //       },
-    //     ],
-    //   },
-    // },
     textResources: {
       language: 'nb',
       error: null,
@@ -98,9 +82,6 @@ describe('AttachmentWithTagSummaryComponent', () => {
   };
   test('should render file upload with tag without content with the text Du har ikke lagt inn informasjon her', async () => {
     await render(formLayoutItem);
-    await waitFor(() => {
-      expect(screen.queryByTestId('loader')).not.toBeInTheDocument();
-    });
     const element = screen.getByTestId('attachment-with-tag-summary');
     expect(element).toHaveTextContent('Du har ikke lagt inn informasjon her');
   });
@@ -110,54 +91,57 @@ describe('AttachmentWithTagSummaryComponent', () => {
   });
   test('should render mapped option label', async () => {
     await render({ ...formLayoutItem, optionsId: 'd' }, extendedState);
-    await waitFor(() => {
-      expect(screen.queryByTestId('loader')).not.toBeInTheDocument();
-    });
     expect(await screen.findByText('da option value')).toBeInTheDocument();
   });
   test('should render the text resource', async () => {
     await render({ ...formLayoutItem, optionsId: 'b', mapping: undefined }, extendedState);
-    await waitFor(() => {
-      expect(screen.queryByTestId('loader')).not.toBeInTheDocument();
-    });
     expect(await screen.findByText('the result')).toBeInTheDocument();
   });
   test('should not render a text resource', async () => {
     await render({ ...formLayoutItem, optionsId: 'c', mapping: undefined }, extendedState);
-    await waitFor(() => {
-      expect(screen.queryByTestId('loader')).not.toBeInTheDocument();
-    });
     expect(await screen.findByText('ca option value')).toBeInTheDocument();
   });
 
   const render = async (component: CompFileUploadWithTagExternal, extendState?: Partial<RootState>) => {
-    function Wrapper() {
-      const node = useResolvedNode('FileUploadWithTag') as LayoutNode<'FileUploadWithTag'>;
-      const allOptionsFetched = useAllOptionsInitiallyLoaded();
-      const error = useAppSelector((state) => state.optionState.error);
-      if (error) {
-        throw error;
-      }
+    const preloadedState: IRuntimeState = {
+      ...initialState,
+      ...mockState(component),
+      ...extendState,
+    };
 
-      if (!allOptionsFetched) {
-        return <div data-testid='loader'>Loading...</div>;
-      }
-
-      return <AttachmentSummaryComponent targetNode={node} />;
-    }
-
-    await renderWithProviders({
-      component: <Wrapper />,
-      preloadedState: {
-        ...initialState,
-        ...mockState(component),
-        ...extendState,
-      },
+    await renderWithNode<LayoutNode<'FileUploadWithTag'>>({
+      nodeId: 'myComponent',
+      renderer: ({ node }) => <AttachmentSummaryComponent targetNode={node} />,
+      preloadedState,
       mockedQueries: {
         fetchOptions: (url) =>
           availableOptions[url]
             ? Promise.resolve(availableOptions[url])
             : Promise.reject(new Error(`No options available for ${url}`)),
+        fetchInstanceData: () => {
+          const mock = getInstanceDataMock();
+          const attachment: IData = {
+            id: '123ab-456cd-789ef-012gh',
+            dataType: 'myComponent',
+            filename: attachmentName,
+            size: 1200,
+            tags: ['a', 'b', 'c'],
+            instanceGuid: mock.id,
+            refs: [],
+            blobStoragePath: '',
+            locked: false,
+            contentType: 'application/pdf',
+            lastChangedBy: 'test',
+            lastChanged: '2021-09-08T12:00:00',
+            createdBy: 'test',
+            created: '2021-09-08T12:00:00',
+          };
+
+          return Promise.resolve({
+            ...mock,
+            data: [...mock.data, attachment],
+          });
+        },
       },
     });
   };

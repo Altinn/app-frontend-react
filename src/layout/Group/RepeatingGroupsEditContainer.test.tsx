@@ -6,8 +6,7 @@ import { userEvent } from '@testing-library/user-event';
 import { getMultiPageGroupMock } from 'src/__mocks__/formLayoutGroupMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
-import { renderWithProviders } from 'src/test/renderWithProviders';
-import { useResolvedNode } from 'src/utils/layout/ExprContext';
+import { renderWithNode } from 'src/test/renderWithProviders';
 import type { TextResourceMap } from 'src/features/textResources';
 import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.generated';
 import type { IOption } from 'src/layout/common.generated';
@@ -100,10 +99,11 @@ describe('RepeatingGroupsEditContainer', () => {
     preloadedState.formLayout.layouts = { FormLayout: layout };
     preloadedState.textResources.resourceMap = textResources;
 
-    await renderWithProviders({
-      component: (
-        <RenderRepGroupEditContainer
-          id={'group'}
+    await renderWithNode<LayoutNodeForGroup<CompGroupRepeatingInternal>>({
+      nodeId: 'group',
+      renderer: ({ node }) => (
+        <RepeatingGroupsEditContainer
+          node={node}
           {...allProps}
         />
       ),
@@ -111,19 +111,3 @@ describe('RepeatingGroupsEditContainer', () => {
     });
   };
 });
-
-function RenderRepGroupEditContainer(props: Omit<IRepeatingGroupsEditContainer, 'node'> & { id: string }) {
-  const node = useResolvedNode(props.id);
-  if (!node) {
-    // This string is magic, as renderWithProviders() will wait for this string to disappear before
-    // resolving the promise
-    return <div>Loading...</div>;
-  }
-
-  return (
-    <RepeatingGroupsEditContainer
-      {...props}
-      node={node as LayoutNodeForGroup<CompGroupRepeatingInternal>}
-    />
-  );
-}

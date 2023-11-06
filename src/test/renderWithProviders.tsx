@@ -31,6 +31,8 @@ import type { CompExternalExact, CompTypes, ILayoutCollection, ILayouts } from '
 import type { AppStore, RootState } from 'src/redux/store';
 import type { ILayoutSets, IRuntimeState } from 'src/types';
 import type { IProfile } from 'src/types/shared';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   component: React.ReactElement;
@@ -177,6 +179,69 @@ export const renderWithProviders = async ({
   return out;
 };
 
+export interface RenderWithNodeTestProps<T extends LayoutNode> extends Omit<ExtendedRenderOptions, 'component'> {
+  renderer: (props: { node: T; root: LayoutPages }) => React.ReactElement;
+  nodeId: string;
+}
+
+export async function renderWithNode<T extends LayoutNode = LayoutNode>(
+  props: RenderWithNodeTestProps<T>,
+): Promise<ReturnType<typeof renderWithProviders>> {
+  const Wrapper = () => {
+    const dispatch = useAppDispatch();
+    const layouts = useAppSelector((state) => state.formLayout.layouts);
+    const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
+    const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
+    const root = useExprContext();
+    const node = useResolvedNode(props.nodeId) as any;
+
+    const waitingFor: string[] = [];
+    if (!layouts) {
+      waitingFor.push('layouts');
+    }
+    if (!currentView) {
+      waitingFor.push('currentView');
+    }
+    if (!repeatingGroups) {
+      waitingFor.push('repeatingGroups');
+    }
+
+    const waitingForString = waitingFor.join(', ');
+    useEffect(() => {
+      if (waitingForString === 'repeatingGroups' && layouts) {
+        dispatch(FormLayoutActions.initRepeatingGroupsFulfilled({ updated: generateSimpleRepeatingGroups(layouts) }));
+      }
+    }, [dispatch, layouts, waitingForString]);
+
+    if (!node || !root) {
+      return (
+        <>
+          <div>Node not found: {props.nodeId}</div>
+          {root ? (
+            <>
+              <div>All other nodes loaded:</div>
+              <ul>
+                {root.allNodes().map((node) => (
+                  <li key={node.item.id}>{node.item.id}</li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <>
+              <div>Loading...</div>
+              <div>Waiting for {waitingForString}</div>
+            </>
+          )}
+        </>
+      );
+    }
+
+    return props.renderer({ node, root });
+  };
+
+  return renderWithProviders({ component: <Wrapper />, ...props });
+}
+
 export interface RenderGenericComponentTestProps<T extends CompTypes> {
   type: T;
   renderer: (props: PropsFromGenericComponent<T>) => JSX.Element;
@@ -203,53 +268,12 @@ export async function renderGenericComponentTest<T extends CompTypes>({
     ...component,
   } as any;
 
-  const Wrapper = () => {
-    const dispatch = useAppDispatch();
-    const layouts = useAppSelector((state) => state.formLayout.layouts);
-    const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
-    const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
-
-    const waitingFor: string[] = [];
-    if (!layouts) {
-      waitingFor.push('layouts');
-    }
-    if (!currentView) {
-      waitingFor.push('currentView');
-    }
-    if (!repeatingGroups) {
-      waitingFor.push('repeatingGroups');
-    }
-
-    const waitingForString = waitingFor.join(', ');
-    useEffect(() => {
-      if (waitingForString === 'repeatingGroups' && layouts) {
-        dispatch(FormLayoutActions.initRepeatingGroupsFulfilled({ updated: generateSimpleRepeatingGroups(layouts) }));
-      }
-    }, [dispatch, layouts, waitingForString]);
-
-    const root = useExprContext();
-    const node = useResolvedNode(realComponentDef.id) as any;
+  const Wrapper = ({ node }: { node: LayoutNode<T> }) => {
     const props: PropsFromGenericComponent<T> = {
       node,
       ...(mockComponentProps as unknown as IComponentProps<T>),
       ...genericProps,
     };
-
-    if (!node) {
-      return (
-        <>
-          <div>Node not found: {realComponentDef.id}</div>
-          {root ? (
-            <div>All other nodes loaded</div>
-          ) : (
-            <>
-              <div>Loading...</div>
-              <div>Waiting for {waitingForString}</div>
-            </>
-          )}
-        </>
-      );
-    }
 
     return renderer(props);
   };
@@ -261,9 +285,7 @@ export async function renderGenericComponentTest<T extends CompTypes>({
   const { store } = setupStore(preloadedState);
   manipulateStore && manipulateStore(store);
 
-  return {
-    ...(await renderWithProviders({ component: <Wrapper />, store, mockedQueries })),
-  };
+  return renderWithNode<LayoutNode<T>>({ store, mockedQueries, nodeId: realComponentDef.id, renderer: Wrapper });
 }
 
 export const mockComponentProps: IComponentProps<CompTypes> & { id: string } = {
