@@ -49,14 +49,8 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
   const deletingIndexes = groupState?.deletingIndex ?? [];
   const multiPageIndex = groupState?.multiPageIndex ?? -1;
   const repeatingGroupIndex = groupState?.index ?? -1;
-  // const formData = useAppSelector((state) => state.formData.formData);
   const { lang, langAsString } = useLanguage();
 
-  // const filteredIndexList = React.useMemo(
-  //   () => getRepeatingGroupFilteredIndices(formData, edit?.filter),
-  //   [formData, edit],
-  // );
-  // console.log(filteredIndexList);
   const setMultiPageIndex = useCallback(
     (index: number) => {
       dispatch(
@@ -188,7 +182,6 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
           onClickRemove={handleOnRemoveClick}
           setMultiPageIndex={setMultiPageIndex}
           multiPageIndex={multiPageIndex}
-          // filteredIndexes={filteredIndexList}
           rowsBefore={node.item.rowsBefore}
           rowsAfter={node.item.rowsAfter}
         />
@@ -206,7 +199,6 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
               setEditIndex={setEditIndex}
               multiPageIndex={multiPageIndex}
               setMultiPageIndex={setMultiPageIndex}
-              // filteredIndexes={filteredIndexList}
             />
           )}
           {edit?.mode === 'showAll' &&
@@ -214,10 +206,6 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
             Array(repeatingGroupIndex + 1)
               .fill(0)
               .map((_, index) => (
-                // if (filteredIndexList && filteredIndexList.length > 0 && !filteredIndexList.includes(index)) {
-                //   return null;
-                // }
-
                 <div
                   key={index}
                   style={{ width: '100%', marginBottom: !isNested && index == repeatingGroupIndex ? 15 : 0 }}

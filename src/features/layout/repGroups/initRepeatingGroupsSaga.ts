@@ -61,13 +61,9 @@ export function* initRepeatingGroupsSaga({
     const group = newGroups[key];
     const container = groupContainers.find((element) => element.id === key);
     if (container && group.index >= 0 && groupIsRepeatingExt(container)) {
-      // const filteredIndexList = getRepeatingGroupFilteredIndices(formData, container.edit?.filter);
-
       if (container.edit?.openByDefault === 'first') {
-        // group.editIndex = filteredIndexList ? filteredIndexList[0] : 0;
         group.editIndex = 0;
       } else if (container.edit?.openByDefault === 'last') {
-        // group.editIndex = filteredIndexList ? filteredIndexList.at(-1) : group.index;
         group.editIndex = group.index;
       }
     }

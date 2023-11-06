@@ -216,9 +216,6 @@ function staticUseLanguage(
 }
 
 function getLanguageFromKey(key: string, language: ILanguage) {
-  // if (typeof key !== 'string') {
-  //   debugger;
-  // }
   const path = key.split('.');
   const value = getNestedObject(language, path);
   if (!value || typeof value === 'object') {

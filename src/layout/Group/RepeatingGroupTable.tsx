@@ -27,7 +27,6 @@ export interface IRepeatingGroupTableProps {
   setMultiPageIndex?: (index: number) => void;
   multiPageIndex?: number;
   deleting: boolean;
-  // filteredIndexes?: number[] | null;
   rowsBefore?: GridRowsInternal;
   rowsAfter?: GridRowsInternal;
 }
@@ -78,9 +77,6 @@ export function RepeatingGroupTable({
 
   const tableNodes = getTableNodes(0);
 
-  // Values adjusted for filter
-  // const numRows = filteredIndexes ? filteredIndexes.length : repeatingGroupIndex + 1;
-  // const editRowIndex = filteredIndexes ? filteredIndexes.indexOf(editIndex) : editIndex;
   const numRows = repeatingGroupIndex + 1;
   const editRowIndex = editIndex;
 
@@ -128,7 +124,6 @@ export function RepeatingGroupTable({
         setEditIndex={setEditIndex}
         multiPageIndex={multiPageIndex}
         setMultiPageIndex={setMultiPageIndex}
-        // filteredIndexes={filteredIndexes}
       />
     );
 
@@ -233,11 +228,6 @@ export function RepeatingGroupTable({
             [...Array(repeatingGroupIndex + 1)].map((_x: any, index: number) => {
               const children = node.children(undefined, index);
               const rowHasErrors = !!children.find((c) => c.hasValidationMessages());
-
-              // Check if filter is applied and includes specified index.
-              // if (filteredIndexes && !filteredIndexes.includes(index)) {
-              //   return null;
-              // }
 
               const isTableRowHidden =
                 node.item.type === 'Group' && 'rows' in node.item && node.item.rows[index]?.groupExpressions?.hiddenRow;
