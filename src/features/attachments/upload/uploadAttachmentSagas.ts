@@ -29,6 +29,10 @@ export function* uploadAttachmentSaga({
 
   try {
     // Sets validations to empty.
+    /**
+     * TODO(Validations): Maybe errors related to user actions should be handled by a snack bar,
+     * or something less permanent than validation messages?
+     */
     const newValidations = getFileUploadComponentValidations(null, langTools);
     yield put(
       ValidationActions.updateComponentValidations({
@@ -76,6 +80,7 @@ export function* uploadAttachmentSaga({
       }),
     );
 
+    // TODO(Validation): Run frontend validation on the updated form data using validation provider?
     if (dataModelBindings && ('simpleBinding' in dataModelBindings || 'list' in dataModelBindings)) {
       yield put(
         FormDataActions.update({
@@ -108,6 +113,10 @@ export function* uploadAttachmentSaga({
       validations = getFileUploadComponentValidations('upload', langTools);
     }
 
+    /**
+     * TODO(Validations): Maybe errors related to user actions should be handled by a snack bar,
+     * or something less permanent than validation messages?
+     */
     yield put(
       ValidationActions.updateComponentValidations({
         componentId,

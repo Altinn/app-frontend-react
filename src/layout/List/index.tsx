@@ -1,16 +1,17 @@
 import React from 'react';
 import type { JSX } from 'react';
 
+import { addValidationToField, FrontendValidationSource, initializeValidationField } from 'src/features/validation';
 import { ListDef } from 'src/layout/List/config.def.generated';
 import { ListComponent } from 'src/layout/List/ListComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { getFieldName } from 'src/utils/formComponentUtils';
-import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
+import type { FieldValidations } from 'src/features/validation/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
+import type { IValidationContext } from 'src/utils/validation/types';
 
 export class List extends ListDef {
   render(props: PropsFromGenericComponent<'List'>): JSX.Element | null {
@@ -34,18 +35,32 @@ export class List extends ListDef {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
-  runEmptyFieldValidation(node: LayoutNode<'List'>, { formData, langTools }: IValidationContext): IValidationObject[] {
-    if (node.isHidden() || !node.item.required) {
-      return [];
+  runEmptyFieldValidation(node: LayoutNode<'List'>, { formData, langTools }: IValidationContext): FieldValidations {
+    if (!node.item.required || !node.item.dataModelBindings) {
+      return {};
     }
+
+    const fields = Object.values(node.item.dataModelBindings);
+
+    /**
+     * Component id will be used as field value
+     * TODO(Validation): Consider adding component level validations?
+     */
+    const field = node.item.id;
+
+    /**
+     * Initialize validation group for field,
+     * this must be done for all fields that will be validated
+     * so we remove existing validations in case they are fixed.
+     */
+    const fieldValidations: FieldValidations = {};
+    initializeValidationField(fieldValidations, field, FrontendValidationSource.Required);
 
     const { langAsString } = langTools;
     const textResourceBindings = node.item.textResourceBindings;
-    const validationObjects: IValidationObject[] = [];
 
-    const bindings = Object.values(node.item.dataModelBindings ?? {});
     let listHasErrors = false;
-    for (const field of bindings) {
+    for (const field of fields) {
       const data = formData[field as string];
 
       if (!data?.length) {
@@ -57,9 +72,14 @@ export class List extends ListDef {
       const message = textResourceBindings?.requiredValidation
         ? langAsString(textResourceBindings?.requiredValidation, [fieldName])
         : langAsString('form_filler.error_required', [fieldName]);
-      validationObjects.push(buildValidationObject(node, 'errors', message));
+      addValidationToField(fieldValidations, {
+        message,
+        severity: 'errors',
+        field,
+        group: FrontendValidationSource.Required,
+      });
     }
-    return validationObjects;
+    return fieldValidations;
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'List'>): string[] {

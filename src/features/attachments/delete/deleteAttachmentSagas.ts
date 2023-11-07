@@ -23,6 +23,7 @@ export function* deleteAttachmentSaga({
   try {
     // Sets validations to empty.
     const newValidations = getFileUploadComponentValidations(null, langTools);
+    // TODO(Validation): Remove validations from validation provider instead
     yield put(
       ValidationActions.updateComponentValidations({
         componentId,
@@ -53,6 +54,11 @@ export function* deleteAttachmentSaga({
       throw new Error(`Got error response when deleting attachment: ${response.status}`);
     }
   } catch (err) {
+    /**
+     * TODO(Validation):
+     * Maybe this should be handled by a snack bar, or at least something less permanent than validation messages.
+     * Since this is an error in a performed action, not an error with the state of the form
+     */
     const validations = getFileUploadComponentValidations('delete', langTools);
     yield put(
       ValidationActions.updateComponentValidations({

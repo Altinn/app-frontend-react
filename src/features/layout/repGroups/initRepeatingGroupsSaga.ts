@@ -48,6 +48,7 @@ export function* initRepeatingGroupsSaga({
         );
       }
     }
+    // TODO(Validation): I assume this entire saga will be removed, including this validation updating
     yield put(ValidationActions.updateValidations({ validationResult: { validations }, merge: false }));
   }
 

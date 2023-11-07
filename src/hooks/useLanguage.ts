@@ -16,7 +16,7 @@ import type { IRuntimeState } from 'src/types';
 import type { IApplicationSettings, IInstanceContext, ILanguage, IVariable } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-type ValidParam = string | number | undefined;
+export type ValidParam = string | number | undefined;
 
 export interface IUseLanguage {
   language: ILanguage;

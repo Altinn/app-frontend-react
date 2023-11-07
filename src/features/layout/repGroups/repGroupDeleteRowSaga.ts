@@ -140,11 +140,12 @@ export function* repGroupDeleteRowSaga({ payload: { groupId, index } }: PayloadA
       const updatedFormData = removeGroupData(formData, index, currentLayout, groupId, repeatingGroup);
 
       // Remove the validations associated with the group
+      // TODO(Validation): Rewrite to clear fields from validation provider
       const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
       const groupNode = resolvedNodes.findById(groupId);
       if (groupNode) {
         const children = groupNode.flat(true, index).filter((node) => node.item.id !== groupId);
-        const validationObjects = children.map((child) => emptyValidation(child));
+        const validationObjects = children.map((child) => emptyValidation(child, 'todo: remove empty validation'));
         const validationResult = createLayoutValidationResult(validationObjects);
         yield put(
           ValidationActions.updateLayoutValidation({

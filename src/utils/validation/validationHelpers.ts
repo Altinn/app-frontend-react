@@ -1,3 +1,4 @@
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { Triggers } from 'src/layout/common.generated';
 import type { IRuntimeState, TriggersPageValidation } from 'src/types';
@@ -12,8 +13,32 @@ import type {
   IValidationObject,
   IValidationResult,
   IValidations,
+  ValidationContextGenerator,
   ValidationSeverity,
 } from 'src/utils/validation/types';
+
+export function useValidationContextGenerator(): ValidationContextGenerator {
+  const formData = useAppSelector((state) => state.formData.formData);
+  const attachments = useAppSelector((state) => state.attachments.attachments);
+  const application = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
+  const instance = useAppSelector((state) => state.instanceData.instance);
+  const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
+  const schemas = useAppSelector((state) => state.formDataModel.schemas);
+  const customValidation = useAppSelector((state) => state.customValidation.customValidation);
+  const langToolsGenerator = useAppSelector(
+    (state) => (node: LayoutNode | undefined) => staticUseLanguageFromState(state, node),
+  );
+  return (node: LayoutNode | undefined): IValidationContext => ({
+    formData,
+    langTools: langToolsGenerator(node),
+    attachments,
+    application,
+    instance,
+    layoutSets,
+    schemas,
+    customValidation,
+  });
+}
 
 export function validationContextFromState(state: IRuntimeState, node: LayoutNode | undefined): IValidationContext {
   return {
@@ -33,6 +58,7 @@ export function buildValidationObject<T extends ValidationSeverity>(
   severity: T,
   message: string,
   bindingKey = 'simpleBinding',
+  source: string,
   invalidDataTypes = false,
 ): IValidationMessage<T> {
   return {
@@ -40,28 +66,37 @@ export function buildValidationObject<T extends ValidationSeverity>(
     componentId: node.item.id,
     pageKey: node.pageKey(),
     bindingKey,
+    field: node.item.dataModelBindings![bindingKey],
     severity,
     message,
+    source,
     invalidDataTypes,
     rowIndices: node.getRowIndices(),
   };
 }
 
-export function emptyValidation(node: LayoutNode): IValidationObject {
+export function emptyValidation(node: LayoutNode, source: string): IValidationObject {
   return {
     empty: true,
     componentId: node.item.id,
+    source,
     pageKey: node.pageKey(),
     rowIndices: node.getRowIndices(),
   };
 }
 
-export function unmappedError<T extends ValidationSeverity>(severity: T, message: string): IValidationMessage<T> {
+export function unmappedError<T extends ValidationSeverity>(
+  severity: T,
+  message: string,
+  source: string,
+): IValidationMessage<T> {
   return {
     empty: false,
     componentId: 'unmapped',
     pageKey: 'unmapped',
     bindingKey: 'unmapped',
+    field: 'unmapped',
+    source,
     severity,
     message,
     invalidDataTypes: false,

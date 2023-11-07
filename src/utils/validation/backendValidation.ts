@@ -110,18 +110,18 @@ export function mapValidationIssues(
       continue;
     }
 
-    const { field, severity } = issue;
+    const { field, severity, source } = issue;
     const message = getValidationMessage(issue, langTools);
 
     if (!field) {
       // Unmapped error
-      validationOutputs.push(unmappedError(severityMap[severity], message));
+      validationOutputs.push(unmappedError(severityMap[severity], message, source));
     }
 
     for (const node of allNodes) {
       // Special case for FileUpload and FileUploadWithTag
       if ((node.isType('FileUpload') || node.isType('FileUploadWithTag')) && node.item.id === field) {
-        validationOutputs.push(buildValidationObject(node, severityMap[severity], message));
+        validationOutputs.push(buildValidationObject(node, severityMap[severity], message, undefined, source));
         continue;
       }
 
@@ -129,7 +129,7 @@ export function mapValidationIssues(
         const bindings = Object.entries(node.item.dataModelBindings);
         for (const [bindingKey, bindingField] of bindings) {
           if (bindingField === field) {
-            validationOutputs.push(buildValidationObject(node, severityMap[severity], message, bindingKey));
+            validationOutputs.push(buildValidationObject(node, severityMap[severity], message, bindingKey, source));
           }
         }
       }

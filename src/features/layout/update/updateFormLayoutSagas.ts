@@ -1,34 +1,21 @@
 import { all, call, put, select, take } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { AxiosRequestConfig, AxiosResponse } from 'axios';
+import type { AxiosResponse } from 'axios';
 import type { SagaIterator } from 'redux-saga';
 
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
-import { ValidationActions } from 'src/features/validation/validationSlice';
-import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { Triggers } from 'src/layout/common.generated';
 import { getLayoutOrderFromTracks, selectLayoutOrder } from 'src/selectors/getLayoutOrder';
-import { getCurrentDataTypeForApplication, getCurrentTaskDataElementId, isStatelessApp } from 'src/utils/appMetadata';
+import { getCurrentDataTypeForApplication, isStatelessApp } from 'src/utils/appMetadata';
 import { convertDataBindingToModel } from 'src/utils/databindings';
 import { getLayoutsetForDataElement } from 'src/utils/layout';
-import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpPost } from 'src/utils/network/networking';
-import { httpGet } from 'src/utils/network/sharedNetworking';
 import { waitFor } from 'src/utils/sagas';
-import { getCalculatePageOrderUrl, getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
-import { mapValidationIssues } from 'src/utils/validation/backendValidation';
-import {
-  containsErrors,
-  createValidationResult,
-  filterValidationObjectsByPage,
-  validationContextFromState,
-} from 'src/utils/validation/validationHelpers';
+import { getCalculatePageOrderUrl } from 'src/utils/urls/appUrlHelper';
 import type { ICalculatePageOrderAndMoveToNextPage, IUpdateCurrentView } from 'src/features/layout/formLayoutTypes';
 import type { IRuntimeState, IUiConfig } from 'src/types';
-import type { LayoutPages } from 'src/utils/layout/LayoutPages';
-import type { BackendValidationIssue } from 'src/utils/validation/types';
 
 export const selectFormLayoutState = (state: IRuntimeState) => state.formLayout;
 export const selectFormData = (state: IRuntimeState) => state.formData.formData;
@@ -68,7 +55,6 @@ export function* updateCurrentViewSaga({
     }
 
     const state: IRuntimeState = yield select();
-    const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
     const visibleLayouts: string[] | null = yield select(selectLayoutOrder);
     const viewCacheKey = state.formLayout.uiConfig.currentViewCacheKey;
     const instanceId = state.instanceData.instance?.id;
@@ -99,58 +85,11 @@ export function* updateCurrentViewSaga({
         }),
       );
     } else {
-      const currentView = state.formLayout.uiConfig.currentView;
-      const frontendValidationObjects =
-        resolvedNodes?.runValidations((node) => validationContextFromState(state, node)) ?? [];
-
-      const options: AxiosRequestConfig = {
-        headers: {
-          LayoutId: currentView,
-        },
-      };
-      const currentTaskDataId = getCurrentTaskDataElementId(
-        state.applicationMetadata.applicationMetadata,
-        state.instanceData.instance,
-        state.formLayout.layoutsets,
-      );
-
-      const validationOptions = runValidations === Triggers.ValidatePage ? options : undefined;
-      const serverValidations: BackendValidationIssue[] =
-        instanceId && currentTaskDataId
-          ? yield call(httpGet, getDataValidationUrl(instanceId, currentTaskDataId), validationOptions)
-          : [];
-
-      const serverValidationObjects = mapValidationIssues(
-        serverValidations,
-        resolvedNodes,
-        staticUseLanguageFromState(state),
-      );
-
-      const validationObjects = filterValidationObjectsByPage(
-        [...frontendValidationObjects, ...serverValidationObjects],
-        runValidations,
-        currentView,
-        visibleLayouts ?? [],
-      );
-
-      const validationResult = createValidationResult(validationObjects);
-
-      yield put(ValidationActions.updateValidations({ validationResult, merge: true }));
-
-      /*
-       * If only the current page or the previous pages are validated, this makes no difference.
-       * If all pages are validated, we need to make sure that the current and previous pages are valid before allowing the user to
-       * navigate to the next page; but if the error is on a future page, we should not prevent the user from navigating
-       * to the next page.
+      /**
+       * TODO(Validation): Check validation provider if navigation is allowed, set urgency level of page?
+       * This probably needs to be done along with changing page navigation to hooks, since sagas cannot access this provider.
        */
-      const validationsToCheckBeforeNavigation = filterValidationObjectsByPage(
-        validationObjects,
-        Triggers.ValidateCurrentAndPreviousPages,
-        currentView,
-        visibleLayouts ?? [],
-      );
-
-      if (state.formLayout.uiConfig.returnToView || !containsErrors(validationsToCheckBeforeNavigation)) {
+      if (state.formLayout.uiConfig.returnToView) {
         if (!skipPageCaching && currentViewCacheKey) {
           localStorage.setItem(currentViewCacheKey, newView);
         }

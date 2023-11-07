@@ -12,12 +12,7 @@ import { resolveExpressionValidationConfig } from 'src/utils/validation/expressi
 import { runValidationOnNodes } from 'src/utils/validation/validation';
 import type { HierarchyDataSources } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
-import type {
-  IExpressionValidationConfig,
-  IValidationMessage,
-  ValidationContextGenerator,
-  ValidationSeverity,
-} from 'src/utils/validation/types';
+import type { IExpressionValidationConfig, ValidationContextGenerator } from 'src/utils/validation/types';
 import type { IValidationOptions } from 'src/utils/validation/validation';
 
 const { resolvedNodesInLayouts } = _private;
@@ -94,20 +89,21 @@ describe('Expression validation shared tests', () => {
       skipEmptyFieldValidation: true,
       skipSchemaValidation: true,
     };
-    const validationObjects = runValidationOnNodes(nodes, ctxGenerator, options).filter(
-      (o) => !o.empty,
-    ) as IValidationMessage<ValidationSeverity>[];
-
+    const fieldValidations = runValidationOnNodes(nodes, ctxGenerator, options);
     // Format results in a way that makes it easier to compare
 
     const result = JSON.stringify(
-      validationObjects.map(({ message, severity, componentId }) => ({ message, severity, componentId })),
+      Object.values(fieldValidations).flatMap((groups) =>
+        Object.values(groups).flatMap((group) =>
+          group.map(({ message, severity, field }) => ({ message, severity, field })),
+        ),
+      ),
       null,
       2,
     );
 
     const expectedResult = JSON.stringify(
-      expects.map(({ message, severity, componentId }) => ({ message, severity, componentId })),
+      expects.map(({ message, severity, field }) => ({ message, severity, field })),
       null,
       2,
     );

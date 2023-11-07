@@ -32,6 +32,7 @@ export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: st
         .then((serverValidations: any) => {
           const validationObjects = mapValidationIssues(serverValidations, resolvedNodes, langTools);
           const validationResult = createValidationResult(validationObjects);
+          // TODO(Validation): Check validation provider if you are allowed to confirm instead
           dispatch(
             ValidationActions.updateValidations({
               validationResult,

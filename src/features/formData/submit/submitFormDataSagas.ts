@@ -17,11 +17,7 @@ import { httpGet, httpPut } from 'src/utils/network/sharedNetworking';
 import { waitFor } from 'src/utils/sagas';
 import { dataElementUrl, getStatelessFormDataUrl, getValidationUrl } from 'src/utils/urls/appUrlHelper';
 import { mapValidationIssues } from 'src/utils/validation/backendValidation';
-import {
-  containsErrors,
-  createValidationResult,
-  validationContextFromState,
-} from 'src/utils/validation/validationHelpers';
+import { containsErrors, createValidationResult } from 'src/utils/validation/validationHelpers';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IFormData } from 'src/features/formData';
 import type { IUpdateFormData } from 'src/features/formData/formDataTypes';
@@ -42,13 +38,11 @@ export function* submitFormSaga(): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
     const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
-    const validationObjects = resolvedNodes.runValidations((node) => validationContextFromState(state, node));
-    const validationResult = createValidationResult(validationObjects);
-    if (containsErrors(validationObjects)) {
-      yield put(ValidationActions.updateValidations({ validationResult, merge: false }));
-      return yield put(FormDataActions.submitRejected({ error: null }));
-    }
 
+    /**
+     * TODO(Validation): Check validation provider if submit is allowed, set urgency level of pages?
+     * This saga probably needs to be rewritten to a hook first, since the sagas do not have acces to this provider.
+     */
     yield call(putFormData, {});
     yield call(submitComplete, state, resolvedNodes);
     yield put(FormDataActions.submitFulfilled());
@@ -61,6 +55,11 @@ export function* submitFormSaga(): SagaIterator {
 function* submitComplete(state: IRuntimeState, resolvedNodes: LayoutPages) {
   // run validations against the datamodel
   const instanceId = state.instanceData.instance?.id;
+
+  /**
+   * TODO(Validation): The backend should probably respond with validation messages if the submit fails
+   * Alternatively, the backend should respond with validation messages on the final putFormData, and this can be checked before calling process next
+   */
   const serverValidations: BackendValidationIssue[] | undefined = instanceId
     ? yield call(httpGet, getValidationUrl(instanceId))
     : undefined;
@@ -272,6 +271,7 @@ export function* saveFormDataSaga({
       yield call(putFormData, { field, componentId });
     }
 
+    // TODO(Validation): Single field validation should be returned from save request and handled with the response
     if (singleFieldValidation && componentId) {
       yield put(
         ValidationActions.runSingleFieldValidation({

@@ -9,6 +9,7 @@ import { Label } from 'src/components/form/Label';
 import { Legend } from 'src/components/form/Legend';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
+import { useValidationMethods } from 'src/features/validation/validationProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -96,6 +97,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
   const titleTrb = textBindings && 'title' in textBindings ? textBindings.title : undefined;
   const descriptionTrb = textBindings && 'description' in textBindings ? textBindings.description : undefined;
   const helpTrb = textBindings && 'help' in textBindings ? textBindings.help : undefined;
+  const { validateNode } = useValidationMethods();
 
   if (overrideItemProps) {
     item = {
@@ -185,7 +187,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
       return;
     }
 
-    const dataModelBinding = dataModelBindings[key];
+    const dataModelBinding: string = dataModelBindings[key];
     const triggers = 'triggers' in item ? item.triggers : undefined;
     const singleFieldValidation: ISingleFieldValidation | undefined =
       triggers && triggers.includes(Triggers.Validation)
@@ -204,6 +206,11 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
         singleFieldValidation,
       }),
     );
+
+    if (validate) {
+      const overrideFormData = { [dataModelBinding]: (value?.length ? value : undefined) as any };
+      validateNode(node, { overrideFormData });
+    }
   };
 
   const layoutComponent = node.def as unknown as LayoutComponent<Type>;

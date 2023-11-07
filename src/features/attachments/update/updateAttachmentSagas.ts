@@ -23,6 +23,10 @@ export function* updateAttachmentSaga({
 
   try {
     // Sets validations to empty.
+    /**
+     * TODO(Validations): Maybe errors related to user actions should be handled by a snack bar,
+     * or something less permanent than validation messages?
+     */
     const newValidations = getFileUploadComponentValidations(null, langTools);
     yield put(
       ValidationActions.updateComponentValidations({
@@ -38,6 +42,10 @@ export function* updateAttachmentSaga({
       const deleteResponse: any = yield call(httpDelete, `${fileUpdateLink}/${attachment.tags[0]}`);
       if (deleteResponse.status !== 204) {
         const validations = getFileUploadComponentValidations('update', langTools, attachment.id);
+        /**
+         * TODO(Validations): Maybe errors related to user actions should be handled by a snack bar,
+         * or something less permanent than validation messages?
+         */
         yield put(
           ValidationActions.updateComponentValidations({
             componentId,
@@ -79,6 +87,10 @@ export function* updateAttachmentSaga({
       );
     } else {
       const validations = getFileUploadComponentValidations('update', langTools, attachment.id);
+      /**
+       * TODO(Validations): Maybe errors related to user actions should be handled by a snack bar,
+       * or something less permanent than validation messages?
+       */
       yield put(
         ValidationActions.updateComponentValidations({
           componentId,
@@ -97,6 +109,10 @@ export function* updateAttachmentSaga({
     }
   } catch (err) {
     const validations = getFileUploadComponentValidations('update', langTools, attachment.id);
+    /**
+     * TODO(Validations): Maybe errors related to user actions should be handled by a snack bar,
+     * or something less permanent than validation messages?
+     */
     yield put(
       ValidationActions.updateComponentValidations({
         componentId,

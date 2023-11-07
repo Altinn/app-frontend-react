@@ -17,6 +17,7 @@ import type { IValidations } from 'src/utils/validation/types';
 
 export const FormValidationSelector = (state: IRuntimeState) => state.formValidations.validations;
 
+// TODO(Validation): This should no longer be necessary as validations for hidden components should not be gone
 export function* removeHiddenValidationsSaga({
   payload: { newlyHidden, newlyVisible },
 }: PayloadAction<IUpdateHiddenComponents>): SagaIterator {

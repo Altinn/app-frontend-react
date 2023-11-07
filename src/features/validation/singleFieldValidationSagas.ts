@@ -22,6 +22,11 @@ export const selectInstanceState = (state: IRuntimeState) => state.instanceData.
 export const selectLayoutSetsState = (state: IRuntimeState) => state.formLayout.layoutsets;
 export const selectHiddenFieldsState = (state: IRuntimeState) => state.formLayout.uiConfig.hiddenFields;
 
+/**
+ * TODO(Validation): Remove this entire file, validation errors should be returned from the put form data request
+ * and the results should be handled as a part of that response
+ */
+
 export function* runSingleFieldValidationSaga({
   payload: { componentId, dataModelBinding },
 }: PayloadAction<IRunSingleFieldValidation>): SagaIterator {

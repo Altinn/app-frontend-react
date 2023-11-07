@@ -39,7 +39,9 @@ export type IValidationMessage<T extends ValidationSeverity> = {
   pageKey: string;
   componentId: string;
   bindingKey: string;
+  field: string;
   severity: T;
+  source: string;
   message: string;
   invalidDataTypes: boolean;
   rowIndices: number[];
@@ -52,9 +54,12 @@ export type IEmptyValidation = {
   empty: true;
   pageKey: string;
   componentId: string;
+  source: string;
   rowIndices: number[];
 };
 
+// TODO(Validation): Clean up this type and change it to:
+// export type ValidationSeverity = 'error' | 'warning' | 'info' | 'success';
 export type ValidationSeverity = 'errors' | 'warnings' | 'info' | 'success' | 'fixed' | 'unspecified';
 
 /**
@@ -123,7 +128,7 @@ export interface BackendValidationIssue {
   scope: string | null;
   severity: BackendValidationSeverity;
   targetId: string;
-  source?: string;
+  source: string;
   customTextKey?: string;
 }
 

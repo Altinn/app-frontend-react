@@ -1,3 +1,4 @@
+// TODO(Validation): Remove "Unspecified" and "Fixed"
 export enum BackendValidationSeverity {
   Unspecified = 0,
   Error = 1,

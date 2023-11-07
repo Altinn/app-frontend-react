@@ -6,6 +6,7 @@ import { useCurrentDataElementId } from 'src/features/datamodel/useBindingSchema
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { type IUseLanguage, useLanguage } from 'src/hooks/useLanguage';
 import { createStrictContext } from 'src/utils/createStrictContext';
+import { useExprContext } from 'src/utils/layout/ExprContext';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
 import {
@@ -13,21 +14,41 @@ import {
   severityMap,
   shouldExcludeValidationIssue,
 } from 'src/utils/validation/backendValidation';
-import { buildValidationObject, unmappedError } from 'src/utils/validation/validationHelpers';
-import type { ValidationState } from 'src/features/validation/types';
+import {
+  buildValidationObject,
+  unmappedError,
+  useValidationContextGenerator,
+} from 'src/utils/validation/validationHelpers';
+import type { FieldValidations, ValidationContext, ValidationState } from 'src/features/validation/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
-import type { BackendValidationIssue, IValidationMessage, ValidationSeverity } from 'src/utils/validation/types';
+import type {
+  BackendValidationIssue,
+  IValidationMessage,
+  ValidationContextGenerator,
+  ValidationSeverity,
+} from 'src/utils/validation/types';
+import type { IValidationOptions } from 'src/utils/validation/validation';
 
-const [Provider, useContext] = createStrictContext<ValidationState>({ options: { name: 'ValidationContext' } });
+const [Provider, useContext] = createStrictContext<ValidationContext>({
+  options: { name: 'ValidationContext' },
+});
 
-function fetchValidations(validationUrl: string): Promise<BackendValidationIssue[]> {
-  return httpGet(validationUrl);
+async function fetchValidations(
+  validationUrl: string,
+  resolvedNodes: LayoutPages,
+  validationContextGenerator: ValidationContextGenerator,
+): Promise<[FieldValidations, BackendValidationIssue[]]> {
+  const backendValidations = httpGet(validationUrl);
+  const frontendValidations = resolvedNodes.runValidations(validationContextGenerator);
+  return [frontendValidations, await backendValidations];
 }
 
 export function ValidationProvider({ children }) {
-  const lastSavedFormData = useAppSelector((state) => state.formData.lastSavedFormData);
+  const resolvedNodes = useExprContext();
+  const validationContextGenerator = useValidationContextGenerator();
+  // const lastSavedFormData = useAppSelector((state) => state.formData.lastSavedFormData);
   const langTools = useLanguage();
   const instanceId = useAppSelector((state) => state.instanceData.instance?.id);
   const currentDataElementId = useCurrentDataElementId();
@@ -36,31 +57,57 @@ export function ValidationProvider({ children }) {
       ? getDataValidationUrl(instanceId, currentDataElementId)
       : undefined;
 
-  const [validations, setValidations] = useState<ValidationState>({ fields: {}, unmapped: [] });
+  const [validations, setValidations] = useState<ValidationState>({ fields: {}, unmapped: {} });
 
   const { data: validationData } = useQuery({
-    enabled: Boolean(validationUrl),
-    queryKey: ['validation', instanceId, currentDataElementId, lastSavedFormData],
-    queryFn: () => fetchValidations(validationUrl!),
+    enabled: Boolean(validationUrl) && Boolean(resolvedNodes),
+    queryKey: ['validation', instanceId, currentDataElementId],
+    queryFn: () => fetchValidations(validationUrl!, resolvedNodes!, validationContextGenerator),
   });
 
   useEffect(() => {
     if (!validationData) {
       return;
     }
+    const [frontendValidations, backendValidations] = validationData;
+    const newState = mapValidationsToState(backendValidations, langTools);
+    addFieldValidations(newState.fields, frontendValidations);
+    setValidations(newState);
 
-    const newValidations = mapServerValidations(validationData, langTools);
-    setValidations(newValidations);
-  }, [langTools, validationData]);
+    /* Workaround, ideally, the logic that fetches validations should resolve text resources */
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [validationData]);
 
-  return <Provider value={validations}>{children}</Provider>;
+  function validateNode(node: LayoutNode, options: IValidationOptions) {
+    const newState = node.runValidations(validationContextGenerator, options);
+    setValidations((prevState) => {
+      addFieldValidations(prevState.fields, newState);
+      return prevState;
+    });
+  }
+
+  const out = {
+    state: validations,
+    methods: {
+      validateNode,
+    },
+  };
+
+  return <Provider value={out}>{children}</Provider>;
+}
+
+/**
+ * Gives access to validation methods.
+ */
+export function useValidationMethods() {
+  return useContext().methods;
 }
 
 /**
  * Returns all validation messages for a given node.
  */
 export function useNodeValidations(node: LayoutNode) {
-  const validations = useContext();
+  const validations = useContext().state;
 
   return useMemo(() => {
     const validationMessages: IValidationMessage<ValidationSeverity>[] = [];
@@ -71,8 +118,12 @@ export function useNodeValidations(node: LayoutNode) {
       if (!validations.fields[field]) {
         continue;
       }
-      for (const validation of validations.fields[field].filter((v) => v.severity !== 'fixed')) {
-        validationMessages.push(buildValidationObject(node, validation.severity, validation.message, bindingKey));
+      for (const group of Object.values(validations.fields[field])) {
+        for (const validation of group.filter((v) => v.severity !== 'fixed')) {
+          validationMessages.push(
+            buildValidationObject(node, validation.severity, validation.message, bindingKey, validation.group),
+          );
+        }
       }
     }
   }, [node, validations]);
@@ -82,7 +133,7 @@ export function useNodeValidations(node: LayoutNode) {
  * Returns all validation errors (not warnings, info, etc.) for a given page.
  */
 export function usePageErrors(page: LayoutPage) {
-  const validations = useContext();
+  const validations = useContext().state;
 
   return useMemo(() => {
     const validationMessages: IValidationMessage<'errors'>[] = [];
@@ -95,8 +146,12 @@ export function usePageErrors(page: LayoutPage) {
         if (!validations.fields[field]) {
           continue;
         }
-        for (const validation of validations.fields[field].filter((v) => v.severity === 'errors')) {
-          validationMessages.push(buildValidationObject(node, 'errors', validation.message, bindingKey));
+        for (const group of Object.values(validations.fields[field])) {
+          for (const validation of group.filter((v) => v.severity === 'errors')) {
+            validationMessages.push(
+              buildValidationObject(node, 'errors', validation.message, bindingKey, validation.group),
+            );
+          }
         }
       }
     }
@@ -109,7 +164,7 @@ export function usePageErrors(page: LayoutPage) {
  * This includes unmapped errors as well
  */
 export function useTaskErrors(pages: LayoutPages) {
-  const validations = useContext();
+  const validations = useContext().state;
 
   return useMemo(() => {
     const validationMessages: IValidationMessage<'errors'>[] = [];
@@ -122,46 +177,80 @@ export function useTaskErrors(pages: LayoutPages) {
         if (!validations.fields[field]) {
           continue;
         }
-        for (const validation of validations.fields[field].filter((v) => v.severity === 'errors')) {
-          validationMessages.push(buildValidationObject(node, 'errors', validation.message, bindingKey));
+        for (const group of Object.values(validations.fields[field])) {
+          for (const validation of group.filter((v) => v.severity === 'errors')) {
+            validationMessages.push(
+              buildValidationObject(node, 'errors', validation.message, bindingKey, validation.group),
+            );
+          }
         }
       }
     }
-    for (const validation of validations.unmapped.filter((v) => v.severity === 'errors')) {
-      validationMessages.push(unmappedError('errors', validation.message));
+    for (const group of Object.values(validations.unmapped)) {
+      for (const validation of group.filter((v) => v.severity === 'errors')) {
+        validationMessages.push(unmappedError('errors', validation.message, validation.group));
+      }
     }
     return validationMessages;
   }, [pages, validations]);
 }
 
 /**
- * Maps validation issues from backend to validation state
+ * Maps validation issues from backend, and validation objects from frontend to validation state
  */
-function mapServerValidations(
+function mapValidationsToState(
   issues: BackendValidationIssue[],
   langTools: IUseLanguage,
   filterSources: boolean = true,
 ): ValidationState {
-  const validationOutputs: ValidationState = { fields: {}, unmapped: [] };
+  const validationOutputs: ValidationState = { fields: {}, unmapped: {} };
+
   for (const issue of issues) {
     if (filterSources && shouldExcludeValidationIssue(issue)) {
       continue;
     }
 
-    const { field, severity: backendSeverity } = issue;
+    const { field, severity: backendSeverity, source: group } = issue;
     const severity = severityMap[backendSeverity];
     const message = getValidationMessage(issue, langTools);
 
     if (!field) {
       // Unmapped error
-      validationOutputs.unmapped.push({ field: 'unmapped', severity, message });
+      if (!validationOutputs.unmapped[group]) {
+        validationOutputs.unmapped[group] = [];
+      }
+      if (!validationOutputs.unmapped[group].find((v) => v.message === message && v.severity === severity)) {
+        validationOutputs.unmapped[group].push({ field: 'unmapped', severity, message, group });
+      }
+      continue;
     }
 
     if (!validationOutputs.fields[field]) {
-      validationOutputs.fields[field] = [];
+      validationOutputs.fields[field] = {};
+    }
+    if (!validationOutputs.fields[field][group]) {
+      validationOutputs.fields[field][group] = [];
     }
 
-    validationOutputs.fields[field].push({ field, severity, message });
+    if (!validationOutputs.fields[field][group].find((v) => v.message === message && v.severity === severity)) {
+      validationOutputs.fields[field][group].push({ field, severity, message, group });
+    }
   }
   return validationOutputs;
+}
+
+/**
+ * Add FieldValidations to another FieldValidations object
+ * Note: This does not merge any groups, it will override any existing groups
+ * Not creating new objects constantly helps avoid GC?
+ */
+export function addFieldValidations(dest: FieldValidations, src: FieldValidations): void {
+  for (const [field, groups] of Object.entries(src)) {
+    if (!dest[field]) {
+      dest[field] = {};
+    }
+    for (const group of Object.keys(groups)) {
+      dest[field][group] = src[field][group];
+    }
+  }
 }

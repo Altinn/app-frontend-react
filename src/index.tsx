@@ -53,8 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
             <ErrorBoundary>
               <QueryClientProvider client={queryClient}>
                 <AppQueriesContextProvider {...queries}>
-                  <ValidationProvider>
-                    <ExprContextWrapper>
+                  <ExprContextWrapper>
+                    <ValidationProvider>
                       <LayoutValidationProvider>
                         <AllOptionsProvider>
                           <DevTools>
@@ -62,8 +62,8 @@ document.addEventListener('DOMContentLoaded', () => {
                           </DevTools>
                         </AllOptionsProvider>
                       </LayoutValidationProvider>
-                    </ExprContextWrapper>
-                  </ValidationProvider>
+                    </ValidationProvider>
+                  </ExprContextWrapper>
                 </AppQueriesContextProvider>
               </QueryClientProvider>
             </ErrorBoundary>
