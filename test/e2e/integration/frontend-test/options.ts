@@ -123,13 +123,19 @@ describe('Options', () => {
     cy.get(appFrontend.changeOfName.reference).should('have.value', 'My fixed value');
     cy.get(appFrontend.changeOfName.reference2).should('have.value', 'My fixed value');
   });
-  it('retrieves metadata from header when metadata is set in datamodelBindings', () => {
-    const now = new Date(30, 12, 2023).getTime();
+  it.only('retrieves metadata from header when metadata is set in datamodelBindings', () => {
+    const now = new Date(2023, 1, 1).getTime();
+    cy.clock(now, ['Date']);
+
+    cy.intercept({ method: 'GET', url: '**/options/**' }).as('optionsMunicipality');
+
     cy.goto('changename');
-    cy.clock(now);
+    cy.wait('@optionsMunicipality');
+    cy.tick(1000);
     cy.get(appFrontend.changeOfName.municipalityMetadata).should(
       'have.value',
       'language=nb,id=131,variant=,date=30/12/2023,level=,parentCode=',
     );
+    cy.clock().invoke('restore');
   });
 });
