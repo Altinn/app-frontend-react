@@ -76,12 +76,10 @@ export function RepeatingGroupTable({
   };
 
   const tableNodes = getTableNodes(0);
-
   const numRows = repeatingGroupIndex + 1;
-  const editRowIndex = editIndex;
 
   const isEmpty = numRows === 0;
-  const showTableHeader = numRows > 0 && !(numRows == 1 && editRowIndex == 0);
+  const showTableHeader = numRows > 0 && !(numRows == 1 && editIndex == 0);
 
   const showDeleteButtonColumns = new Set<boolean>();
   const showEditButtonColumns = new Set<boolean>();
