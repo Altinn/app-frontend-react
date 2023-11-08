@@ -53,6 +53,11 @@ function mapAttachments(
       continue;
     }
 
+    if (dataType.id === 'ref-data-as-pdf') {
+      // Generated PDF receipts are not attachments
+      continue;
+    }
+
     const matchingNodes = nodes.findAllById(data.dataType).filter((node) => {
       if (!validNodeType(node)) {
         window.logWarnOnce(
