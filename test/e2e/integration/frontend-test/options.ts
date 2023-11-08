@@ -123,11 +123,13 @@ describe('Options', () => {
     cy.get(appFrontend.changeOfName.reference).should('have.value', 'My fixed value');
     cy.get(appFrontend.changeOfName.reference2).should('have.value', 'My fixed value');
   });
-  it.only('retrieves metadata from header when metadata is set in datamodelBindings', () => {
+  it('retrieves metadata from header when metadata is set in datamodelBindings', () => {
     cy.intercept({ method: 'GET', url: '**/options/**' }).as('optionsMunicipality');
 
     cy.goto('changename');
     cy.wait('@optionsMunicipality');
+
+    cy.get(appFrontend.changeOfName.municipality).dsSelect('Oslo');
 
     cy.get(appFrontend.changeOfName.municipalityMetadata)
       .should('have.prop', 'value')

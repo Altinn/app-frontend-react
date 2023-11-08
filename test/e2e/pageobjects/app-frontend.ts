@@ -148,6 +148,7 @@ export class AppFrontend {
     reference2: '#reference2',
     dateOfEffect: '#dateOfEffect',
     municipalityMetadata: '#kommuner-metadata',
+    municipality: '#kommune',
     upload: '#fileUpload-changename',
     uploadWithTag: {
       uploadZone: '#fileUploadWithTags-changename',
