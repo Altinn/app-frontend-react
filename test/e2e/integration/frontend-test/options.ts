@@ -42,4 +42,16 @@ describe('Options', () => {
     cy.findByRole('option', { name: 'Endre fra: 1, Endre til: 2' }).click();
     cy.get(appFrontend.group.options).should('have.value', 'Endre fra: 1, Endre til: 2');
   });
+  it('retrieves metadata from header when metadata is set in datamodelBindings', () => {
+    cy.intercept({ method: 'GET', url: '**/options/**' }).as('optionsMunicipality');
+
+    cy.goto('changename');
+    cy.wait('@optionsMunicipality');
+
+    cy.get(appFrontend.changeOfName.municipality).dsSelect('Oslo');
+
+    cy.get(appFrontend.changeOfName.municipalityMetadata)
+      .should('have.prop', 'value')
+      .should('match', /language=nb,id=131,variant=,date=\d{1,2}\/\d{1,2}\/\d{4},level=,parentCode=/);
+  });
 });
