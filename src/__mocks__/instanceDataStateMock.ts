@@ -66,7 +66,7 @@ export function getProcessDataMock(): IProcess {
     currentTask: {
       flow: 1,
       started: '2020-01-01',
-      elementId: 'mockElementId',
+      elementId: 'Task_1',
       name: 'Task_1',
       altinnTaskType: 'data',
       ended: null,

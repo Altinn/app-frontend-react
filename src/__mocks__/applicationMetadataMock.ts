@@ -15,7 +15,7 @@ const applicationMetadataDefaults: IApplicationMetadata = {
         autoCreate: true,
         classRef: 'Altinn.App.Models.Skjema',
       },
-      taskId: 'mockElementId',
+      taskId: 'Task_1',
       maxCount: 1,
       minCount: 1,
     },
