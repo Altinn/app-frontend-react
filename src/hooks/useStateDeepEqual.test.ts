@@ -17,7 +17,8 @@ describe('useStateDeepEqual', () => {
     act(() => {
       result.current[1](newState);
     });
-    expect(result.current[0] === initialState).toBeTruthy();
+    expect(result.current[0] === newState).toBeTruthy();
+    expect(result.current[0] === initialState).toBeFalsy();
   });
   it('should not return the updated value if it is equal to the previous value', () => {
     const { result } = renderHook(() => useStateDeepEqual(initialState));
