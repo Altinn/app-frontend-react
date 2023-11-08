@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
-import { renderWithProviders } from 'src/test/renderWithProviders';
+import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { IMultipleChoiceSummaryProps } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 
 describe('MultipleChoiceSummary', () => {
@@ -16,8 +16,8 @@ async function render(props: Partial<IMultipleChoiceSummaryProps> = {}) {
     formData: { 'some-key': 'This is a text', 'some-other-key': 'This is another text' },
   };
 
-  return await renderWithProviders({
-    component: (
+  return await renderWithInstanceAndLayout({
+    renderer: () => (
       <MultipleChoiceSummary
         {...defaultProps}
         {...props}

@@ -7,12 +7,13 @@ import axios from 'axios';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { partyMock } from 'src/__mocks__/partyMock';
 import { PresentationComponent } from 'src/components/wrappers/Presentation';
-import { renderWithProviders } from 'src/test/renderWithProviders';
+import { renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { ProcessTaskType } from 'src/types';
 import { HttpStatusCodes } from 'src/utils/network/networking';
 import { returnUrlToMessagebox } from 'src/utils/urls/urlHelper';
 import type { IPresentationProvidedProps } from 'src/components/wrappers/Presentation';
+import type { IRuntimeState } from 'src/types';
 
 jest.mock('axios');
 
@@ -150,12 +151,15 @@ describe('Presentation', () => {
   });
 });
 
-const render = async (props: Partial<IPresentationProvidedProps> = {}, preloadedState: any = undefined) => {
+const render = async (props: Partial<IPresentationProvidedProps> = {}, reduxState?: IRuntimeState) => {
   const allProps = {
     header: 'Header text',
     type: ProcessTaskType.Unknown,
     ...props,
   };
 
-  await renderWithProviders({ component: <PresentationComponent {...allProps} />, preloadedState });
+  await renderWithoutInstanceAndLayout({
+    renderer: () => <PresentationComponent {...allProps} />,
+    reduxState,
+  });
 };

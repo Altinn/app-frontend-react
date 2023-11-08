@@ -43,7 +43,7 @@ const render = async ({ component, genericProps, options }: Props = {}) =>
       handleDataChange: jest.fn(),
       ...genericProps,
     },
-    mockedQueries: {
+    queries: {
       fetchOptions: () =>
         options ? Promise.resolve(options) : Promise.reject(new Error('No options provided to render()')),
     },

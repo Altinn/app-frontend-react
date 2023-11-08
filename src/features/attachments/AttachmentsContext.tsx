@@ -1,9 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { usePostUpload } from 'src/features/attachments/utils/postUpload';
 import { usePreUpload } from 'src/features/attachments/utils/preUpload';
 import { mergeAndSort } from 'src/features/attachments/utils/sorting';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { createStrictContext } from 'src/utils/createContext';
 import type { IAttachmentsCtx } from 'src/features/attachments/index';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -15,7 +17,11 @@ export const AttachmentsProvider = ({ children }: PropsWithChildren) => {
   const { state: postUpload, update, remove } = usePostUpload();
 
   const attachments = useMemo(() => mergeAndSort(preUpload, postUpload), [preUpload, postUpload]);
-  window.lastKnownAttachments = attachments;
+
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    dispatch(DeprecatedActions.setLastKnownAttachments(attachments));
+  }, [attachments, dispatch]);
 
   return (
     <Provider

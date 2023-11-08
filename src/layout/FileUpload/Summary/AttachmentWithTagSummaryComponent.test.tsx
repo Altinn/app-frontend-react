@@ -3,12 +3,10 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { CompFileUploadWithTagExternal } from 'src/layout/FileUploadWithTag/config.generated';
 import type { RootState } from 'src/redux/store';
-import type { IRuntimeState } from 'src/types';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -103,45 +101,40 @@ describe('AttachmentWithTagSummaryComponent', () => {
   });
 
   const render = async (component: CompFileUploadWithTagExternal, extendState?: Partial<RootState>) => {
-    const preloadedState: IRuntimeState = {
+    const reduxState = {
       ...initialState,
       ...mockState(component),
       ...extendState,
     };
 
+    const attachment: IData = {
+      id: '123ab-456cd-789ef-012gh',
+      dataType: 'myComponent',
+      filename: attachmentName,
+      size: 1200,
+      tags: ['a', 'b', 'c'],
+      instanceGuid: reduxState.deprecated.lastKnownInstance!.id,
+      refs: [],
+      blobStoragePath: '',
+      locked: false,
+      contentType: 'application/pdf',
+      lastChangedBy: 'test',
+      lastChanged: '2021-09-08T12:00:00',
+      createdBy: 'test',
+      created: '2021-09-08T12:00:00',
+    };
+
+    reduxState.deprecated.lastKnownInstance!.data.push(attachment);
+
     await renderWithNode<LayoutNode<'FileUploadWithTag'>>({
       nodeId: 'myComponent',
       renderer: ({ node }) => <AttachmentSummaryComponent targetNode={node} />,
-      preloadedState,
-      mockedQueries: {
+      reduxState,
+      queries: {
         fetchOptions: (url) =>
           availableOptions[url]
             ? Promise.resolve(availableOptions[url])
             : Promise.reject(new Error(`No options available for ${url}`)),
-        fetchInstanceData: () => {
-          const mock = getInstanceDataMock();
-          const attachment: IData = {
-            id: '123ab-456cd-789ef-012gh',
-            dataType: 'myComponent',
-            filename: attachmentName,
-            size: 1200,
-            tags: ['a', 'b', 'c'],
-            instanceGuid: mock.id,
-            refs: [],
-            blobStoragePath: '',
-            locked: false,
-            contentType: 'application/pdf',
-            lastChangedBy: 'test',
-            lastChanged: '2021-09-08T12:00:00',
-            createdBy: 'test',
-            created: '2021-09-08T12:00:00',
-          };
-
-          return Promise.resolve({
-            ...mock,
-            data: [...mock.data, attachment],
-          });
-        },
       },
     });
   };

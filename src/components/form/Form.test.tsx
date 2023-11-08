@@ -1,17 +1,15 @@
 import React from 'react';
-import { Route } from 'react-router-dom';
 
 import { screen, within } from '@testing-library/react';
-import type { PreloadedState } from 'redux';
 
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { Form } from 'src/components/form/Form';
-import { MemoryRouterWithRedirectingRoot } from 'src/test/memoryRouterWithRedirectingRoot';
-import { renderWithProviders } from 'src/test/renderWithProviders';
+import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { CompExternal, ILayout } from 'src/layout/layout';
 import type { CompSummaryExternal } from 'src/layout/Summary/config.generated';
 import type { RootState } from 'src/redux/store';
+import type { IRuntimeState } from 'src/types';
 
 describe('Form', () => {
   const mockComponents: ILayout = [
@@ -218,18 +216,10 @@ describe('Form', () => {
     expect(screen.getByTestId('summary-the-summary')).toBeInTheDocument();
   });
 
-  async function render(layout = mockComponents, customState: PreloadedState<RootState> = {}) {
-    await renderWithProviders({
-      component: <Form />,
-      Router: ({ children }: React.PropsWithChildren) => (
-        <MemoryRouterWithRedirectingRoot to={'/instance/123456/75154373-aed4-41f7-95b4-e5b5115c2edc'}>
-          <Route
-            path={'/instance/:partyId/:instanceGuid'}
-            element={children}
-          />
-        </MemoryRouterWithRedirectingRoot>
-      ),
-      preloadedState: {
+  async function render(layout = mockComponents, customState: Partial<IRuntimeState> = {}) {
+    await renderWithInstanceAndLayout({
+      renderer: () => <Form />,
+      reduxState: {
         ...getInitialStateMock(),
         ...customState,
         formLayout: getFormLayoutStateMock({

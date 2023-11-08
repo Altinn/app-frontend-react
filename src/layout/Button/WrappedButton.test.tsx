@@ -4,7 +4,7 @@ import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { WrappedButton } from 'src/layout/Button/WrappedButton';
-import { renderWithProviders } from 'src/test/renderWithProviders';
+import { renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
 
 const buttonText = 'the button';
 
@@ -34,8 +34,8 @@ describe('WrappedButton', () => {
 });
 
 const render = async ({ onClick, busyWithId = '' }) => {
-  await renderWithProviders({
-    component: (
+  await renderWithoutInstanceAndLayout({
+    renderer: () => (
       <WrappedButton
         onClick={onClick}
         busyWithId={busyWithId}

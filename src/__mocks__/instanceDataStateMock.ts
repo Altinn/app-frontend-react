@@ -68,7 +68,7 @@ export function getProcessDataMock(): IProcess {
       started: '2020-01-01',
       elementId: 'mockElementId',
       name: 'Task_1',
-      altinnTaskType: 'FormFilling',
+      altinnTaskType: 'data',
       ended: null,
       validated: null,
     },

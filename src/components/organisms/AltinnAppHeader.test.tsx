@@ -6,7 +6,7 @@ import { userEvent } from '@testing-library/user-event';
 import { appMetadataMock } from 'src/__mocks__/applicationMetadataMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { AltinnAppHeader } from 'src/components/organisms/AltinnAppHeader';
-import { renderWithProviders } from 'src/test/renderWithProviders';
+import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IParty } from 'src/types/shared';
 
@@ -42,8 +42,8 @@ describe('organisms/AltinnAppHeader', () => {
     logo?: IApplicationMetadata['logo'];
   }
   const render = async ({ party, user = partyPerson, logo }: IRenderComponentProps) =>
-    await renderWithProviders({
-      component: (
+    await renderWithInstanceAndLayout({
+      renderer: () => (
         <AltinnAppHeader
           party={party}
           userParty={user}
@@ -51,7 +51,7 @@ describe('organisms/AltinnAppHeader', () => {
           headerBackgroundColor={headerBackgroundColor}
         />
       ),
-      preloadedState: getInitialStateMock({
+      reduxState: getInitialStateMock({
         applicationMetadata: appMetadataMock({ logo }),
       }),
     });

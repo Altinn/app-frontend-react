@@ -11,18 +11,18 @@ type KeysStartingWith<T, U extends string> = {
 
 export type AppQueriesContext = typeof queries;
 
-type Queries = KeysStartingWith<AppQueriesContext, 'fetch'>;
-type Mutations = KeysStartingWith<AppQueriesContext, 'do'>;
+export type AppQueries = KeysStartingWith<AppQueriesContext, 'fetch'>;
+export type AppMutations = KeysStartingWith<AppQueriesContext, 'do'>;
 export type EnhancedMutations = {
-  [K in keyof Mutations]: {
-    call: Mutations[K];
-    lastResult: Awaited<ReturnType<Mutations[K]>> | undefined;
-    setLastResult: (result: Awaited<ReturnType<Mutations[K]>>) => void;
+  [K in keyof AppMutations]: {
+    call: AppMutations[K];
+    lastResult: Awaited<ReturnType<AppMutations[K]>> | undefined;
+    setLastResult: (result: Awaited<ReturnType<AppMutations[K]>>) => void;
   };
 };
 
 interface ContextData {
-  queries: Queries;
+  queries: AppQueries;
   mutations: EnhancedMutations;
 }
 
@@ -39,8 +39,12 @@ export const queryClient = new QueryClient({
 });
 
 export const AppQueriesProvider = ({ children, ...allQueries }: React.PropsWithChildren<AppQueriesContext>) => {
-  const queries = Object.fromEntries(Object.entries(allQueries).filter(([key]) => key.startsWith('fetch'))) as Queries;
-  const mutations = Object.fromEntries(Object.entries(allQueries).filter(([key]) => key.startsWith('do'))) as Mutations;
+  const queries = Object.fromEntries(
+    Object.entries(allQueries).filter(([key]) => key.startsWith('fetch')),
+  ) as AppQueries;
+  const mutations = Object.fromEntries(
+    Object.entries(allQueries).filter(([key]) => key.startsWith('do')),
+  ) as AppMutations;
 
   const enhancedMutations = Object.fromEntries(
     Object.entries(mutations).map(([key, mutation]) => {
@@ -60,9 +64,9 @@ export const AppQueriesProvider = ({ children, ...allQueries }: React.PropsWithC
 
 export const useAppQueries = () => useCtx().queries;
 export const useAppMutations = () => useCtx().mutations;
-export const useLastMutationResult = <K extends keyof Mutations>(
+export const useLastMutationResult = <K extends keyof AppMutations>(
   key: K,
-): Awaited<ReturnType<Mutations[K]>> | undefined => {
+): Awaited<ReturnType<AppMutations[K]>> | undefined => {
   const { lastResult } = useAppMutations()[key];
   return lastResult;
 };

@@ -1,14 +1,15 @@
 import React from 'react';
 
-import { act, screen, waitForElementToBeRemoved } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import mockAxios from 'jest-mock-axios';
 
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
+import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getProfileStateMock } from 'src/__mocks__/profileStateMock';
 import { getUiConfigStateMock } from 'src/__mocks__/uiConfigStateMock';
 import { NavBar } from 'src/components/presentation/NavBar';
-import { renderWithProviders } from 'src/test/renderWithProviders';
+import { renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { TextResourceMap } from 'src/features/textResources';
 import type { IAppLanguage } from 'src/types/shared';
 
@@ -33,15 +34,16 @@ const render = async ({
   const mockBack = jest.fn();
   const mockAppLanguageChange = jest.fn();
 
-  await renderWithProviders({
-    component: (
+  await renderWithoutInstanceAndLayout({
+    renderer: () => (
       <NavBar
         handleClose={mockClose}
         handleBack={mockBack}
         showBackArrow={showBackArrow}
       />
     ),
-    preloadedState: {
+    reduxState: {
+      ...getInitialStateMock(),
       profile: getProfileStateMock({ selectedAppLanguage: 'nb' }),
       textResources: {
         resourceMap: textResources,
@@ -55,7 +57,7 @@ const render = async ({
         }),
       }),
     },
-    mockedQueries: {
+    queries: {
       fetchAppLanguages: () =>
         languageResponse ? Promise.resolve(languageResponse) : Promise.reject(new Error('No languages mocked')),
     },
@@ -112,11 +114,10 @@ describe('NavBar', () => {
       showLanguageSelector: true,
       languageResponse: [{ language: 'en' }, { language: 'nb' }],
     });
-    await waitForElementToBeRemoved(screen.queryByRole('progressbar'));
     const dropdown = screen.getByRole('combobox', { name: /Språk/i });
-    await act(() => dropdown.click());
+    await userEvent.click(dropdown);
     const en = screen.getByText(/Engelsk/i, { selector: '[role=option]' });
-    await act(() => en.click());
+    await userEvent.click(en);
 
     // Language now changed, so the value should be the language name in the selected language
     expect(dropdown).toHaveValue('English');

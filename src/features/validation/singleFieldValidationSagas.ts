@@ -16,6 +16,8 @@ import type { ILayoutSets, IRuntimeState } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { BackendValidationIssue } from 'src/utils/validation/types';
 
+export const selectInstance = (state: IRuntimeState) => state.deprecated.lastKnownInstance;
+export const selectProcess = (state: IRuntimeState) => state.deprecated.lastKnownProcess;
 export const selectApplicationMetadataState = (state: IRuntimeState) => state.applicationMetadata.applicationMetadata;
 export const selectLayoutSetsState = (state: IRuntimeState) => state.formLayout.layoutsets;
 export const selectHiddenFieldsState = (state: IRuntimeState) => state.formLayout.uiConfig.hiddenFields;
@@ -34,8 +36,8 @@ export function* runSingleFieldValidationSaga({
   const node = resolvedNodes.findById(componentId);
 
   const application: IApplicationMetadata | null = yield select(selectApplicationMetadataState);
-  const instance = window.lastKnownInstance;
-  const process = window.lastKnownProcess;
+  const instance = yield select(selectInstance);
+  const process = yield select(selectProcess);
   const layoutSets: ILayoutSets = yield select(selectLayoutSetsState);
 
   const currentTaskDataId = application && getCurrentTaskDataElementId({ application, instance, process, layoutSets });

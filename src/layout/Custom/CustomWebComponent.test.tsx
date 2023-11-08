@@ -2,6 +2,7 @@ import React from 'react';
 
 import { screen } from '@testing-library/react';
 
+import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { CustomWebComponent } from 'src/layout/Custom/CustomWebComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { TextResourceMap } from 'src/features/textResources';
@@ -64,12 +65,13 @@ describe('CustomWebComponent', () => {
         shouldFocus: false,
         ...({ 'data-CustomAttributeWithReact': <span>Hello world</span> } as any),
       },
-      manipulateState: (state) => {
-        state.textResources = {
+      reduxState: {
+        ...getInitialStateMock(),
+        textResources: {
           language: 'nb',
           resourceMap,
           error: null,
-        };
+        },
       },
     });
   };

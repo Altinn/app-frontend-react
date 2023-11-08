@@ -1,18 +1,18 @@
 import React from 'react';
-import { MemoryRouter } from 'react-router-dom';
 
 import { screen } from '@testing-library/react';
 
+import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { partyMock } from 'src/__mocks__/partyMock';
 import { Confirm } from 'src/features/confirm/containers/Confirm';
-import { renderWithProviders } from 'src/test/renderWithProviders';
+import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 
 describe('Confirm', () => {
   it('should not show loading if required data is loaded', async () => {
-    await renderWithProviders({
-      Router: MemoryRouter,
-      component: <Confirm />,
-      preloadedState: {
+    await renderWithInstanceAndLayout({
+      renderer: () => <Confirm />,
+      reduxState: {
+        ...getInitialStateMock(),
         party: {
           parties: [partyMock],
           selectedParty: partyMock,

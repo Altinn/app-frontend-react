@@ -4,7 +4,7 @@ import { screen } from '@testing-library/react';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { ErrorReport } from 'src/components/message/ErrorReport';
-import { renderWithProviders } from 'src/test/renderWithProviders';
+import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { IValidationState } from 'src/features/validation/validationSlice';
 import type { IValidations } from 'src/utils/validation/types';
 
@@ -17,13 +17,13 @@ describe('ErrorReport', () => {
       invalidDataTypes: [],
       error: null,
     };
-    const initialState = getInitialStateMock({
+    const reduxState = getInitialStateMock({
       formValidations: mockValidationState,
     });
 
-    return await renderWithProviders({
-      component: <ErrorReport nodes={[]} />,
-      preloadedState: initialState,
+    return await renderWithInstanceAndLayout({
+      renderer: () => <ErrorReport nodes={[]} />,
+      reduxState,
     });
   };
 

@@ -3,29 +3,24 @@ import React from 'react';
 import { act, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
+import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { NavigationBarComponent } from 'src/layout/NavigationBar/NavigationBarComponent';
-import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
-import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
 const { setScreenWidth } = mockMediaQuery(600);
 
-interface Props extends Partial<RenderGenericComponentTestProps<'NavigationBar'>> {
-  dispatch?: (...props: any[]) => any;
-}
-
-const render = async ({ dispatch = jest.fn() }: Props = {}) => {
+const render = async () => {
   // eslint-disable-next-line testing-library/await-async-events
   const user = userEvent.setup();
-  await renderGenericComponentTest({
+  const { store } = await renderGenericComponentTest({
     type: 'NavigationBar',
     renderer: (props) => <NavigationBarComponent {...props} />,
     component: {
       id: 'nav1',
     },
-    manipulateState: (state) => {
+    reduxState: getInitialStateMock((state) => {
       state.formLayout = {
         error: null,
         layoutsets: null,
@@ -100,13 +95,10 @@ const render = async ({ dispatch = jest.fn() }: Props = {}) => {
           ],
         },
       };
-    },
-    manipulateStore: (store) => {
-      store.dispatch = dispatch;
-    },
+    }),
   });
 
-  return { user };
+  return { user, store };
 };
 
 describe('NavigationBar', () => {
@@ -128,15 +120,14 @@ describe('NavigationBar', () => {
     });
 
     it('should dispatch action when navigating to another page', async () => {
-      const dispatchMock = jest.fn();
-      const { user } = await render({ dispatch: dispatchMock });
+      const { user, store } = await render();
 
       const btn = screen.getByText(/3\./i);
       expect(btn).toHaveTextContent(/^3\. page3$/);
 
       await act(() => user.click(btn));
 
-      expect(dispatchMock).toHaveBeenCalledWith({
+      expect(store.dispatch).toHaveBeenCalledWith({
         payload: {
           newView: 'page3',
           runValidations: undefined,
@@ -146,8 +137,7 @@ describe('NavigationBar', () => {
     });
 
     it('should not dispatch action when navigating to the same page', async () => {
-      const dispatchMock = jest.fn();
-      const { user } = await render({ dispatch: dispatchMock });
+      const { user, store } = await render();
 
       await act(() =>
         user.click(
@@ -157,8 +147,7 @@ describe('NavigationBar', () => {
         ),
       );
 
-      expect(dispatchMock).toHaveBeenCalledTimes(1);
-      expect(dispatchMock).toHaveBeenCalledWith(DeprecatedActions.instanceDataFetchFulfilled());
+      expect(store.dispatch).not.toHaveBeenCalled();
     });
   });
 
@@ -184,8 +173,7 @@ describe('NavigationBar', () => {
     });
 
     it('should dispatch action when navigating to another page', async () => {
-      const dispatchMock = jest.fn();
-      const { user } = await render({ dispatch: dispatchMock });
+      const { user, store } = await render();
 
       await act(() =>
         user.click(
@@ -203,7 +191,7 @@ describe('NavigationBar', () => {
         ),
       );
 
-      expect(dispatchMock).toHaveBeenCalledWith({
+      expect(store.dispatch).toHaveBeenCalledWith({
         payload: {
           newView: 'page3',
           runValidations: undefined,
@@ -213,8 +201,7 @@ describe('NavigationBar', () => {
     });
 
     it('should not dispatch action when navigating to the same page', async () => {
-      const dispatchMock = jest.fn();
-      const { user } = await render({ dispatch: dispatchMock });
+      const { user, store } = await render();
 
       await act(() =>
         user.click(
@@ -232,8 +219,7 @@ describe('NavigationBar', () => {
         ),
       );
 
-      expect(dispatchMock).toHaveBeenCalledTimes(1);
-      expect(dispatchMock).toHaveBeenCalledWith(DeprecatedActions.instanceDataFetchFulfilled());
+      expect(store.dispatch).not.toHaveBeenCalled();
     });
   });
 });

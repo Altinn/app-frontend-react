@@ -3,7 +3,7 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 
 import { Label } from 'src/components/form/Label';
-import { renderWithProviders } from 'src/test/renderWithProviders';
+import { renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { IFormLabelProps } from 'src/components/form/Label';
 
 describe('Label', () => {
@@ -63,8 +63,8 @@ describe('Label', () => {
       },
     };
 
-    return await renderWithProviders({
-      component: (
+    return await renderWithoutInstanceAndLayout({
+      renderer: () => (
         <Label
           {...defaultProps}
           {...props}

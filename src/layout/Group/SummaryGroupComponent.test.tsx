@@ -1,7 +1,5 @@
 import React from 'react';
 
-import configureStore from 'redux-mock-store';
-
 import { getFormDataStateMock } from 'src/__mocks__/formDataStateMock';
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
@@ -11,10 +9,17 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 describe('SummaryGroupComponent', () => {
   let mockHandleDataChange: () => void;
-  let mockStore: any;
 
-  beforeAll(() => {
-    const createStore = configureStore();
+  beforeEach(() => {
+    mockHandleDataChange = jest.fn();
+  });
+
+  test('SummaryGroupComponent -- should match snapshot', async () => {
+    const { asFragment } = await render();
+    expect(asFragment()).toMatchSnapshot();
+  });
+
+  async function render() {
     const formLayout = getFormLayoutStateMock({
       layouts: {
         page1: [
@@ -95,7 +100,7 @@ describe('SummaryGroupComponent', () => {
       },
     });
 
-    const initialState: any = getInitialStateMock({
+    const reduxState = getInitialStateMock({
       formData,
       formLayout,
       textResources: {
@@ -114,19 +119,7 @@ describe('SummaryGroupComponent', () => {
         },
       },
     });
-    mockStore = createStore(initialState);
-  });
 
-  beforeEach(() => {
-    mockHandleDataChange = jest.fn();
-  });
-
-  test('SummaryGroupComponent -- should match snapshot', async () => {
-    const { asFragment } = await render();
-    expect(asFragment()).toMatchSnapshot();
-  });
-
-  async function render() {
     return await renderWithNode<LayoutNode<'Summary'>>({
       nodeId: 'mySummary',
       renderer: ({ node, root }) => {
@@ -140,7 +133,7 @@ describe('SummaryGroupComponent', () => {
           />
         );
       },
-      store: mockStore,
+      reduxState,
     });
   }
 });

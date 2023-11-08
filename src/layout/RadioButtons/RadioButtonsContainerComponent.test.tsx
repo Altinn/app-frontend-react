@@ -32,7 +32,6 @@ const render = async ({ component, genericProps, options }: Props = {}) => {
     type: 'RadioButtons',
     renderer: (props) => <RadioButtonContainerComponent {...props} />,
     component: {
-      options: [],
       optionsId: 'countries',
       preselectedOptionIndex: undefined,
       ...component,
@@ -42,7 +41,7 @@ const render = async ({ component, genericProps, options }: Props = {}) => {
       handleDataChange: jest.fn(),
       ...genericProps,
     },
-    mockedQueries: {
+    queries: {
       fetchOptions: () =>
         options ? Promise.resolve(options) : Promise.reject(new Error('No options provided to await render()')),
     },

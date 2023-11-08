@@ -4,7 +4,7 @@ import { screen } from '@testing-library/react';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { MessageBanner } from 'src/components/form/MessageBanner';
-import { renderWithProviders } from 'src/test/renderWithProviders';
+import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { ValidLanguageKey } from 'src/hooks/useLanguage';
 
 describe('MessageBanner', () => {
@@ -12,7 +12,10 @@ describe('MessageBanner', () => {
   const mockMessageKey: ValidLanguageKey = 'form_filler.required_description';
 
   it('should have grey background by default', async () => {
-    await renderWithProviders({ component: <MessageBanner messageKey={mockMessageKey} />, preloadedState: mockState });
+    await renderWithInstanceAndLayout({
+      renderer: () => <MessageBanner messageKey={mockMessageKey} />,
+      reduxState: mockState,
+    });
 
     const messageBanner = screen.getByTestId('MessageBanner-container');
     expect(messageBanner).toBeInTheDocument();
@@ -23,14 +26,14 @@ describe('MessageBanner', () => {
   });
 
   it('should have red background when error==true', async () => {
-    await renderWithProviders({
-      component: (
+    await renderWithInstanceAndLayout({
+      renderer: () => (
         <MessageBanner
           messageKey={mockMessageKey}
           error={true}
         />
       ),
-      preloadedState: mockState,
+      reduxState: mockState,
     });
 
     const messageBanner: HTMLElement = screen.getByTestId('MessageBanner-container');

@@ -6,6 +6,9 @@ import deepEqual from 'fast-deep-equal';
 import { useLaxProcessData, useRealTaskType } from 'src/features/instance/ProcessContext';
 import { Loader } from 'src/features/loading/Loader';
 import { useGetOptions } from 'src/features/options/useGetOptions';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
+import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { ProcessTaskType } from 'src/types';
 import { createStrictContext } from 'src/utils/createContext';
 import { useExprContext } from 'src/utils/layout/ExprContext';
@@ -19,7 +22,6 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
  * function, and show summaries/PDF even if the source component has not been rendered yet.
  */
 export type AllOptionsMap = { [nodeId: string]: IOption[] | undefined };
-export const allOptions: AllOptionsMap = {};
 
 const { Provider, useCtx } = createStrictContext<State>({ name: 'AllOptionsContext' });
 
@@ -112,17 +114,19 @@ export function AllOptionsProvider({ children }: PropsWithChildren) {
     currentTaskId,
   };
   const [state, dispatch] = useReducer(reducer, initialState);
+  const reduxDispatch = useAppDispatch();
 
   useEffect(() => {
     dispatch({ type: 'setCurrentTask', currentTaskId });
   }, [currentTaskId]);
 
+  const finishedResult = useMemoDeepEqual(() => (state.allInitiallyLoaded ? state.nodes : undefined), [state]);
   useEffect(() => {
-    // Update the global as well, so that we can use it in expressions
-    for (const nodeId of Object.keys(state.nodes)) {
-      allOptions[nodeId] = state.nodes[nodeId];
+    if (finishedResult) {
+      // Update the global as well, so that we can use it in expressions
+      reduxDispatch(DeprecatedActions.setAllOptions(finishedResult));
     }
-  }, [state]);
+  }, [reduxDispatch, finishedResult]);
 
   useEffect(() => {
     const nodesFound: string[] = [];

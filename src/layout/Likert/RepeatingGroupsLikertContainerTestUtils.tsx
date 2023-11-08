@@ -7,9 +7,8 @@ import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { resourcesAsMap } from 'src/features/textResources/resourcesAsMap';
 import { RepeatingGroupsLikertContainer } from 'src/layout/Likert/RepeatingGroupsLikertContainer';
-import { setupStore } from 'src/redux/store';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
-import { renderWithProviders } from 'src/test/renderWithProviders';
+import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { IFormDataState } from 'src/features/formData';
@@ -219,24 +218,21 @@ export const render = async ({
     saving: false,
   };
 
-  const preloadedState = getInitialStateMock({
+  const reduxState = getInitialStateMock({
     formLayout: createLayout(mockLikertContainer, components, mockQuestions.length - 1),
     formData: mockData,
     formValidations: createFormValidationsForCurrentView(validations),
     textResources: createTextResource(mockQuestions, extraTextResources),
   });
 
-  const mockStore = setupStore(preloadedState).store;
-  const mockStoreDispatch = jest.fn();
-  mockStore.dispatch = mockStoreDispatch;
   setScreenWidth(mobileView ? 600 : 1200);
-  await renderWithProviders({
-    component: <ContainerTester id={mockLikertContainer.id} />,
-    store: mockStore,
-    mockedQueries: { fetchOptions: () => Promise.resolve(mockOptions) },
+  const { store } = await renderWithInstanceAndLayout({
+    renderer: () => <ContainerTester id={mockLikertContainer.id} />,
+    reduxState,
+    queries: { fetchOptions: () => Promise.resolve(mockOptions) },
   });
 
-  return { mockStoreDispatch };
+  return { mockStoreDispatch: store.dispatch };
 };
 
 export function ContainerTester(props: { id: string }) {

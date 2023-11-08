@@ -3,7 +3,10 @@ import '@testing-library/jest-dom';
 import '@testing-library/jest-dom/jest-globals';
 import 'core-js/stable/structured-clone'; // https://github.com/jsdom/jsdom/issues/3363
 
+import dotenv from 'dotenv';
 import { TextDecoder, TextEncoder } from 'util';
+
+const env = dotenv.config();
 
 // https://jestjs.io/docs/manual-mocks#mocking-methods-which-are-not-implemented-in-jsdom
 Object.defineProperty(window, 'matchMedia', {
@@ -31,13 +34,17 @@ Object.defineProperty(document, 'fonts', {
 window.org = 'ttd';
 window.app = 'test';
 window.instanceId = 'test-instance-id';
-window.logError = jest.fn();
-window.logWarn = jest.fn();
-window.logInfo = jest.fn();
-window.logErrorOnce = jest.fn();
-window.logWarnOnce = jest.fn();
-window.logInfoOnce = jest.fn();
-jest.setTimeout(10000);
+
+window.logError = (...args) => {
+  throw new Error(args.join(' '));
+};
+window.logWarn = window.logError;
+window.logInfo = window.logError;
+window.logErrorOnce = window.logError;
+window.logWarnOnce = window.logError;
+window.logInfoOnce = window.logError;
+
+jest.setTimeout(env.parsed?.JEST_TIMEOUT ? parseInt(env.parsed.JEST_TIMEOUT, 10) : 10000);
 
 jest.mock('axios');
 

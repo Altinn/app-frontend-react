@@ -3,7 +3,7 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 
 import { Legend } from 'src/components/form/Legend';
-import { renderWithProviders } from 'src/test/renderWithProviders';
+import { renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { IFormLegendProps } from 'src/components/form/Legend';
 
 describe('Legend', () => {
@@ -20,8 +20,8 @@ describe('Legend', () => {
       labelSettings: {},
     };
 
-    return await renderWithProviders({
-      component: (
+    return await renderWithoutInstanceAndLayout({
+      renderer: () => (
         <Legend
           {...defaultProps}
           {...props}

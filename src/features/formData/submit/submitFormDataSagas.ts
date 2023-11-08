@@ -60,7 +60,7 @@ export function* submitFormSaga(): SagaIterator {
 
 function* submitComplete(state: IRuntimeState, resolvedNodes: LayoutPages): SagaIterator {
   // run validations against the datamodel
-  const instanceId = window.lastKnownInstance?.id;
+  const instanceId = state.deprecated.lastKnownInstance?.id;
   const serverValidations: BackendValidationIssue[] | undefined = instanceId
     ? yield call(httpGet, getValidationUrl(instanceId))
     : undefined;
@@ -158,8 +158,8 @@ export function* putFormData({ field, componentId }: SaveDataParams) {
   const defaultDataElementGuid: string | undefined = yield select((state: IRuntimeState) =>
     getCurrentTaskDataElementId({
       application: state.applicationMetadata.applicationMetadata,
-      instance: window.lastKnownInstance,
-      process: window.lastKnownProcess,
+      instance: state.deprecated.lastKnownInstance,
+      process: state.deprecated.lastKnownProcess,
       layoutSets: state.formLayout.layoutsets,
     }),
   );
@@ -322,7 +322,7 @@ export function* postStatelessData({ field, componentId }: SaveDataParams) {
 
   const currentDataType = getCurrentDataTypeForApplication({
     application: state.applicationMetadata.applicationMetadata,
-    process: window.lastKnownProcess,
+    process: state.deprecated.lastKnownProcess,
     layoutSets: state.formLayout.layoutsets,
   });
   if (currentDataType) {

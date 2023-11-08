@@ -2,12 +2,13 @@ import { applicationMetadataMock } from 'src/__mocks__/applicationMetadataMock';
 import { applicationSettingsMock } from 'src/__mocks__/applicationSettingsMock';
 import { getFormDataStateMock } from 'src/__mocks__/formDataStateMock';
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
+import { getInstanceDataMock, getProcessDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { partyMock } from 'src/__mocks__/partyMock';
 import { getProfileStateMock } from 'src/__mocks__/profileStateMock';
 import { DevToolsTab } from 'src/features/devtools/data/types';
 import type { IRuntimeState } from 'src/types';
 
-export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRuntimeState {
+export function getInitialStateMock(custom?: Partial<IRuntimeState> | ((state: IRuntimeState) => void)): IRuntimeState {
   const initialState: IRuntimeState = {
     applicationMetadata: {
       applicationMetadata: applicationMetadataMock,
@@ -146,11 +147,19 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
       applicationSettings: applicationSettingsMock,
       error: null,
     },
-    deprecated: {},
+    deprecated: {
+      lastKnownProcess: getProcessDataMock(),
+      lastKnownInstance: getInstanceDataMock(),
+    },
   };
+
+  if (custom && typeof custom === 'function') {
+    custom(initialState);
+    return initialState;
+  }
 
   return {
     ...initialState,
-    ...customStates,
+    ...custom,
   };
 }

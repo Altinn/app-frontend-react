@@ -14,7 +14,6 @@ import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generat
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { IRepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
 import type { CompExternal, ILayout } from 'src/layout/layout';
-import type { RootState } from 'src/redux/store';
 
 const user = userEvent.setup();
 
@@ -95,9 +94,9 @@ describe('RepeatingGroupsEditContainer', () => {
       ...props,
     };
 
-    const preloadedState = getInitialStateMock() as RootState;
-    preloadedState.formLayout.layouts = { FormLayout: layout };
-    preloadedState.textResources.resourceMap = textResources;
+    const reduxState = getInitialStateMock();
+    reduxState.formLayout.layouts = { FormLayout: layout };
+    reduxState.textResources.resourceMap = textResources;
 
     await renderWithNode<LayoutNodeForGroup<CompGroupRepeatingInternal>>({
       nodeId: 'group',
@@ -107,7 +106,7 @@ describe('RepeatingGroupsEditContainer', () => {
           {...allProps}
         />
       ),
-      preloadedState,
+      reduxState,
     });
   };
 });

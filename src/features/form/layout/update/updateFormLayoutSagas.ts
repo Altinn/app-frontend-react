@@ -72,7 +72,7 @@ export function* updateCurrentViewSaga({
     const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
     const visibleLayouts: string[] | null = yield select(selectLayoutOrder);
     const viewCacheKey = state.formLayout.uiConfig.currentViewCacheKey;
-    const instanceId = window.lastKnownInstance?.id;
+    const instanceId = state.deprecated.lastKnownInstance?.id;
     if (!viewCacheKey) {
       yield put(FormLayoutActions.setCurrentViewCacheKey({ key: instanceId }));
     }
@@ -111,8 +111,8 @@ export function* updateCurrentViewSaga({
       };
       const currentTaskDataId = getCurrentTaskDataElementId({
         application: state.applicationMetadata.applicationMetadata,
-        instance: window.lastKnownInstance,
-        process: window.lastKnownProcess,
+        instance: state.deprecated.lastKnownInstance,
+        process: state.deprecated.lastKnownProcess,
         layoutSets: state.formLayout.layoutsets,
       });
 
@@ -200,7 +200,7 @@ export function* calculatePageOrderAndMoveToNextPageSaga({
     const dataTypeId =
       getCurrentDataTypeForApplication({
         application: state.applicationMetadata.applicationMetadata,
-        process: window.lastKnownProcess,
+        process: state.deprecated.lastKnownProcess,
         layoutSets: state.formLayout.layoutsets,
       }) || null;
 
@@ -208,7 +208,7 @@ export function* calculatePageOrderAndMoveToNextPageSaga({
     if (appIsStateless) {
       layoutSetId = state.applicationMetadata.applicationMetadata.onEntry?.show || null;
     } else {
-      const process = window.lastKnownProcess;
+      const process = state.deprecated.lastKnownProcess;
       if (layoutSets != null) {
         layoutSetId = getLayoutSetForDataElement(process, dataTypeId || undefined, layoutSets) || null;
       }

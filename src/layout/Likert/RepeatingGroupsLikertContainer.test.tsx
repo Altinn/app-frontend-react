@@ -11,7 +11,6 @@ import {
   validateRadioLayout,
   validateTableLayout,
 } from 'src/layout/Likert/RepeatingGroupsLikertContainerTestUtils';
-import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 
 describe('RepeatingGroupsLikertContainer', () => {
   describe('Desktop', () => {
@@ -167,13 +166,13 @@ describe('RepeatingGroupsLikertContainer', () => {
         name: /Dårlig/i,
       });
 
-      mockStoreDispatch.mockClear();
+      (mockStoreDispatch as jest.Mock).mockClear();
       expect(btn1).not.toBeChecked();
       expect(mockStoreDispatch).not.toHaveBeenCalled();
       await userEvent.click(btn1);
       await waitFor(() => expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(0, '1')));
 
-      mockStoreDispatch.mockClear();
+      (mockStoreDispatch as jest.Mock).mockClear();
       expect(btn2).not.toBeChecked();
       expect(mockStoreDispatch).not.toHaveBeenCalledTimes(2);
       await userEvent.click(btn2);
@@ -187,13 +186,12 @@ describe('RepeatingGroupsLikertContainer', () => {
       });
       await validateTableLayout(defaultMockQuestions, defaultMockOptions);
 
-      expect(mockStoreDispatch).toHaveBeenCalledTimes(1);
-      expect(mockStoreDispatch).toHaveBeenCalledWith(DeprecatedActions.instanceDataFetchFulfilled());
+      expect(mockStoreDispatch).not.toHaveBeenCalled();
 
       await userEvent.tab();
       await userEvent.keyboard('[Space]');
       await waitFor(() => expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(0, '1')));
-      expect(mockStoreDispatch).toHaveBeenCalledTimes(2);
+      expect(mockStoreDispatch).toHaveBeenCalledTimes(1);
     });
 
     it('should support nested binding for question text in data model', async () => {
@@ -314,13 +312,12 @@ describe('RepeatingGroupsLikertContainer', () => {
       });
       expect(btn1).not.toBeChecked();
 
-      expect(mockStoreDispatch).toHaveBeenCalledTimes(1);
-      expect(mockStoreDispatch).toHaveBeenCalledWith(DeprecatedActions.instanceDataFetchFulfilled());
+      expect(mockStoreDispatch).not.toHaveBeenCalled();
 
       await userEvent.click(btn1);
       await waitFor(() => expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(0, '1')));
-      expect(mockStoreDispatch).toHaveBeenCalledTimes(2);
-      mockStoreDispatch.mockClear();
+      expect(mockStoreDispatch).toHaveBeenCalledTimes(1);
+      (mockStoreDispatch as jest.Mock).mockClear();
 
       const rad2 = screen.getByRole('radiogroup', {
         name: /Har du det bra/i,

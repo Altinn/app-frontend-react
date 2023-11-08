@@ -3,7 +3,7 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 
 import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneComponent';
-import { renderWithProviders } from 'src/test/renderWithProviders';
+import { renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { IDropzoneComponentProps } from 'src/layout/FileUpload/DropZone/DropzoneComponent';
 
 describe('DropzoneComponent', () => {
@@ -49,8 +49,8 @@ describe('DropzoneComponent', () => {
       validFileEndings,
       textResourceBindings,
     } as IDropzoneComponentProps;
-    await renderWithProviders({
-      component: (
+    await renderWithoutInstanceAndLayout({
+      renderer: () => (
         <DropzoneComponent
           {...defaultProps}
           {...props}

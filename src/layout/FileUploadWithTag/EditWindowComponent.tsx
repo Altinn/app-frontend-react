@@ -65,7 +65,7 @@ export function EditWindowComponent({
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!uploadedAttachment) {
       return;
     }
@@ -74,10 +74,10 @@ export function EditWindowComponent({
     const existingTags = _tags || [];
 
     if (chosenOption) {
-      setEditIndex(-1);
       if (chosenOption.value !== existingTags[0]) {
-        setAttachmentTag(chosenOption);
+        await setAttachmentTag(chosenOption);
       }
+      setEditIndex(-1);
       setValidationsWithTag(validationsWithTag.filter((obj) => obj.id !== id)); // Remove old validation if exists
     } else {
       const tmpValidations: { id: string; message: string }[] = [];
@@ -93,16 +93,16 @@ export function EditWindowComponent({
     }
   };
 
-  const setAttachmentTag = (option: IOption) => {
+  const setAttachmentTag = async (option: IOption) => {
     if (!isAttachmentUploaded(attachment)) {
       return;
     }
 
-    updateAttachment({
+    await updateAttachment({
       attachment,
       node,
       tags: [option.value],
-    }).then();
+    });
   };
 
   const saveIsDisabled = attachment.updating || !attachment.uploaded || readOnly;

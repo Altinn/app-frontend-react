@@ -5,45 +5,42 @@ import { screen } from '@testing-library/react';
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { Header } from 'src/components/presentation/Header';
-import { renderWithProviders } from 'src/test/renderWithProviders';
+import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import { ProcessTaskType } from 'src/types';
 
 describe('Header', () => {
   it('should render as expected with header title', async () => {
-    await renderWithProviders({
-      component: (
+    await renderWithInstanceAndLayout({
+      renderer: () => (
         <Header
           type={ProcessTaskType.Data}
           header='Test Header'
         />
       ),
-      preloadedState: getInitialStateMock(),
     });
     expect(screen.getByRole('banner')).toHaveTextContent('Test Header');
   });
 
   it('should render with custom text when process is archived', async () => {
-    await renderWithProviders({
-      component: <Header type={ProcessTaskType.Archived} />,
-      preloadedState: getInitialStateMock(),
+    await renderWithInstanceAndLayout({
+      renderer: () => <Header type={ProcessTaskType.Archived} />,
     });
     const header = screen.getByRole('banner');
     expect(header).toHaveTextContent('Kvittering');
   });
 
   it('should not render progress', async () => {
-    await renderWithProviders({
-      component: <Header type={ProcessTaskType.Data} />,
-      preloadedState: getInitialStateMock(),
+    await renderWithInstanceAndLayout({
+      renderer: () => <Header type={ProcessTaskType.Data} />,
     });
     expect(screen.queryByRole('progressbar')).toBeNull();
   });
 
   it('should render progress', async () => {
     const mockFormLayout = getFormLayoutStateMock();
-    await renderWithProviders({
-      component: <Header type={ProcessTaskType.Data} />,
-      preloadedState: getInitialStateMock({
+    await renderWithInstanceAndLayout({
+      renderer: () => <Header type={ProcessTaskType.Data} />,
+      reduxState: getInitialStateMock({
         formLayout: {
           ...mockFormLayout,
           uiConfig: {
@@ -62,9 +59,9 @@ describe('Header', () => {
   });
   it('should not render progress when Archieved', async () => {
     const mockFormLayout = getFormLayoutStateMock();
-    await renderWithProviders({
-      component: <Header type={ProcessTaskType.Archived} />,
-      preloadedState: getInitialStateMock({
+    await renderWithInstanceAndLayout({
+      renderer: () => <Header type={ProcessTaskType.Archived} />,
+      reduxState: getInitialStateMock({
         formLayout: {
           ...mockFormLayout,
           uiConfig: {

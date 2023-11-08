@@ -113,18 +113,17 @@ interface TestProps {
 }
 
 const render = async ({ container, components, customState }: TestProps) => {
-  let preloadedState = getInitialStateMock();
-  preloadedState = {
-    ...preloadedState,
+  const reduxState = {
+    ...getInitialStateMock(),
     ...customState,
   };
-  const formLayout = preloadedState.formLayout.layouts && preloadedState.formLayout.layouts['FormLayout'];
+  const formLayout = reduxState.formLayout.layouts && reduxState.formLayout.layouts['FormLayout'];
   container && formLayout?.push(container);
   formLayout?.push(...(components || []));
 
   await renderWithNode<LayoutNodeForGroup<CompGroupNonRepeatingPanelInternal>>({
     nodeId: 'group',
     renderer: ({ node }) => <PanelReferenceGroupContainer node={node} />,
-    preloadedState,
+    reduxState,
   });
 };

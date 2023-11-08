@@ -5,7 +5,6 @@ import { createSelector } from 'reselect';
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
-import { allOptions } from 'src/features/options/useAllOptions';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { staticUseLanguageFromState, useLanguage } from 'src/hooks/useLanguage';
 import { getLayoutComponentObject } from 'src/layout';
@@ -96,13 +95,13 @@ function resolvedNodesInLayouts(
 export function dataSourcesFromState(state: IRuntimeState): HierarchyDataSources {
   return {
     formData: state.formData.formData,
-    attachments: window.lastKnownAttachments || {},
+    attachments: state.deprecated.lastKnownAttachments || {},
     uiConfig: state.formLayout.uiConfig,
-    options: allOptions,
+    options: state.deprecated.allOptions || {},
     applicationSettings: state.applicationSettings.applicationSettings,
-    instanceDataSources: buildInstanceDataSources(window.lastKnownInstance),
+    instanceDataSources: buildInstanceDataSources(state.deprecated.lastKnownInstance),
     hiddenFields: new Set(state.formLayout.uiConfig.hiddenFields),
-    authContext: buildAuthContext(window.lastKnownProcess?.currentTask),
+    authContext: buildAuthContext(state.deprecated.lastKnownProcess?.currentTask),
     validations: state.formValidations.validations,
     devTools: state.devTools,
     langTools: staticUseLanguageFromState(state),
@@ -141,7 +140,8 @@ function useResolvedExpressions() {
   const instance = useLaxInstanceData();
   const formData = useAppSelector((state) => state.formData.formData);
   const uiConfig = useAppSelector((state) => state.formLayout.uiConfig);
-  const options = allOptions;
+  const attachments = useAppSelector((state) => state.deprecated.lastKnownAttachments);
+  const options = useAppSelector((state) => state.deprecated.allOptions);
   const process = useLaxProcessData();
   const applicationSettings = useAppSelector((state) => state.applicationSettings.applicationSettings);
   const hiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
@@ -155,9 +155,9 @@ function useResolvedExpressions() {
   const dataSources: HierarchyDataSources = useMemo(
     () => ({
       formData,
-      attachments: window.lastKnownAttachments || {},
+      attachments: attachments || {},
       uiConfig,
-      options,
+      options: options || {},
       applicationSettings,
       instanceDataSources: buildInstanceDataSources(instance),
       authContext: buildAuthContext(process?.currentTask),
@@ -168,11 +168,12 @@ function useResolvedExpressions() {
     }),
     [
       formData,
+      attachments,
       uiConfig,
       options,
       applicationSettings,
       instance,
-      process,
+      process?.currentTask,
       hiddenFields,
       validations,
       devTools,

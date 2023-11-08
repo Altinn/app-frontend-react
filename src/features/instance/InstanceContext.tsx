@@ -54,20 +54,6 @@ function useGetInstanceDataQuery(enabled: boolean, partyId: string, instanceGuid
   });
 }
 
-function useSetGlobalState(
-  potentialNewData: IInstance | undefined,
-  setData: (data: IInstance | undefined) => void,
-  dispatch: ReturnType<typeof useAppDispatch>,
-) {
-  useEffect(() => {
-    if (potentialNewData) {
-      setData(potentialNewData);
-      window.lastKnownInstance = potentialNewData;
-      dispatch(DeprecatedActions.instanceDataFetchFulfilled());
-    }
-  }, [potentialNewData, setData, dispatch]);
-}
-
 export const InstanceProvider = ({
   children,
   provideLayoutValidation = true,
@@ -103,7 +89,7 @@ const InnerInstanceProvider = ({
   instanceGuid: string;
   provideLayoutValidation: boolean;
 }) => {
-  const dispatch = useAppDispatch();
+  const reduxDispatch = useAppDispatch();
 
   const [forceFetching, setForceFetching] = useState(false);
   const [data, setData] = useState<IInstance | undefined>(undefined);
@@ -114,34 +100,34 @@ const InnerInstanceProvider = ({
   const fetchEnabled = forceFetching || !instantiation.lastResult;
   const fetchQuery = useGetInstanceDataQuery(fetchEnabled, partyId, instanceGuid);
 
+  const changeData: ChangeInstanceData = useCallback(
+    (callback) => {
+      setData((prev) => {
+        const next = callback(prev);
+        if (next) {
+          reduxDispatch(DeprecatedActions.setLastKnownInstance(next));
+          return next;
+        }
+        return prev;
+      });
+    },
+    [reduxDispatch],
+  );
+
   // Update data
-  useSetGlobalState(fetchQuery.data, setData, dispatch);
-  useSetGlobalState(instantiation.lastResult, setData, dispatch);
+  useEffect(() => {
+    changeData((prev) => (fetchQuery.error ? undefined : fetchQuery.data ?? prev));
+  }, [changeData, fetchQuery.data, fetchQuery.error]);
+
+  useEffect(() => {
+    changeData((prev) => (instantiation.error ? undefined : instantiation.lastResult ?? prev));
+  }, [changeData, instantiation.lastResult, instantiation.error]);
 
   // Update error states
   useEffect(() => {
     fetchQuery.error && setError(fetchQuery.error);
     instantiation.error && setError(instantiation.error);
-
-    if (fetchQuery.error) {
-      window.lastKnownInstance = undefined;
-    }
   }, [fetchQuery.error, instantiation.error]);
-
-  const changeData: ChangeInstanceData = useCallback((callback) => {
-    setData((prev) => {
-      const next = callback(prev);
-      if (next) {
-        window.lastKnownInstance = next;
-        return next;
-      }
-      return prev;
-    });
-  }, []);
-
-  if (!partyId || !instanceGuid) {
-    throw new Error('Tried providing instance without partyId or instanceGuid');
-  }
 
   // TODO: Remove this when no longer needed in sagas
   const instanceId = `${partyId}/${instanceGuid}`;

@@ -29,7 +29,7 @@ export function* updateRepeatingGroupEditIndexSaga({
   try {
     const state: IRuntimeState = yield select();
     const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
-    const instance = window.lastKnownInstance;
+    const instance = state.deprecated.lastKnownInstance;
     const rowIndex = state.formLayout.uiConfig.repeatingGroups?.[group].editIndex;
     const groupNode = resolvedNodes.findById(group);
 
@@ -64,7 +64,7 @@ export function* updateRepeatingGroupEditIndexSaga({
       const currentTaskDataId = getCurrentTaskDataElementId({
         application: state.applicationMetadata.applicationMetadata,
         instance,
-        process: window.lastKnownProcess,
+        process: state.deprecated.lastKnownProcess,
         layoutSets: state.formLayout.layoutsets,
       });
 

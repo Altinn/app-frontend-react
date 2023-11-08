@@ -4,18 +4,18 @@ import { Route, useLocation } from 'react-router-dom';
 import { screen } from '@testing-library/react';
 
 import { dataTypes, instanceOwner, partyMember, partyTypesAllowed, userProfile } from 'src/__mocks__/constants';
+import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { getUiConfigStateMock } from 'src/__mocks__/uiConfigStateMock';
 import { ReceiptContainer, returnInstanceMetaDataObject } from 'src/features/receipt/ReceiptContainer';
 import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
 import { MemoryRouterWithRedirectingRoot } from 'src/test/memoryRouterWithRedirectingRoot';
-import { renderWithProviders } from 'src/test/renderWithProviders';
+import { renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import type { IRuntimeState } from 'src/types';
 import type { IAltinnOrgs, IInstance, IParty } from 'src/types/shared';
 
 interface IRender {
-  populateStore?: boolean;
   autoDeleteOnProcessEnd?: boolean;
   hasPdf?: boolean;
   setCustomReceipt?: boolean;
@@ -104,8 +104,10 @@ function buildInstance(hasPdf = true): IInstance {
   };
 }
 
-function getMockState({ autoDeleteOnProcessEnd = false }): Partial<IRuntimeState> {
+function getMockState({ autoDeleteOnProcessEnd = false }): IRuntimeState {
+  const initial = getInitialStateMock();
   return {
+    ...initial,
     organisationMetaData: {
       error: null,
       allOrgs: {
@@ -141,11 +143,8 @@ function getMockState({ autoDeleteOnProcessEnd = false }): Partial<IRuntimeState
       },
     },
     formLayout: {
-      error: null,
-      layoutsets: null,
+      ...initial.formLayout,
       uiConfig: getUiConfigStateMock(),
-      layouts: {},
-      layoutSetId: null,
     },
     party: {
       parties: [partyMember],
@@ -160,29 +159,17 @@ function getMockState({ autoDeleteOnProcessEnd = false }): Partial<IRuntimeState
   };
 }
 
-const render = async ({ populateStore = true, autoDeleteOnProcessEnd = false, hasPdf = true }: IRender = {}) => {
-  const mockState = getMockState({ autoDeleteOnProcessEnd });
-  await renderWithProviders({
-    component: <ReceiptContainer />,
-    preloadedState: populateStore ? mockState : {},
-    Router: DefinedRoutes,
-    mockedQueries: {
-      fetchInstanceData: () => Promise.resolve(buildInstance(hasPdf)),
-    },
+const render = async ({ autoDeleteOnProcessEnd = false, hasPdf = true }: IRender = {}) => {
+  const reduxState = getMockState({ autoDeleteOnProcessEnd });
+  reduxState.deprecated!.lastKnownInstance = buildInstance(hasPdf);
+  await renderWithoutInstanceAndLayout({
+    renderer: () => <ReceiptContainer />,
+    reduxState,
+    router: DefinedRoutes,
   });
 };
 
 describe('ReceiptContainer', () => {
-  it('should show loader when not all data is loaded', async () => {
-    await render({ populateStore: false });
-
-    expect(
-      screen.getByRole('img', {
-        name: /loading\.\.\./i,
-      }),
-    ).toBeInTheDocument();
-  });
-
   it('should show download link to pdf when all data is loaded, and data includes pdf', async () => {
     await render();
 

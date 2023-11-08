@@ -3,6 +3,7 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
+import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { NavigationButtonsComponent } from 'src/layout/NavigationButtons/NavigationButtonsComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { CompNavigationButtonsExternal } from 'src/layout/NavigationButtons/config.generated';
@@ -74,18 +75,15 @@ describe('NavigationButton', () => {
   const render = async ({
     component,
     genericProps,
-    manipulateState,
   }: Partial<RenderGenericComponentTestProps<'NavigationButtons'>> = {}) => {
     await renderGenericComponentTest({
       type: 'NavigationButtons',
       renderer: (props) => <NavigationButtonsComponent {...props} />,
       component,
       genericProps,
-      manipulateState: manipulateState
-        ? manipulateState
-        : (state) => {
-            state.formLayout = mockLayout;
-          },
+      reduxState: getInitialStateMock((state) => {
+        state.formLayout = mockLayout;
+      }),
     });
   };
 

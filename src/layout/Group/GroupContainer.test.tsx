@@ -9,7 +9,6 @@ import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { Triggers } from 'src/layout/common.generated';
 import { GroupContainer } from 'src/layout/Group/GroupContainer';
-import { setupStore } from 'src/redux/store';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
@@ -124,30 +123,16 @@ async function render({ container = mockContainer }: IRender = {}) {
     },
   };
 
-  const preloadedState = getInitialStateMock({
+  const reduxState = getInitialStateMock({
     formLayout: mockLayout,
     formData: mockData,
     textResources: mockTextResources,
   });
 
-  const mockStore = setupStore(preloadedState).store;
-
-  mockStore.dispatch = jest.fn();
-
   const { store } = await renderWithNode<LayoutNodeForGroup<CompGroupRepeatingInternal>>({
     renderer: ({ node }) => <GroupContainer node={node} />,
     nodeId: container.id,
-    store: mockStore,
-    mockedQueries: {
-      fetchLayouts: () =>
-        Promise.resolve({
-          FormLayout: {
-            data: {
-              layout: [group, ...mockComponents],
-            },
-          },
-        }),
-    },
+    reduxState,
   });
 
   return store;
@@ -246,7 +231,7 @@ describe('GroupContainer', () => {
       type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
     };
 
-    expect(store.dispatch).toHaveBeenCalledTimes(2);
+    expect(store.dispatch).toHaveBeenCalledTimes(1);
     expect(store.dispatch).toHaveBeenCalledWith(mockDispatchedAction);
   });
 
@@ -272,7 +257,7 @@ describe('GroupContainer', () => {
       type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
     };
 
-    expect(store.dispatch).toHaveBeenCalledTimes(2);
+    expect(store.dispatch).toHaveBeenCalledTimes(1);
     expect(store.dispatch).toHaveBeenCalledWith(mockDispatchedAction);
   });
 
@@ -300,7 +285,7 @@ describe('GroupContainer', () => {
       type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
     };
 
-    expect(store.dispatch).toHaveBeenCalledTimes(2);
+    expect(store.dispatch).toHaveBeenCalledTimes(1);
     expect(store.dispatch).toHaveBeenCalledWith(mockDispatchedAction);
   });
 
@@ -328,7 +313,7 @@ describe('GroupContainer', () => {
       type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
     };
 
-    expect(store.dispatch).toHaveBeenCalledTimes(2);
+    expect(store.dispatch).toHaveBeenCalledTimes(1);
     expect(store.dispatch).toHaveBeenCalledWith(mockDispatchedAction);
   });
 
@@ -354,7 +339,7 @@ describe('GroupContainer', () => {
       type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
     };
 
-    expect(store.dispatch).toHaveBeenCalledTimes(2);
+    expect(store.dispatch).toHaveBeenCalledTimes(1);
     expect(store.dispatch).toHaveBeenCalledWith(mockDispatchedAction);
   });
 

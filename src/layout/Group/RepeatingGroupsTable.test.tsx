@@ -200,10 +200,10 @@ describe('RepeatingGroupTable', () => {
       ...props,
     };
 
-    const preloadedState = getInitialStateMock();
-    preloadedState.formLayout = newLayout || layout;
-    preloadedState.textResources.resourceMap = textResources;
-    preloadedState.formData.formData = data;
+    const reduxState = getInitialStateMock();
+    reduxState.formLayout = newLayout || layout;
+    reduxState.textResources.resourceMap = textResources;
+    reduxState.formData.formData = data;
 
     return await renderWithNode<LayoutNodeForGroup<CompGroupRepeatingInternal>>({
       nodeId: group.id,
@@ -213,7 +213,7 @@ describe('RepeatingGroupTable', () => {
           node={node}
         />
       ),
-      preloadedState,
+      reduxState,
     });
   };
 });

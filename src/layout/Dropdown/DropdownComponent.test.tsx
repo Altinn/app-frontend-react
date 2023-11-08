@@ -4,7 +4,8 @@ import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
-import { renderGenericComponentTest } from 'src/test/renderWithProviders';
+import { promiseMock, renderGenericComponentTest } from 'src/test/renderWithProviders';
+import type { AppQueries } from 'src/contexts/appQueriesContext';
 import type { IOption } from 'src/layout/common.generated';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
@@ -26,12 +27,13 @@ const countries = {
   ] as IOption[],
 };
 
-interface Props extends Partial<RenderGenericComponentTestProps<'Dropdown'>> {
+interface Props extends Partial<Omit<RenderGenericComponentTestProps<'Dropdown'>, 'renderer' | 'type' | 'queries'>> {
   options?: IOption[];
 }
 
-const render = async ({ component, genericProps, options }: Props = {}) => {
-  await renderGenericComponentTest({
+const render = async ({ component, genericProps, options, ...rest }: Props = {}) => {
+  const fetchOptions = promiseMock<AppQueries['fetchOptions']>();
+  const utils = await renderGenericComponentTest({
     type: 'Dropdown',
     renderer: (props) => <DropdownComponent {...props} />,
     component: {
@@ -44,11 +46,13 @@ const render = async ({ component, genericProps, options }: Props = {}) => {
       isValid: true,
       ...genericProps,
     },
-    mockedQueries: {
-      fetchOptions: () =>
-        options ? Promise.resolve(options) : Promise.reject(new Error('No options provided to await render()')),
+    queries: {
+      fetchOptions: (...args) => (options === undefined ? fetchOptions.mock(...args) : Promise.resolve(options)),
     },
+    ...rest,
   });
+
+  return { ...utils, fetchOptions };
 };
 
 describe('DropdownComponent', () => {
@@ -60,8 +64,6 @@ describe('DropdownComponent', () => {
       },
       options: countries.options,
     });
-
-    await waitFor(() => expect(screen.queryByTestId('altinn-spinner')).not.toBeInTheDocument());
 
     expect(handleDataChange).not.toHaveBeenCalled();
     await userEvent.click(screen.getByRole('combobox'));
@@ -129,17 +131,18 @@ describe('DropdownComponent', () => {
 
     await userEvent.tab();
     await waitFor(() => expect(handleDataChange).toHaveBeenCalledWith('denmark', { validate: true }));
-    expect(handleDataChange).toHaveBeenCalledTimes(2);
+    expect(handleDataChange).toHaveBeenCalledTimes(1);
   });
 
   it('should show spinner', async () => {
-    await render({
+    const { fetchOptions } = await render({
       component: {
         optionsId: 'countries',
       },
-      options: countries.options,
+      waitUntilLoaded: false,
     });
-    expect(screen.getByTestId('altinn-spinner')).toBeInTheDocument();
+    await screen.findByTestId('altinn-spinner');
+    fetchOptions.resolve(countries.options);
     await waitFor(() => expect(screen.queryByTestId('altinn-spinner')).not.toBeInTheDocument());
   });
 
@@ -157,7 +160,6 @@ describe('DropdownComponent', () => {
       genericProps: {
         handleDataChange,
       },
-      options: undefined,
     });
 
     expect(handleDataChange).not.toHaveBeenCalled();

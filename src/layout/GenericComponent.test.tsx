@@ -53,7 +53,7 @@ const render = async (props: Partial<CompExternal> = {}) => {
   return await renderWithNode({
     nodeId: props.id || 'mockId',
     renderer: ({ node }) => <GenericComponent node={node} />,
-    preloadedState: {
+    reduxState: {
       ...getInitialStateMock(),
       formLayout,
       formData,

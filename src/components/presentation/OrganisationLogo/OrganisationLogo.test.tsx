@@ -5,13 +5,13 @@ import { screen } from '@testing-library/react';
 import { appMetadataMock } from 'src/__mocks__/applicationMetadataMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { OrganisationLogo } from 'src/components/presentation/OrganisationLogo/OrganisationLogo';
-import { renderWithProviders } from 'src/test/renderWithProviders';
+import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 
 const render = async (logo: IApplicationMetadata['logo']) =>
-  await renderWithProviders({
-    component: <OrganisationLogo />,
-    preloadedState: getInitialStateMock({
+  await renderWithInstanceAndLayout({
+    renderer: () => <OrganisationLogo />,
+    reduxState: getInitialStateMock({
       applicationMetadata: appMetadataMock({ logo }),
     }),
   });

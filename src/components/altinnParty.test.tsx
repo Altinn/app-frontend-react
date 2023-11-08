@@ -7,7 +7,7 @@ import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { partyMock } from 'src/__mocks__/partyMock';
 import { getProfileStateMock } from 'src/__mocks__/profileStateMock';
 import { AltinnParty } from 'src/components/altinnParty';
-import { renderWithProviders } from 'src/test/renderWithProviders';
+import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { IAltinnPartyProps } from 'src/components/altinnParty';
 
 const user = userEvent.setup();
@@ -103,9 +103,9 @@ const render = async (props: Partial<IAltinnPartyProps> = {}) => {
     showSubUnits: false,
     ...props,
   };
-  return await renderWithProviders({
-    component: <AltinnParty {...allProps} />,
-    preloadedState: {
+  return await renderWithInstanceAndLayout({
+    renderer: () => <AltinnParty {...allProps} />,
+    reduxState: {
       ...getInitialStateMock(),
       profile: getProfileStateMock({ selectedAppLanguage: 'nb' }),
     },

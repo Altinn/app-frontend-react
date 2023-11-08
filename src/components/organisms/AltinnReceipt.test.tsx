@@ -3,7 +3,7 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 
 import { ReceiptComponent } from 'src/components/organisms/AltinnReceipt';
-import { renderWithProviders } from 'src/test/renderWithProviders';
+import { renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
 
 const render = async (props = {}) => {
   const allProps = {
@@ -15,8 +15,8 @@ const render = async (props = {}) => {
     ...props,
   };
 
-  await renderWithProviders({
-    component: <ReceiptComponent {...allProps} />,
+  await renderWithoutInstanceAndLayout({
+    renderer: () => <ReceiptComponent {...allProps} />,
   });
 };
 

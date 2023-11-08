@@ -5,7 +5,9 @@ import { useQuery } from '@tanstack/react-query';
 import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/loading/Loader';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { ProcessTaskType } from 'src/types';
 import { useIsStatelessApp } from 'src/utils/appMetadata';
 import { createLaxContext } from 'src/utils/createContext';
@@ -23,17 +25,20 @@ const { Provider, useCtx } = createLaxContext<IProcessContext>();
 function useProcessQuery(instanceId: string) {
   const { fetchProcessState } = useAppQueries();
 
-  return useQuery({
+  const out = useQuery({
     queryKey: ['fetchProcessState', instanceId],
     queryFn: () => fetchProcessState(instanceId),
-    onSuccess: (data) => {
-      window.lastKnownProcess = data;
-    },
     onError: (error) => {
-      window.lastKnownProcess = undefined;
       window.logError('Fetching process state failed:\n', error);
     },
   });
+
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    dispatch(DeprecatedActions.setLastKnownProcess(out.error ? undefined : out.data));
+  }, [dispatch, out.data, out.error]);
+
+  return out;
 }
 
 export function ProcessProvider({ children, instance }: React.PropsWithChildren<{ instance: IInstance }>) {
@@ -41,10 +46,15 @@ export function ProcessProvider({ children, instance }: React.PropsWithChildren<
   const [data, setData] = useState<IProcess | undefined>(undefined);
   const reFetchNative = query.refetch;
   const reFetch = useCallback(async () => void (await reFetchNative()), [reFetchNative]);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     setData(query.data);
   }, [query.data]);
+
+  useEffect(() => {
+    dispatch(DeprecatedActions.setLastKnownProcess(data));
+  }, [data, dispatch]);
 
   if (query.error) {
     return <UnknownError />;
@@ -58,15 +68,7 @@ export function ProcessProvider({ children, instance }: React.PropsWithChildren<
     <Provider
       value={{
         data,
-        setData: (data) => {
-          if (typeof data === 'function') {
-            window.lastKnownProcess = data(window.lastKnownProcess);
-            setData(data);
-          } else {
-            window.lastKnownProcess = data;
-            setData(data);
-          }
-        },
+        setData,
         reFetch,
       }}
     >

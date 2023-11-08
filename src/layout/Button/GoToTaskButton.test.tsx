@@ -4,13 +4,11 @@ import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { ButtonComponent } from 'src/layout/Button/ButtonComponent';
-import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
 const render = async ({ component, genericProps }: Partial<RenderGenericComponentTestProps<'Button'>> = {}) => {
-  let spy: jest.SpyInstance | undefined;
-  await renderGenericComponentTest({
+  const { store } = await renderGenericComponentTest({
     type: 'Button',
     renderer: (props) => <ButtonComponent {...props} />,
     component: {
@@ -23,15 +21,12 @@ const render = async ({ component, genericProps }: Partial<RenderGenericComponen
     genericProps: {
       ...genericProps,
     },
-    mockedQueries: {
+    queries: {
       fetchProcessNextSteps: () => Promise.resolve(['a', 'b']),
-    },
-    manipulateStore: (store) => {
-      spy = jest.spyOn(store, 'dispatch').mockImplementation(() => undefined);
     },
   });
 
-  return spy;
+  return store.dispatch as jest.Mock;
 };
 
 describe('GoToTaskButton', () => {
@@ -56,7 +51,6 @@ describe('GoToTaskButton', () => {
     expect(screen.getByText('Go to task')).toBeInTheDocument();
     expect(screen.getByRole('button')).toBeDisabled();
     await userEvent.click(screen.getByRole('button'));
-    expect(dispatch).toHaveBeenCalledTimes(1);
-    expect(dispatch).toHaveBeenCalledWith(DeprecatedActions.instanceDataFetchFulfilled());
+    expect(dispatch).not.toHaveBeenCalled();
   });
 });

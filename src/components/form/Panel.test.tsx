@@ -5,7 +5,7 @@ import { screen } from '@testing-library/react';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getVariant, Panel, PanelVariant } from 'src/components/form/Panel';
 import { FormComponentContext } from 'src/layout';
-import { renderWithProviders } from 'src/test/renderWithProviders';
+import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { IPanelProps } from 'src/components/form/Panel';
 import type { IFormComponentContext } from 'src/layout';
 import type { IRuntimeState } from 'src/types';
@@ -72,13 +72,13 @@ const render = async (
     ...props,
   };
 
-  await renderWithProviders({
-    component: (
+  await renderWithInstanceAndLayout({
+    renderer: () => (
       <FormComponentContext.Provider value={suppliedContext}>
         <Panel {...allProps} />
       </FormComponentContext.Provider>
     ),
-    preloadedState: {
+    reduxState: {
       ...getInitialStateMock(),
       ...suppliedState,
     },

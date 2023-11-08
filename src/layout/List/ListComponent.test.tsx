@@ -72,7 +72,7 @@ const render = async ({ component, genericProps }: Partial<RenderGenericComponen
       legend: () => <span>legend</span>,
       ...genericProps,
     },
-    mockedQueries: {
+    queries: {
       fetchDataList,
     },
   });

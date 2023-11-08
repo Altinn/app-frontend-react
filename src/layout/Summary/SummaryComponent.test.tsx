@@ -133,7 +133,7 @@ describe('SummaryComponent', () => {
     return await renderWithNode<LayoutNode<'Summary'>>({
       nodeId: 'mySummary',
       renderer: ({ node }) => <SummaryComponent summaryNode={node} />,
-      preloadedState: {
+      reduxState: {
         ...getInitialStateMock(),
         formLayout: mockLayout,
         formValidations: {
