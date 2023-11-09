@@ -7,7 +7,7 @@ import { ComponentConfigs } from 'src/layout/components.generated';
 import type { IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
 import type { AllOptionsMap } from 'src/features/options/useAllOptions';
-import type { FieldValidations } from 'src/features/validation/types';
+import type { FieldValidations, FrontendValidation } from 'src/features/validation/types';
 import type { IGrid } from 'src/layout/common.generated';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { CompInternal, CompRendersLabel, CompTypes } from 'src/layout/layout';
@@ -16,7 +16,7 @@ import type { IRuntimeState } from 'src/types';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ISchemaValidationError } from 'src/utils/validation/schemaValidation';
-import type { IComponentValidations, IValidationContext, ValidationContextGenerator } from 'src/utils/validation/types';
+import type { IValidationContext, ValidationContextGenerator } from 'src/utils/validation/types';
 
 export type CompClassMap = {
   [K in keyof typeof ComponentConfigs]: (typeof ComponentConfigs)[K]['def'];
@@ -52,7 +52,7 @@ export interface IComponentProps {
   legend: () => JSX.Element | null;
   formData: IComponentFormData;
   isValid?: boolean;
-  componentValidations?: IComponentValidations;
+  validations?: FrontendValidation[];
 }
 
 export interface PropsFromGenericComponent<T extends CompTypes = CompTypes> extends IComponentProps {

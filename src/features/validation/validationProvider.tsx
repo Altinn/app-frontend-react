@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 
+import { buildFrontendValidation, validationsOfSeverity } from '.';
+
 import { useCurrentDataElementId } from 'src/features/datamodel/useBindingSchema';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { type IUseLanguage, useLanguage } from 'src/hooks/useLanguage';
@@ -14,21 +16,17 @@ import {
   severityMap,
   shouldExcludeValidationIssue,
 } from 'src/utils/validation/backendValidation';
-import {
-  buildValidationObject,
-  unmappedError,
-  useValidationContextGenerator,
-} from 'src/utils/validation/validationHelpers';
-import type { FieldValidations, ValidationContext, ValidationState } from 'src/features/validation/types';
+import { useValidationContextGenerator } from 'src/utils/validation/validationHelpers';
+import type {
+  FieldValidations,
+  FrontendValidation,
+  ValidationContext,
+  ValidationState,
+} from 'src/features/validation/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
-import type {
-  BackendValidationIssue,
-  IValidationMessage,
-  ValidationContextGenerator,
-  ValidationSeverity,
-} from 'src/utils/validation/types';
+import type { BackendValidationIssue, ValidationContextGenerator } from 'src/utils/validation/types';
 import type { IValidationOptions } from 'src/utils/validation/validation';
 
 const [Provider, useContext] = createStrictContext<ValidationContext>({
@@ -106,11 +104,11 @@ export function useValidationMethods() {
 /**
  * Returns all validation messages for a given node.
  */
-export function useNodeValidations(node: LayoutNode) {
+export function useNodeValidations(node: LayoutNode): FrontendValidation[] {
   const validations = useContext().state;
 
   return useMemo(() => {
-    const validationMessages: IValidationMessage<ValidationSeverity>[] = [];
+    const validationMessages: FrontendValidation[] = [];
     if (!node.item.dataModelBindings) {
       return validationMessages;
     }
@@ -119,24 +117,23 @@ export function useNodeValidations(node: LayoutNode) {
         continue;
       }
       for (const group of Object.values(validations.fields[field])) {
-        for (const validation of group.filter((v) => v.severity !== 'fixed')) {
-          validationMessages.push(
-            buildValidationObject(node, validation.severity, validation.message, bindingKey, validation.group),
-          );
+        for (const validation of group) {
+          validationMessages.push(buildFrontendValidation(node, bindingKey, validation));
         }
       }
     }
+    return validationMessages;
   }, [node, validations]);
 }
 
 /**
  * Returns all validation errors (not warnings, info, etc.) for a given page.
  */
-export function usePageErrors(page: LayoutPage) {
+export function usePageErrors(page: LayoutPage): FrontendValidation<'errors'>[] {
   const validations = useContext().state;
 
   return useMemo(() => {
-    const validationMessages: IValidationMessage<'errors'>[] = [];
+    const validationMessages: FrontendValidation<'errors'>[] = [];
 
     for (const node of page.flat(true)) {
       if (!node.item.dataModelBindings) {
@@ -147,10 +144,8 @@ export function usePageErrors(page: LayoutPage) {
           continue;
         }
         for (const group of Object.values(validations.fields[field])) {
-          for (const validation of group.filter((v) => v.severity === 'errors')) {
-            validationMessages.push(
-              buildValidationObject(node, 'errors', validation.message, bindingKey, validation.group),
-            );
+          for (const validation of validationsOfSeverity(group, 'errors')) {
+            validationMessages.push(buildFrontendValidation(node, bindingKey, validation));
           }
         }
       }
@@ -163,11 +158,11 @@ export function usePageErrors(page: LayoutPage) {
  * Returns all validation errors (not warnings, info, etc.) for a layout set.
  * This includes unmapped errors as well
  */
-export function useTaskErrors(pages: LayoutPages) {
+export function useTaskErrors(pages: LayoutPages): FrontendValidation<'errors'>[] {
   const validations = useContext().state;
 
   return useMemo(() => {
-    const validationMessages: IValidationMessage<'errors'>[] = [];
+    const validationMessages: FrontendValidation<'errors'>[] = [];
 
     for (const node of pages.allNodes()) {
       if (!node.item.dataModelBindings) {
@@ -178,19 +173,18 @@ export function useTaskErrors(pages: LayoutPages) {
           continue;
         }
         for (const group of Object.values(validations.fields[field])) {
-          for (const validation of group.filter((v) => v.severity === 'errors')) {
-            validationMessages.push(
-              buildValidationObject(node, 'errors', validation.message, bindingKey, validation.group),
-            );
+          for (const validation of validationsOfSeverity(group, 'errors')) {
+            validationMessages.push(buildFrontendValidation(node, bindingKey, validation));
           }
         }
       }
     }
-    for (const group of Object.values(validations.unmapped)) {
-      for (const validation of group.filter((v) => v.severity === 'errors')) {
-        validationMessages.push(unmappedError('errors', validation.message, validation.group));
-      }
-    }
+    // TODO(Validation): Deal with unmapped errors
+    // for (const group of Object.values(validations.unmapped)) {
+    //   for (const validation of validationsOfSeverity(group, 'errors')) {
+    //     validationMessages.push(buildFrontendValidation(undefined, 'unmapped', validation));
+    //   }
+    // }
     return validationMessages;
   }, [pages, validations]);
 }

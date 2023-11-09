@@ -1,15 +1,19 @@
 import React from 'react';
 import type { JSX } from 'react';
 
+import { addValidationToField, FrontendValidationSource, initializeValidationField } from 'src/features/validation';
 import { AddressComponent } from 'src/layout/Address/AddressComponent';
 import { AddressDef } from 'src/layout/Address/config.def.generated';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { PropsFromGenericComponent } from 'src/layout';
+import type { IFormData } from 'src/features/formData';
+import type { FieldValidations } from 'src/features/validation/types';
+import type { ComponentValidation, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { IValidationContext } from 'src/utils/validation/types';
 
-export class Address extends AddressDef {
+export class Address extends AddressDef implements ComponentValidation {
   render(props: PropsFromGenericComponent<'AddressComponent'>): JSX.Element | null {
     return <AddressComponent {...props} />;
   }
@@ -22,6 +26,58 @@ export class Address extends AddressDef {
   renderSummary({ targetNode }: SummaryRendererProps<'AddressComponent'>): JSX.Element | null {
     const data = this.useDisplayData(targetNode);
     return <SummaryItemSimple formDataAsString={data} />;
+  }
+
+  renderDefaultValidations(): boolean {
+    return false;
+  }
+
+  runComponentValidation(
+    node: LayoutNode<'AddressComponent'>,
+    { formData, langTools }: IValidationContext,
+    overrideFormData?: IFormData,
+  ): FieldValidations {
+    if (!node.item.dataModelBindings) {
+      return {};
+    }
+    const formDataToValidate = { ...formData, ...overrideFormData };
+    const fieldValidations: FieldValidations = {};
+
+    /**
+     * Initialize validation group for fields,
+     * this must be done for all fields that will be validated
+     * so we remove existing validations in case they are fixed.
+     */
+    for (const field of Object.values(node.item.dataModelBindings)) {
+      initializeValidationField(fieldValidations, field, FrontendValidationSource.Component);
+    }
+
+    const zipCodeField = node.item.dataModelBindings.zipCode;
+    const zipCode = zipCodeField ? formDataToValidate[zipCodeField] : undefined;
+
+    // TODO(Validation): Add better message for the special case of 0000
+    if (zipCode && (!zipCode.match(/^\d{4}$/) || zipCode === '0000')) {
+      addValidationToField(fieldValidations, {
+        message: langTools.langAsString('address_component.validation_error_zipcode'),
+        severity: 'errors',
+        field: zipCodeField!,
+        group: FrontendValidationSource.Component,
+      });
+    }
+
+    const houseNumberField = node.item.dataModelBindings.houseNumber;
+    const houseNumber = houseNumberField ? formDataToValidate[houseNumberField] : undefined;
+
+    if (houseNumber && !houseNumber.match(/^[a-z,A-Z]\d{4}$/)) {
+      addValidationToField(fieldValidations, {
+        message: langTools.langAsString('address_component.validation_error_house_number'),
+        severity: 'errors',
+        field: houseNumberField!,
+        group: FrontendValidationSource.Component,
+      });
+    }
+
+    return fieldValidations;
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'AddressComponent'>): string[] {

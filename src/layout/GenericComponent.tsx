@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { shallowEqual } from 'react-redux';
 
 import { Grid, makeStyles } from '@material-ui/core';
 import classNames from 'classnames';
@@ -9,7 +8,7 @@ import { Label } from 'src/components/form/Label';
 import { Legend } from 'src/components/form/Legend';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
-import { useValidationMethods } from 'src/features/validation/validationProvider';
+import { useNodeValidations, useValidationMethods } from 'src/features/validation/validationProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -18,7 +17,7 @@ import { FormComponentContext, shouldComponentRenderLabel } from 'src/layout/ind
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { makeGetFocus } from 'src/selectors/getLayoutData';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
-import { renderValidationMessagesForComponent } from 'src/utils/render';
+import { ComponentValidation } from 'src/utils/render';
 import type { ISingleFieldValidation } from 'src/features/formData/formDataTypes';
 import type { IGridStyling } from 'src/layout/common.generated';
 import type { IComponentProps, IFormComponentContext, PropsFromGenericComponent } from 'src/layout/index';
@@ -110,7 +109,6 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
   const classes = useStyles();
   const gridRef = React.useRef<HTMLDivElement>(null);
   const GetFocusSelector = makeGetFocus();
-  const hasValidationMessages = node.hasValidationMessages('any');
   const hidden = node.isHidden();
   const { lang, langAsString } = useLanguage(node);
 
@@ -119,27 +117,20 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
   const isValid = !node.hasValidationMessages('errors');
 
   const shouldFocus = useAppSelector((state) => GetFocusSelector(state, { id }));
-  const componentValidations = useAppSelector(
-    (state) => state.formValidations.validations[currentView]?.[id],
-    shallowEqual,
-  );
+  const validations = useNodeValidations(node);
 
   const filterValidationErrors = () => {
     const maxLength = 'maxLength' in node.item && node.item.maxLength;
 
     if (!maxLength) {
-      return componentValidations?.simpleBinding;
+      return validations;
     }
 
     // If maxLength is set in both schema and component, don't display the schema error message
     const errorMessageMaxLength = langAsString('validation_errors.maxLength', [maxLength]) as string;
-    const componentErrors = componentValidations?.simpleBinding?.errors || [];
-    const updatedErrors = componentErrors.filter((error: string) => error !== errorMessageMaxLength);
-
-    return {
-      ...componentValidations.simpleBinding,
-      errors: updatedErrors,
-    };
+    return validations.filter(
+      (validation) => !(validation.severity == 'errors' && validation.message === errorMessageMaxLength),
+    );
   };
 
   const formComponentContext = useMemo<IFormComponentContext>(
@@ -197,6 +188,11 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
           }
         : undefined;
 
+    if (validate) {
+      const overrideFormData = { [dataModelBinding]: (value?.length ? value : undefined) as any };
+      validateNode(node, { overrideFormData });
+    }
+
     dispatch(
       FormDataActions.update({
         field: dataModelBinding,
@@ -206,11 +202,6 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
         singleFieldValidation,
       }),
     );
-
-    if (validate) {
-      const overrideFormData = { [dataModelBinding]: (value?.length ? value : undefined) as any };
-      validateNode(node, { overrideFormData });
-    }
   };
 
   const layoutComponent = node.def as unknown as LayoutComponent<Type>;
@@ -274,7 +265,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     shouldFocus,
     label: RenderLabel,
     legend: RenderLegend,
-    componentValidations,
+    validations,
   };
 
   const componentProps: PropsFromGenericComponent<Type> = {
@@ -284,7 +275,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     overrideDisplay,
   };
 
-  const showValidationMessages = hasValidationMessages && layoutComponent.renderDefaultValidations();
+  const showValidationMessages = layoutComponent.renderDefaultValidations();
 
   if ('renderAsSummary' in node.item && node.item.renderAsSummary) {
     const RenderSummary = 'renderSummary' in node.def ? node.def.renderSummary.bind(node.def) : null;
@@ -343,7 +334,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
           {...gridBreakpoints(item.grid?.innerGrid)}
         >
           <RenderComponent {...componentProps} />
-          {showValidationMessages && renderValidationMessagesForComponent(filterValidationErrors(), id)}
+          {showValidationMessages && <ComponentValidation validations={filterValidationErrors()} />}
         </Grid>
       </Grid>
     </FormComponentContext.Provider>

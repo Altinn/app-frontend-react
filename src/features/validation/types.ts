@@ -26,10 +26,20 @@ export type ValidationGroup = {
   [group: string]: ValidationEntry[];
 };
 
-export type ValidationEntry = {
+export type FrontendValidation<Severity extends ValidationSeverity = ValidationSeverity> = {
   field: string;
   group: string;
-  severity: ValidationSeverity;
+  bindingKey: string;
+  componentId: string;
+  pageKey: string;
+  severity: Severity;
+  message: string;
+};
+
+export type ValidationEntry<Severity extends ValidationSeverity = ValidationSeverity> = {
+  field: string;
+  group: string;
+  severity: Severity;
   message: string; //TODO(Validation): replace with TextResource type, to allow proper translation of messages
 };
 

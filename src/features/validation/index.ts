@@ -1,9 +1,12 @@
-import type { FieldValidations, ValidationEntry } from 'src/features/validation/types';
+import type { FieldValidations, FrontendValidation, ValidationEntry } from 'src/features/validation/types';
+import type { IDataModelBindings } from 'src/layout/layout';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { ValidationSeverity } from 'src/utils/validation/types';
 
 export enum FrontendValidationSource {
   Required = '__required__',
   Schema = '__schema__',
-  Component = '__component',
+  Component = '__component__',
   Expression = '__expression__',
 }
 
@@ -44,4 +47,47 @@ export function addValidationToField(dest: FieldValidations, validation: Validat
     return;
   }
   dest[validation.field][validation.group].push(validation);
+}
+
+export function validationsOfSeverity<Severity extends ValidationSeverity>(
+  validations: FrontendValidation<ValidationSeverity>[] | undefined,
+  severity: Severity,
+): FrontendValidation<Severity>[];
+export function validationsOfSeverity<Severity extends ValidationSeverity>(
+  validations: ValidationEntry<ValidationSeverity>[] | undefined,
+  severity: Severity,
+): ValidationEntry<Severity>[];
+export function validationsOfSeverity(validations: any, severity: any) {
+  return validations?.filter((validation: any) => validation.severity === severity) ?? [];
+}
+
+export function hasValidationErrors(validations: FrontendValidation<ValidationSeverity>[] | undefined): boolean;
+export function hasValidationErrors(validations: ValidationEntry<ValidationSeverity>[] | undefined): boolean;
+export function hasValidationErrors(validations: any): boolean {
+  return validations?.some((validation: any) => validation.severity === 'errors') ?? false;
+}
+
+export function buildFrontendValidation<Severity extends ValidationSeverity = ValidationSeverity>(
+  node: LayoutNode,
+  bindingKey: string,
+  validation: ValidationEntry<Severity>,
+): FrontendValidation<Severity> {
+  return {
+    ...validation,
+    bindingKey,
+    componentId: node.item.id,
+    pageKey: node.pageKey(),
+  };
+}
+
+export function validationsForBindings<DataModelBindings extends NonNullable<IDataModelBindings>>(
+  validations: FrontendValidation[] | undefined,
+  dataModelBindings: DataModelBindings | undefined,
+): { [binding in keyof DataModelBindings]: FrontendValidation[] } {
+  return Object.fromEntries(
+    Object.entries(dataModelBindings ?? {}).map(([binding, field]) => [
+      binding,
+      validations?.filter((v) => v.field === field) ?? [],
+    ]),
+  ) as any;
 }

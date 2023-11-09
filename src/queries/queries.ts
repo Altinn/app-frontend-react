@@ -98,3 +98,11 @@ export const fetchLayoutSchema = (): Promise<JSONSchema7 | undefined> => {
 
   return schemaBaseUrl ? httpGet(`${schemaBaseUrl}${LAYOUT_SCHEMA_NAME}`) : Promise.resolve(undefined);
 };
+
+export const fetchPostPlace = (zipCode: string): Promise<{ result: string; valid: boolean }> =>
+  httpGet('https://api.bring.com/shippingguide/api/postalCode.json', {
+    params: {
+      clientUrl: window.location.href,
+      pnr: zipCode,
+    },
+  });

@@ -8,7 +8,7 @@ import { LayoutStyle } from 'src/layout/common.generated';
 import classes from 'src/layout/Likert/LikertComponent.module.css';
 import { ControlledRadioGroup } from 'src/layout/RadioButtons/ControlledRadioGroup';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
-import { renderValidationMessagesForComponent } from 'src/utils/render';
+import { ComponentValidation } from 'src/utils/render';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IControlledRadioGroupProps } from 'src/layout/RadioButtons/ControlledRadioGroup';
 
@@ -29,7 +29,7 @@ export const LikertComponent = (props: PropsFromGenericComponent<'Likert'>) => {
 };
 
 const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
-  const { node, componentValidations, legend } = props;
+  const { node, validations, legend } = props;
   const { selected, handleChange, calculatedOptions, handleBlur, fetchingOptions } = useRadioButtons(props);
 
   const id = node.item.id;
@@ -52,7 +52,7 @@ const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
       >
         <Typography component={'div'}>
           <RenderLegend />
-          {renderValidationMessagesForComponent(componentValidations?.simpleBinding, id)}
+          <ComponentValidation validations={validations} />
         </Typography>
       </TableCell>
       {calculatedOptions?.map((option, colIndex) => {
