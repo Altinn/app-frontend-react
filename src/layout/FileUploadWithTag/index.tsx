@@ -5,7 +5,6 @@ import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
 import { getUploaderSummaryData } from 'src/layout/FileUpload/Summary/summary';
 import { FileUploadWithTagDef } from 'src/layout/FileUploadWithTag/config.def.generated';
-import { AsciiUnitSeparator } from 'src/utils/attachment';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { attachmentIsMissingTag, attachmentsValid } from 'src/utils/validation/validation';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
@@ -61,30 +60,29 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements Component
     initializeValidationField(fieldValidations, field, FrontendValidationSource.Component);
 
     if (attachmentsValid(attachments, node.item)) {
-      const missingTagAttachments = attachments[node.item.id]
+      const attachmentIdsWithMissingTag = attachments[node.item.id]
         ?.filter((attachment) => attachmentIsMissingTag(attachment))
         .map((attachment) => attachment.id);
 
-      if (missingTagAttachments?.length > 0) {
-        missingTagAttachments.forEach((missingId) => {
-          const message = `${
-            missingId +
-            AsciiUnitSeparator +
-            langTools.langAsString('form_filler.file_uploader_validation_error_no_chosen_tag')
-          } ${langTools.langAsString(node.item.textResourceBindings?.tagTitle).toLowerCase()}.`;
+      if (attachmentIdsWithMissingTag?.length > 0) {
+        attachmentIdsWithMissingTag.forEach((attachmentId) => {
+          const message = `${langTools.langAsString(
+            'form_filler.file_uploader_validation_error_no_chosen_tag',
+          )} ${langTools.langAsString(node.item.textResourceBindings?.tagTitle).toLowerCase()}.`;
 
           addValidationToField(fieldValidations, {
             message,
             severity: 'errors',
             field,
             group: FrontendValidationSource.Component,
+            metadata: { attachmentId },
           });
         });
       }
     } else {
-      const message = `${langTools.langAsString('form_filler.file_uploader_validation_error_file_number_1')} ${
-        node.item.minNumberOfAttachments
-      } ${langTools.langAsString('form_filler.file_uploader_validation_error_file_number_2')}`;
+      const message = langTools.langAsString('form_filler.file_uploader_validation_error_file_number', [
+        node.item.minNumberOfAttachments,
+      ]);
 
       addValidationToField(fieldValidations, {
         message,

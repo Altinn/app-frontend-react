@@ -47,60 +47,6 @@ export function getFileUploadComponentValidations(
   return componentValidations;
 }
 
-export function getFileUploadWithTagComponentValidations(
-  componentValidations: IComponentValidations | undefined,
-  validationState: Array<{ id: string; message: string }>,
-): {
-  attachmentValidationMessages: Array<{ id: string; message: string }>;
-  hasValidationMessages: boolean;
-  validationMessages: { errors: string[] };
-} {
-  let result: Array<{ id: string; message: string }> = [];
-  componentValidations = componentValidations && JSON.parse(JSON.stringify(componentValidations));
-  if (!componentValidations || !componentValidations.simpleBinding) {
-    componentValidations = {
-      simpleBinding: {
-        errors: [],
-        warnings: [],
-      },
-    };
-  }
-  if (componentValidations?.simpleBinding?.errors && componentValidations.simpleBinding.errors.length > 0) {
-    result = [...result, ...parseFileUploadComponentWithTagValidationObject(componentValidations.simpleBinding.errors)];
-  }
-  result = [...result, ...validationState];
-
-  return {
-    attachmentValidationMessages: result.filter(isAttachmentError),
-    hasValidationMessages: result.some((validation) => isNotAttachmentError(validation)),
-    validationMessages: {
-      errors: result.filter(isNotAttachmentError).map((el) => el.message),
-    },
-  };
-}
-
-export const parseFileUploadComponentWithTagValidationObject = (
-  validationArray: string[],
-): Array<{ id: string; message: string }> => {
-  if (validationArray === undefined || validationArray.length === 0) {
-    return [];
-  }
-  const obj: Array<{ id: string; message: string }> = [];
-  validationArray.forEach((validation) => {
-    const val = validation.toString().split(AsciiUnitSeparator);
-    if (val.length === 2) {
-      obj.push({ id: val[0], message: val[1] });
-    } else {
-      obj.push({ id: '', message: validation });
-    }
-  });
-  return obj;
-};
-
-export const isAttachmentError = (error: { id: string | null; message: string }): boolean => !!error.id;
-
-export const isNotAttachmentError = (error: { id: string | null; message: string }): boolean => !error.id;
-
 export const atleastOneTagExists = (attachments: IAttachment[]): boolean => {
   const totalTagCount: number = attachments
     .map((attachment: IAttachment) => (attachment.tags?.length ? attachment.tags.length : 0))

@@ -10,7 +10,7 @@ interface Args {
   maxFileSizeInMB: number;
 }
 
-export function handleRejectedFiles({ langTools, rejectedFiles, maxFileSizeInMB }: Args): string[] {
+export function handleRejectedFiles({ langTools, rejectedFiles, maxFileSizeInMB }: Args): string[] | undefined {
   const { langAsString } = langTools;
   return rejectedFiles.length > 0
     ? rejectedFiles.map((fileRejection) => {
@@ -22,5 +22,5 @@ export function handleRejectedFiles({ langTools, rejectedFiles, maxFileSizeInMB 
           } ${langAsString('form_filler.file_uploader_validation_error_general_2')}`;
         }
       })
-    : [];
+    : undefined;
 }

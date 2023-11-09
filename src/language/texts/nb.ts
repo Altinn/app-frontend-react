@@ -75,8 +75,8 @@ export function nb(): FixedLanguageList {
       file_uploader_number_of_files: 'Antall filer',
       file_uploader_valid_file_format: 'Tillatte filformater er:',
       file_uploader_validation_error_delete: 'Noe gikk galt under slettingen av filen, prøv igjen senere.',
-      file_uploader_validation_error_exceeds_max_files_1: 'Du kan ikke laste opp flere enn',
-      file_uploader_validation_error_exceeds_max_files_2: 'filer. Ingen filer ble lastet opp.',
+      file_uploader_validation_error_exceeds_max_files:
+        'Du kan ikke laste opp flere enn {0} filer. Ingen filer ble lastet opp.',
       file_uploader_validation_error_file_ending: 'er ikke blant de tillatte filtypene.',
       file_uploader_validation_error_file_number_1: 'For å fortsette må du laste opp',
       file_uploader_validation_error_file_number_2: 'vedlegg',

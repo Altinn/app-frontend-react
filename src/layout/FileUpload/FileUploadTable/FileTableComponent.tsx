@@ -7,6 +7,8 @@ import { FileTableRowContextProvider } from 'src/layout/FileUpload/FileUploadTab
 import { EditWindowComponent } from 'src/layout/FileUploadWithTag/EditWindowComponent';
 import { atleastOneTagExists } from 'src/utils/formComponentUtils';
 import type { IAttachment } from 'src/features/attachments';
+import type { FrontendValidation } from 'src/features/validation/types';
+import type { ShowPopper } from 'src/hooks/useAlertPopper';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IOption } from 'src/layout/common.generated';
 import type { FileTableRowContext } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
@@ -16,15 +18,8 @@ export interface FileTableProps {
   attachments: IAttachment[];
   mobileView: boolean;
   options?: IOption[];
-  attachmentValidations?: {
-    id: string;
-    message: string;
-  }[];
-  validationsWithTag?: {
-    id: string;
-    message: string;
-  }[];
-  setValidationsWithTag?: (validationArray: { id: string; message: string }[]) => void;
+  attachmentValidations?: FrontendValidation[];
+  showPopper: ShowPopper;
 }
 
 export function FileTableComponent({
@@ -33,8 +28,7 @@ export function FileTableComponent({
   node,
   attachmentValidations,
   options,
-  validationsWithTag,
-  setValidationsWithTag,
+  showPopper,
 }: FileTableProps): React.JSX.Element | null {
   const { lang } = useLanguage();
   const { textResourceBindings, type } = node.item;
@@ -77,6 +71,7 @@ export function FileTableComponent({
         {attachments.map((attachment, index: number) => {
           const canRenderRow =
             !hasTag || (attachment.tags !== undefined && attachment.tags.length > 0 && editIndex !== index);
+          const validationsForRow = attachmentValidations?.filter((v) => v.metadata?.attachmentId === attachment.id);
 
           const ctx: FileTableRowContext = {
             setEditIndex,
@@ -110,13 +105,10 @@ export function FileTableComponent({
                   <EditWindowComponent
                     node={node as PropsFromGenericComponent<'FileUploadWithTag'>['node']}
                     attachment={attachment}
-                    attachmentValidations={[
-                      ...new Map(attachmentValidations?.map((validation) => [validation['id'], validation])).values(),
-                    ]}
+                    attachmentValidations={validationsForRow}
                     mobileView={mobileView}
                     options={options}
-                    validationsWithTag={validationsWithTag ?? []}
-                    setValidationsWithTag={setValidationsWithTag ?? (() => {})}
+                    showPopper={showPopper}
                   />
                 </td>
               </tr>

@@ -60,6 +60,7 @@ export const renderWithProviders = (
       fetchRuleHandler: () => Promise.resolve(null),
       fetchTextResources: () => Promise.resolve({ language: 'nb', resources: [] }),
       fetchLayoutSchema: () => Promise.resolve({} as JSONSchema7),
+      fetchPostPlace: () => Promise.resolve({ valid: true, result: 'OSLO' }),
     } as AppQueriesContext;
     const mockedQueries = { ...allMockedQueries, ...queries };
 
@@ -157,7 +158,7 @@ export const mockComponentProps: IComponentProps & { id: string } = {
   },
   shouldFocus: false,
   isValid: undefined,
-  componentValidations: {},
+  validations: [],
   label: () => {
     throw new Error('Rendered mock label, override this yourself');
   },

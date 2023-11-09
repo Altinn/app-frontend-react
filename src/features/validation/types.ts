@@ -6,7 +6,7 @@ import type { IValidationOptions } from 'src/utils/validation/validation';
 export type ValidationContext = {
   state: ValidationState;
   methods: {
-    validateNode: (node: LayoutNode, options: IValidationOptions) => void;
+    validateNode: (node: LayoutNode, options?: IValidationOptions) => void;
   };
 };
 
@@ -34,6 +34,7 @@ export type FrontendValidation<Severity extends ValidationSeverity = ValidationS
   pageKey: string;
   severity: Severity;
   message: string;
+  metadata?: Record<string, string>;
 };
 
 export type ValidationEntry<Severity extends ValidationSeverity = ValidationSeverity> = {
@@ -41,6 +42,7 @@ export type ValidationEntry<Severity extends ValidationSeverity = ValidationSeve
   group: string;
   severity: Severity;
   message: string; //TODO(Validation): replace with TextResource type, to allow proper translation of messages
+  metadata?: Record<string, string>;
 };
 
 // TODO(Validation): Move to more appropriate location

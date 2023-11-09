@@ -310,11 +310,17 @@ describe('AddressComponent', () => {
           address: '',
         },
         handleDataChange,
-        componentValidations: {
-          address: {
-            errors: [errorMessage],
+        validations: [
+          {
+            componentId: 'address',
+            message: errorMessage,
+            severity: 'errors',
+            bindingKey: 'address',
+            group: '__required__',
+            field: 'address',
+            pageKey: 'page1',
           },
-        },
+        ],
       },
       component: {
         required: true,

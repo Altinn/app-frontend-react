@@ -73,8 +73,8 @@ export function en() {
       file_uploader_number_of_files: 'Number of files',
       file_uploader_valid_file_format: 'Valid file types are:',
       file_uploader_validation_error_delete: 'Something went wrong trying to delete the file, please try again.',
-      file_uploader_validation_error_exceeds_max_files_1: 'You can not upload more than',
-      file_uploader_validation_error_exceeds_max_files_2: 'files. No files was uploaded.',
+      file_uploader_validation_error_exceeds_max_files:
+        'You can not upload more than {0} files. No files were uploaded.',
       file_uploader_validation_error_file_ending: 'is not an allowed file type.',
       file_uploader_validation_error_file_number_1: 'You need to upload',
       file_uploader_validation_error_file_number_2: 'attachement(s) to continue',

@@ -8,6 +8,7 @@ import { AltinnLoader } from 'src/components/AltinnLoader';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
+import { useNodeValidations } from 'src/features/validation/validationProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -17,7 +18,7 @@ import { useRepeatingGroupsFocusContext } from 'src/layout/Group/RepeatingGroups
 import { RepeatingGroupTable } from 'src/layout/Group/RepeatingGroupTable';
 import { getRepeatingGroupFilteredIndices } from 'src/utils/formLayout';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
-import { renderValidationMessagesForComponent } from 'src/utils/render';
+import { ComponentValidation } from 'src/utils/render';
 import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 
@@ -52,6 +53,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
   const repeatingGroupIndex = groupState?.index ?? -1;
   const formData = useAppSelector((state) => state.formData.formData);
   const { lang, langAsString } = useLanguage();
+  const validations = useNodeValidations(node);
 
   const filteredIndexList = React.useMemo(
     () => getRepeatingGroupFilteredIndices(formData, edit?.filter),
@@ -242,7 +244,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
         item={true}
         xs={12}
       >
-        {node.getValidations('group') && renderValidationMessagesForComponent(node.getValidations('group'), id)}
+        <ComponentValidation validations={validations} />
       </Grid>
     </Grid>
   );

@@ -6,6 +6,7 @@ import { CheckmarkCircleFillIcon } from '@navikt/aksel-icons';
 
 import { AltinnLoader } from 'src/components/AltinnLoader';
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
+import { hasValidationErrors } from 'src/features/validation';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useFormattedOptions } from 'src/hooks/useFormattedOptions';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -13,8 +14,10 @@ import { AttachmentFileName } from 'src/layout/FileUpload/FileUploadTable/Attach
 import { FileTableButtons } from 'src/layout/FileUpload/FileUploadTable/FileTableButtons';
 import { useFileTableRowContext } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
 import classes from 'src/layout/FileUploadWithTag/EditWindowComponent.module.css';
-import { renderValidationMessages } from 'src/utils/render';
+import { ComponentValidation } from 'src/utils/render';
 import type { IAttachment } from 'src/features/attachments';
+import type { FrontendValidation } from 'src/features/validation/types';
+import type { ShowPopper } from 'src/hooks/useAlertPopper';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IOption } from 'src/layout/common.generated';
 
@@ -23,15 +26,8 @@ export interface EditWindowProps {
   attachment: IAttachment;
   mobileView: boolean;
   options?: IOption[];
-  attachmentValidations: {
-    id: string;
-    message: string;
-  }[];
-  validationsWithTag: {
-    id: string;
-    message: string;
-  }[];
-  setValidationsWithTag: (validationArray: { id: string; message: string }[]) => void;
+  attachmentValidations?: FrontendValidation[];
+  showPopper: ShowPopper;
 }
 
 export function EditWindowComponent({
@@ -40,8 +36,7 @@ export function EditWindowComponent({
   mobileView,
   node,
   options,
-  validationsWithTag,
-  setValidationsWithTag,
+  showPopper,
 }: EditWindowProps): React.JSX.Element {
   const { id, baseComponentId, textResourceBindings, readOnly } = node.item;
   const { lang, langAsString } = useLanguage();
@@ -52,6 +47,8 @@ export function EditWindowComponent({
     rawSelectedTag ? options?.find((o) => o.value === rawSelectedTag) : undefined,
   );
   const formattedOptions = useFormattedOptions(options);
+
+  const hasErrors = hasValidationErrors(attachmentValidations);
 
   const onDropdownDataChange = (value: string) => {
     if (value !== undefined) {
@@ -65,23 +62,20 @@ export function EditWindowComponent({
   };
 
   const handleSave = () => {
+    /**
+     * TODO(Validation): Validate attachments on update instead of blocking change if no tag is selected.
+     * The popper is a temporary solution. It should rather check if the attachment is valid before closing.
+     */
     if (chosenOption) {
       setEditIndex(-1);
       if (attachment.tags === undefined || chosenOption.value !== attachment.tags[0]) {
         setAttachmentTag(chosenOption);
       }
-      setValidationsWithTag(validationsWithTag.filter((obj) => obj.id !== attachment.id)); // Remove old validation if exists
     } else {
-      const tmpValidations: { id: string; message: string }[] = [];
-      tmpValidations.push({
-        id: attachment.id,
-        message: `${langAsString('form_filler.file_uploader_validation_error_no_chosen_tag')} ${(
-          langAsString(textResourceBindings?.tagTitle || '') || ''
-        )
-          .toString()
-          .toLowerCase()}.`,
-      });
-      setValidationsWithTag(validationsWithTag.filter((obj) => obj.id !== tmpValidations[0].id).concat(tmpValidations));
+      const message = `${langAsString('form_filler.file_uploader_validation_error_no_chosen_tag')} ${langAsString(
+        textResourceBindings?.tagTitle,
+      ).toLowerCase()}.`;
+      showPopper(message, 'danger');
     }
   };
 
@@ -185,7 +179,7 @@ export function EditWindowComponent({
               onChange={onDropdownDataChange}
               options={formattedOptions}
               disabled={saveIsDisabled}
-              error={attachmentValidations.filter((i) => i.id === attachment.id).length > 0}
+              error={hasErrors}
               label={langAsString('general.choose')}
               hideLabel={true}
               value={chosenOption?.value}
@@ -217,17 +211,13 @@ export function EditWindowComponent({
           </Grid>
         </Grid>
       </Grid>
-      {attachmentValidations.filter((i) => i.id === attachment.id).length > 0 ? (
+      {hasErrors ? (
         <div
           style={{
             whiteSpace: 'pre-wrap',
           }}
         >
-          {renderValidationMessages(
-            attachmentValidations.filter((i) => i.id === attachment.id).map((e) => e.message),
-            `attachment-error-${attachment.id}`,
-            'error',
-          )}
+          <ComponentValidation validations={attachmentValidations} />
         </div>
       ) : undefined}
     </div>

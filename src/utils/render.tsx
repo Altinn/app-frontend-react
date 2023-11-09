@@ -9,6 +9,7 @@ import { AlertBaseComponent } from 'src/layout/Alert/AlertBaseComponent';
 import type { FrontendValidation } from 'src/features/validation/types';
 import type { AlertSeverity } from 'src/layout/Alert/config.generated';
 
+// TODO(Validation): Move these components to a more suitable location
 export function ComponentValidation({ validations }: { validations: FrontendValidation[] | undefined }) {
   if (!validations || validations.length === 0) {
     return null;

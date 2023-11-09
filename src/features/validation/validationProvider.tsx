@@ -76,7 +76,7 @@ export function ValidationProvider({ children }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [validationData]);
 
-  function validateNode(node: LayoutNode, options: IValidationOptions) {
+  function validateNode(node: LayoutNode, options?: IValidationOptions) {
     const newState = node.runValidations(validationContextGenerator, options);
     setValidations((prevState) => {
       addFieldValidations(prevState.fields, newState);
@@ -109,16 +109,24 @@ export function useNodeValidations(node: LayoutNode): FrontendValidation[] {
 
   return useMemo(() => {
     const validationMessages: FrontendValidation[] = [];
-    if (!node.item.dataModelBindings) {
-      return validationMessages;
-    }
-    for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings)) {
-      if (!validations.fields[field]) {
-        continue;
+    if (node.item.dataModelBindings) {
+      for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings)) {
+        if (!validations.fields[field]) {
+          continue;
+        }
+        for (const group of Object.values(validations.fields[field])) {
+          for (const validation of group) {
+            validationMessages.push(buildFrontendValidation(node, bindingKey, validation));
+          }
+        }
       }
+    }
+    // TODO(Validation): Hack to get validations for attachment component, consider adding an additional property for component validations without data model binding
+    const field = node.item.id;
+    if (validations.fields[field]) {
       for (const group of Object.values(validations.fields[field])) {
         for (const validation of group) {
-          validationMessages.push(buildFrontendValidation(node, bindingKey, validation));
+          validationMessages.push(buildFrontendValidation(node, field, validation));
         }
       }
     }

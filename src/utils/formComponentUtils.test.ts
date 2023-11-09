@@ -7,9 +7,6 @@ import {
   getFieldName,
   getFileUploadComponentValidations,
   gridBreakpoints,
-  isAttachmentError,
-  isNotAttachmentError,
-  parseFileUploadComponentWithTagValidationObject,
   smartLowerCaseFirst,
 } from 'src/utils/formComponentUtils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
@@ -78,46 +75,6 @@ describe('formComponentUtils', () => {
       id: '123457',
     },
   ];
-
-  describe('isAttachmentError', () => {
-    it('should return true when error has attachmentId', () => {
-      const error = {
-        id: 'mockUUID',
-        message: 'mockMessage',
-      };
-      const result = isAttachmentError(error);
-      expect(result).toEqual(true);
-    });
-
-    it('should return false when error does not have attachmentId', () => {
-      const error = {
-        id: null,
-        message: 'mockMessage',
-      };
-      const result = isAttachmentError(error);
-      expect(result).toEqual(false);
-    });
-  });
-
-  describe('isNotAttachmentError', () => {
-    it('should return true when error does not have attachmentId', () => {
-      const error = {
-        id: null,
-        message: 'mockMessage',
-      };
-      const result = isNotAttachmentError(error);
-      expect(result).toEqual(true);
-    });
-
-    it('should return false when error has attachmentId', () => {
-      const error = {
-        id: 'mockUUID',
-        message: 'mockMessage',
-      };
-      const result = isNotAttachmentError(error);
-      expect(result).toEqual(false);
-    });
-  });
 
   describe('atleastOneTagExists', () => {
     it('should return true if one or more attachments has a tag', () => {
@@ -247,38 +204,6 @@ describe('formComponentUtils', () => {
           warnings: [],
         },
       });
-    });
-  });
-
-  describe('parseFileUploadComponentWithTagValidationObject', () => {
-    it('should return correct validation array', () => {
-      const mockValidations = [
-        'Noe gikk galt under opplastingen av filen, prøv igjen senere.',
-        'Noe gikk galt under oppdatering av filens merking, prøv igjen senere.',
-        `mock-attachment-id${AsciiUnitSeparator}Noe gikk galt under oppdatering av filens merking, prøv igjen senere.`,
-        'Noe gikk galt under slettingen av filen, prøv igjen senere.',
-      ];
-      const expectedResult = [
-        {
-          id: '',
-          message: 'Noe gikk galt under opplastingen av filen, prøv igjen senere.',
-        },
-        {
-          id: '',
-          message: 'Noe gikk galt under oppdatering av filens merking, prøv igjen senere.',
-        },
-        {
-          id: 'mock-attachment-id',
-          message: 'Noe gikk galt under oppdatering av filens merking, prøv igjen senere.',
-        },
-        {
-          id: '',
-          message: 'Noe gikk galt under slettingen av filen, prøv igjen senere.',
-        },
-      ];
-
-      const validationArray = parseFileUploadComponentWithTagValidationObject(mockValidations);
-      expect(validationArray).toEqual(expectedResult);
     });
   });
 

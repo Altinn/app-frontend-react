@@ -5,6 +5,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { useGetOptions } from 'src/features/options/useGetOptions';
+import { hasValidationErrors } from 'src/features/validation';
+import { useAlertPopper } from 'src/hooks/useAlertPopper';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
@@ -14,19 +16,14 @@ import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneCompon
 import classes from 'src/layout/FileUpload/FileUploadComponent.module.css';
 import { FileTableComponent } from 'src/layout/FileUpload/FileUploadTable/FileTableComponent';
 import { handleRejectedFiles } from 'src/layout/FileUpload/handleRejectedFiles';
-import {
-  getFileUploadWithTagComponentValidations,
-  parseFileUploadComponentWithTagValidationObject,
-} from 'src/utils/formComponentUtils';
-import { renderValidationMessagesForComponent } from 'src/utils/render';
+import { ComponentValidation } from 'src/utils/render';
 import type { IAttachment } from 'src/features/attachments';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IRuntimeState } from 'src/types';
-import type { IComponentValidations } from 'src/utils/validation/types';
 
 export type IFileUploadWithTagProps = PropsFromGenericComponent<'FileUpload' | 'FileUploadWithTag'>;
 
-export function FileUploadComponent({ componentValidations, node }: IFileUploadWithTagProps): React.JSX.Element {
+export function FileUploadComponent({ validations, node }: IFileUploadWithTagProps): React.JSX.Element {
   const {
     id,
     baseComponentId,
@@ -39,19 +36,20 @@ export function FileUploadComponent({ componentValidations, node }: IFileUploadW
     validFileEndings,
     textResourceBindings,
     dataModelBindings,
-    type,
   } = node.item;
 
   const dataDispatch = useAppDispatch();
-  const [validations, setValidations] = React.useState<string[]>([]);
-  const [validationsWithTag, setValidationsWithTag] = React.useState<Array<{ id: string; message: string }>>([]);
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useIsMobileOrTablet();
   const attachments: IAttachment[] = useAppSelector((state: IRuntimeState) => state.attachments.attachments[id] || []);
 
-  const hasTag = type === 'FileUploadWithTag';
+  const componentValidations = validations?.filter((v) => !v.metadata?.attachmentId);
+  const attachmentValidations = validations?.filter((v) => v.metadata?.attachmentId);
+
   const langTools = useLanguage();
   const { lang, langAsString } = langTools;
+
+  const [Popper, showPopper] = useAlertPopper();
 
   const { options } = useGetOptions({
     ...node.item,
@@ -61,28 +59,9 @@ export function FileUploadComponent({ componentValidations, node }: IFileUploadW
     },
   });
 
-  // Get data from validations based on hasTag.
-  const { validationMessages, hasValidationMessages, ...otherValidationData } = hasTag
-    ? validateWithTag({
-        setValidationsWithTag,
-        validationsWithTag,
-        componentValidations,
-      })
-    : validateWithoutTag({
-        componentValidations,
-        validations,
-      });
-  const { setValidationsFromArray, attachmentValidationMessages } = otherValidationData as {
-    setValidationsFromArray: (validationArray: string[]) => void;
-    attachmentValidationMessages: { id: string; message: string }[];
-  };
-
-  const shouldShowFileUpload = (): boolean => {
-    if (attachments.length >= maxNumberOfAttachments) {
-      return false;
-    }
-    return displayMode !== 'simple' || attachments.length === 0 || showFileUpload === true;
-  };
+  const shouldShowFileUpload =
+    !(attachments.length >= maxNumberOfAttachments) &&
+    (displayMode !== 'simple' || attachments.length === 0 || showFileUpload === true);
 
   const renderAddMoreAttachmentsButton = (): JSX.Element | null => {
     const canShowButton =
@@ -110,10 +89,10 @@ export function FileUploadComponent({ componentValidations, node }: IFileUploadW
 
     if (totalAttachments > maxNumberOfAttachments) {
       // if the user adds more attachments than max, all should be ignored
-      const errorText = `${langAsString(
-        'form_filler.file_uploader_validation_error_exceeds_max_files_1',
-      )} ${maxNumberOfAttachments} ${langAsString('form_filler.file_uploader_validation_error_exceeds_max_files_2')}`;
-      hasTag ? setValidationsFromArray([errorText]) : setValidations([errorText]);
+      showPopper(
+        langAsString('form_filler.file_uploader_validation_error_exceeds_max_files', [maxNumberOfAttachments]),
+        'danger',
+      );
       return;
     }
     // we should upload all files, if any rejected files we should display an error
@@ -138,11 +117,11 @@ export function FileUploadComponent({ componentValidations, node }: IFileUploadW
       rejectedFiles,
       maxFileSizeInMB,
     });
-    hasTag ? setValidationsFromArray(rejections) : setValidations(rejections);
+    if (rejections?.length) {
+      const errorMessage = `- ${rejections.join('\n- ')}`;
+      showPopper(errorMessage, 'danger');
+    }
   };
-
-  const renderValidationMessages =
-    hasValidationMessages && renderValidationMessagesForComponent(validationMessages, id);
 
   const attachmentsCounter = (
     <AttachmentsCounter
@@ -157,7 +136,7 @@ export function FileUploadComponent({ componentValidations, node }: IFileUploadW
       id={`altinn-fileuploader-${id}`}
       style={{ padding: '0px' }}
     >
-      {shouldShowFileUpload() && (
+      {shouldShowFileUpload && (
         <>
           <DropzoneComponent
             id={id}
@@ -166,13 +145,13 @@ export function FileUploadComponent({ componentValidations, node }: IFileUploadW
             readOnly={!!readOnly}
             onClick={(e) => e.preventDefault()}
             onDrop={handleDrop}
-            hasValidationMessages={!!hasValidationMessages}
+            hasValidationMessages={hasValidationErrors(componentValidations)}
             hasCustomFileEndings={hasCustomFileEndings}
             validFileEndings={validFileEndings}
             textResourceBindings={textResourceBindings}
           />
           {attachmentsCounter}
-          {renderValidationMessages}
+          <ComponentValidation validations={componentValidations} />
         </>
       )}
 
@@ -180,63 +159,19 @@ export function FileUploadComponent({ componentValidations, node }: IFileUploadW
         node={node}
         mobileView={mobileView}
         attachments={attachments}
-        attachmentValidations={attachmentValidationMessages}
+        attachmentValidations={attachmentValidations}
         options={options}
-        validationsWithTag={validationsWithTag}
-        setValidationsWithTag={setValidationsWithTag}
+        showPopper={showPopper}
       />
 
-      {!shouldShowFileUpload() && (
+      {!shouldShowFileUpload && (
         <>
           {attachmentsCounter}
-          {renderValidationMessages}
+          <ComponentValidation validations={componentValidations} />
         </>
       )}
       {renderAddMoreAttachmentsButton()}
+      <Popper />
     </div>
   );
 }
-
-interface IValidateWithTag {
-  setValidationsWithTag: (validationArray: { id: string; message: string }[]) => void;
-  validationsWithTag: {
-    id: string;
-    message: string;
-  }[];
-  componentValidations: IComponentValidations | undefined;
-}
-
-const validateWithTag = ({ setValidationsWithTag, validationsWithTag, componentValidations }: IValidateWithTag) => {
-  const setValidationsFromArray = (validationArray: string[]) => {
-    setValidationsWithTag(parseFileUploadComponentWithTagValidationObject(validationArray));
-  };
-  const { attachmentValidationMessages, hasValidationMessages, validationMessages } =
-    getFileUploadWithTagComponentValidations(componentValidations, validationsWithTag);
-  return {
-    setValidationsFromArray,
-    attachmentValidationMessages,
-    hasValidationMessages,
-    validationMessages,
-  };
-};
-
-interface IValidateWithoutTag {
-  componentValidations: IComponentValidations | undefined;
-  validations: string[];
-}
-
-const validateWithoutTag = ({ componentValidations, validations }: IValidateWithoutTag) => {
-  const validationMessages = {
-    simpleBinding: {
-      errors: [...(componentValidations?.simpleBinding?.errors ?? []), ...validations],
-      warnings: [...(componentValidations?.simpleBinding?.warnings ?? [])],
-      fixed: [...(componentValidations?.simpleBinding?.fixed ?? [])],
-    },
-  };
-  const hasValidationMessages =
-    validationMessages?.simpleBinding.errors && validationMessages.simpleBinding.errors.length > 0;
-  return {
-    validationMessages: validationMessages.simpleBinding,
-    hasValidationMessages,
-  };
-};
