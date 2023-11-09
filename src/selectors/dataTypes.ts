@@ -24,7 +24,7 @@ export const selectDataTypesByIds = (dataTypeIds: string[] | undefined) =>
     },
   );
 
-export const selectAttachments = (includePDF: boolean = false, dataForTask: IData[] | undefined) =>
+export const selectAttachments = (dataForTask: IData[] | undefined) =>
   createSelector(selectDataTypes, selectCurrentTaskId, (dataTypes, currentTaskId) => {
     const appLogicDataTypes = dataTypes?.filter((dataType) => dataType.appLogic && dataType.taskId === currentTaskId);
 

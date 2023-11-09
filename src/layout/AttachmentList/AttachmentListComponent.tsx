@@ -11,10 +11,10 @@ import type { PropsFromGenericComponent } from 'src/layout';
 export type IAttachmentListProps = PropsFromGenericComponent<'AttachmentList'>;
 
 export function AttachmentListComponent({ node }: IAttachmentListProps) {
-  const { dataTypeIds, includePDF } = node.item;
+  const { dataTypeIds } = node.item;
   const { lang } = useLanguage();
   const dataForTask = useAppSelector(selectDataTypesByIds(dataTypeIds));
-  const attachments = useAppSelector(selectAttachments(includePDF, dataForTask));
+  const attachments = useAppSelector(selectAttachments(dataForTask));
 
   return (
     <Grid
