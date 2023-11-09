@@ -3,7 +3,7 @@ import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
-import { applicationMetadataMock } from 'src/__mocks__/applicationMetadataMock';
+import { getApplicationMetadataMock } from 'src/__mocks__/applicationMetadataMock';
 import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { ConfirmPage, type IConfirmPageProps } from 'src/features/confirm/containers/ConfirmPage';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
@@ -13,7 +13,7 @@ describe('ConfirmPage', () => {
     appName: 'Irrelevant',
     instance: getInstanceDataMock(),
     parties: [],
-    applicationMetadata: applicationMetadataMock,
+    applicationMetadata: getApplicationMetadataMock(),
   };
   it('should present confirm information when necessary data is present', async () => {
     await renderWithInstanceAndLayout({
