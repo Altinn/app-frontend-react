@@ -43,7 +43,13 @@ describe('Options', () => {
     cy.get(appFrontend.group.options).should('have.value', 'Endre fra: 1, Endre til: 2');
   });
   it('retrieves metadata from header when metadata is set in datamodelBindings', () => {
-    cy.intercept({ method: 'GET', url: '**/options/**' }).as('optionsMunicipality');
+    cy.intercept({ method: 'GET', url: '**/options/test-kommuner**' }, (req) => {
+      req.reply((res) => {
+        const headers = res.headers;
+        headers['altinn-downstreamparameters'] = 'language=nb,id=131,variant=,date=01/01/2021,level=,parentCode=';
+        res.send(res.body, headers);
+      });
+    }).as('optionsMunicipality');
 
     cy.goto('changename');
     cy.wait('@optionsMunicipality');
