@@ -27,7 +27,8 @@ export const selectDataTypesByIds = (dataTypeIds: string[] | undefined) =>
 export const selectAttachments = (includePDF: boolean = false, dataForTask: IData[] | undefined) =>
   createSelector(selectDataTypes, selectCurrentTaskId, (dataTypes, currentTaskId) => {
     const appLogicDataTypes = dataTypes?.filter((dataType) => dataType.appLogic && dataType.taskId === currentTaskId);
-    return includePDF
-      ? getInstancePdf(dataForTask)
-      : mapInstanceAttachments(dataForTask, appLogicDataTypes?.map((type) => type.id) || []);
+
+    const pdfResult = getInstancePdf(dataForTask) || [];
+    const attachmentResult = mapInstanceAttachments(dataForTask, appLogicDataTypes?.map((type) => type.id) || []);
+    return [...pdfResult, ...attachmentResult];
   });
