@@ -127,6 +127,7 @@ function legacyProcessLayouts({ input, dispatch, currentViewCacheKey, layoutSetI
       layoutSetId: layoutSetId || null,
     }),
   );
+  dispatch(FormLayoutActions.initRepeatingGroups({}));
   dispatch(
     FormLayoutActions.updateCurrentView({
       newView: firstLayoutKey,
