@@ -55,7 +55,7 @@ export class Address extends AddressDef implements ComponentValidation {
     const zipCodeField = node.item.dataModelBindings.zipCode;
     const zipCode = zipCodeField ? formDataToValidate[zipCodeField] : undefined;
 
-    // TODO(Validation): Add better message for the special case of 0000
+    // TODO(Validation): Add better message for the special case of 0000 or add better validation for zipCodes that the API says are invalid
     if (zipCode && (!zipCode.match(/^\d{4}$/) || zipCode === '0000')) {
       addValidationToField(fieldValidations, {
         message: langTools.langAsString('address_component.validation_error_zipcode'),
