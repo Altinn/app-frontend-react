@@ -54,18 +54,10 @@ describe('FileUploadComponent', () => {
 
   describe('file status', () => {
     it('should show loading when file uploaded=false', async () => {
-      const { mutations, id, attachments } = await render({
-        attachments: (dataType) => {
-          const out = getDataElements({ count: 1, dataType });
-          out[0].filename = 'chucknorris.png';
-
-          return out;
-        },
-      });
-      const attachment = attachments[0];
+      const { mutations, id } = await render({ attachments: () => [] });
+      const attachment = getDataElements({ count: 1, dataType: id })[0];
       expect(mutations.doAttachmentUpload.mock).not.toHaveBeenCalled();
 
-      // Upload an attachment
       const file = new File(['(⌐□_□)'], attachment?.filename || '', { type: attachment.contentType });
       // eslint-disable-next-line testing-library/no-node-access
       const fileInput = screen.getByTestId(`altinn-drop-zone-${id}`).querySelector('input') as HTMLInputElement;
@@ -99,7 +91,7 @@ describe('FileUploadComponent', () => {
         expect(screen.getByRole('button', { name: 'Slett' })).toBeInTheDocument();
       });
 
-      await userEvent.click(screen.getByRole('button', { name: 'Slett' }));
+      await deleteAttachment();
 
       await waitFor(() => {
         expect(screen.getByText('Laster innhold')).toBeInTheDocument();
@@ -146,6 +138,21 @@ describe('FileUploadComponent', () => {
   });
 });
 
+async function openEdit() {
+  await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
+}
+
+async function deleteAttachment() {
+  await userEvent.click(screen.getByRole('button', { name: 'Slett' }));
+}
+
+async function selectTag(tagName: string = 'Tag 1') {
+  await openEdit();
+  await userEvent.click(screen.getByRole('combobox'));
+  await userEvent.click(screen.getByText(tagName));
+  await userEvent.click(screen.getByRole('button', { name: 'Lagre' }));
+}
+
 describe('FileUploadWithTagComponent', () => {
   describe('uploaded', () => {
     it('should show spinner when file status has uploaded=false', async () => {
@@ -153,7 +160,6 @@ describe('FileUploadWithTagComponent', () => {
         attachments: (dataType) => getDataElements({ count: 0, dataType }),
       });
 
-      // Upload an attachment
       const file = new File(['(⌐□_□)'], 'chucknorris.png', { type: 'image/png' });
       // eslint-disable-next-line testing-library/no-node-access
       const dropZone = screen.getByTestId(`altinn-drop-zone-${id}`).querySelector('input') as HTMLInputElement;
@@ -171,25 +177,23 @@ describe('FileUploadWithTagComponent', () => {
   describe('updating', () => {
     it('should show spinner in edit mode when file status has updating=true', async () => {
       const { mutations } = await renderWithTag({ attachments: (dataType) => getDataElements({ count: 1, dataType }) });
-
-      await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
-      await userEvent.click(screen.getByRole('combobox'));
-      await userEvent.click(screen.getByText('Tag 1'));
-      await userEvent.click(screen.getByRole('button', { name: 'Lagre' }));
+      await selectTag();
 
       expect(mutations.doAttachmentAddTag.mock).toHaveBeenCalledTimes(1);
       expect(screen.getByText('Laster innhold')).toBeInTheDocument();
       mutations.doAttachmentAddTag.resolve();
 
+      await waitFor(() => expect(mutations.doAttachmentRemoveTag.mock).toHaveBeenCalledTimes(1));
+      mutations.doAttachmentRemoveTag.resolve();
+
       await waitFor(() => {
         expect(screen.queryByText('Laster innhold')).not.toBeInTheDocument();
       });
-      expect(mutations.doAttachmentRemoveTag.mock).toHaveBeenCalledTimes(0);
     });
 
     it('should not show spinner in edit mode when file status has updating=false', async () => {
       await renderWithTag({ attachments: (dataType) => getDataElements({ count: 1, dataType }) });
-      await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
+      await openEdit();
 
       expect(screen.queryByText('Laster innhold')).not.toBeInTheDocument();
     });
@@ -198,11 +202,7 @@ describe('FileUploadWithTagComponent', () => {
   describe('editing', () => {
     it('should disable dropdown in edit mode when updating', async () => {
       const { mutations } = await renderWithTag({ attachments: (dataType) => getDataElements({ count: 1, dataType }) });
-
-      await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
-      await userEvent.click(screen.getByRole('combobox'));
-      await userEvent.click(screen.getByText('Tag 1'));
-      await userEvent.click(screen.getByRole('button', { name: 'Lagre' }));
+      await selectTag();
 
       expect(mutations.doAttachmentAddTag.mock).toHaveBeenCalledTimes(1);
       expect(screen.getByText('Laster innhold')).toBeInTheDocument();
@@ -212,14 +212,14 @@ describe('FileUploadWithTagComponent', () => {
 
     it('should not disable dropdown in edit mode when not updating', async () => {
       await renderWithTag({ attachments: (dataType) => getDataElements({ count: 1, dataType }) });
-      await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
+      await openEdit();
 
       expect(screen.getByRole('combobox')).not.toBeDisabled();
     });
 
     it('should not disable save button', async () => {
       await renderWithTag({ attachments: (dataType) => getDataElements({ count: 1, dataType }) });
-      await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
+      await openEdit();
 
       expect(
         screen.getByRole('button', {
@@ -233,7 +233,7 @@ describe('FileUploadWithTagComponent', () => {
         component: { readOnly: true },
         attachments: (dataType) => getDataElements({ count: 1, dataType }),
       });
-      await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
+      await openEdit();
 
       expect(
         screen.getByRole('button', {
@@ -243,17 +243,14 @@ describe('FileUploadWithTagComponent', () => {
     });
 
     it('should disable save button when attachment.uploaded=false', async () => {
-      const { id } = await renderWithTag({
-        attachments: (dataType) => getDataElements({ count: 0, dataType }),
-      });
+      const { id, mutations } = await renderWithTag({ attachments: () => [] });
 
-      // Upload an attachment
       const file = new File(['(⌐□_□)'], 'chucknorris.png', { type: 'image/png' });
-      const dropZone = screen.getByTestId(`altinn-drop-zone-${id}`);
+      // eslint-disable-next-line testing-library/no-node-access
+      const dropZone = screen.getByTestId(`altinn-drop-zone-${id}`).querySelector('input') as HTMLInputElement;
       await userEvent.upload(dropZone, file);
 
-      await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
-
+      await waitFor(() => expect(mutations.doAttachmentUpload.mock).toHaveBeenCalledTimes(1));
       expect(
         screen.getByRole('button', {
           name: 'Lagre',
@@ -263,11 +260,7 @@ describe('FileUploadWithTagComponent', () => {
 
     it('should not show save button when attachment.updating=true', async () => {
       const { mutations } = await renderWithTag({ attachments: (dataType) => getDataElements({ count: 1, dataType }) });
-
-      await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
-      await userEvent.click(screen.getByRole('combobox'));
-      await userEvent.click(screen.getByText('Tag 1'));
-      await userEvent.click(screen.getByRole('button', { name: 'Lagre' }));
+      await selectTag();
 
       expect(mutations.doAttachmentAddTag.mock).toHaveBeenCalledTimes(1);
       expect(
@@ -401,6 +394,6 @@ async function renderAbstract<T extends Types>({
   return { ...utils, id, attachments };
 }
 
-const render = (props: Omit<Props<'FileUpload'>, 'type'>) => renderAbstract({ type: 'FileUpload', ...props });
-const renderWithTag = (props: Omit<Props<'FileUploadWithTag'>, 'type'>) =>
+const render = (props: Omit<Props<'FileUpload'>, 'type'> = {}) => renderAbstract({ type: 'FileUpload', ...props });
+const renderWithTag = (props: Omit<Props<'FileUploadWithTag'>, 'type'> = {}) =>
   renderAbstract({ type: 'FileUploadWithTag', ...props });

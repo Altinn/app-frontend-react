@@ -3,29 +3,27 @@ import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
+import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
 import { promiseMock, renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { AppQueries } from 'src/contexts/appQueriesContext';
 import type { IOption } from 'src/layout/common.generated';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
-const countries = {
-  id: 'countries',
-  options: [
-    {
-      label: 'Norway',
-      value: 'norway',
-    },
-    {
-      label: 'Sweden',
-      value: 'sweden',
-    },
-    {
-      label: 'Denmark',
-      value: 'denmark',
-    },
-  ] as IOption[],
-};
+const countries: IOption[] = [
+  {
+    label: 'Norway',
+    value: 'norway',
+  },
+  {
+    label: 'Sweden',
+    value: 'sweden',
+  },
+  {
+    label: 'Denmark',
+    value: 'denmark',
+  },
+];
 
 interface Props extends Partial<Omit<RenderGenericComponentTestProps<'Dropdown'>, 'renderer' | 'type' | 'queries'>> {
   options?: IOption[];
@@ -62,7 +60,7 @@ describe('DropdownComponent', () => {
       genericProps: {
         handleDataChange,
       },
-      options: countries.options,
+      options: countries,
     });
 
     expect(handleDataChange).not.toHaveBeenCalled();
@@ -76,7 +74,7 @@ describe('DropdownComponent', () => {
       component: {
         readOnly: true,
       },
-      options: countries.options,
+      options: countries,
     });
 
     const select = await screen.findByRole('combobox');
@@ -88,7 +86,7 @@ describe('DropdownComponent', () => {
       component: {
         readOnly: false,
       },
-      options: countries.options,
+      options: countries,
     });
 
     const select = await screen.findByRole('combobox');
@@ -104,7 +102,7 @@ describe('DropdownComponent', () => {
       genericProps: {
         handleDataChange,
       },
-      options: countries.options,
+      options: countries,
     });
 
     await waitFor(() => expect(handleDataChange).toHaveBeenCalledWith('denmark', { validate: true }));
@@ -120,7 +118,7 @@ describe('DropdownComponent', () => {
       genericProps: {
         handleDataChange,
       },
-      options: countries.options,
+      options: countries,
     });
 
     await waitFor(() => expect(handleDataChange).toHaveBeenCalledWith('denmark', { validate: true }));
@@ -135,15 +133,45 @@ describe('DropdownComponent', () => {
   });
 
   it('should show spinner', async () => {
-    const { fetchOptions } = await render({
+    const { fetchOptions, originalDispatch } = await render({
       component: {
         optionsId: 'countries',
+        mapping: {
+          'Some.Path': 'queryArg',
+        },
       },
       waitUntilLoaded: false,
     });
-    await screen.findByTestId('altinn-spinner');
-    fetchOptions.resolve(countries.options);
+
+    await waitFor(() => expect(fetchOptions.mock).toHaveBeenCalledTimes(1));
+    fetchOptions.resolve(countries);
+    await screen.findByText('Denmark');
+
+    // The component always finishes loading the first time, but if we have mapping that affects the options
+    // the component renders a spinner for a while when fetching the options again.
+    originalDispatch(
+      FormDataActions.updateFulfilled({
+        componentId: 'someId',
+        field: 'Some.Path',
+        data: 'newValue',
+        skipAutoSave: true,
+        skipValidation: true,
+      }),
+    );
+
+    await waitFor(() => expect(fetchOptions.mock).toHaveBeenCalledTimes(2));
+    expect(screen.getByTestId('altinn-spinner')).toBeInTheDocument();
+
+    fetchOptions.resolve([
+      ...countries,
+      {
+        label: 'Finland',
+        value: 'finland',
+      },
+    ]);
+
     await waitFor(() => expect(screen.queryByTestId('altinn-spinner')).not.toBeInTheDocument());
+    expect(screen.getByText('Finland')).toBeInTheDocument();
   });
 
   it('should present replaced label if setup with values from repeating group in redux and trigger handleDataChanged with replaced values', async () => {
@@ -180,7 +208,7 @@ describe('DropdownComponent', () => {
       component: {
         optionsId: 'countries',
       },
-      options: countries.options,
+      options: countries,
     });
 
     await userEvent.click(await screen.findByRole('combobox'));
@@ -197,7 +225,7 @@ describe('DropdownComponent', () => {
         optionsId: 'countries',
         sortOrder: 'asc',
       },
-      options: countries.options,
+      options: countries,
     });
 
     await userEvent.click(await screen.findByRole('combobox'));
@@ -214,7 +242,7 @@ describe('DropdownComponent', () => {
         optionsId: 'countries',
         sortOrder: 'desc',
       },
-      options: countries.options,
+      options: countries,
     });
 
     await userEvent.click(await screen.findByRole('combobox'));

@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
 import { createTheme, MuiThemeProvider } from '@material-ui/core';
-import { render as rtlRender, waitFor } from '@testing-library/react';
+import { act, render as rtlRender, waitFor } from '@testing-library/react';
 import type { RenderOptions } from '@testing-library/react';
 import type { JSONSchema7 } from 'json-schema';
 
@@ -45,13 +45,14 @@ type MockedMutations = {
   };
 };
 
+type ReduxAction = Parameters<ReturnType<typeof setupStore>['store']['dispatch']>[0];
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   renderer: () => React.ReactElement;
   router?: (props: PropsWithChildren) => React.ReactNode;
   waitUntilLoaded?: boolean;
   queries?: Partial<MockableQueries>;
   reduxState?: IRuntimeState;
-  reduxGateKeeper?: (action: any) => boolean;
+  reduxGateKeeper?: (action: ReduxAction) => boolean;
 }
 
 interface BaseRenderOptions extends ExtendedRenderOptions {
@@ -84,7 +85,7 @@ function mutationsMap(mutations: MockedMutations) {
   return Object.fromEntries(Object.entries(mutations).map(([key, value]) => [key, value.mock])) as AppMutations;
 }
 
-const mutations: MockedMutations = {
+const makeMutationMocks = (): MockedMutations => ({
   doAttachmentAddTag: promiseMock<AppMutations['doAttachmentAddTag']>(),
   doAttachmentRemove: promiseMock<AppMutations['doAttachmentRemove']>(),
   doAttachmentRemoveTag: promiseMock<AppMutations['doAttachmentRemoveTag']>(),
@@ -94,7 +95,7 @@ const mutations: MockedMutations = {
   doPartyValidation: promiseMock<AppMutations['doPartyValidation']>(),
   doProcessNext: promiseMock<AppMutations['doProcessNext']>(),
   doSelectParty: promiseMock<AppMutations['doSelectParty']>(),
-};
+});
 
 const defaultQueryMocks: MockableQueries = {
   fetchApplicationMetadata: () => Promise.resolve(getInitialStateMock().applicationMetadata.applicationMetadata!),
@@ -128,6 +129,11 @@ const unMockableQueriesDefaults: UnMockableQueries = {
   fetchLayouts: () => Promise.reject(new Error('fetchLayouts not mocked')),
 };
 
+const defaultReduxGateKeeper = (action: ReduxAction) =>
+  // We'll allow all the deprecated actions by default, as these have no side effects and are needed for things
+  // like the AllOptionsProvider (along with summary of options-components) to work
+  !!(action && 'type' in action && action.type.startsWith('deprecated/'));
+
 const renderBase = async ({
   renderer,
   router,
@@ -135,19 +141,24 @@ const renderBase = async ({
   waitUntilLoaded = true,
   unMockableQueries = {},
   reduxState,
-  reduxGateKeeper,
+  reduxGateKeeper = defaultReduxGateKeeper,
   ...renderOptions
 }: BaseRenderOptions) => {
   const state = reduxState || getInitialStateMock();
   const { store } = setupStore(state);
-  const originalDispatch = store.dispatch;
-  jest.spyOn(store, 'dispatch').mockImplementation((action) => {
-    if (!reduxGateKeeper) {
-      return undefined;
-    }
+  const mutations = makeMutationMocks();
 
-    return reduxGateKeeper(action) ? originalDispatch(action) : undefined;
-  });
+  const originalDispatch = store.dispatch;
+  jest
+    .spyOn(store, 'dispatch')
+    .mockImplementation((action) => (reduxGateKeeper(action) ? originalDispatch(action) : undefined));
+
+  // This is useful if you really need to run an action in your tests, regardless of the reduxGateKeeper
+  const originalDispatchWithAct = (action: ReduxAction) => {
+    act(() => {
+      originalDispatch(action);
+    });
+  };
 
   function ComponentToTest() {
     return <>{renderer()}</>;
@@ -195,11 +206,7 @@ const renderBase = async ({
     );
   }
 
-  const utils = {
-    store,
-    mutations,
-    ...rtlRender(Providers(), renderOptions),
-  };
+  const utils = rtlRender(Providers(), renderOptions);
 
   if (waitUntilLoaded) {
     // This may fail early if any of the providers fail to load, and will give you the provider/reason for failure
@@ -220,7 +227,13 @@ const renderBase = async ({
     (store.dispatch as jest.Mock).mockClear();
   }
 
-  return utils;
+  return {
+    store,
+    mutations,
+    originalDispatch: originalDispatchWithAct,
+    initialState: state,
+    ...utils,
+  };
 };
 
 export const renderWithoutInstanceAndLayout = async (props: ExtendedRenderOptions) => await renderBase(props);
