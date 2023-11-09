@@ -61,6 +61,7 @@ const render = async ({
       fetchAppLanguages: () =>
         languageResponse ? Promise.resolve(languageResponse) : Promise.reject(new Error('No languages mocked')),
     },
+    reduxGateKeeper: (action) => 'type' in action && action.type === 'profile/updateSelectedAppLanguage',
   });
 
   return { mockClose, mockBack, mockAppLanguageChange };
