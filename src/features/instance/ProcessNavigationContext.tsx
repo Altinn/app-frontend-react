@@ -42,17 +42,19 @@ function useProcessNext() {
     },
   });
 
-  const nativeMutate = utils.mutate;
+  const nativeMutate = utils.mutateAsync;
 
   useEffect(() => {
-    if (submittingState === 'validationSuccessful') {
-      nativeMutate({});
-      dispatch(FormDataActions.submitClear());
-    }
+    (async () => {
+      if (submittingState === 'validationSuccessful') {
+        await nativeMutate({});
+        dispatch(FormDataActions.submitClear());
+      }
+    })();
   }, [dispatch, nativeMutate, submittingState]);
 
   const perform = useCallback(
-    (props: ProcessNextProps) => {
+    async (props: ProcessNextProps) => {
       if (submittingState !== 'inactive') {
         return;
       }
@@ -67,7 +69,7 @@ function useProcessNext() {
         return;
       }
 
-      nativeMutate(props || {});
+      await nativeMutate(props || {});
     },
     [realTaskType, submittingState, dispatch, nativeMutate],
   );
@@ -87,7 +89,7 @@ const { Provider, useCtx } = createLaxContext<ContextData>();
 
 export function ProcessNavigationProvider({ children }: React.PropsWithChildren) {
   const { perform, error } = useProcessNext();
-  const [_busyWithId, setBusyWithId] = useState<string>('');
+  const [busyWithId, setBusyWithId] = useState<string>('');
   const submittingState = useAppSelector((state) => state.formData.submittingState);
 
   const attachments = useAttachments();
@@ -96,7 +98,24 @@ export function ProcessNavigationProvider({ children }: React.PropsWithChildren)
       fileUploader?.some((attachment) => !attachment.uploaded || attachment.updating || attachment.deleting),
   );
 
-  const busyWithId = submittingState === 'inactive' ? '' : _busyWithId;
+  useEffect(() => {
+    if (submittingState === 'inactive') {
+      setBusyWithId('');
+    }
+  }, [submittingState]);
+
+  const next = useCallback(
+    async ({ nodeId, ...rest }: ProcessNextProps & { nodeId: string }) => {
+      if (busyWithId) {
+        return;
+      }
+
+      setBusyWithId(nodeId);
+      await perform(rest);
+    },
+    [busyWithId, perform],
+  );
+
   if (error) {
     return <DisplayError error={error} />;
   }
@@ -108,14 +127,7 @@ export function ProcessNavigationProvider({ children }: React.PropsWithChildren)
         busyWithId,
         canSubmit: !attachmentsPending && !busyWithId,
         attachmentsPending,
-        next: async ({ nodeId, ...rest }) => {
-          if (busyWithId) {
-            return;
-          }
-
-          setBusyWithId(nodeId);
-          perform(rest);
-        },
+        next,
       }}
     >
       {children}

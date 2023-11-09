@@ -4,7 +4,9 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
 import { createTheme, MuiThemeProvider } from '@material-ui/core';
+import { QueryClient } from '@tanstack/react-query';
 import { act, render as rtlRender, waitFor } from '@testing-library/react';
+import dotenv from 'dotenv';
 import type { RenderOptions } from '@testing-library/react';
 import type { JSONSchema7 } from 'json-schema';
 
@@ -27,6 +29,8 @@ import type { ILayoutSets, IRuntimeState } from 'src/types';
 import type { IProfile } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
+
+const env = dotenv.config();
 
 /**
  * These are the queries that cannot be mocked. Instead of mocking the queries themselves, you should provide preloaded
@@ -81,10 +85,6 @@ export function promiseMock<T extends (...args: unknown[]) => unknown>() {
   };
 }
 
-function mutationsMap(mutations: MockedMutations) {
-  return Object.fromEntries(Object.entries(mutations).map(([key, value]) => [key, value.mock])) as AppMutations;
-}
-
 const makeMutationMocks = (): MockedMutations => ({
   doAttachmentAddTag: promiseMock<AppMutations['doAttachmentAddTag']>(),
   doAttachmentRemove: promiseMock<AppMutations['doAttachmentRemove']>(),
@@ -97,8 +97,8 @@ const makeMutationMocks = (): MockedMutations => ({
   doSelectParty: promiseMock<AppMutations['doSelectParty']>(),
 });
 
-const defaultQueryMocks: MockableQueries = {
-  fetchApplicationMetadata: () => Promise.resolve(getInitialStateMock().applicationMetadata.applicationMetadata!),
+const makeDefaultQueryMocks = (state: IRuntimeState): MockableQueries => ({
+  fetchApplicationMetadata: () => Promise.resolve(state.applicationMetadata.applicationMetadata!),
   fetchActiveInstances: () => Promise.resolve([]),
   fetchCurrentParty: () => Promise.resolve({}),
   fetchApplicationSettings: () => Promise.resolve({}),
@@ -120,7 +120,7 @@ const defaultQueryMocks: MockableQueries = {
   fetchLayoutSchema: () => Promise.resolve({} as JSONSchema7),
   fetchAppLanguages: () => Promise.resolve([]),
   fetchProcessNextSteps: () => Promise.resolve([]),
-};
+});
 
 const unMockableQueriesDefaults: UnMockableQueries = {
   fetchInstanceData: () => Promise.reject(new Error('fetchInstanceData not mocked')),
@@ -148,10 +148,48 @@ const renderBase = async ({
   const { store } = setupStore(state);
   const mutations = makeMutationMocks();
 
+  const queryClient = new QueryClient({
+    logger: {
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      log: () => {},
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      warn: () => {},
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      error: () => {},
+    },
+    defaultOptions: {
+      mutations: { retry: false },
+      queries: { retry: false, staleTime: Infinity },
+    },
+  });
+
+  let isInitializing = !!waitUntilLoaded;
   const originalDispatch = store.dispatch;
-  jest
-    .spyOn(store, 'dispatch')
-    .mockImplementation((action) => (reduxGateKeeper(action) ? originalDispatch(action) : undefined));
+  if (reduxGateKeeper) {
+    jest.spyOn(store, 'dispatch').mockImplementation((action) => {
+      const performDispatch = reduxGateKeeper(action);
+      if (!isInitializing && reduxGateKeeper === defaultReduxGateKeeper) {
+        console.error('Unexpected redux dispatch after initialization:', action);
+      }
+
+      performDispatch && originalDispatch(action);
+    });
+  }
+
+  const finalQueries: AppQueries = {
+    ...makeDefaultQueryMocks(state),
+    ...queries,
+    ...unMockableQueriesDefaults,
+    ...unMockableQueries,
+  };
+
+  const queryMocks = Object.fromEntries(
+    Object.entries(finalQueries).map(([key, value]) => [key, jest.fn().mockImplementation(value)]),
+  ) as unknown as AppQueries;
+
+  const mutationMocks = Object.fromEntries(
+    Object.entries(mutations).map(([key, value]) => [key, value.mock]),
+  ) as AppMutations;
 
   // This is useful if you really need to run an action in your tests, regardless of the reduxGateKeeper
   const originalDispatchWithAct = (action: ReduxAction) => {
@@ -180,17 +218,13 @@ const renderBase = async ({
   function Providers() {
     const theme = createTheme(AltinnAppTheme);
 
-    const allQueries = {
-      ...defaultQueryMocks,
-      ...queries,
-      ...unMockableQueriesDefaults,
-      ...unMockableQueries,
-      ...mutationsMap(mutations),
-    };
-
     const RealRouter = router || DefaultRouter;
     return (
-      <AppQueriesProvider {...allQueries}>
+      <AppQueriesProvider
+        {...queryMocks}
+        {...mutationMocks}
+        queryClient={queryClient}
+      >
         <MuiThemeProvider theme={theme}>
           <Provider store={store}>
             <ExprContextWrapper>
@@ -209,29 +243,59 @@ const renderBase = async ({
   const utils = rtlRender(Providers(), renderOptions);
 
   if (waitUntilLoaded) {
+    const timeout = env.parsed?.RENDER_WAIT_TIMEOUT ? parseInt(env.parsed.RENDER_WAIT_TIMEOUT, 10) : 10000;
+    const options = { timeout };
+
     // This may fail early if any of the providers fail to load, and will give you the provider/reason for failure
     await waitFor(() => {
-      const reason = utils.queryByTestId('loader')?.getAttribute('data-reason');
-      const asText = `Reason for loading: ${reason}`;
-      expect(asText).toEqual('Reason for loading: undefined');
-    });
+      const loadingReason = utils.queryByTestId('loader')?.getAttribute('data-reason');
+      /** @see setupTests.ts */
+      (
+        expect({
+          loadingReason,
+          queries: queryMocks,
+        }) as any
+      ).toNotBeLoading();
+    }, options);
 
     // This is a little broader, as it will catch both the loading state
     // in renderGenericComponentTest() below, but also the <Loader /> component.
-    await waitFor(() => expect(utils.queryByText('Loading...')).not.toBeInTheDocument());
+    await waitFor(() => expect(utils.queryByText('Loading...')).not.toBeInTheDocument(), options);
 
     // This also catches any AltinnSpinner components inside the DOM
-    await waitFor(() => expect(utils.queryByTestId('altinn-spinner')).not.toBeInTheDocument());
+    await waitFor(() => expect(utils.queryByTestId('altinn-spinner')).not.toBeInTheDocument(), options);
 
     // Clear the dispatch mock, as the app might trigger actions while loading
     (store.dispatch as jest.Mock).mockClear();
   }
 
+  isInitializing = false;
+
   return {
+    // The Redux store is returned here. Most notably, the store.dispatch function is mocked, so you can assert
+    // on the actions that are dispatched during your tests. The mock is automatically reset if you use the
+    // `waitUntilLoaded` option, so all actions dispatched here happened after the component finished loading.
     store,
-    mutations,
+
+    // If you need to dispatch actions to observe the real results, you can use this function in your tests.
+    // It has already been wrapped in an act() call, so you don't need to do that yourself. If however, you want
+    // any of the actions dispatched inside your component to actually have effects, you can provide a
+    // `reduxGateKeeper` function in the render options.
     originalDispatch: originalDispatchWithAct,
+
+    // The initial state of the redux store as the component was rendered.
     initialState: state,
+
+    // Mutations are returned, which allows you to assert on the mocked functions, and resolve/reject them.
+    // None of our mutations do anything in any of the unit tests, so you'll have to provide your own responses
+    // if you want to test the effects.
+    mutations,
+
+    // All queries are also returned, allowing you to assert on the mocked functions. All implementations
+    // will have defaults, and you can provide your own mocks for any query by passing one in the `queries` prop.
+    queries: queryMocks,
+
+    // All the other utils from @testing-library/react
     ...utils,
   };
 };

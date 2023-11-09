@@ -22,10 +22,12 @@ export const InstantiateContainer = () => {
   const instantiation = useInstantiation();
 
   React.useEffect(() => {
-    const shouldCreateInstance = !!selectedParty && !instantiation.lastResult && !instantiation.isLoading;
-    if (shouldCreateInstance) {
-      instantiation.instantiate(undefined, selectedParty.partyId);
-    }
+    (async () => {
+      const shouldCreateInstance = !!selectedParty && !instantiation.lastResult && !instantiation.isLoading;
+      if (shouldCreateInstance) {
+        await instantiation.instantiate(undefined, selectedParty.partyId);
+      }
+    })();
   }, [selectedParty, instantiation]);
 
   if (isAxiosError(instantiation.error)) {

@@ -40,7 +40,7 @@ export function LayoutSettingsProvider({ children }: React.PropsWithChildren) {
     return <UnknownError />;
   }
 
-  if (query.isFetching) {
+  if (query.isLoading) {
     return <Loader reason='layout-settings' />;
   }
 

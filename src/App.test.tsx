@@ -6,6 +6,14 @@ import { App } from 'src/App';
 import { renderWithInstanceAndLayout, renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
 
 describe('App', () => {
+  beforeEach(() => {
+    jest.spyOn(window, 'logError').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   test('should render unknown error when hasApplicationSettingsError', async () => {
     await renderWithoutInstanceAndLayout({
       renderer: () => <App />,

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -10,6 +10,9 @@ type KeysStartingWith<T, U extends string> = {
 };
 
 export type AppQueriesContext = typeof queries;
+export interface AppQueriesProps extends AppQueriesContext {
+  queryClient?: QueryClient;
+}
 
 export type AppQueries = KeysStartingWith<AppQueriesContext, 'fetch'>;
 export type AppMutations = KeysStartingWith<AppQueriesContext, 'do'>;
@@ -28,7 +31,25 @@ interface ContextData {
 
 const { Provider, useCtx } = createStrictContext<ContextData>({ name: 'AppQueriesContext' });
 
-export const AppQueriesProvider = ({ children, ...allQueries }: React.PropsWithChildren<AppQueriesContext>) => {
+/**
+ * This query client should not be used in unit tests, as multiple tests will end up re-using
+ * the same query cache. Provide your own when running code in tests.
+ */
+const defaultQueryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      staleTime: 10 * 60 * 1000,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
+export const AppQueriesProvider = ({
+  children,
+  queryClient,
+  ...allQueries
+}: React.PropsWithChildren<AppQueriesProps>) => {
   const queries = Object.fromEntries(
     Object.entries(allQueries).filter(([key]) => key.startsWith('fetch')),
   ) as AppQueries;
@@ -45,22 +66,8 @@ export const AppQueriesProvider = ({ children, ...allQueries }: React.PropsWithC
     }),
   ) as EnhancedMutations;
 
-  const queryClient = useMemo(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            retry: false,
-            staleTime: 10 * 60 * 1000,
-            refetchOnWindowFocus: false,
-          },
-        },
-      }),
-    [],
-  );
-
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient ?? defaultQueryClient}>
       <Provider value={{ queries, mutations: enhancedMutations }}>{children}</Provider>
     </QueryClientProvider>
   );

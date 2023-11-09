@@ -6,6 +6,8 @@ import 'core-js/stable/structured-clone'; // https://github.com/jsdom/jsdom/issu
 import dotenv from 'dotenv';
 import { TextDecoder, TextEncoder } from 'util';
 
+import type { AppQueries } from 'src/contexts/appQueriesContext';
+
 const env = dotenv.config();
 
 // https://jestjs.io/docs/manual-mocks#mocking-methods-which-are-not-implemented-in-jsdom
@@ -64,3 +66,45 @@ jest.mock('axios');
 })();
 
 global.ResizeObserver = require('resize-observer-polyfill');
+
+type QueriesAsMocks = {
+  [K in keyof AppQueries]: jest.Mock;
+};
+interface ExpectLoadingSpec {
+  loadingReason: string;
+  queries: QueriesAsMocks;
+}
+
+expect.extend({
+  toNotBeLoading: ({ loadingReason, queries }: ExpectLoadingSpec) => {
+    if (loadingReason) {
+      return {
+        message: () => {
+          const queryCalls: string[] = [];
+          for (const [name, { mock }] of Object.entries(queries)) {
+            if (mock.calls.length > 0) {
+              for (const args of mock.calls) {
+                const argsAsStr = args.map((arg: any) => JSON.stringify(arg)).join(', ');
+                queryCalls.push(`- ${name}(${argsAsStr})`);
+              }
+            }
+          }
+
+          return [
+            `Expected to not be loading, but was loading because of '${loadingReason}'.`,
+            `Queries called:`,
+            queryCalls.join('\n'),
+            '',
+            'Consider if you need to increase RENDER_WAIT_TIMEOUT if your machine is slow.',
+          ].join('\n');
+        },
+        pass: false,
+      };
+    }
+
+    return {
+      message: () => `Expected to not be loading, and no current loading reason was found`,
+      pass: true,
+    };
+  },
+});

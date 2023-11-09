@@ -13,9 +13,9 @@ export const InstantiationButton = ({ children, ...props }: Props) => {
   const formData = useAppSelector((state) => state.formData.formData);
   const party = useAppSelector((state) => state.party.selectedParty);
 
-  const instantiate = () => {
+  const instantiate = async () => {
     const prefill = mapFormData(formData, props.mapping);
-    instantiation.instantiateWithPrefill(props.node, {
+    await instantiation.instantiateWithPrefill(props.node, {
       prefill,
       instanceOwner: {
         partyId: party?.partyId.toString(),

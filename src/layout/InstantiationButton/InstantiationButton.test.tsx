@@ -1,7 +1,7 @@
 import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
@@ -37,21 +37,23 @@ const render = async () =>
 describe('InstantiationButton', () => {
   it('should show button and it should be possible to click and start loading', async () => {
     const { mutations } = await render();
-    expect(screen.getByText('Instantiate')).toBeInTheDocument();
 
-    expect(screen.queryByText('Laster innhold')).toBeNull();
+    expect(screen.getByText('Instantiate')).toBeInTheDocument();
+    expect(screen.queryByText('Laster innhold')).not.toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button'));
 
     expect(screen.getByText('Laster innhold')).toBeInTheDocument();
 
-    expect(mutations.doInstantiate.mock).toHaveBeenCalledTimes(1);
+    expect(mutations.doInstantiateWithPrefill.mock).toHaveBeenCalledTimes(1);
 
-    mutations.doInstantiate.resolve({
+    mutations.doInstantiateWithPrefill.resolve({
       ...getInstanceDataMock(),
       id: 'abc123',
     });
 
-    expect(screen.getByText('You are now looking at the instance')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('You are now looking at the instance')).toBeInTheDocument();
+    });
   });
 });

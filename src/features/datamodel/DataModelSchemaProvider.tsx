@@ -20,10 +20,9 @@ export interface IDataModelSchemaContext {
 
 const { Provider } = createStrictContext<IDataModelSchemaContext>({ name: 'DataModelSchemaContext' });
 
-const useDataModelSchemaQuery = (): UseQueryResult<JSONSchema7> => {
+const useDataModelSchemaQuery = (dataModelName: string | undefined): UseQueryResult<JSONSchema7> => {
   const dispatch = useAppDispatch();
   const { fetchDataModelSchema } = useAppQueries();
-  const dataModelName = useCurrentDataModelName();
   return useQuery({
     queryKey: ['fetchDataModelSchemas', dataModelName],
     queryFn: () => fetchDataModelSchema(dataModelName || ''),
@@ -44,15 +43,20 @@ const useDataModelSchemaQuery = (): UseQueryResult<JSONSchema7> => {
 };
 
 export function DataModelSchemaProvider({ children }: React.PropsWithChildren) {
-  const { data: dataModelSchema, isLoading, error } = useDataModelSchemaQuery();
   const dataModelName = useCurrentDataModelName();
+  const { data: dataModelSchema, isLoading, error } = useDataModelSchemaQuery(dataModelName);
 
   if (error) {
     return <UnknownError />;
   }
 
   if (isLoading && dataModelName) {
-    return <Loader reason='data-model-schema' />;
+    return (
+      <Loader
+        reason='data-model-schema'
+        details={dataModelName}
+      />
+    );
   }
 
   return <Provider value={{ dataModelSchema, dataModelName }}>{children}</Provider>;

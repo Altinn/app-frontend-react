@@ -8,9 +8,10 @@ import { ProcessTaskType } from 'src/types';
 
 interface LoaderProps {
   reason: string; // The reason is used by developers to identify the reason for the loader
+  details?: string;
 }
 
-export function Loader({ reason }: LoaderProps) {
+export function Loader({ reason, details }: LoaderProps) {
   const { lang } = useLanguage();
 
   return (
@@ -22,6 +23,7 @@ export function Loader({ reason }: LoaderProps) {
         width='100%'
         height='400'
         reason={reason}
+        details={details}
       >
         <AltinnContentIconFormData />
       </AltinnContentLoader>

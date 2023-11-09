@@ -4,6 +4,7 @@ import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { getApplicationMetadataMock } from 'src/__mocks__/applicationMetadataMock';
+import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { ConfirmPage, type IConfirmPageProps } from 'src/features/confirm/containers/ConfirmPage';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
@@ -41,6 +42,11 @@ describe('ConfirmPage', () => {
     window.instanceId = getInstanceDataMock()?.id;
     const { mutations } = await renderWithInstanceAndLayout({
       renderer: () => <ConfirmPage {...props} />,
+      reduxState: getInitialStateMock((state) => {
+        state.deprecated.lastKnownProcess!.currentTask!.actions = {
+          confirm: true,
+        };
+      }),
     });
 
     const submitBtnText = /send inn/i;
@@ -53,11 +59,11 @@ describe('ConfirmPage', () => {
     expect(submitBtn).toBeInTheDocument();
     await userEvent.click(submitBtn);
 
-    await waitFor(() => {
-      expect(mutations.doProcessNext.mock).toHaveBeenCalledTimes(1);
-    });
-
+    expect(mutations.doProcessNext.mock).toHaveBeenCalledTimes(1);
     expect(screen.getByRole('button', { name: submitBtnText })).toBeInTheDocument();
-    expect(screen.getByText(loadingText)).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.getByText(loadingText)).toBeInTheDocument();
+    });
   });
 });

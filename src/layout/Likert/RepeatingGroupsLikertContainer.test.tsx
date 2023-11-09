@@ -21,9 +21,6 @@ describe('RepeatingGroupsLikertContainer', () => {
           options: defaultMockOptions,
         },
       });
-      await waitFor(() => {
-        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
-      });
       await validateTableLayout(defaultMockQuestions, defaultMockOptions);
     });
 
