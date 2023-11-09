@@ -4,7 +4,8 @@ import { useGetOptionsQuery } from 'src/hooks/queries/useGetOptionsQuery';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { useSourceOptions } from 'src/hooks/useSourceOptions';
 import { duplicateOptionFilter } from 'src/utils/options';
-import type { IMapping, IOption, IOptionSource } from 'src/layout/common.generated';
+import type { IUseLanguage } from 'src/hooks/useLanguage';
+import type { IMapping, IOption, IOptionSourceExternal } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type ValueType = 'single' | 'multi';
@@ -43,9 +44,7 @@ interface Props<T extends ValueType> {
   secure?: boolean;
   mapping?: IMapping;
   queryParameters?: Record<string, string>;
-
-  // Fetch options from repeating group
-  source?: IOptionSource;
+  source?: IOptionSourceExternal;
 
   sortOrder?: SortOrder;
 }
@@ -59,9 +58,12 @@ const defaultOptions: IOption[] = [];
 
 type SortOrder = 'asc' | 'desc';
 const compareOptionAlphabetically =
-  (sortOrder: SortOrder = 'asc', language: string = 'nb') =>
+  (langAsString: IUseLanguage['langAsString'], sortOrder: SortOrder = 'asc', language: string = 'nb') =>
   (a: IOption, b: IOption) => {
-    const comparison = a.label.localeCompare(b.label, language, { sensitivity: 'base', numeric: true });
+    const comparison = langAsString(a.label).localeCompare(langAsString(b.label), language, {
+      sensitivity: 'base',
+      numeric: true,
+    });
     return sortOrder === 'asc' ? comparison : -comparison;
   };
 
@@ -77,7 +79,8 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
   if (!!setMetadata && downstreamParameters) {
     setMetadata(downstreamParameters);
   }
-  const { selectedLanguage } = useLanguage();
+  const { selectedLanguage, langAsString } = useLanguage();
+
   usePreselectedOptionIndex(calculatedOptions, props);
   useRemoveStaleValues(calculatedOptions, props);
 
@@ -88,7 +91,7 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
 
   return {
     options: sortOrder
-      ? optionsWithoutDuplicates.toSorted(compareOptionAlphabetically(sortOrder, selectedLanguage))
+      ? optionsWithoutDuplicates.toSorted(compareOptionAlphabetically(langAsString, sortOrder, selectedLanguage))
       : optionsWithoutDuplicates,
     isFetching: isFetching || !calculatedOptions,
   };
