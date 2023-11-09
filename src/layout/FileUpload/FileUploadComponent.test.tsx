@@ -2,28 +2,32 @@ import React from 'react';
 
 import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import { v4 as uuidv4 } from 'uuid';
 
 import { getAttachments } from 'src/__mocks__/attachmentsMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
-import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { IGetAttachments } from 'src/__mocks__/attachmentsMock';
 import type { CompExternalExact } from 'src/layout/layout';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 import type { IData } from 'src/types/shared';
 
-const testId = 'mockId';
+interface GetDataProps extends IGetAttachments {
+  dataType: string;
+}
 
-function getDataElements(...props: Parameters<typeof getAttachments>): IData[] {
-  return getAttachments(...props).map((a) => ({ ...a.data, dataType: testId, contentType: 'image/png' }));
+function getDataElements(props: GetDataProps): IData[] {
+  const { dataType, ...rest } = props;
+  return getAttachments(rest).map((a) => ({ ...a.data, dataType, contentType: 'image/png' }));
 }
 
 describe('FileUploadComponent', () => {
   it('should show add attachment button and file counter when number of attachments is less than max', async () => {
     await render({
       component: { maxNumberOfAttachments: 3 },
-      attachments: getDataElements({ count: 2 }),
+      attachments: (dataType) => getDataElements({ count: 2, dataType }),
     });
 
     expect(
@@ -37,7 +41,7 @@ describe('FileUploadComponent', () => {
   it('should not show add attachment button, and should show file counter when number of attachments is same as max', async () => {
     await render({
       component: { maxNumberOfAttachments: 3 },
-      attachments: getDataElements({ count: 3 }),
+      attachments: (dataType) => getDataElements({ count: 3, dataType }),
     });
 
     expect(
@@ -50,15 +54,21 @@ describe('FileUploadComponent', () => {
 
   describe('file status', () => {
     it('should show loading when file uploaded=false', async () => {
-      const attachment = getDataElements({ count: 1 })[0];
-      attachment.filename = 'chucknorris.png';
-      const { mutations } = await render({ attachments: [] });
+      const { mutations, id, attachments } = await render({
+        attachments: (dataType) => {
+          const out = getDataElements({ count: 1, dataType });
+          out[0].filename = 'chucknorris.png';
+
+          return out;
+        },
+      });
+      const attachment = attachments[0];
       expect(mutations.doAttachmentUpload.mock).not.toHaveBeenCalled();
 
       // Upload an attachment
-      const file = new File(['(⌐□_□)'], attachment.filename, { type: attachment.contentType });
+      const file = new File(['(⌐□_□)'], attachment?.filename || '', { type: attachment.contentType });
       // eslint-disable-next-line testing-library/no-node-access
-      const fileInput = screen.getByTestId(`altinn-drop-zone-${testId}`).querySelector('input') as HTMLInputElement;
+      const fileInput = screen.getByTestId(`altinn-drop-zone-${id}`).querySelector('input') as HTMLInputElement;
       await userEvent.upload(fileInput, file);
 
       await waitFor(() => {
@@ -75,15 +85,15 @@ describe('FileUploadComponent', () => {
     });
 
     it('should not show loading when file uploaded=true', async () => {
-      const attachments = getDataElements({ count: 1 });
-      await render({ attachments });
+      await render({ attachments: (dataType) => getDataElements({ count: 1, dataType }) });
 
       expect(screen.queryByText('Laster innhold')).not.toBeInTheDocument();
     });
 
     it('should show loading when file deleting=true', async () => {
-      const attachments = getDataElements({ count: 1 });
-      const { mutations } = await render({ attachments });
+      const { mutations } = await render({
+        attachments: (dataType) => getDataElements({ count: 1, dataType }),
+      });
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Slett' })).toBeInTheDocument();
@@ -108,30 +118,30 @@ describe('FileUploadComponent', () => {
 
   describe('displayMode', () => {
     it('should not display drop area when displayMode is simple', async () => {
-      await render({
+      const { id } = await render({
         component: { displayMode: 'simple' },
-        attachments: getDataElements({ count: 3 }),
+        attachments: (dataType) => getDataElements({ count: 3, dataType }),
       });
 
-      expect(screen.queryByTestId(`altinn-drop-zone-${testId}`)).not.toBeInTheDocument();
+      expect(screen.queryByTestId(`altinn-drop-zone-${id}`)).not.toBeInTheDocument();
     });
 
     it('should display drop area when displayMode is not simple', async () => {
-      await render({
+      const { id } = await render({
         component: { displayMode: 'list', maxNumberOfAttachments: 5 },
-        attachments: getDataElements({ count: 3 }),
+        attachments: (dataType) => getDataElements({ count: 3, dataType }),
       });
 
-      expect(screen.getByTestId(`altinn-drop-zone-${testId}`)).toBeInTheDocument();
+      expect(screen.getByTestId(`altinn-drop-zone-${id}`)).toBeInTheDocument();
     });
 
     it('should not display drop area when displayMode is not simple and max attachments is reached', async () => {
-      await render({
+      const { id } = await render({
         component: { displayMode: 'list', maxNumberOfAttachments: 3 },
-        attachments: getDataElements({ count: 3 }),
+        attachments: (dataType) => getDataElements({ count: 3, dataType }),
       });
 
-      expect(screen.queryByTestId(`altinn-drop-zone-${testId}`)).not.toBeInTheDocument();
+      expect(screen.queryByTestId(`altinn-drop-zone-${id}`)).not.toBeInTheDocument();
     });
   });
 });
@@ -139,29 +149,28 @@ describe('FileUploadComponent', () => {
 describe('FileUploadWithTagComponent', () => {
   describe('uploaded', () => {
     it('should show spinner when file status has uploaded=false', async () => {
-      const attachments = getDataElements({ count: 0 });
-      await renderWithTag({ attachments });
+      const { id } = await renderWithTag({
+        attachments: (dataType) => getDataElements({ count: 0, dataType }),
+      });
 
       // Upload an attachment
       const file = new File(['(⌐□_□)'], 'chucknorris.png', { type: 'image/png' });
       // eslint-disable-next-line testing-library/no-node-access
-      const dropZone = screen.getByTestId(`altinn-drop-zone-${testId}`).querySelector('input') as HTMLInputElement;
+      const dropZone = screen.getByTestId(`altinn-drop-zone-${id}`).querySelector('input') as HTMLInputElement;
       await userEvent.upload(dropZone, file);
 
       expect(screen.getByText('Laster innhold')).toBeInTheDocument();
     });
 
     it('should not show spinner when file status has uploaded=true', async () => {
-      const attachments = getDataElements({ count: 1 });
-      await renderWithTag({ attachments });
+      await renderWithTag({ attachments: (dataType) => getDataElements({ count: 1, dataType }) });
       expect(screen.queryByText('Laster innhold')).not.toBeInTheDocument();
     });
   });
 
   describe('updating', () => {
     it('should show spinner in edit mode when file status has updating=true', async () => {
-      const attachments = getDataElements({ count: 1 });
-      const { mutations } = await renderWithTag({ attachments });
+      const { mutations } = await renderWithTag({ attachments: (dataType) => getDataElements({ count: 1, dataType }) });
 
       await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
       await userEvent.click(screen.getByRole('combobox'));
@@ -179,9 +188,7 @@ describe('FileUploadWithTagComponent', () => {
     });
 
     it('should not show spinner in edit mode when file status has updating=false', async () => {
-      const attachments = getDataElements({ count: 1 });
-
-      await renderWithTag({ attachments });
+      await renderWithTag({ attachments: (dataType) => getDataElements({ count: 1, dataType }) });
       await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
 
       expect(screen.queryByText('Laster innhold')).not.toBeInTheDocument();
@@ -190,8 +197,7 @@ describe('FileUploadWithTagComponent', () => {
 
   describe('editing', () => {
     it('should disable dropdown in edit mode when updating', async () => {
-      const attachments = getDataElements({ count: 1 });
-      const { mutations } = await renderWithTag({ attachments });
+      const { mutations } = await renderWithTag({ attachments: (dataType) => getDataElements({ count: 1, dataType }) });
 
       await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
       await userEvent.click(screen.getByRole('combobox'));
@@ -205,14 +211,14 @@ describe('FileUploadWithTagComponent', () => {
     });
 
     it('should not disable dropdown in edit mode when not updating', async () => {
-      await renderWithTag({ attachments: getDataElements({ count: 1 }) });
+      await renderWithTag({ attachments: (dataType) => getDataElements({ count: 1, dataType }) });
       await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
 
       expect(screen.getByRole('combobox')).not.toBeDisabled();
     });
 
     it('should not disable save button', async () => {
-      await renderWithTag({ attachments: getDataElements({ count: 1 }) });
+      await renderWithTag({ attachments: (dataType) => getDataElements({ count: 1, dataType }) });
       await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
 
       expect(
@@ -223,11 +229,9 @@ describe('FileUploadWithTagComponent', () => {
     });
 
     it('should disable save button when readOnly=true', async () => {
-      const attachments = getDataElements({ count: 1 });
-
       await renderWithTag({
         component: { readOnly: true },
-        attachments,
+        attachments: (dataType) => getDataElements({ count: 1, dataType }),
       });
       await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
 
@@ -239,12 +243,13 @@ describe('FileUploadWithTagComponent', () => {
     });
 
     it('should disable save button when attachment.uploaded=false', async () => {
-      const attachments = getDataElements({ count: 0 });
-      await renderWithTag({ attachments });
+      const { id } = await renderWithTag({
+        attachments: (dataType) => getDataElements({ count: 0, dataType }),
+      });
 
       // Upload an attachment
       const file = new File(['(⌐□_□)'], 'chucknorris.png', { type: 'image/png' });
-      const dropZone = screen.getByTestId(`altinn-drop-zone-${testId}`);
+      const dropZone = screen.getByTestId(`altinn-drop-zone-${id}`);
       await userEvent.upload(dropZone, file);
 
       await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
@@ -257,8 +262,7 @@ describe('FileUploadWithTagComponent', () => {
     });
 
     it('should not show save button when attachment.updating=true', async () => {
-      const attachments = getDataElements({ count: 1 });
-      const { mutations } = await renderWithTag({ attachments });
+      const { mutations } = await renderWithTag({ attachments: (dataType) => getDataElements({ count: 1, dataType }) });
 
       await userEvent.click(screen.getByRole('button', { name: 'Rediger' }));
       await userEvent.click(screen.getByRole('combobox'));
@@ -274,10 +278,13 @@ describe('FileUploadWithTagComponent', () => {
     });
 
     it('should automatically show attachments in edit mode for attachments without tags', async () => {
-      const attachments = getDataElements({ count: 1 });
-      attachments[0].tags = [];
-
-      await renderWithTag({ attachments });
+      await renderWithTag({
+        attachments: (dataType) => {
+          const out = getDataElements({ count: 1, dataType });
+          out[0].tags = [];
+          return out;
+        },
+      });
 
       expect(
         screen.getByRole('button', {
@@ -287,10 +294,13 @@ describe('FileUploadWithTagComponent', () => {
     });
 
     it('should not automatically show attachments in edit mode for attachments with tags', async () => {
-      const attachments = getDataElements({ count: 1 });
-      attachments[0].tags = ['tag1'];
-
-      await renderWithTag({ attachments });
+      await renderWithTag({
+        attachments: (dataType) => {
+          const out = getDataElements({ count: 1, dataType });
+          out[0].tags = ['tag1'];
+          return out;
+        },
+      });
       expect(
         screen.queryByRole('button', {
           name: 'Lagre',
@@ -303,7 +313,7 @@ describe('FileUploadWithTagComponent', () => {
     it('should display drop area when max attachments is not reached', async () => {
       await renderWithTag({
         component: { maxNumberOfAttachments: 3 },
-        attachments: getDataElements({ count: 2 }),
+        attachments: (dataType) => getDataElements({ count: 2, dataType }),
       });
 
       expect(
@@ -316,7 +326,7 @@ describe('FileUploadWithTagComponent', () => {
     it('should not display drop area when max attachments is reached', async () => {
       await renderWithTag({
         component: { maxNumberOfAttachments: 3 },
-        attachments: getDataElements({ count: 3 }),
+        attachments: (dataType) => getDataElements({ count: 3, dataType }),
       });
 
       expect(
@@ -331,28 +341,23 @@ describe('FileUploadWithTagComponent', () => {
 type Types = 'FileUpload' | 'FileUploadWithTag';
 interface Props<T extends Types> extends Partial<RenderGenericComponentTestProps<T>> {
   type: T;
-  attachments?: IData[];
+  attachments?: (dataType: string) => IData[];
 }
 
 async function renderAbstract<T extends Types>({
   type,
   component,
   genericProps,
-  attachments = getDataElements(),
+  attachments: attachmentsGenerator = (dataType) => getDataElements({ dataType }),
 }: Props<T>) {
-  const application = getInitialStateMock().applicationMetadata.applicationMetadata;
-  application?.dataTypes.push({
-    id: testId,
-    allowedContentTypes: ['image/png'],
-    maxCount: 4,
-    minCount: 1,
-  });
+  const id = uuidv4();
+  const attachments = attachmentsGenerator(id);
 
-  return await renderGenericComponentTest<T>({
+  const utils = await renderGenericComponentTest<T>({
     type,
     renderer: (props) => <FileUploadComponent {...props} />,
     component: {
-      id: testId,
+      id,
       displayMode: type === 'FileUpload' ? 'simple' : 'list',
       maxFileSizeInMB: 2,
       maxNumberOfAttachments: type === 'FileUpload' ? 3 : 7,
@@ -371,7 +376,15 @@ async function renderAbstract<T extends Types>({
       ...genericProps,
     },
     reduxState: getInitialStateMock((state) => {
-      state.applicationMetadata.applicationMetadata = application as IApplicationMetadata;
+      const application = state.applicationMetadata.applicationMetadata;
+      application?.dataTypes.push({
+        id,
+        allowedContentTypes: ['image/png'],
+        maxCount: 4,
+        minCount: 1,
+      });
+
+      state.applicationMetadata.applicationMetadata = application;
       state.deprecated.lastKnownInstance = getInstanceDataMock();
       state.deprecated.lastKnownInstance.data.push(...attachments);
     }),
@@ -384,6 +397,8 @@ async function renderAbstract<T extends Types>({
         ]),
     },
   });
+
+  return { ...utils, id, attachments };
 }
 
 const render = (props: Omit<Props<'FileUpload'>, 'type'>) => renderAbstract({ type: 'FileUpload', ...props });

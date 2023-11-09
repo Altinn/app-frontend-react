@@ -4,7 +4,6 @@ import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { SubmitButton } from 'src/layout/Button/SubmitButton';
-import { useExprContext } from 'src/utils/layout/ExprContext';
 import type { BaseButtonProps } from 'src/layout/Button/WrappedButton';
 
 type IConfirmButtonProps = Omit<BaseButtonProps, 'onClick'>;
@@ -13,12 +12,11 @@ export const ConfirmButton = (props: IConfirmButtonProps) => {
   const { actions } = useLaxProcessData()?.currentTask || {};
   const { nodeId } = props;
   const disabled = !actions?.confirm;
-  const resolvedNodes = useExprContext();
   const { next, busyWithId: processNextBusyId } = useProcessNavigation() || {};
   const { lang } = useLanguage();
 
   const handleConfirmClick = () => {
-    if (!disabled && resolvedNodes) {
+    if (!disabled && nodeId) {
       next && next({ action: 'confirm', nodeId });
     }
   };

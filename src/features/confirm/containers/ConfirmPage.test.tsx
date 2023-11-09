@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { act, screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { applicationMetadataMock } from 'src/__mocks__/applicationMetadataMock';
@@ -38,25 +38,26 @@ describe('ConfirmPage', () => {
   });
 
   it('should show loading when clicking submit', async () => {
-    const user = userEvent.setup();
     window.instanceId = getInstanceDataMock()?.id;
-    const { store } = await renderWithInstanceAndLayout({
+    const { mutations } = await renderWithInstanceAndLayout({
       renderer: () => <ConfirmPage {...props} />,
     });
-    const dispatch = jest.spyOn(store, 'dispatch');
 
     const submitBtnText = /send inn/i;
     const loadingText = /laster innhold/i;
 
-    const submitBtn = screen.getByText(submitBtnText);
+    const submitBtn = screen.getByRole('button', { name: submitBtnText });
 
-    expect(dispatch).toHaveBeenCalledTimes(0);
+    expect(mutations.doProcessNext.mock).toHaveBeenCalledTimes(0);
     expect(screen.queryByText(loadingText)).not.toBeInTheDocument();
     expect(submitBtn).toBeInTheDocument();
-    await act(() => user.click(submitBtn));
+    await userEvent.click(submitBtn);
 
-    expect(screen.getByText(submitBtnText)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(mutations.doProcessNext.mock).toHaveBeenCalledTimes(1);
+    });
+
+    expect(screen.getByRole('button', { name: submitBtnText })).toBeInTheDocument();
     expect(screen.getByText(loadingText)).toBeInTheDocument();
-    expect(dispatch).toHaveBeenCalledTimes(0);
   });
 });

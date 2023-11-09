@@ -1,5 +1,4 @@
 import React from 'react';
-import { Route, useLocation } from 'react-router-dom';
 
 import { screen } from '@testing-library/react';
 
@@ -9,8 +8,7 @@ import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { getUiConfigStateMock } from 'src/__mocks__/uiConfigStateMock';
 import { ReceiptContainer, returnInstanceMetaDataObject } from 'src/features/receipt/ReceiptContainer';
 import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
-import { MemoryRouterWithRedirectingRoot } from 'src/test/memoryRouterWithRedirectingRoot';
-import { renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
+import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import type { IRuntimeState } from 'src/types';
 import type { IAltinnOrgs, IInstance, IParty } from 'src/types/shared';
@@ -26,26 +24,6 @@ const exampleGuid = '75154373-aed4-41f7-95b4-e5b5115c2edc';
 const exampleDataGuid = 'c21ebe7a-038d-4e8d-811c-0df1c16a1aa9';
 const exampleDataGuid2 = 'afaee8fe-6317-4cc4-ae3a-3c8fcdec40bb';
 const exampleInstanceId = `512345/${exampleGuid}`;
-
-const DefinedRoutes = ({ children }: React.PropsWithChildren) => {
-  const HeaderElement = () => {
-    const { pathname } = useLocation();
-    return <p>Location: {pathname}</p>;
-  };
-  return (
-    <>
-      <MemoryRouterWithRedirectingRoot
-        to={`instance/${exampleInstanceId}`}
-        element={<HeaderElement />}
-      >
-        <Route
-          path={'instance/:partyId/:instanceGuid'}
-          element={children}
-        />
-      </MemoryRouterWithRedirectingRoot>
-    </>
-  );
-};
 
 function buildInstance(hasPdf = true): IInstance {
   const pdfData = hasPdf
@@ -162,10 +140,13 @@ function getMockState({ autoDeleteOnProcessEnd = false }): IRuntimeState {
 const render = async ({ autoDeleteOnProcessEnd = false, hasPdf = true }: IRender = {}) => {
   const reduxState = getMockState({ autoDeleteOnProcessEnd });
   reduxState.deprecated!.lastKnownInstance = buildInstance(hasPdf);
-  await renderWithoutInstanceAndLayout({
+
+  return await renderWithInstanceAndLayout({
     renderer: () => <ReceiptContainer />,
     reduxState,
-    router: DefinedRoutes,
+    queries: {
+      fetchFormData: () => Promise.resolve({}),
+    },
   });
 };
 

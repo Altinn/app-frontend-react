@@ -4,7 +4,7 @@ import type { UploadedAttachment } from 'src/features/attachments';
 
 const getRandomFileSize = () => Math.floor(Math.random() * (2500 - 250 + 1)) + 250;
 
-interface IGetAttachments {
+export interface IGetAttachments {
   count?: number;
   fileSize?: number;
 }

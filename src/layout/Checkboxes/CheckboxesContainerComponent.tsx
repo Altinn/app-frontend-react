@@ -111,6 +111,7 @@ export const CheckboxContainerComponent = ({
         error={!isValid}
         aria-label={ariaLabel}
         value={selected}
+        data-testid='checkboxes-fieldset'
       >
         {calculatedOptions.map((option) => (
           <ConditionalWrapper

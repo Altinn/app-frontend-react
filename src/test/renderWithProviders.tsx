@@ -16,10 +16,9 @@ import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { setupStore } from 'src/redux/store';
-import { MemoryRouterWithRedirectingRoot } from 'src/test/memoryRouterWithRedirectingRoot';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { ExprContextWrapper, useExprContext } from 'src/utils/layout/ExprContext';
-import type { AppMutations, AppQueries, AppQueriesContext } from 'src/contexts/appQueriesContext';
+import type { AppMutations, AppQueries } from 'src/contexts/appQueriesContext';
 import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
@@ -252,12 +251,17 @@ export const renderWithInstanceAndLayout = async ({
 
   function InstanceRouter({ children }: PropsWithChildren) {
     return (
-      <MemoryRouterWithRedirectingRoot to={`instance/${exampleInstanceId}`}>
-        <Route
-          path={'instance/:partyId/:instanceGuid'}
-          element={children}
-        />
-      </MemoryRouterWithRedirectingRoot>
+      <MemoryRouter
+        basename={'/ttd/test'}
+        initialEntries={[`/ttd/test/instance/${exampleInstanceId}`]}
+      >
+        <Routes>
+          <Route
+            path={'instance/:partyId/:instanceGuid'}
+            element={children}
+          />
+        </Routes>
+      </MemoryRouter>
     );
   }
 
@@ -347,12 +351,16 @@ const WaitForNodes = ({
 export interface RenderWithNodeTestProps<T extends LayoutNode> extends Omit<ExtendedRenderOptions, 'renderer'> {
   renderer: (props: { node: T; root: LayoutPages }) => React.ReactElement;
   nodeId: string;
+  inInstance?: boolean;
 }
 
-export async function renderWithNode<T extends LayoutNode = LayoutNode>(
-  props: RenderWithNodeTestProps<T>,
-): Promise<ReturnType<typeof renderWithInstanceAndLayout>> {
-  const reduxState = props.reduxState || getInitialStateMock();
+export async function renderWithNode<T extends LayoutNode = LayoutNode>({
+  renderer,
+  reduxState: _reduxState,
+  inInstance = true,
+  ...props
+}: RenderWithNodeTestProps<T>) {
+  const reduxState = _reduxState || getInitialStateMock();
   if (!reduxState.formLayout.layouts) {
     throw new Error('No layouts found, cannot render with nodes when no layout is in the redux state');
   }
@@ -372,10 +380,10 @@ export async function renderWithNode<T extends LayoutNode = LayoutNode>(
     if (!node) {
       return <div>Unable to find node: {props.nodeId}</div>;
     }
-    return props.renderer({ node: node as T, root });
+    return renderer({ node: node as T, root });
   }
 
-  return renderWithInstanceAndLayout({
+  return (inInstance ? renderWithInstanceAndLayout : renderWithoutInstanceAndLayout)({
     ...props,
     reduxState,
     renderer: () => (
@@ -389,15 +397,12 @@ export async function renderWithNode<T extends LayoutNode = LayoutNode>(
   });
 }
 
-export interface RenderGenericComponentTestProps<T extends CompTypes> {
+export interface RenderGenericComponentTestProps<T extends CompTypes> extends Omit<ExtendedRenderOptions, 'renderer'> {
   type: T;
-  renderer: (props: PropsFromGenericComponent<T>) => JSX.Element;
+  renderer: (props: PropsFromGenericComponent<T>) => React.ReactElement;
   component?: Partial<CompExternalExact<T>>;
   genericProps?: Partial<PropsFromGenericComponent<T>>;
-  reduxState?: IRuntimeState;
-  reduxGateKeeper?: (action: any) => boolean;
-  queries?: Partial<AppQueriesContext>;
-  waitUntilLoaded?: boolean;
+  inInstance?: boolean;
 }
 
 export async function renderGenericComponentTest<T extends CompTypes>({
@@ -406,8 +411,7 @@ export async function renderGenericComponentTest<T extends CompTypes>({
   component,
   genericProps,
   reduxState: _reduxState,
-  reduxGateKeeper,
-  queries,
+  ...rest
 }: RenderGenericComponentTestProps<T>) {
   const realComponentDef = {
     id: 'my-test-component-id',
@@ -437,9 +441,8 @@ export async function renderGenericComponentTest<T extends CompTypes>({
   };
 
   return renderWithNode<LayoutNode<T>>({
+    ...rest,
     reduxState,
-    reduxGateKeeper,
-    queries,
     nodeId: realComponentDef.id,
     renderer: Wrapper,
   });

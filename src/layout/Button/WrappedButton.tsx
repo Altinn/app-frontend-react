@@ -6,7 +6,7 @@ import { ButtonLoader } from 'src/layout/Button/ButtonLoader';
 
 export interface BaseButtonProps {
   nodeId: string;
-  onClick: (...args) => void;
+  onClick: () => void;
   busyWithId?: string | null;
   disabled?: boolean;
   message?: string;
@@ -34,9 +34,9 @@ export const WrappedButton = ({
 }: Props) => {
   const somethingIsLoading = !!busyWithId;
   const thisIsLoading = busyWithId === nodeId;
-  const handleClick = async (...args) => {
+  const handleClick = async () => {
     if (!somethingIsLoading) {
-      onClick(args);
+      onClick();
     }
   };
 

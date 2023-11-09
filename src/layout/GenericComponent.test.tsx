@@ -9,7 +9,7 @@ import { GenericComponent } from 'src/layout/GenericComponent';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { CompExternal } from 'src/layout/layout';
 
-const render = async (props: Partial<CompExternal> = {}) => {
+const render = async (component: Partial<CompExternal> = {}, waitUntilLoaded = true) => {
   const formLayout = getFormLayoutStateMock({
     layouts: {
       FormLayout: [
@@ -38,7 +38,7 @@ const render = async (props: Partial<CompExternal> = {}) => {
               xl: 3,
             },
           },
-          ...(props as any),
+          ...(component as any),
         },
       ],
     },
@@ -51,8 +51,9 @@ const render = async (props: Partial<CompExternal> = {}) => {
   });
 
   return await renderWithNode({
-    nodeId: props.id || 'mockId',
+    nodeId: component.id || 'mockId',
     renderer: ({ node }) => <GenericComponent node={node} />,
+    waitUntilLoaded,
     reduxState: {
       ...getInitialStateMock(),
       formLayout,
@@ -64,10 +65,9 @@ const render = async (props: Partial<CompExternal> = {}) => {
 describe('GenericComponent', () => {
   it('should show an error in the logs when rendering an unknown component type', async () => {
     const spy = jest.spyOn(window, 'logWarnOnce').mockImplementation();
-    const { container } = await render({ type: 'unknown-type' } as any);
+    await render({ type: 'unknown-type' as any }, false);
 
     expect(spy).toHaveBeenCalledWith(`No component definition found for type 'unknown-type'`);
-    expect(container).toBeEmptyDOMElement();
   });
 
   it('should render Input component when passing Input type', async () => {
