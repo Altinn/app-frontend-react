@@ -11,11 +11,9 @@ import type { PropsFromGenericComponent } from 'src/layout';
 export type IAttachmentListProps = PropsFromGenericComponent<'AttachmentList'>;
 
 export function AttachmentListComponent({ node }: IAttachmentListProps) {
-  const { dataTypeIds } = node.item;
   const { lang } = useLanguage();
-  const dataForTask = useAppSelector(selectDataTypesByIds(dataTypeIds));
+  const dataForTask = useAppSelector(selectDataTypesByIds(node.item.dataTypeIds));
   const attachments = useAppSelector(selectAttachments(dataForTask));
-
   return (
     <Grid
       item={true}

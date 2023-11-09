@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
 
-import { getInstancePdf, mapInstanceAttachments } from 'src/utils/attachmentsUtils';
+import { filterInstanceAttachments } from 'src/utils/attachmentsUtils';
 import type { IRuntimeState } from 'src/types';
 import type { IData } from 'src/types/shared';
 
@@ -26,9 +26,9 @@ export const selectDataTypesByIds = (dataTypeIds: string[] | undefined) =>
 
 export const selectAttachments = (dataForTask: IData[] | undefined) =>
   createSelector(selectDataTypes, selectCurrentTaskId, (dataTypes, currentTaskId) => {
-    const appLogicDataTypes = dataTypes?.filter((dataType) => dataType.appLogic && dataType.taskId === currentTaskId);
+    const defaultElementIds =
+      dataTypes?.filter((dataType) => dataType.appLogic && dataType.taskId === currentTaskId).map((type) => type.id) ||
+      [];
 
-    const pdfResult = getInstancePdf(dataForTask) || [];
-    const attachmentResult = mapInstanceAttachments(dataForTask, appLogicDataTypes?.map((type) => type.id) || []);
-    return [...pdfResult, ...attachmentResult];
+    return filterInstanceAttachments(dataForTask, defaultElementIds);
   });
