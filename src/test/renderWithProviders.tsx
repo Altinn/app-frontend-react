@@ -6,7 +6,6 @@ import type { PropsWithChildren } from 'react';
 import { createTheme, MuiThemeProvider } from '@material-ui/core';
 import { QueryClient } from '@tanstack/react-query';
 import { act, render as rtlRender, waitFor } from '@testing-library/react';
-import dotenv from 'dotenv';
 import type { RenderOptions } from '@testing-library/react';
 import type { JSONSchema7 } from 'json-schema';
 
@@ -29,8 +28,6 @@ import type { ILayoutSets, IRuntimeState } from 'src/types';
 import type { IProfile } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
-
-const env = dotenv.config();
 
 /**
  * These are the queries that cannot be mocked. Instead of mocking the queries themselves, you should provide preloaded
@@ -251,9 +248,6 @@ const renderBase = async ({
   const utils = rtlRender(Providers(), renderOptions);
 
   if (waitUntilLoaded) {
-    const timeout = env.parsed?.RENDER_WAIT_TIMEOUT ? parseInt(env.parsed.RENDER_WAIT_TIMEOUT, 10) : 10000;
-    const options = { timeout };
-
     // This may fail early if any of the providers fail to load, and will give you the provider/reason for failure
     await waitFor(() => {
       const loadingReason = utils.queryByTestId('loader')?.getAttribute('data-reason');
@@ -266,14 +260,14 @@ const renderBase = async ({
           ignoredActions,
         }) as any
       ).toNotBeLoading();
-    }, options);
+    });
 
     // This is a little broader, as it will catch both the loading state
     // in renderGenericComponentTest() below, but also the <Loader /> component.
-    await waitFor(() => expect(utils.queryByText('Loading...')).not.toBeInTheDocument(), options);
+    await waitFor(() => expect(utils.queryByText('Loading...')).not.toBeInTheDocument());
 
     // This also catches any AltinnSpinner components inside the DOM
-    await waitFor(() => expect(utils.queryByTestId('altinn-spinner')).not.toBeInTheDocument(), options);
+    await waitFor(() => expect(utils.queryByTestId('altinn-spinner')).not.toBeInTheDocument());
 
     // Clear the dispatch mock, as the app might trigger actions while loading
     (store.dispatch as jest.Mock).mockClear();

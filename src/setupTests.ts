@@ -3,6 +3,7 @@ import '@testing-library/jest-dom';
 import '@testing-library/jest-dom/jest-globals';
 import 'core-js/stable/structured-clone'; // https://github.com/jsdom/jsdom/issues/3363
 
+import { configure as testingLibraryConfigure } from '@testing-library/dom';
 import dotenv from 'dotenv';
 import { TextDecoder, TextEncoder } from 'util';
 
@@ -67,6 +68,10 @@ jest.mock('axios');
 
 global.ResizeObserver = require('resize-observer-polyfill');
 
+testingLibraryConfigure({
+  asyncUtilTimeout: env.parsed?.WAITFOR_TIMEOUT ? parseInt(env.parsed.WAITFOR_TIMEOUT, 10) : 10000,
+});
+
 type QueriesAsMocks = {
   [K in keyof AppQueries]: jest.Mock;
 };
@@ -114,7 +119,7 @@ expect.extend({
             'Ignored actions:',
             ...ignored,
             '',
-            'Consider if you need to increase RENDER_WAIT_TIMEOUT if your machine is slow.',
+            'Consider if you need to increase WAITFOR_TIMEOUT if your machine is slow.',
           ].join('\n');
         },
         pass: false,
