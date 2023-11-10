@@ -5,7 +5,7 @@ export const filterInstanceAttachments = (
   data: IData[] | undefined,
   defaultElementIds: string[],
 ): IAttachment[] | undefined => {
-  const filteredData = data?.filter((dataElement: IData) => defaultElementIds?.indexOf(dataElement.dataType) !== -1);
+  const filteredData = data?.filter((dataElement: IData) => defaultElementIds?.indexOf(dataElement.dataType) === -1);
   return getInstanceAttachments(filteredData);
 };
 
