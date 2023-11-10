@@ -42,7 +42,17 @@ function useProcessNext() {
     },
   });
 
-  const nativeMutate = utils.mutateAsync;
+  const mutateAsync = utils.mutateAsync;
+  const nativeMutate = useCallback(
+    async (props: ProcessNextProps = {}) => {
+      try {
+        await mutateAsync(props);
+      } catch (err) {
+        // Do nothing, the error is handled above
+      }
+    },
+    [mutateAsync],
+  );
 
   useEffect(() => {
     (async () => {

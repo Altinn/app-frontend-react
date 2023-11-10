@@ -24,8 +24,8 @@ export interface Instantiation {
 }
 
 interface InstantiationContext {
-  instantiate: (node: LayoutNode | undefined, instanceOwnerPartyId: string) => Promise<void>;
-  instantiateWithPrefill: (node: LayoutNode | undefined, instantiation: Instantiation) => Promise<void>;
+  instantiate: (node: LayoutNode | undefined, instanceOwnerPartyId: string) => void;
+  instantiateWithPrefill: (node: LayoutNode | undefined, instantiation: Instantiation) => void;
 
   busyWithId: string | undefined;
   error: AxiosError | undefined | null;
@@ -84,19 +84,19 @@ export function InstantiationProvider({ children }: React.PropsWithChildren) {
   return (
     <Provider
       value={{
-        instantiate: async (node, instanceOwnerPartyId) => {
+        instantiate: (node, instanceOwnerPartyId) => {
           if (instantiate.data || instantiate.isLoading || instantiate.error) {
             return;
           }
           setBusyWithId(node ? node.item.id : 'unknown');
-          await instantiate.mutateAsync(instanceOwnerPartyId);
+          instantiate.mutate(instanceOwnerPartyId);
         },
-        instantiateWithPrefill: async (node, value) => {
+        instantiateWithPrefill: (node, value) => {
           if (instantiateWithPrefill.data || instantiateWithPrefill.isLoading || instantiateWithPrefill.error) {
             return;
           }
           setBusyWithId(node ? node.item.id : 'unknown');
-          await instantiateWithPrefill.mutateAsync(value);
+          instantiateWithPrefill.mutate(value);
         },
 
         busyWithId,
