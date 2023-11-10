@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
 
-import { filterInstanceAttachments } from 'src/utils/attachmentsUtils';
+import { filterInstanceAttachments, filterInstancePdfAttachments } from 'src/utils/attachmentsUtils';
 import type { IRuntimeState } from 'src/types';
 import type { IData } from 'src/types/shared';
 
@@ -14,8 +14,9 @@ export const selectDataTypesByIds = (dataTypeIds: string[] | undefined) =>
     selectCurrentTaskId,
     selectInstanceData,
     (dataTypes = [], currentTask, instanceData) => {
-      const relevantDataTypes = dataTypes?.filter((type) => type.taskId === currentTask);
+      const relevantDataTypes = dataTypes.filter((type) => type.taskId === currentTask);
       const useSpecificDataTypeIds = dataTypeIds && !dataTypeIds?.includes('include-all');
+
       return instanceData?.filter((dataElement) =>
         useSpecificDataTypeIds
           ? dataTypeIds.includes(dataElement.dataType)
@@ -24,11 +25,14 @@ export const selectDataTypesByIds = (dataTypeIds: string[] | undefined) =>
     },
   );
 
-export const selectAttachments = (dataForTask: IData[] | undefined) =>
+export const selectAttachments = (dataForTask: IData[] | undefined, includePdf: boolean | undefined) =>
   createSelector(selectDataTypes, selectCurrentTaskId, (dataTypes, currentTaskId) => {
     const defaultElementIds =
       dataTypes?.filter((dataType) => dataType.appLogic && dataType.taskId === currentTaskId).map((type) => type.id) ||
       [];
 
-    return filterInstanceAttachments(dataForTask, defaultElementIds);
+    const pdfAttachments = (includePdf && filterInstancePdfAttachments(dataForTask)) || undefined;
+    const otherAttachments = filterInstanceAttachments(dataForTask, defaultElementIds);
+
+    return [...(pdfAttachments || []), ...(otherAttachments || [])];
   });

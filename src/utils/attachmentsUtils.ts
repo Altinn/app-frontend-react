@@ -5,7 +5,10 @@ export const filterInstanceAttachments = (
   data: IData[] | undefined,
   defaultElementIds: string[],
 ): IAttachment[] | undefined => {
-  const filteredData = data?.filter((dataElement: IData) => defaultElementIds?.indexOf(dataElement.dataType) === -1);
+  const filteredData = data?.filter(
+    (dataElement: IData) =>
+      !(defaultElementIds.includes(dataElement.dataType) || dataElement.dataType === 'ref-data-as-pdf'),
+  );
   return getInstanceAttachments(filteredData);
 };
 

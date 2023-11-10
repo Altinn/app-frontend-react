@@ -13,7 +13,9 @@ export type IAttachmentListProps = PropsFromGenericComponent<'AttachmentList'>;
 export function AttachmentListComponent({ node }: IAttachmentListProps) {
   const { lang } = useLanguage();
   const dataForTask = useAppSelector(selectDataTypesByIds(node.item.dataTypeIds));
-  const attachments = useAppSelector(selectAttachments(dataForTask));
+
+  const includePdf = node.item.dataTypeIds?.some((id) => ['ref-data-as-pdf', 'include-all'].includes(id));
+  const attachments = useAppSelector(selectAttachments(dataForTask, includePdf));
   return (
     <Grid
       item={true}
