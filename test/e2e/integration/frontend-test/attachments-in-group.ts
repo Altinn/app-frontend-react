@@ -88,8 +88,8 @@ describe('Repeating group attachments', () => {
   };
 
   const getAttachmentState = () =>
-    cy.window().then((win) => {
-      const attachments = win.lastKnownAttachments || {};
+    cy.getReduxState((state) => {
+      const attachments = state.deprecated.lastKnownAttachments || {};
       const keys = Object.keys(attachments);
       const out: { [componentId: string]: string[] } = {};
 
@@ -109,12 +109,12 @@ describe('Repeating group attachments', () => {
     });
 
   const getFormDataState = () =>
-    cy.window().then((win) => {
-      const formData = win.reduxStore.getState().formData.formData;
+    cy.getReduxState((state) => {
+      const formData = state.formData.formData;
       const out: [string, string][] = [];
       const idToNameMapping: { [attachmentId: string]: string } = {};
 
-      for (const attachmentList of Object.values(win.lastKnownAttachments || {})) {
+      for (const attachmentList of Object.values(state.deprecated.lastKnownAttachments || {})) {
         for (const attachment of attachmentList || []) {
           if (isAttachmentUploaded(attachment)) {
             const id = attachment.data.id;
