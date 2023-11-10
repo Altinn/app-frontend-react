@@ -15,12 +15,12 @@ export const selectDataTypesByIds = (dataTypeIds: string[] | undefined) =>
     selectInstanceData,
     (dataTypes = [], currentTask, instanceData) => {
       const relevantDataTypes = dataTypes?.filter((type) => type.taskId === currentTask);
-      return instanceData?.filter((dataElement) => {
-        if (dataTypeIds) {
-          return dataTypeIds.findIndex((id) => dataElement.dataType === id) > -1;
-        }
-        return relevantDataTypes.findIndex((type) => dataElement.dataType === type.id) > -1;
-      });
+      const useSpecificDataTypeIds = dataTypeIds && !dataTypeIds?.includes('include-all');
+      return instanceData?.filter((dataElement) =>
+        useSpecificDataTypeIds
+          ? dataTypeIds.includes(dataElement.dataType)
+          : relevantDataTypes.some((type) => type.id === dataElement.dataType),
+      );
     },
   );
 
