@@ -73,10 +73,12 @@ type QueriesAsMocks = {
 interface ExpectLoadingSpec {
   loadingReason: string;
   queries: QueriesAsMocks;
+  dispatchedActions: any[];
+  ignoredActions: any[];
 }
 
 expect.extend({
-  toNotBeLoading: ({ loadingReason, queries }: ExpectLoadingSpec) => {
+  toNotBeLoading: ({ loadingReason, queries, dispatchedActions, ignoredActions }: ExpectLoadingSpec) => {
     if (loadingReason) {
       return {
         message: () => {
@@ -90,10 +92,27 @@ expect.extend({
             }
           }
 
+          const dispatched: string[] = [];
+          for (const action of dispatchedActions) {
+            dispatched.push(`- ${JSON.stringify(action)}`);
+          }
+
+          const ignored: string[] = [];
+          for (const action of ignoredActions) {
+            ignored.push(`- ${JSON.stringify(action)}`);
+          }
+
           return [
             `Expected to not be loading, but was loading because of '${loadingReason}'.`,
+            '',
             `Queries called:`,
-            queryCalls.join('\n'),
+            ...queryCalls,
+            '',
+            'Dispatched actions:',
+            ...dispatched,
+            '',
+            'Ignored actions:',
+            ...ignored,
             '',
             'Consider if you need to increase RENDER_WAIT_TIMEOUT if your machine is slow.',
           ].join('\n');

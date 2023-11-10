@@ -165,13 +165,20 @@ const renderBase = async ({
 
   let isInitializing = !!waitUntilLoaded;
   const originalDispatch = store.dispatch;
+  const dispatchedActions: ReduxAction[] = [];
+  const ignoredActions: ReduxAction[] = [];
   if (reduxGateKeeper) {
     jest.spyOn(store, 'dispatch').mockImplementation((action) => {
       const performDispatch = reduxGateKeeper(action);
-      if (!isInitializing && reduxGateKeeper === defaultReduxGateKeeper) {
-        console.error('Unexpected redux dispatch after initialization:', action);
+      if (!isInitializing && !performDispatch && reduxGateKeeper === defaultReduxGateKeeper) {
+        console.error(
+          'Redux dispatch after initialization will be ignored without a reduxGateKeeper implementation:',
+          action,
+        );
       }
 
+      performDispatch && dispatchedActions.push(action);
+      !performDispatch && ignoredActions.push(action);
       performDispatch && originalDispatch(action);
     });
   }
@@ -194,6 +201,7 @@ const renderBase = async ({
   // This is useful if you really need to run an action in your tests, regardless of the reduxGateKeeper
   const originalDispatchWithAct = (action: ReduxAction) => {
     act(() => {
+      dispatchedActions.push(action);
       originalDispatch(action);
     });
   };
@@ -254,6 +262,8 @@ const renderBase = async ({
         expect({
           loadingReason,
           queries: queryMocks,
+          dispatchedActions,
+          ignoredActions,
         }) as any
       ).toNotBeLoading();
     }, options);
@@ -282,6 +292,10 @@ const renderBase = async ({
     // any of the actions dispatched inside your component to actually have effects, you can provide a
     // `reduxGateKeeper` function in the render options.
     originalDispatch: originalDispatchWithAct,
+
+    // The list of actions that were actually dispatched, and the ones that were caught but never actually dispatched:
+    dispatchedActions,
+    ignoredActions,
 
     // The initial state of the redux store as the component was rendered.
     initialState: state,

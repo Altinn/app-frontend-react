@@ -76,9 +76,9 @@ export const formDataSlice = () => {
           state.submittingState = 'inactive';
         },
       }),
-      submitReady: mkAction<void>({
-        reducer: (state) => {
-          state.submittingState = 'validationSuccessful';
+      submitReady: mkAction<{ state: 'validationSuccessful' | 'working' }>({
+        reducer: (state, action) => {
+          state.submittingState = action.payload.state;
         },
       }),
       submitClear: mkAction<void>({

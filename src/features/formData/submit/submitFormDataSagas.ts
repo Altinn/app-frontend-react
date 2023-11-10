@@ -90,7 +90,7 @@ function* submitComplete(state: IRuntimeState, resolvedNodes: LayoutPages): Saga
   }
 
   // Data has no validation errors, we complete the current step
-  return yield put(FormDataActions.submitReady());
+  return yield put(FormDataActions.submitReady({ state: 'validationSuccessful' }));
 }
 
 function createFormDataRequest(

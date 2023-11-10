@@ -18,9 +18,7 @@ const render = async ({ component, genericProps }: Partial<RenderGenericComponen
       },
       ...component,
     },
-    genericProps: {
-      ...genericProps,
-    },
+    genericProps,
     queries: {
       fetchProcessNextSteps: () => Promise.resolve(['a', 'b']),
     },

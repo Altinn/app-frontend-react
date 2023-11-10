@@ -69,6 +69,7 @@ function useProcessNext() {
         return;
       }
 
+      dispatch(FormDataActions.submitReady({ state: 'working' }));
       await nativeMutate(props || {});
     },
     [realTaskType, submittingState, dispatch, nativeMutate],
@@ -89,7 +90,7 @@ const { Provider, useCtx } = createLaxContext<ContextData>();
 
 export function ProcessNavigationProvider({ children }: React.PropsWithChildren) {
   const { perform, error } = useProcessNext();
-  const [busyWithId, setBusyWithId] = useState<string>('');
+  const [_busyWithId, setBusyWithId] = useState<string>('');
   const submittingState = useAppSelector((state) => state.formData.submittingState);
 
   const attachments = useAttachments();
@@ -98,11 +99,7 @@ export function ProcessNavigationProvider({ children }: React.PropsWithChildren)
       fileUploader?.some((attachment) => !attachment.uploaded || attachment.updating || attachment.deleting),
   );
 
-  useEffect(() => {
-    if (submittingState === 'inactive') {
-      setBusyWithId('');
-    }
-  }, [submittingState]);
+  const busyWithId = submittingState === 'inactive' ? '' : _busyWithId;
 
   const next = useCallback(
     async ({ nodeId, ...rest }: ProcessNextProps & { nodeId: string }) => {

@@ -9,7 +9,7 @@ import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { CompNavigationButtonsExternal } from 'src/layout/NavigationButtons/config.generated';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
-describe('NavigationButton', () => {
+describe('NavigationButtons', () => {
   const navButton1: CompNavigationButtonsExternal = {
     id: 'nav-button1',
     type: 'NavigationButtons',
