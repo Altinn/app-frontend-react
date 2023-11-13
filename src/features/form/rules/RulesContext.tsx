@@ -4,12 +4,12 @@ import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
+import { createStrictContext } from 'src/features/contexts/createContext';
 import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
 import { FormRulesActions } from 'src/features/form/rules/rulesSlice';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/loading/Loader';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { createStrictContext } from 'src/utils/createContext';
 import { getRuleModelFields } from 'src/utils/rules';
 
 const RULES_SCRIPT_ID = 'rules-script';

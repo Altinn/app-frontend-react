@@ -2,67 +2,37 @@ import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 
 import { ProcessWrapper } from 'src/components/wrappers/ProcessWrapper';
-import { useApplicationMetadataQuery } from 'src/features/applicationMetadata/useApplicationMetadataQuery';
-import { useApplicationSettingsQuery } from 'src/features/applicationSettings/useApplicationSettingsQuery';
+import { useApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { Entrypoint } from 'src/features/entrypoint/Entrypoint';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { PartySelection } from 'src/features/instantiate/containers/PartySelection';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
-import { useFooterLayoutQuery } from 'src/hooks/queries/useFooterLayoutQuery';
 import { useCurrentPartyQuery } from 'src/hooks/queries/useGetCurrentPartyQuery';
 import { usePartiesQuery } from 'src/hooks/queries/useGetPartiesQuery';
 import { useGetTextResourcesQuery } from 'src/hooks/queries/useGetTextResourcesQuery';
-import { useLayoutSetsQuery } from 'src/hooks/queries/useLayoutSetsQuery';
-import { useOrgsQuery } from 'src/hooks/queries/useOrgsQuery';
 import { useProfileQuery } from 'src/hooks/queries/useProfileQuery';
 import { useAlwaysPromptForParty } from 'src/hooks/useAlwaysPromptForParty';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useKeepAlive } from 'src/hooks/useKeepAlive';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
-import type { IApplicationSettings } from 'src/types/shared';
 
 import '@digdir/design-system-tokens/brand/altinn/tokens.css';
 
-export const App = () => {
-  const { data: applicationSettings, isError: hasApplicationSettingsError } = useApplicationSettingsQuery();
-  const { data: applicationMetadata, isError: hasApplicationMetadataError } = useApplicationMetadataQuery();
-  const { isError: hasLayoutSetError } = useLayoutSetsQuery();
-  const { isError: hasOrgsError } = useOrgsQuery();
-  useFooterLayoutQuery();
-
-  const componentIsReady = applicationSettings && applicationMetadata;
-  const componentHasError =
-    hasApplicationSettingsError || hasApplicationMetadataError || hasLayoutSetError || hasOrgsError;
-
-  if (componentHasError) {
-    return <UnknownError />;
-  }
-
-  if (componentIsReady) {
-    return <AppInternal applicationSettings={applicationSettings} />;
-  }
-
-  return null;
-};
-
-type AppInternalProps = {
-  applicationSettings: IApplicationSettings;
-};
-
-const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | null => {
+export function App() {
+  const applicationSettings = useApplicationSettings();
   const allowAnonymousSelector = makeGetAllowAnonymousSelector();
   const allowAnonymous = useAppSelector(allowAnonymousSelector);
 
   const {
     isError: hasProfileError,
     isFetching: isProfileFetching,
-    isSuccess: isProfileSucess,
+    isSuccess: isProfileSuccess,
   } = useProfileQuery(allowAnonymous === false);
   const { isError: hasPartiesError, isFetching: isPartiesFetching } = usePartiesQuery(allowAnonymous === false);
 
   const { isError: hasTextResourceError, isFetching: isTextResourceFetching } = useGetTextResourcesQuery(
-    allowAnonymous === true || isProfileSucess,
+    allowAnonymous === true || isProfileSuccess,
   );
 
   const alwaysPromptForParty = useAlwaysPromptForParty();
@@ -119,4 +89,4 @@ const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | n
   }
 
   return null;
-};
+}

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 
+import { createLaxContext } from 'src/features/contexts/createContext';
 import {
   runExpressionRules,
   runExpressionsForLayouts,
@@ -10,7 +11,6 @@ import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { selectPageOrderConfig } from 'src/selectors/getLayoutOrder';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
-import { createLaxContext } from 'src/utils/createContext';
 import { _private, selectDataSourcesFromState } from 'src/utils/layout/hierarchy';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutNodeFromObj } from 'src/layout/layout';

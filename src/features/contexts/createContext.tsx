@@ -9,10 +9,10 @@ interface LaxContextProvider<T> extends ContextProvider<T | undefined> {
   useHasProvider: () => boolean;
 }
 
-type StrictContextProps = {
+export interface StrictContextProps {
   errorMessage?: string;
   name: string;
-};
+}
 
 /**
  * A strict context must always be provided, and will throw an error if it is not. This is useful for contexts that

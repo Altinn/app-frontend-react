@@ -5,11 +5,11 @@ import type { UseQueryResult } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
+import { createStrictContext } from 'src/features/contexts/createContext';
 import { CustomValidationActions } from 'src/features/customValidation/customValidationSlice';
 import { useCurrentDataModelName } from 'src/features/datamodel/useBindingSchema';
 import { Loader } from 'src/features/loading/Loader';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { createStrictContext } from 'src/utils/createContext';
 import { resolveExpressionValidationConfig } from 'src/utils/validation/expressionValidation';
 import type { IExpressionValidationConfig } from 'src/utils/validation/types';
 

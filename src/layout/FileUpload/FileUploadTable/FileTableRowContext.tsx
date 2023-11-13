@@ -1,4 +1,4 @@
-import { createStrictContext } from 'src/utils/createContext';
+import { createStrictContext } from 'src/features/contexts/createContext';
 
 export interface FileTableRowContext {
   index: number;

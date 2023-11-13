@@ -5,12 +5,12 @@ import type { UseQueryResult } from '@tanstack/react-query';
 import type { JSONSchema7 } from 'json-schema';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
+import { createStrictContext } from 'src/features/contexts/createContext';
 import { DataModelActions } from 'src/features/datamodel/datamodelSlice';
 import { useCurrentDataModelName } from 'src/features/datamodel/useBindingSchema';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/loading/Loader';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { createStrictContext } from 'src/utils/createContext';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 export interface IDataModelSchemaContext {

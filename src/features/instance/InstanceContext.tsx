@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
+import { createLaxContext } from 'src/features/contexts/createContext';
 import { LayoutValidationProvider } from 'src/features/devtools/layoutValidation/useLayoutValidation';
 import { DisplayError } from 'src/features/errorHandling/DisplayError';
 import { FormProvider } from 'src/features/form/FormContext';
@@ -14,7 +15,6 @@ import { useInstantiation } from 'src/features/instantiate/InstantiationContext'
 import { Loader } from 'src/features/loading/Loader';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { DeprecatedActions } from 'src/redux/deprecatedSlice';
-import { createLaxContext } from 'src/utils/createContext';
 import { maybeAuthenticationRedirect } from 'src/utils/maybeAuthenticationRedirect';
 import type { IInstance } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';

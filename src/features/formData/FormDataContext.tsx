@@ -6,6 +6,7 @@ import type { AxiosRequestConfig } from 'axios/index';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { getDataTypeByLayoutSetId, isStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
+import { createLaxContext } from 'src/features/contexts/createContext';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
@@ -16,7 +17,6 @@ import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { ProcessTaskType } from 'src/types';
-import { createLaxContext } from 'src/utils/createContext';
 import { flattenObject } from 'src/utils/databindings';
 import { maybeAuthenticationRedirect } from 'src/utils/maybeAuthenticationRedirect';
 import { getFetchFormDataUrl, getStatelessFormDataUrl } from 'src/utils/urls/appUrlHelper';

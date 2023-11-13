@@ -16,7 +16,7 @@ import { Edit as EditIcon } from '@navikt/ds-icons';
 import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/src/components/Pagination/Pagination';
 
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
-import { useApplicationMetadataQuery } from 'src/features/applicationMetadata/useApplicationMetadataQuery';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import classes from 'src/features/instantiate/containers/InstanceSelection.module.css';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -41,7 +41,7 @@ function getDateDisplayString(timeStamp: string) {
 }
 
 export function InstanceSelection({ instances, onNewInstance }: IInstanceSelectionProps) {
-  const { data: applicationMetadata } = useApplicationMetadataQuery();
+  const applicationMetadata = useApplicationMetadata();
   const instanceSelectionOptions = applicationMetadata?.onEntry?.instanceSelection;
   const selectedIndex = instanceSelectionOptions?.defaultSelectedOption;
   const { lang, langAsString, language } = useLanguage();

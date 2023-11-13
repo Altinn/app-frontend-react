@@ -4,13 +4,13 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { useIsStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
+import { createLaxContext } from 'src/features/contexts/createContext';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/loading/Loader';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { ProcessTaskType } from 'src/types';
-import { createLaxContext } from 'src/utils/createContext';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 import type { IInstance, IProcess } from 'src/types/shared';
 

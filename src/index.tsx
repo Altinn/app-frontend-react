@@ -17,7 +17,11 @@ import { App } from 'src/App';
 import { ErrorBoundary } from 'src/components/ErrorBoundary';
 import { ThemeWrapper } from 'src/components/ThemeWrapper';
 import { AppQueriesProvider } from 'src/contexts/appQueriesContext';
+import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { DevTools } from 'src/features/devtools/DevTools';
+import { FooterLayoutProvider } from 'src/features/footer/FooterLayoutProvider';
+import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
 import * as queries from 'src/queries/queries';
 import { initSagas } from 'src/redux/sagas';
@@ -42,7 +46,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 <InstantiationProvider>
                   <ExprContextWrapper>
                     <DevTools>
-                      <App />
+                      <ApplicationMetadataProvider>
+                        <ApplicationSettingsProvider>
+                          <LayoutSetsProvider>
+                            <FooterLayoutProvider>
+                              <App />
+                            </FooterLayoutProvider>
+                          </LayoutSetsProvider>
+                        </ApplicationSettingsProvider>
+                      </ApplicationMetadataProvider>
                     </DevTools>
                   </ExprContextWrapper>
                 </InstantiationProvider>

@@ -1,9 +1,9 @@
 import React from 'react';
 
+import { createStrictContext } from 'src/features/contexts/createContext';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
-import { createStrictContext } from 'src/utils/createContext';
 import type { IComponentProps } from 'src/layout';
 import type { IDataModelBindingsForList } from 'src/layout/List/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';

@@ -3,6 +3,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
+import { createStrictContext } from 'src/features/contexts/createContext';
 import { preProcessItem } from 'src/features/expressions/validation';
 import { cleanLayout } from 'src/features/form/layout/cleanLayout';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
@@ -13,7 +14,6 @@ import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/loading/Loader';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { createStrictContext } from 'src/utils/createContext';
 import type { ExprObjConfig, ExprVal } from 'src/features/expressions/types';
 import type { ILayoutFileExternal } from 'src/layout/common.generated';
 import type { ILayoutCollection, ILayouts } from 'src/layout/layout';
