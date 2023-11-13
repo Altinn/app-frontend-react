@@ -35,7 +35,7 @@ describe('fetchOptionsSagas', () => {
     };
 
     it('should refetch a given option when an updated field is in a option mapping', () => {
-      jest.spyOn(networking, 'httpGetWithHeaders').mockResolvedValue([]);
+      jest.spyOn(networking, 'httpGetRaw').mockResolvedValue([]);
       const optionsWithField: IOptions = {
         someOption: {
           id: 'someOption',
@@ -87,7 +87,7 @@ describe('fetchOptionsSagas', () => {
 
   describe('fetchOptionsSaga', () => {
     it('should spawn fetchSpecificOptionSaga for each unique optionsId', () => {
-      jest.spyOn(networking, 'httpGetWithHeaders').mockResolvedValue([]);
+      jest.spyOn(networking, 'httpGetRaw').mockResolvedValue([]);
       const formLayoutWithTwoSharedOptionIds: ILayouts = {
         formLayout: [
           {
@@ -158,7 +158,7 @@ describe('fetchOptionsSagas', () => {
     });
 
     it('should spawn multiple fetchSpecificOptionSaga if components have shared optionsId but different mapping', () => {
-      jest.spyOn(networking, 'httpGetWithHeaders').mockResolvedValue([]);
+      jest.spyOn(networking, 'httpGetRaw').mockResolvedValue([]);
       const formLayoutWithSameOptionIdButDifferentMapping: ILayouts = {
         formLayout: [
           {
@@ -224,7 +224,7 @@ describe('fetchOptionsSagas', () => {
 
   describe('Fixed query parameters', () => {
     it('should include static query parameters and mapping', () => {
-      jest.spyOn(networking, 'httpGetWithHeaders').mockResolvedValue([]);
+      jest.spyOn(networking, 'httpGetRaw').mockResolvedValue([]);
       const formLayout: ILayouts = {
         formLayout: [
           {
@@ -289,7 +289,7 @@ describe('fetchOptionsSagas', () => {
     });
 
     it('should include static query parameters in url', () => {
-      jest.spyOn(networking, 'httpGetWithHeaders').mockResolvedValue([]);
+      jest.spyOn(networking, 'httpGetRaw').mockResolvedValue([]);
 
       const formData = {
         'FlytteTil.Fylke': 'Oslo',
@@ -307,15 +307,12 @@ describe('fetchOptionsSagas', () => {
           [select(staticUseLanguageFromState), { selectedLanguage: 'nb' }],
           [select(instanceIdSelector), 'someId'],
         ])
-        .call(
-          networking.httpGetWithHeaders,
-          'https://local.altinn.cloud/ttd/test/api/options/kommune?language=nb&level=1',
-        )
+        .call(networking.httpGetRaw, 'https://local.altinn.cloud/ttd/test/api/options/kommune?language=nb&level=1')
         .run();
     });
 
     it('should include mapping in url', () => {
-      jest.spyOn(networking, 'httpGetWithHeaders').mockResolvedValue([]);
+      jest.spyOn(networking, 'httpGetRaw').mockResolvedValue([]);
 
       const formData = {
         'FlytteTil.Fylke': 'Oslo',
@@ -335,15 +332,12 @@ describe('fetchOptionsSagas', () => {
           [select(staticUseLanguageFromState), { selectedLanguage: 'nb' }],
           [select(instanceIdSelector), 'someId'],
         ])
-        .call(
-          networking.httpGetWithHeaders,
-          'https://local.altinn.cloud/ttd/test/api/options/kommune?language=nb&fylke=Oslo',
-        )
+        .call(networking.httpGetRaw, 'https://local.altinn.cloud/ttd/test/api/options/kommune?language=nb&fylke=Oslo')
         .run();
     });
 
     it('should include static query parameters and mapping in request url', () => {
-      jest.spyOn(networking, 'httpGetWithHeaders').mockResolvedValue([]);
+      jest.spyOn(networking, 'httpGetRaw').mockResolvedValue([]);
 
       const formData = {
         'FlytteTil.Fylke': 'Oslo',
@@ -364,7 +358,7 @@ describe('fetchOptionsSagas', () => {
           [select(instanceIdSelector), 'someId'],
         ])
         .call(
-          networking.httpGetWithHeaders,
+          networking.httpGetRaw,
           'https://local.altinn.cloud/ttd/test/api/options/kommune?language=nb&level=1&fylke=Oslo',
         )
         .run();
