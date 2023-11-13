@@ -1,7 +1,7 @@
 import React from 'react';
 import type { JSX } from 'react';
 
-import { addValidation, FrontendValidationSource, initializeFieldValidations } from 'src/features/validation';
+import { addValidation, FrontendValidationSource, initializeComponentValidations } from 'src/features/validation';
 import { AddressComponent } from 'src/layout/Address/AddressComponent';
 import { AddressDef } from 'src/layout/Address/config.def.generated';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
@@ -48,8 +48,8 @@ export class Address extends AddressDef implements ComponentValidation {
      * this must be done for all fields that will be validated
      * so we remove existing validations in case they are fixed.
      */
-    for (const field of Object.values(node.item.dataModelBindings)) {
-      initializeFieldValidations(formValidations, field, FrontendValidationSource.Component);
+    for (const bindingKey of Object.keys(node.item.dataModelBindings)) {
+      initializeComponentValidations(formValidations, node.item.id, FrontendValidationSource.Component, bindingKey);
     }
 
     const zipCodeField = node.item.dataModelBindings.zipCode;
@@ -60,7 +60,8 @@ export class Address extends AddressDef implements ComponentValidation {
       addValidation(formValidations, {
         message: langTools.langAsString('address_component.validation_error_zipcode'),
         severity: 'errors',
-        field: zipCodeField!,
+        bindingKey: 'zipCode',
+        componentId: node.item.id,
         group: FrontendValidationSource.Component,
       });
     }
@@ -72,7 +73,8 @@ export class Address extends AddressDef implements ComponentValidation {
       addValidation(formValidations, {
         message: langTools.langAsString('address_component.validation_error_house_number'),
         severity: 'errors',
-        field: houseNumberField!,
+        bindingKey: 'houseNumber',
+        componentId: node.item.id,
         group: FrontendValidationSource.Component,
       });
     }

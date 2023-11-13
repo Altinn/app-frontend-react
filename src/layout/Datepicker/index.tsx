@@ -2,7 +2,12 @@ import React from 'react';
 
 import moment from 'moment';
 
-import { addValidation, FrontendValidationSource, initializeFieldValidations } from 'src/features/validation';
+import {
+  addValidation,
+  FrontendValidationSource,
+  initializeComponentValidations,
+  initializeFieldValidations,
+} from 'src/features/validation';
 import { DatepickerDef } from 'src/layout/Datepicker/config.def.generated';
 import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
@@ -67,7 +72,7 @@ export class Datepicker extends DatepickerDef implements ComponentValidation {
      * this must be done for all fields that will be validated
      * so we remove existing validations in case they are fixed.
      */
-    initializeFieldValidations(formValidations, field, FrontendValidationSource.Component);
+    initializeComponentValidations(formValidations, node.item.id, FrontendValidationSource.Component);
 
     const date = moment(data, moment.ISO_8601);
 
@@ -76,7 +81,7 @@ export class Datepicker extends DatepickerDef implements ComponentValidation {
       addValidation(formValidations, {
         message,
         severity: 'errors',
-        field,
+        componentId: node.item.id,
         group: FrontendValidationSource.Component,
       });
     }

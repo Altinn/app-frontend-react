@@ -3,7 +3,7 @@ import type { JSX } from 'react';
 
 import type { ErrorObject } from 'ajv';
 
-import { addValidation, FrontendValidationSource, initializeFieldValidations } from 'src/features/validation';
+import { addValidation, FrontendValidationSource, initializeComponentValidations } from 'src/features/validation';
 import { GroupDef } from 'src/layout/Group/config.def.generated';
 import { GroupRenderer } from 'src/layout/Group/GroupRenderer';
 import { GroupHierarchyGenerator } from 'src/layout/Group/hierarchy';
@@ -87,13 +87,11 @@ export class Group extends GroupDef implements GroupValidation, ComponentValidat
 
     const repeatingGroupMinCountValid = repeatingGroupMinCount <= repeatingGroupVisibleRows;
 
-    const field = node.item.dataModelBindings.group;
     /**
-     * Initialize validation group for field,
-     * this must be done for all fields that will be validated
+     * Initialize validation group for component,
      * so we remove existing validations in case they are fixed.
      */
-    initializeFieldValidations(formValidations, field, FrontendValidationSource.Component);
+    initializeComponentValidations(formValidations, node.item.id, FrontendValidationSource.Component);
 
     // if not valid, return appropriate error message
     if (!repeatingGroupMinCountValid) {
@@ -102,7 +100,7 @@ export class Group extends GroupDef implements GroupValidation, ComponentValidat
       addValidation(formValidations, {
         message,
         severity: 'errors',
-        field,
+        componentId: node.item.id,
         group: FrontendValidationSource.Component,
       });
     }
