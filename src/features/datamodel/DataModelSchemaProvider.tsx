@@ -5,7 +5,7 @@ import type { UseQueryResult } from '@tanstack/react-query';
 import type { JSONSchema7 } from 'json-schema';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
-import { createStrictQueryContext } from 'src/features/contexts/queryContext';
+import { createLaxQueryContext } from 'src/features/contexts/queryContext';
 import { DataModelActions } from 'src/features/datamodel/datamodelSlice';
 import { useCurrentDataModelName } from 'src/features/datamodel/useBindingSchema';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
@@ -38,7 +38,7 @@ const useDataModelSchemaQuery = (dataModelName: string | undefined): UseQueryRes
   });
 };
 
-const { Provider, useCtx } = createStrictQueryContext<JSONSchema7>({
+const { Provider, useCtx } = createLaxQueryContext<JSONSchema7>({
   name: 'DataModelSchema',
   useQuery: useDataModelSchemaQuery,
   // PRIORITY: Provide argument and/or fix implementation

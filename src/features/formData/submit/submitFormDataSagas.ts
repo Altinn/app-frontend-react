@@ -8,12 +8,12 @@ import {
   getCurrentTaskDataElementId,
   isStatelessApp,
 } from 'src/features/applicationMetadata/appMetadataUtils';
+import { makeGetAllowAnonymousSelector } from 'src/features/applicationMetadata/getAllowAnonymous';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { pathsChangedFromServer } from 'src/hooks/useDelayedSavedState';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
-import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { convertDataBindingToModel, filterOutInvalidData, flattenObject } from 'src/utils/databindings';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpPost } from 'src/utils/network/networking';

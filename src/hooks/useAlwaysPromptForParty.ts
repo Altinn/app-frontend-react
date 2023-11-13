@@ -1,13 +1,15 @@
-import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { useParties } from 'src/features/party/PartiesProvider';
+import { useProfile } from 'src/features/profile/ProfileProvider';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 
 export function useAlwaysPromptForParty(): boolean | null {
   const { partyId: partyIdFromUrl } = useInstanceIdParams();
-  const applicationMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
-  const profile = useAppSelector((state) => state.profile.profile);
-  const parties = useAppSelector((state) => state.party.parties);
+  const applicationMetadata = useApplicationMetadata();
+  const profile = useProfile();
+  const parties = useParties();
 
-  if (!profile.partyId || parties === null) {
+  if (!profile?.partyId || parties === null) {
     return null;
   }
 

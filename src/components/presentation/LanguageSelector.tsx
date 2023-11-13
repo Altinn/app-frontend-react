@@ -4,7 +4,7 @@ import { Select } from '@digdir/design-system-react';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { ProfileActions } from 'src/features/profile/profileSlice';
-import { useGetAppLanguageQuery } from 'src/hooks/queries/useGetAppLanguagesQuery';
+import { useGetAppLanguageQuery } from 'src/features/textResources/useGetAppLanguagesQuery';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useLanguage } from 'src/hooks/useLanguage';
 

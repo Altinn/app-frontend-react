@@ -1,3 +1,5 @@
+import { useSelector } from 'react-redux';
+
 import { createSelector } from 'reselect';
 
 import { getDataTypeByLayoutSetId, isStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
@@ -12,7 +14,7 @@ const getAllowAnonymous = () => {
     return selector;
   }
 
-  selector = createSelector([getApplicationMetadata, getLayoutSets], (application, layoutsets) => {
+  selector = createSelector([getApplicationMetadata, getLayoutSets], (application, layoutSets) => {
     // Require application metadata - return undefined if not yet loaded
     if (!application || !application.dataTypes) {
       return undefined;
@@ -22,11 +24,11 @@ const getAllowAnonymous = () => {
       return false;
     }
     // Require layout sets for stateless apps - return undefined if not yet loaded
-    if (!layoutsets?.sets) {
+    if (!layoutSets?.sets) {
       return undefined;
     }
 
-    const dataTypeId = getDataTypeByLayoutSetId(application.onEntry?.show, layoutsets, application);
+    const dataTypeId = getDataTypeByLayoutSetId(application.onEntry?.show, layoutSets, application);
     const dataType = application.dataTypes.find((d) => d.id === dataTypeId);
     const allowAnonymous = dataType?.appLogic?.allowAnonymousOnStateless;
     if (allowAnonymous !== undefined && allowAnonymous !== null) {
@@ -40,3 +42,9 @@ const getAllowAnonymous = () => {
 };
 
 export const makeGetAllowAnonymousSelector = getAllowAnonymous;
+
+export const useAllowAnonymousIs = (compareWith: boolean) => {
+  const getAllowAnonymous = makeGetAllowAnonymousSelector();
+  const allowAnonymous = useSelector(getAllowAnonymous);
+  return allowAnonymous === compareWith;
+};

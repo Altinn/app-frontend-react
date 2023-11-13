@@ -15,7 +15,6 @@ const useFooterLayoutQuery = (): UseQueryResult<IFooterLayout> => {
     queryKey: ['fetchFooterLayout'],
     queryFn: fetchFooterLayout,
     onSuccess: (footerLayout) => {
-      // Update the Redux Store ensures that legacy code has access to the data without using the Tanstack Query Cache
       dispatch(FooterLayoutActions.fetchFulfilled({ footerLayout }));
     },
     onError: (error: HttpClientError) => {

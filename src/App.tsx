@@ -2,19 +2,15 @@ import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 
 import { ProcessWrapper } from 'src/components/wrappers/ProcessWrapper';
+import { makeGetAllowAnonymousSelector } from 'src/features/applicationMetadata/getAllowAnonymous';
 import { useApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { Entrypoint } from 'src/features/entrypoint/Entrypoint';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { PartySelection } from 'src/features/instantiate/containers/PartySelection';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
-import { useCurrentPartyQuery } from 'src/hooks/queries/useGetCurrentPartyQuery';
-import { usePartiesQuery } from 'src/hooks/queries/useGetPartiesQuery';
-import { useGetTextResourcesQuery } from 'src/hooks/queries/useGetTextResourcesQuery';
-import { useProfileQuery } from 'src/hooks/queries/useProfileQuery';
 import { useAlwaysPromptForParty } from 'src/hooks/useAlwaysPromptForParty';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useKeepAlive } from 'src/hooks/useKeepAlive';
-import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
 
 import '@digdir/design-system-tokens/brand/altinn/tokens.css';
@@ -46,8 +42,8 @@ export function App() {
 
   useKeepAlive(applicationSettings.appOidcProvider, allowAnonymous);
 
-  const hasComponentError = hasProfileError || hasCurrentPartyError || hasPartiesError || hasTextResourceError;
-  const isFetching = isProfileFetching || isPartiesFetching || isTextResourceFetching;
+  // const hasComponentError = hasProfileError || hasCurrentPartyError || hasPartiesError || hasTextResourceError;
+  // const isFetching = isProfileFetching || isPartiesFetching || isTextResourceFetching;
 
   // Set the title of the app
   React.useEffect(() => {

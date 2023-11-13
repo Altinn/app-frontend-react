@@ -5,9 +5,9 @@ import { LegacyFieldSet, ResponsiveTable } from '@digdir/design-system-react';
 import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/src/components/Pagination/Pagination';
 import type { ChangeProps, ResponsiveTableConfig, SortDirection, SortProps } from '@digdir/design-system-react';
 
-import { useDataListQuery } from 'src/hooks/queries/useDataListQuery';
+import { useDataListQuery } from 'src/features/dataLists/useDataListQuery';
 import { useLanguage } from 'src/hooks/useLanguage';
-import type { Filter } from 'src/hooks/queries/useDataListQuery';
+import type { Filter } from 'src/features/dataLists/useDataListQuery';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IListProps = PropsFromGenericComponent<'List'>;

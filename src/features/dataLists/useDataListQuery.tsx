@@ -9,7 +9,7 @@ import { useLanguage } from 'src/hooks/useLanguage';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { mapFormData } from 'src/utils/databindings';
 import { getDataListsUrl } from 'src/utils/urls/appUrlHelper';
-import type { IDataList } from 'src/features/dataLists';
+import type { IDataList } from 'src/features/dataLists/index';
 import type { IMapping } from 'src/layout/common.generated';
 
 export type Filter = {

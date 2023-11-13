@@ -14,14 +14,12 @@ const useApplicationSettingsQuery = () => {
     queryKey: ['fetchApplicationSettings'],
     queryFn: fetchApplicationSettings,
     onSuccess: (settings) => {
-      // Update the Redux Store ensures that legacy code has access to the data without using the Tanstack Query Cache
       dispatch(ApplicationSettingsActions.fetchApplicationSettingsFulfilled({ settings }));
     },
     onError: (error: HttpClientError) => {
       if (error.status === 404) {
         window.logWarn('Application settings not found:\n', error);
       } else {
-        // Update the Redux Store ensures that legacy code has access to the data without using the Tanstack Query Cache
         window.logError('Fetching application settings failed:\n', error);
       }
     },

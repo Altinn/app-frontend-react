@@ -156,7 +156,7 @@ export const fetchApplicationMetadata = (): Promise<IApplicationMetadata> => htt
 
 export const fetchApplicationSettings = (): Promise<IApplicationSettings> => httpGet(applicationSettingsApiUrl);
 
-export const fetchCurrentParty = () => httpGet(currentPartyUrl);
+export const fetchCurrentParty = (): Promise<IParty | undefined> => httpGet(currentPartyUrl);
 
 export const fetchFooterLayout = (): Promise<IFooterLayout> => httpGet(getFooterLayoutUrl());
 

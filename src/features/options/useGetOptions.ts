@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 
-import { useGetOptionsQuery } from 'src/hooks/queries/useGetOptionsQuery';
+import { useGetOptionsQuery } from 'src/features/options/useGetOptionsQuery';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { useSourceOptions } from 'src/hooks/useSourceOptions';
 import { duplicateOptionFilter } from 'src/utils/options';

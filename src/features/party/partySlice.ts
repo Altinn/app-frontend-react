@@ -3,8 +3,8 @@ import type { IGetPartiesFulfilled, IPartyState, ISelectPartyFulfilled } from 's
 import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
 
 const initialState: IPartyState = {
-  parties: null,
-  selectedParty: null,
+  parties: undefined,
+  selectedParty: undefined,
   autoRedirect: false,
 };
 

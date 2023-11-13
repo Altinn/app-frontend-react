@@ -1,23 +1,34 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
+import { useAllowAnonymousIs } from 'src/features/applicationMetadata/getAllowAnonymous';
+import { createLaxQueryContext } from 'src/features/contexts/queryContext';
 import { PartyActions } from 'src/features/party/partySlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
-export const usePartiesQuery = (enabled: boolean) => {
+const usePartiesQuery = (enabled: boolean) => {
   const dispatch = useAppDispatch();
 
   const { fetchParties } = useAppQueries();
-  return useQuery(['fetchUseParties'], fetchParties, {
+  return useQuery({
     enabled,
+    queryKey: ['fetchUseParties'],
+    queryFn: () => fetchParties(),
     onSuccess: (parties) => {
-      // Update the Redux Store ensures that legacy code has access to the data without using the Tanstack Query Cache
       dispatch(PartyActions.getPartiesFulfilled({ parties }));
     },
     onError: (error: HttpClientError) => {
-      // Update the Redux Store ensures that legacy code has access to the data without using the Tanstack Query Cache
       window.logError('Fetching parties failed:\n', error);
     },
   });
 };
+
+const { Provider, useCtx } = createLaxQueryContext({
+  name: 'Parties',
+  useQuery: usePartiesQuery,
+  useIsEnabled: () => useAllowAnonymousIs(false),
+});
+
+export const PartiesProvider = Provider;
+export const useParties = useCtx;

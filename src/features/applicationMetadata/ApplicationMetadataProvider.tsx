@@ -14,11 +14,9 @@ const useApplicationMetadataQuery = () => {
     queryKey: ['fetchApplicationMetadata'],
     queryFn: fetchApplicationMetadata,
     onSuccess: (applicationMetadata) => {
-      // Update the Redux Store ensures that legacy code has access to the data without using the Tanstack Query Cache
       dispatch(ApplicationMetadataActions.getFulfilled({ applicationMetadata }));
     },
     onError: (error: HttpClientError) => {
-      // Update the Redux Store ensures that legacy code has access to the data without using the Tanstack Query Cache
       window.logError('Fetching application metadata failed:\n', error);
     },
   });

@@ -10,7 +10,6 @@ interface LaxContextProvider<T> extends ContextProvider<T | undefined> {
 }
 
 export interface StrictContextProps {
-  errorMessage?: string;
   name: string;
 }
 
@@ -24,7 +23,7 @@ export function createStrictContext<T>(props: StrictContextProps): ContextProvid
   const useCtx = (): T => {
     const context = React.useContext(Context);
     if (context === undefined) {
-      throw new Error(props?.errorMessage || `${props.name} is missing`);
+      throw new Error(`${props.name} is missing`);
     }
     return context;
   };

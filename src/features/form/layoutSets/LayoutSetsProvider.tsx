@@ -15,7 +15,6 @@ const useLayoutSetsQuery = (): UseQueryResult<ILayoutSets> => {
     queryKey: ['fetchLayoutSets'],
     queryFn: fetchLayoutSets,
     onSuccess: (layoutSets) => {
-      // Update the Redux Store ensures that legacy code has access to the data without using the Tanstack Query Cache
       dispatch(FormLayoutActions.fetchSetsFulfilled({ layoutSets }));
     },
     onError: (error: HttpClientError) => {
