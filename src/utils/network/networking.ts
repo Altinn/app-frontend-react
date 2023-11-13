@@ -16,7 +16,7 @@ export async function httpGet(url: string, options?: AxiosRequestConfig): Promis
   return response.data ? response.data : null;
 }
 
-export async function httpGetWithHeaders(url: string, options?: AxiosRequestConfig): Promise<any> {
+export async function httpGetRaw(url: string, options?: AxiosRequestConfig): Promise<any> {
   const headers = options?.headers as RawAxiosRequestHeaders | undefined;
   const response: AxiosResponse = await axios.get(url, {
     ...options,
