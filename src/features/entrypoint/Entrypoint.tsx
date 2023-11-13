@@ -5,6 +5,7 @@ import type { AxiosError } from 'axios';
 
 import { Form } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/wrappers/Presentation';
+import { useIsStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
 import { FormProvider } from 'src/features/form/FormContext';
 import { InstanceSelection } from 'src/features/instantiate/containers/InstanceSelection';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
@@ -21,7 +22,6 @@ import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
 import { PresentationType, ProcessTaskType } from 'src/types';
-import { useIsStatelessApp } from 'src/utils/appMetadata';
 import { checkIfAxiosError, HttpStatusCodes } from 'src/utils/network/networking';
 import type { ShowTypes } from 'src/features/applicationMetadata';
 

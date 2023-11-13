@@ -4,8 +4,8 @@ import {
   getCurrentTaskDataElementId,
   getLayoutSetIdForApplication,
   isStatelessApp,
-} from 'src/utils/appMetadata';
-import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+} from 'src/features/applicationMetadata/appMetadataUtils';
+import type { IApplicationMetadata } from 'src/features/applicationMetadata/index';
 import type { ILayoutSets } from 'src/types';
 import type { IData, IInstance, IProcess, ITask } from 'src/types/shared';
 

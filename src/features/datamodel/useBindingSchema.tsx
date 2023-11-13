@@ -2,12 +2,15 @@ import { useMemo } from 'react';
 
 import type { JSONSchema7 } from 'json-schema';
 
+import {
+  getCurrentDataTypeForApplication,
+  getCurrentTaskDataElementId,
+} from 'src/features/applicationMetadata/appMetadataUtils';
 import { dotNotationToPointer } from 'src/features/datamodel/notations';
 import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { getCurrentDataTypeForApplication, getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { getRootElementPath } from 'src/utils/schemaUtils';
 import type { IDataModelBindings } from 'src/layout/layout';
 

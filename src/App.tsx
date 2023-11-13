@@ -2,12 +2,12 @@ import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 
 import { ProcessWrapper } from 'src/components/wrappers/ProcessWrapper';
+import { useApplicationMetadataQuery } from 'src/features/applicationMetadata/useApplicationMetadataQuery';
+import { useApplicationSettingsQuery } from 'src/features/applicationSettings/useApplicationSettingsQuery';
 import { Entrypoint } from 'src/features/entrypoint/Entrypoint';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { PartySelection } from 'src/features/instantiate/containers/PartySelection';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
-import { useApplicationMetadataQuery } from 'src/hooks/queries/useApplicationMetadataQuery';
-import { useApplicationSettingsQuery } from 'src/hooks/queries/useApplicationSettingsQuery';
 import { useFooterLayoutQuery } from 'src/hooks/queries/useFooterLayoutQuery';
 import { useCurrentPartyQuery } from 'src/hooks/queries/useGetCurrentPartyQuery';
 import { usePartiesQuery } from 'src/hooks/queries/useGetPartiesQuery';

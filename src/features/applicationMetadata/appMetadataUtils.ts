@@ -1,7 +1,7 @@
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
 import { getLayoutSetForDataElement } from 'src/utils/layout';
-import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { IApplicationMetadata } from 'src/features/applicationMetadata/index';
 import type { ILayoutSets } from 'src/types';
 import type { IInstance, IProcess } from 'src/types/shared';
 

@@ -1,5 +1,5 @@
 import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
-import { AsciiUnitSeparator } from 'src/utils/attachment';
+import { AsciiUnitSeparator } from 'src/layout/FileUpload/utils/asciiUnitSeparator';
 import {
   getColumnStyles,
   getColumnStylesRepeatingGroups,

@@ -1,6 +1,6 @@
-import { getFileEnding, removeFileEnding } from 'src/utils/attachment';
+import { getFileEnding, removeFileEnding } from 'src/layout/FileUpload/utils/fileEndings';
 
-describe('attachment utils', () => {
+describe('attachment file ending utils', () => {
   describe('getFileEnding', () => {
     it('should get file ending correctly', () => {
       expect(getFileEnding('test.jpg')).toEqual('.jpg');

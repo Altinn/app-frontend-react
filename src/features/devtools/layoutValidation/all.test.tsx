@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import type { JSONSchema7 } from 'json-schema';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
+import { isStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
 import {
   LayoutValidationProvider,
   useLayoutValidation,
@@ -12,7 +13,6 @@ import {
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { ensureAppsDirIsSet, getAllLayoutSets } from 'src/test/allApps';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
-import { isStatelessApp } from 'src/utils/appMetadata';
 
 describe('All known apps should work with layout validation', () => {
   const dir = ensureAppsDirIsSet();

@@ -1,6 +1,6 @@
+import { getLayoutSetIdForApplication } from 'src/features/applicationMetadata/appMetadataUtils';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { getLayoutSetIdForApplication } from 'src/utils/appMetadata';
 
 export function useCurrentLayoutSetId() {
   const application = useAppSelector((state) => state.applicationMetadata?.applicationMetadata);

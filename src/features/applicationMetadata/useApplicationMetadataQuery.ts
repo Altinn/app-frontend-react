@@ -4,7 +4,7 @@ import type { UseQueryResult } from '@tanstack/react-query';
 import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { ApplicationMetadataActions } from 'src/features/applicationMetadata/applicationMetadataSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { IApplicationMetadata } from 'src/features/applicationMetadata/index';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 export const useApplicationMetadataQuery = (): UseQueryResult<IApplicationMetadata> => {

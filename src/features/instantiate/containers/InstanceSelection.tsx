@@ -16,8 +16,8 @@ import { Edit as EditIcon } from '@navikt/ds-icons';
 import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/src/components/Pagination/Pagination';
 
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
+import { useApplicationMetadataQuery } from 'src/features/applicationMetadata/useApplicationMetadataQuery';
 import classes from 'src/features/instantiate/containers/InstanceSelection.module.css';
-import { useApplicationMetadataQuery } from 'src/hooks/queries/useApplicationMetadataQuery';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { getInstanceUiUrl } from 'src/utils/urls/appUrlHelper';

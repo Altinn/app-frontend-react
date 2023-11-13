@@ -5,7 +5,7 @@ import addAdditionalFormats from 'ajv-formats-draft2019';
 import type { Options } from 'ajv';
 import type * as AjvCore from 'ajv/dist/core';
 
-import { getCurrentDataTypeForApplication } from 'src/utils/appMetadata';
+import { getCurrentDataTypeForApplication } from 'src/features/applicationMetadata/appMetadataUtils';
 import { convertDataBindingToModel } from 'src/utils/databindings';
 import {
   getRootElementPath,
