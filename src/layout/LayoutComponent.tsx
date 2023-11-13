@@ -311,13 +311,14 @@ export abstract class FormComponent<Type extends CompTypes>
     const formDataToValidate = { ...formData, ...overrideFormData };
     const formValidations: FormValidations = {};
 
-    /**
-     * Initialize validation group for component,
-     * this must be done so we remove existing validations in case they are fixed.
-     */
-    initializeComponentValidations(formValidations, node.item.id, FrontendValidationSource.Required);
-
     for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings) as [string, string][]) {
+      /**
+       * Initialize validation group for binding keys,
+       * this must be done for all fields that will be validated
+       * so we remove existing validations in case they are fixed.
+       */
+      initializeComponentValidations(formValidations, node.item.id, FrontendValidationSource.Required, bindingKey);
+
       const data = formDataToValidate[field];
       const trb: ITextResourceBindings = 'textResourceBindings' in node.item ? node.item.textResourceBindings : {};
 
@@ -331,6 +332,7 @@ export abstract class FormComponent<Type extends CompTypes>
         addValidation(formValidations, {
           componentId: node.item.id,
           group: FrontendValidationSource.Required,
+          bindingKey,
           message,
           severity: 'errors',
         });

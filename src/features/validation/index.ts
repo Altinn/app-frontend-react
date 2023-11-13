@@ -44,21 +44,50 @@ export function initializeFieldValidations(dest: FormValidations, field: string,
  * This must be done for all components that will be validated
  * before adding any validations to it.
  */
-export function initializeComponentValidations(dest: FormValidations, componentId: string, group: string): void {
-  if (dest.components?.[componentId]?.[group]) {
-    window.logError(
-      `Initializing validation failed, group ${group} already exists on field ${componentId}\n`,
-      dest.components[componentId][group],
-    );
-    return;
-  }
+export function initializeComponentValidations(
+  dest: FormValidations,
+  componentId: string,
+  group: string,
+  bindingKey?: string,
+): void {
+  if (bindingKey) {
+    if (dest.components?.[componentId]?.bindingKeys?.[bindingKey]?.[group]) {
+      window.logError(
+        `Initializing validation failed, group ${group} already exists on field ${componentId}/${bindingKey}\n`,
+        dest.components[componentId].bindingKeys![bindingKey][group],
+      );
+      return;
+    }
 
-  if (!dest.components) {
-    dest.components = { [componentId]: { [group]: [] } };
-  } else if (!dest.components[componentId]) {
-    dest.components[componentId] = { [group]: [] };
+    if (!dest.components) {
+      dest.components = { [componentId]: { bindingKeys: { [bindingKey]: { [group]: [] } } } };
+    } else if (!dest.components[componentId]) {
+      dest.components[componentId] = { bindingKeys: { [bindingKey]: { [group]: [] } } };
+    } else if (!dest.components[componentId].bindingKeys) {
+      dest.components[componentId].bindingKeys = { [bindingKey]: { [group]: [] } };
+    } else if (!dest.components[componentId].bindingKeys![bindingKey]) {
+      dest.components[componentId].bindingKeys![bindingKey] = { [group]: [] };
+    } else {
+      dest.components[componentId].bindingKeys![bindingKey][group] = [];
+    }
   } else {
-    dest.components[componentId][group] = [];
+    if (dest.components?.[componentId]?.component?.[group]) {
+      window.logError(
+        `Initializing validation failed, group ${group} already exists on field ${componentId}/${bindingKey}\n`,
+        dest.components[componentId].component![group],
+      );
+      return;
+    }
+
+    if (!dest.components) {
+      dest.components = { [componentId]: { component: { [group]: [] } } };
+    } else if (!dest.components[componentId]) {
+      dest.components[componentId] = { component: { [group]: [] } };
+    } else if (!dest.components[componentId].component) {
+      dest.components[componentId].component = { [group]: [] };
+    } else {
+      dest.components[componentId].component![group] = [];
+    }
   }
 }
 
@@ -76,31 +105,30 @@ function isComponentValidation(validation: GroupedValidation): validation is Com
  * as these will need to be initialized as empty in order
  * to be able to remove the validation in case it does not return an error.
  */
-export function addValidation<T extends GroupedValidation>(dest: FormValidations, validation: T): void {
+export function addValidation(dest: FormValidations, validation: FieldValidation | ComponentValidation): void {
   if (isFieldValidation(validation)) {
-    if (!dest.fields?.[validation.field]) {
-      window.logError('Adding validation failed, field object was not initialized\n', validation);
-      return;
-    }
-
-    if (!dest.fields?.[validation.field][validation.group]) {
+    if (!dest.fields?.[validation.field]?.[validation.group]) {
       window.logError('Adding validation failed, group object was not initialized\n', validation);
       return;
     }
 
     dest.fields[validation.field][validation.group].push(validation);
   } else if (isComponentValidation(validation)) {
-    if (!dest.components?.[validation.componentId]) {
-      window.logError('Adding validation failed, componentId object was not initialized\n', validation);
-      return;
-    }
+    if (validation.bindingKey) {
+      if (!dest.components?.[validation.componentId]?.bindingKeys?.[validation.bindingKey]?.[validation.group]) {
+        window.logError('Adding validation failed, group object was not initialized\n', validation);
+        return;
+      }
 
-    if (!dest.components?.[validation.componentId][validation.group]) {
-      window.logError('Adding validation failed, group object was not initialized\n', validation);
-      return;
-    }
+      dest.components[validation.componentId].bindingKeys![validation.bindingKey][validation.group].push(validation);
+    } else {
+      if (!dest.components?.[validation.componentId]?.component?.[validation.group]) {
+        window.logError('Adding validation failed, group object was not initialized\n', validation);
+        return;
+      }
 
-    dest.components[validation.componentId][validation.group].push(validation);
+      dest.components[validation.componentId].component![validation.group].push(validation);
+    }
   } else {
     window.logError('Adding validation failed, validation was not of a known type\n', validation);
   }
@@ -184,20 +212,29 @@ export function getValidationsForNode(
   const validationMessages: NodeValidation[] = [];
   if (node.item.dataModelBindings) {
     for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings)) {
-      if (!state.fields[field]) {
-        continue;
+      if (state.fields[field]) {
+        for (const group of Object.values(state.fields[field])) {
+          const groupValidations = severity ? validationsOfSeverity(group, severity) : group;
+          for (const validation of groupValidations) {
+            validationMessages.push(buildNodeValidation(node, validation, bindingKey));
+          }
+        }
       }
-      for (const group of Object.values(state.fields[field])) {
-        const groupValidations = severity ? validationsOfSeverity(group, severity) : group;
-        for (const validation of groupValidations) {
-          validationMessages.push(buildNodeValidation(node, validation, bindingKey));
+
+      if (state.components[node.item.id]?.bindingKeys?.[bindingKey]) {
+        for (const group of Object.values(state.components[node.item.id].bindingKeys![bindingKey])) {
+          const groupValidations = severity ? validationsOfSeverity(group, severity) : group;
+          for (const validation of groupValidations) {
+            validationMessages.push(buildNodeValidation(node, validation, bindingKey));
+          }
         }
       }
     }
   }
-  if (state.components[node.item.id]) {
-    for (const group of Object.values(state.components[node.item.id])) {
-      for (const validation of group) {
+  if (state.components[node.item.id]?.component) {
+    for (const group of Object.values(state.components[node.item.id].component!)) {
+      const groupValidations = severity ? validationsOfSeverity(group, severity) : group;
+      for (const validation of groupValidations) {
         validationMessages.push(buildNodeValidation(node, validation));
       }
     }

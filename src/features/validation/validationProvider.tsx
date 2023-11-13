@@ -115,7 +115,9 @@ export function useBindingValidationsForNode<
   N extends LayoutNode,
   T extends CompTypes = N extends BaseLayoutNode<any, infer T> ? T : never,
 >(node: N): { [binding in keyof NonNullable<IDataModelBindings<T>>]: NodeValidation[] } | undefined {
-  const fields = useContext().state.fields;
+  const state = useContext().state;
+  const fields = state.fields;
+  const component = state.components[node.item.id];
 
   return useMemo(() => {
     if (!node.item.dataModelBindings) {
@@ -125,33 +127,38 @@ export function useBindingValidationsForNode<
     for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings)) {
       bindingValidations[bindingKey] = [];
 
-      if (!fields[field]) {
-        continue;
+      if (fields[field]) {
+        for (const validations of Object.values(fields[field])) {
+          bindingValidations[bindingKey].push(
+            ...validations.map((validation) => buildNodeValidation(node, validation, bindingKey)),
+          );
+        }
       }
-
-      for (const validations of Object.values(fields[field])) {
-        bindingValidations[bindingKey].push(
-          ...validations.map((validation) => buildNodeValidation(node, validation, bindingKey)),
-        );
+      if (component?.bindingKeys?.[bindingKey]) {
+        for (const validations of Object.values(component.bindingKeys![bindingKey])) {
+          bindingValidations[bindingKey].push(
+            ...validations.map((validation) => buildNodeValidation(node, validation, bindingKey)),
+          );
+        }
       }
     }
     return bindingValidations as { [binding in keyof NonNullable<IDataModelBindings<T>>]: NodeValidation[] };
-  }, [node, fields]);
+  }, [node, fields, component]);
 }
 
 export function useComponentValidationsForNode(node: LayoutNode): NodeValidation[] {
-  const components = useContext().state.components;
+  const component = useContext().state.components[node.item.id];
   return useMemo(() => {
-    if (!components[node.item.id]) {
+    if (!component?.component) {
       return [];
     }
     const componentValidations: NodeValidation[] = [];
-    for (const validations of Object.values(components[node.item.id])) {
+    for (const validations of Object.values(component.component!)) {
       componentValidations.push(...validations.map((validation) => buildNodeValidation(node, validation)));
     }
 
     return componentValidations;
-  }, [node, components]);
+  }, [node, component]);
 }
 
 /**

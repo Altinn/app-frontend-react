@@ -22,12 +22,16 @@ export type ValidationGroup<T extends GroupedValidation> = {
   [group: string]: T[];
 };
 
-export type GroupedValidations<T extends GroupedValidation> = {
-  [key: string]: ValidationGroup<T>;
+export type FieldValidations = {
+  [field: string]: ValidationGroup<FieldValidation>;
 };
 
-export type FieldValidations = GroupedValidations<FieldValidation>;
-export type ComponentValidations = GroupedValidations<ComponentValidation>;
+export type ComponentValidations = {
+  [componentId: string]: {
+    bindingKeys?: { [bindingKey: string]: ValidationGroup<ComponentValidation> };
+    component?: ValidationGroup<ComponentValidation>;
+  };
+};
 
 type BaseValidation<Severity extends ValidationSeverity = ValidationSeverity> = {
   message: string;
@@ -45,6 +49,7 @@ export type FieldValidation<Severity extends ValidationSeverity = ValidationSeve
 export type ComponentValidation<Severity extends ValidationSeverity = ValidationSeverity> =
   GroupedValidation<Severity> & {
     componentId: string;
+    bindingKey?: string;
     meta?: Record<string, string>;
   };
 
