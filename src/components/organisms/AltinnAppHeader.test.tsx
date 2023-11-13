@@ -34,7 +34,6 @@ describe('organisms/AltinnAppHeader', () => {
   } as IParty;
 
   const headerBackgroundColor = 'blue';
-  const logoColor = 'blue';
 
   interface IRenderComponentProps {
     party: IParty;
@@ -47,7 +46,7 @@ describe('organisms/AltinnAppHeader', () => {
         <AltinnAppHeader
           party={party}
           userParty={user}
-          logoColor={logoColor}
+          logoColor={'blueDarker'}
           headerBackgroundColor={headerBackgroundColor}
         />
       ),

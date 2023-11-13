@@ -86,7 +86,7 @@ export const PresentationComponent = (props: IPresentationProvidedProps) => {
       <AltinnAppHeader
         party={party || undefined}
         userParty={userParty}
-        logoColor={AltinnAppTheme.altinnPalette.primary.blueDarker}
+        logoColor={'blueDarker'}
         headerBackgroundColor={backgroundColor}
       />
       <main className={classes.page}>

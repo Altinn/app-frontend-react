@@ -1,3 +1,4 @@
+import axios from 'axios';
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import type { JSONSchema7 } from 'json-schema';
 
@@ -137,6 +138,9 @@ export const doAttachmentRemove = async (dataGuid: string): Promise<void> => {
 /**
  * Query functions (these should use httpGet and start with 'fetch')
  */
+
+export const fetchLogo = async (): Promise<string> =>
+  (await axios.get('https://altinncdn.no/img/Altinn-logo-blue.svg')).data;
 
 export const fetchActiveInstances = (partyId: string): Promise<ISimpleInstance[]> =>
   httpGet(getActiveInstancesUrl(partyId));

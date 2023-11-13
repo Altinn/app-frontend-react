@@ -2,14 +2,15 @@ import React from 'react';
 
 import { AppBar } from '@material-ui/core';
 
-import { AltinnLogo } from 'src/components/AltinnLogo';
 import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
+import { AltinnLogo } from 'src/components/logo/AltinnLogo';
 import classes from 'src/components/organisms/AltinnAppHeader.module.css';
 import { AltinnAppHeaderMenu } from 'src/components/organisms/AltinnAppHeaderMenu';
 import { OrganisationLogo } from 'src/components/presentation/OrganisationLogo/OrganisationLogo';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { renderPartyName } from 'src/utils/party';
+import type { IAltinnLogoProps } from 'src/components/logo/AltinnLogo';
 import type { IParty } from 'src/types/shared';
 
 export interface IAltinnAppHeaderProps {
@@ -17,7 +18,7 @@ export interface IAltinnAppHeaderProps {
   party: IParty | undefined;
   /** The party of the currently logged in user */
   userParty: IParty | undefined;
-  logoColor: string;
+  logoColor: IAltinnLogoProps['color'];
   headerBackgroundColor: string;
 }
 

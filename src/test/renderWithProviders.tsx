@@ -97,6 +97,7 @@ const makeMutationMocks = (): MockedMutations => ({
 });
 
 const makeDefaultQueryMocks = (state: IRuntimeState): MockableQueries => ({
+  fetchLogo: () => Promise.resolve(''),
   fetchApplicationMetadata: () => Promise.resolve(state.applicationMetadata.applicationMetadata!),
   fetchActiveInstances: () => Promise.resolve([]),
   fetchCurrentParty: () => Promise.resolve({}),

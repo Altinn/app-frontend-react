@@ -3,10 +3,9 @@ import React from 'react';
 import { AppBar, Grid, Toolbar } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { AltinnLogo } from 'src/components/AltinnLogo';
 import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
+import { AltinnLogo } from 'src/components/logo/AltinnLogo';
 import { useLanguage } from 'src/hooks/useLanguage';
-import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { renderParty } from 'src/utils/party';
 import { returnUrlToAllSchemas, returnUrlToMessagebox, returnUrlToProfile } from 'src/utils/urls/urlHelper';
 import type { IProfile } from 'src/types/shared';
@@ -125,13 +124,7 @@ export const AltinnAppHeader = ({ type, profile }: IHeaderProps) => {
             className={classes.logo}
             style={!type ? gridStyle : emptyObj}
           >
-            <AltinnLogo
-              color={
-                type === 'partyChoice'
-                  ? AltinnAppTheme.altinnPalette.primary.blueDark
-                  : AltinnAppTheme.altinnPalette.primary.blueDarker
-              }
-            />
+            <AltinnLogo color={type === 'partyChoice' ? 'blueDark' : 'blueDarker'} />
           </Grid>
           {type && party && (
             <ul className={classes.headerLinkList}>
