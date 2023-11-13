@@ -4,8 +4,8 @@ import type {
   FormValidations,
   GroupedValidation,
   NodeValidation,
+  ValidationState,
 } from 'src/features/validation/types';
-import type { IDataModelBindings } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ValidationSeverity } from 'src/utils/validation/types';
 
@@ -158,10 +158,10 @@ export function hasValidationErrors(validations: any): boolean {
   return validations?.some((validation: any) => validation.severity === 'errors') ?? false;
 }
 
-export function buildFrontendValidation<Severity extends ValidationSeverity = ValidationSeverity>(
+export function buildNodeValidation<Severity extends ValidationSeverity = ValidationSeverity>(
   node: LayoutNode,
-  bindingKey: string,
-  validation: FieldValidation<Severity>,
+  validation: FieldValidation<Severity> | ComponentValidation<Severity>,
+  bindingKey?: string,
 ): NodeValidation<Severity> {
   return {
     ...validation,
@@ -170,15 +170,37 @@ export function buildFrontendValidation<Severity extends ValidationSeverity = Va
     pageKey: node.pageKey(),
   };
 }
-
-export function validationsForBindings<DataModelBindings extends NonNullable<IDataModelBindings>>(
-  validations: NodeValidation[] | undefined,
-  dataModelBindings: DataModelBindings | undefined,
-): { [binding in keyof DataModelBindings]: NodeValidation[] } {
-  return Object.fromEntries(
-    Object.keys(dataModelBindings ?? {}).map((bindingKey) => [
-      bindingKey,
-      validations?.filter((v) => v.bindingKey === bindingKey) ?? [],
-    ]),
-  ) as any;
+export function getValidationsForNode(node: LayoutNode, state: ValidationState): NodeValidation[];
+export function getValidationsForNode<Severity extends ValidationSeverity>(
+  node: LayoutNode,
+  state: ValidationState,
+  severity: Severity,
+): NodeValidation<Severity>[];
+export function getValidationsForNode(
+  node: LayoutNode,
+  state: ValidationState,
+  severity?: ValidationSeverity,
+): NodeValidation[] {
+  const validationMessages: NodeValidation[] = [];
+  if (node.item.dataModelBindings) {
+    for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings)) {
+      if (!state.fields[field]) {
+        continue;
+      }
+      for (const group of Object.values(state.fields[field])) {
+        const groupValidations = severity ? validationsOfSeverity(group, severity) : group;
+        for (const validation of groupValidations) {
+          validationMessages.push(buildNodeValidation(node, validation, bindingKey));
+        }
+      }
+    }
+  }
+  if (state.components[node.item.id]) {
+    for (const group of Object.values(state.components[node.item.id])) {
+      for (const validation of group) {
+        validationMessages.push(buildNodeValidation(node, validation));
+      }
+    }
+  }
+  return validationMessages;
 }

@@ -8,7 +8,7 @@ import { AltinnLoader } from 'src/components/AltinnLoader';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
-import { useNodeValidations } from 'src/features/validation/validationProvider';
+import { useAllValidationsForNode } from 'src/features/validation/validationProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -53,7 +53,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
   const repeatingGroupIndex = groupState?.index ?? -1;
   const formData = useAppSelector((state) => state.formData.formData);
   const { lang, langAsString } = useLanguage();
-  const validations = useNodeValidations(node);
+  const validations = useAllValidationsForNode(node);
 
   const filteredIndexList = React.useMemo(
     () => getRepeatingGroupFilteredIndices(formData, edit?.filter),

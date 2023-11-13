@@ -49,9 +49,9 @@ export type ComponentValidation<Severity extends ValidationSeverity = Validation
   };
 
 export type NodeValidation<Severity extends ValidationSeverity = ValidationSeverity> = BaseValidation<Severity> & {
-  bindingKey: string | undefined;
   componentId: string;
   pageKey: string;
+  bindingKey?: string;
   meta?: Record<string, string>;
 };
 

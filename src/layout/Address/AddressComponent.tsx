@@ -3,7 +3,11 @@ import React, { useEffect } from 'react';
 import { LegacyTextField } from '@digdir/design-system-react';
 
 import { Label } from 'src/components/form/Label';
-import { hasValidationErrors, validationsForBindings } from 'src/features/validation';
+import { hasValidationErrors } from 'src/features/validation';
+import {
+  useBindingValidationsForNode,
+  useComponentValidationsForNode,
+} from 'src/features/validation/validationProvider';
 import { usePostPlaceQuery } from 'src/hooks/queries/usePostPlaceQuery';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -15,11 +19,12 @@ import type { IDataModelBindingsForAddressInternal } from 'src/layout/Address/co
 export type IAddressComponentProps = PropsFromGenericComponent<'AddressComponent'>;
 type AddressKeys = keyof IDataModelBindingsForAddressInternal;
 
-export function AddressComponent({ formData, handleDataChange, validations, node }: IAddressComponentProps) {
+export function AddressComponent({ formData, handleDataChange, node }: IAddressComponentProps) {
   const { id, required, readOnly, labelSettings, simplified, saveWhileTyping } = node.item;
   const { lang } = useLanguage();
 
-  const bindingValidations = validationsForBindings(validations, node.item.dataModelBindings);
+  const bindingValidations = useBindingValidationsForNode(node);
+  const componentValidations = useComponentValidationsForNode(node);
 
   const handleFieldChange =
     (key: AddressKeys): IAddressComponentProps['handleDataChange'] =>
@@ -59,7 +64,7 @@ export function AddressComponent({ formData, handleDataChange, validations, node
     onPaste: onHouseNumberPaste,
   } = useDelayedSavedState(handleFieldChange('houseNumber'), formData.houseNumber, saveWhileTyping);
 
-  const postPlaceQueryData = usePostPlaceQuery(formData.zipCode, !hasValidationErrors(bindingValidations.zipCode));
+  const postPlaceQueryData = usePostPlaceQuery(formData.zipCode, !hasValidationErrors(bindingValidations?.zipCode));
   useEffect(() => {
     setPostPlace(postPlaceQueryData, true);
     // TODO(useDelayedSavedState): This hook could disappear, but for now, a problem is that the function references are very volatile and will cause many rerenders
@@ -82,7 +87,7 @@ export function AddressComponent({ formData, handleDataChange, validations, node
         />
         <LegacyTextField
           id={`address_address_${id}`}
-          isValid={!hasValidationErrors(bindingValidations.address)}
+          isValid={!hasValidationErrors(bindingValidations?.address)}
           value={address}
           onChange={(e) => setAddress(e.target.value)}
           onBlur={saveAddress}
@@ -91,7 +96,7 @@ export function AddressComponent({ formData, handleDataChange, validations, node
           required={required}
           autoComplete={simplified ? 'street-address' : 'address-line1'}
         />
-        <ComponentValidation validations={bindingValidations.address} />
+        <ComponentValidation validations={bindingValidations?.address} />
       </div>
 
       {!simplified && (
@@ -106,7 +111,7 @@ export function AddressComponent({ formData, handleDataChange, validations, node
           />
           <LegacyTextField
             id={`address_care_of_${id}`}
-            isValid={!hasValidationErrors(bindingValidations.careOf)}
+            isValid={!hasValidationErrors(bindingValidations?.careOf)}
             value={careOf}
             onChange={(e) => setCareOf(e.target.value)}
             onBlur={saveCareOf}
@@ -114,7 +119,7 @@ export function AddressComponent({ formData, handleDataChange, validations, node
             readOnly={readOnly}
             autoComplete='address-line2'
           />
-          <ComponentValidation validations={bindingValidations.careOf} />
+          <ComponentValidation validations={bindingValidations?.careOf} />
         </div>
       )}
       <div>
@@ -131,7 +136,7 @@ export function AddressComponent({ formData, handleDataChange, validations, node
             <div className={classes.addressComponentSmallInputs}>
               <LegacyTextField
                 id={`address_zip_code_${id}`}
-                isValid={!hasValidationErrors(bindingValidations.zipCode)}
+                isValid={!hasValidationErrors(bindingValidations?.zipCode)}
                 value={zipCode}
                 onChange={(e) => setZipCode(e.target.value)}
                 onBlur={saveZipCode}
@@ -155,7 +160,7 @@ export function AddressComponent({ formData, handleDataChange, validations, node
             />
             <LegacyTextField
               id={`address_post_place_${id}`}
-              isValid={!hasValidationErrors(bindingValidations.postPlace)}
+              isValid={!hasValidationErrors(bindingValidations?.postPlace)}
               value={postPlace}
               readOnly={true}
               required={required}
@@ -163,8 +168,8 @@ export function AddressComponent({ formData, handleDataChange, validations, node
             />
           </div>
         </div>
-        <ComponentValidation validations={bindingValidations.zipCode} />
-        <ComponentValidation validations={bindingValidations.postPlace} />
+        <ComponentValidation validations={bindingValidations?.zipCode} />
+        <ComponentValidation validations={bindingValidations?.postPlace} />
       </div>
 
       {!simplified && (
@@ -181,7 +186,7 @@ export function AddressComponent({ formData, handleDataChange, validations, node
           <div className={classes.addressComponentSmallInputs}>
             <LegacyTextField
               id={`address_house_number_${id}`}
-              isValid={!hasValidationErrors(bindingValidations.houseNumber)}
+              isValid={!hasValidationErrors(bindingValidations?.houseNumber)}
               value={houseNumber}
               onChange={(e) => setHouseNumber(e.target.value)}
               onBlur={saveHouseNumber}
@@ -190,9 +195,11 @@ export function AddressComponent({ formData, handleDataChange, validations, node
               autoComplete='address-line3'
             />
           </div>
-          <ComponentValidation validations={bindingValidations.houseNumber} />
+          <ComponentValidation validations={bindingValidations?.houseNumber} />
         </div>
       )}
+
+      <ComponentValidation validations={componentValidations} />
     </div>
   );
 }

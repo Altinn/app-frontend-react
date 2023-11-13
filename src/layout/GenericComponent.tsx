@@ -8,7 +8,7 @@ import { Label } from 'src/components/form/Label';
 import { Legend } from 'src/components/form/Legend';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
-import { useNodeValidations, useValidationMethods } from 'src/features/validation/validationProvider';
+import { useAllValidationsForNode, useValidationMethods } from 'src/features/validation/validationProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -117,7 +117,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
   const isValid = !node.hasValidationMessages('errors');
 
   const shouldFocus = useAppSelector((state) => GetFocusSelector(state, { id }));
-  const validations = useNodeValidations(node);
+  const validations = useAllValidationsForNode(node);
 
   const filterValidationErrors = () => {
     const maxLength = 'maxLength' in node.item && node.item.maxLength;

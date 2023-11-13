@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 
-import { buildFrontendValidation, validationsOfSeverity } from '.';
+import { buildNodeValidation, getValidationsForNode } from '.';
 
 import { useCurrentDataElementId } from 'src/features/datamodel/useBindingSchema';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -23,7 +23,8 @@ import type {
   ValidationContext,
   ValidationState,
 } from 'src/features/validation/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { CompTypes, IDataModelBindings } from 'src/layout/layout';
+import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { BackendValidationIssue, ValidationContextGenerator } from 'src/utils/validation/types';
@@ -104,88 +105,84 @@ export function useValidationMethods() {
 /**
  * Returns all validation messages for a given node.
  */
-export function useNodeValidations(node: LayoutNode): NodeValidation[] {
-  const validations = useContext().state;
+export function useAllValidationsForNode(node: LayoutNode): NodeValidation[] {
+  const state = useContext().state;
+
+  return useMemo(() => getValidationsForNode(node, state), [node, state]);
+}
+
+export function useBindingValidationsForNode<
+  N extends LayoutNode,
+  T extends CompTypes = N extends BaseLayoutNode<any, infer T> ? T : never,
+>(node: N): { [binding in keyof NonNullable<IDataModelBindings<T>>]: NodeValidation[] } | undefined {
+  const fields = useContext().state.fields;
 
   return useMemo(() => {
-    const validationMessages: NodeValidation[] = [];
-    if (node.item.dataModelBindings) {
-      for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings)) {
-        if (!validations.fields[field]) {
-          continue;
-        }
-        for (const group of Object.values(validations.fields[field])) {
-          for (const validation of group) {
-            validationMessages.push(buildFrontendValidation(node, bindingKey, validation));
-          }
-        }
+    if (!node.item.dataModelBindings) {
+      return undefined;
+    }
+    const bindingValidations = {};
+    for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings)) {
+      bindingValidations[bindingKey] = [];
+
+      if (!fields[field]) {
+        continue;
+      }
+
+      for (const validations of Object.values(fields[field])) {
+        bindingValidations[bindingKey].push(
+          ...validations.map((validation) => buildNodeValidation(node, validation, bindingKey)),
+        );
       }
     }
-    // TODO(Validation): Hack to get validations for attachment component, consider adding an additional property for component validations without data model binding
-    const field = node.item.id;
-    if (validations.fields[field]) {
-      for (const group of Object.values(validations.fields[field])) {
-        for (const validation of group) {
-          validationMessages.push(buildFrontendValidation(node, field, validation));
-        }
-      }
+    return bindingValidations as { [binding in keyof NonNullable<IDataModelBindings<T>>]: NodeValidation[] };
+  }, [node, fields]);
+}
+
+export function useComponentValidationsForNode(node: LayoutNode): NodeValidation[] {
+  const components = useContext().state.components;
+  return useMemo(() => {
+    if (!components[node.item.id]) {
+      return [];
     }
-    return validationMessages;
-  }, [node, validations]);
+    const componentValidations: NodeValidation[] = [];
+    for (const validations of Object.values(components[node.item.id])) {
+      componentValidations.push(...validations.map((validation) => buildNodeValidation(node, validation)));
+    }
+
+    return componentValidations;
+  }, [node, components]);
 }
 
 /**
  * Returns all validation errors (not warnings, info, etc.) for a given page.
  */
 export function usePageErrors(page: LayoutPage): NodeValidation<'errors'>[] {
-  const validations = useContext().state;
+  const state = useContext().state;
 
   return useMemo(() => {
     const validationMessages: NodeValidation<'errors'>[] = [];
 
     for (const node of page.flat(true)) {
-      if (!node.item.dataModelBindings) {
-        continue;
-      }
-      for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings)) {
-        if (!validations.fields[field]) {
-          continue;
-        }
-        for (const group of Object.values(validations.fields[field])) {
-          for (const validation of validationsOfSeverity(group, 'errors')) {
-            validationMessages.push(buildFrontendValidation(node, bindingKey, validation));
-          }
-        }
-      }
+      validationMessages.push(...getValidationsForNode(node, state, 'errors'));
     }
+
     return validationMessages;
-  }, [page, validations]);
+  }, [page, state]);
 }
 
 /**
  * Returns all validation errors (not warnings, info, etc.) for a layout set.
- * This includes unmapped errors as well
+ * This includes unmapped/task errors as well
  */
 export function useTaskErrors(pages: LayoutPages): NodeValidation<'errors'>[] {
-  const validations = useContext().state;
+  const state = useContext().state;
 
   return useMemo(() => {
     const validationMessages: NodeValidation<'errors'>[] = [];
 
     for (const node of pages.allNodes()) {
-      if (!node.item.dataModelBindings) {
-        continue;
-      }
-      for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings)) {
-        if (!validations.fields[field]) {
-          continue;
-        }
-        for (const group of Object.values(validations.fields[field])) {
-          for (const validation of validationsOfSeverity(group, 'errors')) {
-            validationMessages.push(buildFrontendValidation(node, bindingKey, validation));
-          }
-        }
-      }
+      validationMessages.push(...getValidationsForNode(node, state, 'errors'));
     }
     // TODO(Validation): Deal with unmapped errors
     // for (const group of Object.values(validations.unmapped)) {
@@ -194,7 +191,7 @@ export function useTaskErrors(pages: LayoutPages): NodeValidation<'errors'>[] {
     //   }
     // }
     return validationMessages;
-  }, [pages, validations]);
+  }, [pages, state]);
 }
 
 /**
