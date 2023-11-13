@@ -1,13 +1,13 @@
 import React from 'react';
 import type { JSX } from 'react';
 
-import { addValidationToField, FrontendValidationSource, initializeValidationField } from 'src/features/validation';
+import { addValidation, FrontendValidationSource, initializeFieldValidations } from 'src/features/validation';
 import { AddressComponent } from 'src/layout/Address/AddressComponent';
 import { AddressDef } from 'src/layout/Address/config.def.generated';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { IFormData } from 'src/features/formData';
-import type { FieldValidations } from 'src/features/validation/types';
+import type { FormValidations } from 'src/features/validation/types';
 import type { ComponentValidation, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -36,12 +36,12 @@ export class Address extends AddressDef implements ComponentValidation {
     node: LayoutNode<'AddressComponent'>,
     { formData, langTools }: IValidationContext,
     overrideFormData?: IFormData,
-  ): FieldValidations {
+  ): FormValidations {
     if (!node.item.dataModelBindings) {
       return {};
     }
     const formDataToValidate = { ...formData, ...overrideFormData };
-    const fieldValidations: FieldValidations = {};
+    const formValidations: FormValidations = {};
 
     /**
      * Initialize validation group for fields,
@@ -49,7 +49,7 @@ export class Address extends AddressDef implements ComponentValidation {
      * so we remove existing validations in case they are fixed.
      */
     for (const field of Object.values(node.item.dataModelBindings)) {
-      initializeValidationField(fieldValidations, field, FrontendValidationSource.Component);
+      initializeFieldValidations(formValidations, field, FrontendValidationSource.Component);
     }
 
     const zipCodeField = node.item.dataModelBindings.zipCode;
@@ -57,7 +57,7 @@ export class Address extends AddressDef implements ComponentValidation {
 
     // TODO(Validation): Add better message for the special case of 0000 or add better validation for zipCodes that the API says are invalid
     if (zipCode && (!zipCode.match(/^\d{4}$/) || zipCode === '0000')) {
-      addValidationToField(fieldValidations, {
+      addValidation(formValidations, {
         message: langTools.langAsString('address_component.validation_error_zipcode'),
         severity: 'errors',
         field: zipCodeField!,
@@ -69,7 +69,7 @@ export class Address extends AddressDef implements ComponentValidation {
     const houseNumber = houseNumberField ? formDataToValidate[houseNumberField] : undefined;
 
     if (houseNumber && !houseNumber.match(/^[a-z,A-Z]\d{4}$/)) {
-      addValidationToField(fieldValidations, {
+      addValidation(formValidations, {
         message: langTools.langAsString('address_component.validation_error_house_number'),
         severity: 'errors',
         field: houseNumberField!,
@@ -77,7 +77,7 @@ export class Address extends AddressDef implements ComponentValidation {
       });
     }
 
-    return fieldValidations;
+    return formValidations;
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'AddressComponent'>): string[] {

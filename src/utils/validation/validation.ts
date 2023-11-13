@@ -1,4 +1,4 @@
-import { addFieldValidations } from 'src/features/validation/validationProvider';
+import { mergeFormValidations } from 'src/features/validation';
 import {
   implementsAnyValidation,
   implementsComponentValidation,
@@ -10,7 +10,7 @@ import { runExpressionValidationsOnNode } from 'src/utils/validation/expressionV
 import { getSchemaValidationErrors } from 'src/utils/validation/schemaValidation';
 import type { IAttachment } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
-import type { FieldValidations } from 'src/features/validation/types';
+import type { FormValidations } from 'src/features/validation/types';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { CompGroupExternal } from 'src/layout/Group/config.generated';
 import type { CompOrGroupExternal, ILayout, ILayouts } from 'src/layout/layout';
@@ -39,7 +39,7 @@ export function runValidationOnNodes(
   nodes: LayoutNode[],
   ctxGenerator: ValidationContextGenerator,
   options?: IValidationOptions,
-): FieldValidations {
+): FormValidations {
   const basicContext = ctxGenerator(undefined);
   const nodesToValidate = nodes.filter(
     (node) =>
@@ -56,30 +56,30 @@ export function runValidationOnNodes(
     ? getSchemaValidationErrors(basicContext, options?.overrideFormData)
     : [];
 
-  const validations: FieldValidations = {};
+  const validations: FormValidations = {};
   for (const node of nodesToValidate) {
     const nodeContext = ctxGenerator(node);
 
     if (implementsEmptyFieldValidation(node.def) && !options?.skipEmptyFieldValidation) {
-      addFieldValidations(
+      mergeFormValidations(
         validations,
         node.def.runEmptyFieldValidation(node as any, nodeContext, options?.overrideFormData),
       );
     }
 
     if (implementsComponentValidation(node.def) && !options?.skipComponentValidation) {
-      addFieldValidations(
+      mergeFormValidations(
         validations,
         node.def.runComponentValidation(node as any, nodeContext, options?.overrideFormData),
       );
     }
 
     if (implementsSchemaValidation(node.def) && !options?.skipSchemaValidation) {
-      addFieldValidations(validations, node.def.runSchemaValidation(node as any, schemaErrors));
+      mergeFormValidations(validations, node.def.runSchemaValidation(node as any, schemaErrors));
     }
 
     if (nodeContext.customValidation && !options?.skipCustomValidation) {
-      addFieldValidations(validations, runExpressionValidationsOnNode(node, nodeContext, options?.overrideFormData));
+      mergeFormValidations(validations, runExpressionValidationsOnNode(node, nodeContext, options?.overrideFormData));
     }
   }
 

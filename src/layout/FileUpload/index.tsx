@@ -1,7 +1,7 @@
 import React from 'react';
 import type { JSX } from 'react';
 
-import { addValidationToField, FrontendValidationSource, initializeValidationField } from 'src/features/validation';
+import { addValidation, FrontendValidationSource, initializeComponentValidations } from 'src/features/validation';
 import { FileUploadDef } from 'src/layout/FileUpload/config.def.generated';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
@@ -10,7 +10,7 @@ import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { attachmentsValid } from 'src/utils/validation/validation';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { IFormData } from 'src/features/formData';
-import type { FieldValidations } from 'src/features/validation/types';
+import type { FormValidations } from 'src/features/validation/types';
 import type { ComponentValidation, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -36,7 +36,7 @@ export class FileUpload extends FileUploadDef implements ComponentValidation {
   }
 
   // This component does not have empty field validation, so has to override its inherited method
-  runEmptyFieldValidation(): FieldValidations {
+  runEmptyFieldValidation(): FormValidations {
     return {};
   }
 
@@ -44,36 +44,29 @@ export class FileUpload extends FileUploadDef implements ComponentValidation {
     node: LayoutNode<'FileUpload'>,
     { attachments, langTools }: IValidationContext,
     _overrideFormData?: IFormData,
-  ): FieldValidations {
-    const fieldValidations: FieldValidations = {};
+  ): FormValidations {
+    const formValidations: FormValidations = {};
 
     /**
-     * Component id will be used as field value
-     * TODO(Validation): Consider adding component level validations?
+     * Initialize validation group for component,
+     * this must be done so we remove existing validations in case they are fixed.
      */
-    const field = node.item.id;
-
-    /**
-     * Initialize validation group for field,
-     * this must be done for all fields that will be validated
-     * so we remove existing validations in case they are fixed.
-     */
-    initializeValidationField(fieldValidations, field, FrontendValidationSource.Component);
+    initializeComponentValidations(formValidations, node.item.id, FrontendValidationSource.Component);
 
     if (!attachmentsValid(attachments, node.item)) {
       const message = `${langTools.langAsString('form_filler.file_uploader_validation_error_file_number_1')} ${
         node.item.minNumberOfAttachments
       } ${langTools.langAsString('form_filler.file_uploader_validation_error_file_number_2')}`;
 
-      addValidationToField(fieldValidations, {
+      addValidation(formValidations, {
         message,
         severity: 'errors',
-        field,
         group: FrontendValidationSource.Component,
+        componentId: node.item.id,
       });
     }
 
-    return fieldValidations;
+    return formValidations;
   }
 
   isDataModelBindingsRequired(node: LayoutNode<'FileUpload'>): boolean {

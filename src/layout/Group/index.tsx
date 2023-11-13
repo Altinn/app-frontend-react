@@ -3,7 +3,7 @@ import type { JSX } from 'react';
 
 import type { ErrorObject } from 'ajv';
 
-import { addValidationToField, FrontendValidationSource, initializeValidationField } from 'src/features/validation';
+import { addValidation, FrontendValidationSource, initializeFieldValidations } from 'src/features/validation';
 import { GroupDef } from 'src/layout/Group/config.def.generated';
 import { GroupRenderer } from 'src/layout/Group/GroupRenderer';
 import { GroupHierarchyGenerator } from 'src/layout/Group/hierarchy';
@@ -18,7 +18,7 @@ import {
 import { runValidationOnNodes } from 'src/utils/validation/validation';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { IFormData } from 'src/features/formData';
-import type { FieldValidations } from 'src/features/validation/types';
+import type { FormValidations } from 'src/features/validation/types';
 import type { ComponentValidation, GroupValidation, PropsFromGenericComponent } from 'src/layout';
 import type { CompExternalExact, CompInternal, HierarchyDataSources } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -72,12 +72,12 @@ export class Group extends GroupDef implements GroupValidation, ComponentValidat
     node: LayoutNode<'Group'>,
     { langTools }: IValidationContext,
     _overrideFormData?: IFormData,
-  ): FieldValidations {
+  ): FormValidations {
     if (!node.isRepGroup() || !node.item.dataModelBindings) {
       return {};
     }
 
-    const fieldValidations: FieldValidations = {};
+    const formValidations: FormValidations = {};
     // check if minCount is less than visible rows
     const repeatingGroupComponent = node.item;
     const repeatingGroupMinCount = repeatingGroupComponent.minCount || 0;
@@ -93,13 +93,13 @@ export class Group extends GroupDef implements GroupValidation, ComponentValidat
      * this must be done for all fields that will be validated
      * so we remove existing validations in case they are fixed.
      */
-    initializeValidationField(fieldValidations, field, FrontendValidationSource.Component);
+    initializeFieldValidations(formValidations, field, FrontendValidationSource.Component);
 
     // if not valid, return appropriate error message
     if (!repeatingGroupMinCountValid) {
       const message = langTools.langAsString('validation_errors.minItems', [repeatingGroupMinCount]);
 
-      addValidationToField(fieldValidations, {
+      addValidation(formValidations, {
         message,
         severity: 'errors',
         field,
@@ -107,14 +107,14 @@ export class Group extends GroupDef implements GroupValidation, ComponentValidat
       });
     }
 
-    return fieldValidations;
+    return formValidations;
   }
 
   runGroupValidations(
     node: LayoutNode<'Group'>,
     validationCtxGenerator: ValidationContextGenerator,
     onlyInRowIndex?: number,
-  ): FieldValidations {
+  ): FormValidations {
     return runValidationOnNodes(node.flat(true, onlyInRowIndex), validationCtxGenerator);
   }
 

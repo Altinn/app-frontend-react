@@ -316,8 +316,6 @@ describe('AddressComponent', () => {
             message: errorMessage,
             severity: 'errors',
             bindingKey: 'address',
-            group: '__required__',
-            field: 'address',
             pageKey: 'page1',
           },
         ],

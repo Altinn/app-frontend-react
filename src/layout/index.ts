@@ -7,7 +7,7 @@ import { ComponentConfigs } from 'src/layout/components.generated';
 import type { IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
 import type { AllOptionsMap } from 'src/features/options/useAllOptions';
-import type { FieldValidations, FrontendValidation } from 'src/features/validation/types';
+import type { FormValidations, NodeValidation } from 'src/features/validation/types';
 import type { IGrid } from 'src/layout/common.generated';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { CompInternal, CompRendersLabel, CompTypes } from 'src/layout/layout';
@@ -52,7 +52,7 @@ export interface IComponentProps {
   legend: () => JSX.Element | null;
   formData: IComponentFormData;
   isValid?: boolean;
-  validations?: FrontendValidation[];
+  validations?: NodeValidation[];
 }
 
 export interface PropsFromGenericComponent<T extends CompTypes = CompTypes> extends IComponentProps {
@@ -101,7 +101,7 @@ export interface EmptyFieldValidation {
     node: LayoutNode,
     validationContext: IValidationContext,
     overrideFormData?: IFormData,
-  ) => FieldValidations;
+  ) => FormValidations;
 }
 
 export function implementsEmptyFieldValidation<Type extends CompTypes>(
@@ -115,7 +115,7 @@ export interface ComponentValidation {
     node: LayoutNode,
     validationContext: IValidationContext,
     overrideFormData?: IFormData,
-  ) => FieldValidations;
+  ) => FormValidations;
 }
 
 export function implementsComponentValidation<Type extends CompTypes>(
@@ -125,7 +125,7 @@ export function implementsComponentValidation<Type extends CompTypes>(
 }
 
 export interface SchemaValidation {
-  runSchemaValidation: (node: LayoutNode, schemaValidations: ISchemaValidationError[]) => FieldValidations;
+  runSchemaValidation: (node: LayoutNode, schemaValidations: ISchemaValidationError[]) => FormValidations;
 }
 
 export function implementsSchemaValidation<Type extends CompTypes>(
@@ -139,7 +139,7 @@ export interface GroupValidation {
     node: LayoutNode,
     validationCtxGenerator: ValidationContextGenerator,
     onlyInRowIndex?: number,
-  ) => FieldValidations;
+  ) => FormValidations;
 }
 
 export function implementsGroupValidation<Type extends CompTypes>(

@@ -7,7 +7,7 @@ import { FileTableRowContextProvider } from 'src/layout/FileUpload/FileUploadTab
 import { EditWindowComponent } from 'src/layout/FileUploadWithTag/EditWindowComponent';
 import { atleastOneTagExists } from 'src/utils/formComponentUtils';
 import type { IAttachment } from 'src/features/attachments';
-import type { FrontendValidation } from 'src/features/validation/types';
+import type { NodeValidation } from 'src/features/validation/types';
 import type { ShowPopper } from 'src/hooks/useAlertPopper';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IOption } from 'src/layout/common.generated';
@@ -18,7 +18,7 @@ export interface FileTableProps {
   attachments: IAttachment[];
   mobileView: boolean;
   options?: IOption[];
-  attachmentValidations?: FrontendValidation[];
+  attachmentValidations?: NodeValidation[];
   showPopper: ShowPopper;
 }
 
@@ -71,7 +71,7 @@ export function FileTableComponent({
         {attachments.map((attachment, index: number) => {
           const canRenderRow =
             !hasTag || (attachment.tags !== undefined && attachment.tags.length > 0 && editIndex !== index);
-          const validationsForRow = attachmentValidations?.filter((v) => v.metadata?.attachmentId === attachment.id);
+          const validationsForRow = attachmentValidations?.filter((v) => v.meta?.attachmentId === attachment.id);
 
           const ctx: FileTableRowContext = {
             setEditIndex,

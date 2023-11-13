@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { addValidationToField, FrontendValidationSource, initializeValidationField } from 'src/features/validation';
+import { addValidation, FrontendValidationSource, initializeComponentValidations } from 'src/features/validation';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
 import { getUploaderSummaryData } from 'src/layout/FileUpload/Summary/summary';
@@ -9,7 +9,7 @@ import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { attachmentIsMissingTag, attachmentsValid } from 'src/utils/validation/validation';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { IFormData } from 'src/features/formData';
-import type { FieldValidations } from 'src/features/validation/types';
+import type { FormValidations } from 'src/features/validation/types';
 import type { ComponentValidation, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -35,7 +35,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements Component
   }
 
   // This component does not have empty field validation, so has to override its inherited method
-  runEmptyFieldValidation(): FieldValidations {
+  runEmptyFieldValidation(): FormValidations {
     return {};
   }
 
@@ -43,21 +43,14 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements Component
     node: LayoutNode<'FileUploadWithTag'>,
     { attachments, langTools }: IValidationContext,
     _overrideFormData?: IFormData,
-  ): FieldValidations {
-    const fieldValidations: FieldValidations = {};
+  ): FormValidations {
+    const formValidations: FormValidations = {};
 
     /**
-     * Component id will be used as field value
-     * TODO(Validation): Consider adding component level validations?
+     * Initialize validation group for component,
+     * this must be done so we remove existing validations in case they are fixed.
      */
-    const field = node.item.id;
-
-    /**
-     * Initialize validation group for field,
-     * this must be done for all fields that will be validated
-     * so we remove existing validations in case they are fixed.
-     */
-    initializeValidationField(fieldValidations, field, FrontendValidationSource.Component);
+    initializeComponentValidations(formValidations, node.item.id, FrontendValidationSource.Component);
 
     if (attachmentsValid(attachments, node.item)) {
       const attachmentIdsWithMissingTag = attachments[node.item.id]
@@ -70,12 +63,12 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements Component
             'form_filler.file_uploader_validation_error_no_chosen_tag',
           )} ${langTools.langAsString(node.item.textResourceBindings?.tagTitle).toLowerCase()}.`;
 
-          addValidationToField(fieldValidations, {
+          addValidation(formValidations, {
             message,
             severity: 'errors',
-            field,
+            componentId: node.item.id,
             group: FrontendValidationSource.Component,
-            metadata: { attachmentId },
+            meta: { attachmentId },
           });
         });
       }
@@ -84,14 +77,14 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements Component
         node.item.minNumberOfAttachments,
       ]);
 
-      addValidationToField(fieldValidations, {
+      addValidation(formValidations, {
         message,
         severity: 'errors',
-        field,
+        componentId: node.item.id,
         group: FrontendValidationSource.Component,
       });
     }
-    return fieldValidations;
+    return formValidations;
   }
 
   isDataModelBindingsRequired(node: LayoutNode<'FileUploadWithTag'>): boolean {

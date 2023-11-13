@@ -10,41 +10,52 @@ export type ValidationContext = {
   };
 };
 
-export type ValidationState = {
-  fields: FieldValidations;
-  unmapped: {
-    [group: string]: ValidationEntry[];
-  };
+export type ValidationState = Required<FormValidations>;
+
+export type FormValidations = {
+  fields?: FieldValidations;
+  components?: ComponentValidations;
+  task?: BaseValidation[];
 };
 
-// TODO(Validation): Create generic type to ensure validation functions generate only correct groups
-export type FieldValidations = {
-  [field: string]: ValidationGroup;
+export type ValidationGroup<T extends GroupedValidation> = {
+  [group: string]: T[];
 };
 
-export type ValidationGroup = {
-  [group: string]: ValidationEntry[];
+export type GroupedValidations<T extends GroupedValidation> = {
+  [key: string]: ValidationGroup<T>;
 };
 
-export type FrontendValidation<Severity extends ValidationSeverity = ValidationSeverity> = {
-  field: string;
+export type FieldValidations = GroupedValidations<FieldValidation>;
+export type ComponentValidations = GroupedValidations<ComponentValidation>;
+
+type BaseValidation<Severity extends ValidationSeverity = ValidationSeverity> = {
+  message: string;
+  severity: Severity;
+};
+
+export type GroupedValidation<Severity extends ValidationSeverity = ValidationSeverity> = BaseValidation<Severity> & {
   group: string;
-  bindingKey: string;
+};
+
+export type FieldValidation<Severity extends ValidationSeverity = ValidationSeverity> = GroupedValidation<Severity> & {
+  field: string;
+};
+
+export type ComponentValidation<Severity extends ValidationSeverity = ValidationSeverity> =
+  GroupedValidation<Severity> & {
+    componentId: string;
+    meta?: Record<string, string>;
+  };
+
+export type NodeValidation<Severity extends ValidationSeverity = ValidationSeverity> = BaseValidation<Severity> & {
+  bindingKey: string | undefined;
   componentId: string;
   pageKey: string;
-  severity: Severity;
-  message: string;
-  metadata?: Record<string, string>;
+  meta?: Record<string, string>;
 };
 
-export type ValidationEntry<Severity extends ValidationSeverity = ValidationSeverity> = {
-  field: string;
-  group: string;
-  severity: Severity;
-  message: string; //TODO(Validation): replace with TextResource type, to allow proper translation of messages
-  metadata?: Record<string, string>;
-};
-
+// TODO(Validation): replace message string with TextResource type, to allow proper translation of messages
 // TODO(Validation): Move to more appropriate location
 export type TextResource = {
   key?: string | undefined;

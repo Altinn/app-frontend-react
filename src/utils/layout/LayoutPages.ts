@@ -1,7 +1,7 @@
 import type { $Values } from 'utility-types';
 
 import { runValidationOnNodes } from 'src/utils/validation/validation';
-import type { FieldValidations } from 'src/features/validation/types';
+import type { FormValidations } from 'src/features/validation/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { ValidationContextGenerator } from 'src/utils/validation/types';
@@ -111,7 +111,7 @@ export class LayoutPages<
   /**
    * Runs frontend validations for all nodes in the layout set, and returns an array of IValidationObject.
    */
-  public runValidations(validationCtxGenerator: ValidationContextGenerator): FieldValidations {
+  public runValidations(validationCtxGenerator: ValidationContextGenerator): FormValidations {
     return runValidationOnNodes(this.allNodes(), validationCtxGenerator);
   }
 }

@@ -2,7 +2,7 @@ import React from 'react';
 
 import moment from 'moment';
 
-import { addValidationToField, FrontendValidationSource, initializeValidationField } from 'src/features/validation';
+import { addValidation, FrontendValidationSource, initializeFieldValidations } from 'src/features/validation';
 import { DatepickerDef } from 'src/layout/Datepicker/config.def.generated';
 import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
@@ -10,7 +10,7 @@ import { getDateConstraint, getDateFormat } from 'src/utils/dateHelpers';
 import { formatISOString } from 'src/utils/formatDate';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { IFormData } from 'src/features/formData';
-import type { FieldValidations } from 'src/features/validation/types';
+import type { FormValidations } from 'src/features/validation/types';
 import type { ComponentValidation, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -47,7 +47,7 @@ export class Datepicker extends DatepickerDef implements ComponentValidation {
     node: LayoutNode<'Datepicker'>,
     { formData, langTools }: IValidationContext,
     overrideFormData?: IFormData,
-  ): FieldValidations {
+  ): FormValidations {
     const formDataToValidate = { ...formData, ...overrideFormData };
     const field = node.item.dataModelBindings?.simpleBinding;
 
@@ -61,19 +61,19 @@ export class Datepicker extends DatepickerDef implements ComponentValidation {
     const maxDate = getDateConstraint(node.item.maxDate, 'max');
     const format = getDateFormat(node.item.format, langTools.selectedLanguage);
 
-    const fieldValidations: FieldValidations = {};
+    const formValidations: FormValidations = {};
     /**
      * Initialize validation group for field,
      * this must be done for all fields that will be validated
      * so we remove existing validations in case they are fixed.
      */
-    initializeValidationField(fieldValidations, field, FrontendValidationSource.Component);
+    initializeFieldValidations(formValidations, field, FrontendValidationSource.Component);
 
     const date = moment(data, moment.ISO_8601);
 
     if (!date.isValid()) {
       const message = langTools.langAsString('date_picker.invalid_date_message', [format]);
-      addValidationToField(fieldValidations, {
+      addValidation(formValidations, {
         message,
         severity: 'errors',
         field,
@@ -83,7 +83,7 @@ export class Datepicker extends DatepickerDef implements ComponentValidation {
 
     if (date.isBefore(minDate)) {
       const message = langTools.langAsString('date_picker.min_date_exeeded');
-      addValidationToField(fieldValidations, {
+      addValidation(formValidations, {
         message,
         severity: 'errors',
         field,
@@ -91,7 +91,7 @@ export class Datepicker extends DatepickerDef implements ComponentValidation {
       });
     } else if (date.isAfter(maxDate)) {
       const message = langTools.langAsString('date_picker.max_date_exeeded');
-      addValidationToField(fieldValidations, {
+      addValidation(formValidations, {
         message,
         severity: 'errors',
         field,
@@ -99,28 +99,28 @@ export class Datepicker extends DatepickerDef implements ComponentValidation {
       });
     }
 
-    return fieldValidations;
+    return formValidations;
   }
 
   // Since the format is validated in component validations, it needs to be ignored in schema validation
-  runSchemaValidation(node: LayoutNode<'Datepicker'>, schemaErrors: ISchemaValidationError[]): FieldValidations {
+  runSchemaValidation(node: LayoutNode<'Datepicker'>, schemaErrors: ISchemaValidationError[]): FormValidations {
     const field = node.item.dataModelBindings?.simpleBinding;
     if (!field) {
       return {};
     }
 
-    const fieldValidations: FieldValidations = {};
+    const formValidations: FormValidations = {};
 
     /**
      * Initialize validation group for field,
      * this must be done for all fields that will be validated
      * so we remove existing validations in case they are fixed.
      */
-    initializeValidationField(fieldValidations, field, FrontendValidationSource.Component);
+    initializeFieldValidations(formValidations, field, FrontendValidationSource.Component);
 
     for (const error of schemaErrors) {
       if (field === error.bindingField && error.keyword !== 'format') {
-        addValidationToField(fieldValidations, {
+        addValidation(formValidations, {
           message: error.message,
           severity: 'errors',
           field,
@@ -128,7 +128,7 @@ export class Datepicker extends DatepickerDef implements ComponentValidation {
         });
       }
     }
-    return fieldValidations;
+    return formValidations;
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'Datepicker'>): string[] {

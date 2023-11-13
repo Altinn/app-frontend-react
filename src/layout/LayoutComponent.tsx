@@ -5,7 +5,12 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { lookupErrorAsText } from 'src/features/datamodel/lookupErrorAsText';
 import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspector/DefaultNodeInspector';
-import { addValidationToField, FrontendValidationSource, initializeValidationField } from 'src/features/validation';
+import {
+  addValidation,
+  FrontendValidationSource,
+  initializeComponentValidations,
+  initializeFieldValidations,
+} from 'src/features/validation';
 import { CompCategory } from 'src/layout/common';
 import {
   type DisplayData,
@@ -21,7 +26,7 @@ import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGen
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { IFormData } from 'src/features/formData';
-import type { FieldValidations } from 'src/features/validation/types';
+import type { FormValidations } from 'src/features/validation/types';
 import type {
   CompExternalExact,
   CompInternal,
@@ -297,25 +302,24 @@ export abstract class FormComponent<Type extends CompTypes>
     node: LayoutNode<Type>,
     { formData, langTools }: IValidationContext,
     overrideFormData?: IFormData,
-  ): FieldValidations {
+  ): FormValidations {
     if (!('required' in node.item) || !node.item.required || !node.item.dataModelBindings) {
       return {};
     }
     const { langAsString } = langTools;
 
     const formDataToValidate = { ...formData, ...overrideFormData };
-    const fieldValidations: FieldValidations = {};
+    const formValidations: FormValidations = {};
+
+    /**
+     * Initialize validation group for component,
+     * this must be done so we remove existing validations in case they are fixed.
+     */
+    initializeComponentValidations(formValidations, node.item.id, FrontendValidationSource.Required);
 
     for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings) as [string, string][]) {
       const data = formDataToValidate[field];
       const trb: ITextResourceBindings = 'textResourceBindings' in node.item ? node.item.textResourceBindings : {};
-
-      /**
-       * Initialize validation group for field,
-       * this must be done for all fields that will be validated
-       * so we remove existing validations in case they are fixed.
-       */
-      initializeValidationField(fieldValidations, field, FrontendValidationSource.Required);
 
       if (!data?.length) {
         const fieldName = getFieldName(trb, langTools, bindingKey);
@@ -324,19 +328,19 @@ export abstract class FormComponent<Type extends CompTypes>
             ? langAsString(trb?.requiredValidation, [fieldName])
             : langAsString('form_filler.error_required', [fieldName]);
 
-        addValidationToField(fieldValidations, {
-          field,
+        addValidation(formValidations, {
+          componentId: node.item.id,
           group: FrontendValidationSource.Required,
           message,
           severity: 'errors',
         });
       }
     }
-    return fieldValidations;
+    return formValidations;
   }
 
-  runSchemaValidation(node: LayoutNode<Type>, schemaErrors: ISchemaValidationError[]): FieldValidations {
-    const fieldValidations: FieldValidations = {};
+  runSchemaValidation(node: LayoutNode<Type>, schemaErrors: ISchemaValidationError[]): FormValidations {
+    const formValidations: FormValidations = {};
     if ('dataModelBindings' in node.item && node.item.dataModelBindings) {
       for (const field of Object.values(node.item.dataModelBindings)) {
         /**
@@ -344,11 +348,11 @@ export abstract class FormComponent<Type extends CompTypes>
          * this must be done for all fields that will be validated
          * so we remove existing validations in case they are fixed.
          */
-        initializeValidationField(fieldValidations, field, FrontendValidationSource.Schema);
+        initializeFieldValidations(formValidations, field, FrontendValidationSource.Schema);
 
         for (const error of schemaErrors) {
           if (field === error.bindingField) {
-            addValidationToField(fieldValidations, {
+            addValidation(formValidations, {
               field,
               group: FrontendValidationSource.Schema,
               message: error.message,
@@ -358,7 +362,7 @@ export abstract class FormComponent<Type extends CompTypes>
         }
       }
     }
-    return fieldValidations;
+    return formValidations;
   }
 }
 

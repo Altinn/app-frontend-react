@@ -6,11 +6,11 @@ import { validationsOfSeverity } from 'src/features/validation';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
 import { AlertBaseComponent } from 'src/layout/Alert/AlertBaseComponent';
-import type { FrontendValidation } from 'src/features/validation/types';
+import type { NodeValidation } from 'src/features/validation/types';
 import type { AlertSeverity } from 'src/layout/Alert/config.generated';
 
 // TODO(Validation): Move these components to a more suitable location
-export function ComponentValidation({ validations }: { validations: FrontendValidation[] | undefined }) {
+export function ComponentValidation({ validations }: { validations: NodeValidation[] | undefined }) {
   if (!validations || validations.length === 0) {
     return null;
   }
@@ -44,7 +44,7 @@ export function ComponentValidation({ validations }: { validations: FrontendVali
   );
 }
 
-function ErrorValidations({ validations }: { validations: FrontendValidation<'errors'>[] }) {
+function ErrorValidations({ validations }: { validations: NodeValidation<'errors'>[] }) {
   return (
     <div style={{ paddingTop: '0.375rem' }}>
       <ErrorMessage size='small'>
@@ -67,7 +67,7 @@ function SoftValidations({
   validations,
   variant,
 }: {
-  validations: FrontendValidation<'warnings' | 'info' | 'success'>[];
+  validations: NodeValidation<'warnings' | 'info' | 'success'>[];
   variant: AlertSeverity;
 }) {
   const { langAsString } = useLanguage();

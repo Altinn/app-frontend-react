@@ -1,13 +1,13 @@
 import React from 'react';
 import type { JSX } from 'react';
 
-import { addValidationToField, FrontendValidationSource, initializeValidationField } from 'src/features/validation';
+import { addValidation, FrontendValidationSource, initializeComponentValidations } from 'src/features/validation';
 import { ListDef } from 'src/layout/List/config.def.generated';
 import { ListComponent } from 'src/layout/List/ListComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { getFieldName } from 'src/utils/formComponentUtils';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { FieldValidations } from 'src/features/validation/types';
+import type { FormValidations } from 'src/features/validation/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -35,7 +35,7 @@ export class List extends ListDef {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
-  runEmptyFieldValidation(node: LayoutNode<'List'>, { formData, langTools }: IValidationContext): FieldValidations {
+  runEmptyFieldValidation(node: LayoutNode<'List'>, { formData, langTools }: IValidationContext): FormValidations {
     if (!node.item.required || !node.item.dataModelBindings) {
       return {};
     }
@@ -43,18 +43,11 @@ export class List extends ListDef {
     const fields = Object.values(node.item.dataModelBindings);
 
     /**
-     * Component id will be used as field value
-     * TODO(Validation): Consider adding component level validations?
+     * Initialize validation group for component,
+     * this must be done so we remove existing validations in case they are fixed.
      */
-    const field = node.item.id;
-
-    /**
-     * Initialize validation group for field,
-     * this must be done for all fields that will be validated
-     * so we remove existing validations in case they are fixed.
-     */
-    const fieldValidations: FieldValidations = {};
-    initializeValidationField(fieldValidations, field, FrontendValidationSource.Required);
+    const formValidations: FormValidations = {};
+    initializeComponentValidations(formValidations, node.item.id, FrontendValidationSource.Required);
 
     const { langAsString } = langTools;
     const textResourceBindings = node.item.textResourceBindings;
@@ -72,14 +65,14 @@ export class List extends ListDef {
       const message = textResourceBindings?.requiredValidation
         ? langAsString(textResourceBindings?.requiredValidation, [fieldName])
         : langAsString('form_filler.error_required', [fieldName]);
-      addValidationToField(fieldValidations, {
+      addValidation(formValidations, {
         message,
         severity: 'errors',
-        field,
+        componentId: node.item.id,
         group: FrontendValidationSource.Required,
       });
     }
-    return fieldValidations;
+    return formValidations;
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'List'>): string[] {

@@ -18,8 +18,8 @@ import {
 } from 'src/utils/validation/backendValidation';
 import { useValidationContextGenerator } from 'src/utils/validation/validationHelpers';
 import type {
-  FieldValidations,
-  FrontendValidation,
+  FormValidations,
+  NodeValidation,
   ValidationContext,
   ValidationState,
 } from 'src/features/validation/types';
@@ -37,7 +37,7 @@ async function fetchValidations(
   validationUrl: string,
   resolvedNodes: LayoutPages,
   validationContextGenerator: ValidationContextGenerator,
-): Promise<[FieldValidations, BackendValidationIssue[]]> {
+): Promise<[FormValidations, BackendValidationIssue[]]> {
   const backendValidations = httpGet(validationUrl);
   const frontendValidations = resolvedNodes.runValidations(validationContextGenerator);
   return [frontendValidations, await backendValidations];
@@ -55,7 +55,7 @@ export function ValidationProvider({ children }) {
       ? getDataValidationUrl(instanceId, currentDataElementId)
       : undefined;
 
-  const [validations, setValidations] = useState<ValidationState>({ fields: {}, unmapped: {} });
+  const [validations, setValidations] = useState<ValidationState>({ fields: {}, components: {}, task: [] });
 
   const { data: validationData } = useQuery({
     enabled: Boolean(validationUrl) && Boolean(resolvedNodes),
@@ -69,7 +69,7 @@ export function ValidationProvider({ children }) {
     }
     const [frontendValidations, backendValidations] = validationData;
     const newState = mapValidationsToState(backendValidations, langTools);
-    addFieldValidations(newState.fields, frontendValidations);
+    updateValidationState(newState, frontendValidations);
     setValidations(newState);
 
     /* Workaround, ideally, the logic that fetches validations should resolve text resources */
@@ -79,7 +79,7 @@ export function ValidationProvider({ children }) {
   function validateNode(node: LayoutNode, options?: IValidationOptions) {
     const newState = node.runValidations(validationContextGenerator, options);
     setValidations((prevState) => {
-      addFieldValidations(prevState.fields, newState);
+      updateValidationState(prevState, newState);
       return prevState;
     });
   }
@@ -104,11 +104,11 @@ export function useValidationMethods() {
 /**
  * Returns all validation messages for a given node.
  */
-export function useNodeValidations(node: LayoutNode): FrontendValidation[] {
+export function useNodeValidations(node: LayoutNode): NodeValidation[] {
   const validations = useContext().state;
 
   return useMemo(() => {
-    const validationMessages: FrontendValidation[] = [];
+    const validationMessages: NodeValidation[] = [];
     if (node.item.dataModelBindings) {
       for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings)) {
         if (!validations.fields[field]) {
@@ -137,11 +137,11 @@ export function useNodeValidations(node: LayoutNode): FrontendValidation[] {
 /**
  * Returns all validation errors (not warnings, info, etc.) for a given page.
  */
-export function usePageErrors(page: LayoutPage): FrontendValidation<'errors'>[] {
+export function usePageErrors(page: LayoutPage): NodeValidation<'errors'>[] {
   const validations = useContext().state;
 
   return useMemo(() => {
-    const validationMessages: FrontendValidation<'errors'>[] = [];
+    const validationMessages: NodeValidation<'errors'>[] = [];
 
     for (const node of page.flat(true)) {
       if (!node.item.dataModelBindings) {
@@ -166,11 +166,11 @@ export function usePageErrors(page: LayoutPage): FrontendValidation<'errors'>[] 
  * Returns all validation errors (not warnings, info, etc.) for a layout set.
  * This includes unmapped errors as well
  */
-export function useTaskErrors(pages: LayoutPages): FrontendValidation<'errors'>[] {
+export function useTaskErrors(pages: LayoutPages): NodeValidation<'errors'>[] {
   const validations = useContext().state;
 
   return useMemo(() => {
-    const validationMessages: FrontendValidation<'errors'>[] = [];
+    const validationMessages: NodeValidation<'errors'>[] = [];
 
     for (const node of pages.allNodes()) {
       if (!node.item.dataModelBindings) {
@@ -205,7 +205,7 @@ function mapValidationsToState(
   langTools: IUseLanguage,
   filterSources: boolean = true,
 ): ValidationState {
-  const validationOutputs: ValidationState = { fields: {}, unmapped: {} };
+  const validationOutputs: ValidationState = { fields: {}, components: {}, task: [] };
 
   for (const issue of issues) {
     if (filterSources && shouldExcludeValidationIssue(issue)) {
@@ -218,11 +218,8 @@ function mapValidationsToState(
 
     if (!field) {
       // Unmapped error
-      if (!validationOutputs.unmapped[group]) {
-        validationOutputs.unmapped[group] = [];
-      }
-      if (!validationOutputs.unmapped[group].find((v) => v.message === message && v.severity === severity)) {
-        validationOutputs.unmapped[group].push({ field: 'unmapped', severity, message, group });
+      if (!validationOutputs.task.find((v) => v.message === message && v.severity === severity)) {
+        validationOutputs.task.push({ severity, message });
       }
       continue;
     }
@@ -246,13 +243,30 @@ function mapValidationsToState(
  * Note: This does not merge any groups, it will override any existing groups
  * Not creating new objects constantly helps avoid GC?
  */
-export function addFieldValidations(dest: FieldValidations, src: FieldValidations): void {
-  for (const [field, groups] of Object.entries(src)) {
-    if (!dest[field]) {
-      dest[field] = {};
+export function updateValidationState(state: ValidationState, validations: FormValidations): void {
+  if (validations.components) {
+    for (const [componentId, groups] of Object.entries(validations.components)) {
+      if (!state.components[componentId]) {
+        state.components[componentId] = {};
+      }
+      for (const [group, validations] of Object.entries(groups)) {
+        state.components[componentId][group] = validations;
+      }
     }
-    for (const group of Object.keys(groups)) {
-      dest[field][group] = src[field][group];
+  }
+
+  if (validations.fields) {
+    for (const [field, groups] of Object.entries(validations.fields)) {
+      if (!state.fields[field]) {
+        state.fields[field] = {};
+      }
+      for (const [group, validations] of Object.entries(groups)) {
+        state.fields[field][group] = validations;
+      }
     }
+  }
+
+  if (validations.task) {
+    state.task = validations.task;
   }
 }

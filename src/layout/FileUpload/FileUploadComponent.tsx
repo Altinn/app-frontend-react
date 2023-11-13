@@ -43,8 +43,8 @@ export function FileUploadComponent({ validations, node }: IFileUploadWithTagPro
   const mobileView = useIsMobileOrTablet();
   const attachments: IAttachment[] = useAppSelector((state: IRuntimeState) => state.attachments.attachments[id] || []);
 
-  const componentValidations = validations?.filter((v) => !v.metadata?.attachmentId);
-  const attachmentValidations = validations?.filter((v) => v.metadata?.attachmentId);
+  const componentValidations = validations?.filter((v) => !v.meta?.attachmentId);
+  const attachmentValidations = validations?.filter((v) => v.meta?.attachmentId);
 
   const langTools = useLanguage();
   const { lang, langAsString } = langTools;

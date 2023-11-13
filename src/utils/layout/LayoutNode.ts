@@ -2,7 +2,7 @@ import { getLayoutComponentObject } from 'src/layout';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { runValidationOnNodes } from 'src/utils/validation/validation';
-import type { FieldValidations } from 'src/features/validation/types';
+import type { FormValidations } from 'src/features/validation/types';
 import type { CompClassMap } from 'src/layout';
 import type { CompCategory } from 'src/layout/common';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated';
@@ -391,7 +391,7 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
   /**
    * Runs frontend validations for this node and returns an array of IValidationObject
    */
-  runValidations(validationCtxGenerator: ValidationContextGenerator, options?: IValidationOptions): FieldValidations {
+  runValidations(validationCtxGenerator: ValidationContextGenerator, options?: IValidationOptions): FormValidations {
     return runValidationOnNodes([this as LayoutNode], validationCtxGenerator, options);
   }
 }

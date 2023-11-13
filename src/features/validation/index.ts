@@ -1,4 +1,10 @@
-import type { FieldValidations, FrontendValidation, ValidationEntry } from 'src/features/validation/types';
+import type {
+  ComponentValidation,
+  FieldValidation,
+  FormValidations,
+  GroupedValidation,
+  NodeValidation,
+} from 'src/features/validation/types';
 import type { IDataModelBindings } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ValidationSeverity } from 'src/utils/validation/types';
@@ -15,20 +21,53 @@ export enum FrontendValidationSource {
  * This must be done for all fields that will be validated
  * before adding any validations to it.
  */
-export function initializeValidationField(dest: FieldValidations, field: string, group: string): void {
-  if (dest[field]?.[group]) {
+export function initializeFieldValidations(dest: FormValidations, field: string, group: string): void {
+  if (dest.fields?.[field]?.[group]) {
     window.logError(
       `Initializing validation failed, group ${group} already exists on field ${field}\n`,
-      dest[field][group],
+      dest.fields[field][group],
     );
     return;
   }
 
-  if (!dest[field]) {
-    dest[field] = { [group]: [] };
+  if (!dest.fields) {
+    dest.fields = { [field]: { [group]: [] } };
+  } else if (!dest.fields[field]) {
+    dest.fields[field] = { [group]: [] };
   } else {
-    dest[field][group] = [];
+    dest.fields[field][group] = [];
   }
+}
+
+/**
+ * Initializes a validation group for a component
+ * This must be done for all components that will be validated
+ * before adding any validations to it.
+ */
+export function initializeComponentValidations(dest: FormValidations, componentId: string, group: string): void {
+  if (dest.components?.[componentId]?.[group]) {
+    window.logError(
+      `Initializing validation failed, group ${group} already exists on field ${componentId}\n`,
+      dest.components[componentId][group],
+    );
+    return;
+  }
+
+  if (!dest.components) {
+    dest.components = { [componentId]: { [group]: [] } };
+  } else if (!dest.components[componentId]) {
+    dest.components[componentId] = { [group]: [] };
+  } else {
+    dest.components[componentId][group] = [];
+  }
+}
+
+function isFieldValidation(validation: GroupedValidation): validation is FieldValidation {
+  return 'field' in validation;
+}
+
+function isComponentValidation(validation: GroupedValidation): validation is ComponentValidation {
+  return 'componentId' in validation;
 }
 
 /**
@@ -37,32 +76,84 @@ export function initializeValidationField(dest: FieldValidations, field: string,
  * as these will need to be initialized as empty in order
  * to be able to remove the validation in case it does not return an error.
  */
-export function addValidationToField(dest: FieldValidations, validation: ValidationEntry): void {
-  if (!dest[validation.field]) {
-    window.logError('Adding validation failed, field object was not initialized\n', validation);
-    return;
+export function addValidation<T extends GroupedValidation>(dest: FormValidations, validation: T): void {
+  if (isFieldValidation(validation)) {
+    if (!dest.fields?.[validation.field]) {
+      window.logError('Adding validation failed, field object was not initialized\n', validation);
+      return;
+    }
+
+    if (!dest.fields?.[validation.field][validation.group]) {
+      window.logError('Adding validation failed, group object was not initialized\n', validation);
+      return;
+    }
+
+    dest.fields[validation.field][validation.group].push(validation);
+  } else if (isComponentValidation(validation)) {
+    if (!dest.components?.[validation.componentId]) {
+      window.logError('Adding validation failed, componentId object was not initialized\n', validation);
+      return;
+    }
+
+    if (!dest.components?.[validation.componentId][validation.group]) {
+      window.logError('Adding validation failed, group object was not initialized\n', validation);
+      return;
+    }
+
+    dest.components[validation.componentId][validation.group].push(validation);
+  } else {
+    window.logError('Adding validation failed, validation was not of a known type\n', validation);
   }
-  if (!dest[validation.field][validation.group]) {
-    window.logError('Adding validation failed, group object was not initialized\n', validation);
-    return;
+}
+
+export function mergeFormValidations(dest: FormValidations, src: FormValidations) {
+  if (src.fields) {
+    if (!dest.fields) {
+      dest.fields = {};
+    }
+    for (const [field, groups] of Object.entries(src.fields)) {
+      if (!dest.fields[field]) {
+        dest.fields[field] = {};
+      }
+      for (const [group, validations] of Object.entries(groups)) {
+        dest.fields[field][group] = validations;
+      }
+    }
   }
-  dest[validation.field][validation.group].push(validation);
+
+  if (src.components) {
+    if (!dest.components) {
+      dest.components = {};
+    }
+    for (const [componentId, groups] of Object.entries(src.components)) {
+      if (!dest.components[componentId]) {
+        dest.components[componentId] = {};
+      }
+      for (const [group, validations] of Object.entries(groups)) {
+        dest.components[componentId][group] = validations;
+      }
+    }
+  }
 }
 
 export function validationsOfSeverity<Severity extends ValidationSeverity>(
-  validations: FrontendValidation<ValidationSeverity>[] | undefined,
+  validations: NodeValidation<ValidationSeverity>[] | undefined,
   severity: Severity,
-): FrontendValidation<Severity>[];
+): NodeValidation<Severity>[];
 export function validationsOfSeverity<Severity extends ValidationSeverity>(
-  validations: ValidationEntry<ValidationSeverity>[] | undefined,
+  validations: ComponentValidation<ValidationSeverity>[] | undefined,
   severity: Severity,
-): ValidationEntry<Severity>[];
+): ComponentValidation<Severity>[];
+export function validationsOfSeverity<Severity extends ValidationSeverity>(
+  validations: FieldValidation<ValidationSeverity>[] | undefined,
+  severity: Severity,
+): FieldValidation<Severity>[];
 export function validationsOfSeverity(validations: any, severity: any) {
   return validations?.filter((validation: any) => validation.severity === severity) ?? [];
 }
 
-export function hasValidationErrors(validations: FrontendValidation<ValidationSeverity>[] | undefined): boolean;
-export function hasValidationErrors(validations: ValidationEntry<ValidationSeverity>[] | undefined): boolean;
+export function hasValidationErrors(validations: NodeValidation<ValidationSeverity>[] | undefined): boolean;
+export function hasValidationErrors(validations: FieldValidation<ValidationSeverity>[] | undefined): boolean;
 export function hasValidationErrors(validations: any): boolean {
   return validations?.some((validation: any) => validation.severity === 'errors') ?? false;
 }
@@ -70,8 +161,8 @@ export function hasValidationErrors(validations: any): boolean {
 export function buildFrontendValidation<Severity extends ValidationSeverity = ValidationSeverity>(
   node: LayoutNode,
   bindingKey: string,
-  validation: ValidationEntry<Severity>,
-): FrontendValidation<Severity> {
+  validation: FieldValidation<Severity>,
+): NodeValidation<Severity> {
   return {
     ...validation,
     bindingKey,
@@ -81,13 +172,13 @@ export function buildFrontendValidation<Severity extends ValidationSeverity = Va
 }
 
 export function validationsForBindings<DataModelBindings extends NonNullable<IDataModelBindings>>(
-  validations: FrontendValidation[] | undefined,
+  validations: NodeValidation[] | undefined,
   dataModelBindings: DataModelBindings | undefined,
-): { [binding in keyof DataModelBindings]: FrontendValidation[] } {
+): { [binding in keyof DataModelBindings]: NodeValidation[] } {
   return Object.fromEntries(
-    Object.entries(dataModelBindings ?? {}).map(([binding, field]) => [
-      binding,
-      validations?.filter((v) => v.field === field) ?? [],
+    Object.keys(dataModelBindings ?? {}).map((bindingKey) => [
+      bindingKey,
+      validations?.filter((v) => v.bindingKey === bindingKey) ?? [],
     ]),
   ) as any;
 }

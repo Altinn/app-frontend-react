@@ -16,7 +16,7 @@ import { useFileTableRowContext } from 'src/layout/FileUpload/FileUploadTable/Fi
 import classes from 'src/layout/FileUploadWithTag/EditWindowComponent.module.css';
 import { ComponentValidation } from 'src/utils/render';
 import type { IAttachment } from 'src/features/attachments';
-import type { FrontendValidation } from 'src/features/validation/types';
+import type { NodeValidation } from 'src/features/validation/types';
 import type { ShowPopper } from 'src/hooks/useAlertPopper';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IOption } from 'src/layout/common.generated';
@@ -26,7 +26,7 @@ export interface EditWindowProps {
   attachment: IAttachment;
   mobileView: boolean;
   options?: IOption[];
-  attachmentValidations?: FrontendValidation[];
+  attachmentValidations?: NodeValidation[];
   showPopper: ShowPopper;
 }
 
