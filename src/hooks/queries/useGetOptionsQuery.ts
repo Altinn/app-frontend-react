@@ -4,20 +4,17 @@ import type { AxiosResponse } from 'axios';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
-import { OptionsActions } from 'src/features/options/optionsSlice';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { getOptionsUrl } from 'src/utils/urls/appUrlHelper';
 import type { IMapping, IOption } from 'src/layout/common.generated';
-import type { HttpClientError } from 'src/utils/network/sharedNetworking';
+
 export const useGetOptionsQuery = (
   optionsId: string | undefined,
   mapping?: IMapping,
   queryParameters?: Record<string, string>,
   secure?: boolean,
 ): UseQueryResult<AxiosResponse<IOption[], any>> => {
-  const dispatch = useAppDispatch();
   const { fetchOptions } = useAppQueries();
   const formData = useAppSelector((state) => state.formData.formData);
   const langTools = useLanguage();
@@ -35,11 +32,8 @@ export const useGetOptionsQuery = (
   });
 
   return useQuery({
-    queryKey: [url],
+    queryKey: ['fetchOptions', url],
     queryFn: () => fetchOptions(url),
     enabled: !!optionsId,
-    onError: (error: HttpClientError) => {
-      dispatch(OptionsActions.fetchRejected({ error }));
-    },
   });
 };

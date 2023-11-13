@@ -17,7 +17,6 @@ export const statelessAndAllowAnonymousMock = (allowAnonymous: boolean | undefin
     ...initialState,
     applicationMetadata: {
       applicationMetadata: initialAppMetadata,
-      error: null,
     },
     formLayout: {
       ...initialState.formLayout,

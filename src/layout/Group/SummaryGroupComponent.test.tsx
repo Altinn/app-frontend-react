@@ -103,7 +103,6 @@ describe('SummaryGroupComponent', () => {
       formData,
       formLayout,
       textResources: {
-        error: null,
         language: 'nb',
         resourceMap: {
           mockGroupTitle: {

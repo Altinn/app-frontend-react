@@ -14,7 +14,6 @@ export const useSelectPartyMutation = () => {
       dispatch(PartyActions.selectPartyFulfilled({ party }));
     },
     onError: (error: HttpClientError) => {
-      dispatch(PartyActions.selectPartyRejected({ error }));
       window.logError('Selecting party failed:\n', error);
     },
   });

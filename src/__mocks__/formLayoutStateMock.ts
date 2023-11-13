@@ -63,7 +63,6 @@ export function getFormLayoutStateMock(customStates?: Partial<ILayoutState>): IL
         },
       ],
     },
-    error: null,
     uiConfig: getUiConfigStateMock(),
     layoutsets: null,
     layoutSetId: null,

@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { isAxiosError } from 'axios';
+
 import { AltinnContentIconFormData } from 'src/components/atoms/AltinnContentIconFormData';
 import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoader';
 import { PresentationComponent } from 'src/components/wrappers/Presentation';
@@ -13,7 +15,6 @@ import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { ProcessTaskType } from 'src/types';
 import { changeBodyBackground } from 'src/utils/bodyStyling';
 import { HttpStatusCodes } from 'src/utils/network/networking';
-import { isAxiosError } from 'src/utils/network/sharedNetworking';
 
 export const InstantiateContainer = () => {
   changeBodyBackground(AltinnAppTheme.altinnPalette.primary.greyLight);

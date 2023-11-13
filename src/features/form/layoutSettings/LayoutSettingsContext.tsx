@@ -26,7 +26,6 @@ function useLayoutSettingsQuery() {
       dispatch(FormLayoutActions.fetchSettingsFulfilled({ settings }));
     },
     onError: (error: HttpClientError) => {
-      dispatch(FormLayoutActions.fetchSettingsRejected({ error }));
       window.logError('Fetching layout settings failed:\n', error);
     },
   });

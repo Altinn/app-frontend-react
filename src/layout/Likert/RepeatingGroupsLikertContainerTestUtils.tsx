@@ -116,7 +116,6 @@ const createLayout = (
   components: CompOrGroupExternal[],
   groupIndex: number,
 ): ILayoutState => ({
-  error: null,
   layoutsets: null,
   layouts: {
     FormLayout: [container, ...components],
@@ -177,7 +176,6 @@ const createTextResource = (questions: IQuestion[], extraResources: IRawTextReso
     ...extraResources,
   ]),
   language: 'nb',
-  error: null,
 });
 
 const { setScreenWidth } = mockMediaQuery(992);
@@ -212,7 +210,6 @@ export const render = async ({
   const mockData: IFormDataState = {
     formData: generateMockFormData(mockQuestions),
     lastSavedFormData: {},
-    error: null,
     submittingState: 'inactive',
     unsavedChanges: false,
     saving: false,

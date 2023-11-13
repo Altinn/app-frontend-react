@@ -2,7 +2,6 @@ import type { IFormDataState } from 'src/features/formData';
 
 export function getFormDataStateMock(customState?: Partial<IFormDataState>) {
   const formData: IFormDataState = {
-    error: null,
     formData: {
       'someGroup[0].labelField': 'Label for first',
       'someGroup[1].labelField': 'Label for second',

@@ -46,7 +46,6 @@ function useLayoutQuery() {
       legacyProcessLayouts({ input: data, dispatch, currentViewCacheKey, layoutSetId });
     },
     onError: (error: HttpClientError) => {
-      dispatch(FormLayoutActions.fetchRejected({ error }));
       window.logError('Fetching form layout failed:\n', error);
     },
   });

@@ -1,6 +1,6 @@
 import { createSagaSlice } from 'src/redux/sagaSlice';
 import { getLanguageQueryParam } from 'src/utils/party';
-import type { IFetchProfileFulfilled, IFetchProfileRejected, IProfileState } from 'src/features/profile/index';
+import type { IFetchProfileFulfilled, IProfileState } from 'src/features/profile/index';
 import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
 import type { IProfile } from 'src/types/shared';
 
@@ -17,7 +17,6 @@ export const initialState: IProfileState = {
     },
   } as IProfile,
   selectedAppLanguage: localStorage.getItem(getLanguageStorageKey(undefined)) ?? '',
-  error: null,
 };
 
 export let ProfileActions: ActionsFromSlice<typeof profileSlice>;
@@ -31,11 +30,6 @@ export const profileSlice = () => {
           state.profile = action.payload.profile;
           state.selectedAppLanguage =
             getLanguageQueryParam() ?? localStorage.getItem(getLanguageStorageKey(state.profile.userId)) ?? '';
-        },
-      }),
-      fetchRejected: mkAction<IFetchProfileRejected>({
-        reducer: (state, action) => {
-          state.error = action.payload.error;
         },
       }),
       updateSelectedAppLanguage: mkAction<IUpdateSelectedAppLanguage>({

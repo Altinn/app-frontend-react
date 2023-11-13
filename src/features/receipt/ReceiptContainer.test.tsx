@@ -103,7 +103,6 @@ function getMockState({ autoDeleteOnProcessEnd = false }): IRuntimeState {
       },
     },
     applicationMetadata: {
-      error: null,
       applicationMetadata: {
         id: 'ttd/ui-components',
         org: 'ttd',
@@ -126,12 +125,10 @@ function getMockState({ autoDeleteOnProcessEnd = false }): IRuntimeState {
     },
     party: {
       parties: [partyMember],
-      error: null,
       selectedParty: partyMember,
     },
     profile: {
       profile: userProfile,
-      error: null,
       selectedAppLanguage: 'nb',
     },
   };

@@ -19,11 +19,9 @@ const useApplicationSettingsQuery = () => {
     },
     onError: (error: HttpClientError) => {
       if (error.status === 404) {
-        dispatch(ApplicationSettingsActions.fetchApplicationSettingsRejected({ error: null }));
         window.logWarn('Application settings not found:\n', error);
       } else {
         // Update the Redux Store ensures that legacy code has access to the data without using the Tanstack Query Cache
-        dispatch(ApplicationSettingsActions.fetchApplicationSettingsRejected({ error }));
         window.logError('Fetching application settings failed:\n', error);
       }
     },
@@ -33,6 +31,7 @@ const useApplicationSettingsQuery = () => {
 const { Provider, useCtx } = createStrictQueryContext<IApplicationSettings>({
   name: 'ApplicationSettings',
   useQuery: useApplicationSettingsQuery,
+  // PRIORITY: Allow a 404 response to be returned from the server
 });
 
 export const ApplicationSettingsProvider = Provider;

@@ -19,7 +19,6 @@ const useApplicationMetadataQuery = () => {
     },
     onError: (error: HttpClientError) => {
       // Update the Redux Store ensures that legacy code has access to the data without using the Tanstack Query Cache
-      dispatch(ApplicationMetadataActions.getRejected({ error }));
       window.logError('Fetching application metadata failed:\n', error);
     },
   });

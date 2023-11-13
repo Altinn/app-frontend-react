@@ -38,7 +38,6 @@ describe('getAllowAnonymous', () => {
       ...initialState,
       applicationMetadata: {
         applicationMetadata: null,
-        error: null,
       },
     };
     const getAllowAnonymous = makeGetAllowAnonymousSelector();
@@ -52,7 +51,6 @@ describe('getAllowAnonymous', () => {
       ...initialState,
       applicationMetadata: {
         applicationMetadata: null,
-        error: null,
       },
     };
     const getAllowAnonymous = makeGetAllowAnonymousSelector();

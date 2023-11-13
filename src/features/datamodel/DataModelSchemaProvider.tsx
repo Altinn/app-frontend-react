@@ -5,7 +5,7 @@ import type { UseQueryResult } from '@tanstack/react-query';
 import type { JSONSchema7 } from 'json-schema';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
-import { createStrictContext } from 'src/features/contexts/createContext';
+import { createStrictQueryContext } from 'src/features/contexts/queryContext';
 import { DataModelActions } from 'src/features/datamodel/datamodelSlice';
 import { useCurrentDataModelName } from 'src/features/datamodel/useBindingSchema';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
@@ -17,8 +17,6 @@ export interface IDataModelSchemaContext {
   dataModelSchema: JSONSchema7 | undefined;
   dataModelName: string | undefined;
 }
-
-const { Provider } = createStrictContext<IDataModelSchemaContext>({ name: 'DataModelSchemaContext' });
 
 const useDataModelSchemaQuery = (dataModelName: string | undefined): UseQueryResult<JSONSchema7> => {
   const dispatch = useAppDispatch();
@@ -32,15 +30,19 @@ const useDataModelSchemaQuery = (dataModelName: string | undefined): UseQueryRes
     },
     onError: (error: HttpClientError) => {
       if (error.status === 404) {
-        dispatch(DataModelActions.fetchRejected({ error: null }));
         window.logWarn('Data model schema not found:\n', error);
       } else {
-        dispatch(DataModelActions.fetchRejected({ error }));
         window.logError('Data model schema request failed:\n', error);
       }
     },
   });
 };
+
+const { Provider, useCtx } = createStrictQueryContext<JSONSchema7>({
+  name: 'DataModelSchema',
+  useQuery: useDataModelSchemaQuery,
+  // PRIORITY: Provide argument and/or fix implementation
+});
 
 export function DataModelSchemaProvider({ children }: React.PropsWithChildren) {
   const dataModelName = useCurrentDataModelName();

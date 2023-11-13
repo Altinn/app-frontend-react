@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import type React from 'react';
 
 import { useMutation } from '@tanstack/react-query';
+import { isAxiosError } from 'axios';
 import { useImmerReducer } from 'use-immer';
 import { v4 as uuidv4 } from 'uuid';
 import type { UseMutationOptions } from '@tanstack/react-query';
@@ -15,7 +16,6 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { getFileUploadComponentValidations } from 'src/utils/formComponentUtils';
-import { isAxiosError } from 'src/utils/network/sharedNetworking';
 import { getValidationMessage } from 'src/utils/validation/backendValidation';
 import { BackendValidationSeverity } from 'src/utils/validation/backendValidationSeverity';
 import type {

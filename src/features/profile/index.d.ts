@@ -3,7 +3,6 @@ import type { IProfile } from 'src/types/shared';
 export interface IProfileState {
   profile: IProfile;
   selectedAppLanguage: string;
-  error: Error | null;
 }
 
 export interface IFetchProfileFulfilled {

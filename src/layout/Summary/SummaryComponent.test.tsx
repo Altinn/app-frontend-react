@@ -138,7 +138,6 @@ describe('SummaryComponent', () => {
         formLayout: mockLayout,
         formValidations: {
           validations,
-          error: null,
           invalidDataTypes: [],
         },
       },

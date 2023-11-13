@@ -16,7 +16,6 @@ describe('Confirm', () => {
         party: {
           parties: [partyMock],
           selectedParty: partyMock,
-          error: null,
         },
       },
     });

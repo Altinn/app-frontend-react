@@ -70,7 +70,6 @@ describe('CustomWebComponent', () => {
         textResources: {
           language: 'nb',
           resourceMap,
-          error: null,
         },
       },
     });

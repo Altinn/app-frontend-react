@@ -20,7 +20,6 @@ export interface IRunSingleFieldValidation {
 export interface IValidationState {
   validations: IValidations;
   invalidDataTypes: string[];
-  error: Error | null;
 }
 
 export interface IUpdateComponentValidations {
@@ -51,7 +50,6 @@ export interface IValidationActionRejected {
 
 export const initialState: IValidationState = {
   validations: {},
-  error: null,
   invalidDataTypes: [],
 };
 

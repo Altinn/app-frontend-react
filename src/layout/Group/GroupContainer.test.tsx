@@ -114,7 +114,6 @@ async function render({ container = mockContainer }: IRender = {}) {
 
   const mockTextResources: ITextResourcesState = {
     language: 'en',
-    error: null,
     resourceMap: {
       'option.label': { value: 'Value to be shown' },
       'button.open': { value: 'New open text' },

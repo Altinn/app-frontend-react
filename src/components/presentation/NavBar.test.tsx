@@ -48,7 +48,6 @@ const render = async ({
       textResources: {
         resourceMap: textResources,
         language: 'nb',
-        error: null,
       },
       formLayout: getFormLayoutStateMock({
         uiConfig: getUiConfigStateMock({

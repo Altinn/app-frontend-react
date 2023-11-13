@@ -50,7 +50,7 @@ export function* submitFormSaga(): SagaIterator {
     const validationResult = createValidationResult(validationObjects);
     if (containsErrors(validationObjects)) {
       yield put(ValidationActions.updateValidations({ validationResult, merge: false }));
-      return yield put(FormDataActions.submitRejected({ error: null }));
+      return yield put(FormDataActions.submitRejected());
     }
 
     yield call(putFormData, {});
@@ -58,7 +58,7 @@ export function* submitFormSaga(): SagaIterator {
     yield put(FormDataActions.submitFulfilled());
   } catch (error) {
     window.logError('Submit form data failed:\n', error);
-    yield put(FormDataActions.submitRejected({ error }));
+    yield put(FormDataActions.submitRejected());
   }
 }
 
@@ -84,7 +84,7 @@ function* submitComplete(state: IRuntimeState, resolvedNodes: LayoutPages): Saga
   yield put(ValidationActions.updateValidations({ validationResult, merge: false }));
   if (containsErrors(validationObjects)) {
     // we have validation errors or warnings that should be shown, do not submit
-    return yield put(FormDataActions.submitRejected({ error: null }));
+    return yield put(FormDataActions.submitRejected());
   }
 
   if (layoutState.uiConfig.currentViewCacheKey) {
@@ -293,7 +293,7 @@ export function* saveFormDataSaga({
     yield put(FormDataActions.submitFulfilled());
   } catch (error) {
     window.logError('Save form data failed:\n', error);
-    yield put(FormDataActions.submitRejected({ error }));
+    yield put(FormDataActions.submitRejected());
   }
 }
 

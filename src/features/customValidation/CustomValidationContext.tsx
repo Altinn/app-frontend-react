@@ -1,21 +1,13 @@
-import React from 'react';
-
 import { useQuery } from '@tanstack/react-query';
 import type { UseQueryResult } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
-import { createStrictContext } from 'src/features/contexts/createContext';
+import { createStrictQueryContext } from 'src/features/contexts/queryContext';
 import { CustomValidationActions } from 'src/features/customValidation/customValidationSlice';
-import { useCurrentDataModelName } from 'src/features/datamodel/useBindingSchema';
-import { Loader } from 'src/features/loading/Loader';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { resolveExpressionValidationConfig } from 'src/utils/validation/expressionValidation';
 import type { IExpressionValidationConfig } from 'src/utils/validation/types';
-
-const { Provider, useCtx } = createStrictContext<IExpressionValidationConfig | null>({
-  name: 'CustomValidationContext',
-});
 
 const useCustomValidationConfigQuery = (
   dataTypeId: string | undefined,
@@ -36,21 +28,16 @@ const useCustomValidationConfigQuery = (
       }
     },
     onError: (error: AxiosError) => {
-      dispatch(CustomValidationActions.fetchCustomValidationsRejected(error));
       window.logError('Fetching validation configuration failed:\n', error);
     },
   });
 };
 
-export function CustomValidationConfigProvider({ children }: React.PropsWithChildren) {
-  const dataTypeId = useCurrentDataModelName();
-  const query = useCustomValidationConfigQuery(dataTypeId);
+const { Provider, useCtx } = createStrictQueryContext<IExpressionValidationConfig | null>({
+  name: 'CustomValidationContext',
+  useQuery: useCustomValidationConfigQuery,
+  // PRIORITY: Supply argument to createStrictQueryContext
+});
 
-  if (dataTypeId?.length && (query.isLoading || query.data === undefined)) {
-    return <Loader reason={'custom-validation-config'} />;
-  }
-
-  return <Provider value={query.data || null}>{children}</Provider>;
-}
-
-export const useCustomValidationConfig = () => useCtx();
+export const CustomValidationConfigProvider = Provider;
+export const useCustomValidationConfig = useCtx;

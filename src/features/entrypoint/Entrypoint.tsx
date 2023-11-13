@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 
-import type { AxiosError } from 'axios';
+import { isAxiosError } from 'axios';
 
 import { Form } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/wrappers/Presentation';
@@ -22,7 +22,7 @@ import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
 import { PresentationType, ProcessTaskType } from 'src/types';
-import { checkIfAxiosError, HttpStatusCodes } from 'src/utils/network/networking';
+import { HttpStatusCodes } from 'src/utils/network/networking';
 import type { ShowTypes } from 'src/features/applicationMetadata';
 
 export function Entrypoint() {
@@ -100,10 +100,9 @@ export function Entrypoint() {
     return <Navigate to={`/partyselection/${HttpStatusCodes.Forbidden}`} />;
   }
 
-  // error trying to fetch data, if missing rights we display relevant page
-  if (checkIfAxiosError(formDataError)) {
-    const axiosError = formDataError as AxiosError;
-    if (axiosError.response?.status === HttpStatusCodes.Forbidden) {
+  // Error trying to fetch data, if missing rights we display relevant page
+  if (isAxiosError(formDataError)) {
+    if (formDataError.response?.status === HttpStatusCodes.Forbidden) {
       return <MissingRolesError />;
     }
   }

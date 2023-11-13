@@ -46,7 +46,6 @@ const getLayout = (group: CompGroupRepeatingExternal, components: CompOrGroupExt
       excludePageFromPdf: [],
       excludeComponentFromPdf: [],
     },
-    error: null,
     layoutsets: null,
   };
 

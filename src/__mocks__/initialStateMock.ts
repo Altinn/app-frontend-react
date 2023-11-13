@@ -12,11 +12,9 @@ export function getInitialStateMock(custom?: Partial<IRuntimeState> | ((state: I
   const initialState: IRuntimeState = {
     applicationMetadata: {
       applicationMetadata: getApplicationMetadataMock(),
-      error: null,
     },
     customValidation: {
       customValidation: null,
-      error: null,
     },
     devTools: {
       activeTab: DevToolsTab.General,
@@ -38,28 +36,23 @@ export function getInitialStateMock(custom?: Partial<IRuntimeState> | ((state: I
     },
     formData: getFormDataStateMock(),
     formDataModel: {
-      error: null,
       schemas: {},
     },
     formDynamics: {
       APIs: null,
       conditionalRendering: null,
-      error: null,
       ruleConnection: null,
     },
     formLayout: getFormLayoutStateMock(),
     formRules: {
-      error: null,
       model: [],
     },
     formValidations: {
       validations: {},
-      error: null,
       invalidDataTypes: [],
     },
     footerLayout: {
       footerLayout: null,
-      error: null,
     },
     organisationMetaData: {
       allOrgs: {
@@ -78,7 +71,6 @@ export function getInitialStateMock(custom?: Partial<IRuntimeState> | ((state: I
       error: null,
     },
     party: {
-      error: null,
       parties: [partyMock],
       selectedParty: partyMock,
     },
@@ -134,18 +126,10 @@ export function getInitialStateMock(custom?: Partial<IRuntimeState> | ((state: I
           value: 'This is a title',
         },
       },
-      error: null,
       language: 'nb',
-    },
-    optionState: {
-      error: null,
-    },
-    dataListState: {
-      error: null,
     },
     applicationSettings: {
       applicationSettings: getApplicationSettingsMock(),
-      error: null,
     },
     deprecated: {
       lastKnownProcess: getProcessDataMock(),

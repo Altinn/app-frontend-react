@@ -18,7 +18,6 @@ export const useGetTextResourcesQuery = (enabled: boolean): UseQueryResult<IText
       dispatch(TextResourcesActions.fetchFulfilled(textResourceResult));
     },
     onError: (error: AxiosError) => {
-      dispatch(TextResourcesActions.fetchRejected({ error }));
       window.logError('Fetching text resources failed:\n', error);
     },
   });
