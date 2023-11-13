@@ -1,6 +1,6 @@
 import { groupIsRepeatingExt, groupIsRepeatingLikertExt } from 'src/layout/Group/tools';
 import type { ILayoutNavigation } from 'src/layout/common.generated';
-import type { CompGroupExternal, IGroupEditPropertiesLikert } from 'src/layout/Group/config.generated';
+import type { CompGroupExternal, ILikertFilter } from 'src/layout/Group/config.generated';
 import type { CompExternal, ILayout } from 'src/layout/layout';
 import type { ILayoutSets, IRepeatingGroups } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -234,19 +234,18 @@ export function removeRepeatingGroupFromUIConfig(
   return newRepGroups;
 }
 
-export const getRepeatingGroupStartStopIndex = (
-  repeatingGroupIndex: number,
-  edit: Pick<IGroupEditPropertiesLikert, 'filter'> | undefined,
-) => {
+export const getLikertStartStopIndex = (repeatingGroupIndex: number, filters: ILikertFilter[]) => {
   if (typeof repeatingGroupIndex === 'undefined') {
     return { startIndex: 0, stopIndex: -1 };
   }
 
-  const start = edit?.filter?.find(({ key }) => key === 'start')?.value;
-  const stop = edit?.filter?.find(({ key }) => key === 'stop')?.value;
-  const startIndex = start ? parseInt(start) : 0;
-  const stopIndex = stop ? Math.min(parseInt(stop) - 1, repeatingGroupIndex) : repeatingGroupIndex;
-  return { startIndex, stopIndex };
+  const start = filters.find(({ key }) => key === 'start')?.value;
+  const stop = filters.find(({ key }) => key === 'stop')?.value;
+  const startIndex = typeof start === 'string' ? parseInt(start) : start ?? 0;
+  const stopIndex = typeof stop === 'string' ? parseInt(stop) : stop ?? repeatingGroupIndex;
+  const boundedStopIndex = Math.min(stopIndex - 1, repeatingGroupIndex);
+
+  return { startIndex, stopIndex: boundedStopIndex };
 };
 
 /**

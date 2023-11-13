@@ -1,14 +1,18 @@
 import { GridHierarchyGenerator } from 'src/layout/Grid/hierarchy';
 import { nodesFromGridRow } from 'src/layout/Grid/tools';
-import { groupIsNonRepeatingPanelExt, groupIsRepeating, groupIsRepeatingExt } from 'src/layout/Group/tools';
-import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
+import {
+  groupIsNonRepeatingPanelExt,
+  groupIsRepeating,
+  groupIsRepeatingExt,
+  groupIsRepeatingLikertExt,
+} from 'src/layout/Group/tools';
+import { getLikertStartStopIndex } from 'src/utils/formLayout';
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type {
   CompGroupExternal,
   CompGroupRepeatingInternal,
   CompGroupRepeatingLikertInternal,
   HRepGroupRows,
-  IGroupEditPropertiesLikert,
 } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type {
@@ -205,9 +209,9 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
       const me = ctx.generator.makeNode(props);
       const rows: HRepGroupRows = [];
       const lastIndex = (ctx.generator.repeatingGroups || {})[props.item.id]?.index;
-      const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(
+      const { startIndex, stopIndex } = getLikertStartStopIndex(
         lastIndex,
-        'edit' in props.item ? (props.item.edit as IGroupEditPropertiesLikert) : {},
+        groupIsRepeatingLikertExt(item) ? item.edit.filter || [] : [],
       );
 
       for (let rowIndex = startIndex; rowIndex <= stopIndex; rowIndex++) {

@@ -478,7 +478,10 @@ function makeRepeatingLikertGroup() {
           new CG.prop(
             'filter',
             new CG.arr(
-              new CG.obj(new CG.prop('key', new CG.str()), new CG.prop('value', new CG.str())).exportAs('IGroupFilter'),
+              new CG.obj(
+                new CG.prop('key', new CG.enum('start', 'stop')),
+                new CG.prop('value', new CG.union(new CG.str().setPattern(/^\d+$/), new CG.num())),
+              ).exportAs('ILikertFilter'),
             )
               .optional()
               .setTitle('Filter')
