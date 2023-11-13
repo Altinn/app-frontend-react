@@ -11,7 +11,7 @@ import {
   getKeyWithoutIndexIndicators,
   replaceIndexIndicatorsWithIndexes,
 } from 'src/utils/databindings';
-import { httpGetWithHeaders } from 'src/utils/network/networking';
+import { httpGetRaw } from 'src/utils/network/networking';
 import { getOptionLookupKey, getOptionLookupKeys } from 'src/utils/options';
 import { selectNotNull } from 'src/utils/sagas';
 import { getOptionsUrl } from 'src/utils/urls/appUrlHelper';
@@ -136,7 +136,7 @@ export function* fetchSpecificOptionSaga({
       instanceId,
     });
 
-    const optionsResponse = yield call(httpGetWithHeaders, url);
+    const optionsResponse = yield call(httpGetRaw, url);
     const downstreamParameters: string = optionsResponse.headers['altinn-downstreamparameters'];
     if (downstreamParameters && metadataBinding) {
       yield put(
