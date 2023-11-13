@@ -81,7 +81,6 @@ export interface IKeepComponentScrollPos {
 
 export interface IMoveToNextPage {
   runValidations?: TriggersPageValidation;
-  skipMoveToNext?: boolean;
   keepScrollPos?: IKeepComponentScrollPos;
 }
 

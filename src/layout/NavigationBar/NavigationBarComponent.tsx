@@ -190,7 +190,7 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
             {pageIds.map((pageId, index) => (
               <li
                 key={pageId}
-                className={cn(classes.containerBase)}
+                className={classes.containerBase}
               >
                 <NavigationButton
                   current={currentPageId === pageId}

@@ -106,7 +106,7 @@ export interface IPageOrderConfig {
    * is not in this list, it should be considered hidden. It will be null until layouts have been fetched.
    *
    * Do NOT use this directly, as it will not respect layouts hidden using expressions!
-   * @see getLayoutOrderFromTracks
+   * @see getLayoutOrderFromPageOrderConfig
    * @see selectLayoutOrder
    */
   order: string[] | null;

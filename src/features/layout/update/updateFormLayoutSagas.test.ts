@@ -55,18 +55,6 @@ describe('updateLayoutSagas', () => {
         .run();
     });
 
-    it('should not update current view if skipMoveToNext is true', () => {
-      const action: PayloadAction<IMoveToNextPage> = {
-        type: 'test',
-        payload: {
-          skipMoveToNext: true,
-        },
-      };
-      return expectSaga(moveToNextPageSaga, action)
-        .provide([[select(), state]])
-        .run();
-    });
-
     it('stateless: should fetch pageOrder and update state accordingly', () => {
       const action: PayloadAction<IMoveToNextPage> = {
         type: 'test',

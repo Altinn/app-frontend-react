@@ -173,7 +173,7 @@ export function* updateCurrentViewSaga({
 }
 
 export function* moveToNextPageSaga({
-  payload: { runValidations, skipMoveToNext, keepScrollPos },
+  payload: { runValidations, keepScrollPos },
 }: PayloadAction<IMoveToNextPage>): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
@@ -181,10 +181,6 @@ export function* moveToNextPageSaga({
 
     if (!state.applicationMetadata.applicationMetadata) {
       yield put(FormLayoutActions.moveToNextPageRejected({ error: null }));
-      return;
-    }
-
-    if (skipMoveToNext) {
       return;
     }
 
