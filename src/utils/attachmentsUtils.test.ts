@@ -1,7 +1,7 @@
 import { filterInstanceAttachments, filterInstancePdfAttachments } from 'src/utils/attachmentsUtils';
 import type { IData } from 'src/types/shared';
 
-test('mapInstanceAttachments() returns correct attachment array', () => {
+test('filterInstanceAttachments() returns correct attachment array', () => {
   const instance = {
     id: '50001/c1572504-9fb6-4829-9652-3ca9c82dabb9',
     instanceOwnerId: '50001',
@@ -190,7 +190,7 @@ test('mapInstanceAttachments() returns correct attachment array', () => {
   ).toEqual(attachmentsTestData);
 });
 
-test('getInstancePdf() returns correct attachement', () => {
+test('filterInstancePdfAttachments() returns correct attachement', () => {
   const data = [
     {
       id: '585b2f4e-5ecb-417b-9d01-82b6e889e1d1',
