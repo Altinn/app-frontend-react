@@ -238,10 +238,6 @@ export interface IAttachmentGrouping {
   [title: string]: IDisplayAttachment[];
 }
 
-export interface IDataSource {
-  [key: string]: any;
-}
-
 export interface IApplicationSettings {
   [source: string]: string;
 }
