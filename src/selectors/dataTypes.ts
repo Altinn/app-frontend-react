@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
 
-import { filterInstanceAttachments, filterInstancePdfAttachments } from 'src/utils/attachmentsUtils';
+import { DataTypeReference, filterInstanceAttachments, filterInstancePdfAttachments } from 'src/utils/attachmentsUtils';
 import type { IRuntimeState } from 'src/types';
 import type { IData } from 'src/types/shared';
 
@@ -15,7 +15,7 @@ export const selectDataTypesByIds = (dataTypeIds: string[] | undefined) =>
     selectInstanceData,
     (dataTypes = [], currentTask, instanceData) => {
       const relevantDataTypes = dataTypes.filter((type) => type.taskId === currentTask);
-      const useSpecificDataTypeIds = dataTypeIds && !dataTypeIds?.includes('include-all');
+      const useSpecificDataTypeIds = dataTypeIds && !dataTypeIds?.includes(DataTypeReference.IncludeAll);
 
       return instanceData?.filter((dataElement) =>
         useSpecificDataTypeIds
