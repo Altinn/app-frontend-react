@@ -229,7 +229,9 @@ export const render = async ({
   const { store } = await renderWithInstanceAndLayout({
     renderer: () => <ContainerTester id={mockLikertContainer.id} />,
     reduxState,
-    queries: { fetchOptions: () => Promise.resolve({ data: mockOptions, headers: {} } as AxiosResponse<IOption[], any>) },
+    queries: {
+      fetchOptions: () => Promise.resolve({ data: mockOptions, headers: {} } as AxiosResponse<IOption[], any>),
+    },
   });
 
   return { mockStoreDispatch: store.dispatch };
