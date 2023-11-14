@@ -1,5 +1,7 @@
 import { createContext, useMemo } from 'react';
 
+import { createSelector } from 'reselect';
+
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { useAllOptions } from 'src/features/options/useAllOptions';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -170,10 +172,28 @@ export function implementsDisplayData<Type extends CompTypes>(
   return 'getDisplayData' in component && 'useDisplayData' in component;
 }
 
+function getDisplayDataPropsFromState(state: IRuntimeState): Omit<DisplayDataProps, 'options'> {
+  return {
+    formData: state.formData.formData,
+    attachments: state.attachments.attachments,
+    langTools: staticUseLanguageFromState(state),
+  };
+}
+
+function getDisplayDataPropsFromState(state: IRuntimeState): Omit<DisplayDataProps, 'options'> {
+  return {
+    formData: state.formData.formData,
+    attachments: state.attachments.attachments,
+    langTools: staticUseLanguageFromState(state),
+  };
+}
+export const selectDisplayDataProps = createSelector(getDisplayDataPropsFromState, (props) => props);
+
 export function useDisplayDataProps(): DisplayDataProps {
   const formData = useAppSelector((state) => state.formData.formData);
   const langTools = useLanguage();
   const options = useAllOptions();
+  const props = useAppSelector(getDisplayDataPropsFromState);
   const attachments = useAttachments();
 
   return useMemo(() => ({ options, attachments, langTools, formData }), [attachments, langTools, options, formData]);

@@ -24,7 +24,6 @@ export interface IDisplayAttachment {
   iconClass: string;
   url?: string;
   dataType: string;
-  includePDF?: boolean;
   tags?: string[];
 }
 

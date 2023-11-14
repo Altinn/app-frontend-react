@@ -2,50 +2,38 @@ import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { IAttachmentGrouping, IData, IDataType, IDisplayAttachment } from 'src/types/shared';
 
-export const mapInstanceAttachments = (
+export enum DataTypeReference {
+  IncludeAll = 'include-all',
+  RefDataAsPdf = 'ref-data-as-pdf',
+}
+
+export const filterInstanceAttachments = (
   data: IData[] | undefined,
   defaultElementIds: string[],
-  platform?: boolean,
-): IDisplayAttachment[] => {
-  if (!data) {
-    return [];
-  }
-  const tempAttachments: IDisplayAttachment[] = [];
-  data.forEach((dataElement: IData) => {
-    if (defaultElementIds.indexOf(dataElement.dataType) > -1 || dataElement.dataType === 'ref-data-as-pdf') {
-      return;
-    }
-
-    tempAttachments.push({
-      name: dataElement.filename,
-      url: platform ? dataElement.selfLinks?.platform : dataElement.selfLinks?.apps,
-      iconClass: 'reg reg-attachment',
-      dataType: dataElement.dataType,
-    });
-  });
-  return tempAttachments;
+): IDisplayAttachment[] | undefined => {
+  const filteredData = data?.filter(
+    (dataElement: IData) =>
+      !(defaultElementIds.includes(dataElement.dataType) || dataElement.dataType === DataTypeReference.RefDataAsPdf),
+  );
+  return getInstanceAttachments(filteredData);
 };
 
-export const getInstancePdf = (data: IData[] | undefined, platform?: boolean): IDisplayAttachment[] | undefined => {
+export const filterInstancePdfAttachments = (data: IData[] | undefined): IDisplayAttachment[] | undefined => {
+  const filteredData = data?.filter((dataElement: IData) => dataElement.dataType === DataTypeReference.RefDataAsPdf);
+  return getInstanceAttachments(filteredData);
+};
+
+const getInstanceAttachments = (data: IData[] | undefined): IDisplayAttachment[] | undefined => {
   if (!data) {
     return undefined;
   }
 
-  const pdfElements = data.filter((element) => element.dataType === 'ref-data-as-pdf');
-
-  if (!pdfElements) {
-    return undefined;
-  }
-
-  return pdfElements.map((element) => {
-    const pdfUrl = platform ? element.selfLinks?.platform : element.selfLinks?.apps;
-    return {
-      name: element.filename,
-      url: pdfUrl,
-      iconClass: 'reg reg-attachment',
-      dataType: element.dataType,
-    };
-  });
+  return data.map((dataElement: IData) => ({
+    name: dataElement.filename,
+    url: dataElement.selfLinks?.apps,
+    iconClass: 'reg reg-attachment',
+    dataType: dataElement.dataType,
+  }));
 };
 
 /**

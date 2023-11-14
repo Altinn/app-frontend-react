@@ -2,6 +2,7 @@ import React from 'react';
 
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import type { AxiosResponse } from 'axios';
 
 import { RadioButtonContainerComponent } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
@@ -43,7 +44,9 @@ const render = async ({ component, genericProps, options }: Props = {}) => {
     },
     queries: {
       fetchOptions: () =>
-        options ? Promise.resolve(options) : Promise.reject(new Error('No options provided to await render()')),
+        options
+          ? Promise.resolve({ data: options, headers: {} } as AxiosResponse<IOption[], any>)
+          : Promise.reject(new Error('No options provided to render()')),
     },
   });
 };

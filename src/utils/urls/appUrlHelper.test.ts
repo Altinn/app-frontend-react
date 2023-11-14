@@ -2,7 +2,6 @@ import {
   dataElementUrl,
   fileTagUrl,
   fileUploadUrl,
-  getCalculatePageOrderUrl,
   getCreateInstancesUrl,
   getDataListsUrl,
   getDataValidationUrl,
@@ -405,20 +404,6 @@ describe('Frontend urlHelper.ts', () => {
       const result = getRulehandlerUrl('custom-handler.js');
 
       expect(result).toBe('https://local.altinn.cloud/ttd/test/api/rulehandler/custom-handler.js');
-    });
-  });
-
-  describe('getCalculatePageOrderUrl', () => {
-    it('should return stateful url if stateless is false', () => {
-      const result = getCalculatePageOrderUrl(false);
-
-      expect(result).toBe('https://local.altinn.cloud/ttd/test/instances/test-instance-id/pages/order');
-    });
-
-    it('should return stateless url if stateless is true', () => {
-      const result = getCalculatePageOrderUrl(true);
-
-      expect(result).toBe('https://local.altinn.cloud/ttd/test/v1/pages/order');
     });
   });
 

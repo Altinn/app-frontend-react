@@ -50,7 +50,7 @@ type FileExtensionIconProps = {
   className?: string;
 };
 
-const FileExtensionIcon = ({ fileEnding, className }: FileExtensionIconProps) => {
+export const FileExtensionIcon = ({ fileEnding, className }: FileExtensionIconProps) => {
   const iconMap = {
     '.pdf': FilePdfIcon,
     '.doc': FileWordIcon,
@@ -64,7 +64,7 @@ const FileExtensionIcon = ({ fileEnding, className }: FileExtensionIconProps) =>
   return (
     <IconComponent
       className={className}
-      aria-hidden={true}
+      aria-hidden
     />
   );
 };

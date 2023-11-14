@@ -8,6 +8,7 @@ import {
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { selectPageOrderConfig } from 'src/selectors/getLayoutOrder';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
 import { createLaxContext } from 'src/utils/createContext';
 import { _private, selectDataSourcesFromState } from 'src/utils/layout/hierarchy';
@@ -83,7 +84,7 @@ export function useResolvedNode<T>(selector: string | undefined | T | LayoutNode
  */
 function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
   const _currentHiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
-  const tracks = useAppSelector((state) => state.formLayout.uiConfig.tracks);
+  const pageOrderConfig = useAppSelector(selectPageOrderConfig);
   const formData = useAppSelector((state) => state.formData.formData);
   const rules = useAppSelector((state) => state.formDynamics.conditionalRendering);
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
@@ -95,8 +96,8 @@ function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
       return;
     }
 
-    const currentHiddenLayouts = new Set(tracks.hidden);
-    const futureHiddenLayouts = runExpressionsForLayouts(resolvedNodes, tracks.hiddenExpr, dataSources);
+    const currentHiddenLayouts = new Set(pageOrderConfig.hidden);
+    const futureHiddenLayouts = runExpressionsForLayouts(resolvedNodes, pageOrderConfig.hiddenExpr, dataSources);
 
     if (shouldUpdate(currentHiddenLayouts, futureHiddenLayouts)) {
       dispatch(
@@ -146,7 +147,7 @@ function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
     repeatingGroups,
     resolvedNodes,
     rules,
-    tracks.hidden,
-    tracks.hiddenExpr,
+    pageOrderConfig.hidden,
+    pageOrderConfig.hiddenExpr,
   ]);
 }

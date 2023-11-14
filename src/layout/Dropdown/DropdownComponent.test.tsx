@@ -2,6 +2,7 @@ import React from 'react';
 
 import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import type { AxiosResponse } from 'axios';
 
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
@@ -45,7 +46,10 @@ const render = async ({ component, genericProps, options, ...rest }: Props = {})
       ...genericProps,
     },
     queries: {
-      fetchOptions: (...args) => (options === undefined ? fetchOptions.mock(...args) : Promise.resolve(options)),
+      fetchOptions: () =>
+        options
+          ? Promise.resolve({ data: options, headers: {} } as AxiosResponse<IOption[], any>)
+          : Promise.reject(new Error('No options provided to render()')),
     },
     ...rest,
   });

@@ -2,6 +2,7 @@ import React from 'react';
 
 import { screen, within } from '@testing-library/react';
 import type { PayloadAction } from '@reduxjs/toolkit';
+import type { AxiosResponse } from 'axios';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
@@ -131,8 +132,7 @@ const createLayout = (
     },
     currentView: 'FormLayout',
     focus: null,
-    navigationConfig: {},
-    tracks: {
+    pageOrderConfig: {
       order: null,
       hidden: [],
       hiddenExpr: {},
@@ -229,7 +229,7 @@ export const render = async ({
   const { store } = await renderWithInstanceAndLayout({
     renderer: () => <ContainerTester id={mockLikertContainer.id} />,
     reduxState,
-    queries: { fetchOptions: () => Promise.resolve(mockOptions) },
+    queries: { fetchOptions: () => Promise.resolve({ data: mockOptions, headers: {} } as AxiosResponse<IOption[], any>) },
   });
 
   return { mockStoreDispatch: store.dispatch };

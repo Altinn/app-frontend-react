@@ -23,6 +23,11 @@ export function DropdownComponent({ node, formData, handleDataChange, isValid, o
   const { options, isFetching } = useGetOptions({
     ...node.item,
     node,
+    metadata: {
+      setValue: (metadata) => {
+        handleDataChange(metadata, { key: 'metadata' });
+      },
+    },
     formData: {
       type: 'single',
       value: selected,

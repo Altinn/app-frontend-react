@@ -7,6 +7,7 @@ import { createTheme, MuiThemeProvider } from '@material-ui/core';
 import { QueryClient } from '@tanstack/react-query';
 import { act, render as rtlRender, waitFor } from '@testing-library/react';
 import type { RenderOptions } from '@testing-library/react';
+import type { AxiosResponse } from 'axios';
 import type { JSONSchema7 } from 'json-schema';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';

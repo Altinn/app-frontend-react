@@ -38,7 +38,7 @@ const getLayout = (group: CompGroupRepeatingExternal, components: CompOrGroupExt
       },
       currentView: 'FormLayout',
       focus: undefined,
-      tracks: {
+      pageOrderConfig: {
         order: ['FormLayout'],
         hidden: [],
         hiddenExpr: {},
