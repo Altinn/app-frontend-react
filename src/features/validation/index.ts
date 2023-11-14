@@ -153,12 +153,31 @@ export function mergeFormValidations(dest: FormValidations, src: FormValidations
     if (!dest.components) {
       dest.components = {};
     }
-    for (const [componentId, groups] of Object.entries(src.components)) {
+    for (const [componentId, compValidations] of Object.entries(src.components)) {
       if (!dest.components[componentId]) {
         dest.components[componentId] = {};
       }
-      for (const [group, validations] of Object.entries(groups)) {
-        dest.components[componentId][group] = validations;
+      if (compValidations.component) {
+        if (!dest.components[componentId].component) {
+          dest.components[componentId].component = {};
+        }
+        for (const [group, validations] of Object.entries(compValidations.component)) {
+          dest.components[componentId].component![group] = validations;
+        }
+      }
+
+      if (compValidations.bindingKeys) {
+        if (!dest.components[componentId].bindingKeys) {
+          dest.components[componentId].bindingKeys = {};
+        }
+        for (const [bindingKey, groups] of Object.entries(compValidations.bindingKeys)) {
+          if (!dest.components[componentId].bindingKeys![bindingKey]) {
+            dest.components[componentId].bindingKeys![bindingKey] = {};
+          }
+          for (const [group, validations] of Object.entries(groups)) {
+            dest.components[componentId].bindingKeys![bindingKey][group] = validations;
+          }
+        }
       }
     }
   }
