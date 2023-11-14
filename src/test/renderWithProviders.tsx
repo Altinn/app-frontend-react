@@ -24,6 +24,7 @@ import type { AppMutations, AppQueries } from 'src/contexts/appQueriesContext';
 import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
+import type { IOption } from 'src/layout/common.generated';
 import type { CompExternalExact, CompTypes, ILayoutCollection, ILayouts } from 'src/layout/layout';
 import type { ILayoutSets, IRuntimeState } from 'src/types';
 import type { IProfile } from 'src/types/shared';
@@ -109,7 +110,7 @@ const makeDefaultQueryMocks = (state: IRuntimeState): MockableQueries => ({
   fetchRefreshJwtToken: () => Promise.resolve({}),
   fetchCustomValidationConfig: () => Promise.resolve(null),
   fetchFormData: () => Promise.resolve({}),
-  fetchOptions: () => Promise.resolve([]),
+  fetchOptions: () => Promise.resolve({ data: [], headers: {} } as unknown as AxiosResponse<IOption[], any>),
   fetchDataList: () => Promise.resolve({} as unknown as IDataList),
   fetchPdfFormat: () => Promise.resolve({ excludedPages: [], excludedComponents: [] }),
   fetchDynamics: () => Promise.resolve(null),

@@ -5,7 +5,6 @@ import type { SagaIterator } from 'redux-saga';
 
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
-import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { Triggers } from 'src/layout/common.generated';
@@ -22,7 +21,7 @@ import {
   filterValidationObjectsByPage,
   validationContextFromState,
 } from 'src/utils/validation/validationHelpers';
-import type { IMoveToNextPage, IUpdateCurrentView } from 'src/features/layout/formLayoutTypes';
+import type { IMoveToNextPage, IUpdateCurrentView } from 'src/features/form/layout/formLayoutTypes';
 import type { IRuntimeState, IUiConfig } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { BackendValidationIssue } from 'src/utils/validation/types';
@@ -30,7 +29,6 @@ import type { BackendValidationIssue } from 'src/utils/validation/types';
 export const selectFormLayoutState = (state: IRuntimeState) => state.formLayout;
 export const selectFormData = (state: IRuntimeState) => state.formData.formData;
 export const selectFormLayouts = (state: IRuntimeState) => state.formLayout.layouts;
-export const selectAttachmentState = (state: IRuntimeState) => state.attachments;
 export const selectAllLayouts = (state: IRuntimeState) => state.formLayout.uiConfig.pageOrderConfig.order;
 export const selectCurrentLayout = (state: IRuntimeState) => state.formLayout.uiConfig.currentView;
 const selectUiConfig = (state: IRuntimeState) => state.formLayout.uiConfig;

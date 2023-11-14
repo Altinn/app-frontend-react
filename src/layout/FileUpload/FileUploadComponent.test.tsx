@@ -3,6 +3,7 @@ import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { v4 as uuidv4 } from 'uuid';
+import type { AxiosResponse } from 'axios';
 
 import { getAttachments } from 'src/__mocks__/attachmentsMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
@@ -10,6 +11,7 @@ import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { IGetAttachments } from 'src/__mocks__/attachmentsMock';
+import type { IOption } from 'src/layout/common.generated';
 import type { CompExternalExact } from 'src/layout/layout';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 import type { IData } from 'src/types/shared';
@@ -383,11 +385,14 @@ async function renderAbstract<T extends Types>({
     }),
     queries: {
       fetchOptions: () =>
-        Promise.resolve([
-          { value: 'tag1', label: 'Tag 1' },
-          { value: 'tag2', label: 'Tag 2' },
-          { value: 'tag3', label: 'Tag 3' },
-        ]),
+        Promise.resolve({
+          data: [
+            { value: 'tag1', label: 'Tag 1' },
+            { value: 'tag2', label: 'Tag 2' },
+            { value: 'tag3', label: 'Tag 3' },
+          ],
+          headers: {},
+        } as AxiosResponse<IOption[], any>),
     },
   });
 

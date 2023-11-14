@@ -148,7 +148,10 @@ describe('DropdownComponent', () => {
     });
 
     await waitFor(() => expect(fetchOptions.mock).toHaveBeenCalledTimes(1));
-    fetchOptions.resolve(countries);
+    fetchOptions.resolve({
+      data: countries,
+      headers: {},
+    } as AxiosResponse<IOption[], any>);
     await screen.findByText('Denmark');
 
     // The component always finishes loading the first time, but if we have mapping that affects the options
@@ -166,13 +169,16 @@ describe('DropdownComponent', () => {
     await waitFor(() => expect(fetchOptions.mock).toHaveBeenCalledTimes(2));
     expect(screen.getByTestId('altinn-spinner')).toBeInTheDocument();
 
-    fetchOptions.resolve([
-      ...countries,
-      {
-        label: 'Finland',
-        value: 'finland',
-      },
-    ]);
+    fetchOptions.resolve({
+      data: [
+        ...countries,
+        {
+          label: 'Finland',
+          value: 'finland',
+        },
+      ],
+      headers: {},
+    } as AxiosResponse<IOption[], any>);
 
     await waitFor(() => expect(screen.queryByTestId('altinn-spinner')).not.toBeInTheDocument());
     expect(screen.getByText('Finland')).toBeInTheDocument();

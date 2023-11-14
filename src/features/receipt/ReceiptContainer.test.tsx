@@ -79,7 +79,7 @@ function buildInstance(hasPdf = true): IInstance {
       ...pdfData,
     ],
     lastChanged: '2022-02-05T09:19:32.8858042Z' as any,
-  ];
+  };
 }
 
 function getMockState({ autoDeleteOnProcessEnd = false }): IRuntimeState {

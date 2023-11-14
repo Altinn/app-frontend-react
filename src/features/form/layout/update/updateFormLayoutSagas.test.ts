@@ -5,6 +5,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
+import { getUiConfigStateMock } from 'src/__mocks__/uiConfigStateMock';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import {
   findAndMoveToNextVisibleLayout,

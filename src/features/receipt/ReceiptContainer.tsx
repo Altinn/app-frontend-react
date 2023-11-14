@@ -113,7 +113,7 @@ export const ReceiptContainer = () => {
         .map((type) => type.id);
 
       const attachmentsResult = filterInstanceAttachments(instance.data, defaultElementIds);
-      setAttachments(attachmentsResult);
+      setAttachments(attachmentsResult || []);
       setPdf(filterInstancePdfAttachments(instance.data));
       setLastChangedDateTime(moment(instance.lastChanged).format('DD.MM.YYYY / HH:mm'));
     }

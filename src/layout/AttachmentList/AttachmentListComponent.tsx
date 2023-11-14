@@ -15,12 +15,14 @@ export type IAttachmentListProps = PropsFromGenericComponent<'AttachmentList'>;
 
 export function AttachmentListComponent({ node }: IAttachmentListProps) {
   const { lang } = useLanguage();
-  const dataForTask = useAppSelector(selectDataTypesByIds(node.item.dataTypeIds));
+  const instance = useLaxInstanceData();
+  const process = useLaxProcessData();
+  const dataForTask = useAppSelector(selectDataTypesByIds(node.item.dataTypeIds, instance, process));
 
   const includePdf = node.item.dataTypeIds?.some((id) =>
     [DataTypeReference.RefDataAsPdf, DataTypeReference.IncludeAll].includes(id as DataTypeReference),
   );
-  const attachments = useAppSelector(selectAttachments(dataForTask, includePdf));
+  const attachments = useAppSelector(selectAttachments(dataForTask, includePdf, process));
   return (
     <Grid
       item={true}

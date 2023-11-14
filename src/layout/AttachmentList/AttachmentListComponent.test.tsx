@@ -5,6 +5,7 @@ import { screen } from '@testing-library/react';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { AttachmentListComponent } from 'src/layout/AttachmentList/AttachmentListComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
+import type { IData } from 'src/types/shared';
 
 describe('AttachmentListComponent', () => {
   beforeEach(() => {
@@ -38,14 +39,14 @@ describe('AttachmentListComponent', () => {
     // We know this happens, because we don't have any uploader components available for this data type
     expect(window.logErrorOnce).toHaveBeenCalledWith(
       'Could not find matching component/node for attachment test-data-type-1/test-data-element-1 ' +
-      '(there may be a problem with the mapping of attachments to form data in a repeating group). ' +
-      'Traversed 0 nodes with id test-data-type-1',
+        '(there may be a problem with the mapping of attachments to form data in a repeating group). ' +
+        'Traversed 0 nodes with id test-data-type-1',
     );
   });
 });
 
-const render = async (ids?: string[]) => {
-  return await renderGenericComponentTest({
+const render = async (ids?: string[]) =>
+  await renderGenericComponentTest({
     type: 'AttachmentList',
     renderer: (props) => <AttachmentListComponent {...props} />,
     component: {
@@ -54,32 +55,38 @@ const render = async (ids?: string[]) => {
         title: 'Attachments',
       },
     },
-    manipulateState: (state) => {
-      if (state.instanceData.instance) {
-        const dataElement: IData = generateDataElement(
-          'test-data-type-1',
-          'ref-data-as-pdf',
-          'testData1.pdf',
-          'application/pdf',
-        );
-        const dataElement1: IData = generateDataElement(
-          'test-data-type-2',
-          'not-ref-data-as-pdf',
-          '2mb.txt',
-          'text/plain',
-        );
-        state.instanceData.instance.data = [dataElement, dataElement1];
+    reduxState: getInitialStateMock((state) => {
+      if (state.deprecated.lastKnownInstance) {
+        const dataElement = generateDataElement({
+          id: 'test-data-type-1',
+          dataType: 'ref-data-as-pdf',
+          filename: 'testData1.pdf',
+          contentType: 'application/pdf',
+        });
+        const dataElement1 = generateDataElement({
+          id: 'test-data-type-2',
+          dataType: 'not-ref-data-as-pdf',
+          filename: '2mb.txt',
+          contentType: 'text/plain',
+        });
+        state.deprecated.lastKnownInstance.data = [dataElement, dataElement1];
       }
       if (state.applicationMetadata.applicationMetadata) {
-        const dataType1 = generateDataType('ref-data-as-pdf', 'application/pdf');
-        const dataType2 = generateDataType('not-ref-data-as-pdf', 'text/plain');
+        const dataType1 = generateDataType({ id: 'ref-data-as-pdf', dataType: 'application/pdf' });
+        const dataType2 = generateDataType({ id: 'not-ref-data-as-pdf', dataType: 'text/plain' });
         state.applicationMetadata.applicationMetadata.dataTypes = [dataType1, dataType2];
       }
-    },
+    }),
   });
-};
 
-const generateDataElement = (id: string, dataType: string, filename: string, contentType: string) => ({
+interface GenerateDataElementProps {
+  id: string;
+  dataType: string;
+  filename: string;
+  contentType: string;
+}
+
+const generateDataElement = ({ id, dataType, filename, contentType }: GenerateDataElementProps): IData => ({
   id,
   instanceGuid: 'mockInstanceGuid',
   dataType,
@@ -95,7 +102,12 @@ const generateDataElement = (id: string, dataType: string, filename: string, con
   lastChangedBy: 'testUser',
 });
 
-const generateDataType = (id: string, dataType: string) => ({
+interface GenerateDataTypeProps {
+  id: string;
+  dataType: string;
+}
+
+const generateDataType = ({ id, dataType }: GenerateDataTypeProps) => ({
   id,
   taskId: 'mockElementId',
   allowedContentTypes: [dataType],

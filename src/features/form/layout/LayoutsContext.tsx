@@ -17,7 +17,7 @@ import { createStrictContext } from 'src/utils/createContext';
 import type { ExprObjConfig, ExprVal } from 'src/features/expressions/types';
 import type { ILayoutFileExternal } from 'src/layout/common.generated';
 import type { ILayoutCollection, ILayouts } from 'src/layout/layout';
-import type { IHiddenLayoutsExternal, INavigationConfig } from 'src/types';
+import type { IHiddenLayoutsExternal } from 'src/types';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 const { Provider, useCtx } = createStrictContext<ILayoutCollection>({ name: 'LayoutsContext' });
@@ -84,7 +84,6 @@ interface LegacyProcessProps {
 
 function legacyProcessLayouts({ input, dispatch, currentViewCacheKey, layoutSetId }: LegacyProcessProps) {
   const layouts: ILayouts = {};
-  const navigationConfig: INavigationConfig = {};
   const hiddenLayoutsExpressions: IHiddenLayoutsExternal = {};
   if (isSingleLayout(input)) {
     layouts['FormLayout'] = cleanLayout(input.data.layout);
@@ -94,7 +93,6 @@ function legacyProcessLayouts({ input, dispatch, currentViewCacheKey, layoutSetI
       const file = input[key];
       layouts[key] = cleanLayout(file.data.layout);
       hiddenLayoutsExpressions[key] = file.data.hidden;
-      navigationConfig[key] = file.data.navigation;
     }
   }
 
@@ -122,7 +120,6 @@ function legacyProcessLayouts({ input, dispatch, currentViewCacheKey, layoutSetI
   dispatch(
     FormLayoutActions.fetchFulfilled({
       layouts,
-      navigationConfig,
       hiddenLayoutsExpressions,
       layoutSetId: layoutSetId || null,
     }),
