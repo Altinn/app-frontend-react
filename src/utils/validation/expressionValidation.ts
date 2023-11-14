@@ -191,7 +191,7 @@ export function runExpressionValidationsOnNode(
       if (isInvalid) {
         const message = langTools.langAsString(validationDef.message);
         validations.push({
-          field,
+          field: resolvedField,
           group: FrontendValidationSource.Expression,
           message,
           severity: validationDef.severity,

@@ -1,3 +1,8 @@
+import { useEffect, useRef } from 'react';
+
+import deepEqual from 'fast-deep-equal';
+
+import { useExprContext } from 'src/utils/layout/ExprContext';
 import type {
   ComponentValidation,
   FieldValidation,
@@ -143,4 +148,28 @@ export function getValidationsForNode(
     }
   }
   return validationMessages;
+}
+
+export function useHierarchyChanges(
+  onChange: (addedNodes: LayoutNode[], removedNodes: LayoutNode[], currentNodes: LayoutNode[]) => void,
+) {
+  const layoutNodes = useExprContext();
+  const lastNodes = useRef<LayoutNode[]>([]);
+
+  useEffect(() => {
+    const prevNodes = lastNodes.current;
+    const newNodes = layoutNodes?.allNodes() ?? [];
+    if (
+      !deepEqual(
+        prevNodes.map((n) => n.item.id),
+        newNodes.map((n) => n.item.id),
+      )
+    ) {
+      lastNodes.current = newNodes;
+
+      const addedNodes = newNodes.filter((n) => !prevNodes.find((pn) => pn.item.id === n.item.id));
+      const removedNodes = prevNodes.filter((pn) => !newNodes.find((n) => pn.item.id === n.item.id));
+      onChange(addedNodes, removedNodes, newNodes);
+    }
+  }, [layoutNodes, onChange]);
 }

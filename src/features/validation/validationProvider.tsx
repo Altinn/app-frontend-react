@@ -1,13 +1,13 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
+import { useImmer } from 'use-immer';
 
-import { buildNodeValidation, getValidationsForNode, mergeFormValidations } from '.';
+import { buildNodeValidation, getValidationsForNode, mergeFormValidations, useHierarchyChanges } from '.';
 
 import { useCurrentDataElementId } from 'src/features/datamodel/useBindingSchema';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { type IUseLanguage, useLanguage } from 'src/hooks/useLanguage';
-import { useEffectDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { createStrictContext } from 'src/utils/createStrictContext';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import { httpGet } from 'src/utils/network/sharedNetworking';
@@ -17,6 +17,7 @@ import {
   severityMap,
   shouldExcludeValidationIssue,
 } from 'src/utils/validation/backendValidation';
+import { runValidationOnNodes } from 'src/utils/validation/validation';
 import { useValidationContextGenerator } from 'src/utils/validation/validationHelpers';
 import type { IFormData } from 'src/features/formData';
 import type {
@@ -57,7 +58,7 @@ export function ValidationProvider({ children }) {
       ? getDataValidationUrl(instanceId, currentDataElementId)
       : undefined;
 
-  const [validations, setValidations] = useState<ValidationState>({ fields: {}, components: {}, task: [] });
+  const [validations, setValidations] = useImmer<ValidationState>({ fields: {}, components: {}, task: [] });
 
   const { data: validationData } = useQuery({
     enabled: Boolean(validationUrl) && Boolean(resolvedNodes),
@@ -83,23 +84,18 @@ export function ValidationProvider({ children }) {
       const newState = node.runValidations(validationContextGenerator, overrideFormData);
       setValidations((prevState) => {
         mergeFormValidations(prevState, newState);
-        return prevState;
       });
     },
-    [validationContextGenerator],
+    [setValidations, validationContextGenerator],
   );
 
-  // Purge validations when nodes are removed
-  // TODO(Validation): Run validations on new nodes
-  const allNodeIds = resolvedNodes?.allNodes().map((n) => n.item.id);
-  useEffectDeepEqual(() => {
-    if (resolvedNodes) {
-      setValidations((state) => {
-        purgeValidations(state, resolvedNodes.allNodes());
-        return state;
-      });
-    }
-  }, [allNodeIds]);
+  useHierarchyChanges((addedNodes, removedNodes, currentNodes) => {
+    const newValidations = runValidationOnNodes(addedNodes, validationContextGenerator);
+    setValidations((state) => {
+      purgeValidationsForNodes(state, removedNodes, currentNodes);
+      mergeFormValidations(state, newValidations);
+    });
+  });
 
   const out = {
     state: validations,
@@ -266,40 +262,32 @@ export function updateValidationState(prevState: ValidationState, newState: Vali
   }
 }
 
-/**
- * Removes validations for nodes that have been removed,
- * and fields that are no longer bound to any component.
- * This is useful if a repeating group row has been deleted.
- * TODO(Validation): Also purge validations related to attachments,
- * that have been removed
- */
-function purgeValidations(state: ValidationState, allNodes: LayoutNode[]): void {
-  console.log('purging validations');
-  if (allNodes.length === 0) {
-    state.fields = {};
-    state.components = {};
+function purgeValidationsForNodes(
+  state: ValidationState,
+  removedNodes: LayoutNode[],
+  currentNodes: LayoutNode[],
+): void {
+  if (removedNodes.length === 0) {
+    return;
   }
-  const fieldsToKeep = new Set<string>();
-  const componentsToKeep = new Set<string>();
 
-  for (const node of allNodes) {
-    componentsToKeep.add(node.item.id);
+  const fieldsToKeep = new Set<string>();
+  for (const node of currentNodes) {
     if (node.item.dataModelBindings) {
-      for (const binding of Object.values(node.item.dataModelBindings)) {
-        fieldsToKeep.add(binding);
+      for (const field of Object.values(node.item.dataModelBindings)) {
+        fieldsToKeep.add(field);
       }
     }
   }
 
-  for (const field of Object.keys(state.fields)) {
-    if (!fieldsToKeep.has(field)) {
-      delete state.fields[field];
-    }
-  }
-
-  for (const component of Object.keys(state.components)) {
-    if (!componentsToKeep.has(component)) {
-      delete state.components[component];
+  for (const node of removedNodes) {
+    delete state.components[node.item.id];
+    if (node.item.dataModelBindings) {
+      for (const field of Object.values(node.item.dataModelBindings)) {
+        if (!fieldsToKeep.has(field)) {
+          delete state.fields[field];
+        }
+      }
     }
   }
 }
