@@ -1,19 +1,24 @@
 import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { IApplication, IAttachment, IAttachmentGrouping, IData, IDataType } from 'src/types/shared';
 
+export enum DataTypeReference {
+  IncludeAll = 'include-all',
+  RefDataAsPdf = 'ref-data-as-pdf',
+}
+
 export const filterInstanceAttachments = (
   data: IData[] | undefined,
   defaultElementIds: string[],
 ): IAttachment[] | undefined => {
   const filteredData = data?.filter(
     (dataElement: IData) =>
-      !(defaultElementIds.includes(dataElement.dataType) || dataElement.dataType === 'ref-data-as-pdf'),
+      !(defaultElementIds.includes(dataElement.dataType) || dataElement.dataType === DataTypeReference.RefDataAsPdf),
   );
   return getInstanceAttachments(filteredData);
 };
 
 export const filterInstancePdfAttachments = (data: IData[] | undefined): IAttachment[] | undefined => {
-  const filteredData = data?.filter((dataElement: IData) => dataElement.dataType === 'ref-data-as-pdf');
+  const filteredData = data?.filter((dataElement: IData) => dataElement.dataType === DataTypeReference.RefDataAsPdf);
   return getInstanceAttachments(filteredData);
 };
 
