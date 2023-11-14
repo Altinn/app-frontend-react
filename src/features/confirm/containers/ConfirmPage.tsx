@@ -6,8 +6,8 @@ import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { returnConfirmSummaryObject } from 'src/features/confirm/helpers/returnConfirmSummaryObject';
 import { useLanguage } from 'src/hooks/useLanguage';
 import {
-  filterInstanceAttachments,
-  filterInstancePdfAttachments,
+  filterDisplayAttachments,
+  filterDisplayPdfAttachments,
   getAttachmentGroupings,
 } from 'src/utils/attachmentsUtils';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
@@ -40,7 +40,7 @@ export const ConfirmPage = ({ instance, parties, appName, applicationMetadata }:
     if (instance?.data && applicationMetadata) {
       const appLogicDataTypes = applicationMetadata.dataTypes.filter((dataType) => !!dataType.appLogic);
 
-      return filterInstanceAttachments(
+      return filterDisplayAttachments(
         instance.data,
         appLogicDataTypes.map((type) => type.id),
       );
@@ -57,7 +57,7 @@ export const ConfirmPage = ({ instance, parties, appName, applicationMetadata }:
         instanceMetaDataObject={getInstanceMetaObject()}
         title={lang('confirm.title')}
         titleSubmitted={lang('confirm.answers')}
-        pdf={filterInstancePdfAttachments(instance?.data)}
+        pdf={filterDisplayPdfAttachments(instance?.data ?? [])}
       />
       <ProcessNavigation />
       <ReadyForPrint />

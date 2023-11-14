@@ -15,7 +15,7 @@ export interface IReceiptComponentProps {
   collapsibleTitle: React.ReactNode;
   hideCollapsibleCount?: boolean;
   instanceMetaDataObject: SummaryDataObject;
-  pdf?: IDisplayAttachment[];
+  pdf: IDisplayAttachment[];
   subtitle?: string | JSX.Element | JSX.Element[] | null;
   subtitleurl?: string;
   title: React.ReactNode;

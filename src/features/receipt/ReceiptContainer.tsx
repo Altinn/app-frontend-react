@@ -15,8 +15,8 @@ import { useLanguage } from 'src/hooks/useLanguage';
 import { getAppReceiver } from 'src/language/sharedLanguage';
 import { layoutsSelector } from 'src/selectors/layout';
 import {
-  filterInstanceAttachments,
-  filterInstancePdfAttachments,
+  filterDisplayAttachments,
+  filterDisplayPdfAttachments,
   getAttachmentGroupings,
 } from 'src/utils/attachmentsUtils';
 import { returnUrlToArchive } from 'src/utils/urls/urlHelper';
@@ -71,7 +71,7 @@ export const returnInstanceMetaDataObject = (
 
 export const ReceiptContainer = () => {
   const [attachments, setAttachments] = useState<IDisplayAttachment[]>([]);
-  const [pdf, setPdf] = useState<IDisplayAttachment[] | undefined>(undefined);
+  const [pdf, setPdf] = useState<IDisplayAttachment[]>([]);
   const [lastChangedDateTime, setLastChangedDateTime] = useState('');
   const [instanceMetaObject, setInstanceMetaObject] = useState<SummaryDataObject>({});
 
@@ -112,9 +112,9 @@ export const ReceiptContainer = () => {
         .filter((dataType) => !!dataType.appLogic)
         .map((type) => type.id);
 
-      const attachmentsResult = filterInstanceAttachments(instance.data, defaultElementIds);
+      const attachmentsResult = filterDisplayAttachments(instance.data, defaultElementIds);
       setAttachments(attachmentsResult || []);
-      setPdf(filterInstancePdfAttachments(instance.data));
+      setPdf(filterDisplayPdfAttachments(instance.data));
       setLastChangedDateTime(moment(instance.lastChanged).format('DD.MM.YYYY / HH:mm'));
     }
   }, [instance, applicationMetadata]);
@@ -159,7 +159,7 @@ export const ReceiptContainer = () => {
                 subtitleurl={returnUrlToArchive(origin) || undefined}
                 title={lang('receipt.title')}
                 titleSubmitted={lang('receipt.title_submitted')}
-                pdf={pdf || undefined}
+                pdf={pdf}
               />
             ))}
           {applicationMetadata.autoDeleteOnProcessEnd && (

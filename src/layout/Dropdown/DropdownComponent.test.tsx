@@ -46,10 +46,13 @@ const render = async ({ component, genericProps, options, ...rest }: Props = {})
       ...genericProps,
     },
     queries: {
-      fetchOptions: () =>
-        options
-          ? Promise.resolve({ data: options, headers: {} } as AxiosResponse<IOption[], any>)
-          : Promise.reject(new Error('No options provided to render()')),
+      fetchOptions: (...args) =>
+        options === undefined
+          ? fetchOptions.mock(...args)
+          : Promise.resolve({
+              data: options,
+              headers: {},
+            } as AxiosResponse<IOption[], any>),
     },
     ...rest,
   });
@@ -148,10 +151,12 @@ describe('DropdownComponent', () => {
     });
 
     await waitFor(() => expect(fetchOptions.mock).toHaveBeenCalledTimes(1));
+
     fetchOptions.resolve({
       data: countries,
       headers: {},
     } as AxiosResponse<IOption[], any>);
+
     await screen.findByText('Denmark');
 
     // The component always finishes loading the first time, but if we have mapping that affects the options

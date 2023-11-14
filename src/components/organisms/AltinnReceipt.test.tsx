@@ -12,6 +12,7 @@ const render = async (props = {}) => {
     instanceMetaDataObject: {},
     title: 'title',
     titleSubmitted: 'titleSubmitted',
+    pdf: [],
     ...props,
   };
 

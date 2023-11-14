@@ -7,34 +7,31 @@ export enum DataTypeReference {
   RefDataAsPdf = 'ref-data-as-pdf',
 }
 
-export const filterInstanceAttachments = (
-  data: IData[] | undefined,
-  defaultElementIds: string[],
-): IDisplayAttachment[] | undefined => {
-  const filteredData = data?.filter(
-    (dataElement: IData) =>
-      !(defaultElementIds.includes(dataElement.dataType) || dataElement.dataType === DataTypeReference.RefDataAsPdf),
+export const filterDisplayAttachments = (
+  data: IData[],
+  excludeDataTypes: string[],
+  excludePdfs = true,
+): IDisplayAttachment[] =>
+  getDisplayAttachments(
+    data.filter((el) => {
+      if (excludePdfs && el.dataType === DataTypeReference.RefDataAsPdf) {
+        return false;
+      }
+
+      return !excludeDataTypes.includes(el.dataType);
+    }),
   );
-  return getInstanceAttachments(filteredData);
-};
 
-export const filterInstancePdfAttachments = (data: IData[] | undefined): IDisplayAttachment[] | undefined => {
-  const filteredData = data?.filter((dataElement: IData) => dataElement.dataType === DataTypeReference.RefDataAsPdf);
-  return getInstanceAttachments(filteredData);
-};
+export const filterDisplayPdfAttachments = (data: IData[]) =>
+  getDisplayAttachments(data.filter((el) => el.dataType === DataTypeReference.RefDataAsPdf));
 
-const getInstanceAttachments = (data: IData[] | undefined): IDisplayAttachment[] | undefined => {
-  if (!data) {
-    return undefined;
-  }
-
-  return data.map((dataElement: IData) => ({
+export const getDisplayAttachments = (data: IData[]): IDisplayAttachment[] =>
+  data.map((dataElement: IData) => ({
     name: dataElement.filename,
     url: dataElement.selfLinks?.apps,
     iconClass: 'reg reg-attachment',
     dataType: dataElement.dataType,
   }));
-};
 
 /**
  * Gets the attachment groupings from a list of attachments.
