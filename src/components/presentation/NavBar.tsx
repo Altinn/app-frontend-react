@@ -10,6 +10,7 @@ import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
+import { useNavigatePage } from 'src/hooks/useNavigatePage';
 
 export interface INavBarProps {
   handleClose: () => void;
@@ -22,6 +23,7 @@ const expandIconStyle = { transform: 'rotate(45deg)' };
 export const NavBar = (props: INavBarProps) => {
   const dispatch = useAppDispatch();
   const { langAsString } = useLanguage();
+  const { navigateToPage, previous } = useNavigatePage();
   const { hideCloseButton, showLanguageSelector, showExpandWidthButton, expandedWidth } = useAppSelector(
     (state) => state.formLayout.uiConfig,
   );
@@ -40,7 +42,7 @@ export const NavBar = (props: INavBarProps) => {
           <Button
             data-testid='form-back-button'
             className={classes.buttonMargin}
-            onClick={props.handleBack}
+            onClick={() => navigateToPage(previous)}
             variant='tertiary'
             color='second'
             size='small'

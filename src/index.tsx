@@ -5,7 +5,7 @@ import 'core-js';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
-import { HashRouter } from 'react-router-dom';
+import { createHashRouter, RouterProvider } from 'react-router-dom';
 
 import 'src/features/toggles';
 import 'src/features/logging';
@@ -26,6 +26,17 @@ import { ExprContextWrapper } from 'src/utils/layout/ExprContext';
 
 import 'src/index.css';
 
+const router = createHashRouter([
+  { path: '*', element: <App /> },
+  /**
+   * These paths are dependent on the selector allowAnonymousSelector
+   * before they can be rendered. TODO is to find a way to put these
+   * routes into the data router.
+   */
+  // { path: '/', element: <Entrypoint /> },
+  // { path: '/partyselection/*', element: <PartySelection /> },
+]);
+
 document.addEventListener('DOMContentLoaded', () => {
   const { store, sagaMiddleware } = setupStore();
   initSagas(sagaMiddleware);
@@ -35,21 +46,19 @@ document.addEventListener('DOMContentLoaded', () => {
   root?.render(
     <Provider store={store}>
       <ErrorBoundary>
-        <HashRouter>
-          <AppWrapper>
-            <AppQueriesProvider {...queries}>
-              <ThemeWrapper>
-                <InstantiationProvider>
-                  <ExprContextWrapper>
-                    <DevTools>
-                      <App />
-                    </DevTools>
-                  </ExprContextWrapper>
-                </InstantiationProvider>
-              </ThemeWrapper>
-            </AppQueriesProvider>
-          </AppWrapper>
-        </HashRouter>
+        <AppWrapper>
+          <AppQueriesProvider {...queries}>
+            <ThemeWrapper>
+              <InstantiationProvider>
+                <ExprContextWrapper>
+                  <DevTools>
+                    <RouterProvider router={router} />
+                  </DevTools>
+                </ExprContextWrapper>
+              </InstantiationProvider>
+            </ThemeWrapper>
+          </AppQueriesProvider>
+        </AppWrapper>
       </ErrorBoundary>
     </Provider>,
   );

@@ -55,39 +55,33 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
 
   return (
     <>
-      <div
-        className={cn(classes['content'], {
-          [classes['hide-form']]: previewPDF,
-        })}
-      >
+      <div className={cn(classes['content'], { [classes['hide-form']]: previewPDF })}>
         <PresentationComponent
           header={appName}
           appOwner={appOwner}
           type={taskType}
         >
-          {!loadingReason ? (
-            <>
-              {taskType === ProcessTaskType.Data ? (
-                <Form />
-              ) : taskType === ProcessTaskType.Confirm ? (
-                <Confirm />
-              ) : taskType === ProcessTaskType.Feedback ? (
-                <Feedback />
-              ) : taskType === ProcessTaskType.Archived ? (
-                <ReceiptContainer />
-              ) : null}
-            </>
-          ) : (
-            <div style={{ marginTop: '1.5625rem' }}>
-              <AltinnContentLoader
-                width='100%'
-                height={700}
-                reason={`process-wrapper-${loadingReason}`}
-              >
-                <AltinnContentIconFormData />
-              </AltinnContentLoader>
-            </div>
-          )}
+          <>
+            {!loadingReason && (
+              <>
+                {taskType === ProcessTaskType.Data && <Form />}
+                {taskType === ProcessTaskType.Confirm && <Confirm />}
+                {taskType === ProcessTaskType.Feedback && <Feedback />}
+                {taskType === ProcessTaskType.Archived && <ReceiptContainer />}
+              </>
+            )}
+            {loadingReason && (
+              <div style={{ marginTop: '1.5625rem' }}>
+                <AltinnContentLoader
+                  width='100%'
+                  height={700}
+                  reason={`process-wrapper-${loadingReason}`}
+                >
+                  <AltinnContentIconFormData />
+                </AltinnContentLoader>
+              </div>
+            )}
+          </>
         </PresentationComponent>
       </div>
       {previewPDF && !loadingReason && (

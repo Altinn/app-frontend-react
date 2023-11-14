@@ -304,6 +304,7 @@ export function extractBottomButtons(page: LayoutPage) {
   const toErrorReport: LayoutNode[] = [];
   for (const node of all.reverse()) {
     const isButtonLike = node.isType('ButtonGroup') || (node.def.canRenderInButtonGroup() && !node.isType('Custom'));
+    console.log('NODE: ', node, isButtonLike);
     if (isButtonLike && toMainLayout.length === 0) {
       toErrorReport.push(node);
     } else {

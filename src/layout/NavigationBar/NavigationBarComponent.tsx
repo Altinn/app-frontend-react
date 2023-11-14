@@ -3,13 +3,11 @@ import React from 'react';
 import { Grid, makeStyles } from '@material-ui/core';
 import cn from 'classnames';
 
-import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
+import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { selectLayoutOrder } from 'src/selectors/getLayoutOrder';
-import { reducePageValidations } from 'src/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 const useStyles = makeStyles((theme) => ({
@@ -108,16 +106,15 @@ const NavigationButton = React.forwardRef(
 NavigationButton.displayName = 'NavigationButton';
 
 export const NavigationBarComponent = ({ node }: INavigationBar) => {
-  const { triggers, compact } = node.item;
+  const { compact } = node.item;
   const classes = useStyles();
-  const dispatch = useAppDispatch();
   const pageIds = useAppSelector(selectLayoutOrder);
-  const pageTriggers = useAppSelector((state) => state.formLayout.uiConfig.pageTriggers);
-  const pageOrPropTriggers = triggers || pageTriggers;
-  const currentPageId = useAppSelector((state) => state.formLayout.uiConfig.currentView);
+  // const pageTriggers = useAppSelector((state) => state.formLayout.uiConfig.pageTriggers);
+  // const pageOrPropTriggers = triggers || pageTriggers;
   const [showMenu, setShowMenu] = React.useState(false);
   const isMobile = useIsMobile() || compact === true;
   const { lang, langAsString } = useLanguage();
+  const { navigateToPage, currentPageId } = useNavigatePage();
 
   const firstPageLink = React.useRef<HTMLButtonElement>();
 
@@ -126,13 +123,11 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
       return setShowMenu(false);
     }
 
-    const runValidations = reducePageValidations(pageOrPropTriggers);
-    dispatch(
-      FormLayoutActions.updateCurrentView({
-        newView: pageId,
-        runValidations,
-      }),
-    );
+    // const runValidations = reducePageValidations(pageOrPropTriggers);
+    /**
+     * TODO: Need to run validations
+     */
+    navigateToPage(pageId);
   };
 
   const shouldShowMenu = !isMobile || showMenu;

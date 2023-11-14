@@ -103,7 +103,7 @@ const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | n
           element={<PartySelection />}
         />
         <Route
-          path='/instance/:partyId/:instanceGuid'
+          path='instance/:partyId/:instanceGuid/*'
           element={
             <InstanceProvider>
               <ProcessWrapper isFetching={isFetching} />

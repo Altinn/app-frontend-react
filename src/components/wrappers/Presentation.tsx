@@ -13,7 +13,7 @@ import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
-import { selectPreviousAndNextPage } from 'src/selectors/getLayoutOrder';
+import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { PresentationType, ProcessTaskType } from 'src/types';
 import { httpGet } from 'src/utils/network/networking';
@@ -34,7 +34,7 @@ export const PresentationComponent = (props: IPresentationProvidedProps) => {
   const instance = useLaxInstanceData();
   const userParty = useAppSelector((state) => state.profile.profile?.party);
   const { expandedWidth } = useAppSelector((state) => state.formLayout.uiConfig);
-  const { previous } = useAppSelector(selectPreviousAndNextPage);
+  const { previous } = useNavigatePage();
 
   const returnToView = useAppSelector((state) => state.formLayout.uiConfig.returnToView);
 

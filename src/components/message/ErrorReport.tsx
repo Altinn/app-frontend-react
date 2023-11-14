@@ -10,6 +10,7 @@ import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
+import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
@@ -39,7 +40,7 @@ const selectMappedUnmappedErrors = createSelector(selectValidations, createMappe
 
 export const ErrorReport = ({ nodes }: IErrorReportProps) => {
   const dispatch = useAppDispatch();
-  const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
+  const { currentPageId, navigateToPage } = useNavigatePage();
   const [errorsMapped, errorsUnmapped] = useAppSelector(selectMappedUnmappedErrors);
   const allNodes = useExprContext();
   const hasErrors = errorsUnmapped.length > 0 || errorsMapped.length > 0;
@@ -60,12 +61,8 @@ export const ErrorReport = ({ nodes }: IErrorReportProps) => {
       return;
     }
 
-    if (currentView !== error.layout) {
-      dispatch(
-        FormLayoutActions.updateCurrentView({
-          newView: error.layout,
-        }),
-      );
+    if (currentPageId !== error.layout) {
+      navigateToPage(error.layout);
     }
 
     const allParents = componentNode?.parents() || [];

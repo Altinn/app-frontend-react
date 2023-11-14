@@ -7,8 +7,8 @@ import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
+import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import classes from 'src/layout/NavigationButtons/NavigationButtonsComponent.module.css';
-import { selectLayoutOrder, selectPreviousAndNextPage } from 'src/selectors/getLayoutOrder';
 import { reducePageValidations } from 'src/types';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { IKeepComponentScrollPos } from 'src/features/form/layout/formLayoutTypes';
@@ -19,35 +19,31 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
   const { id, showBackButton, textResourceBindings, triggers } = node.item;
   const dispatch = useAppDispatch();
   const { lang } = useLanguage();
+  const { navigateToPage, next, previous } = useNavigatePage();
 
   const refPrev = React.useRef<HTMLButtonElement>(null);
   const refNext = React.useRef<HTMLButtonElement>(null);
 
   const keepScrollPos = useAppSelector((state) => state.formLayout.uiConfig.keepScrollPos);
 
-  const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
-  const orderedLayoutKeys = useAppSelector(selectLayoutOrder);
   const returnToView = useAppSelector((state) => state.formLayout.uiConfig.returnToView);
   const pageTriggers = useAppSelector((state) => state.formLayout.uiConfig.pageTriggers);
-  const { next, previous } = useAppSelector(selectPreviousAndNextPage);
   const activeTriggers = triggers || pageTriggers;
   const nextTextKey = returnToView ? 'form_filler.back_to_summary' : textResourceBindings?.next || 'next';
   const backTextKey = textResourceBindings?.back || 'back';
 
   const parentIsPage = node.parent instanceof LayoutPage;
 
-  const currentViewIndex = orderedLayoutKeys?.indexOf(currentView);
-  const disableBack = !!returnToView || (!previous && currentViewIndex === 0);
-  const disableNext = !returnToView && !next && currentViewIndex === (orderedLayoutKeys?.length || 0) - 1;
+  const disablePrevious = previous === undefined;
+  const disableNext = next === undefined;
+
+  console.log('Next: ', next);
 
   const onClickPrevious = () => {
-    const goToView = previous || (orderedLayoutKeys && orderedLayoutKeys[orderedLayoutKeys.indexOf(currentView) - 1]);
-    if (goToView) {
-      dispatch(
-        FormLayoutActions.updateCurrentView({
-          newView: goToView,
-        }),
-      );
+    const goToView = previous;
+
+    if (goToView && !disablePrevious) {
+      navigateToPage(previous);
     }
   };
 
@@ -63,9 +59,8 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
       offsetTop: getScrollPosition(),
     };
 
-    const goToView =
-      returnToView || next || (orderedLayoutKeys && orderedLayoutKeys[orderedLayoutKeys.indexOf(currentView) + 1]);
-    if (goToView) {
+    const goToView = returnToView || next;
+    if (goToView && !disableNext) {
       dispatch(
         FormLayoutActions.updateCurrentView({
           newView: goToView,
@@ -73,6 +68,10 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
           keepScrollPos: keepScrollPosAction,
         }),
       );
+      /**
+       * TODO: Remember to run all validations before actually navigating to next page
+       */
+      navigateToPage(next);
     }
   };
 
@@ -96,13 +95,13 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
       className={classes.container}
       style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}
     >
-      {!disableBack && showBackButton && (
+      {!disablePrevious && showBackButton && (
         <Grid item>
           <Button
             ref={refPrev}
             size='small'
             onClick={onClickPrevious}
-            disabled={disableBack}
+            disabled={disablePrevious}
           >
             {lang(backTextKey)}
           </Button>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Route, Routes, useMatch } from 'react-router-dom';
 
 import Grid from '@material-ui/core/Grid';
 
@@ -8,6 +9,7 @@ import { ErrorReport } from 'src/components/message/ErrorReport';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
+import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { getFieldName } from 'src/utils/formComponentUtils';
 import { extractBottomButtons, hasRequiredFields } from 'src/utils/formLayout';
@@ -17,17 +19,10 @@ import { getFormHasErrors, missingFieldsInLayoutValidations } from 'src/utils/va
 export function Form() {
   const nodes = useExprContext();
   const langTools = useLanguage();
+  const { currentPageId, navigateToStart, isValidPageId } = useNavigatePage();
   const validations = useAppSelector((state) => state.formValidations.validations);
-  const hasErrors = useAppSelector((state) => getFormHasErrors(state.formValidations.validations));
   const page = nodes?.current();
   const pageKey = page?.top.myKey;
-
-  const [mainNodes, errorReportNodes] = React.useMemo(() => {
-    if (!page) {
-      return [[], []];
-    }
-    return hasErrors ? extractBottomButtons(page) : [page.children(), []];
-  }, [page, hasErrors]);
 
   const requiredFieldsMissing = React.useMemo(() => {
     if (validations && pageKey && validations[pageKey]) {
@@ -50,6 +45,10 @@ export function Form() {
     return null;
   }
 
+  if (!currentPageId || !isValidPageId(currentPageId)) {
+    navigateToStart();
+  }
+
   return (
     <>
       {page && hasRequiredFields(page) && (
@@ -63,22 +62,48 @@ export function Form() {
         spacing={3}
         alignItems='flex-start'
       >
-        {mainNodes.map((n) => (
-          <GenericComponent
-            key={n.item.id}
-            node={n}
+        <Routes>
+          <Route
+            path=':pageKey'
+            element={<LayoutRoutePage />}
           />
-        ))}
-        <Grid
-          item={true}
-          xs={12}
-          aria-live='polite'
-          className={classes.errorReport}
-        >
-          <ErrorReport nodes={errorReportNodes} />
-        </Grid>
+        </Routes>
       </Grid>
       <ReadyForPrint />
+    </>
+  );
+}
+
+export function LayoutRoutePage() {
+  const match = useMatch('/instance/:partyId/:instanceGuid/:pageKey');
+  const nodes = useExprContext();
+  const layoutPage = match?.params.pageKey ? nodes?.all?.()?.[match.params.pageKey] : undefined;
+
+  const hasErrors = useAppSelector((state) => getFormHasErrors(state.formValidations.validations));
+
+  const [_, errorReportNodes] = React.useMemo(() => {
+    if (!layoutPage) {
+      return [[], []];
+    }
+    return hasErrors ? extractBottomButtons(layoutPage) : [layoutPage.children(), []];
+  }, [layoutPage, hasErrors]);
+
+  return (
+    <>
+      {layoutPage?.children().map((n) => (
+        <GenericComponent
+          key={n.item.id}
+          node={n}
+        />
+      ))}
+      <Grid
+        item={true}
+        xs={12}
+        aria-live='polite'
+        className={classes.errorReport}
+      >
+        <ErrorReport nodes={errorReportNodes} />
+      </Grid>
     </>
   );
 }
