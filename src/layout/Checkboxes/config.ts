@@ -12,7 +12,7 @@ export const Config = new CG.component({
   },
 })
   .makeSelectionComponent()
-  .addDataModelBinding(CG.common('IDataModelBindingsSimple').optional({ onlyIn: Variant.Internal }))
+  .addDataModelBinding(CG.common('IDataModelBindingsOptionsSimple').optional({ onlyIn: Variant.Internal }))
   .addProperty(new CG.prop('layout', CG.common('LayoutStyle').optional()));
 
 // We don't render the label in GenericComponent, but we still need the
