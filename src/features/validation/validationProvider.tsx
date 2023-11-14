@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 
@@ -77,18 +77,31 @@ export function ValidationProvider({ children }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [validationData]);
 
-  function validateNode(node: LayoutNode, overrideFormData?: IFormData) {
-    const newState = node.runValidations(validationContextGenerator, overrideFormData);
-    setValidations((prevState) => {
-      mergeFormValidations(prevState, newState);
-      return prevState;
+  const validateNode = useCallback(
+    (node: LayoutNode, overrideFormData?: IFormData) => {
+      const newState = node.runValidations(validationContextGenerator, overrideFormData);
+      setValidations((prevState) => {
+        mergeFormValidations(prevState, newState);
+        return prevState;
+      });
+    },
+    [validationContextGenerator],
+  );
+
+  const purge = useCallback(() => {
+    setValidations((state) => {
+      if (resolvedNodes) {
+        purgeValidations(state, resolvedNodes);
+      }
+      return state;
     });
-  }
+  }, [resolvedNodes]);
 
   const out = {
     state: validations,
     methods: {
       validateNode,
+      purge,
     },
   };
 
@@ -247,5 +260,38 @@ export function updateValidationState(prevState: ValidationState, newState: Vali
 
   if (newState.task) {
     prevState.task = newState.task;
+  }
+}
+
+/**
+ * Removes validations for nodes that have been removed,
+ * and fields that are no longer bound to any component.
+ * This is useful if a repeating group row has been deleted.
+ * TODO(Validation): Also purge validations related to attachments,
+ * that have been removed
+ */
+function purgeValidations(state: ValidationState, nodes: LayoutPages): void {
+  const fieldsToKeep = new Set<string>();
+  const componentsToKeep = new Set<string>();
+
+  for (const node of nodes.allNodes()) {
+    componentsToKeep.add(node.item.id);
+    if (node.item.dataModelBindings) {
+      for (const binding of Object.values(node.item.dataModelBindings)) {
+        fieldsToKeep.add(binding);
+      }
+    }
+  }
+
+  for (const field of Object.keys(state.fields)) {
+    if (!fieldsToKeep.has(field)) {
+      delete state.fields[field];
+    }
+  }
+
+  for (const component of Object.keys(state.components)) {
+    if (!componentsToKeep.has(component)) {
+      delete state.components[component];
+    }
   }
 }

@@ -7,6 +7,7 @@ export type ValidationContext = {
   state: ValidationState;
   methods: {
     validateNode: (node: LayoutNode, overrideFormData?: IFormData) => void;
+    purge: () => void;
   };
 };
 
