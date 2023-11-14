@@ -4,6 +4,7 @@ import { useGetOptionsQuery } from 'src/hooks/queries/useGetOptionsQuery';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { useSourceOptions } from 'src/hooks/useSourceOptions';
 import { duplicateOptionFilter } from 'src/utils/options';
+import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { IMapping, IOption, IOptionSourceExternal } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -33,6 +34,8 @@ interface Props<T extends ValueType> {
         disable: 'I have read the code and know that core functionality will be missing';
       };
 
+  metadata?: Omit<ValueObj<'single'>, 'type' | 'value'>;
+
   // Simple options, static and pre-defined
   options?: IOption[];
 
@@ -55,19 +58,29 @@ const defaultOptions: IOption[] = [];
 
 type SortOrder = 'asc' | 'desc';
 const compareOptionAlphabetically =
-  (sortOrder: SortOrder = 'asc', language: string = 'nb') =>
+  (langAsString: IUseLanguage['langAsString'], sortOrder: SortOrder = 'asc', language: string = 'nb') =>
   (a: IOption, b: IOption) => {
-    const comparison = a.label.localeCompare(b.label, language, { sensitivity: 'base', numeric: true });
+    const comparison = langAsString(a.label).localeCompare(langAsString(b.label), language, {
+      sensitivity: 'base',
+      numeric: true,
+    });
     return sortOrder === 'asc' ? comparison : -comparison;
   };
 
 export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResult {
-  const { node, options, optionsId, secure, removeDuplicates, source, mapping, queryParameters, sortOrder } = props;
+  const { node, options, optionsId, secure, removeDuplicates, source, mapping, queryParameters, sortOrder, metadata } =
+    props;
   const sourceOptions = useSourceOptions({ source, node });
-  const { data: fetchedOptions, isFetching } = useGetOptionsQuery(optionsId, mapping, queryParameters, secure);
   const staticOptions = optionsId ? undefined : options;
-  const calculatedOptions = sourceOptions || fetchedOptions || staticOptions;
-  const { selectedLanguage } = useLanguage();
+  const setMetadata = metadata?.setValue;
+  const { data: fetchedOptions, isFetching } = useGetOptionsQuery(optionsId, mapping, queryParameters, secure);
+  const calculatedOptions = sourceOptions || fetchedOptions?.data || staticOptions;
+  const downstreamParameters: string = fetchedOptions?.headers['altinn-downstreamparameters'];
+  if (!!setMetadata && downstreamParameters) {
+    setMetadata(downstreamParameters);
+  }
+  const { selectedLanguage, langAsString } = useLanguage();
+
   usePreselectedOptionIndex(calculatedOptions, props);
   useRemoveStaleValues(calculatedOptions, props);
 
@@ -78,7 +91,7 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
 
   return {
     options: sortOrder
-      ? optionsWithoutDuplicates.toSorted(compareOptionAlphabetically(sortOrder, selectedLanguage))
+      ? optionsWithoutDuplicates.toSorted(compareOptionAlphabetically(langAsString, sortOrder, selectedLanguage))
       : optionsWithoutDuplicates,
     isFetching: isFetching || !calculatedOptions,
   };
