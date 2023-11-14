@@ -1,12 +1,6 @@
 import { mergeFormValidations } from 'src/features/validation';
-import {
-  implementsAnyValidation,
-  implementsComponentValidation,
-  implementsEmptyFieldValidation,
-  implementsSchemaValidation,
-} from 'src/layout';
+import { implementsAnyValidation } from 'src/layout';
 import { groupIsRepeatingExt } from 'src/layout/Group/tools';
-import { runExpressionValidationsOnNode } from 'src/utils/validation/expressionValidation';
 import { getSchemaValidationErrors } from 'src/utils/validation/schemaValidation';
 import type { IAttachment } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
@@ -24,13 +18,6 @@ import type {
   ValidationContextGenerator,
 } from 'src/utils/validation/types';
 
-export interface IValidationOptions {
-  overrideFormData?: IFormData;
-  skipSchemaValidation?: boolean;
-  skipComponentValidation?: boolean;
-  skipEmptyFieldValidation?: boolean;
-  skipCustomValidation?: boolean;
-}
 /**
  * Runs all frontend validations on a list of nodes, and optionally skips some types of validations.
  * overrideFormData can be used to validate new data before saving.
@@ -38,48 +25,32 @@ export interface IValidationOptions {
 export function runValidationOnNodes(
   nodes: LayoutNode[],
   ctxGenerator: ValidationContextGenerator,
-  options?: IValidationOptions,
+  overrideFormData?: IFormData,
 ): FormValidations {
   const basicContext = ctxGenerator(undefined);
   const nodesToValidate = nodes.filter(
-    (node) =>
-      implementsAnyValidation(node.def) &&
-      !node.isHidden({ respectTracks: true }) &&
-      !('renderAsSummary' in node.item && node.item.renderAsSummary),
+    (node) => implementsAnyValidation(node.def) && !('renderAsSummary' in node.item && node.item.renderAsSummary),
   );
 
+  const validations: FormValidations = {
+    fields: {},
+    components: {},
+  };
+
   if (nodesToValidate.length === 0) {
-    return {};
+    return validations;
   }
 
-  const schemaErrors = !options?.skipSchemaValidation
-    ? getSchemaValidationErrors(basicContext, options?.overrideFormData)
-    : [];
+  const schemaErrors = getSchemaValidationErrors(basicContext, overrideFormData);
 
-  const validations: FormValidations = {};
   for (const node of nodesToValidate) {
     const nodeContext = ctxGenerator(node);
 
-    if (implementsEmptyFieldValidation(node.def) && !options?.skipEmptyFieldValidation) {
+    if (implementsAnyValidation(node.def)) {
       mergeFormValidations(
         validations,
-        node.def.runEmptyFieldValidation(node as any, nodeContext, options?.overrideFormData),
+        node.def.runValidations(node as any, nodeContext, schemaErrors, overrideFormData),
       );
-    }
-
-    if (implementsComponentValidation(node.def) && !options?.skipComponentValidation) {
-      mergeFormValidations(
-        validations,
-        node.def.runComponentValidation(node as any, nodeContext, options?.overrideFormData),
-      );
-    }
-
-    if (implementsSchemaValidation(node.def) && !options?.skipSchemaValidation) {
-      mergeFormValidations(validations, node.def.runSchemaValidation(node as any, schemaErrors));
-    }
-
-    if (nodeContext.customValidation && !options?.skipCustomValidation) {
-      mergeFormValidations(validations, runExpressionValidationsOnNode(node, nodeContext, options?.overrideFormData));
     }
   }
 

@@ -1,13 +1,13 @@
 import React from 'react';
 import type { JSX } from 'react';
 
-import { addValidation, FrontendValidationSource, initializeComponentValidations } from 'src/features/validation';
+import { FrontendValidationSource } from 'src/features/validation';
 import { ListDef } from 'src/layout/List/config.def.generated';
 import { ListComponent } from 'src/layout/List/ListComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { getFieldName } from 'src/utils/formComponentUtils';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { FormValidations } from 'src/features/validation/types';
+import type { ComponentValidation } from 'src/features/validation/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -35,19 +35,17 @@ export class List extends ListDef {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
-  runEmptyFieldValidation(node: LayoutNode<'List'>, { formData, langTools }: IValidationContext): FormValidations {
+  runEmptyFieldValidation(
+    node: LayoutNode<'List'>,
+    { formData, langTools }: IValidationContext,
+  ): ComponentValidation[] {
     if (!node.item.required || !node.item.dataModelBindings) {
-      return {};
+      return [];
     }
 
     const fields = Object.values(node.item.dataModelBindings);
 
-    /**
-     * Initialize validation group for component,
-     * this must be done so we remove existing validations in case they are fixed.
-     */
-    const formValidations: FormValidations = {};
-    initializeComponentValidations(formValidations, node.item.id, FrontendValidationSource.Required);
+    const validations: ComponentValidation[] = [];
 
     const { langAsString } = langTools;
     const textResourceBindings = node.item.textResourceBindings;
@@ -65,14 +63,14 @@ export class List extends ListDef {
       const message = textResourceBindings?.requiredValidation
         ? langAsString(textResourceBindings?.requiredValidation, [fieldName])
         : langAsString('form_filler.error_required', [fieldName]);
-      addValidation(formValidations, {
+      validations.push({
         message,
         severity: 'errors',
         componentId: node.item.id,
-        group: FrontendValidationSource.Required,
+        group: FrontendValidationSource.EmptyField,
       });
     }
-    return formValidations;
+    return validations;
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'List'>): string[] {

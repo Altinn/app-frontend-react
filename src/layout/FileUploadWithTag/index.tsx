@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { addValidation, FrontendValidationSource, initializeComponentValidations } from 'src/features/validation';
+import { FrontendValidationSource } from 'src/features/validation';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
 import { getUploaderSummaryData } from 'src/layout/FileUpload/Summary/summary';
@@ -9,13 +9,13 @@ import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { attachmentIsMissingTag, attachmentsValid } from 'src/utils/validation/validation';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { IFormData } from 'src/features/formData';
-import type { FormValidations } from 'src/features/validation/types';
-import type { ComponentValidation, PropsFromGenericComponent } from 'src/layout';
+import type { ComponentValidation } from 'src/features/validation/types';
+import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IValidationContext } from 'src/utils/validation/types';
 
-export class FileUploadWithTag extends FileUploadWithTagDef implements ComponentValidation {
+export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateComponent {
   render(props: PropsFromGenericComponent<'FileUploadWithTag'>): JSX.Element | null {
     return <FileUploadComponent {...props} />;
   }
@@ -35,22 +35,16 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements Component
   }
 
   // This component does not have empty field validation, so has to override its inherited method
-  runEmptyFieldValidation(): FormValidations {
-    return {};
+  runEmptyFieldValidation(): ComponentValidation[] {
+    return [];
   }
 
   runComponentValidation(
     node: LayoutNode<'FileUploadWithTag'>,
     { attachments, langTools }: IValidationContext,
     _overrideFormData?: IFormData,
-  ): FormValidations {
-    const formValidations: FormValidations = {};
-
-    /**
-     * Initialize validation group for component,
-     * this must be done so we remove existing validations in case they are fixed.
-     */
-    initializeComponentValidations(formValidations, node.item.id, FrontendValidationSource.Component);
+  ): ComponentValidation[] {
+    const validations: ComponentValidation[] = [];
 
     if (attachmentsValid(attachments, node.item)) {
       const attachmentIdsWithMissingTag = attachments[node.item.id]
@@ -63,7 +57,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements Component
             'form_filler.file_uploader_validation_error_no_chosen_tag',
           )} ${langTools.langAsString(node.item.textResourceBindings?.tagTitle).toLowerCase()}.`;
 
-          addValidation(formValidations, {
+          validations.push({
             message,
             severity: 'errors',
             componentId: node.item.id,
@@ -77,14 +71,14 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements Component
         node.item.minNumberOfAttachments,
       ]);
 
-      addValidation(formValidations, {
+      validations.push({
         message,
         severity: 'errors',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,
       });
     }
-    return formValidations;
+    return validations;
   }
 
   isDataModelBindingsRequired(node: LayoutNode<'FileUploadWithTag'>): boolean {

@@ -1,11 +1,11 @@
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { asExpression } from 'src/features/expressions/validation';
-import { addValidation, FrontendValidationSource, initializeFieldValidations } from 'src/features/validation';
+import { FrontendValidationSource } from 'src/features/validation';
 import { getBaseDataModelBindings } from 'src/utils/databindings';
 import type { ExprConfig } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
-import type { FormValidations } from 'src/features/validation/types';
+import type { FieldValidation } from 'src/features/validation/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   IExpressionValidation,
@@ -158,12 +158,12 @@ export function runExpressionValidationsOnNode(
   node: LayoutNode,
   { customValidation, langTools }: IValidationContext,
   overrideFormData?: IFormData,
-): FormValidations {
+): FieldValidation[] {
   const resolvedDataModelBindings = node.item.dataModelBindings;
   const baseDataModelBindings = getBaseDataModelBindings(resolvedDataModelBindings);
 
   if (!customValidation || !resolvedDataModelBindings || !baseDataModelBindings) {
-    return {};
+    return [];
   }
 
   const dataSources = node.getDataSources();
@@ -174,7 +174,7 @@ export function runExpressionValidationsOnNode(
       ...overrideFormData,
     },
   };
-  const formValidations: FormValidations = {};
+  const validations: FieldValidation[] = [];
 
   for (const [bindingKey, field] of Object.entries(baseDataModelBindings)) {
     const validationDefs = customValidation[field];
@@ -184,20 +184,13 @@ export function runExpressionValidationsOnNode(
     for (const validationDef of validationDefs) {
       const resolvedField = resolvedDataModelBindings[bindingKey];
 
-      /**
-       * Initialize validation group for field,
-       * this must be done for all fields that will be validated
-       * so we remove existing validations in case they are fixed.
-       */
-      initializeFieldValidations(formValidations, resolvedField, FrontendValidationSource.Expression);
-
       const isInvalid = evalExpr(validationDef.condition, node, newDataSources, {
         config: EXPR_CONFIG,
         positionalArguments: [resolvedField],
       });
       if (isInvalid) {
         const message = langTools.langAsString(validationDef.message);
-        addValidation(formValidations, {
+        validations.push({
           field,
           group: FrontendValidationSource.Expression,
           message,
@@ -206,5 +199,5 @@ export function runExpressionValidationsOnNode(
       }
     }
   }
-  return formValidations;
+  return validations;
 }

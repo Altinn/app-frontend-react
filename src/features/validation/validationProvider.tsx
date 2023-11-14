@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 
-import { buildNodeValidation, getValidationsForNode } from '.';
+import { buildNodeValidation, getValidationsForNode, mergeFormValidations } from '.';
 
 import { useCurrentDataElementId } from 'src/features/datamodel/useBindingSchema';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -17,6 +17,7 @@ import {
   shouldExcludeValidationIssue,
 } from 'src/utils/validation/backendValidation';
 import { useValidationContextGenerator } from 'src/utils/validation/validationHelpers';
+import type { IFormData } from 'src/features/formData';
 import type {
   FormValidations,
   NodeValidation,
@@ -28,7 +29,6 @@ import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { BackendValidationIssue, ValidationContextGenerator } from 'src/utils/validation/types';
-import type { IValidationOptions } from 'src/utils/validation/validation';
 
 const [Provider, useContext] = createStrictContext<ValidationContext>({
   options: { name: 'ValidationContext' },
@@ -70,17 +70,17 @@ export function ValidationProvider({ children }) {
     }
     const [frontendValidations, backendValidations] = validationData;
     const newState = mapValidationsToState(backendValidations, langTools);
-    updateValidationState(newState, frontendValidations);
+    mergeFormValidations(newState, frontendValidations);
     setValidations(newState);
 
     /* Workaround, ideally, the logic that fetches validations should resolve text resources */
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [validationData]);
 
-  function validateNode(node: LayoutNode, options?: IValidationOptions) {
-    const newState = node.runValidations(validationContextGenerator, options);
+  function validateNode(node: LayoutNode, overrideFormData?: IFormData) {
+    const newState = node.runValidations(validationContextGenerator, overrideFormData);
     setValidations((prevState) => {
-      updateValidationState(prevState, newState);
+      mergeFormValidations(prevState, newState);
       return prevState;
     });
   }
@@ -170,7 +170,7 @@ export function usePageErrors(page: LayoutPage): NodeValidation<'errors'>[] {
   return useMemo(() => {
     const validationMessages: NodeValidation<'errors'>[] = [];
 
-    for (const node of page.flat(true)) {
+    for (const node of page.flat(true).filter((node) => !node.isHidden({ respectTracks: true }))) {
       validationMessages.push(...getValidationsForNode(node, state, 'errors'));
     }
 
@@ -188,7 +188,7 @@ export function useTaskErrors(pages: LayoutPages): NodeValidation<'errors'>[] {
   return useMemo(() => {
     const validationMessages: NodeValidation<'errors'>[] = [];
 
-    for (const node of pages.allNodes()) {
+    for (const node of pages.allNodes().filter((node) => !node.isHidden({ respectTracks: true }))) {
       validationMessages.push(...getValidationsForNode(node, state, 'errors'));
     }
     // TODO(Validation): Deal with unmapped errors
@@ -209,7 +209,7 @@ function mapValidationsToState(
   langTools: IUseLanguage,
   filterSources: boolean = true,
 ): ValidationState {
-  const validationOutputs: ValidationState = { fields: {}, components: {}, task: [] };
+  const state: ValidationState = { fields: {}, components: {}, task: [] };
 
   for (const issue of issues) {
     if (filterSources && shouldExcludeValidationIssue(issue)) {
@@ -222,55 +222,30 @@ function mapValidationsToState(
 
     if (!field) {
       // Unmapped error
-      if (!validationOutputs.task.find((v) => v.message === message && v.severity === severity)) {
-        validationOutputs.task.push({ severity, message });
+      if (!state.task.find((v) => v.message === message && v.severity === severity)) {
+        state.task.push({ severity, message });
       }
       continue;
     }
 
-    if (!validationOutputs.fields[field]) {
-      validationOutputs.fields[field] = {};
+    if (!state.fields[field]) {
+      state.fields[field] = {};
     }
-    if (!validationOutputs.fields[field][group]) {
-      validationOutputs.fields[field][group] = [];
+    if (!state.fields[field][group]) {
+      state.fields[field][group] = [];
     }
 
-    if (!validationOutputs.fields[field][group].find((v) => v.message === message && v.severity === severity)) {
-      validationOutputs.fields[field][group].push({ field, severity, message, group });
+    if (!state.fields[field][group].find((v) => v.message === message && v.severity === severity)) {
+      state.fields[field][group].push({ field, severity, message, group });
     }
   }
-  return validationOutputs;
+  return state;
 }
 
-/**
- * Add FieldValidations to another FieldValidations object
- * Note: This does not merge any groups, it will override any existing groups
- * Not creating new objects constantly helps avoid GC?
- */
-export function updateValidationState(state: ValidationState, validations: FormValidations): void {
-  if (validations.components) {
-    for (const [componentId, groups] of Object.entries(validations.components)) {
-      if (!state.components[componentId]) {
-        state.components[componentId] = {};
-      }
-      for (const [group, validations] of Object.entries(groups)) {
-        state.components[componentId][group] = validations;
-      }
-    }
-  }
+export function updateValidationState(prevState: ValidationState, newState: ValidationState): void {
+  mergeFormValidations(prevState, newState);
 
-  if (validations.fields) {
-    for (const [field, groups] of Object.entries(validations.fields)) {
-      if (!state.fields[field]) {
-        state.fields[field] = {};
-      }
-      for (const [group, validations] of Object.entries(groups)) {
-        state.fields[field][group] = validations;
-      }
-    }
-  }
-
-  if (validations.task) {
-    state.task = validations.task;
+  if (newState.task) {
+    prevState.task = newState.task;
   }
 }

@@ -1,21 +1,22 @@
+import type { IFormData } from 'src/features/formData';
 import type { ValidParam } from 'src/hooks/useLanguage';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ValidationSeverity } from 'src/utils/validation/types';
-import type { IValidationOptions } from 'src/utils/validation/validation';
 
 export type ValidationContext = {
   state: ValidationState;
   methods: {
-    validateNode: (node: LayoutNode, options?: IValidationOptions) => void;
+    validateNode: (node: LayoutNode, overrideFormData?: IFormData) => void;
   };
 };
 
-export type ValidationState = Required<FormValidations>;
+export type ValidationState = FormValidations & {
+  task: BaseValidation[];
+};
 
 export type FormValidations = {
-  fields?: FieldValidations;
-  components?: ComponentValidations;
-  task?: BaseValidation[];
+  fields: FieldValidations;
+  components: ComponentValidations;
 };
 
 export type ValidationGroup<T extends GroupedValidation> = {
@@ -28,8 +29,8 @@ export type FieldValidations = {
 
 export type ComponentValidations = {
   [componentId: string]: {
-    bindingKeys?: { [bindingKey: string]: ValidationGroup<ComponentValidation> };
-    component?: ValidationGroup<ComponentValidation>;
+    bindingKeys: { [bindingKey: string]: ValidationGroup<ComponentValidation> };
+    component: ValidationGroup<ComponentValidation>;
   };
 };
 

@@ -7,7 +7,12 @@ import { ComponentConfigs } from 'src/layout/components.generated';
 import type { IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
 import type { AllOptionsMap } from 'src/features/options/useAllOptions';
-import type { FormValidations, NodeValidation } from 'src/features/validation/types';
+import type {
+  ComponentValidation,
+  FieldValidation,
+  FormValidations,
+  NodeValidation,
+} from 'src/features/validation/types';
 import type { IGrid } from 'src/layout/common.generated';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { CompInternal, CompRendersLabel, CompTypes } from 'src/layout/layout';
@@ -88,49 +93,56 @@ export function shouldComponentRenderLabel<T extends CompTypes>(type: T): CompRe
 
 export type DefGetter = typeof getLayoutComponentObject;
 
-export function implementsAnyValidation<Type extends CompTypes>(component: AnyComponent<Type>): boolean {
-  return (
-    'runEmptyFieldValidation' in component ||
-    'runComponentValidation' in component ||
-    'runSchemaValidation' in component
-  );
+export interface ValidateAny {
+  runValidations: (
+    node: LayoutNode,
+    ctx: IValidationContext,
+    schemaErrors: ISchemaValidationError[],
+    overrideFormData?: IFormData,
+  ) => FormValidations;
 }
 
-export interface EmptyFieldValidation {
+export function implementsAnyValidation<Type extends CompTypes>(
+  component: AnyComponent<Type>,
+): component is typeof component & ValidateAny {
+  return 'runValidations' in component;
+}
+
+export interface ValidateEmptyField {
   runEmptyFieldValidation: (
     node: LayoutNode,
     validationContext: IValidationContext,
     overrideFormData?: IFormData,
-  ) => FormValidations;
+  ) => ComponentValidation[];
 }
 
-export function implementsEmptyFieldValidation<Type extends CompTypes>(
+export function implementsValidateEmptyField<Type extends CompTypes>(
   component: AnyComponent<Type>,
-): component is typeof component & EmptyFieldValidation {
+): component is typeof component & ValidateEmptyField {
   return 'runEmptyFieldValidation' in component;
 }
 
-export interface ComponentValidation {
+export interface ValidateComponent {
   runComponentValidation: (
     node: LayoutNode,
     validationContext: IValidationContext,
     overrideFormData?: IFormData,
-  ) => FormValidations;
+  ) => ComponentValidation[];
 }
 
-export function implementsComponentValidation<Type extends CompTypes>(
+export function implementsValidateComponent<Type extends CompTypes>(
   component: AnyComponent<Type>,
-): component is typeof component & ComponentValidation {
+): component is typeof component & ValidateComponent {
   return 'runComponentValidation' in component;
 }
 
-export interface SchemaValidation {
-  runSchemaValidation: (node: LayoutNode, schemaValidations: ISchemaValidationError[]) => FormValidations;
+export interface ValidateSchema {
+  runSchemaValidation: (node: LayoutNode, schemaValidations: ISchemaValidationError[]) => FieldValidation[];
 }
 
-export function implementsSchemaValidation<Type extends CompTypes>(
+export function implementsValidateSchema<Type extends CompTypes>(
   component: AnyComponent<Type>,
-): component is typeof component & SchemaValidation {
+): component is typeof component & ValidateSchema {
   return 'runSchemaValidation' in component;
 }
 

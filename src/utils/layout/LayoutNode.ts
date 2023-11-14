@@ -2,6 +2,7 @@ import { getLayoutComponentObject } from 'src/layout';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { runValidationOnNodes } from 'src/utils/validation/validation';
+import type { IFormData } from 'src/features/formData';
 import type { FormValidations } from 'src/features/validation/types';
 import type { CompClassMap } from 'src/layout';
 import type { CompCategory } from 'src/layout/common';
@@ -24,7 +25,6 @@ import type {
   ValidationContextGenerator,
   ValidationKeyOrAny,
 } from 'src/utils/validation/types';
-import type { IValidationOptions } from 'src/utils/validation/validation';
 
 export interface IsHiddenOptions {
   respectLegacy?: boolean;
@@ -391,8 +391,8 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
   /**
    * Runs frontend validations for this node and returns an array of IValidationObject
    */
-  runValidations(validationCtxGenerator: ValidationContextGenerator, options?: IValidationOptions): FormValidations {
-    return runValidationOnNodes([this as LayoutNode], validationCtxGenerator, options);
+  runValidations(validationCtxGenerator: ValidationContextGenerator, overrideFormData?: IFormData): FormValidations {
+    return runValidationOnNodes([this as LayoutNode], validationCtxGenerator, overrideFormData);
   }
 }
 

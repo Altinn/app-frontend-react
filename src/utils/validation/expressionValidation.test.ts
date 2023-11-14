@@ -3,6 +3,7 @@ import fs from 'node:fs';
 
 import { getHierarchyDataSourcesMock } from 'src/__mocks__/hierarchyMock';
 import { convertLayouts, type Layouts } from 'src/features/expressions/shared';
+import { FrontendValidationSource } from 'src/features/validation';
 import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
 import { buildAuthContext } from 'src/utils/authContext';
 import { getRepeatingGroups } from 'src/utils/formLayout';
@@ -13,7 +14,6 @@ import { runValidationOnNodes } from 'src/utils/validation/validation';
 import type { HierarchyDataSources } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
 import type { IExpressionValidationConfig, ValidationContextGenerator } from 'src/utils/validation/types';
-import type { IValidationOptions } from 'src/utils/validation/validation';
 
 const { resolvedNodesInLayouts } = _private;
 
@@ -84,19 +84,17 @@ describe('Expression validation shared tests', () => {
 
     const rootCollection = resolvedNodesInLayouts(_layouts, '', repeatingGroups, dataSources);
     const nodes = rootCollection.allNodes();
-    const options: IValidationOptions = {
-      skipComponentValidation: true,
-      skipEmptyFieldValidation: true,
-      skipSchemaValidation: true,
-    };
-    const fieldValidations = runValidationOnNodes(nodes, ctxGenerator, options);
+    const formValidations = runValidationOnNodes(nodes, ctxGenerator);
     // Format results in a way that makes it easier to compare
 
     const result = JSON.stringify(
-      Object.values(fieldValidations).flatMap((groups) =>
-        Object.values(groups).flatMap((group) =>
-          group.map(({ message, severity, field }) => ({ message, severity, field })),
-        ),
+      Object.values(formValidations.fields).flatMap(
+        (groups) =>
+          groups[FrontendValidationSource.Expression]?.map(({ message, severity, field }) => ({
+            message,
+            severity,
+            field,
+          })) ?? [],
       ),
       null,
       2,

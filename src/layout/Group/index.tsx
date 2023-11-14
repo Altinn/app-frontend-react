@@ -3,7 +3,7 @@ import type { JSX } from 'react';
 
 import type { ErrorObject } from 'ajv';
 
-import { addValidation, FrontendValidationSource, initializeComponentValidations } from 'src/features/validation';
+import { FrontendValidationSource } from 'src/features/validation';
 import { GroupDef } from 'src/layout/Group/config.def.generated';
 import { GroupRenderer } from 'src/layout/Group/GroupRenderer';
 import { GroupHierarchyGenerator } from 'src/layout/Group/hierarchy';
@@ -18,8 +18,8 @@ import {
 import { runValidationOnNodes } from 'src/utils/validation/validation';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { IFormData } from 'src/features/formData';
-import type { FormValidations } from 'src/features/validation/types';
-import type { ComponentValidation, GroupValidation, PropsFromGenericComponent } from 'src/layout';
+import type { ComponentValidation, FormValidations } from 'src/features/validation/types';
+import type { GroupValidation, PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { CompExternalExact, CompInternal, HierarchyDataSources } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
@@ -27,7 +27,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { IValidationContext, ValidationContextGenerator } from 'src/utils/validation/types';
 
-export class Group extends GroupDef implements GroupValidation, ComponentValidation {
+export class Group extends GroupDef implements GroupValidation, ValidateComponent {
   private _hierarchyGenerator = new GroupHierarchyGenerator();
 
   directRender(): boolean {
@@ -72,12 +72,12 @@ export class Group extends GroupDef implements GroupValidation, ComponentValidat
     node: LayoutNode<'Group'>,
     { langTools }: IValidationContext,
     _overrideFormData?: IFormData,
-  ): FormValidations {
+  ): ComponentValidation[] {
     if (!node.isRepGroup() || !node.item.dataModelBindings) {
-      return {};
+      return [];
     }
 
-    const formValidations: FormValidations = {};
+    const validations: ComponentValidation[] = [];
     // check if minCount is less than visible rows
     const repeatingGroupComponent = node.item;
     const repeatingGroupMinCount = repeatingGroupComponent.minCount || 0;
@@ -87,17 +87,11 @@ export class Group extends GroupDef implements GroupValidation, ComponentValidat
 
     const repeatingGroupMinCountValid = repeatingGroupMinCount <= repeatingGroupVisibleRows;
 
-    /**
-     * Initialize validation group for component,
-     * so we remove existing validations in case they are fixed.
-     */
-    initializeComponentValidations(formValidations, node.item.id, FrontendValidationSource.Component);
-
     // if not valid, return appropriate error message
     if (!repeatingGroupMinCountValid) {
       const message = langTools.langAsString('validation_errors.minItems', [repeatingGroupMinCount]);
 
-      addValidation(formValidations, {
+      validations.push({
         message,
         severity: 'errors',
         componentId: node.item.id,
@@ -105,7 +99,7 @@ export class Group extends GroupDef implements GroupValidation, ComponentValidat
       });
     }
 
-    return formValidations;
+    return validations;
   }
 
   runGroupValidations(

@@ -190,7 +190,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
 
     if (validate) {
       const overrideFormData = { [dataModelBinding]: (value?.length ? value : undefined) as any };
-      validateNode(node, { overrideFormData });
+      validateNode(node, overrideFormData);
     }
 
     dispatch(
