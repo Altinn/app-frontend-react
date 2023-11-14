@@ -1,3 +1,5 @@
+import { useCallback } from 'react';
+
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { Triggers } from 'src/layout/common.generated';
@@ -28,16 +30,19 @@ export function useValidationContextGenerator(): ValidationContextGenerator {
   const langToolsGenerator = useAppSelector(
     (state) => (node: LayoutNode | undefined) => staticUseLanguageFromState(state, node),
   );
-  return (node: LayoutNode | undefined): IValidationContext => ({
-    formData,
-    langTools: langToolsGenerator(node),
-    attachments,
-    application,
-    instance,
-    layoutSets,
-    schemas,
-    customValidation,
-  });
+  return useCallback(
+    (node: LayoutNode | undefined): IValidationContext => ({
+      formData,
+      langTools: langToolsGenerator(node),
+      attachments,
+      application,
+      instance,
+      layoutSets,
+      schemas,
+      customValidation,
+    }),
+    [application, attachments, customValidation, formData, instance, langToolsGenerator, layoutSets, schemas],
+  );
 }
 
 export function validationContextFromState(state: IRuntimeState, node: LayoutNode | undefined): IValidationContext {

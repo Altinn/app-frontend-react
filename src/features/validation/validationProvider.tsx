@@ -7,6 +7,7 @@ import { buildNodeValidation, getValidationsForNode, mergeFormValidations } from
 import { useCurrentDataElementId } from 'src/features/datamodel/useBindingSchema';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { type IUseLanguage, useLanguage } from 'src/hooks/useLanguage';
+import { useEffectDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { createStrictContext } from 'src/utils/createStrictContext';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import { httpGet } from 'src/utils/network/sharedNetworking';
@@ -88,20 +89,22 @@ export function ValidationProvider({ children }) {
     [validationContextGenerator],
   );
 
-  const purge = useCallback(() => {
-    setValidations((state) => {
-      if (resolvedNodes) {
-        purgeValidations(state, resolvedNodes);
-      }
-      return state;
-    });
-  }, [resolvedNodes]);
+  // Purge validations when nodes are removed
+  // TODO(Validation): Run validations on new nodes
+  const allNodeIds = resolvedNodes?.allNodes().map((n) => n.item.id);
+  useEffectDeepEqual(() => {
+    if (resolvedNodes) {
+      setValidations((state) => {
+        purgeValidations(state, resolvedNodes.allNodes());
+        return state;
+      });
+    }
+  }, [allNodeIds]);
 
   const out = {
     state: validations,
     methods: {
       validateNode,
-      purge,
     },
   };
 
@@ -270,11 +273,16 @@ export function updateValidationState(prevState: ValidationState, newState: Vali
  * TODO(Validation): Also purge validations related to attachments,
  * that have been removed
  */
-function purgeValidations(state: ValidationState, nodes: LayoutPages): void {
+function purgeValidations(state: ValidationState, allNodes: LayoutNode[]): void {
+  console.log('purging validations');
+  if (allNodes.length === 0) {
+    state.fields = {};
+    state.components = {};
+  }
   const fieldsToKeep = new Set<string>();
   const componentsToKeep = new Set<string>();
 
-  for (const node of nodes.allNodes()) {
+  for (const node of allNodes) {
     componentsToKeep.add(node.item.id);
     if (node.item.dataModelBindings) {
       for (const binding of Object.values(node.item.dataModelBindings)) {
