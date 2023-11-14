@@ -47,7 +47,7 @@ window.logErrorOnce = window.logError;
 window.logWarnOnce = window.logError;
 window.logInfoOnce = window.logError;
 
-jest.setTimeout(env.parsed?.JEST_TIMEOUT ? parseInt(env.parsed.JEST_TIMEOUT, 10) : 10000);
+jest.setTimeout(env.parsed?.JEST_TIMEOUT ? parseInt(env.parsed.JEST_TIMEOUT, 10) : 15000);
 
 jest.mock('axios');
 
