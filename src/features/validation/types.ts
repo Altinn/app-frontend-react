@@ -1,13 +1,8 @@
-import type { IFormData } from 'src/features/formData';
 import type { ValidParam } from 'src/hooks/useLanguage';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ValidationSeverity } from 'src/utils/validation/types';
 
 export type ValidationContext = {
   state: ValidationState;
-  methods: {
-    validateNode: (node: LayoutNode, overrideFormData?: IFormData) => void;
-  };
 };
 
 export type ValidationState = FormValidations & {
@@ -34,7 +29,7 @@ export type ComponentValidations = {
   };
 };
 
-type BaseValidation<Severity extends ValidationSeverity = ValidationSeverity> = {
+export type BaseValidation<Severity extends ValidationSeverity = ValidationSeverity> = {
   message: string;
   severity: Severity;
 };

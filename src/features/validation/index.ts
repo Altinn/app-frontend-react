@@ -3,7 +3,9 @@ import { useEffect, useRef } from 'react';
 import deepEqual from 'fast-deep-equal';
 
 import { useExprContext } from 'src/utils/layout/ExprContext';
+import type { IFormData } from 'src/features/formData';
 import type {
+  BaseValidation,
   ComponentValidation,
   FieldValidation,
   FormValidations,
@@ -79,6 +81,10 @@ export function validationsOfSeverity<Severity extends ValidationSeverity>(
   validations: FieldValidation<ValidationSeverity>[] | undefined,
   severity: Severity,
 ): FieldValidation<Severity>[];
+export function validationsOfSeverity<Severity extends ValidationSeverity>(
+  validations: BaseValidation<ValidationSeverity>[] | undefined,
+  severity: Severity,
+): BaseValidation<Severity>[];
 export function validationsOfSeverity(validations: any, severity: any) {
   return validations?.filter((validation: any) => validation.severity === severity) ?? [];
 }
@@ -150,8 +156,11 @@ export function getValidationsForNode(
   return validationMessages;
 }
 
-export function useHierarchyChanges(
-  onChange: (addedNodes: LayoutNode[], removedNodes: LayoutNode[], currentNodes: LayoutNode[]) => void,
+/**
+ * Provides a callback function with added/removed nodes when the hierarchy changes
+ */
+export function useOnHierarchyChange(
+  onChange: (addedNodeChanges: NodeDataChange[], removedNodes: LayoutNode[], currentNodes: LayoutNode[]) => void,
 ) {
   const layoutNodes = useExprContext();
   const lastNodes = useRef<LayoutNode[]>([]);
@@ -167,9 +176,73 @@ export function useHierarchyChanges(
     ) {
       lastNodes.current = newNodes;
 
-      const addedNodes = newNodes.filter((n) => !prevNodes.find((pn) => pn.item.id === n.item.id));
+      const addedNodes = newNodes
+        .filter((n) => !prevNodes.find((pn) => pn.item.id === n.item.id))
+        .map((n) => ({
+          node: n,
+          fields: n.item.dataModelBindings ? Object.values(n.item.dataModelBindings) : [],
+        }));
       const removedNodes = prevNodes.filter((pn) => !newNodes.find((n) => pn.item.id === n.item.id));
       onChange(addedNodes, removedNodes, newNodes);
     }
   }, [layoutNodes, onChange]);
+}
+
+export type NodeDataChange = {
+  node: LayoutNode;
+  fields: string[];
+};
+/**
+ * Provides a callback function with a list of nodes whoes data has changed
+ */
+export function useOnNodeDataChange(onChange: (nodeChanges: NodeDataChange[]) => void) {
+  const layoutNodes = useExprContext();
+  const lastNodeData = useRef<{ [id: string]: LayoutNode }>({});
+
+  useEffect(() => {
+    const prevNodes = lastNodeData.current;
+    const newNodes: { [id: string]: LayoutNode } =
+      layoutNodes?.allNodes().reduce((data, node) => ({ ...data, [node.item.id]: node }), {}) ?? {};
+
+    // Update if nodes have been added or removed
+    let shouldUpdate = !deepEqual(Object.keys(newNodes), Object.keys(prevNodes));
+
+    const updatedNodes: NodeDataChange[] = [];
+    for (const [id, newNode] of Object.entries(newNodes)) {
+      const prevNode = prevNodes[id];
+      if (!prevNode) {
+        continue;
+      }
+      const changes = getChangedFields(newNode.getFieldFormData(), prevNode.getFieldFormData());
+      if (changes.length) {
+        shouldUpdate = true;
+        updatedNodes.push({
+          node: newNode,
+          fields: changes,
+        });
+      }
+    }
+    if (shouldUpdate) {
+      lastNodeData.current = newNodes;
+    }
+    if (updatedNodes.length) {
+      onChange(updatedNodes);
+    }
+  }, [layoutNodes, onChange]);
+}
+
+function getChangedFields(current: IFormData, prev: IFormData) {
+  const changes: string[] = [];
+  for (const field of Object.keys(current)) {
+    if (current[field] !== prev[field]) {
+      changes.push(field);
+    }
+  }
+  for (const field of Object.keys(prev)) {
+    if (!(field in current)) {
+      changes.push(field);
+    }
+  }
+
+  return changes;
 }

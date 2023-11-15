@@ -370,6 +370,23 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
     return formDataObj;
   }
 
+  public getFieldFormData(): IFormData {
+    if (!('dataModelBindings' in this.item) || !this.item.dataModelBindings) {
+      return {};
+    }
+
+    const formDataObj: IFormData = {};
+    for (const field of Object.values(this.item.dataModelBindings)) {
+      if (this.dataSources.formData[field]) {
+        formDataObj[field] = this.dataSources.formData[field];
+      } else {
+        formDataObj[field] = '';
+      }
+    }
+
+    return formDataObj;
+  }
+
   public getRowIndices(): number[] {
     const rowIndices: number[] = [];
     if (typeof this.rowIndex !== 'undefined') {

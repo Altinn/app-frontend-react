@@ -1,16 +1,24 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 
-import { useQuery } from '@tanstack/react-query';
 import { useImmer } from 'use-immer';
+import type { AxiosRequestConfig } from 'axios';
 
-import { buildNodeValidation, getValidationsForNode, mergeFormValidations, useHierarchyChanges } from '.';
+import {
+  buildNodeValidation,
+  getValidationsForNode,
+  mergeFormValidations,
+  useOnHierarchyChange,
+  useOnNodeDataChange,
+  validationsOfSeverity,
+} from '.';
+import type { NodeDataChange } from '.';
 
 import { useCurrentDataElementId } from 'src/features/datamodel/useBindingSchema';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { type IUseLanguage, useLanguage } from 'src/hooks/useLanguage';
 import { createStrictContext } from 'src/utils/createStrictContext';
-import { useExprContext } from 'src/utils/layout/ExprContext';
 import { httpGet } from 'src/utils/network/sharedNetworking';
+import { duplicateStringFilter } from 'src/utils/stringHelper';
 import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
 import {
   getValidationMessage,
@@ -19,37 +27,19 @@ import {
 } from 'src/utils/validation/backendValidation';
 import { runValidationOnNodes } from 'src/utils/validation/validation';
 import { useValidationContextGenerator } from 'src/utils/validation/validationHelpers';
-import type { IFormData } from 'src/features/formData';
-import type {
-  FormValidations,
-  NodeValidation,
-  ValidationContext,
-  ValidationState,
-} from 'src/features/validation/types';
+import type { BaseValidation, NodeValidation, ValidationContext, ValidationState } from 'src/features/validation/types';
 import type { CompTypes, IDataModelBindings } from 'src/layout/layout';
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
-import type { BackendValidationIssue, ValidationContextGenerator } from 'src/utils/validation/types';
+import type { BackendValidationIssue } from 'src/utils/validation/types';
 
 const [Provider, useContext] = createStrictContext<ValidationContext>({
   options: { name: 'ValidationContext' },
 });
 
-async function fetchValidations(
-  validationUrl: string,
-  resolvedNodes: LayoutPages,
-  validationContextGenerator: ValidationContextGenerator,
-): Promise<[FormValidations, BackendValidationIssue[]]> {
-  const backendValidations = httpGet(validationUrl);
-  const frontendValidations = resolvedNodes.runValidations(validationContextGenerator);
-  return [frontendValidations, await backendValidations];
-}
-
 export function ValidationProvider({ children }) {
-  const resolvedNodes = useExprContext();
   const validationContextGenerator = useValidationContextGenerator();
-  // const lastSavedFormData = useAppSelector((state) => state.formData.lastSavedFormData);
   const langTools = useLanguage();
   const instanceId = useAppSelector((state) => state.instanceData.instance?.id);
   const currentDataElementId = useCurrentDataElementId();
@@ -60,58 +50,32 @@ export function ValidationProvider({ children }) {
 
   const [validations, setValidations] = useImmer<ValidationState>({ fields: {}, components: {}, task: [] });
 
-  const { data: validationData } = useQuery({
-    enabled: Boolean(validationUrl) && Boolean(resolvedNodes),
-    queryKey: ['validation', instanceId, currentDataElementId],
-    queryFn: () => fetchValidations(validationUrl!, resolvedNodes!, validationContextGenerator),
+  useOnNodeDataChange(async (nodeChanges) => {
+    const changedNodes = nodeChanges.map((nC) => nC.node);
+    const serverValidations = await runServerValidations(nodeChanges, validationUrl, langTools);
+    const newValidations = runValidationOnNodes(changedNodes, validationContextGenerator);
+    setValidations((state) => {
+      mergeFormValidations(state, newValidations);
+      updateValidationState(state, serverValidations);
+    });
   });
 
-  useEffect(() => {
-    if (!validationData) {
-      return;
-    }
-    const [frontendValidations, backendValidations] = validationData;
-    const newState = mapValidationsToState(backendValidations, langTools);
-    mergeFormValidations(newState, frontendValidations);
-    setValidations(newState);
-
-    /* Workaround, ideally, the logic that fetches validations should resolve text resources */
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [validationData]);
-
-  const validateNode = useCallback(
-    (node: LayoutNode, overrideFormData?: IFormData) => {
-      const newState = node.runValidations(validationContextGenerator, overrideFormData);
-      setValidations((prevState) => {
-        mergeFormValidations(prevState, newState);
-      });
-    },
-    [setValidations, validationContextGenerator],
-  );
-
-  useHierarchyChanges((addedNodes, removedNodes, currentNodes) => {
+  useOnHierarchyChange(async (addedNodeChanges, removedNodes, currentNodes) => {
+    const addedNodes = addedNodeChanges.map((nC) => nC.node);
+    const serverValidations = await runServerValidations(addedNodeChanges, validationUrl, langTools);
     const newValidations = runValidationOnNodes(addedNodes, validationContextGenerator);
     setValidations((state) => {
       purgeValidationsForNodes(state, removedNodes, currentNodes);
       mergeFormValidations(state, newValidations);
+      updateValidationState(state, serverValidations);
     });
   });
 
   const out = {
     state: validations,
-    methods: {
-      validateNode,
-    },
   };
 
   return <Provider value={out}>{children}</Provider>;
-}
-
-/**
- * Gives access to validation methods.
- */
-export function useValidationMethods() {
-  return useContext().methods;
 }
 
 /**
@@ -194,23 +158,59 @@ export function usePageErrors(page: LayoutPage): NodeValidation<'errors'>[] {
  * Returns all validation errors (not warnings, info, etc.) for a layout set.
  * This includes unmapped/task errors as well
  */
-export function useTaskErrors(pages: LayoutPages): NodeValidation<'errors'>[] {
+export function useTaskErrors(pages: LayoutPages): {
+  formValidations: NodeValidation<'errors'>[];
+  taskValidations: BaseValidation<'errors'>[];
+} {
   const state = useContext().state;
 
   return useMemo(() => {
-    const validationMessages: NodeValidation<'errors'>[] = [];
+    const formValidations: NodeValidation<'errors'>[] = [];
+    const taskValidations: BaseValidation<'errors'>[] = [];
 
     for (const node of pages.allNodes().filter((node) => !node.isHidden({ respectTracks: true }))) {
-      validationMessages.push(...getValidationsForNode(node, state, 'errors'));
+      formValidations.push(...getValidationsForNode(node, state, 'errors'));
     }
-    // TODO(Validation): Deal with unmapped errors
-    // for (const group of Object.values(validations.unmapped)) {
-    //   for (const validation of validationsOfSeverity(group, 'errors')) {
-    //     validationMessages.push(buildFrontendValidation(undefined, 'unmapped', validation));
-    //   }
-    // }
-    return validationMessages;
+    for (const validation of validationsOfSeverity(state.task, 'errors')) {
+      taskValidations.push(validation);
+    }
+    return { formValidations, taskValidations };
   }, [pages, state]);
+}
+
+async function runServerValidations(
+  nodeChanges: NodeDataChange[],
+  url: string | undefined,
+  langTools: IUseLanguage,
+): Promise<ValidationState> {
+  const state: ValidationState = {
+    fields: {},
+    components: {},
+    task: [],
+  };
+
+  if (!nodeChanges.length || !url) {
+    return Promise.resolve(state);
+  }
+
+  const fieldChanges = nodeChanges.flatMap((nc) => nc.fields).filter(duplicateStringFilter);
+
+  if (!fieldChanges.length) {
+    return Promise.resolve(state);
+  }
+
+  const options: AxiosRequestConfig =
+    fieldChanges.length === 1
+      ? {
+          headers: {
+            ValidationTriggerField: fieldChanges[0],
+          },
+        }
+      : {};
+
+  const serverValidations: BackendValidationIssue[] = await httpGet(url, options);
+
+  return mapValidationsToState(serverValidations, langTools);
 }
 
 /**
@@ -224,6 +224,10 @@ function mapValidationsToState(
   const state: ValidationState = { fields: {}, components: {}, task: [] };
 
   for (const issue of issues) {
+    /**
+     * TODO(Validation): Do not filter here, leave them in the state.
+     * Filter in the hooks fetching them instead.
+     */
     if (filterSources && shouldExcludeValidationIssue(issue)) {
       continue;
     }
@@ -247,7 +251,13 @@ function mapValidationsToState(
       state.fields[field][group] = [];
     }
 
-    if (!state.fields[field][group].find((v) => v.message === message && v.severity === severity)) {
+    /**
+     * Allow fixed validation to clear the group, but there is no need to add it.
+     * This is a temporary way to almost support *FIXED* validations,
+     * the only caveat is that it will clear ALL custom validations for the field,
+     * instead of just the one.
+     */
+    if (severity != 'fixed') {
       state.fields[field][group].push({ field, severity, message, group });
     }
   }
