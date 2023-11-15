@@ -16,17 +16,21 @@ import { Edit as EditIcon } from '@navikt/ds-icons';
 import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/src/components/Pagination/Pagination';
 
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
+import { PresentationComponent } from 'src/components/wrappers/Presentation';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import classes from 'src/features/instantiate/containers/InstanceSelection.module.css';
+import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
+import {
+  ActiveInstancesProvider,
+  useActiveInstances,
+} from 'src/features/instantiate/selection/ActiveInstancesProvider';
+import classes from 'src/features/instantiate/selection/InstanceSelection.module.css';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
+import { selectAppName, selectAppOwner } from 'src/selectors/language';
+import { ProcessTaskType } from 'src/types';
 import { getInstanceUiUrl } from 'src/utils/urls/appUrlHelper';
 import type { ISimpleInstance } from 'src/types';
-
-export interface IInstanceSelectionProps {
-  instances: ISimpleInstance[];
-  onNewInstance: () => void;
-}
 
 function getDateDisplayString(timeStamp: string) {
   let date = new Date(timeStamp);
@@ -40,13 +44,32 @@ function getDateDisplayString(timeStamp: string) {
   });
 }
 
-export function InstanceSelection({ instances, onNewInstance }: IInstanceSelectionProps) {
+export function InstanceSelectionWrapper() {
+  const appName = useAppSelector(selectAppName);
+  const appOwner = useAppSelector(selectAppOwner);
+
+  return (
+    <ActiveInstancesProvider>
+      <PresentationComponent
+        header={appName || ''}
+        appOwner={appOwner}
+        type={ProcessTaskType.Unknown}
+      >
+        <InstanceSelection />
+      </PresentationComponent>
+    </ActiveInstancesProvider>
+  );
+}
+
+function InstanceSelection() {
+  const _instances = useActiveInstances();
   const applicationMetadata = useApplicationMetadata();
   const instanceSelectionOptions = applicationMetadata?.onEntry?.instanceSelection;
   const selectedIndex = instanceSelectionOptions?.defaultSelectedOption;
   const { lang, langAsString, language } = useLanguage();
   const mobileView = useIsMobileOrTablet();
   const rowsPerPageOptions = instanceSelectionOptions?.rowsPerPageOptions ?? [10, 25, 50];
+  const instantiate = useInstantiation().instantiate;
 
   const doesIndexExist = (selectedIndex: number | undefined): selectedIndex is number =>
     selectedIndex !== undefined && rowsPerPageOptions.length - 1 >= selectedIndex && selectedIndex >= 0;
@@ -55,9 +78,7 @@ export function InstanceSelection({ instances, onNewInstance }: IInstanceSelecti
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[defaultSelectedOption]);
 
-  if (instanceSelectionOptions?.sortDirection === 'desc') {
-    instances = instances.slice().reverse();
-  }
+  const instances = instanceSelectionOptions?.sortDirection === 'desc' ? [..._instances].reverse() : _instances;
   const paginatedInstances = instances.slice(currentPage * rowsPerPage, (currentPage + 1) * rowsPerPage);
 
   function handleRowsPerPageChanged(newRowsPerPage: number) {
@@ -211,7 +232,7 @@ export function InstanceSelection({ instances, onNewInstance }: IInstanceSelecti
         {!mobileView && renderTable()}
         <div className={classes.startNewButtonContainer}>
           <Button
-            onClick={onNewInstance}
+            onClick={() => instantiate()}
             id='new-instance-button'
           >
             {lang('instance_selection.new_instance')}

@@ -1,6 +1,6 @@
 import type { IParty } from 'src/types/shared';
 
-export const partyMock: IParty = {
+export const getPartyMock = (): IParty => ({
   partyId: '12345',
   name: 'Ola Privatperson',
   ssn: '01017512345',
@@ -10,4 +10,4 @@ export const partyMock: IParty = {
   isDeleted: false,
   onlyHierarchyElementWithNoAccess: false,
   childParties: undefined,
-};
+});

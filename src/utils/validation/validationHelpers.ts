@@ -20,10 +20,10 @@ export function validationContextFromState(state: IRuntimeState, node: LayoutNod
     formData: state.formData.formData,
     langTools: staticUseLanguageFromState(state, node),
     attachments: state.deprecated.lastKnownAttachments || {},
-    application: state.applicationMetadata.applicationMetadata,
+    application: state.applicationMetadata.applicationMetadata!,
     instance: state.deprecated.lastKnownInstance || null,
     process: state.deprecated.lastKnownProcess || null,
-    layoutSets: state.formLayout.layoutsets,
+    layoutSets: state.formLayout.layoutsets!,
     schemas: state.formDataModel.schemas,
     customValidation: state.customValidation.customValidation,
   };

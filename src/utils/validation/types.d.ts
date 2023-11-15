@@ -16,10 +16,10 @@ export type IValidationContext = {
   langTools: IUseLanguage;
   formData: IFormData;
   attachments: IAttachments;
-  application: IApplicationMetadata | null;
+  application: IApplicationMetadata;
   instance: IInstance | null;
   process: IProcess | null;
-  layoutSets: ILayoutSets | null;
+  layoutSets: ILayoutSets;
   schemas: IJsonSchemas;
   customValidation: IExpressionValidations | null;
 };

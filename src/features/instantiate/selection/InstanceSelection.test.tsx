@@ -1,71 +1,60 @@
 import React from 'react';
 
-import { act, screen, within } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
-import { InstanceSelection } from 'src/features/instantiate/containers/InstanceSelection';
+import { InstanceSelectionWrapper } from 'src/features/instantiate/selection/InstanceSelection';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
-import type { IInstanceSelectionProps } from 'src/features/instantiate/containers/InstanceSelection';
 import type { ISimpleInstance } from 'src/types';
 
-const render = async (props: IInstanceSelectionProps) =>
-  await renderWithInstanceAndLayout({ renderer: () => <InstanceSelection {...props} /> });
+const mockActiveInstances: ISimpleInstance[] = [
+  {
+    id: 'some-id',
+    lastChanged: '2021-10-05T07:51:57.8795258Z',
+    lastChangedBy: 'Navn Navnesen',
+  },
+  {
+    id: 'some-other-id',
+    lastChanged: '2021-05-13T07:51:57.8795258Z',
+    lastChangedBy: 'Kåre Nordmannsen',
+  },
+];
+
+const render = async (instances = mockActiveInstances) =>
+  await renderWithInstanceAndLayout({
+    renderer: () => <InstanceSelectionWrapper />,
+    queries: {
+      fetchActiveInstances: () => Promise.resolve(instances || []),
+    },
+  });
 
 const { setScreenWidth } = mockMediaQuery(992);
-const user = userEvent.setup();
 
 describe('InstanceSelection', () => {
-  let mockStartNewInstance: () => void;
-  let mockActiveInstances: ISimpleInstance[];
-
   beforeEach(() => {
     // Set screen size to desktop
     setScreenWidth(1200);
-    mockStartNewInstance = jest.fn();
-    mockActiveInstances = [
-      {
-        id: 'some-id',
-        lastChanged: '2021-10-05T07:51:57.8795258Z',
-        lastChangedBy: 'Navn Navnesen',
-      },
-      {
-        id: 'some-other-id',
-        lastChanged: '2021-05-13T07:51:57.8795258Z',
-        lastChangedBy: 'Kåre Nordmannsen',
-      },
-    ];
   });
 
   it('should show full size table for larger devices', async () => {
-    // eslint-disable-next-line testing-library/render-result-naming-convention
-    const rendered = await render({
-      instances: mockActiveInstances,
-      onNewInstance: mockStartNewInstance,
-    });
+    const { container } = await render();
     // eslint-disable-next-line
-    const altinnTable = rendered.container.querySelector('#instance-selection-table');
+    const altinnTable = container.querySelector('#instance-selection-table');
     expect(altinnTable).not.toBeNull();
   });
 
   it('should display mobile table for smaller devices', async () => {
     // Set screen size to mobile
     setScreenWidth(600);
-    // eslint-disable-next-line testing-library/render-result-naming-convention
-    const rendered = await render({
-      instances: mockActiveInstances,
-      onNewInstance: mockStartNewInstance,
-    });
+    const { container } = await render();
     // eslint-disable-next-line
-    const altinnMobileTable = rendered.container.querySelector('#instance-selection-mobile-table');
+    const altinnMobileTable = container.querySelector('#instance-selection-mobile-table');
     expect(altinnMobileTable).not.toBeNull();
   });
 
   it('should display active instances', async () => {
-    await render({
-      instances: mockActiveInstances,
-      onNewInstance: mockStartNewInstance,
-    });
+    await render();
 
     const firstInstanceChangedBy = await screen.findByText(mockActiveInstances[0].lastChangedBy);
     const secondInstanceChangedBy = await screen.findByText(mockActiveInstances[1].lastChangedBy);
@@ -81,20 +70,13 @@ describe('InstanceSelection', () => {
   });
 
   it('pressing "Start på nytt" should trigger callback', async () => {
-    await render({
-      instances: mockActiveInstances,
-      onNewInstance: mockStartNewInstance,
-    });
-
-    await act(() => user.click(screen.getByText(/start på nytt/i)));
-    expect(mockStartNewInstance).toBeCalledTimes(1);
+    const { mutations } = await render();
+    await userEvent.click(screen.getByText(/start på nytt/i));
+    expect(mutations.doInstantiate.mock).toBeCalledTimes(1);
   });
 
   it('should trigger openInstance on editButton click', async () => {
-    await render({
-      instances: mockActiveInstances,
-      onNewInstance: mockStartNewInstance,
-    });
+    const { mutations } = await render();
     const row = screen.getByRole('row', {
       name: /10\/05\/2021 navn navnesen fortsett her/i,
     });
@@ -104,17 +86,15 @@ describe('InstanceSelection', () => {
       name: /fortsett her/i,
     });
 
-    await act(() => user.click(button));
+    await userEvent.click(button);
     expect(window.location.href).toBe('https://local.altinn.cloud/ttd/test#/instance/some-id');
+    expect(mutations.doInstantiate.mock).toBeCalledTimes(0);
   });
 
   it('should trigger openInstance on editButton click during mobile view', async () => {
     // Set screen size to mobile
     setScreenWidth(600);
-    await render({
-      instances: mockActiveInstances,
-      onNewInstance: mockStartNewInstance,
-    });
+    const { mutations } = await render();
 
     const row = screen.getByRole('row', {
       name: /Sist endret: 05\/13\/2021 Endret av: Kåre Nordmannsen/i,
@@ -125,7 +105,8 @@ describe('InstanceSelection', () => {
       name: /fortsett her/i,
     });
 
-    await act(() => user.click(button));
+    await userEvent.click(button);
     expect(window.location.href).toBe('https://local.altinn.cloud/ttd/test#/instance/some-other-id');
+    expect(mutations.doInstantiate.mock).toBeCalledTimes(0);
   });
 });

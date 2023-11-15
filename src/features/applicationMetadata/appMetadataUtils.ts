@@ -1,25 +1,27 @@
-import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
 import { getLayoutSetForDataElement } from 'src/utils/layout';
-import type { IApplicationMetadata } from 'src/features/applicationMetadata/index';
+import type { IApplicationMetadata, ShowTypes } from 'src/features/applicationMetadata/index';
 import type { ILayoutSets } from 'src/types';
 import type { IInstance, IProcess } from 'src/types/shared';
 
 interface TheCommonThreeProps {
-  application: IApplicationMetadata | null;
+  application: IApplicationMetadata;
   process: IProcess | null | undefined;
-  layoutSets: ILayoutSets | null;
+  layoutSets: ILayoutSets;
 }
 
 interface TheCommonFourProps extends TheCommonThreeProps {
   instance: IInstance | null | undefined;
 }
 
-export function getDataTypeByLayoutSetId(
-  layoutSetId: string | undefined,
-  layoutSets: ILayoutSets | undefined | null,
-  appMetaData: IApplicationMetadata | null,
-) {
+interface GetDataTypeByLayoutSetIdProps {
+  layoutSetId: string | undefined;
+  layoutSets: ILayoutSets;
+  appMetaData: IApplicationMetadata;
+}
+
+export function getDataTypeByLayoutSetId({ layoutSetId, layoutSets, appMetaData }: GetDataTypeByLayoutSetIdProps) {
   const typeFromLayoutSet = layoutSets?.sets.find((set) => set.id === layoutSetId)?.dataType;
   if (typeFromLayoutSet && appMetaData?.dataTypes.find((element) => element.id === typeFromLayoutSet)) {
     return typeFromLayoutSet;
@@ -28,11 +30,13 @@ export function getDataTypeByLayoutSetId(
   return undefined;
 }
 
-export function getDataTypeByTaskId(
-  taskId: string | undefined,
-  application: IApplicationMetadata | null,
-  layoutSets: ILayoutSets | null | undefined,
-) {
+interface GetDataTypeByTaskIdProps {
+  taskId: string | undefined;
+  application: IApplicationMetadata;
+  layoutSets: ILayoutSets;
+}
+
+export function getDataTypeByTaskId({ taskId, application, layoutSets }: GetDataTypeByTaskIdProps) {
   if (!taskId) {
     return undefined;
   }
@@ -60,7 +64,7 @@ export function getDataTypeByTaskId(
 /**
  * Application metadata onEntry.show values that have a state full application
  */
-export const onEntryValuesThatHaveState: string[] = ['new-instance', 'select-instance', 'start-page'];
+export const onEntryValuesThatHaveState: ShowTypes[] = ['new-instance', 'select-instance'];
 
 /**
  * Get the current layout set for application if it exists
@@ -74,10 +78,6 @@ export function getLayoutSetIdForApplication({
   layoutSets,
   process,
 }: TheCommonThreeProps): string | undefined {
-  if (!application) {
-    return undefined;
-  }
-
   const showOnEntry = application.onEntry?.show;
   if (isStatelessApp(application)) {
     // we have a stateless app with a layout set
@@ -105,10 +105,10 @@ export function getCurrentDataTypeForApplication({
   process,
   layoutSets,
 }: TheCommonThreeProps): string | undefined {
-  const showOnEntry: string | undefined = application?.onEntry?.show;
+  const showOnEntry = application.onEntry?.show;
   if (isStatelessApp(application)) {
     // we have a stateless app with a layout set
-    return getDataTypeByLayoutSetId(showOnEntry, layoutSets, application);
+    return getDataTypeByLayoutSetId({ layoutSetId: showOnEntry, layoutSets, appMetaData: application });
   }
 
   // Instance - get data element based on current process step
@@ -117,23 +117,23 @@ export function getCurrentDataTypeForApplication({
     return undefined;
   }
 
-  return getDataTypeByTaskId(currentTaskId, application, layoutSets);
+  return getDataTypeByTaskId({ taskId: currentTaskId, application, layoutSets });
 }
 
-export function isStatelessApp(application: IApplicationMetadata | null) {
+export function isStatelessApp(application: IApplicationMetadata) {
   const url = window.location.href; // This should probably be reconsidered when changing router.
   const expr = getInstanceIdRegExp({ prefix: '/instance' });
   const match = url?.match(expr);
   if (match) {
-    // app can be setup as stateless but then go over to a statefull app
+    // App can be setup as stateless but then go over to a stateful process task
     return false;
   }
-  const show = application?.onEntry?.show;
+  const show = application.onEntry?.show;
   return typeof show === 'string' && !onEntryValuesThatHaveState.includes(show);
 }
 
 export function useIsStatelessApp() {
-  const application = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
+  const application = useApplicationMetadata();
   return isStatelessApp(application);
 }
 

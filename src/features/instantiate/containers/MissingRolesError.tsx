@@ -32,7 +32,7 @@ export function MissingRolesError() {
     const hostName = getHostname();
 
     const errorRights = getErrorRights();
-    const errorChangeParty = <Link to='/partyselection'>{lang('party_selection.change_party')}</Link>;
+    const errorChangeParty = <Link to='/party-selection'>{lang('party_selection.change_party')}</Link>;
     const errorAsk = lang('instantiate.authorization_error_ask');
     const errorCheckRights = getCheckRights(hostName);
     const errorMoreInfo = getErrorInfoRights(hostName);

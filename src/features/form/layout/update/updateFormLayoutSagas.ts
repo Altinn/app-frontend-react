@@ -104,10 +104,10 @@ export function* updateCurrentViewSaga({
         },
       };
       const currentTaskDataId = getCurrentTaskDataElementId({
-        application: state.applicationMetadata.applicationMetadata,
+        application: state.applicationMetadata.applicationMetadata!,
         instance: state.deprecated.lastKnownInstance,
         process: state.deprecated.lastKnownProcess,
-        layoutSets: state.formLayout.layoutsets,
+        layoutSets: state.formLayout.layoutsets!,
       });
 
       const validationOptions = runValidations === Triggers.ValidatePage ? options : undefined;

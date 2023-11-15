@@ -177,11 +177,11 @@ export const fetchOrgs = (): Promise<{ orgs: IAltinnOrgs }> =>
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
   });
 
-export const fetchParties = () => httpGet(validPartiesUrl);
+export const fetchParties = (): Promise<IParty[]> => httpGet(validPartiesUrl);
 
 export const fetchAppLanguages = (): Promise<IAppLanguage[]> => httpGet(applicationLanguagesUrl);
 
-export const fetchRefreshJwtToken = () => httpGet(refreshJwtTokenUrl);
+export const fetchRefreshJwtToken = (): Promise<unknown> => httpGet(refreshJwtTokenUrl);
 
 export const fetchCustomValidationConfig = (dataTypeId: string): Promise<IExpressionValidationConfig | null> =>
   httpGet(getCustomValidationConfigUrl(dataTypeId));

@@ -10,6 +10,7 @@ import type { RenderOptions } from '@testing-library/react';
 import type { AxiosResponse } from 'axios';
 import type { JSONSchema7 } from 'json-schema';
 
+import { getPartyMock } from 'src/__mocks__/getPartyMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getInstanceDataMock, getProcessDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { AppQueriesProvider } from 'src/contexts/appQueriesContext';
@@ -100,14 +101,14 @@ const makeDefaultQueryMocks = (state: IRuntimeState): MockableQueries => ({
   fetchLogo: () => Promise.resolve(''),
   fetchApplicationMetadata: () => Promise.resolve(state.applicationMetadata.applicationMetadata!),
   fetchActiveInstances: () => Promise.resolve([]),
-  fetchCurrentParty: () => Promise.resolve(state.party.selectedParty),
+  fetchCurrentParty: () => Promise.resolve(getPartyMock()),
   fetchApplicationSettings: () => Promise.resolve({}),
   fetchFooterLayout: () => Promise.resolve({ footer: [] } as IFooterLayout),
   fetchLayoutSets: () => Promise.resolve({} as unknown as ILayoutSets),
   fetchOrgs: () => Promise.resolve({ orgs: {} }),
   fetchUserProfile: () => Promise.resolve({} as unknown as IProfile),
   fetchDataModelSchema: () => Promise.resolve({}),
-  fetchParties: () => Promise.resolve({}),
+  fetchParties: () => Promise.resolve([getPartyMock()]),
   fetchRefreshJwtToken: () => Promise.resolve({}),
   fetchCustomValidationConfig: () => Promise.resolve(null),
   fetchFormData: () => Promise.resolve({}),

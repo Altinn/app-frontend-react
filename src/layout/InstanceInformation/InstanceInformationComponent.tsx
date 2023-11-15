@@ -7,13 +7,13 @@ import type { PropsFromGenericComponent } from '..';
 
 import { AltinnSummaryTable } from 'src/components/table/AltinnSummaryTable';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { useParties } from 'src/features/party/PartiesProvider';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { selectAppReceiver } from 'src/selectors/language';
 import { getDateFormat } from 'src/utils/dateHelpers';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type { IRuntimeState } from 'src/types';
 import type { IParty } from 'src/types/shared';
 
 export const returnInstanceMetaDataObject = (
@@ -62,7 +62,7 @@ export function InstanceInformationComponent({ node }: PropsFromGenericComponent
   const { selectedLanguage } = langTools;
 
   const instance = useLaxInstanceData();
-  const parties = useAppSelector((state: IRuntimeState) => state.party.parties);
+  const parties = useParties();
   const appReceiver = useAppSelector(selectAppReceiver);
 
   const instanceOwnerParty =

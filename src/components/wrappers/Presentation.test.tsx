@@ -4,8 +4,8 @@ import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import axios from 'axios';
 
+import { getPartyMock } from 'src/__mocks__/getPartyMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { partyMock } from 'src/__mocks__/partyMock';
 import { PresentationComponent } from 'src/components/wrappers/Presentation';
 import { renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
@@ -88,14 +88,14 @@ describe('Presentation', () => {
 
     await render({ type: ProcessTaskType.Data }, stateWithErrorsAndWarnings);
 
-    expect(window.location.href).not.toEqual(returnUrlToMessagebox(origin, partyMock.partyId));
+    expect(window.location.href).not.toEqual(returnUrlToMessagebox(origin, getPartyMock().partyId));
 
     const closeButton = screen.getByRole('button', {
       name: /lukk skjema/i,
     });
     await user.click(closeButton);
 
-    expect(window.location.href).toEqual(returnUrlToMessagebox(origin, partyMock.partyId));
+    expect(window.location.href).toEqual(returnUrlToMessagebox(origin, getPartyMock().partyId));
 
     await flushPromises();
   });
@@ -112,14 +112,14 @@ describe('Presentation', () => {
 
     await render({ type: ProcessTaskType.Data }, stateWithErrorsAndWarnings);
 
-    expect(window.location.href).not.toEqual(returnUrlToMessagebox(origin, partyMock.partyId));
+    expect(window.location.href).not.toEqual(returnUrlToMessagebox(origin, getPartyMock().partyId));
 
     const closeButton = screen.getByRole('button', {
       name: /lukk skjema/i,
     });
     await user.click(closeButton);
 
-    expect(window.location.href).toEqual(returnUrlToMessagebox(origin, partyMock.partyId));
+    expect(window.location.href).toEqual(returnUrlToMessagebox(origin, getPartyMock().partyId));
 
     await flushPromises();
   });

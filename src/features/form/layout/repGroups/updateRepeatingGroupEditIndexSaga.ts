@@ -65,7 +65,7 @@ export function* updateRepeatingGroupEditIndexSaga({
         application: state.applicationMetadata.applicationMetadata,
         instance,
         process: state.deprecated.lastKnownProcess,
-        layoutSets: state.formLayout.layoutsets,
+        layoutSets: state.formLayout.layoutsets!,
       });
 
       if (!currentTaskDataId) {

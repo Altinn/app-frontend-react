@@ -1,17 +1,21 @@
 import React from 'react';
 
 import { useQuery } from '@tanstack/react-query';
+import { isAxiosError } from 'axios';
 import type { UseQueryResult } from '@tanstack/react-query';
 import type { AxiosRequestConfig } from 'axios/index';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { getDataTypeByLayoutSetId, isStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
 import { makeGetAllowAnonymousSelector } from 'src/features/applicationMetadata/getAllowAnonymous';
 import { createLaxContext } from 'src/features/contexts/createContext';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
+import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData, useRealTaskType } from 'src/features/instance/ProcessContext';
+import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/loading/Loader';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
@@ -19,6 +23,7 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import { ProcessTaskType } from 'src/types';
 import { flattenObject } from 'src/utils/databindings';
 import { maybeAuthenticationRedirect } from 'src/utils/maybeAuthenticationRedirect';
+import { HttpStatusCodes } from 'src/utils/network/networking';
 import { getFetchFormDataUrl, getStatelessFormDataUrl } from 'src/utils/urls/appUrlHelper';
 import type { IFormData } from 'src/features/formData/index';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
@@ -42,6 +47,11 @@ export const FormDataProvider = ({ children }) => {
     : { error: undefined, isLoading: false };
 
   if (error) {
+    // Error trying to fetch data, if missing rights we display relevant page
+    if (isAxiosError(error) && error.response?.status === HttpStatusCodes.Forbidden) {
+      return <MissingRolesError />;
+    }
+
     return <UnknownError />;
   }
 
@@ -55,7 +65,7 @@ export const FormDataProvider = ({ children }) => {
 function useFormDataQuery(enabled: boolean): UseQueryResult<IFormData> {
   const dispatch = useAppDispatch();
   const reFetchActive = useAppSelector((state) => state.formData.reFetch);
-  const appMetaData = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
+  const appMetaData = useApplicationMetadata();
   const currentPartyId = useAppSelector((state) => state.party.selectedParty?.partyId);
   const taskType = useRealTaskType();
   const allowAnonymousSelector = makeGetAllowAnonymousSelector();
@@ -78,9 +88,13 @@ function useFormDataQuery(enabled: boolean): UseQueryResult<IFormData> {
   }
 
   const instance = useLaxInstanceData();
-  const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
+  const layoutSets = useLayoutSets();
   const statelessDataType = isStateless
-    ? getDataTypeByLayoutSetId(appMetaData?.onEntry?.show, layoutSets, appMetaData)
+    ? getDataTypeByLayoutSetId({
+        layoutSetId: appMetaData?.onEntry?.show,
+        layoutSets,
+        appMetaData,
+      })
     : undefined;
 
   const url =
@@ -106,8 +120,8 @@ function useFormDataQuery(enabled: boolean): UseQueryResult<IFormData> {
       dispatch(FormDataActions.fetchFulfilled({ formData }));
     },
     onError: async (error: HttpClientError) => {
-      dispatch(FormDataActions.fetchRejected({ error }));
       if (error.message?.includes('403')) {
+        // This renders the <MissingRolesError /> component in the provider
         window.logInfo('Current party is missing roles');
       } else {
         window.logError('Fetching form data failed:\n', error);

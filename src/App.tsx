@@ -1,10 +1,11 @@
 import React from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { ProcessWrapper } from 'src/components/wrappers/ProcessWrapper';
 import { Entrypoint } from 'src/features/entrypoint/Entrypoint';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { PartySelection } from 'src/features/instantiate/containers/PartySelection';
+import { InstanceSelectionWrapper } from 'src/features/instantiate/selection/InstanceSelection';
 
 export const App = () => (
   <Routes>
@@ -13,8 +14,22 @@ export const App = () => (
       element={<Entrypoint />}
     />
     <Route
-      path='/partyselection/*'
+      path='/instance-selection/*'
+      element={<InstanceSelectionWrapper />}
+    />
+    <Route
+      path='/party-selection/*'
       element={<PartySelection />}
+    />
+    <Route
+      path='/partyselection/*'
+      element={
+        // Rewrites to the new URL
+        <Navigate
+          to='/party-selection/'
+          replace={true}
+        />
+      }
     />
     <Route
       path='/instance/:partyId/:instanceGuid'

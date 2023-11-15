@@ -59,15 +59,15 @@ document.addEventListener('DOMContentLoaded', () => {
                             <FooterLayoutProvider>
                               <ProfileProvider>
                                 <PartiesProvider>
-                                  <TextResourcesProvider>
-                                    <CurrentPartyProvider>
+                                  <CurrentPartyProvider>
+                                    <TextResourcesProvider>
                                       <KeepAliveProvider>
                                         <WindowTitleProvider>
                                           <App />
                                         </WindowTitleProvider>
                                       </KeepAliveProvider>
-                                    </CurrentPartyProvider>
-                                  </TextResourcesProvider>
+                                    </TextResourcesProvider>
+                                  </CurrentPartyProvider>
                                 </PartiesProvider>
                               </ProfileProvider>
                             </FooterLayoutProvider>

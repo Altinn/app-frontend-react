@@ -3,16 +3,16 @@ import { useQuery } from '@tanstack/react-query';
 import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { useAllowAnonymousIs } from 'src/features/applicationMetadata/getAllowAnonymous';
 import { createLaxQueryContext } from 'src/features/contexts/queryContext';
+import { useParties } from 'src/features/party/PartiesProvider';
 import { PartyActions } from 'src/features/party/partySlice';
 import { useAlwaysPromptForParty } from 'src/hooks/useAlwaysPromptForParty';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import type { IParty } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 const useCurrentPartyQuery = () => {
   const dispatch = useAppDispatch();
-  const parties = useAppSelector((state) => state.party.parties);
+  const parties = useParties();
   const alwaysPromptForParty = useAlwaysPromptForParty();
   const shouldFetchProfile = useAllowAnonymousIs(false);
   const enabled = alwaysPromptForParty === false && shouldFetchProfile;

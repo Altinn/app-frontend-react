@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import type { UseQueryResult } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
+import { createStrictQueryContext } from 'src/features/contexts/queryContext';
 import type { ISimpleInstance } from 'src/types';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
-export const useActiveInstancesQuery = (partyId?: string, enabled?: boolean): UseQueryResult<ISimpleInstance[]> => {
+const useActiveInstancesQuery = (partyId?: string, enabled?: boolean) => {
   const { fetchActiveInstances } = useAppQueries();
   return useQuery({
     enabled,
@@ -19,8 +19,15 @@ export const useActiveInstancesQuery = (partyId?: string, enabled?: boolean): Us
       return simpleInstances;
     },
     onError: (error: HttpClientError) => {
-      console.warn(error);
-      throw new Error('Server did not return active instances');
+      window.logErrorOnce('Failed to find any active instances:\n', error);
     },
   });
 };
+
+const { Provider, useCtx } = createStrictQueryContext<ISimpleInstance[]>({
+  name: 'ActiveInstances',
+  useQuery: useActiveInstancesQuery,
+});
+
+export const ActiveInstancesProvider = Provider;
+export const useActiveInstances = useCtx;

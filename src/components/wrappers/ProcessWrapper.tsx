@@ -3,15 +3,14 @@ import { useSearchParams } from 'react-router-dom';
 
 import cn from 'classnames';
 
-import { AltinnContentIconFormData } from 'src/components/atoms/AltinnContentIconFormData';
 import { Form } from 'src/components/form/Form';
-import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoader';
 import { PresentationComponent } from 'src/components/wrappers/Presentation';
 import classes from 'src/components/wrappers/ProcessWrapper.module.css';
 import { Confirm } from 'src/features/confirm/containers/Confirm';
 import { Feedback } from 'src/features/feedback/Feedback';
 import { useStrictInstance } from 'src/features/instance/InstanceContext';
 import { useRealTaskType } from 'src/features/instance/ProcessContext';
+import { Loader } from 'src/features/loading/Loader';
 import { PDFView } from 'src/features/pdf/PDFView';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -49,35 +48,25 @@ export const ProcessWrapper = () => {
           [classes['hide-form']]: previewPDF,
         })}
       >
-        <PresentationComponent
-          header={appName}
-          appOwner={appOwner}
-          type={taskType}
-        >
-          {!loadingReason ? (
-            <>
-              {taskType === ProcessTaskType.Data ? (
-                <Form />
-              ) : taskType === ProcessTaskType.Confirm ? (
-                <Confirm />
-              ) : taskType === ProcessTaskType.Feedback ? (
-                <Feedback />
-              ) : taskType === ProcessTaskType.Archived ? (
-                <ReceiptContainer />
-              ) : null}
-            </>
-          ) : (
-            <div style={{ marginTop: '1.5625rem' }}>
-              <AltinnContentLoader
-                width='100%'
-                height={700}
-                reason={`process-wrapper-${loadingReason}`}
-              >
-                <AltinnContentIconFormData />
-              </AltinnContentLoader>
-            </div>
-          )}
-        </PresentationComponent>
+        {!loadingReason ? (
+          <PresentationComponent
+            header={appName}
+            appOwner={appOwner}
+            type={taskType}
+          >
+            {taskType === ProcessTaskType.Data ? (
+              <Form />
+            ) : taskType === ProcessTaskType.Confirm ? (
+              <Confirm />
+            ) : taskType === ProcessTaskType.Feedback ? (
+              <Feedback />
+            ) : taskType === ProcessTaskType.Archived ? (
+              <ReceiptContainer />
+            ) : null}
+          </PresentationComponent>
+        ) : (
+          <Loader reason={`process-wrapper-${loadingReason}`} />
+        )}
       </div>
       {previewPDF && !loadingReason && (
         <div className={cn(classes['content'], classes['hide-pdf'])}>

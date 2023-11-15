@@ -161,10 +161,10 @@ function* waitForSaving() {
 export function* putFormData({ field, componentId }: SaveDataParams) {
   const defaultDataElementGuid: string | undefined = yield select((state: IRuntimeState) =>
     getCurrentTaskDataElementId({
-      application: state.applicationMetadata.applicationMetadata,
+      application: state.applicationMetadata.applicationMetadata!,
       instance: state.deprecated.lastKnownInstance,
       process: state.deprecated.lastKnownProcess,
-      layoutSets: state.formLayout.layoutsets,
+      layoutSets: state.formLayout.layoutsets!,
     }),
   );
   if (!defaultDataElementGuid) {
@@ -271,7 +271,7 @@ export function* saveFormDataSaga({
   try {
     const state: IRuntimeState = yield select();
     // updates the default data element
-    const application = state.applicationMetadata.applicationMetadata;
+    const application = state.applicationMetadata.applicationMetadata!;
 
     if (isStatelessApp(application)) {
       yield call(postStatelessData, { field, componentId });
@@ -325,9 +325,9 @@ export function* postStatelessData({ field, componentId }: SaveDataParams) {
   }
 
   const currentDataType = getCurrentDataTypeForApplication({
-    application: state.applicationMetadata.applicationMetadata,
+    application: state.applicationMetadata.applicationMetadata!,
     process: state.deprecated.lastKnownProcess,
-    layoutSets: state.formLayout.layoutsets,
+    layoutSets: state.formLayout.layoutsets!,
   });
   if (currentDataType) {
     const abortController = new AbortController();

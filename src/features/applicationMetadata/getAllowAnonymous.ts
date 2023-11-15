@@ -28,7 +28,11 @@ const getAllowAnonymous = () => {
       return undefined;
     }
 
-    const dataTypeId = getDataTypeByLayoutSetId(application.onEntry?.show, layoutSets, application);
+    const dataTypeId = getDataTypeByLayoutSetId({
+      layoutSetId: application.onEntry?.show,
+      layoutSets,
+      appMetaData: application,
+    });
     const dataType = application.dataTypes.find((d) => d.id === dataTypeId);
     const allowAnonymous = dataType?.appLogic?.allowAnonymousOnStateless;
     if (allowAnonymous !== undefined && allowAnonymous !== null) {

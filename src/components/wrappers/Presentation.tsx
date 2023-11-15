@@ -1,4 +1,5 @@
 import React from 'react';
+import type { PropsWithChildren } from 'react';
 
 import cn from 'classnames';
 
@@ -20,14 +21,13 @@ import { httpGet } from 'src/utils/network/networking';
 import { getRedirectUrl } from 'src/utils/urls/appUrlHelper';
 import { returnUrlFromQueryParameter, returnUrlToMessagebox } from 'src/utils/urls/urlHelper';
 
-export interface IPresentationProvidedProps {
+export interface IPresentationProvidedProps extends PropsWithChildren {
   header?: React.ReactNode;
   appOwner?: string;
   type: ProcessTaskType | PresentationType;
-  children?: JSX.Element;
 }
 
-export const PresentationComponent = (props: IPresentationProvidedProps) => {
+export const PresentationComponent = ({ header, type, appOwner, children }: IPresentationProvidedProps) => {
   const dispatch = useAppDispatch();
   const { langAsString } = useLanguage();
   const party = useAppSelector((state) => state.party?.selectedParty);
@@ -45,10 +45,7 @@ export const PresentationComponent = (props: IPresentationProvidedProps) => {
           newView: returnToView,
         }),
       );
-    } else if (
-      previous !== undefined &&
-      (props.type === ProcessTaskType.Data || props.type === PresentationType.Stateless)
-    ) {
+    } else if (previous !== undefined && (type === ProcessTaskType.Data || type === PresentationType.Stateless)) {
       dispatch(
         FormLayoutActions.updateCurrentView({
           newView: previous,
@@ -75,7 +72,7 @@ export const PresentationComponent = (props: IPresentationProvidedProps) => {
     }
   };
 
-  const isProcessStepsArchived = Boolean(props.type === ProcessTaskType.Archived);
+  const isProcessStepsArchived = Boolean(type === ProcessTaskType.Archived);
   const backgroundColor = isProcessStepsArchived
     ? AltinnAppTheme.altinnPalette.primary.greenLight
     : AltinnAppTheme.altinnPalette.primary.greyLight;
@@ -99,16 +96,18 @@ export const PresentationComponent = (props: IPresentationProvidedProps) => {
         <NavBar
           handleClose={handleModalCloseButton}
           handleBack={handleBackArrowButton}
-          showBackArrow={
-            !!previous && (props.type === ProcessTaskType.Data || props.type === PresentationType.Stateless)
-          }
+          showBackArrow={!!previous && (type === ProcessTaskType.Data || type === PresentationType.Stateless)}
         />
         <section
           id='main-content'
           className={classes.modal}
         >
-          <Header {...props} />
-          <div className={classes.modalBody}>{props.children}</div>
+          <Header
+            type={type}
+            header={header}
+            appOwner={appOwner}
+          />
+          <div className={classes.modalBody}>{children}</div>
         </section>
       </main>
       <Footer />

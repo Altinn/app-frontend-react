@@ -124,7 +124,6 @@ function getMockState({ autoDeleteOnProcessEnd = false }): IRuntimeState {
       uiConfig: getUiConfigStateMock(),
     },
     party: {
-      parties: [partyMember],
       selectedParty: partyMember,
     },
     profile: {

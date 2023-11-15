@@ -9,7 +9,7 @@ export function useAlwaysPromptForParty(): boolean | null {
   const profile = useProfile();
   const parties = useParties();
 
-  if (!profile?.partyId || parties === null) {
+  if (!profile?.partyId || !parties) {
     return null;
   }
 
