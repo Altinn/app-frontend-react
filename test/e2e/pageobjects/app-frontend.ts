@@ -147,6 +147,8 @@ export class AppFrontend {
     reference: '#reference',
     reference2: '#reference2',
     dateOfEffect: '#dateOfEffect',
+    municipalityMetadata: '#kommuner-metadata',
+    municipality: '#kommune',
     upload: '#fileUpload-changename',
     uploadWithTag: {
       uploadZone: '#fileUploadWithTags-changename',
@@ -161,7 +163,7 @@ export class AppFrontend {
     summaryNameChanges: '#nameChanges',
     mobilenummer: '#mobilnummer',
     sources: '#sources',
-    uploadingAnimation: '#loader-upload',
+    uploadingAnimation: '.loader',
     deleteAttachment: '[data-testid^="attachment-delete"]',
     popOverDeleteButton: '[data-testid="warning-popover-delete-button"]',
     popOverCancelButton: '[data-testid="warning-popover-cancel-button"]',

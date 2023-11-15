@@ -1,21 +1,23 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 import {
   runExpressionRules,
   runExpressionsForLayouts,
   shouldUpdate,
-} from 'src/features/dynamics/conditionalRenderingSagas';
-import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
+} from 'src/features/form/dynamics/conditionalRenderingSagas';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { selectPageOrderConfig } from 'src/selectors/getLayoutOrder';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
+import { createLaxContext } from 'src/utils/createContext';
 import { _private, selectDataSourcesFromState } from 'src/utils/layout/hierarchy';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutNodeFromObj } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
-export const ExprContext = React.createContext<LayoutPages | undefined>(undefined);
+export const { Provider, useCtx } = createLaxContext<LayoutPages>();
 
 /**
  * React hook used for getting a memoized LayoutPages object where you can look up components.
@@ -32,7 +34,7 @@ export const ExprContextWrapper = (props: React.PropsWithChildren) => {
   const resolvedNodes = useLayoutsAsNodes();
   useLegacyHiddenComponents(resolvedNodes);
 
-  return <ExprContext.Provider value={resolvedNodes}>{props.children}</ExprContext.Provider>;
+  return <Provider value={resolvedNodes}>{props.children}</Provider>;
 };
 
 /**
@@ -42,7 +44,7 @@ export const ExprContextWrapper = (props: React.PropsWithChildren) => {
  *
  * Usually, if you're looking for a specific component/node, useResolvedNode() is better.
  */
-export const useExprContext = () => useContext(ExprContext);
+export const useExprContext = () => useCtx();
 
 /**
  * Given a selector, get a LayoutNode object
@@ -82,7 +84,7 @@ export function useResolvedNode<T>(selector: string | undefined | T | LayoutNode
  */
 function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
   const _currentHiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
-  const tracks = useAppSelector((state) => state.formLayout.uiConfig.tracks);
+  const pageOrderConfig = useAppSelector(selectPageOrderConfig);
   const formData = useAppSelector((state) => state.formData.formData);
   const rules = useAppSelector((state) => state.formDynamics.conditionalRendering);
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
@@ -94,8 +96,8 @@ function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
       return;
     }
 
-    const currentHiddenLayouts = new Set(tracks.hidden);
-    const futureHiddenLayouts = runExpressionsForLayouts(resolvedNodes, tracks.hiddenExpr, dataSources);
+    const currentHiddenLayouts = new Set(pageOrderConfig.hidden);
+    const futureHiddenLayouts = runExpressionsForLayouts(resolvedNodes, pageOrderConfig.hiddenExpr, dataSources);
 
     if (shouldUpdate(currentHiddenLayouts, futureHiddenLayouts)) {
       dispatch(
@@ -145,7 +147,7 @@ function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
     repeatingGroups,
     resolvedNodes,
     rules,
-    tracks.hidden,
-    tracks.hiddenExpr,
+    pageOrderConfig.hidden,
+    pageOrderConfig.hiddenExpr,
   ]);
 }

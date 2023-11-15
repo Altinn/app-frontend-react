@@ -28,24 +28,30 @@ export const CheckboxContainerComponent = ({
   handleDataChange,
   overrideDisplay,
 }: ICheckboxContainerProps) => {
-  const { id, layout, readOnly, textResourceBindings, required, labelSettings, alertOnChange } = node.item;
+  const { id, layout, readOnly, textResourceBindings, dataModelBindings, required, labelSettings, alertOnChange } =
+    node.item;
   const { lang, langAsString } = useLanguage();
   const {
     value: _value,
     setValue,
     saveValue,
-  } = useDelayedSavedState(handleDataChange, formData?.simpleBinding ?? '', 200);
+  } = useDelayedSavedState(handleDataChange, dataModelBindings?.simpleBinding, formData?.simpleBinding ?? '', 200);
 
   const value = _value ?? formData?.simpleBinding ?? '';
   const selected = value && value.length > 0 ? value.split(',') : defaultSelectedOptions;
   const { options: calculatedOptions, isFetching } = useGetOptions({
     ...node.item,
     node,
+    metadata: {
+      setValue: (metadata) => {
+        handleDataChange(metadata, { key: 'metadata' });
+      },
+    },
     formData: {
       type: 'multi',
       values: selected,
       setValues: (values) => {
-        setValue(values.join(','));
+        setValue(values.join(','), true);
       },
     },
   });
@@ -110,6 +116,7 @@ export const CheckboxContainerComponent = ({
         error={!isValid}
         aria-label={ariaLabel}
         value={selected}
+        data-testid='checkboxes-fieldset'
       >
         {calculatedOptions.map((option) => (
           <ConditionalWrapper
