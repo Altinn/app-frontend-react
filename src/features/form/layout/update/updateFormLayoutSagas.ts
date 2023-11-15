@@ -9,7 +9,7 @@ import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { Triggers } from 'src/layout/common.generated';
-import { selectLayoutOrder } from 'src/selectors/getLayoutOrder';
+import { getLayoutOrderFromPageOrderConfig, selectLayoutOrder } from 'src/selectors/getLayoutOrder';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { waitFor } from 'src/utils/sagas';
@@ -180,7 +180,6 @@ export function* moveToNextPageSaga({
     const currentView = state.formLayout.uiConfig.currentView;
 
     if (!state.applicationMetadata.applicationMetadata) {
-      yield put(FormLayoutActions.moveToNextPageRejected({ error: null }));
       return;
     }
 
@@ -190,7 +189,7 @@ export function* moveToNextPageSaga({
 
     yield put(FormLayoutActions.updateCurrentView({ newView, runValidations, keepScrollPos }));
   } catch (error) {
-    yield put(FormLayoutActions.moveToNextPageRejected({ error }));
+    // TODO: Handle this error when rewriting to page navigation hook
   }
 }
 

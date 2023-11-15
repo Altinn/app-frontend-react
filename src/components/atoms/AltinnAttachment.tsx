@@ -5,7 +5,7 @@ import cn from 'classnames';
 
 import { useLanguage } from 'src/hooks/useLanguage';
 import { FileExtensionIcon } from 'src/layout/FileUpload/FileUploadTable/AttachmentFileName';
-import { getFileEnding } from 'src/utils/attachment';
+import { getFileEnding } from 'src/layout/FileUpload/utils/fileEndings';
 import { makeUrlRelativeIfSameDomain } from 'src/utils/urls/urlHelper';
 import type { IDisplayAttachment } from 'src/types/shared';
 
