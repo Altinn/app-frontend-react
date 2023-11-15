@@ -267,7 +267,10 @@ function replaceVariables(text: string, variables: IVariable[], dataSources: Tex
     } else if (variable.dataSource === 'instanceContext') {
       value = instanceDataSources && variable.key in instanceDataSources ? instanceDataSources[variable.key] : value;
     } else if (variable.dataSource === 'applicationSettings') {
-      value = applicationSettings && variable.key in applicationSettings ? applicationSettings[variable.key] : value;
+      value =
+        applicationSettings && variable.key in applicationSettings && applicationSettings[variable.key] !== undefined
+          ? applicationSettings[variable.key]!
+          : value;
     }
 
     if (value === variable.key) {

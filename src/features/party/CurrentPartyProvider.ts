@@ -1,19 +1,24 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
-import { createStrictQueryContext } from 'src/features/contexts/queryContext';
+import { useAllowAnonymousIs } from 'src/features/applicationMetadata/getAllowAnonymous';
+import { createLaxQueryContext } from 'src/features/contexts/queryContext';
 import { PartyActions } from 'src/features/party/partySlice';
+import { useAlwaysPromptForParty } from 'src/hooks/useAlwaysPromptForParty';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import type { IParty } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
-const useCurrentPartyQuery = (enabled: boolean) => {
+const useCurrentPartyQuery = () => {
   const dispatch = useAppDispatch();
   const parties = useAppSelector((state) => state.party.parties);
+  const alwaysPromptForParty = useAlwaysPromptForParty();
+  const shouldFetchProfile = useAllowAnonymousIs(false);
+  const enabled = alwaysPromptForParty === false && shouldFetchProfile;
 
   const { fetchCurrentParty } = useAppQueries();
-  return useQuery({
+  const utils = useQuery({
     enabled,
     queryKey: ['fetchUseCurrentParty'],
     queryFn: () => fetchCurrentParty(),
@@ -27,11 +32,13 @@ const useCurrentPartyQuery = (enabled: boolean) => {
       window.logError('Fetching current party failed:\n', error);
     },
   });
+
+  return { ...utils, enabled };
 };
 
-const { useCtx, Provider } = createStrictQueryContext<IParty | undefined>({
+const { useCtx, Provider } = createLaxQueryContext<IParty>({
   name: 'CurrentParty',
-  queryHook: useCurrentPartyQuery,
+  useQuery: useCurrentPartyQuery,
 });
 
 export const CurrentPartyProvider = Provider;

@@ -123,6 +123,9 @@ describe('updateLayoutSagas', () => {
           }),
         )
         .run();
+      mockAxios.mockResponse({ data: orderResponse });
+
+      return exp;
     });
   });
 

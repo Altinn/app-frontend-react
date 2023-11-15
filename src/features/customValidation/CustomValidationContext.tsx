@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import type { UseQueryResult } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
@@ -10,12 +9,13 @@ import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { resolveExpressionValidationConfig } from 'src/utils/validation/expressionValidation';
 import type { IExpressionValidationConfig } from 'src/utils/validation/types';
 
-const useCustomValidationConfigQuery = (enabled: boolean): UseQueryResult<IExpressionValidationConfig | null> => {
+const useCustomValidationConfigQuery = () => {
   const dispatch = useAppDispatch();
   const { fetchCustomValidationConfig } = useAppQueries();
   const dataTypeId = useCurrentDataModelName();
+  const enabled = Boolean(dataTypeId?.length);
 
-  return useQuery({
+  const utils = useQuery({
     enabled,
     queryKey: ['fetchCustomValidationConfig', dataTypeId],
     queryFn: () => fetchCustomValidationConfig(dataTypeId!),
@@ -31,12 +31,16 @@ const useCustomValidationConfigQuery = (enabled: boolean): UseQueryResult<IExpre
       window.logError('Fetching validation configuration failed:\n', error);
     },
   });
+
+  return {
+    ...utils,
+    enabled,
+  };
 };
 
 const { Provider, useCtx } = createLaxQueryContext<IExpressionValidationConfig | null>({
   name: 'CustomValidationContext',
   useQuery: useCustomValidationConfigQuery,
-  useIsEnabled: () => Boolean(useCurrentDataModelName()?.length),
 });
 
 export const CustomValidationConfigProvider = Provider;

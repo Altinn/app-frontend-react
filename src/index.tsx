@@ -23,6 +23,10 @@ import { DevTools } from 'src/features/devtools/DevTools';
 import { FooterLayoutProvider } from 'src/features/footer/FooterLayoutProvider';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
+import { CurrentPartyProvider } from 'src/features/party/CurrentPartyProvider';
+import { PartiesProvider } from 'src/features/party/PartiesProvider';
+import { ProfileProvider } from 'src/features/profile/ProfileProvider';
+import { TextResourcesProvider } from 'src/features/textResources/TextResourcesProvider';
 import * as queries from 'src/queries/queries';
 import { initSagas } from 'src/redux/sagas';
 import { setupStore } from 'src/redux/store';
@@ -50,7 +54,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         <ApplicationSettingsProvider>
                           <LayoutSetsProvider>
                             <FooterLayoutProvider>
-                              <App />
+                              <ProfileProvider>
+                                <PartiesProvider>
+                                  <TextResourcesProvider>
+                                    <CurrentPartyProvider>
+                                      <App />
+                                    </CurrentPartyProvider>
+                                  </TextResourcesProvider>
+                                </PartiesProvider>
+                              </ProfileProvider>
                             </FooterLayoutProvider>
                           </LayoutSetsProvider>
                         </ApplicationSettingsProvider>

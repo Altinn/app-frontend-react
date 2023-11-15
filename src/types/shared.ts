@@ -239,7 +239,7 @@ export interface IAttachmentGrouping {
 }
 
 export interface IApplicationSettings {
-  [source: string]: string;
+  [source: string]: string | undefined;
 }
 
 export type InstanceOwnerPartyType = 'unknown' | 'org' | 'person' | 'selfIdentified';

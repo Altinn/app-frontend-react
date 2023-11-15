@@ -100,7 +100,7 @@ const makeDefaultQueryMocks = (state: IRuntimeState): MockableQueries => ({
   fetchLogo: () => Promise.resolve(''),
   fetchApplicationMetadata: () => Promise.resolve(state.applicationMetadata.applicationMetadata!),
   fetchActiveInstances: () => Promise.resolve([]),
-  fetchCurrentParty: () => Promise.resolve({}),
+  fetchCurrentParty: () => Promise.resolve(state.party.selectedParty),
   fetchApplicationSettings: () => Promise.resolve({}),
   fetchFooterLayout: () => Promise.resolve({ footer: [] } as IFooterLayout),
   fetchLayoutSets: () => Promise.resolve({} as unknown as ILayoutSets),

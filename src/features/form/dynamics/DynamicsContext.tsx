@@ -22,12 +22,9 @@ function useDynamicsQuery() {
     onSuccess: (dynamics) => {
       if (dynamics) {
         dispatch(FormDynamicsActions.fetchFulfilled(dynamics.data));
-      } else {
-        dispatch(FormDynamicsActions.fetchRejected({ error: null }));
       }
     },
     onError: (error: AxiosError) => {
-      dispatch(FormDynamicsActions.fetchRejected({ error }));
       window.logError('Fetching dynamics failed:\n', error);
     },
   });

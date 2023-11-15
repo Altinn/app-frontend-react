@@ -12,18 +12,16 @@ interface StrictQueryContextProps<T> extends StrictContextProps {
   useQuery: () => UseQueryResult<T>;
 }
 
-interface GenericProviderProps<T, Prop> extends PropsWithChildren {
+interface GenericProviderProps<T> extends PropsWithChildren {
   name: string;
-  prop?: Prop;
-  useQuery: (prop?: Prop) => UseQueryResult<T>;
+  useQuery: () => UseQueryResult<T> & { enabled: boolean };
   RealProvider: React.Provider<T>;
-  required: boolean;
 }
 
-function GenericProvider<T, P>({ children, useQuery, RealProvider, name, required, prop }: GenericProviderProps<T, P>) {
-  const { data, isLoading, error } = useQuery(prop);
+function GenericProvider<T>({ children, useQuery, RealProvider, name }: GenericProviderProps<T>) {
+  const { data, isLoading, error, enabled } = useQuery();
 
-  if (required && (!data || isLoading)) {
+  if (enabled && (!data || isLoading)) {
     return <Loader reason={`query-${name}`} />;
   }
 
@@ -40,9 +38,9 @@ export function createStrictQueryContext<T>({ name, useQuery }: StrictQueryConte
   const ThisProvider = ({ children }: PropsWithChildren) => (
     <GenericProvider
       name={name}
-      useQuery={useQuery}
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useQuery={() => ({ ...useQuery(), enabled: true })}
       RealProvider={Provider}
-      required={true}
     >
       {children}
     </GenericProvider>
@@ -57,28 +55,21 @@ export function createStrictQueryContext<T>({ name, useQuery }: StrictQueryConte
 interface LaxQueryContextProps<T> {
   name: string;
   initialState?: T;
-  useIsEnabled: () => boolean;
-  useQuery: (enabled: boolean) => UseQueryResult<T | undefined>;
+  useQuery: () => UseQueryResult<T | undefined> & { enabled: boolean };
 }
 
-export function createLaxQueryContext<T>({ name, useQuery, useIsEnabled, initialState }: LaxQueryContextProps<T>) {
+export function createLaxQueryContext<T>({ name, useQuery, initialState }: LaxQueryContextProps<T>) {
   const { Provider, useCtx, useHasProvider } = createLaxContext<T>(initialState);
 
-  const ThisProvider = ({ children }: PropsWithChildren) => {
-    const enabled = useIsEnabled();
-
-    return (
-      <GenericProvider
-        name={name}
-        prop={enabled}
-        useQuery={useQuery}
-        RealProvider={Provider}
-        required={enabled}
-      >
-        {children}
-      </GenericProvider>
-    );
-  };
+  const ThisProvider = ({ children }: PropsWithChildren) => (
+    <GenericProvider
+      name={name}
+      useQuery={useQuery}
+      RealProvider={Provider}
+    >
+      {children}
+    </GenericProvider>
+  );
 
   return {
     Provider: ThisProvider,

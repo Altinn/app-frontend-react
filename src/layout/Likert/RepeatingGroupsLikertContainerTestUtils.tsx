@@ -152,7 +152,6 @@ export const createFormError = (index: number): ILayoutValidations => ({
 });
 
 const createFormValidationsForCurrentView = (validations: ILayoutValidations = {}): IValidationState => ({
-  error: null,
   invalidDataTypes: [],
   validations: { FormLayout: validations },
 });

@@ -7,11 +7,12 @@ import { PartyActions } from 'src/features/party/partySlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
-const usePartiesQuery = (enabled: boolean) => {
+const usePartiesQuery = () => {
   const dispatch = useAppDispatch();
+  const enabled = useAllowAnonymousIs(false);
 
   const { fetchParties } = useAppQueries();
-  return useQuery({
+  const utils = useQuery({
     enabled,
     queryKey: ['fetchUseParties'],
     queryFn: () => fetchParties(),
@@ -22,12 +23,16 @@ const usePartiesQuery = (enabled: boolean) => {
       window.logError('Fetching parties failed:\n', error);
     },
   });
+
+  return {
+    ...utils,
+    enabled,
+  };
 };
 
 const { Provider, useCtx } = createLaxQueryContext({
   name: 'Parties',
   useQuery: usePartiesQuery,
-  useIsEnabled: () => useAllowAnonymousIs(false),
 });
 
 export const PartiesProvider = Provider;

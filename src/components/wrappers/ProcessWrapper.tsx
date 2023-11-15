@@ -12,21 +12,14 @@ import { Confirm } from 'src/features/confirm/containers/Confirm';
 import { Feedback } from 'src/features/feedback/Feedback';
 import { useStrictInstance } from 'src/features/instance/InstanceContext';
 import { useRealTaskType } from 'src/features/instance/ProcessContext';
-import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { PDFView } from 'src/features/pdf/PDFView';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
-import { useApiErrorCheck } from 'src/hooks/useApiErrorCheck';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
 import { ProcessTaskType } from 'src/types';
 
-export interface IProcessWrapperProps {
-  isFetching?: boolean;
-}
-
-export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
+export const ProcessWrapper = () => {
   const { isFetching: isInstanceDataFetching } = useStrictInstance();
-  const { hasApiErrors } = useApiErrorCheck();
   const appName = useAppSelector(selectAppName);
   const appOwner = useAppSelector(selectAppOwner);
   const taskType = useRealTaskType();
@@ -35,11 +28,7 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
   const renderPDF = searchParams.get('pdf') === '1';
   const previewPDF = useAppSelector((state) => state.devTools.pdfPreview);
 
-  const loadingReason = isFetching === true ? 'fetching' : isInstanceDataFetching ? 'fetching-instance' : undefined;
-
-  if (hasApiErrors) {
-    return <UnknownError />;
-  }
+  const loadingReason = isInstanceDataFetching ? 'fetching-instance' : undefined;
 
   if (renderPDF) {
     if (loadingReason) {

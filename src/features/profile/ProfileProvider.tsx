@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import type { UseQueryResult } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { useAllowAnonymousIs } from 'src/features/applicationMetadata/getAllowAnonymous';
@@ -9,11 +8,12 @@ import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import type { IProfile } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
-const useProfileQuery = (enabled: boolean): UseQueryResult<IProfile> => {
+const useProfileQuery = () => {
   const dispatch = useAppDispatch();
+  const enabled = useAllowAnonymousIs(false);
 
   const { fetchUserProfile } = useAppQueries();
-  return useQuery(['fetchUserProfile'], fetchUserProfile, {
+  const utils = useQuery(['fetchUserProfile'], fetchUserProfile, {
     enabled,
     onSuccess: (profile) => {
       dispatch(ProfileActions.fetchFulfilled({ profile }));
@@ -22,12 +22,16 @@ const useProfileQuery = (enabled: boolean): UseQueryResult<IProfile> => {
       window.logError('Fetching user profile failed:\n', error);
     },
   });
+
+  return {
+    ...utils,
+    enabled,
+  };
 };
 
 const { Provider, useCtx } = createLaxQueryContext<IProfile>({
   name: 'Profile',
   useQuery: useProfileQuery,
-  useIsEnabled: () => useAllowAnonymousIs(false),
 });
 
 export const ProfileProvider = Provider;

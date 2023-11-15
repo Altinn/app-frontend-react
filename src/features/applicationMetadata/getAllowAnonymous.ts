@@ -43,8 +43,12 @@ const getAllowAnonymous = () => {
 
 export const makeGetAllowAnonymousSelector = getAllowAnonymous;
 
-export const useAllowAnonymousIs = (compareWith: boolean) => {
+export const useAllowAnonymous = () => {
   const getAllowAnonymous = makeGetAllowAnonymousSelector();
-  const allowAnonymous = useSelector(getAllowAnonymous);
+  return useSelector(getAllowAnonymous);
+};
+
+export const useAllowAnonymousIs = (compareWith: boolean) => {
+  const allowAnonymous = useAllowAnonymous();
   return allowAnonymous === compareWith;
 };

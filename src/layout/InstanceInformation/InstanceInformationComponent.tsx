@@ -62,7 +62,7 @@ export function InstanceInformationComponent({ node }: PropsFromGenericComponent
   const { selectedLanguage } = langTools;
 
   const instance = useLaxInstanceData();
-  const parties: IParty[] | null = useAppSelector((state: IRuntimeState) => state.party.parties);
+  const parties = useAppSelector((state: IRuntimeState) => state.party.parties);
   const appReceiver = useAppSelector(selectAppReceiver);
 
   const instanceOwnerParty =

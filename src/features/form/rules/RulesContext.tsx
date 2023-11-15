@@ -32,13 +32,10 @@ const useRulesQuery = () => {
         const ruleModelFields = getRuleModelFields();
 
         dispatch(FormRulesActions.fetchFulfilled({ ruleModel: ruleModelFields }));
-      } else {
-        dispatch(FormRulesActions.fetchRejected({ error: null }));
       }
     },
     onError: (error: AxiosError) => {
       clearExistingRules();
-      dispatch(FormRulesActions.fetchRejected({ error }));
       window.logError('Fetching RuleHandler failed:\n', error);
     },
   });

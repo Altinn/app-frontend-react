@@ -10,7 +10,7 @@ const redirectToLogin = (appOidcProvider: string | null): void => {
 };
 
 export const useRefreshJwtTokenQuery = (
-  appOidcProvider: string | null,
+  appOidcProvider: string | null | undefined,
   options: {
     enabled: boolean;
     refetchOnWindowFocus: boolean;

@@ -18,21 +18,28 @@ export interface StrictContextProps {
  * are required for the application to function.
  */
 export function createStrictContext<T>(props: StrictContextProps): ContextProvider<T> {
-  const Context = React.createContext<T | undefined>(undefined);
+  const { Provider, useHasProvider, useCtx: useLaxCtx } = createLaxContext<T>(undefined);
 
   const useCtx = (): T => {
-    const context = React.useContext(Context);
-    if (context === undefined) {
+    const hasProvider = useHasProvider();
+    const value = useLaxCtx();
+    if (!hasProvider) {
       throw new Error(`${props.name} is missing`);
     }
-    return context;
+    return value as T;
   };
 
-  return { Provider: Context.Provider as React.Provider<T>, useCtx };
+  return { Provider: Provider as React.Provider<T>, useCtx };
 }
 
 /**
  * Non-strict contexts can be used without a provider, and will return undefined if no provider is found.
+ * If your data is optional, this is the context you want to use.
+ *
+ * Sometimes you may want to check if a provider is present, even though the set data is undefined. This is useful
+ * for contexts that are not required for the whole application to function, but are required for certain features.
+ * You can use the useHasProvider hook to check if a provider is present.
+ *
  * This is just a wrapper around the React.createContext function, and provides a slightly nicer API.
  */
 export function createLaxContext<T>(initialState?: T): LaxContextProvider<T | undefined> {

@@ -3,7 +3,7 @@ import { useRefreshJwtTokenQuery } from 'src/hooks/queries/useRefreshJwtTokenQue
 const ONE_MINUTE_IN_MILLISECONDS = 60000;
 const TEN_MINUTE_IN_MILLISECONDS = ONE_MINUTE_IN_MILLISECONDS * 10;
 
-export const useKeepAlive = (appOidcProvider: string, allowAnonymous: boolean | undefined) => {
+export const useKeepAlive = (appOidcProvider: string | undefined, allowAnonymous: boolean | undefined) => {
   const refetchJwtTokenQueryOptions = {
     enabled: allowAnonymous === false, // Only refresh token at page load if allowAnonymous === false
     refetchOnWindowFocus: true,

@@ -234,7 +234,6 @@ describe('Form', () => {
   function mockValidations(validations: RootState['formValidations']['validations'][string]): Partial<RootState> {
     return {
       formValidations: {
-        error: null,
         invalidDataTypes: [],
         validations: {
           page1: validations,

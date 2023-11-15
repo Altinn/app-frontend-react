@@ -101,10 +101,8 @@ export function Entrypoint() {
   }
 
   // Error trying to fetch data, if missing rights we display relevant page
-  if (isAxiosError(formDataError)) {
-    if (formDataError.response?.status === HttpStatusCodes.Forbidden) {
-      return <MissingRolesError />;
-    }
+  if (isAxiosError(formDataError) && formDataError.response?.status === HttpStatusCodes.Forbidden) {
+    return <MissingRolesError />;
   }
 
   // regular view with instance
