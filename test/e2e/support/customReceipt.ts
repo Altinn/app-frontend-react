@@ -1,16 +1,4 @@
-import type { CompAttachmentListExternal } from 'src/layout/AttachmentList/config.generated';
 import type { ILayout } from 'src/layout/layout';
-
-function generateAttachmentLists({
-  id,
-  dataTypeIds,
-  title,
-}: Pick<CompAttachmentListExternal, 'dataTypeIds' | 'id'> & { title: string }): ILayout {
-  return [
-    { id: `${id}-header`, type: 'Header', size: 'M', textResourceBindings: { title } },
-    { id, type: 'AttachmentList', dataTypeIds },
-  ];
-}
 
 export const customReceipt: ILayout = [
   { id: 'r-instance', type: 'InstanceInformation' },
@@ -22,15 +10,6 @@ export const customReceipt: ILayout = [
   },
   { id: 'r-header-pdfs', type: 'Header', size: 'M', textResourceBindings: { title: 'receipt.title_submitted' } },
   { id: 'r-pdfs', type: 'AttachmentList', dataTypeIds: ['ref-data-as-pdf'] },
-  ...generateAttachmentLists({
-    id: 'r-attachments-one',
-    title: 'Vedlegg fra første side',
-    dataTypeIds: ['fileUpload-changename'],
-  }),
-  ...generateAttachmentLists({ id: 'r-attachments-other', title: 'Andre vedlegg', dataTypeIds: [] }),
-  ...generateAttachmentLists({
-    id: 'r-attachments-all',
-    title: 'Alle vedlegg inkludert PDF',
-    dataTypeIds: ['include-all'],
-  }),
+  { id: 'r-header-attachments', type: 'Header', size: 'M', textResourceBindings: { title: 'receipt.attachments' } },
+  { id: 'r-attachments', type: 'AttachmentList', dataTypeIds: ['fileUpload-changename'] },
 ];
