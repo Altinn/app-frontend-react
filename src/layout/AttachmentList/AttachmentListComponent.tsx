@@ -26,31 +26,26 @@ export function AttachmentListComponent({ node }: IAttachmentListProps) {
   const attachments = useMemo(() => {
     const allowedTypes = new Set(node.item.dataTypeIds ?? []);
 
-    // Usually we only show the data types for this given task, but
-    // generated PDFs are shown regardless as they are not task specific
-    const dataTypesInTask = dataTypes.filter((type) => type.taskId === currentTaskId);
-    const dataTypeIdsInTask = new Set(dataTypesInTask.map((type) => type.id));
+    const dataTypesInTask = new Set(dataTypes.filter((type) => type.taskId === currentTaskId).map((type) => type.id));
 
     // This is a list of data types that are clearly data models. We don't show those when listing attachments.
-    const dataModelTypes = new Set(
-      dataTypesInTask.filter((dataType) => dataType.appLogic?.classRef).map((type) => type.id),
-    );
+    const dataModelTypes = new Set(dataTypes.filter((dataType) => dataType.appLogic?.classRef).map((type) => type.id));
 
     const attachmentsForTask = instanceData.filter((el) => {
-      const isRelevant = dataTypeIdsInTask.has(el.dataType) && !dataModelTypes.has(el.dataType);
-      if (!isRelevant) {
+      if (el.dataType === DataTypeReference.RefDataAsPdf || dataModelTypes.has(el.dataType)) {
         return false;
       }
 
-      if (allowedTypes.has(DataTypeReference.IncludeAll)) {
+      if (allowedTypes.has(DataTypeReference.IncludeAll) || allowedTypes.has(el.dataType)) {
         return true;
       }
 
       if (allowedTypes.size === 0) {
-        return true;
+        // If no data types are specified, we show all data types in the current task
+        return dataTypesInTask.has(el.dataType);
       }
 
-      return allowedTypes.has(el.dataType);
+      return false;
     });
 
     const includePdf =
