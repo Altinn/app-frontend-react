@@ -66,7 +66,9 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
 
   const postPlaceQueryData = usePostPlaceQuery(formData.zipCode, !hasValidationErrors(bindingValidations?.zipCode));
   useEffect(() => {
-    setPostPlace(postPlaceQueryData, true);
+    if (postPlaceQueryData != null && postPlaceQueryData != postPlace) {
+      setPostPlace(postPlaceQueryData, true);
+    }
     // TODO(useDelayedSavedState): This hook could disappear, but for now, a problem is that the function references are very volatile and will cause many rerenders
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postPlaceQueryData]);
