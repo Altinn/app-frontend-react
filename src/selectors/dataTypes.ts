@@ -13,7 +13,7 @@ export const selectDataTypesByIds = (
 ) =>
   createSelector(selectDataTypes, (dataTypes = []) => {
     const currentTaskId = process?.currentTask?.elementId;
-    const relevantDataTypes = dataTypes.filter((type) => type.taskId === currentTaskId);
+    const relevantDataTypes = dataTypes.filter((type) => !type.taskId || type.taskId === currentTaskId);
     const useSpecificDataTypeIds = dataTypeIds && !dataTypeIds?.includes(DataTypeReference.IncludeAll);
     const dataElements = instance?.data || [];
 
