@@ -17,6 +17,8 @@ import { App } from 'src/App';
 import { ErrorBoundary } from 'src/components/ErrorBoundary';
 import { ThemeWrapper } from 'src/components/ThemeWrapper';
 import { AppQueriesProvider } from 'src/contexts/appQueriesContext';
+import { KeepAliveProvider } from 'src/core/auth/KeepAliveProvider';
+import { WindowTitleProvider } from 'src/core/ui/WindowTitleProvider';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { DevTools } from 'src/features/devtools/DevTools';
@@ -33,6 +35,7 @@ import { setupStore } from 'src/redux/store';
 import { ExprContextWrapper } from 'src/utils/layout/ExprContext';
 
 import 'src/index.css';
+import '@digdir/design-system-tokens/brand/altinn/tokens.css';
 
 document.addEventListener('DOMContentLoaded', () => {
   const { store, sagaMiddleware } = setupStore();
@@ -58,7 +61,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <PartiesProvider>
                                   <TextResourcesProvider>
                                     <CurrentPartyProvider>
-                                      <App />
+                                      <KeepAliveProvider>
+                                        <WindowTitleProvider>
+                                          <App />
+                                        </WindowTitleProvider>
+                                      </KeepAliveProvider>
                                     </CurrentPartyProvider>
                                   </TextResourcesProvider>
                                 </PartiesProvider>
