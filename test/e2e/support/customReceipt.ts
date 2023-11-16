@@ -28,6 +28,7 @@ export const customReceipt: ILayout = [
     dataTypeIds: ['fileUpload-changename'],
   }),
   ...generateAttachmentLists({ id: 'r-attachments-other', title: 'Andre vedlegg', dataTypeIds: [] }),
+  ...generateAttachmentLists({ id: 'r-attachments-pdf', title: 'Bare PDF-er', dataTypeIds: ['ref-data-as-pdf'] }),
   ...generateAttachmentLists({
     id: 'r-attachments-all',
     title: 'Alle vedlegg inkludert PDF',
