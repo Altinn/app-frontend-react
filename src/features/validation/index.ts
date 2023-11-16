@@ -3,13 +3,16 @@ import { useEffect, useRef } from 'react';
 import deepEqual from 'fast-deep-equal';
 
 import { useExprContext } from 'src/utils/layout/ExprContext';
+import { ValidationIssueSources } from 'src/utils/validation/backendValidation';
 import type { IFormData } from 'src/features/formData';
 import type {
   BaseValidation,
   ComponentValidation,
   FieldValidation,
   FormValidations,
+  GroupedValidation,
   NodeValidation,
+  ValidationGroup,
   ValidationState,
 } from 'src/features/validation/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -69,24 +72,14 @@ export function mergeFormValidations(dest: FormValidations | ValidationState, sr
   }
 }
 
-export function validationsOfSeverity<Severity extends ValidationSeverity>(
-  validations: NodeValidation<ValidationSeverity>[] | undefined,
-  severity: Severity,
-): NodeValidation<Severity>[];
-export function validationsOfSeverity<Severity extends ValidationSeverity>(
-  validations: ComponentValidation<ValidationSeverity>[] | undefined,
-  severity: Severity,
-): ComponentValidation<Severity>[];
-export function validationsOfSeverity<Severity extends ValidationSeverity>(
-  validations: FieldValidation<ValidationSeverity>[] | undefined,
-  severity: Severity,
-): FieldValidation<Severity>[];
-export function validationsOfSeverity<Severity extends ValidationSeverity>(
-  validations: BaseValidation<ValidationSeverity>[] | undefined,
-  severity: Severity,
-): BaseValidation<Severity>[];
-export function validationsOfSeverity(validations: any, severity: any) {
-  return validations?.filter((validation: any) => validation.severity === severity) ?? [];
+function isOfSeverity<V extends BaseValidation, S extends ValidationSeverity>(severity: S) {
+  return (validation: V): validation is V & { severity: S } => validation.severity === severity;
+}
+export function validationsOfSeverity<I extends BaseValidation, S extends ValidationSeverity>(
+  validations: I[] | undefined,
+  severity: S,
+) {
+  return validations?.filter(isOfSeverity(severity)) ?? [];
 }
 
 export function hasValidationErrors(validations: NodeValidation<ValidationSeverity>[] | undefined): boolean;
@@ -108,49 +101,80 @@ export function buildNodeValidation<Severity extends ValidationSeverity = Valida
   };
 }
 
+/**
+ * The following types of validation are also handeled by the frontend
+ * and should normally be filtered out to avoid showing duplicate messages.
+ */
+const groupsToFilter: string[] = [
+  ValidationIssueSources.Required,
+  ValidationIssueSources.ModelState,
+  ValidationIssueSources.Expression,
+];
+export function validationsFromGroups<T extends GroupedValidation>(
+  groups: ValidationGroup<T>,
+  ignoreBackendValidations: boolean,
+  severity?: ValidationSeverity,
+) {
+  const validationsFlat = ignoreBackendValidations
+    ? Object.entries(groups)
+        .filter(([group]) => !groupsToFilter.includes(group))
+        .flatMap(([, validations]) => validations)
+    : Object.values(groups).flat();
+
+  return severity ? validationsOfSeverity(validationsFlat, severity) : validationsFlat;
+}
+
 /*
  * Gets all validations for a node in a single list, optionally filtered by severity
  * Looks at data model bindings to get field validations
  */
-export function getValidationsForNode(node: LayoutNode, state: ValidationState): NodeValidation[];
+export function getValidationsForNode(
+  node: LayoutNode,
+  state: ValidationState,
+  ignoreBackendValidations: boolean,
+): NodeValidation[];
 export function getValidationsForNode<Severity extends ValidationSeverity>(
   node: LayoutNode,
   state: ValidationState,
+  ignoreBackendValidations: boolean,
   severity: Severity,
 ): NodeValidation<Severity>[];
 export function getValidationsForNode(
   node: LayoutNode,
   state: ValidationState,
+  ignoreBackendValidations = true,
   severity?: ValidationSeverity,
 ): NodeValidation[] {
   const validationMessages: NodeValidation[] = [];
   if (node.item.dataModelBindings) {
     for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings)) {
       if (state.fields[field]) {
-        for (const group of Object.values(state.fields[field])) {
-          const groupValidations = severity ? validationsOfSeverity(group, severity) : group;
-          for (const validation of groupValidations) {
-            validationMessages.push(buildNodeValidation(node, validation, bindingKey));
-          }
+        const validations = validationsFromGroups(state.fields[field], ignoreBackendValidations, severity);
+        for (const validation of validations) {
+          validationMessages.push(buildNodeValidation(node, validation, bindingKey));
         }
       }
 
       if (state.components[node.item.id]?.bindingKeys?.[bindingKey]) {
-        for (const group of Object.values(state.components[node.item.id].bindingKeys[bindingKey])) {
-          const groupValidations = severity ? validationsOfSeverity(group, severity) : group;
-          for (const validation of groupValidations) {
-            validationMessages.push(buildNodeValidation(node, validation, bindingKey));
-          }
+        const validations = validationsFromGroups(
+          state.components[node.item.id].bindingKeys[bindingKey],
+          ignoreBackendValidations,
+          severity,
+        );
+        for (const validation of validations) {
+          validationMessages.push(buildNodeValidation(node, validation, bindingKey));
         }
       }
     }
   }
   if (state.components[node.item.id]?.component) {
-    for (const group of Object.values(state.components[node.item.id].component)) {
-      const groupValidations = severity ? validationsOfSeverity(group, severity) : group;
-      for (const validation of groupValidations) {
-        validationMessages.push(buildNodeValidation(node, validation));
-      }
+    const validations = validationsFromGroups(
+      state.components[node.item.id].component,
+      ignoreBackendValidations,
+      severity,
+    );
+    for (const validation of validations) {
+      validationMessages.push(buildNodeValidation(node, validation));
     }
   }
   return validationMessages;

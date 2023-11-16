@@ -9,6 +9,7 @@ import {
   mergeFormValidations,
   useOnHierarchyChange,
   useOnNodeDataChange,
+  validationsFromGroups,
   validationsOfSeverity,
 } from '.';
 import type { NodeDataChange } from '.';
@@ -20,11 +21,7 @@ import { createStrictContext } from 'src/utils/createContext';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { duplicateStringFilter } from 'src/utils/stringHelper';
 import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
-import {
-  getValidationMessage,
-  severityMap,
-  shouldExcludeValidationIssue,
-} from 'src/utils/validation/backendValidation';
+import { getValidationMessage, severityMap, ValidationIssueSources } from 'src/utils/validation/backendValidation';
 import { runValidationOnNodes } from 'src/utils/validation/validation';
 import { useValidationContextGenerator } from 'src/utils/validation/validationHelpers';
 import type { BaseValidation, NodeValidation, ValidationContext, ValidationState } from 'src/features/validation/types';
@@ -79,16 +76,22 @@ export function ValidationProvider({ children }) {
 /**
  * Returns all validation messages for a given node.
  */
-export function useAllValidationsForNode(node: LayoutNode): NodeValidation[] {
+export function useAllValidationsForNode(node: LayoutNode, ignoreBackendValidations = true): NodeValidation[] {
   const state = useCtx().state;
 
-  return useMemo(() => getValidationsForNode(node, state), [node, state]);
+  return useMemo(
+    () => getValidationsForNode(node, state, ignoreBackendValidations),
+    [ignoreBackendValidations, node, state],
+  );
 }
 
 export function useBindingValidationsForNode<
   N extends LayoutNode,
   T extends CompTypes = N extends BaseLayoutNode<any, infer T> ? T : never,
->(node: N): { [binding in keyof NonNullable<IDataModelBindings<T>>]: NodeValidation[] } | undefined {
+>(
+  node: N,
+  ignoreBackendValidations = true,
+): { [binding in keyof NonNullable<IDataModelBindings<T>>]: NodeValidation[] } | undefined {
   const state = useCtx().state;
   const fields = state.fields;
   const component = state.components[node.item.id];
@@ -102,61 +105,58 @@ export function useBindingValidationsForNode<
       bindingValidations[bindingKey] = [];
 
       if (fields[field]) {
-        for (const validations of Object.values(fields[field])) {
-          bindingValidations[bindingKey].push(
-            ...validations.map((validation) => buildNodeValidation(node, validation, bindingKey)),
-          );
-        }
+        const validations = validationsFromGroups(fields[field], ignoreBackendValidations);
+        bindingValidations[bindingKey].push(
+          ...validations.map((validation) => buildNodeValidation(node, validation, bindingKey)),
+        );
       }
       if (component?.bindingKeys?.[bindingKey]) {
-        for (const validations of Object.values(component.bindingKeys![bindingKey])) {
-          bindingValidations[bindingKey].push(
-            ...validations.map((validation) => buildNodeValidation(node, validation, bindingKey)),
-          );
-        }
+        const validations = validationsFromGroups(component.bindingKeys[bindingKey], ignoreBackendValidations);
+        bindingValidations[bindingKey].push(
+          ...validations.map((validation) => buildNodeValidation(node, validation, bindingKey)),
+        );
       }
     }
     return bindingValidations as { [binding in keyof NonNullable<IDataModelBindings<T>>]: NodeValidation[] };
-  }, [node, fields, component]);
+  }, [node, fields, component.bindingKeys, ignoreBackendValidations]);
 }
 
-export function useComponentValidationsForNode(node: LayoutNode): NodeValidation[] {
+export function useComponentValidationsForNode(node: LayoutNode, ignoreBackendValidations = true): NodeValidation[] {
   const component = useCtx().state.components[node.item.id];
   return useMemo(() => {
     if (!component?.component) {
       return [];
     }
-    const componentValidations: NodeValidation[] = [];
-    for (const validations of Object.values(component.component!)) {
-      componentValidations.push(...validations.map((validation) => buildNodeValidation(node, validation)));
-    }
-
-    return componentValidations;
-  }, [node, component]);
+    const validations = validationsFromGroups(component.component!, ignoreBackendValidations);
+    return validations.map((validation) => buildNodeValidation(node, validation));
+  }, [component.component, ignoreBackendValidations, node]);
 }
 
 /**
  * Returns all validation errors (not warnings, info, etc.) for a given page.
  */
-export function usePageErrors(page: LayoutPage): NodeValidation<'errors'>[] {
+export function usePageErrors(page: LayoutPage, ignoreBackendValidations = true): NodeValidation<'errors'>[] {
   const state = useCtx().state;
 
   return useMemo(() => {
     const validationMessages: NodeValidation<'errors'>[] = [];
 
     for (const node of page.flat(true).filter((node) => !node.isHidden({ respectTracks: true }))) {
-      validationMessages.push(...getValidationsForNode(node, state, 'errors'));
+      validationMessages.push(...getValidationsForNode(node, state, ignoreBackendValidations, 'errors'));
     }
 
     return validationMessages;
-  }, [page, state]);
+  }, [ignoreBackendValidations, page, state]);
 }
 
 /**
  * Returns all validation errors (not warnings, info, etc.) for a layout set.
  * This includes unmapped/task errors as well
  */
-export function useTaskErrors(pages: LayoutPages): {
+export function useTaskErrors(
+  pages: LayoutPages,
+  ignoreBackendValidations = true,
+): {
   formValidations: NodeValidation<'errors'>[];
   taskValidations: BaseValidation<'errors'>[];
 } {
@@ -167,13 +167,13 @@ export function useTaskErrors(pages: LayoutPages): {
     const taskValidations: BaseValidation<'errors'>[] = [];
 
     for (const node of pages.allNodes().filter((node) => !node.isHidden({ respectTracks: true }))) {
-      formValidations.push(...getValidationsForNode(node, state, 'errors'));
+      formValidations.push(...getValidationsForNode(node, state, ignoreBackendValidations, 'errors'));
     }
     for (const validation of validationsOfSeverity(state.task, 'errors')) {
       taskValidations.push(validation);
     }
     return { formValidations, taskValidations };
-  }, [pages, state]);
+  }, [ignoreBackendValidations, pages, state]);
 }
 
 async function runServerValidations(
@@ -191,46 +191,34 @@ async function runServerValidations(
     return Promise.resolve(state);
   }
 
-  const fieldChanges = nodeChanges.flatMap((nc) => nc.fields).filter(duplicateStringFilter);
+  const changedFields = nodeChanges.flatMap((nc) => nc.fields).filter(duplicateStringFilter);
 
-  if (!fieldChanges.length) {
+  if (!changedFields.length) {
     return Promise.resolve(state);
   }
 
+  for (const changedField of changedFields) {
+    state.fields[changedField] = {
+      [ValidationIssueSources.Required]: [],
+      [ValidationIssueSources.ModelState]: [],
+      [ValidationIssueSources.Custom]: [],
+      [ValidationIssueSources.Expression]: [],
+    };
+  }
+
   const options: AxiosRequestConfig =
-    fieldChanges.length === 1
+    changedFields.length === 1
       ? {
           headers: {
-            ValidationTriggerField: fieldChanges[0],
+            ValidationTriggerField: changedFields[0],
           },
         }
       : {};
 
-  const serverValidations: BackendValidationIssue[] = await httpGet(url, options);
+  const validationIssues: BackendValidationIssue[] = await httpGet(url, options);
 
-  // pass fieldChanges here
-  return mapValidationsToState(serverValidations, langTools);
-}
-
-/**
- * Maps validation issues from backend, and validation objects from frontend to validation state
- */
-function mapValidationsToState(
-  issues: BackendValidationIssue[],
-  langTools: IUseLanguage,
-  filterSources: boolean = true,
-): ValidationState {
-  const state: ValidationState = { fields: {}, components: {}, task: [] };
-
-  for (const issue of issues) {
-    /**
-     * TODO(Validation): Do not filter here, leave them in the state.
-     * Filter in the hooks fetching them instead.
-     */
-    if (filterSources && shouldExcludeValidationIssue(issue)) {
-      continue;
-    }
-
+  // Map validation issues to state
+  for (const issue of validationIssues) {
     const { field, severity: backendSeverity, source: group } = issue;
     const severity = severityMap[backendSeverity];
     const message = getValidationMessage(issue, langTools);
@@ -260,6 +248,7 @@ function mapValidationsToState(
       state.fields[field][group].push({ field, severity, message, group });
     }
   }
+
   return state;
 }
 

@@ -23,6 +23,7 @@ export enum ValidationIssueSources {
   ModelState = 'ModelState',
   Required = 'Required',
   Expression = 'Expression',
+  Custom = 'Custom',
 }
 
 /**
