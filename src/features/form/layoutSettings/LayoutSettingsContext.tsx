@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
-import { createStrictQueryContext } from 'src/core/contexts/queryContext';
+import { createQueryContext } from 'src/core/contexts/queryContext';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
@@ -24,9 +24,10 @@ function useLayoutSettingsQuery() {
   });
 }
 
-const { Provider, useCtx } = createStrictQueryContext({
+const { Provider, useCtx } = createQueryContext({
   name: 'LayoutSettings',
-  useQuery: useLayoutSettingsQuery,
+  required: true,
+  query: useLayoutSettingsQuery,
 });
 
 export const LayoutSettingsProvider = Provider;

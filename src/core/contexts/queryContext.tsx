@@ -2,85 +2,72 @@ import React from 'react';
 import type { PropsWithChildren } from 'react';
 
 import type { UseQueryResult } from '@tanstack/react-query';
+import type { AxiosError } from 'axios';
 
-import { createLaxContext, createStrictContext } from 'src/core/contexts/context';
-import { DisplayError } from 'src/core/errorHandling/DisplayError';
-import { Loader } from 'src/core/loading/Loader';
-import type { StrictContextProps } from 'src/core/contexts/context';
+import { createContext } from 'src/core/contexts/context';
+import { DisplayError as DefaultDisplayError } from 'src/core/errorHandling/DisplayError';
+import { Loader as DefaultLoader } from 'src/core/loading/Loader';
+import type { LaxContextProps, StrictContextProps } from 'src/core/contexts/context';
 
-export interface StrictQueryContextProps<T> extends StrictContextProps {
-  useQuery: () => UseQueryResult<T>;
-}
+type Err = Error | AxiosError;
+type QueryResult<T> = Pick<UseQueryResult<T, Err>, 'data' | 'isLoading' | 'error'>;
+type QueryResultOptional<T> = QueryResult<T> & { enabled: boolean };
+type Query<Req extends boolean, QueryData> = () => Req extends true
+  ? QueryResult<QueryData>
+  : QueryResultOptional<QueryData>;
 
-interface GenericProviderProps<T> extends PropsWithChildren {
-  name: string;
-  useQuery: () => UseQueryResult<T> & { enabled: boolean };
-  RealProvider: React.Provider<T>;
-}
+type ContextProps<Ctx, Req extends boolean> = Req extends true ? StrictContextProps : LaxContextProps<Ctx>;
 
-function GenericProvider<T>({ children, useQuery, RealProvider, name }: GenericProviderProps<T>) {
-  const { data, isLoading, error, enabled } = useQuery();
+export type QueryContextProps<QueryData, Req extends boolean, ContextData = QueryData> = ContextProps<
+  ContextData,
+  Req
+> & {
+  query: Query<Req, QueryData>;
 
-  if (enabled && isLoading) {
-    return <Loader reason={`query-${name}`} />;
-  }
+  process?: (data: QueryData) => ContextData;
+  shouldDisplayError?: (error: Err) => boolean;
 
-  if (error) {
-    return <DisplayError error={error as Error} />;
-  }
-
-  return <RealProvider value={data as T}>{children}</RealProvider>;
-}
+  DisplayError?: React.ComponentType<{ error: Err }>;
+  Loader?: React.ComponentType<{ reason: string }>;
+};
 
 /**
- * Always call this through a delayedContext() call to prevent problems with cyclic imports
+ * A query context is a context that is based on a query. It will show a loading indicator if the query is loading,
+ * and an error message if the query fails.
+ *
+ * Remember to call this through a delayedContext() call to prevent problems with cyclic imports.
  * @see delayedContext
  */
-export function createStrictQueryContext<T>({ name, useQuery }: StrictQueryContextProps<T>) {
-  const { Provider, useCtx } = createStrictContext<T>({ name });
+export function createQueryContext<QD, Req extends boolean, CD = QD>(props: QueryContextProps<QD, Req, CD>) {
+  const {
+    name,
+    required,
+    query,
+    process = (i: QD) => i as unknown as CD,
+    shouldDisplayError = () => true,
+    DisplayError = DefaultDisplayError,
+    Loader = DefaultLoader,
+    ...rest
+  } = props;
+  const { Provider, useCtx, useHasProvider } = createContext<CD>({ name, required, ...(rest as any) });
 
-  const ThisProvider = ({ children }: PropsWithChildren) => (
-    <GenericProvider
-      name={name}
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      useQuery={() => ({ ...useQuery(), enabled: true })}
-      RealProvider={Provider}
-    >
-      {children}
-    </GenericProvider>
-  );
+  const WrappingProvider = ({ children }: PropsWithChildren) => {
+    const { data, isLoading, error, ...rest } = query();
+    const enabled = 'enabled' in rest && !required ? rest.enabled : true;
 
-  return {
-    Provider: ThisProvider,
-    useCtx,
+    if (enabled && isLoading) {
+      return <Loader reason={`query-${name}`} />;
+    }
+
+    if (error && shouldDisplayError(error)) {
+      return <DisplayError error={error as Error} />;
+    }
+
+    return <Provider value={process(data as QD)}>{children}</Provider>;
   };
-}
-
-export interface LaxQueryContextProps<T> {
-  name: string;
-  initialState?: T;
-  useQuery: () => UseQueryResult<T | undefined> & { enabled: boolean };
-}
-
-/**
- * Always call this through a delayedContext() call to prevent problems with cyclic imports
- * @see delayedContext
- */
-export function createLaxQueryContext<T>({ name, useQuery, initialState }: LaxQueryContextProps<T>) {
-  const { Provider, useCtx, useHasProvider } = createLaxContext<T>(initialState);
-
-  const ThisProvider = ({ children }: PropsWithChildren) => (
-    <GenericProvider
-      name={name}
-      useQuery={useQuery}
-      RealProvider={Provider}
-    >
-      {children}
-    </GenericProvider>
-  );
 
   return {
-    Provider: ThisProvider,
+    Provider: WrappingProvider,
     useCtx,
     useHasProvider,
   };

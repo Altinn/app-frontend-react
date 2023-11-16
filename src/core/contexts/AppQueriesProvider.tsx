@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-import { createStrictContext } from 'src/core/contexts/context';
+import { createContext } from 'src/core/contexts/context';
 import type * as queries from 'src/queries/queries';
 
 type KeysStartingWith<T, U extends string> = {
@@ -29,7 +29,7 @@ interface ContextData {
   mutations: EnhancedMutations;
 }
 
-const { Provider, useCtx } = createStrictContext<ContextData>({ name: 'AppQueriesContext' });
+const { Provider, useCtx } = createContext<ContextData>({ name: 'AppQueriesContext', required: true });
 
 /**
  * This query client should not be used in unit tests, as multiple tests will end up re-using

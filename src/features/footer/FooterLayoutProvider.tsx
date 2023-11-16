@@ -1,15 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
-import type { UseQueryResult } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { delayedContext } from 'src/core/contexts/delayedContext';
-import { createStrictQueryContext } from 'src/core/contexts/queryContext';
+import { createQueryContext } from 'src/core/contexts/queryContext';
 import { FooterLayoutActions } from 'src/features/footer/data/footerLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import type { IFooterLayout } from 'src/features/footer/types';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
-const useFooterLayoutQuery = (): UseQueryResult<IFooterLayout> => {
+const useFooterLayoutQuery = () => {
   const dispatch = useAppDispatch();
   const { fetchFooterLayout } = useAppQueries();
   return useQuery({
@@ -25,9 +23,10 @@ const useFooterLayoutQuery = (): UseQueryResult<IFooterLayout> => {
 };
 
 const { Provider, useCtx } = delayedContext(() =>
-  createStrictQueryContext({
+  createQueryContext({
     name: 'FooterLayout',
-    useQuery: useFooterLayoutQuery,
+    required: true,
+    query: useFooterLayoutQuery,
   }),
 );
 

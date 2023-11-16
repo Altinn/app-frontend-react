@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
-import { createStrictContext } from 'src/core/contexts/context';
+import { createContext } from 'src/core/contexts/context';
 import { usePostUpload } from 'src/features/attachments/utils/postUpload';
 import { usePreUpload } from 'src/features/attachments/utils/preUpload';
 import { mergeAndSort } from 'src/features/attachments/utils/sorting';
@@ -10,7 +10,7 @@ import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import type { IAttachmentsCtx } from 'src/features/attachments/index';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-const { Provider, useCtx } = createStrictContext<IAttachmentsCtx>({ name: 'AttachmentsContext' });
+const { Provider, useCtx } = createContext<IAttachmentsCtx>({ name: 'AttachmentsContext', required: true });
 
 export const AttachmentsProvider = ({ children }: PropsWithChildren) => {
   const { state: preUpload, upload, awaitUpload } = usePreUpload();

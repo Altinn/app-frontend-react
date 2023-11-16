@@ -3,7 +3,7 @@ import type { PropsWithChildren } from 'react';
 
 import deepEqual from 'fast-deep-equal';
 
-import { createStrictContext } from 'src/core/contexts/context';
+import { createContext } from 'src/core/contexts/context';
 import { Loader } from 'src/core/loading/Loader';
 import { useLaxProcessData, useRealTaskType } from 'src/features/instance/ProcessContext';
 import { useGetOptions } from 'src/features/options/useGetOptions';
@@ -23,7 +23,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
  */
 export type AllOptionsMap = { [nodeId: string]: IOption[] | undefined };
 
-const { Provider, useCtx } = createStrictContext<State>({ name: 'AllOptionsContext' });
+const { Provider, useCtx } = createContext<State>({ name: 'AllOptionsContext', required: true });
 
 export const useAllOptions = () => useCtx().nodes;
 export const useAllOptionsInitiallyLoaded = () => useCtx().allInitiallyLoaded;

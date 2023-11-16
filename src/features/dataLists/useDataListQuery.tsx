@@ -3,7 +3,7 @@ import type { SortDirection } from '@digdir/design-system-react';
 import type { UseQueryResult } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
-import { useStrictInstance } from 'src/features/instance/InstanceContext';
+import { useLaxInstance } from 'src/features/instance/InstanceContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
@@ -26,7 +26,7 @@ export const useDataListQuery = (
 ): UseQueryResult<IDataList> => {
   const { fetchDataList } = useAppQueries();
   const { selectedLanguage } = useLanguage();
-  const instanceId = useStrictInstance().instanceId;
+  const instanceId = useLaxInstance()?.instanceId;
   const formData = useAppSelector((state) => state.formData.formData);
   const { pageSize, pageNumber, sortColumn, sortDirection } = filter || {};
   const mappedData = useMemoDeepEqual(() => {

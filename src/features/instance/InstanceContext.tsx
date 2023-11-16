@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
-import { createLaxContext } from 'src/core/contexts/context';
+import { createContext } from 'src/core/contexts/context';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { LayoutValidationProvider } from 'src/features/devtools/layoutValidation/useLayoutValidation';
@@ -39,7 +39,11 @@ export interface InstanceContext {
 
 export type ChangeInstanceData = (callback: (instance: IInstance | undefined) => IInstance | undefined) => void;
 
-const { Provider, useCtx, useHasProvider } = createLaxContext<InstanceContext>();
+const { Provider, useCtx, useHasProvider } = createContext<InstanceContext | undefined>({
+  name: 'InstanceContext',
+  required: false,
+  default: undefined,
+});
 
 function useGetInstanceDataQuery(enabled: boolean, partyId: string, instanceGuid: string) {
   const { fetchInstanceData } = useAppQueries();

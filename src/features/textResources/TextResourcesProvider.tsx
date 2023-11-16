@@ -3,7 +3,7 @@ import type { AxiosError } from 'axios';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { delayedContext } from 'src/core/contexts/delayedContext';
-import { createLaxQueryContext } from 'src/core/contexts/queryContext';
+import { createQueryContext } from 'src/core/contexts/queryContext';
 import { useAllowAnonymousIs } from 'src/features/applicationMetadata/getAllowAnonymous';
 import { useProfile } from 'src/features/profile/ProfileProvider';
 import { resourcesAsMap } from 'src/features/textResources/resourcesAsMap';
@@ -54,9 +54,11 @@ const useTextResourcesQuery = () => {
 };
 
 const { Provider, useCtx } = delayedContext(() =>
-  createLaxQueryContext<TextResourcesContext>({
+  createQueryContext<TextResourcesContext | undefined, false>({
     name: 'TextResources',
-    useQuery: useTextResourcesQuery,
+    required: false,
+    default: undefined,
+    query: useTextResourcesQuery,
   }),
 );
 

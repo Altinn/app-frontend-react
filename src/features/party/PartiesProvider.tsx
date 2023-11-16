@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { delayedContext } from 'src/core/contexts/delayedContext';
-import { createLaxQueryContext } from 'src/core/contexts/queryContext';
+import { createQueryContext } from 'src/core/contexts/queryContext';
 import { useAllowAnonymousIs } from 'src/features/applicationMetadata/getAllowAnonymous';
 import type { IParty } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
@@ -27,9 +27,11 @@ const usePartiesQuery = () => {
 };
 
 const { Provider, useCtx } = delayedContext(() =>
-  createLaxQueryContext<IParty[]>({
+  createQueryContext<IParty[] | undefined, false>({
     name: 'Parties',
-    useQuery: usePartiesQuery,
+    required: false,
+    default: undefined,
+    query: usePartiesQuery,
   }),
 );
 

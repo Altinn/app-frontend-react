@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { delayedContext } from 'src/core/contexts/delayedContext';
-import { createStrictQueryContext } from 'src/core/contexts/queryContext';
+import { createQueryContext } from 'src/core/contexts/queryContext';
 import { ApplicationMetadataActions } from 'src/features/applicationMetadata/applicationMetadataSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
@@ -23,9 +23,10 @@ const useApplicationMetadataQuery = () => {
 };
 
 const { Provider, useCtx } = delayedContext(() =>
-  createStrictQueryContext({
+  createQueryContext({
     name: 'ApplicationMetadata',
-    useQuery: useApplicationMetadataQuery,
+    required: true,
+    query: useApplicationMetadataQuery,
   }),
 );
 

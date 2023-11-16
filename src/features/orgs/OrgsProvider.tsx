@@ -1,9 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import type { UseQueryResult } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { delayedContext } from 'src/core/contexts/delayedContext';
-import { createStrictQueryContext } from 'src/core/contexts/queryContext';
+import { createQueryContext } from 'src/core/contexts/queryContext';
 import { OrgsActions } from 'src/features/orgs/orgsSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import type { IAltinnOrgs } from 'src/types/shared';
@@ -11,7 +10,7 @@ import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 const extractOrgsFromServerResponse = (response: { orgs: IAltinnOrgs }): IAltinnOrgs => response.orgs;
 
-const useOrgsQuery = (): UseQueryResult<IAltinnOrgs> => {
+const useOrgsQuery = () => {
   const dispatch = useAppDispatch();
   const { fetchOrgs } = useAppQueries();
   return useQuery({
@@ -28,9 +27,10 @@ const useOrgsQuery = (): UseQueryResult<IAltinnOrgs> => {
 };
 
 const { Provider, useCtx } = delayedContext(() =>
-  createStrictQueryContext({
+  createQueryContext({
     name: 'Orgs',
-    useQuery: useOrgsQuery,
+    required: true,
+    query: useOrgsQuery,
   }),
 );
 

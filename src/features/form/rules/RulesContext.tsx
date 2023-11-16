@@ -2,7 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
-import { createStrictQueryContext } from 'src/core/contexts/queryContext';
+import { delayedContext } from 'src/core/contexts/delayedContext';
+import { createQueryContext } from 'src/core/contexts/queryContext';
 import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
 import { FormRulesActions } from 'src/features/form/rules/rulesSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
@@ -44,6 +45,12 @@ function clearExistingRules() {
   }
 }
 
-const { Provider } = createStrictQueryContext({ name: 'RulesContext', useQuery: useRulesQuery });
+const { Provider } = delayedContext(() =>
+  createQueryContext({
+    name: 'RulesContext',
+    required: true,
+    query: useRulesQuery,
+  }),
+);
 
 export const RulesProvider = Provider;

@@ -3,7 +3,7 @@ import type { AxiosError } from 'axios';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { delayedContext } from 'src/core/contexts/delayedContext';
-import { createLaxQueryContext } from 'src/core/contexts/queryContext';
+import { createQueryContext } from 'src/core/contexts/queryContext';
 import { CustomValidationActions } from 'src/features/customValidation/customValidationSlice';
 import { useCurrentDataModelName } from 'src/features/datamodel/useBindingSchema';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
@@ -40,9 +40,11 @@ const useCustomValidationConfigQuery = () => {
 };
 
 const { Provider, useCtx } = delayedContext(() =>
-  createLaxQueryContext<IExpressionValidationConfig | null>({
+  createQueryContext<IExpressionValidationConfig | null, false>({
     name: 'CustomValidationContext',
-    useQuery: useCustomValidationConfigQuery,
+    required: false,
+    default: null,
+    query: useCustomValidationConfigQuery,
   }),
 );
 

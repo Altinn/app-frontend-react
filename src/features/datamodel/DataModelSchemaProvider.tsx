@@ -3,7 +3,7 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { delayedContext } from 'src/core/contexts/delayedContext';
-import { createLaxQueryContext } from 'src/core/contexts/queryContext';
+import { createQueryContext } from 'src/core/contexts/queryContext';
 import { DataModelActions } from 'src/features/datamodel/datamodelSlice';
 import { useCurrentDataModelName } from 'src/features/datamodel/useBindingSchema';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
@@ -51,9 +51,11 @@ const useDataModelSchemaQuery = () => {
 };
 
 const { Provider, useCtx } = delayedContext(() =>
-  createLaxQueryContext<IDataModelSchemaContext>({
+  createQueryContext<IDataModelSchemaContext | undefined, false>({
     name: 'DataModelSchema',
-    useQuery: useDataModelSchemaQuery,
+    required: false,
+    default: undefined,
+    query: useDataModelSchemaQuery,
   }),
 );
 

@@ -9,7 +9,8 @@ import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 export const useSelectPartyMutation = () => {
   const { doSelectParty } = useAppMutations();
   const dispatch = useAppDispatch();
-  return useMutation((party: IParty) => doSelectParty.call(party.partyId), {
+  return useMutation({
+    mutationFn: (party: IParty) => doSelectParty.call(party.partyId),
     onSuccess: (_, party) => {
       dispatch(PartyActions.selectPartyFulfilled({ party }));
     },

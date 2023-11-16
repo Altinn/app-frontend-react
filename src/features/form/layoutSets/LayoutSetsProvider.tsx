@@ -1,15 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
-import type { UseQueryResult } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { delayedContext } from 'src/core/contexts/delayedContext';
-import { createStrictQueryContext } from 'src/core/contexts/queryContext';
+import { createQueryContext } from 'src/core/contexts/queryContext';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import type { ILayoutSets } from 'src/types';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
-const useLayoutSetsQuery = (): UseQueryResult<ILayoutSets> => {
+const useLayoutSetsQuery = () => {
   const dispatch = useAppDispatch();
   const { fetchLayoutSets } = useAppQueries();
   return useQuery({
@@ -25,9 +23,10 @@ const useLayoutSetsQuery = (): UseQueryResult<ILayoutSets> => {
 };
 
 const { Provider, useCtx } = delayedContext(() =>
-  createStrictQueryContext({
+  createQueryContext({
     name: 'LayoutSets',
-    useQuery: useLayoutSetsQuery,
+    required: true,
+    query: useLayoutSetsQuery,
   }),
 );
 

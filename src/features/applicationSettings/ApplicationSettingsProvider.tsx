@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
+import { isAxiosError } from 'axios';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { delayedContext } from 'src/core/contexts/delayedContext';
-import { createStrictQueryContext } from 'src/core/contexts/queryContext';
+import { createQueryContext } from 'src/core/contexts/queryContext';
 import { ApplicationSettingsActions } from 'src/features/applicationSettings/applicationSettingsSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
@@ -27,10 +28,11 @@ const useApplicationSettingsQuery = () => {
 };
 
 const { Provider, useCtx } = delayedContext(() =>
-  createStrictQueryContext({
+  createQueryContext({
     name: 'ApplicationSettings',
-    useQuery: useApplicationSettingsQuery,
-    // PRIORITY: Allow a 404 response to be returned from the server
+    required: true,
+    query: useApplicationSettingsQuery,
+    shouldDisplayError: (err) => !(isAxiosError(err) && err.response?.status === 404),
   }),
 );
 

@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
-import { createLaxContext } from 'src/core/contexts/context';
+import { createContext } from 'src/core/contexts/context';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { useIsStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
@@ -21,7 +21,11 @@ interface IProcessContext {
   reFetch: () => Promise<void>;
 }
 
-const { Provider, useCtx } = createLaxContext<IProcessContext>();
+const { Provider, useCtx } = createContext<IProcessContext | undefined>({
+  name: 'Process',
+  required: false,
+  default: undefined,
+});
 
 function useProcessQuery(instanceId: string) {
   const { fetchProcessState } = useAppQueries();

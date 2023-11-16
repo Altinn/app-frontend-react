@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { createStrictContext } from 'src/core/contexts/context';
+import { createContext } from 'src/core/contexts/context';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
@@ -99,7 +99,7 @@ function useMappingToolsForSimple({ handleDataChange }: Props): MappingTools {
 
 type ContextData = { mappingTools: MappingTools };
 
-const { Provider, useCtx } = createStrictContext<ContextData>({ name: 'AttachmentsMappedToFormDataContext' });
+const { Provider, useCtx } = createContext<ContextData>({ name: 'AttachmentsMappedToFormDataContext', required: true });
 
 /**
  * If you need to provide the functionality of the useAttachmentsMappedToFormData hook deep in the component tree,

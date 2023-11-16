@@ -5,7 +5,7 @@ import { isAxiosError } from 'axios';
 import type { AxiosRequestConfig } from 'axios/index';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
-import { createLaxContext } from 'src/core/contexts/context';
+import { createContext } from 'src/core/contexts/context';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
@@ -27,7 +27,11 @@ import { getFetchFormDataUrl, getStatelessFormDataUrl } from 'src/utils/urls/app
 import type { IFormData } from 'src/features/formData/index';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
-const { Provider } = createLaxContext<undefined>(undefined);
+const { Provider } = createContext({
+  name: 'FormDataContext',
+  required: false,
+  default: undefined,
+});
 
 export const FormDataProvider = ({ children }) => {
   const taskType = useRealTaskType();

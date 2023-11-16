@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
-import { createLaxContext } from 'src/core/contexts/context';
+import { createContext } from 'src/core/contexts/context';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
@@ -96,7 +96,11 @@ interface ContextData {
   next: (props: ProcessNextProps & { nodeId: string }) => Promise<void>;
 }
 
-const { Provider, useCtx } = createLaxContext<ContextData>();
+const { Provider, useCtx } = createContext<ContextData | undefined>({
+  name: 'ProcessNavigation',
+  required: false,
+  default: undefined,
+});
 
 export function ProcessNavigationProvider({ children }: React.PropsWithChildren) {
   const { perform, error } = useProcessNext();

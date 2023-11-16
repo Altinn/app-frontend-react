@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { createLaxContext } from 'src/core/contexts/context';
+import { createContext } from 'src/core/contexts/context';
 import {
   runExpressionRules,
   runExpressionsForLayouts,
@@ -17,7 +17,11 @@ import type { LayoutNodeFromObj } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
-export const { Provider, useCtx } = createLaxContext<LayoutPages>();
+export const { Provider, useCtx } = createContext<LayoutPages | undefined>({
+  name: 'ExprContext',
+  required: false,
+  default: undefined,
+});
 
 /**
  * React hook used for getting a memoized LayoutPages object where you can look up components.

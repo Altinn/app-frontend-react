@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
-import { createStrictQueryContext } from 'src/core/contexts/queryContext';
+import { createQueryContext } from 'src/core/contexts/queryContext';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { preProcessItem } from 'src/features/expressions/validation';
 import { cleanLayout } from 'src/features/form/layout/cleanLayout';
@@ -40,9 +40,10 @@ function useLayoutQuery() {
   });
 }
 
-const { Provider, useCtx } = createStrictQueryContext({
+const { Provider, useCtx } = createQueryContext({
   name: 'LayoutsContext',
-  useQuery: useLayoutQuery,
+  required: true,
+  query: useLayoutQuery,
 });
 
 export const LayoutsProvider = Provider;
