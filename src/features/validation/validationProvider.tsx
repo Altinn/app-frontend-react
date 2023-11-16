@@ -211,7 +211,7 @@ async function runServerValidations(
     changedFields.length === 1
       ? {
           headers: {
-            ValidationTriggerField: changedFields[0],
+            ValidationTriggerField: encodeURIComponent(changedFields[0]),
           },
         }
       : {};
