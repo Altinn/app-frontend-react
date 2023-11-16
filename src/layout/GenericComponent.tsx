@@ -8,6 +8,7 @@ import { Label } from 'src/components/form/Label';
 import { Legend } from 'src/components/form/Legend';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { hasValidationErrors } from 'src/features/validation';
 import { useAllValidationsForNode } from 'src/features/validation/validationProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -114,10 +115,10 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
 
   const formData = node.getFormData() as IComponentFormData<Type>;
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
-  const isValid = !node.hasValidationMessages('errors');
 
   const shouldFocus = useAppSelector((state) => GetFocusSelector(state, { id }));
   const validations = useAllValidationsForNode(node);
+  const isValid = !hasValidationErrors(validations);
 
   const filterValidationErrors = () => {
     const maxLength = 'maxLength' in node.item && node.item.maxLength;

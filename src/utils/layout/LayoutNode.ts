@@ -268,6 +268,7 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
   /**
    * Returns all the current validations for this node. There will be different validations per binding.
    */
+  // TODO(Validation): Remove
   public getValidations(binding: string): IComponentBindingValidation;
   public getValidations(binding?: undefined): IComponentValidations;
   public getValidations(binding?: string): IComponentBindingValidation | IComponentValidations {
@@ -285,6 +286,7 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
   /**
    * Returns all the current validations for this node, regardless of the data binding.
    */
+  // TODO(Validation): Remove
   public getUnifiedValidations(): IComponentBindingValidation {
     const out: IComponentBindingValidation = {};
     const validations = this.getValidations();
@@ -309,6 +311,7 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
   /**
    * Get specific validation messages (either unified, from all data model bindings, or from a specific one)
    */
+  // TODO(Validation): Remove
   public getValidationMessages(type: ValidationKeyOrAny, bindingKey?: string): string[] {
     if (bindingKey) {
       const validations = this.getValidations();
@@ -323,6 +326,7 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
   /**
    * Checks if there are any validation messages for a given type
    */
+  // TODO(Validation): Remove
   public hasValidationMessages(type: ValidationKeyOrAny = 'errors'): boolean {
     return this.getValidationMessages(type).length > 0;
   }
@@ -330,6 +334,7 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
   /**
    * Speciality function to check if the component (or possibly any of its child components) has validation any errors
    */
+  // TODO(Validation): Remove
   public hasDeepValidationMessages(type: ValidationKeyOrAny = 'errors'): boolean {
     const thisHasMessages = this.hasValidationMessages(type);
     const childrenHasMessages =

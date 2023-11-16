@@ -2,11 +2,11 @@ import React from 'react';
 
 import { Panel, PanelVariant } from '@altinn/altinn-design-system';
 import { Grid } from '@material-ui/core';
-import { createSelector } from 'reselect';
 
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import classes from 'src/components/message/ErrorReport.module.css';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { useTaskErrors } from 'src/features/validation/validationProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -15,11 +15,8 @@ import { GenericComponent } from 'src/layout/GenericComponent';
 import { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import { useExprContext } from 'src/utils/layout/ExprContext';
-import { getMappedErrors, getUnmappedErrors } from 'src/utils/validation/validation';
-import type { IRuntimeState } from 'src/types';
+import type { NodeValidation } from 'src/features/validation/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { IValidations } from 'src/utils/validation/types';
-import type { FlatError } from 'src/utils/validation/validation';
 
 export interface IErrorReportProps {
   nodes: LayoutNode[];
@@ -30,26 +27,19 @@ const ArrowForwardSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24
 </svg>`;
 const listStyleImg = `url("data:image/svg+xml,${encodeURIComponent(ArrowForwardSvg)}")`;
 
-const selectValidations = (state: IRuntimeState) => state.formValidations.validations;
-const createMappedAndUnmappedErrors = (validations: IValidations): [FlatError[], string[]] => [
-  getMappedErrors(validations),
-  getUnmappedErrors(validations),
-];
-const selectMappedUnmappedErrors = createSelector(selectValidations, createMappedAndUnmappedErrors);
-
 export const ErrorReport = ({ nodes }: IErrorReportProps) => {
   const dispatch = useAppDispatch();
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
-  const [errorsMapped, errorsUnmapped] = useAppSelector(selectMappedUnmappedErrors);
   const allNodes = useExprContext();
-  const hasErrors = errorsUnmapped.length > 0 || errorsMapped.length > 0;
+  const { formErrors, taskErrors } = useTaskErrors();
+  const hasErrors = Boolean(formErrors.length) || Boolean(taskErrors.length);
   const { lang } = useLanguage();
 
   if (!hasErrors) {
     return null;
   }
 
-  const handleErrorClick = (error: FlatError) => (ev: React.KeyboardEvent | React.MouseEvent) => {
+  const handleErrorClick = (error: NodeValidation) => (ev: React.KeyboardEvent | React.MouseEvent) => {
     if (ev.type === 'keydown' && (ev as React.KeyboardEvent).key !== 'Enter') {
       return;
     }
@@ -60,10 +50,10 @@ export const ErrorReport = ({ nodes }: IErrorReportProps) => {
       return;
     }
 
-    if (currentView !== error.layout) {
+    if (currentView !== componentNode.pageKey()) {
       dispatch(
         FormLayoutActions.updateCurrentView({
-          newView: error.layout,
+          newView: componentNode.pageKey(),
         }),
       );
     }
@@ -152,17 +142,17 @@ export const ErrorReport = ({ nodes }: IErrorReportProps) => {
               xs={12}
             >
               <ul className={classes.errorList}>
-                {errorsUnmapped.map((error: string) => (
+                {taskErrors.map((error) => (
                   <li
-                    key={`unmapped-${error}`}
+                    key={`unmapped-${error.message}`}
                     style={{ listStyleImage: listStyleImg }}
                   >
-                    {getParsedLanguageFromText(error, {
+                    {getParsedLanguageFromText(error.message, {
                       disallowedTags: ['a'],
                     })}
                   </li>
                 ))}
-                {errorsMapped.map((error) => (
+                {formErrors.map((error) => (
                   <li
                     key={`mapped-${error.componentId}-${error.message}`}
                     style={{ listStyleImage: listStyleImg }}

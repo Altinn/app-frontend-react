@@ -18,6 +18,7 @@ import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema
 import { useStrictInstance } from 'src/features/instance/InstanceContext';
 import { type IUseLanguage, useLanguage } from 'src/hooks/useLanguage';
 import { createStrictContext } from 'src/utils/createContext';
+import { useExprContext } from 'src/utils/layout/ExprContext';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { duplicateStringFilter } from 'src/utils/stringHelper';
 import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
@@ -28,7 +29,6 @@ import type { BaseValidation, NodeValidation, ValidationContext, ValidationState
 import type { CompTypes, IDataModelBindings } from 'src/layout/layout';
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { BackendValidationIssue } from 'src/utils/validation/types';
 
 const { Provider, useCtx } = createStrictContext<ValidationContext>({ name: 'ValidationContext' });
@@ -153,26 +153,27 @@ export function usePageErrors(page: LayoutPage, ignoreBackendValidations = true)
  * Returns all validation errors (not warnings, info, etc.) for a layout set.
  * This includes unmapped/task errors as well
  */
-export function useTaskErrors(
-  pages: LayoutPages,
-  ignoreBackendValidations = true,
-): {
-  formValidations: NodeValidation<'errors'>[];
-  taskValidations: BaseValidation<'errors'>[];
+export function useTaskErrors(ignoreBackendValidations = true): {
+  formErrors: NodeValidation<'errors'>[];
+  taskErrors: BaseValidation<'errors'>[];
 } {
+  const pages = useExprContext();
   const state = useCtx().state;
 
   return useMemo(() => {
-    const formValidations: NodeValidation<'errors'>[] = [];
-    const taskValidations: BaseValidation<'errors'>[] = [];
+    if (!pages) {
+      return { formErrors: [], taskErrors: [] };
+    }
+    const formErrors: NodeValidation<'errors'>[] = [];
+    const taskErrors: BaseValidation<'errors'>[] = [];
 
     for (const node of pages.allNodes().filter((node) => !node.isHidden({ respectTracks: true }))) {
-      formValidations.push(...getValidationsForNode(node, state, ignoreBackendValidations, 'errors'));
+      formErrors.push(...getValidationsForNode(node, state, ignoreBackendValidations, 'errors'));
     }
     for (const validation of validationsOfSeverity(state.task, 'errors')) {
-      taskValidations.push(validation);
+      taskErrors.push(validation);
     }
-    return { formValidations, taskValidations };
+    return { formErrors, taskErrors };
   }, [ignoreBackendValidations, pages, state]);
 }
 

@@ -82,9 +82,7 @@ export function validationsOfSeverity<I extends BaseValidation, S extends Valida
   return validations?.filter(isOfSeverity(severity)) ?? [];
 }
 
-export function hasValidationErrors(validations: NodeValidation<ValidationSeverity>[] | undefined): boolean;
-export function hasValidationErrors(validations: FieldValidation<ValidationSeverity>[] | undefined): boolean;
-export function hasValidationErrors(validations: any): boolean {
+export function hasValidationErrors<V extends BaseValidation>(validations: V[] | undefined): boolean {
   return validations?.some((validation: any) => validation.severity === 'errors') ?? false;
 }
 
@@ -146,6 +144,9 @@ export function getValidationsForNode(
   severity?: ValidationSeverity,
 ): NodeValidation[] {
   const validationMessages: NodeValidation[] = [];
+  if (node.isHidden({ respectTracks: true }) || ('renderAsSummary' in node.item && node.item.renderAsSummary)) {
+    return validationMessages;
+  }
   if (node.item.dataModelBindings) {
     for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings)) {
       if (state.fields[field]) {
