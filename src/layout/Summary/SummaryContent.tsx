@@ -2,6 +2,8 @@ import React from 'react';
 
 import cn from 'classnames';
 
+import { hasValidationErrors } from 'src/features/validation';
+import { useUnifiedValidationsForNode } from 'src/features/validation/validationProvider';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import classes from 'src/layout/Summary/SummaryContent.module.css';
@@ -27,7 +29,8 @@ export function SummaryContent({
   const { lang, langAsString } = useLanguage(targetNode);
   const display = overrides?.display || summaryNode.item.display;
   const readOnlyComponent = 'readOnly' in targetNode.item && targetNode.item.readOnly === true;
-  const hasValidationMessages = targetNode.hasValidationMessages();
+  const validations = useUnifiedValidationsForNode(targetNode);
+  const hasErrors = hasValidationErrors(validations);
   const shouldShowChangeButton = !readOnlyComponent && !display?.hideChangeButton;
   const displaySummaryBoilerPlate =
     'renderSummaryBoilerplate' in targetNode.def && targetNode.def.renderSummaryBoilerplate();
@@ -44,8 +47,8 @@ export function SummaryContent({
     <div className={classes.container}>
       {displaySummaryBoilerPlate && (
         <span
-          className={cn(classes.label, hasValidationMessages && !display?.hideValidationMessages && classes.labelError)}
-          {...(hasValidationMessages && {
+          className={cn(classes.label, hasErrors && !display?.hideValidationMessages && classes.labelError)}
+          {...(hasErrors && {
             'data-testid': 'has-validation-message',
           })}
         >

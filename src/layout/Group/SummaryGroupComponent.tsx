@@ -3,6 +3,8 @@ import React from 'react';
 import cn from 'classnames';
 
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
+import { hasValidationErrors } from 'src/features/validation';
+import { useDeepValidationsForNode } from 'src/features/validation/validationProvider';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { CompCategory } from 'src/layout/common';
 import { DisplayGroupContainer } from 'src/layout/Group/DisplayGroupContainer';
@@ -41,7 +43,8 @@ export function SummaryGroupComponent({
     excludedChildren &&
     (excludedChildren.includes(n.item.id) || excludedChildren.includes(`${n.item.baseComponentId}`));
 
-  const groupHasErrors = targetNode.hasDeepValidationMessages();
+  const groupValidations = useDeepValidationsForNode(targetNode);
+  const groupHasErrors = hasValidationErrors(groupValidations);
 
   const textBindings = targetNode.item.textResourceBindings as ITextResourceBindings;
   const summaryAccessibleTitleTrb =

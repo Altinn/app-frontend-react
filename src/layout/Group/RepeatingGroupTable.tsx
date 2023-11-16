@@ -224,9 +224,6 @@ export function RepeatingGroupTable({
         <TableBody id={`group-${id}-table-body`}>
           {repeatingGroupIndex >= 0 &&
             [...Array(repeatingGroupIndex + 1)].map((_x: any, index: number) => {
-              const children = node.children(undefined, index);
-              const rowHasErrors = !!children.find((c) => c.hasValidationMessages());
-
               const isTableRowHidden =
                 node.item.type === 'Group' && 'rows' in node.item && node.item.rows[index]?.groupExpressions?.hiddenRow;
 
@@ -248,7 +245,6 @@ export function RepeatingGroupTable({
                     onClickRemove={onClickRemove}
                     deleting={deleting}
                     index={index}
-                    rowHasErrors={rowHasErrors}
                     getTableNodes={getTableNodes}
                     onEditClick={() => handleEditClick(index)}
                     onDeleteClick={() => handleDeleteClick(index)}

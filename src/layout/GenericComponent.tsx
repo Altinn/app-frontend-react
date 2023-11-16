@@ -9,7 +9,7 @@ import { Legend } from 'src/components/form/Legend';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { hasValidationErrors } from 'src/features/validation';
-import { useAllValidationsForNode } from 'src/features/validation/validationProvider';
+import { useUnifiedValidationsForNode } from 'src/features/validation/validationProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -117,7 +117,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
 
   const shouldFocus = useAppSelector((state) => GetFocusSelector(state, { id }));
-  const validations = useAllValidationsForNode(node);
+  const validations = useUnifiedValidationsForNode(node);
   const isValid = !hasValidationErrors(validations);
 
   const filterValidationErrors = () => {

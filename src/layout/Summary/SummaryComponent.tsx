@@ -5,6 +5,8 @@ import cn from 'classnames';
 
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { validationsOfSeverity } from 'src/features/validation';
+import { useUnifiedValidationsForNode } from 'src/features/validation/validationProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -37,6 +39,9 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
   const targetNode = useResolvedNode(overrides?.targetNode || summaryNode.item.componentRef || summaryNode.item.id);
   const targetItem = targetNode?.item;
   const targetView = targetNode?.top.top.myKey;
+
+  const validations = useUnifiedValidationsForNode(targetNode);
+  const errors = validationsOfSeverity(validations, 'errors');
 
   const onChangeClick = () => {
     if (!targetView) {
@@ -95,36 +100,34 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
         ) : (
           <GenericComponent node={targetNode} />
         )}
-        {targetNode?.hasValidationMessages('errors') &&
-          targetItem.type !== 'Group' &&
-          !display?.hideValidationMessages && (
+        {errors.length && targetItem.type !== 'Group' && !display?.hideValidationMessages && (
+          <Grid
+            container={true}
+            style={{ paddingTop: '12px' }}
+            spacing={2}
+          >
+            {errors.map(({ message }) => (
+              <ErrorPaper
+                key={`key-${message}`}
+                message={message}
+              />
+            ))}
             <Grid
-              container={true}
-              style={{ paddingTop: '12px' }}
-              spacing={2}
+              item={true}
+              xs={12}
             >
-              {targetNode?.getUnifiedValidations().errors?.map((error: string) => (
-                <ErrorPaper
-                  key={`key-${error}`}
-                  message={error}
-                />
-              ))}
-              <Grid
-                item={true}
-                xs={12}
-              >
-                {!display?.hideChangeButton && (
-                  <button
-                    className={classes.link}
-                    onClick={onChangeClick}
-                    type='button'
-                  >
-                    {lang('form_filler.summary_go_to_correct_page')}
-                  </button>
-                )}
-              </Grid>
+              {!display?.hideChangeButton && (
+                <button
+                  className={classes.link}
+                  onClick={onChangeClick}
+                  type='button'
+                >
+                  {lang('form_filler.summary_go_to_correct_page')}
+                </button>
+              )}
             </Grid>
-          )}
+          </Grid>
+        )}
       </Grid>
     </Grid>
   );

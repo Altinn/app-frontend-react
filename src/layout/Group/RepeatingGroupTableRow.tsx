@@ -7,6 +7,8 @@ import cn from 'classnames';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
+import { hasValidationErrors } from 'src/features/validation';
+import { useDeepValidationsForNode } from 'src/features/validation/validationProvider';
 import { useAlertOnChange } from 'src/hooks/useAlertOnChange';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -34,7 +36,6 @@ export interface IRepeatingGroupTableRowProps {
   onClickRemove: (groupIndex: number) => void;
   deleting: boolean;
   index: number;
-  rowHasErrors: boolean;
   getTableNodes: (index: number) => LayoutNode[] | undefined;
   onEditClick: () => void;
   mobileView: boolean;
@@ -80,7 +81,6 @@ export function RepeatingGroupTableRow({
   editIndex,
   deleting,
   index,
-  rowHasErrors,
   getTableNodes,
   onEditClick,
   mobileView,
@@ -106,6 +106,9 @@ export function RepeatingGroupTableRow({
     ...group.textResourceBindings,
     ...expressionsForRow?.textResourceBindings,
   } as CompGroupRepeatingInternal['textResourceBindings'];
+
+  const rowValdiations = useDeepValidationsForNode(node, true, index);
+  const rowHasErrors = hasValidationErrors(rowValdiations);
 
   const alertOnDelete = useAlertOnChange(Boolean(edit?.alertOnDelete), onDeleteClick);
 

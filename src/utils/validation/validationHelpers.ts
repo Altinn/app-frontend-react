@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
-import { useStrictInstanceData } from 'src/features/instance/InstanceContext';
+import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
@@ -26,7 +26,7 @@ export function useValidationContextGenerator(): ValidationContextGenerator {
   const formData = useAppSelector((state) => state.formData.formData);
   const attachments = useAttachments();
   const application = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
-  const instance = useStrictInstanceData();
+  const instance = useLaxInstanceData() ?? null;
   const process = useLaxProcessData() ?? null;
   const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
   const schemas = useAppSelector((state) => state.formDataModel.schemas);

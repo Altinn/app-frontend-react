@@ -15,7 +15,7 @@ import {
 import type { NodeDataChange } from '.';
 
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
-import { useStrictInstance } from 'src/features/instance/InstanceContext';
+import { useLaxInstance } from 'src/features/instance/InstanceContext';
 import { type IUseLanguage, useLanguage } from 'src/hooks/useLanguage';
 import { createStrictContext } from 'src/utils/createContext';
 import { useExprContext } from 'src/utils/layout/ExprContext';
@@ -36,7 +36,7 @@ const { Provider, useCtx } = createStrictContext<ValidationContext>({ name: 'Val
 export function ValidationProvider({ children }) {
   const validationContextGenerator = useValidationContextGenerator();
   const langTools = useLanguage();
-  const instanceId = useStrictInstance().instanceId;
+  const instanceId = useLaxInstance()?.instanceId;
   const currentDataElementId = useCurrentDataModelGuid();
   const validationUrl =
     instanceId?.length && currentDataElementId?.length
@@ -76,13 +76,35 @@ export function ValidationProvider({ children }) {
 /**
  * Returns all validation messages for a given node.
  */
-export function useAllValidationsForNode(node: LayoutNode, ignoreBackendValidations = true): NodeValidation[] {
+export function useUnifiedValidationsForNode(
+  node: LayoutNode | undefined,
+  ignoreBackendValidations = true,
+): NodeValidation[] {
   const state = useCtx().state;
 
   return useMemo(
-    () => getValidationsForNode(node, state, ignoreBackendValidations),
+    () => (node ? getValidationsForNode(node, state, ignoreBackendValidations) : []),
     [ignoreBackendValidations, node, state],
   );
+}
+
+/**
+ * Returns all validation messages for a nodes children and optionally the node itself.
+ */
+export function useDeepValidationsForNode(
+  node: LayoutNode | undefined,
+  onlyChildren: boolean = false,
+  onlyInRowIndex?: number,
+  ignoreBackendValidations = true,
+): NodeValidation[] {
+  const state = useCtx().state;
+  return useMemo(() => {
+    if (!node) {
+      return [];
+    }
+    const nodesToValidate = onlyChildren ? node.flat(true, onlyInRowIndex) : [node, ...node.flat(true, onlyInRowIndex)];
+    return nodesToValidate.flatMap((node) => getValidationsForNode(node, state, ignoreBackendValidations));
+  }, [ignoreBackendValidations, node, onlyChildren, onlyInRowIndex, state]);
 }
 
 export function useBindingValidationsForNode<

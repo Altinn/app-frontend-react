@@ -13,7 +13,6 @@ import type { CompInputExternal } from 'src/layout/Input/config.generated';
 import type { CompInternal, HierarchyDataSources, ILayout, ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { IValidations } from 'src/utils/validation/types';
 
 const { resolvedNodesInLayouts } = _private;
 
@@ -541,64 +540,6 @@ describe('Hierarchical layout tools', () => {
     // This component doesn't have any repeating group reference point, so it cannot
     // provide any insights (but it should not fail)
     expect(topHeaderNode?.transposeDataModel('MyModel.Group2.Nested.Age')).toEqual('MyModel.Group2.Nested.Age');
-  });
-
-  describe('validation functions', () => {
-    const nestedId = `${components.group3ni.id}-1-2`;
-    const validations: IValidations = {
-      formLayout: {
-        [components.top1.id]: {
-          simpleBinding: {
-            errors: ['Some error'],
-            warnings: ['Some warning'],
-          },
-        },
-        [nestedId]: {
-          simpleBinding: {
-            errors: ['Some nested error'],
-            warnings: ['Some nested warning 1', 'Nested warning 2'],
-          },
-          otherBinding: {
-            warnings: ['Nested warning 3'],
-          },
-        },
-      },
-    };
-    const page = generateHierarchy(
-      layout,
-      manyRepeatingGroups,
-      { ...dataSources, validations },
-      getLayoutComponentObject,
-    );
-    page.registerCollection('formLayout', new LayoutPages<any>());
-    const nestedNode = page.findById(nestedId);
-    const topHeaderNode = page.findById(components.top1.id);
-
-    expect(topHeaderNode?.getValidations()).toEqual(validations.formLayout[components.top1.id]);
-    expect(topHeaderNode?.getUnifiedValidations()).toEqual(validations.formLayout[components.top1.id].simpleBinding);
-    expect(topHeaderNode?.getValidationMessages('warnings')).toEqual(['Some warning']);
-
-    expect(nestedNode?.getValidations()).toEqual(validations.formLayout[nestedId]);
-    expect(nestedNode?.getUnifiedValidations()).toEqual({
-      errors: ['Some nested error'],
-      warnings: ['Some nested warning 1', 'Nested warning 2', 'Nested warning 3'],
-    });
-    expect(nestedNode?.getValidationMessages('warnings')).toEqual([
-      'Some nested warning 1',
-      'Nested warning 2',
-      'Nested warning 3',
-    ]);
-    expect(nestedNode?.getValidationMessages('warnings', 'simpleBinding')).toEqual([
-      'Some nested warning 1',
-      'Nested warning 2',
-    ]);
-
-    expect(nestedNode?.hasDeepValidationMessages()).toEqual(true);
-    expect(page.findById(`${components.group3n.id}-1`)?.hasDeepValidationMessages()).toEqual(true);
-    expect(page.findById(components.group3.id)?.hasDeepValidationMessages()).toEqual(true);
-    expect(page.findById(components.group3.id)?.hasDeepValidationMessages('info')).toEqual(false);
-    expect(page.findById(`${components.group3n.id}-1`)?.hasValidationMessages('errors')).toEqual(false);
-    expect(page.findById(components.group3.id)?.hasValidationMessages('errors')).toEqual(false);
   });
 
   describe('find functions', () => {
