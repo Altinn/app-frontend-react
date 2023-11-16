@@ -46,12 +46,13 @@ export function AttachmentListComponent({ node }: IAttachmentListProps) {
         return true;
       }
 
-      if (allowedTypes.size === 0) {
-        // If no data types are specified, we show all data types in the current task
+      if (allowedTypes.has(DataTypeReference.FromTask)) {
+        // if only data types from current task are allowed, we check if the data type is in the task
         return dataTypesInTask.has(el.dataType);
       }
 
-      return false;
+      // if no data types are specified, we show all data types
+      return allowedTypes.size === 0;
     });
 
     const otherAttachments = getDisplayAttachments(attachments);
