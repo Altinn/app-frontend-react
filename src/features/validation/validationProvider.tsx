@@ -80,6 +80,8 @@ export function ValidationProvider({ children }) {
 
 /**
  * Returns all validation messages for a given node.
+ * Both validations connected to specific data model bindings,
+ * and general component validations in a single list.
  */
 export function useUnifiedValidationsForNode(
   node: LayoutNode | undefined,
@@ -112,6 +114,10 @@ export function useDeepValidationsForNode(
   }, [ignoreBackendValidations, node, onlyChildren, onlyInRowIndex, state]);
 }
 
+/**
+ * Gets all validations that are bound to a data model field,
+ * including component validations which have a binding key association.
+ */
 export function useBindingValidationsForNode<
   N extends LayoutNode,
   T extends CompTypes = N extends BaseLayoutNode<any, infer T> ? T : never,
@@ -148,6 +154,9 @@ export function useBindingValidationsForNode<
   }, [node, fields, component.bindingKeys, ignoreBackendValidations]);
 }
 
+/**
+ * Get only the component validations which are not bound to any data model fields.
+ */
 export function useComponentValidationsForNode(node: LayoutNode, ignoreBackendValidations = true): NodeValidation[] {
   const component = useCtx().state.components[node.item.id];
   return useMemo(() => {
@@ -204,6 +213,10 @@ export function useTaskErrors(ignoreBackendValidations = true): {
   }, [ignoreBackendValidations, pages, state]);
 }
 
+/**
+ * A temporary replacement for runSingleFieldValidation / getting all validations from server,
+ * This should ideally be handled in the call to save form data.
+ */
 async function runServerValidations(
   nodeChanges: NodeDataChange[],
   url: string | undefined,
@@ -280,7 +293,10 @@ async function runServerValidations(
   return state;
 }
 
-export function updateValidationState(prevState: ValidationState, newState: ValidationState): void {
+/**
+ * Updates an existing validation states using the values from the new state.
+ */
+function updateValidationState(prevState: ValidationState, newState: ValidationState): void {
   mergeFormValidations(prevState, newState);
 
   if (newState.task) {
@@ -288,6 +304,10 @@ export function updateValidationState(prevState: ValidationState, newState: Vali
   }
 }
 
+/**
+ * Remove validation from removed nodes.
+ * This also removes field validations which are no longer bound to any other nodes.
+ */
 function purgeValidationsForNodes(
   state: ValidationState,
   removedNodes: LayoutNode[],
