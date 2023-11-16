@@ -4,11 +4,9 @@ import type { SagaIterator } from 'redux-saga';
 
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { selectFormLayouts } from 'src/features/form/layout/update/updateFormLayoutSagas';
-import { ValidationActions } from 'src/features/validation/validationSlice';
 import { groupIsRepeatingExt } from 'src/layout/Group/tools';
 import { getRepeatingGroups } from 'src/utils/formLayout';
 import { selectNotNull } from 'src/utils/sagas';
-import { removeGroupValidationsByIndex } from 'src/utils/validation/validation';
 import type { IInitRepeatingGroups } from 'src/features/form/layout/formLayoutTypes';
 import type { IFormData } from 'src/features/formData';
 import type { CompGroupExternal } from 'src/layout/Group/config.generated';
@@ -28,29 +26,6 @@ export function* initRepeatingGroupsSaga({
       ...getRepeatingGroups(layouts[layoutKey], formData),
     };
   });
-  // if any groups have been removed as part of calculation we delete the associated validations
-  const currentGroupKeys = Object.keys(currentGroups);
-  const groupsToRemoveValidations = currentGroupKeys.filter(
-    (key) => currentGroups[key].index > -1 && (!newGroups[key] || newGroups[key].index === -1),
-  );
-  if (groupsToRemoveValidations.length > 0) {
-    let validations = state.formValidations.validations;
-    for (const group of groupsToRemoveValidations) {
-      for (let i = 0; i <= currentGroups[group].index; i++) {
-        validations = removeGroupValidationsByIndex(
-          group,
-          i,
-          state.formLayout.uiConfig.currentView,
-          layouts,
-          currentGroups,
-          validations,
-          false,
-        );
-      }
-    }
-    // TODO(Validation): I assume this entire saga will be removed, including this validation updating
-    yield put(ValidationActions.updateValidations({ validationResult: { validations }, merge: false }));
-  }
 
   // Open by default
   const newGroupKeys = Object.keys(newGroups || {});
@@ -71,6 +46,7 @@ export function* initRepeatingGroupsSaga({
   });
 
   // preserve current edit and multipage index if still valid
+  const currentGroupKeys = Object.keys(currentGroups);
   currentGroupKeys
     .filter((key) => newGroups[key] !== undefined)
     .forEach((key) => {

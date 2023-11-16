@@ -1,10 +1,7 @@
 import { BackendValidationSeverity } from 'src/utils/validation/backendValidationSeverity';
-import { buildValidationObject, unmappedError } from 'src/utils/validation/validationHelpers';
 import { validationTexts } from 'src/utils/validation/validationTexts';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type { IsHiddenOptions } from 'src/utils/layout/LayoutNode';
-import type { LayoutPages } from 'src/utils/layout/LayoutPages';
-import type { BackendValidationIssue, IValidationObject, ValidationSeverity } from 'src/utils/validation/types';
+import type { BackendValidationIssue, ValidationSeverity } from 'src/utils/validation/types';
 
 /**
  * We need to map the severity we get from backend into the format used when storing in redux.
@@ -24,30 +21,6 @@ export enum ValidationIssueSources {
   Required = 'Required',
   Expression = 'Expression',
   Custom = 'Custom',
-}
-
-/**
- * Some validations performed by the backend are also performed by the frontend.
- * We need to ignore these to prevent duplicate errors.
- */
-export function shouldExcludeValidationIssue(issue: BackendValidationIssue): boolean {
-  if (issue.source === ValidationIssueSources.Required) {
-    // Required validations are handled by the frontend.
-    return true;
-  }
-
-  if (issue.source === ValidationIssueSources.ModelState) {
-    // This is handled by schema validation.
-    return true;
-  }
-
-  // eslint-disable-next-line sonarjs/prefer-single-boolean-return
-  if (issue.source === ValidationIssueSources.Expression) {
-    // This is handled by the frontend
-    return true;
-  }
-
-  return false;
 }
 
 /**
@@ -81,60 +54,4 @@ export function getValidationMessage(
   }
 
   return issue.source ? `${issue.source}.${issue.code}` : issue.code;
-}
-
-/**
- * Maps validation issues from the backend into the intermediate format used by the frontend.
- */
-export function mapValidationIssues(
-  issues: BackendValidationIssue[],
-  resolvedNodes: LayoutPages,
-  langTools: IUseLanguage,
-  filterHidden: false | IsHiddenOptions = { respectTracks: true },
-  filterSources: boolean = true,
-): IValidationObject[] {
-  if (!resolvedNodes) {
-    return [];
-  }
-
-  const allNodes = resolvedNodes
-    .allNodes()
-    .filter(
-      (node) =>
-        (filterHidden === false || !node.isHidden(filterHidden)) &&
-        !('renderAsSummary' in node.item && node.item.renderAsSummary),
-    );
-
-  const validationOutputs: IValidationObject[] = [];
-  for (const issue of issues) {
-    if (filterSources && shouldExcludeValidationIssue(issue)) {
-      continue;
-    }
-
-    const { field, severity, source } = issue;
-    const message = getValidationMessage(issue, langTools);
-
-    if (!field) {
-      // Unmapped error
-      validationOutputs.push(unmappedError(severityMap[severity], message, source));
-    }
-
-    for (const node of allNodes) {
-      // Special case for FileUpload and FileUploadWithTag
-      if ((node.isType('FileUpload') || node.isType('FileUploadWithTag')) && node.item.id === field) {
-        validationOutputs.push(buildValidationObject(node, severityMap[severity], message, undefined, source));
-        continue;
-      }
-
-      if ('dataModelBindings' in node.item && node.item.dataModelBindings) {
-        const bindings = Object.entries(node.item.dataModelBindings);
-        for (const [bindingKey, bindingField] of bindings) {
-          if (bindingField === field) {
-            validationOutputs.push(buildValidationObject(node, severityMap[severity], message, bindingKey, source));
-          }
-        }
-      }
-    }
-  }
-  return validationOutputs;
 }

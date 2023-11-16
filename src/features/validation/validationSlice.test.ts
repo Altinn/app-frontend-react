@@ -1,16 +1,12 @@
 import { initialState, ValidationActions, validationSlice } from 'src/features/validation/validationSlice';
-import type { IValidationState } from 'src/features/validation/validationSlice';
 import type { IComponentValidations, IValidations } from 'src/utils/validation/types';
 
 describe('validationSlice', () => {
-  let state: IValidationState;
   let mockValidations: IValidations;
-  let mockError: Error;
 
   const slice = validationSlice();
 
   beforeEach(() => {
-    state = initialState;
     mockValidations = {
       formLayout: {
         mockComponent: {
@@ -21,23 +17,6 @@ describe('validationSlice', () => {
         },
       },
     };
-    mockError = new Error('Something went wrong');
-  });
-
-  it('handles runSingleFieldValidationFulfilled action', () => {
-    const nextState = slice.reducer(
-      state,
-      ValidationActions.updateValidations({
-        validationResult: { validations: mockValidations },
-        merge: false,
-      }),
-    );
-    expect(nextState.validations).toEqual(mockValidations);
-  });
-
-  it('handles runSingleFieldValidationRejected action', () => {
-    const nextState = slice.reducer(state, ValidationActions.runSingleFieldValidationRejected({ error: mockError }));
-    expect(nextState.error).toEqual(mockError);
   });
 
   it('handles updateComponentValidations action', () => {
@@ -73,16 +52,5 @@ describe('validationSlice', () => {
 
     expect(nextState.validations).toEqual(expectedValidations);
     expect(nextState.invalidDataTypes).toEqual(invalidDataTypes);
-  });
-
-  it('handles updateValidations action', () => {
-    const nextState = slice.reducer(
-      state,
-      ValidationActions.updateValidations({
-        validationResult: { validations: mockValidations },
-        merge: false,
-      }),
-    );
-    expect(nextState.validations).toEqual(mockValidations);
   });
 });

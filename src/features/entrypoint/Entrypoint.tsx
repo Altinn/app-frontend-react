@@ -13,7 +13,6 @@ import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValid
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/loading/Loader';
 import { PartyActions } from 'src/features/party/partySlice';
-import { ValidationActions } from 'src/features/validation/validationSlice';
 import { usePartyValidationMutation } from 'src/hooks/mutations/usePartyValidationMutation';
 import { useActiveInstancesQuery } from 'src/hooks/queries/useActiveInstancesQuery';
 import { useAlwaysPromptForParty } from 'src/hooks/useAlwaysPromptForParty';
@@ -67,12 +66,6 @@ export function Entrypoint() {
 
     validatePartyMutate(selectedParty.partyId);
   }, [selectedParty, validatePartyMutate]);
-
-  React.useEffect(() => {
-    // If user comes back to entrypoint from an active instance we need to clear validation messages
-    // TODO(Validation): This should be fixed by a new validation provider being created
-    dispatch(ValidationActions.updateValidations({ validationResult: { validations: {} }, merge: false }));
-  }, [dispatch]);
 
   React.useEffect(() => {
     if (applicationMetadata) {

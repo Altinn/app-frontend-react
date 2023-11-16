@@ -5,26 +5,19 @@ import type { SagaIterator } from 'redux-saga';
 
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
-import { ValidationActions } from 'src/features/validation/validationSlice';
 import { pathsChangedFromServer } from 'src/hooks/useDelayedSavedState';
-import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { getCurrentDataTypeForApplication, getCurrentTaskDataElementId, isStatelessApp } from 'src/utils/appMetadata';
 import { convertDataBindingToModel, filterOutInvalidData, flattenObject } from 'src/utils/databindings';
-import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpPost } from 'src/utils/network/networking';
-import { httpGet, httpPut } from 'src/utils/network/sharedNetworking';
+import { httpPut } from 'src/utils/network/sharedNetworking';
 import { waitFor } from 'src/utils/sagas';
-import { dataElementUrl, getStatelessFormDataUrl, getValidationUrl } from 'src/utils/urls/appUrlHelper';
-import { mapValidationIssues } from 'src/utils/validation/backendValidation';
-import { containsErrors, createValidationResult } from 'src/utils/validation/validationHelpers';
+import { dataElementUrl, getStatelessFormDataUrl } from 'src/utils/urls/appUrlHelper';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { IFormData } from 'src/features/formData';
 import type { IUpdateFormData } from 'src/features/formData/formDataTypes';
 import type { IRuntimeState, IRuntimeStore, IUiConfig } from 'src/types';
-import type { LayoutPages } from 'src/utils/layout/LayoutPages';
-import type { BackendValidationIssue } from 'src/utils/validation/types';
 
 const LayoutSelector: (store: IRuntimeStore) => ILayoutState = (store: IRuntimeStore) => store.formLayout;
 const getApplicationMetaData = (store: IRuntimeState) => store.applicationMetadata?.applicationMetadata;
@@ -36,15 +29,8 @@ const selectUiConfig = (state: IRuntimeState) => state.formLayout.uiConfig;
  */
 export function* submitFormSaga(): SagaIterator {
   try {
-    const state: IRuntimeState = yield select();
-    const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
-
-    /**
-     * TODO(Validation): Check validation provider if submit is allowed, set urgency level of pages?
-     * This saga probably needs to be rewritten to a hook first, since the sagas do not have acces to this provider.
-     */
     yield call(putFormData, {});
-    yield call(submitComplete, state, resolvedNodes);
+    yield call(submitComplete);
     yield put(FormDataActions.submitFulfilled());
   } catch (error) {
     window.logError('Submit form data failed:\n', error);
@@ -52,34 +38,8 @@ export function* submitFormSaga(): SagaIterator {
   }
 }
 
-function* submitComplete(state: IRuntimeState, resolvedNodes: LayoutPages): SagaIterator {
-  // run validations against the datamodel
-  const instanceId = state.deprecated.lastKnownInstance?.id;
-  /**
-   * TODO(Validation): The backend should probably respond with validation messages if the submit fails
-   * Alternatively, the backend should respond with validation messages on the final putFormData, and this can be checked before calling process next
-   */
-  const serverValidations: BackendValidationIssue[] | undefined = instanceId
-    ? yield call(httpGet, getValidationUrl(instanceId))
-    : undefined;
-
-  // update validation state
+function* submitComplete(): SagaIterator {
   const layoutState: ILayoutState = yield select(LayoutSelector);
-  const validationObjects = mapValidationIssues(
-    serverValidations ?? [],
-    resolvedNodes,
-    staticUseLanguageFromState(state),
-    false, // Do not filter anything. When we're submitting, all validation messages should be displayed, even if
-    // they're for hidden pages, etc, because the instance will be in a broken state if we just carry on submitting
-    // when the server tells us we're not allowed to.
-    false, // Do not filter sources. We want to show all validation messages for the same reason as above.
-  );
-  const validationResult = createValidationResult(validationObjects);
-  yield put(ValidationActions.updateValidations({ validationResult, merge: false }));
-  if (containsErrors(validationObjects)) {
-    // we have validation errors or warnings that should be shown, do not submit
-    return yield put(FormDataActions.submitRejected({ error: null }));
-  }
 
   if (layoutState.uiConfig.currentViewCacheKey) {
     // Reset cache for current page when ending process task
@@ -259,9 +219,7 @@ function getModelToSave(state: IRuntimeState) {
  * @see autoSaveSaga
  * @see submitFormSaga
  */
-export function* saveFormDataSaga({
-  payload: { field, componentId, singleFieldValidation },
-}: PayloadAction<IUpdateFormData>): SagaIterator {
+export function* saveFormDataSaga({ payload: { field, componentId } }: PayloadAction<IUpdateFormData>): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
     // updates the default data element
@@ -272,17 +230,6 @@ export function* saveFormDataSaga({
     } else {
       // app with instance
       yield call(putFormData, { field, componentId });
-    }
-
-    // TODO(Validation): Single field validation should be returned from save request and handled with the response
-    if (singleFieldValidation && componentId) {
-      yield put(
-        ValidationActions.runSingleFieldValidation({
-          componentId,
-          dataModelBinding: singleFieldValidation.dataModelBinding,
-          layoutId: singleFieldValidation.layoutId,
-        }),
-      );
     }
 
     yield put(FormDataActions.submitFulfilled());
