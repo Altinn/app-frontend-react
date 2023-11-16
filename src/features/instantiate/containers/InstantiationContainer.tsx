@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { AltinnAppHeader } from 'src/components/AltinnAppHeader';
+import { AltinnAppHeader } from 'src/components/altinnAppHeader';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { Footer } from 'src/features/footer/Footer';
 import classes from 'src/features/instantiate/containers/InstantiationContainer.module.css';
