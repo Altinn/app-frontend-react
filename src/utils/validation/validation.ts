@@ -7,7 +7,7 @@ import type { IFormData } from 'src/features/formData';
 import type { FormValidations } from 'src/features/validation/types';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { CompGroupExternal } from 'src/layout/Group/config.generated';
-import type { CompInternal, CompOrGroupExternal, ILayout } from 'src/layout/layout';
+import type { CompInternal, ILayout } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ILayoutValidations, IValidations, ValidationContextGenerator } from 'src/utils/validation/types';
 
@@ -71,22 +71,6 @@ export function getParentGroup(groupId: string, layout: ILayout): CompGroupExter
     }
     return false;
   }) as CompGroupExternal | undefined;
-}
-
-/**
- * @deprecated
- * @see useExprContext
- * @see useResolvedNode
- * @see ResolvedNodesSelector
- */
-export function getGroupChildren(groupId: string, layout: ILayout): CompOrGroupExternal[] {
-  const layoutGroup = layout.find((element) => element.id === groupId) as CompGroupExternal;
-  return layout.filter(
-    (element) =>
-      layoutGroup?.children
-        ?.map((id) => (groupIsRepeatingExt(layoutGroup) && layoutGroup.edit?.multiPage ? id.split(':')[1] : id))
-        .includes(element.id),
-  );
 }
 
 export function attachmentsValid(
