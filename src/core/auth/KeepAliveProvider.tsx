@@ -3,10 +3,10 @@ import type { PropsWithChildren } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 
-import { useAppQueries } from 'src/contexts/appQueriesContext';
+import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
+import { createStrictContext } from 'src/core/contexts/context';
 import { useAllowAnonymous } from 'src/features/applicationMetadata/getAllowAnonymous';
 import { useApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
-import { createStrictContext } from 'src/features/contexts/createContext';
 import { getEnvironmentLoginUrl } from 'src/utils/urls/appUrlHelper';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 

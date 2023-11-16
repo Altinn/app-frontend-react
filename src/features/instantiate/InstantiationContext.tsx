@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
-import { useAppMutations } from 'src/contexts/appQueriesContext';
-import { createStrictContext } from 'src/features/contexts/createContext';
+import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
+import { createStrictContext } from 'src/core/contexts/context';
 import type { IInstance } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';

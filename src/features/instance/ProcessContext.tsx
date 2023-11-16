@@ -2,11 +2,11 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 
-import { useAppQueries } from 'src/contexts/appQueriesContext';
+import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
+import { createLaxContext } from 'src/core/contexts/context';
+import { Loader } from 'src/core/loading/Loader';
 import { useIsStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
-import { createLaxContext } from 'src/features/contexts/createContext';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
-import { Loader } from 'src/features/loading/Loader';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { DeprecatedActions } from 'src/redux/deprecatedSlice';

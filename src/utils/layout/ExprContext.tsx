@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { createLaxContext } from 'src/features/contexts/createContext';
+import { createLaxContext } from 'src/core/contexts/context';
 import {
   runExpressionRules,
   runExpressionsForLayouts,

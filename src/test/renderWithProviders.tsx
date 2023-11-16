@@ -1,5 +1,5 @@
 import React from 'react';
-import { Provider } from 'react-redux';
+import { Provider as ReduxProvider } from 'react-redux';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
@@ -13,7 +13,7 @@ import type { JSONSchema7 } from 'json-schema';
 import { getPartyMock } from 'src/__mocks__/getPartyMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getInstanceDataMock, getProcessDataMock } from 'src/__mocks__/instanceDataStateMock';
-import { AppQueriesProvider } from 'src/contexts/appQueriesContext';
+import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
 import { generateSimpleRepeatingGroups } from 'src/features/form/layout/repGroups/generateSimpleRepeatingGroups';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
@@ -21,7 +21,7 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import { setupStore } from 'src/redux/store';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { ExprContextWrapper, useExprContext } from 'src/utils/layout/ExprContext';
-import type { AppMutations, AppQueries } from 'src/contexts/appQueriesContext';
+import type { AppMutations, AppQueries, AppQueriesContext } from 'src/core/contexts/AppQueriesProvider';
 import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
@@ -61,6 +61,7 @@ interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
 
 interface BaseRenderOptions extends ExtendedRenderOptions {
   unMockableQueries?: Partial<UnMockableQueries>;
+  Providers?: typeof DefaultProviders;
 }
 
 const exampleGuid = '75154373-aed4-41f7-95b4-e5b5115c2edc';
@@ -135,6 +136,59 @@ const defaultReduxGateKeeper = (action: ReduxAction) =>
   // like the AllOptionsProvider (along with summary of options-components) to work
   !!(action && 'type' in action && action.type.startsWith('deprecated/'));
 
+function DefaultRouter({ children }: PropsWithChildren) {
+  return (
+    <MemoryRouter>
+      <Routes>
+        <Route
+          path={'/'}
+          element={<>{children}</>}
+        />
+      </Routes>
+    </MemoryRouter>
+  );
+}
+
+interface ProvidersProps extends PropsWithChildren {
+  store: ReturnType<typeof setupStore>['store'];
+  queries: AppQueriesContext;
+  queryClient: QueryClient;
+  Router?: (props: PropsWithChildren) => React.ReactNode;
+}
+
+function DefaultProviders({ children, store, queries, queryClient, Router = DefaultRouter }: ProvidersProps) {
+  const theme = createTheme(AltinnAppTheme);
+  return (
+    <AppQueriesProvider
+      {...queries}
+      queryClient={queryClient}
+    >
+      <MuiThemeProvider theme={theme}>
+        <ReduxProvider store={store}>
+          <ExprContextWrapper>
+            <Router>
+              <InstantiationProvider>{children}</InstantiationProvider>
+            </Router>
+          </ExprContextWrapper>
+        </ReduxProvider>
+      </MuiThemeProvider>
+    </AppQueriesProvider>
+  );
+}
+
+function MinimalProviders({ children, store, queries, queryClient, Router = DefaultRouter }: ProvidersProps) {
+  return (
+    <AppQueriesProvider
+      {...queries}
+      queryClient={queryClient}
+    >
+      <ReduxProvider store={store}>
+        <Router>{children}</Router>
+      </ReduxProvider>
+    </AppQueriesProvider>
+  );
+}
+
 const renderBase = async ({
   renderer,
   router,
@@ -143,6 +197,7 @@ const renderBase = async ({
   unMockableQueries = {},
   reduxState,
   reduxGateKeeper = defaultReduxGateKeeper,
+  Providers = DefaultProviders,
   ...renderOptions
 }: BaseRenderOptions) => {
   const state = reduxState || getInitialStateMock();
@@ -207,49 +262,21 @@ const renderBase = async ({
     });
   };
 
-  function ComponentToTest() {
-    return <>{renderer()}</>;
-  }
-
-  function DefaultRouter({ children }: PropsWithChildren) {
-    return (
-      <MemoryRouter>
-        <Routes>
-          <Route
-            path={'/'}
-            element={children}
-          />
-        </Routes>
-      </MemoryRouter>
-    );
-  }
-
-  function Providers() {
-    const theme = createTheme(AltinnAppTheme);
-
-    const RealRouter = router || DefaultRouter;
-    return (
-      <AppQueriesProvider
-        {...queryMocks}
-        {...mutationMocks}
-        queryClient={queryClient}
-      >
-        <MuiThemeProvider theme={theme}>
-          <Provider store={store}>
-            <ExprContextWrapper>
-              <RealRouter>
-                <InstantiationProvider>
-                  <ComponentToTest />
-                </InstantiationProvider>
-              </RealRouter>
-            </ExprContextWrapper>
-          </Provider>
-        </MuiThemeProvider>
-      </AppQueriesProvider>
-    );
-  }
-
-  const utils = rtlRender(Providers(), renderOptions);
+  const children = renderer();
+  const utils = rtlRender(
+    <Providers
+      Router={router}
+      queryClient={queryClient}
+      queries={{
+        ...queryMocks,
+        ...mutationMocks,
+      }}
+      store={store}
+    >
+      {children}
+    </Providers>,
+    renderOptions,
+  );
 
   if (waitUntilLoaded) {
     // This may fail early if any of the providers fail to load, and will give you the provider/reason for failure
@@ -311,6 +338,12 @@ const renderBase = async ({
     ...utils,
   };
 };
+
+export const renderWithMinimalProviders = async (props: ExtendedRenderOptions) =>
+  await renderBase({
+    ...props,
+    Providers: MinimalProviders,
+  });
 
 export const renderWithoutInstanceAndLayout = async (props: ExtendedRenderOptions) => await renderBase(props);
 export const renderWithInstanceAndLayout = async ({

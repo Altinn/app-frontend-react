@@ -3,9 +3,9 @@ import type { PropsWithChildren } from 'react';
 
 import deepEqual from 'fast-deep-equal';
 
-import { createStrictContext } from 'src/features/contexts/createContext';
+import { createStrictContext } from 'src/core/contexts/context';
+import { Loader } from 'src/core/loading/Loader';
 import { useLaxProcessData, useRealTaskType } from 'src/features/instance/ProcessContext';
-import { Loader } from 'src/features/loading/Loader';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';

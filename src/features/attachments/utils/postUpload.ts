@@ -6,7 +6,7 @@ import { useImmerReducer } from 'use-immer';
 import type { AxiosError } from 'axios';
 import type { ImmerReducer } from 'use-immer';
 
-import { useAppMutations } from 'src/contexts/appQueriesContext';
+import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { useMappedAttachments } from 'src/features/attachments/utils/mapping';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
 import { ValidationActions } from 'src/features/validation/validationSlice';

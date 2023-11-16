@@ -7,7 +7,7 @@ import { configure as testingLibraryConfigure } from '@testing-library/dom';
 import dotenv from 'dotenv';
 import { TextDecoder, TextEncoder } from 'util';
 
-import type { AppQueries } from 'src/contexts/appQueriesContext';
+import type { AppQueries } from 'src/core/contexts/AppQueriesProvider';
 
 const env = dotenv.config();
 

@@ -17,6 +17,7 @@ import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/sr
 
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { PresentationComponent } from 'src/components/wrappers/Presentation';
+import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import {
@@ -24,10 +25,8 @@ import {
   useActiveInstances,
 } from 'src/features/instantiate/selection/ActiveInstancesProvider';
 import classes from 'src/features/instantiate/selection/InstanceSelection.module.css';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
-import { selectAppName, selectAppOwner } from 'src/selectors/language';
 import { ProcessTaskType } from 'src/types';
 import { getInstanceUiUrl } from 'src/utils/urls/appUrlHelper';
 import type { ISimpleInstance } from 'src/types';
@@ -45,8 +44,8 @@ function getDateDisplayString(timeStamp: string) {
 }
 
 export function InstanceSelectionWrapper() {
-  const appName = useAppSelector(selectAppName);
-  const appOwner = useAppSelector(selectAppOwner);
+  const appName = useAppName();
+  const appOwner = useAppOwner();
 
   return (
     <ActiveInstancesProvider>

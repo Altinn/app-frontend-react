@@ -25,6 +25,7 @@ export const App = () => (
       path='/partyselection/*'
       element={
         // Rewrites to the new URL
+        // PRIORITY: Make sure to test that this works (even with /party-selection/403)
         <Navigate
           to='/party-selection/'
           replace={true}

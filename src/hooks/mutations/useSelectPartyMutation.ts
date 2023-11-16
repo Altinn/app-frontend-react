@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 
-import { useAppMutations } from 'src/contexts/appQueriesContext';
+import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { PartyActions } from 'src/features/party/partySlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import type { IParty } from 'src/types/shared';

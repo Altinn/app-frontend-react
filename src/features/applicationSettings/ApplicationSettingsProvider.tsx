@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { useAppQueries } from 'src/contexts/appQueriesContext';
+import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
+import { delayedContext } from 'src/core/contexts/delayedContext';
+import { createStrictQueryContext } from 'src/core/contexts/queryContext';
 import { ApplicationSettingsActions } from 'src/features/applicationSettings/applicationSettingsSlice';
-import { createStrictQueryContext } from 'src/features/contexts/queryContext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import type { IApplicationSettings } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
@@ -26,11 +27,13 @@ const useApplicationSettingsQuery = () => {
   });
 };
 
-const { Provider, useCtx } = createStrictQueryContext<IApplicationSettings>({
-  name: 'ApplicationSettings',
-  useQuery: useApplicationSettingsQuery,
-  // PRIORITY: Allow a 404 response to be returned from the server
-});
+const { Provider, useCtx } = delayedContext(() =>
+  createStrictQueryContext<IApplicationSettings>({
+    name: 'ApplicationSettings',
+    useQuery: useApplicationSettingsQuery,
+    // PRIORITY: Allow a 404 response to be returned from the server
+  }),
+);
 
 export const ApplicationSettingsProvider = Provider;
-export const useApplicationSettings = useCtx;
+export const useApplicationSettings = () => useCtx();

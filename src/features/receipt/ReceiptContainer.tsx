@@ -13,7 +13,6 @@ import { CustomReceipt } from 'src/features/receipt/CustomReceipt';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 import { useLanguage } from 'src/hooks/useLanguage';
-import { getAppReceiver } from 'src/language/sharedLanguage';
 import { layoutsSelector } from 'src/selectors/layout';
 import {
   filterDisplayAttachments,

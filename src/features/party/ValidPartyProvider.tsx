@@ -3,8 +3,8 @@ import type { PropsWithChildren } from 'react';
 
 import { useMutation } from '@tanstack/react-query';
 
-import { useAppMutations } from 'src/contexts/appQueriesContext';
-import { createStrictContext } from 'src/features/contexts/createContext';
+import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
+import { createStrictContext } from 'src/core/contexts/context';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 const usePartyValidationMutation = () => {

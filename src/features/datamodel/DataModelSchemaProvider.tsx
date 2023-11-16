@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import type { JSONSchema7 } from 'json-schema';
 
-import { useAppQueries } from 'src/contexts/appQueriesContext';
-import { createLaxQueryContext } from 'src/features/contexts/queryContext';
+import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
+import { delayedContext } from 'src/core/contexts/delayedContext';
+import { createLaxQueryContext } from 'src/core/contexts/queryContext';
 import { DataModelActions } from 'src/features/datamodel/datamodelSlice';
 import { useCurrentDataModelName } from 'src/features/datamodel/useBindingSchema';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
@@ -49,10 +50,12 @@ const useDataModelSchemaQuery = () => {
   };
 };
 
-const { Provider, useCtx } = createLaxQueryContext<IDataModelSchemaContext>({
-  name: 'DataModelSchema',
-  useQuery: useDataModelSchemaQuery,
-});
+const { Provider, useCtx } = delayedContext(() =>
+  createLaxQueryContext<IDataModelSchemaContext>({
+    name: 'DataModelSchema',
+    useQuery: useDataModelSchemaQuery,
+  }),
+);
 
 export const DataModelSchemaProvider = Provider;
-export const useDataModelSchema = useCtx;
+export const useDataModelSchema = () => useCtx();

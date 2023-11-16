@@ -2,10 +2,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 import { useMutation } from '@tanstack/react-query';
 
-import { useAppMutations } from 'src/contexts/appQueriesContext';
+import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
+import { createLaxContext } from 'src/core/contexts/context';
+import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
-import { createLaxContext } from 'src/features/contexts/createContext';
-import { DisplayError } from 'src/features/errorHandling/DisplayError';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { useStrictInstance } from 'src/features/instance/InstanceContext';
 import { useRealTaskType, useSetProcessData } from 'src/features/instance/ProcessContext';

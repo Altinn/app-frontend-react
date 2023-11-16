@@ -2,12 +2,12 @@ import React from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 
-import { useAppQueries } from 'src/contexts/appQueriesContext';
-import { createStrictContext } from 'src/features/contexts/createContext';
+import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
+import { createStrictContext } from 'src/core/contexts/context';
+import { Loader } from 'src/core/loading/Loader';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
-import { Loader } from 'src/features/loading/Loader';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import type { ILayoutSettings } from 'src/types';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';

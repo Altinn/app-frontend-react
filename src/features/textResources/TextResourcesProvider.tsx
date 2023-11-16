@@ -1,16 +1,37 @@
-import { useQuery, type UseQueryResult } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
-import { useAppQueries } from 'src/contexts/appQueriesContext';
+import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
+import { delayedContext } from 'src/core/contexts/delayedContext';
+import { createLaxQueryContext } from 'src/core/contexts/queryContext';
 import { useAllowAnonymousIs } from 'src/features/applicationMetadata/getAllowAnonymous';
-import { createStrictQueryContext } from 'src/features/contexts/queryContext';
 import { useProfile } from 'src/features/profile/ProfileProvider';
+import { resourcesAsMap } from 'src/features/textResources/resourcesAsMap';
 import { TextResourcesActions } from 'src/features/textResources/textResourcesSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useLanguage } from 'src/hooks/useLanguage';
-import type { ITextResourceResult } from 'src/features/textResources/index';
+import type { ITextResourceResult, TextResourceMap } from 'src/features/textResources/index';
 
-const useTextResourcesQuery = (): UseQueryResult<ITextResourceResult> => {
+export interface TextResourcesContext {
+  resources: TextResourceMap;
+  language: string;
+}
+
+const convertResult = (
+  result: ITextResourceResult,
+  dispatch: ReturnType<typeof useAppDispatch>,
+): TextResourcesContext => {
+  const { resources, language } = result;
+
+  dispatch(TextResourcesActions.fetchFulfilled({ resources, language }));
+
+  return {
+    resources: resourcesAsMap(resources),
+    language,
+  };
+};
+
+const useTextResourcesQuery = () => {
   const dispatch = useAppDispatch();
   const { fetchTextResources } = useAppQueries();
   const { selectedLanguage } = useLanguage();
@@ -19,23 +40,26 @@ const useTextResourcesQuery = (): UseQueryResult<ITextResourceResult> => {
   const profile = useProfile();
   const enabled = useAllowAnonymousIs(true) || profile !== undefined;
 
-  return useQuery({
+  return {
+    ...useQuery({
+      enabled,
+      queryKey: ['fetchTextResources', selectedLanguage],
+      queryFn: async () => convertResult(await fetchTextResources(selectedLanguage), dispatch),
+      onError: (error: AxiosError) => {
+        window.logError('Fetching text resources failed:\n', error);
+      },
+    }),
     enabled,
-    queryKey: ['fetchTextResources', selectedLanguage],
-    queryFn: () => fetchTextResources(selectedLanguage),
-    onSuccess: (textResourceResult) => {
-      dispatch(TextResourcesActions.fetchFulfilled(textResourceResult));
-    },
-    onError: (error: AxiosError) => {
-      window.logError('Fetching text resources failed:\n', error);
-    },
-  });
+  };
 };
 
-const { Provider, useCtx } = createStrictQueryContext<ITextResourceResult>({
-  name: 'TextResources',
-  useQuery: useTextResourcesQuery,
-});
+const { Provider, useCtx } = delayedContext(() =>
+  createLaxQueryContext<TextResourcesContext>({
+    name: 'TextResources',
+    useQuery: useTextResourcesQuery,
+  }),
+);
 
 export const TextResourcesProvider = Provider;
-export const useTextResources = useCtx;
+export const useTextResources = () => useCtx()?.resources;
+export const useTextResourcesLanguage = () => useCtx()?.language;

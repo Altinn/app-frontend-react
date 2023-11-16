@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { createStrictContext } from 'src/features/contexts/createContext';
+import { createStrictContext } from 'src/core/contexts/context';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';

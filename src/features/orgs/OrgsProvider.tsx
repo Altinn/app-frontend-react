@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import type { UseQueryResult } from '@tanstack/react-query';
 
-import { useAppQueries } from 'src/contexts/appQueriesContext';
-import { createStrictQueryContext } from 'src/features/contexts/queryContext';
+import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
+import { delayedContext } from 'src/core/contexts/delayedContext';
+import { createStrictQueryContext } from 'src/core/contexts/queryContext';
 import { OrgsActions } from 'src/features/orgs/orgsSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import type { IAltinnOrgs } from 'src/types/shared';
@@ -26,10 +27,12 @@ const useOrgsQuery = (): UseQueryResult<IAltinnOrgs> => {
   });
 };
 
-const { Provider, useCtx } = createStrictQueryContext<IAltinnOrgs>({
-  name: 'Orgs',
-  useQuery: useOrgsQuery,
-});
+const { Provider, useCtx } = delayedContext(() =>
+  createStrictQueryContext<IAltinnOrgs>({
+    name: 'Orgs',
+    useQuery: useOrgsQuery,
+  }),
+);
 
 export const OrgsProvider = Provider;
-export const useOrgs = useCtx;
+export const useOrgs = () => useCtx();

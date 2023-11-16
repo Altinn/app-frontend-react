@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { useAppQueries } from 'src/contexts/appQueriesContext';
-import { createStrictQueryContext } from 'src/features/contexts/queryContext';
+import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
+import { delayedContext } from 'src/core/contexts/delayedContext';
+import { createStrictQueryContext } from 'src/core/contexts/queryContext';
 import type { ISimpleInstance } from 'src/types';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
@@ -24,10 +25,12 @@ const useActiveInstancesQuery = (partyId?: string, enabled?: boolean) => {
   });
 };
 
-const { Provider, useCtx } = createStrictQueryContext<ISimpleInstance[]>({
-  name: 'ActiveInstances',
-  useQuery: useActiveInstancesQuery,
-});
+const { Provider, useCtx } = delayedContext(() =>
+  createStrictQueryContext<ISimpleInstance[]>({
+    name: 'ActiveInstances',
+    useQuery: useActiveInstancesQuery,
+  }),
+);
 
 export const ActiveInstancesProvider = Provider;
-export const useActiveInstances = useCtx;
+export const useActiveInstances = () => useCtx();

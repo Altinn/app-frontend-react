@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ErrorInfo } from 'react';
 
-import { DisplayError } from 'src/features/errorHandling/DisplayError';
+import { DisplayError } from 'src/core/errorHandling/DisplayError';
 
 interface IErrorBoundary {
   lastError?: Error;

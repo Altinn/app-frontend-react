@@ -6,21 +6,21 @@ import cn from 'classnames';
 import { Form } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/wrappers/Presentation';
 import classes from 'src/components/wrappers/ProcessWrapper.module.css';
+import { Loader } from 'src/core/loading/Loader';
+import { useAppName } from 'src/core/texts/appTexts';
 import { Confirm } from 'src/features/confirm/containers/Confirm';
 import { Feedback } from 'src/features/feedback/Feedback';
 import { useStrictInstance } from 'src/features/instance/InstanceContext';
 import { useRealTaskType } from 'src/features/instance/ProcessContext';
-import { Loader } from 'src/features/loading/Loader';
 import { PDFView } from 'src/features/pdf/PDFView';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { selectAppName, selectAppOwner } from 'src/selectors/language';
 import { ProcessTaskType } from 'src/types';
 
 export const ProcessWrapper = () => {
   const { isFetching: isInstanceDataFetching } = useStrictInstance();
-  const appName = useAppSelector(selectAppName);
-  const appOwner = useAppSelector(selectAppOwner);
+  const appName = useAppName();
+  const appOwner = useAppName();
   const taskType = useRealTaskType();
 
   const [searchParams] = useSearchParams();

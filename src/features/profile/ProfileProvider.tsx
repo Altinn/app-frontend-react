@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { useAppQueries } from 'src/contexts/appQueriesContext';
+import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
+import { delayedContext } from 'src/core/contexts/delayedContext';
+import { createLaxQueryContext } from 'src/core/contexts/queryContext';
 import { useAllowAnonymousIs } from 'src/features/applicationMetadata/getAllowAnonymous';
-import { createLaxQueryContext } from 'src/features/contexts/queryContext';
 import { ProfileActions } from 'src/features/profile/profileSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import type { IProfile } from 'src/types/shared';
@@ -29,10 +30,12 @@ const useProfileQuery = () => {
   };
 };
 
-const { Provider, useCtx } = createLaxQueryContext<IProfile>({
-  name: 'Profile',
-  useQuery: useProfileQuery,
-});
+const { Provider, useCtx } = delayedContext(() =>
+  createLaxQueryContext<IProfile>({
+    name: 'Profile',
+    useQuery: useProfileQuery,
+  }),
+);
 
 export const ProfileProvider = Provider;
-export const useProfile = useCtx;
+export const useProfile = () => useCtx();

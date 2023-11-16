@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
-import { useAppQueries } from 'src/contexts/appQueriesContext';
-import { createLaxQueryContext } from 'src/features/contexts/queryContext';
+import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
+import { delayedContext } from 'src/core/contexts/delayedContext';
+import { createLaxQueryContext } from 'src/core/contexts/queryContext';
 import { CustomValidationActions } from 'src/features/customValidation/customValidationSlice';
 import { useCurrentDataModelName } from 'src/features/datamodel/useBindingSchema';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
@@ -38,10 +39,12 @@ const useCustomValidationConfigQuery = () => {
   };
 };
 
-const { Provider, useCtx } = createLaxQueryContext<IExpressionValidationConfig | null>({
-  name: 'CustomValidationContext',
-  useQuery: useCustomValidationConfigQuery,
-});
+const { Provider, useCtx } = delayedContext(() =>
+  createLaxQueryContext<IExpressionValidationConfig | null>({
+    name: 'CustomValidationContext',
+    useQuery: useCustomValidationConfigQuery,
+  }),
+);
 
 export const CustomValidationConfigProvider = Provider;
-export const useCustomValidationConfig = useCtx;
+export const useCustomValidationConfig = () => useCtx();

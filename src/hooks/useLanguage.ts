@@ -2,6 +2,7 @@ import { useContext, useMemo } from 'react';
 import type { JSX } from 'react';
 
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { useTextResources } from 'src/features/textResources/TextResourcesProvider';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromCode } from 'src/language/languages';
 import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
@@ -66,7 +67,7 @@ const defaultLocale = 'nb';
  * - lang(key, params) usually returns a React element
  */
 export function useLanguage(node?: LayoutNode) {
-  const textResources = useAppSelector((state) => state.textResources.resourceMap);
+  const textResources = useTextResources();
   const profileLanguage = useAppSelector((state) => state.profile.profile.profileSettingPreference.language);
   const selectedAppLanguage = useAppSelector((state) => state.profile.selectedAppLanguage);
   const componentCtx = useContext(FormComponentContext);
@@ -87,7 +88,7 @@ export function useLanguage(node?: LayoutNode) {
   );
 
   return useMemo(
-    () => staticUseLanguage(textResources, null, selectedAppLanguage, profileLanguage, dataSources),
+    () => staticUseLanguage(textResources || {}, null, selectedAppLanguage, profileLanguage, dataSources),
     [profileLanguage, selectedAppLanguage, textResources, dataSources],
   );
 }

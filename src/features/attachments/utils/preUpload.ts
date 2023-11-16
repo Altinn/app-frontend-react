@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import type { UseMutationOptions } from '@tanstack/react-query';
 import type { ImmerReducer } from 'use-immer';
 
-import { useAppMutations } from 'src/contexts/appQueriesContext';
+import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';

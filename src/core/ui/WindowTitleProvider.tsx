@@ -1,17 +1,16 @@
 import React from 'react';
 import type { PropsWithChildren } from 'react';
 
-import { createStrictContext } from 'src/features/contexts/createContext';
-import { useAppSelector } from 'src/hooks/useAppSelector';
-import { selectAppName, selectAppOwner } from 'src/selectors/language';
+import { createStrictContext } from 'src/core/contexts/context';
+import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 
 const { Provider } = createStrictContext<undefined>({
   name: 'WindowTitle',
 });
 
 export function WindowTitleProvider({ children }: PropsWithChildren) {
-  const appName = useAppSelector(selectAppName);
-  const appOwner = useAppSelector(selectAppOwner);
+  const appName = useAppName();
+  const appOwner = useAppOwner();
 
   // Set the title of the app
   React.useEffect(() => {

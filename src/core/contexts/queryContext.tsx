@@ -3,12 +3,12 @@ import type { PropsWithChildren } from 'react';
 
 import type { UseQueryResult } from '@tanstack/react-query';
 
-import { createLaxContext, createStrictContext } from 'src/features/contexts/createContext';
-import { DisplayError } from 'src/features/errorHandling/DisplayError';
-import { Loader } from 'src/features/loading/Loader';
-import type { StrictContextProps } from 'src/features/contexts/createContext';
+import { createLaxContext, createStrictContext } from 'src/core/contexts/context';
+import { DisplayError } from 'src/core/errorHandling/DisplayError';
+import { Loader } from 'src/core/loading/Loader';
+import type { StrictContextProps } from 'src/core/contexts/context';
 
-interface StrictQueryContextProps<T> extends StrictContextProps {
+export interface StrictQueryContextProps<T> extends StrictContextProps {
   useQuery: () => UseQueryResult<T>;
 }
 
@@ -21,7 +21,7 @@ interface GenericProviderProps<T> extends PropsWithChildren {
 function GenericProvider<T>({ children, useQuery, RealProvider, name }: GenericProviderProps<T>) {
   const { data, isLoading, error, enabled } = useQuery();
 
-  if (enabled && (!data || isLoading)) {
+  if (enabled && isLoading) {
     return <Loader reason={`query-${name}`} />;
   }
 
@@ -32,6 +32,10 @@ function GenericProvider<T>({ children, useQuery, RealProvider, name }: GenericP
   return <RealProvider value={data as T}>{children}</RealProvider>;
 }
 
+/**
+ * Always call this through a delayedContext() call to prevent problems with cyclic imports
+ * @see delayedContext
+ */
 export function createStrictQueryContext<T>({ name, useQuery }: StrictQueryContextProps<T>) {
   const { Provider, useCtx } = createStrictContext<T>({ name });
 
@@ -52,12 +56,16 @@ export function createStrictQueryContext<T>({ name, useQuery }: StrictQueryConte
   };
 }
 
-interface LaxQueryContextProps<T> {
+export interface LaxQueryContextProps<T> {
   name: string;
   initialState?: T;
   useQuery: () => UseQueryResult<T | undefined> & { enabled: boolean };
 }
 
+/**
+ * Always call this through a delayedContext() call to prevent problems with cyclic imports
+ * @see delayedContext
+ */
 export function createLaxQueryContext<T>({ name, useQuery, initialState }: LaxQueryContextProps<T>) {
   const { Provider, useCtx, useHasProvider } = createLaxContext<T>(initialState);
 

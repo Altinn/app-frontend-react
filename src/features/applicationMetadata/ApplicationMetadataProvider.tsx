@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { useAppQueries } from 'src/contexts/appQueriesContext';
+import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
+import { delayedContext } from 'src/core/contexts/delayedContext';
+import { createStrictQueryContext } from 'src/core/contexts/queryContext';
 import { ApplicationMetadataActions } from 'src/features/applicationMetadata/applicationMetadataSlice';
-import { createStrictQueryContext } from 'src/features/contexts/queryContext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata/index';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
@@ -12,7 +13,7 @@ const useApplicationMetadataQuery = () => {
   const { fetchApplicationMetadata } = useAppQueries();
   return useQuery({
     queryKey: ['fetchApplicationMetadata'],
-    queryFn: fetchApplicationMetadata,
+    queryFn: () => fetchApplicationMetadata(),
     onSuccess: (applicationMetadata) => {
       dispatch(ApplicationMetadataActions.getFulfilled({ applicationMetadata }));
     },
@@ -22,10 +23,12 @@ const useApplicationMetadataQuery = () => {
   });
 };
 
-const { Provider, useCtx } = createStrictQueryContext<IApplicationMetadata>({
-  name: 'ApplicationMetadata',
-  useQuery: useApplicationMetadataQuery,
-});
+const { Provider, useCtx } = delayedContext(() =>
+  createStrictQueryContext<IApplicationMetadata>({
+    name: 'ApplicationMetadata',
+    useQuery: useApplicationMetadataQuery,
+  }),
+);
 
 export const ApplicationMetadataProvider = Provider;
-export const useApplicationMetadata = useCtx;
+export const useApplicationMetadata = () => useCtx();

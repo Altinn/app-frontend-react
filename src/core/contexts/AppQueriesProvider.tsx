@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-import { createStrictContext } from 'src/features/contexts/createContext';
+import { createStrictContext } from 'src/core/contexts/context';
 import type * as queries from 'src/queries/queries';
 
 type KeysStartingWith<T, U extends string> = {

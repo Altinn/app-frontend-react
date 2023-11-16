@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { useAppQueries } from 'src/contexts/appQueriesContext';
+import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
+import { delayedContext } from 'src/core/contexts/delayedContext';
+import { createLaxQueryContext } from 'src/core/contexts/queryContext';
 import { useAllowAnonymousIs } from 'src/features/applicationMetadata/getAllowAnonymous';
-import { createLaxQueryContext } from 'src/features/contexts/queryContext';
 import { useParties } from 'src/features/party/PartiesProvider';
 import { PartyActions } from 'src/features/party/partySlice';
 import { useAlwaysPromptForParty } from 'src/hooks/useAlwaysPromptForParty';
@@ -36,10 +37,12 @@ const useCurrentPartyQuery = () => {
   return { ...utils, enabled };
 };
 
-const { useCtx, Provider } = createLaxQueryContext<IParty>({
-  name: 'CurrentParty',
-  useQuery: useCurrentPartyQuery,
-});
+const { useCtx, Provider } = delayedContext(() =>
+  createLaxQueryContext<IParty>({
+    name: 'CurrentParty',
+    useQuery: useCurrentPartyQuery,
+  }),
+);
 
 export const CurrentPartyProvider = Provider;
-export const useCurrentParty = useCtx;
+export const useCurrentParty = () => useCtx();

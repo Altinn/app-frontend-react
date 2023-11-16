@@ -3,7 +3,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import classes from 'src/components/logo/AltinnLogo.module.css';
-import { useAppQueries } from 'src/contexts/appQueriesContext';
+import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 
 export interface IAltinnLogoProps {
   color: 'blueDark' | 'blueDarker';

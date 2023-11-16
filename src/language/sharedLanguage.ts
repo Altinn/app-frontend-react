@@ -103,65 +103,6 @@ const replaceRootTag = (domNode: DOMNode) => {
   }
 };
 
-export function getOrgName(
-  orgs: IAltinnOrgs | null,
-  org: string | undefined,
-  langTools: IUseLanguage,
-): string | undefined {
-  if (orgs && typeof org === 'string' && orgs[org]) {
-    return orgs[org].name[langTools.selectedLanguage] || orgs[org].name.nb;
-  }
-
-  return undefined;
-}
-
-const appOwnerKey = 'appOwner';
-
-export function getAppOwner(orgs: IAltinnOrgs | null, org: string | undefined, langTools: IUseLanguage) {
-  const appOwner = langTools.langAsString(appOwnerKey);
-  if (appOwner !== appOwnerKey) {
-    return appOwner;
-  }
-
-  return getOrgName(orgs, org, langTools);
-}
-
-const appReceiverKey = 'appReceiver';
-
-export function getAppReceiver(
-  orgs: IAltinnOrgs | null,
-  org: string | undefined,
-  langTools: IUseLanguage,
-): string | undefined {
-  const appReceiver = langTools.langAsString(appReceiverKey);
-  if (appReceiver !== appReceiverKey) {
-    return appReceiver;
-  }
-
-  return getOrgName(orgs, org, langTools);
-}
-
-const appNameKey = 'appName';
-const oldAppNameKey = 'ServiceName';
-
-export function getAppName(applicationMetadata: IApplicationMetadata | null, langTools: IUseLanguage) {
-  let appName = langTools.langAsString(appNameKey);
-  if (appName === appNameKey) {
-    appName = langTools.langAsString(oldAppNameKey);
-  }
-
-  if (appName !== appNameKey && appName !== oldAppNameKey) {
-    return appName;
-  }
-
-  // if no text resource key is set, fetch from app metadata
-  if (applicationMetadata) {
-    return applicationMetadata.title[langTools.selectedLanguage] || applicationMetadata.title.nb;
-  }
-
-  return undefined;
-}
-
 function getOrgLogo(orgs: IAltinnOrgs | null, org: string | undefined) {
   if (orgs && typeof org === 'string' && orgs[org]) {
     return orgs[org].logo;
@@ -188,17 +129,6 @@ export function getAppLogoUrl(
   }
 
   return getOrgLogo(orgs, org);
-}
-
-const appLogoAltTextKey = 'appLogo.altText';
-
-export function getAppLogoAltText(orgs: IAltinnOrgs | null, org: string | undefined, langTools: IUseLanguage) {
-  const altText = langTools.langAsString(appLogoAltTextKey);
-  if (altText !== appLogoAltTextKey) {
-    return altText;
-  }
-
-  return getOrgName(orgs, org, langTools);
 }
 
 export function getdisplayAppOwnerNameInHeader(applicationMetadata: IApplicationMetadata | null) {

@@ -6,11 +6,10 @@ import Moment from 'moment';
 import type { PropsFromGenericComponent } from '..';
 
 import { AltinnSummaryTable } from 'src/components/table/AltinnSummaryTable';
+import { useAppReceiver } from 'src/core/texts/appTexts';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useParties } from 'src/features/party/PartiesProvider';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
-import { selectAppReceiver } from 'src/selectors/language';
 import { getDateFormat } from 'src/utils/dateHelpers';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
@@ -63,7 +62,7 @@ export function InstanceInformationComponent({ node }: PropsFromGenericComponent
 
   const instance = useLaxInstanceData();
   const parties = useParties();
-  const appReceiver = useAppSelector(selectAppReceiver);
+  const appReceiver = useAppReceiver();
 
   const instanceOwnerParty =
     instance && parties?.find((party: IParty) => party.partyId.toString() === instance.instanceOwner.partyId);
