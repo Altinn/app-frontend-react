@@ -1,12 +1,7 @@
 import React from 'react';
 import type { PropsWithChildren } from 'react';
 
-import { createStrictContext } from 'src/core/contexts/context';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
-
-const { Provider } = createStrictContext<undefined>({
-  name: 'WindowTitle',
-});
 
 export function WindowTitleProvider({ children }: PropsWithChildren) {
   const appName = useAppName();
@@ -23,5 +18,5 @@ export function WindowTitleProvider({ children }: PropsWithChildren) {
     }
   }, [appOwner, appName]);
 
-  return <Provider value={undefined}>{children}</Provider>;
+  return <>{children}</>;
 }

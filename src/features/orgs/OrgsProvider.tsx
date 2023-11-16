@@ -28,7 +28,7 @@ const useOrgsQuery = (): UseQueryResult<IAltinnOrgs> => {
 };
 
 const { Provider, useCtx } = delayedContext(() =>
-  createStrictQueryContext<IAltinnOrgs>({
+  createStrictQueryContext({
     name: 'Orgs',
     useQuery: useOrgsQuery,
   }),

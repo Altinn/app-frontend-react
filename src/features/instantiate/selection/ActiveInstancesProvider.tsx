@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createStrictQueryContext } from 'src/core/contexts/queryContext';
-import type { ISimpleInstance } from 'src/types';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 const useActiveInstancesQuery = (partyId?: string, enabled?: boolean) => {
@@ -26,7 +25,7 @@ const useActiveInstancesQuery = (partyId?: string, enabled?: boolean) => {
 };
 
 const { Provider, useCtx } = delayedContext(() =>
-  createStrictQueryContext<ISimpleInstance[]>({
+  createStrictQueryContext({
     name: 'ActiveInstances',
     useQuery: useActiveInstancesQuery,
   }),

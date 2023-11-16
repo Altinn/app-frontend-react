@@ -25,7 +25,7 @@ const useFooterLayoutQuery = (): UseQueryResult<IFooterLayout> => {
 };
 
 const { Provider, useCtx } = delayedContext(() =>
-  createStrictQueryContext<IFooterLayout>({
+  createStrictQueryContext({
     name: 'FooterLayout',
     useQuery: useFooterLayoutQuery,
   }),

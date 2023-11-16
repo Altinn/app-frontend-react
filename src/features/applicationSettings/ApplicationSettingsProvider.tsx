@@ -5,7 +5,6 @@ import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createStrictQueryContext } from 'src/core/contexts/queryContext';
 import { ApplicationSettingsActions } from 'src/features/applicationSettings/applicationSettingsSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import type { IApplicationSettings } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 const useApplicationSettingsQuery = () => {
@@ -28,7 +27,7 @@ const useApplicationSettingsQuery = () => {
 };
 
 const { Provider, useCtx } = delayedContext(() =>
-  createStrictQueryContext<IApplicationSettings>({
+  createStrictQueryContext({
     name: 'ApplicationSettings',
     useQuery: useApplicationSettingsQuery,
     // PRIORITY: Allow a 404 response to be returned from the server

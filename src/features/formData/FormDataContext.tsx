@@ -2,11 +2,11 @@ import React from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
-import type { UseQueryResult } from '@tanstack/react-query';
 import type { AxiosRequestConfig } from 'axios/index';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { createLaxContext } from 'src/core/contexts/context';
+import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { getDataTypeByLayoutSetId, isStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
@@ -17,7 +17,6 @@ import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData, useRealTaskType } from 'src/features/instance/ProcessContext';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
-import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { ProcessTaskType } from 'src/types';
@@ -52,7 +51,7 @@ export const FormDataProvider = ({ children }) => {
       return <MissingRolesError />;
     }
 
-    return <UnknownError />;
+    return <DisplayError error={error} />;
   }
 
   if (isLoading) {
@@ -62,7 +61,7 @@ export const FormDataProvider = ({ children }) => {
   return <Provider value={undefined}>{children}</Provider>;
 };
 
-function useFormDataQuery(enabled: boolean): UseQueryResult<IFormData> {
+function useFormDataQuery(enabled: boolean) {
   const dispatch = useAppDispatch();
   const reFetchActive = useAppSelector((state) => state.formData.reFetch);
   const appMetaData = useApplicationMetadata();
@@ -165,7 +164,7 @@ function useInfoFormDataQuery(enabled: boolean) {
     }
   }
 
-  return useQuery({
+  return useQuery<IFormData, HttpClientError>({
     queryKey: ['fetchFormData', urlsToFetch],
     queryFn: async () => {
       const out: IFormData = {};

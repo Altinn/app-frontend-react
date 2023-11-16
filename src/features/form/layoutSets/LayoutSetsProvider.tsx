@@ -25,7 +25,7 @@ const useLayoutSetsQuery = (): UseQueryResult<ILayoutSets> => {
 };
 
 const { Provider, useCtx } = delayedContext(() =>
-  createStrictQueryContext<ILayoutSets>({
+  createStrictQueryContext({
     name: 'LayoutSets',
     useQuery: useLayoutSetsQuery,
   }),

@@ -5,7 +5,6 @@ import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createStrictQueryContext } from 'src/core/contexts/queryContext';
 import { ApplicationMetadataActions } from 'src/features/applicationMetadata/applicationMetadataSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import type { IApplicationMetadata } from 'src/features/applicationMetadata/index';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 const useApplicationMetadataQuery = () => {
@@ -24,7 +23,7 @@ const useApplicationMetadataQuery = () => {
 };
 
 const { Provider, useCtx } = delayedContext(() =>
-  createStrictQueryContext<IApplicationMetadata>({
+  createStrictQueryContext({
     name: 'ApplicationMetadata',
     useQuery: useApplicationMetadataQuery,
   }),
