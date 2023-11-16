@@ -1,5 +1,8 @@
 import { useCallback } from 'react';
 
+import { useAttachments } from 'src/features/attachments/AttachmentsContext';
+import { useStrictInstanceData } from 'src/features/instance/InstanceContext';
+import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { Triggers } from 'src/layout/common.generated';
@@ -21,9 +24,10 @@ import type {
 
 export function useValidationContextGenerator(): ValidationContextGenerator {
   const formData = useAppSelector((state) => state.formData.formData);
-  const attachments = useAppSelector((state) => state.attachments.attachments);
+  const attachments = useAttachments();
   const application = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
-  const instance = useAppSelector((state) => state.instanceData.instance);
+  const instance = useStrictInstanceData();
+  const process = useLaxProcessData() ?? null;
   const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
   const schemas = useAppSelector((state) => state.formDataModel.schemas);
   const customValidation = useAppSelector((state) => state.customValidation.customValidation);
@@ -37,11 +41,12 @@ export function useValidationContextGenerator(): ValidationContextGenerator {
       attachments,
       application,
       instance,
+      process,
       layoutSets,
       schemas,
       customValidation,
     }),
-    [application, attachments, customValidation, formData, instance, langToolsGenerator, layoutSets, schemas],
+    [application, attachments, customValidation, formData, instance, langToolsGenerator, layoutSets, process, schemas],
   );
 }
 
@@ -49,9 +54,10 @@ export function validationContextFromState(state: IRuntimeState, node: LayoutNod
   return {
     formData: state.formData.formData,
     langTools: staticUseLanguageFromState(state, node),
-    attachments: state.attachments.attachments,
+    attachments: state.deprecated.lastKnownAttachments || {},
     application: state.applicationMetadata.applicationMetadata,
-    instance: state.instanceData.instance,
+    instance: state.deprecated.lastKnownInstance || null,
+    process: state.deprecated.lastKnownProcess || null,
     layoutSets: state.formLayout.layoutsets,
     schemas: state.formDataModel.schemas,
     customValidation: state.customValidation.customValidation,

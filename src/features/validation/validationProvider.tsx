@@ -13,10 +13,10 @@ import {
 } from '.';
 import type { NodeDataChange } from '.';
 
-import { useCurrentDataElementId } from 'src/features/datamodel/useBindingSchema';
-import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
+import { useStrictInstance } from 'src/features/instance/InstanceContext';
 import { type IUseLanguage, useLanguage } from 'src/hooks/useLanguage';
-import { createStrictContext } from 'src/utils/createStrictContext';
+import { createStrictContext } from 'src/utils/createContext';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { duplicateStringFilter } from 'src/utils/stringHelper';
 import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
@@ -34,15 +34,13 @@ import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { BackendValidationIssue } from 'src/utils/validation/types';
 
-const [Provider, useContext] = createStrictContext<ValidationContext>({
-  options: { name: 'ValidationContext' },
-});
+const { Provider, useCtx } = createStrictContext<ValidationContext>({ name: 'ValidationContext' });
 
 export function ValidationProvider({ children }) {
   const validationContextGenerator = useValidationContextGenerator();
   const langTools = useLanguage();
-  const instanceId = useAppSelector((state) => state.instanceData.instance?.id);
-  const currentDataElementId = useCurrentDataElementId();
+  const instanceId = useStrictInstance().instanceId;
+  const currentDataElementId = useCurrentDataModelGuid();
   const validationUrl =
     instanceId?.length && currentDataElementId?.length
       ? getDataValidationUrl(instanceId, currentDataElementId)
@@ -82,7 +80,7 @@ export function ValidationProvider({ children }) {
  * Returns all validation messages for a given node.
  */
 export function useAllValidationsForNode(node: LayoutNode): NodeValidation[] {
-  const state = useContext().state;
+  const state = useCtx().state;
 
   return useMemo(() => getValidationsForNode(node, state), [node, state]);
 }
@@ -91,7 +89,7 @@ export function useBindingValidationsForNode<
   N extends LayoutNode,
   T extends CompTypes = N extends BaseLayoutNode<any, infer T> ? T : never,
 >(node: N): { [binding in keyof NonNullable<IDataModelBindings<T>>]: NodeValidation[] } | undefined {
-  const state = useContext().state;
+  const state = useCtx().state;
   const fields = state.fields;
   const component = state.components[node.item.id];
 
@@ -123,7 +121,7 @@ export function useBindingValidationsForNode<
 }
 
 export function useComponentValidationsForNode(node: LayoutNode): NodeValidation[] {
-  const component = useContext().state.components[node.item.id];
+  const component = useCtx().state.components[node.item.id];
   return useMemo(() => {
     if (!component?.component) {
       return [];
@@ -141,7 +139,7 @@ export function useComponentValidationsForNode(node: LayoutNode): NodeValidation
  * Returns all validation errors (not warnings, info, etc.) for a given page.
  */
 export function usePageErrors(page: LayoutPage): NodeValidation<'errors'>[] {
-  const state = useContext().state;
+  const state = useCtx().state;
 
   return useMemo(() => {
     const validationMessages: NodeValidation<'errors'>[] = [];
@@ -162,7 +160,7 @@ export function useTaskErrors(pages: LayoutPages): {
   formValidations: NodeValidation<'errors'>[];
   taskValidations: BaseValidation<'errors'>[];
 } {
-  const state = useContext().state;
+  const state = useCtx().state;
 
   return useMemo(() => {
     const formValidations: NodeValidation<'errors'>[] = [];
@@ -210,6 +208,7 @@ async function runServerValidations(
 
   const serverValidations: BackendValidationIssue[] = await httpGet(url, options);
 
+  // pass fieldChanges here
   return mapValidationsToState(serverValidations, langTools);
 }
 

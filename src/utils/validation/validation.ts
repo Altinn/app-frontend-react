@@ -2,12 +2,12 @@ import { mergeFormValidations } from 'src/features/validation';
 import { implementsAnyValidation } from 'src/layout';
 import { groupIsRepeatingExt } from 'src/layout/Group/tools';
 import { getSchemaValidationErrors } from 'src/utils/validation/schemaValidation';
-import type { IAttachment } from 'src/features/attachments';
+import type { IAttachments, UploadedAttachment } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
 import type { FormValidations } from 'src/features/validation/types';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { CompGroupExternal } from 'src/layout/Group/config.generated';
-import type { CompOrGroupExternal, ILayout, ILayouts } from 'src/layout/layout';
+import type { CompInternal, CompOrGroupExternal, ILayout, ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
@@ -96,15 +96,24 @@ export function getGroupChildren(groupId: string, layout: ILayout): CompOrGroupE
   );
 }
 
-export function attachmentsValid(attachments: any, component: any): boolean {
-  return (
-    component.minNumberOfAttachments === 0 ||
-    (attachments && attachments[component.id] && attachments[component.id].length >= component.minNumberOfAttachments)
-  );
+export function attachmentsValid(
+  attachments: IAttachments,
+  component: CompInternal<'FileUpload' | 'FileUploadWithTag'>,
+): boolean {
+  if (component.minNumberOfAttachments === 0) {
+    return true;
+  }
+
+  const attachmentsForComponent = attachments[component.id];
+  if (!attachmentsForComponent) {
+    return false;
+  }
+
+  return attachmentsForComponent.length >= component.minNumberOfAttachments;
 }
 
-export function attachmentIsMissingTag(attachment: IAttachment): boolean {
-  return attachment.tags === undefined || attachment.tags.length === 0;
+export function attachmentIsMissingTag(attachment: UploadedAttachment): boolean {
+  return attachment.data.tags === undefined || attachment.data.tags.length === 0;
 }
 
 /**

@@ -26,6 +26,7 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
   const bindingValidations = useBindingValidationsForNode(node);
   const componentValidations = useComponentValidationsForNode(node);
 
+  const bindings = 'dataModelBindings' in node.item ? node.item.dataModelBindings || {} : {};
   const handleFieldChange =
     (key: AddressKeys): IAddressComponentProps['handleDataChange'] =>
     (value) =>
@@ -36,18 +37,20 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
     setValue: setAddress,
     saveValue: saveAddress,
     onPaste: onAddressPaste,
-  } = useDelayedSavedState(handleFieldChange('address'), formData.address, saveWhileTyping);
+  } = useDelayedSavedState(handleFieldChange('address'), bindings.address, formData.address || '', saveWhileTyping);
 
   const {
     value: zipCode,
     setValue: setZipCode,
     saveValue: saveZipCode,
     onPaste: onZipCodePaste,
-  } = useDelayedSavedState(handleFieldChange('zipCode'), formData.zipCode, saveWhileTyping);
+  } = useDelayedSavedState(handleFieldChange('zipCode'), bindings.zipCode, formData.zipCode || '', saveWhileTyping);
 
   const { value: postPlace, setValue: setPostPlace } = useDelayedSavedState(
     handleFieldChange('postPlace'),
-    formData.postPlace,
+    bindings.postPlace,
+    formData.postPlace || '',
+    saveWhileTyping,
   );
 
   const {
@@ -55,14 +58,19 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
     setValue: setCareOf,
     saveValue: saveCareOf,
     onPaste: onCareOfPaste,
-  } = useDelayedSavedState(handleFieldChange('careOf'), formData.careOf, saveWhileTyping);
+  } = useDelayedSavedState(handleFieldChange('careOf'), bindings.careOf, formData.careOf || '', saveWhileTyping);
 
   const {
     value: houseNumber,
     setValue: setHouseNumber,
     saveValue: saveHouseNumber,
     onPaste: onHouseNumberPaste,
-  } = useDelayedSavedState(handleFieldChange('houseNumber'), formData.houseNumber, saveWhileTyping);
+  } = useDelayedSavedState(
+    handleFieldChange('houseNumber'),
+    bindings.houseNumber,
+    formData.houseNumber || '',
+    saveWhileTyping,
+  );
 
   const postPlaceQueryData = usePostPlaceQuery(formData.zipCode, !hasValidationErrors(bindingValidations?.zipCode));
   useEffect(() => {

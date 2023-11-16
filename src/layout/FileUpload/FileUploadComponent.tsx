@@ -1,32 +1,33 @@
 import React from 'react';
 import type { FileRejection } from 'react-dropzone';
 
-import { v4 as uuidv4 } from 'uuid';
-
-import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
+import { useAttachmentsFor, useAttachmentsUploader } from 'src/features/attachments/AttachmentsContext';
+import {
+  AttachmentsMappedToFormDataProvider,
+  useAttachmentsMappedToFormData,
+} from 'src/features/attachments/useAttachmentsMappedToFormData';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { hasValidationErrors } from 'src/features/validation';
 import { useAlertPopper } from 'src/hooks/useAlertPopper';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { AttachmentsCounter } from 'src/layout/FileUpload/AttachmentsCounter';
 import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneComponent';
 import classes from 'src/layout/FileUpload/FileUploadComponent.module.css';
-import { FileTableComponent } from 'src/layout/FileUpload/FileUploadTable/FileTableComponent';
+import { FileTable } from 'src/layout/FileUpload/FileUploadTable/FileTable';
 import { handleRejectedFiles } from 'src/layout/FileUpload/handleRejectedFiles';
 import { ComponentValidation } from 'src/utils/render';
-import type { IAttachment } from 'src/features/attachments';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { IRuntimeState } from 'src/types';
 
 export type IFileUploadWithTagProps = PropsFromGenericComponent<'FileUpload' | 'FileUploadWithTag'>;
 
-export function FileUploadComponent({ validations, node }: IFileUploadWithTagProps): React.JSX.Element {
+export function FileUploadComponent({
+  validations,
+  node,
+  handleDataChange,
+}: IFileUploadWithTagProps): React.JSX.Element {
   const {
     id,
-    baseComponentId,
     maxFileSizeInMB,
     readOnly,
     displayMode,
@@ -35,13 +36,15 @@ export function FileUploadComponent({ validations, node }: IFileUploadWithTagPro
     hasCustomFileEndings,
     validFileEndings,
     textResourceBindings,
-    dataModelBindings,
   } = node.item;
-
-  const dataDispatch = useAppDispatch();
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useIsMobileOrTablet();
-  const attachments: IAttachment[] = useAppSelector((state: IRuntimeState) => state.attachments.attachments[id] || []);
+  const attachments = useAttachmentsFor(node);
+  const uploadAttachment = useAttachmentsUploader();
+  const mappingTools = useAttachmentsMappedToFormData({
+    handleDataChange,
+    node,
+  });
 
   const componentValidations = validations?.filter((v) => !v.meta?.attachmentId);
   const attachmentValidations = validations?.filter((v) => v.meta?.attachmentId);
@@ -61,7 +64,7 @@ export function FileUploadComponent({ validations, node }: IFileUploadWithTagPro
 
   const shouldShowFileUpload =
     !(attachments.length >= maxNumberOfAttachments) &&
-    (displayMode !== 'simple' || attachments.length === 0 || showFileUpload === true);
+    (displayMode !== 'simple' || attachments.length === 0 || showFileUpload);
 
   const renderAddMoreAttachmentsButton = (): JSX.Element | null => {
     const canShowButton =
@@ -84,7 +87,6 @@ export function FileUploadComponent({ validations, node }: IFileUploadWithTagPro
   };
 
   const handleDrop = (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
-    const fileType = baseComponentId || id;
     const totalAttachments = acceptedFiles.length + rejectedFiles.length + attachments.length;
 
     if (totalAttachments > maxNumberOfAttachments) {
@@ -96,17 +98,10 @@ export function FileUploadComponent({ validations, node }: IFileUploadWithTagPro
       return;
     }
     // we should upload all files, if any rejected files we should display an error
-    acceptedFiles.forEach((file: File, index) => {
-      dataDispatch(
-        AttachmentActions.uploadAttachment({
-          file,
-          attachmentType: fileType,
-          tmpAttachmentId: uuidv4(),
-          componentId: id,
-          dataModelBindings,
-          index: attachments.length + index,
-        }),
-      );
+    acceptedFiles.forEach((file: File) => {
+      uploadAttachment({ file, node }).then((id) => {
+        id && mappingTools.addAttachment(id);
+      });
     });
 
     if (acceptedFiles.length > 0) {
@@ -132,46 +127,48 @@ export function FileUploadComponent({ validations, node }: IFileUploadWithTagPro
   );
 
   return (
-    <div
-      id={`altinn-fileuploader-${id}`}
-      style={{ padding: '0px' }}
-    >
-      {shouldShowFileUpload && (
-        <>
-          <DropzoneComponent
-            id={id}
-            isMobile={mobileView}
-            maxFileSizeInMB={maxFileSizeInMB}
-            readOnly={!!readOnly}
-            onClick={(e) => e.preventDefault()}
-            onDrop={handleDrop}
-            hasValidationMessages={hasValidationErrors(componentValidations)}
-            hasCustomFileEndings={hasCustomFileEndings}
-            validFileEndings={validFileEndings}
-            textResourceBindings={textResourceBindings}
-          />
-          {attachmentsCounter}
-          <ComponentValidation validations={componentValidations} />
-        </>
-      )}
+    <AttachmentsMappedToFormDataProvider mappingTools={mappingTools}>
+      <div
+        id={`altinn-fileuploader-${id}`}
+        style={{ padding: '0px' }}
+      >
+        {shouldShowFileUpload && (
+          <>
+            <DropzoneComponent
+              id={id}
+              isMobile={mobileView}
+              maxFileSizeInMB={maxFileSizeInMB}
+              readOnly={!!readOnly}
+              onClick={(e) => e.preventDefault()}
+              onDrop={handleDrop}
+              hasValidationMessages={hasValidationErrors(componentValidations)}
+              hasCustomFileEndings={hasCustomFileEndings}
+              validFileEndings={validFileEndings}
+              textResourceBindings={textResourceBindings}
+            />
+            {attachmentsCounter}
+            <ComponentValidation validations={componentValidations} />
+          </>
+        )}
 
-      <FileTableComponent
-        node={node}
-        mobileView={mobileView}
-        attachments={attachments}
-        attachmentValidations={attachmentValidations}
-        options={options}
-        showPopper={showPopper}
-      />
+        <FileTable
+          node={node}
+          mobileView={mobileView}
+          attachments={attachments}
+          attachmentValidations={attachmentValidations}
+          options={options}
+          showPopper={showPopper}
+        />
 
-      {!shouldShowFileUpload && (
-        <>
-          {attachmentsCounter}
-          <ComponentValidation validations={componentValidations} />
-        </>
-      )}
-      {renderAddMoreAttachmentsButton()}
-      <Popper />
-    </div>
+        {!shouldShowFileUpload && (
+          <>
+            {attachmentsCounter}
+            <ComponentValidation validations={componentValidations} />
+          </>
+        )}
+        {renderAddMoreAttachmentsButton()}
+        <Popper />
+      </div>
+    </AttachmentsMappedToFormDataProvider>
   );
 }

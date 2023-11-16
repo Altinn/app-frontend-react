@@ -7,7 +7,8 @@ import { Add as AddIcon } from '@navikt/ds-icons';
 import { AltinnLoader } from 'src/components/AltinnLoader';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
-import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
+import { useAttachmentDeletionInRepGroups } from 'src/features/attachments/useAttachmentDeletionInRepGroups';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useAllValidationsForNode } from 'src/features/validation/validationProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -52,6 +53,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
   const repeatingGroupIndex = groupState?.index ?? -1;
   const { lang, langAsString } = useLanguage();
   const validations = useAllValidationsForNode(node);
+  const { onBeforeRowDeletion } = useAttachmentDeletionInRepGroups(node);
 
   const setMultiPageIndex = useCallback(
     (index: number) => {
@@ -136,8 +138,13 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
     }
   };
 
-  const handleOnRemoveClick = (index: number): void => {
-    dispatch(FormLayoutActions.repGroupDeleteRow({ groupId: id, index }));
+  const handleOnRemoveClick = async (index: number) => {
+    const attachmentDeletionSuccessful = await onBeforeRowDeletion(index);
+    if (attachmentDeletionSuccessful) {
+      dispatch(FormLayoutActions.repGroupDeleteRow({ groupId: id, index }));
+    } else {
+      dispatch(FormLayoutActions.repGroupDeleteRowCancelled({ groupId: id, index }));
+    }
   };
 
   const setEditIndex = (index: number, forceValidation?: boolean): void => {

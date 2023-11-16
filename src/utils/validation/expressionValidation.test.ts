@@ -7,7 +7,7 @@ import { FrontendValidationSource } from 'src/features/validation';
 import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
 import { buildAuthContext } from 'src/utils/authContext';
 import { getRepeatingGroups } from 'src/utils/formLayout';
-import { buildInstanceContext } from 'src/utils/instanceContext';
+import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import { _private } from 'src/utils/layout/hierarchy';
 import { resolveExpressionValidationConfig } from 'src/utils/validation/expressionValidation';
 import { runValidationOnNodes } from 'src/utils/validation/validation';
@@ -60,7 +60,7 @@ describe('Expression validation shared tests', () => {
     const dataSources: HierarchyDataSources = {
       ...getHierarchyDataSourcesMock(),
       formData: dot.dot(formData),
-      instanceContext: buildInstanceContext(),
+      instanceDataSources: buildInstanceDataSources(),
       authContext: buildAuthContext(undefined),
       hiddenFields,
       langTools,

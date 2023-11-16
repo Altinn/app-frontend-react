@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import type { DependencyList, EffectCallback } from 'react';
+import { useMemo, useRef, useState } from 'react';
+import type { DependencyList } from 'react';
 
 import deepEqual from 'fast-deep-equal';
 
@@ -27,15 +27,4 @@ export function useMemoDeepEqual<T>(produceValue: () => T, deps: DependencyList)
     return lastState.current;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [...deps, produceValue]);
-}
-
-export function useEffectDeepEqual(effect: EffectCallback, deps: DependencyList): void {
-  const lastDeps = useRef<DependencyList | CustomUndefined>(customUndefined);
-  useEffect(() => {
-    if (lastDeps.current === customUndefined || !deepEqual(lastDeps.current, deps)) {
-      lastDeps.current = deps;
-      return effect();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [...deps, effect]);
 }

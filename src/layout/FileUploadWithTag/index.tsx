@@ -1,16 +1,16 @@
 import React from 'react';
 
+import { isAttachmentUploaded } from 'src/features/attachments';
 import { FrontendValidationSource } from 'src/features/validation';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
-import { getUploaderSummaryData } from 'src/layout/FileUpload/Summary/summary';
 import { FileUploadWithTagDef } from 'src/layout/FileUploadWithTag/config.def.generated';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { attachmentIsMissingTag, attachmentsValid } from 'src/utils/validation/validation';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { IFormData } from 'src/features/formData';
 import type { ComponentValidation } from 'src/features/validation/types';
-import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
+import type { DisplayDataProps, PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IValidationContext } from 'src/utils/validation/types';
@@ -24,10 +24,8 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
     return false;
   }
 
-  getDisplayData(node: LayoutNode<'FileUploadWithTag'>, { formData, attachments }): string {
-    return getUploaderSummaryData(node, formData, attachments)
-      .map((a) => a.name)
-      .join(', ');
+  getDisplayData(node: LayoutNode<'FileUploadWithTag'>, { attachments }: DisplayDataProps): string {
+    return (attachments[node.item.id] || []).map((a) => a.data.filename).join(', ');
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'FileUploadWithTag'>): JSX.Element | null {
@@ -47,12 +45,15 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
     const validations: ComponentValidation[] = [];
 
     if (attachmentsValid(attachments, node.item)) {
-      const attachmentIdsWithMissingTag = attachments[node.item.id]
-        ?.filter((attachment) => attachmentIsMissingTag(attachment))
-        .map((attachment) => attachment.id);
+      const missingTagAttachmentIds: string[] = [];
+      for (const attachment of attachments[node.item.id] || []) {
+        if (isAttachmentUploaded(attachment) && attachmentIsMissingTag(attachment)) {
+          missingTagAttachmentIds.push(attachment.data.id);
+        }
+      }
 
-      if (attachmentIdsWithMissingTag?.length > 0) {
-        attachmentIdsWithMissingTag.forEach((attachmentId) => {
+      if (missingTagAttachmentIds?.length > 0) {
+        missingTagAttachmentIds.forEach((attachmentId) => {
           const message = `${langTools.langAsString(
             'form_filler.file_uploader_validation_error_no_chosen_tag',
           )} ${langTools.langAsString(node.item.textResourceBindings?.tagTitle).toLowerCase()}.`;
