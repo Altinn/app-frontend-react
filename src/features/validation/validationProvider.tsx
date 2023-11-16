@@ -45,6 +45,11 @@ export function ValidationProvider({ children }) {
 
   const [validations, setValidations] = useImmer<ValidationState>({ fields: {}, components: {}, task: [] });
 
+  /**
+   * TODO(Validation):
+   * When deleting a row in a repeating group both of these could be called at the same time,
+   * consider merging them together somehow.
+   */
   useOnNodeDataChange(async (nodeChanges) => {
     const changedNodes = nodeChanges.map((nC) => nC.node);
     const serverValidations = await runServerValidations(nodeChanges, validationUrl, langTools);
