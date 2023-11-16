@@ -49,7 +49,7 @@ export type ComponentValidation<Severity extends ValidationSeverity = Validation
     meta?: Record<string, string>;
   };
 
-export type NodeValidation<Severity extends ValidationSeverity = ValidationSeverity> = BaseValidation<Severity> & {
+export type NodeValidation<Severity extends ValidationSeverity = ValidationSeverity> = GroupedValidation<Severity> & {
   componentId: string;
   pageKey: string;
   bindingKey?: string;
