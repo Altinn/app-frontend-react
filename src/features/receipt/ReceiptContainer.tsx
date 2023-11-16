@@ -7,6 +7,7 @@ import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoade
 import { ReceiptComponent } from 'src/components/organisms/AltinnReceipt';
 import { ReceiptComponentSimple } from 'src/components/organisms/AltinnReceiptSimple';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
+import { useAppReceiver } from 'src/core/texts/appTexts';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useParties } from 'src/features/party/PartiesProvider';
 import { CustomReceipt } from 'src/features/receipt/CustomReceipt';
@@ -22,16 +23,23 @@ import {
 import { returnUrlToArchive } from 'src/utils/urls/urlHelper';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type { IAltinnOrgs, IDisplayAttachment, IParty } from 'src/types/shared';
+import type { IDisplayAttachment, IParty } from 'src/types/shared';
 
-export const returnInstanceMetaDataObject = (
-  orgsData: IAltinnOrgs,
-  langTools: IUseLanguage,
-  instanceOwnerParty: IParty | undefined,
-  instanceGuid: string,
-  lastChangedDateTime: string,
-  org: string,
-) => {
+interface ReturnInstanceMetaDataObjectProps {
+  langTools: IUseLanguage;
+  instanceOwnerParty: IParty | undefined;
+  instanceGuid: string;
+  lastChangedDateTime: string;
+  receiver: string | undefined;
+}
+
+export const getSummaryDataObject = ({
+  langTools,
+  instanceOwnerParty,
+  instanceGuid,
+  lastChangedDateTime,
+  receiver,
+}: ReturnInstanceMetaDataObjectProps) => {
   const obj: SummaryDataObject = {};
 
   obj[langTools.langAsString('receipt.date_sent')] = {
@@ -49,7 +57,6 @@ export const returnInstanceMetaDataObject = (
     value: sender,
   };
 
-  const receiver = getAppReceiver(orgsData, org, langTools);
   if (receiver) {
     obj[langTools.langAsString('receipt.receiver')] = {
       value: receiver,
@@ -83,6 +90,7 @@ export const ReceiptContainer = () => {
   const layouts = useAppSelector(layoutsSelector);
   const langTools = useLanguage();
   const { lang } = langTools;
+  const receiver = useAppReceiver();
 
   const origin = window.location.origin;
 
@@ -94,17 +102,16 @@ export const ReceiptContainer = () => {
         (party: IParty) => party.partyId.toString() === instance.instanceOwner.partyId,
       );
 
-      const obj = returnInstanceMetaDataObject(
-        allOrgs,
+      const obj = getSummaryDataObject({
         langTools,
         instanceOwnerParty,
         instanceGuid,
         lastChangedDateTime,
-        instance.org,
-      );
+        receiver,
+      });
       setInstanceMetaObject(obj);
     }
-  }, [allOrgs, parties, instance, lastChangedDateTime, instanceGuid, langTools]);
+  }, [allOrgs, parties, instance, lastChangedDateTime, instanceGuid, langTools, receiver]);
 
   useEffect(() => {
     if (instance && instance.data && applicationMetadata) {
