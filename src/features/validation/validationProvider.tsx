@@ -7,15 +7,13 @@ import {
   buildNodeValidation,
   getValidationsForNode,
   mergeFormValidations,
-  useOnHierarchyChange,
-  useOnNodeDataChange,
   validationsFromGroups,
   validationsOfSeverity,
 } from '.';
-import type { NodeDataChange } from '.';
 
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
+import { useOnAttachmentsChange, useOnHierarchyChange, useOnNodeDataChange } from 'src/features/validation/hooks';
 import { type IUseLanguage, useLanguage } from 'src/hooks/useLanguage';
 import { createStrictContext } from 'src/utils/createContext';
 import { useExprContext } from 'src/utils/layout/ExprContext';
@@ -25,6 +23,7 @@ import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
 import { getValidationMessage, severityMap, ValidationIssueSources } from 'src/utils/validation/backendValidation';
 import { runValidationOnNodes } from 'src/utils/validation/validation';
 import { useValidationContextGenerator } from 'src/utils/validation/validationHelpers';
+import type { NodeDataChange } from 'src/features/validation/hooks';
 import type { BaseValidation, NodeValidation, ValidationContext, ValidationState } from 'src/features/validation/types';
 import type { CompTypes, IDataModelBindings } from 'src/layout/layout';
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -63,6 +62,13 @@ export function ValidationProvider({ children }) {
       purgeValidationsForNodes(state, removedNodes, currentNodes);
       mergeFormValidations(state, newValidations);
       updateValidationState(state, serverValidations);
+    });
+  });
+
+  useOnAttachmentsChange((changedNodes) => {
+    const newValidations = runValidationOnNodes(changedNodes, validationContextGenerator);
+    setValidations((state) => {
+      mergeFormValidations(state, newValidations);
     });
   });
 
