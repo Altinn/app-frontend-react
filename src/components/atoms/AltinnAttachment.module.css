@@ -1,0 +1,13 @@
+.attachmentList {
+  list-style: none;
+  padding-left: 0;
+}
+
+.attachmentIcon {
+  font-size: 2rem;
+}
+
+.attachmentLink {
+  text-decoration: none;
+  border-bottom: 1px solid rgb(0, 143, 214);
+}

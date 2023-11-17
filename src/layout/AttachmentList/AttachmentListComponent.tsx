@@ -1,12 +1,11 @@
 import React, { useMemo } from 'react';
 
-import { Grid, Typography } from '@material-ui/core';
+import { Grid } from '@material-ui/core';
 
 import { AltinnAttachment } from 'src/components/atoms/AltinnAttachment';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useLanguage } from 'src/hooks/useLanguage';
 import { DataTypeReference, filterDisplayPdfAttachments, getDisplayAttachments } from 'src/utils/attachmentsUtils';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IData, IDataType } from 'src/types/shared';
@@ -17,7 +16,6 @@ const emptyDataArray: IData[] = [];
 const emptyDataTypeArray: IDataType[] = [];
 
 export function AttachmentListComponent({ node }: IAttachmentListProps) {
-  const { lang } = useLanguage();
   const instanceData = useLaxInstanceData()?.data ?? emptyDataArray;
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
   const dataTypes =
@@ -64,8 +62,10 @@ export function AttachmentListComponent({ node }: IAttachmentListProps) {
       item={true}
       xs={12}
     >
-      <Typography variant='h2'>{lang(node.item.textResourceBindings?.title)}</Typography>
-      <AltinnAttachment attachments={attachments} />
+      <AltinnAttachment
+        attachments={attachments}
+        title={node.item.textResourceBindings?.title}
+      />
     </Grid>
   );
 }
