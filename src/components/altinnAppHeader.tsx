@@ -72,10 +72,7 @@ export const AltinnAppHeader = ({ type, profile }: IHeaderProps) => {
             </ul>
           )}
           {party && (
-            <div
-              className='a-personSwitcher'
-              title={renderParty(profile) || ''}
-            >
+            <div title={renderParty(profile) || ''}>
               <span className={cn('a-personSwitcher-name', classes.spanStyle)}>
                 {!type && (
                   <>
