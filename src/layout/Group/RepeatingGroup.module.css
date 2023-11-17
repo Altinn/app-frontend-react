@@ -163,3 +163,7 @@
   padding-top: var(--table-input-margin);
   padding-bottom: var(--table-input-margin);
 }
+
+.tableCell {
+  box-sizing: border-box;
+}
