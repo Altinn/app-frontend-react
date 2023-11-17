@@ -20,7 +20,7 @@ export const customReceipt: ILayout = [
     type: 'Paragraph',
     textResourceBindings: { title: 'Takk for din innsending, dette er en veldig fin custom kvittering.' },
   },
-  { id: 'r-header-pdfs', type: 'Header', size: 'M', textResourceBindings: { title: 'receipt.title_submitted' } },
+  { id: 'r-pdfs-header', type: 'Header', size: 'M', textResourceBindings: { title: 'receipt.title_submitted' } },
   { id: 'r-pdfs', type: 'AttachmentList', dataTypeIds: ['ref-data-as-pdf'] },
   ...generateAttachmentLists({
     id: 'r-attachments-one',
