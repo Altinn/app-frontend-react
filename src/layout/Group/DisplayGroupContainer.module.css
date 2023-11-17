@@ -1,15 +1,13 @@
-.groupBody {
-  margin-top: 12px;
-  margin-bottom: 0;
+.groupContainer {
+  width: 100%;
+  display: flex;
+  gap: 24px;
+  padding-bottom: 38px;
 }
 
-/**
- * There are problems overriding the material-ui Grid styles even after https://github.com/Altinn/app-frontend-react/pull/1330
- * making the use of !important necessary.
- * @see https://github.com/mui/material-ui/issues/8509
- */
-.groupContainer {
-  padding-bottom: 38px !important;
+.group {
+  width: 100%;
+  padding: 12px;
 }
 
 .groupingIndicator {

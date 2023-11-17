@@ -1,13 +1,10 @@
 import React from 'react';
 
-import { Heading } from '@digdir/design-system-react';
-import { Grid } from '@material-ui/core';
+import { Fieldset, Heading } from '@digdir/design-system-react';
 import cn from 'classnames';
 
-import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { useLanguage } from 'src/hooks/useLanguage';
 import classes from 'src/layout/Group/DisplayGroupContainer.module.css';
-import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { HeadingLevel } from 'src/layout/common.generated';
 import type {
@@ -47,51 +44,31 @@ export function DisplayGroupContainer({ groupNode, id, onlyRowIndex, renderLayou
   const headingSize = headingSizes[headingLevel];
 
   return (
-    <Grid
-      container={true}
-      item={true}
+    <Fieldset
+      legend={
+        title && (
+          <Heading
+            level={headingLevel}
+            size={headingSize}
+          >
+            {title}
+          </Heading>
+        )
+      }
+      className={cn(classes.group)}
+      description={body && <span className={classes.groupBody}>{body}</span>}
       id={id || container.id}
-      className={cn(pageBreakStyles(container.pageBreak), {
-        [classes.groupContainer]: !isNested,
-        [classes.groupingIndicator]: !!container.showGroupingIndicator && isNested,
-      })}
-      spacing={3}
-      alignItems='flex-start'
       data-testid='display-group-container'
       data-componentid={container.id}
     >
-      {(title || body) && (
-        <Grid
-          item={true}
-          xs={12}
-        >
-          {title && (
-            <Heading
-              level={headingLevel}
-              size={headingSize}
-            >
-              {title}
-            </Heading>
-          )}
-          {body && <p className={classes.groupBody}>{body}</p>}
-        </Grid>
-      )}
-      <ConditionalWrapper
-        condition={!!container.showGroupingIndicator && !isNested}
-        wrapper={(children) => (
-          <Grid
-            item={true}
-            container={true}
-            spacing={3}
-            alignItems='flex-start'
-            className={classes.groupingIndicator}
-          >
-            {children}
-          </Grid>
+      <div
+        className={cn(
+          { [classes.groupingIndicator]: !!container.showGroupingIndicator && !isNested },
+          classes.groupContainer,
         )}
       >
         <>{groupNode.children(undefined, onlyRowIndex).map((n) => renderLayoutNode(n))}</>
-      </ConditionalWrapper>
-    </Grid>
+      </div>
+    </Fieldset>
   );
 }
