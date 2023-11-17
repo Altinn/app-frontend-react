@@ -15,8 +15,8 @@ interface IAltinnAttachmentProps {
 }
 
 export function AltinnAttachment({ attachments, id, title }: IAltinnAttachmentProps) {
-  const { selectedLanguage } = useLanguage();
-  const { lang, langAsString } = useLanguage();
+  const { lang, langAsString, selectedLanguage } = useLanguage();
+
   const filteredAndSortedAttachments = attachments
     ?.filter((attachment) => attachment.name)
     .sort((a, b) => (a.name && b.name ? a.name.localeCompare(b.name, selectedLanguage) : 0));

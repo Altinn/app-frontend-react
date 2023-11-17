@@ -98,8 +98,6 @@ export function AltinnCollapsibleAttachments({
           </Typography>
           <AltinnAttachment
             attachments={attachments}
-            // nested={false}
-            // listDisableVerticalPadding={false}
             id='attachment-list'
           />
         </>
