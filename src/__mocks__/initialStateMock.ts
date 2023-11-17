@@ -2,7 +2,6 @@ import { getApplicationMetadataMock } from 'src/__mocks__/applicationMetadataMoc
 import { getApplicationSettingsMock } from 'src/__mocks__/applicationSettingsMock';
 import { getFormDataStateMock } from 'src/__mocks__/formDataStateMock';
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
-import { getPartyMock } from 'src/__mocks__/getPartyMock';
 import { getInstanceDataMock, getProcessDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { getProfileStateMock } from 'src/__mocks__/profileStateMock';
 import { DevToolsTab } from 'src/features/devtools/data/types';
@@ -69,9 +68,6 @@ export function getInitialStateMock(custom?: Partial<IRuntimeState> | ((state: I
         },
       },
       error: null,
-    },
-    party: {
-      selectedParty: getPartyMock(),
     },
     profile: getProfileStateMock(),
     textResources: {

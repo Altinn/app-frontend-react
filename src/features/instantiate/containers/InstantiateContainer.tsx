@@ -7,22 +7,22 @@ import { InstantiateValidationError } from 'src/features/instantiate/containers/
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
-import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { changeBodyBackground } from 'src/utils/bodyStyling';
 import { HttpStatusCodes } from 'src/utils/network/networking';
 
 export const InstantiateContainer = () => {
   changeBodyBackground(AltinnAppTheme.altinnPalette.primary.greyLight);
-  const selectedParty = useAppSelector((state) => state.party.selectedParty);
+  const { party, canInstantiate } = useCurrentParty();
   const instantiation = useInstantiation();
 
   React.useEffect(() => {
-    const shouldCreateInstance = !!selectedParty && !instantiation.lastResult && !instantiation.isLoading;
+    const shouldCreateInstance = !!party && canInstantiate && !instantiation.lastResult && !instantiation.isLoading;
     if (shouldCreateInstance) {
-      instantiation.instantiate(undefined, selectedParty.partyId);
+      instantiation.instantiate(undefined, party.partyId);
     }
-  }, [selectedParty, instantiation]);
+  }, [canInstantiate, instantiation, party]);
 
   if (isAxiosError(instantiation.error)) {
     const message = (instantiation.error.response?.data as any)?.message;

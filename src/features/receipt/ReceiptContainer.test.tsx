@@ -2,7 +2,7 @@ import React from 'react';
 
 import { screen } from '@testing-library/react';
 
-import { dataTypes, instanceOwner, partyMember, partyTypesAllowed, userProfile } from 'src/__mocks__/constants';
+import { dataTypes, instanceOwner, partyTypesAllowed, userProfile } from 'src/__mocks__/constants';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { getUiConfigStateMock } from 'src/__mocks__/uiConfigStateMock';
@@ -122,9 +122,6 @@ function getMockState({ autoDeleteOnProcessEnd = false }): IRuntimeState {
     formLayout: {
       ...initial.formLayout,
       uiConfig: getUiConfigStateMock(),
-    },
-    party: {
-      selectedParty: partyMember,
     },
     profile: {
       profile: userProfile,

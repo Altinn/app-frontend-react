@@ -25,8 +25,7 @@ import { DevTools } from 'src/features/devtools/DevTools';
 import { FooterLayoutProvider } from 'src/features/footer/FooterLayoutProvider';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
-import { CurrentPartyProvider } from 'src/features/party/CurrentPartyProvider';
-import { PartiesProvider } from 'src/features/party/PartiesProvider';
+import { PartyProvider } from 'src/features/party/PartiesProvider';
 import { ProfileProvider } from 'src/features/profile/ProfileProvider';
 import { TextResourcesProvider } from 'src/features/textResources/TextResourcesProvider';
 import * as queries from 'src/queries/queries';
@@ -58,17 +57,15 @@ document.addEventListener('DOMContentLoaded', () => {
                           <LayoutSetsProvider>
                             <FooterLayoutProvider>
                               <ProfileProvider>
-                                <PartiesProvider>
-                                  <CurrentPartyProvider>
-                                    <TextResourcesProvider>
-                                      <KeepAliveProvider>
-                                        <WindowTitleProvider>
-                                          <App />
-                                        </WindowTitleProvider>
-                                      </KeepAliveProvider>
-                                    </TextResourcesProvider>
-                                  </CurrentPartyProvider>
-                                </PartiesProvider>
+                                <PartyProvider>
+                                  <TextResourcesProvider>
+                                    <KeepAliveProvider>
+                                      <WindowTitleProvider>
+                                        <App />
+                                      </WindowTitleProvider>
+                                    </KeepAliveProvider>
+                                  </TextResourcesProvider>
+                                </PartyProvider>
                               </ProfileProvider>
                             </FooterLayoutProvider>
                           </LayoutSetsProvider>

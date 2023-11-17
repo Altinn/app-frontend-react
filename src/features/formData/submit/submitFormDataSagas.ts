@@ -317,7 +317,7 @@ export function* postStatelessData({ field, componentId }: SaveDataParams) {
     'X-ComponentId': (componentId && encodeURIComponent(componentId)) || 'undefined',
   };
   if (!allowAnonymous) {
-    const selectedPartyId = state.party.selectedParty?.partyId;
+    const selectedPartyId = undefined; // TODO: Use the current partyId here when rewriting to a context
     headers = {
       ...headers,
       party: `partyid:${selectedPartyId}`,

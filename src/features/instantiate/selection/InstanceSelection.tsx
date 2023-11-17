@@ -25,6 +25,8 @@ import {
   useActiveInstances,
 } from 'src/features/instantiate/selection/ActiveInstancesProvider';
 import classes from 'src/features/instantiate/selection/InstanceSelection.module.css';
+import { useCurrentParty } from 'src/features/party/PartiesProvider';
+import { ValidPartyProvider } from 'src/features/party/ValidPartyProvider';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { ProcessTaskType } from 'src/types';
@@ -49,13 +51,15 @@ export function InstanceSelectionWrapper() {
 
   return (
     <ActiveInstancesProvider>
-      <PresentationComponent
-        header={appName || ''}
-        appOwner={appOwner}
-        type={ProcessTaskType.Unknown}
-      >
-        <InstanceSelection />
-      </PresentationComponent>
+      <ValidPartyProvider>
+        <PresentationComponent
+          header={appName || ''}
+          appOwner={appOwner}
+          type={ProcessTaskType.Unknown}
+        >
+          <InstanceSelection />
+        </PresentationComponent>
+      </ValidPartyProvider>
     </ActiveInstancesProvider>
   );
 }
@@ -69,6 +73,7 @@ function InstanceSelection() {
   const mobileView = useIsMobileOrTablet();
   const rowsPerPageOptions = instanceSelectionOptions?.rowsPerPageOptions ?? [10, 25, 50];
   const instantiate = useInstantiation().instantiate;
+  const { party: currentParty, canInstantiate } = useCurrentParty();
 
   const doesIndexExist = (selectedIndex: number | undefined): selectedIndex is number =>
     selectedIndex !== undefined && rowsPerPageOptions.length - 1 >= selectedIndex && selectedIndex >= 0;
@@ -231,7 +236,11 @@ function InstanceSelection() {
         {!mobileView && renderTable()}
         <div className={classes.startNewButtonContainer}>
           <Button
-            onClick={() => instantiate()}
+            onClick={() => {
+              if (canInstantiate && currentParty) {
+                instantiate(undefined, currentParty.partyId);
+              }
+            }}
             id='new-instance-button'
           >
             {lang('instance_selection.new_instance')}

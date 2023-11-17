@@ -17,6 +17,7 @@ import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData, useRealTaskType } from 'src/features/instance/ProcessContext';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
+import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { ProcessTaskType } from 'src/types';
@@ -69,7 +70,7 @@ function useFormDataQuery(enabled: boolean) {
   const dispatch = useAppDispatch();
   const reFetchActive = useAppSelector((state) => state.formData.reFetch);
   const appMetaData = useApplicationMetadata();
-  const currentPartyId = useAppSelector((state) => state.party.selectedParty?.partyId);
+  const currentPartyId = useCurrentParty()?.party?.partyId;
   const taskType = useRealTaskType();
   const allowAnonymousSelector = makeGetAllowAnonymousSelector();
   const allowAnonymous = useAppSelector(allowAnonymousSelector);

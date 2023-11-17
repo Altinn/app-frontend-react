@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useMatch, useNavigate } from 'react-router-dom';
 
 import { Button, LegacyCheckbox, Textfield } from '@digdir/design-system-react';
@@ -8,8 +8,7 @@ import { PlusIcon } from '@navikt/aksel-icons';
 import { AltinnParty } from 'src/components/altinnParty';
 import { InstantiationContainer } from 'src/features/instantiate/containers/InstantiationContainer';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
-import { useParties } from 'src/features/party/PartiesProvider';
-import { useSelectPartyMutation } from 'src/hooks/mutations/useSelectPartyMutation';
+import { useCurrentParty, useParties, useSelectCurrentParty } from 'src/features/party/PartiesProvider';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
@@ -76,11 +75,11 @@ export const PartySelection = () => {
   const match = useMatch(`/party-selection/:errorCode`);
   const errorCode = match?.params.errorCode as '403' | 'explained' | undefined;
 
-  const { mutate: selectPartyMutate, isSuccess: hasSelectedParty } = useSelectPartyMutation();
+  const selectParty = useSelectCurrentParty();
+  const selectedParty = useCurrentParty().party;
 
   const parties = useParties();
   const appMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
-  const selectedParty = useAppSelector((state) => state.party.selectedParty);
 
   const appPromptForPartyOverride = useAppSelector(
     (state) => state.applicationMetadata.applicationMetadata?.promptForParty,
@@ -94,15 +93,14 @@ export const PartySelection = () => {
 
   const navigate = useNavigate();
 
-  const onSelectParty = (party: IParty) => {
-    selectPartyMutate(party);
-  };
-
-  useEffect(() => {
-    if (selectedParty && hasSelectedParty) {
-      navigate('/');
+  const onSelectParty = async (party: IParty) => {
+    if (!selectParty) {
+      return;
     }
-  }, [selectedParty, navigate, hasSelectedParty]);
+
+    await selectParty(party);
+    navigate('/');
+  };
 
   function renderParties() {
     if (!parties || !appMetadata) {

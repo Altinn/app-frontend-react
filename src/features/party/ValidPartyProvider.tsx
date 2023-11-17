@@ -1,10 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
 import { useMutation } from '@tanstack/react-query';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { createContext } from 'src/core/contexts/context';
+import { Loader } from 'src/core/loading/Loader';
+import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
+import { useCurrentParty } from 'src/features/party/PartiesProvider';
+import { HttpStatusCodes } from 'src/utils/network/networking';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 const usePartyValidationMutation = () => {
@@ -19,9 +24,10 @@ const usePartyValidationMutation = () => {
   });
 };
 
-const { Provider } = createContext<undefined>({
+const { Provider, useHasProvider } = createContext<undefined>({
   name: 'ValidParty',
-  required: true,
+  required: false,
+  default: undefined,
 });
 
 /**
@@ -29,22 +35,32 @@ const { Provider } = createContext<undefined>({
  * show the user an error message or redirect to the party selection page.
  */
 export function ValidPartyProvider({ children }: PropsWithChildren) {
-  // const { data, mutate } = usePartyValidationMutation();
+  const currentParty = useCurrentParty();
+  const { data, mutate } = usePartyValidationMutation();
 
-  // React.useEffect(() => {
-  //   if (!selectedParty) {
-  //     return;
-  //   }
-  //
-  //   mutate(selectedParty.partyId);
-  // }, [selectedParty, mutate]);
-  //
-  // if (data?.valid === false) {
-  //   if (data.validParties?.length === 0) {
-  //     return <NoValidPartiesError />;
-  //   }
-  //   return <Navigate to={`/partyselection/${HttpStatusCodes.Forbidden}`} />;
-  // }
+  useEffect(() => {
+    if (!currentParty.party) {
+      return;
+    }
+
+    mutate(currentParty.party.partyId);
+  }, [currentParty, mutate]);
+
+  if (!currentParty) {
+    return <Loader reason='waiting-to-validate-party' />;
+  }
+
+  if (data?.valid === false) {
+    if (data.validParties?.length === 0) {
+      return <NoValidPartiesError />;
+    }
+    return <Navigate to={`/party-selection/${HttpStatusCodes.Forbidden}`} />;
+  }
 
   return <Provider value={undefined}>{children}</Provider>;
 }
+
+/**
+ * This hook returns true if the current party is valid and allowed to instantiate.
+ */
+export const usePartyCanInstantiate = () => useHasProvider();

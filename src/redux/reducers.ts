@@ -11,7 +11,6 @@ import { formLayoutSlice } from 'src/features/form/layout/formLayoutSlice';
 import { formRulesSlice } from 'src/features/form/rules/rulesSlice';
 import { formDataSlice } from 'src/features/formData/formDataSlice';
 import { orgsSlice } from 'src/features/orgs/orgsSlice';
-import { partySlice } from 'src/features/party/partySlice';
 import { profileSlice } from 'src/features/profile/profileSlice';
 import { textResourcesSlice } from 'src/features/textResources/textResourcesSlice';
 import { validationSlice } from 'src/features/validation/validationSlice';
@@ -31,7 +30,6 @@ const slices = [
   formLayoutSlice,
   formRulesSlice,
   orgsSlice,
-  partySlice,
   profileSlice,
   textResourcesSlice,
   validationSlice,

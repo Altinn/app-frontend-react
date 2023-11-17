@@ -11,6 +11,7 @@ import classes from 'src/components/wrappers/Presentation.module.css';
 import { Footer } from 'src/features/footer/Footer';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -30,7 +31,7 @@ export interface IPresentationProvidedProps extends PropsWithChildren {
 export const PresentationComponent = ({ header, type, appOwner, children }: IPresentationProvidedProps) => {
   const dispatch = useAppDispatch();
   const { langAsString } = useLanguage();
-  const party = useAppSelector((state) => state.party?.selectedParty);
+  const party = useCurrentParty().party;
   const instance = useLaxInstanceData();
   const userParty = useAppSelector((state) => state.profile.profile?.party);
   const { expandedWidth } = useAppSelector((state) => state.formLayout.uiConfig);
@@ -81,7 +82,7 @@ export const PresentationComponent = ({ header, type, appOwner, children }: IPre
   return (
     <div className={cn(classes.container, { [classes.expanded]: expandedWidth })}>
       <AltinnAppHeader
-        party={party || undefined}
+        party={party}
         userParty={userParty}
         logoColor={'blueDarker'}
         headerBackgroundColor={backgroundColor}

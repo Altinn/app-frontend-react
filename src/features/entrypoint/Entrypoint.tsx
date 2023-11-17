@@ -40,12 +40,10 @@ export function Entrypoint() {
 
   if (show === 'select-instance') {
     return (
-      <ValidPartyProvider>
-        <Navigate
-          to={'/instance-selection/'}
-          replace={true}
-        />
-      </ValidPartyProvider>
+      <Navigate
+        to={'/instance-selection/'}
+        replace={true}
+      />
     );
   }
 
