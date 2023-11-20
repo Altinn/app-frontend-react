@@ -7,11 +7,11 @@
 }
 
 .blueDark {
-  color: #0062ba;
+  color: var(--fds-semantic-surface-action-default);
 }
 
 .blueDarker {
-  color: #022f51;
+  color: var(--fds-semantic-surface-action-active);
 }
 
 .default {
@@ -19,7 +19,7 @@
 }
 
 .headerLink {
-  color: #0062ba;
+  color: var(--fds-semantic-surface-action-default);
   font-size: 1.25rem;
   line-height: 1.5;
   margin-left: 2.25rem;
@@ -34,13 +34,13 @@
   }
 
   & a {
-    color: #0062ba;
+    color: var(--fds-semantic-surface-action-default);
     border-bottom: 0;
   }
 
   & a:hover {
-    color: #0062ba;
-    border-bottom: 3px solid #0062ba;
+    color: var(--fds-semantic-surface-action-default);
+    border-bottom: 3px solid var(--fds-semantic-surface-action-default);
   }
 }
 
