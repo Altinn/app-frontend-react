@@ -18,27 +18,27 @@ describe('AttachmentListComponent', () => {
 
   it('should render specific attachments without pdf', async () => {
     await render(['not-ref-data-as-pdf', 'different-process-task']);
-    expect(screen.getByText('2mb.txt')).toBeInTheDocument();
-    expect(screen.getByText('differentTask.pdf')).toBeInTheDocument();
-    expect(screen.queryByText('testData1.pdf')).not.toBeInTheDocument();
+    expect(screen.getByText('2mb')).toBeInTheDocument();
+    expect(screen.getByText('differentTask')).toBeInTheDocument();
+    expect(screen.queryByText('testData1')).not.toBeInTheDocument();
   });
   it('should render only pdf attachments', async () => {
     await render(['ref-data-as-pdf']);
-    expect(screen.getByText('testData1.pdf')).toBeInTheDocument();
-    expect(screen.queryByText('2mb.txt')).not.toBeInTheDocument();
-    expect(screen.queryByText('differentTask.pdf')).not.toBeInTheDocument();
+    expect(screen.getByText('testData1')).toBeInTheDocument();
+    expect(screen.queryByText('2mb')).not.toBeInTheDocument();
+    expect(screen.queryByText('differentTask')).not.toBeInTheDocument();
   });
   it('should render all attachments', async () => {
     await render(['include-all']);
-    expect(screen.getByText('2mb.txt')).toBeInTheDocument();
-    expect(screen.getByText('differentTask.pdf')).toBeInTheDocument();
-    expect(screen.getByText('testData1.pdf')).toBeInTheDocument();
+    expect(screen.getByText('2mb')).toBeInTheDocument();
+    expect(screen.getByText('differentTask')).toBeInTheDocument();
+    expect(screen.getByText('testData1')).toBeInTheDocument();
   });
   it('should render all attachments without pdf and log error', async () => {
     await render();
-    expect(screen.getByText('2mb.txt')).toBeInTheDocument();
-    expect(screen.getByText('differentTask.pdf')).toBeInTheDocument();
-    expect(screen.queryByText('testData1.pdf')).not.toBeInTheDocument();
+    expect(screen.getByText('2mb')).toBeInTheDocument();
+    expect(screen.getByText('differentTask')).toBeInTheDocument();
+    expect(screen.queryByText('testData1')).not.toBeInTheDocument();
 
     // We know this happens, because we don't have any uploader components available for this data type
     expect(window.logErrorOnce).toHaveBeenCalledWith(
@@ -49,9 +49,9 @@ describe('AttachmentListComponent', () => {
   });
   it('should render attachments from current task without pdf', async () => {
     await render(['from-task']);
-    expect(screen.getByText('2mb.txt')).toBeInTheDocument();
-    expect(screen.queryByText('differentTask.pdf')).not.toBeInTheDocument();
-    expect(screen.queryByText('testData1.pdf')).not.toBeInTheDocument();
+    expect(screen.getByText('2mb')).toBeInTheDocument();
+    expect(screen.queryByText('differentTask')).not.toBeInTheDocument();
+    expect(screen.queryByText('testData1')).not.toBeInTheDocument();
   });
 });
 
