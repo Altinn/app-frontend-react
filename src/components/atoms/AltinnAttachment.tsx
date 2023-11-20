@@ -19,7 +19,7 @@ export function AltinnAttachment({ attachments, id, title }: IAltinnAttachmentPr
 
   const filteredAndSortedAttachments = attachments
     ?.filter((attachment) => attachment.name)
-    .sort((a, b) => (a.name && b.name ? a.name.localeCompare(b.name, selectedLanguage) : 0));
+    .sort((a, b) => (a.name && b.name ? a.name.localeCompare(b.name, selectedLanguage, { numeric: true }) : 0));
 
   return (
     <List
