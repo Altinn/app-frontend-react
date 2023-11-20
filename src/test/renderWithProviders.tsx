@@ -10,11 +10,12 @@ import type { RenderOptions } from '@testing-library/react';
 import type { AxiosResponse } from 'axios';
 import type { JSONSchema7 } from 'json-schema';
 
+import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
+import { getLayoutSetsMock } from 'src/__mocks__/getLayoutSetsMock';
 import { getOrgsMock } from 'src/__mocks__/getOrgsMock';
 import { getPartyMock } from 'src/__mocks__/getPartyMock';
+import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { getInstanceDataMock, getProcessDataMock } from 'src/__mocks__/instanceDataStateMock';
-import { getLayoutSetsMock } from 'src/__mocks__/layoutSets';
 import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';

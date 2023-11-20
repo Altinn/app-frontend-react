@@ -3,8 +3,7 @@ import React from 'react';
 import { act, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
-import { appMetadataMock } from 'src/__mocks__/applicationMetadataMock';
-import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
+import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { AltinnAppHeader } from 'src/components/organisms/AltinnAppHeader';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
@@ -50,9 +49,9 @@ describe('organisms/AltinnAppHeader', () => {
           headerBackgroundColor={headerBackgroundColor}
         />
       ),
-      reduxState: getInitialStateMock({
-        applicationMetadata: appMetadataMock({ logo }),
-      }),
+      queries: {
+        fetchApplicationMetadata: () => Promise.resolve(getApplicationMetadataMock({ logo })),
+      },
     });
 
   it('should render private icon when party is person', async () => {

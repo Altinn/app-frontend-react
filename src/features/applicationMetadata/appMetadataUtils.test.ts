@@ -1,5 +1,5 @@
-import { getApplicationMetadataMock } from 'src/__mocks__/applicationMetadataMock';
-import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
+import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
+import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import {
   getCurrentDataTypeForApplication,
   getCurrentTaskDataElementId,

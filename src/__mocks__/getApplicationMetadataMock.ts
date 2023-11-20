@@ -1,6 +1,6 @@
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 
-const applicationMetadataDefaults: IApplicationMetadata = {
+export const getApplicationMetadataMock = (overrides: Partial<IApplicationMetadata> = {}): IApplicationMetadata => ({
   id: 'mockOrg/test-app',
   org: 'mockOrg',
   title: {
@@ -48,14 +48,5 @@ const applicationMetadataDefaults: IApplicationMetadata = {
   createdBy: 'test testesen',
   lastChanged: '2020-06-29T08:47:12.4255537Z',
   lastChangedBy: 'test testesen',
-};
-
-export const getApplicationMetadataMock = (overrides: Partial<IApplicationMetadata> = {}) => ({
-  ...applicationMetadataDefaults,
   ...overrides,
-});
-
-export const appMetadataMock = (overrides: Partial<IApplicationMetadata> = {}) => ({
-  error: null,
-  applicationMetadata: getApplicationMetadataMock(overrides),
 });

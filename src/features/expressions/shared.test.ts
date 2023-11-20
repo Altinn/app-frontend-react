@@ -1,6 +1,6 @@
 import dot from 'dot-object';
 
-import { getHierarchyDataSourcesMock } from 'src/__mocks__/hierarchyMock';
+import { getHierarchyDataSourcesMock } from 'src/__mocks__/getHierarchyDataSourcesMock';
 import { evalExpr } from 'src/features/expressions';
 import { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import { convertInstanceDataToAttachments, convertLayouts, getSharedTests } from 'src/features/expressions/shared';

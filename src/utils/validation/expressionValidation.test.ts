@@ -1,7 +1,7 @@
 import dot from 'dot-object';
 import fs from 'node:fs';
 
-import { getHierarchyDataSourcesMock } from 'src/__mocks__/hierarchyMock';
+import { getHierarchyDataSourcesMock } from 'src/__mocks__/getHierarchyDataSourcesMock';
 import { convertLayouts, type Layouts } from 'src/features/expressions/shared';
 import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
 import { buildAuthContext } from 'src/utils/authContext';

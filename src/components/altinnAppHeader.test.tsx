@@ -2,8 +2,8 @@ import React from 'react';
 
 import { screen } from '@testing-library/react';
 
-import { organisationMock } from 'src/__mocks__/organisationMock';
-import { getProfileStateMock } from 'src/__mocks__/profileStateMock';
+import { getOrganisationMock } from 'src/__mocks__/getOrganisationMock';
+import { getProfileStateMock } from 'src/__mocks__/getProfileMock';
 import { AltinnAppHeader } from 'src/components/altinnAppHeader';
 import { renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { IHeaderProps } from 'src/components/altinnAppHeader';
@@ -11,30 +11,28 @@ import type { IHeaderProps } from 'src/components/altinnAppHeader';
 describe('AltinnAppHeader', () => {
   it('should show organisation name when profile has party, and party has organisation with name, and "type" is not set', async () => {
     const profile = getProfileStateMock();
-    if (profile.profile.party) {
-      profile.profile.party.organization = organisationMock;
-    }
+    const org = getOrganisationMock();
+    profile.profile.party!.organization = org;
 
     await render({
       profile: profile.profile,
       type: undefined,
     });
 
-    expect(screen.getByText(`for ${organisationMock.name.toUpperCase()}`)).toBeInTheDocument();
+    expect(screen.getByText(`for ${org.name.toUpperCase()}`)).toBeInTheDocument();
   });
 
   it('should not show organisation name when profile has party, and party has organisation with name, and "type" is set', async () => {
     const profile = getProfileStateMock();
-    if (profile.profile.party) {
-      profile.profile.party.organization = organisationMock;
-    }
+    const org = getOrganisationMock();
+    profile.profile.party!.organization = org;
 
     await render({
       profile: profile.profile,
       type: 'partyChoice',
     });
 
-    expect(screen.queryByText(`for ${organisationMock.name.toUpperCase()}`)).not.toBeInTheDocument();
+    expect(screen.queryByText(`for ${org.name.toUpperCase()}`)).not.toBeInTheDocument();
   });
 
   it('should render links to inbox, schemas and profile when "type" is set and profile has "party" property', async () => {

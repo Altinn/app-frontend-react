@@ -4,7 +4,7 @@ import { act, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import ResizeObserverModule from 'resize-observer-polyfill';
 
-import { getFormLayoutGroupMock } from 'src/__mocks__/formLayoutGroupMock';
+import { getFormLayoutGroupMock } from 'src/__mocks__/getFormLayoutGroupMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { RepeatingGroupTable } from 'src/layout/Group/RepeatingGroupTable';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';

@@ -3,7 +3,7 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
-import { getMultiPageGroupMock } from 'src/__mocks__/formLayoutGroupMock';
+import { getMultiPageGroupMock } from 'src/__mocks__/getMultiPageGroupMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
 import { renderWithNode } from 'src/test/renderWithProviders';

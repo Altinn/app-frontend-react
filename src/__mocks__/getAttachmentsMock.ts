@@ -4,12 +4,12 @@ import type { UploadedAttachment } from 'src/features/attachments';
 
 const getRandomFileSize = () => Math.floor(Math.random() * (2500 - 250 + 1)) + 250;
 
-export interface IGetAttachments {
+export interface IGetAttachmentsMock {
   count?: number;
   fileSize?: number;
 }
 
-export const getAttachments = ({ count = 3, fileSize }: IGetAttachments = {}) => {
+export const getAttachmentsMock = ({ count = 3, fileSize }: IGetAttachmentsMock = {}) => {
   const out: UploadedAttachment[] = [];
 
   for (let i = 0; i < count; i++) {

@@ -4,7 +4,7 @@ import { act, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
-import { getFormLayoutGroupMock } from 'src/__mocks__/formLayoutGroupMock';
+import { getFormLayoutGroupMock } from 'src/__mocks__/getFormLayoutGroupMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { Triggers } from 'src/layout/common.generated';

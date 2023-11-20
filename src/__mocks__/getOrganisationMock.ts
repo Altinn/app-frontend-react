@@ -1,6 +1,6 @@
 import type { IOrganisation } from 'src/types/shared';
 
-export const organisationMock: IOrganisation = {
+export const getOrganisationMock = (): IOrganisation => ({
   orgNumber: '123456789',
   name: 'Fancy Org',
   unitType: 'unitType',
@@ -14,4 +14,4 @@ export const organisationMock: IOrganisation = {
   mailingPostalCity: 'Oslo',
   businessPostalCode: '0580',
   businessPostalCity: 'Oslo',
-};
+});

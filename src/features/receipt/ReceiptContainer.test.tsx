@@ -2,8 +2,8 @@ import React from 'react';
 
 import { screen } from '@testing-library/react';
 
+import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { getSummaryDataObject, ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
 import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';

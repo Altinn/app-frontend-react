@@ -4,10 +4,10 @@ import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import mockAxios from 'jest-mock-axios';
 
-import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
+import { getFormLayoutStateMock } from 'src/__mocks__/getFormLayoutStateMock';
+import { getProfileStateMock } from 'src/__mocks__/getProfileMock';
+import { getUiConfigStateMock } from 'src/__mocks__/getUiConfigStateMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { getProfileStateMock } from 'src/__mocks__/profileStateMock';
-import { getUiConfigStateMock } from 'src/__mocks__/uiConfigStateMock';
 import { NavBar } from 'src/components/presentation/NavBar';
 import { renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { IRawTextResource } from 'src/features/textResources';

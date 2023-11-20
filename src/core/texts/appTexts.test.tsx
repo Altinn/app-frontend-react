@@ -2,7 +2,7 @@ import React from 'react';
 
 import { screen } from '@testing-library/react';
 
-import { getApplicationMetadataMock } from 'src/__mocks__/applicationMetadataMock';
+import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
