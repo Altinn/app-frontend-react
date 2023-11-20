@@ -1,13 +1,15 @@
 import React from 'react';
 import type { PropsWithChildren } from 'react';
 
+import Grid from '@material-ui/core/Grid';
 import cn from 'classnames';
 
 import { AltinnSubstatusPaper } from 'src/components/molecules/AltinnSubstatusPaper';
 import { AltinnAppHeader } from 'src/components/organisms/AltinnAppHeader';
 import { Header } from 'src/components/presentation/Header';
 import { NavBar } from 'src/components/presentation/NavBar';
-import classes from 'src/components/wrappers/Presentation.module.css';
+import classes from 'src/components/presentation/Presentation.module.css';
+import { Progress } from 'src/components/presentation/Progress';
 import { Footer } from 'src/features/footer/Footer';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
@@ -24,20 +26,20 @@ import { returnUrlFromQueryParameter, returnUrlToMessagebox } from 'src/utils/ur
 
 export interface IPresentationProvidedProps extends PropsWithChildren {
   header?: React.ReactNode;
-  appOwner?: string;
   type: ProcessTaskType | PresentationType;
 }
 
-export const PresentationComponent = ({ header, type, appOwner, children }: IPresentationProvidedProps) => {
+export const PresentationComponent = ({ header, type, children }: IPresentationProvidedProps) => {
   const dispatch = useAppDispatch();
-  const { langAsString } = useLanguage();
+  const { lang, langAsString } = useLanguage();
   const party = useCurrentParty().party;
   const instance = useLaxInstanceData();
   const userParty = useAppSelector((state) => state.profile.profile?.party);
   const { expandedWidth } = useAppSelector((state) => state.formLayout.uiConfig);
   const { previous } = useAppSelector(selectPreviousAndNextPage);
-
   const returnToView = useAppSelector((state) => state.formLayout.uiConfig.returnToView);
+
+  const realHeader = header || type === ProcessTaskType.Archived ? lang('receipt.title') : undefined;
 
   const handleBackArrowButton = () => {
     if (returnToView) {
@@ -103,11 +105,9 @@ export const PresentationComponent = ({ header, type, appOwner, children }: IPre
           id='main-content'
           className={classes.modal}
         >
-          <Header
-            type={type}
-            header={header}
-            appOwner={appOwner}
-          />
+          <Header header={realHeader}>
+            <ProgressBar type={type} />
+          </Header>
           <div className={classes.modalBody}>{children}</div>
         </section>
       </main>
@@ -115,3 +115,21 @@ export const PresentationComponent = ({ header, type, appOwner, children }: IPre
     </div>
   );
 };
+
+function ProgressBar({ type }: { type: ProcessTaskType | PresentationType }) {
+  const showProgressSettings = useAppSelector((state) => state.formLayout.uiConfig.showProgress);
+  const enabled = type !== ProcessTaskType.Archived && showProgressSettings;
+
+  if (!enabled) {
+    return null;
+  }
+
+  return (
+    <Grid
+      item
+      aria-live='polite'
+    >
+      <Progress />
+    </Grid>
+  );
+}

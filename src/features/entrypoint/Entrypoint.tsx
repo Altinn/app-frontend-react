@@ -2,9 +2,8 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 
 import { Form } from 'src/components/form/Form';
-import { PresentationComponent } from 'src/components/wrappers/Presentation';
+import { PresentationComponent } from 'src/components/presentation/Presentation';
 import { Loader } from 'src/core/loading/Loader';
-import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useIsStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
 import { FormProvider } from 'src/features/form/FormContext';
@@ -17,8 +16,6 @@ import type { ShowTypes } from 'src/features/applicationMetadata';
 
 export function Entrypoint() {
   const applicationMetadata = useApplicationMetadata();
-  const appName = useAppName();
-  const appOwner = useAppOwner();
   const dispatch = useAppDispatch();
   const isStateless = useIsStatelessApp();
   const show: ShowTypes = applicationMetadata.onEntry?.show ?? 'new-instance';
@@ -51,11 +48,7 @@ export function Entrypoint() {
   if (isStateless) {
     return (
       <FormProvider>
-        <PresentationComponent
-          header={appName || ''}
-          appOwner={appOwner}
-          type={PresentationType.Stateless}
-        >
+        <PresentationComponent type={PresentationType.Stateless}>
           <Form />
         </PresentationComponent>
       </FormProvider>

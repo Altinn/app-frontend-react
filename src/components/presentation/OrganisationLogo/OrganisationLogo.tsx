@@ -4,15 +4,13 @@ import cn from 'classnames';
 
 import classes from 'src/components/presentation/OrganisationLogo/OrganisationLogo.module.css';
 import { useAppLogoAltText, useAppOwner } from 'src/core/texts/appTexts';
-import { useAppSelector } from 'src/hooks/useAppSelector';
-import { selectAppLogoUrl, selectDisplayAppOwnerNameInHeader } from 'src/selectors/logo';
-import { selectAppLogoSize } from 'src/selectors/simpleSelectors';
+import { useAppLogoSize, useAppLogoUrl, useDisplayAppOwnerNameInHeader } from 'src/hooks/useAppLogo';
 
 export const OrganisationLogo = () => {
-  const appLogoUrl = useAppSelector(selectAppLogoUrl);
+  const appLogoUrl = useAppLogoUrl();
   const appLogoAltText = useAppLogoAltText();
-  const appLogoSize = useAppSelector(selectAppLogoSize);
-  const showAppOwner = useAppSelector(selectDisplayAppOwnerNameInHeader);
+  const appLogoSize = useAppLogoSize();
+  const showAppOwner = useDisplayAppOwnerNameInHeader();
   const appOwner = useAppOwner();
 
   return (

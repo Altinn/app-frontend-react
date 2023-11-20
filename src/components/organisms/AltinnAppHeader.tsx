@@ -7,12 +7,8 @@ import { AltinnLogo } from 'src/components/logo/AltinnLogo';
 import classes from 'src/components/organisms/AltinnAppHeader.module.css';
 import { AltinnAppHeaderMenu } from 'src/components/organisms/AltinnAppHeaderMenu';
 import { OrganisationLogo } from 'src/components/presentation/OrganisationLogo/OrganisationLogo';
-import {
-  useApplicationMetadata,
-  useHasApplicationMetadata,
-} from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { useHasOrgs } from 'src/features/orgs/OrgsProvider';
-import { useHasTextResources } from 'src/features/textResources/TextResourcesProvider';
+import { useHasAppTextsYet } from 'src/core/texts/appTexts';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { renderPartyName } from 'src/utils/party';
 import type { IAltinnLogoProps } from 'src/components/logo/AltinnLogo';
@@ -73,10 +69,7 @@ export const AltinnAppHeader = ({ logoColor, headerBackgroundColor, party, userP
 };
 
 const Logo = ({ color }: { color: LogoColor }) => {
-  const hasAppMetadata = useHasApplicationMetadata();
-  const hasOrgs = useHasOrgs();
-  const hasTexts = useHasTextResources();
-  const hasLoaded = hasAppMetadata && hasOrgs && hasTexts;
+  const hasLoaded = useHasAppTextsYet();
 
   return hasLoaded ? <MaybeOrganisationLogo color={color} /> : <AltinnLogo color={color} />;
 };

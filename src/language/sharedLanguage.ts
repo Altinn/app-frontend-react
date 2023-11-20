@@ -7,10 +7,6 @@ import { marked } from 'marked';
 import { mangle } from 'marked-mangle';
 import type { DOMNode, Element, HTMLReactParserOptions } from 'html-react-parser';
 
-import type { IApplicationMetadata } from 'src/features/applicationMetadata';
-import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type { IAltinnOrgs } from 'src/types/shared';
-
 marked.use(mangle());
 
 DOMPurify.addHook('afterSanitizeAttributes', (node) => {
@@ -102,39 +98,3 @@ const replaceRootTag = (domNode: DOMNode) => {
     domNode.name = 'span';
   }
 };
-
-function getOrgLogo(orgs: IAltinnOrgs | null, org: string | undefined) {
-  if (orgs && typeof org === 'string' && orgs[org]) {
-    return orgs[org].logo;
-  }
-
-  return undefined;
-}
-
-const appLogoKey = 'appLogo.url';
-
-export function getAppLogoUrl(
-  orgs: IAltinnOrgs | null,
-  org: string | undefined,
-  langTools: IUseLanguage,
-  useOrgAsSource: boolean,
-) {
-  if (useOrgAsSource) {
-    return getOrgLogo(orgs, org);
-  }
-
-  const appLogo = langTools.langAsString(appLogoKey);
-  if (appLogo !== appLogoKey) {
-    return appLogo;
-  }
-
-  return getOrgLogo(orgs, org);
-}
-
-export function getdisplayAppOwnerNameInHeader(applicationMetadata: IApplicationMetadata | null) {
-  return applicationMetadata?.logo?.displayAppOwnerNameInHeader ?? false;
-}
-
-export function getUseAppLogoOrgSource(applicationMetadata: IApplicationMetadata) {
-  return (applicationMetadata.logo?.source ?? 'org') === 'org';
-}

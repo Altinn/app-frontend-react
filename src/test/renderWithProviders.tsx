@@ -10,6 +10,7 @@ import type { RenderOptions } from '@testing-library/react';
 import type { AxiosResponse } from 'axios';
 import type { JSONSchema7 } from 'json-schema';
 
+import { getOrgsMock } from 'src/__mocks__/getOrgsMock';
 import { getPartyMock } from 'src/__mocks__/getPartyMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getInstanceDataMock, getProcessDataMock } from 'src/__mocks__/instanceDataStateMock';
@@ -115,7 +116,7 @@ const makeDefaultQueryMocks = (state: IRuntimeState): MockableQueries => ({
   fetchApplicationSettings: () => Promise.resolve({}),
   fetchFooterLayout: () => Promise.resolve({ footer: [] } as IFooterLayout),
   fetchLayoutSets: () => Promise.resolve(getLayoutSetsMock()),
-  fetchOrgs: () => Promise.resolve({ orgs: {} }),
+  fetchOrgs: () => Promise.resolve({ orgs: getOrgsMock() }),
   fetchUserProfile: () => Promise.resolve({} as unknown as IProfile),
   fetchDataModelSchema: () => Promise.resolve({}),
   fetchParties: () => Promise.resolve([getPartyMock()]),

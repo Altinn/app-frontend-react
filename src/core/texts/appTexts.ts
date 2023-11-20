@@ -1,8 +1,12 @@
-import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { useOrgs } from 'src/features/orgs/OrgsProvider';
+import {
+  useApplicationMetadata,
+  useHasApplicationMetadata,
+} from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { useHasOrgs, useOrgs } from 'src/features/orgs/OrgsProvider';
+import { useHasTextResources } from 'src/features/textResources/TextResourcesProvider';
 import { useLanguage } from 'src/hooks/useLanguage';
 
-function useTextResourceOr<T extends string | undefined>(resource: string, fallback: T): string | T {
+export function useTextResourceOr<T extends string | undefined>(resource: string, fallback: T): string | T {
   const { langAsString } = useLanguage();
 
   const fromResources = langAsString(resource);
@@ -11,6 +15,14 @@ function useTextResourceOr<T extends string | undefined>(resource: string, fallb
   }
 
   return fallback;
+}
+
+export function useHasAppTextsYet() {
+  const hasAppMetadata = useHasApplicationMetadata();
+  const hasOrgs = useHasOrgs();
+  const hasTexts = useHasTextResources();
+
+  return hasAppMetadata && hasOrgs && hasTexts;
 }
 
 export function useAppName() {

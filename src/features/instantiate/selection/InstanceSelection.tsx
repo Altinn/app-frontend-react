@@ -15,9 +15,8 @@ import {
 import { Edit as EditIcon } from '@navikt/ds-icons';
 import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/src/components/Pagination/Pagination';
 
+import { PresentationComponent } from 'src/components/presentation/Presentation';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
-import { PresentationComponent } from 'src/components/wrappers/Presentation';
-import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import {
@@ -45,24 +44,15 @@ function getDateDisplayString(timeStamp: string) {
   });
 }
 
-export function InstanceSelectionWrapper() {
-  const appName = useAppName();
-  const appOwner = useAppOwner();
-
-  return (
-    <ActiveInstancesProvider>
-      <ValidPartyProvider>
-        <PresentationComponent
-          header={appName || ''}
-          appOwner={appOwner}
-          type={ProcessTaskType.Unknown}
-        >
-          <InstanceSelection />
-        </PresentationComponent>
-      </ValidPartyProvider>
-    </ActiveInstancesProvider>
-  );
-}
+export const InstanceSelectionWrapper = () => (
+  <ActiveInstancesProvider>
+    <ValidPartyProvider>
+      <PresentationComponent type={ProcessTaskType.Unknown}>
+        <InstanceSelection />
+      </PresentationComponent>
+    </ValidPartyProvider>
+  </ActiveInstancesProvider>
+);
 
 function InstanceSelection() {
   const _instances = useActiveInstances();

@@ -2,6 +2,7 @@ import { getApplicationMetadataMock } from 'src/__mocks__/applicationMetadataMoc
 import { getApplicationSettingsMock } from 'src/__mocks__/applicationSettingsMock';
 import { getFormDataStateMock } from 'src/__mocks__/formDataStateMock';
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
+import { getOrgsMock } from 'src/__mocks__/getOrgsMock';
 import { getInstanceDataMock, getProcessDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { getProfileStateMock } from 'src/__mocks__/profileStateMock';
 import { DevToolsTab } from 'src/features/devtools/data/types';
@@ -54,19 +55,7 @@ export function getInitialStateMock(custom?: Partial<IRuntimeState> | ((state: I
       footerLayout: null,
     },
     organisationMetaData: {
-      allOrgs: {
-        mockOrg: {
-          name: {
-            en: 'Mock Ministry',
-            nb: 'Mockdepartementet',
-            nn: 'Mockdepartementet',
-          },
-          logo: 'https://altinncdn.no/orgs/mockOrg/mockOrg.png',
-          orgnr: '',
-          homepage: '',
-          environments: ['tt02', 'production'],
-        },
-      },
+      allOrgs: getOrgsMock(),
       error: null,
     },
     profile: getProfileStateMock(),

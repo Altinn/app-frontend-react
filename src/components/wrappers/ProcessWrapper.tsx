@@ -4,10 +4,9 @@ import { useSearchParams } from 'react-router-dom';
 import cn from 'classnames';
 
 import { Form } from 'src/components/form/Form';
-import { PresentationComponent } from 'src/components/wrappers/Presentation';
+import { PresentationComponent } from 'src/components/presentation/Presentation';
 import classes from 'src/components/wrappers/ProcessWrapper.module.css';
 import { Loader } from 'src/core/loading/Loader';
-import { useAppName } from 'src/core/texts/appTexts';
 import { Confirm } from 'src/features/confirm/containers/Confirm';
 import { Feedback } from 'src/features/feedback/Feedback';
 import { useStrictInstance } from 'src/features/instance/InstanceContext';
@@ -19,8 +18,6 @@ import { ProcessTaskType } from 'src/types';
 
 export const ProcessWrapper = () => {
   const { isFetching: isInstanceDataFetching } = useStrictInstance();
-  const appName = useAppName();
-  const appOwner = useAppName();
   const taskType = useRealTaskType();
 
   const [searchParams] = useSearchParams();
@@ -33,12 +30,7 @@ export const ProcessWrapper = () => {
     if (loadingReason) {
       return null;
     }
-    return (
-      <PDFView
-        appName={appName as string}
-        appOwner={appOwner}
-      />
-    );
+    return <PDFView />;
   }
 
   return (
@@ -49,11 +41,7 @@ export const ProcessWrapper = () => {
         })}
       >
         {!loadingReason ? (
-          <PresentationComponent
-            header={appName}
-            appOwner={appOwner}
-            type={taskType}
-          >
+          <PresentationComponent type={taskType}>
             {taskType === ProcessTaskType.Data ? (
               <Form />
             ) : taskType === ProcessTaskType.Confirm ? (
@@ -70,10 +58,7 @@ export const ProcessWrapper = () => {
       </div>
       {previewPDF && !loadingReason && (
         <div className={cn(classes['content'], classes['hide-pdf'])}>
-          <PDFView
-            appName={appName as string}
-            appOwner={appOwner}
-          />
+          <PDFView />
         </div>
       )}
     </>
