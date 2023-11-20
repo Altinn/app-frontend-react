@@ -5,7 +5,7 @@ import { Link, List } from '@digdir/design-system-react';
 import classes from 'src/components/atoms/AltinnAttachment.module.css';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { FileExtensionIcon } from 'src/layout/FileUpload/FileUploadTable/AttachmentFileName';
-import { getFileEnding } from 'src/utils/attachment';
+import { getFileEnding, removeFileEnding } from 'src/utils/attachment';
 import { makeUrlRelativeIfSameDomain } from 'src/utils/urls/urlHelper';
 import type { IDisplayAttachment } from 'src/types/shared';
 interface IAltinnAttachmentProps {
@@ -40,7 +40,8 @@ export function AltinnAttachment({ attachments, id, title }: IAltinnAttachmentPr
                 fileEnding={getFileEnding(attachment.name)}
                 className={classes.attachmentIcon}
               />
-              <span>{attachment.name}</span>
+              <span className={classes.truncate}>{removeFileEnding(attachment.name)}</span>
+              <span className={classes.extension}>{getFileEnding(attachment.name)}</span>
             </Link>
           </List.Item>
         ))}
