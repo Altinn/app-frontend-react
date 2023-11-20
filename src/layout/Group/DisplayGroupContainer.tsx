@@ -67,7 +67,7 @@ export function DisplayGroupContainer({ groupNode, id, onlyRowIndex, renderLayou
           classes.groupContainer,
         )}
       >
-        <>{groupNode.children(undefined, onlyRowIndex).map((n) => renderLayoutNode(n))}</>
+        {groupNode.children(undefined, onlyRowIndex).map((n) => renderLayoutNode(n))}
       </div>
     </Fieldset>
   );
