@@ -1,94 +1,71 @@
-import { instanceOwner, partyTypesAllowed } from 'src/__mocks__/constants';
+import { getApplicationMetadataMock } from 'src/__mocks__/applicationMetadataMock';
+import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
 import {
   getCurrentDataTypeForApplication,
   getCurrentTaskDataElementId,
   getLayoutSetIdForApplication,
   isStatelessApp,
 } from 'src/features/applicationMetadata/appMetadataUtils';
-import type { IApplicationMetadata } from 'src/features/applicationMetadata/index';
 import type { ILayoutSets } from 'src/types';
-import type { IData, IInstance, IProcess, ITask } from 'src/types/shared';
+import type { IData, IProcess, ITask } from 'src/types/shared';
 
 describe('appMetadata.ts', () => {
-  const application: IApplicationMetadata = {
-    id: 'ttd/stateless-app-demo',
-    org: 'ttd',
-    title: {
-      nb: 'Valgkort 2021',
+  const application = getApplicationMetadataMock();
+  application.dataTypes = [
+    {
+      id: 'ref-data-as-pdf',
+      allowedContentTypes: ['application/pdf'],
+      maxCount: 0,
+      minCount: 0,
     },
-    dataTypes: [
-      {
-        id: 'ref-data-as-pdf',
-        allowedContentTypes: ['application/pdf'],
-        maxCount: 0,
-        minCount: 0,
+    {
+      id: 'Datamodel',
+      allowedContentTypes: ['application/xml'],
+      appLogic: {
+        autoCreate: true,
+        classRef: 'Altinn.App.Models.StatelessV1',
       },
-      {
-        id: 'Datamodel',
-        allowedContentTypes: ['application/xml'],
-        appLogic: {
-          autoCreate: true,
-          classRef: 'Altinn.App.Models.StatelessV1',
-        },
-        taskId: 'Task_1',
-        maxCount: 1,
-        minCount: 1,
+      taskId: 'Task_1',
+      maxCount: 1,
+      minCount: 1,
+    },
+    {
+      id: 'Datamodel-for-confirm',
+      allowedContentTypes: ['application/xml'],
+      appLogic: {
+        autoCreate: true,
+        classRef: 'Altinn.App.Models.Confirm',
       },
-      {
-        id: 'Datamodel-for-confirm',
-        allowedContentTypes: ['application/xml'],
-        appLogic: {
-          autoCreate: true,
-          classRef: 'Altinn.App.Models.Confirm',
-        },
-        taskId: 'Task_1',
-        maxCount: 1,
-        minCount: 1,
-      },
-      {
-        id: 'type-with-no-classRef',
-        allowedContentTypes: ['application/xml'],
-        appLogic: {},
-        taskId: 'Task_1',
-        maxCount: 1,
-        minCount: 1,
-      },
-      {
-        id: 'Stateless',
-        allowedContentTypes: ['application/xml'],
-        appLogic: {},
-        maxCount: 1,
-        minCount: 1,
-      },
-    ],
-    partyTypesAllowed,
-    created: '2021-04-28T13:31:24.7328286Z',
-    createdBy: 'lorang92',
-    lastChanged: '2021-04-28T13:31:24.7328296Z',
-    lastChangedBy: 'lorang92',
-    autoDeleteOnProcessEnd: false,
-  };
-  const instance: IInstance = {
-    id: '512345/c32dc48c-7854-45ec-a32e-2a82c420c9bd',
-    instanceOwner,
-    appId: 'ttd/stateless-app-demo',
-    org: 'ttd',
-    selfLinks: { apps: '', platform: '' },
-    dueBefore: undefined,
-    created: undefined,
-    data: [
-      {
-        id: 'datamodel-data-guid',
-        instanceGuid: 'c23f7e5e-9f04-424f-9ffc-0e9aa14ad907',
-        dataType: 'Datamodel',
-        filename: null,
-      } as unknown as IData,
-    ],
-    instanceState: undefined,
-    lastChanged: undefined,
-    status: undefined,
-    title: undefined,
-  };
+      taskId: 'Task_1',
+      maxCount: 1,
+      minCount: 1,
+    },
+    {
+      id: 'type-with-no-classRef',
+      allowedContentTypes: ['application/xml'],
+      appLogic: {},
+      taskId: 'Task_1',
+      maxCount: 1,
+      minCount: 1,
+    },
+    {
+      id: 'Stateless',
+      allowedContentTypes: ['application/xml'],
+      appLogic: {},
+      maxCount: 1,
+      minCount: 1,
+    },
+  ];
+
+  const instance = getInstanceDataMock();
+  instance.data = [
+    {
+      id: 'datamodel-data-guid',
+      instanceGuid: 'c23f7e5e-9f04-424f-9ffc-0e9aa14ad907',
+      dataType: 'Datamodel',
+      filename: null,
+    } as unknown as IData,
+  ];
 
   const process: IProcess = {
     started: '',

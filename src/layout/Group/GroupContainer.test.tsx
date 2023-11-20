@@ -13,7 +13,6 @@ import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { IUpdateRepeatingGroupsEditIndex } from 'src/features/form/layout/formLayoutTypes';
-import type { ITextResourcesState } from 'src/features/textResources';
 import type { CompGroupRepeatingExternal, CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { CompExternal } from 'src/layout/layout';
@@ -112,26 +111,27 @@ async function render({ container = mockContainer }: IRender = {}) {
     },
   } as any;
 
-  const mockTextResources: ITextResourcesState = {
-    language: 'en',
-    resourceMap: {
-      'option.label': { value: 'Value to be shown' },
-      'button.open': { value: 'New open text' },
-      'button.close': { value: 'New close text' },
-      'button.save': { value: 'New save text' },
-    },
-  };
-
   const reduxState = getInitialStateMock({
     formLayout: mockLayout,
     formData: mockData,
-    textResources: mockTextResources,
   });
 
   const { store } = await renderWithNode<LayoutNodeForGroup<CompGroupRepeatingInternal>>({
     renderer: ({ node }) => <GroupContainer node={node} />,
     nodeId: container.id,
     reduxState,
+    queries: {
+      fetchTextResources: () =>
+        Promise.resolve({
+          language: 'en',
+          resources: [
+            { id: 'option.label', value: 'Value to be shown' },
+            { id: 'button.open', value: 'New open text' },
+            { id: 'button.close', value: 'New close text' },
+            { id: 'button.save', value: 'New save text' },
+          ],
+        }),
+    },
   });
 
   return store;
@@ -384,6 +384,7 @@ describe('GroupContainer', () => {
     };
     await render({ container: mockContainerWithEditButtonOpen });
 
+    screen.debug(undefined, Infinity);
     const openButtons = screen.getAllByText('New open text');
     expect(openButtons).toHaveLength(4);
   });

@@ -53,7 +53,7 @@ const useTextResourcesQuery = () => {
   };
 };
 
-const { Provider, useCtx } = delayedContext(() =>
+const { Provider, useCtx, useHasProvider } = delayedContext(() =>
   createQueryContext<TextResourcesContext | undefined, false>({
     name: 'TextResources',
     required: false,
@@ -65,3 +65,4 @@ const { Provider, useCtx } = delayedContext(() =>
 export const TextResourcesProvider = Provider;
 export const useTextResources = () => useCtx()?.resources;
 export const useTextResourcesLanguage = () => useCtx()?.language;
+export const useHasTextResources = () => useHasProvider();

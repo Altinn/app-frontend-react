@@ -26,7 +26,7 @@ const useOrgsQuery = () => {
   });
 };
 
-const { Provider, useCtx } = delayedContext(() =>
+const { Provider, useCtx, useHasProvider } = delayedContext(() =>
   createQueryContext({
     name: 'Orgs',
     required: true,
@@ -36,3 +36,4 @@ const { Provider, useCtx } = delayedContext(() =>
 
 export const OrgsProvider = Provider;
 export const useOrgs = () => useCtx();
+export const useHasOrgs = () => useHasProvider();

@@ -2,10 +2,8 @@ import React from 'react';
 
 import { screen } from '@testing-library/react';
 
-import { dataTypes, instanceOwner, partyTypesAllowed, userProfile } from 'src/__mocks__/constants';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
-import { getUiConfigStateMock } from 'src/__mocks__/uiConfigStateMock';
 import { getSummaryDataObject, ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
 import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
@@ -54,13 +52,12 @@ function buildInstance(hasPdf = true): IInstance {
   return {
     ...getInstanceDataMock(),
     id: exampleInstanceId,
-    instanceOwner,
     org: 'ttd',
     data: [
       {
         id: `${exampleDataGuid2}`,
         instanceGuid: exampleGuid,
-        dataType: 'default',
+        dataType: 'test-data-model',
         contentType: 'application/xml',
         blobStoragePath: `ttd/ui-components/${exampleGuid}/data/${exampleDataGuid2}`,
         selfLinks: {
@@ -83,56 +80,29 @@ function buildInstance(hasPdf = true): IInstance {
 }
 
 function getMockState({ autoDeleteOnProcessEnd = false }): IRuntimeState {
-  const initial = getInitialStateMock();
-  return {
-    ...initial,
-    organisationMetaData: {
-      error: null,
-      allOrgs: {
-        brg: {
-          name: {
-            en: 'Brønnøysund Register Centre',
-            nb: 'Brønnøysundregistrene',
-            nn: 'Brønnøysundregistera',
-          },
-          logo: 'https://altinncdn.no/orgs/brg/brreg.png',
-          orgnr: '974760673',
-          homepage: 'https://www.brreg.no',
-          environments: ['tt02', 'production'],
+  return getInitialStateMock((state) => {
+    state.organisationMetaData.allOrgs = {
+      brg: {
+        name: {
+          en: 'Brønnøysund Register Centre',
+          nb: 'Brønnøysundregistrene',
+          nn: 'Brønnøysundregistera',
         },
+        logo: 'https://altinncdn.no/orgs/brg/brreg.png',
+        orgnr: '974760673',
+        homepage: 'https://www.brreg.no',
+        environments: ['tt02', 'production'],
       },
-    },
-    applicationMetadata: {
-      applicationMetadata: {
-        id: 'ttd/ui-components',
-        org: 'ttd',
-        title: {
-          nb: 'App frontend komponenter',
-          en: 'App frontend components',
-        },
-        dataTypes,
-        partyTypesAllowed,
-        autoDeleteOnProcessEnd,
-        created: '2020-03-02T07:32:53.8640778Z',
-        createdBy: 'jeeva',
-        lastChanged: '2020-03-02T07:32:53.8641776Z',
-        lastChangedBy: 'jeeva',
-      },
-    },
-    formLayout: {
-      ...initial.formLayout,
-      uiConfig: getUiConfigStateMock(),
-    },
-    profile: {
-      profile: userProfile,
-      selectedAppLanguage: 'nb',
-    },
-  };
+    };
+    state.applicationMetadata.applicationMetadata!.autoDeleteOnProcessEnd = autoDeleteOnProcessEnd;
+  });
 }
 
 const render = async ({ autoDeleteOnProcessEnd = false, hasPdf = true }: IRender = {}) => {
   const reduxState = getMockState({ autoDeleteOnProcessEnd });
   reduxState.deprecated!.lastKnownInstance = buildInstance(hasPdf);
+  reduxState.deprecated!.lastKnownProcess!.currentTask = undefined;
+  reduxState.deprecated!.lastKnownProcess!.ended = '2022-02-05T09:19:32.8858042Z';
 
   return await renderWithInstanceAndLayout({
     renderer: () => <ReceiptContainer />,
@@ -146,12 +116,6 @@ const render = async ({ autoDeleteOnProcessEnd = false, hasPdf = true }: IRender
 describe('ReceiptContainer', () => {
   it('should show download link to pdf when all data is loaded, and data includes pdf', async () => {
     await render();
-
-    expect(
-      screen.queryByRole('img', {
-        name: /Laster/i,
-      }),
-    ).not.toBeInTheDocument();
 
     expect(
       screen.getByRole('heading', {

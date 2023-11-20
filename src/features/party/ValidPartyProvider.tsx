@@ -9,6 +9,7 @@ import { createContext } from 'src/core/contexts/context';
 import { Loader } from 'src/core/loading/Loader';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
+import { useAlwaysPromptForParty } from 'src/hooks/useAlwaysPromptForParty';
 import { HttpStatusCodes } from 'src/utils/network/networking';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
@@ -36,6 +37,7 @@ const { Provider, useHasProvider } = createContext<undefined>({
  */
 export function ValidPartyProvider({ children }: PropsWithChildren) {
   const currentParty = useCurrentParty();
+  const alwaysPromptForParty = useAlwaysPromptForParty();
   const { data, mutate } = usePartyValidationMutation();
 
   useEffect(() => {
@@ -43,16 +45,23 @@ export function ValidPartyProvider({ children }: PropsWithChildren) {
       return;
     }
 
+    if (alwaysPromptForParty && currentParty.source === 'default') {
+      return;
+    }
+
     mutate(currentParty.party.partyId);
-  }, [currentParty, mutate]);
+  }, [alwaysPromptForParty, currentParty, mutate]);
 
   if (!currentParty) {
     return <Loader reason='waiting-to-validate-party' />;
   }
 
-  if (data?.valid === false) {
-    if (data.validParties?.length === 0) {
+  if (data?.valid === false || alwaysPromptForParty) {
+    if (data?.validParties?.length === 0) {
       return <NoValidPartiesError />;
+    }
+    if (alwaysPromptForParty) {
+      return <Navigate to={`/party-selection/explained`} />;
     }
     return <Navigate to={`/party-selection/${HttpStatusCodes.Forbidden}`} />;
   }

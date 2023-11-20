@@ -25,6 +25,7 @@ import { DevTools } from 'src/features/devtools/DevTools';
 import { FooterLayoutProvider } from 'src/features/footer/FooterLayoutProvider';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
+import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
 import { PartyProvider } from 'src/features/party/PartiesProvider';
 import { ProfileProvider } from 'src/features/profile/ProfileProvider';
 import { TextResourcesProvider } from 'src/features/textResources/TextResourcesProvider';
@@ -53,23 +54,25 @@ document.addEventListener('DOMContentLoaded', () => {
                   <ExprContextWrapper>
                     <DevTools>
                       <ApplicationMetadataProvider>
-                        <ApplicationSettingsProvider>
-                          <LayoutSetsProvider>
-                            <FooterLayoutProvider>
-                              <ProfileProvider>
-                                <PartyProvider>
-                                  <TextResourcesProvider>
-                                    <KeepAliveProvider>
-                                      <WindowTitleProvider>
-                                        <App />
-                                      </WindowTitleProvider>
-                                    </KeepAliveProvider>
-                                  </TextResourcesProvider>
-                                </PartyProvider>
-                              </ProfileProvider>
-                            </FooterLayoutProvider>
-                          </LayoutSetsProvider>
-                        </ApplicationSettingsProvider>
+                        <OrgsProvider>
+                          <ApplicationSettingsProvider>
+                            <LayoutSetsProvider>
+                              <FooterLayoutProvider>
+                                <ProfileProvider>
+                                  <PartyProvider>
+                                    <TextResourcesProvider>
+                                      <KeepAliveProvider>
+                                        <WindowTitleProvider>
+                                          <App />
+                                        </WindowTitleProvider>
+                                      </KeepAliveProvider>
+                                    </TextResourcesProvider>
+                                  </PartyProvider>
+                                </ProfileProvider>
+                              </FooterLayoutProvider>
+                            </LayoutSetsProvider>
+                          </ApplicationSettingsProvider>
+                        </OrgsProvider>
                       </ApplicationMetadataProvider>
                     </DevTools>
                   </ExprContextWrapper>

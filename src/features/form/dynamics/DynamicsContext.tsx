@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
+import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import { FormDynamicsActions } from 'src/features/form/dynamics/formDynamicsSlice';
 import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
@@ -26,10 +27,12 @@ function useDynamicsQuery() {
   });
 }
 
-const { Provider } = createQueryContext({
-  name: 'Dynamics',
-  required: true,
-  query: useDynamicsQuery,
-});
+const { Provider } = delayedContext(() =>
+  createQueryContext({
+    name: 'Dynamics',
+    required: true,
+    query: useDynamicsQuery,
+  }),
+);
 
 export const DynamicsProvider = Provider;

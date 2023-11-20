@@ -41,7 +41,7 @@ export function getDataTypeByTaskId({ taskId, application, layoutSets }: GetData
     return undefined;
   }
 
-  const typeFromLayoutSet = layoutSets?.sets.find((set) => set.tasks?.includes(taskId))?.dataType;
+  const typeFromLayoutSet = layoutSets.sets.find((set) => set.tasks?.includes(taskId))?.dataType;
   const foundInMetaData = application?.dataTypes.find((element) => element.id === typeFromLayoutSet);
   if (typeFromLayoutSet && !foundInMetaData) {
     window.logError(

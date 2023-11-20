@@ -7,25 +7,30 @@ import { AltinnLogo } from 'src/components/logo/AltinnLogo';
 import classes from 'src/components/organisms/AltinnAppHeader.module.css';
 import { AltinnAppHeaderMenu } from 'src/components/organisms/AltinnAppHeaderMenu';
 import { OrganisationLogo } from 'src/components/presentation/OrganisationLogo/OrganisationLogo';
-import { useAppSelector } from 'src/hooks/useAppSelector';
+import {
+  useApplicationMetadata,
+  useHasApplicationMetadata,
+} from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { useHasOrgs } from 'src/features/orgs/OrgsProvider';
+import { useHasTextResources } from 'src/features/textResources/TextResourcesProvider';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { renderPartyName } from 'src/utils/party';
 import type { IAltinnLogoProps } from 'src/components/logo/AltinnLogo';
 import type { IParty } from 'src/types/shared';
+
+type LogoColor = IAltinnLogoProps['color'];
 
 export interface IAltinnAppHeaderProps {
   /** The party of the instance owner */
   party: IParty | undefined;
   /** The party of the currently logged in user */
   userParty: IParty | undefined;
-  logoColor: IAltinnLogoProps['color'];
+  logoColor: LogoColor;
   headerBackgroundColor: string;
 }
 
 export const AltinnAppHeader = ({ logoColor, headerBackgroundColor, party, userParty }: IAltinnAppHeaderProps) => {
   const { langAsString } = useLanguage();
-
-  const useOrganisationLogo = useAppSelector((state) => state.applicationMetadata.applicationMetadata?.logo != null);
 
   return (
     <AppBar
@@ -43,8 +48,7 @@ export const AltinnAppHeader = ({ logoColor, headerBackgroundColor, party, userP
         ]}
       />
       <div className={classes.container}>
-        {useOrganisationLogo && <OrganisationLogo />}
-        {!useOrganisationLogo && <AltinnLogo color={logoColor} />}
+        <Logo color={logoColor} />
         <div className={classes.wrapper}>
           {party && userParty && party.partyId === userParty.partyId && (
             <span className={classes.appBarText}>{renderPartyName(userParty)}</span>
@@ -66,4 +70,18 @@ export const AltinnAppHeader = ({ logoColor, headerBackgroundColor, party, userP
       </div>
     </AppBar>
   );
+};
+
+const Logo = ({ color }: { color: LogoColor }) => {
+  const hasAppMetadata = useHasApplicationMetadata();
+  const hasOrgs = useHasOrgs();
+  const hasTexts = useHasTextResources();
+  const hasLoaded = hasAppMetadata && hasOrgs && hasTexts;
+
+  return hasLoaded ? <MaybeOrganisationLogo color={color} /> : <AltinnLogo color={color} />;
+};
+
+const MaybeOrganisationLogo = ({ color }: { color: LogoColor }) => {
+  const enableOrgLogo = useApplicationMetadata().logo !== null;
+  return enableOrgLogo ? <OrganisationLogo /> : <AltinnLogo color={color} />;
 };

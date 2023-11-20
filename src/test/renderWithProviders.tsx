@@ -13,10 +13,19 @@ import type { JSONSchema7 } from 'json-schema';
 import { getPartyMock } from 'src/__mocks__/getPartyMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getInstanceDataMock, getProcessDataMock } from 'src/__mocks__/instanceDataStateMock';
+import { getLayoutSetsMock } from 'src/__mocks__/layoutSets';
 import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
+import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
+import { FooterLayoutProvider } from 'src/features/footer/FooterLayoutProvider';
 import { generateSimpleRepeatingGroups } from 'src/features/form/layout/repGroups/generateSimpleRepeatingGroups';
+import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
+import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
+import { PartyProvider } from 'src/features/party/PartiesProvider';
+import { ProfileProvider } from 'src/features/profile/ProfileProvider';
+import { TextResourcesProvider } from 'src/features/textResources/TextResourcesProvider';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { setupStore } from 'src/redux/store';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
@@ -27,7 +36,7 @@ import type { IFooterLayout } from 'src/features/footer/types';
 import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
 import type { IOption } from 'src/layout/common.generated';
 import type { CompExternalExact, CompTypes, ILayoutCollection, ILayouts } from 'src/layout/layout';
-import type { ILayoutSets, IRuntimeState } from 'src/types';
+import type { IRuntimeState } from 'src/types';
 import type { IProfile } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
@@ -105,7 +114,7 @@ const makeDefaultQueryMocks = (state: IRuntimeState): MockableQueries => ({
   fetchCurrentParty: () => Promise.resolve(getPartyMock()),
   fetchApplicationSettings: () => Promise.resolve({}),
   fetchFooterLayout: () => Promise.resolve({ footer: [] } as IFooterLayout),
-  fetchLayoutSets: () => Promise.resolve({} as unknown as ILayoutSets),
+  fetchLayoutSets: () => Promise.resolve(getLayoutSetsMock()),
   fetchOrgs: () => Promise.resolve({ orgs: {} }),
   fetchUserProfile: () => Promise.resolve({} as unknown as IProfile),
   fetchDataModelSchema: () => Promise.resolve({}),
@@ -166,9 +175,25 @@ function DefaultProviders({ children, store, queries, queryClient, Router = Defa
       <MuiThemeProvider theme={theme}>
         <ReduxProvider store={store}>
           <ExprContextWrapper>
-            <Router>
-              <InstantiationProvider>{children}</InstantiationProvider>
-            </Router>
+            <ApplicationMetadataProvider>
+              <OrgsProvider>
+                <ApplicationSettingsProvider>
+                  <LayoutSetsProvider>
+                    <FooterLayoutProvider>
+                      <ProfileProvider>
+                        <PartyProvider>
+                          <TextResourcesProvider>
+                            <Router>
+                              <InstantiationProvider>{children}</InstantiationProvider>
+                            </Router>
+                          </TextResourcesProvider>
+                        </PartyProvider>
+                      </ProfileProvider>
+                    </FooterLayoutProvider>
+                  </LayoutSetsProvider>
+                </ApplicationSettingsProvider>
+              </OrgsProvider>
+            </ApplicationMetadataProvider>
           </ExprContextWrapper>
         </ReduxProvider>
       </MuiThemeProvider>

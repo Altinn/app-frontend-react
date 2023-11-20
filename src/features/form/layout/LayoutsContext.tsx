@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
+import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { preProcessItem } from 'src/features/expressions/validation';
@@ -40,11 +41,13 @@ function useLayoutQuery() {
   });
 }
 
-const { Provider, useCtx } = createQueryContext({
-  name: 'LayoutsContext',
-  required: true,
-  query: useLayoutQuery,
-});
+const { Provider, useCtx } = delayedContext(() =>
+  createQueryContext({
+    name: 'LayoutsContext',
+    required: true,
+    query: useLayoutQuery,
+  }),
+);
 
 export const LayoutsProvider = Provider;
 export const useLayouts = () => useCtx().layouts;

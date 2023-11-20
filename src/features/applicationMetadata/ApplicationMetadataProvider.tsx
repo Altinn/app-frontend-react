@@ -22,7 +22,7 @@ const useApplicationMetadataQuery = () => {
   });
 };
 
-const { Provider, useCtx } = delayedContext(() =>
+const { Provider, useCtx, useHasProvider } = delayedContext(() =>
   createQueryContext({
     name: 'ApplicationMetadata',
     required: true,
@@ -32,3 +32,4 @@ const { Provider, useCtx } = delayedContext(() =>
 
 export const ApplicationMetadataProvider = Provider;
 export const useApplicationMetadata = () => useCtx();
+export const useHasApplicationMetadata = () => useHasProvider();

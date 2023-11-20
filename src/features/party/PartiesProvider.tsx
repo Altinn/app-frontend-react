@@ -10,7 +10,6 @@ import { createQueryContext } from 'src/core/contexts/queryContext';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { useAllowAnonymousIs } from 'src/features/applicationMetadata/getAllowAnonymous';
 import { usePartyCanInstantiate } from 'src/features/party/ValidPartyProvider';
-import { useAlwaysPromptForParty } from 'src/hooks/useAlwaysPromptForParty';
 import type { IParty } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
@@ -36,9 +35,7 @@ const usePartiesQuery = () => {
 };
 
 const useCurrentPartyQuery = () => {
-  const alwaysPromptForParty = useAlwaysPromptForParty();
-  const shouldFetchProfile = useShouldFetchProfile();
-  const enabled = alwaysPromptForParty === false && shouldFetchProfile;
+  const enabled = useShouldFetchProfile();
 
   const { fetchCurrentParty } = useAppQueries();
   const utils = useQuery({
@@ -140,12 +137,18 @@ export function PartyProvider({ children }: PropsWithChildren) {
 
 export const useParties = () => usePartiesCtx();
 
+interface CurrentPartyContext {
+  party: IParty | undefined;
+  canInstantiate: boolean;
+  source: 'default' | 'manuallySelected';
+}
+
 /**
  * Returns the current party, or the custom selected current party if one is set.
  * Please note that the current party might not be allowed to instantiate, so you should
  * check the `canInstantiate` property as well.
  */
-export const useCurrentParty = (): { party: IParty | undefined; canInstantiate: boolean } => {
+export const useCurrentParty = (): CurrentPartyContext => {
   const currentParty = useCurrentPartyCtx();
   const customParty = useCustomCurrentPartyCtx()?.party;
   const canInstantiate = usePartyCanInstantiate();
@@ -153,6 +156,7 @@ export const useCurrentParty = (): { party: IParty | undefined; canInstantiate: 
   return {
     party: customParty ?? currentParty,
     canInstantiate,
+    source: customParty ? 'manuallySelected' : 'default',
   };
 };
 
