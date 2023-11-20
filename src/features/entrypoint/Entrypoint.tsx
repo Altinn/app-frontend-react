@@ -20,8 +20,8 @@ import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
 import { PresentationType, ProcessTaskType } from 'src/types';
-import { useIsStatelessApp } from 'src/utils/appMetadata';
 import { checkIfAxiosError, HttpStatusCodes } from 'src/utils/network/networking';
+import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 import type { ShowTypes } from 'src/features/applicationMetadata';
 
 export function Entrypoint() {

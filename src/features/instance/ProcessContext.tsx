@@ -9,9 +9,9 @@ import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { ProcessTaskType } from 'src/types';
-import { useIsStatelessApp } from 'src/utils/appMetadata';
 import { createLaxContext } from 'src/utils/createContext';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
+import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 import type { IInstance, IProcess } from 'src/types/shared';
 
 interface IProcessContext {

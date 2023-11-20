@@ -1,4 +1,3 @@
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
 import { getLayoutSetForDataElement } from 'src/utils/layout';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
@@ -130,11 +129,6 @@ export function isStatelessApp(application: IApplicationMetadata | null) {
   }
   const show = application?.onEntry?.show;
   return typeof show === 'string' && !onEntryValuesThatHaveState.includes(show);
-}
-
-export function useIsStatelessApp() {
-  const application = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
-  return isStatelessApp(application);
 }
 
 export const getCurrentTaskDataElementId = (props: TheCommonFourProps) => {
