@@ -8,6 +8,7 @@ import { Label } from 'src/components/form/Label';
 import { Legend } from 'src/components/form/Legend';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { useUnifiedValidationsForNode } from 'src/features/validation/validationProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
@@ -18,7 +19,6 @@ import { FormComponentContext, shouldComponentRenderLabel } from 'src/layout/ind
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { makeGetFocus } from 'src/selectors/getLayoutData';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
-import { ComponentValidation } from 'src/utils/render';
 import type { ISingleFieldValidation } from 'src/features/formData/formDataTypes';
 import type { IGridStyling } from 'src/layout/common.generated';
 import type { IComponentProps, IFormComponentContext, PropsFromGenericComponent } from 'src/layout/index';
@@ -330,7 +330,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
           {...gridBreakpoints(item.grid?.innerGrid)}
         >
           <RenderComponent {...componentProps} />
-          {showValidationMessages && <ComponentValidation validations={filterValidationErrors()} />}
+          {showValidationMessages && <ComponentValidations validations={filterValidationErrors()} />}
         </Grid>
       </Grid>
     </FormComponentContext.Provider>

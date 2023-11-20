@@ -9,6 +9,7 @@ import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { useAttachmentDeletionInRepGroups } from 'src/features/attachments/useAttachmentDeletionInRepGroups';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useUnifiedValidationsForNode } from 'src/features/validation/validationProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -18,7 +19,6 @@ import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEd
 import { useRepeatingGroupsFocusContext } from 'src/layout/Group/RepeatingGroupsFocusContext';
 import { RepeatingGroupTable } from 'src/layout/Group/RepeatingGroupTable';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
-import { ComponentValidation } from 'src/utils/render';
 import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 
@@ -236,7 +236,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
         item={true}
         xs={12}
       >
-        <ComponentValidation validations={validations} />
+        <ComponentValidations validations={validations} />
       </Grid>
     </Grid>
   );

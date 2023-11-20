@@ -8,6 +8,7 @@ import {
   useAttachmentsMappedToFormData,
 } from 'src/features/attachments/useAttachmentsMappedToFormData';
 import { useGetOptions } from 'src/features/options/useGetOptions';
+import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -16,7 +17,6 @@ import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneCompon
 import classes from 'src/layout/FileUpload/FileUploadComponent.module.css';
 import { FileTable } from 'src/layout/FileUpload/FileUploadTable/FileTable';
 import { handleRejectedFiles } from 'src/layout/FileUpload/handleRejectedFiles';
-import { ComponentValidation } from 'src/utils/render';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IFileUploadWithTagProps = PropsFromGenericComponent<'FileUpload' | 'FileUploadWithTag'>;
@@ -146,7 +146,7 @@ export function FileUploadComponent({
               textResourceBindings={textResourceBindings}
             />
             {attachmentsCounter}
-            <ComponentValidation validations={componentValidations} />
+            <ComponentValidations validations={componentValidations} />
           </>
         )}
 
@@ -161,7 +161,7 @@ export function FileUploadComponent({
         {!shouldShowFileUpload && (
           <>
             {attachmentsCounter}
-            <ComponentValidation validations={componentValidations} />
+            <ComponentValidations validations={componentValidations} />
           </>
         )}
         {renderAddMoreAttachmentsButton()}

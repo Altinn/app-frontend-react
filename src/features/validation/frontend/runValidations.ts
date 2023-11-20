@@ -6,8 +6,8 @@ import type { FormValidations, ValidationContextGenerator } from 'src/features/v
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 /**
- * Runs all frontend validations on a list of nodes, and optionally skips some types of validations.
- * overrideFormData can be used to validate new data before saving.
+ * Runs all frontend validations on a list of nodes.
+ * TODO(Validation): Consider removing overrideFormData
  */
 export function runValidationOnNodes(
   nodes: LayoutNode[],

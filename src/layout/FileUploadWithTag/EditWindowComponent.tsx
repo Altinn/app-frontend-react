@@ -7,6 +7,7 @@ import { CheckmarkCircleFillIcon } from '@navikt/aksel-icons';
 import { AltinnLoader } from 'src/components/AltinnLoader';
 import { isAttachmentUploaded } from 'src/features/attachments';
 import { useAttachmentsUpdater } from 'src/features/attachments/AttachmentsContext';
+import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { useFormattedOptions } from 'src/hooks/useFormattedOptions';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -14,7 +15,6 @@ import { AttachmentFileName } from 'src/layout/FileUpload/FileUploadTable/Attach
 import { FileTableButtons } from 'src/layout/FileUpload/FileUploadTable/FileTableButtons';
 import { useFileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
 import classes from 'src/layout/FileUploadWithTag/EditWindowComponent.module.css';
-import { ComponentValidation } from 'src/utils/render';
 import type { IAttachment } from 'src/features/attachments';
 import type { NodeValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -60,10 +60,6 @@ export function EditWindowComponent({
   };
 
   const handleSave = async () => {
-    /**
-     * TODO(Validation): Validate attachments on update instead of blocking change if no tag is selected.
-     * The popper is a temporary solution. It should rather check if the attachment is valid before closing.
-     */
     if (!uploadedAttachment) {
       return;
     }
@@ -217,7 +213,7 @@ export function EditWindowComponent({
             whiteSpace: 'pre-wrap',
           }}
         >
-          <ComponentValidation validations={attachmentValidations} />
+          <ComponentValidations validations={attachmentValidations} />
         </div>
       ) : undefined}
     </div>

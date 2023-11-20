@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { LegacyTextField } from '@digdir/design-system-react';
 
 import { Label } from 'src/components/form/Label';
+import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import {
   useBindingValidationsForNode,
@@ -12,7 +13,6 @@ import { usePostPlaceQuery } from 'src/hooks/queries/usePostPlaceQuery';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useLanguage } from 'src/hooks/useLanguage';
 import classes from 'src/layout/Address/AddressComponent.module.css';
-import { ComponentValidation } from 'src/utils/render';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelBindingsForAddressInternal } from 'src/layout/Address/config.generated';
 
@@ -106,7 +106,7 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
           required={required}
           autoComplete={simplified ? 'street-address' : 'address-line1'}
         />
-        <ComponentValidation validations={bindingValidations?.address} />
+        <ComponentValidations validations={bindingValidations?.address} />
       </div>
 
       {!simplified && (
@@ -129,7 +129,7 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
             readOnly={readOnly}
             autoComplete='address-line2'
           />
-          <ComponentValidation validations={bindingValidations?.careOf} />
+          <ComponentValidations validations={bindingValidations?.careOf} />
         </div>
       )}
       <div>
@@ -178,8 +178,8 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
             />
           </div>
         </div>
-        <ComponentValidation validations={bindingValidations?.zipCode} />
-        <ComponentValidation validations={bindingValidations?.postPlace} />
+        <ComponentValidations validations={bindingValidations?.zipCode} />
+        <ComponentValidations validations={bindingValidations?.postPlace} />
       </div>
 
       {!simplified && (
@@ -205,11 +205,11 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
               autoComplete='address-line3'
             />
           </div>
-          <ComponentValidation validations={bindingValidations?.houseNumber} />
+          <ComponentValidations validations={bindingValidations?.houseNumber} />
         </div>
       )}
 
-      <ComponentValidation validations={componentValidations} />
+      <ComponentValidations validations={componentValidations} />
     </div>
   );
 }

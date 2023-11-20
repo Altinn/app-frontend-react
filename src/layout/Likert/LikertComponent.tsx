@@ -4,11 +4,11 @@ import { TableCell, TableRow } from '@digdir/design-system-react';
 import { Typography } from '@material-ui/core';
 
 import { RadioButton } from 'src/components/form/RadioButton';
+import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { LayoutStyle } from 'src/layout/common.generated';
 import classes from 'src/layout/Likert/LikertComponent.module.css';
 import { ControlledRadioGroup } from 'src/layout/RadioButtons/ControlledRadioGroup';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
-import { ComponentValidation } from 'src/utils/render';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IControlledRadioGroupProps } from 'src/layout/RadioButtons/ControlledRadioGroup';
 
@@ -52,7 +52,7 @@ const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
       >
         <Typography component={'div'}>
           <RenderLegend />
-          <ComponentValidation validations={validations} />
+          <ComponentValidations validations={validations} />
         </Typography>
       </TableCell>
       {calculatedOptions?.map((option, colIndex) => {
