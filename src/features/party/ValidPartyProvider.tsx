@@ -49,12 +49,12 @@ export function ValidPartyProvider({ children }: PropsWithChildren) {
       return;
     }
 
-    if (isLoading) {
+    if (isLoading || data) {
       return;
     }
 
     mutate(currentParty.party.partyId);
-  }, [alwaysPromptForParty, currentParty, isLoading, mutate]);
+  }, [alwaysPromptForParty, currentParty, data, isLoading, mutate]);
 
   if (!currentParty) {
     return <Loader reason='waiting-to-validate-party' />;

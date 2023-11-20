@@ -25,8 +25,6 @@ export function Entrypoint() {
     dispatch(ValidationActions.updateValidations({ validationResult: { validations: {} }, merge: false }));
   }, [dispatch]);
 
-  // PRIORITY: We should always prompt for party, if that setting is enabled in the app.
-
   if (show === 'new-instance') {
     return (
       <ValidPartyProvider>

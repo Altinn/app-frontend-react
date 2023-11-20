@@ -1,17 +1,24 @@
+import React from 'react';
+import type { PropsWithChildren } from 'react';
+
 import { useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
+import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
+import { useCurrentParty } from 'src/features/party/PartiesProvider';
+import { ValidPartyProvider } from 'src/features/party/ValidPartyProvider';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
-const useActiveInstancesQuery = (partyId?: string, enabled?: boolean) => {
+const useActiveInstancesQuery = () => {
   const { fetchActiveInstances } = useAppQueries();
+  const currentParty = useCurrentParty();
+
   return useQuery({
-    enabled,
-    queryKey: ['getActiveInstances'],
+    queryKey: ['getActiveInstances', currentParty.party?.partyId],
     queryFn: async () => {
-      const simpleInstances = await fetchActiveInstances(partyId || '');
+      const simpleInstances = await fetchActiveInstances(currentParty.party?.partyId ?? '');
 
       // Sort array by last changed date
       simpleInstances.sort((a, b) => new Date(a.lastChanged).getTime() - new Date(b.lastChanged).getTime());
@@ -32,5 +39,23 @@ const { Provider, useCtx } = delayedContext(() =>
   }),
 );
 
-export const ActiveInstancesProvider = Provider;
+export const ActiveInstancesProvider = ({ children }: PropsWithChildren) => (
+  <Provider>
+    <MaybeInstantiate>{children}</MaybeInstantiate>
+  </Provider>
+);
 export const useActiveInstances = () => useCtx();
+
+function MaybeInstantiate({ children }: PropsWithChildren) {
+  const instances = useActiveInstances();
+  if (instances.length === 0) {
+    // If there's no active instances, we should instantiate a new one
+    return (
+      <ValidPartyProvider>
+        <InstantiateContainer />;
+      </ValidPartyProvider>
+    );
+  }
+
+  return children;
+}
