@@ -28,23 +28,22 @@ export function AltinnAttachment({ attachments, id, title }: IAltinnAttachmentPr
       data-testid='attachment-list'
       className={classes.attachmentList}
     >
-      {filteredAndSortedAttachments &&
-        filteredAndSortedAttachments.map((attachment, index) => (
-          <List.Item key={index}>
-            <Link
-              href={attachment.url && makeUrlRelativeIfSameDomain(attachment.url)}
-              className={classes.attachmentLink}
-              aria-label={langAsString('general.download', [`${attachment.name}`])}
-            >
-              <FileExtensionIcon
-                fileEnding={getFileEnding(attachment.name)}
-                className={classes.attachmentIcon}
-              />
-              <span className={classes.truncate}>{removeFileEnding(attachment.name)}</span>
-              <span className={classes.extension}>{getFileEnding(attachment.name)}</span>
-            </Link>
-          </List.Item>
-        ))}
+      {filteredAndSortedAttachments?.map((attachment, index) => (
+        <List.Item key={index}>
+          <Link
+            href={attachment.url && makeUrlRelativeIfSameDomain(attachment.url)}
+            className={classes.attachmentLink}
+            aria-label={langAsString('general.download', [`${attachment.name}`])}
+          >
+            <FileExtensionIcon
+              fileEnding={getFileEnding(attachment.name)}
+              className={classes.attachmentIcon}
+            />
+            <span className={classes.truncate}>{removeFileEnding(attachment.name)}</span>
+            <span className={classes.extension}>{getFileEnding(attachment.name)}</span>
+          </Link>
+        </List.Item>
+      ))}
     </List>
   );
 }
