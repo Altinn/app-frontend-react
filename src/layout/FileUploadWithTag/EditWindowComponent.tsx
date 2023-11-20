@@ -17,7 +17,6 @@ import classes from 'src/layout/FileUploadWithTag/EditWindowComponent.module.css
 import { ComponentValidation } from 'src/utils/render';
 import type { IAttachment } from 'src/features/attachments';
 import type { NodeValidation } from 'src/features/validation';
-import type { ShowPopper } from 'src/hooks/useAlertPopper';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IOption } from 'src/layout/common.generated';
 
@@ -27,7 +26,6 @@ export interface EditWindowProps {
   mobileView: boolean;
   options?: IOption[];
   attachmentValidations?: NodeValidation[];
-  showPopper: ShowPopper;
 }
 
 export function EditWindowComponent({
@@ -36,7 +34,6 @@ export function EditWindowComponent({
   mobileView,
   node,
   options,
-  showPopper,
 }: EditWindowProps): React.JSX.Element {
   const { textResourceBindings, readOnly } = node.item;
   const { lang, langAsString } = useLanguage();
@@ -74,20 +71,13 @@ export function EditWindowComponent({
     const { tags: _tags } = uploadedAttachment.data;
     const existingTags = _tags || [];
 
-    if (chosenOption) {
-      if (chosenOption.value !== existingTags[0]) {
-        await setAttachmentTag(chosenOption);
-      }
-      setEditIndex(-1);
-    } else {
-      const message = `${langAsString('form_filler.file_uploader_validation_error_no_chosen_tag')} ${langAsString(
-        textResourceBindings?.tagTitle,
-      ).toLowerCase()}.`;
-      showPopper(message, 'danger');
+    if (chosenOption?.value !== existingTags[0]) {
+      await setAttachmentTag(chosenOption);
     }
+    setEditIndex(-1);
   };
 
-  const setAttachmentTag = async (option: IOption) => {
+  const setAttachmentTag = async (option?: IOption) => {
     if (!isAttachmentUploaded(attachment)) {
       return;
     }
@@ -95,7 +85,7 @@ export function EditWindowComponent({
     await updateAttachment({
       attachment,
       node,
-      tags: [option.value],
+      tags: option?.value ? [option.value] : [],
     });
   };
 

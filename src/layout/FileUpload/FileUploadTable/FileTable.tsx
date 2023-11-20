@@ -9,7 +9,6 @@ import { EditWindowComponent } from 'src/layout/FileUploadWithTag/EditWindowComp
 import { atLeastOneTagExists } from 'src/utils/formComponentUtils';
 import type { IAttachment } from 'src/features/attachments';
 import type { NodeValidation } from 'src/features/validation';
-import type { ShowPopper } from 'src/hooks/useAlertPopper';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IOption } from 'src/layout/common.generated';
 import type { FileTableRowContext } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
@@ -20,7 +19,6 @@ export interface FileTableProps {
   mobileView: boolean;
   options?: IOption[];
   attachmentValidations?: NodeValidation[];
-  showPopper: ShowPopper;
 }
 
 export function FileTable({
@@ -29,7 +27,6 @@ export function FileTable({
   node,
   attachmentValidations,
   options,
-  showPopper,
 }: FileTableProps): React.JSX.Element | null {
   const { lang } = useLanguage();
   const { textResourceBindings, type } = node.item;
@@ -116,7 +113,6 @@ export function FileTable({
                     attachmentValidations={validationsForRow}
                     mobileView={mobileView}
                     options={options}
-                    showPopper={showPopper}
                   />
                 </td>
               </tr>

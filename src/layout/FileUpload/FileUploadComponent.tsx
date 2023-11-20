@@ -157,7 +157,6 @@ export function FileUploadComponent({
           attachments={attachments}
           attachmentValidations={attachmentValidations}
           options={options}
-          showPopper={showPopper}
         />
 
         {!shouldShowFileUpload && (
