@@ -34,6 +34,8 @@ describe('organisms/AltinnAppHeader', () => {
 
   const headerBackgroundColor = 'blue';
 
+  const mockLogo = '<svg fill="black">Altinn</svg>';
+
   interface IRenderComponentProps {
     party: IParty;
     user?: IParty;
@@ -50,6 +52,7 @@ describe('organisms/AltinnAppHeader', () => {
         />
       ),
       queries: {
+        fetchLogo: () => Promise.resolve(mockLogo),
         fetchApplicationMetadata: () => Promise.resolve(getApplicationMetadataMock({ logo })),
       },
     });
@@ -107,7 +110,7 @@ describe('organisms/AltinnAppHeader', () => {
 
   it('Should render Altinn logo if logo options are not set', async () => {
     await render({ party: partyPerson });
-    expect(screen.getByRole('img')).toHaveAttribute('src', 'https://altinncdn.no/img/Altinn-logo-black.svg');
+    expect(screen.getByRole('img')).toHaveAttribute('src', `data:image/svg+xml;utf8,${encodeURIComponent(mockLogo)}`);
   });
 
   it('Should render Organisation logo if logo options are set', async () => {

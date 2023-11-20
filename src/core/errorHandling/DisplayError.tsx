@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { isAxiosError } from 'axios';
 import type { AxiosError } from 'axios';
 
 import { ForbiddenError } from 'src/features/instantiate/containers/ForbiddenError';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
+import { isAxiosError } from 'src/utils/isAxiosError';
 import { HttpStatusCodes } from 'src/utils/network/networking';
 
 interface Props {

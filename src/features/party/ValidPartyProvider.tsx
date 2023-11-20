@@ -38,7 +38,7 @@ const { Provider, useHasProvider } = createContext<undefined>({
 export function ValidPartyProvider({ children }: PropsWithChildren) {
   const currentParty = useCurrentParty();
   const alwaysPromptForParty = useAlwaysPromptForParty();
-  const { data, mutate } = usePartyValidationMutation();
+  const { data, mutate, isLoading } = usePartyValidationMutation();
 
   useEffect(() => {
     if (!currentParty.party) {
@@ -49,8 +49,12 @@ export function ValidPartyProvider({ children }: PropsWithChildren) {
       return;
     }
 
+    if (isLoading) {
+      return;
+    }
+
     mutate(currentParty.party.partyId);
-  }, [alwaysPromptForParty, currentParty, mutate]);
+  }, [alwaysPromptForParty, currentParty, isLoading, mutate]);
 
   if (!currentParty) {
     return <Loader reason='waiting-to-validate-party' />;

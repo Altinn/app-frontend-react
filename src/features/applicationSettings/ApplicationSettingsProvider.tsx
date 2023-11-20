@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import { isAxiosError } from 'axios';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import { ApplicationSettingsActions } from 'src/features/applicationSettings/applicationSettingsSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { isAxiosError } from 'src/utils/isAxiosError';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 const useApplicationSettingsQuery = () => {
