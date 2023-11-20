@@ -4,7 +4,7 @@ import { act, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import mockAxios from 'jest-mock-axios';
 
-import { FrontendValidationSource } from 'src/features/validation';
+import { FrontendValidationSource, ValidationUrgency } from 'src/features/validation';
 import { AddressComponent } from 'src/layout/Address/AddressComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
@@ -322,6 +322,7 @@ describe('AddressComponent', () => {
             severity: 'errors',
             bindingKey: 'address',
             pageKey: 'page1',
+            urgency: ValidationUrgency.OnPageNext,
           },
         ],
       },

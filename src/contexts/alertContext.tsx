@@ -4,7 +4,7 @@ import { Alert } from '@digdir/design-system-react';
 import Snackbar from '@material-ui/core/Snackbar';
 
 import { BackendValidationSeverity } from 'src/features/validation';
-import { getValidationMessage } from 'src/features/validation/backend/backendUtils';
+import { getValidationIssueMessage } from 'src/features/validation/backend/backendUtils';
 import { createStrictContext } from 'src/utils/createContext';
 import type { BackendValidationIssue } from 'src/features/validation';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
@@ -72,7 +72,7 @@ export function AlertProvider({ children }) {
 
 export function backendIssuesToAlerts(validationIssues: BackendValidationIssue[], langTools: IUseLanguage): Alert[] {
   return validationIssues.map((issue) => {
-    const message = getValidationMessage(issue, langTools);
+    const message = getValidationIssueMessage(issue, langTools);
 
     let severity: AlertSeverity;
     switch (issue.severity) {

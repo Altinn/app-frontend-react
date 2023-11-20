@@ -38,6 +38,36 @@ export enum BackendValidationSeverity {
   Success = 5,
 }
 
+export enum ValidationUrgency {
+  // The validation message shows up immediately, even when the user is typing
+  Immediate = 10,
+
+  // Shows up when the user has stopped typing for a while (defaults to 400ms, but can be configured
+  // using `saveWhileTyping` property on the component).
+  AfterTyping = 15,
+
+  // Shows up when the user moves focus out of the field
+  OnBlur = 20,
+
+  // Shows up when the user tries to 'save and close' a repeating group row. Only affects form fields inside
+  // the repeating group row (validating all rows in the group at the same time was most likely a mistake in
+  // when implementing `validateGroup`, so I think we're safe to ignore that case).
+  OnGroupRowClose = 30,
+
+  // Shows up when the user tries to navigate beyond the current page (finally regardless of the
+  // component used to do it!). The user can still navigate to the previous page without getting the
+  // validation message.
+  OnPageNext = 35,
+
+  // Shows up when the user tries to navigate away from the current page. It would not be possible to
+  // navigate to the previous page without getting the validation message (and be blocked from navigating).
+  OnPageNavigation = 40,
+
+  // Shows up when the user tries to submit the form. At this point page navigation cannot be blocking, as
+  // the user would not be able to go back and fix the validation issues.
+  OnFormSubmit = 50,
+}
+
 export type ValidationContext = {
   state: ValidationState;
 };
@@ -69,6 +99,7 @@ export type ComponentValidations = {
 export type BaseValidation<Severity extends ValidationSeverity = ValidationSeverity> = {
   message: string;
   severity: Severity;
+  urgency: ValidationUrgency;
 };
 
 export type GroupedValidation<Severity extends ValidationSeverity = ValidationSeverity> = BaseValidation<Severity> & {
@@ -134,6 +165,7 @@ export interface BackendValidationIssue {
   targetId: string;
   source: string;
   customTextKey?: string;
+  urgency?: ValidationUrgency;
 }
 
 /**

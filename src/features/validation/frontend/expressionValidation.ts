@@ -1,7 +1,7 @@
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { asExpression } from 'src/features/expressions/validation';
-import { FrontendValidationSource } from 'src/features/validation';
+import { FrontendValidationSource, ValidationUrgency } from 'src/features/validation';
 import { getBaseDataModelBindings } from 'src/utils/databindings';
 import type { ExprConfig, Expression } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
@@ -195,6 +195,7 @@ export function runExpressionValidationsOnNode(
           group: FrontendValidationSource.Expression,
           message,
           severity: validationDef.severity,
+          urgency: ValidationUrgency.AfterTyping, // TODO(Validation): Make urgency configurable
         });
       }
     }

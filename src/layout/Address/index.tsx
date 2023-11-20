@@ -1,7 +1,7 @@
 import React from 'react';
 import type { JSX } from 'react';
 
-import { FrontendValidationSource } from 'src/features/validation';
+import { FrontendValidationSource, ValidationUrgency } from 'src/features/validation';
 import { AddressComponent } from 'src/layout/Address/AddressComponent';
 import { AddressDef } from 'src/layout/Address/config.def.generated';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
@@ -53,6 +53,7 @@ export class Address extends AddressDef implements ValidateComponent {
         bindingKey: 'zipCode',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,
+        urgency: ValidationUrgency.Immediate,
       });
     }
 
@@ -66,6 +67,7 @@ export class Address extends AddressDef implements ValidateComponent {
         bindingKey: 'houseNumber',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,
+        urgency: ValidationUrgency.Immediate,
       });
     }
 

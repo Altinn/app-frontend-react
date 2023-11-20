@@ -1,7 +1,7 @@
 import React from 'react';
 import type { JSX } from 'react';
 
-import { FrontendValidationSource } from 'src/features/validation';
+import { FrontendValidationSource, ValidationUrgency } from 'src/features/validation';
 import { attachmentsValid } from 'src/features/validation/utils';
 import { FileUploadDef } from 'src/layout/FileUpload/config.def.generated';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
@@ -44,15 +44,16 @@ export class FileUpload extends FileUploadDef implements ValidateComponent {
     const validations: ComponentValidation[] = [];
 
     if (!attachmentsValid(attachments, node.item)) {
-      const message = `${langTools.langAsString('form_filler.file_uploader_validation_error_file_number_1')} ${
-        node.item.minNumberOfAttachments
-      } ${langTools.langAsString('form_filler.file_uploader_validation_error_file_number_2')}`;
+      const message = langTools.langAsString('form_filler.file_uploader_validation_error_file_number', [
+        node.item.minNumberOfAttachments,
+      ]);
 
       validations.push({
         message,
         severity: 'errors',
         group: FrontendValidationSource.Component,
         componentId: node.item.id,
+        urgency: ValidationUrgency.OnPageNext,
       });
     }
 

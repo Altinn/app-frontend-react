@@ -1,4 +1,4 @@
-import { BackendValidationSeverity } from 'src/features/validation';
+import { BackendValidationSeverity, ValidationIssueSources, ValidationUrgency } from 'src/features/validation';
 import { validationTexts } from 'src/features/validation/backend/validationTexts';
 import type { BackendValidationIssue, ValidationSeverity } from 'src/features/validation';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
@@ -6,7 +6,7 @@ import type { IUseLanguage } from 'src/hooks/useLanguage';
 /**
  * We need to map the severity we get from backend into the format used when storing in redux.
  */
-export const severityMap: { [s in BackendValidationSeverity]: ValidationSeverity } = {
+const severityMap: { [s in BackendValidationSeverity]: ValidationSeverity } = {
   [BackendValidationSeverity.Error]: 'errors',
   [BackendValidationSeverity.Warning]: 'warnings',
   [BackendValidationSeverity.Informational]: 'info',
@@ -15,10 +15,24 @@ export const severityMap: { [s in BackendValidationSeverity]: ValidationSeverity
   [BackendValidationSeverity.Unspecified]: 'unspecified',
 };
 
+export function getValidationIssueSeverity(issue: BackendValidationIssue): ValidationSeverity {
+  return severityMap[issue.severity];
+}
+
+export function getValidationIssueUrgency(issue: BackendValidationIssue): ValidationUrgency {
+  if (issue.urgency) {
+    return issue.urgency;
+  }
+  if (issue.source === ValidationIssueSources.Custom) {
+    return ValidationUrgency.AfterTyping;
+  }
+  return ValidationUrgency.OnFormSubmit;
+}
+
 /**
  * Gets standard validation messages for backend validation issues.
  */
-export function getValidationMessage(
+export function getValidationIssueMessage(
   issue: BackendValidationIssue,
   langTools: IUseLanguage,
   params?: string[],
