@@ -1,8 +1,9 @@
 import { dot, object } from 'dot-object';
 
-import { getParentGroup } from 'src/utils/validation/validation';
+import { groupIsRepeatingExt } from 'src/layout/Group/tools';
 import type { IFormData } from 'src/features/formData';
 import type { IMapping } from 'src/layout/common.generated';
+import type { CompGroupExternal } from 'src/layout/Group/config.generated';
 import type { IDataModelBindings, ILayout } from 'src/layout/layout';
 import type { IRepeatingGroup, IRepeatingGroups } from 'src/types';
 
@@ -14,21 +15,6 @@ import type { IRepeatingGroup, IRepeatingGroups } from 'src/types';
  */
 export function convertDataBindingToModel(formData: any): any {
   return object({ ...formData });
-}
-
-export function filterOutInvalidData({ data, invalidKeys = [] }: { data: IFormData; invalidKeys: string[] }) {
-  if (!invalidKeys) {
-    return data;
-  }
-
-  const result = {};
-  Object.keys(data).forEach((key) => {
-    if (Object.prototype.hasOwnProperty.call(data, key) && !invalidKeys.includes(key)) {
-      result[key] = data[key];
-    }
-  });
-
-  return result;
 }
 
 export const GLOBAL_INDEX_KEY_INDICATOR_REGEX = /\[{\d+}]/g;
@@ -174,6 +160,29 @@ export function getGroupDataModelBinding(repeatingGroup: IRepeatingGroup, groupI
   }
 
   return repeatingGroup.dataModelBinding;
+}
+
+/**
+ * @deprecated
+ * @see useExprContext
+ * @see useResolvedNode
+ * @see ResolvedNodesSelector
+ */
+function getParentGroup(groupId: string, layout: ILayout): CompGroupExternal | undefined {
+  if (!groupId || !layout) {
+    return undefined;
+  }
+  return layout.find((element) => {
+    if (element.id !== groupId && element.type === 'Group') {
+      const childrenWithoutMultiPage = element.children?.map((childId) =>
+        groupIsRepeatingExt(element) && element.edit?.multiPage ? childId.split(':')[1] : childId,
+      );
+      if (childrenWithoutMultiPage?.indexOf(groupId) > -1) {
+        return true;
+      }
+    }
+    return false;
+  }) as CompGroupExternal | undefined;
 }
 
 export function removeGroupData(

@@ -8,7 +8,7 @@ import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { pathsChangedFromServer } from 'src/hooks/useDelayedSavedState';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { getCurrentDataTypeForApplication, getCurrentTaskDataElementId, isStatelessApp } from 'src/utils/appMetadata';
-import { convertDataBindingToModel, filterOutInvalidData, flattenObject } from 'src/utils/databindings';
+import { convertDataBindingToModel, flattenObject } from 'src/utils/databindings';
 import { httpPost } from 'src/utils/network/networking';
 import { httpPut } from 'src/utils/network/sharedNetworking';
 import { waitFor } from 'src/utils/sagas';
@@ -204,12 +204,7 @@ function* handleChangedFields(changedFields: IFormData | undefined, lastSavedFor
 }
 
 function getModelToSave(state: IRuntimeState) {
-  return convertDataBindingToModel(
-    filterOutInvalidData({
-      data: state.formData.formData,
-      invalidKeys: state.formValidations.invalidDataTypes,
-    }),
-  );
+  return convertDataBindingToModel(state.formData.formData);
 }
 
 /**

@@ -15,12 +15,10 @@ import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { IFormDataState } from 'src/features/formData';
 import type { IUpdateFormDataSimple } from 'src/features/formData/formDataTypes';
 import type { IRawTextResource, ITextResourcesState } from 'src/features/textResources';
-import type { IValidationState } from 'src/features/validation/validationSlice';
 import type { IOption } from 'src/layout/common.generated';
 import type { CompGroupExternal, CompGroupRepeatingLikertExternal } from 'src/layout/Group/config.generated';
 import type { CompOrGroupExternal } from 'src/layout/layout';
 import type { CompLikertExternal } from 'src/layout/Likert/config.generated';
-import type { ILayoutValidations } from 'src/utils/validation/types';
 
 export const defaultMockQuestions = [
   { Question: 'Hvordan trives du på skolen?', Answer: '' },
@@ -143,7 +141,7 @@ const createLayout = (
   },
 });
 
-export const createFormError = (index: number): ILayoutValidations => ({
+export const createFormError = (index: number) => ({
   [`field1-${index}`]: {
     simpleBinding: {
       errors: ['Feltet er påkrevd'],
@@ -152,11 +150,11 @@ export const createFormError = (index: number): ILayoutValidations => ({
   },
 });
 
-const createFormValidationsForCurrentView = (validations: ILayoutValidations = {}): IValidationState => ({
-  error: null,
-  invalidDataTypes: [],
-  validations: { FormLayout: validations },
-});
+// const createFormValidationsForCurrentView = (validations: ILayoutValidations = {}) => ({
+//   error: null,
+//   invalidDataTypes: [],
+//   validations: { FormLayout: validations },
+// });
 
 const createTextResource = (questions: IQuestion[], extraResources: IRawTextResource[]): ITextResourcesState => ({
   resourceMap: resourcesAsMap([
@@ -194,7 +192,7 @@ interface IRenderProps {
   radioButtonProps: Partial<CompLikertExternal>;
   likertContainerProps: Partial<CompGroupRepeatingLikertExternal>;
   extraTextResources: IRawTextResource[];
-  validations: ILayoutValidations;
+  validations;
 }
 
 export const render = async ({
@@ -204,7 +202,6 @@ export const render = async ({
   radioButtonProps,
   likertContainerProps,
   extraTextResources = [],
-  validations,
 }: Partial<IRenderProps> = {}) => {
   const mockRadioButton = createRadioButton(radioButtonProps);
   const mockLikertContainer = createLikertContainer(likertContainerProps);
@@ -221,7 +218,7 @@ export const render = async ({
   const reduxState = getInitialStateMock({
     formLayout: createLayout(mockLikertContainer, components, mockQuestions.length - 1),
     formData: mockData,
-    formValidations: createFormValidationsForCurrentView(validations),
+    // formValidations: createFormValidationsForCurrentView(validations),
     textResources: createTextResource(mockQuestions, extraTextResources),
   });
 

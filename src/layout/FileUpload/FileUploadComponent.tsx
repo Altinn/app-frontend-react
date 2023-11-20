@@ -1,6 +1,7 @@
 import React from 'react';
 import type { FileRejection } from 'react-dropzone';
 
+import { useAlertContext } from 'src/contexts/alertContext';
 import { useAttachmentsFor, useAttachmentsUploader } from 'src/features/attachments/AttachmentsContext';
 import {
   AttachmentsMappedToFormDataProvider,
@@ -8,7 +9,6 @@ import {
 } from 'src/features/attachments/useAttachmentsMappedToFormData';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { hasValidationErrors } from 'src/features/validation/utils';
-import { useAlertPopper } from 'src/hooks/useAlertPopper';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { AttachmentsCounter } from 'src/layout/FileUpload/AttachmentsCounter';
@@ -52,7 +52,7 @@ export function FileUploadComponent({
   const langTools = useLanguage();
   const { lang, langAsString } = langTools;
 
-  const [Popper, showPopper] = useAlertPopper();
+  const { showAlert } = useAlertContext();
 
   const { options } = useGetOptions({
     ...node.item,
@@ -91,7 +91,7 @@ export function FileUploadComponent({
 
     if (totalAttachments > maxNumberOfAttachments) {
       // if the user adds more attachments than max, all should be ignored
-      showPopper(
+      showAlert(
         langAsString('form_filler.file_uploader_validation_error_exceeds_max_files', [maxNumberOfAttachments]),
         'danger',
       );
@@ -113,8 +113,7 @@ export function FileUploadComponent({
       maxFileSizeInMB,
     });
     if (rejections?.length) {
-      const errorMessage = `- ${rejections.join('\n- ')}`;
-      showPopper(errorMessage, 'danger');
+      showAlert(`- ${rejections.join('\n- ')}`, 'danger');
     }
   };
 
@@ -166,7 +165,6 @@ export function FileUploadComponent({
           </>
         )}
         {renderAddMoreAttachmentsButton()}
-        <Popper />
       </div>
     </AttachmentsMappedToFormDataProvider>
   );

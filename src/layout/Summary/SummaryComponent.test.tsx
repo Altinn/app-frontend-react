@@ -11,7 +11,6 @@ import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { CompInputExternal } from 'src/layout/Input/config.generated';
 import type { CompExternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { IValidations } from 'src/utils/validation/types';
 
 describe('SummaryComponent', () => {
   const pageId = 'FormLayout';
@@ -54,19 +53,7 @@ describe('SummaryComponent', () => {
     expect(screen.getByTestId('summary-item-simple')).toBeInTheDocument();
   });
   test('should render with validation message', async () => {
-    await render(
-      { componentRef: 'Input' },
-      {
-        [pageId]: {
-          ['Input']: {
-            simpleBinding: {
-              errors: ['Error message'],
-              warnings: [],
-            },
-          },
-        },
-      },
-    );
+    await render({ componentRef: 'Input' });
     expect(screen.getByText('Error message')).toBeInTheDocument();
   });
   test('should not render if hidden', async () => {
@@ -79,7 +66,7 @@ describe('SummaryComponent', () => {
         component.hidden = true;
       }
     }
-    const { container } = await render({ componentRef: 'Input' }, {}, otherLayout);
+    const { container } = await render({ componentRef: 'Input' }, otherLayout);
     // eslint-disable-next-line testing-library/no-node-access
     expect(container.firstChild).toBeNull();
     // eslint-disable-next-line testing-library/no-node-access
@@ -99,7 +86,7 @@ describe('SummaryComponent', () => {
       };
     }
 
-    await render({ componentRef: 'Input' }, {}, otherLayout);
+    await render({ componentRef: 'Input' }, otherLayout);
     expect(screen.getByText('default title')).toBeInTheDocument();
   });
 
@@ -107,7 +94,7 @@ describe('SummaryComponent', () => {
     const otherLayout = { ...layoutMock() };
     otherLayout.uiConfig.currentView = 'otherPage';
 
-    await render({ componentRef: 'Input' }, {}, otherLayout);
+    await render({ componentRef: 'Input' }, otherLayout);
 
     const spy = jest.spyOn(FormLayoutActions, 'updateCurrentView');
     const button = screen.getByRole('button');
@@ -122,7 +109,7 @@ describe('SummaryComponent', () => {
     });
   });
 
-  const render = async (props: { componentRef: string }, validations: IValidations = {}, mockLayout = layoutMock()) => {
+  const render = async (props: { componentRef: string }, mockLayout = layoutMock()) => {
     const layoutPage = mockLayout.layouts && mockLayout.layouts[pageId];
     layoutPage?.push({
       type: 'Summary',
@@ -136,11 +123,6 @@ describe('SummaryComponent', () => {
       reduxState: {
         ...getInitialStateMock(),
         formLayout: mockLayout,
-        formValidations: {
-          validations,
-          error: null,
-          invalidDataTypes: [],
-        },
       },
     });
   };

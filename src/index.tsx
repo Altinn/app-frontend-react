@@ -16,6 +16,7 @@ import { AppWrapper } from '@altinn/altinn-design-system';
 import { App } from 'src/App';
 import { ErrorBoundary } from 'src/components/ErrorBoundary';
 import { ThemeWrapper } from 'src/components/ThemeWrapper';
+import { AlertProvider } from 'src/contexts/alertContext';
 import { AppQueriesProvider } from 'src/contexts/appQueriesContext';
 import { DevTools } from 'src/features/devtools/DevTools';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
@@ -39,13 +40,15 @@ document.addEventListener('DOMContentLoaded', () => {
           <AppWrapper>
             <AppQueriesProvider {...queries}>
               <ThemeWrapper>
-                <InstantiationProvider>
-                  <ExprContextWrapper>
-                    <DevTools>
-                      <App />
-                    </DevTools>
-                  </ExprContextWrapper>
-                </InstantiationProvider>
+                <AlertProvider>
+                  <InstantiationProvider>
+                    <ExprContextWrapper>
+                      <DevTools>
+                        <App />
+                      </DevTools>
+                    </ExprContextWrapper>
+                  </InstantiationProvider>
+                </AlertProvider>
               </ThemeWrapper>
             </AppQueriesProvider>
           </AppWrapper>

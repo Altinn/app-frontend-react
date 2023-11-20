@@ -12,7 +12,6 @@ export function getHierarchyDataSourcesMock(): HierarchyDataSources {
     instanceDataSources: {} as any,
     hiddenFields: new Set(),
     authContext: null,
-    validations: {},
     devTools: getInitialStateMock().devTools,
     langTools: staticUseLanguageForTests(),
   };

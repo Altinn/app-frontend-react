@@ -102,7 +102,6 @@ export function dataSourcesFromState(state: IRuntimeState): HierarchyDataSources
     instanceDataSources: buildInstanceDataSources(state.deprecated.lastKnownInstance),
     hiddenFields: new Set(state.formLayout.uiConfig.hiddenFields),
     authContext: buildAuthContext(state.deprecated.lastKnownProcess?.currentTask),
-    validations: state.formValidations.validations,
     devTools: state.devTools,
     langTools: staticUseLanguageFromState(state),
   };
@@ -145,7 +144,6 @@ function useResolvedExpressions() {
   const process = useLaxProcessData();
   const applicationSettings = useAppSelector((state) => state.applicationSettings.applicationSettings);
   const hiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
-  const validations = useAppSelector((state) => state.formValidations.validations);
   const layouts = useAppSelector((state) => state.formLayout.layouts);
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
@@ -162,7 +160,6 @@ function useResolvedExpressions() {
       instanceDataSources: buildInstanceDataSources(instance),
       authContext: buildAuthContext(process?.currentTask),
       hiddenFields: new Set(hiddenFields),
-      validations,
       devTools,
       langTools,
     }),
@@ -175,7 +172,6 @@ function useResolvedExpressions() {
       instance,
       process?.currentTask,
       hiddenFields,
-      validations,
       devTools,
       langTools,
     ],

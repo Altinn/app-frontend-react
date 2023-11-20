@@ -52,11 +52,6 @@ export function getInitialStateMock(custom?: Partial<IRuntimeState> | ((state: I
       error: null,
       model: [],
     },
-    formValidations: {
-      validations: {},
-      error: null,
-      invalidDataTypes: [],
-    },
     footerLayout: {
       footerLayout: null,
       error: null,

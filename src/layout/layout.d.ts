@@ -13,7 +13,6 @@ import type {
   FormComponent,
   PresentationComponent,
 } from 'src/layout/LayoutComponent';
-import type { IValidations } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
@@ -99,7 +98,6 @@ export type TypeFromConfig<T extends CompInternal | CompExternal> = T extends { 
   : CompTypes;
 
 export interface HierarchyDataSources extends ContextDataSources {
-  validations: IValidations;
   devTools: IDevToolsState;
 }
 

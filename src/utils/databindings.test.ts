@@ -1,5 +1,4 @@
 import {
-  filterOutInvalidData,
   flattenObject,
   getIndexCombinations,
   getKeyIndex,
@@ -332,46 +331,6 @@ describe('utils/databindings.ts', () => {
         someOtherField: 'someOtherValue',
       };
       expect(mapFormData(formData, mapping as any)).toEqual(formData);
-    });
-  });
-
-  describe('filterOutInvalidData', () => {
-    it('should remove keys listed in the invalidKeys object', () => {
-      const formData = {
-        field1: 'value1',
-        'group[0].field': 'someValue',
-        'group[1].field': 'another value',
-      };
-      const result = filterOutInvalidData({
-        data: formData,
-        invalidKeys: ['group[0].field'],
-      });
-
-      expect(result).toEqual({
-        field1: 'value1',
-        'group[1].field': 'another value',
-      });
-    });
-
-    [undefined, null].forEach((value) => {
-      it(`should not crash when invalidKeys is ${value}`, () => {
-        const formData = {
-          field1: 'value1',
-          'group[0].field': 'someValue',
-          'group[1].field': 'another value',
-        };
-
-        const result = filterOutInvalidData({
-          data: formData,
-          invalidKeys: value as any,
-        });
-
-        expect(result).toEqual({
-          field1: 'value1',
-          'group[0].field': 'someValue',
-          'group[1].field': 'another value',
-        });
-      });
     });
   });
 

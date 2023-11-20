@@ -24,20 +24,20 @@ function flushPromises() {
 const user = userEvent.setup();
 
 const stateWithErrorsAndWarnings = getInitialStateMock({
-  formValidations: {
-    validations: {
-      FormLayout: {
-        'mock-component-id': {
-          simpleBinding: {
-            errors: ['mock-error-message'],
-            warnings: ['mock-warning-message'],
-          },
-        },
-      },
-    },
-    invalidDataTypes: [],
-    error: null,
-  },
+  // formValidations: {
+  //   validations: {
+  //     FormLayout: {
+  //       'mock-component-id': {
+  //         simpleBinding: {
+  //           errors: ['mock-error-message'],
+  //           warnings: ['mock-warning-message'],
+  //         },
+  //       },
+  //     },
+  //   },
+  //   invalidDataTypes: [],
+  //   error: null,
+  // },
 });
 
 describe('Presentation', () => {

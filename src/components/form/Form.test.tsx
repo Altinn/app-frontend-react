@@ -231,15 +231,15 @@ describe('Form', () => {
     });
   }
 
-  function mockValidations(validations: RootState['formValidations']['validations'][string]): Partial<RootState> {
+  function mockValidations(_validations): Partial<RootState> {
     return {
-      formValidations: {
-        error: null,
-        invalidDataTypes: [],
-        validations: {
-          page1: validations,
-        },
-      },
+      // formValidations: {
+      //   error: null,
+      //   invalidDataTypes: [],
+      //   validations: {
+      //     page1: validations,
+      //   },
+      // },
     };
   }
 });

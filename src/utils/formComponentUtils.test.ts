@@ -1,10 +1,8 @@
 import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
-import { AsciiUnitSeparator } from 'src/utils/attachment';
 import {
   getColumnStyles,
   getColumnStylesRepeatingGroups,
   getFieldName,
-  getFileUploadComponentValidations,
   gridBreakpoints,
   smartLowerCaseFirst,
 } from 'src/utils/formComponentUtils';
@@ -81,56 +79,6 @@ describe('formComponentUtils', () => {
       { input: '', expected: '' },
     ])('Should convert $input to $expected', ({ input, expected }) => {
       expect(smartLowerCaseFirst(input)).toEqual(expected);
-    });
-  });
-
-  describe('getFileUploadWithTagComponentValidations', () => {
-    it('should return correct validation', () => {
-      const mockLanguage = {
-        language: {
-          form_filler: {
-            file_uploader_validation_error_delete: 'Noe gikk galt under slettingen av filen, prøv igjen senere.',
-            file_uploader_validation_error_upload: 'Noe gikk galt under opplastingen av filen, prøv igjen senere.',
-            file_uploader_validation_error_update:
-              'Noe gikk galt under oppdatering av filens merking, prøv igjen senere.',
-          },
-        },
-      };
-      const langTools = staticUseLanguageForTests({ language: mockLanguage.language });
-
-      const uploadValidation = getFileUploadComponentValidations('upload', langTools);
-      expect(uploadValidation).toEqual({
-        simpleBinding: {
-          errors: ['Noe gikk galt under opplastingen av filen, prøv igjen senere.'],
-          warnings: [],
-        },
-      });
-
-      const updateValidation = getFileUploadComponentValidations('update', langTools);
-      expect(updateValidation).toEqual({
-        simpleBinding: {
-          errors: ['Noe gikk galt under oppdatering av filens merking, prøv igjen senere.'],
-          warnings: [],
-        },
-      });
-
-      const updateValidationWithId = getFileUploadComponentValidations('update', langTools, 'mock-attachment-id');
-      expect(updateValidationWithId).toEqual({
-        simpleBinding: {
-          errors: [
-            `mock-attachment-id${AsciiUnitSeparator}Noe gikk galt under oppdatering av filens merking, prøv igjen senere.`,
-          ],
-          warnings: [],
-        },
-      });
-
-      const deleteValidation = getFileUploadComponentValidations('delete', langTools);
-      expect(deleteValidation).toEqual({
-        simpleBinding: {
-          errors: ['Noe gikk galt under slettingen av filen, prøv igjen senere.'],
-          warnings: [],
-        },
-      });
     });
   });
 

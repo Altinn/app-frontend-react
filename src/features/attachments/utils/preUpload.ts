@@ -7,16 +7,13 @@ import { v4 as uuidv4 } from 'uuid';
 import type { UseMutationOptions } from '@tanstack/react-query';
 import type { ImmerReducer } from 'use-immer';
 
+import { backendIssuesToAlerts, useAlertContext } from 'src/contexts/alertContext';
 import { useAppMutations } from 'src/contexts/appQueriesContext';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
-import { BackendValidationSeverity } from 'src/features/validation';
-import { getValidationMessage } from 'src/features/validation/backend/backendUtils';
-import { ValidationActions } from 'src/features/validation/validationSlice';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { type BackendValidationIssue } from 'src/features/validation';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
-import { getFileUploadComponentValidations } from 'src/utils/formComponentUtils';
 import { isAxiosError } from 'src/utils/network/sharedNetworking';
 import type {
   AttachmentActionUpload,
@@ -25,11 +22,9 @@ import type {
   RawAttachmentAction,
   TemporaryAttachment,
 } from 'src/features/attachments';
-import type { BackendValidationIssue } from 'src/features/validation';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
-import type { IComponentValidations } from 'src/utils/validation/types';
 
 interface ActionUpload extends AttachmentActionUpload {
   temporaryId: string;
@@ -129,23 +124,13 @@ const useUpload = (dispatch: Dispatch) => {
   const { changeData: changeInstanceData } = useLaxInstance() || {};
   const { mutateAsync } = useAttachmentsUploadMutation();
   const langTools = useLanguage();
-  const reduxDispatch = useAppDispatch();
+  const { showAlert, showAlerts } = useAlertContext();
   const backendFeatures = useAppSelector((state) => state.applicationMetadata.applicationMetadata?.features) || {};
 
   return async (action: RawAttachmentAction<AttachmentActionUpload>) => {
     const { node, file } = action;
     const temporaryId = uuidv4();
     dispatch({ ...action, temporaryId, action: 'upload' });
-
-    // Sets validations to empty.
-    const newValidations = getFileUploadComponentValidations(null, langTools);
-    reduxDispatch(
-      ValidationActions.updateComponentValidations({
-        componentId: node.item.id,
-        pageKey: node.top.top.myKey,
-        validationResult: { validations: newValidations },
-      }),
-    );
 
     try {
       const reply = await mutateAsync({
@@ -173,31 +158,12 @@ const useUpload = (dispatch: Dispatch) => {
     } catch (err) {
       dispatch({ action: 'remove', node, temporaryId, result: false });
 
-      let validations: IComponentValidations;
       if (backendFeatures.jsonObjectInDataResponse && isAxiosError(err) && err.response?.data) {
         const validationIssues: BackendValidationIssue[] = err.response.data;
-
-        validations = {
-          simpleBinding: {
-            errors: validationIssues
-              .filter((v) => v.severity === BackendValidationSeverity.Error)
-              .map((v) => getValidationMessage(v, langTools)),
-            warnings: validationIssues
-              .filter((v) => v.severity === BackendValidationSeverity.Warning)
-              .map((v) => getValidationMessage(v, langTools)),
-          },
-        };
+        showAlerts(backendIssuesToAlerts(validationIssues, langTools));
       } else {
-        validations = getFileUploadComponentValidations('upload', langTools);
+        showAlert(langTools.langAsString('form_filler.file_uploader_validation_error_upload'), 'danger');
       }
-
-      reduxDispatch(
-        ValidationActions.updateComponentValidations({
-          componentId: node.item.id,
-          pageKey: node.top.top.myKey,
-          validationResult: { validations },
-        }),
-      );
     }
 
     return undefined;

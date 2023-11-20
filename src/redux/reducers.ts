@@ -16,7 +16,6 @@ import { orgsSlice } from 'src/features/orgs/orgsSlice';
 import { partySlice } from 'src/features/party/partySlice';
 import { profileSlice } from 'src/features/profile/profileSlice';
 import { textResourcesSlice } from 'src/features/textResources/textResourcesSlice';
-import { validationSlice } from 'src/features/validation/validationSlice';
 import { deprecatedSlice } from 'src/redux/deprecatedSlice';
 import { resetRootSagas } from 'src/redux/sagaSlice';
 import type { SliceReducers } from 'src/redux/sagaSlice';
@@ -38,7 +37,6 @@ const slices = [
   partySlice,
   profileSlice,
   textResourcesSlice,
-  validationSlice,
   deprecatedSlice,
 ];
 

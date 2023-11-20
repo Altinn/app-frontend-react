@@ -2,7 +2,6 @@ import type React from 'react';
 
 import { isAttachmentUploaded } from 'src/features/attachments';
 import printStyles from 'src/styles/print.module.css';
-import { AsciiUnitSeparator } from 'src/utils/attachment';
 import type { IAttachment } from 'src/features/attachments';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type {
@@ -14,7 +13,6 @@ import type {
 import type { CompInternal, CompTypes, IDataModelBindings, ITextResourceBindings } from 'src/layout/layout';
 import type { IDataModelBindingsForList } from 'src/layout/List/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { IComponentValidations } from 'src/utils/validation/types';
 
 export type BindingToValues<B extends IDataModelBindings | undefined> = B extends undefined
   ? { [key: string]: undefined }
@@ -23,35 +21,6 @@ export type BindingToValues<B extends IDataModelBindings | undefined> = B extend
   : { [key in keyof B]: string | undefined };
 
 export type IComponentFormData<T extends CompTypes> = BindingToValues<CompInternal<T>['dataModelBindings']>;
-
-export function getFileUploadComponentValidations(
-  validationError: 'upload' | 'update' | 'delete' | null,
-  langTools: IUseLanguage,
-  attachmentId?: string,
-): IComponentValidations {
-  const { langAsString } = langTools;
-  const componentValidations: any = {
-    simpleBinding: {
-      errors: [],
-      warnings: [],
-    },
-  };
-  if (validationError === 'upload') {
-    componentValidations.simpleBinding.errors.push(langAsString('form_filler.file_uploader_validation_error_upload'));
-  } else if (validationError === 'update') {
-    if (attachmentId === undefined || attachmentId === '') {
-      componentValidations.simpleBinding.errors.push(langAsString('form_filler.file_uploader_validation_error_update'));
-    } else {
-      componentValidations.simpleBinding.errors.push(
-        // If validation has attachmentId, add to start of message and seperate using ASCII Universal Seperator
-        attachmentId + AsciiUnitSeparator + langAsString('form_filler.file_uploader_validation_error_update'),
-      );
-    }
-  } else if (validationError === 'delete') {
-    componentValidations.simpleBinding.errors.push(langAsString('form_filler.file_uploader_validation_error_delete'));
-  }
-  return componentValidations;
-}
 
 export const atLeastOneTagExists = (attachments: IAttachment[]): boolean => {
   let totalTagCount = 0;

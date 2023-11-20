@@ -5,20 +5,11 @@ import { screen } from '@testing-library/react';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { ErrorReport } from 'src/components/message/ErrorReport';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
-import type { IValidationState } from 'src/features/validation/validationSlice';
-import type { IValidations } from 'src/utils/validation/types';
 
 describe('ErrorReport', () => {
-  const render = async (validations: Partial<IValidations>) => {
-    const mockValidationState: IValidationState = {
-      validations: {
-        ...(validations as any),
-      },
-      invalidDataTypes: [],
-      error: null,
-    };
+  const render = async (_validations) => {
     const reduxState = getInitialStateMock({
-      formValidations: mockValidationState,
+      // formValidations: mockValidationState,
     });
 
     return await renderWithInstanceAndLayout({
