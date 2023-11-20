@@ -2,8 +2,7 @@ import Ajv from 'ajv';
 import Ajv2020 from 'ajv/dist/2020';
 import addFormats from 'ajv-formats';
 import addAdditionalFormats from 'ajv-formats-draft2019';
-import type { Options } from 'ajv';
-import type * as AjvCore from 'ajv/dist/core';
+import type { ErrorObject, Options } from 'ajv';
 
 import { getCurrentDataTypeForApplication } from 'src/utils/appMetadata';
 import { convertDataBindingToModel } from 'src/utils/databindings';
@@ -77,8 +76,7 @@ export function createValidator(schema: any, dataType: IDataType): ISchemaValida
  * @param error the AJV validation error object
  * @returns a value indicating if the provided error is a "oneOf" error.
  */
-export const isOneOfError = (error: AjvCore.ErrorObject): boolean =>
-  error.keyword === 'oneOf' || error.params?.type === 'null';
+export const isOneOfError = (error: ErrorObject): boolean => error.keyword === 'oneOf' || error.params?.type === 'null';
 
 /**
  * A mapping between the json schema validation error keywords and the language keys used for the standard validation.
