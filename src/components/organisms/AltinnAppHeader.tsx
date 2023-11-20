@@ -3,7 +3,7 @@ import React from 'react';
 import { AppBar } from '@material-ui/core';
 
 import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
-import { AltinnLogo } from 'src/components/logo/AltinnLogo';
+import { AltinnLogo, LogoColorMap } from 'src/components/logo/AltinnLogo';
 import classes from 'src/components/organisms/AltinnAppHeader.module.css';
 import { AltinnAppHeaderMenu } from 'src/components/organisms/AltinnAppHeaderMenu';
 import { OrganisationLogo } from 'src/components/presentation/OrganisationLogo/OrganisationLogo';
@@ -33,7 +33,7 @@ export const AltinnAppHeader = ({ logoColor, headerBackgroundColor, party, userP
       data-testid='AltinnAppHeader'
       position='relative'
       classes={{ root: classes.appBar }}
-      style={{ backgroundColor: headerBackgroundColor, color: logoColor }}
+      style={{ backgroundColor: headerBackgroundColor, color: LogoColorMap[logoColor] }}
     >
       <LandmarkShortcuts
         shortcuts={[

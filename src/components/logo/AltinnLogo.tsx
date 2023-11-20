@@ -9,7 +9,7 @@ export interface IAltinnLogoProps {
   color: 'blueDark' | 'blueDarker';
 }
 
-const colorMap = {
+export const LogoColorMap = {
   blueDark: '#0062BA',
   blueDarker: '#022F51',
 };
@@ -38,7 +38,7 @@ export const AltinnLogo = ({ color }: IAltinnLogoProps) => {
       className={classes.logo}
       alt='Altinn logo'
       id='logo'
-      src={`data:image/svg+xml;utf8,${encodeURIComponent(reColorSvg(data, colorMap[color]))}`}
+      src={`data:image/svg+xml;utf8,${encodeURIComponent(reColorSvg(data, LogoColorMap[color]))}`}
     />
   );
 };
