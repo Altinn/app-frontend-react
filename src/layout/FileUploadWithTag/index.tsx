@@ -2,18 +2,17 @@ import React from 'react';
 
 import { isAttachmentUploaded } from 'src/features/attachments';
 import { FrontendValidationSource } from 'src/features/validation';
+import { attachmentIsMissingTag, attachmentsValid } from 'src/features/validation/utils';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
 import { FileUploadWithTagDef } from 'src/layout/FileUploadWithTag/config.def.generated';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import { attachmentIsMissingTag, attachmentsValid } from 'src/utils/validation/validation';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { IFormData } from 'src/features/formData';
-import type { ComponentValidation } from 'src/features/validation/types';
+import type { ComponentValidation, IValidationContext } from 'src/features/validation';
 import type { DisplayDataProps, PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { IValidationContext } from 'src/utils/validation/types';
 
 export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateComponent {
   render(props: PropsFromGenericComponent<'FileUploadWithTag'>): JSX.Element | null {

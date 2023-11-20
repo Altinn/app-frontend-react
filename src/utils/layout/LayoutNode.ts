@@ -1,12 +1,12 @@
 import dot from 'dot-object';
 
+import { runValidationOnNodes } from 'src/features/validation/frontend/runValidations';
 import { getLayoutComponentObject } from 'src/layout';
 import { convertDataBindingToModel } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import { runValidationOnNodes } from 'src/utils/validation/validation';
 import type { IFormData } from 'src/features/formData';
-import type { FormValidations } from 'src/features/validation/types';
+import type { FormValidations, ValidationContextGenerator } from 'src/features/validation';
 import type { CompClassMap } from 'src/layout';
 import type { CompCategory } from 'src/layout/common';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated';
@@ -22,7 +22,6 @@ import type {
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
-import type { ValidationContextGenerator } from 'src/utils/validation/types';
 
 export interface IsHiddenOptions {
   respectLegacy?: boolean;

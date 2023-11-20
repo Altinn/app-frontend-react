@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { LegacyTextField } from '@digdir/design-system-react';
 
 import { Label } from 'src/components/form/Label';
-import { hasValidationErrors } from 'src/features/validation';
+import { hasValidationErrors } from 'src/features/validation/utils';
 import {
   useBindingValidationsForNode,
   useComponentValidationsForNode,

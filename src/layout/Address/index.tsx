@@ -7,11 +7,10 @@ import { AddressDef } from 'src/layout/Address/config.def.generated';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { IFormData } from 'src/features/formData';
-import type { ComponentValidation } from 'src/features/validation/types';
+import type { ComponentValidation, IValidationContext } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { IValidationContext } from 'src/utils/validation/types';
 
 export class Address extends AddressDef implements ValidateComponent {
   render(props: PropsFromGenericComponent<'AddressComponent'>): JSX.Element | null {

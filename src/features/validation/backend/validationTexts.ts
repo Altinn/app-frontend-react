@@ -1,5 +1,5 @@
+import type { ValidationIssueSources } from 'src/features/validation';
 import type { ValidLanguageKey } from 'src/hooks/useLanguage';
-import type { ValidationIssueSources } from 'src/utils/validation/backendValidation';
 
 export type IValidationTextMap = {
   [source in ValidationIssueSources]?: {

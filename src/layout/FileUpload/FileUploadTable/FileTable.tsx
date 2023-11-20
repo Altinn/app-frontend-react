@@ -8,7 +8,7 @@ import { FileTableRowProvider } from 'src/layout/FileUpload/FileUploadTable/File
 import { EditWindowComponent } from 'src/layout/FileUploadWithTag/EditWindowComponent';
 import { atLeastOneTagExists } from 'src/utils/formComponentUtils';
 import type { IAttachment } from 'src/features/attachments';
-import type { NodeValidation } from 'src/features/validation/types';
+import type { NodeValidation } from 'src/features/validation';
 import type { ShowPopper } from 'src/hooks/useAlertPopper';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IOption } from 'src/layout/common.generated';

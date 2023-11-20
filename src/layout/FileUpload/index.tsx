@@ -2,18 +2,17 @@ import React from 'react';
 import type { JSX } from 'react';
 
 import { FrontendValidationSource } from 'src/features/validation';
+import { attachmentsValid } from 'src/features/validation/utils';
 import { FileUploadDef } from 'src/layout/FileUpload/config.def.generated';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import { attachmentsValid } from 'src/utils/validation/validation';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { IFormData } from 'src/features/formData';
-import type { ComponentValidation } from 'src/features/validation/types';
+import type { ComponentValidation, IValidationContext } from 'src/features/validation';
 import type { DisplayDataProps, PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { IValidationContext } from 'src/utils/validation/types';
 
 export class FileUpload extends FileUploadDef implements ValidateComponent {
   render(props: PropsFromGenericComponent<'FileUpload'>): JSX.Element | null {

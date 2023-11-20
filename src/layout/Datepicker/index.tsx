@@ -10,12 +10,15 @@ import { getDateConstraint, getDateFormat } from 'src/utils/dateHelpers';
 import { formatISOString } from 'src/utils/formatDate';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { IFormData } from 'src/features/formData';
-import type { ComponentValidation, FieldValidation } from 'src/features/validation/types';
+import type {
+  ComponentValidation,
+  FieldValidation,
+  ISchemaValidationError,
+  IValidationContext,
+} from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { ISchemaValidationError } from 'src/utils/validation/schemaValidation';
-import type { IValidationContext } from 'src/utils/validation/types';
 
 export class Datepicker extends DatepickerDef implements ValidateComponent {
   render(props: PropsFromGenericComponent<'Datepicker'>): JSX.Element | null {

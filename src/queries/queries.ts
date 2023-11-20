@@ -43,6 +43,7 @@ import type { Instantiation } from 'src/features/instantiate/InstantiationContex
 import type { IPartyValidationResponse } from 'src/features/party';
 import type { IPdfFormat } from 'src/features/pdf/types';
 import type { ITextResourceResult } from 'src/features/textResources';
+import type { IExpressionValidationConfig } from 'src/features/validation';
 import type { ILayoutFileExternal, IOption } from 'src/layout/common.generated';
 import type { ILayoutCollection } from 'src/layout/layout';
 import type { ILayoutSets, ILayoutSettings, ISimpleInstance } from 'src/types';
@@ -57,7 +58,6 @@ import type {
   IProcess,
   IProfile,
 } from 'src/types/shared';
-import type { IExpressionValidationConfig } from 'src/utils/validation/types';
 
 const cleanUpInstanceData = async (_instance: IInstance | Promise<IInstance>) => {
   const instance = await _instance;

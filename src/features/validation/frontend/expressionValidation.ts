@@ -3,18 +3,18 @@ import { ExprVal } from 'src/features/expressions/types';
 import { asExpression } from 'src/features/expressions/validation';
 import { FrontendValidationSource } from 'src/features/validation';
 import { getBaseDataModelBindings } from 'src/utils/databindings';
-import type { ExprConfig } from 'src/features/expressions/types';
+import type { ExprConfig, Expression } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
-import type { FieldValidation } from 'src/features/validation/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
+  FieldValidation,
   IExpressionValidation,
   IExpressionValidationConfig,
   IExpressionValidationRefResolved,
   IExpressionValidationRefUnresolved,
   IExpressionValidations,
   IValidationContext,
-} from 'src/utils/validation/types';
+} from 'src/features/validation';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 const EXPR_CONFIG: ExprConfig<ExprVal.Boolean> = {
   defaultValue: false,
@@ -111,7 +111,7 @@ function resolveExpressionValidation(
     expressionValidation.condition,
     EXPR_CONFIG,
     `Custom validation:\nValidation for ${field} has an invalid condition.`,
-  );
+  ) as typeof expressionValidation.condition;
 
   if (!('message' in expressionValidation)) {
     window.logWarn(`Custom validation:\nValidation for ${field} is missing a message.`);
@@ -184,7 +184,7 @@ export function runExpressionValidationsOnNode(
     for (const validationDef of validationDefs) {
       const resolvedField = resolvedDataModelBindings[bindingKey];
 
-      const isInvalid = evalExpr(validationDef.condition, node, newDataSources, {
+      const isInvalid = evalExpr(validationDef.condition as Expression, node, newDataSources, {
         config: EXPR_CONFIG,
         positionalArguments: [resolvedField],
       });

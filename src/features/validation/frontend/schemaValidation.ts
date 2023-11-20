@@ -15,29 +15,14 @@ import {
 } from 'src/utils/schemaUtils';
 import type { IJsonSchemas } from 'src/features/datamodel';
 import type { IFormData } from 'src/features/formData';
+import type {
+  ISchemaValidationError,
+  ISchemaValidator,
+  ISchemaValidators,
+  IValidationContext,
+} from 'src/features/validation';
 import type { ValidLanguageKey } from 'src/hooks/useLanguage';
 import type { IDataType } from 'src/types/shared';
-import type { IValidationContext } from 'src/utils/validation/types';
-
-export interface ISchemaValidator {
-  rootElementPath: string;
-  schema: any;
-  validator: Ajv;
-}
-
-export interface ISchemaValidators {
-  [id: string]: ISchemaValidator;
-}
-
-/**
- * This format is returned by the json schema validation, and needs to be mapped to components based on the datamodel bindingField.
- */
-export type ISchemaValidationError = {
-  message: string;
-  bindingField: string;
-  invalidDataType: boolean;
-  keyword: string;
-};
 
 const validators: ISchemaValidators = {};
 

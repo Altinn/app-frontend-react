@@ -7,7 +7,7 @@ import { CheckmarkCircleFillIcon } from '@navikt/aksel-icons';
 import { AltinnLoader } from 'src/components/AltinnLoader';
 import { isAttachmentUploaded } from 'src/features/attachments';
 import { useAttachmentsUpdater } from 'src/features/attachments/AttachmentsContext';
-import { hasValidationErrors } from 'src/features/validation';
+import { hasValidationErrors } from 'src/features/validation/utils';
 import { useFormattedOptions } from 'src/hooks/useFormattedOptions';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { AttachmentFileName } from 'src/layout/FileUpload/FileUploadTable/AttachmentFileName';
@@ -16,7 +16,7 @@ import { useFileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTable
 import classes from 'src/layout/FileUploadWithTag/EditWindowComponent.module.css';
 import { ComponentValidation } from 'src/utils/render';
 import type { IAttachment } from 'src/features/attachments';
-import type { NodeValidation } from 'src/features/validation/types';
+import type { NodeValidation } from 'src/features/validation';
 import type { ShowPopper } from 'src/hooks/useAlertPopper';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IOption } from 'src/layout/common.generated';

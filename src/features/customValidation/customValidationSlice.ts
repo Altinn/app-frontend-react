@@ -1,7 +1,7 @@
 import { createSagaSlice } from 'src/redux/sagaSlice';
 import type { ICustomValidationState } from 'src/features/customValidation/types';
+import type { IExpressionValidations } from 'src/features/validation';
 import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
-import type { IExpressionValidations } from 'src/utils/validation/types';
 
 const initialState: ICustomValidationState = {
   customValidation: null,

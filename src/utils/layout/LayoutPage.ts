@@ -1,11 +1,10 @@
-import { runValidationOnNodes } from 'src/utils/validation/validation';
-import type { FormValidations } from 'src/features/validation/types';
+import { runValidationOnNodes } from 'src/features/validation/frontend/runValidations';
+import type { FormValidations, ValidationContextGenerator } from 'src/features/validation';
 import type { CompExceptGroup, CompInternal } from 'src/layout/layout';
 import type { IUiConfig } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
-import type { ValidationContextGenerator } from 'src/utils/validation/types';
 
 /**
  * The layout page is a class containing an entire page/form layout, with all components/nodes within it. It

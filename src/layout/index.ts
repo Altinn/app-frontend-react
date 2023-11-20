@@ -3,7 +3,7 @@ import { createContext, useMemo } from 'react';
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { useAllOptions } from 'src/features/options/useAllOptions';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { type IUseLanguage, useLanguage } from 'src/hooks/useLanguage';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { ComponentConfigs } from 'src/layout/components.generated';
 import type { IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
@@ -12,16 +12,17 @@ import type {
   ComponentValidation,
   FieldValidation,
   FormValidations,
+  ISchemaValidationError,
+  IValidationContext,
   NodeValidation,
-} from 'src/features/validation/types';
+} from 'src/features/validation';
+import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { IGrid } from 'src/layout/common.generated';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { CompInternal, CompRendersLabel, CompTypes } from 'src/layout/layout';
 import type { AnyComponent, LayoutComponent } from 'src/layout/LayoutComponent';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { ISchemaValidationError } from 'src/utils/validation/schemaValidation';
-import type { IValidationContext, ValidationContextGenerator } from 'src/utils/validation/types';
 
 export type CompClassMap = {
   [K in keyof typeof ComponentConfigs]: (typeof ComponentConfigs)[K]['def'];
@@ -144,20 +145,6 @@ export function implementsValidateSchema<Type extends CompTypes>(
   component: AnyComponent<Type>,
 ): component is typeof component & ValidateSchema {
   return 'runSchemaValidation' in component;
-}
-
-export interface GroupValidation {
-  runGroupValidations: (
-    node: LayoutNode,
-    validationCtxGenerator: ValidationContextGenerator,
-    onlyInRowIndex?: number,
-  ) => FormValidations;
-}
-
-export function implementsGroupValidation<Type extends CompTypes>(
-  component: AnyComponent<Type>,
-): component is typeof component & GroupValidation {
-  return 'runGroupValidations' in component;
 }
 
 export interface DisplayDataProps {

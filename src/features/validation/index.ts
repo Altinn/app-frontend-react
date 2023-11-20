@@ -1,16 +1,14 @@
-import { ValidationIssueSources } from 'src/utils/validation/backendValidation';
-import type {
-  BaseValidation,
-  ComponentValidation,
-  FieldValidation,
-  FormValidations,
-  GroupedValidation,
-  NodeValidation,
-  ValidationGroup,
-  ValidationState,
-} from 'src/features/validation/types';
+import type Ajv from 'ajv';
+
+import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { IAttachments } from 'src/features/attachments';
+import type { IJsonSchemas } from 'src/features/datamodel';
+import type { Expression, ExprValToActual } from 'src/features/expressions/types';
+import type { IFormData } from 'src/features/formData';
+import type { IUseLanguage, ValidParam } from 'src/hooks/useLanguage';
+import type { ILayoutSets } from 'src/types';
+import type { IInstance, IProcess } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { ValidationSeverity } from 'src/utils/validation/types';
 
 export enum FrontendValidationSource {
   EmptyField = '__empty_field__',
@@ -19,158 +17,187 @@ export enum FrontendValidationSource {
   Expression = '__expression__',
 }
 
-export function isFieldValidation(validation: ComponentValidation | FieldValidation): validation is FieldValidation {
-  return 'field' in validation;
+// TODO(Validation): Clean up this type and change it to:
+// export type ValidationSeverity = 'error' | 'warning' | 'info' | 'success';
+export type ValidationSeverity = 'errors' | 'warnings' | 'info' | 'success' | 'fixed' | 'unspecified';
+
+export enum ValidationIssueSources {
+  File = 'File',
+  ModelState = 'ModelState',
+  Required = 'Required',
+  Expression = 'Expression',
+  Custom = 'Custom',
 }
 
-export function isComponentValidation(
-  validation: ComponentValidation | FieldValidation,
-): validation is ComponentValidation {
-  return 'componentId' in validation;
+export enum BackendValidationSeverity {
+  Unspecified = 0,
+  Error = 1,
+  Warning = 2,
+  Informational = 3,
+  Fixed = 4,
+  Success = 5,
 }
 
-export function mergeFormValidations(dest: FormValidations | ValidationState, src: FormValidations | ValidationState) {
-  for (const [field, groups] of Object.entries(src.fields)) {
-    if (!dest.fields[field]) {
-      dest.fields[field] = {};
-    }
-    for (const [group, validations] of Object.entries(groups)) {
-      dest.fields[field][group] = validations;
-    }
-  }
+export type ValidationContext = {
+  state: ValidationState;
+};
 
-  for (const [componentId, compValidations] of Object.entries(src.components)) {
-    if (!dest.components[componentId]) {
-      dest.components[componentId] = {
-        bindingKeys: {},
-        component: {},
-      };
-    }
+export type ValidationState = FormValidations & {
+  task: BaseValidation[];
+};
 
-    if (compValidations.component) {
-      for (const [group, validations] of Object.entries(compValidations.component)) {
-        dest.components[componentId].component[group] = validations;
-      }
-    }
+export type FormValidations = {
+  fields: FieldValidations;
+  components: ComponentValidations;
+};
 
-    if (compValidations.bindingKeys) {
-      for (const [bindingKey, groups] of Object.entries(compValidations.bindingKeys)) {
-        if (!dest.components[componentId].bindingKeys[bindingKey]) {
-          dest.components[componentId].bindingKeys[bindingKey] = {};
-        }
-        for (const [group, validations] of Object.entries(groups)) {
-          dest.components[componentId].bindingKeys[bindingKey][group] = validations;
-        }
-      }
-    }
-  }
-}
+export type ValidationGroup<T extends GroupedValidation> = {
+  [group: string]: T[];
+};
 
-function isOfSeverity<V extends BaseValidation, S extends ValidationSeverity>(severity: S) {
-  return (validation: V): validation is V & { severity: S } => validation.severity === severity;
-}
-export function validationsOfSeverity<I extends BaseValidation, S extends ValidationSeverity>(
-  validations: I[] | undefined,
-  severity: S,
-) {
-  return validations?.filter(isOfSeverity(severity)) ?? [];
-}
+export type FieldValidations = {
+  [field: string]: ValidationGroup<FieldValidation>;
+};
 
-export function hasValidationErrors<V extends BaseValidation>(validations: V[] | undefined): boolean {
-  return validations?.some((validation: any) => validation.severity === 'errors') ?? false;
-}
-
-export function buildNodeValidation<Severity extends ValidationSeverity = ValidationSeverity>(
-  node: LayoutNode,
-  validation: FieldValidation<Severity> | ComponentValidation<Severity>,
-  bindingKey?: string,
-): NodeValidation<Severity> {
-  return {
-    ...validation,
-    bindingKey,
-    componentId: node.item.id,
-    pageKey: node.pageKey(),
+export type ComponentValidations = {
+  [componentId: string]: {
+    bindingKeys: { [bindingKey: string]: ValidationGroup<ComponentValidation> };
+    component: ValidationGroup<ComponentValidation>;
   };
+};
+
+export type BaseValidation<Severity extends ValidationSeverity = ValidationSeverity> = {
+  message: string;
+  severity: Severity;
+};
+
+export type GroupedValidation<Severity extends ValidationSeverity = ValidationSeverity> = BaseValidation<Severity> & {
+  group: string;
+};
+
+export type FieldValidation<Severity extends ValidationSeverity = ValidationSeverity> = GroupedValidation<Severity> & {
+  field: string;
+};
+
+export type ComponentValidation<Severity extends ValidationSeverity = ValidationSeverity> =
+  GroupedValidation<Severity> & {
+    componentId: string;
+    bindingKey?: string;
+    meta?: Record<string, string>;
+  };
+
+export type NodeValidation<Severity extends ValidationSeverity = ValidationSeverity> = GroupedValidation<Severity> & {
+  componentId: string;
+  pageKey: string;
+  bindingKey?: string;
+  meta?: Record<string, string>;
+};
+
+// TODO(Validation): replace message string with TextResource type, to allow proper translation of messages
+// TODO(Validation): Move to more appropriate location
+export type TextResource = {
+  key?: string | undefined;
+  params?: ValidParam[];
+};
+
+export type NodeDataChange = {
+  node: LayoutNode;
+  fields: string[];
+};
+
+/**
+ * Contains all of the necessary elements from the redux store to run frontend validations.
+ */
+export type IValidationContext = {
+  langTools: IUseLanguage;
+  formData: IFormData;
+  attachments: IAttachments;
+  application: IApplicationMetadata | null;
+  instance: IInstance | null;
+  process: IProcess | null;
+  layoutSets: ILayoutSets | null;
+  schemas: IJsonSchemas;
+  customValidation: IExpressionValidations | null;
+};
+
+export type ValidationContextGenerator = (node: LayoutNode | undefined) => IValidationContext;
+
+/**
+ * This format is used by the backend to send validation issues to the frontend.
+ */
+export interface BackendValidationIssue {
+  code: string;
+  description: string;
+  field: string;
+  scope: string | null;
+  severity: BackendValidationSeverity;
+  targetId: string;
+  source: string;
+  customTextKey?: string;
 }
 
 /**
- * The following types of validation are also handeled by the frontend
- * and should normally be filtered out to avoid showing duplicate messages.
+ * Expression validation object.
  */
-const groupsToFilter: string[] = [
-  ValidationIssueSources.Required,
-  ValidationIssueSources.ModelState,
-  ValidationIssueSources.Expression,
-];
-export function validationsFromGroups<T extends GroupedValidation>(
-  groups: ValidationGroup<T>,
-  ignoreBackendValidations: boolean,
-  severity?: ValidationSeverity,
-) {
-  const validationsFlat = ignoreBackendValidations
-    ? Object.entries(groups)
-        .filter(([group]) => !groupsToFilter.includes(group))
-        .flatMap(([, validations]) => validations)
-    : Object.values(groups).flat();
+export type IExpressionValidation = {
+  message: string;
+  condition: Expression | ExprValToActual;
+  severity: ValidationSeverity;
+};
 
-  return severity ? validationsOfSeverity(validationsFlat, severity) : validationsFlat;
+/**
+ * Expression validations for all fields.
+ */
+export type IExpressionValidations = {
+  [field: string]: IExpressionValidation[];
+};
+
+/**
+ * Expression validation or definition with references resolved.
+ */
+export type IExpressionValidationRefResolved = {
+  message: string;
+  condition: Expression | ExprValToActual;
+  severity?: ValidationSeverity;
+};
+
+/**
+ * Unresolved expression validation or definition from the configuration file.
+ */
+export type IExpressionValidationRefUnresolved =
+  | IExpressionValidationRefResolved
+  | {
+      // If extending using a reference, assume that message and condition are inherited if undefined. This must be verified at runtime.
+      message?: string;
+      condition?: Expression | ExprValToActual;
+      severity?: ValidationSeverity;
+      ref: string;
+    };
+
+/**
+ * Expression validation configuration file type.
+ */
+export type IExpressionValidationConfig = {
+  validations: { [field: string]: (IExpressionValidationRefUnresolved | string)[] };
+  definitions: { [name: string]: IExpressionValidationRefUnresolved };
+};
+
+export interface ISchemaValidator {
+  rootElementPath: string;
+  schema: any;
+  validator: Ajv;
 }
 
-/*
- * Gets all validations for a node in a single list, optionally filtered by severity
- * Looks at data model bindings to get field validations
- */
-export function getValidationsForNode(
-  node: LayoutNode,
-  state: ValidationState,
-  ignoreBackendValidations: boolean,
-): NodeValidation[];
-export function getValidationsForNode<Severity extends ValidationSeverity>(
-  node: LayoutNode,
-  state: ValidationState,
-  ignoreBackendValidations: boolean,
-  severity: Severity,
-): NodeValidation<Severity>[];
-export function getValidationsForNode(
-  node: LayoutNode,
-  state: ValidationState,
-  ignoreBackendValidations = true,
-  severity?: ValidationSeverity,
-): NodeValidation[] {
-  const validationMessages: NodeValidation[] = [];
-  if (node.isHidden({ respectTracks: true }) || ('renderAsSummary' in node.item && node.item.renderAsSummary)) {
-    return validationMessages;
-  }
-  if (node.item.dataModelBindings) {
-    for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings)) {
-      if (state.fields[field]) {
-        const validations = validationsFromGroups(state.fields[field], ignoreBackendValidations, severity);
-        for (const validation of validations) {
-          validationMessages.push(buildNodeValidation(node, validation, bindingKey));
-        }
-      }
-
-      if (state.components[node.item.id]?.bindingKeys?.[bindingKey]) {
-        const validations = validationsFromGroups(
-          state.components[node.item.id].bindingKeys[bindingKey],
-          ignoreBackendValidations,
-          severity,
-        );
-        for (const validation of validations) {
-          validationMessages.push(buildNodeValidation(node, validation, bindingKey));
-        }
-      }
-    }
-  }
-  if (state.components[node.item.id]?.component) {
-    const validations = validationsFromGroups(
-      state.components[node.item.id].component,
-      ignoreBackendValidations,
-      severity,
-    );
-    for (const validation of validations) {
-      validationMessages.push(buildNodeValidation(node, validation));
-    }
-  }
-  return validationMessages;
+export interface ISchemaValidators {
+  [id: string]: ISchemaValidator;
 }
+
+/**
+ * This format is returned by the json schema validation, and needs to be mapped to components based on the datamodel bindingField.
+ */
+export type ISchemaValidationError = {
+  message: string;
+  bindingField: string;
+  invalidDataType: boolean;
+  keyword: string;
+};

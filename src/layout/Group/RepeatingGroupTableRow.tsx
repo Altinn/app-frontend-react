@@ -7,7 +7,7 @@ import cn from 'classnames';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
-import { hasValidationErrors } from 'src/features/validation';
+import { hasValidationErrors } from 'src/features/validation/utils';
 import { useDeepValidationsForNode } from 'src/features/validation/validationProvider';
 import { useAlertOnChange } from 'src/hooks/useAlertOnChange';
 import { useIsMobile } from 'src/hooks/useIsMobile';

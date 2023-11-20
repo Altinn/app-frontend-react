@@ -1,7 +1,7 @@
-import { BackendValidationSeverity } from 'src/utils/validation/backendValidationSeverity';
-import { validationTexts } from 'src/utils/validation/validationTexts';
+import { BackendValidationSeverity } from 'src/features/validation';
+import { validationTexts } from 'src/features/validation/backend/validationTexts';
+import type { BackendValidationIssue, ValidationSeverity } from 'src/features/validation';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type { BackendValidationIssue, ValidationSeverity } from 'src/utils/validation/types';
 
 /**
  * We need to map the severity we get from backend into the format used when storing in redux.
@@ -14,14 +14,6 @@ export const severityMap: { [s in BackendValidationSeverity]: ValidationSeverity
   [BackendValidationSeverity.Fixed]: 'fixed',
   [BackendValidationSeverity.Unspecified]: 'unspecified',
 };
-
-export enum ValidationIssueSources {
-  File = 'File',
-  ModelState = 'ModelState',
-  Required = 'Required',
-  Expression = 'Expression',
-  Custom = 'Custom',
-}
 
 /**
  * Gets standard validation messages for backend validation issues.

@@ -9,6 +9,8 @@ import type { ImmerReducer } from 'use-immer';
 
 import { useAppMutations } from 'src/contexts/appQueriesContext';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
+import { BackendValidationSeverity } from 'src/features/validation';
+import { getValidationMessage } from 'src/features/validation/backend/backendUtils';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -16,8 +18,6 @@ import { useLanguage } from 'src/hooks/useLanguage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { getFileUploadComponentValidations } from 'src/utils/formComponentUtils';
 import { isAxiosError } from 'src/utils/network/sharedNetworking';
-import { getValidationMessage } from 'src/utils/validation/backendValidation';
-import { BackendValidationSeverity } from 'src/utils/validation/backendValidationSeverity';
 import type {
   AttachmentActionUpload,
   IAttachment,
@@ -25,10 +25,11 @@ import type {
   RawAttachmentAction,
   TemporaryAttachment,
 } from 'src/features/attachments';
+import type { BackendValidationIssue } from 'src/features/validation';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
-import type { BackendValidationIssue, IComponentValidations } from 'src/utils/validation/types';
+import type { IComponentValidations } from 'src/utils/validation/types';
 
 interface ActionUpload extends AttachmentActionUpload {
   temporaryId: string;

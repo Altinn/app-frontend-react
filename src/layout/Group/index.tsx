@@ -15,19 +15,17 @@ import {
   groupIsRepeatingExt,
   groupIsRepeatingLikertExt,
 } from 'src/layout/Group/tools';
-import { runValidationOnNodes } from 'src/utils/validation/validation';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { IFormData } from 'src/features/formData';
-import type { ComponentValidation, FormValidations } from 'src/features/validation/types';
-import type { GroupValidation, PropsFromGenericComponent, ValidateComponent } from 'src/layout';
+import type { ComponentValidation, IValidationContext } from 'src/features/validation';
+import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { CompExternalExact, CompInternal, HierarchyDataSources } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { IValidationContext, ValidationContextGenerator } from 'src/utils/validation/types';
 
-export class Group extends GroupDef implements GroupValidation, ValidateComponent {
+export class Group extends GroupDef implements ValidateComponent {
   private _hierarchyGenerator = new GroupHierarchyGenerator();
 
   directRender(): boolean {
@@ -100,14 +98,6 @@ export class Group extends GroupDef implements GroupValidation, ValidateComponen
     }
 
     return validations;
-  }
-
-  runGroupValidations(
-    node: LayoutNode<'Group'>,
-    validationCtxGenerator: ValidationContextGenerator,
-    onlyInRowIndex?: number,
-  ): FormValidations {
-    return runValidationOnNodes(node.flat(true, onlyInRowIndex), validationCtxGenerator);
   }
 
   makeNode(

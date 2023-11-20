@@ -5,28 +5,37 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { lookupErrorAsText } from 'src/features/datamodel/lookupErrorAsText';
 import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspector/DefaultNodeInspector';
-import { FrontendValidationSource, isComponentValidation, isFieldValidation } from 'src/features/validation';
+import { FrontendValidationSource } from 'src/features/validation';
+import { runExpressionValidationsOnNode } from 'src/features/validation/frontend/expressionValidation';
+import { isComponentValidation, isFieldValidation } from 'src/features/validation/utils';
 import { CompCategory } from 'src/layout/common';
 import {
-  type DisplayData,
-  type DisplayDataProps,
   implementsValidateComponent,
   implementsValidateEmptyField,
   implementsValidateSchema,
-  type PropsFromGenericComponent,
   useDisplayDataProps,
-  type ValidateAny,
-  type ValidateEmptyField,
-  type ValidateSchema,
 } from 'src/layout/index';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { getFieldName } from 'src/utils/formComponentUtils';
 import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
-import { runExpressionValidationsOnNode } from 'src/utils/validation/expressionValidation';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { IFormData } from 'src/features/formData';
-import type { ComponentValidation, FieldValidation, FormValidations } from 'src/features/validation/types';
+import type {
+  ComponentValidation,
+  FieldValidation,
+  FormValidations,
+  ISchemaValidationError,
+  IValidationContext,
+} from 'src/features/validation';
+import type {
+  DisplayData,
+  DisplayDataProps,
+  PropsFromGenericComponent,
+  ValidateAny,
+  ValidateEmptyField,
+  ValidateSchema,
+} from 'src/layout/index';
 import type {
   CompExternalExact,
   CompInternal,
@@ -38,8 +47,6 @@ import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { ISchemaValidationError } from 'src/utils/validation/schemaValidation';
-import type { IValidationContext } from 'src/utils/validation/types';
 
 const defaultGenerator = new SimpleComponentHierarchyGenerator();
 

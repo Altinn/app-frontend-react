@@ -7,7 +7,7 @@ import {
   useAttachmentsMappedToFormData,
 } from 'src/features/attachments/useAttachmentsMappedToFormData';
 import { useGetOptions } from 'src/features/options/useGetOptions';
-import { hasValidationErrors } from 'src/features/validation';
+import { hasValidationErrors } from 'src/features/validation/utils';
 import { useAlertPopper } from 'src/hooks/useAlertPopper';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';

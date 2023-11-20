@@ -8,10 +8,10 @@ import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { CustomValidationActions } from 'src/features/customValidation/customValidationSlice';
 import { useCurrentDataModelName } from 'src/features/datamodel/useBindingSchema';
 import { Loader } from 'src/features/loading/Loader';
+import { resolveExpressionValidationConfig } from 'src/features/validation/frontend/expressionValidation';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { createStrictContext } from 'src/utils/createContext';
-import { resolveExpressionValidationConfig } from 'src/utils/validation/expressionValidation';
-import type { IExpressionValidationConfig } from 'src/utils/validation/types';
+import type { IExpressionValidationConfig } from 'src/features/validation';
 
 const { Provider, useCtx } = createStrictContext<IExpressionValidationConfig | null>({
   name: 'CustomValidationContext',

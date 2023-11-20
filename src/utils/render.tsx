@@ -2,11 +2,11 @@ import React from 'react';
 
 import { ErrorMessage } from '@digdir/design-system-react';
 
-import { validationsOfSeverity } from 'src/features/validation';
+import { validationsOfSeverity } from 'src/features/validation/utils';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
 import { AlertBaseComponent } from 'src/layout/Alert/AlertBaseComponent';
-import type { NodeValidation } from 'src/features/validation/types';
+import type { NodeValidation } from 'src/features/validation';
 import type { AlertSeverity } from 'src/layout/Alert/config.generated';
 
 // TODO(Validation): Move these components to a more suitable location

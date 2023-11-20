@@ -2,18 +2,19 @@ import dot from 'dot-object';
 import fs from 'node:fs';
 
 import { getHierarchyDataSourcesMock } from 'src/__mocks__/hierarchyMock';
-import { convertLayouts, type Layouts } from 'src/features/expressions/shared';
+import { convertLayouts } from 'src/features/expressions/shared';
 import { FrontendValidationSource } from 'src/features/validation';
+import { resolveExpressionValidationConfig } from 'src/features/validation/frontend/expressionValidation';
+import { runValidationOnNodes } from 'src/features/validation/frontend/runValidations';
 import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
 import { buildAuthContext } from 'src/utils/authContext';
 import { getRepeatingGroups } from 'src/utils/formLayout';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import { _private } from 'src/utils/layout/hierarchy';
-import { resolveExpressionValidationConfig } from 'src/utils/validation/expressionValidation';
-import { runValidationOnNodes } from 'src/utils/validation/validation';
+import type { Layouts } from 'src/features/expressions/shared';
+import type { IExpressionValidationConfig, ValidationContextGenerator } from 'src/features/validation';
 import type { HierarchyDataSources } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
-import type { IExpressionValidationConfig, ValidationContextGenerator } from 'src/utils/validation/types';
 
 const { resolvedNodesInLayouts } = _private;
 

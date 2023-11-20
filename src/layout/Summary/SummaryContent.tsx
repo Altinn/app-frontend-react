@@ -2,7 +2,7 @@ import React from 'react';
 
 import cn from 'classnames';
 
-import { hasValidationErrors } from 'src/features/validation';
+import { hasValidationErrors } from 'src/features/validation/utils';
 import { useUnifiedValidationsForNode } from 'src/features/validation/validationProvider';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { EditButton } from 'src/layout/Summary/EditButton';

@@ -3,32 +3,42 @@ import React, { useMemo } from 'react';
 import { useImmer } from 'use-immer';
 import type { AxiosRequestConfig } from 'axios';
 
+import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
+import { useLaxInstance } from 'src/features/instance/InstanceContext';
+import { ValidationIssueSources } from 'src/features/validation';
+import { getValidationMessage, severityMap } from 'src/features/validation/backend/backendUtils';
+import { runValidationOnNodes } from 'src/features/validation/frontend/runValidations';
+import {
+  useOnAttachmentsChange,
+  useOnHierarchyChange,
+  useOnNodeDataChange,
+  useValidationContextGenerator,
+} from 'src/features/validation/hooks';
 import {
   buildNodeValidation,
   getValidationsForNode,
   mergeFormValidations,
   validationsFromGroups,
   validationsOfSeverity,
-} from '.';
-
-import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
-import { useLaxInstance } from 'src/features/instance/InstanceContext';
-import { useOnAttachmentsChange, useOnHierarchyChange, useOnNodeDataChange } from 'src/features/validation/hooks';
-import { type IUseLanguage, useLanguage } from 'src/hooks/useLanguage';
+} from 'src/features/validation/utils';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { createStrictContext } from 'src/utils/createContext';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { duplicateStringFilter } from 'src/utils/stringHelper';
 import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
-import { getValidationMessage, severityMap, ValidationIssueSources } from 'src/utils/validation/backendValidation';
-import { runValidationOnNodes } from 'src/utils/validation/validation';
-import { useValidationContextGenerator } from 'src/utils/validation/validationHelpers';
-import type { NodeDataChange } from 'src/features/validation/hooks';
-import type { BaseValidation, NodeValidation, ValidationContext, ValidationState } from 'src/features/validation/types';
+import type {
+  BackendValidationIssue,
+  BaseValidation,
+  NodeDataChange,
+  NodeValidation,
+  ValidationContext,
+  ValidationState,
+} from 'src/features/validation';
+import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { CompTypes, IDataModelBindings } from 'src/layout/layout';
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { BackendValidationIssue } from 'src/utils/validation/types';
 
 const { Provider, useCtx } = createStrictContext<ValidationContext>({ name: 'ValidationContext' });
 
