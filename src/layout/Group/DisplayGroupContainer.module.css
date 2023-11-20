@@ -1,13 +1,12 @@
-.groupContainer {
-  width: 100%;
-  display: flex;
-  gap: 24px;
-  padding-bottom: 38px;
-}
-
 .group {
   width: 100%;
   padding: 12px;
+}
+
+.groupContainer {
+  display: flex;
+  gap: 24px;
+  padding-bottom: 38px;
 }
 
 .groupingIndicator {
