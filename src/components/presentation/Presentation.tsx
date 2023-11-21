@@ -39,7 +39,7 @@ export const PresentationComponent = ({ header, type, children }: IPresentationP
   const { previous } = useAppSelector(selectPreviousAndNextPage);
   const returnToView = useAppSelector((state) => state.formLayout.uiConfig.returnToView);
 
-  const realHeader = header || type === ProcessTaskType.Archived ? lang('receipt.title') : undefined;
+  const realHeader = header || (type === ProcessTaskType.Archived ? lang('receipt.title') : undefined);
 
   const handleBackArrowButton = () => {
     if (returnToView) {
