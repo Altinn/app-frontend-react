@@ -37,8 +37,6 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
   const disablePrevious = previous === undefined;
   const disableNext = next === undefined;
 
-  console.log('Next: ', next);
-
   const onClickPrevious = () => {
     const goToView = previous;
 

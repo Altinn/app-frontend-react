@@ -1,4 +1,4 @@
-import { returnConfirmSummaryObject } from 'src/features/confirm/helpers/returnConfirmSummaryObject';
+import { returnConfirmSummaryObject } from 'src/features/processEnd/confirm/helpers/returnConfirmSummaryObject';
 import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
 import type { IParty } from 'src/types/shared';
 

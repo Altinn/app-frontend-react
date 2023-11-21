@@ -3,7 +3,7 @@ import React from 'react';
 import { ReceiptComponent } from 'src/components/organisms/AltinnReceipt';
 import { ProcessNavigation } from 'src/components/presentation/ProcessNavigation';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
-import { returnConfirmSummaryObject } from 'src/features/confirm/helpers/returnConfirmSummaryObject';
+import { returnConfirmSummaryObject } from 'src/features/processEnd/confirm/helpers/returnConfirmSummaryObject';
 import { useLanguage } from 'src/hooks/useLanguage';
 import {
   filterDisplayAttachments,

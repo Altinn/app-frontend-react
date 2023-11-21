@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 
-import { ProcessWrapper } from 'src/components/wrappers/ProcessWrapper';
+import { ProcessWrapperWrapper } from 'src/components/wrappers/ProcessWrapper';
 import { Entrypoint } from 'src/features/entrypoint/Entrypoint';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { PartySelection } from 'src/features/instantiate/containers/PartySelection';
@@ -106,7 +106,7 @@ const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | n
           path='instance/:partyId/:instanceGuid/*'
           element={
             <InstanceProvider>
-              <ProcessWrapper isFetching={isFetching} />
+              <ProcessWrapperWrapper isFetching={isFetching} />
             </InstanceProvider>
           }
         />

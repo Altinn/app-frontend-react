@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Route, Routes, useSearchParams } from 'react-router-dom';
 
 import cn from 'classnames';
 
@@ -8,15 +8,14 @@ import { Form } from 'src/components/form/Form';
 import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoader';
 import { PresentationComponent } from 'src/components/wrappers/Presentation';
 import classes from 'src/components/wrappers/ProcessWrapper.module.css';
-import { Confirm } from 'src/features/confirm/containers/Confirm';
-import { Feedback } from 'src/features/feedback/Feedback';
 import { useStrictInstance } from 'src/features/instance/InstanceContext';
-import { useRealTaskType } from 'src/features/instance/ProcessContext';
+import { useTaskType } from 'src/features/instance/ProcessContext';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { PDFView } from 'src/features/pdf/PDFView';
-import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
+import { ProcessEndWrapper } from 'src/features/processEnd/ProcessEndWrapper';
 import { useApiErrorCheck } from 'src/hooks/useApiErrorCheck';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
 import { ProcessTaskType } from 'src/types';
 
@@ -24,12 +23,24 @@ export interface IProcessWrapperProps {
   isFetching?: boolean;
 }
 
+export function ProcessWrapperWrapper({ isFetching }: { isFetching: boolean }) {
+  return (
+    <Routes>
+      <Route
+        path=':taskId/*'
+        element={<ProcessWrapper isFetching={isFetching} />}
+      />
+    </Routes>
+  );
+}
+
 export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
-  const { isFetching: isInstanceDataFetching } = useStrictInstance();
-  const { hasApiErrors } = useApiErrorCheck();
   const appName = useAppSelector(selectAppName);
   const appOwner = useAppSelector(selectAppOwner);
-  const taskType = useRealTaskType();
+  const { isFetching: isInstanceDataFetching } = useStrictInstance();
+  const { hasApiErrors } = useApiErrorCheck();
+  const { taskId } = useNavigatePage();
+  const taskType = useTaskType(taskId);
 
   const [searchParams] = useSearchParams();
   const renderPDF = searchParams.get('pdf') === '1';
@@ -53,6 +64,8 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
     );
   }
 
+  // TODO: Create an process end wrapper which contains both Feedback and Receipt.
+  // Then the user can navigate between the two states confirmation and Archived.
   return (
     <>
       <div className={cn(classes['content'], { [classes['hide-form']]: previewPDF })}>
@@ -65,9 +78,7 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
             {!loadingReason && (
               <>
                 {taskType === ProcessTaskType.Data && <Form />}
-                {taskType === ProcessTaskType.Confirm && <Confirm />}
-                {taskType === ProcessTaskType.Feedback && <Feedback />}
-                {taskType === ProcessTaskType.Archived && <ReceiptContainer />}
+                {taskType !== ProcessTaskType.Data && <ProcessEndWrapper />}
               </>
             )}
             {loadingReason && (

@@ -1,23 +1,22 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
 
 import { Chip, Fieldset, Select } from '@digdir/design-system-react';
 import cn from 'classnames';
 
 import classes from 'src/features/devtools/components/DevNavigationButtons/DevNavigationButtons.module.css';
-import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 
 export const DevNavigationButtons = () => {
   const { currentView, pageOrderConfig } = useAppSelector((state) => state.formLayout.uiConfig);
+  const { navigateToPage } = useNavigatePage();
   const ctx = useExprContext();
-  const dispatch = useDispatch();
   const order = pageOrderConfig?.order ?? [];
   const allPages = ctx?.allPageKeys() || [];
 
   function handleChange(newView: string) {
-    dispatch(FormLayoutActions.updateCurrentView({ newView, allowNavigationToHidden: true }));
+    navigateToPage(newView);
   }
 
   function isHidden(page: string) {

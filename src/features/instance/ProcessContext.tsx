@@ -7,6 +7,7 @@ import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/loading/Loader';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { ProcessTaskType } from 'src/types';
 import { useIsStatelessApp } from 'src/utils/appMetadata';
@@ -47,6 +48,7 @@ export function ProcessProvider({ children, instance }: React.PropsWithChildren<
   const reFetchNative = query.refetch;
   const reFetch = useCallback(async () => void (await reFetchNative()), [reFetchNative]);
   const dispatch = useAppDispatch();
+  const { navigateToTask } = useNavigatePage();
 
   useEffect(() => {
     setData(query.data);
@@ -55,6 +57,12 @@ export function ProcessProvider({ children, instance }: React.PropsWithChildren<
   useEffect(() => {
     dispatch(DeprecatedActions.setLastKnownProcess(data));
   }, [data, dispatch]);
+
+  useEffect(() => {
+    if (data?.currentTask?.elementId != null) {
+      navigateToTask(data.currentTask.elementId);
+    }
+  }, [data?.currentTask?.elementId]);
 
   if (query.error) {
     return <UnknownError />;
@@ -109,6 +117,28 @@ export function useTaskTypeFromBackend() {
 export function useRealTaskType() {
   const taskId = useLaxProcessData()?.currentTask?.elementId;
   return useRealTaskTypeById(taskId || undefined);
+}
+
+export function useTaskType(taskId: string | undefined) {
+  const processData = useLaxProcessData();
+  const task = processData?.processTasks?.find((t) => t.elementId === taskId);
+  const isStateless = useIsStatelessApp();
+  const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
+
+  if (isStateless) {
+    // Stateless apps only have data tasks. As soon as they start creating an instance from that stateless step,
+    // useIsStatelessApp() will return false and we'll proceed as normal.
+    return ProcessTaskType.Data;
+  }
+  if (task?.altinnTaskType === ProcessTaskType.Confirm && processData?.ended) {
+    return ProcessTaskType.Archived;
+  }
+  if (task === undefined || task?.altinnTaskType === undefined) {
+    return ProcessTaskType.Unknown;
+  }
+
+  const isDataTask = behavesLikeDataTask(task.elementId, layoutSets);
+  return isDataTask ? ProcessTaskType.Data : (task.altinnTaskType as ProcessTaskType);
 }
 
 export function useRealTaskTypeById(taskId: string | undefined) {

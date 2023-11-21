@@ -2,8 +2,8 @@ import React from 'react';
 
 import { AltinnContentIconReceipt } from 'src/components/atoms/AltinnContentIconReceipt';
 import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoader';
-import { ConfirmPage } from 'src/features/confirm/containers/ConfirmPage';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { ConfirmPage } from 'src/features/processEnd/confirm/containers/ConfirmPage';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { selectAppName } from 'src/selectors/language';
 

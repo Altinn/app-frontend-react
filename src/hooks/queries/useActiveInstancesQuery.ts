@@ -24,3 +24,10 @@ export const useActiveInstancesQuery = (partyId?: string, enabled?: boolean): Us
     },
   });
 };
+
+export const useActiveInstances = (partyId?: string, enabled?: boolean): UseQueryResult<ISimpleInstance[]> => {
+  const { fetchActiveInstances } = useAppQueries();
+  return useQuery(['getActiveInstances'], () => fetchActiveInstances(partyId || ''), {
+    enabled,
+  });
+};

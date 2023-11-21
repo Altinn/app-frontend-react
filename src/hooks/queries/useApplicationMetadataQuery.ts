@@ -22,3 +22,8 @@ export const useApplicationMetadataQuery = (): UseQueryResult<IApplicationMetada
     },
   });
 };
+
+export const useApplicationMetadata = (): UseQueryResult<IApplicationMetadata | undefined> => {
+  const { fetchApplicationMetadata } = useAppQueries();
+  return useQuery(['fetchApplicationMetadata'], fetchApplicationMetadata);
+};

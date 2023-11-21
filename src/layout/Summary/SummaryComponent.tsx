@@ -4,10 +4,8 @@ import { Grid } from '@material-ui/core';
 import cn from 'classnames';
 
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
-import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
+import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Summary/SummaryComponent.module.css';
 import { SummaryContent } from 'src/layout/Summary/SummaryContent';
@@ -30,9 +28,8 @@ export interface ISummaryComponent {
 export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) {
   const { id, grid } = summaryNode.item;
   const display = overrides?.display || summaryNode.item.display;
-  const dispatch = useAppDispatch();
   const { lang, langAsString } = useLanguage();
-  const summaryPageName = useAppSelector((state) => state.formLayout.uiConfig.currentView);
+  const { navigateToPage } = useNavigatePage();
   const summaryItem = summaryNode.item;
   const targetNode = useResolvedNode(overrides?.targetNode || summaryNode.item.componentRef || summaryNode.item.id);
   const targetItem = targetNode?.item;
@@ -43,13 +40,17 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
       return;
     }
 
-    dispatch(
-      FormLayoutActions.updateCurrentView({
-        newView: targetView,
-        returnToView: summaryPageName,
-        focusComponentId: targetNode?.item.id,
-      }),
-    );
+    // TODO: Focus component id should be implemented with optional options.
+    // TODO: Return to view is currently broken.
+    navigateToPage(targetView);
+
+    // dispatch(
+    //   FormLayoutActions.updateCurrentView({
+    //     newView: targetView,
+    //     returnToView: summaryPageName,
+    //     focusComponentId: targetNode?.item.id,
+    //   }),
+    // );
   };
 
   if (!targetNode || !targetItem || targetNode.isHidden() || targetItem.type === 'Summary') {

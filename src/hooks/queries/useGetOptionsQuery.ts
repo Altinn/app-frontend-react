@@ -37,7 +37,7 @@ export const useGetOptionsQuery = (
   return useQuery({
     queryKey: [url],
     queryFn: () => fetchOptions(url),
-    enabled: !!optionsId,
+    enabled: !!optionsId && !!instanceId,
     onError: (error: HttpClientError) => {
       dispatch(OptionsActions.fetchRejected({ error }));
     },

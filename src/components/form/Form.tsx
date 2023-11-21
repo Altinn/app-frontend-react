@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Routes, useMatch } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 
 import Grid from '@material-ui/core/Grid';
 
@@ -17,17 +17,18 @@ import { useExprContext } from 'src/utils/layout/ExprContext';
 import { getFormHasErrors, missingFieldsInLayoutValidations } from 'src/utils/validation/validation';
 
 export function Form() {
-  const nodes = useExprContext();
   const langTools = useLanguage();
-  const { currentPageId, navigateToStart, isValidPageId } = useNavigatePage();
+  const { isValidPageId, startUrl, currentPageId, isCurrentTask } = useNavigatePage();
   const validations = useAppSelector((state) => state.formValidations.validations);
-  const page = nodes?.current();
-  const pageKey = page?.top.myKey;
+  const nodes = useExprContext();
+
+  const page = nodes?.all?.()?.[currentPageId];
+  const hasErrors = useAppSelector((state) => getFormHasErrors(state.formValidations.validations));
 
   const requiredFieldsMissing = React.useMemo(() => {
-    if (validations && pageKey && validations[pageKey]) {
+    if (validations && validations[currentPageId]) {
       const requiredValidationTextResources: string[] = [];
-      page.flat(true).forEach((node) => {
+      page?.flat(true).forEach((node) => {
         const trb = node.item.textResourceBindings;
         const fieldName = getFieldName(trb, langTools);
         if ('required' in node.item && node.item.required && trb && 'requiredValidation' in trb) {
@@ -35,18 +36,43 @@ export function Form() {
         }
       });
 
-      return missingFieldsInLayoutValidations(validations[pageKey], requiredValidationTextResources, langTools);
+      return missingFieldsInLayoutValidations(validations[currentPageId], requiredValidationTextResources, langTools);
     }
 
     return false;
-  }, [validations, pageKey, page, langTools]);
+  }, [validations, currentPageId, page, langTools]);
 
-  if (!page) {
-    return null;
-  }
+  const [mainNodes, errorReportNodes] = React.useMemo(() => {
+    if (!page) {
+      return [[], []];
+    }
+    return hasErrors ? extractBottomButtons(page) : [page.children(), []];
+  }, [page, hasErrors]);
+
+  console.log('Render form');
 
   if (!currentPageId || !isValidPageId(currentPageId)) {
-    navigateToStart();
+    console.log('Redirect');
+    return (
+      <Navigate
+        to={startUrl}
+        replace
+      />
+    );
+  }
+
+  if (!isCurrentTask) {
+    console.log('Not current task');
+    return (
+      <Grid
+        item={true}
+        xs={12}
+        aria-live='polite'
+        className={classes.errorReport}
+      >
+        <div>Denne delen av skjemaet er allerede fullført, og kan ikke åpnes igjen.</div>
+      </Grid>
+    );
   }
 
   return (
@@ -62,48 +88,22 @@ export function Form() {
         spacing={3}
         alignItems='flex-start'
       >
-        <Routes>
-          <Route
-            path=':pageKey'
-            element={<LayoutRoutePage />}
+        {mainNodes?.map((n) => (
+          <GenericComponent
+            key={n.item.id}
+            node={n}
           />
-        </Routes>
+        ))}
+        <Grid
+          item={true}
+          xs={12}
+          aria-live='polite'
+          className={classes.errorReport}
+        >
+          <ErrorReport nodes={errorReportNodes} />
+        </Grid>
       </Grid>
       <ReadyForPrint />
-    </>
-  );
-}
-
-export function LayoutRoutePage() {
-  const match = useMatch('/instance/:partyId/:instanceGuid/:pageKey');
-  const nodes = useExprContext();
-  const layoutPage = match?.params.pageKey ? nodes?.all?.()?.[match.params.pageKey] : undefined;
-
-  const hasErrors = useAppSelector((state) => getFormHasErrors(state.formValidations.validations));
-
-  const [_, errorReportNodes] = React.useMemo(() => {
-    if (!layoutPage) {
-      return [[], []];
-    }
-    return hasErrors ? extractBottomButtons(layoutPage) : [layoutPage.children(), []];
-  }, [layoutPage, hasErrors]);
-
-  return (
-    <>
-      {layoutPage?.children().map((n) => (
-        <GenericComponent
-          key={n.item.id}
-          node={n}
-        />
-      ))}
-      <Grid
-        item={true}
-        xs={12}
-        aria-live='polite'
-        className={classes.errorReport}
-      >
-        <ErrorReport nodes={errorReportNodes} />
-      </Grid>
     </>
   );
 }

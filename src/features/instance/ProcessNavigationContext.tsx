@@ -34,7 +34,7 @@ function useProcessNext() {
     mutationFn: ({ taskId, action }: ProcessNextProps = {}) => doProcessNext.call(taskId, language, action),
     onSuccess: async (data: IProcess) => {
       doProcessNext.setLastResult(data);
-      setProcessData && setProcessData(data);
+      setProcessData && setProcessData((prev) => ({ ...data, processTasks: prev?.processTasks }));
       await reFetchInstanceData();
     },
     onError: (error: HttpClientError) => {

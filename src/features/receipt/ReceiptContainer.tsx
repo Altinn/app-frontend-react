@@ -8,10 +8,12 @@ import { ReceiptComponent } from 'src/components/organisms/AltinnReceipt';
 import { ReceiptComponentSimple } from 'src/components/organisms/AltinnReceiptSimple';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { CustomReceipt } from 'src/features/receipt/CustomReceipt';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 import { useLanguage } from 'src/hooks/useLanguage';
+import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { getAppReceiver } from 'src/language/sharedLanguage';
 import { layoutsSelector } from 'src/selectors/layout';
 import {
@@ -83,6 +85,8 @@ export const ReceiptContainer = () => {
   const layouts = useAppSelector(layoutsSelector);
   const langTools = useLanguage();
   const { lang } = langTools;
+  const process = useLaxProcessData();
+  const { navigateToPage } = useNavigatePage();
 
   const origin = window.location.origin;
 
@@ -118,6 +122,11 @@ export const ReceiptContainer = () => {
       setLastChangedDateTime(moment(instance.lastChanged).format('DD.MM.YYYY / HH:mm'));
     }
   }, [instance, applicationMetadata]);
+
+  if (!process?.ended) {
+    navigateToPage('confirmation');
+    return;
+  }
 
   const requirementMissing = !attachments
     ? 'attachments'

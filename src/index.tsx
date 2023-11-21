@@ -5,7 +5,7 @@ import 'core-js';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
-import { createHashRouter, RouterProvider } from 'react-router-dom';
+import { createHashRouter, RouterProvider, useLocation } from 'react-router-dom';
 
 import 'src/features/toggles';
 import 'src/features/logging';
@@ -18,7 +18,9 @@ import { ErrorBoundary } from 'src/components/ErrorBoundary';
 import { ThemeWrapper } from 'src/components/ThemeWrapper';
 import { AppQueriesProvider } from 'src/contexts/appQueriesContext';
 import { DevTools } from 'src/features/devtools/DevTools';
+import { LayoutValidationProvider } from 'src/features/devtools/layoutValidation/useLayoutValidation';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
+import { AllOptionsProvider } from 'src/features/options/useAllOptions';
 import * as queries from 'src/queries/queries';
 import { initSagas } from 'src/redux/sagas';
 import { setupStore } from 'src/redux/store';
@@ -27,14 +29,10 @@ import { ExprContextWrapper } from 'src/utils/layout/ExprContext';
 import 'src/index.css';
 
 const router = createHashRouter([
-  { path: '*', element: <App /> },
-  /**
-   * These paths are dependent on the selector allowAnonymousSelector
-   * before they can be rendered. TODO is to find a way to put these
-   * routes into the data router.
-   */
-  // { path: '/', element: <Entrypoint /> },
-  // { path: '/partyselection/*', element: <PartySelection /> },
+  {
+    path: '*',
+    element: <Root />,
+  },
 ]);
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -49,13 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <AppWrapper>
           <AppQueriesProvider {...queries}>
             <ThemeWrapper>
-              <InstantiationProvider>
-                <ExprContextWrapper>
-                  <DevTools>
-                    <RouterProvider router={router} />
-                  </DevTools>
-                </ExprContextWrapper>
-              </InstantiationProvider>
+              <RouterProvider router={router} />
             </ThemeWrapper>
           </AppQueriesProvider>
         </AppWrapper>
@@ -63,3 +55,21 @@ document.addEventListener('DOMContentLoaded', () => {
     </Provider>,
   );
 });
+
+function Root() {
+  const location = useLocation();
+  console.log('Location: ', location.pathname);
+  return (
+    <InstantiationProvider>
+      <ExprContextWrapper>
+        <LayoutValidationProvider>
+          <AllOptionsProvider>
+            <DevTools>
+              <App />
+            </DevTools>
+          </AllOptionsProvider>
+        </LayoutValidationProvider>
+      </ExprContextWrapper>
+    </InstantiationProvider>
+  );
+}

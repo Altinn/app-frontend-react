@@ -136,7 +136,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     const updatedErrors = componentErrors.filter((error: string) => error !== errorMessageMaxLength);
 
     return {
-      ...componentValidations.simpleBinding,
+      ...componentValidations?.simpleBinding,
       errors: updatedErrors,
     };
   };

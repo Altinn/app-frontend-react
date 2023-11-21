@@ -4,7 +4,7 @@ import { screen } from '@testing-library/react';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { partyMock } from 'src/__mocks__/partyMock';
-import { Confirm } from 'src/features/confirm/containers/Confirm';
+import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 
 describe('Confirm', () => {

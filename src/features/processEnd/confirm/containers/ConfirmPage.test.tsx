@@ -6,7 +6,7 @@ import { userEvent } from '@testing-library/user-event';
 import { getApplicationMetadataMock } from 'src/__mocks__/applicationMetadataMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getInstanceDataMock } from 'src/__mocks__/instanceDataStateMock';
-import { ConfirmPage, type IConfirmPageProps } from 'src/features/confirm/containers/ConfirmPage';
+import { ConfirmPage, type IConfirmPageProps } from 'src/features/processEnd/confirm/containers/ConfirmPage';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 
 describe('ConfirmPage', () => {

@@ -14,14 +14,16 @@ import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 const { Provider, useCtx } = createStrictContext<ILayoutSettings | undefined>({ name: 'LayoutSettingsContext' });
 
-function useLayoutSettingsQuery() {
+export function useLayoutSettingsQuery(layoutSetId?: string) {
   const { fetchLayoutSettings } = useAppQueries();
-  const layoutSetId = useCurrentLayoutSetId();
+  const currentLayoutSetId = useCurrentLayoutSetId();
   const dispatch = useAppDispatch();
 
+  const queryId = layoutSetId || currentLayoutSetId;
+
   return useQuery({
-    queryKey: ['layoutSettings', layoutSetId],
-    queryFn: () => fetchLayoutSettings(layoutSetId),
+    queryKey: ['layoutSettings', queryId],
+    queryFn: () => fetchLayoutSettings(queryId),
     onSuccess: (settings) => {
       dispatch(FormLayoutActions.fetchSettingsFulfilled({ settings }));
     },
@@ -32,9 +34,20 @@ function useLayoutSettingsQuery() {
   });
 }
 
+export function useLayoutSettingsQ(layoutSetId?: string) {
+  const { fetchLayoutSettings } = useAppQueries();
+  const currentLayoutSetId = useCurrentLayoutSetId();
+
+  const queryId = layoutSetId || currentLayoutSetId;
+
+  return useQuery({
+    queryKey: ['layoutSettingsQ', queryId],
+    queryFn: () => fetchLayoutSettings(queryId),
+  });
+}
+
 export function LayoutSettingsProvider({ children }: React.PropsWithChildren) {
   const query = useLayoutSettingsQuery();
-  const data = query.data;
 
   if (query.error) {
     return <UnknownError />;
@@ -44,7 +57,7 @@ export function LayoutSettingsProvider({ children }: React.PropsWithChildren) {
     return <Loader reason='layout-settings' />;
   }
 
-  return <Provider value={data}>{children}</Provider>;
+  return <Provider value={query.data}>{children}</Provider>;
 }
 
 export const useLayoutSettings = () => useCtx();
