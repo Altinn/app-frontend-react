@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+
 import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
@@ -17,13 +19,8 @@ export interface TextResourcesContext {
   language: string;
 }
 
-const convertResult = (
-  result: ITextResourceResult,
-  dispatch: ReturnType<typeof useAppDispatch>,
-): TextResourcesContext => {
+const convertResult = (result: ITextResourceResult): TextResourcesContext => {
   const { resources, language } = result;
-
-  dispatch(TextResourcesActions.fetchFulfilled({ resources, language }));
 
   return {
     resources: resourcesAsMap(resources),
@@ -40,25 +37,34 @@ const useTextResourcesQuery = () => {
   const profile = useProfile();
   const enabled = useAllowAnonymousIs(true) || profile !== undefined;
 
-  return {
+  const utils = {
     ...useQuery({
       enabled,
       queryKey: ['fetchTextResources', selectedLanguage],
-      queryFn: async () => convertResult(await fetchTextResources(selectedLanguage), dispatch),
+      queryFn: () => fetchTextResources(selectedLanguage),
       onError: (error: AxiosError) => {
         window.logError('Fetching text resources failed:\n', error);
       },
     }),
     enabled,
   };
+
+  useEffect(() => {
+    if (utils.data) {
+      dispatch(TextResourcesActions.fetchFulfilled({ resources: utils.data.resources, language: utils.data.language }));
+    }
+  }, [dispatch, utils.data]);
+
+  return utils;
 };
 
 const { Provider, useCtx, useHasProvider } = delayedContext(() =>
-  createQueryContext<TextResourcesContext | undefined, false>({
+  createQueryContext<ITextResourceResult, false, TextResourcesContext | undefined>({
     name: 'TextResources',
     required: false,
     default: undefined,
     query: useTextResourcesQuery,
+    process: convertResult,
   }),
 );
 

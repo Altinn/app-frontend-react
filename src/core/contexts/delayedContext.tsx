@@ -1,19 +1,3 @@
-import type React from 'react';
-import type { PropsWithChildren } from 'react';
-
-type ValidProxyType = {
-  Provider: (props: PropsWithChildren) => React.ReactElement;
-  [key: `use${string}`]: () => unknown;
-};
-
-type OutputType<T extends ValidProxyType> = {
-  [K in keyof T]: K extends 'Provider'
-    ? (props: PropsWithChildren) => React.ReactElement
-    : K extends `use${string}`
-    ? () => ReturnType<T[K]>
-    : never;
-};
-
 /**
  * To prevent cyclic imports causing a call to a function that is not yet defined, we use this function to delay
  * the call until one of the returned properties are actually accessed.
@@ -24,7 +8,7 @@ type OutputType<T extends ValidProxyType> = {
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules#cyclic_imports
  */
-export function delayedContext<T extends ValidProxyType>(callback: () => T): OutputType<T> {
+export function delayedContext<T>(callback: () => T): T {
   const realizedProps: Partial<T> = {};
   const proxyProps = {} as { [K in keyof T]: () => T[K] };
 
@@ -49,5 +33,5 @@ export function delayedContext<T extends ValidProxyType>(callback: () => T): Out
 
       return proxyProps[prop];
     },
-  }) as OutputType<T>;
+  });
 }
