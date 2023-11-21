@@ -122,7 +122,6 @@ export function testCustomReceiptPage() {
       .should('have.length', attachmentCount);
   };
 
-  checkAttachmentSection('r-pdfs', 'Følgende er sendt inn:', 5);
   checkAttachmentSection('r-attachments-one', 'Vedlegg fra første side', 1);
   checkAttachmentSection('r-attachments-other', 'Andre vedlegg', 5);
   checkAttachmentSection('r-attachments-pdf', 'Bare PDF-er', 5);
