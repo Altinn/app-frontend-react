@@ -4,7 +4,6 @@ import { AppBar, Grid, Toolbar } from '@material-ui/core';
 import cn from 'classnames';
 
 import classes from 'src/components/AltinnAppHeader.module.css';
-import { AltinnLogo } from 'src/components/AltinnLogo';
 import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
 import { AltinnLogo } from 'src/components/logo/AltinnLogo';
 import { useLanguage } from 'src/hooks/useLanguage';
