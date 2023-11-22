@@ -7,31 +7,22 @@ import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import { useAllowAnonymousIs } from 'src/features/applicationMetadata/getAllowAnonymous';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+import { resourcesAsMap } from 'src/features/language/textResources/resourcesAsMap';
+import { TextResourcesActions } from 'src/features/language/textResources/textResourcesSlice';
 import { useProfile } from 'src/features/profile/ProfileProvider';
-import { resourcesAsMap } from 'src/features/textResources/resourcesAsMap';
-import { TextResourcesActions } from 'src/features/textResources/textResourcesSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { useLanguage } from 'src/hooks/useLanguage';
-import type { ITextResourceResult, TextResourceMap } from 'src/features/textResources/index';
+import type { ITextResourceResult, TextResourceMap } from 'src/features/language/textResources/index';
 
-export interface TextResourcesContext {
-  resources: TextResourceMap;
-  language: string;
-}
-
-const convertResult = (result: ITextResourceResult): TextResourcesContext => {
-  const { resources, language } = result;
-
-  return {
-    resources: resourcesAsMap(resources),
-    language,
-  };
+const convertResult = (result: ITextResourceResult): TextResourceMap => {
+  const { resources } = result;
+  return resourcesAsMap(resources);
 };
 
 const useTextResourcesQuery = () => {
   const dispatch = useAppDispatch();
   const { fetchTextResources } = useAppQueries();
-  const { selectedLanguage } = useLanguage();
+  const selectedLanguage = useCurrentLanguage();
 
   // This makes sure to await potential profile fetching before fetching text resources
   const profile = useProfile();
@@ -59,16 +50,15 @@ const useTextResourcesQuery = () => {
 };
 
 const { Provider, useCtx, useHasProvider } = delayedContext(() =>
-  createQueryContext<ITextResourceResult, false, TextResourcesContext | undefined>({
+  createQueryContext<ITextResourceResult, false, TextResourceMap>({
     name: 'TextResources',
     required: false,
-    default: undefined,
+    default: {},
     query: useTextResourcesQuery,
     process: convertResult,
   }),
 );
 
 export const TextResourcesProvider = Provider;
-export const useTextResources = () => useCtx()?.resources;
-export const useTextResourcesLanguage = () => useCtx()?.language;
+export const useTextResources = () => useCtx();
 export const useHasTextResources = () => useHasProvider();

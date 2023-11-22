@@ -6,11 +6,13 @@ import { PresentationComponent } from 'src/components/presentation/Presentation'
 import { Loader } from 'src/core/loading/Loader';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useIsStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
+import { useAllowAnonymousIs } from 'src/features/applicationMetadata/getAllowAnonymous';
 import { FormProvider } from 'src/features/form/FormContext';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
-import { ValidPartyProvider } from 'src/features/party/ValidPartyProvider';
+import { useCurrentParty, useCurrentPartyIsValid } from 'src/features/party/PartiesProvider';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { usePromptForParty } from 'src/hooks/usePromptForParty';
 import { PresentationType } from 'src/types';
 import type { ShowTypes } from 'src/features/applicationMetadata';
 
@@ -19,18 +21,29 @@ export function Entrypoint() {
   const dispatch = useAppDispatch();
   const isStateless = useIsStatelessApp();
   const show: ShowTypes = applicationMetadata.onEntry?.show ?? 'new-instance';
+  const party = useCurrentParty();
+  const partyIsValid = useCurrentPartyIsValid();
+  const allowAnonymous = useAllowAnonymousIs(true);
+  const alwaysPromptForParty = usePromptForParty();
 
   React.useEffect(() => {
     // If user comes back to entrypoint from an active instance we need to clear validation messages
     dispatch(ValidationActions.updateValidations({ validationResult: { validations: {} }, merge: false }));
   }, [dispatch]);
 
-  if (show === 'new-instance') {
+  const isMissingParty = party === undefined && !allowAnonymous;
+  if (partyIsValid === false || isMissingParty) {
+    const extraInfo = alwaysPromptForParty ? 'explained' : partyIsValid === false && party ? 'error' : '';
     return (
-      <ValidPartyProvider>
-        <InstantiateContainer />;
-      </ValidPartyProvider>
+      <Navigate
+        to={`/party-selection/${extraInfo}`}
+        replace={true}
+      />
     );
+  }
+
+  if (show === 'new-instance') {
+    return <InstantiateContainer />;
   }
 
   if (show === 'select-instance') {

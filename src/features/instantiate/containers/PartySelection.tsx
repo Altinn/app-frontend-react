@@ -6,11 +6,10 @@ import { Grid, makeStyles, Typography } from '@material-ui/core';
 import { PlusIcon } from '@navikt/aksel-icons';
 
 import { AltinnParty } from 'src/components/altinnParty';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { InstantiationContainer } from 'src/features/instantiate/containers/InstantiationContainer';
-import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
-import { useCurrentParty, useParties, useSelectCurrentParty } from 'src/features/party/PartiesProvider';
-import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useLanguage } from 'src/hooks/useLanguage';
+import { useLanguage } from 'src/features/language/useLanguage';
+import { useCurrentParty, useParties, useSetCurrentParty } from 'src/features/party/PartiesProvider';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { changeBodyBackground } from 'src/utils/bodyStyling';
 import { HttpStatusCodes } from 'src/utils/network/networking';
@@ -73,17 +72,15 @@ export const PartySelection = () => {
   changeBodyBackground(AltinnAppTheme.altinnPalette.primary.white);
   const classes = useStyles();
   const match = useMatch(`/party-selection/:errorCode`);
-  const errorCode = match?.params.errorCode as '403' | 'explained' | undefined;
+  const errorCode = match?.params.errorCode as 'error' | 'explained' | undefined;
 
-  const selectParty = useSelectCurrentParty();
-  const selectedParty = useCurrentParty().party;
+  const selectParty = useSetCurrentParty();
+  const selectedParty = useCurrentParty();
 
-  const parties = useParties();
-  const appMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
+  const parties = useParties() || [];
+  const appMetadata = useApplicationMetadata();
 
-  const appPromptForPartyOverride = useAppSelector(
-    (state) => state.applicationMetadata.applicationMetadata?.promptForParty,
-  );
+  const appPromptForPartyOverride = appMetadata.promptForParty;
   const { langAsString, lang } = useLanguage();
 
   const [filterString, setFilterString] = React.useState('');
@@ -94,23 +91,11 @@ export const PartySelection = () => {
   const navigate = useNavigate();
 
   const onSelectParty = async (party: IParty) => {
-    if (!selectParty) {
-      return;
-    }
-
     await selectParty(party);
-    navigate('/');
+    navigate('/'); // Back to Entrypoint.tsx, where the next step will be determined
   };
 
   function renderParties() {
-    if (!parties || !appMetadata) {
-      return null;
-    }
-
-    if (parties.length === 0) {
-      return <NoValidPartiesError />;
-    }
-
     let numberOfPartiesRendered = 0;
 
     return (
@@ -163,7 +148,7 @@ export const PartySelection = () => {
   }
 
   function templateErrorMessage() {
-    if (errorCode === `${HttpStatusCodes.Forbidden}`) {
+    if (errorCode === `error`) {
       return (
         <Typography
           data-testid={`error-code-${HttpStatusCodes.Forbidden}`}

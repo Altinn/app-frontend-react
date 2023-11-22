@@ -5,7 +5,6 @@ import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
-import { ValidPartyProvider } from 'src/features/party/ValidPartyProvider';
 import { InstantiationButtonComponent } from 'src/layout/InstantiationButton/InstantiationButtonComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 
@@ -23,7 +22,7 @@ const render = async () =>
         <Routes>
           <Route
             path={'/'}
-            element={<ValidPartyProvider>{children}</ValidPartyProvider>}
+            element={children}
           />
           <Route
             path='/instance/abc123'
@@ -38,16 +37,6 @@ const render = async () =>
 describe('InstantiationButton', () => {
   it('should show button and it should be possible to click and start loading', async () => {
     const { mutations } = await render();
-
-    await waitFor(() => {
-      expect(mutations.doPartyValidation.mock).toHaveBeenCalledTimes(1);
-    });
-
-    mutations.doPartyValidation.resolve({
-      valid: true,
-      message: null,
-      validParties: [],
-    });
 
     expect(screen.getByText('Instantiate')).toBeInTheDocument();
 

@@ -32,7 +32,7 @@ export interface IPresentationProvidedProps extends PropsWithChildren {
 export const PresentationComponent = ({ header, type, children }: IPresentationProvidedProps) => {
   const dispatch = useAppDispatch();
   const { lang, langAsString } = useLanguage();
-  const party = useCurrentParty().party;
+  const party = useCurrentParty();
   const instance = useLaxInstanceData();
   const userParty = useAppSelector((state) => state.profile.profile?.party);
   const { expandedWidth } = useAppSelector((state) => state.formLayout.uiConfig);

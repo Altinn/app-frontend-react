@@ -2,7 +2,7 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { useParties } from 'src/features/party/PartiesProvider';
 import { useProfile } from 'src/features/profile/ProfileProvider';
 
-export function useAlwaysPromptForParty(): boolean | null {
+export function usePromptForParty(): boolean | null {
   const applicationMetadata = useApplicationMetadata();
   const profile = useProfile();
   const parties = useParties();
@@ -25,4 +25,9 @@ export function useAlwaysPromptForParty(): boolean | null {
   }
 
   return !profile.profileSettingPreference.doNotPromptForParty;
+}
+
+export function useForcePromptForParty(): boolean {
+  const applicationMetadata = useApplicationMetadata();
+  return applicationMetadata.promptForParty === 'always';
 }

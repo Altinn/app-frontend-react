@@ -14,15 +14,15 @@ import { HttpStatusCodes } from 'src/utils/network/networking';
 
 export const InstantiateContainer = () => {
   changeBodyBackground(AltinnAppTheme.altinnPalette.primary.greyLight);
-  const { party, canInstantiate } = useCurrentParty();
+  const party = useCurrentParty();
   const instantiation = useInstantiation();
 
   React.useEffect(() => {
-    const shouldCreateInstance = !!party && canInstantiate && !instantiation.lastResult && !instantiation.isLoading;
+    const shouldCreateInstance = !!party && !instantiation.lastResult && !instantiation.isLoading;
     if (shouldCreateInstance) {
       instantiation.instantiate(undefined, party.partyId);
     }
-  }, [canInstantiate, instantiation, party]);
+  }, [instantiation, party]);
 
   if (isAxiosError(instantiation.error)) {
     const message = (instantiation.error.response?.data as any)?.message;

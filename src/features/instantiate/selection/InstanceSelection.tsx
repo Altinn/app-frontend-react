@@ -24,10 +24,9 @@ import {
   useActiveInstances,
 } from 'src/features/instantiate/selection/ActiveInstancesProvider';
 import classes from 'src/features/instantiate/selection/InstanceSelection.module.css';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
-import { ValidPartyProvider } from 'src/features/party/ValidPartyProvider';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
-import { useLanguage } from 'src/hooks/useLanguage';
 import { ProcessTaskType } from 'src/types';
 import { getInstanceUiUrl } from 'src/utils/urls/appUrlHelper';
 import type { ISimpleInstance } from 'src/types';
@@ -46,11 +45,9 @@ function getDateDisplayString(timeStamp: string) {
 
 export const InstanceSelectionWrapper = () => (
   <ActiveInstancesProvider>
-    <ValidPartyProvider>
-      <PresentationComponent type={ProcessTaskType.Unknown}>
-        <InstanceSelection />
-      </PresentationComponent>
-    </ValidPartyProvider>
+    <PresentationComponent type={ProcessTaskType.Unknown}>
+      <InstanceSelection />
+    </PresentationComponent>
   </ActiveInstancesProvider>
 );
 
@@ -63,7 +60,7 @@ function InstanceSelection() {
   const mobileView = useIsMobileOrTablet();
   const rowsPerPageOptions = instanceSelectionOptions?.rowsPerPageOptions ?? [10, 25, 50];
   const instantiate = useInstantiation().instantiate;
-  const { party: currentParty, canInstantiate } = useCurrentParty();
+  const currentParty = useCurrentParty();
 
   const doesIndexExist = (selectedIndex: number | undefined): selectedIndex is number =>
     selectedIndex !== undefined && rowsPerPageOptions.length - 1 >= selectedIndex && selectedIndex >= 0;
@@ -227,7 +224,7 @@ function InstanceSelection() {
         <div className={classes.startNewButtonContainer}>
           <Button
             onClick={() => {
-              if (canInstantiate && currentParty) {
+              if (currentParty) {
                 instantiate(undefined, currentParty.partyId);
               }
             }}

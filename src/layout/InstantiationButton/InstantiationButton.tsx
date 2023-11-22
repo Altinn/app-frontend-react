@@ -12,7 +12,7 @@ type Props = Omit<React.PropsWithChildren<IInstantiationButtonComponentProvidedP
 export const InstantiationButton = ({ children, ...props }: Props) => {
   const instantiation = useInstantiation();
   const formData = useAppSelector((state) => state.formData.formData);
-  const { party, canInstantiate } = useCurrentParty();
+  const party = useCurrentParty();
 
   const instantiate = () => {
     const prefill = mapFormData(formData, props.mapping);
@@ -23,7 +23,7 @@ export const InstantiationButton = ({ children, ...props }: Props) => {
       },
     });
   };
-  const busyWithId = instantiation.isLoading || !canInstantiate ? props.id : '';
+  const busyWithId = instantiation.isLoading ? props.id : '';
 
   React.useEffect(() => {
     if (instantiation.error) {

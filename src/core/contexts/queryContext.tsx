@@ -50,6 +50,7 @@ export function createQueryContext<QD, Req extends boolean, CD = QD>(props: Quer
     ...rest
   } = props;
   const { Provider, useCtx, useHasProvider } = createContext<CD>({ name, required, ...(rest as any) });
+  const defaultValue = ('default' in rest ? rest.default : undefined) as CD;
 
   const WrappingProvider = ({ children }: PropsWithChildren) => {
     const { data, isLoading, error, ...rest } = query();
@@ -63,7 +64,7 @@ export function createQueryContext<QD, Req extends boolean, CD = QD>(props: Quer
       return <DisplayError error={error as Error} />;
     }
 
-    return <Provider value={process(data as QD)}>{children}</Provider>;
+    return <Provider value={enabled ? process(data as QD) : defaultValue}>{children}</Provider>;
   };
 
   return {

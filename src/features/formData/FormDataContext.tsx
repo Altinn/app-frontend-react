@@ -70,7 +70,7 @@ function useFormDataQuery(enabled: boolean) {
   const dispatch = useAppDispatch();
   const reFetchActive = useAppSelector((state) => state.formData.reFetch);
   const appMetaData = useApplicationMetadata();
-  const currentPartyId = useCurrentParty()?.party?.partyId;
+  const currentPartyId = useCurrentParty()?.partyId;
   const taskType = useRealTaskType();
   const allowAnonymousSelector = makeGetAllowAnonymousSelector();
   const allowAnonymous = useAppSelector(allowAnonymousSelector);

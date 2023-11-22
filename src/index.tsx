@@ -25,10 +25,11 @@ import { DevTools } from 'src/features/devtools/DevTools';
 import { FooterLayoutProvider } from 'src/features/footer/FooterLayoutProvider';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
+import { LanguageProvider } from 'src/features/language/LanguageProvider';
+import { TextResourcesProvider } from 'src/features/language/textResources/TextResourcesProvider';
 import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
 import { PartyProvider } from 'src/features/party/PartiesProvider';
 import { ProfileProvider } from 'src/features/profile/ProfileProvider';
-import { TextResourcesProvider } from 'src/features/textResources/TextResourcesProvider';
 import * as queries from 'src/queries/queries';
 import { initSagas } from 'src/redux/sagas';
 import { setupStore } from 'src/redux/store';
@@ -44,44 +45,46 @@ document.addEventListener('DOMContentLoaded', () => {
   const container = document.getElementById('root');
   const root = container && createRoot(container);
   root?.render(
-    <Provider store={store}>
-      <ErrorBoundary>
-        <HashRouter>
-          <AppWrapper>
-            <AppQueriesProvider {...queries}>
-              <ThemeWrapper>
-                <InstantiationProvider>
-                  <ExprContextWrapper>
-                    <DevTools>
-                      <ApplicationMetadataProvider>
-                        <OrgsProvider>
-                          <ApplicationSettingsProvider>
-                            <LayoutSetsProvider>
-                              <FooterLayoutProvider>
-                                <ProfileProvider>
-                                  <PartyProvider>
-                                    <TextResourcesProvider>
-                                      <KeepAliveProvider>
-                                        <WindowTitleProvider>
-                                          <App />
-                                        </WindowTitleProvider>
-                                      </KeepAliveProvider>
-                                    </TextResourcesProvider>
-                                  </PartyProvider>
-                                </ProfileProvider>
-                              </FooterLayoutProvider>
-                            </LayoutSetsProvider>
-                          </ApplicationSettingsProvider>
-                        </OrgsProvider>
-                      </ApplicationMetadataProvider>
-                    </DevTools>
-                  </ExprContextWrapper>
-                </InstantiationProvider>
-              </ThemeWrapper>
-            </AppQueriesProvider>
-          </AppWrapper>
-        </HashRouter>
-      </ErrorBoundary>
-    </Provider>,
+    <AppQueriesProvider {...queries}>
+      <Provider store={store}>
+        <ErrorBoundary>
+          <HashRouter>
+            <AppWrapper>
+              <LanguageProvider>
+                <ThemeWrapper>
+                  <InstantiationProvider>
+                    <ExprContextWrapper>
+                      <DevTools>
+                        <ApplicationMetadataProvider>
+                          <OrgsProvider>
+                            <ApplicationSettingsProvider>
+                              <LayoutSetsProvider>
+                                <FooterLayoutProvider>
+                                  <ProfileProvider>
+                                    <PartyProvider>
+                                      <TextResourcesProvider>
+                                        <KeepAliveProvider>
+                                          <WindowTitleProvider>
+                                            <App />
+                                          </WindowTitleProvider>
+                                        </KeepAliveProvider>
+                                      </TextResourcesProvider>
+                                    </PartyProvider>
+                                  </ProfileProvider>
+                                </FooterLayoutProvider>
+                              </LayoutSetsProvider>
+                            </ApplicationSettingsProvider>
+                          </OrgsProvider>
+                        </ApplicationMetadataProvider>
+                      </DevTools>
+                    </ExprContextWrapper>
+                  </InstantiationProvider>
+                </ThemeWrapper>
+              </LanguageProvider>
+            </AppWrapper>
+          </HashRouter>
+        </ErrorBoundary>
+      </Provider>
+    </AppQueriesProvider>,
   );
 });

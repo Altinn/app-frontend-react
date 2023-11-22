@@ -22,17 +22,16 @@ import {
   getLayoutSetsUrl,
   getLayoutSettingsUrl,
   getLayoutsUrl,
-  getPartyValidationUrl,
   getPdfFormatUrl,
   getProcessNextUrl,
   getProcessStateUrl,
   getRulehandlerUrl,
+  getSetCurrentPartyUrl,
   instancesControllerUrl,
   instantiateUrl,
   profileApiUrl,
   refreshJwtTokenUrl,
   textResourcesUrl,
-  updateCookieUrl,
   validPartiesUrl,
 } from 'src/utils/urls/appUrlHelper';
 import { customEncodeURI, orgsListUrl } from 'src/utils/urls/urlHelper';
@@ -41,9 +40,8 @@ import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { IFormDynamics } from 'src/features/form/dynamics';
 import type { Instantiation } from 'src/features/instantiate/InstantiationContext';
-import type { IPartyValidationResponse } from 'src/features/party';
+import type { ITextResourceResult } from 'src/features/language/textResources';
 import type { IPdfFormat } from 'src/features/pdf/types';
-import type { ITextResourceResult } from 'src/features/textResources';
 import type { ILayoutFileExternal, IOption } from 'src/layout/common.generated';
 import type { ILayoutCollection } from 'src/layout/layout';
 import type { ILayoutSets, ILayoutSettings, ISimpleInstance } from 'src/types';
@@ -72,10 +70,8 @@ const cleanUpInstanceData = async (_instance: IInstance | Promise<IInstance>) =>
   return instance;
 };
 
-export const doPartyValidation = async (partyId: string): Promise<IPartyValidationResponse> =>
-  (await httpPost(getPartyValidationUrl(partyId))).data;
-
-export const doSelectParty = (partyId: string) => putWithoutConfig<IParty | null>(updateCookieUrl(partyId));
+export const doSetCurrentParty = (partyId: string) =>
+  putWithoutConfig<'Party successfully updated' | string | null>(getSetCurrentPartyUrl(partyId));
 
 export const doInstantiateWithPrefill = async (data: Instantiation): Promise<IInstance> =>
   cleanUpInstanceData((await httpPost(instantiateUrl, undefined, data)).data);

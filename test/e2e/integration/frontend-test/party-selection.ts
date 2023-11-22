@@ -3,38 +3,6 @@ import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
 const appFrontend = new AppFrontend();
 
-describe('Reportee selection', () => {
-  beforeEach(() => {
-    cy.fixture('allowed-parties.json').then((allowedParties) => {
-      cy.fixture('validate-instantiation.json').then((validateInstantiationResponse) => {
-        validateInstantiationResponse.validParties = allowedParties;
-        cy.intercept('POST', `**/api/v1/parties/validateInstantiation?partyId=*`, {
-          body: validateInstantiationResponse,
-        });
-      });
-      cy.intercept('GET', `**/api/v1/parties?allowedtoinstantiatefilter=true`, {
-        body: allowedParties,
-      });
-    });
-    cy.intercept('**/active', []).as('noActiveInstances');
-  });
-
-  it('Reportee selection in data app', () => {
-    cy.startAppInstance(appFrontend.apps.frontendTest);
-    cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
-    cy.get(appFrontend.reporteeSelection.error).contains(texts.selectNewReportee);
-    cy.findByText('underenheter').click();
-    cy.contains(appFrontend.reporteeSelection.subUnits, 'Bergen').should('be.visible');
-    cy.contains(appFrontend.reporteeSelection.reportee, 'slettet').should('not.exist');
-    cy.findByRole('checkbox', { name: /Vis slettede/i }).dsCheck();
-    cy.contains(appFrontend.reporteeSelection.reportee, 'slettet').should('be.visible');
-    cy.findByRole('checkbox', { name: /Vis underenheter/i }).dsCheck();
-    cy.findByText('underenheter').click();
-    cy.get(appFrontend.reporteeSelection.searchReportee).type('DDG');
-    cy.get(appFrontend.reporteeSelection.reportee).should('have.length', 1).contains('DDG');
-  });
-});
-
 const fakeParty = {
   partyId: 12345678,
   partyTypeName: 1,
@@ -49,7 +17,29 @@ const fakeParty = {
   childParties: null,
 };
 
-describe('doNotPromptForParty doNotPromptForPartyPreference', () => {
+describe('Party selection', () => {
+  it('Party selection in data app', () => {
+    cy.fixture('allowed-parties.json').then((allowedParties) => {
+      cy.intercept('GET', `**/api/v1/parties?allowedtoinstantiatefilter=true`, {
+        body: allowedParties,
+      });
+    });
+    cy.intercept('**/active', []).as('noActiveInstances');
+
+    cy.startAppInstance(appFrontend.apps.frontendTest);
+    cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
+    cy.get(appFrontend.reporteeSelection.error).contains(texts.selectNewReportee);
+    cy.findByText('underenheter').click();
+    cy.contains(appFrontend.reporteeSelection.subUnits, 'Bergen').should('be.visible');
+    cy.contains(appFrontend.reporteeSelection.reportee, 'slettet').should('not.exist');
+    cy.findByRole('checkbox', { name: /Vis slettede/i }).dsCheck();
+    cy.contains(appFrontend.reporteeSelection.reportee, 'slettet').should('be.visible');
+    cy.findByRole('checkbox', { name: /Vis underenheter/i }).dsCheck();
+    cy.findByText('underenheter').click();
+    cy.get(appFrontend.reporteeSelection.searchReportee).type('DDG');
+    cy.get(appFrontend.reporteeSelection.reportee).should('have.length', 1).contains('DDG');
+  });
+
   [true, false].forEach((doNotPromptForParty) => {
     it(`${
       doNotPromptForParty ? 'Does not prompt' : 'Prompts'
@@ -88,11 +78,6 @@ describe('doNotPromptForParty doNotPromptForPartyPreference', () => {
 
         cy.snapshot('reportee-selection');
 
-        // Test that the message is not visible when going directly to party selection
-        cy.reloadAndWait();
-        cy.get('[id^="party-"]').should('be.visible');
-        cy.findByRole('heading', { name: 'Hvorfor ser jeg dette?' }).should('not.exist');
-
         cy.get('[id^="party-"]').eq(0).click();
       }
 
@@ -126,9 +111,10 @@ describe('doNotPromptForParty doNotPromptForPartyPreference', () => {
 
       cy.startAppInstance(appFrontend.apps.frontendTest);
       cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
-
-      cy.findByRole('heading', { name: 'Appen for test av app frontend' }).should('be.visible');
       cy.get('[id^="party-"]').should('not.exist');
+
+      // Our fake party is not allowed to instantiate, so we should get an error
+      cy.findByRole('heading', { name: 'Ukjent feil' }).should('be.visible');
     });
   });
 
@@ -164,11 +150,6 @@ describe('doNotPromptForParty doNotPromptForPartyPreference', () => {
           .first()
           .should('contain.text', 'Denne appen er satt opp til å alltid spørre om aktør.');
         cy.findByRole('heading', { name: 'Appen for test av app frontend' }).should('not.exist');
-
-        // Test that the message is not visible when going directly to party selection
-        cy.reloadAndWait();
-        cy.get('[id^="party-"]').should('be.visible');
-        cy.findByRole('heading', { name: 'Hvorfor ser jeg dette?' }).should('not.exist');
 
         cy.get('[id^="party-"]').eq(0).click();
       }

@@ -1,9 +1,12 @@
+import { useEffect } from 'react';
+
 import { useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import { useAllowAnonymousIs } from 'src/features/applicationMetadata/getAllowAnonymous';
+import { useSetCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { ProfileActions } from 'src/features/profile/profileSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import type { IProfile } from 'src/types/shared';
@@ -11,11 +14,14 @@ import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 const useProfileQuery = () => {
   const dispatch = useAppDispatch();
-  const enabled = useAllowAnonymousIs(false);
+  const enabled = useShouldFetchProfile();
+  const setCurrentLanguage = useSetCurrentLanguage();
 
   const { fetchUserProfile } = useAppQueries();
-  const utils = useQuery(['fetchUserProfile'], fetchUserProfile, {
+  const utils = useQuery({
     enabled,
+    queryKey: ['fetchUserProfile'],
+    queryFn: () => fetchUserProfile(),
     onSuccess: (profile) => {
       dispatch(ProfileActions.fetchFulfilled({ profile }));
     },
@@ -23,6 +29,12 @@ const useProfileQuery = () => {
       window.logError('Fetching user profile failed:\n', error);
     },
   });
+
+  useEffect(() => {
+    if (utils.data && utils.data.profileSettingPreference.language) {
+      setCurrentLanguage(utils.data.profileSettingPreference.language);
+    }
+  }, [setCurrentLanguage, utils.data]);
 
   return {
     ...utils,
@@ -41,3 +53,4 @@ const { Provider, useCtx } = delayedContext(() =>
 
 export const ProfileProvider = Provider;
 export const useProfile = () => useCtx();
+export const useShouldFetchProfile = () => useAllowAnonymousIs(false);
