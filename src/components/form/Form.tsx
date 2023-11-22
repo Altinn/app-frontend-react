@@ -1,12 +1,14 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 
+import { Button } from '@digdir/design-system-react';
 import Grid from '@material-ui/core/Grid';
 
 import classes from 'src/components/form/Form.module.css';
 import { MessageBanner } from 'src/components/form/MessageBanner';
 import { ErrorReport } from 'src/components/message/ErrorReport';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
+import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -18,9 +20,10 @@ import { getFormHasErrors, missingFieldsInLayoutValidations } from 'src/utils/va
 
 export function Form() {
   const langTools = useLanguage();
-  const { isValidPageId, startUrl, currentPageId, isCurrentTask } = useNavigatePage();
+  const { isValidPageId, startUrl, currentPageId, isCurrentTask, navigateToTask } = useNavigatePage();
   const validations = useAppSelector((state) => state.formValidations.validations);
   const nodes = useExprContext();
+  const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
 
   const page = nodes?.all?.()?.[currentPageId];
   const hasErrors = useAppSelector((state) => getFormHasErrors(state.formValidations.validations));
@@ -49,7 +52,37 @@ export function Form() {
     return hasErrors ? extractBottomButtons(page) : [page.children(), []];
   }, [page, hasErrors]);
 
-  console.log('Render form');
+  if (!isCurrentTask) {
+    return (
+      <Grid
+        item={true}
+        xs={12}
+        aria-live='polite'
+        className={classes.errorReport}
+      >
+        <div>Denne delen av skjemaet er allerede fullført, og er lukket.</div>
+        <div
+          style={{
+            display: 'flex',
+            marginTop: '35px',
+            gap: '10px',
+          }}
+        >
+          <Button
+            variant='secondary'
+            onClick={() => {
+              if (!currentTaskId) {
+                return;
+              }
+              navigateToTask(currentTaskId);
+            }}
+          >
+            Gå til riktig prosessteg
+          </Button>
+        </div>
+      </Grid>
+    );
+  }
 
   if (!currentPageId || !isValidPageId(currentPageId)) {
     console.log('Redirect');
@@ -58,20 +91,6 @@ export function Form() {
         to={startUrl}
         replace
       />
-    );
-  }
-
-  if (!isCurrentTask) {
-    console.log('Not current task');
-    return (
-      <Grid
-        item={true}
-        xs={12}
-        aria-live='polite'
-        className={classes.errorReport}
-      >
-        <div>Denne delen av skjemaet er allerede fullført, og kan ikke åpnes igjen.</div>
-      </Grid>
     );
   }
 
