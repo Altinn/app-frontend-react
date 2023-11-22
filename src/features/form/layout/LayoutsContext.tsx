@@ -22,7 +22,7 @@ import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 const { Provider, useCtx } = createStrictContext<ILayoutCollection>({ name: 'LayoutsContext' });
 
-function useLayoutQuery() {
+export function useLayoutQuery() {
   const { fetchLayouts } = useAppQueries();
   const hasInstance = useHasInstance();
   const process = useLaxProcessData();
@@ -34,15 +34,14 @@ function useLayoutQuery() {
   return useQuery({
     // Waiting to fetch layouts until we have an instance, if we're supposed to have one
     enabled: hasInstance ? !!process : true,
-
     queryKey: ['formLayouts', layoutSetId],
     queryFn: () => fetchLayouts(layoutSetId),
     onSuccess: (data) => {
       if (!data || !applicationMetadata) {
         return;
       }
+
       const currentViewCacheKey = instance?.id || applicationMetadata.id;
-      // const taskId = instance?.process?.currentTask?.elementId;
       legacyProcessLayouts({ input: data, dispatch, currentViewCacheKey, layoutSetId });
     },
     onError: (error: HttpClientError) => {
@@ -50,6 +49,43 @@ function useLayoutQuery() {
       window.logError('Fetching form layout failed:\n', error);
     },
   });
+}
+
+export function useHiddenPages() {
+  const { data } = useLayoutQuery();
+
+  if (!data) {
+    return null;
+  }
+
+  const layouts: ILayouts = {};
+  const hiddenLayoutsExpressions: IHiddenLayoutsExternal = {};
+  if (isSingleLayout(data)) {
+    layouts['FormLayout'] = cleanLayout(data.data.layout);
+    hiddenLayoutsExpressions['FormLayout'] = data.data.hidden;
+  } else {
+    for (const key of Object.keys(data)) {
+      const file = data[key];
+      layouts[key] = cleanLayout(file.data.layout);
+      hiddenLayoutsExpressions[key] = file.data.hidden;
+    }
+  }
+
+  const config: ExprObjConfig<{ hidden: ExprVal.Boolean; whatever: string }> = {
+    hidden: {
+      returnType: 'test',
+      defaultValue: false,
+      resolvePerRow: false,
+    },
+  };
+
+  for (const key of Object.keys(hiddenLayoutsExpressions)) {
+    hiddenLayoutsExpressions[key] = preProcessItem(hiddenLayoutsExpressions[key], config, ['hidden'], key);
+  }
+
+  return {
+    hidden: new Set(Object.keys(data).filter((key) => data[key].data.hidden)),
+  };
 }
 
 export function LayoutsProvider({ children }: React.PropsWithChildren) {
