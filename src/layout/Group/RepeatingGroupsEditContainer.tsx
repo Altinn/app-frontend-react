@@ -17,7 +17,7 @@ export interface IRepeatingGroupsEditContainer {
   className?: string;
   deleting?: boolean;
   editIndex: number;
-  setEditIndex: (index: number, forceValidation?: boolean) => void;
+  setEditIndex: (index: number) => void;
   onClickRemove?: (groupIndex: number) => void;
   forceHideSaveButton?: boolean;
   multiPageIndex?: number;
@@ -100,7 +100,7 @@ function RepeatingGroupsEditContainerInternal({
 
   const nextClicked = () => {
     if (nextIndex !== null) {
-      setEditIndex && setEditIndex(nextIndex, true);
+      setEditIndex && setEditIndex(nextIndex);
       if (edit.multiPage) {
         setMultiPageIndex && setMultiPageIndex(0);
       }

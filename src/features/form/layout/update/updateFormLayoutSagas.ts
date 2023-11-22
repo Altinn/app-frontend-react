@@ -17,15 +17,7 @@ export const selectCurrentLayout = (state: IRuntimeState) => state.formLayout.ui
 const selectUiConfig = (state: IRuntimeState) => state.formLayout.uiConfig;
 
 export function* updateCurrentViewSaga({
-  payload: {
-    newView,
-    runValidations,
-    returnToView,
-    skipPageCaching,
-    keepScrollPos,
-    focusComponentId,
-    allowNavigationToHidden,
-  },
+  payload: { newView, returnToView, skipPageCaching, keepScrollPos, focusComponentId, allowNavigationToHidden },
 }: PayloadAction<IUpdateCurrentView>): SagaIterator {
   try {
     const uiConfig: IUiConfig = yield select(selectUiConfig);
@@ -64,42 +56,16 @@ export function* updateCurrentViewSaga({
       return;
     }
 
-    if (runValidations === undefined) {
-      if (!skipPageCaching && currentViewCacheKey) {
-        localStorage.setItem(currentViewCacheKey, newView);
-      }
-      yield put(
-        FormLayoutActions.updateCurrentViewFulfilled({
-          newView,
-          returnToView,
-          focusComponentId,
-        }),
-      );
-    } else {
-      /**
-       * TODO(Validation): Check validation provider if navigation is allowed, set urgency level of page?
-       * This probably needs to be done along with changing page navigation to hooks, since sagas cannot access this provider.
-       */
-      if (state.formLayout.uiConfig.returnToView) {
-        if (!skipPageCaching && currentViewCacheKey) {
-          localStorage.setItem(currentViewCacheKey, newView);
-        }
-        yield put(
-          FormLayoutActions.updateCurrentViewFulfilled({
-            newView,
-            returnToView,
-            focusComponentId,
-          }),
-        );
-      } else {
-        yield put(
-          FormLayoutActions.updateCurrentViewRejected({
-            error: null,
-            keepScrollPos,
-          }),
-        );
-      }
+    if (!skipPageCaching && currentViewCacheKey) {
+      localStorage.setItem(currentViewCacheKey, newView);
     }
+    yield put(
+      FormLayoutActions.updateCurrentViewFulfilled({
+        newView,
+        returnToView,
+        focusComponentId,
+      }),
+    );
   } catch (error) {
     yield put(FormLayoutActions.updateCurrentViewRejected({ error }));
     window.logError('Update view failed:\n', error);

@@ -6,8 +6,10 @@ import { Label } from 'src/components/form/Label';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import {
+  useAfterTypingValidation,
   useBindingValidationsForNode,
   useComponentValidationsForNode,
+  useOnBlurValidation,
 } from 'src/features/validation/validationProvider';
 import { usePostPlaceQuery } from 'src/hooks/queries/usePostPlaceQuery';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
@@ -25,12 +27,16 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
 
   const bindingValidations = useBindingValidationsForNode(node);
   const componentValidations = useComponentValidationsForNode(node);
+  const afterTypingValidation = useAfterTypingValidation();
+  const onBlurValidation = useOnBlurValidation();
 
   const bindings = 'dataModelBindings' in node.item ? node.item.dataModelBindings || {} : {};
   const handleFieldChange =
     (key: AddressKeys): IAddressComponentProps['handleDataChange'] =>
-    (value) =>
+    (value) => {
       handleDataChange(value, { key });
+      afterTypingValidation(node);
+    };
 
   const {
     value: address,
@@ -38,6 +44,13 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
     saveValue: saveAddress,
     onPaste: onAddressPaste,
   } = useDelayedSavedState(handleFieldChange('address'), bindings.address, formData.address || '', saveWhileTyping);
+  function onChangeAddress(e: React.ChangeEvent<HTMLInputElement>) {
+    setAddress(e.target.value);
+  }
+  function onBlurAddress() {
+    saveAddress();
+    onBlurValidation(node);
+  }
 
   const {
     value: zipCode,
@@ -45,6 +58,13 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
     saveValue: saveZipCode,
     onPaste: onZipCodePaste,
   } = useDelayedSavedState(handleFieldChange('zipCode'), bindings.zipCode, formData.zipCode || '', saveWhileTyping);
+  function onChangeZipCode(e: React.ChangeEvent<HTMLInputElement>) {
+    setZipCode(e.target.value);
+  }
+  function onBlurZipCode() {
+    saveZipCode();
+    onBlurValidation(node);
+  }
 
   const { value: postPlace, setValue: setPostPlace } = useDelayedSavedState(
     handleFieldChange('postPlace'),
@@ -59,6 +79,13 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
     saveValue: saveCareOf,
     onPaste: onCareOfPaste,
   } = useDelayedSavedState(handleFieldChange('careOf'), bindings.careOf, formData.careOf || '', saveWhileTyping);
+  function onChangeCareOf(e: React.ChangeEvent<HTMLInputElement>) {
+    setCareOf(e.target.value);
+  }
+  function onBlurCareOf() {
+    saveCareOf();
+    onBlurValidation(node);
+  }
 
   const {
     value: houseNumber,
@@ -71,6 +98,13 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
     formData.houseNumber || '',
     saveWhileTyping,
   );
+  function onChangeHouseNumber(e: React.ChangeEvent<HTMLInputElement>) {
+    setHouseNumber(e.target.value);
+  }
+  function onBlurHouseNumber() {
+    saveHouseNumber();
+    onBlurValidation(node);
+  }
 
   const postPlaceQueryData = usePostPlaceQuery(formData.zipCode, !hasValidationErrors(bindingValidations?.zipCode));
   useEffect(() => {
@@ -99,8 +133,8 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
           id={`address_address_${id}`}
           isValid={!hasValidationErrors(bindingValidations?.address)}
           value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          onBlur={saveAddress}
+          onChange={onChangeAddress}
+          onBlur={onBlurAddress}
           onPaste={onAddressPaste}
           readOnly={readOnly}
           required={required}
@@ -123,8 +157,8 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
             id={`address_care_of_${id}`}
             isValid={!hasValidationErrors(bindingValidations?.careOf)}
             value={careOf}
-            onChange={(e) => setCareOf(e.target.value)}
-            onBlur={saveCareOf}
+            onChange={onChangeCareOf}
+            onBlur={onBlurCareOf}
             onPaste={onCareOfPaste}
             readOnly={readOnly}
             autoComplete='address-line2'
@@ -148,8 +182,8 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
                 id={`address_zip_code_${id}`}
                 isValid={!hasValidationErrors(bindingValidations?.zipCode)}
                 value={zipCode}
-                onChange={(e) => setZipCode(e.target.value)}
-                onBlur={saveZipCode}
+                onChange={onChangeZipCode}
+                onBlur={onBlurZipCode}
                 onPaste={onZipCodePaste}
                 readOnly={readOnly}
                 required={required}
@@ -198,8 +232,8 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
               id={`address_house_number_${id}`}
               isValid={!hasValidationErrors(bindingValidations?.houseNumber)}
               value={houseNumber}
-              onChange={(e) => setHouseNumber(e.target.value)}
-              onBlur={saveHouseNumber}
+              onChange={onChangeHouseNumber}
+              onBlur={onBlurHouseNumber}
               onPaste={onHouseNumberPaste}
               readOnly={readOnly}
               autoComplete='address-line3'

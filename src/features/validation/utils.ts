@@ -1,4 +1,4 @@
-import { ValidationIssueSources } from 'src/features/validation';
+import { ValidationIssueSources, ValidationUrgency } from 'src/features/validation';
 import type { IAttachments, UploadedAttachment } from 'src/features/attachments';
 import type {
   BaseValidation,
@@ -6,6 +6,7 @@ import type {
   FieldValidation,
   FormValidations,
   GroupedValidation,
+  NodeUrgency,
   NodeValidation,
   ValidationGroup,
   ValidationSeverity,
@@ -89,6 +90,16 @@ export function buildNodeValidation<Severity extends ValidationSeverity = Valida
 }
 
 /**
+ * This can be used in a filter to remove hidden nodes from consideration when checking for validation errors
+ */
+export function shouldValidateNode(node: LayoutNode) {
+  return !node.isHidden({ respectTracks: true }) && !('renderAsSummary' in node.item && node.item.renderAsSummary);
+}
+
+export function getUrgencyForNode(node: LayoutNode, nodeUrgency: NodeUrgency) {
+  return nodeUrgency[node.item.id] ?? ValidationUrgency.Immediate;
+}
+/**
  * The following types of validation are also handeled by the frontend
  * and should normally be filtered out to avoid showing duplicate messages.
  */
@@ -99,6 +110,7 @@ const groupsToFilter: string[] = [
 ];
 export function validationsFromGroups<T extends GroupedValidation>(
   groups: ValidationGroup<T>,
+  urgency: ValidationUrgency,
   ignoreBackendValidations: boolean,
   severity?: ValidationSeverity,
 ) {
@@ -108,7 +120,8 @@ export function validationsFromGroups<T extends GroupedValidation>(
         .flatMap(([, validations]) => validations)
     : Object.values(groups).flat();
 
-  return severity ? validationsOfSeverity(validationsFlat, severity) : validationsFlat;
+  const filteredValidations = severity ? validationsOfSeverity(validationsFlat, severity) : validationsFlat;
+  return filteredValidations.filter((validation) => urgency >= validation.urgency);
 }
 
 /*
@@ -118,28 +131,32 @@ export function validationsFromGroups<T extends GroupedValidation>(
 export function getValidationsForNode(
   node: LayoutNode,
   state: ValidationState,
+  urgency: ValidationUrgency,
   ignoreBackendValidations: boolean,
 ): NodeValidation[];
 export function getValidationsForNode<Severity extends ValidationSeverity>(
   node: LayoutNode,
   state: ValidationState,
+  urgency: ValidationUrgency,
   ignoreBackendValidations: boolean,
   severity: Severity,
 ): NodeValidation<Severity>[];
 export function getValidationsForNode(
   node: LayoutNode,
   state: ValidationState,
+  urgency: ValidationUrgency,
   ignoreBackendValidations = true,
   severity?: ValidationSeverity,
 ): NodeValidation[] {
   const validationMessages: NodeValidation[] = [];
-  if (node.isHidden({ respectTracks: true }) || ('renderAsSummary' in node.item && node.item.renderAsSummary)) {
+  if (!shouldValidateNode(node)) {
     return validationMessages;
   }
+
   if (node.item.dataModelBindings) {
     for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings)) {
       if (state.fields[field]) {
-        const validations = validationsFromGroups(state.fields[field], ignoreBackendValidations, severity);
+        const validations = validationsFromGroups(state.fields[field], urgency, ignoreBackendValidations, severity);
         for (const validation of validations) {
           validationMessages.push(buildNodeValidation(node, validation, bindingKey));
         }
@@ -148,6 +165,7 @@ export function getValidationsForNode(
       if (state.components[node.item.id]?.bindingKeys?.[bindingKey]) {
         const validations = validationsFromGroups(
           state.components[node.item.id].bindingKeys[bindingKey],
+          urgency,
           ignoreBackendValidations,
           severity,
         );
@@ -160,6 +178,7 @@ export function getValidationsForNode(
   if (state.components[node.item.id]?.component) {
     const validations = validationsFromGroups(
       state.components[node.item.id].component,
+      urgency,
       ignoreBackendValidations,
       severity,
     );

@@ -67,9 +67,13 @@ export enum ValidationUrgency {
   // the user would not be able to go back and fix the validation issues.
   OnFormSubmit = 50,
 }
+export type NodeUrgency = { [nodeId: string]: ValidationUrgency };
 
 export type ValidationContext = {
   state: ValidationState;
+  nodeUrgency: NodeUrgency;
+  setUrgencyForNode: (nodeId: string, urgency: ValidationUrgency) => void;
+  setUrgencyForNodes: (nodeIds: string[], urgency: ValidationUrgency) => void;
 };
 
 export type ValidationState = FormValidations & {

@@ -4,19 +4,19 @@ import { Button } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
 
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { useOnPageNextValidation } from 'src/features/validation/validationProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import classes from 'src/layout/NavigationButtons/NavigationButtonsComponent.module.css';
 import { selectLayoutOrder, selectPreviousAndNextPage } from 'src/selectors/getLayoutOrder';
-import { reducePageValidations } from 'src/types';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { IKeepComponentScrollPos } from 'src/features/form/layout/formLayoutTypes';
 import type { PropsFromGenericComponent } from 'src/layout';
 export type INavigationButtons = PropsFromGenericComponent<'NavigationButtons'>;
 
 export function NavigationButtonsComponent({ node }: INavigationButtons) {
-  const { id, showBackButton, textResourceBindings, triggers } = node.item;
+  const { id, showBackButton, textResourceBindings } = node.item;
   const dispatch = useAppDispatch();
   const { lang } = useLanguage();
 
@@ -28,9 +28,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
   const orderedLayoutKeys = useAppSelector(selectLayoutOrder);
   const returnToView = useAppSelector((state) => state.formLayout.uiConfig.returnToView);
-  const pageTriggers = useAppSelector((state) => state.formLayout.uiConfig.pageTriggers);
   const { next, previous } = useAppSelector(selectPreviousAndNextPage);
-  const activeTriggers = triggers || pageTriggers;
   const nextTextKey = returnToView ? 'form_filler.back_to_summary' : textResourceBindings?.next || 'next';
   const backTextKey = textResourceBindings?.back || 'back';
 
@@ -39,6 +37,8 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
   const currentViewIndex = orderedLayoutKeys?.indexOf(currentView);
   const disableBack = !!returnToView || (!previous && currentViewIndex === 0);
   const disableNext = !returnToView && !next && currentViewIndex === (orderedLayoutKeys?.length || 0) - 1;
+
+  const onPageNextValidation = useOnPageNextValidation();
 
   const onClickPrevious = () => {
     const goToView = previous || (orderedLayoutKeys && orderedLayoutKeys[orderedLayoutKeys.indexOf(currentView) - 1]);
@@ -57,22 +57,22 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
   );
 
   const OnClickNext = () => {
-    const runValidations = reducePageValidations(activeTriggers);
-    const keepScrollPosAction: IKeepComponentScrollPos = {
-      componentId: id,
-      offsetTop: getScrollPosition(),
-    };
+    if (!onPageNextValidation(node.top)) {
+      const keepScrollPosAction: IKeepComponentScrollPos = {
+        componentId: id,
+        offsetTop: getScrollPosition(),
+      };
 
-    const goToView =
-      returnToView || next || (orderedLayoutKeys && orderedLayoutKeys[orderedLayoutKeys.indexOf(currentView) + 1]);
-    if (goToView) {
-      dispatch(
-        FormLayoutActions.updateCurrentView({
-          newView: goToView,
-          runValidations,
-          keepScrollPos: keepScrollPosAction,
-        }),
-      );
+      const goToView =
+        returnToView || next || (orderedLayoutKeys && orderedLayoutKeys[orderedLayoutKeys.indexOf(currentView) + 1]);
+      if (goToView) {
+        dispatch(
+          FormLayoutActions.updateCurrentView({
+            newView: goToView,
+            keepScrollPos: keepScrollPosAction,
+          }),
+        );
+      }
     }
   };
 

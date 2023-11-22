@@ -32,7 +32,7 @@ export interface IRepeatingGroupTableRowProps {
   node: LayoutNodeForGroup<CompGroupRepeatingInternal>;
   className?: string;
   editIndex: number;
-  setEditIndex: (index: number, forceValidation?: boolean) => void;
+  setEditIndex: (index: number) => void;
   onClickRemove: (groupIndex: number) => void;
   deleting: boolean;
   index: number;

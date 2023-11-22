@@ -22,7 +22,7 @@ export interface IRepeatingGroupTableProps {
   node: LayoutNodeForGroup<CompGroupRepeatingInternal>;
   repeatingGroupIndex: number;
   editIndex: number;
-  setEditIndex: (index: number, forceValidation?: boolean) => void;
+  setEditIndex: (index: number) => void;
   onClickRemove: (groupIndex: number) => void;
   setMultiPageIndex?: (index: number) => void;
   multiPageIndex?: number;

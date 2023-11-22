@@ -10,7 +10,7 @@ import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { useAttachmentDeletionInRepGroups } from 'src/features/attachments/useAttachmentDeletionInRepGroups';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
-import { useUnifiedValidationsForNode } from 'src/features/validation/validationProvider';
+import { useOnGroupCloseValidation, useUnifiedValidationsForNode } from 'src/features/validation/validationProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -54,6 +54,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
   const { lang, langAsString } = useLanguage();
   const validations = useUnifiedValidationsForNode(node);
   const { onBeforeRowDeletion } = useAttachmentDeletionInRepGroups(node);
+  const onGroupCloseValidation = useOnGroupCloseValidation();
 
   const setMultiPageIndex = useCallback(
     (index: number) => {
@@ -147,16 +148,19 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
     }
   };
 
-  const setEditIndex = (index: number, forceValidation?: boolean): void => {
-    dispatch(
-      FormLayoutActions.updateRepeatingGroupsEditIndex({
-        group: id,
-        index,
-        validate: index === -1 || forceValidation ? getValidationMethod(node) : undefined,
-      }),
-    );
-    if (edit?.multiPage && index > -1) {
-      setMultiPageIndex(0);
+  const setEditIndex = (index: number): void => {
+    const shouldChangeIndex = editIndex === -1 || !onGroupCloseValidation(node, editIndex);
+    if (shouldChangeIndex) {
+      dispatch(
+        FormLayoutActions.updateRepeatingGroupsEditIndex({
+          group: id,
+          index,
+          // validate: index === -1 || forceValidation ? getValidationMethod(node) : undefined,
+        }),
+      );
+      if (edit?.multiPage && index > -1) {
+        setMultiPageIndex(0);
+      }
     }
   };
 
