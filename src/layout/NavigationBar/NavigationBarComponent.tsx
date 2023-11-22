@@ -3,11 +3,10 @@ import React from 'react';
 import { Grid, makeStyles } from '@material-ui/core';
 import cn from 'classnames';
 
-import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useLayoutOrder } from 'src/features/form/layout/LayoutsContext';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
-import { selectLayoutOrder } from 'src/selectors/getLayoutOrder';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 const useStyles = makeStyles((theme) => ({
@@ -108,13 +107,13 @@ NavigationButton.displayName = 'NavigationButton';
 export const NavigationBarComponent = ({ node }: INavigationBar) => {
   const { compact } = node.item;
   const classes = useStyles();
-  const pageIds = useAppSelector(selectLayoutOrder);
   // const pageTriggers = useAppSelector((state) => state.formLayout.uiConfig.pageTriggers);
   // const pageOrPropTriggers = triggers || pageTriggers;
   const [showMenu, setShowMenu] = React.useState(false);
   const isMobile = useIsMobile() || compact === true;
   const { lang, langAsString } = useLanguage();
   const { navigateToPage, currentPageId } = useNavigatePage();
+  const { order } = useLayoutOrder();
 
   const firstPageLink = React.useRef<HTMLButtonElement>();
 
@@ -143,7 +142,7 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
     }
   }, [showMenu]);
 
-  if (!pageIds) {
+  if (!order) {
     return null;
   }
 
@@ -168,7 +167,7 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
           >
             <span className={classes.dropdownMenuContent}>
               <span>
-                {pageIds.indexOf(currentPageId) + 1}/{pageIds.length} {lang(currentPageId)}
+                {order.indexOf(currentPageId) + 1}/{order.length} {lang(currentPageId)}
               </span>
               <i className={cn('ai ai-arrow-down', classes.dropdownIcon)} />
             </span>
@@ -182,7 +181,7 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
               [classes.menuCompact]: isMobile,
             })}
           >
-            {pageIds.map((pageId, index) => (
+            {order.map((pageId, index) => (
               <li
                 key={pageId}
                 className={classes.containerBase}

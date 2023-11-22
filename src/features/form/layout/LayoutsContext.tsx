@@ -7,6 +7,7 @@ import { preProcessItem } from 'src/features/expressions/validation';
 import { cleanLayout } from 'src/features/form/layout/cleanLayout';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
+import { useLayoutSettingsQ } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useHasInstance, useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
@@ -51,11 +52,12 @@ export function useLayoutQuery() {
   });
 }
 
-export function useHiddenPages() {
+export function useLayoutOrder(layoutSettingsId?: string) {
   const { data } = useLayoutQuery();
+  const layoutSettings = useLayoutSettingsQ(layoutSettingsId);
 
   if (!data) {
-    return null;
+    return {};
   }
 
   const layouts: ILayouts = {};
@@ -83,8 +85,11 @@ export function useHiddenPages() {
     hiddenLayoutsExpressions[key] = preProcessItem(hiddenLayoutsExpressions[key], config, ['hidden'], key);
   }
 
+  const hiddenPages = new Set(Object.keys(data).filter((key) => data[key].data.hidden));
   return {
-    hidden: new Set(Object.keys(data).filter((key) => data[key].data.hidden)),
+    hidden: hiddenPages,
+    hiddenExpr: hiddenLayoutsExpressions,
+    order: layoutSettings?.data?.pages?.order.filter((page) => !hiddenPages.has(page)),
   };
 }
 

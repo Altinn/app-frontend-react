@@ -1,8 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useMatch, useNavigate } from 'react-router-dom';
 
-import { useHiddenPages } from 'src/features/form/layout/LayoutsContext';
-import { useLayoutSettingsQ } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { useLayoutOrder } from 'src/features/form/layout/LayoutsContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useLayoutSetsQuery } from 'src/hooks/queries/useLayoutSetsQuery';
 
@@ -22,13 +21,10 @@ export const useNavigatePage = () => {
 
   const layoutSettingsId =
     taskId != null ? layoutSets?.data?.sets.find((set) => set.tasks?.includes(taskId))?.id : undefined;
-  const layoutSettings = useLayoutSettingsQ(layoutSettingsId);
-  const layouts = useHiddenPages();
-
-  const pages = layoutSettings?.data?.pages?.order.filter((page) => !layouts?.hidden.has(page));
+  const { order } = useLayoutOrder(layoutSettingsId);
 
   const currentPageId = pageKeyMatch?.params.pageKey ?? '';
-  const currentPageIndex = pages?.indexOf(currentPageId) ?? 0;
+  const currentPageIndex = order?.indexOf(currentPageId) ?? 0;
 
   const nextPageIndex = currentPageIndex !== -1 ? currentPageIndex + 1 : -1;
   const previousPageIndex = currentPageIndex !== -1 ? currentPageIndex - 1 : -1;
@@ -44,7 +40,7 @@ export const useNavigatePage = () => {
     [navigate, pageKeyMatch],
   );
 
-  const isValidPageId = useCallback((pageId: string) => pages?.includes(pageId) ?? false, [pages]);
+  const isValidPageId = useCallback((pageId: string) => order?.includes(pageId) ?? false, [order]);
 
   const navigateToTask = useCallback(
     (taskId: string) => {
@@ -69,12 +65,12 @@ export const useNavigatePage = () => {
   const isCurrentTask = useMemo(() => currentTaskId === taskId, [currentTaskId, taskId]);
 
   const startUrl = useMemo(
-    () => `/instance/${partyId}/${instanceGuid}/${taskId}/${pages?.[0]}`,
-    [partyId, instanceGuid, taskId, pages],
+    () => `/instance/${partyId}/${instanceGuid}/${taskId}/${order?.[0]}`,
+    [partyId, instanceGuid, taskId, order],
   );
 
-  const next = pages?.[nextPageIndex];
-  const previous = pages?.[previousPageIndex];
+  const next = order?.[nextPageIndex];
+  const previous = order?.[previousPageIndex];
 
   return {
     navigateToPage,
