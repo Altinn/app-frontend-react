@@ -6,7 +6,7 @@ import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/sr
 import type { ChangeProps, ResponsiveTableConfig, SortDirection, SortProps } from '@digdir/design-system-react';
 
 import { useDataListQuery } from 'src/features/dataLists/useDataListQuery';
-import { useLanguage } from 'src/hooks/useLanguage';
+import { useLanguage } from 'src/features/language/useLanguage';
 import type { Filter } from 'src/features/dataLists/useDataListQuery';
 import type { PropsFromGenericComponent } from 'src/layout';
 

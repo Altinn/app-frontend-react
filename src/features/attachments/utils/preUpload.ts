@@ -10,10 +10,10 @@ import type { ImmerReducer } from 'use-immer';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useLanguage } from 'src/hooks/useLanguage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { getFileUploadComponentValidations } from 'src/utils/formComponentUtils';
 import { getValidationMessage } from 'src/utils/validation/backendValidation';

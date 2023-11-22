@@ -1,9 +1,9 @@
 import { createContext, useMemo } from 'react';
 
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
+import { type IUseLanguage, useLanguage } from 'src/features/language/useLanguage';
 import { useAllOptions } from 'src/features/options/useAllOptions';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { type IUseLanguage, useLanguage } from 'src/hooks/useLanguage';
 import { ComponentConfigs } from 'src/layout/components.generated';
 import type { IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';

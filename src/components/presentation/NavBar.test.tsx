@@ -10,7 +10,7 @@ import { getUiConfigStateMock } from 'src/__mocks__/getUiConfigStateMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { NavBar } from 'src/components/presentation/NavBar';
 import { renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
-import type { IRawTextResource } from 'src/features/textResources';
+import type { IRawTextResource } from 'src/features/language/textResources';
 import type { IAppLanguage } from 'src/types/shared';
 
 afterEach(() => mockAxios.reset());

@@ -15,7 +15,7 @@ import {
 } from 'src/utils/schemaUtils';
 import type { IJsonSchemas } from 'src/features/datamodel';
 import type { IFormData } from 'src/features/formData';
-import type { ValidLanguageKey } from 'src/hooks/useLanguage';
+import type { ValidLanguageKey } from 'src/features/language/useLanguage';
 import type { IDataType } from 'src/types/shared';
 import type { IValidationContext } from 'src/utils/validation/types';
 

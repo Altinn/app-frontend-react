@@ -4,8 +4,8 @@ import type { UseQueryResult } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useLanguage } from 'src/hooks/useLanguage';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { mapFormData } from 'src/utils/databindings';
 import { getDataListsUrl } from 'src/utils/urls/appUrlHelper';

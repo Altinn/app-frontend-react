@@ -1,4 +1,4 @@
-import type { IRawTextResource, TextResourceMap } from 'src/features/textResources/index';
+import type { IRawTextResource, TextResourceMap } from 'src/features/language/textResources/index';
 import type { ITextResource } from 'src/types/shared';
 
 export function resourcesAsMap(resources: IRawTextResource[]) {

@@ -1,10 +1,10 @@
 import { useRef } from 'react';
 
+import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptionsQuery } from 'src/features/options/useGetOptionsQuery';
-import { useLanguage } from 'src/hooks/useLanguage';
 import { useSourceOptions } from 'src/hooks/useSourceOptions';
 import { duplicateOptionFilter } from 'src/utils/options';
-import type { IUseLanguage } from 'src/hooks/useLanguage';
+import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { IMapping, IOption, IOptionSourceExternal } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 

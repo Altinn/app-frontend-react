@@ -2,7 +2,8 @@ import { useContext, useMemo } from 'react';
 import type { JSX } from 'react';
 
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
-import { useTextResources } from 'src/features/textResources/TextResourcesProvider';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+import { useTextResources } from 'src/features/language/textResources/TextResourcesProvider';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromCode } from 'src/language/languages';
 import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
@@ -11,7 +12,7 @@ import { getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import type { IFormData } from 'src/features/formData';
-import type { TextResourceMap } from 'src/features/textResources';
+import type { TextResourceMap } from 'src/features/language/textResources';
 import type { FixedLanguageList } from 'src/language/languages';
 import type { IRuntimeState } from 'src/types';
 import type { IApplicationSettings, IInstanceDataSources, ILanguage, IVariable } from 'src/types/shared';
@@ -69,7 +70,7 @@ const defaultLocale = 'nb';
 export function useLanguage(node?: LayoutNode) {
   const textResources = useTextResources();
   const profileLanguage = useAppSelector((state) => state.profile.profile.profileSettingPreference.language);
-  const selectedAppLanguage = useAppSelector((state) => state.profile.selectedAppLanguage);
+  const selectedAppLanguage = useCurrentLanguage();
   const componentCtx = useContext(FormComponentContext);
   const nearestNode = node || componentCtx?.node;
   const formData = useAppSelector((state) => state.formData.formData);
@@ -88,7 +89,7 @@ export function useLanguage(node?: LayoutNode) {
   );
 
   return useMemo(
-    () => staticUseLanguage(textResources || {}, null, selectedAppLanguage, profileLanguage, dataSources),
+    () => staticUseLanguage(textResources, null, selectedAppLanguage, profileLanguage, dataSources),
     [profileLanguage, selectedAppLanguage, textResources, dataSources],
   );
 }

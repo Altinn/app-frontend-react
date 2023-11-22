@@ -1,4 +1,4 @@
-import type { IUseLanguage } from 'src/hooks/useLanguage';
+import type { IUseLanguage } from 'src/features/language/useLanguage';
 
 /**
  * Utility to create a character limit object for use in input components

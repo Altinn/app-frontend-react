@@ -11,9 +11,9 @@ import {
 import { makeGetAllowAnonymousSelector } from 'src/features/applicationMetadata/getAllowAnonymous';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { staticUseLanguageFromState } from 'src/features/language/useLanguage';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { pathsChangedFromServer } from 'src/hooks/useDelayedSavedState';
-import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { convertDataBindingToModel, filterOutInvalidData, flattenObject } from 'src/utils/databindings';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpPost } from 'src/utils/network/networking';

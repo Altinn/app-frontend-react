@@ -9,11 +9,11 @@ import { ReceiptComponentSimple } from 'src/components/organisms/AltinnReceiptSi
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useAppReceiver } from 'src/core/texts/appTexts';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { useParties } from 'src/features/party/PartiesProvider';
 import { CustomReceipt } from 'src/features/receipt/CustomReceipt';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
-import { useLanguage } from 'src/hooks/useLanguage';
 import { layoutsSelector } from 'src/selectors/layout';
 import {
   filterDisplayAttachments,
@@ -22,7 +22,7 @@ import {
 } from 'src/utils/attachmentsUtils';
 import { returnUrlToArchive } from 'src/utils/urls/urlHelper';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
-import type { IUseLanguage } from 'src/hooks/useLanguage';
+import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { IDisplayAttachment, IParty } from 'src/types/shared';
 
 interface ReturnInstanceMetaDataObjectProps {

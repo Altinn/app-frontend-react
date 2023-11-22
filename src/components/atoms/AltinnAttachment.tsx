@@ -3,7 +3,7 @@ import React from 'react';
 import { List, ListItem, ListItemIcon, ListItemText, makeStyles, Typography } from '@material-ui/core';
 import cn from 'classnames';
 
-import { useLanguage } from 'src/hooks/useLanguage';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { FileExtensionIcon } from 'src/layout/FileUpload/FileUploadTable/AttachmentFileName';
 import { getFileEnding } from 'src/layout/FileUpload/utils/fileEndings';
 import { makeUrlRelativeIfSameDomain } from 'src/utils/urls/urlHelper';

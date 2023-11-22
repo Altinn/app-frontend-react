@@ -2,9 +2,9 @@ import {
   useApplicationMetadata,
   useHasApplicationMetadata,
 } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { useHasTextResources } from 'src/features/language/textResources/TextResourcesProvider';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { useHasOrgs, useOrgs } from 'src/features/orgs/OrgsProvider';
-import { useHasTextResources } from 'src/features/textResources/TextResourcesProvider';
-import { useLanguage } from 'src/hooks/useLanguage';
 
 export function useTextResourceOr<T extends string | undefined>(resource: string, fallback: T): string | T {
   const { langAsString } = useLanguage();

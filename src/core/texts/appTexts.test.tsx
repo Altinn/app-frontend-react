@@ -5,12 +5,12 @@ import { screen } from '@testing-library/react';
 import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { TextResourcesProvider } from 'src/features/language/textResources/TextResourcesProvider';
 import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
 import { ProfileProvider } from 'src/features/profile/ProfileProvider';
-import { TextResourcesProvider } from 'src/features/textResources/TextResourcesProvider';
 import { renderWithMinimalProviders } from 'src/test/renderWithProviders';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
-import type { IRawTextResource } from 'src/features/textResources';
+import type { IRawTextResource } from 'src/features/language/textResources';
 import type { IAltinnOrg, IAltinnOrgs } from 'src/types/shared';
 
 function AppTextsRenderer() {

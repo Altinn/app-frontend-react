@@ -13,7 +13,7 @@ import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { IFormDataState } from 'src/features/formData';
 import type { IUpdateFormDataSimple } from 'src/features/formData/formDataTypes';
-import type { IRawTextResource, ITextResourceResult } from 'src/features/textResources';
+import type { IRawTextResource, ITextResourceResult } from 'src/features/language/textResources';
 import type { IValidationState } from 'src/features/validation/validationSlice';
 import type { IOption } from 'src/layout/common.generated';
 import type { CompGroupExternal, CompGroupRepeatingLikertExternal } from 'src/layout/Group/config.generated';

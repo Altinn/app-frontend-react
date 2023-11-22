@@ -4,8 +4,8 @@ import type { AxiosResponse } from 'axios';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useLanguage } from 'src/hooks/useLanguage';
 import { getOptionsUrl } from 'src/utils/urls/appUrlHelper';
 import type { IMapping, IOption } from 'src/layout/common.generated';
 

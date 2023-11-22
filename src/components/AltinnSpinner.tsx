@@ -4,7 +4,7 @@ import { CircularProgress, createStyles, makeStyles, Typography } from '@materia
 import classNames from 'classnames';
 import type { ArgumentArray } from 'classnames';
 
-import { useLanguage } from 'src/hooks/useLanguage';
+import { useLanguage } from 'src/features/language/useLanguage';
 
 export interface IAltinnSpinnerComponentProvidedProps {
   id?: string;

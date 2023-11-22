@@ -4,8 +4,8 @@ import { screen } from '@testing-library/react';
 
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
+import { staticUseLanguageForTests } from 'src/features/language/useLanguage';
 import { getSummaryDataObject, ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
-import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import type { IRuntimeState } from 'src/types';

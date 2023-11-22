@@ -24,10 +24,10 @@ import { generateSimpleRepeatingGroups } from 'src/features/form/layout/repGroup
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
+import { TextResourcesProvider } from 'src/features/language/textResources/TextResourcesProvider';
 import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
 import { PartyProvider } from 'src/features/party/PartiesProvider';
 import { ProfileProvider } from 'src/features/profile/ProfileProvider';
-import { TextResourcesProvider } from 'src/features/textResources/TextResourcesProvider';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { setupStore } from 'src/redux/store';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
@@ -104,9 +104,8 @@ const makeMutationMocks = (): MockedMutations => ({
   doAttachmentUpload: promiseMock<AppMutations['doAttachmentUpload']>(),
   doInstantiate: promiseMock<AppMutations['doInstantiate']>(),
   doInstantiateWithPrefill: promiseMock<AppMutations['doInstantiateWithPrefill']>(),
-  doPartyValidation: promiseMock<AppMutations['doPartyValidation']>(),
   doProcessNext: promiseMock<AppMutations['doProcessNext']>(),
-  doSelectParty: promiseMock<AppMutations['doSelectParty']>(),
+  doSetCurrentParty: promiseMock<AppMutations['doSetCurrentParty']>(),
 });
 
 const makeDefaultQueryMocks = (state: IRuntimeState): MockableQueries => ({
@@ -181,17 +180,17 @@ function DefaultProviders({ children, store, queries, queryClient, Router = Defa
               <OrgsProvider>
                 <ApplicationSettingsProvider>
                   <LayoutSetsProvider>
-                    <FooterLayoutProvider>
-                      <ProfileProvider>
-                        <PartyProvider>
-                          <TextResourcesProvider>
+                    <TextResourcesProvider>
+                      <FooterLayoutProvider>
+                        <ProfileProvider>
+                          <PartyProvider>
                             <Router>
                               <InstantiationProvider>{children}</InstantiationProvider>
                             </Router>
-                          </TextResourcesProvider>
-                        </PartyProvider>
-                      </ProfileProvider>
-                    </FooterLayoutProvider>
+                          </PartyProvider>
+                        </ProfileProvider>
+                      </FooterLayoutProvider>
+                    </TextResourcesProvider>
                   </LayoutSetsProvider>
                 </ApplicationSettingsProvider>
               </OrgsProvider>

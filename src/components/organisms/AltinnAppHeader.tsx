@@ -9,7 +9,7 @@ import { AltinnAppHeaderMenu } from 'src/components/organisms/AltinnAppHeaderMen
 import { OrganisationLogo } from 'src/components/presentation/OrganisationLogo/OrganisationLogo';
 import { useHasAppTextsYet } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { useLanguage } from 'src/hooks/useLanguage';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { renderPartyName } from 'src/utils/party';
 import type { IAltinnLogoProps } from 'src/components/logo/AltinnLogo';
 import type { IParty } from 'src/types/shared';

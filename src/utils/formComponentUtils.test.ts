@@ -1,4 +1,4 @@
-import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
+import { staticUseLanguageForTests } from 'src/features/language/useLanguage';
 import { AsciiUnitSeparator } from 'src/layout/FileUpload/utils/asciiUnitSeparator';
 import {
   getColumnStyles,

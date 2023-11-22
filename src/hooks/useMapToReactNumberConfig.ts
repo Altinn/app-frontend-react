@@ -1,6 +1,6 @@
-import { useLanguage } from 'src/hooks/useLanguage';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { formatNumber } from 'src/utils/formattingUtils';
-import type { IUseLanguage } from 'src/hooks/useLanguage';
+import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { IInputFormatting } from 'src/layout/Input/config.generated';
 import type { CurrencyFormattingOptions, UnitFormattingOptions } from 'src/utils/formattingUtils';
 

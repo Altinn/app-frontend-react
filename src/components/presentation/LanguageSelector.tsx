@@ -3,10 +3,10 @@ import React, { useMemo } from 'react';
 import { Select } from '@digdir/design-system-react';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
+import { useGetAppLanguageQuery } from 'src/features/language/textResources/useGetAppLanguagesQuery';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { ProfileActions } from 'src/features/profile/profileSlice';
-import { useGetAppLanguageQuery } from 'src/features/textResources/useGetAppLanguagesQuery';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { useLanguage } from 'src/hooks/useLanguage';
 
 export const LanguageSelector = ({ hideLabel }: { hideLabel?: boolean }) => {
   const { langAsString, selectedLanguage } = useLanguage();

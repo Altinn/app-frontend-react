@@ -1,6 +1,6 @@
-import { resourcesAsMap } from 'src/features/textResources/resourcesAsMap';
+import { resourcesAsMap } from 'src/features/language/textResources/resourcesAsMap';
 import { createSagaSlice } from 'src/redux/sagaSlice';
-import type { ITextResourceResult, ITextResourcesState } from 'src/features/textResources/index';
+import type { ITextResourceResult, ITextResourcesState } from 'src/features/language/textResources/index';
 import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
 
 const initialState: ITextResourcesState = {

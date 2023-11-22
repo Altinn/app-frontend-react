@@ -6,7 +6,7 @@ import cn from 'classnames';
 import classes from 'src/components/AltinnAppHeader.module.css';
 import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
 import { AltinnLogo } from 'src/components/logo/AltinnLogo';
-import { useLanguage } from 'src/hooks/useLanguage';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { renderParty } from 'src/utils/party';
 import { returnUrlToAllSchemas, returnUrlToMessagebox, returnUrlToProfile } from 'src/utils/urls/urlHelper';
 import type { IProfile } from 'src/types/shared';

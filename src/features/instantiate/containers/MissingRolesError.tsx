@@ -2,8 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 import { InstantiationErrorPage } from 'src/features/instantiate/containers/InstantiationErrorPage';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
-import { useLanguage } from 'src/hooks/useLanguage';
 import { getHostname } from 'src/utils/urls/appUrlHelper';
 
 export function MissingRolesError() {

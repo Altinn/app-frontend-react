@@ -4,7 +4,7 @@ import { isAttachmentUploaded } from 'src/features/attachments';
 import { AsciiUnitSeparator } from 'src/layout/FileUpload/utils/asciiUnitSeparator';
 import printStyles from 'src/styles/print.module.css';
 import type { IAttachment } from 'src/features/attachments';
-import type { IUseLanguage } from 'src/hooks/useLanguage';
+import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type {
   IGridStyling,
   IPageBreakInternal,

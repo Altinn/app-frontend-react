@@ -8,11 +8,11 @@ import type { PropsFromGenericComponent } from '..';
 import { AltinnSummaryTable } from 'src/components/table/AltinnSummaryTable';
 import { useAppReceiver } from 'src/core/texts/appTexts';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { useParties } from 'src/features/party/PartiesProvider';
-import { useLanguage } from 'src/hooks/useLanguage';
 import { getDateFormat } from 'src/utils/dateHelpers';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
-import type { IUseLanguage } from 'src/hooks/useLanguage';
+import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { IParty } from 'src/types/shared';
 
 export const returnInstanceMetaDataObject = (

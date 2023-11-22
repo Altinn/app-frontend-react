@@ -4,7 +4,7 @@ import { Typography } from '@material-ui/core';
 
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useLaxProcessData, useReFetchProcessData } from 'src/features/instance/ProcessContext';
-import { useLanguage } from 'src/hooks/useLanguage';
+import { useLanguage } from 'src/features/language/useLanguage';
 
 export function Feedback() {
   const { lang } = useLanguage();

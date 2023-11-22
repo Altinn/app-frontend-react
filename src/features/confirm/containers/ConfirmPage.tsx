@@ -4,7 +4,7 @@ import { ReceiptComponent } from 'src/components/organisms/AltinnReceipt';
 import { ProcessNavigation } from 'src/components/presentation/ProcessNavigation';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { returnConfirmSummaryObject } from 'src/features/confirm/helpers/returnConfirmSummaryObject';
-import { useLanguage } from 'src/hooks/useLanguage';
+import { useLanguage } from 'src/features/language/useLanguage';
 import {
   filterDisplayAttachments,
   filterDisplayPdfAttachments,
