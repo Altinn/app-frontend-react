@@ -1,9 +1,9 @@
 import React from 'react';
 
 import { Pagination } from '@altinn/altinn-design-system';
-import { LegacyFieldSet, ResponsiveTable } from '@digdir/design-system-react';
+import { LegacyFieldSet, LegacyResponsiveTable } from '@digdir/design-system-react';
 import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/src/components/Pagination/Pagination';
-import type { ChangeProps, ResponsiveTableConfig, SortProps } from '@digdir/design-system-react';
+import type { ChangeProps, LegacyResponsiveTableConfig, SortProps } from '@digdir/design-system-react';
 
 import { DataListsActions } from 'src/features/dataLists/dataListsSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
@@ -110,7 +110,7 @@ export const ListComponent = ({ node, formData, handleDataChange, legend }: ILis
     }
   };
 
-  const config: ResponsiveTableConfig<Record<string, string>> = {
+  const config: LegacyResponsiveTableConfig<Record<string, string>> = {
     rows: calculatedDataList,
     headers: tableHeadersValues,
     showColumnsMobile: tableHeadersMobile,
@@ -140,7 +140,7 @@ export const ListComponent = ({ node, formData, handleDataChange, legend }: ILis
       style={{ width: '100%' }}
     >
       <div style={{ overflow: 'auto' }}>
-        <ResponsiveTable config={config}></ResponsiveTable>
+        <LegacyResponsiveTable config={config}></LegacyResponsiveTable>
       </div>
     </LegacyFieldSet>
   );
