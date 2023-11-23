@@ -34,7 +34,7 @@ export function useLayoutSettingsQuery(layoutSetId?: string) {
   });
 }
 
-export function useLayoutSettingsQ(layoutSetId?: string) {
+export function useLayoutSettingsQueryWithoutSideEffects(layoutSetId?: string) {
   const { fetchLayoutSettings } = useAppQueries();
   const currentLayoutSetId = useCurrentLayoutSetId();
 

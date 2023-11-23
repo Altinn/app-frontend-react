@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Routes, useSearchParams } from 'react-router-dom';
+import { Navigate, Route, Routes, useSearchParams } from 'react-router-dom';
 
 import cn from 'classnames';
 
@@ -12,12 +12,13 @@ import { useStrictInstance } from 'src/features/instance/InstanceContext';
 import { useTaskType } from 'src/features/instance/ProcessContext';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { PDFView } from 'src/features/pdf/PDFView';
-import { ProcessEndWrapper } from 'src/features/processEnd/ProcessEndWrapper';
+import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
+import { Feedback } from 'src/features/processEnd/feedback/Feedback';
+import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
 import { useApiErrorCheck } from 'src/hooks/useApiErrorCheck';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
-import { ProcessTaskType } from 'src/types';
 
 export interface IProcessWrapperProps {
   isFetching?: boolean;
@@ -39,7 +40,7 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
   const appOwner = useAppSelector(selectAppOwner);
   const { isFetching: isInstanceDataFetching } = useStrictInstance();
   const { hasApiErrors } = useApiErrorCheck();
-  const { taskId } = useNavigatePage();
+  const { taskId, currentPageId, isValidPageId, startUrl } = useNavigatePage();
   const taskType = useTaskType(taskId);
 
   const [searchParams] = useSearchParams();
@@ -64,8 +65,15 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
     );
   }
 
-  // TODO: Create an process end wrapper which contains both Feedback and Receipt.
-  // Then the user can navigate between the two states confirmation and Archived.
+  if (!currentPageId || !isValidPageId(currentPageId)) {
+    return (
+      <Navigate
+        to={startUrl}
+        replace
+      />
+    );
+  }
+
   return (
     <>
       <div className={cn(classes['content'], { [classes['hide-form']]: previewPDF })}>
@@ -76,10 +84,24 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
         >
           <>
             {!loadingReason && (
-              <>
-                {taskType === ProcessTaskType.Data && <Form />}
-                {taskType !== ProcessTaskType.Data && <ProcessEndWrapper />}
-              </>
+              <Routes>
+                <Route
+                  path='confirmation'
+                  element={<Confirm />}
+                />
+                <Route
+                  path='feedback'
+                  element={<Feedback />}
+                />
+                <Route
+                  path='receipt'
+                  element={<ReceiptContainer />}
+                />
+                <Route
+                  path=':pageKey'
+                  element={<Form />}
+                />
+              </Routes>
             )}
             {loadingReason && (
               <div style={{ marginTop: '1.5625rem' }}>

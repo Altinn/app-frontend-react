@@ -7,7 +7,7 @@ import { preProcessItem } from 'src/features/expressions/validation';
 import { cleanLayout } from 'src/features/form/layout/cleanLayout';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
-import { useLayoutSettingsQ } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { useLayoutSettingsQueryWithoutSideEffects } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useHasInstance, useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
@@ -23,27 +23,29 @@ import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 const { Provider, useCtx } = createStrictContext<ILayoutCollection>({ name: 'LayoutsContext' });
 
-export function useLayoutQuery() {
+export function useLayoutQuery(layoutSetId?: string) {
   const { fetchLayouts } = useAppQueries();
   const hasInstance = useHasInstance();
   const process = useLaxProcessData();
-  const layoutSetId = useCurrentLayoutSetId();
+  const currentLayoutSetId = useCurrentLayoutSetId();
   const dispatch = useAppDispatch();
   const instance = useLaxInstanceData();
   const applicationMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
 
+  const _layoutSetId = layoutSetId ?? currentLayoutSetId;
+
   return useQuery({
     // Waiting to fetch layouts until we have an instance, if we're supposed to have one
     enabled: hasInstance ? !!process : true,
-    queryKey: ['formLayouts', layoutSetId],
-    queryFn: () => fetchLayouts(layoutSetId),
+    queryKey: ['formLayouts', _layoutSetId],
+    queryFn: () => fetchLayouts(_layoutSetId),
     onSuccess: (data) => {
       if (!data || !applicationMetadata) {
         return;
       }
 
       const currentViewCacheKey = instance?.id || applicationMetadata.id;
-      legacyProcessLayouts({ input: data, dispatch, currentViewCacheKey, layoutSetId });
+      legacyProcessLayouts({ input: data, dispatch, currentViewCacheKey, layoutSetId: _layoutSetId });
     },
     onError: (error: HttpClientError) => {
       dispatch(FormLayoutActions.fetchRejected({ error }));
@@ -52,9 +54,9 @@ export function useLayoutQuery() {
   });
 }
 
-export function useLayoutOrder(layoutSettingsId?: string) {
-  const { data } = useLayoutQuery();
-  const layoutSettings = useLayoutSettingsQ(layoutSettingsId);
+export function useLayoutOrder(layoutSetId?: string) {
+  const { data } = useLayoutQuery(layoutSetId);
+  const layoutSettings = useLayoutSettingsQueryWithoutSideEffects(layoutSetId);
 
   if (!data) {
     return {};

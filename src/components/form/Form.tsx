@@ -1,5 +1,4 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
 
 import { Button } from '@digdir/design-system-react';
 import Grid from '@material-ui/core/Grid';
@@ -20,7 +19,7 @@ import { getFormHasErrors, missingFieldsInLayoutValidations } from 'src/utils/va
 
 export function Form() {
   const langTools = useLanguage();
-  const { isValidPageId, startUrl, currentPageId, isCurrentTask, navigateToTask } = useNavigatePage();
+  const { currentPageId, isCurrentTask, navigateToTask } = useNavigatePage();
   const validations = useAppSelector((state) => state.formValidations.validations);
   const nodes = useExprContext();
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
@@ -71,9 +70,6 @@ export function Form() {
           <Button
             variant='secondary'
             onClick={() => {
-              if (!currentTaskId) {
-                return;
-              }
               navigateToTask(currentTaskId);
             }}
           >
@@ -81,16 +77,6 @@ export function Form() {
           </Button>
         </div>
       </Grid>
-    );
-  }
-
-  if (!currentPageId || !isValidPageId(currentPageId)) {
-    console.log('Redirect');
-    return (
-      <Navigate
-        to={startUrl}
-        replace
-      />
     );
   }
 

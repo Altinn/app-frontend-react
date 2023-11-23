@@ -2,13 +2,11 @@ import React from 'react';
 
 import { CircularProgress } from '@altinn/altinn-design-system';
 
-import { useLayoutOrder } from 'src/features/form/layout/LayoutsContext';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 
 export const Progress = () => {
-  const { currentPageId } = useNavigatePage();
-  const { order } = useLayoutOrder();
+  const { currentPageId, order } = useNavigatePage();
   const { langAsString } = useLanguage();
 
   const currentPageIndex = order?.findIndex((page) => page === currentPageId) || 0;
