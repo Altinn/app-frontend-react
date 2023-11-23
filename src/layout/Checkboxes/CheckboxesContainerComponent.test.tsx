@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { act, fireEvent, screen } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
@@ -276,7 +276,7 @@ describe('CheckboxContainerComponent', () => {
     expect(screen.getByTestId('altinn-spinner')).toBeInTheDocument();
   });
 
-  it('should show items in a row when layout is "row" and options count is 3', () => {
+  it('should show items in a row when layout is "row" and options count is 3', async () => {
     const { container } = render({
       component: {
         optionsId: 'countries',
@@ -284,11 +284,13 @@ describe('CheckboxContainerComponent', () => {
       },
     });
 
-    // eslint-disable-next-line
-    expect(container.querySelector('fieldset > div')).toHaveStyle('flex-direction: row;');
+    await waitFor(() => {
+      // eslint-disable-next-line
+      expect(container.querySelector('fieldset')).toHaveClass('horizontal');
+    });
   });
 
-  it('should show items in a row when layout is not defined, and options count is 2', () => {
+  it('should show items in a row when layout is not defined, and options count is 2', async () => {
     const { container } = render({
       component: {
         optionsId: 'countries',
@@ -303,11 +305,13 @@ describe('CheckboxContainerComponent', () => {
       } as unknown as IOptionsState,
     });
 
-    // eslint-disable-next-line
-    expect(container.querySelector('fieldset > div')).toHaveStyle('flex-direction: row;');
+    await waitFor(() => {
+      // eslint-disable-next-line
+      expect(container.querySelector('fieldset')).toHaveClass('horizontal');
+    });
   });
 
-  it('should show items in a column when layout is "column" and options count is 2 ', () => {
+  it('should show items in a column when layout is "column" and options count is 2 ', async () => {
     const { container } = render({
       component: {
         optionsId: 'countries',
@@ -323,11 +327,13 @@ describe('CheckboxContainerComponent', () => {
       } as unknown as IOptionsState,
     });
 
-    // eslint-disable-next-line
-    expect(container.querySelector('fieldset > div')).toHaveStyle('flex-direction: column;');
+    await waitFor(() => {
+      // eslint-disable-next-line
+      expect(container.querySelector('fieldset')).not.toHaveClass('horizontal');
+    });
   });
 
-  it('should show items in a columns when layout is not defined, and options count is 3', () => {
+  it('should show items in a columns when layout is not defined, and options count is 3', async () => {
     const { container } = render({
       component: {
         optionsId: 'countries',
@@ -335,7 +341,7 @@ describe('CheckboxContainerComponent', () => {
     });
 
     // eslint-disable-next-line
-    expect(container.querySelector('fieldset > div')).toHaveStyle('flex-direction: column;');
+    await waitFor(() => expect(container.querySelector('fieldset')).not.toHaveClass('horizontal'));
   });
 
   it('should present replaced label if setup with values from repeating group in redux and trigger handleDataChanged with replaced values', async () => {
@@ -354,22 +360,26 @@ describe('CheckboxContainerComponent', () => {
       },
     });
 
-    expect(getCheckbox({ name: 'The value from the group is: Label for first' })).toBeInTheDocument();
-    expect(getCheckbox({ name: 'The value from the group is: Label for second' })).toBeInTheDocument();
-    expect(screen.getByText('Description: The value from the group is: Label for first')).toBeInTheDocument();
-    expect(screen.getByText('Description: The value from the group is: Label for second')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(getCheckbox({ name: /The value from the group is: Label for first/ })).toBeInTheDocument();
+    });
+    expect(getCheckbox({ name: /The value from the group is: Label for second/ })).toBeInTheDocument();
+    expect(screen.getByText(/Description: The value from the group is: Label for first/)).toBeInTheDocument();
+    expect(screen.getByText(/Description: The value from the group is: Label for second/)).toBeInTheDocument();
 
+    expect(screen.getByText(/Help Text: The value from the group is: Label for first/)).toBeInTheDocument();
     await act(() =>
-      user.click(screen.getByRole('button', { name: 'Help text for The value from the group is: Label for first' })),
+      user.click(screen.getByRole('button', { name: /Help Text: The value from the group is: Label for first/ })),
     );
-    expect(screen.getByText('Help Text: The value from the group is: Label for first')).toBeInTheDocument();
+    expect(screen.getAllByText(/Help Text: The value from the group is: Label for first/)).toHaveLength(2);
 
+    expect(screen.getByText(/Help Text: The value from the group is: Label for second/)).toBeInTheDocument();
     await act(() =>
-      user.click(screen.getByRole('button', { name: 'Help text for The value from the group is: Label for second' })),
+      user.click(screen.getByRole('button', { name: /Help Text: The value from the group is: Label for second/ })),
     );
-    expect(screen.getByText('Help Text: The value from the group is: Label for second')).toBeInTheDocument();
+    expect(screen.getAllByText(/Help Text: The value from the group is: Label for second/)).toHaveLength(2);
 
-    await act(() => user.click(getCheckbox({ name: 'The value from the group is: Label for second' })));
+    await act(() => user.click(getCheckbox({ name: /The value from the group is: Label for second/ })));
 
     expect(handleDataChange).not.toHaveBeenCalled();
 

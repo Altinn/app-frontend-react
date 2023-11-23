@@ -70,8 +70,8 @@ export function FileTableButtons({
     <Button
       className={classes.button}
       size='small'
-      variant='quiet'
-      color={showEditButton ? 'secondary' : 'danger'}
+      variant='tertiary'
+      color={showEditButton ? 'second' : 'danger'}
       onClick={() => (showEditButton ? handleEdit(index) : handleDeleteClick())}
       icon={showEditButton ? <PencilIcon aria-hidden={true} /> : <TrashIcon aria-hidden={true} />}
       iconPlacement='right'

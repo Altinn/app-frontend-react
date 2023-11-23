@@ -231,8 +231,8 @@ export function RepeatingGroupTableRow({
                 <Button
                   aria-expanded={isEditingRow}
                   aria-controls={isEditingRow ? `group-edit-container-${id}-${index}` : undefined}
-                  variant='quiet'
-                  color='secondary'
+                  variant='tertiary'
+                  color='second'
                   size='small'
                   icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
                   iconPlacement='right'
@@ -280,8 +280,8 @@ export function RepeatingGroupTableRow({
               <Button
                 aria-expanded={isEditingRow}
                 aria-controls={isEditingRow ? `group-edit-container-${id}-${index}` : undefined}
-                variant='quiet'
-                color='secondary'
+                variant='tertiary'
+                color='second'
                 size='small'
                 icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
                 iconPlacement='right'
@@ -360,7 +360,7 @@ const DeleteElement = ({
 }) => {
   const deleteButton = (
     <Button
-      variant='quiet'
+      variant='tertiary'
       color='danger'
       icon={<DeleteIcon aria-hidden='true' />}
       iconPlacement='right'

@@ -36,9 +36,8 @@ export class AppFrontend {
   public printButton = 'button:contains("Print / Lagre PDF")';
 
   public helpText = {
-    open: 'button[aria-expanded=false]',
-    close: 'button[aria-expanded=true]',
-    alert: 'div[role="tooltip"]',
+    button: 'button[class^="HelpText"]',
+    alert: 'div[role="dialog"]',
   };
 
   public navMenu = '#navigation-menu';
@@ -145,6 +144,8 @@ export class AppFrontend {
     reference: '#reference',
     reference2: '#reference2',
     dateOfEffect: '#dateOfEffect',
+    municipalityMetadata: '#kommuner-metadata',
+    municipality: '#kommune',
     upload: '#fileUpload-changename',
     uploadWithTag: {
       uploadZone: '#fileUploadWithTags-changename',

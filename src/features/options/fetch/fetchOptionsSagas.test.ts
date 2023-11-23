@@ -13,7 +13,7 @@ import {
   repeatingGroupsSelector,
 } from 'src/features/options/fetch/fetchOptionsSagas';
 import { staticUseLanguageForTests, staticUseLanguageFromState } from 'src/hooks/useLanguage';
-import * as networking from 'src/utils/network/sharedNetworking';
+import * as networking from 'src/utils/network/networking';
 import { selectNotNull } from 'src/utils/sagas';
 import type { ILayouts } from 'src/layout/layout';
 import type { IOptions, IRuntimeState } from 'src/types';
@@ -35,7 +35,7 @@ describe('fetchOptionsSagas', () => {
     };
 
     it('should refetch a given option when an updated field is in a option mapping', () => {
-      jest.spyOn(networking, 'httpGet').mockResolvedValue([]);
+      jest.spyOn(networking, 'httpGetRaw').mockResolvedValue([]);
       const optionsWithField: IOptions = {
         someOption: {
           id: 'someOption',
@@ -87,7 +87,7 @@ describe('fetchOptionsSagas', () => {
 
   describe('fetchOptionsSaga', () => {
     it('should spawn fetchSpecificOptionSaga for each unique optionsId', () => {
-      jest.spyOn(networking, 'httpGet').mockResolvedValue([]);
+      jest.spyOn(networking, 'httpGetRaw').mockResolvedValue([]);
       const formLayoutWithTwoSharedOptionIds: ILayouts = {
         formLayout: [
           {
@@ -143,6 +143,7 @@ describe('fetchOptionsSagas', () => {
           dataMapping: undefined,
           fixedQueryParameters: undefined,
           secure: undefined,
+          metadataBinding: undefined,
         })
         .fork(fetchSpecificOptionSaga, {
           optionsId: 'kommune',
@@ -151,12 +152,13 @@ describe('fetchOptionsSagas', () => {
           },
           fixedQueryParameters: undefined,
           secure: undefined,
+          metadataBinding: undefined,
         })
         .run();
     });
 
     it('should spawn multiple fetchSpecificOptionSaga if components have shared optionsId but different mapping', () => {
-      jest.spyOn(networking, 'httpGet').mockResolvedValue([]);
+      jest.spyOn(networking, 'httpGetRaw').mockResolvedValue([]);
       const formLayoutWithSameOptionIdButDifferentMapping: ILayouts = {
         formLayout: [
           {
@@ -205,6 +207,7 @@ describe('fetchOptionsSagas', () => {
           },
           fixedQueryParameters: undefined,
           secure: undefined,
+          metadataBinding: undefined,
         })
         .fork(fetchSpecificOptionSaga, {
           optionsId: 'kommune',
@@ -213,6 +216,7 @@ describe('fetchOptionsSagas', () => {
           },
           fixedQueryParameters: undefined,
           secure: undefined,
+          metadataBinding: undefined,
         })
         .run();
     });
@@ -220,7 +224,7 @@ describe('fetchOptionsSagas', () => {
 
   describe('Fixed query parameters', () => {
     it('should include static query parameters and mapping', () => {
-      jest.spyOn(networking, 'httpGet').mockResolvedValue([]);
+      jest.spyOn(networking, 'httpGetRaw').mockResolvedValue([]);
       const formLayout: ILayouts = {
         formLayout: [
           {
@@ -270,6 +274,7 @@ describe('fetchOptionsSagas', () => {
           dataMapping: undefined,
           fixedQueryParameters: { level: '1' },
           secure: undefined,
+          metadataBinding: undefined,
         })
         .fork(fetchSpecificOptionSaga, {
           optionsId: 'kommune',
@@ -278,12 +283,13 @@ describe('fetchOptionsSagas', () => {
           },
           fixedQueryParameters: { level: '2' },
           secure: undefined,
+          metadataBinding: undefined,
         })
         .run();
     });
 
     it('should include static query parameters in url', () => {
-      jest.spyOn(networking, 'httpGet').mockResolvedValue([]);
+      jest.spyOn(networking, 'httpGetRaw').mockResolvedValue([]);
 
       const formData = {
         'FlytteTil.Fylke': 'Oslo',
@@ -294,18 +300,19 @@ describe('fetchOptionsSagas', () => {
         dataMapping: undefined,
         fixedQueryParameters: { level: '1' },
         secure: undefined,
+        metadataBinding: undefined,
       })
         .provide([
           [select(formDataSelector), formData],
           [select(staticUseLanguageFromState), { selectedLanguage: 'nb' }],
           [select(instanceIdSelector), 'someId'],
         ])
-        .call(networking.httpGet, 'https://local.altinn.cloud/ttd/test/api/options/kommune?language=nb&level=1')
+        .call(networking.httpGetRaw, 'https://local.altinn.cloud/ttd/test/api/options/kommune?language=nb&level=1')
         .run();
     });
 
     it('should include mapping in url', () => {
-      jest.spyOn(networking, 'httpGet').mockResolvedValue([]);
+      jest.spyOn(networking, 'httpGetRaw').mockResolvedValue([]);
 
       const formData = {
         'FlytteTil.Fylke': 'Oslo',
@@ -318,18 +325,19 @@ describe('fetchOptionsSagas', () => {
         },
         fixedQueryParameters: undefined,
         secure: undefined,
+        metadataBinding: undefined,
       })
         .provide([
           [select(formDataSelector), formData],
           [select(staticUseLanguageFromState), { selectedLanguage: 'nb' }],
           [select(instanceIdSelector), 'someId'],
         ])
-        .call(networking.httpGet, 'https://local.altinn.cloud/ttd/test/api/options/kommune?language=nb&fylke=Oslo')
+        .call(networking.httpGetRaw, 'https://local.altinn.cloud/ttd/test/api/options/kommune?language=nb&fylke=Oslo')
         .run();
     });
 
     it('should include static query parameters and mapping in request url', () => {
-      jest.spyOn(networking, 'httpGet').mockResolvedValue([]);
+      jest.spyOn(networking, 'httpGetRaw').mockResolvedValue([]);
 
       const formData = {
         'FlytteTil.Fylke': 'Oslo',
@@ -342,6 +350,7 @@ describe('fetchOptionsSagas', () => {
         },
         fixedQueryParameters: { level: '1' },
         secure: undefined,
+        metadataBinding: undefined,
       })
         .provide([
           [select(formDataSelector), formData],
@@ -349,7 +358,7 @@ describe('fetchOptionsSagas', () => {
           [select(instanceIdSelector), 'someId'],
         ])
         .call(
-          networking.httpGet,
+          networking.httpGetRaw,
           'https://local.altinn.cloud/ttd/test/api/options/kommune?language=nb&level=1&fylke=Oslo',
         )
         .run();

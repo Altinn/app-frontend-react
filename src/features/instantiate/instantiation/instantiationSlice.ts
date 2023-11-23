@@ -25,6 +25,11 @@ export const instantiationSlice = () => {
           state.instantiating = true;
         },
       }),
+      instantiateWithPrefill: mkAction<void>({
+        reducer: (state) => {
+          state.instantiating = true;
+        },
+      }),
       instantiateFulfilled: mkAction<IInstantiateFulfilled>({
         reducer: (state, { payload }) => {
           state.instanceId = payload.instanceId;

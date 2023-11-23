@@ -216,6 +216,7 @@ export interface IFetchSpecificOptionSaga {
   fixedQueryParameters?: Record<string, string>;
   secure?: boolean;
   instanceId?: string;
+  metadataBinding?: string;
 }
 
 /**
