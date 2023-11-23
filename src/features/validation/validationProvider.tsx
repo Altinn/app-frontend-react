@@ -56,8 +56,9 @@ export function ValidationProvider({ children }) {
 
   useOnNodeDataChange(async (nodeChanges) => {
     const changedNodes = nodeChanges.map((nC) => nC.node);
-    const serverValidations = await runServerValidations(nodeChanges, validationUrl, langTools);
+    const serverPromise = runServerValidations(nodeChanges, validationUrl, langTools);
     const newValidations = runValidationOnNodes(changedNodes, validationContextGenerator);
+    const serverValidations = await serverPromise;
 
     setValidations((state) => {
       mergeFormValidations(state, newValidations);
@@ -67,8 +68,9 @@ export function ValidationProvider({ children }) {
 
   useOnHierarchyChange(async (addedNodeChanges, removedNodes, currentNodes) => {
     const addedNodes = addedNodeChanges.map((nC) => nC.node);
-    const serverValidations = await runServerValidations(addedNodeChanges, validationUrl, langTools);
+    const serverPromise = runServerValidations(addedNodeChanges, validationUrl, langTools);
     const newValidations = runValidationOnNodes(addedNodes, validationContextGenerator);
+    const serverValidations = await serverPromise;
 
     setValidations((state) => {
       purgeValidationsForNodes(state, removedNodes, currentNodes);
