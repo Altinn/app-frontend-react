@@ -130,7 +130,6 @@ describe('NavigationBar', () => {
       expect(store.dispatch).toHaveBeenCalledWith({
         payload: {
           newView: 'page3',
-          runValidations: undefined,
         },
         type: FormLayoutActions.updateCurrentView.type,
       });
@@ -194,7 +193,6 @@ describe('NavigationBar', () => {
       expect(store.dispatch).toHaveBeenCalledWith({
         payload: {
           newView: 'page3',
-          runValidations: undefined,
         },
         type: FormLayoutActions.updateCurrentView.type,
       });

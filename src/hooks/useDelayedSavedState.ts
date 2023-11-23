@@ -4,7 +4,7 @@ import type { IComponentProps } from 'src/layout';
 
 export interface DelayedSavedStateRetVal {
   value: string | undefined;
-  setValue: (newValue: string | undefined, saveImmediately?: boolean, skipValidation?: boolean) => void;
+  setValue: (newValue: string | undefined, saveImmediately?: boolean) => void;
   saveValue: () => void;
   onPaste: () => void;
 }
@@ -25,7 +25,6 @@ export function useDelayedSavedState(
   const immediateStateRef = useRef(formValue);
   const immediateStateChangedRef = useRef(false);
   const [saveNextChangeImmediately, setSaveNextChangeImmediately] = useState(false);
-  const [skipNextValidation, setSkipNextValidation] = useState(false);
 
   const overridden = global && (global as any).delayedSaveState && (global as any).delayedSaveState;
   const saveAfterMs = typeof overridden === 'number' ? overridden : typeof saveAfter === 'number' ? saveAfter : 400;
@@ -43,30 +42,18 @@ export function useDelayedSavedState(
   );
 
   const updateFormData = useCallback(
-    (value: string | undefined, skipValidation = false): void => {
+    (value: string | undefined): void => {
       if (value === formValue) {
         return;
       }
 
-      const shouldValidate = !skipNextValidation && !skipValidation;
-      handleDataChange(value, { validate: shouldValidate });
-
-      if (skipNextValidation) {
-        setSkipNextValidation(false);
-      }
+      handleDataChange(value);
 
       if (saveNextChangeImmediately) {
         setSaveNextChangeImmediately(false);
       }
     },
-    [
-      handleDataChange,
-      formValue,
-      saveNextChangeImmediately,
-      setSaveNextChangeImmediately,
-      setSkipNextValidation,
-      skipNextValidation,
-    ],
+    [handleDataChange, formValue, saveNextChangeImmediately, setSaveNextChangeImmediately],
   );
 
   useEffect(() => {
@@ -107,11 +94,10 @@ export function useDelayedSavedState(
 
   return {
     value: immediateState,
-    setValue: (newValue, saveImmediately = false, skipValidation = false): void => {
+    setValue: (newValue, saveImmediately = false): void => {
       setImmediateState(newValue, true);
-      setSkipNextValidation(skipValidation && !saveImmediately && !saveNextChangeImmediately);
       if (saveImmediately || saveNextChangeImmediately) {
-        updateFormData(newValue, skipValidation);
+        updateFormData(newValue);
         immediateStateChangedRef.current = false;
       }
     },

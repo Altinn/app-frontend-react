@@ -72,9 +72,7 @@ export function* updateCurrentViewSaga({
   }
 }
 
-export function* moveToNextPageSaga({
-  payload: { runValidations, keepScrollPos },
-}: PayloadAction<IMoveToNextPage>): SagaIterator {
+export function* moveToNextPageSaga({ payload: { keepScrollPos } }: PayloadAction<IMoveToNextPage>): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
     const currentView = state.formLayout.uiConfig.currentView;
@@ -88,7 +86,7 @@ export function* moveToNextPageSaga({
     const layoutOrder = getLayoutOrderFromPageOrderConfig(state.formLayout.uiConfig.pageOrderConfig) || [];
     const newView = returnToView || layoutOrder[layoutOrder.indexOf(currentView) + 1];
 
-    yield put(FormLayoutActions.updateCurrentView({ newView, runValidations, keepScrollPos }));
+    yield put(FormLayoutActions.updateCurrentView({ newView, keepScrollPos }));
   } catch (error) {
     yield put(FormLayoutActions.moveToNextPageRejected({ error }));
   }

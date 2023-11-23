@@ -14,12 +14,10 @@ import { useUnifiedValidationsForNode } from 'src/features/validation/validation
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
-import { Triggers } from 'src/layout/common.generated';
 import { FormComponentContext, shouldComponentRenderLabel } from 'src/layout/index';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { makeGetFocus } from 'src/selectors/getLayoutData';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
-import type { ISingleFieldValidation } from 'src/features/formData/formDataTypes';
 import type { IGridStyling } from 'src/layout/common.generated';
 import type { IComponentProps, IFormComponentContext, PropsFromGenericComponent } from 'src/layout/index';
 import type { CompInternal, CompTypes, ITextResourceBindings } from 'src/layout/layout';
@@ -114,7 +112,6 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
   const { lang, langAsString } = useLanguage(node);
 
   const formData = node.getFormData() as IComponentFormData<Type>;
-  const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
 
   const shouldFocus = useAppSelector((state) => GetFocusSelector(state, { id }));
   const validations = useUnifiedValidationsForNode(node);
@@ -164,7 +161,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
   }
 
   const handleDataChange: IComponentProps<Type>['handleDataChange'] = (value, options = {}) => {
-    const { key = 'simpleBinding', validate = true } = options;
+    const { key = 'simpleBinding' } = options;
 
     if (!dataModelBindings || !dataModelBindings[key]) {
       return;
@@ -180,22 +177,12 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     }
 
     const dataModelBinding: string = dataModelBindings[key];
-    const triggers = 'triggers' in item ? item.triggers : undefined;
-    const singleFieldValidation: ISingleFieldValidation | undefined =
-      triggers && triggers.includes(Triggers.Validation)
-        ? {
-            layoutId: currentView,
-            dataModelBinding,
-          }
-        : undefined;
 
     dispatch(
       FormDataActions.update({
         field: dataModelBinding,
         data: value,
         componentId: id,
-        skipValidation: !validate,
-        singleFieldValidation,
       }),
     );
   };

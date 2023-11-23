@@ -167,7 +167,6 @@ describe('DropdownComponent', () => {
         field: 'Some.Path',
         data: 'newValue',
         skipAutoSave: true,
-        skipValidation: true,
       }),
     );
 

@@ -1,7 +1,6 @@
 import type { IFormData } from 'src/features/formData';
-import type { Triggers } from 'src/layout/common.generated';
 import type { ILayouts } from 'src/layout/layout';
-import type { IHiddenLayoutsExternal, ILayoutSets, ILayoutSettings, TriggersPageValidation } from 'src/types';
+import type { IHiddenLayoutsExternal, ILayoutSets, ILayoutSettings } from 'src/types';
 
 export interface IFormLayoutActionRejected {
   error: Error | null;
@@ -29,7 +28,6 @@ export interface ISetCurrentViewCacheKey {
 export interface IUpdateCurrentView {
   newView: string;
   returnToView?: string;
-  runValidations?: TriggersPageValidation;
   skipPageCaching?: boolean;
   focusComponentId?: string;
   keepScrollPos?: IKeepComponentScrollPos;
@@ -59,7 +57,6 @@ export interface IUpdateHiddenComponents {
 export interface IUpdateRepeatingGroupsEditIndex {
   group: string;
   index: number;
-  validate?: Triggers.Validation | Triggers.ValidateRow;
   shouldAddRow?: boolean;
 }
 
@@ -80,7 +77,6 @@ export interface IKeepComponentScrollPos {
 }
 
 export interface IMoveToNextPage {
-  runValidations?: TriggersPageValidation;
   keepScrollPos?: IKeepComponentScrollPos;
 }
 

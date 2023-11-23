@@ -190,7 +190,6 @@ function* handleChangedFields(changedFields: IFormData | undefined, lastSavedFor
         FormDataActions.update({
           data,
           field,
-          skipValidation: true,
           skipAutoSave: true,
           componentId: '',
         }),
@@ -298,7 +297,7 @@ export function* postStatelessData({ field, componentId }: SaveDataParams) {
  * @see submitFormSaga
  */
 export function* autoSaveSaga({
-  payload: { skipAutoSave, field, componentId, singleFieldValidation },
+  payload: { skipAutoSave, field, componentId },
 }: PayloadAction<IUpdateFormData>): SagaIterator {
   const uiConfig: IUiConfig = yield select(selectUiConfig);
   if (skipAutoSave || uiConfig.autoSaveBehavior === 'onChangePage') {
@@ -308,8 +307,8 @@ export function* autoSaveSaga({
   const applicationMetadata: IApplicationMetadata = yield select(getApplicationMetaData);
 
   if (isStatelessApp(applicationMetadata)) {
-    yield put(FormDataActions.saveLatest({ field, componentId, singleFieldValidation }));
+    yield put(FormDataActions.saveLatest({ field, componentId }));
   } else {
-    yield put(FormDataActions.saveEvery({ field, componentId, singleFieldValidation }));
+    yield put(FormDataActions.saveEvery({ field, componentId }));
   }
 }

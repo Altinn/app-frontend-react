@@ -48,7 +48,6 @@ describe('updateLayoutSagas', () => {
         .put(
           FormLayoutActions.updateCurrentView({
             newView: 'page-3',
-            runValidations: undefined,
             keepScrollPos: undefined,
           }),
         )
@@ -88,7 +87,6 @@ describe('updateLayoutSagas', () => {
         .put(
           FormLayoutActions.updateCurrentView({
             newView: 'page-3',
-            runValidations: undefined,
             keepScrollPos: {
               componentId: 'someComponent',
               offsetTop: 123,
@@ -118,7 +116,6 @@ describe('updateLayoutSagas', () => {
         .put(
           FormLayoutActions.updateCurrentView({
             newView: 'return-here',
-            runValidations: undefined,
             keepScrollPos: undefined,
           }),
         )

@@ -9,7 +9,6 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { selectLayoutOrder } from 'src/selectors/getLayoutOrder';
-import { reducePageValidations } from 'src/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 const useStyles = makeStyles((theme) => ({
@@ -108,12 +107,10 @@ const NavigationButton = React.forwardRef(
 NavigationButton.displayName = 'NavigationButton';
 
 export const NavigationBarComponent = ({ node }: INavigationBar) => {
-  const { triggers, compact } = node.item;
+  const { compact } = node.item;
   const classes = useStyles();
   const dispatch = useAppDispatch();
   const pageIds = useAppSelector(selectLayoutOrder);
-  const pageTriggers = useAppSelector((state) => state.formLayout.uiConfig.pageTriggers);
-  const pageOrPropTriggers = triggers || pageTriggers;
   const currentPageId = useAppSelector((state) => state.formLayout.uiConfig.currentView);
   const [showMenu, setShowMenu] = React.useState(false);
   const isMobile = useIsMobile() || compact === true;
@@ -126,11 +123,9 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
       return setShowMenu(false);
     }
 
-    const runValidations = reducePageValidations(pageOrPropTriggers);
     dispatch(
       FormLayoutActions.updateCurrentView({
         newView: pageId,
-        runValidations,
       }),
     );
   };

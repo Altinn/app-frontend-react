@@ -7,7 +7,7 @@ import type { IUpdateFormDataSimple } from 'src/features/formData/formDataTypes'
 import type { IRuntimeState } from 'src/types';
 
 export function* updateFormDataSaga({
-  payload: { field, data, componentId, skipValidation, skipAutoSave, singleFieldValidation },
+  payload: { field, data, componentId, skipAutoSave },
 }: PayloadAction<IUpdateFormDataSimple>): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
@@ -18,9 +18,7 @@ export function* updateFormDataSaga({
           field,
           componentId,
           data,
-          skipValidation,
           skipAutoSave,
-          singleFieldValidation,
         }),
       );
     }

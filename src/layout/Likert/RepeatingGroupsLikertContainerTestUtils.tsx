@@ -104,7 +104,6 @@ export const createFormDataUpdateAction = (
     componentId: `field1-${index}`,
     data: optionValue,
     field: `Questions[${index}].Answer`,
-    skipValidation: false,
   },
   type: FormDataActions.update.type,
 });

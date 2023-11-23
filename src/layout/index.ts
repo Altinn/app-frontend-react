@@ -50,7 +50,6 @@ export interface IComponentProps<T extends CompTypes> {
     value: string | undefined,
     options?: {
       key?: string; // Defaults to simpleBinding
-      validate?: boolean; // Defaults to true
     },
   ) => void;
   shouldFocus: boolean;

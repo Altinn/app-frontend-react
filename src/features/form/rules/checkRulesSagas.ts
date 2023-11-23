@@ -22,7 +22,7 @@ export interface IResponse {
 }
 
 export function* checkIfRuleShouldRunSaga({
-  payload: { field, skipAutoSave, skipValidation, singleFieldValidation },
+  payload: { field, skipAutoSave },
 }: PayloadAction<IUpdateFormData>): SagaIterator {
   try {
     const ruleConnectionState: IRuleConnections | null = yield select(selectRuleConnection);
@@ -43,9 +43,7 @@ export function* checkIfRuleShouldRunSaga({
               componentId: rule.componentId,
               data: rule.result,
               field: rule.dataBindingName,
-              skipValidation,
               skipAutoSave,
-              singleFieldValidation,
             }),
           );
         }),
