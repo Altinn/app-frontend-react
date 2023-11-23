@@ -7,8 +7,8 @@ import { CalendarIcon } from '@navikt/aksel-icons';
 import moment from 'moment';
 import type { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
 
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { getDateConstraint, getDateFormat, getDateString } from 'src/utils/dateHelpers';
@@ -105,9 +105,8 @@ const emptyString = '';
 
 export function DatepickerComponent({ node, formData, handleDataChange, isValid, overrideDisplay }: IDatepickerProps) {
   const classes = useStyles();
-  const profile = useAppSelector((state) => state.profile);
   const { langAsString } = useLanguage();
-  const languageLocale = profile.selectedAppLanguage || profile.profile.profileSettingPreference.language;
+  const languageLocale = useCurrentLanguage();
   const {
     minDate,
     maxDate,

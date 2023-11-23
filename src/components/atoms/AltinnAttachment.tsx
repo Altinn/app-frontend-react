@@ -3,7 +3,7 @@ import React from 'react';
 import { List, ListItem, ListItemIcon, ListItemText, makeStyles, Typography } from '@material-ui/core';
 import cn from 'classnames';
 
-import { useLanguage } from 'src/features/language/useLanguage';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { FileExtensionIcon } from 'src/layout/FileUpload/FileUploadTable/AttachmentFileName';
 import { getFileEnding } from 'src/layout/FileUpload/utils/fileEndings';
 import { makeUrlRelativeIfSameDomain } from 'src/utils/urls/urlHelper';
@@ -74,7 +74,7 @@ function ListItemLink(props: any) {
 
 export function AltinnAttachment({ attachments, listDisableVerticalPadding, nested, id }: IAltinnAttachmentProps) {
   const classes = useStyles();
-  const { selectedLanguage } = useLanguage();
+  const selectedLanguage = useCurrentLanguage();
 
   return (
     <>

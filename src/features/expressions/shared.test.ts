@@ -84,8 +84,8 @@ describe('Expressions shared function tests', () => {
           authContext: buildAuthContext(permissions),
           langTools: staticUseLanguageForTests({
             textResources: textResources ? resourcesAsMap(textResources) : {},
-            profileLanguage: profileSettings?.language,
           }),
+          currentLanguage: profileSettings?.language || 'nb',
           options,
         };
 

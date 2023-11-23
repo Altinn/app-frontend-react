@@ -12,7 +12,7 @@ import { returnUrlToAllSchemas, returnUrlToMessagebox, returnUrlToProfile } from
 import type { IProfile } from 'src/types/shared';
 
 export interface IHeaderProps {
-  profile: IProfile;
+  profile: IProfile | undefined;
   type?: string;
 }
 

@@ -15,7 +15,7 @@ import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 const useProfileQuery = () => {
   const dispatch = useAppDispatch();
   const enabled = useShouldFetchProfile();
-  const setCurrentLanguage = useSetCurrentLanguage();
+  const { updateProfile } = useSetCurrentLanguage();
 
   const { fetchUserProfile } = useAppQueries();
   const utils = useQuery({
@@ -31,10 +31,10 @@ const useProfileQuery = () => {
   });
 
   useEffect(() => {
-    if (utils.data && utils.data.profileSettingPreference.language) {
-      setCurrentLanguage(utils.data.profileSettingPreference.language);
+    if (utils.data) {
+      updateProfile(utils.data);
     }
-  }, [setCurrentLanguage, utils.data]);
+  }, [updateProfile, utils.data]);
 
   return {
     ...utils,

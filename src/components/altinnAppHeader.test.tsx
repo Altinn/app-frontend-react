@@ -3,19 +3,19 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 
 import { getOrganisationMock } from 'src/__mocks__/getOrganisationMock';
-import { getProfileStateMock } from 'src/__mocks__/getProfileMock';
+import { getProfileMock, getProfileStateMock } from 'src/__mocks__/getProfileMock';
 import { AltinnAppHeader } from 'src/components/altinnAppHeader';
 import { renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { IHeaderProps } from 'src/components/altinnAppHeader';
 
 describe('AltinnAppHeader', () => {
   it('should show organisation name when profile has party, and party has organisation with name, and "type" is not set', async () => {
-    const profile = getProfileStateMock();
+    const profile = getProfileMock();
     const org = getOrganisationMock();
-    profile.profile.party!.organization = org;
+    profile.party!.organization = org;
 
     await render({
-      profile: profile.profile,
+      profile,
       type: undefined,
     });
 
@@ -23,12 +23,12 @@ describe('AltinnAppHeader', () => {
   });
 
   it('should not show organisation name when profile has party, and party has organisation with name, and "type" is set', async () => {
-    const profile = getProfileStateMock();
+    const profile = getProfileMock();
     const org = getOrganisationMock();
-    profile.profile.party!.organization = org;
+    profile.party!.organization = org;
 
     await render({
-      profile: profile.profile,
+      profile,
       type: 'partyChoice',
     });
 
@@ -36,9 +36,9 @@ describe('AltinnAppHeader', () => {
   });
 
   it('should render links to inbox, schemas and profile when "type" is set and profile has "party" property', async () => {
-    const profile = getProfileStateMock();
+    const profile = getProfileMock();
     await render({
-      profile: profile.profile,
+      profile,
       type: 'partyChoice',
     });
 
@@ -56,10 +56,10 @@ describe('AltinnAppHeader', () => {
   });
 
   it('should not render links to inbox, schemas and profile when "type" is set but profile does not have "party" property', async () => {
-    const profile = getProfileStateMock();
-    delete profile.profile.party;
+    const profile = getProfileMock();
+    delete profile.party;
     await render({
-      profile: profile.profile,
+      profile,
       type: 'partyChoice',
     });
 

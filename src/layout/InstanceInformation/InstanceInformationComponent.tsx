@@ -8,6 +8,7 @@ import type { PropsFromGenericComponent } from '..';
 import { AltinnSummaryTable } from 'src/components/table/AltinnSummaryTable';
 import { useAppReceiver } from 'src/core/texts/appTexts';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useParties } from 'src/features/party/PartiesProvider';
 import { getDateFormat } from 'src/utils/dateHelpers';
@@ -58,7 +59,7 @@ export function InstanceInformationComponent({ node }: PropsFromGenericComponent
   const elements = node.item.elements;
   const { dateSent, sender, receiver, referenceNumber } = elements || {};
   const langTools = useLanguage();
-  const { selectedLanguage } = langTools;
+  const selectedLanguage = useCurrentLanguage();
 
   const instance = useLaxInstanceData();
   const parties = useParties();

@@ -19,6 +19,7 @@ export function validationContextFromState(state: IRuntimeState, node: LayoutNod
   return {
     formData: state.formData.formData,
     langTools: staticUseLanguageFromState(state, node),
+    currentLanguage: state.deprecated.currentLanguage,
     attachments: state.deprecated.lastKnownAttachments || {},
     application: state.applicationMetadata.applicationMetadata!,
     instance: state.deprecated.lastKnownInstance || null,

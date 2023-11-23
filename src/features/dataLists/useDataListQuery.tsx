@@ -4,7 +4,7 @@ import type { UseQueryResult } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
-import { useLanguage } from 'src/features/language/useLanguage';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { mapFormData } from 'src/utils/databindings';
@@ -25,7 +25,7 @@ export const useDataListQuery = (
   mapping?: IMapping,
 ): UseQueryResult<IDataList> => {
   const { fetchDataList } = useAppQueries();
-  const { selectedLanguage } = useLanguage();
+  const selectedLanguage = useCurrentLanguage();
   const instanceId = useLaxInstance()?.instanceId;
   const formData = useAppSelector((state) => state.formData.formData);
   const { pageSize, pageNumber, sortColumn, sortDirection } = filter || {};

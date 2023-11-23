@@ -4,8 +4,6 @@ import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { getPartyMock } from 'src/__mocks__/getPartyMock';
-import { getProfileStateMock } from 'src/__mocks__/getProfileMock';
-import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { AltinnParty } from 'src/components/altinnParty';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { IAltinnPartyProps } from 'src/components/altinnParty';
@@ -105,9 +103,5 @@ const render = async (props: Partial<IAltinnPartyProps> = {}) => {
   };
   return await renderWithInstanceAndLayout({
     renderer: () => <AltinnParty {...allProps} />,
-    reduxState: {
-      ...getInitialStateMock(),
-      profile: getProfileStateMock({ selectedAppLanguage: 'nb' }),
-    },
   });
 };

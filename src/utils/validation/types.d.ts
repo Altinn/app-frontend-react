@@ -14,6 +14,7 @@ import type { BackendValidationSeverity } from 'src/utils/validation/backendVali
  */
 export type IValidationContext = {
   langTools: IUseLanguage;
+  currentLanguage: string;
   formData: IFormData;
   attachments: IAttachments;
   application: IApplicationMetadata;

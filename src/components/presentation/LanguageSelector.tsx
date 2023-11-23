@@ -3,19 +3,19 @@ import React, { useMemo } from 'react';
 import { Select } from '@digdir/design-system-react';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
+import { useCurrentLanguage, useSetCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useGetAppLanguageQuery } from 'src/features/language/textResources/useGetAppLanguagesQuery';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { ProfileActions } from 'src/features/profile/profileSlice';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
 
 export const LanguageSelector = ({ hideLabel }: { hideLabel?: boolean }) => {
-  const { langAsString, selectedLanguage } = useLanguage();
+  const { langAsString } = useLanguage();
+  const selectedLanguage = useCurrentLanguage();
+  const { setWithLanguageSelector } = useSetCurrentLanguage();
 
   const { data: appLanguages, isError: appLanguageError } = useGetAppLanguageQuery();
-  const dispatch = useAppDispatch();
 
   const handleAppLanguageChange = (languageCode: string) => {
-    dispatch(ProfileActions.updateSelectedAppLanguage({ selected: languageCode }));
+    setWithLanguageSelector(languageCode);
   };
 
   const optionsMap = useMemo(

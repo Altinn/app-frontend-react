@@ -41,6 +41,7 @@ function runGetSchemaValidationErrors(formData: IFormData, schema: object) {
   return getSchemaValidationErrors({
     attachments,
     langTools,
+    currentLanguage: 'nb',
     formData,
     application,
     instance,

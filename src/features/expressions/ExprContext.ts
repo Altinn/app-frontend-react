@@ -23,6 +23,7 @@ export interface ContextDataSources {
   authContext: Partial<IAuthContext> | null;
   hiddenFields: Set<string>;
   langTools: IUseLanguage;
+  currentLanguage: string;
 }
 
 export interface PrettyErrorsOptions {

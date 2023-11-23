@@ -2,6 +2,7 @@ import {
   useApplicationMetadata,
   useHasApplicationMetadata,
 } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useHasTextResources } from 'src/features/language/textResources/TextResourcesProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useHasOrgs, useOrgs } from 'src/features/orgs/OrgsProvider';
@@ -27,11 +28,11 @@ export function useHasAppTextsYet() {
 
 export function useAppName() {
   const application = useApplicationMetadata();
-  const langTools = useLanguage();
 
   const appName = useTextResourceOr('appName', undefined);
   const oldAppName = useTextResourceOr('ServiceName', undefined);
-  const appNameFromMetadata = application.title[langTools.selectedLanguage] || application.title.nb;
+  const selectedLanguage = useCurrentLanguage();
+  const appNameFromMetadata = application.title[selectedLanguage] || application.title.nb;
 
   return appName || oldAppName || appNameFromMetadata;
 }
@@ -56,10 +57,10 @@ export function useAppLogoAltText() {
 
 function useOrgName(org: string | undefined) {
   const orgs = useOrgs();
-  const langTools = useLanguage();
+  const currentLanguage = useCurrentLanguage();
 
   if (orgs && typeof org === 'string' && orgs[org]) {
-    return orgs[org].name[langTools.selectedLanguage] || orgs[org].name.nb;
+    return orgs[org].name[currentLanguage] || orgs[org].name.nb;
   }
 
   return undefined;

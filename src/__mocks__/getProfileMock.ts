@@ -20,7 +20,6 @@ export function getProfileMock(): IProfile {
 export function getProfileStateMock(customStates?: Partial<IProfileState>): IProfileState {
   const profileStateMock: IProfileState = {
     profile: getProfileMock(),
-    selectedAppLanguage: '',
   };
 
   return {

@@ -4,7 +4,7 @@ import type { AxiosResponse } from 'axios';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
-import { useLanguage } from 'src/features/language/useLanguage';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getOptionsUrl } from 'src/utils/urls/appUrlHelper';
 import type { IMapping, IOption } from 'src/layout/common.generated';
@@ -17,8 +17,7 @@ export const useGetOptionsQuery = (
 ): UseQueryResult<AxiosResponse<IOption[], any>> => {
   const { fetchOptions } = useAppQueries();
   const formData = useAppSelector((state) => state.formData.formData);
-  const langTools = useLanguage();
-  const language = langTools.selectedLanguage;
+  const language = useCurrentLanguage();
   const instanceId = useLaxInstance()?.instanceId;
 
   const url = getOptionsUrl({

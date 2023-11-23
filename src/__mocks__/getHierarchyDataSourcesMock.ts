@@ -15,5 +15,6 @@ export function getHierarchyDataSourcesMock(): HierarchyDataSources {
     validations: {},
     devTools: getInitialStateMock().devTools,
     langTools: staticUseLanguageForTests(),
+    currentLanguage: 'nb',
   };
 }

@@ -9,7 +9,7 @@ import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { useStrictInstance } from 'src/features/instance/InstanceContext';
 import { useRealTaskType, useSetProcessData } from 'src/features/instance/ProcessContext';
-import { useLanguage } from 'src/features/language/useLanguage';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { ProcessTaskType } from 'src/types';
@@ -27,7 +27,7 @@ function useProcessNext() {
   const realTaskType = useRealTaskType();
   const { doProcessNext } = useAppMutations();
   const { reFetch: reFetchInstanceData } = useStrictInstance();
-  const language = useLanguage().selectedLanguage;
+  const language = useCurrentLanguage();
   const setProcessData = useSetProcessData();
 
   const utils = useMutation({

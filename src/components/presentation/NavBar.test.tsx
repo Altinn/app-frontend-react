@@ -5,7 +5,6 @@ import { userEvent } from '@testing-library/user-event';
 import mockAxios from 'jest-mock-axios';
 
 import { getFormLayoutStateMock } from 'src/__mocks__/getFormLayoutStateMock';
-import { getProfileStateMock } from 'src/__mocks__/getProfileMock';
 import { getUiConfigStateMock } from 'src/__mocks__/getUiConfigStateMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { NavBar } from 'src/components/presentation/NavBar';
@@ -44,7 +43,6 @@ const render = async ({
     ),
     reduxState: {
       ...getInitialStateMock(),
-      profile: getProfileStateMock({ selectedAppLanguage: 'nb' }),
       formLayout: getFormLayoutStateMock({
         uiConfig: getUiConfigStateMock({
           hideCloseButton,

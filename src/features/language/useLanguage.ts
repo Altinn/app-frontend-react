@@ -22,7 +22,6 @@ type ValidParam = string | number | undefined;
 
 export interface IUseLanguage {
   language: ILanguage;
-  selectedLanguage: string;
   lang(key: ValidLanguageKey | string | undefined, params?: ValidParam[]): string | JSX.Element | JSX.Element[] | null;
   langAsString(key: ValidLanguageKey | string | undefined, params?: ValidParam[]): string;
   langAsStringUsingPathInDataModel(
@@ -57,8 +56,6 @@ type ObjectToDotNotation<T extends Record<string, any>, Prefix extends string = 
 
 export type ValidLanguageKey = ObjectToDotNotation<FixedLanguageList>;
 
-const defaultLocale = 'nb';
-
 /**
  * Hook to resolve a key to a language string or React element (if the key is found and contains markdown or HTML).
  * Prefer this over using the long-named language functions. When those are less used, we can refactor their
@@ -69,7 +66,6 @@ const defaultLocale = 'nb';
  */
 export function useLanguage(node?: LayoutNode) {
   const textResources = useTextResources();
-  const profileLanguage = useAppSelector((state) => state.profile.profile.profileSettingPreference.language);
   const selectedAppLanguage = useCurrentLanguage();
   const componentCtx = useContext(FormComponentContext);
   const nearestNode = node || componentCtx?.node;
@@ -89,8 +85,8 @@ export function useLanguage(node?: LayoutNode) {
   );
 
   return useMemo(
-    () => staticUseLanguage(textResources, null, selectedAppLanguage, profileLanguage, dataSources),
-    [profileLanguage, selectedAppLanguage, textResources, dataSources],
+    () => staticUseLanguage(textResources, null, selectedAppLanguage, dataSources),
+    [selectedAppLanguage, textResources, dataSources],
   );
 }
 
@@ -99,8 +95,7 @@ export function useLanguage(node?: LayoutNode) {
  */
 export function staticUseLanguageFromState(state: IRuntimeState, node?: LayoutNode) {
   const textResources = state.textResources.resourceMap;
-  const profileLanguage = state.profile.profile.profileSettingPreference.language;
-  const selectedAppLanguage = state.profile.selectedAppLanguage;
+  const selectedAppLanguage = state.deprecated.currentLanguage;
   const formData = state.formData.formData;
   const applicationSettings = state.applicationSettings.applicationSettings;
   const instanceDataSources = buildInstanceDataSources(state.deprecated.lastKnownInstance);
@@ -111,14 +106,13 @@ export function staticUseLanguageFromState(state: IRuntimeState, node?: LayoutNo
     instanceDataSources,
   };
 
-  return staticUseLanguage(textResources, null, selectedAppLanguage, profileLanguage, dataSources);
+  return staticUseLanguage(textResources, null, selectedAppLanguage, dataSources);
 }
 
 interface ILanguageState {
   textResources: TextResourceMap;
   language: ILanguage | null;
-  selectedAppLanguage: string | undefined;
-  profileLanguage: string | undefined;
+  selectedLanguage: string;
   dataSources: TextResourceVariablesDataSources;
 }
 
@@ -130,8 +124,7 @@ interface ILanguageState {
 export function staticUseLanguageForTests({
   textResources = {},
   language = null,
-  profileLanguage = 'nb',
-  selectedAppLanguage = undefined,
+  selectedLanguage = 'nb',
   dataSources = {
     instanceDataSources: {
       instanceId: 'instanceId',
@@ -144,18 +137,16 @@ export function staticUseLanguageForTests({
     node: undefined,
   },
 }: Partial<ILanguageState> = {}) {
-  return staticUseLanguage(textResources, language, selectedAppLanguage, profileLanguage, dataSources);
+  return staticUseLanguage(textResources, language, selectedLanguage, dataSources);
 }
 
 function staticUseLanguage(
   textResources: TextResourceMap,
   _language: ILanguage | null,
-  selectedAppLanguage: string | undefined,
-  profileLanguage: string | undefined,
+  selectedLanguage: string,
   dataSources: TextResourceVariablesDataSources,
 ): IUseLanguage {
-  const langKey = selectedAppLanguage || profileLanguage || defaultLocale;
-  const language = _language || getLanguageFromCode(langKey);
+  const language = _language || getLanguageFromCode(selectedLanguage);
 
   /**
    * TODO: Clean away any markdown/HTML formatting when using the langAsString function. Even though we support
@@ -164,7 +155,6 @@ function staticUseLanguage(
 
   return {
     language,
-    selectedLanguage: langKey,
     lang: (key, params) => {
       if (!key) {
         return '';

@@ -15,6 +15,7 @@ import { getLayoutSetsMock } from 'src/__mocks__/getLayoutSetsMock';
 import { getOrgsMock } from 'src/__mocks__/getOrgsMock';
 import { getPartyMock } from 'src/__mocks__/getPartyMock';
 import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
+import { getProfileMock } from 'src/__mocks__/getProfileMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
@@ -24,6 +25,7 @@ import { generateSimpleRepeatingGroups } from 'src/features/form/layout/repGroup
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
+import { LanguageProvider } from 'src/features/language/LanguageProvider';
 import { TextResourcesProvider } from 'src/features/language/textResources/TextResourcesProvider';
 import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
 import { PartyProvider } from 'src/features/party/PartiesProvider';
@@ -39,7 +41,6 @@ import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
 import type { IOption } from 'src/layout/common.generated';
 import type { CompExternalExact, CompTypes, ILayoutCollection, ILayouts } from 'src/layout/layout';
 import type { IRuntimeState } from 'src/types';
-import type { IProfile } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
@@ -117,7 +118,7 @@ const makeDefaultQueryMocks = (state: IRuntimeState): MockableQueries => ({
   fetchFooterLayout: () => Promise.resolve({ footer: [] } as IFooterLayout),
   fetchLayoutSets: () => Promise.resolve(getLayoutSetsMock()),
   fetchOrgs: () => Promise.resolve({ orgs: getOrgsMock() }),
-  fetchUserProfile: () => Promise.resolve({} as unknown as IProfile),
+  fetchUserProfile: () => Promise.resolve(getProfileMock()),
   fetchDataModelSchema: () => Promise.resolve({}),
   fetchParties: () => Promise.resolve([getPartyMock()]),
   fetchRefreshJwtToken: () => Promise.resolve({}),
@@ -173,31 +174,33 @@ function DefaultProviders({ children, store, queries, queryClient, Router = Defa
       {...queries}
       queryClient={queryClient}
     >
-      <MuiThemeProvider theme={theme}>
-        <ReduxProvider store={store}>
-          <ExprContextWrapper>
-            <ApplicationMetadataProvider>
-              <OrgsProvider>
-                <ApplicationSettingsProvider>
-                  <LayoutSetsProvider>
-                    <TextResourcesProvider>
-                      <FooterLayoutProvider>
-                        <ProfileProvider>
-                          <PartyProvider>
-                            <Router>
-                              <InstantiationProvider>{children}</InstantiationProvider>
-                            </Router>
-                          </PartyProvider>
-                        </ProfileProvider>
-                      </FooterLayoutProvider>
-                    </TextResourcesProvider>
-                  </LayoutSetsProvider>
-                </ApplicationSettingsProvider>
-              </OrgsProvider>
-            </ApplicationMetadataProvider>
-          </ExprContextWrapper>
-        </ReduxProvider>
-      </MuiThemeProvider>
+      <ReduxProvider store={store}>
+        <LanguageProvider>
+          <MuiThemeProvider theme={theme}>
+            <ExprContextWrapper>
+              <ApplicationMetadataProvider>
+                <OrgsProvider>
+                  <ApplicationSettingsProvider>
+                    <LayoutSetsProvider>
+                      <TextResourcesProvider>
+                        <FooterLayoutProvider>
+                          <ProfileProvider>
+                            <PartyProvider>
+                              <Router>
+                                <InstantiationProvider>{children}</InstantiationProvider>
+                              </Router>
+                            </PartyProvider>
+                          </ProfileProvider>
+                        </FooterLayoutProvider>
+                      </TextResourcesProvider>
+                    </LayoutSetsProvider>
+                  </ApplicationSettingsProvider>
+                </OrgsProvider>
+              </ApplicationMetadataProvider>
+            </ExprContextWrapper>
+          </MuiThemeProvider>
+        </LanguageProvider>
+      </ReduxProvider>
     </AppQueriesProvider>
   );
 }

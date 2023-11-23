@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptionsQuery } from 'src/features/options/useGetOptionsQuery';
 import { useSourceOptions } from 'src/hooks/useSourceOptions';
@@ -79,7 +80,8 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
   if (!!setMetadata && downstreamParameters) {
     setMetadata(downstreamParameters);
   }
-  const { selectedLanguage, langAsString } = useLanguage();
+  const { langAsString } = useLanguage();
+  const selectedLanguage = useCurrentLanguage();
 
   usePreselectedOptionIndex(calculatedOptions, props);
   useRemoveStaleValues(calculatedOptions, props);

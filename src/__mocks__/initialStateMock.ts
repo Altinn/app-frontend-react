@@ -119,6 +119,7 @@ export function getInitialStateMock(custom?: Partial<IRuntimeState> | ((state: I
     deprecated: {
       lastKnownProcess: getProcessDataMock(),
       lastKnownInstance: getInstanceDataMock(),
+      currentLanguage: 'nb',
     },
   };
 
