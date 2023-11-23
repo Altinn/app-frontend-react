@@ -183,17 +183,17 @@ function DefaultProviders({ children, store, queries, queryClient, Router = Defa
                 <OrgsProvider>
                   <ApplicationSettingsProvider>
                     <LayoutSetsProvider>
-                      <TextResourcesProvider>
-                        <FooterLayoutProvider>
-                          <ProfileProvider>
-                            <PartyProvider>
+                      <ProfileProvider>
+                        <PartyProvider>
+                          <TextResourcesProvider>
+                            <FooterLayoutProvider>
                               <Router>
                                 <InstantiationProvider>{children}</InstantiationProvider>
                               </Router>
-                            </PartyProvider>
-                          </ProfileProvider>
-                        </FooterLayoutProvider>
-                      </TextResourcesProvider>
+                            </FooterLayoutProvider>
+                          </TextResourcesProvider>
+                        </PartyProvider>
+                      </ProfileProvider>
                     </LayoutSetsProvider>
                   </ApplicationSettingsProvider>
                 </OrgsProvider>

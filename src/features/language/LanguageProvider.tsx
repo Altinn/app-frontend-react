@@ -49,6 +49,6 @@ export const useSetCurrentLanguage = () => {
 };
 
 function getLanguageQueryParam() {
-  const params = new URLSearchParams(window.location.hash.split('?')[1]);
+  const params = new URLSearchParams((window.location.hash || '').split('?')[1]);
   return params.get('lang');
 }

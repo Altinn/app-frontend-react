@@ -26,7 +26,8 @@ const useTextResourcesQuery = () => {
 
   // This makes sure to await potential profile fetching before fetching text resources
   const profile = useProfile();
-  const enabled = useAllowAnonymousIs(true) || profile !== undefined;
+  const isAnonymous = useAllowAnonymousIs(true);
+  const enabled = isAnonymous || profile !== undefined;
 
   const utils = {
     ...useQuery({
