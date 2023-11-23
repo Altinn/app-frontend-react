@@ -2,6 +2,7 @@ import React from 'react';
 
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
+import { useOnFormSubmitValidation } from 'src/features/validation/validationProvider';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { getComponentFromMode } from 'src/layout/Button/getComponentFromMode';
 import { SubmitButton } from 'src/layout/Button/SubmitButton';
@@ -23,6 +24,8 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
   const { actions, write } = useLaxProcessData()?.currentTask || {};
   const { next, canSubmit, busyWithId, attachmentsPending } = useProcessNavigation() || {};
 
+  const onFormSubmitValidation = useOnFormSubmitValidation();
+
   const disabled =
     !canSubmit || (currentTaskType === 'data' && !write) || (currentTaskType === 'confirmation' && !actions?.confirm);
 
@@ -42,7 +45,7 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
   }
 
   const submitTask = () => {
-    if (!disabled && next) {
+    if (!disabled && next && !onFormSubmitValidation(node.top.top.collection)) {
       if (currentTaskType === 'data') {
         next({ nodeId: node.item.id });
       } else if (currentTaskType === 'confirmation') {
