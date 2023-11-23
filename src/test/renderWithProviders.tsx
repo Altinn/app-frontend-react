@@ -16,6 +16,7 @@ import { getOrgsMock } from 'src/__mocks__/getOrgsMock';
 import { getPartyMock } from 'src/__mocks__/getPartyMock';
 import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
 import { getProfileMock } from 'src/__mocks__/getProfileMock';
+import { getTextResourcesMock } from 'src/__mocks__/getTextResourcesMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
@@ -129,7 +130,7 @@ const makeDefaultQueryMocks = (state: IRuntimeState): MockableQueries => ({
   fetchPdfFormat: () => Promise.resolve({ excludedPages: [], excludedComponents: [] }),
   fetchDynamics: () => Promise.resolve(null),
   fetchRuleHandler: () => Promise.resolve(null),
-  fetchTextResources: () => Promise.resolve({ language: 'nb', resources: [] }),
+  fetchTextResources: () => Promise.resolve({ language: 'nb', resources: getTextResourcesMock() }),
   fetchLayoutSchema: () => Promise.resolve({} as JSONSchema7),
   fetchAppLanguages: () => Promise.resolve([]),
   fetchProcessNextSteps: () => Promise.resolve([]),

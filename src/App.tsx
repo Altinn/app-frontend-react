@@ -22,17 +22,6 @@ export const App = () => (
       element={<PartySelection />}
     />
     <Route
-      path='/partyselection/*'
-      element={
-        // Rewrites to the new URL
-        // PRIORITY: Make sure to test that this works (even with /party-selection/403)
-        <Navigate
-          to='/party-selection/'
-          replace={true}
-        />
-      }
-    />
-    <Route
       path='/instance/:partyId/:instanceGuid'
       element={
         <InstanceProvider>
@@ -40,5 +29,20 @@ export const App = () => (
         </InstanceProvider>
       }
     />
+    <LegacyRoutes />
   </Routes>
+);
+
+const LegacyRoutes = () => (
+  <Route
+    path='/partyselection/*'
+    element={
+      // Rewrites to the new URL
+      // PRIORITY: Make sure to test that this works (even with /party-selection/403)
+      <Navigate
+        to='/party-selection/'
+        replace={true}
+      />
+    }
+  />
 );

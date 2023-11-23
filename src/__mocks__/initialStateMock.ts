@@ -6,7 +6,9 @@ import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getOrgsMock } from 'src/__mocks__/getOrgsMock';
 import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
 import { getProfileStateMock } from 'src/__mocks__/getProfileMock';
+import { getTextResourcesMock } from 'src/__mocks__/getTextResourcesMock';
 import { DevToolsTab } from 'src/features/devtools/data/types';
+import { resourcesAsMap } from 'src/features/language/textResources/resourcesAsMap';
 import type { IRuntimeState } from 'src/types';
 
 export function getInitialStateMock(custom?: Partial<IRuntimeState> | ((state: IRuntimeState) => void)): IRuntimeState {
@@ -57,61 +59,10 @@ export function getInitialStateMock(custom?: Partial<IRuntimeState> | ((state: I
     },
     organisationMetaData: {
       allOrgs: getOrgsMock(),
-      error: null,
     },
     profile: getProfileStateMock(),
     textResources: {
-      resourceMap: {
-        'option.from.rep.group.label': {
-          value: 'The value from the group is: {0}',
-          variables: [
-            {
-              dataSource: 'dataModel.skjema',
-              key: 'someGroup[{0}].labelField',
-            },
-          ],
-        },
-        'option.from.rep.group.description': {
-          value: 'Description: The value from the group is: {0}',
-          variables: [
-            {
-              dataSource: 'dataModel.skjema',
-              key: 'someGroup[{0}].labelField',
-            },
-          ],
-        },
-        'option.from.rep.group.helpText': {
-          value: 'Help Text: The value from the group is: {0}',
-          variables: [
-            {
-              dataSource: 'dataModel.skjema',
-              key: 'someGroup[{0}].labelField',
-            },
-          ],
-        },
-        'group.input.title': {
-          value: 'The value from group is: {0}',
-          variables: [
-            {
-              dataSource: 'dataModel.skjema',
-              key: 'referencedGroup[{0}].inputField',
-            },
-          ],
-        },
-        'group.input.title-2': {
-          value: 'The value from the group is: Value from input field [2]',
-          variables: [
-            {
-              dataSource: 'dataModel.skjema',
-              key: 'referencedGroup[2].inputField',
-            },
-          ],
-        },
-        'accordion.title': {
-          value: 'This is a title',
-        },
-      },
-      language: 'nb',
+      resourceMap: resourcesAsMap(getTextResourcesMock()),
     },
     applicationSettings: {
       applicationSettings: getApplicationSettingsMock(),

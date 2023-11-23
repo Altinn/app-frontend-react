@@ -4,7 +4,6 @@ import type { ITextResourceResult, ITextResourcesState } from 'src/features/lang
 import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
 
 const initialState: ITextResourcesState = {
-  language: null,
   resourceMap: {},
 };
 
@@ -16,7 +15,6 @@ export const textResourcesSlice = () => {
     actions: {
       fetchFulfilled: mkAction<ITextResourceResult>({
         reducer: (state, action) => {
-          state.language = action.payload.language;
           state.resourceMap = resourcesAsMap(action.payload.resources);
         },
       }),

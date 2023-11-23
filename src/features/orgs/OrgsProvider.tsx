@@ -20,7 +20,6 @@ const useOrgsQuery = () => {
       dispatch(OrgsActions.fetchFulfilled({ orgs }));
     },
     onError: (error: HttpClientError) => {
-      OrgsActions.fetchRejected({ error });
       window.logError('Fetching organizations failed:\n', error);
     },
   });

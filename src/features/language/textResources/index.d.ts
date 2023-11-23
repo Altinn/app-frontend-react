@@ -1,7 +1,6 @@
 import type { ITextResource } from 'src/types/shared';
 
 export interface ITextResourcesState {
-  language: string | null;
   resourceMap: TextResourceMap;
 }
 

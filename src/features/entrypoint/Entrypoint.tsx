@@ -3,12 +3,12 @@ import { Navigate } from 'react-router-dom';
 
 import { Form } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
-import { Loader } from 'src/core/loading/Loader';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useIsStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
 import { useAllowAnonymousIs } from 'src/features/applicationMetadata/getAllowAnonymous';
 import { FormProvider } from 'src/features/form/FormContext';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
+import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { useCurrentParty, useCurrentPartyIsValid } from 'src/features/party/PartiesProvider';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
@@ -66,9 +66,6 @@ export function Entrypoint() {
     );
   }
 
-  return (
-    <FormProvider>
-      <Loader reason='entrypoint' />
-    </FormProvider>
-  );
+  window.logErrorOnce('Unknown applicationMetadata.onEntry type:', show);
+  return <UnknownError />;
 }
