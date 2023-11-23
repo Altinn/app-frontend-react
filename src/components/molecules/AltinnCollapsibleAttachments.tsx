@@ -6,7 +6,7 @@ import cn from 'classnames';
 import { AltinnIcon } from 'src/components/AltinnIcon';
 import { AltinnAttachment } from 'src/components/atoms/AltinnAttachment';
 import { getPlainTextFromNode } from 'src/utils/stringHelper';
-import type { IAttachment } from 'src/types/shared';
+import type { IDisplayAttachment } from 'src/types/shared';
 
 const useStyles = makeStyles(() => ({
   listItemTextPadding: {
@@ -26,7 +26,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 interface IAltinnCollapsibleAttachmentsProps {
-  attachments?: IAttachment[];
+  attachments?: IDisplayAttachment[];
   collapsible?: boolean;
   title?: React.ReactNode;
   hideCount?: boolean;
@@ -88,11 +88,7 @@ export function AltinnCollapsibleAttachments({
             timeout='auto'
             unmountOnExit={true}
           >
-            <AltinnAttachment
-              attachments={attachments}
-              nested={true}
-              listDisableVerticalPadding={true}
-            />
+            <AltinnAttachment attachments={attachments} />
           </Collapse>
         </List>
       ) : (
@@ -102,8 +98,6 @@ export function AltinnCollapsibleAttachments({
           </Typography>
           <AltinnAttachment
             attachments={attachments}
-            nested={false}
-            listDisableVerticalPadding={false}
             id='attachment-list'
           />
         </>

@@ -8,14 +8,14 @@ import { Header } from 'src/components/presentation/Header';
 import { NavBar } from 'src/components/presentation/NavBar';
 import classes from 'src/components/wrappers/Presentation.module.css';
 import { Footer } from 'src/features/footer/Footer';
-import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
-import { getLayoutOrderFromTracks } from 'src/selectors/getLayoutOrder';
+import { selectPreviousAndNextPage } from 'src/selectors/getLayoutOrder';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { PresentationType, ProcessTaskType } from 'src/types';
-import { getNextView } from 'src/utils/formLayout';
 import { httpGet } from 'src/utils/network/networking';
 import { getRedirectUrl } from 'src/utils/urls/appUrlHelper';
 import { returnUrlFromQueryParameter, returnUrlToMessagebox } from 'src/utils/urls/urlHelper';
@@ -31,19 +31,11 @@ export const PresentationComponent = (props: IPresentationProvidedProps) => {
   const dispatch = useAppDispatch();
   const { langAsString } = useLanguage();
   const party = useAppSelector((state) => state.party?.selectedParty);
-  const instance = useAppSelector((state) => state.instanceData?.instance);
+  const instance = useLaxInstanceData();
   const userParty = useAppSelector((state) => state.profile.profile?.party);
   const { expandedWidth } = useAppSelector((state) => state.formLayout.uiConfig);
+  const { previous } = useAppSelector(selectPreviousAndNextPage);
 
-  const previousFormPage: string = useAppSelector((state) =>
-    getNextView(
-      state.formLayout.uiConfig.navigationConfig &&
-        state.formLayout.uiConfig.navigationConfig[state.formLayout.uiConfig.currentView],
-      getLayoutOrderFromTracks(state.formLayout.uiConfig.tracks),
-      state.formLayout.uiConfig.currentView,
-      true,
-    ),
-  );
   const returnToView = useAppSelector((state) => state.formLayout.uiConfig.returnToView);
 
   const handleBackArrowButton = () => {
@@ -53,10 +45,13 @@ export const PresentationComponent = (props: IPresentationProvidedProps) => {
           newView: returnToView,
         }),
       );
-    } else if (props.type === ProcessTaskType.Data || props.type === PresentationType.Stateless) {
+    } else if (
+      previous !== undefined &&
+      (props.type === ProcessTaskType.Data || props.type === PresentationType.Stateless)
+    ) {
       dispatch(
         FormLayoutActions.updateCurrentView({
-          newView: previousFormPage,
+          newView: previous,
         }),
       );
     }
@@ -105,7 +100,7 @@ export const PresentationComponent = (props: IPresentationProvidedProps) => {
           handleClose={handleModalCloseButton}
           handleBack={handleBackArrowButton}
           showBackArrow={
-            !!previousFormPage && (props.type === ProcessTaskType.Data || props.type === PresentationType.Stateless)
+            !!previous && (props.type === ProcessTaskType.Data || props.type === PresentationType.Stateless)
           }
         />
         <section

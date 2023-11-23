@@ -3,6 +3,7 @@ import type { $Keys, PickByValue } from 'utility-types';
 import type { IDevToolsState } from 'src/features/devtools/data/types';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { CompCategory } from 'src/layout/common';
+import type { ILayoutFileExternal } from 'src/layout/common.generated';
 import type { ComponentConfigs, ComponentTypeConfigs } from 'src/layout/components.generated';
 import type { CompGroupExternal } from 'src/layout/Group/config.generated';
 import type { CompClassMapTypes } from 'src/layout/index';
@@ -113,13 +114,15 @@ export type TypesFromCategory<Type extends CompCategory> = $Keys<PickByValue<Com
 export type DefFromCategory<C extends CompCategory> = C extends 'presentation'
   ? PresentationComponent<any>
   : C extends 'form'
-  ? FormComponent<any>
-  : C extends 'action'
-  ? ActionComponent<any>
-  : C extends 'container'
-  ? ContainerComponent<any>
-  : never;
+    ? FormComponent<any>
+    : C extends 'action'
+      ? ActionComponent<any>
+      : C extends 'container'
+        ? ContainerComponent<any>
+        : never;
 
 export type LayoutNodeFromCategory<Type> = Type extends CompCategory
   ? LayoutNode<TypesFromCategory<Type>> & DefFromCategory<Type>
   : LayoutNode;
+
+export type ILayoutCollection = { [pageName: string]: ILayoutFileExternal };

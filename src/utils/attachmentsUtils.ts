@@ -1,58 +1,45 @@
+import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type { IApplication, IAttachment, IAttachmentGrouping, IData, IDataType } from 'src/types/shared';
+import type { IAttachmentGrouping, IData, IDataType, IDisplayAttachment } from 'src/types/shared';
 
-export const mapInstanceAttachments = (
-  data: IData[] | undefined,
-  defaultElementIds: string[],
-  platform?: boolean,
-): IAttachment[] => {
-  if (!data) {
-    return [];
-  }
-  const tempAttachments: IAttachment[] = [];
-  data.forEach((dataElement: IData) => {
-    if (defaultElementIds.indexOf(dataElement.dataType) > -1 || dataElement.dataType === 'ref-data-as-pdf') {
-      return;
-    }
+export enum DataTypeReference {
+  IncludeAll = 'include-all',
+  RefDataAsPdf = 'ref-data-as-pdf',
+  FromTask = 'from-task',
+}
 
-    tempAttachments.push({
-      name: dataElement.filename,
-      url: platform ? dataElement.selfLinks?.platform : dataElement.selfLinks?.apps,
-      iconClass: 'reg reg-attachment',
-      dataType: dataElement.dataType,
-    });
-  });
-  return tempAttachments;
-};
+export const filterDisplayAttachments = (
+  data: IData[],
+  excludeDataTypes: string[],
+  excludePdfs = true,
+): IDisplayAttachment[] =>
+  getDisplayAttachments(
+    data.filter((el) => {
+      if (excludePdfs && el.dataType === DataTypeReference.RefDataAsPdf) {
+        return false;
+      }
 
-export const getInstancePdf = (data: IData[] | undefined, platform?: boolean): IAttachment[] | undefined => {
-  if (!data) {
-    return undefined;
-  }
+      return !excludeDataTypes.includes(el.dataType);
+    }),
+  );
 
-  const pdfElements = data.filter((element) => element.dataType === 'ref-data-as-pdf');
+export const filterDisplayPdfAttachments = (data: IData[]) =>
+  getDisplayAttachments(data.filter((el) => el.dataType === DataTypeReference.RefDataAsPdf));
 
-  if (!pdfElements) {
-    return undefined;
-  }
-
-  return pdfElements.map((element) => {
-    const pdfUrl = platform ? element.selfLinks?.platform : element.selfLinks?.apps;
-    return {
-      name: element.filename,
-      url: pdfUrl,
-      iconClass: 'reg reg-attachment',
-      dataType: element.dataType,
-    };
-  });
-};
+export const getDisplayAttachments = (data: IData[]): IDisplayAttachment[] =>
+  data.map((dataElement: IData) => ({
+    name: dataElement.filename,
+    url: dataElement.selfLinks?.apps,
+    iconClass: 'reg reg-attachment',
+    dataType: dataElement.dataType,
+  }));
 
 /**
  * Gets the attachment groupings from a list of attachments.
  */
 export const getAttachmentGroupings = (
-  attachments: IAttachment[] | undefined,
-  applicationMetadata: IApplication | null,
+  attachments: IDisplayAttachment[] | undefined,
+  applicationMetadata: IApplicationMetadata | null,
   langTools: IUseLanguage,
 ): IAttachmentGrouping => {
   const attachmentGroupings: IAttachmentGrouping = {};
@@ -61,7 +48,7 @@ export const getAttachmentGroupings = (
     return attachmentGroupings;
   }
 
-  attachments.forEach((attachment: IAttachment) => {
+  attachments.forEach((attachment: IDisplayAttachment) => {
     const grouping = getGroupingForAttachment(attachment, applicationMetadata);
     const title = langTools.langAsString(grouping);
     if (!attachmentGroupings[title]) {
@@ -78,7 +65,10 @@ export const getAttachmentGroupings = (
  * @param attachment the attachment
  * @param applicationMetadata the application metadata
  */
-export const getGroupingForAttachment = (attachment: IAttachment, applicationMetadata: IApplication): string => {
+export const getGroupingForAttachment = (
+  attachment: IDisplayAttachment,
+  applicationMetadata: IApplicationMetadata,
+): string => {
   if (!applicationMetadata || !applicationMetadata.dataTypes || !attachment) {
     return 'null';
   }

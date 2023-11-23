@@ -9,12 +9,12 @@ import type { IFormData } from 'src/features/formData';
 import type { AllOptionsMap } from 'src/features/options/useAllOptions';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { IUiConfig } from 'src/types';
-import type { IApplicationSettings, IAuthContext, IInstanceContext } from 'src/types/shared';
+import type { IApplicationSettings, IAuthContext, IInstanceDataSources } from 'src/types/shared';
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 export interface ContextDataSources {
-  instanceContext: IInstanceContext | null;
+  instanceDataSources: IInstanceDataSources | null;
   applicationSettings: IApplicationSettings | null;
   formData: IFormData;
   attachments: IAttachments;
@@ -31,7 +31,7 @@ export interface PrettyErrorsOptions {
 }
 
 /**
- * The expression context object is passed around when executing/evaluating a expression, and is
+ * The expression context object is passed around when executing/evaluating an expression, and is
  * a toolbox for expressions to resolve lookups in data sources, getting the current node, etc.
  */
 export class ExprContext {

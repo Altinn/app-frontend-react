@@ -69,8 +69,8 @@ function getEditButtonText(
       ? textResourceBindings?.edit_button_close
       : 'general.save_and_close'
     : textResourceBindings?.edit_button_open
-    ? textResourceBindings?.edit_button_open
-    : 'general.edit_alt';
+      ? textResourceBindings?.edit_button_open
+      : 'general.edit_alt';
   return langTools.langAsString(buttonTextKey);
 }
 
@@ -137,7 +137,10 @@ export function RepeatingGroupTableRow({
       {!mobileView ? (
         tableNodes.map((n, idx) =>
           shouldEditInTable(edit, n, columnSettings) ? (
-            <TableCell key={n.item.id}>
+            <TableCell
+              key={n.item.id}
+              className={classes.tableCell}
+            >
               <div ref={(ref) => refSetter && refSetter(index, `component-${n.item.id}`, ref)}>
                 <GenericComponent
                   node={n}
@@ -153,7 +156,10 @@ export function RepeatingGroupTableRow({
               </div>
             </TableCell>
           ) : (
-            <TableCell key={`${n.item.id}-${index}`}>
+            <TableCell
+              key={`${n.item.id}-${index}`}
+              className={classes.tableCell}
+            >
               <span
                 className={classes.contentFormatting}
                 style={getColumnStylesRepeatingGroups(n, columnSettings)}
