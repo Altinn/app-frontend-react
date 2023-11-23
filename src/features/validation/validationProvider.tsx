@@ -27,7 +27,13 @@ import { useLanguage } from 'src/hooks/useLanguage';
 import { createStrictContext } from 'src/utils/createContext';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
-import type { BaseValidation, NodeValidation, ValidationContext, ValidationState } from 'src/features/validation';
+import type {
+  BaseValidation,
+  NodeUrgency,
+  NodeValidation,
+  ValidationContext,
+  ValidationState,
+} from 'src/features/validation';
 import type { CompTypes, IDataModelBindings } from 'src/layout/layout';
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -46,12 +52,13 @@ export function ValidationProvider({ children }) {
       : undefined;
 
   const [validations, setValidations] = useImmer<ValidationState>({ fields: {}, components: {}, task: [] });
-  const [nodeUrgency, setNodeUrgency] = useImmer<{ [nodeId: string]: ValidationUrgency }>({});
+  const [nodeUrgency, setNodeUrgency] = useImmer<NodeUrgency>({});
 
   useOnNodeDataChange(async (nodeChanges) => {
     const changedNodes = nodeChanges.map((nC) => nC.node);
     const serverValidations = await runServerValidations(nodeChanges, validationUrl, langTools);
     const newValidations = runValidationOnNodes(changedNodes, validationContextGenerator);
+
     setValidations((state) => {
       mergeFormValidations(state, newValidations);
       updateValidationState(state, serverValidations);
@@ -62,15 +69,21 @@ export function ValidationProvider({ children }) {
     const addedNodes = addedNodeChanges.map((nC) => nC.node);
     const serverValidations = await runServerValidations(addedNodeChanges, validationUrl, langTools);
     const newValidations = runValidationOnNodes(addedNodes, validationContextGenerator);
+
     setValidations((state) => {
       purgeValidationsForNodes(state, removedNodes, currentNodes);
       mergeFormValidations(state, newValidations);
       updateValidationState(state, serverValidations);
     });
+
+    setNodeUrgency((state) => {
+      purgeUrgencyForNodes(state, removedNodes);
+    });
   });
 
   useOnAttachmentsChange((changedNodes) => {
     const newValidations = runValidationOnNodes(changedNodes, validationContextGenerator);
+
     setValidations((state) => {
       mergeFormValidations(state, newValidations);
     });
@@ -379,5 +392,11 @@ function purgeValidationsForNodes(
         }
       }
     }
+  }
+}
+
+function purgeUrgencyForNodes(nodeUrgency: NodeUrgency, removedNodes: LayoutNode[]): void {
+  for (const node of removedNodes) {
+    delete nodeUrgency[node.item.id];
   }
 }
