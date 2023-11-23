@@ -17,8 +17,8 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 export type BindingToValues<B extends IDataModelBindings | undefined> = B extends undefined
   ? { [key: string]: undefined }
   : B extends IDataModelBindingsForList
-  ? { list: string[] | undefined }
-  : { [key in keyof B]: string | undefined };
+    ? { list: string[] | undefined }
+    : { [key in keyof B]: string | undefined };
 
 export type IComponentFormData<T extends CompTypes> = BindingToValues<CompInternal<T>['dataModelBindings']>;
 
