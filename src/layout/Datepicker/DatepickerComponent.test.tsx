@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { act, fireEvent, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 
 import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
 import { mockMediaQuery, renderGenericComponentTest } from 'src/testUtils';
@@ -15,6 +15,7 @@ jest.mock('src/utils/dateHelpers', () => ({
 }));
 
 const render = ({ component, genericProps }: Partial<RenderGenericComponentTestProps<'Datepicker'>> = {}) => {
+  // eslint-disable-next-line testing-library/await-async-events
   const user = userEvent.setup();
   renderGenericComponentTest({
     type: 'Datepicker',
