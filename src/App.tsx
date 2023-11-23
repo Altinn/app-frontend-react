@@ -29,20 +29,18 @@ export const App = () => (
         </InstanceProvider>
       }
     />
-    <LegacyRoutes />
-  </Routes>
-);
 
-const LegacyRoutes = () => (
-  <Route
-    path='/partyselection/*'
-    element={
-      // Rewrites to the new URL
-      // PRIORITY: Make sure to test that this works (even with /party-selection/403)
-      <Navigate
-        to='/party-selection/'
-        replace={true}
-      />
-    }
-  />
+    {/**
+     * Redirects from legacy URLs to new URLs
+     */}
+    <Route
+      path='/partyselection/*'
+      element={
+        <Navigate
+          to='/party-selection/'
+          replace={true}
+        />
+      }
+    />
+  </Routes>
 );
