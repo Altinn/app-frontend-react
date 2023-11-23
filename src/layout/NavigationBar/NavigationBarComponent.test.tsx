@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { act, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { NavigationBarComponent } from 'src/layout/NavigationBar/NavigationBarComponent';
@@ -15,6 +15,7 @@ interface Props extends Partial<RenderGenericComponentTestProps<'NavigationBar'>
 }
 
 const render = ({ dispatch = jest.fn() }: Props = {}) => {
+  // eslint-disable-next-line testing-library/await-async-events
   const user = userEvent.setup();
   renderGenericComponentTest({
     type: 'NavigationBar',
