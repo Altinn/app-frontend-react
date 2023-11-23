@@ -2,6 +2,7 @@ import React from 'react';
 
 import { createContext } from 'src/core/contexts/context';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { IComponentProps } from 'src/layout';
@@ -63,6 +64,7 @@ export function useAttachmentsMappedToFormData(props: Props): MappingTools {
 
 function useMappingToolsForList({ node }: Props): MappingTools {
   const dispatch = useAppDispatch();
+  const currentParty = useCurrentParty();
   const field = ((node.item.dataModelBindings || {}) as IDataModelBindingsForList).list;
   return {
     addAttachment: (uuid: string) => {
@@ -71,6 +73,7 @@ function useMappingToolsForList({ node }: Props): MappingTools {
           field,
           itemToAdd: uuid,
           componentId: node.item.id,
+          selectedPartyId: currentParty?.partyId,
         }),
       );
     },
@@ -80,6 +83,7 @@ function useMappingToolsForList({ node }: Props): MappingTools {
           field,
           itemToRemove: uuid,
           componentId: node.item.id,
+          selectedPartyId: currentParty?.partyId,
         }),
       );
     },

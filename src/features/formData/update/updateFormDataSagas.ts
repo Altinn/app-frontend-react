@@ -13,7 +13,7 @@ import type { IRuntimeState } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 export function* updateFormDataSaga({
-  payload: { field, data, componentId, skipValidation, skipAutoSave, singleFieldValidation },
+  payload: { field, data, componentId, skipValidation, skipAutoSave, singleFieldValidation, selectedPartyId },
 }: PayloadAction<IUpdateFormDataSimple>): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
@@ -31,6 +31,7 @@ export function* updateFormDataSaga({
           skipValidation,
           skipAutoSave,
           singleFieldValidation,
+          selectedPartyId,
         }),
       );
     }

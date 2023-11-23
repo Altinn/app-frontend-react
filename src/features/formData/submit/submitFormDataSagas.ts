@@ -31,6 +31,7 @@ import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { IFormData } from 'src/features/formData';
 import type { IUpdateFormData } from 'src/features/formData/formDataTypes';
 import type { IRuntimeState, IRuntimeStore, IUiConfig } from 'src/types';
+import type { IParty } from 'src/types/shared';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { BackendValidationIssue } from 'src/utils/validation/types';
 
@@ -158,7 +159,7 @@ function* waitForSaving() {
  * @see autoSaveSaga
  * @see postStatelessData
  */
-export function* putFormData({ field, componentId }: SaveDataParams) {
+export function* putFormData({ field, componentId }: Omit<SaveDataParams, 'selectedPartyId'>) {
   const defaultDataElementGuid: string | undefined = yield select((state: IRuntimeState) =>
     getCurrentTaskDataElementId({
       application: state.applicationMetadata.applicationMetadata!,
@@ -239,6 +240,7 @@ function* handleChangedFields(changedFields: IFormData | undefined, lastSavedFor
           skipValidation: true,
           skipAutoSave: true,
           componentId: '',
+          selectedPartyId: undefined,
         }),
       );
     }),
@@ -266,7 +268,7 @@ function getModelToSave(state: IRuntimeState) {
  * @see submitFormSaga
  */
 export function* saveFormDataSaga({
-  payload: { field, componentId, singleFieldValidation },
+  payload: { field, componentId, singleFieldValidation, selectedPartyId },
 }: PayloadAction<IUpdateFormData>): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
@@ -274,7 +276,8 @@ export function* saveFormDataSaga({
     const application = state.applicationMetadata.applicationMetadata!;
 
     if (isStatelessApp(application)) {
-      yield call(postStatelessData, { field, componentId });
+      const params: SaveDataParams = { field, componentId, selectedPartyId };
+      yield call(postStatelessData, params);
     } else {
       // app with instance
       yield call(putFormData, { field, componentId });
@@ -300,6 +303,7 @@ export function* saveFormDataSaga({
 interface SaveDataParams {
   field?: string;
   componentId?: string;
+  selectedPartyId: IParty['partyId'] | undefined;
 }
 
 /**
@@ -308,7 +312,7 @@ interface SaveDataParams {
  * @see saveFormDataSaga
  * @see autoSaveSaga
  */
-export function* postStatelessData({ field, componentId }: SaveDataParams) {
+export function* postStatelessData({ field, componentId, selectedPartyId }: SaveDataParams) {
   const state: IRuntimeState = yield select();
   const model = getModelToSave(state);
   const allowAnonymous = yield select(makeGetAllowAnonymousSelector());
@@ -316,8 +320,7 @@ export function* postStatelessData({ field, componentId }: SaveDataParams) {
     'X-DataField': (field && encodeURIComponent(field)) || 'undefined',
     'X-ComponentId': (componentId && encodeURIComponent(componentId)) || 'undefined',
   };
-  if (!allowAnonymous) {
-    const selectedPartyId = undefined; // TODO: Use the current partyId here when rewriting to a context
+  if (!allowAnonymous && selectedPartyId !== undefined) {
     headers = {
       ...headers,
       party: `partyid:${selectedPartyId}`,
