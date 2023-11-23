@@ -46,10 +46,6 @@ export interface IUpdateCurrentViewRejected extends IFormLayoutActionRejected {
   keepScrollPos?: IKeepComponentScrollPos;
 }
 
-export interface IUpdateFocus {
-  focusComponentId: string | null;
-}
-
 export interface IUpdateHiddenComponents {
   componentsToHide: string[];
   newlyHidden: string[];

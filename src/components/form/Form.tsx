@@ -7,6 +7,7 @@ import classes from 'src/components/form/Form.module.css';
 import { MessageBanner } from 'src/components/form/MessageBanner';
 import { ErrorReport } from 'src/components/message/ErrorReport';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
+import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -20,6 +21,7 @@ import { getFormHasErrors, missingFieldsInLayoutValidations } from 'src/utils/va
 export function Form() {
   const langTools = useLanguage();
   const { currentPageId, isCurrentTask, navigateToTask } = useNavigatePage();
+  const { focusId } = usePageNavigationContext();
   const validations = useAppSelector((state) => state.formValidations.validations);
   const nodes = useExprContext();
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;

@@ -2,9 +2,15 @@ import { useCallback, useMemo } from 'react';
 import { useMatch, useNavigate } from 'react-router-dom';
 
 import { useLayoutOrder } from 'src/features/form/layout/LayoutsContext';
+import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { useLaxProcessData, useTaskType } from 'src/features/instance/ProcessContext';
 import { useLayoutSetsQuery } from 'src/hooks/queries/useLayoutSetsQuery';
 import { ProcessTaskType } from 'src/types';
+
+type NavigateToPageOptions = {
+  focusComponentId?: string;
+  returnToView?: string;
+};
 
 export const useNavigatePage = () => {
   const navigate = useNavigate();
@@ -15,7 +21,7 @@ export const useNavigatePage = () => {
   const layoutSets = useLayoutSetsQuery();
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
   const lastTaskId = useLaxProcessData()?.processTasks?.slice(-1)[0]?.elementId;
-
+  const { setFocusId, setReturnToView } = usePageNavigationContext();
   const partyId = pageKeyMatch?.params.partyId ?? taskIdMatch?.params.partyId ?? instanceMatch?.params.partyId;
   const instanceGuid =
     pageKeyMatch?.params.instanceGuid ?? taskIdMatch?.params.instanceGuid ?? instanceMatch?.params.instanceGuid;
@@ -33,14 +39,19 @@ export const useNavigatePage = () => {
   const previousPageIndex = currentPageIndex !== -1 ? currentPageIndex - 1 : -1;
 
   const navigateToPage = useCallback(
-    (page?: string) => {
+    (page?: string, options?: NavigateToPageOptions) => {
       if (!page) {
         return;
       }
+      setFocusId(options?.focusComponentId);
+      if (options?.returnToView) {
+        setReturnToView(options.returnToView);
+      }
+
       const url = `/instance/${partyId}/${instanceGuid}/${taskId}/${page}`;
       navigate(url);
     },
-    [navigate, partyId, instanceGuid, taskId],
+    [navigate, partyId, instanceGuid, taskId, setFocusId, setReturnToView],
   );
 
   const isValidPageId = useCallback(
@@ -66,7 +77,7 @@ export const useNavigatePage = () => {
         pageKeyMatch?.params.instanceGuid ?? taskIdMatch?.params.instanceGuid ?? instanceMatch?.params.instanceGuid;
 
       const url = `/instance/${partyId}/${instanceGuid}/${taskId ?? lastTaskId}`;
-      navigate(url);
+      setTimeout(() => navigate(url), 500);
     },
     [
       pageKeyMatch?.params.partyId,

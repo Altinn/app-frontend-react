@@ -8,9 +8,8 @@ import { Header } from 'src/components/presentation/Header';
 import { NavBar } from 'src/components/presentation/NavBar';
 import classes from 'src/components/wrappers/Presentation.module.css';
 import { Footer } from 'src/features/footer/Footer';
-import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -28,32 +27,22 @@ export interface IPresentationProvidedProps {
 }
 
 export const PresentationComponent = (props: IPresentationProvidedProps) => {
-  const dispatch = useAppDispatch();
   const { langAsString } = useLanguage();
   const party = useAppSelector((state) => state.party?.selectedParty);
   const instance = useLaxInstanceData();
   const userParty = useAppSelector((state) => state.profile.profile?.party);
   const { expandedWidth } = useAppSelector((state) => state.formLayout.uiConfig);
-  const { previous } = useNavigatePage();
-
-  const returnToView = useAppSelector((state) => state.formLayout.uiConfig.returnToView);
+  const { previous, navigateToPage } = useNavigatePage();
+  const { returnToView } = usePageNavigationContext();
 
   const handleBackArrowButton = () => {
     if (returnToView) {
-      dispatch(
-        FormLayoutActions.updateCurrentView({
-          newView: returnToView,
-        }),
-      );
+      navigateToPage(returnToView);
     } else if (
       previous !== undefined &&
       (props.type === ProcessTaskType.Data || props.type === PresentationType.Stateless)
     ) {
-      dispatch(
-        FormLayoutActions.updateCurrentView({
-          newView: previous,
-        }),
-      );
+      navigateToPage(previous);
     }
   };
 

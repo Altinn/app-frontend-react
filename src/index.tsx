@@ -19,6 +19,7 @@ import { ThemeWrapper } from 'src/components/ThemeWrapper';
 import { AppQueriesProvider } from 'src/contexts/appQueriesContext';
 import { DevTools } from 'src/features/devtools/DevTools';
 import { LayoutValidationProvider } from 'src/features/devtools/layoutValidation/useLayoutValidation';
+import { PageNavigationProvider } from 'src/features/form/layout/PageNavigationContext';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
 import { AllOptionsProvider } from 'src/features/options/useAllOptions';
 import * as queries from 'src/queries/queries';
@@ -62,13 +63,15 @@ function Root() {
   return (
     <InstantiationProvider>
       <ExprContextWrapper>
-        <LayoutValidationProvider>
-          <AllOptionsProvider>
-            <DevTools>
-              <App />
-            </DevTools>
-          </AllOptionsProvider>
-        </LayoutValidationProvider>
+        <PageNavigationProvider>
+          <LayoutValidationProvider>
+            <AllOptionsProvider>
+              <DevTools>
+                <App />
+              </DevTools>
+            </AllOptionsProvider>
+          </LayoutValidationProvider>
+        </PageNavigationProvider>
       </ExprContextWrapper>
     </InstantiationProvider>
   );

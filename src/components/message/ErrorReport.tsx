@@ -7,6 +7,7 @@ import { createSelector } from 'reselect';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import classes from 'src/components/message/ErrorReport.module.css';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -41,6 +42,7 @@ const selectMappedUnmappedErrors = createSelector(selectValidations, createMappe
 export const ErrorReport = ({ nodes }: IErrorReportProps) => {
   const dispatch = useAppDispatch();
   const { currentPageId, navigateToPage } = useNavigatePage();
+  const { setFocusId } = usePageNavigationContext();
   const [errorsMapped, errorsUnmapped] = useAppSelector(selectMappedUnmappedErrors);
   const allNodes = useExprContext();
   const hasErrors = errorsUnmapped.length > 0 || errorsMapped.length > 0;
@@ -120,11 +122,7 @@ export const ErrorReport = ({ nodes }: IErrorReportProps) => {
     }
 
     // Set focus
-    dispatch(
-      FormLayoutActions.updateFocus({
-        focusComponentId: error.componentId,
-      }),
-    );
+    setFocusId(error.componentId);
   };
 
   const errorMessage = (message: string) =>

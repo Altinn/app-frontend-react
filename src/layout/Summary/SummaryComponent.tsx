@@ -29,8 +29,9 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
   const { id, grid } = summaryNode.item;
   const display = overrides?.display || summaryNode.item.display;
   const { lang, langAsString } = useLanguage();
-  const { navigateToPage } = useNavigatePage();
+  const { navigateToPage, currentPageId } = useNavigatePage();
   const summaryItem = summaryNode.item;
+
   const targetNode = useResolvedNode(overrides?.targetNode || summaryNode.item.componentRef || summaryNode.item.id);
   const targetItem = targetNode?.item;
   const targetView = targetNode?.top.top.myKey;
@@ -40,17 +41,7 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
       return;
     }
 
-    // TODO: Focus component id should be implemented with optional options.
-    // TODO: Return to view is currently broken.
-    navigateToPage(targetView);
-
-    // dispatch(
-    //   FormLayoutActions.updateCurrentView({
-    //     newView: targetView,
-    //     returnToView: summaryPageName,
-    //     focusComponentId: targetNode?.item.id,
-    //   }),
-    // );
+    navigateToPage(targetView, { focusComponentId: targetNode?.item.id, returnToView: currentPageId });
   };
 
   if (!targetNode || !targetItem || targetNode.isHidden() || targetItem.type === 'Summary') {

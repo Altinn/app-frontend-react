@@ -159,11 +159,6 @@ export const formLayoutSlice = () => {
             state.uiConfig.keepScrollPos = action.payload.keepScrollPos;
           },
         }),
-        updateFocus: mkAction<LayoutTypes.IUpdateFocus>({
-          reducer: (state, action) => {
-            state.uiConfig.focus = action.payload.focusComponentId;
-          },
-        }),
         updateHiddenComponents: mkAction<LayoutTypes.IUpdateHiddenComponents>({
           takeEvery: removeHiddenValidationsSaga,
           reducer: (state, action) => {

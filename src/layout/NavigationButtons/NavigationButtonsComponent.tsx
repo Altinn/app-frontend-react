@@ -4,6 +4,7 @@ import { Button } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
 
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -20,13 +21,13 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
   const dispatch = useAppDispatch();
   const { lang } = useLanguage();
   const { navigateToPage, next, previous } = useNavigatePage();
+  const { returnToView, setReturnToView } = usePageNavigationContext();
 
   const refPrev = React.useRef<HTMLButtonElement>(null);
   const refNext = React.useRef<HTMLButtonElement>(null);
 
   const keepScrollPos = useAppSelector((state) => state.formLayout.uiConfig.keepScrollPos);
 
-  const returnToView = useAppSelector((state) => state.formLayout.uiConfig.returnToView);
   const pageTriggers = useAppSelector((state) => state.formLayout.uiConfig.pageTriggers);
   const activeTriggers = triggers || pageTriggers;
   const nextTextKey = returnToView ? 'form_filler.back_to_summary' : textResourceBindings?.next || 'next';
@@ -38,9 +39,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
   const disableNext = next === undefined;
 
   const onClickPrevious = () => {
-    const goToView = previous;
-
-    if (goToView && !disablePrevious) {
+    if (previous && !disablePrevious) {
       navigateToPage(previous);
     }
   };
@@ -69,7 +68,10 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
       /**
        * TODO: Remember to run all validations before actually navigating to next page
        */
-      navigateToPage(next);
+      if (returnToView) {
+        setReturnToView(undefined);
+      }
+      navigateToPage(goToView);
     }
   };
 
