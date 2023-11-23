@@ -574,6 +574,7 @@ export const ExprFunctions = {
         attachments: this.dataSources.attachments,
         options: this.dataSources.options,
         langTools: this.dataSources.langTools,
+        currentLanguage: this.dataSources.currentLanguage,
       });
     },
     args: [ExprVal.String] as const,
