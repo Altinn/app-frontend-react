@@ -384,7 +384,6 @@ describe('GroupContainer', () => {
     };
     await render({ container: mockContainerWithEditButtonOpen });
 
-    screen.debug(undefined, Infinity);
     const openButtons = screen.getAllByText('New open text');
     expect(openButtons).toHaveLength(4);
   });
