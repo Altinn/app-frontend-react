@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Navigate, Route, Routes, useSearchParams } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation, useSearchParams } from 'react-router-dom';
 
 import cn from 'classnames';
 
@@ -10,12 +10,13 @@ import { PresentationComponent } from 'src/components/wrappers/Presentation';
 import classes from 'src/components/wrappers/ProcessWrapper.module.css';
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { useStrictInstance } from 'src/features/instance/InstanceContext';
-import { useTaskType } from 'src/features/instance/ProcessContext';
+import { useLaxProcessData, useTaskType } from 'src/features/instance/ProcessContext';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { PDFView } from 'src/features/pdf/PDFView';
 import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { Feedback } from 'src/features/processEnd/feedback/Feedback';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
+import { useApplicationMetadata } from 'src/hooks/queries/useApplicationMetadataQuery';
 import { useApiErrorCheck } from 'src/hooks/useApiErrorCheck';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -26,6 +27,17 @@ export interface IProcessWrapperProps {
 }
 
 export function ProcessWrapperWrapper({ isFetching }: { isFetching: boolean }) {
+  const { taskId } = useNavigatePage();
+  const location = useLocation();
+  const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
+  if (taskId === undefined) {
+    return (
+      <Navigate
+        to={`${location.pathname}/${currentTaskId}`}
+        replace
+      />
+    );
+  }
   return (
     <Routes>
       <Route
@@ -42,8 +54,11 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
   const { isFetching: isInstanceDataFetching } = useStrictInstance();
   const { hasApiErrors } = useApiErrorCheck();
   const { taskId, currentPageId, isValidPageId, startUrl } = useNavigatePage();
-  const taskType = useTaskType(taskId);
   const { scrollPosition } = usePageNavigationContext();
+  const { partyId, instanceGuid } = useNavigatePage();
+  const taskType = useTaskType(taskId);
+  const applicationMetadataId = useApplicationMetadata()?.data?.id;
+  const location = useLocation();
 
   const [searchParams] = useSearchParams();
   const renderPDF = searchParams.get('pdf') === '1';
@@ -69,6 +84,26 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
         appOwner={appOwner}
       />
     );
+  }
+  const instanceId = `${partyId}/${instanceGuid}`;
+  const currentViewCacheKey = instanceId || applicationMetadataId;
+
+  /**
+   * Redirects users that had a stored page in their local storage to the correct
+   * page, and later removes this currentViewCacheKey from localstorage, as
+   * it is no longer needed.
+   */
+  if (!currentPageId && !!currentViewCacheKey) {
+    const lastVisitedPage = localStorage.getItem(currentViewCacheKey);
+    if (lastVisitedPage !== null && isValidPageId(lastVisitedPage)) {
+      localStorage.removeItem(currentViewCacheKey);
+      return (
+        <Navigate
+          to={`${location.pathname}/${lastVisitedPage}`}
+          replace
+        />
+      );
+    }
   }
   if (!currentPageId || !isValidPageId(currentPageId)) {
     return (

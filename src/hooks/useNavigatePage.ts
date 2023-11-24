@@ -117,6 +117,8 @@ export const useNavigatePage = () => {
     startUrl,
     order,
     next,
+    partyId,
+    instanceGuid,
     currentPageId,
     taskId,
     previous,
