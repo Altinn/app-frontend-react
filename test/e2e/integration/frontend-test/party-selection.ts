@@ -104,17 +104,19 @@ describe('Party selection', () => {
         });
       });
 
-      // Intercept allowed parties
-      cy.intercept('GET', `**/api/v1/parties?allowedtoinstantiatefilter=true`, {
-        body: [fakeParty],
+      // Intercept allowed parties, only return one
+      cy.intercept('GET', `**/api/v1/parties?allowedtoinstantiatefilter=true`, (req) => {
+        req.on('response', (res) => {
+          const firstParty = res.body[0];
+          res.send({ ...res, body: [firstParty] });
+        });
       });
 
       cy.startAppInstance(appFrontend.apps.frontendTest);
       cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
       cy.get('[id^="party-"]').should('not.exist');
 
-      // Our fake party is not allowed to instantiate, so we should get an error
-      cy.findByRole('heading', { name: 'Ukjent feil' }).should('be.visible');
+      cy.findByRole('heading', { name: 'Appen for test av app frontend' }).should('be.visible');
     });
   });
 
