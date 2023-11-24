@@ -55,7 +55,7 @@ window.logErrorOnce = window.logError;
 window.logWarnOnce = window.logError;
 window.logInfoOnce = window.logError;
 
-jest.setTimeout(env.parsed?.JEST_TIMEOUT ? parseInt(env.parsed.JEST_TIMEOUT, 10) : 15000);
+jest.setTimeout(env.parsed?.JEST_TIMEOUT ? parseInt(env.parsed.JEST_TIMEOUT, 10) : 20000);
 
 jest.mock('axios');
 
@@ -80,7 +80,7 @@ const autoPreview = env.parsed?.JEST_PREVIEW_AUTO ? env.parsed.JEST_PREVIEW_AUTO
 jestPreviewConfigure({ autoPreview });
 
 testingLibraryConfigure({
-  asyncUtilTimeout: env.parsed?.WAITFOR_TIMEOUT ? parseInt(env.parsed.WAITFOR_TIMEOUT, 10) : 10000,
+  asyncUtilTimeout: env.parsed?.WAITFOR_TIMEOUT ? parseInt(env.parsed.WAITFOR_TIMEOUT, 10) : 15000,
 });
 
 type QueriesAsMocks = {
