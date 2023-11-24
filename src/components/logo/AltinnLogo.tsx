@@ -5,14 +5,14 @@ import { useQuery } from '@tanstack/react-query';
 import classes from 'src/components/logo/AltinnLogo.module.css';
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 
-export interface IAltinnLogoProps {
-  color: 'blueDark' | 'blueDarker';
+export enum LogoColor {
+  blueDark = '#0062BA',
+  blueDarker = '#022F51',
 }
 
-export const LogoColorMap = {
-  blueDark: '#0062BA',
-  blueDarker: '#022F51',
-};
+export interface IAltinnLogoProps {
+  color: LogoColor;
+}
 
 function useLogoSvg() {
   const { fetchLogo } = useAppQueries();
@@ -23,7 +23,26 @@ function useLogoSvg() {
 }
 
 function reColorSvg(svg: string, color: string) {
-  return svg.replace(/fill="[^"]"/g, `fill="${color}"`);
+  const dom = new DOMParser().parseFromString(svg, 'image/svg+xml');
+  const svgElement = dom.getElementsByTagName('svg')[0];
+
+  const elements = svgElement.querySelectorAll('[fill]');
+  for (let i = 0; i < elements.length; i++) {
+    const element = elements[i];
+    if (element.getAttribute('fill') === 'none') {
+      continue;
+    }
+    element.setAttribute('fill', color);
+  }
+
+  const copy = svgElement.outerHTML;
+  if (copy === svg) {
+    const foundColors = svg.match(/fill="[^"]"/g);
+    console.warn('Could not replace color in svg', { svg, color, foundColors });
+    return svg;
+  }
+
+  return copy;
 }
 
 export const AltinnLogo = ({ color }: IAltinnLogoProps) => {
@@ -38,7 +57,7 @@ export const AltinnLogo = ({ color }: IAltinnLogoProps) => {
       className={classes.logo}
       alt='Altinn logo'
       id='logo'
-      src={`data:image/svg+xml;utf8,${encodeURIComponent(reColorSvg(data, LogoColorMap[color]))}`}
+      src={`data:image/svg+xml;utf8,${encodeURIComponent(reColorSvg(data, color))}`}
     />
   );
 };

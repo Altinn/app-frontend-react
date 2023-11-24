@@ -2,7 +2,7 @@ import React from 'react';
 
 import cn from 'classnames';
 
-import { AltinnLogo } from 'src/components/logo/AltinnLogo';
+import { AltinnLogo, LogoColor } from 'src/components/logo/AltinnLogo';
 import { createFooterComponent } from 'src/features/footer';
 import classes from 'src/features/footer/Footer.module.css';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -27,7 +27,7 @@ export const Footer = () => {
       {useOrganisationLogo && (
         <>
           {components != null && <hr className={classes.separator} />}
-          <AltinnLogo color='blueDarker' />
+          <AltinnLogo color={LogoColor.blueDarker} />
         </>
       )}
     </footer>

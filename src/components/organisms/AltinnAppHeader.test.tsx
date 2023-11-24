@@ -4,6 +4,7 @@ import { act, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
+import { LogoColor } from 'src/components/logo/AltinnLogo';
 import { AltinnAppHeader } from 'src/components/organisms/AltinnAppHeader';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
@@ -47,7 +48,7 @@ describe('organisms/AltinnAppHeader', () => {
         <AltinnAppHeader
           party={party}
           userParty={user}
-          logoColor={'blueDarker'}
+          logoColor={LogoColor.blueDarker}
           headerBackgroundColor={headerBackgroundColor}
         />
       ),

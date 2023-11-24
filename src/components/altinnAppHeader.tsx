@@ -5,7 +5,7 @@ import cn from 'classnames';
 
 import classes from 'src/components/AltinnAppHeader.module.css';
 import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
-import { AltinnLogo } from 'src/components/logo/AltinnLogo';
+import { AltinnLogo, LogoColor } from 'src/components/logo/AltinnLogo';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { renderParty } from 'src/utils/party';
 import { returnUrlToAllSchemas, returnUrlToMessagebox, returnUrlToProfile } from 'src/utils/urls/urlHelper';
@@ -13,7 +13,7 @@ import type { IProfile } from 'src/types/shared';
 
 export interface IHeaderProps {
   profile: IProfile | undefined;
-  type?: string;
+  type?: 'partyChoice' | 'normal';
 }
 
 export const AltinnAppHeader = ({ type, profile }: IHeaderProps) => {
@@ -43,7 +43,7 @@ export const AltinnAppHeader = ({ type, profile }: IHeaderProps) => {
             item={true}
             className={cn(classes.logo, !type && classes.gridStyle)}
           >
-            <AltinnLogo color={type === 'partyChoice' ? 'blueDark' : 'blueDarker'} />
+            <AltinnLogo color={type === 'partyChoice' ? LogoColor.blueDark : LogoColor.blueDarker} />
           </Grid>
           {type && party && (
             <ul className={classes.headerLinkList}>

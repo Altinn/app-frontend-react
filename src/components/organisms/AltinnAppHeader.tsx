@@ -3,7 +3,7 @@ import React from 'react';
 import { AppBar } from '@material-ui/core';
 
 import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
-import { AltinnLogo, LogoColorMap } from 'src/components/logo/AltinnLogo';
+import { AltinnLogo } from 'src/components/logo/AltinnLogo';
 import classes from 'src/components/organisms/AltinnAppHeader.module.css';
 import { AltinnAppHeaderMenu } from 'src/components/organisms/AltinnAppHeaderMenu';
 import { OrganisationLogo } from 'src/components/presentation/OrganisationLogo/OrganisationLogo';
@@ -11,10 +11,8 @@ import { useHasAppTextsYet } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { renderPartyName } from 'src/utils/party';
-import type { IAltinnLogoProps } from 'src/components/logo/AltinnLogo';
+import type { LogoColor } from 'src/components/logo/AltinnLogo';
 import type { IParty } from 'src/types/shared';
-
-type LogoColor = IAltinnLogoProps['color'];
 
 export interface IAltinnAppHeaderProps {
   /** The party of the instance owner */
@@ -33,7 +31,7 @@ export const AltinnAppHeader = ({ logoColor, headerBackgroundColor, party, userP
       data-testid='AltinnAppHeader'
       position='relative'
       classes={{ root: classes.appBar }}
-      style={{ backgroundColor: headerBackgroundColor, color: LogoColorMap[logoColor] }}
+      style={{ backgroundColor: headerBackgroundColor, color: logoColor }}
     >
       <LandmarkShortcuts
         shortcuts={[

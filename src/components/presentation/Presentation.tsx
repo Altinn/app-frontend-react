@@ -4,6 +4,7 @@ import type { PropsWithChildren } from 'react';
 import Grid from '@material-ui/core/Grid';
 import cn from 'classnames';
 
+import { LogoColor } from 'src/components/logo/AltinnLogo';
 import { AltinnSubstatusPaper } from 'src/components/molecules/AltinnSubstatusPaper';
 import { AltinnAppHeader } from 'src/components/organisms/AltinnAppHeader';
 import { Header } from 'src/components/presentation/Header';
@@ -86,7 +87,7 @@ export const PresentationComponent = ({ header, type, children }: IPresentationP
       <AltinnAppHeader
         party={party}
         userParty={userParty}
-        logoColor={'blueDarker'}
+        logoColor={LogoColor.blueDarker}
         headerBackgroundColor={backgroundColor}
       />
       <main className={classes.page}>
