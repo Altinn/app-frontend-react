@@ -5,6 +5,7 @@ import { Grid } from '@material-ui/core';
 
 import classes from 'src/components/presentation/Header.module.css';
 import { Progress } from 'src/components/presentation/Progress';
+import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { selectDisplayAppOwnerNameInHeader } from 'src/selectors/logo';
@@ -18,9 +19,9 @@ export interface IHeaderProps {
 }
 
 export const Header = ({ type, header, appOwner }: IHeaderProps) => {
-  const showProgressSettings = useAppSelector((state) => state.formLayout.uiConfig.showProgress);
+  const uiConfig = useUiConfigContext();
   const displayAppOwnerNameInHeader = useAppSelector(selectDisplayAppOwnerNameInHeader);
-  const showProgress = type !== ProcessTaskType.Archived && showProgressSettings;
+  const showProgress = type !== ProcessTaskType.Archived && uiConfig.showProgress;
 
   const { lang } = useLanguage();
 

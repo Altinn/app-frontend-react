@@ -7,7 +7,7 @@ import axios from 'axios';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { partyMock } from 'src/__mocks__/partyMock';
 import { PresentationComponent } from 'src/components/wrappers/Presentation';
-import { renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
+import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { ProcessTaskType } from 'src/types';
 import { HttpStatusCodes } from 'src/utils/network/networking';
@@ -158,7 +158,7 @@ const render = async (props: Partial<IPresentationProvidedProps> = {}, reduxStat
     ...props,
   };
 
-  await renderWithoutInstanceAndLayout({
+  await renderWithInstanceAndLayout({
     renderer: () => <PresentationComponent {...allProps} />,
     reduxState,
   });

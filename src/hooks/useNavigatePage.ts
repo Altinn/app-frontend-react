@@ -1,10 +1,9 @@
 import { useCallback, useMemo } from 'react';
 import { useMatch, useNavigate } from 'react-router-dom';
 
-import { useLayoutOrder } from 'src/features/form/layout/LayoutsContext';
+import { useLayoutOrder, useLayoutSetId } from 'src/features/form/layout/LayoutsContext';
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { useLaxProcessData, useTaskType } from 'src/features/instance/ProcessContext';
-import { useLayoutSetsQuery } from 'src/hooks/queries/useLayoutSetsQuery';
 import { ProcessTaskType } from 'src/types';
 
 type NavigateToPageOptions = {
@@ -18,7 +17,7 @@ export const useNavigatePage = () => {
   const taskIdMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId');
   const pageKeyMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId/:pageKey');
 
-  const layoutSets = useLayoutSetsQuery();
+  const layoutSetId = useLayoutSetId();
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
   const lastTaskId = useLaxProcessData()?.processTasks?.slice(-1)[0]?.elementId;
   const { setFocusId, setReturnToView } = usePageNavigationContext();
@@ -28,8 +27,6 @@ export const useNavigatePage = () => {
   const taskId = pageKeyMatch?.params.taskId ?? taskIdMatch?.params.taskId;
   const taskType = useTaskType(taskId);
 
-  const layoutSetId =
-    taskId != null ? layoutSets?.data?.sets.find((set) => set.tasks?.includes(taskId))?.id : undefined;
   const { order } = useLayoutOrder(layoutSetId);
 
   const currentPageId = pageKeyMatch?.params.pageKey ?? '';
@@ -121,6 +118,7 @@ export const useNavigatePage = () => {
     instanceGuid,
     currentPageId,
     taskId,
+    layoutSetId,
     previous,
   };
 };

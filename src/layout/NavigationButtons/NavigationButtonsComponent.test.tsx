@@ -1,4 +1,5 @@
 import React from 'react';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
 import { screen } from '@testing-library/react';
 
@@ -8,6 +9,23 @@ import { NavigationButtonsComponent } from 'src/layout/NavigationButtons/Navigat
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { CompNavigationButtonsExternal } from 'src/layout/NavigationButtons/config.generated';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
+
+const NavigationRouter =
+  (currentPageId: string = 'layout1') =>
+  // eslint-disable-next-line react/display-name
+  ({ children }: { children: React.ReactNode }) => (
+    <MemoryRouter
+      basename={'/ttd/test'}
+      initialEntries={[`/ttd/test/instance/1337/dfe95272-6873-48a6-abae-57b3f7c18689/Task_1/${currentPageId}`]}
+    >
+      <Routes>
+        <Route
+          path={'instance/:partyId/:instanceGuid/*'}
+          element={children}
+        />
+      </Routes>
+    </MemoryRouter>
+  );
 
 describe('NavigationButtons', () => {
   const navButton1: CompNavigationButtonsExternal = {
@@ -20,6 +38,7 @@ describe('NavigationButtons', () => {
     type: 'NavigationButtons',
     textResourceBindings: {},
   };
+
   const mockLayout = getFormLayoutStateMock({
     layouts: {
       layout1: [
@@ -64,10 +83,10 @@ describe('NavigationButtons', () => {
     },
   });
 
-  const render = async ({
-    component,
-    genericProps,
-  }: Partial<RenderGenericComponentTestProps<'NavigationButtons'>> = {}) => {
+  const render = async (
+    { component, genericProps }: Partial<RenderGenericComponentTestProps<'NavigationButtons'>> = {},
+    currentPageId?: string,
+  ) => {
     await renderGenericComponentTest({
       type: 'NavigationButtons',
       renderer: (props) => <NavigationButtonsComponent {...props} />,
@@ -76,6 +95,11 @@ describe('NavigationButtons', () => {
       reduxState: getInitialStateMock((state) => {
         state.formLayout = mockLayout;
       }),
+      queries: {
+        fetchLayoutSets: () => Promise.resolve({ sets: [{ dataType: 'message', id: 'message', tasks: ['Task_1'] }] }),
+        fetchLayoutSettings: () => Promise.resolve({ pages: { order: ['layout1', 'layout2'] } }),
+      },
+      router: NavigationRouter(currentPageId),
     });
   };
 
@@ -87,7 +111,7 @@ describe('NavigationButtons', () => {
       },
     });
 
-    expect(screen.getByText('next')).toBeTruthy();
+    expect(screen.getByText('next')).toBeInTheDocument();
     expect(screen.queryByText('back')).toBeFalsy();
   });
 
@@ -99,19 +123,21 @@ describe('NavigationButtons', () => {
       },
     });
 
-    expect(screen.getByText('next')).toBeTruthy();
+    expect(screen.getByText('next')).toBeInTheDocument();
     expect(screen.queryByText('back')).toBeNull();
   });
 
   test('renders NavigationButtons component with back button if there is a previous page', async () => {
-    mockLayout.uiConfig.currentView = 'layout2';
-    navButton2.showBackButton = true;
-    await render({
-      component: {
-        id: navButton2.id,
+    await render(
+      {
+        component: {
+          id: navButton2.id,
+          showBackButton: true,
+        },
       },
-    });
+      'layout2',
+    );
 
-    expect(screen.getByText('back')).toBeTruthy();
+    expect(screen.getByText('back')).toBeInTheDocument();
   });
 });

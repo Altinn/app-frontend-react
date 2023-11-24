@@ -9,7 +9,7 @@ import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getProfileStateMock } from 'src/__mocks__/profileStateMock';
 import { getUiConfigStateMock } from 'src/__mocks__/uiConfigStateMock';
 import { NavBar } from 'src/components/presentation/NavBar';
-import { renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
+import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { TextResourceMap } from 'src/features/textResources';
 import type { IAppLanguage } from 'src/types/shared';
 
@@ -21,6 +21,7 @@ interface RenderNavBarProps {
   showLanguageSelector: boolean;
   languageResponse?: IAppLanguage[];
   textResources?: TextResourceMap;
+  currentPageId?: string;
 }
 
 const render = async ({
@@ -34,7 +35,7 @@ const render = async ({
   const mockBack = jest.fn();
   const mockAppLanguageChange = jest.fn();
 
-  await renderWithoutInstanceAndLayout({
+  await renderWithInstanceAndLayout({
     renderer: () => (
       <NavBar
         handleClose={mockClose}
@@ -60,11 +61,12 @@ const render = async ({
     queries: {
       fetchAppLanguages: () =>
         languageResponse ? Promise.resolve(languageResponse) : Promise.reject(new Error('No languages mocked')),
+      fetchLayoutSettings: () => Promise.resolve({ hideCloseButton, showLanguageSelector, pages: { order: [] } }),
     },
     reduxGateKeeper: (action) => 'type' in action && action.type === 'profile/updateSelectedAppLanguage',
   });
 
-  return { mockClose, mockBack, mockAppLanguageChange };
+  return { mockClose, mockAppLanguageChange };
 };
 
 describe('NavBar', () => {
@@ -99,14 +101,12 @@ describe('NavBar', () => {
   });
 
   it('should render back button', async () => {
-    const { mockBack } = await render({
+    await render({
       hideCloseButton: true,
       showBackArrow: true,
       showLanguageSelector: false,
     });
-    const backButton = screen.getByTestId('form-back-button');
-    await userEvent.click(backButton);
-    expect(mockBack).toHaveBeenCalled();
+    expect(screen.getByTestId('form-back-button')).toBeInTheDOM();
   });
   it('should render and change app language', async () => {
     await render({

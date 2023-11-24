@@ -15,6 +15,7 @@ import { getInstanceDataMock, getProcessDataMock } from 'src/__mocks__/instanceD
 import { AppQueriesProvider } from 'src/contexts/appQueriesContext';
 import { PageNavigationProvider } from 'src/features/form/layout/PageNavigationContext';
 import { generateSimpleRepeatingGroups } from 'src/features/form/layout/repGroups/generateSimpleRepeatingGroups';
+import { UiConfigProvider } from 'src/features/form/layout/UiConfigContext';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -36,7 +37,7 @@ import type { LayoutPages } from 'src/utils/layout/LayoutPages';
  * These are the queries that cannot be mocked. Instead of mocking the queries themselves, you should provide preloaded
  * state that contains the state you need. In the future when we get rid of redux, all queries will be mockable.
  */
-type QueriesThatCannotBeMocked = 'fetchInstanceData' | 'fetchProcessState' | 'fetchLayoutSettings' | 'fetchLayouts';
+type QueriesThatCannotBeMocked = 'fetchInstanceData' | 'fetchProcessState' | 'fetchLayouts';
 
 type MockableQueries = Omit<AppQueries, QueriesThatCannotBeMocked>;
 type UnMockableQueries = Pick<AppQueries, QueriesThatCannotBeMocked>;
@@ -103,7 +104,7 @@ const makeDefaultQueryMocks = (state: IRuntimeState): MockableQueries => ({
   fetchCurrentParty: () => Promise.resolve({}),
   fetchApplicationSettings: () => Promise.resolve({}),
   fetchFooterLayout: () => Promise.resolve({ footer: [] } as IFooterLayout),
-  fetchLayoutSets: () => Promise.resolve({} as unknown as ILayoutSets),
+  fetchLayoutSets: () => Promise.resolve({ sets: [] } as unknown as ILayoutSets),
   fetchOrgs: () => Promise.resolve({ orgs: {} }),
   fetchUserProfile: () => Promise.resolve({} as unknown as IProfile),
   fetchDataModelSchema: () => Promise.resolve({}),
@@ -120,12 +121,12 @@ const makeDefaultQueryMocks = (state: IRuntimeState): MockableQueries => ({
   fetchLayoutSchema: () => Promise.resolve({} as JSONSchema7),
   fetchAppLanguages: () => Promise.resolve([]),
   fetchProcessNextSteps: () => Promise.resolve([]),
+  fetchLayoutSettings: () => Promise.resolve({ pages: { order: [] } }),
 });
 
 const unMockableQueriesDefaults: UnMockableQueries = {
   fetchInstanceData: () => Promise.reject(new Error('fetchInstanceData not mocked')),
   fetchProcessState: () => Promise.reject(new Error('fetchProcessState not mocked')),
-  fetchLayoutSettings: () => Promise.reject(new Error('fetchLayoutSettings not mocked')),
   fetchLayouts: () => Promise.reject(new Error('fetchLayouts not mocked')),
 };
 
@@ -238,9 +239,11 @@ const renderBase = async ({
             <ExprContextWrapper>
               <RealRouter>
                 <InstantiationProvider>
-                  <PageNavigationProvider>
-                    <ComponentToTest />
-                  </PageNavigationProvider>
+                  <UiConfigProvider>
+                    <PageNavigationProvider>
+                      <ComponentToTest />
+                    </PageNavigationProvider>
+                  </UiConfigProvider>
                 </InstantiationProvider>
               </RealRouter>
             </ExprContextWrapper>
@@ -364,12 +367,6 @@ export const renderWithInstanceAndLayout = async ({
     unMockableQueries: {
       fetchInstanceData: () => Promise.resolve(reduxState.deprecated.lastKnownInstance || getInstanceDataMock()),
       fetchProcessState: () => Promise.resolve(reduxState.deprecated.lastKnownProcess || getProcessDataMock()),
-      fetchLayoutSettings: () =>
-        Promise.resolve({
-          pages: {
-            order: Object.keys(layouts),
-          },
-        }),
       fetchLayouts: () => Promise.resolve(layoutsAsCollection),
     },
     router: InstanceRouter,

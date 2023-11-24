@@ -17,6 +17,10 @@ export interface ILayoutSet {
 export interface ILayoutSettings {
   pages: IPagesSettings;
   components?: IComponentsSettings;
+  hideCloseButton?: boolean;
+  showLanguageSelector?: boolean;
+  showExpandWidthButton?: boolean;
+  showProgress?: boolean;
   receiptLayoutName?: string;
 }
 

@@ -39,9 +39,6 @@ describe('GoToTaskButton', () => {
       component: {
         taskId: 'a',
       },
-      queries: {
-        fetchLayoutSets: () => Promise.resolve({ sets: [] }),
-      },
     });
     expect(screen.getByText('Go to task')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button'));

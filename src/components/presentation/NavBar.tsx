@@ -6,9 +6,7 @@ import cn from 'classnames';
 
 import { LanguageSelector } from 'src/components/presentation/LanguageSelector';
 import classes from 'src/components/presentation/NavBar.module.css';
-import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 
@@ -21,16 +19,11 @@ export interface INavBarProps {
 const expandIconStyle = { transform: 'rotate(45deg)' };
 
 export const NavBar = (props: INavBarProps) => {
-  const dispatch = useAppDispatch();
   const { langAsString } = useLanguage();
   const { navigateToPage, previous } = useNavigatePage();
-  const { hideCloseButton, showLanguageSelector, showExpandWidthButton, expandedWidth } = useAppSelector(
-    (state) => state.formLayout.uiConfig,
-  );
 
-  const handleExpand = () => {
-    dispatch(FormLayoutActions.toggleExpandedWidth());
-  };
+  const { hideCloseButton, showLanguageSelector, showExpandWidthButton, expandedWidth, toggleExpandedWidth } =
+    useUiConfigContext();
 
   return (
     <nav
@@ -59,7 +52,7 @@ export const NavBar = (props: INavBarProps) => {
           <Button
             data-testid='form-expand-button'
             className={cn(classes.buttonMargin, { [classes.hideExpandButtonMaxWidth]: !expandedWidth })}
-            onClick={handleExpand}
+            onClick={toggleExpandedWidth}
             variant='tertiary'
             color='second'
             size='small'

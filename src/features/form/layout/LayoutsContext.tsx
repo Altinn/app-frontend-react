@@ -1,4 +1,5 @@
 import React from 'react';
+import { useMatch } from 'react-router-dom';
 
 import { useQuery } from '@tanstack/react-query';
 
@@ -12,6 +13,7 @@ import { useHasInstance, useLaxInstanceData } from 'src/features/instance/Instan
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/loading/Loader';
+import { useLayoutSetsQuery } from 'src/hooks/queries/useLayoutSetsQuery';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { createStrictContext } from 'src/utils/createContext';
@@ -93,6 +95,16 @@ export function useLayoutOrder(layoutSetId?: string) {
     hiddenExpr: hiddenLayoutsExpressions,
     order: layoutSettings?.data?.pages?.order.filter((page) => !hiddenPages.has(page)),
   };
+}
+
+export function useLayoutSetId() {
+  const layoutSets = useLayoutSetsQuery();
+  const taskIdMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId');
+  const pageKeyMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId/:pageKey');
+
+  const taskId = pageKeyMatch?.params.taskId ?? taskIdMatch?.params.taskId;
+
+  return taskId != null ? layoutSets?.data?.sets.find((set) => set.tasks?.includes(taskId))?.id : undefined;
 }
 
 export function LayoutsProvider({ children }: React.PropsWithChildren) {

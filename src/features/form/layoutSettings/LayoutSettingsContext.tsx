@@ -41,7 +41,7 @@ export function useLayoutSettingsQueryWithoutSideEffects(layoutSetId?: string) {
   const queryId = layoutSetId || currentLayoutSetId;
 
   return useQuery({
-    queryKey: ['layoutSettingsQ', queryId],
+    queryKey: ['layoutSettingsQueryWithoutSideEffects', queryId],
     queryFn: () => fetchLayoutSettings(queryId),
   });
 }

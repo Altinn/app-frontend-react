@@ -213,9 +213,6 @@ describe('RepeatingGroupTable', () => {
           node={node}
         />
       ),
-      queries: {
-        fetchLayoutSets: () => Promise.resolve({ sets: [] }),
-      },
       reduxState,
     });
   };

@@ -53,7 +53,6 @@ const render = async ({ component, genericProps, options, ...rest }: Props = {})
               data: options,
               headers: {},
             } as AxiosResponse<IOption[], any>),
-      fetchLayoutSets: () => Promise.resolve({ sets: [] }),
     },
     ...rest,
   });
