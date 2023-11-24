@@ -13,6 +13,7 @@ import type { JSONSchema7 } from 'json-schema';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getInstanceDataMock, getProcessDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { AppQueriesProvider } from 'src/contexts/appQueriesContext';
+import { PageNavigationProvider } from 'src/features/form/layout/PageNavigationContext';
 import { generateSimpleRepeatingGroups } from 'src/features/form/layout/repGroups/generateSimpleRepeatingGroups';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
@@ -237,7 +238,9 @@ const renderBase = async ({
             <ExprContextWrapper>
               <RealRouter>
                 <InstantiationProvider>
-                  <ComponentToTest />
+                  <PageNavigationProvider>
+                    <ComponentToTest />
+                  </PageNavigationProvider>
                 </InstantiationProvider>
               </RealRouter>
             </ExprContextWrapper>
@@ -344,7 +347,7 @@ export const renderWithInstanceAndLayout = async ({
       >
         <Routes>
           <Route
-            path={'instance/:partyId/:instanceGuid'}
+            path={'instance/:partyId/:instanceGuid/*'}
             element={children}
           />
         </Routes>

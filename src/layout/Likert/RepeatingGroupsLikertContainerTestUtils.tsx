@@ -231,6 +231,7 @@ export const render = async ({
     reduxState,
     queries: {
       fetchOptions: () => Promise.resolve({ data: mockOptions, headers: {} } as AxiosResponse<IOption[], any>),
+      fetchLayoutSets: () => Promise.resolve({ sets: [] }),
     },
   });
 
