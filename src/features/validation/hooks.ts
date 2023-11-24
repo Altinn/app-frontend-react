@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useInsertionEffect, useRef } from 'react';
 
 import deepEqual from 'fast-deep-equal';
 
@@ -45,11 +45,25 @@ export function useValidationContextGenerator(): ValidationContextGenerator {
 }
 
 /**
+ * This is a polyfill for the not yet released useEffectEvent hook,
+ * use at your own risk :)
+ * @see https://react.dev/learn/separating-events-from-effects#declaring-an-effect-event
+ */
+function useEffectEvent<T extends (...args: any[]) => void>(event: T) {
+  const ref = useRef(event);
+  useInsertionEffect(() => {
+    ref.current = event;
+  }, [event]);
+  return useCallback((...args: Parameters<T>) => ref.current(...args), []);
+}
+
+/**
  * Provides a callback function with added/removed nodes when the hierarchy changes
  */
 export function useOnHierarchyChange(
   onChange: (addedNodeChanges: NodeDataChange[], removedNodes: LayoutNode[], currentNodes: LayoutNode[]) => void,
 ) {
+  const onChangeEvent = useEffectEvent(onChange);
   const layoutNodes = useExprContext();
   const lastNodes = useRef<LayoutNode[]>([]);
 
@@ -71,15 +85,16 @@ export function useOnHierarchyChange(
           fields: n.item.dataModelBindings ? Object.values(n.item.dataModelBindings) : [],
         }));
       const removedNodes = prevNodes.filter((pn) => !newNodes.find((n) => pn.item.id === n.item.id));
-      onChange(addedNodes, removedNodes, newNodes);
+      onChangeEvent(addedNodes, removedNodes, newNodes);
     }
-  }, [layoutNodes, onChange]);
+  }, [layoutNodes, onChangeEvent]);
 }
 
 /**
  * Provides a callback function with a list of nodes whoes data has changed
  */
 export function useOnNodeDataChange(onChange: (nodeChanges: NodeDataChange[]) => void) {
+  const onChangeEvent = useEffectEvent(onChange);
   const layoutNodes = useExprContext();
   const lastNodeData = useRef<{ [id: string]: LayoutNode }>({});
 
@@ -110,9 +125,9 @@ export function useOnNodeDataChange(onChange: (nodeChanges: NodeDataChange[]) =>
       lastNodeData.current = newNodes;
     }
     if (updatedNodes.length) {
-      onChange(updatedNodes);
+      onChangeEvent(updatedNodes);
     }
-  }, [layoutNodes, onChange]);
+  }, [layoutNodes, onChangeEvent]);
 }
 
 function getChangedFields(current: IFormData, prev: IFormData) {
@@ -132,6 +147,7 @@ function getChangedFields(current: IFormData, prev: IFormData) {
 }
 
 export function useOnAttachmentsChange(onChange: (changedNodes: LayoutNode[]) => void) {
+  const onChangeEvent = useEffectEvent(onChange);
   const layoutNodes = useExprContext();
   const attachments = useAttachments();
 
@@ -154,10 +170,10 @@ export function useOnAttachmentsChange(onChange: (changedNodes: LayoutNode[]) =>
       if (changedAttachments.length) {
         lastAttachments.current = attachments;
         const changedNodes = layoutNodes.allNodes().filter((n) => changedAttachments.includes(n.item.id));
-        onChange(changedNodes);
+        onChangeEvent(changedNodes);
       }
     }
-  }, [attachments, layoutNodes, onChange]);
+  }, [attachments, layoutNodes, onChangeEvent]);
 }
 
 function getChangedAttachments(current: IAttachments, prev: IAttachments) {
