@@ -8,7 +8,6 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import { selectAppName } from 'src/selectors/language';
 
 export const Confirm = () => {
-  console.log('RENDER CONFIRM?');
   const instance = useLaxInstanceData();
   const parties = useAppSelector((state) => state.party.parties);
   const applicationMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);

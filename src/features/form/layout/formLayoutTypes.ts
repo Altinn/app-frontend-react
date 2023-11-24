@@ -32,7 +32,7 @@ export interface IUpdateCurrentView {
   runValidations?: TriggersPageValidation;
   skipPageCaching?: boolean;
   focusComponentId?: string;
-  keepScrollPos?: IKeepComponentScrollPos;
+  keepScrollPos?: IComponentScrollPos;
   allowNavigationToHidden?: boolean;
 }
 
@@ -43,7 +43,7 @@ export interface IUpdateCurrentViewFulfilled {
 }
 
 export interface IUpdateCurrentViewRejected extends IFormLayoutActionRejected {
-  keepScrollPos?: IKeepComponentScrollPos;
+  keepScrollPos?: IComponentScrollPos;
 }
 
 export interface IUpdateHiddenComponents {
@@ -70,14 +70,14 @@ export interface IUpdateRepeatingGroupsEditIndexFulfilled {
  * component is visible on screen (in the same location) even if progressing to the next page fails, and
  * validation messages are displayed above the navigation buttons.
  */
-export interface IKeepComponentScrollPos {
+export interface IComponentScrollPos {
   componentId: string;
   offsetTop: number | undefined;
 }
 
 export interface IMoveToNextPage {
   runValidations?: TriggersPageValidation;
-  keepScrollPos?: IKeepComponentScrollPos;
+  keepScrollPos?: IComponentScrollPos;
 }
 
 export interface IHiddenLayoutsUpdate {

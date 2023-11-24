@@ -141,16 +141,9 @@ export const formLayoutSlice = () => {
           takeEvery: updateCurrentViewSaga,
         }),
         updateCurrentViewFulfilled: mkAction<LayoutTypes.IUpdateCurrentViewFulfilled>({
-          takeEvery: (action) => {
-            if (!action.payload.focusComponentId) {
-              window.scrollTo({ top: 0 });
-            }
-          },
-          reducer: (state, action) => {
-            state.uiConfig.currentView = action.payload.newView;
-            state.uiConfig.returnToView = action.payload.returnToView;
+          takeEvery: (action) => {},
+          reducer: (state) => {
             state.uiConfig.keepScrollPos = undefined;
-            state.uiConfig.focus = action.payload.focusComponentId;
           },
         }),
         updateCurrentViewRejected: mkAction<LayoutTypes.IUpdateCurrentViewRejected>({

@@ -188,7 +188,7 @@ export function* moveToNextPageSaga({
     const layoutOrder = getLayoutOrderFromPageOrderConfig(state.formLayout.uiConfig.pageOrderConfig) || [];
     const newView = returnToView || layoutOrder[layoutOrder.indexOf(currentView) + 1];
 
-    yield put(FormLayoutActions.updateCurrentView({ newView, runValidations, keepScrollPos }));
+    yield put(FormLayoutActions.updateCurrentView({ newView, runValidations }));
   } catch (error) {
     yield put(FormLayoutActions.moveToNextPageRejected({ error }));
   }

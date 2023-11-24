@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, Route, Routes, useSearchParams } from 'react-router-dom';
 
 import cn from 'classnames';
@@ -8,6 +8,7 @@ import { Form } from 'src/components/form/Form';
 import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoader';
 import { PresentationComponent } from 'src/components/wrappers/Presentation';
 import classes from 'src/components/wrappers/ProcessWrapper.module.css';
+import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { useStrictInstance } from 'src/features/instance/InstanceContext';
 import { useTaskType } from 'src/features/instance/ProcessContext';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
@@ -42,17 +43,22 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
   const { hasApiErrors } = useApiErrorCheck();
   const { taskId, currentPageId, isValidPageId, startUrl } = useNavigatePage();
   const taskType = useTaskType(taskId);
+  const { scrollPosition } = usePageNavigationContext();
 
   const [searchParams] = useSearchParams();
   const renderPDF = searchParams.get('pdf') === '1';
   const previewPDF = useAppSelector((state) => state.devTools.pdfPreview);
 
-  const loadingReason = isFetching === true ? 'fetching' : isInstanceDataFetching ? 'fetching-instance' : undefined;
+  useEffect(() => {
+    if (currentPageId !== undefined && scrollPosition === undefined) {
+      window.scrollTo({ top: 0 });
+    }
+  }, [currentPageId, scrollPosition]);
 
+  const loadingReason = isFetching === true ? 'fetching' : isInstanceDataFetching ? 'fetching-instance' : undefined;
   if (hasApiErrors) {
     return <UnknownError />;
   }
-
   if (renderPDF) {
     if (loadingReason) {
       return null;
@@ -64,7 +70,6 @@ export const ProcessWrapper = ({ isFetching }: IProcessWrapperProps) => {
       />
     );
   }
-
   if (!currentPageId || !isValidPageId(currentPageId)) {
     return (
       <Navigate
