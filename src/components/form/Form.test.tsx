@@ -6,6 +6,7 @@ import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { Form } from 'src/components/form/Form';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
+import { PageNavigationRouter } from 'src/test/routerUtils';
 import type { CompExternal, ILayout } from 'src/layout/layout';
 import type { CompSummaryExternal } from 'src/layout/Summary/config.generated';
 import type { RootState } from 'src/redux/store';
@@ -219,6 +220,10 @@ describe('Form', () => {
   async function render(layout = mockComponents, customState: Partial<IRuntimeState> = {}) {
     await renderWithInstanceAndLayout({
       renderer: () => <Form />,
+      router: PageNavigationRouter(),
+      queries: {
+        fetchLayouts: () => Promise.resolve({}),
+      },
       reduxState: {
         ...getInitialStateMock(),
         ...customState,

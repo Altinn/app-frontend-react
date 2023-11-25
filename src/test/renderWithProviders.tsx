@@ -37,7 +37,7 @@ import type { LayoutPages } from 'src/utils/layout/LayoutPages';
  * These are the queries that cannot be mocked. Instead of mocking the queries themselves, you should provide preloaded
  * state that contains the state you need. In the future when we get rid of redux, all queries will be mockable.
  */
-type QueriesThatCannotBeMocked = 'fetchInstanceData' | 'fetchProcessState' | 'fetchLayouts';
+type QueriesThatCannotBeMocked = 'fetchInstanceData' | 'fetchProcessState';
 
 type MockableQueries = Omit<AppQueries, QueriesThatCannotBeMocked>;
 type UnMockableQueries = Pick<AppQueries, QueriesThatCannotBeMocked>;
@@ -122,12 +122,12 @@ const makeDefaultQueryMocks = (state: IRuntimeState): MockableQueries => ({
   fetchAppLanguages: () => Promise.resolve([]),
   fetchProcessNextSteps: () => Promise.resolve([]),
   fetchLayoutSettings: () => Promise.resolve({ pages: { order: [] } }),
+  fetchLayouts: () => Promise.resolve({}),
 });
 
 const unMockableQueriesDefaults: UnMockableQueries = {
   fetchInstanceData: () => Promise.reject(new Error('fetchInstanceData not mocked')),
   fetchProcessState: () => Promise.reject(new Error('fetchProcessState not mocked')),
-  fetchLayouts: () => Promise.reject(new Error('fetchLayouts not mocked')),
 };
 
 const defaultReduxGateKeeper = (action: ReduxAction) =>
@@ -321,7 +321,7 @@ export const renderWithInstanceAndLayout = async ({
   renderer,
   reduxState: _reduxState,
   ...renderOptions
-}: Omit<ExtendedRenderOptions, 'router'>) => {
+}: ExtendedRenderOptions) => {
   const reduxState = _reduxState || getInitialStateMock();
   let foundComponents = false;
   const layouts = JSON.parse(JSON.stringify(reduxState.formLayout.layouts || {})) as ILayouts;
@@ -367,7 +367,7 @@ export const renderWithInstanceAndLayout = async ({
     unMockableQueries: {
       fetchInstanceData: () => Promise.resolve(reduxState.deprecated.lastKnownInstance || getInstanceDataMock()),
       fetchProcessState: () => Promise.resolve(reduxState.deprecated.lastKnownProcess || getProcessDataMock()),
-      fetchLayouts: () => Promise.resolve(layoutsAsCollection),
+      // fetchLayouts: () => Promise.resolve(layoutsAsCollection),
     },
     router: InstanceRouter,
     reduxState,

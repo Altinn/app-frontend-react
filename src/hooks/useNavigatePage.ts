@@ -74,7 +74,7 @@ export const useNavigatePage = () => {
         pageKeyMatch?.params.instanceGuid ?? taskIdMatch?.params.instanceGuid ?? instanceMatch?.params.instanceGuid;
 
       const url = `/instance/${partyId}/${instanceGuid}/${taskId ?? lastTaskId}`;
-      setTimeout(() => navigate(url), 500);
+      navigate(url);
     },
     [
       pageKeyMatch?.params.partyId,

@@ -35,9 +35,6 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
   const disablePrevious = previous === undefined;
   const disableNext = next === undefined;
 
-  console.log('NEXT: ', next);
-  console.log('Previous: ', previous);
-
   const onClickPrevious = () => {
     if (previous && !disablePrevious) {
       navigateToPage(previous);

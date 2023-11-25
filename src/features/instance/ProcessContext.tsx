@@ -48,7 +48,7 @@ export function ProcessProvider({ children, instance }: React.PropsWithChildren<
   const reFetchNative = query.refetch;
   const reFetch = useCallback(async () => void (await reFetchNative()), [reFetchNative]);
   const dispatch = useAppDispatch();
-  const { navigateToTask } = useNavigatePage();
+  const { navigateToTask, taskId } = useNavigatePage();
 
   useEffect(() => {
     setData(query.data);
@@ -59,9 +59,11 @@ export function ProcessProvider({ children, instance }: React.PropsWithChildren<
   }, [data, dispatch]);
 
   useEffect(() => {
-    if (data?.currentTask?.elementId != null) {
+    if (data?.currentTask?.elementId != null && data?.currentTask?.elementId !== taskId) {
       navigateToTask(data.currentTask.elementId);
     }
+    // TODO: fix
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.currentTask?.elementId]);
 
   if (query.error) {

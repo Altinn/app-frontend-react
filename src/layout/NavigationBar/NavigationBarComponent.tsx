@@ -118,8 +118,9 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
   const firstPageLink = React.useRef<HTMLButtonElement>();
 
   const handleNavigationClick = (pageId: string) => {
+    setShowMenu(false);
     if (pageId === currentPageId) {
-      return setShowMenu(false);
+      return;
     }
 
     // const runValidations = reducePageValidations(pageOrPropTriggers);

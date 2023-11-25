@@ -123,10 +123,11 @@ export const ReceiptContainer = () => {
     }
   }, [instance, applicationMetadata]);
 
-  if (!process?.ended) {
-    navigateToPage('confirmation');
-    return;
-  }
+  React.useEffect(() => {
+    if (!process?.ended) {
+      navigateToPage('confirmation');
+    }
+  }, [process?.ended, navigateToPage]);
 
   const requirementMissing = !attachments
     ? 'attachments'
