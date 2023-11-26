@@ -3,7 +3,6 @@ import React from 'react';
 import { Grid, makeStyles } from '@material-ui/core';
 import cn from 'classnames';
 
-import { useLayoutOrder } from 'src/features/form/layout/LayoutsContext';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -112,8 +111,7 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
   const [showMenu, setShowMenu] = React.useState(false);
   const isMobile = useIsMobile() || compact === true;
   const { lang, langAsString } = useLanguage();
-  const { navigateToPage, currentPageId } = useNavigatePage();
-  const { order } = useLayoutOrder();
+  const { navigateToPage, currentPageId, order } = useNavigatePage();
 
   const firstPageLink = React.useRef<HTMLButtonElement>();
 

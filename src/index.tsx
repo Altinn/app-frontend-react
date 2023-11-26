@@ -61,8 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
 function Root() {
   return (
     <InstantiationProvider>
-      <ExprContextWrapper>
-        <PageNavigationProvider>
+      <PageNavigationProvider>
+        <ExprContextWrapper>
           <UiConfigProvider>
             <LayoutValidationProvider>
               <AllOptionsProvider>
@@ -72,8 +72,8 @@ function Root() {
               </AllOptionsProvider>
             </LayoutValidationProvider>
           </UiConfigProvider>
-        </PageNavigationProvider>
-      </ExprContextWrapper>
+        </ExprContextWrapper>
+      </PageNavigationProvider>
     </InstantiationProvider>
   );
 }

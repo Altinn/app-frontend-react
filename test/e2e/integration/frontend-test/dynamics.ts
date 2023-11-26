@@ -48,7 +48,7 @@ describe('Dynamics', () => {
     cy.get(appFrontend.errorReport).should('contain.text', texts.testIsNotValidValue);
   });
 
-  it.only('Page interdependent dynamics with component lookups', () => {
+  it('Page interdependent dynamics with component lookups', () => {
     cy.interceptLayout(
       'changename',
       (component) => {

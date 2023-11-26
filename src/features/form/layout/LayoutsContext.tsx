@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useMatch } from 'react-router-dom';
 
 import { useQuery } from '@tanstack/react-query';
@@ -7,6 +7,7 @@ import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { preProcessItem } from 'src/features/expressions/validation';
 import { cleanLayout } from 'src/features/form/layout/cleanLayout';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
 import { useLayoutSettingsQueryWithoutSideEffects } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useHasInstance, useLaxInstanceData } from 'src/features/instance/InstanceContext';
@@ -56,44 +57,50 @@ export function useLayoutQuery(layoutSetId?: string) {
   });
 }
 
-export function useLayoutOrder(layoutSetId?: string) {
-  const { data } = useLayoutQuery(layoutSetId);
+const config: ExprObjConfig<{ hidden: ExprVal.Boolean; whatever: string }> = {
+  hidden: {
+    returnType: 'test',
+    defaultValue: false,
+    resolvePerRow: false,
+  },
+};
+
+export function useLayoutSettings(layoutSetId?: string) {
+  const { data = {} } = useLayoutQuery(layoutSetId);
   const layoutSettings = useLayoutSettingsQueryWithoutSideEffects(layoutSetId);
+  const { setHiddenExpr } = usePageNavigationContext();
 
-  if (!data) {
-    return {};
-  }
-
-  const layouts: ILayouts = {};
-  const hiddenLayoutsExpressions: IHiddenLayoutsExternal = {};
-  if (isSingleLayout(data)) {
-    layouts['FormLayout'] = cleanLayout(data.data.layout);
-    hiddenLayoutsExpressions['FormLayout'] = data.data.hidden;
-  } else {
-    for (const key of Object.keys(data)) {
-      const file = data[key];
-      layouts[key] = cleanLayout(file.data.layout);
-      hiddenLayoutsExpressions[key] = file.data.hidden;
+  const hiddenLayoutsExpressions: IHiddenLayoutsExternal = useMemo(() => {
+    if (isSingleLayout(data)) {
+      return { FormLayout: data.data.hidden };
     }
-  }
+    return Object.keys(data).reduce(
+      (acc, key) => ({
+        ...acc,
+        [key]: data[key].data.hidden,
+      }),
+      {},
+    );
+  }, [data]);
 
-  const config: ExprObjConfig<{ hidden: ExprVal.Boolean; whatever: string }> = {
-    hidden: {
-      returnType: 'test',
-      defaultValue: false,
-      resolvePerRow: false,
-    },
-  };
+  const _hidden: IHiddenLayoutsExternal = useMemo(
+    () =>
+      Object.keys(hiddenLayoutsExpressions).reduce(
+        (acc, key) => ({
+          ...acc,
+          [key]: preProcessItem(hiddenLayoutsExpressions[key], config, ['hidden'], key),
+        }),
+        {},
+      ),
+    [hiddenLayoutsExpressions],
+  );
 
-  for (const key of Object.keys(hiddenLayoutsExpressions)) {
-    hiddenLayoutsExpressions[key] = preProcessItem(hiddenLayoutsExpressions[key], config, ['hidden'], key);
-  }
+  useEffect(() => {
+    setHiddenExpr(_hidden);
+  }, [setHiddenExpr, _hidden]);
 
-  const hiddenPages = new Set(Object.keys(data).filter((key) => data[key].data.hidden));
   return {
-    hidden: hiddenPages,
-    hiddenExpr: hiddenLayoutsExpressions,
-    order: layoutSettings?.data?.pages?.order.filter((page) => !hiddenPages.has(page)),
+    pages: layoutSettings?.data?.pages?.order,
   };
 }
 

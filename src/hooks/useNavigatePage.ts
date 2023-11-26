@@ -1,9 +1,12 @@
 import { useCallback, useMemo } from 'react';
 import { useMatch, useNavigate } from 'react-router-dom';
 
-import { useLayoutOrder, useLayoutSetId } from 'src/features/form/layout/LayoutsContext';
+import { useLayoutSetId, useLayoutSettings } from 'src/features/form/layout/LayoutsContext';
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
+import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { useLaxProcessData, useTaskType } from 'src/features/instance/ProcessContext';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { ProcessTaskType } from 'src/types';
 
 type NavigateToPageOptions = {
@@ -18,16 +21,21 @@ export const useNavigatePage = () => {
   const pageKeyMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId/:pageKey');
 
   const layoutSetId = useLayoutSetId();
+  const { pages } = useLayoutSettings(layoutSetId);
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
   const lastTaskId = useLaxProcessData()?.processTasks?.slice(-1)[0]?.elementId;
-  const { setFocusId, setReturnToView } = usePageNavigationContext();
+  const dispatch = useAppDispatch();
+  const autoSaveBehavior = useAppSelector((state) => state.formLayout.uiConfig.autoSaveBehavior);
+
+  const { setFocusId, setReturnToView, hidden } = usePageNavigationContext();
   const partyId = pageKeyMatch?.params.partyId ?? taskIdMatch?.params.partyId ?? instanceMatch?.params.partyId;
   const instanceGuid =
     pageKeyMatch?.params.instanceGuid ?? taskIdMatch?.params.instanceGuid ?? instanceMatch?.params.instanceGuid;
   const taskId = pageKeyMatch?.params.taskId ?? taskIdMatch?.params.taskId;
   const taskType = useTaskType(taskId);
 
-  const { order } = useLayoutOrder(layoutSetId);
+  const hiddenPages = new Set(hidden);
+  const order = pages?.filter((page) => !hiddenPages.has(page));
 
   const currentPageId = pageKeyMatch?.params.pageKey ?? '';
   const currentPageIndex = order?.indexOf(currentPageId) ?? 0;
@@ -45,10 +53,25 @@ export const useNavigatePage = () => {
         setReturnToView(options.returnToView);
       }
 
+      if (autoSaveBehavior === 'onChangePage' && order?.includes(currentPageId)) {
+        dispatch(FormDataActions.saveLatest({}));
+      }
+
       const url = `/instance/${partyId}/${instanceGuid}/${taskId}/${page}`;
       navigate(url);
     },
-    [navigate, partyId, instanceGuid, taskId, setFocusId, setReturnToView],
+    [
+      navigate,
+      partyId,
+      instanceGuid,
+      taskId,
+      setFocusId,
+      setReturnToView,
+      autoSaveBehavior,
+      dispatch,
+      order,
+      currentPageId,
+    ],
   );
 
   const isValidPageId = useCallback(

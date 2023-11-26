@@ -236,17 +236,17 @@ const renderBase = async ({
       >
         <MuiThemeProvider theme={theme}>
           <Provider store={store}>
-            <ExprContextWrapper>
-              <RealRouter>
-                <InstantiationProvider>
-                  <UiConfigProvider>
-                    <PageNavigationProvider>
+            <RealRouter>
+              <InstantiationProvider>
+                <UiConfigProvider>
+                  <PageNavigationProvider>
+                    <ExprContextWrapper>
                       <ComponentToTest />
-                    </PageNavigationProvider>
-                  </UiConfigProvider>
-                </InstantiationProvider>
-              </RealRouter>
-            </ExprContextWrapper>
+                    </ExprContextWrapper>
+                  </PageNavigationProvider>
+                </UiConfigProvider>
+              </InstantiationProvider>
+            </RealRouter>
           </Provider>
         </MuiThemeProvider>
       </AppQueriesProvider>

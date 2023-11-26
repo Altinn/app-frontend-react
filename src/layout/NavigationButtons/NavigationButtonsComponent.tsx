@@ -56,11 +56,13 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
     };
 
     const goToView = returnToView || next;
-    if (goToView && !disableNext) {
-      setScrollPosition(keepScrollPosAction);
-      setReturnToView(undefined);
-      navigateToPage(goToView);
+    if (!(goToView && !disableNext)) {
+      return;
     }
+
+    setScrollPosition(keepScrollPosAction);
+    setReturnToView(undefined);
+    navigateToPage(goToView);
   };
 
   React.useLayoutEffect(() => {

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 import { createStrictContext } from 'src/utils/createContext';
 import type { IComponentScrollPos } from 'src/features/form/layout/formLayoutTypes';
+import type { IHiddenLayoutsExternal } from 'src/types';
 
 export type PageNavigationContext = {
   /**
@@ -25,6 +26,17 @@ export type PageNavigationContext = {
    */
   scrollPosition?: IComponentScrollPos | undefined;
   setScrollPosition: React.Dispatch<React.SetStateAction<IComponentScrollPos | undefined>>;
+
+  /**
+   * Keeps track of which pages are hidden by expressions.
+   */
+  hidden: string[];
+  setHiddenPages: React.Dispatch<React.SetStateAction<string[]>>;
+  /**
+   * Keeps track of the hidden expressions for each page.
+   */
+  hiddenExpr: IHiddenLayoutsExternal;
+  setHiddenExpr: React.Dispatch<React.SetStateAction<IHiddenLayoutsExternal>>;
 };
 
 const { Provider, useCtx } = createStrictContext<PageNavigationContext>({ name: 'PageNavigationContext' });
@@ -33,9 +45,24 @@ export function PageNavigationProvider({ children }: React.PropsWithChildren) {
   const [focusId, setFocusId] = useState<string>();
   const [returnToView, setReturnToView] = useState<string>();
   const [scrollPosition, setScrollPosition] = useState<IComponentScrollPos | undefined>();
+  const [hidden, setHidden] = useState<string[]>([]);
+  const [hiddenExpr, setHiddenExpr] = useState<IHiddenLayoutsExternal>({});
 
   return (
-    <Provider value={{ focusId, setFocusId, returnToView, setReturnToView, scrollPosition, setScrollPosition }}>
+    <Provider
+      value={{
+        focusId,
+        setFocusId,
+        returnToView,
+        setReturnToView,
+        scrollPosition,
+        setScrollPosition,
+        hidden,
+        setHiddenPages: setHidden,
+        setHiddenExpr,
+        hiddenExpr,
+      }}
+    >
       {children}
     </Provider>
   );
