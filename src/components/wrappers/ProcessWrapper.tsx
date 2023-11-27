@@ -6,13 +6,13 @@ import cn from 'classnames';
 import { Form } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import classes from 'src/components/wrappers/ProcessWrapper.module.css';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { useLaxProcessData, useTaskType } from 'src/features/instance/ProcessContext';
 import { PDFView } from 'src/features/pdf/PDFView';
 import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { Feedback } from 'src/features/processEnd/feedback/Feedback';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
-import { useApplicationMetadata } from 'src/hooks/queries/useApplicationMetadataQuery';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 
@@ -43,7 +43,7 @@ export const ProcessWrapper = () => {
   const { scrollPosition } = usePageNavigationContext();
   const { partyId, instanceGuid } = useNavigatePage();
   const taskType = useTaskType(taskId);
-  const applicationMetadataId = useApplicationMetadata()?.data?.id;
+  const applicationMetadataId = useApplicationMetadata()?.id;
   const location = useLocation();
 
   const [searchParams] = useSearchParams();

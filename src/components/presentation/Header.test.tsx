@@ -14,19 +14,9 @@ type RenderProps = {
   currentPageId?: string;
 };
 
-const render = async ({
-  type = ProcessTaskType.Data,
-  order = [],
-  showProgress = false,
-  currentPageId = '1',
-}: RenderProps = {}) => {
+const render = async ({ order = [], showProgress = false, currentPageId = '1' }: RenderProps = {}) => {
   await renderWithInstanceAndLayout({
-    renderer: () => (
-      <Header
-        type={type}
-        header='Test Header'
-      />
-    ),
+    renderer: () => <Header header='Test Header' />,
     router: PageNavigationRouter(currentPageId),
     queries: {
       fetchLayoutSettings: () => Promise.resolve({ showProgress, pages: { order } }),

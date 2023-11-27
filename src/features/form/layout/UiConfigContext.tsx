@@ -1,24 +1,21 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-import { preProcessItem } from 'src/features/expressions/validation';
+import { createContext } from 'src/core/contexts/context';
+import { useHiddenLayoutsExpressions } from 'src/features/form/layout/LayoutsContext';
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
-import { useLayoutSettingsQueryWithoutSideEffects } from 'src/features/form/layoutSettings/LayoutSettingsContext';
-import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
-import { createStrictContext } from 'src/utils/createContext';
-import type { ExprObjConfig, ExprVal } from 'src/features/expressions/types';
-import type { IHiddenLayoutsExternal, ILayoutSettings } from 'src/types';
+import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 
 export type UiConfigContext = {
-  hideCloseButton?: boolean;
-  showLanguageSelector?: boolean;
-  showExpandWidthButton?: boolean;
-  showProgress?: boolean;
+  hideCloseButton: boolean;
+  showLanguageSelector: boolean;
+  showExpandWidthButton: boolean;
+  showProgress: boolean;
 
   /**
    * Keeps track of whether the UI is expanded or not.
    */
-  expandedWidth?: boolean;
-  toggleExpandedWidth?: () => void;
+  expandedWidth: boolean;
+  toggleExpandedWidth: () => void;
 
   /**
    * Keeps track of the order of the pages before hidden pages are removed.
@@ -26,65 +23,42 @@ export type UiConfigContext = {
   orderWithHidden: string[];
 };
 
-const { Provider, useCtx } = createStrictContext<UiConfigContext>({ name: 'UiConfigContext' });
-
-const config: ExprObjConfig<{ hidden: ExprVal.Boolean; whatever: string }> = {
-  hidden: {
-    returnType: 'test',
-    defaultValue: false,
-    resolvePerRow: false,
+const { Provider, useCtx } = createContext<UiConfigContext>({
+  name: 'UiConfigContext',
+  required: false,
+  default: {
+    orderWithHidden: [],
+    hideCloseButton: false,
+    showLanguageSelector: false,
+    showProgress: false,
+    showExpandWidthButton: false,
+    expandedWidth: false,
+    toggleExpandedWidth: () => {
+      throw Error('UiConfigContext not initialized. toggleExpandedWidth cannot be called');
+    },
   },
-};
+});
 
 export function UiConfigProvider({ children }: React.PropsWithChildren) {
-  const { data, isFetching, error } = useLayoutSettingsQueryWithoutSideEffects();
+  const layoutSettings = useLayoutSettings();
   const [expandedWidth, setExpandedWidth] = useState<boolean>(false);
   const { setHiddenExpr } = usePageNavigationContext();
 
-  const hiddenLayoutsExpressions: IHiddenLayoutsExternal = useMemo(() => {
-    const _data: ILayoutSettings = data || { pages: { order: [] } };
-    return Object.keys(_data).reduce(
-      (acc, key) => ({
-        ...acc,
-        [key]: _data[key].data?.hidden,
-      }),
-      {},
-    );
-  }, [data]);
-
-  const _hidden: IHiddenLayoutsExternal = useMemo(
-    () =>
-      Object.keys(hiddenLayoutsExpressions).reduce(
-        (acc, key) => ({
-          ...acc,
-          [key]: preProcessItem(hiddenLayoutsExpressions[key], config, ['hidden'], key),
-        }),
-        {},
-      ),
-    [hiddenLayoutsExpressions],
-  );
+  const hiddenExpressions = useHiddenLayoutsExpressions();
 
   useEffect(() => {
-    setHiddenExpr(_hidden);
-  }, [setHiddenExpr, _hidden]);
-
-  if (error) {
-    return <UnknownError />;
-  }
-
-  if (!data || isFetching) {
-    return <div>Loading</div>;
-  }
+    setHiddenExpr(hiddenExpressions);
+  }, [setHiddenExpr, hiddenExpressions]);
 
   return (
     <Provider
       value={{
-        hideCloseButton: data.pages.hideCloseButton,
-        showLanguageSelector: data.pages.showLanguageSelector,
-        showExpandWidthButton: data.pages.showExpandWidthButton,
-        showProgress: data.pages.showProgress,
+        hideCloseButton: layoutSettings.pages.hideCloseButton ?? false,
+        showLanguageSelector: layoutSettings.pages.showLanguageSelector ?? false,
+        showExpandWidthButton: layoutSettings.pages.showExpandWidthButton ?? false,
+        showProgress: layoutSettings.pages.showProgress ?? false,
         expandedWidth,
-        orderWithHidden: data.pages.order,
+        orderWithHidden: layoutSettings.pages.order,
         toggleExpandedWidth: () => setExpandedWidth((prevState) => !prevState),
       }}
     >

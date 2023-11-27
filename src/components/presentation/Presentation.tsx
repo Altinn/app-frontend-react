@@ -12,17 +12,13 @@ import { NavBar } from 'src/components/presentation/NavBar';
 import classes from 'src/components/presentation/Presentation.module.css';
 import { Progress } from 'src/components/presentation/Progress';
 import { Footer } from 'src/features/footer/Footer';
-import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
-import { PresentationType, ProcessTaskType } from 'src/types';
-import { httpGet } from 'src/utils/network/networking';
-import { getRedirectUrl } from 'src/utils/urls/appUrlHelper';
-import { returnUrlFromQueryParameter, returnUrlToMessagebox } from 'src/utils/urls/urlHelper';
+import { ProcessTaskType } from 'src/types';
+import type { PresentationType } from 'src/types';
 
 export interface IPresentationProvidedProps extends PropsWithChildren {
   header?: React.ReactNode;
@@ -35,36 +31,8 @@ export const PresentationComponent = ({ header, type, children }: IPresentationP
   const instance = useLaxInstanceData();
   const userParty = useAppSelector((state) => state.profile.profile?.party);
   const { expandedWidth } = useAppSelector((state) => state.formLayout.uiConfig);
-  const { previous, navigateToPage } = useNavigatePage();
-  const { returnToView } = usePageNavigationContext();
 
   const realHeader = header || (type === ProcessTaskType.Archived ? lang('receipt.receipt') : undefined);
-
-  const handleBackArrowButton = () => {
-    if (returnToView) {
-      navigateToPage(returnToView);
-    } else if (previous !== undefined && (type === ProcessTaskType.Data || type === PresentationType.Stateless)) {
-      navigateToPage(previous);
-    }
-  };
-
-  const handleModalCloseButton = () => {
-    const queryParameterReturnUrl = returnUrlFromQueryParameter();
-    const messageBoxUrl = returnUrlToMessagebox(window.location.origin, party?.partyId);
-    if (!queryParameterReturnUrl && messageBoxUrl) {
-      window.location.href = messageBoxUrl;
-      return;
-    }
-
-    if (queryParameterReturnUrl) {
-      httpGet(getRedirectUrl(queryParameterReturnUrl))
-        .then((response) => response)
-        .catch(() => messageBoxUrl)
-        .then((returnUrl) => {
-          window.location.href = returnUrl;
-        });
-    }
-  };
 
   const isProcessStepsArchived = Boolean(type === ProcessTaskType.Archived);
   const backgroundColor = isProcessStepsArchived
@@ -87,11 +55,7 @@ export const PresentationComponent = ({ header, type, children }: IPresentationP
             description={langAsString(instance.status.substatus.description)}
           />
         )}
-        <NavBar
-          handleClose={handleModalCloseButton}
-          handleBack={handleBackArrowButton}
-          showBackArrow={!!previous && (type === ProcessTaskType.Data || type === PresentationType.Stateless)}
-        />
+        <NavBar type={type} />
         <section
           id='main-content'
           className={classes.modal}

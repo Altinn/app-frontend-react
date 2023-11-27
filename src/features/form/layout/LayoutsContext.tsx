@@ -31,13 +31,12 @@ function useLayoutQuery() {
 
   return useQuery({
     // Waiting to fetch layouts until we have an instance, if we're supposed to have one
-    enabled: hasInstance ? !!process : true,
-
+    enabled: (hasInstance ? !!process : true) && !!currentLayoutSetId,
     queryKey: ['formLayouts', currentLayoutSetId],
     queryFn: async () => {
       const currentViewCacheKey = instance?.id || applicationMetadata.id;
       return processLayouts({
-        input: await fetchLayouts(currentLayoutSetId),
+        input: await fetchLayouts(currentLayoutSetId!),
         dispatch,
         currentViewCacheKey,
         layoutSetId: currentLayoutSetId,
@@ -64,8 +63,7 @@ export function useLayoutSetId() {
 
   const taskId = pageKeyMatch?.params.taskId ?? taskIdMatch?.params.taskId;
 
-  const layoutSetId =
-    taskId != null ? layoutSets?.data?.sets.find((set) => set.tasks?.includes(taskId))?.id : undefined;
+  const layoutSetId = taskId != null ? layoutSets?.sets.find((set) => set.tasks?.includes(taskId))?.id : undefined;
 
   return layoutSetId ?? currentProcessLayoutSetId;
 }

@@ -100,7 +100,7 @@ function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
       return;
     }
 
-    const currentHiddenLayouts = new Set(hidden);
+    const currentHiddenLayouts = new Set<string>(hidden);
     const futureHiddenLayouts = runExpressionsForLayouts(resolvedNodes, hiddenExpr, dataSources);
 
     if (shouldUpdate(currentHiddenLayouts, futureHiddenLayouts)) {

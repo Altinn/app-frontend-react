@@ -9,7 +9,9 @@ import { getUiConfigStateMock } from 'src/__mocks__/getUiConfigStateMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { NavBar } from 'src/components/presentation/NavBar';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
+import { ProcessTaskType } from 'src/types';
 import type { IRawTextResource } from 'src/features/language/textResources';
+import type { PresentationType } from 'src/types';
 import type { IAppLanguage } from 'src/types/shared';
 
 afterEach(() => mockAxios.reset());
@@ -21,6 +23,7 @@ interface RenderNavBarProps {
   languageResponse?: IAppLanguage[];
   textResources?: IRawTextResource[];
   currentPageId?: string;
+  type?: ProcessTaskType | PresentationType;
 }
 
 const render = async ({
@@ -28,20 +31,15 @@ const render = async ({
   showBackArrow,
   showLanguageSelector,
   languageResponse,
+  type = ProcessTaskType.Data,
   textResources = [],
 }: RenderNavBarProps) => {
   const mockClose = jest.fn();
-  const mockBack = jest.fn();
+  // const mockBack = jest.fn();
   const mockAppLanguageChange = jest.fn();
 
   await renderWithInstanceAndLayout({
-    renderer: () => (
-      <NavBar
-        handleClose={mockClose}
-        handleBack={mockBack}
-        showBackArrow={showBackArrow}
-      />
-    ),
+    renderer: () => <NavBar type={type} />,
     reduxState: {
       ...getInitialStateMock(),
       formLayout: getFormLayoutStateMock({

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { createStrictContext } from 'src/utils/createContext';
+import { createContext } from 'src/core/contexts/context';
 import type { IComponentScrollPos } from 'src/features/form/layout/formLayoutTypes';
 import type { IHiddenLayoutsExternal } from 'src/types';
 
@@ -39,7 +39,7 @@ export type PageNavigationContext = {
   setHiddenExpr: React.Dispatch<React.SetStateAction<IHiddenLayoutsExternal>>;
 };
 
-const { Provider, useCtx } = createStrictContext<PageNavigationContext>({ name: 'PageNavigationContext' });
+const { Provider, useCtx } = createContext<PageNavigationContext>({ name: 'PageNavigationContext', required: true });
 
 export function PageNavigationProvider({ children }: React.PropsWithChildren) {
   const [focusId, setFocusId] = useState<string>();
