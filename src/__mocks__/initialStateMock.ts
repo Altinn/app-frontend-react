@@ -71,6 +71,7 @@ export function getInitialStateMock(custom?: Partial<IRuntimeState> | ((state: I
       lastKnownProcess: getProcessDataMock(),
       lastKnownInstance: getInstanceDataMock(),
       currentLanguage: 'nb',
+      anonymous: false,
     },
   };
 

@@ -28,9 +28,8 @@ import {
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { IFormData } from 'src/features/formData';
-import type { IUpdateFormData } from 'src/features/formData/formDataTypes';
+import type { ISaveAction, IUpdateFormData } from 'src/features/formData/formDataTypes';
 import type { IRuntimeState, IRuntimeStore, IUiConfig } from 'src/types';
-import type { IParty } from 'src/types/shared';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { BackendValidationIssue } from 'src/utils/validation/types';
 
@@ -239,8 +238,6 @@ function* handleChangedFields(changedFields: IFormData | undefined, lastSavedFor
           skipValidation: true,
           skipAutoSave: true,
           componentId: '',
-          selectedPartyId: undefined,
-          anonymous: false,
         }),
       );
     }),
@@ -268,15 +265,15 @@ function getModelToSave(state: IRuntimeState) {
  * @see submitFormSaga
  */
 export function* saveFormDataSaga({
-  payload: { field, componentId, singleFieldValidation, selectedPartyId, anonymous },
-}: PayloadAction<IUpdateFormData>): SagaIterator {
+  payload: { field, componentId, singleFieldValidation },
+}: PayloadAction<ISaveAction>): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
     // updates the default data element
     const application = state.applicationMetadata.applicationMetadata!;
 
     if (isStatelessApp(application)) {
-      const params: SaveDataParams = { field, componentId, selectedPartyId, anonymous };
+      const params: SaveDataParams = { field, componentId };
       yield call(postStatelessData, params);
     } else {
       // app with instance
@@ -303,8 +300,6 @@ export function* saveFormDataSaga({
 interface SaveDataParams {
   field?: string;
   componentId?: string;
-  anonymous: boolean;
-  selectedPartyId: IParty['partyId'] | undefined;
 }
 
 /**
@@ -313,13 +308,15 @@ interface SaveDataParams {
  * @see saveFormDataSaga
  * @see autoSaveSaga
  */
-export function* postStatelessData({ field, componentId, selectedPartyId, anonymous }: SaveDataParams) {
+export function* postStatelessData({ field, componentId }: SaveDataParams) {
   const state: IRuntimeState = yield select();
   const model = getModelToSave(state);
   let headers: AxiosRequestConfig['headers'] = {
     'X-DataField': (field && encodeURIComponent(field)) || 'undefined',
     'X-ComponentId': (componentId && encodeURIComponent(componentId)) || 'undefined',
   };
+  const selectedPartyId: string | undefined = yield select((state: IRuntimeState) => state.deprecated.selectedPartyId);
+  const anonymous: boolean = yield select((state: IRuntimeState) => state.deprecated.anonymous);
   if (selectedPartyId !== undefined) {
     headers = {
       ...headers,

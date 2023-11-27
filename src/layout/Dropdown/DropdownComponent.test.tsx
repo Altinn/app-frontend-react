@@ -168,8 +168,6 @@ describe('DropdownComponent', () => {
         data: 'newValue',
         skipAutoSave: true,
         skipValidation: true,
-        selectedPartyId: undefined,
-        anonymous: false,
       }),
     );
 

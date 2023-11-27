@@ -10,9 +10,12 @@ export interface IDeprecatedState {
   lastKnownAttachments?: IAttachments;
   allOptions?: AllOptionsMap;
   currentLanguage: string;
+  selectedPartyId?: string;
+  anonymous: boolean;
 }
 const initialState: IDeprecatedState = {
   currentLanguage: 'nb',
+  anonymous: false,
 };
 
 export let DeprecatedActions: ActionsFromSlice<typeof deprecatedSlice>;
@@ -44,6 +47,16 @@ export const deprecatedSlice = () => {
       setCurrentLanguage: mkAction<string>({
         reducer: (state, action) => {
           state.currentLanguage = action.payload;
+        },
+      }),
+      setSelectedPartyId: mkAction<string | undefined>({
+        reducer: (state, action) => {
+          state.selectedPartyId = action.payload;
+        },
+      }),
+      setAnonymous: mkAction<boolean>({
+        reducer: (state, action) => {
+          state.anonymous = action.payload;
         },
       }),
     },
