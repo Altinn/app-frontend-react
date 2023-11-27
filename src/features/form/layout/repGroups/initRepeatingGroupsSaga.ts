@@ -2,7 +2,6 @@ import { put, select } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 
-import { SagaFetchFormDataCompat } from 'src/features/formData2/Compatibility';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { selectFormLayouts } from 'src/features/form/layout/update/updateFormLayoutSagas';
 import { ValidationActions } from 'src/features/validation/validationSlice';
@@ -19,7 +18,7 @@ export function* initRepeatingGroupsSaga({
   payload: { changedFields },
 }: Pick<PayloadAction<IInitRepeatingGroups>, 'payload'>): SagaIterator {
   const layouts = yield selectNotNull(selectFormLayouts);
-  const formData: IFormData = yield select(SagaFetchFormDataCompat);
+  const formData: IFormData = yield select((state: IRuntimeState) => state.deprecated.formData);
   const state: IRuntimeState = yield select();
   const currentGroups = state.formLayout.uiConfig.repeatingGroups || {};
   let newGroups: IRepeatingGroups = {};

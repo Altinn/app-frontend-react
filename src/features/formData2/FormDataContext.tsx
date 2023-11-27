@@ -4,7 +4,7 @@ import React from 'react';
 import { useMutation } from '@tanstack/react-query';
 import dot from 'dot-object';
 
-import { useAppQueriesContext } from 'src/contexts/appQueriesContext';
+import { useAppMutations, useAppQueries } from 'src/contexts/appQueriesContext';
 import {
   createFormDataRequestFromDiff,
   createFormDataRequestLegacy,
@@ -14,7 +14,7 @@ import { useFormDataStateMachine } from 'src/features/formData2/StateMachine';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useMemoDeepEqual } from 'src/hooks/useMemoDeepEqual';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
-import { createStrictContext } from 'src/utils/createStrictContext';
+import { createStrictContext } from 'src/utils/createContext';
 import type { FDAction, FormDataStorage } from 'src/features/formData2/StateMachine';
 import type { IFormDataFunctionality, IFormDataMethods } from 'src/features/formData2/types';
 
@@ -37,29 +37,34 @@ interface MutationArg {
   diff: Record<string, any>;
 }
 
-const [Provider, useFormData] = createStrictContext<FormDataStorageWithMethods>();
+const { Provider, useCtx } = createStrictContext<FormDataStorageWithMethods>({
+  name: 'FormData',
+});
 
 const useFormDataUuid = () =>
   useAppSelector((state) =>
-    getCurrentTaskDataElementId(
-      state.applicationMetadata.applicationMetadata,
-      state.instanceData.instance,
-      state.formLayout.layoutsets,
-    ),
+    getCurrentTaskDataElementId({
+      application: state.applicationMetadata.applicationMetadata,
+      instance: state.deprecated.lastKnownInstance,
+      process: state.deprecated.lastKnownProcess,
+      layoutSets: state.formLayout.layoutsets,
+    }),
   );
 
-const performSave = async (
-  uuid: string,
-  useMultiPart: boolean | undefined,
-  dispatch: React.Dispatch<FDAction>,
-  putFormData: (uuid: string, data: FormData) => object,
-  arg: MutationArg,
-) => {
+interface PerformSaveParams {
+  uuid: string;
+  useMultiPart: boolean | undefined;
+  dispatch: React.Dispatch<FDAction>;
+  doPutFormData: (uuid: string, data: FormData) => Promise<object>;
+  arg: MutationArg;
+}
+
+const performSave = async ({ uuid, useMultiPart, dispatch, doPutFormData, arg }: PerformSaveParams) => {
   const { newData, diff } = arg;
   const { data } = useMultiPart ? createFormDataRequestFromDiff(newData, diff) : createFormDataRequestLegacy(newData);
 
   try {
-    const metaData: any = await putFormData(uuid, data);
+    const metaData: any = await doPutFormData(uuid, data);
     dispatch({
       type: 'saveFinished',
       savedData: newData,
@@ -93,7 +98,8 @@ const performSave = async (
  * support to that hook.
  */
 const useFormDataQuery = (): FormDataStorageExtended & FormDataStorageInternal => {
-  const { fetchFormData, putFormData } = useAppQueriesContext();
+  const { fetchFormData } = useAppQueries();
+  const { doPutFormData } = useAppMutations();
   const useMultiPart = useAppSelector(
     (state) => state.applicationMetadata.applicationMetadata?.features?.multiPartSave,
   );
@@ -108,7 +114,7 @@ const useFormDataQuery = (): FormDataStorageExtended & FormDataStorageInternal =
     }
 
     if (state.currentUuid === uuid && arg) {
-      await performSave(uuid, useMultiPart, dispatch, putFormData, arg);
+      await performSave({ uuid, useMultiPart, dispatch, doPutFormData: doPutFormData.call, arg });
     } else {
       dispatch({
         type: 'initialFetch',
@@ -177,13 +183,13 @@ export function FormDataProvider({ children }) {
 }
 
 function useCurrentData(freshness: 'current' | 'debounced' = 'debounced') {
-  const { currentData, debouncedCurrentData } = useFormData();
+  const { currentData, debouncedCurrentData } = useCtx();
   return freshness === 'current' ? currentData : debouncedCurrentData;
 }
 
 export const NewFD: IFormDataFunctionality = {
   useAsDotMap(freshness = 'debounced') {
-    const { currentDataFlat, debouncedCurrentDataFlat } = useFormData();
+    const { currentDataFlat, debouncedCurrentDataFlat } = useCtx();
     return freshness === 'current' ? currentDataFlat : debouncedCurrentDataFlat;
   },
   useAsObject: (freshness = 'debounced') => useCurrentData(freshness),
@@ -203,7 +209,7 @@ export const NewFD: IFormDataFunctionality = {
     return useMemoDeepEqual(out);
   },
   useMethods: () => {
-    const { methods } = useFormData();
+    const { methods } = useCtx();
     return methods;
   },
 };

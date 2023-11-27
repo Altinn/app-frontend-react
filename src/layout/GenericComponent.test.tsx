@@ -43,12 +43,6 @@ const render = async (component: Partial<CompExternal> = {}, waitUntilLoaded = t
     },
   });
 
-  const formData = getFormDataStateMock({
-    formData: {
-      mockDataBinding: 'value',
-    },
-  });
-
   return await renderWithNode({
     nodeId: component.id || 'mockId',
     renderer: ({ node }) => <GenericComponent node={node} />,
@@ -56,9 +50,6 @@ const render = async (component: Partial<CompExternal> = {}, waitUntilLoaded = t
     reduxState: {
       ...getInitialStateMock(),
       formLayout,
-    },
-    formData: {
-      mockDataBinding: 'value',
     },
   });
 };

@@ -15,8 +15,9 @@ import type {
   ValidationSeverity,
 } from 'src/utils/validation/types';
 
-export function validationContextFromState(state: IRuntimeState, node: LayoutNode | undefined): Omit<IValidationContext, 'formData'> {
+export function validationContextFromState(state: IRuntimeState, node: LayoutNode | undefined): IValidationContext {
   return {
+    formData: state.deprecated.formData,
     langTools: staticUseLanguageFromState(state, node),
     attachments: state.deprecated.lastKnownAttachments || {},
     application: state.applicationMetadata.applicationMetadata,

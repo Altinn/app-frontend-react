@@ -3,10 +3,10 @@ import type { UseQueryResult } from '@tanstack/react-query';
 import type { AxiosResponse } from 'axios';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
+import { FD } from 'src/features/formData2/Compatibility';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
 import { OptionsActions } from 'src/features/options/optionsSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { getOptionsUrl } from 'src/utils/urls/appUrlHelper';
 import type { IMapping, IOption } from 'src/layout/common.generated';
@@ -19,7 +19,7 @@ export const useGetOptionsQuery = (
 ): UseQueryResult<AxiosResponse<IOption[], any>> => {
   const dispatch = useAppDispatch();
   const { fetchOptions } = useAppQueries();
-  const formData = useAppSelector((state) => state.formData.formData);
+  const formData = FD.useAsDotMap();
   const langTools = useLanguage();
   const language = langTools.selectedLanguage;
   const instanceId = useLaxInstance()?.instanceId;

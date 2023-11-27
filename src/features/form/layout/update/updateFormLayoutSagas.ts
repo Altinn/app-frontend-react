@@ -4,7 +4,6 @@ import type { AxiosRequestConfig } from 'axios';
 import type { SagaIterator } from 'redux-saga';
 
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { Triggers } from 'src/layout/common.generated';
@@ -21,7 +20,6 @@ import {
   filterValidationObjectsByPage,
   validationContextFromState,
 } from 'src/utils/validation/validationHelpers';
-import type { IFormData } from 'src/features/formData';
 import type { IMoveToNextPage, IUpdateCurrentView } from 'src/features/form/layout/formLayoutTypes';
 import type { IRuntimeState, IUiConfig } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';

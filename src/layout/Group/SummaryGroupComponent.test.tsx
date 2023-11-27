@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { getFormDataStateMock } from 'src/__mocks__/formDataStateMock';
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
@@ -92,15 +91,12 @@ describe('SummaryGroupComponent', () => {
       },
     });
 
-    const formData = getFormDataStateMock({
-      formData: {
-        'mockGroup[0].mockDataBinding1': '1',
-        'mockGroup[0].mockDataBinding2': '2',
-      },
-    });
+    // formData: {
+    //   'mockGroup[0].mockDataBinding1': '1',
+    //   'mockGroup[0].mockDataBinding2': '2',
+    // },
 
     const reduxState = getInitialStateMock({
-      formData,
       formLayout,
       textResources: {
         error: null,

@@ -4,7 +4,6 @@ import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import type { AxiosResponse } from 'axios';
 
-import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
 import { promiseMock, renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { AppQueries } from 'src/contexts/appQueriesContext';

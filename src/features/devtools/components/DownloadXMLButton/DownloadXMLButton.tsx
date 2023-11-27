@@ -7,7 +7,6 @@ import { DownloadIcon, UploadIcon } from '@navikt/aksel-icons';
 import axios from 'axios';
 
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
-import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { getFetchFormDataUrl } from 'src/utils/urls/appUrlHelper';
 

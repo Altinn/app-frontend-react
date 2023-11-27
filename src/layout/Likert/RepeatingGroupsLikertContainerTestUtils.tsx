@@ -5,7 +5,6 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { AxiosResponse } from 'axios';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { resourcesAsMap } from 'src/features/textResources/resourcesAsMap';
 import { RepeatingGroupsLikertContainer } from 'src/layout/Likert/RepeatingGroupsLikertContainer';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';

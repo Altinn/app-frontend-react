@@ -2,8 +2,6 @@ import { call, put, select } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 
-import { FormDataActions } from 'src/features/formData/formDataSlice';
-import { SagaFetchFormDataCompat } from 'src/features/formData2/Compatibility';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { implementsAnyValidation } from 'src/layout';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';

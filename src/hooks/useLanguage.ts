@@ -99,7 +99,7 @@ export function staticUseLanguageFromState(state: IRuntimeState, node?: LayoutNo
   const textResources = state.textResources.resourceMap;
   const profileLanguage = state.profile.profile.profileSettingPreference.language;
   const selectedAppLanguage = state.profile.selectedAppLanguage;
-  const formData = state.formData.formData;
+  const formData = state.deprecated.formData;
   const applicationSettings = state.applicationSettings.applicationSettings;
   const instanceDataSources = buildInstanceDataSources(state.deprecated.lastKnownInstance);
   const dataSources: TextResourceVariablesDataSources = {

@@ -93,8 +93,9 @@ function resolvedNodesInLayouts(
   return unresolved as unknown as LayoutPages;
 }
 
-export function dataSourcesFromState(state: IRuntimeState): Omit<HierarchyDataSources, 'formData'> {
+export function dataSourcesFromState(state: IRuntimeState): HierarchyDataSources {
   return {
+    formData: state.deprecated.formData,
     attachments: state.deprecated.lastKnownAttachments || {},
     uiConfig: state.formLayout.uiConfig,
     options: state.deprecated.allOptions || {},
@@ -124,8 +125,6 @@ function innerResolvedLayoutsFromState(
 }
 
 export function resolvedLayoutsFromState(state: IRuntimeState) {
-  const formData = window.deprecated.currentFormData;
-
   return innerResolvedLayoutsFromState(
     state.formLayout.layouts,
     state.formLayout.uiConfig.currentView,

@@ -1,6 +1,5 @@
 import { getApplicationMetadataMock } from 'src/__mocks__/applicationMetadataMock';
 import { getApplicationSettingsMock } from 'src/__mocks__/applicationSettingsMock';
-import { getFormDataStateMock } from 'src/__mocks__/formDataStateMock';
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
 import { getInstanceDataMock, getProcessDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { partyMock } from 'src/__mocks__/partyMock';
@@ -36,7 +35,6 @@ export function getInitialStateMock(custom?: Partial<IRuntimeState> | ((state: I
       },
       logs: [],
     },
-    formData: getFormDataStateMock(),
     formDataModel: {
       error: null,
       schemas: {},

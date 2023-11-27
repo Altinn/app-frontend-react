@@ -94,6 +94,7 @@ const makeMutationMocks = (): MockedMutations => ({
   doPartyValidation: promiseMock<AppMutations['doPartyValidation']>(),
   doProcessNext: promiseMock<AppMutations['doProcessNext']>(),
   doSelectParty: promiseMock<AppMutations['doSelectParty']>(),
+  doPutFormData: promiseMock<AppMutations['doPutFormData']>(),
 });
 
 const makeDefaultQueryMocks = (state: IRuntimeState): MockableQueries => ({

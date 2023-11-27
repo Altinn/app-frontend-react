@@ -134,8 +134,7 @@ export const doAttachmentRemove = async (dataGuid: string): Promise<void> => {
   return response.data;
 };
 
-export const doPutFormData = (uuid: string, data: FormData): object => httpPut(dataElementUrl(uuid), data);
-
+export const doPutFormData = (uuid: string, data: FormData): Promise<object> => httpPut(dataElementUrl(uuid), data);
 
 /**
  * Query functions (these should use httpGet and start with 'fetch')

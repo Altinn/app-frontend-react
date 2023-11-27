@@ -16,7 +16,6 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import { selectDataSourcesFromState } from 'src/utils/layout/hierarchy';
 import type { ExprConfig, Expression, ExprFunction } from 'src/features/expressions/types';
-import type { HierarchyDataSources } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
@@ -47,7 +46,7 @@ export const ExpressionPlayground = () => {
   ]);
   const nodes = useExprContext();
   const currentPage = nodes?.current()?.top.myKey;
-  const mostDataSources = useAppSelector(selectDataSourcesFromState);
+  const dataSources = useAppSelector(selectDataSourcesFromState);
   const formData = FD.useAsDotMap('current');
 
   const setOutputWithHistory = useCallback(
@@ -114,11 +113,6 @@ export const ExpressionPlayground = () => {
         }
       }
 
-      const dataSources: HierarchyDataSources = {
-        formData,
-        ...mostDataSources,
-      };
-
       const calls: string[] = [];
       const onAfterFunctionCall = (path: string[], func: ExprFunction, args: any[], result: any) => {
         const indent = '  '.repeat(path.length);
@@ -137,7 +131,7 @@ export const ExpressionPlayground = () => {
         setOutputs([{ value: e.message, isError: true }]);
       }
     }
-  }, [input, forPage, forComponentId, formData, mostDataSources, nodes, showAllSteps, outputs, setOutputWithHistory]);
+  }, [input, forPage, forComponentId, formData, dataSources, nodes, showAllSteps, outputs, setOutputWithHistory]);
 
   return (
     <div className={classes.container}>

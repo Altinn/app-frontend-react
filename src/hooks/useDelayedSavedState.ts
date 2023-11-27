@@ -1,4 +1,5 @@
 import type { IComponentProps } from 'src/layout';
+import type { CompTypes } from 'src/layout/layout';
 
 export interface DelayedSavedStateRetVal {
   value: string | undefined;
@@ -12,7 +13,8 @@ export interface DelayedSavedStateRetVal {
  * @deprecated
  */
 export function useDelayedSavedState(
-  handleDataChange: IComponentProps['handleDataChange'],
+  handleDataChange: IComponentProps<CompTypes>['handleDataChange'],
+  binding: string | undefined,
   formValue?: string,
   _saveAfter?: number | boolean,
 ): DelayedSavedStateRetVal {

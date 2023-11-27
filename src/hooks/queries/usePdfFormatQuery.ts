@@ -3,14 +3,14 @@ import type { UseQueryResult } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { useCurrentDataModelName } from 'src/features/datamodel/useBindingSchema';
+import { FD } from 'src/features/formData2/Compatibility';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import type { IPdfFormat } from 'src/features/pdf/types';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 export const usePdfFormatQuery = (enabled: boolean): UseQueryResult<IPdfFormat> => {
   const { fetchPdfFormat } = useAppQueries();
-  const formData = useAppSelector((state) => state.formData.formData);
+  const formData = FD.useAsDotMap();
 
   const instanceId = useLaxInstance()?.instanceId;
   const dataGuid = useCurrentDataModelName();
