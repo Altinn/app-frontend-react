@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React from 'react';
 import { useMatch } from 'react-router-dom';
 
 import { useQuery } from '@tanstack/react-query';
@@ -7,9 +7,7 @@ import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { preProcessItem } from 'src/features/expressions/validation';
 import { cleanLayout } from 'src/features/form/layout/cleanLayout';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
-import { useLayoutSettingsQueryWithoutSideEffects } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useHasInstance, useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
@@ -26,29 +24,27 @@ import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 const { Provider, useCtx } = createStrictContext<ILayoutCollection>({ name: 'LayoutsContext' });
 
-export function useLayoutQuery(layoutSetId?: string) {
+export function useLayoutQuery() {
   const { fetchLayouts } = useAppQueries();
   const hasInstance = useHasInstance();
   const process = useLaxProcessData();
-  const currentLayoutSetId = useCurrentLayoutSetId();
+  const currentLayoutSetId = useLayoutSetId();
   const dispatch = useAppDispatch();
   const instance = useLaxInstanceData();
   const applicationMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
 
-  const _layoutSetId = layoutSetId ?? currentLayoutSetId;
-
   return useQuery({
     // Waiting to fetch layouts until we have an instance, if we're supposed to have one
-    enabled: hasInstance ? !!process : true,
-    queryKey: ['formLayouts', _layoutSetId],
-    queryFn: () => fetchLayouts(_layoutSetId),
+    enabled: (hasInstance ? !!process : true) && !!currentLayoutSetId,
+    queryKey: ['formLayouts', currentLayoutSetId],
+    queryFn: () => fetchLayouts(currentLayoutSetId!),
     onSuccess: (data) => {
       if (!data || !applicationMetadata) {
         return;
       }
 
       const currentViewCacheKey = instance?.id || applicationMetadata.id;
-      legacyProcessLayouts({ input: data, dispatch, currentViewCacheKey, layoutSetId: _layoutSetId });
+      legacyProcessLayouts({ input: data, dispatch, currentViewCacheKey, layoutSetId: currentLayoutSetId });
     },
     onError: (error: HttpClientError) => {
       dispatch(FormLayoutActions.fetchRejected({ error }));
@@ -57,72 +53,28 @@ export function useLayoutQuery(layoutSetId?: string) {
   });
 }
 
-const config: ExprObjConfig<{ hidden: ExprVal.Boolean; whatever: string }> = {
-  hidden: {
-    returnType: 'test',
-    defaultValue: false,
-    resolvePerRow: false,
-  },
-};
-
-export function useLayoutSettings(layoutSetId?: string) {
-  const { data = {} } = useLayoutQuery(layoutSetId);
-  const layoutSettings = useLayoutSettingsQueryWithoutSideEffects(layoutSetId);
-  const { setHiddenExpr } = usePageNavigationContext();
-
-  const hiddenLayoutsExpressions: IHiddenLayoutsExternal = useMemo(() => {
-    if (isSingleLayout(data)) {
-      return { FormLayout: data.data.hidden };
-    }
-    return Object.keys(data).reduce(
-      (acc, key) => ({
-        ...acc,
-        [key]: data[key].data.hidden,
-      }),
-      {},
-    );
-  }, [data]);
-
-  const _hidden: IHiddenLayoutsExternal = useMemo(
-    () =>
-      Object.keys(hiddenLayoutsExpressions).reduce(
-        (acc, key) => ({
-          ...acc,
-          [key]: preProcessItem(hiddenLayoutsExpressions[key], config, ['hidden'], key),
-        }),
-        {},
-      ),
-    [hiddenLayoutsExpressions],
-  );
-
-  useEffect(() => {
-    setHiddenExpr(_hidden);
-  }, [setHiddenExpr, _hidden]);
-
-  return {
-    pages: layoutSettings?.data?.pages?.order,
-  };
-}
-
 export function useLayoutSetId() {
   const layoutSets = useLayoutSetsQuery();
+  const currentProcessLayoutSetId = useCurrentLayoutSetId();
   const taskIdMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId');
   const pageKeyMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId/:pageKey');
 
   const taskId = pageKeyMatch?.params.taskId ?? taskIdMatch?.params.taskId;
 
-  return taskId != null ? layoutSets?.data?.sets.find((set) => set.tasks?.includes(taskId))?.id : undefined;
+  const layoutSetId =
+    taskId != null ? layoutSets?.data?.sets.find((set) => set.tasks?.includes(taskId))?.id : undefined;
+
+  return layoutSetId ?? currentProcessLayoutSetId;
 }
 
 export function LayoutsProvider({ children }: React.PropsWithChildren) {
-  const query = useLayoutQuery();
-  const data = query.data;
+  const { data = {}, error, isFetching } = useLayoutQuery();
 
-  if (query.error) {
+  if (error) {
     return <UnknownError />;
   }
 
-  if (!data || query.isFetching) {
+  if (!data || isFetching) {
     return <Loader reason='form-layout' />;
   }
 

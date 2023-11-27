@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { useLayoutSetId } from 'src/features/form/layout/LayoutsContext';
 import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Loader } from 'src/features/loading/Loader';
@@ -34,11 +35,9 @@ export function useLayoutSettingsQuery(layoutSetId?: string) {
   });
 }
 
-export function useLayoutSettingsQueryWithoutSideEffects(layoutSetId?: string) {
+export function useLayoutSettingsQueryWithoutSideEffects() {
   const { fetchLayoutSettings } = useAppQueries();
-  const currentLayoutSetId = useCurrentLayoutSetId();
-
-  const queryId = layoutSetId || currentLayoutSetId;
+  const queryId = useLayoutSetId();
 
   return useQuery({
     queryKey: ['layoutSettingsQueryWithoutSideEffects', queryId],

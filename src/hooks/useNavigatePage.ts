@@ -1,8 +1,8 @@
 import { useCallback, useMemo } from 'react';
 import { useMatch, useNavigate } from 'react-router-dom';
 
-import { useLayoutSetId, useLayoutSettings } from 'src/features/form/layout/LayoutsContext';
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
+import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { useLaxProcessData, useTaskType } from 'src/features/instance/ProcessContext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
@@ -20,11 +20,10 @@ export const useNavigatePage = () => {
   const taskIdMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId');
   const pageKeyMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId/:pageKey');
 
-  const layoutSetId = useLayoutSetId();
-  const { pages } = useLayoutSettings(layoutSetId);
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
   const lastTaskId = useLaxProcessData()?.processTasks?.slice(-1)[0]?.elementId;
   const dispatch = useAppDispatch();
+  const { orderWithHidden } = useUiConfigContext();
   const autoSaveBehavior = useAppSelector((state) => state.formLayout.uiConfig.autoSaveBehavior);
 
   const { setFocusId, setReturnToView, hidden } = usePageNavigationContext();
@@ -35,7 +34,7 @@ export const useNavigatePage = () => {
   const taskType = useTaskType(taskId);
 
   const hiddenPages = new Set(hidden);
-  const order = pages?.filter((page) => !hiddenPages.has(page));
+  const order = orderWithHidden?.filter((page) => !hiddenPages.has(page));
 
   const currentPageId = pageKeyMatch?.params.pageKey ?? '';
   const currentPageIndex = order?.indexOf(currentPageId) ?? 0;
@@ -141,7 +140,6 @@ export const useNavigatePage = () => {
     instanceGuid,
     currentPageId,
     taskId,
-    layoutSetId,
     previous,
   };
 };
