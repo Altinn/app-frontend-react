@@ -10,7 +10,6 @@ import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { getDataTypeByLayoutSetId, isStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
-import { makeGetAllowAnonymousSelector } from 'src/features/applicationMetadata/getAllowAnonymous';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
@@ -18,6 +17,7 @@ import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData, useRealTaskType } from 'src/features/instance/ProcessContext';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
+import { useAllowAnonymous } from 'src/features/stateless/getAllowAnonymous';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { ProcessTaskType } from 'src/types';
@@ -72,8 +72,7 @@ function useFormDataQuery(enabled: boolean) {
   const appMetaData = useApplicationMetadata();
   const currentPartyId = useCurrentParty()?.partyId;
   const taskType = useRealTaskType();
-  const allowAnonymousSelector = makeGetAllowAnonymousSelector();
-  const allowAnonymous = useAppSelector(allowAnonymousSelector);
+  const allowAnonymous = useAllowAnonymous();
   const isStateless = isStatelessApp(appMetaData);
 
   // We also add the current task id to the query key, so that the query is refetched when the task changes. This

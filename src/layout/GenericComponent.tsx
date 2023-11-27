@@ -11,6 +11,7 @@ import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
+import { useAllowAnonymous } from 'src/features/stateless/getAllowAnonymous';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { Triggers } from 'src/layout/common.generated';
@@ -114,6 +115,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
   const hidden = node.isHidden();
   const { lang, langAsString } = useLanguage(node);
   const currentParty = useCurrentParty();
+  const anonymous = useAllowAnonymous();
 
   const formData = node.getFormData() as IComponentFormData<Type>;
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
@@ -206,6 +208,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
         skipValidation: !validate,
         singleFieldValidation,
         selectedPartyId: currentParty?.partyId,
+        anonymous,
       }),
     );
   };

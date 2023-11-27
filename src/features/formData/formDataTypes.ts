@@ -22,6 +22,7 @@ export interface IUpdateFormData {
   componentId: string;
   field: string;
   selectedPartyId: IParty['partyId'] | undefined;
+  anonymous: boolean;
 }
 
 export interface IUpdateFormDataSimple extends IUpdateFormData {

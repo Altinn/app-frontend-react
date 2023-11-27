@@ -108,6 +108,7 @@ export const createFormDataUpdateAction = (
     skipValidation: false,
     selectedPartyId: '12345',
     singleFieldValidation: undefined,
+    anonymous: false,
   },
   type: FormDataActions.update.type,
 });

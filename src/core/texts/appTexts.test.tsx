@@ -5,6 +5,7 @@ import { screen } from '@testing-library/react';
 import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { LanguageProvider } from 'src/features/language/LanguageProvider';
 import { TextResourcesProvider } from 'src/features/language/textResources/TextResourcesProvider';
 import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
@@ -40,13 +41,15 @@ async function render({
     renderer: () => (
       <LanguageProvider>
         <ApplicationMetadataProvider>
-          <OrgsProvider>
-            <ProfileProvider>
-              <TextResourcesProvider>
-                <AppTextsRenderer />
-              </TextResourcesProvider>
-            </ProfileProvider>
-          </OrgsProvider>
+          <LayoutSetsProvider>
+            <OrgsProvider>
+              <ProfileProvider>
+                <TextResourcesProvider>
+                  <AppTextsRenderer />
+                </TextResourcesProvider>
+              </ProfileProvider>
+            </OrgsProvider>
+          </LayoutSetsProvider>
         </ApplicationMetadataProvider>
       </LanguageProvider>
     ),

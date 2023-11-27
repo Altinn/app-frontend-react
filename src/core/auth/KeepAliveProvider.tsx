@@ -5,8 +5,8 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { createContext } from 'src/core/contexts/context';
-import { useAllowAnonymous } from 'src/features/applicationMetadata/getAllowAnonymous';
 import { useApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
+import { useAllowAnonymous } from 'src/features/stateless/getAllowAnonymous';
 import { getEnvironmentLoginUrl } from 'src/utils/urls/appUrlHelper';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
