@@ -5,11 +5,7 @@ import { useMutation } from '@tanstack/react-query';
 import dot from 'dot-object';
 
 import { useAppMutations, useAppQueries } from 'src/contexts/appQueriesContext';
-import {
-  createFormDataRequestFromDiff,
-  createFormDataRequestLegacy,
-  diffModels,
-} from 'src/features/formData/submit/submitFormDataSagas';
+import { diffModels } from 'src/features/formData2/diffModels';
 import { useFormDataStateMachine } from 'src/features/formData2/StateMachine';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useMemoDeepEqual } from 'src/hooks/useMemoDeepEqual';
@@ -53,15 +49,21 @@ const useFormDataUuid = () =>
 
 interface PerformSaveParams {
   uuid: string;
-  useMultiPart: boolean | undefined;
   dispatch: React.Dispatch<FDAction>;
   doPutFormData: (uuid: string, data: FormData) => Promise<object>;
   arg: MutationArg;
 }
 
-const performSave = async ({ uuid, useMultiPart, dispatch, doPutFormData, arg }: PerformSaveParams) => {
+function createFormDataRequestFromDiff(modelToSave: object, diff: object) {
+  const data = new FormData();
+  data.append('dataModel', JSON.stringify(modelToSave));
+  data.append('previousValues', JSON.stringify(diff));
+  return data;
+}
+
+const performSave = async ({ uuid, dispatch, doPutFormData, arg }: PerformSaveParams) => {
   const { newData, diff } = arg;
-  const { data } = useMultiPart ? createFormDataRequestFromDiff(newData, diff) : createFormDataRequestLegacy(newData);
+  const data = createFormDataRequestFromDiff(newData, diff);
 
   try {
     const metaData: any = await doPutFormData(uuid, data);
@@ -100,9 +102,6 @@ const performSave = async ({ uuid, useMultiPart, dispatch, doPutFormData, arg }:
 const useFormDataQuery = (): FormDataStorageExtended & FormDataStorageInternal => {
   const { fetchFormData } = useAppQueries();
   const { doPutFormData } = useAppMutations();
-  const useMultiPart = useAppSelector(
-    (state) => state.applicationMetadata.applicationMetadata?.features?.multiPartSave,
-  );
 
   const [state, dispatch] = useFormDataStateMachine();
   const uuid = useFormDataUuid();
@@ -114,7 +113,7 @@ const useFormDataQuery = (): FormDataStorageExtended & FormDataStorageInternal =
     }
 
     if (state.currentUuid === uuid && arg) {
-      await performSave({ uuid, useMultiPart, dispatch, doPutFormData: doPutFormData.call, arg });
+      await performSave({ uuid, dispatch, doPutFormData: doPutFormData.call, arg });
     } else {
       dispatch({
         type: 'initialFetch',
@@ -187,7 +186,7 @@ function useCurrentData(freshness: 'current' | 'debounced' = 'debounced') {
   return freshness === 'current' ? currentData : debouncedCurrentData;
 }
 
-export const NewFD: IFormDataFunctionality = {
+export const FD: IFormDataFunctionality = {
   useAsDotMap(freshness = 'debounced') {
     const { currentDataFlat, debouncedCurrentDataFlat } = useCtx();
     return freshness === 'current' ? currentDataFlat : debouncedCurrentDataFlat;

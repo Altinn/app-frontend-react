@@ -5,8 +5,8 @@ import {
   runExpressionsForLayouts,
   shouldUpdate,
 } from 'src/features/form/dynamics/conditionalRenderingSagas';
-import { FD } from 'src/features/formData2/Compatibility';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { FD } from 'src/features/formData2/FormDataContext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { selectPageOrderConfig } from 'src/selectors/getLayoutOrder';

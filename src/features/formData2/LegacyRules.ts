@@ -1,4 +1,4 @@
-import type { IRuleConnections } from 'src/features/dynamics';
+import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { IFormData } from 'src/features/formData';
 import type { DataModelChange } from 'src/features/formData2/StateMachine';
 

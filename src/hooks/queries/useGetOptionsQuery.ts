@@ -3,7 +3,7 @@ import type { UseQueryResult } from '@tanstack/react-query';
 import type { AxiosResponse } from 'axios';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
-import { FD } from 'src/features/formData2/Compatibility';
+import { FD } from 'src/features/formData2/FormDataContext';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
 import { OptionsActions } from 'src/features/options/optionsSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
@@ -11,6 +11,7 @@ import { useLanguage } from 'src/hooks/useLanguage';
 import { getOptionsUrl } from 'src/utils/urls/appUrlHelper';
 import type { IMapping, IOption } from 'src/layout/common.generated';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
+
 export const useGetOptionsQuery = (
   optionsId: string | undefined,
   mapping?: IMapping,

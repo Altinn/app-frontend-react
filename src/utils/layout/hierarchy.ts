@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { createSelector } from 'reselect';
 
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
-import { FD } from 'src/features/formData2/Compatibility';
+import { FD } from 'src/features/formData2/FormDataContext';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';

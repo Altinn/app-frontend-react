@@ -4,9 +4,9 @@ import type { UseQueryResult } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/contexts/appQueriesContext';
 import { DataListsActions } from 'src/features/dataLists/dataListsSlice';
+import { FD } from 'src/features/formData2/FormDataContext';
 import { useStrictInstance } from 'src/features/instance/InstanceContext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { mapFormData } from 'src/utils/databindings';
@@ -31,7 +31,7 @@ export const useDataListQuery = (
   const dispatch = useAppDispatch();
   const { selectedLanguage } = useLanguage();
   const instanceId = useStrictInstance().instanceId;
-  const formData = useAppSelector((state) => state.formData.formData);
+  const formData = FD.useAsDotMap();
   const { pageSize, pageNumber, sortColumn, sortDirection } = filter || {};
   const mappedData = useMemoDeepEqual(() => {
     if (mapping) {

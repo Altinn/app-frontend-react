@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { FD } from 'src/features/formData2/Compatibility';
+import { FD } from 'src/features/formData2/FormDataContext';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { WrappedButton } from 'src/layout/Button/WrappedButton';

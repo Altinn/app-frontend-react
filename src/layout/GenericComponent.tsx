@@ -8,7 +8,7 @@ import { Description } from 'src/components/form/Description';
 import { Label } from 'src/components/form/Label';
 import { Legend } from 'src/components/form/Legend';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { FD } from 'src/features/formData2/Compatibility';
+import { FD } from 'src/features/formData2/FormDataContext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';

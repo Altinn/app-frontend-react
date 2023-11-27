@@ -1,7 +1,7 @@
 import React from 'react';
 import type { JSX } from 'react';
 
-import { FD } from 'src/features/formData2/Compatibility';
+import { FD } from 'src/features/formData2/FormDataContext';
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
 import { useAllOptions } from 'src/features/options/useAllOptions';
 import { type IUseLanguage, useLanguage } from 'src/hooks/useLanguage';

@@ -1,22 +1,7 @@
-export interface IFetchFormDataFulfilled {
-  formData: any;
-}
-
-export interface IFormDataRejected {
-  error: Error | null;
-}
-
 export interface ISingleFieldValidation {
   layoutId: string;
   dataModelBinding: string;
 }
-
-export interface ISaveAction {
-  field?: string;
-  componentId?: string;
-  singleFieldValidation?: ISingleFieldValidation;
-}
-
 export interface IUpdateFormData {
   skipValidation?: boolean;
   skipAutoSave?: boolean;
@@ -27,12 +12,4 @@ export interface IUpdateFormData {
 
 export interface IUpdateFormDataSimple extends IUpdateFormData {
   data: string | undefined | null;
-}
-
-export interface IUpdateFormDataAddToList extends IUpdateFormData {
-  itemToAdd: string;
-}
-
-export interface IUpdateFormDataRemoveFromList extends IUpdateFormData {
-  itemToRemove: string;
 }

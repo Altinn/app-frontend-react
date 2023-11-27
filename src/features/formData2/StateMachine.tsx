@@ -6,7 +6,7 @@ import deepEqual from 'fast-deep-equal';
 import { original } from 'immer';
 import { useImmerReducer } from 'use-immer';
 
-import { diffModels } from 'src/features/formData/submit/submitFormDataSagas';
+import { diffModels } from 'src/features/formData2/diffModels';
 import { runLegacyRules } from 'src/features/formData2/LegacyRules';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import type { IRuleConnections } from 'src/features/form/dynamics';

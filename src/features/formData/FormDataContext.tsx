@@ -52,7 +52,6 @@ export const FormDataProvider = ({ children }) => {
 };
 
 function useFormDataQuery(enabled: boolean): UseQueryResult<IFormData> {
-  const dispatch = useAppDispatch();
   const reFetchActive = useAppSelector((state) => state.formData.reFetch);
   const appMetaData = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
   const currentPartyId = useAppSelector((state) => state.party.selectedParty?.partyId);
@@ -101,11 +100,7 @@ function useFormDataQuery(enabled: boolean): UseQueryResult<IFormData> {
     queryKey: ['fetchFormData', url, currentTaskId],
     queryFn: async () => flattenObject(await fetchFormData(url!, options)),
     enabled: isEnabled && url !== undefined,
-    onSuccess: (formData) => {
-      dispatch(FormDataActions.fetchFulfilled({ formData }));
-    },
     onError: async (error: HttpClientError) => {
-      dispatch(FormDataActions.fetchRejected({ error }));
       if (error.message?.includes('403')) {
         window.logInfo('Current party is missing roles');
       } else {

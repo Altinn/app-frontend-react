@@ -1,6 +1,7 @@
 import { useContext, useMemo } from 'react';
 import type { JSX } from 'react';
 
+import { FD } from 'src/features/formData2/FormDataContext';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromCode } from 'src/language/languages';
@@ -71,7 +72,7 @@ export function useLanguage(node?: LayoutNode) {
   const selectedAppLanguage = useAppSelector((state) => state.profile.selectedAppLanguage);
   const componentCtx = useContext(FormComponentContext);
   const nearestNode = node || componentCtx?.node;
-  const formData = useAppSelector((state) => state.formData.formData);
+  const formData = FD.useAsDotMap();
   const applicationSettings = useAppSelector((state) => state.applicationSettings.applicationSettings);
   const instance = useLaxInstanceData();
   const instanceDataSources = useMemo(() => buildInstanceDataSources(instance), [instance]);
