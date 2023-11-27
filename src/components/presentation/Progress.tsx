@@ -2,7 +2,7 @@ import React from 'react';
 
 import { CircularProgress } from '@altinn/altinn-design-system';
 
-import { useLanguage } from 'src/hooks/useLanguage';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 
 export const Progress = () => {

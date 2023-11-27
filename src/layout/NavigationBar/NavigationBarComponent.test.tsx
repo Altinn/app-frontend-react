@@ -44,7 +44,6 @@ const render = async () => {
     router: PageNavigationRouter('page1'),
     reduxState: getInitialStateMock((state) => {
       state.formLayout = {
-        error: null,
         layoutsets: null,
         layoutSetId: null,
         uiConfig: {

@@ -3,8 +3,8 @@ import React from 'react';
 import { ReceiptComponent } from 'src/components/organisms/AltinnReceipt';
 import { ProcessNavigation } from 'src/components/presentation/ProcessNavigation';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { returnConfirmSummaryObject } from 'src/features/processEnd/confirm/helpers/returnConfirmSummaryObject';
-import { useLanguage } from 'src/hooks/useLanguage';
 import {
   filterDisplayAttachments,
   filterDisplayPdfAttachments,
@@ -15,7 +15,7 @@ import type { IInstance, IParty } from 'src/types/shared';
 
 export interface IConfirmPageProps {
   instance: IInstance | undefined;
-  parties: IParty[] | null;
+  parties: IParty[] | undefined;
   appName?: string;
   applicationMetadata: IApplicationMetadata | null;
 }

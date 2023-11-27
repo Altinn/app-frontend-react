@@ -9,9 +9,10 @@ import { Label } from 'src/components/form/Label';
 import { Legend } from 'src/components/form/Legend';
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { useLanguage } from 'src/features/language/useLanguage';
+import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useLanguage } from 'src/hooks/useLanguage';
 import { Triggers } from 'src/layout/common.generated';
 import { FormComponentContext, shouldComponentRenderLabel } from 'src/layout/index';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
@@ -110,6 +111,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
   const hasValidationMessages = node.hasValidationMessages('any');
   const hidden = node.isHidden();
   const { lang, langAsString } = useLanguage(node);
+  const currentParty = useCurrentParty();
   const { focusId, setFocusId } = usePageNavigationContext();
 
   const formData = node.getFormData() as IComponentFormData<Type>;
@@ -202,6 +204,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
         componentId: id,
         skipValidation: !validate,
         singleFieldValidation,
+        selectedPartyId: currentParty?.partyId,
       }),
     );
   };

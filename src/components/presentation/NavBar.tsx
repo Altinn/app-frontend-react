@@ -7,7 +7,7 @@ import cn from 'classnames';
 import { LanguageSelector } from 'src/components/presentation/LanguageSelector';
 import classes from 'src/components/presentation/NavBar.module.css';
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
-import { useLanguage } from 'src/hooks/useLanguage';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 
 export interface INavBarProps {

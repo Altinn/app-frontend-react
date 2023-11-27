@@ -13,7 +13,7 @@ import type { IRuntimeState } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 export function* updateFormDataSaga({
-  payload: { field, data, componentId, skipValidation, skipAutoSave, singleFieldValidation },
+  payload: { field, data, componentId, skipValidation, skipAutoSave, singleFieldValidation, selectedPartyId },
 }: PayloadAction<IUpdateFormDataSimple>): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
@@ -31,12 +31,12 @@ export function* updateFormDataSaga({
           skipValidation,
           skipAutoSave,
           singleFieldValidation,
+          selectedPartyId,
         }),
       );
     }
   } catch (error) {
     window.logError('Update form data failed:\n', error);
-    yield put(FormDataActions.updateRejected({ error }));
   }
 }
 
@@ -51,11 +51,6 @@ function* runValidations(
   if (!node) {
     const error = new Error('Missing component ID!');
     window.logError('Failed to run validations on update form data:\n', error);
-    yield put(
-      FormDataActions.updateRejected({
-        error,
-      }),
-    );
     return;
   }
 

@@ -9,8 +9,11 @@ export interface IDeprecatedState {
   lastKnownProcess?: IProcess;
   lastKnownAttachments?: IAttachments;
   allOptions?: AllOptionsMap;
+  currentLanguage: string;
 }
-const initialState: IDeprecatedState = {};
+const initialState: IDeprecatedState = {
+  currentLanguage: 'nb',
+};
 
 export let DeprecatedActions: ActionsFromSlice<typeof deprecatedSlice>;
 export const deprecatedSlice = () => {
@@ -36,6 +39,11 @@ export const deprecatedSlice = () => {
       setAllOptions: mkAction<AllOptionsMap>({
         reducer: (state, action) => {
           state.allOptions = action.payload;
+        },
+      }),
+      setCurrentLanguage: mkAction<string>({
+        reducer: (state, action) => {
+          state.currentLanguage = action.payload;
         },
       }),
     },
