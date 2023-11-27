@@ -8,9 +8,9 @@ import type {
   CompGroupRepeatingInternal,
   CompGroupRepeatingLikertInternal,
   HRepGroupRows,
+  IGroupEditPropertiesLikert,
 } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
-import type { ITextResource } from 'src/types';
 import type {
   ChildFactory,
   ChildFactoryProps,
@@ -125,18 +125,6 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
     return list;
   }
 
-  rewriteTextBindings(node: LayoutNode<'Group'>, textResources: ITextResource[]) {
-    super.rewriteTextBindings(node, textResources);
-    if (node.isRepGroup()) {
-      if (node.item?.rowsBefore) {
-        this.innerGrid.rewriteTextBindingsForRows(node, node.item.rowsBefore, textResources);
-      }
-      if (node.item?.rowsAfter) {
-        this.innerGrid.rewriteTextBindingsForRows(node, node.item.rowsAfter, textResources);
-      }
-    }
-  }
-
   /**
    * Process a group that references another (repeating) group. It should have its own children, but those children
    * will be resolved as references inside a simulated next-row of the referenced repeating group.
@@ -215,12 +203,11 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
       delete (props.item as any)['children'];
       const item = props.item as CompGroupExternal;
       const me = ctx.generator.makeNode(props);
-
       const rows: HRepGroupRows = [];
       const lastIndex = (ctx.generator.repeatingGroups || {})[props.item.id]?.index;
       const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(
         lastIndex,
-        'edit' in props.item ? props.item.edit : {},
+        'edit' in props.item ? (props.item.edit as IGroupEditPropertiesLikert) : {},
       );
 
       for (let rowIndex = startIndex; rowIndex <= stopIndex; rowIndex++) {

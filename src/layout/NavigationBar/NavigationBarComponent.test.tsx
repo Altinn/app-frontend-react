@@ -1,33 +1,32 @@
 import React from 'react';
 
 import { act, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 
-import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
+import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { NavigationBarComponent } from 'src/layout/NavigationBar/NavigationBarComponent';
-import { mockMediaQuery, renderGenericComponentTest } from 'src/testUtils';
-import type { RenderGenericComponentTestProps } from 'src/testUtils';
+import { mockMediaQuery } from 'src/test/mockMediaQuery';
+import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 
 const { setScreenWidth } = mockMediaQuery(600);
 
-interface Props extends Partial<RenderGenericComponentTestProps<'NavigationBar'>> {
-  dispatch?: (...props: any[]) => any;
-}
-
-const render = ({ dispatch = jest.fn() }: Props = {}) => {
+const render = async () => {
+  // eslint-disable-next-line testing-library/await-async-events
   const user = userEvent.setup();
-  renderGenericComponentTest({
+  const { store } = await renderGenericComponentTest({
     type: 'NavigationBar',
     renderer: (props) => <NavigationBarComponent {...props} />,
     component: {
       id: 'nav1',
     },
-    manipulateState: (state) => {
+    reduxState: getInitialStateMock((state) => {
       state.formLayout = {
         error: null,
         layoutsets: null,
+        layoutSetId: null,
         uiConfig: {
-          tracks: {
+          pageOrderConfig: {
             order: ['page1', 'page2', 'page3'],
             hiddenExpr: {},
             hidden: [],
@@ -96,13 +95,10 @@ const render = ({ dispatch = jest.fn() }: Props = {}) => {
           ],
         },
       };
-    },
-    manipulateStore: (store) => {
-      store.dispatch = dispatch;
-    },
+    }),
   });
 
-  return { user };
+  return { user, store };
 };
 
 describe('NavigationBar', () => {
@@ -112,7 +108,7 @@ describe('NavigationBar', () => {
     });
 
     it('should show navigation menu, and not show navigation menu toggle button', async () => {
-      render();
+      await render();
 
       expect(screen.getByTestId('navigation-menu')).toHaveProperty('hidden', false);
 
@@ -124,15 +120,14 @@ describe('NavigationBar', () => {
     });
 
     it('should dispatch action when navigating to another page', async () => {
-      const dispatchMock = jest.fn();
-      const { user } = render({ dispatch: dispatchMock });
+      const { user, store } = await render();
 
       const btn = screen.getByText(/3\./i);
       expect(btn).toHaveTextContent(/^3\. page3$/);
 
       await act(() => user.click(btn));
 
-      expect(dispatchMock).toHaveBeenCalledWith({
+      expect(store.dispatch).toHaveBeenCalledWith({
         payload: {
           newView: 'page3',
           runValidations: undefined,
@@ -142,8 +137,7 @@ describe('NavigationBar', () => {
     });
 
     it('should not dispatch action when navigating to the same page', async () => {
-      const dispatchMock = jest.fn();
-      const { user } = render({ dispatch: dispatchMock });
+      const { user, store } = await render();
 
       await act(() =>
         user.click(
@@ -153,7 +147,7 @@ describe('NavigationBar', () => {
         ),
       );
 
-      expect(dispatchMock).not.toHaveBeenCalled();
+      expect(store.dispatch).not.toHaveBeenCalled();
     });
   });
 
@@ -163,7 +157,7 @@ describe('NavigationBar', () => {
     });
 
     it('should automatically focus the first item in the navigation menu when it is displayed', async () => {
-      const { user } = render();
+      const { user } = await render();
 
       const toggleButton = screen.getByRole('button', {
         name: /1\/3 page1/i,
@@ -179,8 +173,7 @@ describe('NavigationBar', () => {
     });
 
     it('should dispatch action when navigating to another page', async () => {
-      const dispatchMock = jest.fn();
-      const { user } = render({ dispatch: dispatchMock });
+      const { user, store } = await render();
 
       await act(() =>
         user.click(
@@ -198,7 +191,7 @@ describe('NavigationBar', () => {
         ),
       );
 
-      expect(dispatchMock).toHaveBeenCalledWith({
+      expect(store.dispatch).toHaveBeenCalledWith({
         payload: {
           newView: 'page3',
           runValidations: undefined,
@@ -208,8 +201,7 @@ describe('NavigationBar', () => {
     });
 
     it('should not dispatch action when navigating to the same page', async () => {
-      const dispatchMock = jest.fn();
-      const { user } = render({ dispatch: dispatchMock });
+      const { user, store } = await render();
 
       await act(() =>
         user.click(
@@ -227,7 +219,7 @@ describe('NavigationBar', () => {
         ),
       );
 
-      expect(dispatchMock).not.toHaveBeenCalled();
+      expect(store.dispatch).not.toHaveBeenCalled();
     });
   });
 });

@@ -35,14 +35,11 @@ const common = {
               .setDescription('Expression that will hide the page/form layout if true')
               .optional({ default: false }),
           ),
-          new CG.prop('navigation', CG.common('ILayoutNavigation').optional()),
         ),
       ),
     )
       .setTitle('Altinn layout')
       .setDescription('Schema that describes the layout configuration for Altinn applications.'),
-  ILayoutNavigation: () =>
-    new CG.obj(new CG.prop('next', new CG.str().optional()), new CG.prop('previous', new CG.str().optional())),
 
   ILabelSettings: () =>
     new CG.obj(
@@ -109,7 +106,6 @@ const common = {
   Triggers: () =>
     new CG.enum(
       'validation',
-      'calculatePageOrder',
       'validatePage',
       'validateCurrentAndPreviousPages',
       'validateAllPages',
@@ -139,6 +135,23 @@ const common = {
   // Data model bindings:
   IDataModelBindingsSimple: () =>
     new CG.obj(new CG.prop('simpleBinding', new CG.str()))
+      .setTitle('Data model binding')
+      .setDescription(
+        'Describes the location in the data model where the component should store its value(s). A simple ' +
+          'binding is used for components that only store a single value, usually a string.',
+      ),
+  IDataModelBindingsOptionsSimple: () =>
+    new CG.obj(
+      new CG.prop('simpleBinding', new CG.str()),
+      new CG.prop(
+        'metadata',
+        new CG.str()
+          .optional()
+          .setDescription(
+            'Describes the location where metadata for the option based component should be stored in the datamodel.',
+          ),
+      ),
+    )
       .setTitle('Data model binding')
       .setDescription(
         'Describes the location in the data model where the component should store its value(s). A simple ' +
@@ -231,9 +244,11 @@ const common = {
       ),
       new CG.prop(
         'label',
-        new CG.str()
+        new CG.expr(ExprVal.String)
           .setTitle('Label')
-          .setDescription('Reference to a text resource to be used as the option label.')
+          .setDescription(
+            'A label of the option displayed in Radio- and Checkbox groups. Can be plain text, a text resource binding, or a dynamic expression.',
+          )
           .addExample('some.text.key'),
       ),
       new CG.prop(
@@ -245,21 +260,21 @@ const common = {
       ),
       new CG.prop(
         'description',
-        new CG.str()
+        new CG.expr(ExprVal.String)
           .optional()
           .setTitle('Description')
           .setDescription(
-            'A description of the option displayed in Radio- and Checkbox groups. Can be plain text or a text resource binding.',
+            'A description of the option displayed in Radio- and Checkbox groups. Can be plain text, a text resource binding, or a dynamic expression.',
           )
           .addExample('some.text.key', 'My Description'),
       ),
       new CG.prop(
         'helpText',
-        new CG.str()
+        new CG.expr(ExprVal.String)
           .optional()
           .setTitle('Help Text')
           .setDescription(
-            'A help text for the option displayed in Radio- and Checkbox groups. Can be plain text or a text resource binding.',
+            'A help text for the option displayed in Radio- and Checkbox groups. Can be plain text, a text resource binding, or a dynamic expression.',
           )
           .addExample('some.text.key', 'My Help Text'),
       ),
@@ -291,7 +306,16 @@ const common = {
               'server (allows for user/instance-specific options)',
           ),
       ),
+      new CG.prop(
+        'sortOrder',
+        new CG.enum('asc', 'desc')
+          .setDescription('Sorts the code list in either ascending or descending order by label.')
+          .optional(),
+      ),
       new CG.prop('source', CG.common('IOptionSource').optional()),
+    ),
+  ISelectionComponentFull: () =>
+    new CG.obj(
       new CG.prop(
         'preselectedOptionIndex',
         new CG.int()
@@ -299,7 +323,7 @@ const common = {
           .setTitle('Preselected option index')
           .setDescription('Index of the option to preselect (if no option has been selected yet)'),
       ),
-    ),
+    ).extends(CG.common('ISelectionComponent')),
 
   // Table configuration:
   ITableColumnsAlignText: () =>
@@ -389,7 +413,7 @@ const common = {
           .optional({ default: false })
           .setTitle('Read only/disabled?')
           .setDescription(
-            'Boolean value or expression indicating if the component should be read only/disabled. Defaults to false.',
+            'Boolean value or expression indicating if the component should be read only/disabled. Defaults to false. <br /> <i>Please note that even with read-only fields in components, it may currently be possible to update the field by modifying the request sent to the API or through a direct API call.<i/>',
           ),
       ),
       new CG.prop(

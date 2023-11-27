@@ -1,27 +1,25 @@
 import React from 'react';
 
 import { screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 
 import { getMultiPageGroupMock } from 'src/__mocks__/formLayoutGroupMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
-import { renderWithProviders } from 'src/testUtils';
-import { useResolvedNode } from 'src/utils/layout/ExprContext';
+import { renderWithNode } from 'src/test/renderWithProviders';
+import type { TextResourceMap } from 'src/features/textResources';
 import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.generated';
 import type { IOption } from 'src/layout/common.generated';
 import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { IRepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
 import type { CompExternal, ILayout } from 'src/layout/layout';
-import type { RootState } from 'src/redux/store';
-import type { ITextResource } from 'src/types/shared';
 
 const user = userEvent.setup();
 
 describe('RepeatingGroupsEditContainer', () => {
   const multiPageGroup = getMultiPageGroupMock('group');
-  const textResources: ITextResource[] = [{ id: 'option.label', value: 'Value to be shown' }];
+  const textResources: TextResourceMap = { 'option.label': { value: 'Value to be shown' } };
   const options: IOption[] = [{ value: 'option.value', label: 'option.label' }];
   const components: CompExternal[] = [
     {
@@ -83,12 +81,12 @@ describe('RepeatingGroupsEditContainer', () => {
     if (multiPageGroup.edit) {
       multiPageGroup.edit.saveAndNextButton = true;
     }
-    render({ setEditIndex, setMultiPageIndex, editIndex: 0 });
+    await render({ setEditIndex, setMultiPageIndex, editIndex: 0 });
     await user.click(screen.getByRole('button', { name: /Lagre og åpne neste/i }));
     expect(setEditIndex).toHaveBeenCalledWith(1, true);
   });
 
-  const render = (props: Partial<IRepeatingGroupsEditContainer> = {}) => {
+  const render = async (props: Partial<IRepeatingGroupsEditContainer> = {}) => {
     const allProps: Omit<IRepeatingGroupsEditContainer, 'node'> = {
       editIndex: 1,
       setEditIndex: jest.fn(),
@@ -96,27 +94,19 @@ describe('RepeatingGroupsEditContainer', () => {
       ...props,
     };
 
-    const preloadedState = getInitialStateMock() as RootState;
-    preloadedState.formLayout.layouts = { FormLayout: layout };
-    preloadedState.textResources.resources = textResources;
+    const reduxState = getInitialStateMock();
+    reduxState.formLayout.layouts = { FormLayout: layout };
+    reduxState.textResources.resourceMap = textResources;
 
-    renderWithProviders(
-      <RenderRepGroupEditContainer
-        id={'group'}
-        {...allProps}
-      />,
-      { preloadedState },
-    );
+    await renderWithNode<LayoutNodeForGroup<CompGroupRepeatingInternal>>({
+      nodeId: 'group',
+      renderer: ({ node }) => (
+        <RepeatingGroupsEditContainer
+          node={node}
+          {...allProps}
+        />
+      ),
+      reduxState,
+    });
   };
 });
-
-function RenderRepGroupEditContainer(props: Omit<IRepeatingGroupsEditContainer, 'node'> & { id: string }) {
-  const node = useResolvedNode(props.id) as LayoutNodeForGroup<CompGroupRepeatingInternal>;
-
-  return (
-    <RepeatingGroupsEditContainer
-      {...props}
-      node={node}
-    />
-  );
-}

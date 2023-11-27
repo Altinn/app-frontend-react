@@ -18,11 +18,33 @@ describe('UI Components', () => {
         .parentsUntil(appFrontend.message.logoFormContent)
         .eq(1)
         .should('have.css', 'justify-content', 'center');
-      cy.wrap(image).parent().siblings().find(appFrontend.helpText.open).click();
-      cy.get(appFrontend.helpText.alert).contains('Altinn logo').type('{esc}');
+      cy.wrap(image).parent().siblings().find(appFrontend.helpText.button).click();
+      cy.get(appFrontend.helpText.alert).should('contain.text', 'Altinn logo');
+      cy.get(appFrontend.helpText.alert).trigger('keydown', { keyCode: 27 }); // Press ESC key
       cy.get(appFrontend.helpText.alert).should('not.exist');
     });
     cy.get('body').should('have.css', 'background-color', 'rgb(239, 239, 239)');
+  });
+
+  it('while file upload is in progress, the animation should be visible', () => {
+    cy.intercept({ url: '**/instances/**/data?dataType=fileUpload-changename' }, (req) => {
+      req.reply((res) => {
+        res.setDelay(500);
+      });
+    }).as('uploadWithDelay');
+
+    cy.goto('changename');
+    cy.get(appFrontend.changeOfName.uploadDropZone).should('be.visible');
+    cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
+    cy.get(appFrontend.changeOfName.uploadedTable).should('be.visible');
+    cy.get(appFrontend.changeOfName.uploadedTable)
+      .find(appFrontend.changeOfName.uploadingAnimation)
+      .should('be.visible');
+    cy.wait('@uploadWithDelay');
+    cy.get(appFrontend.changeOfName.uploadSuccess).should('exist');
+    cy.get(appFrontend.changeOfName.uploadedTable)
+      .find(appFrontend.changeOfName.uploadingAnimation)
+      .should('not.exist');
   });
 
   it('is possible to upload and delete attachments', () => {
@@ -30,7 +52,6 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.uploadDropZone).should('be.visible');
     cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
     cy.get(appFrontend.changeOfName.uploadedTable).should('be.visible');
-    cy.get(appFrontend.changeOfName.uploadingAnimation).should('be.visible');
     cy.get(appFrontend.changeOfName.uploadSuccess).should('exist');
     cy.snapshot('components:attachment');
     cy.get(appFrontend.changeOfName.deleteAttachment).click();
@@ -43,7 +64,6 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
 
     cy.get(appFrontend.changeOfName.uploadedTable).should('be.visible');
-    cy.get(appFrontend.changeOfName.uploadingAnimation).should('be.visible');
     cy.get(appFrontend.changeOfName.uploadSuccess).should('exist');
 
     cy.window().then((win) => {
@@ -66,6 +86,7 @@ describe('UI Components', () => {
       force: true,
     });
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('be.visible');
+    cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).should('not.be.disabled');
     cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).dsSelect('Adresse');
     cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
     cy.wait('@saveTags');
@@ -88,6 +109,7 @@ describe('UI Components', () => {
       force: true,
     });
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('be.visible');
+    cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).should('not.be.disabled');
     cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).dsSelect('Adresse');
     cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
     cy.wait('@saveTags');
@@ -255,14 +277,66 @@ describe('UI Components', () => {
 
     cy.get(appFrontend.changeOfName.confirmChangeName).findByText('Dette er en beskrivelse.').should('be.visible');
     cy.get(appFrontend.changeOfName.confirmChangeName).findByRole('button').click();
-    cy.get(appFrontend.changeOfName.confirmChangeName).findByText('Dette er en hjelpetekst.').should('be.visible');
+    cy.get(appFrontend.changeOfName.confirmChangeName)
+      .findByRole('dialog')
+      .should('contain.text', 'Dette er en hjelpetekst.');
 
     cy.get(appFrontend.changeOfName.confirmChangeName).find('label').click();
     cy.get(appFrontend.changeOfName.reasons).should('be.visible');
 
     cy.get(appFrontend.changeOfName.reasons).findByText('Dette er en beskrivelse.').should('be.visible');
     cy.get(appFrontend.changeOfName.reasons).findByRole('button').click();
-    cy.get(appFrontend.changeOfName.reasons).findByText('Dette er en hjelpetekst.').should('be.visible');
+    cy.get(appFrontend.changeOfName.reasons).findByRole('dialog').should('contain.text', 'Dette er en hjelpetekst.');
+  });
+
+  // Function to intercept layout and set alertOnChange to true for a component
+  const setupComponentWithAlert = (componentId: string) => {
+    cy.interceptLayout('changename', (component) => {
+      if (component.id === componentId && (component.type === 'Checkboxes' || component.type === 'RadioButtons')) {
+        component.alertOnChange = true;
+      }
+    });
+    cy.goto('changename');
+    if (componentId === 'reason' || componentId === 'confirmChangeName') {
+      cy.get(appFrontend.changeOfName.newFirstName).type('Per');
+      cy.get(appFrontend.changeOfName.newFirstName).blur();
+    }
+  };
+
+  it('should display alert on changing radio button', () => {
+    setupComponentWithAlert('reason');
+    cy.get(appFrontend.changeOfName.confirmChangeName).find('label').click();
+
+    cy.findByRole('radio', { name: /Slektskap/ }).should('be.checked');
+
+    cy.findByRole('radio', { name: /Gårdsbruk/ }).click();
+    //makes sure that textresources from active radiobutton are displayed in the alert dialog
+    cy.findByRole('dialog').should('contain.text', 'Er du sikker på at du vil endre fra Slektskap?');
+    cy.get(appFrontend.changeOfName.popOverCancelButton).click();
+    cy.findByRole('radio', { name: /Slektskap/ }).should('be.checked');
+
+    cy.findByRole('radio', { name: /Gårdsbruk/ }).click();
+    cy.get(appFrontend.changeOfName.popOverDeleteButton).click();
+    cy.findByRole('radio', { name: /Gårdsbruk/ }).should('be.checked');
+  });
+
+  it('should display alert when unchecking checkbox', () => {
+    setupComponentWithAlert('confirmChangeName');
+    cy.get(appFrontend.changeOfName.confirmChangeName).find('label').dblclick();
+    cy.get(appFrontend.changeOfName.popOverCancelButton).click();
+    cy.get(appFrontend.changeOfName.reasons).should('be.visible');
+    cy.get(appFrontend.changeOfName.confirmChangeName).find('label').click();
+    cy.get(appFrontend.changeOfName.popOverDeleteButton).click();
+    cy.get(appFrontend.changeOfName.reasons).should('not.exist');
+  });
+
+  it('should display alert unchecking checkbox in checkbox group', () => {
+    setupComponentWithAlert('innhentet-studie');
+    cy.navPage('grid').click();
+    // dialog pops up when unchecking a checkbox
+    cy.get('[data-testid="checkboxes-fieldset"]').find('label').contains('Ja').dblclick();
+    //Make sure that the alert popover for only one checkbox is displayed, if several dialogs are displayed, the test will fail
+    cy.findByRole('dialog');
   });
 
   it('should render components as summary', () => {
@@ -358,5 +432,20 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.sources).should('have.value', 'Digitaliseringsdirektoratet');
     cy.get(appFrontend.changeOfName.reference).should('have.value', 'Sophie Salt');
     cy.get(appFrontend.changeOfName.reference2).should('have.value', 'Dole');
+  });
+
+  it('should be possible to change language back and forth and reflect the change in the UI', () => {
+    cy.goto('changename');
+
+    const changeLang = (lang: string, elName: string) => {
+      cy.findByRole('combobox', { name: elName }).click();
+      cy.findByRole('option', { name: lang }).click();
+    };
+
+    cy.get('[data-testid="label-newFirstName"]').should('contain.text', 'Nytt fornavn');
+    changeLang('Engelsk', 'Språk');
+    cy.get('[data-testid="label-newFirstName"]').should('contain.text', 'New first name');
+    changeLang('Norwegian bokmål', 'Language');
+    cy.get('[data-testid="label-newFirstName"]').should('contain.text', 'Nytt fornavn');
   });
 });

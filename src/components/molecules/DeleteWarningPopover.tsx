@@ -1,31 +1,23 @@
 import React from 'react';
 
-import { Button, Popover } from '@digdir/design-system-react';
-import { makeStyles } from '@material-ui/core';
+import { Button, LegacyPopover } from '@digdir/design-system-react';
 
+import classes from 'src/components/molecules/DeleteWarningPopover.module.css';
 import { useLanguage } from 'src/hooks/useLanguage';
 
-const useStyles = makeStyles({
-  popoverButtonContainer: {
-    display: 'flex',
-    marginTop: '0.625rem',
-    gap: '0.625rem',
-  },
-});
-
 export interface IDeleteWarningPopover {
-  trigger: React.ReactNode;
+  children: React.ReactNode;
   onPopoverDeleteClick: () => void;
   onCancelClick: () => void;
   deleteButtonText: string;
-  messageText: string;
+  messageText: React.ReactNode;
   open: boolean;
   setOpen: (open: boolean) => void;
   placement?: 'bottom' | 'left' | 'right' | 'top';
 }
 
 export function DeleteWarningPopover({
-  trigger,
+  children,
   onPopoverDeleteClick,
   onCancelClick,
   deleteButtonText,
@@ -34,21 +26,21 @@ export function DeleteWarningPopover({
   open,
   setOpen,
 }: IDeleteWarningPopover) {
-  const classes = useStyles();
   const { lang } = useLanguage();
   return (
-    <Popover
+    <LegacyPopover
       variant='warning'
       placement={placement}
-      trigger={trigger}
+      trigger={children}
       open={open}
+      className={classes.popover}
       onOpenChange={() => setOpen(!open)}
     >
       <div>{messageText}</div>
       <div className={classes.popoverButtonContainer}>
         <Button
           data-testid='warning-popover-delete-button'
-          variant='filled'
+          variant='primary'
           size='small'
           color='danger'
           onClick={onPopoverDeleteClick}
@@ -57,14 +49,14 @@ export function DeleteWarningPopover({
         </Button>
         <Button
           data-testid='warning-popover-cancel-button'
-          variant='quiet'
+          variant='tertiary'
           size='small'
-          color='secondary'
+          color='second'
           onClick={onCancelClick}
         >
           {lang('general.cancel')}
         </Button>
       </div>
-    </Popover>
+    </LegacyPopover>
   );
 }

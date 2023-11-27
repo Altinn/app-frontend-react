@@ -15,14 +15,16 @@ import type {
   ValidationSeverity,
 } from 'src/utils/validation/types';
 
-export function validationContextFromState(state: IRuntimeState): Omit<IValidationContext, 'formData'> {
+export function validationContextFromState(state: IRuntimeState, node: LayoutNode | undefined): Omit<IValidationContext, 'formData'> {
   return {
-    langTools: staticUseLanguageFromState(state),
-    attachments: state.attachments.attachments,
+    langTools: staticUseLanguageFromState(state, node),
+    attachments: state.deprecated.lastKnownAttachments || {},
     application: state.applicationMetadata.applicationMetadata,
-    instance: state.instanceData.instance,
+    instance: state.deprecated.lastKnownInstance || null,
+    process: state.deprecated.lastKnownProcess || null,
     layoutSets: state.formLayout.layoutsets,
     schemas: state.formDataModel.schemas,
+    customValidation: state.customValidation.customValidation,
   };
 }
 

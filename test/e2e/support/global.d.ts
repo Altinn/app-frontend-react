@@ -2,8 +2,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 
 import type { user } from 'test/e2e/support/auth';
 
-import type { ILayoutFileExternal } from 'src/layout/common.generated';
-import type { CompOrGroupExternal, ILayouts } from 'src/layout/layout';
+import type { CompOrGroupExternal, ILayoutCollection, ILayouts } from 'src/layout/layout';
 import type { ILayoutSets, IRuntimeState } from 'src/types';
 
 export type FrontendTestTask = 'message' | 'changename' | 'group' | 'likert' | 'datalist' | 'confirm';
@@ -89,10 +88,15 @@ declare global {
       isVisible(): Chainable<Element>;
 
       /**
-       * Instantiate statefull instance from ttd/stateless-app
+       * Instantiate stateful instance from ttd/stateless-app
        * @example cy.startStateFullFromStateless()
        */
-      startStateFullFromStateless(): Chainable<Element>;
+      startStatefulFromStateless(): Chainable<Element>;
+
+      /**
+       * Force moving to the next task in the process
+       */
+      moveProcessNext(): Chainable<Element>;
 
       /**
        * Get the current redux state
@@ -114,7 +118,7 @@ declare global {
       interceptLayout(
         taskName: FrontendTestTask | string,
         mutator?: (component: CompOrGroupExternal) => void,
-        wholeLayoutMutator?: (layoutSet: { [pageName: string]: ILayoutFileExternal }) => void,
+        wholeLayoutMutator?: (layoutSet: ILayoutCollection) => void,
       ): Chainable<null>;
 
       /**
@@ -194,6 +198,9 @@ declare global {
        * Useful when taking snapshots; clear all selections and wait for the app to finish loading and stabilizing.
        */
       clearSelectionAndWait(viewport?: 'desktop' | 'tablet' | 'mobile'): Chainable<null>;
+
+      getSummary(label: string): Chainable<Element>;
+      testPdf(callback: () => void, returnToForm: boolean = false): Chainable<null>;
     }
   }
 }

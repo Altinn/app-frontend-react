@@ -4,21 +4,22 @@ import { ExprRuntimeError, NodeNotFound, NodeNotFoundWithoutContext } from 'src/
 import { prettyErrors, prettyErrorsToConsole } from 'src/features/expressions/prettyErrors';
 import type { IAttachments } from 'src/features/attachments';
 import type { EvalExprOptions } from 'src/features/expressions/index';
-import type { ExprConfig, Expression } from 'src/features/expressions/types';
+import type { ExprConfig, Expression, ExprPositionalArgs } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
+import type { AllOptionsMap } from 'src/features/options/useAllOptions';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type { IOptions, IUiConfig } from 'src/types';
-import type { IApplicationSettings, IAuthContext, IInstanceContext } from 'src/types/shared';
+import type { IUiConfig } from 'src/types';
+import type { IApplicationSettings, IAuthContext, IInstanceDataSources } from 'src/types/shared';
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 export interface ContextDataSources {
-  instanceContext: IInstanceContext | null;
+  instanceDataSources: IInstanceDataSources | null;
   applicationSettings: IApplicationSettings | null;
   formData: IFormData;
   attachments: IAttachments;
   uiConfig: IUiConfig;
-  options: IOptions;
+  options: AllOptionsMap;
   authContext: Partial<IAuthContext> | null;
   hiddenFields: Set<string>;
   langTools: IUseLanguage;
@@ -30,7 +31,7 @@ export interface PrettyErrorsOptions {
 }
 
 /**
- * The expression context object is passed around when executing/evaluating a expression, and is
+ * The expression context object is passed around when executing/evaluating an expression, and is
  * a toolbox for expressions to resolve lookups in data sources, getting the current node, etc.
  */
 export class ExprContext {
@@ -41,6 +42,7 @@ export class ExprContext {
     public node: LayoutNode | LayoutPage | NodeNotFoundWithoutContext,
     public dataSources: ContextDataSources,
     public callbacks: Pick<EvalExprOptions, 'onBeforeFunctionCall' | 'onAfterFunctionCall'>,
+    public positionalArguments?: ExprPositionalArgs,
   ) {}
 
   /**
@@ -51,8 +53,9 @@ export class ExprContext {
     node: LayoutNode | LayoutPage | NodeNotFoundWithoutContext,
     dataSources: ContextDataSources,
     callbacks: Pick<EvalExprOptions, 'onBeforeFunctionCall' | 'onAfterFunctionCall'>,
+    positionalArguments?: ExprPositionalArgs,
   ): ExprContext {
-    return new ExprContext(expr, node, dataSources, callbacks);
+    return new ExprContext(expr, node, dataSources, callbacks, positionalArguments);
   }
 
   /**
@@ -65,6 +68,7 @@ export class ExprContext {
       prevInstance.node,
       prevInstance.dataSources,
       prevInstance.callbacks,
+      prevInstance.positionalArguments,
     );
     newInstance.path = newPath;
 

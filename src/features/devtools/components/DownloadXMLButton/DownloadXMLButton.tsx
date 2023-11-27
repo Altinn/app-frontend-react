@@ -6,16 +6,14 @@ import { Button, Fieldset } from '@digdir/design-system-react';
 import { DownloadIcon, UploadIcon } from '@navikt/aksel-icons';
 import axios from 'axios';
 
+import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
-import { useAppSelector } from 'src/hooks/useAppSelector';
-import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
+import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { getFetchFormDataUrl } from 'src/utils/urls/appUrlHelper';
 
 export const DownloadXMLButton = () => {
-  const appMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
-  const instance = useAppSelector((state) => state.instanceData.instance);
-  const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
-  const dataElementId = getCurrentTaskDataElementId(appMetadata, instance, layoutSets);
+  const instance = useLaxInstanceData();
+  const dataElementId = useCurrentDataModelGuid();
   const dispatch = useDispatch();
 
   const downloadXML = async () => {
@@ -36,15 +34,20 @@ export const DownloadXMLButton = () => {
     if (instance?.id && dataElementId && acceptedFiles.length) {
       const data = await acceptedFiles[0].text();
       const dataUrl = getFetchFormDataUrl(instance?.id, dataElementId);
-      await axios.put(dataUrl, data, { headers: { 'Content-Type': 'application/xml' } });
-      dispatch(FormDataActions.fetch({ url: dataUrl }));
+      await axios.put(dataUrl, data, { headers: { 'Content-Type': 'application/xml' } }).catch((error) => {
+        // 303 is expected when using ProcessDataWrite and can be ignored
+        if (error.response?.status !== 303) {
+          throw error;
+        }
+      });
+      dispatch(FormDataActions.fetch());
     }
   };
   return (
     <Fieldset legend='Skjemadata'>
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         <Button
-          variant='outline'
+          variant='secondary'
           size='small'
           icon={<DownloadIcon aria-hidden={true} />}
           onClick={downloadXML}
@@ -61,7 +64,7 @@ export const DownloadXMLButton = () => {
               {...getRootProps({
                 onClick: (e) => e.preventDefault(),
               })}
-              variant='outline'
+              variant='secondary'
               size='small'
               icon={<UploadIcon aria-hidden={true} />}
             >

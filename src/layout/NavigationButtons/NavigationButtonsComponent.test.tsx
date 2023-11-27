@@ -3,12 +3,13 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
+import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { NavigationButtonsComponent } from 'src/layout/NavigationButtons/NavigationButtonsComponent';
-import { renderGenericComponentTest } from 'src/testUtils';
+import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { CompNavigationButtonsExternal } from 'src/layout/NavigationButtons/config.generated';
-import type { RenderGenericComponentTestProps } from 'src/testUtils';
+import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
-describe('NavigationButton', () => {
+describe('NavigationButtons', () => {
   const navButton1: CompNavigationButtonsExternal = {
     id: 'nav-button1',
     type: 'NavigationButtons',
@@ -53,45 +54,34 @@ describe('NavigationButton', () => {
       focus: null,
       hiddenFields: [],
       repeatingGroups: {},
-      tracks: {
+      pageOrderConfig: {
         order: ['layout1', 'layout2'],
         hidden: [],
         hiddenExpr: {},
       },
       excludePageFromPdf: [],
       excludeComponentFromPdf: [],
-      navigationConfig: {
-        layout1: {
-          next: 'layout2',
-        },
-        layout2: {
-          previous: 'layout1',
-        },
-      },
     },
   });
 
-  const render = ({
+  const render = async ({
     component,
     genericProps,
-    manipulateState,
   }: Partial<RenderGenericComponentTestProps<'NavigationButtons'>> = {}) => {
-    renderGenericComponentTest({
+    await renderGenericComponentTest({
       type: 'NavigationButtons',
       renderer: (props) => <NavigationButtonsComponent {...props} />,
       component,
       genericProps,
-      manipulateState: manipulateState
-        ? manipulateState
-        : (state) => {
-            state.formLayout = mockLayout;
-          },
+      reduxState: getInitialStateMock((state) => {
+        state.formLayout = mockLayout;
+      }),
     });
   };
 
-  test('renders default NavigationButtons component', () => {
+  test('renders default NavigationButtons component', async () => {
     navButton1.showBackButton = false;
-    render({
+    await render({
       component: {
         id: navButton1.id,
       },
@@ -101,9 +91,9 @@ describe('NavigationButton', () => {
     expect(screen.queryByText('back')).toBeFalsy();
   });
 
-  test('renders NavigationButtons component without back button if there is no previous page', () => {
+  test('renders NavigationButtons component without back button if there is no previous page', async () => {
     navButton1.showBackButton = true;
-    render({
+    await render({
       component: {
         id: navButton1.id,
       },
@@ -113,10 +103,10 @@ describe('NavigationButton', () => {
     expect(screen.queryByText('back')).toBeNull();
   });
 
-  test('renders NavigationButtons component with back button if there is a previous page', () => {
+  test('renders NavigationButtons component with back button if there is a previous page', async () => {
     mockLayout.uiConfig.currentView = 'layout2';
     navButton2.showBackButton = true;
-    render({
+    await render({
       component: {
         id: navButton2.id,
       },

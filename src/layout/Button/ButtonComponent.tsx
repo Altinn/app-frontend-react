@@ -1,10 +1,7 @@
 import React from 'react';
 
-import { FormDataActions } from 'src/features/formData/formDataSlice';
-import { ProcessActions } from 'src/features/process/processSlice';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useCanSubmitForm } from 'src/hooks/useCanSubmitForm';
+import { useLaxProcessData } from 'src/features/instance/ProcessContext';
+import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { getComponentFromMode } from 'src/layout/Button/getComponentFromMode';
 import { SubmitButton } from 'src/layout/Button/SubmitButton';
@@ -18,22 +15,16 @@ export type IButtonProvidedProps =
   | (PropsFromGenericComponent<'InstantiationButton'> & CompInternal<'InstantiationButton'>);
 
 export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProps) => {
-  const { id, mode } = node.item;
-  const { lang } = useLanguage();
+  const { mode } = node.item;
+  const { lang, langAsString } = useLanguage();
   const props: IButtonProvidedProps = { ...componentProps, ...node.item, node };
 
-  const dispatch = useAppDispatch();
-  const currentTaskType = useAppSelector((state) => state.instanceData.instance?.process?.currentTask?.altinnTaskType);
-  const processActionsFeature = useAppSelector(
-    (state) => state.applicationMetadata.applicationMetadata?.features?.processActions,
-  );
-  const { actions, write } = useAppSelector((state) => state.process);
-  const { canSubmit, busyWithId, message } = useCanSubmitForm();
+  const currentTaskType = useLaxProcessData()?.currentTask?.altinnTaskType;
+  const { actions, write } = useLaxProcessData()?.currentTask || {};
+  const { next, canSubmit, busyWithId, attachmentsPending } = useProcessNavigation() || {};
 
   const disabled =
-    !canSubmit ||
-    (processActionsFeature &&
-      ((currentTaskType === 'data' && !write) || (currentTaskType === 'confirmation' && !actions?.confirm)));
+    !canSubmit || (currentTaskType === 'data' && !write) || (currentTaskType === 'confirmation' && !actions?.confirm);
 
   const parentIsPage = node.parent instanceof LayoutPage;
 
@@ -51,24 +42,22 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
   }
 
   const submitTask = () => {
-    if (!disabled) {
+    if (!disabled && next) {
       if (currentTaskType === 'data') {
-        dispatch(FormDataActions.submit({ componentId: id }));
-      } else if (currentTaskType === 'confirmation' && processActionsFeature) {
-        dispatch(ProcessActions.complete({ componentId: id, action: 'confirm' }));
-      } else {
-        dispatch(ProcessActions.complete({ componentId: id }));
+        next({ nodeId: node.item.id });
+      } else if (currentTaskType === 'confirmation') {
+        next({ nodeId: node.item.id, action: 'confirm' });
       }
     }
   };
   return (
     <div style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}>
       <SubmitButton
+        nodeId={node.item.id}
         onClick={() => submitTask()}
-        id={id}
         busyWithId={busyWithId}
         disabled={disabled}
-        message={message}
+        message={attachmentsPending ? langAsString('general.wait_for_attachments') : undefined}
       >
         {lang(node.item.textResourceBindings?.title)}
       </SubmitButton>

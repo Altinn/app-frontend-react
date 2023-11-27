@@ -7,8 +7,8 @@ import classNames from 'classnames';
 import { Description } from 'src/components/form/Description';
 import { Label } from 'src/components/form/Label';
 import { Legend } from 'src/components/form/Legend';
-import { FD } from 'src/features/formData2/Compatibility';
-import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -110,9 +110,10 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
   const GetFocusSelector = makeGetFocus();
   const hasValidationMessages = node.hasValidationMessages('any');
   const hidden = node.isHidden();
-  const { lang, langAsString } = useLanguage();
+  const { lang, langAsString } = useLanguage(node);
 
-  const formData = FD.useBindings(node.item.dataModelBindings as IDataModelBindings | undefined, 'current');
+  const formData = node.getFormData() as IComponentFormData<Type>;
+  //const formData = FD.useBindings(node.item.dataModelBindings as IDataModelBindings | undefined, 'current');
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
   const isValid = !node.hasValidationMessages('errors');
 
@@ -145,8 +146,9 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
       grid: item.grid,
       id,
       baseComponentId: item.baseComponentId,
+      node,
     }),
-    [item.baseComponentId, item.grid, id],
+    [item.baseComponentId, item.grid, id, node],
   );
 
   React.useLayoutEffect(() => {
@@ -168,7 +170,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     return null;
   }
 
-  const handleDataChange: IComponentProps['handleDataChange'] = (value, options = {}) => {
+  const handleDataChange: IComponentProps<Type>['handleDataChange'] = (value, options = {}) => {
     const {
       key = 'simpleBinding',
       // validate = true,
@@ -265,7 +267,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     );
   };
 
-  const fixedComponentProps: IComponentProps = {
+  const fixedComponentProps: IComponentProps<Type> = {
     handleDataChange,
     formData: formData as IComponentFormData,
     isValid,

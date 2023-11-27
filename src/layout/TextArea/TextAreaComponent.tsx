@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { TextArea } from '@digdir/design-system-react';
+import { LegacyTextArea } from '@digdir/design-system-react';
 
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -13,16 +13,17 @@ export type ITextAreaProps = PropsFromGenericComponent<'TextArea'>;
 
 export function TextAreaComponent({ node, formData, isValid, handleDataChange, overrideDisplay }: ITextAreaProps) {
   const { lang, langAsString } = useLanguage();
-  const { id, readOnly, textResourceBindings, saveWhileTyping, autocomplete, maxLength } = node.item;
+  const { id, readOnly, textResourceBindings, dataModelBindings, saveWhileTyping, autocomplete, maxLength } = node.item;
   const suppliedValue = formData?.simpleBinding;
   const { value, setValue, saveValue, onPaste } = useDelayedSavedState(
     handleDataChange,
+    dataModelBindings?.simpleBinding,
     suppliedValue ?? '',
     saveWhileTyping,
   );
 
   return (
-    <TextArea
+    <LegacyTextArea
       id={id}
       onBlur={() => saveValue()}
       onChange={(e) => setValue(e.target.value)}

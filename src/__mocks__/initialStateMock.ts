@@ -1,27 +1,26 @@
-import { applicationMetadataMock } from 'src/__mocks__/applicationMetadataMock';
-import { applicationSettingsMock } from 'src/__mocks__/applicationSettingsMock';
+import { getApplicationMetadataMock } from 'src/__mocks__/applicationMetadataMock';
+import { getApplicationSettingsMock } from 'src/__mocks__/applicationSettingsMock';
 import { getFormDataStateMock } from 'src/__mocks__/formDataStateMock';
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
-import { getInstanceDataStateMock } from 'src/__mocks__/instanceDataStateMock';
+import { getInstanceDataMock, getProcessDataMock } from 'src/__mocks__/instanceDataStateMock';
 import { partyMock } from 'src/__mocks__/partyMock';
-import { getProcessStateMock } from 'src/__mocks__/processMock';
 import { getProfileStateMock } from 'src/__mocks__/profileStateMock';
 import { DevToolsTab } from 'src/features/devtools/data/types';
 import type { IRuntimeState } from 'src/types';
 
-export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRuntimeState {
+export function getInitialStateMock(custom?: Partial<IRuntimeState> | ((state: IRuntimeState) => void)): IRuntimeState {
   const initialState: IRuntimeState = {
     applicationMetadata: {
-      applicationMetadata: applicationMetadataMock,
+      applicationMetadata: getApplicationMetadataMock(),
       error: null,
     },
-    attachments: {
-      attachments: {},
+    customValidation: {
+      customValidation: null,
+      error: null,
     },
     devTools: {
       activeTab: DevToolsTab.General,
       isOpen: false,
-      hasBeenOpen: false,
       pdfPreview: false,
       hiddenComponents: 'hide',
       layoutInspector: {
@@ -43,7 +42,7 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
       schemas: {},
     },
     formDynamics: {
-      apis: null,
+      APIs: null,
       conditionalRendering: null,
       error: null,
       ruleConnection: null,
@@ -51,8 +50,6 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
     formLayout: getFormLayoutStateMock(),
     formRules: {
       error: null,
-      fetched: false,
-      fetching: false,
       model: [],
     },
     formValidations: {
@@ -63,16 +60,6 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
     footerLayout: {
       footerLayout: null,
       error: null,
-    },
-    instanceData: getInstanceDataStateMock(),
-    instantiation: {
-      error: null,
-      instanceId: null,
-      instantiating: false,
-    },
-    isLoading: {
-      dataTask: false,
-      stateless: null,
     },
     organisationMetaData: {
       allOrgs: {
@@ -95,27 +82,11 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
       parties: [partyMock],
       selectedParty: partyMock,
     },
-    pdf: {
-      readyForPrint: false,
-      pdfFormat: null,
-      method: null,
-      error: null,
-    },
-    process: getProcessStateMock(),
     profile: getProfileStateMock(),
-    queue: {
-      appTask: { error: null, isDone: null },
-      dataTask: { error: null, isDone: null },
-      infoTask: { error: null, isDone: null },
-      stateless: { error: null, isDone: null },
-      userTask: { error: null, isDone: null },
-    },
     textResources: {
-      resources: [
-        {
-          id: 'option.from.rep.group.label',
+      resourceMap: {
+        'option.from.rep.group.label': {
           value: 'The value from the group is: {0}',
-          unparsedValue: 'The value from the group is: {0}',
           variables: [
             {
               dataSource: 'dataModel.skjema',
@@ -123,10 +94,8 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
             },
           ],
         },
-        {
-          id: 'option.from.rep.group.description',
+        'option.from.rep.group.description': {
           value: 'Description: The value from the group is: {0}',
-          unparsedValue: 'Description: The value from the group is: {0}',
           variables: [
             {
               dataSource: 'dataModel.skjema',
@@ -134,10 +103,8 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
             },
           ],
         },
-        {
-          id: 'option.from.rep.group.helpText',
+        'option.from.rep.group.helpText': {
           value: 'Help Text: The value from the group is: {0}',
-          unparsedValue: 'Help Text: The value from the group is: {0}',
           variables: [
             {
               dataSource: 'dataModel.skjema',
@@ -145,10 +112,8 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
             },
           ],
         },
-        {
-          id: 'group.input.title',
+        'group.input.title': {
           value: 'The value from group is: {0}',
-          unparsedValue: 'The value from group is: {0}',
           variables: [
             {
               dataSource: 'dataModel.skjema',
@@ -156,10 +121,8 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
             },
           ],
         },
-        {
-          id: 'group.input.title-2',
+        'group.input.title-2': {
           value: 'The value from the group is: Value from input field [2]',
-          unparsedValue: 'The value from group is: {0}',
           variables: [
             {
               dataSource: 'dataModel.skjema',
@@ -167,35 +130,36 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
             },
           ],
         },
-        {
-          id: 'accordion.title',
+        'accordion.title': {
           value: 'This is a title',
         },
-      ],
+      },
       error: null,
       language: 'nb',
     },
     optionState: {
-      options: {},
       error: null,
-      loading: false,
     },
     dataListState: {
-      dataLists: {},
       error: null,
-      dataListCount: 0,
-      dataListLoadedCount: 0,
-      loading: false,
     },
     applicationSettings: {
-      applicationSettings: applicationSettingsMock,
+      applicationSettings: getApplicationSettingsMock(),
       error: null,
     },
-    appApi: {} as IRuntimeState['appApi'],
+    deprecated: {
+      lastKnownProcess: getProcessDataMock(),
+      lastKnownInstance: getInstanceDataMock(),
+    },
   };
+
+  if (custom && typeof custom === 'function') {
+    custom(initialState);
+    return initialState;
+  }
 
   return {
     ...initialState,
-    ...customStates,
+    ...custom,
   };
 }

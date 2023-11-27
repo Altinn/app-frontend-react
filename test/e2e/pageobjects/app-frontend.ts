@@ -13,6 +13,9 @@ export class AppFrontend {
 
     /** @see https://dev.altinn.studio/repos/ttd/signing-test */
     signingTest: 'signing-test',
+
+    /** @see https://dev.altinn.studio/repos/ttd/expression-validation-test */
+    expressionValidationTest: 'expression-validation-test',
   };
 
   //Start app instance page
@@ -36,9 +39,8 @@ export class AppFrontend {
   public printButton = 'button:contains("Print / Lagre PDF")';
 
   public helpText = {
-    open: 'button[aria-expanded=false]',
-    close: 'button[aria-expanded=true]',
-    alert: 'div[role="tooltip"]',
+    button: 'button[class^="fds-helptext"]',
+    alert: 'div[role="dialog"]',
   };
 
   public navMenu = '#navigation-menu';
@@ -145,6 +147,8 @@ export class AppFrontend {
     reference: '#reference',
     reference2: '#reference2',
     dateOfEffect: '#dateOfEffect',
+    municipalityMetadata: '#kommuner-metadata',
+    municipality: '#kommune',
     upload: '#fileUpload-changename',
     uploadWithTag: {
       uploadZone: '#fileUploadWithTags-changename',
@@ -159,7 +163,7 @@ export class AppFrontend {
     summaryNameChanges: '#nameChanges',
     mobilenummer: '#mobilnummer',
     sources: '#sources',
-    uploadingAnimation: '#loader-upload',
+    uploadingAnimation: '.loader',
     deleteAttachment: '[data-testid^="attachment-delete"]',
     popOverDeleteButton: '[data-testid="warning-popover-delete-button"]',
     popOverCancelButton: '[data-testid="warning-popover-cancel-button"]',
@@ -230,6 +234,7 @@ export class AppFrontend {
           comments: `#comments-${idx}-${subIdx}`,
           uploadTagMulti: makeUploaderSelectors('subUploader', `${idx}-${subIdx}`, 2, 'tagged'),
           nestedDynamics: `#nestedDynamics-${idx}-${subIdx} input[type=checkbox]`,
+          nestedSource: `#nested-source-${idx}-${subIdx}`,
           nestedOptions: [
             `#nestedOptions-${idx}-${subIdx} input[type=checkbox]:nth(0)`,
             `#nestedOptions-${idx}-${subIdx} input[type=checkbox]:nth(1)`,
@@ -280,6 +285,13 @@ export class AppFrontend {
     auditorConfirmPanel: '#form-content-Panel-confirm2',
     sentToAuditor: '#form-content-Header-noaccess',
     noAccessPanel: '#form-content-Panel-noaccess',
+  };
+
+  public expressionValidationTest = {
+    kjønn: '#kjonn',
+    bosted: '#bosted',
+    groupTag: 'input[id^=attachment-tag]',
+    uploaders: '[id^=Vedlegg-]',
   };
 }
 

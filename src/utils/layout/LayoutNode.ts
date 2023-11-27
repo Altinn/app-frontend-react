@@ -1,5 +1,8 @@
+import dot from 'dot-object';
+
 import { getLayoutComponentObject } from 'src/layout';
-import { DataBinding } from 'src/utils/databindings/DataBinding';
+import { convertDataBindingToModel } from 'src/utils/databindings';
+import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { runValidationOnNodes } from 'src/utils/validation/validation';
 import type { CompClassMap } from 'src/layout';
@@ -20,8 +23,8 @@ import type { LayoutObject } from 'src/utils/layout/LayoutObject';
 import type {
   IComponentBindingValidation,
   IComponentValidations,
-  IValidationContext,
   IValidationObject,
+  ValidationContextGenerator,
   ValidationKeyOrAny,
 } from 'src/utils/validation/types';
 import type { IValidationOptions } from 'src/utils/validation/validation';
@@ -253,34 +256,13 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
       return dataModel;
     }
 
-    const ourBinding = new DataBinding(firstBinding);
-    const theirBinding = new DataBinding(dataModel);
-    const lastIdx = ourBinding.parts.length - 1;
-
-    for (const ours of ourBinding.parts) {
-      const theirs = theirBinding.at(ours.parentIndex);
-
-      if (ours.base !== theirs?.base) {
-        break;
-      }
-
-      const arrayIndex =
-        ours.parentIndex === lastIdx && this.isType('Group') && this.isRepGroup() ? rowIndex : ours.arrayIndex;
-
-      if (arrayIndex === undefined) {
-        continue;
-      }
-
-      if (theirs.hasArrayIndex()) {
-        // Stop early. We cannot add our row index here, because it makes no sense when an earlier group
-        // index changed.we cannot possibly
-        break;
-      }
-
-      theirs.arrayIndex = arrayIndex;
-    }
-
-    return theirBinding.toString();
+    const currentLocationIsRepGroup = this.isType('Group') && this.isRepGroup();
+    return transposeDataBinding({
+      subject: dataModel,
+      currentLocation: firstBinding,
+      rowIndex,
+      currentLocationIsRepGroup,
+    });
   }
 
   /**
@@ -373,22 +355,20 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
   /**
    * Gets the current form data for this component
    */
-  public getFormData(): IComponentFormData {
+  public getFormData(): IComponentFormData<Type> {
     if (!('dataModelBindings' in this.item) || !this.item.dataModelBindings) {
-      return {};
+      return {} as IComponentFormData<Type>;
     }
 
-    const formDataObj: IComponentFormData = {};
+    const fullFormData = convertDataBindingToModel(this.dataSources.formData);
+    const formDataObj: { [key: string]: any } = {};
     for (const key of Object.keys(this.item.dataModelBindings)) {
       const binding = this.item.dataModelBindings[key];
-      if (this.dataSources.formData[binding]) {
-        formDataObj[key] = this.dataSources.formData[binding];
-      } else {
-        formDataObj[key] = '';
-      }
+      const data = dot.pick(binding, fullFormData);
+      formDataObj[key] = data ?? '';
     }
 
-    return formDataObj;
+    return formDataObj as IComponentFormData<Type>;
   }
 
   public getRowIndices(): number[] {
@@ -405,11 +385,18 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
     return rowIndices;
   }
 
+  public getDataSources(): HierarchyDataSources {
+    return this.dataSources;
+  }
+
   /**
    * Runs frontend validations for this node and returns an array of IValidationObject
    */
-  runValidations(validationContext: IValidationContext, options?: IValidationOptions): IValidationObject[] {
-    return runValidationOnNodes([this as LayoutNode], validationContext, options);
+  runValidations(
+    validationCtxGenerator: ValidationContextGenerator,
+    options?: IValidationOptions,
+  ): IValidationObject[] {
+    return runValidationOnNodes([this as LayoutNode], validationCtxGenerator, options);
   }
 }
 

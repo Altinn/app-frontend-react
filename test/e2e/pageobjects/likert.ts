@@ -20,6 +20,14 @@ export class Likert {
     });
   }
 
+  selectOptionalRadios() {
+    cy.findByRole('table', { name: this.optionalTableTitle }).within(() => {
+      this.optionalQuestions.forEach((question, index) => {
+        this.selectRadio(question, this.options[index]);
+      });
+    });
+  }
+
   selectRequiredRadiosInMobile() {
     this.requiredQuestions.forEach((question, index) => {
       this.selectRadioInMobile(`${question} *`, this.options[index]);
@@ -33,7 +41,7 @@ export class Likert {
   }
 
   selectRadioInMobile(question, option) {
-    cy.findByRole('group', { name: question }).within(() => {
+    cy.findByRole('radiogroup', { name: question }).within(() => {
       cy.findByRole('radio', { name: new RegExp(option) }).dsCheck();
     });
   }

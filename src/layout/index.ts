@@ -1,20 +1,27 @@
 import { createContext, useMemo } from 'react';
 
 import { FD } from 'src/features/formData2/Compatibility';
+import { useAttachments } from 'src/features/attachments/AttachmentsContext';
+import { useAllOptions } from 'src/features/options/useAllOptions';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { type IUseLanguage, staticUseLanguageFromState } from 'src/hooks/useLanguage';
+import { type IUseLanguage, useLanguage } from 'src/hooks/useLanguage';
 import { ComponentConfigs } from 'src/layout/components.generated';
 import type { IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
+import type { AllOptionsMap } from 'src/features/options/useAllOptions';
 import type { IGrid } from 'src/layout/common.generated';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { CompInternal, CompRendersLabel, CompTypes } from 'src/layout/layout';
 import type { AnyComponent, LayoutComponent } from 'src/layout/LayoutComponent';
-import type { IOptions, IRuntimeState, IUiConfig } from 'src/types';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ISchemaValidationError } from 'src/utils/validation/schemaValidation';
-import type { IComponentValidations, IValidationContext, IValidationObject } from 'src/utils/validation/types';
+import type {
+  IComponentValidations,
+  IValidationContext,
+  IValidationObject,
+  ValidationContextGenerator,
+} from 'src/utils/validation/types';
 
 export type CompClassMap = {
   [K in keyof typeof ComponentConfigs]: (typeof ComponentConfigs)[K]['def'];
@@ -37,7 +44,7 @@ const _componentsTypeCheck: {
   ...ComponentConfigs,
 };
 
-export interface IComponentProps {
+export interface IComponentProps<T extends CompTypes> {
   handleDataChange: (
     value: string | undefined,
     options?: {
@@ -48,12 +55,12 @@ export interface IComponentProps {
   shouldFocus: boolean;
   label: () => JSX.Element | null;
   legend: () => JSX.Element | null;
-  formData: IComponentFormData;
+  formData: IComponentFormData<T>;
   isValid?: boolean;
   componentValidations?: IComponentValidations;
 }
 
-export interface PropsFromGenericComponent<T extends CompTypes = CompTypes> extends IComponentProps {
+export interface PropsFromGenericComponent<T extends CompTypes = CompTypes> extends IComponentProps<T> {
   node: LayoutNode<T>;
   overrideItemProps?: Partial<Omit<CompInternal<T>, 'id'>>;
   overrideDisplay?: IGenericComponentProps<T>['overrideDisplay'];
@@ -63,12 +70,14 @@ export interface IFormComponentContext {
   grid?: IGrid;
   id?: string;
   baseComponentId?: string;
+  node?: LayoutNode;
 }
 
 export const FormComponentContext = createContext<IFormComponentContext>({
   grid: undefined,
   id: undefined,
   baseComponentId: undefined,
+  node: undefined,
 });
 
 export function getLayoutComponentObject<T extends keyof CompClassMap>(type: T): CompClassMap[T] {
@@ -133,7 +142,7 @@ export function implementsSchemaValidation<Type extends CompTypes>(
 export interface GroupValidation {
   runGroupValidations: (
     node: LayoutNode,
-    validationContext: IValidationContext,
+    validationCtxGenerator: ValidationContextGenerator,
     onlyInRowIndex?: number,
   ) => IValidationObject[];
 }
@@ -147,8 +156,7 @@ export function implementsGroupValidation<Type extends CompTypes>(
 export interface DisplayDataProps {
   formData: IFormData;
   attachments: IAttachments;
-  options: IOptions;
-  uiConfig: IUiConfig;
+  options: AllOptionsMap;
   langTools: IUseLanguage;
 }
 
@@ -163,17 +171,11 @@ export function implementsDisplayData<Type extends CompTypes>(
   return 'getDisplayData' in component && 'useDisplayData' in component;
 }
 
-function getDisplayDataPropsFromState(state: IRuntimeState): Omit<DisplayDataProps, 'formData'> {
-  return {
-    attachments: state.attachments.attachments,
-    options: state.optionState.options,
-    uiConfig: state.formLayout.uiConfig,
-    langTools: staticUseLanguageFromState(state),
-  };
-}
-
 export function useDisplayDataProps(): DisplayDataProps {
-  const tmp = useAppSelector(getDisplayDataPropsFromState);
   const formData = FD.useAsDotMap();
-  return useMemo(() => ({ ...tmp, formData }), [tmp, formData]);
+  const langTools = useLanguage();
+  const options = useAllOptions();
+  const attachments = useAttachments();
+
+  return useMemo(() => ({ options, attachments, langTools, formData }), [attachments, langTools, options, formData]);
 }

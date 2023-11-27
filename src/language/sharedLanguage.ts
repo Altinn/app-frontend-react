@@ -9,7 +9,7 @@ import type { DOMNode, Element, HTMLReactParserOptions } from 'html-react-parser
 
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type { IAltinnOrgs, IApplication, IDataSources, ITextResource } from 'src/types/shared';
+import type { IAltinnOrgs } from 'src/types/shared';
 
 marked.use(mangle());
 
@@ -40,7 +40,7 @@ export const getParsedLanguageFromText = (
   },
   inline = true,
 ) => {
-  const dirty = marked.parse(text || '', { headerIds: false });
+  const dirty = marked.parse(text || '');
   const actualOptions: DOMPurify.Config = {};
   if (purifyOptions?.allowedTags) {
     actualOptions.ALLOWED_TAGS = purifyOptions.allowedTags;
@@ -75,22 +75,46 @@ function isElement(node: DOMNode): node is Element {
 
 function replaceElements(domNode: DOMNode, parserOptions: HTMLReactParserOptions) {
   if (isElement(domNode) && domNode.name === 'h1') {
-    return React.createElement(Heading, { level: 1, size: 'large' }, domToReact(domNode.children, parserOptions));
+    return React.createElement(
+      Heading,
+      { level: 1, size: 'large' },
+      domToReact(domNode.children as DOMNode[], parserOptions),
+    );
   }
   if (isElement(domNode) && domNode.name === 'h2') {
-    return React.createElement(Heading, { level: 2, size: 'medium' }, domToReact(domNode.children, parserOptions));
+    return React.createElement(
+      Heading,
+      { level: 2, size: 'medium' },
+      domToReact(domNode.children as DOMNode[], parserOptions),
+    );
   }
   if (isElement(domNode) && domNode.name === 'h3') {
-    return React.createElement(Heading, { level: 3, size: 'small' }, domToReact(domNode.children, parserOptions));
+    return React.createElement(
+      Heading,
+      { level: 3, size: 'small' },
+      domToReact(domNode.children as DOMNode[], parserOptions),
+    );
   }
   if (isElement(domNode) && domNode.name === 'h4') {
-    return React.createElement(Heading, { level: 4, size: 'xsmall' }, domToReact(domNode.children, parserOptions));
+    return React.createElement(
+      Heading,
+      { level: 4, size: 'xsmall' },
+      domToReact(domNode.children as DOMNode[], parserOptions),
+    );
   }
   if (isElement(domNode) && domNode.name === 'h5') {
-    return React.createElement(Heading, { level: 5, size: 'xsmall' }, domToReact(domNode.children, parserOptions));
+    return React.createElement(
+      Heading,
+      { level: 5, size: 'xsmall' },
+      domToReact(domNode.children as DOMNode[], parserOptions),
+    );
   }
   if (isElement(domNode) && domNode.name === 'h6') {
-    return React.createElement(Heading, { level: 6, size: 'xsmall' }, domToReact(domNode.children, parserOptions));
+    return React.createElement(
+      Heading,
+      { level: 6, size: 'xsmall' },
+      domToReact(domNode.children as DOMNode[], parserOptions),
+    );
   }
 }
 
@@ -102,107 +126,6 @@ const replaceRootTag = (domNode: DOMNode) => {
     domNode.name = 'span';
   }
 };
-
-export type LangParams = (string | undefined | number)[];
-export const replaceParameters = (nameString: string | undefined, params: LangParams) => {
-  if (nameString === undefined) {
-    return nameString;
-  }
-  let mutatingString = nameString;
-  params.forEach((param, index: number) => {
-    if (param !== undefined) {
-      mutatingString = mutatingString.replaceAll(`{${index}}`, `${param}`);
-    }
-  });
-  return mutatingString;
-};
-
-/**
- * Replaces all variables in text resources with values from relevant source.
- * @param textResources the original text resources
- * @param dataSources the data sources
- * @param repeatingGroups the repeating groups
- * @returns a new array with replaced values.
- */
-export function replaceTextResourceParams(
-  textResources: ITextResource[],
-  dataSources: IDataSources,
-  repeatingGroups?: any,
-): ITextResource[] {
-  const repeatingGroupResources: ITextResource[] = [];
-  const mappedResources = textResources.map((textResource) => {
-    const textResourceCopy = { ...textResource };
-    if (textResourceCopy.variables) {
-      const variableForRepeatingGroup = textResourceCopy.variables.find(
-        (variable) => variable.key.indexOf('[{0}]') > -1,
-      );
-      if (repeatingGroups && variableForRepeatingGroup) {
-        const repeatingGroupId = Object.keys(repeatingGroups).find((groupId) => {
-          const id = variableForRepeatingGroup.key.split('[{0}]')[0];
-          return repeatingGroups[groupId].dataModelBinding === id;
-        });
-        const repeatingGroupIndex = repeatingGroupId !== undefined && repeatingGroups[repeatingGroupId]?.index;
-
-        for (let i = 0; i <= repeatingGroupIndex; ++i) {
-          const replaceValues: string[] = [];
-          textResourceCopy.variables.forEach((variable) => {
-            if (variable.dataSource.startsWith('dataModel')) {
-              if (variable.key.indexOf('[{0}]') > -1) {
-                const keyWithIndex = variable.key.replace('{0}', `${i}`);
-                replaceValues.push((dataSources.dataModel && dataSources.dataModel[keyWithIndex]) || '');
-              } else {
-                replaceValues.push((dataSources.dataModel && dataSources.dataModel[variable.key]) || '');
-              }
-            }
-          });
-          const newValue = replaceParameters(textResourceCopy.unparsedValue, replaceValues);
-
-          if (!newValue) {
-            continue;
-          }
-
-          if (textResourceCopy.repeating && textResourceCopy.id.endsWith(`-${i}`)) {
-            textResourceCopy.value = newValue;
-          } else if (
-            !textResourceCopy.repeating &&
-            textResources.findIndex((r) => r.id === `${textResourceCopy.id}-${i}`) === -1
-          ) {
-            const newId = `${textResourceCopy.id}-${i}`;
-            repeatingGroupResources.push({
-              ...textResourceCopy,
-              id: newId,
-              value: newValue,
-              repeating: true,
-            });
-          }
-        }
-      } else {
-        const replaceValues: string[] = [];
-        textResourceCopy.variables.forEach((variable) => {
-          if (variable.dataSource.startsWith('dataModel')) {
-            replaceValues.push((dataSources.dataModel && dataSources.dataModel[variable.key]) || variable.key);
-          } else if (variable.dataSource === 'applicationSettings') {
-            replaceValues.push(
-              (dataSources.applicationSettings && dataSources.applicationSettings[variable.key]) || variable.key,
-            );
-          } else if (variable.dataSource === 'instanceContext') {
-            replaceValues.push(
-              (dataSources.instanceContext && dataSources.instanceContext[variable.key]) || variable.key,
-            );
-          }
-        });
-
-        const newValue = replaceParameters(textResourceCopy.unparsedValue, replaceValues);
-        if (newValue && textResourceCopy.value !== newValue) {
-          textResourceCopy.value = newValue;
-        }
-      }
-    }
-    return textResourceCopy;
-  });
-
-  return mappedResources.concat(repeatingGroupResources);
-}
 
 export function getOrgName(
   orgs: IAltinnOrgs | null,
@@ -245,7 +168,7 @@ export function getAppReceiver(
 const appNameKey = 'appName';
 const oldAppNameKey = 'ServiceName';
 
-export function getAppName(applicationMetadata: IApplication | null, langTools: IUseLanguage) {
+export function getAppName(applicationMetadata: IApplicationMetadata | null, langTools: IUseLanguage) {
   let appName = langTools.langAsString(appNameKey);
   if (appName === appNameKey) {
     appName = langTools.langAsString(oldAppNameKey);

@@ -3,17 +3,19 @@ import dot from 'dot-object';
 import { getHierarchyDataSourcesMock } from 'src/__mocks__/hierarchyMock';
 import { evalExpr } from 'src/features/expressions';
 import { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
-import { convertLayouts, getSharedTests } from 'src/features/expressions/shared';
+import { convertInstanceDataToAttachments, convertLayouts, getSharedTests } from 'src/features/expressions/shared';
 import { asExpression } from 'src/features/expressions/validation';
+import { resourcesAsMap } from 'src/features/textResources/resourcesAsMap';
 import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
 import { getLayoutComponentObject } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
 import { getRepeatingGroups, splitDashedKey } from 'src/utils/formLayout';
-import { buildInstanceContext } from 'src/utils/instanceContext';
+import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import { _private } from 'src/utils/layout/hierarchy';
 import { generateEntireHierarchy, generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { FunctionTest, SharedTestContext, SharedTestContextList } from 'src/features/expressions/shared';
 import type { Expression } from 'src/features/expressions/types';
+import type { AllOptionsMap } from 'src/features/options/useAllOptions';
 import type { HierarchyDataSources } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
 import type { IApplicationSettings } from 'src/types/shared';
@@ -60,7 +62,7 @@ describe('Expressions shared function tests', () => {
         context,
         layouts,
         dataModel,
-        attachments,
+        instanceDataElements,
         instance,
         permissions,
         frontendSettings,
@@ -72,17 +74,19 @@ describe('Expressions shared function tests', () => {
           return;
         }
 
+        const options: AllOptionsMap = {};
         const dataSources: HierarchyDataSources = {
           ...getHierarchyDataSourcesMock(),
           formData: dataModel ? dot.dot(dataModel) : {},
-          attachments: attachments ?? {},
-          instanceContext: buildInstanceContext(instance),
+          attachments: convertInstanceDataToAttachments(instanceDataElements),
+          instanceDataSources: buildInstanceDataSources(instance),
           applicationSettings: frontendSettings || ({} as IApplicationSettings),
           authContext: buildAuthContext(permissions),
           langTools: staticUseLanguageForTests({
-            textResources: textResources || [],
+            textResources: textResources ? resourcesAsMap(textResources) : {},
             profileLanguage: profileSettings?.language,
           }),
+          options,
         };
 
         const _layouts = convertLayouts(layouts);
@@ -99,6 +103,14 @@ describe('Expressions shared function tests', () => {
           ? generateEntireHierarchy(_layouts, currentLayout, repeatingGroups, dataSources, getLayoutComponentObject)
           : resolvedNodesInLayouts(_layouts, currentLayout, repeatingGroups, dataSources);
         const component = findComponent(context, rootCollection);
+
+        for (const node of rootCollection.allNodes()) {
+          if ('options' in node.item) {
+            // Extremely simple mock of useGetOptions() and useAllOptions(), assuming
+            // all components use plain static options
+            options[node.item.id] = node.item.options;
+          }
+        }
 
         if (expectsFailure) {
           expect(() => {
@@ -168,12 +180,12 @@ describe('Expressions shared context tests', () => {
   describe.each(sharedTests.content)('$folderName', (folder) => {
     it.each(folder.content)(
       '$name',
-      ({ layouts, dataModel, attachments, instance, frontendSettings, permissions, expectedContexts }) => {
+      ({ layouts, dataModel, instanceDataElements, instance, frontendSettings, permissions, expectedContexts }) => {
         const dataSources: HierarchyDataSources = {
           ...getHierarchyDataSourcesMock(),
           formData: dataModel ? dot.dot(dataModel) : {},
-          attachments: attachments ?? {},
-          instanceContext: buildInstanceContext(instance),
+          attachments: convertInstanceDataToAttachments(instanceDataElements),
+          instanceDataSources: buildInstanceDataSources(instance),
           applicationSettings: frontendSettings || ({} as IApplicationSettings),
           authContext: buildAuthContext(permissions),
         };

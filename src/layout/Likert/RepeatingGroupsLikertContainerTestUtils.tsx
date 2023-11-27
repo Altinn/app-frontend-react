@@ -2,23 +2,24 @@ import React from 'react';
 
 import { screen, within } from '@testing-library/react';
 import type { PayloadAction } from '@reduxjs/toolkit';
+import type { AxiosResponse } from 'axios';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { resourcesAsMap } from 'src/features/textResources/resourcesAsMap';
 import { RepeatingGroupsLikertContainer } from 'src/layout/Likert/RepeatingGroupsLikertContainer';
-import { setupStore } from 'src/redux/store';
-import { mockMediaQuery, renderWithProviders } from 'src/testUtils';
+import { mockMediaQuery } from 'src/test/mockMediaQuery';
+import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
+import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { IFormDataState } from 'src/features/formData';
-import type { IUpdateFormData } from 'src/features/formData/formDataTypes';
-import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
-import type { ITextResourcesState } from 'src/features/textResources';
+import type { IUpdateFormDataSimple } from 'src/features/formData/formDataTypes';
+import type { IRawTextResource, ITextResourcesState } from 'src/features/textResources';
 import type { IValidationState } from 'src/features/validation/validationSlice';
 import type { IOption } from 'src/layout/common.generated';
 import type { CompGroupExternal, CompGroupRepeatingLikertExternal } from 'src/layout/Group/config.generated';
 import type { CompOrGroupExternal } from 'src/layout/layout';
 import type { CompLikertExternal } from 'src/layout/Likert/config.generated';
-import type { ITextResource } from 'src/types';
 import type { ILayoutValidations } from 'src/utils/validation/types';
 
 export const defaultMockQuestions = [
@@ -41,7 +42,7 @@ export const generateMockFormData = (likertQuestions: IQuestion[]): Record<strin
     {},
   );
 
-export const defaultMockOptions = [
+export const defaultMockOptions: IOption[] = [
   {
     label: 'Bra',
     value: '1',
@@ -97,7 +98,10 @@ const createRadioButton = (props: Partial<CompLikertExternal> | undefined): Comp
   ...props,
 });
 
-export const createFormDataUpdateAction = (index: number, optionValue: string): PayloadAction<IUpdateFormData> => ({
+export const createFormDataUpdateAction = (
+  index: number,
+  optionValue: string,
+): PayloadAction<IUpdateFormDataSimple> => ({
   payload: {
     componentId: `field1-${index}`,
     data: optionValue,
@@ -117,6 +121,7 @@ const createLayout = (
   layouts: {
     FormLayout: [container, ...components],
   },
+  layoutSetId: null,
   uiConfig: {
     hiddenFields: [],
     repeatingGroups: {
@@ -127,9 +132,7 @@ const createLayout = (
     },
     currentView: 'FormLayout',
     focus: null,
-    fileUploadersWithTag: {},
-    navigationConfig: {},
-    tracks: {
+    pageOrderConfig: {
       order: null,
       hidden: [],
       hiddenExpr: {},
@@ -155,8 +158,8 @@ const createFormValidationsForCurrentView = (validations: ILayoutValidations = {
   validations: { FormLayout: validations },
 });
 
-const createTextResource = (questions: IQuestion[], extraResources: ITextResource[]): ITextResourcesState => ({
-  resources: [
+const createTextResource = (questions: IQuestion[], extraResources: IRawTextResource[]): ITextResourcesState => ({
+  resourceMap: resourcesAsMap([
     {
       id: 'likert-questions',
       value: '{0}',
@@ -172,7 +175,7 @@ const createTextResource = (questions: IQuestion[], extraResources: ITextResourc
       value: question.Question,
     })),
     ...extraResources,
-  ],
+  ]),
   language: 'nb',
   error: null,
 });
@@ -190,11 +193,11 @@ interface IRenderProps {
   mockOptions: IOption[];
   radioButtonProps: Partial<CompLikertExternal>;
   likertContainerProps: Partial<CompGroupRepeatingLikertExternal>;
-  extraTextResources: ITextResource[];
+  extraTextResources: IRawTextResource[];
   validations: ILayoutValidations;
 }
 
-export const render = ({
+export const render = async ({
   mobileView = false,
   mockQuestions = defaultMockQuestions,
   mockOptions = defaultMockOptions,
@@ -210,38 +213,28 @@ export const render = ({
     formData: generateMockFormData(mockQuestions),
     lastSavedFormData: {},
     error: null,
-    submittingId: '',
+    submittingState: 'inactive',
     unsavedChanges: false,
     saving: false,
   };
 
-  const preloadedState = getInitialStateMock({
+  const reduxState = getInitialStateMock({
     formLayout: createLayout(mockLikertContainer, components, mockQuestions.length - 1),
     formData: mockData,
     formValidations: createFormValidationsForCurrentView(validations),
     textResources: createTextResource(mockQuestions, extraTextResources),
-    optionState: {
-      options: {
-        'option-test': {
-          id: 'option-test',
-          options: mockOptions,
-          loading: false,
-        },
-      },
-      error: null,
-      loading: false,
+  });
+
+  setScreenWidth(mobileView ? 600 : 1200);
+  const { store } = await renderWithInstanceAndLayout({
+    renderer: () => <ContainerTester id={mockLikertContainer.id} />,
+    reduxState,
+    queries: {
+      fetchOptions: () => Promise.resolve({ data: mockOptions, headers: {} } as AxiosResponse<IOption[], any>),
     },
   });
 
-  const mockStore = setupStore(preloadedState).store;
-  const mockStoreDispatch = jest.fn();
-  mockStore.dispatch = mockStoreDispatch;
-  setScreenWidth(mobileView ? 600 : 1200);
-  renderWithProviders(<ContainerTester id={mockLikertContainer.id} />, {
-    store: mockStore,
-  });
-
-  return { mockStoreDispatch };
+  return { mockStoreDispatch: store.dispatch };
 };
 
 export function ContainerTester(props: { id: string }) {
@@ -253,36 +246,31 @@ export function ContainerTester(props: { id: string }) {
   return <RepeatingGroupsLikertContainer node={node} />;
 }
 
-export const validateTableLayout = (questions: IQuestion[], options: IOption[]) => {
+export const validateTableLayout = async (questions: IQuestion[], options: IOption[]) => {
   screen.getByRole('table');
 
   for (const option of defaultMockOptions) {
-    const columnHeader = screen.getByRole('columnheader', {
+    const columnHeader = await screen.findByRole('columnheader', {
       name: new RegExp(option.label),
     });
     expect(columnHeader).toBeInTheDocument();
   }
 
-  validateRadioLayout(questions, options);
+  await validateRadioLayout(questions, options);
 };
 
-export const validateRadioLayout = (questions: IQuestion[], options: IOption[], mobileView = false) => {
+export const validateRadioLayout = async (questions: IQuestion[], options: IOption[], mobileView = false) => {
   if (mobileView) {
-    expect(screen.getAllByRole('radiogroup')).toHaveLength(questions.length);
+    const radioGroups = await screen.findAllByRole('radiogroup');
+    expect(radioGroups).toHaveLength(questions.length);
   } else {
-    expect(screen.getAllByRole('row')).toHaveLength(questions.length + 1);
+    expect(await screen.findAllByRole('row')).toHaveLength(questions.length + 1);
   }
 
   for (const question of questions) {
-    const row = mobileView
-      ? within(
-          screen.getByRole('group', {
-            name: question.Question,
-          }),
-        ).getByRole('radiogroup')
-      : screen.getByRole('row', {
-          name: question.Question,
-        });
+    const row = await screen.findByRole(mobileView ? 'radiogroup' : 'row', {
+      name: question.Question,
+    });
 
     for (const option of options) {
       // Ideally we should use `getByRole` selector here, but the tests that use this function

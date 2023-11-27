@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { TextField } from '@digdir/design-system-react';
+import { LegacyTextField } from '@digdir/design-system-react';
 import axios from 'axios';
 
 import { Label } from 'src/components/form/Label';
@@ -37,6 +37,8 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
   const { id, required, readOnly, labelSettings, simplified, saveWhileTyping } = node.item;
   const { lang, langAsString } = useLanguage();
 
+  const bindings = 'dataModelBindings' in node.item ? node.item.dataModelBindings || {} : {};
+
   const handleDataChangeOverride =
     (key: AddressKeys): IAddressComponentProps['handleDataChange'] =>
     (value) =>
@@ -46,14 +48,25 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
     value: address,
     setValue: setAddress,
     onPaste: onAddressPaste,
-  } = useDelayedSavedState(handleDataChangeOverride(AddressKeys.address), formData.address || '', saveWhileTyping);
+  } = useDelayedSavedState(
+    handleDataChangeOverride(AddressKeys.address),
+    bindings.address,
+    formData.address || '',
+    saveWhileTyping,
+  );
   const {
     value: zipCode,
     setValue: setZipCode,
     onPaste: onZipCodePaste,
-  } = useDelayedSavedState(handleDataChangeOverride(AddressKeys.zipCode), formData.zipCode || '', saveWhileTyping);
+  } = useDelayedSavedState(
+    handleDataChangeOverride(AddressKeys.zipCode),
+    bindings.zipCode,
+    formData.zipCode || '',
+    saveWhileTyping,
+  );
   const { value: postPlace, setValue: setPostPlace } = useDelayedSavedState(
     handleDataChangeOverride(AddressKeys.postPlace),
+    bindings.postPlace,
     formData.postPlace || '',
     saveWhileTyping,
   );
@@ -61,13 +74,19 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
     value: careOf,
     setValue: setCareOf,
     onPaste: onCareOfPaste,
-  } = useDelayedSavedState(handleDataChangeOverride(AddressKeys.careOf), formData.careOf || '', saveWhileTyping);
+  } = useDelayedSavedState(
+    handleDataChangeOverride(AddressKeys.careOf),
+    bindings.careOf,
+    formData.careOf || '',
+    saveWhileTyping,
+  );
   const {
     value: houseNumber,
     setValue: setHouseNumber,
     onPaste: onHouseNumberPaste,
   } = useDelayedSavedState(
     handleDataChangeOverride(AddressKeys.houseNumber),
+    bindings.houseNumber,
     formData.houseNumber || '',
     saveWhileTyping,
   );
@@ -243,7 +262,7 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
           readOnly={readOnly}
           labelSettings={labelSettings}
         />
-        <TextField
+        <LegacyTextField
           id={`address_address_${id}`}
           isValid={allValidations.address?.errors?.length === 0}
           value={address}
@@ -269,7 +288,7 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
             readOnly={readOnly}
             labelSettings={labelSettings}
           />
-          <TextField
+          <LegacyTextField
             id={`address_care_of_${id}`}
             isValid={allValidations.careOf?.errors?.length === 0}
             value={careOf}
@@ -296,7 +315,7 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
             labelSettings={labelSettings}
           />
           <div className={classes.addressComponentSmallInputs}>
-            <TextField
+            <LegacyTextField
               id={`address_zip_code_${id}`}
               isValid={allValidations.zipCode?.errors?.length === 0}
               value={zipCode}
@@ -323,7 +342,7 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
             readOnly={true}
             labelSettings={labelSettings}
           />
-          <TextField
+          <LegacyTextField
             id={`address_post_place_${id}`}
             isValid={allValidations.postPlace?.errors?.length === 0}
             value={postPlace}
@@ -352,7 +371,7 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
           />
           <p>{lang('address_component.house_number_helper')}</p>
           <div className={classes.addressComponentSmallInputs}>
-            <TextField
+            <LegacyTextField
               id={`address_house_number_${id}`}
               isValid={allValidations.houseNumber?.errors?.length === 0}
               value={houseNumber}

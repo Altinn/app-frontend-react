@@ -1,23 +1,21 @@
 import React from 'react';
 
-import { LegacyCheckboxGroup } from '@digdir/design-system-react';
+import { Checkbox, HelpText } from '@digdir/design-system-react';
+import cn from 'classnames';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
-import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
-import { useGetOptions } from 'src/hooks/useGetOptions';
-import { useHasChangedIgnoreUndefined } from 'src/hooks/useHasChangedIgnoreUndefined';
 import { useLanguage } from 'src/hooks/useLanguage';
+import classes from 'src/layout/Checkboxes/CheckboxesContainerComponent.module.css';
+import { WrappedCheckbox } from 'src/layout/Checkboxes/WrappedCheckbox';
 import { shouldUseRowLayout } from 'src/utils/layout';
-import { getOptionLookupKey } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { IOption } from 'src/layout/common.generated';
 
 export type ICheckboxContainerProps = PropsFromGenericComponent<'Checkboxes'>;
 
-const defaultOptions: IOption[] = [];
 const defaultSelectedOptions: string[] = [];
 
 export const CheckboxContainerComponent = ({
@@ -27,60 +25,33 @@ export const CheckboxContainerComponent = ({
   handleDataChange,
   overrideDisplay,
 }: ICheckboxContainerProps) => {
-  const {
-    id,
-    options,
-    optionsId,
-    preselectedOptionIndex,
-    layout,
-    readOnly,
-    mapping,
-    queryParameters,
-    source,
-    textResourceBindings,
-    required,
-    labelSettings,
-  } = node.item;
-  const apiOptions = useGetOptions({ optionsId, mapping, queryParameters, source });
-  const calculatedOptions = apiOptions || options || defaultOptions;
-  const hasSelectedInitial = React.useRef(false);
-  const optionsHasChanged = useHasChangedIgnoreUndefined(apiOptions);
-  const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });
-  const fetchingOptions = useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading);
+  const { id, layout, readOnly, textResourceBindings, dataModelBindings, required, labelSettings, alertOnChange } =
+    node.item;
   const { lang, langAsString } = useLanguage();
+  const {
+    value: _value,
+    setValue,
+    saveValue,
+  } = useDelayedSavedState(handleDataChange, dataModelBindings?.simpleBinding, formData?.simpleBinding ?? '', 200);
 
-  const { value, setValue, saveValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding ?? '', 200);
-
+  const value = _value ?? formData?.simpleBinding ?? '';
   const selected = value && value.length > 0 ? value.split(',') : defaultSelectedOptions;
-
-  React.useEffect(() => {
-    const shouldSelectOptionAutomatically =
-      !formData?.simpleBinding &&
-      typeof preselectedOptionIndex !== 'undefined' &&
-      preselectedOptionIndex >= 0 &&
-      calculatedOptions &&
-      preselectedOptionIndex < calculatedOptions.length &&
-      hasSelectedInitial.current === false;
-
-    if (shouldSelectOptionAutomatically) {
-      setValue(calculatedOptions[preselectedOptionIndex].value, true);
-      hasSelectedInitial.current = true;
-    }
-  }, [formData?.simpleBinding, calculatedOptions, setValue, preselectedOptionIndex]);
-
-  React.useEffect(() => {
-    if (optionsHasChanged && formData.simpleBinding) {
-      // New options have been loaded, we have to reset form data.
-      setValue(undefined, true);
-    }
-  }, [setValue, optionsHasChanged, formData]);
-
-  const handleChange = (checkedItems: string[]) => {
-    const checkedItemsString = checkedItems.join(',');
-    if (checkedItemsString !== value) {
-      setValue(checkedItems.join(','));
-    }
-  };
+  const { options: calculatedOptions, isFetching } = useGetOptions({
+    ...node.item,
+    node,
+    metadata: {
+      setValue: (metadata) => {
+        handleDataChange(metadata, { key: 'metadata' });
+      },
+    },
+    formData: {
+      type: 'multi',
+      values: selected,
+      setValues: (values) => {
+        setValue(values.join(','), true);
+      },
+    },
+  });
 
   const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
     // Only set value instantly if moving focus outside of the checkbox group
@@ -89,20 +60,28 @@ export const CheckboxContainerComponent = ({
     }
   };
 
-  const labelText = (
-    <span style={{ fontSize: '1rem' }}>
+  const labelTextGroup = (
+    <span className={classes.checkBoxLabelContainer}>
       {lang(node.item.textResourceBindings?.title)}
       <RequiredIndicator required={required} />
       <OptionalIndicator
         labelSettings={labelSettings}
         required={required}
       />
+      {textResourceBindings?.help && (
+        <HelpText title={langAsString(textResourceBindings?.help)}>{lang(textResourceBindings?.help)}</HelpText>
+      )}
     </span>
   );
 
+  const horizontal = shouldUseRowLayout({
+    layout,
+    optionsCount: calculatedOptions.length,
+  });
   const hideLabel = overrideDisplay?.renderedInTable === true && calculatedOptions.length === 1;
+  const ariaLabel = overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined;
 
-  return fetchingOptions ? (
+  return isFetching ? (
     <AltinnSpinner />
   ) : (
     <div
@@ -110,35 +89,30 @@ export const CheckboxContainerComponent = ({
       key={`checkboxes_group_${id}`}
       onBlur={handleBlur}
     >
-      <LegacyCheckboxGroup
-        compact={false}
+      <Checkbox.Group
+        className={cn({ [classes.horizontal]: horizontal }, classes.checkboxGroup)}
+        legend={labelTextGroup}
+        description={lang(textResourceBindings?.description)}
         disabled={readOnly}
-        onChange={(values) => handleChange(values)}
-        legend={overrideDisplay?.renderLegend === false ? null : labelText}
-        description={textResourceBindings?.description && lang(textResourceBindings.description)}
+        hideLegend={overrideDisplay?.renderLegend === false}
         error={!isValid}
-        fieldSetProps={{
-          'aria-label': overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined,
-        }}
-        helpText={textResourceBindings?.help && lang(textResourceBindings.help)}
-        variant={
-          shouldUseRowLayout({
-            layout,
-            optionsCount: calculatedOptions.length,
-          })
-            ? 'horizontal'
-            : 'vertical'
-        }
-        items={calculatedOptions.map((option) => ({
-          name: option.value,
-          checkboxId: `${id}-${option.label.replace(/\s/g, '-')}`,
-          checked: selected.includes(option.value),
-          hideLabel,
-          label: langAsString(option.label),
-          description: langAsString(option.description),
-          helpText: option.helpText && langAsString(option.helpText),
-        }))}
-      />
+        aria-label={ariaLabel}
+        value={selected}
+        data-testid='checkboxes-fieldset'
+      >
+        {calculatedOptions.map((option) => (
+          <WrappedCheckbox
+            key={option.value}
+            id={id}
+            option={option}
+            hideLabel={hideLabel}
+            alertOnChange={alertOnChange}
+            selected={selected}
+            value={value}
+            setValue={setValue}
+          />
+        ))}
+      </Checkbox.Group>
     </div>
   );
 };

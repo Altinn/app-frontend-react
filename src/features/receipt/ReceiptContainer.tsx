@@ -7,18 +7,22 @@ import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoade
 import { ReceiptComponent } from 'src/components/organisms/AltinnReceipt';
 import { ReceiptComponentSimple } from 'src/components/organisms/AltinnReceiptSimple';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
-import { InstanceDataActions } from 'src/features/instanceData/instanceDataSlice';
+import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { CustomReceipt } from 'src/features/receipt/CustomReceipt';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { getAppReceiver } from 'src/language/sharedLanguage';
-import { getAttachmentGroupings, getInstancePdf, mapInstanceAttachments } from 'src/utils/attachmentsUtils';
+import { layoutsSelector } from 'src/selectors/layout';
+import {
+  filterDisplayAttachments,
+  filterDisplayPdfAttachments,
+  getAttachmentGroupings,
+} from 'src/utils/attachmentsUtils';
 import { returnUrlToArchive } from 'src/utils/urls/urlHelper';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type { IAltinnOrgs, IAttachment, IParty } from 'src/types/shared';
+import type { IAltinnOrgs, IDisplayAttachment, IParty } from 'src/types/shared';
 
 export const returnInstanceMetaDataObject = (
   orgsData: IAltinnOrgs,
@@ -66,32 +70,23 @@ export const returnInstanceMetaDataObject = (
 };
 
 export const ReceiptContainer = () => {
-  const dispatch = useAppDispatch();
-  const [attachments, setAttachments] = useState<IAttachment[]>([]);
-  const [pdf, setPdf] = useState<IAttachment[] | undefined>(undefined);
+  const [attachments, setAttachments] = useState<IDisplayAttachment[]>([]);
+  const [pdf, setPdf] = useState<IDisplayAttachment[]>([]);
   const [lastChangedDateTime, setLastChangedDateTime] = useState('');
   const [instanceMetaObject, setInstanceMetaObject] = useState<SummaryDataObject>({});
 
   const receiptLayoutName = useAppSelector((state) => state.formLayout.uiConfig.receiptLayoutName);
   const allOrgs = useAppSelector((state) => state.organisationMetaData.allOrgs);
   const applicationMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
-  const instance = useAppSelector((state) => state.instanceData.instance);
+  const instance = useLaxInstanceData();
   const parties = useAppSelector((state) => state.party.parties);
-  const layouts = useAppSelector((state) => Object.keys(state.formLayout.layouts || {}));
+  const layouts = useAppSelector(layoutsSelector);
   const langTools = useLanguage();
   const { lang } = langTools;
 
   const origin = window.location.origin;
 
-  const { instanceGuid, instanceId } = useInstanceIdParams();
-
-  useEffect(() => {
-    dispatch(
-      InstanceDataActions.get({
-        instanceId,
-      }),
-    );
-  }, [instanceId, dispatch]);
+  const { instanceGuid } = useInstanceIdParams();
 
   useEffect(() => {
     if (allOrgs != null && instance && instance.org && allOrgs && parties && instanceGuid) {
@@ -113,21 +108,37 @@ export const ReceiptContainer = () => {
 
   useEffect(() => {
     if (instance && instance.data && applicationMetadata) {
-      const appLogicDataTypes = applicationMetadata.dataTypes.filter((dataType) => !!dataType.appLogic);
+      const defaultElementIds = applicationMetadata.dataTypes
+        .filter((dataType) => !!dataType.appLogic)
+        .map((type) => type.id);
 
-      const attachmentsResult = mapInstanceAttachments(
-        instance.data,
-        appLogicDataTypes.map((type) => type.id),
-      );
-      setAttachments(attachmentsResult);
-      setPdf(getInstancePdf(instance.data));
+      const attachmentsResult = filterDisplayAttachments(instance.data, defaultElementIds);
+      setAttachments(attachmentsResult || []);
+      setPdf(filterDisplayPdfAttachments(instance.data));
       setLastChangedDateTime(moment(instance.lastChanged).format('DD.MM.YYYY / HH:mm'));
     }
   }, [instance, applicationMetadata]);
 
+  const requirementMissing = !attachments
+    ? 'attachments'
+    : !applicationMetadata
+      ? 'applicationMetadata'
+      : !instanceMetaObject
+        ? 'instanceMetaObject'
+        : !lastChangedDateTime
+          ? 'lastChangedDateTime'
+          : !allOrgs
+            ? 'allOrgs'
+            : !instance
+              ? 'instance'
+              : !parties
+                ? 'parties'
+                : undefined;
+
   return (
     <div id='ReceiptContainer'>
-      {attachments &&
+      {!requirementMissing &&
+      attachments &&
       applicationMetadata &&
       instanceMetaObject &&
       lastChangedDateTime &&
@@ -148,7 +159,7 @@ export const ReceiptContainer = () => {
                 subtitleurl={returnUrlToArchive(origin) || undefined}
                 title={lang('receipt.title')}
                 titleSubmitted={lang('receipt.title_submitted')}
-                pdf={pdf || undefined}
+                pdf={pdf}
               />
             ))}
           {applicationMetadata.autoDeleteOnProcessEnd && (
@@ -163,6 +174,7 @@ export const ReceiptContainer = () => {
         <AltinnContentLoader
           width={705}
           height={561}
+          reason={`receipt-missing-${requirementMissing}`}
         >
           <AltinnContentIconReceipt />
         </AltinnContentLoader>

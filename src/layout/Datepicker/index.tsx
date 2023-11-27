@@ -8,6 +8,7 @@ import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { getDateConstraint, getDateFormat } from 'src/utils/dateHelpers';
 import { formatISOString } from 'src/utils/formatDate';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
+import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { IFormData } from 'src/features/formData';
 import type { ComponentValidation, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -93,5 +94,9 @@ export class Datepicker extends DatepickerDef implements ComponentValidation {
       }
     }
     return validationObjects;
+  }
+
+  validateDataModelBindings(ctx: LayoutValidationCtx<'Datepicker'>): string[] {
+    return this.validateDataModelBindingsSimple(ctx);
   }
 }

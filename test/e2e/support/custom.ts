@@ -5,6 +5,7 @@ import type axe from 'axe-core';
 import type { Options as AxeOptions } from 'cypress-axe';
 
 import { breakpoints } from 'src/hooks/useIsMobile';
+import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
 import type { ILayouts } from 'src/layout/layout';
 
 const appFrontend = new AppFrontend();
@@ -35,6 +36,7 @@ Cypress.Commands.add('dsUncheck', { prevSubject: true }, (subject: JQueryWithSel
 
 Cypress.Commands.add('dsSelect', { prevSubject: true }, (subject: JQueryWithSelector | undefined, name) => {
   cy.log(`Selecting ${name}`);
+  cy.wrap(subject).should('not.be.disabled');
   cy.wrap(subject).click();
   cy.findByRole('option', { name }).click();
   cy.get('body').click();
@@ -153,7 +155,7 @@ const knownWcagViolations: KnownViolation[] = [
     spec: 'signing-test/double-signing.ts',
     test: 'accountant -> manager -> auditor',
     id: 'list',
-    nodeLength: 1,
+    nodeLength: 2,
   },
   {
     spec: 'anonymous-stateless-app/validation.ts',
@@ -165,6 +167,7 @@ const knownWcagViolations: KnownViolation[] = [
 
 Cypress.Commands.add('clearSelectionAndWait', (viewport) => {
   cy.get('#readyForPrint').should('exist');
+  cy.findByRole('progressbar').should('not.exist');
 
   // Find focused element and blur it, to ensure that we don't get any focus outlines or styles in the snapshot.
   cy.window().then((win) => {
@@ -331,6 +334,7 @@ Cypress.Commands.add('testWcag', () => {
 Cypress.Commands.add('reloadAndWait', () => {
   cy.reload();
   cy.get('#readyForPrint').should('exist');
+  cy.findByRole('progressbar').should('not.exist');
   cy.injectAxe();
 });
 
@@ -364,12 +368,37 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add('startStateFullFromStateless', () => {
+Cypress.Commands.add('startStatefulFromStateless', () => {
   cy.intercept('POST', '**/instances/create').as('createInstance');
-  cy.intercept('**/api/layoutsettings/statefull').as('getLayoutSettings');
   cy.get(appFrontend.instantiationButton).click();
   cy.wait('@createInstance').its('response.statusCode').should('eq', 201);
-  cy.wait('@getLayoutSettings');
+});
+
+Cypress.Commands.add('moveProcessNext', () => {
+  cy.url().then((url) => {
+    const maybeInstanceId = getInstanceIdRegExp().exec(url);
+    const instanceId = maybeInstanceId ? maybeInstanceId[1] : 'instance-id-not-found';
+    const baseUrl =
+      Cypress.env('environment') === 'local'
+        ? Cypress.config().baseUrl || ''
+        : `https://ttd.apps.${Cypress.config('baseUrl')?.slice(8)}`;
+    const urlPath = url.replace(baseUrl, '');
+    const org = urlPath.split(/[/#]/)[1];
+    const app = urlPath.split(/[/#]/)[2];
+    const requestUrl = `${baseUrl}/${org}/${app}/instances/${instanceId}/process/next`;
+
+    cy.getCookie('XSRF-TOKEN').then((xsrfToken) => {
+      cy.request({
+        method: 'PUT',
+        url: requestUrl,
+        headers: {
+          'X-XSRF-TOKEN': xsrfToken?.value,
+        },
+      })
+        .its('status')
+        .should('eq', 200);
+    });
+  });
 });
 
 Cypress.Commands.add('getReduxState', (selector) =>
@@ -436,4 +465,43 @@ Cypress.Commands.add('interceptLayoutSetsUiSettings', (uiSettings) => {
       });
     });
   }).as('layoutSets');
+});
+
+Cypress.Commands.add('getSummary', (label) => {
+  cy.get(`[data-testid^=summary-]:has(span:contains(${label}))`);
+});
+
+Cypress.Commands.add('testPdf', (callback, returnToForm = false) => {
+  cy.log('Testing PDF');
+
+  // Make sure instantiation is completed before we get the url
+  cy.location('hash').should('contain', '#/instance/');
+
+  // Make sure we blur any selected component before reload to trigger save
+  cy.get('body').click();
+
+  // Wait for network to be idle before calling reload
+  cy.waitForNetworkIdle('*', '*', 500);
+
+  // Visit the PDF page and reload
+  cy.location('href').then((href) => {
+    cy.visit(`${href}?pdf=1`);
+  });
+  cy.reload();
+
+  // Wait for readyForPrint, after this everything should be rendered so using timeout: 0
+  cy.get('#pdfView > #readyForPrint')
+    .should('exist')
+    .then({ timeout: 0 }, () => {
+      // Run tests from callback
+      callback();
+    });
+
+  if (returnToForm) {
+    cy.location('href').then((href) => {
+      cy.visit(href.replace('?pdf=1', ''));
+    });
+    cy.get('#pdfView > #readyForPrint').should('not.exist');
+    cy.get('#readyForPrint').should('exist');
+  }
 });

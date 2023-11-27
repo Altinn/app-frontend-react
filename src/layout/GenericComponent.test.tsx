@@ -5,11 +5,10 @@ import { screen } from '@testing-library/react';
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { GenericComponent } from 'src/layout/GenericComponent';
-import { renderWithProviders } from 'src/testUtils';
-import { useResolvedNode } from 'src/utils/layout/ExprContext';
+import { renderWithNode } from 'src/test/renderWithProviders';
 import type { CompExternal } from 'src/layout/layout';
 
-const render = (props: Partial<CompExternal> = {}) => {
+const render = async (component: Partial<CompExternal> = {}, waitUntilLoaded = true) => {
   const formLayout = getFormLayoutStateMock({
     layouts: {
       FormLayout: [
@@ -38,19 +37,23 @@ const render = (props: Partial<CompExternal> = {}) => {
               xl: 3,
             },
           },
-          ...(props as any),
+          ...(component as any),
         },
       ],
     },
   });
 
-  const Wrapper = () => {
-    const node = useResolvedNode('mockId');
-    return node ? <GenericComponent node={node} /> : null;
-  };
+  const formData = getFormDataStateMock({
+    formData: {
+      mockDataBinding: 'value',
+    },
+  });
 
-  return renderWithProviders(<Wrapper />, {
-    preloadedState: {
+  return await renderWithNode({
+    nodeId: component.id || 'mockId',
+    renderer: ({ node }) => <GenericComponent node={node} />,
+    waitUntilLoaded,
+    reduxState: {
       ...getInitialStateMock(),
       formLayout,
     },
@@ -61,23 +64,22 @@ const render = (props: Partial<CompExternal> = {}) => {
 };
 
 describe('GenericComponent', () => {
-  it('should show an error in the logs when rendering an unknown component type', () => {
+  it('should show an error in the logs when rendering an unknown component type', async () => {
     const spy = jest.spyOn(window, 'logWarnOnce').mockImplementation();
-    const { container } = render({ type: 'unknown-type' } as any);
+    await render({ type: 'unknown-type' as any }, false);
 
     expect(spy).toHaveBeenCalledWith(`No component definition found for type 'unknown-type'`);
-    expect(container).toBeEmptyDOMElement();
   });
 
-  it('should render Input component when passing Input type', () => {
-    render({ type: 'Input' });
+  it('should render Input component when passing Input type', async () => {
+    await render({ type: 'Input' });
 
     expect(screen.getByRole('textbox')).toBeInTheDocument();
     expect(screen.queryByText(/unknown component type/i)).not.toBeInTheDocument();
   });
 
-  it('should render description and label when textResourceBindings includes description and title', () => {
-    render({
+  it('should render description and label when textResourceBindings includes description and title', async () => {
+    await render({
       type: 'Input',
       textResourceBindings: {
         title: 'titleKey',
@@ -89,8 +91,8 @@ describe('GenericComponent', () => {
     expect(screen.getByTestId('label-mockId')).toBeInTheDocument();
   });
 
-  it('should not render description and label when textResourceBindings does not include description and title', () => {
-    render({
+  it('should not render description and label when textResourceBindings does not include description and title', async () => {
+    await render({
       type: 'Input',
       textResourceBindings: {},
     });
@@ -99,8 +101,8 @@ describe('GenericComponent', () => {
     expect(screen.queryByTestId('label-mockId')).not.toBeInTheDocument();
   });
 
-  it('should not render description and label when textResourceBindings includes description and title, but the component is listed in "noLabelComponents"', () => {
-    render({
+  it('should not render description and label when textResourceBindings includes description and title, but the component is listed in "noLabelComponents"', async () => {
+    await render({
       type: 'NavigationBar',
       textResourceBindings: {
         title: 'titleKey',

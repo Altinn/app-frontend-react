@@ -1,20 +1,25 @@
 import React from 'react';
 
-import configureStore from 'redux-mock-store';
-
+import { getFormDataStateMock } from 'src/__mocks__/formDataStateMock';
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
-import { renderWithProviders } from 'src/testUtils';
-import { useResolvedNode } from 'src/utils/layout/ExprContext';
+import { renderWithNode } from 'src/test/renderWithProviders';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 describe('SummaryGroupComponent', () => {
   let mockHandleDataChange: () => void;
-  let mockStore;
 
-  beforeAll(() => {
-    const createStore = configureStore();
+  beforeEach(() => {
+    mockHandleDataChange = jest.fn();
+  });
+
+  test('SummaryGroupComponent -- should match snapshot', async () => {
+    const { asFragment } = await render();
+    expect(asFragment()).toMatchSnapshot();
+  });
+
+  async function render() {
     const formLayout = getFormLayoutStateMock({
       layouts: {
         page1: [
@@ -62,7 +67,6 @@ describe('SummaryGroupComponent', () => {
           {
             type: 'Summary',
             id: 'mySummary',
-            pageRef: 'page1',
             componentRef: 'groupComponent',
             largeGroup: false,
           },
@@ -78,8 +82,7 @@ describe('SummaryGroupComponent', () => {
           },
         },
         currentView: 'page1',
-        navigationConfig: {},
-        tracks: {
+        pageOrderConfig: {
           order: ['page1'],
           hidden: [],
           hiddenExpr: {},
@@ -89,60 +92,47 @@ describe('SummaryGroupComponent', () => {
       },
     });
 
-    const initialState: any = getInitialStateMock({
-      formLayout,
-      textResources: {
-        error: null,
-        language: 'nb',
-        resources: [
-          {
-            id: 'mockGroupTitle',
-            value: 'Mock group',
-          },
-          {
-            id: 'mockField1',
-            value: 'Mock field 1',
-          },
-          {
-            id: 'mockField2',
-            value: 'Mock field 2',
-          },
-        ],
-      },
-    });
-    mockStore = createStore(initialState);
-  });
-
-  beforeEach(() => {
-    mockHandleDataChange = jest.fn();
-  });
-
-  test('SummaryGroupComponent -- should match snapshot', () => {
-    const { asFragment } = renderSummaryGroupComponent();
-    expect(asFragment()).toMatchSnapshot();
-  });
-
-  function renderSummaryGroupComponent() {
-    function Wrapper() {
-      const summaryNode = useResolvedNode('mySummary') as LayoutNode<'Summary'>;
-      const groupNode = useResolvedNode('groupComponent') as LayoutNode<'Group'>;
-
-      return (
-        <SummaryGroupComponent
-          changeText={'Change'}
-          onChangeClick={mockHandleDataChange}
-          summaryNode={summaryNode}
-          targetNode={groupNode}
-        />
-      );
-    }
-
-    return renderWithProviders(<Wrapper />, {
-      store: mockStore,
+    const formData = getFormDataStateMock({
       formData: {
         'mockGroup[0].mockDataBinding1': '1',
         'mockGroup[0].mockDataBinding2': '2',
       },
+    });
+
+    const reduxState = getInitialStateMock({
+      formData,
+      formLayout,
+      textResources: {
+        error: null,
+        language: 'nb',
+        resourceMap: {
+          mockGroupTitle: {
+            value: 'Mock group',
+          },
+          mockField1: {
+            value: 'Mock field 1',
+          },
+          mockField2: {
+            value: 'Mock field 2',
+          },
+        },
+      },
+    });
+
+    return await renderWithNode<LayoutNode<'Summary'>>({
+      nodeId: 'mySummary',
+      renderer: ({ node, root }) => {
+        const groupNode = root.findById('groupComponent') as LayoutNode<'Group'>;
+        return (
+          <SummaryGroupComponent
+            changeText={'Change'}
+            onChangeClick={mockHandleDataChange}
+            summaryNode={node}
+            targetNode={groupNode}
+          />
+        );
+      },
+      reduxState,
     });
   }
 });

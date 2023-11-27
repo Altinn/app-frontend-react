@@ -4,7 +4,7 @@ import { Grid } from '@material-ui/core';
 import cn from 'classnames';
 
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
-import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -29,7 +29,6 @@ export interface ISummaryComponent {
 
 export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) {
   const { id, grid } = summaryNode.item;
-  const { pageRef } = summaryNode.item;
   const display = overrides?.display || summaryNode.item.display;
   const dispatch = useAppDispatch();
   const { lang, langAsString } = useLanguage();
@@ -37,14 +36,16 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
   const summaryItem = summaryNode.item;
   const targetNode = useResolvedNode(overrides?.targetNode || summaryNode.item.componentRef || summaryNode.item.id);
   const targetItem = targetNode?.item;
+  const targetView = targetNode?.top.top.myKey;
+
   const onChangeClick = () => {
-    if (!pageRef) {
+    if (!targetView) {
       return;
     }
 
     dispatch(
       FormLayoutActions.updateCurrentView({
-        newView: pageRef,
+        newView: targetView,
         returnToView: summaryPageName,
         focusComponentId: targetNode?.item.id,
       }),

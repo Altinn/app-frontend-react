@@ -47,8 +47,8 @@ export class GenerateComponentLike {
     return this.extendTextResources(CG.common('TRBLabel'));
   }
 
-  public makeSelectionComponent(): this {
-    this.inner.extends(CG.common('ISelectionComponent'));
+  public makeSelectionComponent(full = true): this {
+    this.inner.extends(full ? CG.common('ISelectionComponentFull') : CG.common('ISelectionComponent'));
 
     return this;
   }
@@ -57,7 +57,9 @@ export class GenerateComponentLike {
    * Adding multiple data model bindings to the component makes it a union
    */
   public addDataModelBinding(
-    type: GenerateCommonImport<'IDataModelBindingsSimple' | 'IDataModelBindingsList'> | GenerateObject<any>,
+    type:
+      | GenerateCommonImport<'IDataModelBindingsSimple' | 'IDataModelBindingsList' | 'IDataModelBindingsOptionsSimple'>
+      | GenerateObject<any>,
   ): this {
     const name = 'dataModelBindings';
     const existing = this.inner.getProperty(name)?.type;

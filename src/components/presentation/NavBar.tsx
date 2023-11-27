@@ -6,7 +6,7 @@ import cn from 'classnames';
 
 import { LanguageSelector } from 'src/components/presentation/LanguageSelector';
 import classes from 'src/components/presentation/NavBar.module.css';
-import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -41,8 +41,8 @@ export const NavBar = (props: INavBarProps) => {
             data-testid='form-back-button'
             className={classes.buttonMargin}
             onClick={props.handleBack}
-            variant='quiet'
-            color='secondary'
+            variant='tertiary'
+            color='second'
             size='small'
             aria-label={langAsString('general.back')}
             icon={<Left aria-hidden />}
@@ -58,8 +58,8 @@ export const NavBar = (props: INavBarProps) => {
             data-testid='form-expand-button'
             className={cn(classes.buttonMargin, { [classes.hideExpandButtonMaxWidth]: !expandedWidth })}
             onClick={handleExpand}
-            variant='quiet'
-            color='secondary'
+            variant='tertiary'
+            color='second'
             size='small'
             aria-label={langAsString('general.expand_form')}
             icon={
@@ -83,8 +83,8 @@ export const NavBar = (props: INavBarProps) => {
             data-testid='form-close-button'
             className={classes.buttonMargin}
             onClick={props.handleClose}
-            variant='quiet'
-            color='secondary'
+            variant='tertiary'
+            color='second'
             size='small'
             aria-label={langAsString('general.close_schema')}
             icon={<Close aria-hidden />}

@@ -12,6 +12,8 @@ import { ExprContext } from 'src/features/expressions/ExprContext';
 import { ExprVal } from 'src/features/expressions/types';
 import { addError, asExpression, canBeExpression } from 'src/features/expressions/validation';
 import { implementsDisplayData } from 'src/layout';
+import { isDate } from 'src/utils/dateHelpers';
+import { formatDateLocale } from 'src/utils/formatDateLocale';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
@@ -20,13 +22,14 @@ import type {
   Expression,
   ExprFunction,
   ExprObjConfig,
+  ExprPositionalArgs,
   ExprResolved,
   ExprValToActual,
   FuncDef,
 } from 'src/features/expressions/types';
 import type { CompGroupExternal } from 'src/layout/Group/config.generated';
 import type { CompExternal } from 'src/layout/layout';
-import type { IAuthContext, IInstanceContext } from 'src/types/shared';
+import type { IAuthContext, IInstanceDataSources } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface EvalExprOptions {
@@ -34,6 +37,7 @@ export interface EvalExprOptions {
   errorIntroText?: string;
   onBeforeFunctionCall?: (path: string[], func: ExprFunction, args: any[]) => void;
   onAfterFunctionCall?: (path: string[], func: ExprFunction, args: any[], result: any) => void;
+  positionalArguments?: ExprPositionalArgs;
 }
 
 export interface EvalExprInObjArgs<T> {
@@ -179,10 +183,16 @@ export function evalExpr(
   dataSources: ContextDataSources,
   options?: EvalExprOptions,
 ) {
-  let ctx = ExprContext.withBlankPath(expr, node, dataSources, {
-    onBeforeFunctionCall: options?.onBeforeFunctionCall,
-    onAfterFunctionCall: options?.onAfterFunctionCall,
-  });
+  let ctx = ExprContext.withBlankPath(
+    expr,
+    node,
+    dataSources,
+    {
+      onBeforeFunctionCall: options?.onBeforeFunctionCall,
+      onAfterFunctionCall: options?.onAfterFunctionCall,
+    },
+    options?.positionalArguments,
+  );
   try {
     const result = innerEvalExpr(ctx);
     if ((result === null || result === undefined) && options && options.config) {
@@ -314,7 +324,7 @@ function defineFunc<Args extends readonly ExprVal[], Ret extends ExprVal>(
   return def;
 }
 
-const instanceContextKeys: { [key in keyof IInstanceContext]: true } = {
+const instanceDataSourcesKeys: { [key in keyof IInstanceDataSources]: true } = {
   instanceId: true,
   appId: true,
   instanceOwnerPartyId: true,
@@ -334,6 +344,21 @@ const authContextKeys: { [key in keyof IAuthContext]: true } = {
  * All the functions available to execute inside expressions
  */
 export const ExprFunctions = {
+  argv: defineFunc({
+    impl(idx) {
+      if (!this.positionalArguments?.length) {
+        throw new ExprRuntimeError(this, 'No positional arguments available');
+      }
+
+      if (typeof idx !== 'number' || idx < 0 || idx >= this.positionalArguments.length) {
+        throw new ExprRuntimeError(this, 'Invalid argv index');
+      }
+
+      return this.positionalArguments[idx];
+    },
+    args: [ExprVal.Number] as const,
+    returns: ExprVal.Any,
+  }),
   equals: defineFunc({
     impl: (arg1, arg2) => arg1 === arg2,
     args: [ExprVal.String, ExprVal.String] as const,
@@ -438,11 +463,11 @@ export const ExprFunctions = {
   }),
   instanceContext: defineFunc({
     impl(key): string | null {
-      if (key === null || instanceContextKeys[key] !== true) {
+      if (key === null || instanceDataSourcesKeys[key] !== true) {
         throw new ExprRuntimeError(this, `Unknown Instance context property ${key}`);
       }
 
-      return (this.dataSources.instanceContext && this.dataSources.instanceContext[key]) || null;
+      return (this.dataSources.instanceDataSources && this.dataSources.instanceDataSources[key]) || null;
     },
     args: [ExprVal.String] as const,
     returns: ExprVal.String,
@@ -548,14 +573,24 @@ export const ExprFunctions = {
         formData: this.dataSources.formData,
         attachments: this.dataSources.attachments,
         options: this.dataSources.options,
-        uiConfig: this.dataSources.uiConfig,
         langTools: this.dataSources.langTools,
       });
     },
     args: [ExprVal.String] as const,
     returns: ExprVal.String,
   }),
-
+  formatDate: defineFunc({
+    impl(date: string, format: string | null): string | null {
+      const { selectedLanguage } = this.dataSources.langTools;
+      if (!isDate(date)) {
+        return null;
+      }
+      return formatDateLocale(selectedLanguage, new Date(date), format ?? undefined);
+    },
+    minArguments: 1,
+    args: [ExprVal.String, ExprVal.String] as const,
+    returns: ExprVal.String,
+  }),
   round: defineFunc({
     impl(number, decimalPoints) {
       const realNumber = number === null ? 0 : number;
@@ -813,6 +848,11 @@ export const ExprConfigForComponent: ExprObjConfig<CompExternal> = {
     },
   },
   alertOnDelete: {
+    returnType: ExprVal.Boolean,
+    defaultValue: false,
+    resolvePerRow: false,
+  },
+  alertOnChange: {
     returnType: ExprVal.Boolean,
     defaultValue: false,
     resolvePerRow: false,

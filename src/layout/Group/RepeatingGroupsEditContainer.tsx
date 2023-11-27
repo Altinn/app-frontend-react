@@ -22,7 +22,6 @@ export interface IRepeatingGroupsEditContainer {
   forceHideSaveButton?: boolean;
   multiPageIndex?: number;
   setMultiPageIndex?: (index: number) => void;
-  filteredIndexes?: number[] | null;
 }
 
 export function RepeatingGroupsEditContainer({
@@ -64,7 +63,6 @@ function RepeatingGroupsEditContainerInternal({
   forceHideSaveButton,
   multiPageIndex,
   setMultiPageIndex,
-  filteredIndexes,
   group,
   row,
 }: IRepeatingGroupsEditContainer & {
@@ -94,13 +92,7 @@ function RepeatingGroupsEditContainerInternal({
     return nextDisplayedIndex > -1 ? nextDisplayedIndex : null;
   };
 
-  let nextIndex: number | null = null;
-  if (filteredIndexes) {
-    const filteredIndex = filteredIndexes.indexOf(editIndex);
-    nextIndex = filteredIndexes.slice(filteredIndex).length > 1 ? filteredIndexes[filteredIndex + 1] : null;
-  } else {
-    nextIndex = nextDisplayedGroup();
-  }
+  const nextIndex: number | null = nextDisplayedGroup();
 
   const saveClicked = () => {
     setEditIndex(-1);
@@ -179,7 +171,7 @@ function RepeatingGroupsEditContainerInternal({
         >
           <Grid item={true}>
             <Button
-              variant='quiet'
+              variant='tertiary'
               color='danger'
               size='small'
               icon={<DeleteIcon />}
@@ -223,8 +215,8 @@ function RepeatingGroupsEditContainerInternal({
                     <Button
                       icon={<Back aria-hidden='true' />}
                       size='small'
-                      variant='quiet'
-                      color='secondary'
+                      variant='tertiary'
+                      color='second'
                       onClick={() => setMultiPageIndex && setMultiPageIndex(multiPageIndex - 1)}
                     >
                       {lang('general.back')}
@@ -239,8 +231,8 @@ function RepeatingGroupsEditContainerInternal({
                       icon={<Next aria-hidden='true' />}
                       iconPlacement='right'
                       size='small'
-                      variant='quiet'
-                      color='secondary'
+                      variant='tertiary'
+                      color='second'
                       onClick={() => setMultiPageIndex && setMultiPageIndex(multiPageIndex + 1)}
                     >
                       {lang('general.next')}
@@ -259,8 +251,8 @@ function RepeatingGroupsEditContainerInternal({
                 <Button
                   id={`next-button-grp-${id}`}
                   onClick={nextClicked}
-                  variant='filled'
-                  color='primary'
+                  variant='primary'
+                  color='first'
                   size='small'
                 >
                   {lang(texts?.save_and_next_button ? texts?.save_and_next_button : 'general.save_and_next')}
@@ -272,8 +264,8 @@ function RepeatingGroupsEditContainerInternal({
                 <Button
                   id={`add-button-grp-${id}`}
                   onClick={saveClicked}
-                  variant={saveAndNextButtonVisible ? 'outline' : 'filled'}
-                  color='primary'
+                  variant={saveAndNextButtonVisible ? 'secondary' : 'primary'}
+                  color='first'
                   size='small'
                 >
                   {lang(texts?.save_button ? texts?.save_button : 'general.save_and_close')}

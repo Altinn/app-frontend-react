@@ -1,4 +1,4 @@
-import type { AnyAction } from 'redux';
+import dot from 'dot-object';
 
 import { checkIfDataListShouldRefetchSaga } from 'src/features/dataLists/fetchDataListsSaga';
 import { deleteAttachmentReferenceSaga } from 'src/features/formData/update/updateFormDataSagas';
@@ -13,9 +13,6 @@ export const initialState: IFormDataState = {
   submittingId: '',
 };
 
-const isProcessAction = (action: AnyAction) =>
-  action.type === ProcessActions.completeFulfilled.type || action.type === ProcessActions.completeRejected.type;
-
 export let FormDataActions: ActionsFromSlice<typeof formDataSlice>;
 export const formDataSlice = () => {
   const slice = createSagaSlice((mkAction: MkActionType<IFormDataState>) => ({
@@ -25,16 +22,6 @@ export const formDataSlice = () => {
       updateFulfilled: mkAction<IUpdateFormData>({
         takeEvery: [checkIfOptionsShouldRefetchSaga, checkIfDataListShouldRefetchSaga],
       }),
-      deleteAttachmentReference: mkAction<IDeleteAttachmentReference>({
-        takeLatest: deleteAttachmentReferenceSaga,
-      }),
-    },
-    extraReducers: (builder) => {
-      builder
-        .addMatcher(isProcessAction, (state) => {
-          state.submittingId = '';
-        })
-        .addDefaultCase((state) => state);
     },
   }));
 

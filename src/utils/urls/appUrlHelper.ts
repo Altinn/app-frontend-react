@@ -1,8 +1,9 @@
+import type { SortDirection } from '@digdir/design-system-react';
+
 import { mapFormData } from 'src/utils/databindings';
 import { getQueryStringFromObject } from 'src/utils/urls/urlHelper';
 import type { IFormData } from 'src/features/formData';
 import type { IMapping } from 'src/layout/common.generated';
-import type { SortDirection } from 'src/layout/List/types';
 
 const { org, app } = window;
 const origin = window.location.origin;
@@ -16,7 +17,9 @@ export const invalidateCookieUrl = `${appPath}/api/authentication/invalidatecook
 export const validPartiesUrl = `${appPath}/api/v1/parties?allowedtoinstantiatefilter=true`;
 export const currentPartyUrl = `${appPath}/api/authorization/parties/current?returnPartyObject=true`;
 export const instancesControllerUrl = `${appPath}/instances`;
+export const instantiateUrl = `${appPath}/instances/create`;
 export const refreshJwtTokenUrl = `${appPath}/api/authentication/keepAlive`;
+export const applicationLanguagesUrl = `${appPath}/api/v1/applicationlanguages`;
 
 export const updateCookieUrl = (partyId: string) => `${appPath}/api/v1/parties/${partyId}`;
 
@@ -25,11 +28,17 @@ export const textResourcesUrl = (language: string) => `${origin}/${org}/${app}/a
 export const fileUploadUrl = (attachmentType: string) =>
   `${appPath}/instances/${window.instanceId}/data?dataType=${attachmentType}`;
 
-export const fileTagUrl = (dataGuid: string) => `${appPath}/instances/${window.instanceId}/data/${dataGuid}/tags`;
+export const fileTagUrl = (dataGuid: string, tag: string | undefined) => {
+  if (tag) {
+    return `${appPath}/instances/${window.instanceId}/data/${dataGuid}/tags/${tag}`;
+  }
+
+  return `${appPath}/instances/${window.instanceId}/data/${dataGuid}/tags`;
+};
 
 export const dataElementUrl = (dataGuid: string) => `${appPath}/instances/${window.instanceId}/data/${dataGuid}`;
 
-export const getProcessStateUrl = () => `${appPath}/instances/${window.instanceId}/process`;
+export const getProcessStateUrl = (instanceId: string) => `${appPath}/instances/${instanceId}/process`;
 
 export const getCreateInstancesUrl = (partyId: string) => `${appPath}/instances?instanceOwnerPartyId=${partyId}`;
 
@@ -41,7 +50,7 @@ export const getDataValidationUrl = (instanceId: string, dataGuid: string) =>
 export const getPdfFormatUrl = (instanceId: string, dataGuid: string) =>
   `${appPath}/instances/${instanceId}/data/${dataGuid}/pdf/format`;
 
-export const getProcessNextUrl = (taskId?: string | null, language?: string | null) => {
+export const getProcessNextUrl = (taskId?: string, language?: string) => {
   const queryString = getQueryStringFromObject({
     elementId: taskId,
     lang: language,
@@ -108,12 +117,15 @@ export const redirectToUpgrade = (reqAuthLevel: string) => {
 };
 
 export const getJsonSchemaUrl = () => `${appPath}/api/jsonschema/`;
+export const getDataModelMetaDataUrl = () => `${appPath}/api/metadata/`;
 
-export const getLayoutSettingsUrl = (layoutset: string | null | undefined) => {
-  if (layoutset === null || layoutset === undefined) {
+export const getCustomValidationConfigUrl = (dataTypeId: string) => `${appPath}/api/validationconfig/${dataTypeId}`;
+
+export const getLayoutSettingsUrl = (layoutSetId: string | undefined) => {
+  if (layoutSetId === undefined) {
     return `${appPath}/api/layoutsettings`;
   }
-  return `${appPath}/api/layoutsettings/${layoutset}`;
+  return `${appPath}/api/layoutsettings/${layoutSetId}`;
 };
 
 export const getLayoutSetsUrl = () => `${appPath}/api/layoutsets`;
@@ -136,11 +148,11 @@ export const getFetchFormDynamicsUrl = (layoutSetId?: string) => {
   return `${appPath}/api/resource/RuleConfiguration.json`;
 };
 
-export const getLayoutsUrl = (layoutset: string | null) => {
-  if (layoutset === null) {
+export const getLayoutsUrl = (layoutSetId: string | undefined) => {
+  if (layoutSetId === undefined) {
     return `${appPath}/api/resource/FormLayout.json`;
   }
-  return `${appPath}/api/layouts/${layoutset}`;
+  return `${appPath}/api/layouts/${layoutSetId}`;
 };
 
 export const getRulehandlerUrl = (layoutset?: string) => {
@@ -148,14 +160,6 @@ export const getRulehandlerUrl = (layoutset?: string) => {
     return `${appPath}/api/resource/RuleHandler.js`;
   }
   return `${appPath}/api/rulehandler/${layoutset}`;
-};
-
-export const getCalculatePageOrderUrl = (stateless: boolean) => {
-  if (stateless) {
-    return `${appPath}/v1/pages/order`;
-  } else {
-    return `${appPath}/instances/${window.instanceId}/pages/order`;
-  }
 };
 
 export const getPartyValidationUrl = (partyId: string) =>
@@ -212,21 +216,19 @@ export const getOptionsUrl = ({
 };
 export interface IGetDataListsUrlParams {
   dataListId: string;
-  dataMapping?: IMapping;
-  formData?: IFormData;
+  mappedData?: Record<string, any>;
   language?: string;
   secure?: boolean;
   instanceId?: string;
   pageSize?: string;
   pageNumber?: string;
   sortDirection?: SortDirection;
-  sortColumn?: string;
+  sortColumn?: string | null;
 }
 
 export const getDataListsUrl = ({
   dataListId,
-  dataMapping,
-  formData,
+  mappedData,
   language,
   pageSize,
   pageNumber,
@@ -263,12 +265,10 @@ export const getDataListsUrl = ({
     params.sortDirection = sortDirection;
   }
 
-  if (formData && dataMapping) {
-    const mapped = mapFormData(formData, dataMapping);
-
+  if (mappedData) {
     params = {
       ...params,
-      ...mapped,
+      ...mappedData,
     };
   }
 

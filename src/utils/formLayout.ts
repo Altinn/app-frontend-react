@@ -1,10 +1,7 @@
 import { groupIsRepeatingExt, groupIsRepeatingLikertExt } from 'src/layout/Group/tools';
-import type { IAttachmentState } from 'src/features/attachments';
-import type { IFormData } from 'src/features/formData';
-import type { ILayoutNavigation } from 'src/layout/common.generated';
-import type { CompGroupExternal, IGroupEditPropertiesInternal, IGroupFilter } from 'src/layout/Group/config.generated';
+import type { CompGroupExternal, IGroupEditPropertiesLikert } from 'src/layout/Group/config.generated';
 import type { CompExternal, ILayout } from 'src/layout/layout';
-import type { IFileUploadersWithTag, ILayoutSets, IOptionsChosen, IRepeatingGroups } from 'src/types';
+import type { ILayoutSets, IRepeatingGroups } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
@@ -163,31 +160,6 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
   return repeatingGroups;
 }
 
-export function mapFileUploadersWithTag(formLayout: ILayout, attachmentState: IAttachmentState) {
-  const fileUploaders: IFileUploadersWithTag = {};
-  for (const componentId of Object.keys(attachmentState.attachments)) {
-    const baseComponentId = splitDashedKey(componentId).baseComponentId;
-    const component = formLayout.find((layoutElement) => layoutElement.id === baseComponentId);
-    if (!component || component.type !== 'FileUploadWithTag') {
-      continue;
-    }
-
-    const attachments = attachmentState.attachments[componentId];
-    const chosenOptions: IOptionsChosen = {};
-    for (let index = 0; index < attachments.length; index++) {
-      const tags = attachments[index].tags;
-      if (tags) {
-        chosenOptions[attachments[index].id] = tags[0];
-      }
-    }
-    fileUploaders[componentId] = {
-      editIndex: -1,
-      chosenOptions,
-    };
-  }
-  return fileUploaders;
-}
-
 /**
  * @deprecated Note: This functionality may not be present in the layout hierarchy, but prefer implementing it there
  *   over continued usage of this functionality.
@@ -211,32 +183,6 @@ function getIndexForNestedRepeatingGroup(
     return getMaxIndexInKeys(groupFormData, true);
   }
   return -1;
-}
-
-export function getNextView(
-  navOptions: ILayoutNavigation | undefined,
-  layoutOrder: string[] | null,
-  currentView: string,
-  goBack?: boolean,
-) {
-  let result;
-  if (navOptions) {
-    if (goBack && navOptions.previous) {
-      return navOptions.previous;
-    }
-
-    if (!goBack && navOptions.next) {
-      return navOptions.next;
-    }
-  }
-
-  if (layoutOrder) {
-    const currentViewIndex = layoutOrder.indexOf(currentView);
-    const newViewIndex = goBack ? currentViewIndex - 1 : currentViewIndex + 1;
-    result = layoutOrder[newViewIndex];
-  }
-
-  return result;
 }
 
 export function removeRepeatingGroupFromUIConfig(
@@ -263,7 +209,7 @@ export function removeRepeatingGroupFromUIConfig(
 
 export const getRepeatingGroupStartStopIndex = (
   repeatingGroupIndex: number,
-  edit: Pick<IGroupEditPropertiesInternal, 'filter'> | undefined,
+  edit: Pick<IGroupEditPropertiesLikert, 'filter'> | undefined,
 ) => {
   if (typeof repeatingGroupIndex === 'undefined') {
     return { startIndex: 0, stopIndex: -1 };
@@ -379,32 +325,4 @@ export function behavesLikeDataTask(task: string | null | undefined, layoutSets:
   }
 
   return layoutSets?.sets.some((set) => set.tasks?.includes(task)) || false;
-}
-
-/**
- * Returns the filtered indices of a repeating group.
- * This is a buggy implementation, but is used for backward compatibility until a new major version is released.
- * @see https://github.com/Altinn/app-frontend-react/issues/339#issuecomment-1286624933
- * @param formData IFormData
- * @param filter IGroupEditProperties.filter or undefined.
- * @returns a list of indices for repeating group elements after applying filters, or null if no filters are provided or if no elements match.
- * @deprecated Refrain from using this function, prefer implementing filtering based on expressions instead
- * @see https://github.com/Altinn/app-frontend-react/issues/584
- */
-export function getRepeatingGroupFilteredIndices(formData: IFormData, filter?: IGroupFilter[]): number[] | null {
-  if (filter && filter.length > 0) {
-    const rule = filter.at(-1);
-    const formDataKeys: string[] = Object.keys(formData).filter((key) => {
-      const keyWithoutIndex = key.replaceAll(/\[\d*]/g, '');
-      return keyWithoutIndex === rule?.key && formData[key] === rule.value;
-    });
-    if (formDataKeys && formDataKeys.length > 0) {
-      return formDataKeys.map((key) => {
-        const match = key.match(/\[(\d*)]/g);
-        const currentIndex = (match && match[match.length - 1]) || '[0]';
-        return parseInt(currentIndex.substring(1, currentIndex.indexOf(']')), 10);
-      });
-    }
-  }
-  return null;
 }

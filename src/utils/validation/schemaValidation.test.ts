@@ -16,7 +16,7 @@ function runGetSchemaValidationErrors(formData: IFormData, schema: object) {
   const dataTypeId = uuid(); // Validators object is stored as a singleton, so we need a unique id for each dataType
 
   const attachments = {};
-  const langTools = staticUseLanguageForTests({ textResources: [], language: {} });
+  const langTools = staticUseLanguageForTests({ language: {} });
   const application: IApplicationMetadata = {
     dataTypes: [
       {
@@ -25,9 +25,8 @@ function runGetSchemaValidationErrors(formData: IFormData, schema: object) {
       } as IDataType,
     ],
   } as IApplicationMetadata;
-  const instance: IInstance = {
-    process: { currentTask: { elementId: taskId } as ITask } as IProcess,
-  } as IInstance;
+  const instance: IInstance = {} as IInstance;
+  const process = { currentTask: { elementId: taskId } as ITask } as IProcess;
   const layoutSets: ILayoutSets = {
     sets: [
       {
@@ -45,8 +44,10 @@ function runGetSchemaValidationErrors(formData: IFormData, schema: object) {
     formData,
     application,
     instance,
+    process,
     layoutSets,
     schemas,
+    customValidation: null,
   });
 }
 
@@ -66,20 +67,35 @@ describe('schemaValidation', () => {
         },
       },
     };
+    const dataType: IDataType = {
+      id: 'test',
+      maxCount: 1,
+      minCount: 1,
+      appLogic: {
+        classRef: 'Altinn.App.Models.SomeClassName',
+      },
+      allowedContentTypes: ['application/xml'],
+    };
 
     it('when receiving a 2020-12 draft schema it should create ajv2020 validator instance', () => {
-      const result = createValidator({
-        $schema: 'https://json-schema.org/draft/2020-12/schema',
-        ...schema,
-      });
+      const result = createValidator(
+        {
+          $schema: 'https://json-schema.org/draft/2020-12/schema',
+          ...schema,
+        },
+        dataType,
+      );
       expect(result.validator).toBeInstanceOf(Ajv2020);
     });
 
     it('when receiving anything but 2020-12 draft schema it should create ajv validator instance', () => {
-      const result = createValidator({
-        $schema: 'http://json-schema.org/schema#',
-        ...schema,
-      });
+      const result = createValidator(
+        {
+          $schema: 'http://json-schema.org/schema#',
+          ...schema,
+        },
+        dataType,
+      );
       expect(result.validator).toBeInstanceOf(Ajv);
     });
   });
@@ -254,19 +270,9 @@ describe('schemaValidation', () => {
               $schema: 'https://json-schema.org/draft/2020-12/schema',
               type: 'object',
               properties: {
-                root: {
-                  $ref: '#/definitions/form',
-                },
-              },
-              definitions: {
-                form: {
-                  type: 'object',
-                  properties: {
-                    field: {
-                      type: 'string',
-                      format,
-                    },
-                  },
+                field: {
+                  type: 'string',
+                  format,
                 },
               },
             };

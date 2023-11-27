@@ -10,21 +10,20 @@ import type { IRuntimeState } from 'src/types';
 const getHasErrorsSelector = (state: IRuntimeState) => {
   const error =
     state.party.error ||
-    state.process.error ||
     state.profile.error ||
     state.formLayout.error ||
     state.footerLayout.error ||
-    state.instanceData.error ||
     state.applicationMetadata.error ||
     state.formDataModel.error ||
     state.optionState.error ||
-    state.attachments.error ||
     state.dataListState.error ||
-    state.pdf.error ||
     state.applicationSettings.error ||
     state.textResources.error ||
     state.formDynamics.error ||
-    state.formRules.error;
+    state.formRules.error ||
+    state.customValidation.error ||
+    // 403 in formData handles with MissingRolesError, see Entrypoint.tsx
+    exceptIfIncludes(state.formData.error, '403');
 
   return error !== null;
 };

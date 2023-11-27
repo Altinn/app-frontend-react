@@ -2,50 +2,50 @@ import React from 'react';
 
 import { screen } from '@testing-library/react';
 
+import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { CustomWebComponent } from 'src/layout/Custom/CustomWebComponent';
-import { renderGenericComponentTest } from 'src/testUtils';
-import type { RenderGenericComponentTestProps } from 'src/testUtils';
-import type { ITextResource } from 'src/types/shared';
+import { renderGenericComponentTest } from 'src/test/renderWithProviders';
+import type { TextResourceMap } from 'src/features/textResources';
+import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
 const jsonAttributeValue = { customKey: 'customValue' };
 
 describe('CustomWebComponent', () => {
-  it('should render the component with the provided tag name', () => {
-    render({ component: { tagName: 'test-component' } });
+  it('should render the component with the provided tag name', async () => {
+    await render({ component: { tagName: 'test-component' } });
     const element = screen.getByTestId('test-component');
     expect(element).toBeInTheDocument();
   });
 
-  it('should stringify json values when passed to the dom', () => {
-    render({ component: { tagName: 'test-component' } });
+  it('should stringify json values when passed to the dom', async () => {
+    await render({ component: { tagName: 'test-component' } });
     const element = screen.getByTestId('test-component');
     expect(element.id).toEqual('test-component');
     expect(element.getAttribute('data-CustomAttributeWithJson')).toEqual(JSON.stringify(jsonAttributeValue));
     expect(element.getAttribute('data-CustomAttributeWithReact')).toEqual('<span>Hello world</span>');
   });
 
-  it('should render the component with passed props as attributes', () => {
-    render({ component: { tagName: 'test-component' } });
+  it('should render the component with passed props as attributes', async () => {
+    await render({ component: { tagName: 'test-component' } });
     const element = screen.getByTestId('test-component');
     expect(element.id).toEqual('test-component');
     expect(element.getAttribute('text')).toEqual('Title');
   });
 
-  it('should render nothing if the tag name is missing', () => {
-    render({ component: { tagName: undefined } });
+  it('should render nothing if the tag name is missing', async () => {
+    await render({ component: { tagName: undefined } });
     const element = screen.queryByTestId('test-component');
     expect(element).not.toBeInTheDocument();
   });
 
-  const render = ({ component }: Partial<RenderGenericComponentTestProps<'Custom'>> = {}) => {
-    const resources = [
-      {
-        id: 'title',
+  const render = async ({ component }: Partial<RenderGenericComponentTestProps<'Custom'>> = {}) => {
+    const resourceMap = {
+      title: {
         value: 'Title',
       },
-    ] as ITextResource[];
+    } as TextResourceMap;
 
-    renderGenericComponentTest({
+    await renderGenericComponentTest({
       type: 'Custom',
       renderer: (props) => <CustomWebComponent {...props} />,
       component: {
@@ -65,12 +65,13 @@ describe('CustomWebComponent', () => {
         shouldFocus: false,
         ...({ 'data-CustomAttributeWithReact': <span>Hello world</span> } as any),
       },
-      manipulateState: (state) => {
-        state.textResources = {
+      reduxState: {
+        ...getInitialStateMock(),
+        textResources: {
           language: 'nb',
-          resources,
+          resourceMap,
           error: null,
-        };
+        },
       },
     });
   };

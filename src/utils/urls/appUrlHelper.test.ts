@@ -1,9 +1,7 @@
-import { SortDirection } from 'src/layout/List/types';
 import {
   dataElementUrl,
   fileTagUrl,
   fileUploadUrl,
-  getCalculatePageOrderUrl,
   getCreateInstancesUrl,
   getDataListsUrl,
   getDataValidationUrl,
@@ -27,7 +25,6 @@ import {
 } from 'src/utils/urls/appUrlHelper';
 
 describe('Frontend urlHelper.ts', () => {
-  window.instanceId = '12345/instanceId-1234';
   describe('constants', () => {
     it('should return the expected url for validPartiesUrl', () => {
       expect(validPartiesUrl).toBe(
@@ -42,21 +39,23 @@ describe('Frontend urlHelper.ts', () => {
     });
     it('should return the expected url for fileUploadUrl', () => {
       expect(fileUploadUrl('dataGuid')).toBe(
-        'https://local.altinn.cloud/ttd/test/instances/12345/instanceId-1234/data?dataType=dataGuid',
+        'https://local.altinn.cloud/ttd/test/instances/test-instance-id/data?dataType=dataGuid',
       );
     });
     it('should return the expected url for fileTagUrl', () => {
-      expect(fileTagUrl('dataGuid')).toBe(
-        'https://local.altinn.cloud/ttd/test/instances/12345/instanceId-1234/data/dataGuid/tags',
+      expect(fileTagUrl('dataGuid', undefined)).toBe(
+        'https://local.altinn.cloud/ttd/test/instances/test-instance-id/data/dataGuid/tags',
       );
     });
     it('should return the expected url for dataElementUrl', () => {
       expect(dataElementUrl('dataGuid')).toBe(
-        'https://local.altinn.cloud/ttd/test/instances/12345/instanceId-1234/data/dataGuid',
+        'https://local.altinn.cloud/ttd/test/instances/test-instance-id/data/dataGuid',
       );
     });
     it('should return the expected url for getProcessStateUrl', () => {
-      expect(getProcessStateUrl()).toBe('https://local.altinn.cloud/ttd/test/instances/12345/instanceId-1234/process');
+      expect(getProcessStateUrl('12345/instanceId-1234')).toBe(
+        'https://local.altinn.cloud/ttd/test/instances/12345/instanceId-1234/process',
+      );
     });
     it('should return the expected url for getCreateInstancesUrl', () => {
       expect(getCreateInstancesUrl('12345')).toBe(
@@ -75,11 +74,9 @@ describe('Frontend urlHelper.ts', () => {
     });
     it('should return the expected url for getProcessNextUrl', () => {
       expect(getProcessNextUrl('taskId')).toBe(
-        'https://local.altinn.cloud/ttd/test/instances/12345/instanceId-1234/process/next?elementId=taskId',
+        'https://local.altinn.cloud/ttd/test/instances/test-instance-id/process/next?elementId=taskId',
       );
-      expect(getProcessNextUrl()).toBe(
-        'https://local.altinn.cloud/ttd/test/instances/12345/instanceId-1234/process/next',
-      );
+      expect(getProcessNextUrl()).toBe('https://local.altinn.cloud/ttd/test/instances/test-instance-id/process/next');
     });
     it('should return the expected url for getRedirectUrl', () => {
       expect(getRedirectUrl('http://www.nrk.no')).toBe(
@@ -350,7 +347,7 @@ describe('Frontend urlHelper.ts', () => {
       const result = getDataListsUrl({
         dataListId: 'country',
         sortColumn: 'id',
-        sortDirection: SortDirection.Descending,
+        sortDirection: 'desc',
       });
       expect(result).toEqual(
         'https://local.altinn.cloud/ttd/test/api/datalists/country?sortColumn=id&sortDirection=desc',
@@ -369,11 +366,8 @@ describe('Frontend urlHelper.ts', () => {
     it('should return correct url when formData/dataMapping is provided', () => {
       const result = getDataListsUrl({
         dataListId: 'country',
-        formData: {
-          country: 'Norway',
-        },
-        dataMapping: {
-          country: 'selectedCountry',
+        mappedData: {
+          selectedCountry: 'Norway',
         },
       });
 
@@ -383,16 +377,13 @@ describe('Frontend urlHelper.ts', () => {
     it('should render correct url when formData/Mapping, language, pagination and sorting paramters are provided', () => {
       const result = getDataListsUrl({
         dataListId: 'country',
-        formData: {
-          country: 'Norway',
-        },
-        dataMapping: {
-          country: 'selectedCountry',
+        mappedData: {
+          selectedCountry: 'Norway',
         },
         pageSize: '10',
         pageNumber: '2',
         sortColumn: 'id',
-        sortDirection: SortDirection.Descending,
+        sortDirection: 'desc',
         language: 'no',
       });
 
@@ -416,23 +407,9 @@ describe('Frontend urlHelper.ts', () => {
     });
   });
 
-  describe('getCalculatePageOrderUrl', () => {
-    it('should return stateful url if stateless is false', () => {
-      const result = getCalculatePageOrderUrl(false);
-
-      expect(result).toBe('https://local.altinn.cloud/ttd/test/instances/12345/instanceId-1234/pages/order');
-    });
-
-    it('should return stateless url if stateless is true', () => {
-      const result = getCalculatePageOrderUrl(true);
-
-      expect(result).toBe('https://local.altinn.cloud/ttd/test/v1/pages/order');
-    });
-  });
-
   describe('getLayoutsUrl', () => {
     it('should return default when no parameter is passed', () => {
-      const result = getLayoutsUrl(null);
+      const result = getLayoutsUrl(undefined);
 
       expect(result).toBe('https://local.altinn.cloud/ttd/test/api/resource/FormLayout.json');
     });
@@ -446,7 +423,7 @@ describe('Frontend urlHelper.ts', () => {
 
   describe('getLayoutSettingsUrl', () => {
     it('should return default when no parameter is passed', () => {
-      const result = getLayoutSettingsUrl(null);
+      const result = getLayoutSettingsUrl(undefined);
 
       expect(result).toBe('https://local.altinn.cloud/ttd/test/api/layoutsettings');
     });

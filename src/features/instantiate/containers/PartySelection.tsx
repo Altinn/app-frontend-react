@@ -1,16 +1,14 @@
 import React, { useEffect } from 'react';
 import { useMatch, useNavigate } from 'react-router-dom';
 
-import { Button, LegacyCheckbox, TextField } from '@digdir/design-system-react';
+import { Button, LegacyCheckbox, Textfield } from '@digdir/design-system-react';
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 import { PlusIcon } from '@navikt/aksel-icons';
 
 import { AltinnParty } from 'src/components/altinnParty';
 import { InstantiationContainer } from 'src/features/instantiate/containers/InstantiationContainer';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
-import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
-import { PartyActions } from 'src/features/party/partySlice';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useSelectPartyMutation } from 'src/hooks/mutations/useSelectPartyMutation';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
@@ -76,7 +74,8 @@ export const PartySelection = () => {
   const match = useMatch(`/partyselection/:errorCode`);
   const errorCode = match?.params.errorCode;
 
-  const dispatch = useAppDispatch();
+  const { mutate: selectPartyMutate, isSuccess: hasSelectedParty } = useSelectPartyMutation();
+
   const parties = useAppSelector((state) => state.party.parties);
   const appMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
   const selectedParty = useAppSelector((state) => state.party.selectedParty);
@@ -93,22 +92,17 @@ export const PartySelection = () => {
   const [showSubUnits, setShowSubUnits] = React.useState(true);
   const [showDeleted, setShowDeleted] = React.useState(false);
 
-  const [hasSelected, setHasSelected] = React.useState(false);
   const navigate = useNavigate();
 
   const onSelectParty = (party: IParty) => {
-    dispatch(PartyActions.selectPartyFulfilled({ party: null }));
-    setHasSelected(true);
-    dispatch(PartyActions.selectParty({ party }));
-    // Clear any previous instantiation errors.
-    dispatch(InstantiationActions.instantiateRejected({ error: null }));
+    selectPartyMutate(party);
   };
 
   useEffect(() => {
-    if (selectedParty && hasSelected) {
+    if (selectedParty && hasSelectedParty) {
       navigate('/');
     }
-  }, [selectedParty, hasSelected, navigate]);
+  }, [selectedParty, navigate, hasSelectedParty]);
 
   function renderParties() {
     if (!parties || !appMetadata) {
@@ -150,7 +144,7 @@ export const PartySelection = () => {
           >
             <Button
               size='small'
-              variant='outline'
+              variant='secondary'
               dashedBorder={true}
               icon={<PlusIcon aria-hidden />}
               onClick={() => setNumberOfPartiesShown(numberOfPartiesShown + 4)}
@@ -286,7 +280,7 @@ export const PartySelection = () => {
         direction='column'
         className={classes.partySearchFieldContainer}
       >
-        <TextField
+        <Textfield
           aria-label={langAsString('party_selection.search_placeholder')}
           placeholder={langAsString('party_selection.search_placeholder')}
           onChange={onFilterStringChange}

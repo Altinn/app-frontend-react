@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { Button, TableCell, TableRow } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
 import { Delete as DeleteIcon, Edit as EditIcon, ErrorColored as ErrorIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
 
+import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
+import { useAlertOnChange } from 'src/hooks/useAlertOnChange';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
@@ -13,6 +15,7 @@ import classes from 'src/layout/Group/RepeatingGroup.module.css';
 import { useRepeatingGroupsFocusContext } from 'src/layout/Group/RepeatingGroupsFocusContext';
 import { implementsDisplayData, useDisplayDataProps } from 'src/layout/index';
 import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
+import type { AlertOnChangeProps } from 'src/hooks/useAlertOnChange';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type {
   CompGroupRepeatingExternal,
@@ -66,23 +69,9 @@ function getEditButtonText(
       ? textResourceBindings?.edit_button_close
       : 'general.save_and_close'
     : textResourceBindings?.edit_button_open
-    ? textResourceBindings?.edit_button_open
-    : 'general.edit_alt';
+      ? textResourceBindings?.edit_button_open
+      : 'general.edit_alt';
   return langTools.langAsString(buttonTextKey);
-}
-
-function handleDeleteClick(
-  open: boolean,
-  setOpen: (open: boolean) => void,
-  onDeleteClick: () => void,
-  alertOnDelete?: boolean,
-) {
-  alertOnDelete ? setOpen(!open) : onDeleteClick();
-}
-
-function handlePopoverDeleteClick(setOpen: (open: boolean) => void, onDeleteClick: () => void) {
-  setOpen(false);
-  onDeleteClick();
 }
 
 export function RepeatingGroupTableRow({
@@ -101,7 +90,6 @@ export function RepeatingGroupTableRow({
 }: IRepeatingGroupTableRowProps): JSX.Element {
   const mobileViewSmall = useIsMobile();
   const { refSetter } = useRepeatingGroupsFocusContext();
-  const [popoverOpen, setPopoverOpen] = useState(false);
 
   const langTools = useLanguage();
   const { lang, langAsString } = langTools;
@@ -118,6 +106,8 @@ export function RepeatingGroupTableRow({
     ...group.textResourceBindings,
     ...expressionsForRow?.textResourceBindings,
   } as CompGroupRepeatingInternal['textResourceBindings'];
+
+  const alertOnDelete = useAlertOnChange(Boolean(edit?.alertOnDelete), onDeleteClick);
 
   const tableNodes = getTableNodes(index) || [];
   const displayDataProps = useDisplayDataProps();
@@ -147,7 +137,10 @@ export function RepeatingGroupTableRow({
       {!mobileView ? (
         tableNodes.map((n, idx) =>
           shouldEditInTable(edit, n, columnSettings) ? (
-            <TableCell key={n.item.id}>
+            <TableCell
+              key={n.item.id}
+              className={classes.tableCell}
+            >
               <div ref={(ref) => refSetter && refSetter(index, `component-${n.item.id}`, ref)}>
                 <GenericComponent
                   node={n}
@@ -163,7 +156,10 @@ export function RepeatingGroupTableRow({
               </div>
             </TableCell>
           ) : (
-            <TableCell key={`${n.item.id}-${index}`}>
+            <TableCell
+              key={`${n.item.id}-${index}`}
+              className={classes.tableCell}
+            >
               <span
                 className={classes.contentFormatting}
                 style={getColumnStylesRepeatingGroups(n, columnSettings)}
@@ -231,8 +227,8 @@ export function RepeatingGroupTableRow({
                 <Button
                   aria-expanded={isEditingRow}
                   aria-controls={isEditingRow ? `group-edit-container-${id}-${index}` : undefined}
-                  variant='quiet'
-                  color='secondary'
+                  variant='tertiary'
+                  color='second'
                   size='small'
                   icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
                   iconPlacement='right'
@@ -254,14 +250,12 @@ export function RepeatingGroupTableRow({
             >
               <div className={classes.buttonInCellWrapper}>
                 <DeleteElement
-                  onDeleteClick={onDeleteClick}
                   index={index}
                   deleting={deleting}
-                  popoverOpen={popoverOpen}
-                  setPopoverOpen={setPopoverOpen}
                   edit={edit}
                   deleteButtonText={deleteButtonText}
                   firstCellData={firstCellData}
+                  alertOnDeleteProps={alertOnDelete}
                   langAsString={langAsString}
                 >
                   {deleteButtonText}
@@ -280,8 +274,8 @@ export function RepeatingGroupTableRow({
               <Button
                 aria-expanded={isEditingRow}
                 aria-controls={isEditingRow ? `group-edit-container-${id}-${index}` : undefined}
-                variant='quiet'
-                color='secondary'
+                variant='tertiary'
+                color='second'
                 size='small'
                 icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
                 iconPlacement='right'
@@ -297,14 +291,12 @@ export function RepeatingGroupTableRow({
               <>
                 <div style={{ height: 8 }} />
                 <DeleteElement
-                  onDeleteClick={onDeleteClick}
                   index={index}
                   deleting={deleting}
-                  popoverOpen={popoverOpen}
-                  setPopoverOpen={setPopoverOpen}
                   edit={edit}
                   deleteButtonText={deleteButtonText}
                   firstCellData={firstCellData}
+                  alertOnDeleteProps={alertOnDelete}
                   langAsString={langAsString}
                 >
                   {isEditingRow || !mobileViewSmall ? deleteButtonText : null}
@@ -336,60 +328,53 @@ export function shouldEditInTable(
 }
 
 const DeleteElement = ({
-  onDeleteClick,
   index,
   deleting,
-  popoverOpen,
-  setPopoverOpen,
   edit,
   deleteButtonText,
   firstCellData,
   langAsString,
+  alertOnDeleteProps: { alertOpen, setAlertOpen, confirmChange, cancelChange, handleChange: handleDelete },
   children,
 }: {
-  onDeleteClick: (index: number) => void;
   index: number;
   deleting: boolean;
-  popoverOpen: boolean;
-  setPopoverOpen: (open: boolean) => void;
   edit: IGroupEditPropertiesInternal;
   deleteButtonText: string;
   firstCellData: string | undefined;
   langAsString: (key: string) => string;
+  alertOnDeleteProps: AlertOnChangeProps;
   children: React.ReactNode;
-}) => {
-  const deleteButton = (
+}) => (
+  <ConditionalWrapper
+    condition={Boolean(edit?.alertOnDelete)}
+    wrapper={(children) => (
+      <DeleteWarningPopover
+        placement='left'
+        deleteButtonText={langAsString('group.row_popover_delete_button_confirm')}
+        messageText={langAsString('group.row_popover_delete_message')}
+        onCancelClick={cancelChange}
+        onPopoverDeleteClick={confirmChange}
+        open={alertOpen}
+        setOpen={setAlertOpen}
+      >
+        {children}
+      </DeleteWarningPopover>
+    )}
+  >
     <Button
-      variant='quiet'
+      variant='tertiary'
       color='danger'
       icon={<DeleteIcon aria-hidden='true' />}
       iconPlacement='right'
       size='small'
       disabled={deleting}
-      onClick={() => handleDeleteClick(popoverOpen, setPopoverOpen, () => onDeleteClick(index), edit?.alertOnDelete)}
+      onClick={() => handleDelete(index)}
       aria-label={`${deleteButtonText}-${firstCellData}`}
       data-testid='delete-button'
       className={classes.tableButton}
     >
       {children}
     </Button>
-  );
-  if (edit?.alertOnDelete) {
-    return (
-      <DeleteWarningPopover
-        trigger={deleteButton}
-        placement='left'
-        deleteButtonText={langAsString('group.row_popover_delete_button_confirm')}
-        messageText={langAsString('group.row_popover_delete_message')}
-        onCancelClick={() => {
-          setPopoverOpen(false);
-        }}
-        onPopoverDeleteClick={() => handlePopoverDeleteClick(setPopoverOpen, () => onDeleteClick(index))}
-        open={popoverOpen}
-        setOpen={setPopoverOpen}
-      />
-    );
-  } else {
-    return deleteButton;
-  }
-};
+  </ConditionalWrapper>
+);

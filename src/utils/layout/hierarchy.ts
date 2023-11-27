@@ -4,14 +4,16 @@ import { createSelector } from 'reselect';
 
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
 import { FD } from 'src/features/formData2/Compatibility';
+import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { staticUseLanguageFromState, useLanguage } from 'src/hooks/useLanguage';
 import { getLayoutComponentObject } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
-import { buildInstanceContext } from 'src/utils/instanceContext';
+import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { CompInternal, HierarchyDataSources, ILayouts } from 'src/layout/layout';
-import type { IRepeatingGroups, IRuntimeState, ITextResource } from 'src/types';
+import type { IRepeatingGroups, IRuntimeState } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 /**
@@ -91,31 +93,15 @@ function resolvedNodesInLayouts(
   return unresolved as unknown as LayoutPages;
 }
 
-/**
- * This updates the textResourceBindings for each node to match the new one made in replaceTextResourcesSaga.
- * It must be run _after_ resolving expressions, as that may decide to use other text resource bindings.
- *
- * @see replaceTextResourcesSaga
- * @see replaceTextResourceParams
- * @ßee getVariableTextKeysForRepeatingGroupComponent
- */
-function rewriteTextResourceBindings(collection: LayoutPages, textResources: ITextResource[]) {
-  for (const layout of Object.values(collection.all())) {
-    for (const node of layout.flat(true)) {
-      node.def.hierarchyGenerator().rewriteTextBindings(node as any, textResources);
-    }
-  }
-}
-
 export function dataSourcesFromState(state: IRuntimeState): Omit<HierarchyDataSources, 'formData'> {
   return {
-    attachments: state.attachments.attachments,
+    attachments: state.deprecated.lastKnownAttachments || {},
     uiConfig: state.formLayout.uiConfig,
-    options: state.optionState.options,
+    options: state.deprecated.allOptions || {},
     applicationSettings: state.applicationSettings.applicationSettings,
-    instanceContext: buildInstanceContext(state.instanceData?.instance),
+    instanceDataSources: buildInstanceDataSources(state.deprecated.lastKnownInstance),
     hiddenFields: new Set(state.formLayout.uiConfig.hiddenFields),
-    authContext: buildAuthContext(state.process),
+    authContext: buildAuthContext(state.deprecated.lastKnownProcess?.currentTask),
     validations: state.formValidations.validations,
     devTools: state.devTools,
     langTools: staticUseLanguageFromState(state),
@@ -129,16 +115,12 @@ function innerResolvedLayoutsFromState(
   currentView: string | undefined,
   repeatingGroups: IRepeatingGroups | null,
   dataSources: HierarchyDataSources,
-  textResources: ITextResource[],
 ): LayoutPages | undefined {
   if (!layouts || !currentView || !repeatingGroups) {
     return undefined;
   }
 
-  const resolved = resolvedNodesInLayouts(layouts, currentView, repeatingGroups, dataSources);
-  rewriteTextResourceBindings(resolved, textResources);
-
-  return resolved;
+  return resolvedNodesInLayouts(layouts, currentView, repeatingGroups, dataSources);
 }
 
 export function resolvedLayoutsFromState(state: IRuntimeState) {
@@ -148,11 +130,7 @@ export function resolvedLayoutsFromState(state: IRuntimeState) {
     state.formLayout.layouts,
     state.formLayout.uiConfig.currentView,
     state.formLayout.uiConfig.repeatingGroups,
-    {
-      formData,
-      ...dataSourcesFromState(state),
-    },
-    state.textResources.resources,
+    dataSourcesFromState(state),
   );
 }
 
@@ -161,31 +139,30 @@ export function resolvedLayoutsFromState(state: IRuntimeState) {
  * and trades verbosity and code duplication for performance and caching.
  */
 function useResolvedExpressions() {
-  const instance = useAppSelector((state) => state.instanceData?.instance);
+  const instance = useLaxInstanceData();
   const formData = FD.useAsDotMap();
-  const attachments = useAppSelector((state) => state.attachments.attachments);
   const uiConfig = useAppSelector((state) => state.formLayout.uiConfig);
-  const options = useAppSelector((state) => state.optionState.options);
-  const process = useAppSelector((state) => state.process);
+  const attachments = useAppSelector((state) => state.deprecated.lastKnownAttachments);
+  const options = useAppSelector((state) => state.deprecated.allOptions);
+  const process = useLaxProcessData();
   const applicationSettings = useAppSelector((state) => state.applicationSettings.applicationSettings);
   const hiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
   const validations = useAppSelector((state) => state.formValidations.validations);
   const layouts = useAppSelector((state) => state.formLayout.layouts);
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
-  const textResources = useAppSelector((state) => state.textResources.resources);
   const devTools = useAppSelector((state) => state.devTools);
   const langTools = useLanguage();
 
   const dataSources: HierarchyDataSources = useMemo(
     () => ({
       formData,
-      attachments,
+      attachments: attachments || {},
       uiConfig,
-      options,
+      options: options || {},
       applicationSettings,
-      instanceContext: buildInstanceContext(instance),
-      authContext: buildAuthContext(process),
+      instanceDataSources: buildInstanceDataSources(instance),
+      authContext: buildAuthContext(process?.currentTask),
       hiddenFields: new Set(hiddenFields),
       validations,
       devTools,
@@ -198,7 +175,7 @@ function useResolvedExpressions() {
       options,
       applicationSettings,
       instance,
-      process,
+      process?.currentTask,
       hiddenFields,
       validations,
       devTools,
@@ -207,8 +184,8 @@ function useResolvedExpressions() {
   );
 
   return useMemo(
-    () => innerResolvedLayoutsFromState(layouts, currentView, repeatingGroups, dataSources, textResources),
-    [layouts, currentView, repeatingGroups, dataSources, textResources],
+    () => innerResolvedLayoutsFromState(layouts, currentView, repeatingGroups, dataSources),
+    [layouts, currentView, repeatingGroups, dataSources],
   );
 }
 
