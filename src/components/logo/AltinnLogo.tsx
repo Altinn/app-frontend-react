@@ -27,22 +27,23 @@ function reColorSvg(svg: string, color: string) {
   const svgElement = dom.getElementsByTagName('svg')[0];
 
   const elements = svgElement.querySelectorAll('[fill]');
+  let filled = 0;
   for (let i = 0; i < elements.length; i++) {
     const element = elements[i];
     if (element.getAttribute('fill') === 'none') {
       continue;
     }
     element.setAttribute('fill', color);
+    filled++;
   }
 
-  const copy = svgElement.outerHTML;
-  if (copy === svg) {
+  if (filled === 0) {
     const foundColors = svg.match(/fill="[^"]"/g);
     console.warn('Could not replace color in svg', { svg, color, foundColors });
     return svg;
   }
 
-  return copy;
+  return svgElement.outerHTML;
 }
 
 export const AltinnLogo = ({ color }: IAltinnLogoProps) => {
