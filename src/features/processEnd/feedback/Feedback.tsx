@@ -11,6 +11,8 @@ export function Feedback() {
   const reFetchProcessData = useReFetchProcessData();
   const currentTask = useLaxProcessData()?.currentTask?.elementId;
 
+  // TODO add navigation to receipt here.
+
   // Continually re-fetch process data while the user is on the feedback page
   useBackoff({
     enabled: !!currentTask && !!reFetchProcessData,

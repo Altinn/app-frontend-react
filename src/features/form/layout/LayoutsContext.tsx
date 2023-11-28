@@ -31,7 +31,7 @@ function useLayoutQuery() {
 
   return useQuery({
     // Waiting to fetch layouts until we have an instance, if we're supposed to have one
-    enabled: (hasInstance ? !!process : true) && !!currentLayoutSetId,
+    enabled: hasInstance ? !!process : true,
     queryKey: ['formLayouts', currentLayoutSetId],
     queryFn: async () => {
       const currentViewCacheKey = instance?.id || applicationMetadata.id;

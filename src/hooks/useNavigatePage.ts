@@ -1,6 +1,7 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useMatch, useNavigate } from 'react-router-dom';
 
+import { useIsStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
@@ -20,6 +21,9 @@ export const useNavigatePage = () => {
   const taskIdMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId');
   const pageKeyMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId/:pageKey');
 
+  const statelessMatch = useMatch('/:pageKey');
+  const isStatelessApp = useIsStatelessApp();
+
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
   const lastTaskId = useLaxProcessData()?.processTasks?.slice(-1)[0]?.elementId;
   const dispatch = useAppDispatch();
@@ -31,12 +35,16 @@ export const useNavigatePage = () => {
   const instanceGuid =
     pageKeyMatch?.params.instanceGuid ?? taskIdMatch?.params.instanceGuid ?? instanceMatch?.params.instanceGuid;
   const taskId = pageKeyMatch?.params.taskId ?? taskIdMatch?.params.taskId;
+  const pageKey = pageKeyMatch?.params.pageKey ?? statelessMatch?.params.pageKey;
   const taskType = useTaskType(taskId);
 
-  const hiddenPages = new Set(hidden);
-  const order = orderWithHidden?.filter((page) => !hiddenPages.has(page));
+  const hiddenPages = useMemo(() => new Set(hidden), [hidden]);
+  const order = useMemo(
+    () => orderWithHidden?.filter((page) => !hiddenPages.has(page)),
+    [orderWithHidden, hiddenPages],
+  );
 
-  const currentPageId = pageKeyMatch?.params.pageKey ?? '';
+  const currentPageId = pageKey ?? '';
   const currentPageIndex = order?.indexOf(currentPageId) ?? 0;
 
   const nextPageIndex = currentPageIndex !== -1 ? currentPageIndex + 1 : -1;
@@ -56,6 +64,10 @@ export const useNavigatePage = () => {
         dispatch(FormDataActions.saveLatest({}));
       }
 
+      if (isStatelessApp) {
+        return navigate(`/${page}`);
+      }
+
       const url = `/instance/${partyId}/${instanceGuid}/${taskId}/${page}`;
       navigate(url);
     },
@@ -70,6 +82,7 @@ export const useNavigatePage = () => {
       dispatch,
       order,
       currentPageId,
+      isStatelessApp,
     ],
   );
 
@@ -112,15 +125,25 @@ export const useNavigatePage = () => {
 
   const isCurrentTask = useMemo(() => currentTaskId === taskId, [currentTaskId, taskId]);
 
+  /**
+   * For stateless apps, this is how we redirect to the
+   * initial page of the app.
+   */
+  useEffect(() => {
+    if (isStatelessApp && order?.[0] !== undefined && !currentPageId) {
+      navigate(`/${order?.[0]}`);
+    }
+  }, [isStatelessApp, order, navigate, currentPageId]);
+
   const startUrl = useMemo(() => {
     if (taskType === ProcessTaskType.Confirm) {
       return `/instance/${partyId}/${instanceGuid}/${taskId}/confirmation`;
     }
     if (taskType === ProcessTaskType.Archived) {
-      return `/instance/${partyId}/${instanceGuid}/${taskId}/receipt`;
+      return `/instance/${partyId}/${instanceGuid}/ProccessEnd/receipt`;
     }
     if (taskType === ProcessTaskType.Feedback) {
-      return `/instance/${partyId}/${instanceGuid}/${taskId}/feedback`;
+      return `/instance/${partyId}/${instanceGuid}/ProccessEnd/feedback`;
     }
     return `/instance/${partyId}/${instanceGuid}/${taskId}/${order?.[0]}`;
   }, [partyId, instanceGuid, taskId, order, taskType]);

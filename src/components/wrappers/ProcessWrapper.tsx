@@ -15,6 +15,7 @@ import { Feedback } from 'src/features/processEnd/feedback/Feedback';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
+import { ProcessTaskType } from 'src/types';
 
 export function ProcessWrapperWrapper() {
   const { taskId } = useNavigatePage();
@@ -80,6 +81,16 @@ export const ProcessWrapper = () => {
       );
     }
   }
+
+  if (taskType === ProcessTaskType.Archived && currentPageId !== 'receipt') {
+    return (
+      <Navigate
+        to={startUrl}
+        replace
+      />
+    );
+  }
+
   if (!currentPageId || !isValidPageId(currentPageId)) {
     return (
       <Navigate

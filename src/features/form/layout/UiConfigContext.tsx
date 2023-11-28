@@ -53,12 +53,12 @@ export function UiConfigProvider({ children }: React.PropsWithChildren) {
   return (
     <Provider
       value={{
-        hideCloseButton: layoutSettings.pages.hideCloseButton ?? false,
-        showLanguageSelector: layoutSettings.pages.showLanguageSelector ?? false,
-        showExpandWidthButton: layoutSettings.pages.showExpandWidthButton ?? false,
-        showProgress: layoutSettings.pages.showProgress ?? false,
+        hideCloseButton: layoutSettings?.pages?.hideCloseButton ?? false,
+        showLanguageSelector: layoutSettings?.pages?.showLanguageSelector ?? false,
+        showExpandWidthButton: layoutSettings?.pages?.showExpandWidthButton ?? false,
+        showProgress: layoutSettings?.pages?.showProgress ?? false,
         expandedWidth,
-        orderWithHidden: layoutSettings.pages.order,
+        orderWithHidden: layoutSettings?.pages?.order,
         toggleExpandedWidth: () => setExpandedWidth((prevState) => !prevState),
       }}
     >

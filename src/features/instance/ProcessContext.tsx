@@ -128,7 +128,11 @@ export function useRealTaskType() {
 
 export function useTaskType(taskId: string | undefined) {
   const processData = useLaxProcessData();
-  const task = processData?.processTasks?.find((t) => t.elementId === taskId);
+  // TODO(1508): make sure processTasks are available here for feedback steps
+  const task =
+    processData?.processTasks?.find((t) => t.elementId === taskId) ?? processData?.currentTask?.elementId === taskId
+      ? processData?.currentTask
+      : undefined;
   const isStateless = useIsStatelessApp();
   const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
 
@@ -137,7 +141,12 @@ export function useTaskType(taskId: string | undefined) {
     // useIsStatelessApp() will return false and we'll proceed as normal.
     return ProcessTaskType.Data;
   }
-  if (task?.altinnTaskType === ProcessTaskType.Confirm && processData?.ended) {
+
+  if (taskId === 'ProcessEnd') {
+    return ProcessTaskType.Archived;
+  }
+
+  if (processData?.ended) {
     return ProcessTaskType.Archived;
   }
   if (task === undefined || task?.altinnTaskType === undefined) {
