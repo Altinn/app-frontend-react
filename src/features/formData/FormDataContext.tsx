@@ -12,7 +12,6 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { getDataTypeByLayoutSetId, isStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData, useRealTaskType } from 'src/features/instance/ProcessContext';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';

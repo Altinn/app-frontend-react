@@ -4,13 +4,12 @@ import React from 'react';
 import { useMutation } from '@tanstack/react-query';
 import dot from 'dot-object';
 
-import { useAppMutations, useAppQueries } from 'src/contexts/appQueriesContext';
+import { useAppMutations, useAppQueries } from 'src/core/contexts/AppQueriesProvider';
+import { createContext } from 'src/core/contexts/context';
+import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { diffModels } from 'src/features/formData2/diffModels';
 import { useFormDataStateMachine } from 'src/features/formData2/StateMachine';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useMemoDeepEqual } from 'src/hooks/useMemoDeepEqual';
-import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
-import { createStrictContext } from 'src/utils/createContext';
 import type { FDAction, FormDataStorage } from 'src/features/formData2/StateMachine';
 import type { IFormDataFunctionality, IFormDataMethods } from 'src/features/formData2/types';
 
@@ -33,19 +32,10 @@ interface MutationArg {
   diff: Record<string, any>;
 }
 
-const { Provider, useCtx } = createStrictContext<FormDataStorageWithMethods>({
+const { Provider, useCtx } = createContext<FormDataStorageWithMethods>({
   name: 'FormData',
+  required: true,
 });
-
-const useFormDataUuid = () =>
-  useAppSelector((state) =>
-    getCurrentTaskDataElementId({
-      application: state.applicationMetadata.applicationMetadata,
-      instance: state.deprecated.lastKnownInstance,
-      process: state.deprecated.lastKnownProcess,
-      layoutSets: state.formLayout.layoutsets,
-    }),
-  );
 
 interface PerformSaveParams {
   uuid: string;
@@ -104,7 +94,7 @@ const useFormDataQuery = (): FormDataStorageExtended & FormDataStorageInternal =
   const { doPutFormData } = useAppMutations();
 
   const [state, dispatch] = useFormDataStateMachine();
-  const uuid = useFormDataUuid();
+  const uuid = useCurrentDataModelGuid();
   const enabled = uuid !== undefined;
 
   const mutation = useMutation(async (arg?: MutationArg) => {
