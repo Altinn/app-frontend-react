@@ -1,4 +1,4 @@
-import { call, put, select, take } from 'redux-saga/effects';
+import { call, put, select } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { AxiosRequestConfig } from 'axios';
 import type { SagaIterator } from 'redux-saga';
@@ -11,7 +11,6 @@ import { Triggers } from 'src/layout/common.generated';
 import { getLayoutOrderFromPageOrderConfig, selectLayoutOrder } from 'src/selectors/getLayoutOrder';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpGet } from 'src/utils/network/sharedNetworking';
-import { waitFor } from 'src/utils/sagas';
 import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
 import { mapValidationIssues } from 'src/utils/validation/backendValidation';
 import {
@@ -51,13 +50,13 @@ export function* updateCurrentViewSaga({
     if (uiConfig.autoSaveBehavior === 'onChangePage') {
       const visibleLayouts: string[] | null = yield select(selectLayoutOrder);
       if (visibleLayouts?.includes(uiConfig.currentView)) {
-        yield put(FormDataActions.saveLatest({}));
-        yield take(FormDataActions.submitFulfilled);
+        // yield put(FormDataActions.saveLatest({}));
+        // yield take(FormDataActions.submitFulfilled);
       }
     } else {
       // When triggering navigation to the next page, we need to make sure there are no unsaved changes. The action to
       // save it should be triggered elsewhere, but we should wait until the state settles before navigating.
-      yield waitFor((state) => !state.formData.unsavedChanges);
+      // yield waitFor((state) => !state.formData.unsavedChanges);
     }
 
     const state: IRuntimeState = yield select();

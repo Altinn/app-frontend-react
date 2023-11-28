@@ -1,6 +1,5 @@
 import React from 'react';
 import Dropzone from 'react-dropzone';
-import { useDispatch } from 'react-redux';
 
 import { Button, Fieldset } from '@digdir/design-system-react';
 import { DownloadIcon, UploadIcon } from '@navikt/aksel-icons';
@@ -13,7 +12,6 @@ import { getFetchFormDataUrl } from 'src/utils/urls/appUrlHelper';
 export const DownloadXMLButton = () => {
   const instance = useLaxInstanceData();
   const dataElementId = useCurrentDataModelGuid();
-  const dispatch = useDispatch();
 
   const downloadXML = async () => {
     if (instance?.id && dataElementId) {
@@ -39,7 +37,8 @@ export const DownloadXMLButton = () => {
           throw error;
         }
       });
-      dispatch(FormDataActions.fetch());
+      // TODO: Refresh form data
+      // dispatch(FormDataActions.fetch());
     }
   };
   return (

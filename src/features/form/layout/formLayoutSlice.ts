@@ -1,8 +1,4 @@
 import { removeHiddenValidationsSaga } from 'src/features/form/dynamics/conditionalRenderingSagas';
-import { initRepeatingGroupsSaga } from 'src/features/form/layout/repGroups/initRepeatingGroupsSaga';
-import { repGroupAddRowSaga } from 'src/features/form/layout/repGroups/repGroupAddRowSaga';
-import { repGroupDeleteRowSaga } from 'src/features/form/layout/repGroups/repGroupDeleteRowSaga';
-import { updateRepeatingGroupEditIndexSaga } from 'src/features/form/layout/repGroups/updateRepeatingGroupEditIndexSaga';
 import {
   findAndMoveToNextVisibleLayout,
   moveToNextPageSaga,
@@ -155,11 +151,11 @@ export const formLayoutSlice = () => {
           },
         }),
         repGroupAddRow: mkAction<{ groupId: string }>({
-          takeEvery: repGroupAddRowSaga,
+          // takeEvery: repGroupAddRowSaga,
         }),
         repGroupAddRowFulfilled: genericSetRepeatingGroups,
         repGroupDeleteRow: mkAction<{ groupId: string; index: number }>({
-          takeEvery: repGroupDeleteRowSaga,
+          // takeEvery: repGroupDeleteRowSaga,
           reducer: (state, { payload: { groupId, index } }) => {
             state.uiConfig.repeatingGroups = state.uiConfig.repeatingGroups || {};
             state.uiConfig.repeatingGroups[groupId].deletingIndex =
@@ -183,7 +179,7 @@ export const formLayoutSlice = () => {
           },
         }),
         updateRepeatingGroupsEditIndex: mkAction<LayoutTypes.IUpdateRepeatingGroupsEditIndex>({
-          takeEvery: updateRepeatingGroupEditIndexSaga,
+          // takeEvery: updateRepeatingGroupEditIndexSaga,
           reducer: (state, action) => {
             const { group } = action.payload;
             if (state.uiConfig.repeatingGroups && state.uiConfig.repeatingGroups[group]) {
@@ -227,8 +223,8 @@ export const formLayoutSlice = () => {
           },
         }),
         initRepeatingGroups: mkAction<LayoutTypes.IInitRepeatingGroups>({
-          takeEvery: initRepeatingGroupsSaga,
           // TODO: Re-implement repeating groups state in new form data context
+          // takeEvery: initRepeatingGroupsSaga,
           // saga: () =>
           //   function* (): SagaIterator {
           //     yield takeEvery([FormDataActions.fetchFulfilled, FormLayoutActions.fetchFulfilled], () =>
