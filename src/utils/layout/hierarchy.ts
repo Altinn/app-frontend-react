@@ -6,8 +6,9 @@ import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/f
 import { FD } from 'src/features/formData2/FormDataContext';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+import { staticUseLanguageFromState, useLanguage } from 'src/features/language/useLanguage';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { staticUseLanguageFromState, useLanguage } from 'src/hooks/useLanguage';
 import { getLayoutComponentObject } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
@@ -106,6 +107,7 @@ export function dataSourcesFromState(state: IRuntimeState): HierarchyDataSources
     validations: state.formValidations.validations,
     devTools: state.devTools,
     langTools: staticUseLanguageFromState(state),
+    currentLanguage: state.deprecated.currentLanguage,
   };
 }
 
@@ -152,6 +154,7 @@ function useResolvedExpressions() {
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
   const devTools = useAppSelector((state) => state.devTools);
   const langTools = useLanguage();
+  const currentLanguage = useCurrentLanguage();
 
   const dataSources: HierarchyDataSources = useMemo(
     () => ({
@@ -166,6 +169,7 @@ function useResolvedExpressions() {
       validations,
       devTools,
       langTools,
+      currentLanguage,
     }),
     [
       formData,
@@ -179,6 +183,7 @@ function useResolvedExpressions() {
       validations,
       devTools,
       langTools,
+      currentLanguage,
     ],
   );
 

@@ -3,18 +3,15 @@ import { combineReducers } from 'redux';
 import { applicationMetadataSlice } from 'src/features/applicationMetadata/applicationMetadataSlice';
 import { applicationSettingsSlice } from 'src/features/applicationSettings/applicationSettingsSlice';
 import { customValidationSlice } from 'src/features/customValidation/customValidationSlice';
-import { dataListsSlice } from 'src/features/dataLists/dataListsSlice';
 import { formDataModelSlice } from 'src/features/datamodel/datamodelSlice';
 import { devToolsSlice } from 'src/features/devtools/data/devToolsSlice';
 import { footerLayoutSlice } from 'src/features/footer/data/footerLayoutSlice';
 import { formDynamicsSlice } from 'src/features/form/dynamics/formDynamicsSlice';
 import { formLayoutSlice } from 'src/features/form/layout/formLayoutSlice';
 import { formRulesSlice } from 'src/features/form/rules/rulesSlice';
-import { optionsSlice } from 'src/features/options/optionsSlice';
+import { textResourcesSlice } from 'src/features/language/textResources/textResourcesSlice';
 import { orgsSlice } from 'src/features/orgs/orgsSlice';
-import { partySlice } from 'src/features/party/partySlice';
 import { profileSlice } from 'src/features/profile/profileSlice';
-import { textResourcesSlice } from 'src/features/textResources/textResourcesSlice';
 import { validationSlice } from 'src/features/validation/validationSlice';
 import { deprecatedSlice } from 'src/redux/deprecatedSlice';
 import { resetRootSagas } from 'src/redux/sagaSlice';
@@ -24,16 +21,13 @@ const slices = [
   applicationMetadataSlice,
   applicationSettingsSlice,
   customValidationSlice,
-  dataListsSlice,
   devToolsSlice,
   footerLayoutSlice,
   formDataModelSlice,
   formDynamicsSlice,
   formLayoutSlice,
   formRulesSlice,
-  optionsSlice,
   orgsSlice,
-  partySlice,
   profileSlice,
   textResourcesSlice,
   validationSlice,

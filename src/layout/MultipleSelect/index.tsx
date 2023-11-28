@@ -1,10 +1,9 @@
 import React from 'react';
 import type { JSX } from 'react';
 
-import { FD } from 'src/features/formData2/FormDataContext';
+import { type IUseLanguage, useLanguage } from 'src/features/language/useLanguage';
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
 import { useAllOptions } from 'src/features/options/useAllOptions';
-import { type IUseLanguage, useLanguage } from 'src/hooks/useLanguage';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import { MultipleSelectDef } from 'src/layout/MultipleSelect/config.def.generated';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
