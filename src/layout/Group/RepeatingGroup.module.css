@@ -167,3 +167,12 @@
 .tableCell {
   box-sizing: border-box;
 }
+
+.tableCaption {
+  text-align: left;
+}
+
+.tableCaptionNotEmpty {
+  padding-left: var(--modal-padding-x);
+  padding-right: var(--modal-padding-x);
+}

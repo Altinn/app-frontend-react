@@ -99,7 +99,14 @@ function makeRepeatingGroup() {
       new CG.trb({
         name: 'title',
         title: 'Title',
-        description: 'The title of the group (shown above each instance in a Summary)',
+        description: 'The title of the group (shown above the group and above each instance in a Summary)',
+      }),
+    )
+    .addTextResource(
+      new CG.trb({
+        name: 'body',
+        title: 'Body',
+        description: 'The title of the group (shown above the group and above each instance in a Summary)',
       }),
     )
     .addTextResource(

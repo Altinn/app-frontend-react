@@ -18,6 +18,7 @@ import { useRepeatingGroupsFocusContext } from 'src/layout/Group/RepeatingGroups
 import { RepeatingGroupTable } from 'src/layout/Group/RepeatingGroupTable';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
+import type { TriggerList } from 'src/layout/common.generated';
 import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 
@@ -25,13 +26,12 @@ export interface IGroupProps {
   node: LayoutNodeForGroup<CompGroupRepeatingInternal>;
 }
 
-const getValidationMethod = (node: LayoutNodeForGroup<CompGroupRepeatingInternal>) => {
+const getValidationMethod = (triggers: TriggerList) => {
   // Validation for whole group takes precedent over single-row validation if both are present.
-  const triggers = node.item.triggers;
-  if (triggers && triggers.includes(Triggers.Validation)) {
+  if (triggers.includes(Triggers.Validation)) {
     return Triggers.Validation;
   }
-  if (triggers && triggers.includes(Triggers.ValidateRow)) {
+  if (triggers.includes(Triggers.ValidateRow)) {
     return Triggers.ValidateRow;
   }
 };
@@ -39,9 +39,7 @@ const getValidationMethod = (node: LayoutNodeForGroup<CompGroupRepeatingInternal
 export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
   const dispatch = useAppDispatch();
   const { triggerFocus } = useRepeatingGroupsFocusContext();
-  const resolvedTextBindings = node.item.textResourceBindings;
-  const id = node.item.id;
-  const edit = node.item.edit;
+  const { textResourceBindings, id, edit, maxCount, type, triggers, rowsBefore, rowsAfter } = node.item;
   const groupState = useAppSelector(
     (state) => state.formLayout.uiConfig.repeatingGroups && state.formLayout.uiConfig.repeatingGroups[id],
   );
@@ -80,15 +78,15 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
         <AltinnLoader
           style={{ position: 'absolute' }}
           srContent={
-            resolvedTextBindings?.add_button_full
-              ? langAsString(resolvedTextBindings.add_button_full)
-              : `${langAsString('general.add_new')} ${langAsString(resolvedTextBindings?.add_button)}`
+            textResourceBindings?.add_button_full
+              ? langAsString(textResourceBindings.add_button_full)
+              : `${langAsString('general.add_new')} ${langAsString(textResourceBindings?.add_button)}`
           }
         />
       )}
-      {resolvedTextBindings?.add_button_full
-        ? lang(resolvedTextBindings.add_button_full)
-        : `${langAsString('general.add_new')} ${langAsString(resolvedTextBindings?.add_button)}`}
+      {textResourceBindings?.add_button_full
+        ? lang(textResourceBindings.add_button_full)
+        : `${langAsString('general.add_new')} ${langAsString(textResourceBindings?.add_button)}`}
     </Button>
   );
 
@@ -102,13 +100,16 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
         FormLayoutActions.updateRepeatingGroupsEditIndex({
           group: id,
           index: repeatingGroupIndex + 1,
-          validate: edit?.alwaysShowAddButton && repeatingGroupIndex > -1 ? getValidationMethod(node) : undefined,
+          validate:
+            edit?.alwaysShowAddButton && repeatingGroupIndex > -1 && triggers
+              ? getValidationMethod(triggers)
+              : undefined,
           shouldAddRow: !!edit?.alwaysShowAddButton,
         }),
       );
       setMultiPageIndex(0);
     }
-  }, [dispatch, edit?.alwaysShowAddButton, edit?.mode, id, node, repeatingGroupIndex, setMultiPageIndex]);
+  }, [dispatch, edit?.alwaysShowAddButton, edit?.mode, id, triggers, repeatingGroupIndex, setMultiPageIndex]);
 
   const handleOnAddButtonClick = (): void => {
     addNewRowToGroup();
@@ -150,7 +151,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
       FormLayoutActions.updateRepeatingGroupsEditIndex({
         group: id,
         index,
-        validate: index === -1 || forceValidation ? getValidationMethod(node) : undefined,
+        validate: (index === -1 || forceValidation) && triggers ? getValidationMethod(triggers) : undefined,
       }),
     );
     if (edit?.multiPage && index > -1) {
@@ -158,7 +159,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
     }
   };
 
-  if (!groupState || node.isHidden() || node.item.type !== 'Group') {
+  if (!groupState || node.isHidden() || type !== 'Group') {
     return null;
   }
 
@@ -166,8 +167,8 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
 
   const displayBtn =
     edit?.addButton !== false &&
-    'maxCount' in node.item &&
-    repeatingGroupIndex + 1 < (node.item.maxCount === undefined ? -99 : node.item.maxCount) &&
+    maxCount &&
+    repeatingGroupIndex + 1 < (maxCount === undefined ? -99 : maxCount) &&
     (edit?.mode === 'showAll' || editIndex < 0 || edit?.alwaysShowAddButton === true);
 
   return (
@@ -189,8 +190,8 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
           onClickRemove={handleOnRemoveClick}
           setMultiPageIndex={setMultiPageIndex}
           multiPageIndex={multiPageIndex}
-          rowsBefore={node.item.rowsBefore}
-          rowsAfter={node.item.rowsAfter}
+          rowsBefore={rowsBefore}
+          rowsAfter={rowsAfter}
         />
       )}
       {edit?.mode !== 'showAll' && displayBtn && <AddButton />}
