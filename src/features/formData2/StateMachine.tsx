@@ -65,6 +65,22 @@ interface FDActionSetLeafValue extends DataModelChange {
   type: 'setLeafValue';
 }
 
+interface FDActionAppendToListUnique extends DataModelChange {
+  type: 'appendToListUnique';
+}
+
+interface FDActionRemoveIndexFromList {
+  type: 'removeIndexFromList';
+  path: string;
+  index: number;
+}
+
+interface FDActionRemoveValueFromList {
+  type: 'removeValueFromList';
+  path: string;
+  value: string;
+}
+
 interface FDActionSetMultiLeafValues {
   type: 'setMultiLeafValues';
   changes: DataModelChange[];
@@ -76,6 +92,9 @@ interface FDActionFreeze {
 
 export type FDAction =
   | FDActionSetLeafValue
+  | FDActionAppendToListUnique
+  | FDActionRemoveIndexFromList
+  | FDActionRemoveValueFromList
   | FDActionSetMultiLeafValues
   | FDActionInitialFetch
   | FDActionSaveFinished
@@ -163,6 +182,35 @@ const actions: ImplementationMap = {
     state.currentDataFlat = dot.dot(state.currentData);
     console.log('debug, setLeafValueImpl', path, newValue);
   },
+  appendToListUnique: (state, { path, newValue }) => {
+    const existingValue = state.currentDataFlat[path];
+    if (existingValue.includes(newValue)) {
+      console.log('debug, appendToListImpl no-change', path, newValue);
+      return;
+    }
+
+    dot.str(path, [...existingValue, newValue], state.currentData);
+    state.currentDataFlat = dot.dot(state.currentData);
+    console.log('debug, appendToListImpl', path, newValue);
+  },
+  removeIndexFromList: (state, { path, index }) => {
+    const existingValue = state.currentDataFlat[path];
+    if (index >= existingValue.length) {
+      console.log('debug, removeIndexFromListImpl no-change', path, index);
+      return;
+    }
+
+    debugger;
+  },
+  removeValueFromList: (state, { path, value }) => {
+    const existingValue = state.currentDataFlat[path];
+    if (!existingValue.includes(value)) {
+      console.log('debug, removeValueFromListImpl no-change', path, value);
+      return;
+    }
+
+    debugger;
+  },
   setMultiLeafValues: (state, { changes }) => {
     console.log('debug, setMultiLeafValuesImpl', changes);
     let changesMade = false;
@@ -186,9 +234,9 @@ type Reducer = <T extends FDActionTypes>(state: FormDataStorage, action: FDActio
 const createReducer =
   (ruleConnections: IRuleConnections | null): Reducer =>
   (state, action) => {
-    const implementation = actions[action.type];
+    const implementation = actions[action.type] as unknown as Implementation<FDActionTypes>;
     if (implementation) {
-      return (implementation as unknown as Implementation<any>)(state, action, ruleConnections);
+      return implementation(state, action, ruleConnections);
     }
     throw new Error(`Unknown action type ${action.type}`);
   };

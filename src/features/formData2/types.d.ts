@@ -3,6 +3,9 @@ import type { IDataModelBindings } from 'src/layout/layout';
 
 interface IFormDataMethods {
   setLeafValue: (path: string, newValue: any) => void;
+  appendToListUnique: (path: string, newValue: any) => void;
+  removeIndexFromList: (path: string, index: number) => void;
+  removeValueFromList: (path: string, item: any) => void;
 }
 
 export type FDValue = string | number | boolean | object | undefined | null | FDValue[];

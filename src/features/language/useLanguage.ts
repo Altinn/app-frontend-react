@@ -97,7 +97,7 @@ export function useLanguage(node?: LayoutNode) {
 export function staticUseLanguageFromState(state: IRuntimeState, node?: LayoutNode) {
   const textResources = state.textResources.resourceMap;
   const selectedAppLanguage = state.deprecated.currentLanguage;
-  const formData = state.formData.formData;
+  const formData = state.deprecated.formData;
   const applicationSettings = state.applicationSettings.applicationSettings;
   const instanceDataSources = buildInstanceDataSources(state.deprecated.lastKnownInstance);
   const dataSources: TextResourceVariablesDataSources = {

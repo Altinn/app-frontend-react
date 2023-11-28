@@ -19,10 +19,10 @@ describe('SummaryGroupComponent', () => {
 
   async function render() {
     const reduxState = getInitialStateMock((state) => {
-      state.formData.formData = {
-        'mockGroup[0].mockDataBinding1': '1',
-        'mockGroup[0].mockDataBinding2': '2',
-      };
+      // state.formData.formData = {
+      //   'mockGroup[0].mockDataBinding1': '1',
+      //   'mockGroup[0].mockDataBinding2': '2',
+      // };
       state.formLayout.uiConfig.repeatingGroups = {
         groupComponent: {
           index: 0,

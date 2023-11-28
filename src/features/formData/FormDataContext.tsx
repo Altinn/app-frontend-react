@@ -17,7 +17,6 @@ import { useLaxProcessData, useRealTaskType } from 'src/features/instance/Proces
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useAllowAnonymous } from 'src/features/stateless/getAllowAnonymous';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { ProcessTaskType } from 'src/types';
 import { flattenObject } from 'src/utils/databindings';
@@ -66,7 +65,6 @@ export const FormDataProvider = ({ children }) => {
 };
 
 function useFormDataQuery(enabled: boolean) {
-  const reFetchActive = useAppSelector((state) => state.formData.reFetch);
   const appMetaData = useApplicationMetadata();
   const currentPartyId = useCurrentParty()?.partyId;
   const taskType = useRealTaskType();
@@ -113,7 +111,7 @@ function useFormDataQuery(enabled: boolean) {
   }
 
   const { fetchFormData } = useAppQueries();
-  const out = useQuery({
+  return useQuery({
     queryKey: ['fetchFormData', url, currentTaskId],
     queryFn: async () => flattenObject(await fetchFormData(url!, options)),
     enabled: isEnabled && url !== undefined,
@@ -131,12 +129,6 @@ function useFormDataQuery(enabled: boolean) {
       }
     },
   });
-
-  if (reFetchActive && !out.isFetching) {
-    out.refetch().then();
-  }
-
-  return out;
 }
 
 function useInfoFormDataQuery(enabled: boolean) {
@@ -144,7 +136,6 @@ function useInfoFormDataQuery(enabled: boolean) {
   const appMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
   const textResources = useAppSelector((state) => state.textResources.resourceMap);
   const instance = useLaxInstanceData();
-  const dispatch = useAppDispatch();
 
   const urlsToFetch: string[] = [];
   for (const resource of Object.values(textResources)) {
@@ -178,9 +169,5 @@ function useInfoFormDataQuery(enabled: boolean) {
       return out;
     },
     enabled,
-    onSuccess: (formDataAsObj) => {
-      const formData = flattenObject(formDataAsObj);
-      dispatch(FormDataActions.fetchFulfilled({ formData }));
-    },
   });
 }

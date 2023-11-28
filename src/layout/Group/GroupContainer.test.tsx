@@ -105,15 +105,12 @@ async function render({ container = mockContainer }: IRender = {}) {
     },
   };
 
-  const mockData = {
-    formData: {
-      'some-group[1].checkboxBinding': 'option.value',
-    },
-  } as any;
+  // formData: {
+  //   'some-group[1].checkboxBinding': 'option.value',
+  // },
 
   const reduxState = getInitialStateMock({
     formLayout: mockLayout,
-    formData: mockData,
   });
 
   const { store } = await renderWithNode<LayoutNodeForGroup<CompGroupRepeatingInternal>>({

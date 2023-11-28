@@ -1,6 +1,3 @@
-import { takeEvery } from 'redux-saga/effects';
-import type { SagaIterator } from 'redux-saga';
-
 import { removeHiddenValidationsSaga } from 'src/features/form/dynamics/conditionalRenderingSagas';
 import { initRepeatingGroupsSaga } from 'src/features/form/layout/repGroups/initRepeatingGroupsSaga';
 import { repGroupAddRowSaga } from 'src/features/form/layout/repGroups/repGroupAddRowSaga';
@@ -231,12 +228,13 @@ export const formLayoutSlice = () => {
         }),
         initRepeatingGroups: mkAction<LayoutTypes.IInitRepeatingGroups>({
           takeEvery: initRepeatingGroupsSaga,
-          saga: () =>
-            function* (): SagaIterator {
-              yield takeEvery([FormDataActions.fetchFulfilled, FormLayoutActions.fetchFulfilled], () =>
-                initRepeatingGroupsSaga({ payload: {} }),
-              );
-            },
+          // TODO: Re-implement repeating groups state in new form data context
+          // saga: () =>
+          //   function* (): SagaIterator {
+          //     yield takeEvery([FormDataActions.fetchFulfilled, FormLayoutActions.fetchFulfilled], () =>
+          //       initRepeatingGroupsSaga({ payload: {} }),
+          //     );
+          //   },
         }),
         initRepeatingGroupsFulfilled: genericSetRepeatingGroups,
         clearKeepScrollPos: mkAction<void>({

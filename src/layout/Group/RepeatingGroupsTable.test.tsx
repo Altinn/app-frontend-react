@@ -10,7 +10,6 @@ import { RepeatingGroupTable } from 'src/layout/Group/RepeatingGroupTable';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
-import type { IFormData } from 'src/features/formData';
 import type { TextResourceMap } from 'src/features/language/textResources';
 import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.generated';
 import type { IOption } from 'src/layout/common.generated';
@@ -110,9 +109,9 @@ describe('RepeatingGroupTable', () => {
     } as CompCheckboxesExternal,
   ];
   const layout: ILayoutState = getLayout(group, components);
-  const data: IFormData = {
-    'some-group[1].checkboxBinding': 'option.value',
-  };
+  // const data: IFormData = {
+  //   'some-group[1].checkboxBinding': 'option.value',
+  // };
 
   const repeatingGroupIndex = 3;
 
@@ -202,7 +201,7 @@ describe('RepeatingGroupTable', () => {
     const reduxState = getInitialStateMock();
     reduxState.formLayout = newLayout || layout;
     reduxState.textResources.resourceMap = textResources;
-    reduxState.formData.formData = data;
+    // reduxState.formData.formData = data;
 
     return await renderWithNode<LayoutNodeForGroup<CompGroupRepeatingInternal>>({
       nodeId: group.id,

@@ -139,7 +139,7 @@ describe('DropdownComponent', () => {
   });
 
   it('should show spinner', async () => {
-    const { fetchOptions, originalDispatch } = await render({
+    const { fetchOptions } = await render({
       component: {
         optionsId: 'countries',
         mapping: {
@@ -160,15 +160,15 @@ describe('DropdownComponent', () => {
 
     // The component always finishes loading the first time, but if we have mapping that affects the options
     // the component renders a spinner for a while when fetching the options again.
-    originalDispatch(
-      FormDataActions.updateFulfilled({
-        componentId: 'someId',
-        field: 'Some.Path',
-        data: 'newValue',
-        skipAutoSave: true,
-        skipValidation: true,
-      }),
-    );
+    // originalDispatch(
+    //   FormDataActions.updateFulfilled({
+    //     componentId: 'someId',
+    //     field: 'Some.Path',
+    //     data: 'newValue',
+    //     skipAutoSave: true,
+    //     skipValidation: true,
+    //   }),
+    // );
 
     await waitFor(() => expect(fetchOptions.mock).toHaveBeenCalledTimes(2));
     expect(screen.getByTestId('altinn-spinner')).toBeInTheDocument();

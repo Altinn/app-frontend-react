@@ -157,12 +157,10 @@ export function FormDataProvider({ children }) {
       value={{
         ...rest,
         methods: {
-          setLeafValue: (path, newValue) =>
-            dispatch({
-              type: 'setLeafValue',
-              path,
-              newValue,
-            }),
+          setLeafValue: (path, newValue) => dispatch({ type: 'setLeafValue', path, newValue }),
+          appendToListUnique: (path, newValue) => dispatch({ type: 'appendToListUnique', path, newValue }),
+          removeIndexFromList: (path, index) => dispatch({ type: 'removeIndexFromList', path, index }),
+          removeValueFromList: (path, value) => dispatch({ type: 'removeValueFromList', path, value }),
         },
       }}
     >

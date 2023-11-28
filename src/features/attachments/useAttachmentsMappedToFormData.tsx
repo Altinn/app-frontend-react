@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { createContext } from 'src/core/contexts/context';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { FD } from 'src/features/formData2/FormDataContext';
 import { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { IComponentProps } from 'src/layout';
 import type { IDataModelBindingsForList } from 'src/layout/List/config.generated';
@@ -61,26 +61,14 @@ export function useAttachmentsMappedToFormData(props: Props): MappingTools {
 }
 
 function useMappingToolsForList({ node }: Props): MappingTools {
-  const dispatch = useAppDispatch();
+  const { appendToListUnique, removeValueFromList } = FD.useMethods();
   const field = ((node.item.dataModelBindings || {}) as IDataModelBindingsForList).list;
   return {
     addAttachment: (uuid: string) => {
-      dispatch(
-        FormDataActions.updateAddToList({
-          field,
-          itemToAdd: uuid,
-          componentId: node.item.id,
-        }),
-      );
+      appendToListUnique(field, uuid);
     },
     removeAttachment: (uuid: string) => {
-      dispatch(
-        FormDataActions.updateRemoveFromList({
-          field,
-          itemToRemove: uuid,
-          componentId: node.item.id,
-        }),
-      );
+      removeValueFromList(field, uuid);
     },
   };
 }

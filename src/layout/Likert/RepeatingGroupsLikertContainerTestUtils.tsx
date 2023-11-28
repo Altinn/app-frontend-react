@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { screen, within } from '@testing-library/react';
-import type { PayloadAction } from '@reduxjs/toolkit';
 import type { AxiosResponse } from 'axios';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
@@ -10,8 +9,6 @@ import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
-import type { IFormDataState } from 'src/features/formData';
-import type { IUpdateFormDataSimple } from 'src/features/formData/formDataTypes';
 import type { IRawTextResource, ITextResourceResult } from 'src/features/language/textResources';
 import type { IValidationState } from 'src/features/validation/validationSlice';
 import type { IOption } from 'src/layout/common.generated';
@@ -96,19 +93,19 @@ const createRadioButton = (props: Partial<CompLikertExternal> | undefined): Comp
   ...props,
 });
 
-export const createFormDataUpdateAction = (
-  index: number,
-  optionValue: string,
-): PayloadAction<IUpdateFormDataSimple> => ({
-  payload: {
-    componentId: `field1-${index}`,
-    data: optionValue,
-    field: `Questions[${index}].Answer`,
-    skipValidation: false,
-    singleFieldValidation: undefined,
-  },
-  type: FormDataActions.update.type,
-});
+// export const createFormDataUpdateAction = (
+//   index: number,
+//   optionValue: string,
+// ): PayloadAction<IUpdateFormDataSimple> => ({
+//   payload: {
+//     componentId: `field1-${index}`,
+//     data: optionValue,
+//     field: `Questions[${index}].Answer`,
+//     skipValidation: false,
+//     singleFieldValidation: undefined,
+//   },
+//   type: FormDataActions.update.type,
+// });
 
 const createLayout = (
   container: CompGroupExternal,
@@ -205,17 +202,17 @@ export const render = async ({
   const mockRadioButton = createRadioButton(radioButtonProps);
   const mockLikertContainer = createLikertContainer(likertContainerProps);
   const components: CompOrGroupExternal[] = [mockRadioButton];
-  const mockData: IFormDataState = {
-    formData: generateMockFormData(mockQuestions),
-    lastSavedFormData: {},
-    submittingState: 'inactive',
-    unsavedChanges: false,
-    saving: false,
-  };
+  // const mockData: IFormDataState = {
+  //   formData: generateMockFormData(mockQuestions),
+  //   lastSavedFormData: {},
+  //   submittingState: 'inactive',
+  //   unsavedChanges: false,
+  //   saving: false,
+  // };
 
   const reduxState = getInitialStateMock({
     formLayout: createLayout(mockLikertContainer, components, mockQuestions.length - 1),
-    formData: mockData,
+    // formData: mockData,
     formValidations: createFormValidationsForCurrentView(validations),
   });
 
