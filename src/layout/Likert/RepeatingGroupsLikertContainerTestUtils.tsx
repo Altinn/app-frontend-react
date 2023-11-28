@@ -106,7 +106,6 @@ export const createFormDataUpdateAction = (
     data: optionValue,
     field: `Questions[${index}].Answer`,
     skipValidation: false,
-    selectedPartyId: '12345',
     singleFieldValidation: undefined,
   },
   type: FormDataActions.update.type,

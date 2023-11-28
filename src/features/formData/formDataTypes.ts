@@ -1,5 +1,3 @@
-import type { IParty } from 'src/types/shared';
-
 export interface IFetchFormDataFulfilled {
   formData: any;
 }
@@ -21,7 +19,6 @@ export interface IUpdateFormData {
   singleFieldValidation?: ISingleFieldValidation;
   componentId: string;
   field: string;
-  selectedPartyId: IParty['partyId'] | undefined;
 }
 
 export interface IUpdateFormDataSimple extends IUpdateFormData {

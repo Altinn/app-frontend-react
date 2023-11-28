@@ -5,7 +5,6 @@ import { Form } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useIsStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
-import { useAllowAnonymousIs } from 'src/features/applicationMetadata/getAllowAnonymous';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useTaskType } from 'src/features/instance/ProcessContext';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
@@ -14,6 +13,7 @@ import { useCurrentParty, useCurrentPartyIsValid } from 'src/features/party/Part
 import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { Feedback } from 'src/features/processEnd/feedback/Feedback';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
+import { useAllowAnonymousIs } from 'src/features/stateless/getAllowAnonymous';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';

@@ -75,27 +75,27 @@ function Root() {
       <PageNavigationProvider>
         <ExprContextWrapper>
           <ApplicationMetadataProvider>
-            <DevTools>
-              <OrgsProvider>
-                <ApplicationSettingsProvider>
-                  <LayoutSetsProvider>
-                    <FooterLayoutProvider>
-                      <ProfileProvider>
-                        <PartyProvider>
-                          <TextResourcesProvider>
-                            <KeepAliveProvider>
-                              <WindowTitleProvider>
+            <OrgsProvider>
+              <ApplicationSettingsProvider>
+                <LayoutSetsProvider>
+                  <FooterLayoutProvider>
+                    <ProfileProvider>
+                      <PartyProvider>
+                        <TextResourcesProvider>
+                          <KeepAliveProvider>
+                            <WindowTitleProvider>
+                              <DevTools>
                                 <App />
-                              </WindowTitleProvider>
-                            </KeepAliveProvider>
-                          </TextResourcesProvider>
-                        </PartyProvider>
-                      </ProfileProvider>
-                    </FooterLayoutProvider>
-                  </LayoutSetsProvider>
-                </ApplicationSettingsProvider>
-              </OrgsProvider>
-            </DevTools>
+                              </DevTools>
+                            </WindowTitleProvider>
+                          </KeepAliveProvider>
+                        </TextResourcesProvider>
+                      </PartyProvider>
+                    </ProfileProvider>
+                  </FooterLayoutProvider>
+                </LayoutSetsProvider>
+              </ApplicationSettingsProvider>
+            </OrgsProvider>
           </ApplicationMetadataProvider>
         </ExprContextWrapper>
       </PageNavigationProvider>

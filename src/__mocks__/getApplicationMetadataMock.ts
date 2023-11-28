@@ -37,6 +37,29 @@ export const getApplicationMetadataMock = (overrides: Partial<IApplicationMetada
       maxCount: 2,
       minCount: 0,
     },
+    {
+      id: 'stateless',
+      allowedContentTypes: ['application/xml'],
+      appLogic: {
+        autoCreate: true,
+        classRef: 'Altinn.App.Models.Skjema2',
+      },
+      taskId: 'Task_0',
+      maxCount: 1,
+      minCount: 1,
+    },
+    {
+      id: 'stateless-anon',
+      allowedContentTypes: ['application/xml'],
+      appLogic: {
+        autoCreate: true,
+        classRef: 'Altinn.App.Models.Skjema3',
+        allowAnonymousOnStateless: true,
+      },
+      taskId: 'Task_0',
+      maxCount: 1,
+      minCount: 1,
+    },
   ],
   partyTypesAllowed: {
     bankruptcyEstate: false,

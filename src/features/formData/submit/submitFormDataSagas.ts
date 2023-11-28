@@ -8,7 +8,6 @@ import {
   getCurrentTaskDataElementId,
   isStatelessApp,
 } from 'src/features/applicationMetadata/appMetadataUtils';
-import { makeGetAllowAnonymousSelector } from 'src/features/applicationMetadata/getAllowAnonymous';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { staticUseLanguageFromState } from 'src/features/language/useLanguage';
@@ -29,9 +28,8 @@ import {
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { IFormData } from 'src/features/formData';
-import type { IUpdateFormData } from 'src/features/formData/formDataTypes';
+import type { ISaveAction, IUpdateFormData } from 'src/features/formData/formDataTypes';
 import type { IRuntimeState, IRuntimeStore, IUiConfig } from 'src/types';
-import type { IParty } from 'src/types/shared';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { BackendValidationIssue } from 'src/utils/validation/types';
 
@@ -159,7 +157,7 @@ function* waitForSaving() {
  * @see autoSaveSaga
  * @see postStatelessData
  */
-export function* putFormData({ field, componentId }: Omit<SaveDataParams, 'selectedPartyId'>) {
+export function* putFormData({ field, componentId }: Omit<SaveDataParams, 'selectedPartyId' | 'anonymous'>) {
   const defaultDataElementGuid: string | undefined = yield select((state: IRuntimeState) =>
     getCurrentTaskDataElementId({
       application: state.applicationMetadata.applicationMetadata!,
@@ -240,7 +238,6 @@ function* handleChangedFields(changedFields: IFormData | undefined, lastSavedFor
           skipValidation: true,
           skipAutoSave: true,
           componentId: '',
-          selectedPartyId: undefined,
         }),
       );
     }),
@@ -268,15 +265,15 @@ function getModelToSave(state: IRuntimeState) {
  * @see submitFormSaga
  */
 export function* saveFormDataSaga({
-  payload: { field, componentId, singleFieldValidation, selectedPartyId },
-}: PayloadAction<IUpdateFormData>): SagaIterator {
+  payload: { field, componentId, singleFieldValidation },
+}: PayloadAction<ISaveAction>): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
     // updates the default data element
     const application = state.applicationMetadata.applicationMetadata!;
 
     if (isStatelessApp(application)) {
-      const params: SaveDataParams = { field, componentId, selectedPartyId };
+      const params: SaveDataParams = { field, componentId };
       yield call(postStatelessData, params);
     } else {
       // app with instance
@@ -303,7 +300,6 @@ export function* saveFormDataSaga({
 interface SaveDataParams {
   field?: string;
   componentId?: string;
-  selectedPartyId: IParty['partyId'] | undefined;
 }
 
 /**
@@ -312,15 +308,16 @@ interface SaveDataParams {
  * @see saveFormDataSaga
  * @see autoSaveSaga
  */
-export function* postStatelessData({ field, componentId, selectedPartyId }: SaveDataParams) {
+export function* postStatelessData({ field, componentId }: SaveDataParams) {
   const state: IRuntimeState = yield select();
   const model = getModelToSave(state);
-  const allowAnonymous = yield select(makeGetAllowAnonymousSelector());
   let headers: AxiosRequestConfig['headers'] = {
     'X-DataField': (field && encodeURIComponent(field)) || 'undefined',
     'X-ComponentId': (componentId && encodeURIComponent(componentId)) || 'undefined',
   };
-  if (!allowAnonymous && selectedPartyId !== undefined) {
+  const selectedPartyId: string | undefined = yield select((state: IRuntimeState) => state.deprecated.selectedPartyId);
+  const anonymous: boolean = yield select((state: IRuntimeState) => state.deprecated.anonymous);
+  if (selectedPartyId !== undefined) {
     headers = {
       ...headers,
       party: `partyid:${selectedPartyId}`,
@@ -337,7 +334,7 @@ export function* postStatelessData({ field, componentId, selectedPartyId }: Save
     try {
       const response = yield call(
         httpPost,
-        getStatelessFormDataUrl(currentDataType, allowAnonymous),
+        getStatelessFormDataUrl(currentDataType, anonymous),
         {
           headers,
           signal: abortController.signal,

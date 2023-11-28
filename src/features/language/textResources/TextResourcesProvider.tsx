@@ -6,11 +6,11 @@ import type { AxiosError } from 'axios';
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
-import { useAllowAnonymousIs } from 'src/features/applicationMetadata/getAllowAnonymous';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { resourcesAsMap } from 'src/features/language/textResources/resourcesAsMap';
 import { TextResourcesActions } from 'src/features/language/textResources/textResourcesSlice';
 import { useProfile } from 'src/features/profile/ProfileProvider';
+import { useAllowAnonymousIs } from 'src/features/stateless/getAllowAnonymous';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import type { ITextResourceResult, TextResourceMap } from 'src/features/language/textResources/index';
 
