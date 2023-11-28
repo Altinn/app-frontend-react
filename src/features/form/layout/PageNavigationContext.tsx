@@ -20,7 +20,7 @@ export type PageNavigationContext = {
   setReturnToView: React.Dispatch<React.SetStateAction<string | undefined>>;
 
   /**
-   * Keeps track of scroll position to be able toscroll the page to the
+   * Keeps track of scroll position to be able to scroll the page to the
    * next-button when navigation is stopped by validation errors, and the
    * page height changes as a result of displaying those validation errors.
    */

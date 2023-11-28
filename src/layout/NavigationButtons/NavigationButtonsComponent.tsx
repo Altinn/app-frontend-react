@@ -11,7 +11,6 @@ import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import classes from 'src/layout/NavigationButtons/NavigationButtonsComponent.module.css';
 import { reducePageValidations } from 'src/types';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { IComponentScrollPos } from 'src/features/form/layout/formLayoutTypes';
 import type { PropsFromGenericComponent } from 'src/layout';
 export type INavigationButtons = PropsFromGenericComponent<'NavigationButtons'>;
 
@@ -50,17 +49,20 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
     // eslint-disable-next-line unused-imports/no-unused-vars
     // @ts-expect-error Keeping this to know where validations were previously run.
     const runValidations = reducePageValidations(activeTriggers);
-    const keepScrollPosAction: IComponentScrollPos = {
-      componentId: id,
-      offsetTop: getScrollPosition(),
-    };
-
     const goToView = returnToView || next;
+
     if (!(goToView && !disableNext)) {
       return;
     }
+    // const keepScrollPosAction: IComponentScrollPos = {
+    //   componentId: id,
+    //   offsetTop: getScrollPosition(),
+    // };
 
-    setScrollPosition(keepScrollPosAction);
+    /**
+     * TODO(1508): set this only if there are valiadtion messages
+     */
+    // setScrollPosition(keepScrollPosAction);
     setReturnToView(undefined);
     navigateToPage(goToView);
   };
