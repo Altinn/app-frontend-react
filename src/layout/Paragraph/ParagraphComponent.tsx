@@ -1,6 +1,5 @@
 import React from 'react';
 
-// import { Grid, Typography } from '@material-ui/core';
 import { Paragraph } from '@digdir/design-system-react';
 
 import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
@@ -16,7 +15,8 @@ export function ParagraphComponent({ node }: IParagraphProps) {
   const { lang } = useLanguage();
   const text = lang(textResourceBindings?.title);
 
-  // The lang() function returns an object with a type property set to 'span' if text contains inline-element(s) or just a string.
+  // The lang() function returns an object with a type property set to 'span'
+  // if text contains inline-element(s) or just a string.
   const hasInlineContent = text && typeof text === 'object' && 'type' in text && text.type === 'span';
 
   return (
