@@ -1,5 +1,3 @@
-import { useMatch } from 'react-router-dom';
-
 import { useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
@@ -14,6 +12,7 @@ import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useHasInstance, useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useNavigationParams } from 'src/hooks/useNavigatePage';
 import type { ExprObjConfig, ExprVal } from 'src/features/expressions/types';
 import type { ILayoutFileExternal } from 'src/layout/common.generated';
 import type { ILayoutCollection, ILayouts } from 'src/layout/layout';
@@ -58,10 +57,7 @@ const { Provider, useCtx } = delayedContext(() =>
 export function useLayoutSetId() {
   const layoutSets = useLayoutSets();
   const currentProcessLayoutSetId = useCurrentLayoutSetId();
-  const taskIdMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId');
-  const pageKeyMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId/:pageKey');
-
-  const taskId = pageKeyMatch?.params.taskId ?? taskIdMatch?.params.taskId;
+  const { taskId } = useNavigationParams();
 
   const layoutSetId = taskId != null ? layoutSets?.sets.find((set) => set.tasks?.includes(taskId))?.id : undefined;
 

@@ -15,7 +15,7 @@ type NavigateToPageOptions = {
   returnToView?: string;
 };
 
-const useNavigationParams = () => {
+export const useNavigationParams = () => {
   const instanceMatch = useMatch('/instance/:partyId/:instanceGuid');
   const taskIdMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId');
   const pageKeyMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId/:pageKey');
