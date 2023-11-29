@@ -16,9 +16,6 @@ export function getInitialStateMock(custom?: Partial<IRuntimeState> | ((state: I
     applicationMetadata: {
       applicationMetadata: getApplicationMetadataMock(),
     },
-    customValidation: {
-      customValidation: null,
-    },
     devTools: {
       activeTab: DevToolsTab.General,
       isOpen: false,

@@ -2,7 +2,6 @@ import { combineReducers } from 'redux';
 
 import { applicationMetadataSlice } from 'src/features/applicationMetadata/applicationMetadataSlice';
 import { applicationSettingsSlice } from 'src/features/applicationSettings/applicationSettingsSlice';
-import { customValidationSlice } from 'src/features/customValidation/customValidationSlice';
 import { formDataModelSlice } from 'src/features/datamodel/datamodelSlice';
 import { devToolsSlice } from 'src/features/devtools/data/devToolsSlice';
 import { footerLayoutSlice } from 'src/features/footer/data/footerLayoutSlice';
@@ -20,7 +19,6 @@ import type { SliceReducers } from 'src/redux/sagaSlice';
 const slices = [
   applicationMetadataSlice,
   applicationSettingsSlice,
-  customValidationSlice,
   devToolsSlice,
   footerLayoutSlice,
   formDataModelSlice,
