@@ -1,8 +1,8 @@
 import type Ajv from 'ajv';
+import type { JSONSchema7 } from 'json-schema';
 
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IAttachments } from 'src/features/attachments';
-import type { IJsonSchemas } from 'src/features/datamodel';
 import type { Expression, ExprValToActual } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
 import type { IUseLanguage, ValidParam } from 'src/features/language/useLanguage';
@@ -155,7 +155,7 @@ export type IValidationContext = {
   instance: IInstance | null;
   process: IProcess | null;
   layoutSets: ILayoutSets;
-  schemas: IJsonSchemas;
+  schema: JSONSchema7;
   customValidation: IExpressionValidations | null;
 };
 
@@ -224,7 +224,6 @@ export type IExpressionValidationConfig = {
 
 export interface ISchemaValidator {
   rootElementPath: string;
-  schema: any;
   validator: Ajv;
 }
 

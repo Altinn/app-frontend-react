@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
+import { useDataModelSchema } from 'src/features/datamodel/DataModelSchemaProvider';
 import { dotNotationToPointer } from 'src/features/datamodel/notations';
 import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
-import { useCurrentDataModelSchema, useCurrentDataModelType } from 'src/features/datamodel/useBindingSchema';
+import { useCurrentDataModelType } from 'src/features/datamodel/useBindingSchema';
 import { useLayoutSchemaValidation } from 'src/features/devtools/layoutValidation/useLayoutSchemaValidation';
 import { generateSimpleRepeatingGroups } from 'src/features/form/layout/repGroups/generateSimpleRepeatingGroups';
 import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
@@ -72,7 +73,7 @@ function useDataModelBindingsValidation(props: LayoutValidationProps) {
   const layouts = useAppSelector((state) => state.formLayout.layouts) || defaultLayouts;
   const { logErrors = false } = props;
   const repeatingGroups = useMemo(() => generateSimpleRepeatingGroups(layouts), [layouts]);
-  const schema = useCurrentDataModelSchema();
+  const schema = useDataModelSchema();
   const dataType = useCurrentDataModelType();
   const dataSources = useAppSelector(selectDataSourcesFromState);
   const currentPage = useAppSelector((state) => state.formLayout.uiConfig.currentView);

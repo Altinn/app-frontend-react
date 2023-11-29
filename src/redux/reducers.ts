@@ -2,7 +2,6 @@ import { combineReducers } from 'redux';
 
 import { applicationMetadataSlice } from 'src/features/applicationMetadata/applicationMetadataSlice';
 import { applicationSettingsSlice } from 'src/features/applicationSettings/applicationSettingsSlice';
-import { formDataModelSlice } from 'src/features/datamodel/datamodelSlice';
 import { devToolsSlice } from 'src/features/devtools/data/devToolsSlice';
 import { footerLayoutSlice } from 'src/features/footer/data/footerLayoutSlice';
 import { formDynamicsSlice } from 'src/features/form/dynamics/formDynamicsSlice';
@@ -21,7 +20,6 @@ const slices = [
   applicationSettingsSlice,
   devToolsSlice,
   footerLayoutSlice,
-  formDataModelSlice,
   formDataSlice,
   formDynamicsSlice,
   formLayoutSlice,

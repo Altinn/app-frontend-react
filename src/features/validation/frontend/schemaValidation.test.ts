@@ -5,7 +5,6 @@ import { v4 as uuid } from 'uuid';
 import { staticUseLanguageForTests } from 'src/features/language/useLanguage';
 import { createValidator, getSchemaValidationErrors } from 'src/features/validation/frontend/schemaValidation';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
-import type { IJsonSchemas } from 'src/features/datamodel';
 import type { IFormData } from 'src/features/formData';
 import type { ILayoutSets } from 'src/types';
 import type { IDataType, IInstance, IProcess, ITask } from 'src/types/shared';
@@ -36,7 +35,6 @@ function runGetSchemaValidationErrors(formData: IFormData, schema: object) {
       },
     ],
   };
-  const schemas: IJsonSchemas = { [dataTypeId]: schema };
 
   return getSchemaValidationErrors({
     attachments,
@@ -47,7 +45,7 @@ function runGetSchemaValidationErrors(formData: IFormData, schema: object) {
     instance,
     process,
     layoutSets,
-    schemas,
+    schema,
     customValidation: null,
   });
 }

@@ -3,6 +3,7 @@ import Ajv2020 from 'ajv/dist/2020';
 import addFormats from 'ajv-formats';
 import addAdditionalFormats from 'ajv-formats-draft2019';
 import type { ErrorObject, Options } from 'ajv';
+import type { JSONSchema7 } from 'json-schema';
 
 import { getCurrentDataTypeForApplication } from 'src/features/applicationMetadata/appMetadataUtils';
 import { convertDataBindingToModel } from 'src/utils/databindings';
@@ -12,7 +13,6 @@ import {
   getSchemaPartOldGenerator,
   processInstancePath,
 } from 'src/utils/schemaUtils';
-import type { IJsonSchemas } from 'src/features/datamodel';
 import type { IFormData } from 'src/features/formData';
 import type { ValidLanguageKey } from 'src/features/language/useLanguage';
 import type {
@@ -25,9 +25,9 @@ import type { IDataType } from 'src/types/shared';
 
 const validators: ISchemaValidators = {};
 
-export function getValidator(typeId: string, schemas: IJsonSchemas, dataType: IDataType) {
+export function getValidator(typeId: string, schema: JSONSchema7, dataType: IDataType) {
   if (!validators[typeId]) {
-    validators[typeId] = createValidator(schemas[typeId], dataType);
+    validators[typeId] = createValidator(schema, dataType);
   }
   return validators[typeId];
 }
@@ -63,7 +63,6 @@ export function createValidator(schema: any, dataType: IDataType): ISchemaValida
 
   return {
     validator: ajv,
-    schema,
     rootElementPath: getRootElementPath(schema, dataType),
   };
 }
@@ -181,7 +180,7 @@ export const errorMessageKeys = {
  * @see ISchemaValidationError
  */
 export function getSchemaValidationErrors(
-  { formData, langTools, application, process, layoutSets, schemas }: IValidationContext,
+  { formData, langTools, application, process, layoutSets, schema }: IValidationContext,
   overrideFormData?: IFormData,
 ): ISchemaValidationError[] {
   const currentDataTaskDataTypeId = getCurrentDataTypeForApplication({
@@ -194,7 +193,7 @@ export function getSchemaValidationErrors(
     return [];
   }
 
-  const { validator, rootElementPath, schema } = getValidator(currentDataTaskDataTypeId, schemas, dataType);
+  const { validator, rootElementPath } = getValidator(currentDataTaskDataTypeId, schema, dataType);
   const formDataToValidate = { ...formData, ...overrideFormData };
   const model = convertDataBindingToModel(formDataToValidate);
   const valid = validator.validate(`schema${rootElementPath}`, model);

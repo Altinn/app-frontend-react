@@ -7,6 +7,7 @@ import {
   getCurrentDataTypeForApplication,
   getCurrentTaskDataElementId,
 } from 'src/features/applicationMetadata/appMetadataUtils';
+import { useDataModelSchema } from 'src/features/datamodel/DataModelSchemaProvider';
 import { dotNotationToPointer } from 'src/features/datamodel/notations';
 import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
@@ -40,18 +41,6 @@ export function useCurrentDataModelName() {
   });
 }
 
-export function useCurrentDataModelSchema() {
-  const dataModels = useAppSelector((state) => state.formDataModel.schemas);
-  const currentDataModelName = useCurrentDataModelName();
-  return useMemo(() => {
-    if (dataModels && currentDataModelName && currentDataModelName in dataModels) {
-      return dataModels[currentDataModelName];
-    }
-
-    return undefined;
-  }, [dataModels, currentDataModelName]);
-}
-
 export function useCurrentDataModelType() {
   const name = useCurrentDataModelName();
 
@@ -61,7 +50,7 @@ export function useCurrentDataModelType() {
 }
 
 export function useBindingSchema<T extends IDataModelBindings | undefined>(bindings: T): AsSchema<T> | undefined {
-  const currentSchema = useCurrentDataModelSchema();
+  const currentSchema = useDataModelSchema();
   const dataType = useCurrentDataModelType();
 
   return useMemo(() => {

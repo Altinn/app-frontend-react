@@ -5,6 +5,7 @@ import deepEqual from 'fast-deep-equal';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { useCustomValidationConfig } from 'src/features/customValidation/CustomValidationContext';
+import { useDataModelSchema } from 'src/features/datamodel/DataModelSchemaProvider';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
@@ -28,7 +29,7 @@ export function useValidationContextGenerator(): ValidationContextGenerator {
   const instance = useLaxInstanceData() ?? null;
   const process = useLaxProcessData() ?? null;
   const layoutSets = useLayoutSets();
-  const schemas = useAppSelector((state) => state.formDataModel.schemas);
+  const schema = useDataModelSchema();
   const customValidation = useCustomValidationConfig();
   const langToolsGenerator = useAppSelector(
     (state) => (node: LayoutNode | undefined) => staticUseLanguageFromState(state, node),
@@ -43,7 +44,7 @@ export function useValidationContextGenerator(): ValidationContextGenerator {
       instance,
       process,
       layoutSets,
-      schemas,
+      schema,
       customValidation,
     }),
     [
@@ -56,7 +57,7 @@ export function useValidationContextGenerator(): ValidationContextGenerator {
       langToolsGenerator,
       layoutSets,
       process,
-      schemas,
+      schema,
     ],
   );
 }

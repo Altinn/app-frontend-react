@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import type { JSONSchema7 } from 'json-schema';
 
 import * as complexSchema from 'src/__mocks__/json-schema/complex.json';
 import * as oneOfOnRootSchema from 'src/__mocks__/json-schema/one-of-on-root.json';
@@ -176,7 +177,10 @@ describe('schemaUtils', () => {
 
   describe('getSchemaPart', () => {
     it('should return items based in a oneOf ref on root', () => {
-      const nestedPathResult = getSchemaPart('#/$defs/skjema/properties/alder/maximum', oneOfOnRootSchema);
+      const nestedPathResult = getSchemaPart(
+        '#/$defs/skjema/properties/alder/maximum',
+        oneOfOnRootSchema as JSONSchema7,
+      );
       expect(nestedPathResult).toEqual({
         type: 'number',
         minimum: 0,
@@ -185,7 +189,10 @@ describe('schemaUtils', () => {
     });
 
     it('should return item based on ref on root', () => {
-      const result = getSchemaPart('#/definitions/Skjema/properties/person/properties/age/minimum', refOnRootSchema);
+      const result = getSchemaPart(
+        '#/definitions/Skjema/properties/person/properties/age/minimum',
+        refOnRootSchema as JSONSchema7,
+      );
       expect(result).toEqual({
         type: 'integer',
         minimum: 0,
@@ -194,7 +201,7 @@ describe('schemaUtils', () => {
     });
 
     it('should handle complex schema', () => {
-      const result = getSchemaPart('#/$defs/Navn/maxLength', complexSchema);
+      const result = getSchemaPart('#/$defs/Navn/maxLength', complexSchema as unknown as JSONSchema7);
       expect(result).toEqual({
         type: 'string',
         '@xsdType': 'string',

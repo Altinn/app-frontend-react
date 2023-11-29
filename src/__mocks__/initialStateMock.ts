@@ -35,9 +35,6 @@ export function getInitialStateMock(custom?: Partial<IRuntimeState> | ((state: I
       logs: [],
     },
     formData: getFormDataStateMock(),
-    formDataModel: {
-      schemas: {},
-    },
     formDynamics: {
       APIs: null,
       conditionalRendering: null,
