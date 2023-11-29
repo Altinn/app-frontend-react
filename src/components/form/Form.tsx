@@ -6,16 +6,16 @@ import classes from 'src/components/form/Form.module.css';
 import { MessageBanner } from 'src/components/form/MessageBanner';
 import { ErrorReport } from 'src/components/message/ErrorReport';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
+import { useNodes } from 'src/features/form/nodes/NodesContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { getFieldName } from 'src/utils/formComponentUtils';
 import { extractBottomButtons, hasRequiredFields } from 'src/utils/formLayout';
-import { useExprContext } from 'src/utils/layout/ExprContext';
 import { getFormHasErrors, missingFieldsInLayoutValidations } from 'src/utils/validation/validation';
 
 export function Form() {
-  const nodes = useExprContext();
+  const nodes = useNodes();
   const langTools = useLanguage();
   const validations = useAppSelector((state) => state.formValidations.validations);
   const hasErrors = useAppSelector((state) => getFormHasErrors(state.formValidations.validations));

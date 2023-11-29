@@ -2,8 +2,8 @@ import { groupIsRepeatingExt, groupIsRepeatingLikertExt } from 'src/layout/Group
 import type { CompGroupExternal, IGroupEditPropertiesLikert } from 'src/layout/Group/config.generated';
 import type { CompExternal, ILayout } from 'src/layout/layout';
 import type { ILayoutSets, IRepeatingGroups } from 'src/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
+import type { LayoutPage } from 'src/features/form/nodes/LayoutPage';
 
 interface SplitKey {
   baseComponentId: string;

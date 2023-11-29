@@ -26,7 +26,7 @@ import type {
   TemporaryAttachment,
 } from 'src/features/attachments';
 import type { IData } from 'src/types/shared';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 import type { BackendValidationIssue, IComponentValidations } from 'src/utils/validation/types';
 

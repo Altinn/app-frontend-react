@@ -24,7 +24,7 @@ import type {
 } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { ITextResourceBindings } from 'src/layout/layout';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 
 export interface IRepeatingGroupTableRowProps {
   node: LayoutNodeForGroup<CompGroupRepeatingInternal>;

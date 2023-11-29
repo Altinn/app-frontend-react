@@ -2,7 +2,7 @@ import React from 'react';
 
 import { GenericComponent } from 'src/layout/GenericComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 
 type IAccordionGroupProps = PropsFromGenericComponent<'AccordionGroup'>;
 

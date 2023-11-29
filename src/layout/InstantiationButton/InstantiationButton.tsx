@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { FD } from 'src/features/formData2/FormDataContext';
+import { FD } from 'src/features/formData/FormDataWriter';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { WrappedButton } from 'src/layout/Button/WrappedButton';

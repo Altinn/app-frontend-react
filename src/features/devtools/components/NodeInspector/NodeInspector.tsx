@@ -10,12 +10,12 @@ import { NodeInspectorContextProvider } from 'src/features/devtools/components/N
 import { SplitView } from 'src/features/devtools/components/SplitView/SplitView';
 import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
 import { DevToolsTab } from 'src/features/devtools/data/types';
+import { useNodes } from 'src/features/form/nodes/NodesContext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useExprContext } from 'src/utils/layout/ExprContext';
 
 export const NodeInspector = () => {
-  const pages = useExprContext();
+  const pages = useNodes();
   const currentPage = pages?.current();
   const currentPageKey = currentPage?.top.myKey;
   const selectedId = useAppSelector((state) => state.devTools.nodeInspector.selectedNodeId);

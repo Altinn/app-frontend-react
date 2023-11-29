@@ -1,13 +1,13 @@
 import { nodesFromGrid } from 'src/layout/Grid/tools';
-import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
+import { ComponentHierarchyGenerator } from 'src/features/form/nodes/HierarchyGenerator';
 import type { GridRowsInternal } from 'src/layout/common.generated';
 import type {
   ChildFactory,
   HierarchyContext,
   HierarchyGenerator,
   UnprocessedItem,
-} from 'src/utils/layout/HierarchyGenerator';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+} from 'src/features/form/nodes/HierarchyGenerator';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 
 export class GridHierarchyGenerator extends ComponentHierarchyGenerator<'Grid'> {
   private canRenderInTable(generator: HierarchyGenerator, childId: string, outputWarning = true): boolean {

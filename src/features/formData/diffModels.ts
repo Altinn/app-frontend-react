@@ -1,4 +1,4 @@
-import type { IFormData } from 'src/features/formData';
+import type { IFormData } from 'src/features/formData/index';
 
 export function diffModels(current: IFormData, prev: IFormData) {
   const changes: { [key: string]: string | null } = {};

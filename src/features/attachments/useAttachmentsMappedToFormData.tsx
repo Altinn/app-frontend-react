@@ -1,11 +1,11 @@
 import React from 'react';
 
 import { createContext } from 'src/core/contexts/context';
-import { FD } from 'src/features/formData2/FormDataContext';
+import { FD } from 'src/features/formData/FormDataWriter';
 import { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { IComponentProps } from 'src/layout';
 import type { IDataModelBindingsForList } from 'src/layout/List/config.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 
 interface Props {
   node: LayoutNode<'FileUpload' | 'FileUploadWithTag'>;

@@ -1,13 +1,13 @@
+import { useNodes } from 'src/features/form/nodes/NodesContext';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
-import { useExprContext } from 'src/utils/layout/ExprContext';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
+import type { LayoutPages } from 'src/features/form/nodes/LayoutPages';
 import type { IData, IDataType } from 'src/types/shared';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 export interface SimpleAttachments {
   [attachmentComponentId: string]: IData[] | undefined;
@@ -126,7 +126,7 @@ export function useMappedAttachments() {
   const application = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
   const currentTask = useLaxProcessData()?.currentTask?.elementId;
   const data = useLaxInstanceData()?.data;
-  const nodes = useExprContext();
+  const nodes = useNodes();
 
   return useMemoDeepEqual(() => {
     if (data && nodes && application) {

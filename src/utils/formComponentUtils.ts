@@ -13,7 +13,7 @@ import type {
 } from 'src/layout/common.generated';
 import type { CompInternal, CompTypes, IDataModelBindings, ITextResourceBindings } from 'src/layout/layout';
 import type { IDataModelBindingsForList } from 'src/layout/List/config.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 import type { IComponentValidations } from 'src/utils/validation/types';
 
 export type BindingToValues<B extends IDataModelBindings | undefined> = B extends undefined

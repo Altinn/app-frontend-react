@@ -7,19 +7,19 @@ import {
   shouldUpdate,
 } from 'src/features/form/dynamics/conditionalRenderingSagas';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { FD } from 'src/features/formData2/FormDataContext';
+import { FD } from 'src/features/formData/FormDataWriter';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { selectPageOrderConfig } from 'src/selectors/getLayoutOrder';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
-import { _private, selectDataSourcesFromState } from 'src/utils/layout/hierarchy';
-import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { _private, selectDataSourcesFromState } from 'src/features/form/nodes/hierarchy';
+import { BaseLayoutNode } from 'src/features/form/nodes/LayoutNode';
 import type { HierarchyDataSources, LayoutNodeFromObj } from 'src/layout/layout';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutPages } from 'src/utils/layout/LayoutPages';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
+import type { LayoutPages } from 'src/features/form/nodes/LayoutPages';
 
 export const { Provider, useCtx } = createContext<LayoutPages | undefined>({
-  name: 'ExprContext',
+  name: 'Nodes',
   required: false,
   default: undefined,
 });
@@ -35,7 +35,7 @@ function useLayoutsAsNodes(): LayoutPages | undefined {
   return _private.useResolvedExpressions();
 }
 
-export const ExprContextWrapper = (props: React.PropsWithChildren) => {
+export const NodesProvider = (props: React.PropsWithChildren) => {
   const resolvedNodes = useLayoutsAsNodes();
   useLegacyHiddenComponents(resolvedNodes);
 
@@ -49,7 +49,7 @@ export const ExprContextWrapper = (props: React.PropsWithChildren) => {
  *
  * Usually, if you're looking for a specific component/node, useResolvedNode() is better.
  */
-export const useExprContext = () => useCtx();
+export const useNodes = () => useCtx();
 
 /**
  * Given a selector, get a LayoutNode object
@@ -62,18 +62,18 @@ export const useExprContext = () => useCtx();
  *    you'll get the first row item as a result.
  */
 export function useResolvedNode<T>(selector: string | undefined | T | LayoutNode): LayoutNodeFromObj<T> | undefined {
-  const context = useExprContext();
+  const nodes = useNodes();
 
   if (typeof selector === 'object' && selector !== null && selector instanceof BaseLayoutNode) {
     return selector as any;
   }
 
   if (typeof selector === 'string') {
-    return context?.findById(selector) as any;
+    return nodes?.findById(selector) as any;
   }
 
   if (typeof selector == 'object' && selector !== null && 'id' in selector && typeof selector.id === 'string') {
-    return context?.findById(selector.id) as any;
+    return nodes?.findById(selector.id) as any;
   }
 
   return undefined;

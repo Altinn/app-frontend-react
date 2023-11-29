@@ -10,7 +10,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { groupIsRepeatingLikert } from 'src/layout/Group/tools';
 import classes from 'src/layout/RadioButtons/ControlledRadioGroup.module.css';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
-import { shouldUseRowLayout } from 'src/utils/layout';
+import { shouldUseRowLayout } from 'src/features/form/nodes';
 import type { IRadioButtonsContainerProps } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 
 export type IControlledRadioGroupProps = IRadioButtonsContainerProps;

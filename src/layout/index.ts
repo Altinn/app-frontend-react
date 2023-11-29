@@ -1,7 +1,7 @@
 import { createContext, useMemo } from 'react';
 
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
-import { FD } from 'src/features/formData2/FormDataContext';
+import { FD } from 'src/features/formData/FormDataWriter';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { type IUseLanguage, useLanguage } from 'src/features/language/useLanguage';
 import { useAllOptions } from 'src/features/options/useAllOptions';
@@ -14,7 +14,7 @@ import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { CompInternal, CompRendersLabel, CompTypes } from 'src/layout/layout';
 import type { AnyComponent, LayoutComponent } from 'src/layout/LayoutComponent';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 import type { ISchemaValidationError } from 'src/utils/validation/schemaValidation';
 import type {
   IComponentValidations,

@@ -5,7 +5,7 @@ import { Button } from '@digdir/design-system-react';
 import type { PropsFromGenericComponent } from '..';
 
 import { useLanguage } from 'src/features/language/useLanguage';
-import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import { LayoutPage } from 'src/features/form/nodes/LayoutPage';
 
 export const PrintButtonComponent = ({ node }: PropsFromGenericComponent<'PrintButton'>) => {
   const { lang } = useLanguage();

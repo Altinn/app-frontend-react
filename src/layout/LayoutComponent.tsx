@@ -16,8 +16,8 @@ import {
 } from 'src/layout/index';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { getFieldName } from 'src/utils/formComponentUtils';
-import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
-import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { SimpleComponentHierarchyGenerator } from 'src/features/form/nodes/HierarchyGenerator';
+import { BaseLayoutNode } from 'src/features/form/nodes/LayoutNode';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { IFormData } from 'src/features/formData';
@@ -29,9 +29,9 @@ import type {
   ITextResourceBindings,
 } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { ComponentHierarchyGenerator } from 'src/features/form/nodes/HierarchyGenerator';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
+import type { LayoutPage } from 'src/features/form/nodes/LayoutPage';
 import type { ISchemaValidationError } from 'src/utils/validation/schemaValidation';
 import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
 

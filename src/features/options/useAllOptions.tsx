@@ -5,15 +5,15 @@ import deepEqual from 'fast-deep-equal';
 
 import { createContext } from 'src/core/contexts/context';
 import { Loader } from 'src/core/loading/Loader';
+import { useNodes } from 'src/features/form/nodes/NodesContext';
 import { useLaxProcessData, useRealTaskType } from 'src/features/instance/ProcessContext';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { ProcessTaskType } from 'src/types';
-import { useExprContext } from 'src/utils/layout/ExprContext';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 import type { IOption } from 'src/layout/common.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 /**
  * This file contains a Context that provides a global map of all options that have been fetched.
@@ -105,7 +105,7 @@ function isNodeOptionBased(node: LayoutNode) {
 }
 
 export function AllOptionsProvider({ children }: PropsWithChildren) {
-  const nodes = useExprContext();
+  const nodes = useNodes();
   const currentTaskType = useRealTaskType();
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
   const initialState: State = {

@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
 
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 
 export type NodeInspectorContextValue =
   | {

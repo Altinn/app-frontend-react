@@ -8,7 +8,7 @@ import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ButtonLoader } from 'src/layout/Button/ButtonLoader';
-import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import { LayoutPage } from 'src/features/form/nodes/LayoutPage';
 import type { ActionButtonStyle } from 'src/layout/ActionButton/config.generated';
 import type { ButtonColor, ButtonVariant } from 'src/layout/Button/WrappedButton';
 

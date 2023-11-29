@@ -8,7 +8,7 @@ import { Description } from 'src/components/form/Description';
 import { Label } from 'src/components/form/Label';
 import { Legend } from 'src/components/form/Legend';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { FD } from 'src/features/formData2/FormDataContext';
+import { FD } from 'src/features/formData/FormDataWriter';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -22,7 +22,7 @@ import type { IComponentProps, IFormComponentContext, PropsFromGenericComponent 
 import type { CompInternal, CompTypes, ITextResourceBindings } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 
 export interface IGenericComponentProps<Type extends CompTypes> {
   node: LayoutNode<Type>;

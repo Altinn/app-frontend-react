@@ -2,20 +2,24 @@ import { useMemo } from 'react';
 
 import { createSelector } from 'reselect';
 
+import { useApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
+import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
-import { FD } from 'src/features/formData2/FormDataContext';
+import { useLayouts } from 'src/features/form/layout/LayoutsContext';
+import { generateEntireHierarchy } from 'src/features/form/nodes/HierarchyGenerator';
+import { FD } from 'src/features/formData/FormDataWriter';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { staticUseLanguageFromState, useLanguage } from 'src/features/language/useLanguage';
+import { useAllOptions } from 'src/features/options/useAllOptions';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLayoutComponentObject } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
-import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
+import type { LayoutPages } from 'src/features/form/nodes/LayoutPages';
 import type { CompInternal, HierarchyDataSources, ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups, IRuntimeState } from 'src/types';
-import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 /**
  * This will generate an entire layout hierarchy, iterate each
@@ -143,13 +147,13 @@ function useResolvedExpressions() {
   const instance = useLaxInstanceData();
   const formData = FD.useAsDotMap();
   const uiConfig = useAppSelector((state) => state.formLayout.uiConfig);
-  const attachments = useAppSelector((state) => state.deprecated.lastKnownAttachments);
-  const options = useAppSelector((state) => state.deprecated.allOptions);
+  const attachments = useAttachments();
+  const options = useAllOptions();
   const process = useLaxProcessData();
-  const applicationSettings = useAppSelector((state) => state.applicationSettings.applicationSettings);
+  const applicationSettings = useApplicationSettings();
   const hiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
   const validations = useAppSelector((state) => state.formValidations.validations);
-  const layouts = useAppSelector((state) => state.formLayout.layouts);
+  const layouts = useLayouts();
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
   const devTools = useAppSelector((state) => state.devTools);

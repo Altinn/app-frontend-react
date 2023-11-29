@@ -13,7 +13,7 @@ import { useAlertOnChange } from 'src/hooks/useAlertOnChange';
 import classes from 'src/layout/FileUpload/FileUploadTable/FileTableRow.module.css';
 import { useFileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
 import type { IAttachment } from 'src/features/attachments';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 
 interface IFileTableButtonsProps {
   node: LayoutNode<'FileUpload' | 'FileUploadWithTag'>;

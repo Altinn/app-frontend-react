@@ -1,6 +1,6 @@
 import type { IRuleConnections } from 'src/features/form/dynamics';
-import type { IFormData } from 'src/features/formData';
-import type { DataModelChange } from 'src/features/formData2/StateMachine';
+import type { IFormData } from 'src/features/formData/index';
+import type { DataModelChange } from 'src/features/formData/StateMachine';
 
 /**
  * This function has been copied from checkIfRuleShouldRun() and modified to work with the new formData feature.

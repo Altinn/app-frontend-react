@@ -12,9 +12,9 @@ import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
 import { DevToolsTab } from 'src/features/devtools/data/types';
 import { useLayoutValidationForPage } from 'src/features/devtools/layoutValidation/useLayoutValidation';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { useNodes } from 'src/features/form/nodes/NodesContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
-import { useExprContext } from 'src/utils/layout/ExprContext';
 
 export const LayoutInspector = () => {
   const selectedComponent = useAppSelector((state) => state.devTools.layoutInspector.selectedComponentId);
@@ -23,7 +23,7 @@ export const LayoutInspector = () => {
   const [componentProperties, setComponentProperties] = useState<string | null>(null);
   const [propertiesHaveChanged, setPropertiesHaveChanged] = useState(false);
   const [error, setError] = useState<boolean>(false);
-  const nodes = useExprContext();
+  const nodes = useNodes();
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {

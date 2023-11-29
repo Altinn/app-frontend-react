@@ -1,8 +1,8 @@
 import type { $Values } from 'utility-types';
 
 import { runValidationOnNodes } from 'src/utils/validation/validation';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
+import type { LayoutPage } from 'src/features/form/nodes/LayoutPage';
 import type { IValidationObject, ValidationContextGenerator } from 'src/utils/validation/types';
 
 /**

@@ -8,14 +8,14 @@ import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/Group/DisplayGroupContainer.module.css';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
-import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { BaseLayoutNode } from 'src/features/form/nodes/LayoutNode';
 import type { HeadingLevel } from 'src/layout/common.generated';
 import type {
   CompGroupNonRepeatingInternal,
   CompGroupNonRepeatingPanelInternal,
 } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 
 export interface IDisplayGroupContainer {
   groupNode: LayoutNodeForGroup<CompGroupNonRepeatingInternal | CompGroupNonRepeatingPanelInternal>;

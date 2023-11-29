@@ -7,7 +7,7 @@ import { useSourceOptions } from 'src/hooks/useSourceOptions';
 import { duplicateOptionFilter } from 'src/utils/options';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { IMapping, IOption, IOptionSourceExternal } from 'src/layout/common.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 
 type ValueType = 'single' | 'multi';
 type ValueObj<T extends ValueType> = T extends 'single'

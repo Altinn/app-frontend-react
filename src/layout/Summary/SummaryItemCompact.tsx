@@ -2,7 +2,7 @@ import React from 'react';
 
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/Summary/SummaryItemCompact.module.css';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 
 export interface ICompactSummaryItem {
   targetNode: LayoutNode;

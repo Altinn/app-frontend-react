@@ -7,7 +7,7 @@ import type { AxiosError } from 'axios';
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { createContext } from 'src/core/contexts/context';
 import type { IInstance } from 'src/types/shared';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 export interface Prefill {

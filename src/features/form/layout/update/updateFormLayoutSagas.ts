@@ -9,7 +9,7 @@ import { staticUseLanguageFromState } from 'src/features/language/useLanguage';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { Triggers } from 'src/layout/common.generated';
 import { getLayoutOrderFromPageOrderConfig, selectLayoutOrder } from 'src/selectors/getLayoutOrder';
-import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
+import { ResolvedNodesSelector } from 'src/features/form/nodes/hierarchy';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
 import { mapValidationIssues } from 'src/utils/validation/backendValidation';
@@ -21,7 +21,7 @@ import {
 } from 'src/utils/validation/validationHelpers';
 import type { IMoveToNextPage, IUpdateCurrentView } from 'src/features/form/layout/formLayoutTypes';
 import type { IRuntimeState, IUiConfig } from 'src/types';
-import type { LayoutPages } from 'src/utils/layout/LayoutPages';
+import type { LayoutPages } from 'src/features/form/nodes/LayoutPages';
 import type { BackendValidationIssue } from 'src/utils/validation/types';
 
 export const selectFormLayoutState = (state: IRuntimeState) => state.formLayout;

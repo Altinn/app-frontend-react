@@ -3,7 +3,7 @@ import dot from 'dot-object';
 import { getLayoutComponentObject } from 'src/layout';
 import { convertDataBindingToModel } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
-import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import { LayoutPage } from 'src/features/form/nodes/LayoutPage';
 import { runValidationOnNodes } from 'src/utils/validation/validation';
 import type { CompClassMap } from 'src/layout';
 import type { CompCategory } from 'src/layout/common';
@@ -18,8 +18,8 @@ import type {
   TypeFromConfig,
 } from 'src/layout/layout';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
-import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
-import type { LayoutObject } from 'src/utils/layout/LayoutObject';
+import type { ComponentHierarchyGenerator } from 'src/features/form/nodes/HierarchyGenerator';
+import type { LayoutObject } from 'src/features/form/nodes/LayoutObject';
 import type {
   IComponentBindingValidation,
   IComponentValidations,

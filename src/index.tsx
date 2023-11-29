@@ -33,7 +33,6 @@ import { ProfileProvider } from 'src/features/profile/ProfileProvider';
 import * as queries from 'src/queries/queries';
 import { initSagas } from 'src/redux/sagas';
 import { setupStore } from 'src/redux/store';
-import { ExprContextWrapper } from 'src/utils/layout/ExprContext';
 
 import 'src/index.css';
 import '@digdir/design-system-tokens/brand/altinn/tokens.css';
@@ -53,31 +52,29 @@ document.addEventListener('DOMContentLoaded', () => {
               <LanguageProvider>
                 <ThemeWrapper>
                   <InstantiationProvider>
-                    <ExprContextWrapper>
-                      <ApplicationMetadataProvider>
-                        <OrgsProvider>
-                          <ApplicationSettingsProvider>
-                            <LayoutSetsProvider>
-                              <FooterLayoutProvider>
-                                <ProfileProvider>
-                                  <PartyProvider>
-                                    <TextResourcesProvider>
-                                      <KeepAliveProvider>
-                                        <WindowTitleProvider>
-                                          <DevTools>
-                                            <App />
-                                          </DevTools>
-                                        </WindowTitleProvider>
-                                      </KeepAliveProvider>
-                                    </TextResourcesProvider>
-                                  </PartyProvider>
-                                </ProfileProvider>
-                              </FooterLayoutProvider>
-                            </LayoutSetsProvider>
-                          </ApplicationSettingsProvider>
-                        </OrgsProvider>
-                      </ApplicationMetadataProvider>
-                    </ExprContextWrapper>
+                    <ApplicationMetadataProvider>
+                      <OrgsProvider>
+                        <ApplicationSettingsProvider>
+                          <LayoutSetsProvider>
+                            <FooterLayoutProvider>
+                              <ProfileProvider>
+                                <PartyProvider>
+                                  <TextResourcesProvider>
+                                    <KeepAliveProvider>
+                                      <WindowTitleProvider>
+                                        <DevTools>
+                                          <App />
+                                        </DevTools>
+                                      </WindowTitleProvider>
+                                    </KeepAliveProvider>
+                                  </TextResourcesProvider>
+                                </PartyProvider>
+                              </ProfileProvider>
+                            </FooterLayoutProvider>
+                          </LayoutSetsProvider>
+                        </ApplicationSettingsProvider>
+                      </OrgsProvider>
+                    </ApplicationMetadataProvider>
                   </InstantiationProvider>
                 </ThemeWrapper>
               </LanguageProvider>

@@ -4,7 +4,7 @@ import {
   groupIsRepeating,
   groupIsRepeatingLikert,
 } from 'src/layout/Group/tools';
-import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { BaseLayoutNode } from 'src/features/form/nodes/LayoutNode';
 import type {
   CompGroupInternal,
   CompGroupNonRepeatingInternal,

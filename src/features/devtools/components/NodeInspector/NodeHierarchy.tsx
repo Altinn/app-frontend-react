@@ -8,7 +8,7 @@ import classes from 'src/features/devtools/components/LayoutInspector/LayoutInsp
 import { useComponentHighlighter } from 'src/features/devtools/hooks/useComponentHighlighter';
 import { nodesFromGridRow } from 'src/layout/Grid/tools';
 import type { GridRowsInternal } from 'src/layout/common.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 
 interface Common {
   selected: string | undefined;

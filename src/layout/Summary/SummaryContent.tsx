@@ -6,7 +6,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import classes from 'src/layout/Summary/SummaryContent.module.css';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 export interface SummaryContentProps {
   onChangeClick: () => void;
   changeText: string | null;

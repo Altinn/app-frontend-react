@@ -6,12 +6,12 @@ import cn from 'classnames';
 
 import classes from 'src/features/devtools/components/DevNavigationButtons/DevNavigationButtons.module.css';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { useNodes } from 'src/features/form/nodes/NodesContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useExprContext } from 'src/utils/layout/ExprContext';
 
 export const DevNavigationButtons = () => {
   const { currentView, pageOrderConfig } = useAppSelector((state) => state.formLayout.uiConfig);
-  const ctx = useExprContext();
+  const ctx = useNodes();
   const dispatch = useDispatch();
   const order = pageOrderConfig?.order ?? [];
   const allPages = ctx?.allPageKeys() || [];

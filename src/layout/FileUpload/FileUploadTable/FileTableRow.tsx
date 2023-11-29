@@ -11,7 +11,7 @@ import classes from 'src/layout/FileUpload/FileUploadTable/FileTableRow.module.c
 import { useFileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import type { IAttachment } from 'src/features/attachments';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 
 class IFileUploadTableRowProps {
   attachment: IAttachment;

@@ -1,4 +1,4 @@
-import type { IFormData } from 'src/features/formData';
+import type { IFormData } from 'src/features/formData/index';
 import type { IDataModelBindings } from 'src/layout/layout';
 
 interface IFormDataMethods {

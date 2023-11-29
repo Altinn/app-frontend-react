@@ -5,6 +5,7 @@ import cn from 'classnames';
 
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { useResolvedNode } from 'src/features/form/nodes/NodesContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -12,10 +13,9 @@ import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Summary/SummaryComponent.module.css';
 import { SummaryContent } from 'src/layout/Summary/SummaryContent';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
-import { useResolvedNode } from 'src/utils/layout/ExprContext';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 import type { IGrid } from 'src/layout/common.generated';
 import type { SummaryDisplayProperties } from 'src/layout/Summary/config.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface ISummaryComponent {
   summaryNode: LayoutNode<'Summary'>;

@@ -7,6 +7,7 @@ import { createSelector } from 'reselect';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import classes from 'src/components/message/ErrorReport.module.css';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { useNodes } from 'src/features/form/nodes/NodesContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -14,10 +15,9 @@ import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
 import { AsciiUnitSeparator } from 'src/layout/FileUpload/utils/asciiUnitSeparator';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
-import { useExprContext } from 'src/utils/layout/ExprContext';
 import { getMappedErrors, getUnmappedErrors } from 'src/utils/validation/validation';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 import type { IRuntimeState } from 'src/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IValidations } from 'src/utils/validation/types';
 import type { FlatError } from 'src/utils/validation/validation';
 
@@ -41,7 +41,7 @@ export const ErrorReport = ({ nodes }: IErrorReportProps) => {
   const dispatch = useAppDispatch();
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
   const [errorsMapped, errorsUnmapped] = useAppSelector(selectMappedUnmappedErrors);
-  const allNodes = useExprContext();
+  const allNodes = useNodes();
   const hasErrors = errorsUnmapped.length > 0 || errorsMapped.length > 0;
   const { lang } = useLanguage();
 

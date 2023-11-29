@@ -5,7 +5,7 @@ import { AccordionDef } from 'src/layout/Accordion/config.def.generated';
 import { AccordionHierarchyGenerator } from 'src/layout/Accordion/hierarchy';
 import { SummaryAccordionComponent } from 'src/layout/Accordion/SummaryAccordion';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
+import type { ComponentHierarchyGenerator } from 'src/features/form/nodes/HierarchyGenerator';
 
 export class Accordion extends AccordionDef {
   private _hierarchyGenerator = new AccordionHierarchyGenerator();

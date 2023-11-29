@@ -9,8 +9,8 @@ import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
 import { DevToolsTab } from 'src/features/devtools/data/types';
 import { canBeExpression } from 'src/features/expressions/validation';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import { BaseLayoutNode } from 'src/features/form/nodes/LayoutNode';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 
 interface NodeInspectorDataFieldParams {
   path: string[];

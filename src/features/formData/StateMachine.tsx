@@ -1,16 +1,16 @@
 /* eslint-disable no-console */
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import dot from 'dot-object';
 import deepEqual from 'fast-deep-equal';
 import { original } from 'immer';
 import { useImmerReducer } from 'use-immer';
 
-import { diffModels } from 'src/features/formData2/diffModels';
-import { runLegacyRules } from 'src/features/formData2/LegacyRules';
+import { diffModels } from 'src/features/formData/diffModels';
+import { runLegacyRules } from 'src/features/formData/LegacyRules';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import type { IRuleConnections } from 'src/features/form/dynamics';
-import type { IFormData } from 'src/features/formData';
+import type { IFormData } from 'src/features/formData/index';
 
 export interface FormDataStorage {
   // These values contain the current data model, with the values immediately available whenever the user is typing.
@@ -99,19 +99,6 @@ export type FDAction =
   | FDActionInitialFetch
   | FDActionSaveFinished
   | FDActionFreeze;
-
-// Defining one single object to be used as the initial state. This affects comparisons in useEffect(), etc, so that
-// we don't interpret the initial state as a change (because currentData !== lastSavedData).
-const initialEmptyObject = {};
-const initialState: FormDataStorage = {
-  currentUuid: '',
-  currentData: initialEmptyObject,
-  currentDataFlat: initialEmptyObject,
-  debouncedCurrentData: initialEmptyObject,
-  debouncedCurrentDataFlat: initialEmptyObject,
-  lastSavedData: initialEmptyObject,
-  lastSavedDataFlat: initialEmptyObject,
-};
 
 const actions: ImplementationMap = {
   initialFetch: (state, { data, uuid }) => {
@@ -241,8 +228,21 @@ const createReducer =
     throw new Error(`Unknown action type ${action.type}`);
   };
 
-export const useFormDataStateMachine = () => {
+export const useFormDataStateMachine = (uuid: string, initialData: object) => {
   const ruleConnections = useAppSelector((state) => state.formDynamics.ruleConnection);
+  const initialState = useMemo(
+    (): FormDataStorage => ({
+      currentUuid: uuid,
+      currentData: initialData,
+      currentDataFlat: dot.dot(initialData),
+      debouncedCurrentData: initialData,
+      debouncedCurrentDataFlat: dot.dot(initialData),
+      lastSavedData: initialData,
+      lastSavedDataFlat: dot.dot(initialData),
+    }),
+    [initialData, uuid],
+  );
+
   const [state, dispatch] = useImmerReducer<FormDataStorage, FDAction>(createReducer(ruleConnections), initialState);
   const actionQueue = useRef<FDAction[]>([]);
 

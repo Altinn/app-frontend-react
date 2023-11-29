@@ -10,14 +10,14 @@ import { DevToolsTab } from 'src/features/devtools/data/types';
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { asExpression } from 'src/features/expressions/validation';
-import { FD } from 'src/features/formData2/FormDataContext';
+import { selectDataSourcesFromState } from 'src/features/form/nodes/hierarchy';
+import { useNodes } from 'src/features/form/nodes/NodesContext';
+import { FD } from 'src/features/formData/FormDataWriter';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useExprContext } from 'src/utils/layout/ExprContext';
-import { selectDataSourcesFromState } from 'src/utils/layout/hierarchy';
 import type { ExprConfig, Expression, ExprFunction } from 'src/features/expressions/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
+import type { LayoutPage } from 'src/features/form/nodes/LayoutPage';
 
 interface ExpressionResult {
   value: string;
@@ -44,7 +44,7 @@ export const ExpressionPlayground = () => {
       isError: false,
     },
   ]);
-  const nodes = useExprContext();
+  const nodes = useNodes();
   const currentPage = nodes?.current()?.top.myKey;
   const dataSources = useAppSelector(selectDataSourcesFromState);
   const formData = FD.useAsDotMap('current');

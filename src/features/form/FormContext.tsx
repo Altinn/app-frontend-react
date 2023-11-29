@@ -6,6 +6,7 @@ import { DataModelSchemaProvider } from 'src/features/datamodel/DataModelSchemaP
 import { DynamicsProvider } from 'src/features/form/dynamics/DynamicsContext';
 import { LayoutsProvider } from 'src/features/form/layout/LayoutsContext';
 import { LayoutSettingsProvider } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { NodesProvider } from 'src/features/form/nodes/NodesContext';
 import { RulesProvider } from 'src/features/form/rules/RulesContext';
 import { FormDataProvider } from 'src/features/formData/FormDataContext';
 import { AllOptionsProvider } from 'src/features/options/useAllOptions';
@@ -23,7 +24,9 @@ export function FormProvider({ children }: React.PropsWithChildren) {
               <AttachmentsProvider>
                 <DynamicsProvider>
                   <RulesProvider>
-                    <AllOptionsProvider>{children}</AllOptionsProvider>
+                    <AllOptionsProvider>
+                      <NodesProvider>{children}</NodesProvider>
+                    </AllOptionsProvider>
                   </RulesProvider>
                 </DynamicsProvider>
               </AttachmentsProvider>

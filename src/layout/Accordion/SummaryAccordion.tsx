@@ -6,7 +6,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/Accordion/SummaryAccordion.module.css';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 
 interface ISummaryAccordionComponentProps {
   changeText: string | null;

@@ -5,14 +5,14 @@ import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
 import { AsciiUnitSeparator } from 'src/layout/FileUpload/utils/asciiUnitSeparator';
 import { FileUploadWithTagDef } from 'src/layout/FileUploadWithTag/config.def.generated';
-import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import { LayoutPage } from 'src/features/form/nodes/LayoutPage';
 import { attachmentIsMissingTag, attachmentsValid } from 'src/utils/validation/validation';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { IFormData } from 'src/features/formData';
 import type { ComponentValidation, DisplayDataProps, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
 
 export class FileUploadWithTag extends FileUploadWithTagDef implements ComponentValidation {

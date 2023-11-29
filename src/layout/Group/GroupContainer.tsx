@@ -16,7 +16,7 @@ import { Triggers } from 'src/layout/common.generated';
 import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
 import { useRepeatingGroupsFocusContext } from 'src/layout/Group/RepeatingGroupsFocusContext';
 import { RepeatingGroupTable } from 'src/layout/Group/RepeatingGroupTable';
-import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { BaseLayoutNode } from 'src/features/form/nodes/LayoutNode';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';

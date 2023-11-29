@@ -1,7 +1,7 @@
 import { staticUseLanguageFromState } from 'src/features/language/useLanguage';
 import { Triggers } from 'src/layout/common.generated';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 import type { IRuntimeState, TriggersPageValidation } from 'src/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   IComponentValidationResult,
   IComponentValidations,

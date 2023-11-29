@@ -1,5 +1,5 @@
 import type { CompExceptGroup, CompInternal } from 'src/layout/layout';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 
 /**
  * A layout object describes functionality implemented for both a LayoutPage (aka layout) and a

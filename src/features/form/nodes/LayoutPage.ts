@@ -1,9 +1,9 @@
 import { runValidationOnNodes } from 'src/utils/validation/validation';
 import type { CompExceptGroup, CompInternal } from 'src/layout/layout';
 import type { IUiConfig } from 'src/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutObject } from 'src/utils/layout/LayoutObject';
-import type { LayoutPages } from 'src/utils/layout/LayoutPages';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
+import type { LayoutObject } from 'src/features/form/nodes/LayoutObject';
+import type { LayoutPages } from 'src/features/form/nodes/LayoutPages';
 import type { IValidationObject, ValidationContextGenerator } from 'src/utils/validation/types';
 
 /**

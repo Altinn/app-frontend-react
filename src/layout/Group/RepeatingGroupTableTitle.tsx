@@ -5,7 +5,7 @@ import classes from 'src/layout/Group/RepeatingGroup.module.css';
 import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
 import type { ITextResourceBindings } from 'src/layout/layout';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 
 interface IProps {
   node: LayoutNode;

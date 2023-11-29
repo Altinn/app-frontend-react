@@ -10,7 +10,7 @@ import { CompCategory } from 'src/layout/common';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { DisplayGroupContainer } from 'src/layout/Group/DisplayGroupContainer';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 
 const PDFComponent = ({ node }: { node: LayoutNode }) => {
   if (node.isType('Summary') || ('renderAsSummary' in node.item && node.item.renderAsSummary)) {

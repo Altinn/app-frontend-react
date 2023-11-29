@@ -1,11 +1,11 @@
-import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
+import { ComponentHierarchyGenerator } from 'src/features/form/nodes/HierarchyGenerator';
 import type {
   ChildFactory,
   HierarchyContext,
   HierarchyGenerator,
   UnprocessedItem,
-} from 'src/utils/layout/HierarchyGenerator';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+} from 'src/features/form/nodes/HierarchyGenerator';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 
 export class AccordionGroupHierarchyGenerator extends ComponentHierarchyGenerator<'AccordionGroup'> {
   stage1(generator: HierarchyGenerator, item: UnprocessedItem<'AccordionGroup'>): void {
