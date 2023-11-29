@@ -24,9 +24,9 @@ export function FormProvider({ children }: React.PropsWithChildren) {
               <AttachmentsProvider>
                 <DynamicsProvider>
                   <RulesProvider>
-                    <AllOptionsProvider>
-                      <NodesProvider>{children}</NodesProvider>
-                    </AllOptionsProvider>
+                    <NodesProvider>
+                      <AllOptionsProvider>{children}</AllOptionsProvider>
+                    </NodesProvider>
                   </RulesProvider>
                 </DynamicsProvider>
               </AttachmentsProvider>

@@ -12,7 +12,6 @@ import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { staticUseLanguageFromState, useLanguage } from 'src/features/language/useLanguage';
-import { useAllOptions } from 'src/features/options/useAllOptions';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLayoutComponentObject } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
@@ -139,6 +138,8 @@ export function resolvedLayoutsFromState(state: IRuntimeState) {
   );
 }
 
+const dummyRepeatingGroups: IRepeatingGroups = {};
+
 /**
  * This is a more efficient, memoized version of what happens above. This will only be used from ExprContext,
  * and trades verbosity and code duplication for performance and caching.
@@ -148,14 +149,14 @@ function useResolvedExpressions() {
   const formData = FD.useAsDotMap();
   const uiConfig = useAppSelector((state) => state.formLayout.uiConfig);
   const attachments = useAttachments();
-  const options = useAllOptions();
+  const options = useAppSelector((state) => state.deprecated.allOptions);
   const process = useLaxProcessData();
   const applicationSettings = useApplicationSettings();
   const hiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
   const validations = useAppSelector((state) => state.formValidations.validations);
   const layouts = useLayouts();
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
-  const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
+  const repeatingGroups = dummyRepeatingGroups; // PRIORITY: Initialize these
   const devTools = useAppSelector((state) => state.devTools);
   const langTools = useLanguage();
   const currentLanguage = useCurrentLanguage();
