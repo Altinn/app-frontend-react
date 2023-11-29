@@ -203,16 +203,6 @@ export const formLayoutSlice = () => {
         moveToNextPage: mkAction<LayoutTypes.IMoveToNextPage>({
           takeEvery: moveToNextPageSaga,
         }),
-        /**
-         * This action (setPageOrder) is used by the e2e-tests
-         * in summary.ts. It is not used in the application.
-         */
-        setPageOrder: mkAction<{ order: string[] }>({
-          reducer: (state, action) => {
-            const { order } = action.payload;
-            state.uiConfig.pageOrderConfig.order = order;
-          },
-        }),
         updateHiddenLayouts: mkAction<LayoutTypes.IHiddenLayoutsUpdate>({
           takeEvery: findAndMoveToNextVisibleLayout,
           reducer: (state, action) => {
