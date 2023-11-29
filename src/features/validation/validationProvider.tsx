@@ -334,7 +334,7 @@ export function useTaskErrors(ignoreBackendValidations = true): {
     for (const node of pages
       .allNodes()
       .filter(shouldValidateNode)
-      .filter((n) => getRawVisibilityForNode(n, visibility))) {
+      .filter((n) => getResolvedVisibilityForNode(n, visibility))) {
       formErrors.push(...getValidationsForNode(node, state, ignoreBackendValidations, 'errors'));
     }
     for (const validation of validationsOfSeverity(state.task, 'errors')) {
