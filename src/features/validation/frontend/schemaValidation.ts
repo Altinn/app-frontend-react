@@ -4,7 +4,7 @@ import addFormats from 'ajv-formats';
 import addAdditionalFormats from 'ajv-formats-draft2019';
 import type { ErrorObject, Options } from 'ajv';
 
-import { getCurrentDataTypeForApplication } from 'src/utils/appMetadata';
+import { getCurrentDataTypeForApplication } from 'src/features/applicationMetadata/appMetadataUtils';
 import { convertDataBindingToModel } from 'src/utils/databindings';
 import {
   getRootElementPath,
@@ -14,13 +14,13 @@ import {
 } from 'src/utils/schemaUtils';
 import type { IJsonSchemas } from 'src/features/datamodel';
 import type { IFormData } from 'src/features/formData';
+import type { ValidLanguageKey } from 'src/features/language/useLanguage';
 import type {
   ISchemaValidationError,
   ISchemaValidator,
   ISchemaValidators,
   IValidationContext,
 } from 'src/features/validation';
-import type { ValidLanguageKey } from 'src/hooks/useLanguage';
 import type { IDataType } from 'src/types/shared';
 
 const validators: ISchemaValidators = {};

@@ -1,17 +1,17 @@
 import React from 'react';
 import type { FileRejection } from 'react-dropzone';
 
-import { useAlertContext } from 'src/contexts/alertContext';
+import { useAlertContext } from 'src/core/contexts/alertContext';
 import { useAttachmentsFor, useAttachmentsUploader } from 'src/features/attachments/AttachmentsContext';
 import {
   AttachmentsMappedToFormDataProvider,
   useAttachmentsMappedToFormData,
 } from 'src/features/attachments/useAttachmentsMappedToFormData';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
-import { useLanguage } from 'src/hooks/useLanguage';
 import { AttachmentsCounter } from 'src/layout/FileUpload/AttachmentsCounter';
 import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneComponent';
 import classes from 'src/layout/FileUpload/FileUploadComponent.module.css';

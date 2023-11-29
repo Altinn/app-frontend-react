@@ -2,19 +2,19 @@ import { useCallback } from 'react';
 import type React from 'react';
 
 import { useMutation } from '@tanstack/react-query';
+import { isAxiosError } from 'axios';
 import { useImmerReducer } from 'use-immer';
 import { v4 as uuidv4 } from 'uuid';
 import type { UseMutationOptions } from '@tanstack/react-query';
 import type { ImmerReducer } from 'use-immer';
 
-import { backendIssuesToAlerts, useAlertContext } from 'src/contexts/alertContext';
-import { useAppMutations } from 'src/contexts/appQueriesContext';
+import { backendIssuesToAlerts, useAlertContext } from 'src/core/contexts/alertContext';
+import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { type BackendValidationIssue } from 'src/features/validation';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useLanguage } from 'src/hooks/useLanguage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
-import { isAxiosError } from 'src/utils/network/sharedNetworking';
 import type {
   AttachmentActionUpload,
   IAttachment,

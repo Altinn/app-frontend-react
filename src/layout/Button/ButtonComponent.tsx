@@ -2,8 +2,8 @@ import React from 'react';
 
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { useOnFormSubmitValidation } from 'src/features/validation/validationProvider';
-import { useLanguage } from 'src/hooks/useLanguage';
 import { getComponentFromMode } from 'src/layout/Button/getComponentFromMode';
 import { SubmitButton } from 'src/layout/Button/SubmitButton';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';

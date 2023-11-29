@@ -3,9 +3,9 @@ import React from 'react';
 import cn from 'classnames';
 
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { useDeepValidationsForNode } from 'src/features/validation/validationProvider';
-import { useLanguage } from 'src/hooks/useLanguage';
 import { CompCategory } from 'src/layout/common';
 import { DisplayGroupContainer } from 'src/layout/Group/DisplayGroupContainer';
 import classes from 'src/layout/Group/SummaryGroupComponent.module.css';

@@ -16,16 +16,28 @@ import { AppWrapper } from '@altinn/altinn-design-system';
 import { App } from 'src/App';
 import { ErrorBoundary } from 'src/components/ErrorBoundary';
 import { ThemeWrapper } from 'src/components/ThemeWrapper';
-import { AlertProvider } from 'src/contexts/alertContext';
-import { AppQueriesProvider } from 'src/contexts/appQueriesContext';
+import { KeepAliveProvider } from 'src/core/auth/KeepAliveProvider';
+import { AlertProvider } from 'src/core/contexts/alertContext';
+import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
+import { WindowTitleProvider } from 'src/core/ui/WindowTitleProvider';
+import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { DevTools } from 'src/features/devtools/DevTools';
+import { FooterLayoutProvider } from 'src/features/footer/FooterLayoutProvider';
+import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
+import { LanguageProvider } from 'src/features/language/LanguageProvider';
+import { TextResourcesProvider } from 'src/features/language/textResources/TextResourcesProvider';
+import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
+import { PartyProvider } from 'src/features/party/PartiesProvider';
+import { ProfileProvider } from 'src/features/profile/ProfileProvider';
 import * as queries from 'src/queries/queries';
 import { initSagas } from 'src/redux/sagas';
 import { setupStore } from 'src/redux/store';
 import { ExprContextWrapper } from 'src/utils/layout/ExprContext';
 
 import 'src/index.css';
+import '@digdir/design-system-tokens/brand/altinn/tokens.css';
 
 document.addEventListener('DOMContentLoaded', () => {
   const { store, sagaMiddleware } = setupStore();
@@ -34,26 +46,48 @@ document.addEventListener('DOMContentLoaded', () => {
   const container = document.getElementById('root');
   const root = container && createRoot(container);
   root?.render(
-    <Provider store={store}>
-      <ErrorBoundary>
-        <HashRouter>
-          <AppWrapper>
-            <AppQueriesProvider {...queries}>
-              <ThemeWrapper>
-                <AlertProvider>
-                  <InstantiationProvider>
-                    <ExprContextWrapper>
-                      <DevTools>
-                        <App />
-                      </DevTools>
-                    </ExprContextWrapper>
-                  </InstantiationProvider>
-                </AlertProvider>
-              </ThemeWrapper>
-            </AppQueriesProvider>
-          </AppWrapper>
-        </HashRouter>
-      </ErrorBoundary>
-    </Provider>,
+    <AppQueriesProvider {...queries}>
+      <Provider store={store}>
+        <ErrorBoundary>
+          <HashRouter>
+            <AppWrapper>
+              <LanguageProvider>
+                <ThemeWrapper>
+                  <AlertProvider>
+                    <InstantiationProvider>
+                      <ExprContextWrapper>
+                        <ApplicationMetadataProvider>
+                          <OrgsProvider>
+                            <ApplicationSettingsProvider>
+                              <LayoutSetsProvider>
+                                <FooterLayoutProvider>
+                                  <ProfileProvider>
+                                    <PartyProvider>
+                                      <TextResourcesProvider>
+                                        <KeepAliveProvider>
+                                          <WindowTitleProvider>
+                                            <DevTools>
+                                              <App />
+                                            </DevTools>
+                                          </WindowTitleProvider>
+                                        </KeepAliveProvider>
+                                      </TextResourcesProvider>
+                                    </PartyProvider>
+                                  </ProfileProvider>
+                                </FooterLayoutProvider>
+                              </LayoutSetsProvider>
+                            </ApplicationSettingsProvider>
+                          </OrgsProvider>
+                        </ApplicationMetadataProvider>
+                      </ExprContextWrapper>
+                    </InstantiationProvider>
+                  </AlertProvider>
+                </ThemeWrapper>
+              </LanguageProvider>
+            </AppWrapper>
+          </HashRouter>
+        </ErrorBoundary>
+      </Provider>
+    </AppQueriesProvider>,
   );
 });

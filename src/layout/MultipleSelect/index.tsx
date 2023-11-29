@@ -1,17 +1,17 @@
 import React from 'react';
 import type { JSX } from 'react';
 
+import { useLanguage } from 'src/features/language/useLanguage';
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
 import { useAllOptions } from 'src/features/options/useAllOptions';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useLanguage } from 'src/hooks/useLanguage';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import { MultipleSelectDef } from 'src/layout/MultipleSelect/config.def.generated';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { IFormData } from 'src/features/formData';
+import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { AllOptionsMap } from 'src/features/options/useAllOptions';
-import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';

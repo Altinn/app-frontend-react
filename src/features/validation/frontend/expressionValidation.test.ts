@@ -1,12 +1,12 @@
 import dot from 'dot-object';
 import fs from 'node:fs';
 
-import { getHierarchyDataSourcesMock } from 'src/__mocks__/hierarchyMock';
+import { getHierarchyDataSourcesMock } from 'src/__mocks__/getHierarchyDataSourcesMock';
 import { convertLayouts } from 'src/features/expressions/shared';
+import { staticUseLanguageForTests } from 'src/features/language/useLanguage';
 import { FrontendValidationSource } from 'src/features/validation';
 import { resolveExpressionValidationConfig } from 'src/features/validation/frontend/expressionValidation';
 import { runValidationOnNodes } from 'src/features/validation/frontend/runValidations';
-import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
 import { buildAuthContext } from 'src/utils/authContext';
 import { getRepeatingGroups } from 'src/utils/formLayout';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';

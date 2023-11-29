@@ -6,8 +6,8 @@ import { Button } from '@digdir/design-system-react';
 import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
 import { DevToolsTab } from 'src/features/devtools/data/types';
 import { InstantiationErrorPage } from 'src/features/instantiate/containers/InstantiationErrorPage';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsDev } from 'src/hooks/useIsDev';
-import { useLanguage } from 'src/hooks/useLanguage';
 
 export function UnknownError() {
   const isDev = useIsDev();
@@ -48,7 +48,6 @@ export function UnknownError() {
       </>
     );
   };
-
   return (
     <InstantiationErrorPage
       title={lang('instantiate.unknown_error_title')}

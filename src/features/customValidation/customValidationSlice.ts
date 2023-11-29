@@ -5,7 +5,6 @@ import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
 
 const initialState: ICustomValidationState = {
   customValidation: null,
-  error: null,
 };
 
 export let CustomValidationActions: ActionsFromSlice<typeof customValidationSlice>;
@@ -17,13 +16,6 @@ export const customValidationSlice = () => {
       fetchCustomValidationsFulfilled: mkAction<IExpressionValidations | null>({
         reducer: (state, action) => {
           state.customValidation = action.payload;
-          state.error = null;
-        },
-      }),
-      fetchCustomValidationsRejected: mkAction<Error | null>({
-        reducer: (state, action) => {
-          state.customValidation = null;
-          state.error = action.payload;
         },
       }),
     },

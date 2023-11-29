@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { LegacyTextField } from '@digdir/design-system-react';
 
 import { Label } from 'src/components/form/Label';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import {
@@ -12,7 +13,6 @@ import {
 } from 'src/features/validation/validationProvider';
 import { usePostPlaceQuery } from 'src/hooks/queries/usePostPlaceQuery';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
-import { useLanguage } from 'src/hooks/useLanguage';
 import classes from 'src/layout/Address/AddressComponent.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelBindingsForAddressInternal } from 'src/layout/Address/config.generated';

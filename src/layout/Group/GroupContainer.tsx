@@ -9,6 +9,7 @@ import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { useAttachmentDeletionInRepGroups } from 'src/features/attachments/useAttachmentDeletionInRepGroups';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import {
   useOnDeleteGroupRow,
@@ -17,7 +18,6 @@ import {
 } from 'src/features/validation/validationProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useLanguage } from 'src/hooks/useLanguage';
 import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
 import { useRepeatingGroupsFocusContext } from 'src/layout/Group/RepeatingGroupsFocusContext';
 import { RepeatingGroupTable } from 'src/layout/Group/RepeatingGroupTable';

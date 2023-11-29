@@ -6,11 +6,11 @@ import { useImmerReducer } from 'use-immer';
 import type { AxiosError } from 'axios';
 import type { ImmerReducer } from 'use-immer';
 
-import { useAlertContext } from 'src/contexts/alertContext';
-import { useAppMutations } from 'src/contexts/appQueriesContext';
+import { useAlertContext } from 'src/core/contexts/alertContext';
+import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { useMappedAttachments } from 'src/features/attachments/utils/mapping';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
-import { useLanguage } from 'src/hooks/useLanguage';
+import { useLanguage } from 'src/features/language/useLanguage';
 import type {
   AttachmentActionRemove,
   AttachmentActionUpdate,

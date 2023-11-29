@@ -2,7 +2,7 @@ import React from 'react';
 
 import { screen, within } from '@testing-library/react';
 
-import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
+import { getFormLayoutStateMock } from 'src/__mocks__/getFormLayoutStateMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { Form } from 'src/components/form/Form';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';

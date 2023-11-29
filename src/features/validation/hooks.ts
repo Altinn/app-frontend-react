@@ -2,11 +2,15 @@ import { useCallback, useEffect, useInsertionEffect, useRef } from 'react';
 
 import deepEqual from 'fast-deep-equal';
 
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
+import { useCustomValidationConfig } from 'src/features/customValidation/CustomValidationContext';
+import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+import { staticUseLanguageFromState } from 'src/features/language/useLanguage';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import type { IAttachment, IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
@@ -19,12 +23,13 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 export function useValidationContextGenerator(): ValidationContextGenerator {
   const formData = useAppSelector((state) => state.formData.formData);
   const attachments = useAttachments();
-  const application = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
+  const currentLanguage = useCurrentLanguage();
+  const application = useApplicationMetadata();
   const instance = useLaxInstanceData() ?? null;
   const process = useLaxProcessData() ?? null;
-  const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
+  const layoutSets = useLayoutSets();
   const schemas = useAppSelector((state) => state.formDataModel.schemas);
-  const customValidation = useAppSelector((state) => state.customValidation.customValidation);
+  const customValidation = useCustomValidationConfig();
   const langToolsGenerator = useAppSelector(
     (state) => (node: LayoutNode | undefined) => staticUseLanguageFromState(state, node),
   );
@@ -33,6 +38,7 @@ export function useValidationContextGenerator(): ValidationContextGenerator {
       formData,
       langTools: langToolsGenerator(node),
       attachments,
+      currentLanguage,
       application,
       instance,
       process,
@@ -40,7 +46,18 @@ export function useValidationContextGenerator(): ValidationContextGenerator {
       schemas,
       customValidation,
     }),
-    [application, attachments, customValidation, formData, instance, langToolsGenerator, layoutSets, process, schemas],
+    [
+      application,
+      attachments,
+      currentLanguage,
+      customValidation,
+      formData,
+      instance,
+      langToolsGenerator,
+      layoutSets,
+      process,
+      schemas,
+    ],
   );
 }
 

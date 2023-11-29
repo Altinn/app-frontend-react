@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { useAppQueries } from 'src/contexts/appQueriesContext';
+import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 const __default__ = '';

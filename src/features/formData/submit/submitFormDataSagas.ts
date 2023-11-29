@@ -3,11 +3,14 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { AxiosRequestConfig } from 'axios';
 import type { SagaIterator } from 'redux-saga';
 
+import {
+  getCurrentDataTypeForApplication,
+  getCurrentTaskDataElementId,
+  isStatelessApp,
+} from 'src/features/applicationMetadata/appMetadataUtils';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { pathsChangedFromServer } from 'src/hooks/useDelayedSavedState';
-import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
-import { getCurrentDataTypeForApplication, getCurrentTaskDataElementId, isStatelessApp } from 'src/utils/appMetadata';
 import { convertDataBindingToModel, flattenObject } from 'src/utils/databindings';
 import { httpPost } from 'src/utils/network/networking';
 import { httpPut } from 'src/utils/network/sharedNetworking';
@@ -16,7 +19,7 @@ import { dataElementUrl, getStatelessFormDataUrl } from 'src/utils/urls/appUrlHe
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { IFormData } from 'src/features/formData';
-import type { IUpdateFormData } from 'src/features/formData/formDataTypes';
+import type { ISaveAction, IUpdateFormData } from 'src/features/formData/formDataTypes';
 import type { IRuntimeState, IRuntimeStore, IUiConfig } from 'src/types';
 
 const LayoutSelector: (store: IRuntimeStore) => ILayoutState = (store: IRuntimeStore) => store.formLayout;
@@ -34,7 +37,7 @@ export function* submitFormSaga(): SagaIterator {
     yield put(FormDataActions.submitFulfilled());
   } catch (error) {
     window.logError('Submit form data failed:\n', error);
-    yield put(FormDataActions.submitRejected({ error }));
+    yield put(FormDataActions.submitRejected());
   }
 }
 
@@ -112,13 +115,13 @@ function* waitForSaving() {
  * @see autoSaveSaga
  * @see postStatelessData
  */
-export function* putFormData({ field, componentId }: SaveDataParams) {
+export function* putFormData({ field, componentId }: Omit<SaveDataParams, 'selectedPartyId' | 'anonymous'>) {
   const defaultDataElementGuid: string | undefined = yield select((state: IRuntimeState) =>
     getCurrentTaskDataElementId({
-      application: state.applicationMetadata.applicationMetadata,
+      application: state.applicationMetadata.applicationMetadata!,
       instance: state.deprecated.lastKnownInstance,
       process: state.deprecated.lastKnownProcess,
-      layoutSets: state.formLayout.layoutsets,
+      layoutSets: state.formLayout.layoutsets!,
     }),
   );
   if (!defaultDataElementGuid) {
@@ -213,14 +216,15 @@ function getModelToSave(state: IRuntimeState) {
  * @see autoSaveSaga
  * @see submitFormSaga
  */
-export function* saveFormDataSaga({ payload: { field, componentId } }: PayloadAction<IUpdateFormData>): SagaIterator {
+export function* saveFormDataSaga({ payload: { field, componentId } }: PayloadAction<ISaveAction>): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
     // updates the default data element
-    const application = state.applicationMetadata.applicationMetadata;
+    const application = state.applicationMetadata.applicationMetadata!;
 
     if (isStatelessApp(application)) {
-      yield call(postStatelessData, { field, componentId });
+      const params: SaveDataParams = { field, componentId };
+      yield call(postStatelessData, params);
     } else {
       // app with instance
       yield call(putFormData, { field, componentId });
@@ -229,7 +233,7 @@ export function* saveFormDataSaga({ payload: { field, componentId } }: PayloadAc
     yield put(FormDataActions.submitFulfilled());
   } catch (error) {
     window.logError('Save form data failed:\n', error);
-    yield put(FormDataActions.submitRejected({ error }));
+    yield put(FormDataActions.submitRejected());
   }
 }
 
@@ -247,13 +251,13 @@ interface SaveDataParams {
 export function* postStatelessData({ field, componentId }: SaveDataParams) {
   const state: IRuntimeState = yield select();
   const model = getModelToSave(state);
-  const allowAnonymous = yield select(makeGetAllowAnonymousSelector());
   let headers: AxiosRequestConfig['headers'] = {
     'X-DataField': (field && encodeURIComponent(field)) || 'undefined',
     'X-ComponentId': (componentId && encodeURIComponent(componentId)) || 'undefined',
   };
-  if (!allowAnonymous) {
-    const selectedPartyId = state.party.selectedParty?.partyId;
+  const selectedPartyId: string | undefined = yield select((state: IRuntimeState) => state.deprecated.selectedPartyId);
+  const anonymous: boolean = yield select((state: IRuntimeState) => state.deprecated.anonymous);
+  if (selectedPartyId !== undefined) {
     headers = {
       ...headers,
       party: `partyid:${selectedPartyId}`,
@@ -261,16 +265,16 @@ export function* postStatelessData({ field, componentId }: SaveDataParams) {
   }
 
   const currentDataType = getCurrentDataTypeForApplication({
-    application: state.applicationMetadata.applicationMetadata,
+    application: state.applicationMetadata.applicationMetadata!,
     process: state.deprecated.lastKnownProcess,
-    layoutSets: state.formLayout.layoutsets,
+    layoutSets: state.formLayout.layoutsets!,
   });
   if (currentDataType) {
     const abortController = new AbortController();
     try {
       const response = yield call(
         httpPost,
-        getStatelessFormDataUrl(currentDataType, allowAnonymous),
+        getStatelessFormDataUrl(currentDataType, anonymous),
         {
           headers,
           signal: abortController.signal,

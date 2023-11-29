@@ -24,7 +24,6 @@ export function* updateFormDataSaga({
     }
   } catch (error) {
     window.logError('Update form data failed:\n', error);
-    yield put(FormDataActions.updateRejected({ error }));
   }
 }
 

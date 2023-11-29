@@ -1,7 +1,7 @@
 import { BackendValidationSeverity, ValidationIssueSources, ValidationUrgency } from 'src/features/validation';
 import { validationTexts } from 'src/features/validation/backend/validationTexts';
+import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { BackendValidationIssue, ValidationSeverity } from 'src/features/validation';
-import type { IUseLanguage } from 'src/hooks/useLanguage';
 
 /**
  * We need to map the severity we get from backend into the format used when storing in redux.

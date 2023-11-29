@@ -2,8 +2,10 @@ import React, { useCallback, useMemo } from 'react';
 
 import { useImmer } from 'use-immer';
 
+import { createContext } from 'src/core/contexts/context';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { runServerValidations } from 'src/features/validation/backend/runServerValidation';
 import { runValidationOnNodes } from 'src/features/validation/frontend/runValidations';
 import {
@@ -30,8 +32,6 @@ import {
   removeVisibilityForNode,
   setVisibilityForNode,
 } from 'src/features/validation/visibility';
-import { useLanguage } from 'src/hooks/useLanguage';
-import { createStrictContext } from 'src/utils/createContext';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
 import type { BaseValidation, NodeValidation, ValidationContext, ValidationState } from 'src/features/validation';
@@ -43,7 +43,7 @@ import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
-const { Provider, useCtx } = createStrictContext<ValidationContext>({ name: 'ValidationContext' });
+const { Provider, useCtx } = createContext<ValidationContext>({ name: 'ValidationContext', required: true });
 
 export function ValidationProvider({ children }) {
   const validationContextGenerator = useValidationContextGenerator();

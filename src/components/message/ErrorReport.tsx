@@ -6,14 +6,13 @@ import { Grid } from '@material-ui/core';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import classes from 'src/components/message/ErrorReport.module.css';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { useTaskErrors } from 'src/features/validation/validationProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useLanguage } from 'src/hooks/useLanguage';
 import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
-import { AsciiUnitSeparator } from 'src/utils/attachment';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import type { NodeValidation } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -120,9 +119,6 @@ export const ErrorReport = ({ nodes }: IErrorReportProps) => {
     );
   };
 
-  const errorMessage = (message: string) =>
-    message.includes(AsciiUnitSeparator) ? message.substring(message.indexOf(AsciiUnitSeparator) + 1) : message;
-
   return (
     <div data-testid='ErrorReport'>
       <FullWidthWrapper isOnBottom={true}>
@@ -162,7 +158,7 @@ export const ErrorReport = ({ nodes }: IErrorReportProps) => {
                       onClick={handleErrorClick(error)}
                       onKeyDown={handleErrorClick(error)}
                     >
-                      {getParsedLanguageFromText(errorMessage(error.message), {
+                      {getParsedLanguageFromText(error.message, {
                         disallowedTags: ['a'],
                       })}
                     </button>

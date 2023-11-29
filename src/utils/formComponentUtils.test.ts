@@ -1,4 +1,4 @@
-import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
+import { staticUseLanguageForTests } from 'src/features/language/useLanguage';
 import {
   getColumnStyles,
   getColumnStylesRepeatingGroups,

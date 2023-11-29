@@ -10,7 +10,7 @@ import {
 } from 'src/features/validation/backend/backendUtils';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { duplicateStringFilter } from 'src/utils/stringHelper';
-import type { IUseLanguage } from 'src/hooks/useLanguage';
+import type { IUseLanguage } from 'src/features/language/useLanguage';
 
 /**
  * A temporary replacement for runSingleFieldValidation / getting all validations from server,

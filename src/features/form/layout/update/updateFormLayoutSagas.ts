@@ -78,7 +78,6 @@ export function* moveToNextPageSaga({ payload: { keepScrollPos } }: PayloadActio
     const currentView = state.formLayout.uiConfig.currentView;
 
     if (!state.applicationMetadata.applicationMetadata) {
-      yield put(FormLayoutActions.moveToNextPageRejected({ error: null }));
       return;
     }
 
@@ -88,7 +87,7 @@ export function* moveToNextPageSaga({ payload: { keepScrollPos } }: PayloadActio
 
     yield put(FormLayoutActions.updateCurrentView({ newView, keepScrollPos }));
   } catch (error) {
-    yield put(FormLayoutActions.moveToNextPageRejected({ error }));
+    // TODO: Handle this error when rewriting to page navigation hook
   }
 }
 

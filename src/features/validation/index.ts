@@ -5,8 +5,8 @@ import type { IAttachments } from 'src/features/attachments';
 import type { IJsonSchemas } from 'src/features/datamodel';
 import type { Expression, ExprValToActual } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
+import type { IUseLanguage, ValidParam } from 'src/features/language/useLanguage';
 import type { Visibility } from 'src/features/validation/visibility';
-import type { IUseLanguage, ValidParam } from 'src/hooks/useLanguage';
 import type { ILayoutSets } from 'src/types';
 import type { IInstance, IProcess } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -148,12 +148,13 @@ export type NodeDataChange = {
  */
 export type IValidationContext = {
   langTools: IUseLanguage;
+  currentLanguage: string;
   formData: IFormData;
   attachments: IAttachments;
-  application: IApplicationMetadata | null;
+  application: IApplicationMetadata;
   instance: IInstance | null;
   process: IProcess | null;
-  layoutSets: ILayoutSets | null;
+  layoutSets: ILayoutSets;
   schemas: IJsonSchemas;
   customValidation: IExpressionValidations | null;
 };

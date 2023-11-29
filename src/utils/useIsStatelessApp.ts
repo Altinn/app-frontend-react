@@ -1,7 +1,7 @@
-import { useAppSelector } from 'src/hooks/useAppSelector';
-import { isStatelessApp } from 'src/utils/appMetadata';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { isStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
 
 export function useIsStatelessApp() {
-  const application = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
+  const application = useApplicationMetadata();
   return isStatelessApp(application);
 }
