@@ -4,7 +4,7 @@ import classes from 'src/components/form/Description.module.css';
 
 export interface IDescriptionProps {
   description: React.ReactNode | string | undefined;
-  id: string;
+  id?: string;
 }
 
 export function Description(props: IDescriptionProps) {

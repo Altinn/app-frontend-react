@@ -22,7 +22,7 @@ describe('PanelGroupContainer', () => {
     children: ['input1', 'input2'],
     textResourceBindings: {
       title: 'Title for PanelGoup',
-      body: 'Body for PanelGroup',
+      description: 'Description for PanelGroup',
     },
     panel: {
       variant: 'info',

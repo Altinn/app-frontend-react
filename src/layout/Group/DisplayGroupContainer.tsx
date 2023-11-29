@@ -33,7 +33,7 @@ export function DisplayGroupContainer({ groupNode, id, onlyRowIndex, renderLayou
   const { lang, langAsString } = useLanguage();
   const container = groupNode.item;
   const title = langAsString(container.textResourceBindings?.title);
-  const body = lang(container.textResourceBindings?.body);
+  const description = lang(container.textResourceBindings?.description);
 
   if (groupNode.isHidden()) {
     return null;
@@ -56,7 +56,7 @@ export function DisplayGroupContainer({ groupNode, id, onlyRowIndex, renderLayou
         )
       }
       className={cn(classes.group)}
-      description={body && <span className={classes.groupBody}>{body}</span>}
+      description={description && <span className={classes.groupBody}>{description}</span>}
       id={id || container.id}
       data-testid='display-group-container'
       data-componentid={container.id}

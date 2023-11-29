@@ -3,7 +3,7 @@ import React from 'react';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@digdir/design-system-react';
 import cn from 'classnames';
 
-import { Label } from 'src/components/form/Label';
+import { Caption } from 'src/components/form/Caption';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { CompCategory } from 'src/layout/common';
@@ -47,11 +47,11 @@ export function RepeatingGroupTable({
   const mobileView = useIsMobileOrTablet();
   const { lang } = useLanguage();
 
-  const { textResourceBindings } = node.item;
-
-  const id = node.item.id;
   const container = node.item;
-  const edit = container.edit;
+  const { textResourceBindings, labelSettings, id, edit, minCount } = container;
+
+  const required = !!minCount && minCount > 0;
+
   const columnSettings = container.tableColumns
     ? structuredClone(container.tableColumns)
     : ({} as ITableColumnFormatting);
@@ -192,23 +192,16 @@ export function RepeatingGroupTable({
         id={`group-${id}-table`}
         className={cn({ [classes.editingBorder]: isNested }, classes.repeatingGroupTable)}
       >
-        <caption className={cn({ [classes.tableCaptionNotEmpty]: !isEmpty }, classes.tableCaption)}>
-          {textResourceBindings?.title && (
-            <Label
-              key={`label-${id}`}
-              labelText={lang(textResourceBindings?.title)}
-              id={id}
-            />
-          )}
-          {textResourceBindings?.body && (
-            <span
-              key={`description-${id}`}
-              id={id}
-            >
-              {lang(textResourceBindings?.body)}
-            </span>
-          )}
-        </caption>
+        {textResourceBindings?.title && (
+          <Caption
+            id={`group-${id}-caption`}
+            className={cn({ [classes.tableNotEmptyCaption]: !isEmpty })}
+            title={lang(textResourceBindings.title)}
+            description={lang(textResourceBindings.description)}
+            labelSettings={labelSettings}
+            required={required}
+          />
+        )}
 
         <RenderExtraRows
           rows={rowsBefore}
