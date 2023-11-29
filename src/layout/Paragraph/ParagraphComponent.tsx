@@ -3,7 +3,7 @@ import React from 'react';
 import { Paragraph } from '@digdir/design-system-react';
 
 import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
-import { useLanguage } from 'src/hooks/useLanguage';
+import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/Paragraph/ParagraphComponent.module.css';
 import { getPlainTextFromNode } from 'src/utils/stringHelper';
 import type { PropsFromGenericComponent } from 'src/layout';
