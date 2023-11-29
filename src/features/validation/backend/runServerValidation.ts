@@ -55,7 +55,13 @@ export async function runServerValidations(
         }
       : {};
 
-  const validationIssues: BackendValidationIssue[] = await httpGet(url, options);
+  let validationIssues: BackendValidationIssue[];
+  try {
+    validationIssues = await httpGet(url, options);
+  } catch (e) {
+    window.logError('Server validation failed:', e);
+    return Promise.resolve(state);
+  }
 
   // Map validation issues to state
   for (const issue of validationIssues) {

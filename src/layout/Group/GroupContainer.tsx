@@ -10,7 +10,11 @@ import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { useAttachmentDeletionInRepGroups } from 'src/features/attachments/useAttachmentDeletionInRepGroups';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
-import { useOnGroupCloseValidation, useUnifiedValidationsForNode } from 'src/features/validation/validationProvider';
+import {
+  useOnDeleteGroupRow,
+  useOnGroupCloseValidation,
+  useUnifiedValidationsForNode,
+} from 'src/features/validation/validationProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -42,6 +46,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
   const { lang, langAsString } = useLanguage();
   const validations = useUnifiedValidationsForNode(node);
   const { onBeforeRowDeletion } = useAttachmentDeletionInRepGroups(node);
+  const onDeleteGroupRow = useOnDeleteGroupRow();
   const onGroupCloseValidation = useOnGroupCloseValidation();
 
   const setMultiPageIndex = useCallback(
@@ -142,6 +147,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
   const handleOnRemoveClick = async (index: number) => {
     const attachmentDeletionSuccessful = await onBeforeRowDeletion(index);
     if (attachmentDeletionSuccessful) {
+      onDeleteGroupRow(node, index);
       dispatch(FormLayoutActions.repGroupDeleteRow({ groupId: id, index }));
     } else {
       dispatch(FormLayoutActions.repGroupDeleteRowCancelled({ groupId: id, index }));

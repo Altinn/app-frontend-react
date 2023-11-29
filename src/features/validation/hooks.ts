@@ -49,7 +49,7 @@ export function useValidationContextGenerator(): ValidationContextGenerator {
  * use at your own risk :)
  * @see https://react.dev/learn/separating-events-from-effects#declaring-an-effect-event
  */
-function useEffectEvent<T extends (...args: any[]) => void>(event: T) {
+export function useEffectEvent<T extends (...args: any[]) => void>(event: T) {
   const ref = useRef(event);
   useInsertionEffect(() => {
     ref.current = event;

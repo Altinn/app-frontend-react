@@ -5,10 +5,12 @@ import type { IAttachments } from 'src/features/attachments';
 import type { IJsonSchemas } from 'src/features/datamodel';
 import type { Expression, ExprValToActual } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
+import type { VisibilityObject } from 'src/features/validation/visibility';
 import type { IUseLanguage, ValidParam } from 'src/hooks/useLanguage';
 import type { ILayoutSets } from 'src/types';
 import type { IInstance, IProcess } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 export enum FrontendValidationSource {
   EmptyField = '__empty_field__',
@@ -71,9 +73,10 @@ export type NodeUrgency = { [nodeId: string]: ValidationUrgency };
 
 export type ValidationContext = {
   state: ValidationState;
-  nodeUrgency: NodeUrgency;
-  setUrgencyForNode: (nodeId: string, urgency: ValidationUrgency) => void;
-  setUrgencyForNodes: (nodeIds: string[], urgency: ValidationUrgency) => void;
+  visibility: VisibilityObject;
+  setNodeVisibility: (node: LayoutNode | LayoutPage, newVisibility: boolean, rowIndex?: number) => void;
+  setRootVisibility: (newVisibility: boolean) => void;
+  removeRowVisibilityOnDelete: (node: LayoutNode<'Group'>, rowIndex: number) => void;
 };
 
 export type ValidationState = FormValidations & {

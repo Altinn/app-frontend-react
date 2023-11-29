@@ -6,10 +6,9 @@ import { Label } from 'src/components/form/Label';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import {
-  useAfterTypingValidation,
   useBindingValidationsForNode,
   useComponentValidationsForNode,
-  useOnBlurValidation,
+  useShowNodeValidation,
 } from 'src/features/validation/validationProvider';
 import { usePostPlaceQuery } from 'src/hooks/queries/usePostPlaceQuery';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
@@ -27,15 +26,14 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
 
   const bindingValidations = useBindingValidationsForNode(node);
   const componentValidations = useComponentValidationsForNode(node);
-  const afterTypingValidation = useAfterTypingValidation();
-  const onBlurValidation = useOnBlurValidation();
+  const showNodeValidation = useShowNodeValidation();
 
   const bindings = 'dataModelBindings' in node.item ? node.item.dataModelBindings || {} : {};
   const handleFieldChange =
     (key: AddressKeys): IAddressComponentProps['handleDataChange'] =>
     (value) => {
       handleDataChange(value, { key });
-      afterTypingValidation(node);
+      showNodeValidation(node);
     };
 
   const {
@@ -49,7 +47,7 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
   }
   function onBlurAddress() {
     saveAddress();
-    onBlurValidation(node);
+    showNodeValidation(node);
   }
 
   const {
@@ -63,7 +61,7 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
   }
   function onBlurZipCode() {
     saveZipCode();
-    onBlurValidation(node);
+    showNodeValidation(node);
   }
 
   const { value: postPlace, setValue: setPostPlace } = useDelayedSavedState(
@@ -84,7 +82,7 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
   }
   function onBlurCareOf() {
     saveCareOf();
-    onBlurValidation(node);
+    showNodeValidation(node);
   }
 
   const {
@@ -103,7 +101,7 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
   }
   function onBlurHouseNumber() {
     saveHouseNumber();
-    onBlurValidation(node);
+    showNodeValidation(node);
   }
 
   const postPlaceQueryData = usePostPlaceQuery(formData.zipCode, !hasValidationErrors(bindingValidations?.zipCode));

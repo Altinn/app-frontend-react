@@ -3,7 +3,7 @@ import React from 'react';
 import { SearchField } from '@altinn/altinn-design-system';
 import { LegacyTextField } from '@digdir/design-system-react';
 
-import { useAfterTypingValidation, useOnBlurValidation } from 'src/features/validation/validationProvider';
+import { useShowNodeValidation } from 'src/features/validation/validationProvider';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { useMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
@@ -37,12 +37,11 @@ export function InputComponent({ node, isValid, formData, handleDataChange, over
   const { lang, langAsString } = useLanguage();
   const reactNumberFormatConfig = useMapToReactNumberConfig(formatting as IInputFormatting | undefined, value);
   const [inputKey, rerenderInput] = useRerender('input');
-  const afterTypingValidation = useAfterTypingValidation();
-  const onBlurValidation = useOnBlurValidation();
+  const showNodeValidation = useShowNodeValidation();
 
   function _handleDataChange(...props: Parameters<typeof handleDataChange>) {
     handleDataChange(...props);
-    afterTypingValidation(node);
+    showNodeValidation(node);
   }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -53,7 +52,7 @@ export function InputComponent({ node, isValid, formData, handleDataChange, over
 
   function onBlur() {
     saveValue();
-    onBlurValidation(node);
+    showNodeValidation(node);
     if (reactNumberFormatConfig.number) {
       rerenderInput();
     }
