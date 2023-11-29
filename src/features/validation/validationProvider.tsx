@@ -35,7 +35,9 @@ import { createStrictContext } from 'src/utils/createContext';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
 import type { BaseValidation, NodeValidation, ValidationContext, ValidationState } from 'src/features/validation';
-import type { VisibilityObject } from 'src/features/validation/visibility';
+import type { Visibility } from 'src/features/validation/visibility';
+import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
+import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { CompTypes, IDataModelBindings } from 'src/layout/layout';
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -54,10 +56,10 @@ export function ValidationProvider({ children }) {
       : undefined;
 
   const [validations, setValidations] = useImmer<ValidationState>({ fields: {}, components: {}, task: [] });
-  const [visibility, setVisibility] = useImmer<VisibilityObject>({
-    type: 'object',
+  const [visibility, setVisibility] = useImmer<Visibility>({
     visible: false,
     children: {},
+    items: [],
   });
 
   useOnNodeDataChange(async (nodeChanges) => {
@@ -117,11 +119,13 @@ export function ValidationProvider({ children }) {
     }
   });
 
-  const removeRowVisibilityOnDelete = useEffectEvent((node: LayoutNode<'Group'>, rowIndex: number) => {
-    setVisibility((state) => {
-      onBeforeRowDelete(node, rowIndex, state);
-    });
-  });
+  const removeRowVisibilityOnDelete = useEffectEvent(
+    (node: LayoutNodeForGroup<CompGroupRepeatingInternal>, rowIndex: number) => {
+      setVisibility((state) => {
+        onBeforeRowDelete(node, rowIndex, state);
+      });
+    },
+  );
 
   const out = {
     state: validations,

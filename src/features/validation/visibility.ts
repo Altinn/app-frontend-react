@@ -1,39 +1,18 @@
-import { groupIsRepeating } from 'src/layout/Group/tools';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
+import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-type VisibilityNodeType = 'object' | 'list';
-
-type BaseVisibility<T extends VisibilityNodeType = VisibilityNodeType> = {
-  type: T;
+export type Visibility = {
   visible: boolean;
-};
-
-export type VisibilityObject = BaseVisibility<'object'> & {
   children: {
-    [key: string]: Visibility<VisibilityNodeType>;
+    [key: string]: Visibility | undefined;
   };
+  items: (Visibility | undefined)[];
 };
 
-type VisibilityList = BaseVisibility<'list'> & {
-  children: VisibilityObject[];
-};
-
-type Visibility<T extends VisibilityNodeType = VisibilityNodeType> = {
-  object: VisibilityObject;
-  list: VisibilityList;
-}[T];
-
-type PathItem =
-  | {
-      type: 'object';
-      key: string | number;
-    }
-  | {
-      type: 'list';
-      key: string;
-    };
+type PathItem = string | number;
 
 /**
  * Gets a nodes path from the root visibility
@@ -44,16 +23,15 @@ function getPathFromRoot(node: LayoutNode | LayoutPage): PathItem[] {
   while (typeof currentNode !== 'undefined') {
     if (currentNode instanceof BaseLayoutNode) {
       const key = currentNode.item.baseComponentId ?? currentNode.item.id;
-      const type = currentNode.isType('Group') && groupIsRepeating(currentNode.item) ? 'list' : 'object';
-      path.push({ type, key });
+      path.push(key);
 
       if (typeof currentNode.rowIndex !== 'undefined') {
-        path.push({ type: 'object', key: currentNode.rowIndex });
+        path.push(currentNode.rowIndex);
       }
     }
 
     if (currentNode instanceof LayoutPage) {
-      path.push({ type: 'object', key: currentNode.top.myKey });
+      path.push(currentNode.top.myKey);
     }
 
     currentNode = currentNode.parent;
@@ -62,59 +40,82 @@ function getPathFromRoot(node: LayoutNode | LayoutPage): PathItem[] {
   return path.reverse();
 }
 
-export function addVisibilityForNode(node: LayoutNode, state: VisibilityObject): void {
-  const path = getPathFromRoot(node);
-
-  let currentVisibility: Visibility = state;
-  for (const { type, key } of path) {
-    if (!currentVisibility.children[key]) {
-      currentVisibility.children[key] = {
-        type,
-        visible: false,
-        children: type === 'list' ? [] : {},
-      };
-    }
-    currentVisibility = currentVisibility.children[key];
+function getChildVisibility(visibility: Visibility, key: PathItem): Visibility | undefined {
+  if (typeof key === 'number') {
+    return visibility.items[key];
+  } else {
+    return visibility.children[key];
   }
 }
 
-export function removeVisibilityForNode(node: LayoutNode, state: VisibilityObject): void {
+function setChildVisibility(visibility: Visibility, key: PathItem, child: Visibility | undefined): void {
+  if (typeof key === 'number') {
+    visibility.items[key] = child;
+  } else {
+    visibility.children[key] = child;
+  }
+}
+
+function deleteChildVisibility(visibility: Visibility, key: PathItem): void {
+  if (typeof key === 'number') {
+    delete visibility.items[key];
+  } else {
+    delete visibility.children[key];
+  }
+}
+
+export function addVisibilityForNode(node: LayoutNode, state: Visibility): void {
+  const path = getPathFromRoot(node);
+
+  let currentVisibility: Visibility = state;
+  for (const key of path) {
+    if (!getChildVisibility(currentVisibility, key)) {
+      setChildVisibility(currentVisibility, key, {
+        visible: false,
+        children: {},
+        items: [],
+      });
+    }
+    currentVisibility = getChildVisibility(currentVisibility, key)!;
+  }
+}
+
+export function removeVisibilityForNode(node: LayoutNode, state: Visibility): void {
   const path = getPathFromRoot(node);
   const pathToParent = path.slice(0, -1);
-  const { key } = path.at(-1)!;
+  const key = path.at(-1)!;
 
   // The parent of a node will always be an object
-  const parentVisibility = getVisibilityFromPath(pathToParent, state) as Visibility<'object'> | undefined;
+  const parentVisibility = getVisibilityFromPath(pathToParent, state);
   if (parentVisibility) {
-    delete parentVisibility.children[key];
+    deleteChildVisibility(parentVisibility, key);
 
     // If all children are removed from a list row, remove the list row visibility
-    const parentKey = pathToParent.at(-1)?.key;
+    const parentKey = pathToParent.at(-1);
+    // If the parentkey is a number, then the parent will only have children (not items), since rows are never directly nested. It must go through a nested group child.
     if (typeof parentKey === 'number' && Object.keys(parentVisibility.children).length === 0) {
-      // The parent of an object with a number key will always be a list
-      const grandParentVisibility = getVisibilityFromPath(pathToParent.slice(0, -1), state) as
-        | Visibility<'list'>
-        | undefined;
-
+      const grandParentVisibility = getVisibilityFromPath(pathToParent.slice(0, -1), state);
       if (grandParentVisibility) {
-        delete grandParentVisibility.children[parentKey];
+        deleteChildVisibility(grandParentVisibility, parentKey);
       }
     }
   }
 }
 
-export function onBeforeRowDelete(groupNode: LayoutNode<'Group'>, rowIndex: number, state: VisibilityObject) {
+export function onBeforeRowDelete(
+  groupNode: LayoutNodeForGroup<CompGroupRepeatingInternal>,
+  rowIndex: number,
+  state: Visibility,
+) {
   const path = getPathFromRoot(groupNode);
   const groupVisibility = getVisibilityFromPath(path, state);
-  if (groupVisibility?.type === 'list') {
-    groupVisibility.children.splice(rowIndex, 1);
-  }
+  groupVisibility?.items.splice(rowIndex, 1);
 }
 
-function getVisibilityFromPath(path: PathItem[], state: VisibilityObject): Visibility | undefined {
+function getVisibilityFromPath(path: PathItem[], state: Visibility): Visibility | undefined {
   let currentVisibility: Visibility = state;
-  for (const { key } of path) {
-    const nextVisibility = currentVisibility.children[key];
+  for (const key of path) {
+    const nextVisibility = getChildVisibility(currentVisibility, key);
 
     if (!nextVisibility) {
       return undefined;
@@ -124,20 +125,16 @@ function getVisibilityFromPath(path: PathItem[], state: VisibilityObject): Visib
   return currentVisibility;
 }
 
-export function getRawVisibilityForNode(
-  node: LayoutNode | LayoutPage,
-  state: VisibilityObject,
-  rowIndex?: number,
-): boolean {
+export function getRawVisibilityForNode(node: LayoutNode | LayoutPage, state: Visibility, rowIndex?: number): boolean {
   const path = getPathFromRoot(node);
   if (typeof rowIndex !== 'undefined') {
-    path.push({ type: 'object', key: rowIndex });
+    path.push(rowIndex);
   }
   const visibility = getVisibilityFromPath(path, state);
   return visibility?.visible ?? false;
 }
 
-export function getResolvedVisibilityForNode(node: LayoutNode, state: VisibilityObject): boolean {
+export function getResolvedVisibilityForNode(node: LayoutNode, state: Visibility): boolean {
   if (state.visible) {
     return true;
   }
@@ -145,8 +142,8 @@ export function getResolvedVisibilityForNode(node: LayoutNode, state: Visibility
   const path = getPathFromRoot(node);
 
   let currentVisibility: Visibility = state;
-  for (const { key } of path) {
-    const nextVisibility = currentVisibility.children[key];
+  for (const key of path) {
+    const nextVisibility = getChildVisibility(currentVisibility, key);
 
     if (!nextVisibility) {
       return false;
@@ -163,18 +160,18 @@ export function getResolvedVisibilityForNode(node: LayoutNode, state: Visibility
 
 export function setVisibilityForNode(
   node: LayoutNode | LayoutPage,
-  state: VisibilityObject,
+  state: Visibility,
   visible: boolean,
   rowIndex?: number,
 ): void {
   const path = getPathFromRoot(node);
   if (typeof rowIndex !== 'undefined') {
-    path.push({ type: 'object', key: rowIndex });
+    path.push(rowIndex);
   }
   const visibility = getVisibilityFromPath(path, state);
 
   if (!visibility) {
-    const keys = path.map((p) => p.key).join(' -> ');
+    const keys = path.join(' -> ');
     window.logWarnOnce(`Could not find visibility for ${keys}`);
     return;
   }

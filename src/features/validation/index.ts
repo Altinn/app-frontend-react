@@ -5,7 +5,7 @@ import type { IAttachments } from 'src/features/attachments';
 import type { IJsonSchemas } from 'src/features/datamodel';
 import type { Expression, ExprValToActual } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
-import type { VisibilityObject } from 'src/features/validation/visibility';
+import type { Visibility } from 'src/features/validation/visibility';
 import type { IUseLanguage, ValidParam } from 'src/hooks/useLanguage';
 import type { ILayoutSets } from 'src/types';
 import type { IInstance, IProcess } from 'src/types/shared';
@@ -73,7 +73,7 @@ export type NodeUrgency = { [nodeId: string]: ValidationUrgency };
 
 export type ValidationContext = {
   state: ValidationState;
-  visibility: VisibilityObject;
+  visibility: Visibility;
   setNodeVisibility: (node: LayoutNode | LayoutPage, newVisibility: boolean, rowIndex?: number) => void;
   setRootVisibility: (newVisibility: boolean) => void;
   removeRowVisibilityOnDelete: (node: LayoutNode<'Group'>, rowIndex: number) => void;
