@@ -52,7 +52,6 @@ export const ProcessWrapper = () => {
   const previewPDF = useAppSelector((state) => state.devTools.pdfPreview);
 
   useEffect(() => {
-    console.log('Should scroll: ', scrollPosition, currentPageId);
     if (currentPageId !== undefined && scrollPosition === undefined) {
       window.scrollTo({ top: 0 });
     }

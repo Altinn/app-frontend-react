@@ -29,7 +29,6 @@ export function* initRepeatingGroupsSaga({
     };
   });
 
-  console.log('New groups: ', newGroups, layouts);
   // if any groups have been removed as part of calculation we delete the associated validations
   const currentGroupKeys = Object.keys(currentGroups);
   const groupsToRemoveValidations = currentGroupKeys.filter(

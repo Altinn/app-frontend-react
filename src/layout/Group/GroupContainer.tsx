@@ -158,8 +158,6 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
     }
   };
 
-  console.log('Node: ', node.item.id, groupState, node.isHidden(), node.item.type !== 'Group');
-
   if (!groupState || node.isHidden() || node.item.type !== 'Group') {
     return null;
   }
