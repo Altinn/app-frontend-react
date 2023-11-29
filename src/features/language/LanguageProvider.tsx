@@ -13,7 +13,7 @@ interface LanguageCtx {
   setWithLanguageSelector: (language: string) => void;
 }
 
-const { Provider, useCtx } = createContext<LanguageCtx>({
+const { Provider, useCtx, useHasProvider } = createContext<LanguageCtx>({
   name: 'Language',
   required: true,
 });
@@ -43,6 +43,7 @@ export const LanguageProvider = ({ children }: PropsWithChildren) => {
 };
 
 export const useCurrentLanguage = () => useCtx().current;
+export const useHasLanguageProvider = () => useHasProvider();
 export const useSetCurrentLanguage = () => {
   const { setWithLanguageSelector, updateProfile } = useCtx();
   return { setWithLanguageSelector, updateProfile };
