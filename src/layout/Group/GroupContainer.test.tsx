@@ -226,6 +226,7 @@ describe('GroupContainer', () => {
         group: 'container-in-edit-mode-id',
         index: -1,
         validate: Triggers.Validation,
+        currentPageId: 'FormLayout',
       },
       type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
     };
@@ -252,6 +253,7 @@ describe('GroupContainer', () => {
       payload: {
         group: 'container-in-edit-mode-id',
         index: -1,
+        currentPageId: 'FormLayout',
       },
       type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
     };
@@ -280,6 +282,7 @@ describe('GroupContainer', () => {
         group: 'container-in-edit-mode-id',
         index: -1,
         validate: Triggers.Validation,
+        currentPageId: 'FormLayout',
       },
       type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
     };
@@ -308,6 +311,7 @@ describe('GroupContainer', () => {
         group: 'container-in-edit-mode-id',
         index: -1,
         validate: Triggers.ValidateRow,
+        currentPageId: 'FormLayout',
       },
       type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
     };
@@ -334,6 +338,7 @@ describe('GroupContainer', () => {
       payload: {
         group: 'container-in-edit-mode-id',
         index: -1,
+        currentPageId: 'FormLayout',
       },
       type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
     };

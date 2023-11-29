@@ -13,6 +13,7 @@ import {
 } from 'src/features/form/layout/update/updateFormLayoutSagas';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { createSagaSlice } from 'src/redux/sagaSlice';
+import type { IRepGroupAddRow } from 'src/features/form/layout/formLayoutTypes';
 import type * as LayoutTypes from 'src/features/form/layout/formLayoutTypes';
 import type { ILayouts } from 'src/layout/layout';
 import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
@@ -146,7 +147,7 @@ export const formLayoutSlice = () => {
             state.uiConfig.hiddenFields = componentsToHide;
           },
         }),
-        repGroupAddRow: mkAction<{ groupId: string }>({
+        repGroupAddRow: mkAction<IRepGroupAddRow>({
           takeEvery: repGroupAddRowSaga,
         }),
         repGroupAddRowFulfilled: genericSetRepeatingGroups,

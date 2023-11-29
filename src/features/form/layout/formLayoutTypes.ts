@@ -57,6 +57,7 @@ export interface IUpdateRepeatingGroupsEditIndex {
   index: number;
   validate?: Triggers.Validation | Triggers.ValidateRow;
   shouldAddRow?: boolean;
+  currentPageId: string | undefined;
 }
 
 export interface IUpdateRepeatingGroupsEditIndexFulfilled {
@@ -90,6 +91,7 @@ export interface IInitRepeatingGroups {
 
 export interface IRepGroupAddRow {
   groupId: string;
+  currentPageId?: string;
 }
 
 export interface IRepGroupDelRow {

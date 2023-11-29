@@ -116,6 +116,7 @@ export const ErrorReport = ({ nodes }: IErrorReportProps) => {
           FormLayoutActions.updateRepeatingGroupsEditIndex({
             group: parentNode.item.id,
             index: childNode.rowIndex,
+            currentPageId,
           }),
         );
       }
