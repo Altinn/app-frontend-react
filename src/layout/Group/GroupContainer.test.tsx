@@ -101,7 +101,6 @@ async function render({ container = mockContainer }: IRender = {}) {
           editIndex: 0,
         },
       },
-      currentView: 'FormLayout',
     },
   };
 

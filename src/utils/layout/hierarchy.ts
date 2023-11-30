@@ -22,7 +22,7 @@ import type { LayoutPages } from 'src/utils/layout/LayoutPages';
  */
 function resolvedNodesInLayouts(
   layouts: ILayouts | null,
-  currentLayout: string,
+  currentView: string,
   repeatingGroups: IRepeatingGroups | null,
   dataSources: HierarchyDataSources,
 ) {
@@ -31,7 +31,7 @@ function resolvedNodesInLayouts(
   const layoutsCopy: ILayouts = layouts ? structuredClone(layouts) : {};
   const unresolved = generateEntireHierarchy(
     layoutsCopy,
-    currentLayout,
+    currentView,
     repeatingGroups,
     dataSources,
     getLayoutComponentObject,

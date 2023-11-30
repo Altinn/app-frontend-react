@@ -13,7 +13,7 @@ import {
 } from 'src/features/form/layout/update/updateFormLayoutSagas';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { createSagaSlice } from 'src/redux/sagaSlice';
-import type { IRepGroupAddRow } from 'src/features/form/layout/formLayoutTypes';
+import type { IRepGroupAddRow, IRepGroupDelRow } from 'src/features/form/layout/formLayoutTypes';
 import type * as LayoutTypes from 'src/features/form/layout/formLayoutTypes';
 import type { ILayouts } from 'src/layout/layout';
 import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
@@ -98,18 +98,6 @@ export const formLayoutSlice = () => {
               const order = settings.pages.order;
               if (order) {
                 state.uiConfig.pageOrderConfig.order = order;
-                if (state.uiConfig.currentViewCacheKey) {
-                  let currentView: string;
-                  const lastVisitedPage = localStorage.getItem(state.uiConfig.currentViewCacheKey);
-                  if (lastVisitedPage && order.includes(lastVisitedPage)) {
-                    currentView = lastVisitedPage;
-                  } else {
-                    currentView = order[0];
-                  }
-                  state.uiConfig.currentView = currentView;
-                } else {
-                  state.uiConfig.currentView = order[0];
-                }
               }
             }
             state.uiConfig.showExpandWidthButton = settings?.pages.showExpandWidthButton;
@@ -151,7 +139,7 @@ export const formLayoutSlice = () => {
           takeEvery: repGroupAddRowSaga,
         }),
         repGroupAddRowFulfilled: genericSetRepeatingGroups,
-        repGroupDeleteRow: mkAction<{ groupId: string; index: number }>({
+        repGroupDeleteRow: mkAction<IRepGroupDelRow>({
           takeEvery: repGroupDeleteRowSaga,
           reducer: (state, { payload: { groupId, index } }) => {
             state.uiConfig.repeatingGroups = state.uiConfig.repeatingGroups || {};

@@ -97,4 +97,5 @@ export interface IRepGroupAddRow {
 export interface IRepGroupDelRow {
   groupId: string;
   index: number;
+  currentPageId: string | undefined;
 }

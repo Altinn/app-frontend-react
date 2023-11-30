@@ -143,7 +143,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
   const handleOnRemoveClick = async (index: number) => {
     const attachmentDeletionSuccessful = await onBeforeRowDeletion(index);
     if (attachmentDeletionSuccessful) {
-      dispatch(FormLayoutActions.repGroupDeleteRow({ groupId: id, index }));
+      dispatch(FormLayoutActions.repGroupDeleteRow({ groupId: id, index, currentPageId: pageKey }));
     } else {
       dispatch(FormLayoutActions.repGroupDeleteRowCancelled({ groupId: id, index }));
     }
