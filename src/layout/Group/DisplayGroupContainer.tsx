@@ -3,7 +3,7 @@ import React from 'react';
 import { Fieldset, Heading } from '@digdir/design-system-react';
 import cn from 'classnames';
 
-import { useLanguage } from 'src/hooks/useLanguage';
+import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/Group/DisplayGroupContainer.module.css';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { HeadingLevel } from 'src/layout/common.generated';
