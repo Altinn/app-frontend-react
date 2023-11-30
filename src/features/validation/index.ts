@@ -5,7 +5,7 @@ import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IAttachments } from 'src/features/attachments';
 import type { Expression, ExprValToActual } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
-import type { IUseLanguage, ValidParam } from 'src/features/language/useLanguage';
+import type { IUseLanguage, ValidLangParam } from 'src/features/language/useLanguage';
 import type { Visibility } from 'src/features/validation/visibility';
 import type { ILayoutSets } from 'src/types';
 import type { IInstance, IProcess } from 'src/types/shared';
@@ -112,7 +112,7 @@ export type NodeValidation<Severity extends ValidationSeverity = ValidationSever
 // TODO(Validation): Move to more appropriate location
 export type TextResource = {
   key?: string | undefined;
-  params?: ValidParam[];
+  params?: ValidLangParam[];
 };
 
 export type NodeDataChange = {
