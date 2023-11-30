@@ -1,8 +1,9 @@
 import React from 'react';
 
-import { Fieldset, Heading } from '@digdir/design-system-react';
+import { Heading } from '@digdir/design-system-react';
 import cn from 'classnames';
 
+import { Fieldset } from 'src/components/form/Fieldset';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/Group/DisplayGroupContainer.module.css';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
@@ -55,13 +56,13 @@ export function DisplayGroupContainer({ groupNode, id, onlyRowIndex, renderLayou
           </Heading>
         )
       }
-      className={cn(classes.group)}
-      description={description && <span className={classes.groupBody}>{description}</span>}
-      id={id || container.id}
-      data-testid='display-group-container'
-      data-componentid={container.id}
+      className={classes.group}
+      description={description}
     >
       <div
+        id={id || container.id}
+        data-componentid={container.id}
+        data-testid='display-group-container'
         className={cn(
           { [classes.groupingIndicator]: !!container.showGroupingIndicator && !isNested },
           classes.groupContainer,
