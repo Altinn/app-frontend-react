@@ -6,13 +6,7 @@ import { createContext } from 'src/core/contexts/context';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
 import { useLanguage } from 'src/features/language/useLanguage';
-import {
-  type BaseValidation,
-  type NodeValidation,
-  type ValidationContext,
-  type ValidationState,
-  ValidationUrgency,
-} from 'src/features/validation';
+import { ValidationUrgency } from 'src/features/validation';
 import { runServerValidations } from 'src/features/validation/backend/runServerValidation';
 import { runValidationOnNodes } from 'src/features/validation/frontend/runValidations';
 import {
@@ -41,6 +35,7 @@ import {
 } from 'src/features/validation/visibility';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
+import type { BaseValidation, NodeValidation, ValidationContext, ValidationState } from 'src/features/validation';
 import type { Visibility } from 'src/features/validation/visibility';
 import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
