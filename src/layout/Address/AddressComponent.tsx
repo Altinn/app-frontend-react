@@ -127,19 +127,19 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
   );
 
   React.useEffect(() => {
-    if (!formData.zipCode || !formData.zipCode.match(/^\d{4}$/)) {
-      setPostPlace('');
+    if (!zipCode || !zipCode.match(/^\d{4}$/)) {
+      postPlace && setPostPlace('');
       return;
     }
 
-    if (prevZipCode.current === formData.zipCode && hasFetchedPostPlace.current === true) {
+    if (prevZipCode.current === zipCode && hasFetchedPostPlace.current === true) {
       return;
     }
 
     const fetchPostPlace = async (pnr: string, cancellationToken: any) => {
       hasFetchedPostPlace.current = false;
       try {
-        prevZipCode.current = formData.zipCode;
+        prevZipCode.current = zipCode;
         const response = await httpGet('https://api.bring.com/shippingguide/api/postalCode.json', {
           params: {
             clientUrl: window.location.href,
@@ -170,11 +170,11 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
       }
     };
 
-    fetchPostPlace(formData.zipCode, source.token);
+    fetchPostPlace(zipCode, source.token);
     return function cleanup() {
       source.cancel('ComponentWillUnmount');
     };
-  }, [formData.zipCode, langAsString, source, onSaveField, validations, setPostPlace, id, setValidations]);
+  }, [zipCode, langAsString, source, onSaveField, validations, setPostPlace, id, setValidations, postPlace]);
 
   const updateField = (key: AddressKeys, saveImmediately: boolean, event: any): void => {
     const changedFieldValue: string = event.target.value;
