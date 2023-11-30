@@ -4,7 +4,7 @@ import { IconButton, makeStyles, Menu, MenuItem } from '@material-ui/core';
 
 import { AltinnIcon } from 'src/components/AltinnIcon';
 import { Lang } from 'src/features/language/Lang';
-import { getPlainTextFromNode } from 'src/utils/stringHelper';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { logoutUrlAltinn } from 'src/utils/urls/urlHelper';
 import type { IParty } from 'src/types/shared';
 
@@ -38,6 +38,7 @@ const useStyles = makeStyles({
 export function AltinnAppHeaderMenu({ party, logoColor }: IAltinnAppHeaderMenuProps) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const classes = useStyles();
+  const { langAsString } = useLanguage();
 
   const handleClick = (event: any) => {
     setAnchorEl(event.currentTarget);
@@ -56,7 +57,7 @@ export function AltinnAppHeaderMenu({ party, logoColor }: IAltinnAppHeaderMenuPr
       <IconButton
         aria-owns={anchorEl ? 'profile-menu' : undefined}
         aria-haspopup='true'
-        aria-label={getPlainTextFromNode(<Lang id='general.header_profile_icon_label' />)}
+        aria-label={langAsString('general.header_profile_icon_label')}
         onClick={handleClick}
         className={classes.iconButton}
         id='profile-icon-button'

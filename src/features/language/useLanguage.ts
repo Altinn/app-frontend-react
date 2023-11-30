@@ -1,5 +1,5 @@
 import { useContext, useMemo } from 'react';
-import type { JSX, ReactElement } from 'react';
+import type { JSX } from 'react';
 
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -11,7 +11,6 @@ import { FormComponentContext } from 'src/layout';
 import { getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
-import { getPlainTextFromNode } from 'src/utils/stringHelper';
 import type { IFormData } from 'src/features/formData';
 import type { TextResourceMap } from 'src/features/language/textResources';
 import type { FixedLanguageList } from 'src/language/languages';
@@ -19,7 +18,7 @@ import type { IRuntimeState } from 'src/types';
 import type { IApplicationSettings, IInstanceDataSources, ILanguage, IVariable } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export type ValidLangParam = string | number | undefined | ReactElement;
+export type ValidLangParam = string | number | undefined;
 
 export interface IUseLanguage {
   language: ILanguage;
@@ -303,9 +302,6 @@ const replaceParameters = (nameString: string | undefined, params: LangParams) =
       paramAsString = param;
     } else if (typeof param === 'number') {
       paramAsString = param.toString();
-    } else if (param && typeof param === 'object') {
-      // This allows you to pass a <Lang /> component as a parameter
-      paramAsString = getPlainTextFromNode(param as ReactElement);
     }
 
     if (paramAsString !== undefined) {
