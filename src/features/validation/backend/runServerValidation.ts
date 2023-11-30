@@ -3,11 +3,7 @@ import type { AxiosRequestConfig } from 'axios';
 import { ValidationIssueSources, ValidationUrgency } from '..';
 import type { BackendValidationIssue, NodeDataChange, ValidationState } from '..';
 
-import {
-  getValidationIssueMessage,
-  getValidationIssueSeverity,
-  getValidationIssueUrgency,
-} from 'src/features/validation/backend/backendUtils';
+import { getValidationIssueMessage, getValidationIssueSeverity } from 'src/features/validation/backend/backendUtils';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { duplicateStringFilter } from 'src/utils/stringHelper';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
@@ -68,12 +64,12 @@ export async function runServerValidations(
     const { field, source: group } = issue;
     const severity = getValidationIssueSeverity(issue);
     const message = getValidationIssueMessage(issue, langTools);
-    const urgency = getValidationIssueUrgency(issue);
+    const urgency = issue.urgency ?? ValidationUrgency.OnSubmit;
 
     if (!field) {
       // Unmapped error
       if (!state.task.find((v) => v.message === message && v.severity === severity)) {
-        state.task.push({ severity, message, urgency: ValidationUrgency.OnFormSubmit });
+        state.task.push({ severity, message, urgency: ValidationUrgency.OnSubmit });
       }
       continue;
     }

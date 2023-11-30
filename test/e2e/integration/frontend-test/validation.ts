@@ -2,9 +2,9 @@ import texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { Common } from 'test/e2e/pageobjects/common';
 
+import { BackendValidationSeverity } from 'src/features/validation';
 import { Triggers } from 'src/layout/common.generated';
-import { BackendValidationSeverity } from 'src/utils/validation/backendValidationSeverity';
-import type { BackendValidationIssue } from 'src/utils/validation/types';
+import type { BackendValidationIssue } from 'src/features/validation';
 
 const appFrontend = new AppFrontend();
 const mui = new Common();

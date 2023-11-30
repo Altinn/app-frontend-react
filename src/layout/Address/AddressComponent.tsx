@@ -9,7 +9,6 @@ import { hasValidationErrors } from 'src/features/validation/utils';
 import {
   useBindingValidationsForNode,
   useComponentValidationsForNode,
-  useShowNodeValidation,
 } from 'src/features/validation/validationProvider';
 import { usePostPlaceQuery } from 'src/hooks/queries/usePostPlaceQuery';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
@@ -26,14 +25,12 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
 
   const bindingValidations = useBindingValidationsForNode(node);
   const componentValidations = useComponentValidationsForNode(node);
-  const showNodeValidation = useShowNodeValidation();
 
   const bindings = 'dataModelBindings' in node.item ? node.item.dataModelBindings || {} : {};
   const handleFieldChange =
     (key: AddressKeys): IAddressComponentProps['handleDataChange'] =>
     (value) => {
       handleDataChange(value, { key });
-      showNodeValidation(node);
     };
 
   const {
@@ -45,10 +42,6 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
   function onChangeAddress(e: React.ChangeEvent<HTMLInputElement>) {
     setAddress(e.target.value);
   }
-  function onBlurAddress() {
-    saveAddress();
-    showNodeValidation(node);
-  }
 
   const {
     value: zipCode,
@@ -58,10 +51,6 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
   } = useDelayedSavedState(handleFieldChange('zipCode'), bindings.zipCode, formData.zipCode || '', saveWhileTyping);
   function onChangeZipCode(e: React.ChangeEvent<HTMLInputElement>) {
     setZipCode(e.target.value);
-  }
-  function onBlurZipCode() {
-    saveZipCode();
-    showNodeValidation(node);
   }
 
   const { value: postPlace, setValue: setPostPlace } = useDelayedSavedState(
@@ -80,10 +69,6 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
   function onChangeCareOf(e: React.ChangeEvent<HTMLInputElement>) {
     setCareOf(e.target.value);
   }
-  function onBlurCareOf() {
-    saveCareOf();
-    showNodeValidation(node);
-  }
 
   const {
     value: houseNumber,
@@ -98,10 +83,6 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
   );
   function onChangeHouseNumber(e: React.ChangeEvent<HTMLInputElement>) {
     setHouseNumber(e.target.value);
-  }
-  function onBlurHouseNumber() {
-    saveHouseNumber();
-    showNodeValidation(node);
   }
 
   const postPlaceQueryData = usePostPlaceQuery(formData.zipCode, !hasValidationErrors(bindingValidations?.zipCode));
@@ -132,7 +113,7 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
           isValid={!hasValidationErrors(bindingValidations?.address)}
           value={address}
           onChange={onChangeAddress}
-          onBlur={onBlurAddress}
+          onBlur={saveAddress}
           onPaste={onAddressPaste}
           readOnly={readOnly}
           required={required}
@@ -156,7 +137,7 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
             isValid={!hasValidationErrors(bindingValidations?.careOf)}
             value={careOf}
             onChange={onChangeCareOf}
-            onBlur={onBlurCareOf}
+            onBlur={saveCareOf}
             onPaste={onCareOfPaste}
             readOnly={readOnly}
             autoComplete='address-line2'
@@ -181,7 +162,7 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
                 isValid={!hasValidationErrors(bindingValidations?.zipCode)}
                 value={zipCode}
                 onChange={onChangeZipCode}
-                onBlur={onBlurZipCode}
+                onBlur={saveZipCode}
                 onPaste={onZipCodePaste}
                 readOnly={readOnly}
                 required={required}
@@ -231,7 +212,7 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
               isValid={!hasValidationErrors(bindingValidations?.houseNumber)}
               value={houseNumber}
               onChange={onChangeHouseNumber}
-              onBlur={onBlurHouseNumber}
+              onBlur={saveHouseNumber}
               onPaste={onHouseNumberPaste}
               readOnly={readOnly}
               autoComplete='address-line3'

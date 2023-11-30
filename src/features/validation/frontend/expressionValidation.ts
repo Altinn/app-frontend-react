@@ -195,7 +195,7 @@ export function runExpressionValidationsOnNode(
           group: FrontendValidationSource.Expression,
           message,
           severity: validationDef.severity,
-          urgency: ValidationUrgency.AfterTyping, // TODO(Validation): Make urgency configurable
+          urgency: ValidationUrgency.Immediate, // TODO(Validation): Make urgency configurable
         });
       }
     }

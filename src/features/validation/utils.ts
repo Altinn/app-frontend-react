@@ -10,6 +10,7 @@ import type {
   ValidationGroup,
   ValidationSeverity,
   ValidationState,
+  ValidationUrgency,
 } from 'src/features/validation';
 import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -106,6 +107,7 @@ const groupsToFilter: string[] = [
 ];
 export function validationsFromGroups<T extends GroupedValidation>(
   groups: ValidationGroup<T>,
+  urgency: ValidationUrgency,
   ignoreBackendValidations: boolean,
   severity?: ValidationSeverity,
 ) {
@@ -115,7 +117,8 @@ export function validationsFromGroups<T extends GroupedValidation>(
         .flatMap(([, validations]) => validations)
     : Object.values(groups).flat();
 
-  return severity ? validationsOfSeverity(validationsFlat, severity) : validationsFlat;
+  const filteredValidations = severity ? validationsOfSeverity(validationsFlat, severity) : validationsFlat;
+  return filteredValidations.filter((validation) => urgency >= validation.urgency);
 }
 
 /*
@@ -125,17 +128,20 @@ export function validationsFromGroups<T extends GroupedValidation>(
 export function getValidationsForNode(
   node: LayoutNode,
   state: ValidationState,
+  urgency: ValidationUrgency,
   ignoreBackendValidations: boolean,
 ): NodeValidation[];
 export function getValidationsForNode<Severity extends ValidationSeverity>(
   node: LayoutNode,
   state: ValidationState,
+  urgency: ValidationUrgency,
   ignoreBackendValidations: boolean,
   severity: Severity,
 ): NodeValidation<Severity>[];
 export function getValidationsForNode(
   node: LayoutNode,
   state: ValidationState,
+  urgency: ValidationUrgency,
   ignoreBackendValidations = true,
   severity?: ValidationSeverity,
 ): NodeValidation[] {
@@ -147,7 +153,7 @@ export function getValidationsForNode(
   if (node.item.dataModelBindings) {
     for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings)) {
       if (state.fields[field]) {
-        const validations = validationsFromGroups(state.fields[field], ignoreBackendValidations, severity);
+        const validations = validationsFromGroups(state.fields[field], urgency, ignoreBackendValidations, severity);
         for (const validation of validations) {
           validationMessages.push(buildNodeValidation(node, validation, bindingKey));
         }
@@ -156,6 +162,7 @@ export function getValidationsForNode(
       if (state.components[node.item.id]?.bindingKeys?.[bindingKey]) {
         const validations = validationsFromGroups(
           state.components[node.item.id].bindingKeys[bindingKey],
+          urgency,
           ignoreBackendValidations,
           severity,
         );
@@ -168,6 +175,7 @@ export function getValidationsForNode(
   if (state.components[node.item.id]?.component) {
     const validations = validationsFromGroups(
       state.components[node.item.id].component,
+      urgency,
       ignoreBackendValidations,
       severity,
     );

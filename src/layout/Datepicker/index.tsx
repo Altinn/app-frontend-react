@@ -74,7 +74,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent {
         severity: 'errors',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,
-        urgency: ValidationUrgency.OnBlur,
+        urgency: ValidationUrgency.OnGroupClose,
       });
     }
 
@@ -117,7 +117,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent {
           severity: 'errors',
           field,
           group: FrontendValidationSource.Schema,
-          urgency: ValidationUrgency.AfterTyping,
+          urgency: ValidationUrgency.Immediate,
         });
       }
     }

@@ -88,13 +88,13 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
     </Button>
   );
 
-  const addNewRowToGroup = useCallback((): void => {
+  const addNewRowToGroup = useCallback(async () => {
     if (!edit?.alwaysShowAddButton || edit?.mode === 'showAll') {
       dispatch(FormLayoutActions.repGroupAddRow({ groupId: id }));
     }
 
     if (edit?.mode !== 'showAll' && edit?.mode !== 'onlyTable') {
-      const shouldChangeIndex = repeatingGroupIndex === -1 || !onGroupCloseValidation(node, editIndex);
+      const shouldChangeIndex = repeatingGroupIndex === -1 || !(await onGroupCloseValidation(node, editIndex));
       if (shouldChangeIndex) {
         dispatch(
           FormLayoutActions.updateRepeatingGroupsEditIndex({
@@ -154,8 +154,8 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
     }
   };
 
-  const setEditIndex = (index: number): void => {
-    const shouldChangeIndex = editIndex === -1 || !onGroupCloseValidation(node, editIndex);
+  const setEditIndex = async (index: number) => {
+    const shouldChangeIndex = editIndex === -1 || !(await onGroupCloseValidation(node, editIndex));
     if (shouldChangeIndex) {
       dispatch(
         FormLayoutActions.updateRepeatingGroupsEditIndex({

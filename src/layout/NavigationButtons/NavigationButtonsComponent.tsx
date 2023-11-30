@@ -56,8 +56,8 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
     [],
   );
 
-  const OnClickNext = () => {
-    if (!onPageNextValidation(node.top)) {
+  const OnClickNext = async () => {
+    if (!(await onPageNextValidation(node.top))) {
       const keepScrollPosAction: IKeepComponentScrollPos = {
         componentId: id,
         offsetTop: getScrollPosition(),

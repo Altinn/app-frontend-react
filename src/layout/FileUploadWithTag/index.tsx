@@ -63,7 +63,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
             componentId: node.item.id,
             group: FrontendValidationSource.Component,
             meta: { attachmentId },
-            urgency: ValidationUrgency.OnGroupRowClose,
+            urgency: ValidationUrgency.OnGroupClose,
           });
         });
       }

@@ -1,4 +1,4 @@
-import { BackendValidationSeverity, ValidationIssueSources, ValidationUrgency } from 'src/features/validation';
+import { BackendValidationSeverity } from 'src/features/validation';
 import { validationTexts } from 'src/features/validation/backend/validationTexts';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { BackendValidationIssue, ValidationSeverity } from 'src/features/validation';
@@ -17,16 +17,6 @@ const severityMap: { [s in BackendValidationSeverity]: ValidationSeverity } = {
 
 export function getValidationIssueSeverity(issue: BackendValidationIssue): ValidationSeverity {
   return severityMap[issue.severity];
-}
-
-export function getValidationIssueUrgency(issue: BackendValidationIssue): ValidationUrgency {
-  if (issue.urgency) {
-    return issue.urgency;
-  }
-  if (issue.source === ValidationIssueSources.Custom) {
-    return ValidationUrgency.AfterTyping;
-  }
-  return ValidationUrgency.OnFormSubmit;
 }
 
 /**

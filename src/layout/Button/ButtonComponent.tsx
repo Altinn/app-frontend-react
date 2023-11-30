@@ -44,8 +44,8 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
     );
   }
 
-  const submitTask = () => {
-    if (!disabled && next && !onFormSubmitValidation(node.top.top.collection)) {
+  const submitTask = async () => {
+    if (!disabled && next && !(await onFormSubmitValidation(node.top.top.collection))) {
       if (currentTaskType === 'data') {
         next({ nodeId: node.item.id });
       } else if (currentTaskType === 'confirmation') {
