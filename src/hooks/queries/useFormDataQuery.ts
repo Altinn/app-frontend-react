@@ -47,8 +47,8 @@ export function useFormDataQuery(): UseQueryResult<IFormData> {
     isStateless && statelessDataType
       ? getStatelessFormDataUrl(statelessDataType, allowAnonymous)
       : instance && currentTaskDataId
-      ? getFetchFormDataUrl(instance.id, currentTaskDataId)
-      : undefined;
+        ? getFetchFormDataUrl(instance.id, currentTaskDataId)
+        : undefined;
 
   const options: AxiosRequestConfig = {};
   if (isStateless && !allowAnonymous && currentPartyId) {
