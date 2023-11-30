@@ -66,8 +66,8 @@ function getEditButtonText(
       ? textResourceBindings?.edit_button_close
       : 'general.save_and_close'
     : textResourceBindings?.edit_button_open
-    ? textResourceBindings?.edit_button_open
-    : 'general.edit_alt';
+      ? textResourceBindings?.edit_button_open
+      : 'general.edit_alt';
   return langTools.langAsString(buttonTextKey);
 }
 
