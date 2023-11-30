@@ -1,6 +1,6 @@
 import React, { Component, isValidElement } from 'react';
 
-import { useCurrentLanguage, useHasLanguageProvider } from 'src/features/language/LanguageProvider';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { getLanguageFromKey, useLanguage } from 'src/features/language/useLanguage';
 import { getLanguageFromCode } from 'src/language/languages';
 import type { ValidLangParam, ValidLanguageKey } from 'src/features/language/useLanguage';
@@ -31,32 +31,9 @@ function LangComponent<P extends Props>({ id, params }: P) {
   return lang(id, realParams);
 }
 
-function LangFallback({ id, lang }: Props & { lang: string }) {
-  return id ? getLanguageFromKey(id, getLanguageFromCode(lang)) : undefined;
-}
-
-function LangWithLanguageFallback(props: Props) {
+function LangComponentFallback({ id }: Props) {
   const currentLanguage = useCurrentLanguage();
-
-  return (
-    <LangFallback
-      {...props}
-      lang={currentLanguage}
-    />
-  );
-}
-
-function LangFallbackCheck(props: Props) {
-  const hasLanguage = useHasLanguageProvider();
-
-  return hasLanguage ? (
-    <LangWithLanguageFallback {...props} />
-  ) : (
-    <LangFallback
-      {...props}
-      lang='nb'
-    />
-  );
+  return id ? getLanguageFromKey(id, getLanguageFromCode(currentLanguage)) : undefined;
 }
 
 interface IErrorBoundary {
@@ -80,7 +57,7 @@ export class Lang<P extends Props> extends Component<P, IErrorBoundary> {
 
   render() {
     if (this.state.error) {
-      return <LangFallbackCheck {...this.props} />;
+      return <LangComponentFallback {...this.props} />;
     }
 
     return <LangComponent {...this.props} />;

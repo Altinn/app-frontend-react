@@ -17,40 +17,7 @@ describe('Unknown error', () => {
     expect(screen.getByTestId('AltinnError')).toHaveTextContent(
       'Det har skjedd en ukjent feil, vennligst prøv igjen senere.',
     );
-    // Parameters doesn't work when no providers are present
-    expect(screen.getByTestId('AltinnError')).toHaveTextContent(
-      'Om problemet vedvarer, ta kontakt med oss på brukerservice {0}.',
-    );
 
-    const calls = (console.error as jest.Mock).mock.calls;
-    const otherCalls = callsExceptWhereErrorBoundaryIsWorking(calls);
-
-    expect(otherCalls).toEqual([]);
+    expect(console.error).not.toHaveBeenCalled();
   });
 });
-
-function callsExceptWhereErrorBoundaryIsWorking(calls: any[]) {
-  const otherCalls: any[] = [];
-  for (const call of calls) {
-    if (
-      typeof call[0] === 'object' &&
-      call[0] &&
-      'message' in call[0] &&
-      call[0].message.includes('Language is missing')
-    ) {
-      continue;
-    }
-    if (
-      typeof call[0] === 'string' &&
-      call[0].includes('The above error occurred in the <LangComponent> component') &&
-      call[0].includes(
-        'React will try to recreate this component tree from scratch using the error boundary you provided, Lang',
-      )
-    ) {
-      continue;
-    }
-    otherCalls.push(call);
-  }
-
-  return otherCalls;
-}

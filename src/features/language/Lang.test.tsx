@@ -84,6 +84,8 @@ describe('Lang', () => {
     expect(console.error).toHaveBeenCalledWith(
       expect.objectContaining({ message: expect.stringContaining('Error: Invalid element passed to Lang component') }),
     );
+
+    // Should still fall back to show a value even if an exception is thrown, but no params will be replaced
     expect(screen.getByTestId('test-subject')).toHaveTextContent('Du har {0} av {1} tegn igjen');
   });
 
@@ -92,14 +94,8 @@ describe('Lang', () => {
       renderer: () => <TestSubject />,
     });
 
-    expect(console.error).toHaveBeenCalledWith(
-      expect.objectContaining({ message: expect.stringContaining('Error: Language is missing') }),
-    );
-    expect(console.error).toHaveBeenCalledWith(
-      expect.stringContaining('The above error occurred in the <LangComponent> component'),
-    );
-
     expect(screen.getByTestId('test-subject')).toHaveTextContent('Opprett ny');
+    expect(console.error).not.toHaveBeenCalled();
   });
 
   it('should use the current language if it is provided when falling back after a failure', async () => {
