@@ -1,19 +1,19 @@
 import React from 'react';
 import type { JSX } from 'react';
 
+import { FD } from 'src/features/formData/FormDataWriter';
 import { type IUseLanguage, useLanguage } from 'src/features/language/useLanguage';
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
 import { useAllOptions } from 'src/features/options/useAllOptions';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
 import { CheckboxesDef } from 'src/layout/Checkboxes/config.def.generated';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 import type { IFormData } from 'src/features/formData';
 import type { AllOptionsMap } from 'src/features/options/useAllOptions';
 import type { DisplayDataProps, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 
 export class Checkboxes extends CheckboxesDef {
   render(props: PropsFromGenericComponent<'Checkboxes'>): JSX.Element | null {

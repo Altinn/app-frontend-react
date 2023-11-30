@@ -52,31 +52,29 @@ document.addEventListener('DOMContentLoaded', () => {
               <LanguageProvider>
                 <ThemeWrapper>
                   <InstantiationProvider>
-                    <ExprContextWrapper>
-                      <ApplicationMetadataProvider>
-                        <OrgsProvider>
-                          <ApplicationSettingsProvider>
-                            <LayoutSetsProvider>
-                              <FooterLayoutProvider>
-                                <ProfileProvider>
-                                  <PartyProvider>
-                                    <TextResourcesProvider>
-                                      <KeepAliveProvider>
-                                        <WindowTitleProvider>
-                                          <DevTools>
-                                            <App />
-                                          </DevTools>
-                                        </WindowTitleProvider>
-                                      </KeepAliveProvider>
-                                    </TextResourcesProvider>
-                                  </PartyProvider>
-                                </ProfileProvider>
-                              </FooterLayoutProvider>
-                            </LayoutSetsProvider>
-                          </ApplicationSettingsProvider>
-                        </OrgsProvider>
-                      </ApplicationMetadataProvider>
-                    </ExprContextWrapper>
+                    <ApplicationMetadataProvider>
+                      <OrgsProvider>
+                        <ApplicationSettingsProvider>
+                          <LayoutSetsProvider>
+                            <FooterLayoutProvider>
+                              <ProfileProvider>
+                                <PartyProvider>
+                                  <TextResourcesProvider>
+                                    <KeepAliveProvider>
+                                      <WindowTitleProvider>
+                                        <DevTools>
+                                          <App />
+                                        </DevTools>
+                                      </WindowTitleProvider>
+                                    </KeepAliveProvider>
+                                  </TextResourcesProvider>
+                                </PartyProvider>
+                              </ProfileProvider>
+                            </FooterLayoutProvider>
+                          </LayoutSetsProvider>
+                        </ApplicationSettingsProvider>
+                      </OrgsProvider>
+                    </ApplicationMetadataProvider>
                   </InstantiationProvider>
                 </ThemeWrapper>
               </LanguageProvider>

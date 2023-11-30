@@ -1,6 +1,5 @@
 import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getApplicationSettingsMock } from 'src/__mocks__/getApplicationSettingsMock';
-import { getFormDataStateMock } from 'src/__mocks__/getFormDataStateMock';
 import { getFormLayoutStateMock } from 'src/__mocks__/getFormLayoutStateMock';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getOrgsMock } from 'src/__mocks__/getOrgsMock';

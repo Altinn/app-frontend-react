@@ -68,14 +68,3 @@ const MaybeOrganisationLogo = ({ color }: { color: LogoColor }) => {
   const enableOrgLogo = Boolean(useApplicationMetadata().logo);
   return enableOrgLogo ? <OrganisationLogo /> : <AltinnLogo color={color} />;
 };
-
-const Logo = ({ color }: { color: LogoColor }) => {
-  const hasLoaded = useHasAppTextsYet();
-
-  return hasLoaded ? <MaybeOrganisationLogo color={color} /> : <AltinnLogo color={color} />;
-};
-
-const MaybeOrganisationLogo = ({ color }: { color: LogoColor }) => {
-  const enableOrgLogo = Boolean(useApplicationMetadata().logo);
-  return enableOrgLogo ? <OrganisationLogo /> : <AltinnLogo color={color} />;
-};

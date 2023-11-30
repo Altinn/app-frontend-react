@@ -3,7 +3,6 @@ import React from 'react';
 import { FD } from 'src/features/formData/FormDataWriter';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { WrappedButton } from 'src/layout/Button/WrappedButton';
 import { mapFormData } from 'src/utils/databindings';
 import type { IInstantiationButtonComponentProvidedProps } from 'src/layout/InstantiationButton/InstantiationButtonComponent';

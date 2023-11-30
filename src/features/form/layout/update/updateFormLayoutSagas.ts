@@ -5,12 +5,11 @@ import type { SagaIterator } from 'redux-saga';
 
 import { getCurrentTaskDataElementId } from 'src/features/applicationMetadata/appMetadataUtils';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { ResolvedNodesSelector } from 'src/features/form/nodes/hierarchy';
 import { staticUseLanguageFromState } from 'src/features/language/useLanguage';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { Triggers } from 'src/layout/common.generated';
 import { getLayoutOrderFromPageOrderConfig, selectLayoutOrder } from 'src/selectors/getLayoutOrder';
-import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
 import { mapValidationIssues } from 'src/utils/validation/backendValidation';
@@ -21,8 +20,8 @@ import {
   validationContextFromState,
 } from 'src/utils/validation/validationHelpers';
 import type { IMoveToNextPage, IUpdateCurrentView } from 'src/features/form/layout/formLayoutTypes';
-import type { IRuntimeState, IUiConfig } from 'src/types';
 import type { LayoutPages } from 'src/features/form/nodes/LayoutPages';
+import type { IRuntimeState, IUiConfig } from 'src/types';
 import type { BackendValidationIssue } from 'src/utils/validation/types';
 
 export const selectFormLayoutState = (state: IRuntimeState) => state.formLayout;

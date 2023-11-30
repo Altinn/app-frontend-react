@@ -5,6 +5,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptionsQuery } from 'src/features/options/useGetOptionsQuery';
 import { useSourceOptions } from 'src/hooks/useSourceOptions';
 import { duplicateOptionFilter } from 'src/utils/options';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { IMapping, IOption, IOptionSourceExternal } from 'src/layout/common.generated';
 

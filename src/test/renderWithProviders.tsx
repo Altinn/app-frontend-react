@@ -25,6 +25,7 @@ import { ApplicationSettingsProvider } from 'src/features/applicationSettings/Ap
 import { FooterLayoutProvider } from 'src/features/footer/FooterLayoutProvider';
 import { generateSimpleRepeatingGroups } from 'src/features/form/layout/repGroups/generateSimpleRepeatingGroups';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
+import { useNodes } from 'src/features/form/nodes/NodesContext';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
 import { LanguageProvider } from 'src/features/language/LanguageProvider';
@@ -35,7 +36,6 @@ import { ProfileProvider } from 'src/features/profile/ProfileProvider';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { setupStore } from 'src/redux/store';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
-import { ExprContextWrapper, useExprContext } from 'src/utils/layout/ExprContext';
 import type { AppMutations, AppQueries, AppQueriesContext } from 'src/core/contexts/AppQueriesProvider';
 import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
@@ -45,8 +45,6 @@ import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
 import type { IOption } from 'src/layout/common.generated';
 import type { CompExternalExact, CompTypes, ILayoutCollection, ILayouts } from 'src/layout/layout';
 import type { IRuntimeState } from 'src/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 /**
  * These are the queries that cannot be mocked. Instead of mocking the queries themselves, you should provide preloaded
@@ -182,27 +180,25 @@ function DefaultProviders({ children, store, queries, queryClient, Router = Defa
       <ReduxProvider store={store}>
         <LanguageProvider>
           <MuiThemeProvider theme={theme}>
-            <ExprContextWrapper>
-              <ApplicationMetadataProvider>
-                <OrgsProvider>
-                  <ApplicationSettingsProvider>
-                    <LayoutSetsProvider>
-                      <ProfileProvider>
-                        <PartyProvider>
-                          <TextResourcesProvider>
-                            <FooterLayoutProvider>
-                              <Router>
-                                <InstantiationProvider>{children}</InstantiationProvider>
-                              </Router>
-                            </FooterLayoutProvider>
-                          </TextResourcesProvider>
-                        </PartyProvider>
-                      </ProfileProvider>
-                    </LayoutSetsProvider>
-                  </ApplicationSettingsProvider>
-                </OrgsProvider>
-              </ApplicationMetadataProvider>
-            </ExprContextWrapper>
+            <ApplicationMetadataProvider>
+              <OrgsProvider>
+                <ApplicationSettingsProvider>
+                  <LayoutSetsProvider>
+                    <ProfileProvider>
+                      <PartyProvider>
+                        <TextResourcesProvider>
+                          <FooterLayoutProvider>
+                            <Router>
+                              <InstantiationProvider>{children}</InstantiationProvider>
+                            </Router>
+                          </FooterLayoutProvider>
+                        </TextResourcesProvider>
+                      </PartyProvider>
+                    </ProfileProvider>
+                  </LayoutSetsProvider>
+                </ApplicationSettingsProvider>
+              </OrgsProvider>
+            </ApplicationMetadataProvider>
           </MuiThemeProvider>
         </LanguageProvider>
       </ReduxProvider>

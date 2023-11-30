@@ -11,6 +11,7 @@ import { Header } from 'src/components/presentation/Header';
 import { NavBar } from 'src/components/presentation/NavBar';
 import classes from 'src/components/presentation/Presentation.module.css';
 import { Progress } from 'src/components/presentation/Progress';
+import { DevTools } from 'src/features/devtools/DevTools';
 import { Footer } from 'src/features/footer/Footer';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
@@ -83,37 +84,37 @@ export const PresentationComponent = ({ header, type, children }: IPresentationP
 
   return (
     <DevTools>
-    <div className={cn(classes.container, { [classes.expanded]: expandedWidth })}>
-      <AltinnAppHeader
-        party={party}
-        userParty={userParty}
-        logoColor={LogoColor.blueDarker}
-        headerBackgroundColor={backgroundColor}
-      />
-      <main className={classes.page}>
-        {isProcessStepsArchived && instance?.status?.substatus && (
-          <AltinnSubstatusPaper
-            label={<Lang id={instance.status.substatus.label} />}
-            description={<Lang id={instance.status.substatus.description} />}
-          />
-        )}
-        <NavBar
-          handleClose={handleModalCloseButton}
-          handleBack={handleBackArrowButton}
-          showBackArrow={!!previous && (type === ProcessTaskType.Data || type === PresentationType.Stateless)}
+      <div className={cn(classes.container, { [classes.expanded]: expandedWidth })}>
+        <AltinnAppHeader
+          party={party}
+          userParty={userParty}
+          logoColor={LogoColor.blueDarker}
+          headerBackgroundColor={backgroundColor}
         />
-        <section
-          id='main-content'
-          className={classes.modal}
-        >
-          <Header header={realHeader}>
-            <ProgressBar type={type} />
-          </Header>
-          <div className={classes.modalBody}>{children}</div>
-        </section>
-      </main>
-      <Footer />
-    </div>
+        <main className={classes.page}>
+          {isProcessStepsArchived && instance?.status?.substatus && (
+            <AltinnSubstatusPaper
+              label={<Lang id={instance.status.substatus.label} />}
+              description={<Lang id={instance.status.substatus.description} />}
+            />
+          )}
+          <NavBar
+            handleClose={handleModalCloseButton}
+            handleBack={handleBackArrowButton}
+            showBackArrow={!!previous && (type === ProcessTaskType.Data || type === PresentationType.Stateless)}
+          />
+          <section
+            id='main-content'
+            className={classes.modal}
+          >
+            <Header header={realHeader}>
+              <ProgressBar type={type} />
+            </Header>
+            <div className={classes.modalBody}>{children}</div>
+          </section>
+        </main>
+        <Footer />
+      </div>
     </DevTools>
   );
 };

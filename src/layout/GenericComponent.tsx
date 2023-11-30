@@ -8,22 +8,21 @@ import { Description } from 'src/components/form/Description';
 import { Label } from 'src/components/form/Label';
 import { Legend } from 'src/components/form/Legend';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { FD } from 'src/features/formData/FormDataWriter';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { Triggers } from 'src/layout/common.generated';
 import { FormComponentContext, shouldComponentRenderLabel } from 'src/layout/index';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { makeGetFocus } from 'src/selectors/getLayoutData';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 import type { IGridStyling } from 'src/layout/common.generated';
 import type { IComponentProps, IFormComponentContext, PropsFromGenericComponent } from 'src/layout/index';
 import type { CompInternal, CompTypes, ITextResourceBindings } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 
 export interface IGenericComponentProps<Type extends CompTypes> {
   node: LayoutNode<Type>;
