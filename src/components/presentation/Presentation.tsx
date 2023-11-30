@@ -11,11 +11,10 @@ import { Header } from 'src/components/presentation/Header';
 import { NavBar } from 'src/components/presentation/NavBar';
 import classes from 'src/components/presentation/Presentation.module.css';
 import { Progress } from 'src/components/presentation/Progress';
-import { DevTools } from 'src/features/devtools/DevTools';
 import { Footer } from 'src/features/footer/Footer';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
-import { useLanguage } from 'src/features/language/useLanguage';
+import { Lang } from 'src/features/language/Lang';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -33,7 +32,6 @@ export interface IPresentationProvidedProps extends PropsWithChildren {
 
 export const PresentationComponent = ({ header, type, children }: IPresentationProvidedProps) => {
   const dispatch = useAppDispatch();
-  const { lang, langAsString } = useLanguage();
   const party = useCurrentParty();
   const instance = useLaxInstanceData();
   const userParty = useAppSelector((state) => state.profile.profile?.party);
@@ -41,7 +39,7 @@ export const PresentationComponent = ({ header, type, children }: IPresentationP
   const { previous } = useAppSelector(selectPreviousAndNextPage);
   const returnToView = useAppSelector((state) => state.formLayout.uiConfig.returnToView);
 
-  const realHeader = header || (type === ProcessTaskType.Archived ? lang('receipt.receipt') : undefined);
+  const realHeader = header || (type === ProcessTaskType.Archived ? <Lang id={'receipt.receipt'} /> : undefined);
 
   const handleBackArrowButton = () => {
     if (returnToView) {
@@ -85,37 +83,37 @@ export const PresentationComponent = ({ header, type, children }: IPresentationP
 
   return (
     <DevTools>
-      <div className={cn(classes.container, { [classes.expanded]: expandedWidth })}>
-        <AltinnAppHeader
-          party={party}
-          userParty={userParty}
-          logoColor={LogoColor.blueDarker}
-          headerBackgroundColor={backgroundColor}
-        />
-        <main className={classes.page}>
-          {isProcessStepsArchived && instance?.status?.substatus && (
-            <AltinnSubstatusPaper
-              label={langAsString(instance.status.substatus.label)}
-              description={langAsString(instance.status.substatus.description)}
-            />
-          )}
-          <NavBar
-            handleClose={handleModalCloseButton}
-            handleBack={handleBackArrowButton}
-            showBackArrow={!!previous && (type === ProcessTaskType.Data || type === PresentationType.Stateless)}
+    <div className={cn(classes.container, { [classes.expanded]: expandedWidth })}>
+      <AltinnAppHeader
+        party={party}
+        userParty={userParty}
+        logoColor={LogoColor.blueDarker}
+        headerBackgroundColor={backgroundColor}
+      />
+      <main className={classes.page}>
+        {isProcessStepsArchived && instance?.status?.substatus && (
+          <AltinnSubstatusPaper
+            label={<Lang id={instance.status.substatus.label} />}
+            description={<Lang id={instance.status.substatus.description} />}
           />
-          <section
-            id='main-content'
-            className={classes.modal}
-          >
-            <Header header={realHeader}>
-              <ProgressBar type={type} />
-            </Header>
-            <div className={classes.modalBody}>{children}</div>
-          </section>
-        </main>
-        <Footer />
-      </div>
+        )}
+        <NavBar
+          handleClose={handleModalCloseButton}
+          handleBack={handleBackArrowButton}
+          showBackArrow={!!previous && (type === ProcessTaskType.Data || type === PresentationType.Stateless)}
+        />
+        <section
+          id='main-content'
+          className={classes.modal}
+        >
+          <Header header={realHeader}>
+            <ProgressBar type={type} />
+          </Header>
+          <div className={classes.modalBody}>{children}</div>
+        </section>
+      </main>
+      <Footer />
+    </div>
     </DevTools>
   );
 };

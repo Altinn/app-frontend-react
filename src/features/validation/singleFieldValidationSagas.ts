@@ -6,7 +6,7 @@ import type { SagaIterator } from 'redux-saga';
 import { getCurrentTaskDataElementId } from 'src/features/applicationMetadata/appMetadataUtils';
 import { staticUseLanguageFromState } from 'src/features/language/useLanguage';
 import { ValidationActions } from 'src/features/validation/validationSlice';
-import { ResolvedNodesSelector } from 'src/features/form/nodes/hierarchy';
+import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpGet } from 'src/utils/network/networking';
 import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
 import { mapValidationIssues } from 'src/utils/validation/backendValidation';

@@ -21,6 +21,7 @@ import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
 import { WindowTitleProvider } from 'src/core/ui/WindowTitleProvider';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
+import { DevTools } from 'src/features/devtools/DevTools';
 import { FooterLayoutProvider } from 'src/features/footer/FooterLayoutProvider';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
@@ -51,27 +52,31 @@ document.addEventListener('DOMContentLoaded', () => {
               <LanguageProvider>
                 <ThemeWrapper>
                   <InstantiationProvider>
-                    <ApplicationMetadataProvider>
-                      <OrgsProvider>
-                        <ApplicationSettingsProvider>
-                          <LayoutSetsProvider>
-                            <FooterLayoutProvider>
-                              <ProfileProvider>
-                                <PartyProvider>
-                                  <TextResourcesProvider>
-                                    <KeepAliveProvider>
-                                      <WindowTitleProvider>
-                                        <App />
-                                      </WindowTitleProvider>
-                                    </KeepAliveProvider>
-                                  </TextResourcesProvider>
-                                </PartyProvider>
-                              </ProfileProvider>
-                            </FooterLayoutProvider>
-                          </LayoutSetsProvider>
-                        </ApplicationSettingsProvider>
-                      </OrgsProvider>
-                    </ApplicationMetadataProvider>
+                    <ExprContextWrapper>
+                      <ApplicationMetadataProvider>
+                        <OrgsProvider>
+                          <ApplicationSettingsProvider>
+                            <LayoutSetsProvider>
+                              <FooterLayoutProvider>
+                                <ProfileProvider>
+                                  <PartyProvider>
+                                    <TextResourcesProvider>
+                                      <KeepAliveProvider>
+                                        <WindowTitleProvider>
+                                          <DevTools>
+                                            <App />
+                                          </DevTools>
+                                        </WindowTitleProvider>
+                                      </KeepAliveProvider>
+                                    </TextResourcesProvider>
+                                  </PartyProvider>
+                                </ProfileProvider>
+                              </FooterLayoutProvider>
+                            </LayoutSetsProvider>
+                          </ApplicationSettingsProvider>
+                        </OrgsProvider>
+                      </ApplicationMetadataProvider>
+                    </ExprContextWrapper>
                   </InstantiationProvider>
                 </ThemeWrapper>
               </LanguageProvider>

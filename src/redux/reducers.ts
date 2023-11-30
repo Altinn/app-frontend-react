@@ -9,6 +9,7 @@ import { footerLayoutSlice } from 'src/features/footer/data/footerLayoutSlice';
 import { formDynamicsSlice } from 'src/features/form/dynamics/formDynamicsSlice';
 import { formLayoutSlice } from 'src/features/form/layout/formLayoutSlice';
 import { formRulesSlice } from 'src/features/form/rules/rulesSlice';
+import { formDataSlice } from 'src/features/formData/formDataSlice';
 import { textResourcesSlice } from 'src/features/language/textResources/textResourcesSlice';
 import { orgsSlice } from 'src/features/orgs/orgsSlice';
 import { profileSlice } from 'src/features/profile/profileSlice';
