@@ -32,9 +32,10 @@ const useDataModelSchemaQuery = () => {
 };
 
 const { Provider, useCtx } = delayedContext(() =>
-  createQueryContext<JSONSchema7, true>({
+  createQueryContext<JSONSchema7 | undefined, false>({
     name: 'DataModelSchema',
-    required: true,
+    required: false,
+    default: undefined,
     query: useDataModelSchemaQuery,
   }),
 );

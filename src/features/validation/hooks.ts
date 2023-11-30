@@ -29,7 +29,7 @@ export function useValidationContextGenerator(): ValidationContextGenerator {
   const instance = useLaxInstanceData() ?? null;
   const process = useLaxProcessData() ?? null;
   const layoutSets = useLayoutSets();
-  const schema = useDataModelSchema();
+  const schema = useDataModelSchema()!;
   const customValidation = useCustomValidationConfig();
   const langToolsGenerator = useAppSelector(
     (state) => (node: LayoutNode | undefined) => staticUseLanguageFromState(state, node),
