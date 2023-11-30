@@ -23,9 +23,10 @@ import type { PresentationType } from 'src/types';
 export interface IPresentationProvidedProps extends PropsWithChildren {
   header?: React.ReactNode;
   type: ProcessTaskType | PresentationType;
+  renderNavBar?: boolean;
 }
 
-export const PresentationComponent = ({ header, type, children }: IPresentationProvidedProps) => {
+export const PresentationComponent = ({ header, type, children, renderNavBar = true }: IPresentationProvidedProps) => {
   const { lang, langAsString } = useLanguage();
   const party = useCurrentParty();
   const instance = useLaxInstanceData();
@@ -55,7 +56,7 @@ export const PresentationComponent = ({ header, type, children }: IPresentationP
             description={langAsString(instance.status.substatus.description)}
           />
         )}
-        <NavBar type={type} />
+        {renderNavBar && <NavBar type={type} />}
         <section
           id='main-content'
           className={classes.modal}

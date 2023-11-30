@@ -6,7 +6,6 @@ import cn from 'classnames';
 
 import { LanguageSelector } from 'src/components/presentation/LanguageSelector';
 import classes from 'src/components/presentation/NavBar.module.css';
-import { useHasApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -21,31 +20,15 @@ export interface INavBarProps {
   type: PresentationType | ProcessTaskType;
 }
 
-interface IInnerNavBarProps extends INavBarProps {
-  showBackArrow?: boolean;
-  handleClose?: () => void;
-  handleBack?: (e: any) => void;
-  BackButton?: React.ReactNode;
-  CloseButton?: React.ReactNode;
-}
-
 const expandIconStyle = { transform: 'rotate(45deg)' };
 
 export const NavBar = ({ type }: INavBarProps) => {
-  const hasApplicationMetadata = useHasApplicationMetadata();
-  if (hasApplicationMetadata) {
-    return <NavBarWithNavigation type={type} />;
-  }
-  return <NavBarWithoutNavigation type={type} />;
-};
-
-const NavBarWithoutNavigation = ({ type }: INavBarProps) => <InnerNavBar type={type} />;
-
-const NavBarWithNavigation = ({ type }: INavBarProps) => {
   const { langAsString } = useLanguage();
   const { navigateToPage, previous } = useNavigatePage();
   const { returnToView } = usePageNavigationContext();
   const party = useCurrentParty();
+  const { hideCloseButton, showLanguageSelector, showExpandWidthButton, expandedWidth, toggleExpandedWidth } =
+    useUiConfigContext();
 
   const handleBackArrowButton = () => {
     if (returnToView) {
@@ -72,50 +55,27 @@ const NavBarWithNavigation = ({ type }: INavBarProps) => {
         });
     }
   };
-  return (
-    <InnerNavBar
-      showBackArrow={!!previous && (type === ProcessTaskType.Data || type === PresentationType.Stateless)}
-      BackButton={
-        <Button
-          data-testid='form-back-button'
-          className={classes.buttonMargin}
-          onClick={handleBackArrowButton}
-          variant='tertiary'
-          color='second'
-          size='small'
-          aria-label={langAsString('general.back')}
-          icon={<Left aria-hidden />}
-        />
-      }
-      CloseButton={
-        <Button
-          data-testid='form-close-button'
-          className={classes.buttonMargin}
-          onClick={handleModalCloseButton}
-          variant='tertiary'
-          color='second'
-          size='small'
-          aria-label={langAsString('general.close_schema')}
-          icon={<Close aria-hidden />}
-        />
-      }
-      type={type}
-    />
-  );
-};
 
-const InnerNavBar = ({ BackButton, CloseButton, showBackArrow }: IInnerNavBarProps) => {
-  const { langAsString } = useLanguage();
-
-  const { hideCloseButton, showLanguageSelector, showExpandWidthButton, expandedWidth, toggleExpandedWidth } =
-    useUiConfigContext();
-
+  const showBackArrow = !!previous && (type === ProcessTaskType.Data || type === PresentationType.Stateless);
   return (
     <nav
       className={classes.nav}
       aria-label={langAsString('navigation.main')}
     >
-      <div>{showBackArrow && BackButton}</div>
+      <div>
+        {showBackArrow && (
+          <Button
+            data-testid='form-back-button'
+            className={classes.buttonMargin}
+            onClick={handleBackArrowButton}
+            variant='tertiary'
+            color='second'
+            size='small'
+            aria-label={langAsString('general.back')}
+            icon={<Left aria-hidden />}
+          />
+        )}
+      </div>
       <div className={classes.wrapper}>
         {showLanguageSelector && <LanguageSelector />}
 
@@ -143,7 +103,18 @@ const InnerNavBar = ({ BackButton, CloseButton, showBackArrow }: IInnerNavBarPro
             }
           />
         )}
-        {!hideCloseButton && CloseButton}
+        {!hideCloseButton && (
+          <Button
+            data-testid='form-close-button'
+            className={classes.buttonMargin}
+            onClick={handleModalCloseButton}
+            variant='tertiary'
+            color='second'
+            size='small'
+            aria-label={langAsString('general.close_schema')}
+            icon={<Close aria-hidden />}
+          />
+        )}
       </div>
     </nav>
   );

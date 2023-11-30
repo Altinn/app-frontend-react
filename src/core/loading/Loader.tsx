@@ -18,6 +18,7 @@ export function Loader({ reason, details }: LoaderProps) {
     <PresentationComponent
       header={lang('instantiate.starting')}
       type={ProcessTaskType.Unknown}
+      renderNavBar={false}
     >
       <AltinnContentLoader
         width='100%'
