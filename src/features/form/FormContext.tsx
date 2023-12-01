@@ -9,7 +9,7 @@ import { LayoutSettingsProvider } from 'src/features/form/layoutSettings/LayoutS
 import { RulesProvider } from 'src/features/form/rules/RulesContext';
 import { FormDataProvider } from 'src/features/formData/FormDataContext';
 import { AllOptionsProvider } from 'src/features/options/useAllOptions';
-import { ValidationProvider } from 'src/features/validation/validationProvider';
+import { ValidationContext } from 'src/features/validation/validationProvider';
 
 /**
  * This helper-context provider is used to provide all the contexts needed for forms to work
@@ -22,13 +22,13 @@ export function FormProvider({ children }: React.PropsWithChildren) {
           <FormDataProvider>
             <DataModelSchemaProvider>
               <AttachmentsProvider>
-                <ValidationProvider>
+                <ValidationContext>
                   <DynamicsProvider>
                     <RulesProvider>
                       <AllOptionsProvider>{children}</AllOptionsProvider>
                     </RulesProvider>
                   </DynamicsProvider>
-                </ValidationProvider>
+                </ValidationContext>
               </AttachmentsProvider>
             </DataModelSchemaProvider>
           </FormDataProvider>

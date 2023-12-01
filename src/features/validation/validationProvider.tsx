@@ -1,13 +1,10 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { useImmer } from 'use-immer';
 
 import { createContext } from 'src/core/contexts/context';
-import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
-import { useLaxInstance } from 'src/features/instance/InstanceContext';
-import { useLanguage } from 'src/features/language/useLanguage';
 import { ValidationUrgency } from 'src/features/validation';
-import { runServerValidations } from 'src/features/validation/backend/runServerValidation';
+import { useBackendValidation } from 'src/features/validation/backend/runServerValidation';
 import { runValidationOnNodes } from 'src/features/validation/frontend/runValidations';
 import {
   useEffectEvent,
@@ -33,9 +30,15 @@ import {
   removeVisibilityForNode,
   setVisibilityForNode,
 } from 'src/features/validation/visibility';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useExprContext } from 'src/utils/layout/ExprContext';
-import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
-import type { BaseValidation, NodeValidation, ValidationContext, ValidationState } from 'src/features/validation';
+import type {
+  BaseValidation,
+  FormValidations,
+  NodeValidation,
+  ValidationContext,
+  ValidationState,
+} from 'src/features/validation';
 import type { Visibility } from 'src/features/validation/visibility';
 import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
@@ -44,70 +47,85 @@ import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
-const { Provider, useCtx } = createContext<ValidationContext>({ name: 'ValidationContext', required: true });
+const { Provider, useCtx } = createContext<ValidationContext>({
+  name: 'ValidationContext',
+  required: true,
+});
 
-export function ValidationProvider({ children }) {
+export function ValidationContext({ children }) {
   const validationContextGenerator = useValidationContextGenerator();
-  const langTools = useLanguage();
-  const instanceId = useLaxInstance()?.instanceId;
-  const currentDataElementId = useCurrentDataModelGuid();
-  const validationUrl =
-    instanceId?.length && currentDataElementId?.length
-      ? getDataValidationUrl(instanceId, currentDataElementId)
-      : undefined;
 
-  const validatingRef = React.useRef(0);
-  const [validations, setValidations] = useImmer<ValidationState>({ fields: {}, components: {}, task: [] });
+  const [frontendValidations, setFrontendValidations] = useImmer<FormValidations>({
+    fields: {},
+    components: {},
+  });
   const [visibility, setVisibility] = useImmer<Visibility>({
     urgency: 0,
     children: {},
     items: [],
   });
 
-  useOnNodeDataChange(async (nodeChanges) => {
-    validatingRef.current++;
+  // Update frontend validations for nodes when their data changes
+  useOnNodeDataChange((nodeChanges) => {
     const changedNodes = nodeChanges.map((nC) => nC.node);
-    const serverPromise = runServerValidations(nodeChanges, validationUrl, langTools);
     const newValidations = runValidationOnNodes(changedNodes, validationContextGenerator);
-    const serverValidations = await serverPromise;
 
-    setValidations((state) => {
+    setFrontendValidations((state) => {
       mergeFormValidations(state, newValidations);
-      updateValidationState(state, serverValidations);
     });
-    validatingRef.current--;
   });
 
-  useOnHierarchyChange(async (addedNodeChanges, removedNodes, currentNodes) => {
-    validatingRef.current++;
+  // Update frontend validations and visibility for nodes when they are added or removed
+  useOnHierarchyChange((addedNodeChanges, removedNodes, currentNodes) => {
     const addedNodes = addedNodeChanges.map((nC) => nC.node);
-    const serverPromise = runServerValidations(addedNodeChanges, validationUrl, langTools);
     const newValidations = runValidationOnNodes(addedNodes, validationContextGenerator);
-    const serverValidations = await serverPromise;
 
-    setValidations((state) => {
+    setFrontendValidations((state) => {
       purgeValidationsForNodes(state, removedNodes, currentNodes);
       mergeFormValidations(state, newValidations);
-      updateValidationState(state, serverValidations);
     });
 
     setVisibility((state) => {
       removedNodes.forEach((node) => removeVisibilityForNode(node, state));
       addedNodes.forEach((node) => addVisibilityForNode(node, state));
     });
-    validatingRef.current--;
   });
 
+  // Update frontend validations for nodes when their attachments change
   useOnAttachmentsChange((changedNodes) => {
-    validatingRef.current++;
     const newValidations = runValidationOnNodes(changedNodes, validationContextGenerator);
 
-    setValidations((state) => {
+    setFrontendValidations((state) => {
       mergeFormValidations(state, newValidations);
     });
-    validatingRef.current--;
   });
 
+  // Get backend validations
+  const { backendValidations, isFetching } = useBackendValidation();
+  const isSaving = useAppSelector((state) => state.formData.saving);
+
+  // Merge backend and frontend validations
+  const validations = useMemo(() => {
+    const validations: ValidationState = { fields: {}, components: {}, task: [] };
+    if (backendValidations) {
+      mergeValidationState(validations, backendValidations);
+    }
+    mergeFormValidations(validations, frontendValidations);
+    return validations;
+  }, [backendValidations, frontendValidations]);
+
+  // Provide a promise that resolves when all pending validations have been completed
+  const pending = useRef(false);
+  useEffect(() => {
+    pending.current = isFetching || isSaving;
+  }, [isFetching, isSaving]);
+  const validating = useCallback(async () => {
+    while (pending.current) {
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+    }
+  }, []);
+
+  // Set visibility for a node
   const setNodeVisibility = useEffectEvent(
     (node: LayoutNode | LayoutPage, newVisibility: number, rowIndex?: number) => {
       const currentVisibility = getRawVisibilityForNode(node, visibility, rowIndex);
@@ -119,6 +137,7 @@ export function ValidationProvider({ children }) {
     },
   );
 
+  // Set visibility for the whole form
   const setRootVisibility = useEffectEvent((newVisibility: boolean) => {
     const newUrgency = newVisibility ? ValidationUrgency.OnSubmit : 0;
     if (visibility.urgency != newUrgency) {
@@ -128,6 +147,7 @@ export function ValidationProvider({ children }) {
     }
   });
 
+  // Properly remove visibility for a row when it is deleted
   const removeRowVisibilityOnDelete = useEffectEvent(
     (node: LayoutNodeForGroup<CompGroupRepeatingInternal>, rowIndex: number) => {
       setVisibility((state) => {
@@ -136,23 +156,13 @@ export function ValidationProvider({ children }) {
     },
   );
 
-  const waitForValidation = useCallback(async (timeOut: number = 2000) => {
-    const start = performance.now();
-    while (validatingRef.current > 0) {
-      if (performance.now() - start > timeOut) {
-        return;
-      }
-      await new Promise((resolve) => requestAnimationFrame(resolve));
-    }
-  }, []);
-
   const out = {
     state: validations,
+    validating,
     visibility,
     setNodeVisibility,
     setRootVisibility,
     removeRowVisibilityOnDelete,
-    waitForValidation,
   };
 
   return <Provider value={out}>{children}</Provider>;
@@ -161,20 +171,25 @@ export function ValidationProvider({ children }) {
 export function useOnGroupCloseValidation() {
   const setNodeVisibility = useCtx().setNodeVisibility;
   const state = useCtx().state;
-  const waitForValidation = useCtx().waitForValidation;
+  const validating = useCtx().validating;
+
+  /* Ensures the callback will have the latest state */
+  const callback = useEffectEvent((node: LayoutNode, rowIndex: number): boolean => {
+    const hasErrors = node
+      .flat(true, rowIndex)
+      .filter(shouldValidateNode)
+      .some((n) => getValidationsForNode(n, state, ValidationUrgency.OnGroupClose, true, 'errors').length > 0);
+
+    setNodeVisibility(node, hasErrors ? ValidationUrgency.OnGroupClose : ValidationUrgency.Immediate, rowIndex);
+    return hasErrors;
+  });
 
   return useCallback(
-    async (node: LayoutNode, rowIndex: number): Promise<boolean> => {
-      await waitForValidation();
-      const hasErrors = node
-        .flat(true, rowIndex)
-        .filter(shouldValidateNode)
-        .some((n) => getValidationsForNode(n, state, ValidationUrgency.OnGroupClose, true, 'errors').length > 0);
-
-      setNodeVisibility(node, hasErrors ? ValidationUrgency.OnGroupClose : ValidationUrgency.Immediate, rowIndex);
-      return hasErrors;
+    async (node: LayoutNode, rowIndex: number) => {
+      await validating();
+      return callback(node, rowIndex);
     },
-    [setNodeVisibility, state, waitForValidation],
+    [callback, validating],
   );
 }
 
@@ -188,42 +203,52 @@ export const useOnDeleteGroupRow = () => useCtx().removeRowVisibilityOnDelete;
 export function useOnPageNextValidation() {
   const setNodeVisibility = useCtx().setNodeVisibility;
   const state = useCtx().state;
-  const waitForValidation = useCtx().waitForValidation;
+  const validating = useCtx().validating;
+
+  /* Ensures the callback will have the latest state */
+  const callback = useEffectEvent((currentPage: LayoutPage): boolean => {
+    const hasErrors = currentPage
+      .flat(true)
+      .filter(shouldValidateNode)
+      .some((n) => getValidationsForNode(n, state, ValidationUrgency.OnPageNext, true, 'errors').length > 0);
+
+    setNodeVisibility(currentPage, hasErrors ? ValidationUrgency.OnPageNext : ValidationUrgency.Immediate);
+    return hasErrors;
+  });
 
   return useCallback(
-    async (currentPage: LayoutPage): Promise<boolean> => {
-      await waitForValidation();
-      const hasErrors = currentPage
-        .flat(true)
-        .filter(shouldValidateNode)
-        .some((n) => getValidationsForNode(n, state, ValidationUrgency.OnPageNext, true, 'errors').length > 0);
-
-      setNodeVisibility(currentPage, hasErrors ? ValidationUrgency.OnPageNext : ValidationUrgency.Immediate);
-      return hasErrors;
+    async (currentPage: LayoutPage) => {
+      await validating();
+      return callback(currentPage);
     },
-    [setNodeVisibility, state, waitForValidation],
+    [callback, validating],
   );
 }
 
 export function useOnFormSubmitValidation() {
   const setRootVisibility = useCtx().setRootVisibility;
   const state = useCtx().state;
-  const waitForValidation = useCtx().waitForValidation;
+  const validating = useCtx().validating;
+
+  /* Ensures the callback will have the latest state */
+  const callback = useEffectEvent((layoutPages: LayoutPages): boolean => {
+    const hasErrors =
+      hasValidationErrors(state.task) ||
+      layoutPages
+        .allNodes()
+        .filter(shouldValidateNode)
+        .some((n) => getValidationsForNode(n, state, ValidationUrgency.OnSubmit, true, 'errors').length > 0);
+
+    setRootVisibility(hasErrors);
+    return hasErrors;
+  });
 
   return useCallback(
-    async (layoutPages: LayoutPages): Promise<boolean> => {
-      await waitForValidation();
-      const hasErrors =
-        hasValidationErrors(state.task) ||
-        layoutPages
-          .allNodes()
-          .filter(shouldValidateNode)
-          .some((n) => getValidationsForNode(n, state, ValidationUrgency.OnSubmit, true, 'errors').length > 0);
-
-      setRootVisibility(hasErrors);
-      return hasErrors;
+    async (layoutPages: LayoutPages) => {
+      await validating();
+      return callback(layoutPages);
     },
-    [setRootVisibility, state, waitForValidation],
+    [callback, validating],
   );
 }
 
@@ -372,7 +397,7 @@ export function useTaskErrors(ignoreBackendValidations = true): {
 /**
  * Updates an existing validation states using the values from the new state.
  */
-function updateValidationState(prevState: ValidationState, newState: ValidationState): void {
+function mergeValidationState(prevState: ValidationState, newState: ValidationState): void {
   mergeFormValidations(prevState, newState);
 
   if (newState.task) {
@@ -385,7 +410,7 @@ function updateValidationState(prevState: ValidationState, newState: ValidationS
  * This also removes field validations which are no longer bound to any other nodes.
  */
 function purgeValidationsForNodes(
-  state: ValidationState,
+  state: FormValidations,
   removedNodes: LayoutNode[],
   currentNodes: LayoutNode[],
 ): void {

@@ -49,11 +49,11 @@ export enum ValidationUrgency {
 
 export type ValidationContext = {
   state: ValidationState;
+  validating: () => Promise<void>;
   visibility: Visibility;
   setNodeVisibility: (node: LayoutNode | LayoutPage, newVisibility: ValidationUrgency, rowIndex?: number) => void;
   setRootVisibility: (newVisibility: boolean) => void;
   removeRowVisibilityOnDelete: (node: LayoutNode<'Group'>, rowIndex: number) => void;
-  waitForValidation: () => Promise<void>;
 };
 
 export type ValidationState = FormValidations & {
