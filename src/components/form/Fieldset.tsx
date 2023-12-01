@@ -12,7 +12,7 @@ import { getPlainTextFromNode } from 'src/utils/stringHelper';
 import type { ILabelSettings } from 'src/layout/common.generated';
 
 type FieldsetProps = {
-  legend: React.ReactNode;
+  legend?: React.ReactNode;
   description?: React.ReactNode;
   helpText?: React.ReactNode;
   required?: boolean;

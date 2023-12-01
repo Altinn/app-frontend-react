@@ -29,6 +29,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
   const { node } = props;
   const { rows, textResourceBindings, labelSettings } = node.item;
+  const { title, description, help } = textResourceBindings ?? {};
   const shouldHaveFullWidth = node.parent instanceof LayoutPage;
   const columnSettings: ITableColumnFormatting = {};
   const isMobile = useIsMobile();
@@ -44,12 +45,12 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
       wrapper={(child) => <FullWidthWrapper>{child}</FullWidthWrapper>}
     >
       <Table id={node.item.id}>
-        {textResourceBindings?.title && (
+        {title && (
           <Caption
             className={cn({ [css.captionFullWidth]: shouldHaveFullWidth })}
-            title={<Lang id={textResourceBindings.title} />}
-            description={<Lang id={textResourceBindings.description} />}
-            helpText={textResourceBindings.help}
+            title={<Lang id={title} />}
+            description={<Lang id={description} />}
+            helpText={help}
             labelSettings={labelSettings}
           />
         )}
@@ -268,13 +269,15 @@ function CellWithLabel({ className, columnStyleOptions, referenceComponent }: Ce
 }
 
 function MobileGrid({ node }: PropsFromGenericComponent<'Grid'>) {
+  const { textResourceBindings, id, labelSettings } = node.item;
+  const { title, description, help } = textResourceBindings ?? {};
   return (
     <Fieldset
-      id={node.item.id}
-      legend={<Lang id={node.item.textResourceBindings?.title} />}
-      description={<Lang id={node.item.textResourceBindings?.description} />}
-      helpText={node.item.textResourceBindings?.help}
-      labelSettings={node.item.labelSettings}
+      id={id}
+      legend={title && <Lang id={title} />}
+      description={title && <Lang id={description} />}
+      helpText={help}
+      labelSettings={labelSettings}
       className={css.mobileFieldset}
     >
       {nodesFromGrid(node)
