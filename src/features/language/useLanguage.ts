@@ -34,6 +34,7 @@ export interface IUseLanguage {
     dataModelPath: string,
     params?: ValidLangParam[],
   ): string;
+  langAsNonProcessedString(key: ValidLanguageKey | string | undefined, params?: ValidLangParam[]): string;
   elementAsString(element: ReactNode): string;
 }
 
@@ -158,6 +159,7 @@ function staticUseLanguage(
     key: string | undefined,
     params?: ValidLangParam[],
     extendedSources?: Partial<TextResourceVariablesDataSources>,
+    processing = true,
   ) {
     if (!key) {
       return '';
@@ -165,13 +167,13 @@ function staticUseLanguage(
 
     const textResource = getTextResourceByKey(key, textResources, { ...dataSources, ...extendedSources });
     if (textResource !== key) {
-      return getParsedLanguageFromText(textResource);
+      return processing ? getParsedLanguageFromText(textResource) : textResource;
     }
 
     const name = getLanguageFromKey(key, language);
-    const paramParsed = params ? replaceParameters(name, simplifyParams(params, langAsString)) : name;
+    const out = params ? replaceParameters(name, simplifyParams(params, langAsString)) : name;
 
-    return getParsedLanguageFromText(paramParsed);
+    return processing ? getParsedLanguageFromText(out) : out;
   }
 
   const lang: IUseLanguage['lang'] = (key, params) => base(key, params);
@@ -198,11 +200,15 @@ function staticUseLanguage(
     return getPlainTextFromNode(result, langAsString);
   };
 
+  const langAsNonProcessedString: IUseLanguage['langAsNonProcessedString'] = (key, params) =>
+    base(key, params, undefined, false);
+
   return {
     language,
     lang,
     langAsString,
     langAsStringUsingPathInDataModel,
+    langAsNonProcessedString,
     elementAsString(element: ReactNode): string {
       return getPlainTextFromNode(element, langAsString);
     },
