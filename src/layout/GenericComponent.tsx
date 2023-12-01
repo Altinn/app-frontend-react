@@ -252,7 +252,8 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     return (
       <Legend
         key={`legend-${id}`}
-        labelText={<Lang id={titleTrb} />}
+        label={<Lang id={titleTrb} />}
+        labelAsText={langAsString(titleTrb)}
         descriptionText={<Lang id={descriptionTrb} />}
         helpText={<Lang id={helpTrb} />}
         id={id}

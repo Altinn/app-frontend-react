@@ -1,7 +1,8 @@
-import { useContext, useMemo } from 'react';
-import type { JSX } from 'react';
+import { Children, isValidElement, useContext, useMemo } from 'react';
+import type { JSX, ReactNode } from 'react';
 
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useTextResources } from 'src/features/language/textResources/TextResourcesProvider';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -18,7 +19,8 @@ import type { IRuntimeState } from 'src/types';
 import type { IApplicationSettings, IInstanceDataSources, ILanguage, IVariable } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export type ValidLangParam = string | number | undefined;
+type SimpleLangParam = string | number | undefined;
+export type ValidLangParam = SimpleLangParam | ReactNode;
 
 export interface IUseLanguage {
   language: ILanguage;
@@ -32,6 +34,7 @@ export interface IUseLanguage {
     dataModelPath: string,
     params?: ValidLangParam[],
   ): string;
+  elementAsString(element: ReactNode): string;
 }
 
 interface TextResourceVariablesDataSources {
@@ -151,10 +154,23 @@ function staticUseLanguage(
 ): IUseLanguage {
   const language = _language || getLanguageFromCode(selectedLanguage);
 
-  /**
-   * TODO: Clean away any markdown/HTML formatting when using the langAsString function. Even though we support
-   * returning a string, we don't want to show markdown/HTML in the UI.
-   */
+  function langAsString(key: string | undefined, params?: ValidLangParam[]) {
+    if (!key) {
+      return '';
+    }
+
+    const textResource = getTextResourceByKey(key, textResources, dataSources);
+    if (textResource !== key) {
+      return textResource;
+    }
+
+    const name = getLanguageFromKey(key, language);
+    const out = params ? replaceParameters(name, simplifyParams(params, langAsString)) : name;
+
+    // Remove HTML tags from string
+    const doc = new DOMParser().parseFromString(out, 'text/html');
+    return doc.body.textContent || '';
+  }
 
   return {
     language,
@@ -169,23 +185,11 @@ function staticUseLanguage(
       }
 
       const name = getLanguageFromKey(key, language);
-      const paramParsed = params ? replaceParameters(name, params) : name;
+      const paramParsed = params ? replaceParameters(name, simplifyParams(params, langAsString)) : name;
 
       return getParsedLanguageFromText(paramParsed);
     },
-    langAsString: (key, params) => {
-      if (!key) {
-        return '';
-      }
-
-      const textResource = getTextResourceByKey(key, textResources, dataSources);
-      if (textResource !== key) {
-        return textResource;
-      }
-
-      const name = getLanguageFromKey(key, language);
-      return params ? replaceParameters(name, params) : name;
-    },
+    langAsString,
     langAsStringUsingPathInDataModel(
       key: ValidLanguageKey | string | undefined,
       dataModelPath: string,
@@ -201,15 +205,45 @@ function staticUseLanguage(
       }
 
       const name = getLanguageFromKey(key, language);
-      const result = params ? replaceParameters(name, params) : name;
+      const result = params ? replaceParameters(name, simplifyParams(params, langAsString)) : name;
       if (result === key) {
         return '';
       }
 
       return result;
     },
+    elementAsString(element: ReactNode): string {
+      return getPlainTextFromNode(element, langAsString);
+    },
   };
 }
+
+const simplifyParams = (params: ValidLangParam[], langAsString: IUseLanguage['langAsString']): SimpleLangParam[] =>
+  params.map((param) => {
+    if (isValidElement(param)) {
+      return getPlainTextFromNode(param, langAsString);
+    }
+
+    return param as SimpleLangParam;
+  });
+
+const getPlainTextFromNode = (node: ReactNode, langAsString: IUseLanguage['langAsString']): string => {
+  if (typeof node === 'string') {
+    return node;
+  }
+  if (isValidElement(node)) {
+    if (node.type === Lang) {
+      return langAsString(node.props.id, node.props.params);
+    }
+
+    let text = '';
+    Children.forEach(node.props.children, (child) => {
+      text += getPlainTextFromNode(child, langAsString);
+    });
+    return text;
+  }
+  return '';
+};
 
 export function getLanguageFromKey(key: string, language: ILanguage) {
   const path = key.split('.');
@@ -288,8 +322,7 @@ function getNestedObject(nestedObj: ILanguage, pathArr: string[]) {
   return pathArr.reduce((obj, key) => (obj && obj[key] !== 'undefined' ? obj[key] : undefined), nestedObj);
 }
 
-type LangParams = ValidLangParam[];
-const replaceParameters = (nameString: string | undefined, params: LangParams) => {
+const replaceParameters = (nameString: string | undefined, params: SimpleLangParam[]) => {
   if (nameString === undefined) {
     return nameString;
   }

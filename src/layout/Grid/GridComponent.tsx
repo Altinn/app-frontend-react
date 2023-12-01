@@ -11,6 +11,7 @@ import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
 import { Label } from 'src/components/form/Label';
 import { Lang } from 'src/features/language/Lang';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import css from 'src/layout/Grid/Grid.module.css';
@@ -18,7 +19,6 @@ import { isGridRowHidden, nodesFromGrid } from 'src/layout/Grid/tools';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import { getPlainTextFromNode } from 'src/utils/stringHelper';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { GridRowInternal, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/common.generated';
 import type { ITextResourceBindings } from 'src/layout/layout';
@@ -196,6 +196,7 @@ function CellWithComponent({ node, className, columnStyleOptions }: CellWithComp
 
 function CellWithText({ children, className, columnStyleOptions, help }: CellWithTextProps) {
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
+  const { elementAsString } = useLanguage();
   return (
     <TableCell
       className={cn(css.tableCellFormatting, className)}
@@ -210,7 +211,7 @@ function CellWithText({ children, className, columnStyleOptions, help }: CellWit
         </span>
         {help && (
           <HelpTextContainer
-            title={getPlainTextFromNode(children)}
+            title={elementAsString(children)}
             helpText={<Lang id={help} />}
           />
         )}
