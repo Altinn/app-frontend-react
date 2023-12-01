@@ -1,0 +1,108 @@
+html {
+  font:
+    100%/1.5 Calibri,
+    sans-serif;
+}
+
+button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font: inherit;
+}
+
+button svg {
+  width: 1.5em;
+  height: 1.5em;
+  vertical-align: middle;
+  fill: none;
+  stroke-width: 1px;
+}
+
+button.delete svg {
+  stroke: #b3253a;
+}
+
+button.edit svg {
+  stroke: currentColor;
+}
+
+button.edit path {
+  transform: rotate(45deg);
+  transform-origin: center center;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+td,
+th {
+  padding: 1em 2em;
+  text-align: center;
+}
+
+td {
+  border: solid #e1e6e8;
+  border-width: 1px 0;
+}
+
+td:first-child,
+th:first-child {
+  text-align: left;
+}
+
+td:nth-last-child(-n + 2) {
+  padding-inline: 0.5em;
+}
+
+td:last-child button {
+  color: #b3253a;
+}
+
+thead {
+  background-color: #f5f5f5;
+}
+
+@media (max-width: 50em) {
+  table,
+  tbody {
+    display: block;
+  }
+
+  tr {
+    display: grid;
+    grid-template: repeat(5, auto) / 1fr 6em;
+    grid-auto-flow: column;
+    gap: 2em;
+    border: solid #e1e6e8;
+    border-width: 1px 0;
+    padding-top: 2em;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody td {
+    grid-row: auto;
+    grid-column: 1;
+    display: block;
+    padding: 0;
+    border: 0;
+    text-align: left;
+  }
+
+  td[data-th]::before {
+    font-weight: 700;
+    content: attr(data-th) ': ';
+  }
+
+  tbody td:nth-last-child(2) {
+    grid-area: 1 / 2;
+  }
+
+  tbody td:nth-last-child(1) {
+    grid-area: 2 / 2;
+  }
+}

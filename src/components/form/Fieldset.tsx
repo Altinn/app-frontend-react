@@ -30,9 +30,10 @@ export const Fieldset = ({
   ...rest
 }: FieldsetProps) => (
   <DSFieldset
+    hideLegend={!legend}
     legend={
       <div className={classes.legendContent}>
-        {legend}
+        {legend ?? id}
         <RequiredIndicator
           required={required}
           readOnly={false}
