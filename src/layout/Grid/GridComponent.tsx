@@ -11,6 +11,7 @@ import { Fieldset } from 'src/components/form/Fieldset';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
 import { Label } from 'src/components/form/Label';
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { GenericComponent } from 'src/layout/GenericComponent';
@@ -46,8 +47,8 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
         {textResourceBindings?.title && (
           <Caption
             className={cn({ [css.captionFullWidth]: shouldHaveFullWidth })}
-            title={textResourceBindings.title}
-            description={textResourceBindings.description}
+            title={<Lang id={textResourceBindings.title} />}
+            description={<Lang id={textResourceBindings.description} />}
             helpText={textResourceBindings.help}
             labelSettings={labelSettings}
           />
@@ -270,8 +271,8 @@ function MobileGrid({ node }: PropsFromGenericComponent<'Grid'>) {
   return (
     <Fieldset
       id={node.item.id}
-      legend={node.item.textResourceBindings?.title}
-      description={node.item.textResourceBindings?.description}
+      legend={<Lang id={node.item.textResourceBindings?.title} />}
+      description={<Lang id={node.item.textResourceBindings?.description} />}
       helpText={node.item.textResourceBindings?.help}
       labelSettings={node.item.labelSettings}
       className={css.mobileFieldset}

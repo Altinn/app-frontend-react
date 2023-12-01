@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from '@digdir/desi
 import cn from 'classnames';
 
 import { Caption } from 'src/components/form/Caption';
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { CompCategory } from 'src/layout/common';
@@ -196,8 +197,8 @@ export function RepeatingGroupTable({
           <Caption
             id={`group-${id}-caption`}
             className={cn({ [classes.tableNotEmptyCaption]: !isEmpty })}
-            title={lang(textResourceBindings.title)}
-            description={lang(textResourceBindings.description)}
+            title={<Lang id={textResourceBindings.title} />}
+            description={<Lang id={textResourceBindings.description} />}
             labelSettings={labelSettings}
             required={required}
           />
