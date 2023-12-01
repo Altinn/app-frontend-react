@@ -6,6 +6,7 @@ import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
 import { RadioButton } from 'src/components/form/RadioButton';
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { groupIsRepeatingLikert } from 'src/layout/Group/tools';
 import classes from 'src/layout/RadioButtons/ControlledRadioGroup.module.css';
@@ -43,7 +44,7 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
   const labelText = (
     <span style={{ fontSize: '1rem', wordBreak: 'break-word' }}>
       {getLabelPrefixForLikert()}
-      {lang(textResourceBindings?.title)}
+      <Lang id={textResourceBindings?.title} />
       <RequiredIndicator required={required} />
       <OptionalIndicator
         labelSettings={labelSettings}
@@ -73,13 +74,13 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
                 {labelText}
                 {textResourceBindings?.help ? (
                   <HelpText title={langAsString(textResourceBindings?.help)}>
-                    {lang(textResourceBindings?.help)}
+                    <Lang id={textResourceBindings?.help} />
                   </HelpText>
                 ) : null}
               </span>
             }
             hideLegend={overrideDisplay?.renderLegend === false}
-            description={lang(textResourceBindings?.description)}
+            description={<Lang id={textResourceBindings?.description} />}
             error={!isValid}
             disabled={readOnly}
             inline={shouldDisplayHorizontally}
@@ -89,8 +90,8 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
               <RadioButton
                 {...option}
                 label={langAsString(option.label)}
-                description={lang(option.description)}
-                helpText={lang(option.helpText)}
+                description={<Lang id={option.description} />}
+                helpText={<Lang id={option.helpText} />}
                 name={id}
                 key={option.value}
                 checked={option.value === selected}

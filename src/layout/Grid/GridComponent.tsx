@@ -10,7 +10,7 @@ import { Description } from 'src/components/form/Description';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
 import { Label } from 'src/components/form/Label';
-import { useLanguage } from 'src/features/language/useLanguage';
+import { Lang } from 'src/features/language/Lang';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import css from 'src/layout/Grid/Grid.module.css';
@@ -64,8 +64,6 @@ interface GridRowProps {
 }
 
 export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: GridRowProps) {
-  const { lang } = useLanguage(node);
-
   return isGridRowHidden(row) ? null : (
     <InternalRow
       header={row.header}
@@ -97,7 +95,12 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: 
                 help={cell?.help}
                 columnStyleOptions={textCellSettings}
               >
-                {lang(cell.text)}
+                {
+                  <Lang
+                    id={cell.text}
+                    node={node}
+                  />
+                }
               </CellWithText>
             );
           }
@@ -193,7 +196,6 @@ function CellWithComponent({ node, className, columnStyleOptions }: CellWithComp
 
 function CellWithText({ children, className, columnStyleOptions, help }: CellWithTextProps) {
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
-  const { lang } = useLanguage();
   return (
     <TableCell
       className={cn(css.tableCellFormatting, className)}
@@ -209,7 +211,7 @@ function CellWithText({ children, className, columnStyleOptions, help }: CellWit
         {help && (
           <HelpTextContainer
             title={getPlainTextFromNode(children)}
-            helpText={lang(help)}
+            helpText={<Lang id={help} />}
           />
         )}
       </span>
@@ -229,7 +231,7 @@ function CellWithLabel({ className, columnStyleOptions, referenceComponent }: Ce
   const required =
     (referenceComponent && 'required' in referenceComponent.item && referenceComponent.item.required) ?? false;
   const componentId = referenceComponent?.item.id ?? referenceComponent?.item.baseComponentId;
-  const { lang } = useLanguage();
+
   return (
     <TableCell
       className={cn(css.tableCellFormatting, className)}
@@ -240,10 +242,11 @@ function CellWithLabel({ className, columnStyleOptions, referenceComponent }: Ce
           <span className={css.textLabel}>
             <Label
               key={`label-${componentId}`}
-              labelText={title}
+              label={title}
+              labelAsText={title}
               id={componentId}
               required={required}
-              helpText={lang(help)}
+              helpText={<Lang id={help} />}
             />
           </span>
           <Description

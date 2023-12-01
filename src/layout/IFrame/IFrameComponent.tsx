@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Panel, PanelVariant } from '@altinn/altinn-design-system';
 
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getSandboxProperties } from 'src/layout/IFrame/utils';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -9,7 +10,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 export type IFrameComponentProps = PropsFromGenericComponent<'IFrame'>;
 
 export const IFrameComponent = ({ node }: IFrameComponentProps): JSX.Element => {
-  const { lang, langAsString } = useLanguage();
+  const { langAsString } = useLanguage();
   const { textResourceBindings, sandbox } = node.item;
 
   const sandboxProperties = getSandboxProperties(sandbox);
@@ -21,9 +22,11 @@ export const IFrameComponent = ({ node }: IFrameComponentProps): JSX.Element => 
     return (
       <Panel
         variant={PanelVariant.Error}
-        title={lang('iframe_component.unsupported_browser_title')}
+        title={<Lang id={'iframe_component.unsupported_browser_title'} />}
       >
-        <p>{lang('iframe_component.unsupported_browser')}</p>
+        <p>
+          <Lang id={'iframe_component.unsupported_browser'} />
+        </p>
       </Panel>
     );
   }

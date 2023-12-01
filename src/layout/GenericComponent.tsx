@@ -9,6 +9,7 @@ import { Label } from 'src/components/form/Label';
 import { Legend } from 'src/components/form/Legend';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -111,7 +112,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
   const GetFocusSelector = makeGetFocus();
   const hasValidationMessages = node.hasValidationMessages('any');
   const hidden = node.isHidden();
-  const { lang, langAsString } = useLanguage(node);
+  const { langAsString } = useLanguage(node);
 
   const formData = node.getFormData() as IComponentFormData<Type>;
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
@@ -218,8 +219,9 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     return (
       <Label
         key={`label-${id}`}
-        labelText={lang(titleTrb)}
-        helpText={lang(helpTrb)}
+        label={<Lang id={titleTrb} />}
+        labelAsText={langAsString(titleTrb)}
+        helpText={<Lang id={helpTrb} />}
         id={id}
         readOnly={'readOnly' in item ? item.readOnly : false}
         required={'required' in item ? item.required : false}
@@ -236,7 +238,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     return (
       <Description
         key={`description-${id}`}
-        description={lang(descriptionTrb)}
+        description={<Lang id={descriptionTrb} />}
         id={id}
       />
     );
@@ -250,9 +252,9 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     return (
       <Legend
         key={`legend-${id}`}
-        labelText={lang(titleTrb)}
-        descriptionText={lang(descriptionTrb)}
-        helpText={lang(helpTrb)}
+        labelText={<Lang id={titleTrb} />}
+        descriptionText={<Lang id={descriptionTrb} />}
+        helpText={<Lang id={helpTrb} />}
         id={id}
         required={'required' in item ? item.required : false}
         labelSettings={'labelSettings' in item ? item.labelSettings : undefined}

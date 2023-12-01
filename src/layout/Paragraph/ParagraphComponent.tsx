@@ -3,17 +3,15 @@ import React from 'react';
 import { Grid, Typography } from '@material-ui/core';
 
 import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { getPlainTextFromNode } from 'src/utils/stringHelper';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IParagraphProps = PropsFromGenericComponent<'Paragraph'>;
 
 export function ParagraphComponent({ node }: IParagraphProps) {
   const { id, textResourceBindings } = node.item;
-  const { lang } = useLanguage();
-  const text = lang(textResourceBindings?.title);
-
+  const { langAsString } = useLanguage();
   return (
     <Grid
       container={true}
@@ -27,14 +25,14 @@ export function ParagraphComponent({ node }: IParagraphProps) {
           id={id}
           data-testid={`paragraph-component-${id}`}
         >
-          {text}
+          <Lang id={textResourceBindings?.title} />
         </Typography>
       </Grid>
       {textResourceBindings?.help && (
         <Grid item={true}>
           <HelpTextContainer
-            helpText={lang(textResourceBindings.help)}
-            title={getPlainTextFromNode(text)}
+            helpText={<Lang id={textResourceBindings.help} />}
+            title={langAsString(textResourceBindings?.title)}
           />
         </Grid>
       )}

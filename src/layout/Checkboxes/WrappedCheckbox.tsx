@@ -5,6 +5,7 @@ import cn from 'classnames';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useAlertOnChange } from 'src/hooks/useAlertOnChange';
 import classes from 'src/layout/Checkboxes/CheckboxesContainerComponent.module.css';
@@ -30,7 +31,7 @@ export function WrappedCheckbox({
   value,
   setValue,
 }: IWrappedCheckboxProps) {
-  const { lang, langAsString } = useLanguage();
+  const { langAsString } = useLanguage();
 
   const handleCheckboxStateChange = (isChecked: boolean) => {
     const checkedItems = isChecked ? [...selected, option.value] : selected.filter((item) => item !== option.value);
@@ -65,7 +66,7 @@ export function WrappedCheckbox({
       <Checkbox
         id={`${id}-${option.label.replace(/\s/g, '-')}`}
         name={option.value}
-        description={lang(option.description)}
+        description={<Lang id={option.description} />}
         value={option.value}
         checked={selected.includes(option.value)}
         size='small'
@@ -75,7 +76,9 @@ export function WrappedCheckbox({
           <span className={cn({ 'sr-only': hideLabel }, classes.checkboxLabelContainer)}>
             {langAsString(option.label)}
             {option.helpText && (
-              <HelpText title={getPlainTextFromNode(option.helpText)}>{lang(option.helpText)}</HelpText>
+              <HelpText title={getPlainTextFromNode(option.helpText)}>
+                <Lang id={option.helpText} />
+              </HelpText>
             )}
           </span>
         }

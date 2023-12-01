@@ -54,7 +54,8 @@ describe('Label', () => {
   async function render(props: Partial<IFormLabelProps> = {}) {
     const defaultProps: IFormLabelProps = {
       id: 'label1',
-      labelText: 'label.text',
+      label: 'label.text',
+      labelAsText: 'label.text',
       helpText: '',
       readOnly: false,
       required: false,
