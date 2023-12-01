@@ -76,11 +76,6 @@ export interface IComponentScrollPos {
   offsetTop: number | undefined;
 }
 
-export interface IMoveToNextPage {
-  runValidations?: TriggersPageValidation;
-  keepScrollPos?: IComponentScrollPos;
-}
-
 export interface IHiddenLayoutsUpdate {
   hiddenLayouts: string[];
 }

@@ -8,7 +8,6 @@ import { repGroupDeleteRowSaga } from 'src/features/form/layout/repGroups/repGro
 import { updateRepeatingGroupEditIndexSaga } from 'src/features/form/layout/repGroups/updateRepeatingGroupEditIndexSaga';
 import {
   findAndMoveToNextVisibleLayout,
-  moveToNextPageSaga,
   updateCurrentViewSaga,
 } from 'src/features/form/layout/update/updateFormLayoutSagas';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
@@ -187,9 +186,6 @@ export const formLayoutSlice = () => {
               state.uiConfig.repeatingGroups[group].isLoading = false;
             }
           },
-        }),
-        moveToNextPage: mkAction<LayoutTypes.IMoveToNextPage>({
-          takeEvery: moveToNextPageSaga,
         }),
         updateHiddenLayouts: mkAction<LayoutTypes.IHiddenLayoutsUpdate>({
           takeEvery: findAndMoveToNextVisibleLayout,

@@ -22,10 +22,12 @@ import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { FooterLayoutProvider } from 'src/features/footer/FooterLayoutProvider';
+import { LayoutsProvider } from 'src/features/form/layout/LayoutsContext';
 import { PageNavigationProvider } from 'src/features/form/layout/PageNavigationContext';
 import { generateSimpleRepeatingGroups } from 'src/features/form/layout/repGroups/generateSimpleRepeatingGroups';
 import { UiConfigProvider } from 'src/features/form/layout/UiConfigContext';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
+import { LayoutSettingsProvider } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
 import { LanguageProvider } from 'src/features/language/LanguageProvider';
@@ -72,6 +74,7 @@ interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   queries?: Partial<MockableQueries>;
   reduxState?: IRuntimeState;
   reduxGateKeeper?: (action: ReduxAction) => boolean;
+  initialPage?: string;
 }
 
 interface BaseRenderOptions extends ExtendedRenderOptions {
@@ -180,31 +183,35 @@ function DefaultProviders({ children, store, queries, queryClient, Router = Defa
       <ReduxProvider store={store}>
         <LanguageProvider>
           <MuiThemeProvider theme={theme}>
-            <UiConfigProvider>
-              <PageNavigationProvider>
-                <ExprContextWrapper>
-                  <ApplicationMetadataProvider>
-                    <OrgsProvider>
-                      <ApplicationSettingsProvider>
-                        <LayoutSetsProvider>
-                          <ProfileProvider>
-                            <PartyProvider>
-                              <TextResourcesProvider>
-                                <FooterLayoutProvider>
-                                  <Router>
-                                    <InstantiationProvider>{children}</InstantiationProvider>
-                                  </Router>
-                                </FooterLayoutProvider>
-                              </TextResourcesProvider>
-                            </PartyProvider>
-                          </ProfileProvider>
-                        </LayoutSetsProvider>
-                      </ApplicationSettingsProvider>
-                    </OrgsProvider>
-                  </ApplicationMetadataProvider>
-                </ExprContextWrapper>
-              </PageNavigationProvider>
-            </UiConfigProvider>
+            <PageNavigationProvider>
+              <ExprContextWrapper>
+                <ApplicationMetadataProvider>
+                  <OrgsProvider>
+                    <ApplicationSettingsProvider>
+                      <LayoutSetsProvider>
+                        <ProfileProvider>
+                          <PartyProvider>
+                            <TextResourcesProvider>
+                              <FooterLayoutProvider>
+                                <Router>
+                                  <LayoutsProvider>
+                                    <LayoutSettingsProvider>
+                                      <UiConfigProvider>
+                                        <InstantiationProvider>{children}</InstantiationProvider>
+                                      </UiConfigProvider>
+                                    </LayoutSettingsProvider>
+                                  </LayoutsProvider>
+                                </Router>
+                              </FooterLayoutProvider>
+                            </TextResourcesProvider>
+                          </PartyProvider>
+                        </ProfileProvider>
+                      </LayoutSetsProvider>
+                    </ApplicationSettingsProvider>
+                  </OrgsProvider>
+                </ApplicationMetadataProvider>
+              </ExprContextWrapper>
+            </PageNavigationProvider>
           </MuiThemeProvider>
         </LanguageProvider>
       </ReduxProvider>
@@ -385,6 +392,7 @@ export const renderWithoutInstanceAndLayout = async (props: ExtendedRenderOption
 export const renderWithInstanceAndLayout = async ({
   renderer,
   reduxState: _reduxState,
+  initialPage = '',
   ...renderOptions
 }: ExtendedRenderOptions) => {
   const reduxState = _reduxState || getInitialStateMock();
@@ -411,7 +419,7 @@ export const renderWithInstanceAndLayout = async ({
     return (
       <MemoryRouter
         basename={'/ttd/test'}
-        initialEntries={[`/ttd/test/instance/${exampleInstanceId}`]}
+        initialEntries={[`/ttd/test/instance/${exampleInstanceId}/${initialPage}`]}
       >
         <Routes>
           <Route
@@ -432,7 +440,6 @@ export const renderWithInstanceAndLayout = async ({
     unMockableQueries: {
       fetchInstanceData: () => Promise.resolve(reduxState.deprecated.lastKnownInstance || getInstanceDataMock()),
       fetchProcessState: () => Promise.resolve(reduxState.deprecated.lastKnownProcess || getProcessDataMock()),
-      // fetchLayouts: () => Promise.resolve(layoutsAsCollection),
     },
     router: InstanceRouter,
     reduxState,

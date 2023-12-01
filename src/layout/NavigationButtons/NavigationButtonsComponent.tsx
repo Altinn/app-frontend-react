@@ -77,7 +77,6 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
       return;
     }
 
-    // TODO: test this when validations are rewritten.
     window.scrollBy({ top: currentPos - scrollPosition.offsetTop });
     setScrollPosition(undefined);
   }, [scrollPosition, dispatch, id, getScrollPosition, setScrollPosition]);

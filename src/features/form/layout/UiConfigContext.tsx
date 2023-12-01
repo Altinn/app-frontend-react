@@ -44,8 +44,6 @@ export function UiConfigProvider({ children }: React.PropsWithChildren) {
   const [expandedWidth, setExpandedWidth] = useState<boolean>(false);
   const { setHiddenExpr } = usePageNavigationContext();
 
-  console.log('LayoutSettings: ', layoutSettings);
-
   const hiddenExpressions = useHiddenLayoutsExpressions();
 
   useEffect(() => {

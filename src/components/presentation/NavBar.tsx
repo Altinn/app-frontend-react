@@ -25,6 +25,7 @@ const expandIconStyle = { transform: 'rotate(45deg)' };
 export const NavBar = ({ type }: INavBarProps) => {
   const { langAsString } = useLanguage();
   const { navigateToPage, previous } = useNavigatePage();
+
   const { returnToView } = usePageNavigationContext();
   const party = useCurrentParty();
   const { hideCloseButton, showLanguageSelector, showExpandWidthButton, expandedWidth, toggleExpandedWidth } =
@@ -42,7 +43,7 @@ export const NavBar = ({ type }: INavBarProps) => {
     const queryParameterReturnUrl = returnUrlFromQueryParameter();
     const messageBoxUrl = returnUrlToMessagebox(window.location.origin, party?.partyId);
     if (!queryParameterReturnUrl && messageBoxUrl) {
-      window.location.href = messageBoxUrl;
+      window.location.assign(messageBoxUrl);
       return;
     }
 
@@ -51,7 +52,7 @@ export const NavBar = ({ type }: INavBarProps) => {
         .then((response) => response)
         .catch(() => messageBoxUrl)
         .then((returnUrl) => {
-          window.location.href = returnUrl;
+          window.location.assign(returnUrl);
         });
     }
   };

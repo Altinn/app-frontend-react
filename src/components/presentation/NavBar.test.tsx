@@ -8,6 +8,7 @@ import { getFormLayoutStateMock } from 'src/__mocks__/getFormLayoutStateMock';
 import { getUiConfigStateMock } from 'src/__mocks__/getUiConfigStateMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { NavBar } from 'src/components/presentation/NavBar';
+import { mockWindow } from 'src/test/mockWindow';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import { ProcessTaskType } from 'src/types';
 import type { IRawTextResource } from 'src/features/language/textResources';
@@ -17,27 +18,23 @@ import type { IAppLanguage } from 'src/types/shared';
 afterEach(() => mockAxios.reset());
 
 interface RenderNavBarProps {
-  showBackArrow: boolean;
-  hideCloseButton: boolean;
-  showLanguageSelector: boolean;
-  languageResponse?: IAppLanguage[];
-  textResources?: IRawTextResource[];
   currentPageId?: string;
+  hideCloseButton: boolean;
+  languageResponse?: IAppLanguage[];
+  showLanguageSelector: boolean;
+  textResources?: IRawTextResource[];
   type?: ProcessTaskType | PresentationType;
+  initialPage?: string;
 }
 
 const render = async ({
   hideCloseButton,
-  showBackArrow,
   showLanguageSelector,
   languageResponse,
   type = ProcessTaskType.Data,
+  initialPage,
   textResources = [],
 }: RenderNavBarProps) => {
-  const mockClose = jest.fn();
-  // const mockBack = jest.fn();
-  const mockAppLanguageChange = jest.fn();
-
   await renderWithInstanceAndLayout({
     renderer: () => <NavBar type={type} />,
     reduxState: {
@@ -49,43 +46,41 @@ const render = async ({
         }),
       }),
     },
+    initialPage,
     queries: {
       fetchAppLanguages: () =>
         languageResponse ? Promise.resolve(languageResponse) : Promise.reject(new Error('No languages mocked')),
       fetchTextResources: () => Promise.resolve({ language: 'nb', resources: textResources }),
-      fetchLayoutSettings: () => Promise.resolve({ hideCloseButton, showLanguageSelector, pages: { order: [] } }),
+      fetchLayoutSettings: () =>
+        Promise.resolve({ pages: { hideCloseButton, showLanguageSelector, order: ['1', '2', '3'] } }),
     },
     reduxGateKeeper: (action) => 'type' in action && action.type === 'deprecated/setCurrentLanguage',
   });
-
-  return { mockClose, mockAppLanguageChange };
 };
 
 describe('NavBar', () => {
+  const { mockAssign } = mockWindow();
   it('should render nav', async () => {
     await render({
       hideCloseButton: true,
-      showBackArrow: false,
       showLanguageSelector: false,
     });
     screen.getByRole('navigation', { name: /Appnavigasjon/i });
   });
 
   it('should render close button', async () => {
-    const { mockClose } = await render({
+    await render({
       hideCloseButton: false,
-      showBackArrow: false,
       showLanguageSelector: false,
     });
     const closeButton = screen.getByRole('button', { name: /Lukk Skjema/i });
     await userEvent.click(closeButton);
-    expect(mockClose).toHaveBeenCalled();
+    expect(mockAssign).toHaveBeenCalled();
   });
 
   it('should hide close button and back button', async () => {
     await render({
       hideCloseButton: true,
-      showBackArrow: false,
       showLanguageSelector: false,
     });
     expect(screen.queryAllByRole('button')).toHaveLength(0);
@@ -95,15 +90,15 @@ describe('NavBar', () => {
   it('should render back button', async () => {
     await render({
       hideCloseButton: true,
-      showBackArrow: true,
       showLanguageSelector: false,
+      type: ProcessTaskType.Data,
+      initialPage: 'Task_1/2',
     });
-    expect(screen.getByTestId('form-back-button')).toBeInTheDOM();
+    expect(screen.getByTestId('form-back-button')).toBeInTheDocument();
   });
   it('should render and change app language', async () => {
     await render({
       hideCloseButton: false,
-      showBackArrow: true,
       showLanguageSelector: true,
       languageResponse: [{ language: 'en' }, { language: 'nb' }],
     });
@@ -120,7 +115,6 @@ describe('NavBar', () => {
   it('should render app language with custom labels', async () => {
     await render({
       hideCloseButton: false,
-      showBackArrow: true,
       showLanguageSelector: true,
       textResources: [
         { id: 'language.selector.label', value: 'Velg språk test' },

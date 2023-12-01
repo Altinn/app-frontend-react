@@ -79,7 +79,8 @@ describe('NavigationButtons', () => {
         state.formLayout = mockLayout;
       }),
       queries: {
-        fetchLayoutSets: () => Promise.resolve({ sets: [{ dataType: 'message', id: 'message', tasks: ['Task_1'] }] }),
+        fetchLayoutSets: () =>
+          Promise.resolve({ sets: [{ dataType: 'test-data-model', id: 'message', tasks: ['Task_1'] }] }),
         fetchLayoutSettings: () => Promise.resolve({ pages: { order: ['layout1', 'layout2'] } }),
       },
       router: PageNavigationRouter(currentPageId),

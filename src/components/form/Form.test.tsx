@@ -220,9 +220,10 @@ describe('Form', () => {
   async function render(layout = mockComponents, customState: Partial<IRuntimeState> = {}) {
     await renderWithInstanceAndLayout({
       renderer: () => <Form />,
-      router: PageNavigationRouter(),
+      router: PageNavigationRouter('FormLayout'),
       queries: {
         fetchLayouts: () => Promise.resolve({}),
+        fetchLayoutSettings: () => Promise.resolve({ pages: { order: ['FormLayout', '2', '3'] } }),
       },
       reduxState: {
         ...getInitialStateMock(),

@@ -9,7 +9,7 @@ import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { staticUseLanguageFromState } from 'src/features/language/useLanguage';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { Triggers } from 'src/layout/common.generated';
-import { getLayoutOrderFromPageOrderConfig, selectLayoutOrder } from 'src/selectors/getLayoutOrder';
+import { selectLayoutOrder } from 'src/selectors/getLayoutOrder';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { waitFor } from 'src/utils/sagas';
@@ -21,7 +21,7 @@ import {
   filterValidationObjectsByPage,
   validationContextFromState,
 } from 'src/utils/validation/validationHelpers';
-import type { IMoveToNextPage, IUpdateCurrentView } from 'src/features/form/layout/formLayoutTypes';
+import type { IUpdateCurrentView } from 'src/features/form/layout/formLayoutTypes';
 import type { IRuntimeState, IUiConfig } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { BackendValidationIssue } from 'src/utils/validation/types';
@@ -169,27 +169,6 @@ export function* updateCurrentViewSaga({
   } catch (error) {
     yield put(FormLayoutActions.updateCurrentViewRejected({ error }));
     window.logError('Update view failed:\n', error);
-  }
-}
-
-export function* moveToNextPageSaga({
-  payload: { runValidations, keepScrollPos },
-}: PayloadAction<IMoveToNextPage>): SagaIterator {
-  try {
-    const state: IRuntimeState = yield select();
-    const currentView = state.formLayout.uiConfig.currentView;
-
-    if (!state.applicationMetadata.applicationMetadata) {
-      return;
-    }
-
-    const returnToView = state.formLayout.uiConfig.returnToView;
-    const layoutOrder = getLayoutOrderFromPageOrderConfig(state.formLayout.uiConfig.pageOrderConfig) || [];
-    const newView = returnToView || layoutOrder[layoutOrder.indexOf(currentView) + 1];
-
-    yield put(FormLayoutActions.updateCurrentView({ newView, runValidations }));
-  } catch (error) {
-    // TODO: Handle this error when rewriting to page navigation hook
   }
 }
 
