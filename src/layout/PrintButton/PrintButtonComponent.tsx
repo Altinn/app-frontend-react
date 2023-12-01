@@ -19,7 +19,7 @@ export const PrintButtonComponent = ({ node }: PropsFromGenericComponent<'PrintB
       size='small'
       onClick={window.print}
     >
-      {<Lang id={textResourceBindings?.title ?? 'general.print_button_text'} />}
+      <Lang id={textResourceBindings?.title ?? 'general.print_button_text'} />
     </Button>
   );
 };

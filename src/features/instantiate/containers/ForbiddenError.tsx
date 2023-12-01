@@ -14,7 +14,7 @@ export function ForbiddenError() {
 
     return (
       <>
-        {<Lang id={'instantiate.forbidden_action_error_text'} />}
+        <Lang id={'instantiate.forbidden_action_error_text'} />
         <br />
         <br />
         {customerSupport}

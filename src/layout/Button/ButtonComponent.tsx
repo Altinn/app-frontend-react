@@ -62,7 +62,7 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
         disabled={disabled}
         message={attachmentsPending ? langAsString('general.wait_for_attachments') : undefined}
       >
-        {<Lang id={node.item.textResourceBindings?.title} />}
+        <Lang id={node.item.textResourceBindings?.title} />
       </SubmitButton>
     </div>
   );

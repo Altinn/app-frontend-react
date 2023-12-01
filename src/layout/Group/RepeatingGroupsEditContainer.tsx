@@ -179,7 +179,7 @@ function RepeatingGroupsEditContainerInternal({
               onClick={removeClicked}
               data-testid='delete-button'
             >
-              {<Lang id={'general.delete'} />}
+              <Lang id={'general.delete'} />
             </Button>
           </Grid>
         </Grid>
@@ -218,7 +218,7 @@ function RepeatingGroupsEditContainerInternal({
                       color='second'
                       onClick={() => setMultiPageIndex && setMultiPageIndex(multiPageIndex - 1)}
                     >
-                      {<Lang id={'general.back'} />}
+                      <Lang id={'general.back'} />
                     </Button>
                   </Grid>
                 )}
@@ -234,7 +234,7 @@ function RepeatingGroupsEditContainerInternal({
                       color='second'
                       onClick={() => setMultiPageIndex && setMultiPageIndex(multiPageIndex + 1)}
                     >
-                      {<Lang id={'general.next'} />}
+                      <Lang id={'general.next'} />
                     </Button>
                   </Grid>
                 )}
@@ -254,7 +254,7 @@ function RepeatingGroupsEditContainerInternal({
                   color='first'
                   size='small'
                 >
-                  {<Lang id={texts?.save_and_next_button ? texts?.save_and_next_button : 'general.save_and_next'} />}
+                  <Lang id={texts?.save_and_next_button ? texts?.save_and_next_button : 'general.save_and_next'} />
                 </Button>
               </Grid>
             )}
@@ -267,7 +267,7 @@ function RepeatingGroupsEditContainerInternal({
                   color='first'
                   size='small'
                 >
-                  {<Lang id={texts?.save_button ? texts?.save_button : 'general.save_and_close'} />}
+                  <Lang id={texts?.save_button ? texts?.save_button : 'general.save_and_close'} />
                 </Button>
               </Grid>
             )}

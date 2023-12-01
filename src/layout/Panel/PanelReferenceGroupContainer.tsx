@@ -106,7 +106,7 @@ export function PanelReferenceGroupContainer({ node }: IPanelGroupContainerProps
                     item
                     xs={12}
                   >
-                    {<Lang id={textResourceBindings?.body} />}
+                    <Lang id={textResourceBindings?.body} />
                   </Grid>
 
                   {/*  // TODO: Add test case for filling out a new row in panel, not saving it, and midway through*/}
@@ -129,7 +129,7 @@ export function PanelReferenceGroupContainer({ node }: IPanelGroupContainerProps
                           onClick={handleSave}
                           size='small'
                         >
-                          {<Lang id={'general.save'} />}
+                          <Lang id={'general.save'} />
                         </Button>
                       </Grid>
                     </>

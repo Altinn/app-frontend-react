@@ -63,7 +63,7 @@ export const CheckboxContainerComponent = ({
 
   const labelTextGroup = (
     <span className={classes.checkBoxLabelContainer}>
-      {<Lang id={node.item.textResourceBindings?.title} />}
+      <Lang id={node.item.textResourceBindings?.title} />
       <RequiredIndicator required={required} />
       <OptionalIndicator
         labelSettings={labelSettings}

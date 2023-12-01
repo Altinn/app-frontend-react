@@ -173,11 +173,12 @@ export function EditWindowComponent({
         className={classes.gap}
       >
         {textResourceBindings?.tagTitle && (
+          // eslint-disable-next-line jsx-a11y/label-has-associated-control
           <label
             className={classes.label}
             htmlFor={`attachment-tag-dropdown-${uniqueId}`}
           >
-            {<Lang id={textResourceBindings?.tagTitle} />}
+            <Lang id={textResourceBindings?.tagTitle} />
           </label>
         )}
         <Grid
@@ -222,7 +223,7 @@ export function EditWindowComponent({
                 id={`attachment-save-tag-button-${uniqueId}`}
                 disabled={saveIsDisabled}
               >
-                {<Lang id={'general.save'} />}
+                <Lang id={'general.save'} />
               </Button>
             )}
           </Grid>

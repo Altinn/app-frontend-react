@@ -49,7 +49,7 @@ export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertCo
           style={{ width: '100%' }}
           id={titleId}
         >
-          {<Lang id={node?.item.textResourceBindings?.title} />}
+          <Lang id={node?.item.textResourceBindings?.title} />
         </Typography>
       )}
       {hasDescription && (
@@ -58,7 +58,7 @@ export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertCo
           gutterBottom
           id={descriptionId}
         >
-          {<Lang id={node?.item.textResourceBindings?.description} />}
+          <Lang id={node?.item.textResourceBindings?.description} />
         </Typography>
       )}
     </Grid>

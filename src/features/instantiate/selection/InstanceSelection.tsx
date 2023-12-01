@@ -87,7 +87,7 @@ function InstanceSelection() {
         level={3}
         className={classes.leftOffHeading}
       >
-        {<Lang id={'instance_selection.left_of'} />}
+        <Lang id={'instance_selection.left_of'} />
       </Heading>
       <Table id='instance-selection-mobile-table'>
         <TableBody>
@@ -176,7 +176,7 @@ function InstanceSelection() {
                     iconPlacement='right'
                     onClick={(ev) => openInstance(instance.id, ev)}
                   >
-                    {<Lang id={'instance_selection.continue'} />}
+                    <Lang id={'instance_selection.continue'} />
                   </Button>
                 </div>
               </TableCell>
@@ -217,12 +217,12 @@ function InstanceSelection() {
             size='medium'
             id='instance-selection-header'
           >
-            {<Lang id={'instance_selection.header'} />}
+            <Lang id={'instance_selection.header'} />
           </Heading>
         </div>
         <div id='instance-selection-description'>
           <Paragraph className={classes.descriptionParagraph}>
-            {<Lang id={'instance_selection.description'} />}
+            <Lang id={'instance_selection.description'} />
           </Paragraph>
         </div>
 
@@ -237,7 +237,7 @@ function InstanceSelection() {
             }}
             id='new-instance-button'
           >
-            {<Lang id={'instance_selection.new_instance'} />}
+            <Lang id={'instance_selection.new_instance'} />
           </Button>
         </div>
       </div>
