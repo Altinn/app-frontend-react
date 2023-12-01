@@ -154,64 +154,55 @@ function staticUseLanguage(
 ): IUseLanguage {
   const language = _language || getLanguageFromCode(selectedLanguage);
 
-  function langAsString(key: string | undefined, params?: ValidLangParam[]) {
+  function base(
+    key: string | undefined,
+    params?: ValidLangParam[],
+    extendedSources?: Partial<TextResourceVariablesDataSources>,
+  ) {
     if (!key) {
       return '';
     }
 
-    const textResource = getTextResourceByKey(key, textResources, dataSources);
+    const textResource = getTextResourceByKey(key, textResources, { ...dataSources, ...extendedSources });
     if (textResource !== key) {
-      return textResource;
+      return getParsedLanguageFromText(textResource);
     }
 
     const name = getLanguageFromKey(key, language);
-    const out = params ? replaceParameters(name, simplifyParams(params, langAsString)) : name;
+    const paramParsed = params ? replaceParameters(name, simplifyParams(params, langAsString)) : name;
 
-    // Remove HTML tags from string
-    const doc = new DOMParser().parseFromString(out, 'text/html');
-    return doc.body.textContent || '';
+    return getParsedLanguageFromText(paramParsed);
   }
+
+  const lang: IUseLanguage['lang'] = (key, params) => base(key, params);
+
+  const langAsString: IUseLanguage['langAsString'] = (key, params) => {
+    const result = lang(key, params);
+    if (result === undefined || result === null) {
+      return key || '';
+    }
+
+    return getPlainTextFromNode(result, langAsString);
+  };
+
+  const langAsStringUsingPathInDataModel: IUseLanguage['langAsStringUsingPathInDataModel'] = (
+    key,
+    dataModelPath,
+    params,
+  ) => {
+    const result = base(key, params, { dataModelPath });
+    if (result === undefined || result === null) {
+      return key || '';
+    }
+
+    return getPlainTextFromNode(result, langAsString);
+  };
 
   return {
     language,
-    lang: (key, params) => {
-      if (!key) {
-        return '';
-      }
-
-      const textResource = getTextResourceByKey(key, textResources, dataSources);
-      if (textResource !== key) {
-        return getParsedLanguageFromText(textResource);
-      }
-
-      const name = getLanguageFromKey(key, language);
-      const paramParsed = params ? replaceParameters(name, simplifyParams(params, langAsString)) : name;
-
-      return getParsedLanguageFromText(paramParsed);
-    },
+    lang,
     langAsString,
-    langAsStringUsingPathInDataModel(
-      key: ValidLanguageKey | string | undefined,
-      dataModelPath: string,
-      params?: ValidLangParam[],
-    ): string {
-      if (!key) {
-        return '';
-      }
-
-      const textResource = getTextResourceByKey(key, textResources, { ...dataSources, dataModelPath });
-      if (textResource !== key) {
-        return textResource;
-      }
-
-      const name = getLanguageFromKey(key, language);
-      const result = params ? replaceParameters(name, simplifyParams(params, langAsString)) : name;
-      if (result === key) {
-        return '';
-      }
-
-      return result;
-    },
+    langAsStringUsingPathInDataModel,
     elementAsString(element: ReactNode): string {
       return getPlainTextFromNode(element, langAsString);
     },
