@@ -81,7 +81,6 @@ export interface IUiConfig {
   autoSaveBehavior?: 'onChangePage' | 'onChangeFormData';
   receiptLayoutName?: string;
   currentView: string;
-  currentViewCacheKey?: string;
   returnToView?: string;
   focus: string | null | undefined;
   hiddenFields: string[];

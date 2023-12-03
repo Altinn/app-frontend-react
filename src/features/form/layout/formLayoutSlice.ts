@@ -6,10 +6,6 @@ import { initRepeatingGroupsSaga } from 'src/features/form/layout/repGroups/init
 import { repGroupAddRowSaga } from 'src/features/form/layout/repGroups/repGroupAddRowSaga';
 import { repGroupDeleteRowSaga } from 'src/features/form/layout/repGroups/repGroupDeleteRowSaga';
 import { updateRepeatingGroupEditIndexSaga } from 'src/features/form/layout/repGroups/updateRepeatingGroupEditIndexSaga';
-import {
-  findAndMoveToNextVisibleLayout,
-  updateCurrentViewSaga,
-} from 'src/features/form/layout/update/updateFormLayoutSagas';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { createSagaSlice } from 'src/redux/sagaSlice';
 import type { IRepGroupAddRow, IRepGroupDelRow } from 'src/features/form/layout/formLayoutTypes';
@@ -88,7 +84,6 @@ export const formLayoutSlice = () => {
           },
         }),
         fetchSettingsFulfilled: mkAction<LayoutTypes.IFetchLayoutSettingsFulfilled>({
-          takeEvery: findAndMoveToNextVisibleLayout,
           reducer: (state, action) => {
             const { settings } = action.payload;
             state.uiConfig.receiptLayoutName = settings?.receiptLayoutName;
@@ -105,26 +100,6 @@ export const formLayoutSlice = () => {
             state.uiConfig.pdfLayoutName = settings?.pages.pdfLayoutName;
             state.uiConfig.excludeComponentFromPdf = settings?.components?.excludeFromPdf ?? [];
             state.uiConfig.excludePageFromPdf = settings?.pages?.excludeFromPdf ?? [];
-          },
-        }),
-        setCurrentViewCacheKey: mkAction<LayoutTypes.ISetCurrentViewCacheKey>({
-          reducer: (state, action) => {
-            const { key } = action.payload;
-            state.uiConfig.currentViewCacheKey = key;
-          },
-        }),
-        updateCurrentView: mkAction<LayoutTypes.IUpdateCurrentView>({
-          takeEvery: updateCurrentViewSaga,
-        }),
-        updateCurrentViewFulfilled: mkAction<LayoutTypes.IUpdateCurrentViewFulfilled>({
-          takeEvery: (action) => {},
-          reducer: (state) => {
-            state.uiConfig.keepScrollPos = undefined;
-          },
-        }),
-        updateCurrentViewRejected: mkAction<LayoutTypes.IUpdateCurrentViewRejected>({
-          reducer: (state, action) => {
-            state.uiConfig.keepScrollPos = action.payload.keepScrollPos;
           },
         }),
         updateHiddenComponents: mkAction<LayoutTypes.IUpdateHiddenComponents>({
@@ -188,7 +163,6 @@ export const formLayoutSlice = () => {
           },
         }),
         updateHiddenLayouts: mkAction<LayoutTypes.IHiddenLayoutsUpdate>({
-          takeEvery: findAndMoveToNextVisibleLayout,
           reducer: (state, action) => {
             state.uiConfig.pageOrderConfig.hidden = action.payload.hiddenLayouts;
           },

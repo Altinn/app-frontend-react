@@ -22,10 +22,6 @@ export interface IFetchLayoutSettingsFulfilled {
   settings: ILayoutSettings | null;
 }
 
-export interface ISetCurrentViewCacheKey {
-  key: string | undefined;
-}
-
 export interface IUpdateCurrentView {
   newView: string;
   returnToView?: string;

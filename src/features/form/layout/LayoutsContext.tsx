@@ -3,13 +3,12 @@ import { useQuery } from '@tanstack/react-query';
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
-import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { preProcessItem } from 'src/features/expressions/validation';
 import { cleanLayout } from 'src/features/form/layout/cleanLayout';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { useHasInstance, useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { useHasInstance } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useNavigationParams } from 'src/hooks/useNavigatePage';
@@ -25,22 +24,17 @@ function useLayoutQuery() {
   const process = useLaxProcessData();
   const currentLayoutSetId = useLayoutSetId();
   const dispatch = useAppDispatch();
-  const instance = useLaxInstanceData();
-  const applicationMetadata = useApplicationMetadata();
 
   return useQuery({
     // Waiting to fetch layouts until we have an instance, if we're supposed to have one
     enabled: hasInstance ? !!process : true,
     queryKey: ['formLayouts', currentLayoutSetId],
-    queryFn: async () => {
-      const currentViewCacheKey = instance?.id || applicationMetadata.id;
-      return processLayouts({
+    queryFn: async () =>
+      processLayouts({
         input: await fetchLayouts(currentLayoutSetId!),
         dispatch,
-        currentViewCacheKey,
         layoutSetId: currentLayoutSetId,
-      });
-    },
+      }),
     onError: (error: HttpClientError) => {
       window.logError('Fetching form layout failed:\n', error);
     },
@@ -75,11 +69,10 @@ function isSingleLayout(layouts: ILayoutCollection | ILayoutFileExternal): layou
 interface LegacyProcessProps {
   input: ILayoutCollection | ILayoutFileExternal;
   dispatch: ReturnType<typeof useAppDispatch>;
-  currentViewCacheKey: string;
   layoutSetId?: string;
 }
 
-function processLayouts({ input, dispatch, currentViewCacheKey, layoutSetId }: LegacyProcessProps) {
+function processLayouts({ input, dispatch, layoutSetId }: LegacyProcessProps) {
   const layouts: ILayouts = {};
   const hiddenLayoutsExpressions: IHiddenLayoutsExternal = {};
   if (isSingleLayout(input)) {
@@ -92,15 +85,6 @@ function processLayouts({ input, dispatch, currentViewCacheKey, layoutSetId }: L
       hiddenLayoutsExpressions[key] = file.data.hidden;
     }
   }
-
-  const orderedLayoutKeys = Object.keys(layouts).sort();
-
-  // use instance id (or application id for stateless) as cache key for current page
-  dispatch(FormLayoutActions.setCurrentViewCacheKey({ key: currentViewCacheKey }));
-
-  const lastVisitedPage = localStorage.getItem(currentViewCacheKey);
-  const firstLayoutKey =
-    lastVisitedPage && orderedLayoutKeys.includes(lastVisitedPage) ? lastVisitedPage : orderedLayoutKeys[0];
 
   const config: ExprObjConfig<{ hidden: ExprVal.Boolean; whatever: string }> = {
     hidden: {
@@ -122,12 +106,6 @@ function processLayouts({ input, dispatch, currentViewCacheKey, layoutSetId }: L
     }),
   );
   dispatch(FormLayoutActions.initRepeatingGroups({}));
-  dispatch(
-    FormLayoutActions.updateCurrentView({
-      newView: firstLayoutKey,
-      skipPageCaching: true,
-    }),
-  );
 
   return {
     layouts,
