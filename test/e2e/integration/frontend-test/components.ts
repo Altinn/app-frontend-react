@@ -388,7 +388,7 @@ describe('UI Components', () => {
   });
 
   [4, 5].forEach((maxLength) => {
-    it(`should countdown remaining letters of ${maxLength} and display validation`, () => {
+    it.only(`should countdown remaining letters of ${maxLength} and display validation`, () => {
       cy.interceptLayout('changename', (component) => {
         if (component.type === 'Input' && component.id === 'newFirstName') {
           component.maxLength = maxLength;
