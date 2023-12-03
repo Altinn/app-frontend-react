@@ -10,6 +10,8 @@ import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { ProcessTaskType } from 'src/types';
 
+let hasRedirectedToReceipt = false;
+
 type NavigateToPageOptions = {
   focusComponentId?: string;
   returnToView?: string;
@@ -63,13 +65,22 @@ export const useNavigatePage = () => {
 
   /**
    * For stateless apps, this is how we redirect to the
-   * initial page of the app.
+   * initial page of the app. We replace the url, to not
+   * have the initial page (i.e. the page without a
+   * pageKey) in the history.
    */
   useEffect(() => {
     if (isStatelessApp && order?.[0] !== undefined && !currentPageId) {
-      navigate(`/${order?.[0]}`);
+      navigate(`/${order?.[0]}`, { replace: true });
     }
   }, [isStatelessApp, order, navigate, currentPageId]);
+
+  useEffect(() => {
+    if (taskType === ProcessTaskType.Archived && currentPageId !== 'receipt' && !hasRedirectedToReceipt) {
+      hasRedirectedToReceipt = true;
+      navigate(`/instance/${partyId}/${instanceGuid}/ProcessEnd/receipt`, { replace: true });
+    }
+  }, [currentPageId, instanceGuid, navigate, partyId, taskType]);
 
   const navigateToPage = useCallback(
     (page?: string, options?: NavigateToPageOptions) => {
@@ -109,6 +120,9 @@ export const useNavigatePage = () => {
 
   const isValidPageId = useCallback(
     (pageId: string) => {
+      if (taskType !== ProcessTaskType.Data && ['confirmation', 'receipt', 'feedback'].includes(pageId)) {
+        return true;
+      }
       if (taskType === ProcessTaskType.Confirm && pageId === 'confirmation') {
         return true;
       }
@@ -138,10 +152,10 @@ export const useNavigatePage = () => {
       return `/instance/${partyId}/${instanceGuid}/${taskId}/confirmation`;
     }
     if (taskType === ProcessTaskType.Archived) {
-      return `/instance/${partyId}/${instanceGuid}/ProccessEnd/receipt`;
+      return `/instance/${partyId}/${instanceGuid}/ProcessEnd/receipt`;
     }
     if (taskType === ProcessTaskType.Feedback) {
-      return `/instance/${partyId}/${instanceGuid}/ProccessEnd/feedback`;
+      return `/instance/${partyId}/${instanceGuid}/${taskId}/feedback`;
     }
     return `/instance/${partyId}/${instanceGuid}/${taskId}/${order?.[0]}`;
   }, [partyId, instanceGuid, taskId, order, taskType]);

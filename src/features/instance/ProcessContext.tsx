@@ -67,7 +67,10 @@ export function ProcessProvider({ children, instance }: React.PropsWithChildren<
     if (data?.currentTask?.elementId != null && data?.currentTask?.elementId !== taskId) {
       navigateToTask(data.currentTask.elementId);
     }
-    // TODO: fix
+    /**
+     * We don't want to re-fetch the process state when the
+     * taskId changes, only when the currentTask.elementId changes.
+     */
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.currentTask?.elementId]);
 

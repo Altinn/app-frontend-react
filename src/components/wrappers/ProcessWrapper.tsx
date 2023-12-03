@@ -14,8 +14,7 @@ import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { Feedback } from 'src/features/processEnd/feedback/Feedback';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useNavigatePage } from 'src/hooks/useNavigatePage';
-import { ProcessTaskType } from 'src/types';
+import { useNavigatePage, useNavigationParams } from 'src/hooks/useNavigatePage';
 
 export function ProcessWrapperWrapper() {
   const { taskId } = useNavigatePage();
@@ -40,12 +39,14 @@ export function ProcessWrapperWrapper() {
 }
 
 export const ProcessWrapper = () => {
-  const { taskId, currentPageId, isValidPageId, startUrl } = useNavigatePage();
+  const { isValidPageId, startUrl } = useNavigatePage();
+  const { taskId, partyId, instanceGuid, pageKey } = useNavigationParams();
   const { scrollPosition } = usePageNavigationContext();
-  const { partyId, instanceGuid } = useNavigatePage();
   const taskType = useTaskType(taskId);
   const applicationMetadataId = useApplicationMetadata()?.id;
   const location = useLocation();
+
+  const currentPageId = pageKey ?? '';
 
   const [searchParams] = useSearchParams();
   const renderPDF = searchParams.get('pdf') === '1';
@@ -80,15 +81,6 @@ export const ProcessWrapper = () => {
         />
       );
     }
-  }
-
-  if (taskType === ProcessTaskType.Archived && currentPageId !== 'receipt') {
-    return (
-      <Navigate
-        to={startUrl}
-        replace
-      />
-    );
   }
 
   if (!currentPageId || !isValidPageId(currentPageId)) {

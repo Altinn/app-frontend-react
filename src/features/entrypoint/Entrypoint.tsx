@@ -6,7 +6,6 @@ import { PresentationComponent } from 'src/components/presentation/Presentation'
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useIsStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
 import { FormProvider } from 'src/features/form/FormContext';
-import { useTaskType } from 'src/features/instance/ProcessContext';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { useCurrentParty, useCurrentPartyIsValid } from 'src/features/party/PartiesProvider';
@@ -16,9 +15,8 @@ import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
 import { useAllowAnonymousIs } from 'src/features/stateless/getAllowAnonymous';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { usePromptForParty } from 'src/hooks/usePromptForParty';
-import { PresentationType, ProcessTaskType } from 'src/types';
+import { PresentationType } from 'src/types';
 import type { ShowTypes } from 'src/features/applicationMetadata';
 
 export function Entrypoint() {
@@ -30,8 +28,6 @@ export function Entrypoint() {
   const partyIsValid = useCurrentPartyIsValid();
   const allowAnonymous = useAllowAnonymousIs(true);
   const alwaysPromptForParty = usePromptForParty();
-  const { taskId } = useNavigatePage();
-  const taskType = useTaskType(taskId);
 
   React.useEffect(() => {
     // If user comes back to entrypoint from an active instance we need to clear validation messages
@@ -64,14 +60,6 @@ export function Entrypoint() {
 
   // Stateless view
   if (isStateless) {
-    if (taskType === ProcessTaskType.Feedback) {
-      return (
-        <Navigate
-          to='feedback'
-          replace
-        />
-      );
-    }
     return (
       <FormProvider>
         <PresentationComponent type={PresentationType.Stateless}>
