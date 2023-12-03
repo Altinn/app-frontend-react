@@ -13,7 +13,7 @@ import classes from 'src/components/presentation/Presentation.module.css';
 import { Progress } from 'src/components/presentation/Progress';
 import { Footer } from 'src/features/footer/Footer';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
-import { useLanguage } from 'src/features/language/useLanguage';
+import { Lang } from 'src/features/language/Lang';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
@@ -27,13 +27,12 @@ export interface IPresentationProvidedProps extends PropsWithChildren {
 }
 
 export const PresentationComponent = ({ header, type, children, renderNavBar = true }: IPresentationProvidedProps) => {
-  const { lang, langAsString } = useLanguage();
   const party = useCurrentParty();
   const instance = useLaxInstanceData();
   const userParty = useAppSelector((state) => state.profile.profile?.party);
   const { expandedWidth } = useAppSelector((state) => state.formLayout.uiConfig);
 
-  const realHeader = header || (type === ProcessTaskType.Archived ? lang('receipt.receipt') : undefined);
+  const realHeader = header || (type === ProcessTaskType.Archived ? <Lang id={'receipt.receipt'} /> : undefined);
 
   const isProcessStepsArchived = Boolean(type === ProcessTaskType.Archived);
   const backgroundColor = isProcessStepsArchived
@@ -52,8 +51,8 @@ export const PresentationComponent = ({ header, type, children, renderNavBar = t
       <main className={classes.page}>
         {isProcessStepsArchived && instance?.status?.substatus && (
           <AltinnSubstatusPaper
-            label={langAsString(instance.status.substatus.label)}
-            description={langAsString(instance.status.substatus.description)}
+            label={<Lang id={instance.status.substatus.label} />}
+            description={<Lang id={instance.status.substatus.description} />}
           />
         )}
         {renderNavBar && <NavBar type={type} />}

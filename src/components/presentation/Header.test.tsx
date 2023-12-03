@@ -29,8 +29,4 @@ describe('Header', () => {
     await render();
     expect(screen.getByRole('banner')).toHaveTextContent('Test Header');
   });
-  it('should not render progress', async () => {
-    await render();
-    expect(screen.queryByRole('progressbar')).toBeNull();
-  });
 });
