@@ -9,7 +9,6 @@ describe('UI Components', () => {
   it('Image component with help text', () => {
     cy.goto('message');
     cy.get('body').should('have.css', 'background-color', 'rgb(239, 239, 239)');
-    cy.get(appFrontend.loadingAnimation).should('be.visible');
     cy.get(appFrontend.closeButton).should('be.visible');
     cy.get(appFrontend.header).should('contain.text', appFrontend.apps.frontendTest).and('contain.text', texts.ttd);
     cy.get(appFrontend.message.logo).then((image) => {
@@ -388,7 +387,7 @@ describe('UI Components', () => {
   });
 
   [4, 5].forEach((maxLength) => {
-    it.only(`should countdown remaining letters of ${maxLength} and display validation`, () => {
+    it(`should countdown remaining letters of ${maxLength} and display validation`, () => {
       cy.interceptLayout('changename', (component) => {
         if (component.type === 'Input' && component.id === 'newFirstName') {
           component.maxLength = maxLength;

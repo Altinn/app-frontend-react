@@ -12,6 +12,7 @@ import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useNavigationParams } from 'src/hooks/useNavigatePage';
 import { Triggers } from 'src/layout/common.generated';
 import { FormComponentContext, shouldComponentRenderLabel } from 'src/layout/index';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
@@ -113,7 +114,8 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
   const { focusId, setFocusId } = usePageNavigationContext();
 
   const formData = node.getFormData() as IComponentFormData<Type>;
-  const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
+  const { pageKey } = useNavigationParams();
+  const currentView = pageKey ?? '';
   const isValid = !node.hasValidationMessages('errors');
 
   const shouldFocus = id === focusId;

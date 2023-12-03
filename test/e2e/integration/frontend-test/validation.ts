@@ -257,12 +257,7 @@ describe('Validation', () => {
       },
     ] as BackendValidationIssue[]);
   }
-  /**
-   * TODO(1508):
-   * This test is skipped because validation is not triggered by the new navigation refactor.
-   * This will be fixed in combination with #1506.
-   */
-  it.skip('Validations are removed for hidden fields', () => {
+  it('Validations are removed for hidden fields', () => {
     // Init and add data to group
     cy.goto('group');
     cy.get(appFrontend.nextButton).click();
