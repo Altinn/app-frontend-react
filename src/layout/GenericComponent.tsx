@@ -112,7 +112,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
   const GetFocusSelector = makeGetFocus();
   const hasValidationMessages = node.hasValidationMessages('any');
   const hidden = node.isHidden();
-  const { langAsString } = useLanguage(node);
+  const { langAsString, langAsNonProcessedString } = useLanguage(node);
 
   const formData = node.getFormData() as IComponentFormData<Type>;
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
@@ -132,7 +132,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     }
 
     // If maxLength is set in both schema and component, don't display the schema error message
-    const errorMessageMaxLength = langAsString('validation_errors.maxLength', [maxLength]) as string;
+    const errorMessageMaxLength = langAsNonProcessedString('validation_errors.maxLength', [maxLength]) as string;
     const componentErrors = componentValidations?.simpleBinding?.errors || [];
     const updatedErrors = componentErrors.filter((error: string) => error !== errorMessageMaxLength);
 
