@@ -117,6 +117,9 @@ function useFormDataQuery(enabled: boolean) {
   }
 
   const { fetchFormData } = useAppQueries();
+
+  console.log('url', url, enabled, currentTaskDataId);
+
   const out = useQuery({
     queryKey: ['fetchFormData', url, currentTaskId],
     queryFn: async () => flattenObject(await fetchFormData(url!, options)),

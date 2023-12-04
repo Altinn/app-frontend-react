@@ -5,7 +5,7 @@ import 'core-js';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
-import { createHashRouter, RouterProvider } from 'react-router-dom';
+import { createHashRouter, RouterProvider, useLocation } from 'react-router-dom';
 
 import 'src/features/toggles';
 import 'src/features/logging';
@@ -70,6 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function Root() {
+  const location = useLocation();
+  console.log('Location: ', location.pathname);
   return (
     <InstantiationProvider>
       <PageNavigationProvider>
