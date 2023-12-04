@@ -174,8 +174,7 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
           >
             <span className={classes.dropdownMenuContent}>
               <span>
-                {pageIds.indexOf(currentPageId) + 1}/{pageIds.length}
-                <Lang id={currentPageId} />
+                {pageIds.indexOf(currentPageId) + 1}/{pageIds.length} <Lang id={currentPageId} />
               </span>
               <i className={cn('ai ai-arrow-down', classes.dropdownIcon)} />
             </span>

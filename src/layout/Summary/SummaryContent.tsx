@@ -49,7 +49,10 @@ export function SummaryContent({
             'data-testid': 'has-validation-message',
           })}
         >
-          <Lang id={langAsString(summaryTitleTrb ?? titleTrb)} />
+          <Lang
+            id={summaryTitleTrb ?? titleTrb}
+            node={targetNode}
+          />
         </span>
       )}
       <span className={classes.summary}>
