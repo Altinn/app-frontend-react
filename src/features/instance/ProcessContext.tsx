@@ -1,12 +1,13 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { createContext } from 'src/core/contexts/context';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { useIsStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
+import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -48,16 +49,18 @@ function useProcessQuery(instanceId: string) {
 }
 
 export function ProcessProvider({ children, instance }: React.PropsWithChildren<{ instance: IInstance }>) {
+  const { navigateToTask, taskId } = useNavigatePage();
   const query = useProcessQuery(instance.id);
-  const [data, setData] = useState<IProcess | undefined>(undefined);
   const reFetchNative = query.refetch;
   const reFetch = useCallback(async () => void (await reFetchNative()), [reFetchNative]);
   const dispatch = useAppDispatch();
-  const { navigateToTask, taskId } = useNavigatePage();
+  const queryClient = useQueryClient();
+  const instanceId = useLaxInstanceData()?.id;
 
-  useEffect(() => {
-    setData(query.data);
-  }, [query.data]);
+  const setData = useCallback(
+    (data) => queryClient.setQueryData(['fetchProcessState', instanceId], data),
+    [queryClient, instanceId],
+  );
 
   useEffect(() => {
     const elementId = query?.data?.currentTask?.elementId;
@@ -73,23 +76,20 @@ export function ProcessProvider({ children, instance }: React.PropsWithChildren<
   }, [query.data]);
 
   useEffect(() => {
-    dispatch(DeprecatedActions.setLastKnownProcess(data));
-  }, [data, dispatch]);
+    dispatch(DeprecatedActions.setLastKnownProcess(query.data));
+  }, [query.data, dispatch]);
 
   if (query.error) {
     return <DisplayError error={query.error} />;
   }
-
-  if (!data || query.isLoading) {
+  if (!query.data || query.isLoading) {
     return <Loader reason='fetching-process' />;
   }
-
-  console.log('ProcessContext: ', data?.currentTask?.elementId);
 
   return (
     <Provider
       value={{
-        data,
+        data: query.data,
         setData,
         reFetch,
       }}
