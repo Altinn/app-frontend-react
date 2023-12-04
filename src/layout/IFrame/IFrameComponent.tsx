@@ -10,12 +10,12 @@ import type { PropsFromGenericComponent } from 'src/layout';
 export type IFrameComponentProps = PropsFromGenericComponent<'IFrame'>;
 
 export const IFrameComponent = ({ node }: IFrameComponentProps): JSX.Element => {
-  const { langAsString } = useLanguage();
+  const { langAsNonProcessedString } = useLanguage();
   const { textResourceBindings, sandbox } = node.item;
 
   const sandboxProperties = getSandboxProperties(sandbox);
   const iFrameTitle = textResourceBindings?.title;
-  const HTMLString = langAsString(iFrameTitle);
+  const HTMLString = langAsNonProcessedString(iFrameTitle);
 
   const isSrcDocUnsupported = !('srcdoc' in document.createElement('iframe'));
   if (isSrcDocUnsupported) {
