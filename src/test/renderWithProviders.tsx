@@ -185,16 +185,16 @@ function DefaultProviders({ children, store, queries, queryClient, Router = Defa
         <LanguageProvider>
           <MuiThemeProvider theme={theme}>
             <PageNavigationProvider>
-              <ExprContextWrapper>
-                <ApplicationMetadataProvider>
-                  <OrgsProvider>
-                    <ApplicationSettingsProvider>
-                      <LayoutSetsProvider>
-                        <ProfileProvider>
-                          <PartyProvider>
-                            <TextResourcesProvider>
-                              <FooterLayoutProvider>
-                                <Router>
+              <Router>
+                <ExprContextWrapper>
+                  <ApplicationMetadataProvider>
+                    <OrgsProvider>
+                      <ApplicationSettingsProvider>
+                        <LayoutSetsProvider>
+                          <ProfileProvider>
+                            <PartyProvider>
+                              <TextResourcesProvider>
+                                <FooterLayoutProvider>
                                   <LayoutsProvider>
                                     <LayoutSettingsProvider>
                                       <UiConfigProvider>
@@ -202,16 +202,16 @@ function DefaultProviders({ children, store, queries, queryClient, Router = Defa
                                       </UiConfigProvider>
                                     </LayoutSettingsProvider>
                                   </LayoutsProvider>
-                                </Router>
-                              </FooterLayoutProvider>
-                            </TextResourcesProvider>
-                          </PartyProvider>
-                        </ProfileProvider>
-                      </LayoutSetsProvider>
-                    </ApplicationSettingsProvider>
-                  </OrgsProvider>
-                </ApplicationMetadataProvider>
-              </ExprContextWrapper>
+                                </FooterLayoutProvider>
+                              </TextResourcesProvider>
+                            </PartyProvider>
+                          </ProfileProvider>
+                        </LayoutSetsProvider>
+                      </ApplicationSettingsProvider>
+                    </OrgsProvider>
+                  </ApplicationMetadataProvider>
+                </ExprContextWrapper>
+              </Router>
             </PageNavigationProvider>
           </MuiThemeProvider>
         </LanguageProvider>

@@ -19,6 +19,7 @@ describe('NavigationButtons', () => {
   const navButton2: CompNavigationButtonsExternal = {
     id: 'nav-button2',
     type: 'NavigationButtons',
+    showBackButton: true,
     textResourceBindings: {},
   };
 
@@ -112,10 +113,7 @@ describe('NavigationButtons', () => {
   test('renders NavigationButtons component with back button if there is a previous page', async () => {
     await render(
       {
-        component: {
-          id: navButton2.id,
-          showBackButton: true,
-        },
+        component: { id: navButton2.id },
       },
       'layout2',
     );
