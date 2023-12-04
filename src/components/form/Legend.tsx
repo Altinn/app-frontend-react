@@ -11,7 +11,7 @@ import type { ILabelSettings } from 'src/layout/common.generated';
 export interface IFormLegendProps {
   label: React.ReactNode;
   labelAsText: string | undefined;
-  descriptionText: React.ReactNode;
+  description: React.ReactNode;
   required?: boolean;
   labelSettings?: ILabelSettings;
   helpText: React.ReactNode;
@@ -26,7 +26,7 @@ export function Legend({
   labelSettings,
   id,
   helpText,
-  descriptionText,
+  description,
   layout,
 }: IFormLegendProps) {
   if (!label) {
@@ -58,9 +58,9 @@ export function Legend({
           />
         )}
       </div>
-      {descriptionText && (
+      {description && (
         <Description
-          description={descriptionText}
+          description={description}
           id={id}
         />
       )}

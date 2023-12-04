@@ -65,7 +65,7 @@ export function WrappedCheckbox({
       <Checkbox
         id={`${id}-${option.label.replace(/\s/g, '-')}`}
         name={option.value}
-        description={<Lang id={option.description} />}
+        description={option.description && <Lang id={option.description} />}
         value={option.value}
         checked={selected.includes(option.value)}
         size='small'

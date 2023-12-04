@@ -59,55 +59,57 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
     optionsCount: calculatedOptions.length,
   });
 
-  return (
-    <div>
-      {fetchingOptions ? (
+  if (fetchingOptions) {
+    return (
+      <div>
         <AltinnSpinner />
-      ) : (
-        <div
-          id={id}
-          onBlur={handleBlur}
-        >
-          <Radio.Group
-            legend={
-              <span className={classes.label}>
-                {labelText}
-                {textResourceBindings?.help ? (
-                  <HelpText title={langAsString(textResourceBindings?.help)}>
-                    <Lang id={textResourceBindings?.help} />
-                  </HelpText>
-                ) : null}
-              </span>
-            }
-            hideLegend={overrideDisplay?.renderLegend === false}
-            description={<Lang id={textResourceBindings?.description} />}
-            error={!isValid}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      id={id}
+      onBlur={handleBlur}
+    >
+      <Radio.Group
+        legend={
+          <span className={classes.label}>
+            {labelText}
+            {textResourceBindings?.help && (
+              <HelpText title={langAsString(textResourceBindings.help)}>
+                <Lang id={textResourceBindings.help} />
+              </HelpText>
+            )}
+          </span>
+        }
+        hideLegend={overrideDisplay?.renderLegend === false}
+        description={<Lang id={textResourceBindings?.description} />}
+        error={!isValid}
+        disabled={readOnly}
+        inline={shouldDisplayHorizontally}
+        role='radiogroup'
+      >
+        {calculatedOptions.map((option) => (
+          <RadioButton
+            {...option}
+            label={langAsString(option.label)}
+            description={option.description && <Lang id={option.description} />}
+            helpText={option.helpText && <Lang id={option.helpText} />}
+            name={id}
+            key={option.value}
+            checked={option.value === selected}
+            showAsCard={showAsCard}
             disabled={readOnly}
-            inline={shouldDisplayHorizontally}
-            role='radiogroup'
-          >
-            {calculatedOptions.map((option) => (
-              <RadioButton
-                {...option}
-                label={langAsString(option.label)}
-                description={<Lang id={option.description} />}
-                helpText={<Lang id={option.helpText} />}
-                name={id}
-                key={option.value}
-                checked={option.value === selected}
-                showAsCard={showAsCard}
-                disabled={readOnly}
-                onChange={handleChange}
-                hideLabel={hideLabel}
-                size='small'
-                alertOnChange={alertOnChange}
-                alertText={alertText}
-                confirmChangeText={confirmChangeText}
-              />
-            ))}
-          </Radio.Group>
-        </div>
-      )}
+            onChange={handleChange}
+            hideLabel={hideLabel}
+            size='small'
+            alertOnChange={alertOnChange}
+            alertText={alertText}
+            confirmChangeText={confirmChangeText}
+          />
+        ))}
+      </Radio.Group>
     </div>
   );
 };

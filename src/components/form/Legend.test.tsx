@@ -15,7 +15,7 @@ describe('Legend', () => {
       id: 'label1',
       label: 'label.text',
       labelAsText: 'label.text',
-      descriptionText: '',
+      description: '',
       helpText: '',
       required: false,
       labelSettings: {},

@@ -221,7 +221,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
         key={`label-${id}`}
         label={<Lang id={titleTrb} />}
         labelAsText={langAsString(titleTrb)}
-        helpText={<Lang id={helpTrb} />}
+        helpText={helpTrb && <Lang id={helpTrb} />}
         id={id}
         readOnly={'readOnly' in item ? item.readOnly : false}
         required={'required' in item ? item.required : false}
@@ -254,8 +254,8 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
         key={`legend-${id}`}
         label={<Lang id={titleTrb} />}
         labelAsText={langAsString(titleTrb)}
-        descriptionText={<Lang id={descriptionTrb} />}
-        helpText={<Lang id={helpTrb} />}
+        description={descriptionTrb && <Lang id={descriptionTrb} />}
+        helpText={helpTrb && <Lang id={helpTrb} />}
         id={id}
         required={'required' in item ? item.required : false}
         labelSettings={'labelSettings' in item ? item.labelSettings : undefined}
