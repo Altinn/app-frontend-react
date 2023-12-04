@@ -60,19 +60,21 @@ export function ProcessProvider({ children, instance }: React.PropsWithChildren<
   }, [query.data]);
 
   useEffect(() => {
-    dispatch(DeprecatedActions.setLastKnownProcess(data));
-  }, [data, dispatch]);
-
-  useEffect(() => {
-    if (data?.currentTask?.elementId != null && data?.currentTask?.elementId !== taskId) {
-      navigateToTask(data.currentTask.elementId);
+    const elementId = query?.data?.currentTask?.elementId;
+    if (query?.data?.ended) {
+      navigateToTask('ProcessEnd');
+    } else if (elementId && elementId !== taskId) {
+      navigateToTask(elementId, { replace: true });
     }
     /**
-     * We don't want to re-fetch the process state when the
-     * taskId changes, only when the currentTask.elementId changes.
+     * We only want to run this effect when the query data changes.
      */
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data?.currentTask?.elementId]);
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query.data]);
+
+  useEffect(() => {
+    dispatch(DeprecatedActions.setLastKnownProcess(data));
+  }, [data, dispatch]);
 
   if (query.error) {
     return <DisplayError error={query.error} />;
@@ -81,6 +83,8 @@ export function ProcessProvider({ children, instance }: React.PropsWithChildren<
   if (!data || query.isLoading) {
     return <Loader reason='fetching-process' />;
   }
+
+  console.log('ProcessContext: ', data?.currentTask?.elementId);
 
   return (
     <Provider

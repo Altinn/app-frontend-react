@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useMatch, useNavigate } from 'react-router-dom';
+import type { NavigateOptions } from 'react-router-dom';
 
 import { useIsStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
@@ -9,8 +10,6 @@ import { useLaxProcessData, useTaskType } from 'src/features/instance/ProcessCon
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { ProcessTaskType } from 'src/types';
-
-let hasRedirectedToReceipt = false;
 
 type NavigateToPageOptions = {
   focusComponentId?: string;
@@ -75,13 +74,6 @@ export const useNavigatePage = () => {
     }
   }, [isStatelessApp, order, navigate, currentPageId]);
 
-  useEffect(() => {
-    if (taskType === ProcessTaskType.Archived && currentPageId !== 'receipt' && !hasRedirectedToReceipt) {
-      hasRedirectedToReceipt = true;
-      navigate(`/instance/${partyId}/${instanceGuid}/ProcessEnd/receipt`, { replace: true });
-    }
-  }, [currentPageId, instanceGuid, navigate, partyId, taskType]);
-
   const navigateToPage = useCallback(
     (page?: string, options?: NavigateToPageOptions) => {
       if (!page) {
@@ -138,9 +130,9 @@ export const useNavigatePage = () => {
   );
 
   const navigateToTask = useCallback(
-    (taskId?: string) => {
+    (taskId?: string, options?: NavigateOptions) => {
       const url = `/instance/${partyId}/${instanceGuid}/${taskId ?? lastTaskId}`;
-      navigate(url);
+      navigate(url, options);
     },
     [partyId, instanceGuid, lastTaskId, navigate],
   );

@@ -20,7 +20,8 @@ export function ProcessWrapperWrapper() {
   const { taskId } = useNavigatePage();
   const location = useLocation();
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
-  if (taskId === undefined) {
+
+  if (taskId === undefined && currentTaskId !== undefined) {
     return (
       <Navigate
         to={`${location.pathname}/${currentTaskId}`}
@@ -28,6 +29,7 @@ export function ProcessWrapperWrapper() {
       />
     );
   }
+
   return (
     <Routes>
       <Route
