@@ -41,12 +41,12 @@ export function useBackendValidation() {
         const { field, source: group } = issue;
         const severity = getValidationIssueSeverity(issue);
         const message = getValidationIssueMessage(issue, langTools);
-        const urgency = issue.urgency ?? ValidationUrgency.OnSubmit;
+        const urgency = issue.urgency ?? ValidationUrgency.Submit;
 
         if (!field) {
           // Unmapped error
           if (!state.task.find((v) => v.message === message && v.severity === severity)) {
-            state.task.push({ severity, message, urgency: ValidationUrgency.OnSubmit });
+            state.task.push({ severity, message, urgency: ValidationUrgency.Submit });
           }
           continue;
         }

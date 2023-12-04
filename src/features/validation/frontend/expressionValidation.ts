@@ -84,6 +84,7 @@ function resolveExpressionValidation(
 
     expressionValidation = {
       severity: 'errors',
+      urgency: ValidationUrgency.Expression,
       ...reference,
     };
   } else {
@@ -103,6 +104,7 @@ function resolveExpressionValidation(
 
     expressionValidation = {
       severity: 'errors',
+      urgency: ValidationUrgency.Expression,
       ...resolvedDefinition,
     } as IExpressionValidation;
   }
@@ -195,7 +197,7 @@ export function runExpressionValidationsOnNode(
           group: FrontendValidationSource.Expression,
           message,
           severity: validationDef.severity,
-          urgency: ValidationUrgency.Immediate, // TODO(Validation): Make urgency configurable
+          urgency: validationDef.urgency,
         });
       }
     }

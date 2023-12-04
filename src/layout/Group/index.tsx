@@ -94,7 +94,7 @@ export class Group extends GroupDef implements ValidateComponent {
         severity: 'errors',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,
-        urgency: ValidationUrgency.OnPageNext,
+        urgency: ValidationUrgency.Component,
       });
     }
 

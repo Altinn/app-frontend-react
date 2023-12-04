@@ -53,7 +53,7 @@ export class FileUpload extends FileUploadDef implements ValidateComponent {
         severity: 'errors',
         group: FrontendValidationSource.Component,
         componentId: node.item.id,
-        urgency: ValidationUrgency.OnPageNext,
+        urgency: ValidationUrgency.Component,
       });
     }
 

@@ -67,7 +67,7 @@ export class List extends ListDef {
         severity: 'errors',
         componentId: node.item.id,
         group: FrontendValidationSource.EmptyField,
-        urgency: ValidationUrgency.OnPageNext,
+        urgency: ValidationUrgency.Required,
       });
     }
     return validations;

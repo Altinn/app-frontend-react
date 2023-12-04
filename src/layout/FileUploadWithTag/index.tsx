@@ -63,7 +63,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
             componentId: node.item.id,
             group: FrontendValidationSource.Component,
             meta: { attachmentId },
-            urgency: ValidationUrgency.OnGroupClose,
+            urgency: ValidationUrgency.Component,
           });
         });
       }
@@ -77,7 +77,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
         severity: 'errors',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,
-        urgency: ValidationUrgency.OnPageNext,
+        urgency: ValidationUrgency.Component,
       });
     }
     return validations;

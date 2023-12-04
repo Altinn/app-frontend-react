@@ -74,7 +74,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent {
         severity: 'errors',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,
-        urgency: ValidationUrgency.OnGroupClose,
+        urgency: ValidationUrgency.Component,
       });
     }
 
@@ -85,7 +85,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent {
         severity: 'errors',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,
-        urgency: ValidationUrgency.Immediate,
+        urgency: ValidationUrgency.Component,
       });
     } else if (date.isAfter(maxDate)) {
       const message = langTools.langAsString('date_picker.max_date_exeeded');
@@ -94,7 +94,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent {
         severity: 'errors',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,
-        urgency: ValidationUrgency.Immediate,
+        urgency: ValidationUrgency.Component,
       });
     }
 
@@ -117,7 +117,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent {
           severity: 'errors',
           field,
           group: FrontendValidationSource.Schema,
-          urgency: ValidationUrgency.Immediate,
+          urgency: ValidationUrgency.Schema,
         });
       }
     }

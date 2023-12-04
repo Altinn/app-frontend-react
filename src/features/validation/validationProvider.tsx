@@ -139,7 +139,7 @@ export function ValidationContext({ children }) {
 
   // Set visibility for the whole form
   const setRootVisibility = useEffectEvent((newVisibility: boolean) => {
-    const newUrgency = newVisibility ? ValidationUrgency.OnSubmit : 0;
+    const newUrgency = newVisibility ? ValidationUrgency.Submit : 0;
     if (visibility.urgency != newUrgency) {
       setVisibility((state) => {
         state.urgency = newUrgency;
@@ -178,9 +178,9 @@ export function useOnGroupCloseValidation() {
     const hasErrors = node
       .flat(true, rowIndex)
       .filter(shouldValidateNode)
-      .some((n) => getValidationsForNode(n, state, ValidationUrgency.OnGroupClose, true, 'errors').length > 0);
+      .some((n) => getValidationsForNode(n, state, ValidationUrgency.Submit, true, 'errors').length > 0);
 
-    setNodeVisibility(node, hasErrors ? ValidationUrgency.OnGroupClose : ValidationUrgency.Immediate, rowIndex);
+    setNodeVisibility(node, hasErrors ? ValidationUrgency.Submit : ValidationUrgency.Immediate, rowIndex);
     return hasErrors;
   });
 
@@ -210,9 +210,9 @@ export function useOnPageNextValidation() {
     const hasErrors = currentPage
       .flat(true)
       .filter(shouldValidateNode)
-      .some((n) => getValidationsForNode(n, state, ValidationUrgency.OnPageNext, true, 'errors').length > 0);
+      .some((n) => getValidationsForNode(n, state, ValidationUrgency.Submit, true, 'errors').length > 0);
 
-    setNodeVisibility(currentPage, hasErrors ? ValidationUrgency.OnPageNext : ValidationUrgency.Immediate);
+    setNodeVisibility(currentPage, hasErrors ? ValidationUrgency.Submit : ValidationUrgency.Immediate);
     return hasErrors;
   });
 
@@ -237,7 +237,7 @@ export function useOnFormSubmitValidation() {
       layoutPages
         .allNodes()
         .filter(shouldValidateNode)
-        .some((n) => getValidationsForNode(n, state, ValidationUrgency.OnSubmit, true, 'errors').length > 0);
+        .some((n) => getValidationsForNode(n, state, ValidationUrgency.Submit, true, 'errors').length > 0);
 
     setRootVisibility(hasErrors);
     return hasErrors;

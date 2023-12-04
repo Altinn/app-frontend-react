@@ -42,9 +42,11 @@ export enum BackendValidationSeverity {
 
 export enum ValidationUrgency {
   Immediate = 0,
-  OnGroupClose = 10,
-  OnPageNext = 20,
-  OnSubmit = 30,
+  Expression = 10,
+  Schema = 20,
+  Component = 30,
+  Required = 40,
+  Submit = 50,
 }
 
 export type ValidationContext = {
@@ -160,6 +162,7 @@ export type IExpressionValidation = {
   message: string;
   condition: Expression | ExprValToActual;
   severity: ValidationSeverity;
+  urgency: number;
 };
 
 /**
@@ -176,6 +179,7 @@ export type IExpressionValidationRefResolved = {
   message: string;
   condition: Expression | ExprValToActual;
   severity?: ValidationSeverity;
+  urgency?: number;
 };
 
 /**
@@ -188,6 +192,7 @@ export type IExpressionValidationRefUnresolved =
       message?: string;
       condition?: Expression | ExprValToActual;
       severity?: ValidationSeverity;
+      urgency?: number;
       ref: string;
     };
 

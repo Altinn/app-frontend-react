@@ -402,7 +402,7 @@ export abstract class FormComponent<Type extends CompTypes>
           bindingKey,
           message,
           severity: 'errors',
-          urgency: ValidationUrgency.OnSubmit,
+          urgency: ValidationUrgency.Required,
         });
       }
     }
@@ -420,7 +420,7 @@ export abstract class FormComponent<Type extends CompTypes>
               group: FrontendValidationSource.Schema,
               message: error.message,
               severity: 'errors',
-              urgency: ValidationUrgency.Immediate,
+              urgency: ValidationUrgency.Schema,
             });
           }
         }

@@ -322,7 +322,7 @@ describe('AddressComponent', () => {
             severity: 'errors',
             bindingKey: 'address',
             pageKey: 'page1',
-            urgency: ValidationUrgency.OnPageNext,
+            urgency: ValidationUrgency.Required,
           },
         ],
       },

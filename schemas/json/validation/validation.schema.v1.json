@@ -64,6 +64,12 @@
             "success"
           ]
         },
+        "urgency": {
+          "title": "Urgency",
+          "description": "The urgency of the validation message determines when the message is displayed to the user.",
+          "type": "number",
+          "default": 10,
+        },
         "ref": {
           "title": "Reference to another validation",
           "description": "A reference to another validation to extend from. The referenced validation must be defined in the same validation configuration file.",

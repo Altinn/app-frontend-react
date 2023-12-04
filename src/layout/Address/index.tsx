@@ -53,7 +53,7 @@ export class Address extends AddressDef implements ValidateComponent {
         bindingKey: 'zipCode',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,
-        urgency: ValidationUrgency.Immediate,
+        urgency: ValidationUrgency.Component,
       });
     }
 
@@ -67,7 +67,7 @@ export class Address extends AddressDef implements ValidateComponent {
         bindingKey: 'houseNumber',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,
-        urgency: ValidationUrgency.Immediate,
+        urgency: ValidationUrgency.Component,
       });
     }
 
