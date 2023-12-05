@@ -106,8 +106,6 @@ NavigationButton.displayName = 'NavigationButton';
 export const NavigationBarComponent = ({ node }: INavigationBar) => {
   const { compact } = node.item;
   const classes = useStyles();
-  // const pageTriggers = useAppSelector((state) => state.formLayout.uiConfig.pageTriggers);
-  // const pageOrPropTriggers = triggers || pageTriggers;
   const [showMenu, setShowMenu] = React.useState(false);
   const isMobile = useIsMobile() || compact === true;
   const { lang, langAsString } = useLanguage();
@@ -121,9 +119,8 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
       return;
     }
 
-    // const runValidations = reducePageValidations(pageOrPropTriggers);
     /**
-     * TODO: Need to run validations
+     * TODO(1508): Need to run validations
      */
     navigateToPage(pageId);
   };

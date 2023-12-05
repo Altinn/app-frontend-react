@@ -60,7 +60,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
     // };
 
     /**
-     * TODO(1508): set this only if there are valiadtion messages
+     * TODO(1508): set this only if there are validation messages
      */
     // setScrollPosition(keepScrollPosAction);
     setReturnToView(undefined);
