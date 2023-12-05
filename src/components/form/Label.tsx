@@ -6,11 +6,11 @@ import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
 import classes from 'src/components/form/Label.module.css';
 import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
+import { useLanguage } from 'src/features/language/useLanguage';
 import type { ILabelSettings } from 'src/layout/common.generated';
 
 export interface IFormLabelProps {
   label: React.ReactNode;
-  labelAsText: string | undefined;
   id: string;
   required?: boolean;
   readOnly?: boolean;
@@ -18,7 +18,9 @@ export interface IFormLabelProps {
   helpText: React.ReactNode;
 }
 
-export function Label({ label, labelAsText, id, required, readOnly, labelSettings, helpText }: IFormLabelProps) {
+export function Label({ label, id, required, readOnly, labelSettings, helpText }: IFormLabelProps) {
+  const { elementAsString } = useLanguage();
+  const labelAsText = elementAsString(label);
   if (!label || !labelAsText) {
     return null;
   }

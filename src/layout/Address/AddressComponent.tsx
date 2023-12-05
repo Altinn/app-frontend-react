@@ -257,7 +257,6 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
       <div>
         <Label
           label={<Lang id={'address_component.address'} />}
-          labelAsText={langAsString('address_component.address')}
           helpText={undefined}
           id={`address_address_${id}`}
           required={required}
@@ -284,7 +283,6 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
         <div>
           <Label
             label={<Lang id={'address_component.care_of'} />}
-            labelAsText={langAsString('address_component.care_of')}
             helpText={undefined}
             id={`address_care_of_${id}`}
             required={required}
@@ -311,7 +309,6 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
         <div className={classes.addressComponentZipCode}>
           <Label
             label={<Lang id={'address_component.zip_code'} />}
-            labelAsText={langAsString('address_component.zip_code')}
             helpText={undefined}
             id={`address_zip_code_${id}`}
             required={required}
@@ -340,7 +337,6 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
         <div className={classes.addressComponentPostplace}>
           <Label
             label={<Lang id={'address_component.post_place'} />}
-            labelAsText={langAsString('address_component.post_place')}
             helpText={undefined}
             id={`address_post_place_${id}`}
             required={required}
@@ -368,7 +364,6 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
         <div>
           <Label
             label={<Lang id={'address_component.house_number'} />}
-            labelAsText={langAsString('address_component.house_number')}
             helpText={undefined}
             id={`address_house_number_${id}`}
             required={required}

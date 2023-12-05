@@ -95,12 +95,10 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: 
                 help={cell?.help}
                 columnStyleOptions={textCellSettings}
               >
-                {
-                  <Lang
-                    id={cell.text}
-                    node={node}
-                  />
-                }
+                <Lang
+                  id={cell.text}
+                  node={node}
+                />
               </CellWithText>
             );
           }
@@ -244,7 +242,6 @@ function CellWithLabel({ className, columnStyleOptions, referenceComponent }: Ce
             <Label
               key={`label-${componentId}`}
               label={title}
-              labelAsText={title}
               id={componentId}
               required={required}
               helpText={<Lang id={help} />}

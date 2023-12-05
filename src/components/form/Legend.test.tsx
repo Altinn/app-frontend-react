@@ -14,7 +14,6 @@ describe('Legend', () => {
     const defaultProps: IFormLegendProps = {
       id: 'label1',
       label: 'label.text',
-      labelAsText: 'label.text',
       description: '',
       helpText: '',
       required: false,

@@ -55,7 +55,6 @@ describe('Label', () => {
     const defaultProps: IFormLabelProps = {
       id: 'label1',
       label: 'label.text',
-      labelAsText: 'label.text',
       helpText: '',
       readOnly: false,
       required: false,

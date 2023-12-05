@@ -70,21 +70,21 @@ export function FileTable({
             <th>
               <Lang id={'form_filler.file_uploader_list_header_name'} />
             </th>
-            {!mobileView ? (
+            {!mobileView && (
               <th>
                 <Lang id={'form_filler.file_uploader_list_header_file_size'} />
               </th>
-            ) : null}
-            {hasTag ? (
+            )}
+            {hasTag && (
               <th>
                 <Lang id={tagTitle} />
               </th>
-            ) : null}
-            {!(hasTag && mobileView) ? (
+            )}
+            {!(hasTag && mobileView) && (
               <th>
                 <Lang id={'form_filler.file_uploader_list_header_status'} />
               </th>
-            ) : null}
+            )}
             <th>
               <p className='sr-only'>
                 <Lang id={'form_filler.file_uploader_list_header_delete_sr'} />

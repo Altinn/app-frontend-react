@@ -112,7 +112,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
   const GetFocusSelector = makeGetFocus();
   const hasValidationMessages = node.hasValidationMessages('any');
   const hidden = node.isHidden();
-  const { langAsString, langAsNonProcessedString } = useLanguage(node);
+  const { langAsNonProcessedString } = useLanguage(node);
 
   const formData = node.getFormData() as IComponentFormData<Type>;
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
@@ -220,7 +220,6 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
       <Label
         key={`label-${id}`}
         label={<Lang id={titleTrb} />}
-        labelAsText={langAsString(titleTrb)}
         helpText={helpTrb && <Lang id={helpTrb} />}
         id={id}
         readOnly={'readOnly' in item ? item.readOnly : false}
@@ -253,7 +252,6 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
       <Legend
         key={`legend-${id}`}
         label={<Lang id={titleTrb} />}
-        labelAsText={langAsString(titleTrb)}
         description={descriptionTrb && <Lang id={descriptionTrb} />}
         helpText={helpTrb && <Lang id={helpTrb} />}
         id={id}

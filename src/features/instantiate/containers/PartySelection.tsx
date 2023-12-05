@@ -313,15 +313,13 @@ export const PartySelection = () => {
               {langAsString('party_selection.why_seeing_this')}
             </Typography>
             <Typography variant='body1'>
-              {
-                <Lang
-                  id={
-                    appPromptForPartyOverride === 'always'
-                      ? 'party_selection.seeing_this_override'
-                      : 'party_selection.seeing_this_preference'
-                  }
-                />
-              }
+              <Lang
+                id={
+                  appPromptForPartyOverride === 'always'
+                    ? 'party_selection.seeing_this_override'
+                    : 'party_selection.seeing_this_preference'
+                }
+              />
             </Typography>
           </Grid>
         )}
