@@ -1,3 +1,9 @@
 .errorReport:empty {
   padding: 0;
 }
+
+.notCurrentStep {
+  display: flex;
+  margin-top: 35px;
+  gap: 10px;
+}

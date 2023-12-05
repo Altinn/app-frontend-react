@@ -161,6 +161,8 @@ export function nb(): FixedLanguageList {
       value: 'Verdi',
       version: 'Versjon',
       wait_for_attachments: 'Vent litt, vi prosesserer vedlegg',
+      part_of_form_completed: 'Denne delen av skjemaet er allerede fullført, og er lukket.',
+      navigate_to_current_process: 'Gå til riktig prosessteg',
     },
     group: {
       row_error: 'En av radene er ikke fylt ut riktig, dette må fikses før skjema kan sendes inn',

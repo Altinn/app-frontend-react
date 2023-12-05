@@ -159,6 +159,8 @@ export function en() {
       value: 'Value',
       version: 'Version',
       wait_for_attachments: 'Hold on, we are processing attachments',
+      part_of_form_completed: "This part of the form is already completed. You can't change it.",
+      navigate_to_current_process: 'Navigate to the current process step',
     },
     group: {
       row_error: 'One of the rows is incorrectly filled out. This has to bee fixed before the schema can be submitted.',

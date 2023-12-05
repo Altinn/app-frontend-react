@@ -8,6 +8,7 @@ import { MessageBanner } from 'src/components/form/MessageBanner';
 import { ErrorReport } from 'src/components/message/ErrorReport';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -59,21 +60,17 @@ export function Form() {
         aria-live='polite'
         className={classes.errorReport}
       >
-        <div>Denne delen av skjemaet er allerede fullført, og er lukket.</div>
-        <div
-          style={{
-            display: 'flex',
-            marginTop: '35px',
-            gap: '10px',
-          }}
-        >
+        <div>
+          <Lang id='general.part_of_form_completed' />
+        </div>
+        <div className={classes.notCurrentStep}>
           <Button
             variant='secondary'
             onClick={() => {
               navigateToTask(currentTaskId);
             }}
           >
-            Gå til riktig prosessteg
+            <Lang id='general.navigate_to_current_process' />
           </Button>
         </div>
       </Grid>
