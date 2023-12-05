@@ -35,6 +35,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
   const resolvedTextBindings = node.item.textResourceBindings;
   const id = node.item.id;
   const edit = node.item.edit;
+  const validateOnSaveRow = node.item.validateOnSaveRow;
   const groupState = useAppSelector(
     (state) => state.formLayout.uiConfig.repeatingGroups && state.formLayout.uiConfig.repeatingGroups[id],
   );
@@ -94,17 +95,23 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
     }
 
     if (edit?.mode !== 'showAll' && edit?.mode !== 'onlyTable') {
-      const shouldChangeIndex = repeatingGroupIndex === -1 || !(await onGroupCloseValidation(node, editIndex));
-      if (shouldChangeIndex) {
-        dispatch(
-          FormLayoutActions.updateRepeatingGroupsEditIndex({
-            group: id,
-            index: repeatingGroupIndex + 1,
-            shouldAddRow: true,
-          }),
-        );
-        setMultiPageIndex(0);
+      if (
+        repeatingGroupIndex !== -1 &&
+        validateOnSaveRow &&
+        (await onGroupCloseValidation(node, editIndex, validateOnSaveRow))
+      ) {
+        // Block save if validation fails
+        return;
       }
+
+      dispatch(
+        FormLayoutActions.updateRepeatingGroupsEditIndex({
+          group: id,
+          index: repeatingGroupIndex + 1,
+          shouldAddRow: true,
+        }),
+      );
+      setMultiPageIndex(0);
     }
   }, [
     dispatch,
@@ -116,6 +123,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
     onGroupCloseValidation,
     repeatingGroupIndex,
     setMultiPageIndex,
+    validateOnSaveRow,
   ]);
 
   const handleOnAddButtonClick = (): void => {
@@ -155,17 +163,22 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
   };
 
   const setEditIndex = async (index: number) => {
-    const shouldChangeIndex = editIndex === -1 || !(await onGroupCloseValidation(node, editIndex));
-    if (shouldChangeIndex) {
-      dispatch(
-        FormLayoutActions.updateRepeatingGroupsEditIndex({
-          group: id,
-          index,
-        }),
-      );
-      if (edit?.multiPage && index > -1) {
-        setMultiPageIndex(0);
-      }
+    if (
+      repeatingGroupIndex !== -1 &&
+      validateOnSaveRow &&
+      (await onGroupCloseValidation(node, editIndex, validateOnSaveRow))
+    ) {
+      // Block save if validation fails
+      return;
+    }
+    dispatch(
+      FormLayoutActions.updateRepeatingGroupsEditIndex({
+        group: id,
+        index,
+      }),
+    );
+    if (edit?.multiPage && index > -1) {
+      setMultiPageIndex(0);
     }
   };
 

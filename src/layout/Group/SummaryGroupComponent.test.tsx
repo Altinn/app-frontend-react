@@ -56,7 +56,6 @@ describe('SummaryGroupComponent', () => {
           textResourceBindings: {
             title: 'mockField1',
           },
-          triggers: [],
         },
         {
           type: 'Input',
@@ -69,7 +68,6 @@ describe('SummaryGroupComponent', () => {
           textResourceBindings: {
             title: 'mockField2',
           },
-          triggers: [],
         },
         {
           type: 'Summary',

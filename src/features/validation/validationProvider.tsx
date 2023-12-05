@@ -24,7 +24,6 @@ import {
 } from 'src/features/validation/utils';
 import {
   addVisibilityForNode,
-  getRawVisibilityForNode,
   getResolvedVisibilityForNode,
   onBeforeRowDelete,
   removeVisibilityForNode,
@@ -40,6 +39,7 @@ import type {
   ValidationState,
 } from 'src/features/validation';
 import type { Visibility } from 'src/features/validation/visibility';
+import type { PageValidation } from 'src/layout/common.generated';
 import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { CompTypes, IDataModelBindings } from 'src/layout/layout';
@@ -127,24 +127,18 @@ export function ValidationContext({ children }) {
 
   // Set visibility for a node
   const setNodeVisibility = useEffectEvent(
-    (node: LayoutNode | LayoutPage, newVisibility: number, rowIndex?: number) => {
-      const currentVisibility = getRawVisibilityForNode(node, visibility, rowIndex);
-      if (currentVisibility != newVisibility) {
-        setVisibility((state) => {
-          setVisibilityForNode(node, state, newVisibility, rowIndex);
-        });
-      }
+    (nodes: (LayoutNode | LayoutPage)[], newVisibility: number, rowIndex?: number) => {
+      setVisibility((state) => {
+        nodes.forEach((node) => setVisibilityForNode(node, state, newVisibility, rowIndex));
+      });
     },
   );
 
   // Set visibility for the whole form
-  const setRootVisibility = useEffectEvent((newVisibility: boolean) => {
-    const newUrgency = newVisibility ? ValidationUrgency.Submit : 0;
-    if (visibility.urgency != newUrgency) {
-      setVisibility((state) => {
-        state.urgency = newUrgency;
-      });
-    }
+  const setRootVisibility = useEffectEvent((newVisibility: number) => {
+    setVisibility((state) => {
+      state.urgency = newVisibility;
+    });
   });
 
   // Properly remove visibility for a row when it is deleted
@@ -174,20 +168,20 @@ export function useOnGroupCloseValidation() {
   const validating = useCtx().validating;
 
   /* Ensures the callback will have the latest state */
-  const callback = useEffectEvent((node: LayoutNode, rowIndex: number): boolean => {
+  const callback = useEffectEvent((node: LayoutNode, rowIndex: number, urgency: number): boolean => {
     const hasErrors = node
       .flat(true, rowIndex)
       .filter(shouldValidateNode)
-      .some((n) => getValidationsForNode(n, state, ValidationUrgency.Submit, true, 'errors').length > 0);
+      .some((n) => getValidationsForNode(n, state, urgency, true, 'errors').length > 0);
 
-    setNodeVisibility(node, hasErrors ? ValidationUrgency.Submit : ValidationUrgency.Immediate, rowIndex);
+    setNodeVisibility([node], hasErrors ? urgency : 0, rowIndex);
     return hasErrors;
   });
 
   return useCallback(
-    async (node: LayoutNode, rowIndex: number) => {
+    async (node: LayoutNode, rowIndex: number, urgency: number) => {
       await validating();
-      return callback(node, rowIndex);
+      return callback(node, rowIndex, urgency);
     },
     [callback, validating],
   );
@@ -200,26 +194,55 @@ export const useOnDeleteGroupRow = () => useCtx().removeRowVisibilityOnDelete;
  * Also returns a boolean indicating whether there currently are any errors on the page
  * with urgency >= OnPageNext.
  */
-export function useOnPageNextValidation() {
+export function useOnPageValidation() {
   const setNodeVisibility = useCtx().setNodeVisibility;
+  const setRootVisibility = useCtx().setRootVisibility;
   const state = useCtx().state;
   const validating = useCtx().validating;
+  const pageOrder = useAppSelector((state) => state.formLayout.uiConfig.pageOrderConfig.order);
 
   /* Ensures the callback will have the latest state */
-  const callback = useEffectEvent((currentPage: LayoutPage): boolean => {
-    const hasErrors = currentPage
-      .flat(true)
-      .filter(shouldValidateNode)
-      .some((n) => getValidationsForNode(n, state, ValidationUrgency.Submit, true, 'errors').length > 0);
+  const callback = useEffectEvent((currentPage: LayoutPage, config: PageValidation): boolean => {
+    const pageConfig = config.page ?? 'current';
+    const urgency = config.urgency;
 
-    setNodeVisibility(currentPage, hasErrors ? ValidationUrgency.Submit : ValidationUrgency.Immediate);
-    return hasErrors;
+    if (pageConfig === 'current') {
+      const hasErrors = currentPage
+        .flat(true)
+        .filter(shouldValidateNode)
+        .some((n) => getValidationsForNode(n, state, urgency, true, 'errors').length > 0);
+
+      setNodeVisibility([currentPage], hasErrors ? urgency : 0);
+      return hasErrors;
+    } else if (pageConfig === 'currentAndPrevious') {
+      const currentIndex = pageOrder?.indexOf(currentPage.top.myKey);
+      if (!pageOrder || !currentIndex) {
+        return false;
+      }
+      const pageKeysToCheck = pageOrder.slice(0, currentIndex + 1);
+      const layoutPagesToCheck = pageKeysToCheck.map((key) => currentPage.top.collection.all()[key]);
+      const hasErrors = layoutPagesToCheck
+        .flatMap((page) => page.flat(true))
+        .filter(shouldValidateNode)
+        .some((n) => getValidationsForNode(n, state, urgency, true, 'errors').length > 0);
+
+      setNodeVisibility(layoutPagesToCheck, hasErrors ? urgency : 0);
+      return hasErrors;
+    } else {
+      const hasErrors = currentPage.top.collection
+        .allNodes()
+        .filter(shouldValidateNode)
+        .some((n) => getValidationsForNode(n, state, urgency, true, 'errors').length > 0);
+
+      setRootVisibility(hasErrors ? urgency : 0);
+      return hasErrors;
+    }
   });
 
   return useCallback(
-    async (currentPage: LayoutPage) => {
+    async (currentPage: LayoutPage, config: PageValidation) => {
       await validating();
-      return callback(currentPage);
+      return callback(currentPage, config);
     },
     [callback, validating],
   );
@@ -239,7 +262,7 @@ export function useOnFormSubmitValidation() {
         .filter(shouldValidateNode)
         .some((n) => getValidationsForNode(n, state, ValidationUrgency.Submit, true, 'errors').length > 0);
 
-    setRootVisibility(hasErrors);
+    setRootVisibility(hasErrors ? ValidationUrgency.Submit : 0);
     return hasErrors;
   });
 

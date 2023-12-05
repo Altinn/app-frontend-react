@@ -1,4 +1,3 @@
-import { Triggers } from 'src/layout/common.generated';
 import type { ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { IKeepComponentScrollPos } from 'src/features/form/layout/formLayoutTypes';
 import type { RootState } from 'src/redux/store';
@@ -22,7 +21,6 @@ export interface ILayoutSettings {
 
 export interface IPagesSettings {
   order: string[];
-  triggers?: Triggers[];
   hideCloseButton?: boolean;
   showProgress?: boolean;
   showLanguageSelector?: boolean;
@@ -86,7 +84,6 @@ export interface IUiConfig {
   excludePageFromPdf: string[] | null;
   excludeComponentFromPdf: string[] | null;
   pdfLayoutName?: string;
-  pageTriggers?: Triggers[];
   hideCloseButton?: boolean;
   showLanguageSelector?: boolean;
   showProgress?: boolean;
@@ -131,25 +128,6 @@ export enum ProcessTaskType {
 
 export enum PresentationType {
   Stateless = 'stateless',
-}
-
-export type TriggersPageValidation =
-  | Triggers.ValidateAllPages
-  | Triggers.ValidateCurrentAndPreviousPages
-  | Triggers.ValidatePage;
-
-/**
- * Reduces a list of validation triggers to be only one value (preferring validation for all pages
- * over single-page validation). Useful for places that only care about page validation.
- */
-export function reducePageValidations(triggers?: Triggers[]): TriggersPageValidation | undefined {
-  return triggers?.includes(Triggers.ValidateAllPages)
-    ? Triggers.ValidateAllPages
-    : triggers?.includes(Triggers.ValidateCurrentAndPreviousPages)
-      ? Triggers.ValidateCurrentAndPreviousPages
-      : triggers?.includes(Triggers.ValidatePage)
-        ? Triggers.ValidatePage
-        : undefined;
 }
 
 export enum DateFlags {

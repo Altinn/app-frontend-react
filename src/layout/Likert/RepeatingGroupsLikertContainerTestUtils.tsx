@@ -132,7 +132,6 @@ const createLayout = (
       hidden: [],
       hiddenExpr: {},
     },
-    pageTriggers: [],
     excludePageFromPdf: [],
     excludeComponentFromPdf: [],
   },

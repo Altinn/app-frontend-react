@@ -38,7 +38,6 @@ export const initialState: ILayoutState = {
       hiddenExpr: {},
       order: null,
     },
-    pageTriggers: [],
     keepScrollPos: undefined,
     expandedWidth: false,
     excludePageFromPdf: null,
@@ -263,22 +262,17 @@ export const formLayoutSlice = () => {
 
 const updateCommonPageSettings = (
   state: ILayoutState,
-  page: Pick<
-    IPagesSettings,
-    'hideCloseButton' | 'showLanguageSelector' | 'showProgress' | 'triggers' | 'autoSaveBehavior'
-  >,
+  page: Pick<IPagesSettings, 'hideCloseButton' | 'showLanguageSelector' | 'showProgress' | 'autoSaveBehavior'>,
 ) => {
   const {
     hideCloseButton = state.uiConfig.hideCloseButton,
     showLanguageSelector = state.uiConfig.showLanguageSelector,
     autoSaveBehavior = state.uiConfig.autoSaveBehavior,
     showProgress = state.uiConfig.showProgress,
-    triggers = state.uiConfig.pageTriggers,
   } = page;
 
   state.uiConfig.hideCloseButton = hideCloseButton;
   state.uiConfig.showLanguageSelector = showLanguageSelector;
   state.uiConfig.showProgress = showProgress;
-  state.uiConfig.pageTriggers = triggers;
   state.uiConfig.autoSaveBehavior = autoSaveBehavior;
 };

@@ -102,20 +102,6 @@ const common = {
       .setTitle('Grid')
       .setDescription('Settings for the components grid. Used for controlling horizontal alignment'),
 
-  // Triggers on components:
-  Triggers: () =>
-    new CG.enum(
-      'validation',
-      'validatePage',
-      'validateCurrentAndPreviousPages',
-      'validateAllPages',
-      'validateRow',
-    ).asRealEnum((value) => value.charAt(0).toUpperCase() + value.slice(1)),
-  TriggerList: () =>
-    new CG.arr(CG.common('Triggers'))
-      .setTitle('Triggers')
-      .setDescription('List of actions to trigger when the user interacts with the component'),
-
   // Panel display mode:
   IPanelBase: () =>
     new CG.obj(
@@ -425,7 +411,7 @@ const common = {
             'Boolean value or expression indicating if the component should be required. Defaults to false.',
           ),
       ),
-      new CG.prop('triggers', CG.common('TriggerList').optional()),
+      // Todo(Validation): Consider adding validation properties
     ),
   SummarizableComponentProps: () =>
     new CG.obj(
@@ -525,6 +511,30 @@ const common = {
       ),
 
   HeadingLevel: () => new CG.enum(2, 3, 4, 5, 6),
+
+  PageValidation: () =>
+    new CG.obj(
+      new CG.prop(
+        'page',
+        new CG.enum('current', 'currentAndPrevious', 'all')
+          .optional({ default: 'current' })
+          .setTitle('Page')
+          .setDescription('Which pages should be validated when the next button is clicked.'),
+      ),
+      new CG.prop(
+        'urgency',
+        new CG.int()
+          .setMin(0)
+          .setTitle('Urgency')
+          .setDescription('Level of urgency to use when validating the page(s). TODO: Add link to docs'),
+      ),
+    ),
+
+  Validation: () =>
+    new CG.int()
+      .setMin(0)
+      .setTitle('Urgency')
+      .setDescription('Level of urgency to use when validating. TODO: Add link to docs'),
 };
 
 export type ValidCommonKeys = keyof typeof common;

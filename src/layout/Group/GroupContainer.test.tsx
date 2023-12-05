@@ -7,7 +7,6 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import { getFormLayoutGroupMock } from 'src/__mocks__/getFormLayoutGroupMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { Triggers } from 'src/layout/common.generated';
 import { GroupContainer } from 'src/layout/Group/GroupContainer';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithNode } from 'src/test/renderWithProviders';
@@ -210,7 +209,7 @@ describe('GroupContainer', () => {
     const mockContainerInEditModeWithTrigger = {
       ...mockContainer,
       id: 'container-in-edit-mode-id',
-      triggers: [Triggers.Validation],
+      validateOnSaveRow: 50,
     };
     const user = userEvent.setup();
     // eslint-disable-next-line testing-library/render-result-naming-convention
@@ -264,7 +263,7 @@ describe('GroupContainer', () => {
     const mockContainerInEditModeWithTrigger = {
       ...mockContainer,
       id: 'container-in-edit-mode-id',
-      triggers: [Triggers.Validation],
+      validateOnSaveRow: 50,
     };
     // eslint-disable-next-line testing-library/render-result-naming-convention
     const store = await render({ container: mockContainerInEditModeWithTrigger });
@@ -292,7 +291,7 @@ describe('GroupContainer', () => {
     const mockContainerInEditModeWithTrigger = {
       ...mockContainer,
       id: 'container-in-edit-mode-id',
-      triggers: [Triggers.ValidateRow],
+      validateOnSaveRow: 50,
     };
     // eslint-disable-next-line testing-library/render-result-naming-convention
     const store = await render({ container: mockContainerInEditModeWithTrigger });

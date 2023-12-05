@@ -5,7 +5,7 @@ import { Grid } from '@material-ui/core';
 
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useOnPageNextValidation } from 'src/features/validation/validationProvider';
+import { useOnPageValidation } from 'src/features/validation/validationProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import classes from 'src/layout/NavigationButtons/NavigationButtonsComponent.module.css';
@@ -16,7 +16,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 export type INavigationButtons = PropsFromGenericComponent<'NavigationButtons'>;
 
 export function NavigationButtonsComponent({ node }: INavigationButtons) {
-  const { id, showBackButton, textResourceBindings } = node.item;
+  const { id, showBackButton, textResourceBindings, validateOnNext, validateOnPrevious } = node.item;
   const dispatch = useAppDispatch();
   const { lang } = useLanguage();
 
@@ -38,9 +38,14 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
   const disableBack = !!returnToView || (!previous && currentViewIndex === 0);
   const disableNext = !returnToView && !next && currentViewIndex === (orderedLayoutKeys?.length || 0) - 1;
 
-  const onPageNextValidation = useOnPageNextValidation();
+  const onPageValidation = useOnPageValidation();
 
-  const onClickPrevious = () => {
+  const onClickPrevious = async () => {
+    if (validateOnPrevious && (await onPageValidation(node.top, validateOnPrevious))) {
+      // Block navigation if validation fails
+      return;
+    }
+
     const goToView = previous || (orderedLayoutKeys && orderedLayoutKeys[orderedLayoutKeys.indexOf(currentView) - 1]);
     if (goToView) {
       dispatch(
@@ -57,22 +62,25 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
   );
 
   const OnClickNext = async () => {
-    if (!(await onPageNextValidation(node.top))) {
-      const keepScrollPosAction: IKeepComponentScrollPos = {
-        componentId: id,
-        offsetTop: getScrollPosition(),
-      };
+    if (validateOnNext && (await onPageValidation(node.top, validateOnNext))) {
+      // Block navigation if validation fails
+      return;
+    }
 
-      const goToView =
-        returnToView || next || (orderedLayoutKeys && orderedLayoutKeys[orderedLayoutKeys.indexOf(currentView) + 1]);
-      if (goToView) {
-        dispatch(
-          FormLayoutActions.updateCurrentView({
-            newView: goToView,
-            keepScrollPos: keepScrollPosAction,
-          }),
-        );
-      }
+    const keepScrollPosAction: IKeepComponentScrollPos = {
+      componentId: id,
+      offsetTop: getScrollPosition(),
+    };
+
+    const goToView =
+      returnToView || next || (orderedLayoutKeys && orderedLayoutKeys[orderedLayoutKeys.indexOf(currentView) + 1]);
+    if (goToView) {
+      dispatch(
+        FormLayoutActions.updateCurrentView({
+          newView: goToView,
+          keepScrollPos: keepScrollPosAction,
+        }),
+      );
     }
   };
 
