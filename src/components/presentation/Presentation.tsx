@@ -12,6 +12,7 @@ import { NavBar } from 'src/components/presentation/NavBar';
 import classes from 'src/components/presentation/Presentation.module.css';
 import { Progress } from 'src/components/presentation/Progress';
 import { Footer } from 'src/features/footer/Footer';
+import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
@@ -30,7 +31,7 @@ export const PresentationComponent = ({ header, type, children, renderNavBar = t
   const party = useCurrentParty();
   const instance = useLaxInstanceData();
   const userParty = useAppSelector((state) => state.profile.profile?.party);
-  const { expandedWidth } = useAppSelector((state) => state.formLayout.uiConfig);
+  const { expandedWidth } = useUiConfigContext();
 
   const realHeader = header || (type === ProcessTaskType.Archived ? <Lang id={'receipt.receipt'} /> : undefined);
 
@@ -72,8 +73,9 @@ export const PresentationComponent = ({ header, type, children, renderNavBar = t
 };
 
 function ProgressBar({ type }: { type: ProcessTaskType | PresentationType }) {
-  const showProgressSettings = useAppSelector((state) => state.formLayout.uiConfig.showProgress);
-  const enabled = type !== ProcessTaskType.Archived && showProgressSettings;
+  const { showProgress } = useUiConfigContext();
+
+  const enabled = type !== ProcessTaskType.Archived && showProgress;
 
   if (!enabled) {
     return null;

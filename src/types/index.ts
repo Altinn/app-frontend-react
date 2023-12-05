@@ -90,11 +90,6 @@ export interface IUiConfig {
   excludeComponentFromPdf: string[] | null;
   pdfLayoutName?: string;
   pageTriggers?: Triggers[];
-  hideCloseButton?: boolean;
-  showLanguageSelector?: boolean;
-  showProgress?: boolean;
-  showExpandWidthButton?: boolean;
-  expandedWidth?: boolean;
   keepScrollPos?: IComponentScrollPos;
 }
 

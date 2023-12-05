@@ -37,7 +37,6 @@ export const initialState: ILayoutState = {
     },
     pageTriggers: [],
     keepScrollPos: undefined,
-    expandedWidth: false,
     excludePageFromPdf: null,
     excludeComponentFromPdf: null,
     pdfLayoutName: undefined,
@@ -94,8 +93,6 @@ export const formLayoutSlice = () => {
                 state.uiConfig.pageOrderConfig.order = order;
               }
             }
-            state.uiConfig.showExpandWidthButton = settings?.pages.showExpandWidthButton;
-            state.uiConfig.expandedWidth = settings?.pages.showExpandWidthButton ? state.uiConfig.expandedWidth : false;
 
             state.uiConfig.pdfLayoutName = settings?.pages.pdfLayoutName;
             state.uiConfig.excludeComponentFromPdf = settings?.components?.excludeFromPdf ?? [];
@@ -187,11 +184,6 @@ export const formLayoutSlice = () => {
             state.layouts = { ...state.layouts, ...action.payload };
           },
         }),
-        toggleExpandedWidth: mkAction<void>({
-          reducer: (state) => {
-            state.uiConfig.expandedWidth = !state.uiConfig.expandedWidth;
-          },
-        }),
       },
     };
   });
@@ -207,17 +199,8 @@ const updateCommonPageSettings = (
     'hideCloseButton' | 'showLanguageSelector' | 'showProgress' | 'triggers' | 'autoSaveBehavior'
   >,
 ) => {
-  const {
-    hideCloseButton = state.uiConfig.hideCloseButton,
-    showLanguageSelector = state.uiConfig.showLanguageSelector,
-    autoSaveBehavior = state.uiConfig.autoSaveBehavior,
-    showProgress = state.uiConfig.showProgress,
-    triggers = state.uiConfig.pageTriggers,
-  } = page;
+  const { autoSaveBehavior = state.uiConfig.autoSaveBehavior, triggers = state.uiConfig.pageTriggers } = page;
 
-  state.uiConfig.hideCloseButton = hideCloseButton;
-  state.uiConfig.showLanguageSelector = showLanguageSelector;
-  state.uiConfig.showProgress = showProgress;
   state.uiConfig.pageTriggers = triggers;
   state.uiConfig.autoSaveBehavior = autoSaveBehavior;
 };
