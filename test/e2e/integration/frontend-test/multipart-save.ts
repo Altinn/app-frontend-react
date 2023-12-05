@@ -4,7 +4,6 @@ import { v4 as uuid } from 'uuid';
 
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
-import type { IBackendFeaturesState } from 'src/features/applicationMetadata';
 import type { IFormData } from 'src/features/formData';
 
 const appFrontend = new AppFrontend();
@@ -26,13 +25,6 @@ describe('Multipart save', () => {
    * functionality works on the frontend.
    */
   function simulateMultipartSave() {
-    cy.intercept('GET', '**/applicationmetadata', (req) => {
-      req.on('response', (res) => {
-        res.body.features = {
-          multiPartSave: true,
-        } as IBackendFeaturesState;
-      });
-    });
     cy.intercept('PUT', '**/instances/**/data/*', (req) => {
       const contentType = req.headers['content-type']?.toString();
       if (contentType.startsWith('multipart/form-data')) {
