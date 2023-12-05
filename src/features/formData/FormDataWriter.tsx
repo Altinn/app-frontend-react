@@ -4,6 +4,7 @@ import type { PropsWithChildren } from 'react';
 
 import { useMutation } from '@tanstack/react-query';
 import dot from 'dot-object';
+import deepEqual from 'fast-deep-equal';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { createContext } from 'src/core/contexts/context';
@@ -11,6 +12,7 @@ import { diffModels } from 'src/features/formData/diffModels';
 import { FormDataReadOnlyProvider } from 'src/features/formData/FormDataReadOnly';
 import { useFormDataStateMachine } from 'src/features/formData/StateMachine';
 import { useMemoDeepEqual } from 'src/hooks/useMemoDeepEqual';
+import type { IFormData } from 'src/features/formData/index';
 import type { FDAction, FormDataStorage } from 'src/features/formData/StateMachine';
 import type { IFormDataFunctionality, IFormDataMethods } from 'src/features/formData/types';
 
@@ -19,6 +21,10 @@ interface FormDataStorageExtended extends FormDataStorage {
   hasUnsavedChanges: boolean;
   hasUnsavedDebouncedChanges: boolean;
   methods: IFormDataMethods;
+
+  currentDataFlat: IFormData;
+  debouncedCurrentDataFlat: IFormData;
+  lastSavedDataFlat: IFormData;
 }
 
 interface MutationArg {
@@ -88,38 +94,41 @@ export function FormDataWriteProvider({ uuid, initialData, children }: FormDataW
   const [state, dispatch] = useFormDataStateMachine(uuid, initialData);
   const { mutate, isLoading: isSaving } = useFormDataSaveMutation(uuid, dispatch);
 
-  const hasUnsavedChanges = state.currentData !== state.lastSavedData;
-  const hasUnsavedDebouncedChanges = state.debouncedCurrentData !== state.lastSavedData;
+  const hasUnsavedChanges =
+    state.currentData !== state.lastSavedData && !deepEqual(state.currentData, state.lastSavedData);
+  const hasUnsavedDebouncedChanges =
+    state.debouncedCurrentData !== state.lastSavedData && !deepEqual(state.debouncedCurrentData, state.lastSavedData);
 
   useEffect(() => {
     if (hasUnsavedDebouncedChanges && !isSaving) {
+      const debouncedCurrentDataFlat = dot.dot(state.debouncedCurrentData);
+      const lastSavedDataFlat = dot.dot(state.lastSavedData);
+      const diff = diffModels(debouncedCurrentDataFlat, lastSavedDataFlat);
+
+      if (!Object.keys(diff).length) {
+        return;
+      }
+
       mutate({
         newData: state.debouncedCurrentData,
-        diff: diffModels(state.debouncedCurrentDataFlat, state.lastSavedDataFlat),
+        diff,
       });
     }
-  }, [
-    mutate,
-    hasUnsavedDebouncedChanges,
-    state.debouncedCurrentData,
-    state.debouncedCurrentDataFlat,
-    state.lastSavedDataFlat,
-    isSaving,
-  ]);
+  }, [mutate, hasUnsavedDebouncedChanges, state.debouncedCurrentData, isSaving, state.lastSavedData]);
 
   return (
     <Provider
       value={{
         hasUnsavedChanges,
         hasUnsavedDebouncedChanges,
-        currentData: state.currentData,
         isSaving,
-        currentDataFlat: state.currentDataFlat,
+        currentData: state.currentData,
+        currentDataFlat: dot.dot(state.currentData),
         debouncedCurrentData: state.debouncedCurrentData,
         currentUuid: uuid,
-        debouncedCurrentDataFlat: state.debouncedCurrentDataFlat,
+        debouncedCurrentDataFlat: dot.dot(state.debouncedCurrentData),
         lastSavedData: state.lastSavedData,
-        lastSavedDataFlat: state.lastSavedDataFlat,
+        lastSavedDataFlat: dot.dot(state.lastSavedData),
         methods: {
           setLeafValue: (path, newValue) => dispatch({ type: 'setLeafValue', path, newValue }),
           appendToListUnique: (path, newValue) => dispatch({ type: 'appendToListUnique', path, newValue }),
@@ -128,7 +137,7 @@ export function FormDataWriteProvider({ uuid, initialData, children }: FormDataW
         },
       }}
     >
-      <FormDataReadOnlyProvider value={state.debouncedCurrentDataFlat}>{children}</FormDataReadOnlyProvider>
+      <FormDataReadOnlyProvider value={dot.dot(state.debouncedCurrentData)}>{children}</FormDataReadOnlyProvider>
     </Provider>
   );
 }
