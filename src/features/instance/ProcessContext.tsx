@@ -19,7 +19,7 @@ import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 interface IProcessContext {
   data: IProcess;
-  setData: (data: IProcess | ((prevData: IProcess | undefined) => IProcess | undefined)) => void;
+  setData: (data: IProcess | undefined) => void;
   reFetch: () => Promise<void>;
 }
 
