@@ -6,7 +6,7 @@ import { Grid } from '@material-ui/core';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import classes from 'src/components/message/ErrorReport.module.css';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { useLanguage } from 'src/features/language/useLanguage';
+import { Lang } from 'src/features/language/Lang';
 import { useTaskErrors } from 'src/features/validation/validationProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -32,7 +32,6 @@ export const ErrorReport = ({ nodes }: IErrorReportProps) => {
   const allNodes = useExprContext();
   const { formErrors, taskErrors } = useTaskErrors();
   const hasErrors = Boolean(formErrors.length) || Boolean(taskErrors.length);
-  const { lang } = useLanguage();
 
   if (!hasErrors) {
     return null;
@@ -123,7 +122,7 @@ export const ErrorReport = ({ nodes }: IErrorReportProps) => {
     <div data-testid='ErrorReport'>
       <FullWidthWrapper isOnBottom={true}>
         <Panel
-          title={lang('form_filler.error_report_header')}
+          title={<Lang id={'form_filler.error_report_header'} />}
           showIcon={false}
           variant={PanelVariant.Error}
         >

@@ -66,9 +66,11 @@ export class Datepicker extends DatepickerDef implements ValidateComponent {
     const validations: ComponentValidation[] = [];
 
     const date = moment(data, moment.ISO_8601);
+    const lang = langTools.langAsNonProcessedString;
 
     if (!date.isValid()) {
-      const message = langTools.langAsString('date_picker.invalid_date_message', [format]);
+      const message = lang('date_picker.invalid_date_message', [format]);
+
       validations.push({
         message,
         severity: 'errors',
@@ -79,7 +81,8 @@ export class Datepicker extends DatepickerDef implements ValidateComponent {
     }
 
     if (date.isBefore(minDate)) {
-      const message = langTools.langAsString('date_picker.min_date_exeeded');
+      const message = lang('date_picker.min_date_exeeded');
+
       validations.push({
         message,
         severity: 'errors',
@@ -88,7 +91,8 @@ export class Datepicker extends DatepickerDef implements ValidateComponent {
         category: ValidationMask.Component,
       });
     } else if (date.isAfter(maxDate)) {
-      const message = langTools.langAsString('date_picker.max_date_exeeded');
+      const message = lang('date_picker.max_date_exeeded');
+
       validations.push({
         message,
         severity: 'errors',

@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { LegacyTextField } from '@digdir/design-system-react';
 
 import { Label } from 'src/components/form/Label';
-import { useLanguage } from 'src/features/language/useLanguage';
+import { Lang } from 'src/features/language/Lang';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import {
@@ -21,7 +21,6 @@ type AddressKeys = keyof IDataModelBindingsForAddressInternal;
 
 export function AddressComponent({ formData, handleDataChange, node }: IAddressComponentProps) {
   const { id, required, readOnly, labelSettings, simplified, saveWhileTyping } = node.item;
-  const { lang } = useLanguage();
 
   const bindingValidations = useBindingValidationsForNode(node);
   const componentValidations = useComponentValidationsForNode(node);
@@ -101,7 +100,7 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
     >
       <div>
         <Label
-          labelText={lang('address_component.address')}
+          label={<Lang id={'address_component.address'} />}
           helpText={undefined}
           id={`address_address_${id}`}
           required={required}
@@ -125,7 +124,7 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
       {!simplified && (
         <div>
           <Label
-            labelText={lang('address_component.care_of')}
+            label={<Lang id={'address_component.care_of'} />}
             helpText={undefined}
             id={`address_care_of_${id}`}
             required={required}
@@ -149,7 +148,7 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
         <div className={classes.addressComponentPostplaceZipCode}>
           <div className={classes.addressComponentZipCode}>
             <Label
-              labelText={lang('address_component.zip_code')}
+              label={<Lang id={'address_component.zip_code'} />}
               helpText={undefined}
               id={`address_zip_code_${id}`}
               required={required}
@@ -174,7 +173,7 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
 
           <div className={classes.addressComponentPostplace}>
             <Label
-              labelText={lang('address_component.post_place')}
+              label={<Lang id={'address_component.post_place'} />}
               helpText={undefined}
               id={`address_post_place_${id}`}
               required={required}
@@ -198,14 +197,16 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
       {!simplified && (
         <div>
           <Label
-            labelText={lang('address_component.house_number')}
+            label={<Lang id={'address_component.house_number'} />}
             helpText={undefined}
             id={`address_house_number_${id}`}
             required={required}
             readOnly={readOnly}
             labelSettings={labelSettings}
           />
-          <p>{lang('address_component.house_number_helper')}</p>
+          <p>
+            <Lang id={'address_component.house_number_helper'} />
+          </p>
           <div className={classes.addressComponentSmallInputs}>
             <LegacyTextField
               id={`address_house_number_${id}`}

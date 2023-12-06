@@ -46,7 +46,7 @@ export class List extends ListDef {
 
     const validations: ComponentValidation[] = [];
 
-    const { langAsString } = langTools;
+    const { langAsNonProcessedString } = langTools;
     const textResourceBindings = node.item.textResourceBindings;
 
     let listHasErrors = false;
@@ -60,8 +60,8 @@ export class List extends ListDef {
     if (listHasErrors) {
       const fieldName = getFieldName(node.item.textResourceBindings, langTools, undefined);
       const message = textResourceBindings?.requiredValidation
-        ? langAsString(textResourceBindings?.requiredValidation, [fieldName])
-        : langAsString('form_filler.error_required', [fieldName]);
+        ? langAsNonProcessedString(textResourceBindings?.requiredValidation, [fieldName])
+        : langAsNonProcessedString('form_filler.error_required', [fieldName]);
       validations.push({
         message,
         severity: 'errors',

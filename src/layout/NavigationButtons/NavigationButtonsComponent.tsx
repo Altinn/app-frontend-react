@@ -4,7 +4,7 @@ import { Button } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
 
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { useLanguage } from 'src/features/language/useLanguage';
+import { Lang } from 'src/features/language/Lang';
 import { useOnPageValidation } from 'src/features/validation/validationProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -18,7 +18,6 @@ export type INavigationButtons = PropsFromGenericComponent<'NavigationButtons'>;
 export function NavigationButtonsComponent({ node }: INavigationButtons) {
   const { id, showBackButton, textResourceBindings, validateOnNext, validateOnPrevious } = node.item;
   const dispatch = useAppDispatch();
-  const { lang } = useLanguage();
 
   const refPrev = React.useRef<HTMLButtonElement>(null);
   const refNext = React.useRef<HTMLButtonElement>(null);
@@ -112,7 +111,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
             onClick={onClickPrevious}
             disabled={disableBack}
           >
-            {lang(backTextKey)}
+            <Lang id={backTextKey} />
           </Button>
         </Grid>
       )}
@@ -124,7 +123,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
             onClick={OnClickNext}
             disabled={disableNext}
           >
-            {lang(nextTextKey)}
+            <Lang id={nextTextKey} />
           </Button>
         </Grid>
       )}

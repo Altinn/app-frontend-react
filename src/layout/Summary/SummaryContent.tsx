@@ -2,6 +2,7 @@ import React from 'react';
 
 import cn from 'classnames';
 
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { useUnifiedValidationsForNode } from 'src/features/validation/validationProvider';
@@ -9,6 +10,7 @@ import { EditButton } from 'src/layout/Summary/EditButton';
 import classes from 'src/layout/Summary/SummaryContent.module.css';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+
 export interface SummaryContentProps {
   onChangeClick: () => void;
   changeText: string | null;
@@ -26,7 +28,7 @@ export function SummaryContent({
   overrides,
   RenderSummary,
 }: SummaryContentProps) {
-  const { lang, langAsString } = useLanguage(targetNode);
+  const { langAsString } = useLanguage(targetNode);
   const display = overrides?.display || summaryNode.item.display;
   const readOnlyComponent = 'readOnly' in targetNode.item && targetNode.item.readOnly === true;
   const validations = useUnifiedValidationsForNode(targetNode);
@@ -40,8 +42,6 @@ export function SummaryContent({
     textBindings && 'summaryAccessibleTitle' in textBindings ? textBindings.summaryAccessibleTitle : undefined;
   const summaryTitleTrb = textBindings && 'summaryTitle' in textBindings ? textBindings.summaryTitle : undefined;
   const titleTrb = textBindings && 'title' in textBindings ? textBindings.title : undefined;
-  const title = lang(summaryTitleTrb ?? titleTrb);
-  const ariaLabel = langAsString(summaryAccessibleTitleTrb ?? summaryTitleTrb ?? titleTrb);
 
   return (
     <div className={classes.container}>
@@ -52,7 +52,10 @@ export function SummaryContent({
             'data-testid': 'has-validation-message',
           })}
         >
-          {title}
+          <Lang
+            id={summaryTitleTrb ?? titleTrb}
+            node={targetNode}
+          />
         </span>
       )}
       <span className={classes.summary}>
@@ -69,7 +72,7 @@ export function SummaryContent({
           <EditButton
             onClick={onChangeClick}
             editText={changeText}
-            label={ariaLabel}
+            label={langAsString(summaryAccessibleTitleTrb ?? summaryTitleTrb ?? titleTrb)}
           />
         </span>
       )}

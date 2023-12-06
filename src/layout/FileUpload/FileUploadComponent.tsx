@@ -7,6 +7,7 @@ import {
   AttachmentsMappedToFormDataProvider,
   useAttachmentsMappedToFormData,
 } from 'src/features/attachments/useAttachmentsMappedToFormData';
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
@@ -50,7 +51,7 @@ export function FileUploadComponent({
   const attachmentValidations = validations?.filter((v) => v.meta?.attachmentId);
 
   const langTools = useLanguage();
-  const { lang, langAsString } = langTools;
+  const { langAsString } = langTools;
 
   const { showAlert } = useAlertContext();
 
@@ -81,7 +82,7 @@ export function FileUploadComponent({
         className={`${classes.fileUploadButton} ${classes.blueUnderline}`}
         onClick={() => setShowFileUpload(true)}
       >
-        {lang('form_filler.file_uploader_add_attachment')}
+        <Lang id={'form_filler.file_uploader_add_attachment'} />
       </button>
     );
   };

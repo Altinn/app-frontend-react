@@ -87,7 +87,7 @@ export class Group extends GroupDef implements ValidateComponent {
 
     // if not valid, return appropriate error message
     if (!repeatingGroupMinCountValid) {
-      const message = langTools.langAsString('validation_errors.minItems', [repeatingGroupMinCount]);
+      const message = langTools.langAsNonProcessedString('validation_errors.minItems', [repeatingGroupMinCount]);
 
       validations.push({
         message,
