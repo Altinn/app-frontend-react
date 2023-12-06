@@ -304,6 +304,7 @@ export abstract class FormComponent<Type extends CompTypes>
 {
   readonly type = CompCategory.Form;
 
+  // TODO(Validation): Merge all frontend validations into one group?
   public runValidations(
     node: LayoutNode<Type>,
     ctx: IValidationContext,
