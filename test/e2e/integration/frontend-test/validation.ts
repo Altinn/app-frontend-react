@@ -700,4 +700,31 @@ describe('Validation', () => {
     // that was never even visible.
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 2);
   });
+
+  /**
+   * TODO(1508):
+   * This test is skipped because validation is not triggered by the new navigation refactor.
+   * This will be fixed in combination with #1506.
+   */
+  it.skip('Navigating to one task and navigating back should not produce error messages for hidden pages', () => {
+    cy.goto('group');
+    cy.gotoNavPage('summary');
+    cy.get(appFrontend.sendinButton).click();
+    cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 2);
+
+    cy.url().then((url) => {
+      cy.visit(url.replace('Task_3', 'Task_5'));
+    });
+
+    cy.url().should('satisfy', (url) => url.endsWith('/Task_5/summary'));
+
+    cy.url().then((url) => {
+      cy.visit(url.replace('Task_5', 'Task_3'));
+    });
+
+    cy.url().should('satisfy', (url) => url.endsWith('/Task_3/summary'));
+
+    cy.get(appFrontend.sendinButton).click();
+    cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 2);
+  });
 });
