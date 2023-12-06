@@ -9,8 +9,6 @@ import { FormProvider } from 'src/features/form/FormContext';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { useCurrentParty, useCurrentPartyIsValid } from 'src/features/party/PartiesProvider';
-import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
-import { Feedback } from 'src/features/processEnd/feedback/Feedback';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
 import { useAllowAnonymousIs } from 'src/features/stateless/getAllowAnonymous';
 import { ValidationActions } from 'src/features/validation/validationSlice';
@@ -64,14 +62,6 @@ export function Entrypoint() {
       <FormProvider>
         <PresentationComponent type={PresentationType.Stateless}>
           <Routes>
-            <Route
-              path='confirmation'
-              element={<Confirm />}
-            />
-            <Route
-              path='feedback'
-              element={<Feedback />}
-            />
             <Route
               path='receipt'
               element={<ReceiptContainer />}
