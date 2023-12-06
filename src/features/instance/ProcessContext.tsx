@@ -133,9 +133,14 @@ export function useRealTaskType() {
   return useRealTaskTypeById(taskId || undefined);
 }
 
+/**
+ * This hook returns the taskType of a given taskId. If the
+ * taskId cannot be found in processTasks it will return the
+ * taskType of the currentTask if the currentTask matches
+ * the taskId provided.
+ */
 export function useTaskType(taskId: string | undefined) {
   const processData = useLaxProcessData();
-  // TODO(1508): make sure processTasks are available here for feedback steps
   const task =
     processData?.processTasks?.find((t) => t.elementId === taskId) ?? processData?.currentTask?.elementId === taskId
       ? processData?.currentTask
