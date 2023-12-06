@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
+import deepEqual from 'fast-deep-equal';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { delayedContext } from 'src/core/contexts/delayedContext';
@@ -20,19 +21,36 @@ import type { ILayoutCollection, ILayouts } from 'src/layout/layout';
 import type { IHiddenLayoutsExternal } from 'src/types';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
+type LayoutContextValue = {
+  layouts: ILayouts;
+  hiddenLayoutsExpressions: IHiddenLayoutsExternal;
+};
+
 function useLayoutQuery() {
   const { fetchLayouts } = useAppQueries();
   const hasInstance = useHasInstance();
   const process = useLaxProcessData();
   const currentLayoutSetId = useLayoutSetId();
   const dispatch = useAppDispatch();
+  const previousData = useRef<LayoutContextValue | null>(null);
 
   const query = useQuery({
     // Waiting to fetch layouts until we have an instance, if we're supposed to have one
     // We don't want to fetch form layouts for a process step which we are currently not on
     enabled: hasInstance ? !!process : true,
     queryKey: ['formLayouts', currentLayoutSetId],
-    queryFn: async () => processLayouts(await fetchLayouts(currentLayoutSetId!)),
+    queryFn: async () => {
+      const result = processLayouts(await fetchLayouts(currentLayoutSetId!));
+      dispatch(
+        FormLayoutActions.fetchFulfilled({
+          layouts: result.layouts,
+          hiddenLayoutsExpressions: result.hiddenLayoutsExpressions,
+          layoutSetId: currentLayoutSetId || null,
+        }),
+      );
+      dispatch(FormLayoutActions.initRepeatingGroups({}));
+      return result;
+    },
     onError: (error: HttpClientError) => {
       window.logError('Fetching form layout failed:\n', error);
     },
@@ -42,20 +60,26 @@ function useLayoutQuery() {
     if (!query.data) {
       return;
     }
+    if (previousData.current === null) {
+      previousData.current = query.data;
+      return;
+    }
 
-    dispatch(
-      FormLayoutActions.fetchFulfilled({
-        layouts: query.data.layouts,
-        hiddenLayoutsExpressions: query.data.hiddenLayoutsExpressions,
-        layoutSetId: currentLayoutSetId || null,
-      }),
-    );
-    dispatch(FormLayoutActions.initRepeatingGroups({}));
+    if (!deepEqual(previousData.current, query.data)) {
+      dispatch(
+        FormLayoutActions.fetchFulfilled({
+          layouts: query.data.layouts,
+          hiddenLayoutsExpressions: query.data.hiddenLayoutsExpressions,
+          layoutSetId: currentLayoutSetId || null,
+        }),
+      );
+      dispatch(FormLayoutActions.initRepeatingGroups({}));
+    }
+    previousData.current = query.data;
   }, [query.data, currentLayoutSetId, dispatch]);
 
   return query;
 }
-
 const { Provider, useCtx } = delayedContext(() =>
   createQueryContext({
     name: 'LayoutsContext',
@@ -63,6 +87,7 @@ const { Provider, useCtx } = delayedContext(() =>
     query: useLayoutQuery,
   }),
 );
+
 export function useLayoutSetId() {
   const layoutSets = useLayoutSets();
   const currentProcessLayoutSetId = useCurrentLayoutSetId();
@@ -72,16 +97,16 @@ export function useLayoutSetId() {
 
   return layoutSetId ?? currentProcessLayoutSetId;
 }
-
 export const LayoutsProvider = Provider;
 export const useLayouts = () => useCtx().layouts;
+
 export const useHiddenLayoutsExpressions = () => useCtx().hiddenLayoutsExpressions;
 
 function isSingleLayout(layouts: ILayoutCollection | ILayoutFileExternal): layouts is ILayoutFileExternal {
   return 'data' in layouts && 'layout' in layouts.data && Array.isArray(layouts.data.layout);
 }
 
-function processLayouts(input: ILayoutCollection | ILayoutFileExternal) {
+function processLayouts(input: ILayoutCollection | ILayoutFileExternal): LayoutContextValue {
   const layouts: ILayouts = {};
   const hiddenLayoutsExpressions: IHiddenLayoutsExternal = {};
   if (isSingleLayout(input)) {
