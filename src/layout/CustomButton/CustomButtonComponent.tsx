@@ -5,10 +5,12 @@ import { useMutation } from '@tanstack/react-query';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useNavigationParams } from 'src/hooks/useNavigatePage';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { IUserAction } from 'src/types/shared';
 
 type Props = PropsFromGenericComponent<'CustomButton'>;
 
@@ -81,18 +83,30 @@ function useActionMutation() {
   });
 }
 
+export function useActionAuthorization() {
+  const userActions = useLaxProcessData()?.currentTask?.userActions;
+  return {
+    isAuthorized: (action: IUserAction['id']) => userActions?.find((a) => a.id === action)?.authorized ?? false,
+  };
+}
+
 export const CustomButtonComponent = ({ node }: Props) => {
   const { textResourceBindings, action, id } = node.item;
+  const { isAuthorized } = useActionAuthorization();
 
   const mutation = useActionMutation();
+  const disabled = !isAuthorized(action) || mutation.isLoading;
 
   const onClick = async () => {
+    if (disabled) {
+      return;
+    }
     mutation.mutate({ action, buttonId: id });
   };
 
   return (
     <Button
-      disabled={mutation.isLoading}
+      disabled={disabled}
       onClick={onClick}
       aria-busy={mutation.isLoading}
     >
