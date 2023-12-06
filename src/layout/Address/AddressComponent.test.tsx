@@ -233,7 +233,7 @@ describe('AddressComponent', () => {
             group: FrontendValidationSource.EmptyField,
             componentId: 'address',
             message: errorMessage,
-            severity: 'errors',
+            severity: 'error',
             bindingKey: 'address',
             pageKey: 'page1',
             category: ValidationMask.Required,

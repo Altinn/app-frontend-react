@@ -51,7 +51,7 @@ export class FileUpload extends FileUploadDef implements ValidateComponent {
 
       validations.push({
         message,
-        severity: 'errors',
+        severity: 'error',
         group: FrontendValidationSource.Component,
         componentId: node.item.id,
         category: ValidationMask.Component,

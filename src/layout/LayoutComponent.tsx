@@ -401,7 +401,7 @@ export abstract class FormComponent<Type extends CompTypes>
           group: FrontendValidationSource.EmptyField,
           bindingKey,
           message,
-          severity: 'errors',
+          severity: 'error',
           category: ValidationMask.Required,
         });
       }
@@ -419,7 +419,7 @@ export abstract class FormComponent<Type extends CompTypes>
               field,
               group: FrontendValidationSource.Schema,
               message: error.message,
-              severity: 'errors',
+              severity: 'error',
               category: ValidationMask.Schema,
             });
           }

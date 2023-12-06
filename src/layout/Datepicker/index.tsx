@@ -73,7 +73,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent {
 
       validations.push({
         message,
-        severity: 'errors',
+        severity: 'error',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,
         category: ValidationMask.Component,
@@ -85,7 +85,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent {
 
       validations.push({
         message,
-        severity: 'errors',
+        severity: 'error',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,
         category: ValidationMask.Component,
@@ -95,7 +95,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent {
 
       validations.push({
         message,
-        severity: 'errors',
+        severity: 'error',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,
         category: ValidationMask.Component,
@@ -118,7 +118,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent {
       if (field === error.bindingField && error.keyword !== 'format') {
         validations.push({
           message: error.message,
-          severity: 'errors',
+          severity: 'error',
           field,
           group: FrontendValidationSource.Schema,
           category: ValidationMask.Schema,

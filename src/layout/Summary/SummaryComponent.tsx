@@ -42,7 +42,7 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
   const targetView = targetNode?.top.top.myKey;
 
   const validations = useUnifiedValidationsForNode(targetNode);
-  const errors = validationsOfSeverity(validations, 'errors');
+  const errors = validationsOfSeverity(validations, 'error');
 
   const onChangeClick = () => {
     if (!targetView) {

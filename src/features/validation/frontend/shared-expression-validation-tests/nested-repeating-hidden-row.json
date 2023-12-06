@@ -3,19 +3,19 @@
   "expects": [
     {
       "message": "zero is not allowed",
-      "severity": "errors",
+      "severity": "error",
       "field": "form.people[1].number",
       "componentId": "number-input-1"
     },
     {
       "message": "none is not allowed",
-      "severity": "errors",
+      "severity": "error",
       "field": "form.people[1].names[2].name",
       "componentId": "name-input-1-2"
     },
     {
       "message": "none is not allowed",
-      "severity": "errors",
+      "severity": "error",
       "field": "form.people[2].names[2].name",
       "componentId": "name-input-2-2"
     }
@@ -29,12 +29,12 @@
     "definitions": {
       "zero-is-not-allowed": {
         "message": "zero is not allowed",
-        "severity": "errors",
+        "severity": "error",
         "condition": ["equals", ["dataModel", ["argv", 0]], 0]
       },
       "none-is-not-allowed": {
         "message": "none is not allowed",
-        "severity": "errors",
+        "severity": "error",
         "condition": ["equals", ["dataModel", ["argv", 0]], "none"]
       }
     }

@@ -175,7 +175,7 @@ export function useOnGroupCloseValidation() {
     const hasErrors = node
       .flat(true, rowIndex)
       .filter(shouldValidateNode)
-      .some((n) => getValidationsForNode(n, state, mask, 'errors').length > 0);
+      .some((n) => getValidationsForNode(n, state, mask, 'error').length > 0);
 
     setNodeVisibility([node], hasErrors ? mask : 0, rowIndex);
     return hasErrors;
@@ -215,7 +215,7 @@ export function useOnPageValidation() {
       const hasErrors = currentPage
         .flat(true)
         .filter(shouldValidateNode)
-        .some((n) => getValidationsForNode(n, state, mask, 'errors').length > 0);
+        .some((n) => getValidationsForNode(n, state, mask, 'error').length > 0);
 
       setNodeVisibility([currentPage], hasErrors ? mask : 0);
       return hasErrors;
@@ -229,7 +229,7 @@ export function useOnPageValidation() {
       const hasErrors = layoutPagesToCheck
         .flatMap((page) => page.flat(true))
         .filter(shouldValidateNode)
-        .some((n) => getValidationsForNode(n, state, mask, 'errors').length > 0);
+        .some((n) => getValidationsForNode(n, state, mask, 'error').length > 0);
 
       setNodeVisibility(layoutPagesToCheck, hasErrors ? mask : 0);
       return hasErrors;
@@ -237,7 +237,7 @@ export function useOnPageValidation() {
       const hasErrors = currentPage.top.collection
         .allNodes()
         .filter(shouldValidateNode)
-        .some((n) => getValidationsForNode(n, state, mask, 'errors').length > 0);
+        .some((n) => getValidationsForNode(n, state, mask, 'error').length > 0);
 
       setRootVisibility(hasErrors ? mask : 0);
       return hasErrors;
@@ -263,7 +263,7 @@ export function useOnFormSubmitValidation() {
     const hasFrontendErrors = layoutPages
       .allNodes()
       .filter(shouldValidateNode)
-      .some((n) => getValidationsForNode(n, state, ValidationMask.All, 'errors').length > 0);
+      .some((n) => getValidationsForNode(n, state, ValidationMask.All, 'error').length > 0);
 
     if (hasFrontendErrors) {
       setRootVisibility(ValidationMask.All);
@@ -275,7 +275,7 @@ export function useOnFormSubmitValidation() {
       layoutPages
         .allNodes()
         .filter(shouldValidateNode)
-        .some((n) => getValidationsForNode(n, state, ValidationMask.All_Including_Backend, 'errors').length > 0);
+        .some((n) => getValidationsForNode(n, state, ValidationMask.All_Including_Backend, 'error').length > 0);
 
     if (hasAnyErrors) {
       setRootVisibility(ValidationMask.All_Including_Backend);
@@ -394,8 +394,8 @@ export function useComponentValidationsForNode(node: LayoutNode): NodeValidation
  * This includes unmapped/task errors as well
  */
 export function useTaskErrors(): {
-  formErrors: NodeValidation<'errors'>[];
-  taskErrors: BaseValidation<'errors'>[];
+  formErrors: NodeValidation<'error'>[];
+  taskErrors: BaseValidation<'error'>[];
 } {
   const pages = useExprContext();
   const state = useCtx().state;
@@ -405,13 +405,13 @@ export function useTaskErrors(): {
     if (!pages) {
       return { formErrors: [], taskErrors: [] };
     }
-    const formErrors: NodeValidation<'errors'>[] = [];
-    const taskErrors: BaseValidation<'errors'>[] = [];
+    const formErrors: NodeValidation<'error'>[] = [];
+    const taskErrors: BaseValidation<'error'>[] = [];
 
     for (const node of pages.allNodes().filter(shouldValidateNode)) {
-      formErrors.push(...getValidationsForNode(node, state, getResolvedVisibilityForNode(node, visibility), 'errors'));
+      formErrors.push(...getValidationsForNode(node, state, getResolvedVisibilityForNode(node, visibility), 'error'));
     }
-    for (const validation of validationsOfSeverity(state.task, 'errors')) {
+    for (const validation of validationsOfSeverity(state.task, 'error')) {
       taskErrors.push(validation);
     }
     return { formErrors, taskErrors };

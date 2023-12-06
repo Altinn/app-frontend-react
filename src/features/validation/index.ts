@@ -19,9 +19,7 @@ export enum FrontendValidationSource {
   Expression = '__expression__',
 }
 
-// TODO(Validation): Clean up this type and change it to:
-// export type ValidationSeverity = 'error' | 'warning' | 'info' | 'success';
-export type ValidationSeverity = 'errors' | 'warnings' | 'info' | 'success' | 'fixed' | 'unspecified';
+export type ValidationSeverity = 'error' | 'warning' | 'info' | 'success';
 
 export enum ValidationIssueSources {
   File = 'File',
@@ -32,11 +30,9 @@ export enum ValidationIssueSources {
 }
 
 export enum BackendValidationSeverity {
-  Unspecified = 0,
   Error = 1,
   Warning = 2,
   Informational = 3,
-  Fixed = 4,
   Success = 5,
 }
 

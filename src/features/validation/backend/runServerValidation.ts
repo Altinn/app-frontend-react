@@ -68,12 +68,10 @@ export function useBackendValidation() {
         }
 
         /**
-         * Allow fixed validation to clear the group, but there is no need to add it.
-         * This is a temporary way to almost support *FIXED* validations,
-         * the only caveat is that it will clear ALL custom validations for the field,
-         * instead of just the one.
+         * There used to be more severities, like 'fixed', since there is a risk of old backend logic still sending fixed,
+         * we will ignore it here.
          */
-        if (severity != 'fixed') {
+        if (['error', 'warning', 'info', 'success'].includes(severity)) {
           state.fields[field][group].push({ field, severity, message, group, category });
         }
       }

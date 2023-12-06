@@ -91,7 +91,7 @@ export class Group extends GroupDef implements ValidateComponent {
 
       validations.push({
         message,
-        severity: 'errors',
+        severity: 'error',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,
         category: ValidationMask.Component,

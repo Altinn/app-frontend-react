@@ -128,7 +128,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     // If maxLength is set in both schema and component, don't display the schema error message
     const errorMessageMaxLength = langAsNonProcessedString('validation_errors.maxLength', [maxLength]) as string;
     return validations.filter(
-      (validation) => !(validation.severity == 'errors' && validation.message === errorMessageMaxLength),
+      (validation) => !(validation.severity == 'error' && validation.message === errorMessageMaxLength),
     );
   };
 

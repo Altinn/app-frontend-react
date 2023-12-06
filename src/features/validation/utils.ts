@@ -73,7 +73,7 @@ export function validationsOfSeverity<I extends BaseValidation, S extends Valida
 }
 
 export function hasValidationErrors<V extends BaseValidation>(validations: V[] | undefined): boolean {
-  return validations?.some((validation: any) => validation.severity === 'errors') ?? false;
+  return validations?.some((validation: any) => validation.severity === 'error') ?? false;
 }
 
 export function buildNodeValidation<Severity extends ValidationSeverity = ValidationSeverity>(

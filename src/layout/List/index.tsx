@@ -64,7 +64,7 @@ export class List extends ListDef {
         : langAsNonProcessedString('form_filler.error_required', [fieldName]);
       validations.push({
         message,
-        severity: 'errors',
+        severity: 'error',
         componentId: node.item.id,
         group: FrontendValidationSource.EmptyField,
         category: ValidationMask.Required,

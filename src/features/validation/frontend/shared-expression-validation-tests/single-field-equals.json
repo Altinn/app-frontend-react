@@ -3,7 +3,7 @@
   "expects": [
     {
       "message": "none is not allowed",
-      "severity": "errors",
+      "severity": "error",
       "field": "form.name",
       "componentId": "name-input"
     }
@@ -17,7 +17,7 @@
     "definitions": {
       "none-is-not-allowed": {
         "message": "none is not allowed",
-        "severity": "errors",
+        "severity": "error",
         "condition": ["equals", ["dataModel", ["argv", 0]], "none"]
       }
     }

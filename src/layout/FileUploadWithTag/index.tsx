@@ -59,7 +59,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
 
           validations.push({
             message,
-            severity: 'errors',
+            severity: 'error',
             componentId: node.item.id,
             group: FrontendValidationSource.Component,
             meta: { attachmentId },
@@ -74,7 +74,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
 
       validations.push({
         message,
-        severity: 'errors',
+        severity: 'error',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,
         category: ValidationMask.Component,

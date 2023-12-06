@@ -83,7 +83,7 @@ function resolveExpressionValidation(
     }
 
     expressionValidation = {
-      severity: 'errors',
+      severity: 'error',
       showImmediately: false,
       ...reference,
     };
@@ -103,7 +103,7 @@ function resolveExpressionValidation(
     }
 
     expressionValidation = {
-      severity: 'errors',
+      severity: 'error',
       showImmediately: false,
       ...resolvedDefinition,
     } as IExpressionValidation;

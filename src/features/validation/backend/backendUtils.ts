@@ -7,12 +7,10 @@ import type { BackendValidationIssue, ValidationSeverity } from 'src/features/va
  * We need to map the severity we get from backend into the format used when storing in redux.
  */
 const severityMap: { [s in BackendValidationSeverity]: ValidationSeverity } = {
-  [BackendValidationSeverity.Error]: 'errors',
-  [BackendValidationSeverity.Warning]: 'warnings',
+  [BackendValidationSeverity.Error]: 'error',
+  [BackendValidationSeverity.Warning]: 'warning',
   [BackendValidationSeverity.Informational]: 'info',
   [BackendValidationSeverity.Success]: 'success',
-  [BackendValidationSeverity.Fixed]: 'fixed',
-  [BackendValidationSeverity.Unspecified]: 'unspecified',
 };
 
 export function getValidationIssueSeverity(issue: BackendValidationIssue): ValidationSeverity {

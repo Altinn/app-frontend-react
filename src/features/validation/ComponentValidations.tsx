@@ -13,8 +13,8 @@ export function ComponentValidations({ validations }: { validations: NodeValidat
   if (!validations || validations.length === 0) {
     return null;
   }
-  const errors = validationsOfSeverity(validations, 'errors');
-  const warnings = validationsOfSeverity(validations, 'warnings');
+  const errors = validationsOfSeverity(validations, 'error');
+  const warnings = validationsOfSeverity(validations, 'warning');
   const info = validationsOfSeverity(validations, 'info');
   const success = validationsOfSeverity(validations, 'success');
 
@@ -43,7 +43,7 @@ export function ComponentValidations({ validations }: { validations: NodeValidat
   );
 }
 
-function ErrorValidations({ validations }: { validations: NodeValidation<'errors'>[] }) {
+function ErrorValidations({ validations }: { validations: NodeValidation<'error'>[] }) {
   return (
     <div style={{ paddingTop: '0.375rem' }}>
       <ErrorMessage size='small'>
@@ -66,7 +66,7 @@ function SoftValidations({
   validations,
   variant,
 }: {
-  validations: NodeValidation<'warnings' | 'info' | 'success'>[];
+  validations: NodeValidation<'warning' | 'info' | 'success'>[];
   variant: AlertSeverity;
 }) {
   const { langAsString } = useLanguage();

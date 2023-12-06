@@ -49,7 +49,7 @@ export class Address extends AddressDef implements ValidateComponent {
     if (zipCode && (!zipCode.match(/^\d{4}$/) || zipCode === '0000')) {
       validations.push({
         message: langTools.langAsString('address_component.validation_error_zipcode'),
-        severity: 'errors',
+        severity: 'error',
         bindingKey: 'zipCode',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,
@@ -63,7 +63,7 @@ export class Address extends AddressDef implements ValidateComponent {
     if (houseNumber && !houseNumber.match(/^[a-z,A-Z]\d{4}$/)) {
       validations.push({
         message: langTools.langAsString('address_component.validation_error_house_number'),
-        severity: 'errors',
+        severity: 'error',
         bindingKey: 'houseNumber',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,
