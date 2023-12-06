@@ -166,6 +166,14 @@ export interface IPerson {
   addressCity: string;
 }
 
+type ProcessActionIds = 'read' | 'write' | 'complete';
+
+export interface IUserAction {
+  id: ProcessActionIds | string;
+  authorized: boolean;
+  type: 'ProcessAction' | 'UserAction';
+}
+
 export interface IProcess {
   started: string;
   startEvent?: string | null;
@@ -173,6 +181,7 @@ export interface IProcess {
   ended?: string | null;
   endEvent?: string | null;
   processTasks?: ITask[];
+  userActions?: IUserAction[];
 }
 
 export interface IProfile {
