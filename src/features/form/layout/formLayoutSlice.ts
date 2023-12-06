@@ -8,7 +8,6 @@ import { repGroupDeleteRowSaga } from 'src/features/form/layout/repGroups/repGro
 import { updateRepeatingGroupEditIndexSaga } from 'src/features/form/layout/repGroups/updateRepeatingGroupEditIndexSaga';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { createSagaSlice } from 'src/redux/sagaSlice';
-import type { IRepGroupAddRow, IRepGroupDelRow } from 'src/features/form/layout/formLayoutTypes';
 import type * as LayoutTypes from 'src/features/form/layout/formLayoutTypes';
 import type { ILayouts } from 'src/layout/layout';
 import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
@@ -106,11 +105,11 @@ export const formLayoutSlice = () => {
             state.uiConfig.hiddenFields = componentsToHide;
           },
         }),
-        repGroupAddRow: mkAction<IRepGroupAddRow>({
+        repGroupAddRow: mkAction<LayoutTypes.IRepGroupAddRow>({
           takeEvery: repGroupAddRowSaga,
         }),
         repGroupAddRowFulfilled: genericSetRepeatingGroups,
-        repGroupDeleteRow: mkAction<IRepGroupDelRow>({
+        repGroupDeleteRow: mkAction<LayoutTypes.IRepGroupDelRow>({
           takeEvery: repGroupDeleteRowSaga,
           reducer: (state, { payload: { groupId, index } }) => {
             state.uiConfig.repeatingGroups = state.uiConfig.repeatingGroups || {};
