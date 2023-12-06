@@ -1,14 +1,11 @@
 import React from 'react';
 
-import { Button } from '@digdir/design-system-react';
 import Grid from '@material-ui/core/Grid';
 
 import classes from 'src/components/form/Form.module.css';
 import { MessageBanner } from 'src/components/form/MessageBanner';
 import { ErrorReport } from 'src/components/message/ErrorReport';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
-import { useLaxProcessData } from 'src/features/instance/ProcessContext';
-import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -20,10 +17,9 @@ import { getFormHasErrors, missingFieldsInLayoutValidations } from 'src/utils/va
 
 export function Form() {
   const langTools = useLanguage();
-  const { currentPageId, isCurrentTask, navigateToTask } = useNavigatePage();
+  const { currentPageId } = useNavigatePage();
   const validations = useAppSelector((state) => state.formValidations.validations);
   const nodes = useExprContext();
-  const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
 
   const page = nodes?.all?.()?.[currentPageId];
   const hasErrors = useAppSelector((state) => getFormHasErrors(state.formValidations.validations));
@@ -51,31 +47,6 @@ export function Form() {
     }
     return hasErrors ? extractBottomButtons(page) : [page.children(), []];
   }, [page, hasErrors]);
-
-  if (!isCurrentTask) {
-    return (
-      <Grid
-        item={true}
-        xs={12}
-        aria-live='polite'
-        className={classes.errorReport}
-      >
-        <div>
-          <Lang id='general.part_of_form_completed' />
-        </div>
-        <div className={classes.notCurrentStep}>
-          <Button
-            variant='secondary'
-            onClick={() => {
-              navigateToTask(currentTaskId);
-            }}
-          >
-            <Lang id='general.navigate_to_current_process' />
-          </Button>
-        </div>
-      </Grid>
-    );
-  }
 
   return (
     <>

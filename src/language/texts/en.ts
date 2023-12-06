@@ -159,7 +159,8 @@ export function en() {
       value: 'Value',
       version: 'Version',
       wait_for_attachments: 'Hold on, we are processing attachments',
-      part_of_form_completed: "This part of the form is already completed. You can't change it.",
+      part_of_form_completed: "This part of the form is not currently available. You can't change it.",
+      invalid_task_id: 'This part of the form does not exist.',
       navigate_to_current_process: 'Navigate to the current process step',
     },
     group: {

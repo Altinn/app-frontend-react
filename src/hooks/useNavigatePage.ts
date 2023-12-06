@@ -42,7 +42,8 @@ export const useNavigatePage = () => {
   const dispatch = useAppDispatch();
   const isStatelessApp = useIsStatelessApp();
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
-  const lastTaskId = useLaxProcessData()?.processTasks?.slice(-1)[0]?.elementId;
+  const processTasks = useLaxProcessData()?.processTasks;
+  const lastTaskId = processTasks?.slice(-1)[0]?.elementId;
 
   const { partyId, instanceGuid, taskId, pageKey } = useNavigationParams();
   const { orderWithHidden } = useUiConfigContext();
@@ -155,11 +156,22 @@ export const useNavigatePage = () => {
   const next = order?.[nextPageIndex];
   const previous = order?.[previousPageIndex];
 
+  const isValidTaskId = useCallback(
+    (taskId?: string) => {
+      if (!taskId) {
+        return false;
+      }
+      return processTasks?.find((task) => task.elementId === taskId) !== undefined;
+    },
+    [processTasks],
+  );
+
   return {
     navigateToPage,
     navigateToTask,
     isCurrentTask,
     isValidPageId,
+    isValidTaskId,
     startUrl,
     order,
     next,

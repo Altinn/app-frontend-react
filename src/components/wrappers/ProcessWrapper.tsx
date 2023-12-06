@@ -1,6 +1,9 @@
 import React, { useEffect } from 'react';
 import { Navigate, Route, Routes, useLocation, useSearchParams } from 'react-router-dom';
+import type { ReactNode } from 'react';
 
+import { Button } from '@digdir/design-system-react';
+import Grid from '@material-ui/core/Grid';
 import cn from 'classnames';
 
 import { Form } from 'src/components/form/Form';
@@ -9,12 +12,50 @@ import classes from 'src/components/wrappers/ProcessWrapper.module.css';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { useLaxProcessData, useTaskType } from 'src/features/instance/ProcessContext';
+import { Lang } from 'src/features/language/Lang';
 import { PDFView } from 'src/features/pdf/PDFView';
 import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { Feedback } from 'src/features/processEnd/feedback/Feedback';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useNavigatePage, useNavigationParams } from 'src/hooks/useNavigatePage';
+
+interface NavigationErrorProps {
+  label: ReactNode;
+}
+
+function NavigationError({ label }: NavigationErrorProps) {
+  const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
+  const { navigateToTask } = useNavigatePage();
+  return (
+    <Grid
+      item={true}
+      xs={12}
+      aria-live='polite'
+      className={classes.errorReport}
+    >
+      <div>{label}</div>
+      <div className={classes.navigationError}>
+        <Button
+          variant='secondary'
+          onClick={() => {
+            navigateToTask(currentTaskId);
+          }}
+        >
+          <Lang id='general.navigate_to_current_process' />
+        </Button>
+      </div>
+    </Grid>
+  );
+}
+
+export function NotCurrentTaskPage() {
+  return <NavigationError label={<Lang id='general.part_of_form_completed' />} />;
+}
+
+export function InvalidTaskIdPage() {
+  return <NavigationError label={<Lang id='general.invalid_task_id' />} />;
+}
 
 export function ProcessWrapperWrapper() {
   const { taskId } = useNavigatePage();
@@ -41,7 +82,7 @@ export function ProcessWrapperWrapper() {
 }
 
 export const ProcessWrapper = () => {
-  const { isValidPageId, startUrl } = useNavigatePage();
+  const { isValidPageId, startUrl, isCurrentTask, isValidTaskId } = useNavigatePage();
   const { taskId, partyId, instanceGuid, pageKey } = useNavigationParams();
   const { scrollPosition } = usePageNavigationContext();
   const taskType = useTaskType(taskId);
@@ -83,6 +124,22 @@ export const ProcessWrapper = () => {
         />
       );
     }
+  }
+
+  if (!isValidTaskId(taskId)) {
+    return (
+      <PresentationComponent type={taskType}>
+        <InvalidTaskIdPage />
+      </PresentationComponent>
+    );
+  }
+
+  if (!isCurrentTask) {
+    return (
+      <PresentationComponent type={taskType}>
+        <NotCurrentTaskPage />
+      </PresentationComponent>
+    );
   }
 
   if (!currentPageId || !isValidPageId(currentPageId)) {

@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+
 import { useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
@@ -25,20 +27,33 @@ function useLayoutQuery() {
   const currentLayoutSetId = useLayoutSetId();
   const dispatch = useAppDispatch();
 
-  return useQuery({
+  const query = useQuery({
     // Waiting to fetch layouts until we have an instance, if we're supposed to have one
+    // We don't want to fetch form layouts for a process step which we are currently not on
     enabled: hasInstance ? !!process : true,
     queryKey: ['formLayouts', currentLayoutSetId],
-    queryFn: async () =>
-      processLayouts({
-        input: await fetchLayouts(currentLayoutSetId!),
-        dispatch,
-        layoutSetId: currentLayoutSetId,
-      }),
+    queryFn: async () => processLayouts(await fetchLayouts(currentLayoutSetId!)),
     onError: (error: HttpClientError) => {
       window.logError('Fetching form layout failed:\n', error);
     },
   });
+
+  useEffect(() => {
+    if (!query.data) {
+      return;
+    }
+
+    dispatch(
+      FormLayoutActions.fetchFulfilled({
+        layouts: query.data.layouts,
+        hiddenLayoutsExpressions: query.data.hiddenLayoutsExpressions,
+        layoutSetId: currentLayoutSetId || null,
+      }),
+    );
+    dispatch(FormLayoutActions.initRepeatingGroups({}));
+  }, [query.data, currentLayoutSetId, dispatch]);
+
+  return query;
 }
 
 const { Provider, useCtx } = delayedContext(() =>
@@ -66,13 +81,7 @@ function isSingleLayout(layouts: ILayoutCollection | ILayoutFileExternal): layou
   return 'data' in layouts && 'layout' in layouts.data && Array.isArray(layouts.data.layout);
 }
 
-interface LegacyProcessProps {
-  input: ILayoutCollection | ILayoutFileExternal;
-  dispatch: ReturnType<typeof useAppDispatch>;
-  layoutSetId?: string;
-}
-
-function processLayouts({ input, dispatch, layoutSetId }: LegacyProcessProps) {
+function processLayouts(input: ILayoutCollection | ILayoutFileExternal) {
   const layouts: ILayouts = {};
   const hiddenLayoutsExpressions: IHiddenLayoutsExternal = {};
   if (isSingleLayout(input)) {
@@ -97,15 +106,6 @@ function processLayouts({ input, dispatch, layoutSetId }: LegacyProcessProps) {
   for (const key of Object.keys(hiddenLayoutsExpressions)) {
     hiddenLayoutsExpressions[key] = preProcessItem(hiddenLayoutsExpressions[key], config, ['hidden'], key);
   }
-
-  dispatch(
-    FormLayoutActions.fetchFulfilled({
-      layouts,
-      hiddenLayoutsExpressions,
-      layoutSetId: layoutSetId || null,
-    }),
-  );
-  dispatch(FormLayoutActions.initRepeatingGroups({}));
 
   return {
     layouts,
