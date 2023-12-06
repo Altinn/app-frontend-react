@@ -8,7 +8,6 @@ import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { IFormData } from 'src/features/formData';
 import type { ComponentValidation, IValidationContext } from 'src/features/validation';
 import type { DisplayDataProps, PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -39,7 +38,6 @@ export class FileUpload extends FileUploadDef implements ValidateComponent {
   runComponentValidation(
     node: LayoutNode<'FileUpload'>,
     { attachments, langTools }: IValidationContext,
-    _overrideFormData?: IFormData,
   ): ComponentValidation[] {
     const validations: ComponentValidation[] = [];
     const lang = langTools.langAsNonProcessedString;

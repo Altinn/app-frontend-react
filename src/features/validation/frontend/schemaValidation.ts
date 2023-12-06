@@ -13,7 +13,6 @@ import {
   getSchemaPartOldGenerator,
   processInstancePath,
 } from 'src/utils/schemaUtils';
-import type { IFormData } from 'src/features/formData';
 import type { ValidLanguageKey } from 'src/features/language/useLanguage';
 import type {
   ISchemaValidationError,
@@ -179,10 +178,14 @@ export const errorMessageKeys = {
  * Validates the form data against the schema and returns a list of schema validation errors.
  * @see ISchemaValidationError
  */
-export function getSchemaValidationErrors(
-  { formData, langTools, application, process, layoutSets, schema }: IValidationContext,
-  overrideFormData?: IFormData,
-): ISchemaValidationError[] {
+export function getSchemaValidationErrors({
+  formData,
+  langTools,
+  application,
+  process,
+  layoutSets,
+  schema,
+}: IValidationContext): ISchemaValidationError[] {
   const currentDataTaskDataTypeId = getCurrentDataTypeForApplication({
     application,
     process,
@@ -194,8 +197,7 @@ export function getSchemaValidationErrors(
   }
 
   const { validator, rootElementPath } = getValidator(currentDataTaskDataTypeId, schema, dataType);
-  const formDataToValidate = { ...formData, ...overrideFormData };
-  const model = convertDataBindingToModel(formDataToValidate);
+  const model = convertDataBindingToModel(formData);
   const valid = validator.validate(`schema${rootElementPath}`, model);
 
   if (valid) {

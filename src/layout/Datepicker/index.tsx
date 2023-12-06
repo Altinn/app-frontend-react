@@ -9,7 +9,6 @@ import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { getDateConstraint, getDateFormat } from 'src/utils/dateHelpers';
 import { formatISOString } from 'src/utils/formatDate';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { IFormData } from 'src/features/formData';
 import type {
   ComponentValidation,
   FieldValidation,
@@ -49,11 +48,9 @@ export class Datepicker extends DatepickerDef implements ValidateComponent {
   runComponentValidation(
     node: LayoutNode<'Datepicker'>,
     { formData, langTools, currentLanguage }: IValidationContext,
-    overrideFormData?: IFormData,
   ): ComponentValidation[] {
-    const formDataToValidate = { ...formData, ...overrideFormData };
     const field = node.item.dataModelBindings?.simpleBinding;
-    const data = field ? formDataToValidate[field] : undefined;
+    const data = field ? formData[field] : undefined;
 
     if (!data) {
       return [];

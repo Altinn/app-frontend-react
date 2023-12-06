@@ -8,7 +8,6 @@ import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/Attach
 import { FileUploadWithTagDef } from 'src/layout/FileUploadWithTag/config.def.generated';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { IFormData } from 'src/features/formData';
 import type { ComponentValidation, IValidationContext } from 'src/features/validation';
 import type { DisplayDataProps, PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -39,7 +38,6 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
   runComponentValidation(
     node: LayoutNode<'FileUploadWithTag'>,
     { attachments, langTools }: IValidationContext,
-    _overrideFormData?: IFormData,
   ): ComponentValidation[] {
     const validations: ComponentValidation[] = [];
 

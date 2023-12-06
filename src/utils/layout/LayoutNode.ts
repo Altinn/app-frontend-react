@@ -316,8 +316,8 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
   /**
    * Runs frontend validations for this node and returns an array of IValidationObject
    */
-  runValidations(validationCtxGenerator: ValidationContextGenerator, overrideFormData?: IFormData): FormValidations {
-    return runValidationOnNodes([this as LayoutNode], validationCtxGenerator, overrideFormData);
+  runValidations(validationCtxGenerator: ValidationContextGenerator): FormValidations {
+    return runValidationOnNodes([this as LayoutNode], validationCtxGenerator);
   }
 }
 

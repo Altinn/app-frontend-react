@@ -4,7 +4,6 @@ import { asExpression } from 'src/features/expressions/validation';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { getBaseDataModelBindings } from 'src/utils/databindings';
 import type { ExprConfig, Expression } from 'src/features/expressions/types';
-import type { IFormData } from 'src/features/formData';
 import type {
   FieldValidation,
   IExpressionValidation,
@@ -159,7 +158,6 @@ export function resolveExpressionValidationConfig(config: IExpressionValidationC
 export function runExpressionValidationsOnNode(
   node: LayoutNode,
   { customValidation, langTools }: IValidationContext,
-  overrideFormData?: IFormData,
 ): FieldValidation[] {
   const resolvedDataModelBindings = node.item.dataModelBindings;
   const baseDataModelBindings = getBaseDataModelBindings(resolvedDataModelBindings);
@@ -169,13 +167,6 @@ export function runExpressionValidationsOnNode(
   }
 
   const dataSources = node.getDataSources();
-  const newDataSources = {
-    ...dataSources,
-    formData: {
-      ...dataSources.formData,
-      ...overrideFormData,
-    },
-  };
   const validations: FieldValidation[] = [];
 
   for (const [bindingKey, field] of Object.entries(baseDataModelBindings)) {
@@ -186,7 +177,7 @@ export function runExpressionValidationsOnNode(
     for (const validationDef of validationDefs) {
       const resolvedField = resolvedDataModelBindings[bindingKey];
 
-      const isInvalid = evalExpr(validationDef.condition as Expression, node, newDataSources, {
+      const isInvalid = evalExpr(validationDef.condition as Expression, node, dataSources, {
         config: EXPR_CONFIG,
         positionalArguments: [resolvedField],
       });

@@ -16,7 +16,6 @@ import {
   groupIsRepeatingLikertExt,
 } from 'src/layout/Group/tools';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { IFormData } from 'src/features/formData';
 import type { ComponentValidation, IValidationContext } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { CompExternalExact, CompInternal, HierarchyDataSources } from 'src/layout/layout';
@@ -66,11 +65,7 @@ export class Group extends GroupDef implements ValidateComponent {
     return this._hierarchyGenerator;
   }
 
-  runComponentValidation(
-    node: LayoutNode<'Group'>,
-    { langTools }: IValidationContext,
-    _overrideFormData?: IFormData,
-  ): ComponentValidation[] {
+  runComponentValidation(node: LayoutNode<'Group'>, { langTools }: IValidationContext): ComponentValidation[] {
     if (!node.isRepGroup() || !node.item.dataModelBindings) {
       return [];
     }

@@ -99,7 +99,6 @@ export interface ValidateAny {
     node: LayoutNode,
     ctx: IValidationContext,
     schemaErrors: ISchemaValidationError[],
-    overrideFormData?: IFormData,
   ) => FormValidations;
 }
 
@@ -110,11 +109,7 @@ export function implementsAnyValidation<Type extends CompTypes>(
 }
 
 export interface ValidateEmptyField {
-  runEmptyFieldValidation: (
-    node: LayoutNode,
-    validationContext: IValidationContext,
-    overrideFormData?: IFormData,
-  ) => ComponentValidation[];
+  runEmptyFieldValidation: (node: LayoutNode, validationContext: IValidationContext) => ComponentValidation[];
 }
 
 export function implementsValidateEmptyField<Type extends CompTypes>(
@@ -124,11 +119,7 @@ export function implementsValidateEmptyField<Type extends CompTypes>(
 }
 
 export interface ValidateComponent {
-  runComponentValidation: (
-    node: LayoutNode,
-    validationContext: IValidationContext,
-    overrideFormData?: IFormData,
-  ) => ComponentValidation[];
+  runComponentValidation: (node: LayoutNode, validationContext: IValidationContext) => ComponentValidation[];
 }
 
 export function implementsValidateComponent<Type extends CompTypes>(

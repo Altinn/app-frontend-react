@@ -6,7 +6,6 @@ import { AddressComponent } from 'src/layout/Address/AddressComponent';
 import { AddressDef } from 'src/layout/Address/config.def.generated';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { IFormData } from 'src/features/formData';
 import type { ComponentValidation, IValidationContext } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -34,16 +33,14 @@ export class Address extends AddressDef implements ValidateComponent {
   runComponentValidation(
     node: LayoutNode<'AddressComponent'>,
     { formData, langTools }: IValidationContext,
-    overrideFormData?: IFormData,
   ): ComponentValidation[] {
     if (!node.item.dataModelBindings) {
       return [];
     }
-    const formDataToValidate = { ...formData, ...overrideFormData };
     const validations: ComponentValidation[] = [];
 
     const zipCodeField = node.item.dataModelBindings.zipCode;
-    const zipCode = zipCodeField ? formDataToValidate[zipCodeField] : undefined;
+    const zipCode = zipCodeField ? formData[zipCodeField] : undefined;
 
     // TODO(Validation): Add better message for the special case of 0000 or add better validation for zipCodes that the API says are invalid
     if (zipCode && (!zipCode.match(/^\d{4}$/) || zipCode === '0000')) {
@@ -58,7 +55,7 @@ export class Address extends AddressDef implements ValidateComponent {
     }
 
     const houseNumberField = node.item.dataModelBindings.houseNumber;
-    const houseNumber = houseNumberField ? formDataToValidate[houseNumberField] : undefined;
+    const houseNumber = houseNumberField ? formData[houseNumberField] : undefined;
 
     if (houseNumber && !houseNumber.match(/^[a-z,A-Z]\d{4}$/)) {
       validations.push({

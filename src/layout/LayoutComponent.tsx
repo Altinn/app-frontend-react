@@ -20,7 +20,6 @@ import { getFieldName } from 'src/utils/formComponentUtils';
 import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { IFormData } from 'src/features/formData';
 import type {
   ComponentValidation,
   FieldValidation,
@@ -309,7 +308,6 @@ export abstract class FormComponent<Type extends CompTypes>
     node: LayoutNode<Type>,
     ctx: IValidationContext,
     schemaErrors: ISchemaValidationError[],
-    overrideFormData?: IFormData,
   ): FormValidations {
     const formValidations: FormValidations = {
       fields: {},
@@ -345,15 +343,15 @@ export abstract class FormComponent<Type extends CompTypes>
 
     const validations: (FieldValidation | ComponentValidation)[] = [];
     if (implementsValidateEmptyField(this)) {
-      validations.push(...this.runEmptyFieldValidation(node, ctx, overrideFormData));
+      validations.push(...this.runEmptyFieldValidation(node, ctx));
     }
     if (implementsValidateComponent(this)) {
-      validations.push(...this.runComponentValidation(node, ctx, overrideFormData));
+      validations.push(...this.runComponentValidation(node, ctx));
     }
     if (implementsValidateSchema(this)) {
       validations.push(...this.runSchemaValidation(node, schemaErrors));
     }
-    validations.push(...runExpressionValidationsOnNode(node, ctx, overrideFormData));
+    validations.push(...runExpressionValidationsOnNode(node, ctx));
 
     for (const validation of validations) {
       if (isFieldValidation(validation)) {
@@ -372,21 +370,16 @@ export abstract class FormComponent<Type extends CompTypes>
     return formValidations;
   }
 
-  runEmptyFieldValidation(
-    node: LayoutNode<Type>,
-    { formData, langTools }: IValidationContext,
-    overrideFormData?: IFormData,
-  ): ComponentValidation[] {
+  runEmptyFieldValidation(node: LayoutNode<Type>, { formData, langTools }: IValidationContext): ComponentValidation[] {
     if (!('required' in node.item) || !node.item.required || !node.item.dataModelBindings) {
       return [];
     }
     const { langAsNonProcessedString } = langTools;
 
-    const formDataToValidate = { ...formData, ...overrideFormData };
     const validations: ComponentValidation[] = [];
 
     for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings) as [string, string][]) {
-      const data = formDataToValidate[field];
+      const data = formData[field];
       const trb: ITextResourceBindings = 'textResourceBindings' in node.item ? node.item.textResourceBindings : {};
 
       if (!data?.length) {
