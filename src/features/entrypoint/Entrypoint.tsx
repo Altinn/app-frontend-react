@@ -13,6 +13,7 @@ import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
 import { useAllowAnonymousIs } from 'src/features/stateless/getAllowAnonymous';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { PageKeys } from 'src/hooks/useNavigatePage';
 import { usePromptForParty } from 'src/hooks/usePromptForParty';
 import { PresentationType } from 'src/types';
 import type { ShowTypes } from 'src/features/applicationMetadata';
@@ -63,7 +64,7 @@ export function Entrypoint() {
         <PresentationComponent type={PresentationType.Stateless}>
           <Routes>
             <Route
-              path='receipt'
+              path={PageKeys.Receipt}
               element={<ReceiptContainer />}
             />
             <Route

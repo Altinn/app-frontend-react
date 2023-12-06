@@ -10,7 +10,7 @@ import { useIsStatelessApp } from 'src/features/applicationMetadata/appMetadataU
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useNavigatePage } from 'src/hooks/useNavigatePage';
+import { TaskKeys, useNavigatePage } from 'src/hooks/useNavigatePage';
 import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
@@ -65,7 +65,7 @@ export function ProcessProvider({ children, instance }: React.PropsWithChildren<
   useEffect(() => {
     const elementId = query?.data?.currentTask?.elementId;
     if (query?.data?.ended) {
-      navigateToTask('ProcessEnd');
+      navigateToTask(TaskKeys.ProcessEnd);
     } else if (elementId && elementId !== taskId) {
       navigateToTask(elementId, { replace: true });
     }
@@ -149,7 +149,7 @@ export function useTaskType(taskId: string | undefined) {
     return ProcessTaskType.Data;
   }
 
-  if (taskId === 'ProcessEnd') {
+  if (taskId === TaskKeys.ProcessEnd) {
     return ProcessTaskType.Archived;
   }
 

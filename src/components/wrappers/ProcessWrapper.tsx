@@ -18,7 +18,7 @@ import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { Feedback } from 'src/features/processEnd/feedback/Feedback';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useNavigatePage, useNavigationParams } from 'src/hooks/useNavigatePage';
+import { PageKeys, TaskKeys, useNavigatePage, useNavigationParams } from 'src/hooks/useNavigatePage';
 
 interface NavigationErrorProps {
   label: ReactNode;
@@ -134,7 +134,7 @@ export const ProcessWrapper = () => {
     );
   }
 
-  if (!isCurrentTask) {
+  if (!isCurrentTask && taskId !== TaskKeys.ProcessEnd) {
     return (
       <PresentationComponent type={taskType}>
         <NotCurrentTaskPage />
@@ -157,15 +157,15 @@ export const ProcessWrapper = () => {
         <PresentationComponent type={taskType}>
           <Routes>
             <Route
-              path='confirmation'
+              path={PageKeys.Confirmation}
               element={<Confirm />}
             />
             <Route
-              path='feedback'
+              path={PageKeys.Feedback}
               element={<Feedback />}
             />
             <Route
-              path='receipt'
+              path={PageKeys.Receipt}
               element={<ReceiptContainer />}
             />
             <Route

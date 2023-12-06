@@ -15,7 +15,7 @@ import { useParties } from 'src/features/party/PartiesProvider';
 import { CustomReceipt } from 'src/features/receipt/CustomReceipt';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
-import { useNavigatePage } from 'src/hooks/useNavigatePage';
+import { PageKeys, useNavigatePage } from 'src/hooks/useNavigatePage';
 import { layoutsSelector } from 'src/selectors/layout';
 import {
   filterDisplayAttachments,
@@ -132,7 +132,7 @@ export const ReceiptContainer = () => {
 
   React.useEffect(() => {
     if (!process?.ended) {
-      navigateToPage('confirmation');
+      navigateToPage(PageKeys.Confirmation);
     }
   }, [process?.ended, navigateToPage]);
 

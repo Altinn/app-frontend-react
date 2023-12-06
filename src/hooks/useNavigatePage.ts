@@ -16,6 +16,16 @@ type NavigateToPageOptions = {
   returnToView?: string;
 };
 
+export enum TaskKeys {
+  ProcessEnd = 'ProcessEnd',
+}
+
+export enum PageKeys {
+  Confirmation = '@confirmation',
+  Receipt = '@receipt',
+  Feedback = '@feedback',
+}
+
 export const useNavigationParams = () => {
   const instanceMatch = useMatch('/instance/:partyId/:instanceGuid');
   const taskIdMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId');
@@ -65,16 +75,16 @@ export const useNavigatePage = () => {
 
   const isValidPageId = useCallback(
     (pageId: string) => {
-      if (taskType !== ProcessTaskType.Data && ['confirmation', 'receipt', 'feedback'].includes(pageId)) {
+      if (taskType !== ProcessTaskType.Data && Object.values<string>(PageKeys).includes(pageId)) {
         return true;
       }
-      if (taskType === ProcessTaskType.Confirm && pageId === 'confirmation') {
+      if (taskType === ProcessTaskType.Confirm && pageId === PageKeys.Confirmation) {
         return true;
       }
-      if (taskType === ProcessTaskType.Archived && pageId === 'receipt') {
+      if (taskType === ProcessTaskType.Archived && pageId === PageKeys.Receipt) {
         return true;
       }
-      if (taskType === ProcessTaskType.Feedback && pageId === 'feedback') {
+      if (taskType === ProcessTaskType.Feedback && pageId === PageKeys.Feedback) {
         return true;
       }
       return order?.includes(pageId) ?? false;
@@ -142,13 +152,13 @@ export const useNavigatePage = () => {
 
   const startUrl = useMemo(() => {
     if (taskType === ProcessTaskType.Confirm) {
-      return `/instance/${partyId}/${instanceGuid}/${taskId}/confirmation`;
+      return `/instance/${partyId}/${instanceGuid}/${taskId}/${PageKeys.Confirmation}`;
     }
     if (taskType === ProcessTaskType.Archived) {
-      return `/instance/${partyId}/${instanceGuid}/ProcessEnd/receipt`;
+      return `/instance/${partyId}/${instanceGuid}/ProcessEnd/${PageKeys.Receipt}`;
     }
     if (taskType === ProcessTaskType.Feedback) {
-      return `/instance/${partyId}/${instanceGuid}/${taskId}/feedback`;
+      return `/instance/${partyId}/${instanceGuid}/${taskId}/${PageKeys.Feedback}`;
     }
     return `/instance/${partyId}/${instanceGuid}/${taskId}/${order?.[0]}`;
   }, [partyId, instanceGuid, taskId, order, taskType]);
@@ -160,6 +170,9 @@ export const useNavigatePage = () => {
     (taskId?: string) => {
       if (!taskId) {
         return false;
+      }
+      if (taskId === TaskKeys.ProcessEnd) {
+        return true;
       }
       return processTasks?.find((task) => task.elementId === taskId) !== undefined;
     },
