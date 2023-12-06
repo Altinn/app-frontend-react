@@ -9,18 +9,21 @@ import { Label } from 'src/components/form/Label';
 import { Legend } from 'src/components/form/Legend';
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useNavigationParams } from 'src/hooks/useNavigatePage';
 import { Triggers } from 'src/layout/common.generated';
-import { FormComponentContext, shouldComponentRenderLabel } from 'src/layout/index';
+import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
+import { shouldComponentRenderLabel } from 'src/layout/index';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { ISingleFieldValidation } from 'src/features/formData/formDataTypes';
 import type { IGridStyling } from 'src/layout/common.generated';
-import type { IComponentProps, IFormComponentContext, PropsFromGenericComponent } from 'src/layout/index';
+import type { IFormComponentContext } from 'src/layout/FormComponentContext';
+import type { IComponentProps, PropsFromGenericComponent } from 'src/layout/index';
 import type { CompInternal, CompTypes, ITextResourceBindings } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
@@ -110,7 +113,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
   const gridRef = React.useRef<HTMLDivElement>(null);
   const hasValidationMessages = node.hasValidationMessages('any');
   const hidden = node.isHidden();
-  const { lang, langAsString } = useLanguage(node);
+  const { langAsNonProcessedString } = useLanguage(node);
   const { focusId, setFocusId } = usePageNavigationContext();
 
   const formData = node.getFormData() as IComponentFormData<Type>;
@@ -132,7 +135,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     }
 
     // If maxLength is set in both schema and component, don't display the schema error message
-    const errorMessageMaxLength = langAsString('validation_errors.maxLength', [maxLength]) as string;
+    const errorMessageMaxLength = langAsNonProcessedString('validation_errors.maxLength', [maxLength]) as string;
     const componentErrors = componentValidations?.simpleBinding?.errors || [];
     const updatedErrors = componentErrors.filter((error: string) => error !== errorMessageMaxLength);
 
@@ -219,8 +222,8 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     return (
       <Label
         key={`label-${id}`}
-        labelText={lang(titleTrb)}
-        helpText={lang(helpTrb)}
+        label={<Lang id={titleTrb} />}
+        helpText={helpTrb && <Lang id={helpTrb} />}
         id={id}
         readOnly={'readOnly' in item ? item.readOnly : false}
         required={'required' in item ? item.required : false}
@@ -237,7 +240,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     return (
       <Description
         key={`description-${id}`}
-        description={lang(descriptionTrb)}
+        description={<Lang id={descriptionTrb} />}
         id={id}
       />
     );
@@ -251,9 +254,9 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     return (
       <Legend
         key={`legend-${id}`}
-        labelText={lang(titleTrb)}
-        descriptionText={lang(descriptionTrb)}
-        helpText={lang(helpTrb)}
+        label={<Lang id={titleTrb} />}
+        description={descriptionTrb && <Lang id={descriptionTrb} />}
+        helpText={helpTrb && <Lang id={helpTrb} />}
         id={id}
         required={'required' in item ? item.required : false}
         labelSettings={'labelSettings' in item ? item.labelSettings : undefined}
@@ -298,14 +301,14 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
 
   if (layoutComponent.directRender(componentProps) || overrideDisplay?.directRender) {
     return (
-      <FormComponentContext.Provider value={formComponentContext}>
+      <FormComponentContextProvider value={formComponentContext}>
         <RenderComponent {...componentProps} />
-      </FormComponentContext.Provider>
+      </FormComponentContextProvider>
     );
   }
 
   return (
-    <FormComponentContext.Provider value={formComponentContext}>
+    <FormComponentContextProvider value={formComponentContext}>
       <Grid
         data-componentbaseid={item.baseComponentId || item.id}
         data-componentid={item.id}
@@ -341,7 +344,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
           {showValidationMessages && renderValidationMessagesForComponent(filterValidationErrors(), id)}
         </Grid>
       </Grid>
-    </FormComponentContext.Provider>
+    </FormComponentContextProvider>
   );
 }
 

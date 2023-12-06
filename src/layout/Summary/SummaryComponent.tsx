@@ -4,6 +4,7 @@ import { Grid } from '@material-ui/core';
 import cn from 'classnames';
 
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { GenericComponent } from 'src/layout/GenericComponent';
@@ -28,7 +29,7 @@ export interface ISummaryComponent {
 export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) {
   const { id, grid } = summaryNode.item;
   const display = overrides?.display || summaryNode.item.display;
-  const { lang, langAsString } = useLanguage();
+  const { langAsString } = useLanguage();
   const { navigateToPage, currentPageId } = useNavigatePage();
   const summaryItem = summaryNode.item;
 
@@ -111,7 +112,7 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
                     onClick={onChangeClick}
                     type='button'
                   >
-                    {lang('form_filler.summary_go_to_correct_page')}
+                    <Lang id={'form_filler.summary_go_to_correct_page'} />
                   </button>
                 )}
               </Grid>

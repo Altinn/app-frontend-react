@@ -4,7 +4,7 @@ import { Button } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
 
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
-import { useLanguage } from 'src/features/language/useLanguage';
+import { Lang } from 'src/features/language/Lang';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -17,7 +17,6 @@ export type INavigationButtons = PropsFromGenericComponent<'NavigationButtons'>;
 export function NavigationButtonsComponent({ node }: INavigationButtons) {
   const { id, showBackButton, textResourceBindings, triggers } = node.item;
   const dispatch = useAppDispatch();
-  const { lang } = useLanguage();
   const { navigateToPage, next, previous } = useNavigatePage();
   const { returnToView, setReturnToView, scrollPosition, setScrollPosition } = usePageNavigationContext();
 
@@ -47,7 +46,6 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
 
   const OnClickNext = () => {
     // eslint-disable-next-line unused-imports/no-unused-vars
-    // @ts-expect-error Keeping this to know where validations were previously run.
     const runValidations = reducePageValidations(activeTriggers);
     const goToView = returnToView || next;
 
@@ -95,7 +93,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
             onClick={onClickPrevious}
             disabled={disablePrevious}
           >
-            {lang(backTextKey)}
+            <Lang id={backTextKey} />
           </Button>
         </Grid>
       )}
@@ -107,7 +105,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
             onClick={OnClickNext}
             disabled={disableNext}
           >
-            {lang(nextTextKey)}
+            <Lang id={nextTextKey} />
           </Button>
         </Grid>
       )}

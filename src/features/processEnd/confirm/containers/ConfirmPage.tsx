@@ -3,6 +3,7 @@ import React from 'react';
 import { ReceiptComponent } from 'src/components/organisms/AltinnReceipt';
 import { ProcessNavigation } from 'src/components/presentation/ProcessNavigation';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { returnConfirmSummaryObject } from 'src/features/processEnd/confirm/helpers/returnConfirmSummaryObject';
 import {
@@ -22,7 +23,6 @@ export interface IConfirmPageProps {
 
 export const ConfirmPage = ({ instance, parties, appName, applicationMetadata }: IConfirmPageProps) => {
   const langTools = useLanguage();
-  const { lang } = langTools;
   const getInstanceMetaObject = () => {
     if (instance?.org && applicationMetadata) {
       const instanceOwnerParty = parties?.find(
@@ -51,12 +51,19 @@ export const ConfirmPage = ({ instance, parties, appName, applicationMetadata }:
     <>
       <ReceiptComponent
         attachmentGroupings={getAttachmentGroupings(getAttachments(), applicationMetadata, langTools)}
-        body={appName && lang('confirm.body', [appName])}
-        collapsibleTitle={lang('confirm.attachments')}
+        body={
+          appName && (
+            <Lang
+              id={'confirm.body'}
+              params={[appName]}
+            />
+          )
+        }
+        collapsibleTitle={<Lang id={'confirm.attachments'} />}
         hideCollapsibleCount={true}
         instanceMetaDataObject={getInstanceMetaObject()}
-        title={lang('confirm.title')}
-        titleSubmitted={lang('confirm.answers')}
+        title={<Lang id={'confirm.title'} />}
+        titleSubmitted={<Lang id={'confirm.answers'} />}
         pdf={filterDisplayPdfAttachments(instance?.data ?? [])}
       />
       <ProcessNavigation />

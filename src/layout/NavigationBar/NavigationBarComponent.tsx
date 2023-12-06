@@ -3,6 +3,7 @@ import React from 'react';
 import { Grid, makeStyles } from '@material-ui/core';
 import cn from 'classnames';
 
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -108,7 +109,7 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
   const classes = useStyles();
   const [showMenu, setShowMenu] = React.useState(false);
   const isMobile = useIsMobile() || compact === true;
-  const { lang, langAsString } = useLanguage();
+  const { langAsString } = useLanguage();
   const { navigateToPage, currentPageId, order } = useNavigatePage();
 
   const firstPageLink = React.useRef<HTMLButtonElement>();
@@ -163,7 +164,7 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
           >
             <span className={classes.dropdownMenuContent}>
               <span>
-                {order.indexOf(currentPageId) + 1}/{order.length} {lang(currentPageId)}
+                {order.indexOf(currentPageId) + 1}/{order.length} <Lang id={currentPageId} />
               </span>
               <i className={cn('ai ai-arrow-down', classes.dropdownIcon)} />
             </span>
@@ -187,7 +188,7 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
                   onClick={() => handleNavigationClick(pageId)}
                   ref={index === 0 ? firstPageLink : null}
                 >
-                  {index + 1}. {lang(pageId)}
+                  {index + 1}. <Lang id={pageId} />
                 </NavigationButton>
               </li>
             ))}

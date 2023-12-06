@@ -8,7 +8,7 @@ import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import classes from 'src/components/message/ErrorReport.module.css';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
-import { useLanguage } from 'src/features/language/useLanguage';
+import { Lang } from 'src/features/language/Lang';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -46,7 +46,6 @@ export const ErrorReport = ({ nodes }: IErrorReportProps) => {
   const [errorsMapped, errorsUnmapped] = useAppSelector(selectMappedUnmappedErrors);
   const allNodes = useExprContext();
   const hasErrors = errorsUnmapped.length > 0 || errorsMapped.length > 0;
-  const { lang } = useLanguage();
 
   if (!hasErrors) {
     return null;
@@ -133,7 +132,7 @@ export const ErrorReport = ({ nodes }: IErrorReportProps) => {
     <div data-testid='ErrorReport'>
       <FullWidthWrapper isOnBottom={true}>
         <Panel
-          title={lang('form_filler.error_report_header')}
+          title={<Lang id={'form_filler.error_report_header'} />}
           showIcon={false}
           variant={PanelVariant.Error}
         >
