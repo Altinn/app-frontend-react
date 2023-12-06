@@ -195,13 +195,7 @@ function DefaultProviders({ children, store, queries, queryClient, Router = Defa
                             <PartyProvider>
                               <TextResourcesProvider>
                                 <FooterLayoutProvider>
-                                  <LayoutsProvider>
-                                    <LayoutSettingsProvider>
-                                      <UiConfigProvider>
-                                        <InstantiationProvider>{children}</InstantiationProvider>
-                                      </UiConfigProvider>
-                                    </LayoutSettingsProvider>
-                                  </LayoutsProvider>
+                                  <InstantiationProvider>{children}</InstantiationProvider>
                                 </FooterLayoutProvider>
                               </TextResourcesProvider>
                             </PartyProvider>
@@ -435,7 +429,13 @@ export const renderWithInstanceAndLayout = async ({
   return await renderBase({
     renderer: () => (
       <InstanceProvider provideLayoutValidation={false}>
-        <WaitForNodes waitForAllNodes={true}>{renderer()}</WaitForNodes>
+        <LayoutsProvider>
+          <LayoutSettingsProvider>
+            <UiConfigProvider>
+              <WaitForNodes waitForAllNodes={true}>{renderer()}</WaitForNodes>
+            </UiConfigProvider>
+          </LayoutSettingsProvider>
+        </LayoutsProvider>
       </InstanceProvider>
     ),
     unMockableQueries: {
