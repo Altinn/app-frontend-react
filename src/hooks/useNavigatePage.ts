@@ -62,6 +62,25 @@ export const useNavigatePage = () => {
   const nextPageIndex = currentPageIndex !== -1 ? currentPageIndex + 1 : -1;
   const previousPageIndex = currentPageIndex !== -1 ? currentPageIndex - 1 : -1;
 
+  const isValidPageId = useCallback(
+    (pageId: string) => {
+      if (taskType !== ProcessTaskType.Data && ['confirmation', 'receipt', 'feedback'].includes(pageId)) {
+        return true;
+      }
+      if (taskType === ProcessTaskType.Confirm && pageId === 'confirmation') {
+        return true;
+      }
+      if (taskType === ProcessTaskType.Archived && pageId === 'receipt') {
+        return true;
+      }
+      if (taskType === ProcessTaskType.Feedback && pageId === 'feedback') {
+        return true;
+      }
+      return order?.includes(pageId) ?? false;
+    },
+    [order, taskType],
+  );
+
   /**
    * For stateless apps, this is how we redirect to the
    * initial page of the app. We replace the url, to not
@@ -69,10 +88,10 @@ export const useNavigatePage = () => {
    * pageKey) in the history.
    */
   useEffect(() => {
-    if (isStatelessApp && order?.[0] !== undefined && !currentPageId) {
+    if (isStatelessApp && order?.[0] !== undefined && (!currentPageId || !isValidPageId(currentPageId))) {
       navigate(`/${order?.[0]}`, { replace: true });
     }
-  }, [isStatelessApp, order, navigate, currentPageId]);
+  }, [isStatelessApp, order, navigate, currentPageId, isValidPageId]);
 
   const navigateToPage = useCallback(
     (page?: string, options?: NavigateToPageOptions) => {
@@ -108,25 +127,6 @@ export const useNavigatePage = () => {
       currentPageId,
       isStatelessApp,
     ],
-  );
-
-  const isValidPageId = useCallback(
-    (pageId: string) => {
-      if (taskType !== ProcessTaskType.Data && ['confirmation', 'receipt', 'feedback'].includes(pageId)) {
-        return true;
-      }
-      if (taskType === ProcessTaskType.Confirm && pageId === 'confirmation') {
-        return true;
-      }
-      if (taskType === ProcessTaskType.Archived && pageId === 'receipt') {
-        return true;
-      }
-      if (taskType === ProcessTaskType.Feedback && pageId === 'feedback') {
-        return true;
-      }
-      return order?.includes(pageId) ?? false;
-    },
-    [order, taskType],
   );
 
   const navigateToTask = useCallback(
