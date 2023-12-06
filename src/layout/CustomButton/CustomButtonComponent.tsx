@@ -4,11 +4,13 @@ import { Button } from '@digdir/design-system-react';
 import { useMutation } from '@tanstack/react-query';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
+import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useNavigationParams } from 'src/hooks/useNavigatePage';
+import { flattenObject } from 'src/utils/databindings';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IUserAction } from 'src/types/shared';
 
@@ -35,6 +37,7 @@ type UseHandleFrontendActions = {
 
 function useHandleFrontendActions(): UseHandleFrontendActions {
   const dispatch = useAppDispatch();
+  const currentDataModelGuid = useCurrentDataModelGuid();
 
   const _handleAction = async (action: FrontendAction) => {
     console.log('Handle Actoin: ', action);
@@ -47,9 +50,10 @@ function useHandleFrontendActions(): UseHandleFrontendActions {
       }
     },
     handleDataModelUpdate: async (updatedDataModels) => {
-      Object.values(updatedDataModels).forEach((dataModel) => {
-        dispatch(FormDataActions.fetchFulfilled({ formData: dataModel }));
-      });
+      const currentDataModelUpdates = currentDataModelGuid && updatedDataModels[currentDataModelGuid];
+      if (currentDataModelUpdates) {
+        dispatch(FormDataActions.fetchFulfilled({ formData: flattenObject(currentDataModelUpdates) }));
+      }
     },
   };
 }
@@ -79,6 +83,9 @@ function useActionMutation() {
       if (data.frontendActions) {
         await handleFrontendActions(data.frontendActions);
       }
+    },
+    onError: async (error) => {
+      console.log('ERROR: ', error);
     },
   });
 }
