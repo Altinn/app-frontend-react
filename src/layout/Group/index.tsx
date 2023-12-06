@@ -3,7 +3,7 @@ import type { JSX } from 'react';
 
 import type { ErrorObject } from 'ajv';
 
-import { FrontendValidationSource, ValidationUrgency } from 'src/features/validation';
+import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { GroupDef } from 'src/layout/Group/config.def.generated';
 import { GroupRenderer } from 'src/layout/Group/GroupRenderer';
 import { GroupHierarchyGenerator } from 'src/layout/Group/hierarchy';
@@ -94,7 +94,7 @@ export class Group extends GroupDef implements ValidateComponent {
         severity: 'errors',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,
-        urgency: ValidationUrgency.Component,
+        category: ValidationMask.Component,
       });
     }
 

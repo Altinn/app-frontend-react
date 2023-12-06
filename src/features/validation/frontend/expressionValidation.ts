@@ -1,7 +1,7 @@
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { asExpression } from 'src/features/expressions/validation';
-import { FrontendValidationSource, ValidationUrgency } from 'src/features/validation';
+import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { getBaseDataModelBindings } from 'src/utils/databindings';
 import type { ExprConfig, Expression } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
@@ -84,7 +84,7 @@ function resolveExpressionValidation(
 
     expressionValidation = {
       severity: 'errors',
-      urgency: ValidationUrgency.Expression,
+      showImmediately: false,
       ...reference,
     };
   } else {
@@ -104,7 +104,7 @@ function resolveExpressionValidation(
 
     expressionValidation = {
       severity: 'errors',
-      urgency: ValidationUrgency.Expression,
+      showImmediately: false,
       ...resolvedDefinition,
     } as IExpressionValidation;
   }
@@ -197,7 +197,7 @@ export function runExpressionValidationsOnNode(
           group: FrontendValidationSource.Expression,
           message,
           severity: validationDef.severity,
-          urgency: validationDef.urgency,
+          category: validationDef.showImmediately ? 0 : ValidationMask.Expression,
         });
       }
     }

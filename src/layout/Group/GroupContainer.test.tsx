@@ -206,10 +206,10 @@ describe('GroupContainer', () => {
   });
 
   it('should trigger validate when closing edit mode if validation trigger is present', async () => {
-    const mockContainerInEditModeWithTrigger = {
+    const mockContainerInEditModeWithTrigger: CompGroupRepeatingExternal = {
       ...mockContainer,
       id: 'container-in-edit-mode-id',
-      validateOnSaveRow: 50,
+      validateOnSaveRow: ['All'],
     };
     const user = userEvent.setup();
     // eslint-disable-next-line testing-library/render-result-naming-convention
@@ -260,10 +260,10 @@ describe('GroupContainer', () => {
   });
 
   it('should trigger validate when saving if validation trigger is present', async () => {
-    const mockContainerInEditModeWithTrigger = {
+    const mockContainerInEditModeWithTrigger: CompGroupRepeatingExternal = {
       ...mockContainer,
       id: 'container-in-edit-mode-id',
-      validateOnSaveRow: 50,
+      validateOnSaveRow: ['All'],
     };
     // eslint-disable-next-line testing-library/render-result-naming-convention
     const store = await render({ container: mockContainerInEditModeWithTrigger });
@@ -288,10 +288,10 @@ describe('GroupContainer', () => {
   });
 
   it('should trigger validate when saving if validateRow trigger is present', async () => {
-    const mockContainerInEditModeWithTrigger = {
+    const mockContainerInEditModeWithTrigger: CompGroupRepeatingExternal = {
       ...mockContainer,
       id: 'container-in-edit-mode-id',
-      validateOnSaveRow: 50,
+      validateOnSaveRow: ['All'],
     };
     // eslint-disable-next-line testing-library/render-result-naming-convention
     const store = await render({ container: mockContainerInEditModeWithTrigger });

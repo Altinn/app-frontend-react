@@ -2,7 +2,7 @@ import React from 'react';
 
 import moment from 'moment';
 
-import { FrontendValidationSource, ValidationUrgency } from 'src/features/validation';
+import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { DatepickerDef } from 'src/layout/Datepicker/config.def.generated';
 import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
@@ -74,7 +74,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent {
         severity: 'errors',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,
-        urgency: ValidationUrgency.Component,
+        category: ValidationMask.Component,
       });
     }
 
@@ -85,7 +85,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent {
         severity: 'errors',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,
-        urgency: ValidationUrgency.Component,
+        category: ValidationMask.Component,
       });
     } else if (date.isAfter(maxDate)) {
       const message = langTools.langAsString('date_picker.max_date_exeeded');
@@ -94,7 +94,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent {
         severity: 'errors',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,
-        urgency: ValidationUrgency.Component,
+        category: ValidationMask.Component,
       });
     }
 
@@ -117,7 +117,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent {
           severity: 'errors',
           field,
           group: FrontendValidationSource.Schema,
-          urgency: ValidationUrgency.Schema,
+          category: ValidationMask.Schema,
         });
       }
     }

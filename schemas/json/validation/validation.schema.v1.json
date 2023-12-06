@@ -64,11 +64,11 @@
             "success"
           ]
         },
-        "urgency": {
-          "title": "Urgency",
-          "description": "The urgency of the validation message determines when the message is displayed to the user.",
-          "type": "number",
-          "default": 10,
+        "showImmediately": {
+          "title": "Show immediately",
+          "description": "If true, the validation message will be shown immediately when the condition is true. If false, it will be shown when expression validations are normally shown.",
+          "type": "boolean",
+          "default": false
         },
         "ref": {
           "title": "Reference to another validation",

@@ -1,4 +1,4 @@
-import type { ValidationUrgency } from '.';
+import { ValidationMask } from '.';
 
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -7,7 +7,7 @@ import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export type Visibility = {
-  urgency: ValidationUrgency;
+  mask: number;
   children: {
     [key: string]: Visibility | undefined;
   };
@@ -68,13 +68,19 @@ function deleteChildVisibility(visibility: Visibility, key: PathItem): void {
 
 export function addVisibilityForNode(node: LayoutNode, state: Visibility): void {
   const path = getPathFromRoot(node);
-  const urgency = ('baseValidationLevel' in node.item ? node.item.baseValidationLevel : 0) ?? 0;
+  let mask = 0;
+
+  if ('showValidations' in node.item && node.item.showValidations) {
+    for (const maskKey of node.item.showValidations) {
+      mask = mask | ValidationMask[maskKey];
+    }
+  }
 
   let currentVisibility: Visibility = state;
   for (const key of path) {
     if (!getChildVisibility(currentVisibility, key)) {
       setChildVisibility(currentVisibility, key, {
-        urgency,
+        mask,
         children: {},
         items: [],
       });
@@ -128,21 +134,8 @@ function getVisibilityFromPath(path: PathItem[], state: Visibility): Visibility 
   return currentVisibility;
 }
 
-export function getRawVisibilityForNode(
-  node: LayoutNode | LayoutPage,
-  state: Visibility,
-  rowIndex?: number,
-): number | undefined {
-  const path = getPathFromRoot(node);
-  if (typeof rowIndex !== 'undefined') {
-    path.push(rowIndex);
-  }
-  const visibility = getVisibilityFromPath(path, state);
-  return visibility?.urgency;
-}
-
 export function getResolvedVisibilityForNode(node: LayoutNode, state: Visibility): number {
-  let urgency = state.urgency;
+  let mask = state.mask;
 
   const path = getPathFromRoot(node);
 
@@ -154,17 +147,17 @@ export function getResolvedVisibilityForNode(node: LayoutNode, state: Visibility
       break;
     }
 
-    urgency = Math.max(urgency, nextVisibility.urgency);
+    mask = mask | nextVisibility.mask;
 
     currentVisibility = nextVisibility;
   }
-  return urgency;
+  return mask;
 }
 
 export function setVisibilityForNode(
   node: LayoutNode | LayoutPage,
   state: Visibility,
-  urgency: number,
+  mask: number,
   rowIndex?: number,
 ): void {
   const path = getPathFromRoot(node);
@@ -179,5 +172,5 @@ export function setVisibilityForNode(
     return;
   }
 
-  visibility.urgency = urgency;
+  visibility.mask = mask;
 }

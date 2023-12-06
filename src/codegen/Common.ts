@@ -1,5 +1,6 @@
 import { CG, Variant } from 'src/codegen/CG';
 import { ExprVal } from 'src/features/expressions/types';
+import { AllowedValidationMaskList } from 'src/features/validation';
 import type { MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
 
 const common = {
@@ -411,7 +412,7 @@ const common = {
             'Boolean value or expression indicating if the component should be required. Defaults to false.',
           ),
       ),
-      new CG.prop('baseValidationLevel', CG.common('Validation').optional()),
+      new CG.prop('showValidations', CG.common('ValidationMasks').optional()),
     ),
   SummarizableComponentProps: () =>
     new CG.obj(
@@ -512,29 +513,21 @@ const common = {
 
   HeadingLevel: () => new CG.enum(2, 3, 4, 5, 6),
 
+  ValidationMasks: () =>
+    new CG.arr(new CG.enum(...AllowedValidationMaskList))
+      .setTitle('Validation types')
+      .setDescription('List of validation types to show'),
+
   PageValidation: () =>
     new CG.obj(
       new CG.prop(
         'page',
         new CG.enum('current', 'currentAndPrevious', 'all')
-          .optional({ default: 'current' })
           .setTitle('Page')
           .setDescription('Which pages should be validated when the next button is clicked.'),
       ),
-      new CG.prop(
-        'urgency',
-        new CG.int()
-          .setMin(0)
-          .setTitle('Urgency')
-          .setDescription('Level of urgency to use when validating the page(s). TODO: Add link to docs'),
-      ),
+      new CG.prop('show', CG.common('ValidationMasks')),
     ),
-
-  Validation: () =>
-    new CG.int()
-      .setMin(0)
-      .setTitle('Urgency')
-      .setDescription('Level of urgency to use when validating. TODO: Add link to docs'),
 };
 
 export type ValidCommonKeys = keyof typeof common;

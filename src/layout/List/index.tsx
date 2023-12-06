@@ -1,7 +1,7 @@
 import React from 'react';
 import type { JSX } from 'react';
 
-import { FrontendValidationSource, ValidationUrgency } from 'src/features/validation';
+import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { ListDef } from 'src/layout/List/config.def.generated';
 import { ListComponent } from 'src/layout/List/ListComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
@@ -67,7 +67,7 @@ export class List extends ListDef {
         severity: 'errors',
         componentId: node.item.id,
         group: FrontendValidationSource.EmptyField,
-        urgency: ValidationUrgency.Required,
+        category: ValidationMask.Required,
       });
     }
     return validations;

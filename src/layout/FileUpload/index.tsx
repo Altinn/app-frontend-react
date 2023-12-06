@@ -1,7 +1,7 @@
 import React from 'react';
 import type { JSX } from 'react';
 
-import { FrontendValidationSource, ValidationUrgency } from 'src/features/validation';
+import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { attachmentsValid } from 'src/features/validation/utils';
 import { FileUploadDef } from 'src/layout/FileUpload/config.def.generated';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
@@ -53,7 +53,7 @@ export class FileUpload extends FileUploadDef implements ValidateComponent {
         severity: 'errors',
         group: FrontendValidationSource.Component,
         componentId: node.item.id,
-        urgency: ValidationUrgency.Component,
+        category: ValidationMask.Component,
       });
     }
 

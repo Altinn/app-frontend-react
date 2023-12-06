@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { isAttachmentUploaded } from 'src/features/attachments';
-import { FrontendValidationSource, ValidationUrgency } from 'src/features/validation';
+import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { attachmentIsMissingTag, attachmentsValid } from 'src/features/validation/utils';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
@@ -63,7 +63,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
             componentId: node.item.id,
             group: FrontendValidationSource.Component,
             meta: { attachmentId },
-            urgency: ValidationUrgency.Component,
+            category: ValidationMask.Component,
           });
         });
       }
@@ -77,7 +77,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
         severity: 'errors',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,
-        urgency: ValidationUrgency.Component,
+        category: ValidationMask.Component,
       });
     }
     return validations;

@@ -150,7 +150,7 @@ function makeRepeatingGroup() {
       }),
     )
     .addDataModelBinding(commonRepGroupDataModelBinding)
-    .addProperty(new CG.prop('validateOnSaveRow', CG.common('Validation').optional()))
+    .addProperty(new CG.prop('validateOnSaveRow', CG.common('ValidationMasks').optional()))
     .addProperty(
       new CG.prop(
         'edit',

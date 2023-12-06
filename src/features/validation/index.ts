@@ -40,20 +40,48 @@ export enum BackendValidationSeverity {
   Success = 5,
 }
 
-export enum ValidationUrgency {
-  Immediate = 0,
-  Expression = 10,
-  Schema = 20,
-  Component = 30,
-  Required = 40,
-  Submit = 50,
+// prettier-ignore
+export enum ValidationMask {
+  Schema                = 0b0000000000000001,
+  Component             = 0b0000000000000010,
+  Expression            = 0b0000000000000100,
+  CustomBackend         = 0b0000000000001000,
+  Required              = 0b0100000000000000,
+  AllExceptRequired     = 0b0011111111111111, // All frontend validations except required
+  All                   = 0b0111111111111111, // All frontend validations
+  Backend               = 0b1000000000000000, // All backend validations except custom backend validations
+  All_Including_Backend = 0b1111111111111111, // All validations including backend validations that overlap with frontend validations
 }
+export type ValidationMaskKeys = keyof typeof ValidationMask;
+
+/* AllowedValidationMaskList are ValidationMasks that are allowed to be used in the app configuration. */
+export const AllowedValidationMaskList = [
+  'Schema',
+  'Component',
+  'Expression',
+  'CustomBackend',
+  'Required',
+  'AllExceptRequired',
+  'All',
+] as const;
+export type AllowedValidationMaskKeys = (typeof AllowedValidationMaskList)[number];
+
+/* ValidationMaskCollectionKeys are used to group commonly used validation masks together. */
+export type ValidationMaskCollectionKeys = Extract<
+  ValidationMaskKeys,
+  'All' | 'AllExceptRequired' | 'All_Including_Backend'
+>;
+
+/* ValidationCategoryKeys are ValidationMasks that represent a single validation category.*/
+export type ValidationCategoryKey = Exclude<ValidationMaskKeys, ValidationMaskCollectionKeys>;
+/*  A value of 0 represents a validation to be shown immediately */
+export type ValidationCategory = (typeof ValidationMask)[ValidationCategoryKey] | 0;
 
 export type ValidationContext = {
   state: ValidationState;
   validating: () => Promise<void>;
   visibility: Visibility;
-  setNodeVisibility: (nodes: (LayoutNode | LayoutPage)[], newVisibility: ValidationUrgency, rowIndex?: number) => void;
+  setNodeVisibility: (nodes: (LayoutNode | LayoutPage)[], newVisibility: number, rowIndex?: number) => void;
   setRootVisibility: (newVisibility: number) => void;
   removeRowVisibilityOnDelete: (node: LayoutNode<'Group'>, rowIndex: number) => void;
 };
@@ -85,7 +113,7 @@ export type ComponentValidations = {
 export type BaseValidation<Severity extends ValidationSeverity = ValidationSeverity> = {
   message: string;
   severity: Severity;
-  urgency: ValidationUrgency;
+  category: ValidationCategory;
 };
 
 export type GroupedValidation<Severity extends ValidationSeverity = ValidationSeverity> = BaseValidation<Severity> & {
@@ -150,9 +178,10 @@ export interface BackendValidationIssue {
   scope: string | null;
   severity: BackendValidationSeverity;
   targetId: string;
-  source: string;
+  source: ValidationIssueSources;
   customTextKey?: string;
-  urgency?: ValidationUrgency;
+  showImmediately?: boolean;
+  actLikeRequired?: boolean;
 }
 
 /**
@@ -162,7 +191,7 @@ export type IExpressionValidation = {
   message: string;
   condition: Expression | ExprValToActual;
   severity: ValidationSeverity;
-  urgency: number;
+  showImmediately: boolean;
 };
 
 /**
@@ -179,7 +208,7 @@ export type IExpressionValidationRefResolved = {
   message: string;
   condition: Expression | ExprValToActual;
   severity?: ValidationSeverity;
-  urgency?: number;
+  showImmediately?: boolean;
 };
 
 /**
@@ -192,7 +221,7 @@ export type IExpressionValidationRefUnresolved =
       message?: string;
       condition?: Expression | ExprValToActual;
       severity?: ValidationSeverity;
-      urgency?: number;
+      showImmediately?: boolean;
       ref: string;
     };
 

@@ -5,7 +5,7 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { lookupErrorAsText } from 'src/features/datamodel/lookupErrorAsText';
 import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspector/DefaultNodeInspector';
-import { FrontendValidationSource, ValidationUrgency } from 'src/features/validation';
+import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { runExpressionValidationsOnNode } from 'src/features/validation/frontend/expressionValidation';
 import { isComponentValidation, isFieldValidation } from 'src/features/validation/utils';
 import { CompCategory } from 'src/layout/common';
@@ -402,7 +402,7 @@ export abstract class FormComponent<Type extends CompTypes>
           bindingKey,
           message,
           severity: 'errors',
-          urgency: ValidationUrgency.Required,
+          category: ValidationMask.Required,
         });
       }
     }
@@ -420,7 +420,7 @@ export abstract class FormComponent<Type extends CompTypes>
               group: FrontendValidationSource.Schema,
               message: error.message,
               severity: 'errors',
-              urgency: ValidationUrgency.Schema,
+              category: ValidationMask.Schema,
             });
           }
         }

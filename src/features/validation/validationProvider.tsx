@@ -3,7 +3,14 @@ import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useImmer } from 'use-immer';
 
 import { createContext } from 'src/core/contexts/context';
-import { ValidationUrgency } from 'src/features/validation';
+import {
+  type BaseValidation,
+  type FormValidations,
+  type NodeValidation,
+  type ValidationContext,
+  ValidationMask,
+  type ValidationState,
+} from 'src/features/validation';
 import { useBackendValidation } from 'src/features/validation/backend/runServerValidation';
 import { runValidationOnNodes } from 'src/features/validation/frontend/runValidations';
 import {
@@ -16,6 +23,7 @@ import {
 import {
   buildNodeValidation,
   getValidationsForNode,
+  getVisibilityMask,
   hasValidationErrors,
   mergeFormValidations,
   shouldValidateNode,
@@ -31,15 +39,8 @@ import {
 } from 'src/features/validation/visibility';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useExprContext } from 'src/utils/layout/ExprContext';
-import type {
-  BaseValidation,
-  FormValidations,
-  NodeValidation,
-  ValidationContext,
-  ValidationState,
-} from 'src/features/validation';
 import type { Visibility } from 'src/features/validation/visibility';
-import type { PageValidation } from 'src/layout/common.generated';
+import type { PageValidation, ValidationMasks } from 'src/layout/common.generated';
 import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { CompTypes, IDataModelBindings } from 'src/layout/layout';
@@ -60,7 +61,7 @@ export function ValidationContext({ children }) {
     components: {},
   });
   const [visibility, setVisibility] = useImmer<Visibility>({
-    urgency: 0,
+    mask: 0,
     children: {},
     items: [],
   });
@@ -137,7 +138,7 @@ export function ValidationContext({ children }) {
   // Set visibility for the whole form
   const setRootVisibility = useEffectEvent((newVisibility: number) => {
     setVisibility((state) => {
-      state.urgency = newVisibility;
+      state.mask = newVisibility;
     });
   });
 
@@ -168,20 +169,22 @@ export function useOnGroupCloseValidation() {
   const validating = useCtx().validating;
 
   /* Ensures the callback will have the latest state */
-  const callback = useEffectEvent((node: LayoutNode, rowIndex: number, urgency: number): boolean => {
+  const callback = useEffectEvent((node: LayoutNode, rowIndex: number, masks: ValidationMasks): boolean => {
+    const mask = getVisibilityMask(masks);
+
     const hasErrors = node
       .flat(true, rowIndex)
       .filter(shouldValidateNode)
-      .some((n) => getValidationsForNode(n, state, urgency, true, 'errors').length > 0);
+      .some((n) => getValidationsForNode(n, state, mask, 'errors').length > 0);
 
-    setNodeVisibility([node], hasErrors ? urgency : 0, rowIndex);
+    setNodeVisibility([node], hasErrors ? mask : 0, rowIndex);
     return hasErrors;
   });
 
   return useCallback(
-    async (node: LayoutNode, rowIndex: number, urgency: number) => {
+    async (node: LayoutNode, rowIndex: number, masks: ValidationMasks) => {
       await validating();
-      return callback(node, rowIndex, urgency);
+      return callback(node, rowIndex, masks);
     },
     [callback, validating],
   );
@@ -190,9 +193,9 @@ export function useOnGroupCloseValidation() {
 export const useOnDeleteGroupRow = () => useCtx().removeRowVisibilityOnDelete;
 
 /**
- * Sets the urgency for all nodes on a page to OnPageNext to display any errors.
- * Also returns a boolean indicating whether there currently are any errors on the page
- * with urgency >= OnPageNext.
+ * Checks if a page has validation errors as specified by the config.
+ * If there are errors, the visibility of the page is set to the specified mask.
+ *
  */
 export function useOnPageValidation() {
   const setNodeVisibility = useCtx().setNodeVisibility;
@@ -204,15 +207,17 @@ export function useOnPageValidation() {
   /* Ensures the callback will have the latest state */
   const callback = useEffectEvent((currentPage: LayoutPage, config: PageValidation): boolean => {
     const pageConfig = config.page ?? 'current';
-    const urgency = config.urgency;
+    const masks = config.show;
+
+    const mask = getVisibilityMask(masks);
 
     if (pageConfig === 'current') {
       const hasErrors = currentPage
         .flat(true)
         .filter(shouldValidateNode)
-        .some((n) => getValidationsForNode(n, state, urgency, true, 'errors').length > 0);
+        .some((n) => getValidationsForNode(n, state, mask, 'errors').length > 0);
 
-      setNodeVisibility([currentPage], hasErrors ? urgency : 0);
+      setNodeVisibility([currentPage], hasErrors ? mask : 0);
       return hasErrors;
     } else if (pageConfig === 'currentAndPrevious') {
       const currentIndex = pageOrder?.indexOf(currentPage.top.myKey);
@@ -224,17 +229,17 @@ export function useOnPageValidation() {
       const hasErrors = layoutPagesToCheck
         .flatMap((page) => page.flat(true))
         .filter(shouldValidateNode)
-        .some((n) => getValidationsForNode(n, state, urgency, true, 'errors').length > 0);
+        .some((n) => getValidationsForNode(n, state, mask, 'errors').length > 0);
 
-      setNodeVisibility(layoutPagesToCheck, hasErrors ? urgency : 0);
+      setNodeVisibility(layoutPagesToCheck, hasErrors ? mask : 0);
       return hasErrors;
     } else {
       const hasErrors = currentPage.top.collection
         .allNodes()
         .filter(shouldValidateNode)
-        .some((n) => getValidationsForNode(n, state, urgency, true, 'errors').length > 0);
+        .some((n) => getValidationsForNode(n, state, mask, 'errors').length > 0);
 
-      setRootVisibility(hasErrors ? urgency : 0);
+      setRootVisibility(hasErrors ? mask : 0);
       return hasErrors;
     }
   });
@@ -255,15 +260,30 @@ export function useOnFormSubmitValidation() {
 
   /* Ensures the callback will have the latest state */
   const callback = useEffectEvent((layoutPages: LayoutPages): boolean => {
-    const hasErrors =
+    const hasFrontendErrors = layoutPages
+      .allNodes()
+      .filter(shouldValidateNode)
+      .some((n) => getValidationsForNode(n, state, ValidationMask.All, 'errors').length > 0);
+
+    if (hasFrontendErrors) {
+      setRootVisibility(ValidationMask.All);
+      return true;
+    }
+
+    const hasAnyErrors =
       hasValidationErrors(state.task) ||
       layoutPages
         .allNodes()
         .filter(shouldValidateNode)
-        .some((n) => getValidationsForNode(n, state, ValidationUrgency.Submit, true, 'errors').length > 0);
+        .some((n) => getValidationsForNode(n, state, ValidationMask.All_Including_Backend, 'errors').length > 0);
 
-    setRootVisibility(hasErrors ? ValidationUrgency.Submit : 0);
-    return hasErrors;
+    if (hasAnyErrors) {
+      setRootVisibility(ValidationMask.All_Including_Backend);
+      return true;
+    }
+
+    setRootVisibility(0);
+    return false;
   });
 
   return useCallback(
@@ -280,10 +300,7 @@ export function useOnFormSubmitValidation() {
  * Both validations connected to specific data model bindings,
  * and general component validations in a single list.
  */
-export function useUnifiedValidationsForNode(
-  node: LayoutNode | undefined,
-  ignoreBackendValidations = true,
-): NodeValidation[] {
+export function useUnifiedValidationsForNode(node: LayoutNode | undefined): NodeValidation[] {
   const state = useCtx().state;
   const visibility = useCtx().visibility;
 
@@ -291,8 +308,8 @@ export function useUnifiedValidationsForNode(
     if (!node) {
       return [];
     }
-    return getValidationsForNode(node, state, getResolvedVisibilityForNode(node, visibility), ignoreBackendValidations);
-  }, [ignoreBackendValidations, node, state, visibility]);
+    return getValidationsForNode(node, state, getResolvedVisibilityForNode(node, visibility));
+  }, [node, state, visibility]);
 }
 
 /**
@@ -302,7 +319,6 @@ export function useDeepValidationsForNode(
   node: LayoutNode | undefined,
   onlyChildren: boolean = false,
   onlyInRowIndex?: number,
-  ignoreBackendValidations = true,
 ): NodeValidation[] {
   const state = useCtx().state;
   const visibility = useCtx().visibility;
@@ -313,9 +329,9 @@ export function useDeepValidationsForNode(
     }
     const nodesToValidate = onlyChildren ? node.flat(true, onlyInRowIndex) : [node, ...node.flat(true, onlyInRowIndex)];
     return nodesToValidate.flatMap((node) =>
-      getValidationsForNode(node, state, getResolvedVisibilityForNode(node, visibility), ignoreBackendValidations),
+      getValidationsForNode(node, state, getResolvedVisibilityForNode(node, visibility)),
     );
-  }, [ignoreBackendValidations, node, onlyChildren, onlyInRowIndex, state, visibility]);
+  }, [node, onlyChildren, onlyInRowIndex, state, visibility]);
 }
 
 /**
@@ -325,10 +341,7 @@ export function useDeepValidationsForNode(
 export function useBindingValidationsForNode<
   N extends LayoutNode,
   T extends CompTypes = N extends BaseLayoutNode<any, infer T> ? T : never,
->(
-  node: N,
-  ignoreBackendValidations = true,
-): { [binding in keyof NonNullable<IDataModelBindings<T>>]: NodeValidation[] } | undefined {
+>(node: N): { [binding in keyof NonNullable<IDataModelBindings<T>>]: NodeValidation[] } | undefined {
   const state = useCtx().state;
   const fields = state.fields;
   const component = state.components[node.item.id];
@@ -338,32 +351,32 @@ export function useBindingValidationsForNode<
     if (!node.item.dataModelBindings) {
       return undefined;
     }
-    const urgency = getResolvedVisibilityForNode(node, visibility);
+    const mask = getResolvedVisibilityForNode(node, visibility);
     const bindingValidations = {};
     for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings)) {
       bindingValidations[bindingKey] = [];
 
       if (fields[field]) {
-        const validations = validationsFromGroups(fields[field], urgency, ignoreBackendValidations);
+        const validations = validationsFromGroups(fields[field], mask);
         bindingValidations[bindingKey].push(
           ...validations.map((validation) => buildNodeValidation(node, validation, bindingKey)),
         );
       }
       if (component?.bindingKeys?.[bindingKey]) {
-        const validations = validationsFromGroups(component.bindingKeys[bindingKey], urgency, ignoreBackendValidations);
+        const validations = validationsFromGroups(component.bindingKeys[bindingKey], mask);
         bindingValidations[bindingKey].push(
           ...validations.map((validation) => buildNodeValidation(node, validation, bindingKey)),
         );
       }
     }
     return bindingValidations as { [binding in keyof NonNullable<IDataModelBindings<T>>]: NodeValidation[] };
-  }, [node, visibility, fields, component, ignoreBackendValidations]);
+  }, [node, visibility, fields, component]);
 }
 
 /**
  * Get only the component validations which are not bound to any data model fields.
  */
-export function useComponentValidationsForNode(node: LayoutNode, ignoreBackendValidations = true): NodeValidation[] {
+export function useComponentValidationsForNode(node: LayoutNode): NodeValidation[] {
   const component = useCtx().state.components[node.item.id];
   const visibility = useCtx().visibility;
 
@@ -371,20 +384,16 @@ export function useComponentValidationsForNode(node: LayoutNode, ignoreBackendVa
     if (!component?.component) {
       return [];
     }
-    const validations = validationsFromGroups(
-      component.component!,
-      getResolvedVisibilityForNode(node, visibility),
-      ignoreBackendValidations,
-    );
+    const validations = validationsFromGroups(component.component!, getResolvedVisibilityForNode(node, visibility));
     return validations.map((validation) => buildNodeValidation(node, validation));
-  }, [component.component, ignoreBackendValidations, node, visibility]);
+  }, [component.component, node, visibility]);
 }
 
 /**
  * Returns all validation errors (not warnings, info, etc.) for a layout set.
  * This includes unmapped/task errors as well
  */
-export function useTaskErrors(ignoreBackendValidations = true): {
+export function useTaskErrors(): {
   formErrors: NodeValidation<'errors'>[];
   taskErrors: BaseValidation<'errors'>[];
 } {
@@ -400,21 +409,13 @@ export function useTaskErrors(ignoreBackendValidations = true): {
     const taskErrors: BaseValidation<'errors'>[] = [];
 
     for (const node of pages.allNodes().filter(shouldValidateNode)) {
-      formErrors.push(
-        ...getValidationsForNode(
-          node,
-          state,
-          getResolvedVisibilityForNode(node, visibility),
-          ignoreBackendValidations,
-          'errors',
-        ),
-      );
+      formErrors.push(...getValidationsForNode(node, state, getResolvedVisibilityForNode(node, visibility), 'errors'));
     }
     for (const validation of validationsOfSeverity(state.task, 'errors')) {
       taskErrors.push(validation);
     }
     return { formErrors, taskErrors };
-  }, [ignoreBackendValidations, pages, state, visibility]);
+  }, [pages, state, visibility]);
 }
 
 /**

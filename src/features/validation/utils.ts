@@ -1,17 +1,17 @@
-import { ValidationIssueSources } from 'src/features/validation';
-import type { IAttachments, UploadedAttachment } from 'src/features/attachments';
-import type {
-  BaseValidation,
-  ComponentValidation,
-  FieldValidation,
-  FormValidations,
-  GroupedValidation,
-  NodeValidation,
-  ValidationGroup,
-  ValidationSeverity,
-  ValidationState,
-  ValidationUrgency,
+import {
+  type BaseValidation,
+  type ComponentValidation,
+  type FieldValidation,
+  type FormValidations,
+  type GroupedValidation,
+  type NodeValidation,
+  type ValidationGroup,
+  ValidationMask,
+  type ValidationSeverity,
+  type ValidationState,
 } from 'src/features/validation';
+import type { IAttachments, UploadedAttachment } from 'src/features/attachments';
+import type { ValidationMasks } from 'src/layout/common.generated';
 import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -96,53 +96,39 @@ export function shouldValidateNode(node: LayoutNode) {
   return !node.isHidden({ respectTracks: true }) && !('renderAsSummary' in node.item && node.item.renderAsSummary);
 }
 
-/**
- * The following types of validation are also handeled by the frontend
- * and should normally be filtered out to avoid showing duplicate messages.
- */
-const groupsToFilter: string[] = [
-  ValidationIssueSources.Required,
-  ValidationIssueSources.ModelState,
-  ValidationIssueSources.Expression,
-];
+function isValidationVisible<T extends BaseValidation>(validation: T, mask: number): boolean {
+  if (validation.category === 0) {
+    return true;
+  }
+  return (mask & validation.category) > 0;
+}
+
 export function validationsFromGroups<T extends GroupedValidation>(
   groups: ValidationGroup<T>,
-  urgency: ValidationUrgency,
-  ignoreBackendValidations: boolean,
+  mask: number,
   severity?: ValidationSeverity,
 ) {
-  const validationsFlat = ignoreBackendValidations
-    ? Object.entries(groups)
-        .filter(([group]) => !groupsToFilter.includes(group))
-        .flatMap(([, validations]) => validations)
-    : Object.values(groups).flat();
+  const validationsFlat = Object.values(groups).flat();
 
   const filteredValidations = severity ? validationsOfSeverity(validationsFlat, severity) : validationsFlat;
-  return filteredValidations.filter((validation) => urgency >= validation.urgency);
+  return filteredValidations.filter((validation) => isValidationVisible(validation, mask));
 }
 
 /*
  * Gets all validations for a node in a single list, optionally filtered by severity
  * Looks at data model bindings to get field validations
  */
-export function getValidationsForNode(
-  node: LayoutNode,
-  state: ValidationState,
-  urgency: ValidationUrgency,
-  ignoreBackendValidations: boolean,
-): NodeValidation[];
+export function getValidationsForNode(node: LayoutNode, state: ValidationState, mask: number): NodeValidation[];
 export function getValidationsForNode<Severity extends ValidationSeverity>(
   node: LayoutNode,
   state: ValidationState,
-  urgency: ValidationUrgency,
-  ignoreBackendValidations: boolean,
+  mask: number,
   severity: Severity,
 ): NodeValidation<Severity>[];
 export function getValidationsForNode(
   node: LayoutNode,
   state: ValidationState,
-  urgency: ValidationUrgency,
-  ignoreBackendValidations = true,
+  mask: number,
   severity?: ValidationSeverity,
 ): NodeValidation[] {
   const validationMessages: NodeValidation[] = [];
@@ -153,7 +139,7 @@ export function getValidationsForNode(
   if (node.item.dataModelBindings) {
     for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings)) {
       if (state.fields[field]) {
-        const validations = validationsFromGroups(state.fields[field], urgency, ignoreBackendValidations, severity);
+        const validations = validationsFromGroups(state.fields[field], mask, severity);
         for (const validation of validations) {
           validationMessages.push(buildNodeValidation(node, validation, bindingKey));
         }
@@ -162,8 +148,7 @@ export function getValidationsForNode(
       if (state.components[node.item.id]?.bindingKeys?.[bindingKey]) {
         const validations = validationsFromGroups(
           state.components[node.item.id].bindingKeys[bindingKey],
-          urgency,
-          ignoreBackendValidations,
+          mask,
           severity,
         );
         for (const validation of validations) {
@@ -173,17 +158,23 @@ export function getValidationsForNode(
     }
   }
   if (state.components[node.item.id]?.component) {
-    const validations = validationsFromGroups(
-      state.components[node.item.id].component,
-      urgency,
-      ignoreBackendValidations,
-      severity,
-    );
+    const validations = validationsFromGroups(state.components[node.item.id].component, mask, severity);
     for (const validation of validations) {
       validationMessages.push(buildNodeValidation(node, validation));
     }
   }
   return validationMessages;
+}
+
+export function getVisibilityMask(maskKeys?: ValidationMasks): number {
+  let mask = 0;
+  if (!maskKeys) {
+    return mask;
+  }
+  for (const maskKey of maskKeys) {
+    mask |= ValidationMask[maskKey];
+  }
+  return mask;
 }
 
 export function attachmentsValid(

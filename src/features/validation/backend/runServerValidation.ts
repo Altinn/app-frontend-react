@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { ValidationUrgency } from '..';
-import type { BackendValidationIssue, ValidationState } from '..';
+import { type BackendValidationIssue, ValidationIssueSources, ValidationMask, type ValidationState } from '..';
 
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
@@ -41,12 +40,22 @@ export function useBackendValidation() {
         const { field, source: group } = issue;
         const severity = getValidationIssueSeverity(issue);
         const message = getValidationIssueMessage(issue, langTools);
-        const urgency = issue.urgency ?? ValidationUrgency.Submit;
+
+        let category: number = ValidationMask.Backend;
+        if (issue.source === ValidationIssueSources.Custom) {
+          if (issue.showImmediately) {
+            category = 0;
+          } else if (issue.actLikeRequired) {
+            category = ValidationMask.Required;
+          } else {
+            category = ValidationMask.CustomBackend;
+          }
+        }
 
         if (!field) {
           // Unmapped error
           if (!state.task.find((v) => v.message === message && v.severity === severity)) {
-            state.task.push({ severity, message, urgency: ValidationUrgency.Submit });
+            state.task.push({ severity, message, category });
           }
           continue;
         }
@@ -65,7 +74,7 @@ export function useBackendValidation() {
          * instead of just the one.
          */
         if (severity != 'fixed') {
-          state.fields[field][group].push({ field, severity, message, group, urgency });
+          state.fields[field][group].push({ field, severity, message, group, category });
         }
       }
 
