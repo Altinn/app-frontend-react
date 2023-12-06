@@ -9,11 +9,11 @@ import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSumma
 import { MultipleSelectDef } from 'src/layout/MultipleSelect/config.def.generated';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 import type { IFormData } from 'src/features/formData';
 import type { AllOptionsMap } from 'src/features/options/useAllOptions';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class MultipleSelect extends MultipleSelectDef {
   render(props: PropsFromGenericComponent<'MultipleSelect'>): JSX.Element | null {

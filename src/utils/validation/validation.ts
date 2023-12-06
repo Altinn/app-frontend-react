@@ -14,7 +14,7 @@ import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { CompGroupExternal } from 'src/layout/Group/config.generated';
 import type { CompInternal, CompOrGroupExternal, ILayout, ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   IComponentValidations,
   ILayoutValidations,

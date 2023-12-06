@@ -3,7 +3,7 @@ import React from 'react';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
 import { renderWithNode } from 'src/test/renderWithProviders';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 describe('SummaryGroupComponent', () => {
   let mockHandleDataChange: () => void;

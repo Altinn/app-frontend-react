@@ -10,8 +10,8 @@ import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayout
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useIsDev } from 'src/hooks/useIsDev';
 import { getLayoutComponentObject } from 'src/layout';
-import { selectDataSourcesFromState } from 'src/features/form/nodes/hierarchy';
-import { generateEntireHierarchy } from 'src/features/form/nodes/HierarchyGenerator';
+import { selectDataSourcesFromState } from 'src/utils/layout/hierarchy';
+import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { getRootElementPath } from 'src/utils/schemaUtils';
 import { duplicateStringFilter } from 'src/utils/stringHelper';
 import type { LayoutValidationErrors } from 'src/features/devtools/layoutValidation/types';

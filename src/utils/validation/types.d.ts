@@ -6,7 +6,7 @@ import type { IFormData } from 'src/features/formData';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { ILayoutSets } from 'src/types';
 import type { IInstance, IProcess } from 'src/types/shared';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { BackendValidationSeverity } from 'src/utils/validation/backendValidationSeverity';
 
 /**

@@ -6,10 +6,10 @@ import { DataModelSchemaProvider } from 'src/features/datamodel/DataModelSchemaP
 import { DynamicsProvider } from 'src/features/form/dynamics/DynamicsContext';
 import { LayoutsProvider } from 'src/features/form/layout/LayoutsContext';
 import { LayoutSettingsProvider } from 'src/features/form/layoutSettings/LayoutSettingsContext';
-import { NodesProvider } from 'src/features/form/nodes/NodesContext';
 import { RulesProvider } from 'src/features/form/rules/RulesContext';
 import { FormDataProvider } from 'src/features/formData/FormDataContext';
 import { AllOptionsProvider } from 'src/features/options/useAllOptions';
+import { NodesProvider } from 'src/utils/layout/NodesContext';
 
 /**
  * This helper-context provider is used to provide all the contexts needed for forms to work

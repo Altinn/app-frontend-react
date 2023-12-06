@@ -17,12 +17,12 @@ import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { makeGetFocus } from 'src/selectors/getLayoutData';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 import type { IGridStyling } from 'src/layout/common.generated';
 import type { IComponentProps, IFormComponentContext, PropsFromGenericComponent } from 'src/layout/index';
 import type { CompInternal, CompTypes, ITextResourceBindings } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IGenericComponentProps<Type extends CompTypes> {
   node: LayoutNode<Type>;

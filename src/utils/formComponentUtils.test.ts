@@ -11,11 +11,11 @@ import {
   parseFileUploadComponentWithTagValidationObject,
   smartLowerCaseFirst,
 } from 'src/utils/formComponentUtils';
-import { BaseLayoutNode } from 'src/features/form/nodes/LayoutNode';
-import { LayoutPage } from 'src/features/form/nodes/LayoutPage';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { IGridStyling, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/common.generated';
 import type { CompExternal, CompInternal } from 'src/layout/layout';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 describe('formComponentUtils', () => {
   describe('isAttachmentError', () => {

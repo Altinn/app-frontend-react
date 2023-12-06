@@ -4,9 +4,9 @@ import { Fieldset, ToggleGroup } from '@digdir/design-system-react';
 
 import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
 import { useComponentRefs } from 'src/features/devtools/hooks/useComponentRefs';
-import { useNodes } from 'src/features/form/nodes/NodesContext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useNodes } from 'src/utils/layout/NodesContext';
 import type { IDevToolsState } from 'src/features/devtools/data/types';
 
 const pseudoHiddenCssFilter = 'contrast(0.75)';

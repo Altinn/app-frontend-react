@@ -75,11 +75,11 @@ export const CG = {
   import: GenerateImportedSymbol,
   layoutNode: new GenerateImportedSymbol({
     import: 'LayoutNode',
-    from: 'src/features/form/nodes/LayoutNode',
+    from: 'src/utils/layout/LayoutNode',
   }),
   baseLayoutNode: new GenerateImportedSymbol({
     import: 'BaseLayoutNode',
-    from: 'src/features/form/nodes/LayoutNode',
+    from: 'src/utils/layout/LayoutNode',
   }),
 
   // Others

@@ -1,7 +1,7 @@
 import type { AxiosError } from 'axios';
 
 import type { IData } from 'src/types/shared';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export type FileUploaderNode = LayoutNode<'FileUpload' | 'FileUploadWithTag'>;
 

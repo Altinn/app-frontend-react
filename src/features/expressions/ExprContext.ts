@@ -10,8 +10,8 @@ import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { AllOptionsMap } from 'src/features/options/useAllOptions';
 import type { IUiConfig } from 'src/types';
 import type { IApplicationSettings, IAuthContext, IInstanceDataSources } from 'src/types/shared';
-import type { BaseLayoutNode, LayoutNode } from 'src/features/form/nodes/LayoutNode';
-import type { LayoutPage } from 'src/features/form/nodes/LayoutPage';
+import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 export interface ContextDataSources {
   instanceDataSources: IInstanceDataSources | null;

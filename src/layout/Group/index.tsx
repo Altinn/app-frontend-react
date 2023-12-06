@@ -21,9 +21,9 @@ import type { IFormData } from 'src/features/formData';
 import type { ComponentValidation, GroupValidation, PropsFromGenericComponent } from 'src/layout';
 import type { CompExternalExact, CompInternal, HierarchyDataSources } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { ComponentHierarchyGenerator } from 'src/features/form/nodes/HierarchyGenerator';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
-import type { LayoutPage } from 'src/features/form/nodes/LayoutPage';
+import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { IValidationContext, IValidationObject, ValidationContextGenerator } from 'src/utils/validation/types';
 
 export class Group extends GroupDef implements GroupValidation, ComponentValidation {

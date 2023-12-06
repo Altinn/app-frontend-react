@@ -6,7 +6,7 @@ import { Grid, makeStyles, Typography } from '@material-ui/core';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { parseLocation } from 'src/layout/Map/MapComponent';
 import { markerIcon } from 'src/layout/Map/MapIcons';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IMapComponentSummary {
   targetNode: LayoutNode<'Map'>;

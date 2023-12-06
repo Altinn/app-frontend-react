@@ -10,7 +10,7 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import classes from 'src/layout/NavigationButtons/NavigationButtonsComponent.module.css';
 import { selectLayoutOrder, selectPreviousAndNextPage } from 'src/selectors/getLayoutOrder';
 import { reducePageValidations } from 'src/types';
-import { LayoutPage } from 'src/features/form/nodes/LayoutPage';
+import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { IKeepComponentScrollPos } from 'src/features/form/layout/formLayoutTypes';
 import type { PropsFromGenericComponent } from 'src/layout';
 export type INavigationButtons = PropsFromGenericComponent<'NavigationButtons'>;

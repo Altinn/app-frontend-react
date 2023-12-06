@@ -10,7 +10,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { CustomIcon } from 'src/layout/Panel/CustomPanelIcon';
 import classes from 'src/layout/Panel/Panel.module.css';
-import { LayoutPage } from 'src/features/form/nodes/LayoutPage';
+import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { CompGroupNonRepeatingPanelInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 

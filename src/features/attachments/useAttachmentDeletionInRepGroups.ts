@@ -5,7 +5,7 @@ import {
 } from 'src/features/attachments/AttachmentsContext';
 import { isAttachmentUploaded } from 'src/features/attachments/index';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type UploaderNode = LayoutNode<'FileUpload' | 'FileUploadWithTag'>;
 

@@ -2,7 +2,7 @@ import { getHierarchyDataSourcesMock } from 'src/__mocks__/getHierarchyDataSourc
 import { generateSimpleRepeatingGroups } from 'src/features/form/layout/repGroups/generateSimpleRepeatingGroups';
 import { getLayoutComponentObject } from 'src/layout';
 import { ensureAppsDirIsSet, getAllLayoutSets } from 'src/test/allApps';
-import { generateEntireHierarchy } from 'src/features/form/nodes/HierarchyGenerator';
+import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 
 describe('All known layout sets should evaluate as a hierarchy', () => {
   const dir = ensureAppsDirIsSet();

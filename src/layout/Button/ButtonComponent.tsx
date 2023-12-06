@@ -5,7 +5,7 @@ import { useProcessNavigation } from 'src/features/instance/ProcessNavigationCon
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getComponentFromMode } from 'src/layout/Button/getComponentFromMode';
 import { SubmitButton } from 'src/layout/Button/SubmitButton';
-import { LayoutPage } from 'src/features/form/nodes/LayoutPage';
+import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
 

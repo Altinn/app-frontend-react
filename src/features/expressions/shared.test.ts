@@ -11,16 +11,16 @@ import { getLayoutComponentObject } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
 import { getRepeatingGroups, splitDashedKey } from 'src/utils/formLayout';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
-import { _private } from 'src/features/form/nodes/hierarchy';
-import { generateEntireHierarchy, generateHierarchy } from 'src/features/form/nodes/HierarchyGenerator';
+import { _private } from 'src/utils/layout/hierarchy';
+import { generateEntireHierarchy, generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { FunctionTest, SharedTestContext, SharedTestContextList } from 'src/features/expressions/shared';
 import type { Expression } from 'src/features/expressions/types';
 import type { AllOptionsMap } from 'src/features/options/useAllOptions';
 import type { HierarchyDataSources } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
 import type { IApplicationSettings } from 'src/types/shared';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
-import type { LayoutPages } from 'src/features/form/nodes/LayoutPages';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 const { resolvedNodesInLayouts } = _private;
 

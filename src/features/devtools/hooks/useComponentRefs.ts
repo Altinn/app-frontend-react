@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef } from 'react';
 
 import escapeRegex from 'escape-string-regexp';
 
-import { useNodes } from 'src/features/form/nodes/NodesContext';
+import { useNodes } from 'src/utils/layout/NodesContext';
 
 interface IUseComponentRefs {
   componentId?: string;

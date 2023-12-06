@@ -12,7 +12,7 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { IFormData } from 'src/features/formData';
 import type { ComponentValidation, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ISchemaValidationError } from 'src/utils/validation/schemaValidation';
 import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
 

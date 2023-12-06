@@ -14,8 +14,8 @@ import { addError, asExpression, canBeExpression } from 'src/features/expression
 import { implementsDisplayData } from 'src/layout';
 import { isDate } from 'src/utils/dateHelpers';
 import { formatDateLocale } from 'src/utils/formatDateLocale';
-import { BaseLayoutNode } from 'src/features/form/nodes/LayoutNode';
-import { LayoutPage } from 'src/features/form/nodes/LayoutPage';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type {
   ExprConfig,
@@ -30,7 +30,7 @@ import type {
 import type { CompGroupExternal } from 'src/layout/Group/config.generated';
 import type { CompExternal } from 'src/layout/layout';
 import type { IAuthContext, IInstanceDataSources } from 'src/types/shared';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface EvalExprOptions {
   config?: ExprConfig;

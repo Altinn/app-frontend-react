@@ -1,11 +1,11 @@
-import { ComponentHierarchyGenerator } from 'src/features/form/nodes/HierarchyGenerator';
+import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type {
   ChildFactory,
   HierarchyContext,
   HierarchyGenerator,
   UnprocessedItem,
-} from 'src/features/form/nodes/HierarchyGenerator';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
+} from 'src/utils/layout/HierarchyGenerator';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class ButtonGroupHierarchyGenerator extends ComponentHierarchyGenerator<'ButtonGroup'> {
   private canRenderInButtonGroup(generator: HierarchyGenerator, childId: string, outputWarning = true): boolean {

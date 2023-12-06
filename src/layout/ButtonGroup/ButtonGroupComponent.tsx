@@ -6,7 +6,7 @@ import type { PropsFromGenericComponent } from '..';
 
 import classes from 'src/layout/ButtonGroup/ButtonGroupComponent.module.css';
 import { GenericComponent } from 'src/layout/GenericComponent';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function ButtonGroupComponent({ node }: PropsFromGenericComponent<'ButtonGroup'>) {
   const childNodes = node.item.childComponents;

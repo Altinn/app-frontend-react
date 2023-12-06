@@ -10,14 +10,14 @@ import { DevToolsTab } from 'src/features/devtools/data/types';
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { asExpression } from 'src/features/expressions/validation';
-import { selectDataSourcesFromState } from 'src/features/form/nodes/hierarchy';
-import { useNodes } from 'src/features/form/nodes/NodesContext';
 import { FD } from 'src/features/formData/FormDataWriter';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { selectDataSourcesFromState } from 'src/utils/layout/hierarchy';
+import { useNodes } from 'src/utils/layout/NodesContext';
 import type { ExprConfig, Expression, ExprFunction } from 'src/features/expressions/types';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
-import type { LayoutPage } from 'src/features/form/nodes/LayoutPage';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 interface ExpressionResult {
   value: string;

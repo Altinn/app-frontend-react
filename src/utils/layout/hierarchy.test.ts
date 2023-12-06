@@ -2,17 +2,17 @@ import { getHierarchyDataSourcesMock } from 'src/__mocks__/getHierarchyDataSourc
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getLayoutComponentObject } from 'src/layout';
 import { getRepeatingGroups } from 'src/utils/formLayout';
-import { _private, resolvedLayoutsFromState } from 'src/features/form/nodes/hierarchy';
-import { generateHierarchy } from 'src/features/form/nodes/HierarchyGenerator';
-import { BaseLayoutNode } from 'src/features/form/nodes/LayoutNode';
-import { LayoutPage } from 'src/features/form/nodes/LayoutPage';
-import { LayoutPages } from 'src/features/form/nodes/LayoutPages';
+import { _private, resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
+import { generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { CompGroupNonRepeatingExternal, CompGroupRepeatingExternal } from 'src/layout/Group/config.generated';
 import type { CompHeaderExternal } from 'src/layout/Header/config.generated';
 import type { CompInputExternal } from 'src/layout/Input/config.generated';
 import type { CompInternal, HierarchyDataSources, ILayout, ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IValidations } from 'src/utils/validation/types';
 
 const { resolvedNodesInLayouts } = _private;

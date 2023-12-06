@@ -7,7 +7,7 @@ import { MapComponentSummary } from 'src/layout/Map/MapComponentSummary';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Map extends MapDef {
   render(props: PropsFromGenericComponent<'Map'>): JSX.Element | null {

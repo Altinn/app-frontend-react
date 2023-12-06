@@ -1,18 +1,18 @@
 import { useMemo } from 'react';
 
-import { dataSourcesFromState } from 'src/features/form/nodes/hierarchy';
-import { generateHierarchy } from 'src/features/form/nodes/HierarchyGenerator';
-import { useNodes } from 'src/features/form/nodes/NodesContext';
 import { usePdfFormatQuery } from 'src/features/pdf/usePdfFormatQuery';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLayoutComponentObject } from 'src/layout';
-import type { LayoutPage } from 'src/features/form/nodes/LayoutPage';
-import type { LayoutPages } from 'src/features/form/nodes/LayoutPages';
+import { dataSourcesFromState } from 'src/utils/layout/hierarchy';
+import { generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
+import { useNodes } from 'src/utils/layout/NodesContext';
 import type { IPdfFormat } from 'src/features/pdf/types';
 import type { CompInstanceInformationExternal } from 'src/layout/InstanceInformation/config.generated';
 import type { HierarchyDataSources, ILayout } from 'src/layout/layout';
 import type { CompSummaryExternal } from 'src/layout/Summary/config.generated';
 import type { IPageOrderConfig, IRepeatingGroups } from 'src/types';
+import type { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 const PDF_LAYOUT_NAME = '__pdf__';
 

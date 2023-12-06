@@ -8,7 +8,7 @@ import { mergeAndSort } from 'src/features/attachments/utils/sorting';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import type { IAttachmentsCtx } from 'src/features/attachments/index';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 const { Provider, useCtx } = createContext<IAttachmentsCtx>({ name: 'AttachmentsContext', required: true });
 

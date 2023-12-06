@@ -12,12 +12,12 @@ import { FormComponentContext } from 'src/layout';
 import { getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 import type { IFormData } from 'src/features/formData';
 import type { TextResourceMap } from 'src/features/language/textResources';
 import type { FixedLanguageList } from 'src/language/languages';
 import type { IRuntimeState } from 'src/types';
 import type { IApplicationSettings, IInstanceDataSources, ILanguage, IVariable } from 'src/types/shared';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export type ValidLangParam = string | number | undefined;
 

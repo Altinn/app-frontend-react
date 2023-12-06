@@ -8,11 +8,11 @@ import { asExpression } from 'src/features/expressions/validation';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { convertDataBindingToModel, getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
-import { selectDataSourcesFromState } from 'src/features/form/nodes/hierarchy';
+import { selectDataSourcesFromState } from 'src/utils/layout/hierarchy';
 import { memoize } from 'src/utils/memoize';
 import type { IOption, IOptionSourceExternal } from 'src/layout/common.generated';
 import type { HierarchyDataSources } from 'src/layout/layout';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface IUseSourceOptionsArgs {
   source: IOptionSourceExternal | undefined;

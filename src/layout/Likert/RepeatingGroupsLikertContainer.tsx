@@ -13,7 +13,7 @@ import classes from 'src/layout/Likert/LikertComponent.module.css';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { CompGroupRepeatingLikertInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type RepeatingGroupsLikertContainerProps = {
   node: LayoutNodeForGroup<CompGroupRepeatingLikertInternal>;

@@ -4,10 +4,10 @@ import { screen, within } from '@testing-library/react';
 import type { AxiosResponse } from 'axios';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { useResolvedNode } from 'src/features/form/nodes/NodesContext';
 import { RepeatingGroupsLikertContainer } from 'src/layout/Likert/RepeatingGroupsLikertContainer';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
+import { useResolvedNode } from 'src/utils/layout/NodesContext';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { IRawTextResource, ITextResourceResult } from 'src/features/language/textResources';
 import type { IValidationState } from 'src/features/validation/validationSlice';

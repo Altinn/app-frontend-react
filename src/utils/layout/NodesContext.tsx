@@ -7,16 +7,16 @@ import {
   shouldUpdate,
 } from 'src/features/form/dynamics/conditionalRenderingSagas';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { _private, selectDataSourcesFromState } from 'src/features/form/nodes/hierarchy';
-import { BaseLayoutNode } from 'src/features/form/nodes/LayoutNode';
 import { FD } from 'src/features/formData/FormDataWriter';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { selectPageOrderConfig } from 'src/selectors/getLayoutOrder';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
-import type { LayoutPages } from 'src/features/form/nodes/LayoutPages';
+import { _private, selectDataSourcesFromState } from 'src/utils/layout/hierarchy';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { HierarchyDataSources, LayoutNodeFromObj } from 'src/layout/layout';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 export const { Provider, useCtx } = createContext<LayoutPages | undefined>({
   name: 'Nodes',

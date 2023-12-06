@@ -12,9 +12,9 @@ import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
 import { DevToolsTab } from 'src/features/devtools/data/types';
 import { useLayoutValidationForPage } from 'src/features/devtools/layoutValidation/useLayoutValidation';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { useNodes } from 'src/features/form/nodes/NodesContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
+import { useNodes } from 'src/utils/layout/NodesContext';
 
 export const LayoutInspector = () => {
   const selectedComponent = useAppSelector((state) => state.devTools.layoutInspector.selectedComponentId);

@@ -6,7 +6,7 @@ import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraver
 import { generateSimpleRepeatingGroups } from 'src/features/form/layout/repGroups/generateSimpleRepeatingGroups';
 import { getLayoutComponentObject } from 'src/layout';
 import { ensureAppsDirIsSet, getAllLayoutSetsWithDataModelSchema, parseJsonTolerantly } from 'src/test/allApps';
-import { generateEntireHierarchy } from 'src/features/form/nodes/HierarchyGenerator';
+import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { getRootElementPath } from 'src/utils/schemaUtils';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 

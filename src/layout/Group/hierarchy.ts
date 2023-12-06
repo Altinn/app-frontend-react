@@ -2,7 +2,7 @@ import { GridHierarchyGenerator } from 'src/layout/Grid/hierarchy';
 import { nodesFromGridRow } from 'src/layout/Grid/tools';
 import { groupIsNonRepeatingPanelExt, groupIsRepeating, groupIsRepeatingExt } from 'src/layout/Group/tools';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
-import { ComponentHierarchyGenerator } from 'src/features/form/nodes/HierarchyGenerator';
+import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type {
   CompGroupExternal,
   CompGroupRepeatingInternal,
@@ -18,8 +18,8 @@ import type {
   HierarchyContext,
   HierarchyGenerator,
   UnprocessedItem,
-} from 'src/features/form/nodes/HierarchyGenerator';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
+} from 'src/utils/layout/HierarchyGenerator';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface GroupPanelRef {
   childPage: string;

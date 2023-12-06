@@ -7,8 +7,8 @@ import { AccordionGroupHierarchyGenerator } from 'src/layout/AccordionGroup/hier
 import { SummaryAccordionGroupComponent } from 'src/layout/AccordionGroup/SummaryAccordionGroupComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { ComponentHierarchyGenerator } from 'src/features/form/nodes/HierarchyGenerator';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
+import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class AccordionGroup extends AccordionGroupDef {
   private _hierarchyGenerator = new AccordionGroupHierarchyGenerator();

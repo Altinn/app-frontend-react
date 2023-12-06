@@ -6,8 +6,8 @@ import cn from 'classnames';
 
 import classes from 'src/features/devtools/components/DevNavigationButtons/DevNavigationButtons.module.css';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { useNodes } from 'src/features/form/nodes/NodesContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useNodes } from 'src/utils/layout/NodesContext';
 
 export const DevNavigationButtons = () => {
   const { currentView, pageOrderConfig } = useAppSelector((state) => state.formLayout.uiConfig);

@@ -1,5 +1,5 @@
 import type { GridRowInternal, GridRowsInternal } from 'src/layout/common.generated';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function nodesFromGrid(grid: LayoutNode<'Grid'>): LayoutNode[] {
   return nodesFromGridRows(grid.item.rows);
