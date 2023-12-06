@@ -108,7 +108,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
         FormLayoutActions.updateRepeatingGroupsEditIndex({
           group: id,
           index: repeatingGroupIndex + 1,
-          shouldAddRow: true,
+          shouldAddRow: !!edit?.alwaysShowAddButton,
         }),
       );
       setMultiPageIndex(0);

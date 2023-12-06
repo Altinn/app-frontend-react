@@ -68,12 +68,13 @@ function deleteChildVisibility(visibility: Visibility, key: PathItem): void {
 
 export function addVisibilityForNode(node: LayoutNode, state: Visibility): void {
   const path = getPathFromRoot(node);
+  const urgency = ('baseValidationLevel' in node.item ? node.item.baseValidationLevel : 0) ?? 0;
 
   let currentVisibility: Visibility = state;
   for (const key of path) {
     if (!getChildVisibility(currentVisibility, key)) {
       setChildVisibility(currentVisibility, key, {
-        urgency: 0,
+        urgency,
         children: {},
         items: [],
       });

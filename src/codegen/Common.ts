@@ -411,7 +411,7 @@ const common = {
             'Boolean value or expression indicating if the component should be required. Defaults to false.',
           ),
       ),
-      // Todo(Validation): Consider adding validation properties
+      new CG.prop('baseValidationLevel', CG.common('Validation').optional()),
     ),
   SummarizableComponentProps: () =>
     new CG.obj(

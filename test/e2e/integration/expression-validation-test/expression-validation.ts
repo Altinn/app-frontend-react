@@ -160,7 +160,7 @@ describe('Expression validation', () => {
     // Ability to save group row with errors
     cy.interceptLayout('skjema', (c) => {
       if (c.type === 'Group') {
-        (c as any).triggers = undefined;
+        (c as any).validateOnSaveRow = undefined;
       }
     });
 
