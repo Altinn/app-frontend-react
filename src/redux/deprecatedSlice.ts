@@ -63,8 +63,9 @@ export const deprecatedSlice = () => {
         },
       }),
       setFormData: mkAction<IFormData>({
-        reducer: (state, action) => {
-          state.formData = action.payload;
+        reducer: (_state, _action) => {
+          // PRIORITY: Comment this back in again
+          // state.formData = action.payload;
         },
       }),
     },

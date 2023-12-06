@@ -211,6 +211,7 @@ const createReducer =
   (state, action) => {
     const implementation = actions[action.type] as unknown as Implementation<FDActionTypes>;
     if (implementation) {
+      console.log('debug, useFormDataStateMachine, action', action);
       return implementation(state, action, ruleConnections);
     }
     throw new Error(`Unknown action type ${action.type}`);

@@ -14,13 +14,21 @@ import { useFormDataStateMachine } from 'src/features/formData/StateMachine';
 import { useMemoDeepEqual } from 'src/hooks/useMemoDeepEqual';
 import type { IFormData } from 'src/features/formData/index';
 import type { FDAction, FormDataStorage } from 'src/features/formData/StateMachine';
-import type { IFormDataFunctionality, IFormDataMethods } from 'src/features/formData/types';
+import type { IDataModelBindings } from 'src/layout/layout';
+
+export type FDValue = string | number | boolean | object | undefined | null | FDValue[];
+export type FDFreshness = 'current' | 'debounced';
 
 interface FormDataStorageExtended extends FormDataStorage {
   isSaving: boolean;
   hasUnsavedChanges: boolean;
   hasUnsavedDebouncedChanges: boolean;
-  methods: IFormDataMethods;
+  methods: {
+    setLeafValue: (path: string, newValue: any) => void;
+    appendToListUnique: (path: string, newValue: any) => void;
+    removeIndexFromList: (path: string, index: number) => void;
+    removeValueFromList: (path: string, item: any) => void;
+  };
 
   currentDataFlat: IFormData;
   debouncedCurrentDataFlat: IFormData;
@@ -122,19 +130,18 @@ export function FormDataWriteProvider({ uuid, initialData, children }: FormDataW
         hasUnsavedChanges,
         hasUnsavedDebouncedChanges,
         isSaving,
-        currentData: state.currentData,
+
         currentDataFlat: dot.dot(state.currentData),
-        debouncedCurrentData: state.debouncedCurrentData,
-        currentUuid: uuid,
         debouncedCurrentDataFlat: dot.dot(state.debouncedCurrentData),
-        lastSavedData: state.lastSavedData,
         lastSavedDataFlat: dot.dot(state.lastSavedData),
+
         methods: {
           setLeafValue: (path, newValue) => dispatch({ type: 'setLeafValue', path, newValue }),
           appendToListUnique: (path, newValue) => dispatch({ type: 'appendToListUnique', path, newValue }),
           removeIndexFromList: (path, index) => dispatch({ type: 'removeIndexFromList', path, index }),
           removeValueFromList: (path, value) => dispatch({ type: 'removeValueFromList', path, value }),
         },
+        ...state,
       }}
     >
       <FormDataReadOnlyProvider value={dot.dot(state.debouncedCurrentData)}>{children}</FormDataReadOnlyProvider>
@@ -142,23 +149,54 @@ export function FormDataWriteProvider({ uuid, initialData, children }: FormDataW
   );
 }
 
-function useCurrentData(freshness: 'current' | 'debounced' = 'debounced') {
+function useData(freshness: FDFreshness = 'debounced') {
   const { currentData, debouncedCurrentData } = useCtx();
   return freshness === 'current' ? currentData : debouncedCurrentData;
 }
 
-export const FD: IFormDataFunctionality = {
-  useAsDotMap(freshness = 'debounced') {
+const staticEmptyObject: IFormData = {};
+
+export const FD = {
+  /**
+   * This will return the form data as a dot map, where the keys are dot-separated paths. This is the same format
+   * as the older form data. Consider using any of the newer methods instead, which may come with performance benefits.
+   */
+  useAsDotMap(freshness: FDFreshness = 'debounced'): IFormData {
     const { currentDataFlat, debouncedCurrentDataFlat } = useCtx();
     return freshness === 'current' ? currentDataFlat : debouncedCurrentDataFlat;
   },
-  useAsObject: (freshness = 'debounced') => useCurrentData(freshness),
-  usePick: (path, freshness) => {
-    const data = useCurrentData(freshness);
+
+  /**
+   * PRIORITY: Remove this and use useAsDotMap() instead
+   */
+  useDummyDotMap: (_freshness: FDFreshness = 'debounced'): IFormData => staticEmptyObject,
+
+  /**
+   * This will return the form data as a deep object, just like the server sends it to us (and the way we send it back).
+   */
+  useAsObject: (freshness: FDFreshness = 'debounced') => useData(freshness),
+
+  /**
+   * This returns a value, as picked from the form data. The value may be anything that is possible to store in the
+   * data model (scalar values, arrays and objects). If the value is not found, undefined is returned. Null may
+   * also be returned if the value is explicitly set to null.
+   */
+  usePick: (path: string | undefined, freshness?: FDFreshness): FDValue => {
+    const data = useData(freshness);
     return useMemoDeepEqual(path ? dot.pick(path, data) : undefined);
   },
-  useBindings: (bindings, freshness) => {
-    const data = useCurrentData(freshness);
+
+  /**
+   * This returns multiple values, as picked from the form data. The values in the input object is expected to be
+   * dot-separated paths, and the return value will be an object with the same keys, but with the values picked
+   * from the form data. If a value is not found, undefined is returned. Null may also be returned if the value
+   * is explicitly set to null.
+   */
+  useBindings: <T extends IDataModelBindings | undefined>(
+    bindings: T,
+    freshness?: FDFreshness,
+  ): T extends undefined ? Record<string, never> : { [key in keyof T]: FDValue } => {
+    const data = useData(freshness);
     const out: any = {};
     if (bindings) {
       for (const key of Object.keys(bindings)) {
@@ -168,6 +206,10 @@ export const FD: IFormDataFunctionality = {
 
     return useMemoDeepEqual(out);
   },
+
+  /**
+   * These methods can be used to update the data model.
+   */
   useMethods: () => {
     const { methods } = useCtx();
     return methods;

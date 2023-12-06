@@ -1,7 +1,7 @@
 import { useContext, useMemo } from 'react';
 import type { JSX } from 'react';
 
-import { useFormDataReadOnly } from 'src/features/formData/FormDataReadOnly';
+import { FD } from 'src/features/formData/FormDataWriter';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useTextResources } from 'src/features/language/textResources/TextResourcesProvider';
@@ -12,12 +12,12 @@ import { FormComponentContext } from 'src/layout';
 import { getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
+import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 import type { IFormData } from 'src/features/formData';
 import type { TextResourceMap } from 'src/features/language/textResources';
 import type { FixedLanguageList } from 'src/language/languages';
 import type { IRuntimeState } from 'src/types';
 import type { IApplicationSettings, IInstanceDataSources, ILanguage, IVariable } from 'src/types/shared';
-import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 
 export type ValidLangParam = string | number | undefined;
 
@@ -73,7 +73,8 @@ export function useLanguage(node?: LayoutNode) {
   const selectedAppLanguage = useCurrentLanguage();
   const componentCtx = useContext(FormComponentContext);
   const nearestNode = node || componentCtx?.node;
-  const formData = useFormDataReadOnly();
+  // const formData = useFormDataReadOnly();
+  const formData = FD.useDummyDotMap();
   const applicationSettings = useAppSelector((state) => state.applicationSettings.applicationSettings);
   const instance = useLaxInstanceData();
   const instanceDataSources = useMemo(() => buildInstanceDataSources(instance), [instance]);

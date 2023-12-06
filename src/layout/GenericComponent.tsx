@@ -112,8 +112,8 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
   const hidden = node.isHidden();
   const { lang, langAsString } = useLanguage(node);
 
-  const formData = node.getFormData() as IComponentFormData<Type>;
-  //const formData = FD.useBindings(node.item.dataModelBindings as IDataModelBindings | undefined, 'current');
+  const formData = FD.useDummyDotMap();
+  // const formData = FD.useBindings(node.item.dataModelBindings as IDataModelBindings | undefined, 'current');
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
   const isValid = !node.hasValidationMessages('errors');
 

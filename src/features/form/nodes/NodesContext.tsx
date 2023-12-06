@@ -7,16 +7,16 @@ import {
   shouldUpdate,
 } from 'src/features/form/dynamics/conditionalRenderingSagas';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { _private, selectDataSourcesFromState } from 'src/features/form/nodes/hierarchy';
+import { BaseLayoutNode } from 'src/features/form/nodes/LayoutNode';
 import { FD } from 'src/features/formData/FormDataWriter';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { selectPageOrderConfig } from 'src/selectors/getLayoutOrder';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
-import { _private, selectDataSourcesFromState } from 'src/features/form/nodes/hierarchy';
-import { BaseLayoutNode } from 'src/features/form/nodes/LayoutNode';
-import type { HierarchyDataSources, LayoutNodeFromObj } from 'src/layout/layout';
 import type { LayoutNode } from 'src/features/form/nodes/LayoutNode';
 import type { LayoutPages } from 'src/features/form/nodes/LayoutPages';
+import type { HierarchyDataSources, LayoutNodeFromObj } from 'src/layout/layout';
 
 export const { Provider, useCtx } = createContext<LayoutPages | undefined>({
   name: 'Nodes',
@@ -37,7 +37,7 @@ function useLayoutsAsNodes(): LayoutPages | undefined {
 
 export const NodesProvider = (props: React.PropsWithChildren) => {
   const resolvedNodes = useLayoutsAsNodes();
-  useLegacyHiddenComponents(resolvedNodes);
+  // useLegacyHiddenComponents(resolvedNodes); // PRIORITY: Comment back in
 
   return <Provider value={resolvedNodes}>{props.children}</Provider>;
 };
@@ -90,7 +90,7 @@ export function useResolvedNode<T>(selector: string | undefined | T | LayoutNode
 function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
   const _currentHiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
   const pageOrderConfig = useAppSelector(selectPageOrderConfig);
-  const formData = FD.useAsDotMap();
+  const formData = FD.useDummyDotMap();
   const rules = useAppSelector((state) => state.formDynamics.conditionalRendering);
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
   const _dataSources = useAppSelector(selectDataSourcesFromState);
