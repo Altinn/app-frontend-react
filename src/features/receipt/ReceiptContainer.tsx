@@ -9,13 +9,11 @@ import { ReceiptComponentSimple } from 'src/components/organisms/AltinnReceiptSi
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useAppReceiver } from 'src/core/texts/appTexts';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
-import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useParties } from 'src/features/party/PartiesProvider';
 import { CustomReceipt } from 'src/features/receipt/CustomReceipt';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
-import { PageKeys, useNavigatePage } from 'src/hooks/useNavigatePage';
 import { layoutsSelector } from 'src/selectors/layout';
 import {
   filterDisplayAttachments,
@@ -92,8 +90,6 @@ export const ReceiptContainer = () => {
   const layouts = useAppSelector(layoutsSelector);
   const langTools = useLanguage();
   const { lang } = langTools;
-  const process = useLaxProcessData();
-  const { navigateToPage } = useNavigatePage();
   const receiver = useAppReceiver();
 
   const origin = window.location.origin;
@@ -130,11 +126,11 @@ export const ReceiptContainer = () => {
     }
   }, [instance, applicationMetadata]);
 
-  React.useEffect(() => {
-    if (!process?.ended) {
-      navigateToPage(PageKeys.Confirmation);
-    }
-  }, [process?.ended, navigateToPage]);
+  // React.useEffect(() => {
+  //   if (!process?.ended) {
+  //     navigateToPage(PageKeys.Confirmation);
+  //   }
+  // }, [process?.ended, navigateToPage]);
 
   const requirementMissing = !attachments
     ? 'attachments'
