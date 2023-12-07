@@ -32,7 +32,7 @@ const headingSizes: { [k in HeadingLevel]: Parameters<typeof Heading>[0]['size']
 };
 
 export function DisplayGroupContainer({ groupNode, id, onlyRowIndex, renderLayoutNode }: IDisplayGroupContainer) {
-  const { langAsString } = useLanguage();
+  const { lang } = useLanguage();
   const container = groupNode.item;
   const { title, description } = container.textResourceBindings ?? {};
 
@@ -52,7 +52,7 @@ export function DisplayGroupContainer({ groupNode, id, onlyRowIndex, renderLayou
             level={headingLevel}
             size={headingSize}
           >
-            {langAsString(title)}
+            {lang(title)}
           </Heading>
         )
       }

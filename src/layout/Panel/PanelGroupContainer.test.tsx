@@ -100,8 +100,8 @@ describe('PanelGroupContainer', () => {
     const title = screen.queryByText('Title for PanelGoup');
     expect(title).toBeInTheDocument();
 
-    const body = screen.queryByText('Body for PanelGroup');
-    expect(body).toBeInTheDocument();
+    const description = screen.queryByText('Description for PanelGroup');
+    expect(description).toBeInTheDocument();
   });
 });
 

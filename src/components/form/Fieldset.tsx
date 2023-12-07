@@ -33,7 +33,7 @@ export const Fieldset = ({
     hideLegend={!legend}
     legend={
       <div className={classes.legendContent}>
-        {legend ?? id}
+        {legend}
         <RequiredIndicator
           required={required}
           readOnly={false}
