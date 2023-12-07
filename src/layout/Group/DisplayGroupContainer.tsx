@@ -5,7 +5,6 @@ import cn from 'classnames';
 
 import { Fieldset } from 'src/components/form/Fieldset';
 import { Lang } from 'src/features/language/Lang';
-import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/Group/DisplayGroupContainer.module.css';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { HeadingLevel } from 'src/layout/common.generated';
@@ -32,7 +31,6 @@ const headingSizes: { [k in HeadingLevel]: Parameters<typeof Heading>[0]['size']
 };
 
 export function DisplayGroupContainer({ groupNode, id, onlyRowIndex, renderLayoutNode }: IDisplayGroupContainer) {
-  const { lang } = useLanguage();
   const container = groupNode.item;
   const { title, description } = container.textResourceBindings ?? {};
 
@@ -52,7 +50,7 @@ export function DisplayGroupContainer({ groupNode, id, onlyRowIndex, renderLayou
             level={headingLevel}
             size={headingSize}
           >
-            {lang(title)}
+            <Lang id={title} />
           </Heading>
         )
       }

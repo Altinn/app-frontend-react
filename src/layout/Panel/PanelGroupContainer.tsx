@@ -6,7 +6,7 @@ import { Grid } from '@material-ui/core';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { getVariant } from 'src/components/form/Panel';
-import { useLanguage } from 'src/features/language/useLanguage';
+import { Lang } from 'src/features/language/Lang';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { CustomIcon } from 'src/layout/Panel/CustomPanelIcon';
 import classes from 'src/layout/Panel/Panel.module.css';
@@ -19,10 +19,8 @@ interface PanelGroupContainerProps {
 }
 
 export const PanelGroupContainer = ({ node }: PanelGroupContainerProps) => {
-  const { lang } = useLanguage();
-  const title = lang(node.item.textResourceBindings?.title);
-  const description = lang(node.item.textResourceBindings?.description);
   const { iconUrl, iconAlt } = node.item.panel || {};
+  const { title, description } = node.item.textResourceBindings || {};
   const fullWidth = node.parent instanceof LayoutPage;
   const isOnBottom = node.parent.children().indexOf(node) === node.parent.children().length - 1;
   const isOnTop = node.parent.children().indexOf(node) === 0;
@@ -46,7 +44,7 @@ export const PanelGroupContainer = ({ node }: PanelGroupContainerProps) => {
         )}
       >
         <Panel
-          title={title}
+          title={<Lang id={title} />}
           renderIcon={
             iconUrl
               ? ({ size }) => (
@@ -66,7 +64,11 @@ export const PanelGroupContainer = ({ node }: PanelGroupContainerProps) => {
             spacing={3}
             data-testid='panel-group-container'
           >
-            {description && <div className={classes.panelBodyText}>{description}</div>}
+            {description && (
+              <div className={classes.panelBodyText}>
+                <Lang id={description} />
+              </div>
+            )}
             {node.children().map((child) => (
               <GenericComponent
                 key={node.item.id}

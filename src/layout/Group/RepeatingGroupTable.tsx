@@ -5,7 +5,6 @@ import cn from 'classnames';
 
 import { Caption } from 'src/components/form/Caption';
 import { Lang } from 'src/features/language/Lang';
-import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { CompCategory } from 'src/layout/common';
 import { GenericComponent } from 'src/layout/GenericComponent';
@@ -46,7 +45,6 @@ export function RepeatingGroupTable({
   rowsAfter,
 }: IRepeatingGroupTableProps): JSX.Element | null {
   const mobileView = useIsMobileOrTablet();
-  const { lang } = useLanguage();
 
   const container = node.item;
   const { textResourceBindings, labelSettings, id, edit, minCount } = container;
@@ -225,12 +223,16 @@ export function RepeatingGroupTable({
               ))}
               {displayEditColumn && (
                 <TableCell style={{ padding: 0, paddingRight: '10px' }}>
-                  <span className={classes.visuallyHidden}>{lang('general.edit')}</span>
+                  <span className={classes.visuallyHidden}>
+                    <Lang id={'general.edit'} />
+                  </span>
                 </TableCell>
               )}
               {displayDeleteColumn && (
                 <TableCell style={{ padding: 0 }}>
-                  <span className={classes.visuallyHidden}>{lang('general.delete')}</span>
+                  <span className={classes.visuallyHidden}>
+                    <Lang id={'general.delete'} />
+                  </span>
                 </TableCell>
               )}
             </TableRow>
