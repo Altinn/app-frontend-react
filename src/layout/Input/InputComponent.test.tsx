@@ -39,13 +39,13 @@ describe('InputComponent', () => {
 
   it('should call setLeafValue function after data change', async () => {
     const typedValue = 'test input';
-    const { dispatchGatekeeper } = await render();
+    const { dispatchFormData } = await render();
     const inputComponent = screen.getByRole('textbox');
 
     await userEvent.type(inputComponent, typedValue);
 
     expect(inputComponent).toHaveValue(typedValue);
-    expect(dispatchGatekeeper).toHaveBeenCalledWith({
+    expect(dispatchFormData).toHaveBeenCalledWith({
       type: 'setLeafValue',
       path: 'some.field',
       newValue: typedValue,
@@ -59,7 +59,7 @@ describe('InputComponent', () => {
     const typedValue = '789';
     const finalValuePlainText = `${inputValuePlainText}${typedValue}`;
     const finalValueFormatted = '$123,456,789';
-    const { dispatchGatekeeper } = await render({
+    const { dispatchFormData } = await render({
       component: {
         formatting: {
           number: {
@@ -79,7 +79,7 @@ describe('InputComponent', () => {
     await userEvent.tab();
 
     expect(inputComponent).toHaveValue(finalValueFormatted);
-    expect(dispatchGatekeeper).toHaveBeenCalledWith({
+    expect(dispatchFormData).toHaveBeenCalledWith({
       type: 'setLeafValue',
       path: 'some.field',
       newValue: finalValuePlainText,

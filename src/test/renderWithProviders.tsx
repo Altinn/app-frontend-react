@@ -425,7 +425,7 @@ export const renderWithInstanceAndLayout = async ({
 
   const dispatchGatekeeper = jest.fn().mockImplementation(() => true);
   return {
-    dispatchGatekeeper,
+    dispatchFormData: dispatchGatekeeper,
     ...(await renderBase({
       renderer: () => (
         <InstanceProvider>
