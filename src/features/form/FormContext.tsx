@@ -5,6 +5,7 @@ import { CustomValidationConfigProvider } from 'src/features/customValidation/Cu
 import { DataModelSchemaProvider } from 'src/features/datamodel/DataModelSchemaProvider';
 import { DynamicsProvider } from 'src/features/form/dynamics/DynamicsContext';
 import { LayoutsProvider } from 'src/features/form/layout/LayoutsContext';
+import { UiConfigProvider } from 'src/features/form/layout/UiConfigContext';
 import { LayoutSettingsProvider } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { RulesProvider } from 'src/features/form/rules/RulesContext';
 import { FormDataProvider } from 'src/features/formData/FormDataContext';
@@ -19,19 +20,21 @@ export function FormProvider({ children }: React.PropsWithChildren) {
     <CustomValidationConfigProvider>
       <LayoutsProvider>
         <LayoutSettingsProvider>
-          <FormDataProvider>
-            <DataModelSchemaProvider>
-              <AttachmentsProvider>
-                <ValidationContext>
-                  <DynamicsProvider>
-                    <RulesProvider>
-                      <AllOptionsProvider>{children}</AllOptionsProvider>
-                    </RulesProvider>
-                  </DynamicsProvider>
-                </ValidationContext>
-              </AttachmentsProvider>
-            </DataModelSchemaProvider>
-          </FormDataProvider>
+          <UiConfigProvider>
+            <FormDataProvider>
+              <DataModelSchemaProvider>
+                <AttachmentsProvider>
+                  <ValidationContext>
+                    <DynamicsProvider>
+                      <RulesProvider>
+                        <AllOptionsProvider>{children}</AllOptionsProvider>
+                      </RulesProvider>
+                    </DynamicsProvider>
+                  </ValidationContext>
+                </AttachmentsProvider>
+              </DataModelSchemaProvider>
+            </FormDataProvider>
+          </UiConfigProvider>
         </LayoutSettingsProvider>
       </LayoutsProvider>
     </CustomValidationConfigProvider>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { Form } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
@@ -8,7 +8,9 @@ import { FormProvider } from 'src/features/form/FormContext';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { useCurrentParty, useCurrentPartyIsValid } from 'src/features/party/PartiesProvider';
+import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
 import { useAllowAnonymousIs } from 'src/features/stateless/getAllowAnonymous';
+import { PageKeys } from 'src/hooks/useNavigatePage';
 import { usePromptForParty } from 'src/hooks/usePromptForParty';
 import { PresentationType } from 'src/types';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
@@ -52,7 +54,16 @@ export function Entrypoint() {
     return (
       <FormProvider>
         <PresentationComponent type={PresentationType.Stateless}>
-          <Form />
+          <Routes>
+            <Route
+              path={PageKeys.Receipt}
+              element={<ReceiptContainer />}
+            />
+            <Route
+              path=':pageKey'
+              element={<Form />}
+            />
+          </Routes>
         </PresentationComponent>
       </FormProvider>
     );

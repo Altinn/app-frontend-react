@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import { Description } from 'src/components/form/Description';
 import { Label } from 'src/components/form/Label';
 import { Legend } from 'src/components/form/Legend';
-import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -14,11 +14,9 @@ import { ComponentValidations } from 'src/features/validation/ComponentValidatio
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { useUnifiedValidationsForNode } from 'src/features/validation/validationProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import { shouldComponentRenderLabel } from 'src/layout/index';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import { makeGetFocus } from 'src/selectors/getLayoutData';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
 import type { IGridStyling } from 'src/layout/common.generated';
 import type { IFormComponentContext } from 'src/layout/FormComponentContext';
@@ -110,15 +108,16 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
   const dispatch = useAppDispatch();
   const classes = useStyles();
   const gridRef = React.useRef<HTMLDivElement>(null);
-  const GetFocusSelector = makeGetFocus();
   const hidden = node.isHidden();
   const { langAsNonProcessedString } = useLanguage(node);
+  const { focusId, setFocusId } = usePageNavigationContext();
 
   const formData = node.getFormData() as IComponentFormData<Type>;
 
-  const shouldFocus = useAppSelector((state) => GetFocusSelector(state, { id }));
   const validations = useUnifiedValidationsForNode(node);
   const isValid = !hasValidationErrors(validations);
+
+  const shouldFocus = id === focusId;
 
   const filterValidationErrors = () => {
     const maxLength = 'maxLength' in node.item && node.item.maxLength;
@@ -155,9 +154,9 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
       if (maybeInput) {
         maybeInput.focus();
       }
-      dispatch(FormLayoutActions.updateFocus({ focusComponentId: null }));
+      setFocusId(undefined);
     }
-  }, [shouldFocus, hidden, dispatch]);
+  }, [shouldFocus, hidden, dispatch, setFocusId]);
 
   if (hidden) {
     return null;

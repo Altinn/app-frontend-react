@@ -18,6 +18,7 @@ import {
 } from 'src/features/validation/validationProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useNavigationParams } from 'src/hooks/useNavigatePage';
 import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
 import { useRepeatingGroupsFocusContext } from 'src/layout/Group/RepeatingGroupsFocusContext';
 import { RepeatingGroupTable } from 'src/layout/Group/RepeatingGroupTable';
@@ -31,6 +32,8 @@ export interface IGroupProps {
 
 export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
   const dispatch = useAppDispatch();
+  const { pageKey } = useNavigationParams();
+
   const { triggerFocus } = useRepeatingGroupsFocusContext();
   const resolvedTextBindings = node.item.textResourceBindings;
   const id = node.item.id;
@@ -91,7 +94,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
 
   const addNewRowToGroup = useCallback(async () => {
     if (!edit?.alwaysShowAddButton || edit?.mode === 'showAll') {
-      dispatch(FormLayoutActions.repGroupAddRow({ groupId: id }));
+      dispatch(FormLayoutActions.repGroupAddRow({ groupId: id, currentPageId: pageKey }));
     }
 
     if (edit?.mode !== 'showAll' && edit?.mode !== 'onlyTable') {
@@ -109,6 +112,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
           group: id,
           index: repeatingGroupIndex + 1,
           shouldAddRow: !!edit?.alwaysShowAddButton,
+          currentPageId: pageKey,
         }),
       );
       setMultiPageIndex(0);
@@ -121,6 +125,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
     id,
     node,
     onGroupCloseValidation,
+    pageKey,
     repeatingGroupIndex,
     setMultiPageIndex,
     validateOnSaveRow,
@@ -156,7 +161,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
     const attachmentDeletionSuccessful = await onBeforeRowDeletion(index);
     if (attachmentDeletionSuccessful) {
       onDeleteGroupRow(node, index);
-      dispatch(FormLayoutActions.repGroupDeleteRow({ groupId: id, index }));
+      dispatch(FormLayoutActions.repGroupDeleteRow({ groupId: id, index, currentPageId: pageKey }));
     } else {
       dispatch(FormLayoutActions.repGroupDeleteRowCancelled({ groupId: id, index }));
     }
@@ -175,6 +180,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
       FormLayoutActions.updateRepeatingGroupsEditIndex({
         group: id,
         index,
+        currentPageId: pageKey,
       }),
     );
     if (edit?.multiPage && index > -1) {

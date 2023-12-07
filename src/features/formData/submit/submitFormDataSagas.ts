@@ -17,12 +17,10 @@ import { httpPut } from 'src/utils/network/sharedNetworking';
 import { waitFor } from 'src/utils/sagas';
 import { dataElementUrl, getStatelessFormDataUrl } from 'src/utils/urls/appUrlHelper';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
-import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { IFormData } from 'src/features/formData';
 import type { ISaveAction, IUpdateFormData } from 'src/features/formData/formDataTypes';
-import type { IRuntimeState, IRuntimeStore, IUiConfig } from 'src/types';
+import type { IRuntimeState, IUiConfig } from 'src/types';
 
-const LayoutSelector: (store: IRuntimeStore) => ILayoutState = (store: IRuntimeStore) => store.formLayout;
 const getApplicationMetaData = (store: IRuntimeState) => store.applicationMetadata?.applicationMetadata;
 const selectUiConfig = (state: IRuntimeState) => state.formLayout.uiConfig;
 
@@ -42,14 +40,6 @@ export function* submitFormSaga(): SagaIterator {
 }
 
 function* submitComplete(): SagaIterator {
-  const layoutState: ILayoutState = yield select(LayoutSelector);
-
-  if (layoutState.uiConfig.currentViewCacheKey) {
-    // Reset cache for current page when ending process task
-    localStorage.removeItem(layoutState.uiConfig.currentViewCacheKey);
-    yield put(FormLayoutActions.setCurrentViewCacheKey({ key: undefined }));
-  }
-
   // Data has no validation errors, we complete the current step
   return yield put(FormDataActions.submitReady({ state: 'validationSuccessful' }));
 }

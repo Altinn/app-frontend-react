@@ -1,5 +1,5 @@
 import type { ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
-import type { IKeepComponentScrollPos } from 'src/features/form/layout/formLayoutTypes';
+import type { IComponentScrollPos } from 'src/features/form/layout/formLayoutTypes';
 import type { RootState } from 'src/redux/store';
 
 export interface ILayoutSets {
@@ -16,6 +16,10 @@ export interface ILayoutSet {
 export interface ILayoutSettings {
   pages: IPagesSettings;
   components?: IComponentsSettings;
+  hideCloseButton?: boolean;
+  showLanguageSelector?: boolean;
+  showExpandWidthButton?: boolean;
+  showProgress?: boolean;
   receiptLayoutName?: string;
 }
 
@@ -75,7 +79,6 @@ export interface IUiConfig {
   autoSaveBehavior?: 'onChangePage' | 'onChangeFormData';
   receiptLayoutName?: string;
   currentView: string;
-  currentViewCacheKey?: string;
   returnToView?: string;
   focus: string | null | undefined;
   hiddenFields: string[];
@@ -84,12 +87,7 @@ export interface IUiConfig {
   excludePageFromPdf: string[] | null;
   excludeComponentFromPdf: string[] | null;
   pdfLayoutName?: string;
-  hideCloseButton?: boolean;
-  showLanguageSelector?: boolean;
-  showProgress?: boolean;
-  showExpandWidthButton?: boolean;
-  expandedWidth?: boolean;
-  keepScrollPos?: IKeepComponentScrollPos;
+  keepScrollPos?: IComponentScrollPos;
 }
 
 /**

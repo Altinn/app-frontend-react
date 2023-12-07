@@ -52,6 +52,7 @@ describe('repGroupDeleteRowSaga', function () {
       payload: {
         groupId: 'repeating-group',
         index: 0,
+        currentPageId: 'FormLayout',
       },
     };
 

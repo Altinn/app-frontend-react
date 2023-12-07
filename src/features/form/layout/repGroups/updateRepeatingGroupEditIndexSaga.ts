@@ -6,10 +6,10 @@ import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import type { IUpdateRepeatingGroupsEditIndex } from 'src/features/form/layout/formLayoutTypes';
 
 export function* updateRepeatingGroupEditIndexSaga({
-  payload: { group, index, shouldAddRow },
+  payload: { group, index, shouldAddRow, currentPageId },
 }: PayloadAction<IUpdateRepeatingGroupsEditIndex>): SagaIterator {
   if (shouldAddRow) {
-    yield put(FormLayoutActions.repGroupAddRow({ groupId: group }));
+    yield put(FormLayoutActions.repGroupAddRow({ groupId: group, currentPageId }));
   }
   yield put(
     FormLayoutActions.updateRepeatingGroupsEditIndexFulfilled({

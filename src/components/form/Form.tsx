@@ -8,18 +8,20 @@ import { ErrorReport } from 'src/components/message/ErrorReport';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { FrontendValidationSource } from 'src/features/validation';
 import { useTaskErrors } from 'src/features/validation/validationProvider';
+import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { extractBottomButtons, hasRequiredFields } from 'src/utils/formLayout';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 
 export function Form() {
+  const { currentPageId } = useNavigatePage();
   const nodes = useExprContext();
-  const page = nodes?.current();
-  const pageKey = page?.top.myKey;
+  const page = nodes?.all?.()?.[currentPageId];
+
   const { formErrors, taskErrors } = useTaskErrors();
   const hasErrors = Boolean(formErrors.length) || Boolean(taskErrors.length);
   const requiredFieldsMissing = formErrors.some(
-    (error) => error.group === FrontendValidationSource.EmptyField && error.pageKey === pageKey,
+    (error) => error.group === FrontendValidationSource.EmptyField && error.pageKey === currentPageId,
   );
 
   const [mainNodes, errorReportNodes] = React.useMemo(() => {
@@ -28,10 +30,6 @@ export function Form() {
     }
     return hasErrors ? extractBottomButtons(page) : [page.children(), []];
   }, [page, hasErrors]);
-
-  if (!page) {
-    return null;
-  }
 
   return (
     <>
@@ -46,7 +44,7 @@ export function Form() {
         spacing={3}
         alignItems='flex-start'
       >
-        {mainNodes.map((n) => (
+        {mainNodes?.map((n) => (
           <GenericComponent
             key={n.item.id}
             node={n}

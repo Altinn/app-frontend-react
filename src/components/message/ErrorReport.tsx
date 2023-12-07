@@ -6,10 +6,11 @@ import { Grid } from '@material-ui/core';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import classes from 'src/components/message/ErrorReport.module.css';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { useTaskErrors } from 'src/features/validation/validationProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
@@ -28,7 +29,8 @@ const listStyleImg = `url("data:image/svg+xml,${encodeURIComponent(ArrowForwardS
 
 export const ErrorReport = ({ nodes }: IErrorReportProps) => {
   const dispatch = useAppDispatch();
-  const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
+  const { currentPageId, navigateToPage } = useNavigatePage();
+  const { setFocusId } = usePageNavigationContext();
   const allNodes = useExprContext();
   const { formErrors, taskErrors } = useTaskErrors();
   const hasErrors = Boolean(formErrors.length) || Boolean(taskErrors.length);
@@ -48,12 +50,8 @@ export const ErrorReport = ({ nodes }: IErrorReportProps) => {
       return;
     }
 
-    if (currentView !== componentNode.pageKey()) {
-      dispatch(
-        FormLayoutActions.updateCurrentView({
-          newView: componentNode.pageKey(),
-        }),
-      );
+    if (currentPageId !== error.pageKey) {
+      navigateToPage(error.pageKey);
     }
 
     const allParents = componentNode?.parents() || [];
@@ -105,17 +103,14 @@ export const ErrorReport = ({ nodes }: IErrorReportProps) => {
           FormLayoutActions.updateRepeatingGroupsEditIndex({
             group: parentNode.item.id,
             index: childNode.rowIndex,
+            currentPageId,
           }),
         );
       }
     }
 
     // Set focus
-    dispatch(
-      FormLayoutActions.updateFocus({
-        focusComponentId: error.componentId,
-      }),
-    );
+    setFocusId(error.componentId);
   };
 
   return (
