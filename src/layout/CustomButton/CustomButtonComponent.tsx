@@ -179,7 +179,6 @@ export const CustomButtonComponent = ({ node }: Props) => {
       return;
     }
     for (const action of actions) {
-      console.log('Action', action, isUserAction(action), isFrontendAction(action));
       if (isFrontendAction(action)) {
         await handleFrontendActions([action]);
       }
