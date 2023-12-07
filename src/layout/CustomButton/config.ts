@@ -17,14 +17,23 @@ export const Config = new CG.component({
       new CG.arr(
         new CG.union(
           new CG.union(
-            new CG.obj(new CG.prop('name', new CG.const('$nextPage'))).exportAs('NextPageAction'),
-            new CG.obj(new CG.prop('name', new CG.const('$previousPage'))).exportAs('PreviousPageAction'),
+            new CG.obj(
+              new CG.prop('name', new CG.const('$nextPage')),
+              new CG.prop('type', new CG.const('FrontendAction')),
+            ).exportAs('NextPageAction'),
+            new CG.obj(
+              new CG.prop('name', new CG.const('$previousPage')),
+              new CG.prop('type', new CG.const('FrontendAction')),
+            ).exportAs('PreviousPageAction'),
             new CG.obj(
               new CG.prop('name', new CG.const('$navigateToPage')),
+              new CG.prop('type', new CG.const('FrontendAction')),
               new CG.prop('metadata', new CG.obj(new CG.prop('page', new CG.str()))),
             ).exportAs('NavigateToPageAction'),
           ).exportAs('FrontendAction'),
-          new CG.obj(new CG.prop('name', new CG.str())).exportAs('UserAction'),
+          new CG.obj(new CG.prop('name', new CG.str()), new CG.prop('type', new CG.const('UserAction'))).exportAs(
+            'UserAction',
+          ),
         ).exportAs('CustomAction'),
       ),
     ),

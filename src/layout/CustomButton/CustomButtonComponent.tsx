@@ -36,8 +36,8 @@ type FrontendActionWithMetadata = FrontendAction & { metadata: unknown };
 /**
  * A type guard to check if the action is an action that can be run entirely on the frontend
  */
-const isFrontendAction = (action: CustomAction): action is FrontendAction => action.name.startsWith('$');
-const isUserAction = (action: CustomAction): action is UserAction => !isFrontendAction(action);
+const isFrontendAction = (action: CustomAction): action is FrontendAction => action.type === 'FrontendAction';
+const isUserAction = (action: CustomAction): action is UserAction => action.type === 'UserAction';
 const hasMetadata = (action: CustomAction): action is FrontendActionWithMetadata => 'metadata' in action;
 
 type FrontendActionHandlers = {
@@ -179,6 +179,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
       return;
     }
     for (const action of actions) {
+      console.log('Action', action, isUserAction(action), isFrontendAction(action));
       if (isFrontendAction(action)) {
         await handleFrontendActions([action]);
       }
