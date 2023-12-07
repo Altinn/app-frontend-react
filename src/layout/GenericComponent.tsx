@@ -15,12 +15,14 @@ import { hasValidationErrors } from 'src/features/validation/utils';
 import { useUnifiedValidationsForNode } from 'src/features/validation/validationProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { FormComponentContext, shouldComponentRenderLabel } from 'src/layout/index';
+import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
+import { shouldComponentRenderLabel } from 'src/layout/index';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { makeGetFocus } from 'src/selectors/getLayoutData';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
 import type { IGridStyling } from 'src/layout/common.generated';
-import type { IComponentProps, IFormComponentContext, PropsFromGenericComponent } from 'src/layout/index';
+import type { IFormComponentContext } from 'src/layout/FormComponentContext';
+import type { IComponentProps, PropsFromGenericComponent } from 'src/layout/index';
 import type { CompInternal, CompTypes, ITextResourceBindings } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
@@ -278,14 +280,14 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
 
   if (layoutComponent.directRender(componentProps) || overrideDisplay?.directRender) {
     return (
-      <FormComponentContext.Provider value={formComponentContext}>
+      <FormComponentContextProvider value={formComponentContext}>
         <RenderComponent {...componentProps} />
-      </FormComponentContext.Provider>
+      </FormComponentContextProvider>
     );
   }
 
   return (
-    <FormComponentContext.Provider value={formComponentContext}>
+    <FormComponentContextProvider value={formComponentContext}>
       <Grid
         data-componentbaseid={item.baseComponentId || item.id}
         data-componentid={item.id}
@@ -321,7 +323,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
           {showValidationMessages && <ComponentValidations validations={filterValidationErrors()} />}
         </Grid>
       </Grid>
-    </FormComponentContext.Provider>
+    </FormComponentContextProvider>
   );
 }
 

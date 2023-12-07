@@ -1,4 +1,4 @@
-import { createContext, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -18,7 +18,6 @@ import type {
   IValidationContext,
   NodeValidation,
 } from 'src/features/validation';
-import type { IGrid } from 'src/layout/common.generated';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { CompInternal, CompRendersLabel, CompTypes } from 'src/layout/layout';
 import type { AnyComponent, LayoutComponent } from 'src/layout/LayoutComponent';
@@ -66,20 +65,6 @@ export interface PropsFromGenericComponent<T extends CompTypes = CompTypes> exte
   overrideItemProps?: Partial<Omit<CompInternal<T>, 'id'>>;
   overrideDisplay?: IGenericComponentProps<T>['overrideDisplay'];
 }
-
-export interface IFormComponentContext {
-  grid?: IGrid;
-  id?: string;
-  baseComponentId?: string;
-  node?: LayoutNode;
-}
-
-export const FormComponentContext = createContext<IFormComponentContext>({
-  grid: undefined,
-  id: undefined,
-  baseComponentId: undefined,
-  node: undefined,
-});
 
 export function getLayoutComponentObject<T extends keyof CompClassMap>(type: T): CompClassMap[T] {
   if (type && type in ComponentConfigs) {
