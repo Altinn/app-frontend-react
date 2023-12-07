@@ -167,8 +167,8 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
 
   const displayBtn =
     edit?.addButton !== false &&
-    maxCount &&
-    repeatingGroupIndex + 1 < (maxCount === undefined ? -99 : maxCount) &&
+    'maxCount' in node.item &&
+    repeatingGroupIndex + 1 < (node.item.maxCount === undefined ? -99 : node.item.maxCount) &&
     (edit?.mode === 'showAll' || editIndex < 0 || edit?.alwaysShowAddButton === true);
 
   return (
