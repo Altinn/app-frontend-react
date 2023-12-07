@@ -35,7 +35,7 @@ export function CustomWebComponent({
   const Tag = tagName;
   const wcRef = React.useRef<any>(null);
 
-  const value = FD.usePickString(dataModelBindings?.simpleBinding, 'current');
+  const value = FD.usePickFreshString(dataModelBindings?.simpleBinding);
   const setData = FD.useSetForBindings(dataModelBindings);
 
   React.useLayoutEffect(() => {

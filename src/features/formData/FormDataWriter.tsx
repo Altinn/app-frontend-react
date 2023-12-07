@@ -10,6 +10,7 @@ import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { createContext } from 'src/core/contexts/context';
 import { diffModels } from 'src/features/formData/diffModels';
 import { FormDataReadOnlyProvider } from 'src/features/formData/FormDataReadOnly';
+import { useFormDataDispatchGatekeeper } from 'src/features/formData/FormDataWriterDispatch';
 import { useFormDataStateMachine } from 'src/features/formData/StateMachine';
 import { useMemoDeepEqual } from 'src/hooks/useMemoDeepEqual';
 import type { IFormData } from 'src/features/formData/index';
@@ -100,7 +101,19 @@ interface FormDataWriterProps extends PropsWithChildren {
 }
 
 export function FormDataWriteProvider({ uuid, initialData, children }: FormDataWriterProps) {
-  const [state, dispatch] = useFormDataStateMachine(uuid, initialData);
+  const [state, _dispatch] = useFormDataStateMachine(uuid, initialData);
+  const dispatchGatekeeper = useFormDataDispatchGatekeeper();
+  const dispatch = useCallback(
+    (action: FDAction) => {
+      if (action.type === 'initialFetch') {
+        _dispatch(action);
+        return;
+      }
+      dispatchGatekeeper(action) && _dispatch(action);
+    },
+    [_dispatch, dispatchGatekeeper],
+  );
+
   const { mutate, isLoading: isSaving } = useFormDataSaveMutation(uuid, dispatch);
 
   const hasUnsavedChanges =
@@ -162,12 +175,6 @@ export function FormDataWriteProvider({ uuid, initialData, children }: FormDataW
     </Provider>
   );
 }
-
-function useData(freshness: FDFreshness = 'debounced') {
-  const { currentData, debouncedCurrentData } = useCtx();
-  return freshness === 'current' ? currentData : debouncedCurrentData;
-}
-
 export const FD = {
   /**
    * This will return the form data as a dot map, where the keys are dot-separated paths. This is the same format
@@ -182,20 +189,24 @@ export const FD = {
   /**
    * This will return the form data as a deep object, just like the server sends it to us (and the way we send it back).
    */
-  useAsObject: (freshness: FDFreshness = 'debounced') => useData(freshness),
+  useAsObject: (freshness: FDFreshness = 'debounced') => {
+    const { currentData, debouncedCurrentData } = useCtx();
+    return freshness === 'current' ? currentData : debouncedCurrentData;
+  },
 
   /**
-   * This returns a single value, as picked from the form data. The data is converted to a string, if possible.
-   * If the path points to a complex data type, like an object or array, undefined is returned.
+   * This returns a single value, as picked from the form data. The data is always converted to a string.
+   * If the path points to a complex data type, like an object or array, an empty string is returned.
+   * Use this when you expect a string/leaf value, and provide that to a controlled React component
    */
-  usePickString: (path: string | undefined, freshness?: FDFreshness): string | undefined => {
-    const data = useData(freshness);
-    const value = path ? dot.pick(path, data) : undefined;
+  usePickFreshString: (path: string | undefined): string => {
+    const { currentData } = useCtx();
+    const value = path ? dot.pick(path, currentData) : undefined;
     if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
       return value.toString();
     }
 
-    return undefined;
+    return '';
   },
 
   /**
@@ -203,31 +214,32 @@ export const FD = {
    * dot-separated paths, and the return value will be an object with the same keys, but with the values picked
    * from the form data.
    */
-  usePickStrings: <B extends IDataModelBindings>(
-    bindings: B,
-    freshness?: FDFreshness,
-  ): B extends undefined ? Record<string, never> : { [key in keyof B]: string | undefined } => {
-    const data = useData(freshness);
-    const out: any = {};
-    if (bindings) {
-      for (const key of Object.keys(bindings)) {
-        const value = dot.pick((bindings as any)[key], data);
-        if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
-          out[key] = value.toString();
-        }
-      }
-    }
+  usePickFreshStrings: <B extends IDataModelBindings>(bindings: B): { [key in keyof B]: string } => {
+    const { currentData } = useCtx();
 
-    return out;
+    return useMemo(
+      () =>
+        new Proxy({} as { [key in keyof B]: string }, {
+          get(_, _key): any {
+            const key = _key.toString();
+            const value = dot.pick((bindings as any)[key], currentData);
+            if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+              return value.toString();
+            }
+            return '';
+          },
+        }),
+      [bindings, currentData],
+    );
   },
 
   /**
    * This returns a value, as picked from the form data. It may also return an array, object or null.
    * If you only expect a string/leaf value, use usePickString() instead.
    */
-  usePickAny: (path: string | undefined, freshness?: FDFreshness): FDValue => {
-    const data = useData(freshness);
-    return useMemoDeepEqual(path ? dot.pick(path, data) : undefined);
+  usePickFreshAny: (path: string | undefined): FDValue => {
+    const { currentData } = useCtx();
+    return useMemoDeepEqual(path ? dot.pick(path, currentData) : undefined);
   },
 
   /**
@@ -236,15 +248,14 @@ export const FD = {
    * from the form data. If a value is not found, undefined is returned. Null may also be returned if the value
    * is explicitly set to null.
    */
-  useBindings: <T extends IDataModelBindings | undefined>(
+  useFreshBindings: <T extends IDataModelBindings | undefined>(
     bindings: T,
-    freshness?: FDFreshness,
   ): T extends undefined ? Record<string, never> : { [key in keyof T]: FDValue } => {
-    const data = useData(freshness);
+    const { currentData } = useCtx();
     const out: any = {};
     if (bindings) {
       for (const key of Object.keys(bindings)) {
-        out[key] = dot.pick(bindings[key], data);
+        out[key] = dot.pick(bindings[key], currentData);
       }
     }
 

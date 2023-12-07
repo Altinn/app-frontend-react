@@ -21,11 +21,13 @@ interface IProcessContext {
   reFetch: () => Promise<void>;
 }
 
-const { Provider, useCtx } = createContext<IProcessContext | undefined>({
+const { Provider, useCtx, useHasProvider } = createContext<IProcessContext | undefined>({
   name: 'Process',
   required: false,
   default: undefined,
 });
+
+export const useHasProcessProvider = () => useHasProvider();
 
 function useProcessQuery(instanceId: string) {
   const { fetchProcessState } = useAppQueries();

@@ -126,7 +126,7 @@ export function DatepickerComponent({ node, isValid, overrideDisplay }: IDatepic
   const isMobile = useIsMobile();
 
   const setValue = FD.useSetForBinding(dataModelBindings?.simpleBinding);
-  const value = FD.usePickString(dataModelBindings?.simpleBinding, 'current');
+  const value = FD.usePickFreshString(dataModelBindings?.simpleBinding);
   const dateValue = moment(value, moment.ISO_8601);
   const [date, input] = dateValue.isValid() ? [dateValue, undefined] : [null, value ?? ''];
 

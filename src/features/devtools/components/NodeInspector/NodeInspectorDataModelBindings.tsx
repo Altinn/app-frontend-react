@@ -13,7 +13,7 @@ interface Props {
 export function NodeInspectorDataModelBindings({ dataModelBindings }: Props) {
   const schema = useBindingSchema(dataModelBindings);
   const bindings = dataModelBindings || {};
-  const results = FD.useBindings(bindings);
+  const results = FD.useFreshBindings(bindings);
 
   return (
     <Value

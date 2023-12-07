@@ -36,11 +36,7 @@ export function AddressComponent({ componentValidations, node }: IAddressCompone
 
   const bindings = ('dataModelBindings' in node.item && node.item.dataModelBindings) || {};
   const saveData = FD.useSetForBindings(bindings, saveWhileTyping);
-  const address = FD.usePickString(bindings.address, 'current');
-  const zipCode = FD.usePickString(bindings.zipCode, 'current');
-  const postPlace = FD.usePickString(bindings.postPlace, 'current');
-  const careOf = FD.usePickString(bindings.careOf, 'current');
-  const houseNumber = FD.usePickString(bindings.houseNumber, 'current');
+  const { address, careOf, postPlace, zipCode, houseNumber } = FD.usePickFreshStrings(bindings);
 
   const [validations, setValidations] = useStateDeepEqual<IAddressValidationErrors>({});
   const prevZipCode = React.useRef<string | undefined>(undefined);

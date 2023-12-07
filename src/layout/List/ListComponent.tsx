@@ -40,7 +40,7 @@ export const ListComponent = ({ node }: IListProps) => {
 
   const bindings = node.item.dataModelBindings || defaultBindings;
   const saveData = FD.useSetForBindings(bindings);
-  const formData = FD.usePickStrings(bindings, 'current');
+  const formData = FD.usePickFreshStrings(bindings, 'current');
 
   const handleChange = ({ selectedValue: selectedValue }: ChangeProps<Record<string, string>>) => {
     for (const key of Object.keys(bindings)) {

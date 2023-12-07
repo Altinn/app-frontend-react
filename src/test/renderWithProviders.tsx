@@ -23,8 +23,10 @@ import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { FooterLayoutProvider } from 'src/features/footer/FooterLayoutProvider';
+import { FormProvider } from 'src/features/form/FormContext';
 import { generateSimpleRepeatingGroups } from 'src/features/form/layout/repGroups/generateSimpleRepeatingGroups';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
+import { FormDataDispatchGatekeeperProvider } from 'src/features/formData/FormDataWriterDispatch';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
 import { LanguageProvider } from 'src/features/language/LanguageProvider';
@@ -421,27 +423,35 @@ export const renderWithInstanceAndLayout = async ({
     );
   }
 
-  return await renderBase({
-    renderer: () => (
-      <InstanceProvider provideLayoutValidation={false}>
-        <WaitForNodes waitForAllNodes={true}>{renderer()}</WaitForNodes>
-      </InstanceProvider>
-    ),
-    unMockableQueries: {
-      fetchInstanceData: () => Promise.resolve(reduxState.deprecated.lastKnownInstance || getInstanceDataMock()),
-      fetchProcessState: () => Promise.resolve(reduxState.deprecated.lastKnownProcess || getProcessDataMock()),
-      fetchLayoutSettings: () =>
-        Promise.resolve({
-          pages: {
-            order: Object.keys(layouts),
-          },
-        }),
-      fetchLayouts: () => Promise.resolve(layoutsAsCollection),
-    },
-    router: InstanceRouter,
-    reduxState,
-    ...renderOptions,
-  });
+  const dispatchGatekeeper = jest.fn().mockImplementation(() => true);
+  return {
+    dispatchGatekeeper,
+    ...(await renderBase({
+      renderer: () => (
+        <InstanceProvider>
+          <FormDataDispatchGatekeeperProvider value={dispatchGatekeeper}>
+            <FormProvider>
+              <WaitForNodes waitForAllNodes={true}>{renderer()}</WaitForNodes>
+            </FormProvider>
+          </FormDataDispatchGatekeeperProvider>
+        </InstanceProvider>
+      ),
+      unMockableQueries: {
+        fetchInstanceData: () => Promise.resolve(reduxState.deprecated.lastKnownInstance || getInstanceDataMock()),
+        fetchProcessState: () => Promise.resolve(reduxState.deprecated.lastKnownProcess || getProcessDataMock()),
+        fetchLayoutSettings: () =>
+          Promise.resolve({
+            pages: {
+              order: Object.keys(layouts),
+            },
+          }),
+        fetchLayouts: () => Promise.resolve(layoutsAsCollection),
+      },
+      router: InstanceRouter,
+      reduxState,
+      ...renderOptions,
+    })),
+  };
 };
 
 const WaitForNodes = ({
@@ -504,18 +514,23 @@ const WaitForNodes = ({
   return <>{children}</>;
 };
 
-export interface RenderWithNodeTestProps<T extends LayoutNode> extends Omit<ExtendedRenderOptions, 'renderer'> {
+export interface RenderWithNodeTestProps<T extends LayoutNode, InInstance extends boolean>
+  extends Omit<ExtendedRenderOptions, 'renderer'> {
   renderer: (props: { node: T; root: LayoutPages }) => React.ReactElement;
   nodeId: string;
-  inInstance?: boolean;
+  inInstance: InInstance;
 }
 
-export async function renderWithNode<T extends LayoutNode = LayoutNode>({
+type RenderWithNodeReturnType<InInstance extends boolean> = InInstance extends false
+  ? ReturnType<typeof renderWithoutInstanceAndLayout>
+  : ReturnType<typeof renderWithInstanceAndLayout>;
+
+export async function renderWithNode<InInstance extends boolean, T extends LayoutNode = LayoutNode>({
   renderer,
   reduxState: _reduxState,
-  inInstance = true,
+  inInstance,
   ...props
-}: RenderWithNodeTestProps<T>) {
+}: RenderWithNodeTestProps<T, InInstance>): Promise<RenderWithNodeReturnType<InInstance>> {
   const reduxState = _reduxState || getInitialStateMock();
   if (!reduxState.formLayout.layouts) {
     throw new Error('No layouts found, cannot render with nodes when no layout is in the redux state');
@@ -539,7 +554,8 @@ export async function renderWithNode<T extends LayoutNode = LayoutNode>({
     return renderer({ node: node as T, root });
   }
 
-  return (inInstance ? renderWithInstanceAndLayout : renderWithoutInstanceAndLayout)({
+  const funcToCall = inInstance === false ? renderWithoutInstanceAndLayout : renderWithInstanceAndLayout;
+  return (await funcToCall({
     ...props,
     reduxState,
     renderer: () => (
@@ -550,7 +566,7 @@ export async function renderWithNode<T extends LayoutNode = LayoutNode>({
         <Child />
       </WaitForNodes>
     ),
-  });
+  })) as unknown as RenderWithNodeReturnType<InInstance>;
 }
 
 export interface RenderGenericComponentTestProps<T extends CompTypes> extends Omit<ExtendedRenderOptions, 'renderer'> {
@@ -596,11 +612,12 @@ export async function renderGenericComponentTest<T extends CompTypes>({
     return renderer(props);
   };
 
-  return renderWithNode<LayoutNode<T>>({
+  return renderWithNode<true, LayoutNode<T>>({
     ...rest,
     reduxState,
     nodeId: realComponentDef.id,
     renderer: Wrapper,
+    inInstance: true,
   });
 }
 

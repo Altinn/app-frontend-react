@@ -8,6 +8,8 @@ import { LayoutsProvider } from 'src/features/form/layout/LayoutsContext';
 import { LayoutSettingsProvider } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { RulesProvider } from 'src/features/form/rules/RulesContext';
 import { FormDataProvider } from 'src/features/formData/FormDataContext';
+import { useHasProcessProvider } from 'src/features/instance/ProcessContext';
+import { ProcessNavigationProvider } from 'src/features/instance/ProcessNavigationContext';
 import { AllOptionsProvider } from 'src/features/options/useAllOptions';
 import { NodesProvider } from 'src/utils/layout/NodesContext';
 
@@ -15,6 +17,8 @@ import { NodesProvider } from 'src/utils/layout/NodesContext';
  * This helper-context provider is used to provide all the contexts needed for forms to work
  */
 export function FormProvider({ children }: React.PropsWithChildren) {
+  const hasProcess = useHasProcessProvider();
+
   return (
     <CustomValidationConfigProvider>
       <LayoutsProvider>
@@ -25,7 +29,9 @@ export function FormProvider({ children }: React.PropsWithChildren) {
                 <DynamicsProvider>
                   <RulesProvider>
                     <NodesProvider>
-                      <AllOptionsProvider>{children}</AllOptionsProvider>
+                      <AllOptionsProvider>
+                        {hasProcess ? <ProcessNavigationProvider>{children}</ProcessNavigationProvider> : children}
+                      </AllOptionsProvider>
                     </NodesProvider>
                   </RulesProvider>
                 </DynamicsProvider>

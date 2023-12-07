@@ -24,7 +24,7 @@ export const CheckboxContainerComponent = ({ node, isValid, overrideDisplay }: I
     node.item;
   const { langAsString } = useLanguage();
 
-  const value = FD.usePickString(dataModelBindings?.simpleBinding, 'current');
+  const value = FD.usePickFreshString(dataModelBindings?.simpleBinding);
   const setData = FD.useSetForBindings(dataModelBindings);
 
   const selected = value && value.length > 0 ? value.split(',') : defaultSelectedOptions;

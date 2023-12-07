@@ -20,7 +20,7 @@ export const useStyles = makeStyles(() => ({
 export function MapComponent({ isValid, node }: IMapComponentProps) {
   const { readOnly, layers, centerLocation, zoom, dataModelBindings } = node.item;
   const classes = useStyles();
-  const value = FD.usePickString(dataModelBindings?.simpleBinding, 'current');
+  const value = FD.usePickFreshString(dataModelBindings?.simpleBinding);
   const location = parseLocation(value);
   const saveData = FD.useSetForBinding(dataModelBindings?.simpleBinding);
 

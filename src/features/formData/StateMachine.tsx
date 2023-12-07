@@ -97,6 +97,8 @@ export type FDAction =
   | FDActionSaveFinished
   | FDActionFreeze;
 
+export type FDActionExceptInitialFetch = Exclude<FDAction, FDActionInitialFetch>;
+
 const actions: ImplementationMap = {
   initialFetch: (state, { data, uuid }) => {
     state.currentUuid = uuid;

@@ -28,7 +28,7 @@ export function InputComponent({ node, isValid, overrideDisplay }: IInputProps) 
     maxLength,
   } = node.item;
   const characterLimit = useCharacterLimit(maxLength);
-  const value = FD.usePickString(dataModelBindings?.simpleBinding, 'current');
+  const value = FD.usePickFreshString(dataModelBindings?.simpleBinding);
   const { langAsString } = useLanguage();
   const reactNumberFormatConfig = useMapToReactNumberConfig(formatting as IInputFormatting | undefined, value);
   const [inputKey, rerenderInput] = useRerender('input');

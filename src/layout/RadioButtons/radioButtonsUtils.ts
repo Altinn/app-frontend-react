@@ -6,7 +6,7 @@ import type { IRadioButtonsContainerProps } from 'src/layout/RadioButtons/RadioB
 
 export const useRadioButtons = ({ node }: IRadioButtonsContainerProps) => {
   const { dataModelBindings } = node.item;
-  const selected = FD.usePickString(dataModelBindings?.simpleBinding);
+  const selected = FD.usePickFreshString(dataModelBindings?.simpleBinding);
   const saveData = FD.useSetForBindings(dataModelBindings);
 
   const { options: calculatedOptions, isFetching: fetchingOptions } = useGetOptions({

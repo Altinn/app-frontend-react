@@ -15,7 +15,7 @@ export function TextAreaComponent({ node, isValid, overrideDisplay }: ITextAreaP
   const { langAsString } = useLanguage();
   const { id, readOnly, textResourceBindings, dataModelBindings, saveWhileTyping, autocomplete, maxLength } = node.item;
   const characterLimit = useCharacterLimit(maxLength);
-  const value = FD.usePickString(dataModelBindings?.simpleBinding, 'current');
+  const value = FD.usePickFreshString(dataModelBindings?.simpleBinding);
   const setValue = FD.useSetForBinding(dataModelBindings?.simpleBinding, saveWhileTyping);
 
   return (

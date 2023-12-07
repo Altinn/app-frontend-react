@@ -12,7 +12,7 @@ export type IMultipleSelectProps = PropsFromGenericComponent<'MultipleSelect'>;
 const defaultSelectedOptions: string[] = [];
 export function MultipleSelectComponent({ node, isValid, overrideDisplay }: IMultipleSelectProps) {
   const { id, readOnly, textResourceBindings, dataModelBindings } = node.item;
-  const value = FD.usePickString(dataModelBindings?.simpleBinding, 'current') || '';
+  const value = FD.usePickFreshString(dataModelBindings?.simpleBinding);
   const saveValue = FD.useSetForBindings(dataModelBindings);
   const selected = value && value.length > 0 ? value.split(',') : defaultSelectedOptions;
   const { options: calculatedOptions } = useGetOptions({

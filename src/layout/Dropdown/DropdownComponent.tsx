@@ -16,7 +16,7 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
   const { langAsString } = useLanguage();
 
   const saveValue = FD.useSetForBindings(dataModelBindings);
-  const selected = FD.usePickString(dataModelBindings?.simpleBinding, 'current');
+  const selected = FD.usePickFreshString(dataModelBindings?.simpleBinding);
 
   const { options, isFetching } = useGetOptions({
     ...node.item,

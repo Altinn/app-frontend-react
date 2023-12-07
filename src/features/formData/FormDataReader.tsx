@@ -17,7 +17,6 @@ import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useAllowAnonymous } from 'src/features/stateless/getAllowAnonymous';
-import { flattenObject } from 'src/utils/databindings';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import { maybeAuthenticationRedirect } from 'src/utils/maybeAuthenticationRedirect';
 import { HttpStatusCodes } from 'src/utils/network/networking';
@@ -65,7 +64,7 @@ function useFormDataQuery() {
   const { fetchFormData } = useAppQueries();
   const utils = useQuery({
     queryKey: ['fetchFormData', url, currentTaskId],
-    queryFn: async () => flattenObject(await fetchFormData(url!, options)),
+    queryFn: async () => await fetchFormData(url!, options),
     enabled,
     onError: async (error: HttpClientError) => {
       if (error.message?.includes('403')) {
