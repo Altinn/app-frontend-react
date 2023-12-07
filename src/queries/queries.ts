@@ -130,7 +130,6 @@ export const doPerformAction = async (partyId: string, dataGuid: string, data: a
   if (response.status !== 200) {
     throw new Error('Failed to perform action');
   }
-  console.log('Response: ', response);
   return response.data;
 };
 

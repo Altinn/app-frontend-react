@@ -1,4 +1,5 @@
 import React from 'react';
+import { toast } from 'react-toastify';
 
 import { Button } from '@digdir/design-system-react';
 import { useMutation } from '@tanstack/react-query';
@@ -97,6 +98,18 @@ type UsePerformActionMutation = {
   performAction: (props: PerformActionMutationProps) => Promise<void>;
 };
 
+type PerformActionMutationError = {
+  response: {
+    data: {
+      error: {
+        message: string;
+        code: string;
+        metadata: Record<string, unknown>;
+      };
+    };
+  };
+};
+
 function usePerformActionMutation(): UsePerformActionMutation {
   const { doPerformAction } = useAppMutations();
   const { partyId, instanceGuid } = useNavigationParams();
@@ -118,7 +131,7 @@ function usePerformActionMutation(): UsePerformActionMutation {
      * and the side effects that are run in the onSuccess or onError callbacks.
      */
     performAction: ({ action, buttonId }: PerformActionMutationProps) =>
-      new Promise((resolve, reject) =>
+      new Promise((resolve) =>
         mutation.mutate(
           { action, buttonId },
           {
@@ -132,9 +145,12 @@ function usePerformActionMutation(): UsePerformActionMutation {
 
               resolve();
             },
-            onError: async (error) => {
-              //TODO Show toast.
-              reject(error);
+            onError: async (error: PerformActionMutationError) => {
+              if (error?.response?.data?.error?.message !== undefined) {
+                toast(error?.response?.data?.error?.message, { type: 'error' });
+              } else {
+                toast(<Lang id='custom_actions.general_error' />, { type: 'error' });
+              }
             },
           },
         ),
