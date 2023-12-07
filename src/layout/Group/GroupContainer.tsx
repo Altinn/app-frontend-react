@@ -42,7 +42,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
   const { pageKey } = useNavigationParams();
 
   const { triggerFocus } = useRepeatingGroupsFocusContext();
-  const { textResourceBindings, id, edit, maxCount, type, triggers, rowsBefore, rowsAfter } = node.item;
+  const { textResourceBindings, id, edit, type, triggers, rowsBefore, rowsAfter } = node.item;
   const groupState = useAppSelector(
     (state) => state.formLayout.uiConfig.repeatingGroups && state.formLayout.uiConfig.repeatingGroups[id],
   );
