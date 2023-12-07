@@ -80,8 +80,9 @@ describe('SummaryGroupComponent', () => {
       ];
     });
 
-    return await renderWithNode<LayoutNode<'Summary'>>({
+    return await renderWithNode<true, LayoutNode<'Summary'>>({
       nodeId: 'mySummary',
+      inInstance: true,
       renderer: ({ node, root }) => {
         const groupNode = root.findById('groupComponent') as LayoutNode<'Group'>;
         return (

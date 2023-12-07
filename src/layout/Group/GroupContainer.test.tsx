@@ -113,10 +113,11 @@ async function render({ container = mockContainer }: IRender = {}) {
     formLayout: mockLayout,
   });
 
-  const { store } = await renderWithNode<LayoutNodeForGroup<CompGroupRepeatingInternal>>({
+  const { store } = await renderWithNode<true, LayoutNodeForGroup<CompGroupRepeatingInternal>>({
     renderer: ({ node }) => <GroupContainer node={node} />,
     nodeId: container.id,
     reduxState,
+    inInstance: true,
     queries: {
       fetchTextResources: () =>
         Promise.resolve({

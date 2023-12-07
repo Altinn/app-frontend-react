@@ -113,10 +113,11 @@ const render = async ({ component, addAttachment = true }: RenderProps) => {
     addAttachment && state.deprecated.lastKnownInstance!.data.push(attachment);
   });
 
-  await renderWithNode<LayoutNode<'FileUploadWithTag'>>({
+  return await renderWithNode<true, LayoutNode<'FileUploadWithTag'>>({
     nodeId: 'myComponent',
     renderer: ({ node }) => <AttachmentSummaryComponent targetNode={node} />,
     reduxState,
+    inInstance: true,
     queries: {
       fetchOptions: (url) =>
         availableOptions[url]

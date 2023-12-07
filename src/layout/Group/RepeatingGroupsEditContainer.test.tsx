@@ -98,8 +98,9 @@ describe('RepeatingGroupsEditContainer', () => {
     reduxState.formLayout.layouts = { FormLayout: layout };
     reduxState.textResources.resourceMap = textResources;
 
-    await renderWithNode<LayoutNodeForGroup<CompGroupRepeatingInternal>>({
+    await renderWithNode<true, LayoutNodeForGroup<CompGroupRepeatingInternal>>({
       nodeId: 'group',
+      inInstance: true,
       renderer: ({ node }) => (
         <RepeatingGroupsEditContainer
           node={node}

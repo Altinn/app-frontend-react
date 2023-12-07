@@ -203,8 +203,9 @@ describe('RepeatingGroupTable', () => {
     reduxState.textResources.resourceMap = textResources;
     // reduxState.formData.formData = data;
 
-    return await renderWithNode<LayoutNodeForGroup<CompGroupRepeatingInternal>>({
+    return await renderWithNode<true, LayoutNodeForGroup<CompGroupRepeatingInternal>>({
       nodeId: group.id,
+      inInstance: true,
       renderer: ({ node }) => (
         <RepeatingGroupTable
           {...allProps}

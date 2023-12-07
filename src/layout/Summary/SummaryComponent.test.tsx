@@ -130,8 +130,9 @@ describe('SummaryComponent', () => {
       componentRef: props.componentRef,
     });
 
-    return await renderWithNode<LayoutNode<'Summary'>>({
+    return await renderWithNode<true, LayoutNode<'Summary'>>({
       nodeId: 'mySummary',
+      inInstance: true,
       renderer: ({ node }) => <SummaryComponent summaryNode={node} />,
       reduxState: {
         ...getInitialStateMock(),

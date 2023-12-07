@@ -47,6 +47,7 @@ const render = async (component: Partial<CompExternal> = {}, waitUntilLoaded = t
     nodeId: component.id || 'mockId',
     renderer: ({ node }) => <GenericComponent node={node} />,
     waitUntilLoaded,
+    inInstance: true,
     reduxState: {
       ...getInitialStateMock(),
       formLayout,

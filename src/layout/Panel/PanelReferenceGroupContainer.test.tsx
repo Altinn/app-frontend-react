@@ -157,8 +157,9 @@ const render = async ({ container, components, customState }: TestProps) => {
     children: [],
   });
 
-  await renderWithNode<LayoutNodeForGroup<CompGroupNonRepeatingPanelInternal>>({
+  await renderWithNode<true, LayoutNodeForGroup<CompGroupNonRepeatingPanelInternal>>({
     nodeId: 'group',
+    inInstance: true,
     renderer: ({ node }) => <PanelReferenceGroupContainer node={node} />,
     reduxState,
   });
