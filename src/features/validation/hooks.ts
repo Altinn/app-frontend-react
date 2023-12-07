@@ -13,9 +13,9 @@ import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { staticUseLanguageFromState } from 'src/features/language/useLanguage';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useExprContext } from 'src/utils/layout/ExprContext';
-import type { IAttachment, IAttachments } from 'src/features/attachments';
+import type { IAttachment, IAttachments, UploadedAttachment } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
-import type { IValidationContext, NodeDataChange, ValidationContextGenerator } from 'src/features/validation';
+import type { AttachmentChange, IValidationContext, ValidationContextGenerator } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 /**
@@ -79,7 +79,7 @@ export function useEffectEvent<T extends (...args: any[]) => any>(event: T) {
  * Provides a callback function with added/removed nodes when the hierarchy changes
  */
 export function useOnHierarchyChange(
-  onChange: (addedNodeChanges: NodeDataChange[], removedNodes: LayoutNode[], currentNodes: LayoutNode[]) => void,
+  onChange: (addedNodes: LayoutNode[], removedNodes: LayoutNode[], currentNodes: LayoutNode[]) => void,
 ) {
   const onChangeEvent = useEffectEvent(onChange);
   const layoutNodes = useExprContext();
@@ -96,12 +96,7 @@ export function useOnHierarchyChange(
     ) {
       lastNodes.current = newNodes;
 
-      const addedNodes = newNodes
-        .filter((n) => !prevNodes.find((pn) => pn.item.id === n.item.id))
-        .map((n) => ({
-          node: n,
-          fields: n.item.dataModelBindings ? Object.values(n.item.dataModelBindings) : [],
-        }));
+      const addedNodes = newNodes.filter((n) => !prevNodes.find((pn) => pn.item.id === n.item.id));
       const removedNodes = prevNodes.filter((pn) => !newNodes.find((n) => pn.item.id === n.item.id));
       onChangeEvent(addedNodes, removedNodes, newNodes);
     }
@@ -111,7 +106,7 @@ export function useOnHierarchyChange(
 /**
  * Provides a callback function with a list of nodes whoes data has changed
  */
-export function useOnNodeDataChange(onChange: (nodeChanges: NodeDataChange[]) => void) {
+export function useOnNodeDataChange(onChange: (changedNodes: LayoutNode[]) => void) {
   const onChangeEvent = useEffectEvent(onChange);
   const layoutNodes = useExprContext();
   const lastNodeData = useRef<{ [id: string]: LayoutNode }>({});
@@ -124,7 +119,7 @@ export function useOnNodeDataChange(onChange: (nodeChanges: NodeDataChange[]) =>
     // Update if nodes have been added or removed
     let shouldUpdate = !deepEqual(Object.keys(newNodes), Object.keys(prevNodes));
 
-    const updatedNodes: NodeDataChange[] = [];
+    const changedNodes: LayoutNode[] = [];
     for (const [id, newNode] of Object.entries(newNodes)) {
       const prevNode = prevNodes[id];
       if (!prevNode) {
@@ -133,17 +128,14 @@ export function useOnNodeDataChange(onChange: (nodeChanges: NodeDataChange[]) =>
       const changes = getChangedFields(newNode.getFieldFormData(), prevNode.getFieldFormData());
       if (changes.length) {
         shouldUpdate = true;
-        updatedNodes.push({
-          node: newNode,
-          fields: changes,
-        });
+        changedNodes.push(newNode);
       }
     }
     if (shouldUpdate) {
       lastNodeData.current = newNodes;
     }
-    if (updatedNodes.length) {
-      onChangeEvent(updatedNodes);
+    if (changedNodes.length) {
+      onChangeEvent(changedNodes);
     }
   }, [layoutNodes, onChangeEvent]);
 }
@@ -164,7 +156,13 @@ function getChangedFields(current: IFormData, prev: IFormData) {
   return changes;
 }
 
-export function useOnAttachmentsChange(onChange: (changedNodes: LayoutNode[]) => void) {
+export function useOnAttachmentsChange(
+  onChange: (
+    changedNodes: LayoutNode[],
+    addedAttachments: AttachmentChange[],
+    removedAttachments: AttachmentChange[],
+  ) => void,
+) {
   const onChangeEvent = useEffectEvent(onChange);
   const layoutNodes = useExprContext();
   const attachments = useAttachments();
@@ -184,18 +182,38 @@ export function useOnAttachmentsChange(onChange: (changedNodes: LayoutNode[]) =>
     const settled = allAttachments.every((a) => a.uploaded && !a.deleting && !a.updating);
 
     if (settled) {
-      const changedAttachments = getChangedAttachments(attachments, prevAttachments);
-      if (changedAttachments.length) {
+      const { changedNodeIds, addedAttachments, removedAttachments } = getChangedAttachments(
+        attachments as IAttachments<UploadedAttachment>,
+        prevAttachments as IAttachments<UploadedAttachment>,
+      );
+      if (changedNodeIds.length) {
         lastAttachments.current = attachments;
-        const changedNodes = layoutNodes.allNodes().filter((n) => changedAttachments.includes(n.item.id));
-        onChangeEvent(changedNodes);
+        const allNodes = layoutNodes.allNodes();
+
+        const changedNodes = allNodes.filter((n) => changedNodeIds.includes(n.item.id));
+
+        const addedAttachmentChanges = addedAttachments
+          .map(({ nodeId, attachmentId }) => ({
+            node: allNodes.find((n) => n.item.id === nodeId),
+            attachmentId,
+          }))
+          .filter(({ node }) => node) as AttachmentChange[];
+
+        const removedAttachmentChanges = removedAttachments
+          .map(({ nodeId, attachmentId }) => ({
+            node: allNodes.find((n) => n.item.id === nodeId),
+            attachmentId,
+          }))
+          .filter(({ node }) => node) as AttachmentChange[];
+
+        onChangeEvent(changedNodes, addedAttachmentChanges, removedAttachmentChanges);
       }
     }
   }, [attachments, layoutNodes, onChangeEvent]);
 }
 
-function getChangedAttachments(current: IAttachments, prev: IAttachments) {
-  const changes: string[] = [];
+function getChangedAttachments(current: IAttachments<UploadedAttachment>, prev: IAttachments<UploadedAttachment>) {
+  const changedNodeIds: string[] = [];
   for (const [componentId, attachments] of Object.entries(current)) {
     if (!prev[componentId]?.length && !attachments?.length) {
       // Special case that happens when adding the first attachment.
@@ -203,8 +221,27 @@ function getChangedAttachments(current: IAttachments, prev: IAttachments) {
       continue;
     }
     if (!deepEqual(prev[componentId], attachments)) {
-      changes.push(componentId);
+      changedNodeIds.push(componentId);
     }
   }
-  return changes;
+
+  const addedAttachments: { attachmentId: string; nodeId: string }[] = [];
+  for (const [componentId, attachments] of Object.entries(current)) {
+    for (const attachment of attachments ?? []) {
+      if (!prev[componentId]?.find((a) => a.data.id === attachment.data.id)) {
+        addedAttachments.push({ attachmentId: attachment.data.id, nodeId: componentId });
+      }
+    }
+  }
+
+  const removedAttachments: { attachmentId: string; nodeId: string }[] = [];
+  for (const [componentId, attachments] of Object.entries(prev)) {
+    for (const attachment of attachments ?? []) {
+      if (!current[componentId]?.find((a) => a.data.id === attachment.data.id)) {
+        removedAttachments.push({ attachmentId: attachment.data.id, nodeId: componentId });
+      }
+    }
+  }
+
+  return { changedNodeIds, addedAttachments, removedAttachments };
 }

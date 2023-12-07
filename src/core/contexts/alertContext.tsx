@@ -55,7 +55,7 @@ export function AlertProvider({ children }) {
         autoHideDuration={6000}
         onClose={hidePopper}
       >
-        <>
+        <div id='globalAlert'>
           {state.alerts.map(({ message, severity }) => (
             <Alert
               key={`${severity}-${message}`}
@@ -64,7 +64,7 @@ export function AlertProvider({ children }) {
               {message}
             </Alert>
           ))}
-        </>
+        </div>
       </Snackbar>
     </Provider>
   );

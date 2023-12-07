@@ -31,10 +31,14 @@ import {
   validationsOfSeverity,
 } from 'src/features/validation/utils';
 import {
+  addVisibilityForAttachment,
   addVisibilityForNode,
+  getResolvedVisibilityForAttachment,
   getResolvedVisibilityForNode,
   onBeforeRowDelete,
+  removeVisibilityForAttachment,
   removeVisibilityForNode,
+  setVisibilityForAttachment,
   setVisibilityForNode,
 } from 'src/features/validation/visibility';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -67,8 +71,7 @@ export function ValidationContext({ children }) {
   });
 
   // Update frontend validations for nodes when their data changes
-  useOnNodeDataChange((nodeChanges) => {
-    const changedNodes = nodeChanges.map((nC) => nC.node);
+  useOnNodeDataChange((changedNodes) => {
     const newValidations = runValidationOnNodes(changedNodes, validationContextGenerator);
 
     setFrontendValidations((state) => {
@@ -77,8 +80,7 @@ export function ValidationContext({ children }) {
   });
 
   // Update frontend validations and visibility for nodes when they are added or removed
-  useOnHierarchyChange((addedNodeChanges, removedNodes, currentNodes) => {
-    const addedNodes = addedNodeChanges.map((nC) => nC.node);
+  useOnHierarchyChange((addedNodes, removedNodes, currentNodes) => {
     const newValidations = runValidationOnNodes(addedNodes, validationContextGenerator);
 
     setFrontendValidations((state) => {
@@ -93,11 +95,16 @@ export function ValidationContext({ children }) {
   });
 
   // Update frontend validations for nodes when their attachments change
-  useOnAttachmentsChange((changedNodes) => {
+  useOnAttachmentsChange((changedNodes, addedAttachments, removedAttachments) => {
     const newValidations = runValidationOnNodes(changedNodes, validationContextGenerator);
 
     setFrontendValidations((state) => {
       mergeFormValidations(state, newValidations);
+    });
+
+    setVisibility((state) => {
+      removedAttachments.forEach(({ attachmentId, node }) => removeVisibilityForAttachment(attachmentId, node, state));
+      addedAttachments.forEach(({ attachmentId, node }) => addVisibilityForAttachment(attachmentId, node, state));
     });
   });
 
@@ -151,16 +158,35 @@ export function ValidationContext({ children }) {
     },
   );
 
+  const setAttachmentVisibility = useEffectEvent((attachmentId: string, node: LayoutNode, newVisibility: number) => {
+    setVisibility((state) => {
+      setVisibilityForAttachment(attachmentId, node, state, newVisibility);
+    });
+  });
+
   const out = {
     state: validations,
     validating,
     visibility,
     setNodeVisibility,
     setRootVisibility,
+    setAttachmentVisibility,
     removeRowVisibilityOnDelete,
   };
 
   return <Provider value={out}>{children}</Provider>;
+}
+
+export function useOnAttachmentSave() {
+  const setAttachmentVisibility = useCtx().setAttachmentVisibility;
+
+  return useCallback(
+    (node: LayoutNode, attachmentId: string) => {
+      const mask = getVisibilityMask(['Component']);
+      setAttachmentVisibility(attachmentId, node, mask);
+    },
+    [setAttachmentVisibility],
+  );
 }
 
 export function useOnGroupCloseValidation() {
@@ -371,6 +397,24 @@ export function useBindingValidationsForNode<
     }
     return bindingValidations as { [binding in keyof NonNullable<IDataModelBindings<T>>]: NodeValidation[] };
   }, [node, visibility, fields, component]);
+}
+
+export function useAttachmentValidations(node: LayoutNode, attachmentId: string | undefined): NodeValidation[] {
+  const component = useCtx().state.components[node.item.id];
+  const visibility = useCtx().visibility;
+
+  return useMemo(() => {
+    if (!component?.component || !attachmentId) {
+      return [];
+    }
+    const validations = validationsFromGroups(
+      component.component!,
+      getResolvedVisibilityForAttachment(attachmentId, node, visibility),
+    );
+    return validations
+      .filter((validation) => validation.meta?.attachmentId === attachmentId)
+      .map((validation) => buildNodeValidation(node, validation));
+  }, [component.component, node, attachmentId, visibility]);
 }
 
 /**

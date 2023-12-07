@@ -68,24 +68,39 @@ function deleteChildVisibility(visibility: Visibility, key: PathItem): void {
 
 export function addVisibilityForNode(node: LayoutNode, state: Visibility): void {
   const path = getPathFromRoot(node);
-  let mask = 0;
+  let initialMask = 0;
 
   if ('showValidations' in node.item && node.item.showValidations) {
     for (const maskKey of node.item.showValidations) {
-      mask = mask | ValidationMask[maskKey];
+      initialMask = initialMask | ValidationMask[maskKey];
     }
   }
 
+  // Make sure each node in the path is defined, if not initialize to zero
+  // It should get set to its proper initial value once it is explicitly set
   let currentVisibility: Visibility = state;
-  for (const key of path) {
+  for (const key of path.slice(0, -1)) {
     if (!getChildVisibility(currentVisibility, key)) {
       setChildVisibility(currentVisibility, key, {
-        mask,
+        mask: 0,
         children: {},
         items: [],
       });
     }
     currentVisibility = getChildVisibility(currentVisibility, key)!;
+  }
+
+  // Set the visibility for the node to its initial mask
+  const key = path.at(-1)!;
+  const nodeVisibility = getChildVisibility(currentVisibility, key);
+  if (!nodeVisibility) {
+    setChildVisibility(currentVisibility, key, {
+      mask: initialMask,
+      children: {},
+      items: [],
+    });
+  } else {
+    nodeVisibility.mask = initialMask;
   }
 }
 
@@ -109,6 +124,29 @@ export function removeVisibilityForNode(node: LayoutNode, state: Visibility): vo
       }
     }
   }
+}
+
+export function addVisibilityForAttachment(attachmentId: string, node: LayoutNode, state: Visibility): void {
+  const path = getPathFromRoot(node);
+  let nodeVisibility = getVisibilityFromPath(path, state);
+  if (!nodeVisibility) {
+    addVisibilityForNode(node, state);
+    nodeVisibility = getVisibilityFromPath(path, state)!;
+  }
+  nodeVisibility.children[attachmentId] = {
+    mask: 0,
+    children: {},
+    items: [],
+  };
+}
+
+export function removeVisibilityForAttachment(attachmentId: string, node: LayoutNode, state: Visibility): void {
+  const path = getPathFromRoot(node);
+  const nodeVisibility = getVisibilityFromPath(path, state);
+  if (!nodeVisibility) {
+    return;
+  }
+  deleteChildVisibility(nodeVisibility, attachmentId);
 }
 
 export function onBeforeRowDelete(
@@ -147,9 +185,23 @@ export function getResolvedVisibilityForNode(node: LayoutNode, state: Visibility
       break;
     }
 
-    mask = mask | nextVisibility.mask;
+    mask |= nextVisibility.mask;
 
     currentVisibility = nextVisibility;
+  }
+  return mask;
+}
+
+export function getResolvedVisibilityForAttachment(attachmentId: string, node: LayoutNode, state: Visibility): number {
+  let mask = getResolvedVisibilityForNode(node, state);
+  const path = getPathFromRoot(node);
+  const nodeVisibility = getVisibilityFromPath(path, state);
+  if (!nodeVisibility) {
+    return mask;
+  }
+  const attachmentVisibility = getChildVisibility(nodeVisibility, attachmentId);
+  if (attachmentVisibility) {
+    mask |= attachmentVisibility.mask;
   }
   return mask;
 }
@@ -168,7 +220,22 @@ export function setVisibilityForNode(
 
   if (!visibility) {
     const keys = path.join(' -> ');
-    window.logWarnOnce(`Could not find visibility for ${keys}`);
+    window.logWarn(`Set node validation visibility: Could not find visibility for ${keys}`);
+    return;
+  }
+
+  visibility.mask = mask;
+}
+
+export function setVisibilityForAttachment(attachmentId: string, node: LayoutNode, state: Visibility, mask: number) {
+  const path = getPathFromRoot(node);
+  path.push(attachmentId);
+
+  const visibility = getVisibilityFromPath(path, state);
+
+  if (!visibility) {
+    const keys = path.join(' -> ');
+    window.logWarn(`Set attachment validation visibility: Could not find visibility for ${keys}`);
     return;
   }
 

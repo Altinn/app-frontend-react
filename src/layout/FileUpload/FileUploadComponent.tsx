@@ -48,7 +48,6 @@ export function FileUploadComponent({
   });
 
   const componentValidations = validations?.filter((v) => !v.meta?.attachmentId);
-  const attachmentValidations = validations?.filter((v) => v.meta?.attachmentId);
 
   const langTools = useLanguage();
   const { langAsString } = langTools;
@@ -155,7 +154,6 @@ export function FileUploadComponent({
           node={node}
           mobileView={mobileView}
           attachments={attachments}
-          attachmentValidations={attachmentValidations}
           options={options}
         />
 

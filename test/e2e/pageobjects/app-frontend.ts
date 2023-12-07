@@ -37,6 +37,7 @@ export class AppFrontend {
   public logOut = '#logout-menu-item';
   public logOutLink = 'a[href$="/ui/authentication/LogOut"]';
   public printButton = 'button:contains("Print / Lagre PDF")';
+  public alert = '#globalAlert';
 
   public helpText = {
     button: 'button[class^="fds-helptext"]',
@@ -156,7 +157,7 @@ export class AppFrontend {
       tagsDropDown: 'input[id^="attachment-tag-dropdown"]',
       saveTag: '[id^="attachment-save-tag-button"]',
       uploaded: '#tagFile',
-      error: '[id^="attachment-error"]',
+      error: '[data-componentid="fileUploadWithTags-changename"] [data-validation]',
       unwantedChar: String.fromCharCode(31),
     },
     reasonRelationship: '#reasonRelationship',

@@ -152,7 +152,7 @@ describe('Validation', () => {
   it('Validation on uploaded attachment type', () => {
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.png', { force: true });
-    cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.upload)).should('contain.text', texts.attachmentError);
+    cy.get(appFrontend.alert).should('contain.text', texts.attachmentError);
   });
 
   it('Validation on uploaded attachment type with tag', () => {

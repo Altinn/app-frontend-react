@@ -11,13 +11,13 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { hasValidationErrors } from 'src/features/validation/utils';
+import { useAttachmentValidations, useOnAttachmentSave } from 'src/features/validation/validationProvider';
 import { useFormattedOptions } from 'src/hooks/useFormattedOptions';
 import { AttachmentFileName } from 'src/layout/FileUpload/FileUploadTable/AttachmentFileName';
 import { FileTableButtons } from 'src/layout/FileUpload/FileUploadTable/FileTableButtons';
 import { useFileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
 import classes from 'src/layout/FileUploadWithTag/EditWindowComponent.module.css';
 import type { IAttachment } from 'src/features/attachments';
-import type { NodeValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IOption } from 'src/layout/common.generated';
 
@@ -26,16 +26,9 @@ export interface EditWindowProps {
   attachment: IAttachment;
   mobileView: boolean;
   options?: IOption[];
-  attachmentValidations?: NodeValidation[];
 }
 
-export function EditWindowComponent({
-  attachment,
-  attachmentValidations,
-  mobileView,
-  node,
-  options,
-}: EditWindowProps): React.JSX.Element {
+export function EditWindowComponent({ attachment, mobileView, node, options }: EditWindowProps): React.JSX.Element {
   const { textResourceBindings, readOnly } = node.item;
   const { langAsString } = useLanguage();
   const { setEditIndex } = useFileTableRow();
@@ -46,6 +39,9 @@ export function EditWindowComponent({
   );
   const formattedOptions = useFormattedOptions(options);
   const updateAttachment = useAttachmentsUpdater();
+
+  const attachmentValidations = useAttachmentValidations(node, uploadedAttachment?.data.id);
+  const onAttachmentSave = useOnAttachmentSave();
 
   const hasErrors = hasValidationErrors(attachmentValidations);
 
@@ -72,6 +68,7 @@ export function EditWindowComponent({
       await setAttachmentTag(chosenOption);
     }
     setEditIndex(-1);
+    onAttachmentSave(node, uploadedAttachment.data.id);
   };
 
   const setAttachmentTag = async (option?: IOption) => {

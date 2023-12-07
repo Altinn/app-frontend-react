@@ -8,7 +8,6 @@ import { FileTableRowProvider } from 'src/layout/FileUpload/FileUploadTable/File
 import { EditWindowComponent } from 'src/layout/FileUploadWithTag/EditWindowComponent';
 import { atLeastOneTagExists } from 'src/utils/formComponentUtils';
 import type { IAttachment } from 'src/features/attachments';
-import type { NodeValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IOption } from 'src/layout/common.generated';
 import type { FileTableRowContext } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
@@ -18,16 +17,9 @@ export interface FileTableProps {
   attachments: IAttachment[];
   mobileView: boolean;
   options?: IOption[];
-  attachmentValidations?: NodeValidation[];
 }
 
-export function FileTable({
-  attachments,
-  mobileView,
-  node,
-  attachmentValidations,
-  options,
-}: FileTableProps): React.JSX.Element | null {
+export function FileTable({ attachments, mobileView, node, options }: FileTableProps): React.JSX.Element | null {
   const { textResourceBindings, type } = node.item;
   const hasTag = type === 'FileUploadWithTag';
   const [editIndex, setEditIndex] = React.useState<number>(-1);
@@ -89,9 +81,6 @@ export function FileTable({
           const canRenderRow = isAttachmentUploaded(attachment)
             ? !hasTag || (attachment.data.tags !== undefined && attachment.data.tags.length > 0 && editIndex !== index)
             : false;
-          const validationsForRow = isAttachmentUploaded(attachment)
-            ? attachmentValidations?.filter((v) => v.meta?.attachmentId === attachment.data.id)
-            : [];
 
           const ctx: FileTableRowContext = {
             setEditIndex,
@@ -125,7 +114,6 @@ export function FileTable({
                   <EditWindowComponent
                     node={node as PropsFromGenericComponent<'FileUploadWithTag'>['node']}
                     attachment={attachment}
-                    attachmentValidations={validationsForRow}
                     mobileView={mobileView}
                     options={options}
                   />

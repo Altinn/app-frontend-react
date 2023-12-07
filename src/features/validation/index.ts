@@ -79,6 +79,7 @@ export type ValidationContext = {
   visibility: Visibility;
   setNodeVisibility: (nodes: (LayoutNode | LayoutPage)[], newVisibility: number, rowIndex?: number) => void;
   setRootVisibility: (newVisibility: number) => void;
+  setAttachmentVisibility: (attachmentId: string, node: LayoutNode, newVisibility: number) => void;
   removeRowVisibilityOnDelete: (node: LayoutNode<'Group'>, rowIndex: number) => void;
 };
 
@@ -141,9 +142,9 @@ export type TextResource = {
   params?: ValidLangParam[];
 };
 
-export type NodeDataChange = {
+export type AttachmentChange = {
   node: LayoutNode;
-  fields: string[];
+  attachmentId: string;
 };
 
 /**
