@@ -116,8 +116,8 @@ export class AppFrontend {
 
   public feedback = '#FeedbackContainer';
 
-  public fieldValidation(field: string, errorType: 'error' | 'warning' | 'info' | 'success' = 'error') {
-    return `[id^="${errorType}_${field.replace(/^#/, '')}"]`;
+  public fieldValidation(field: string) {
+    return `[data-componentid="${field.replace(/^#/, '')}"] [data-validation]`;
   }
 
   //selectors for ttd/frontend-test app

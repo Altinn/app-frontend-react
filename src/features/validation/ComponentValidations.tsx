@@ -19,7 +19,7 @@ export function ComponentValidations({ validations }: { validations: NodeValidat
   const success = validationsOfSeverity(validations, 'success');
 
   return (
-    <>
+    <div data-validation>
       {errors.length > 0 && <ErrorValidations validations={errors} />}
       {warnings.length > 0 && (
         <SoftValidations
@@ -39,7 +39,7 @@ export function ComponentValidations({ validations }: { validations: NodeValidat
           variant='success'
         />
       )}
-    </>
+    </div>
   );
 }
 

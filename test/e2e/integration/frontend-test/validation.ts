@@ -3,7 +3,6 @@ import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { Common } from 'test/e2e/pageobjects/common';
 
 import { BackendValidationSeverity } from 'src/features/validation';
-import { Triggers } from 'src/layout/common.generated';
 import type { BackendValidationIssue } from 'src/features/validation';
 
 const appFrontend = new AppFrontend();
@@ -13,18 +12,18 @@ describe('Validation', () => {
   it('Required field validation should be visible on submit, not on blur', () => {
     cy.goto('changename');
 
-    // This field has server-side validations marking it as required, overriding the frontend validation functionality
-    // which normally postpones the empty fields validation until the page validation runs. We need to type something,
-    // send it to the server and clear the value to show this validation error.
-    cy.get(appFrontend.changeOfName.newFirstName).type('Some value');
-    cy.get(appFrontend.changeOfName.newFirstName).blur();
-    cy.get(appFrontend.changeOfName.newFirstName).clear();
+    // This field has server-side validations marking it as required,
+    // Since this component shows backend validations immediately, it should show up
+    // TODO(Validation): Once it is possible to treat custom validations as required, this test should be updated
     cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.newFirstName)).should(
       'have.text',
       texts.requiredFieldFromBackend,
     );
+    cy.get(appFrontend.changeOfName.newFirstName).type('Some value');
+    cy.get(appFrontend.changeOfName.newFirstName).blur();
+    cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.newFirstName)).should('not.exist');
+    cy.get(appFrontend.changeOfName.newFirstName).clear();
 
-    // Doing the same for any other field (without server-side required validation) should not show an error
     cy.get(appFrontend.changeOfName.newMiddleName).type('Some value');
     cy.get(appFrontend.changeOfName.newMiddleName).blur();
     cy.get(appFrontend.changeOfName.newMiddleName).focus();
@@ -32,7 +31,6 @@ describe('Validation', () => {
     cy.get(appFrontend.changeOfName.newMiddleName).blur();
     cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.newMiddleName)).should('not.exist');
 
-    cy.get(appFrontend.changeOfName.newFirstName).type('Some first name');
     cy.get(appFrontend.changeOfName.newMiddleName).type('Some middle name');
 
     cy.get(appFrontend.changeOfName.confirmChangeName).find('input').dsCheck();
@@ -42,7 +40,14 @@ describe('Validation', () => {
 
     cy.get(appFrontend.nextButton).click();
 
-    cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.newFirstName)).should('not.exist');
+    cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.newFirstName)).should(
+      'contain.text',
+      texts.requiredFieldFirstName,
+    );
+    cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.newFirstName)).should(
+      'contain.text',
+      texts.requiredFieldFromBackend,
+    );
     cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.newMiddleName)).should('not.exist');
     cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.newLastName)).should(
       'have.text',
@@ -110,11 +115,11 @@ describe('Validation', () => {
       .should('contain.text', texts.next);
 
     // Make sure all the buttons in the form are now inside errorReport, not outside of it.
-    // - 5 of the button roles belong to each of the errors in the report
+    // - 4 of the button roles belong to each of the errors in the report
     // - 2 of the button roles belong to the buttons on the bottom of the form (print, next)
     cy.get(appFrontend.errorReport)
       .findAllByRole('button')
-      .should('have.length', 5 + 2);
+      .should('have.length', 4 + 2);
 
     const lastNameError = appFrontend.fieldValidation(appFrontend.changeOfName.newLastName);
     cy.get(lastNameError).should('exist').should('not.be.inViewport');
@@ -273,7 +278,7 @@ describe('Validation', () => {
     cy.changeLayout((component) => {
       if (component.id === 'sendersName' && component.type === 'Input') {
         // Make sure changing this field triggers single field validation
-        component.triggers = [Triggers.Validation];
+        component.showValidations = ['AllExceptRequired'];
       }
     });
 
@@ -436,7 +441,7 @@ describe('Validation', () => {
       if (component.type === 'NavigationButtons') {
         // When components are visible in the table, the validation trigger on the group itself stops having an effect,
         // as there is no way for the user to say they're 'done' editing a row.
-        component.triggers = [Triggers.ValidatePage];
+        component.validateOnNext = { page: 'current', show: ['All'] };
       }
     });
 

@@ -61,15 +61,21 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
   );
 
   const OnClickNext = async () => {
-    if (validateOnNext && (await onPageValidation(node.top, validateOnNext))) {
-      // Block navigation if validation fails
-      return;
-    }
-
     const keepScrollPosAction: IKeepComponentScrollPos = {
       componentId: id,
       offsetTop: getScrollPosition(),
     };
+
+    if (validateOnNext && (await onPageValidation(node.top, validateOnNext))) {
+      // Block navigation if validation fails
+      dispatch(
+        FormLayoutActions.updateCurrentViewRejected({
+          error: null,
+          keepScrollPos: keepScrollPosAction,
+        }),
+      );
+      return;
+    }
 
     const goToView =
       returnToView || next || (orderedLayoutKeys && orderedLayoutKeys[orderedLayoutKeys.indexOf(currentView) + 1]);
