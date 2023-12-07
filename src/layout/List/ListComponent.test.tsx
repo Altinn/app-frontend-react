@@ -4,8 +4,8 @@ import { screen } from '@testing-library/react';
 
 import { ListComponent } from 'src/layout/List/ListComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
-import type { IDataList } from 'src/features/dataLists';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
+
 const paginationData = { alternatives: [2, 5], default: 2 };
 const countries = [
   {
@@ -46,12 +46,7 @@ const countries = [
   },
 ];
 
-const render = async ({ component, genericProps }: Partial<RenderGenericComponentTestProps<'List'>> = {}) => {
-  const fetchDataList = () =>
-    Promise.resolve({
-      listItems: [...countries],
-      _metaData: paginationData,
-    } as unknown as IDataList);
+const render = async ({ component, ...rest }: Partial<RenderGenericComponentTestProps<'List'>> = {}) =>
   await renderGenericComponentTest({
     type: 'List',
     renderer: (props) => <ListComponent {...props} />,
@@ -68,19 +63,22 @@ const render = async ({ component, genericProps }: Partial<RenderGenericComponen
       dataListId: 'countries',
       ...component,
     },
-    genericProps: {
-      legend: () => <span>legend</span>,
-      ...genericProps,
-    },
     queries: {
-      fetchDataList,
+      fetchDataList: async () => ({
+        listItems: countries,
+        _metaData: {
+          page: 0,
+          pageCount: 1,
+          pageSize: 5,
+          totaltItemsCount: 6,
+          links: [],
+        },
+      }),
     },
+    ...rest,
   });
-};
 
 describe('ListComponent', () => {
-  jest.useFakeTimers();
-
   it('should render rows that is sent in but not rows that is not sent in', async () => {
     await render();
 

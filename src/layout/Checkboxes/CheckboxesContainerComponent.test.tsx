@@ -7,6 +7,7 @@ import type { AxiosResponse } from 'axios';
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
 import { LayoutStyle } from 'src/layout/common.generated';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
+import type { FDAction } from 'src/features/formData/StateMachine';
 import type { IOption } from 'src/layout/common.generated';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
@@ -31,26 +32,28 @@ const threeOptions: IOption[] = [
 
 interface Props extends Partial<RenderGenericComponentTestProps<'Checkboxes'>> {
   options?: IOption[];
+  formData?: string;
 }
 
-const render = async ({ component, genericProps, options }: Props = {}) =>
+const render = async ({ component, options, formData }: Props = {}) =>
   await renderGenericComponentTest({
     type: 'Checkboxes',
     renderer: (props) => <CheckboxContainerComponent {...props} />,
     component: {
       optionsId: 'countries',
+      dataModelBindings: {
+        simpleBinding: 'selectedValues',
+      },
       ...component,
-    },
-    genericProps: {
-      legend: () => <span>legend</span>,
-      handleDataChange: jest.fn(),
-      ...genericProps,
     },
     queries: {
       fetchOptions: () =>
         options
           ? Promise.resolve({ data: options, headers: {} } as AxiosResponse<IOption[], any>)
           : Promise.reject(new Error('No options provided to render()')),
+      fetchFormData: async () => ({
+        selectedValues: formData,
+      }),
     },
   });
 
@@ -61,85 +64,63 @@ const getCheckbox = ({ name, isChecked = false }) =>
   });
 
 describe('CheckboxesContainerComponent', () => {
-  it('should call handleDataChange with value of preselectedOptionIndex when simpleBinding is not set', async () => {
-    const handleChange = jest.fn();
-    await render({
+  it('should call dispatchFormData with value of preselectedOptionIndex when simpleBinding is not set', async () => {
+    const { dispatchFormData } = await render({
       component: {
         preselectedOptionIndex: 1,
-      },
-      genericProps: {
-        handleDataChange: handleChange,
-        formData: {
-          simpleBinding: undefined,
-        },
       },
       options: threeOptions,
     });
 
     await waitFor(() => {
-      expect(handleChange).toHaveBeenCalledWith('sweden', { validate: true });
+      expect(dispatchFormData).toHaveBeenCalledWith({
+        type: 'setLeafValue',
+        path: 'selectedValues',
+        newValue: 'sweden',
+      } as FDAction);
     });
   });
 
-  it('should not call handleDataChange when simpleBinding is set and preselectedOptionIndex', async () => {
-    const handleChange = jest.fn();
-    await render({
+  it('should not call dispatchFormData when simpleBinding is set and preselectedOptionIndex', async () => {
+    const { dispatchFormData } = await render({
       component: {
         preselectedOptionIndex: 0,
       },
-      genericProps: {
-        handleDataChange: handleChange,
-        formData: {
-          simpleBinding: 'denmark',
-        },
-      },
       options: threeOptions,
+      formData: 'denmark',
     });
 
     expect(getCheckbox({ name: 'Norway' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark', isChecked: true })).toBeInTheDocument();
-    expect(handleChange).not.toHaveBeenCalled();
+    expect(dispatchFormData).not.toHaveBeenCalled();
   });
 
   it('should show several checkboxes as selected based on values in simpleBinding', async () => {
-    const handleChange = jest.fn();
-    await render({
-      genericProps: {
-        handleDataChange: handleChange,
-        formData: {
-          simpleBinding: 'norway,denmark',
-        },
-      },
+    const { dispatchFormData } = await render({
       options: threeOptions,
+      formData: 'norway,denmark',
     });
 
     expect(getCheckbox({ name: 'Norway', isChecked: true })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark', isChecked: true })).toBeInTheDocument();
-    expect(handleChange).not.toHaveBeenCalledWith();
+    expect(dispatchFormData).not.toHaveBeenCalled();
   });
 
   it('should not set any as selected when no binding and no preselectedOptionIndex is set', async () => {
-    const handleChange = jest.fn();
-    await render({ genericProps: { handleDataChange: handleChange }, options: threeOptions });
+    const { dispatchFormData } = await render({ options: threeOptions });
 
     expect(getCheckbox({ name: 'Norway' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark' })).toBeInTheDocument();
-    expect(handleChange).not.toHaveBeenCalled();
+    expect(dispatchFormData).not.toHaveBeenCalled();
   });
 
-  it('should call handleDataChange with updated values when selection changes', async () => {
-    const handleChange = jest.fn();
-    await render({
-      genericProps: {
-        handleDataChange: handleChange,
-        formData: {
-          simpleBinding: 'norway',
-        },
-      },
+  it('should call dispatchFormData with updated values when selection changes', async () => {
+    const { dispatchFormData } = await render({
       options: threeOptions,
+      formData: 'norway',
     });
     await waitFor(() => {
       expect(getCheckbox({ name: 'Norway', isChecked: true })).toBeInTheDocument();
@@ -147,24 +128,22 @@ describe('CheckboxesContainerComponent', () => {
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark' })).toBeInTheDocument();
 
-    expect(handleChange).not.toHaveBeenCalled();
+    expect(dispatchFormData).not.toHaveBeenCalled();
     await userEvent.click(getCheckbox({ name: 'Denmark' }));
 
     await waitFor(() => {
-      expect(handleChange).toHaveBeenCalledWith('norway,denmark', { validate: true });
+      expect(dispatchFormData).toHaveBeenCalledWith({
+        type: 'setLeafValue',
+        path: 'selectedValues',
+        newValue: 'norway,denmark',
+      } as FDAction);
     });
   });
 
-  it('should call handleDataChange with updated values when deselecting item', async () => {
-    const handleChange = jest.fn();
-    await render({
-      genericProps: {
-        handleDataChange: handleChange,
-        formData: {
-          simpleBinding: 'norway,denmark',
-        },
-      },
+  it('should call dispatchFormData with updated values when deselecting item', async () => {
+    const { dispatchFormData } = await render({
       options: threeOptions,
+      formData: 'norway,denmark',
     });
     await waitFor(() => {
       expect(getCheckbox({ name: 'Norway', isChecked: true })).toBeInTheDocument();
@@ -172,42 +151,40 @@ describe('CheckboxesContainerComponent', () => {
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark', isChecked: true })).toBeInTheDocument();
 
-    expect(handleChange).not.toHaveBeenCalled();
+    expect(dispatchFormData).not.toHaveBeenCalled();
     await userEvent.click(getCheckbox({ name: 'Denmark', isChecked: true }));
 
     await waitFor(() => {
-      expect(handleChange).toHaveBeenCalledWith('norway', { validate: true });
+      expect(dispatchFormData).toHaveBeenCalledWith({
+        type: 'setLeafValue',
+        path: 'selectedValues',
+        newValue: 'norway',
+      } as FDAction);
     });
   });
 
   it('should call handleDataChange instantly on blur when the value has changed', async () => {
-    const handleChange = jest.fn();
-    await render({
-      genericProps: {
-        handleDataChange: handleChange,
-        formData: {
-          simpleBinding: 'norway',
-        },
-      },
+    const { dispatchFormData } = await render({
       options: threeOptions,
+      formData: 'norway',
     });
 
     const denmark = getCheckbox({ name: 'Denmark' });
     expect(denmark).toBeInTheDocument();
 
-    expect(handleChange).not.toHaveBeenCalled();
+    expect(dispatchFormData).not.toHaveBeenCalled();
     await userEvent.click(denmark);
     fireEvent.blur(denmark);
 
-    expect(handleChange).toHaveBeenCalledWith('norway,denmark', { validate: true });
+    expect(dispatchFormData).toHaveBeenCalledWith({
+      type: 'setLeafValue',
+      path: 'selectedValues',
+      newValue: 'norway,denmark',
+    } as FDAction);
   });
 
   it('should not call handleDataChange on blur when the value is unchanged', async () => {
-    const handleChange = jest.fn();
-    await render({
-      genericProps: {
-        handleDataChange: handleChange,
-      },
+    const { dispatchFormData } = await render({
       options: threeOptions,
     });
 
@@ -216,30 +193,28 @@ describe('CheckboxesContainerComponent', () => {
     fireEvent.focus(getCheckbox({ name: 'Denmark' }));
     fireEvent.blur(getCheckbox({ name: 'Denmark' }));
 
-    expect(handleChange).not.toHaveBeenCalled();
+    expect(dispatchFormData).not.toHaveBeenCalled();
   });
 
   it('should call handleDataChange onBlur with no commas in string when starting with empty string formData', async () => {
-    const handleChange = jest.fn();
-    await render({
-      genericProps: {
-        handleDataChange: handleChange,
-        formData: {
-          simpleBinding: '',
-        },
-      },
+    const { dispatchFormData } = await render({
       options: threeOptions,
+      formData: '',
     });
 
     expect(getCheckbox({ name: 'Norway' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark' })).toBeInTheDocument();
 
-    expect(handleChange).not.toHaveBeenCalled();
+    expect(dispatchFormData).not.toHaveBeenCalled();
     await userEvent.click(getCheckbox({ name: 'Denmark' }));
 
     await waitFor(() => {
-      expect(handleChange).toHaveBeenCalledWith('denmark', { validate: true });
+      expect(dispatchFormData).toHaveBeenCalledWith({
+        type: 'setLeafValue',
+        path: 'selectedValues',
+        newValue: 'denmark',
+      } as FDAction);
     });
   });
 
@@ -292,13 +267,11 @@ describe('CheckboxesContainerComponent', () => {
     expect(screen.queryByTestId('checkboxes-fieldset')).not.toHaveClass('horizontal');
   });
 
-  it('should present replaced label if setup with values from repeating group in redux and trigger handleDataChanged with replaced values', async () => {
-    const handleDataChange = jest.fn();
-
-    await render({
-      genericProps: { handleDataChange },
+  it('should present replaced label if setup with values from repeating group in redux and trigger dispatchFormData with replaced values', async () => {
+    const { dispatchFormData } = await render({
       component: {
         optionsId: undefined,
+        options: undefined,
         source: {
           group: 'someGroup',
           label: 'option.from.rep.group.label',
@@ -306,7 +279,6 @@ describe('CheckboxesContainerComponent', () => {
           helpText: 'option.from.rep.group.helpText',
           value: 'someGroup[{0}].valueField',
         },
-        options: undefined,
       },
     });
 
@@ -327,11 +299,15 @@ describe('CheckboxesContainerComponent', () => {
     );
     expect(screen.getAllByText(/Help Text: The value from the group is: Label for second/)).toHaveLength(2);
 
-    expect(handleDataChange).not.toHaveBeenCalled();
+    expect(dispatchFormData).not.toHaveBeenCalled();
     await userEvent.click(getCheckbox({ name: /The value from the group is: Label for second/ }));
 
     await waitFor(() => {
-      expect(handleDataChange).toHaveBeenCalledWith('Value for second', { validate: true });
+      expect(dispatchFormData).toHaveBeenCalledWith({
+        type: 'setLeafValue',
+        path: 'someGroup[0].valueField',
+        newValue: 'Value for second',
+      } as FDAction);
     });
   });
 });

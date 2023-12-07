@@ -35,6 +35,7 @@ import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
 import { PartyProvider } from 'src/features/party/PartiesProvider';
 import { ProfileProvider } from 'src/features/profile/ProfileProvider';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import { setupStore } from 'src/redux/store';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { useNodes } from 'src/utils/layout/NodesContext';
@@ -609,7 +610,17 @@ export async function renderGenericComponentTest<T extends CompTypes>({
       ...genericProps,
     };
 
-    return renderer(props);
+    return (
+      <FormComponentContextProvider
+        value={{
+          node,
+          baseComponentId: node.item.baseComponentId,
+          id: node.item.id,
+        }}
+      >
+        {renderer(props)}
+      </FormComponentContextProvider>
+    );
   };
 
   return renderWithNode<true, LayoutNode<T>>({
