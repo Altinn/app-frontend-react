@@ -9,7 +9,7 @@ import { Description } from 'src/components/form/Description';
 import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
 import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
-import { getPlainTextFromNode } from 'src/utils/stringHelper';
+import { useLanguage } from 'src/features/language/useLanguage';
 import type { ILabelSettings } from 'src/layout/common.generated';
 
 type CaptionProps = {
@@ -29,37 +29,41 @@ export const Caption = ({
   className,
   helpText,
   ...rest
-}: CaptionProps) => (
-  <caption
-    {...rest}
-    className={cn(classes.tableCaption, className)}
-  >
-    <Label
-      as='div'
-      className={classes.captionTitle}
+}: CaptionProps) => {
+  const { elementAsString } = useLanguage();
+  const titleAsText = elementAsString(title);
+  return (
+    <caption
+      {...rest}
+      className={cn(classes.tableCaption, className)}
     >
-      {title}
-      <RequiredIndicator
-        required={required}
-        readOnly={false}
-      />
-      <OptionalIndicator
-        labelSettings={labelSettings}
-        readOnly={false}
-        required={required}
-      />
-      {helpText && (
-        <HelpTextContainer
-          helpText={helpText}
-          title={getPlainTextFromNode(title)}
+      <Label
+        as='div'
+        className={classes.captionTitle}
+      >
+        {title}
+        <RequiredIndicator
+          required={required}
+          readOnly={false}
+        />
+        <OptionalIndicator
+          labelSettings={labelSettings}
+          readOnly={false}
+          required={required}
+        />
+        {helpText && (
+          <HelpTextContainer
+            helpText={helpText}
+            title={titleAsText}
+          />
+        )}
+      </Label>
+      {description && (
+        <Description
+          id={id}
+          description={description}
         />
       )}
-    </Label>
-    {description && (
-      <Description
-        id={id}
-        description={description}
-      />
-    )}
-  </caption>
-);
+    </caption>
+  );
+};

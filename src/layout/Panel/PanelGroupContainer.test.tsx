@@ -88,7 +88,7 @@ describe('PanelGroupContainer', () => {
     expect(secondInputTitle).toBeInTheDocument();
   });
 
-  it('should display title and body', async () => {
+  it('should display title and description', async () => {
     await render({
       container,
       components: groupComponents,
@@ -99,6 +99,7 @@ describe('PanelGroupContainer', () => {
 
     const title = screen.queryByText('Title for PanelGoup');
     expect(title).toBeInTheDocument();
+    screen.debug();
 
     const description = screen.queryByText('Description for PanelGroup');
     expect(description).toBeInTheDocument();
