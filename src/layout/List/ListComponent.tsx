@@ -6,18 +6,21 @@ import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/sr
 import type { ChangeProps, LegacyResponsiveTableConfig, SortDirection, SortProps } from '@digdir/design-system-react';
 
 import { useDataListQuery } from 'src/features/dataLists/useDataListQuery';
+import { FD } from 'src/features/formData/FormDataWriter';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { GenericComponentLegend } from 'src/layout/GenericComponentUtils';
 import type { Filter } from 'src/features/dataLists/useDataListQuery';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { IDataModelBindingsForList } from 'src/layout/List/config.generated';
 
 export type IListProps = PropsFromGenericComponent<'List'>;
 
 const defaultDataList: any[] = [];
+const defaultBindings: IDataModelBindingsForList = {};
 
-export const ListComponent = ({ node, formData, handleDataChange, legend }: IListProps) => {
+export const ListComponent = ({ node }: IListProps) => {
   const { tableHeaders, pagination, sortableColumns, tableHeadersMobile, mapping, secure, dataListId } = node.item;
   const { langAsString, language, lang } = useLanguage();
-  const RenderLegend = legend;
   const [pageSize, setPageSize] = useState<number>(pagination?.default || 0);
   const [pageNumber, setPageNumber] = useState<number>(0);
   const [sortColumn, setSortColumn] = useState<string | undefined>(undefined);
@@ -35,9 +38,15 @@ export const ListComponent = ({ node, formData, handleDataChange, legend }: ILis
   const { data } = useDataListQuery(filter, dataListId, secure, mapping);
   const calculatedDataList = (data && data.listItems) || defaultDataList;
 
+  const bindings = node.item.dataModelBindings || defaultBindings;
+  const saveData = FD.useSetForBindings(bindings);
+  const formData = FD.usePickStrings(bindings, 'current');
+
   const handleChange = ({ selectedValue: selectedValue }: ChangeProps<Record<string, string>>) => {
-    for (const key in formData) {
-      handleDataChange(selectedValue[key], { key });
+    for (const key of Object.keys(bindings)) {
+      // PRIORITY: Create a new method for setting multiple leaf values at once, instead of looping over them.
+      // We should take care to do this change atomically.
+      saveData(key, selectedValue[key]);
     }
   };
 
@@ -48,7 +57,7 @@ export const ListComponent = ({ node, formData, handleDataChange, legend }: ILis
 
   const selectedRow: Record<string, string> = React.useMemo(() => {
     let matchRow: boolean[] = [];
-    if (!formData || JSON.stringify(formData) === '{}') {
+    if (!formData || Object.keys(formData).length === 0) {
       return {};
     }
     for (const row of calculatedDataList) {
@@ -120,7 +129,7 @@ export const ListComponent = ({ node, formData, handleDataChange, legend }: ILis
 
   return (
     <LegacyFieldSet
-      legend={<RenderLegend />}
+      legend={<GenericComponentLegend />}
       style={{ width: '100%' }}
     >
       <div style={{ overflow: 'auto' }}>

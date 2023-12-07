@@ -589,7 +589,7 @@ export async function renderGenericComponentTest<T extends CompTypes>({
   const Wrapper = ({ node }: { node: LayoutNode<T> }) => {
     const props: PropsFromGenericComponent<T> = {
       node,
-      ...(mockGenericComponentProps as unknown as IComponentProps<T>),
+      ...(mockGenericComponentProps as unknown as IComponentProps),
       ...genericProps,
     };
 
@@ -604,18 +604,8 @@ export async function renderGenericComponentTest<T extends CompTypes>({
   });
 }
 
-const mockGenericComponentProps: IComponentProps<CompTypes> = {
-  formData: {},
-  handleDataChange: () => {
-    throw new Error('Called mock handleDataChange, override this yourself');
-  },
+const mockGenericComponentProps: IComponentProps = {
   shouldFocus: false,
   isValid: undefined,
   componentValidations: {},
-  label: () => {
-    throw new Error('Rendered mock label, override this yourself');
-  },
-  legend: () => {
-    throw new Error('Rendered mock legend, override this yourself');
-  },
 };

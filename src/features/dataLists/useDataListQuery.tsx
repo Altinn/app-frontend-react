@@ -27,7 +27,7 @@ export const useDataListQuery = (
   const { fetchDataList } = useAppQueries();
   const selectedLanguage = useCurrentLanguage();
   const instanceId = useLaxInstance()?.instanceId;
-  const formData = FD.useAsDotMap();
+  const formData = FD.useDebouncedDotMap();
   const { pageSize, pageNumber, sortColumn, sortDirection } = filter || {};
   const mappedData = useMemoDeepEqual(() => {
     if (mapping) {

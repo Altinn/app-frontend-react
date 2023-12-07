@@ -4,38 +4,28 @@ import { shallowEqual } from 'react-redux';
 import { Grid, makeStyles } from '@material-ui/core';
 import classNames from 'classnames';
 
-import { Description } from 'src/components/form/Description';
-import { Label } from 'src/components/form/Label';
-import { Legend } from 'src/components/form/Legend';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { FD } from 'src/features/formData/FormDataWriter';
-import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
+import { GenericComponentDescription, GenericComponentLabel } from 'src/layout/GenericComponentUtils';
 import { shouldComponentRenderLabel } from 'src/layout/index';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { makeGetFocus } from 'src/selectors/getLayoutData';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { IGridStyling } from 'src/layout/common.generated';
-import type { IFormComponentContext } from 'src/layout/FormComponentContext';
-import type { IComponentProps, PropsFromGenericComponent } from 'src/layout/index';
-import type { CompInternal, CompTypes, ITextResourceBindings } from 'src/layout/layout';
+import type { GenericComponentOverrideDisplay, IFormComponentContext } from 'src/layout/FormComponentContext';
+import type { PropsFromGenericComponent } from 'src/layout/index';
+import type { CompInternal, CompTypes } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
-import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IGenericComponentProps<Type extends CompTypes> {
   node: LayoutNode<Type>;
   overrideItemProps?: Partial<Omit<CompInternal<Type>, 'id'>>;
-  overrideDisplay?: {
-    directRender?: true;
-    renderLabel?: false;
-    renderLegend?: false;
-    renderedInTable?: true;
-  };
+  overrideDisplay?: GenericComponentOverrideDisplay;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -91,13 +81,6 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
 }: IGenericComponentProps<Type>) {
   let item = node.item;
   const id = item.id;
-  const textBindings = ('textResourceBindings' in node.item ? node.item.textResourceBindings : undefined) as
-    | ITextResourceBindings
-    | undefined;
-  const dataModelBindings = 'dataModelBindings' in node.item ? node.item.dataModelBindings : undefined;
-  const titleTrb = textBindings && 'title' in textBindings ? textBindings.title : undefined;
-  const descriptionTrb = textBindings && 'description' in textBindings ? textBindings.description : undefined;
-  const helpTrb = textBindings && 'help' in textBindings ? textBindings.help : undefined;
 
   if (overrideItemProps) {
     item = {
@@ -106,7 +89,6 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     };
   }
 
-  const fdMethods = FD.useMethods();
   const dispatch = useAppDispatch();
   const classes = useStyles();
   const gridRef = React.useRef<HTMLDivElement>(null);
@@ -115,8 +97,6 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
   const hidden = node.isHidden();
   const { langAsNonProcessedString } = useLanguage(node);
 
-  const formData = FD.useDummyDotMap();
-  // const formData = FD.useBindings(node.item.dataModelBindings as IDataModelBindings | undefined, 'current');
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
   const isValid = !node.hasValidationMessages('errors');
 
@@ -173,115 +153,13 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     return null;
   }
 
-  const handleDataChange: IComponentProps<Type>['handleDataChange'] = (value, options = {}) => {
-    const {
-      key = 'simpleBinding',
-      // validate = true,
-    } = options;
-
-    if (!dataModelBindings || !dataModelBindings[key]) {
-      return;
-    }
-
-    if ('readOnly' in item && item.readOnly) {
-      return;
-    }
-
-    if (formData[key] && formData[key] === value) {
-      // data unchanged, do nothing
-      return;
-    }
-
-    const dataModelBinding = dataModelBindings[key];
-    // const triggers = 'triggers' in item ? item.triggers : undefined;
-    // const singleFieldValidation: ISingleFieldValidation | undefined =
-    //   triggers && triggers.includes(Triggers.Validation)
-    //     ? {
-    //         layoutId: currentView,
-    //         dataModelBinding,
-    //       }
-    //     : undefined;
-
-    // PRIORITY: Support validation, etc
-    fdMethods.setLeafValue(dataModelBinding, value);
-
-    // dispatch(
-    //   FormDataActions.update({
-    //     field: dataModelBinding,
-    //     data: value,
-    //     componentId: id,
-    //     skipValidation: !validate,
-    //     singleFieldValidation,
-    //   }),
-    // );
-  };
-
   const layoutComponent = node.def as unknown as LayoutComponent<Type>;
   const RenderComponent = layoutComponent.render;
 
-  const RenderLabel = () => {
-    if (overrideDisplay?.renderLabel === false) {
-      return null;
-    }
-
-    return (
-      <Label
-        key={`label-${id}`}
-        label={<Lang id={titleTrb} />}
-        helpText={helpTrb && <Lang id={helpTrb} />}
-        id={id}
-        readOnly={'readOnly' in item ? item.readOnly : false}
-        required={'required' in item ? item.required : false}
-        labelSettings={'labelSettings' in item ? item.labelSettings : undefined}
-      />
-    );
-  };
-
-  const RenderDescription = () => {
-    if (!descriptionTrb) {
-      return null;
-    }
-
-    return (
-      <Description
-        key={`description-${id}`}
-        description={<Lang id={descriptionTrb} />}
-        id={id}
-      />
-    );
-  };
-
-  const RenderLegend = () => {
-    if (overrideDisplay?.renderLegend === false) {
-      return null;
-    }
-
-    return (
-      <Legend
-        key={`legend-${id}`}
-        label={<Lang id={titleTrb} />}
-        description={descriptionTrb && <Lang id={descriptionTrb} />}
-        helpText={helpTrb && <Lang id={helpTrb} />}
-        id={id}
-        required={'required' in item ? item.required : false}
-        labelSettings={'labelSettings' in item ? item.labelSettings : undefined}
-        layout={('layout' in item && item.layout) || undefined}
-      />
-    );
-  };
-
-  const fixedComponentProps: IComponentProps<Type> = {
-    handleDataChange,
-    formData: formData as IComponentFormData<Type>,
+  const componentProps: PropsFromGenericComponent<Type> = {
     isValid,
     shouldFocus,
-    label: RenderLabel,
-    legend: RenderLegend,
     componentValidations,
-  };
-
-  const componentProps: PropsFromGenericComponent<Type> = {
-    ...fixedComponentProps,
     node: node as unknown as LayoutNode<Type>,
     overrideItemProps,
     overrideDisplay,
@@ -335,8 +213,8 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
             item={true}
             {...gridBreakpoints(item.grid?.labelGrid)}
           >
-            <RenderLabel />
-            <RenderDescription />
+            <GenericComponentLabel />
+            <GenericComponentDescription />
           </Grid>
         )}
         <Grid

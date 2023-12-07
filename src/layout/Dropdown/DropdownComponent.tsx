@@ -3,35 +3,33 @@ import React from 'react';
 import { Select } from '@digdir/design-system-react';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
+import { FD } from 'src/features/formData/FormDataWriter';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
-import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useFormattedOptions } from 'src/hooks/useFormattedOptions';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IDropdownProps = PropsFromGenericComponent<'Dropdown'>;
 
-export function DropdownComponent({ node, formData, handleDataChange, isValid, overrideDisplay }: IDropdownProps) {
+export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownProps) {
   const { id, readOnly, textResourceBindings, dataModelBindings } = node.item;
   const { langAsString } = useLanguage();
-  const {
-    value: selected,
-    setValue,
-    saveValue,
-  } = useDelayedSavedState(handleDataChange, dataModelBindings?.simpleBinding, formData?.simpleBinding, 200);
+
+  const saveValue = FD.useSetForBindings(dataModelBindings);
+  const selected = FD.usePickString(dataModelBindings?.simpleBinding, 'current');
 
   const { options, isFetching } = useGetOptions({
     ...node.item,
     node,
     metadata: {
       setValue: (metadata) => {
-        handleDataChange(metadata, { key: 'metadata' });
+        saveValue('metadata', metadata);
       },
     },
     formData: {
       type: 'single',
       value: selected,
-      setValue: (value) => setValue(value, true),
+      setValue: (newValue) => saveValue('simpleBinding', newValue),
     },
     removeDuplicates: true,
   });
@@ -47,8 +45,7 @@ export function DropdownComponent({ node, formData, handleDataChange, isValid, o
           label={langAsString('general.choose')}
           hideLabel={true}
           inputId={id}
-          onChange={setValue}
-          onBlur={saveValue}
+          onChange={(newValue) => saveValue('simpleBinding', newValue)}
           value={selected}
           disabled={readOnly}
           error={!isValid}

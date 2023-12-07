@@ -10,7 +10,7 @@ import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 export const usePdfFormatQuery = (enabled: boolean): UseQueryResult<IPdfFormat> => {
   const { fetchPdfFormat } = useAppQueries();
-  const formData = FD.useAsDotMap();
+  const formData = FD.useDebouncedDotMap();
 
   const instanceId = useLaxInstance()?.instanceId;
   const dataGuid = useCurrentDataModelName();

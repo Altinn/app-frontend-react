@@ -16,7 +16,7 @@ export const useGetOptionsQuery = (
   secure?: boolean,
 ): UseQueryResult<AxiosResponse<IOption[], any>> => {
   const { fetchOptions } = useAppQueries();
-  const formData = FD.useAsDotMap();
+  const formData = FD.useDebouncedDotMap();
   const language = useCurrentLanguage();
   const instanceId = useLaxInstance()?.instanceId;
 

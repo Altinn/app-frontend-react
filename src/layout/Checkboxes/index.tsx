@@ -38,7 +38,7 @@ export class Checkboxes extends CheckboxesDef {
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'Checkboxes'>): JSX.Element | null {
-    const formData = FD.useAsDotMap();
+    const formData = FD.useDebouncedDotMap();
     const langTools = useLanguage();
     const options = useAllOptions();
     const summaryData = this.getSummaryData(targetNode, formData, langTools, options);

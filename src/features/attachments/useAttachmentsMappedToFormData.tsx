@@ -3,14 +3,9 @@ import React from 'react';
 import { createContext } from 'src/core/contexts/context';
 import { FD } from 'src/features/formData/FormDataWriter';
 import { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
-import type { IComponentProps } from 'src/layout';
+import type { IDataModelBindingsSimple } from 'src/layout/common.generated';
 import type { IDataModelBindingsForList } from 'src/layout/List/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-
-interface Props {
-  node: LayoutNode<'FileUpload' | 'FileUploadWithTag'>;
-  handleDataChange: IComponentProps<'FileUpload' | 'FileUploadWithTag'>['handleDataChange'];
-}
 
 interface MappingTools {
   addAttachment: (uuid: string) => void;
@@ -45,12 +40,12 @@ const noop = (node: LayoutNode<'FileUpload' | 'FileUploadWithTag'>): MappingTool
  * Adding the attachment ID to the form data in that repeating group makes that clear, and this hook provides the
  * functionality to call after uploading/removing attachments to update the form data.
  */
-export function useAttachmentsMappedToFormData(props: Props): MappingTools {
-  const forList = useMappingToolsForList(props);
-  const forSimple = useMappingToolsForSimple(props);
-  const bindings = props.node.item.dataModelBindings;
+export function useAttachmentsMappedToFormData(node: LayoutNode<'FileUpload' | 'FileUploadWithTag'>): MappingTools {
+  const forList = useMappingToolsForList(node);
+  const forSimple = useMappingToolsForSimple(node);
+  const bindings = node.item.dataModelBindings;
   if (!bindings) {
-    return noop(props.node);
+    return noop(node);
   }
 
   if ('list' in bindings) {
@@ -60,8 +55,9 @@ export function useAttachmentsMappedToFormData(props: Props): MappingTools {
   return forSimple;
 }
 
-function useMappingToolsForList({ node }: Props): MappingTools {
-  const { appendToListUnique, removeValueFromList } = FD.useMethods();
+function useMappingToolsForList(node: LayoutNode<'FileUpload' | 'FileUploadWithTag'>): MappingTools {
+  const appendToListUnique = FD.useAppendToListUnique();
+  const removeValueFromList = FD.useRemoveValueFromList();
   const field = ((node.item.dataModelBindings || {}) as IDataModelBindingsForList).list;
   return {
     addAttachment: (uuid: string) => {
@@ -73,13 +69,15 @@ function useMappingToolsForList({ node }: Props): MappingTools {
   };
 }
 
-function useMappingToolsForSimple({ handleDataChange }: Props): MappingTools {
+function useMappingToolsForSimple(node: LayoutNode<'FileUpload' | 'FileUploadWithTag'>): MappingTools {
+  const binding = ((node.item.dataModelBindings || {}) as IDataModelBindingsSimple).simpleBinding;
+  const saveData = FD.useSetForBinding(binding);
   return {
     addAttachment: (uuid: string) => {
-      handleDataChange(uuid);
+      saveData(uuid);
     },
     removeAttachment: () => {
-      handleDataChange(undefined);
+      saveData(undefined);
     },
   };
 }

@@ -4,14 +4,15 @@ import { LegacyTextField } from '@digdir/design-system-react';
 import axios from 'axios';
 
 import { Label } from 'src/components/form/Label';
+import { FD } from 'src/features/formData/FormDataWriter';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useStateDeepEqual } from 'src/hooks/useStateDeepEqual';
 import classes from 'src/layout/Address/AddressComponent.module.css';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { IDataModelBindingsForAddressInternal } from 'src/layout/Address/config.generated';
 import type { IComponentValidations } from 'src/utils/validation/types';
 
 export type IAddressComponentProps = PropsFromGenericComponent<'AddressComponent'>;
@@ -23,74 +24,23 @@ interface IAddressValidationErrors {
   postPlace?: string;
 }
 
-export enum AddressKeys {
-  address = 'address',
-  zipCode = 'zipCode',
-  postPlace = 'postPlace',
-  careOf = 'careOf',
-  houseNumber = 'houseNumber',
-}
+type AddressKey = keyof IDataModelBindingsForAddressInternal;
+const AddressKeys: AddressKey[] = ['address', 'zipCode', 'postPlace', 'careOf', 'houseNumber'];
 
-export function AddressComponent({ formData, handleDataChange, componentValidations, node }: IAddressComponentProps) {
+export function AddressComponent({ componentValidations, node }: IAddressComponentProps) {
   // eslint-disable-next-line import/no-named-as-default-member
   const cancelToken = axios.CancelToken;
   const source = cancelToken.source();
   const { id, required, readOnly, labelSettings, simplified, saveWhileTyping } = node.item;
   const { langAsString } = useLanguage();
 
-  const bindings = 'dataModelBindings' in node.item ? node.item.dataModelBindings || {} : {};
-
-  const handleDataChangeOverride =
-    (key: AddressKeys): IAddressComponentProps['handleDataChange'] =>
-    (value) =>
-      onSaveField(key, value);
-
-  const {
-    value: address,
-    setValue: setAddress,
-    onPaste: onAddressPaste,
-  } = useDelayedSavedState(
-    handleDataChangeOverride(AddressKeys.address),
-    bindings.address,
-    formData.address || '',
-    saveWhileTyping,
-  );
-  const {
-    value: zipCode,
-    setValue: setZipCode,
-    onPaste: onZipCodePaste,
-  } = useDelayedSavedState(
-    handleDataChangeOverride(AddressKeys.zipCode),
-    bindings.zipCode,
-    formData.zipCode || '',
-    saveWhileTyping,
-  );
-  const { value: postPlace, setValue: setPostPlace } = useDelayedSavedState(
-    handleDataChangeOverride(AddressKeys.postPlace),
-    bindings.postPlace,
-    formData.postPlace || '',
-    saveWhileTyping,
-  );
-  const {
-    value: careOf,
-    setValue: setCareOf,
-    onPaste: onCareOfPaste,
-  } = useDelayedSavedState(
-    handleDataChangeOverride(AddressKeys.careOf),
-    bindings.careOf,
-    formData.careOf || '',
-    saveWhileTyping,
-  );
-  const {
-    value: houseNumber,
-    setValue: setHouseNumber,
-    onPaste: onHouseNumberPaste,
-  } = useDelayedSavedState(
-    handleDataChangeOverride(AddressKeys.houseNumber),
-    bindings.houseNumber,
-    formData.houseNumber || '',
-    saveWhileTyping,
-  );
+  const bindings = ('dataModelBindings' in node.item && node.item.dataModelBindings) || {};
+  const saveData = FD.useSetForBindings(bindings, saveWhileTyping);
+  const address = FD.usePickString(bindings.address, 'current');
+  const zipCode = FD.usePickString(bindings.zipCode, 'current');
+  const postPlace = FD.usePickString(bindings.postPlace, 'current');
+  const careOf = FD.usePickString(bindings.careOf, 'current');
+  const houseNumber = FD.usePickString(bindings.houseNumber, 'current');
 
   const [validations, setValidations] = useStateDeepEqual<IAddressValidationErrors>({});
   const prevZipCode = React.useRef<string | undefined>(undefined);
@@ -100,7 +50,7 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
     const validationErrors: IAddressValidationErrors = {};
     if (zipCode && !zipCode.match(/^\d{4}$/)) {
       validationErrors.zipCode = langAsString('address_component.validation_error_zipcode');
-      setPostPlace('');
+      saveData('postPlace', '');
     } else {
       delete validationErrors.zipCode;
     }
@@ -110,26 +60,26 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
       delete validationErrors.houseNumber;
     }
     return validationErrors;
-  }, [houseNumber, langAsString, zipCode, setPostPlace]);
+  }, [houseNumber, langAsString, zipCode, saveData]);
 
   const onSaveField = React.useCallback(
-    (key: AddressKeys, value: any) => {
+    (key: AddressKey, value: any) => {
       const validationErrors: IAddressValidationErrors = validate();
       setValidations(validationErrors);
       if (!validationErrors[key]) {
-        handleDataChange(value, { key });
-        if (key === AddressKeys.zipCode && !value) {
+        saveData(key, value);
+        if (key === 'zipCode' && !value) {
           // if we are removing a zip code, also remove post place from form data
-          setPostPlace('', true);
+          saveData('postPlace', '');
         }
       }
     },
-    [validate, setValidations, handleDataChange, setPostPlace],
+    [validate, setValidations, saveData],
   );
 
   React.useEffect(() => {
     if (!zipCode || !zipCode.match(/^\d{4}$/)) {
-      postPlace && setPostPlace('');
+      postPlace && saveData('postPlace', '');
       return;
     }
 
@@ -152,12 +102,12 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
           cancelToken: cancellationToken,
         });
         if (response.valid) {
-          setPostPlace(response.result);
+          saveData('postPlace', response.result);
           setValidations({ ...validations, zipCode: undefined });
-          onSaveField(AddressKeys.postPlace, response.result);
+          onSaveField('postPlace', response.result);
         } else {
           const errorMessage = langAsString('address_component.validation_error_zipcode');
-          setPostPlace('');
+          saveData('postPlace', '');
           setValidations({ ...validations, zipCode: errorMessage });
         }
         hasFetchedPostPlace.current = true;
@@ -175,42 +125,12 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
     return function cleanup() {
       source.cancel('ComponentWillUnmount');
     };
-  }, [zipCode, langAsString, source, onSaveField, validations, setPostPlace, id, setValidations, postPlace]);
-
-  const updateField = (key: AddressKeys, saveImmediately: boolean, event: any): void => {
-    const changedFieldValue: string = event.target.value;
-    const changedKey: string = AddressKeys[key];
-
-    switch (changedKey) {
-      case AddressKeys.address: {
-        setAddress(changedFieldValue, saveImmediately);
-        break;
-      }
-      case AddressKeys.careOf: {
-        setCareOf(changedFieldValue, saveImmediately);
-        break;
-      }
-      case AddressKeys.houseNumber: {
-        setHouseNumber(changedFieldValue, saveImmediately);
-        break;
-      }
-      case AddressKeys.postPlace: {
-        setPostPlace(changedFieldValue, saveImmediately);
-        break;
-      }
-      case AddressKeys.zipCode: {
-        setZipCode(changedFieldValue, saveImmediately);
-        break;
-      }
-      default:
-        break;
-    }
-  };
+  }, [zipCode, langAsString, source, onSaveField, validations, id, setValidations, postPlace, saveData]);
 
   const joinValidationMessages = (): IComponentValidations => {
     let validationMessages = componentValidations || {};
 
-    Object.keys(AddressKeys).forEach((fieldKey: string) => {
+    Object.keys(AddressKeys).forEach((fieldKey) => {
       if (!validationMessages[fieldKey]) {
         validationMessages = {
           ...validationMessages,
@@ -222,7 +142,7 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
       }
     });
 
-    Object.keys(validations).forEach((fieldKey: string) => {
+    Object.keys(validations).forEach((fieldKey) => {
       const source = validations[fieldKey];
       if (source) {
         const target = validationMessages[fieldKey];
@@ -247,7 +167,9 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
     return validationMessages;
   };
 
-  const allValidations = joinValidationMessages();
+  const allValidations = joinValidationMessages() as {
+    [Key in AddressKey]: IComponentValidations[string] | undefined;
+  };
 
   return (
     <div
@@ -267,16 +189,12 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
           id={`address_address_${id}`}
           isValid={allValidations.address?.errors?.length === 0}
           value={address}
-          onChange={updateField.bind(null, AddressKeys.address, false)}
-          onBlur={updateField.bind(null, AddressKeys.address, true)}
-          onPaste={() => onAddressPaste()}
+          onChange={(ev) => saveData('address', ev.target.value)}
           readOnly={readOnly}
           required={required}
           autoComplete={simplified ? 'street-address' : 'address-line1'}
         />
-        {allValidations?.[AddressKeys.address]
-          ? renderValidationMessagesForComponent(allValidations[AddressKeys.address], `${id}_${AddressKeys.address}`)
-          : null}
+        {allValidations?.address && renderValidationMessagesForComponent(allValidations.address, `${id}_address`)}
       </div>
 
       {!simplified && (
@@ -293,15 +211,11 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
             id={`address_care_of_${id}`}
             isValid={allValidations.careOf?.errors?.length === 0}
             value={careOf}
-            onChange={updateField.bind(null, AddressKeys.careOf, false)}
-            onBlur={updateField.bind(null, AddressKeys.careOf, true)}
-            onPaste={() => onCareOfPaste()}
+            onChange={(ev) => saveData('careOf', ev.target.value)}
             readOnly={readOnly}
             autoComplete='address-line2'
           />
-          {allValidations?.[AddressKeys.careOf]
-            ? renderValidationMessagesForComponent(allValidations[AddressKeys.careOf], `${id}_${AddressKeys.careOf}`)
-            : null}
+          {allValidations?.careOf && renderValidationMessagesForComponent(allValidations.careOf, `${id}_careOf`)}
         </div>
       )}
 
@@ -320,18 +234,14 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
               id={`address_zip_code_${id}`}
               isValid={allValidations.zipCode?.errors?.length === 0}
               value={zipCode}
-              onChange={updateField.bind(null, AddressKeys.zipCode, false)}
-              onBlur={updateField.bind(null, AddressKeys.zipCode, true)}
-              onPaste={() => onZipCodePaste()}
+              onChange={(ev) => onSaveField('zipCode', ev.target.value)}
               readOnly={readOnly}
               required={required}
               inputMode='numeric'
               autoComplete='postal-code'
             />
           </div>
-          {allValidations?.[AddressKeys.careOf]
-            ? renderValidationMessagesForComponent(allValidations[AddressKeys.zipCode], `${id}_${AddressKeys.zipCode}`)
-            : null}
+          {allValidations?.zipCode && renderValidationMessagesForComponent(allValidations.zipCode, `${id}_zipCode`)}
         </div>
 
         <div className={classes.addressComponentPostplace}>
@@ -351,12 +261,8 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
             required={required}
             autoComplete='address-level1'
           />
-          {allValidations?.[AddressKeys.postPlace]
-            ? renderValidationMessagesForComponent(
-                allValidations[AddressKeys.postPlace],
-                `${id}_${AddressKeys.postPlace}`,
-              )
-            : null}
+          {allValidations?.postPlace &&
+            renderValidationMessagesForComponent(allValidations.postPlace, `${id}_postPlace`)}
         </div>
       </div>
 
@@ -378,19 +284,13 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
               id={`address_house_number_${id}`}
               isValid={allValidations.houseNumber?.errors?.length === 0}
               value={houseNumber}
-              onChange={updateField.bind(null, AddressKeys.houseNumber, false)}
-              onBlur={updateField.bind(null, AddressKeys.houseNumber, true)}
-              onPaste={() => onHouseNumberPaste()}
+              onChange={(ev) => saveData('houseNumber', ev.target.value)}
               readOnly={readOnly}
               autoComplete='address-line3'
             />
           </div>
-          {allValidations?.[AddressKeys.houseNumber]
-            ? renderValidationMessagesForComponent(
-                allValidations[AddressKeys.houseNumber],
-                `${id}_${AddressKeys.houseNumber}`,
-              )
-            : null}
+          {allValidations?.houseNumber &&
+            renderValidationMessagesForComponent(allValidations.houseNumber, `${id}_houseNumber`)}
         </div>
       )}
     </div>

@@ -11,7 +11,7 @@ type Props = Omit<React.PropsWithChildren<IInstantiationButtonComponentProvidedP
 
 export const InstantiationButton = ({ children, ...props }: Props) => {
   const instantiation = useInstantiation();
-  const formData = FD.useAsDotMap();
+  const formData = FD.useDebouncedDotMap();
   const party = useCurrentParty();
 
   const instantiate = () => {

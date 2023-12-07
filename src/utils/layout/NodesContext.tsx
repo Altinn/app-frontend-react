@@ -37,7 +37,7 @@ function useLayoutsAsNodes(): LayoutPages | undefined {
 
 export const NodesProvider = (props: React.PropsWithChildren) => {
   const resolvedNodes = useLayoutsAsNodes();
-  // useLegacyHiddenComponents(resolvedNodes); // PRIORITY: Comment back in
+  useLegacyHiddenComponents(resolvedNodes);
 
   return <Provider value={resolvedNodes}>{props.children}</Provider>;
 };
@@ -90,7 +90,7 @@ export function useResolvedNode<T>(selector: string | undefined | T | LayoutNode
 function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
   const _currentHiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
   const pageOrderConfig = useAppSelector(selectPageOrderConfig);
-  const formData = FD.useDummyDotMap();
+  const formData = FD.useDebouncedDotMap();
   const rules = useAppSelector((state) => state.formDynamics.conditionalRendering);
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
   const _dataSources = useAppSelector(selectDataSourcesFromState);

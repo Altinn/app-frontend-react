@@ -40,7 +40,7 @@ export class MultipleSelect extends MultipleSelectDef {
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'MultipleSelect'>): JSX.Element | null {
-    const formData = FD.useAsDotMap();
+    const formData = FD.useDebouncedDotMap();
     const langTools = useLanguage();
     const options = useAllOptions();
     const summaryData = this.getSummaryData(targetNode, formData, langTools, options);

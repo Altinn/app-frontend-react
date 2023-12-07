@@ -47,7 +47,7 @@ export const ExpressionPlayground = () => {
   const nodes = useNodes();
   const currentPage = nodes?.current()?.top.myKey;
   const dataSources = useAppSelector(selectDataSourcesFromState);
-  const formData = FD.useAsDotMap('current');
+  const formData = FD.useDebouncedDotMap();
 
   const setOutputWithHistory = useCallback(
     (newValue: string, isError: boolean): boolean => {

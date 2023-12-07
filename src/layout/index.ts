@@ -12,7 +12,6 @@ import type { AllOptionsMap } from 'src/features/options/useAllOptions';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { CompInternal, CompRendersLabel, CompTypes } from 'src/layout/layout';
 import type { AnyComponent, LayoutComponent } from 'src/layout/LayoutComponent';
-import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ISchemaValidationError } from 'src/utils/validation/schemaValidation';
 import type {
@@ -43,23 +42,13 @@ const _componentsTypeCheck: {
   ...ComponentConfigs,
 };
 
-export interface IComponentProps<T extends CompTypes> {
-  handleDataChange: (
-    value: string | undefined,
-    options?: {
-      key?: string; // Defaults to simpleBinding
-      validate?: boolean; // Defaults to true
-    },
-  ) => void;
+export interface IComponentProps {
   shouldFocus: boolean;
-  label: () => JSX.Element | null;
-  legend: () => JSX.Element | null;
-  formData: IComponentFormData<T>;
   isValid?: boolean;
   componentValidations?: IComponentValidations;
 }
 
-export interface PropsFromGenericComponent<T extends CompTypes = CompTypes> extends IComponentProps<T> {
+export interface PropsFromGenericComponent<T extends CompTypes = CompTypes> extends IComponentProps {
   node: LayoutNode<T>;
   overrideItemProps?: Partial<Omit<CompInternal<T>, 'id'>>;
   overrideDisplay?: IGenericComponentProps<T>['overrideDisplay'];
@@ -158,7 +147,7 @@ export function implementsDisplayData<Type extends CompTypes>(
 }
 
 export function useDisplayDataProps(): DisplayDataProps {
-  const formData = FD.useAsDotMap();
+  const formData = FD.useDebouncedDotMap();
   const langTools = useLanguage();
   const options = useAllOptions();
   const attachments = useAttachments();

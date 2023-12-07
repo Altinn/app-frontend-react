@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { useMutation } from '@tanstack/react-query';
@@ -14,25 +14,26 @@ import { useFormDataStateMachine } from 'src/features/formData/StateMachine';
 import { useMemoDeepEqual } from 'src/hooks/useMemoDeepEqual';
 import type { IFormData } from 'src/features/formData/index';
 import type { FDAction, FormDataStorage } from 'src/features/formData/StateMachine';
+import type { SaveWhileTyping } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
 
 export type FDValue = string | number | boolean | object | undefined | null | FDValue[];
 export type FDFreshness = 'current' | 'debounced';
 
+interface Methods {
+  setLeafValue: (path: string, newValue: any) => void;
+  appendToListUnique: (path: string, newValue: any) => void;
+  removeIndexFromList: (path: string, index: number) => void;
+  removeValueFromList: (path: string, item: any) => void;
+}
+
+type SetLeafValueForBindings<B extends IDataModelBindings> = (key: keyof Exclude<B, undefined>, newValue: any) => void;
+
 interface FormDataStorageExtended extends FormDataStorage {
   isSaving: boolean;
   hasUnsavedChanges: boolean;
   hasUnsavedDebouncedChanges: boolean;
-  methods: {
-    setLeafValue: (path: string, newValue: any) => void;
-    appendToListUnique: (path: string, newValue: any) => void;
-    removeIndexFromList: (path: string, index: number) => void;
-    removeValueFromList: (path: string, item: any) => void;
-  };
-
-  currentDataFlat: IFormData;
-  debouncedCurrentDataFlat: IFormData;
-  lastSavedDataFlat: IFormData;
+  methods: Methods;
 }
 
 interface MutationArg {
@@ -124,6 +125,23 @@ export function FormDataWriteProvider({ uuid, initialData, children }: FormDataW
     }
   }, [mutate, hasUnsavedDebouncedChanges, state.debouncedCurrentData, isSaving, state.lastSavedData]);
 
+  const setLeafValue = useCallback(
+    (path: string, newValue: any) => dispatch({ type: 'setLeafValue', path, newValue }),
+    [dispatch],
+  );
+  const appendToListUnique = useCallback(
+    (path: string, newValue: any) => dispatch({ type: 'appendToListUnique', path, newValue }),
+    [dispatch],
+  );
+  const removeIndexFromList = useCallback(
+    (path: string, index: number) => dispatch({ type: 'removeIndexFromList', path, index }),
+    [dispatch],
+  );
+  const removeValueFromList = useCallback(
+    (path: string, value: any) => dispatch({ type: 'removeValueFromList', path, value }),
+    [dispatch],
+  );
+
   return (
     <Provider
       value={{
@@ -131,15 +149,11 @@ export function FormDataWriteProvider({ uuid, initialData, children }: FormDataW
         hasUnsavedDebouncedChanges,
         isSaving,
 
-        currentDataFlat: dot.dot(state.currentData),
-        debouncedCurrentDataFlat: dot.dot(state.debouncedCurrentData),
-        lastSavedDataFlat: dot.dot(state.lastSavedData),
-
         methods: {
-          setLeafValue: (path, newValue) => dispatch({ type: 'setLeafValue', path, newValue }),
-          appendToListUnique: (path, newValue) => dispatch({ type: 'appendToListUnique', path, newValue }),
-          removeIndexFromList: (path, index) => dispatch({ type: 'removeIndexFromList', path, index }),
-          removeValueFromList: (path, value) => dispatch({ type: 'removeValueFromList', path, value }),
+          setLeafValue,
+          appendToListUnique,
+          removeIndexFromList,
+          removeValueFromList,
         },
         ...state,
       }}
@@ -154,22 +168,16 @@ function useData(freshness: FDFreshness = 'debounced') {
   return freshness === 'current' ? currentData : debouncedCurrentData;
 }
 
-const staticEmptyObject: IFormData = {};
-
 export const FD = {
   /**
    * This will return the form data as a dot map, where the keys are dot-separated paths. This is the same format
    * as the older form data. Consider using any of the newer methods instead, which may come with performance benefits.
+   * This will always give you the debounced (late) data, which may or may not be saved to the backend yet.
    */
-  useAsDotMap(freshness: FDFreshness = 'debounced'): IFormData {
-    const { currentDataFlat, debouncedCurrentDataFlat } = useCtx();
-    return freshness === 'current' ? currentDataFlat : debouncedCurrentDataFlat;
+  useDebouncedDotMap(): IFormData {
+    const { debouncedCurrentData } = useCtx();
+    return useMemo(() => dot.dot(debouncedCurrentData), [debouncedCurrentData]);
   },
-
-  /**
-   * PRIORITY: Remove this and use useAsDotMap() instead
-   */
-  useDummyDotMap: (_freshness: FDFreshness = 'debounced'): IFormData => staticEmptyObject,
 
   /**
    * This will return the form data as a deep object, just like the server sends it to us (and the way we send it back).
@@ -177,11 +185,47 @@ export const FD = {
   useAsObject: (freshness: FDFreshness = 'debounced') => useData(freshness),
 
   /**
-   * This returns a value, as picked from the form data. The value may be anything that is possible to store in the
-   * data model (scalar values, arrays and objects). If the value is not found, undefined is returned. Null may
-   * also be returned if the value is explicitly set to null.
+   * This returns a single value, as picked from the form data. The data is converted to a string, if possible.
+   * If the path points to a complex data type, like an object or array, undefined is returned.
    */
-  usePick: (path: string | undefined, freshness?: FDFreshness): FDValue => {
+  usePickString: (path: string | undefined, freshness?: FDFreshness): string | undefined => {
+    const data = useData(freshness);
+    const value = path ? dot.pick(path, data) : undefined;
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+      return value.toString();
+    }
+
+    return undefined;
+  },
+
+  /**
+   * This is like the one above, but for multiple values. The values in the input object is expected to be
+   * dot-separated paths, and the return value will be an object with the same keys, but with the values picked
+   * from the form data.
+   */
+  usePickStrings: <B extends IDataModelBindings>(
+    bindings: B,
+    freshness?: FDFreshness,
+  ): B extends undefined ? Record<string, never> : { [key in keyof B]: string | undefined } => {
+    const data = useData(freshness);
+    const out: any = {};
+    if (bindings) {
+      for (const key of Object.keys(bindings)) {
+        const value = dot.pick((bindings as any)[key], data);
+        if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+          out[key] = value.toString();
+        }
+      }
+    }
+
+    return out;
+  },
+
+  /**
+   * This returns a value, as picked from the form data. It may also return an array, object or null.
+   * If you only expect a string/leaf value, use usePickString() instead.
+   */
+  usePickAny: (path: string | undefined, freshness?: FDFreshness): FDValue => {
     const data = useData(freshness);
     return useMemoDeepEqual(path ? dot.pick(path, data) : undefined);
   },
@@ -208,10 +252,84 @@ export const FD = {
   },
 
   /**
-   * These methods can be used to update the data model.
+   * This returns the raw method for setting a value in the form data. This is useful if you want to
+   * set a value in the form data.
    */
-  useMethods: () => {
+  useSetLeafValue: () => {
     const { methods } = useCtx();
-    return methods;
+    return methods.setLeafValue;
+  },
+
+  /**
+   * Use this hook to get a function you can use to set a single value in the form data, using a binding.
+   */
+  useSetForBinding: (binding: string | undefined, saveWhileTyping?: SaveWhileTyping) => {
+    const { methods } = useCtx();
+
+    return useCallback(
+      (newValue: any) => {
+        if (!binding) {
+          window.logWarn(`No data model binding found for ${binding}, silently ignoring request to save ${newValue}`);
+          return;
+        }
+        methods.setLeafValue(binding, newValue);
+      },
+      [binding, methods],
+    );
+  },
+
+  /**
+   * Use this hook to get a function you can use to set multiple values in the form data, using a data model bindings
+   * object.
+   */
+  useSetForBindings: <B extends IDataModelBindings>(
+    bindings: B,
+    saveWhileTyping?: SaveWhileTyping,
+  ): SetLeafValueForBindings<B> => {
+    const { methods } = useCtx();
+
+    return useCallback(
+      (key: keyof B, newValue: any) => {
+        const binding = (bindings as any)[key];
+        if (!binding) {
+          const keyAsString = key as string;
+          window.logWarn(
+            `No data model binding found for ${keyAsString}, silently ignoring request to save ${newValue}`,
+          );
+          return;
+        }
+        methods.setLeafValue(binding, newValue);
+      },
+      [bindings, methods],
+    );
+  },
+
+  /**
+   * Returns a function to append a value to a list. It checks if the value is already in the list, and if not,
+   * it will append it. If the value is already in the list, it will not be appended.
+   */
+  useAppendToListUnique: () => {
+    const { methods } = useCtx();
+    return methods.appendToListUnique;
+  },
+
+  /**
+   * Returns a function to remove a value from a list, by index. You should try to avoid using this, as it might
+   * not do what you want if it is triggered at a moment where your copy of the form data is outdated. Calling this
+   * function twice in a row for index 0 will remove the first item in the list, even if the list has changed in
+   * the meantime.
+   */
+  useRemoveIndexFromList: () => {
+    const { methods } = useCtx();
+    return methods.removeIndexFromList;
+  },
+
+  /**
+   * Returns a function to remove a value from a list, by value. If your list contains unique values, this is the
+   * safer alternative to useRemoveIndexFromList().
+   */
+  useRemoveValueFromList: () => {
+    const { methods } = useCtx();
+    return methods.removeValueFromList;
   },
 };

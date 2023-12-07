@@ -1,7 +1,7 @@
 import { Children, isValidElement, useMemo } from 'react';
 import type { JSX, ReactNode } from 'react';
 
-import { FD } from 'src/features/formData/FormDataWriter';
+import { useFormDataReadOnly } from 'src/features/formData/FormDataReadOnly';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -77,8 +77,7 @@ export function useLanguage(node?: LayoutNode) {
   const selectedAppLanguage = useCurrentLanguage();
   const componentCtx = useFormComponentCtx();
   const nearestNode = node || componentCtx?.node;
-  // const formData = useFormDataReadOnly();
-  const formData = FD.useDummyDotMap();
+  const formData = useFormDataReadOnly();
   const applicationSettings = useAppSelector((state) => state.applicationSettings.applicationSettings);
   const instance = useLaxInstanceData();
   const instanceDataSources = useMemo(() => buildInstanceDataSources(instance), [instance]);

@@ -146,7 +146,7 @@ const dummyRepeatingGroups: IRepeatingGroups = {};
  */
 function useResolvedExpressions() {
   const instance = useLaxInstanceData();
-  const formData = FD.useDummyDotMap();
+  const formData = FD.useDebouncedDotMap();
   const uiConfig = useAppSelector((state) => state.formLayout.uiConfig);
   const attachments = useAttachments();
   const options = useAppSelector((state) => state.deprecated.allOptions);
