@@ -7,51 +7,28 @@ import type { AxiosRequestConfig } from 'axios/index';
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
-import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { getDataTypeByLayoutSetId, isStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
-import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
-import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { FormDataWriteProvider } from 'src/features/formData/FormDataWriter';
-import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { useIsStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
+import { useCurrentDataModelUrl } from 'src/features/datamodel/useBindingSchema';
+import { FormDataReadOnlyProvider } from 'src/features/formData/FormDataReadOnly';
+import { FD, FormDataWriteProvider } from 'src/features/formData/FormDataWrite';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
-import { useAllowAnonymous } from 'src/features/stateless/getAllowAnonymous';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import { maybeAuthenticationRedirect } from 'src/utils/maybeAuthenticationRedirect';
 import { HttpStatusCodes } from 'src/utils/network/networking';
-import { getFetchFormDataUrl, getStatelessFormDataUrl } from 'src/utils/urls/appUrlHelper';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 function useFormDataQuery() {
-  const appMetaData = useApplicationMetadata();
   const currentPartyId = useCurrentParty()?.partyId;
-  const allowAnonymous = useAllowAnonymous();
-  const isStateless = isStatelessApp(appMetaData);
+  const isStateless = useIsStatelessApp();
+  const url = useCurrentDataModelUrl();
 
   // We also add the current task id to the query key, so that the query is refetched when the task changes. This
   // is needed because we have logic waiting for the form data to be fetched before we can continue (even if the
   // data element used is the same one between two different tasks - in which case it could also have been changed
   // on the server).
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
-  const dataElementUuid = useCurrentDataModelGuid();
-
-  const instance = useLaxInstanceData();
-  const layoutSets = useLayoutSets();
-  const statelessDataType = isStateless
-    ? getDataTypeByLayoutSetId({
-        layoutSetId: appMetaData?.onEntry?.show,
-        layoutSets,
-        appMetaData,
-      })
-    : undefined;
-
-  const url =
-    isStateless && statelessDataType
-      ? getStatelessFormDataUrl(statelessDataType, allowAnonymous)
-      : instance && dataElementUuid
-        ? getFetchFormDataUrl(instance.id, dataElementUuid)
-        : undefined;
 
   const options: AxiosRequestConfig = {};
   if (isStateless && currentPartyId !== undefined) {
@@ -85,7 +62,6 @@ function useFormDataQuery() {
     ...utils,
     enabled,
     url,
-    dataElementUuid,
   };
 }
 
@@ -96,9 +72,9 @@ function useFormDataQuery() {
  * @see FormDataProvider
  */
 export function FormDataReadWriteProvider({ children }: PropsWithChildren) {
-  const { error, isLoading, data, enabled, dataElementUuid } = useFormDataQuery();
+  const { error, isLoading, data, enabled, url } = useFormDataQuery();
 
-  if (!enabled || !dataElementUuid) {
+  if (!enabled || !url) {
     return <>{children}</>;
   }
 
@@ -111,16 +87,21 @@ export function FormDataReadWriteProvider({ children }: PropsWithChildren) {
     return <DisplayError error={error} />;
   }
 
-  if (isLoading || !data) {
+  if (isLoading) {
     return <Loader reason='formdata' />;
   }
 
   return (
     <FormDataWriteProvider
-      uuid={dataElementUuid}
+      url={url}
       initialData={data}
     >
-      {children}
+      <FormDataReadOnlyFromReadWriteProvider>{children}</FormDataReadOnlyFromReadWriteProvider>
     </FormDataWriteProvider>
   );
+}
+
+function FormDataReadOnlyFromReadWriteProvider({ children }: PropsWithChildren) {
+  const formData = FD.useDebouncedDotMap();
+  return <FormDataReadOnlyProvider value={formData}>{children}</FormDataReadOnlyProvider>;
 }

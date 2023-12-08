@@ -3,7 +3,7 @@ import React from 'react';
 import { useBindingSchema } from 'src/features/datamodel/useBindingSchema';
 import classes from 'src/features/devtools/components/NodeInspector/NodeInspector.module.css';
 import { Value } from 'src/features/devtools/components/NodeInspector/NodeInspectorDataField';
-import { FD } from 'src/features/formData/FormDataWriter';
+import { FD } from 'src/features/formData/FormDataWrite';
 import type { IDataModelBindings } from 'src/layout/layout';
 
 interface Props {

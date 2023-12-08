@@ -26,7 +26,7 @@ import { FooterLayoutProvider } from 'src/features/footer/FooterLayoutProvider';
 import { FormProvider } from 'src/features/form/FormContext';
 import { generateSimpleRepeatingGroups } from 'src/features/form/layout/repGroups/generateSimpleRepeatingGroups';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { FormDataDispatchGatekeeperProvider } from 'src/features/formData/FormDataWriterDispatch';
+import { FormDataWriteDispatchGatekeeperProvider } from 'src/features/formData/FormDataWriteDispatch';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
 import { LanguageProvider } from 'src/features/language/LanguageProvider';
@@ -430,11 +430,11 @@ export const renderWithInstanceAndLayout = async ({
     ...(await renderBase({
       renderer: () => (
         <InstanceProvider>
-          <FormDataDispatchGatekeeperProvider value={dispatchGatekeeper}>
+          <FormDataWriteDispatchGatekeeperProvider value={dispatchGatekeeper}>
             <FormProvider>
               <WaitForNodes waitForAllNodes={true}>{renderer()}</WaitForNodes>
             </FormProvider>
-          </FormDataDispatchGatekeeperProvider>
+          </FormDataWriteDispatchGatekeeperProvider>
         </InstanceProvider>
       ),
       unMockableQueries: {

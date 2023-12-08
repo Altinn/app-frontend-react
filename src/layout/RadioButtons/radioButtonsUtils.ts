@@ -1,6 +1,6 @@
 import type React from 'react';
 
-import { FD } from 'src/features/formData/FormDataWriter';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import type { IRadioButtonsContainerProps } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 

@@ -10,7 +10,7 @@ import { Loader } from 'src/core/loading/Loader';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { flattenObject } from 'src/utils/databindings';
-import { getFetchFormDataUrl } from 'src/utils/urls/appUrlHelper';
+import { getDataElementUrl } from 'src/utils/urls/appUrlHelper';
 import type { IFormData } from 'src/features/formData/index';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
@@ -37,10 +37,10 @@ function useMergedFormDataQuery() {
       }
 
       const dataElement = instance?.data.find((e) => e.dataType === dataType.id);
-      if (!dataElement) {
+      if (!dataElement || !instance?.id) {
         continue;
       }
-      urlsToFetch.push(getFetchFormDataUrl(instance?.id || '', dataElement.id));
+      urlsToFetch.push(getDataElementUrl(instance.id, dataElement.id));
     }
   }
 

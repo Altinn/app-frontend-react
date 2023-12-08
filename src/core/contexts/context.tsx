@@ -1,8 +1,11 @@
 import React from 'react';
 
+import { createContext as createReactContext, useContextSelector } from 'use-context-selector';
+
 interface ContextProvider<T> {
   Provider: React.Provider<T>;
   useCtx: () => T;
+  useCtxSelector: <U>(selector: (value: T) => U) => U;
   useHasProvider: () => boolean;
 }
 
@@ -37,17 +40,17 @@ export type CreateContextProps<T> = StrictContextProps | LaxContextProps<T>;
  */
 export function createContext<T>({ name, required, ...rest }: CreateContextProps<T>): ContextProvider<T> {
   const defaultValue = 'default' in rest ? rest.default : undefined;
-  const Context = React.createContext<{ innerValue: T | undefined; provided: boolean }>({
+  const Context = createReactContext<{ innerValue: T | undefined; provided: boolean }>({
     innerValue: defaultValue,
     provided: false,
   });
   Context.displayName = name;
 
-  const useHasProvider = () => Boolean(React.useContext(Context).provided);
+  const useHasProvider = () => Boolean(useContextSelector(Context, (v) => v.provided));
 
   const useCtx = (): T => {
     const hasProvider = useHasProvider();
-    const value = React.useContext(Context)?.innerValue;
+    const value = useContextSelector(Context, (v) => v.innerValue);
     if (!hasProvider) {
       if (required) {
         throw new Error(`${name} is missing`);
@@ -57,9 +60,26 @@ export function createContext<T>({ name, required, ...rest }: CreateContextProps
     return value as T;
   };
 
+  function useCtxSelector<U>(selector: (value: T) => U): U {
+    const hasProvider = useHasProvider();
+    const value = useContextSelector(Context, (v) => (hasProvider ? selector(v.innerValue as T) : undefined));
+    if (!hasProvider) {
+      if (required) {
+        throw new Error(`${name} is missing`);
+      }
+      return selector(defaultValue as T);
+    }
+    return value as U;
+  }
+
   const Provider = ({ value, children }: Parameters<React.Provider<T | undefined>>[0]) => (
     <Context.Provider value={{ innerValue: value, provided: true }}>{children}</Context.Provider>
   );
 
-  return { Provider: Provider as React.Provider<T>, useCtx, useHasProvider };
+  return {
+    Provider: React.memo(Provider as React.Provider<T>),
+    useCtx,
+    useCtxSelector,
+    useHasProvider,
+  };
 }

@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Select } from '@digdir/design-system-react';
 
-import { FD } from 'src/features/formData/FormDataWriter';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useFormattedOptions } from 'src/hooks/useFormattedOptions';

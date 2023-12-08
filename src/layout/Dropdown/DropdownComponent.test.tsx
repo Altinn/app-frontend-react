@@ -4,11 +4,11 @@ import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import type { AxiosResponse } from 'axios';
 
-import { FD } from 'src/features/formData/FormDataWriter';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
 import { promiseMock, renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { AppQueries } from 'src/core/contexts/AppQueriesProvider';
-import type { FDAction } from 'src/features/formData/StateMachine';
+import type { FDAction } from 'src/features/formData/FormDataWriteStateMachine';
 import type { IOption } from 'src/layout/common.generated';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 

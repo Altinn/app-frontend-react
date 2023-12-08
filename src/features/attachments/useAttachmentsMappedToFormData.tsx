@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { createContext } from 'src/core/contexts/context';
-import { FD } from 'src/features/formData/FormDataWriter';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { IDataModelBindingsSimple } from 'src/layout/common.generated';
 import type { IDataModelBindingsForList } from 'src/layout/List/config.generated';

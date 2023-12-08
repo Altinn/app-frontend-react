@@ -9,12 +9,11 @@ import deepEqual from 'fast-deep-equal';
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { createContext } from 'src/core/contexts/context';
 import { diffModels } from 'src/features/formData/diffModels';
-import { FormDataReadOnlyProvider } from 'src/features/formData/FormDataReadOnly';
-import { useFormDataDispatchGatekeeper } from 'src/features/formData/FormDataWriterDispatch';
-import { useFormDataStateMachine } from 'src/features/formData/StateMachine';
+import { useFormDataWriteDispatchGatekeeper } from 'src/features/formData/FormDataWriteDispatch';
+import { useFormDataWriteStateMachine } from 'src/features/formData/FormDataWriteStateMachine';
 import { useMemoDeepEqual } from 'src/hooks/useMemoDeepEqual';
+import type { FDAction, FormDataStorage } from 'src/features/formData/FormDataWriteStateMachine';
 import type { IFormData } from 'src/features/formData/index';
-import type { FDAction, FormDataStorage } from 'src/features/formData/StateMachine';
 import type { SaveWhileTyping } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
 
@@ -38,12 +37,13 @@ interface FormDataStorageExtended extends FormDataStorage {
 }
 
 interface MutationArg {
+  dataModelUrl: string;
   newData: object;
   diff: Record<string, any>;
 }
 
-const { Provider, useCtx } = createContext<FormDataStorageExtended>({
-  name: 'FormDataWriter',
+const { Provider, useCtxSelector, useCtx } = createContext<FormDataStorageExtended>({
+  name: 'FormDataWrite',
   required: true,
 });
 
@@ -54,17 +54,17 @@ function createFormDataRequestFromDiff(modelToSave: object, diff: object) {
   return data;
 }
 
-const useFormDataSaveMutation = (uuid: string, dispatch: React.Dispatch<FDAction>) => {
+const useFormDataSaveMutation = (dispatch: React.Dispatch<FDAction>) => {
   const { doPutFormData } = useAppMutations();
 
   return useMutation({
     mutationKey: ['saveFormData'],
     mutationFn: async (arg: MutationArg) => {
-      const { newData, diff } = arg;
+      const { dataModelUrl, newData, diff } = arg;
       const data = createFormDataRequestFromDiff(newData, diff);
 
       try {
-        const metaData: any = await doPutFormData.call(uuid, data);
+        const metaData: any = await doPutFormData.call(dataModelUrl, data);
         dispatch({
           type: 'saveFinished',
           savedData: newData,
@@ -96,13 +96,13 @@ const useFormDataSaveMutation = (uuid: string, dispatch: React.Dispatch<FDAction
 };
 
 interface FormDataWriterProps extends PropsWithChildren {
-  uuid: string;
+  url: string;
   initialData: object;
 }
 
-export function FormDataWriteProvider({ uuid, initialData, children }: FormDataWriterProps) {
-  const [state, _dispatch] = useFormDataStateMachine(uuid, initialData);
-  const dispatchGatekeeper = useFormDataDispatchGatekeeper();
+export function FormDataWriteProvider({ url, initialData, children }: FormDataWriterProps) {
+  const [state, _dispatch] = useFormDataWriteStateMachine(initialData);
+  const dispatchGatekeeper = useFormDataWriteDispatchGatekeeper();
   const dispatch = useCallback(
     (action: FDAction) => {
       if (action.type === 'initialFetch') {
@@ -114,7 +114,7 @@ export function FormDataWriteProvider({ uuid, initialData, children }: FormDataW
     [_dispatch, dispatchGatekeeper],
   );
 
-  const { mutate, isLoading: isSaving } = useFormDataSaveMutation(uuid, dispatch);
+  const { mutate, isLoading: isSaving } = useFormDataSaveMutation(dispatch);
 
   const hasUnsavedChanges =
     state.currentData !== state.lastSavedData && !deepEqual(state.currentData, state.lastSavedData);
@@ -132,11 +132,12 @@ export function FormDataWriteProvider({ uuid, initialData, children }: FormDataW
       }
 
       mutate({
+        dataModelUrl: url,
         newData: state.debouncedCurrentData,
         diff,
       });
     }
-  }, [mutate, hasUnsavedDebouncedChanges, state.debouncedCurrentData, isSaving, state.lastSavedData]);
+  }, [mutate, hasUnsavedDebouncedChanges, state.debouncedCurrentData, isSaving, state.lastSavedData, url]);
 
   const setLeafValue = useCallback(
     (path: string, newValue: any) => dispatch({ type: 'setLeafValue', path, newValue }),
@@ -171,10 +172,11 @@ export function FormDataWriteProvider({ uuid, initialData, children }: FormDataW
         ...state,
       }}
     >
-      <FormDataReadOnlyProvider value={dot.dot(state.debouncedCurrentData)}>{children}</FormDataReadOnlyProvider>
+      {children}
     </Provider>
   );
 }
+
 export const FD = {
   /**
    * This will return the form data as a dot map, where the keys are dot-separated paths. This is the same format
@@ -182,17 +184,15 @@ export const FD = {
    * This will always give you the debounced (late) data, which may or may not be saved to the backend yet.
    */
   useDebouncedDotMap(): IFormData {
-    const { debouncedCurrentData } = useCtx();
+    const debouncedCurrentData = useCtxSelector((v) => v.debouncedCurrentData);
     return useMemo(() => dot.dot(debouncedCurrentData), [debouncedCurrentData]);
   },
 
   /**
    * This will return the form data as a deep object, just like the server sends it to us (and the way we send it back).
    */
-  useAsObject: (freshness: FDFreshness = 'debounced') => {
-    const { currentData, debouncedCurrentData } = useCtx();
-    return freshness === 'current' ? currentData : debouncedCurrentData;
-  },
+  useAsObject: (freshness: FDFreshness = 'debounced') =>
+    useCtxSelector((v) => (freshness === 'current' ? v.currentData : v.debouncedCurrentData)),
 
   /**
    * This returns a single value, as picked from the form data. The data is always converted to a string.
@@ -200,13 +200,8 @@ export const FD = {
    * Use this when you expect a string/leaf value, and provide that to a controlled React component
    */
   usePickFreshString: (path: string | undefined): string => {
-    const { currentData } = useCtx();
-    const value = path ? dot.pick(path, currentData) : undefined;
-    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
-      return value.toString();
-    }
-
-    return '';
+    const value = useCtxSelector((v) => (path ? dot.pick(path, v.currentData) : undefined));
+    return typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' ? value.toString() : '';
   },
 
   /**
@@ -214,7 +209,8 @@ export const FD = {
    * dot-separated paths, and the return value will be an object with the same keys, but with the values picked
    * from the form data.
    */
-  usePickFreshStrings: <B extends IDataModelBindings>(bindings: B): { [key in keyof B]: string } => {
+  usePickFreshStrings: <B extends IDataModelBindings>(_bindings: B): { [key in keyof B]: string } => {
+    const bindings = _bindings as any;
     const { currentData } = useCtx();
 
     return useMemo(
@@ -222,7 +218,8 @@ export const FD = {
         new Proxy({} as { [key in keyof B]: string }, {
           get(_, _key): any {
             const key = _key.toString();
-            const value = dot.pick((bindings as any)[key], currentData);
+            const binding = key in bindings && bindings[key];
+            const value = binding && dot.pick(binding, currentData);
             if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
               return value.toString();
             }

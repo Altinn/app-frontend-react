@@ -6,7 +6,7 @@ import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/sr
 import type { ChangeProps, LegacyResponsiveTableConfig, SortDirection, SortProps } from '@digdir/design-system-react';
 
 import { useDataListQuery } from 'src/features/dataLists/useDataListQuery';
-import { FD } from 'src/features/formData/FormDataWriter';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { GenericComponentLegend } from 'src/layout/GenericComponentUtils';
 import type { Filter } from 'src/features/dataLists/useDataListQuery';

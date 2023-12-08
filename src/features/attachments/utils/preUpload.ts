@@ -9,7 +9,7 @@ import type { UseMutationOptions } from '@tanstack/react-query';
 import type { ImmerReducer } from 'use-immer';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
-import { useLaxInstance } from 'src/features/instance/InstanceContext';
+import { useLaxInstance, useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
@@ -210,9 +210,16 @@ interface MutationVariables {
 
 function useAttachmentsUploadMutation() {
   const { doAttachmentUpload } = useAppMutations();
+  const instanceId = useLaxInstanceData()?.id;
 
   const options: UseMutationOptions<IData, HttpClientError, MutationVariables> = {
-    mutationFn: ({ dataTypeId, file }: MutationVariables) => doAttachmentUpload.call(dataTypeId, file),
+    mutationFn: ({ dataTypeId, file }: MutationVariables) => {
+      if (!instanceId) {
+        throw new Error('Missing instanceId, cannot upload attachment');
+      }
+
+      return doAttachmentUpload.call(instanceId, dataTypeId, file);
+    },
     onError: (error: HttpClientError) => {
       window.logError('Failed to upload attachment:\n', error.message);
     },

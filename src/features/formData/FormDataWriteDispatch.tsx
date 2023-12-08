@@ -1,5 +1,5 @@
 import { createContext } from 'src/core/contexts/context';
-import type { FDActionExceptInitialFetch } from 'src/features/formData/StateMachine';
+import type { FDActionExceptInitialFetch } from 'src/features/formData/FormDataWriteStateMachine';
 
 type Gatekeeper = (action: FDActionExceptInitialFetch) => boolean;
 
@@ -8,10 +8,10 @@ type Gatekeeper = (action: FDActionExceptInitialFetch) => boolean;
  * machine should be allowed to be dispatched.
  */
 const { Provider, useCtx } = createContext<Gatekeeper>({
-  name: 'FormDataDispatchGatekeeper',
+  name: 'FormDataWriteDispatchGatekeeper',
   required: false,
   default: () => true,
 });
 
-export const FormDataDispatchGatekeeperProvider = Provider;
-export const useFormDataDispatchGatekeeper = () => useCtx();
+export const FormDataWriteDispatchGatekeeperProvider = Provider;
+export const useFormDataWriteDispatchGatekeeper = () => useCtx();

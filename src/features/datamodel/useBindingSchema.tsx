@@ -6,14 +6,23 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import {
   getCurrentDataTypeForApplication,
   getCurrentTaskDataElementId,
+  useDataTypeByLayoutSetId,
+  useIsStatelessApp,
 } from 'src/features/applicationMetadata/appMetadataUtils';
 import { dotNotationToPointer } from 'src/features/datamodel/notations';
 import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
+import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
+import { useAllowAnonymous } from 'src/features/stateless/getAllowAnonymous';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getRootElementPath } from 'src/utils/schemaUtils';
+import {
+  getAnonymousStatelessDataModelUrl,
+  getDataElementUrl,
+  getStatelessDataModelUrl,
+} from 'src/utils/urls/appUrlHelper';
 import type { IDataModelBindings } from 'src/layout/layout';
 
 type AsSchema<T> = {
@@ -27,6 +36,29 @@ export function useCurrentDataModelGuid() {
   const layoutSets = useLayoutSets();
 
   return getCurrentTaskDataElementId({ application, instance, process, layoutSets });
+}
+
+export function useCurrentDataModelUrl() {
+  const isAnonymous = useAllowAnonymous();
+  const instance = useLaxInstanceData();
+  const layoutSetId = useCurrentLayoutSetId();
+  const dataType = useDataTypeByLayoutSetId(layoutSetId);
+  const dataElementUuid = useCurrentDataModelGuid();
+  const isStateless = useIsStatelessApp();
+
+  if (isStateless && isAnonymous && dataType) {
+    return getAnonymousStatelessDataModelUrl(dataType);
+  }
+
+  if (isStateless && !isAnonymous && dataType) {
+    return getStatelessDataModelUrl(dataType);
+  }
+
+  if (instance?.id && dataElementUuid) {
+    return getDataElementUrl(instance.id, dataElementUuid);
+  }
+
+  return undefined;
 }
 
 export function useCurrentDataModelName() {

@@ -1,7 +1,7 @@
 import React from 'react';
 import type { PropsWithChildren } from 'react';
 
-import { FormDataReadWriteProvider } from 'src/features/formData/FormDataReader';
+import { FormDataReadWriteProvider } from 'src/features/formData/FormDataRead';
 import { FormDataForInfoTaskProvider } from 'src/features/formData/FormDataReadOnly';
 import { useRealTaskType } from 'src/features/instance/ProcessContext';
 import { ProcessTaskType } from 'src/types';

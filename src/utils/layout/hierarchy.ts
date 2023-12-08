@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { createSelector } from 'reselect';
 
@@ -6,7 +6,7 @@ import { useApplicationSettings } from 'src/features/applicationSettings/Applica
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
-import { FD } from 'src/features/formData/FormDataWriter';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -160,6 +160,32 @@ function useResolvedExpressions() {
   const devTools = useAppSelector((state) => state.devTools);
   const langTools = useLanguage();
   const currentLanguage = useCurrentLanguage();
+
+  const deps = {
+    formData,
+    attachments,
+    uiConfig,
+    options,
+    applicationSettings,
+    instance,
+    process,
+    hiddenFields,
+    validations,
+    layouts,
+    currentView,
+    repeatingGroups,
+    devTools,
+    langTools,
+    currentLanguage,
+  };
+
+  for (const key of Object.keys(deps)) {
+    const val = deps[key];
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useEffect(() => {
+      console.log(`debug, dependency: ${key} changed:`, val);
+    }, [key, val]);
+  }
 
   const dataSources: HierarchyDataSources = useMemo(
     () => ({

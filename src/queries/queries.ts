@@ -10,13 +10,13 @@ import {
   applicationMetadataApiUrl,
   applicationSettingsApiUrl,
   currentPartyUrl,
-  dataElementUrl,
-  fileTagUrl,
-  fileUploadUrl,
   getActiveInstancesUrl,
   getCreateInstancesUrl,
   getCustomValidationConfigUrl,
+  getDataElementUrl,
   getFetchFormDynamicsUrl,
+  getFileTagUrl,
+  getFileUploadUrl,
   getFooterLayoutUrl,
   getJsonSchemaUrl,
   getLayoutSetsUrl,
@@ -82,8 +82,8 @@ export const doInstantiate = async (partyId: string): Promise<IInstance> =>
 export const doProcessNext = async (taskId?: string, language?: string, action?: IActionType): Promise<IProcess> =>
   httpPut(getProcessNextUrl(taskId, language), action ? { action } : null);
 
-export const doAttachmentUpload = async (dataTypeId: string, file: File): Promise<IData> => {
-  const url = fileUploadUrl(dataTypeId);
+export const doAttachmentUpload = async (instanceId: string, dataTypeId: string, file: File): Promise<IData> => {
+  const url = getFileUploadUrl(instanceId, dataTypeId);
   let contentType: string;
   if (!file.type) {
     contentType = `application/octet-stream`;
@@ -103,12 +103,12 @@ export const doAttachmentUpload = async (dataTypeId: string, file: File): Promis
   return (await httpPost(url, config, file)).data;
 };
 
-export const doAttachmentRemoveTag = async (dataGuid: string, tagToRemove: string): Promise<void> =>
-  (await httpDelete(fileTagUrl(dataGuid, tagToRemove))).data;
+export const doAttachmentRemoveTag = async (instanceId: string, dataGuid: string, tagToRemove: string): Promise<void> =>
+  (await httpDelete(getFileTagUrl(instanceId, dataGuid, tagToRemove))).data;
 
-export const doAttachmentAddTag = async (dataGuid: string, tagToAdd: string): Promise<void> => {
+export const doAttachmentAddTag = async (instanceId: string, dataGuid: string, tagToAdd: string): Promise<void> => {
   const response = await httpPost(
-    fileTagUrl(dataGuid, undefined),
+    getFileTagUrl(instanceId, dataGuid, undefined),
     {
       headers: {
         'Content-Type': 'application/json',
@@ -123,15 +123,15 @@ export const doAttachmentAddTag = async (dataGuid: string, tagToAdd: string): Pr
   return response.data;
 };
 
-export const doAttachmentRemove = async (dataGuid: string): Promise<void> => {
-  const response = await httpDelete(dataElementUrl(dataGuid));
+export const doAttachmentRemove = async (instanceId: string, dataGuid: string): Promise<void> => {
+  const response = await httpDelete(getDataElementUrl(instanceId, dataGuid));
   if (response.status !== 200) {
     throw new Error('Failed to remove attachment');
   }
   return response.data;
 };
 
-export const doPutFormData = (uuid: string, data: FormData): Promise<object> => httpPut(dataElementUrl(uuid), data);
+export const doPutFormData = (url: string, data: FormData): Promise<object> => httpPut(url, data);
 
 /**
  * Query functions (these should use httpGet and start with 'fetch')
