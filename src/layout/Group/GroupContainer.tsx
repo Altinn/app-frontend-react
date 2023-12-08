@@ -6,14 +6,17 @@ import { Add as AddIcon } from '@navikt/ds-icons';
 
 import { AltinnLoader } from 'src/components/AltinnLoader';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
+import { Fieldset } from 'src/components/form/Fieldset';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { useAttachmentDeletionInRepGroups } from 'src/features/attachments/useAttachmentDeletionInRepGroups';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useNavigationParams } from 'src/hooks/useNavigatePage';
 import { Triggers } from 'src/layout/common.generated';
+import classes from 'src/layout/Group/GroupContainer.module.css';
 import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
 import { useRepeatingGroupsFocusContext } from 'src/layout/Group/RepeatingGroupsFocusContext';
 import { RepeatingGroupTable } from 'src/layout/Group/RepeatingGroupTable';
@@ -214,25 +217,40 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
               setMultiPageIndex={setMultiPageIndex}
             />
           )}
-          {edit?.mode === 'showAll' &&
-            // Generate array of length repeatingGroupIndex and iterate over indexes
-            Array(repeatingGroupIndex + 1)
-              .fill(0)
-              .map((_, index) => (
-                <div
-                  key={index}
-                  style={{ width: '100%', marginBottom: !isNested && index == repeatingGroupIndex ? 15 : 0 }}
-                >
-                  <RepeatingGroupsEditContainer
-                    node={node}
-                    editIndex={index}
-                    deleting={deletingIndexes.includes(index)}
-                    setEditIndex={setEditIndex}
-                    onClickRemove={handleOnRemoveClick}
-                    forceHideSaveButton={true}
-                  />
-                </div>
-              ))}
+          {edit?.mode === 'showAll' && (
+            <Fieldset
+              legend={textResourceBindings?.title && <Lang id={textResourceBindings?.title} />}
+              description={
+                textResourceBindings?.description && (
+                  <span className={classes.showAllDescription}>
+                    <Lang id={textResourceBindings?.description} />
+                  </span>
+                )
+              }
+              className={classes.showAllFieldset}
+            >
+              {
+                // Generate array of length repeatingGroupIndex and iterate over indexes
+                Array(repeatingGroupIndex + 1)
+                  .fill(0)
+                  .map((_, index) => (
+                    <div
+                      key={`repeating-group-item-${index}`}
+                      style={{ width: '100%', marginBottom: !isNested && index == repeatingGroupIndex ? 15 : 0 }}
+                    >
+                      <RepeatingGroupsEditContainer
+                        node={node}
+                        editIndex={index}
+                        deleting={deletingIndexes.includes(index)}
+                        setEditIndex={setEditIndex}
+                        onClickRemove={handleOnRemoveClick}
+                        forceHideSaveButton={true}
+                      />
+                    </div>
+                  ))
+              }
+            </Fieldset>
+          )}
         </>
       </ConditionalWrapper>
       {edit?.mode === 'showAll' && displayBtn && <AddButton />}
