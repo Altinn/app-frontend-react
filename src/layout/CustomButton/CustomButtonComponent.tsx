@@ -53,7 +53,7 @@ function useHandleClientActions(): UseHandleClientActions {
     navigateToPage: async ({ page }) => navigateToPage(page),
   };
 
-  const _handleAction = async (action: CBTypes.ClientAction) => {
+  const handleClientAction = async (action: CBTypes.ClientAction) => {
     if (isSpecificClientAction('navigateToPage', action)) {
       return await frontendActions[action.name](action.metadata);
     }
@@ -63,7 +63,7 @@ function useHandleClientActions(): UseHandleClientActions {
   return {
     handleClientActions: async (actions) => {
       for (const action of actions) {
-        await _handleAction(action);
+        await handleClientAction(action);
       }
     },
     handleDataModelUpdate: async (updatedDataModels) => {

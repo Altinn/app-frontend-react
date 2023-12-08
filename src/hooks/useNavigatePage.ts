@@ -179,9 +179,6 @@ export const useNavigatePage = () => {
     [processTasks],
   );
 
-  const navigateNext = useCallback(() => navigateToPage(next), [next, navigateToPage]);
-  const navigatePrevious = useCallback(() => navigateToPage(previous), [previous, navigateToPage]);
-
   return {
     navigateToPage,
     navigateToTask,
@@ -196,7 +193,5 @@ export const useNavigatePage = () => {
     currentPageId,
     taskId,
     previous,
-    navigateNext,
-    navigatePrevious,
   };
 };

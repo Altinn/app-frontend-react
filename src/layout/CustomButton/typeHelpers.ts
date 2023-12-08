@@ -21,6 +21,12 @@ type ActionMap = {
 };
 
 type ActionType<T extends keyof ActionMap> = T extends keyof ActionMap ? ActionMap[T] : never;
+
+/**
+ * A function to create a type guard for a specific action.
+ * isSpecificClientAction('navigateToPage', action) will
+ * cast the action to NavigateToPageAction.
+ */
 export const isSpecificClientAction = <ActionName extends keyof ActionMap>(
   type: ActionName,
   action: CBTypes.CustomAction,

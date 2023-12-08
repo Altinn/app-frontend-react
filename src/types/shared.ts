@@ -202,7 +202,7 @@ type ProcessActionIds = 'read' | 'write' | 'complete';
 export interface IUserAction {
   id: ProcessActionIds | string;
   authorized: boolean;
-  type: 'ProcessAction' | 'UserAction';
+  type: 'ProcessAction' | 'ServerAction';
 }
 
 export type ITask = {
