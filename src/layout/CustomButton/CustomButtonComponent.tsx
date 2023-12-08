@@ -12,9 +12,11 @@ import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useNavigatePage, useNavigationParams } from 'src/hooks/useNavigatePage';
+import { isSpecificClientAction } from 'src/layout/CustomButton/typeHelpers';
 import { flattenObject } from 'src/utils/databindings';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CustomAction, FrontendAction, UserAction } from 'src/layout/CustomButton/config.generated';
+import type * as CBTypes from 'src/layout/CustomButton/config.generated';
+import type { ClientActionHandlers } from 'src/layout/CustomButton/typeHelpers';
 import type { IUserAction } from 'src/types/shared';
 
 type Props = PropsFromGenericComponent<'CustomButton'>;
@@ -23,58 +25,43 @@ type UpdatedDataModels = Record<string, unknown>;
 
 export type ActionResult = {
   updatedDataModels?: UpdatedDataModels;
-  frontendActions?: FrontendAction[];
+  clientActions?: CBTypes.ClientAction[];
 };
 
-type UseHandleFrontendActions = {
-  handleFrontendActions: (actions: FrontendAction[]) => Promise<void>;
+type UseHandleClientActions = {
+  handleClientActions: (actions: CBTypes.ClientAction[]) => Promise<void>;
   handleDataModelUpdate: (updatedDataModels: UpdatedDataModels) => Promise<void>;
 };
 
-type FrontendActionWithMetadata = FrontendAction & { metadata: unknown };
-
 /**
- * A type guard to check if the action is an action that can be run entirely on the frontend
+ * A type guard to check if the action is an action that can be run entirely on the client
  */
-const isFrontendAction = (action: CustomAction): action is FrontendAction => action.type === 'FrontendAction';
-const isUserAction = (action: CustomAction): action is UserAction => action.type === 'UserAction';
-const hasMetadata = (action: CustomAction): action is FrontendActionWithMetadata => 'metadata' in action;
+const isClientAction = (action: CBTypes.CustomAction): action is CBTypes.ClientAction => action.type === 'ClientAction';
+/**
+ * A type guard to check if the action is an action that requires a server side call
+ */
+const isServerAction = (action: CBTypes.CustomAction): action is CBTypes.ServerAction => action.type === 'ServerAction';
 
-type FrontendActionHandlers = {
-  [Action in FrontendAction as Action['name']]: Action extends { metadata: infer Metadata }
-    ? (params: Metadata) => Promise<void>
-    : () => Promise<void>;
-};
-
-function useHandleFrontendActions(): UseHandleFrontendActions {
+function useHandleClientActions(): UseHandleClientActions {
   const dispatch = useAppDispatch();
   const currentDataModelGuid = useCurrentDataModelGuid();
-
   const { next, previous, navigateToPage } = useNavigatePage();
 
-  const frontendActions: FrontendActionHandlers = {
-    $nextPage: async () => navigateToPage(next),
-    $previousPage: async () => navigateToPage(previous),
-    $navigateToPage: async ({ page }) => navigateToPage(page),
+  const frontendActions: ClientActionHandlers = {
+    nextPage: async () => navigateToPage(next),
+    previousPage: async () => navigateToPage(previous),
+    navigateToPage: async ({ page }) => navigateToPage(page),
   };
 
-  const _handleAction = async (action: FrontendAction) => {
-    /**
-     * We pad these with the $ letter in case the backend
-     * returns frontendAction names without the $ prefix.
-     */
-    const functionName = action.name.startsWith('$') ? action.name : `$${action.name}`;
-
-    const frontendActionFn = frontendActions[functionName];
-    if (!hasMetadata(action)) {
-      return await frontendActionFn();
+  const _handleAction = async (action: CBTypes.ClientAction) => {
+    if (isSpecificClientAction('navigateToPage', action)) {
+      return await frontendActions[action.name](action.metadata);
     }
-
-    await frontendActionFn(action.metadata);
+    await frontendActions[action.name]();
   };
 
   return {
-    handleFrontendActions: async (actions) => {
+    handleClientActions: async (actions) => {
       for (const action of actions) {
         await _handleAction(action);
       }
@@ -89,7 +76,7 @@ function useHandleFrontendActions(): UseHandleFrontendActions {
 }
 
 type PerformActionMutationProps = {
-  action: CustomAction;
+  action: CBTypes.CustomAction;
   buttonId: string;
 };
 
@@ -122,7 +109,7 @@ function usePerformActionMutation(): UsePerformActionMutation {
       return doPerformAction.call(partyId, instanceGuid, { action: action.name, buttonId });
     },
   });
-  const { handleFrontendActions, handleDataModelUpdate } = useHandleFrontendActions();
+  const { handleClientActions, handleDataModelUpdate } = useHandleClientActions();
 
   return {
     mutation,
@@ -139,8 +126,8 @@ function usePerformActionMutation(): UsePerformActionMutation {
               if (data.updatedDataModels) {
                 await handleDataModelUpdate(data.updatedDataModels);
               }
-              if (data.frontendActions) {
-                await handleFrontendActions(data.frontendActions);
+              if (data.clientActions) {
+                await handleClientActions(data.clientActions);
               }
 
               resolve();
@@ -168,7 +155,7 @@ export function useActionAuthorization() {
 export const CustomButtonComponent = ({ node }: Props) => {
   const { textResourceBindings, actions, id } = node.item;
   const { isAuthorized } = useActionAuthorization();
-  const { handleFrontendActions } = useHandleFrontendActions();
+  const { handleClientActions } = useHandleClientActions();
   const { performAction, mutation } = usePerformActionMutation();
 
   const isPermittedToPerformActions = actions.reduce((acc, action) => acc || isAuthorized(action.name), true);
@@ -179,10 +166,10 @@ export const CustomButtonComponent = ({ node }: Props) => {
       return;
     }
     for (const action of actions) {
-      if (isFrontendAction(action)) {
-        await handleFrontendActions([action]);
+      if (isClientAction(action)) {
+        await handleClientActions([action]);
       }
-      if (isUserAction(action)) {
+      if (isServerAction(action)) {
         await performAction({ action, buttonId: id });
       }
     }
