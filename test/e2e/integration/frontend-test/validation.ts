@@ -97,7 +97,7 @@ describe('Validation', () => {
     }
   });
 
-  it.only('Page validation on clicking next', () => {
+  it('Page validation on clicking next', () => {
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.newFirstName).clear();
     cy.get(appFrontend.changeOfName.newFirstName).type('test');
@@ -199,6 +199,10 @@ describe('Validation', () => {
 
     const expectedErrors = [
       {
+        text: 'Må summeres opp til 100%',
+        shouldFocus: 'fordeling-total',
+      },
+      {
         text: 'Bruk 60 eller færre tegn',
         shouldFocus: 'changeNameTo_æøå',
       },
@@ -247,6 +251,7 @@ describe('Validation', () => {
         description: 'Tullevalidering',
         field: 'Endringsmelding-grp-9786.Avgiver-grp-9787.OppgavegiverNavn-datadef-68.value',
         severity: BackendValidationSeverity.Error,
+        source: 'Custom',
         scope: null,
         targetId: 'sendersName',
       },
@@ -264,13 +269,13 @@ describe('Validation', () => {
     // Create validation error
     cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.next).click();
     cy.get(appFrontend.group.comments).type('test');
-    cy.get(appFrontend.fieldValidation('comments')).should('have.text', texts.testIsNotValidValue);
+    cy.get(appFrontend.fieldValidation('comments-0-0')).should('have.text', texts.testIsNotValidValue);
     cy.get(appFrontend.errorReport).should('exist').should('be.visible');
 
     // Hide field that contains validation error and verify validation messages are gone
     cy.get(appFrontend.group.hideCommentField).find('input').dsCheck();
     cy.get(appFrontend.group.comments).should('not.exist');
-    cy.get(appFrontend.fieldValidation('comments')).should('not.exist');
+    cy.get(appFrontend.fieldValidation('comments-0-0')).should('not.exist');
     cy.get(appFrontend.errorReport).should('not.exist');
 
     // Setting single field validation to trigger on the 'sendersName' component
@@ -292,12 +297,7 @@ describe('Validation', () => {
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 1);
   });
 
-  /**
-   * TODO(1508):
-   * This test is skipped because validation is not triggered by the new navigation refactor.
-   * This will be fixed in combination with #1506.
-   */
-  it.skip('List component: validation messages should only show up once', () => {
+  it('List component: validation messages should only show up once', () => {
     cy.goto('datalist');
     cy.get(appFrontend.nextButton).click();
     cy.get(appFrontend.errorReport)
@@ -306,12 +306,13 @@ describe('Validation', () => {
       .should('contain.text', texts.next);
     cy.get(appFrontend.errorReport).find('li:contains("Du må fylle ut hvem gjelder saken?")').should('have.length', 1);
   });
+
   /**
    * TODO(1508):
    * This test is skipped because validation is not triggered by the new navigation refactor.
    * This will be fixed in combination with #1506.
    */
-  it.skip('Clicking the error report should focus the correct field', () => {
+  it('Clicking the error report should focus the correct field', () => {
     cy.interceptLayout('group', (component) => {
       if (
         (component.id === 'comments' || component.id === 'newValue' || component.id === 'currentValue') &&
