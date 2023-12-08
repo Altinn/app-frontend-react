@@ -19,6 +19,7 @@ export interface IDisplayGroupContainer {
   groupNode: LayoutNodeForGroup<CompGroupNonRepeatingInternal | CompGroupNonRepeatingPanelInternal>;
   id?: string;
   onlyRowIndex?: number | undefined;
+  isSummary?: boolean;
   renderLayoutNode: (node: LayoutNode) => JSX.Element | null;
 }
 
@@ -30,7 +31,13 @@ const headingSizes: { [k in HeadingLevel]: Parameters<typeof Heading>[0]['size']
   [6]: 'xsmall',
 };
 
-export function DisplayGroupContainer({ groupNode, id, onlyRowIndex, renderLayoutNode }: IDisplayGroupContainer) {
+export function DisplayGroupContainer({
+  groupNode,
+  id,
+  onlyRowIndex,
+  isSummary,
+  renderLayoutNode,
+}: IDisplayGroupContainer) {
   const container = groupNode.item;
   const { title, description } = container.textResourceBindings ?? {};
 
@@ -55,7 +62,7 @@ export function DisplayGroupContainer({ groupNode, id, onlyRowIndex, renderLayou
         )
       }
       className={classes.group}
-      description={description && <Lang id={description} />}
+      description={description && !isSummary && <Lang id={description} />}
     >
       <div
         id={id || container.id}
