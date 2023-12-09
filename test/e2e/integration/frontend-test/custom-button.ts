@@ -13,6 +13,11 @@ describe('Custom Button', () => {
     cy.goto('changename');
 
     cy.findByRole('textbox', { name: /Her kan man skrive input/ }).type('Hello b');
+
+    cy.intercept('PUT', '**/data/**').as('saveData');
+
+    cy.wait('@saveData');
+
     cy.findByRole('button', { name: 'Fyll ut skjema' }).click();
     cy.findByRole('alert').should('have.text', 'Her kommer det en feilmelding');
   });

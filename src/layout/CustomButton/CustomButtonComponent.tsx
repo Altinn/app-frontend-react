@@ -16,7 +16,6 @@ import { isSpecificClientAction } from 'src/layout/CustomButton/typeHelpers';
 import { flattenObject } from 'src/utils/databindings';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ButtonColor, ButtonVariant } from 'src/layout/Button/WrappedButton';
-import type { CustomButtonStyle } from 'src/layout/CustomButton/config.generated';
 import type * as CBTypes from 'src/layout/CustomButton/config.generated';
 import type { ClientActionHandlers } from 'src/layout/CustomButton/typeHelpers';
 import type { IUserAction } from 'src/types/shared';
@@ -157,7 +156,7 @@ export function useActionAuthorization() {
   };
 }
 
-export const buttonStyles: { [style in CustomButtonStyle]: { color: ButtonColor; variant: ButtonVariant } } = {
+export const buttonStyles: { [style in CBTypes.CustomButtonStyle]: { color: ButtonColor; variant: ButtonVariant } } = {
   primary: { variant: 'primary', color: 'success' },
   secondary: { variant: 'secondary', color: 'first' },
 };
