@@ -38,4 +38,13 @@ export const Config = new CG.component({
       ),
     ),
   )
+  .addProperty(
+    new CG.prop(
+      'buttonStyle',
+      new CG.enum('primary', 'secondary')
+        .setTitle('Button style')
+        .setDescription('The style/color scheme of the button.')
+        .exportAs('CustomButtonStyle'),
+    ),
+  )
   .addTextResource(new CG.trb({ name: 'label', title: 'label', description: 'The title of the button' }));

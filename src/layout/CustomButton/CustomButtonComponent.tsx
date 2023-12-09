@@ -15,6 +15,8 @@ import { useNavigatePage, useNavigationParams } from 'src/hooks/useNavigatePage'
 import { isSpecificClientAction } from 'src/layout/CustomButton/typeHelpers';
 import { flattenObject } from 'src/utils/databindings';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { ButtonColor, ButtonVariant } from 'src/layout/Button/WrappedButton';
+import type { CustomButtonStyle } from 'src/layout/CustomButton/config.generated';
 import type * as CBTypes from 'src/layout/CustomButton/config.generated';
 import type { ClientActionHandlers } from 'src/layout/CustomButton/typeHelpers';
 import type { IUserAction } from 'src/types/shared';
@@ -155,8 +157,13 @@ export function useActionAuthorization() {
   };
 }
 
+export const buttonStyles: { [style in CustomButtonStyle]: { color: ButtonColor; variant: ButtonVariant } } = {
+  primary: { variant: 'primary', color: 'success' },
+  secondary: { variant: 'secondary', color: 'first' },
+};
+
 export const CustomButtonComponent = ({ node }: Props) => {
-  const { textResourceBindings, actions, id } = node.item;
+  const { textResourceBindings, actions, id, buttonStyle = 'secondary' } = node.item;
   const { isAuthorized } = useActionAuthorization();
   const { handleClientActions } = useHandleClientActions();
   const { performAction, mutation } = usePerformActionMutation();
@@ -178,10 +185,15 @@ export const CustomButtonComponent = ({ node }: Props) => {
     }
   };
 
+  const { color, variant } = buttonStyles[buttonStyle];
+
   return (
     <Button
+      id={`custom-button-${id}`}
       disabled={disabled}
       onClick={onClick}
+      color={color}
+      variant={variant}
       aria-busy={mutation.isLoading}
     >
       <Lang id={textResourceBindings?.label} />
