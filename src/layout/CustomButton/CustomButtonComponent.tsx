@@ -146,9 +146,12 @@ function usePerformActionMutation(): UsePerformActionMutation {
 }
 
 export function useActionAuthorization() {
-  const userActions = useLaxProcessData()?.currentTask?.userActions;
+  const currentTask = useLaxProcessData()?.currentTask;
+  const userActions = currentTask?.userActions;
+  const actionPermissions = currentTask?.actions;
   return {
-    isAuthorized: (action: IUserAction['id']) => userActions?.find((a) => a.id === action)?.authorized ?? false,
+    isAuthorized: (action: IUserAction['id']) =>
+      (!!actionPermissions?.[action] || userActions?.find((a) => a.id === action)?.authorized) ?? false,
   };
 }
 
