@@ -1,12 +1,9 @@
-import React, { memo } from 'react';
+import React, { createContext as createReactContext, memo, useContext } from 'react';
 import type { Provider } from 'react';
-
-import { createContext as createReactContext, useContextSelector } from 'use-context-selector';
 
 interface ContextProvider<T> {
   Provider: Provider<T>;
   useCtx: () => T;
-  useCtxSelector: <U>(selector: (value: T) => U) => U;
   useHasProvider: () => boolean;
 }
 
@@ -47,11 +44,11 @@ export function createContext<T>({ name, required, ...rest }: CreateContextProps
   });
   Context.displayName = name;
 
-  const useHasProvider = () => Boolean(useContextSelector(Context, (v) => v.provided));
+  const useHasProvider = () => Boolean(useContext(Context).provided);
 
   const useCtx = (): T => {
     const hasProvider = useHasProvider();
-    const value = useContextSelector(Context, (v) => v.innerValue);
+    const value = useContext(Context).innerValue;
     if (!hasProvider) {
       if (required) {
         throw new Error(`${name} is missing`);
@@ -60,24 +57,6 @@ export function createContext<T>({ name, required, ...rest }: CreateContextProps
     }
     return value as T;
   };
-
-  function useCtxSelector<U>(selector: (value: T) => U): U {
-    const hasProvider = useHasProvider();
-    const value = useContextSelector(Context, (v) => {
-      if (!hasProvider) {
-        return undefined;
-      }
-
-      return selector(v.innerValue as T);
-    });
-    if (!hasProvider) {
-      if (required) {
-        throw new Error(`${name} is missing`);
-      }
-      return selector(defaultValue as T);
-    }
-    return value as U;
-  }
 
   const MyProvider = ({ value, children }: Parameters<Provider<T | undefined>>[0]) => (
     <Context.Provider value={{ innerValue: value, provided: true }}>{children}</Context.Provider>
@@ -89,7 +68,6 @@ export function createContext<T>({ name, required, ...rest }: CreateContextProps
   return {
     Provider: RealProvider,
     useCtx,
-    useCtxSelector,
     useHasProvider,
   };
 }
