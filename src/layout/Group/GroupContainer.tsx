@@ -264,7 +264,10 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
         item={true}
         xs={12}
       >
-        <ComponentValidations validations={validations} />
+        <ComponentValidations
+          validations={validations}
+          node={node}
+        />
       </Grid>
     </Grid>
   );

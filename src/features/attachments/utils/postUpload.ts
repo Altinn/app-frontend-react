@@ -156,7 +156,6 @@ const useUpdate = (dispatch: Dispatch) => {
   const { mutateAsync: removeTag } = useAttachmentsRemoveTagMutation();
   const { mutateAsync: addTag } = useAttachmentsAddTagMutation();
   const { changeData: changeInstanceData } = useLaxInstance() || {};
-  const { langAsString } = useLanguage();
   const { showAlert } = useAlertContext();
 
   return async (action: RawAttachmentAction<AttachmentActionUpdate>) => {
@@ -199,7 +198,7 @@ const useUpdate = (dispatch: Dispatch) => {
         });
     } catch (error) {
       dispatch({ ...action, action: 'update', success: false, error });
-      showAlert(langAsString('form_filler.file_uploader_validation_error_update'), 'danger');
+      showAlert({ key: 'form_filler.file_uploader_validation_error_update' }, 'danger');
     }
   };
 };
@@ -230,7 +229,7 @@ const useRemove = (dispatch: Dispatch) => {
     } catch (error) {
       dispatch({ ...action, action: 'remove', success: false, error });
 
-      showAlert(langAsString('form_filler.file_uploader_validation_error_delete'), 'danger');
+      showAlert({ key: 'form_filler.file_uploader_validation_error_delete' }, 'danger');
 
       return false;
     }

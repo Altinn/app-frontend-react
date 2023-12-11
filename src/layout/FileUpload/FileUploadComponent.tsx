@@ -92,7 +92,7 @@ export function FileUploadComponent({
     if (totalAttachments > maxNumberOfAttachments) {
       // if the user adds more attachments than max, all should be ignored
       showAlert(
-        langAsString('form_filler.file_uploader_validation_error_exceeds_max_files', [maxNumberOfAttachments]),
+        { key: 'form_filler.file_uploader_validation_error_exceeds_max_files', params: [maxNumberOfAttachments] },
         'danger',
       );
       return;
@@ -113,7 +113,7 @@ export function FileUploadComponent({
       maxFileSizeInMB,
     });
     if (rejections?.length) {
-      showAlert(`- ${rejections.join('\n- ')}`, 'danger');
+      showAlert({ key: `- ${rejections.join('\n- ')}` }, 'danger');
     }
   };
 
@@ -146,7 +146,10 @@ export function FileUploadComponent({
               textResourceBindings={textResourceBindings}
             />
             {attachmentsCounter}
-            <ComponentValidations validations={componentValidations} />
+            <ComponentValidations
+              validations={componentValidations}
+              node={node}
+            />
           </>
         )}
 
@@ -160,7 +163,10 @@ export function FileUploadComponent({
         {!shouldShowFileUpload && (
           <>
             {attachmentsCounter}
-            <ComponentValidations validations={componentValidations} />
+            <ComponentValidations
+              validations={componentValidations}
+              node={node}
+            />
           </>
         )}
         {renderAddMoreAttachmentsButton()}

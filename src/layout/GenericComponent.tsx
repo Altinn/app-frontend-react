@@ -9,7 +9,6 @@ import { Legend } from 'src/components/form/Legend';
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { Lang } from 'src/features/language/Lang';
-import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { useUnifiedValidationsForNode } from 'src/features/validation/validationProvider';
@@ -109,7 +108,6 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
   const classes = useStyles();
   const gridRef = React.useRef<HTMLDivElement>(null);
   const hidden = node.isHidden();
-  const { langAsNonProcessedString } = useLanguage(node);
   const { focusId, setFocusId } = usePageNavigationContext();
 
   const formData = node.getFormData() as IComponentFormData<Type>;
@@ -127,10 +125,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     }
 
     // If maxLength is set in both schema and component, don't display the schema error message
-    const errorMessageMaxLength = langAsNonProcessedString('validation_errors.maxLength', [maxLength]) as string;
-    return validations.filter(
-      (validation) => !(validation.severity == 'error' && validation.message === errorMessageMaxLength),
-    );
+    return validations.filter((validation) => !(validation.message.key === 'validation_errors.maxLength'));
   };
 
   const formComponentContext = useMemo<IFormComponentContext>(
@@ -319,7 +314,12 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
           {...gridBreakpoints(item.grid?.innerGrid)}
         >
           <RenderComponent {...componentProps} />
-          {showValidationMessages && <ComponentValidations validations={filterValidationErrors()} />}
+          {showValidationMessages && (
+            <ComponentValidations
+              validations={filterValidationErrors()}
+              node={node}
+            />
+          )}
         </Grid>
       </Grid>
     </FormComponentContextProvider>

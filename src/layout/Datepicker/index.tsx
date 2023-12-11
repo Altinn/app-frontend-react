@@ -47,7 +47,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent {
 
   runComponentValidation(
     node: LayoutNode<'Datepicker'>,
-    { formData, langTools, currentLanguage }: IValidationContext,
+    { formData, currentLanguage }: IValidationContext,
   ): ComponentValidation[] {
     const field = node.item.dataModelBindings?.simpleBinding;
     const data = field ? formData[field] : undefined;
@@ -63,13 +63,10 @@ export class Datepicker extends DatepickerDef implements ValidateComponent {
     const validations: ComponentValidation[] = [];
 
     const date = moment(data, moment.ISO_8601);
-    const lang = langTools.langAsNonProcessedString;
 
     if (!date.isValid()) {
-      const message = lang('date_picker.invalid_date_message', [format]);
-
       validations.push({
-        message,
+        message: { key: 'date_picker.invalid_date_message', params: [format] },
         severity: 'error',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,
@@ -78,20 +75,16 @@ export class Datepicker extends DatepickerDef implements ValidateComponent {
     }
 
     if (date.isBefore(minDate)) {
-      const message = lang('date_picker.min_date_exeeded');
-
       validations.push({
-        message,
+        message: { key: 'date_picker.min_date_exeeded' },
         severity: 'error',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,
         category: ValidationMask.Component,
       });
     } else if (date.isAfter(maxDate)) {
-      const message = lang('date_picker.max_date_exeeded');
-
       validations.push({
-        message,
+        message: { key: 'date_picker.max_date_exeeded' },
         severity: 'error',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,

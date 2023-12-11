@@ -11,7 +11,6 @@ import { Lang } from 'src/features/language/Lang';
 import { useTaskErrors } from 'src/features/validation/validationProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
-import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import { useExprContext } from 'src/utils/layout/ExprContext';
@@ -137,9 +136,10 @@ export const ErrorReport = ({ nodes }: IErrorReportProps) => {
                     key={`unmapped-${error.message}`}
                     style={{ listStyleImage: listStyleImg }}
                   >
-                    {getParsedLanguageFromText(error.message, {
-                      disallowedTags: ['a'],
-                    })}
+                    <Lang
+                      id={error.message.key}
+                      params={error.message.params}
+                    />
                   </li>
                 ))}
                 {formErrors.map((error) => (
@@ -152,9 +152,11 @@ export const ErrorReport = ({ nodes }: IErrorReportProps) => {
                       onClick={handleErrorClick(error)}
                       onKeyDown={handleErrorClick(error)}
                     >
-                      {getParsedLanguageFromText(error.message, {
-                        disallowedTags: ['a'],
-                      })}
+                      <Lang
+                        id={error.message.key}
+                        params={error.message.params}
+                        node={allNodes?.findById(error.componentId)}
+                      />
                     </button>
                   </li>
                 ))}

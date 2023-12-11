@@ -4,7 +4,6 @@ import { type BackendValidationIssue, ValidationIssueSources, ValidationMask, ty
 
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
-import { useLanguage } from 'src/features/language/useLanguage';
 import { getValidationIssueMessage, getValidationIssueSeverity } from 'src/features/validation/backend/backendUtils';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { httpGet } from 'src/utils/network/sharedNetworking';
@@ -12,7 +11,6 @@ import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
 
 export function useBackendValidation() {
   const lastSavedFormData = useAppSelector((state) => state.formData.lastSavedFormData);
-  const langTools = useLanguage();
   const instanceId = useLaxInstance()?.instanceId;
   const currentDataElementId = useCurrentDataModelGuid();
   const url =
@@ -39,7 +37,7 @@ export function useBackendValidation() {
       for (const issue of validationIssues) {
         const { field, source: group } = issue;
         const severity = getValidationIssueSeverity(issue);
-        const message = getValidationIssueMessage(issue, langTools);
+        const message = getValidationIssueMessage(issue);
 
         let category: number = ValidationMask.Backend;
         if (issue.source === ValidationIssueSources.Custom) {
@@ -54,7 +52,7 @@ export function useBackendValidation() {
 
         if (!field) {
           // Unmapped error
-          if (!state.task.find((v) => v.message === message && v.severity === severity)) {
+          if (!state.task.find((v) => v.message.key === message.key && v.severity === severity)) {
             state.task.push({ severity, message, category });
           }
           continue;

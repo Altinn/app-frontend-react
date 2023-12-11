@@ -35,20 +35,15 @@ export class FileUpload extends FileUploadDef implements ValidateComponent {
     return [];
   }
 
-  runComponentValidation(
-    node: LayoutNode<'FileUpload'>,
-    { attachments, langTools }: IValidationContext,
-  ): ComponentValidation[] {
+  runComponentValidation(node: LayoutNode<'FileUpload'>, { attachments }: IValidationContext): ComponentValidation[] {
     const validations: ComponentValidation[] = [];
-    const lang = langTools.langAsNonProcessedString;
 
     if (!attachmentsValid(attachments, node.item)) {
-      const message = lang('form_filler.file_uploader_validation_error_file_number', [
-        node.item.minNumberOfAttachments,
-      ]);
-
       validations.push({
-        message,
+        message: {
+          key: 'form_filler.file_uploader_validation_error_file_number',
+          params: [node.item.minNumberOfAttachments],
+        },
         severity: 'error',
         group: FrontendValidationSource.Component,
         componentId: node.item.id,

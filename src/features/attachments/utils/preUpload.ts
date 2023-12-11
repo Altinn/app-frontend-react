@@ -11,7 +11,6 @@ import type { ImmerReducer } from 'use-immer';
 import { backendIssuesToAlerts, useAlertContext } from 'src/core/contexts/alertContext';
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
-import { useLanguage } from 'src/features/language/useLanguage';
 import { type BackendValidationIssue } from 'src/features/validation';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useWaitForState } from 'src/hooks/useWaitForState';
@@ -123,7 +122,6 @@ export const usePreUpload = () => {
 const useUpload = (dispatch: Dispatch) => {
   const { changeData: changeInstanceData } = useLaxInstance() || {};
   const { mutateAsync } = useAttachmentsUploadMutation();
-  const langTools = useLanguage();
   const { showAlert, showAlerts } = useAlertContext();
   const backendFeatures = useAppSelector((state) => state.applicationMetadata.applicationMetadata?.features) || {};
 
@@ -160,9 +158,9 @@ const useUpload = (dispatch: Dispatch) => {
 
       if (backendFeatures.jsonObjectInDataResponse && isAxiosError(err) && err.response?.data) {
         const validationIssues: BackendValidationIssue[] = err.response.data;
-        showAlerts(backendIssuesToAlerts(validationIssues, langTools));
+        showAlerts(backendIssuesToAlerts(validationIssues));
       } else {
-        showAlert(langTools.langAsString('form_filler.file_uploader_validation_error_upload'), 'danger');
+        showAlert({ key: 'form_filler.file_uploader_validation_error_upload' }, 'danger');
       }
     }
 

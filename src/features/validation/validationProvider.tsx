@@ -18,7 +18,7 @@ import {
   useOnAttachmentsChange,
   useOnHierarchyChange,
   useOnNodeDataChange,
-  useValidationContextGenerator,
+  useValidationContext,
 } from 'src/features/validation/hooks';
 import {
   buildNodeValidation,
@@ -58,7 +58,7 @@ const { Provider, useCtx } = createContext<ValidationContext>({
 });
 
 export function ValidationContext({ children }) {
-  const validationContextGenerator = useValidationContextGenerator();
+  const validationContext = useValidationContext();
 
   const [frontendValidations, setFrontendValidations] = useImmer<FormValidations>({
     fields: {},
@@ -72,7 +72,7 @@ export function ValidationContext({ children }) {
 
   // Update frontend validations for nodes when their data changes
   useOnNodeDataChange((changedNodes) => {
-    const newValidations = runValidationOnNodes(changedNodes, validationContextGenerator);
+    const newValidations = runValidationOnNodes(changedNodes, validationContext);
 
     setFrontendValidations((state) => {
       mergeFormValidations(state, newValidations);
@@ -81,7 +81,7 @@ export function ValidationContext({ children }) {
 
   // Update frontend validations and visibility for nodes when they are added or removed
   useOnHierarchyChange((addedNodes, removedNodes, currentNodes) => {
-    const newValidations = runValidationOnNodes(addedNodes, validationContextGenerator);
+    const newValidations = runValidationOnNodes(addedNodes, validationContext);
 
     setFrontendValidations((state) => {
       purgeValidationsForNodes(state, removedNodes, currentNodes);
@@ -96,7 +96,7 @@ export function ValidationContext({ children }) {
 
   // Update frontend validations for nodes when their attachments change
   useOnAttachmentsChange((changedNodes, addedAttachments, removedAttachments) => {
-    const newValidations = runValidationOnNodes(changedNodes, validationContextGenerator);
+    const newValidations = runValidationOnNodes(changedNodes, validationContext);
 
     setFrontendValidations((state) => {
       mergeFormValidations(state, newValidations);
@@ -128,9 +128,9 @@ export function ValidationContext({ children }) {
     pending.current = isFetching || isSaving;
   }, [isFetching, isSaving]);
   const validating = useCallback(async () => {
-    while (pending.current) {
+    do {
       await new Promise((resolve) => requestAnimationFrame(resolve));
-    }
+    } while (pending.current);
   }, []);
 
   // Set visibility for a node

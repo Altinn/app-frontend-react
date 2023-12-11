@@ -1,9 +1,10 @@
 import React from 'react';
+import type { ReactNode } from 'react';
 
 import classes from 'src/components/message/ErrorPaper.module.css';
 
 export interface IErrorPaperProps {
-  message: string;
+  message: ReactNode;
 }
 
 export function ErrorPaper(props: IErrorPaperProps) {

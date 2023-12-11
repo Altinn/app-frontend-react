@@ -212,7 +212,10 @@ export function EditWindowComponent({ attachment, mobileView, node, options }: E
             whiteSpace: 'pre-wrap',
           }}
         >
-          <ComponentValidations validations={attachmentValidations} />
+          <ComponentValidations
+            validations={attachmentValidations}
+            node={node}
+          />
         </div>
       ) : undefined}
     </div>

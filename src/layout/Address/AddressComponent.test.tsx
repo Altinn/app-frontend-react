@@ -232,7 +232,7 @@ describe('AddressComponent', () => {
           {
             group: FrontendValidationSource.EmptyField,
             componentId: 'address',
-            message: errorMessage,
+            message: { key: errorMessage },
             severity: 'error',
             bindingKey: 'address',
             pageKey: 'page1',

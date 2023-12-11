@@ -12,7 +12,7 @@ import { getRepeatingGroups } from 'src/utils/formLayout';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import { _private } from 'src/utils/layout/hierarchy';
 import type { Layouts } from 'src/features/expressions/shared';
-import type { IExpressionValidationConfig, ValidationContextGenerator } from 'src/features/validation';
+import type { IExpressionValidationConfig, IValidationContext } from 'src/features/validation';
 import type { HierarchyDataSources } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
 
@@ -69,10 +69,10 @@ describe('Expression validation shared tests', () => {
 
     const customValidation = resolveExpressionValidationConfig(validationConfig);
 
-    const ctxGenerator = (() => ({
+    const validationContext = {
       customValidation,
       langTools,
-    })) as unknown as ValidationContextGenerator;
+    } as unknown as IValidationContext;
 
     const _layouts = convertLayouts(layouts);
     let repeatingGroups: IRepeatingGroups = {};
@@ -85,7 +85,7 @@ describe('Expression validation shared tests', () => {
 
     const rootCollection = resolvedNodesInLayouts(_layouts, '', repeatingGroups, dataSources);
     const nodes = rootCollection.allNodes();
-    const formValidations = runValidationOnNodes(nodes, ctxGenerator);
+    const formValidations = runValidationOnNodes(nodes, validationContext);
     // Format results in a way that makes it easier to compare
 
     const result = JSON.stringify(

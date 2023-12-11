@@ -86,7 +86,7 @@ export function nn(): FixedLanguageList {
         '. Forsikre deg om at fila har rett filtype og ikkje overskrid maks filstorleik.',
       file_uploader_validation_error_upload: 'Noko gjekk galt under opplastinga av fila, prøv igjen seinare.',
       file_uploader_validation_error_update: 'Noko gjekk galt under oppdateringa av filas merking, prøv igjen seinare.',
-      file_uploader_validation_error_no_chosen_tag: 'Du må velja',
+      file_uploader_validation_error_no_chosen_tag: 'Du må velja {0}',
       placeholder_receipt_header: 'Skjemaet er no fullført og sendt inn.',
       placeholder_user: 'OLA PRIVATPERSON',
       radiobutton_alert_label: 'Er du sikker på at du vil endre frå {0}?',

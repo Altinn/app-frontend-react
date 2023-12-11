@@ -52,7 +52,10 @@ const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
       >
         <Typography component={'div'}>
           <RenderLegend />
-          <ComponentValidations validations={validations} />
+          <ComponentValidations
+            validations={validations}
+            node={node}
+          />
         </Typography>
       </TableCell>
       {calculatedOptions?.map((option, colIndex) => {

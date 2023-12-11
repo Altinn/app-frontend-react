@@ -2,14 +2,21 @@ import React from 'react';
 
 import { ErrorMessage } from '@digdir/design-system-react';
 
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { validationsOfSeverity } from 'src/features/validation/utils';
-import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
 import { AlertBaseComponent } from 'src/layout/Alert/AlertBaseComponent';
 import type { NodeValidation } from 'src/features/validation';
 import type { AlertSeverity } from 'src/layout/Alert/config.generated';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export function ComponentValidations({ validations }: { validations: NodeValidation[] | undefined }) {
+export function ComponentValidations({
+  validations,
+  node,
+}: {
+  validations: NodeValidation[] | undefined;
+  node?: LayoutNode;
+}) {
   if (!validations || validations.length === 0) {
     return null;
   }
@@ -20,30 +27,38 @@ export function ComponentValidations({ validations }: { validations: NodeValidat
 
   return (
     <div data-validation>
-      {errors.length > 0 && <ErrorValidations validations={errors} />}
+      {errors.length > 0 && (
+        <ErrorValidations
+          validations={errors}
+          node={node}
+        />
+      )}
       {warnings.length > 0 && (
         <SoftValidations
           validations={warnings}
           variant='warning'
+          node={node}
         />
       )}
       {info.length > 0 && (
         <SoftValidations
           validations={info}
           variant='info'
+          node={node}
         />
       )}
       {success.length > 0 && (
         <SoftValidations
           validations={success}
           variant='success'
+          node={node}
         />
       )}
     </div>
   );
 }
 
-function ErrorValidations({ validations }: { validations: NodeValidation<'error'>[] }) {
+function ErrorValidations({ validations, node }: { validations: NodeValidation<'error'>[]; node?: LayoutNode }) {
   return (
     <div style={{ paddingTop: '0.375rem' }}>
       <ErrorMessage size='small'>
@@ -51,9 +66,13 @@ function ErrorValidations({ validations }: { validations: NodeValidation<'error'
           {validations.map((validation) => (
             <li
               role='alert'
-              key={`validationMessage-${validation.message}`}
+              key={`validationMessage-${validation.message.key}`}
             >
-              {getParsedLanguageFromText(validation.message)}
+              <Lang
+                id={validation.message.key}
+                params={validation.message.params}
+                node={node}
+              />
             </li>
           ))}
         </ol>
@@ -65,9 +84,11 @@ function ErrorValidations({ validations }: { validations: NodeValidation<'error'
 function SoftValidations({
   validations,
   variant,
+  node,
 }: {
   validations: NodeValidation<'warning' | 'info' | 'success'>[];
   variant: AlertSeverity;
+  node?: LayoutNode;
 }) {
   const { langAsString } = useLanguage();
 
@@ -75,7 +96,7 @@ function SoftValidations({
    * Rendering the error messages as an ordered
    * list with each error message as a list item.
    */
-  const ariaLabel = langAsString(validations.map((v) => v.message).join());
+  const ariaLabel = validations.map((v) => langAsString(v.message.key, v.message.params)).join();
 
   return (
     <div style={{ paddingTop: 'var(--fds-spacing-2)' }}>
@@ -88,9 +109,13 @@ function SoftValidations({
           {validations.map((validation) => (
             <li
               role='alert'
-              key={`validationMessage-${validation.message}`}
+              key={`validationMessage-${validation.message.key}`}
             >
-              {getParsedLanguageFromText(validation.message)}
+              <Lang
+                id={validation.message.key}
+                params={validation.message.params}
+                node={node}
+              />
             </li>
           ))}
         </ol>

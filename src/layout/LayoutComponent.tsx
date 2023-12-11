@@ -16,7 +16,7 @@ import {
   useDisplayDataProps,
 } from 'src/layout/index';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
-import { getFieldName } from 'src/utils/formComponentUtils';
+import { getFieldNameKey } from 'src/utils/formComponentUtils';
 import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
@@ -371,11 +371,10 @@ export abstract class FormComponent<Type extends CompTypes>
     return formValidations;
   }
 
-  runEmptyFieldValidation(node: LayoutNode<Type>, { formData, langTools }: IValidationContext): ComponentValidation[] {
+  runEmptyFieldValidation(node: LayoutNode<Type>, { formData }: IValidationContext): ComponentValidation[] {
     if (!('required' in node.item) || !node.item.required || !node.item.dataModelBindings) {
       return [];
     }
-    const { langAsNonProcessedString } = langTools;
 
     const validations: ComponentValidation[] = [];
 
@@ -384,17 +383,17 @@ export abstract class FormComponent<Type extends CompTypes>
       const trb: ITextResourceBindings = 'textResourceBindings' in node.item ? node.item.textResourceBindings : {};
 
       if (!data?.length) {
-        const fieldName = getFieldName(trb, langTools, bindingKey);
-        const message =
+        const key =
           trb && 'requiredValidation' in trb && trb.requiredValidation
-            ? langAsNonProcessedString(trb?.requiredValidation, [fieldName])
-            : langAsNonProcessedString('form_filler.error_required', [fieldName]);
+            ? trb.requiredValidation
+            : 'form_filler.error_required';
+        const fieldReference = { key: getFieldNameKey(trb, bindingKey), makeLowerCase: true };
 
         validations.push({
           componentId: node.item.id,
           group: FrontendValidationSource.EmptyField,
           bindingKey,
-          message,
+          message: { key, params: [fieldReference] },
           severity: 'error',
           category: ValidationMask.Required,
         });

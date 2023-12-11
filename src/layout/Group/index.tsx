@@ -16,7 +16,7 @@ import {
   groupIsRepeatingLikertExt,
 } from 'src/layout/Group/tools';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { ComponentValidation, IValidationContext } from 'src/features/validation';
+import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { CompExternalExact, CompInternal, HierarchyDataSources } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -65,7 +65,7 @@ export class Group extends GroupDef implements ValidateComponent {
     return this._hierarchyGenerator;
   }
 
-  runComponentValidation(node: LayoutNode<'Group'>, { langTools }: IValidationContext): ComponentValidation[] {
+  runComponentValidation(node: LayoutNode<'Group'>): ComponentValidation[] {
     if (!node.isRepGroup() || !node.item.dataModelBindings) {
       return [];
     }
@@ -82,10 +82,8 @@ export class Group extends GroupDef implements ValidateComponent {
 
     // if not valid, return appropriate error message
     if (!repeatingGroupMinCountValid) {
-      const message = langTools.langAsNonProcessedString('validation_errors.minItems', [repeatingGroupMinCount]);
-
       validations.push({
-        message,
+        message: { key: 'validation_errors.minItems', params: [repeatingGroupMinCount] },
         severity: 'error',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,

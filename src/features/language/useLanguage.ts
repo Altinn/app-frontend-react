@@ -11,6 +11,7 @@ import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
 import { useFormComponentCtx } from 'src/layout/FormComponentContext';
 import { getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
+import { smartLowerCaseFirst } from 'src/utils/formComponentUtils';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import type { IFormData } from 'src/features/formData';
 import type { TextResourceMap } from 'src/features/language/textResources';
@@ -20,7 +21,12 @@ import type { IApplicationSettings, IInstanceDataSources, ILanguage, IVariable }
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type SimpleLangParam = string | number | undefined;
-export type ValidLangParam = SimpleLangParam | ReactNode;
+export type ValidLangParam = SimpleLangParam | ReactNode | TextReference;
+export type TextReference = {
+  key: ValidLanguageKey | string | undefined;
+  params?: ValidLangParam[];
+  makeLowerCase?: boolean;
+};
 
 export interface IUseLanguage {
   language: ILanguage;
@@ -28,7 +34,7 @@ export interface IUseLanguage {
     key: ValidLanguageKey | string | undefined,
     params?: ValidLangParam[],
   ): string | JSX.Element | JSX.Element[] | null;
-  langAsString(key: ValidLanguageKey | string | undefined, params?: ValidLangParam[]): string;
+  langAsString(key: ValidLanguageKey | string | undefined, params?: ValidLangParam[], makeLowerCase?: boolean): string;
   langAsStringUsingPathInDataModel(
     key: ValidLanguageKey | string | undefined,
     dataModelPath: string,
@@ -178,13 +184,15 @@ function staticUseLanguage(
 
   const lang: IUseLanguage['lang'] = (key, params) => base(key, params);
 
-  const langAsString: IUseLanguage['langAsString'] = (key, params) => {
+  const langAsString: IUseLanguage['langAsString'] = (key, params, makeLowerCase) => {
+    const postProcess = makeLowerCase ? smartLowerCaseFirst : (str: string | undefined) => str;
+
     const result = lang(key, params);
     if (result === undefined || result === null) {
-      return key || '';
+      return postProcess(key) || '';
     }
 
-    return getPlainTextFromNode(result, langAsString);
+    return postProcess(getPlainTextFromNode(result, langAsString))!;
   };
 
   const langAsStringUsingPathInDataModel: IUseLanguage['langAsStringUsingPathInDataModel'] = (
@@ -217,6 +225,9 @@ function staticUseLanguage(
 
 const simplifyParams = (params: ValidLangParam[], langAsString: IUseLanguage['langAsString']): SimpleLangParam[] =>
   params.map((param) => {
+    if (isTextReference(param)) {
+      return langAsString(param.key, param.params, param.makeLowerCase);
+    }
     if (isValidElement(param)) {
       return getPlainTextFromNode(param, langAsString);
     }
@@ -341,3 +352,13 @@ const replaceParameters = (nameString: string | undefined, params: SimpleLangPar
 
   return mutatingString;
 };
+
+function isTextReference(obj: any): obj is TextReference {
+  return (
+    typeof obj === 'object' &&
+    'key' in obj &&
+    typeof obj.key === 'string' &&
+    Object.keys(obj).length <= 3 &&
+    Object.keys(obj).every((k) => k === 'key' || k === 'params' || k === 'makeLowerCase')
+  );
+}

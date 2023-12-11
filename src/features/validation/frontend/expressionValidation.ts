@@ -157,7 +157,7 @@ export function resolveExpressionValidationConfig(config: IExpressionValidationC
 
 export function runExpressionValidationsOnNode(
   node: LayoutNode,
-  { customValidation, langTools }: IValidationContext,
+  { customValidation }: IValidationContext,
 ): FieldValidation[] {
   const resolvedDataModelBindings = node.item.dataModelBindings;
   const baseDataModelBindings = getBaseDataModelBindings(resolvedDataModelBindings);
@@ -182,11 +182,10 @@ export function runExpressionValidationsOnNode(
         positionalArguments: [resolvedField],
       });
       if (isInvalid) {
-        const message = langTools.langAsString(validationDef.message);
         validations.push({
           field: resolvedField,
           group: FrontendValidationSource.Expression,
-          message,
+          message: { key: validationDef.message },
           severity: validationDef.severity,
           category: validationDef.showImmediately ? 0 : ValidationMask.Expression,
         });

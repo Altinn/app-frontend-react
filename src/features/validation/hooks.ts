@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useInsertionEffect, useRef } from 'react';
+import { useCallback, useEffect, useInsertionEffect, useMemo, useRef } from 'react';
 
 import deepEqual from 'fast-deep-equal';
 
@@ -10,18 +10,16 @@ import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
-import { staticUseLanguageFromState } from 'src/features/language/useLanguage';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import type { IAttachment, IAttachments, UploadedAttachment } from 'src/features/attachments';
-import type { IFormData } from 'src/features/formData';
-import type { AttachmentChange, IValidationContext, ValidationContextGenerator } from 'src/features/validation';
+import type { AttachmentChange, IValidationContext } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 /**
  * Hook providing validation context generator
  */
-export function useValidationContextGenerator(): ValidationContextGenerator {
+export function useValidationContext(): IValidationContext {
   const formData = useAppSelector((state) => state.formData.formData);
   const attachments = useAttachments();
   const currentLanguage = useCurrentLanguage();
@@ -31,13 +29,10 @@ export function useValidationContextGenerator(): ValidationContextGenerator {
   const layoutSets = useLayoutSets();
   const schema = useDataModelSchema()!;
   const customValidation = useCustomValidationConfig();
-  const langToolsGenerator = useAppSelector(
-    (state) => (node: LayoutNode | undefined) => staticUseLanguageFromState(state, node),
-  );
-  return useCallback(
-    (node: LayoutNode | undefined): IValidationContext => ({
+
+  return useMemo(
+    () => ({
       formData,
-      langTools: langToolsGenerator(node),
       attachments,
       currentLanguage,
       application,
@@ -47,18 +42,7 @@ export function useValidationContextGenerator(): ValidationContextGenerator {
       schema,
       customValidation,
     }),
-    [
-      application,
-      attachments,
-      currentLanguage,
-      customValidation,
-      formData,
-      instance,
-      langToolsGenerator,
-      layoutSets,
-      process,
-      schema,
-    ],
+    [application, attachments, currentLanguage, customValidation, formData, instance, layoutSets, process, schema],
   );
 }
 
@@ -125,8 +109,11 @@ export function useOnNodeDataChange(onChange: (changedNodes: LayoutNode[]) => vo
       if (!prevNode) {
         continue;
       }
-      const changes = getChangedFields(newNode.getFieldFormData(), prevNode.getFieldFormData());
-      if (changes.length) {
+      if (
+        !deepEqual(newNode.getFieldFormData(), prevNode.getFieldFormData()) ||
+        // Textresources are used in validation messages, and these can be defined with expressions, so textresource keys can change
+        !deepEqual(newNode.item.textResourceBindings, prevNode.item.textResourceBindings)
+      ) {
         shouldUpdate = true;
         changedNodes.push(newNode);
       }
@@ -138,22 +125,6 @@ export function useOnNodeDataChange(onChange: (changedNodes: LayoutNode[]) => vo
       onChangeEvent(changedNodes);
     }
   }, [layoutNodes, onChangeEvent]);
-}
-
-function getChangedFields(current: IFormData, prev: IFormData) {
-  const changes: string[] = [];
-  for (const field of Object.keys(current)) {
-    if (current[field] !== prev[field]) {
-      changes.push(field);
-    }
-  }
-  for (const field of Object.keys(prev)) {
-    if (!(field in current)) {
-      changes.push(field);
-    }
-  }
-
-  return changes;
 }
 
 export function useOnAttachmentsChange(

@@ -2,7 +2,6 @@ import Ajv from 'ajv';
 import Ajv2020 from 'ajv/dist/2020';
 import { v4 as uuid } from 'uuid';
 
-import { staticUseLanguageForTests } from 'src/features/language/useLanguage';
 import { createValidator, getSchemaValidationErrors } from 'src/features/validation/frontend/schemaValidation';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IFormData } from 'src/features/formData';
@@ -15,7 +14,6 @@ function runGetSchemaValidationErrors(formData: IFormData, schema: object) {
   const dataTypeId = uuid(); // Validators object is stored as a singleton, so we need a unique id for each dataType
 
   const attachments = {};
-  const langTools = staticUseLanguageForTests({ language: {} });
   const application: IApplicationMetadata = {
     dataTypes: [
       {
@@ -38,7 +36,6 @@ function runGetSchemaValidationErrors(formData: IFormData, schema: object) {
 
   return getSchemaValidationErrors({
     attachments,
-    langTools,
     currentLanguage: 'nb',
     formData,
     application,

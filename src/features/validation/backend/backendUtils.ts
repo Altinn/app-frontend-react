@@ -1,6 +1,6 @@
 import { BackendValidationSeverity } from 'src/features/validation';
 import { validationTexts } from 'src/features/validation/backend/validationTexts';
-import type { IUseLanguage } from 'src/features/language/useLanguage';
+import type { TextReference } from 'src/features/language/useLanguage';
 import type { BackendValidationIssue, ValidationSeverity } from 'src/features/validation';
 
 /**
@@ -20,32 +20,27 @@ export function getValidationIssueSeverity(issue: BackendValidationIssue): Valid
 /**
  * Gets standard validation messages for backend validation issues.
  */
-export function getValidationIssueMessage(
-  issue: BackendValidationIssue,
-  langTools: IUseLanguage,
-  params?: string[],
-): string {
-  const { langAsNonProcessedString } = langTools;
+export function getValidationIssueMessage(issue: BackendValidationIssue): TextReference {
   if (issue.customTextKey) {
-    return langAsNonProcessedString(issue.customTextKey, params);
+    return { key: issue.customTextKey, params: issue.customTextParams };
   }
 
   if (issue.source && issue.code) {
     const resource = validationTexts[issue.source]?.[issue.code];
     if (resource) {
-      return langAsNonProcessedString(resource, params);
+      return { key: resource };
     }
   }
 
   // Fallback to old behavior if source not set.
-  const legacyText = langAsNonProcessedString(issue.code, params);
+  const legacyText = issue.code;
   if (legacyText !== issue.code) {
-    return legacyText;
+    return { key: legacyText };
   }
 
   if (issue.description) {
-    return issue.description;
+    return { key: issue.description };
   }
 
-  return issue.source ? `${issue.source}.${issue.code}` : issue.code;
+  return { key: issue.source ? `${issue.source}.${issue.code}` : issue.code };
 }

@@ -5,7 +5,7 @@ import { FrontendValidationSource, ValidationMask } from 'src/features/validatio
 import { ListDef } from 'src/layout/List/config.def.generated';
 import { ListComponent } from 'src/layout/List/ListComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import { getFieldName } from 'src/utils/formComponentUtils';
+import { getFieldNameKey } from 'src/utils/formComponentUtils';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { ComponentValidation, IValidationContext } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -34,10 +34,7 @@ export class List extends ListDef {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
-  runEmptyFieldValidation(
-    node: LayoutNode<'List'>,
-    { formData, langTools }: IValidationContext,
-  ): ComponentValidation[] {
+  runEmptyFieldValidation(node: LayoutNode<'List'>, { formData }: IValidationContext): ComponentValidation[] {
     if (!node.item.required || !node.item.dataModelBindings) {
       return [];
     }
@@ -46,7 +43,6 @@ export class List extends ListDef {
 
     const validations: ComponentValidation[] = [];
 
-    const { langAsNonProcessedString } = langTools;
     const textResourceBindings = node.item.textResourceBindings;
 
     let listHasErrors = false;
@@ -58,12 +54,20 @@ export class List extends ListDef {
       }
     }
     if (listHasErrors) {
-      const fieldName = getFieldName(node.item.textResourceBindings, langTools, undefined);
-      const message = textResourceBindings?.requiredValidation
-        ? langAsNonProcessedString(textResourceBindings?.requiredValidation, [fieldName])
-        : langAsNonProcessedString('form_filler.error_required', [fieldName]);
+      const key = textResourceBindings?.requiredValidation
+        ? textResourceBindings?.requiredValidation
+        : 'form_filler.error_required';
+
+      const fieldNameReference = {
+        key: getFieldNameKey(node.item.textResourceBindings, undefined),
+        makeLowerCase: true,
+      };
+
       validations.push({
-        message,
+        message: {
+          key,
+          params: [fieldNameReference],
+        },
         severity: 'error',
         componentId: node.item.id,
         group: FrontendValidationSource.EmptyField,

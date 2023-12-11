@@ -37,7 +37,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
 
   runComponentValidation(
     node: LayoutNode<'FileUploadWithTag'>,
-    { attachments, langTools }: IValidationContext,
+    { attachments }: IValidationContext,
   ): ComponentValidation[] {
     const validations: ComponentValidation[] = [];
 
@@ -51,12 +51,19 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
 
       if (missingTagAttachmentIds?.length > 0) {
         missingTagAttachmentIds.forEach((attachmentId) => {
-          const message = `${langTools.langAsString(
-            'form_filler.file_uploader_validation_error_no_chosen_tag',
-          )} ${langTools.langAsString(node.item.textResourceBindings?.tagTitle).toLowerCase()}.`;
+          const tagKey = node.item.textResourceBindings?.tagTitle;
+          const tagReference = tagKey
+            ? {
+                key: tagKey,
+                makeLowerCase: true,
+              }
+            : 'tag';
 
           validations.push({
-            message,
+            message: {
+              key: 'form_filler.file_uploader_validation_error_no_chosen_tag',
+              params: [tagReference],
+            },
             severity: 'error',
             componentId: node.item.id,
             group: FrontendValidationSource.Component,
@@ -66,12 +73,11 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
         });
       }
     } else {
-      const message = langTools.langAsString('form_filler.file_uploader_validation_error_file_number', [
-        node.item.minNumberOfAttachments,
-      ]);
-
       validations.push({
-        message,
+        message: {
+          key: 'form_filler.file_uploader_validation_error_file_number',
+          params: [node.item.minNumberOfAttachments],
+        },
         severity: 'error',
         componentId: node.item.id,
         group: FrontendValidationSource.Component,

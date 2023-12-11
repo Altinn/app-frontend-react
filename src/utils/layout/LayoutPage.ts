@@ -1,5 +1,3 @@
-import { runValidationOnNodes } from 'src/features/validation/frontend/runValidations';
-import type { FormValidations, ValidationContextGenerator } from 'src/features/validation';
 import type { CompExceptGroup, CompInternal } from 'src/layout/layout';
 import type { IUiConfig } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -132,13 +130,6 @@ export class LayoutPage implements LayoutObject {
       myKey,
       collection,
     };
-  }
-
-  /**
-   * Runs frontend validations for all nodes in the layout, and returns an array of IValidationObject.
-   */
-  public runValidations(validationCtxGenerator: ValidationContextGenerator): FormValidations {
-    return runValidationOnNodes(this.allChildren, validationCtxGenerator);
   }
 
   public isHiddenViaTracks(uiConfig: IUiConfig): boolean {

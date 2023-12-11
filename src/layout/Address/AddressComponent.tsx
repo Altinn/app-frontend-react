@@ -118,7 +118,10 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
           required={required}
           autoComplete={simplified ? 'street-address' : 'address-line1'}
         />
-        <ComponentValidations validations={bindingValidations?.address} />
+        <ComponentValidations
+          validations={bindingValidations?.address}
+          node={node}
+        />
       </div>
 
       {!simplified && (
@@ -141,7 +144,10 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
             readOnly={readOnly}
             autoComplete='address-line2'
           />
-          <ComponentValidations validations={bindingValidations?.careOf} />
+          <ComponentValidations
+            validations={bindingValidations?.careOf}
+            node={node}
+          />
         </div>
       )}
       <div>
@@ -190,8 +196,14 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
             />
           </div>
         </div>
-        <ComponentValidations validations={bindingValidations?.zipCode} />
-        <ComponentValidations validations={bindingValidations?.postPlace} />
+        <ComponentValidations
+          validations={bindingValidations?.zipCode}
+          node={node}
+        />
+        <ComponentValidations
+          validations={bindingValidations?.postPlace}
+          node={node}
+        />
       </div>
 
       {!simplified && (
@@ -219,11 +231,17 @@ export function AddressComponent({ formData, handleDataChange, node }: IAddressC
               autoComplete='address-line3'
             />
           </div>
-          <ComponentValidations validations={bindingValidations?.houseNumber} />
+          <ComponentValidations
+            validations={bindingValidations?.houseNumber}
+            node={node}
+          />
         </div>
       )}
 
-      <ComponentValidations validations={componentValidations} />
+      <ComponentValidations
+        validations={componentValidations}
+        node={node}
+      />
     </div>
   );
 }

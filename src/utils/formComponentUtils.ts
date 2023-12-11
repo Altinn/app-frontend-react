@@ -55,6 +55,22 @@ export function getFieldName(
   return langAsString('validation.generic_field');
 }
 
+export function getFieldNameKey(textResourceBindings: ITextResourceBindings, fieldKey?: string): string | undefined {
+  if (fieldKey && fieldKey !== 'simpleBinding') {
+    return `form_filler.${fieldKey}`;
+  }
+
+  if (textResourceBindings && 'shortName' in textResourceBindings && textResourceBindings.shortName) {
+    return textResourceBindings.shortName;
+  }
+
+  if (textResourceBindings && 'title' in textResourceBindings && textResourceBindings.title) {
+    return textResourceBindings.title;
+  }
+
+  return 'validation.generic_field';
+}
+
 /**
  * Un-uppercase the first letter of a string
  */

@@ -5,7 +5,7 @@ import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IAttachments } from 'src/features/attachments';
 import type { Expression, ExprValToActual } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
-import type { IUseLanguage, ValidLangParam } from 'src/features/language/useLanguage';
+import type { TextReference, ValidLangParam } from 'src/features/language/useLanguage';
 import type { Visibility } from 'src/features/validation/visibility';
 import type { ILayoutSets } from 'src/types';
 import type { IInstance, IProcess } from 'src/types/shared';
@@ -108,7 +108,7 @@ export type ComponentValidations = {
 };
 
 export type BaseValidation<Severity extends ValidationSeverity = ValidationSeverity> = {
-  message: string;
+  message: TextReference;
   severity: Severity;
   category: ValidationCategory;
 };
@@ -135,13 +135,6 @@ export type NodeValidation<Severity extends ValidationSeverity = ValidationSever
   meta?: Record<string, string>;
 };
 
-// TODO(Validation): replace message string with TextResource type, to allow proper translation of messages
-// TODO(Validation): Move to more appropriate location
-export type TextResource = {
-  key?: string | undefined;
-  params?: ValidLangParam[];
-};
-
 export type AttachmentChange = {
   node: LayoutNode;
   attachmentId: string;
@@ -151,7 +144,6 @@ export type AttachmentChange = {
  * Contains all of the necessary elements from the redux store to run frontend validations.
  */
 export type IValidationContext = {
-  langTools: IUseLanguage;
   currentLanguage: string;
   formData: IFormData;
   attachments: IAttachments;
@@ -177,6 +169,7 @@ export interface BackendValidationIssue {
   targetId: string;
   source: ValidationIssueSources;
   customTextKey?: string;
+  customTextParams?: ValidLangParam[];
   showImmediately?: boolean;
   actLikeRequired?: boolean;
 }
@@ -243,7 +236,7 @@ export interface ISchemaValidators {
  * This format is returned by the json schema validation, and needs to be mapped to components based on the datamodel bindingField.
  */
 export type ISchemaValidationError = {
-  message: string;
+  message: TextReference;
   bindingField: string;
   invalidDataType: boolean;
   keyword: string;

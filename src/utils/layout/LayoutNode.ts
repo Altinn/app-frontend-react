@@ -1,12 +1,10 @@
 import dot from 'dot-object';
 
-import { runValidationOnNodes } from 'src/features/validation/frontend/runValidations';
 import { getLayoutComponentObject } from 'src/layout';
 import { convertDataBindingToModel } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { IFormData } from 'src/features/formData';
-import type { FormValidations, ValidationContextGenerator } from 'src/features/validation';
 import type { CompClassMap } from 'src/layout';
 import type { CompCategory } from 'src/layout/common';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated';
@@ -311,13 +309,6 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
 
   public getDataSources(): HierarchyDataSources {
     return this.dataSources;
-  }
-
-  /**
-   * Runs frontend validations for this node and returns an array of IValidationObject
-   */
-  runValidations(validationCtxGenerator: ValidationContextGenerator): FormValidations {
-    return runValidationOnNodes([this as LayoutNode], validationCtxGenerator);
   }
 }
 

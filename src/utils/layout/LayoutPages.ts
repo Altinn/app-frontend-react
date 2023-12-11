@@ -1,7 +1,5 @@
 import type { $Values } from 'utility-types';
 
-import { runValidationOnNodes } from 'src/features/validation/frontend/runValidations';
-import type { FormValidations, ValidationContextGenerator } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
@@ -104,12 +102,5 @@ export class LayoutPages<
         .map((key) => this.objects[key])
         .flat(),
     ] as $Values<Omit<Collection, L>>[];
-  }
-
-  /**
-   * Runs frontend validations for all nodes in the layout set, and returns an array of IValidationObject.
-   */
-  public runValidations(validationCtxGenerator: ValidationContextGenerator): FormValidations {
-    return runValidationOnNodes(this.allNodes(), validationCtxGenerator);
   }
 }

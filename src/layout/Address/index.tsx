@@ -32,7 +32,7 @@ export class Address extends AddressDef implements ValidateComponent {
 
   runComponentValidation(
     node: LayoutNode<'AddressComponent'>,
-    { formData, langTools }: IValidationContext,
+    { formData }: IValidationContext,
   ): ComponentValidation[] {
     if (!node.item.dataModelBindings) {
       return [];
@@ -45,7 +45,7 @@ export class Address extends AddressDef implements ValidateComponent {
     // TODO(Validation): Add better message for the special case of 0000 or add better validation for zipCodes that the API says are invalid
     if (zipCode && (!zipCode.match(/^\d{4}$/) || zipCode === '0000')) {
       validations.push({
-        message: langTools.langAsString('address_component.validation_error_zipcode'),
+        message: { key: 'address_component.validation_error_zipcode' },
         severity: 'error',
         bindingKey: 'zipCode',
         componentId: node.item.id,
@@ -59,7 +59,7 @@ export class Address extends AddressDef implements ValidateComponent {
 
     if (houseNumber && !houseNumber.match(/^[a-z,A-Z]\d{4}$/)) {
       validations.push({
-        message: langTools.langAsString('address_component.validation_error_house_number'),
+        message: { key: 'address_component.validation_error_house_number' },
         severity: 'error',
         bindingKey: 'houseNumber',
         componentId: node.item.id,

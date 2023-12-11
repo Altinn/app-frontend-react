@@ -84,7 +84,7 @@ export function en() {
         '. Make sure the file has correct file type and does not exeed the size limit.',
       file_uploader_validation_error_upload: 'Something went wrong trying to upload the file, please try again.',
       file_uploader_validation_error_update: 'Something went wrong trying to update the filetag, please try again.',
-      file_uploader_validation_error_no_chosen_tag: 'You have to choose one',
+      file_uploader_validation_error_no_chosen_tag: 'You have to choose one {0}',
       placeholder_receipt_header: 'The form has been submitted',
       placeholder_user: 'OLA PRIVATPERSON',
       radiobutton_alert_label: 'Are you sure you want to change from {0}?',

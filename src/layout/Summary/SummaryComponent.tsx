@@ -101,8 +101,13 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
           >
             {errors.map(({ message }) => (
               <ErrorPaper
-                key={`key-${message}`}
-                message={message}
+                key={`key-${message.key}`}
+                message={
+                  <Lang
+                    id={message.key}
+                    params={message.params}
+                  />
+                }
               />
             ))}
             <Grid

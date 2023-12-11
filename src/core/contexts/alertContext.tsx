@@ -4,15 +4,16 @@ import { Alert } from '@digdir/design-system-react';
 import Snackbar from '@material-ui/core/Snackbar';
 
 import { createContext } from 'src/core/contexts/context';
+import { Lang } from 'src/features/language/Lang';
 import { BackendValidationSeverity } from 'src/features/validation';
 import { getValidationIssueMessage } from 'src/features/validation/backend/backendUtils';
-import type { IUseLanguage } from 'src/features/language/useLanguage';
+import type { TextReference } from 'src/features/language/useLanguage';
 import type { BackendValidationIssue } from 'src/features/validation';
 
 export type AlertSeverity = Parameters<typeof Alert>[0]['severity'];
 
 type Alert = {
-  message: string;
+  message: TextReference;
   severity: AlertSeverity;
 };
 
@@ -22,7 +23,7 @@ type state = {
 };
 
 type ShowAlerts = (alerts: Alert[]) => void;
-type ShowAlert = (message: string, severity: AlertSeverity) => void;
+type ShowAlert = (message: TextReference, severity: AlertSeverity) => void;
 
 type AlertContext = {
   showAlerts: ShowAlerts;
@@ -38,7 +39,7 @@ export function AlertProvider({ children }) {
     setState({ open: true, alerts });
   };
 
-  const showAlert: ShowAlert = (message: string, severity: AlertSeverity) => {
+  const showAlert: ShowAlert = (message: TextReference, severity: AlertSeverity) => {
     setState({ open: true, alerts: [{ message, severity }] });
   };
 
@@ -58,10 +59,13 @@ export function AlertProvider({ children }) {
         <div id='globalAlert'>
           {state.alerts.map(({ message, severity }) => (
             <Alert
-              key={`${severity}-${message}`}
+              key={`${severity}-${message.key}`}
               severity={severity}
             >
-              {message}
+              <Lang
+                id={message.key}
+                params={message.params}
+              />
             </Alert>
           ))}
         </div>
@@ -70,9 +74,9 @@ export function AlertProvider({ children }) {
   );
 }
 
-export function backendIssuesToAlerts(validationIssues: BackendValidationIssue[], langTools: IUseLanguage): Alert[] {
+export function backendIssuesToAlerts(validationIssues: BackendValidationIssue[]): Alert[] {
   return validationIssues.map((issue) => {
-    const message = getValidationIssueMessage(issue, langTools);
+    const message = getValidationIssueMessage(issue);
 
     let severity: AlertSeverity;
     switch (issue.severity) {

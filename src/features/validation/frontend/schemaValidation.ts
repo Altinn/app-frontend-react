@@ -13,7 +13,6 @@ import {
   getSchemaPartOldGenerator,
   processInstancePath,
 } from 'src/utils/schemaUtils';
-import type { ValidLanguageKey } from 'src/features/language/useLanguage';
 import type {
   ISchemaValidationError,
   ISchemaValidator,
@@ -180,7 +179,6 @@ export const errorMessageKeys = {
  */
 export function getSchemaValidationErrors({
   formData,
-  langTools,
   application,
   process,
   layoutSets,
@@ -230,11 +228,11 @@ export function getSchemaValidationErrors({
       : getSchemaPart(error.schemaPath, schema);
 
     const errorMessage = fieldSchema?.errorMessage
-      ? langTools.langAsString(fieldSchema.errorMessage)
-      : langTools.langAsString(
-          `validation_errors.${errorMessageKeys[error.keyword]?.textKey || error.keyword}` as ValidLanguageKey,
-          [errorParams],
-        );
+      ? { key: fieldSchema.errorMessage }
+      : {
+          key: `validation_errors.${errorMessageKeys[error.keyword]?.textKey || error.keyword}`,
+          params: [errorParams],
+        };
 
     const field = processInstancePath(error.instancePath);
     validationErrors.push({ message: errorMessage, bindingField: field, invalidDataType, keyword: error.keyword });
