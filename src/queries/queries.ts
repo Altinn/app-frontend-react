@@ -51,6 +51,7 @@ import type {
   IAppLanguage,
   IApplicationSettings,
   IData,
+  IDataAfterDataModelSave,
   IInstance,
   IParty,
   IProcess,
@@ -131,7 +132,7 @@ export const doAttachmentRemove = async (instanceId: string, dataGuid: string): 
   return response.data;
 };
 
-export const doPutFormData = (url: string, data: FormData): Promise<object> => httpPut(url, data);
+export const doPutFormData = (url: string, data: FormData): Promise<IDataAfterDataModelSave> => httpPut(url, data);
 
 /**
  * Query functions (these should use httpGet and start with 'fetch')

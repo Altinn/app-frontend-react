@@ -59,27 +59,8 @@ const useFormDataSaveMutation = (ctx: FormDataContext) => {
     mutationFn: async (arg: MutationArg) => {
       const { dataModelUrl, newData, diff } = arg;
       const data = createFormDataRequestFromDiff(newData, diff);
-
-      try {
-        const metaData: any = await doPutFormData.call(dataModelUrl, data);
-        saveFinished(newData, metaData?.changedFields);
-      } catch (error) {
-        if (error.response && error.response.status === 303) {
-          // 303 means that data has been changed by calculation on server. Try to update from response.
-          // Newer backends might not reply back with this special response code when there are changes, they
-          // will just respond with the 'changedFields' property instead (see code handling this above).
-          if (error.response.data?.changedFields) {
-            saveFinished(newData, error.response.data.changedFields);
-          } else {
-            // No changedFields property returned, try to fetch
-            // TODO: Implement
-            console.log('debug, no changedFields returned, will re-fetch');
-          }
-        } else {
-          // TODO: Store this error and warn the user when something goes wrong (or just ignore it and try again?)
-          throw error;
-        }
-      }
+      const metaData = await doPutFormData.call(dataModelUrl, data);
+      saveFinished(newData, metaData?.changedFields);
     },
   });
 };
@@ -243,7 +224,7 @@ export const FD = {
     return useCallback(
       (newValue: any) => {
         if (!binding) {
-          window.logWarn(`No data model binding found for ${binding}, silently ignoring request to save ${newValue}`);
+          window.logWarn(`No data model binding found, silently ignoring request to save ${newValue}`);
           return;
         }
         setLeafValue(binding, newValue);
