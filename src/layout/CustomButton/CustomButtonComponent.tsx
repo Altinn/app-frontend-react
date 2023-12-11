@@ -14,6 +14,7 @@ import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useNavigatePage, useNavigationParams } from 'src/hooks/useNavigatePage';
 import { isSpecificClientAction } from 'src/layout/CustomButton/typeHelpers';
 import { flattenObject } from 'src/utils/databindings';
+import { promisify } from 'src/utils/promisify';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ButtonColor, ButtonVariant } from 'src/layout/Button/WrappedButton';
 import type * as CBTypes from 'src/layout/CustomButton/config.generated';
@@ -46,12 +47,12 @@ const isServerAction = (action: CBTypes.CustomAction): action is CBTypes.ServerA
 function useHandleClientActions(): UseHandleClientActions {
   const dispatch = useAppDispatch();
   const currentDataModelGuid = useCurrentDataModelGuid();
-  const { next, previous, navigateToPage } = useNavigatePage();
+  const { navigateToPage, navigateToNextPage, navigateToPreviousPage } = useNavigatePage();
 
   const frontendActions: ClientActionHandlers = {
-    nextPage: async () => navigateToPage(next),
-    previousPage: async () => navigateToPage(previous),
-    navigateToPage: async ({ page }) => navigateToPage(page),
+    nextPage: promisify(navigateToNextPage),
+    previousPage: promisify(navigateToPreviousPage),
+    navigateToPage: promisify<ClientActionHandlers['navigateToPage']>(async ({ page }) => navigateToPage(page)),
   };
 
   const handleClientAction = async (action: CBTypes.ClientAction) => {

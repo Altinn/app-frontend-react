@@ -179,6 +179,56 @@ export const useNavigatePage = () => {
     [processTasks],
   );
 
+  const getCurrentPageIndex = () => {
+    const location = window.location.href;
+    const _currentPageId = location.split('/').slice(-1)[0];
+    return order?.indexOf(_currentPageId) ?? -1;
+  };
+
+  const getNextPage = () => {
+    const currentPageIndex = getCurrentPageIndex();
+    const nextPageIndex = currentPageIndex !== -1 ? currentPageIndex + 1 : -1;
+
+    if (nextPageIndex === -1) {
+      return undefined;
+    }
+    return order?.[nextPageIndex];
+  };
+
+  const getPreviousPage = () => {
+    const currentPageIndex = getCurrentPageIndex();
+    const nextPageIndex = currentPageIndex !== -1 ? currentPageIndex - 1 : -1;
+
+    if (nextPageIndex === -1) {
+      return undefined;
+    }
+    return order?.[nextPageIndex];
+  };
+
+  /**
+   * This function fetch the next page index on function
+   * invocation and then navigates to the next page. This is
+   * to be able to chain multiple ClientActions together.
+   */
+  const navigateToNextPage = () => {
+    const nextPage = getNextPage();
+    if (nextPage) {
+      navigateToPage(nextPage);
+    }
+  };
+  /**
+   * This function fetches the previous page index on
+   * function invocation and then navigates to the previous
+   * page. This is to be able to chain multiple ClientActions
+   * together.
+   */
+  const navigateToPreviousPage = () => {
+    const previousPage = getPreviousPage();
+    if (previousPage) {
+      navigateToPage(previousPage);
+    }
+  };
+
   return {
     navigateToPage,
     navigateToTask,
@@ -193,5 +243,7 @@ export const useNavigatePage = () => {
     currentPageId,
     taskId,
     previous,
+    navigateToNextPage,
+    navigateToPreviousPage,
   };
 };
