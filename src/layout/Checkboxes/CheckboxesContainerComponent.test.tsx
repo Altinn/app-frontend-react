@@ -72,7 +72,10 @@ describe('CheckboxesContainerComponent', () => {
     });
 
     await waitFor(() => {
-      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('selectedValues', 'sweden');
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+        path: 'selectedValues',
+        newValue: 'sweden',
+      });
     });
   });
 
@@ -127,7 +130,10 @@ describe('CheckboxesContainerComponent', () => {
     await userEvent.click(getCheckbox({ name: 'Denmark' }));
 
     await waitFor(() => {
-      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('selectedValues', 'norway,denmark');
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+        path: 'selectedValues',
+        newValue: 'norway,denmark',
+      });
     });
   });
 
@@ -146,7 +152,7 @@ describe('CheckboxesContainerComponent', () => {
     await userEvent.click(getCheckbox({ name: 'Denmark', isChecked: true }));
 
     await waitFor(() => {
-      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('selectedValues', 'norway');
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'selectedValues', newValue: 'norway' });
     });
   });
 
@@ -163,7 +169,7 @@ describe('CheckboxesContainerComponent', () => {
     await userEvent.click(denmark);
     fireEvent.blur(denmark);
 
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('selectedValues', 'norway,denmark');
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'selectedValues', newValue: 'norway,denmark' });
   });
 
   it('should not call handleDataChange on blur when the value is unchanged', async () => {
@@ -193,7 +199,7 @@ describe('CheckboxesContainerComponent', () => {
     await userEvent.click(getCheckbox({ name: 'Denmark' }));
 
     await waitFor(() => {
-      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('selectedValues', 'denmark');
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'selectedValues', newValue: 'denmark' });
     });
   });
 
@@ -282,7 +288,10 @@ describe('CheckboxesContainerComponent', () => {
     await userEvent.click(getCheckbox({ name: /The value from the group is: Label for second/ }));
 
     await waitFor(() => {
-      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('someGroup[0].valueField', 'Value for second');
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+        path: 'someGroup[0].valueField',
+        newValue: 'Value for second',
+      });
     });
   });
 });

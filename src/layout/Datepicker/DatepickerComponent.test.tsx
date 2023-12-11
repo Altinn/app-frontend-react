@@ -119,7 +119,7 @@ describe('DatepickerComponent', () => {
 
     await userEvent.clear(screen.getByRole('textbox'));
 
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myDate', '');
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDate', newValue: '' });
   });
 
   it('should call dispatchFormData with formatted value (timestamp=true) if date is valid', async () => {
@@ -138,7 +138,7 @@ describe('DatepickerComponent', () => {
 
     await userEvent.type(screen.getByRole('textbox'), '31122022');
 
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myDate', '2022-12-31');
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDate', newValue: '2022-12-31' });
   });
 
   it('should call dispatchFormData with formatted value (timestamp=undefined) if date is valid', async () => {
@@ -157,7 +157,7 @@ describe('DatepickerComponent', () => {
 
     await userEvent.type(screen.getByRole('textbox'), '12345678');
 
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myDate', '12.34.5678');
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDate', newValue: '12.34.5678' });
   });
 
   it('should call dispatchFormData if not finished filling out the date', async () => {
@@ -165,7 +165,7 @@ describe('DatepickerComponent', () => {
 
     await userEvent.type(screen.getByRole('textbox'), `1234`);
 
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myDate', '12.34.____');
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDate', newValue: '12.34.____' });
   });
 
   it('should have aria-describedby if textResourceBindings.description is present', async () => {

@@ -14,6 +14,8 @@ import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { FormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
 import type { IFormData } from 'src/features/formData/index';
 
+export const DEFAULT_DEBOUNCE_TIMEOUT = 400;
+
 export interface FormDataState {
   // These values contain the current data model, with the values immediately available whenever the user is typing.
   // Use these values to render the form, and for other cases where you need the current data model immediately.
@@ -28,16 +30,52 @@ export interface FormDataState {
   // to determine if there are any unsaved changes, and to diff the current data model against the last saved data
   // model when saving. You probably don't need to use these values directly unless you know what you're doing.
   lastSavedData: object;
+
+  // The time in milliseconds to debounce the currentData model. This is used to determine how long to wait after the
+  // user has stopped typing before updating that data into the debouncedCurrentData model. Usually this will follow
+  // the default value, it can also be changed at any time by each component that uses the FormDataWriter.
+  debounceTimeout: number;
+}
+
+export interface FDChange {
+  // Overrides the timeout before the change is applied to the debounced data model. If not set, the default
+  // timeout is used. The debouncing may also happen sooner than you think, if the user continues typing in
+  // a form field that has a lower timeout. This is because the debouncing is global, not per field.
+  debounceTimeout?: number;
+}
+
+export interface FDNewValue extends FDChange {
+  path: string;
+  newValue: string;
+}
+
+export interface FDNewValues extends FDChange {
+  changes: FDNewValue[];
+}
+
+export interface FDAppendToListUnique extends FDChange {
+  path: string;
+  newValue: any;
+}
+
+export interface FDRemoveIndexFromList extends FDChange {
+  path: string;
+  index: number;
+}
+
+export interface FDRemoveValueFromList extends FDChange {
+  path: string;
+  value: any;
 }
 
 export interface FormDataMethods {
   // Methods used for updating the data model. These methods will update the currentData model, and after
   // the freeze() method is called, the debouncedCurrentData model will be updated as well.
-  setLeafValue: (path: string, newValue: any) => void;
-  setMultiLeafValues: (changes: DataModelChange[]) => void;
-  appendToListUnique: (path: string, newValue: any) => void;
-  removeIndexFromList: (path: string, index: number) => void;
-  removeValueFromList: (path: string, value: any) => void;
+  setLeafValue: (change: FDNewValue) => void;
+  setMultiLeafValues: (changes: FDNewValues) => void;
+  appendToListUnique: (change: FDAppendToListUnique) => void;
+  removeIndexFromList: (change: FDRemoveIndexFromList) => void;
+  removeValueFromList: (change: FDRemoveValueFromList) => void;
 
   // Internal utility methods
   freeze: (ruleConnection: IRuleConnections | null) => void;
@@ -46,12 +84,11 @@ export interface FormDataMethods {
 
 export type FormDataContext = FormDataState & FormDataMethods;
 
-export interface DataModelChange {
-  path: string;
-  newValue: string;
-}
-
 function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormDataMethods {
+  function processChange(state: FormDataContext, change: FDChange) {
+    state.debounceTimeout = change.debounceTimeout ?? DEFAULT_DEBOUNCE_TIMEOUT;
+  }
+
   return {
     freeze: (ruleConnection) =>
       set((state) => {
@@ -106,7 +143,7 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
           console.log('debug, saveFinished, no changes reported');
         }
       }),
-    setLeafValue: (path, newValue) =>
+    setLeafValue: ({ path, newValue, ...rest }) =>
       set((state) => {
         const existingValue = dot.pick(path, state.currentData);
         if (existingValue === newValue) {
@@ -114,10 +151,11 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
           return;
         }
 
+        processChange(state, rest);
         dot.str(path, newValue, state.currentData);
         console.log('debug, setLeafValueImpl', path, newValue);
       }),
-    appendToListUnique: (path, newValue) =>
+    appendToListUnique: ({ path, newValue, ...rest }) =>
       set((state) => {
         const existingValue = dot.pick(path, state.currentData);
         if (existingValue.includes(newValue)) {
@@ -125,10 +163,11 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
           return;
         }
 
+        processChange(state, rest);
         dot.str(path, [...existingValue, newValue], state.currentData);
         console.log('debug, appendToListImpl', path, newValue);
       }),
-    removeIndexFromList: (path, index) =>
+    removeIndexFromList: ({ path, index, ...rest }) =>
       set((state) => {
         const existingValue = dot.pick(path, state.currentData);
         if (index >= existingValue.length) {
@@ -136,9 +175,10 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
           return;
         }
 
+        processChange(state, rest);
         throw new Error('Not implemented');
       }),
-    removeValueFromList: (path, value) =>
+    removeValueFromList: ({ path, value, ...rest }) =>
       set((state) => {
         const existingValue = dot.pick(path, state.currentData);
         if (!existingValue.includes(value)) {
@@ -146,18 +186,22 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
           return;
         }
 
+        processChange(state, rest);
         throw new Error('Not implemented');
       }),
-    setMultiLeafValues: (changes) =>
+    setMultiLeafValues: ({ changes, ...rest }) =>
       set((state) => {
         console.log('debug, setMultiLeafValuesImpl', changes);
+        let changesFound = false;
         for (const { path, newValue } of changes) {
           const existingValue = dot.pick(path, state.currentData);
           if (existingValue === newValue) {
             continue;
           }
           dot.str(path, newValue, state.currentData);
+          changesFound = true;
         }
+        changesFound && processChange(state, rest);
       }),
   };
 }
@@ -183,6 +227,7 @@ const createFormDataWriteStore = (initialData: object, gatekeepers: FormDataWrit
         currentData: initialData,
         debouncedCurrentData: initialData,
         lastSavedData: initialData,
+        debounceTimeout: DEFAULT_DEBOUNCE_TIMEOUT,
         ...actions,
       };
     }),

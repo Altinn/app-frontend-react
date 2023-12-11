@@ -63,6 +63,6 @@ describe('MultipleSelect', () => {
 
     await userEvent.click(screen.getByRole('button', { name: /Slett label2/i }));
 
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('someField', 'value1,value3');
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'someField', newValue: 'value1,value3' });
   });
 });

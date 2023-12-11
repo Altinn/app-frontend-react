@@ -1,5 +1,5 @@
 import type { IRuleConnections } from 'src/features/form/dynamics';
-import type { DataModelChange } from 'src/features/formData/FormDataWriteStateMachine';
+import type { FDNewValue } from 'src/features/formData/FormDataWriteStateMachine';
 import type { IFormData } from 'src/features/formData/index';
 
 /**
@@ -13,7 +13,7 @@ export function runLegacyRules(
   formData: IFormData,
   updatedDateBindings: Set<string>,
 ) {
-  const changes: DataModelChange[] = [];
+  const changes: FDNewValue[] = [];
   if (!ruleConnectionState) {
     return changes;
   }

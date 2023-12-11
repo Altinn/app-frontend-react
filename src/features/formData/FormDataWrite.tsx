@@ -81,9 +81,8 @@ export function FormDataWriteProvider({ url, initialData, children }: FormDataWr
 }
 
 function FormDataEffects({ url }: { url: string }) {
-  const store = _useCtx();
-  const state = useStore(store);
-  const { freeze, currentData, debouncedCurrentData, lastSavedData } = useStore(_useCtx());
+  const state = useStore(_useCtx());
+  const { freeze, currentData, debouncedCurrentData, lastSavedData, debounceTimeout } = state;
   const { mutate, isLoading: isSaving } = useFormDataSaveMutation(state);
   const ruleConnections = useAppSelector((state) => state.formDynamics.ruleConnection);
 
@@ -94,12 +93,12 @@ function FormDataEffects({ url }: { url: string }) {
       if (currentData !== debouncedCurrentData) {
         freeze(ruleConnections);
       }
-    }, 400); // TODO: Make this configurable, per each component that makes changes
+    }, debounceTimeout);
 
     return () => {
       clearTimeout(timer);
     };
-  }, [ruleConnections, freeze, currentData, debouncedCurrentData]);
+  }, [ruleConnections, freeze, currentData, debouncedCurrentData, debounceTimeout]);
 
   // Save the data model when the data has been frozen to debouncedCurrentData and is different from the saved data
   useEffect(() => {
@@ -227,9 +226,13 @@ export const FD = {
           window.logWarn(`No data model binding found, silently ignoring request to save ${newValue}`);
           return;
         }
-        setLeafValue(binding, newValue);
+        setLeafValue({
+          path: binding,
+          newValue,
+          debounceTimeout: typeof saveWhileTyping === 'number' ? saveWhileTyping : undefined,
+        });
       },
-      [binding, setLeafValue],
+      [binding, saveWhileTyping, setLeafValue],
     );
   },
 
@@ -253,9 +256,13 @@ export const FD = {
           );
           return;
         }
-        setLeafValue(binding, newValue);
+        setLeafValue({
+          path: binding,
+          newValue,
+          debounceTimeout: typeof saveWhileTyping === 'number' ? saveWhileTyping : undefined,
+        });
       },
-      [bindings, setLeafValue],
+      [bindings, saveWhileTyping, setLeafValue],
     );
   },
 

@@ -61,10 +61,16 @@ function useMappingToolsForList(node: LayoutNode<'FileUpload' | 'FileUploadWithT
   const field = ((node.item.dataModelBindings || {}) as IDataModelBindingsForList).list;
   return {
     addAttachment: (uuid: string) => {
-      appendToListUnique(field, uuid);
+      appendToListUnique({
+        path: field,
+        newValue: uuid,
+      });
     },
     removeAttachment: (uuid: string) => {
-      removeValueFromList(field, uuid);
+      removeValueFromList({
+        path: field,
+        value: uuid,
+      });
     },
   };
 }

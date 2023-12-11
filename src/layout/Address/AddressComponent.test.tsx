@@ -78,7 +78,10 @@ describe('AddressComponent', () => {
     await userEvent.type(address, 'Slottsplassen 1');
     await userEvent.tab();
 
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('address', 'Slottsplassen 1');
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+      path: 'address',
+      newValue: 'Slottsplassen 1',
+    });
   });
 
   it('should not fire change event when readonly', async () => {
@@ -139,7 +142,10 @@ describe('AddressComponent', () => {
 
     await screen.findByDisplayValue('OSLO');
 
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('postPlace', 'OSLO');
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+      path: 'postPlace',
+      newValue: 'OSLO',
+    });
   });
 
   it('should call change event when zipcode is valid', async () => {
@@ -155,7 +161,10 @@ describe('AddressComponent', () => {
     await userEvent.type(field, '0001');
     await userEvent.tab();
 
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('zipCode', '0001');
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+      path: 'zipCode',
+      newValue: '0001',
+    });
   });
 
   it('should call dispatch for post place when zip code is cleared', async () => {
@@ -171,8 +180,14 @@ describe('AddressComponent', () => {
     await userEvent.clear(screen.getByRole('textbox', { name: 'Postnr' }));
     await userEvent.tab();
 
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('zipCode', '');
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('postPlace', '');
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+      path: 'zipCode',
+      newValue: '',
+    });
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+      path: 'postPlace',
+      newValue: '',
+    });
   });
 
   it('should display error message coming from props', async () => {

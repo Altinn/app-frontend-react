@@ -71,7 +71,9 @@ describe('RadioButtonsContainerComponent', () => {
       options: threeOptions,
     });
 
-    await waitFor(() => expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myRadio', 'sweden'));
+    await waitFor(() =>
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myRadio', newValue: 'sweden' }),
+    );
   });
 
   it('should not call handleDataChange when simpleBinding is set and preselectedOptionIndex', async () => {
@@ -120,7 +122,9 @@ describe('RadioButtonsContainerComponent', () => {
     expect(denmark).toBeInTheDocument();
     await userEvent.click(denmark);
 
-    await waitFor(() => expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myRadio', 'denmark'));
+    await waitFor(() =>
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myRadio', newValue: 'denmark' }),
+    );
   });
 
   it('should call handleDataChange instantly on blur when the value has changed', async () => {
@@ -136,7 +140,7 @@ describe('RadioButtonsContainerComponent', () => {
     expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
     await userEvent.click(denmark);
     await userEvent.tab();
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myRadio', 'denmark');
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myRadio', newValue: 'denmark' });
   });
 
   it('should not call handleDataChange on blur when the value is unchanged', async () => {
@@ -190,7 +194,7 @@ describe('RadioButtonsContainerComponent', () => {
 
     expect(formDataMethods).not.toHaveBeenCalled();
     await userEvent.click(getRadio({ name: /The value from the group is: Label for first/ }));
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myRadio', 'Value for first');
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myRadio', newValue: 'Value for first' });
   });
 
   it('should present the options list in the order it is provided when sortOrder is not specified', async () => {

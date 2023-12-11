@@ -151,7 +151,10 @@ describe('FormData', () => {
     // Change a value
     await userEvent.type(screen.getByTestId('writer-obj1.prop1'), 'a');
     expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1);
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('obj1.prop1', 'value1a');
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+      path: 'obj1.prop1',
+      newValue: 'value1a',
+    });
 
     expect(renderCounts).toEqual({
       ...initialRenders,

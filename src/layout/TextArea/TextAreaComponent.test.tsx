@@ -38,7 +38,10 @@ describe('TextAreaComponent', () => {
     await userEvent.type(textarea, addedText);
     await userEvent.tab();
 
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myTextArea', `${initialText}${addedText}`);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+      path: 'myTextArea',
+      newValue: `${initialText}${addedText}`,
+    });
   });
 
   it('should not fire handleDataChange when readOnly is true', async () => {

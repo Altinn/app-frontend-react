@@ -89,7 +89,7 @@ describe('DropdownComponent', () => {
     await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(screen.getByText('Sweden'));
 
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myDropdown', 'sweden');
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'sweden' });
   });
 
   it('should show as disabled when readOnly is true', async () => {
@@ -124,7 +124,9 @@ describe('DropdownComponent', () => {
       options: countries,
     });
 
-    await waitFor(() => expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myDropdown', 'denmark'));
+    await waitFor(() =>
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'denmark' }),
+    );
     expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1);
   });
 
@@ -136,7 +138,9 @@ describe('DropdownComponent', () => {
       options: countries,
     });
 
-    await waitFor(() => expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myDropdown', 'denmark'));
+    await waitFor(() =>
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'denmark' }),
+    );
     const select = screen.getByRole('combobox');
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1);
@@ -205,13 +209,13 @@ describe('DropdownComponent', () => {
     await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(screen.getByText('The value from the group is: Label for first'));
 
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myDropdown', 'Value for first');
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'Value for first' });
     expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1);
 
     await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(screen.getByText('The value from the group is: Label for second'));
 
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myDropdown', 'Value for second');
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'Value for second' });
     expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(2);
   });
 

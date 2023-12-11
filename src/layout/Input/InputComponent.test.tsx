@@ -44,7 +44,7 @@ describe('InputComponent', () => {
     await userEvent.type(inputComponent, typedValue);
 
     expect(inputComponent).toHaveValue(typedValue);
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('some.field', typedValue);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'some.field', newValue: typedValue });
     expect(inputComponent).toHaveValue(typedValue);
   });
 
@@ -74,7 +74,7 @@ describe('InputComponent', () => {
     await userEvent.tab();
 
     expect(inputComponent).toHaveValue(finalValueFormatted);
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('some.field', finalValuePlainText);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'some.field', newValue: finalValuePlainText });
   });
 
   it('should show aria-describedby if textResourceBindings.description is present', async () => {
