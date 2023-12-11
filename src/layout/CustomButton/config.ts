@@ -47,4 +47,4 @@ export const Config = new CG.component({
         .exportAs('CustomButtonStyle'),
     ),
   )
-  .addTextResource(new CG.trb({ name: 'label', title: 'label', description: 'The title of the button' }));
+  .addTextResource(new CG.trb({ name: 'title', title: 'Title', description: 'The title/text on the button' }));

@@ -196,7 +196,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
       variant={variant}
       aria-busy={mutation.isLoading}
     >
-      <Lang id={textResourceBindings?.label} />
+      <Lang id={textResourceBindings?.title} />
     </Button>
   );
 };
