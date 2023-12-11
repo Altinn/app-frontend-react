@@ -6,8 +6,7 @@ import type { AxiosResponse } from 'axios';
 
 import { FD } from 'src/features/formData/FormDataWrite';
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
-import { promiseMock, renderGenericComponentTest } from 'src/test/renderWithProviders';
-import type { AppQueries } from 'src/core/contexts/AppQueriesProvider';
+import { queryPromiseMock, renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { FDAction } from 'src/features/formData/FormDataWriteStateMachine';
 import type { IOption } from 'src/layout/common.generated';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
@@ -45,7 +44,7 @@ function MySuperSimpleInput() {
 }
 
 const render = async ({ component, genericProps, options, ...rest }: Props = {}) => {
-  const fetchOptions = promiseMock<AppQueries['fetchOptions']>();
+  const fetchOptions = queryPromiseMock('fetchOptions');
   const utils = await renderGenericComponentTest({
     type: 'Dropdown',
     renderer: (props) => (

@@ -58,14 +58,6 @@ type QueriesThatCannotBeMocked = 'fetchInstanceData' | 'fetchProcessState' | 'fe
 type MockableQueries = Omit<AppQueries, QueriesThatCannotBeMocked>;
 type UnMockableQueries = Pick<AppQueries, QueriesThatCannotBeMocked>;
 
-type MockedMutations = {
-  [fn in keyof AppMutations]: {
-    mock: AppMutations[fn];
-    resolve: (retVal: Awaited<ReturnType<AppMutations[fn]>>) => void;
-    reject: (error: Error) => void;
-  };
-};
-
 type ReduxAction = Parameters<ReturnType<typeof setupStore>['store']['dispatch']>[0];
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   renderer: () => React.ReactElement;
@@ -84,7 +76,7 @@ interface BaseRenderOptions extends ExtendedRenderOptions {
 const exampleGuid = '75154373-aed4-41f7-95b4-e5b5115c2edc';
 const exampleInstanceId = `512345/${exampleGuid}`;
 
-export function promiseMock<T extends (...args: unknown[]) => unknown>() {
+export function queryPromiseMock<T extends keyof AppQueriesContext>(_name: T) {
   const mock = jest.fn();
   const resolve = jest.fn();
   const reject = jest.fn();
@@ -97,22 +89,26 @@ export function promiseMock<T extends (...args: unknown[]) => unknown>() {
   );
 
   return { mock, resolve, reject } as unknown as {
-    mock: T;
-    resolve: (retVal: Awaited<ReturnType<T>>) => void;
+    mock: AppQueriesContext[T];
+    resolve: (retVal?: Awaited<ReturnType<AppQueriesContext[T]>>) => void;
     reject: (error: Error) => void;
   };
 }
 
-const makeMutationMocks = (): MockedMutations => ({
-  doAttachmentAddTag: promiseMock<AppMutations['doAttachmentAddTag']>(),
-  doAttachmentRemove: promiseMock<AppMutations['doAttachmentRemove']>(),
-  doAttachmentRemoveTag: promiseMock<AppMutations['doAttachmentRemoveTag']>(),
-  doAttachmentUpload: promiseMock<AppMutations['doAttachmentUpload']>(),
-  doInstantiate: promiseMock<AppMutations['doInstantiate']>(),
-  doInstantiateWithPrefill: promiseMock<AppMutations['doInstantiateWithPrefill']>(),
-  doProcessNext: promiseMock<AppMutations['doProcessNext']>(),
-  doSetCurrentParty: promiseMock<AppMutations['doSetCurrentParty']>(),
-  doPutFormData: promiseMock<AppMutations['doPutFormData']>(),
+export const makeMutationMocks = <T extends (name: keyof AppMutations) => any>(
+  makeMock: T,
+): {
+  [fn in keyof AppMutations]: ReturnType<T>;
+} => ({
+  doAttachmentAddTag: makeMock('doAttachmentAddTag'),
+  doAttachmentRemove: makeMock('doAttachmentRemove'),
+  doAttachmentRemoveTag: makeMock('doAttachmentRemoveTag'),
+  doAttachmentUpload: makeMock('doAttachmentUpload'),
+  doPutFormData: makeMock('doPutFormData'),
+  doSetCurrentParty: makeMock('doSetCurrentParty'),
+  doInstantiate: makeMock('doInstantiate'),
+  doProcessNext: makeMock('doProcessNext'),
+  doInstantiateWithPrefill: makeMock('doInstantiateWithPrefill'),
 });
 
 const makeDefaultQueryMocks = (state: IRuntimeState): MockableQueries => ({
@@ -222,20 +218,25 @@ function MinimalProviders({ children, store, queries, queryClient, Router = Defa
   );
 }
 
-const renderBase = async ({
-  renderer,
-  router,
-  queries = {},
-  waitUntilLoaded = true,
-  unMockableQueries = {},
-  reduxState,
-  reduxGateKeeper = defaultReduxGateKeeper,
-  Providers = DefaultProviders,
-  ...renderOptions
-}: BaseRenderOptions) => {
+interface SetupFakeAppProps {
+  queries?: Partial<MockableQueries>;
+  mutations?: Partial<AppMutations>;
+  unMockableQueries?: Partial<UnMockableQueries>;
+  reduxState?: IRuntimeState;
+}
+
+/**
+ * This function bootstraps everything that is necessary to render a component with the same setup as the real app,
+ * but with some default mocks for the queries and mutations, and a sensible state. This is exported so you can
+ * use it when testing difficult problems that are unsuitable for unit tests.
+ *
+ * As an example, if you want to reproduce a bug in a browser (with all the nice React developer tools available there,
+ * which may not be available in a unit test context) you can use this function to render all the basic providers
+ * needed to render a component in something that looks like an app.
+ */
+export function setupFakeApp({ reduxState, queries, mutations, unMockableQueries }: SetupFakeAppProps = {}) {
   const state = reduxState || getInitialStateMock();
   const { store } = setupStore(state);
-  const mutations = makeMutationMocks();
 
   const queryClient = new QueryClient({
     logger: {
@@ -252,7 +253,58 @@ const renderBase = async ({
     },
   });
 
+  const finalQueries: AppQueries = {
+    ...makeDefaultQueryMocks(state),
+    ...queries,
+    ...unMockableQueriesDefaults,
+    ...unMockableQueries,
+  };
+
+  const finalMutations: AppMutations = {
+    ...makeMutationMocks((name) => async () => {
+      alert(`Mutation called: ${name}`);
+      return undefined as any;
+    }),
+    ...mutations,
+  };
+
+  return {
+    state,
+    store,
+    queryClient,
+    queries: {
+      ...finalQueries,
+      ...finalMutations,
+    },
+    queriesOnly: finalQueries,
+    mutationsOnly: finalMutations,
+  };
+}
+
+const renderBase = async ({
+  renderer,
+  router,
+  queries = {},
+  waitUntilLoaded = true,
+  unMockableQueries = {},
+  reduxState,
+  reduxGateKeeper = defaultReduxGateKeeper,
+  Providers = DefaultProviders,
+  ...renderOptions
+}: BaseRenderOptions) => {
   let isInitializing = !!waitUntilLoaded;
+  const {
+    state,
+    store,
+    queryClient,
+    queriesOnly: finalQueries,
+  } = setupFakeApp({
+    reduxState,
+    queries,
+    unMockableQueries,
+  });
+  const mutations = makeMutationMocks(queryPromiseMock);
+
   const originalDispatch = store.dispatch;
   const dispatchedActions: ReduxAction[] = [];
   const ignoredActions: ReduxAction[] = [];
@@ -271,13 +323,6 @@ const renderBase = async ({
       performDispatch && originalDispatch(action);
     });
   }
-
-  const finalQueries: AppQueries = {
-    ...makeDefaultQueryMocks(state),
-    ...queries,
-    ...unMockableQueriesDefaults,
-    ...unMockableQueries,
-  };
 
   const queryMocks = Object.fromEntries(
     Object.entries(finalQueries).map(([key, value]) => [key, jest.fn().mockImplementation(value)]),
