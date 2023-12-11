@@ -33,6 +33,7 @@ import {
 import {
   addVisibilityForAttachment,
   addVisibilityForNode,
+  getRawVisibilityForNode,
   getResolvedVisibilityForAttachment,
   getResolvedVisibilityForNode,
   onBeforeRowDelete,
@@ -76,6 +77,10 @@ export function ValidationContext({ children }) {
 
     setFrontendValidations((state) => {
       mergeFormValidations(state, newValidations);
+    });
+
+    validating().then(() => {
+      evaluateNodeVisibility(changedNodes);
     });
   });
 
@@ -132,6 +137,22 @@ export function ValidationContext({ children }) {
       await new Promise((resolve) => requestAnimationFrame(resolve));
     } while (pending.current);
   }, []);
+
+  const evaluateNodeVisibility = useEffectEvent((nodes: LayoutNode[]) => {
+    setVisibility((state) => {
+      for (const node of nodes) {
+        const currentValidationMask = getValidationsForNode(
+          node,
+          validations,
+          ValidationMask.All_Including_Backend,
+        ).reduce((mask, validation) => mask | validation.category, 0);
+
+        const currentVisibilityMask = getRawVisibilityForNode(node, state);
+
+        setVisibilityForNode(node, state, currentValidationMask & currentVisibilityMask);
+      }
+    });
+  });
 
   // Set visibility for a node
   const setNodeVisibility = useEffectEvent(
@@ -198,13 +219,17 @@ export function useOnGroupCloseValidation() {
   const callback = useEffectEvent((node: LayoutNode, rowIndex: number, masks: ValidationMasks): boolean => {
     const mask = getVisibilityMask(masks);
 
-    const hasErrors = node
+    const nodesWithErrors = node
       .flat(true, rowIndex)
       .filter(shouldValidateNode)
-      .some((n) => getValidationsForNode(n, state, mask, 'error').length > 0);
+      .filter((n) => getValidationsForNode(n, state, mask, 'error').length > 0);
 
-    setNodeVisibility([node], hasErrors ? mask : 0, rowIndex);
-    return hasErrors;
+    if (nodesWithErrors.length > 0) {
+      setNodeVisibility(nodesWithErrors, mask);
+      return true;
+    }
+
+    return false;
   });
 
   return useCallback(
@@ -225,7 +250,6 @@ export const useOnDeleteGroupRow = () => useCtx().removeRowVisibilityOnDelete;
  */
 export function useOnPageValidation() {
   const setNodeVisibility = useCtx().setNodeVisibility;
-  const setRootVisibility = useCtx().setRootVisibility;
   const state = useCtx().state;
   const validating = useCtx().validating;
   const pageOrder = useAppSelector((state) => state.formLayout.uiConfig.pageOrderConfig.order);
@@ -236,15 +260,10 @@ export function useOnPageValidation() {
     const masks = config.show;
 
     const mask = getVisibilityMask(masks);
+    let nodes: LayoutNode[] = [];
 
     if (pageConfig === 'current') {
-      const hasErrors = currentPage
-        .flat(true)
-        .filter(shouldValidateNode)
-        .some((n) => getValidationsForNode(n, state, mask, 'error').length > 0);
-
-      setNodeVisibility([currentPage], hasErrors ? mask : 0);
-      return hasErrors;
+      nodes = currentPage.flat(true);
     } else if (pageConfig === 'currentAndPrevious') {
       const currentIndex = pageOrder?.indexOf(currentPage.top.myKey);
       if (!pageOrder || !currentIndex) {
@@ -252,22 +271,21 @@ export function useOnPageValidation() {
       }
       const pageKeysToCheck = pageOrder.slice(0, currentIndex + 1);
       const layoutPagesToCheck = pageKeysToCheck.map((key) => currentPage.top.collection.all()[key]);
-      const hasErrors = layoutPagesToCheck
-        .flatMap((page) => page.flat(true))
-        .filter(shouldValidateNode)
-        .some((n) => getValidationsForNode(n, state, mask, 'error').length > 0);
-
-      setNodeVisibility(layoutPagesToCheck, hasErrors ? mask : 0);
-      return hasErrors;
+      nodes = layoutPagesToCheck.flatMap((page) => page.flat(true));
     } else {
-      const hasErrors = currentPage.top.collection
-        .allNodes()
-        .filter(shouldValidateNode)
-        .some((n) => getValidationsForNode(n, state, mask, 'error').length > 0);
-
-      setRootVisibility(hasErrors ? mask : 0);
-      return hasErrors;
+      nodes = currentPage.top.collection.allNodes();
     }
+
+    const nodesWithErrors = nodes
+      .filter(shouldValidateNode)
+      .filter((n) => getValidationsForNode(n, state, mask, 'error').length > 0);
+
+    if (nodesWithErrors.length > 0) {
+      setNodeVisibility(nodesWithErrors, mask);
+      return true;
+    }
+
+    return false;
   });
 
   return useCallback(
@@ -280,35 +298,38 @@ export function useOnPageValidation() {
 }
 
 export function useOnFormSubmitValidation() {
-  const setRootVisibility = useCtx().setRootVisibility;
+  const setNodeVisibility = useCtx().setNodeVisibility;
   const state = useCtx().state;
   const validating = useCtx().validating;
 
   /* Ensures the callback will have the latest state */
   const callback = useEffectEvent((layoutPages: LayoutPages): boolean => {
-    const hasFrontendErrors = layoutPages
+    const nodesWithFrontendErrors = layoutPages
       .allNodes()
       .filter(shouldValidateNode)
-      .some((n) => getValidationsForNode(n, state, ValidationMask.All, 'error').length > 0);
+      .filter((n) => getValidationsForNode(n, state, ValidationMask.All, 'error').length > 0);
 
-    if (hasFrontendErrors) {
-      setRootVisibility(ValidationMask.All);
+    if (nodesWithFrontendErrors.length > 0) {
+      setNodeVisibility(nodesWithFrontendErrors, ValidationMask.All);
       return true;
     }
 
-    const hasAnyErrors =
-      hasValidationErrors(state.task) ||
-      layoutPages
-        .allNodes()
-        .filter(shouldValidateNode)
-        .some((n) => getValidationsForNode(n, state, ValidationMask.All_Including_Backend, 'error').length > 0);
+    const nodesWithAnyErrors = layoutPages
+      .allNodes()
+      .filter(shouldValidateNode)
+      .filter((n) => getValidationsForNode(n, state, ValidationMask.All_Including_Backend, 'error').length > 0);
 
-    if (hasAnyErrors) {
-      setRootVisibility(ValidationMask.All_Including_Backend);
+    if (nodesWithAnyErrors.length > 0) {
+      setNodeVisibility(nodesWithAnyErrors, ValidationMask.All_Including_Backend);
       return true;
     }
 
-    setRootVisibility(0);
+    // TODO(Validation): Set visibility for task errors somehow
+    // eslint-disable-next-line sonarjs/prefer-single-boolean-return
+    if (hasValidationErrors(state.task)) {
+      return true;
+    }
+
     return false;
   });
 

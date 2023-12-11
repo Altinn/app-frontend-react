@@ -14,6 +14,7 @@ import type { IAttachments, UploadedAttachment } from 'src/features/attachments'
 import type { ValidationMasks } from 'src/layout/common.generated';
 import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 export function isFieldValidation(validation: ComponentValidation | FieldValidation): validation is FieldValidation {
   return 'field' in validation;
@@ -164,6 +165,13 @@ export function getValidationsForNode(
     }
   }
   return validationMessages;
+}
+
+export function getInitialMaskFromNode(node: LayoutNode | LayoutPage): number {
+  if ('showValidations' in node.item) {
+    return getVisibilityMask(node.item.showValidations);
+  }
+  return 0;
 }
 
 export function getVisibilityMask(maskKeys?: ValidationMasks): number {

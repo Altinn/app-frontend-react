@@ -1,5 +1,4 @@
-import { ValidationMask } from '.';
-
+import { getInitialMaskFromNode } from 'src/features/validation/utils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
@@ -68,13 +67,7 @@ function deleteChildVisibility(visibility: Visibility, key: PathItem): void {
 
 export function addVisibilityForNode(node: LayoutNode, state: Visibility): void {
   const path = getPathFromRoot(node);
-  let initialMask = 0;
-
-  if ('showValidations' in node.item && node.item.showValidations) {
-    for (const maskKey of node.item.showValidations) {
-      initialMask = initialMask | ValidationMask[maskKey];
-    }
-  }
+  const initialMask = getInitialMaskFromNode(node);
 
   // Make sure each node in the path is defined, if not initialize to zero
   // It should get set to its proper initial value once it is explicitly set
@@ -172,6 +165,12 @@ function getVisibilityFromPath(path: PathItem[], state: Visibility): Visibility 
   return currentVisibility;
 }
 
+export function getRawVisibilityForNode(node: LayoutNode, state: Visibility): number {
+  const path = getPathFromRoot(node);
+  const visibility = getVisibilityFromPath(path, state);
+  return visibility?.mask ?? 0;
+}
+
 export function getResolvedVisibilityForNode(node: LayoutNode, state: Visibility): number {
   let mask = state.mask;
 
@@ -224,7 +223,9 @@ export function setVisibilityForNode(
     return;
   }
 
-  visibility.mask = mask;
+  const initialMask = getInitialMaskFromNode(node);
+
+  visibility.mask = mask | initialMask;
 }
 
 export function setVisibilityForAttachment(attachmentId: string, node: LayoutNode, state: Visibility, mask: number) {
