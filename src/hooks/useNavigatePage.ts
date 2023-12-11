@@ -109,6 +109,9 @@ export const useNavigatePage = () => {
       if (!page) {
         return;
       }
+      if (!order.includes(page)) {
+        return;
+      }
       setFocusId(options?.focusComponentId);
       if (options?.returnToView) {
         setReturnToView(options.returnToView);
