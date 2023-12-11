@@ -104,13 +104,7 @@ export function FormDataWriteProvider({ url, initialData, children }: FormDataWr
   const [state, _dispatch] = useFormDataWriteStateMachine(initialData);
   const dispatchGatekeeper = useFormDataWriteDispatchGatekeeper();
   const dispatch = useCallback(
-    (action: FDAction) => {
-      if (action.type === 'initialFetch') {
-        _dispatch(action);
-        return;
-      }
-      dispatchGatekeeper(action) && _dispatch(action);
-    },
+    (action: FDAction) => dispatchGatekeeper(action) && _dispatch(action),
     [_dispatch, dispatchGatekeeper],
   );
 
@@ -139,20 +133,14 @@ export function FormDataWriteProvider({ url, initialData, children }: FormDataWr
     }
   }, [mutate, hasUnsavedDebouncedChanges, state.debouncedCurrentData, isSaving, state.lastSavedData, url]);
 
-  const setLeafValue = useCallback(
-    (path: string, newValue: any) => dispatch({ type: 'setLeafValue', path, newValue }),
-    [dispatch],
-  );
-  const appendToListUnique = useCallback(
-    (path: string, newValue: any) => dispatch({ type: 'appendToListUnique', path, newValue }),
-    [dispatch],
-  );
-  const removeIndexFromList = useCallback(
-    (path: string, index: number) => dispatch({ type: 'removeIndexFromList', path, index }),
-    [dispatch],
-  );
-  const removeValueFromList = useCallback(
-    (path: string, value: any) => dispatch({ type: 'removeValueFromList', path, value }),
+  const methods = useMemo(
+    () =>
+      ({
+        setLeafValue: (path, newValue) => dispatch({ type: 'setLeafValue', path, newValue }),
+        appendToListUnique: (path, newValue) => dispatch({ type: 'appendToListUnique', path, newValue }),
+        removeIndexFromList: (path, index) => dispatch({ type: 'removeIndexFromList', path, index }),
+        removeValueFromList: (path, value) => dispatch({ type: 'removeValueFromList', path, value }),
+      }) as Methods,
     [dispatch],
   );
 
@@ -162,13 +150,7 @@ export function FormDataWriteProvider({ url, initialData, children }: FormDataWr
         hasUnsavedChanges,
         hasUnsavedDebouncedChanges,
         isSaving,
-
-        methods: {
-          setLeafValue,
-          appendToListUnique,
-          removeIndexFromList,
-          removeValueFromList,
-        },
+        methods,
         ...state,
       }}
     >

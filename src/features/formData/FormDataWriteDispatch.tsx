@@ -1,7 +1,7 @@
 import { createContext } from 'src/core/contexts/context';
-import type { FDActionExceptInitialFetch } from 'src/features/formData/FormDataWriteStateMachine';
+import type { FDAction } from 'src/features/formData/FormDataWriteStateMachine';
 
-type Gatekeeper = (action: FDActionExceptInitialFetch) => boolean;
+type Gatekeeper = (action: FDAction) => boolean;
 
 /**
  * You can provide your own gatekeeper if you want to decide which actions internal to the FormDataWriter state

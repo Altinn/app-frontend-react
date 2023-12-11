@@ -40,6 +40,11 @@ function useFormDataQuery() {
   const enabled = url !== undefined;
   const { fetchFormData } = useAppQueries();
   const utils = useQuery({
+    // Form data is only fetched to initially populate the context, after that we keep the state internally
+    // and push it back to the server.
+    cacheTime: 0,
+    retry: false,
+
     queryKey: ['fetchFormData', url, currentTaskId],
     queryFn: async () => await fetchFormData(url!, options),
     enabled,

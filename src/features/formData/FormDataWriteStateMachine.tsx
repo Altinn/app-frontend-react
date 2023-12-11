@@ -45,11 +45,6 @@ type ImplementationMap = {
   [Key in FDActionTypes]: Implementation<Key>;
 };
 
-interface FDActionInitialFetch {
-  type: 'initialFetch';
-  data: object;
-}
-
 interface FDActionSaveFinished {
   type: 'saveFinished';
   savedData: object;
@@ -91,23 +86,15 @@ export type FDAction =
   | FDActionRemoveIndexFromList
   | FDActionRemoveValueFromList
   | FDActionSetMultiLeafValues
-  | FDActionInitialFetch
   | FDActionSaveFinished
   | FDActionFreeze;
 
-export type FDActionExceptInitialFetch = Exclude<FDAction, FDActionInitialFetch>;
-
 const actions: ImplementationMap = {
-  initialFetch: (state, { data }) => {
-    state.currentData = data;
-    state.debouncedCurrentData = data;
-    state.lastSavedData = data;
-  },
-  freeze: (state, _, _ruleConnections) => {
+  freeze: (state, _, ruleConnections) => {
     const currentDataFlat = dot.dot(state.currentData);
     const debouncedCurrentDataFlat = dot.dot(state.debouncedCurrentData);
     const diff = diffModels(currentDataFlat, debouncedCurrentDataFlat);
-    const changes = runLegacyRules(_ruleConnections, currentDataFlat, new Set(Object.keys(diff)));
+    const changes = runLegacyRules(ruleConnections, currentDataFlat, new Set(Object.keys(diff)));
     for (const { path, newValue } of changes) {
       dot.str(path, newValue, state.currentData);
     }
@@ -221,22 +208,13 @@ const createReducer =
     throw new Error(`Unknown action type ${action.type}`);
   };
 
-// Defining one single object to be used as the initial state. This affects comparisons in useEffect(), etc, so that
-// we don't interpret the initial state as a change (because currentData !== lastSavedData).
-const initialEmptyObject = {};
-const initialState: FormDataStorage = {
-  currentData: initialEmptyObject,
-  debouncedCurrentData: initialEmptyObject,
-  lastSavedData: initialEmptyObject,
-};
-
 export const useFormDataWriteStateMachine = (initialData: object) => {
   const ruleConnections = useAppSelector((state) => state.formDynamics.ruleConnection);
-  const [state, dispatch] = useImmerReducer<FormDataStorage, FDAction>(createReducer(ruleConnections), initialState);
-
-  useEffect(() => {
-    dispatch({ type: 'initialFetch', data: initialData });
-  }, [initialData, dispatch]);
+  const [state, dispatch] = useImmerReducer<FormDataStorage, FDAction>(createReducer(ruleConnections), {
+    currentData: initialData,
+    debouncedCurrentData: initialData,
+    lastSavedData: initialData,
+  });
 
   // Freeze the data model when the user stops typing. Freezing it has the effect of triggering a useEffect in
   // FormDataWriteProvider, which will save the data model to the server.
@@ -251,10 +229,6 @@ export const useFormDataWriteStateMachine = (initialData: object) => {
       clearTimeout(timer);
     };
   }, [dispatch, state.currentData, state.debouncedCurrentData]);
-
-  useEffect(() => {
-    console.log('debug, useFormDataStateMachine, state change', state);
-  }, [state]);
 
   return [state, dispatch] as const;
 };
