@@ -7,7 +7,6 @@ import type { AxiosResponse } from 'axios';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
 import { queryPromiseMock, renderGenericComponentTest } from 'src/test/renderWithProviders';
-import type { FDAction } from 'src/features/formData/FormDataWriteStateMachine';
 import type { IOption } from 'src/layout/common.generated';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
@@ -82,19 +81,15 @@ const render = async ({ component, genericProps, options, ...rest }: Props = {})
 
 describe('DropdownComponent', () => {
   it('should trigger dispatchFormData when option is selected', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       options: countries,
     });
 
-    expect(dispatchFormData).not.toHaveBeenCalled();
+    expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
     await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(screen.getByText('Sweden'));
 
-    expect(dispatchFormData).toHaveBeenCalledWith({
-      type: 'setLeafValue',
-      path: 'myDropdown',
-      newValue: 'sweden',
-    } as FDAction);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myDropdown', 'sweden');
   });
 
   it('should show as disabled when readOnly is true', async () => {
@@ -122,46 +117,34 @@ describe('DropdownComponent', () => {
   });
 
   it('should trigger dispatchFormData when preselectedOptionIndex is set', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       component: {
         preselectedOptionIndex: 2,
       },
       options: countries,
     });
 
-    await waitFor(() =>
-      expect(dispatchFormData).toHaveBeenCalledWith({
-        type: 'setLeafValue',
-        path: 'myDropdown',
-        newValue: 'denmark',
-      } as FDAction),
-    );
-    expect(dispatchFormData).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myDropdown', 'denmark'));
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1);
   });
 
   it('should trigger dispatchFormData instantly on blur', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       component: {
         preselectedOptionIndex: 2,
       },
       options: countries,
     });
 
-    await waitFor(() =>
-      expect(dispatchFormData).toHaveBeenCalledWith({
-        type: 'setLeafValue',
-        path: 'myDropdown',
-        newValue: 'denmark',
-      } as FDAction),
-    );
+    await waitFor(() => expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myDropdown', 'denmark'));
     const select = screen.getByRole('combobox');
 
-    expect(dispatchFormData).toHaveBeenCalledTimes(1);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1);
 
     await userEvent.click(select);
     await userEvent.tab();
 
-    expect(dispatchFormData).toHaveBeenCalledTimes(1);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1);
   });
 
   it('should show spinner', async () => {
@@ -207,7 +190,7 @@ describe('DropdownComponent', () => {
   });
 
   it('should present replaced label if setup with values from repeating group in redux and trigger dispatchFormData with replaced values', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       component: {
         optionsId: undefined,
         source: {
@@ -218,26 +201,18 @@ describe('DropdownComponent', () => {
       },
     });
 
-    expect(dispatchFormData).not.toHaveBeenCalled();
+    expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
     await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(screen.getByText('The value from the group is: Label for first'));
 
-    expect(dispatchFormData).toHaveBeenCalledWith({
-      type: 'setLeafValue',
-      path: 'myDropdown',
-      newValue: 'Value for first',
-    } as FDAction);
-    expect(dispatchFormData).toHaveBeenCalledTimes(1);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myDropdown', 'Value for first');
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1);
 
     await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(screen.getByText('The value from the group is: Label for second'));
 
-    expect(dispatchFormData).toHaveBeenCalledWith({
-      type: 'setLeafValue',
-      path: 'myDropdown',
-      newValue: 'Value for second',
-    } as FDAction);
-    expect(dispatchFormData).toHaveBeenCalledTimes(2);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myDropdown', 'Value for second');
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(2);
   });
 
   it('should present the options list in the order it is provided when sortOrder is not specified', async () => {

@@ -7,7 +7,6 @@ import type { AxiosResponse } from 'axios';
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
 import { LayoutStyle } from 'src/layout/common.generated';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
-import type { FDAction } from 'src/features/formData/FormDataWriteStateMachine';
 import type { IOption } from 'src/layout/common.generated';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
@@ -65,7 +64,7 @@ const getCheckbox = ({ name, isChecked = false }) =>
 
 describe('CheckboxesContainerComponent', () => {
   it('should call dispatchFormData with value of preselectedOptionIndex when simpleBinding is not set', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       component: {
         preselectedOptionIndex: 1,
       },
@@ -73,16 +72,12 @@ describe('CheckboxesContainerComponent', () => {
     });
 
     await waitFor(() => {
-      expect(dispatchFormData).toHaveBeenCalledWith({
-        type: 'setLeafValue',
-        path: 'selectedValues',
-        newValue: 'sweden',
-      } as FDAction);
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('selectedValues', 'sweden');
     });
   });
 
   it('should not call dispatchFormData when simpleBinding is set and preselectedOptionIndex', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       component: {
         preselectedOptionIndex: 0,
       },
@@ -93,11 +88,11 @@ describe('CheckboxesContainerComponent', () => {
     expect(getCheckbox({ name: 'Norway' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark', isChecked: true })).toBeInTheDocument();
-    expect(dispatchFormData).not.toHaveBeenCalled();
+    expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
   });
 
   it('should show several checkboxes as selected based on values in simpleBinding', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       options: threeOptions,
       formData: 'norway,denmark',
     });
@@ -105,20 +100,20 @@ describe('CheckboxesContainerComponent', () => {
     expect(getCheckbox({ name: 'Norway', isChecked: true })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark', isChecked: true })).toBeInTheDocument();
-    expect(dispatchFormData).not.toHaveBeenCalled();
+    expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
   });
 
   it('should not set any as selected when no binding and no preselectedOptionIndex is set', async () => {
-    const { dispatchFormData } = await render({ options: threeOptions });
+    const { formDataMethods } = await render({ options: threeOptions });
 
     expect(getCheckbox({ name: 'Norway' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark' })).toBeInTheDocument();
-    expect(dispatchFormData).not.toHaveBeenCalled();
+    expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
   });
 
   it('should call dispatchFormData with updated values when selection changes', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       options: threeOptions,
       formData: 'norway',
     });
@@ -128,20 +123,16 @@ describe('CheckboxesContainerComponent', () => {
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark' })).toBeInTheDocument();
 
-    expect(dispatchFormData).not.toHaveBeenCalled();
+    expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
     await userEvent.click(getCheckbox({ name: 'Denmark' }));
 
     await waitFor(() => {
-      expect(dispatchFormData).toHaveBeenCalledWith({
-        type: 'setLeafValue',
-        path: 'selectedValues',
-        newValue: 'norway,denmark',
-      } as FDAction);
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('selectedValues', 'norway,denmark');
     });
   });
 
   it('should call dispatchFormData with updated values when deselecting item', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       options: threeOptions,
       formData: 'norway,denmark',
     });
@@ -151,20 +142,16 @@ describe('CheckboxesContainerComponent', () => {
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark', isChecked: true })).toBeInTheDocument();
 
-    expect(dispatchFormData).not.toHaveBeenCalled();
+    expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
     await userEvent.click(getCheckbox({ name: 'Denmark', isChecked: true }));
 
     await waitFor(() => {
-      expect(dispatchFormData).toHaveBeenCalledWith({
-        type: 'setLeafValue',
-        path: 'selectedValues',
-        newValue: 'norway',
-      } as FDAction);
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('selectedValues', 'norway');
     });
   });
 
   it('should call handleDataChange instantly on blur when the value has changed', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       options: threeOptions,
       formData: 'norway',
     });
@@ -172,19 +159,15 @@ describe('CheckboxesContainerComponent', () => {
     const denmark = getCheckbox({ name: 'Denmark' });
     expect(denmark).toBeInTheDocument();
 
-    expect(dispatchFormData).not.toHaveBeenCalled();
+    expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
     await userEvent.click(denmark);
     fireEvent.blur(denmark);
 
-    expect(dispatchFormData).toHaveBeenCalledWith({
-      type: 'setLeafValue',
-      path: 'selectedValues',
-      newValue: 'norway,denmark',
-    } as FDAction);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('selectedValues', 'norway,denmark');
   });
 
   it('should not call handleDataChange on blur when the value is unchanged', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       options: threeOptions,
     });
 
@@ -193,11 +176,11 @@ describe('CheckboxesContainerComponent', () => {
     fireEvent.focus(getCheckbox({ name: 'Denmark' }));
     fireEvent.blur(getCheckbox({ name: 'Denmark' }));
 
-    expect(dispatchFormData).not.toHaveBeenCalled();
+    expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
   });
 
   it('should call handleDataChange onBlur with no commas in string when starting with empty string formData', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       options: threeOptions,
       formData: '',
     });
@@ -206,15 +189,11 @@ describe('CheckboxesContainerComponent', () => {
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark' })).toBeInTheDocument();
 
-    expect(dispatchFormData).not.toHaveBeenCalled();
+    expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
     await userEvent.click(getCheckbox({ name: 'Denmark' }));
 
     await waitFor(() => {
-      expect(dispatchFormData).toHaveBeenCalledWith({
-        type: 'setLeafValue',
-        path: 'selectedValues',
-        newValue: 'denmark',
-      } as FDAction);
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('selectedValues', 'denmark');
     });
   });
 
@@ -268,7 +247,7 @@ describe('CheckboxesContainerComponent', () => {
   });
 
   it('should present replaced label if setup with values from repeating group in redux and trigger dispatchFormData with replaced values', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       component: {
         optionsId: undefined,
         options: undefined,
@@ -299,15 +278,11 @@ describe('CheckboxesContainerComponent', () => {
     );
     expect(screen.getAllByText(/Help Text: The value from the group is: Label for second/)).toHaveLength(2);
 
-    expect(dispatchFormData).not.toHaveBeenCalled();
+    expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
     await userEvent.click(getCheckbox({ name: /The value from the group is: Label for second/ }));
 
     await waitFor(() => {
-      expect(dispatchFormData).toHaveBeenCalledWith({
-        type: 'setLeafValue',
-        path: 'someGroup[0].valueField',
-        newValue: 'Value for second',
-      } as FDAction);
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('someGroup[0].valueField', 'Value for second');
     });
   });
 });

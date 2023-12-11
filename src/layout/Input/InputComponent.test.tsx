@@ -5,7 +5,6 @@ import { userEvent } from '@testing-library/user-event';
 
 import { InputComponent } from 'src/layout/Input/InputComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
-import type { FDAction } from 'src/features/formData/FormDataWriteStateMachine';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
 describe('InputComponent', () => {
@@ -39,17 +38,13 @@ describe('InputComponent', () => {
 
   it('should call setLeafValue function after data change', async () => {
     const typedValue = 'test input';
-    const { dispatchFormData } = await render();
+    const { formDataMethods } = await render();
     const inputComponent = screen.getByRole('textbox');
 
     await userEvent.type(inputComponent, typedValue);
 
     expect(inputComponent).toHaveValue(typedValue);
-    expect(dispatchFormData).toHaveBeenCalledWith({
-      type: 'setLeafValue',
-      path: 'some.field',
-      newValue: typedValue,
-    } as FDAction);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('some.field', typedValue);
     expect(inputComponent).toHaveValue(typedValue);
   });
 
@@ -59,7 +54,7 @@ describe('InputComponent', () => {
     const typedValue = '789';
     const finalValuePlainText = `${inputValuePlainText}${typedValue}`;
     const finalValueFormatted = '$123,456,789';
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       component: {
         formatting: {
           number: {
@@ -79,11 +74,7 @@ describe('InputComponent', () => {
     await userEvent.tab();
 
     expect(inputComponent).toHaveValue(finalValueFormatted);
-    expect(dispatchFormData).toHaveBeenCalledWith({
-      type: 'setLeafValue',
-      path: 'some.field',
-      newValue: finalValuePlainText,
-    } as FDAction);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('some.field', finalValuePlainText);
   });
 
   it('should show aria-describedby if textResourceBindings.description is present', async () => {

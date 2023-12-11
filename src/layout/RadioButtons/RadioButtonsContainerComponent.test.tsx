@@ -6,7 +6,6 @@ import type { AxiosResponse } from 'axios';
 
 import { RadioButtonContainerComponent } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
-import type { FDAction } from 'src/features/formData/FormDataWriteStateMachine';
 import type { IOption } from 'src/layout/common.generated';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
@@ -65,24 +64,18 @@ const findRadio = ({ name, isChecked = false }) =>
 
 describe('RadioButtonsContainerComponent', () => {
   it('should call handleDataChange with value of preselectedOptionIndex when simpleBinding is not set', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       component: {
         preselectedOptionIndex: 1,
       },
       options: threeOptions,
     });
 
-    await waitFor(() =>
-      expect(dispatchFormData).toHaveBeenCalledWith({
-        type: 'setLeafValue',
-        path: 'myRadio',
-        newValue: 'sweden',
-      } as FDAction),
-    );
+    await waitFor(() => expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myRadio', 'sweden'));
   });
 
   it('should not call handleDataChange when simpleBinding is set and preselectedOptionIndex', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       component: {
         preselectedOptionIndex: 0,
       },
@@ -93,11 +86,11 @@ describe('RadioButtonsContainerComponent', () => {
     expect(await findRadio({ name: 'Sweden' })).toBeInTheDocument();
     expect(getRadio({ name: 'Denmark', isChecked: true })).toBeInTheDocument();
 
-    expect(dispatchFormData).not.toHaveBeenCalled();
+    expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
   });
 
   it('should not set any as selected when no binding and no preselectedOptionIndex is set', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       options: threeOptions,
     });
 
@@ -105,11 +98,11 @@ describe('RadioButtonsContainerComponent', () => {
     expect(getRadio({ name: 'Sweden' })).toBeInTheDocument();
     expect(getRadio({ name: 'Denmark' })).toBeInTheDocument();
 
-    expect(dispatchFormData).not.toHaveBeenCalled();
+    expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
   });
 
   it('should call handleDataChange with updated value when selection changes', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       options: threeOptions,
       formData: 'norway',
     });
@@ -121,23 +114,17 @@ describe('RadioButtonsContainerComponent', () => {
     expect(await findRadio({ name: 'Norway', isChecked: true })).toBeInTheDocument();
     expect(getRadio({ name: 'Sweden' })).toBeInTheDocument();
 
-    expect(dispatchFormData).not.toHaveBeenCalled();
+    expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
 
     const denmark = await waitFor(() => getRadio({ name: 'Denmark' }));
     expect(denmark).toBeInTheDocument();
     await userEvent.click(denmark);
 
-    await waitFor(() =>
-      expect(dispatchFormData).toHaveBeenCalledWith({
-        type: 'setLeafValue',
-        path: 'myRadio',
-        newValue: 'denmark',
-      } as FDAction),
-    );
+    await waitFor(() => expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myRadio', 'denmark'));
   });
 
   it('should call handleDataChange instantly on blur when the value has changed', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       options: threeOptions,
       formData: 'norway',
     });
@@ -146,18 +133,14 @@ describe('RadioButtonsContainerComponent', () => {
 
     expect(denmark).toBeInTheDocument();
 
-    expect(dispatchFormData).not.toHaveBeenCalled();
+    expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
     await userEvent.click(denmark);
     await userEvent.tab();
-    expect(dispatchFormData).toHaveBeenCalledWith({
-      type: 'setLeafValue',
-      path: 'myRadio',
-      newValue: 'denmark',
-    } as FDAction);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myRadio', 'denmark');
   });
 
   it('should not call handleDataChange on blur when the value is unchanged', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       options: threeOptions,
     });
 
@@ -169,11 +152,11 @@ describe('RadioButtonsContainerComponent', () => {
       fireEvent.blur(getRadio({ name: 'Denmark' }));
     });
 
-    expect(dispatchFormData).not.toHaveBeenCalled();
+    expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
   });
 
   it('should present replaced label, description and help text if setup with values from repeating group in redux and trigger handleDataChanged with replaced values', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       component: {
         optionsId: undefined,
         source: {
@@ -205,13 +188,9 @@ describe('RadioButtonsContainerComponent', () => {
       'Help Text: The value from the group is: Label for second',
     );
 
-    expect(dispatchFormData).not.toHaveBeenCalled();
+    expect(formDataMethods).not.toHaveBeenCalled();
     await userEvent.click(getRadio({ name: /The value from the group is: Label for first/ }));
-    expect(dispatchFormData).toHaveBeenCalledWith({
-      type: 'setLeafValue',
-      path: 'myRadio',
-      newValue: 'Value for first',
-    } as FDAction);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myRadio', 'Value for first');
   });
 
   it('should present the options list in the order it is provided when sortOrder is not specified', async () => {

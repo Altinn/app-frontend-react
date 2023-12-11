@@ -6,7 +6,6 @@ import { userEvent } from '@testing-library/user-event';
 import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
-import type { FDAction } from 'src/features/formData/FormDataWriteStateMachine';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
 // Mock dateformat
@@ -94,7 +93,7 @@ describe('DatepickerComponent', () => {
   });
 
   it('should call dispatchFormData when clicking date in calendar', async () => {
-    const { dispatchFormData } = await render();
+    const { formDataMethods } = await render();
 
     await userEvent.click(
       screen.getByRole('button', {
@@ -103,18 +102,16 @@ describe('DatepickerComponent', () => {
     );
     await userEvent.click(getCalendarDayButton('15'));
 
-    expect(dispatchFormData).toHaveBeenCalledWith({
-      type: 'setLeafValue',
-      path: 'myDate',
-
-      // Ignore TZ part of timestamp to avoid test failing when this changes
-      // Calendar opens up on current year/month by default, so we need to cater for this in the expected output
-      newValue: expect.stringContaining(`${currentYearNumeric}-${currentMonthNumeric}-15T12:00:00.000+`),
-    } as FDAction);
+    // Ignore TZ part of timestamp to avoid test failing when this changes
+    // Calendar opens up on current year/month by default, so we need to cater for this in the expected output
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith(
+      'myDate',
+      expect.stringContaining(`${currentYearNumeric}-${currentMonthNumeric}-15T12:00:00.000+`),
+    );
   });
 
   it('should call dispatchFormData if date is cleared', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       queries: {
         fetchFormData: async () => ({ myDate: '2022-12-31' }),
       },
@@ -122,71 +119,53 @@ describe('DatepickerComponent', () => {
 
     await userEvent.clear(screen.getByRole('textbox'));
 
-    expect(dispatchFormData).toHaveBeenCalledWith({
-      type: 'setLeafValue',
-      path: 'myDate',
-      newValue: '',
-    } as FDAction);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myDate', '');
   });
 
   it('should call dispatchFormData with formatted value (timestamp=true) if date is valid', async () => {
-    const { dispatchFormData } = await render({ component: { timeStamp: true } });
+    const { formDataMethods } = await render({ component: { timeStamp: true } });
 
     await userEvent.type(screen.getByRole('textbox'), '31122022');
 
-    expect(dispatchFormData).toHaveBeenCalledWith({
-      type: 'setLeafValue',
-      path: 'myDate',
-      newValue: expect.stringContaining('2022-12-31T12:00:00.000+'),
-    } as FDAction);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith(
+      'myDate',
+      expect.stringContaining('2022-12-31T12:00:00.000+'),
+    );
   });
 
   it('should call dispatchFormData with formatted value (timestamp=false) if date is valid', async () => {
-    const { dispatchFormData } = await render({ component: { timeStamp: false } });
+    const { formDataMethods } = await render({ component: { timeStamp: false } });
 
     await userEvent.type(screen.getByRole('textbox'), '31122022');
 
-    expect(dispatchFormData).toHaveBeenCalledWith({
-      type: 'setLeafValue',
-      path: 'myDate',
-      newValue: '2022-12-31',
-    } as FDAction);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myDate', '2022-12-31');
   });
 
   it('should call dispatchFormData with formatted value (timestamp=undefined) if date is valid', async () => {
-    const { dispatchFormData } = await render({ component: { timeStamp: undefined } });
+    const { formDataMethods } = await render({ component: { timeStamp: undefined } });
 
     await userEvent.type(screen.getByRole('textbox'), '31122022');
 
-    expect(dispatchFormData).toHaveBeenCalledWith({
-      type: 'setLeafValue',
-      path: 'myDate',
-      newValue: expect.stringContaining('2022-12-31T12:00:00.000+'),
-    } as FDAction);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith(
+      'myDate',
+      expect.stringContaining('2022-12-31T12:00:00.000+'),
+    );
   });
 
   it('should call dispatchFormData if date is invalid but finished filling out', async () => {
-    const { dispatchFormData } = await render();
+    const { formDataMethods } = await render();
 
     await userEvent.type(screen.getByRole('textbox'), '12345678');
 
-    expect(dispatchFormData).toHaveBeenCalledWith({
-      type: 'setLeafValue',
-      path: 'myDate',
-      newValue: '12.34.5678',
-    } as FDAction);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myDate', '12.34.5678');
   });
 
   it('should call dispatchFormData if not finished filling out the date', async () => {
-    const { dispatchFormData } = await render();
+    const { formDataMethods } = await render();
 
     await userEvent.type(screen.getByRole('textbox'), `1234`);
 
-    expect(dispatchFormData).toHaveBeenCalledWith({
-      type: 'setLeafValue',
-      path: 'myDate',
-      newValue: '12.34.____',
-    } as FDAction);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myDate', '12.34.____');
   });
 
   it('should have aria-describedby if textResourceBindings.description is present', async () => {

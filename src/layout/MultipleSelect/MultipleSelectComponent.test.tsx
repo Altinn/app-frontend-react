@@ -5,7 +5,6 @@ import { userEvent } from '@testing-library/user-event';
 
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
-import type { FDAction } from 'src/features/formData/FormDataWriteStateMachine';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
 const dummyLabel = 'dummyLabel';
@@ -56,7 +55,7 @@ describe('MultipleSelect', () => {
   });
 
   it('should remove item from comma separated form data on delete', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       queries: {
         fetchFormData: async () => ({ someField: 'value1,value2,value3' }),
       },
@@ -64,10 +63,6 @@ describe('MultipleSelect', () => {
 
     await userEvent.click(screen.getByRole('button', { name: /Slett label2/i }));
 
-    expect(dispatchFormData).toHaveBeenCalledWith({
-      type: 'setLeafValue',
-      path: 'someField',
-      newValue: 'value1,value3',
-    } as FDAction);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('someField', 'value1,value3');
   });
 });

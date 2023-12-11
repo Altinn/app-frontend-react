@@ -5,7 +5,6 @@ import { userEvent } from '@testing-library/user-event';
 
 import { TextAreaComponent } from 'src/layout/TextArea/TextAreaComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
-import type { FDAction } from 'src/features/formData/FormDataWriteStateMachine';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
 describe('TextAreaComponent', () => {
@@ -27,7 +26,7 @@ describe('TextAreaComponent', () => {
     const initialText = 'initial text content';
     const addedText = ' + added content';
 
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       queries: {
         fetchFormData: async () => ({
           myTextArea: initialText,
@@ -39,18 +38,14 @@ describe('TextAreaComponent', () => {
     await userEvent.type(textarea, addedText);
     await userEvent.tab();
 
-    expect(dispatchFormData).toHaveBeenCalledWith({
-      type: 'setLeafValue',
-      path: 'myTextArea',
-      newValue: `${initialText}${addedText}`,
-    } as FDAction);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('myTextArea', `${initialText}${addedText}`);
   });
 
   it('should not fire handleDataChange when readOnly is true', async () => {
     const initialText = 'initial text content';
     const addedText = ' + added content';
 
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       component: {
         readOnly: true,
       },
@@ -64,7 +59,7 @@ describe('TextAreaComponent', () => {
     const textarea = screen.getByRole('textbox');
     await userEvent.type(textarea, addedText);
 
-    expect(dispatchFormData).not.toHaveBeenCalled();
+    expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
   });
 
   it('should have aria-describedby attribute if textResourceBindings is present', async () => {

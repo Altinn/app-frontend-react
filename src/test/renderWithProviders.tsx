@@ -26,7 +26,7 @@ import { FooterLayoutProvider } from 'src/features/footer/FooterLayoutProvider';
 import { FormProvider } from 'src/features/form/FormContext';
 import { generateSimpleRepeatingGroups } from 'src/features/form/layout/repGroups/generateSimpleRepeatingGroups';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { FormDataWriteDispatchGatekeeperProvider } from 'src/features/formData/FormDataWriteDispatch';
+import { FormDataWriteGatekeepersProvider } from 'src/features/formData/FormDataWriteGatekeepers';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
 import { LanguageProvider } from 'src/features/language/LanguageProvider';
@@ -42,6 +42,7 @@ import { useNodes } from 'src/utils/layout/NodesContext';
 import type { AppMutations, AppQueries, AppQueriesContext } from 'src/core/contexts/AppQueriesProvider';
 import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
+import type { FormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
 import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
 import type { IOption } from 'src/layout/common.generated';
 import type { CompExternalExact, CompTypes, ILayoutCollection, ILayouts } from 'src/layout/layout';
@@ -148,6 +149,18 @@ const defaultReduxGateKeeper = (action: ReduxAction) =>
   // We'll allow all the deprecated actions by default, as these have no side effects and are needed for things
   // like the AllOptionsProvider (along with summary of options-components) to work
   !!(action && 'type' in action && action.type.startsWith('deprecated/'));
+
+export function makeDefaultFormDataMethodMocks(): FormDataWriteGatekeepers {
+  return {
+    setLeafValue: jest.fn().mockImplementation(() => true),
+    freeze: jest.fn().mockImplementation(() => true),
+    saveFinished: jest.fn().mockImplementation(() => true),
+    setMultiLeafValues: jest.fn().mockImplementation(() => true),
+    removeValueFromList: jest.fn().mockImplementation(() => true),
+    removeIndexFromList: jest.fn().mockImplementation(() => true),
+    appendToListUnique: jest.fn().mockImplementation(() => true),
+  };
+}
 
 function DefaultRouter({ children }: PropsWithChildren) {
   return (
@@ -431,8 +444,11 @@ export const renderWithoutInstanceAndLayout = async (props: ExtendedRenderOption
 export const renderWithInstanceAndLayout = async ({
   renderer,
   reduxState: _reduxState,
+  formDataMethods,
   ...renderOptions
-}: Omit<ExtendedRenderOptions, 'router'>) => {
+}: Omit<ExtendedRenderOptions, 'router'> & {
+  formDataMethods?: Partial<FormDataWriteGatekeepers>;
+}) => {
   const reduxState = _reduxState || getInitialStateMock();
   let foundComponents = false;
   const layouts = JSON.parse(JSON.stringify(reduxState.formLayout.layouts || {})) as ILayouts;
@@ -469,17 +485,20 @@ export const renderWithInstanceAndLayout = async ({
     );
   }
 
-  const dispatchGatekeeper = jest.fn().mockImplementation(() => true);
+  const _formDataMethods = {
+    ...makeDefaultFormDataMethodMocks(),
+    ...formDataMethods,
+  };
   return {
-    dispatchFormData: dispatchGatekeeper,
+    formDataMethods: _formDataMethods,
     ...(await renderBase({
       renderer: () => (
         <InstanceProvider>
-          <FormDataWriteDispatchGatekeeperProvider value={dispatchGatekeeper}>
+          <FormDataWriteGatekeepersProvider value={_formDataMethods}>
             <FormProvider>
               <WaitForNodes waitForAllNodes={true}>{renderer()}</WaitForNodes>
             </FormProvider>
-          </FormDataWriteDispatchGatekeeperProvider>
+          </FormDataWriteGatekeepersProvider>
         </InstanceProvider>
       ),
       unMockableQueries: {

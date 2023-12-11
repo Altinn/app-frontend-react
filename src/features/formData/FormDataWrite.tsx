@@ -5,14 +5,15 @@ import type { PropsWithChildren } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import dot from 'dot-object';
 import deepEqual from 'fast-deep-equal';
+import { useStore } from 'zustand';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { createContext } from 'src/core/contexts/context';
 import { diffModels } from 'src/features/formData/diffModels';
-import { useFormDataWriteDispatchGatekeeper } from 'src/features/formData/FormDataWriteDispatch';
 import { useFormDataWriteStateMachine } from 'src/features/formData/FormDataWriteStateMachine';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useMemoDeepEqual } from 'src/hooks/useMemoDeepEqual';
-import type { FDAction, FormDataStorage } from 'src/features/formData/FormDataWriteStateMachine';
+import type { FormDataContext } from 'src/features/formData/FormDataWriteStateMachine';
 import type { IFormData } from 'src/features/formData/index';
 import type { SaveWhileTyping } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
@@ -20,21 +21,7 @@ import type { IDataModelBindings } from 'src/layout/layout';
 export type FDValue = string | number | boolean | object | undefined | null | FDValue[];
 export type FDFreshness = 'current' | 'debounced';
 
-interface Methods {
-  setLeafValue: (path: string, newValue: any) => void;
-  appendToListUnique: (path: string, newValue: any) => void;
-  removeIndexFromList: (path: string, index: number) => void;
-  removeValueFromList: (path: string, item: any) => void;
-}
-
 type SetLeafValueForBindings<B extends IDataModelBindings> = (key: keyof Exclude<B, undefined>, newValue: any) => void;
-
-interface FormDataStorageExtended extends FormDataStorage {
-  isSaving: boolean;
-  hasUnsavedChanges: boolean;
-  hasUnsavedDebouncedChanges: boolean;
-  methods: Methods;
-}
 
 interface MutationArg {
   dataModelUrl: string;
@@ -42,10 +29,19 @@ interface MutationArg {
   diff: Record<string, any>;
 }
 
-const { Provider, useCtxSelector, useCtx } = createContext<FormDataStorageExtended>({
+const { Provider, useCtx: _useCtx } = createContext<ReturnType<typeof useFormDataWriteStateMachine>>({
   name: 'FormDataWrite',
   required: true,
 });
+
+function useSelector<U>(selector: (state: FormDataContext) => U): U {
+  const store = _useCtx();
+  if (!store) {
+    throw new Error('useSelector() must be used within a FormDataWriteProvider');
+  }
+
+  return useStore(store, selector);
+}
 
 function createFormDataRequestFromDiff(modelToSave: object, diff: object) {
   const data = new FormData();
@@ -54,8 +50,9 @@ function createFormDataRequestFromDiff(modelToSave: object, diff: object) {
   return data;
 }
 
-const useFormDataSaveMutation = (dispatch: React.Dispatch<FDAction>) => {
+const useFormDataSaveMutation = (ctx: FormDataContext) => {
   const { doPutFormData } = useAppMutations();
+  const { saveFinished } = ctx;
 
   return useMutation({
     mutationKey: ['saveFormData'],
@@ -65,22 +62,14 @@ const useFormDataSaveMutation = (dispatch: React.Dispatch<FDAction>) => {
 
       try {
         const metaData: any = await doPutFormData.call(dataModelUrl, data);
-        dispatch({
-          type: 'saveFinished',
-          savedData: newData,
-          changedFields: metaData?.changedFields,
-        });
+        saveFinished(newData, metaData?.changedFields);
       } catch (error) {
         if (error.response && error.response.status === 303) {
           // 303 means that data has been changed by calculation on server. Try to update from response.
           // Newer backends might not reply back with this special response code when there are changes, they
           // will just respond with the 'changedFields' property instead (see code handling this above).
           if (error.response.data?.changedFields) {
-            dispatch({
-              type: 'saveFinished',
-              savedData: newData,
-              changedFields: error.response.data.changedFields,
-            });
+            saveFinished(newData, error.response.data.changedFields);
           } else {
             // No changedFields property returned, try to fetch
             // TODO: Implement
@@ -101,24 +90,45 @@ interface FormDataWriterProps extends PropsWithChildren {
 }
 
 export function FormDataWriteProvider({ url, initialData, children }: FormDataWriterProps) {
-  const [state, _dispatch] = useFormDataWriteStateMachine(initialData);
-  const dispatchGatekeeper = useFormDataWriteDispatchGatekeeper();
-  const dispatch = useCallback(
-    (action: FDAction) => dispatchGatekeeper(action) && _dispatch(action),
-    [_dispatch, dispatchGatekeeper],
+  const store = useFormDataWriteStateMachine(initialData);
+  return (
+    <Provider value={store}>
+      <FormDataEffects url={url} />
+      {children}
+    </Provider>
   );
+}
 
-  const { mutate, isLoading: isSaving } = useFormDataSaveMutation(dispatch);
+function FormDataEffects({ url }: { url: string }) {
+  const store = _useCtx();
+  const state = useStore(store);
+  const { freeze, currentData, debouncedCurrentData, lastSavedData } = useStore(_useCtx());
+  const { mutate, isLoading: isSaving } = useFormDataSaveMutation(state);
+  const ruleConnections = useAppSelector((state) => state.formDynamics.ruleConnection);
 
-  const hasUnsavedChanges =
-    state.currentData !== state.lastSavedData && !deepEqual(state.currentData, state.lastSavedData);
-  const hasUnsavedDebouncedChanges =
-    state.debouncedCurrentData !== state.lastSavedData && !deepEqual(state.debouncedCurrentData, state.lastSavedData);
-
+  // Freeze the data model when the user stops typing. Freezing it has the effect of triggering a useEffect in
+  // FormDataWriteProvider, which will save the data model to the server.
   useEffect(() => {
+    const timer = setTimeout(() => {
+      if (currentData !== debouncedCurrentData) {
+        freeze(ruleConnections);
+      }
+    }, 400); // TODO: Make this configurable, per each component that makes changes
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [ruleConnections, freeze, currentData, debouncedCurrentData]);
+
+  // Save the data model when the data has been frozen to debouncedCurrentData and is different from the saved data
+  useEffect(() => {
+    const hasUnsavedDebouncedChanges =
+      debouncedCurrentData !== lastSavedData && !deepEqual(debouncedCurrentData, lastSavedData);
+
     if (hasUnsavedDebouncedChanges && !isSaving) {
-      const debouncedCurrentDataFlat = dot.dot(state.debouncedCurrentData);
-      const lastSavedDataFlat = dot.dot(state.lastSavedData);
+      console.log('debug, saving data model', debouncedCurrentData, lastSavedData);
+      const debouncedCurrentDataFlat = dot.dot(debouncedCurrentData);
+      const lastSavedDataFlat = dot.dot(lastSavedData);
       const diff = diffModels(debouncedCurrentDataFlat, lastSavedDataFlat);
 
       if (!Object.keys(diff).length) {
@@ -127,36 +137,13 @@ export function FormDataWriteProvider({ url, initialData, children }: FormDataWr
 
       mutate({
         dataModelUrl: url,
-        newData: state.debouncedCurrentData,
+        newData: debouncedCurrentData,
         diff,
       });
     }
-  }, [mutate, hasUnsavedDebouncedChanges, state.debouncedCurrentData, isSaving, state.lastSavedData, url]);
+  }, [mutate, lastSavedData, debouncedCurrentData, isSaving, url]);
 
-  const methods = useMemo(
-    () =>
-      ({
-        setLeafValue: (path, newValue) => dispatch({ type: 'setLeafValue', path, newValue }),
-        appendToListUnique: (path, newValue) => dispatch({ type: 'appendToListUnique', path, newValue }),
-        removeIndexFromList: (path, index) => dispatch({ type: 'removeIndexFromList', path, index }),
-        removeValueFromList: (path, value) => dispatch({ type: 'removeValueFromList', path, value }),
-      }) as Methods,
-    [dispatch],
-  );
-
-  return (
-    <Provider
-      value={{
-        hasUnsavedChanges,
-        hasUnsavedDebouncedChanges,
-        isSaving,
-        methods,
-        ...state,
-      }}
-    >
-      {children}
-    </Provider>
-  );
+  return null;
 }
 
 export const FD = {
@@ -166,7 +153,7 @@ export const FD = {
    * This will always give you the debounced (late) data, which may or may not be saved to the backend yet.
    */
   useDebouncedDotMap(): IFormData {
-    const debouncedCurrentData = useCtxSelector((v) => v.debouncedCurrentData);
+    const debouncedCurrentData = useSelector((v) => v.debouncedCurrentData);
     return useMemo(() => dot.dot(debouncedCurrentData), [debouncedCurrentData]);
   },
 
@@ -174,7 +161,7 @@ export const FD = {
    * This will return the form data as a deep object, just like the server sends it to us (and the way we send it back).
    */
   useAsObject: (freshness: FDFreshness = 'debounced') =>
-    useCtxSelector((v) => (freshness === 'current' ? v.currentData : v.debouncedCurrentData)),
+    useSelector((v) => (freshness === 'current' ? v.currentData : v.debouncedCurrentData)),
 
   /**
    * This returns a single value, as picked from the form data. The data is always converted to a string.
@@ -182,7 +169,7 @@ export const FD = {
    * Use this when you expect a string/leaf value, and provide that to a controlled React component
    */
   usePickFreshString: (path: string | undefined): string => {
-    const value = useCtxSelector((v) => (path ? dot.pick(path, v.currentData) : undefined));
+    const value = useSelector((v) => (path ? dot.pick(path, v.currentData) : undefined));
     return typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' ? value.toString() : '';
   },
 
@@ -193,7 +180,7 @@ export const FD = {
    */
   usePickFreshStrings: <B extends IDataModelBindings>(_bindings: B): { [key in keyof B]: string } => {
     const bindings = _bindings as any;
-    const { currentData } = useCtx();
+    const currentData = useSelector((s) => s.currentData);
 
     return useMemo(
       () =>
@@ -217,7 +204,7 @@ export const FD = {
    * If you only expect a string/leaf value, use usePickString() instead.
    */
   usePickFreshAny: (path: string | undefined): FDValue => {
-    const { currentData } = useCtx();
+    const currentData = useSelector((s) => s.currentData);
     return useMemoDeepEqual(path ? dot.pick(path, currentData) : undefined);
   },
 
@@ -230,7 +217,7 @@ export const FD = {
   useFreshBindings: <T extends IDataModelBindings | undefined>(
     bindings: T,
   ): T extends undefined ? Record<string, never> : { [key in keyof T]: FDValue } => {
-    const { currentData } = useCtx();
+    const currentData = useSelector((s) => s.currentData);
     const out: any = {};
     if (bindings) {
       for (const key of Object.keys(bindings)) {
@@ -245,16 +232,13 @@ export const FD = {
    * This returns the raw method for setting a value in the form data. This is useful if you want to
    * set a value in the form data.
    */
-  useSetLeafValue: () => {
-    const { methods } = useCtx();
-    return methods.setLeafValue;
-  },
+  useSetLeafValue: () => useSelector((s) => s.setLeafValue),
 
   /**
    * Use this hook to get a function you can use to set a single value in the form data, using a binding.
    */
   useSetForBinding: (binding: string | undefined, saveWhileTyping?: SaveWhileTyping) => {
-    const { methods } = useCtx();
+    const setLeafValue = useSelector((s) => s.setLeafValue);
 
     return useCallback(
       (newValue: any) => {
@@ -262,9 +246,9 @@ export const FD = {
           window.logWarn(`No data model binding found for ${binding}, silently ignoring request to save ${newValue}`);
           return;
         }
-        methods.setLeafValue(binding, newValue);
+        setLeafValue(binding, newValue);
       },
-      [binding, methods],
+      [binding, setLeafValue],
     );
   },
 
@@ -276,7 +260,7 @@ export const FD = {
     bindings: B,
     saveWhileTyping?: SaveWhileTyping,
   ): SetLeafValueForBindings<B> => {
-    const { methods } = useCtx();
+    const setLeafValue = useSelector((s) => s.setLeafValue);
 
     return useCallback(
       (key: keyof B, newValue: any) => {
@@ -288,9 +272,9 @@ export const FD = {
           );
           return;
         }
-        methods.setLeafValue(binding, newValue);
+        setLeafValue(binding, newValue);
       },
-      [bindings, methods],
+      [bindings, setLeafValue],
     );
   },
 
@@ -298,10 +282,7 @@ export const FD = {
    * Returns a function to append a value to a list. It checks if the value is already in the list, and if not,
    * it will append it. If the value is already in the list, it will not be appended.
    */
-  useAppendToListUnique: () => {
-    const { methods } = useCtx();
-    return methods.appendToListUnique;
-  },
+  useAppendToListUnique: () => useSelector((s) => s.appendToListUnique),
 
   /**
    * Returns a function to remove a value from a list, by index. You should try to avoid using this, as it might
@@ -309,17 +290,11 @@ export const FD = {
    * function twice in a row for index 0 will remove the first item in the list, even if the list has changed in
    * the meantime.
    */
-  useRemoveIndexFromList: () => {
-    const { methods } = useCtx();
-    return methods.removeIndexFromList;
-  },
+  useRemoveIndexFromList: () => useSelector((s) => s.removeIndexFromList),
 
   /**
    * Returns a function to remove a value from a list, by value. If your list contains unique values, this is the
    * safer alternative to useRemoveIndexFromList().
    */
-  useRemoveValueFromList: () => {
-    const { methods } = useCtx();
-    return methods.removeValueFromList;
-  },
+  useRemoveValueFromList: () => useSelector((s) => s.removeValueFromList),
 };

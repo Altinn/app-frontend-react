@@ -8,9 +8,8 @@ import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/Ap
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { FormDataReadWriteProvider } from 'src/features/formData/FormDataReadWrite';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { FormDataWriteDispatchGatekeeperProvider } from 'src/features/formData/FormDataWriteDispatch';
-import { renderWithMinimalProviders } from 'src/test/renderWithProviders';
-import type { FDAction } from 'src/features/formData/FormDataWriteStateMachine';
+import { FormDataWriteGatekeepersProvider } from 'src/features/formData/FormDataWriteGatekeepers';
+import { makeDefaultFormDataMethodMocks, renderWithMinimalProviders } from 'src/test/renderWithProviders';
 
 interface DataModelFlat {
   'obj1.prop1': string;
@@ -67,12 +66,12 @@ describe('FormData', () => {
       WriterObj2Prop1: 0,
     };
 
-    const dispatch = jest.fn().mockImplementation(() => true);
+    const formDataMethods = makeDefaultFormDataMethodMocks();
     const utils = await renderWithMinimalProviders({
       renderer: () => (
         <ApplicationMetadataProvider>
           <LayoutSetsProvider>
-            <FormDataWriteDispatchGatekeeperProvider value={dispatch}>
+            <FormDataWriteGatekeepersProvider value={formDataMethods}>
               <FormDataReadWriteProvider>
                 <DataModelReader
                   renderCounts={renderCounts}
@@ -105,7 +104,7 @@ describe('FormData', () => {
                   countKey='WriterObj2Prop1'
                 />
               </FormDataReadWriteProvider>
-            </FormDataWriteDispatchGatekeeperProvider>
+            </FormDataWriteGatekeepersProvider>
           </LayoutSetsProvider>
         </ApplicationMetadataProvider>
       ),
@@ -130,29 +129,34 @@ describe('FormData', () => {
       ...props,
     });
 
-    return { ...utils, dispatch, renderCounts };
+    return { ...utils, formDataMethods, renderCounts };
   }
 
   it('Form state changes should not affect other', async () => {
-    const { renderCounts, dispatch } = await render();
+    const { renderCounts, formDataMethods } = await render();
     expect(screen.getAllByTestId(/^reader-/).length).toBe(3);
     expect(screen.getAllByTestId(/^writer-/).length).toBe(3);
 
     const initialRenders = { ...renderCounts };
+    expect(initialRenders).toEqual({
+      ReaderObj1Prop1: 1,
+      ReaderObj1Prop2: 1,
+      ReaderObj2Prop1: 1,
+
+      WriterObj1Prop1: 1,
+      WriterObj1Prop2: 1,
+      WriterObj2Prop1: 1,
+    });
 
     // Change a value
     await userEvent.type(screen.getByTestId('writer-obj1.prop1'), 'a');
-    expect(dispatch).toHaveBeenCalledTimes(1);
-    expect(dispatch).toHaveBeenCalledWith({
-      type: 'setLeafValue',
-      path: 'obj1.prop1',
-      newValue: 'value1a',
-    } as FDAction);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('obj1.prop1', 'value1a');
 
     expect(renderCounts).toEqual({
       ...initialRenders,
-      WriterObj1Prop1: initialRenders.WriterObj1Prop1 + 1,
-      ReaderObj1Prop1: initialRenders.ReaderObj1Prop1 + 1,
+      ReaderObj1Prop1: 2,
+      WriterObj1Prop1: 2,
     });
   });
 });

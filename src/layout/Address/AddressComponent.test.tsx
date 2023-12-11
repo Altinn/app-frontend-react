@@ -6,7 +6,6 @@ import mockAxios from 'jest-mock-axios';
 
 import { AddressComponent } from 'src/layout/Address/AddressComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
-import type { FDAction } from 'src/features/formData/FormDataWriteStateMachine';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
 const render = async ({
@@ -69,7 +68,7 @@ describe('AddressComponent', () => {
   });
 
   it('should fire change event when user types into field, and field is blurred', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       component: {
         simplified: false,
       },
@@ -79,15 +78,11 @@ describe('AddressComponent', () => {
     await userEvent.type(address, 'Slottsplassen 1');
     await userEvent.tab();
 
-    expect(dispatchFormData).toHaveBeenCalledWith({
-      type: 'setLeafValue',
-      path: 'address',
-      newValue: 'Slottsplassen 1',
-    } as FDAction);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('address', 'Slottsplassen 1');
   });
 
   it('should not fire change event when readonly', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       component: {
         simplified: false,
         readOnly: true,
@@ -99,11 +94,11 @@ describe('AddressComponent', () => {
     await userEvent.type(address, 'Slottsplassen 1');
     await userEvent.tab();
 
-    expect(dispatchFormData).not.toHaveBeenCalled();
+    expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
   });
 
   it('should show error message on blur if zipcode is invalid, and not call handleDataChange', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       component: {
         required: true,
         simplified: false,
@@ -117,12 +112,12 @@ describe('AddressComponent', () => {
 
     const errorMessage = screen.getByText(/Postnummer er ugyldig\. Et postnummer består kun av 4 siffer\./i);
 
-    expect(dispatchFormData).not.toHaveBeenCalled();
+    expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
     expect(errorMessage).toBeInTheDocument();
   });
 
   it('should update postplace on mount', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       component: {
         required: true,
         simplified: false,
@@ -144,15 +139,11 @@ describe('AddressComponent', () => {
 
     await screen.findByDisplayValue('OSLO');
 
-    expect(dispatchFormData).toHaveBeenCalledWith({
-      type: 'setLeafValue',
-      path: 'postPlace',
-      newValue: 'OSLO',
-    } as FDAction);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('postPlace', 'OSLO');
   });
 
   it('should call change event when zipcode is valid', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       component: {
         required: true,
         simplified: false,
@@ -164,15 +155,11 @@ describe('AddressComponent', () => {
     await userEvent.type(field, '0001');
     await userEvent.tab();
 
-    expect(dispatchFormData).toHaveBeenCalledWith({
-      type: 'setLeafValue',
-      path: 'zipCode',
-      newValue: '0001',
-    } as FDAction);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('zipCode', '0001');
   });
 
   it('should call dispatch for post place when zip code is cleared', async () => {
-    const { dispatchFormData } = await render({
+    const { formDataMethods } = await render({
       queries: {
         fetchFormData: async () => ({ address: 'a', zipCode: '0001', postPlace: 'Oslo' }),
       },
@@ -184,16 +171,8 @@ describe('AddressComponent', () => {
     await userEvent.clear(screen.getByRole('textbox', { name: 'Postnr' }));
     await userEvent.tab();
 
-    expect(dispatchFormData).toHaveBeenCalledWith({
-      type: 'setLeafValue',
-      path: 'zipCode',
-      newValue: '',
-    } as FDAction);
-    expect(dispatchFormData).toHaveBeenCalledWith({
-      type: 'setLeafValue',
-      path: 'postPlace',
-      newValue: '',
-    } as FDAction);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('zipCode', '');
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith('postPlace', '');
   });
 
   it('should display error message coming from props', async () => {
