@@ -9,12 +9,11 @@ import { immer } from 'zustand/middleware/immer';
 
 import { diffModels } from 'src/features/formData/diffModels';
 import { useFormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
+import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/index';
 import { runLegacyRules } from 'src/features/formData/LegacyRules';
 import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { FormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
 import type { IFormData } from 'src/features/formData/index';
-
-export const DEFAULT_DEBOUNCE_TIMEOUT = 400;
 
 export interface FormDataState {
   // These values contain the current data model, with the values immediately available whenever the user is typing.
