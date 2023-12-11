@@ -13,6 +13,7 @@ import { asExpression } from 'src/features/expressions/validation';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { selectDataSourcesFromState } from 'src/utils/layout/hierarchy';
 import { useNodes } from 'src/utils/layout/NodesContext';
 import type { ExprConfig, Expression, ExprFunction } from 'src/features/expressions/types';
@@ -45,7 +46,7 @@ export const ExpressionPlayground = () => {
     },
   ]);
   const nodes = useNodes();
-  const currentPage = nodes?.current()?.top.myKey;
+  const { currentPageId } = useNavigatePage();
   const dataSources = useAppSelector(selectDataSourcesFromState);
   const formData = FD.useDebouncedDotMap();
 
@@ -211,7 +212,7 @@ export const ExpressionPlayground = () => {
                 .flat()
                 .map((n) => ({ label: n.item.id, value: `${n.top.top.myKey}|${n.item.id}` }))}
             />
-            {forComponentId && forPage === currentPage && (
+            {forComponentId && forPage === currentPageId && (
               // eslint-disable-next-line jsx-a11y/anchor-is-valid
               <a
                 href={'#'}
@@ -224,7 +225,7 @@ export const ExpressionPlayground = () => {
                 Vis i komponent-utforskeren
               </a>
             )}
-            {forComponentId && forPage !== currentPage && (
+            {forComponentId && forPage !== currentPageId && (
               <span>
                 Komponenten vises på siden <em>{forPage}</em>
               </span>

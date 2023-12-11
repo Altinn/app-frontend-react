@@ -7,8 +7,9 @@ import { createContext } from 'src/core/contexts/context';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { useStrictInstance } from 'src/features/instance/InstanceContext';
-import { useSetProcessData } from 'src/features/instance/ProcessContext';
+import { useLaxProcessData, useSetProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import type { IActionType, IProcess } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
@@ -23,13 +24,16 @@ function useProcessNext() {
   const { reFetch: reFetchInstanceData } = useStrictInstance();
   const language = useCurrentLanguage();
   const setProcessData = useSetProcessData();
+  const currentProcessData = useLaxProcessData();
+  const { navigateToTask } = useNavigatePage();
 
   const utils = useMutation({
     mutationFn: ({ taskId, action }: ProcessNextProps = {}) => doProcessNext.call(taskId, language, action),
     onSuccess: async (data: IProcess) => {
       doProcessNext.setLastResult(data);
-      setProcessData && setProcessData(data);
       await reFetchInstanceData();
+      setProcessData?.({ ...data, processTasks: currentProcessData?.processTasks });
+      navigateToTask(data?.currentTask?.elementId);
     },
     onError: (error: HttpClientError) => {
       window.logError('Process next failed:\n', error);

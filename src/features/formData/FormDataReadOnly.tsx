@@ -21,7 +21,7 @@ import type { HttpClientError } from 'src/utils/network/sharedNetworking';
  * @deprecated This is a temporary solution until we have a better way of handling this. Ideally useLanguage() should
  *            be able to fetch data from previous tasks on-demand once the text resource reference is used.
  */
-function useMergedFormDataQuery() {
+function useMergedFormDataQuery(taskId: string | undefined) {
   const { fetchFormData } = useAppQueries();
   const appMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
   const textResources = useAppSelector((state) => state.textResources.resourceMap);
@@ -45,7 +45,7 @@ function useMergedFormDataQuery() {
   }
 
   return useQuery<IFormData, HttpClientError>({
-    queryKey: ['fetchFormData', urlsToFetch],
+    queryKey: ['fetchFormData', urlsToFetch, taskId],
     queryFn: async () => {
       const out: IFormData = {};
       const promises = urlsToFetch.map((url) => fetchFormData(url));
@@ -78,8 +78,8 @@ export const useFormDataReadOnly = () => useCtx();
  * @see FormDataProvider
  * @see FormDataReadWriteProvider
  */
-export function FormDataForInfoTaskProvider({ children }: PropsWithChildren) {
-  const { data, isLoading, error } = useMergedFormDataQuery();
+export function FormDataForInfoTaskProvider({ children, taskId }: PropsWithChildren<{ taskId: string | undefined }>) {
+  const { data, isLoading, error } = useMergedFormDataQuery(taskId);
 
   if (error) {
     return <DisplayError error={error} />;

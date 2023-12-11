@@ -177,6 +177,7 @@ export interface IProcess {
   currentTask?: ITask;
   ended?: string | null;
   endEvent?: string | null;
+  processTasks?: ITask[];
 }
 
 export interface IProfile {

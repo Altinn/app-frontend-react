@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
-import { ProcessWrapper } from 'src/components/wrappers/ProcessWrapper';
+import { ProcessWrapperWrapper } from 'src/components/wrappers/ProcessWrapper';
 import { LayoutValidationProvider } from 'src/features/devtools/layoutValidation/useLayoutValidation';
 import { Entrypoint } from 'src/features/entrypoint/Entrypoint';
 import { FormProvider } from 'src/features/form/FormContext';
@@ -12,7 +12,7 @@ import { InstanceSelectionWrapper } from 'src/features/instantiate/selection/Ins
 export const App = () => (
   <Routes>
     <Route
-      path='/'
+      path='*'
       element={<Entrypoint />}
     />
     <Route
@@ -24,12 +24,12 @@ export const App = () => (
       element={<PartySelection />}
     />
     <Route
-      path='/instance/:partyId/:instanceGuid'
+      path='/instance/:partyId/:instanceGuid/*'
       element={
         <InstanceProvider>
           <FormProvider>
             <LayoutValidationProvider>
-              <ProcessWrapper />
+              <ProcessWrapperWrapper />
             </LayoutValidationProvider>
           </FormProvider>
         </InstanceProvider>
