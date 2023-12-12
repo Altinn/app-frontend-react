@@ -1,3 +1,4 @@
+import type { PageNavigationConfig } from 'src/features/expressions/ExprContext';
 import type { CompExceptGroup, CompInternal } from 'src/layout/layout';
 import type { IUiConfig } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -132,9 +133,9 @@ export class LayoutPage implements LayoutObject {
     };
   }
 
-  public isHiddenViaTracks(uiConfig: IUiConfig): boolean {
+  public isHiddenViaTracks(uiConfig: IUiConfig, contextBasedUiConfig: PageNavigationConfig): boolean {
     const myKey = this.top.myKey;
-    if (myKey === uiConfig.currentView) {
+    if (myKey === contextBasedUiConfig.currentView) {
       // If this is the current view, then it's never hidden. This avoids settings fields as hidden when
       // code caused this to be the current view even if it's not in the common order.
       return false;

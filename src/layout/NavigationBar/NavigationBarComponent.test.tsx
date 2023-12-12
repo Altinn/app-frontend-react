@@ -41,7 +41,7 @@ const render = async () => {
           },
         }),
     },
-    router: PageNavigationRouter('page1'),
+    router: PageNavigationRouter({ currentPageId: 'page1' }),
     reduxState: getInitialStateMock((state) => {
       state.formLayout = {
         layoutsets: null,
@@ -52,7 +52,6 @@ const render = async () => {
             hiddenExpr: {},
             hidden: [],
           },
-          currentView: 'page1',
           focus: 'focus',
           hiddenFields: [],
           repeatingGroups: {},

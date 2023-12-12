@@ -206,7 +206,7 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
     if (
       respectTracks &&
       this.parent instanceof LayoutPage &&
-      this.parent.isHiddenViaTracks(this.dataSources.uiConfig)
+      this.parent.isHiddenViaTracks(this.dataSources.uiConfig, this.dataSources.pageNavigationConfig)
     ) {
       return true;
     }

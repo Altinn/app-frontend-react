@@ -53,7 +53,6 @@ describe('NavigationButtons', () => {
       ],
     },
     uiConfig: {
-      currentView: 'layout1',
       focus: null,
       hiddenFields: [],
       repeatingGroups: {},
@@ -84,7 +83,7 @@ describe('NavigationButtons', () => {
           Promise.resolve({ sets: [{ dataType: 'test-data-model', id: 'message', tasks: ['Task_1'] }] }),
         fetchLayoutSettings: () => Promise.resolve({ pages: { order: ['layout1', 'layout2'] } }),
       },
-      router: PageNavigationRouter(currentPageId),
+      router: PageNavigationRouter({ currentPageId }),
     });
   };
 

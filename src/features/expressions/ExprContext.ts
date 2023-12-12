@@ -13,12 +13,17 @@ import type { IApplicationSettings, IAuthContext, IInstanceDataSources } from 's
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
+export type PageNavigationConfig = {
+  currentView: string | null;
+};
+
 export interface ContextDataSources {
   instanceDataSources: IInstanceDataSources | null;
   applicationSettings: IApplicationSettings | null;
   formData: IFormData;
   attachments: IAttachments;
   uiConfig: IUiConfig;
+  pageNavigationConfig: PageNavigationConfig;
   options: AllOptionsMap;
   authContext: Partial<IAuthContext> | null;
   hiddenFields: Set<string>;

@@ -37,7 +37,9 @@ import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
 import { PartyProvider } from 'src/features/party/PartiesProvider';
 import { ProfileProvider } from 'src/features/profile/ProfileProvider';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useNavigationParams } from 'src/hooks/useNavigatePage';
 import { setupStore } from 'src/redux/store';
+import { PageNavigationRouter } from 'src/test/routerUtils';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { ExprContextWrapper, useExprContext } from 'src/utils/layout/ExprContext';
 import type { AppMutations, AppQueries, AppQueriesContext } from 'src/core/contexts/AppQueriesProvider';
@@ -304,7 +306,7 @@ const renderBase = async ({
 
   const ProviderWrapper = ({ children }: PropsWithChildren) => (
     <Providers
-      Router={router}
+      Router={router || PageNavigationRouter({ currentPageId: 'formLayout' })}
       queryClient={queryClient}
       queries={{
         ...queryMocks,
@@ -393,7 +395,8 @@ export const renderWithoutInstanceAndLayout = async (props: ExtendedRenderOption
 export const renderWithInstanceAndLayout = async ({
   renderer,
   reduxState: _reduxState,
-  initialPage = '',
+  router,
+  initialPage = 'Task_1/formLayout',
   ...renderOptions
 }: ExtendedRenderOptions) => {
   const reduxState = _reduxState || getInitialStateMock();
@@ -423,6 +426,7 @@ export const renderWithInstanceAndLayout = async ({
         initialEntries={[`/ttd/test/instance/${exampleInstanceId}/${initialPage}`]}
       >
         <Routes>
+          Pro
           <Route
             path={'instance/:partyId/:instanceGuid/*'}
             element={children}
@@ -448,7 +452,7 @@ export const renderWithInstanceAndLayout = async ({
       fetchInstanceData: () => Promise.resolve(reduxState.deprecated.lastKnownInstance || getInstanceDataMock()),
       fetchProcessState: () => Promise.resolve(reduxState.deprecated.lastKnownProcess || getProcessDataMock()),
     },
-    router: InstanceRouter,
+    router: router || InstanceRouter,
     reduxState,
     ...renderOptions,
   });
@@ -460,7 +464,8 @@ const WaitForNodes = ({
   nodeId,
 }: PropsWithChildren<{ waitForAllNodes: boolean; nodeId?: string }>) => {
   const layouts = useAppSelector((state) => state.formLayout.layouts);
-  const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
+  const { pageKey, taskId, partyId, instanceGuid } = useNavigationParams();
+  const currentView = pageKey;
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
   const nodes = useExprContext();
 

@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 
 import { usePdfFormatQuery } from 'src/features/pdf/usePdfFormatQuery';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { getLayoutComponentObject } from 'src/layout';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import { dataSourcesFromState } from 'src/utils/layout/hierarchy';
@@ -18,7 +19,8 @@ const PDF_LAYOUT_NAME = '__pdf__';
 
 export const usePdfPage = (): LayoutPage | null => {
   const layoutPages = useExprContext();
-  const dataSources = useAppSelector(dataSourcesFromState);
+  const currentView = useCurrentView();
+  const dataSources = useAppSelector(dataSourcesFromState(currentView ?? null));
   const pageOrderConfig = useAppSelector((state) => state.formLayout.uiConfig.pageOrderConfig);
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
   const pdfLayoutName = useAppSelector((state) => state.formLayout.uiConfig.pdfLayoutName);

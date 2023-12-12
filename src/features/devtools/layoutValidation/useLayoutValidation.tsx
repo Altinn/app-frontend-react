@@ -11,8 +11,9 @@ import { generateSimpleRepeatingGroups } from 'src/features/form/layout/repGroup
 import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useIsDev } from 'src/hooks/useIsDev';
+import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { getLayoutComponentObject } from 'src/layout';
-import { selectDataSourcesFromState } from 'src/utils/layout/hierarchy';
+import { createSelectDataSourcesFromState } from 'src/utils/layout/hierarchy';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { getRootElementPath } from 'src/utils/schemaUtils';
 import { duplicateStringFilter } from 'src/utils/stringHelper';
@@ -76,11 +77,11 @@ function useDataModelBindingsValidation(props: LayoutValidationProps) {
   const repeatingGroups = useMemo(() => generateSimpleRepeatingGroups(layouts), [layouts]);
   const schema = useDataModelSchema();
   const dataType = useCurrentDataModelType();
-  const dataSources = useAppSelector(selectDataSourcesFromState);
-  const currentPage = useAppSelector((state) => state.formLayout.uiConfig.currentView);
+  const currentView = useCurrentView();
+  const dataSources = useAppSelector(createSelectDataSourcesFromState(currentView ?? null));
   const nodes = useMemo(
-    () => generateEntireHierarchy(layouts, currentPage, repeatingGroups, dataSources, getLayoutComponentObject),
-    [layouts, currentPage, repeatingGroups, dataSources],
+    () => generateEntireHierarchy(layouts, currentView, repeatingGroups, dataSources, getLayoutComponentObject),
+    [layouts, currentView, repeatingGroups, dataSources],
   );
 
   const layoutLoaded = useIsLayoutLoaded();
@@ -137,9 +138,13 @@ export const useLayoutValidation = () => useCtx();
 export const useLayoutValidationForPage = () => {
   const ctx = useLayoutValidation();
   const layoutSetId = useCurrentLayoutSetId() || 'default';
-  const currentPage = useAppSelector((state) => state.formLayout.uiConfig.currentView);
+  const currentView = useCurrentView();
 
-  return ctx?.[layoutSetId]?.[currentPage];
+  if (!currentView) {
+    return;
+  }
+
+  return ctx?.[layoutSetId]?.[currentView];
 };
 
 export function LayoutValidationProvider({ children }: PropsWithChildren) {

@@ -27,7 +27,6 @@ export const initialState: ILayoutState = {
     hiddenFields: [],
     repeatingGroups: null,
     receiptLayoutName: undefined,
-    currentView: 'FormLayout',
     pageOrderConfig: {
       hidden: [],
       hiddenExpr: {},

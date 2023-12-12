@@ -48,6 +48,8 @@ export const useNavigationParams = () => {
   };
 };
 
+export const useCurrentView = () => useNavigationParams().pageKey;
+
 export const useNavigatePage = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -149,11 +151,14 @@ export const useNavigatePage = () => {
   );
 
   const navigateToTask = useCallback(
-    (taskId?: string, options?: NavigateOptions) => {
-      const url = `/instance/${partyId}/${instanceGuid}/${taskId ?? lastTaskId}`;
+    (newTaskId?: string, options?: NavigateOptions) => {
+      if (newTaskId === taskId) {
+        return;
+      }
+      const url = `/instance/${partyId}/${instanceGuid}/${newTaskId ?? lastTaskId}`;
       navigate(url, options);
     },
-    [partyId, instanceGuid, lastTaskId, navigate],
+    [partyId, instanceGuid, lastTaskId, navigate, taskId],
   );
 
   const isCurrentTask = useMemo(() => currentTaskId === taskId, [currentTaskId, taskId]);

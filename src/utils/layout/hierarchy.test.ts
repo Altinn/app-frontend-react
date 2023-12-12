@@ -546,7 +546,7 @@ describe('Hierarchical layout tools', () => {
     const state = getInitialStateMock();
     (state.formLayout.layouts as any)['page2'] = layout;
     state.formLayout.uiConfig.repeatingGroups = manyRepeatingGroups;
-    const resolved = resolvedLayoutsFromState(state);
+    const resolved = resolvedLayoutsFromState('formLayout')(state);
 
     const field3 = resolved?.findById('field3');
     expect(field3?.item.id).toEqual('field3');
@@ -641,8 +641,7 @@ describe('Hierarchical layout tools', () => {
           index: 2,
         },
       };
-      state.formLayout.uiConfig.currentView = 'page1';
-      const resolved = resolvedLayoutsFromState(state);
+      const resolved = resolvedLayoutsFromState('formLayot')(state);
       const dataBindingFor = (id: string) => {
         const item = resolved?.findById(id)?.item || undefined;
         const dmBindings = item && 'dataModelBindings' in item ? item?.dataModelBindings : undefined;

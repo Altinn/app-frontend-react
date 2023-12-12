@@ -22,7 +22,6 @@ export const getUiConfigStateMock = (customStates?: Partial<IUiConfig>): IUiConf
       dataModelBinding: 'Group',
     },
   },
-  currentView: 'FormLayout',
   excludePageFromPdf: [],
   excludeComponentFromPdf: [],
   ...customStates,

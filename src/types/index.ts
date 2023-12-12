@@ -78,7 +78,6 @@ export interface IHiddenLayoutsExternal {
 export interface IUiConfig {
   autoSaveBehavior?: 'onChangePage' | 'onChangeFormData';
   receiptLayoutName?: string;
-  currentView: string;
   returnToView?: string;
   focus: string | null | undefined;
   hiddenFields: string[];
