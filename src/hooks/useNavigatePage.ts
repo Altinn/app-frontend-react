@@ -185,14 +185,14 @@ export const useNavigatePage = () => {
   const getCurrentPageIndex = () => {
     const location = window.location.href;
     const _currentPageId = location.split('/').slice(-1)[0];
-    return order?.indexOf(_currentPageId) ?? -1;
+    return order?.indexOf(_currentPageId) ?? undefined;
   };
 
   const getNextPage = () => {
     const currentPageIndex = getCurrentPageIndex();
-    const nextPageIndex = currentPageIndex !== -1 ? currentPageIndex + 1 : -1;
+    const nextPageIndex = currentPageIndex !== undefined ? currentPageIndex + 1 : undefined;
 
-    if (nextPageIndex === -1) {
+    if (nextPageIndex === undefined) {
       return undefined;
     }
     return order?.[nextPageIndex];
@@ -200,9 +200,9 @@ export const useNavigatePage = () => {
 
   const getPreviousPage = () => {
     const currentPageIndex = getCurrentPageIndex();
-    const nextPageIndex = currentPageIndex !== -1 ? currentPageIndex - 1 : -1;
+    const nextPageIndex = currentPageIndex !== undefined ? currentPageIndex - 1 : undefined;
 
-    if (nextPageIndex === -1) {
+    if (nextPageIndex === undefined) {
       return undefined;
     }
     return order?.[nextPageIndex];
