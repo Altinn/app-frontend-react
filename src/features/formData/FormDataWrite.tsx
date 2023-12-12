@@ -13,7 +13,7 @@ import { diffModels } from 'src/features/formData/diffModels';
 import { useFormDataWriteStateMachine } from 'src/features/formData/FormDataWriteStateMachine';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useMemoDeepEqual } from 'src/hooks/useMemoDeepEqual';
-import type { FormDataContext } from 'src/features/formData/FormDataWriteStateMachine';
+import type { FDNewValues, FormDataContext } from 'src/features/formData/FormDataWriteStateMachine';
 import type { IFormData } from 'src/features/formData/index';
 import type { SaveWhileTyping } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
@@ -22,6 +22,9 @@ export type FDValue = string | number | boolean | object | undefined | null | FD
 export type FDFreshness = 'current' | 'debounced';
 
 type SetLeafValueForBindings<B extends IDataModelBindings> = (key: keyof Exclude<B, undefined>, newValue: any) => void;
+type SetMultiLeafValuesForBindings<B extends IDataModelBindings> = (
+  changes: { binding: keyof Exclude<B, undefined>; newValue: any }[],
+) => void;
 
 interface MutationArg {
   dataModelUrl: string;
@@ -258,6 +261,47 @@ export const FD = {
         });
       },
       [bindings, saveWhileTyping, setLeafValue],
+    );
+  },
+
+  /**
+   * Use this hook to get a function you can use to set multiple values in the form data atomically, using a data model
+   * bindings object.
+   */
+  useMultiSetForBindings: <B extends IDataModelBindings>(
+    bindings: B,
+    saveWhileTyping?: SaveWhileTyping,
+  ): SetMultiLeafValuesForBindings<B> => {
+    const setMultiLeafValues = useSelector((s) => s.setMultiLeafValues);
+
+    return useCallback(
+      (changes: { binding: keyof B; newValue: any }[]) => {
+        const realChanges: FDNewValues = {
+          changes: [],
+          debounceTimeout: typeof saveWhileTyping === 'number' ? saveWhileTyping : undefined,
+        };
+
+        for (const change of changes) {
+          const { binding: key, newValue } = change;
+          const bindingPath = (bindings as any)[key];
+          if (!bindingPath) {
+            const keyAsString = key as string;
+            window.logWarn(
+              `No data model binding found for ${keyAsString}, silently ignoring request to save ${newValue}`,
+            );
+            return;
+          }
+          realChanges.changes.push({
+            path: bindingPath,
+            newValue,
+          });
+        }
+
+        if (realChanges.changes.length > 0) {
+          setMultiLeafValues(realChanges);
+        }
+      },
+      [bindings, saveWhileTyping, setMultiLeafValues],
     );
   },
 
