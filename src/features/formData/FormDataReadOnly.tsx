@@ -75,7 +75,6 @@ export const useFormDataReadOnly = () => useCtx();
  * in an info-task.
  *
  * @deprecated See useMergedFormDataQuery() for more information.
- * @see FormDataProvider
  * @see FormDataReadWriteProvider
  */
 export function FormDataForInfoTaskProvider({ children, taskId }: PropsWithChildren<{ taskId: string | undefined }>) {

@@ -10,7 +10,10 @@ import { Form } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import classes from 'src/components/wrappers/ProcessWrapper.module.css';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { LayoutValidationProvider } from 'src/features/devtools/layoutValidation/useLayoutValidation';
+import { FormProvider } from 'src/features/form/FormContext';
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
+import { FormDataForInfoTaskProvider } from 'src/features/formData/FormDataReadOnly';
 import { useLaxProcessData, useTaskType } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { PDFView } from 'src/features/pdf/PDFView';
@@ -58,14 +61,13 @@ export function InvalidTaskIdPage() {
 }
 
 export function ProcessWrapperWrapper() {
-  const { taskId } = useNavigatePage();
-  const location = useLocation();
+  const { taskId, startUrl } = useNavigatePage();
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
 
   if (taskId === undefined && currentTaskId !== undefined) {
     return (
       <Navigate
-        to={`${location.pathname}/${currentTaskId}`}
+        to={`${startUrl}/${currentTaskId}`}
         replace
       />
     );
@@ -82,7 +84,7 @@ export function ProcessWrapperWrapper() {
 }
 
 export const ProcessWrapper = () => {
-  const { isValidPageId, startUrl, isCurrentTask, isValidTaskId } = useNavigatePage();
+  const { isValidPageId, isCurrentTask, isValidTaskId } = useNavigatePage();
   const { taskId, partyId, instanceGuid, pageKey } = useNavigationParams();
   const { scrollPosition } = usePageNavigationContext();
   const taskType = useTaskType(taskId);
@@ -142,38 +144,69 @@ export const ProcessWrapper = () => {
     );
   }
 
-  if (!currentPageId || !isValidPageId(currentPageId)) {
-    return (
-      <Navigate
-        to={startUrl}
-        replace
-      />
-    );
-  }
-
   return (
     <>
       <div className={cn(classes['content'], { [classes['hide-form']]: previewPDF })}>
-        <PresentationComponent type={taskType}>
-          <Routes>
-            <Route
-              path={PageKeys.Confirmation}
-              element={<Confirm />}
-            />
-            <Route
-              path={PageKeys.Feedback}
-              element={<Feedback />}
-            />
-            <Route
-              path={PageKeys.Receipt}
-              element={<ReceiptContainer />}
-            />
-            <Route
-              path=':pageKey'
-              element={<Form />}
-            />
-          </Routes>
-        </PresentationComponent>
+        <Routes>
+          <Route
+            path={PageKeys.Confirmation}
+            element={
+              <FormDataForInfoTaskProvider taskId={taskId}>
+                <PresentationComponent type={taskType}>
+                  <Confirm />
+                </PresentationComponent>
+              </FormDataForInfoTaskProvider>
+            }
+          />
+          <Route
+            path={PageKeys.Feedback}
+            element={
+              <FormDataForInfoTaskProvider taskId={taskId}>
+                <PresentationComponent type={taskType}>
+                  <Feedback />
+                </PresentationComponent>
+              </FormDataForInfoTaskProvider>
+            }
+          />
+          <Route
+            path={PageKeys.Receipt}
+            element={
+              <FormDataForInfoTaskProvider taskId={taskId}>
+                <PresentationComponent type={taskType}>
+                  <ReceiptContainer />
+                </PresentationComponent>
+              </FormDataForInfoTaskProvider>
+            }
+          />
+          <Route
+            path='*'
+            element={
+              <FormProvider>
+                <LayoutValidationProvider>
+                  <Routes>
+                    <Route
+                      path=':pageKey'
+                      element={
+                        <PresentationComponent type={taskType}>
+                          <Form />
+                        </PresentationComponent>
+                      }
+                    />
+                    <Route
+                      path='*'
+                      // This will redirect to the first page of the form
+                      element={
+                        <PresentationComponent type={taskType}>
+                          <Form />
+                        </PresentationComponent>
+                      }
+                    />
+                  </Routes>
+                </LayoutValidationProvider>
+              </FormProvider>
+            }
+          />
+        </Routes>
       </div>
       {previewPDF && (
         <div className={cn(classes['content'], classes['hide-pdf'])}>

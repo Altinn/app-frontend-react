@@ -6,7 +6,6 @@ import { useIsStatelessApp } from 'src/features/applicationMetadata/appMetadataU
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { useLaxProcessData, useTaskType } from 'src/features/instance/ProcessContext';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { ProcessTaskType } from 'src/types';
 
@@ -48,7 +47,6 @@ export const useNavigationParams = () => {
 
 export const useNavigatePage = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const isStatelessApp = useIsStatelessApp();
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
   const processTasks = useLaxProcessData()?.processTasks;
@@ -114,7 +112,8 @@ export const useNavigatePage = () => {
       }
 
       if (autoSaveBehavior === 'onChangePage' && order?.includes(currentPageId)) {
-        dispatch(FormDataActions.saveLatest({}));
+        // TODO: Re-implement form data saving when saving via page navigation
+        // dispatch(FormDataActions.saveLatest({}));
       }
 
       if (isStatelessApp) {
@@ -132,7 +131,6 @@ export const useNavigatePage = () => {
       setFocusId,
       setReturnToView,
       autoSaveBehavior,
-      dispatch,
       order,
       currentPageId,
       isStatelessApp,
@@ -159,7 +157,14 @@ export const useNavigatePage = () => {
     if (taskType === ProcessTaskType.Feedback) {
       return `/instance/${partyId}/${instanceGuid}/${taskId}/${PageKeys.Feedback}`;
     }
-    return `/instance/${partyId}/${instanceGuid}/${taskId}/${order?.[0]}`;
+    const firstPage = order?.[0];
+    if (taskId && firstPage) {
+      return `/instance/${partyId}/${instanceGuid}/${taskId}/${firstPage}`;
+    }
+    if (taskId) {
+      return `/instance/${partyId}/${instanceGuid}/${taskId}`;
+    }
+    return `/instance/${partyId}/${instanceGuid}`;
   }, [partyId, instanceGuid, taskId, order, taskType]);
 
   const next = order?.[nextPageIndex];

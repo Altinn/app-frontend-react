@@ -6,6 +6,7 @@ import { PresentationComponent } from 'src/components/presentation/Presentation'
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useIsStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
 import { FormProvider } from 'src/features/form/FormContext';
+import { FormDataForInfoTaskProvider } from 'src/features/formData/FormDataReadOnly';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { useCurrentParty, useCurrentPartyIsValid } from 'src/features/party/PartiesProvider';
@@ -60,20 +61,28 @@ export function Entrypoint() {
   // Stateless view
   if (isStateless) {
     return (
-      <FormProvider>
-        <PresentationComponent type={PresentationType.Stateless}>
-          <Routes>
-            <Route
-              path={PageKeys.Receipt}
-              element={<ReceiptContainer />}
-            />
-            <Route
-              path=':pageKey'
-              element={<Form />}
-            />
-          </Routes>
-        </PresentationComponent>
-      </FormProvider>
+      <Routes>
+        <Route
+          path={PageKeys.Receipt}
+          element={
+            <PresentationComponent type={PresentationType.Stateless}>
+              <FormDataForInfoTaskProvider taskId={undefined}>
+                <ReceiptContainer />
+              </FormDataForInfoTaskProvider>
+            </PresentationComponent>
+          }
+        />
+        <Route
+          path=':pageKey'
+          element={
+            <PresentationComponent type={PresentationType.Stateless}>
+              <FormProvider>
+                <Form />
+              </FormProvider>
+            </PresentationComponent>
+          }
+        />
+      </Routes>
     );
   }
 

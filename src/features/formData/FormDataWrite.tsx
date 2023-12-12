@@ -29,18 +29,13 @@ interface MutationArg {
   diff: Record<string, any>;
 }
 
-const { Provider, useCtx: _useCtx } = createContext<ReturnType<typeof useFormDataWriteStateMachine>>({
+const { Provider, useCtx } = createContext<ReturnType<typeof useFormDataWriteStateMachine>>({
   name: 'FormDataWrite',
   required: true,
 });
 
 function useSelector<U>(selector: (state: FormDataContext) => U): U {
-  const store = _useCtx();
-  if (!store) {
-    throw new Error('useSelector() must be used within a FormDataWriteProvider');
-  }
-
-  return useStore(store, selector);
+  return useStore(useCtx(), selector);
 }
 
 function createFormDataRequestFromDiff(modelToSave: object, diff: object) {
@@ -81,7 +76,7 @@ export function FormDataWriteProvider({ url, initialData, children }: FormDataWr
 }
 
 function FormDataEffects({ url }: { url: string }) {
-  const state = useStore(_useCtx());
+  const state = useStore(useCtx());
   const { freeze, currentData, debouncedCurrentData, lastSavedData, debounceTimeout } = state;
   const { mutate, isLoading: isSaving } = useFormDataSaveMutation(state);
   const ruleConnections = useAppSelector((state) => state.formDynamics.ruleConnection);

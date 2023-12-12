@@ -8,7 +8,7 @@ import { LayoutsProvider } from 'src/features/form/layout/LayoutsContext';
 import { UiConfigProvider } from 'src/features/form/layout/UiConfigContext';
 import { LayoutSettingsProvider } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { RulesProvider } from 'src/features/form/rules/RulesContext';
-import { FormDataProvider } from 'src/features/formData/FormData';
+import { FormDataReadWriteProvider } from 'src/features/formData/FormDataReadWrite';
 import { useHasProcessProvider } from 'src/features/instance/ProcessContext';
 import { ProcessNavigationProvider } from 'src/features/instance/ProcessNavigationContext';
 import { AllOptionsProvider } from 'src/features/options/useAllOptions';
@@ -25,7 +25,7 @@ export function FormProvider({ children }: React.PropsWithChildren) {
       <LayoutsProvider>
         <LayoutSettingsProvider>
           <UiConfigProvider>
-            <FormDataProvider>
+            <FormDataReadWriteProvider>
               <DataModelSchemaProvider>
                 <AttachmentsProvider>
                   <DynamicsProvider>
@@ -39,7 +39,7 @@ export function FormProvider({ children }: React.PropsWithChildren) {
                   </DynamicsProvider>
                 </AttachmentsProvider>
               </DataModelSchemaProvider>
-            </FormDataProvider>
+            </FormDataReadWriteProvider>
           </UiConfigProvider>
         </LayoutSettingsProvider>
       </LayoutsProvider>

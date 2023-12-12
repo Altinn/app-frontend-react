@@ -1,4 +1,5 @@
 import React from 'react';
+import { Navigate } from 'react-router-dom';
 
 import Grid from '@material-ui/core/Grid';
 
@@ -18,7 +19,7 @@ import { getFormHasErrors, missingFieldsInLayoutValidations } from 'src/utils/va
 export function Form() {
   const nodes = useNodes();
   const langTools = useLanguage();
-  const { currentPageId } = useNavigatePage();
+  const { currentPageId, isValidPageId, startUrl } = useNavigatePage();
   const validations = useAppSelector((state) => state.formValidations.validations);
 
   const page = nodes?.all?.()?.[currentPageId];
@@ -47,6 +48,15 @@ export function Form() {
     }
     return hasErrors ? extractBottomButtons(page) : [page.children(), []];
   }, [page, hasErrors]);
+
+  if (!currentPageId || !isValidPageId(currentPageId)) {
+    return (
+      <Navigate
+        to={startUrl}
+        replace
+      />
+    );
+  }
 
   return (
     <>
