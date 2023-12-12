@@ -23,8 +23,12 @@ import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { FooterLayoutProvider } from 'src/features/footer/FooterLayoutProvider';
+import { LayoutsProvider } from 'src/features/form/layout/LayoutsContext';
+import { PageNavigationProvider } from 'src/features/form/layout/PageNavigationContext';
 import { generateSimpleRepeatingGroups } from 'src/features/form/layout/repGroups/generateSimpleRepeatingGroups';
+import { UiConfigProvider } from 'src/features/form/layout/UiConfigContext';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
+import { LayoutSettingsProvider } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
 import { LanguageProvider } from 'src/features/language/LanguageProvider';
@@ -50,7 +54,7 @@ import type { LayoutPages } from 'src/utils/layout/LayoutPages';
  * These are the queries that cannot be mocked. Instead of mocking the queries themselves, you should provide preloaded
  * state that contains the state you need. In the future when we get rid of redux, all queries will be mockable.
  */
-type QueriesThatCannotBeMocked = 'fetchInstanceData' | 'fetchProcessState' | 'fetchLayoutSettings' | 'fetchLayouts';
+type QueriesThatCannotBeMocked = 'fetchInstanceData' | 'fetchProcessState';
 
 type MockableQueries = Omit<AppQueries, QueriesThatCannotBeMocked>;
 type UnMockableQueries = Pick<AppQueries, QueriesThatCannotBeMocked>;
@@ -71,6 +75,7 @@ interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   queries?: Partial<MockableQueries>;
   reduxState?: IRuntimeState;
   reduxGateKeeper?: (action: ReduxAction) => boolean;
+  initialPage?: string;
 }
 
 interface BaseRenderOptions extends ExtendedRenderOptions {
@@ -109,6 +114,7 @@ const makeMutationMocks = (): MockedMutations => ({
   doInstantiateWithPrefill: promiseMock<AppMutations['doInstantiateWithPrefill']>(),
   doProcessNext: promiseMock<AppMutations['doProcessNext']>(),
   doSetCurrentParty: promiseMock<AppMutations['doSetCurrentParty']>(),
+  doPerformAction: promiseMock<AppMutations['doPerformAction']>(),
 });
 
 const makeDefaultQueryMocks = (state: IRuntimeState): MockableQueries => ({
@@ -135,13 +141,13 @@ const makeDefaultQueryMocks = (state: IRuntimeState): MockableQueries => ({
   fetchLayoutSchema: () => Promise.resolve({} as JSONSchema7),
   fetchAppLanguages: () => Promise.resolve([]),
   fetchProcessNextSteps: () => Promise.resolve([]),
+  fetchLayoutSettings: () => Promise.resolve({ pages: { order: [] } }),
+  fetchLayouts: () => Promise.resolve({}),
 });
 
 const unMockableQueriesDefaults: UnMockableQueries = {
   fetchInstanceData: () => Promise.reject(new Error('fetchInstanceData not mocked')),
   fetchProcessState: () => Promise.reject(new Error('fetchProcessState not mocked')),
-  fetchLayoutSettings: () => Promise.reject(new Error('fetchLayoutSettings not mocked')),
-  fetchLayouts: () => Promise.reject(new Error('fetchLayouts not mocked')),
 };
 
 const defaultReduxGateKeeper = (action: ReduxAction) =>
@@ -179,27 +185,29 @@ function DefaultProviders({ children, store, queries, queryClient, Router = Defa
       <ReduxProvider store={store}>
         <LanguageProvider>
           <MuiThemeProvider theme={theme}>
-            <ExprContextWrapper>
-              <ApplicationMetadataProvider>
-                <OrgsProvider>
-                  <ApplicationSettingsProvider>
-                    <LayoutSetsProvider>
-                      <ProfileProvider>
-                        <PartyProvider>
-                          <TextResourcesProvider>
-                            <FooterLayoutProvider>
-                              <Router>
-                                <InstantiationProvider>{children}</InstantiationProvider>
-                              </Router>
-                            </FooterLayoutProvider>
-                          </TextResourcesProvider>
-                        </PartyProvider>
-                      </ProfileProvider>
-                    </LayoutSetsProvider>
-                  </ApplicationSettingsProvider>
-                </OrgsProvider>
-              </ApplicationMetadataProvider>
-            </ExprContextWrapper>
+            <PageNavigationProvider>
+              <Router>
+                <ExprContextWrapper>
+                  <ApplicationMetadataProvider>
+                    <OrgsProvider>
+                      <ApplicationSettingsProvider>
+                        <LayoutSetsProvider>
+                          <ProfileProvider>
+                            <PartyProvider>
+                              <TextResourcesProvider>
+                                <FooterLayoutProvider>
+                                  <InstantiationProvider>{children}</InstantiationProvider>
+                                </FooterLayoutProvider>
+                              </TextResourcesProvider>
+                            </PartyProvider>
+                          </ProfileProvider>
+                        </LayoutSetsProvider>
+                      </ApplicationSettingsProvider>
+                    </OrgsProvider>
+                  </ApplicationMetadataProvider>
+                </ExprContextWrapper>
+              </Router>
+            </PageNavigationProvider>
           </MuiThemeProvider>
         </LanguageProvider>
       </ReduxProvider>
@@ -293,8 +301,7 @@ const renderBase = async ({
     });
   };
 
-  const children = renderer();
-  const utils = rtlRender(
+  const ProviderWrapper = ({ children }: PropsWithChildren) => (
     <Providers
       Router={router}
       queryClient={queryClient}
@@ -305,9 +312,14 @@ const renderBase = async ({
       store={store}
     >
       {children}
-    </Providers>,
-    renderOptions,
+    </Providers>
   );
+
+  const children = renderer();
+  const utils = rtlRender(children, {
+    ...renderOptions,
+    wrapper: ProviderWrapper,
+  });
 
   if (waitUntilLoaded) {
     // This may fail early if any of the providers fail to load, and will give you the provider/reason for failure
@@ -380,8 +392,9 @@ export const renderWithoutInstanceAndLayout = async (props: ExtendedRenderOption
 export const renderWithInstanceAndLayout = async ({
   renderer,
   reduxState: _reduxState,
+  initialPage = '',
   ...renderOptions
-}: Omit<ExtendedRenderOptions, 'router'>) => {
+}: ExtendedRenderOptions) => {
   const reduxState = _reduxState || getInitialStateMock();
   let foundComponents = false;
   const layouts = JSON.parse(JSON.stringify(reduxState.formLayout.layouts || {})) as ILayouts;
@@ -406,11 +419,11 @@ export const renderWithInstanceAndLayout = async ({
     return (
       <MemoryRouter
         basename={'/ttd/test'}
-        initialEntries={[`/ttd/test/instance/${exampleInstanceId}`]}
+        initialEntries={[`/ttd/test/instance/${exampleInstanceId}/${initialPage}`]}
       >
         <Routes>
           <Route
-            path={'instance/:partyId/:instanceGuid'}
+            path={'instance/:partyId/:instanceGuid/*'}
             element={children}
           />
         </Routes>
@@ -421,19 +434,18 @@ export const renderWithInstanceAndLayout = async ({
   return await renderBase({
     renderer: () => (
       <InstanceProvider provideLayoutValidation={false}>
-        <WaitForNodes waitForAllNodes={true}>{renderer()}</WaitForNodes>
+        <LayoutsProvider>
+          <LayoutSettingsProvider>
+            <UiConfigProvider>
+              <WaitForNodes waitForAllNodes={true}>{renderer()}</WaitForNodes>
+            </UiConfigProvider>
+          </LayoutSettingsProvider>
+        </LayoutsProvider>
       </InstanceProvider>
     ),
     unMockableQueries: {
       fetchInstanceData: () => Promise.resolve(reduxState.deprecated.lastKnownInstance || getInstanceDataMock()),
       fetchProcessState: () => Promise.resolve(reduxState.deprecated.lastKnownProcess || getProcessDataMock()),
-      fetchLayoutSettings: () =>
-        Promise.resolve({
-          pages: {
-            order: Object.keys(layouts),
-          },
-        }),
-      fetchLayouts: () => Promise.resolve(layoutsAsCollection),
     },
     router: InstanceRouter,
     reduxState,

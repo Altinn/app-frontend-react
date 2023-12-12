@@ -34,6 +34,9 @@ export function en() {
       sender: 'Party',
       title: 'Check your responses before submitting',
     },
+    custom_actions: {
+      general_error: 'Something went wrong with this action. Please try again later.',
+    },
     date_picker: {
       invalid_date_message: 'Invalid date format. Use the format {0}.',
       cancel_label: 'Cancel',
@@ -159,6 +162,9 @@ export function en() {
       value: 'Value',
       version: 'Version',
       wait_for_attachments: 'Hold on, we are processing attachments',
+      part_of_form_completed: "This part of the form is not currently available. You can't change it.",
+      invalid_task_id: 'This part of the form does not exist.',
+      navigate_to_current_process: 'Navigate to the current process step',
     },
     group: {
       row_error: 'One of the rows is incorrectly filled out. This has to bee fixed before the schema can be submitted.',

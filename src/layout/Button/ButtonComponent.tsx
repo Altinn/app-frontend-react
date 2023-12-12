@@ -1,7 +1,9 @@
 import React from 'react';
 
+import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getComponentFromMode } from 'src/layout/Button/getComponentFromMode';
 import { SubmitButton } from 'src/layout/Button/SubmitButton';
@@ -16,12 +18,13 @@ export type IButtonProvidedProps =
 
 export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProps) => {
   const { mode } = node.item;
-  const { lang, langAsString } = useLanguage();
+  const { langAsString } = useLanguage();
   const props: IButtonProvidedProps = { ...componentProps, ...node.item, node };
 
   const currentTaskType = useLaxProcessData()?.currentTask?.altinnTaskType;
   const { actions, write } = useLaxProcessData()?.currentTask || {};
   const { next, canSubmit, busyWithId, attachmentsPending } = useProcessNavigation() || {};
+  const { setReturnToView } = usePageNavigationContext() || {};
 
   const disabled =
     !canSubmit || (currentTaskType === 'data' && !write) || (currentTaskType === 'confirmation' && !actions?.confirm);
@@ -36,13 +39,16 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
 
     return (
       <div style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}>
-        <GenericButton {...props}>{lang(node.item.textResourceBindings?.title)}</GenericButton>
+        <GenericButton {...props}>
+          <Lang id={node.item.textResourceBindings?.title} />
+        </GenericButton>
       </div>
     );
   }
 
   const submitTask = () => {
     if (!disabled && next) {
+      setReturnToView(undefined);
       if (currentTaskType === 'data') {
         next({ nodeId: node.item.id });
       } else if (currentTaskType === 'confirmation') {
@@ -59,7 +65,7 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
         disabled={disabled}
         message={attachmentsPending ? langAsString('general.wait_for_attachments') : undefined}
       >
-        {lang(node.item.textResourceBindings?.title)}
+        <Lang id={node.item.textResourceBindings?.title} />
       </SubmitButton>
     </div>
   );

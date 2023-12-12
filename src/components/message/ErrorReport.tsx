@@ -7,9 +7,11 @@ import { createSelector } from 'reselect';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import classes from 'src/components/message/ErrorReport.module.css';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { useLanguage } from 'src/features/language/useLanguage';
+import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
+import { Lang } from 'src/features/language/Lang';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
 import { AsciiUnitSeparator } from 'src/layout/FileUpload/utils/asciiUnitSeparator';
 import { GenericComponent } from 'src/layout/GenericComponent';
@@ -39,11 +41,11 @@ const selectMappedUnmappedErrors = createSelector(selectValidations, createMappe
 
 export const ErrorReport = ({ nodes }: IErrorReportProps) => {
   const dispatch = useAppDispatch();
-  const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
+  const { currentPageId, navigateToPage } = useNavigatePage();
+  const { setFocusId } = usePageNavigationContext();
   const [errorsMapped, errorsUnmapped] = useAppSelector(selectMappedUnmappedErrors);
   const allNodes = useExprContext();
   const hasErrors = errorsUnmapped.length > 0 || errorsMapped.length > 0;
-  const { lang } = useLanguage();
 
   if (!hasErrors) {
     return null;
@@ -60,12 +62,8 @@ export const ErrorReport = ({ nodes }: IErrorReportProps) => {
       return;
     }
 
-    if (currentView !== error.layout) {
-      dispatch(
-        FormLayoutActions.updateCurrentView({
-          newView: error.layout,
-        }),
-      );
+    if (currentPageId !== error.layout) {
+      navigateToPage(error.layout);
     }
 
     const allParents = componentNode?.parents() || [];
@@ -117,17 +115,14 @@ export const ErrorReport = ({ nodes }: IErrorReportProps) => {
           FormLayoutActions.updateRepeatingGroupsEditIndex({
             group: parentNode.item.id,
             index: childNode.rowIndex,
+            currentPageId,
           }),
         );
       }
     }
 
     // Set focus
-    dispatch(
-      FormLayoutActions.updateFocus({
-        focusComponentId: error.componentId,
-      }),
-    );
+    setFocusId(error.componentId);
   };
 
   const errorMessage = (message: string) =>
@@ -137,7 +132,7 @@ export const ErrorReport = ({ nodes }: IErrorReportProps) => {
     <div data-testid='ErrorReport'>
       <FullWidthWrapper isOnBottom={true}>
         <Panel
-          title={lang('form_filler.error_report_header')}
+          title={<Lang id={'form_filler.error_report_header'} />}
           showIcon={false}
           variant={PanelVariant.Error}
         >

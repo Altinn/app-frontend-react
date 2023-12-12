@@ -13,6 +13,7 @@ import {
   dataElementUrl,
   fileTagUrl,
   fileUploadUrl,
+  getActionsUrl,
   getActiveInstancesUrl,
   getCreateInstancesUrl,
   getCustomValidationConfigUrl,
@@ -43,6 +44,7 @@ import type { Instantiation } from 'src/features/instantiate/InstantiationContex
 import type { ITextResourceResult } from 'src/features/language/textResources';
 import type { IPdfFormat } from 'src/features/pdf/types';
 import type { ILayoutFileExternal, IOption } from 'src/layout/common.generated';
+import type { ActionResult } from 'src/layout/CustomButton/CustomButtonComponent';
 import type { ILayoutCollection } from 'src/layout/layout';
 import type { ILayoutSets, ILayoutSettings, ISimpleInstance } from 'src/types';
 import type {
@@ -123,6 +125,14 @@ export const doAttachmentAddTag = async (dataGuid: string, tagToAdd: string): Pr
   return response.data;
 };
 
+export const doPerformAction = async (partyId: string, dataGuid: string, data: any): Promise<ActionResult> => {
+  const response = await httpPost(getActionsUrl(partyId, dataGuid), undefined, data);
+  if (response.status !== 200) {
+    throw new Error('Failed to perform action');
+  }
+  return response.data;
+};
+
 export const doAttachmentRemove = async (dataGuid: string): Promise<void> => {
   const response = await httpDelete(dataElementUrl(dataGuid));
   if (response.status !== 200) {
@@ -158,7 +168,7 @@ export const fetchFooterLayout = (): Promise<IFooterLayout> => httpGet(getFooter
 
 export const fetchLayoutSets = (): Promise<ILayoutSets> => httpGet(getLayoutSetsUrl());
 
-export const fetchLayouts = (layoutSetId: string | undefined): Promise<ILayoutCollection | ILayoutFileExternal> =>
+export const fetchLayouts = (layoutSetId: string): Promise<ILayoutCollection | ILayoutFileExternal> =>
   httpGet(getLayoutsUrl(layoutSetId));
 
 export const fetchLayoutSettings = (layoutSetId: string | undefined): Promise<ILayoutSettings> =>

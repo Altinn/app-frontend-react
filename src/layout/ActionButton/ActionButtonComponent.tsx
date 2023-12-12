@@ -4,10 +4,10 @@ import { Button } from '@digdir/design-system-react';
 
 import type { PropsFromGenericComponent } from '..';
 
-import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
-import { useLanguage } from 'src/features/language/useLanguage';
+import { Lang } from 'src/features/language/Lang';
 import { ButtonLoader } from 'src/layout/Button/ButtonLoader';
+import { useActionAuthorization } from 'src/layout/CustomButton/CustomButtonComponent';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { ActionButtonStyle } from 'src/layout/ActionButton/config.generated';
 import type { ButtonColor, ButtonVariant } from 'src/layout/Button/WrappedButton';
@@ -21,11 +21,10 @@ export type IActionButton = PropsFromGenericComponent<'ActionButton'>;
 
 export function ActionButtonComponent({ node }: IActionButton) {
   const { busyWithId, busy, next } = useProcessNavigation() || {};
-  const actionPermissions = useLaxProcessData()?.currentTask?.actions;
-  const { lang } = useLanguage();
+  const { isAuthorized } = useActionAuthorization();
 
   const { action, buttonStyle, id, textResourceBindings } = node.item;
-  const disabled = !actionPermissions?.[action];
+  const disabled = !isAuthorized(action);
   const isLoadingHere = busyWithId === id;
 
   function handleClick() {
@@ -35,7 +34,6 @@ export function ActionButtonComponent({ node }: IActionButton) {
   }
 
   const parentIsPage = node.parent instanceof LayoutPage;
-  const buttonText = lang(textResourceBindings?.title ?? `actions.${action}`);
   const { color, variant } = buttonStyles[buttonStyle];
 
   return (
@@ -53,7 +51,7 @@ export function ActionButtonComponent({ node }: IActionButton) {
         disabled={disabled || isLoadingHere || busy}
         onClick={handleClick}
       >
-        {buttonText}
+        <Lang id={textResourceBindings?.title ?? `actions.${action}`} />
       </Button>
     </ButtonLoader>
   );

@@ -36,6 +36,9 @@ export function nb(): FixedLanguageList {
       sender: 'Aktør',
       title: 'Se over svarene dine før du sender inn',
     },
+    custom_actions: {
+      general_error: 'Noe gikk galt med denne handlingen. Prøv igjen senere.',
+    },
     date_picker: {
       invalid_date_message: 'Ugyldig datoformat. Bruk formatet {0}.',
       cancel_label: 'Avbryt',
@@ -161,6 +164,9 @@ export function nb(): FixedLanguageList {
       value: 'Verdi',
       version: 'Versjon',
       wait_for_attachments: 'Vent litt, vi prosesserer vedlegg',
+      part_of_form_completed: 'Denne delen av skjemaet er ikke tilgjengelig. Du kan ikke gjøre endringer her nå.',
+      invalid_task_id: 'Denne delen av skjemaet finnes ikke.',
+      navigate_to_current_process: 'Gå til riktig prosessteg',
     },
     group: {
       row_error: 'En av radene er ikke fylt ut riktig, dette må fikses før skjema kan sendes inn',
