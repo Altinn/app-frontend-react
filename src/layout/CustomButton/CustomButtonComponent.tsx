@@ -84,7 +84,7 @@ type PerformActionMutationProps = {
 
 type UsePerformActionMutation = {
   mutation: UseMutationResult<ActionResult>;
-  performAction: (props: PerformActionMutationProps) => Promise<void>;
+  handleServerAction: (props: PerformActionMutationProps) => Promise<void>;
 };
 
 type PerformActionMutationError = {
@@ -99,9 +99,10 @@ type PerformActionMutationError = {
   };
 };
 
-function usePerformActionMutation(): UsePerformActionMutation {
+function useHandleServerActionMutation(): UsePerformActionMutation {
   const { doPerformAction } = useAppMutations();
   const { partyId, instanceGuid } = useNavigationParams();
+  const { handleClientActions, handleDataModelUpdate } = useHandleClientActions();
 
   const mutation = useMutation({
     mutationFn: async ({ action, buttonId }: PerformActionMutationProps) => {
@@ -111,39 +112,26 @@ function usePerformActionMutation(): UsePerformActionMutation {
       return doPerformAction.call(partyId, instanceGuid, { action: action.name, buttonId });
     },
   });
-  const { handleClientActions, handleDataModelUpdate } = useHandleClientActions();
 
   return {
     mutation,
-    /**
-     * We wrap the mutation in a promise to make it possible to await both the mutation,
-     * and the side effects that are run in the onSuccess or onError callbacks.
-     */
-    performAction: ({ action, buttonId }: PerformActionMutationProps) =>
-      new Promise((resolve) =>
-        mutation.mutate(
-          { action, buttonId },
-          {
-            onSuccess: async (data) => {
-              if (data.updatedDataModels) {
-                await handleDataModelUpdate(data.updatedDataModels);
-              }
-              if (data.clientActions) {
-                await handleClientActions(data.clientActions);
-              }
-
-              resolve();
-            },
-            onError: async (error: PerformActionMutationError) => {
-              if (error?.response?.data?.error?.message !== undefined) {
-                toast(error?.response?.data?.error?.message, { type: 'error' });
-              } else {
-                toast(<Lang id='custom_actions.general_error' />, { type: 'error' });
-              }
-            },
-          },
-        ),
-      ),
+    handleServerAction: async ({ action, buttonId }: PerformActionMutationProps) => {
+      try {
+        const result = await mutation.mutateAsync({ action, buttonId });
+        if (result.updatedDataModels) {
+          await handleDataModelUpdate(result.updatedDataModels);
+        }
+        if (result.clientActions) {
+          await handleClientActions(result.clientActions);
+        }
+      } catch (error) {
+        if (error?.response?.data?.error?.message !== undefined) {
+          toast(<Lang id={error?.response?.data?.error?.message} />, { type: 'error' });
+        } else {
+          toast(<Lang id='custom_actions.general_error' />, { type: 'error' });
+        }
+      }
+    },
   };
 }
 
@@ -166,7 +154,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
   const { textResourceBindings, actions, id, buttonStyle = 'secondary' } = node.item;
   const { isAuthorized } = useActionAuthorization();
   const { handleClientActions } = useHandleClientActions();
-  const { performAction, mutation } = usePerformActionMutation();
+  const { handleServerAction, mutation } = useHandleServerActionMutation();
 
   const isPermittedToPerformActions = actions.reduce((acc, action) => acc || isAuthorized(action.name), true);
   const disabled = !isPermittedToPerformActions || mutation.isLoading;
@@ -180,7 +168,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
         await handleClientActions([action]);
       }
       if (isServerAction(action)) {
-        await performAction({ action, buttonId: id });
+        await handleServerAction({ action, buttonId: id });
       }
     }
   };
