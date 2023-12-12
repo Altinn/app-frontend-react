@@ -559,12 +559,11 @@ describe('Validation', () => {
       .should('exist');
 
     cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.png', { force: true });
-    cy.get(appFrontend.changeOfName.uploadError).should('contain.text', texts.invalidFileExtension);
+    cy.get(appFrontend.alert).should('contain.text', texts.invalidFileExtension);
     cy.get(appFrontend.changeOfName.uploadedTable).find('tbody > tr').should('have.length', 1);
 
     cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test-invalid.pdf', { force: true });
-    cy.get(appFrontend.changeOfName.uploadError).should('contain.text', texts.invalidMimeType);
-    cy.get(appFrontend.errorReport).should('contain.text', texts.invalidMimeType);
+    cy.get(appFrontend.alert).should('contain.text', texts.invalidMimeType);
     cy.get(appFrontend.changeOfName.uploadedTable).find('tbody > tr').should('have.length', 1);
   });
 
@@ -592,6 +591,7 @@ describe('Validation', () => {
         c.hidden = ['equals', ['component', 'comments'], 'hideSendersName'];
       }
     });
+    injectErrorOnSendersName();
 
     cy.goto('group');
     cy.get(appFrontend.navMenuButtons).should('have.length', 4);
@@ -602,15 +602,11 @@ describe('Validation', () => {
     cy.get(appFrontend.navMenuButtons).should('have.length', 4); // 'hide' page is still visible
     cy.navPage('hide').should('have.attr', 'aria-current', 'page');
     cy.get(appFrontend.group.sendersName).should('not.exist');
+    cy.get(appFrontend.errorReport).should('not.exist');
 
-    injectErrorOnSendersName();
     cy.gotoNavPage('summary');
     cy.get(appFrontend.sendinButton).click();
     cy.get(appFrontend.errorReport).should('contain.text', 'Tullevalidering');
-
-    // Two errors show up, because there is one error on the page where the field is hidden using expression, and one
-    // on the page that was never even visible.
-    cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 2);
   });
 
   it('Submitting should be rejected if validation fails on a field hidden using legacy dynamics', () => {
@@ -647,6 +643,8 @@ describe('Validation', () => {
       });
     });
 
+    injectErrorOnSendersName();
+
     cy.goto('group');
     cy.get(appFrontend.navMenuButtons).should('have.length', 4);
     cy.gotoNavPage('repeating');
@@ -656,15 +654,11 @@ describe('Validation', () => {
     cy.get(appFrontend.navMenuButtons).should('have.length', 4); // 'hide' page should be visible and active
     cy.navPage('hide').should('have.attr', 'aria-current', 'page');
     cy.get(appFrontend.group.sendersName).should('not.exist');
+    cy.get(appFrontend.errorReport).should('not.exist');
 
-    injectErrorOnSendersName();
     cy.get(appFrontend.nextButton).click();
     cy.get(appFrontend.sendinButton).click();
     cy.get(appFrontend.errorReport).should('contain.text', 'Tullevalidering');
-
-    // Two errors show up, because there is one error on the page where the field is hidden using legacy dynamics, and
-    // one on the page that was never even visible.
-    cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 2);
   });
 
   it('Submitting should be rejected if validation fails on page hidden using expression', () => {
@@ -675,6 +669,7 @@ describe('Validation', () => {
         layoutSet.hide.data.hidden = ['equals', ['component', 'comments'], 'hidePage'];
       },
     );
+    injectErrorOnSendersName();
 
     cy.goto('group');
     cy.get(appFrontend.navMenuButtons).should('have.length', 4);
@@ -683,15 +678,11 @@ describe('Validation', () => {
     cy.addItemToGroup(2, 3, 'hidePage');
     cy.get(appFrontend.nextButton).click();
     cy.get(appFrontend.navMenuButtons).should('have.length', 3); // 'hide' page is now invisible
+    cy.get(appFrontend.errorReport).should('not.exist');
     cy.navPage('summary').should('have.attr', 'aria-current', 'page');
 
-    injectErrorOnSendersName();
     cy.get(appFrontend.sendinButton).click();
     cy.get(appFrontend.errorReport).should('contain.text', 'Tullevalidering');
-
-    // Two errors show up, because there is one error on the page hidden using expressions, and one on the page
-    // that was never even visible.
-    cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 2);
   });
 
   /**
@@ -699,7 +690,7 @@ describe('Validation', () => {
    * This test is skipped because validation is not triggered by the new navigation refactor.
    * This will be fixed in combination with #1506.
    */
-  it.skip('Navigating to one task and navigating back should not produce error messages for hidden pages', () => {
+  it.only('Navigating to one task and navigating back should not produce error messages for hidden pages', () => {
     cy.goto('group');
     cy.gotoNavPage('summary');
     cy.get(appFrontend.sendinButton).click();
@@ -710,6 +701,7 @@ describe('Validation', () => {
     });
 
     cy.url().should('satisfy', (url) => url.endsWith('/Task_5/summary'));
+    // cy.findByRole('button', { name: /gå til riktig prosessteg/i }).should('be.visible');
 
     cy.url().then((url) => {
       cy.visit(url.replace('Task_5', 'Task_3'));

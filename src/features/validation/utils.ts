@@ -7,11 +7,11 @@ import {
   type NodeValidation,
   type ValidationGroup,
   ValidationMask,
+  type ValidationMaskKeys,
   type ValidationSeverity,
   type ValidationState,
 } from 'src/features/validation';
 import type { IAttachments, UploadedAttachment } from 'src/features/attachments';
-import type { ValidationMasks } from 'src/layout/common.generated';
 import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -93,7 +93,7 @@ export function buildNodeValidation<Severity extends ValidationSeverity = Valida
 /**
  * This can be used in a filter to remove hidden nodes from consideration when checking for validation errors
  */
-export function shouldValidateNode(node: LayoutNode) {
+export function shouldValidateNode(node: LayoutNode): boolean {
   return !node.isHidden({ respectTracks: true }) && !('renderAsSummary' in node.item && node.item.renderAsSummary);
 }
 
@@ -174,7 +174,7 @@ export function getInitialMaskFromNode(node: LayoutNode | LayoutPage): number {
   return 0;
 }
 
-export function getVisibilityMask(maskKeys?: ValidationMasks): number {
+export function getVisibilityMask(maskKeys?: ValidationMaskKeys[]): number {
   let mask = 0;
   if (!maskKeys) {
     return mask;

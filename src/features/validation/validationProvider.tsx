@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useImmer } from 'use-immer';
 
@@ -33,9 +33,8 @@ import {
 import {
   addVisibilityForAttachment,
   addVisibilityForNode,
-  getRawVisibilityForNode,
   getResolvedVisibilityForAttachment,
-  getResolvedVisibilityForNode,
+  getVisibilityForNode,
   onBeforeRowDelete,
   removeVisibilityForAttachment,
   removeVisibilityForNode,
@@ -71,6 +70,12 @@ export function ValidationContext({ children }) {
     items: [],
   });
 
+  /**
+   * This is a last resort to show all errors, to prevent unknown error
+   * if this is ever visible, there is probably something wring in the app.
+   */
+  const [showAllErrors, setShowAllErrors] = useState(false);
+
   // Update frontend validations for nodes when their data changes
   useOnNodeDataChange((changedNodes) => {
     const newValidations = runValidationOnNodes(changedNodes, validationContext);
@@ -80,7 +85,7 @@ export function ValidationContext({ children }) {
     });
 
     validating().then(() => {
-      evaluateNodeVisibility(changedNodes);
+      reduceNodeVisibility(changedNodes);
     });
   });
 
@@ -138,7 +143,7 @@ export function ValidationContext({ children }) {
     } while (pending.current);
   }, []);
 
-  const evaluateNodeVisibility = useEffectEvent((nodes: LayoutNode[]) => {
+  const reduceNodeVisibility = useEffectEvent((nodes: LayoutNode[]) => {
     setVisibility((state) => {
       for (const node of nodes) {
         const currentValidationMask = getValidationsForNode(
@@ -147,7 +152,7 @@ export function ValidationContext({ children }) {
           ValidationMask.All_Including_Backend,
         ).reduce((mask, validation) => mask | validation.category, 0);
 
-        const currentVisibilityMask = getRawVisibilityForNode(node, state);
+        const currentVisibilityMask = getVisibilityForNode(node, state);
 
         setVisibilityForNode(node, state, currentValidationMask & currentVisibilityMask);
       }
@@ -155,18 +160,9 @@ export function ValidationContext({ children }) {
   });
 
   // Set visibility for a node
-  const setNodeVisibility = useEffectEvent(
-    (nodes: (LayoutNode | LayoutPage)[], newVisibility: number, rowIndex?: number) => {
-      setVisibility((state) => {
-        nodes.forEach((node) => setVisibilityForNode(node, state, newVisibility, rowIndex));
-      });
-    },
-  );
-
-  // Set visibility for the whole form
-  const setRootVisibility = useEffectEvent((newVisibility: number) => {
+  const setNodeVisibility = useEffectEvent((nodes: LayoutNode[], newVisibility: number, rowIndex?: number) => {
     setVisibility((state) => {
-      state.mask = newVisibility;
+      nodes.forEach((node) => setVisibilityForNode(node, state, newVisibility, rowIndex));
     });
   });
 
@@ -185,12 +181,29 @@ export function ValidationContext({ children }) {
     });
   });
 
+  /**
+   * Hide unbound errors as soon as possible.
+   */
+  useEffect(() => {
+    if (showAllErrors) {
+      const backendMask = getVisibilityMask(['Backend', 'CustomBackend']);
+      const hasFieldErors =
+        Object.values(validations.fields).flatMap((field) => validationsFromGroups(field, backendMask, 'error'))
+          .length > 0;
+
+      if (!hasFieldErors && !hasValidationErrors(validations.task)) {
+        setShowAllErrors(false);
+      }
+    }
+  }, [showAllErrors, validations.fields, validations.task]);
+
   const out = {
     state: validations,
+    setShowAllErrors,
+    showAllErrors,
     validating,
     visibility,
     setNodeVisibility,
-    setRootVisibility,
     setAttachmentVisibility,
     removeRowVisibilityOnDelete,
   };
@@ -301,9 +314,13 @@ export function useOnFormSubmitValidation() {
   const setNodeVisibility = useCtx().setNodeVisibility;
   const state = useCtx().state;
   const validating = useCtx().validating;
+  const setShowAllErrors = useCtx().setShowAllErrors;
 
   /* Ensures the callback will have the latest state */
   const callback = useEffectEvent((layoutPages: LayoutPages): boolean => {
+    /*
+     * First: check and show any frontend errors
+     */
     const nodesWithFrontendErrors = layoutPages
       .allNodes()
       .filter(shouldValidateNode)
@@ -314,19 +331,30 @@ export function useOnFormSubmitValidation() {
       return true;
     }
 
-    const nodesWithAnyErrors = layoutPages
+    /*
+     * Normally, backend errors should be in sync with frontend errors.
+     * But if not, show them now.
+     */
+    const nodesWithAnyError = layoutPages
       .allNodes()
       .filter(shouldValidateNode)
       .filter((n) => getValidationsForNode(n, state, ValidationMask.All_Including_Backend, 'error').length > 0);
 
-    if (nodesWithAnyErrors.length > 0) {
-      setNodeVisibility(nodesWithAnyErrors, ValidationMask.All_Including_Backend);
+    if (nodesWithAnyError.length > 0) {
+      setNodeVisibility(nodesWithAnyError, ValidationMask.All);
       return true;
     }
 
-    // TODO(Validation): Set visibility for task errors somehow
-    // eslint-disable-next-line sonarjs/prefer-single-boolean-return
-    if (hasValidationErrors(state.task)) {
+    /**
+     * As a last resort, to prevent unknown error, show any backend errors
+     * that cannot be mapped to any visible node.
+     */
+    const backendMask = getVisibilityMask(['Backend', 'CustomBackend']);
+    const hasFieldErors =
+      Object.values(state.fields).flatMap((field) => validationsFromGroups(field, backendMask, 'error')).length > 0;
+
+    if (hasFieldErors || hasValidationErrors(state.task)) {
+      setShowAllErrors(true);
       return true;
     }
 
@@ -355,7 +383,7 @@ export function useUnifiedValidationsForNode(node: LayoutNode | undefined): Node
     if (!node) {
       return [];
     }
-    return getValidationsForNode(node, state, getResolvedVisibilityForNode(node, visibility));
+    return getValidationsForNode(node, state, getVisibilityForNode(node, visibility));
   }, [node, state, visibility]);
 }
 
@@ -376,7 +404,7 @@ export function useDeepValidationsForNode(
     }
     const nodesToValidate = onlyChildren ? node.flat(true, onlyInRowIndex) : [node, ...node.flat(true, onlyInRowIndex)];
     return nodesToValidate.flatMap((node) =>
-      getValidationsForNode(node, state, getResolvedVisibilityForNode(node, visibility)),
+      getValidationsForNode(node, state, getVisibilityForNode(node, visibility)),
     );
   }, [node, onlyChildren, onlyInRowIndex, state, visibility]);
 }
@@ -398,7 +426,7 @@ export function useBindingValidationsForNode<
     if (!node.item.dataModelBindings) {
       return undefined;
     }
-    const mask = getResolvedVisibilityForNode(node, visibility);
+    const mask = getVisibilityForNode(node, visibility);
     const bindingValidations = {};
     for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings)) {
       bindingValidations[bindingKey] = [];
@@ -449,7 +477,7 @@ export function useComponentValidationsForNode(node: LayoutNode): NodeValidation
     if (!component?.component) {
       return [];
     }
-    const validations = validationsFromGroups(component.component!, getResolvedVisibilityForNode(node, visibility));
+    const validations = validationsFromGroups(component.component!, getVisibilityForNode(node, visibility));
     return validations.map((validation) => buildNodeValidation(node, validation));
   }, [component.component, node, visibility]);
 }
@@ -465,6 +493,7 @@ export function useTaskErrors(): {
   const pages = useExprContext();
   const state = useCtx().state;
   const visibility = useCtx().visibility;
+  const showAllErrors = useCtx().showAllErrors;
 
   return useMemo(() => {
     if (!pages) {
@@ -474,13 +503,20 @@ export function useTaskErrors(): {
     const taskErrors: BaseValidation<'error'>[] = [];
 
     for (const node of pages.allNodes().filter(shouldValidateNode)) {
-      formErrors.push(...getValidationsForNode(node, state, getResolvedVisibilityForNode(node, visibility), 'error'));
+      formErrors.push(...getValidationsForNode(node, state, getVisibilityForNode(node, visibility), 'error'));
     }
-    for (const validation of validationsOfSeverity(state.task, 'error')) {
-      taskErrors.push(validation);
+
+    if (showAllErrors) {
+      const backendMask = getVisibilityMask(['Backend', 'CustomBackend']);
+      for (const field of Object.values(state.fields)) {
+        taskErrors.push(...(validationsFromGroups(field, backendMask, 'error') as BaseValidation<'error'>[]));
+      }
+      for (const validation of validationsOfSeverity(state.task, 'error')) {
+        taskErrors.push(validation);
+      }
     }
     return { formErrors, taskErrors };
-  }, [pages, state, visibility]);
+  }, [pages, showAllErrors, state, visibility]);
 }
 
 /**

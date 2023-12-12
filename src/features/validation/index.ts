@@ -10,7 +10,6 @@ import type { Visibility } from 'src/features/validation/visibility';
 import type { ILayoutSets } from 'src/types';
 import type { IInstance, IProcess } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 export enum FrontendValidationSource {
   EmptyField = '__empty_field__',
@@ -77,8 +76,9 @@ export type ValidationContext = {
   state: ValidationState;
   validating: () => Promise<void>;
   visibility: Visibility;
-  setNodeVisibility: (nodes: (LayoutNode | LayoutPage)[], newVisibility: number, rowIndex?: number) => void;
-  setRootVisibility: (newVisibility: number) => void;
+  setNodeVisibility: (nodes: LayoutNode[], newVisibility: number, rowIndex?: number) => void;
+  showAllErrors: boolean;
+  setShowAllErrors: (showAllErrors: boolean) => void;
   setAttachmentVisibility: (attachmentId: string, node: LayoutNode, newVisibility: number) => void;
   removeRowVisibilityOnDelete: (node: LayoutNode<'Group'>, rowIndex: number) => void;
 };

@@ -165,34 +165,14 @@ function getVisibilityFromPath(path: PathItem[], state: Visibility): Visibility 
   return currentVisibility;
 }
 
-export function getRawVisibilityForNode(node: LayoutNode, state: Visibility): number {
+export function getVisibilityForNode(node: LayoutNode, state: Visibility): number {
   const path = getPathFromRoot(node);
   const visibility = getVisibilityFromPath(path, state);
   return visibility?.mask ?? 0;
 }
 
-export function getResolvedVisibilityForNode(node: LayoutNode, state: Visibility): number {
-  let mask = state.mask;
-
-  const path = getPathFromRoot(node);
-
-  let currentVisibility: Visibility = state;
-  for (const key of path) {
-    const nextVisibility = getChildVisibility(currentVisibility, key);
-
-    if (!nextVisibility) {
-      break;
-    }
-
-    mask |= nextVisibility.mask;
-
-    currentVisibility = nextVisibility;
-  }
-  return mask;
-}
-
 export function getResolvedVisibilityForAttachment(attachmentId: string, node: LayoutNode, state: Visibility): number {
-  let mask = getResolvedVisibilityForNode(node, state);
+  let mask = getVisibilityForNode(node, state);
   const path = getPathFromRoot(node);
   const nodeVisibility = getVisibilityFromPath(path, state);
   if (!nodeVisibility) {
