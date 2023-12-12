@@ -1,16 +1,10 @@
-import {
-  groupIsNonRepeating,
-  groupIsNonRepeatingPanel,
-  groupIsRepeating,
-  groupIsRepeatingLikert,
-} from 'src/layout/Group/tools';
+import { groupIsNonRepeating, groupIsNonRepeatingPanel, groupIsRepeating } from 'src/layout/Group/tools';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   CompGroupInternal,
   CompGroupNonRepeatingInternal,
   CompGroupNonRepeatingPanelInternal,
   CompGroupRepeatingInternal,
-  CompGroupRepeatingLikertInternal,
 } from 'src/layout/Group/config.generated';
 
 export class LayoutNodeForGroup<T extends CompGroupInternal = CompGroupInternal> extends BaseLayoutNode<T, 'Group'> {
@@ -24,9 +18,5 @@ export class LayoutNodeForGroup<T extends CompGroupInternal = CompGroupInternal>
 
   public isNonRepPanelGroup(): this is LayoutNodeForGroup<CompGroupNonRepeatingPanelInternal> {
     return groupIsNonRepeatingPanel(this.item);
-  }
-
-  public isRepGroupLikert(): this is LayoutNodeForGroup<CompGroupRepeatingLikertInternal> {
-    return groupIsRepeatingLikert(this.item);
   }
 }

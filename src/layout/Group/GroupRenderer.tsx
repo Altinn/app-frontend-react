@@ -4,7 +4,6 @@ import { GenericComponent } from 'src/layout/GenericComponent';
 import { DisplayGroupContainer } from 'src/layout/Group/DisplayGroupContainer';
 import { GroupContainer } from 'src/layout/Group/GroupContainer';
 import { RepeatingGroupsFocusProvider } from 'src/layout/Group/RepeatingGroupsFocusContext';
-import { RepeatingGroupsLikertContainer } from 'src/layout/Likert/RepeatingGroupsLikertContainer';
 import { PanelGroupContainer } from 'src/layout/Panel/PanelGroupContainer';
 import { PanelReferenceGroupContainer } from 'src/layout/Panel/PanelReferenceGroupContainer';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -12,10 +11,6 @@ import type { PropsFromGenericComponent } from 'src/layout';
 export type GroupRendererProps = PropsFromGenericComponent<'Group'>;
 
 export function GroupRenderer({ node }: GroupRendererProps) {
-  if (node.isRepGroupLikert()) {
-    return <RepeatingGroupsLikertContainer node={node} />;
-  }
-
   if (node.isRepGroup()) {
     return (
       <RepeatingGroupsFocusProvider>

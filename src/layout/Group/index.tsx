@@ -8,12 +8,7 @@ import { GroupRenderer } from 'src/layout/Group/GroupRenderer';
 import { GroupHierarchyGenerator } from 'src/layout/Group/hierarchy';
 import { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
-import {
-  groupIsNonRepeatingExt,
-  groupIsNonRepeatingPanelExt,
-  groupIsRepeatingExt,
-  groupIsRepeatingLikertExt,
-} from 'src/layout/Group/tools';
+import { groupIsNonRepeatingExt, groupIsNonRepeatingPanelExt, groupIsRepeatingExt } from 'src/layout/Group/tools';
 import { runValidationOnNodes } from 'src/utils/validation/validation';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
@@ -115,7 +110,7 @@ export class Group extends GroupDef implements GroupValidation, ComponentValidat
   }
 
   isDataModelBindingsRequired(node: LayoutNode<'Group'>): boolean {
-    return node.isRepGroup() || node.isRepGroupLikert();
+    return node.isRepGroup();
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'Group'>): string[] {
@@ -146,8 +141,6 @@ export class Group extends GroupDef implements GroupValidation, ComponentValidat
       schemaPointer = '#/definitions/CompGroupNonRepeating';
     } else if (groupIsNonRepeatingPanelExt(component)) {
       schemaPointer = '#/definitions/CompGroupNonRepeatingPanel';
-    } else if (groupIsRepeatingLikertExt(component)) {
-      schemaPointer = '#/definitions/CompGroupRepeatingLikert';
     } else if (groupIsRepeatingExt(component)) {
       schemaPointer = '#/definitions/CompGroupRepeating';
     }

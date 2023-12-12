@@ -89,7 +89,6 @@ Config.overrideExported(
     commonExtensions(makeRepeatingGroup()).inner.exportAs('CompGroupRepeating'),
     commonExtensions(makeNonRepeatingGroup()).inner.exportAs('CompGroupNonRepeating'),
     commonExtensions(makeNonRepeatingPanelGroup()).inner.exportAs('CompGroupNonRepeatingPanel'),
-    commonExtensions(makeRepeatingLikertGroup()).inner.exportAs('CompGroupRepeatingLikert'),
   ),
 );
 
@@ -440,66 +439,4 @@ function makeNonRepeatingPanelGroup() {
       ),
     )
     .addProperty(commonShowGroupingIndicatorProp);
-}
-
-function makeRepeatingLikertGroup() {
-  return new CG.componentLike()
-    .addTextResource(
-      new CG.trb({
-        name: 'title',
-        title: 'Title',
-        description: 'The title of the group',
-      }),
-    )
-    .addTextResource(
-      new CG.trb({
-        name: 'leftColumnHeader',
-        title: 'Left column header (for repeating groups displayed as Likert)',
-        description: 'The header text for the left column in the Likert table (when edit.mode is "likert")',
-      }),
-    )
-    .addTextResource(
-      new CG.trb({
-        name: 'description',
-        title: 'Description (for repeating groups displayed as Likert)',
-        description: 'The description text for the Likert table (when edit.mode is "likert")',
-      }),
-    )
-    .addProperty(commonRepRowsProp)
-    .addDataModelBinding(commonRepGroupDataModelBinding)
-    .addProperty(
-      new CG.prop(
-        'edit',
-        new CG.obj(
-          new CG.prop(
-            'mode',
-            new CG.const('likert').setTitle('Mode').setDescription('The mode of the repeating group'),
-          ),
-          new CG.prop(
-            'filter',
-            new CG.arr(
-              new CG.obj(new CG.prop('key', new CG.str()), new CG.prop('value', new CG.str())).exportAs('IGroupFilter'),
-            )
-              .optional()
-              .setTitle('Filter')
-              .setDescription(
-                'Optionally filter specific rows within the likert group using start/stop indexes for displaying the desired ones' +
-                  '(in other cases use an expression in the "hiddenRow" property instead)',
-              ),
-          ),
-        ).exportAs('IGroupEditPropertiesLikert'),
-      ),
-    )
-    .addProperty(
-      new CG.prop(
-        'maxCount',
-        new CG.int()
-          .setMin(2)
-          .setTitle('Max number of rows')
-          .setDescription(
-            'Maximum number of rows that can be added. Setting this to a value ' +
-              'higher than 1 turns the group into a repeating group',
-          ),
-      ),
-    );
 }

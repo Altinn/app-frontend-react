@@ -1,7 +1,7 @@
-import { groupIsRepeatingExt, groupIsRepeatingLikertExt } from 'src/layout/Group/tools';
-import type { CompGroupExternal, IGroupEditPropertiesLikert } from 'src/layout/Group/config.generated';
+import { groupIsRepeatingExt } from 'src/layout/Group/tools';
+import type { CompGroupExternal } from 'src/layout/Group/config.generated';
 import type { CompExternal, ILayout } from 'src/layout/layout';
-import type { ILikertGroupEditProperties } from 'src/layout/LikertGroup/config.generated';
+import type { CompLikertGroupExternal, ILikertGroupEditProperties } from 'src/layout/LikertGroup/config.generated';
 import type { ILayoutSets, IRepeatingGroups } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -103,8 +103,8 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
   // filter away groups that should be rendered as child groups
   const filteredGroups = groups.filter((group) => childGroups.indexOf(group.id) === -1);
 
-  filteredGroups.forEach((groupElement: CompGroupExternal) => {
-    if (groupIsRepeatingExt(groupElement) || groupIsRepeatingLikertExt(groupElement)) {
+  filteredGroups.forEach((groupElement: CompGroupExternal | CompLikertGroupExternal) => {
+    if (groupElement.type === 'LikertGroup' || groupIsRepeatingExt(groupElement)) {
       const groupFormData = Object.keys(formData)
         .filter((key) => groupElement.dataModelBindings?.group && key.startsWith(groupElement.dataModelBindings.group))
         .sort();
@@ -121,6 +121,7 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
           const groupElementChildGroups: string[] = [];
           groupElement.children?.forEach((id) => {
             if (
+              groupElement.type !== 'LikertGroup' &&
               groupIsRepeatingExt(groupElement) &&
               groupElement.edit?.multiPage &&
               childGroups.includes(id.split(':')[1])
@@ -212,7 +213,7 @@ export function removeRepeatingGroupFromUIConfig(
 
 export const getRepeatingGroupStartStopIndex = (
   repeatingGroupIndex: number,
-  edit: Pick<IGroupEditPropertiesLikert | ILikertGroupEditProperties, 'filter'> | undefined,
+  edit: Pick<ILikertGroupEditProperties, 'filter'> | undefined,
 ) => {
   if (typeof repeatingGroupIndex === 'undefined') {
     return { startIndex: 0, stopIndex: -1 };

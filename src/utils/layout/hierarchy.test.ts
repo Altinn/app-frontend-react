@@ -339,12 +339,11 @@ describe('Hierarchical layout tools', () => {
       const layout: ILayout = [
         {
           id: 'g1',
-          type: 'Group',
+          type: 'LikertGroup',
           maxCount: 99,
           children: ['g1c'],
           dataModelBindings: { group: 'Group' },
           edit: {
-            mode: 'likert',
             filter: [
               { key: 'start', value: '0' },
               { key: 'stop', value: '3' },
@@ -358,12 +357,11 @@ describe('Hierarchical layout tools', () => {
         },
         {
           id: 'g2',
-          type: 'Group',
+          type: 'LikertGroup',
           maxCount: 99,
           children: ['g2c'],
           dataModelBindings: { group: 'Group' },
           edit: {
-            mode: 'likert',
             filter: [
               { key: 'start', value: '3' },
               { key: 'stop', value: '6' },

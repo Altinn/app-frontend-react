@@ -3,13 +3,7 @@ import { nodesFromGridRow } from 'src/layout/Grid/tools';
 import { groupIsNonRepeatingPanelExt, groupIsRepeating, groupIsRepeatingExt } from 'src/layout/Group/tools';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
-import type {
-  CompGroupExternal,
-  CompGroupRepeatingInternal,
-  CompGroupRepeatingLikertInternal,
-  HRepGroupRows,
-  IGroupEditPropertiesLikert,
-} from 'src/layout/Group/config.generated';
+import type { CompGroupExternal, CompGroupRepeatingInternal, HRepGroupRows } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type {
   ChildFactory,
@@ -90,7 +84,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
   childrenFromNode(node: LayoutNode<'Group'>, onlyInRowIndex?: number): LayoutNode[] {
     let list: LayoutNode[] = [];
 
-    function iterateRepGroup(node: LayoutNodeForGroup<CompGroupRepeatingLikertInternal | CompGroupRepeatingInternal>) {
+    function iterateRepGroup(node: LayoutNodeForGroup<CompGroupRepeatingInternal>) {
       const maybeNodes =
         typeof onlyInRowIndex === 'number'
           ? node.item.rows.find((r) => r && r.index === onlyInRowIndex)?.items || []
@@ -116,8 +110,6 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
       if (node.item.rowsAfter && onlyInRowIndex === undefined) {
         list.push(...node.item.rowsAfter.map(nodesFromGridRow).flat());
       }
-    } else if (node.isRepGroupLikert()) {
-      iterateRepGroup(node);
     } else if (node.isNonRepGroup() || node.isNonRepPanelGroup()) {
       list = node.item.childComponents;
     }
@@ -205,10 +197,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
       const me = ctx.generator.makeNode(props);
       const rows: HRepGroupRows = [];
       const lastIndex = (ctx.generator.repeatingGroups || {})[props.item.id]?.index;
-      const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(
-        lastIndex,
-        'edit' in props.item ? (props.item.edit as IGroupEditPropertiesLikert) : {},
-      );
+      const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(lastIndex, {});
 
       for (let rowIndex = startIndex; rowIndex <= stopIndex; rowIndex++) {
         const rowChildren: LayoutNode[] = [];
@@ -274,7 +263,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
         }
       }
 
-      if (me.isRepGroup() || me.isRepGroupLikert()) {
+      if (me.isRepGroup()) {
         me.item.rows = rows;
       }
 
