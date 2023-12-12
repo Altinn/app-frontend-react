@@ -110,7 +110,7 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
   const [showMenu, setShowMenu] = React.useState(false);
   const isMobile = useIsMobile() || compact === true;
   const { langAsString } = useLanguage();
-  const { navigateToPage, currentPageId, order, beforeNavigation } = useNavigatePage();
+  const { navigateToPage, currentPageId, order, maybeSaveOnPageChange } = useNavigatePage();
 
   const firstPageLink = React.useRef<HTMLButtonElement>();
 
@@ -120,12 +120,12 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
       return;
     }
 
-    beforeNavigation();
+    maybeSaveOnPageChange();
 
     /**
      * TODO(Validation): Need to run validations
      */
-    navigateToPage(pageId);
+    navigateToPage(pageId, { skipAutoSave: true });
   };
 
   const shouldShowMenu = !isMobile || showMenu;

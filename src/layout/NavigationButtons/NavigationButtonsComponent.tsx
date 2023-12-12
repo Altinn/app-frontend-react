@@ -14,7 +14,7 @@ export type INavigationButtons = PropsFromGenericComponent<'NavigationButtons'>;
 
 export function NavigationButtonsComponent({ node }: INavigationButtons) {
   const { id, showBackButton, textResourceBindings, validateOnNext, validateOnPrevious } = node.item;
-  const { navigateToPage, next, previous, beforeNavigation } = useNavigatePage();
+  const { navigateToPage, next, previous, maybeSaveOnPageChange } = useNavigatePage();
   const { returnToView, setReturnToView } = usePageNavigationContext();
 
   const refPrev = React.useRef<HTMLButtonElement>(null);
@@ -56,7 +56,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
       return;
     }
 
-    beforeNavigation();
+    maybeSaveOnPageChange();
 
     const prevScrollPosition = getScrollPosition();
     if (validateOnPrevious && (await onPageValidation(node.top, validateOnPrevious))) {
@@ -65,7 +65,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
       return;
     }
 
-    navigateToPage(previous);
+    navigateToPage(previous, { skipAutoSave: true });
   };
 
   const OnClickNext = async () => {
@@ -74,7 +74,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
       return;
     }
 
-    beforeNavigation();
+    maybeSaveOnPageChange();
 
     const prevScrollPosition = getScrollPosition();
     if (validateOnNext && (await onPageValidation(node.top, validateOnNext))) {
@@ -84,7 +84,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
     }
 
     setReturnToView(undefined);
-    navigateToPage(goToView);
+    navigateToPage(goToView, { skipAutoSave: true });
   };
 
   return (

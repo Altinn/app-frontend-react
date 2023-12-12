@@ -14,6 +14,7 @@ import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 type NavigateToPageOptions = {
   focusComponentId?: string;
   returnToView?: string;
+  skipAutoSave?: boolean;
 };
 
 export enum TaskKeys {
@@ -104,11 +105,11 @@ export const useNavigatePage = () => {
     }
   }, [isStatelessApp, order, navigate, currentPageId, isValidPageId]);
 
-  const beforeNavigation = useCallback(() => {
-    if (autoSaveBehavior === 'onChangePage') {
+  const maybeSaveOnPageChange = useCallback(() => {
+    if (autoSaveBehavior === 'onChangePage' && order?.includes(currentPageId)) {
       dispatch(FormDataActions.saveLatest({}));
     }
-  }, [autoSaveBehavior, dispatch]);
+  }, [autoSaveBehavior, currentPageId, dispatch, order]);
 
   const navigateToPage = useCallback(
     (page?: string, options?: NavigateToPageOptions) => {
@@ -123,6 +124,10 @@ export const useNavigatePage = () => {
         setReturnToView(options.returnToView);
       }
 
+      if (options?.skipAutoSave !== true) {
+        maybeSaveOnPageChange();
+      }
+
       if (isStatelessApp) {
         return navigate(`/${page}`);
       }
@@ -130,7 +135,17 @@ export const useNavigatePage = () => {
       const url = `/instance/${partyId}/${instanceGuid}/${taskId}/${page}`;
       navigate(url);
     },
-    [navigate, partyId, instanceGuid, taskId, setFocusId, setReturnToView, order, isStatelessApp],
+    [
+      order,
+      setFocusId,
+      isStatelessApp,
+      partyId,
+      instanceGuid,
+      taskId,
+      navigate,
+      setReturnToView,
+      maybeSaveOnPageChange,
+    ],
   );
 
   const navigateToTask = useCallback(
@@ -238,6 +253,6 @@ export const useNavigatePage = () => {
     previous,
     navigateToNextPage,
     navigateToPreviousPage,
-    beforeNavigation,
+    maybeSaveOnPageChange,
   };
 };
