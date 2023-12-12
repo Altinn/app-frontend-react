@@ -5,8 +5,8 @@ export const Config = new CG.component({
   category: CompCategory.Action,
   rendersWithLabel: false,
   capabilities: {
-    renderInTable: false,
-    renderInButtonGroup: false,
+    renderInTable: true,
+    renderInButtonGroup: true,
     renderInAccordion: false,
     renderInAccordionGroup: false,
   },
