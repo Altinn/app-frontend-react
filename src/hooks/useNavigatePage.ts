@@ -104,6 +104,12 @@ export const useNavigatePage = () => {
     }
   }, [isStatelessApp, order, navigate, currentPageId, isValidPageId]);
 
+  const beforeNavigation = useCallback(() => {
+    if (autoSaveBehavior === 'onChangePage') {
+      dispatch(FormDataActions.saveLatest({}));
+    }
+  }, [autoSaveBehavior, dispatch]);
+
   const navigateToPage = useCallback(
     (page?: string, options?: NavigateToPageOptions) => {
       if (!page) {
@@ -117,10 +123,6 @@ export const useNavigatePage = () => {
         setReturnToView(options.returnToView);
       }
 
-      if (autoSaveBehavior === 'onChangePage' && order?.includes(currentPageId)) {
-        dispatch(FormDataActions.saveLatest({}));
-      }
-
       if (isStatelessApp) {
         return navigate(`/${page}`);
       }
@@ -128,19 +130,7 @@ export const useNavigatePage = () => {
       const url = `/instance/${partyId}/${instanceGuid}/${taskId}/${page}`;
       navigate(url);
     },
-    [
-      navigate,
-      partyId,
-      instanceGuid,
-      taskId,
-      setFocusId,
-      setReturnToView,
-      autoSaveBehavior,
-      dispatch,
-      order,
-      currentPageId,
-      isStatelessApp,
-    ],
+    [navigate, partyId, instanceGuid, taskId, setFocusId, setReturnToView, order, isStatelessApp],
   );
 
   const navigateToTask = useCallback(
@@ -248,5 +238,6 @@ export const useNavigatePage = () => {
     previous,
     navigateToNextPage,
     navigateToPreviousPage,
+    beforeNavigation,
   };
 };

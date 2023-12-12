@@ -14,7 +14,7 @@ export type INavigationButtons = PropsFromGenericComponent<'NavigationButtons'>;
 
 export function NavigationButtonsComponent({ node }: INavigationButtons) {
   const { id, showBackButton, textResourceBindings, validateOnNext, validateOnPrevious } = node.item;
-  const { navigateToPage, next, previous } = useNavigatePage();
+  const { navigateToPage, next, previous, beforeNavigation } = useNavigatePage();
   const { returnToView, setReturnToView } = usePageNavigationContext();
 
   const refPrev = React.useRef<HTMLButtonElement>(null);
@@ -56,6 +56,8 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
       return;
     }
 
+    beforeNavigation();
+
     const prevScrollPosition = getScrollPosition();
     if (validateOnPrevious && (await onPageValidation(node.top, validateOnPrevious))) {
       // Block navigation if validation fails
@@ -71,6 +73,8 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
     if (!goToView || disableNext) {
       return;
     }
+
+    beforeNavigation();
 
     const prevScrollPosition = getScrollPosition();
     if (validateOnNext && (await onPageValidation(node.top, validateOnNext))) {
