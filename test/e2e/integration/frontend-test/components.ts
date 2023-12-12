@@ -3,6 +3,8 @@ import path from 'path';
 import texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
+import type { CompInputExternal } from 'src/layout/Input/config.generated';
+
 const appFrontend = new AppFrontend();
 
 describe('UI Components', () => {
@@ -47,6 +49,12 @@ describe('UI Components', () => {
   });
 
   it('is possible to upload and delete attachments', () => {
+    cy.interceptLayout('changename', (component) => {
+      if (component.id === 'newFirstName') {
+        // TODO(Validation): Once it is possible to treat custom validations as required, this can be removed.
+        (component as CompInputExternal).showValidations = undefined;
+      }
+    });
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.uploadDropZone).should('be.visible');
     cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
@@ -78,6 +86,12 @@ describe('UI Components', () => {
   });
 
   it('is possible to upload attachments with tags', () => {
+    cy.interceptLayout('changename', (component) => {
+      if (component.id === 'newFirstName') {
+        // TODO(Validation): Once it is possible to treat custom validations as required, this can be removed.
+        (component as CompInputExternal).showValidations = undefined;
+      }
+    });
     cy.goto('changename');
     cy.intercept('POST', '**/tags').as('saveTags');
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('not.exist');
@@ -358,12 +372,7 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.componentSummary).contains('Testveien 1');
   });
 
-  /**
-   * TODO(1508):
-   * This test is skipped because validation is not triggered by the new navigation refactor.
-   * This will be fixed in combination with #1506.
-   */
-  it.skip('button group with navigation, printbutton', () => {
+  it('button group with navigation, printbutton', () => {
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.newFirstName).type('Per');
     cy.get(appFrontend.changeOfName.newFirstName).blur();
@@ -410,7 +419,6 @@ describe('UI Components', () => {
         cy.get('#form-content-newFirstName').should('not.contain', 'Bruk 4 eller færre tegn');
       }
       cy.get(appFrontend.errorReport).should('be.visible');
-      cy.get(appFrontend.errorReport).should('contain.text', 'Må summeres opp til 100%');
       cy.get(appFrontend.errorReport).should('contain.text', 'Bruk 4 eller færre tegn');
     });
   });

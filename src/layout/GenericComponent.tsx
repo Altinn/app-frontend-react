@@ -125,7 +125,10 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     }
 
     // If maxLength is set in both schema and component, don't display the schema error message
-    return validations.filter((validation) => !(validation.message.key === 'validation_errors.maxLength'));
+    return validations.filter(
+      (validation) =>
+        !(validation.message.key === 'validation_errors.maxLength' && validation.message.params?.at(0) === maxLength),
+    );
   };
 
   const formComponentContext = useMemo<IFormComponentContext>(
