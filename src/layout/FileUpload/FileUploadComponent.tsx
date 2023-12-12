@@ -1,7 +1,7 @@
 import React from 'react';
+import { toast } from 'react-toastify';
 import type { FileRejection } from 'react-dropzone';
 
-import { useAlertContext } from 'src/core/contexts/alertContext';
 import { useAttachmentsFor, useAttachmentsUploader } from 'src/features/attachments/AttachmentsContext';
 import {
   AttachmentsMappedToFormDataProvider,
@@ -52,8 +52,6 @@ export function FileUploadComponent({
   const langTools = useLanguage();
   const { langAsString } = langTools;
 
-  const { showAlert } = useAlertContext();
-
   const { options } = useGetOptions({
     ...node.item,
     node,
@@ -91,9 +89,12 @@ export function FileUploadComponent({
 
     if (totalAttachments > maxNumberOfAttachments) {
       // if the user adds more attachments than max, all should be ignored
-      showAlert(
-        { key: 'form_filler.file_uploader_validation_error_exceeds_max_files', params: [maxNumberOfAttachments] },
-        'danger',
+      toast(
+        <Lang
+          id={'form_filler.file_uploader_validation_error_exceeds_max_files'}
+          params={[maxNumberOfAttachments]}
+        />,
+        { type: 'error' },
       );
       return;
     }
@@ -113,7 +114,7 @@ export function FileUploadComponent({
       maxFileSizeInMB,
     });
     if (rejections?.length) {
-      showAlert({ key: `- ${rejections.join('\n- ')}` }, 'danger');
+      toast(<Lang id={`- ${rejections.join('\n- ')}`} />, { type: 'error' });
     }
   };
 

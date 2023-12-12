@@ -79,12 +79,10 @@ export function en() {
       file_uploader_validation_error_exceeds_max_files:
         'You can not upload more than {0} files. No files were uploaded.',
       file_uploader_validation_error_file_ending: 'is not an allowed file type.',
-      file_uploader_validation_error_file_number_1: 'You need to upload',
-      file_uploader_validation_error_file_number_2: 'attachement(s) to continue',
-      file_uploader_validation_error_file_size: ' exeeds the valid file size.',
-      file_uploader_validation_error_general_1: 'There was a problem with the file',
-      file_uploader_validation_error_general_2:
-        '. Make sure the file has correct file type and does not exeed the size limit.',
+      file_uploader_validation_error_file_number: 'You need to upload {0} attachement(s) to continue',
+      file_uploader_validation_error_file_size: '{0} exeeds the valid file size.',
+      file_uploader_validation_error_general:
+        'There was a problem with the file {0}. Make sure the file has correct file type and does not exeed the size limit.',
       file_uploader_validation_error_upload: 'Something went wrong trying to upload the file, please try again.',
       file_uploader_validation_error_update: 'Something went wrong trying to update the filetag, please try again.',
       file_uploader_validation_error_no_chosen_tag: 'You have to choose one {0}',

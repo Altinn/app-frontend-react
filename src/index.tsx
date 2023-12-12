@@ -18,7 +18,6 @@ import { App } from 'src/App';
 import { ErrorBoundary } from 'src/components/ErrorBoundary';
 import { ThemeWrapper } from 'src/components/ThemeWrapper';
 import { KeepAliveProvider } from 'src/core/auth/KeepAliveProvider';
-import { AlertProvider } from 'src/core/contexts/alertContext';
 import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
 import { WindowTitleProvider } from 'src/core/ui/WindowTitleProvider';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
@@ -62,9 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <AppWrapper>
             <LanguageProvider>
               <ThemeWrapper>
-                <AlertProvider>
-                  <RouterProvider router={router} />
-                </AlertProvider>
+                <RouterProvider router={router} />
               </ThemeWrapper>
             </LanguageProvider>
           </AppWrapper>

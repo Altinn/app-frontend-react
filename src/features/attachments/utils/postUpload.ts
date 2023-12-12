@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { toast } from 'react-toastify';
 import type React from 'react';
 
 import { useMutation } from '@tanstack/react-query';
@@ -6,7 +7,6 @@ import { useImmerReducer } from 'use-immer';
 import type { AxiosError } from 'axios';
 import type { ImmerReducer } from 'use-immer';
 
-import { useAlertContext } from 'src/core/contexts/alertContext';
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { useMappedAttachments } from 'src/features/attachments/utils/mapping';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
@@ -156,7 +156,7 @@ const useUpdate = (dispatch: Dispatch) => {
   const { mutateAsync: removeTag } = useAttachmentsRemoveTagMutation();
   const { mutateAsync: addTag } = useAttachmentsAddTagMutation();
   const { changeData: changeInstanceData } = useLaxInstance() || {};
-  const { showAlert } = useAlertContext();
+  const { lang } = useLanguage();
 
   return async (action: RawAttachmentAction<AttachmentActionUpdate>) => {
     const { tags, attachment } = action;
@@ -198,7 +198,7 @@ const useUpdate = (dispatch: Dispatch) => {
         });
     } catch (error) {
       dispatch({ ...action, action: 'update', success: false, error });
-      showAlert({ key: 'form_filler.file_uploader_validation_error_update' }, 'danger');
+      toast(lang('form_filler.file_uploader_validation_error_update'), { type: 'error' });
     }
   };
 };
@@ -206,8 +206,7 @@ const useUpdate = (dispatch: Dispatch) => {
 const useRemove = (dispatch: Dispatch) => {
   const { mutateAsync: removeAttachment } = useAttachmentsRemoveMutation();
   const { changeData: changeInstanceData } = useLaxInstance() || {};
-  const { langAsString } = useLanguage();
-  const { showAlert } = useAlertContext();
+  const { lang } = useLanguage();
 
   return async (action: RawAttachmentAction<AttachmentActionRemove>) => {
     dispatch({ ...action, action: 'remove', success: undefined });
@@ -228,9 +227,7 @@ const useRemove = (dispatch: Dispatch) => {
       return true;
     } catch (error) {
       dispatch({ ...action, action: 'remove', success: false, error });
-
-      showAlert({ key: 'form_filler.file_uploader_validation_error_delete' }, 'danger');
-
+      toast(lang('form_filler.file_uploader_validation_error_delete'), { type: 'error' });
       return false;
     }
   };

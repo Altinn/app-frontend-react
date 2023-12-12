@@ -116,10 +116,10 @@ describe('Validation', () => {
 
     // Make sure all the buttons in the form are now inside errorReport, not outside of it.
     // - 4 of the button roles belong to each of the errors in the report
-    // - 2 of the button roles belong to the buttons on the bottom of the form (print, next)
+    // - 3 of the button roles belong to the buttons on the bottom of the form (print, next, custom)
     cy.get(appFrontend.errorReport)
       .findAllByRole('button')
-      .should('have.length', 4 + 2);
+      .should('have.length', 4 + 3);
 
     const lastNameError = appFrontend.fieldValidation(appFrontend.changeOfName.newLastName);
     cy.get(lastNameError).should('exist').should('not.be.inViewport');
@@ -152,7 +152,7 @@ describe('Validation', () => {
   it('Validation on uploaded attachment type', () => {
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.png', { force: true });
-    cy.get(appFrontend.alert).should('contain.text', texts.attachmentError);
+    cy.get(appFrontend.toast).should('contain.text', texts.attachmentError);
   });
 
   it('Validation on uploaded attachment type with tag', () => {
@@ -554,11 +554,11 @@ describe('Validation', () => {
       .should('exist');
 
     cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.png', { force: true });
-    cy.get(appFrontend.alert).should('contain.text', texts.invalidFileExtension);
+    cy.get(appFrontend.toast).should('contain.text', texts.invalidFileExtension);
     cy.get(appFrontend.changeOfName.uploadedTable).find('tbody > tr').should('have.length', 1);
 
     cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test-invalid.pdf', { force: true });
-    cy.get(appFrontend.alert).should('contain.text', texts.invalidMimeType);
+    cy.get(appFrontend.toast).should('contain.text', texts.invalidMimeType);
     cy.get(appFrontend.changeOfName.uploadedTable).find('tbody > tr').should('have.length', 1);
   });
 

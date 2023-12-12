@@ -37,7 +37,7 @@ export class AppFrontend {
   public logOut = '#logout-menu-item';
   public logOutLink = 'a[href$="/ui/authentication/LogOut"]';
   public printButton = 'button:contains("Print / Lagre PDF")';
-  public alert = '#globalAlert';
+  public toast = '[role="alert"][class^="Toast"]';
 
   public helpText = {
     button: 'button[class^="fds-helptext"]',

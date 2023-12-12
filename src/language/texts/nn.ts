@@ -81,12 +81,10 @@ export function nn(): FixedLanguageList {
       file_uploader_validation_error_exceeds_max_files:
         'Du kan ikkje laste opp fleire enn {0} filer. Ingen filer blei lasta opp.',
       file_uploader_validation_error_file_ending: 'er ikkje blant dei tillatne filtypane.',
-      file_uploader_validation_error_file_number_1: 'For å halde fram må du laste opp',
-      file_uploader_validation_error_file_number_2: 'vedlegg',
-      file_uploader_validation_error_file_size: 'overskrid tillatt filstorleik.',
-      file_uploader_validation_error_general_1: 'Det var eit problem med fila',
-      file_uploader_validation_error_general_2:
-        '. Forsikre deg om at fila har rett filtype og ikkje overskrid maks filstorleik.',
+      file_uploader_validation_error_file_number: 'For å halde fram må du laste opp {0} vedlegg',
+      file_uploader_validation_error_file_size: '{0} overskrid tillatt filstorleik.',
+      file_uploader_validation_error_general:
+        'Det var eit problem med fila {0}. Forsikre deg om at fila har rett filtype og ikkje overskrid maks filstorleik.',
       file_uploader_validation_error_upload: 'Noko gjekk galt under opplastinga av fila, prøv igjen seinare.',
       file_uploader_validation_error_update: 'Noko gjekk galt under oppdateringa av filas merking, prøv igjen seinare.',
       file_uploader_validation_error_no_chosen_tag: 'Du må velja {0}',

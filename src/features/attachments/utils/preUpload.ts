@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { toast } from 'react-toastify';
 import type React from 'react';
 
 import { useMutation } from '@tanstack/react-query';
@@ -8,10 +9,11 @@ import { v4 as uuidv4 } from 'uuid';
 import type { UseMutationOptions } from '@tanstack/react-query';
 import type { ImmerReducer } from 'use-immer';
 
-import { backendIssuesToAlerts, useAlertContext } from 'src/core/contexts/alertContext';
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { type BackendValidationIssue } from 'src/features/validation';
+import { getValidationIssueMessage } from 'src/features/validation/backend/backendUtils';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import type {
@@ -122,7 +124,7 @@ export const usePreUpload = () => {
 const useUpload = (dispatch: Dispatch) => {
   const { changeData: changeInstanceData } = useLaxInstance() || {};
   const { mutateAsync } = useAttachmentsUploadMutation();
-  const { showAlert, showAlerts } = useAlertContext();
+  const { lang, langAsString } = useLanguage();
   const backendFeatures = useAppSelector((state) => state.applicationMetadata.applicationMetadata?.features) || {};
 
   return async (action: RawAttachmentAction<AttachmentActionUpload>) => {
@@ -158,9 +160,13 @@ const useUpload = (dispatch: Dispatch) => {
 
       if (backendFeatures.jsonObjectInDataResponse && isAxiosError(err) && err.response?.data) {
         const validationIssues: BackendValidationIssue[] = err.response.data;
-        showAlerts(backendIssuesToAlerts(validationIssues));
+        const message = validationIssues
+          .map((issue) => getValidationIssueMessage(issue))
+          .map(({ key, params }) => `- ${langAsString(key, params)}`)
+          .join('\n');
+        toast(message, { type: 'error' });
       } else {
-        showAlert({ key: 'form_filler.file_uploader_validation_error_upload' }, 'danger');
+        toast(lang('form_filler.file_uploader_validation_error_upload'), { type: 'error' });
       }
     }
 
