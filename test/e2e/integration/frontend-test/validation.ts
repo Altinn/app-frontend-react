@@ -231,15 +231,15 @@ describe('Validation', () => {
 
   it('Task validation', () => {
     cy.intercept('**/active', []).as('noActiveInstances');
-    cy.startAppInstance(appFrontend.apps.frontendTest);
-    cy.get(appFrontend.closeButton).should('be.visible');
     cy.intercept('GET', '**/validate', [
       {
         severity: 1,
         code: 'error',
         description: 'task validation',
       },
-    ]);
+    ]).as('validate');
+    cy.startAppInstance(appFrontend.apps.frontendTest);
+    cy.get(appFrontend.closeButton).should('be.visible');
     cy.get(appFrontend.sendinButton).click();
     cy.get(appFrontend.errorReport).should('contain.text', 'task validation');
   });
@@ -307,11 +307,6 @@ describe('Validation', () => {
     cy.get(appFrontend.errorReport).find('li:contains("Du må fylle ut hvem gjelder saken?")').should('have.length', 1);
   });
 
-  /**
-   * TODO(1508):
-   * This test is skipped because validation is not triggered by the new navigation refactor.
-   * This will be fixed in combination with #1506.
-   */
   it('Clicking the error report should focus the correct field', () => {
     cy.interceptLayout('group', (component) => {
       if (
@@ -686,11 +681,11 @@ describe('Validation', () => {
   });
 
   /**
-   * TODO(1508):
-   * This test is skipped because validation is not triggered by the new navigation refactor.
-   * This will be fixed in combination with #1506.
+   * TODO(Page navigation):
+   * This test is skipped due to a mismatch between order in redux which is used for node.isHidden()
+   * and the order in UiConfigProvider where only the UiConfigProvider is correct.
    */
-  it.only('Navigating to one task and navigating back should not produce error messages for hidden pages', () => {
+  it.skip('Navigating to one task and navigating back should not produce error messages for hidden pages', () => {
     cy.goto('group');
     cy.gotoNavPage('summary');
     cy.get(appFrontend.sendinButton).click();
@@ -701,7 +696,7 @@ describe('Validation', () => {
     });
 
     cy.url().should('satisfy', (url) => url.endsWith('/Task_5/summary'));
-    // cy.findByRole('button', { name: /gå til riktig prosessteg/i }).should('be.visible');
+    cy.findByRole('button', { name: /gå til riktig prosessteg/i }).should('be.visible');
 
     cy.url().then((url) => {
       cy.visit(url.replace('Task_5', 'Task_3'));
