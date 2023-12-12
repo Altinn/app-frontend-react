@@ -61,7 +61,7 @@ export function DisplayGroupContainer({
           </Heading>
         )
       }
-      className={classes.group}
+      className={isSummary ? classes.summary : classes.group}
       description={description && !isSummary && <Lang id={description} />}
     >
       <div

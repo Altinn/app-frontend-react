@@ -3,6 +3,10 @@
   padding: 12px;
 }
 
+.summary {
+  width: 100%;
+}
+
 .groupContainer {
   display: flex;
   flex-wrap: wrap;
