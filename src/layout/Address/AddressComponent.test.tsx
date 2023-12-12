@@ -100,7 +100,7 @@ describe('AddressComponent', () => {
     expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
   });
 
-  it('should show error message on blur if zipcode is invalid, and not call handleDataChange', async () => {
+  it('should show error message on blur if zipcode is invalid, and not call setLeafValue', async () => {
     const { formDataMethods } = await render({
       component: {
         required: true,

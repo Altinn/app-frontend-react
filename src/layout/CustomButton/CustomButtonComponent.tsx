@@ -7,13 +7,10 @@ import type { UseMutationResult } from '@tanstack/react-query';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
-import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useNavigatePage, useNavigationParams } from 'src/hooks/useNavigatePage';
 import { isSpecificClientAction } from 'src/layout/CustomButton/typeHelpers';
-import { flattenObject } from 'src/utils/databindings';
 import { promisify } from 'src/utils/promisify';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ButtonColor, ButtonVariant } from 'src/layout/Button/WrappedButton';
@@ -45,7 +42,6 @@ const isClientAction = (action: CBTypes.CustomAction): action is CBTypes.ClientA
 const isServerAction = (action: CBTypes.CustomAction): action is CBTypes.ServerAction => action.type === 'ServerAction';
 
 function useHandleClientActions(): UseHandleClientActions {
-  const dispatch = useAppDispatch();
   const currentDataModelGuid = useCurrentDataModelGuid();
   const { navigateToPage, navigateToNextPage, navigateToPreviousPage } = useNavigatePage();
 
@@ -71,7 +67,9 @@ function useHandleClientActions(): UseHandleClientActions {
     handleDataModelUpdate: async (updatedDataModels) => {
       const currentDataModelUpdates = currentDataModelGuid && updatedDataModels[currentDataModelGuid];
       if (currentDataModelUpdates) {
-        dispatch(FormDataActions.fetchFulfilled({ formData: flattenObject(currentDataModelUpdates) }));
+        // TODO: Trigger a save of the data model before we run actions, lock the data model while we're performing
+        // that action, and unlock it after we're done (with updated data).
+        // dispatch(FormDataActions.fetchFulfilled({ formData: flattenObject(currentDataModelUpdates) }));
       }
     },
   };
@@ -85,18 +83,6 @@ type PerformActionMutationProps = {
 type UsePerformActionMutation = {
   mutation: UseMutationResult<ActionResult>;
   handleServerAction: (props: PerformActionMutationProps) => Promise<void>;
-};
-
-type PerformActionMutationError = {
-  response: {
-    data: {
-      error: {
-        message: string;
-        code: string;
-        metadata: Record<string, unknown>;
-      };
-    };
-  };
 };
 
 function useHandleServerActionMutation(): UsePerformActionMutation {

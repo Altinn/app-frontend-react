@@ -43,7 +43,7 @@ import type { IFormDynamics } from 'src/features/form/dynamics';
 import type { Instantiation } from 'src/features/instantiate/InstantiationContext';
 import type { ITextResourceResult } from 'src/features/language/textResources';
 import type { IPdfFormat } from 'src/features/pdf/types';
-import type { ILayoutFileExternal, IOption } from 'src/layout/common.generated';
+import type { IOption } from 'src/layout/common.generated';
 import type { ActionResult } from 'src/layout/CustomButton/CustomButtonComponent';
 import type { ILayoutCollection } from 'src/layout/layout';
 import type { ILayoutSets, ILayoutSettings, ISimpleInstance } from 'src/types';
@@ -171,8 +171,7 @@ export const fetchFooterLayout = (): Promise<IFooterLayout> => httpGet(getFooter
 
 export const fetchLayoutSets = (): Promise<ILayoutSets> => httpGet(getLayoutSetsUrl());
 
-export const fetchLayouts = (layoutSetId: string): Promise<ILayoutCollection | ILayoutFileExternal> =>
-  httpGet(getLayoutsUrl(layoutSetId));
+export const fetchLayouts = (layoutSetId: string): Promise<ILayoutCollection> => httpGet(getLayoutsUrl(layoutSetId));
 
 export const fetchLayoutSettings = (layoutSetId: string | undefined): Promise<ILayoutSettings> =>
   httpGet(getLayoutSettingsUrl(layoutSetId));

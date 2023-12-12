@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import { createSelector } from 'reselect';
 
@@ -162,32 +162,6 @@ function useResolvedExpressions() {
   const devTools = useAppSelector((state) => state.devTools);
   const langTools = useLanguage();
   const currentLanguage = useCurrentLanguage();
-
-  const deps = {
-    formData,
-    attachments,
-    uiConfig,
-    options,
-    applicationSettings,
-    instance,
-    process,
-    hiddenFields,
-    validations,
-    layouts,
-    currentView,
-    repeatingGroups,
-    devTools,
-    langTools,
-    currentLanguage,
-  };
-
-  for (const key of Object.keys(deps)) {
-    const val = deps[key];
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useEffect(() => {
-      console.log(`debug, dependency: ${key} changed:`, val);
-    }, [key, val]);
-  }
 
   const dataSources: HierarchyDataSources = useMemo(
     () => ({

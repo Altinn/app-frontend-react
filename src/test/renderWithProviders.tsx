@@ -38,7 +38,6 @@ import { TextResourcesProvider } from 'src/features/language/textResources/TextR
 import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
 import { PartyProvider } from 'src/features/party/PartiesProvider';
 import { ProfileProvider } from 'src/features/profile/ProfileProvider';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import { setupStore } from 'src/redux/store';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
@@ -143,7 +142,8 @@ const makeDefaultQueryMocks = (state: IRuntimeState): MockableQueries => ({
   fetchAppLanguages: () => Promise.resolve([]),
   fetchProcessNextSteps: () => Promise.resolve([]),
   fetchLayoutSettings: () => Promise.resolve({ pages: { order: [] } }),
-  fetchLayouts: () => Promise.resolve({}),
+  fetchLayouts: () =>
+    Promise.reject(new Error('fetchLayouts not mocked, you may want to call renderWithInstanceAndLayout() instead')),
 });
 
 const unMockableQueriesDefaults: UnMockableQueries = {
@@ -501,6 +501,7 @@ export const renderWithInstanceAndLayout = async ({
   return {
     formDataMethods: _formDataMethods,
     ...(await renderBase({
+      ...renderOptions,
       renderer: () => (
         <InstanceProvider>
           <FormDataWriteGatekeepersProvider value={_formDataMethods}>
@@ -520,9 +521,12 @@ export const renderWithInstanceAndLayout = async ({
         fetchInstanceData: () => Promise.resolve(reduxState.deprecated.lastKnownInstance || getInstanceDataMock()),
         fetchProcessState: () => Promise.resolve(reduxState.deprecated.lastKnownProcess || getProcessDataMock()),
       },
+      queries: {
+        fetchLayouts: () => Promise.resolve(layoutsAsCollection),
+        ...renderOptions.queries,
+      },
       router: InstanceRouter,
       reduxState,
-      ...renderOptions,
     })),
   };
 };
@@ -532,31 +536,7 @@ const WaitForNodes = ({
   waitForAllNodes,
   nodeId,
 }: PropsWithChildren<{ waitForAllNodes: boolean; nodeId?: string }>) => {
-  const layouts = useAppSelector((state) => state.formLayout.layouts);
-  const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
-  const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
   const nodes = useNodes();
-
-  const waitingFor: string[] = [];
-  if (!layouts) {
-    waitingFor.push('layouts');
-  }
-  if (!currentView) {
-    waitingFor.push('currentView');
-  }
-  if (!repeatingGroups) {
-    waitingFor.push('repeatingGroups');
-  }
-
-  const waitingForString = waitingFor.join(', ');
-  if (waitingForString && waitForAllNodes) {
-    return (
-      <>
-        <div>Loading...</div>
-        <div>Waiting for {waitingForString}</div>
-      </>
-    );
-  }
 
   if (!nodes && waitForAllNodes) {
     return (

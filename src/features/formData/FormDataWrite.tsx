@@ -101,7 +101,6 @@ function FormDataEffects({ url }: { url: string }) {
       debouncedCurrentData !== lastSavedData && !deepEqual(debouncedCurrentData, lastSavedData);
 
     if (hasUnsavedDebouncedChanges && !isSaving) {
-      console.log('debug, saving data model', debouncedCurrentData, lastSavedData);
       const debouncedCurrentDataFlat = dot.dot(debouncedCurrentData);
       const lastSavedDataFlat = dot.dot(lastSavedData);
       const diff = diffModels(debouncedCurrentDataFlat, lastSavedDataFlat);
@@ -110,6 +109,7 @@ function FormDataEffects({ url }: { url: string }) {
         return;
       }
 
+      console.log('debug, saving data model', debouncedCurrentData, lastSavedData);
       mutate({
         dataModelUrl: url,
         newData: debouncedCurrentData,

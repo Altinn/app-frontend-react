@@ -222,7 +222,14 @@ describe('Form', () => {
       renderer: () => <Form />,
       router: PageNavigationRouter('FormLayout'),
       queries: {
-        fetchLayouts: () => Promise.resolve({}),
+        fetchLayouts: () =>
+          Promise.resolve({
+            FormLayout: {
+              data: {
+                layout,
+              },
+            },
+          }),
         fetchLayoutSettings: () => Promise.resolve({ pages: { order: ['FormLayout', '2', '3'] } }),
       },
       reduxState: {
