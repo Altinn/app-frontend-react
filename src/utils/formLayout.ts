@@ -1,6 +1,7 @@
 import { groupIsRepeatingExt, groupIsRepeatingLikertExt } from 'src/layout/Group/tools';
 import type { CompGroupExternal, IGroupEditPropertiesLikert } from 'src/layout/Group/config.generated';
 import type { CompExternal, ILayout } from 'src/layout/layout';
+import type { ILikertGroupEditProperties } from 'src/layout/LikertGroup/config.generated';
 import type { ILayoutSets, IRepeatingGroups } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -78,14 +79,16 @@ const getMaxIndexInKeys = (keys: string[], nested = false) => {
 export function getRepeatingGroups(formLayout: ILayout, formData: any) {
   const repeatingGroups: IRepeatingGroups = {};
 
-  const groups = formLayout.filter((layoutElement) => layoutElement.type === 'Group');
+  const groups = formLayout.filter(
+    (layoutElement) => layoutElement.type === 'Group' || layoutElement.type === 'LikertGroup',
+  );
 
   const childGroups: string[] = [];
   groups.forEach((group: CompGroupExternal) => {
     group.children?.forEach((childId: string) => {
       formLayout
         .filter((element) => {
-          if (element.type !== 'Group') {
+          if (element.type !== 'Group' && element.type !== 'LikertGroup') {
             return false;
           }
           if (groupIsRepeatingExt(group) && group.edit?.multiPage) {
@@ -209,7 +212,7 @@ export function removeRepeatingGroupFromUIConfig(
 
 export const getRepeatingGroupStartStopIndex = (
   repeatingGroupIndex: number,
-  edit: Pick<IGroupEditPropertiesLikert, 'filter'> | undefined,
+  edit: Pick<IGroupEditPropertiesLikert | ILikertGroupEditProperties, 'filter'> | undefined,
 ) => {
   if (typeof repeatingGroupIndex === 'undefined') {
     return { startIndex: 0, stopIndex: -1 };

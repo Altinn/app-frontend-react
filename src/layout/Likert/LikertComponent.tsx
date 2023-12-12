@@ -33,7 +33,7 @@ const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
   const { selected, handleChange, calculatedOptions, handleBlur, fetchingOptions } = useRadioButtons(props);
 
   const id = node.item.id;
-  const groupContainerId = node.closest((n) => n.type === 'Group')?.item.id;
+  const groupContainerId = node.closest((n) => n.type === 'LikertGroup')?.item.id;
   const RenderLegend = legend;
   const rowLabelId = `row-label-${id}`;
 
