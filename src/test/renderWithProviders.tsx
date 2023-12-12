@@ -115,6 +115,7 @@ export const makeMutationMocks = <T extends (name: keyof AppMutations) => any>(
   doInstantiate: makeMock('doInstantiate'),
   doProcessNext: makeMock('doProcessNext'),
   doInstantiateWithPrefill: makeMock('doInstantiateWithPrefill'),
+  doPerformAction: makeMock('doPerformAction'),
 });
 
 const makeDefaultQueryMocks = (state: IRuntimeState): MockableQueries => ({

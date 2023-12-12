@@ -42,6 +42,8 @@ export const getDataElementUrl = (instanceId: string, dataGuid: string) =>
   `${appPath}/instances/${instanceId}/data/${dataGuid}`;
 
 export const getProcessStateUrl = (instanceId: string) => `${appPath}/instances/${instanceId}/process`;
+export const getActionsUrl = (partyId: string, instanceId: string) =>
+  `${appPath}/instances/${partyId}/${instanceId}/actions`;
 
 export const getCreateInstancesUrl = (partyId: string) => `${appPath}/instances?instanceOwnerPartyId=${partyId}`;
 
