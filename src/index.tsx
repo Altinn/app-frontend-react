@@ -35,7 +35,6 @@ import { ProfileProvider } from 'src/features/profile/ProfileProvider';
 import * as queries from 'src/queries/queries';
 import { initSagas } from 'src/redux/sagas';
 import { setupStore } from 'src/redux/store';
-import { ExprContextWrapper } from 'src/utils/layout/ExprContext';
 
 import 'react-toastify/dist/ReactToastify.css';
 import 'src/index.css';
@@ -75,37 +74,35 @@ function Root() {
   return (
     <InstantiationProvider>
       <PageNavigationProvider>
-        <ExprContextWrapper>
-          <ApplicationMetadataProvider>
-            <OrgsProvider>
-              <ApplicationSettingsProvider>
-                <LayoutSetsProvider>
-                  <FooterLayoutProvider>
-                    <ProfileProvider>
-                      <PartyProvider>
-                        <TextResourcesProvider>
-                          <KeepAliveProvider>
-                            <WindowTitleProvider>
-                              <DevTools>
-                                <App />
-                                <ToastContainer
-                                  position='top-center'
-                                  theme='colored'
-                                  transition={Slide}
-                                  draggable={false}
-                                />
-                              </DevTools>
-                            </WindowTitleProvider>
-                          </KeepAliveProvider>
-                        </TextResourcesProvider>
-                      </PartyProvider>
-                    </ProfileProvider>
-                  </FooterLayoutProvider>
-                </LayoutSetsProvider>
-              </ApplicationSettingsProvider>
-            </OrgsProvider>
-          </ApplicationMetadataProvider>
-        </ExprContextWrapper>
+        <ApplicationMetadataProvider>
+          <OrgsProvider>
+            <ApplicationSettingsProvider>
+              <LayoutSetsProvider>
+                <FooterLayoutProvider>
+                  <ProfileProvider>
+                    <PartyProvider>
+                      <TextResourcesProvider>
+                        <KeepAliveProvider>
+                          <WindowTitleProvider>
+                            <DevTools>
+                              <App />
+                              <ToastContainer
+                                position='top-center'
+                                theme='colored'
+                                transition={Slide}
+                                draggable={false}
+                              />
+                            </DevTools>
+                          </WindowTitleProvider>
+                        </KeepAliveProvider>
+                      </TextResourcesProvider>
+                    </PartyProvider>
+                  </ProfileProvider>
+                </FooterLayoutProvider>
+              </LayoutSetsProvider>
+            </ApplicationSettingsProvider>
+          </OrgsProvider>
+        </ApplicationMetadataProvider>
       </PageNavigationProvider>
     </InstantiationProvider>
   );

@@ -7,6 +7,7 @@ import { dotNotationToPointer } from 'src/features/datamodel/notations';
 import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
 import { useCurrentDataModelType } from 'src/features/datamodel/useBindingSchema';
 import { useLayoutSchemaValidation } from 'src/features/devtools/layoutValidation/useLayoutSchemaValidation';
+import { usePageNavigationConfig } from 'src/features/form/layout/PageNavigationContext';
 import { generateSimpleRepeatingGroups } from 'src/features/form/layout/repGroups/generateSimpleRepeatingGroups';
 import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -78,7 +79,8 @@ function useDataModelBindingsValidation(props: LayoutValidationProps) {
   const schema = useDataModelSchema();
   const dataType = useCurrentDataModelType();
   const currentView = useCurrentView();
-  const dataSources = useAppSelector(createSelectDataSourcesFromState(currentView ?? null));
+  const pageNavigationConfig = usePageNavigationConfig();
+  const dataSources = useAppSelector(createSelectDataSourcesFromState(pageNavigationConfig));
   const nodes = useMemo(
     () => generateEntireHierarchy(layouts, currentView, repeatingGroups, dataSources, getLayoutComponentObject),
     [layouts, currentView, repeatingGroups, dataSources],

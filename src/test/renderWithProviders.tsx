@@ -37,7 +37,7 @@ import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
 import { PartyProvider } from 'src/features/party/PartiesProvider';
 import { ProfileProvider } from 'src/features/profile/ProfileProvider';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useNavigationParams } from 'src/hooks/useNavigatePage';
+import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { setupStore } from 'src/redux/store';
 import { PageNavigationRouter } from 'src/test/routerUtils';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
@@ -426,7 +426,6 @@ export const renderWithInstanceAndLayout = async ({
         initialEntries={[`/ttd/test/instance/${exampleInstanceId}/${initialPage}`]}
       >
         <Routes>
-          Pro
           <Route
             path={'instance/:partyId/:instanceGuid/*'}
             element={children}
@@ -464,8 +463,7 @@ const WaitForNodes = ({
   nodeId,
 }: PropsWithChildren<{ waitForAllNodes: boolean; nodeId?: string }>) => {
   const layouts = useAppSelector((state) => state.formLayout.layouts);
-  const { pageKey, taskId, partyId, instanceGuid } = useNavigationParams();
-  const currentView = pageKey;
+  const currentView = useCurrentView();
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
   const nodes = useExprContext();
 

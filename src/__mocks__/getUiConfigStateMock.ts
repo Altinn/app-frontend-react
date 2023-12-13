@@ -2,11 +2,6 @@ import type { IUiConfig } from 'src/types';
 
 export const getUiConfigStateMock = (customStates?: Partial<IUiConfig>): IUiConfig => ({
   focus: null,
-  pageOrderConfig: {
-    hidden: [],
-    hiddenExpr: {},
-    order: ['FormLayout'],
-  },
   hiddenFields: [],
   repeatingGroups: {
     group: {

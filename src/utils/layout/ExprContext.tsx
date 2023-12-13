@@ -7,10 +7,9 @@ import {
   shouldUpdate,
 } from 'src/features/form/dynamics/conditionalRenderingSagas';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
+import { usePageNavigationConfig, usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
 import { _private, createSelectDataSourcesFromState } from 'src/utils/layout/hierarchy';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
@@ -92,8 +91,8 @@ function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
   const formData = useAppSelector((state) => state.formData.formData);
   const rules = useAppSelector((state) => state.formDynamics.conditionalRendering);
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
-  const currentView = useCurrentView();
-  const dataSources = useAppSelector(createSelectDataSourcesFromState(currentView ?? null));
+  const pageNavigationConfig = usePageNavigationConfig();
+  const dataSources = useAppSelector(createSelectDataSourcesFromState(pageNavigationConfig));
   const { setHiddenPages, hidden, hiddenExpr } = usePageNavigationContext();
   const dispatch = useAppDispatch();
 

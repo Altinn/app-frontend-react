@@ -3,12 +3,13 @@ import { useMemo } from 'react';
 import { createSelector } from 'reselect';
 
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
+import { usePageNavigationConfig } from 'src/features/form/layout/PageNavigationContext';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { staticUseLanguageFromState, useLanguage } from 'src/features/language/useLanguage';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useNavigationParams } from 'src/hooks/useNavigatePage';
+import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { getLayoutComponentObject } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
@@ -96,12 +97,12 @@ function resolvedNodesInLayouts(
 }
 
 export const dataSourcesFromState =
-  (currentView: string | null) =>
+  (pageNavigationConfig: PageNavigationConfig) =>
   (state: IRuntimeState): HierarchyDataSources => ({
     formData: state.formData.formData,
     attachments: state.deprecated.lastKnownAttachments || {},
     uiConfig: state.formLayout.uiConfig,
-    pageNavigationConfig: { currentView },
+    pageNavigationConfig,
     options: state.deprecated.allOptions || {},
     applicationSettings: state.applicationSettings.applicationSettings,
     instanceDataSources: buildInstanceDataSources(state.deprecated.lastKnownInstance),
@@ -112,8 +113,8 @@ export const dataSourcesFromState =
     currentLanguage: state.deprecated.currentLanguage,
   });
 
-export const createSelectDataSourcesFromState = (currentView: string | null) =>
-  createSelector(dataSourcesFromState(currentView), (data) => data);
+export const createSelectDataSourcesFromState = (pageNavigationConfig: PageNavigationConfig) =>
+  createSelector(dataSourcesFromState(pageNavigationConfig), (data) => data);
 
 function innerResolvedLayoutsFromState(
   layouts: ILayouts | null,
@@ -127,14 +128,6 @@ function innerResolvedLayoutsFromState(
 
   return resolvedNodesInLayouts(layouts, currentView, repeatingGroups, dataSources);
 }
-
-export const resolvedLayoutsFromState = (currentView: string) => (state: IRuntimeState) =>
-  innerResolvedLayoutsFromState(
-    state.formLayout.layouts,
-    currentView,
-    state.formLayout.uiConfig.repeatingGroups,
-    dataSourcesFromState(currentView)(state),
-  );
 
 /**
  * This is a more efficient, memoized version of what happens above. This will only be used from ExprContext,
@@ -150,19 +143,12 @@ function useResolvedExpressions() {
   const applicationSettings = useAppSelector((state) => state.applicationSettings.applicationSettings);
   const hiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
   const layouts = useAppSelector((state) => state.formLayout.layouts);
-  const { pageKey } = useNavigationParams();
-  const currentView = pageKey;
+  const currentView = useCurrentView();
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
   const devTools = useAppSelector((state) => state.devTools);
   const langTools = useLanguage();
   const currentLanguage = useCurrentLanguage();
-
-  const pageNavigationConfig: PageNavigationConfig = useMemo(
-    () => ({
-      currentView: currentView ?? null,
-    }),
-    [currentView],
-  );
+  const pageNavigationConfig = usePageNavigationConfig();
 
   const dataSources: HierarchyDataSources = useMemo(
     () => ({
@@ -200,13 +186,6 @@ function useResolvedExpressions() {
     [layouts, currentView, repeatingGroups, dataSources],
   );
 }
-
-/**
- * Selector for use in redux sagas. Will return a fully resolved layouts tree.
- * Specify manually that the returned value from this is `LayoutPages`
- */
-export const ResolvedNodesSelector = (currentView: string) => (state: IRuntimeState) =>
-  resolvedLayoutsFromState(currentView)(state);
 
 /**
  * Exported only for testing. Please do not use!

@@ -56,11 +56,6 @@ describe('NavigationButtons', () => {
       focus: null,
       hiddenFields: [],
       repeatingGroups: {},
-      pageOrderConfig: {
-        order: ['layout1', 'layout2'],
-        hidden: [],
-        hiddenExpr: {},
-      },
       excludePageFromPdf: [],
       excludeComponentFromPdf: [],
     },

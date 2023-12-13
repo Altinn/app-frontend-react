@@ -47,11 +47,6 @@ const render = async () => {
         layoutsets: null,
         layoutSetId: null,
         uiConfig: {
-          pageOrderConfig: {
-            order: ['page1', 'page2', 'page3'],
-            hiddenExpr: {},
-            hidden: [],
-          },
           focus: 'focus',
           hiddenFields: [],
           repeatingGroups: {},

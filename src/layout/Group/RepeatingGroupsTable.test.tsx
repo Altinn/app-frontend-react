@@ -37,11 +37,6 @@ const getLayout = (group: CompGroupRepeatingExternal, components: CompOrGroupExt
         },
       },
       focus: undefined,
-      pageOrderConfig: {
-        order: ['FormLayout'],
-        hidden: [],
-        hiddenExpr: {},
-      },
       excludePageFromPdf: [],
       excludeComponentFromPdf: [],
     },

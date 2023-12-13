@@ -5,8 +5,8 @@ import { pick } from 'dot-object';
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { asExpression } from 'src/features/expressions/validation';
+import { usePageNavigationConfig } from 'src/features/form/layout/PageNavigationContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { convertDataBindingToModel, getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { createSelectDataSourcesFromState } from 'src/utils/layout/hierarchy';
@@ -21,8 +21,8 @@ interface IUseSourceOptionsArgs {
 }
 
 export const useSourceOptions = ({ source, node }: IUseSourceOptionsArgs): IOption[] | undefined => {
-  const currentView = useCurrentView();
-  const dataSources = useAppSelector(createSelectDataSourcesFromState(currentView ?? null));
+  const pageNavigationConfig = usePageNavigationConfig();
+  const dataSources = useAppSelector(createSelectDataSourcesFromState(pageNavigationConfig));
 
   return useMemo(() => getSourceOptions({ source, node, dataSources }), [source, node, dataSources]);
 };

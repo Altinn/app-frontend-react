@@ -126,11 +126,7 @@ const createLayout = (
       },
     },
     focus: null,
-    pageOrderConfig: {
-      order: null,
-      hidden: [],
-      hiddenExpr: {},
-    },
+
     excludePageFromPdf: [],
     excludeComponentFromPdf: [],
   },

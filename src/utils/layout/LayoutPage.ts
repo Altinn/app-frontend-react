@@ -133,9 +133,9 @@ export class LayoutPage implements LayoutObject {
     };
   }
 
-  public isHiddenViaTracks(uiConfig: IUiConfig, contextBasedUiConfig: PageNavigationConfig): boolean {
+  public isHiddenViaTracks(uiConfig: IUiConfig, pageNavigationConfig: PageNavigationConfig): boolean {
     const myKey = this.top.myKey;
-    if (myKey === contextBasedUiConfig.currentView) {
+    if (myKey === pageNavigationConfig.currentView) {
       // If this is the current view, then it's never hidden. This avoids settings fields as hidden when
       // code caused this to be the current view even if it's not in the common order.
       return false;
@@ -151,7 +151,7 @@ export class LayoutPage implements LayoutObject {
       return false;
     }
 
-    const { order } = uiConfig.pageOrderConfig || {};
+    const { order } = pageNavigationConfig;
     if (!order) {
       // If no pageOrderConfig is provided, then we can't determine if this is hidden or not
       return false;

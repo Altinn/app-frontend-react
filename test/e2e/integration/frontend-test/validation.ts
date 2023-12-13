@@ -680,12 +680,7 @@ describe('Validation', () => {
     cy.get(appFrontend.errorReport).should('contain.text', 'Tullevalidering');
   });
 
-  /**
-   * TODO(Page navigation):
-   * This test is skipped due to a mismatch between order in redux which is used for node.isHidden()
-   * and the order in UiConfigProvider where only the UiConfigProvider is correct.
-   */
-  it.skip('Navigating to one task and navigating back should not produce error messages for hidden pages', () => {
+  it('Navigating to one task and navigating back should not produce error messages for hidden pages', () => {
     cy.goto('group');
     cy.gotoNavPage('summary');
     cy.get(appFrontend.sendinButton).click();

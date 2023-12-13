@@ -1,6 +1,6 @@
 import type { IFormData } from 'src/features/formData';
 import type { ILayouts } from 'src/layout/layout';
-import type { IHiddenLayoutsExternal, ILayoutSets, ILayoutSettings } from 'src/types';
+import type { ILayoutSets, ILayoutSettings } from 'src/types';
 
 export interface IFormLayoutActionRejected {
   error: Error | null;
@@ -9,7 +9,6 @@ export interface IFormLayoutActionRejected {
 
 export interface IFetchLayoutFulfilled {
   layouts: ILayouts;
-  hiddenLayoutsExpressions: IHiddenLayoutsExternal;
   layoutSetId: string | null;
 }
 
@@ -67,10 +66,6 @@ export interface IUpdateRepeatingGroupsEditIndexFulfilled {
 export interface IComponentScrollPos {
   componentId: string;
   offsetTop: number | undefined;
-}
-
-export interface IHiddenLayoutsUpdate {
-  hiddenLayouts: string[];
 }
 
 export interface IInitRepeatingGroups {

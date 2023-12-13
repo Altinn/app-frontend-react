@@ -42,6 +42,7 @@ import {
   setVisibilityForNode,
 } from 'src/features/validation/visibility';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useOrder } from 'src/hooks/useNavigatePage';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import type { Visibility } from 'src/features/validation/visibility';
 import type { PageValidation, ValidationMasks } from 'src/layout/common.generated';
@@ -265,7 +266,7 @@ export function useOnPageValidation() {
   const setNodeVisibility = useCtx().setNodeVisibility;
   const state = useCtx().state;
   const validating = useCtx().validating;
-  const pageOrder = useAppSelector((state) => state.formLayout.uiConfig.pageOrderConfig.order);
+  const pageOrder = useOrder();
 
   /* Ensures the callback will have the latest state */
   const callback = useEffectEvent((currentPage: LayoutPage, config: PageValidation): boolean => {

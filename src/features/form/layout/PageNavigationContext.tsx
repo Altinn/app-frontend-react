@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
+import { useCurrentView, useOrder } from 'src/hooks/useNavigatePage';
+import type { PageNavigationConfig } from 'src/features/expressions/ExprContext';
 import type { IComponentScrollPos } from 'src/features/form/layout/formLayoutTypes';
 import type { IHiddenLayoutsExternal } from 'src/types';
 
@@ -69,3 +71,14 @@ export function PageNavigationProvider({ children }: React.PropsWithChildren) {
 }
 
 export const usePageNavigationContext = () => useCtx();
+export const usePageNavigationConfig = (): PageNavigationConfig => {
+  const currentView = useCurrentView();
+  const { hidden, hiddenExpr } = usePageNavigationContext();
+  const order = useOrder();
+  return {
+    currentView,
+    hidden,
+    hiddenExpr,
+    order,
+  };
+};

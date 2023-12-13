@@ -27,11 +27,6 @@ export const initialState: ILayoutState = {
     hiddenFields: [],
     repeatingGroups: null,
     receiptLayoutName: undefined,
-    pageOrderConfig: {
-      hidden: [],
-      hiddenExpr: {},
-      order: null,
-    },
     keepScrollPos: undefined,
     excludePageFromPdf: null,
     excludeComponentFromPdf: null,
@@ -56,10 +51,8 @@ export const formLayoutSlice = () => {
       actions: {
         fetchFulfilled: mkAction<LayoutTypes.IFetchLayoutFulfilled>({
           reducer: (state, action) => {
-            const { layouts, hiddenLayoutsExpressions, layoutSetId } = action.payload;
+            const { layouts, layoutSetId } = action.payload;
             state.layouts = layouts;
-            state.uiConfig.pageOrderConfig.order = Object.keys(layouts);
-            state.uiConfig.pageOrderConfig.hiddenExpr = hiddenLayoutsExpressions;
             state.uiConfig.repeatingGroups = null;
             state.layoutSetId = layoutSetId;
           },
@@ -84,10 +77,6 @@ export const formLayoutSlice = () => {
             state.uiConfig.receiptLayoutName = settings?.receiptLayoutName;
             if (settings && settings.pages) {
               updateCommonPageSettings(state, settings.pages);
-              const order = settings.pages.order;
-              if (order) {
-                state.uiConfig.pageOrderConfig.order = order;
-              }
             }
 
             state.uiConfig.pdfLayoutName = settings?.pages.pdfLayoutName;
@@ -152,11 +141,6 @@ export const formLayoutSlice = () => {
             if (group && state.uiConfig.repeatingGroups && state.uiConfig.repeatingGroups[group]) {
               state.uiConfig.repeatingGroups[group].isLoading = false;
             }
-          },
-        }),
-        updateHiddenLayouts: mkAction<LayoutTypes.IHiddenLayoutsUpdate>({
-          reducer: (state, action) => {
-            state.uiConfig.pageOrderConfig.hidden = action.payload.hiddenLayouts;
           },
         }),
         initRepeatingGroups: mkAction<LayoutTypes.IInitRepeatingGroups>({

@@ -2,7 +2,7 @@ import { getHierarchyDataSourcesMock } from 'src/__mocks__/getHierarchyDataSourc
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getLayoutComponentObject } from 'src/layout';
 import { getRepeatingGroups } from 'src/utils/formLayout';
-import { _private, resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
+import { _private, dataSourcesFromState } from 'src/utils/layout/hierarchy';
 import { generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -15,6 +15,7 @@ import type { IRepeatingGroups } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 const { resolvedNodesInLayouts } = _private;
+const testPageNavigationConfig = { currentView: 'formLayout', hidden: [], hiddenExpr: {}, order: [] };
 
 describe('Hierarchical layout tools', () => {
   const header: Omit<CompHeaderExternal, 'id'> = { type: 'Header', size: 'L' };
@@ -546,7 +547,12 @@ describe('Hierarchical layout tools', () => {
     const state = getInitialStateMock();
     (state.formLayout.layouts as any)['page2'] = layout;
     state.formLayout.uiConfig.repeatingGroups = manyRepeatingGroups;
-    const resolved = resolvedLayoutsFromState('formLayout')(state);
+    const resolved = resolvedNodesInLayouts(
+      state.formLayout.layouts,
+      'FormLayout',
+      state.formLayout.uiConfig.repeatingGroups,
+      dataSourcesFromState(testPageNavigationConfig)(state),
+    );
 
     const field3 = resolved?.findById('field3');
     expect(field3?.item.id).toEqual('field3');
@@ -641,7 +647,12 @@ describe('Hierarchical layout tools', () => {
           index: 2,
         },
       };
-      const resolved = resolvedLayoutsFromState('formLayot')(state);
+      const resolved = resolvedNodesInLayouts(
+        state.formLayout.layouts,
+        'FormLayout',
+        state.formLayout.uiConfig.repeatingGroups,
+        dataSourcesFromState(testPageNavigationConfig)(state),
+      );
       const dataBindingFor = (id: string) => {
         const item = resolved?.findById(id)?.item || undefined;
         const dmBindings = item && 'dataModelBindings' in item ? item?.dataModelBindings : undefined;
