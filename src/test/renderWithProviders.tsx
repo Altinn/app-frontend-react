@@ -82,9 +82,9 @@ const exampleGuid = '75154373-aed4-41f7-95b4-e5b5115c2edc';
 const exampleInstanceId = `512345/${exampleGuid}`;
 
 export function queryPromiseMock<T extends keyof AppQueriesContext>(_name: T) {
-  const mock = jest.fn();
-  const resolve = jest.fn();
-  const reject = jest.fn();
+  const mock = jest.fn().mockName(_name);
+  const resolve = jest.fn().mockName(`${_name}.resolve`);
+  const reject = jest.fn().mockName(`${_name}.reject`);
   mock.mockImplementation(
     () =>
       new Promise<T>((res, rej) => {
@@ -158,16 +158,46 @@ const defaultReduxGateKeeper = (action: ReduxAction) =>
 
 export function makeDefaultFormDataMethodMocks(): FormDataWriteGatekeepers {
   return {
-    setLeafValue: jest.fn().mockImplementation(() => true),
-    debounce: jest.fn().mockImplementation(() => true),
-    saveFinished: jest.fn().mockImplementation(() => true),
-    setMultiLeafValues: jest.fn().mockImplementation(() => true),
-    removeValueFromList: jest.fn().mockImplementation(() => true),
-    removeIndexFromList: jest.fn().mockImplementation(() => true),
-    appendToListUnique: jest.fn().mockImplementation(() => true),
-    unlock: jest.fn().mockImplementation(() => true),
-    lock: jest.fn().mockImplementation(() => true),
-    requestManualSave: jest.fn().mockImplementation(() => true),
+    setLeafValue: jest
+      .fn()
+      .mockImplementation(() => true)
+      .mockName('setLeafValue'),
+    debounce: jest
+      .fn()
+      .mockImplementation(() => true)
+      .mockName('debounce'),
+    saveFinished: jest
+      .fn()
+      .mockImplementation(() => true)
+      .mockName('saveFinished'),
+    setMultiLeafValues: jest
+      .fn()
+      .mockImplementation(() => true)
+      .mockName('setMultiLeafValues'),
+    removeValueFromList: jest
+      .fn()
+      .mockImplementation(() => true)
+      .mockName('removeValueFromList'),
+    removeIndexFromList: jest
+      .fn()
+      .mockImplementation(() => true)
+      .mockName('removeIndexFromList'),
+    appendToListUnique: jest
+      .fn()
+      .mockImplementation(() => true)
+      .mockName('appendToListUnique'),
+    unlock: jest
+      .fn()
+      .mockImplementation(() => true)
+      .mockName('unlock'),
+    lock: jest
+      .fn()
+      .mockImplementation(() => true)
+      .mockName('lock'),
+    requestManualSave: jest
+      .fn()
+      .mockImplementation(() => true)
+      .mockName('requestManualSave'),
   };
 }
 
@@ -349,7 +379,7 @@ const renderBase = async ({
   }
 
   const queryMocks = Object.fromEntries(
-    Object.entries(finalQueries).map(([key, value]) => [key, jest.fn().mockImplementation(value)]),
+    Object.entries(finalQueries).map(([key, value]) => [key, jest.fn().mockImplementation(value).mockName(key)]),
   ) as unknown as AppQueries;
 
   const mutationMocks = Object.fromEntries(

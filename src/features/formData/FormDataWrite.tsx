@@ -99,6 +99,34 @@ function FormDataEffects({ url }: { url: string }) {
   const { mutate, isLoading: isSaving } = useFormDataSaveMutation(state);
   const ruleConnections = useAppSelector((state) => state.formDynamics.ruleConnection);
 
+  // This component re-renders on every keystroke in a form field. We don't want to save on every keystroke, nor
+  // create a new performSave function after every save, so we use a ref to make sure the performSave function
+  // and the unmount effect always have the latest values.
+  const currentDataRef = React.useRef(currentData);
+  currentDataRef.current = currentData;
+  const lastSavedDataRef = React.useRef(lastSavedData);
+  lastSavedDataRef.current = lastSavedData;
+
+  const performSave = useCallback(
+    (dataToSave: object) => {
+      const toSaveFlat = dot.dot(dataToSave);
+      const lastSavedDataFlat = dot.dot(lastSavedDataRef.current);
+      const diff = diffModels(toSaveFlat, lastSavedDataFlat);
+
+      if (!Object.keys(diff).length) {
+        return;
+      }
+
+      console.log('debug, saving data model', dataToSave, lastSavedDataRef.current, diff);
+      mutate({
+        dataModelUrl: url,
+        newData: dataToSave,
+        diff,
+      });
+    },
+    [mutate, url],
+  );
+
   // Debounce the data model when the user stops typing. This has the effect of triggering the useEffect below,
   // saving the data model to the backend. Freezing can also be triggered manually, when a manual save is requested.
   useEffect(() => {
@@ -120,22 +148,24 @@ function FormDataEffects({ url }: { url: string }) {
 
     const shouldSave = hasUnsavedDebouncedChanges && !isSaving && !lockedBy;
     if (shouldSave && (autoSaving || manualSaveRequested)) {
-      const debouncedCurrentDataFlat = dot.dot(debouncedCurrentData);
-      const lastSavedDataFlat = dot.dot(lastSavedData);
-      const diff = diffModels(debouncedCurrentDataFlat, lastSavedDataFlat);
-
-      if (!Object.keys(diff).length) {
-        return;
-      }
-
-      console.log('debug, saving data model', debouncedCurrentData, lastSavedData);
-      mutate({
-        dataModelUrl: url,
-        newData: debouncedCurrentData,
-        diff,
-      });
+      performSave(debouncedCurrentData);
     }
-  }, [mutate, lastSavedData, debouncedCurrentData, isSaving, url, lockedBy, autoSaving, manualSaveRequested]);
+  }, [autoSaving, debouncedCurrentData, isSaving, lastSavedData, lockedBy, manualSaveRequested, performSave]);
+
+  // Always save unsaved changes when the user navigates away from the page and this component is unmounted.
+  // We cannot put the current and last saved data in the dependency array, because that would cause the effect
+  // to trigger when the user is typing, which is not what we want.
+  useEffect(
+    () => () => {
+      const hasUnsavedChanges =
+        currentDataRef.current !== lastSavedDataRef.current &&
+        !deepEqual(currentDataRef.current, lastSavedDataRef.current);
+      if (hasUnsavedChanges) {
+        performSave(currentDataRef.current);
+      }
+    },
+    [performSave],
+  );
 
   return null;
 }
