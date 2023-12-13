@@ -110,7 +110,7 @@ export function useOnNodeDataChange(onChange: (changedNodes: LayoutNode[]) => vo
         continue;
       }
       if (
-        !deepEqual(newNode.getFieldFormData(), prevNode.getFieldFormData()) ||
+        !deepEqual(newNode.getFormData(), prevNode.getFormData()) ||
         // Textresources are used in validation messages, and these can be defined with expressions, so textresource keys can change
         !deepEqual(newNode.item.textResourceBindings, prevNode.item.textResourceBindings)
       ) {

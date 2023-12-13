@@ -118,7 +118,7 @@ export class AppFrontend {
   public feedback = '#FeedbackContainer';
 
   public fieldValidation(field: string) {
-    return `[data-componentid="${field.replace(/^#/, '')}"] [data-validation]`;
+    return `[data-validation="${field.replace(/^#/, '')}"]`;
   }
 
   //selectors for ttd/frontend-test app
@@ -216,7 +216,6 @@ export class AppFrontend {
     mainGroupTableBody: '#group-mainGroup-table-body',
     options: '#reduxOptions',
     hideRepeatingGroupRow: '#hideRepeatingGroupRow',
-    tableErrors: '#error_mainGroup',
     popOverDeleteButton: '[data-testid="warning-popover-delete-button"]',
     popOverCancelButton: '[data-testid="warning-popover-cancel-button"]',
     edit: '[data-testid=edit-button]',

@@ -234,6 +234,7 @@ export function useOnGroupCloseValidation() {
 
     const nodesWithErrors = node
       .flat(true, rowIndex)
+      .filter((n) => n.item.id !== node.item.id) // Exclude self, only check children
       .filter(shouldValidateNode)
       .filter((n) => getValidationsForNode(n, state, mask, 'error').length > 0);
 

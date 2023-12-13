@@ -6,15 +6,9 @@ import type { JSONSchema7 } from 'json-schema';
 import { lookupErrorAsText } from 'src/features/datamodel/lookupErrorAsText';
 import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspector/DefaultNodeInspector';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
-import { runExpressionValidationsOnNode } from 'src/features/validation/frontend/expressionValidation';
-import { isComponentValidation, isFieldValidation } from 'src/features/validation/utils';
 import { CompCategory } from 'src/layout/common';
-import {
-  implementsValidateComponent,
-  implementsValidateEmptyField,
-  implementsValidateSchema,
-  useDisplayDataProps,
-} from 'src/layout/index';
+import { runAllValidations } from 'src/layout/componentValidation';
+import { useDisplayDataProps } from 'src/layout/index';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
 import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
@@ -304,71 +298,8 @@ export abstract class FormComponent<Type extends CompTypes>
 {
   readonly type = CompCategory.Form;
 
-  // TODO(Validation): Merge all frontend validations into one group?
-  public runValidations(
-    node: LayoutNode<Type>,
-    ctx: IValidationContext,
-    schemaErrors: ISchemaValidationError[],
-  ): FormValidations {
-    const formValidations: FormValidations = {
-      fields: {},
-      components: {
-        [node.item.id]: {
-          bindingKeys: {},
-          component: {
-            [FrontendValidationSource.EmptyField]: [],
-            [FrontendValidationSource.Component]: [],
-            [FrontendValidationSource.Schema]: [],
-            [FrontendValidationSource.Expression]: [],
-          },
-        },
-      },
-    };
-
-    if (node.item.dataModelBindings) {
-      for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings)) {
-        formValidations.fields[field] = {
-          [FrontendValidationSource.EmptyField]: [],
-          [FrontendValidationSource.Component]: [],
-          [FrontendValidationSource.Schema]: [],
-          [FrontendValidationSource.Expression]: [],
-        };
-        formValidations.components[node.item.id].bindingKeys[bindingKey] = {
-          [FrontendValidationSource.EmptyField]: [],
-          [FrontendValidationSource.Component]: [],
-          [FrontendValidationSource.Schema]: [],
-          [FrontendValidationSource.Expression]: [],
-        };
-      }
-    }
-
-    const validations: (FieldValidation | ComponentValidation)[] = [];
-    if (implementsValidateEmptyField(this)) {
-      validations.push(...this.runEmptyFieldValidation(node, ctx));
-    }
-    if (implementsValidateComponent(this)) {
-      validations.push(...this.runComponentValidation(node, ctx));
-    }
-    if (implementsValidateSchema(this)) {
-      validations.push(...this.runSchemaValidation(node, schemaErrors));
-    }
-    validations.push(...runExpressionValidationsOnNode(node, ctx));
-
-    for (const validation of validations) {
-      if (isFieldValidation(validation)) {
-        formValidations.fields[validation.field][validation.group].push(validation);
-      } else if (isComponentValidation(validation)) {
-        if (validation.bindingKey) {
-          formValidations.components[node.item.id].bindingKeys[validation.bindingKey][validation.group].push(
-            validation,
-          );
-        } else {
-          formValidations.components[node.item.id].component[validation.group].push(validation);
-        }
-      }
-    }
-
-    return formValidations;
+  runValidations(node: LayoutNode, ctx: IValidationContext, schemaErrors: ISchemaValidationError[]): FormValidations {
+    return runAllValidations(node, ctx, schemaErrors);
   }
 
   runEmptyFieldValidation(node: LayoutNode<Type>, { formData }: IValidationContext): ComponentValidation[] {

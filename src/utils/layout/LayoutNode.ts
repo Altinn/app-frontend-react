@@ -4,7 +4,6 @@ import { getLayoutComponentObject } from 'src/layout';
 import { convertDataBindingToModel } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { IFormData } from 'src/features/formData';
 import type { CompClassMap } from 'src/layout';
 import type { CompCategory } from 'src/layout/common';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated';
@@ -274,23 +273,6 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
     }
 
     return formDataObj as IComponentFormData<Type>;
-  }
-
-  public getFieldFormData(): IFormData {
-    if (!('dataModelBindings' in this.item) || !this.item.dataModelBindings) {
-      return {};
-    }
-
-    const formDataObj: IFormData = {};
-    for (const field of Object.values(this.item.dataModelBindings)) {
-      if (this.dataSources.formData[field]) {
-        formDataObj[field] = this.dataSources.formData[field];
-      } else {
-        formDataObj[field] = '';
-      }
-    }
-
-    return formDataObj;
   }
 
   public getRowIndices(): number[] {
