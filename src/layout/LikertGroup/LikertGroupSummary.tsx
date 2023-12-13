@@ -70,7 +70,6 @@ export function LikertGroupSummary({
                     targetNode: n,
                     grid: {},
                     largeGroup: false,
-                    // largeGroup: targetNode.isNonRepGroup(),
                   }}
                 />
               );

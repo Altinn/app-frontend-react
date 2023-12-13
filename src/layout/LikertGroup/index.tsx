@@ -66,17 +66,6 @@ export class LikertGroup extends LikertGroupDef implements GroupValidation {
     return runValidationOnNodes(node.flat(true, onlyInRowIndex), validationCtxGenerator);
   }
 
-  // Usikker på om dette trengs for LikertGroup/Likert når det er skilt ut fra gruppe.
-  // makeNode(
-  //   item: CompInternal<'LikertGroup'>,
-  //   parent: LayoutNode | LayoutPage,
-  //   top: LayoutPage,
-  //   dataSources: HierarchyDataSources,
-  //   rowIndex?: number,
-  // ): BaseLayoutNode {
-  //   return new BaseLayoutNode<LikertGroupInternal>(item, parent, top, dataSources, rowIndex);
-  // }
-
   isDataModelBindingsRequired(): boolean {
     return true;
   }
