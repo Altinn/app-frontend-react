@@ -5,6 +5,7 @@ import cn from 'classnames';
 
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { useOnPageValidation } from 'src/features/validation/validationProvider';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -105,26 +106,40 @@ const NavigationButton = React.forwardRef(
 NavigationButton.displayName = 'NavigationButton';
 
 export const NavigationBarComponent = ({ node }: INavigationBar) => {
-  const { compact } = node.item;
+  const { compact, validateOnForward, validateOnBackward } = node.item;
   const classes = useStyles();
   const [showMenu, setShowMenu] = React.useState(false);
   const isMobile = useIsMobile() || compact === true;
   const { langAsString } = useLanguage();
   const { navigateToPage, currentPageId, order, maybeSaveOnPageChange } = useNavigatePage();
+  const onPageValidation = useOnPageValidation();
 
   const firstPageLink = React.useRef<HTMLButtonElement>();
 
-  const handleNavigationClick = (pageId: string) => {
+  const handleNavigationClick = async (pageId: string) => {
     setShowMenu(false);
-    if (pageId === currentPageId) {
+    const currentIndex = order.indexOf(currentPageId);
+    const newIndex = order.indexOf(pageId);
+
+    const isForward = newIndex > currentIndex && currentIndex !== -1;
+    const isBackward = newIndex < currentIndex && currentIndex !== -1;
+
+    if (pageId === currentPageId || newIndex === -1) {
       return;
     }
 
     maybeSaveOnPageChange();
 
-    /**
-     * TODO(Validation): Need to run validations
-     */
+    if (isForward && validateOnForward && (await onPageValidation(node.top, validateOnForward))) {
+      // Block navigation if validation fails
+      return;
+    }
+
+    if (isBackward && validateOnBackward && (await onPageValidation(node.top, validateOnBackward))) {
+      // Block navigation if validation fails
+      return;
+    }
+
     navigateToPage(pageId, { skipAutoSave: true });
   };
 
