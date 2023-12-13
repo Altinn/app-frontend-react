@@ -13,6 +13,7 @@ import { diffModels } from 'src/features/formData/diffModels';
 import { useFormDataWriteStateMachine } from 'src/features/formData/FormDataWriteStateMachine';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useMemoDeepEqual } from 'src/hooks/useMemoDeepEqual';
+import { useWaitForState } from 'src/hooks/useWaitForState';
 import type { FDNewValues, FormDataContext } from 'src/features/formData/FormDataWriteStateMachine';
 import type { IFormData } from 'src/features/formData/index';
 import type { SaveWhileTyping } from 'src/layout/common.generated';
@@ -66,10 +67,11 @@ const useFormDataSaveMutation = (ctx: FormDataContext) => {
 interface FormDataWriterProps extends PropsWithChildren {
   url: string;
   initialData: object;
+  autoSaving: boolean;
 }
 
-export function FormDataWriteProvider({ url, initialData, children }: FormDataWriterProps) {
-  const store = useFormDataWriteStateMachine(initialData);
+export function FormDataWriteProvider({ url, initialData, autoSaving, children }: FormDataWriterProps) {
+  const store = useFormDataWriteStateMachine(url, initialData, autoSaving);
   return (
     <Provider value={store}>
       <FormDataEffects url={url} />
@@ -80,30 +82,32 @@ export function FormDataWriteProvider({ url, initialData, children }: FormDataWr
 
 function FormDataEffects({ url }: { url: string }) {
   const state = useStore(useCtx());
-  const { freeze, currentData, debouncedCurrentData, lastSavedData, debounceTimeout } = state;
+  const { debounce, currentData, debouncedCurrentData, lastSavedData, controlState } = state;
+  const { debounceTimeout, autoSaving, manualSaveRequested, lockedBy } = controlState;
   const { mutate, isLoading: isSaving } = useFormDataSaveMutation(state);
   const ruleConnections = useAppSelector((state) => state.formDynamics.ruleConnection);
 
-  // Freeze the data model when the user stops typing. Freezing it has the effect of triggering a useEffect in
-  // FormDataWriteProvider, which will save the data model to the server.
+  // Debounce the data model when the user stops typing. This has the effect of triggering the useEffect below,
+  // saving the data model to the backend. Freezing can also be triggered manually, when a manual save is requested.
   useEffect(() => {
     const timer = setTimeout(() => {
       if (currentData !== debouncedCurrentData) {
-        freeze(ruleConnections);
+        debounce(ruleConnections);
       }
     }, debounceTimeout);
 
     return () => {
       clearTimeout(timer);
     };
-  }, [ruleConnections, freeze, currentData, debouncedCurrentData, debounceTimeout]);
+  }, [ruleConnections, debounce, currentData, debouncedCurrentData, debounceTimeout]);
 
   // Save the data model when the data has been frozen to debouncedCurrentData and is different from the saved data
   useEffect(() => {
     const hasUnsavedDebouncedChanges =
       debouncedCurrentData !== lastSavedData && !deepEqual(debouncedCurrentData, lastSavedData);
 
-    if (hasUnsavedDebouncedChanges && !isSaving) {
+    const shouldSave = hasUnsavedDebouncedChanges && !isSaving && !lockedBy;
+    if (shouldSave && (autoSaving || manualSaveRequested)) {
       const debouncedCurrentDataFlat = dot.dot(debouncedCurrentData);
       const lastSavedDataFlat = dot.dot(lastSavedData);
       const diff = diffModels(debouncedCurrentDataFlat, lastSavedDataFlat);
@@ -119,10 +123,24 @@ function FormDataEffects({ url }: { url: string }) {
         diff,
       });
     }
-  }, [mutate, lastSavedData, debouncedCurrentData, isSaving, url]);
+  }, [mutate, lastSavedData, debouncedCurrentData, isSaving, url, lockedBy, autoSaving, manualSaveRequested]);
 
   return null;
 }
+
+const useHasUnsavedChanges = () =>
+  useSelector((s) => s.lastSavedData !== s.currentData && !deepEqual(s.lastSavedData, s.currentData));
+
+const useWaitForSave = () => {
+  const url = useSelector((s) => s.controlState.saveUrl);
+  const hasUnsavedChanges = useHasUnsavedChanges();
+  const waitForState = useWaitForState({
+    cacheKey: ['hasUnsavedChanges', url],
+    currentState: hasUnsavedChanges,
+  });
+
+  return useCallback(() => waitForState((unsavedChanges) => !unsavedChanges), [waitForState]);
+};
 
 export const FD = {
   /**
@@ -304,6 +322,82 @@ export const FD = {
       [bindings, saveWhileTyping, setMultiLeafValues],
     );
   },
+
+  /**
+   * The locking functionality allows you to prevent form data from saving, even if the user stops typing (or navigates
+   * to the next page). This is useful if you want to perform a server-side action that requires the form data to be
+   * in a certain state. Locking will effectively ignore all saving until you unlock it again.
+   */
+  useLocking(lockId: string) {
+    const rawLock = useSelector((s) => s.lock);
+    const rawUnlock = useSelector((s) => s.unlock);
+    const requestSave = useSelector((s) => s.requestManualSave);
+    const ruleConnections = useAppSelector((s) => s.formDynamics.ruleConnection);
+
+    const lockedBy = useSelector((s) => s.controlState.lockedBy);
+    const isLocked = lockedBy !== undefined;
+    const isLockedByMe = lockedBy === lockId;
+
+    const hasUnsavedChanges = useHasUnsavedChanges();
+    const waitForSave = useWaitForSave();
+
+    const lock = useCallback(async () => {
+      if (isLocked && !isLockedByMe) {
+        window.logWarn(`Form data is already locked by ${lockedBy}, cannot lock it again (requested by ${lockId})`);
+      }
+      if (isLocked) {
+        return false;
+      }
+
+      if (hasUnsavedChanges) {
+        requestSave(ruleConnections);
+        await waitForSave();
+      }
+
+      rawLock(lockId);
+      return true;
+    }, [
+      hasUnsavedChanges,
+      isLocked,
+      isLockedByMe,
+      lockId,
+      lockedBy,
+      rawLock,
+      requestSave,
+      ruleConnections,
+      waitForSave,
+    ]);
+
+    const unlock = useCallback(
+      (changedFields?: IFormData) => {
+        if (!isLocked) {
+          window.logWarn(`Form data is not locked, cannot unlock it (requested by ${lockId})`);
+        }
+        if (!isLockedByMe) {
+          window.logWarn(`Form data is locked by ${lockedBy}, cannot unlock it (requested by ${lockId})`);
+        }
+        if (!isLocked || !isLockedByMe) {
+          return false;
+        }
+
+        rawUnlock(changedFields);
+        return true;
+      },
+      [isLocked, isLockedByMe, lockId, lockedBy, rawUnlock],
+    );
+
+    return { lock, unlock, isLocked, lockedBy, isLockedByMe };
+  },
+
+  /**
+   * Returns a function you can use to wait until the form data is saved.
+   */
+  useWaitForSave,
+
+  /**
+   * Returns true if the form data has unsaved changes
+   */
+  useHasUnsavedChanges,
 
   /**
    * Returns a function to append a value to a list. It checks if the value is already in the list, and if not,

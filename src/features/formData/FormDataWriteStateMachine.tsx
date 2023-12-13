@@ -2,8 +2,6 @@
 import { useRef } from 'react';
 
 import dot from 'dot-object';
-import deepEqual from 'fast-deep-equal';
-import { original } from 'immer';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
@@ -30,10 +28,34 @@ export interface FormDataState {
   // model when saving. You probably don't need to use these values directly unless you know what you're doing.
   lastSavedData: object;
 
-  // The time in milliseconds to debounce the currentData model. This is used to determine how long to wait after the
-  // user has stopped typing before updating that data into the debouncedCurrentData model. Usually this will follow
-  // the default value, it can also be changed at any time by each component that uses the FormDataWriter.
-  debounceTimeout: number;
+  // Control state is used to control the behavior of form data.
+  controlState: {
+    // The time in milliseconds to debounce the currentData model. This is used to determine how long to wait after the
+    // user has stopped typing before updating that data into the debouncedCurrentData model. Usually this will follow
+    // the default value, it can also be changed at any time by each component that uses the FormDataWriter.
+    debounceTimeout: number;
+
+    // Auto-saving is turned on by default, and will automatically save the data model to the server whenever the
+    // debouncedCurrentData model changes. This can be turned off when, for example, you want to save the data model
+    // only when the user navigates to another page.
+    autoSaving: boolean;
+
+    // This is used to track whether the user has requested a manual save. When auto-saving is turned off, this is
+    // the way we track when to save the data model to the server. It can also be used to trigger a manual save
+    // as a way to immediately save the data model to the server, for example before locking the data model.
+    manualSaveRequested: boolean;
+
+    // This is used to track which component is currently blocking the auto-saving feature. If this is set to a string
+    // value, auto-saving will be disabled, even if the autoSaving flag is set to true. This is useful when you want
+    // to temporarily disable auto-saving, for example when clicking a CustomButton and waiting for the server to
+    // respond. The server might read the data model, change it, and return changes back to the client, which could
+    // cause data loss if we were to auto-save the data model while the server is still processing the request.
+    lockedBy: string | undefined;
+
+    // This is the url to use when saving the data model to the server. This can also be used to uniquely identify
+    // the data model, so that we can save multiple data models to the server at the same time.
+    saveUrl: string;
+  };
 }
 
 export interface FDChange {
@@ -69,7 +91,7 @@ export interface FDRemoveValueFromList extends FDChange {
 
 export interface FormDataMethods {
   // Methods used for updating the data model. These methods will update the currentData model, and after
-  // the freeze() method is called, the debouncedCurrentData model will be updated as well.
+  // the debounce() method is called, the debouncedCurrentData model will be updated as well.
   setLeafValue: (change: FDNewValue) => void;
   setMultiLeafValues: (changes: FDNewValues) => void;
   appendToListUnique: (change: FDAppendToListUnique) => void;
@@ -77,70 +99,61 @@ export interface FormDataMethods {
   removeValueFromList: (change: FDRemoveValueFromList) => void;
 
   // Internal utility methods
-  freeze: (ruleConnection: IRuleConnections | null) => void;
+  debounce: (ruleConnection: IRuleConnections | null) => void;
   saveFinished: (savedData: object, changedFields?: IFormData) => void;
+  requestManualSave: (ruleConnection: IRuleConnections | null) => void;
+  lock: (lockName: string) => void;
+  unlock: (changedFields?: IFormData) => void;
 }
 
 export type FormDataContext = FormDataState & FormDataMethods;
 
 function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormDataMethods {
   function processChange(state: FormDataContext, change: FDChange) {
-    state.debounceTimeout = change.debounceTimeout ?? DEFAULT_DEBOUNCE_TIMEOUT;
+    state.controlState.debounceTimeout = change.debounceTimeout ?? DEFAULT_DEBOUNCE_TIMEOUT;
+  }
+
+  function processChangedFields(state: FormDataContext, changedFields: IFormData | undefined) {
+    if (changedFields && Object.keys(changedFields).length > 0) {
+      console.log('debug, processChangedFields', changedFields);
+      for (const path of Object.keys(changedFields)) {
+        const newValue = changedFields[path];
+        if (newValue === null) {
+          continue; // TODO: Remove this when backend stops sending us null values that should be objects
+        }
+
+        // Currently, all data model values are saved as strings
+        const newValueAsString = String(newValue);
+        dot.str(path, newValueAsString, state.currentData);
+        dot.str(path, newValueAsString, state.debouncedCurrentData);
+        dot.str(path, newValueAsString, state.lastSavedData);
+      }
+    }
+  }
+
+  function debounce(state: FormDataContext, ruleConnection: IRuleConnections | null) {
+    const currentDataFlat = dot.dot(state.currentData);
+    const debouncedCurrentDataFlat = dot.dot(state.debouncedCurrentData);
+    const diff = diffModels(currentDataFlat, debouncedCurrentDataFlat);
+    const changes = runLegacyRules(ruleConnection, currentDataFlat, new Set(Object.keys(diff)));
+    for (const { path, newValue } of changes) {
+      dot.str(path, newValue, state.currentData);
+    }
+
+    state.debouncedCurrentData = state.currentData;
   }
 
   return {
-    freeze: (ruleConnection) =>
+    debounce: (ruleConnection) =>
       set((state) => {
-        const currentDataFlat = dot.dot(state.currentData);
-        const debouncedCurrentDataFlat = dot.dot(state.debouncedCurrentData);
-        const diff = diffModels(currentDataFlat, debouncedCurrentDataFlat);
-        const changes = runLegacyRules(ruleConnection, currentDataFlat, new Set(Object.keys(diff)));
-        for (const { path, newValue } of changes) {
-          dot.str(path, newValue, state.currentData);
-        }
-
-        state.debouncedCurrentData = state.currentData;
+        debounce(state, ruleConnection);
       }),
 
-    // TODO: Create tests for this action, it's getting complex
     saveFinished: (savedData, changedFields) =>
       set((state) => {
-        if (changedFields && Object.keys(changedFields).length > 0) {
-          console.log('debug, saveFinished, changes', changedFields);
-          const asSaved = structuredClone(savedData);
-          for (const path of Object.keys(changedFields)) {
-            const newValue = changedFields[path];
-            if (newValue === null) {
-              continue; // TODO: Remove this when backend stops sending us null values that should be objects
-            }
-
-            // Currently, all data model values are saved as strings
-            const newValueAsString = String(newValue);
-            dot.str(path, newValueAsString, state.currentData);
-            dot.str(path, newValueAsString, asSaved);
-          }
-
-          const beforeChanges = original(state.currentData);
-          if (deepEqual(beforeChanges, state.debouncedCurrentData)) {
-            // If these are equal, the user hasn't yet made any changes to the data model since we started changing the
-            // data above. We can safely freeze now, so as not to trigger a new save request.
-            state.debouncedCurrentData = state.currentData;
-          } else {
-            console.log('debug, saveFinished, changes to debouncedCurrentData');
-          }
-
-          if (deepEqual(beforeChanges, asSaved)) {
-            // If these are equal, the user hasn't yet made any changes to the data model since we last saved. We can
-            // safely update the last saved data now, so that we don't trigger a new save request.
-            state.lastSavedData = state.currentData;
-          } else {
-            state.lastSavedData = asSaved;
-            console.log('debug, saveFinished, changes to lastSavedData');
-          }
-        } else {
-          state.lastSavedData = savedData;
-          console.log('debug, saveFinished, no changes reported');
-        }
+        state.lastSavedData = savedData;
+        state.controlState.manualSaveRequested = false;
+        processChangedFields(state, changedFields);
       }),
     setLeafValue: ({ path, newValue, ...rest }) =>
       set((state) => {
@@ -151,7 +164,7 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
         }
 
         processChange(state, rest);
-        dot.str(path, newValue, state.currentData);
+        dot.str(path, String(newValue), state.currentData);
         console.log('debug, setLeafValueImpl', path, newValue);
       }),
     appendToListUnique: ({ path, newValue, ...rest }) =>
@@ -197,15 +210,34 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
           if (existingValue === newValue) {
             continue;
           }
-          dot.str(path, newValue, state.currentData);
+          dot.str(path, String(newValue), state.currentData);
           changesFound = true;
         }
         changesFound && processChange(state, rest);
       }),
+    requestManualSave: (ruleConnection) =>
+      set((state) => {
+        state.controlState.manualSaveRequested = true;
+        debounce(state, ruleConnection);
+      }),
+    lock: (lockName) =>
+      set((state) => {
+        state.controlState.lockedBy = lockName;
+      }),
+    unlock: (changedFields) =>
+      set((state) => {
+        state.controlState.lockedBy = undefined;
+        processChangedFields(state, changedFields);
+      }),
   };
 }
 
-const createFormDataWriteStore = (initialData: object, gatekeepers: FormDataWriteGatekeepers) =>
+const createFormDataWriteStore = (
+  url: string,
+  initialData: object,
+  autoSaving: boolean,
+  gatekeepers: FormDataWriteGatekeepers,
+) =>
   createStore<FormDataContext>()(
     immer((set) => {
       const actions = makeActions(set);
@@ -226,18 +258,24 @@ const createFormDataWriteStore = (initialData: object, gatekeepers: FormDataWrit
         currentData: initialData,
         debouncedCurrentData: initialData,
         lastSavedData: initialData,
-        debounceTimeout: DEFAULT_DEBOUNCE_TIMEOUT,
+        controlState: {
+          autoSaving,
+          manualSaveRequested: false,
+          lockedBy: undefined,
+          debounceTimeout: DEFAULT_DEBOUNCE_TIMEOUT,
+          saveUrl: url,
+        },
         ...actions,
       };
     }),
   );
 
-export const useFormDataWriteStateMachine = (initialData: object) => {
+export const useFormDataWriteStateMachine = (url: string, initialData: object, autoSaving: boolean) => {
   const storeRef = useRef<ReturnType<typeof createFormDataWriteStore> | undefined>();
   const gatekeepers = useFormDataWriteGatekeepers();
 
   if (!storeRef.current) {
-    storeRef.current = createFormDataWriteStore(initialData, gatekeepers);
+    storeRef.current = createFormDataWriteStore(url, initialData, autoSaving, gatekeepers);
   }
 
   return storeRef.current;

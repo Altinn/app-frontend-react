@@ -7,10 +7,12 @@ import type { UseMutationResult } from '@tanstack/react-query';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useNavigatePage, useNavigationParams } from 'src/hooks/useNavigatePage';
 import { isSpecificClientAction } from 'src/layout/CustomButton/typeHelpers';
+import { flattenObject } from 'src/utils/databindings';
 import { promisify } from 'src/utils/promisify';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ButtonColor, ButtonVariant } from 'src/layout/Button/WrappedButton';
@@ -20,7 +22,11 @@ import type { IUserAction } from 'src/types/shared';
 
 type Props = PropsFromGenericComponent<'CustomButton'>;
 
-type UpdatedDataModels = Record<string, unknown>;
+type UpdatedDataModels = {
+  [dataModelGuid: string]: object;
+};
+
+type FormDataLockTools = ReturnType<typeof FD.useLocking>;
 
 export type ActionResult = {
   updatedDataModels?: UpdatedDataModels;
@@ -41,7 +47,7 @@ const isClientAction = (action: CBTypes.CustomAction): action is CBTypes.ClientA
  */
 const isServerAction = (action: CBTypes.CustomAction): action is CBTypes.ServerAction => action.type === 'ServerAction';
 
-function useHandleClientActions(): UseHandleClientActions {
+function useHandleClientActions(lockTools: FormDataLockTools): UseHandleClientActions {
   const currentDataModelGuid = useCurrentDataModelGuid();
   const { navigateToPage, navigateToNextPage, navigateToPreviousPage } = useNavigatePage();
 
@@ -67,9 +73,7 @@ function useHandleClientActions(): UseHandleClientActions {
     handleDataModelUpdate: async (updatedDataModels) => {
       const currentDataModelUpdates = currentDataModelGuid && updatedDataModels[currentDataModelGuid];
       if (currentDataModelUpdates) {
-        // TODO: Trigger a save of the data model before we run actions, lock the data model while we're performing
-        // that action, and unlock it after we're done (with updated data).
-        // dispatch(FormDataActions.fetchFulfilled({ formData: flattenObject(currentDataModelUpdates) }));
+        lockTools.unlock(flattenObject(currentDataModelUpdates));
       }
     },
   };
@@ -85,10 +89,10 @@ type UsePerformActionMutation = {
   handleServerAction: (props: PerformActionMutationProps) => Promise<void>;
 };
 
-function useHandleServerActionMutation(): UsePerformActionMutation {
+function useHandleServerActionMutation(lockTools: FormDataLockTools): UsePerformActionMutation {
   const { doPerformAction } = useAppMutations();
   const { partyId, instanceGuid } = useNavigationParams();
-  const { handleClientActions, handleDataModelUpdate } = useHandleClientActions();
+  const { handleClientActions, handleDataModelUpdate } = useHandleClientActions(lockTools);
 
   const mutation = useMutation({
     mutationFn: async ({ action, buttonId }: PerformActionMutationProps) => {
@@ -102,6 +106,7 @@ function useHandleServerActionMutation(): UsePerformActionMutation {
   return {
     mutation,
     handleServerAction: async ({ action, buttonId }: PerformActionMutationProps) => {
+      await lockTools.lock();
       try {
         const result = await mutation.mutateAsync({ action, buttonId });
         if (result.updatedDataModels) {
@@ -138,9 +143,10 @@ export const buttonStyles: { [style in CBTypes.CustomButtonStyle]: { color: Butt
 
 export const CustomButtonComponent = ({ node }: Props) => {
   const { textResourceBindings, actions, id, buttonStyle = 'secondary' } = node.item;
+  const lockTools = FD.useLocking(node.item.id);
   const { isAuthorized } = useActionAuthorization();
-  const { handleClientActions } = useHandleClientActions();
-  const { handleServerAction, mutation } = useHandleServerActionMutation();
+  const { handleClientActions } = useHandleClientActions(lockTools);
+  const { handleServerAction, mutation } = useHandleServerActionMutation(lockTools);
 
   const isPermittedToPerformActions = actions.reduce((acc, action) => acc || isAuthorized(action.name), true);
   const disabled = !isPermittedToPerformActions || mutation.isLoading;

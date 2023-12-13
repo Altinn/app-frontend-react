@@ -78,7 +78,7 @@ export function FormDataReadWriteProvider({ children }: PropsWithChildren) {
   const { error, isLoading, data, enabled, url } = useFormDataQuery();
 
   if (!enabled || !url) {
-    return <>{children}</>;
+    throw new Error('FormDataReadWriteProvider cannot be provided without a url');
   }
 
   if (error) {
@@ -98,6 +98,7 @@ export function FormDataReadWriteProvider({ children }: PropsWithChildren) {
     <FormDataWriteProvider
       url={url}
       initialData={data}
+      autoSaving={true} // TODO: This should be configurable
     >
       <FormDataReadOnlyFromReadWriteProvider>{children}</FormDataReadOnlyFromReadWriteProvider>
     </FormDataWriteProvider>

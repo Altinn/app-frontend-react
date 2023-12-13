@@ -13,13 +13,16 @@ const { Provider, useCtx } = createContext<FormDataWriteGatekeepers>({
   name: 'FormDataWriteGatekeeper',
   required: false,
   default: {
-    freeze: () => true,
+    debounce: () => true,
     saveFinished: () => true,
     setLeafValue: () => true,
     appendToListUnique: () => true,
     removeIndexFromList: () => true,
     removeValueFromList: () => true,
     setMultiLeafValues: () => true,
+    unlock: () => true,
+    lock: () => true,
+    requestManualSave: () => true,
   },
 });
 

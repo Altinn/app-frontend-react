@@ -159,12 +159,15 @@ const defaultReduxGateKeeper = (action: ReduxAction) =>
 export function makeDefaultFormDataMethodMocks(): FormDataWriteGatekeepers {
   return {
     setLeafValue: jest.fn().mockImplementation(() => true),
-    freeze: jest.fn().mockImplementation(() => true),
+    debounce: jest.fn().mockImplementation(() => true),
     saveFinished: jest.fn().mockImplementation(() => true),
     setMultiLeafValues: jest.fn().mockImplementation(() => true),
     removeValueFromList: jest.fn().mockImplementation(() => true),
     removeIndexFromList: jest.fn().mockImplementation(() => true),
     appendToListUnique: jest.fn().mockImplementation(() => true),
+    unlock: jest.fn().mockImplementation(() => true),
+    lock: jest.fn().mockImplementation(() => true),
+    requestManualSave: jest.fn().mockImplementation(() => true),
   };
 }
 
