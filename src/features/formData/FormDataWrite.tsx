@@ -5,15 +5,17 @@ import type { PropsWithChildren } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import dot from 'dot-object';
 import deepEqual from 'fast-deep-equal';
-import { useStore } from 'zustand';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
-import { createContext } from 'src/core/contexts/context';
+import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { diffModels } from 'src/features/formData/diffModels';
-import { useFormDataWriteStateMachine } from 'src/features/formData/FormDataWriteStateMachine';
+import { useFormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
+import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteStateMachine';
+import { RepeatingGroupsProvider } from 'src/features/formData/RepeatingGroupsProvider';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useMemoDeepEqual } from 'src/hooks/useMemoDeepEqual';
 import { useWaitForState } from 'src/hooks/useWaitForState';
+import type { FormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
 import type { FDNewValues, FormDataContext } from 'src/features/formData/FormDataWriteStateMachine';
 import type { IFormData } from 'src/features/formData/index';
 import type { SaveWhileTyping } from 'src/layout/common.generated';
@@ -33,14 +35,19 @@ interface MutationArg {
   diff: Record<string, any>;
 }
 
-const { Provider, useCtx } = createContext<ReturnType<typeof useFormDataWriteStateMachine>>({
+interface FormDataContextInitialProps {
+  url: string;
+  initialData: object;
+  autoSaving: boolean;
+  gatekeepers: FormDataWriteGatekeepers;
+}
+
+const { Provider, useSelector } = createZustandContext({
   name: 'FormDataWrite',
   required: true,
+  initialCreateStore: ({ url, initialData, autoSaving, gatekeepers }: FormDataContextInitialProps) =>
+    createFormDataWriteStore(url, initialData, autoSaving, gatekeepers),
 });
-
-function useSelector<U>(selector: (state: FormDataContext) => U): U {
-  return useStore(useCtx(), selector);
-}
 
 function createFormDataRequestFromDiff(modelToSave: object, diff: object) {
   const data = new FormData();
@@ -71,17 +78,22 @@ interface FormDataWriterProps extends PropsWithChildren {
 }
 
 export function FormDataWriteProvider({ url, initialData, autoSaving, children }: FormDataWriterProps) {
-  const store = useFormDataWriteStateMachine(url, initialData, autoSaving);
+  const gatekeepers = useFormDataWriteGatekeepers();
   return (
-    <Provider value={store}>
+    <Provider
+      url={url}
+      autoSaving={autoSaving}
+      gatekeepers={gatekeepers}
+      initialData={initialData}
+    >
       <FormDataEffects url={url} />
-      {children}
+      <RepeatingGroupsProvider initialFormData={initialData}>{children}</RepeatingGroupsProvider>
     </Provider>
   );
 }
 
 function FormDataEffects({ url }: { url: string }) {
-  const state = useStore(useCtx());
+  const state = useSelector((s) => s);
   const { debounce, currentData, debouncedCurrentData, lastSavedData, controlState } = state;
   const { debounceTimeout, autoSaving, manualSaveRequested, lockedBy } = controlState;
   const { mutate, isLoading: isSaving } = useFormDataSaveMutation(state);

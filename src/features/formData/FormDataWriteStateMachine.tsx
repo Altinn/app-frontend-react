@@ -1,12 +1,10 @@
 /* eslint-disable no-console */
-import { useRef } from 'react';
 
 import dot from 'dot-object';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
 import { diffModels } from 'src/features/formData/diffModels';
-import { useFormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
 import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/index';
 import { runLegacyRules } from 'src/features/formData/LegacyRules';
 import type { IRuleConnections } from 'src/features/form/dynamics';
@@ -232,7 +230,7 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
   };
 }
 
-const createFormDataWriteStore = (
+export const createFormDataWriteStore = (
   url: string,
   initialData: object,
   autoSaving: boolean,
@@ -269,14 +267,3 @@ const createFormDataWriteStore = (
       };
     }),
   );
-
-export const useFormDataWriteStateMachine = (url: string, initialData: object, autoSaving: boolean) => {
-  const storeRef = useRef<ReturnType<typeof createFormDataWriteStore> | undefined>();
-  const gatekeepers = useFormDataWriteGatekeepers();
-
-  if (!storeRef.current) {
-    storeRef.current = createFormDataWriteStore(url, initialData, autoSaving, gatekeepers);
-  }
-
-  return storeRef.current;
-};
