@@ -56,7 +56,6 @@ describe('NavigationButtons', () => {
       currentView: 'layout1',
       focus: null,
       hiddenFields: [],
-      repeatingGroups: {},
       pageOrderConfig: {
         order: ['layout1', 'layout2'],
         hidden: [],

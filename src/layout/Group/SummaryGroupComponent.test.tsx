@@ -23,12 +23,12 @@ describe('SummaryGroupComponent', () => {
       //   'mockGroup[0].mockDataBinding1': '1',
       //   'mockGroup[0].mockDataBinding2': '2',
       // };
-      state.formLayout.uiConfig.repeatingGroups = {
-        groupComponent: {
-          index: 0,
-          dataModelBinding: 'mockGroup',
-        },
-      };
+      // state.formLayout.uiConfig.repeatingGroups = {
+      //   groupComponent: {
+      //     index: 0,
+      //     dataModelBinding: 'mockGroup',
+      //   },
+      // };
       state.formLayout.layouts!.FormLayout = [
         {
           type: 'Group',

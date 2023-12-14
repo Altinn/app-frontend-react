@@ -107,11 +107,7 @@ const createRadioButton = (props: Partial<CompLikertExternal> | undefined): Comp
 //   type: FormDataActions.update.type,
 // });
 
-const createLayout = (
-  container: CompGroupExternal,
-  components: CompOrGroupExternal[],
-  groupIndex: number,
-): ILayoutState => ({
+const createLayout = (container: CompGroupExternal, components: CompOrGroupExternal[]): ILayoutState => ({
   layoutsets: null,
   layouts: {
     FormLayout: [container, ...components],
@@ -119,12 +115,6 @@ const createLayout = (
   layoutSetId: null,
   uiConfig: {
     hiddenFields: [],
-    repeatingGroups: {
-      'likert-repeating-group-id': {
-        index: groupIndex,
-        editIndex: -1,
-      },
-    },
     currentView: 'FormLayout',
     focus: null,
     pageOrderConfig: {
@@ -211,7 +201,7 @@ export const render = async ({
   // };
 
   const reduxState = getInitialStateMock({
-    formLayout: createLayout(mockLikertContainer, components, mockQuestions.length - 1),
+    formLayout: createLayout(mockLikertContainer, components),
     // formData: mockData,
     formValidations: createFormValidationsForCurrentView(validations),
   });

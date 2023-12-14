@@ -55,7 +55,6 @@ const render = async () => {
           currentView: 'page1',
           focus: 'focus',
           hiddenFields: [],
-          repeatingGroups: {},
           excludePageFromPdf: [],
           excludeComponentFromPdf: [],
         },

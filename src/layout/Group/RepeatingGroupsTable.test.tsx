@@ -30,11 +30,11 @@ const getLayout = (group: CompGroupRepeatingExternal, components: CompOrGroupExt
     layoutSetId: null,
     uiConfig: {
       hiddenFields: [],
-      repeatingGroups: {
-        'mock-container-id': {
-          index: 3,
-        },
-      },
+      // repeatingGroups: {
+      //   'mock-container-id': {
+      //     index: 3,
+      //   },
+      // },
       currentView: 'FormLayout',
       focus: undefined,
       pageOrderConfig: {
