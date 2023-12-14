@@ -14,6 +14,7 @@ import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteSta
 import { RepeatingGroupsProvider } from 'src/features/formData/RepeatingGroupsProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useIsDev } from 'src/hooks/useIsDev';
 import { useMemoDeepEqual } from 'src/hooks/useMemoDeepEqual';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { DeprecatedActions } from 'src/redux/deprecatedSlice';
@@ -53,22 +54,23 @@ const { Provider, useSelector } = createZustandContext({
     createFormDataWriteStore(url, initialData, autoSaving, gatekeepers),
 });
 
-function createFormDataRequestFromDiff(modelToSave: object, diff: object) {
+function createFormDataRequestFromDiff(modelToSave: object, diff: object, pretty?: boolean) {
   const data = new FormData();
-  data.append('dataModel', JSON.stringify(modelToSave));
-  data.append('previousValues', JSON.stringify(diff));
+  data.append('dataModel', JSON.stringify(modelToSave, undefined, pretty ? 2 : undefined));
+  data.append('previousValues', JSON.stringify(diff, undefined, pretty ? 2 : undefined));
   return data;
 }
 
 const useFormDataSaveMutation = (ctx: FormDataContext) => {
   const { doPutFormData } = useAppMutations();
   const { saveFinished } = ctx;
+  const isDev = useIsDev();
 
   return useMutation({
     mutationKey: ['saveFormData'],
     mutationFn: async (arg: MutationArg) => {
       const { dataModelUrl, newData, diff } = arg;
-      const data = createFormDataRequestFromDiff(newData, diff);
+      const data = createFormDataRequestFromDiff(newData, diff, isDev);
       try {
         const metaData = await doPutFormData.call(dataModelUrl, data);
         saveFinished(newData, metaData?.changedFields);

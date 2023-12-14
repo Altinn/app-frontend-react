@@ -137,7 +137,7 @@ export function resolvedLayoutsFromState(state: IRuntimeState) {
  */
 function useResolvedExpressions() {
   const instance = useLaxInstanceData();
-  const formData = FD.useDebouncedDotMap();
+  const formData = FD.useDebounced();
   const uiConfig = useAppSelector((state) => state.formLayout.uiConfig);
   const attachments = useAttachments();
   const options = useAppSelector((state) => state.deprecated.allOptions);

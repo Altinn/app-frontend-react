@@ -113,8 +113,8 @@ function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
     let futureHiddenFields: Set<string>;
     try {
       futureHiddenFields = runConditionalRenderingRules(rules, resolvedNodes);
-    } catch (err) {
-      console.error('Error while evaluating conditional rendering rules', err);
+    } catch (error) {
+      window.logError('Error while evaluating conditional rendering rules:\n', error);
       futureHiddenFields = new Set();
     }
 

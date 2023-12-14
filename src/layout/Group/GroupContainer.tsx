@@ -45,7 +45,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
   const id = node.item.id;
   const edit = node.item.edit;
   const { editIndex, deletingIndex, multiPageIndex } = useRepeatingGroup(id);
-  const repeatingGroupIndex = groupState.index ?? -1;
+  const repeatingGroupIndex = node.item.rows.length - 1;
   const { lang, langAsString } = useLanguage();
   const { onBeforeRowDeletion } = useAttachmentDeletionInRepGroups(node);
 

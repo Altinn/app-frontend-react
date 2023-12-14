@@ -1,9 +1,11 @@
+import deepEqual from 'fast-deep-equal';
+
 import type { IFormData } from 'src/features/formData/index';
 
 export function diffModels(current: IFormData, prev: IFormData) {
   const changes: { [key: string]: string | null } = {};
   for (const key of Object.keys(current)) {
-    if (current[key] !== prev[key]) {
+    if (current[key] !== prev[key] && !deepEqual(current[key], prev[key])) {
       changes[key] = prev[key];
       if (prev[key] === undefined) {
         changes[key] = null;

@@ -365,7 +365,14 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
     for (const key of Object.keys(this.item.dataModelBindings)) {
       const binding = this.item.dataModelBindings[key];
       const data = dot.pick(binding, fullFormData);
-      formDataObj[key] = data ?? '';
+
+      if (key === 'list') {
+        formDataObj[key] = data ?? [];
+      } else if (key === 'simpleBinding') {
+        formDataObj[key] = String(data) ?? '';
+      } else {
+        formDataObj[key] = data;
+      }
     }
 
     return formDataObj as IComponentFormData<Type>;

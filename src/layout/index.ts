@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
-import { FD } from 'src/features/formData/FormDataWrite';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { type IUseLanguage, useLanguage } from 'src/features/language/useLanguage';
 import { useAllOptions } from 'src/features/options/useAllOptions';
@@ -128,7 +127,6 @@ export function implementsGroupValidation<Type extends CompTypes>(
 }
 
 export interface DisplayDataProps {
-  formData: IFormData;
   attachments: IAttachments;
   options: AllOptionsMap;
   langTools: IUseLanguage;
@@ -147,14 +145,13 @@ export function implementsDisplayData<Type extends CompTypes>(
 }
 
 export function useDisplayDataProps(): DisplayDataProps {
-  const formData = FD.useDebouncedDotMap();
   const langTools = useLanguage();
   const options = useAllOptions();
   const attachments = useAttachments();
   const currentLanguage = useCurrentLanguage();
 
   return useMemo(
-    () => ({ options, attachments, langTools, formData, currentLanguage }),
-    [attachments, langTools, options, formData, currentLanguage],
+    () => ({ options, attachments, langTools, currentLanguage }),
+    [attachments, langTools, options, currentLanguage],
   );
 }
