@@ -21,7 +21,7 @@ describe('Hierarchical layout tools', () => {
   const mkInput = (id: string, binding: string): CompInputExternal => ({
     id,
     type: 'Input',
-    hidden: ['equals', ['dataModel', 'Model.ShouldBeTrue'], 'true'],
+    hidden: ['equals', ['dataModel', 'ExprBase.ShouldBeTrue'], 'true'],
     dataModelBindings: {
       simpleBinding: binding,
     },
@@ -31,7 +31,7 @@ describe('Hierarchical layout tools', () => {
     id,
     type: 'Group',
     maxCount: 3,
-    hidden: ['equals', ['dataModel', 'Model.ShouldBeFalse'], 'false'],
+    hidden: ['equals', ['dataModel', 'ExprBase.ShouldBeFalse'], 'false'],
     dataModelBindings: {
       group: binding,
     },
@@ -306,11 +306,11 @@ describe('Hierarchical layout tools', () => {
     const dataSources: HierarchyDataSources = {
       ...getHierarchyDataSourcesMock(),
       formData: {
-        Model: {
+        ...repeatingGroupsFormData,
+        ExprBase: {
           ShouldBeTrue: 'true',
           ShouldBeFalse: 'false',
         },
-        ...repeatingGroupsFormData,
       },
       instanceDataSources: {
         instanceId: 'test',
@@ -518,7 +518,7 @@ describe('Hierarchical layout tools', () => {
     expect(field3?.item.id).toEqual('field3');
 
     const nested = resolved?.findById(components.group2ni.id);
-    expect(nested?.item.id).toEqual('group2nested_input-0-0');
+    expect(nested?.item.id).toEqual('group2ni-0-0');
     expect(nested?.closest((i) => i.id === components.top1.id)?.item.id).toEqual(components.top1.id);
 
     // Using 'closest' across pages
@@ -527,10 +527,10 @@ describe('Hierarchical layout tools', () => {
     // Using 'findById' on the wrong page
     expect(resolved?.findLayout('page2')?.findById('field3')?.item.id).toEqual('field3');
     expect(field3?.top.findAllById(components.group2i.id).map((i) => i.item.id)).toEqual([
-      'group2_input-0',
-      'group2_input-1',
-      'group2_input-2',
-      'group2_input-3',
+      'group2i-0',
+      'group2i-1',
+      'group2i-2',
+      'group2i-3',
     ]);
   });
 

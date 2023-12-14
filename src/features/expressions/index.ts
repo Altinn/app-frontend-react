@@ -341,6 +341,18 @@ const authContextKeys: { [key in keyof IAuthContext]: true } = {
   reject: true,
 };
 
+function pickSimpleValue(path: string | undefined | null, formData: object) {
+  if (!path) {
+    return null;
+  }
+
+  const value = dot.pick(path, formData);
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+    return value;
+  }
+  return null;
+}
+
 /**
  * All the functions available to execute inside expressions
  */
@@ -513,7 +525,7 @@ export const ExprFunctions = {
           return null;
         }
 
-        return (this.dataSources.formData && this.dataSources.formData[simpleBinding]) || null;
+        return pickSimpleValue(simpleBinding, this.dataSources.formData);
       }
 
       // Expressions can technically be used without having all the layouts available, which might lead to unexpected
@@ -538,12 +550,12 @@ export const ExprFunctions = {
       const maybeNode = this.failWithoutNode();
       if (maybeNode instanceof BaseLayoutNode) {
         const newPath = maybeNode?.transposeDataModel(path);
-        return (newPath && this.dataSources.formData[newPath]) || null;
+        return pickSimpleValue(newPath, this.dataSources.formData);
       }
 
       // No need to transpose the data model according to the location inside a repeating group when the context is
       // a LayoutPage (i.e., when we're resolving an expression directly on the layout definition).
-      return this.dataSources.formData[path] || null;
+      return pickSimpleValue(path, this.dataSources.formData);
     },
     args: [ExprVal.String] as const,
     returns: ExprVal.Any,

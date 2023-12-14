@@ -15,6 +15,7 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useNavigationParams } from 'src/hooks/useNavigatePage';
 import { getLayoutComponentObject } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
+import { convertDataBindingToModel } from 'src/utils/databindings';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { CompInternal, HierarchyDataSources, ILayouts } from 'src/layout/layout';
@@ -93,7 +94,7 @@ function resolvedNodesInLayouts(
 
 export function dataSourcesFromState(state: IRuntimeState): HierarchyDataSources {
   return {
-    formData: state.deprecated.formData, // TODO: Do not use flat form data here
+    formData: convertDataBindingToModel(state.deprecated.formData),
     attachments: state.deprecated.lastKnownAttachments || {},
     uiConfig: state.formLayout.uiConfig,
     options: state.deprecated.allOptions || {},
