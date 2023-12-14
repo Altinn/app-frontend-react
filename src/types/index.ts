@@ -78,42 +78,14 @@ export interface IHiddenLayoutsExternal {
 export interface IUiConfig {
   autoSaveBehavior?: 'onChangePage' | 'onChangeFormData';
   receiptLayoutName?: string;
-  currentView: string;
   returnToView?: string;
   focus: string | null | undefined;
   hiddenFields: string[];
   repeatingGroups: IRepeatingGroups | null;
-  pageOrderConfig: IPageOrderConfig;
   excludePageFromPdf: string[] | null;
   excludeComponentFromPdf: string[] | null;
   pdfLayoutName?: string;
   keepScrollPos?: IComponentScrollPos;
-}
-
-/**
- * This state includes everything needed to calculate which layouts should be shown, and their order.
- */
-export interface IPageOrderConfig {
-  /**
-   * The main 'order' is the list of layouts available, or which layouts the server tells us to display. If a layout
-   * is not in this list, it should be considered hidden. It will be null until layouts have been fetched.
-   *
-   * Do NOT use this directly, as it will not respect layouts hidden using expressions!
-   * @see getLayoutOrderFromPageOrderConfig
-   * @see selectLayoutOrder
-   */
-  order: string[] | null;
-
-  /**
-   * This state contains the results from calculating `hiddenExpr` (expressions to decide if a certain layout should
-   * be hidden or not). If a layout is in this list, is should also not be displayed.
-   */
-  hidden: string[];
-
-  /**
-   * List of expressions containing logic used to show/hide certain layouts.
-   */
-  hiddenExpr: IHiddenLayoutsExternal;
 }
 
 export enum ProcessTaskType {

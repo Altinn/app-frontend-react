@@ -125,13 +125,8 @@ const createLayout = (
         editIndex: -1,
       },
     },
-    currentView: 'FormLayout',
     focus: null,
-    pageOrderConfig: {
-      order: null,
-      hidden: [],
-      hiddenExpr: {},
-    },
+
     excludePageFromPdf: [],
     excludeComponentFromPdf: [],
   },

@@ -12,7 +12,7 @@ import { getVariant } from 'src/components/form/Panel';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { Lang } from 'src/features/language/Lang';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { useNavigationParams } from 'src/hooks/useNavigatePage';
+import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { CustomIcon } from 'src/layout/Panel/CustomPanelIcon';
 import type { CompGroupNonRepeatingPanelInternal } from 'src/layout/Group/config.generated';
@@ -24,7 +24,7 @@ export interface IPanelGroupContainerProps {
 
 export function PanelReferenceGroupContainer({ node }: IPanelGroupContainerProps) {
   const dispatch = useAppDispatch();
-  const { pageKey } = useNavigationParams();
+  const currentView = useCurrentView();
 
   const container = node.item.panel ? node.item : undefined;
   const [open, setOpen] = useState<boolean>(!container?.panel?.groupReference);
@@ -43,7 +43,7 @@ export function PanelReferenceGroupContainer({ node }: IPanelGroupContainerProps
       dispatch(
         FormLayoutActions.repGroupAddRow({
           groupId: referencedGroupNode.item.id,
-          currentPageId: pageKey,
+          currentPageId: currentView,
         }),
       );
     }

@@ -6,7 +6,6 @@ import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { repGroupDeleteRowSaga } from 'src/features/form/layout/repGroups/repGroupDeleteRowSaga';
 import { selectFormData, selectFormLayoutState } from 'src/features/form/layout/update/updateFormLayoutSagas';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
-import { resolvedLayoutsFromState, ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import type { IDataModelBindings } from 'src/layout/layout';
 import type { IRuntimeState } from 'src/types';
 
@@ -60,7 +59,6 @@ describe('repGroupDeleteRowSaga', function () {
       .provide([
         [select(selectFormLayoutState), selectFormLayoutState(state)],
         [select(selectFormData), selectFormData(state)],
-        [select(ResolvedNodesSelector), resolvedLayoutsFromState(state)],
       ])
       .put(
         FormLayoutActions.repGroupDeleteRowFulfilled({

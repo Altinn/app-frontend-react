@@ -24,10 +24,8 @@ describe('All known apps should work with layout validation', () => {
 
   const allLayoutSets = getAllLayoutSets(dir);
   it.each(allLayoutSets)('$appName/$setName', async ({ layouts, setName }) => {
-    const firstKey = Object.keys(layouts)[0];
     const reduxState = getInitialStateMock();
     reduxState.formLayout.layouts = layouts;
-    reduxState.formLayout.uiConfig.currentView = firstKey;
     reduxState.devTools.isOpen = true;
     reduxState.applicationMetadata.applicationMetadata!.onEntry = {
       show: setName,

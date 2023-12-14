@@ -48,6 +48,14 @@ export const useNavigationParams = () => {
   };
 };
 
+export const useCurrentView = () => useNavigationParams().pageKey;
+export const useOrder = () => {
+  const { orderWithHidden } = useUiConfigContext();
+  const { hidden } = usePageNavigationContext();
+  const hiddenPages = useMemo(() => new Set(hidden), [hidden]);
+  return useMemo(() => orderWithHidden?.filter((page) => !hiddenPages.has(page)), [orderWithHidden, hiddenPages]);
+};
+
 export const useNavigatePage = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -57,17 +65,11 @@ export const useNavigatePage = () => {
   const lastTaskId = processTasks?.slice(-1)[0]?.elementId;
 
   const { partyId, instanceGuid, taskId, pageKey } = useNavigationParams();
-  const { orderWithHidden } = useUiConfigContext();
   const autoSaveBehavior = useAppSelector((state) => state.formLayout.uiConfig.autoSaveBehavior);
 
-  const { setFocusId, setReturnToView, hidden } = usePageNavigationContext();
+  const { setFocusId, setReturnToView } = usePageNavigationContext();
   const taskType = useTaskType(taskId);
-
-  const hiddenPages = useMemo(() => new Set(hidden), [hidden]);
-  const order = useMemo(
-    () => orderWithHidden?.filter((page) => !hiddenPages.has(page)),
-    [orderWithHidden, hiddenPages],
-  );
+  const order = useOrder();
 
   const currentPageId = pageKey ?? '';
   const currentPageIndex = order?.indexOf(currentPageId) ?? -1;
@@ -149,11 +151,14 @@ export const useNavigatePage = () => {
   );
 
   const navigateToTask = useCallback(
-    (taskId?: string, options?: NavigateOptions) => {
-      const url = `/instance/${partyId}/${instanceGuid}/${taskId ?? lastTaskId}`;
+    (newTaskId?: string, options?: NavigateOptions) => {
+      if (newTaskId === taskId) {
+        return;
+      }
+      const url = `/instance/${partyId}/${instanceGuid}/${newTaskId ?? lastTaskId}`;
       navigate(url, options);
     },
-    [partyId, instanceGuid, lastTaskId, navigate],
+    [partyId, instanceGuid, lastTaskId, navigate, taskId],
   );
 
   const isCurrentTask = useMemo(() => currentTaskId === taskId, [currentTaskId, taskId]);

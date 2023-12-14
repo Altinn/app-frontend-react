@@ -44,7 +44,6 @@ function useLayoutQuery() {
       dispatch(
         FormLayoutActions.fetchFulfilled({
           layouts: result.layouts,
-          hiddenLayoutsExpressions: result.hiddenLayoutsExpressions,
           layoutSetId: currentLayoutSetId || null,
         }),
       );
@@ -69,7 +68,6 @@ function useLayoutQuery() {
       dispatch(
         FormLayoutActions.fetchFulfilled({
           layouts: query.data.layouts,
-          hiddenLayoutsExpressions: query.data.hiddenLayoutsExpressions,
           layoutSetId: currentLayoutSetId || null,
         }),
       );

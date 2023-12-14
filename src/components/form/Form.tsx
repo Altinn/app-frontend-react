@@ -8,15 +8,15 @@ import { ErrorReport } from 'src/components/message/ErrorReport';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { FrontendValidationSource } from 'src/features/validation';
 import { useTaskErrors } from 'src/features/validation/validationProvider';
-import { useNavigatePage } from 'src/hooks/useNavigatePage';
+import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { extractBottomButtons, hasRequiredFields } from 'src/utils/formLayout';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 
 export function Form() {
-  const { currentPageId } = useNavigatePage();
+  const currentPageId = useCurrentView();
   const nodes = useExprContext();
-  const page = nodes?.all?.()?.[currentPageId];
+  const page = currentPageId ? nodes?.all?.()?.[currentPageId] : undefined;
 
   const { formErrors, taskErrors } = useTaskErrors();
   const hasErrors = Boolean(formErrors.length) || Boolean(taskErrors.length);

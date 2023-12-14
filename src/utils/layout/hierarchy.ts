@@ -3,16 +3,18 @@ import { useMemo } from 'react';
 import { createSelector } from 'reselect';
 
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
+import { usePageNavigationConfig } from 'src/features/form/layout/PageNavigationContext';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { staticUseLanguageFromState, useLanguage } from 'src/features/language/useLanguage';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useNavigationParams } from 'src/hooks/useNavigatePage';
+import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { getLayoutComponentObject } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
+import type { PageNavigationConfig } from 'src/features/expressions/ExprContext';
 import type { CompInternal, HierarchyDataSources, ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups, IRuntimeState } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
@@ -94,11 +96,13 @@ function resolvedNodesInLayouts(
   return unresolved as unknown as LayoutPages;
 }
 
-export function dataSourcesFromState(state: IRuntimeState): HierarchyDataSources {
-  return {
+export const dataSourcesFromState =
+  (pageNavigationConfig: PageNavigationConfig) =>
+  (state: IRuntimeState): HierarchyDataSources => ({
     formData: state.formData.formData,
     attachments: state.deprecated.lastKnownAttachments || {},
     uiConfig: state.formLayout.uiConfig,
+    pageNavigationConfig,
     options: state.deprecated.allOptions || {},
     applicationSettings: state.applicationSettings.applicationSettings,
     instanceDataSources: buildInstanceDataSources(state.deprecated.lastKnownInstance),
@@ -107,10 +111,10 @@ export function dataSourcesFromState(state: IRuntimeState): HierarchyDataSources
     devTools: state.devTools,
     langTools: staticUseLanguageFromState(state),
     currentLanguage: state.deprecated.currentLanguage,
-  };
-}
+  });
 
-export const selectDataSourcesFromState = createSelector(dataSourcesFromState, (data) => data);
+export const createSelectDataSourcesFromState = (pageNavigationConfig: PageNavigationConfig) =>
+  createSelector(dataSourcesFromState(pageNavigationConfig), (data) => data);
 
 function innerResolvedLayoutsFromState(
   layouts: ILayouts | null,
@@ -123,15 +127,6 @@ function innerResolvedLayoutsFromState(
   }
 
   return resolvedNodesInLayouts(layouts, currentView, repeatingGroups, dataSources);
-}
-
-export function resolvedLayoutsFromState(state: IRuntimeState) {
-  return innerResolvedLayoutsFromState(
-    state.formLayout.layouts,
-    state.formLayout.uiConfig.currentView,
-    state.formLayout.uiConfig.repeatingGroups,
-    dataSourcesFromState(state),
-  );
 }
 
 /**
@@ -148,18 +143,19 @@ function useResolvedExpressions() {
   const applicationSettings = useAppSelector((state) => state.applicationSettings.applicationSettings);
   const hiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
   const layouts = useAppSelector((state) => state.formLayout.layouts);
-  const { pageKey } = useNavigationParams();
-  const currentView = pageKey;
+  const currentView = useCurrentView();
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
   const devTools = useAppSelector((state) => state.devTools);
   const langTools = useLanguage();
   const currentLanguage = useCurrentLanguage();
+  const pageNavigationConfig = usePageNavigationConfig();
 
   const dataSources: HierarchyDataSources = useMemo(
     () => ({
       formData,
       attachments: attachments || {},
       uiConfig,
+      pageNavigationConfig,
       options: options || {},
       applicationSettings,
       instanceDataSources: buildInstanceDataSources(instance),
@@ -173,6 +169,7 @@ function useResolvedExpressions() {
       formData,
       attachments,
       uiConfig,
+      pageNavigationConfig,
       options,
       applicationSettings,
       instance,
@@ -189,12 +186,6 @@ function useResolvedExpressions() {
     [layouts, currentView, repeatingGroups, dataSources],
   );
 }
-
-/**
- * Selector for use in redux sagas. Will return a fully resolved layouts tree.
- * Specify manually that the returned value from this is `LayoutPages`
- */
-export const ResolvedNodesSelector = (state: IRuntimeState) => resolvedLayoutsFromState(state);
 
 /**
  * Exported only for testing. Please do not use!

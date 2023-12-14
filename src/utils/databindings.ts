@@ -166,7 +166,6 @@ export function getGroupDataModelBinding(repeatingGroup: IRepeatingGroup, groupI
  * @deprecated
  * @see useExprContext
  * @see useResolvedNode
- * @see ResolvedNodesSelector
  */
 function getParentGroup(groupId: string, layout: ILayout): CompGroupExternal | undefined {
   if (!groupId || !layout) {

@@ -5,10 +5,11 @@ import { pick } from 'dot-object';
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { asExpression } from 'src/features/expressions/validation';
+import { usePageNavigationConfig } from 'src/features/form/layout/PageNavigationContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { convertDataBindingToModel, getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
-import { selectDataSourcesFromState } from 'src/utils/layout/hierarchy';
+import { createSelectDataSourcesFromState } from 'src/utils/layout/hierarchy';
 import { memoize } from 'src/utils/memoize';
 import type { IOption, IOptionSourceExternal } from 'src/layout/common.generated';
 import type { HierarchyDataSources } from 'src/layout/layout';
@@ -20,7 +21,8 @@ interface IUseSourceOptionsArgs {
 }
 
 export const useSourceOptions = ({ source, node }: IUseSourceOptionsArgs): IOption[] | undefined => {
-  const dataSources = useAppSelector(selectDataSourcesFromState);
+  const pageNavigationConfig = usePageNavigationConfig();
+  const dataSources = useAppSelector(createSelectDataSourcesFromState(pageNavigationConfig));
 
   return useMemo(() => getSourceOptions({ source, node, dataSources }), [source, node, dataSources]);
 };

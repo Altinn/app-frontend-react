@@ -13,12 +13,13 @@ import { DevToolsTab } from 'src/features/devtools/data/types';
 import { useLayoutValidationForPage } from 'src/features/devtools/layoutValidation/useLayoutValidation';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 
 export const LayoutInspector = () => {
   const selectedComponent = useAppSelector((state) => state.devTools.layoutInspector.selectedComponentId);
-  const { currentView } = useAppSelector((state) => state.formLayout.uiConfig);
+  const currentView = useCurrentView();
   const layouts = useAppSelector((state) => state.formLayout.layouts);
   const [componentProperties, setComponentProperties] = useState<string | null>(null);
   const [propertiesHaveChanged, setPropertiesHaveChanged] = useState(false);
@@ -44,7 +45,7 @@ export const LayoutInspector = () => {
     [dispatch],
   );
 
-  const currentLayout = layouts?.[currentView];
+  const currentLayout = currentView ? layouts?.[currentView] : undefined;
   const matchingNodes = selectedComponent ? nodes?.findAllById(selectedComponent) || [] : [];
   const validationErrorsForPage = useLayoutValidationForPage() || {};
 
@@ -77,7 +78,9 @@ export const LayoutInspector = () => {
           }
         });
 
-        dispatch(FormLayoutActions.updateLayouts({ [currentView]: updatedLayout }));
+        if (currentView) {
+          dispatch(FormLayoutActions.updateLayouts({ [currentView]: updatedLayout }));
+        }
 
         setPropertiesHaveChanged(false);
         return;
