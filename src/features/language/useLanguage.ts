@@ -10,7 +10,7 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromCode } from 'src/language/languages';
 import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
 import { useFormComponentCtx } from 'src/layout/FormComponentContext';
-import { getKeyWithoutIndexIndicators } from 'src/utils/databindings';
+import { flattenObject, getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import type { IFormData } from 'src/features/formData';
@@ -109,7 +109,7 @@ export function staticUseLanguageFromState(state: IRuntimeState, node?: LayoutNo
   const instanceDataSources = buildInstanceDataSources(state.deprecated.lastKnownInstance);
   const dataSources: TextResourceVariablesDataSources = {
     node,
-    formData,
+    formData: flattenObject(formData),
     applicationSettings,
     instanceDataSources,
   };
