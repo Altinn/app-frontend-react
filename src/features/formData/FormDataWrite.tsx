@@ -15,11 +15,13 @@ import { RepeatingGroupsProvider } from 'src/features/formData/RepeatingGroupsPr
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useMemoDeepEqual } from 'src/hooks/useMemoDeepEqual';
 import { useWaitForState } from 'src/hooks/useWaitForState';
+import { isAxiosError } from 'src/utils/isAxiosError';
 import type { FormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
 import type { FDNewValues, FormDataContext } from 'src/features/formData/FormDataWriteStateMachine';
 import type { IFormData } from 'src/features/formData/index';
 import type { SaveWhileTyping } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
+import type { IDataAfterDataModelSave } from 'src/types/shared';
 
 export type FDValue = string | number | boolean | object | undefined | null | FDValue[];
 export type FDFreshness = 'current' | 'debounced';
@@ -65,8 +67,19 @@ const useFormDataSaveMutation = (ctx: FormDataContext) => {
     mutationFn: async (arg: MutationArg) => {
       const { dataModelUrl, newData, diff } = arg;
       const data = createFormDataRequestFromDiff(newData, diff);
-      const metaData = await doPutFormData.call(dataModelUrl, data);
-      saveFinished(newData, metaData?.changedFields);
+      try {
+        const metaData = await doPutFormData.call(dataModelUrl, data);
+        saveFinished(newData, metaData?.changedFields);
+      } catch (error) {
+        if (isAxiosError(error) && error.response?.status === 303) {
+          // Fallback to old behavior if the server responds with 303 when there are changes. We handle these just
+          // like we handle 200 responses.
+          const metaData = error.response.data as IDataAfterDataModelSave;
+          saveFinished(newData, metaData?.changedFields);
+          return;
+        }
+        throw error;
+      }
     },
   });
 };
@@ -96,7 +109,7 @@ function FormDataEffects({ url }: { url: string }) {
   const state = useSelector((s) => s);
   const { debounce, currentData, debouncedCurrentData, lastSavedData, controlState } = state;
   const { debounceTimeout, autoSaving, manualSaveRequested, lockedBy } = controlState;
-  const { mutate, isLoading: isSaving } = useFormDataSaveMutation(state);
+  const { mutate, isLoading: isSaving, error } = useFormDataSaveMutation(state);
   const ruleConnections = useAppSelector((state) => state.formDynamics.ruleConnection);
 
   // This component re-renders on every keystroke in a form field. We don't want to save on every keystroke, nor
@@ -106,6 +119,14 @@ function FormDataEffects({ url }: { url: string }) {
   currentDataRef.current = currentData;
   const lastSavedDataRef = React.useRef(lastSavedData);
   lastSavedDataRef.current = lastSavedData;
+  const isSavingRef = React.useRef(isSaving);
+  isSavingRef.current = isSaving;
+
+  // If errors occur, we want to throw them so that the user can see them, and they
+  // can be handled by the error boundary.
+  if (error) {
+    throw error;
+  }
 
   const performSave = useCallback(
     (dataToSave: object) => {
@@ -114,6 +135,10 @@ function FormDataEffects({ url }: { url: string }) {
       const diff = diffModels(toSaveFlat, lastSavedDataFlat);
 
       if (!Object.keys(diff).length) {
+        return;
+      }
+
+      if (isSavingRef.current) {
         return;
       }
 

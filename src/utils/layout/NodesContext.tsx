@@ -9,6 +9,7 @@ import {
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { FD } from 'src/features/formData/FormDataWrite';
+import { useRepeatingGroups } from 'src/features/formData/RepeatingGroupsProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
@@ -91,7 +92,7 @@ function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
   const _currentHiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
   const formData = FD.useDebouncedDotMap();
   const rules = useAppSelector((state) => state.formDynamics.conditionalRendering);
-  const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
+  const repeatingGroups = useRepeatingGroups();
   const _dataSources = useAppSelector(selectDataSourcesFromState);
   const dataSources: HierarchyDataSources = useMemo(() => ({ ..._dataSources, formData }), [_dataSources, formData]);
   const { setHiddenPages, hidden, hiddenExpr } = usePageNavigationContext();

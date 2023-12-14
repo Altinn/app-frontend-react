@@ -149,7 +149,7 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
 
     saveFinished: (savedData, changedFields) =>
       set((state) => {
-        state.lastSavedData = savedData;
+        state.lastSavedData = structuredClone(savedData);
         state.controlState.manualSaveRequested = false;
         processChangedFields(state, changedFields);
       }),

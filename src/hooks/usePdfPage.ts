@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 
+import { useRepeatingGroups } from 'src/features/formData/RepeatingGroupsProvider';
 import { usePdfFormatQuery } from 'src/features/pdf/usePdfFormatQuery';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLayoutComponentObject } from 'src/layout';
@@ -20,7 +21,7 @@ export const usePdfPage = (): LayoutPage | null => {
   const layoutPages = useNodes();
   const dataSources = useAppSelector(dataSourcesFromState);
   const pageOrderConfig = useAppSelector((state) => state.formLayout.uiConfig.pageOrderConfig);
-  const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
+  const repeatingGroups = useRepeatingGroups();
   const pdfLayoutName = useAppSelector((state) => state.formLayout.uiConfig.pdfLayoutName);
 
   const customPdfPage = pdfLayoutName ? layoutPages?.[pdfLayoutName] : undefined;

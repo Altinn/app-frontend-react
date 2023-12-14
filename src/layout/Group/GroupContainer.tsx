@@ -9,9 +9,9 @@ import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { useAttachmentDeletionInRepGroups } from 'src/features/attachments/useAttachmentDeletionInRepGroups';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { useRepeatingGroup } from 'src/features/formData/RepeatingGroupsProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useNavigationParams } from 'src/hooks/useNavigatePage';
 import { Triggers } from 'src/layout/common.generated';
 import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
@@ -45,9 +45,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
   const resolvedTextBindings = node.item.textResourceBindings;
   const id = node.item.id;
   const edit = node.item.edit;
-  const groupState = useAppSelector(
-    (state) => state.formLayout.uiConfig.repeatingGroups && state.formLayout.uiConfig.repeatingGroups[id],
-  );
+  const groupState = useRepeatingGroup(id);
   const isLoading = groupState?.isLoading;
   const editIndex = groupState?.editIndex ?? -1;
   const deletingIndexes = groupState?.deletingIndex ?? [];

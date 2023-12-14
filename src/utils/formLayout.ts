@@ -1,4 +1,5 @@
 import { groupIsRepeatingExt, groupIsRepeatingLikertExt } from 'src/layout/Group/tools';
+import type { IFormData } from 'src/features/formData';
 import type { CompGroupExternal, IGroupEditPropertiesLikert } from 'src/layout/Group/config.generated';
 import type { CompExternal, ILayout } from 'src/layout/layout';
 import type { ILayoutSets, IRepeatingGroups } from 'src/types';
@@ -75,7 +76,7 @@ const getMaxIndexInKeys = (keys: string[], nested = false) => {
  * @see useExprContext
  * @see useResolvedNode
  */
-export function getRepeatingGroups(formLayout: ILayout, formData: any) {
+export function getRepeatingGroups(formLayout: ILayout, formData: IFormData) {
   const repeatingGroups: IRepeatingGroups = {};
 
   const groups = formLayout.filter((layoutElement) => layoutElement.type === 'Group');

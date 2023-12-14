@@ -41,7 +41,7 @@ export const formLayoutSlice = () => {
   const slice = createSagaSlice((mkAction: MkActionType<ILayoutState>) => {
     const genericSetRepeatingGroups = mkAction<{ updated: IRepeatingGroups }>({
       reducer: (state, { payload: { updated } }) => {
-        state.uiConfig.repeatingGroups = updated;
+        // state.uiConfig.repeatingGroups = updated;
       },
     });
 
@@ -104,50 +104,50 @@ export const formLayoutSlice = () => {
         repGroupDeleteRow: mkAction<LayoutTypes.IRepGroupDelRow>({
           // takeEvery: repGroupDeleteRowSaga,
           reducer: (state, { payload: { groupId, index } }) => {
-            state.uiConfig.repeatingGroups = state.uiConfig.repeatingGroups || {};
-            state.uiConfig.repeatingGroups[groupId].deletingIndex =
-              state.uiConfig.repeatingGroups[groupId].deletingIndex || [];
-            state.uiConfig.repeatingGroups[groupId].deletingIndex?.push(index);
+            // state.uiConfig.repeatingGroups = state.uiConfig.repeatingGroups || {};
+            // state.uiConfig.repeatingGroups[groupId].deletingIndex =
+            //   state.uiConfig.repeatingGroups[groupId].deletingIndex || [];
+            // state.uiConfig.repeatingGroups[groupId].deletingIndex?.push(index);
           },
         }),
         repGroupDeleteRowFulfilled: genericSetRepeatingGroups,
         repGroupDeleteRowCancelled: mkAction<{ groupId: string; index: number }>({
           reducer: (state, { payload: { groupId, index } }) => {
-            state.uiConfig.repeatingGroups = state.uiConfig.repeatingGroups || {};
-            state.uiConfig.repeatingGroups[groupId].deletingIndex = (
-              state.uiConfig.repeatingGroups[groupId].deletingIndex || []
-            ).filter((value) => value !== index);
+            // state.uiConfig.repeatingGroups = state.uiConfig.repeatingGroups || {};
+            // state.uiConfig.repeatingGroups[groupId].deletingIndex = (
+            //   state.uiConfig.repeatingGroups[groupId].deletingIndex || []
+            // ).filter((value) => value !== index);
           },
         }),
         repGroupSetMultiPage: mkAction<{ groupId: string; page: number }>({
           reducer: (state, { payload: { groupId, page } }) => {
-            state.uiConfig.repeatingGroups = state.uiConfig.repeatingGroups || {};
-            state.uiConfig.repeatingGroups[groupId].multiPageIndex = page;
+            // state.uiConfig.repeatingGroups = state.uiConfig.repeatingGroups || {};
+            // state.uiConfig.repeatingGroups[groupId].multiPageIndex = page;
           },
         }),
         updateRepeatingGroupsEditIndex: mkAction<LayoutTypes.IUpdateRepeatingGroupsEditIndex>({
           // takeEvery: updateRepeatingGroupEditIndexSaga,
           reducer: (state, action) => {
-            const { group } = action.payload;
-            if (state.uiConfig.repeatingGroups && state.uiConfig.repeatingGroups[group]) {
-              state.uiConfig.repeatingGroups[group].isLoading = true;
-            }
+            // const { group } = action.payload;
+            // if (state.uiConfig.repeatingGroups && state.uiConfig.repeatingGroups[group]) {
+            //   state.uiConfig.repeatingGroups[group].isLoading = true;
+            // }
           },
         }),
         updateRepeatingGroupsEditIndexFulfilled: mkAction<LayoutTypes.IUpdateRepeatingGroupsEditIndexFulfilled>({
           reducer: (state, action) => {
-            const { group, index } = action.payload;
-            state.uiConfig.repeatingGroups = state.uiConfig.repeatingGroups || {};
-            state.uiConfig.repeatingGroups[group].editIndex = index;
-            state.uiConfig.repeatingGroups[group].isLoading = false;
+            // const { group, index } = action.payload;
+            // state.uiConfig.repeatingGroups = state.uiConfig.repeatingGroups || {};
+            // state.uiConfig.repeatingGroups[group].editIndex = index;
+            // state.uiConfig.repeatingGroups[group].isLoading = false;
           },
         }),
         updateRepeatingGroupsEditIndexRejected: mkAction<LayoutTypes.IFormLayoutActionRejected>({
           reducer: (state, action) => {
-            const { group } = action.payload;
-            if (group && state.uiConfig.repeatingGroups && state.uiConfig.repeatingGroups[group]) {
-              state.uiConfig.repeatingGroups[group].isLoading = false;
-            }
+            // const { group } = action.payload;
+            // if (group && state.uiConfig.repeatingGroups && state.uiConfig.repeatingGroups[group]) {
+            //   state.uiConfig.repeatingGroups[group].isLoading = false;
+            // }
           },
         }),
         updateHiddenLayouts: mkAction<LayoutTypes.IHiddenLayoutsUpdate>({
