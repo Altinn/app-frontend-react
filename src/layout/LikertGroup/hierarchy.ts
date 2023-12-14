@@ -1,7 +1,6 @@
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
-import type { HRepGroupRows } from 'src/layout/Group/config.generated';
-import type { ILikertGroupEditProperties } from 'src/layout/LikertGroup/config.generated';
+import type { HLikertGroupRows, ILikertGroupEditProperties } from 'src/layout/LikertGroup/config.generated';
 import type {
   ChildFactory,
   ChildFactoryProps,
@@ -52,7 +51,7 @@ export class LikertGroupHierarchyGenerator extends ComponentHierarchyGenerator<'
       const prototype = ctx.generator.prototype(ctx.id) as UnprocessedItem<'LikertGroup'>;
       delete (props.item as any)['children'];
       const me = ctx.generator.makeNode(props);
-      const rows: HRepGroupRows = [];
+      const rows: HLikertGroupRows = [];
       const lastIndex = (ctx.generator.repeatingGroups || {})[props.item.id]?.index;
 
       const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(
