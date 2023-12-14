@@ -4,7 +4,6 @@ import { Button } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
 import { Add as AddIcon } from '@navikt/ds-icons';
 
-import { AltinnLoader } from 'src/components/AltinnLoader';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { useAttachmentDeletionInRepGroups } from 'src/features/attachments/useAttachmentDeletionInRepGroups';
@@ -45,12 +44,8 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
   const resolvedTextBindings = node.item.textResourceBindings;
   const id = node.item.id;
   const edit = node.item.edit;
-  const groupState = useRepeatingGroup(id);
-  const isLoading = groupState?.isLoading;
-  const editIndex = groupState?.editIndex ?? -1;
-  const deletingIndexes = groupState?.deletingIndex ?? [];
-  const multiPageIndex = groupState?.multiPageIndex ?? -1;
-  const repeatingGroupIndex = groupState?.index ?? -1;
+  const { editIndex, deletingIndex, multiPageIndex } = useRepeatingGroup(id);
+  const repeatingGroupIndex = groupState.index ?? -1;
   const { lang, langAsString } = useLanguage();
   const { onBeforeRowDeletion } = useAttachmentDeletionInRepGroups(node);
 
@@ -75,18 +70,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
       icon={<AddIcon aria-hidden='true' />}
       iconPlacement='left'
       fullWidth
-      disabled={isLoading || false}
     >
-      {isLoading && (
-        <AltinnLoader
-          style={{ position: 'absolute' }}
-          srContent={
-            resolvedTextBindings?.add_button_full
-              ? langAsString(resolvedTextBindings.add_button_full)
-              : `${langAsString('general.add_new')} ${langAsString(resolvedTextBindings?.add_button)}`
-          }
-        />
-      )}
       {resolvedTextBindings?.add_button_full
         ? lang(resolvedTextBindings.add_button_full)
         : `${langAsString('general.add_new')} ${langAsString(resolvedTextBindings?.add_button)}`}
@@ -161,7 +145,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
     }
   };
 
-  if (!groupState || node.isHidden() || node.item.type !== 'Group') {
+  if (node.isHidden() || node.item.type !== 'Group') {
     return null;
   }
 
@@ -187,7 +171,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
           node={node}
           editIndex={editIndex}
           repeatingGroupIndex={repeatingGroupIndex}
-          deleting={deletingIndexes.includes(repeatingGroupIndex)}
+          deleting={deletingIndex.includes(repeatingGroupIndex)}
           setEditIndex={setEditIndex}
           onClickRemove={handleOnRemoveClick}
           setMultiPageIndex={setMultiPageIndex}
@@ -223,7 +207,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
                   <RepeatingGroupsEditContainer
                     node={node}
                     editIndex={index}
-                    deleting={deletingIndexes.includes(index)}
+                    deleting={deletingIndex.includes(index)}
                     setEditIndex={setEditIndex}
                     onClickRemove={handleOnRemoveClick}
                     forceHideSaveButton={true}

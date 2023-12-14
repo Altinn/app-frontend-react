@@ -6,7 +6,6 @@ import { dotNotationToPointer } from 'src/features/datamodel/notations';
 import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
 import { useCurrentDataModelSchema, useCurrentDataModelType } from 'src/features/datamodel/useBindingSchema';
 import { useLayoutSchemaValidation } from 'src/features/devtools/layoutValidation/useLayoutSchemaValidation';
-import { generateSimpleRepeatingGroups } from 'src/features/form/layout/repGroups/generateSimpleRepeatingGroups';
 import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useIsDev } from 'src/hooks/useIsDev';
@@ -72,14 +71,13 @@ function useDataModelBindingsValidation(props: LayoutValidationProps) {
   const layoutSetId = useCurrentLayoutSetId() || 'default';
   const layouts = useAppSelector((state) => state.formLayout.layouts) || defaultLayouts;
   const { logErrors = false } = props;
-  const repeatingGroups = useMemo(() => generateSimpleRepeatingGroups(layouts), [layouts]);
   const schema = useCurrentDataModelSchema();
   const dataType = useCurrentDataModelType();
   const dataSources = useAppSelector(selectDataSourcesFromState);
   const currentPage = useAppSelector((state) => state.formLayout.uiConfig.currentView);
   const nodes = useMemo(
-    () => generateEntireHierarchy(layouts, currentPage, repeatingGroups, dataSources, getLayoutComponentObject),
-    [layouts, currentPage, repeatingGroups, dataSources],
+    () => generateEntireHierarchy(layouts, currentPage, dataSources, getLayoutComponentObject),
+    [layouts, currentPage, dataSources],
   );
 
   const layoutLoaded = useIsLayoutLoaded();

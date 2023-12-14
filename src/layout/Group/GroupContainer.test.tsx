@@ -91,16 +91,17 @@ async function render({ container = mockContainer }: IRender = {}) {
     },
     uiConfig: {
       ...initialMock.formLayout.uiConfig,
-      repeatingGroups: {
-        'container-closed-id': {
-          index: 3,
-          editIndex: -1,
-        },
-        'container-in-edit-mode-id': {
-          index: 4,
-          editIndex: 0,
-        },
-      },
+      // TODO: Recreate these mocks via formData
+      // repeatingGroups: {
+      //   'container-closed-id': {
+      //     index: 3,
+      //     editIndex: -1,
+      //   },
+      //   'container-in-edit-mode-id': {
+      //     index: 4,
+      //     editIndex: 0,
+      //   },
+      // },
     },
   };
 

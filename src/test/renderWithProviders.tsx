@@ -26,7 +26,6 @@ import { FooterLayoutProvider } from 'src/features/footer/FooterLayoutProvider';
 import { FormProvider } from 'src/features/form/FormContext';
 import { LayoutsProvider } from 'src/features/form/layout/LayoutsContext';
 import { PageNavigationProvider } from 'src/features/form/layout/PageNavigationContext';
-import { generateSimpleRepeatingGroups } from 'src/features/form/layout/repGroups/generateSimpleRepeatingGroups';
 import { UiConfigProvider } from 'src/features/form/layout/UiConfigContext';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { LayoutSettingsProvider } from 'src/features/form/layoutSettings/LayoutSettingsContext';
@@ -621,10 +620,6 @@ export async function renderWithNode<InInstance extends boolean, T extends Layou
   if (!reduxState.formLayout.layouts) {
     throw new Error('No layouts found, cannot render with nodes when no layout is in the redux state');
   }
-
-  // The repeating groups state is required for nodes to work
-  reduxState.formLayout.uiConfig.repeatingGroups =
-    reduxState.formLayout.uiConfig.repeatingGroups || generateSimpleRepeatingGroups(reduxState.formLayout.layouts);
 
   function Child() {
     const root = useNodes();

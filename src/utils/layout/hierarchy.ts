@@ -18,7 +18,7 @@ import { buildAuthContext } from 'src/utils/authContext';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { CompInternal, HierarchyDataSources, ILayouts } from 'src/layout/layout';
-import type { IRepeatingGroups, IRuntimeState } from 'src/types';
+import type { IRuntimeState } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 /**
@@ -28,19 +28,12 @@ import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 function resolvedNodesInLayouts(
   layouts: ILayouts | null,
   currentView: string | undefined,
-  repeatingGroups: IRepeatingGroups | null,
   dataSources: HierarchyDataSources,
 ) {
   // A full copy is needed here because formLayout comes from the redux store, and in production code (not the
   // development server!) the properties are not mutable (but we have to mutate them below).
   const layoutsCopy: ILayouts = layouts ? structuredClone(layouts) : {};
-  const unresolved = generateEntireHierarchy(
-    layoutsCopy,
-    currentView,
-    repeatingGroups,
-    dataSources,
-    getLayoutComponentObject,
-  );
+  const unresolved = generateEntireHierarchy(layoutsCopy, currentView, dataSources, getLayoutComponentObject);
 
   const config = {
     ...ExprConfigForComponent,
@@ -100,7 +93,7 @@ function resolvedNodesInLayouts(
 
 export function dataSourcesFromState(state: IRuntimeState): HierarchyDataSources {
   return {
-    formData: state.deprecated.formData,
+    formData: state.deprecated.formData, // TODO: Do not use flat form data here
     attachments: state.deprecated.lastKnownAttachments || {},
     uiConfig: state.formLayout.uiConfig,
     options: state.deprecated.allOptions || {},
@@ -120,26 +113,22 @@ export const selectDataSourcesFromState = createSelector(dataSourcesFromState, (
 function innerResolvedLayoutsFromState(
   layouts: ILayouts | null,
   currentView: string | undefined,
-  repeatingGroups: IRepeatingGroups | null,
   dataSources: HierarchyDataSources,
 ): LayoutPages | undefined {
-  if (!layouts || !repeatingGroups) {
+  if (!layouts) {
     return undefined;
   }
 
-  return resolvedNodesInLayouts(layouts, currentView, repeatingGroups, dataSources);
+  return resolvedNodesInLayouts(layouts, currentView, dataSources);
 }
 
 export function resolvedLayoutsFromState(state: IRuntimeState) {
   return innerResolvedLayoutsFromState(
     state.formLayout.layouts,
     state.formLayout.uiConfig.currentView,
-    state.formLayout.uiConfig.repeatingGroups,
     dataSourcesFromState(state),
   );
 }
-
-const dummyRepeatingGroups: IRepeatingGroups = {};
 
 /**
  * This is a more efficient, memoized version of what happens above. This will only be used from ExprContext,
@@ -158,7 +147,6 @@ function useResolvedExpressions() {
   const layouts = useLayouts();
   const { pageKey } = useNavigationParams();
   const currentView = pageKey;
-  const repeatingGroups = dummyRepeatingGroups; // PRIORITY: Initialize these
   const devTools = useAppSelector((state) => state.devTools);
   const langTools = useLanguage();
   const currentLanguage = useCurrentLanguage();
@@ -195,8 +183,8 @@ function useResolvedExpressions() {
   );
 
   return useMemo(
-    () => innerResolvedLayoutsFromState(layouts, currentView, repeatingGroups, dataSources),
-    [layouts, currentView, repeatingGroups, dataSources],
+    () => innerResolvedLayoutsFromState(layouts, currentView, dataSources),
+    [layouts, currentView, dataSources],
   );
 }
 

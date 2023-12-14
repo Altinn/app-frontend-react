@@ -5,13 +5,11 @@ import { getHierarchyDataSourcesMock } from 'src/__mocks__/getHierarchyDataSourc
 import { convertLayouts, type Layouts } from 'src/features/expressions/shared';
 import { staticUseLanguageForTests } from 'src/features/language/useLanguage';
 import { buildAuthContext } from 'src/utils/authContext';
-import { getRepeatingGroups } from 'src/utils/formLayout';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import { _private } from 'src/utils/layout/hierarchy';
 import { resolveExpressionValidationConfig } from 'src/utils/validation/expressionValidation';
 import { runValidationOnNodes } from 'src/utils/validation/validation';
 import type { HierarchyDataSources } from 'src/layout/layout';
-import type { IRepeatingGroups } from 'src/types';
 import type {
   IExpressionValidationConfig,
   IValidationMessage,
@@ -79,15 +77,7 @@ describe('Expression validation shared tests', () => {
     })) as unknown as ValidationContextGenerator;
 
     const _layouts = convertLayouts(layouts);
-    let repeatingGroups: IRepeatingGroups = {};
-    for (const key of Object.keys(_layouts)) {
-      repeatingGroups = {
-        ...repeatingGroups,
-        ...getRepeatingGroups(_layouts[key] || [], dataSources.formData),
-      };
-    }
-
-    const rootCollection = resolvedNodesInLayouts(_layouts, '', repeatingGroups, dataSources);
+    const rootCollection = resolvedNodesInLayouts(_layouts, '', dataSources);
     const nodes = rootCollection.allNodes();
     const options: IValidationOptions = {
       skipComponentValidation: true,

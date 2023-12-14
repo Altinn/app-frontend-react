@@ -18,7 +18,6 @@ export const initialState: ILayoutState = {
   uiConfig: {
     focus: null,
     hiddenFields: [],
-    repeatingGroups: null,
     receiptLayoutName: undefined,
     currentView: 'FormLayout',
     pageOrderConfig: {
@@ -55,7 +54,6 @@ export const formLayoutSlice = () => {
             state.layouts = layouts;
             state.uiConfig.pageOrderConfig.order = Object.keys(layouts);
             state.uiConfig.pageOrderConfig.hiddenExpr = hiddenLayoutsExpressions;
-            state.uiConfig.repeatingGroups = null;
             state.layoutSetId = layoutSetId;
           },
         }),

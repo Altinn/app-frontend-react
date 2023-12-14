@@ -12,6 +12,7 @@ import { ExprContext } from 'src/features/expressions/ExprContext';
 import { ExprVal } from 'src/features/expressions/types';
 import { addError, asExpression, canBeExpression } from 'src/features/expressions/validation';
 import { implementsDisplayData } from 'src/layout';
+import { flattenObject } from 'src/utils/databindings';
 import { isDate } from 'src/utils/dateHelpers';
 import { formatDateLocale } from 'src/utils/formatDateLocale';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
@@ -570,7 +571,7 @@ export const ExprFunctions = {
       }
 
       return component.def.getDisplayData(component as any, {
-        formData: this.dataSources.formData,
+        formData: flattenObject(this.dataSources.formData),
         attachments: this.dataSources.attachments,
         options: this.dataSources.options,
         langTools: this.dataSources.langTools,
