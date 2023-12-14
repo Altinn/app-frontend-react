@@ -54,7 +54,8 @@ export function LikertGroupSummary({
           <DisplayLikertGroupContainer
             key={`summary-${targetNode.item.id}-${idx}`}
             id={`summary-${targetNode.item.id}-${idx}`}
-            groupNode={targetNode}
+            //Todo: fix this type or refactor + merge DisplayRepeatingGroupContainer and summaryRepeatingGroup
+            groupNode={targetNode as any}
             onlyRowIndex={idx}
             renderLayoutNode={(n) => {
               if (inExcludedChildren(n) || n.isHidden()) {
