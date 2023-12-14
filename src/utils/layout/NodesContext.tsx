@@ -9,7 +9,6 @@ import {
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useRepeatingGroups } from 'src/features/formData/RepeatingGroupsProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
@@ -90,9 +89,8 @@ export function useResolvedNode<T>(selector: string | undefined | T | LayoutNode
  */
 function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
   const _currentHiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
-  const formData = FD.useDebouncedDotMap();
+  const formData = FD.useDebounced();
   const rules = useAppSelector((state) => state.formDynamics.conditionalRendering);
-  const repeatingGroups = useRepeatingGroups();
   const _dataSources = useAppSelector(selectDataSourcesFromState);
   const dataSources: HierarchyDataSources = useMemo(() => ({ ..._dataSources, formData }), [_dataSources, formData]);
   const { setHiddenPages, hidden, hiddenExpr } = usePageNavigationContext();
@@ -114,7 +112,7 @@ function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
 
     let futureHiddenFields: Set<string>;
     try {
-      futureHiddenFields = runConditionalRenderingRules(rules, formData, repeatingGroups);
+      futureHiddenFields = runConditionalRenderingRules(rules, resolvedNodes);
     } catch (err) {
       console.error('Error while evaluating conditional rendering rules', err);
       futureHiddenFields = new Set();
@@ -142,16 +140,5 @@ function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
         }),
       );
     }
-  }, [
-    _currentHiddenFields,
-    dataSources,
-    dispatch,
-    formData,
-    repeatingGroups,
-    resolvedNodes,
-    rules,
-    hidden,
-    hiddenExpr,
-    setHiddenPages,
-  ]);
+  }, [_currentHiddenFields, dataSources, dispatch, hidden, hiddenExpr, resolvedNodes, rules, setHiddenPages]);
 }

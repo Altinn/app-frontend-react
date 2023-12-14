@@ -10,7 +10,6 @@ import { DevToolsTab } from 'src/features/devtools/data/types';
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { asExpression } from 'src/features/expressions/validation';
-import { FD } from 'src/features/formData/FormDataWrite';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -48,7 +47,6 @@ export const ExpressionPlayground = () => {
   const nodes = useNodes();
   const { currentPageId } = useNavigatePage();
   const dataSources = useAppSelector(selectDataSourcesFromState);
-  const formData = FD.useDebouncedDotMap();
 
   const setOutputWithHistory = useCallback(
     (newValue: string, isError: boolean): boolean => {
@@ -132,7 +130,7 @@ export const ExpressionPlayground = () => {
         setOutputs([{ value: e.message, isError: true }]);
       }
     }
-  }, [input, forPage, forComponentId, formData, dataSources, nodes, showAllSteps, outputs, setOutputWithHistory]);
+  }, [input, forPage, forComponentId, dataSources, nodes, showAllSteps, outputs, setOutputWithHistory]);
 
   return (
     <div className={classes.container}>

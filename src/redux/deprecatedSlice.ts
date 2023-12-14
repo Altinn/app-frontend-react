@@ -1,6 +1,5 @@
 import { createSagaSlice } from 'src/redux/sagaSlice';
 import type { IAttachments } from 'src/features/attachments';
-import type { IFormData } from 'src/features/formData';
 import type { AllOptionsMap } from 'src/features/options/useAllOptions';
 import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
 import type { IInstance, IProcess } from 'src/types/shared';
@@ -13,7 +12,7 @@ export interface IDeprecatedState {
   currentLanguage: string;
   selectedPartyId?: string;
   anonymous: boolean;
-  formData: IFormData;
+  formData: object;
 }
 const initialState: IDeprecatedState = {
   currentLanguage: 'nb',
@@ -62,7 +61,7 @@ export const deprecatedSlice = () => {
           state.anonymous = action.payload;
         },
       }),
-      setFormData: mkAction<IFormData>({
+      setFormData: mkAction<object>({
         reducer: (state, action) => {
           state.formData = action.payload;
         },

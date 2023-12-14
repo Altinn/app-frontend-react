@@ -12,9 +12,11 @@ import { diffModels } from 'src/features/formData/diffModels';
 import { useFormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
 import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteStateMachine';
 import { RepeatingGroupsProvider } from 'src/features/formData/RepeatingGroupsProvider';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useMemoDeepEqual } from 'src/hooks/useMemoDeepEqual';
 import { useWaitForState } from 'src/hooks/useWaitForState';
+import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import type { FormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
 import type { FDNewValues, FormDataContext } from 'src/features/formData/FormDataWriteStateMachine';
@@ -92,6 +94,13 @@ interface FormDataWriterProps extends PropsWithChildren {
 
 export function FormDataWriteProvider({ url, initialData, autoSaving, children }: FormDataWriterProps) {
   const gatekeepers = useFormDataWriteGatekeepers();
+
+  // Set the initial data in redux, so that it can be used by sagas and other legacy code
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    dispatch(DeprecatedActions.setFormData(initialData));
+  }, [initialData, dispatch]);
+
   return (
     <Provider
       url={url}
@@ -192,6 +201,12 @@ function FormDataEffects({ url }: { url: string }) {
     [performSave],
   );
 
+  // Sets the debounced data in redux, so that it can be used by sagas and other legacy code
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    dispatch(DeprecatedActions.setFormData(debouncedCurrentData));
+  }, [debouncedCurrentData, dispatch]);
+
   return null;
 }
 
@@ -210,6 +225,14 @@ const useWaitForSave = () => {
 };
 
 export const FD = {
+  /**
+   * This will return the form data as a deep object, just like the server sends it to us (and the way we send it back).
+   * This will always give you the debounced data, which may or may not be saved to the backend yet.
+   */
+  useDebounced(): object {
+    return useSelector((v) => v.debouncedCurrentData);
+  },
+
   /**
    * This will return the form data as a dot map, where the keys are dot-separated paths. This is the same format
    * as the older form data. Consider using any of the newer methods instead, which may come with performance benefits.
