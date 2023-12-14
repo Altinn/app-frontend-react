@@ -44,7 +44,7 @@ describe('TextAreaComponent.tsx', () => {
       await user.keyboard('{Tab}');
     });
 
-    expect(handleDataChange).toHaveBeenCalledWith(`${initialText}${addedText}`, { validate: true });
+    expect(handleDataChange).toHaveBeenCalledWith(`${initialText}${addedText}`);
   });
 
   it('should not fire handleDataChange when readOnly is true', async () => {

@@ -64,6 +64,6 @@ describe('MultipleSelect', () => {
     await act(() => screen.getByRole('button', { name: /Slett label2/i }).click());
     jest.runOnlyPendingTimers();
 
-    expect(handleDataChange).toBeCalledWith('value1,value3', { validate: true });
+    expect(handleDataChange).toBeCalledWith('value1,value3');
   });
 });

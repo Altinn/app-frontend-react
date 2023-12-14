@@ -26,7 +26,7 @@ describe('useDelayedSaveState', () => {
 
     expect(result.current.value).toBe('great text');
     expect(handleDataChangeMock).toHaveBeenCalledTimes(1);
-    expect(handleDataChangeMock).toHaveBeenCalledWith('great text', { validate: true });
+    expect(handleDataChangeMock).toHaveBeenCalledWith('great text');
 
     act(() => result.current.setValue('great text 2'));
     expect(result.current.value).toBe('great text 2');
@@ -35,7 +35,7 @@ describe('useDelayedSaveState', () => {
 
     expect(result.current.value).toBe('great text 2');
     expect(handleDataChangeMock).toHaveBeenCalledTimes(2);
-    expect(handleDataChangeMock).toHaveBeenCalledWith('great text 2', { validate: true });
+    expect(handleDataChangeMock).toHaveBeenCalledWith('great text 2');
   });
 
   it('should not alter the current value if re-rendered with the previous value', () => {
@@ -51,7 +51,7 @@ describe('useDelayedSaveState', () => {
 
     expect(result.current.value).toBe('2');
     expect(handleDataChangeMock).toHaveBeenCalledTimes(1);
-    expect(handleDataChangeMock).toHaveBeenCalledWith('2', { validate: true });
+    expect(handleDataChangeMock).toHaveBeenCalledWith('2');
     rerender({ formData: '2' });
 
     // But if handleDataChangeMock has been called, and we saved 2 and got re-rendered with it, it's now OK to

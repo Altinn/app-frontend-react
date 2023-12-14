@@ -73,7 +73,7 @@ describe('DropdownComponent', () => {
     expect(handleDataChange).not.toHaveBeenCalled();
     await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(screen.getByText('Sweden'));
-    await waitFor(() => expect(handleDataChange).toHaveBeenCalledWith('sweden', { validate: true }));
+    await waitFor(() => expect(handleDataChange).toHaveBeenCalledWith('sweden'));
   });
 
   it('should show as disabled when readOnly is true', async () => {
@@ -112,7 +112,7 @@ describe('DropdownComponent', () => {
       options: countries,
     });
 
-    await waitFor(() => expect(handleDataChange).toHaveBeenCalledWith('denmark', { validate: true }));
+    await waitFor(() => expect(handleDataChange).toHaveBeenCalledWith('denmark'));
     expect(handleDataChange).toHaveBeenCalledTimes(1);
   });
 
@@ -128,14 +128,14 @@ describe('DropdownComponent', () => {
       options: countries,
     });
 
-    await waitFor(() => expect(handleDataChange).toHaveBeenCalledWith('denmark', { validate: true }));
+    await waitFor(() => expect(handleDataChange).toHaveBeenCalledWith('denmark'));
     const select = screen.getByRole('combobox');
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
     await userEvent.click(select);
 
     await userEvent.tab();
-    await waitFor(() => expect(handleDataChange).toHaveBeenCalledWith('denmark', { validate: true }));
+    await waitFor(() => expect(handleDataChange).toHaveBeenCalledWith('denmark'));
     expect(handleDataChange).toHaveBeenCalledTimes(1);
   });
 
@@ -207,13 +207,13 @@ describe('DropdownComponent', () => {
     expect(handleDataChange).not.toHaveBeenCalled();
     await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(screen.getByText('The value from the group is: Label for first'));
-    await waitFor(() => expect(handleDataChange).toHaveBeenCalledWith('Value for first', { validate: true }));
+    await waitFor(() => expect(handleDataChange).toHaveBeenCalledWith('Value for first'));
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
     await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(screen.getByText('The value from the group is: Label for second'));
 
-    await waitFor(() => expect(handleDataChange).toHaveBeenCalledWith('Value for second', { validate: true }));
+    await waitFor(() => expect(handleDataChange).toHaveBeenCalledWith('Value for second'));
     expect(handleDataChange).toHaveBeenCalledTimes(2);
   });
 

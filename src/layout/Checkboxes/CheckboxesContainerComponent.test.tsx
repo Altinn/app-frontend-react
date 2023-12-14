@@ -77,7 +77,7 @@ describe('CheckboxesContainerComponent', () => {
     });
 
     await waitFor(() => {
-      expect(handleChange).toHaveBeenCalledWith('sweden', { validate: true });
+      expect(handleChange).toHaveBeenCalledWith('sweden');
     });
   });
 
@@ -151,7 +151,7 @@ describe('CheckboxesContainerComponent', () => {
     await userEvent.click(getCheckbox({ name: 'Denmark' }));
 
     await waitFor(() => {
-      expect(handleChange).toHaveBeenCalledWith('norway,denmark', { validate: true });
+      expect(handleChange).toHaveBeenCalledWith('norway,denmark');
     });
   });
 
@@ -176,7 +176,7 @@ describe('CheckboxesContainerComponent', () => {
     await userEvent.click(getCheckbox({ name: 'Denmark', isChecked: true }));
 
     await waitFor(() => {
-      expect(handleChange).toHaveBeenCalledWith('norway', { validate: true });
+      expect(handleChange).toHaveBeenCalledWith('norway');
     });
   });
 
@@ -199,7 +199,7 @@ describe('CheckboxesContainerComponent', () => {
     await userEvent.click(denmark);
     fireEvent.blur(denmark);
 
-    expect(handleChange).toHaveBeenCalledWith('norway,denmark', { validate: true });
+    expect(handleChange).toHaveBeenCalledWith('norway,denmark');
   });
 
   it('should not call handleDataChange on blur when the value is unchanged', async () => {
@@ -239,7 +239,7 @@ describe('CheckboxesContainerComponent', () => {
     await userEvent.click(getCheckbox({ name: 'Denmark' }));
 
     await waitFor(() => {
-      expect(handleChange).toHaveBeenCalledWith('denmark', { validate: true });
+      expect(handleChange).toHaveBeenCalledWith('denmark');
     });
   });
 
@@ -331,7 +331,7 @@ describe('CheckboxesContainerComponent', () => {
     await userEvent.click(getCheckbox({ name: /The value from the group is: Label for second/ }));
 
     await waitFor(() => {
-      expect(handleDataChange).toHaveBeenCalledWith('Value for second', { validate: true });
+      expect(handleDataChange).toHaveBeenCalledWith('Value for second');
     });
   });
 });

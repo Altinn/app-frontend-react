@@ -101,7 +101,6 @@ describe('DatepickerComponent', () => {
       // Ignore TZ part of timestamp to avoid test failing when this changes
       // Calendar opens up on current year/month by default, so we need to cater for this in the expected output
       expect.stringContaining(`${currentYearNumeric}-${currentMonthNumeric}-15T12:00:00.000+`),
-      { validate: true },
     );
   });
 
@@ -118,7 +117,7 @@ describe('DatepickerComponent', () => {
     });
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
-    expect(handleDataChange).toHaveBeenCalledWith('', { validate: true });
+    expect(handleDataChange).toHaveBeenCalledWith('');
   });
 
   it('should call handleDataChange with formatted value (timestamp=true) without skipping validation if date is valid', async () => {
@@ -152,7 +151,7 @@ describe('DatepickerComponent', () => {
     });
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
-    expect(handleDataChange).toHaveBeenCalledWith('2022-12-31', { validate: true });
+    expect(handleDataChange).toHaveBeenCalledWith('2022-12-31');
   });
 
   it('should call handleDataChange with formatted value (timestamp=undefined) without skipping validation if date is valid', async () => {
@@ -186,7 +185,7 @@ describe('DatepickerComponent', () => {
     });
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
-    expect(handleDataChange).toHaveBeenCalledWith('12.34.5678', { validate: true });
+    expect(handleDataChange).toHaveBeenCalledWith('12.34.5678');
   });
 
   it('should call handleDataChange with skipValidation=true if not finished filling out the date', async () => {
@@ -202,7 +201,7 @@ describe('DatepickerComponent', () => {
     });
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
-    expect(handleDataChange).toHaveBeenCalledWith('12.34.____', { validate: false });
+    expect(handleDataChange).toHaveBeenCalledWith('12.34.____');
   });
 
   it('should have aria-describedby if textResourceBindings.description is present', async () => {
