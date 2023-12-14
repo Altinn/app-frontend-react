@@ -2,19 +2,14 @@ import texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { Common } from 'test/e2e/pageobjects/common';
 
-import { Triggers } from 'src/layout/common.generated';
+import type { PageValidation } from 'src/layout/common.generated';
 import type { ILayout } from 'src/layout/layout';
 
 const appFrontend = new AppFrontend();
 const mui = new Common();
 
 describe('Summary', () => {
-  /**
-   * TODO(1508):
-   * This test is skipped because validation is not triggered by the new navigation refactor.
-   * This will be fixed in combination with #1506.
-   */
-  it.skip('Summary of change name form', () => {
+  it('Summary of change name form', () => {
     cy.interceptLayout('changename', (component) => {
       if (component.id === 'changeNameFrom') {
         component.hidden = ['equals', ['component', 'newFirstName'], 'hidePrevName'];
@@ -392,23 +387,18 @@ describe('Summary', () => {
       .and('not.contain.text', 'Skjul kommentar felt');
   });
 
-  /**
-   * TODO(1508):
-   * This test is skipped because validation is not triggered by the new navigation refactor.
-   * This will be fixed in combination with #1506.
-   */
-  it.skip('Navigation between summary and pages', () => {
+  it('Navigation between summary and pages', () => {
     cy.gotoAndComplete('changename');
 
-    const triggerVariations: (Triggers | undefined)[] = [
+    const pageValidationConfigs: (PageValidation | undefined)[] = [
       undefined,
-      Triggers.ValidatePage,
-      Triggers.ValidateCurrentAndPreviousPages,
-      Triggers.ValidateAllPages,
+      { page: 'current', show: ['All'] },
+      { page: 'currentAndPrevious', show: ['All'] },
+      { page: 'all', show: ['All'] },
     ];
 
-    for (const trigger of triggerVariations) {
-      injectExtraPageAndSetTriggers(trigger);
+    for (const config of pageValidationConfigs) {
+      injectExtraPageAndSetTriggers(config);
 
       const newFirstNameSummary = '[data-testid=summary-summary-2]';
       const exampleSummary = '[data-testid=summary-summary-reference]';
@@ -420,7 +410,7 @@ describe('Summary', () => {
       cy.get(appFrontend.changeOfName.sources).should('have.value', 'Altinn');
       cy.get(appFrontend.nextButton).click();
 
-      if (trigger === undefined) {
+      if (config === undefined) {
         cy.navPage('summary').should('have.attr', 'aria-current', 'page');
       } else {
         cy.navPage('form').should('have.attr', 'aria-current', 'page');
@@ -432,7 +422,7 @@ describe('Summary', () => {
          */
         cy.gotoNavPage('summary');
         cy.get(appFrontend.nextButton).click();
-        if (trigger === Triggers.ValidatePage) {
+        if (config.page === 'current') {
           cy.navPage('grid').should('have.attr', 'aria-current', 'page');
         } else {
           cy.navPage('summary').should('have.attr', 'aria-current', 'page');
@@ -440,10 +430,11 @@ describe('Summary', () => {
 
         cy.gotoNavPage('form');
         cy.get(appFrontend.changeOfName.newLastName).type('a');
+        cy.get(appFrontend.changeOfName.newLastName).blur();
         cy.get(appFrontend.nextButton).click();
       }
 
-      if (trigger === Triggers.ValidateAllPages) {
+      if (config?.page === 'all') {
         cy.get(appFrontend.errorReport).should('contain.text', 'Du må fylle ut page3required');
       }
       cy.navPage('summary').should('have.attr', 'aria-current', 'page');
@@ -451,7 +442,7 @@ describe('Summary', () => {
       cy.get(newFirstNameSummary).should('contain.text', `Anne`);
 
       const assertErrorReport = () => {
-        if (trigger === Triggers.ValidateAllPages) {
+        if (config?.page === 'all') {
           cy.get(appFrontend.errorReport).should('contain.text', 'Du må fylle ut page3required');
         } else {
           cy.get(appFrontend.errorReport).should('not.exist');
@@ -579,12 +570,12 @@ describe('Summary', () => {
  *     a given page.)
  *  2. Overwrite the triggers on the navigation buttons.
  */
-function injectExtraPageAndSetTriggers(trigger?: Triggers | undefined) {
+function injectExtraPageAndSetTriggers(pageValidationConfig?: PageValidation | undefined) {
   cy.interceptLayout(
     'changename',
     (component) => {
       if (component.type === 'NavigationButtons') {
-        component.triggers = trigger ? [trigger] : [];
+        component.validateOnNext = pageValidationConfig;
       }
     },
     (layoutSet) => {
@@ -612,7 +603,7 @@ function injectExtraPageAndSetTriggers(trigger?: Triggers | undefined) {
             next: texts.next,
             back: texts.prev,
           },
-          triggers: trigger ? [trigger] : [],
+          validateOnNext: pageValidationConfig,
         },
         {
           id: 'page3-submit',
@@ -626,7 +617,7 @@ function injectExtraPageAndSetTriggers(trigger?: Triggers | undefined) {
       layoutSet['lastPage'] = { data: { layout } };
     },
   );
-  cy.log(`Reloading page with trigger: ${trigger}`);
+  cy.log(`Reloading page with trigger: ${pageValidationConfig?.page ?? 'undefined'}`);
   cy.get('#readyForPrint').then(() => {
     cy.reload();
   });

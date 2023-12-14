@@ -4,6 +4,7 @@ import type { JSX } from 'react';
 import type { ErrorObject } from 'ajv';
 
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
+import { runAllValidations } from 'src/layout/componentValidation';
 import { GroupDef } from 'src/layout/Group/config.def.generated';
 import { GroupRenderer } from 'src/layout/Group/GroupRenderer';
 import { GroupHierarchyGenerator } from 'src/layout/Group/hierarchy';
@@ -16,15 +17,20 @@ import {
   groupIsRepeatingLikertExt,
 } from 'src/layout/Group/tools';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { ComponentValidation } from 'src/features/validation';
-import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
+import type {
+  ComponentValidation,
+  FormValidations,
+  ISchemaValidationError,
+  IValidationContext,
+} from 'src/features/validation';
+import type { PropsFromGenericComponent, ValidateAny, ValidateComponent } from 'src/layout';
 import type { CompExternalExact, CompInternal, HierarchyDataSources } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
-export class Group extends GroupDef implements ValidateComponent {
+export class Group extends GroupDef implements ValidateAny, ValidateComponent {
   private _hierarchyGenerator = new GroupHierarchyGenerator();
 
   directRender(): boolean {
@@ -63,6 +69,10 @@ export class Group extends GroupDef implements ValidateComponent {
 
   hierarchyGenerator(): ComponentHierarchyGenerator<'Group'> {
     return this._hierarchyGenerator;
+  }
+
+  runValidations(node: LayoutNode, ctx: IValidationContext, schemaErrors: ISchemaValidationError[]): FormValidations {
+    return runAllValidations(node, ctx, schemaErrors);
   }
 
   runComponentValidation(node: LayoutNode<'Group'>): ComponentValidation[] {

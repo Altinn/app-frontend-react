@@ -707,7 +707,7 @@ describe('Validation', () => {
     cy.goto('changename');
     cy.gotoNavPage('grid');
     cy.get(appFrontend.sendinButton).click();
-    cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 4);
+    cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 6);
     cy.findByText('Du må fylle ut dato for navneendring').click();
     cy.findByLabelText(/Når vil du at navnendringen skal skje?/).should('be.inViewport');
   });

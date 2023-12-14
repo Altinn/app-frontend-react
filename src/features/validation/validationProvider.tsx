@@ -235,6 +235,7 @@ export function useOnGroupCloseValidation() {
 
     const nodesWithErrors = node
       .flat(true, rowIndex)
+      .filter((n) => n.item.id !== node.item.id) // Exclude self, only check children
       .filter(shouldValidateNode)
       .filter((n) => getValidationsForNode(n, state, mask, 'error').length > 0);
 
@@ -276,27 +277,38 @@ export function useOnPageValidation() {
     const mask = getVisibilityMask(masks);
     let nodes: LayoutNode[] = [];
 
+    const currentIndex = pageOrder.indexOf(currentPage.top.myKey);
+
     if (pageConfig === 'current') {
+      // Get nodes for current page
       nodes = currentPage.flat(true);
     } else if (pageConfig === 'currentAndPrevious') {
-      const currentIndex = pageOrder?.indexOf(currentPage.top.myKey);
-      if (!pageOrder || !currentIndex) {
+      // Get nodes for current and previous pages
+      if (!pageOrder || currentIndex === -1) {
         return false;
       }
       const pageKeysToCheck = pageOrder.slice(0, currentIndex + 1);
       const layoutPagesToCheck = pageKeysToCheck.map((key) => currentPage.top.collection.all()[key]);
       nodes = layoutPagesToCheck.flatMap((page) => page.flat(true));
     } else {
+      // Get all nodes
       nodes = currentPage.top.collection.allNodes();
     }
 
-    const nodesWithErrors = nodes
+    // Get nodes with errors along with their errors
+    const nodeErrors = nodes
       .filter(shouldValidateNode)
-      .filter((n) => getValidationsForNode(n, state, mask, 'error').length > 0);
+      .map((n) => [n, getValidationsForNode(n, state, mask, 'error')] as const)
+      .filter(([_, e]) => e.length > 0);
 
-    if (nodesWithErrors.length > 0) {
-      setNodeVisibility(nodesWithErrors, mask);
-      return true;
+    if (nodeErrors.length > 0) {
+      setNodeVisibility(
+        nodeErrors.map(([n]) => n),
+        mask,
+      );
+
+      // Only block navigation if there are errors on the current or previous pages
+      return nodeErrors.some(([_, e]) => e.some((v) => pageOrder.indexOf(v.pageKey) <= currentIndex));
     }
 
     return false;
