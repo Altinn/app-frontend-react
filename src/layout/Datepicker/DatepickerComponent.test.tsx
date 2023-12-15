@@ -133,9 +133,7 @@ describe('DatepickerComponent', () => {
     });
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
-    expect(handleDataChange).toHaveBeenCalledWith(expect.stringContaining('2022-12-31T12:00:00.000+'), {
-      validate: true,
-    });
+    expect(handleDataChange).toHaveBeenCalledWith(expect.stringContaining('2022-12-31T12:00:00.000+'));
   });
 
   it('should call handleDataChange with formatted value (timestamp=false) without skipping validation if date is valid', async () => {
@@ -167,9 +165,7 @@ describe('DatepickerComponent', () => {
     });
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
-    expect(handleDataChange).toHaveBeenCalledWith(expect.stringContaining('2022-12-31T12:00:00.000+'), {
-      validate: true,
-    });
+    expect(handleDataChange).toHaveBeenCalledWith(expect.stringContaining('2022-12-31T12:00:00.000+'));
   });
 
   it('should call handleDataChange without skipping validation if date is invalid but finished filling out', async () => {

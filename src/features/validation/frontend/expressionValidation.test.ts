@@ -4,9 +4,10 @@ import fs from 'node:fs';
 import { getHierarchyDataSourcesMock } from 'src/__mocks__/getHierarchyDataSourcesMock';
 import { convertLayouts } from 'src/features/expressions/shared';
 import { staticUseLanguageForTests } from 'src/features/language/useLanguage';
-import { FrontendValidationSource } from 'src/features/validation';
-import { resolveExpressionValidationConfig } from 'src/features/validation/frontend/expressionValidation';
-import { runValidationOnNodes } from 'src/features/validation/frontend/runValidations';
+import {
+  resolveExpressionValidationConfig,
+  runExpressionValidationsOnNode,
+} from 'src/features/validation/frontend/expressionValidation';
 import { buildAuthContext } from 'src/utils/authContext';
 import { getRepeatingGroups } from 'src/utils/formLayout';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
@@ -71,8 +72,7 @@ describe('Expression validation shared tests', () => {
 
     const validationContext = {
       customValidation,
-      langTools,
-    } as unknown as IValidationContext;
+    } as IValidationContext;
 
     const _layouts = convertLayouts(layouts);
     let repeatingGroups: IRepeatingGroups = {};
@@ -85,18 +85,15 @@ describe('Expression validation shared tests', () => {
 
     const rootCollection = resolvedNodesInLayouts(_layouts, '', repeatingGroups, dataSources);
     const nodes = rootCollection.allNodes();
-    const formValidations = runValidationOnNodes(nodes, validationContext);
+    const validations = nodes.flatMap((node) => runExpressionValidationsOnNode(node, validationContext));
     // Format results in a way that makes it easier to compare
 
     const result = JSON.stringify(
-      Object.values(formValidations.fields).flatMap(
-        (groups) =>
-          groups[FrontendValidationSource.Expression]?.map(({ message, severity, field }) => ({
-            message,
-            severity,
-            field,
-          })) ?? [],
-      ),
+      Object.values(validations).map(({ message, severity, field }) => ({
+        message: message.key,
+        severity,
+        field,
+      })),
       null,
       2,
     );
