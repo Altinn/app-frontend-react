@@ -4,9 +4,9 @@ import { act, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import ResizeObserverModule from 'resize-observer-polyfill';
 
-import { getFormLayoutGroupMock } from 'src/__mocks__/getFormLayoutGroupMock';
+import { getFormLayoutRepeatingGroupMock } from 'src/__mocks__/getFormLayoutGroupMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { RepeatingGroupTable } from 'src/layout/Group/RepeatingGroupTable';
+import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/RepeatingGroupTable';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
@@ -14,10 +14,13 @@ import type { IFormData } from 'src/features/formData';
 import type { TextResourceMap } from 'src/features/language/textResources';
 import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.generated';
 import type { IOption } from 'src/layout/common.generated';
-import type { CompGroupRepeatingExternal, CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
-import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
-import type { IRepeatingGroupTableProps } from 'src/layout/Group/RepeatingGroupTable';
 import type { CompOrGroupExternal } from 'src/layout/layout';
+import type {
+  CompGroupRepeatingExternal,
+  CompGroupRepeatingInternal,
+} from 'src/layout/RepeatingGroup/config.generated';
+import type { IRepeatingGroupTableProps } from 'src/layout/RepeatingGroup/RepeatingGroupTable';
+import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 
 (global as any).ResizeObserver = ResizeObserverModule;
 
@@ -53,7 +56,7 @@ const getLayout = (group: CompGroupRepeatingExternal, components: CompOrGroupExt
 };
 
 describe('RepeatingGroupTable', () => {
-  const group = getFormLayoutGroupMock({
+  const group = getFormLayoutRepeatingGroupMock({
     id: 'mock-container-id',
   });
   const textResources: TextResourceMap = { 'option.label': { value: 'Value to be shown' } };
@@ -118,7 +121,7 @@ describe('RepeatingGroupTable', () => {
 
   describe('popOver warning', () => {
     it('should open and close delete-warning on delete click when alertOnDelete is active', async () => {
-      const group = getFormLayoutGroupMock({
+      const group = getFormLayoutRepeatingGroupMock({
         id: 'mock-container-id',
         edit: { alertOnDelete: true },
       });
@@ -204,7 +207,7 @@ describe('RepeatingGroupTable', () => {
     reduxState.textResources.resourceMap = textResources;
     reduxState.formData.formData = data;
 
-    return await renderWithNode<LayoutNodeForGroup<CompGroupRepeatingInternal>>({
+    return await renderWithNode<BaseLayoutNode<CompGroupRepeatingInternal>>({
       nodeId: group.id,
       renderer: ({ node }) => (
         <RepeatingGroupTable

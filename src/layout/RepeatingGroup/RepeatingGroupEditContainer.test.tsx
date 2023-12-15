@@ -5,15 +5,15 @@ import { userEvent } from '@testing-library/user-event';
 
 import { getMultiPageGroupMock } from 'src/__mocks__/getMultiPageGroupMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
+import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/RepeatingGroupsEditContainer';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { TextResourceMap } from 'src/features/language/textResources';
 import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.generated';
 import type { IOption } from 'src/layout/common.generated';
-import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
-import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
-import type { IRepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
 import type { CompExternal, ILayout } from 'src/layout/layout';
+import type { CompGroupRepeatingInternal } from 'src/layout/RepeatingGroup/config.generated';
+import type { IRepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/RepeatingGroupsEditContainer';
+import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 
 const user = userEvent.setup();
 
@@ -98,7 +98,7 @@ describe('RepeatingGroupsEditContainer', () => {
     reduxState.formLayout.layouts = { FormLayout: layout };
     reduxState.textResources.resourceMap = textResources;
 
-    await renderWithNode<LayoutNodeForGroup<CompGroupRepeatingInternal>>({
+    await renderWithNode<BaseLayoutNode<CompGroupRepeatingInternal>>({
       nodeId: 'group',
       renderer: ({ node }) => (
         <RepeatingGroupsEditContainer

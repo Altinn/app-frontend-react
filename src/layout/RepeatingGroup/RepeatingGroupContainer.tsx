@@ -14,19 +14,18 @@ import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useNavigationParams } from 'src/hooks/useNavigatePage';
 import { Triggers } from 'src/layout/common.generated';
-import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
-import { useRepeatingGroupsFocusContext } from 'src/layout/Group/RepeatingGroupsFocusContext';
-import { RepeatingGroupTable } from 'src/layout/Group/RepeatingGroupTable';
+import {
+  RepeatingGroupsFocusProvider,
+  useRepeatingGroupsFocusContext,
+} from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
+import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/RepeatingGroupsEditContainer';
+import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/RepeatingGroupTable';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
-import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
-import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
+import type { PropsFromGenericComponent } from 'src/layout';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export interface IGroupProps {
-  node: LayoutNodeForGroup<CompGroupRepeatingInternal>;
-}
-
-const getValidationMethod = (node: LayoutNodeForGroup<CompGroupRepeatingInternal>) => {
+const getValidationMethod = (node: LayoutNode<'RepeatingGroup'>) => {
   // Validation for whole group takes precedent over single-row validation if both are present.
   const triggers = node.item.triggers;
   if (triggers && triggers.includes(Triggers.Validation)) {
@@ -37,7 +36,7 @@ const getValidationMethod = (node: LayoutNodeForGroup<CompGroupRepeatingInternal
   }
 };
 
-export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
+export function RepeatingGroupContainer({ node }: PropsFromGenericComponent<'RepeatingGroup'>): JSX.Element | null {
   const dispatch = useAppDispatch();
   const { pageKey } = useNavigationParams();
 
@@ -163,7 +162,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
     }
   };
 
-  if (!groupState || node.isHidden() || node.item.type !== 'Group') {
+  if (!groupState || node.isHidden()) {
     return null;
   }
 
@@ -176,71 +175,74 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
     (edit?.mode === 'showAll' || editIndex < 0 || edit?.alwaysShowAddButton === true);
 
   return (
-    <Grid
-      container={true}
-      item={true}
-      data-componentid={node.item.id}
-    >
-      {(!edit?.mode ||
-        edit?.mode === 'showTable' ||
-        edit?.mode === 'onlyTable' ||
-        (edit?.mode === 'hideTable' && editIndex < 0)) && (
-        <RepeatingGroupTable
-          node={node}
-          editIndex={editIndex}
-          repeatingGroupIndex={repeatingGroupIndex}
-          deleting={deletingIndexes.includes(repeatingGroupIndex)}
-          setEditIndex={setEditIndex}
-          onClickRemove={handleOnRemoveClick}
-          setMultiPageIndex={setMultiPageIndex}
-          multiPageIndex={multiPageIndex}
-          rowsBefore={node.item.rowsBefore}
-          rowsAfter={node.item.rowsAfter}
-        />
-      )}
-      {edit?.mode !== 'showAll' && displayBtn && <AddButton />}
-      <ConditionalWrapper
-        condition={!isNested}
-        wrapper={(children) => <FullWidthWrapper>{children}</FullWidthWrapper>}
-      >
-        <>
-          {editIndex >= 0 && edit?.mode === 'hideTable' && (
-            <RepeatingGroupsEditContainer
-              node={node}
-              editIndex={editIndex}
-              setEditIndex={setEditIndex}
-              multiPageIndex={multiPageIndex}
-              setMultiPageIndex={setMultiPageIndex}
-            />
-          )}
-          {edit?.mode === 'showAll' &&
-            // Generate array of length repeatingGroupIndex and iterate over indexes
-            Array(repeatingGroupIndex + 1)
-              .fill(0)
-              .map((_, index) => (
-                <div
-                  key={index}
-                  style={{ width: '100%', marginBottom: !isNested && index == repeatingGroupIndex ? 15 : 0 }}
-                >
-                  <RepeatingGroupsEditContainer
-                    node={node}
-                    editIndex={index}
-                    deleting={deletingIndexes.includes(index)}
-                    setEditIndex={setEditIndex}
-                    onClickRemove={handleOnRemoveClick}
-                    forceHideSaveButton={true}
-                  />
-                </div>
-              ))}
-        </>
-      </ConditionalWrapper>
-      {edit?.mode === 'showAll' && displayBtn && <AddButton />}
+    <RepeatingGroupsFocusProvider>
       <Grid
+        container={true}
         item={true}
-        xs={12}
+        data-componentid={node.item.id}
       >
-        {node.getValidations('group') && renderValidationMessagesForComponent(node.getValidations('group'), id)}
+        {(!edit?.mode ||
+          edit?.mode === 'showTable' ||
+          edit?.mode === 'onlyTable' ||
+          (edit?.mode === 'hideTable' && editIndex < 0)) && (
+          <RepeatingGroupTable
+            node={node}
+            editIndex={editIndex}
+            repeatingGroupIndex={repeatingGroupIndex}
+            deleting={deletingIndexes.includes(repeatingGroupIndex)}
+            setEditIndex={setEditIndex}
+            onClickRemove={handleOnRemoveClick}
+            setMultiPageIndex={setMultiPageIndex}
+            multiPageIndex={multiPageIndex}
+            rowsBefore={node.item.rowsBefore}
+            rowsAfter={node.item.rowsAfter}
+          />
+        )}
+        {edit?.mode !== 'showAll' && displayBtn && <AddButton />}
+        <ConditionalWrapper
+          condition={!isNested}
+          wrapper={(children) => <FullWidthWrapper>{children}</FullWidthWrapper>}
+        >
+          <>
+            {editIndex >= 0 && edit?.mode === 'hideTable' && (
+              <RepeatingGroupsEditContainer
+                node={node}
+                editIndex={editIndex}
+                setEditIndex={setEditIndex}
+                multiPageIndex={multiPageIndex}
+                setMultiPageIndex={setMultiPageIndex}
+              />
+            )}
+            {edit?.mode === 'showAll' &&
+              // Generate array of length repeatingGroupIndex and iterate over indexes
+              Array(repeatingGroupIndex + 1)
+                .fill(0)
+                .map((_, index) => (
+                  <div
+                    key={index}
+                    style={{ width: '100%', marginBottom: !isNested && index == repeatingGroupIndex ? 15 : 0 }}
+                  >
+                    <RepeatingGroupsEditContainer
+                      node={node}
+                      editIndex={index}
+                      deleting={deletingIndexes.includes(index)}
+                      setEditIndex={setEditIndex}
+                      onClickRemove={handleOnRemoveClick}
+                      forceHideSaveButton={true}
+                    />
+                  </div>
+                ))}
+          </>
+        </ConditionalWrapper>
+        {edit?.mode === 'showAll' && displayBtn && <AddButton />}
+        <Grid
+          item={true}
+          xs={12}
+        >
+          {node.getValidations('repeatingGroup') &&
+            renderValidationMessagesForComponent(node.getValidations('repeatingGroup'), id)}
+        </Grid>
       </Grid>
-    </Grid>
+    </RepeatingGroupsFocusProvider>
   );
 }

@@ -14,21 +14,20 @@ import { useIsMobile } from 'src/hooks/useIsMobile';
 import { implementsDisplayData, useDisplayDataProps } from 'src/layout';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Group/RepeatingGroup.module.css';
-import { useRepeatingGroupsFocusContext } from 'src/layout/Group/RepeatingGroupsFocusContext';
+import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
 import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { AlertOnChangeProps } from 'src/hooks/useAlertOnChange';
+import type { ITextResourceBindings } from 'src/layout/layout';
 import type {
   CompGroupRepeatingExternal,
   CompGroupRepeatingInternal,
   IGroupEditPropertiesInternal,
-} from 'src/layout/Group/config.generated';
-import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
-import type { ITextResourceBindings } from 'src/layout/layout';
+} from 'src/layout/RepeatingGroup/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IRepeatingGroupTableRowProps {
-  node: LayoutNodeForGroup<CompGroupRepeatingInternal>;
+  node: LayoutNode<'RepeatingGroup'>;
   className?: string;
   editIndex: number;
   setEditIndex: (index: number, forceValidation?: boolean) => void;

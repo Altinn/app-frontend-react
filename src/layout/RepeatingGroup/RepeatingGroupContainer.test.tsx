@@ -4,20 +4,19 @@ import { act, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
-import { getFormLayoutGroupMock } from 'src/__mocks__/getFormLayoutGroupMock';
+import { getFormLayoutRepeatingGroupMock } from 'src/__mocks__/getFormLayoutGroupMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { Triggers } from 'src/layout/common.generated';
-import { GroupContainer } from 'src/layout/Group/GroupContainer';
+import { RepeatingGroupContainer } from 'src/layout/RepeatingGroup/RepeatingGroupContainer';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { IUpdateRepeatingGroupsEditIndex } from 'src/features/form/layout/formLayoutTypes';
-import type { CompGroupRepeatingExternal, CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
-import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { CompExternal } from 'src/layout/layout';
-
-const mockContainer = getFormLayoutGroupMock();
+import type { CompGroupRepeatingExternal } from 'src/layout/RepeatingGroup/config.generated';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+const mockContainer = getFormLayoutRepeatingGroupMock();
 
 interface IRender {
   container?: CompGroupRepeatingExternal;
@@ -76,7 +75,7 @@ async function render({ container = mockContainer }: IRender = {}) {
     },
   ];
 
-  const group = getFormLayoutGroupMock({
+  const repeatingGroup = getFormLayoutRepeatingGroupMock({
     ...container,
     dataModelBindings: {
       group: 'Group',
@@ -87,7 +86,7 @@ async function render({ container = mockContainer }: IRender = {}) {
   const mockLayout: ILayoutState = {
     ...initialMock.formLayout,
     layouts: {
-      FormLayout: [group, ...mockComponents],
+      FormLayout: [repeatingGroup, ...mockComponents],
     },
     uiConfig: {
       ...initialMock.formLayout.uiConfig,
@@ -115,8 +114,8 @@ async function render({ container = mockContainer }: IRender = {}) {
     formData: mockData,
   });
 
-  const { store } = await renderWithNode<LayoutNodeForGroup<CompGroupRepeatingInternal>>({
-    renderer: ({ node }) => <GroupContainer node={node} />,
+  const { store } = await renderWithNode<LayoutNode<'RepeatingGroup'>>({
+    renderer: ({ node }) => <RepeatingGroupContainer node={node} />,
     nodeId: container.id,
     reduxState,
     initialPage: 'Task_1/FormLayout',
@@ -171,7 +170,7 @@ describe('GroupContainer', () => {
   });
 
   it('should show option label when displaying selection components', async () => {
-    await render({ container: getFormLayoutGroupMock({ id: 'container-in-edit-mode-id' }) });
+    await render({ container: getFormLayoutRepeatingGroupMock({ id: 'container-in-edit-mode-id' }) });
 
     const item = screen.getByText('Value to be shown');
     expect(item).toBeInTheDocument();

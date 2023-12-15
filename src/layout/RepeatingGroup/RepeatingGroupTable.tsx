@@ -10,16 +10,15 @@ import { GenericComponent } from 'src/layout/GenericComponent';
 import { GridRowRenderer } from 'src/layout/Grid/GridComponent';
 import { nodesFromGridRows } from 'src/layout/Grid/tools';
 import classes from 'src/layout/Group/RepeatingGroup.module.css';
-import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
-import { RepeatingGroupTableRow } from 'src/layout/Group/RepeatingGroupTableRow';
-import { RepeatingGroupTableTitle } from 'src/layout/Group/RepeatingGroupTableTitle';
+import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/RepeatingGroupsEditContainer';
+import { RepeatingGroupTableRow } from 'src/layout/RepeatingGroup/RepeatingGroupTableRow';
+import { RepeatingGroupTableTitle } from 'src/layout/RepeatingGroup/RepeatingGroupTableTitle';
 import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import type { GridRowsInternal, ITableColumnFormatting } from 'src/layout/common.generated';
-import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
-import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IRepeatingGroupTableProps {
-  node: LayoutNodeForGroup<CompGroupRepeatingInternal>;
+  node: LayoutNode<'RepeatingGroup'>;
   repeatingGroupIndex: number;
   editIndex: number;
   setEditIndex: (index: number, forceValidation?: boolean) => void;
@@ -230,8 +229,7 @@ export function RepeatingGroupTable({
               const children = node.children(undefined, index);
               const rowHasErrors = !!children.find((c) => c.hasValidationMessages());
 
-              const isTableRowHidden =
-                node.item.type === 'Group' && 'rows' in node.item && node.item.rows[index]?.groupExpressions?.hiddenRow;
+              const isTableRowHidden = node.item.rows[index]?.groupExpressions?.hiddenRow;
 
               if (isTableRowHidden) {
                 return null;

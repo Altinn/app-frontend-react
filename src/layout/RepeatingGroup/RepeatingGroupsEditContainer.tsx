@@ -8,12 +8,15 @@ import cn from 'classnames';
 import { Lang } from 'src/features/language/Lang';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Group/RepeatingGroup.module.css';
-import { useRepeatingGroupsFocusContext } from 'src/layout/Group/RepeatingGroupsFocusContext';
-import type { CompGroupRepeatingInternal, IGroupEditPropertiesInternal } from 'src/layout/Group/config.generated';
-import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
+import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
+import type {
+  CompGroupRepeatingInternal,
+  IGroupEditPropertiesInternal,
+} from 'src/layout/RepeatingGroup/config.generated';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IRepeatingGroupsEditContainer {
-  node: LayoutNodeForGroup<CompGroupRepeatingInternal>;
+  node: LayoutNode<'RepeatingGroup'>;
   className?: string;
   deleting?: boolean;
   editIndex: number;
@@ -37,7 +40,7 @@ export function RepeatingGroupsEditContainer({
     return null;
   }
 
-  const shouldHideRow = node.isRepGroup() && node.item.rows[editIndex]?.groupExpressions?.hiddenRow;
+  const shouldHideRow = node.item.rows[editIndex]?.groupExpressions?.hiddenRow;
   if (shouldHideRow) {
     return null;
   }
