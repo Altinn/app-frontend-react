@@ -1,12 +1,12 @@
-import { useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
-export type AlertOnChangeProps = {
+export interface AlertOnChange<Fn extends (...args: any[]) => void> {
   alertOpen: boolean;
   setAlertOpen: (open: boolean) => void;
-  handleChange: (...args: any[]) => void;
+  handleChange: Fn;
   confirmChange: () => void;
   cancelChange: () => void;
-};
+}
 
 /**
  * Hook used to suspend a change event until the user confirms or cancels the change
@@ -16,51 +16,54 @@ export type AlertOnChangeProps = {
  * @returns A new change handler, and the necessary props needed to control the DeleteWarningPopover
  * @see DeleteWarningPopover
  */
-export function useAlertOnChange(
+export function useAlertOnChange<Fn extends (...args: any[]) => void>(
   enabled: boolean,
-  onChange: (...args: any[]) => void,
-  shouldAlert?: (...args: any[]) => boolean,
-) {
+  onChange: Fn,
+  shouldAlert?: (...args: Parameters<Fn>) => boolean,
+): AlertOnChange<Fn> {
   const [alertOpen, setAlertOpen] = useState(false);
   const argsRef = useRef<any[]>();
 
-  function handleChange(...args: any[]) {
-    if (enabled && (!shouldAlert || shouldAlert(...args))) {
-      // If standard event we need to prevent default
-      const event = args?.[0] instanceof Event ? args[0] : undefined;
-      if (event) {
-        event.preventDefault();
+  const handleChange = useCallback(
+    (...args: Parameters<Fn>) => {
+      if (enabled && (!shouldAlert || shouldAlert(...args))) {
+        // If standard event we need to prevent default
+        const event = args?.[0] instanceof Event ? args[0] : undefined;
+        if (event) {
+          event.preventDefault();
+        }
+        argsRef.current = args;
+        setAlertOpen(true);
+      } else {
+        onChange(...args);
       }
-      argsRef.current = args;
-      setAlertOpen(true);
-    } else {
-      onChange(...args);
-    }
-  }
+    },
+    [enabled, onChange, shouldAlert],
+  ) as Fn;
 
-  function confirmChange() {
+  const confirmChange = useCallback(() => {
     setAlertOpen(false);
     if (argsRef.current) {
       onChange(...argsRef.current);
     }
     argsRef.current = undefined;
-  }
+  }, [onChange]);
 
-  function cancelChange() {
+  const cancelChange = useCallback(() => {
     argsRef.current = undefined;
     setAlertOpen(false);
-  }
+  }, []);
 
   // Prevent the alert from opening from the outside
   // In that case there will be no event to pass through
   // Also make sure if the alert is closed from the outside
   // that the args are cleared
-  function _setAlertOpen(open: boolean) {
+  const _setAlertOpen = useCallback((open: boolean) => {
     if (!open) {
       argsRef.current = undefined;
       setAlertOpen(false);
     }
-  }
+  }, []);
 
   return {
     alertOpen,

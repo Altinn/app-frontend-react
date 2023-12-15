@@ -11,7 +11,6 @@ import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { diffModels } from 'src/features/formData/diffModels';
 import { useFormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
 import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteStateMachine';
-import { RepeatingGroupsProvider } from 'src/features/formData/RepeatingGroupsProvider';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useIsDev } from 'src/hooks/useIsDev';
@@ -111,7 +110,7 @@ export function FormDataWriteProvider({ url, initialData, autoSaving, children }
       initialData={initialData}
     >
       <FormDataEffects url={url} />
-      <RepeatingGroupsProvider initialFormData={initialData}>{children}</RepeatingGroupsProvider>
+      {children}
     </Provider>
   );
 }

@@ -8,7 +8,7 @@ import { getFormLayoutGroupMock } from 'src/__mocks__/getFormLayoutGroupMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { Triggers } from 'src/layout/common.generated';
-import { GroupContainer } from 'src/layout/Group/GroupContainer';
+import { RepeatingGroupContainer } from 'src/layout/Group/RepeatingGroupContainer';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
@@ -114,7 +114,7 @@ async function render({ container = mockContainer }: IRender = {}) {
   });
 
   const { store } = await renderWithNode<true, LayoutNodeForGroup<CompGroupRepeatingInternal>>({
-    renderer: ({ node }) => <GroupContainer node={node} />,
+    renderer: ({ node }) => <RepeatingGroupContainer node={node} />,
     nodeId: container.id,
     reduxState,
     initialPage: 'Task_1/FormLayout',

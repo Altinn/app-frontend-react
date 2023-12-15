@@ -8,29 +8,22 @@ import cn from 'classnames';
 import { Lang } from 'src/features/language/Lang';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Group/RepeatingGroup.module.css';
+import { useRepeatingGroup } from 'src/layout/Group/RepeatingGroupContext';
 import { useRepeatingGroupsFocusContext } from 'src/layout/Group/RepeatingGroupsFocusContext';
 import type { CompGroupRepeatingInternal, IGroupEditPropertiesInternal } from 'src/layout/Group/config.generated';
-import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 
 export interface IRepeatingGroupsEditContainer {
-  node: LayoutNodeForGroup<CompGroupRepeatingInternal>;
-  className?: string;
-  deleting?: boolean;
   editIndex: number;
-  setEditIndex: (index: number, forceValidation?: boolean) => void;
-  onClickRemove?: (groupIndex: number) => void;
+  className?: string;
   forceHideSaveButton?: boolean;
-  multiPageIndex?: number;
-  setMultiPageIndex?: (index: number) => void;
 }
 
 export function RepeatingGroupsEditContainer({
-  node,
   editIndex,
   ...props
 }: IRepeatingGroupsEditContainer): JSX.Element | null {
+  const { node } = useRepeatingGroup();
   const group = node.item;
-
   const row = group.rows[editIndex];
 
   if (!row) {
@@ -44,7 +37,6 @@ export function RepeatingGroupsEditContainer({
 
   return (
     <RepeatingGroupsEditContainerInternal
-      node={node}
       editIndex={editIndex}
       group={group}
       row={row}
@@ -54,21 +46,16 @@ export function RepeatingGroupsEditContainer({
 }
 
 function RepeatingGroupsEditContainerInternal({
-  node,
   className,
-  deleting,
   editIndex,
-  setEditIndex,
-  onClickRemove,
   forceHideSaveButton,
-  multiPageIndex,
-  setMultiPageIndex,
   group,
   row,
 }: IRepeatingGroupsEditContainer & {
   group: CompGroupRepeatingInternal;
   row: CompGroupRepeatingInternal['rows'][number];
 }): JSX.Element | null {
+  const { node, closeForEditing, deleteRow, openNextForEditing, isDeleting } = useRepeatingGroup();
   const id = node.item.id;
   const textsForRow = row.groupExpressions?.textResourceBindings;
   const editForRow = row.groupExpressions?.edit;
@@ -92,26 +79,6 @@ function RepeatingGroupsEditContainerInternal({
   };
 
   const nextIndex: number | null = nextDisplayedGroup();
-
-  const saveClicked = () => {
-    setEditIndex(-1);
-  };
-
-  const nextClicked = () => {
-    if (nextIndex !== null) {
-      setEditIndex && setEditIndex(nextIndex, true);
-      if (edit.multiPage) {
-        setMultiPageIndex && setMultiPageIndex(0);
-      }
-    }
-  };
-
-  const removeClicked = () => {
-    onClickRemove && onClickRemove(editIndex);
-    if (edit.multiPage) {
-      setMultiPageIndex && setMultiPageIndex(0);
-    }
-  };
 
   const getGenericComponentsToRender = (): (JSX.Element | null)[] =>
     rowItems.map((n): JSX.Element | null => {
@@ -175,8 +142,8 @@ function RepeatingGroupsEditContainerInternal({
               size='small'
               icon={<DeleteIcon />}
               iconPlacement='right'
-              disabled={deleting}
-              onClick={removeClicked}
+              disabled={isDeleting(editIndex)}
+              onClick={() => deleteRow(editIndex)}
               data-testid='delete-button'
             >
               <Lang id={'general.delete'} />
@@ -249,7 +216,7 @@ function RepeatingGroupsEditContainerInternal({
               <Grid item={true}>
                 <Button
                   id={`next-button-grp-${id}`}
-                  onClick={nextClicked}
+                  onClick={() => openNextForEditing()}
                   variant='primary'
                   color='first'
                   size='small'
@@ -262,7 +229,7 @@ function RepeatingGroupsEditContainerInternal({
               <Grid item={true}>
                 <Button
                   id={`add-button-grp-${id}`}
-                  onClick={saveClicked}
+                  onClick={() => closeForEditing(editIndex)}
                   variant={saveAndNextButtonVisible ? 'secondary' : 'primary'}
                   color='first'
                   size='small'

@@ -51,6 +51,9 @@ export const ErrorReport = ({ nodes }: IErrorReportProps) => {
     return null;
   }
 
+  // TODO: Rewrite all of this to use a FocusComponentContext that repeating groups can use to figure
+  // out if they should navigate the user to the component or not. Also look into how this might overlap with
+  // RepeatingGroupsFocusProvider.
   const handleErrorClick = (error: FlatError) => (ev: React.KeyboardEvent | React.MouseEvent) => {
     if (ev.type === 'keydown' && (ev as React.KeyboardEvent).key !== 'Enter') {
       return;
