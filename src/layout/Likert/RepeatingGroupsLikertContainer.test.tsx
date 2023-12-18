@@ -2,6 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import {
+  createFormDataUpdateProp,
   createFormError,
   defaultMockOptions,
   defaultMockQuestions,
@@ -140,7 +141,7 @@ describe('RepeatingGroupsLikertContainer', () => {
     });
 
     it('should render table view and click radiobuttons', async () => {
-      const { mockStoreDispatch } = await render();
+      const { formDataMethods } = await render();
       await waitFor(() => {
         expect(screen.getByRole('table')).toBeInTheDocument();
       });
@@ -162,32 +163,31 @@ describe('RepeatingGroupsLikertContainer', () => {
         name: /Dårlig/i,
       });
 
-      (mockStoreDispatch as jest.Mock).mockClear();
       expect(btn1).not.toBeChecked();
-      expect(mockStoreDispatch).not.toHaveBeenCalled();
+      expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
       await userEvent.click(btn1);
-      // await waitFor(() => expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(0, '1')));
+      await waitFor(() => expect(formDataMethods.setLeafValue).toHaveBeenCalledWith(createFormDataUpdateProp(0, '1')));
 
-      (mockStoreDispatch as jest.Mock).mockClear();
+      (formDataMethods.setLeafValue as jest.Mock).mockClear();
       expect(btn2).not.toBeChecked();
-      expect(mockStoreDispatch).not.toHaveBeenCalledTimes(2);
+      expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
       await userEvent.click(btn2);
-      // await waitFor(() => expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(1, '3')));
+      await waitFor(() => expect(formDataMethods.setLeafValue).toHaveBeenCalledWith(createFormDataUpdateProp(1, '3')));
     });
 
     it('should render standard view and use keyboard to navigate', async () => {
-      const { mockStoreDispatch } = await render();
+      const { formDataMethods } = await render();
       await waitFor(async () => {
         expect(await screen.findAllByRole('columnheader')).toHaveLength(3);
       });
       await validateTableLayout(defaultMockQuestions, defaultMockOptions);
 
-      expect(mockStoreDispatch).not.toHaveBeenCalled();
+      expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
 
       await userEvent.tab();
       await userEvent.keyboard('[Space]');
-      // await waitFor(() => expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(0, '1')));
-      expect(mockStoreDispatch).toHaveBeenCalledTimes(1);
+      await waitFor(() => expect(formDataMethods.setLeafValue).toHaveBeenCalledWith(createFormDataUpdateProp(0, '1')));
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1);
     });
 
     it('should support nested binding for question text in data model', async () => {
@@ -298,7 +298,7 @@ describe('RepeatingGroupsLikertContainer', () => {
     });
 
     it('should render mobile view and click radiobuttons', async () => {
-      const { mockStoreDispatch } = await render({ mobileView: true });
+      const { formDataMethods } = await render({ mobileView: true });
       await validateRadioLayout(defaultMockQuestions, defaultMockOptions, true);
       const rad1 = screen.getByRole('radiogroup', {
         name: /Hvordan trives du på skolen/i,
@@ -308,12 +308,12 @@ describe('RepeatingGroupsLikertContainer', () => {
       });
       expect(btn1).not.toBeChecked();
 
-      expect(mockStoreDispatch).not.toHaveBeenCalled();
+      expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
 
       await userEvent.click(btn1);
-      // await waitFor(() => expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(0, '1')));
-      expect(mockStoreDispatch).toHaveBeenCalledTimes(1);
-      (mockStoreDispatch as jest.Mock).mockClear();
+      await waitFor(() => expect(formDataMethods.setLeafValue).toHaveBeenCalledWith(createFormDataUpdateProp(0, '1')));
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1);
+      (formDataMethods.setLeafValue as jest.Mock).mockClear();
 
       const rad2 = screen.getByRole('radiogroup', {
         name: /Har du det bra/i,
@@ -324,9 +324,9 @@ describe('RepeatingGroupsLikertContainer', () => {
       });
 
       expect(btn2).not.toBeChecked();
-      expect(mockStoreDispatch).not.toHaveBeenCalledTimes(2);
+      expect(formDataMethods.setLeafValue).not.toHaveBeenCalledTimes(2);
       await userEvent.click(btn2);
-      // await waitFor(() => expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(1, '3')));
+      await waitFor(() => expect(formDataMethods.setLeafValue).toHaveBeenCalledWith(createFormDataUpdateProp(1, '3')));
     });
 
     it('should render mobile view with selected values', async () => {

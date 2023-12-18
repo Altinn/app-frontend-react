@@ -9,6 +9,7 @@ import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import { useResolvedNode } from 'src/utils/layout/NodesContext';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
+import type { FDNewValue } from 'src/features/formData/FormDataWriteStateMachine';
 import type { IRawTextResource, ITextResourceResult } from 'src/features/language/textResources';
 import type { IValidationState } from 'src/features/validation/validationSlice';
 import type { IOption } from 'src/layout/common.generated';
@@ -27,15 +28,12 @@ const groupBinding = 'Questions';
 const answerBinding = 'Answer';
 const questionBinding = 'Question';
 
-export const generateMockFormData = (likertQuestions: IQuestion[]): Record<string, string> =>
-  likertQuestions.reduce(
-    (formData, likertQuestion, index) => ({
-      ...formData,
-      [`${groupBinding}[${index}].${answerBinding}`]: likertQuestion.Answer,
-      [`${groupBinding}[${index}].${questionBinding}`]: likertQuestion.Question,
-    }),
-    {},
-  );
+export const generateMockFormData = (likertQuestions: IQuestion[]) => ({
+  [groupBinding]: Array.from({ length: likertQuestions.length }, (_, index) => ({
+    [answerBinding]: likertQuestions[index].Answer,
+    [questionBinding]: likertQuestions[index].Question,
+  })),
+});
 
 export const defaultMockOptions: IOption[] = [
   {
@@ -93,19 +91,10 @@ const createRadioButton = (props: Partial<CompLikertExternal> | undefined): Comp
   ...props,
 });
 
-// export const createFormDataUpdateAction = (
-//   index: number,
-//   optionValue: string,
-// ): PayloadAction<IUpdateFormDataSimple> => ({
-//   payload: {
-//     componentId: `field1-${index}`,
-//     data: optionValue,
-//     field: `Questions[${index}].Answer`,
-//     skipValidation: false,
-//     singleFieldValidation: undefined,
-//   },
-//   type: FormDataActions.update.type,
-// });
+export const createFormDataUpdateProp = (index: number, optionValue: string): FDNewValue => ({
+  path: `Questions[${index}].Answer`,
+  newValue: optionValue,
+});
 
 const createLayout = (container: CompGroupExternal, components: CompOrGroupExternal[]): ILayoutState => ({
   layoutsets: null,
@@ -192,32 +181,21 @@ export const render = async ({
   const mockRadioButton = createRadioButton(radioButtonProps);
   const mockLikertContainer = createLikertContainer(likertContainerProps);
   const components: CompOrGroupExternal[] = [mockRadioButton];
-  // const mockData: IFormDataState = {
-  //   formData: generateMockFormData(mockQuestions),
-  //   lastSavedFormData: {},
-  //   submittingState: 'inactive',
-  //   unsavedChanges: false,
-  //   saving: false,
-  // };
-
-  const reduxState = getInitialStateMock({
-    formLayout: createLayout(mockLikertContainer, components),
-    // formData: mockData,
-    formValidations: createFormValidationsForCurrentView(validations),
-  });
 
   setScreenWidth(mobileView ? 600 : 1200);
-  const { store } = await renderWithInstanceAndLayout({
+  return await renderWithInstanceAndLayout({
     renderer: () => <ContainerTester id={mockLikertContainer.id} />,
-    reduxState,
+    reduxState: getInitialStateMock({
+      formLayout: createLayout(mockLikertContainer, components),
+      formValidations: createFormValidationsForCurrentView(validations),
+    }),
     initialPage: 'Task_1/FormLayout',
     queries: {
       fetchOptions: () => Promise.resolve({ data: mockOptions, headers: {} } as AxiosResponse<IOption[], any>),
       fetchTextResources: () => Promise.resolve(createTextResource(mockQuestions, extraTextResources)),
+      fetchFormData: async () => generateMockFormData(mockQuestions),
     },
   });
-
-  return { mockStoreDispatch: store.dispatch };
 };
 
 export function ContainerTester(props: { id: string }) {

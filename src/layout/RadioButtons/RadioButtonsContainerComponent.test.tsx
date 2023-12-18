@@ -27,9 +27,23 @@ const threeOptions: IOption[] = [
 interface Props extends Partial<RenderGenericComponentTestProps<'RadioButtons'>> {
   options?: IOption[];
   formData?: string;
+  groupData?: any;
 }
 
-const render = async ({ component, options, formData }: Props = {}) =>
+const defaultGroupData = {
+  someGroup: [
+    {
+      valueField: 'Value for first',
+      labelField: 'Label for first',
+    },
+    {
+      valueField: 'Value for second',
+      labelField: 'Label for second',
+    },
+  ],
+};
+
+const render = async ({ component, options, formData, groupData = defaultGroupData }: Props = {}) =>
   await renderGenericComponentTest({
     type: 'RadioButtons',
     renderer: (props) => <RadioButtonContainerComponent {...props} />,
@@ -44,9 +58,7 @@ const render = async ({ component, options, formData }: Props = {}) =>
         options
           ? Promise.resolve({ data: options, headers: {} } as AxiosResponse<IOption[], any>)
           : Promise.reject(new Error('No options provided to render()')),
-      fetchFormData: async () => ({
-        myRadio: formData,
-      }),
+      fetchFormData: async () => (formData ? { myRadio: formData, ...groupData } : { ...groupData }),
     },
   });
 
@@ -63,7 +75,7 @@ const findRadio = ({ name, isChecked = false }) =>
   });
 
 describe('RadioButtonsContainerComponent', () => {
-  it('should call handleDataChange with value of preselectedOptionIndex when simpleBinding is not set', async () => {
+  it('should update data model with value of preselectedOptionIndex', async () => {
     const { formDataMethods } = await render({
       component: {
         preselectedOptionIndex: 1,
@@ -76,7 +88,7 @@ describe('RadioButtonsContainerComponent', () => {
     );
   });
 
-  it('should not call handleDataChange when simpleBinding is set and preselectedOptionIndex', async () => {
+  it('should not update data model when preselectedOptionIndex is set, but another value is selected', async () => {
     const { formDataMethods } = await render({
       component: {
         preselectedOptionIndex: 0,
@@ -91,7 +103,7 @@ describe('RadioButtonsContainerComponent', () => {
     expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
   });
 
-  it('should not set any as selected when no binding and no preselectedOptionIndex is set', async () => {
+  it('should not set any as selected without preselectedOptionIndex', async () => {
     const { formDataMethods } = await render({
       options: threeOptions,
     });
@@ -103,7 +115,7 @@ describe('RadioButtonsContainerComponent', () => {
     expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
   });
 
-  it('should call handleDataChange with updated value when selection changes', async () => {
+  it('should update data model with updated value when selection changes', async () => {
     const { formDataMethods } = await render({
       options: threeOptions,
       formData: 'norway',
@@ -127,23 +139,7 @@ describe('RadioButtonsContainerComponent', () => {
     );
   });
 
-  it('should call handleDataChange instantly on blur when the value has changed', async () => {
-    const { formDataMethods } = await render({
-      options: threeOptions,
-      formData: 'norway',
-    });
-
-    const denmark = await waitFor(() => getRadio({ name: 'Denmark' }));
-
-    expect(denmark).toBeInTheDocument();
-
-    expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
-    await userEvent.click(denmark);
-    await userEvent.tab();
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myRadio', newValue: 'denmark' });
-  });
-
-  it('should not call handleDataChange on blur when the value is unchanged', async () => {
+  it('should not update data model when the value is unchanged', async () => {
     const { formDataMethods } = await render({
       options: threeOptions,
     });
@@ -159,7 +155,7 @@ describe('RadioButtonsContainerComponent', () => {
     expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
   });
 
-  it('should present replaced label, description and help text if setup with values from repeating group in redux and trigger handleDataChanged with replaced values', async () => {
+  it('should present replaced label, description and help text if setup with values from repeating group and trigger data model update with replaced values', async () => {
     const { formDataMethods } = await render({
       component: {
         optionsId: undefined,
@@ -192,7 +188,7 @@ describe('RadioButtonsContainerComponent', () => {
       'Help Text: The value from the group is: Label for second',
     );
 
-    expect(formDataMethods).not.toHaveBeenCalled();
+    expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
     await userEvent.click(getRadio({ name: /The value from the group is: Label for first/ }));
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myRadio', newValue: 'Value for first' });
   });
