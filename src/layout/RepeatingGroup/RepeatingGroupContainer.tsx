@@ -22,7 +22,6 @@ import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/Repeatin
 import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/RepeatingGroupTable';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
-import type { PropsFromGenericComponent } from 'src/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 const getValidationMethod = (node: LayoutNode<'RepeatingGroup'>) => {
@@ -35,8 +34,11 @@ const getValidationMethod = (node: LayoutNode<'RepeatingGroup'>) => {
     return Triggers.ValidateRow;
   }
 };
+interface RepeatingGroupContainerProps {
+  node: LayoutNode<'RepeatingGroup'>;
+}
 
-export function RepeatingGroupContainer({ node }: PropsFromGenericComponent<'RepeatingGroup'>): JSX.Element | null {
+export function RepeatingGroupContainer({ node }: RepeatingGroupContainerProps): JSX.Element | null {
   const dispatch = useAppDispatch();
   const { pageKey } = useNavigationParams();
 

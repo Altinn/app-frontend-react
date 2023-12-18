@@ -10,11 +10,14 @@ import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { LayoutStyle } from 'src/layout/common.generated';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Likert/LikertComponent.module.css';
-import type { PropsFromGenericComponent } from 'src/layout';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export const LikertGroupComponent = ({ node }: PropsFromGenericComponent<'LikertGroup'>) => {
+interface LikertGroupComponentProps {
+  node: LayoutNode<'LikertGroup'>;
+}
+
+export const LikertGroupComponent = ({ node }: LikertGroupComponentProps) => {
   const firstLikertChild = node?.children((item) => item.type === 'Likert') as LayoutNode<'Likert'> | undefined;
   const mobileView = useIsMobileOrTablet();
   const { options: calculatedOptions, isFetching } = useGetOptions({
