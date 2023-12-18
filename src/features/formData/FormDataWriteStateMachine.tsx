@@ -166,7 +166,11 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
         }
 
         processChange(state, rest);
-        dot.str(path, String(newValue), state.currentData);
+        if (newValue === '' || newValue === null || newValue === undefined) {
+          dot.delete(path, state.currentData);
+        } else {
+          dot.str(path, String(newValue), state.currentData);
+        }
       }),
 
     // All the list methods perform their work immediately, without debouncing, so that UI updates for new/removed
@@ -228,7 +232,11 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
           if (existingValue === newValue) {
             continue;
           }
-          dot.str(path, String(newValue), state.currentData);
+          if (newValue === '' || newValue === null || newValue === undefined) {
+            dot.delete(path, state.currentData);
+          } else {
+            dot.str(path, String(newValue), state.currentData);
+          }
           changesFound = true;
         }
         changesFound && processChange(state, rest);

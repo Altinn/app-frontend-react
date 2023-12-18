@@ -237,7 +237,7 @@ export const FD = {
    */
   useDebouncedDotMap(): IFormData {
     const debouncedCurrentData = useSelector((v) => v.debouncedCurrentData);
-    return useMemo(() => dot.dot(debouncedCurrentData), [debouncedCurrentData]);
+    return useMemo(() => flattenObject(debouncedCurrentData), [debouncedCurrentData]);
   },
 
   /**
