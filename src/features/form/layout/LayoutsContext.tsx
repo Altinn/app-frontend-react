@@ -48,7 +48,6 @@ function useLayoutQuery() {
           layoutSetId: currentLayoutSetId || null,
         }),
       );
-      dispatch(FormLayoutActions.initRepeatingGroups({}));
       return result;
     },
     onError: (error: HttpClientError) => {
@@ -73,7 +72,6 @@ function useLayoutQuery() {
           layoutSetId: currentLayoutSetId || null,
         }),
       );
-      dispatch(FormLayoutActions.initRepeatingGroups({}));
     }
     previousData.current = query.data;
   }, [query.data, currentLayoutSetId, dispatch]);

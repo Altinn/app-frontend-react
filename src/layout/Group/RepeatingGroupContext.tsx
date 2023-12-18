@@ -16,6 +16,7 @@ interface RepeatingGroupContext {
   closeForEditing: (index: number) => void;
   isEditing: (index: number) => boolean;
   isEditingAnyRow: boolean;
+  editingIndex: number | undefined;
 
   addRow: () => void;
 
@@ -125,16 +126,18 @@ function useRepeatingGroupState(node: LayoutNodeForGroup<CompGroupRepeatingInter
     closeForEditing,
     isEditing,
     isEditingAnyRow: editingAll ? true : editingNone ? false : editingIndex !== undefined,
+    editingIndex,
     addRow,
     deleteRow,
     isDeleting,
   };
 }
 
-export function RepeatingGroupProvider({
-  node,
-  children,
-}: PropsWithChildren<{ node: LayoutNodeForGroup<CompGroupRepeatingInternal> }>) {
+interface Props {
+  node: LayoutNodeForGroup<CompGroupRepeatingInternal>;
+}
+
+export function RepeatingGroupProvider({ node, children }: PropsWithChildren<Props>) {
   const state = useRepeatingGroupState(node);
   return <Provider value={state}>{children}</Provider>;
 }

@@ -21,7 +21,7 @@ export interface IRepGroupProps {
   node: LayoutNodeForGroup<CompGroupRepeatingInternal>;
 }
 
-const getValidationMethod = (node: LayoutNodeForGroup<CompGroupRepeatingInternal>) => {
+function getValidationMethod(node: LayoutNodeForGroup<CompGroupRepeatingInternal>) {
   // Validation for whole group takes precedent over single-row validation if both are present.
   const triggers = node.item.triggers;
   if (triggers && triggers.includes(Triggers.Validation)) {
@@ -30,14 +30,14 @@ const getValidationMethod = (node: LayoutNodeForGroup<CompGroupRepeatingInternal
   if (triggers && triggers.includes(Triggers.ValidateRow)) {
     return Triggers.ValidateRow;
   }
-};
+}
 
 export function RepeatingGroupContainer({ node }: IRepGroupProps): JSX.Element | null {
   const { triggerFocus } = useRepeatingGroupsFocusContext();
   const resolvedTextBindings = node.item.textResourceBindings;
   const id = node.item.id;
   const edit = node.item.edit;
-  const { isEditingAnyRow, addRow } = useRepeatingGroup();
+  const { isEditingAnyRow, editingIndex, addRow } = useRepeatingGroup();
 
   const numRows = node.item.rows.length;
   const lastIndex = numRows - 1;
@@ -107,7 +107,9 @@ export function RepeatingGroupContainer({ node }: IRepGroupProps): JSX.Element |
         wrapper={(children) => <FullWidthWrapper>{children}</FullWidthWrapper>}
       >
         <>
-          {isEditingAnyRow && edit?.mode === 'hideTable' && <RepeatingGroupsEditContainer />}
+          {isEditingAnyRow && editingIndex !== undefined && edit?.mode === 'hideTable' && (
+            <RepeatingGroupsEditContainer editIndex={editingIndex} />
+          )}
           {edit?.mode === 'showAll' &&
             // Generate array of length repeatingGroupIndex and iterate over indexes
             Array(numRows).map((_, index) => (
@@ -115,7 +117,10 @@ export function RepeatingGroupContainer({ node }: IRepGroupProps): JSX.Element |
                 key={index}
                 style={{ width: '100%', marginBottom: !isNested && index == lastIndex ? 15 : 0 }}
               >
-                <RepeatingGroupsEditContainer forceHideSaveButton={true} />
+                <RepeatingGroupsEditContainer
+                  editIndex={index}
+                  forceHideSaveButton={true}
+                />
               </div>
             ))}
         </>

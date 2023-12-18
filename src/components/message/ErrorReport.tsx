@@ -6,10 +6,8 @@ import { createSelector } from 'reselect';
 
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import classes from 'src/components/message/ErrorReport.module.css';
-import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { Lang } from 'src/features/language/Lang';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
@@ -40,7 +38,6 @@ const createMappedAndUnmappedErrors = (validations: IValidations): [FlatError[],
 const selectMappedUnmappedErrors = createSelector(selectValidations, createMappedAndUnmappedErrors);
 
 export const ErrorReport = ({ nodes }: IErrorReportProps) => {
-  const dispatch = useAppDispatch();
   const { currentPageId, navigateToPage } = useNavigatePage();
   const { setFocusId } = usePageNavigationContext();
   const [errorsMapped, errorsUnmapped] = useAppSelector(selectMappedUnmappedErrors);
@@ -103,24 +100,24 @@ export const ErrorReport = ({ nodes }: IErrorReportProps) => {
 
       // Go to correct multiPage page if necessary
       if (parentNode.item.edit?.multiPage && childNode.item.multiPageIndex !== undefined) {
-        const multiPageIndex = childNode.item.multiPageIndex;
-        dispatch(
-          FormLayoutActions.repGroupSetMultiPage({
-            groupId: parentNode.item.id,
-            page: multiPageIndex,
-          }),
-        );
+        // const multiPageIndex = childNode.item.multiPageIndex;
+        // dispatch(
+        //   FormLayoutActions.repGroupSetMultiPage({
+        //     groupId: parentNode.item.id,
+        //     page: multiPageIndex,
+        //   }),
+        // );
       }
 
       if (childNode?.rowIndex !== undefined) {
         // Set editIndex to rowIndex
-        dispatch(
-          FormLayoutActions.updateRepeatingGroupsEditIndex({
-            group: parentNode.item.id,
-            index: childNode.rowIndex,
-            currentPageId,
-          }),
-        );
+        // dispatch(
+        //   FormLayoutActions.updateRepeatingGroupsEditIndex({
+        //     group: parentNode.item.id,
+        //     index: childNode.rowIndex,
+        //     currentPageId,
+        //   }),
+        // );
       }
     }
 

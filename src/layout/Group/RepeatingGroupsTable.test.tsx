@@ -6,6 +6,7 @@ import ResizeObserverModule from 'resize-observer-polyfill';
 
 import { getFormLayoutGroupMock } from 'src/__mocks__/getFormLayoutGroupMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
+import { RepeatingGroupProvider } from 'src/layout/Group/RepeatingGroupContext';
 import { RepeatingGroupTable } from 'src/layout/Group/RepeatingGroupTable';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithNode } from 'src/test/renderWithProviders';
@@ -15,7 +16,6 @@ import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.genera
 import type { IOption } from 'src/layout/common.generated';
 import type { CompGroupRepeatingExternal, CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
-import type { IRepeatingGroupTableProps } from 'src/layout/Group/RepeatingGroupTable';
 import type { CompOrGroupExternal } from 'src/layout/layout';
 
 (global as any).ResizeObserver = ResizeObserverModule;
@@ -127,7 +127,7 @@ describe('RepeatingGroupTable', () => {
         return;
       }
 
-      await render({}, layout);
+      await render(layout);
 
       await act(() => user.click(screen.getAllByRole('button', { name: /slett/i })[0]));
 
@@ -187,17 +187,7 @@ describe('RepeatingGroupTable', () => {
     });
   });
 
-  const render = async (props: Partial<IRepeatingGroupTableProps> = {}, newLayout?: ILayoutState) => {
-    const allProps: IRepeatingGroupTableProps = {
-      ...({} as IRepeatingGroupTableProps),
-      editIndex: -1,
-      repeatingGroupIndex,
-      deleting: false,
-      onClickRemove: jest.fn(),
-      setEditIndex: jest.fn(),
-      ...props,
-    };
-
+  const render = async (newLayout?: ILayoutState) => {
     const reduxState = getInitialStateMock();
     reduxState.formLayout = newLayout || layout;
     reduxState.textResources.resourceMap = textResources;
@@ -207,10 +197,9 @@ describe('RepeatingGroupTable', () => {
       nodeId: group.id,
       inInstance: true,
       renderer: ({ node }) => (
-        <RepeatingGroupTable
-          {...allProps}
-          node={node}
-        />
+        <RepeatingGroupProvider node={node}>
+          <RepeatingGroupTable />
+        </RepeatingGroupProvider>
       ),
       reduxState,
     });

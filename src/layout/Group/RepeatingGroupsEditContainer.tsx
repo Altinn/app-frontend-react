@@ -9,6 +9,7 @@ import { Lang } from 'src/features/language/Lang';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Group/RepeatingGroup.module.css';
 import { useRepeatingGroup } from 'src/layout/Group/RepeatingGroupContext';
+import { RepeatingGroupEditRowProvider, useRepeatingGroupEdit } from 'src/layout/Group/RepeatingGroupsEditContext';
 import { useRepeatingGroupsFocusContext } from 'src/layout/Group/RepeatingGroupsFocusContext';
 import type { CompGroupRepeatingInternal, IGroupEditPropertiesInternal } from 'src/layout/Group/config.generated';
 
@@ -36,12 +37,17 @@ export function RepeatingGroupsEditContainer({
   }
 
   return (
-    <RepeatingGroupsEditContainerInternal
+    <RepeatingGroupEditRowProvider
+      node={node}
       editIndex={editIndex}
-      group={group}
-      row={row}
-      {...props}
-    />
+    >
+      <RepeatingGroupsEditContainerInternal
+        editIndex={editIndex}
+        group={group}
+        row={row}
+        {...props}
+      />
+    </RepeatingGroupEditRowProvider>
   );
 }
 
@@ -56,6 +62,8 @@ function RepeatingGroupsEditContainerInternal({
   row: CompGroupRepeatingInternal['rows'][number];
 }): JSX.Element | null {
   const { node, closeForEditing, deleteRow, openNextForEditing, isDeleting } = useRepeatingGroup();
+  const { multiPageEnabled, multiPageIndex, nextMultiPage, prevMultiPage, hasNextMultiPage, hasPrevMultiPage } =
+    useRepeatingGroupEdit();
   const id = node.item.id;
   const textsForRow = row.groupExpressions?.textResourceBindings;
   const editForRow = row.groupExpressions?.edit;
@@ -82,11 +90,7 @@ function RepeatingGroupsEditContainerInternal({
 
   const getGenericComponentsToRender = (): (JSX.Element | null)[] =>
     rowItems.map((n): JSX.Element | null => {
-      const isOnOtherMultiPage =
-        edit?.multiPage &&
-        typeof multiPageIndex === 'number' &&
-        multiPageIndex > -1 &&
-        n.item.multiPageIndex !== multiPageIndex;
+      const isOnOtherMultiPage = multiPageEnabled && n.item.multiPageIndex !== multiPageIndex;
 
       if (isOnOtherMultiPage) {
         return null;
@@ -174,37 +178,33 @@ function RepeatingGroupsEditContainerInternal({
               spacing={1}
               style={{ marginBottom: 12 }}
             >
-              {typeof multiPageIndex === 'number' &&
-                multiPageIndex > 0 &&
-                rowItems.filter((n) => n.item.multiPageIndex === multiPageIndex - 1).length > 0 && (
-                  <Grid item={true}>
-                    <Button
-                      icon={<Back aria-hidden='true' />}
-                      size='small'
-                      variant='tertiary'
-                      color='second'
-                      onClick={() => setMultiPageIndex && setMultiPageIndex(multiPageIndex - 1)}
-                    >
-                      <Lang id={'general.back'} />
-                    </Button>
-                  </Grid>
-                )}
-              {typeof multiPageIndex === 'number' &&
-                multiPageIndex > -1 &&
-                rowItems.filter((n) => n.item.multiPageIndex === multiPageIndex + 1).length > 0 && (
-                  <Grid item={true}>
-                    <Button
-                      icon={<Next aria-hidden='true' />}
-                      iconPlacement='right'
-                      size='small'
-                      variant='tertiary'
-                      color='second'
-                      onClick={() => setMultiPageIndex && setMultiPageIndex(multiPageIndex + 1)}
-                    >
-                      <Lang id={'general.next'} />
-                    </Button>
-                  </Grid>
-                )}
+              {hasPrevMultiPage && (
+                <Grid item={true}>
+                  <Button
+                    icon={<Back aria-hidden='true' />}
+                    size='small'
+                    variant='tertiary'
+                    color='second'
+                    onClick={() => prevMultiPage()}
+                  >
+                    <Lang id={'general.back'} />
+                  </Button>
+                </Grid>
+              )}
+              {hasNextMultiPage && (
+                <Grid item={true}>
+                  <Button
+                    icon={<Next aria-hidden='true' />}
+                    iconPlacement='right'
+                    size='small'
+                    variant='tertiary'
+                    color='second'
+                    onClick={() => nextMultiPage()}
+                  >
+                    <Lang id={'general.next'} />
+                  </Button>
+                </Grid>
+              )}
             </Grid>
           )}
           <Grid
