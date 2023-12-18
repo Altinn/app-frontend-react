@@ -39,7 +39,7 @@ export function DisplayGroupContainer({
   renderLayoutNode,
 }: IDisplayGroupContainer) {
   const container = groupNode.item;
-  const { title, description } = container.textResourceBindings ?? {};
+  const { title, summaryTitle, description } = container.textResourceBindings ?? {};
 
   if (groupNode.isHidden()) {
     return null;
@@ -48,16 +48,17 @@ export function DisplayGroupContainer({
   const isNested = groupNode.parent instanceof BaseLayoutNode;
   const headingLevel = Math.min(Math.max(groupNode.parents().length + 1, 2), 6) as HeadingLevel;
   const headingSize = headingSizes[headingLevel];
+  const legend = isSummary ? summaryTitle : title;
 
   return (
     <Fieldset
       legend={
-        title && (
+        legend && (
           <Heading
             level={headingLevel}
             size={headingSize}
           >
-            <Lang id={title} />
+            <Lang id={legend} />
           </Heading>
         )
       }
