@@ -17,6 +17,7 @@ import { useIsDev } from 'src/hooks/useIsDev';
 import { useMemoDeepEqual } from 'src/hooks/useMemoDeepEqual';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { DeprecatedActions } from 'src/redux/deprecatedSlice';
+import { flattenObject } from 'src/utils/databindings';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import type { FormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
 import type { FDNewValues, FormDataContext } from 'src/features/formData/FormDataWriteStateMachine';
@@ -140,19 +141,14 @@ function FormDataEffects({ url }: { url: string }) {
 
   const performSave = useCallback(
     (dataToSave: object) => {
-      const toSaveFlat = dot.dot(dataToSave);
-      const lastSavedDataFlat = dot.dot(lastSavedDataRef.current);
+      if (deepEqual(dataToSave, lastSavedDataRef.current) || isSavingRef.current) {
+        return;
+      }
+
+      const toSaveFlat = flattenObject(dataToSave);
+      const lastSavedDataFlat = flattenObject(lastSavedDataRef.current);
       const diff = diffModels(toSaveFlat, lastSavedDataFlat);
 
-      if (!Object.keys(diff).length) {
-        return;
-      }
-
-      if (isSavingRef.current) {
-        return;
-      }
-
-      console.log('debug, saving data model', dataToSave, lastSavedDataRef.current, diff);
       mutate({
         dataModelUrl: url,
         newData: dataToSave,

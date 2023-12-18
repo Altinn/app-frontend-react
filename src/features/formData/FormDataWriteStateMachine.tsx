@@ -119,7 +119,6 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
 
   function processChangedFields(state: FormDataContext, changedFields: IFormData | undefined) {
     if (changedFields && Object.keys(changedFields).length > 0) {
-      console.log('debug, processChangedFields', changedFields);
       for (const path of Object.keys(changedFields)) {
         const newValue = changedFields[path];
         if (newValue === null) {
@@ -163,13 +162,11 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
       set((state) => {
         const existingValue = dot.pick(path, state.currentData);
         if (existingValue === newValue) {
-          console.log('debug, setLeafValueImpl no-change', path, newValue);
           return;
         }
 
         processChange(state, rest);
         dot.str(path, String(newValue), state.currentData);
-        console.log('debug, setLeafValueImpl', path, newValue);
       }),
 
     // All the list methods perform their work immediately, without debouncing, so that UI updates for new/removed
@@ -225,7 +222,6 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
 
     setMultiLeafValues: ({ changes, ...rest }) =>
       set((state) => {
-        console.log('debug, setMultiLeafValuesImpl', changes);
         let changesFound = false;
         for (const { path, newValue } of changes) {
           const existingValue = dot.pick(path, state.currentData);
