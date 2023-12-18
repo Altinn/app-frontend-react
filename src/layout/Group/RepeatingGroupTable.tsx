@@ -19,7 +19,7 @@ import type { GridRowsInternal, ITableColumnFormatting } from 'src/layout/common
 
 export function RepeatingGroupTable(): JSX.Element | null {
   const mobileView = useIsMobileOrTablet();
-  const { node, isEditingAnyRow, isEditing, toggleEditing } = useRepeatingGroup();
+  const { node, isEditing } = useRepeatingGroup();
   const rowsBefore = node.item.rowsBefore;
   const rowsAfter = node.item.rowsAfter;
 

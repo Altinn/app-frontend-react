@@ -72,17 +72,22 @@ export interface FDNewValues extends FDChange {
   changes: FDNewValue[];
 }
 
-export interface FDAppendToListUnique extends FDChange {
+export interface FDAppendToListUnique {
   path: string;
   newValue: any;
 }
 
-export interface FDRemoveIndexFromList extends FDChange {
+export interface FDAppendToList {
+  path: string;
+  newValue: any;
+}
+
+export interface FDRemoveIndexFromList {
   path: string;
   index: number;
 }
 
-export interface FDRemoveValueFromList extends FDChange {
+export interface FDRemoveValueFromList {
   path: string;
   value: any;
 }
@@ -93,6 +98,7 @@ export interface FormDataMethods {
   setLeafValue: (change: FDNewValue) => void;
   setMultiLeafValues: (changes: FDNewValues) => void;
   appendToListUnique: (change: FDAppendToListUnique) => void;
+  appendToList: (change: FDAppendToList) => void;
   removeIndexFromList: (change: FDRemoveIndexFromList) => void;
   removeValueFromList: (change: FDRemoveValueFromList) => void;
 
@@ -165,40 +171,50 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
         dot.str(path, String(newValue), state.currentData);
         console.log('debug, setLeafValueImpl', path, newValue);
       }),
-    appendToListUnique: ({ path, newValue, ...rest }) =>
-      set((state) => {
-        const existingValue = dot.pick(path, state.currentData);
-        if (existingValue.includes(newValue)) {
-          console.log('debug, appendToListImpl no-change', path, newValue);
-          return;
-        }
 
-        processChange(state, rest);
-        dot.str(path, [...existingValue, newValue], state.currentData);
-        console.log('debug, appendToListImpl', path, newValue);
-      }),
-    removeIndexFromList: ({ path, index, ...rest }) =>
+    // All the list methods perform their work immediately, without debouncing, so that UI updates for new/removed
+    // list items are immediate.
+    appendToListUnique: ({ path, newValue }) =>
       set((state) => {
-        const existingValue = dot.pick(path, state.currentData);
-        if (index >= existingValue.length) {
-          console.log('debug, removeIndexFromListImpl no-change', path, index);
-          return;
-        }
+        for (const model of [state.currentData, state.debouncedCurrentData]) {
+          const existingValue = dot.pick(path, model);
+          if (existingValue.includes(newValue)) {
+            continue;
+          }
 
-        processChange(state, rest);
-        throw new Error('Not implemented');
+          dot.str(path, [...existingValue, newValue], model);
+        }
       }),
-    removeValueFromList: ({ path, value, ...rest }) =>
+    appendToList: ({ path, newValue }) =>
       set((state) => {
-        const existingValue = dot.pick(path, state.currentData);
-        if (!existingValue.includes(value)) {
-          console.log('debug, removeValueFromListImpl no-change', path, value);
-          return;
+        for (const model of [state.currentData, state.debouncedCurrentData]) {
+          const existingValue = dot.pick(path, model);
+          dot.str(path, [...existingValue, newValue], model);
         }
-
-        processChange(state, rest);
-        throw new Error('Not implemented');
       }),
+    removeIndexFromList: ({ path, index }) =>
+      set((state) => {
+        for (const model of [state.currentData, state.debouncedCurrentData]) {
+          const existingValue = dot.pick(path, model);
+          if (index >= existingValue.length) {
+            continue;
+          }
+
+          existingValue.splice(index, 1);
+        }
+      }),
+    removeValueFromList: ({ path, value }) =>
+      set((state) => {
+        for (const model of [state.currentData, state.debouncedCurrentData]) {
+          const existingValue = dot.pick(path, model);
+          if (!existingValue.includes(value)) {
+            continue;
+          }
+
+          existingValue.splice(existingValue.indexOf(value), 1);
+        }
+      }),
+
     setMultiLeafValues: ({ changes, ...rest }) =>
       set((state) => {
         console.log('debug, setMultiLeafValuesImpl', changes);

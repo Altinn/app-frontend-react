@@ -497,6 +497,11 @@ export const FD = {
   useAppendToListUnique: () => useSelector((s) => s.appendToListUnique),
 
   /**
+   * Returns a function to append a value to a list. It will always append the value, even if it is already in the list.
+   */
+  useAppendToList: () => useSelector((s) => s.appendToList),
+
+  /**
    * Returns a function to remove a value from a list, by index. You should try to avoid using this, as it might
    * not do what you want if it is triggered at a moment where your copy of the form data is outdated. Calling this
    * function twice in a row for index 0 will remove the first item in the list, even if the list has changed in

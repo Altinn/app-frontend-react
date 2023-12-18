@@ -185,6 +185,10 @@ export function makeDefaultFormDataMethodMocks(): FormDataWriteGatekeepers {
       .fn()
       .mockImplementation(() => true)
       .mockName('appendToListUnique'),
+    appendToList: jest
+      .fn()
+      .mockImplementation(() => true)
+      .mockName('appendToList'),
     unlock: jest
       .fn()
       .mockImplementation(() => true)

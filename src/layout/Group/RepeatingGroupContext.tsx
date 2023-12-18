@@ -3,6 +3,7 @@ import type { PropsWithChildren } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
 import { useAttachmentDeletionInRepGroups } from 'src/features/attachments/useAttachmentDeletionInRepGroups';
+import { FD } from 'src/features/formData/FormDataWrite';
 import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 
@@ -37,6 +38,10 @@ function useRepeatingGroupState(node: LayoutNodeForGroup<CompGroupRepeatingInter
   const [editingIndex, setEditingIndex] = useState<number | undefined>(undefined);
   const [deletingIndexes, setDeletingIndexes] = useState<number[]>([]);
   const { onBeforeRowDeletion } = useAttachmentDeletionInRepGroups(node);
+
+  const binding = node.item.dataModelBindings?.group;
+  const appendToList = FD.useAppendToList();
+  const removeIndexFromList = FD.useRemoveIndexFromList();
 
   const toggleEditing = useCallback(
     (index: number) => {
@@ -97,23 +102,32 @@ function useRepeatingGroupState(node: LayoutNodeForGroup<CompGroupRepeatingInter
   );
 
   const addRow = useCallback(() => {
-    // TODO: Write to form data
+    if (binding) {
+      appendToList({
+        path: binding,
+        newValue: {},
+      });
+    }
+
     openForEditing(node.item.rows.length);
-  }, [node.item.rows.length, openForEditing]);
+  }, [appendToList, binding, node.item.rows.length, openForEditing]);
 
   const deleteRow = useCallback(
     async (index: number) => {
       setDeletingIndexes([...deletingIndexes, index]);
       const attachmentDeletionSuccessful = await onBeforeRowDeletion(index);
-      if (attachmentDeletionSuccessful) {
-        // TODO: Write to form data
+      if (attachmentDeletionSuccessful && binding) {
+        removeIndexFromList({
+          path: binding,
+          index,
+        });
 
         return true;
       }
 
       return false;
     },
-    [deletingIndexes, onBeforeRowDeletion],
+    [binding, deletingIndexes, onBeforeRowDeletion, removeIndexFromList],
   );
 
   const isDeleting = useCallback((index: number) => deletingIndexes.includes(index), [deletingIndexes]);

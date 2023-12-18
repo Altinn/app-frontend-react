@@ -17,10 +17,6 @@ import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 
-export interface IRepGroupProps {
-  node: LayoutNodeForGroup<CompGroupRepeatingInternal>;
-}
-
 function getValidationMethod(node: LayoutNodeForGroup<CompGroupRepeatingInternal>) {
   // Validation for whole group takes precedent over single-row validation if both are present.
   const triggers = node.item.triggers;
@@ -32,12 +28,13 @@ function getValidationMethod(node: LayoutNodeForGroup<CompGroupRepeatingInternal
   }
 }
 
-export function RepeatingGroupContainer({ node }: IRepGroupProps): JSX.Element | null {
+export function RepeatingGroupContainer(): JSX.Element | null {
   const { triggerFocus } = useRepeatingGroupsFocusContext();
+  const { node, isEditingAnyRow, editingIndex, addRow } = useRepeatingGroup();
+
   const resolvedTextBindings = node.item.textResourceBindings;
   const id = node.item.id;
   const edit = node.item.edit;
-  const { isEditingAnyRow, editingIndex, addRow } = useRepeatingGroup();
 
   const numRows = node.item.rows.length;
   const lastIndex = numRows - 1;

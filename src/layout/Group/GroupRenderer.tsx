@@ -21,10 +21,7 @@ export function GroupRenderer({ node }: GroupRendererProps) {
     return (
       <RepeatingGroupsFocusProvider>
         <RepeatingGroupProvider node={node}>
-          <RepeatingGroupContainer
-            node={node}
-            key={node.item.id}
-          />
+          <RepeatingGroupContainer />
         </RepeatingGroupProvider>
       </RepeatingGroupsFocusProvider>
     );
