@@ -178,18 +178,26 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
       set((state) => {
         for (const model of [state.currentData, state.debouncedCurrentData]) {
           const existingValue = dot.pick(path, model);
-          if (existingValue.includes(newValue)) {
+          if (Array.isArray(existingValue) && existingValue.includes(newValue)) {
             continue;
           }
 
-          dot.str(path, [...existingValue, newValue], model);
+          if (Array.isArray(existingValue)) {
+            existingValue.push(newValue);
+          } else {
+            dot.str(path, [newValue], model);
+          }
         }
       }),
     appendToList: ({ path, newValue }) =>
       set((state) => {
         for (const model of [state.currentData, state.debouncedCurrentData]) {
           const existingValue = dot.pick(path, model);
-          dot.str(path, [...existingValue, newValue], model);
+          if (Array.isArray(existingValue)) {
+            existingValue.push(newValue);
+          } else {
+            dot.str(path, [newValue], model);
+          }
         }
       }),
     removeIndexFromList: ({ path, index }) =>

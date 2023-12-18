@@ -114,7 +114,12 @@ function useRepeatingGroupState(node: LayoutNodeForGroup<CompGroupRepeatingInter
 
   const deleteRow = useCallback(
     async (index: number) => {
-      setDeletingIndexes([...deletingIndexes, index]);
+      setDeletingIndexes((prev) => {
+        if (prev.includes(index)) {
+          return prev;
+        }
+        return [...prev, index];
+      });
       const attachmentDeletionSuccessful = await onBeforeRowDeletion(index);
       if (attachmentDeletionSuccessful && binding) {
         removeIndexFromList({
@@ -122,12 +127,26 @@ function useRepeatingGroupState(node: LayoutNodeForGroup<CompGroupRepeatingInter
           index,
         });
 
+        setEditingIndex((prev) => {
+          if (prev === index) {
+            return undefined;
+          }
+          return prev;
+        });
+        setDeletingIndexes((prev) => {
+          const idx = prev.indexOf(index);
+          if (idx === -1) {
+            return prev;
+          }
+          return [...prev.slice(0, idx), ...prev.slice(idx + 1)];
+        });
+
         return true;
       }
 
       return false;
     },
-    [binding, deletingIndexes, onBeforeRowDeletion, removeIndexFromList],
+    [binding, onBeforeRowDeletion, removeIndexFromList],
   );
 
   const isDeleting = useCallback((index: number) => deletingIndexes.includes(index), [deletingIndexes]);
