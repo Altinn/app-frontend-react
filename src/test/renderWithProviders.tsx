@@ -624,7 +624,6 @@ const mockGenericComponentProps: IComponentProps<CompTypes> = {
   },
   shouldFocus: false,
   isValid: undefined,
-  validations: [],
   label: () => {
     throw new Error('Rendered mock label, override this yourself');
   },

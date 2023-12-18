@@ -12,6 +12,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { hasValidationErrors } from 'src/features/validation/utils';
+import { useUnifiedValidationsForNode } from 'src/features/validation/validationProvider';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { AttachmentsCounter } from 'src/layout/FileUpload/AttachmentsCounter';
 import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneComponent';
@@ -22,11 +23,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IFileUploadWithTagProps = PropsFromGenericComponent<'FileUpload' | 'FileUploadWithTag'>;
 
-export function FileUploadComponent({
-  validations,
-  node,
-  handleDataChange,
-}: IFileUploadWithTagProps): React.JSX.Element {
+export function FileUploadComponent({ node, handleDataChange }: IFileUploadWithTagProps): React.JSX.Element {
   const {
     id,
     maxFileSizeInMB,
@@ -47,10 +44,10 @@ export function FileUploadComponent({
     node,
   });
 
+  const validations = useUnifiedValidationsForNode(node);
   const componentValidations = validations?.filter((v) => !v.meta?.attachmentId);
 
   const langTools = useLanguage();
-  const { langAsString } = langTools;
 
   const { options } = useGetOptions({
     ...node.item,

@@ -5,6 +5,7 @@ import { Typography } from '@material-ui/core';
 
 import { RadioButton } from 'src/components/form/RadioButton';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
+import { useUnifiedValidationsForNode } from 'src/features/validation/validationProvider';
 import { LayoutStyle } from 'src/layout/common.generated';
 import classes from 'src/layout/Likert/LikertComponent.module.css';
 import { ControlledRadioGroup } from 'src/layout/RadioButtons/ControlledRadioGroup';
@@ -29,8 +30,9 @@ export const LikertComponent = (props: PropsFromGenericComponent<'Likert'>) => {
 };
 
 const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
-  const { node, validations, legend } = props;
+  const { node, legend } = props;
   const { selected, handleChange, calculatedOptions, handleBlur, fetchingOptions } = useRadioButtons(props);
+  const validations = useUnifiedValidationsForNode(node);
 
   const id = node.item.id;
   const groupContainerId = node.closest((n) => n.type === 'Group')?.item.id;

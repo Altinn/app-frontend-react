@@ -16,7 +16,6 @@ import type {
   FormValidations,
   ISchemaValidationError,
   IValidationContext,
-  NodeValidation,
 } from 'src/features/validation';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { CompInternal, CompRendersLabel, CompTypes } from 'src/layout/layout';
@@ -57,7 +56,6 @@ export interface IComponentProps<T extends CompTypes> {
   legend: () => JSX.Element | null;
   formData: IComponentFormData<T>;
   isValid?: boolean;
-  validations?: NodeValidation[];
 }
 
 export interface PropsFromGenericComponent<T extends CompTypes = CompTypes> extends IComponentProps<T> {

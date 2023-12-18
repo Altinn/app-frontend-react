@@ -492,7 +492,7 @@ export function useComponentValidationsForNode(node: LayoutNode): NodeValidation
     }
     const validations = validationsFromGroups(component.component!, getVisibilityForNode(node, visibility));
     return validations.map((validation) => buildNodeValidation(node, validation));
-  }, [component.component, node, visibility]);
+  }, [component, node, visibility]);
 }
 
 /**

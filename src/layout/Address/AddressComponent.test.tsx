@@ -2,9 +2,7 @@ import React from 'react';
 
 import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import mockAxios from 'jest-mock-axios';
 
-import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { AddressComponent } from 'src/layout/Address/AddressComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
@@ -12,6 +10,7 @@ import type { RenderGenericComponentTestProps } from 'src/test/renderWithProvide
 const render = async ({
   component,
   genericProps,
+  queries,
 }: Partial<RenderGenericComponentTestProps<'AddressComponent'>> = {}) => {
   await renderGenericComponentTest({
     type: 'AddressComponent',
@@ -29,6 +28,10 @@ const render = async ({
       },
       isValid: true,
       ...genericProps,
+    },
+    queries: {
+      fetchPostPlace: () => Promise.resolve({ valid: true, result: 'OSLO' }),
+      ...queries,
     },
   });
 };
@@ -111,10 +114,11 @@ describe('AddressComponent', () => {
     expect(handleDataChange).not.toHaveBeenCalled();
   });
 
-  it('should show error message on blur if zipcode is invalid, and not call handleDataChange', async () => {
+  it('should show error message on blur if zipcode is invalid', async () => {
     const handleDataChange = jest.fn();
     await render({
       component: {
+        showValidations: ['Component'],
         required: true,
         simplified: false,
       },
@@ -133,7 +137,6 @@ describe('AddressComponent', () => {
 
     const errorMessage = screen.getByText(/Postnummer er ugyldig\. Et postnummer består kun av 4 siffer\./i);
 
-    expect(handleDataChange).not.toHaveBeenCalled();
     expect(errorMessage).toBeInTheDocument();
   });
 
@@ -152,16 +155,6 @@ describe('AddressComponent', () => {
         handleDataChange,
       },
     });
-
-    mockAxios.mockResponseFor(
-      { url: 'https://api.bring.com/shippingguide/api/postalCode.json' },
-      {
-        data: {
-          valid: true,
-          result: 'OSLO',
-        },
-      },
-    );
 
     await screen.findByDisplayValue('OSLO');
 
@@ -201,14 +194,14 @@ describe('AddressComponent', () => {
         formData: {
           address: 'a',
           zipCode: '0001',
-          postPlace: 'Oslo',
+          postPlace: 'OSLO',
         },
         handleDataChange,
       },
     });
 
     expect(screen.getByDisplayValue('0001')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('Oslo')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('OSLO')).toBeInTheDocument();
 
     const field = screen.getByRole('textbox', { name: 'Postnr' });
 
@@ -217,36 +210,6 @@ describe('AddressComponent', () => {
 
     expect(handleDataChange).toHaveBeenCalledWith('', { key: 'zipCode' });
     expect(handleDataChange).toHaveBeenCalledWith('', { key: 'postPlace' });
-  });
-
-  it('should display error message coming from props', async () => {
-    const errorMessage = 'cannot be empty;';
-    const handleDataChange = jest.fn();
-    await render({
-      genericProps: {
-        formData: {
-          address: '',
-        },
-        handleDataChange,
-        validations: [
-          {
-            group: FrontendValidationSource.EmptyField,
-            componentId: 'address',
-            message: { key: errorMessage },
-            severity: 'error',
-            bindingKey: 'address',
-            pageKey: 'page1',
-            category: ValidationMask.Required,
-          },
-        ],
-      },
-      component: {
-        required: true,
-        simplified: false,
-      },
-    });
-
-    expect(screen.getByText(errorMessage)).toBeInTheDocument();
   });
 
   it('should display no extra markings when required is false, and labelSettings.optionalIndicator is not true', async () => {

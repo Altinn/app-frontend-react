@@ -248,7 +248,6 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     shouldFocus,
     label: RenderLabel,
     legend: RenderLegend,
-    validations,
   };
 
   const componentProps: PropsFromGenericComponent<Type> = {
