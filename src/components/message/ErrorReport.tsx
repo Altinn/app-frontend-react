@@ -15,11 +15,10 @@ import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
 import { AsciiUnitSeparator } from 'src/layout/FileUpload/utils/asciiUnitSeparator';
 import { GenericComponent } from 'src/layout/GenericComponent';
-import { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import { useExprContext } from 'src/utils/layout/ExprContext';
+import { BaseLayoutNode, type LayoutNode } from 'src/utils/layout/LayoutNode';
 import { getMappedErrors, getUnmappedErrors } from 'src/utils/validation/validation';
 import type { IRuntimeState } from 'src/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IValidations } from 'src/utils/validation/types';
 import type { FlatError } from 'src/utils/validation/validation';
 
@@ -68,7 +67,7 @@ export const ErrorReport = ({ nodes }: IErrorReportProps) => {
 
     const allParents = componentNode?.parents() || [];
     for (const [i, parentNode] of allParents.entries()) {
-      if (!(parentNode instanceof LayoutNodeForGroup && parentNode.isRepGroup())) {
+      if (!(parentNode instanceof BaseLayoutNode && parentNode.isType('RepeatingGroup'))) {
         continue;
       }
       const editMode = parentNode.item.edit?.mode;

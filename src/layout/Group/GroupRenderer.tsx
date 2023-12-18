@@ -2,8 +2,6 @@ import React from 'react';
 
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { DisplayGroupContainer } from 'src/layout/Group/DisplayGroupContainer';
-import { GroupContainer } from 'src/layout/Group/GroupContainer';
-import { RepeatingGroupsFocusProvider } from 'src/layout/Group/RepeatingGroupsFocusContext';
 import { PanelGroupContainer } from 'src/layout/Panel/PanelGroupContainer';
 import { PanelReferenceGroupContainer } from 'src/layout/Panel/PanelReferenceGroupContainer';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -11,17 +9,6 @@ import type { PropsFromGenericComponent } from 'src/layout';
 export type GroupRendererProps = PropsFromGenericComponent<'Group'>;
 
 export function GroupRenderer({ node }: GroupRendererProps) {
-  if (node.isRepGroup()) {
-    return (
-      <RepeatingGroupsFocusProvider>
-        <GroupContainer
-          node={node}
-          key={node.item.id}
-        />
-      </RepeatingGroupsFocusProvider>
-    );
-  }
-
   // panel with groupReference
   if (node.isNonRepPanelGroup() && node.item.panel.groupReference) {
     return (
@@ -58,7 +45,5 @@ export function GroupRenderer({ node }: GroupRendererProps) {
     );
   }
 
-  // Invalid configuration
-  window.logErrorOnce(`Group ${node.item.id} has an invalid configuration.`);
   return null;
 }

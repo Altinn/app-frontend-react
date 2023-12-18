@@ -53,7 +53,7 @@ export class FileUpload extends FileUploadDef implements ComponentValidation {
 
   isDataModelBindingsRequired(node: LayoutNode<'FileUpload'>): boolean {
     // Data model bindings are only required when the component is defined inside a repeating group
-    return !(node.parent instanceof LayoutPage) && node.parent.isType('Group') && node.parent.isRepGroup();
+    return !(node.parent instanceof LayoutPage) && node.parent.isType('RepeatingGroup');
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'FileUpload'>): string[] {

@@ -16,7 +16,7 @@ describe('repGroupDeleteRowSaga', function () {
     const state: IRuntimeState = getInitialStateMock();
     state.formLayout.layouts?.FormLayout?.push({
       id: 'repeating-group',
-      type: 'Group',
+      type: 'RepeatingGroup',
       dataModelBindings: {
         group: 'Group',
       },

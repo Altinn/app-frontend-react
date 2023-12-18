@@ -31,7 +31,7 @@ describe('SummaryGroupComponent', () => {
       };
       state.formLayout.layouts!.FormLayout = [
         {
-          type: 'Group',
+          type: 'RepeatingGroup',
           id: 'groupComponent',
           dataModelBindings: {
             group: 'mockGroup',

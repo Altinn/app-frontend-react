@@ -2,8 +2,8 @@ import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
-import { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import { useExprContext } from 'src/utils/layout/ExprContext';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IData, IDataType } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -77,7 +77,7 @@ function mapAttachments(
       const listBinding = 'list' in formData ? formData.list : undefined;
       const nodeIsInRepeatingGroup = node
         .parents()
-        .some((parent) => parent instanceof LayoutNodeForGroup && parent.isRepGroup());
+        .some((parent) => parent instanceof BaseLayoutNode && parent.isType('RepeatingGroup'));
 
       if (simpleBinding && simpleBinding === data.id) {
         addAttachment(attachments, node, data);

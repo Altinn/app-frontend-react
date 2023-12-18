@@ -8,9 +8,6 @@ export function getFormLayoutStateMock(customStates?: Partial<ILayoutState>): IL
         {
           id: 'referencedGroup',
           type: 'Group',
-          dataModelBindings: {
-            group: 'referencedGroup',
-          },
           children: ['referenced-group-child'],
         },
         {

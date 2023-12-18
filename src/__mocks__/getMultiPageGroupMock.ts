@@ -1,8 +1,8 @@
-import type { CompGroupRepeatingExternal } from 'src/layout/Group/config.generated';
+import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
 
-export function getMultiPageGroupMock(id = 'multipageGroup'): CompGroupRepeatingExternal {
+export function getMultiPageGroupMock(id = 'multipageGroup'): CompRepeatingGroupExternal {
   return {
-    type: 'Group',
+    type: 'RepeatingGroup',
     id,
     dataModelBindings: {
       group: 'multipageGroup',

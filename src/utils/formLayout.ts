@@ -1,7 +1,6 @@
-import { groupIsRepeatingExt } from 'src/layout/Group/tools';
-import type { CompGroupExternal } from 'src/layout/Group/config.generated';
 import type { CompExternal, ILayout } from 'src/layout/layout';
 import type { CompLikertGroupExternal, ILikertGroupEditProperties } from 'src/layout/LikertGroup/config.generated';
+import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { ILayoutSets, IRepeatingGroups } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -80,18 +79,18 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
   const repeatingGroups: IRepeatingGroups = {};
 
   const groups = formLayout.filter(
-    (layoutElement) => layoutElement.type === 'Group' || layoutElement.type === 'LikertGroup',
+    (layoutElement) => layoutElement.type === 'RepeatingGroup' || layoutElement.type === 'LikertGroup',
   );
 
   const childGroups: string[] = [];
-  groups.forEach((group: CompGroupExternal) => {
+  groups.forEach((group: CompRepeatingGroupExternal) => {
     group.children?.forEach((childId: string) => {
       formLayout
         .filter((element) => {
-          if (element.type !== 'Group' && element.type !== 'LikertGroup') {
-            return false;
-          }
-          if (groupIsRepeatingExt(group) && group.edit?.multiPage) {
+          // if (element.type !== 'RepeatingGroup' && element.type !== 'LikertGroup') {
+          //   return false;
+          // }
+          if (element.type === 'RepeatingGroup' && group.edit?.multiPage) {
             return childId.split(':')[1] === element.id;
           }
           return element.id === childId;
@@ -103,63 +102,65 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
   // filter away groups that should be rendered as child groups
   const filteredGroups = groups.filter((group) => childGroups.indexOf(group.id) === -1);
 
-  filteredGroups.forEach((groupElement: CompGroupExternal | CompLikertGroupExternal) => {
-    if (groupElement.type === 'LikertGroup' || groupIsRepeatingExt(groupElement)) {
-      const groupFormData = Object.keys(formData)
-        .filter((key) => groupElement.dataModelBindings?.group && key.startsWith(groupElement.dataModelBindings.group))
-        .sort();
-      if (groupFormData && groupFormData.length > 0) {
-        const maxIndex = getMaxIndexInKeys(groupFormData);
-        if (maxIndex !== -1) {
-          const index = maxIndex;
-          repeatingGroups[groupElement.id] = {
-            index,
-            dataModelBinding: groupElement.dataModelBindings?.group,
-            editIndex: -1,
-            multiPageIndex: -1,
-          };
-          const groupElementChildGroups: string[] = [];
-          groupElement.children?.forEach((id) => {
-            if (
-              groupElement.type !== 'LikertGroup' &&
-              groupIsRepeatingExt(groupElement) &&
-              groupElement.edit?.multiPage &&
-              childGroups.includes(id.split(':')[1])
-            ) {
-              groupElementChildGroups.push(id.split(':')[1]);
-            } else if (childGroups.includes(id)) {
-              groupElementChildGroups.push(id);
-            }
-          });
-          groupElementChildGroups.forEach((childGroupId: string) => {
-            const childGroup = groups.find((element) => element.id === childGroupId) as CompGroupExternal;
-            [...Array(index + 1)].forEach((_x: any, childGroupIndex: number) => {
-              const groupId = `${childGroup?.id}-${childGroupIndex}`;
-              repeatingGroups[groupId] = {
-                index: getIndexForNestedRepeatingGroup(
-                  formData,
-                  childGroup && 'dataModelBindings' in childGroup ? childGroup?.dataModelBindings?.group : undefined,
-                  groupElement?.dataModelBindings?.group,
-                  childGroupIndex,
-                ),
-                baseGroupId: childGroup?.id,
-                editIndex: -1,
-                multiPageIndex: -1,
-                dataModelBinding:
-                  childGroup && 'dataModelBindings' in childGroup ? childGroup?.dataModelBindings?.group : undefined,
-              };
-            });
-          });
-        }
-      } else {
+  filteredGroups.forEach((groupElement: CompRepeatingGroupExternal | CompLikertGroupExternal) => {
+    // if (groupElement.type === 'LikertGroup' || groupIsRepeatingExt(groupElement)) {
+    const groupFormData = Object.keys(formData)
+      .filter((key) => groupElement.dataModelBindings?.group && key.startsWith(groupElement.dataModelBindings.group))
+      .sort();
+    if (groupFormData && groupFormData.length > 0) {
+      const maxIndex = getMaxIndexInKeys(groupFormData);
+      if (maxIndex !== -1) {
+        const index = maxIndex;
         repeatingGroups[groupElement.id] = {
-          index: -1,
+          index,
           dataModelBinding: groupElement.dataModelBindings?.group,
           editIndex: -1,
           multiPageIndex: -1,
         };
+        const groupElementChildGroups: string[] = [];
+        groupElement.children?.forEach((id) => {
+          if (
+            groupElement.type !== 'LikertGroup' &&
+            // groupIsRepeatingExt(groupElement) &&
+            groupElement.edit?.multiPage &&
+            childGroups.includes(id.split(':')[1])
+          ) {
+            groupElementChildGroups.push(id.split(':')[1]);
+          } else if (childGroups.includes(id)) {
+            groupElementChildGroups.push(id);
+          }
+        });
+        groupElementChildGroups.forEach((childGroupId: string) => {
+          const childGroup = groups.find((element) => element.id === childGroupId) as
+            | CompRepeatingGroupExternal
+            | CompLikertGroupExternal;
+          [...Array(index + 1)].forEach((_x: any, childGroupIndex: number) => {
+            const groupId = `${childGroup?.id}-${childGroupIndex}`;
+            repeatingGroups[groupId] = {
+              index: getIndexForNestedRepeatingGroup(
+                formData,
+                childGroup && 'dataModelBindings' in childGroup ? childGroup?.dataModelBindings?.group : undefined,
+                groupElement?.dataModelBindings?.group,
+                childGroupIndex,
+              ),
+              baseGroupId: childGroup?.id,
+              editIndex: -1,
+              multiPageIndex: -1,
+              dataModelBinding:
+                childGroup && 'dataModelBindings' in childGroup ? childGroup?.dataModelBindings?.group : undefined,
+            };
+          });
+        });
       }
+    } else {
+      repeatingGroups[groupElement.id] = {
+        index: -1,
+        dataModelBinding: groupElement.dataModelBindings?.group,
+        editIndex: -1,
+        multiPageIndex: -1,
+      };
     }
+    // }
   });
   return repeatingGroups;
 }
@@ -260,9 +261,9 @@ export function findChildren(
 
   if (root) {
     for (const item of layout) {
-      if (item.type === 'Group' && item.children) {
+      if ((item.type === 'Group' || item.type === 'RepeatingGroup') && item.children) {
         for (const childId of item.children) {
-          const cleanId = groupIsRepeatingExt(item) && item.edit?.multiPage ? childId.split(':')[1] : childId;
+          const cleanId = item.type === 'RepeatingGroup' && item.edit?.multiPage ? childId.split(':')[1] : childId;
           if (item.id === root) {
             toConsider.add(cleanId);
           } else {

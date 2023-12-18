@@ -29,6 +29,8 @@ import type {
 } from 'src/features/expressions/types';
 import type { CompGroupExternal } from 'src/layout/Group/config.generated';
 import type { CompExternal } from 'src/layout/layout';
+import type { CompLikertGroupExternal } from 'src/layout/LikertGroup/config.generated';
+import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { IAuthContext, IInstanceDataSources } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -860,7 +862,10 @@ export const ExprConfigForComponent: ExprObjConfig<CompExternal> = {
   },
 };
 
-export const ExprConfigForGroup: ExprObjConfig<CompGroupExternal> = {
+export const ExprConfigForGroup:
+  | ExprObjConfig<CompGroupExternal>
+  | ExprObjConfig<CompRepeatingGroupExternal>
+  | ExprObjConfig<CompLikertGroupExternal> = {
   ...ExprConfigForComponent,
   hiddenRow: {
     returnType: ExprVal.Boolean,

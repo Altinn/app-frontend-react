@@ -4,7 +4,6 @@ import {
   implementsEmptyFieldValidation,
   implementsSchemaValidation,
 } from 'src/layout';
-import { groupIsRepeatingExt } from 'src/layout/Group/tools';
 import { runExpressionValidationsOnNode } from 'src/utils/validation/expressionValidation';
 import { getSchemaValidationErrors } from 'src/utils/validation/schemaValidation';
 import { emptyValidation } from 'src/utils/validation/validationHelpers';
@@ -13,6 +12,8 @@ import type { IFormData } from 'src/features/formData';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { CompGroupExternal } from 'src/layout/Group/config.generated';
 import type { CompInternal, CompOrGroupExternal, ILayout, ILayouts } from 'src/layout/layout';
+import type { CompLikertGroupExternal } from 'src/layout/LikertGroup/config.generated';
+import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { IRepeatingGroups } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
@@ -93,14 +94,17 @@ export function runValidationOnNodes(
  * @see useResolvedNode
  * @see ResolvedNodesSelector
  */
-export function getParentGroup(groupId: string, layout: ILayout): CompGroupExternal | undefined {
+export function getParentGroup(
+  groupId: string,
+  layout: ILayout,
+): CompGroupExternal | CompRepeatingGroupExternal | CompLikertGroupExternal | undefined {
   if (!groupId || !layout) {
     return undefined;
   }
   return layout.find((element) => {
-    if (element.id !== groupId && element.type === 'Group') {
+    if ((element.id !== groupId && element.type === 'Group') || element.type === 'RepeatingGroup') {
       const childrenWithoutMultiPage = element.children?.map((childId) =>
-        groupIsRepeatingExt(element) && element.edit?.multiPage ? childId.split(':')[1] : childId,
+        element.type === 'RepeatingGroup' && element.edit?.multiPage ? childId.split(':')[1] : childId,
       );
       if (childrenWithoutMultiPage?.indexOf(groupId) > -1) {
         return true;
@@ -117,11 +121,12 @@ export function getParentGroup(groupId: string, layout: ILayout): CompGroupExter
  * @see ResolvedNodesSelector
  */
 export function getGroupChildren(groupId: string, layout: ILayout): CompOrGroupExternal[] {
-  const layoutGroup = layout.find((element) => element.id === groupId) as CompGroupExternal;
+  // TODO: Added an any type temporarily to fix type error for repeatingGroup
+  const layoutGroup = layout.find((element) => element.id === groupId) as CompGroupExternal | any;
   return layout.filter(
     (element) =>
       layoutGroup?.children
-        ?.map((id) => (groupIsRepeatingExt(layoutGroup) && layoutGroup.edit?.multiPage ? id.split(':')[1] : id))
+        ?.map((id) => (layoutGroup && layoutGroup.edit?.multiPage ? id.split(':')[1] : id))
         .includes(element.id),
   );
 }
@@ -206,10 +211,6 @@ export const getMappedErrors = (validations: IValidations): FlatError[] => {
 
   for (const layout in validations) {
     for (const componentId in validations[layout]) {
-      if (componentId === 'unmapped') {
-        continue;
-      }
-
       const validationObject = validations[layout][componentId];
       for (const fieldKey in validationObject) {
         for (const message of validationObject[fieldKey]?.errors || []) {

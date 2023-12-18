@@ -13,7 +13,7 @@ import { useAlertOnChange } from 'src/hooks/useAlertOnChange';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { implementsDisplayData, useDisplayDataProps } from 'src/layout';
 import { GenericComponent } from 'src/layout/GenericComponent';
-import classes from 'src/layout/Group/RepeatingGroup.module.css';
+import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
 import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import type { IUseLanguage } from 'src/features/language/useLanguage';

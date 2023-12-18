@@ -42,7 +42,7 @@ describe('utils/databindings.ts', () => {
     testLayout = [
       {
         id: testGroupId,
-        type: 'Group',
+        type: 'RepeatingGroup',
         dataModelBindings: {
           group: 'Group',
         },
@@ -51,7 +51,7 @@ describe('utils/databindings.ts', () => {
       },
       {
         id: 'group2',
-        type: 'Group',
+        type: 'RepeatingGroup',
         dataModelBindings: {
           group: 'Group.Group2',
         },

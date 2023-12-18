@@ -3,7 +3,6 @@ import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/f
 import { convertLayouts, getSharedTests } from 'src/features/expressions/shared';
 import { asExpression, preProcessLayout } from 'src/features/expressions/validation';
 import { getLayoutComponentObject } from 'src/layout';
-import { groupIsRepeatingExt } from 'src/layout/Group/tools';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { Layouts } from 'src/features/expressions/shared';
 import type { ILayout } from 'src/layout/layout';
@@ -12,14 +11,14 @@ import type { IRepeatingGroups } from 'src/types';
 function generateRepeatingGroups(layout: ILayout) {
   const repeatingGroups: IRepeatingGroups = {};
   for (const component of layout) {
-    if (component.type === 'Group' && groupIsRepeatingExt(component)) {
+    if (component.type === 'RepeatingGroup') {
       repeatingGroups[component.id] = {
         index: 1,
         editIndex: -1,
       };
       for (const child of component.children) {
         const childElm = layout.find((c) => c.id === child);
-        if (childElm?.type === 'Group' && groupIsRepeatingExt(childElm)) {
+        if (childElm?.type === 'RepeatingGroup') {
           repeatingGroups[`${childElm.id}-0`] = {
             index: 1,
             editIndex: -1,

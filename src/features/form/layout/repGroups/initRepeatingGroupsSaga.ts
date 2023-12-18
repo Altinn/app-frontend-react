@@ -5,13 +5,12 @@ import type { SagaIterator } from 'redux-saga';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { selectFormLayouts } from 'src/features/form/layout/update/updateFormLayoutSagas';
 import { ValidationActions } from 'src/features/validation/validationSlice';
-import { groupIsRepeatingExt } from 'src/layout/Group/tools';
 import { getRepeatingGroups } from 'src/utils/formLayout';
 import { selectNotNull } from 'src/utils/sagas';
 import { removeGroupValidationsByIndex } from 'src/utils/validation/validation';
 import type { IInitRepeatingGroups } from 'src/features/form/layout/formLayoutTypes';
 import type { IFormData } from 'src/features/formData';
-import type { CompGroupExternal } from 'src/layout/Group/config.generated';
+import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { IRepeatingGroups, IRuntimeState } from 'src/types';
 
 export function* initRepeatingGroupsSaga({
@@ -56,12 +55,12 @@ export function* initRepeatingGroupsSaga({
   const newGroupKeys = Object.keys(newGroups || {});
   const groupContainers = Object.values(state.formLayout.layouts || {})
     .flatMap((e) => e)
-    .filter((e) => e && e.type === 'Group') as CompGroupExternal[];
+    .filter((e) => e && e.type === 'RepeatingGroup') as CompRepeatingGroupExternal[];
 
   newGroupKeys.forEach((key) => {
     const group = newGroups[key];
     const container = groupContainers.find((element) => element.id === key);
-    if (container && group.index >= 0 && groupIsRepeatingExt(container)) {
+    if (container && group.index >= 0) {
       if (container.edit?.openByDefault === 'first') {
         group.editIndex = 0;
       } else if (container.edit?.openByDefault === 'last') {

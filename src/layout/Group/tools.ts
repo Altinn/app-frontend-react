@@ -5,17 +5,7 @@ import type {
   CompGroupNonRepeatingInternal,
   CompGroupNonRepeatingPanelExternal,
   CompGroupNonRepeatingPanelInternal,
-  CompGroupRepeatingExternal,
-  CompGroupRepeatingInternal,
 } from 'src/layout/Group/config.generated';
-
-export function groupIsRepeating(item: CompGroupInternal): item is CompGroupRepeatingInternal {
-  return typeof item.maxCount === 'number' && item.maxCount > 1;
-}
-
-export function groupIsRepeatingExt(item: CompGroupExternal): item is CompGroupRepeatingExternal {
-  return typeof item.maxCount === 'number' && item.maxCount > 1;
-}
 
 export function groupIsNonRepeating(item: CompGroupInternal): item is CompGroupNonRepeatingInternal {
   if ('panel' in item) {

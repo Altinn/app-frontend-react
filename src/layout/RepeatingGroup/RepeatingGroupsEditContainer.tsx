@@ -7,7 +7,7 @@ import cn from 'classnames';
 
 import { Lang } from 'src/features/language/Lang';
 import { GenericComponent } from 'src/layout/GenericComponent';
-import classes from 'src/layout/Group/RepeatingGroup.module.css';
+import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
 import type {
   CompGroupRepeatingInternal,

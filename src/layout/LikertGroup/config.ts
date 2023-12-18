@@ -104,19 +104,9 @@ function makeRepeatingLikertGroup() {
                   '(in other cases use an expression in the "hiddenRow" property instead)',
               ),
           ),
-        ).exportAs('ILikertGroupEditProperties'),
-      ),
-    )
-    .addProperty(
-      new CG.prop(
-        'maxCount',
-        new CG.int()
-          .setMin(2)
-          .setTitle('Max number of rows')
-          .setDescription(
-            'Maximum number of rows that can be added. Setting this to a value ' +
-              'higher than 1 turns the group into a repeating group',
-          ),
+        )
+          .exportAs('ILikertGroupEditProperties')
+          .optional(),
       ),
     );
 }

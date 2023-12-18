@@ -10,7 +10,7 @@ import type { ILayoutSets, IRepeatingGroups } from 'src/types';
 const testLayout: ILayout = [
   {
     id: 'Group1',
-    type: 'Group',
+    type: 'RepeatingGroup',
     dataModelBindings: {
       group: 'Group1',
     },
@@ -19,7 +19,7 @@ const testLayout: ILayout = [
   },
   {
     id: 'Group2',
-    type: 'Group',
+    type: 'RepeatingGroup',
     dataModelBindings: {
       group: 'Group1.Group2',
     },
@@ -205,7 +205,7 @@ describe('getRepeatingGroups', () => {
     const testLayout: ILayout = [
       {
         id: 'Group1',
-        type: 'Group',
+        type: 'RepeatingGroup',
         dataModelBindings: {
           group: 'Group1',
         },
@@ -214,7 +214,7 @@ describe('getRepeatingGroups', () => {
       },
       {
         id: 'Group2',
-        type: 'Group',
+        type: 'RepeatingGroup',
         dataModelBindings: {
           group: 'Group2',
         },
@@ -276,7 +276,7 @@ describe('getRepeatingGroups', () => {
     const testLayout: ILayout = [
       {
         id: 'Group1',
-        type: 'Group',
+        type: 'RepeatingGroup',
         dataModelBindings: {
           group: 'Group1',
         },
@@ -405,10 +405,13 @@ describe('findChildren', () => {
       },
       {
         id: 'group1',
-        type: 'Group',
+        type: 'RepeatingGroup',
         children: ['0:field2', '1:field3'],
         edit: { multiPage: true },
         maxCount: 2,
+        dataModelBindings: {
+          group: 'Group1',
+        },
       },
       {
         id: 'field2',

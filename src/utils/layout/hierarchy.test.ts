@@ -7,10 +7,12 @@ import { generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
-import type { CompGroupNonRepeatingExternal, CompGroupRepeatingExternal } from 'src/layout/Group/config.generated';
+import type { CompGroupNonRepeatingExternal } from 'src/layout/Group/config.generated';
 import type { CompHeaderExternal } from 'src/layout/Header/config.generated';
 import type { CompInputExternal } from 'src/layout/Input/config.generated';
 import type { CompInternal, HierarchyDataSources, ILayout } from 'src/layout/layout';
+import type { CompLikertGroupExternal } from 'src/layout/LikertGroup/config.generated';
+import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { IRepeatingGroups } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IValidations } from 'src/utils/validation/types';
@@ -27,9 +29,13 @@ describe('Hierarchical layout tools', () => {
     },
   };
   const group: Omit<CompGroupNonRepeatingExternal, 'id' | 'children'> = { type: 'Group' };
-  const repGroup: Omit<CompGroupRepeatingExternal, 'id' | 'children' | 'dataModelBindings'> = {
-    type: 'Group',
+  const repGroup: Omit<CompRepeatingGroupExternal, 'id' | 'children' | 'dataModelBindings'> = {
+    type: 'RepeatingGroup',
     maxCount: 3,
+    hidden: ['equals', ['dataModel', 'Model.ShouldBeFalse'], 'false'],
+  };
+  const likertGroup: Omit<CompLikertGroupExternal, 'id' | 'children' | 'dataModelBindings'> = {
+    type: 'LikertGroup',
     hidden: ['equals', ['dataModel', 'Model.ShouldBeFalse'], 'false'],
   };
   const components = {
@@ -69,11 +75,12 @@ describe('Hierarchical layout tools', () => {
       },
     },
     group3: {
-      id: 'group3',
-      ...repGroup,
+      id: 'group3Likert',
+      ...likertGroup,
+      dataModelBindings: {
+        group: '',
+      },
       edit: {
-        multiPage: true,
-        mode: 'likert',
         filter: [
           { key: 'start', value: '1' },
           { key: 'stop', value: '2' },
@@ -82,7 +89,13 @@ describe('Hierarchical layout tools', () => {
     },
     group3h: { id: 'group3_header', ...header },
     group3i: { id: 'group3_input', ...input },
-    group3n: { id: 'group3nested', ...repGroup },
+    group3n: {
+      id: 'group3nested',
+      ...likertGroup,
+      dataModelBindings: {
+        group: '',
+      },
+    },
     group3nh: { id: 'group3nested_header', ...header },
     group3ni: { id: 'group3nested_input', ...input },
   };
@@ -340,7 +353,6 @@ describe('Hierarchical layout tools', () => {
         {
           id: 'g1',
           type: 'LikertGroup',
-          maxCount: 99,
           children: ['g1c'],
           dataModelBindings: { group: 'Group' },
           edit: {
@@ -358,7 +370,6 @@ describe('Hierarchical layout tools', () => {
         {
           id: 'g2',
           type: 'LikertGroup',
-          maxCount: 99,
           children: ['g2c'],
           dataModelBindings: { group: 'Group' },
           edit: {
@@ -435,11 +446,11 @@ describe('Hierarchical layout tools', () => {
     expect(uniqueHidden(nodes.current()?.flat(true))).toEqual(plain);
     expect(uniqueHidden(nodes.current()?.children())).toEqual(plain);
 
-    if (group2?.isType('Group') && group2.isRepGroup()) {
+    if (group2?.isType('RepeatingGroup')) {
       expect(group2.item.rows[0]?.items[1].item.hidden).toEqual(true);
       expect(group2.item.rows[0]?.items[2].item.hidden).toEqual(true);
       const group2n = group2.item.rows[0]?.items[2];
-      if (group2n?.isType('Group') && group2n.isRepGroup()) {
+      if (group2n?.isType('RepeatingGroup')) {
         expect(group2n.item.rows[0]?.items[1].item.hidden).toEqual(true);
       } else {
         expect(false).toEqual(true);

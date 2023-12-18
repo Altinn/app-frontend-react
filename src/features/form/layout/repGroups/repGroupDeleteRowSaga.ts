@@ -6,7 +6,6 @@ import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { selectFormData, selectFormLayoutState } from 'src/features/form/layout/update/updateFormLayoutSagas';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
-import { groupIsRepeatingExt } from 'src/layout/Group/tools';
 import { removeGroupData } from 'src/utils/databindings';
 import { removeRepeatingGroupFromUIConfig } from 'src/utils/formLayout';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
@@ -14,7 +13,7 @@ import { createLayoutValidationResult, emptyValidation } from 'src/utils/validat
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { IRepGroupDelRow } from 'src/features/form/layout/formLayoutTypes';
 import type { IFormData } from 'src/features/formData';
-import type { CompGroupExternal } from 'src/layout/Group/config.generated';
+import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { IRepeatingGroups } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
@@ -49,14 +48,16 @@ export function* repGroupDeleteRowSaga({
       },
     };
 
-    const groupContainer = currentLayout.find((element) => element.id === groupId) as CompGroupExternal | undefined;
+    const groupContainer = currentLayout.find((element) => element.id === groupId) as
+      | CompRepeatingGroupExternal
+      | undefined;
     const children = groupContainer?.children || [];
     const childGroups = currentLayout.filter((element) => {
       if (element.type !== 'Group') {
         return false;
       }
 
-      if (groupContainer && groupIsRepeatingExt(groupContainer) && groupContainer?.edit?.multiPage) {
+      if (groupContainer && groupContainer?.edit?.multiPage) {
         return children.find((c) => c.split(':')[1] === element.id);
       }
 

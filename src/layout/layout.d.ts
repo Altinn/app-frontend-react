@@ -13,6 +13,8 @@ import type {
   FormComponent,
   PresentationComponent,
 } from 'src/layout/LayoutComponent';
+import type { CompLikertGroupExternal } from 'src/layout/LikertGroup/config.generated';
+import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { IValidations } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -52,7 +54,11 @@ export type CompExternal<Type extends CompExceptGroup = CompExceptGroup> = Extra
  */
 export type CompExternalExact<Type extends CompTypes> = ComponentTypeConfigs[Type]['layout'];
 
-export type CompOrGroupExternal = CompGroupExternal | CompExternal;
+export type CompOrGroupExternal =
+  | CompRepeatingGroupExternal
+  | CompLikertGroupExternal
+  | CompGroupExternal
+  | CompExternal;
 
 export type CompRendersLabel<T extends CompTypes> = (typeof ComponentConfigs)[T]['rendersWithLabel'];
 

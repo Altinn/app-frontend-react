@@ -150,9 +150,6 @@ const render = async ({ container, components, customState }: TestProps) => {
   formLayout?.push({
     id: 'referencedGroup',
     type: 'Group',
-    dataModelBindings: {
-      group: 'RefGroup',
-    },
     maxCount: 99,
     children: [],
   });

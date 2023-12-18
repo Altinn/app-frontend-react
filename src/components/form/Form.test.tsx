@@ -53,9 +53,6 @@ describe('Form', () => {
     {
       id: 'testGroupId',
       type: 'Group',
-      dataModelBindings: {
-        group: 'Group',
-      },
       maxCount: 3,
       children: ['field1', 'field2', 'field3'],
     },
@@ -74,9 +71,6 @@ describe('Form', () => {
       {
         id: 'non-rep-group-id',
         type: 'Group',
-        dataModelBindings: {
-          group: 'Group',
-        },
         children: ['non-rep-child'],
       },
       {
@@ -105,9 +99,6 @@ describe('Form', () => {
       {
         id: 'panel-group-id',
         type: 'Group',
-        dataModelBindings: {
-          group: 'Group',
-        },
         children: ['panel-group-child'],
         panel: {
           variant: 'info',

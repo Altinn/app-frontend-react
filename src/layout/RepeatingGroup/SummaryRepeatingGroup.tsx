@@ -6,34 +6,29 @@ import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { CompCategory } from 'src/layout/common';
-import { DisplayGroupContainer } from 'src/layout/Group/DisplayGroupContainer';
 import classes from 'src/layout/Group/SummaryGroupComponent.module.css';
+import { DisplayRepeatingGroupContainer } from 'src/layout/RepeatingGroup/DisplayGroupContainer';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import type {
-  CompGroupNonRepeatingInternal,
-  CompGroupNonRepeatingPanelInternal,
-} from 'src/layout/Group/config.generated';
-import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { ITextResourceBindings } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export interface ISummaryGroupComponent {
+export interface ISummaryRepeatingGroup {
   changeText: string | null;
   onChangeClick: () => void;
   summaryNode: LayoutNode<'Summary'>;
-  targetNode: LayoutNode<'Group'>;
+  targetNode: LayoutNode<'RepeatingGroup'>;
   overrides?: ISummaryComponent['overrides'];
 }
 
-export function SummaryGroupComponent({
+export function SummaryRepeatingGroup({
   onChangeClick,
   changeText,
   summaryNode,
   targetNode,
   overrides,
-}: ISummaryGroupComponent) {
+}: ISummaryRepeatingGroup) {
   const excludedChildren = summaryNode.item.excludedChildren;
   const display = overrides?.display || summaryNode.item.display;
   const { langAsString } = useLanguage();
@@ -52,43 +47,46 @@ export function SummaryGroupComponent({
   const ariaLabel = langAsString(summaryAccessibleTitleTrb ?? summaryTitleTrb ?? titleTrb);
 
   const rowIndexes: (number | undefined)[] = [];
-
-  // This trick makes non-repeating groups work in Summary as well. They don't have any rows, but if we add this
-  // to rowIndexes we'll make our later code call groupNode.children() once with rowIndex `undefined`, which retrieves
-  // all the non-repeating children and renders a group summary as if it was a repeating group with one row.
-  rowIndexes.push(undefined);
+  for (const row of targetNode.item.rows) {
+    row && rowIndexes.push(row.index);
+  }
 
   if (summaryNode.item.largeGroup && overrides?.largeGroup !== false && rowIndexes.length) {
     return (
       <>
-        {rowIndexes.map((idx) => (
-          <DisplayGroupContainer
-            key={`summary-${targetNode.item.id}-${idx}`}
-            id={`summary-${targetNode.item.id}-${idx}`}
-            groupNode={
-              targetNode as LayoutNodeForGroup<CompGroupNonRepeatingInternal | CompGroupNonRepeatingPanelInternal>
-            }
-            onlyRowIndex={idx}
-            renderLayoutNode={(n) => {
-              if (inExcludedChildren(n) || n.isHidden()) {
-                return null;
-              }
+        {rowIndexes.map((idx) => {
+          if (idx !== undefined && targetNode.item.rows[idx]?.groupExpressions?.hiddenRow) {
+            return null;
+          }
 
-              return (
-                <SummaryComponent
-                  key={n.item.id}
-                  summaryNode={summaryNode}
-                  overrides={{
-                    ...overrides,
-                    targetNode: n,
-                    grid: {},
-                    largeGroup: targetNode.isNonRepGroup(),
-                  }}
-                />
-              );
-            }}
-          />
-        ))}
+          return (
+            <DisplayRepeatingGroupContainer
+              key={`summary-${targetNode.item.id}-${idx}`}
+              id={`summary-${targetNode.item.id}-${idx}`}
+              //Todo: fix this type or refactor + merge DisplayRepeatingGroupContainer and summaryRepeatingGroup
+              groupNode={targetNode as any}
+              onlyRowIndex={idx}
+              renderLayoutNode={(n) => {
+                if (inExcludedChildren(n) || n.isHidden()) {
+                  return null;
+                }
+
+                return (
+                  <SummaryComponent
+                    key={n.item.id}
+                    summaryNode={summaryNode}
+                    overrides={{
+                      ...overrides,
+                      targetNode: n,
+                      grid: {},
+                      largeGroup: false,
+                    }}
+                  />
+                );
+              }}
+            />
+          );
+        })}
       </>
     );
   }
