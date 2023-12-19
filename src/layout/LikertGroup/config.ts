@@ -24,19 +24,6 @@ export const Config = new CG.component({
 Config.inner.removeProperty('textResourceBindings');
 Config.inner.removeProperty('dataModelBindings');
 
-const commonRepGroupDataModelBinding = new CG.obj(
-  new CG.prop(
-    'group',
-    new CG.str()
-      .setTitle('Group')
-      .setDescription(
-        'Dot notation location for a repeating group structure (array of objects), where the data ' + 'is stored',
-      ),
-  ),
-)
-  .exportAs('IDataModelBindingsForGroup')
-  .optional({ onlyIn: Variant.Internal });
-
 function commonExtensions(subType: GenerateComponentLike) {
   return subType
     .extends(Config)
@@ -87,7 +74,20 @@ function makeRepeatingLikertGroup() {
         ).exportAs('HLikertGroupRows'),
       ).onlyIn(Variant.Internal),
     )
-    .addDataModelBinding(commonRepGroupDataModelBinding)
+    .addDataModelBinding(
+      new CG.obj(
+        new CG.prop(
+          'group',
+          new CG.str()
+            .setTitle('Group')
+            .setDescription(
+              'Dot notation location for a likert group structure (array of objects), where the data ' + 'is stored',
+            ),
+        ),
+      )
+        .exportAs('IDataModelBindingsForLikertGroup')
+        .optional({ onlyIn: Variant.Internal }),
+    )
     .addProperty(
       new CG.prop(
         'edit',
