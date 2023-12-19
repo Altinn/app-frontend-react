@@ -92,7 +92,7 @@ describe('DatepickerComponent', () => {
     expect(screen.getAllByRole('dialog')[0]).toBeInTheDocument();
   });
 
-  it('should call dispatchFormData when clicking date in calendar', async () => {
+  it('should call setLeafValue when clicking date in calendar', async () => {
     const { formDataMethods } = await render();
 
     await userEvent.click(
@@ -104,13 +104,13 @@ describe('DatepickerComponent', () => {
 
     // Ignore TZ part of timestamp to avoid test failing when this changes
     // Calendar opens up on current year/month by default, so we need to cater for this in the expected output
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith(
-      'myDate',
-      expect.stringContaining(`${currentYearNumeric}-${currentMonthNumeric}-15T12:00:00.000+`),
-    );
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+      path: 'myDate',
+      newValue: expect.stringContaining(`${currentYearNumeric}-${currentMonthNumeric}-15T12:00:00.000+`),
+    });
   });
 
-  it('should call dispatchFormData if date is cleared', async () => {
+  it('should call setLeafValue if date is cleared', async () => {
     const { formDataMethods } = await render({
       queries: {
         fetchFormData: async () => ({ myDate: '2022-12-31' }),
@@ -122,18 +122,18 @@ describe('DatepickerComponent', () => {
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDate', newValue: '' });
   });
 
-  it('should call dispatchFormData with formatted value (timestamp=true) if date is valid', async () => {
+  it('should call setLeafValue with formatted value (timestamp=true) if date is valid', async () => {
     const { formDataMethods } = await render({ component: { timeStamp: true } });
 
     await userEvent.type(screen.getByRole('textbox'), '31122022');
 
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith(
-      'myDate',
-      expect.stringContaining('2022-12-31T12:00:00.000+'),
-    );
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+      path: 'myDate',
+      newValue: expect.stringContaining('2022-12-31T12:00:00.000+'),
+    });
   });
 
-  it('should call dispatchFormData with formatted value (timestamp=false) if date is valid', async () => {
+  it('should call setLeafValue with formatted value (timestamp=false) if date is valid', async () => {
     const { formDataMethods } = await render({ component: { timeStamp: false } });
 
     await userEvent.type(screen.getByRole('textbox'), '31122022');
@@ -141,18 +141,18 @@ describe('DatepickerComponent', () => {
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDate', newValue: '2022-12-31' });
   });
 
-  it('should call dispatchFormData with formatted value (timestamp=undefined) if date is valid', async () => {
+  it('should call setLeafValue with formatted value (timestamp=undefined) if date is valid', async () => {
     const { formDataMethods } = await render({ component: { timeStamp: undefined } });
 
     await userEvent.type(screen.getByRole('textbox'), '31122022');
 
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith(
-      'myDate',
-      expect.stringContaining('2022-12-31T12:00:00.000+'),
-    );
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+      path: 'myDate',
+      newValue: expect.stringContaining('2022-12-31T12:00:00.000+'),
+    });
   });
 
-  it('should call dispatchFormData if date is invalid but finished filling out', async () => {
+  it('should call setLeafValue if date is invalid but finished filling out', async () => {
     const { formDataMethods } = await render();
 
     await userEvent.type(screen.getByRole('textbox'), '12345678');
@@ -160,7 +160,7 @@ describe('DatepickerComponent', () => {
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDate', newValue: '12.34.5678' });
   });
 
-  it('should call dispatchFormData if not finished filling out the date', async () => {
+  it('should call setLeafValue if not finished filling out the date', async () => {
     const { formDataMethods } = await render();
 
     await userEvent.type(screen.getByRole('textbox'), `1234`);

@@ -22,7 +22,7 @@ describe('TextAreaComponent', () => {
     expect(textarea).toHaveValue('initial text content');
   });
 
-  it('should fire handleDataChange with value when textarea is blurred', async () => {
+  it('should fire setLeafValue with value', async () => {
     const initialText = 'initial text content';
     const addedText = ' + added content';
 
@@ -36,7 +36,6 @@ describe('TextAreaComponent', () => {
 
     const textarea = screen.getByRole('textbox');
     await userEvent.type(textarea, addedText);
-    await userEvent.tab();
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
       path: 'myTextArea',
@@ -44,7 +43,7 @@ describe('TextAreaComponent', () => {
     });
   });
 
-  it('should not fire handleDataChange when readOnly is true', async () => {
+  it('should not fire setLeafValue when readOnly is true', async () => {
     const initialText = 'initial text content';
     const addedText = ' + added content';
 

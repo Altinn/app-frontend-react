@@ -4,6 +4,7 @@ import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import type { AxiosResponse } from 'axios';
 
+import { getFormDataMockForRepGroup } from 'src/__mocks__/getFormDataMockForRepGroup';
 import { RadioButtonContainerComponent } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { IOption } from 'src/layout/common.generated';
@@ -30,20 +31,7 @@ interface Props extends Partial<RenderGenericComponentTestProps<'RadioButtons'>>
   groupData?: any;
 }
 
-const defaultGroupData = {
-  someGroup: [
-    {
-      valueField: 'Value for first',
-      labelField: 'Label for first',
-    },
-    {
-      valueField: 'Value for second',
-      labelField: 'Label for second',
-    },
-  ],
-};
-
-const render = async ({ component, options, formData, groupData = defaultGroupData }: Props = {}) =>
+const render = async ({ component, options, formData, groupData = getFormDataMockForRepGroup() }: Props = {}) =>
   await renderGenericComponentTest({
     type: 'RadioButtons',
     renderer: (props) => <RadioButtonContainerComponent {...props} />,

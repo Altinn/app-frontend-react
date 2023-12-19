@@ -4,6 +4,7 @@ import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import type { AxiosResponse } from 'axios';
 
+import { getFormDataMockForRepGroup } from 'src/__mocks__/getFormDataMockForRepGroup';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
 import { queryPromiseMock, renderGenericComponentTest } from 'src/test/renderWithProviders';
@@ -65,6 +66,9 @@ const render = async ({ component, genericProps, options, ...rest }: Props = {})
       ...genericProps,
     },
     queries: {
+      fetchFormData: async () => ({
+        ...getFormDataMockForRepGroup(),
+      }),
       fetchOptions: (...args) =>
         options === undefined
           ? fetchOptions.mock(...args)
@@ -80,7 +84,7 @@ const render = async ({ component, genericProps, options, ...rest }: Props = {})
 };
 
 describe('DropdownComponent', () => {
-  it('should trigger dispatchFormData when option is selected', async () => {
+  it('should trigger setLeafValue when option is selected', async () => {
     const { formDataMethods } = await render({
       options: countries,
     });
@@ -116,7 +120,7 @@ describe('DropdownComponent', () => {
     expect(select).toHaveProperty('disabled', false);
   });
 
-  it('should trigger dispatchFormData when preselectedOptionIndex is set', async () => {
+  it('should trigger setLeafValue when preselectedOptionIndex is set', async () => {
     const { formDataMethods } = await render({
       component: {
         preselectedOptionIndex: 2,
@@ -127,27 +131,6 @@ describe('DropdownComponent', () => {
     await waitFor(() =>
       expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'denmark' }),
     );
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1);
-  });
-
-  it('should trigger dispatchFormData instantly on blur', async () => {
-    const { formDataMethods } = await render({
-      component: {
-        preselectedOptionIndex: 2,
-      },
-      options: countries,
-    });
-
-    await waitFor(() =>
-      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'denmark' }),
-    );
-    const select = screen.getByRole('combobox');
-
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1);
-
-    await userEvent.click(select);
-    await userEvent.tab();
-
     expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1);
   });
 
@@ -193,7 +176,7 @@ describe('DropdownComponent', () => {
     expect(screen.getByText('Finland')).toBeInTheDocument();
   });
 
-  it('should present replaced label if setup with values from repeating group in redux and trigger dispatchFormData with replaced values', async () => {
+  it('should present replaced label if setup with values from repeating group in redux and trigger setLeafValue with replaced values', async () => {
     const { formDataMethods } = await render({
       component: {
         optionsId: undefined,

@@ -4,6 +4,7 @@ import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import type { AxiosResponse } from 'axios';
 
+import { getFormDataMockForRepGroup } from 'src/__mocks__/getFormDataMockForRepGroup';
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
 import { LayoutStyle } from 'src/layout/common.generated';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
@@ -32,9 +33,10 @@ const threeOptions: IOption[] = [
 interface Props extends Partial<RenderGenericComponentTestProps<'Checkboxes'>> {
   options?: IOption[];
   formData?: string;
+  groupData?: object;
 }
 
-const render = async ({ component, options, formData }: Props = {}) =>
+const render = async ({ component, options, formData, groupData = getFormDataMockForRepGroup() }: Props = {}) =>
   await renderGenericComponentTest({
     type: 'Checkboxes',
     renderer: (props) => <CheckboxContainerComponent {...props} />,
@@ -50,9 +52,7 @@ const render = async ({ component, options, formData }: Props = {}) =>
         options
           ? Promise.resolve({ data: options, headers: {} } as AxiosResponse<IOption[], any>)
           : Promise.reject(new Error('No options provided to render()')),
-      fetchFormData: async () => ({
-        selectedValues: formData,
-      }),
+      fetchFormData: async () => (formData ? { selectedValues: formData, ...groupData } : { ...groupData }),
     },
   });
 
@@ -63,7 +63,7 @@ const getCheckbox = ({ name, isChecked = false }) =>
   });
 
 describe('CheckboxesContainerComponent', () => {
-  it('should call dispatchFormData with value of preselectedOptionIndex when simpleBinding is not set', async () => {
+  it('should call setLeafValue with value of preselectedOptionIndex', async () => {
     const { formDataMethods } = await render({
       component: {
         preselectedOptionIndex: 1,
@@ -79,7 +79,7 @@ describe('CheckboxesContainerComponent', () => {
     });
   });
 
-  it('should not call dispatchFormData when simpleBinding is set and preselectedOptionIndex', async () => {
+  it('should not call setLeafValue for preselected item when an item is already set', async () => {
     const { formDataMethods } = await render({
       component: {
         preselectedOptionIndex: 0,
@@ -115,7 +115,7 @@ describe('CheckboxesContainerComponent', () => {
     expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
   });
 
-  it('should call dispatchFormData with updated values when selection changes', async () => {
+  it('should call setLeafValue with updated values when selection changes', async () => {
     const { formDataMethods } = await render({
       options: threeOptions,
       formData: 'norway',
@@ -137,7 +137,7 @@ describe('CheckboxesContainerComponent', () => {
     });
   });
 
-  it('should call dispatchFormData with updated values when deselecting item', async () => {
+  it('should call setLeafValue with updated values when deselecting item', async () => {
     const { formDataMethods } = await render({
       options: threeOptions,
       formData: 'norway,denmark',
@@ -156,23 +156,7 @@ describe('CheckboxesContainerComponent', () => {
     });
   });
 
-  it('should call handleDataChange instantly on blur when the value has changed', async () => {
-    const { formDataMethods } = await render({
-      options: threeOptions,
-      formData: 'norway',
-    });
-
-    const denmark = getCheckbox({ name: 'Denmark' });
-    expect(denmark).toBeInTheDocument();
-
-    expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
-    await userEvent.click(denmark);
-    fireEvent.blur(denmark);
-
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'selectedValues', newValue: 'norway,denmark' });
-  });
-
-  it('should not call handleDataChange on blur when the value is unchanged', async () => {
+  it('should not call setLeafValue on blur when the value is unchanged', async () => {
     const { formDataMethods } = await render({
       options: threeOptions,
     });
@@ -185,7 +169,7 @@ describe('CheckboxesContainerComponent', () => {
     expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
   });
 
-  it('should call handleDataChange onBlur with no commas in string when starting with empty string formData', async () => {
+  it('should call setLeafValue onBlur with no commas in string when starting with empty string formData', async () => {
     const { formDataMethods } = await render({
       options: threeOptions,
       formData: '',
@@ -252,7 +236,7 @@ describe('CheckboxesContainerComponent', () => {
     expect(screen.queryByTestId('checkboxes-fieldset')).not.toHaveClass('horizontal');
   });
 
-  it('should present replaced label if setup with values from repeating group in redux and trigger dispatchFormData with replaced values', async () => {
+  it('should present replaced label if setup with values from repeating group in redux and trigger setLeafValue with replaced values', async () => {
     const { formDataMethods } = await render({
       component: {
         optionsId: undefined,
@@ -289,7 +273,7 @@ describe('CheckboxesContainerComponent', () => {
 
     await waitFor(() => {
       expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-        path: 'someGroup[0].valueField',
+        path: 'selectedValues',
         newValue: 'Value for second',
       });
     });
