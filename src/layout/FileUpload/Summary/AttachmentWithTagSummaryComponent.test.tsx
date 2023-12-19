@@ -2,6 +2,7 @@ import React from 'react';
 
 import { screen } from '@testing-library/react';
 
+import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
 import { renderWithNode } from 'src/test/renderWithProviders';
@@ -101,15 +102,18 @@ const render = async ({ component, addAttachment = true }: RenderProps) => {
     createdBy: 'test',
     created: '2021-09-08T12:00:00',
   };
+
+  const application = getApplicationMetadataMock();
+  application.dataTypes.push({
+    id: 'myComponent',
+    allowedContentTypes: ['application/pdf'],
+    maxCount: 4,
+    minCount: 1,
+  });
+
   const reduxState = getInitialStateMock((state) => {
     state.formLayout.layouts!.FormLayout = [component];
-    state.applicationMetadata.applicationMetadata!.dataTypes.push({
-      id: 'myComponent',
-      allowedContentTypes: ['application/pdf'],
-      maxCount: 4,
-      minCount: 1,
-    });
-
+    state.applicationMetadata.applicationMetadata = application;
     addAttachment && state.deprecated.lastKnownInstance!.data.push(attachment);
   });
 
@@ -119,6 +123,14 @@ const render = async ({ component, addAttachment = true }: RenderProps) => {
     reduxState,
     inInstance: true,
     queries: {
+      fetchApplicationMetadata: async () => application,
+      fetchLayouts: async () => ({
+        FormLayout: {
+          data: {
+            layout: [component],
+          },
+        },
+      }),
       fetchOptions: (url) =>
         availableOptions[url]
           ? Promise.resolve(availableOptions[url])

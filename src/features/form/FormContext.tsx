@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { AttachmentsProvider } from 'src/features/attachments/AttachmentsContext';
+import { AttachmentsProvider, AttachmentsStoreProvider } from 'src/features/attachments/AttachmentsContext';
 import { CustomValidationConfigProvider } from 'src/features/customValidation/CustomValidationContext';
 import { DataModelSchemaProvider } from 'src/features/datamodel/DataModelSchemaProvider';
 import { DynamicsProvider } from 'src/features/form/dynamics/DynamicsContext';
@@ -27,17 +27,19 @@ export function FormProvider({ children }: React.PropsWithChildren) {
           <UiConfigProvider>
             <FormDataReadWriteProvider>
               <DataModelSchemaProvider>
-                <AttachmentsProvider>
-                  <DynamicsProvider>
-                    <RulesProvider>
-                      <NodesProvider>
-                        <AllOptionsProvider>
-                          {hasProcess ? <ProcessNavigationProvider>{children}</ProcessNavigationProvider> : children}
-                        </AllOptionsProvider>
-                      </NodesProvider>
-                    </RulesProvider>
-                  </DynamicsProvider>
-                </AttachmentsProvider>
+                <AttachmentsStoreProvider>
+                  <NodesProvider>
+                    <AttachmentsProvider>
+                      <DynamicsProvider>
+                        <RulesProvider>
+                          <AllOptionsProvider>
+                            {hasProcess ? <ProcessNavigationProvider>{children}</ProcessNavigationProvider> : children}
+                          </AllOptionsProvider>
+                        </RulesProvider>
+                      </DynamicsProvider>
+                    </AttachmentsProvider>
+                  </NodesProvider>
+                </AttachmentsStoreProvider>
               </DataModelSchemaProvider>
             </FormDataReadWriteProvider>
           </UiConfigProvider>

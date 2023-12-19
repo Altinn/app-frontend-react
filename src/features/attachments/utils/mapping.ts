@@ -1,6 +1,6 @@
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import { useNodes } from 'src/utils/layout/NodesContext';
@@ -123,7 +123,7 @@ function mapAttachments(
  * @see useAttachments
  */
 export function useMappedAttachments() {
-  const application = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
+  const application = useApplicationMetadata();
   const currentTask = useLaxProcessData()?.currentTask?.elementId;
   const data = useLaxInstanceData()?.data;
   const nodes = useNodes();
