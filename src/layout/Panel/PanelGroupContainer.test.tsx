@@ -3,7 +3,7 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { PanelReferenceGroupContainer } from 'src/layout/Panel/PanelReferenceGroupContainer';
+import { PanelGroupContainer } from 'src/layout/Panel/PanelGroupContainer';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type {
@@ -122,7 +122,7 @@ const render = async ({ container, components, customState }: TestProps) => {
 
   await renderWithNode<LayoutNodeForGroup<CompGroupNonRepeatingPanelInternal>>({
     nodeId: 'group',
-    renderer: ({ node }) => <PanelReferenceGroupContainer node={node} />,
+    renderer: ({ node }) => <PanelGroupContainer node={node} />,
     reduxState,
   });
 };

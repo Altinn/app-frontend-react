@@ -164,19 +164,6 @@ function makeNonRepeatingPanelGroup() {
             'iconAlt',
             new CG.str().optional().setTitle('Icon alt text').setDescription('Alt text for the icon'),
           ),
-          new CG.prop(
-            'groupReference',
-            new CG.obj(new CG.prop('group', new CG.str().setTitle('Repeating group component ID')))
-              .optional()
-              .setTitle('Group reference')
-              .setDescription(
-                'Reference to a repeating group ID. This will make it possible to add a row to the referenced group ' +
-                  'from the current group Panel (see also the "add_label" text resource binding.',
-              )
-              .addExample({
-                group: 'repeatingGroup1',
-              }),
-          ),
         )
           .extends(CG.common('IPanelBase'))
           .exportAs('IGroupPanel'),
