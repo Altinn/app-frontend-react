@@ -112,7 +112,7 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
         if (maxIndex !== -1) {
           const index = maxIndex;
           repeatingGroups[groupElement.id] = {
-            index: -1,
+            index,
             dataModelBinding: groupElement.dataModelBindings?.group,
             editIndex: -1,
             multiPageIndex: -1,
