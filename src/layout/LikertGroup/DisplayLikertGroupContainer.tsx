@@ -6,7 +6,7 @@ import cn from 'classnames';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { Lang } from 'src/features/language/Lang';
-import classes from 'src/layout/Group/DisplayGroupContainer.module.css';
+import classes from 'src/layout/Group/GroupComponent.module.css';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { HeadingLevel } from 'src/layout/common.generated';
@@ -14,7 +14,7 @@ import type { CompGroupNonRepeatingInternal } from 'src/layout/Group/config.gene
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export interface IDisplayGroupContainer {
+export interface IDisplayLikertGroupContainer {
   groupNode: LayoutNodeForGroup<CompGroupNonRepeatingInternal>;
   id?: string;
   onlyRowIndex?: number | undefined;
@@ -29,7 +29,12 @@ const headingSizes: { [k in HeadingLevel]: Parameters<typeof Heading>[0]['size']
   [6]: 'xsmall',
 };
 
-export function DisplayLikertGroupContainer({ groupNode, id, onlyRowIndex, renderLayoutNode }: IDisplayGroupContainer) {
+export function DisplayLikertGroupContainer({
+  groupNode,
+  id,
+  onlyRowIndex,
+  renderLayoutNode,
+}: IDisplayLikertGroupContainer) {
   const container = groupNode.item;
   if (groupNode.isHidden()) {
     return null;

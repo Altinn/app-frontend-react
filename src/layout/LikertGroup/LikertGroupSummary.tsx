@@ -5,8 +5,8 @@ import cn from 'classnames';
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { CompCategory } from 'src/layout/common';
-import classes from 'src/layout/Group/SummaryGroupComponent.module.css';
 import { DisplayLikertGroupContainer } from 'src/layout/LikertGroup/DisplayLikertGroupContainer';
+import classes from 'src/layout/LikertGroup/LikertGroupSummary.module.css';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { ITextResourceBindings } from 'src/layout/layout';
@@ -54,7 +54,7 @@ export function LikertGroupSummary({
           <DisplayLikertGroupContainer
             key={`summary-${targetNode.item.id}-${idx}`}
             id={`summary-${targetNode.item.id}-${idx}`}
-            //Todo: fix this type or refactor + merge DisplayRepeatingGroupContainer and summaryRepeatingGroup
+            //Todo: fix this type or refactor DisplayLikertGroupContainer
             groupNode={targetNode as any}
             onlyRowIndex={idx}
             renderLayoutNode={(n) => {
