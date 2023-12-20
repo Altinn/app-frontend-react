@@ -9,7 +9,7 @@ export const useRadioButtons = ({ node }: IRadioButtonsContainerProps) => {
   const selected = FD.usePickFreshString(dataModelBindings?.simpleBinding);
   const saveData = FD.useSetForBindings(dataModelBindings);
 
-  const { options: calculatedOptions, isFetching: fetchingOptions } = useGetOptions({
+  const { options: calculatedOptions, isLoading: fetchingOptions } = useGetOptions({
     ...node.item,
     node,
     metadata: {
