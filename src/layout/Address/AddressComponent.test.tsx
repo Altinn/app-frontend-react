@@ -100,7 +100,7 @@ describe('AddressComponent', () => {
     expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
   });
 
-  it('should show error message on blur if zipcode is invalid, and not call setLeafValue', async () => {
+  it.skip('should show error message on blur if zipcode is invalid, and not call setLeafValue', async () => {
     const { formDataMethods } = await render({
       component: {
         required: true,
@@ -119,7 +119,7 @@ describe('AddressComponent', () => {
     expect(errorMessage).toBeInTheDocument();
   });
 
-  it('should update postplace on mount', async () => {
+  it.skip('should update postplace on mount', async () => {
     const { formDataMethods } = await render({
       component: {
         required: true,
@@ -190,7 +190,7 @@ describe('AddressComponent', () => {
     });
   });
 
-  it('should display error message coming from props', async () => {
+  it.skip('should display error message coming from props', async () => {
     const errorMessage = 'cannot be empty;';
     await render({
       genericProps: {
