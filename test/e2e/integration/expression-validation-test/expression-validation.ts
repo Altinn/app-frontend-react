@@ -29,7 +29,7 @@ describe('Expression validation', () => {
     cy.findByRole('alert', { name: /skriftlige samtykke/i }).should('not.exist');
     cy.get(appFrontend.errorReport).should('not.exist');
 
-    cy.get(appFrontend.expressionValidationTest.kjønn).dsSelect('Mann');
+    cy.dsSelect(appFrontend.expressionValidationTest.kjønn, 'Mann');
 
     cy.findByRole('textbox', { name: /e-post/i }).type('asdf');
     cy.get(appFrontend.errorReport).should('contain.text', 'Feil format');
@@ -47,7 +47,7 @@ describe('Expression validation', () => {
     cy.findByRole('textbox', { name: /telefonnummer/i }).type('98765432');
     cy.get(appFrontend.errorReport).should('not.exist');
 
-    cy.get(appFrontend.expressionValidationTest.bosted).dsSelect('Oslo');
+    cy.dsSelect(appFrontend.expressionValidationTest.bosted, 'Oslo');
 
     cy.findByRole('button', { name: /neste/i }).click();
     cy.navPage('Skjul felter').should('have.attr', 'aria-current', 'page');
@@ -123,8 +123,7 @@ describe('Expression validation', () => {
       cy.get(appFrontend.expressionValidationTest.uploaders)
         .last()
         .selectFile('test/e2e/fixtures/test.pdf', { force: true });
-      cy.get(appFrontend.expressionValidationTest.groupTag).should('not.be.disabled');
-      cy.get(appFrontend.expressionValidationTest.groupTag).dsSelect('Sertifisering');
+      cy.dsSelect(appFrontend.expressionValidationTest.groupTag, 'Sertifisering');
       cy.findByRole('button', { name: /^lagre$/i }).click();
 
       for (let p = 0; p < 2; p++) {
@@ -216,7 +215,7 @@ describe('Expression validation', () => {
         .last()
         .selectFile('test/e2e/fixtures/test.pdf', { force: true });
       cy.get(appFrontend.expressionValidationTest.groupTag).should('not.be.disabled');
-      cy.get(appFrontend.expressionValidationTest.groupTag).dsSelect('Sertifisering');
+      cy.dsSelect(appFrontend.expressionValidationTest.groupTag, 'Sertifisering');
       cy.findByRole('button', { name: /^lagre$/i }).click();
 
       for (const prosjekt of row.prosjekter) {

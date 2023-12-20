@@ -71,8 +71,7 @@ describe('Summary', () => {
       cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('test/e2e/fixtures/test.pdf', {
         force: true,
       });
-      cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).should('not.be.disabled');
-      cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).dsSelect('Adresse');
+      cy.dsSelect(appFrontend.changeOfName.uploadWithTag.tagsDropDown, 'Adresse');
       cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
 
       cy.get(appFrontend.backToSummaryButton).click();
@@ -126,8 +125,8 @@ describe('Summary', () => {
 
     // Test summary of non-repeating group
     cy.gotoNavPage('form');
-    cy.get('#reference').dsSelect('Ola Nordmann');
-    cy.get('#reference2').dsSelect('Ole');
+    cy.dsSelect('#reference', 'Ola Nordmann');
+    cy.dsSelect('#reference2', 'Ole');
     cy.gotoNavPage('summary');
     cy.get('[data-testid=summary-summary-reference] [data-testid=summary-item-compact]')
       .and('have.length', 3)
@@ -138,9 +137,9 @@ describe('Summary', () => {
       });
 
     cy.gotoNavPage('form');
-    cy.get('#sources').dsSelect('Digitaliseringsdirektoratet');
-    cy.get('#reference').dsSelect('Sophie Salt');
-    cy.get('#reference2').dsSelect('Dole');
+    cy.dsSelect('#sources', 'Digitaliseringsdirektoratet');
+    cy.dsSelect('#reference', 'Sophie Salt');
+    cy.dsSelect('#reference2', 'Dole');
     cy.gotoNavPage('summary');
     cy.get('[data-testid=summary-summary-reference] [data-testid=summary-item-compact]')
       .and('have.length', 3)
@@ -151,9 +150,9 @@ describe('Summary', () => {
       });
 
     cy.gotoNavPage('form');
-    cy.get('#sources').dsSelect('Annet');
-    cy.get('#reference').dsSelect('Test');
-    cy.get('#reference2').dsSelect('Doffen');
+    cy.dsSelect('#sources', 'Annet');
+    cy.dsSelect('#reference', 'Test');
+    cy.dsSelect('#reference2', 'Doffen');
     cy.gotoNavPage('summary');
     cy.get('[data-testid=summary-summary-reference] [data-testid=summary-item-compact]')
       .and('have.length', 3)

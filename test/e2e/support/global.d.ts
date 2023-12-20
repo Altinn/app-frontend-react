@@ -143,7 +143,7 @@ declare global {
       /**
        * Select from a dropdown in the design system
        */
-      dsSelect(name: string): Chainable<null>;
+      dsSelect(selector: string, value: string): Chainable<null>;
 
       /**
        * Shortcut for clicking an element and waiting for it to disappear

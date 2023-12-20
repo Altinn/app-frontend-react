@@ -85,8 +85,7 @@ describe('UI Components', () => {
       force: true,
     });
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('be.visible');
-    cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).should('not.be.disabled');
-    cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).dsSelect('Adresse');
+    cy.dsSelect(appFrontend.changeOfName.uploadWithTag.tagsDropDown, 'Adresse');
     cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
     cy.wait('@saveTags');
     cy.get(appFrontend.changeOfName.uploadWithTag.uploaded).then((table) => {
@@ -109,7 +108,7 @@ describe('UI Components', () => {
     });
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('be.visible');
     cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).should('not.be.disabled');
-    cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).dsSelect('Adresse');
+    cy.dsSelect(appFrontend.changeOfName.uploadWithTag.tagsDropDown, 'Adresse');
     cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
     cy.wait('@saveTags');
 
@@ -421,9 +420,9 @@ describe('UI Components', () => {
     cy.fillOut('changename');
     cy.gotoNavPage('form');
 
-    cy.get(appFrontend.changeOfName.sources).dsSelect('Digitaliseringsdirektoratet');
-    cy.get(appFrontend.changeOfName.reference).dsSelect('Sophie Salt');
-    cy.get(appFrontend.changeOfName.reference2).dsSelect('Dole');
+    cy.dsSelect(appFrontend.changeOfName.sources, 'Digitaliseringsdirektoratet');
+    cy.dsSelect(appFrontend.changeOfName.reference, 'Sophie Salt');
+    cy.dsSelect(appFrontend.changeOfName.reference2, 'Dole');
     cy.reloadAndWait();
 
     cy.get(appFrontend.changeOfName.newFirstName).should('have.value', 'a');

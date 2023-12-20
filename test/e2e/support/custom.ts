@@ -34,13 +34,12 @@ Cypress.Commands.add('dsUncheck', { prevSubject: true }, (subject: JQueryWithSel
   }
 });
 
-Cypress.Commands.add('dsSelect', { prevSubject: true }, (subject: JQueryWithSelector | undefined, name) => {
-  cy.log(`Selecting ${name}`);
-  cy.wrap(subject).should('not.be.disabled');
-  cy.wrap(subject).click();
-  cy.findByRole('option', { name }).click({ force: true });
+Cypress.Commands.add('dsSelect', (selector, value) => {
+  cy.log(`Selecting ${value} in ${selector}`);
+  cy.get(selector).should('not.be.disabled');
+  cy.get(selector).click();
+  cy.findByRole('option', { name: value }).click();
   cy.get('body').click();
-  cy.wrap(subject);
 });
 
 Cypress.Commands.add('clickAndGone', { prevSubject: true }, (subject: JQueryWithSelector | undefined) => {
