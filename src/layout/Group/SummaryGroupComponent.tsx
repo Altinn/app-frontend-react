@@ -6,12 +6,10 @@ import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { CompCategory } from 'src/layout/common';
-import { DisplayGroupContainer } from 'src/layout/Group/DisplayGroupContainer';
+import { GroupComponent } from 'src/layout/Group/GroupComponent';
 import classes from 'src/layout/Group/SummaryGroupComponent.module.css';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import type { CompGroupNonRepeatingInternal } from 'src/layout/Group/config.generated';
-import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { ITextResourceBindings } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -59,10 +57,10 @@ export function SummaryGroupComponent({
     return (
       <>
         {rowIndexes.map((idx) => (
-          <DisplayGroupContainer
+          <GroupComponent
             key={`summary-${targetNode.item.id}-${idx}`}
             id={`summary-${targetNode.item.id}-${idx}`}
-            groupNode={targetNode as LayoutNodeForGroup<CompGroupNonRepeatingInternal>}
+            groupNode={targetNode}
             onlyRowIndex={idx}
             isSummary={true}
             renderLayoutNode={(n) => {

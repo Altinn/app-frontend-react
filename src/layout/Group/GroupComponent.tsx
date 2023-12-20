@@ -7,12 +7,13 @@ import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { Fieldset } from 'src/components/form/Fieldset';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { Lang } from 'src/features/language/Lang';
-import classes from 'src/layout/Group/DisplayGroupContainer.module.css';
+import { GenericComponent } from 'src/layout/GenericComponent';
+import classes from 'src/layout/Group/GroupComponent.module.css';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { HeadingLevel } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export interface IDisplayGroupContainer {
+export interface IGroupComponent {
   groupNode: LayoutNode<'Group'>;
   id?: string;
   onlyRowIndex?: number | undefined;
@@ -28,13 +29,7 @@ const headingSizes: { [k in HeadingLevel]: Parameters<typeof Heading>[0]['size']
   [6]: 'xsmall',
 };
 
-export function DisplayGroupContainer({
-  groupNode,
-  id,
-  onlyRowIndex,
-  isSummary,
-  renderLayoutNode,
-}: IDisplayGroupContainer) {
+export function GroupComponent({ groupNode, id, onlyRowIndex, isSummary }: IGroupComponent) {
   const container = groupNode.item;
   const { title, summaryTitle, description } = container.textResourceBindings ?? {};
 
@@ -74,7 +69,12 @@ export function DisplayGroupContainer({
           data-testid='display-group-container'
           className={cn({ [classes.groupingIndicator]: isIndented && !isNested }, classes.groupContainer)}
         >
-          {groupNode.children(undefined, onlyRowIndex).map((n) => renderLayoutNode(n))}
+          {groupNode.children(undefined, onlyRowIndex).map((n) => (
+            <GenericComponent
+              key={n.item.id}
+              node={n}
+            />
+          ))}
         </div>
       </Fieldset>
     </ConditionalWrapper>

@@ -3,8 +3,9 @@ import type { JSX } from 'react';
 
 import type { ErrorObject } from 'ajv';
 
+import { GenericComponent } from 'src/layout/GenericComponent';
 import { GroupDef } from 'src/layout/Group/config.def.generated';
-import { GroupRenderer } from 'src/layout/Group/GroupRenderer';
+import { GroupComponent } from 'src/layout/Group/GroupComponent';
 import { GroupHierarchyGenerator } from 'src/layout/Group/hierarchy';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
 import { runValidationOnNodes } from 'src/utils/validation/validation';
@@ -15,7 +16,6 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IValidationObject, ValidationContextGenerator } from 'src/utils/validation/types';
-
 export class Group extends GroupDef implements GroupValidation {
   private _hierarchyGenerator = new GroupHierarchyGenerator();
 
@@ -24,7 +24,18 @@ export class Group extends GroupDef implements GroupValidation {
   }
 
   render(props: PropsFromGenericComponent<'Group'>): JSX.Element | null {
-    return <GroupRenderer {...props} />;
+    return (
+      <GroupComponent
+        groupNode={props.node}
+        renderLayoutNode={(n) => (
+          <GenericComponent
+            key={n.item.id}
+            node={n}
+          />
+        )}
+      />
+    );
+    // return <GroupRenderer {...props} />;
   }
 
   renderSummary({
