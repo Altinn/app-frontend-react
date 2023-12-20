@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { useMatch, useNavigate } from 'react-router-dom';
+import { useLocation, useMatch, useNavigate } from 'react-router-dom';
 import type { NavigateOptions } from 'react-router-dom';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
@@ -13,6 +13,7 @@ import { ProcessTaskType } from 'src/types';
 type NavigateToPageOptions = {
   focusComponentId?: string;
   returnToView?: string;
+  replace?: boolean;
 };
 
 export enum TaskKeys {
@@ -29,8 +30,8 @@ export const useNavigationParams = () => {
   const instanceMatch = useMatch('/instance/:partyId/:instanceGuid');
   const taskIdMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId');
   const pageKeyMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId/:pageKey');
-
   const statelessMatch = useMatch('/:pageKey');
+  const queryKeys = useLocation().search ?? '';
 
   const partyId = pageKeyMatch?.params.partyId ?? taskIdMatch?.params.partyId ?? instanceMatch?.params.partyId;
   const instanceGuid =
@@ -43,6 +44,7 @@ export const useNavigationParams = () => {
     instanceGuid,
     taskId,
     pageKey,
+    queryKeys,
   };
 };
 
@@ -53,7 +55,7 @@ export const useNavigatePage = () => {
   const processTasks = useLaxProcessData()?.processTasks;
   const lastTaskId = processTasks?.slice(-1)[0]?.elementId;
 
-  const { partyId, instanceGuid, taskId, pageKey } = useNavigationParams();
+  const { partyId, instanceGuid, taskId, pageKey, queryKeys } = useNavigationParams();
   const { orderWithHidden } = useUiConfigContext();
   const layoutSettings = useLaxLayoutSettings();
   const autoSaveBehavior =
@@ -100,12 +102,13 @@ export const useNavigatePage = () => {
    */
   useEffect(() => {
     if (isStatelessApp && order?.[0] !== undefined && (!currentPageId || !isValidPageId(currentPageId))) {
-      navigate(`/${order?.[0]}`, { replace: true });
+      navigate(`/${order?.[0]}${queryKeys}`, { replace: true });
     }
-  }, [isStatelessApp, order, navigate, currentPageId, isValidPageId]);
+  }, [isStatelessApp, order, navigate, currentPageId, isValidPageId, queryKeys]);
 
   const navigateToPage = useCallback(
     (page?: string, options?: NavigateToPageOptions) => {
+      const replace = options?.replace ?? false;
       if (!page) {
         return;
       }
@@ -123,32 +126,33 @@ export const useNavigatePage = () => {
       }
 
       if (isStatelessApp) {
-        return navigate(`/${page}`);
+        return navigate(`/${page}${queryKeys}`, { replace });
       }
 
-      const url = `/instance/${partyId}/${instanceGuid}/${taskId}/${page}`;
-      navigate(url);
+      const url = `/instance/${partyId}/${instanceGuid}/${taskId}/${page}${queryKeys}`;
+      navigate(url, { replace });
     },
     [
-      navigate,
+      order,
+      setFocusId,
+      autoSaveBehavior,
+      currentPageId,
+      isStatelessApp,
       partyId,
       instanceGuid,
       taskId,
-      setFocusId,
+      queryKeys,
+      navigate,
       setReturnToView,
-      autoSaveBehavior,
-      order,
-      currentPageId,
-      isStatelessApp,
     ],
   );
 
   const navigateToTask = useCallback(
     (taskId?: string, options?: NavigateOptions) => {
-      const url = `/instance/${partyId}/${instanceGuid}/${taskId ?? lastTaskId}`;
+      const url = `/instance/${partyId}/${instanceGuid}/${taskId ?? lastTaskId}${queryKeys}`;
       navigate(url, options);
     },
-    [partyId, instanceGuid, lastTaskId, navigate],
+    [partyId, instanceGuid, lastTaskId, queryKeys, navigate],
   );
 
   const isCurrentTask = useMemo(() => currentTaskId === taskId, [currentTaskId, taskId]);
@@ -248,6 +252,7 @@ export const useNavigatePage = () => {
     startUrl,
     order,
     next,
+    queryKeys,
     partyId,
     instanceGuid,
     currentPageId,

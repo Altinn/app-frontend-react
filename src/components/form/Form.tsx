@@ -1,5 +1,5 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 
 import Grid from '@material-ui/core/Grid';
 
@@ -7,6 +7,8 @@ import classes from 'src/components/form/Form.module.css';
 import { MessageBanner } from 'src/components/form/MessageBanner';
 import { ErrorReport } from 'src/components/message/ErrorReport';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -19,8 +21,16 @@ import { getFormHasErrors, missingFieldsInLayoutValidations } from 'src/utils/va
 export function Form() {
   const nodes = useNodes();
   const langTools = useLanguage();
-  const { currentPageId, isValidPageId, startUrl } = useNavigatePage();
+  const { currentPageId, isValidPageId, startUrl, queryKeys } = useNavigatePage();
   const validations = useAppSelector((state) => state.formValidations.validations);
+  useRedirectToStoredPage();
+
+  const { scrollPosition } = usePageNavigationContext();
+  useEffect(() => {
+    if (currentPageId !== undefined && scrollPosition === undefined) {
+      window.scrollTo({ top: 0 });
+    }
+  }, [currentPageId, scrollPosition]);
 
   const page = nodes?.all?.()?.[currentPageId];
   const hasErrors = useAppSelector((state) => getFormHasErrors(state.formValidations.validations));
@@ -52,7 +62,7 @@ export function Form() {
   if (!currentPageId || !isValidPageId(currentPageId)) {
     return (
       <Navigate
-        to={startUrl}
+        to={startUrl + queryKeys}
         replace
       />
     );
@@ -89,4 +99,28 @@ export function Form() {
       <ReadyForPrint />
     </>
   );
+}
+
+/**
+ * Redirects users that had a stored page in their local storage to the correct
+ * page, and later removes this currentViewCacheKey from localstorage, as
+ * it is no longer needed.
+ */
+function useRedirectToStoredPage() {
+  const { currentPageId, partyId, instanceGuid, isValidPageId, navigateToPage } = useNavigatePage();
+  const applicationMetadataId = useApplicationMetadata()?.id;
+  const location = useLocation().pathname;
+
+  const instanceId = `${partyId}/${instanceGuid}`;
+  const currentViewCacheKey = instanceId || applicationMetadataId;
+
+  useEffect(() => {
+    if (!currentPageId && !!currentViewCacheKey) {
+      const lastVisitedPage = localStorage.getItem(currentViewCacheKey);
+      if (lastVisitedPage !== null && isValidPageId(lastVisitedPage)) {
+        localStorage.removeItem(currentViewCacheKey);
+        navigateToPage(lastVisitedPage, { replace: true });
+      }
+    }
+  }, [currentPageId, currentViewCacheKey, isValidPageId, location, navigateToPage]);
 }
