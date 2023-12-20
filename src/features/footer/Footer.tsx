@@ -1,22 +1,20 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import cn from 'classnames';
 
 import { AltinnLogo, LogoColor } from 'src/components/logo/AltinnLogo';
-import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { ContextNotProvided } from 'src/core/contexts/context';
+import { useLaxApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { createFooterComponent } from 'src/features/footer';
 import classes from 'src/features/footer/Footer.module.css';
 import { useFooterLayout } from 'src/features/footer/FooterLayoutProvider';
 
 export const Footer = () => {
   const footerLayout = useFooterLayout();
-  const shouldUseOrgLogo = useApplicationMetadata().logo != null;
+  const application = useLaxApplicationMetadata();
+  const shouldUseOrgLogo = application !== ContextNotProvided && application.logo != null;
 
-  const components = React.useMemo(
-    () => footerLayout?.footer.map((props) => createFooterComponent(props)),
-    [footerLayout],
-  );
-
+  const components = useMemo(() => footerLayout?.map((props) => createFooterComponent(props)), [footerLayout]);
   if (!components && !shouldUseOrgLogo) {
     return null;
   }

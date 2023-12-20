@@ -1,7 +1,8 @@
 import { Children, isValidElement, useMemo } from 'react';
 import type { JSX, ReactNode } from 'react';
 
-import { useApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
+import { ContextNotProvided } from 'src/core/contexts/context';
+import { useLaxApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { useFormDataReadOnly } from 'src/features/formData/FormDataReadOnly';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
@@ -64,6 +65,8 @@ type ObjectToDotNotation<T extends Record<string, any>, Prefix extends string = 
 
 export type ValidLanguageKey = ObjectToDotNotation<FixedLanguageList>;
 
+const emptyObject = {};
+
 /**
  * Hook to resolve a key to a language string or React element (if the key is found and contains markdown or HTML).
  * Prefer this over using the long-named language functions. When those are less used, we can refactor their
@@ -78,7 +81,8 @@ export function useLanguage(node?: LayoutNode) {
   const componentCtx = useFormComponentCtx();
   const nearestNode = node || componentCtx?.node;
   const formData = useFormDataReadOnly();
-  const applicationSettings = useApplicationSettings();
+  const _applicationSettings = useLaxApplicationSettings();
+  const applicationSettings = _applicationSettings === ContextNotProvided ? emptyObject : _applicationSettings;
   const instance = useLaxInstanceData();
   const instanceDataSources = useMemo(() => buildInstanceDataSources(instance), [instance]);
 

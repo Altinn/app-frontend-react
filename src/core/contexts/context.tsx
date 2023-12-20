@@ -4,6 +4,7 @@ import type { Provider } from 'react';
 interface ContextProvider<T> {
   Provider: Provider<T>;
   useCtx: () => T;
+  useLaxCtx: () => T | typeof ContextNotProvided;
   useHasProvider: () => boolean;
 }
 
@@ -33,6 +34,11 @@ export interface LaxContextProps<T> extends BaseProps {
 export type CreateContextProps<T> = StrictContextProps | LaxContextProps<T>;
 
 /**
+ * Special symbol returned from useLaxCtx() when no provider is present.
+ */
+export const ContextNotProvided = Symbol('ContextNotProvided');
+
+/**
  * A strict context must always be provided, and will throw an error if it is not. This is useful for contexts that
  * are required for the application to function.
  */
@@ -58,6 +64,15 @@ export function createContext<T>({ name, required, ...rest }: CreateContextProps
     return value as T;
   };
 
+  const useLaxCtx = (): T | typeof ContextNotProvided => {
+    const hasProvider = useHasProvider();
+    const value = useContext(Context).innerValue;
+    if (!hasProvider) {
+      return ContextNotProvided;
+    }
+    return value as T;
+  };
+
   const MyProvider = ({ value, children }: Parameters<Provider<T | undefined>>[0]) => (
     <Context.Provider value={{ innerValue: value, provided: true }}>{children}</Context.Provider>
   );
@@ -68,6 +83,7 @@ export function createContext<T>({ name, required, ...rest }: CreateContextProps
   return {
     Provider: RealProvider,
     useCtx,
+    useLaxCtx,
     useHasProvider,
   };
 }

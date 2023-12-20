@@ -27,7 +27,7 @@ function useLayoutSettingsQuery() {
   });
 }
 
-const { Provider, useCtx } = delayedContext(() =>
+const { Provider, useCtx, useLaxCtx } = delayedContext(() =>
   createQueryContext({
     name: 'LayoutSettings',
     required: true,
@@ -37,3 +37,4 @@ const { Provider, useCtx } = delayedContext(() =>
 
 export const LayoutSettingsProvider = Provider;
 export const useLayoutSettings = () => useCtx();
+export const useLaxLayoutSettings = () => useLaxCtx();

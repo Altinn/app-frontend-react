@@ -5,6 +5,7 @@ import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import { FooterLayoutActions } from 'src/features/footer/data/footerLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import type { IFooterLayout } from 'src/features/footer/types';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 const useFooterLayoutQuery = () => {
@@ -25,10 +26,11 @@ const useFooterLayoutQuery = () => {
 const { Provider, useCtx } = delayedContext(() =>
   createQueryContext({
     name: 'FooterLayout',
-    required: true,
+    required: false,
+    default: { footer: [] } as IFooterLayout,
     query: useFooterLayoutQuery,
   }),
 );
 
 export const FooterLayoutProvider = Provider;
-export const useFooterLayout = () => useCtx();
+export const useFooterLayout = () => useCtx().footer;

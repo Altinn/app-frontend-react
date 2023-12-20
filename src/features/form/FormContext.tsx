@@ -25,14 +25,14 @@ export function FormProvider({ children }: React.PropsWithChildren) {
       <LayoutsProvider>
         <LayoutSettingsProvider>
           <UiConfigProvider>
-            <FormDataReadWriteProvider>
-              <DataModelSchemaProvider>
-                <AttachmentsStoreProvider>
-                  <AllOptionsStoreProvider>
-                    <NodesProvider>
-                      <AttachmentsProvider>
-                        <DynamicsProvider>
-                          <RulesProvider>
+            <DynamicsProvider>
+              <RulesProvider>
+                <FormDataReadWriteProvider>
+                  <DataModelSchemaProvider>
+                    <AttachmentsStoreProvider>
+                      <AllOptionsStoreProvider>
+                        <NodesProvider>
+                          <AttachmentsProvider>
                             <AllOptionsProvider>
                               {hasProcess ? (
                                 <ProcessNavigationProvider>{children}</ProcessNavigationProvider>
@@ -40,14 +40,14 @@ export function FormProvider({ children }: React.PropsWithChildren) {
                                 children
                               )}
                             </AllOptionsProvider>
-                          </RulesProvider>
-                        </DynamicsProvider>
-                      </AttachmentsProvider>
-                    </NodesProvider>
-                  </AllOptionsStoreProvider>{' '}
-                </AttachmentsStoreProvider>
-              </DataModelSchemaProvider>
-            </FormDataReadWriteProvider>
+                          </AttachmentsProvider>
+                        </NodesProvider>
+                      </AllOptionsStoreProvider>{' '}
+                    </AttachmentsStoreProvider>
+                  </DataModelSchemaProvider>
+                </FormDataReadWriteProvider>
+              </RulesProvider>
+            </DynamicsProvider>
           </UiConfigProvider>
         </LayoutSettingsProvider>
       </LayoutsProvider>

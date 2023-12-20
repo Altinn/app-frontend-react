@@ -2,10 +2,11 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useMatch, useNavigate } from 'react-router-dom';
 import type { NavigateOptions } from 'react-router-dom';
 
+import { ContextNotProvided } from 'src/core/contexts/context';
 import { useIsStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
-import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { useLaxLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useLaxProcessData, useTaskType } from 'src/features/instance/ProcessContext';
 import { ProcessTaskType } from 'src/types';
 
@@ -54,7 +55,9 @@ export const useNavigatePage = () => {
 
   const { partyId, instanceGuid, taskId, pageKey } = useNavigationParams();
   const { orderWithHidden } = useUiConfigContext();
-  const autoSaveBehavior = useLayoutSettings().pages.autoSaveBehavior;
+  const layoutSettings = useLaxLayoutSettings();
+  const autoSaveBehavior =
+    (layoutSettings !== ContextNotProvided && layoutSettings.pages.autoSaveBehavior) || undefined;
 
   const { setFocusId, setReturnToView, hidden } = usePageNavigationContext();
   const taskType = useTaskType(taskId);
