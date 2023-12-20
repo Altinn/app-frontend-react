@@ -6,14 +6,17 @@ import { Add as AddIcon } from '@navikt/ds-icons';
 
 import { AltinnLoader } from 'src/components/AltinnLoader';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
+import { Fieldset } from 'src/components/form/Fieldset';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { useAttachmentDeletionInRepGroups } from 'src/features/attachments/useAttachmentDeletionInRepGroups';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useNavigationParams } from 'src/hooks/useNavigatePage';
 import { Triggers } from 'src/layout/common.generated';
+import classes from 'src/layout/Group/GroupContainer.module.css';
 import {
   RepeatingGroupsFocusProvider,
   useRepeatingGroupsFocusContext,
@@ -22,15 +25,15 @@ import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/Repeatin
 import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/RepeatingGroupTable';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
+import type { TriggerList } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-const getValidationMethod = (node: LayoutNode<'RepeatingGroup'>) => {
+const getValidationMethod = (triggers: TriggerList) => {
   // Validation for whole group takes precedent over single-row validation if both are present.
-  const triggers = node.item.triggers;
-  if (triggers && triggers.includes(Triggers.Validation)) {
+  if (triggers.includes(Triggers.Validation)) {
     return Triggers.Validation;
   }
-  if (triggers && triggers.includes(Triggers.ValidateRow)) {
+  if (triggers.includes(Triggers.ValidateRow)) {
     return Triggers.ValidateRow;
   }
 };
@@ -43,9 +46,8 @@ export function RepeatingGroupContainer({ node }: RepeatingGroupContainerProps):
   const { pageKey } = useNavigationParams();
 
   const { triggerFocus } = useRepeatingGroupsFocusContext();
-  const resolvedTextBindings = node.item.textResourceBindings;
-  const id = node.item.id;
-  const edit = node.item.edit;
+  const { textResourceBindings, id, edit, triggers, rowsBefore, rowsAfter } = node.item;
+  const { title, description, add_button, add_button_full } = textResourceBindings || {};
   const groupState = useAppSelector(
     (state) => state.formLayout.uiConfig.repeatingGroups && state.formLayout.uiConfig.repeatingGroups[id],
   );
@@ -84,15 +86,13 @@ export function RepeatingGroupContainer({ node }: RepeatingGroupContainerProps):
         <AltinnLoader
           style={{ position: 'absolute' }}
           srContent={
-            resolvedTextBindings?.add_button_full
-              ? langAsString(resolvedTextBindings.add_button_full)
-              : `${langAsString('general.add_new')} ${langAsString(resolvedTextBindings?.add_button)}`
+            add_button_full
+              ? langAsString(add_button_full)
+              : `${langAsString('general.add_new')} ${langAsString(add_button)}`
           }
         />
       )}
-      {resolvedTextBindings?.add_button_full
-        ? lang(resolvedTextBindings.add_button_full)
-        : `${langAsString('general.add_new')} ${langAsString(resolvedTextBindings?.add_button)}`}
+      {add_button_full ? lang(add_button_full) : `${langAsString('general.add_new')} ${langAsString(add_button)}`}
     </Button>
   );
 
@@ -106,14 +106,17 @@ export function RepeatingGroupContainer({ node }: RepeatingGroupContainerProps):
         FormLayoutActions.updateRepeatingGroupsEditIndex({
           group: id,
           index: repeatingGroupIndex + 1,
-          validate: edit?.alwaysShowAddButton && repeatingGroupIndex > -1 ? getValidationMethod(node) : undefined,
+          validate:
+            edit?.alwaysShowAddButton && repeatingGroupIndex > -1 && triggers
+              ? getValidationMethod(triggers)
+              : undefined,
           shouldAddRow: !!edit?.alwaysShowAddButton,
           currentPageId: pageKey,
         }),
       );
       setMultiPageIndex(0);
     }
-  }, [dispatch, edit?.alwaysShowAddButton, edit?.mode, id, node, repeatingGroupIndex, setMultiPageIndex, pageKey]);
+  }, [dispatch, edit?.alwaysShowAddButton, edit?.mode, id, triggers, repeatingGroupIndex, setMultiPageIndex, pageKey]);
 
   const handleOnAddButtonClick = (): void => {
     addNewRowToGroup();
@@ -155,7 +158,7 @@ export function RepeatingGroupContainer({ node }: RepeatingGroupContainerProps):
       FormLayoutActions.updateRepeatingGroupsEditIndex({
         group: id,
         index,
-        validate: index === -1 || forceValidation ? getValidationMethod(node) : undefined,
+        validate: (index === -1 || forceValidation) && triggers ? getValidationMethod(triggers) : undefined,
         currentPageId: pageKey,
       }),
     );
@@ -196,8 +199,8 @@ export function RepeatingGroupContainer({ node }: RepeatingGroupContainerProps):
             onClickRemove={handleOnRemoveClick}
             setMultiPageIndex={setMultiPageIndex}
             multiPageIndex={multiPageIndex}
-            rowsBefore={node.item.rowsBefore}
-            rowsAfter={node.item.rowsAfter}
+            rowsBefore={rowsBefore}
+            rowsAfter={rowsAfter}
           />
         )}
         {edit?.mode !== 'showAll' && displayBtn && <AddButton />}
@@ -215,34 +218,109 @@ export function RepeatingGroupContainer({ node }: RepeatingGroupContainerProps):
                 setMultiPageIndex={setMultiPageIndex}
               />
             )}
-            {edit?.mode === 'showAll' &&
-              // Generate array of length repeatingGroupIndex and iterate over indexes
-              Array(repeatingGroupIndex + 1)
-                .fill(0)
-                .map((_, index) => (
-                  <div
-                    key={index}
-                    style={{ width: '100%', marginBottom: !isNested && index == repeatingGroupIndex ? 15 : 0 }}
-                  >
-                    <RepeatingGroupsEditContainer
-                      node={node}
-                      editIndex={index}
-                      deleting={deletingIndexes.includes(index)}
-                      setEditIndex={setEditIndex}
-                      onClickRemove={handleOnRemoveClick}
-                      forceHideSaveButton={true}
-                    />
-                  </div>
-                ))}
+            {edit?.mode === 'showAll' && (
+              <Fieldset
+                legend={title && <Lang id={title} />}
+                description={
+                  description && (
+                    <span className={classes.showAllDescription}>
+                      <Lang id={description} />
+                    </span>
+                  )
+                }
+                className={classes.showAllFieldset}
+              >
+                {
+                  // Generate array of length repeatingGroupIndex and iterate over indexes
+                  Array(repeatingGroupIndex + 1)
+                    .fill(0)
+                    .map((_, index) => (
+                      <div
+                        key={`repeating-group-item-${index}`}
+                        style={{ width: '100%', marginBottom: !isNested && index == repeatingGroupIndex ? 15 : 0 }}
+                      >
+                        <RepeatingGroupsEditContainer
+                          node={node}
+                          editIndex={index}
+                          deleting={deletingIndexes.includes(index)}
+                          setEditIndex={setEditIndex}
+                          onClickRemove={handleOnRemoveClick}
+                          forceHideSaveButton={true}
+                        />
+                      </div>
+                    ))
+                }
+              </Fieldset>
+            )}
           </>
         </ConditionalWrapper>
         {edit?.mode === 'showAll' && displayBtn && <AddButton />}
         <Grid
+          container={true}
           item={true}
-          xs={12}
+          data-componentid={node.item.id}
         >
-          {node.getValidations('repeatingGroup') &&
-            renderValidationMessagesForComponent(node.getValidations('repeatingGroup'), id)}
+          {(!edit?.mode ||
+            edit?.mode === 'showTable' ||
+            edit?.mode === 'onlyTable' ||
+            (edit?.mode === 'hideTable' && editIndex < 0)) && (
+            <RepeatingGroupTable
+              node={node}
+              editIndex={editIndex}
+              repeatingGroupIndex={repeatingGroupIndex}
+              deleting={deletingIndexes.includes(repeatingGroupIndex)}
+              setEditIndex={setEditIndex}
+              onClickRemove={handleOnRemoveClick}
+              setMultiPageIndex={setMultiPageIndex}
+              multiPageIndex={multiPageIndex}
+              rowsBefore={node.item.rowsBefore}
+              rowsAfter={node.item.rowsAfter}
+            />
+          )}
+          {edit?.mode !== 'showAll' && displayBtn && <AddButton />}
+          <ConditionalWrapper
+            condition={!isNested}
+            wrapper={(children) => <FullWidthWrapper>{children}</FullWidthWrapper>}
+          >
+            <>
+              {editIndex >= 0 && edit?.mode === 'hideTable' && (
+                <RepeatingGroupsEditContainer
+                  node={node}
+                  editIndex={editIndex}
+                  setEditIndex={setEditIndex}
+                  multiPageIndex={multiPageIndex}
+                  setMultiPageIndex={setMultiPageIndex}
+                />
+              )}
+              {edit?.mode === 'showAll' &&
+                // Generate array of length repeatingGroupIndex and iterate over indexes
+                Array(repeatingGroupIndex + 1)
+                  .fill(0)
+                  .map((_, index) => (
+                    <div
+                      key={index}
+                      style={{ width: '100%', marginBottom: !isNested && index == repeatingGroupIndex ? 15 : 0 }}
+                    >
+                      <RepeatingGroupsEditContainer
+                        node={node}
+                        editIndex={index}
+                        deleting={deletingIndexes.includes(index)}
+                        setEditIndex={setEditIndex}
+                        onClickRemove={handleOnRemoveClick}
+                        forceHideSaveButton={true}
+                      />
+                    </div>
+                  ))}
+            </>
+          </ConditionalWrapper>
+          {edit?.mode === 'showAll' && displayBtn && <AddButton />}
+          <Grid
+            item={true}
+            xs={12}
+          >
+            {node.getValidations('repeatingGroup') &&
+              renderValidationMessagesForComponent(node.getValidations('repeatingGroup'), id)}
+          </Grid>
         </Grid>
       </Grid>
     </RepeatingGroupsFocusProvider>

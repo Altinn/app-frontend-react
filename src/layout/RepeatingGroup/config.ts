@@ -45,6 +45,13 @@ function makeRepeatingGroup() {
     )
     .addTextResource(
       new CG.trb({
+        name: 'description',
+        title: 'Description',
+        description: 'The description text shown underneath the title',
+      }),
+    )
+    .addTextResource(
+      new CG.trb({
         name: 'add_button_full',
         title: 'Add button (full) (for repeating groups)',
         description: 'The text for the "Add" button (overrides "add_button", and sets the full text for the button)',
@@ -303,5 +310,6 @@ function makeRepeatingGroup() {
     )
 
     .addProperty(new CG.prop('rowsBefore', CG.common('GridRows').optional()))
-    .addProperty(new CG.prop('rowsAfter', CG.common('GridRows').optional()));
+    .addProperty(new CG.prop('rowsAfter', CG.common('GridRows').optional()))
+    .addProperty(new CG.prop('labelSettings', CG.common('ILabelSettings').optional()));
 }

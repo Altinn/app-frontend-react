@@ -38,6 +38,8 @@ export function DisplayLikertGroupContainer({ groupNode, id, onlyRowIndex, rende
     return null;
   }
 
+  const { title, description } = container.textResourceBindings || {};
+
   const isNested = groupNode.parent instanceof BaseLayoutNode;
   const headingLevel = Math.min(Math.max(groupNode.parents().length + 1, 2), 6) as HeadingLevel;
   const headingSize = headingSizes[headingLevel];
@@ -56,22 +58,22 @@ export function DisplayLikertGroupContainer({ groupNode, id, onlyRowIndex, rende
       data-testid='display-group-container'
       data-componentid={container.id}
     >
-      {(container.textResourceBindings?.title || container.textResourceBindings?.body) && (
+      {(title || description) && (
         <Grid
           item={true}
           xs={12}
         >
-          {container.textResourceBindings?.title && (
+          {title && (
             <Heading
               level={headingLevel}
               size={headingSize}
             >
-              <Lang id={container.textResourceBindings?.title} />
+              <Lang id={title} />
             </Heading>
           )}
-          {container.textResourceBindings?.body && (
+          {description && (
             <p className={classes.groupBody}>
-              <Lang id={container.textResourceBindings?.body} />
+              <Lang id={description} />
             </p>
           )}
         </Grid>

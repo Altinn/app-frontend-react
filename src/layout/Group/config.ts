@@ -33,23 +33,6 @@ Config.inner.removeProperty('dataModelBindings');
 
 const commonNonRepChildComponents = new CG.prop('childComponents', new CG.arr(CG.layoutNode)).onlyIn(Variant.Internal);
 
-const commonRepRowsProp = new CG.prop(
-  'rows',
-  new CG.arr(
-    new CG.obj(
-      new CG.prop('index', new CG.num()),
-      new CG.prop('items', new CG.arr(CG.layoutNode)),
-      new CG.prop(
-        'groupExpressions',
-        new CG.import({
-          import: 'HGroupExpressions',
-          from: 'src/layout/Group/types',
-        }).optional(),
-      ),
-    ).exportAs('HRepGroupRow'),
-  ).exportAs('HRepGroupRows'),
-).onlyIn(Variant.Internal);
-
 const commonShowGroupingIndicatorProp = new CG.prop(
   'showGroupingIndicator',
   new CG.bool()
@@ -89,9 +72,9 @@ function makeNonRepeatingGroup() {
     )
     .addTextResource(
       new CG.trb({
-        name: 'body',
-        title: 'Body',
-        description: 'The body text shown underneath the title',
+        name: 'description',
+        title: 'Description',
+        description: 'The description text shown underneath the title',
       }),
     )
     .addProperty(commonNonRepChildComponents)
@@ -130,9 +113,9 @@ function makeNonRepeatingPanelGroup() {
     )
     .addTextResource(
       new CG.trb({
-        name: 'body',
-        title: 'Body',
-        description: 'The body text of the Panel',
+        name: 'description',
+        title: 'Description',
+        description: 'The description text of the Panel',
       }),
     )
     .addProperty(commonNonRepChildComponents)
