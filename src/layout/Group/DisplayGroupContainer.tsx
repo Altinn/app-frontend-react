@@ -3,7 +3,9 @@ import React from 'react';
 import { Heading } from '@digdir/design-system-react';
 import cn from 'classnames';
 
+import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { Fieldset } from 'src/components/form/Fieldset';
+import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/Group/DisplayGroupContainer.module.css';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
@@ -46,36 +48,42 @@ export function DisplayGroupContainer({
   }
 
   const isNested = groupNode.parent instanceof BaseLayoutNode;
+  // const isPanel = container.groupingIndicator == 'panel';
   const headingLevel = Math.min(Math.max(groupNode.parents().length + 1, 2), 6) as HeadingLevel;
   const headingSize = headingSizes[headingLevel];
   const legend = isSummary ? summaryTitle : title;
 
   return (
-    <Fieldset
-      legend={
-        legend && (
-          <Heading
-            level={headingLevel}
-            size={headingSize}
-          >
-            <Lang id={legend} />
-          </Heading>
-        )
-      }
-      className={isSummary ? classes.summary : classes.group}
-      description={description && !isSummary && <Lang id={description} />}
+    <ConditionalWrapper
+      condition={true}
+      wrapper={(child) => <FullWidthWrapper className={classes.panelPadding}>{child}</FullWidthWrapper>}
     >
-      <div
-        id={id || container.id}
-        data-componentid={container.id}
-        data-testid='display-group-container'
-        className={cn(
-          { [classes.groupingIndicator]: !!container.showGroupingIndicator && !isNested },
-          classes.groupContainer,
-        )}
+      <Fieldset
+        legend={
+          legend && (
+            <Heading
+              level={headingLevel}
+              size={headingSize}
+            >
+              <Lang id={legend} />
+            </Heading>
+          )
+        }
+        className={cn(isSummary ? classes.summary : classes.group, { [classes.panel]: true })}
+        description={description && !isSummary && <Lang id={description} />}
       >
-        {groupNode.children(undefined, onlyRowIndex).map((n) => renderLayoutNode(n))}
-      </div>
-    </Fieldset>
+        <div
+          id={id || container.id}
+          data-componentid={container.id}
+          data-testid='display-group-container'
+          className={cn(
+            { [classes.groupingIndicator]: !!container.showGroupingIndicator && !isNested },
+            classes.groupContainer,
+          )}
+        >
+          {groupNode.children(undefined, onlyRowIndex).map((n) => renderLayoutNode(n))}
+        </div>
+      </Fieldset>
+    </ConditionalWrapper>
   );
 }
