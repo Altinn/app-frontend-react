@@ -6,7 +6,7 @@ import type { Options as AxeOptions } from 'cypress-axe';
 
 import { breakpoints } from 'src/hooks/useIsMobile';
 import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
-import type { ILayouts } from 'src/layout/layout';
+import type { LayoutContextValue } from 'src/features/form/layout/LayoutsContext';
 
 const appFrontend = new AppFrontend();
 
@@ -405,22 +405,6 @@ Cypress.Commands.add('moveProcessNext', () => {
   });
 });
 
-Cypress.Commands.add('getReduxState', (selector) =>
-  cy
-    .window()
-    .its('reduxStore')
-    .invoke('getState')
-    .then((state) => {
-      if (selector) {
-        return selector(state);
-      }
-
-      return state;
-    }),
-);
-
-Cypress.Commands.add('reduxDispatch', (action) => cy.window().its('reduxStore').invoke('dispatch', action));
-
 Cypress.Commands.add('interceptLayout', (taskName, mutator, wholeLayoutMutator) => {
   cy.intercept({ method: 'GET', url: `**/api/layouts/${taskName}`, times: 1 }, (req) => {
     req.reply((res) => {
@@ -440,22 +424,26 @@ Cypress.Commands.add('interceptLayout', (taskName, mutator, wholeLayoutMutator) 
 
 Cypress.Commands.add('changeLayout', (mutator, wholeLayoutMutator) => {
   cy.window().then((win) => {
-    const state = win.reduxStore.getState();
-    const layouts: ILayouts = structuredClone(state.formLayout.layouts || {});
-    if (mutator && layouts) {
-      for (const layout of Object.values(layouts)) {
-        for (const component of layout || []) {
-          mutator(component);
+    const activeData = win.queryClient.getQueryCache().findAll({ type: 'active' });
+    for (const query of activeData) {
+      if (Array.isArray(query.queryKey) && query.queryKey[0] === 'formLayouts') {
+        const copy = structuredClone(query.state.data) as LayoutContextValue | undefined;
+        if (copy) {
+          if (mutator) {
+            for (const page of Object.values(copy.layouts)) {
+              for (const component of page || []) {
+                mutator(component);
+              }
+            }
+          }
+          if (wholeLayoutMutator) {
+            wholeLayoutMutator(copy.layouts);
+          }
+
+          win.queryClient.setQueryData(query.queryKey, copy);
         }
       }
     }
-    if (wholeLayoutMutator) {
-      wholeLayoutMutator(layouts);
-    }
-    win.reduxStore.dispatch({
-      type: 'formLayout/updateLayouts',
-      payload: layouts,
-    });
   });
 });
 

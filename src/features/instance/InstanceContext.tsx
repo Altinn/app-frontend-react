@@ -121,10 +121,6 @@ const InnerInstanceProvider = ({
     instantiation.error && setError(instantiation.error);
   }, [fetchQuery.error, instantiation.error]);
 
-  // TODO: Remove this when no longer needed in sagas
-  const instanceId = `${partyId}/${instanceGuid}`;
-  window.instanceId = instanceId;
-
   if (error) {
     return <DisplayError error={error} />;
   }
@@ -146,7 +142,7 @@ const InnerInstanceProvider = ({
         },
         partyId,
         instanceGuid,
-        instanceId,
+        instanceId: `${partyId}/${instanceGuid}`,
       }}
     >
       <ProcessProvider instance={data}>{children}</ProcessProvider>

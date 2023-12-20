@@ -8,7 +8,6 @@ import {
   getLayoutSettingsUrl,
   getLayoutsUrl,
   getOptionsUrl,
-  getProcessNextUrl,
   getProcessStateUrl,
   getRedirectUrl,
   getRulehandlerUrl,
@@ -52,12 +51,6 @@ describe('Frontend urlHelper.ts', () => {
       expect(getDataValidationUrl('12345/instanceId-1234', 'dataGuid')).toBe(
         'https://local.altinn.cloud/ttd/test/instances/12345/instanceId-1234/data/dataGuid/validate',
       );
-    });
-    it('should return the expected url for getProcessNextUrl', () => {
-      expect(getProcessNextUrl('taskId')).toBe(
-        'https://local.altinn.cloud/ttd/test/instances/test-instance-id/process/next?elementId=taskId',
-      );
-      expect(getProcessNextUrl()).toBe('https://local.altinn.cloud/ttd/test/instances/test-instance-id/process/next');
     });
     it('should return the expected url for getRedirectUrl', () => {
       expect(getRedirectUrl('http://www.nrk.no')).toBe(

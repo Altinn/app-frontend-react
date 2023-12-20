@@ -82,8 +82,12 @@ export const doInstantiateWithPrefill = async (data: Instantiation): Promise<IIn
 export const doInstantiate = async (partyId: string): Promise<IInstance> =>
   cleanUpInstanceData((await httpPost(getCreateInstancesUrl(partyId))).data);
 
-export const doProcessNext = async (taskId?: string, language?: string, action?: IActionType): Promise<IProcess> =>
-  httpPut(getProcessNextUrl(taskId, language), action ? { action } : null);
+export const doProcessNext = async (
+  instanceId: string,
+  taskId?: string,
+  language?: string,
+  action?: IActionType,
+): Promise<IProcess> => httpPut(getProcessNextUrl(instanceId, taskId, language), action ? { action } : null);
 
 export const doAttachmentUpload = async (instanceId: string, dataTypeId: string, file: File): Promise<IData> => {
   const url = getFileUploadUrl(instanceId, dataTypeId);
@@ -159,7 +163,7 @@ export const fetchInstanceData = (partyId: string, instanceGuid: string): Promis
 
 export const fetchProcessState = (instanceId: string): Promise<IProcess> => httpGet(getProcessStateUrl(instanceId));
 
-export const fetchProcessNextSteps = (): Promise<string[]> => httpGet(getProcessNextUrl());
+export const fetchProcessNextSteps = (instanceId: string): Promise<string[]> => httpGet(getProcessNextUrl(instanceId));
 
 export const fetchApplicationMetadata = (): Promise<IApplicationMetadata> => httpGet(applicationMetadataApiUrl);
 

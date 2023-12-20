@@ -55,13 +55,13 @@ export const getDataValidationUrl = (instanceId: string, dataGuid: string) =>
 export const getPdfFormatUrl = (instanceId: string, dataGuid: string) =>
   `${appPath}/instances/${instanceId}/data/${dataGuid}/pdf/format`;
 
-export const getProcessNextUrl = (taskId?: string, language?: string) => {
+export const getProcessNextUrl = (instanceId: string, taskId?: string, language?: string) => {
   const queryString = getQueryStringFromObject({
     elementId: taskId,
     lang: language,
   });
 
-  return `${appPath}/instances/${window.instanceId}/process/next${queryString}`;
+  return `${appPath}/instances/${instanceId}/process/next${queryString}`;
 };
 
 export const getRedirectUrl = (returnUrl: string) => `${appPath}/api/v1/redirect?url=${encodeURIComponent(returnUrl)}`;

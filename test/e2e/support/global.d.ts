@@ -1,9 +1,7 @@
-import type { PayloadAction } from '@reduxjs/toolkit';
-
 import type { CyUser } from 'test/e2e/support/auth';
 
 import type { CompOrGroupExternal, ILayoutCollection, ILayouts } from 'src/layout/layout';
-import type { ILayoutSets, IRuntimeState } from 'src/types';
+import type { ILayoutSets } from 'src/types';
 
 export type FrontendTestTask = 'message' | 'changename' | 'group' | 'likert' | 'datalist' | 'confirm';
 export type FillableFrontendTasks = Exclude<FrontendTestTask, 'message' | 'confirm'>;
@@ -100,17 +98,6 @@ declare global {
        * Force moving to the next task in the process
        */
       moveProcessNext(): Chainable<Element>;
-
-      /**
-       * Get the current redux state
-       * @example cy.getReduxState((state) => state.formData).should('have.length', 3)
-       */
-      getReduxState(selector?: (state: IRuntimeState) => any): any;
-
-      /**
-       * Dispatch a redux action directly
-       */
-      reduxDispatch(action: PayloadAction<any>): any;
 
       /**
        * Allows you to intercept the fetched layout and make changes to it. This makes

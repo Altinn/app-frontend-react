@@ -47,7 +47,7 @@ const defaultQueryClient = new QueryClient({
 
 export const AppQueriesProvider = ({
   children,
-  queryClient,
+  queryClient = defaultQueryClient,
   ...allQueries
 }: React.PropsWithChildren<AppQueriesProps>) => {
   const queries = Object.fromEntries(
@@ -66,8 +66,12 @@ export const AppQueriesProvider = ({
     }),
   ) as EnhancedMutations;
 
+  // Lets us access the query client from the console, and inject data into the cache (for example for use in
+  // Cypress tests)
+  window.queryClient = queryClient;
+
   return (
-    <QueryClientProvider client={queryClient ?? defaultQueryClient}>
+    <QueryClientProvider client={queryClient}>
       <Provider value={{ queries, mutations: enhancedMutations }}>{children}</Provider>
     </QueryClientProvider>
   );

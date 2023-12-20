@@ -809,21 +809,6 @@ export const ExprTypes: {
   },
 };
 
-/**
- * This function is attached globally, to aid in expression development. An app developer can use this function
- * to try out a given expression (even in the context of a given component ID), and see the result directly in
- * the browser console window.
- *
- * @deprecated This has been replaced by the developer tools, and should not be used anymore. It throws an error, but
- * after a while we can probably remove it entirely.
- */
-window.evalExpression = () => {
-  throw new Error(
-    'evalExpression() utgår. Du kan nå evaluere og teste uttrykk i utviklerverktøyene i stedet. Trykk Ctrl+Shift+K ' +
-      'for å åpne utviklerverktøyene, og naviger til fanen som heter "Uttrykk".',
-  );
-};
-
 export const ExprConfigForComponent: ExprObjConfig<CompExternal> = {
   readOnly: {
     returnType: ExprVal.Boolean,

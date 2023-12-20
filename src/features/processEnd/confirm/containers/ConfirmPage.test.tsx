@@ -39,7 +39,6 @@ describe('ConfirmPage', () => {
   });
 
   it('should show loading when clicking submit', async () => {
-    window.instanceId = getInstanceDataMock()?.id;
     const { mutations } = await renderWithInstanceAndLayout({
       renderer: () => <ConfirmPage {...props} />,
       queries: {
