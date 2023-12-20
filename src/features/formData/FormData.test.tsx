@@ -7,8 +7,10 @@ import { userEvent } from '@testing-library/user-event';
 
 import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { DynamicsProvider } from 'src/features/form/dynamics/DynamicsContext';
 import { LayoutsProvider } from 'src/features/form/layout/LayoutsContext';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
+import { RulesProvider } from 'src/features/form/rules/RulesContext';
 import { FormDataReadWriteProvider } from 'src/features/formData/FormDataReadWrite';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { FormDataWriteGatekeepersProvider } from 'src/features/formData/FormDataWriteGatekeepers';
@@ -78,9 +80,13 @@ async function genericRender(props: Partial<Parameters<typeof renderWithMinimalP
         <ApplicationMetadataProvider>
           <LayoutSetsProvider>
             <LayoutsProvider>
-              <FormDataWriteGatekeepersProvider value={formDataMethods}>
-                <FormDataReadWriteProvider>{props.renderer && props.renderer()}</FormDataReadWriteProvider>
-              </FormDataWriteGatekeepersProvider>
+              <DynamicsProvider>
+                <RulesProvider>
+                  <FormDataWriteGatekeepersProvider value={formDataMethods}>
+                    <FormDataReadWriteProvider>{props.renderer && props.renderer()}</FormDataReadWriteProvider>
+                  </FormDataWriteGatekeepersProvider>
+                </RulesProvider>
+              </DynamicsProvider>
             </LayoutsProvider>
           </LayoutSetsProvider>
         </ApplicationMetadataProvider>

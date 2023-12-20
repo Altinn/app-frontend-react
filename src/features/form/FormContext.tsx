@@ -42,7 +42,7 @@ export function FormProvider({ children }: React.PropsWithChildren) {
                             </AllOptionsProvider>
                           </AttachmentsProvider>
                         </NodesProvider>
-                      </AllOptionsStoreProvider>{' '}
+                      </AllOptionsStoreProvider>
                     </AttachmentsStoreProvider>
                   </DataModelSchemaProvider>
                 </FormDataReadWriteProvider>

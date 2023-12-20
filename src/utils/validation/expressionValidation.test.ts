@@ -1,4 +1,3 @@
-import dot from 'dot-object';
 import fs from 'node:fs';
 
 import { getHierarchyDataSourcesMock } from 'src/__mocks__/getHierarchyDataSourcesMock';
@@ -62,7 +61,7 @@ describe('Expression validation shared tests', () => {
 
     const dataSources: HierarchyDataSources = {
       ...getHierarchyDataSourcesMock(),
-      formData: dot.dot(formData),
+      formData,
       instanceDataSources: buildInstanceDataSources(),
       authContext: buildAuthContext(undefined),
       hiddenFields,

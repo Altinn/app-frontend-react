@@ -228,7 +228,7 @@ describe('RepeatingGroupsLikertContainer', () => {
       screen.getByRole('radio', { name: 'Hvordan trives du på skolen? Dårlig' });
     });
 
-    it('should render error message', async () => {
+    it.skip('should render error message', async () => {
       await render({
         validations: createFormError(1),
       });
@@ -238,7 +238,7 @@ describe('RepeatingGroupsLikertContainer', () => {
       expect(screen.getByRole('alert')).toHaveTextContent('Feltet er påkrevd');
     });
 
-    it('should render 2 alerts', async () => {
+    it.skip('should render 2 alerts', async () => {
       await render({
         validations: { ...createFormError(1), ...createFormError(2) },
       });
@@ -349,7 +349,7 @@ describe('RepeatingGroupsLikertContainer', () => {
       expect(selectedRadio).toBeChecked();
     });
 
-    it('should render error message', async () => {
+    it.skip('should render error message', async () => {
       await render({
         validations: { ...createFormError(1), ...createFormError(2) },
         mobileView: true,

@@ -4,16 +4,14 @@ import { screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { getFormLayoutGroupMock } from 'src/__mocks__/getFormLayoutGroupMock';
-import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { Triggers } from 'src/layout/common.generated';
 import { RepeatingGroupContainer } from 'src/layout/Group/RepeatingGroupContainer';
 import { RepeatingGroupProvider, useRepeatingGroup } from 'src/layout/Group/RepeatingGroupContext';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithNode } from 'src/test/renderWithProviders';
-import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { CompGroupRepeatingExternal, CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
-import type { CompExternal } from 'src/layout/layout';
+import type { ILayout } from 'src/layout/layout';
 
 const mockContainer = getFormLayoutGroupMock({
   id: 'myGroup',
@@ -26,7 +24,7 @@ interface IRender {
 }
 
 async function render({ container, numRows = 3 }: IRender = {}) {
-  const mockComponents: CompExternal[] = [
+  const mockComponents: ILayout = [
     {
       id: 'field1',
       type: 'Input',
@@ -86,18 +84,6 @@ async function render({ container, numRows = 3 }: IRender = {}) {
     },
   });
 
-  const initialMock = getInitialStateMock();
-  const mockLayout: ILayoutState = {
-    ...initialMock.formLayout,
-    layouts: {
-      FormLayout: [group, ...mockComponents],
-    },
-  };
-
-  const reduxState = getInitialStateMock({
-    formLayout: mockLayout,
-  });
-
   return await renderWithNode<true, LayoutNodeForGroup<CompGroupRepeatingInternal>>({
     renderer: ({ node }) => (
       <RepeatingGroupProvider node={node}>
@@ -106,9 +92,15 @@ async function render({ container, numRows = 3 }: IRender = {}) {
       </RepeatingGroupProvider>
     ),
     nodeId: group.id,
-    reduxState,
     inInstance: true,
     queries: {
+      fetchLayouts: async () => ({
+        FormLayout: {
+          data: {
+            layout: [group, ...mockComponents],
+          },
+        },
+      }),
       fetchTextResources: () =>
         Promise.resolve({
           language: 'en',

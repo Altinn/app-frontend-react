@@ -215,6 +215,15 @@ describe('Form', () => {
     await renderWithInstanceAndLayout({
       renderer: () => <Form />,
       queries: {
+        fetchFormData: async () => ({
+          Group: [
+            {
+              prop1: 'value1',
+              prop2: 'value2',
+              prop3: 'value3',
+            },
+          ],
+        }),
         fetchLayouts: () =>
           Promise.resolve({
             FormLayout: {

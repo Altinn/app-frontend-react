@@ -708,6 +708,7 @@ export async function renderGenericComponentTest<T extends CompTypes, InInstance
     nodeId: realComponentDef.id,
     renderer: Wrapper,
     inInstance: (rest.inInstance ?? true) as InInstance,
+    initialPage,
     queries: {
       fetchLayouts: async () => ({
         [initialPage]: {
