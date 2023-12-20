@@ -163,8 +163,8 @@ describe('ListComponent', () => {
     const formData = JSON.parse(multiPart.get('dataModel') as string);
     expect(formData).toEqual({
       CountryName: 'Denmark',
-      CountryPopulation: 6,
-      CountryHighestMountain: 170,
+      CountryPopulation: '6',
+      CountryHighestMountain: '170',
     });
 
     jest.useRealTimers();

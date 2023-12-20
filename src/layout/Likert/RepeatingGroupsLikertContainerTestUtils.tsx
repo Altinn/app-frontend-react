@@ -8,12 +8,11 @@ import { RepeatingGroupsLikertContainer } from 'src/layout/Likert/RepeatingGroup
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import { useResolvedNode } from 'src/utils/layout/NodesContext';
-import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { FDNewValue } from 'src/features/formData/FormDataWriteStateMachine';
 import type { IRawTextResource, ITextResourceResult } from 'src/features/language/textResources';
 import type { IValidationState } from 'src/features/validation/validationSlice';
 import type { IOption } from 'src/layout/common.generated';
-import type { CompGroupExternal, CompGroupRepeatingLikertExternal } from 'src/layout/Group/config.generated';
+import type { CompGroupRepeatingLikertExternal } from 'src/layout/Group/config.generated';
 import type { CompOrGroupExternal } from 'src/layout/layout';
 import type { CompLikertExternal } from 'src/layout/Likert/config.generated';
 import type { ILayoutValidations } from 'src/utils/validation/types';
@@ -96,27 +95,6 @@ export const createFormDataUpdateProp = (index: number, optionValue: string): FD
   newValue: optionValue,
 });
 
-const createLayout = (container: CompGroupExternal, components: CompOrGroupExternal[]): ILayoutState => ({
-  layoutsets: null,
-  layouts: {
-    FormLayout: [container, ...components],
-  },
-  layoutSetId: null,
-  uiConfig: {
-    hiddenFields: [],
-    currentView: 'FormLayout',
-    focus: null,
-    pageOrderConfig: {
-      order: null,
-      hidden: [],
-      hiddenExpr: {},
-    },
-    pageTriggers: [],
-    excludePageFromPdf: [],
-    excludeComponentFromPdf: [],
-  },
-});
-
 export const createFormError = (index: number): ILayoutValidations => ({
   [`field1-${index}`]: {
     simpleBinding: {
@@ -186,14 +164,24 @@ export const render = async ({
   return await renderWithInstanceAndLayout({
     renderer: () => <ContainerTester id={mockLikertContainer.id} />,
     reduxState: getInitialStateMock({
-      formLayout: createLayout(mockLikertContainer, components),
       formValidations: createFormValidationsForCurrentView(validations),
     }),
-    initialPage: 'Task_1/FormLayout',
     queries: {
-      fetchOptions: () => Promise.resolve({ data: mockOptions, headers: {} } as AxiosResponse<IOption[], any>),
-      fetchTextResources: () => Promise.resolve(createTextResource(mockQuestions, extraTextResources)),
+      fetchOptions: async () => ({ data: mockOptions, headers: {} }) as AxiosResponse<IOption[], any>,
+      fetchTextResources: async () => createTextResource(mockQuestions, extraTextResources),
       fetchFormData: async () => generateMockFormData(mockQuestions),
+      fetchLayouts: async () => ({
+        FormLayout: {
+          data: {
+            layout: [mockLikertContainer, ...components],
+          },
+        },
+      }),
+      fetchLayoutSettings: async () => ({
+        pages: {
+          order: ['FormLayout'],
+        },
+      }),
     },
   });
 };

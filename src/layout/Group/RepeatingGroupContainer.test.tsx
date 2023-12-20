@@ -107,7 +107,6 @@ async function render({ container, numRows = 3 }: IRender = {}) {
     ),
     nodeId: group.id,
     reduxState,
-    initialPage: 'Task_1/FormLayout',
     inInstance: true,
     queries: {
       fetchTextResources: () =>

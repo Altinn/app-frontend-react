@@ -10,50 +10,26 @@ import { RepeatingGroupProvider, useRepeatingGroup } from 'src/layout/Group/Repe
 import { RepeatingGroupTable } from 'src/layout/Group/RepeatingGroupTable';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithNode } from 'src/test/renderWithProviders';
-import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
-import type { TextResourceMap } from 'src/features/language/textResources';
 import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.generated';
 import type { IOption } from 'src/layout/common.generated';
 import type { CompGroupRepeatingExternal, CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
-import type { CompOrGroupExternal } from 'src/layout/layout';
+import type { CompOrGroupExternal, ILayoutCollection } from 'src/layout/layout';
 
 (global as any).ResizeObserver = ResizeObserverModule;
 
-const getLayout = (group: CompGroupRepeatingExternal, components: CompOrGroupExternal[]) => {
-  const layout: ILayoutState = {
-    layouts: {
-      FormLayout: [group, ...components],
+const getLayout = (group: CompGroupRepeatingExternal, components: CompOrGroupExternal[]): ILayoutCollection => ({
+  FormLayout: {
+    data: {
+      layout: [group, ...components],
     },
-    layoutSetId: null,
-    uiConfig: {
-      hiddenFields: [],
-      // repeatingGroups: {
-      //   'mock-container-id': {
-      //     index: 3,
-      //   },
-      // },
-      currentView: 'FormLayout',
-      focus: undefined,
-      pageOrderConfig: {
-        order: ['FormLayout'],
-        hidden: [],
-        hiddenExpr: {},
-      },
-      excludePageFromPdf: [],
-      excludeComponentFromPdf: [],
-    },
-    layoutsets: null,
-  };
-
-  return layout;
-};
+  },
+});
 
 describe('RepeatingGroupTable', () => {
   const group = getFormLayoutGroupMock({
     id: 'mock-container-id',
   });
-  const textResources: TextResourceMap = { 'option.label': { value: 'Value to be shown' } };
   const options: IOption[] = [{ value: 'option.value', label: 'option.label' }];
   const components: CompOrGroupExternal[] = [
     {
@@ -106,7 +82,6 @@ describe('RepeatingGroupTable', () => {
       options,
     } as CompCheckboxesExternal,
   ];
-  const layout: ILayoutState = getLayout(group, components);
 
   describe('popOver warning', () => {
     it('should open and close delete-warning on delete click when alertOnDelete is active', async () => {
@@ -187,11 +162,8 @@ describe('RepeatingGroupTable', () => {
     });
   });
 
-  const render = async (newLayout?: ILayoutState) => {
+  const render = async (layout = getLayout(group, components)) => {
     const reduxState = getInitialStateMock();
-    reduxState.formLayout = newLayout || layout;
-    reduxState.textResources.resourceMap = textResources;
-
     return await renderWithNode<true, LayoutNodeForGroup<CompGroupRepeatingInternal>>({
       nodeId: group.id,
       inInstance: true,
@@ -202,6 +174,16 @@ describe('RepeatingGroupTable', () => {
         </RepeatingGroupProvider>
       ),
       queries: {
+        fetchLayouts: async () => layout,
+        fetchTextResources: async () => ({
+          language: 'nb',
+          resources: [
+            {
+              id: 'option.label',
+              value: 'Value to be shown',
+            },
+          ],
+        }),
         fetchFormData: async () => ({
           'some-group': [
             { checkBoxBinding: 'option.value', prop1: 'test row 0' },

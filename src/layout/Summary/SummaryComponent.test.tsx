@@ -2,22 +2,19 @@ import React from 'react';
 
 import { fireEvent, screen } from '@testing-library/react';
 
-import { getFormLayoutStateMock } from 'src/__mocks__/getFormLayoutStateMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { renderWithNode } from 'src/test/renderWithProviders';
-import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { CompInputExternal } from 'src/layout/Input/config.generated';
-import type { CompExternal } from 'src/layout/layout';
+import type { CompExternal, ILayoutCollection } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IValidations } from 'src/utils/validation/types';
 
 describe('SummaryComponent', () => {
-  const pageId = 'FormLayout';
-  const layoutMock = (): ILayoutState =>
-    getFormLayoutStateMock({
-      layouts: {
-        [pageId]: [
+  const layoutMock = (): ILayoutCollection => ({
+    FormLayout: {
+      data: {
+        layout: [
           ...['Input', 'Group', 'FileUpload', 'FileUploadWithTag', 'Checkboxes'].map(
             (t) =>
               ({
@@ -31,7 +28,9 @@ describe('SummaryComponent', () => {
           ),
         ],
       },
-    });
+    },
+  });
+
   test('should render Group', async () => {
     await render({ componentRef: 'Group' });
     expect(screen.getByTestId('summary-group-component')).toBeInTheDocument();
@@ -56,8 +55,8 @@ describe('SummaryComponent', () => {
     await render(
       { componentRef: 'Input' },
       {
-        [pageId]: {
-          ['Input']: {
+        FormLayout: {
+          Input: {
             simpleBinding: {
               errors: ['Error message'],
               warnings: [],
@@ -69,10 +68,8 @@ describe('SummaryComponent', () => {
     expect(screen.getByText('Error message')).toBeInTheDocument();
   });
   test('should not render if hidden', async () => {
-    const otherLayout = {
-      ...layoutMock(),
-    };
-    const components = (otherLayout.layouts && otherLayout.layouts[pageId]) || [];
+    const otherLayout = layoutMock();
+    const components = otherLayout.FormLayout.data.layout;
     for (const component of components) {
       if (component.id === 'Input') {
         component.hidden = true;
@@ -86,17 +83,11 @@ describe('SummaryComponent', () => {
   });
 
   test('should get title text from resource or default', async () => {
-    const otherLayout = {
-      ...layoutMock(),
+    const otherLayout = layoutMock();
+    const firstComponent = otherLayout.FormLayout.data.layout[0];
+    (firstComponent as CompInputExternal).textResourceBindings = {
+      title: 'default title',
     };
-    const firstComponent =
-      otherLayout.layouts && pageId && otherLayout.layouts[pageId] && otherLayout.layouts[pageId][0];
-
-    if (firstComponent) {
-      (firstComponent as CompInputExternal).textResourceBindings = {
-        title: 'default title',
-      };
-    }
 
     await render({ componentRef: 'Input' }, {}, otherLayout);
     expect(screen.getByText('default title')).toBeInTheDocument();
@@ -115,7 +106,7 @@ describe('SummaryComponent', () => {
     validations: IValidations = {},
     mockLayout = layoutMock(),
   ) => {
-    const layoutPage = mockLayout.layouts && mockLayout.layouts[pageId];
+    const layoutPage = mockLayout.FormLayout.data.layout;
     layoutPage?.push({
       type: 'Summary',
       id: 'mySummary',
@@ -126,14 +117,16 @@ describe('SummaryComponent', () => {
       nodeId: 'mySummary',
       inInstance: true,
       renderer: ({ node }) => <SummaryComponent summaryNode={node} />,
-      initialPage: `Task_1/${props.currentPageId}`,
+      initialPage: props.currentPageId,
       reduxState: {
         ...getInitialStateMock(),
-        formLayout: mockLayout,
         formValidations: {
           validations,
           invalidDataTypes: [],
         },
+      },
+      queries: {
+        fetchLayouts: async () => mockLayout,
       },
     });
   };

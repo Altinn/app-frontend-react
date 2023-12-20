@@ -3,6 +3,7 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 
 import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
+import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
 import { renderWithNode } from 'src/test/renderWithProviders';
@@ -112,7 +113,6 @@ const render = async ({ component, addAttachment = true }: RenderProps) => {
   });
 
   const reduxState = getInitialStateMock((state) => {
-    state.formLayout.layouts!.FormLayout = [component];
     state.applicationMetadata.applicationMetadata = application;
     addAttachment && state.deprecated.lastKnownInstance!.data.push(attachment);
   });
@@ -124,6 +124,11 @@ const render = async ({ component, addAttachment = true }: RenderProps) => {
     inInstance: true,
     queries: {
       fetchApplicationMetadata: async () => application,
+      fetchInstanceData: async () => ({
+        ...getInstanceDataMock((i) => {
+          addAttachment && i.data.push(attachment);
+        }),
+      }),
       fetchLayouts: async () => ({
         FormLayout: {
           data: {

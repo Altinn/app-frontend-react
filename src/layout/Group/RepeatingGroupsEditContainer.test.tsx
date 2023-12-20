@@ -4,11 +4,9 @@ import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { getMultiPageGroupMock } from 'src/__mocks__/getMultiPageGroupMock';
-import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { RepeatingGroupProvider, useRepeatingGroup } from 'src/layout/Group/RepeatingGroupContext';
 import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
 import { renderWithNode } from 'src/test/renderWithProviders';
-import type { TextResourceMap } from 'src/features/language/textResources';
 import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.generated';
 import type { IOption } from 'src/layout/common.generated';
 import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
@@ -16,7 +14,6 @@ import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { CompExternal } from 'src/layout/layout';
 
 describe('RepeatingGroupsEditContainer', () => {
-  const textResources: TextResourceMap = { 'option.label': { value: 'Value to be shown' } };
   const options: IOption[] = [{ value: 'option.value', label: 'option.label' }];
   const components: CompExternal[] = [
     {
@@ -84,10 +81,6 @@ describe('RepeatingGroupsEditContainer', () => {
     const multiPageGroup = getMultiPageGroupMock({ id: 'group' });
     multiPageGroup.edit!.saveAndNextButton = true;
 
-    const reduxState = getInitialStateMock();
-    reduxState.formLayout.layouts = { FormLayout: [multiPageGroup, ...components] };
-    reduxState.textResources.resourceMap = textResources;
-
     return await renderWithNode<true, LayoutNodeForGroup<CompGroupRepeatingInternal>>({
       nodeId: 'group',
       inInstance: true,
@@ -97,6 +90,22 @@ describe('RepeatingGroupsEditContainer', () => {
         </RepeatingGroupProvider>
       ),
       queries: {
+        fetchLayouts: async () => ({
+          FormLayout: {
+            data: {
+              layout: [multiPageGroup, ...components],
+            },
+          },
+        }),
+        fetchTextResources: async () => ({
+          language: 'en',
+          resources: [
+            {
+              id: 'option.label',
+              value: 'Value to be shown',
+            },
+          ],
+        }),
         fetchFormData: async () => ({
           multipageGroup: [
             {
@@ -112,7 +121,6 @@ describe('RepeatingGroupsEditContainer', () => {
           ],
         }),
       },
-      reduxState,
     });
   };
 });

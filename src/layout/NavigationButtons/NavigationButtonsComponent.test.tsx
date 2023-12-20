@@ -25,7 +25,7 @@ describe('NavigationButtons', () => {
     textResourceBindings: {},
   };
 
-  const render = async ({ component, genericProps, currentPageId = 'layout1' }: RenderProps) => {
+  const render = async ({ component, genericProps, currentPageId = 'layout1' }: RenderProps) =>
     await renderGenericComponentTest({
       type: 'NavigationButtons',
       renderer: (props) => <NavigationButtonsComponent {...props} />,
@@ -69,12 +69,10 @@ describe('NavigationButtons', () => {
             },
           },
         }),
-        fetchLayoutSets: () =>
-          Promise.resolve({ sets: [{ dataType: 'test-data-model', id: 'message', tasks: ['Task_1'] }] }),
-        fetchLayoutSettings: () => Promise.resolve({ pages: { order: ['layout1', 'layout2'] } }),
+        fetchLayoutSets: async () => ({ sets: [{ dataType: 'test-data-model', id: 'message', tasks: ['Task_1'] }] }),
+        fetchLayoutSettings: async () => ({ pages: { order: ['layout1', 'layout2'] } }),
       },
     });
-  };
 
   test('renders default NavigationButtons component', async () => {
     await render({

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
 import { createTheme, MuiThemeProvider } from '@material-ui/core';
@@ -57,8 +57,16 @@ interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   queries?: Partial<AppQueries>;
   reduxState?: IRuntimeState;
   reduxGateKeeper?: (action: ReduxAction) => boolean;
+}
+
+interface InstanceRouterProps {
   initialPage?: string;
   taskId?: string;
+  instanceId?: string;
+}
+
+interface ExtendedRenderOptionsWithInstance extends ExtendedRenderOptions, InstanceRouterProps {
+  formDataMethods?: Partial<FormDataWriteGatekeepers>;
 }
 
 interface BaseRenderOptions extends ExtendedRenderOptions {
@@ -161,6 +169,11 @@ export function makeDefaultFormDataMethodMocks(): FormDataWriteGatekeepers {
   };
 }
 
+function NotFound() {
+  const location = useLocation();
+  return <div>Not found: {location.pathname}</div>;
+}
+
 function DefaultRouter({ children }: PropsWithChildren) {
   return (
     <MemoryRouter>
@@ -168,6 +181,39 @@ function DefaultRouter({ children }: PropsWithChildren) {
         <Route
           path={'/'}
           element={<>{children}</>}
+        />
+        <Route
+          path={'*'}
+          element={<NotFound />}
+        />
+      </Routes>
+    </MemoryRouter>
+  );
+}
+
+export function InstanceRouter({
+  children,
+  instanceId = exampleInstanceId,
+  taskId = 'Task_1',
+  initialPage = 'FormLayout',
+}: PropsWithChildren<InstanceRouterProps>) {
+  return (
+    <MemoryRouter
+      basename={'/ttd/test'}
+      initialEntries={[`/ttd/test/instance/${instanceId}/${taskId}/${initialPage}`]}
+    >
+      <Routes>
+        <Route
+          path={'instance/:partyId/:instanceGuid/:taskId/:pageId'}
+          element={children}
+        />
+        <Route
+          path={'instance/:partyId/:instanceGuid/:taskId'}
+          element={children}
+        />
+        <Route
+          path={'*'}
+          element={<NotFound />}
         />
       </Routes>
     </MemoryRouter>
@@ -454,27 +500,12 @@ export const renderWithoutInstanceAndLayout = async ({
 export const renderWithInstanceAndLayout = async ({
   renderer,
   reduxState: _reduxState,
+  instanceId,
+  taskId,
   initialPage = 'FormLayout',
-  taskId = 'Task_1',
   formDataMethods,
   ...renderOptions
-}: ExtendedRenderOptions & {
-  formDataMethods?: Partial<FormDataWriteGatekeepers>;
-}) => {
-  const InstanceRouter = ({ children }: PropsWithChildren) => (
-    <MemoryRouter
-      basename={'/ttd/test'}
-      initialEntries={[`/ttd/test/instance/${exampleInstanceId}/${taskId}/${initialPage}`]}
-    >
-      <Routes>
-        <Route
-          path={'instance/:partyId/:instanceGuid/:taskId/:pageId'}
-          element={children}
-        />
-      </Routes>
-    </MemoryRouter>
-  );
-
+}: ExtendedRenderOptionsWithInstance) => {
   const _formDataMethods = {
     ...makeDefaultFormDataMethodMocks(),
     ...formDataMethods,
@@ -497,7 +528,41 @@ export const renderWithInstanceAndLayout = async ({
           </FormDataWriteGatekeepersProvider>
         </InstanceProvider>
       ),
-      router: InstanceRouter,
+      router: ({ children }) => (
+        <InstanceRouter
+          instanceId={instanceId}
+          taskId={taskId}
+          initialPage={initialPage}
+        >
+          {children}
+        </InstanceRouter>
+      ),
+      queries: {
+        fetchLayouts: async () => ({
+          [initialPage]: {
+            data: {
+              layout: [
+                {
+                  id: 'noOtherComponentsHere',
+                  type: 'Header',
+                  textResourceBindings: {
+                    title:
+                      "You haven't added any components yet. Supply your own components " +
+                      'by overriding the "fetchLayouts" query in your test.',
+                  },
+                  size: 'L',
+                },
+              ],
+            },
+          },
+        }),
+        fetchLayoutSettings: async () => ({
+          pages: {
+            order: [initialPage],
+          },
+        }),
+        ...renderOptions.queries,
+      },
     })),
   };
 };
@@ -594,7 +659,8 @@ export async function renderWithNode<InInstance extends boolean, T extends Layou
 }
 
 export interface RenderGenericComponentTestProps<T extends CompTypes, InInstance extends boolean = true>
-  extends Omit<ExtendedRenderOptions, 'renderer'> {
+  extends Omit<ExtendedRenderOptions, 'renderer'>,
+    InstanceRouterProps {
   type: T;
   renderer: (props: PropsFromGenericComponent<T>) => React.ReactElement;
   component?: Partial<CompExternalExact<T>>;
