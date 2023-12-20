@@ -6,17 +6,14 @@ import type { ErrorObject } from 'ajv';
 import { GroupDef } from 'src/layout/Group/config.def.generated';
 import { GroupRenderer } from 'src/layout/Group/GroupRenderer';
 import { GroupHierarchyGenerator } from 'src/layout/Group/hierarchy';
-import { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
-import { groupIsNonRepeatingExt, groupIsNonRepeatingPanelExt } from 'src/layout/Group/tools';
 import { runValidationOnNodes } from 'src/utils/validation/validation';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { GroupValidation, PropsFromGenericComponent } from 'src/layout';
-import type { CompExternalExact, CompInternal, HierarchyDataSources } from 'src/layout/layout';
+import type { CompExternalExact } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { IValidationObject, ValidationContextGenerator } from 'src/utils/validation/types';
 
 export class Group extends GroupDef implements GroupValidation {
@@ -68,16 +65,6 @@ export class Group extends GroupDef implements GroupValidation {
     return runValidationOnNodes(node.flat(true, onlyInRowIndex), validationCtxGenerator);
   }
 
-  makeNode(
-    item: CompInternal<'Group'>,
-    parent: LayoutNode | LayoutPage,
-    top: LayoutPage,
-    dataSources: HierarchyDataSources,
-    rowIndex?: number,
-  ): LayoutNodeForGroup {
-    return new LayoutNodeForGroup(item, parent, top, dataSources, rowIndex);
-  }
-
   isDataModelBindingsRequired(): boolean {
     return false;
   }
@@ -105,12 +92,8 @@ export class Group extends GroupDef implements GroupValidation {
     component: CompExternalExact<'Group'>,
     validatate: (pointer: string, data: unknown) => ErrorObject[] | undefined,
   ): ErrorObject[] | undefined {
-    let schemaPointer = '#/definitions/AnyComponent';
-    if (groupIsNonRepeatingExt(component)) {
-      schemaPointer = '#/definitions/CompGroupNonRepeating';
-    } else if (groupIsNonRepeatingPanelExt(component)) {
-      schemaPointer = '#/definitions/CompGroupNonRepeatingPanel';
-    }
+    const schemaPointer = '#/definitions/CompGroupNonRepeating';
+
     return validatate(schemaPointer, component);
   }
 }

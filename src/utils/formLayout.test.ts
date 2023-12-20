@@ -460,13 +460,11 @@ describe('findChildren', () => {
         id: 'group0',
         type: 'Group',
         children: ['field4'],
-        maxCount: 3,
       },
       {
         id: 'group1',
         type: 'Group',
         children: ['field2', 'field3', 'group0'],
-        maxCount: 3,
       },
       {
         id: 'field2',

@@ -28,12 +28,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
   }
 
   childrenFromNode(node: LayoutNode<'Group'>): LayoutNode[] {
-    let list: LayoutNode[] = [];
-
-    if (node.isNonRepGroup()) {
-      list = node.item.childComponents;
-    }
-
+    const list: LayoutNode[] = node.item.childComponents;
     return list;
   }
 
@@ -59,9 +54,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
         child && childNodes.push(child as LayoutNode);
       }
 
-      if (me.isNonRepGroup()) {
-        me.item.childComponents = childNodes;
-      }
+      me.item.childComponents = childNodes;
 
       return me;
     };

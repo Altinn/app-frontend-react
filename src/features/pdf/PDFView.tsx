@@ -23,7 +23,7 @@ const PDFComponent = ({ node }: { node: LayoutNode }) => {
         }}
       />
     );
-  } else if (node.isType('Group') && node.isNonRepGroup()) {
+  } else if (node.isType('Group')) {
     return (
       <DisplayGroupContainer
         groupNode={node}

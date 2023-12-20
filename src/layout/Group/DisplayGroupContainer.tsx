@@ -10,15 +10,10 @@ import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/Group/DisplayGroupContainer.module.css';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { HeadingLevel } from 'src/layout/common.generated';
-import type {
-  CompGroupNonRepeatingInternal,
-  CompGroupNonRepeatingPanelInternal,
-} from 'src/layout/Group/config.generated';
-import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IDisplayGroupContainer {
-  groupNode: LayoutNodeForGroup<CompGroupNonRepeatingInternal | CompGroupNonRepeatingPanelInternal>;
+  groupNode: LayoutNode<'Group'>;
   id?: string;
   onlyRowIndex?: number | undefined;
   isSummary?: boolean;
@@ -48,14 +43,15 @@ export function DisplayGroupContainer({
   }
 
   const isNested = groupNode.parent instanceof BaseLayoutNode;
-  // const isPanel = container.groupingIndicator == 'panel';
+  const isPanel = container.groupingIndicator === 'panel';
+  const isIndented = container.groupingIndicator === 'indented';
   const headingLevel = Math.min(Math.max(groupNode.parents().length + 1, 2), 6) as HeadingLevel;
   const headingSize = headingSizes[headingLevel];
   const legend = isSummary ? summaryTitle : title;
 
   return (
     <ConditionalWrapper
-      condition={true}
+      condition={isPanel}
       wrapper={(child) => <FullWidthWrapper className={classes.panelPadding}>{child}</FullWidthWrapper>}
     >
       <Fieldset
@@ -69,17 +65,14 @@ export function DisplayGroupContainer({
             </Heading>
           )
         }
-        className={cn(isSummary ? classes.summary : classes.group, { [classes.panel]: true })}
+        className={cn(isSummary ? classes.summary : classes.group, { [classes.panel]: isPanel })}
         description={description && !isSummary && <Lang id={description} />}
       >
         <div
           id={id || container.id}
           data-componentid={container.id}
           data-testid='display-group-container'
-          className={cn(
-            { [classes.groupingIndicator]: !!container.showGroupingIndicator && !isNested },
-            classes.groupContainer,
-          )}
+          className={cn({ [classes.groupingIndicator]: isIndented && !isNested }, classes.groupContainer)}
         >
           {groupNode.children(undefined, onlyRowIndex).map((n) => renderLayoutNode(n))}
         </div>

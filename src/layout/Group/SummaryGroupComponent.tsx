@@ -10,10 +10,7 @@ import { DisplayGroupContainer } from 'src/layout/Group/DisplayGroupContainer';
 import classes from 'src/layout/Group/SummaryGroupComponent.module.css';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import type {
-  CompGroupNonRepeatingInternal,
-  CompGroupNonRepeatingPanelInternal,
-} from 'src/layout/Group/config.generated';
+import type { CompGroupNonRepeatingInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { ITextResourceBindings } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
@@ -65,9 +62,7 @@ export function SummaryGroupComponent({
           <DisplayGroupContainer
             key={`summary-${targetNode.item.id}-${idx}`}
             id={`summary-${targetNode.item.id}-${idx}`}
-            groupNode={
-              targetNode as LayoutNodeForGroup<CompGroupNonRepeatingInternal | CompGroupNonRepeatingPanelInternal>
-            }
+            groupNode={targetNode as LayoutNodeForGroup<CompGroupNonRepeatingInternal>}
             onlyRowIndex={idx}
             isSummary={true}
             renderLayoutNode={(n) => {
@@ -83,7 +78,7 @@ export function SummaryGroupComponent({
                     ...overrides,
                     targetNode: n,
                     grid: {},
-                    largeGroup: targetNode.isNonRepGroup(),
+                    largeGroup: true,
                   }}
                 />
               );

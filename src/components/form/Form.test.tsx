@@ -53,7 +53,6 @@ describe('Form', () => {
     {
       id: 'testGroupId',
       type: 'Group',
-      maxCount: 3,
       children: ['field1', 'field2', 'field3'],
     },
   ];
@@ -100,9 +99,7 @@ describe('Form', () => {
         id: 'panel-group-id',
         type: 'Group',
         children: ['panel-group-child'],
-        panel: {
-          variant: 'info',
-        },
+        groupingIndicator: 'panel',
       },
       {
         id: 'panel-group-child',
