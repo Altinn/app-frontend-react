@@ -196,7 +196,7 @@ export function AllOptionsProvider({ children }: PropsWithChildren) {
 }
 
 function DummyOptionsSaver({ node, loadingDone }: { node: LayoutNode; loadingDone: (options: IOption[]) => void }) {
-  const { options: calculatedOptions, isLoading } = useGetOptions({
+  const { options: calculatedOptions, isFetching } = useGetOptions({
     ...node.item,
     node,
     formData: {
@@ -206,10 +206,10 @@ function DummyOptionsSaver({ node, loadingDone }: { node: LayoutNode; loadingDon
   });
 
   useEffect(() => {
-    if (!isLoading) {
+    if (!isFetching) {
       loadingDone(calculatedOptions);
     }
-  }, [isLoading, node.item.id, calculatedOptions, loadingDone]);
+  }, [isFetching, node.item.id, calculatedOptions, loadingDone]);
 
   return <></>;
 }

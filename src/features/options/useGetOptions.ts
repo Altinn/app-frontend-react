@@ -54,7 +54,7 @@ interface Props<T extends ValueType> {
 
 export interface OptionsResult {
   options: IOption[];
-  isLoading: boolean;
+  isFetching: boolean;
 }
 
 const defaultOptions: IOption[] = [];
@@ -75,7 +75,7 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
     props;
   const sourceOptions = useSourceOptions({ source, node });
   const staticOptions = optionsId ? undefined : options;
-  const { data: fetchedOptions, isLoading } = useGetOptionsQuery(optionsId, mapping, queryParameters, secure);
+  const { data: fetchedOptions, isFetching } = useGetOptionsQuery(optionsId, mapping, queryParameters, secure);
   const calculatedOptions = sourceOptions || fetchedOptions?.data || staticOptions;
   const { langAsString } = useLanguage();
   const selectedLanguage = useCurrentLanguage();
@@ -100,7 +100,7 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
     options: sortOrder
       ? [...optionsWithoutDuplicates].sort(compareOptionAlphabetically(langAsString, sortOrder, selectedLanguage))
       : optionsWithoutDuplicates,
-    isLoading: isLoading || !calculatedOptions,
+    isFetching: isFetching || !calculatedOptions,
   };
 }
 /**

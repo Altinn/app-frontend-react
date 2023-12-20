@@ -28,7 +28,7 @@ export const CheckboxContainerComponent = ({ node, isValid, overrideDisplay }: I
   const setData = FD.useSetForBindings(dataModelBindings);
 
   const selected = value && value.length > 0 ? value.split(',') : defaultSelectedOptions;
-  const { options: calculatedOptions, isLoading } = useGetOptions({
+  const { options: calculatedOptions, isFetching } = useGetOptions({
     ...node.item,
     node,
     metadata: {
@@ -68,7 +68,7 @@ export const CheckboxContainerComponent = ({ node, isValid, overrideDisplay }: I
   const hideLabel = overrideDisplay?.renderedInTable === true && calculatedOptions.length === 1;
   const ariaLabel = overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined;
 
-  return isLoading ? (
+  return isFetching ? (
     <AltinnSpinner />
   ) : (
     <div

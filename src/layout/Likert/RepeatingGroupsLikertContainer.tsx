@@ -22,7 +22,7 @@ type RepeatingGroupsLikertContainerProps = {
 export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertContainerProps) => {
   const firstLikertChild = node?.children((item) => item.type === 'Likert') as LayoutNode<'Likert'> | undefined;
   const mobileView = useIsMobileOrTablet();
-  const { options: calculatedOptions, isLoading } = useGetOptions({
+  const { options: calculatedOptions, isFetching } = useGetOptions({
     ...(firstLikertChild?.item || {}),
     node,
     formData: {
@@ -97,7 +97,7 @@ export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertCo
   return (
     <>
       <Header />
-      {isLoading ? (
+      {isFetching ? (
         <AltinnSpinner />
       ) : (
         <div className={classes.likertTableContainer}>

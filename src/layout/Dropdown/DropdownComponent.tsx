@@ -18,7 +18,7 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
   const saveValue = FD.useSetForBindings(dataModelBindings);
   const selected = FD.usePickFreshString(dataModelBindings?.simpleBinding);
 
-  const { options, isLoading } = useGetOptions({
+  const { options, isFetching } = useGetOptions({
     ...node.item,
     node,
     metadata: {
@@ -38,7 +38,7 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
 
   return (
     <>
-      {isLoading ? (
+      {isFetching ? (
         <AltinnSpinner />
       ) : (
         <Select
