@@ -11,38 +11,13 @@ export const Config = new CG.component({
     renderInAccordion: false,
     renderInAccordionGroup: false,
   },
-})
-  .setLayoutNodeType(
-    new CG.import({
-      import: 'LayoutNodeForGroup',
-      from: 'src/layout/Group/LayoutNodeForGroup',
-    }),
-  )
-  .addProperty(
-    new CG.prop(
-      'children',
-      new CG.arr(new CG.str())
-        .setTitle('Children')
-        .setDescription('Array of component IDs that should be displayed in the group'),
-    ).onlyIn(Variant.External),
-  );
+});
 
 // Remove these so they're not set to undefined, as is the default for all other components. We override these anyway.
 Config.inner.removeProperty('textResourceBindings');
 Config.inner.removeProperty('dataModelBindings');
 
 const commonNonRepChildComponents = new CG.prop('childComponents', new CG.arr(CG.layoutNode)).onlyIn(Variant.Internal);
-
-const commonShowGroupingIndicatorProp = new CG.prop(
-  'showGroupingIndicator',
-  new CG.bool()
-    .optional({ default: false })
-    .setTitle('Show grouping indicator')
-    .setDescription(
-      'If set to true, non-repeating groups will show an indicator to the left of the entire group contents, ' +
-        'making it visually clear that the child components are grouped together.',
-    ),
-);
 
 const commonUndefinedDataModelBinding = new CG.raw({ typeScript: 'undefined' }).optional();
 
@@ -54,10 +29,7 @@ function commonExtensions(subType: GenerateComponentLike) {
 }
 
 Config.overrideExported(
-  new CG.union(
-    commonExtensions(makeNonRepeatingGroup()).inner.exportAs('CompGroupNonRepeating'),
-    commonExtensions(makeNonRepeatingPanelGroup()).inner.exportAs('CompGroupNonRepeatingPanel'),
-  ),
+  new CG.union(commonExtensions(makeNonRepeatingGroup()).inner.exportAs('CompGroupNonRepeating')),
 );
 
 function makeNonRepeatingGroup() {
@@ -80,77 +52,19 @@ function makeNonRepeatingGroup() {
     .addProperty(commonNonRepChildComponents)
     .addProperty(
       new CG.prop(
-        'maxCount',
-        new CG.int()
-          .optional({ default: 1 })
-          .setMax(1)
-          .setTitle('Max number of rows')
-          .setDescription(
-            'Maximum number of rows that can be added. Setting this to a value ' +
-              'higher than 1 turns the group into a repeating group',
-          ),
-      ),
-    )
-    .addProperty(commonShowGroupingIndicatorProp);
-}
-
-function makeNonRepeatingPanelGroup() {
-  return new CG.componentLike()
-    .addProperty(new CG.prop('dataModelBindings', commonUndefinedDataModelBinding).onlyIn(Variant.Internal))
-    .addTextResource(
-      new CG.trb({
-        name: 'title',
-        title: 'Title',
-        description: 'The title of the group (shown above the group)',
-      }),
-    )
-    .addTextResource(
-      new CG.trb({
-        name: 'add_label',
-        title: 'Add button label',
-        description: 'The text for the "Add" button (for adding another row to the referenced repeating group)',
-      }),
-    )
-    .addTextResource(
-      new CG.trb({
-        name: 'description',
-        title: 'Description',
-        description: 'The description text of the Panel',
-      }),
-    )
-    .addProperty(commonNonRepChildComponents)
-    .addProperty(
-      new CG.prop(
-        'maxCount',
-        new CG.int()
-          .optional({ default: 1 })
-          .setMax(1)
-          .setTitle('Max number of rows')
-          .setDescription(
-            'Maximum number of rows that can be added. Setting this to a value ' +
-              'higher than 1 turns the group into a repeating group',
-          ),
+        'groupingIndicator',
+        new CG.enum('indented', 'panel')
+          .optional()
+          .setTitle('Set grouping indicator')
+          .setDescription('Can visually group components together by indenting them or by putting them in a panel. '),
       ),
     )
     .addProperty(
       new CG.prop(
-        'panel',
-        new CG.obj(
-          new CG.prop(
-            'iconUrl',
-            new CG.str()
-              .optional()
-              .setTitle('Icon URL')
-              .setDescription('URL to an icon image that overrides the default icon'),
-          ),
-          new CG.prop(
-            'iconAlt',
-            new CG.str().optional().setTitle('Icon alt text').setDescription('Alt text for the icon'),
-          ),
-        )
-          .extends(CG.common('IPanelBase'))
-          .exportAs('IGroupPanel'),
-      ),
-    )
-    .addProperty(commonShowGroupingIndicatorProp);
+        'children',
+        new CG.arr(new CG.str())
+          .setTitle('Children')
+          .setDescription('Array of component IDs that should be displayed in the group'),
+      ).onlyIn(Variant.External),
+    );
 }
