@@ -9,11 +9,11 @@ import type { UseMutationOptions } from '@tanstack/react-query';
 import type { ImmerReducer } from 'use-immer';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLaxInstance, useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { getFileUploadComponentValidations } from 'src/utils/formComponentUtils';
 import { getValidationMessage } from 'src/utils/validation/backendValidation';
@@ -129,7 +129,7 @@ const useUpload = (dispatch: Dispatch) => {
   const { mutateAsync } = useAttachmentsUploadMutation();
   const langTools = useLanguage();
   const reduxDispatch = useAppDispatch();
-  const backendFeatures = useAppSelector((state) => state.applicationMetadata.applicationMetadata?.features) || {};
+  const backendFeatures = useApplicationMetadata().features || {};
 
   return async (action: RawAttachmentAction<AttachmentActionUpload>) => {
     const { node, file } = action;

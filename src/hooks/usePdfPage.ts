@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 
+import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { usePdfFormatQuery } from 'src/features/pdf/usePdfFormatQuery';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLayoutComponentObject } from 'src/layout';
@@ -20,7 +21,7 @@ export const usePdfPage = (): LayoutPage | null => {
   const layoutPages = useNodes();
   const dataSources = useAppSelector(dataSourcesFromState);
   const pageOrderConfig = useAppSelector((state) => state.formLayout.uiConfig.pageOrderConfig);
-  const pdfLayoutName = useAppSelector((state) => state.formLayout.uiConfig.pdfLayoutName);
+  const pdfLayoutName = useLayoutSettings().pages.pdfLayoutName;
 
   const customPdfPage = pdfLayoutName ? layoutPages?.[pdfLayoutName] : undefined;
   const method = customPdfPage ? 'custom' : 'auto';

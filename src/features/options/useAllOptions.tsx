@@ -23,16 +23,17 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
  */
 export type AllOptionsMap = { [nodeId: string]: IOption[] | undefined };
 
-const { Provider, useCtx } = createContext<State>({ name: 'AllOptionsContext', required: true });
-
-export const useAllOptions = () => useCtx().nodes;
-export const useAllOptionsInitiallyLoaded = () => useCtx().allInitiallyLoaded;
-
 interface State {
   allInitiallyLoaded: boolean;
   currentTaskId?: string;
   nodes: AllOptionsMap;
 }
+
+const { Provider, useCtx } = createContext<State>({ name: 'AllOptions', required: true });
+
+export const useAllOptions = () => useCtx().nodes;
+export const useAllOptionsInitiallyLoaded = () => useCtx().allInitiallyLoaded;
+
 type Actions =
   | { type: 'nodeFetched'; nodeId: string; options: IOption[] }
   | { type: 'nodesFound'; nodesFound: string[] }

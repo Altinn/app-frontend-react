@@ -3,28 +3,28 @@ import React from 'react';
 import cn from 'classnames';
 
 import { AltinnLogo, LogoColor } from 'src/components/logo/AltinnLogo';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { createFooterComponent } from 'src/features/footer';
 import classes from 'src/features/footer/Footer.module.css';
-import { useAppSelector } from 'src/hooks/useAppSelector';
-import type { IFooterLayout } from 'src/features/footer/types';
+import { useFooterLayout } from 'src/features/footer/FooterLayoutProvider';
 
 export const Footer = () => {
-  const footerLayout: IFooterLayout | null = useAppSelector((state) => state.footerLayout.footerLayout);
-  const useOrganisationLogo = useAppSelector((state) => state.applicationMetadata.applicationMetadata?.logo != null);
+  const footerLayout = useFooterLayout();
+  const shouldUseOrgLogo = useApplicationMetadata().logo != null;
 
   const components = React.useMemo(
     () => footerLayout?.footer.map((props) => createFooterComponent(props)),
     [footerLayout],
   );
 
-  if (!components && !useOrganisationLogo) {
+  if (!components && !shouldUseOrgLogo) {
     return null;
   }
 
   return (
-    <footer className={cn(classes.footer, { [classes.columnLayout]: useOrganisationLogo })}>
+    <footer className={cn(classes.footer, { [classes.columnLayout]: shouldUseOrgLogo })}>
       <div className={classes.elements}>{components?.map((component) => component.render())}</div>
-      {useOrganisationLogo && (
+      {shouldUseOrgLogo && (
         <>
           {components != null && <hr className={classes.separator} />}
           <AltinnLogo color={LogoColor.blueDarker} />

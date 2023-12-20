@@ -11,6 +11,7 @@ import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { staticUseLanguageFromState, useLanguage } from 'src/features/language/useLanguage';
+import { useAllOptions } from 'src/features/options/useAllOptions';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useNavigationParams } from 'src/hooks/useNavigatePage';
 import { getLayoutComponentObject } from 'src/layout';
@@ -140,7 +141,7 @@ function useResolvedExpressions() {
   const formData = FD.useDebounced();
   const uiConfig = useAppSelector((state) => state.formLayout.uiConfig);
   const attachments = useAttachments();
-  const options = useAppSelector((state) => state.deprecated.allOptions);
+  const options = useAllOptions();
   const process = useLaxProcessData();
   const applicationSettings = useApplicationSettings();
   const hiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);

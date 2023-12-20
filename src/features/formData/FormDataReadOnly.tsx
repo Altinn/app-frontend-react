@@ -7,8 +7,9 @@ import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { createContext } from 'src/core/contexts/context';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
-import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useTextResources } from 'src/features/language/textResources/TextResourcesProvider';
 import { flattenObject } from 'src/utils/databindings';
 import { getDataElementUrl } from 'src/utils/urls/appUrlHelper';
 import type { IFormData } from 'src/features/formData/index';
@@ -23,8 +24,8 @@ import type { HttpClientError } from 'src/utils/network/sharedNetworking';
  */
 function useMergedFormDataQuery(taskId: string | undefined) {
   const { fetchFormData } = useAppQueries();
-  const appMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
-  const textResources = useAppSelector((state) => state.textResources.resourceMap);
+  const appMetadata = useApplicationMetadata();
+  const textResources = useTextResources();
   const instance = useLaxInstanceData();
 
   const urlsToFetch: string[] = [];

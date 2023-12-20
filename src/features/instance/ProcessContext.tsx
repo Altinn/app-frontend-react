@@ -7,9 +7,9 @@ import { createContext } from 'src/core/contexts/context';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { useIsStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
+import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { TaskKeys, useNavigatePage } from 'src/hooks/useNavigatePage';
 import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { ProcessTaskType } from 'src/types';
@@ -148,7 +148,7 @@ export function useTaskType(taskId: string | undefined) {
       ? processData?.currentTask
       : undefined;
   const isStateless = useIsStatelessApp();
-  const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
+  const layoutSets = useLayoutSets();
 
   if (isStateless) {
     // Stateless apps only have data tasks. As soon as they start creating an instance from that stateless step,
@@ -174,7 +174,7 @@ export function useTaskType(taskId: string | undefined) {
 export function useRealTaskTypeById(taskId: string | undefined) {
   const isStateless = useIsStatelessApp();
   const taskType = useTaskTypeFromBackend();
-  const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
+  const layoutSets = useLayoutSets();
 
   if (isStateless) {
     // Stateless apps only have data tasks. As soon as they start creating an instance from that stateless step,

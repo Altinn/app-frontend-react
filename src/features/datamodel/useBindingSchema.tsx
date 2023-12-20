@@ -9,6 +9,7 @@ import {
   useDataTypeByLayoutSetId,
   useIsStatelessApp,
 } from 'src/features/applicationMetadata/appMetadataUtils';
+import { useCurrentDataModelSchema } from 'src/features/datamodel/DataModelSchemaProvider';
 import { dotNotationToPointer } from 'src/features/datamodel/notations';
 import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
@@ -16,7 +17,6 @@ import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLa
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useAllowAnonymous } from 'src/features/stateless/getAllowAnonymous';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getRootElementPath } from 'src/utils/schemaUtils';
 import {
   getAnonymousStatelessDataModelUrl,
@@ -72,24 +72,11 @@ export function useCurrentDataModelName() {
   });
 }
 
-export function useCurrentDataModelSchema() {
-  const dataModels = useAppSelector((state) => state.formDataModel.schemas);
-  const currentDataModelName = useCurrentDataModelName();
-  return useMemo(() => {
-    if (dataModels && currentDataModelName && currentDataModelName in dataModels) {
-      return dataModels[currentDataModelName];
-    }
-
-    return undefined;
-  }, [dataModels, currentDataModelName]);
-}
-
 export function useCurrentDataModelType() {
   const name = useCurrentDataModelName();
+  const application = useApplicationMetadata();
 
-  return useAppSelector(
-    (state) => state.applicationMetadata.applicationMetadata?.dataTypes.find((dt) => dt.id === name),
-  );
+  return application.dataTypes.find((dt) => dt.id === name);
 }
 
 export function useBindingSchema<T extends IDataModelBindings | undefined>(bindings: T): AsSchema<T> | undefined {

@@ -15,10 +15,10 @@ function useDynamicsQuery() {
 
   return useQuery({
     queryKey: ['fetchDynamics', layoutSetId],
-    queryFn: () => fetchDynamics(layoutSetId),
+    queryFn: async () => (await fetchDynamics(layoutSetId))?.data || null,
     onSuccess: (dynamics) => {
       if (dynamics) {
-        dispatch(FormDynamicsActions.fetchFulfilled(dynamics.data));
+        dispatch(FormDynamicsActions.fetchFulfilled(dynamics));
       }
     },
     onError: (error: AxiosError) => {
@@ -27,7 +27,7 @@ function useDynamicsQuery() {
   });
 }
 
-const { Provider } = delayedContext(() =>
+const { Provider, useCtx } = delayedContext(() =>
   createQueryContext({
     name: 'Dynamics',
     required: true,
@@ -36,3 +36,4 @@ const { Provider } = delayedContext(() =>
 );
 
 export const DynamicsProvider = Provider;
+export const useDynamics = () => useCtx();

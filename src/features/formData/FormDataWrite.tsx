@@ -8,11 +8,11 @@ import deepEqual from 'fast-deep-equal';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
+import { useDynamics } from 'src/features/form/dynamics/DynamicsContext';
 import { diffModels } from 'src/features/formData/diffModels';
 import { useFormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
 import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteStateMachine';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useIsDev } from 'src/hooks/useIsDev';
 import { useMemoDeepEqual } from 'src/hooks/useMemoDeepEqual';
 import { useWaitForState } from 'src/hooks/useWaitForState';
@@ -121,7 +121,7 @@ function FormDataEffects({ url }: { url: string }) {
   const { debounce, currentData, debouncedCurrentData, lastSavedData, controlState } = state;
   const { debounceTimeout, autoSaving, manualSaveRequested, lockedBy } = controlState;
   const { mutate, isLoading: isSaving, error } = useFormDataSaveMutation(state);
-  const ruleConnections = useAppSelector((state) => state.formDynamics.ruleConnection);
+  const ruleConnections = useDynamics()?.ruleConnection ?? null;
 
   // This component re-renders on every keystroke in a form field. We don't want to save on every keystroke, nor
   // create a new performSave function after every save, so we use a ref to make sure the performSave function
@@ -419,7 +419,7 @@ export const FD = {
     const rawLock = useSelector((s) => s.lock);
     const rawUnlock = useSelector((s) => s.unlock);
     const requestSave = useSelector((s) => s.requestManualSave);
-    const ruleConnections = useAppSelector((s) => s.formDynamics.ruleConnection);
+    const ruleConnections = useDynamics()?.ruleConnection ?? null;
 
     const lockedBy = useSelector((s) => s.controlState.lockedBy);
     const isLocked = lockedBy !== undefined;

@@ -5,8 +5,8 @@ import type { NavigateOptions } from 'react-router-dom';
 import { useIsStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
+import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useLaxProcessData, useTaskType } from 'src/features/instance/ProcessContext';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { ProcessTaskType } from 'src/types';
 
 type NavigateToPageOptions = {
@@ -54,7 +54,7 @@ export const useNavigatePage = () => {
 
   const { partyId, instanceGuid, taskId, pageKey } = useNavigationParams();
   const { orderWithHidden } = useUiConfigContext();
-  const autoSaveBehavior = useAppSelector((state) => state.formLayout.uiConfig.autoSaveBehavior);
+  const autoSaveBehavior = useLayoutSettings().pages.autoSaveBehavior;
 
   const { setFocusId, setReturnToView, hidden } = usePageNavigationContext();
   const taskType = useTaskType(taskId);
