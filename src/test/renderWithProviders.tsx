@@ -604,7 +604,8 @@ const WaitForNodes = ({
 };
 
 export interface RenderWithNodeTestProps<T extends LayoutNode, InInstance extends boolean>
-  extends Omit<ExtendedRenderOptions, 'renderer'> {
+  extends Omit<ExtendedRenderOptions, 'renderer'>,
+    InstanceRouterProps {
   renderer: (props: { node: T; root: LayoutPages }) => React.ReactElement;
   nodeId: string;
   inInstance: InInstance;

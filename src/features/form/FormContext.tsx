@@ -11,7 +11,7 @@ import { RulesProvider } from 'src/features/form/rules/RulesContext';
 import { FormDataReadWriteProvider } from 'src/features/formData/FormDataReadWrite';
 import { useHasProcessProvider } from 'src/features/instance/ProcessContext';
 import { ProcessNavigationProvider } from 'src/features/instance/ProcessNavigationContext';
-import { AllOptionsProvider } from 'src/features/options/useAllOptions';
+import { AllOptionsProvider, AllOptionsStoreProvider } from 'src/features/options/useAllOptions';
 import { NodesProvider } from 'src/utils/layout/NodesContext';
 
 /**
@@ -28,17 +28,23 @@ export function FormProvider({ children }: React.PropsWithChildren) {
             <FormDataReadWriteProvider>
               <DataModelSchemaProvider>
                 <AttachmentsStoreProvider>
-                  <NodesProvider>
-                    <AttachmentsProvider>
-                      <DynamicsProvider>
-                        <RulesProvider>
-                          <AllOptionsProvider>
-                            {hasProcess ? <ProcessNavigationProvider>{children}</ProcessNavigationProvider> : children}
-                          </AllOptionsProvider>
-                        </RulesProvider>
-                      </DynamicsProvider>
-                    </AttachmentsProvider>
-                  </NodesProvider>
+                  <AllOptionsStoreProvider>
+                    <NodesProvider>
+                      <AttachmentsProvider>
+                        <DynamicsProvider>
+                          <RulesProvider>
+                            <AllOptionsProvider>
+                              {hasProcess ? (
+                                <ProcessNavigationProvider>{children}</ProcessNavigationProvider>
+                              ) : (
+                                children
+                              )}
+                            </AllOptionsProvider>
+                          </RulesProvider>
+                        </DynamicsProvider>
+                      </AttachmentsProvider>
+                    </NodesProvider>
+                  </AllOptionsStoreProvider>{' '}
                 </AttachmentsStoreProvider>
               </DataModelSchemaProvider>
             </FormDataReadWriteProvider>
