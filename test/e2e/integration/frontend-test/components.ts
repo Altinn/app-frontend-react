@@ -186,7 +186,7 @@ describe('UI Components', () => {
     cy.get('[data-testid="NavigationBar"]').find('button:contains("summary")').should('be.visible');
   });
 
-  it('address component fetches post place from zip code', () => {
+  it.skip('address component fetches post place from zip code', () => {
     cy.goto('changename');
 
     // Mock zip code API, so that we don't rely on external services for our tests

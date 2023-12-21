@@ -14,17 +14,17 @@ export const Footer = () => {
   const application = useLaxApplicationMetadata();
   const shouldUseOrgLogo = application !== ContextNotProvided && application.logo != null;
 
-  const components = useMemo(() => footerLayout?.map((props) => createFooterComponent(props)), [footerLayout]);
-  if (!components && !shouldUseOrgLogo) {
+  const components = useMemo(() => footerLayout.map((props) => createFooterComponent(props)), [footerLayout]);
+  if (!components.length && !shouldUseOrgLogo) {
     return null;
   }
 
   return (
     <footer className={cn(classes.footer, { [classes.columnLayout]: shouldUseOrgLogo })}>
-      <div className={classes.elements}>{components?.map((component) => component.render())}</div>
+      <div className={classes.elements}>{components.map((component) => component.render())}</div>
       {shouldUseOrgLogo && (
         <>
-          {components != null && <hr className={classes.separator} />}
+          {components.length && <hr className={classes.separator} />}
           <AltinnLogo color={LogoColor.blueDarker} />
         </>
       )}

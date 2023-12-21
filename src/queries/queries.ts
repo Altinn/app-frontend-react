@@ -171,7 +171,7 @@ export const fetchApplicationSettings = (): Promise<IApplicationSettings> => htt
 
 export const fetchCurrentParty = (): Promise<IParty | undefined> => httpGet(currentPartyUrl);
 
-export const fetchFooterLayout = (): Promise<IFooterLayout> => httpGet(getFooterLayoutUrl());
+export const fetchFooterLayout = (): Promise<IFooterLayout | null> => httpGet(getFooterLayoutUrl());
 
 export const fetchLayoutSets = (): Promise<ILayoutSets> => httpGet(getLayoutSetsUrl());
 
