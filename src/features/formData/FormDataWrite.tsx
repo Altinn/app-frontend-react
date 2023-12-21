@@ -7,8 +7,9 @@ import dot from 'dot-object';
 import deepEqual from 'fast-deep-equal';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
+import { ContextNotProvided } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
-import { useDynamics } from 'src/features/form/dynamics/DynamicsContext';
+import { useDynamics, useLaxDynamics } from 'src/features/form/dynamics/DynamicsContext';
 import { diffModels } from 'src/features/formData/diffModels';
 import { useFormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
 import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteStateMachine';
@@ -47,7 +48,7 @@ interface FormDataContextInitialProps {
   gatekeepers: FormDataWriteGatekeepers;
 }
 
-const { Provider, useSelector } = createZustandContext({
+const { Provider, useSelector, useLaxSelector } = createZustandContext({
   name: 'FormDataWrite',
   required: true,
   initialCreateStore: ({ url, initialData, autoSaving, gatekeepers }: FormDataContextInitialProps) =>
@@ -207,18 +208,36 @@ function FormDataEffects({ url }: { url: string }) {
   return null;
 }
 
-const useHasUnsavedChanges = () =>
-  useSelector((s) => s.lastSavedData !== s.currentData && !deepEqual(s.lastSavedData, s.currentData));
+const useHasUnsavedChanges = () => {
+  const result = useLaxSelector((s) => s.lastSavedData !== s.currentData && !deepEqual(s.lastSavedData, s.currentData));
+  if (result === ContextNotProvided) {
+    return false;
+  }
+  return result;
+};
 
 const useWaitForSave = () => {
-  const url = useSelector((s) => s.controlState.saveUrl);
+  const requestSave = useLaxSelector((s) => s.requestManualSave);
+  const url = useLaxSelector((s) => s.controlState.saveUrl);
   const hasUnsavedChanges = useHasUnsavedChanges();
-  const waitForState = useWaitForState({
-    cacheKey: ['hasUnsavedChanges', url],
-    currentState: hasUnsavedChanges,
-  });
+  const dynamics = useLaxDynamics();
+  const ruleConnection = dynamics === ContextNotProvided ? null : dynamics?.ruleConnection ?? null;
+  const waitForUnsaved = useWaitForState(hasUnsavedChanges);
 
-  return useCallback(() => waitForState((unsavedChanges) => !unsavedChanges), [waitForState]);
+  return useCallback(
+    (requestManualSave = false) => {
+      if (url === ContextNotProvided) {
+        return Promise.resolve();
+      }
+
+      if (requestManualSave && requestSave !== ContextNotProvided) {
+        requestSave(ruleConnection);
+      }
+
+      return waitForUnsaved((hasUnsavedChanges) => !hasUnsavedChanges);
+    },
+    [requestSave, ruleConnection, url, waitForUnsaved],
+  );
 };
 
 export const FD = {
@@ -478,11 +497,13 @@ export const FD = {
 
   /**
    * Returns a function you can use to wait until the form data is saved.
+   * This will work (and return immediately) even if there is no FormDataWriteProvider in the tree.
    */
   useWaitForSave,
 
   /**
    * Returns true if the form data has unsaved changes
+   * This will work (and return false) even if there is no FormDataWriteProvider in the tree.
    */
   useHasUnsavedChanges,
 

@@ -27,7 +27,7 @@ function useDynamicsQuery() {
   });
 }
 
-const { Provider, useCtx } = delayedContext(() =>
+const { Provider, useCtx, useLaxCtx } = delayedContext(() =>
   createQueryContext({
     name: 'Dynamics',
     required: true,
@@ -37,3 +37,4 @@ const { Provider, useCtx } = delayedContext(() =>
 
 export const DynamicsProvider = Provider;
 export const useDynamics = () => useCtx();
+export const useLaxDynamics = () => useLaxCtx();

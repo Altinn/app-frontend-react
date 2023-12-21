@@ -6,6 +6,7 @@ import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { createContext } from 'src/core/contexts/context';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstance, useStrictInstance } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData, useSetProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -27,12 +28,14 @@ function useProcessNext() {
   const currentProcessData = useLaxProcessData();
   const { navigateToTask } = useNavigatePage();
   const instanceId = useLaxInstance()?.instanceId;
+  const waitForSave = FD.useWaitForSave();
 
   const utils = useMutation({
-    mutationFn: ({ taskId, action }: ProcessNextProps = {}) => {
+    mutationFn: async ({ taskId, action }: ProcessNextProps = {}) => {
       if (!instanceId) {
         throw new Error('Missing instance ID, cannot perform process/next');
       }
+      await waitForSave(true);
       return doProcessNext.call(instanceId, taskId, language, action);
     },
     onSuccess: async (data: IProcess) => {

@@ -93,10 +93,7 @@ const initialState: State = {
 export const usePreUpload = () => {
   const [state, dispatch] = useImmerReducer(reducer, initialState);
   const upload = useUpload(dispatch);
-  const waitFor = useWaitForState<IData | false, State>({
-    cacheKey: ['attachments', 'preUpload'],
-    currentState: state,
-  });
+  const waitFor = useWaitForState<IData | false, State>(state);
 
   const awaitUpload = useCallback(
     (attachment: TemporaryAttachment) =>
