@@ -107,7 +107,7 @@ export interface FormDataMethods {
   saveFinished: (savedData: object, changedFields?: IFormData) => void;
   requestManualSave: (ruleConnection: IRuleConnections | null) => void;
   lock: (lockName: string) => void;
-  unlock: (changedFields?: IFormData) => void;
+  unlock: (newModel?: object) => void;
 }
 
 export type FormDataContext = FormDataState & FormDataMethods;
@@ -132,6 +132,14 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
         dot.str(path, newValueAsString, state.lastSavedData);
       }
     }
+  }
+
+  function processChangedModel(state: FormDataContext, newModel: object) {
+    // TODO: Do a deep diff with the last saved model, and only update the changed fields in the current and
+    // debounced models.
+    state.currentData = newModel;
+    state.debouncedCurrentData = newModel;
+    state.lastSavedData = newModel;
   }
 
   function debounce(state: FormDataContext, ruleConnection: IRuleConnections | null) {
@@ -250,10 +258,12 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
       set((state) => {
         state.controlState.lockedBy = lockName;
       }),
-    unlock: (changedFields) =>
+    unlock: (newModel) =>
       set((state) => {
         state.controlState.lockedBy = undefined;
-        processChangedFields(state, changedFields);
+        if (newModel) {
+          processChangedModel(state, newModel);
+        }
       }),
   };
 }

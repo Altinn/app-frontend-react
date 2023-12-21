@@ -1,5 +1,7 @@
 import { useCallback, useRef } from 'react';
 
+import { useAsRef } from 'src/hooks/useAsRef';
+
 type Callback<T, RetVal> = (state: T, setReturnValue: (val: RetVal) => void) => boolean;
 type WaitForState<T, RetVal> = (callback: Callback<T, RetVal>) => Promise<RetVal>;
 type Subscriber = (state: any) => boolean;
@@ -9,8 +11,7 @@ type Subscriber = (state: any) => boolean;
  */
 export function useWaitForState<RetVal, T>(currentState: T): WaitForState<T, RetVal> {
   const subscribersRef = useRef<Subscriber[]>([]);
-  const currentStateRef = useRef(currentState);
-  currentStateRef.current = currentState;
+  const currentStateRef = useAsRef(currentState);
 
   // Call subscribers on every re-render/state change
   for (const idx in subscribersRef.current) {
@@ -42,6 +43,6 @@ export function useWaitForState<RetVal, T>(currentState: T): WaitForState<T, Ret
           return false;
         });
       }),
-    [],
+    [currentStateRef],
   );
 }

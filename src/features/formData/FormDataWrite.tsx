@@ -14,6 +14,7 @@ import { diffModels } from 'src/features/formData/diffModels';
 import { useFormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
 import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteStateMachine';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAsRef } from 'src/hooks/useAsRef';
 import { useIsDev } from 'src/hooks/useIsDev';
 import { useMemoDeepEqual } from 'src/hooks/useMemoDeepEqual';
 import { useWaitForState } from 'src/hooks/useWaitForState';
@@ -127,12 +128,9 @@ function FormDataEffects({ url }: { url: string }) {
   // This component re-renders on every keystroke in a form field. We don't want to save on every keystroke, nor
   // create a new performSave function after every save, so we use a ref to make sure the performSave function
   // and the unmount effect always have the latest values.
-  const currentDataRef = React.useRef(currentData);
-  currentDataRef.current = currentData;
-  const lastSavedDataRef = React.useRef(lastSavedData);
-  lastSavedDataRef.current = lastSavedData;
-  const isSavingRef = React.useRef(isSaving);
-  isSavingRef.current = isSaving;
+  const currentDataRef = useAsRef(currentData);
+  const lastSavedDataRef = useAsRef(lastSavedData);
+  const isSavingRef = useAsRef(isSaving);
 
   // If errors occur, we want to throw them so that the user can see them, and they
   // can be handled by the error boundary.
@@ -156,7 +154,7 @@ function FormDataEffects({ url }: { url: string }) {
         diff,
       });
     },
-    [mutate, url],
+    [isSavingRef, lastSavedDataRef, mutate, url],
   );
 
   // Debounce the data model when the user stops typing. This has the effect of triggering the useEffect below,
@@ -196,7 +194,7 @@ function FormDataEffects({ url }: { url: string }) {
         performSave(currentDataRef.current);
       }
     },
-    [performSave],
+    [currentDataRef, lastSavedDataRef, performSave],
   );
 
   // Sets the debounced data in redux, so that it can be used by sagas and other legacy code
@@ -441,21 +439,27 @@ export const FD = {
     const ruleConnections = useDynamics()?.ruleConnection ?? null;
 
     const lockedBy = useSelector((s) => s.controlState.lockedBy);
+    const lockedByRef = useAsRef(lockedBy);
     const isLocked = lockedBy !== undefined;
+    const isLockedRef = useAsRef(isLocked);
     const isLockedByMe = lockedBy === lockId;
+    const isLockedByMeRef = useAsRef(isLockedByMe);
 
     const hasUnsavedChanges = useHasUnsavedChanges();
+    const hasUnsavedChangesRef = useAsRef(hasUnsavedChanges);
     const waitForSave = useWaitForSave();
 
     const lock = useCallback(async () => {
-      if (isLocked && !isLockedByMe) {
-        window.logWarn(`Form data is already locked by ${lockedBy}, cannot lock it again (requested by ${lockId})`);
+      if (isLockedRef.current && !isLockedByMeRef.current) {
+        window.logWarn(
+          `Form data is already locked by ${lockedByRef.current}, cannot lock it again (requested by ${lockId})`,
+        );
       }
-      if (isLocked) {
+      if (isLockedRef.current) {
         return false;
       }
 
-      if (hasUnsavedChanges) {
+      if (hasUnsavedChangesRef.current) {
         requestSave(ruleConnections);
         await waitForSave();
       }
@@ -463,11 +467,11 @@ export const FD = {
       rawLock(lockId);
       return true;
     }, [
-      hasUnsavedChanges,
-      isLocked,
-      isLockedByMe,
+      hasUnsavedChangesRef,
+      isLockedByMeRef,
+      isLockedRef,
       lockId,
-      lockedBy,
+      lockedByRef,
       rawLock,
       requestSave,
       ruleConnections,
@@ -475,21 +479,21 @@ export const FD = {
     ]);
 
     const unlock = useCallback(
-      (changedFields?: IFormData) => {
-        if (!isLocked) {
+      (newModel?: object) => {
+        if (!isLockedRef.current) {
           window.logWarn(`Form data is not locked, cannot unlock it (requested by ${lockId})`);
         }
-        if (!isLockedByMe) {
-          window.logWarn(`Form data is locked by ${lockedBy}, cannot unlock it (requested by ${lockId})`);
+        if (!isLockedByMeRef.current) {
+          window.logWarn(`Form data is locked by ${lockedByRef.current}, cannot unlock it (requested by ${lockId})`);
         }
-        if (!isLocked || !isLockedByMe) {
+        if (!isLockedRef.current || !isLockedByMeRef.current) {
           return false;
         }
 
-        rawUnlock(changedFields);
+        rawUnlock(newModel);
         return true;
       },
-      [isLocked, isLockedByMe, lockId, lockedBy, rawUnlock],
+      [isLockedRef, isLockedByMeRef, lockId, lockedByRef, rawUnlock],
     );
 
     return { lock, unlock, isLocked, lockedBy, isLockedByMe };

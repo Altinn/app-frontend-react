@@ -12,7 +12,6 @@ import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useNavigatePage, useNavigationParams } from 'src/hooks/useNavigatePage';
 import { isSpecificClientAction } from 'src/layout/CustomButton/typeHelpers';
-import { flattenObject } from 'src/utils/databindings';
 import { promisify } from 'src/utils/promisify';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ButtonColor, ButtonVariant } from 'src/layout/Button/WrappedButton';
@@ -35,7 +34,7 @@ export type ActionResult = {
 
 type UseHandleClientActions = {
   handleClientActions: (actions: CBTypes.ClientAction[]) => Promise<void>;
-  handleDataModelUpdate: (updatedDataModels: UpdatedDataModels) => Promise<void>;
+  handleDataModelUpdate: (lockTools: FormDataLockTools, updatedDataModels?: UpdatedDataModels) => Promise<void>;
 };
 
 /**
@@ -47,7 +46,7 @@ const isClientAction = (action: CBTypes.CustomAction): action is CBTypes.ClientA
  */
 const isServerAction = (action: CBTypes.CustomAction): action is CBTypes.ServerAction => action.type === 'ServerAction';
 
-function useHandleClientActions(lockTools: FormDataLockTools): UseHandleClientActions {
+function useHandleClientActions(): UseHandleClientActions {
   const currentDataModelGuid = useCurrentDataModelGuid();
   const { navigateToPage, navigateToNextPage, navigateToPreviousPage } = useNavigatePage();
 
@@ -70,11 +69,10 @@ function useHandleClientActions(lockTools: FormDataLockTools): UseHandleClientAc
         await handleClientAction(action);
       }
     },
-    handleDataModelUpdate: async (updatedDataModels) => {
-      const currentDataModelUpdates = currentDataModelGuid && updatedDataModels[currentDataModelGuid];
-      if (currentDataModelUpdates) {
-        lockTools.unlock(flattenObject(currentDataModelUpdates));
-      }
+    handleDataModelUpdate: async (lockTools, updatedDataModels) => {
+      const newDataModel =
+        currentDataModelGuid && updatedDataModels ? updatedDataModels[currentDataModelGuid] : undefined;
+      lockTools.unlock(newDataModel);
     },
   };
 }
@@ -92,7 +90,7 @@ type UsePerformActionMutation = {
 function useHandleServerActionMutation(lockTools: FormDataLockTools): UsePerformActionMutation {
   const { doPerformAction } = useAppMutations();
   const { partyId, instanceGuid } = useNavigationParams();
-  const { handleClientActions, handleDataModelUpdate } = useHandleClientActions(lockTools);
+  const { handleClientActions, handleDataModelUpdate } = useHandleClientActions();
 
   const mutation = useMutation({
     mutationFn: async ({ action, buttonId }: PerformActionMutationProps) => {
@@ -109,13 +107,12 @@ function useHandleServerActionMutation(lockTools: FormDataLockTools): UsePerform
       await lockTools.lock();
       try {
         const result = await mutation.mutateAsync({ action, buttonId });
-        if (result.updatedDataModels) {
-          await handleDataModelUpdate(result.updatedDataModels);
-        }
+        await handleDataModelUpdate(lockTools, result.updatedDataModels);
         if (result.clientActions) {
           await handleClientActions(result.clientActions);
         }
       } catch (error) {
+        lockTools.unlock();
         if (error?.response?.data?.error?.message !== undefined) {
           toast(<Lang id={error?.response?.data?.error?.message} />, { type: 'error' });
         } else {
@@ -145,7 +142,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
   const { textResourceBindings, actions, id, buttonStyle = 'secondary' } = node.item;
   const lockTools = FD.useLocking(node.item.id);
   const { isAuthorized } = useActionAuthorization();
-  const { handleClientActions } = useHandleClientActions(lockTools);
+  const { handleClientActions } = useHandleClientActions();
   const { handleServerAction, mutation } = useHandleServerActionMutation(lockTools);
 
   const isPermittedToPerformActions = actions.reduce((acc, action) => acc || isAuthorized(action.name), true);
