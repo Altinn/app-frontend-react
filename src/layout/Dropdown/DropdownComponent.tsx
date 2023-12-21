@@ -16,6 +16,7 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
   const { langAsString } = useLanguage();
 
   const saveValue = FD.useSetForBindings(dataModelBindings);
+  const debounce = FD.useDebounceImmediately();
   const selected = FD.usePickFreshString(dataModelBindings?.simpleBinding);
 
   const { options, isFetching } = useGetOptions({
@@ -36,23 +37,22 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
 
   const formattedOptions = useFormattedOptions(options);
 
+  if (isFetching) {
+    return <AltinnSpinner />;
+  }
+
   return (
-    <>
-      {isFetching ? (
-        <AltinnSpinner />
-      ) : (
-        <Select
-          label={langAsString('general.choose')}
-          hideLabel={true}
-          inputId={id}
-          onChange={(newValue) => saveValue('simpleBinding', newValue)}
-          value={selected}
-          disabled={readOnly}
-          error={!isValid}
-          options={formattedOptions}
-          aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
-        />
-      )}
-    </>
+    <Select
+      label={langAsString('general.choose')}
+      hideLabel={true}
+      inputId={id}
+      onChange={(newValue) => saveValue('simpleBinding', newValue)}
+      onBlur={debounce}
+      value={selected}
+      disabled={readOnly}
+      error={!isValid}
+      options={formattedOptions}
+      aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
+    />
   );
 }

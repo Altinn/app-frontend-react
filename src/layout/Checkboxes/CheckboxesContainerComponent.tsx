@@ -26,6 +26,7 @@ export const CheckboxContainerComponent = ({ node, isValid, overrideDisplay }: I
 
   const value = FD.usePickFreshString(dataModelBindings?.simpleBinding);
   const setData = FD.useSetForBindings(dataModelBindings);
+  const debounce = FD.useDebounceImmediately();
 
   const selected = value && value.length > 0 ? value.split(',') : defaultSelectedOptions;
   const { options: calculatedOptions, isFetching } = useGetOptions({
@@ -74,6 +75,7 @@ export const CheckboxContainerComponent = ({ node, isValid, overrideDisplay }: I
     <div
       id={id}
       key={`checkboxes_group_${id}`}
+      onBlur={debounce}
     >
       <Checkbox.Group
         className={cn({ [classes.horizontal]: horizontal }, classes.checkboxGroup)}

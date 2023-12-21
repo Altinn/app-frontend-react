@@ -17,11 +17,13 @@ export function TextAreaComponent({ node, isValid, overrideDisplay }: ITextAreaP
   const characterLimit = useCharacterLimit(maxLength);
   const value = FD.usePickFreshString(dataModelBindings?.simpleBinding);
   const setValue = FD.useSetForBinding(dataModelBindings?.simpleBinding, saveWhileTyping);
+  const debounce = FD.useDebounceImmediately();
 
   return (
     <LegacyTextArea
       id={id}
       onChange={(e) => setValue(e.target.value)}
+      onBlur={debounce}
       readOnly={readOnly}
       resize='vertical'
       characterLimit={!readOnly ? characterLimit : undefined}

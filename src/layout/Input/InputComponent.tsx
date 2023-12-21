@@ -33,6 +33,7 @@ export function InputComponent({ node, isValid, overrideDisplay }: IInputProps) 
   const reactNumberFormatConfig = useMapToReactNumberConfig(formatting as IInputFormatting | undefined, value);
   const [inputKey, rerenderInput] = useRerender('input');
   const setValue = FD.useSetForBindings(dataModelBindings, saveWhileTyping);
+  const debounce = FD.useDebounceImmediately();
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (!reactNumberFormatConfig.number || canBeParsedToDecimal(e.target.value)) {
@@ -44,6 +45,7 @@ export function InputComponent({ node, isValid, overrideDisplay }: IInputProps) 
     if (reactNumberFormatConfig.number) {
       rerenderInput();
     }
+    debounce();
   }
 
   const ariaLabel = overrideDisplay?.renderedInTable === true ? langAsString(textResourceBindings?.title) : undefined;

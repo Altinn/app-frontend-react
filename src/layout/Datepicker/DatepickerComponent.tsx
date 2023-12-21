@@ -126,6 +126,7 @@ export function DatepickerComponent({ node, isValid, overrideDisplay }: IDatepic
   const isMobile = useIsMobile();
 
   const setValue = FD.useSetForBinding(dataModelBindings?.simpleBinding);
+  const debounce = FD.useDebounceImmediately();
   const value = FD.usePickFreshString(dataModelBindings?.simpleBinding);
   const dateValue = moment(value, moment.ISO_8601);
   const [date, input] = dateValue.isValid() ? [dateValue, undefined] : [null, value ?? ''];
@@ -168,6 +169,7 @@ export function DatepickerComponent({ node, isValid, overrideDisplay }: IDatepic
             placeholder={calculatedFormat}
             key={id}
             onChange={handleDateValueChange}
+            onBlur={debounce}
             onAccept={(dateValue) => handleDateValueChange(dateValue, undefined)}
             autoOk={true}
             invalidDateMessage={emptyString}

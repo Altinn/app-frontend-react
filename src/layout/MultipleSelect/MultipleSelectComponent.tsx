@@ -14,6 +14,7 @@ export function MultipleSelectComponent({ node, isValid, overrideDisplay }: IMul
   const { id, readOnly, textResourceBindings, dataModelBindings } = node.item;
   const value = FD.usePickFreshString(dataModelBindings?.simpleBinding);
   const saveValue = FD.useSetForBindings(dataModelBindings);
+  const debounce = FD.useDebounceImmediately();
   const selected = value && value.length > 0 ? value.split(',') : defaultSelectedOptions;
   const { options: calculatedOptions } = useGetOptions({
     ...node.item,
@@ -55,6 +56,7 @@ export function MultipleSelectComponent({ node, isValid, overrideDisplay }: IMul
       disabled={readOnly}
       error={!isValid}
       onChange={handleChange}
+      onBlur={debounce}
       value={selectedValues}
       aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
     />

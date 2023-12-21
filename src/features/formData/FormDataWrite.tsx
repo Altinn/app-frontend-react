@@ -496,6 +496,16 @@ export const FD = {
   },
 
   /**
+   * Returns a function you can use to debounce saved form data
+   */
+  useDebounceImmediately: () => {
+    const ruleConnection = useDynamics()?.ruleConnection ?? null;
+    const debounce = useSelector((s) => s.debounce);
+
+    return useCallback(() => debounce(ruleConnection), [debounce, ruleConnection]);
+  },
+
+  /**
    * Returns a function you can use to wait until the form data is saved.
    * This will work (and return immediately) even if there is no FormDataWriteProvider in the tree.
    */

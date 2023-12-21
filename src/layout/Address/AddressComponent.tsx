@@ -18,6 +18,7 @@ export function AddressComponent({ node }: IAddressComponentProps) {
 
   const bindings = ('dataModelBindings' in node.item && node.item.dataModelBindings) || {};
   const saveData = FD.useSetForBindings(bindings, saveWhileTyping);
+  const debounce = FD.useDebounceImmediately();
   const { address, careOf, postPlace, zipCode, houseNumber } = FD.usePickFreshStrings(bindings);
 
   const onSaveField = React.useCallback(
@@ -50,6 +51,7 @@ export function AddressComponent({ node }: IAddressComponentProps) {
           isValid={true} // TODO: Fix in validation rewrite
           value={address}
           onChange={(ev) => saveData('address', ev.target.value)}
+          onBlur={debounce}
           readOnly={readOnly}
           required={required}
           autoComplete={simplified ? 'street-address' : 'address-line1'}
@@ -71,6 +73,7 @@ export function AddressComponent({ node }: IAddressComponentProps) {
             isValid={true} // TODO: Fix in validation rewrite
             value={careOf}
             onChange={(ev) => saveData('careOf', ev.target.value)}
+            onBlur={debounce}
             readOnly={readOnly}
             autoComplete='address-line2'
           />
@@ -93,6 +96,7 @@ export function AddressComponent({ node }: IAddressComponentProps) {
               isValid={true} // TODO: Fix in validation rewrite
               value={zipCode}
               onChange={(ev) => onSaveField('zipCode', ev.target.value)}
+              onBlur={debounce}
               readOnly={readOnly}
               required={required}
               inputMode='numeric'
@@ -140,6 +144,7 @@ export function AddressComponent({ node }: IAddressComponentProps) {
               isValid={true} // TODO: Fix in validation rewrite
               value={houseNumber}
               onChange={(ev) => saveData('houseNumber', ev.target.value)}
+              onBlur={debounce}
               readOnly={readOnly}
               autoComplete='address-line3'
             />
