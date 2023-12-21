@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
@@ -9,6 +9,11 @@ import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 
 interface RepeatingGroupContext {
   node: LayoutNodeForGroup<CompGroupRepeatingInternal>;
+
+  // If this is true, we're rendering the group for the first time in this context. This is used to
+  // determine whether we should open the first/last row for editing when first displaying the group. If, however,
+  // we run that effect every time the group is re-rendered, the user would be unable to close the row for editing.
+  isFirstRender: boolean;
 
   // Methods for getting/setting state about which rows are in edit mode
   toggleEditing: (index: number) => void;
@@ -34,6 +39,11 @@ function useRepeatingGroupState(node: LayoutNodeForGroup<CompGroupRepeatingInter
   const editingAll = node.item.edit?.mode === 'showAll';
   const editingNone = node.item.edit?.mode === 'onlyTable';
   const numRows = node.item.rows.length;
+
+  const [isFirstRender, setIsFirstRender] = useState(true);
+  useEffect(() => {
+    setIsFirstRender(false);
+  }, []);
 
   const [editingIndex, setEditingIndex] = useState<number | undefined>(undefined);
   const [deletingIndexes, setDeletingIndexes] = useState<number[]>([]);
@@ -107,9 +117,8 @@ function useRepeatingGroupState(node: LayoutNodeForGroup<CompGroupRepeatingInter
         path: binding,
         newValue: {},
       });
+      openForEditing(node.item.rows.length);
     }
-
-    openForEditing(node.item.rows.length);
   }, [appendToList, binding, node.item.rows.length, openForEditing]);
 
   const deleteRow = useCallback(
@@ -153,6 +162,7 @@ function useRepeatingGroupState(node: LayoutNodeForGroup<CompGroupRepeatingInter
 
   return {
     node,
+    isFirstRender,
     toggleEditing,
     openForEditing,
     openNextForEditing,

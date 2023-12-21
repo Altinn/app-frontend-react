@@ -30,7 +30,7 @@ function getValidationMethod(node: LayoutNodeForGroup<CompGroupRepeatingInternal
 
 export function RepeatingGroupContainer(): JSX.Element | null {
   const { triggerFocus } = useRepeatingGroupsFocusContext();
-  const { node, isEditingAnyRow, editingIndex, addRow } = useRepeatingGroup();
+  const { node, isEditingAnyRow, editingIndex, addRow, openForEditing, isFirstRender } = useRepeatingGroup();
 
   const resolvedTextBindings = node.item.textResourceBindings;
   const id = node.item.id;
@@ -61,13 +61,27 @@ export function RepeatingGroupContainer(): JSX.Element | null {
     triggerFocus(lastIndex + 1);
   };
 
-  // Add new row if openByDefault is true and no rows exist. This also makes a new row appear
-  // when the last row is deleted.
+  // Add new row if openByDefault is true and no rows exist. This also makes sure to add a row immediately after the
+  // last one has been deleted.
   useEffect((): void => {
-    if (edit?.openByDefault === true && lastIndex === -1) {
+    if (edit?.openByDefault && numRows === 0) {
       addRow();
     }
-  }, [addRow, edit?.openByDefault, lastIndex]);
+  }, [node, addRow, edit?.openByDefault, numRows]);
+
+  // Open the first or last row for editing, if openByDefault is set to 'first' or 'last'
+  useEffect((): void => {
+    if (
+      isFirstRender &&
+      edit?.openByDefault &&
+      typeof edit.openByDefault === 'string' &&
+      ['first', 'last'].includes(edit.openByDefault) &&
+      editingIndex === undefined
+    ) {
+      const index = edit.openByDefault === 'last' ? lastIndex : 0;
+      openForEditing(index);
+    }
+  }, [edit?.openByDefault, editingIndex, isFirstRender, lastIndex, openForEditing]);
 
   const handleOnAddKeypress = (event: React.KeyboardEvent<HTMLButtonElement>): void => {
     const allowedKeys = ['enter', ' ', 'spacebar'];

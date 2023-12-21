@@ -352,11 +352,7 @@ Cypress.Commands.add(
     cy.get(appFrontend.group.currentValue).blur();
     cy.get(appFrontend.group.newValue).type(`${newValue}`);
     cy.get(appFrontend.group.newValue).blur();
-    cy.get(appFrontend.group.mainGroup)
-      .find(appFrontend.group.editContainer)
-      .find(appFrontend.group.next)
-
-      .click();
+    cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.next).click();
 
     if (openByDefault || typeof openByDefault === 'undefined') {
       cy.get(appFrontend.group.addNewItemSubGroup).should('not.exist');
