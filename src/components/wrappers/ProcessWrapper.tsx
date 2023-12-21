@@ -4,7 +4,6 @@ import type { ReactNode } from 'react';
 
 import { Button } from '@digdir/design-system-react';
 import Grid from '@material-ui/core/Grid';
-import cn from 'classnames';
 
 import { Form } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
@@ -18,7 +17,8 @@ import { PDFWrapper } from 'src/features/pdf/PDFWrapper';
 import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { Feedback } from 'src/features/processEnd/feedback/Feedback';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
-import { PageKeys, TaskKeys, useNavigatePage, useNavigationParams } from 'src/hooks/useNavigatePage';
+import { TaskKeys, useNavigatePage, useNavigationParams } from 'src/hooks/useNavigatePage';
+import { ProcessTaskType } from 'src/types';
 
 interface NavigationErrorProps {
   label: ReactNode;
@@ -101,72 +101,65 @@ export const ProcessWrapper = () => {
     );
   }
 
-  return (
-    <>
-      <div className={cn(classes['content'])}>
-        <Routes>
-          <Route
-            path={PageKeys.Confirmation}
-            element={
-              <FormDataForInfoTaskProvider taskId={taskId}>
+  if (taskType === ProcessTaskType.Confirm) {
+    return (
+      <FormDataForInfoTaskProvider taskId={taskId}>
+        <PresentationComponent type={taskType}>
+          <Confirm />
+        </PresentationComponent>
+      </FormDataForInfoTaskProvider>
+    );
+  }
+
+  if (taskType === ProcessTaskType.Feedback) {
+    return (
+      <FormDataForInfoTaskProvider taskId={taskId}>
+        <PresentationComponent type={taskType}>
+          <Feedback />
+        </PresentationComponent>
+      </FormDataForInfoTaskProvider>
+    );
+  }
+
+  if (taskType === ProcessTaskType.Archived) {
+    return (
+      <FormDataForInfoTaskProvider taskId={taskId}>
+        <PresentationComponent type={taskType}>
+          <ReceiptContainer />
+        </PresentationComponent>
+      </FormDataForInfoTaskProvider>
+    );
+  }
+
+  if (taskType === 'data') {
+    return (
+      <FormProvider>
+        <LayoutValidationProvider>
+          <Routes>
+            <Route
+              path=':pageKey'
+              element={
+                <PDFWrapper>
+                  <PresentationComponent type={taskType}>
+                    <Form />
+                  </PresentationComponent>
+                </PDFWrapper>
+              }
+            />
+            <Route
+              path='*'
+              // This will redirect to the first page of the form
+              element={
                 <PresentationComponent type={taskType}>
-                  <Confirm />
+                  <Form />
                 </PresentationComponent>
-              </FormDataForInfoTaskProvider>
-            }
-          />
-          <Route
-            path={PageKeys.Feedback}
-            element={
-              <FormDataForInfoTaskProvider taskId={taskId}>
-                <PresentationComponent type={taskType}>
-                  <Feedback />
-                </PresentationComponent>
-              </FormDataForInfoTaskProvider>
-            }
-          />
-          <Route
-            path={PageKeys.Receipt}
-            element={
-              <FormDataForInfoTaskProvider taskId={taskId}>
-                <PresentationComponent type={taskType}>
-                  <ReceiptContainer />
-                </PresentationComponent>
-              </FormDataForInfoTaskProvider>
-            }
-          />
-          <Route
-            path='*'
-            element={
-              <FormProvider>
-                <LayoutValidationProvider>
-                  <Routes>
-                    <Route
-                      path=':pageKey'
-                      element={
-                        <PDFWrapper>
-                          <PresentationComponent type={taskType}>
-                            <Form />
-                          </PresentationComponent>
-                        </PDFWrapper>
-                      }
-                    />
-                    <Route
-                      path='*'
-                      // This will redirect to the first page of the form
-                      element={
-                        <PresentationComponent type={taskType}>
-                          <Form />
-                        </PresentationComponent>
-                      }
-                    />
-                  </Routes>
-                </LayoutValidationProvider>
-              </FormProvider>
-            }
-          />
-        </Routes>
-      </div>
-    </>
-  );
+              }
+            />
+          </Routes>
+        </LayoutValidationProvider>
+      </FormProvider>
+    );
+  }
+
+  throw new Error(`Unknown task type: ${taskType}`);
 };

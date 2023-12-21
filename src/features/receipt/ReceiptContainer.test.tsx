@@ -9,7 +9,7 @@ import { AttachmentsProvider, AttachmentsStoreProvider } from 'src/features/atta
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { staticUseLanguageForTests } from 'src/features/language/useLanguage';
 import { getSummaryDataObject, ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
-import { PageKeys } from 'src/hooks/useNavigatePage';
+import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { InstanceRouter, renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import type { IParty } from 'src/types/shared';
@@ -88,8 +88,8 @@ const render = async ({ autoDeleteOnProcessEnd = false, hasPdf = true }: IRender
     router: ({ children }) => (
       <InstanceRouter
         instanceId={exampleInstanceId}
-        taskId='ProcessEnd'
-        initialPage={PageKeys.Receipt}
+        taskId={TaskKeys.ProcessEnd}
+        initialPage=''
       >
         {children}
       </InstanceRouter>

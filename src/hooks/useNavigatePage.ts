@@ -20,12 +20,6 @@ export enum TaskKeys {
   ProcessEnd = 'ProcessEnd',
 }
 
-export enum PageKeys {
-  Confirmation = '@confirmation',
-  Receipt = '@receipt',
-  Feedback = '@feedback',
-}
-
 export const useNavigationParams = () => {
   const instanceMatch = useMatch('/instance/:partyId/:instanceGuid');
   const taskIdMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId');
@@ -77,17 +71,8 @@ export const useNavigatePage = () => {
 
   const isValidPageId = useCallback(
     (pageId: string) => {
-      if (taskType !== ProcessTaskType.Data && Object.values<string>(PageKeys).includes(pageId)) {
-        return true;
-      }
-      if (taskType === ProcessTaskType.Confirm && pageId === PageKeys.Confirmation) {
-        return true;
-      }
-      if (taskType === ProcessTaskType.Archived && pageId === PageKeys.Receipt) {
-        return true;
-      }
-      if (taskType === ProcessTaskType.Feedback && pageId === PageKeys.Feedback) {
-        return true;
+      if (taskType !== ProcessTaskType.Data) {
+        return false;
       }
       return order?.includes(pageId) ?? false;
     },
@@ -158,14 +143,11 @@ export const useNavigatePage = () => {
   const isCurrentTask = useMemo(() => currentTaskId === taskId, [currentTaskId, taskId]);
 
   const startUrl = useMemo(() => {
-    if (taskType === ProcessTaskType.Confirm) {
-      return `/instance/${partyId}/${instanceGuid}/${taskId}/${PageKeys.Confirmation}`;
-    }
     if (taskType === ProcessTaskType.Archived) {
-      return `/instance/${partyId}/${instanceGuid}/ProcessEnd/${PageKeys.Receipt}`;
+      return `/instance/${partyId}/${instanceGuid}/${TaskKeys.ProcessEnd}`;
     }
-    if (taskType === ProcessTaskType.Feedback) {
-      return `/instance/${partyId}/${instanceGuid}/${taskId}/${PageKeys.Feedback}`;
+    if (taskType !== ProcessTaskType.Data) {
+      return `/instance/${partyId}/${instanceGuid}/${taskId}`;
     }
     const firstPage = order?.[0];
     if (taskId && firstPage) {
