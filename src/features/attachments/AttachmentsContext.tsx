@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 
-import { createContext } from 'src/core/contexts/context';
+import { ContextNotProvided, createContext } from 'src/core/contexts/context';
 import { usePostUpload } from 'src/features/attachments/utils/postUpload';
 import { usePreUpload } from 'src/features/attachments/utils/preUpload';
 import { mergeAndSort } from 'src/features/attachments/utils/sorting';
@@ -30,7 +30,11 @@ interface IAttachmentsStoreCtx {
   setAttachments(attachments: IAttachments): void;
 }
 
-const { Provider: StoreProvider, useCtx: useStoreCtx } = createContext<IAttachmentsStoreCtx>({
+const {
+  Provider: StoreProvider,
+  useCtx: useStoreCtx,
+  useLaxCtx: useLaxStoreCtx,
+} = createContext<IAttachmentsStoreCtx>({
   name: 'AttachmentsStore',
   required: true,
 });
@@ -97,4 +101,17 @@ export const useAttachmentsAwaiter = () => useMethodsCtx().awaitUpload;
 export const useAttachmentsFor = (node: LayoutNode<'FileUploadWithTag' | 'FileUpload'>) => {
   const { attachments } = useStoreCtx();
   return attachments[node.item.id] || [];
+};
+
+export const useHasPendingAttachments = () => {
+  const store = useLaxStoreCtx();
+  if (store === ContextNotProvided) {
+    return false;
+  }
+
+  const { attachments } = store;
+  return Object.values(attachments).some(
+    (fileUploader) =>
+      fileUploader?.some((attachment) => !attachment.uploaded || attachment.updating || attachment.deleting),
+  );
 };

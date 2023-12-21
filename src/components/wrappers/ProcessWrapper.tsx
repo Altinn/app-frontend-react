@@ -12,6 +12,7 @@ import { LayoutValidationProvider } from 'src/features/devtools/layoutValidation
 import { FormProvider } from 'src/features/form/FormContext';
 import { FormDataForInfoTaskProvider } from 'src/features/formData/FormDataReadOnly';
 import { useLaxProcessData, useTaskType } from 'src/features/instance/ProcessContext';
+import { ProcessNavigationProvider } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { PDFWrapper } from 'src/features/pdf/PDFWrapper';
 import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
@@ -104,9 +105,11 @@ export const ProcessWrapper = () => {
   if (taskType === ProcessTaskType.Confirm) {
     return (
       <FormDataForInfoTaskProvider taskId={taskId}>
-        <PresentationComponent type={taskType}>
-          <Confirm />
-        </PresentationComponent>
+        <ProcessNavigationProvider>
+          <PresentationComponent type={taskType}>
+            <Confirm />
+          </PresentationComponent>
+        </ProcessNavigationProvider>
       </FormDataForInfoTaskProvider>
     );
   }

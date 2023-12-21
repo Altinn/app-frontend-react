@@ -5,7 +5,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { createContext } from 'src/core/contexts/context';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
-import { useAttachments } from 'src/features/attachments/AttachmentsContext';
+import { useHasPendingAttachments } from 'src/features/attachments/AttachmentsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstance, useStrictInstance } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData, useSetProcessData } from 'src/features/instance/ProcessContext';
@@ -114,11 +114,7 @@ export function ProcessNavigationProvider({ children }: React.PropsWithChildren)
   const [_busyWithId, setBusyWithId] = useState<string>('');
   // const submittingState = useAppSelector((state) => state.formData.submittingState);
 
-  const attachments = useAttachments();
-  const attachmentsPending = Object.values(attachments).some(
-    (fileUploader) =>
-      fileUploader?.some((attachment) => !attachment.uploaded || attachment.updating || attachment.deleting),
-  );
+  const attachmentsPending = useHasPendingAttachments();
 
   // const busyWithId = submittingState === 'inactive' ? '' : _busyWithId;
   const busyWithId = _busyWithId;
