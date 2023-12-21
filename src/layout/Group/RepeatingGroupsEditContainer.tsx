@@ -61,7 +61,8 @@ function RepeatingGroupsEditContainerInternal({
   group: CompGroupRepeatingInternal;
   row: CompGroupRepeatingInternal['rows'][number];
 }): JSX.Element | null {
-  const { node, closeForEditing, deleteRow, openNextForEditing, isDeleting } = useRepeatingGroup();
+  const { node, closeForEditing, deleteRow, openNextForEditing, isDeleting, moreVisibleRowsAfterEditIndex } =
+    useRepeatingGroup();
   const { multiPageEnabled, multiPageIndex, nextMultiPage, prevMultiPage, hasNextMultiPage, hasPrevMultiPage } =
     useRepeatingGroupEdit();
   const id = node.item.id;
@@ -78,15 +79,6 @@ function RepeatingGroupsEditContainerInternal({
     ...group.textResourceBindings,
     ...textsForRow,
   };
-
-  const nextDisplayedGroup = () => {
-    const nextDisplayedIndex = group.rows.findIndex(
-      (group, idx) => idx > editIndex && group && !group.groupExpressions?.hiddenRow,
-    );
-    return nextDisplayedIndex > -1 ? nextDisplayedIndex : null;
-  };
-
-  const nextIndex: number | null = nextDisplayedGroup();
 
   const getGenericComponentsToRender = (): (JSX.Element | null)[] =>
     rowItems.map((n): JSX.Element | null => {
@@ -115,8 +107,10 @@ function RepeatingGroupsEditContainerInternal({
 
   const isNested = typeof group.baseComponentId === 'string';
   const saveButtonVisible =
-    !forceHideSaveButton && (edit?.saveButton !== false || (edit.saveAndNextButton === true && nextIndex === null));
-  const saveAndNextButtonVisible = !forceHideSaveButton && edit.saveAndNextButton === true && nextIndex !== null;
+    !forceHideSaveButton &&
+    (edit?.saveButton !== false || (edit.saveAndNextButton === true && !moreVisibleRowsAfterEditIndex));
+  const saveAndNextButtonVisible =
+    !forceHideSaveButton && edit.saveAndNextButton === true && moreVisibleRowsAfterEditIndex;
 
   const hideTable = edit.mode === 'hideTable' || edit.mode === 'showAll';
 

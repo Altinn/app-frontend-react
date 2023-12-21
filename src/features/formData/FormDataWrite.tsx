@@ -16,7 +16,6 @@ import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteSta
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useIsDev } from 'src/hooks/useIsDev';
-import { useMemoDeepEqual } from 'src/hooks/useMemoDeepEqual';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { flattenObject } from 'src/utils/databindings';
@@ -303,10 +302,8 @@ export const FD = {
    * This returns a value, as picked from the form data. It may also return an array, object or null.
    * If you only expect a string/leaf value, use usePickString() instead.
    */
-  usePickFreshAny: (path: string | undefined): FDValue => {
-    const currentData = useSelector((s) => s.currentData);
-    return useMemoDeepEqual(path ? dot.pick(path, currentData) : undefined);
-  },
+  usePickFreshAny: (path: string | undefined): FDValue =>
+    useSelector((s) => (path ? dot.pick(path, s.currentData) : undefined)),
 
   /**
    * This returns multiple values, as picked from the form data. The values in the input object is expected to be
@@ -316,17 +313,17 @@ export const FD = {
    */
   useFreshBindings: <T extends IDataModelBindings | undefined>(
     bindings: T,
-  ): T extends undefined ? Record<string, never> : { [key in keyof T]: FDValue } => {
-    const currentData = useSelector((s) => s.currentData);
-    const out: any = {};
-    if (bindings) {
-      for (const key of Object.keys(bindings)) {
-        out[key] = dot.pick(bindings[key], currentData);
+  ): T extends undefined ? Record<string, never> : { [key in keyof T]: FDValue } =>
+    useSelector((s) => {
+      const out: any = {};
+      if (bindings) {
+        for (const key of Object.keys(bindings)) {
+          out[key] = dot.pick(bindings[key], s.currentData);
+        }
       }
-    }
 
-    return useMemoDeepEqual(out);
-  },
+      return out;
+    }),
 
   /**
    * This returns the raw method for setting a value in the form data. This is useful if you want to

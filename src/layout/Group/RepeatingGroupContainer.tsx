@@ -30,14 +30,15 @@ function getValidationMethod(node: LayoutNodeForGroup<CompGroupRepeatingInternal
 
 export function RepeatingGroupContainer(): JSX.Element | null {
   const { triggerFocus } = useRepeatingGroupsFocusContext();
-  const { node, isEditingAnyRow, editingIndex, addRow, openForEditing, isFirstRender } = useRepeatingGroup();
+  const { node, isEditingAnyRow, editingIndex, addRow, openForEditing, isFirstRender, visibleRowIndexes } =
+    useRepeatingGroup();
 
   const resolvedTextBindings = node.item.textResourceBindings;
   const id = node.item.id;
   const edit = node.item.edit;
 
-  const numRows = node.item.rows.length;
-  const lastIndex = numRows - 1;
+  const numRows = visibleRowIndexes.length;
+  const lastIndex = visibleRowIndexes[numRows - 1];
   const { lang, langAsString } = useLanguage();
 
   const AddButton = (): JSX.Element => (
