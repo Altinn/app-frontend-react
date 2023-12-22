@@ -4,8 +4,9 @@ import type { PropsWithChildren } from 'react';
 import { createContext } from 'src/core/contexts/context';
 import { useAttachmentDeletionInRepGroups } from 'src/features/attachments/useAttachmentDeletionInRepGroups';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useAsRefObject } from 'src/hooks/useAsRef';
+import { useAsRef, useAsRefObject } from 'src/hooks/useAsRef';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
+import { useWaitForState } from 'src/hooks/useWaitForState';
 import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 
@@ -103,6 +104,7 @@ function useRepeatingGroupState(node: LayoutNodeForGroup<CompGroupRepeatingInter
   const removeIndexFromList = FD.useRemoveIndexFromList();
   const { onBeforeRowDeletion } = useAttachmentDeletionInRepGroups(node);
   const pureStates = usePureStates(node);
+  const setEditingIndex = pureStates.setEditingIndex;
   const {
     editingAll,
     editingNone,
@@ -112,13 +114,14 @@ function useRepeatingGroupState(node: LayoutNodeForGroup<CompGroupRepeatingInter
     editableRowIndexes,
     deletableRowIndexes,
     editingIndex,
-    setEditingIndex,
   } = useAsRefObject(pureStates);
+  const waitForRows = useWaitForState(node.item.rows);
+  const nodeRef = useAsRef(node);
 
   // Figure out if the row we were editing is now hidden, and in that case, reset the editing state
   useEffect(() => {
     if (pureStates.editingIndex !== undefined && pureStates.hiddenRowIndexes.has(pureStates.editingIndex)) {
-      setEditingIndex.current(undefined);
+      setEditingIndex(undefined);
     }
   }, [pureStates.editingIndex, pureStates.hiddenRowIndexes, node, setEditingIndex]);
 
@@ -127,7 +130,7 @@ function useRepeatingGroupState(node: LayoutNodeForGroup<CompGroupRepeatingInter
       if (editingAll.current || editingNone.current || !editableRowIndexes.current.includes(index)) {
         return;
       }
-      setEditingIndex.current((prev) => (prev === index ? undefined : index));
+      setEditingIndex((prev) => (prev === index ? undefined : index));
     },
     [editableRowIndexes, editingAll, editingNone, setEditingIndex],
   );
@@ -137,7 +140,7 @@ function useRepeatingGroupState(node: LayoutNodeForGroup<CompGroupRepeatingInter
       if (editingAll.current || editingNone.current || !editableRowIndexes.current.includes(index)) {
         return;
       }
-      setEditingIndex.current(index);
+      setEditingIndex(index);
     },
     [editableRowIndexes, editingAll, editingNone, setEditingIndex],
   );
@@ -146,7 +149,7 @@ function useRepeatingGroupState(node: LayoutNodeForGroup<CompGroupRepeatingInter
     if (editingAll.current || editingNone.current) {
       return;
     }
-    setEditingIndex.current((prev) => {
+    setEditingIndex((prev) => {
       if (prev === undefined) {
         return editableRowIndexes.current[0];
       }
@@ -163,7 +166,7 @@ function useRepeatingGroupState(node: LayoutNodeForGroup<CompGroupRepeatingInter
       if (editingAll.current || editingNone.current) {
         return;
       }
-      setEditingIndex.current((prev) => (prev === index ? undefined : prev));
+      setEditingIndex((prev) => (prev === index ? undefined : prev));
     },
     [editingAll, editingNone, setEditingIndex],
   );
@@ -181,15 +184,18 @@ function useRepeatingGroupState(node: LayoutNodeForGroup<CompGroupRepeatingInter
     [editingAll, editingIndex, editingNone],
   );
 
-  const addRow = useCallback(() => {
+  const addRow = useCallback(async () => {
     if (binding.current) {
+      const nextIndex = nodeRef.current.item.rows.length;
+      const nextLength = nextIndex + 1;
       appendToList({
         path: binding.current,
         newValue: {},
       });
-      openForEditing(node.item.rows.length);
+      await waitForRows((rows) => rows.length === nextLength);
+      openForEditing(nextIndex);
     }
-  }, [appendToList, binding, node.item.rows.length, openForEditing]);
+  }, [appendToList, binding, nodeRef, openForEditing, waitForRows]);
 
   const deleteRow = useCallback(
     async (index: number) => {
@@ -210,7 +216,7 @@ function useRepeatingGroupState(node: LayoutNodeForGroup<CompGroupRepeatingInter
           index,
         });
 
-        setEditingIndex.current((prev) => {
+        setEditingIndex((prev) => {
           if (prev === index) {
             return undefined;
           }

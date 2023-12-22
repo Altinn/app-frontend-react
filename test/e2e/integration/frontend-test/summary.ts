@@ -203,15 +203,10 @@ describe('Summary', () => {
     cy.get(appFrontend.group.mainGroupSummary).first().children(mui.gridItem).eq(5).find('button').first().click();
 
     // Check to show a couple of nested options, then go back to the summary
-    cy.get(appFrontend.group.row(0).editBtn).click();
-    cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.next).click();
+    cy.get(appFrontend.group.row(0).nestedGroup.row(0).editBtn).click();
     cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedDynamics).dsCheck();
-
     cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[1]).dsCheck();
     cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[2]).dsCheck();
-
-    cy.get(appFrontend.group.row(0).nestedGroup.saveBtn).click();
-    cy.get(appFrontend.group.saveMainGroup).click();
     cy.get(appFrontend.backToSummaryButton).click();
 
     cy.get(appFrontend.group.mainGroupSummary)
