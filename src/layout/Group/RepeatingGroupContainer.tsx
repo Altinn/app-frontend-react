@@ -139,7 +139,7 @@ export function RepeatingGroupContainer({ containerDivRef }: IGroupProps): JSX.E
               }
               className={classes.showAllFieldset}
             >
-              {visibleRowIndexes.map((_, index) => (
+              {visibleRowIndexes.map((index) => (
                 <div
                   key={`repeating-group-item-${index}`}
                   style={{ width: '100%', marginBottom: !isNested && index == lastIndex ? 15 : 0 }}
