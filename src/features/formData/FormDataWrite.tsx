@@ -298,23 +298,20 @@ export const FD = {
    */
   usePickFreshStrings: <B extends IDataModelBindings>(_bindings: B): { [key in keyof B]: string } => {
     const bindings = _bindings as any;
-    const currentData = useSelector((s) => s.currentData);
-
-    return useMemo(
-      () =>
-        new Proxy({} as { [key in keyof B]: string }, {
-          get(_, _key): any {
-            const key = _key.toString();
-            const binding = key in bindings && bindings[key];
-            const value = binding && dot.pick(binding, currentData);
-            if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
-              return value.toString();
-            }
-            return '';
-          },
-        }),
-      [bindings, currentData],
-    );
+    return useSelector((s) => {
+      const out: any = {};
+      if (bindings) {
+        for (const key of Object.keys(bindings)) {
+          const value = dot.pick(bindings[key], s.currentData);
+          if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+            out[key] = value;
+          } else {
+            out[key] = '';
+          }
+        }
+      }
+      return out;
+    });
   },
 
   /**
