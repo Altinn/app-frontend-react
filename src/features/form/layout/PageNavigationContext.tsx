@@ -71,3 +71,11 @@ export const useHiddenPages = () => {
 
   return ctx.hidden;
 };
+export const useReturnToView = () => {
+  const ctx = useLaxCtx();
+  if (ctx === ContextNotProvided) {
+    return undefined;
+  }
+
+  return ctx.returnToView;
+};

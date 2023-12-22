@@ -472,7 +472,16 @@ Cypress.Commands.add('testPdf', (callback, returnToForm = false) => {
 
   // Visit the PDF page and reload
   cy.location('href').then((href) => {
-    cy.visit(`${href}?pdf=1`);
+    const regex = getInstanceIdRegExp();
+    const instanceId = regex.exec(href)?.[1];
+    const before = href.split(regex)[0];
+    const visitUrl = `${before}${instanceId}?pdf=1`;
+
+    // After the navigation rewrite where we now add the current task ID to the URL, this test is only realistic if
+    // we remove the task and page from the URL before rendering the PDF. This is because the real PDF generator
+    // won't know about the task and page, and will load this URL and assume the app will figure out how to display
+    // the current task as a PDF.
+    cy.visit(visitUrl);
   });
   cy.reload();
 
