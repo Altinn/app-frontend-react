@@ -6,41 +6,40 @@ import { Grid } from '@material-ui/core';
 import { Add as AddIcon } from '@navikt/ds-icons';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
+import { Fieldset } from 'src/components/form/Fieldset';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { Triggers } from 'src/layout/common.generated';
+import classes from 'src/layout/Group/RepeatingGroupContainer.module.css';
 import { useRepeatingGroup } from 'src/layout/Group/RepeatingGroupContext';
 import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
 import { useRepeatingGroupsFocusContext } from 'src/layout/Group/RepeatingGroupsFocusContext';
 import { RepeatingGroupTable } from 'src/layout/Group/RepeatingGroupTable';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
-import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
-import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
+import type { TriggerList } from 'src/layout/common.generated';
 
-function getValidationMethod(node: LayoutNodeForGroup<CompGroupRepeatingInternal>) {
-  // Validation for whole group takes precedent over single-row validation if both are present.
-  const triggers = node.item.triggers;
-  if (triggers && triggers.includes(Triggers.Validation)) {
-    return Triggers.Validation;
-  }
-  if (triggers && triggers.includes(Triggers.ValidateRow)) {
-    return Triggers.ValidateRow;
-  }
-}
-
-interface Props {
+export interface IGroupProps {
   containerDivRef?: MutableRefObject<HTMLDivElement | null>;
 }
 
-export function RepeatingGroupContainer({ containerDivRef }: Props): JSX.Element | null {
+const getValidationMethod = (triggers: TriggerList) => {
+  // Validation for whole group takes precedent over single-row validation if both are present.
+  if (triggers.includes(Triggers.Validation)) {
+    return Triggers.Validation;
+  }
+  if (triggers.includes(Triggers.ValidateRow)) {
+    return Triggers.ValidateRow;
+  }
+};
+
+export function RepeatingGroupContainer({ containerDivRef }: IGroupProps): JSX.Element | null {
   const { triggerFocus } = useRepeatingGroupsFocusContext();
   const { node, isEditingAnyRow, editingIndex, addRow, openForEditing, isFirstRender, visibleRowIndexes } =
     useRepeatingGroup();
 
-  const resolvedTextBindings = node.item.textResourceBindings;
-  const id = node.item.id;
-  const edit = node.item.edit;
+  const { textResourceBindings, id, edit, type } = node.item;
 
   const numRows = visibleRowIndexes.length;
   const lastIndex = visibleRowIndexes[numRows - 1];
@@ -56,9 +55,9 @@ export function RepeatingGroupContainer({ containerDivRef }: Props): JSX.Element
       iconPlacement='left'
       fullWidth
     >
-      {resolvedTextBindings?.add_button_full
-        ? lang(resolvedTextBindings.add_button_full)
-        : `${langAsString('general.add_new')} ${langAsString(resolvedTextBindings?.add_button)}`}
+      {textResourceBindings?.add_button_full
+        ? lang(textResourceBindings.add_button_full)
+        : `${langAsString('general.add_new')} ${langAsString(textResourceBindings?.add_button)}`}
     </Button>
   );
 
@@ -97,7 +96,7 @@ export function RepeatingGroupContainer({ containerDivRef }: Props): JSX.Element
     }
   };
 
-  if (node.isHidden() || node.item.type !== 'Group') {
+  if (node.isHidden() || type !== 'Group') {
     return null;
   }
 
@@ -128,19 +127,31 @@ export function RepeatingGroupContainer({ containerDivRef }: Props): JSX.Element
           {isEditingAnyRow && editingIndex !== undefined && edit?.mode === 'hideTable' && (
             <RepeatingGroupsEditContainer editIndex={editingIndex} />
           )}
-          {edit?.mode === 'showAll' &&
-            // Generate array of length repeatingGroupIndex and iterate over indexes
-            Array(numRows).map((_, index) => (
-              <div
-                key={index}
-                style={{ width: '100%', marginBottom: !isNested && index == lastIndex ? 15 : 0 }}
-              >
-                <RepeatingGroupsEditContainer
-                  editIndex={index}
-                  forceHideSaveButton={true}
-                />
-              </div>
-            ))}
+          {edit?.mode === 'showAll' && (
+            <Fieldset
+              legend={textResourceBindings?.title && <Lang id={textResourceBindings?.title} />}
+              description={
+                textResourceBindings?.description && (
+                  <span className={classes.showAllDescription}>
+                    <Lang id={textResourceBindings?.description} />
+                  </span>
+                )
+              }
+              className={classes.showAllFieldset}
+            >
+              {visibleRowIndexes.map((_, index) => (
+                <div
+                  key={`repeating-group-item-${index}`}
+                  style={{ width: '100%', marginBottom: !isNested && index == lastIndex ? 15 : 0 }}
+                >
+                  <RepeatingGroupsEditContainer
+                    editIndex={index}
+                    forceHideSaveButton={true}
+                  />
+                </div>
+              ))}
+            </Fieldset>
+          )}
         </>
       </ConditionalWrapper>
       {edit?.mode === 'showAll' && displayBtn && <AddButton />}
