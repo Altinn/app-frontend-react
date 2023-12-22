@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
+import { ContextNotProvided } from 'src/core/contexts/context';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import { FormDynamicsActions } from 'src/features/form/dynamics/formDynamicsSlice';
@@ -37,4 +38,7 @@ const { Provider, useCtx, useLaxCtx } = delayedContext(() =>
 
 export const DynamicsProvider = Provider;
 export const useDynamics = () => useCtx();
-export const useLaxDynamics = () => useLaxCtx();
+export const useRuleConnection = () => {
+  const dynamics = useLaxCtx();
+  return dynamics === ContextNotProvided ? null : dynamics?.ruleConnection ?? null;
+};

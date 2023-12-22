@@ -7,6 +7,7 @@ import { immer } from 'zustand/middleware/immer';
 import { diffModels } from 'src/features/formData/diffModels';
 import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/index';
 import { runLegacyRules } from 'src/features/formData/LegacyRules';
+import { flattenObject } from 'src/utils/databindings';
 import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { FormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
 import type { IFormData } from 'src/features/formData/index';
@@ -104,7 +105,7 @@ export interface FormDataMethods {
 
   // Internal utility methods
   debounce: (ruleConnection: IRuleConnections | null) => void;
-  saveFinished: (savedData: object, changedFields?: IFormData) => void;
+  saveFinished: (savedData: object, ruleConnection: IRuleConnections | null, changedFields?: IFormData) => void;
   requestManualSave: (ruleConnection: IRuleConnections | null) => void;
   lock: (lockName: string) => void;
   unlock: (newModel?: object) => void;
@@ -117,7 +118,11 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
     state.controlState.debounceTimeout = change.debounceTimeout ?? DEFAULT_DEBOUNCE_TIMEOUT;
   }
 
-  function processChangedFields(state: FormDataContext, changedFields: IFormData | undefined) {
+  function processChangedFields(
+    state: FormDataContext,
+    ruleConnection: IRuleConnections | null,
+    changedFields: IFormData | undefined,
+  ) {
     if (changedFields && Object.keys(changedFields).length > 0) {
       for (const path of Object.keys(changedFields)) {
         const newValue = changedFields[path];
@@ -131,6 +136,14 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
         dot.str(path, newValueAsString, state.debouncedCurrentData);
         dot.str(path, newValueAsString, state.lastSavedData);
       }
+
+      for (const model of [state.currentData, state.debouncedCurrentData, state.lastSavedData]) {
+        const flatModel = flattenObject(model);
+        const changes = runLegacyRules(ruleConnection, flatModel, new Set(Object.keys(changedFields)));
+        for (const { path, newValue } of changes) {
+          dot.str(path, newValue, model);
+        }
+      }
     }
   }
 
@@ -143,8 +156,8 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
   }
 
   function debounce(state: FormDataContext, ruleConnection: IRuleConnections | null) {
-    const currentDataFlat = dot.dot(state.currentData);
-    const debouncedCurrentDataFlat = dot.dot(state.debouncedCurrentData);
+    const currentDataFlat = flattenObject(state.currentData);
+    const debouncedCurrentDataFlat = flattenObject(state.debouncedCurrentData);
     const diff = diffModels(currentDataFlat, debouncedCurrentDataFlat);
     const changes = runLegacyRules(ruleConnection, currentDataFlat, new Set(Object.keys(diff)));
     for (const { path, newValue } of changes) {
@@ -160,11 +173,11 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
         debounce(state, ruleConnection);
       }),
 
-    saveFinished: (savedData, changedFields) =>
+    saveFinished: (savedData, ruleConnection, changedFields) =>
       set((state) => {
         state.lastSavedData = structuredClone(savedData);
         state.controlState.manualSaveRequested = false;
-        processChangedFields(state, changedFields);
+        processChangedFields(state, ruleConnection, changedFields);
       }),
     setLeafValue: ({ path, newValue, ...rest }) =>
       set((state) => {

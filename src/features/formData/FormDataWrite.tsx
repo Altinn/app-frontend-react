@@ -9,7 +9,7 @@ import deepEqual from 'fast-deep-equal';
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
-import { useDynamics, useLaxDynamics } from 'src/features/form/dynamics/DynamicsContext';
+import { useRuleConnection } from 'src/features/form/dynamics/DynamicsContext';
 import { diffModels } from 'src/features/formData/diffModels';
 import { useFormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
 import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteStateMachine';
@@ -66,6 +66,7 @@ const useFormDataSaveMutation = (ctx: FormDataContext) => {
   const { doPutFormData } = useAppMutations();
   const { saveFinished } = ctx;
   const isDev = useIsDev();
+  const ruleConnection = useRuleConnection();
 
   return useMutation({
     mutationKey: ['saveFormData'],
@@ -74,13 +75,13 @@ const useFormDataSaveMutation = (ctx: FormDataContext) => {
       const data = createFormDataRequestFromDiff(newData, diff, isDev);
       try {
         const metaData = await doPutFormData.call(dataModelUrl, data);
-        saveFinished(newData, metaData?.changedFields);
+        saveFinished(newData, ruleConnection, metaData?.changedFields);
       } catch (error) {
         if (isAxiosError(error) && error.response?.status === 303) {
           // Fallback to old behavior if the server responds with 303 when there are changes. We handle these just
           // like we handle 200 responses.
           const metaData = error.response.data as IDataAfterDataModelSave;
-          saveFinished(newData, metaData?.changedFields);
+          saveFinished(newData, ruleConnection, metaData?.changedFields);
           return;
         }
         throw error;
@@ -119,10 +120,10 @@ export function FormDataWriteProvider({ url, initialData, autoSaving, children }
 
 function FormDataEffects({ url }: { url: string }) {
   const state = useSelector((s) => s);
-  const { debounce, currentData, debouncedCurrentData, lastSavedData, controlState } = state;
+  const { currentData, debouncedCurrentData, lastSavedData, controlState } = state;
   const { debounceTimeout, autoSaving, manualSaveRequested, lockedBy } = controlState;
   const { mutate, isLoading: isSaving, error } = useFormDataSaveMutation(state);
-  const ruleConnections = useDynamics()?.ruleConnection ?? null;
+  const debounce = useDebounceImmediately();
 
   // This component re-renders on every keystroke in a form field. We don't want to save on every keystroke, nor
   // create a new performSave function after every save, so we use a ref to make sure the performSave function
@@ -161,14 +162,14 @@ function FormDataEffects({ url }: { url: string }) {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (currentData !== debouncedCurrentData) {
-        debounce(ruleConnections);
+        debounce();
       }
     }, debounceTimeout);
 
     return () => {
       clearTimeout(timer);
     };
-  }, [ruleConnections, debounce, currentData, debouncedCurrentData, debounceTimeout]);
+  }, [debounce, currentData, debouncedCurrentData, debounceTimeout]);
 
   // Save the data model when the data has been frozen to debouncedCurrentData and is different from the saved data
   useEffect(() => {
@@ -205,6 +206,26 @@ function FormDataEffects({ url }: { url: string }) {
   return null;
 }
 
+const useRequestManualSave = () => {
+  const requestSave = useLaxSelector((s) => s.requestManualSave);
+  const ruleConnection = useRuleConnection();
+  return useCallback(() => {
+    if (requestSave !== ContextNotProvided) {
+      requestSave(ruleConnection);
+    }
+  }, [requestSave, ruleConnection]);
+};
+
+const useDebounceImmediately = () => {
+  const debounce = useLaxSelector((s) => s.debounce);
+  const ruleConnection = useRuleConnection();
+  return useCallback(() => {
+    if (debounce !== ContextNotProvided) {
+      debounce(ruleConnection);
+    }
+  }, [debounce, ruleConnection]);
+};
+
 const useHasUnsavedChanges = () => {
   const result = useLaxSelector((s) => s.lastSavedData !== s.currentData && !deepEqual(s.lastSavedData, s.currentData));
   if (result === ContextNotProvided) {
@@ -214,11 +235,9 @@ const useHasUnsavedChanges = () => {
 };
 
 const useWaitForSave = () => {
-  const requestSave = useLaxSelector((s) => s.requestManualSave);
+  const requestSave = useRequestManualSave();
   const url = useLaxSelector((s) => s.controlState.saveUrl);
   const hasUnsavedChanges = useHasUnsavedChanges();
-  const dynamics = useLaxDynamics();
-  const ruleConnection = dynamics === ContextNotProvided ? null : dynamics?.ruleConnection ?? null;
   const waitForUnsaved = useWaitForState(hasUnsavedChanges);
 
   return useCallback(
@@ -227,13 +246,13 @@ const useWaitForSave = () => {
         return Promise.resolve();
       }
 
-      if (requestManualSave && requestSave !== ContextNotProvided) {
-        requestSave(ruleConnection);
+      if (requestManualSave) {
+        requestSave();
       }
 
       return waitForUnsaved((hasUnsavedChanges) => !hasUnsavedChanges);
     },
-    [requestSave, ruleConnection, url, waitForUnsaved],
+    [requestSave, url, waitForUnsaved],
   );
 };
 
@@ -432,8 +451,7 @@ export const FD = {
   useLocking(lockId: string) {
     const rawLock = useSelector((s) => s.lock);
     const rawUnlock = useSelector((s) => s.unlock);
-    const requestSave = useSelector((s) => s.requestManualSave);
-    const ruleConnections = useDynamics()?.ruleConnection ?? null;
+    const requestSave = useRequestManualSave();
 
     const lockedBy = useSelector((s) => s.controlState.lockedBy);
     const lockedByRef = useAsRef(lockedBy);
@@ -457,23 +475,13 @@ export const FD = {
       }
 
       if (hasUnsavedChangesRef.current) {
-        requestSave(ruleConnections);
+        requestSave();
         await waitForSave();
       }
 
       rawLock(lockId);
       return true;
-    }, [
-      hasUnsavedChangesRef,
-      isLockedByMeRef,
-      isLockedRef,
-      lockId,
-      lockedByRef,
-      rawLock,
-      requestSave,
-      ruleConnections,
-      waitForSave,
-    ]);
+    }, [hasUnsavedChangesRef, isLockedByMeRef, isLockedRef, lockId, lockedByRef, rawLock, requestSave, waitForSave]);
 
     const unlock = useCallback(
       (newModel?: object) => {
@@ -498,13 +506,9 @@ export const FD = {
 
   /**
    * Returns a function you can use to debounce saved form data
+   * This will work (and return immediately) even if there is no FormDataWriteProvider in the tree.
    */
-  useDebounceImmediately: () => {
-    const ruleConnection = useDynamics()?.ruleConnection ?? null;
-    const debounce = useSelector((s) => s.debounce);
-
-    return useCallback(() => debounce(ruleConnection), [debounce, ruleConnection]);
-  },
+  useDebounceImmediately,
 
   /**
    * Returns a function you can use to wait until the form data is saved.

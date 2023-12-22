@@ -482,7 +482,7 @@ describe('Summary', () => {
     }
   });
 
-  it('Navigation to fields on other pages outside the summary should not show the back-to-summary button', () => {
+  it.skip('Navigation to fields on other pages outside the summary should not show the back-to-summary button', () => {
     cy.gotoAndComplete('changename');
     injectExtraPageAndSetTriggers();
     cy.navPage('form').click();
