@@ -55,7 +55,16 @@ export function RepeatingGroupsFocusProvider({ children }: PropsWithChildren) {
       }
 
       // We are a parent of the target component, and the targetChild is the target component (or a nested group
-      // containing the target component). We should open the row containing targetChild for editing.
+      // containing the target component). We should most likely open the row containing targetChild for editing.
+      const tableColSetup =
+        (node.item.tableColumns && targetChild.item.id && node.item.tableColumns[targetChild.item.id]) || {};
+
+      if (tableColSetup.editInTable || tableColSetup.showInExpandedEdit === false) {
+        // No need to open rows or set editIndex for components that are rendered
+        // in table (outside the edit container)
+        return false;
+      }
+
       for (const row of node.item.rows) {
         if (row.items.find((item) => item.item.id === targetChild?.item.id)) {
           openForEditing(row.index);

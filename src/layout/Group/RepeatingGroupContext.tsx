@@ -35,6 +35,8 @@ interface RepeatingGroupContext {
   visibleRowIndexes: number[];
   hiddenRowIndexes: Set<number>;
   moreVisibleRowsAfterEditIndex: boolean;
+  editableRowIndexes: number[];
+  deletableRowIndexes: number[];
 }
 
 const { Provider, useCtx } = createContext<RepeatingGroupContext>({
@@ -47,18 +49,28 @@ function usePureStates(node: LayoutNodeForGroup<CompGroupRepeatingInternal>) {
   const editingNone = node.item.edit?.mode === 'onlyTable';
   const binding = node.item.dataModelBindings?.group;
 
-  const [visibleRowIndexes, hiddenRowIndexes] = useMemoDeepEqual(() => {
+  const [visibleRowIndexes, hiddenRowIndexes, editableRowIndexes, deletableRowIndexes] = useMemoDeepEqual(() => {
     const hidden: number[] = [];
     const visible: number[] = [];
+    const editable: number[] = [];
+    const deletable: number[] = [];
     for (const row of node.item.rows) {
       if (row.groupExpressions?.hiddenRow) {
         hidden.push(row.index);
       } else {
         visible.push(row.index);
+
+        // Only the visible rows can be edited or deleted
+        if (row.groupExpressions?.edit?.editButton !== false) {
+          editable.push(row.index);
+        }
+        if (row.groupExpressions?.edit?.deleteButton !== false) {
+          deletable.push(row.index);
+        }
       }
     }
 
-    return [visible, new Set(hidden)];
+    return [visible, new Set(hidden), editable, deletable];
   }, [node.item.rows]);
 
   const [isFirstRender, setIsFirstRender] = useState(true);
@@ -75,6 +87,8 @@ function usePureStates(node: LayoutNodeForGroup<CompGroupRepeatingInternal>) {
     numVisibleRows: visibleRowIndexes.length,
     hiddenRowIndexes,
     visibleRowIndexes,
+    editableRowIndexes,
+    deletableRowIndexes,
     isFirstRender,
     editingIndex,
     setEditingIndex,
@@ -95,7 +109,8 @@ function useRepeatingGroupState(node: LayoutNodeForGroup<CompGroupRepeatingInter
     binding,
     setDeletingIndexes,
     deletingIndexes,
-    visibleRowIndexes,
+    editableRowIndexes,
+    deletableRowIndexes,
     editingIndex,
     setEditingIndex,
   } = useAsRefObject(pureStates);
@@ -109,22 +124,22 @@ function useRepeatingGroupState(node: LayoutNodeForGroup<CompGroupRepeatingInter
 
   const toggleEditing = useCallback(
     (index: number) => {
-      if (editingAll.current || editingNone.current) {
+      if (editingAll.current || editingNone.current || !editableRowIndexes.current.includes(index)) {
         return;
       }
       setEditingIndex.current((prev) => (prev === index ? undefined : index));
     },
-    [editingAll, editingNone, setEditingIndex],
+    [editableRowIndexes, editingAll, editingNone, setEditingIndex],
   );
 
   const openForEditing = useCallback(
     (index: number) => {
-      if (editingAll.current || editingNone.current) {
+      if (editingAll.current || editingNone.current || !editableRowIndexes.current.includes(index)) {
         return;
       }
       setEditingIndex.current(index);
     },
-    [editingAll, editingNone, setEditingIndex],
+    [editableRowIndexes, editingAll, editingNone, setEditingIndex],
   );
 
   const openNextForEditing = useCallback(() => {
@@ -133,15 +148,15 @@ function useRepeatingGroupState(node: LayoutNodeForGroup<CompGroupRepeatingInter
     }
     setEditingIndex.current((prev) => {
       if (prev === undefined) {
-        return visibleRowIndexes.current[0];
+        return editableRowIndexes.current[0];
       }
-      const isLast = prev === visibleRowIndexes.current[visibleRowIndexes.current.length - 1];
+      const isLast = prev === editableRowIndexes.current[editableRowIndexes.current.length - 1];
       if (isLast) {
         return undefined;
       }
-      return visibleRowIndexes.current[visibleRowIndexes.current.indexOf(prev) + 1];
+      return editableRowIndexes.current[editableRowIndexes.current.indexOf(prev) + 1];
     });
-  }, [editingAll, editingNone, setEditingIndex, visibleRowIndexes]);
+  }, [editableRowIndexes, editingAll, editingNone, setEditingIndex]);
 
   const closeForEditing = useCallback(
     (index: number) => {
@@ -178,6 +193,10 @@ function useRepeatingGroupState(node: LayoutNodeForGroup<CompGroupRepeatingInter
 
   const deleteRow = useCallback(
     async (index: number) => {
+      if (!deletableRowIndexes.current.includes(index)) {
+        return false;
+      }
+
       setDeletingIndexes.current((prev) => {
         if (prev.includes(index)) {
           return prev;
@@ -210,7 +229,7 @@ function useRepeatingGroupState(node: LayoutNodeForGroup<CompGroupRepeatingInter
 
       return false;
     },
-    [binding, onBeforeRowDeletion, removeIndexFromList, setDeletingIndexes, setEditingIndex],
+    [binding, deletableRowIndexes, onBeforeRowDeletion, removeIndexFromList, setDeletingIndexes, setEditingIndex],
   );
 
   const isDeleting = useCallback((index: number) => deletingIndexes.current.includes(index), [deletingIndexes]);
@@ -239,6 +258,8 @@ function useRepeatingGroupState(node: LayoutNodeForGroup<CompGroupRepeatingInter
     numVisibleRows: pureStates.numVisibleRows,
     visibleRowIndexes: pureStates.visibleRowIndexes,
     hiddenRowIndexes: pureStates.hiddenRowIndexes,
+    editableRowIndexes: pureStates.editableRowIndexes,
+    deletableRowIndexes: pureStates.deletableRowIndexes,
     moreVisibleRowsAfterEditIndex,
     addRow,
     deleteRow,

@@ -57,22 +57,6 @@ export const ErrorReport = ({ nodes }: IErrorReportProps) => {
     }
 
     await navigateTo(componentNode, true);
-
-    //   const childNode = i == 0 ? componentNode : (allParents[i - 1] as LayoutNode);
-    //   const childBaseId = childNode.item.baseComponentId || childNode.item.id;
-    //   const tableColSetup = parentNode.item.tableColumns && parentNode.item.tableColumns[childBaseId];
-    //
-    //   if (tableColSetup?.editInTable || tableColSetup?.showInExpandedEdit === false) {
-    //     // No need to open rows or set editIndex for components that are
-    //     // rendered in table (outside of the edit container)
-    //     continue;
-    //   }
-    //
-    //   if (edit.editButton === false) {
-    //     // Cannot open this group row for editing, as the edit button is disabled
-    //     continue;
-    //   }
-    // }
   };
 
   const errorMessage = (message: string) =>
