@@ -3,6 +3,7 @@ import React from 'react';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@digdir/design-system-react';
 import cn from 'classnames';
 
+import { Caption } from 'src/components/form/Caption';
 import { Lang } from 'src/features/language/Lang';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { CompCategory } from 'src/layout/common';
@@ -23,9 +24,11 @@ export function RepeatingGroupTable(): JSX.Element | null {
   const rowsBefore = node.item.rowsBefore;
   const rowsAfter = node.item.rowsAfter;
 
-  const id = node.item.id;
   const container = node.item;
-  const edit = container.edit;
+  const { textResourceBindings, labelSettings, id, edit, minCount } = container;
+
+  const required = !!minCount && minCount > 0;
+
   const columnSettings = container.tableColumns
     ? structuredClone(container.tableColumns)
     : ({} as ITableColumnFormatting);
@@ -142,6 +145,17 @@ export function RepeatingGroupTable(): JSX.Element | null {
         id={`group-${id}-table`}
         className={cn({ [classes.editingBorder]: isNested }, classes.repeatingGroupTable)}
       >
+        {textResourceBindings?.title && (
+          <Caption
+            id={`group-${id}-caption`}
+            className={cn({ [classes.tableNotEmptyCaption]: !isEmpty })}
+            title={<Lang id={textResourceBindings.title} />}
+            description={<Lang id={textResourceBindings.description} />}
+            labelSettings={labelSettings}
+            required={required}
+          />
+        )}
+
         <RenderExtraRows
           rows={rowsBefore}
           where={'Before'}
