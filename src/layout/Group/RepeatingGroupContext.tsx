@@ -50,11 +50,11 @@ function usePureStates(node: LayoutNodeForGroup<CompGroupRepeatingInternal>) {
   const [visibleRowIndexes, hiddenRowIndexes] = useMemoDeepEqual(() => {
     const hidden: number[] = [];
     const visible: number[] = [];
-    for (const [index, row] of node.item.rows.entries()) {
+    for (const row of node.item.rows) {
       if (row.groupExpressions?.hiddenRow) {
-        hidden.push(index);
+        hidden.push(row.index);
       } else {
-        visible.push(index);
+        visible.push(row.index);
       }
     }
 

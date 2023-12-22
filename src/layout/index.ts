@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import type { MutableRefObject } from 'react';
 
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -42,7 +43,7 @@ const _componentsTypeCheck: {
 };
 
 export interface IComponentProps {
-  shouldFocus: boolean;
+  containerDivRef: MutableRefObject<HTMLDivElement | null>;
   isValid?: boolean;
   componentValidations?: IComponentValidations;
 }

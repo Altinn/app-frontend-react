@@ -4,15 +4,14 @@ import type { NavigateOptions } from 'react-router-dom';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { useIsStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
-import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
+import { useHiddenPages } from 'src/features/form/layout/PageNavigationContext';
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { useLaxLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxProcessData, useTaskType } from 'src/features/instance/ProcessContext';
 import { ProcessTaskType } from 'src/types';
 
 type NavigateToPageOptions = {
-  focusComponentId?: string;
-  returnToView?: string;
   replace?: boolean;
 };
 
@@ -55,7 +54,7 @@ export const useNavigatePage = () => {
   const autoSaveBehavior =
     (layoutSettings !== ContextNotProvided && layoutSettings.pages.autoSaveBehavior) || undefined;
 
-  const { setFocusId, setReturnToView, hidden } = usePageNavigationContext();
+  const hidden = useHiddenPages();
   const taskType = useTaskType(taskId);
 
   const hiddenPages = useMemo(() => new Set(hidden), [hidden]);
@@ -91,6 +90,7 @@ export const useNavigatePage = () => {
     }
   }, [isStatelessApp, order, navigate, currentPageId, isValidPageId, queryKeys]);
 
+  const waitForSave = FD.useWaitForSave();
   const navigateToPage = useCallback(
     (page?: string, options?: NavigateToPageOptions) => {
       const replace = options?.replace ?? false;
@@ -100,14 +100,9 @@ export const useNavigatePage = () => {
       if (!order.includes(page)) {
         return;
       }
-      setFocusId(options?.focusComponentId);
-      if (options?.returnToView) {
-        setReturnToView(options.returnToView);
-      }
 
       if (autoSaveBehavior === 'onChangePage' && order?.includes(currentPageId)) {
-        // TODO: Re-implement form data saving when saving via page navigation
-        // dispatch(FormDataActions.saveLatest({}));
+        waitForSave(true).then();
       }
 
       if (isStatelessApp) {
@@ -119,7 +114,6 @@ export const useNavigatePage = () => {
     },
     [
       order,
-      setFocusId,
       autoSaveBehavior,
       currentPageId,
       isStatelessApp,
@@ -128,7 +122,7 @@ export const useNavigatePage = () => {
       taskId,
       queryKeys,
       navigate,
-      setReturnToView,
+      waitForSave,
     ],
   );
 

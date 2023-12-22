@@ -1,15 +1,15 @@
 import React, { useMemo } from 'react';
 import { shallowEqual } from 'react-redux';
 
-import { Grid, makeStyles } from '@material-ui/core';
+import { Grid } from '@material-ui/core';
 import classNames from 'classnames';
 
-import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
+import { NavigationResult, useFinishNodeNavigation } from 'src/features/form/layout/NavigateToNode';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useNavigationParams } from 'src/hooks/useNavigatePage';
 import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
+import classes from 'src/layout/GenericComponent.module.css';
 import { GenericComponentDescription, GenericComponentLabel } from 'src/layout/GenericComponentUtils';
 import { shouldComponentRenderLabel } from 'src/layout/index';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
@@ -28,52 +28,6 @@ export interface IGenericComponentProps<Type extends CompTypes> {
   overrideDisplay?: GenericComponentOverrideDisplay;
 }
 
-const useStyles = makeStyles((theme) => ({
-  container: {
-    '@media print': {
-      display: 'flex !important',
-    },
-  },
-  xs: {
-    'border-bottom': '1px dashed #949494',
-    '& > div:nth-child(2)': {
-      paddingLeft: theme.spacing(3 / 2), // Half the spacing of <Grid in <Form
-    },
-  },
-  sm: {
-    [theme.breakpoints.up('sm')]: {
-      'border-bottom': '1px dashed #949494',
-      '& > div:nth-child(2)': {
-        paddingLeft: theme.spacing(3 / 2),
-      },
-    },
-  },
-  md: {
-    [theme.breakpoints.up('md')]: {
-      'border-bottom': '1px dashed #949494',
-      '& > div:nth-child(2)': {
-        paddingLeft: theme.spacing(3 / 2),
-      },
-    },
-  },
-  lg: {
-    [theme.breakpoints.up('lg')]: {
-      'border-bottom': '1px dashed #949494',
-      '& > div:nth-child(2)': {
-        paddingLeft: theme.spacing(3 / 2),
-      },
-    },
-  },
-  xl: {
-    [theme.breakpoints.up('xl')]: {
-      'border-bottom': '1px dashed #949494',
-      '& > div:nth-child(2)': {
-        paddingLeft: theme.spacing(3 / 2),
-      },
-    },
-  },
-}));
-
 export function GenericComponent<Type extends CompTypes = CompTypes>({
   node,
   overrideItemProps,
@@ -89,19 +43,15 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     };
   }
 
-  const dispatch = useAppDispatch();
-  const classes = useStyles();
-  const gridRef = React.useRef<HTMLDivElement>(null);
+  const containerDivRef = React.useRef<HTMLDivElement | null>(null);
   const hasValidationMessages = node.hasValidationMessages('any');
   const hidden = node.isHidden();
   const { langAsNonProcessedString } = useLanguage(node);
-  const { focusId, setFocusId } = usePageNavigationContext();
 
   const { pageKey } = useNavigationParams();
   const currentView = pageKey ?? '';
   const isValid = !node.hasValidationMessages('errors');
 
-  const shouldFocus = id === focusId;
   const componentValidations = useAppSelector(
     (state) => state.formValidations.validations[currentView]?.[id],
     shallowEqual,
@@ -135,20 +85,34 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     [item.baseComponentId, item.grid, id, node],
   );
 
-  React.useLayoutEffect(() => {
-    if (!hidden && shouldFocus && gridRef.current) {
-      requestAnimationFrame(() => gridRef.current?.scrollIntoView());
-
-      const maybeInput = gridRef.current.querySelector('input,textarea,select') as
-        | HTMLSelectElement
-        | HTMLInputElement
-        | HTMLTextAreaElement;
-      if (maybeInput) {
-        maybeInput.focus();
-      }
-      setFocusId(undefined);
+  useFinishNodeNavigation(async (targetNode, shouldFocus) => {
+    if (targetNode.item.id !== id) {
+      return undefined;
     }
-  }, [shouldFocus, hidden, dispatch, setFocusId]);
+    let retryCount = 0;
+    while (!containerDivRef.current && retryCount < 100) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      retryCount++;
+    }
+    if (!containerDivRef.current) {
+      return NavigationResult.SuccessfulFailedToRender;
+    }
+    containerDivRef.current.scrollIntoView();
+    if (!shouldFocus) {
+      // Hooray, we've arrived at the component, but we don't need to focus it.
+      return NavigationResult.SuccessfulNoFocus;
+    }
+
+    const maybeInput = containerDivRef.current.querySelector('input,textarea,select') as
+      | HTMLSelectElement
+      | HTMLInputElement
+      | HTMLTextAreaElement;
+    if (maybeInput) {
+      maybeInput.focus();
+    }
+
+    return NavigationResult.SuccessfulWithFocus;
+  });
 
   if (hidden) {
     return null;
@@ -158,8 +122,8 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
   const RenderComponent = layoutComponent.render;
 
   const componentProps: PropsFromGenericComponent<Type> = {
+    containerDivRef,
     isValid,
-    shouldFocus,
     componentValidations,
     node: node as unknown as LayoutNode<Type>,
     overrideItemProps,
@@ -197,7 +161,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
         data-componentbaseid={item.baseComponentId || item.id}
         data-componentid={item.id}
         data-componenttype={item.type}
-        ref={gridRef}
+        ref={containerDivRef}
         item={true}
         container={true}
         {...gridBreakpoints(item.grid)}
@@ -232,7 +196,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
   );
 }
 
-const gridToClasses = (labelGrid: IGridStyling | undefined, classes: ReturnType<typeof useStyles>) => {
+const gridToClasses = (labelGrid: IGridStyling | undefined, classes: { [key: string]: string }) => {
   if (!labelGrid) {
     return {};
   }

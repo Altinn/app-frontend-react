@@ -728,7 +728,7 @@ export async function renderGenericComponentTest<T extends CompTypes, InInstance
 }
 
 const mockGenericComponentProps: IComponentProps = {
-  shouldFocus: false,
+  containerDivRef: { current: null },
   isValid: undefined,
   componentValidations: {},
 };

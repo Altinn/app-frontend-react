@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import type { MutableRefObject } from 'react';
 
 import { Button } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
@@ -28,7 +29,11 @@ function getValidationMethod(node: LayoutNodeForGroup<CompGroupRepeatingInternal
   }
 }
 
-export function RepeatingGroupContainer(): JSX.Element | null {
+interface Props {
+  containerDivRef?: MutableRefObject<HTMLDivElement | null>;
+}
+
+export function RepeatingGroupContainer({ containerDivRef }: Props): JSX.Element | null {
   const { triggerFocus } = useRepeatingGroupsFocusContext();
   const { node, isEditingAnyRow, editingIndex, addRow, openForEditing, isFirstRender, visibleRowIndexes } =
     useRepeatingGroup();
@@ -108,6 +113,7 @@ export function RepeatingGroupContainer(): JSX.Element | null {
       container={true}
       item={true}
       data-componentid={node.item.id}
+      ref={containerDivRef}
     >
       {(!edit?.mode ||
         edit?.mode === 'showTable' ||

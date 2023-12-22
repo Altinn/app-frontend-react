@@ -12,18 +12,18 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 export type GroupRendererProps = PropsFromGenericComponent<'Group'>;
 
-export function GroupRenderer({ node }: GroupRendererProps) {
+export function GroupRenderer({ node, containerDivRef }: GroupRendererProps) {
   if (node.isRepGroupLikert()) {
     return <RepeatingGroupsLikertContainer node={node} />;
   }
 
   if (node.isRepGroup()) {
     return (
-      <RepeatingGroupsFocusProvider>
-        <RepeatingGroupProvider node={node}>
-          <RepeatingGroupContainer />
-        </RepeatingGroupProvider>
-      </RepeatingGroupsFocusProvider>
+      <RepeatingGroupProvider node={node}>
+        <RepeatingGroupsFocusProvider>
+          <RepeatingGroupContainer containerDivRef={containerDivRef} />
+        </RepeatingGroupsFocusProvider>
+      </RepeatingGroupProvider>
     );
   }
 

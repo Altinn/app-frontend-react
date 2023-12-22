@@ -4,6 +4,8 @@ import { Grid } from '@material-ui/core';
 import cn from 'classnames';
 
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
+import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
+import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -30,19 +32,22 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
   const { id, grid } = summaryNode.item;
   const display = overrides?.display || summaryNode.item.display;
   const { langAsString } = useLanguage();
-  const { navigateToPage, currentPageId } = useNavigatePage();
+  const { currentPageId } = useNavigatePage();
   const summaryItem = summaryNode.item;
 
   const targetNode = useResolvedNode(overrides?.targetNode || summaryNode.item.componentRef || summaryNode.item.id);
   const targetItem = targetNode?.item;
   const targetView = targetNode?.top.top.myKey;
 
-  const onChangeClick = () => {
+  const navigateTo = useNavigateToNode();
+  const { setReturnToView } = usePageNavigationContext();
+  const onChangeClick = async () => {
     if (!targetView) {
       return;
     }
 
-    navigateToPage(targetView, { focusComponentId: targetNode?.item.id, returnToView: currentPageId });
+    setReturnToView(currentPageId);
+    await navigateTo(targetNode, true);
   };
 
   if (!targetNode || !targetItem || targetNode.isHidden() || targetItem.type === 'Summary') {

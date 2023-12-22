@@ -24,7 +24,6 @@ import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/Ap
 import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { DevTools } from 'src/features/devtools/DevTools';
 import { FooterLayoutProvider } from 'src/features/footer/FooterLayoutProvider';
-import { PageNavigationProvider } from 'src/features/form/layout/PageNavigationContext';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
 import { LanguageProvider } from 'src/features/language/LanguageProvider';
@@ -73,37 +72,35 @@ document.addEventListener('DOMContentLoaded', () => {
 function Root() {
   return (
     <InstantiationProvider>
-      <PageNavigationProvider>
-        <ApplicationMetadataProvider>
-          <OrgsProvider>
-            <ApplicationSettingsProvider>
-              <LayoutSetsProvider>
-                <FooterLayoutProvider>
-                  <ProfileProvider>
-                    <PartyProvider>
-                      <TextResourcesProvider>
-                        <KeepAliveProvider>
-                          <WindowTitleProvider>
-                            <DevTools>
-                              <App />
-                              <ToastContainer
-                                position='top-center'
-                                theme='colored'
-                                transition={Slide}
-                                draggable={false}
-                              />
-                            </DevTools>
-                          </WindowTitleProvider>
-                        </KeepAliveProvider>
-                      </TextResourcesProvider>
-                    </PartyProvider>
-                  </ProfileProvider>
-                </FooterLayoutProvider>
-              </LayoutSetsProvider>
-            </ApplicationSettingsProvider>
-          </OrgsProvider>
-        </ApplicationMetadataProvider>
-      </PageNavigationProvider>
+      <ApplicationMetadataProvider>
+        <OrgsProvider>
+          <ApplicationSettingsProvider>
+            <LayoutSetsProvider>
+              <FooterLayoutProvider>
+                <ProfileProvider>
+                  <PartyProvider>
+                    <TextResourcesProvider>
+                      <KeepAliveProvider>
+                        <WindowTitleProvider>
+                          <DevTools>
+                            <App />
+                            <ToastContainer
+                              position='top-center'
+                              theme='colored'
+                              transition={Slide}
+                              draggable={false}
+                            />
+                          </DevTools>
+                        </WindowTitleProvider>
+                      </KeepAliveProvider>
+                    </TextResourcesProvider>
+                  </PartyProvider>
+                </ProfileProvider>
+              </FooterLayoutProvider>
+            </LayoutSetsProvider>
+          </ApplicationSettingsProvider>
+        </OrgsProvider>
+      </ApplicationMetadataProvider>
     </InstantiationProvider>
   );
 }

@@ -8,6 +8,7 @@ import { MessageBanner } from 'src/components/form/MessageBanner';
 import { ErrorReport } from 'src/components/message/ErrorReport';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -21,7 +22,7 @@ import { getFormHasErrors, missingFieldsInLayoutValidations } from 'src/utils/va
 export function Form() {
   const nodes = useNodes();
   const langTools = useLanguage();
-  const { currentPageId, isValidPageId, startUrl, queryKeys } = useNavigatePage();
+  const { navigateToPage, currentPageId, isValidPageId, startUrl, queryKeys } = useNavigatePage();
   const validations = useAppSelector((state) => state.formValidations.validations);
   useRedirectToStoredPage();
 
@@ -31,6 +32,15 @@ export function Form() {
       window.scrollTo({ top: 0 });
     }
   }, [currentPageId, scrollPosition]);
+
+  useRegisterNodeNavigationHandler((targetNode) => {
+    const targetView = targetNode?.top.top.myKey;
+    if (targetView && targetView !== currentPageId) {
+      navigateToPage(targetView);
+      return true;
+    }
+    return false;
+  });
 
   const page = nodes?.all?.()?.[currentPageId];
   const hasErrors = useAppSelector((state) => getFormHasErrors(state.formValidations.validations));
