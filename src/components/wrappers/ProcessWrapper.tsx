@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
 import { Button } from '@digdir/design-system-react';
 import Grid from '@material-ui/core/Grid';
 
-import { Form } from 'src/components/form/Form';
+import { Form, FormFirstPage } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import classes from 'src/components/wrappers/ProcessWrapper.module.css';
 import { LayoutValidationProvider } from 'src/features/devtools/layoutValidation/useLayoutValidation';
@@ -151,12 +151,7 @@ export const ProcessWrapper = () => {
             />
             <Route
               path='*'
-              // This will redirect to the first page of the form
-              element={
-                <PresentationComponent type={taskType}>
-                  <Form />
-                </PresentationComponent>
-              }
+              element={<FormFirstPage />}
             />
           </Routes>
         </LayoutValidationProvider>

@@ -22,7 +22,7 @@ import { getFormHasErrors, missingFieldsInLayoutValidations } from 'src/utils/va
 export function Form() {
   const nodes = useNodes();
   const langTools = useLanguage();
-  const { navigateToPage, currentPageId, isValidPageId, startUrl, queryKeys } = useNavigatePage();
+  const { navigateToPage, currentPageId, isValidPageId } = useNavigatePage();
   const validations = useAppSelector((state) => state.formValidations.validations);
   useRedirectToStoredPage();
 
@@ -70,12 +70,7 @@ export function Form() {
   }, [page, hasErrors]);
 
   if (!currentPageId || !isValidPageId(currentPageId)) {
-    return (
-      <Navigate
-        to={startUrl + queryKeys}
-        replace
-      />
-    );
+    return <FormFirstPage />;
   }
 
   return (
@@ -108,6 +103,16 @@ export function Form() {
       </Grid>
       <ReadyForPrint />
     </>
+  );
+}
+
+export function FormFirstPage() {
+  const { startUrl, queryKeys } = useNavigatePage();
+  return (
+    <Navigate
+      to={startUrl + queryKeys}
+      replace
+    />
   );
 }
 

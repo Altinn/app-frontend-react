@@ -1,10 +1,11 @@
 import React from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
-import { Form } from 'src/components/form/Form';
+import { Form, FormFirstPage } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useIsStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
+import { LayoutValidationProvider } from 'src/features/devtools/layoutValidation/useLayoutValidation';
 import { FormProvider } from 'src/features/form/FormContext';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
@@ -58,18 +59,24 @@ export function Entrypoint() {
   // Stateless view
   if (isStateless) {
     return (
-      <Routes>
-        <Route
-          path=':pageKey'
-          element={
-            <PresentationComponent type={PresentationType.Stateless}>
-              <FormProvider>
-                <Form />
-              </FormProvider>
-            </PresentationComponent>
-          }
-        />
-      </Routes>
+      <FormProvider>
+        <LayoutValidationProvider>
+          <Routes>
+            <Route
+              path=':pageKey'
+              element={
+                <PresentationComponent type={PresentationType.Stateless}>
+                  <Form />
+                </PresentationComponent>
+              }
+            />
+            <Route
+              path='*'
+              element={<FormFirstPage />}
+            />
+          </Routes>
+        </LayoutValidationProvider>
+      </FormProvider>
     );
   }
 

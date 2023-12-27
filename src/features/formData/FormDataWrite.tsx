@@ -9,6 +9,7 @@ import deepEqual from 'fast-deep-equal';
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
+import { useIsStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
 import { useRuleConnection } from 'src/features/form/dynamics/DynamicsContext';
 import { diffModels } from 'src/features/formData/diffModels';
 import { useFormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
@@ -63,10 +64,11 @@ function createFormDataRequestFromDiff(modelToSave: object, diff: object, pretty
 }
 
 const useFormDataSaveMutation = (ctx: FormDataContext) => {
-  const { doPutFormData } = useAppMutations();
+  const { doPutFormData, doPostFormData } = useAppMutations();
   const { saveFinished } = ctx;
   const isDev = useIsDev();
   const ruleConnection = useRuleConnection();
+  const isStateless = useIsStatelessApp();
 
   return useMutation({
     mutationKey: ['saveFormData'],
@@ -74,7 +76,8 @@ const useFormDataSaveMutation = (ctx: FormDataContext) => {
       const { dataModelUrl, newData, diff } = arg;
       const data = createFormDataRequestFromDiff(newData, diff, isDev);
       try {
-        const metaData = await doPutFormData.call(dataModelUrl, data);
+        const metaData = await (isStateless ? doPostFormData : doPutFormData).call(dataModelUrl, data);
+        (isStateless ? doPostFormData : doPutFormData).setLastResult(metaData);
         saveFinished(newData, ruleConnection, metaData?.changedFields);
       } catch (error) {
         if (isAxiosError(error) && error.response?.status === 303) {

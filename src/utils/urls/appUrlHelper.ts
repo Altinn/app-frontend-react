@@ -36,8 +36,8 @@ export const getFileTagUrl = (instanceId: string, dataGuid: string, tag: string 
 };
 
 export const getAnonymousStatelessDataModelUrl = (dataType: string) =>
-  `${appPath}/api/v1/data/anonymous?dataType=${dataType}`;
-export const getStatelessDataModelUrl = (dataType: string) => `${appPath}/api/v1/data?dataType=${dataType}`;
+  `${appPath}/v1/data/anonymous?dataType=${dataType}`;
+export const getStatelessDataModelUrl = (dataType: string) => `${appPath}/v1/data?dataType=${dataType}`;
 export const getDataElementUrl = (instanceId: string, dataGuid: string) =>
   `${appPath}/instances/${instanceId}/data/${dataGuid}`;
 

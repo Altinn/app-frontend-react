@@ -105,6 +105,7 @@ export const makeMutationMocks = <T extends (name: keyof AppMutations) => any>(
   doAttachmentRemoveTag: makeMock('doAttachmentRemoveTag'),
   doAttachmentUpload: makeMock('doAttachmentUpload'),
   doPutFormData: makeMock('doPutFormData'),
+  doPostFormData: makeMock('doPostFormData'),
   doSetCurrentParty: makeMock('doSetCurrentParty'),
   doInstantiate: makeMock('doInstantiate'),
   doProcessNext: makeMock('doProcessNext'),

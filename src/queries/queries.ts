@@ -147,6 +147,8 @@ export const doAttachmentRemove = async (instanceId: string, dataGuid: string): 
 };
 
 export const doPutFormData = (url: string, data: FormData): Promise<IDataAfterDataModelSave> => httpPut(url, data);
+export const doPostFormData = async (url: string, data: FormData): Promise<IDataAfterDataModelSave> =>
+  (await httpPost(url, undefined, data)).data;
 
 /**
  * Query functions (these should use httpGet and start with 'fetch')
