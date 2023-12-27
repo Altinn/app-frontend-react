@@ -1,34 +1,35 @@
+import dot from 'dot-object';
+import deepEqual from 'fast-deep-equal';
+
 import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { FDNewValue } from 'src/features/formData/FormDataWriteStateMachine';
-import type { IFormData } from 'src/features/formData/index';
 
 /**
  * This function has been copied from checkIfRuleShouldRun() and modified to work with the new formData feature.
  * It runs the legacy rules after a field has been updated.
- *
- * @see checkIfRuleShouldRun
  */
-export function runLegacyRules(
-  ruleConnectionState: IRuleConnections | null,
-  formData: IFormData,
-  updatedDateBindings: Set<string>,
-) {
+export function runLegacyRules(ruleConnections: IRuleConnections | null, oldFormData: object, newFormData: object) {
   const changes: FDNewValue[] = [];
-  if (!ruleConnectionState) {
+  if (!ruleConnections) {
     return changes;
   }
 
-  for (const connection of Object.keys(ruleConnectionState)) {
+  for (const connection of Object.keys(ruleConnections)) {
     if (!connection) {
       continue;
     }
 
-    const connectionDef = ruleConnectionState[connection];
+    const connectionDef = ruleConnections[connection];
     const functionToRun: string = connectionDef.selectedFunction;
     let shouldRunFunction = false;
 
-    for (const inputParam of Object.keys(connectionDef.inputParams)) {
-      if (inputParam && updatedDateBindings.has(connectionDef.inputParams[inputParam])) {
+    for (const inputPath of Object.values(connectionDef.inputParams)) {
+      if (!inputPath) {
+        continue;
+      }
+      const oldVal = dot.pick(inputPath, oldFormData);
+      const newVal = dot.pick(inputPath, newFormData);
+      if (!deepEqual(oldVal, newVal)) {
         shouldRunFunction = true;
       }
     }
@@ -50,7 +51,11 @@ export function runLegacyRules(
 
     const newObj = Object.keys(objectToUpdate).reduce((acc, elem) => {
       const inputParamBinding = connectionDef.inputParams[elem];
-      acc[elem] = formData && formData[inputParamBinding];
+      const value = dot.pick(inputParamBinding, newFormData);
+      acc[elem] =
+        typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean'
+          ? String(value)
+          : undefined;
       return acc;
     }, {});
 

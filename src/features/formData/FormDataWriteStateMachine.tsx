@@ -1,13 +1,10 @@
-/* eslint-disable no-console */
-
 import dot from 'dot-object';
+import { diff, patch } from 'jsondiffpatch';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
-import { diffModels } from 'src/features/formData/diffModels';
 import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/index';
 import { runLegacyRules } from 'src/features/formData/LegacyRules';
-import { flattenObject } from 'src/utils/databindings';
 import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { FormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
 import type { IFormData } from 'src/features/formData/index';
@@ -131,51 +128,63 @@ function makeActions(
     state.controlState.debounceTimeout = change.debounceTimeout ?? DEFAULT_DEBOUNCE_TIMEOUT;
   }
 
-  function processChanges(state: FormDataContext, changes: FormDataChanges | undefined) {
+  function changedFieldsToNewModel(state: FormDataContext, changedFields: IFormData) {
+    // Take a copy of the data we sent to the server, apply the changed fields to it
+    // and use that model as the ground truth for calculating the patch to apply to currentData.
+    const newModel = structuredClone(state.lastSavedData);
+    console.log('debug, changedFieldsToNewModel', JSON.stringify(changedFields, null, 2));
+    for (const path of Object.keys(changedFields)) {
+      const newValue = changedFields[path];
+      if (newValue === null) {
+        const currentData = dot.pick(path, newModel);
+        if (typeof currentData === 'string' || typeof currentData === 'number' || typeof currentData === 'boolean') {
+          dot.str(path, null, newModel);
+        }
+        // The server will send us null values for lists/objects, but that's a mistake, so we'll ignore them.
+      } else {
+        // Currently, all data model values are saved as strings, so let's cast values.
+        const newValueAsString = String(newValue);
+        dot.str(path, newValueAsString, newModel);
+      }
+    }
+
+    return newModel;
+  }
+
+  function processChanges(state: FormDataContext, _changes: FormDataChanges | undefined) {
+    let changes = _changes;
     if (
       changes &&
       'changedFields' in changes &&
       changes.changedFields &&
       Object.keys(changes.changedFields).length > 0
     ) {
-      for (const path of Object.keys(changes.changedFields)) {
-        const newValue = changes.changedFields[path];
-        if (newValue === null) {
-          continue; // TODO: Remove this when backend stops sending us null values that should be objects
-        }
-
-        // Currently, all data model values are saved as strings
-        const newValueAsString = String(newValue);
-        dot.str(path, newValueAsString, state.currentData);
-        dot.str(path, newValueAsString, state.debouncedCurrentData);
-        dot.str(path, newValueAsString, state.lastSavedData);
-      }
-
-      for (const model of [state.currentData, state.debouncedCurrentData, state.lastSavedData]) {
-        const flatModel = flattenObject(model);
-        const ruleResults = runLegacyRules(ruleConnections, flatModel, new Set(Object.keys(changes.changedFields)));
-        for (const { path, newValue } of ruleResults) {
-          dot.str(path, newValue, model);
-        }
-      }
+      changes = {
+        newModel: changedFieldsToNewModel(state, changes.changedFields),
+      };
     }
-    if (changes && 'newModel' in changes) {
-      // TODO: Do a deep diff with the last saved model, and only update the changed fields in the current and
-      // debounced models.
-      state.currentData = changes.newModel;
-      state.debouncedCurrentData = changes.newModel;
-      state.lastSavedData = changes.newModel;
+    if (changes && 'newModel' in changes && changes.newModel) {
+      const oldModel = state.lastSavedData;
+      const ruleResults = runLegacyRules(ruleConnections, oldModel, changes.newModel);
 
-      // TODO: Run rules on the new model
+      const serverChanges = diff(oldModel, changes.newModel);
+      if (serverChanges) {
+        patch(state.currentData, serverChanges);
+        patch(state.debouncedCurrentData, serverChanges);
+        state.lastSavedData = structuredClone(changes.newModel);
+
+        for (const model of [state.currentData, state.debouncedCurrentData, state.lastSavedData]) {
+          for (const { path, newValue } of ruleResults) {
+            dot.str(path, newValue, model);
+          }
+        }
+      }
     }
   }
 
   function debounce(state: FormDataContext) {
-    const currentDataFlat = flattenObject(state.currentData);
-    const debouncedCurrentDataFlat = flattenObject(state.debouncedCurrentData);
-    const diff = diffModels(currentDataFlat, debouncedCurrentDataFlat);
-    const changes = runLegacyRules(ruleConnections, currentDataFlat, new Set(Object.keys(diff)));
-    for (const { path, newValue } of changes) {
+    const ruleChanges = runLegacyRules(ruleConnections, state.debouncedCurrentData, state.currentData);
+    for (const { path, newValue } of ruleChanges) {
       dot.str(path, newValue, state.currentData);
     }
 
