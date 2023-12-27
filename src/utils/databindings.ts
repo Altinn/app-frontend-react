@@ -87,6 +87,9 @@ export function flattenObject(data: any): IFormData {
       // For backwards compatibility, delete keys inside deeper object that are empty strings. This behaviour is
       // not always consistent, as it is only a case for deeper object (not direct properties).
       delete flat[key];
+    } else if (typeof flat[key] === 'object' && !Array.isArray(flat[key]) && Object.keys(flat[key]).length === 0) {
+      // Empty objects are not considered
+      delete flat[key];
     } else {
       // Cast all values to strings, for backwards compatibility. Lots of code already written in frontend
       // expects data to be formatted as strings everywhere, and since this is a web application, even numeric
