@@ -10,7 +10,7 @@ import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { useIsStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
-import { useRuleConnection } from 'src/features/form/dynamics/DynamicsContext';
+import { useRuleConnections } from 'src/features/form/dynamics/DynamicsContext';
 import { diffModels } from 'src/features/formData/diffModels';
 import { useFormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
 import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteStateMachine';
@@ -21,6 +21,7 @@ import { useWaitForState } from 'src/hooks/useWaitForState';
 import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { flattenObject } from 'src/utils/databindings';
 import { isAxiosError } from 'src/utils/isAxiosError';
+import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { FormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
 import type { FDNewValues, FormDataContext } from 'src/features/formData/FormDataWriteStateMachine';
 import type { IFormData } from 'src/features/formData/index';
@@ -47,13 +48,14 @@ interface FormDataContextInitialProps {
   initialData: object;
   autoSaving: boolean;
   gatekeepers: FormDataWriteGatekeepers;
+  ruleConnections: IRuleConnections | null;
 }
 
 const { Provider, useSelector, useLaxSelector } = createZustandContext({
   name: 'FormDataWrite',
   required: true,
-  initialCreateStore: ({ url, initialData, autoSaving, gatekeepers }: FormDataContextInitialProps) =>
-    createFormDataWriteStore(url, initialData, autoSaving, gatekeepers),
+  initialCreateStore: ({ url, initialData, autoSaving, gatekeepers, ruleConnections }: FormDataContextInitialProps) =>
+    createFormDataWriteStore(url, initialData, autoSaving, gatekeepers, ruleConnections),
 });
 
 function createFormDataRequestFromDiff(modelToSave: object, diff: object, pretty?: boolean) {
@@ -67,7 +69,6 @@ const useFormDataSaveMutation = (ctx: FormDataContext) => {
   const { doPutFormData, doPostFormData } = useAppMutations();
   const { saveFinished } = ctx;
   const isDev = useIsDev();
-  const ruleConnection = useRuleConnection();
   const isStateless = useIsStatelessApp();
 
   return useMutation({
@@ -76,15 +77,25 @@ const useFormDataSaveMutation = (ctx: FormDataContext) => {
       const { dataModelUrl, newData, diff } = arg;
       const data = createFormDataRequestFromDiff(newData, diff, isDev);
       try {
-        const metaData = await (isStateless ? doPostFormData : doPutFormData).call(dataModelUrl, data);
-        (isStateless ? doPostFormData : doPutFormData).setLastResult(metaData);
-        saveFinished(newData, ruleConnection, metaData?.changedFields);
+        if (isStateless) {
+          const newModel = await doPostFormData.call(dataModelUrl, data);
+          doPostFormData.setLastResult(newModel);
+          saveFinished(newData, { newModel });
+        } else {
+          const metaData = await doPutFormData.call(dataModelUrl, data);
+          doPutFormData.setLastResult(metaData);
+          saveFinished(newData, { changedFields: metaData.changedFields });
+        }
       } catch (error) {
         if (isAxiosError(error) && error.response?.status === 303) {
           // Fallback to old behavior if the server responds with 303 when there are changes. We handle these just
           // like we handle 200 responses.
-          const metaData = error.response.data as IDataAfterDataModelSave;
-          saveFinished(newData, ruleConnection, metaData?.changedFields);
+          const data = error.response.data as IDataAfterDataModelSave;
+          if (isStateless) {
+            saveFinished(newData, { newModel: data });
+          } else {
+            saveFinished(newData, { changedFields: data.changedFields });
+          }
           return;
         }
         throw error;
@@ -101,6 +112,7 @@ interface FormDataWriterProps extends PropsWithChildren {
 
 export function FormDataWriteProvider({ url, initialData, autoSaving, children }: FormDataWriterProps) {
   const gatekeepers = useFormDataWriteGatekeepers();
+  const ruleConnections = useRuleConnections();
 
   // Set the initial data in redux, so that it can be used by sagas and other legacy code
   const dispatch = useAppDispatch();
@@ -114,6 +126,7 @@ export function FormDataWriteProvider({ url, initialData, autoSaving, children }
       autoSaving={autoSaving}
       gatekeepers={gatekeepers}
       initialData={initialData}
+      ruleConnections={ruleConnections}
     >
       <FormDataEffects url={url} />
       {children}
@@ -225,25 +238,23 @@ function FormDataEffects({ url }: { url: string }) {
 
 const useRequestManualSave = () => {
   const requestSave = useLaxSelector((s) => s.requestManualSave);
-  const ruleConnection = useRuleConnection();
   return useCallback(
     (setTo?: boolean) => {
       if (requestSave !== ContextNotProvided) {
-        requestSave(ruleConnection, setTo);
+        requestSave(setTo);
       }
     },
-    [requestSave, ruleConnection],
+    [requestSave],
   );
 };
 
 const useDebounceImmediately = () => {
   const debounce = useLaxSelector((s) => s.debounce);
-  const ruleConnection = useRuleConnection();
   return useCallback(() => {
     if (debounce !== ContextNotProvided) {
-      debounce(ruleConnection);
+      debounce();
     }
-  }, [debounce, ruleConnection]);
+  }, [debounce]);
 };
 
 const useHasUnsavedChanges = () => {

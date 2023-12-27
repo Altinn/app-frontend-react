@@ -38,7 +38,7 @@ const { Provider, useCtx, useLaxCtx } = delayedContext(() =>
 
 export const DynamicsProvider = Provider;
 export const useDynamics = () => useCtx();
-export const useRuleConnection = () => {
+export const useRuleConnections = () => {
   const dynamics = useLaxCtx();
   return dynamics === ContextNotProvided ? null : dynamics?.ruleConnection ?? null;
 };

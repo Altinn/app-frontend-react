@@ -93,6 +93,16 @@ export interface FDRemoveValueFromList {
   value: any;
 }
 
+export interface FormDataChangedFields {
+  changedFields: IFormData | undefined;
+}
+
+export interface FormDataChangedModel {
+  newModel: object;
+}
+
+export type FormDataChanges = FormDataChangedFields | FormDataChangedModel;
+
 export interface FormDataMethods {
   // Methods used for updating the data model. These methods will update the currentData model, and after
   // the debounce() method is called, the debouncedCurrentData model will be updated as well.
@@ -104,28 +114,32 @@ export interface FormDataMethods {
   removeValueFromList: (change: FDRemoveValueFromList) => void;
 
   // Internal utility methods
-  debounce: (ruleConnection: IRuleConnections | null) => void;
-  saveFinished: (savedData: object, ruleConnection: IRuleConnections | null, changedFields?: IFormData) => void;
-  requestManualSave: (ruleConnection: IRuleConnections | null, setTo?: boolean) => void;
+  debounce: () => void;
+  saveFinished: (savedData: object, changes: FormDataChanges) => void;
+  requestManualSave: (setTo?: boolean) => void;
   lock: (lockName: string) => void;
   unlock: (newModel?: object) => void;
 }
 
 export type FormDataContext = FormDataState & FormDataMethods;
 
-function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormDataMethods {
-  function processChange(state: FormDataContext, change: FDChange) {
+function makeActions(
+  set: (fn: (state: FormDataContext) => void) => void,
+  ruleConnections: IRuleConnections | null,
+): FormDataMethods {
+  function setDebounceTimeout(state: FormDataContext, change: FDChange) {
     state.controlState.debounceTimeout = change.debounceTimeout ?? DEFAULT_DEBOUNCE_TIMEOUT;
   }
 
-  function processChangedFields(
-    state: FormDataContext,
-    ruleConnection: IRuleConnections | null,
-    changedFields: IFormData | undefined,
-  ) {
-    if (changedFields && Object.keys(changedFields).length > 0) {
-      for (const path of Object.keys(changedFields)) {
-        const newValue = changedFields[path];
+  function processChanges(state: FormDataContext, changes: FormDataChanges | undefined) {
+    if (
+      changes &&
+      'changedFields' in changes &&
+      changes.changedFields &&
+      Object.keys(changes.changedFields).length > 0
+    ) {
+      for (const path of Object.keys(changes.changedFields)) {
+        const newValue = changes.changedFields[path];
         if (newValue === null) {
           continue; // TODO: Remove this when backend stops sending us null values that should be objects
         }
@@ -139,27 +153,28 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
 
       for (const model of [state.currentData, state.debouncedCurrentData, state.lastSavedData]) {
         const flatModel = flattenObject(model);
-        const changes = runLegacyRules(ruleConnection, flatModel, new Set(Object.keys(changedFields)));
-        for (const { path, newValue } of changes) {
+        const ruleResults = runLegacyRules(ruleConnections, flatModel, new Set(Object.keys(changes.changedFields)));
+        for (const { path, newValue } of ruleResults) {
           dot.str(path, newValue, model);
         }
       }
     }
+    if (changes && 'newModel' in changes) {
+      // TODO: Do a deep diff with the last saved model, and only update the changed fields in the current and
+      // debounced models.
+      state.currentData = changes.newModel;
+      state.debouncedCurrentData = changes.newModel;
+      state.lastSavedData = changes.newModel;
+
+      // TODO: Run rules on the new model
+    }
   }
 
-  function processChangedModel(state: FormDataContext, newModel: object) {
-    // TODO: Do a deep diff with the last saved model, and only update the changed fields in the current and
-    // debounced models.
-    state.currentData = newModel;
-    state.debouncedCurrentData = newModel;
-    state.lastSavedData = newModel;
-  }
-
-  function debounce(state: FormDataContext, ruleConnection: IRuleConnections | null) {
+  function debounce(state: FormDataContext) {
     const currentDataFlat = flattenObject(state.currentData);
     const debouncedCurrentDataFlat = flattenObject(state.debouncedCurrentData);
     const diff = diffModels(currentDataFlat, debouncedCurrentDataFlat);
-    const changes = runLegacyRules(ruleConnection, currentDataFlat, new Set(Object.keys(diff)));
+    const changes = runLegacyRules(ruleConnections, currentDataFlat, new Set(Object.keys(diff)));
     for (const { path, newValue } of changes) {
       dot.str(path, newValue, state.currentData);
     }
@@ -168,16 +183,16 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
   }
 
   return {
-    debounce: (ruleConnection) =>
+    debounce: () =>
       set((state) => {
-        debounce(state, ruleConnection);
+        debounce(state);
       }),
 
-    saveFinished: (savedData, ruleConnection, changedFields) =>
+    saveFinished: (savedData, changes) =>
       set((state) => {
         state.lastSavedData = structuredClone(savedData);
         state.controlState.manualSaveRequested = false;
-        processChangedFields(state, ruleConnection, changedFields);
+        processChanges(state, changes);
       }),
     setLeafValue: ({ path, newValue, ...rest }) =>
       set((state) => {
@@ -186,7 +201,7 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
           return;
         }
 
-        processChange(state, rest);
+        setDebounceTimeout(state, rest);
         if (newValue === '' || newValue === null || newValue === undefined) {
           dot.delete(path, state.currentData);
         } else {
@@ -260,12 +275,12 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
           }
           changesFound = true;
         }
-        changesFound && processChange(state, rest);
+        changesFound && setDebounceTimeout(state, rest);
       }),
-    requestManualSave: (ruleConnection, setTo = true) =>
+    requestManualSave: (setTo = true) =>
       set((state) => {
         state.controlState.manualSaveRequested = setTo;
-        debounce(state, ruleConnection);
+        debounce(state);
       }),
     lock: (lockName) =>
       set((state) => {
@@ -275,7 +290,7 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
       set((state) => {
         state.controlState.lockedBy = undefined;
         if (newModel) {
-          processChangedModel(state, newModel);
+          processChanges(state, { newModel });
         }
       }),
   };
@@ -286,10 +301,11 @@ export const createFormDataWriteStore = (
   initialData: object,
   autoSaving: boolean,
   gatekeepers: FormDataWriteGatekeepers,
+  ruleConnections: IRuleConnections | null,
 ) =>
   createStore<FormDataContext>()(
     immer((set) => {
-      const actions = makeActions(set);
+      const actions = makeActions(set, ruleConnections);
       for (const _fnName of Object.keys(actions)) {
         const fnName = _fnName as keyof FormDataMethods;
         const fn = actions[fnName] as (...args: any[]) => void;
