@@ -9,6 +9,7 @@ import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { useIsStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
 import { useCurrentDataModelUrl } from 'src/features/datamodel/useBindingSchema';
+import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FormDataReadOnlyProvider } from 'src/features/formData/FormDataReadOnly';
 import { FD, FormDataWriteProvider } from 'src/features/formData/FormDataWrite';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
@@ -76,6 +77,7 @@ function useFormDataQuery() {
  */
 export function FormDataReadWriteProvider({ children }: PropsWithChildren) {
   const { error, isLoading, data, enabled, url } = useFormDataQuery();
+  const autoSaveBehaviour = useLayoutSettings().pages.autoSaveBehavior;
 
   if (!enabled || !url) {
     throw new Error('FormDataReadWriteProvider cannot be provided without a url');
@@ -98,7 +100,7 @@ export function FormDataReadWriteProvider({ children }: PropsWithChildren) {
     <FormDataWriteProvider
       url={url}
       initialData={data}
-      autoSaving={true} // TODO: This should be configurable
+      autoSaving={!autoSaveBehaviour || autoSaveBehaviour === 'onChangeFormData'}
     >
       <FormDataReadOnlyFromReadWriteProvider>{children}</FormDataReadOnlyFromReadWriteProvider>
     </FormDataWriteProvider>

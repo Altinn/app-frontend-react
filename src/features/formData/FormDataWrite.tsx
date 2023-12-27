@@ -124,6 +124,7 @@ function FormDataEffects({ url }: { url: string }) {
   const { debounceTimeout, autoSaving, manualSaveRequested, lockedBy } = controlState;
   const { mutate, isLoading: isSaving, error } = useFormDataSaveMutation(state);
   const debounce = useDebounceImmediately();
+  const requestSave = useRequestManualSave();
 
   // This component re-renders on every keystroke in a form field. We don't want to save on every keystroke, nor
   // create a new performSave function after every save, so we use a ref to make sure the performSave function
@@ -166,9 +167,7 @@ function FormDataEffects({ url }: { url: string }) {
       }
     }, debounceTimeout);
 
-    return () => {
-      clearTimeout(timer);
-    };
+    return () => clearTimeout(timer);
   }, [debounce, currentData, debouncedCurrentData, debounceTimeout]);
 
   // Save the data model when the data has been frozen to debouncedCurrentData and is different from the saved data
@@ -177,10 +176,22 @@ function FormDataEffects({ url }: { url: string }) {
       debouncedCurrentData !== lastSavedData && !deepEqual(debouncedCurrentData, lastSavedData);
 
     const shouldSave = hasUnsavedDebouncedChanges && !isSaving && !lockedBy;
+
     if (shouldSave && (autoSaving || manualSaveRequested)) {
       performSave(debouncedCurrentData);
+    } else if (manualSaveRequested) {
+      requestSave(false);
     }
-  }, [autoSaving, debouncedCurrentData, isSaving, lastSavedData, lockedBy, manualSaveRequested, performSave]);
+  }, [
+    autoSaving,
+    debouncedCurrentData,
+    isSaving,
+    lastSavedData,
+    lockedBy,
+    manualSaveRequested,
+    performSave,
+    requestSave,
+  ]);
 
   // Always save unsaved changes when the user navigates away from the page and this component is unmounted.
   // We cannot put the current and last saved data in the dependency array, because that would cause the effect
@@ -209,11 +220,14 @@ function FormDataEffects({ url }: { url: string }) {
 const useRequestManualSave = () => {
   const requestSave = useLaxSelector((s) => s.requestManualSave);
   const ruleConnection = useRuleConnection();
-  return useCallback(() => {
-    if (requestSave !== ContextNotProvided) {
-      requestSave(ruleConnection);
-    }
-  }, [requestSave, ruleConnection]);
+  return useCallback(
+    (setTo?: boolean) => {
+      if (requestSave !== ContextNotProvided) {
+        requestSave(ruleConnection, setTo);
+      }
+    },
+    [requestSave, ruleConnection],
+  );
 };
 
 const useDebounceImmediately = () => {

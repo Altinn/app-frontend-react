@@ -101,7 +101,7 @@ export const useNavigatePage = () => {
         return;
       }
 
-      if (autoSaveBehavior === 'onChangePage' && order?.includes(currentPageId)) {
+      if (autoSaveBehavior === 'onChangePage') {
         waitForSave(true).then();
       }
 
@@ -112,18 +112,7 @@ export const useNavigatePage = () => {
       const url = `/instance/${partyId}/${instanceGuid}/${taskId}/${page}${queryKeys}`;
       navigate(url, { replace });
     },
-    [
-      order,
-      autoSaveBehavior,
-      currentPageId,
-      isStatelessApp,
-      partyId,
-      instanceGuid,
-      taskId,
-      queryKeys,
-      navigate,
-      waitForSave,
-    ],
+    [order, autoSaveBehavior, isStatelessApp, partyId, instanceGuid, taskId, queryKeys, navigate, waitForSave],
   );
 
   const navigateToTask = useCallback(

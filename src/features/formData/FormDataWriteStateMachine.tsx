@@ -106,7 +106,7 @@ export interface FormDataMethods {
   // Internal utility methods
   debounce: (ruleConnection: IRuleConnections | null) => void;
   saveFinished: (savedData: object, ruleConnection: IRuleConnections | null, changedFields?: IFormData) => void;
-  requestManualSave: (ruleConnection: IRuleConnections | null) => void;
+  requestManualSave: (ruleConnection: IRuleConnections | null, setTo?: boolean) => void;
   lock: (lockName: string) => void;
   unlock: (newModel?: object) => void;
 }
@@ -262,9 +262,9 @@ function makeActions(set: (fn: (state: FormDataContext) => void) => void): FormD
         }
         changesFound && processChange(state, rest);
       }),
-    requestManualSave: (ruleConnection) =>
+    requestManualSave: (ruleConnection, setTo = true) =>
       set((state) => {
-        state.controlState.manualSaveRequested = true;
+        state.controlState.manualSaveRequested = setTo;
         debounce(state, ruleConnection);
       }),
     lock: (lockName) =>
