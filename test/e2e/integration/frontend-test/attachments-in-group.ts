@@ -1,8 +1,11 @@
+import dot from 'dot-object';
+
 import texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import type { makeUploaderSelectors } from 'test/e2e/pageobjects/app-frontend';
 
 import { isAttachmentUploaded } from 'src/features/attachments';
+import { flattenObject } from 'src/utils/databindings';
 import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
 
 const appFrontend = new AppFrontend();
@@ -87,8 +90,8 @@ describe('Repeating group attachments', () => {
   };
 
   const getAttachmentState = () =>
-    cy.getReduxState((state) => {
-      const attachments = state.deprecated.lastKnownAttachments || {};
+    cy.window().then((win) => {
+      const attachments = win.CypressState?.attachments || {};
       const keys = Object.keys(attachments);
       const out: { [componentId: string]: string[] } = {};
 
@@ -108,12 +111,12 @@ describe('Repeating group attachments', () => {
     });
 
   const getFormDataState = () =>
-    cy.getReduxState((state) => {
-      const formData = state.formData.formData;
+    cy.window().then((win) => {
+      const formData = win.CypressState?.formData || {};
       const out: [string, string][] = [];
       const idToNameMapping: { [attachmentId: string]: string } = {};
 
-      for (const attachmentList of Object.values(state.deprecated.lastKnownAttachments || {})) {
+      for (const attachmentList of Object.values(win.CypressState?.attachments || {})) {
         for (const attachment of attachmentList || []) {
           if (isAttachmentUploaded(attachment)) {
             const id = attachment.data.id;
@@ -123,9 +126,11 @@ describe('Repeating group attachments', () => {
       }
 
       const expectedPrefix = 'Endringsmelding-grp-9786.OversiktOverEndringene-grp-9788';
-      for (const key of Object.keys(formData)) {
-        if (key.startsWith(expectedPrefix) && key.includes('fileUpload')) {
-          const uuid = formData[key];
+      const innerObj = dot.pick(expectedPrefix, formData);
+      const innerFlat = flattenObject(innerObj);
+      for (const key of Object.keys(innerFlat)) {
+        if (key.includes('fileUpload')) {
+          const uuid = innerFlat[key];
           if (idToNameMapping[uuid]) {
             out.push([key.replace(expectedPrefix, ''), idToNameMapping[uuid]]);
           } else {
@@ -224,6 +229,9 @@ describe('Repeating group attachments', () => {
       cy.get(appFrontend.group.row(row).editBtn).click();
       gotoSecondPage();
       filenames[row].nested.forEach((nestedRow, nestedRowIdx) => {
+        if (nestedRowIdx === 0) {
+          cy.get(appFrontend.group.row(row).nestedGroup.row(nestedRowIdx).editBtn).click();
+        }
         nestedRow.forEach((fileName, idx) => {
           uploadFile({
             item: appFrontend.group.row(row).nestedGroup.row(nestedRowIdx).uploadTagMulti,
@@ -369,6 +377,7 @@ describe('Repeating group attachments', () => {
       // correct attachment state.
       cy.reload();
       cy.get(appFrontend.group.showGroupToContinue).should('be.visible');
+      cy.get(appFrontend.group.mainGroupTableBody).should('contain.text', filenames[0].single);
 
       getFormDataState().should('deep.equal', expectedFormData);
       getAttachmentState().should('deep.equal', expectedAttachmentState);

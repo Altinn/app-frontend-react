@@ -212,6 +212,9 @@ function FormDataEffects({ url }: { url: string }) {
   const dispatch = useAppDispatch();
   useEffect(() => {
     dispatch(DeprecatedActions.setFormData(debouncedCurrentData));
+    if (window.Cypress) {
+      window.CypressState = { ...window.CypressState, formData: debouncedCurrentData };
+    }
   }, [debouncedCurrentData, dispatch]);
 
   return null;

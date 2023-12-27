@@ -1,6 +1,7 @@
 import type { ToolkitStore } from '@reduxjs/toolkit/src/configureStore';
 import type { QueryClient } from '@tanstack/react-query';
 
+import type { IAttachments } from 'src/features/attachments';
 import type { IFeatureTogglesOptionalMap } from 'src/features/toggles';
 import type { IRuleObject, IRules, IRuntimeState } from 'src/types';
 
@@ -11,7 +12,13 @@ declare global {
     reduxStore: ToolkitStore<IRuntimeState>;
     featureToggles: IFeatureTogglesOptionalMap;
 
+    // Exported into the Window object so that we can interact with it from Cypress tests
     queryClient: QueryClient;
+    Cypress?: any; // Can be used to test if we are running in Cypress
+    CypressState?: {
+      attachments?: IAttachments;
+      formData?: object;
+    };
 
     conditionalRuleHandlerObject: IRuleObject;
     conditionalRuleHandlerHelper: IRules;

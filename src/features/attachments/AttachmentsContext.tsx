@@ -81,6 +81,12 @@ export const AttachmentsProvider = ({ children }: PropsWithChildren) => {
 export const AttachmentsStoreProvider = ({ children }: PropsWithChildren) => {
   const [attachments, setAttachments] = useState<IAttachments>({});
 
+  useEffect(() => {
+    if (window.Cypress) {
+      window.CypressState = { ...window.CypressState, attachments };
+    }
+  }, [attachments]);
+
   return (
     <StoreProvider
       value={{
