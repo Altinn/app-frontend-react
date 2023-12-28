@@ -6,7 +6,7 @@ import type { ErrorObject } from 'ajv';
 import { RepeatingGroupDef } from 'src/layout/RepeatingGroup/config.def.generated';
 import { GroupHierarchyGenerator } from 'src/layout/RepeatingGroup/hierarchy';
 import { RepeatingGroupContainer } from 'src/layout/RepeatingGroup/RepeatingGroupContainer';
-import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/SummaryRepeatingGroup';
+import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup';
 import { runValidationOnNodes } from 'src/utils/validation/validation';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';

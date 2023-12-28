@@ -10,7 +10,7 @@ import { CompCategory } from 'src/layout/common';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { GroupComponent } from 'src/layout/Group/GroupComponent';
 import { DisplayLikertGroupContainer } from 'src/layout/LikertGroup/DisplayLikertGroupContainer';
-import { DisplayRepeatingGroupContainer } from 'src/layout/RepeatingGroup/DisplayRepeatingGroupContainer';
+import { DisplayRepAsLargeGroup } from 'src/layout/RepeatingGroup/Summary/DisplayRepAsLargeGroup';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -39,9 +39,8 @@ const PDFComponent = ({ node }: { node: LayoutNode }) => {
     );
   } else if (node.isType('RepeatingGroup')) {
     return (
-      <DisplayRepeatingGroupContainer
-        //Todo: fix this type or refactor DisplayRepeatingGroupContainer
-        groupNode={node as any}
+      <DisplayRepAsLargeGroup
+        groupNode={node}
         renderLayoutNode={(child) => (
           <PDFComponent
             key={child.item.id}
@@ -53,8 +52,7 @@ const PDFComponent = ({ node }: { node: LayoutNode }) => {
   } else if (node.isType('LikertGroup')) {
     return (
       <DisplayLikertGroupContainer
-        //Todo: fix this type or refactor DisplayLikertGroupContainer
-        groupNode={node as any}
+        groupNode={node}
         renderLayoutNode={(child) => (
           <PDFComponent
             key={child.item.id}

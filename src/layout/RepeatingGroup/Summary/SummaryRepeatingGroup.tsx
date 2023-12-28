@@ -6,8 +6,8 @@ import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { CompCategory } from 'src/layout/common';
-import { DisplayRepeatingGroupContainer } from 'src/layout/RepeatingGroup/DisplayRepeatingGroupContainer';
-import classes from 'src/layout/RepeatingGroup/SummaryRepeatingGroup.module.css';
+import { DisplayRepAsLargeGroup } from 'src/layout/RepeatingGroup/Summary/DisplayRepAsLargeGroup';
+import classes from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup.module.css';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { ITextResourceBindings } from 'src/layout/layout';
@@ -60,11 +60,10 @@ export function SummaryRepeatingGroup({
           }
 
           return (
-            <DisplayRepeatingGroupContainer
+            <DisplayRepAsLargeGroup
               key={`summary-${targetNode.item.id}-${idx}`}
               id={`summary-${targetNode.item.id}-${idx}`}
-              //Todo: fix this type or refactor + merge DisplayRepeatingGroupContainer and summaryRepeatingGroup
-              groupNode={targetNode as any}
+              groupNode={targetNode}
               onlyRowIndex={idx}
               renderLayoutNode={(n) => {
                 if (inExcludedChildren(n) || n.isHidden()) {

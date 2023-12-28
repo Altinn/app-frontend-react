@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/SummaryRepeatingGroup';
+import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -83,14 +83,13 @@ describe('SummaryGroupComponent', () => {
     return await renderWithNode<LayoutNode<'Summary'>>({
       nodeId: 'mySummary',
       renderer: ({ node, root }) => {
-        const groupNode = root.findById('groupComponent') as LayoutNode<'Group'>;
+        const groupNode = root.findById('groupComponent') as LayoutNode<'RepeatingGroup'>;
         return (
           <SummaryRepeatingGroup
             changeText={'Change'}
             onChangeClick={mockHandleDataChange}
             summaryNode={node}
-            //Todo: fix this type or refactor + merge DisplayRepeatingGroupContainer and summaryRepeatingGroup
-            targetNode={groupNode as any}
+            targetNode={groupNode}
           />
         );
       },
