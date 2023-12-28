@@ -5,13 +5,13 @@ import deepEqual from 'fast-deep-equal';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { useCustomValidationConfig } from 'src/features/customValidation/CustomValidationContext';
-import { useDataModelSchema } from 'src/features/datamodel/DataModelSchemaProvider';
+import { useCurrentDataModelSchema } from 'src/features/datamodel/DataModelSchemaProvider';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
-import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useExprContext } from 'src/utils/layout/ExprContext';
+import { useNodes } from 'src/utils/layout/NodesContext';
 import type { IAttachment, IAttachments, UploadedAttachment } from 'src/features/attachments';
 import type { AttachmentChange, IValidationContext } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -20,14 +20,14 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
  * Hook providing validation context generator
  */
 export function useValidationContext(): IValidationContext {
-  const formData = useAppSelector((state) => state.formData.formData);
+  const formData = FD.useDebounced();
   const attachments = useAttachments();
   const currentLanguage = useCurrentLanguage();
   const application = useApplicationMetadata();
   const instance = useLaxInstanceData() ?? null;
   const process = useLaxProcessData() ?? null;
   const layoutSets = useLayoutSets();
-  const schema = useDataModelSchema()!;
+  const schema = useCurrentDataModelSchema()!;
   const customValidation = useCustomValidationConfig();
 
   return useMemo(
@@ -66,7 +66,7 @@ export function useOnHierarchyChange(
   onChange: (addedNodes: LayoutNode[], removedNodes: LayoutNode[], currentNodes: LayoutNode[]) => void,
 ) {
   const onChangeEvent = useEffectEvent(onChange);
-  const layoutNodes = useExprContext();
+  const layoutNodes = useNodes();
   const lastNodes = useRef<LayoutNode[]>([]);
 
   useEffect(() => {
@@ -92,7 +92,7 @@ export function useOnHierarchyChange(
  */
 export function useOnNodeDataChange(onChange: (changedNodes: LayoutNode[]) => void) {
   const onChangeEvent = useEffectEvent(onChange);
-  const layoutNodes = useExprContext();
+  const layoutNodes = useNodes();
   const lastNodeData = useRef<{ [id: string]: LayoutNode }>({});
 
   useEffect(() => {
@@ -135,7 +135,7 @@ export function useOnAttachmentsChange(
   ) => void,
 ) {
   const onChangeEvent = useEffectEvent(onChange);
-  const layoutNodes = useExprContext();
+  const layoutNodes = useNodes();
   const attachments = useAttachments();
 
   const lastAttachments = useRef<IAttachments>({});

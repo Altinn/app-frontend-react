@@ -4,7 +4,6 @@ import { screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { getFormLayoutGroupMock } from 'src/__mocks__/getFormLayoutGroupMock';
-import { Triggers } from 'src/layout/common.generated';
 import { RepeatingGroupContainer } from 'src/layout/Group/RepeatingGroupContainer';
 import { RepeatingGroupProvider, useRepeatingGroup } from 'src/layout/Group/RepeatingGroupContext';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
@@ -195,15 +194,10 @@ describe('RepeatingGroupContainer', () => {
     expect(within(editContainer).getByText('Title4')).toBeInTheDocument();
   });
 
-  /**
-   * TODO(1508):
-   * This test is skipped because validation is not triggered by the new navigation refactor.
-   * This will need to be refactored in combination with #1506.
-   */
-  it.skip('should trigger validate when closing edit mode if validation trigger is present', async () => {
+  it('should trigger validate when closing edit mode if validation trigger is present', async () => {
     await render({
       container: {
-        triggers: [Triggers.Validation],
+        validateOnSaveRow: ['All'],
       },
     });
 
@@ -212,9 +206,12 @@ describe('RepeatingGroupContainer', () => {
         name: /Lagre og lukk/i,
       })[0],
     );
+
+    // TODO: How do we assert that validation happened?
+    expect(true).toBe(false);
   });
 
-  it.skip('should NOT trigger validate when closing edit mode if validation trigger is NOT present', async () => {
+  it('should NOT trigger validate when closing edit mode if validation trigger is NOT present', async () => {
     await render();
 
     const editButton = screen.getAllByRole('button', {
@@ -223,12 +220,13 @@ describe('RepeatingGroupContainer', () => {
     await userEvent.click(editButton);
 
     // TODO: How do we assert that validation did not happen?
+    expect(true).toBe(false);
   });
 
-  it.skip('should trigger validate when saving if validation trigger is present', async () => {
+  it('should trigger validate when saving if validation trigger is present', async () => {
     await render({
       container: {
-        triggers: [Triggers.Validation],
+        validateOnSaveRow: ['All'],
       },
     });
 
@@ -238,12 +236,13 @@ describe('RepeatingGroupContainer', () => {
     await userEvent.click(editButton);
 
     // TODO: How do we assert that validation happened?
+    expect(true).toBe(false);
   });
 
-  it.skip('should trigger validate when saving if validateRow trigger is present', async () => {
+  it('should trigger validate when saving if validateRow trigger is present', async () => {
     await render({
       container: {
-        triggers: [Triggers.ValidateRow],
+        validateOnSaveRow: ['All'],
       },
     });
 
@@ -253,9 +252,10 @@ describe('RepeatingGroupContainer', () => {
     await userEvent.click(editButton);
 
     // TODO: How do we assert that validation happened?
+    expect(true).toBe(false);
   });
 
-  it.skip('should NOT trigger validate when saving if validation trigger is NOT present', async () => {
+  it('should NOT trigger validate when saving if validation trigger is NOT present', async () => {
     await render();
 
     const editButton = screen.getAllByRole('button', {
@@ -264,6 +264,7 @@ describe('RepeatingGroupContainer', () => {
     await userEvent.click(editButton);
 
     // TODO: How do we assert that validation did not happen?
+    expect(true).toBe(false);
   });
 
   it('should display "Add new" button when edit.addButton is undefined', async () => {

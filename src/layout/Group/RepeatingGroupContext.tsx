@@ -45,6 +45,20 @@ const { Provider, useCtx } = createContext<RepeatingGroupContext>({
   required: true,
 });
 
+// TODO: Implement this in the context (before adding a new row, changing the edit index, or closing the group)
+// const onGroupCloseValidation = useOnGroupCloseValidation();
+// if (
+//   repeatingGroupIndex !== -1 &&
+//   validateOnSaveRow &&
+//   (await onGroupCloseValidation(node, editIndex, validateOnSaveRow))
+// ) {
+//   // Block save if validation fails
+//   return;
+// }
+//
+// TODO: Call this when/before deleting a row
+// const onDeleteGroupRow = useOnDeleteGroupRow();
+
 function usePureStates(node: LayoutNodeForGroup<CompGroupRepeatingInternal>) {
   const editingAll = node.item.edit?.mode === 'showAll';
   const editingNone = node.item.edit?.mode === 'onlyTable';

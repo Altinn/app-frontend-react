@@ -145,7 +145,7 @@ export type AttachmentChange = {
  */
 export type IValidationContext = {
   currentLanguage: string;
-  formData: IFormData;
+  formData: IFormData; // TODO: Make this an object
   attachments: IAttachments;
   application: IApplicationMetadata;
   instance: IInstance | null;

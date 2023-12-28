@@ -43,7 +43,7 @@ import {
 } from 'src/features/validation/visibility';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useOrder } from 'src/hooks/useNavigatePage';
-import { useExprContext } from 'src/utils/layout/ExprContext';
+import { useNodes } from 'src/utils/layout/NodesContext';
 import type { Visibility } from 'src/features/validation/visibility';
 import type { PageValidation, ValidationMasks } from 'src/layout/common.generated';
 import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
@@ -503,7 +503,7 @@ export function useTaskErrors(): {
   formErrors: NodeValidation<'error'>[];
   taskErrors: BaseValidation<'error'>[];
 } {
-  const pages = useExprContext();
+  const pages = useNodes();
   const state = useCtx().state;
   const visibility = useCtx().visibility;
   const showAllErrors = useCtx().showAllErrors;
