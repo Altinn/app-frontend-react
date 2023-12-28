@@ -18,7 +18,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 export const { Provider, useCtx } = createContext<LayoutPages | undefined>({
-  name: 'ExprContext',
+  name: 'Nodes',
   required: false,
   default: undefined,
 });
@@ -34,7 +34,7 @@ function useLayoutsAsNodes(): LayoutPages | undefined {
   return _private.useResolvedExpressions();
 }
 
-export const ExprContextWrapper = (props: React.PropsWithChildren) => {
+export const NodesProvider = (props: React.PropsWithChildren) => {
   const resolvedNodes = useLayoutsAsNodes();
   useLegacyHiddenComponents(resolvedNodes);
 
@@ -48,7 +48,7 @@ export const ExprContextWrapper = (props: React.PropsWithChildren) => {
  *
  * Usually, if you're looking for a specific component/node, useResolvedNode() is better.
  */
-export const useExprContext = () => useCtx();
+export const useNodes = () => useCtx();
 
 /**
  * Given a selector, get a LayoutNode object
@@ -61,18 +61,18 @@ export const useExprContext = () => useCtx();
  *    you'll get the first row item as a result.
  */
 export function useResolvedNode<T>(selector: string | undefined | T | LayoutNode): LayoutNodeFromObj<T> | undefined {
-  const context = useExprContext();
+  const nodes = useNodes();
 
   if (typeof selector === 'object' && selector !== null && selector instanceof BaseLayoutNode) {
     return selector as any;
   }
 
   if (typeof selector === 'string') {
-    return context?.findById(selector) as any;
+    return nodes?.findById(selector) as any;
   }
 
   if (typeof selector == 'object' && selector !== null && 'id' in selector && typeof selector.id === 'string') {
-    return context?.findById(selector.id) as any;
+    return nodes?.findById(selector.id) as any;
   }
 
   return undefined;
@@ -88,9 +88,7 @@ export function useResolvedNode<T>(selector: string | undefined | T | LayoutNode
  */
 function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
   const _currentHiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
-  const formData = useAppSelector((state) => state.formData.formData);
   const rules = useAppSelector((state) => state.formDynamics.conditionalRendering);
-  const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
   const pageNavigationConfig = usePageNavigationConfig();
   const dataSources = useAppSelector(createSelectDataSourcesFromState(pageNavigationConfig));
   const { setHiddenPages, hidden, hiddenExpr } = usePageNavigationContext();
@@ -112,9 +110,9 @@ function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
 
     let futureHiddenFields: Set<string>;
     try {
-      futureHiddenFields = runConditionalRenderingRules(rules, formData, repeatingGroups);
-    } catch (err) {
-      console.error('Error while evaluating conditional rendering rules', err);
+      futureHiddenFields = runConditionalRenderingRules(rules, resolvedNodes);
+    } catch (error) {
+      window.logError('Error while evaluating conditional rendering rules:\n', error);
       futureHiddenFields = new Set();
     }
 
@@ -140,16 +138,5 @@ function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
         }),
       );
     }
-  }, [
-    _currentHiddenFields,
-    dataSources,
-    dispatch,
-    formData,
-    repeatingGroups,
-    resolvedNodes,
-    rules,
-    hidden,
-    hiddenExpr,
-    setHiddenPages,
-  ]);
+  }, [_currentHiddenFields, dataSources, dispatch, hidden, hiddenExpr, resolvedNodes, rules, setHiddenPages]);
 }

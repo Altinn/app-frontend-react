@@ -23,7 +23,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IFileUploadWithTagProps = PropsFromGenericComponent<'FileUpload' | 'FileUploadWithTag'>;
 
-export function FileUploadComponent({ node, handleDataChange }: IFileUploadWithTagProps): React.JSX.Element {
+export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JSX.Element {
   const {
     id,
     maxFileSizeInMB,
@@ -39,10 +39,7 @@ export function FileUploadComponent({ node, handleDataChange }: IFileUploadWithT
   const mobileView = useIsMobileOrTablet();
   const attachments = useAttachmentsFor(node);
   const uploadAttachment = useAttachmentsUploader();
-  const mappingTools = useAttachmentsMappedToFormData({
-    handleDataChange,
-    node,
-  });
+  const mappingTools = useAttachmentsMappedToFormData(node);
 
   const validations = useUnifiedValidationsForNode(node);
   const componentValidations = validations?.filter((v) => !v.meta?.attachmentId);

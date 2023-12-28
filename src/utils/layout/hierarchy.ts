@@ -2,21 +2,27 @@ import { useMemo } from 'react';
 
 import { createSelector } from 'reselect';
 
+import { useApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
+import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
+import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { usePageNavigationConfig } from 'src/features/form/layout/PageNavigationContext';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { staticUseLanguageFromState, useLanguage } from 'src/features/language/useLanguage';
+import { useAllOptions } from 'src/features/options/useAllOptions';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { getLayoutComponentObject } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
+import { convertDataBindingToModel } from 'src/utils/databindings';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { PageNavigationConfig } from 'src/features/expressions/ExprContext';
 import type { CompInternal, HierarchyDataSources, ILayouts } from 'src/layout/layout';
-import type { IRepeatingGroups, IRuntimeState } from 'src/types';
+import type { IRuntimeState } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 /**
@@ -26,19 +32,12 @@ import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 function resolvedNodesInLayouts(
   layouts: ILayouts | null,
   currentView: string | undefined,
-  repeatingGroups: IRepeatingGroups | null,
   dataSources: HierarchyDataSources,
 ) {
   // A full copy is needed here because formLayout comes from the redux store, and in production code (not the
   // development server!) the properties are not mutable (but we have to mutate them below).
   const layoutsCopy: ILayouts = layouts ? structuredClone(layouts) : {};
-  const unresolved = generateEntireHierarchy(
-    layoutsCopy,
-    currentView,
-    repeatingGroups,
-    dataSources,
-    getLayoutComponentObject,
-  );
+  const unresolved = generateEntireHierarchy(layoutsCopy, currentView, dataSources, getLayoutComponentObject);
 
   const config = {
     ...ExprConfigForComponent,
@@ -99,7 +98,7 @@ function resolvedNodesInLayouts(
 export const dataSourcesFromState =
   (pageNavigationConfig: PageNavigationConfig) =>
   (state: IRuntimeState): HierarchyDataSources => ({
-    formData: state.formData.formData,
+    formData: convertDataBindingToModel(state.deprecated.formData),
     attachments: state.deprecated.lastKnownAttachments || {},
     uiConfig: state.formLayout.uiConfig,
     pageNavigationConfig,
@@ -119,14 +118,13 @@ export const createSelectDataSourcesFromState = (pageNavigationConfig: PageNavig
 function innerResolvedLayoutsFromState(
   layouts: ILayouts | null,
   currentView: string | undefined,
-  repeatingGroups: IRepeatingGroups | null,
   dataSources: HierarchyDataSources,
 ): LayoutPages | undefined {
-  if (!layouts || !repeatingGroups) {
+  if (!layouts) {
     return undefined;
   }
 
-  return resolvedNodesInLayouts(layouts, currentView, repeatingGroups, dataSources);
+  return resolvedNodesInLayouts(layouts, currentView, dataSources);
 }
 
 /**
@@ -135,16 +133,15 @@ function innerResolvedLayoutsFromState(
  */
 function useResolvedExpressions() {
   const instance = useLaxInstanceData();
-  const formData = useAppSelector((state) => state.formData.formData);
+  const formData = FD.useDebounced();
   const uiConfig = useAppSelector((state) => state.formLayout.uiConfig);
-  const attachments = useAppSelector((state) => state.deprecated.lastKnownAttachments);
-  const options = useAppSelector((state) => state.deprecated.allOptions);
+  const attachments = useAttachments();
+  const options = useAllOptions();
   const process = useLaxProcessData();
-  const applicationSettings = useAppSelector((state) => state.applicationSettings.applicationSettings);
+  const applicationSettings = useApplicationSettings();
   const hiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
-  const layouts = useAppSelector((state) => state.formLayout.layouts);
+  const layouts = useLayouts();
   const currentView = useCurrentView();
-  const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
   const devTools = useAppSelector((state) => state.devTools);
   const langTools = useLanguage();
   const currentLanguage = useCurrentLanguage();
@@ -182,8 +179,8 @@ function useResolvedExpressions() {
   );
 
   return useMemo(
-    () => innerResolvedLayoutsFromState(layouts, currentView, repeatingGroups, dataSources),
-    [layouts, currentView, repeatingGroups, dataSources],
+    () => innerResolvedLayoutsFromState(layouts, currentView, dataSources),
+    [layouts, currentView, dataSources],
   );
 }
 

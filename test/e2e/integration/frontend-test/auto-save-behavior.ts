@@ -49,18 +49,29 @@ describe('Auto save behavior', () => {
       cy.wait('@putFormData').then(() => {
         expect(putFormDataCounter).to.be.eq(1);
       });
+
+      // Clicking the back button does not save anything, because we didn't
+      // change anything in the form data worth saving
+      cy.get(appFrontend.backButton).clickAndGone();
+      cy.navPage('prefill').should('have.attr', 'aria-current', 'page');
+
+      // Go forward again, change something and then observe the back button saves
+      cy.get(appFrontend.nextButton).clickAndGone();
+      cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
       cy.get(appFrontend.backButton).clickAndGone();
       cy.wait('@putFormData').then(() => {
         expect(putFormDataCounter).to.be.eq(2);
       });
 
       // NavigationBar
+      cy.get(appFrontend.group.prefill.middels).dsCheck();
       cy.get(appFrontend.navMenu).findByRole('button', { name: '2. repeating' }).click();
       cy.wait('@putFormData').then(() => {
         expect(putFormDataCounter).to.be.eq(3);
       });
 
       // Icon previous button
+      cy.get(appFrontend.group.showGroupToContinue).find('input').dsUncheck();
       cy.get(appFrontend.prevButton).clickAndGone();
       cy.wait('@putFormData').then(() => {
         expect(putFormDataCounter).to.be.eq(4);

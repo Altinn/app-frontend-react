@@ -9,7 +9,9 @@ export interface JsonSchemaExt<T> {
   examples: T[];
 }
 
-export interface TypeScriptExt {}
+export interface TypeScriptExt {
+  comment?: string;
+}
 
 export interface SymbolExt {
   name: string;
@@ -227,6 +229,12 @@ export abstract class DescribableCodeGenerator<T> extends MaybeOptionalCodeGener
   addExample(...examples: T[]): this {
     this.ensureMutable();
     this.internal.jsonSchema.examples.push(...examples);
+    return this;
+  }
+
+  setTsComment(comment: string): this {
+    this.ensureMutable();
+    this.internal.typeScript.comment = comment;
     return this;
   }
 }

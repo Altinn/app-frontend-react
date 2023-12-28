@@ -9,11 +9,11 @@ import { useTaskErrors } from 'src/features/validation/validationProvider';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { extractBottomButtons } from 'src/utils/formLayout';
-import { useExprContext } from 'src/utils/layout/ExprContext';
+import { useNodes } from 'src/utils/layout/NodesContext';
 
 export function CustomReceipt() {
   const receiptLayoutName = useAppSelector((state) => state.formLayout.uiConfig.receiptLayoutName);
-  const page = useExprContext()?.findLayout(receiptLayoutName);
+  const page = useNodes()?.findLayout(receiptLayoutName);
   const { formErrors, taskErrors } = useTaskErrors();
   const hasErrors = Boolean(formErrors.length) || Boolean(taskErrors.length);
 

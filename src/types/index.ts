@@ -39,13 +39,12 @@ export interface IComponentsSettings {
 }
 
 export interface IRepeatingGroup {
-  index: number;
-  baseGroupId?: string;
-  dataModelBinding?: string;
-  editIndex?: number;
-  deletingIndex?: number[];
-  multiPageIndex?: number;
-  isLoading?: boolean;
+  // index: number;
+  // baseGroupId?: string;
+  // dataModelBinding?: string;
+  editIndex: number;
+  deletingIndex: number[];
+  multiPageIndex: number;
 }
 
 export interface IRepeatingGroups {
@@ -81,7 +80,6 @@ export interface IUiConfig {
   returnToView?: string;
   focus: string | null | undefined;
   hiddenFields: string[];
-  repeatingGroups: IRepeatingGroups | null;
   excludePageFromPdf: string[] | null;
   excludeComponentFromPdf: string[] | null;
   pdfLayoutName?: string;

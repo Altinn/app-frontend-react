@@ -1,21 +1,10 @@
-import {
-  flattenObject,
-  getIndexCombinations,
-  getKeyIndex,
-  getKeyWithoutIndex,
-  mapFormData,
-  removeGroupData,
-} from 'src/utils/databindings';
+import { flattenObject, getKeyIndex, getKeyWithoutIndex, mapFormData } from 'src/utils/databindings';
 import type { IFormData } from 'src/features/formData';
 import type { IMapping } from 'src/layout/common.generated';
-import type { ILayout } from 'src/layout/layout';
-import type { IRepeatingGroups } from 'src/types';
 
 describe('utils/databindings.ts', () => {
   let testObj: any;
   let testFormData: any;
-  let testLayout: ILayout;
-  let testGroupId: string;
 
   beforeEach(() => {
     testObj = {};
@@ -36,76 +25,6 @@ describe('utils/databindings.ts', () => {
       'Group[2].Group2[0].group2prop': 'group2-2-1-value',
       'Group[2].Group2[1].group2prop': 'group2-2-2-value',
     };
-    testGroupId = 'group-1';
-
-    testLayout = [
-      {
-        id: testGroupId,
-        type: 'Group',
-        dataModelBindings: {
-          group: 'Group',
-        },
-        children: ['field1', 'field2', 'field3', 'group2'],
-        maxCount: 3,
-      },
-      {
-        id: 'group2',
-        type: 'Group',
-        dataModelBindings: {
-          group: 'Group.Group2',
-        },
-        maxCount: 4,
-        children: ['field4'],
-      },
-      {
-        id: 'field1',
-        type: 'Input',
-        dataModelBindings: {
-          simpleBinding: 'Group.prop1',
-        },
-        textResourceBindings: {
-          title: 'Title',
-        },
-        readOnly: false,
-        required: false,
-      },
-      {
-        id: 'field2',
-        type: 'Input',
-        dataModelBindings: {
-          simpleBinding: 'Group.prop2',
-        },
-        textResourceBindings: {
-          title: 'Title',
-        },
-        readOnly: false,
-        required: false,
-      },
-      {
-        id: 'field3',
-        type: 'Input',
-        dataModelBindings: {
-          simpleBinding: 'Group.prop3',
-        },
-        textResourceBindings: {
-          title: 'Title',
-        },
-        readOnly: false,
-        required: false,
-      },
-      {
-        id: 'field4',
-        type: 'Input',
-        dataModelBindings: {
-          simpleBinding: 'Group.Group2.group2prop',
-        },
-        textResourceBindings: {
-          title: 'Title',
-        },
-        readOnly: false,
-        required: false,
-      },
-    ];
   });
 
   describe('getKeyIndex', () => {
@@ -267,28 +186,6 @@ describe('utils/databindings.ts', () => {
     });
   });
 
-  describe('removeGroupData', () => {
-    it('should remove form data with the specified index, for the specified group id', () => {
-      const result = removeGroupData(testFormData, 1, testLayout, testGroupId, {
-        index: 2,
-        dataModelBinding: 'Group',
-      });
-      const expected = {
-        'Group[0].prop1': 'value-0-1',
-        'Group[0].prop2': 'value-0-2',
-        'Group[0].prop3': 'value-0-3',
-        'Group[0].Group2[0].group2prop': 'group2-0-1-value',
-        'Group[0].Group2[1].group2prop': 'group2-0-2-value',
-        'Group[1].prop1': 'value-2-1',
-        'Group[1].prop2': 'value-2-2',
-        'Group[1].prop3': 'value-2-3',
-        'Group[1].Group2[0].group2prop': 'group2-2-1-value',
-        'Group[1].Group2[1].group2prop': 'group2-2-2-value',
-      };
-      expect(result).toEqual(expected);
-    });
-  });
-
   describe('getKeyWithouthIndex', () => {
     it('should return stripped formdata key for nested groups', () => {
       const withIndex = 'somegroup[0].someprop.someothergroup[2].someotherprop';
@@ -331,64 +228,6 @@ describe('utils/databindings.ts', () => {
         someOtherField: 'someOtherValue',
       };
       expect(mapFormData(formData, mapping as any)).toEqual(formData);
-    });
-  });
-
-  describe('getIndexCombinations', () => {
-    it('should return correct combinations for a repeating group', () => {
-      const repeatingGroups: IRepeatingGroups = {
-        group: {
-          index: 2,
-          dataModelBinding: 'Gruppe',
-          editIndex: -1,
-        },
-      };
-
-      const expected = [[0], [1], [2]];
-      const result = getIndexCombinations(['Gruppe'], repeatingGroups);
-
-      expect(result).toEqual(expected);
-
-      expect(getIndexCombinations(['NoeAnnet'], repeatingGroups)).toEqual([]);
-    });
-
-    it('should return correct combinations for nested repeating groups', () => {
-      const repeatingGroups: IRepeatingGroups = {
-        group: {
-          index: 2,
-          dataModelBinding: 'Gruppe',
-          editIndex: -1,
-        },
-        'underGruppe-0': {
-          index: -1,
-          baseGroupId: 'underGruppe',
-          editIndex: -1,
-          dataModelBinding: 'Gruppe.UnderGruppe',
-        },
-        'underGruppe-1': {
-          index: 1,
-          baseGroupId: 'underGruppe',
-          editIndex: -1,
-          dataModelBinding: 'Gruppe.UnderGruppe',
-        },
-        'underGruppe-2': {
-          index: 2,
-          baseGroupId: 'underGruppe',
-          editIndex: -1,
-          dataModelBinding: 'Gruppe.UnderGruppe',
-        },
-      };
-
-      const expected = [[0], [1, 0], [1, 1], [2, 0], [2, 1], [2, 2]];
-      const result = getIndexCombinations(['Gruppe', 'Gruppe.UnderGruppe'], repeatingGroups);
-      expect(result).toEqual(expected);
-    });
-
-    it('should return an empty array when no groups exist', () => {
-      const expected = [];
-      const result = getIndexCombinations([], {});
-
-      expect(result).toEqual(expected);
     });
   });
 });

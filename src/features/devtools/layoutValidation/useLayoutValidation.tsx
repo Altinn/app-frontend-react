@@ -2,14 +2,14 @@ import React, { useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
-import { useDataModelSchema } from 'src/features/datamodel/DataModelSchemaProvider';
+import { useCurrentDataModelSchema } from 'src/features/datamodel/DataModelSchemaProvider';
 import { dotNotationToPointer } from 'src/features/datamodel/notations';
 import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
 import { useCurrentDataModelType } from 'src/features/datamodel/useBindingSchema';
 import { useLayoutSchemaValidation } from 'src/features/devtools/layoutValidation/useLayoutSchemaValidation';
+import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { usePageNavigationConfig } from 'src/features/form/layout/PageNavigationContext';
-import { generateSimpleRepeatingGroups } from 'src/features/form/layout/repGroups/generateSimpleRepeatingGroups';
-import { useCurrentLayoutSetId } from 'src/features/form/layout/useCurrentLayoutSetId';
+import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useIsDev } from 'src/hooks/useIsDev';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
@@ -73,17 +73,16 @@ const defaultLayouts: ILayouts = {};
  */
 function useDataModelBindingsValidation(props: LayoutValidationProps) {
   const layoutSetId = useCurrentLayoutSetId() || 'default';
-  const layouts = useAppSelector((state) => state.formLayout.layouts) || defaultLayouts;
+  const layouts = useLayouts() || defaultLayouts;
   const { logErrors = false } = props;
-  const repeatingGroups = useMemo(() => generateSimpleRepeatingGroups(layouts), [layouts]);
-  const schema = useDataModelSchema();
+  const schema = useCurrentDataModelSchema();
   const dataType = useCurrentDataModelType();
   const currentView = useCurrentView();
   const pageNavigationConfig = usePageNavigationConfig();
   const dataSources = useAppSelector(createSelectDataSourcesFromState(pageNavigationConfig));
   const nodes = useMemo(
-    () => generateEntireHierarchy(layouts, currentView, repeatingGroups, dataSources, getLayoutComponentObject),
-    [layouts, currentView, repeatingGroups, dataSources],
+    () => generateEntireHierarchy(layouts, currentView, dataSources, getLayoutComponentObject),
+    [layouts, currentView, dataSources],
   );
 
   const layoutLoaded = useIsLayoutLoaded();

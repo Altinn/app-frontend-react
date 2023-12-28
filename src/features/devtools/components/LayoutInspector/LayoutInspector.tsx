@@ -12,19 +12,20 @@ import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
 import { DevToolsTab } from 'src/features/devtools/data/types';
 import { useLayoutValidationForPage } from 'src/features/devtools/layoutValidation/useLayoutValidation';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
-import { useExprContext } from 'src/utils/layout/ExprContext';
+import { useNodes } from 'src/utils/layout/NodesContext';
 
 export const LayoutInspector = () => {
   const selectedComponent = useAppSelector((state) => state.devTools.layoutInspector.selectedComponentId);
   const currentView = useCurrentView();
-  const layouts = useAppSelector((state) => state.formLayout.layouts);
+  const layouts = useLayouts();
   const [componentProperties, setComponentProperties] = useState<string | null>(null);
   const [propertiesHaveChanged, setPropertiesHaveChanged] = useState(false);
   const [error, setError] = useState<boolean>(false);
-  const nodes = useExprContext();
+  const nodes = useNodes();
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {

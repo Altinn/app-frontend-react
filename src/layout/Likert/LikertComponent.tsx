@@ -7,6 +7,7 @@ import { RadioButton } from 'src/components/form/RadioButton';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useUnifiedValidationsForNode } from 'src/features/validation/validationProvider';
 import { LayoutStyle } from 'src/layout/common.generated';
+import { GenericComponentLegend } from 'src/layout/GenericComponentUtils';
 import classes from 'src/layout/Likert/LikertComponent.module.css';
 import { ControlledRadioGroup } from 'src/layout/RadioButtons/ControlledRadioGroup';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
@@ -30,13 +31,12 @@ export const LikertComponent = (props: PropsFromGenericComponent<'Likert'>) => {
 };
 
 const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
-  const { node, legend } = props;
-  const { selected, handleChange, calculatedOptions, handleBlur, fetchingOptions } = useRadioButtons(props);
+  const { node } = props;
+  const { selected, handleChange, calculatedOptions, fetchingOptions } = useRadioButtons(props);
   const validations = useUnifiedValidationsForNode(node);
 
   const id = node.item.id;
   const groupContainerId = node.closest((n) => n.type === 'Group')?.item.id;
-  const RenderLegend = legend;
   const rowLabelId = `row-label-${id}`;
 
   return (
@@ -53,7 +53,7 @@ const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
         variant='header'
       >
         <Typography component={'div'}>
-          <RenderLegend />
+          <GenericComponentLegend />
           <ComponentValidations
             validations={validations}
             node={node}
@@ -67,7 +67,6 @@ const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
           <TableCell
             key={option.value}
             className={classes.likertTableCell}
-            onBlur={handleBlur}
           >
             <RadioButton
               aria-labelledby={`${rowLabelId} ${colLabelId}`}

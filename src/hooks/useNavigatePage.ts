@@ -1,19 +1,18 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { useMatch, useNavigate } from 'react-router-dom';
+import { useLocation, useMatch, useNavigate } from 'react-router-dom';
 import type { NavigateOptions } from 'react-router-dom';
 
+import { ContextNotProvided } from 'src/core/contexts/context';
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
-import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { useLaxLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxProcessData, useTaskType } from 'src/features/instance/ProcessContext';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { ProcessTaskType } from 'src/types';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 
 type NavigateToPageOptions = {
-  focusComponentId?: string;
-  returnToView?: string;
+  replace?: boolean;
   skipAutoSave?: boolean;
 };
 
@@ -21,18 +20,12 @@ export enum TaskKeys {
   ProcessEnd = 'ProcessEnd',
 }
 
-export enum PageKeys {
-  Confirmation = '@confirmation',
-  Receipt = '@receipt',
-  Feedback = '@feedback',
-}
-
 export const useNavigationParams = () => {
   const instanceMatch = useMatch('/instance/:partyId/:instanceGuid');
   const taskIdMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId');
   const pageKeyMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId/:pageKey');
-
   const statelessMatch = useMatch('/:pageKey');
+  const queryKeys = useLocation().search ?? '';
 
   const partyId = pageKeyMatch?.params.partyId ?? taskIdMatch?.params.partyId ?? instanceMatch?.params.partyId;
   const instanceGuid =
@@ -45,6 +38,7 @@ export const useNavigationParams = () => {
     instanceGuid,
     taskId,
     pageKey,
+    queryKeys,
   };
 };
 
@@ -58,16 +52,16 @@ export const useOrder = () => {
 
 export const useNavigatePage = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const isStatelessApp = useIsStatelessApp();
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
   const processTasks = useLaxProcessData()?.processTasks;
   const lastTaskId = processTasks?.slice(-1)[0]?.elementId;
 
-  const { partyId, instanceGuid, taskId, pageKey } = useNavigationParams();
-  const autoSaveBehavior = useAppSelector((state) => state.formLayout.uiConfig.autoSaveBehavior);
+  const { partyId, instanceGuid, taskId, pageKey, queryKeys } = useNavigationParams();
+  const layoutSettings = useLaxLayoutSettings();
+  const autoSaveBehavior =
+    (layoutSettings !== ContextNotProvided && layoutSettings.pages.autoSaveBehavior) || undefined;
 
-  const { setFocusId, setReturnToView } = usePageNavigationContext();
   const taskType = useTaskType(taskId);
   const order = useOrder();
 
@@ -78,17 +72,8 @@ export const useNavigatePage = () => {
 
   const isValidPageId = useCallback(
     (pageId: string) => {
-      if (taskType !== ProcessTaskType.Data && Object.values<string>(PageKeys).includes(pageId)) {
-        return true;
-      }
-      if (taskType === ProcessTaskType.Confirm && pageId === PageKeys.Confirmation) {
-        return true;
-      }
-      if (taskType === ProcessTaskType.Archived && pageId === PageKeys.Receipt) {
-        return true;
-      }
-      if (taskType === ProcessTaskType.Feedback && pageId === PageKeys.Feedback) {
-        return true;
+      if (taskType !== ProcessTaskType.Data) {
+        return false;
       }
       return order?.includes(pageId) ?? false;
     },
@@ -103,27 +88,25 @@ export const useNavigatePage = () => {
    */
   useEffect(() => {
     if (isStatelessApp && order?.[0] !== undefined && (!currentPageId || !isValidPageId(currentPageId))) {
-      navigate(`/${order?.[0]}`, { replace: true });
+      navigate(`/${order?.[0]}${queryKeys}`, { replace: true });
     }
-  }, [isStatelessApp, order, navigate, currentPageId, isValidPageId]);
+  }, [isStatelessApp, order, navigate, currentPageId, isValidPageId, queryKeys]);
 
+  const waitForSave = FD.useWaitForSave();
   const maybeSaveOnPageChange = useCallback(() => {
-    if (autoSaveBehavior === 'onChangePage' && order?.includes(currentPageId)) {
-      dispatch(FormDataActions.saveLatest({}));
+    if (autoSaveBehavior === 'onChangePage') {
+      waitForSave(true).then();
     }
-  }, [autoSaveBehavior, currentPageId, dispatch, order]);
+  }, [autoSaveBehavior, waitForSave]);
 
   const navigateToPage = useCallback(
     (page?: string, options?: NavigateToPageOptions) => {
+      const replace = options?.replace ?? false;
       if (!page) {
         return;
       }
       if (!order.includes(page)) {
         return;
-      }
-      setFocusId(options?.focusComponentId);
-      if (options?.returnToView) {
-        setReturnToView(options.returnToView);
       }
 
       if (options?.skipAutoSave !== true) {
@@ -131,23 +114,13 @@ export const useNavigatePage = () => {
       }
 
       if (isStatelessApp) {
-        return navigate(`/${page}`);
+        return navigate(`/${page}${queryKeys}`, { replace });
       }
 
-      const url = `/instance/${partyId}/${instanceGuid}/${taskId}/${page}`;
-      navigate(url);
+      const url = `/instance/${partyId}/${instanceGuid}/${taskId}/${page}${queryKeys}`;
+      navigate(url, { replace });
     },
-    [
-      order,
-      setFocusId,
-      isStatelessApp,
-      partyId,
-      instanceGuid,
-      taskId,
-      navigate,
-      setReturnToView,
-      maybeSaveOnPageChange,
-    ],
+    [instanceGuid, isStatelessApp, maybeSaveOnPageChange, navigate, order, partyId, queryKeys, taskId],
   );
 
   const navigateToTask = useCallback(
@@ -155,25 +128,29 @@ export const useNavigatePage = () => {
       if (newTaskId === taskId) {
         return;
       }
-      const url = `/instance/${partyId}/${instanceGuid}/${newTaskId ?? lastTaskId}`;
+      const url = `/instance/${partyId}/${instanceGuid}/${newTaskId ?? lastTaskId}${queryKeys}`;
       navigate(url, options);
     },
-    [partyId, instanceGuid, lastTaskId, navigate, taskId],
+    [partyId, instanceGuid, lastTaskId, queryKeys, navigate, taskId],
   );
 
   const isCurrentTask = useMemo(() => currentTaskId === taskId, [currentTaskId, taskId]);
 
   const startUrl = useMemo(() => {
-    if (taskType === ProcessTaskType.Confirm) {
-      return `/instance/${partyId}/${instanceGuid}/${taskId}/${PageKeys.Confirmation}`;
-    }
     if (taskType === ProcessTaskType.Archived) {
-      return `/instance/${partyId}/${instanceGuid}/ProcessEnd/${PageKeys.Receipt}`;
+      return `/instance/${partyId}/${instanceGuid}/${TaskKeys.ProcessEnd}`;
     }
-    if (taskType === ProcessTaskType.Feedback) {
-      return `/instance/${partyId}/${instanceGuid}/${taskId}/${PageKeys.Feedback}`;
+    if (taskType !== ProcessTaskType.Data) {
+      return `/instance/${partyId}/${instanceGuid}/${taskId}`;
     }
-    return `/instance/${partyId}/${instanceGuid}/${taskId}/${order?.[0]}`;
+    const firstPage = order?.[0];
+    if (taskId && firstPage) {
+      return `/instance/${partyId}/${instanceGuid}/${taskId}/${firstPage}`;
+    }
+    if (taskId) {
+      return `/instance/${partyId}/${instanceGuid}/${taskId}`;
+    }
+    return `/instance/${partyId}/${instanceGuid}`;
   }, [partyId, instanceGuid, taskId, order, taskType]);
 
   const next = order?.[nextPageIndex];
@@ -251,6 +228,7 @@ export const useNavigatePage = () => {
     startUrl,
     order,
     next,
+    queryKeys,
     partyId,
     instanceGuid,
     currentPageId,

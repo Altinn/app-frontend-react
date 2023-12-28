@@ -1,19 +1,12 @@
 import React, { useState } from 'react';
 
-import { createContext } from 'src/core/contexts/context';
+import { ContextNotProvided, createContext } from 'src/core/contexts/context';
 import { useCurrentView, useOrder } from 'src/hooks/useNavigatePage';
 import type { PageNavigationConfig } from 'src/features/expressions/ExprContext';
 import type { IComponentScrollPos } from 'src/features/form/layout/formLayoutTypes';
 import type { IHiddenLayoutsExternal } from 'src/types';
 
 export type PageNavigationContext = {
-  /**
-   * Keeps track of which component to focus when the user has navigated
-   * with the summary component buttons.
-   */
-  focusId?: string;
-  setFocusId: React.Dispatch<React.SetStateAction<string | undefined>>;
-
   /**
    * Keeps track of which view to return to when the user has navigated
    * with the summary component buttons.
@@ -34,6 +27,7 @@ export type PageNavigationContext = {
    */
   hidden: string[];
   setHiddenPages: React.Dispatch<React.SetStateAction<string[]>>;
+
   /**
    * Keeps track of the hidden expressions for each page.
    */
@@ -41,10 +35,12 @@ export type PageNavigationContext = {
   setHiddenExpr: React.Dispatch<React.SetStateAction<IHiddenLayoutsExternal>>;
 };
 
-const { Provider, useCtx } = createContext<PageNavigationContext>({ name: 'PageNavigationContext', required: true });
+const { Provider, useCtx, useLaxCtx } = createContext<PageNavigationContext>({
+  name: 'PageNavigationContext',
+  required: true,
+});
 
 export function PageNavigationProvider({ children }: React.PropsWithChildren) {
-  const [focusId, setFocusId] = useState<string>();
   const [returnToView, setReturnToView] = useState<string>();
   const [scrollPosition, setScrollPosition] = useState<IComponentScrollPos | undefined>();
   const [hidden, setHidden] = useState<string[]>([]);
@@ -53,8 +49,6 @@ export function PageNavigationProvider({ children }: React.PropsWithChildren) {
   return (
     <Provider
       value={{
-        focusId,
-        setFocusId,
         returnToView,
         setReturnToView,
         scrollPosition,
@@ -81,4 +75,20 @@ export const usePageNavigationConfig = (): PageNavigationConfig => {
     hiddenExpr,
     order,
   };
+};
+export const useHiddenPages = () => {
+  const ctx = useLaxCtx();
+  if (ctx === ContextNotProvided) {
+    return [];
+  }
+
+  return ctx.hidden;
+};
+export const useReturnToView = () => {
+  const ctx = useLaxCtx();
+  if (ctx === ContextNotProvided) {
+    return undefined;
+  }
+
+  return ctx.returnToView;
 };

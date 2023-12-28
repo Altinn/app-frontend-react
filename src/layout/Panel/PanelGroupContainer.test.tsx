@@ -2,27 +2,23 @@ import React from 'react';
 
 import { screen } from '@testing-library/react';
 
-import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { PanelReferenceGroupContainer } from 'src/layout/Panel/PanelReferenceGroupContainer';
 import { renderWithNode } from 'src/test/renderWithProviders';
-import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type {
   CompGroupNonRepeatingPanelExternal,
   CompGroupNonRepeatingPanelInternal,
 } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { ILayout } from 'src/layout/layout';
-import type { IRuntimeState } from 'src/types';
 
 describe('PanelGroupContainer', () => {
-  const initialState = getInitialStateMock();
   const container: CompGroupNonRepeatingPanelExternal = {
     id: 'group',
     type: 'Group',
     children: ['input1', 'input2'],
     textResourceBindings: {
       title: 'Title for PanelGoup',
-      body: 'Body for PanelGroup',
+      description: 'Description for PanelGroup',
     },
     panel: {
       variant: 'info',
@@ -56,25 +52,10 @@ describe('PanelGroupContainer', () => {
     },
   ];
 
-  const state: ILayoutState = {
-    layouts: {
-      FormLayout: [],
-    },
-    layoutSetId: null,
-    uiConfig: {
-      ...initialState.formLayout.uiConfig,
-      hiddenFields: [],
-    },
-    layoutsets: null,
-  };
-
   it('should display panel with group children', async () => {
     await render({
       container,
       components: groupComponents,
-      customState: {
-        formLayout: state,
-      },
     });
 
     const customIcon = screen.queryByTestId('panel-group-container');
@@ -87,41 +68,37 @@ describe('PanelGroupContainer', () => {
     expect(secondInputTitle).toBeInTheDocument();
   });
 
-  it('should display title and body', async () => {
+  it('should display title and description', async () => {
     await render({
       container,
       components: groupComponents,
-      customState: {
-        formLayout: JSON.parse(JSON.stringify(state)),
-      },
     });
 
     const title = screen.queryByText('Title for PanelGoup');
     expect(title).toBeInTheDocument();
 
-    const body = screen.queryByText('Body for PanelGroup');
-    expect(body).toBeInTheDocument();
+    const description = screen.queryByText('Description for PanelGroup');
+    expect(description).toBeInTheDocument();
   });
 });
 
 interface TestProps {
   container: CompGroupNonRepeatingPanelExternal;
   components?: ILayout | undefined;
-  customState?: Partial<IRuntimeState>;
 }
 
-const render = async ({ container, components, customState }: TestProps) => {
-  const reduxState = {
-    ...getInitialStateMock(),
-    ...customState,
-  };
-  const formLayout = reduxState.formLayout.layouts && reduxState.formLayout.layouts['FormLayout'];
-  container && formLayout?.push(container);
-  formLayout?.push(...(components || []));
-
-  await renderWithNode<LayoutNodeForGroup<CompGroupNonRepeatingPanelInternal>>({
+const render = async ({ container, components }: TestProps) =>
+  await renderWithNode<true, LayoutNodeForGroup<CompGroupNonRepeatingPanelInternal>>({
     nodeId: 'group',
+    inInstance: true,
     renderer: ({ node }) => <PanelReferenceGroupContainer node={node} />,
-    reduxState,
+    queries: {
+      fetchLayouts: async () => ({
+        FormLayout: {
+          data: {
+            layout: [container, ...(components || [])],
+          },
+        },
+      }),
+    },
   });
-};

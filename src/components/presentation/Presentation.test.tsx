@@ -148,7 +148,8 @@ const render = async (
 
   await renderWithInstanceAndLayout({
     renderer: () => <PresentationComponent {...allProps} />,
-    initialPage: `Task_1/1?returnUrl=${returnUrl}`,
+    initialPage: `1?returnUrl=${returnUrl}`,
+    taskId: 'Task_1',
     reduxState,
   });
 };

@@ -15,7 +15,7 @@ import type {
   ISchemaValidationError,
   IValidationContext,
 } from 'src/features/validation';
-import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
+import type { DisplayDataProps, PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -24,14 +24,13 @@ export class Datepicker extends DatepickerDef implements ValidateComponent {
     return <DatepickerComponent {...props} />;
   }
 
-  getDisplayData(node: LayoutNode<'Datepicker'>, { formData, langTools }): string {
-    const { selectedLanguage } = langTools;
+  getDisplayData(node: LayoutNode<'Datepicker'>, { currentLanguage }: DisplayDataProps): string {
     if (!node.item.dataModelBindings?.simpleBinding) {
       return '';
     }
 
-    const dateFormat = getDateFormat(node.item.format, selectedLanguage);
-    const data = formData[node.item.dataModelBindings?.simpleBinding] || '';
+    const dateFormat = getDateFormat(node.item.format, currentLanguage);
+    const data = node.getFormData().simpleBinding ?? '';
     return formatISOString(data, dateFormat) ?? data;
   }
 
