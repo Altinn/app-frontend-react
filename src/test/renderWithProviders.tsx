@@ -38,13 +38,13 @@ import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import { setupStore } from 'src/redux/store';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { useNodes } from 'src/utils/layout/NodesContext';
-import type { AppMutations, AppQueries, AppQueriesContext } from 'src/core/contexts/AppQueriesProvider';
 import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { FormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
 import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
 import type { IOption } from 'src/layout/common.generated';
 import type { CompExternalExact, CompTypes } from 'src/layout/layout';
+import type { AppMutations, AppQueries, AppQueriesContext } from 'src/queries/queryTypes';
 import type { IRuntimeState } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
@@ -367,13 +367,6 @@ const renderBase = async ({
   if (reduxGateKeeper) {
     jest.spyOn(store, 'dispatch').mockImplementation((action) => {
       const performDispatch = reduxGateKeeper(action);
-      if (!isInitializing && !performDispatch && reduxGateKeeper === defaultReduxGateKeeper) {
-        console.error(
-          'Redux dispatch after initialization will be ignored without a reduxGateKeeper implementation:',
-          action,
-        );
-      }
-
       performDispatch && dispatchedActions.push(action);
       !performDispatch && ignoredActions.push(action);
       performDispatch && originalDispatch(action);
