@@ -17,10 +17,6 @@ export const Config = new CG.component({
 Config.inner.removeProperty('textResourceBindings');
 Config.inner.removeProperty('dataModelBindings');
 
-const commonNonRepChildComponents = new CG.prop('childComponents', new CG.arr(CG.layoutNode)).onlyIn(Variant.Internal);
-
-const commonUndefinedDataModelBinding = new CG.raw({ typeScript: 'undefined' }).optional();
-
 function commonExtensions(subType: GenerateComponentLike) {
   return subType
     .extends(Config)
@@ -34,7 +30,9 @@ Config.overrideExported(
 
 function makeNonRepeatingGroup() {
   return new CG.componentLike()
-    .addProperty(new CG.prop('dataModelBindings', commonUndefinedDataModelBinding).onlyIn(Variant.Internal))
+    .addProperty(
+      new CG.prop('dataModelBindings', new CG.raw({ typeScript: 'undefined' }).optional()).onlyIn(Variant.Internal),
+    )
     .addTextResource(
       new CG.trb({
         name: 'title',
@@ -49,7 +47,7 @@ function makeNonRepeatingGroup() {
         description: 'The description text shown underneath the title',
       }),
     )
-    .addProperty(commonNonRepChildComponents)
+    .addProperty(new CG.prop('childComponents', new CG.arr(CG.layoutNode)).onlyIn(Variant.Internal))
     .addProperty(
       new CG.prop(
         'groupingIndicator',
