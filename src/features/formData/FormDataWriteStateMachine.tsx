@@ -1,8 +1,9 @@
 import dot from 'dot-object';
-import { diff, patch } from 'jsondiffpatch';
+import deepEqual from 'fast-deep-equal';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
+import { applyChanges } from 'src/features/formData/applyChanges';
 import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/index';
 import { runLegacyRules } from 'src/features/formData/LegacyRules';
 import type { IRuleConnections } from 'src/features/form/dynamics';
@@ -132,7 +133,6 @@ function makeActions(
     // Take a copy of the data we sent to the server, apply the changed fields to it
     // and use that model as the ground truth for calculating the patch to apply to currentData.
     const newModel = structuredClone(state.lastSavedData);
-    console.log('debug, changedFieldsToNewModel', JSON.stringify(changedFields, null, 2));
     for (const path of Object.keys(changedFields)) {
       const newValue = changedFields[path];
       if (newValue === null) {
@@ -166,17 +166,22 @@ function makeActions(
     if (changes && 'newModel' in changes && changes.newModel) {
       const oldModel = state.lastSavedData;
       const ruleResults = runLegacyRules(ruleConnections, oldModel, changes.newModel);
-
-      const serverChanges = diff(oldModel, changes.newModel);
-      if (serverChanges) {
-        patch(state.currentData, serverChanges);
-        patch(state.debouncedCurrentData, serverChanges);
+      if (!deepEqual(oldModel, changes.newModel)) {
+        applyChanges({
+          prev: oldModel,
+          next: changes.newModel,
+          applyTo: state.currentData,
+        });
+        applyChanges({
+          prev: oldModel,
+          next: changes.newModel,
+          applyTo: state.debouncedCurrentData,
+        });
         state.lastSavedData = structuredClone(changes.newModel);
-
-        for (const model of [state.currentData, state.debouncedCurrentData, state.lastSavedData]) {
-          for (const { path, newValue } of ruleResults) {
-            dot.str(path, newValue, model);
-          }
+      }
+      for (const model of [state.currentData, state.debouncedCurrentData, state.lastSavedData]) {
+        for (const { path, newValue } of ruleResults) {
+          dot.str(path, newValue, model);
         }
       }
     }

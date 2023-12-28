@@ -156,7 +156,6 @@
     "dot-object": "2.1.4",
     "eslint-plugin-preferred-import-path": "^1.1.0",
     "html-react-parser": "5.0.6",
-    "jsondiffpatch": "^0.6.0",
     "jsonpointer": "5.0.1",
     "marked": "10.0.0",
     "marked-mangle": "^1.0.1",
