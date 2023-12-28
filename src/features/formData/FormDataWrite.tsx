@@ -195,19 +195,8 @@ function FormDataEffects({ url }: { url: string }) {
 
     if (shouldSave && (autoSaving || manualSaveRequested)) {
       performSave(debouncedCurrentData);
-    } else if (manualSaveRequested) {
-      requestSave(false);
     }
-  }, [
-    autoSaving,
-    debouncedCurrentData,
-    isSaving,
-    lastSavedData,
-    lockedBy,
-    manualSaveRequested,
-    performSave,
-    requestSave,
-  ]);
+  }, [autoSaving, debouncedCurrentData, isSaving, lastSavedData, lockedBy, manualSaveRequested, performSave]);
 
   // Always save unsaved changes when the user navigates away from the page and this component is unmounted.
   // We cannot put the current and last saved data in the dependency array, because that would cause the effect

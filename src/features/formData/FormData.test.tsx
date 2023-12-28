@@ -264,13 +264,13 @@ describe('FormData', () => {
             onClick={async () => {
               if (isLocked) {
                 // Unlock with some pretend updated form data
-                unlock({ 'obj1.prop1': 'new value' });
+                unlock({ obj1: { prop1: 'new value' } });
               } else {
                 await lock();
               }
             }}
           >
-            Lock form data
+            {isLocked ? 'Unlock' : 'Lock'} form data
           </button>
         </>
       );
@@ -314,7 +314,7 @@ describe('FormData', () => {
       expect(screen.getByTestId('obj1.prop1')).toHaveValue('value1');
 
       // Lock the form
-      await user.click(screen.getByRole('button'));
+      await user.click(screen.getByRole('button', { name: 'Lock form data' }));
       await waitFor(() => expect(screen.getByTestId('isLocked')).toHaveTextContent('true'));
 
       // Change a value (this will be overwritten later)
@@ -326,12 +326,12 @@ describe('FormData', () => {
       expect(screen.getByTestId('obj1.prop2')).toHaveValue('b');
 
       // Locking prevents saving
-      expect(mutations.doPutFormData.mock).toHaveBeenCalledTimes(0);
+      expect(mutations.doPostFormData.mock).toHaveBeenCalledTimes(0);
       act(() => jest.advanceTimersByTime(5000));
-      expect(mutations.doPutFormData.mock).toHaveBeenCalledTimes(0);
+      expect(mutations.doPostFormData.mock).toHaveBeenCalledTimes(0);
 
       // Unlock the form
-      await user.click(screen.getByRole('button'));
+      await user.click(screen.getByRole('button', { name: 'Unlock form data' }));
       await waitFor(() => expect(screen.getByTestId('isLocked')).toHaveTextContent('false'));
       await waitFor(() => expect(screen.getByTestId('obj1.prop1')).toHaveValue('new value'));
       expect(screen.getByTestId('obj1.prop2')).toHaveValue('b');
@@ -340,9 +340,9 @@ describe('FormData', () => {
       // Saving is now allowed, so the form data we saved earlier is sent. The one value
       // we changed that was overwritten is now lost.
       act(() => jest.advanceTimersByTime(5000));
-      await waitFor(() => expect(mutations.doPutFormData.mock).toHaveBeenCalledTimes(1));
+      await waitFor(() => expect(mutations.doPostFormData.mock).toHaveBeenCalledTimes(1));
 
-      const { dataModel, previousValues } = destructPutFormDataMock(mutations.doPutFormData.mock);
+      const { dataModel, previousValues } = destructPutFormDataMock(mutations.doPostFormData.mock);
       expect(dataModel).toEqual({
         obj1: {
           prop1: 'new value',
@@ -361,18 +361,18 @@ describe('FormData', () => {
       const { mutations } = await render();
       expect(screen.getAllByTestId(/^obj\d+.prop\d+$/).length).toBe(3);
 
-      await user.click(screen.getByRole('button'));
+      await user.click(screen.getByRole('button', { name: 'Lock form data' }));
       await waitFor(() => expect(screen.getByTestId('isLocked')).toHaveTextContent('true'));
 
       // Change a value (this will be overwritten later)
       await user.type(screen.getByTestId('obj1.prop1'), 'a');
       expect(screen.getByTestId('obj1.prop1')).toHaveValue('value1a');
 
-      expect(mutations.doPutFormData.mock).toHaveBeenCalledTimes(0);
+      expect(mutations.doPostFormData.mock).toHaveBeenCalledTimes(0);
       act(() => jest.advanceTimersByTime(5000));
-      expect(mutations.doPutFormData.mock).toHaveBeenCalledTimes(0);
+      expect(mutations.doPostFormData.mock).toHaveBeenCalledTimes(0);
 
-      await user.click(screen.getByRole('button'));
+      await user.click(screen.getByRole('button', { name: 'Unlock form data' }));
       await waitFor(() => expect(screen.getByTestId('isLocked')).toHaveTextContent('false'));
       await waitFor(() => expect(screen.getByTestId('obj1.prop1')).toHaveValue('new value'));
       expect(screen.getByTestId('obj1.prop2')).toHaveValue('');
@@ -380,7 +380,7 @@ describe('FormData', () => {
 
       act(() => jest.advanceTimersByTime(5000));
       await waitFor(() => expect(screen.getByTestId('hasUnsavedChanges')).toHaveTextContent('false'));
-      expect(mutations.doPutFormData.mock).toHaveBeenCalledTimes(0);
+      expect(mutations.doPostFormData.mock).toHaveBeenCalledTimes(0);
     });
 
     it('Unsaved changes should be saved before locking', async () => {
@@ -392,12 +392,12 @@ describe('FormData', () => {
       expect(screen.getByTestId('obj2.prop1')).toHaveValue('a');
       expect(screen.getByTestId('hasUnsavedChanges')).toHaveTextContent('true');
 
-      expect(mutations.doPutFormData.mock).toHaveBeenCalledTimes(0);
-      await user.click(screen.getByRole('button'));
-      expect(mutations.doPutFormData.mock).toHaveBeenCalledTimes(1);
+      expect(mutations.doPostFormData.mock).toHaveBeenCalledTimes(0);
+      await user.click(screen.getByRole('button', { name: 'Lock form data' }));
+      expect(mutations.doPostFormData.mock).toHaveBeenCalledTimes(1);
       expect(screen.getByTestId('isLocked')).toHaveTextContent('false'); // The save has not finished yet
 
-      const { dataModel, previousValues } = destructPutFormDataMock(mutations.doPutFormData.mock);
+      const { dataModel, previousValues } = destructPutFormDataMock(mutations.doPostFormData.mock);
       expect(dataModel).toEqual({
         obj1: {
           prop1: 'value1',
@@ -410,7 +410,7 @@ describe('FormData', () => {
         'obj2.prop1': null, // This was not set before, so the previous value is null
       });
 
-      mutations.doPutFormData.resolve();
+      mutations.doPostFormData.resolve();
       await waitFor(() => expect(screen.getByTestId('isLocked')).toHaveTextContent('true'));
     });
   });
@@ -464,16 +464,16 @@ describe('FormData', () => {
       expect(screen.getByTestId('obj2.prop1')).toHaveValue('a');
       expect(screen.getByTestId('hasUnsavedChanges')).toHaveTextContent('true');
 
-      expect(mutations.doPutFormData.mock).toHaveBeenCalledTimes(0);
+      expect(mutations.doPostFormData.mock).toHaveBeenCalledTimes(0);
       await user.click(screen.getByRole('button', { name: 'Navigate to a different page' }));
-      expect(mutations.doPutFormData.mock).toHaveBeenCalledTimes(1);
+      expect(mutations.doPostFormData.mock).toHaveBeenCalledTimes(1);
 
-      const { dataModel } = destructPutFormDataMock(mutations.doPutFormData.mock);
+      const { dataModel } = destructPutFormDataMock(mutations.doPostFormData.mock);
       expect(dataModel).toEqual({
         obj2: { prop1: 'a' },
       });
 
-      mutations.doPutFormData.resolve();
+      mutations.doPostFormData.resolve();
       await screen.findByText('something different');
     });
 
@@ -488,7 +488,7 @@ describe('FormData', () => {
       expect(queries.fetchFormData).toHaveBeenCalledTimes(1);
       await user.click(screen.getByRole('button', { name: 'Navigate to a different page' }));
       await screen.findByText('something different');
-      expect(mutations.doPutFormData.mock).toHaveBeenCalledTimes(1);
+      expect(mutations.doPostFormData.mock).toHaveBeenCalledTimes(1);
 
       await user.click(screen.getByRole('button', { name: 'Navigate back' }));
       await screen.findByTestId('obj2.prop1');
