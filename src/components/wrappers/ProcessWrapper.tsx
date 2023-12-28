@@ -126,11 +126,9 @@ export const ProcessWrapper = () => {
 
   if (taskType === ProcessTaskType.Archived) {
     return (
-      <FormDataForInfoTaskProvider taskId={taskId}>
-        <PresentationComponent type={taskType}>
-          <ReceiptContainer />
-        </PresentationComponent>
-      </FormDataForInfoTaskProvider>
+      <PresentationComponent type={taskType}>
+        <ReceiptContainer />
+      </PresentationComponent>
     );
   }
 
