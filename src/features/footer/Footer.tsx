@@ -24,7 +24,7 @@ export const Footer = () => {
       <div className={classes.elements}>{components.map((component) => component.render())}</div>
       {shouldUseOrgLogo && (
         <>
-          {components.length && <hr className={classes.separator} />}
+          {components.length > 0 && <hr className={classes.separator} />}
           <AltinnLogo color={LogoColor.blueDarker} />
         </>
       )}

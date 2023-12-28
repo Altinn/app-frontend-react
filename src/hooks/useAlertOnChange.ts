@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 
-export interface AlertOnChange<Fn extends (...args: any[]) => void> {
+type ChangeFn = (...args: any[]) => any;
+export interface AlertOnChange<Fn extends ChangeFn> {
   alertOpen: boolean;
   setAlertOpen: (open: boolean) => void;
   handleChange: Fn;
@@ -16,7 +17,7 @@ export interface AlertOnChange<Fn extends (...args: any[]) => void> {
  * @returns A new change handler, and the necessary props needed to control the DeleteWarningPopover
  * @see DeleteWarningPopover
  */
-export function useAlertOnChange<Fn extends (...args: any[]) => void>(
+export function useAlertOnChange<Fn extends ChangeFn>(
   enabled: boolean,
   onChange: Fn,
   shouldAlert?: (...args: Parameters<Fn>) => boolean,

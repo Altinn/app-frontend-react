@@ -61,8 +61,8 @@ export function RepeatingGroupContainer({ containerDivRef }: IGroupProps): JSX.E
     </Button>
   );
 
-  const handleOnAddButtonClick = (): void => {
-    addRow();
+  const handleOnAddButtonClick = async () => {
+    await addRow();
     triggerFocus(lastIndex + 1);
   };
 
@@ -70,7 +70,7 @@ export function RepeatingGroupContainer({ containerDivRef }: IGroupProps): JSX.E
   // last one has been deleted.
   useEffect((): void => {
     if (edit?.openByDefault && numRows === 0) {
-      addRow();
+      addRow().then();
     }
   }, [node, addRow, edit?.openByDefault, numRows]);
 
@@ -88,10 +88,10 @@ export function RepeatingGroupContainer({ containerDivRef }: IGroupProps): JSX.E
     }
   }, [edit?.openByDefault, editingIndex, isFirstRender, lastIndex, openForEditing]);
 
-  const handleOnAddKeypress = (event: React.KeyboardEvent<HTMLButtonElement>): void => {
+  const handleOnAddKeypress = async (event: React.KeyboardEvent<HTMLButtonElement>) => {
     const allowedKeys = ['enter', ' ', 'spacebar'];
     if (allowedKeys.includes(event.key.toLowerCase())) {
-      addRow();
+      await addRow();
       triggerFocus(lastIndex + 1);
     }
   };

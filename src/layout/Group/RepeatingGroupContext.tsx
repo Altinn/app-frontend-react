@@ -27,7 +27,7 @@ interface RepeatingGroupContext {
   isEditingAnyRow: boolean;
   editingIndex: number | undefined;
 
-  addRow: () => void;
+  addRow: () => Promise<void>;
 
   deleteRow: (index: number) => Promise<boolean>;
   isDeleting: (index: number) => boolean;
