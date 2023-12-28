@@ -16,7 +16,7 @@ import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useNavigationParams } from 'src/hooks/useNavigatePage';
 import { Triggers } from 'src/layout/common.generated';
-import classes from 'src/layout/Group/GroupContainer.module.css';
+import classes from 'src/layout/RepeatingGroup/RepeatingGroupContainer.module.css';
 import {
   RepeatingGroupsFocusProvider,
   useRepeatingGroupsFocusContext,

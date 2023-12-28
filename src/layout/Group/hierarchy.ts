@@ -24,7 +24,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
   }
 
   stage2(ctx: HierarchyContext): ChildFactory<'Group'> {
-    return this.processNonRepeating(ctx);
+    return this.processGroup(ctx);
   }
 
   childrenFromNode(node: LayoutNode<'Group'>): LayoutNode[] {
@@ -36,7 +36,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
    * Process non-repeating group. These are fairly simple, and just copy create regular LayoutNode objects for its
    * children.
    */
-  private processNonRepeating(ctx: HierarchyContext): ChildFactory<'Group'> {
+  private processGroup(ctx: HierarchyContext): ChildFactory<'Group'> {
     return (props) => {
       const prototype = ctx.generator.prototype(ctx.id) as UnprocessedItem<'Group'>;
 
