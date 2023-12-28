@@ -10,12 +10,11 @@ import classes from 'src/layout/RepeatingGroup/DisplayRepeatingGroupContainer.mo
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { HeadingLevel } from 'src/layout/common.generated';
-import type { CompGroupNonRepeatingInternal } from 'src/layout/Group/config.generated';
-import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
+import type { CompRepeatingGroupInternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IDisplayRepeatingGroupContainer {
-  groupNode: LayoutNodeForGroup<CompGroupNonRepeatingInternal>;
+  groupNode: BaseLayoutNode<CompRepeatingGroupInternal>;
   id?: string;
   onlyRowIndex?: number | undefined;
   renderLayoutNode: (node: LayoutNode) => JSX.Element | null;
@@ -53,8 +52,6 @@ export function DisplayRepeatingGroupContainer({
       id={id || container.id}
       className={cn(pageBreakStyles(container.pageBreak), {
         [classes.groupContainer]: !isNested,
-        // TODO: showGroupingIndicator wasn't used in repeatingGroup?
-        // [classes.groupingIndicator]: !!container.showGroupingIndicator && isNested,
       })}
       spacing={3}
       alignItems='flex-start'
@@ -83,8 +80,6 @@ export function DisplayRepeatingGroupContainer({
       )}
       <ConditionalWrapper
         condition={false}
-        // TODO: showGroupingIndicator wasn't used in repeatingGroup?
-        // condition={!!container.showGroupingIndicator && !isNested}
         wrapper={(children) => (
           <Grid
             item={true}
