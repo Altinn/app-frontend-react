@@ -35,7 +35,6 @@ export class Group extends GroupDef implements GroupValidation {
         )}
       />
     );
-    // return <GroupRenderer {...props} />;
   }
 
   renderSummary({
