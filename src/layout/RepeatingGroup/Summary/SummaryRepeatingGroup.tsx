@@ -65,6 +65,7 @@ export function SummaryRepeatingGroup({
               id={`summary-${targetNode.item.id}-${idx}`}
               groupNode={targetNode}
               onlyRowIndex={idx}
+              isSummary={true}
               renderLayoutNode={(n) => {
                 if (inExcludedChildren(n) || n.isHidden()) {
                   return null;

@@ -15,6 +15,7 @@ export interface IDisplayRepAsLargeGroup {
   groupNode: BaseLayoutNode<CompRepeatingGroupInternal>;
   id?: string;
   onlyRowIndex?: number | undefined;
+  isSummary?: boolean;
   renderLayoutNode: (node: LayoutNode) => JSX.Element | null;
 }
 
@@ -26,29 +27,40 @@ const headingSizes: { [k in HeadingLevel]: Parameters<typeof Heading>[0]['size']
   [6]: 'xsmall',
 };
 
-export function DisplayRepAsLargeGroup({ groupNode, id, onlyRowIndex, renderLayoutNode }: IDisplayRepAsLargeGroup) {
+export function DisplayRepAsLargeGroup({
+  groupNode,
+  id,
+  onlyRowIndex,
+  isSummary,
+  renderLayoutNode,
+}: IDisplayRepAsLargeGroup) {
   if (groupNode.isHidden()) {
     return null;
   }
   const container = groupNode.item;
-  const { description, summaryTitle } = container.textResourceBindings || {};
+  const { title, description, summaryTitle } = container.textResourceBindings || {};
 
   const isNested = groupNode.parent instanceof BaseLayoutNode;
   const headingLevel = Math.min(Math.max(groupNode.parents().length + 1, 2), 6) as HeadingLevel;
   const headingSize = headingSizes[headingLevel];
+  const legend = isSummary ? summaryTitle : title;
 
   return (
     <Fieldset
       legend={
-        <Heading
-          level={headingLevel}
-          size={headingSize}
-        >
-          <Lang id={summaryTitle} />
-        </Heading>
+        legend && (
+          <Heading
+            level={headingLevel}
+            size={headingSize}
+          >
+            <Lang id={summaryTitle} />
+          </Heading>
+        )
       }
       className={cn(pageBreakStyles(container.pageBreak), {
         [classes.largeGroupContainer]: !isNested,
+        [classes.summary]: isSummary,
+        [classes.group]: !isSummary,
       })}
       description={description && <Lang id={description} />}
     >
