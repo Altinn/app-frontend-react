@@ -9,7 +9,7 @@ import dotenv from 'dotenv';
 import { jestPreviewConfigure } from 'jest-preview';
 import { TextDecoder, TextEncoder } from 'util';
 
-import type { AppQueries } from 'src/core/contexts/AppQueriesProvider';
+import type { AppQueries } from 'src/queries/types';
 
 // Importing CSS for jest-preview to look nicer
 import 'src/index.css';

@@ -3,26 +3,11 @@ import React, { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { createContext } from 'src/core/contexts/context';
-import type * as queries from 'src/queries/queries';
+import type { AppMutations, AppQueries, AppQueriesContext, EnhancedMutations } from 'src/queries/types';
 
-type KeysStartingWith<T, U extends string> = {
-  [K in keyof T as K extends `${U}${string}` ? K : never]: T[K];
-};
-
-export type AppQueriesContext = typeof queries;
 export interface AppQueriesProps extends AppQueriesContext {
   queryClient?: QueryClient;
 }
-
-export type AppQueries = KeysStartingWith<AppQueriesContext, 'fetch'>;
-export type AppMutations = KeysStartingWith<AppQueriesContext, 'do'>;
-export type EnhancedMutations = {
-  [K in keyof AppMutations]: {
-    call: AppMutations[K];
-    lastResult: Awaited<ReturnType<AppMutations[K]>> | undefined;
-    setLastResult: (result: Awaited<ReturnType<AppMutations[K]>>) => void;
-  };
-};
 
 interface ContextData {
   queries: AppQueries;

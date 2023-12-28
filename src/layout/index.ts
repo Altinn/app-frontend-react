@@ -1,10 +1,6 @@
-import { useMemo } from 'react';
 import type { MutableRefObject } from 'react';
 
-import { useAttachments } from 'src/features/attachments/AttachmentsContext';
-import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
-import { type IUseLanguage, useLanguage } from 'src/features/language/useLanguage';
-import { useAllOptions } from 'src/features/options/useAllOptions';
+import { type IUseLanguage } from 'src/features/language/useLanguage';
 import { ComponentConfigs } from 'src/layout/components.generated';
 import type { IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
@@ -143,16 +139,4 @@ export function implementsDisplayData<Type extends CompTypes>(
   component: AnyComponent<Type>,
 ): component is typeof component & DisplayData<Type> {
   return 'getDisplayData' in component && 'useDisplayData' in component;
-}
-
-export function useDisplayDataProps(): DisplayDataProps {
-  const langTools = useLanguage();
-  const options = useAllOptions();
-  const attachments = useAttachments();
-  const currentLanguage = useCurrentLanguage();
-
-  return useMemo(
-    () => ({ options, attachments, langTools, currentLanguage }),
-    [attachments, langTools, options, currentLanguage],
-  );
 }

@@ -44,7 +44,7 @@ import type { FormDataWriteGatekeepers } from 'src/features/formData/FormDataWri
 import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
 import type { IOption } from 'src/layout/common.generated';
 import type { CompExternalExact, CompTypes } from 'src/layout/layout';
-import type { AppMutations, AppQueries, AppQueriesContext } from 'src/queries/queryTypes';
+import type { AppMutations, AppQueries, AppQueriesContext } from 'src/queries/types';
 import type { IRuntimeState } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';

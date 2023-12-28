@@ -10,8 +10,9 @@ import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopo
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useAlertOnChange } from 'src/hooks/useAlertOnChange';
+import { useDisplayDataProps } from 'src/hooks/useDisplayData';
 import { useIsMobile } from 'src/hooks/useIsMobile';
-import { implementsDisplayData, useDisplayDataProps } from 'src/layout';
+import { implementsDisplayData } from 'src/layout';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Group/RepeatingGroup.module.css';
 import { useRepeatingGroup } from 'src/layout/Group/RepeatingGroupContext';
