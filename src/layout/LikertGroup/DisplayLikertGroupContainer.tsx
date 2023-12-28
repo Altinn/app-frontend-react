@@ -1,22 +1,19 @@
 import React from 'react';
 
 import { Heading } from '@digdir/design-system-react';
-import { Grid } from '@material-ui/core';
-import cn from 'classnames';
 
-import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
+import { Fieldset } from 'src/components/form/Fieldset';
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/Group/GroupComponent.module.css';
-import { pageBreakStyles } from 'src/utils/formComponentUtils';
-import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { HeadingLevel } from 'src/layout/common.generated';
 import type { CompLikertGroupInternal } from 'src/layout/LikertGroup/config.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IDisplayLikertGroupContainer {
   groupNode: BaseLayoutNode<CompLikertGroupInternal>;
   id?: string;
   onlyRowIndex?: number | undefined;
+  isSummary?: boolean;
   renderLayoutNode: (node: LayoutNode) => JSX.Element | null;
 }
 
@@ -32,68 +29,43 @@ export function DisplayLikertGroupContainer({
   groupNode,
   id,
   onlyRowIndex,
+  isSummary,
   renderLayoutNode,
 }: IDisplayLikertGroupContainer) {
   const container = groupNode.item;
+  const { title, summaryTitle, description } = container.textResourceBindings ?? {};
+
   if (groupNode.isHidden()) {
     return null;
   }
 
-  const { title, description } = container.textResourceBindings || {};
-
-  const isNested = groupNode.parent instanceof BaseLayoutNode;
   const headingLevel = Math.min(Math.max(groupNode.parents().length + 1, 2), 6) as HeadingLevel;
   const headingSize = headingSizes[headingLevel];
+  const legend = isSummary ? summaryTitle : title;
 
   return (
-    <Grid
-      container={true}
-      item={true}
-      id={id || container.id}
-      className={cn(pageBreakStyles(container.pageBreak), {
-        [classes.groupContainer]: !isNested,
-      })}
-      spacing={3}
-      alignItems='flex-start'
-      data-testid='display-group-container'
-      data-componentid={container.id}
-    >
-      {(title || description) && (
-        <Grid
-          item={true}
-          xs={12}
-        >
-          {title && (
-            <Heading
-              level={headingLevel}
-              size={headingSize}
-            >
-              <Lang id={title} />
-            </Heading>
-          )}
-          {description && (
-            <p className={classes.groupBody}>
-              <Lang id={description} />
-            </p>
-          )}
-        </Grid>
-      )}
-      <ConditionalWrapper
-        condition={false}
-        wrapper={(children) => (
-          <Grid
-            item={true}
-            container={true}
-            spacing={3}
-            alignItems='flex-start'
-            className={classes.groupingIndicator}
+    <Fieldset
+      legend={
+        legend && (
+          <Heading
+            level={headingLevel}
+            size={headingSize}
           >
-            {children}
-          </Grid>
-        )}
+            <Lang id={legend} />
+          </Heading>
+        )
+      }
+      className={isSummary ? classes.summary : classes.group}
+      description={description && !isSummary && <Lang id={description} />}
+    >
+      <div
+        id={id || container.id}
+        data-componentid={container.id}
+        data-testid='display-group-container'
+        className={classes.groupContainer}
       >
-        <>{groupNode.children(undefined, onlyRowIndex).map((n) => renderLayoutNode(n))}</>
-      </ConditionalWrapper>
-    </Grid>
+        {groupNode.children(undefined, onlyRowIndex).map((n) => renderLayoutNode(n))}
+      </div>
+    </Fieldset>
   );
 }
