@@ -30,7 +30,6 @@ import type { IDataModelBindings } from 'src/layout/layout';
 import type { IDataAfterDataModelSave } from 'src/types/shared';
 
 export type FDValue = string | number | boolean | object | undefined | null | FDValue[];
-export type FDFreshness = 'current' | 'debounced';
 
 type SetLeafValueForBindings<B extends IDataModelBindings> = (key: keyof Exclude<B, undefined>, newValue: any) => void;
 type SetMultiLeafValuesForBindings<B extends IDataModelBindings> = (
@@ -140,7 +139,6 @@ function FormDataEffects({ url }: { url: string }) {
   const { debounceTimeout, autoSaving, manualSaveRequested, lockedBy } = controlState;
   const { mutate, isLoading: isSaving, error } = useFormDataSaveMutation(state);
   const debounce = useDebounceImmediately();
-  const requestSave = useRequestManualSave();
 
   // This component re-renders on every keystroke in a form field. We don't want to save on every keystroke, nor
   // create a new performSave function after every save, so we use a ref to make sure the performSave function
@@ -294,12 +292,6 @@ export const FD = {
     const debouncedCurrentData = useSelector((v) => v.debouncedCurrentData);
     return useMemo(() => flattenObject(debouncedCurrentData), [debouncedCurrentData]);
   },
-
-  /**
-   * This will return the form data as a deep object, just like the server sends it to us (and the way we send it back).
-   */
-  useAsObject: (freshness: FDFreshness = 'debounced') =>
-    useSelector((v) => (freshness === 'current' ? v.currentData : v.debouncedCurrentData)),
 
   /**
    * This returns a single value, as picked from the form data. The data is always converted to a string.
