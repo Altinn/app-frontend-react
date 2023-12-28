@@ -7,7 +7,6 @@ import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { Fieldset } from 'src/components/form/Fieldset';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { Lang } from 'src/features/language/Lang';
-import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Group/GroupComponent.module.css';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { HeadingLevel } from 'src/layout/common.generated';
@@ -29,7 +28,7 @@ const headingSizes: { [k in HeadingLevel]: Parameters<typeof Heading>[0]['size']
   [6]: 'xsmall',
 };
 
-export function GroupComponent({ groupNode, id, onlyRowIndex, isSummary }: IGroupComponent) {
+export function GroupComponent({ groupNode, id, onlyRowIndex, isSummary, renderLayoutNode }: IGroupComponent) {
   const container = groupNode.item;
   const { title, summaryTitle, description } = container.textResourceBindings ?? {};
 
@@ -46,7 +45,7 @@ export function GroupComponent({ groupNode, id, onlyRowIndex, isSummary }: IGrou
 
   return (
     <ConditionalWrapper
-      condition={isPanel}
+      condition={isPanel && !isSummary}
       wrapper={(child) => <FullWidthWrapper className={classes.panelPadding}>{child}</FullWidthWrapper>}
     >
       <Fieldset
@@ -60,7 +59,7 @@ export function GroupComponent({ groupNode, id, onlyRowIndex, isSummary }: IGrou
             </Heading>
           )
         }
-        className={cn(isSummary ? classes.summary : classes.group, { [classes.panel]: isPanel })}
+        className={cn(isSummary ? classes.summary : classes.group, { [classes.panel]: isPanel && !isSummary })}
         description={description && !isSummary && <Lang id={description} />}
       >
         <div
@@ -69,12 +68,7 @@ export function GroupComponent({ groupNode, id, onlyRowIndex, isSummary }: IGrou
           data-testid='display-group-container'
           className={cn({ [classes.groupingIndicator]: isIndented && !isNested }, classes.groupContainer)}
         >
-          {groupNode.children(undefined, onlyRowIndex).map((n) => (
-            <GenericComponent
-              key={n.item.id}
-              node={n}
-            />
-          ))}
+          {groupNode.children(undefined, onlyRowIndex).map((n) => renderLayoutNode(n))}
         </div>
       </Fieldset>
     </ConditionalWrapper>
