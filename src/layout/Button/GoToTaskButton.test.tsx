@@ -35,7 +35,12 @@ describe('GoToTaskButton', () => {
     expect(screen.getByText('Go to task')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button'));
     expect(mutations.doProcessNext.mock).toHaveBeenCalled();
-    expect(mutations.doProcessNext.mock).toHaveBeenCalledWith('a', 'nb', undefined);
+    expect(mutations.doProcessNext.mock).toHaveBeenCalledWith(
+      '512345/75154373-aed4-41f7-95b4-e5b5115c2edc',
+      'a',
+      'nb',
+      undefined,
+    );
   });
   it('should show button and it should not be possible to click', async () => {
     const { mutations } = await render({

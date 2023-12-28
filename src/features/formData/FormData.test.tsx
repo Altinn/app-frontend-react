@@ -10,6 +10,7 @@ import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/Ap
 import { DynamicsProvider } from 'src/features/form/dynamics/DynamicsContext';
 import { LayoutsProvider } from 'src/features/form/layout/LayoutsContext';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
+import { LayoutSettingsProvider } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { RulesProvider } from 'src/features/form/rules/RulesContext';
 import { FormDataReadWriteProvider } from 'src/features/formData/FormDataReadWrite';
 import { FD } from 'src/features/formData/FormDataWrite';
@@ -80,13 +81,15 @@ async function genericRender(props: Partial<Parameters<typeof renderWithMinimalP
         <ApplicationMetadataProvider>
           <LayoutSetsProvider>
             <LayoutsProvider>
-              <DynamicsProvider>
-                <RulesProvider>
-                  <FormDataWriteGatekeepersProvider value={formDataMethods}>
-                    <FormDataReadWriteProvider>{props.renderer && props.renderer()}</FormDataReadWriteProvider>
-                  </FormDataWriteGatekeepersProvider>
-                </RulesProvider>
-              </DynamicsProvider>
+              <LayoutSettingsProvider>
+                <DynamicsProvider>
+                  <RulesProvider>
+                    <FormDataWriteGatekeepersProvider value={formDataMethods}>
+                      <FormDataReadWriteProvider>{props.renderer && props.renderer()}</FormDataReadWriteProvider>
+                    </FormDataWriteGatekeepersProvider>
+                  </RulesProvider>
+                </DynamicsProvider>
+              </LayoutSettingsProvider>
             </LayoutsProvider>
           </LayoutSetsProvider>
         </ApplicationMetadataProvider>

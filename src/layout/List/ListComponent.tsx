@@ -40,7 +40,6 @@ export const ListComponent = ({ node }: IListProps) => {
 
   const bindings = node.item.dataModelBindings || defaultBindings;
   const saveData = FD.useMultiSetForBindings(bindings);
-  const debounce = FD.useDebounceImmediately();
   const formData = FD.usePickFreshStrings(bindings);
 
   const handleChange = ({ selectedValue: selectedValue }: ChangeProps<Record<string, string>>) => {
@@ -119,7 +118,6 @@ export const ListComponent = ({ node }: IListProps) => {
     <LegacyFieldSet
       legend={<GenericComponentLegend />}
       style={{ width: '100%' }}
-      onBlur={debounce}
     >
       <div style={{ overflow: 'auto' }}>
         <LegacyResponsiveTable config={config} />
