@@ -59,22 +59,25 @@ describe('UI Components', () => {
 
   it('is possible to download attachments that are uploaded', () => {
     cy.goto('changename');
+    cy.intercept({ url: '**/instances/**/data?dataType=fileUpload-changename' }, (req) => {
+      req.reply((res) => {
+        res.setDelay(500);
+      });
+    }).as('uploadWithDelay');
+
     cy.get(appFrontend.changeOfName.uploadDropZone).should('be.visible');
     cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
 
     cy.get(appFrontend.changeOfName.uploadedTable).should('be.visible');
     cy.get(appFrontend.changeOfName.uploadSuccess).should('exist');
 
-    cy.window().then((win) => {
-      setTimeout(() => win.location.reload(), 1000);
-    });
-
+    cy.intercept({ url: '**/instances/**/data/**', method: 'GET' }).as('downloadAttachment');
     cy.get(appFrontend.changeOfName.downloadAttachment).click();
+    cy.wait('@downloadAttachment');
 
     const downloadsFolder = Cypress.config('downloadsFolder');
     const downloadedFilename = path.join(downloadsFolder, 'test.pdf');
-
-    cy.readFile(downloadedFilename, 'binary', { timeout: 10000 }).should((buffer) => expect(buffer.length).equal(299));
+    cy.readFile(downloadedFilename, 'binary', { timeout: 10000 }).should((buffer) => expect(buffer?.length).equal(299));
   });
 
   it('is possible to upload attachments with tags', () => {
