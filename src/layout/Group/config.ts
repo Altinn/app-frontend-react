@@ -1,6 +1,5 @@
 import { CG, Variant } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
-import type { GenerateComponentLike } from 'src/codegen/dataTypes/GenerateComponentLike';
 
 export const Config = new CG.component({
   category: CompCategory.Container,
@@ -17,15 +16,14 @@ export const Config = new CG.component({
 Config.inner.removeProperty('textResourceBindings');
 Config.inner.removeProperty('dataModelBindings');
 
-function commonExtensions(subType: GenerateComponentLike) {
-  return subType
-    .extends(Config)
-    .extends(CG.common('SummarizableComponentProps'))
-    .extendTextResources(CG.common('TRBSummarizable'));
-}
-
 Config.overrideExported(
-  new CG.union(commonExtensions(makeNonRepeatingGroup()).inner.exportAs('CompGroupNonRepeating')),
+  new CG.union(
+    makeNonRepeatingGroup()
+      .extends(Config)
+      .extends(CG.common('SummarizableComponentProps'))
+      .extendTextResources(CG.common('TRBSummarizable'))
+      .inner.exportAs('CompGroupNonRepeating'),
+  ),
 );
 
 function makeNonRepeatingGroup() {
