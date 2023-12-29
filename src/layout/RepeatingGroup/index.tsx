@@ -6,6 +6,8 @@ import type { ErrorObject } from 'ajv';
 import { RepeatingGroupDef } from 'src/layout/RepeatingGroup/config.def.generated';
 import { GroupHierarchyGenerator } from 'src/layout/RepeatingGroup/hierarchy';
 import { RepeatingGroupContainer } from 'src/layout/RepeatingGroup/RepeatingGroupContainer';
+import { RepeatingGroupProvider } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
+import { RepeatingGroupsFocusProvider } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
 import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup';
 import { runValidationOnNodes } from 'src/utils/validation/validation';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
@@ -26,7 +28,13 @@ export class RepeatingGroup extends RepeatingGroupDef implements GroupValidation
   }
 
   render(props: PropsFromGenericComponent<'RepeatingGroup'>): JSX.Element | null {
-    return <RepeatingGroupContainer {...props} />;
+    return (
+      <RepeatingGroupProvider node={props.node}>
+        <RepeatingGroupsFocusProvider>
+          <RepeatingGroupContainer containerDivRef={props.containerDivRef} />
+        </RepeatingGroupsFocusProvider>
+      </RepeatingGroupProvider>
+    );
   }
 
   renderSummary({

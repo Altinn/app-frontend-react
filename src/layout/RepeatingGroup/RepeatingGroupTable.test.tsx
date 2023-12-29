@@ -6,7 +6,7 @@ import ResizeObserverModule from 'resize-observer-polyfill';
 
 import { getFormLayoutRepeatingGroupMock } from 'src/__mocks__/getFormLayoutGroupMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { RepeatingGroupProvider, useRepeatingGroup } from 'src/layout/Group/RepeatingGroupContext';
+import { RepeatingGroupProvider, useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/RepeatingGroupTable';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithNode } from 'src/test/renderWithProviders';

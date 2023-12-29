@@ -7,9 +7,12 @@ import cn from 'classnames';
 
 import { Lang } from 'src/features/language/Lang';
 import { GenericComponent } from 'src/layout/GenericComponent';
-import { useRepeatingGroup } from 'src/layout/Group/RepeatingGroupContext';
-import { RepeatingGroupEditRowProvider, useRepeatingGroupEdit } from 'src/layout/Group/RepeatingGroupsEditContext';
 import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
+import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
+import {
+  RepeatingGroupEditRowProvider,
+  useRepeatingGroupEdit,
+} from 'src/layout/RepeatingGroup/RepeatingGroupEditContext';
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
 import type {
   CompGroupRepeatingInternal,

@@ -4,7 +4,7 @@ import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { getMultiPageGroupMock } from 'src/__mocks__/getMultiPageGroupMock';
-import { RepeatingGroupProvider, useRepeatingGroup } from 'src/layout/Group/RepeatingGroupContext';
+import { RepeatingGroupProvider, useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/RepeatingGroupsEditContainer';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.generated';

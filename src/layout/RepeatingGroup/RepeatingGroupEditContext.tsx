@@ -3,8 +3,8 @@ import type { PropsWithChildren } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
 import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
-import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
-import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
+import type { CompGroupRepeatingInternal } from 'src/layout/RepeatingGroup/config.generated';
+import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface RepeatingGroupEditRowContext {
   multiPageEnabled: boolean;
@@ -21,7 +21,7 @@ const { Provider, useCtx } = createContext<RepeatingGroupEditRowContext>({
 });
 
 function useRepeatingGroupEditRowState(
-  node: LayoutNodeForGroup<CompGroupRepeatingInternal>,
+  node: BaseLayoutNode<CompGroupRepeatingInternal>,
   editIndex: number,
 ): RepeatingGroupEditRowContext & { setMultiPageIndex: (index: number) => void } {
   const multiPageEnabled = node.item.edit?.multiPage ?? false;
@@ -56,7 +56,7 @@ function useRepeatingGroupEditRowState(
 }
 
 interface Props {
-  node: LayoutNodeForGroup<CompGroupRepeatingInternal>;
+  node: BaseLayoutNode<CompGroupRepeatingInternal>;
   editIndex: number;
 }
 

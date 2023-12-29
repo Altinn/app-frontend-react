@@ -5,8 +5,8 @@ import { userEvent } from '@testing-library/user-event';
 
 import { getFormLayoutRepeatingGroupMock } from 'src/__mocks__/getFormLayoutGroupMock';
 import { Triggers } from 'src/layout/common.generated';
-import { RepeatingGroupContainer } from 'src/layout/Group/RepeatingGroupContainer';
-import { RepeatingGroupProvider, useRepeatingGroup } from 'src/layout/Group/RepeatingGroupContext';
+import { RepeatingGroupContainer } from 'src/layout/RepeatingGroup/RepeatingGroupContainer';
+import { RepeatingGroupProvider, useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { ILayout } from 'src/layout/layout';

@@ -10,25 +10,14 @@ import { Fieldset } from 'src/components/form/Fieldset';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { Triggers } from 'src/layout/common.generated';
-import { useRepeatingGroup } from 'src/layout/Group/RepeatingGroupContext';
 import classes from 'src/layout/RepeatingGroup/RepeatingGroupContainer.module.css';
+import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
 import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/RepeatingGroupsEditContainer';
 import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/RepeatingGroupTable';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
-import type { TriggerList } from 'src/layout/common.generated';
 
-const getValidationMethod = (triggers: TriggerList) => {
-  // Validation for whole group takes precedent over single-row validation if both are present.
-  if (triggers.includes(Triggers.Validation)) {
-    return Triggers.Validation;
-  }
-  if (triggers.includes(Triggers.ValidateRow)) {
-    return Triggers.ValidateRow;
-  }
-};
 interface RepeatingGroupContainerProps {
   containerDivRef?: MutableRefObject<HTMLDivElement | null>;
 }

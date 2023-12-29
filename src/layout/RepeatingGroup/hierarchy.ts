@@ -1,3 +1,5 @@
+import dot from 'dot-object';
+
 import { GridHierarchyGenerator } from 'src/layout/Grid/hierarchy';
 import { nodesFromGridRow } from 'src/layout/Grid/tools';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
@@ -81,7 +83,10 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Repeat
       const item = props.item as CompGroupRepeatingExternal;
       const me = ctx.generator.makeNode(props);
       const rows: HRepGroupRows = [];
-      const lastIndex = (ctx.generator.repeatingGroups || {})[props.item.id]?.index;
+      const formData = item.dataModelBindings?.group
+        ? dot.pick(item.dataModelBindings.group, ctx.generator.dataSources.formData)
+        : undefined;
+      const lastIndex = formData && Array.isArray(formData) ? formData.length - 1 : -1;
       const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(lastIndex, {});
 
       for (let rowIndex = startIndex; rowIndex <= stopIndex; rowIndex++) {

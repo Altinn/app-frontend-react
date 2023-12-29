@@ -36,7 +36,7 @@ describe('conditionalRendering', () => {
   const layout: ILayout = [
     {
       id: 'group_1',
-      type: 'Group',
+      type: 'RepeatingGroup',
       dataModelBindings: {
         group: 'parentGroup',
       },
@@ -45,7 +45,7 @@ describe('conditionalRendering', () => {
     },
     {
       id: 'group_2',
-      type: 'Group',
+      type: 'RepeatingGroup',
       dataModelBindings: {
         group: 'parentGroup.childGroup',
       },
