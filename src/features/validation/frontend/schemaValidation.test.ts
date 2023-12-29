@@ -4,11 +4,10 @@ import { v4 as uuid } from 'uuid';
 
 import { createValidator, getSchemaValidationErrors } from 'src/features/validation/frontend/schemaValidation';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
-import type { IFormData } from 'src/features/formData';
 import type { ILayoutSets } from 'src/types';
 import type { IDataType, IInstance, IProcess, ITask } from 'src/types/shared';
 
-function runGetSchemaValidationErrors(formData: IFormData, schema: object) {
+function runGetSchemaValidationErrors(formData: object, schema: object) {
   const layoutName = 'layout';
   const taskId = 'task';
   const dataTypeId = uuid(); // Validators object is stored as a singleton, so we need a unique id for each dataType

@@ -3,14 +3,14 @@ import { useQuery } from '@tanstack/react-query';
 import { type BackendValidationIssue, ValidationIssueSources, ValidationMask, type ValidationState } from '..';
 
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
 import { getValidationIssueMessage, getValidationIssueSeverity } from 'src/features/validation/backend/backendUtils';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
 
 export function useBackendValidation() {
-  const lastSavedFormData = useAppSelector((state) => state.formData.lastSavedFormData);
+  const lastSavedFormData = FD.useLastSaved();
   const instanceId = useLaxInstance()?.instanceId;
   const currentDataElementId = useCurrentDataModelGuid();
   const url =

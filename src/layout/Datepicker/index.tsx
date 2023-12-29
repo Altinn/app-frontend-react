@@ -1,5 +1,6 @@
 import React from 'react';
 
+import dot from 'dot-object';
 import moment from 'moment';
 
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
@@ -49,9 +50,10 @@ export class Datepicker extends DatepickerDef implements ValidateComponent {
     { formData, currentLanguage }: IValidationContext,
   ): ComponentValidation[] {
     const field = node.item.dataModelBindings?.simpleBinding;
-    const data = field ? formData[field] : undefined;
+    const data = field ? dot.pick(field, formData) : undefined;
+    const dataAsString = typeof data === 'string' || typeof data === 'number' ? String(data) : undefined;
 
-    if (!data) {
+    if (!dataAsString) {
       return [];
     }
 
@@ -61,7 +63,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent {
 
     const validations: ComponentValidation[] = [];
 
-    const date = moment(data, moment.ISO_8601);
+    const date = moment(dataAsString, moment.ISO_8601);
 
     if (!date.isValid()) {
       validations.push({

@@ -1,5 +1,6 @@
 import React from 'react';
 
+import dot from 'dot-object';
 import type { ErrorObject } from 'ajv';
 import type { JSONSchema7 } from 'json-schema';
 
@@ -310,10 +311,12 @@ export abstract class FormComponent<Type extends CompTypes>
     const validations: ComponentValidation[] = [];
 
     for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings) as [string, string][]) {
-      const data = formData[field];
+      const data = dot.pick(field, formData);
+      const asString =
+        typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : '';
       const trb: ITextResourceBindings = 'textResourceBindings' in node.item ? node.item.textResourceBindings : {};
 
-      if (!data?.length) {
+      if (asString.length === 0) {
         const key =
           trb && 'requiredValidation' in trb && trb.requiredValidation
             ? trb.requiredValidation

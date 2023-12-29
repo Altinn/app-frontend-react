@@ -6,7 +6,6 @@ import type { ErrorObject, Options } from 'ajv';
 import type { JSONSchema7 } from 'json-schema';
 
 import { getCurrentDataTypeForApplication } from 'src/features/applicationMetadata/appMetadataUtils';
-import { convertDataBindingToModel } from 'src/utils/databindings';
 import {
   getRootElementPath,
   getSchemaPart,
@@ -195,8 +194,7 @@ export function getSchemaValidationErrors({
   }
 
   const { validator, rootElementPath } = getValidator(currentDataTaskDataTypeId, schema, dataType);
-  const model = convertDataBindingToModel(formData);
-  const valid = validator.validate(`schema${rootElementPath}`, model);
+  const valid = validator.validate(`schema${rootElementPath}`, formData);
 
   if (valid) {
     return [];

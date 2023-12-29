@@ -244,6 +244,10 @@ const useDebounceImmediately = () => {
   }, [debounce]);
 };
 
+/**
+ * TODO: This is being called from a lot of places now, and it should be optimized. Instead of calculating it
+ * every time, we should probably store this in the zustand context.
+ */
 const useHasUnsavedChanges = () => {
   const result = useLaxSelector((s) => s.lastSavedData !== s.currentData && !deepEqual(s.lastSavedData, s.currentData));
   if (result === ContextNotProvided) {
@@ -281,6 +285,14 @@ export const FD = {
    */
   useDebounced(): object {
     return useSelector((v) => v.debouncedCurrentData);
+  },
+
+  /**
+   * This will return the form data as a deep object, just like the server sends it to us (and the way we send it back).
+   * This will always give you the latest data, which is always the data the backend has saved.
+   */
+  useLastSaved(): object {
+    return useSelector((v) => v.lastSavedData);
   },
 
   /**

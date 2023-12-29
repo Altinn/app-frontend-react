@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useImmer } from 'use-immer';
 
 import { createContext } from 'src/core/contexts/context';
+import { FD } from 'src/features/formData/FormDataWrite';
 import {
   type BaseValidation,
   type FormValidations,
@@ -41,8 +42,8 @@ import {
   setVisibilityForAttachment,
   setVisibilityForNode,
 } from 'src/features/validation/visibility';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useOrder } from 'src/hooks/useNavigatePage';
+import { useWaitForState } from 'src/hooks/useWaitForState';
 import { useNodes } from 'src/utils/layout/NodesContext';
 import type { Visibility } from 'src/features/validation/visibility';
 import type { PageValidation, ValidationMasks } from 'src/layout/common.generated';
@@ -121,7 +122,7 @@ export function ValidationContext({ children }) {
 
   // Get backend validations
   const { backendValidations, isFetching } = useBackendValidation();
-  const isSaving = useAppSelector((state) => state.formData.saving);
+  const hasUnsavedFormData = FD.useHasUnsavedChanges();
 
   // Merge backend and frontend validations
   const validations = useMemo(() => {
@@ -134,15 +135,10 @@ export function ValidationContext({ children }) {
   }, [backendValidations, frontendValidations]);
 
   // Provide a promise that resolves when all pending validations have been completed
-  const pending = useRef(false);
-  useEffect(() => {
-    pending.current = isFetching || isSaving;
-  }, [isFetching, isSaving]);
+  const waitForValidating = useWaitForState(isFetching || hasUnsavedFormData);
   const validating = useCallback(async () => {
-    do {
-      await new Promise((resolve) => requestAnimationFrame(resolve));
-    } while (pending.current);
-  }, []);
+    await waitForValidating((state) => state);
+  }, [waitForValidating]);
 
   const reduceNodeVisibility = useEffectEvent((nodes: LayoutNode[]) => {
     setVisibility((state) => {

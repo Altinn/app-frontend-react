@@ -3,7 +3,7 @@ import { useLocation, useMatch, useNavigate } from 'react-router-dom';
 import type { NavigateOptions } from 'react-router-dom';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
-import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
+import { useHiddenPages } from 'src/features/form/layout/PageNavigationContext';
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { useLaxLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
@@ -45,7 +45,7 @@ export const useNavigationParams = () => {
 export const useCurrentView = () => useNavigationParams().pageKey;
 export const useOrder = () => {
   const { orderWithHidden } = useUiConfigContext();
-  const { hidden } = usePageNavigationContext();
+  const hidden = useHiddenPages();
   const hiddenPages = useMemo(() => new Set(hidden), [hidden]);
   return useMemo(() => orderWithHidden?.filter((page) => !hiddenPages.has(page)), [orderWithHidden, hiddenPages]);
 };

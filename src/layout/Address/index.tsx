@@ -1,6 +1,8 @@
 import React from 'react';
 import type { JSX } from 'react';
 
+import dot from 'dot-object';
+
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { AddressComponent } from 'src/layout/Address/AddressComponent';
 import { AddressDef } from 'src/layout/Address/config.def.generated';
@@ -40,10 +42,11 @@ export class Address extends AddressDef implements ValidateComponent {
     const validations: ComponentValidation[] = [];
 
     const zipCodeField = node.item.dataModelBindings.zipCode;
-    const zipCode = zipCodeField ? formData[zipCodeField] : undefined;
+    const zipCode = zipCodeField ? dot.pick(zipCodeField, formData) : undefined;
+    const zipCodeAsString = typeof zipCode === 'string' || typeof zipCode === 'number' ? String(zipCode) : undefined;
 
     // TODO(Validation): Add better message for the special case of 0000 or add better validation for zipCodes that the API says are invalid
-    if (zipCode && (!zipCode.match(/^\d{4}$/) || zipCode === '0000')) {
+    if (zipCodeAsString && (!zipCodeAsString.match(/^\d{4}$/) || zipCodeAsString === '0000')) {
       validations.push({
         message: { key: 'address_component.validation_error_zipcode' },
         severity: 'error',
@@ -55,9 +58,11 @@ export class Address extends AddressDef implements ValidateComponent {
     }
 
     const houseNumberField = node.item.dataModelBindings.houseNumber;
-    const houseNumber = houseNumberField ? formData[houseNumberField] : undefined;
+    const houseNumber = houseNumberField ? dot.pick(houseNumberField, formData) : undefined;
+    const houseNumberAsString =
+      typeof houseNumber === 'string' || typeof houseNumber === 'number' ? String(houseNumber) : undefined;
 
-    if (houseNumber && !houseNumber.match(/^[a-z,A-Z]\d{4}$/)) {
+    if (houseNumberAsString && !houseNumberAsString.match(/^[a-z,A-Z]\d{4}$/)) {
       validations.push({
         message: { key: 'address_component.validation_error_house_number' },
         severity: 'error',

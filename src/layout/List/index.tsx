@@ -1,6 +1,8 @@
 import React from 'react';
 import type { JSX } from 'react';
 
+import dot from 'dot-object';
+
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { ListDef } from 'src/layout/List/config.def.generated';
 import { ListComponent } from 'src/layout/List/ListComponent';
@@ -47,9 +49,11 @@ export class List extends ListDef {
 
     let listHasErrors = false;
     for (const field of fields) {
-      const data = formData[field as string];
+      const data = dot.pick(field, formData);
+      const dataAsString =
+        typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : undefined;
 
-      if (!data?.length) {
+      if (!dataAsString?.length) {
         listHasErrors = true;
       }
     }

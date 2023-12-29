@@ -4,7 +4,6 @@ import type { JSONSchema7 } from 'json-schema';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IAttachments } from 'src/features/attachments';
 import type { Expression, ExprValToActual } from 'src/features/expressions/types';
-import type { IFormData } from 'src/features/formData';
 import type { TextReference, ValidLangParam } from 'src/features/language/useLanguage';
 import type { Visibility } from 'src/features/validation/visibility';
 import type { ILayoutSets } from 'src/types';
@@ -145,7 +144,7 @@ export type AttachmentChange = {
  */
 export type IValidationContext = {
   currentLanguage: string;
-  formData: IFormData; // TODO: Make this an object
+  formData: object;
   attachments: IAttachments;
   application: IApplicationMetadata;
   instance: IInstance | null;
