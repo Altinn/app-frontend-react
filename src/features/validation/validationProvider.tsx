@@ -137,7 +137,7 @@ export function ValidationContext({ children }) {
   // Provide a promise that resolves when all pending validations have been completed
   const waitForValidating = useWaitForState(isFetching || hasUnsavedFormData);
   const validating = useCallback(async () => {
-    await waitForValidating((state) => state);
+    await waitForValidating((state) => !state);
   }, [waitForValidating]);
 
   const reduceNodeVisibility = useEffectEvent((nodes: LayoutNode[]) => {
@@ -359,10 +359,10 @@ export function useOnFormSubmitValidation() {
      * that cannot be mapped to any visible node.
      */
     const backendMask = getVisibilityMask(['Backend', 'CustomBackend']);
-    const hasFieldErors =
+    const hasFieldErrors =
       Object.values(state.fields).flatMap((field) => validationsFromGroups(field, backendMask, 'error')).length > 0;
 
-    if (hasFieldErors || hasValidationErrors(state.task)) {
+    if (hasFieldErrors || hasValidationErrors(state.task)) {
       setShowAllErrors(true);
       return true;
     }
