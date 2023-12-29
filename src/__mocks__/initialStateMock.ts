@@ -1,6 +1,4 @@
 import { getFormLayoutStateMock } from 'src/__mocks__/getFormLayoutStateMock';
-import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
-import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
 import { DevToolsTab } from 'src/features/devtools/data/types';
 import type { IRuntimeState } from 'src/types';
 
@@ -25,13 +23,6 @@ export function getInitialStateMock(custom?: Partial<IRuntimeState> | ((state: I
       logs: [],
     },
     formLayout: getFormLayoutStateMock(),
-    deprecated: {
-      lastKnownProcess: getProcessDataMock(),
-      lastKnownInstance: getInstanceDataMock(),
-      currentLanguage: 'nb',
-      anonymous: false,
-      formData: {},
-    },
   };
 
   if (custom && typeof custom === 'function') {

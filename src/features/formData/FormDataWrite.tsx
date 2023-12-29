@@ -13,11 +13,9 @@ import { useRuleConnections } from 'src/features/form/dynamics/DynamicsContext';
 import { diffModels } from 'src/features/formData/diffModels';
 import { useFormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
 import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteStateMachine';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useIsDev } from 'src/hooks/useIsDev';
 import { useWaitForState } from 'src/hooks/useWaitForState';
-import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { flattenObject } from 'src/utils/databindings';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
@@ -113,12 +111,6 @@ export function FormDataWriteProvider({ url, initialData, autoSaving, children }
   const gatekeepers = useFormDataWriteGatekeepers();
   const ruleConnections = useRuleConnections();
 
-  // Set the initial data in redux, so that it can be used by sagas and other legacy code
-  const dispatch = useAppDispatch();
-  useEffect(() => {
-    dispatch(DeprecatedActions.setFormData(initialData));
-  }, [initialData, dispatch]);
-
   return (
     <Provider
       url={url}
@@ -211,14 +203,12 @@ function FormDataEffects({ url }: { url: string }) {
     [currentDataRef, lastSavedDataRef, performSave],
   );
 
-  // Sets the debounced data in redux, so that it can be used by sagas and other legacy code
-  const dispatch = useAppDispatch();
+  // Sets the debounced data in the window object, so that Cypress tests can access it.
   useEffect(() => {
-    dispatch(DeprecatedActions.setFormData(debouncedCurrentData));
     if (window.Cypress) {
       window.CypressState = { ...window.CypressState, formData: debouncedCurrentData };
     }
-  }, [debouncedCurrentData, dispatch]);
+  }, [debouncedCurrentData]);
 
   return null;
 }

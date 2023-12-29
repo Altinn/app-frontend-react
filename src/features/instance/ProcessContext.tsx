@@ -8,9 +8,7 @@ import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { TaskKeys, useNavigatePage } from 'src/hooks/useNavigatePage';
-import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
@@ -34,20 +32,13 @@ export const useHasProcessProvider = () => useHasProvider();
 function useProcessQuery(instanceId: string) {
   const { fetchProcessState } = useAppQueries();
 
-  const out = useQuery<IProcess, HttpClientError>({
+  return useQuery<IProcess, HttpClientError>({
     queryKey: ['fetchProcessState', instanceId],
     queryFn: () => fetchProcessState(instanceId),
     onError: (error) => {
       window.logError('Fetching process state failed:\n', error);
     },
   });
-
-  const dispatch = useAppDispatch();
-  useEffect(() => {
-    dispatch(DeprecatedActions.setLastKnownProcess(out.error ? undefined : out.data));
-  }, [dispatch, out.data, out.error]);
-
-  return out;
 }
 
 export function ProcessProvider({ children, instance }: React.PropsWithChildren<{ instance: IInstance }>) {
@@ -55,12 +46,11 @@ export function ProcessProvider({ children, instance }: React.PropsWithChildren<
   const query = useProcessQuery(instance.id);
   const reFetchNative = query.refetch;
   const reFetch = useCallback(async () => void (await reFetchNative()), [reFetchNative]);
-  const dispatch = useAppDispatch();
   const queryClient = useQueryClient();
   const instanceId = useLaxInstanceData()?.id;
 
   const setData = useCallback(
-    (data) => queryClient.setQueryData(['fetchProcessState', instanceId], data),
+    (data: IProcess | undefined) => queryClient.setQueryData(['fetchProcessState', instanceId], data),
     [queryClient, instanceId],
   );
 
@@ -76,10 +66,6 @@ export function ProcessProvider({ children, instance }: React.PropsWithChildren<
      */
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query.data]);
-
-  useEffect(() => {
-    dispatch(DeprecatedActions.setLastKnownProcess(query.data));
-  }, [query.data, dispatch]);
 
   if (query.error) {
     return <DisplayError error={query.error} />;
