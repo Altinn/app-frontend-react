@@ -1,4 +1,3 @@
-import { getApplicationSettingsMock } from 'src/__mocks__/getApplicationSettingsMock';
 import { getFormLayoutStateMock } from 'src/__mocks__/getFormLayoutStateMock';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getOrgsMock } from 'src/__mocks__/getOrgsMock';
@@ -47,9 +46,6 @@ export function getInitialStateMock(custom?: Partial<IRuntimeState> | ((state: I
     profile: getProfileStateMock(),
     textResources: {
       resourceMap: resourcesAsMap(getTextResourcesMock()),
-    },
-    applicationSettings: {
-      applicationSettings: getApplicationSettingsMock(),
     },
     deprecated: {
       lastKnownProcess: getProcessDataMock(),

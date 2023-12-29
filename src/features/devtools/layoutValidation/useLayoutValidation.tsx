@@ -8,13 +8,12 @@ import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraver
 import { useCurrentDataModelType } from 'src/features/datamodel/useBindingSchema';
 import { useLayoutSchemaValidation } from 'src/features/devtools/layoutValidation/useLayoutSchemaValidation';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
-import { usePageNavigationConfig } from 'src/features/form/layout/PageNavigationContext';
 import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useIsDev } from 'src/hooks/useIsDev';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { getLayoutComponentObject } from 'src/layout';
-import { createSelectDataSourcesFromState } from 'src/utils/layout/hierarchy';
+import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { getRootElementPath } from 'src/utils/schemaUtils';
 import { duplicateStringFilter } from 'src/utils/stringHelper';
@@ -78,8 +77,7 @@ function useDataModelBindingsValidation(props: LayoutValidationProps) {
   const schema = useCurrentDataModelSchema();
   const dataType = useCurrentDataModelType();
   const currentView = useCurrentView();
-  const pageNavigationConfig = usePageNavigationConfig();
-  const dataSources = useAppSelector(createSelectDataSourcesFromState(pageNavigationConfig));
+  const dataSources = useExpressionDataSources();
   const nodes = useMemo(
     () => generateEntireHierarchy(layouts, currentView, dataSources, getLayoutComponentObject),
     [layouts, currentView, dataSources],

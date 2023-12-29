@@ -7,11 +7,11 @@ import {
   shouldUpdate,
 } from 'src/features/form/dynamics/conditionalRenderingSagas';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { usePageNavigationConfig, usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
+import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
-import { _private, createSelectDataSourcesFromState } from 'src/utils/layout/hierarchy';
+import { _private, useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutNodeFromObj } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -89,8 +89,7 @@ export function useResolvedNode<T>(selector: string | undefined | T | LayoutNode
 function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
   const _currentHiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
   const rules = useAppSelector((state) => state.formDynamics.conditionalRendering);
-  const pageNavigationConfig = usePageNavigationConfig();
-  const dataSources = useAppSelector(createSelectDataSourcesFromState(pageNavigationConfig));
+  const dataSources = useExpressionDataSources();
   const { setHiddenPages, hidden, hiddenExpr } = usePageNavigationContext();
   const dispatch = useAppDispatch();
 

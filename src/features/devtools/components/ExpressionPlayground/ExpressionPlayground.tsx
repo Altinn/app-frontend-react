@@ -10,11 +10,10 @@ import { DevToolsTab } from 'src/features/devtools/data/types';
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { asExpression } from 'src/features/expressions/validation';
-import { usePageNavigationConfig } from 'src/features/form/layout/PageNavigationContext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
-import { createSelectDataSourcesFromState } from 'src/utils/layout/hierarchy';
+import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { useNodes } from 'src/utils/layout/NodesContext';
 import type { ExprConfig, Expression, ExprFunction } from 'src/features/expressions/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -35,7 +34,6 @@ export const ExpressionPlayground = () => {
   const input = useAppSelector((state) => state.devTools.exprPlayground.expression);
   const forPage = useAppSelector((state) => state.devTools.exprPlayground.forPage);
   const forComponentId = useAppSelector((state) => state.devTools.exprPlayground.forComponentId);
-  const pageNavigationConfig = usePageNavigationConfig();
   const dispatch = useAppDispatch();
 
   const [showAllSteps, setShowAllSteps] = React.useState(false);
@@ -49,7 +47,7 @@ export const ExpressionPlayground = () => {
   const nodes = useNodes();
   const { currentPageId } = useNavigatePage();
 
-  const dataSources = useAppSelector(createSelectDataSourcesFromState(pageNavigationConfig));
+  const dataSources = useExpressionDataSources();
 
   const setOutputWithHistory = useCallback(
     (newValue: string, isError: boolean): boolean => {

@@ -11,14 +11,13 @@ import { useTextResources } from 'src/features/language/textResources/TextResour
 import { getLanguageFromCode } from 'src/language/languages';
 import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
 import { useFormComponentCtx } from 'src/layout/FormComponentContext';
-import { flattenObject, getKeyWithoutIndexIndicators } from 'src/utils/databindings';
+import { getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { smartLowerCaseFirst } from 'src/utils/formComponentUtils';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import type { IFormData } from 'src/features/formData';
 import type { TextResourceMap } from 'src/features/language/textResources';
 import type { FixedLanguageList } from 'src/language/languages';
-import type { IRuntimeState } from 'src/types';
 import type { IApplicationSettings, IInstanceDataSources, ILanguage, IVariable } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -106,25 +105,6 @@ export function useLanguage(node?: LayoutNode) {
     () => staticUseLanguage(textResources, null, selectedAppLanguage, dataSources),
     [selectedAppLanguage, textResources, dataSources],
   );
-}
-
-/**
- * Static version of useLanguage() for use outside of React components. Can be used from sagas, etc.
- */
-export function staticUseLanguageFromState(state: IRuntimeState, node?: LayoutNode) {
-  const textResources = state.textResources.resourceMap;
-  const selectedAppLanguage = state.deprecated.currentLanguage;
-  const formData = state.deprecated.formData;
-  const applicationSettings = state.applicationSettings.applicationSettings;
-  const instanceDataSources = buildInstanceDataSources(state.deprecated.lastKnownInstance);
-  const dataSources: TextResourceVariablesDataSources = {
-    node,
-    formData: flattenObject(formData),
-    applicationSettings,
-    instanceDataSources,
-  };
-
-  return staticUseLanguage(textResources, null, selectedAppLanguage, dataSources);
 }
 
 interface ILanguageState {

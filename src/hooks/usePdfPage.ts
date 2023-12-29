@@ -3,9 +3,8 @@ import { useMemo } from 'react';
 import { usePageNavigationConfig } from 'src/features/form/layout/PageNavigationContext';
 import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { usePdfFormatQuery } from 'src/features/pdf/usePdfFormatQuery';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLayoutComponentObject } from 'src/layout';
-import { dataSourcesFromState } from 'src/utils/layout/hierarchy';
+import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { useNodes } from 'src/utils/layout/NodesContext';
 import type { PageNavigationConfig } from 'src/features/expressions/ExprContext';
@@ -21,7 +20,7 @@ const PDF_LAYOUT_NAME = '__pdf__';
 export const usePdfPage = (): LayoutPage | null => {
   const layoutPages = useNodes();
   const pageNavigationConfig = usePageNavigationConfig();
-  const dataSources = useAppSelector(dataSourcesFromState(pageNavigationConfig));
+  const dataSources = useExpressionDataSources();
   const pdfLayoutName = useLayoutSettings().pages.pdfLayoutName;
 
   const customPdfPage = pdfLayoutName ? layoutPages?.[pdfLayoutName] : undefined;

@@ -1,7 +1,5 @@
 import { useMemo } from 'react';
 
-import { createSelector } from 'reselect';
-
 import { useApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
@@ -11,18 +9,15 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
-import { staticUseLanguageFromState, useLanguage } from 'src/features/language/useLanguage';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { useAllOptions } from 'src/features/options/useAllOptions';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { getLayoutComponentObject } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
-import { convertDataBindingToModel } from 'src/utils/databindings';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
-import type { PageNavigationConfig } from 'src/features/expressions/ExprContext';
 import type { CompInternal, HierarchyDataSources, ILayouts } from 'src/layout/layout';
-import type { IRuntimeState } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 /**
@@ -95,26 +90,6 @@ function resolvedNodesInLayouts(
   return unresolved as unknown as LayoutPages;
 }
 
-export const dataSourcesFromState =
-  (pageNavigationConfig: PageNavigationConfig) =>
-  (state: IRuntimeState): HierarchyDataSources => ({
-    formData: convertDataBindingToModel(state.deprecated.formData),
-    attachments: state.deprecated.lastKnownAttachments || {},
-    uiConfig: state.formLayout.uiConfig,
-    pageNavigationConfig,
-    options: state.deprecated.allOptions || {},
-    applicationSettings: state.applicationSettings.applicationSettings,
-    instanceDataSources: buildInstanceDataSources(state.deprecated.lastKnownInstance),
-    hiddenFields: new Set(state.formLayout.uiConfig.hiddenFields),
-    authContext: buildAuthContext(state.deprecated.lastKnownProcess?.currentTask),
-    devTools: state.devTools,
-    langTools: staticUseLanguageFromState(state),
-    currentLanguage: state.deprecated.currentLanguage,
-  });
-
-export const createSelectDataSourcesFromState = (pageNavigationConfig: PageNavigationConfig) =>
-  createSelector(dataSourcesFromState(pageNavigationConfig), (data) => data);
-
 function innerResolvedLayoutsFromState(
   layouts: ILayouts | null,
   currentView: string | undefined,
@@ -127,11 +102,7 @@ function innerResolvedLayoutsFromState(
   return resolvedNodesInLayouts(layouts, currentView, dataSources);
 }
 
-/**
- * This is a more efficient, memoized version of what happens above. This will only be used from ExprContext,
- * and trades verbosity and code duplication for performance and caching.
- */
-function useResolvedExpressions() {
+export function useExpressionDataSources(): HierarchyDataSources {
   const instance = useLaxInstanceData();
   const formData = FD.useDebounced();
   const uiConfig = useAppSelector((state) => state.formLayout.uiConfig);
@@ -140,14 +111,12 @@ function useResolvedExpressions() {
   const process = useLaxProcessData();
   const applicationSettings = useApplicationSettings();
   const hiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
-  const layouts = useLayouts();
-  const currentView = useCurrentView();
   const devTools = useAppSelector((state) => state.devTools);
   const langTools = useLanguage();
   const currentLanguage = useCurrentLanguage();
   const pageNavigationConfig = usePageNavigationConfig();
 
-  const dataSources: HierarchyDataSources = useMemo(
+  return useMemo(
     () => ({
       formData,
       attachments: attachments || {},
@@ -177,6 +146,16 @@ function useResolvedExpressions() {
       currentLanguage,
     ],
   );
+}
+
+/**
+ * This is a more efficient, memoized version of what happens above. This will only be used from ExprContext,
+ * and trades verbosity and code duplication for performance and caching.
+ */
+function useResolvedExpressions() {
+  const layouts = useLayouts();
+  const currentView = useCurrentView();
+  const dataSources = useExpressionDataSources();
 
   return useMemo(
     () => innerResolvedLayoutsFromState(layouts, currentView, dataSources),

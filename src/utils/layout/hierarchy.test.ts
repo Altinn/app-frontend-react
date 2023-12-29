@@ -1,8 +1,7 @@
+import { getFormLayoutMock } from 'src/__mocks__/getFormLayoutStateMock';
 import { getHierarchyDataSourcesMock } from 'src/__mocks__/getHierarchyDataSourcesMock';
-import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getLayoutComponentObject } from 'src/layout';
-import { flattenObject } from 'src/utils/databindings';
-import { _private, dataSourcesFromState } from 'src/utils/layout/hierarchy';
+import { _private } from 'src/utils/layout/hierarchy';
 import { generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -412,7 +411,7 @@ describe('Hierarchical layout tools', () => {
     });
   });
 
-  describe('transposeDataModel', () => {
+  it('transposeDataModel', () => {
     const nodes = generateHierarchy(
       layout,
       { ...dataSources, formData: manyRepeatingGroupsFormData },
@@ -451,15 +450,14 @@ describe('Hierarchical layout tools', () => {
     expect(topHeaderNode?.transposeDataModel('Group2.Nested.Age')).toEqual('Group2.Nested.Age');
   });
 
-  describe('find functions', () => {
-    const state = getInitialStateMock();
-    (state.formLayout.layouts as any)['page2'] = layout;
-    state.deprecated.formData = flattenObject(manyRepeatingGroupsFormData);
-    const resolved = resolvedNodesInLayouts(
-      state.formLayout.layouts,
-      'FormLayout',
-      dataSourcesFromState(testPageNavigationConfig)(state),
-    );
+  it('find functions', () => {
+    const dataSources: HierarchyDataSources = {
+      ...getHierarchyDataSourcesMock(),
+      formData: manyRepeatingGroupsFormData,
+    };
+
+    const layouts: ILayouts = { page2: layout, FormLayout: getFormLayoutMock() };
+    const resolved = resolvedNodesInLayouts(layouts, 'FormLayout', dataSources);
 
     const field3 = resolved?.findById('field3');
     expect(field3?.item.id).toEqual('field3');
@@ -547,18 +545,15 @@ describe('Hierarchical layout tools', () => {
         },
       },
     ])('$name', ({ layouts }) => {
-      const state = getInitialStateMock();
-      state.formLayout.layouts = layouts as ILayouts;
-      state.deprecated.formData = flattenObject({
-        MyModel: {
-          MainGroup: [{ Child: '1' }, { Child: '2' }, { Child: '3' }],
+      const dataSources = {
+        ...getHierarchyDataSourcesMock(),
+        formData: {
+          MyModel: {
+            MainGroup: [{ Child: '1' }, { Child: '2' }, { Child: '3' }],
+          },
         },
-      });
-      const resolved = resolvedNodesInLayouts(
-        state.formLayout.layouts,
-        'page1',
-        dataSourcesFromState(testPageNavigationConfig)(state),
-      );
+      };
+      const resolved = resolvedNodesInLayouts(layouts, 'page1', dataSources);
 
       const dataBindingFor = (id: string) => {
         const item = resolved?.findById(id)?.item || undefined;
