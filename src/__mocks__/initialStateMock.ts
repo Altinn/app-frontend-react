@@ -1,11 +1,7 @@
 import { getFormLayoutStateMock } from 'src/__mocks__/getFormLayoutStateMock';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
-import { getOrgsMock } from 'src/__mocks__/getOrgsMock';
 import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
-import { getProfileStateMock } from 'src/__mocks__/getProfileMock';
-import { getTextResourcesMock } from 'src/__mocks__/getTextResourcesMock';
 import { DevToolsTab } from 'src/features/devtools/data/types';
-import { resourcesAsMap } from 'src/features/language/textResources/resourcesAsMap';
 import type { IRuntimeState } from 'src/types';
 
 export function getInitialStateMock(custom?: Partial<IRuntimeState> | ((state: IRuntimeState) => void)): IRuntimeState {
@@ -29,13 +25,6 @@ export function getInitialStateMock(custom?: Partial<IRuntimeState> | ((state: I
       logs: [],
     },
     formLayout: getFormLayoutStateMock(),
-    organisationMetaData: {
-      allOrgs: getOrgsMock(),
-    },
-    profile: getProfileStateMock(),
-    textResources: {
-      resourceMap: resourcesAsMap(getTextResourcesMock()),
-    },
     deprecated: {
       lastKnownProcess: getProcessDataMock(),
       lastKnownInstance: getInstanceDataMock(),

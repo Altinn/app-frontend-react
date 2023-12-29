@@ -2,14 +2,11 @@ import { combineReducers } from 'redux';
 
 import { devToolsSlice } from 'src/features/devtools/data/devToolsSlice';
 import { formLayoutSlice } from 'src/features/form/layout/formLayoutSlice';
-import { textResourcesSlice } from 'src/features/language/textResources/textResourcesSlice';
-import { orgsSlice } from 'src/features/orgs/orgsSlice';
-import { profileSlice } from 'src/features/profile/profileSlice';
 import { deprecatedSlice } from 'src/redux/deprecatedSlice';
 import { resetRootSagas } from 'src/redux/sagaSlice';
 import type { SliceReducers } from 'src/redux/sagaSlice';
 
-const slices = [devToolsSlice, formLayoutSlice, orgsSlice, profileSlice, textResourcesSlice, deprecatedSlice];
+const slices = [devToolsSlice, formLayoutSlice, deprecatedSlice];
 
 type ReturnTypes<T extends Array<() => unknown>> = {
   [K in keyof T]: ReturnType<T[K]>;
