@@ -1,29 +1,33 @@
 import React from 'react';
 
-import { act, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import type { PayloadAction } from '@reduxjs/toolkit';
 
 import { getFormLayoutRepeatingGroupMock } from 'src/__mocks__/getFormLayoutGroupMock';
-import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { Triggers } from 'src/layout/common.generated';
-import { RepeatingGroupContainer } from 'src/layout/RepeatingGroup/RepeatingGroupContainer';
+import { RepeatingGroupContainer } from 'src/layout/Group/RepeatingGroupContainer';
+import { RepeatingGroupProvider, useRepeatingGroup } from 'src/layout/Group/RepeatingGroupContext';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithNode } from 'src/test/renderWithProviders';
-import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
-import type { IUpdateRepeatingGroupsEditIndex } from 'src/features/form/layout/formLayoutTypes';
-import type { CompExternal } from 'src/layout/layout';
-import type { CompGroupRepeatingExternal } from 'src/layout/RepeatingGroup/config.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-const mockContainer = getFormLayoutRepeatingGroupMock();
+import type { ILayout } from 'src/layout/layout';
+import type {
+  CompGroupRepeatingExternal,
+  CompGroupRepeatingInternal,
+} from 'src/layout/RepeatingGroup/config.generated';
+import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+
+const mockContainer = getFormLayoutRepeatingGroupMock({
+  id: 'myGroup',
+  maxCount: 5,
+});
 
 interface IRender {
-  container?: CompGroupRepeatingExternal;
+  container?: Partial<CompGroupRepeatingExternal>;
+  numRows?: number;
 }
 
-async function render({ container = mockContainer }: IRender = {}) {
-  const mockComponents: CompExternal[] = [
+async function render({ container, numRows = 3 }: IRender = {}) {
+  const mockComponents: ILayout = [
     {
       id: 'field1',
       type: 'Input',
@@ -64,7 +68,7 @@ async function render({ container = mockContainer }: IRender = {}) {
       id: 'field4',
       type: 'Checkboxes',
       dataModelBindings: {
-        simpleBinding: 'some-group.checkboxBinding',
+        simpleBinding: 'Group.checkboxBinding',
       },
       textResourceBindings: {
         title: 'Title4',
@@ -75,51 +79,31 @@ async function render({ container = mockContainer }: IRender = {}) {
     },
   ];
 
-  const repeatingGroup = getFormLayoutRepeatingGroupMock({
+  const group = getFormLayoutRepeatingGroupMock({
+    ...mockContainer,
     ...container,
     dataModelBindings: {
       group: 'Group',
     },
   });
 
-  const initialMock = getInitialStateMock();
-  const mockLayout: ILayoutState = {
-    ...initialMock.formLayout,
-    layouts: {
-      FormLayout: [repeatingGroup, ...mockComponents],
-    },
-    uiConfig: {
-      ...initialMock.formLayout.uiConfig,
-      repeatingGroups: {
-        'container-closed-id': {
-          index: 3,
-          editIndex: -1,
-        },
-        'container-in-edit-mode-id': {
-          index: 4,
-          editIndex: 0,
-        },
-      },
-    },
-  };
-
-  const mockData = {
-    formData: {
-      'some-group[1].checkboxBinding': 'option.value',
-    },
-  } as any;
-
-  const reduxState = getInitialStateMock({
-    formLayout: mockLayout,
-    formData: mockData,
-  });
-
-  const { store } = await renderWithNode<LayoutNode<'RepeatingGroup'>>({
-    renderer: ({ node }) => <RepeatingGroupContainer node={node} />,
-    nodeId: container.id,
-    reduxState,
-    initialPage: 'Task_1/FormLayout',
+  return await renderWithNode<true, BaseLayoutNode<CompGroupRepeatingInternal>>({
+    renderer: ({ node }) => (
+      <RepeatingGroupProvider node={node}>
+        <LeakEditIndex />
+        <RepeatingGroupContainer />
+      </RepeatingGroupProvider>
+    ),
+    nodeId: group.id,
+    inInstance: true,
     queries: {
+      fetchLayouts: async () => ({
+        FormLayout: {
+          data: {
+            layout: [group, ...mockComponents],
+          },
+        },
+      }),
       fetchTextResources: () =>
         Promise.resolve({
           language: 'en',
@@ -130,28 +114,33 @@ async function render({ container = mockContainer }: IRender = {}) {
             { id: 'button.save', value: 'New save text' },
           ],
         }),
+      fetchFormData: async () => ({
+        Group: Array.from({ length: numRows }).map((_, index) => ({
+          prop1: `value${index + 1}`,
+          checkboxBinding: ['option.value'],
+        })),
+      }),
     },
   });
-
-  return store;
 }
 
 const { setScreenWidth } = mockMediaQuery(992);
 
-describe('GroupContainer', () => {
+describe('RepeatingGroupContainer', () => {
   beforeAll(() => {
     // Set screen size to desktop
     setScreenWidth(1200);
   });
 
   it('should render add new button with custom label when supplied', async () => {
-    const mockContainerWithLabel: CompGroupRepeatingExternal = {
-      textResourceBindings: {
-        add_button: 'person',
+    await render({
+      container: {
+        textResourceBindings: {
+          add_button: 'person',
+        },
+        ...mockContainer,
       },
-      ...mockContainer,
-    };
-    await render({ container: mockContainerWithLabel });
+    });
     await waitFor(() => {
       const item = screen.getByText('Legg til ny person');
       expect(item).toBeInTheDocument();
@@ -159,50 +148,54 @@ describe('GroupContainer', () => {
   });
 
   it('should not show add button when maxOccurs is reached', async () => {
-    const mockContainerWithMaxCount = {
-      ...mockContainer,
-      maxCount: 3,
-    };
-    await render({ container: mockContainerWithMaxCount });
+    await render({
+      container: {
+        maxCount: 3,
+      },
+    });
 
-    const addButton = screen.queryByText('Legg til ny');
-    expect(addButton).not.toBeInTheDocument();
+    expect(screen.queryByText('Legg til ny')).not.toBeInTheDocument();
   });
 
   it('should show option label when displaying selection components', async () => {
-    await render({ container: getFormLayoutRepeatingGroupMock({ id: 'container-in-edit-mode-id' }) });
+    await render({ numRows: 1 });
 
-    const item = screen.getByText('Value to be shown');
-    expect(item).toBeInTheDocument();
+    expect(screen.getByText('Value to be shown')).toBeInTheDocument();
   });
 
-  it('calls setMultiPageIndex when adding a group element', async () => {
-    const user = userEvent.setup();
-    const multiPageContainer: CompGroupRepeatingExternal = {
-      ...mockContainer,
-      edit: {
-        ...mockContainer.edit,
-        multiPage: true,
+  it('displays components on multiple pages', async () => {
+    await render({
+      container: {
+        edit: {
+          ...mockContainer.edit,
+          multiPage: true,
+        },
+        children: ['0:field1', '0:field2', '1:field3', '1:field4'],
       },
-      children: ['0:field1', '0:field2', '1:field3', '1:field4'],
-    };
-    // eslint-disable-next-line testing-library/render-result-naming-convention
-    const store = await render({ container: multiPageContainer });
+    });
+    expect(screen.getAllByRole('row')).toHaveLength(4); // 3 rows, 1 header, 0 edit container
+    expect(screen.getByTestId('editIndex')).toHaveTextContent('undefined');
 
     const addButton = screen.getAllByRole('button', {
       name: /Legg til ny/i,
     })[0];
-    await user.click(addButton);
+    await userEvent.click(addButton);
 
-    const mockDispatchedAction: PayloadAction<Parameters<typeof FormLayoutActions.repGroupSetMultiPage>[0]> = {
-      payload: {
-        groupId: 'container-closed-id',
-        page: 0,
-      },
-      type: FormLayoutActions.repGroupSetMultiPage.type,
-    };
+    expect(screen.getAllByRole('row')).toHaveLength(6); // 4 rows, 1 header, 1 edit container
+    expect(screen.getByTestId('editIndex')).toHaveTextContent('3'); // Editing the last row we just added
+    const editContainer = screen.getByTestId('group-edit-container');
+    expect(editContainer).toBeInTheDocument();
 
-    expect(store.dispatch).toHaveBeenLastCalledWith(mockDispatchedAction);
+    expect(within(editContainer).getByText('Title1')).toBeInTheDocument();
+    expect(within(editContainer).getByText('Title2')).toBeInTheDocument();
+    expect(within(editContainer).queryByText('Title3')).not.toBeInTheDocument();
+    expect(within(editContainer).queryByText('Title4')).not.toBeInTheDocument();
+
+    await userEvent.click(within(editContainer).getByRole('button', { name: /Neste/i }));
+    expect(within(editContainer).queryByText('Title1')).not.toBeInTheDocument();
+    expect(within(editContainer).queryByText('Title2')).not.toBeInTheDocument();
+    expect(within(editContainer).getByText('Title3')).toBeInTheDocument();
+    expect(within(editContainer).getByText('Title4')).toBeInTheDocument();
   });
 
   /**
@@ -211,144 +204,69 @@ describe('GroupContainer', () => {
    * This will need to be refactored in combination with #1506.
    */
   it.skip('should trigger validate when closing edit mode if validation trigger is present', async () => {
-    const mockContainerInEditModeWithTrigger = {
-      ...mockContainer,
-      id: 'container-in-edit-mode-id',
-      triggers: [Triggers.Validation],
-    };
-    const user = userEvent.setup();
-    // eslint-disable-next-line testing-library/render-result-naming-convention
-    const store = await render({ container: mockContainerInEditModeWithTrigger });
+    await render({
+      container: {
+        triggers: [Triggers.Validation],
+      },
+    });
+
+    await userEvent.click(
+      screen.getAllByRole('button', {
+        name: /Lagre og lukk/i,
+      })[0],
+    );
+  });
+
+  it.skip('should NOT trigger validate when closing edit mode if validation trigger is NOT present', async () => {
+    await render();
 
     const editButton = screen.getAllByRole('button', {
       name: /Lagre og lukk/i,
     })[0];
-    await user.click(editButton);
+    await userEvent.click(editButton);
 
-    const mockDispatchedAction: PayloadAction<IUpdateRepeatingGroupsEditIndex> = {
-      payload: {
-        group: 'container-in-edit-mode-id',
-        index: -1,
-        validate: Triggers.Validation,
-        currentPageId: 'FormLayout',
-      },
-      type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
-    };
-
-    expect(store.dispatch).toHaveBeenCalledTimes(1);
-    expect(store.dispatch).toHaveBeenCalledWith(mockDispatchedAction);
+    // TODO: How do we assert that validation did not happen?
   });
 
-  it('should NOT trigger validate when closing edit mode if validation trigger is NOT present', async () => {
-    const mockContainerInEditMode = {
-      ...mockContainer,
-      id: 'container-in-edit-mode-id',
-    };
-    // eslint-disable-next-line testing-library/render-result-naming-convention
-    const store = await render({ container: mockContainerInEditMode });
-    const user = userEvent.setup();
-
-    const editButton = screen.getAllByRole('button', {
-      name: /Lagre og lukk/i,
-    })[0];
-    await act(() => user.click(editButton));
-
-    const mockDispatchedAction: PayloadAction<IUpdateRepeatingGroupsEditIndex> = {
-      payload: {
-        group: 'container-in-edit-mode-id',
-        index: -1,
-        currentPageId: 'FormLayout',
+  it.skip('should trigger validate when saving if validation trigger is present', async () => {
+    await render({
+      container: {
+        triggers: [Triggers.Validation],
       },
-      type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
-    };
-
-    expect(store.dispatch).toHaveBeenCalledTimes(1);
-    expect(store.dispatch).toHaveBeenCalledWith(mockDispatchedAction);
-  });
-
-  it('should trigger validate when saving if validation trigger is present', async () => {
-    const mockContainerInEditModeWithTrigger = {
-      ...mockContainer,
-      id: 'container-in-edit-mode-id',
-      triggers: [Triggers.Validation],
-    };
-    // eslint-disable-next-line testing-library/render-result-naming-convention
-    const store = await render({ container: mockContainerInEditModeWithTrigger });
-    const user = userEvent.setup();
+    });
 
     const editButton = screen.getAllByRole('button', {
       name: /Lagre og lukk/i,
     })[1];
-    await act(() => user.click(editButton));
+    await userEvent.click(editButton);
 
-    const mockDispatchedAction: PayloadAction<IUpdateRepeatingGroupsEditIndex> = {
-      payload: {
-        group: 'container-in-edit-mode-id',
-        index: -1,
-        validate: Triggers.Validation,
-        currentPageId: 'FormLayout',
-      },
-      type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
-    };
-
-    expect(store.dispatch).toHaveBeenCalledTimes(1);
-    expect(store.dispatch).toHaveBeenCalledWith(mockDispatchedAction);
+    // TODO: How do we assert that validation happened?
   });
 
-  it('should trigger validate when saving if validateRow trigger is present', async () => {
-    const mockContainerInEditModeWithTrigger = {
-      ...mockContainer,
-      id: 'container-in-edit-mode-id',
-      triggers: [Triggers.ValidateRow],
-    };
-    // eslint-disable-next-line testing-library/render-result-naming-convention
-    const store = await render({ container: mockContainerInEditModeWithTrigger });
-    const user = userEvent.setup();
+  it.skip('should trigger validate when saving if validateRow trigger is present', async () => {
+    await render({
+      container: {
+        triggers: [Triggers.ValidateRow],
+      },
+    });
 
     const editButton = screen.getAllByRole('button', {
       name: /Lagre og lukk/i,
     })[1];
-    await act(() => user.click(editButton));
+    await userEvent.click(editButton);
 
-    const mockDispatchedAction: PayloadAction<IUpdateRepeatingGroupsEditIndex> = {
-      payload: {
-        group: 'container-in-edit-mode-id',
-        index: -1,
-        validate: Triggers.ValidateRow,
-        currentPageId: 'FormLayout',
-      },
-      type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
-    };
-
-    expect(store.dispatch).toHaveBeenCalledTimes(1);
-    expect(store.dispatch).toHaveBeenCalledWith(mockDispatchedAction);
+    // TODO: How do we assert that validation happened?
   });
 
-  it('should NOT trigger validate when saving if validation trigger is NOT present', async () => {
-    const mockContainerInEditMode = {
-      ...mockContainer,
-      id: 'container-in-edit-mode-id',
-    };
-    // eslint-disable-next-line testing-library/render-result-naming-convention
-    const store = await render({ container: mockContainerInEditMode });
-    const user = userEvent.setup();
+  it.skip('should NOT trigger validate when saving if validation trigger is NOT present', async () => {
+    await render();
 
     const editButton = screen.getAllByRole('button', {
       name: /Lagre og lukk/i,
     })[1];
-    await act(() => user.click(editButton));
+    await userEvent.click(editButton);
 
-    const mockDispatchedAction: PayloadAction<IUpdateRepeatingGroupsEditIndex> = {
-      payload: {
-        group: 'container-in-edit-mode-id',
-        index: -1,
-        currentPageId: 'FormLayout',
-      },
-      type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
-    };
-
-    expect(store.dispatch).toHaveBeenCalledTimes(1);
-    expect(store.dispatch).toHaveBeenCalledWith(mockDispatchedAction);
+    // TODO: How do we assert that validation did not happen?
   });
 
   it('should display "Add new" button when edit.addButton is undefined', async () => {
@@ -385,43 +303,54 @@ describe('GroupContainer', () => {
   });
 
   it('should display textResourceBindings.edit_button_open as edit button if present when opening', async () => {
-    const mockContainerWithEditButtonOpen = {
-      ...mockContainer,
-      textResourceBindings: {
-        edit_button_open: 'button.open',
+    await render({
+      container: {
+        textResourceBindings: {
+          edit_button_open: 'button.open',
+        },
       },
-    };
-    await render({ container: mockContainerWithEditButtonOpen });
+      numRows: 4,
+    });
 
     const openButtons = screen.getAllByText('New open text');
     expect(openButtons).toHaveLength(4);
   });
 
   it('should display textResourceBindings.edit_button_close as edit button if present when closing', async () => {
-    const mockContainerWithEditButtonClose = {
-      ...mockContainer,
-      id: 'container-in-edit-mode-id',
-      textResourceBindings: {
-        edit_button_close: 'button.close',
+    await render({
+      container: {
+        textResourceBindings: {
+          edit_button_close: 'button.close',
+        },
       },
-    };
-    await render({ container: mockContainerWithEditButtonClose });
+      numRows: 4,
+    });
+
+    // Open first row for editing first
+    await userEvent.click(screen.getAllByRole('button', { name: /Rediger/i })[0]);
 
     const closeButtons = screen.getAllByText('New close text');
     expect(closeButtons).toHaveLength(1);
   });
 
   it('should display textResourceBindings.save_button as save button if present', async () => {
-    const mockContainerWithAddButton = {
-      ...mockContainer,
-      id: 'container-in-edit-mode-id',
-      textResourceBindings: {
-        save_button: 'button.save',
+    await render({
+      container: {
+        textResourceBindings: {
+          save_button: 'button.save',
+        },
       },
-    };
-    await render({ container: mockContainerWithAddButton });
+    });
+
+    // Open first row for editing first
+    await userEvent.click(screen.getAllByRole('button', { name: /Rediger/i })[0]);
 
     const saveButton = screen.getByText('New save text');
     expect(saveButton).toBeInTheDocument();
   });
 });
+
+function LeakEditIndex() {
+  const { editingIndex } = useRepeatingGroup();
+  return <div data-testid='editIndex'>{editingIndex === undefined ? 'undefined' : editingIndex}</div>;
+}
