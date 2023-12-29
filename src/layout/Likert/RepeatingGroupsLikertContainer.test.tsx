@@ -227,7 +227,7 @@ describe('RepeatingGroupsLikertContainer', () => {
       screen.getByRole('radio', { name: 'Hvordan trives du på skolen? Dårlig' });
     });
 
-    it.skip('should render error message', async () => {
+    it('should render error message', async () => {
       await render({
         // TODO: Re-implement mocked validations
       });
@@ -237,7 +237,7 @@ describe('RepeatingGroupsLikertContainer', () => {
       expect(screen.getByRole('alert')).toHaveTextContent('Feltet er påkrevd');
     });
 
-    it.skip('should render 2 alerts', async () => {
+    it('should render 2 alerts', async () => {
       await render({
         // TODO: Re-implement mocked validations
       });
@@ -348,7 +348,7 @@ describe('RepeatingGroupsLikertContainer', () => {
       expect(selectedRadio).toBeChecked();
     });
 
-    it.skip('should render error message', async () => {
+    it('should render error message', async () => {
       await render({
         // TODO: Re-implement mocked validations
         mobileView: true,

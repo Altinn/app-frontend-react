@@ -123,7 +123,7 @@ describe('AddressComponent', () => {
     expect(errorMessage).toBeInTheDocument();
   });
 
-  it.skip('should update postplace on mount', async () => {
+  it('should update postplace on mount', async () => {
     const { formDataMethods } = await render({
       component: {
         required: true,

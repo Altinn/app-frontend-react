@@ -146,7 +146,7 @@ describe('Form', () => {
     expect(screen.queryByTestId('ErrorReport')).not.toBeInTheDocument();
   });
 
-  it.skip('should render ErrorReport when there are validation errors', async () => {
+  it('should render ErrorReport when there are validation errors', async () => {
     await render(
       mockComponents,
       // mockValidations({
@@ -158,9 +158,10 @@ describe('Form', () => {
       // }),
     );
     expect(screen.getByTestId('ErrorReport')).toBeInTheDocument();
+    expect(true).toBe(false);
   });
 
-  it.skip('should render ErrorReport when there are unmapped validation errors', async () => {
+  it('should render ErrorReport when there are unmapped validation errors', async () => {
     await render(
       mockComponents,
       // mockValidations({
@@ -172,9 +173,10 @@ describe('Form', () => {
       // }),
     );
     expect(screen.getByTestId('ErrorReport')).toBeInTheDocument();
+    expect(true).toBe(false);
   });
 
-  it.skip('should separate NavigationButtons and display them inside ErrorReport', async () => {
+  it('should separate NavigationButtons and display them inside ErrorReport', async () => {
     await render(
       [
         ...mockComponents,
@@ -197,6 +199,7 @@ describe('Form', () => {
     expect(screen.getByTestId('NavigationButtons')).toBeInTheDocument();
 
     expect(within(errorReport).getByTestId('NavigationButtons')).toBeInTheDocument();
+    expect(true).toBe(false);
   });
 
   it('should render a summary component', async () => {

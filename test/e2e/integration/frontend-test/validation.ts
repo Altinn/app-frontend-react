@@ -55,7 +55,7 @@ describe('Validation', () => {
     );
   });
 
-  it.skip('Custom field validation - warning/info/success', () => {
+  it('Custom field validation - warning/info/success', () => {
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.newFirstName).type('test');
 
@@ -155,7 +155,7 @@ describe('Validation', () => {
     cy.get(appFrontend.toast).should('contain.text', texts.attachmentError);
   });
 
-  it.skip('Validation on uploaded attachment type with tag', () => {
+  it('Validation on uploaded attachment type with tag', () => {
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('test/e2e/fixtures/test.pdf', { force: true });
     cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click({ multiple: true });
@@ -168,7 +168,7 @@ describe('Validation', () => {
     cy.get(appFrontend.errorReport).should('not.contain.text', appFrontend.changeOfName.uploadWithTag.unwantedChar);
   });
 
-  it.skip('Client side validation from json schema', () => {
+  it('Client side validation from json schema', () => {
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.newFirstName).type('a');
 
@@ -229,7 +229,7 @@ describe('Validation', () => {
     }
   });
 
-  it.skip('Task validation', () => {
+  it('Task validation', () => {
     cy.intercept('**/active', []).as('noActiveInstances');
     cy.intercept('GET', '**/validate', [
       {
@@ -257,7 +257,7 @@ describe('Validation', () => {
       },
     ] as BackendValidationIssue[]);
   }
-  it.skip('Validations are removed for hidden fields', () => {
+  it('Validations are removed for hidden fields', () => {
     // Init and add data to group
     cy.goto('group');
     cy.get(appFrontend.nextButton).click();
@@ -562,7 +562,7 @@ describe('Validation', () => {
     cy.get(appFrontend.changeOfName.uploadedTable).find('tbody > tr').should('have.length', 1);
   });
 
-  it.skip('Submitting should be rejected if validation fails on field hidden by pageOrderConfig', () => {
+  it('Submitting should be rejected if validation fails on field hidden by pageOrderConfig', () => {
     cy.goto('changename');
     cy.fillOut('changename');
 
@@ -580,7 +580,7 @@ describe('Validation', () => {
     cy.get(appFrontend.errorReport).should('contain.text', 'Valideringsmelding på felt som aldri vises');
   });
 
-  it.skip('Submitting should be rejected if validation fails on field hidden using expression', () => {
+  it('Submitting should be rejected if validation fails on field hidden using expression', () => {
     cy.interceptLayout('group', (c) => {
       if (c.type === 'Input' && c.id === 'sendersName') {
         c.hidden = ['equals', ['component', 'comments'], 'hideSendersName'];
@@ -604,7 +604,7 @@ describe('Validation', () => {
     cy.get(appFrontend.errorReport).should('contain.text', 'Tullevalidering');
   });
 
-  it.skip('Submitting should be rejected if validation fails on a field hidden using legacy dynamics', () => {
+  it('Submitting should be rejected if validation fails on a field hidden using legacy dynamics', () => {
     cy.intercept('POST', '**/pages/order*', (req) => {
       req.reply((res) => {
         res.send({
@@ -656,7 +656,7 @@ describe('Validation', () => {
     cy.get(appFrontend.errorReport).should('contain.text', 'Tullevalidering');
   });
 
-  it.skip('Submitting should be rejected if validation fails on page hidden using expression', () => {
+  it('Submitting should be rejected if validation fails on page hidden using expression', () => {
     cy.interceptLayout(
       'group',
       () => undefined,
@@ -703,7 +703,7 @@ describe('Validation', () => {
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 2);
   });
 
-  it.skip('should navigate and scroll to correct component when clicking error report', () => {
+  it('should navigate and scroll to correct component when clicking error report', () => {
     cy.goto('changename');
     cy.gotoNavPage('grid');
     cy.get(appFrontend.sendinButton).click();
