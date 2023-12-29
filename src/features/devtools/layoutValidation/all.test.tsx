@@ -4,6 +4,7 @@ import { screen, waitFor } from '@testing-library/react';
 import fs from 'node:fs';
 import type { JSONSchema7 } from 'json-schema';
 
+import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { isStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
@@ -27,14 +28,19 @@ describe('All known apps should work with layout validation', () => {
     const reduxState = getInitialStateMock();
     reduxState.formLayout.layouts = layouts;
     reduxState.devTools.isOpen = true;
-    reduxState.applicationMetadata.applicationMetadata!.onEntry = {
-      show: setName,
-    };
 
     await renderWithInstanceAndLayout({
       renderer: () => <DummyValidateApp />,
       reduxState,
-      queries: { fetchLayoutSchema: () => Promise.resolve(layoutSchema) },
+      queries: {
+        fetchLayoutSchema: async () => layoutSchema,
+        fetchApplicationMetadata: async () =>
+          getApplicationMetadataMock((a) => {
+            a.onEntry = {
+              show: setName,
+            };
+          }),
+      },
     });
 
     await waitFor(async () => expect(await screen.findByTestId('loading')).not.toBeInTheDocument());

@@ -1,6 +1,5 @@
 import { combineReducers } from 'redux';
 
-import { applicationMetadataSlice } from 'src/features/applicationMetadata/applicationMetadataSlice';
 import { applicationSettingsSlice } from 'src/features/applicationSettings/applicationSettingsSlice';
 import { devToolsSlice } from 'src/features/devtools/data/devToolsSlice';
 import { footerLayoutSlice } from 'src/features/footer/data/footerLayoutSlice';
@@ -15,7 +14,6 @@ import { resetRootSagas } from 'src/redux/sagaSlice';
 import type { SliceReducers } from 'src/redux/sagaSlice';
 
 const slices = [
-  applicationMetadataSlice,
   applicationSettingsSlice,
   devToolsSlice,
   footerLayoutSlice,

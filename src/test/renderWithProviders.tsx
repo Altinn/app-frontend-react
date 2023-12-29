@@ -10,6 +10,7 @@ import type { RenderOptions } from '@testing-library/react';
 import type { AxiosResponse } from 'axios';
 import type { JSONSchema7 } from 'json-schema';
 
+import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getLayoutSetsMock } from 'src/__mocks__/getLayoutSetsMock';
 import { getLogoMock } from 'src/__mocks__/getLogoMock';
@@ -114,9 +115,9 @@ export const makeMutationMocks = <T extends (name: keyof AppMutations) => any>(
   doPerformAction: makeMock('doPerformAction'),
 });
 
-const makeDefaultQueryMocks = (state: IRuntimeState): AppQueries => ({
+const defaultQueryMocks: AppQueries = {
   fetchLogo: async () => getLogoMock(),
-  fetchApplicationMetadata: async () => state.applicationMetadata.applicationMetadata!,
+  fetchApplicationMetadata: async () => getApplicationMetadataMock(),
   fetchActiveInstances: async () => [],
   fetchCurrentParty: async () => getPartyMock(),
   fetchApplicationSettings: async () => ({}),
@@ -143,7 +144,7 @@ const makeDefaultQueryMocks = (state: IRuntimeState): AppQueries => ({
   fetchLayouts: () => Promise.reject(new Error('fetchLayouts not mocked')),
   fetchProcessState: async () => getProcessDataMock(),
   fetchInstanceData: async () => getInstanceDataMock(),
-});
+};
 
 const defaultReduxGateKeeper = (action: ReduxAction) =>
   // We'll allow all the deprecated actions by default, as these have no side effects and are needed for things
@@ -316,7 +317,7 @@ export function setupFakeApp({ reduxState, queries, mutations }: SetupFakeAppPro
   });
 
   const finalQueries: AppQueries = {
-    ...makeDefaultQueryMocks(state),
+    ...defaultQueryMocks,
     ...queries,
   };
 
@@ -351,7 +352,6 @@ const renderBase = async ({
   Providers = DefaultProviders,
   ...renderOptions
 }: BaseRenderOptions) => {
-  let isInitializing = !!waitUntilLoaded;
   const {
     state,
     store,
@@ -436,8 +436,6 @@ const renderBase = async ({
     // Clear the dispatch mock, as the app might trigger actions while loading
     (store.dispatch as jest.Mock).mockClear();
   }
-
-  isInitializing = false;
 
   return {
     // The Redux store is returned here. Most notably, the store.dispatch function is mocked, so you can assert

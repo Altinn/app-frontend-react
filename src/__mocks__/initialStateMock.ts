@@ -1,4 +1,3 @@
-import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getApplicationSettingsMock } from 'src/__mocks__/getApplicationSettingsMock';
 import { getFormLayoutStateMock } from 'src/__mocks__/getFormLayoutStateMock';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
@@ -12,9 +11,6 @@ import type { IRuntimeState } from 'src/types';
 
 export function getInitialStateMock(custom?: Partial<IRuntimeState> | ((state: IRuntimeState) => void)): IRuntimeState {
   const initialState: IRuntimeState = {
-    applicationMetadata: {
-      applicationMetadata: getApplicationMetadataMock(),
-    },
     devTools: {
       activeTab: DevToolsTab.General,
       isOpen: false,

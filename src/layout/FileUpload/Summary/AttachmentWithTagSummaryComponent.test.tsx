@@ -113,7 +113,6 @@ const render = async ({ component, addAttachment = true }: RenderProps) => {
   });
 
   const reduxState = getInitialStateMock((state) => {
-    state.applicationMetadata.applicationMetadata = application;
     addAttachment && state.deprecated.lastKnownInstance!.data.push(attachment);
   });
 
