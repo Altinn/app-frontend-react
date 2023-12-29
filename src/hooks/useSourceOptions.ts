@@ -8,6 +8,7 @@ import { asExpression } from 'src/features/expressions/validation';
 import { convertDataBindingToModel, getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
+import { useHiddenComponents } from 'src/utils/layout/NodesContext';
 import { memoize } from 'src/utils/memoize';
 import type { IOption, IOptionSourceExternal } from 'src/layout/common.generated';
 import type { HierarchyDataSources } from 'src/layout/layout';
@@ -19,7 +20,8 @@ interface IUseSourceOptionsArgs {
 }
 
 export const useSourceOptions = ({ source, node }: IUseSourceOptionsArgs): IOption[] | undefined => {
-  const dataSources = useExpressionDataSources();
+  const hidden = useHiddenComponents();
+  const dataSources = useExpressionDataSources(hidden);
 
   return useMemo(() => getSourceOptions({ source, node, dataSources }), [source, node, dataSources]);
 };

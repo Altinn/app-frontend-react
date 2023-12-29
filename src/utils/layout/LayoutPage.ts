@@ -1,6 +1,6 @@
 import type { PageNavigationConfig } from 'src/features/expressions/ExprContext';
 import type { CompExceptGroup, CompInternal } from 'src/layout/layout';
-import type { IUiConfig } from 'src/types';
+import type { ILayoutSettings } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
@@ -133,7 +133,7 @@ export class LayoutPage implements LayoutObject {
     };
   }
 
-  public isHiddenViaTracks(uiConfig: IUiConfig, pageNavigationConfig: PageNavigationConfig): boolean {
+  public isHiddenViaTracks(layoutSettings: ILayoutSettings, pageNavigationConfig: PageNavigationConfig): boolean {
     const myKey = this.top.myKey;
     if (myKey === pageNavigationConfig.currentView) {
       // If this is the current view, then it's never hidden. This avoids settings fields as hidden when
@@ -141,12 +141,12 @@ export class LayoutPage implements LayoutObject {
       return false;
     }
 
-    if (myKey === uiConfig.receiptLayoutName) {
+    if (layoutSettings.receiptLayoutName && myKey === layoutSettings.receiptLayoutName) {
       // If this is the custom receipt layout, then it's never hidden.
       return false;
     }
 
-    if (myKey === uiConfig.pdfLayoutName) {
+    if (layoutSettings.pages.pdfLayoutName && myKey === layoutSettings.pages.pdfLayoutName) {
       // If this is the pdf layout, then it's never hidden.
       return false;
     }

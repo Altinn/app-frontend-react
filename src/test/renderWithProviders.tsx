@@ -615,11 +615,6 @@ export async function renderWithNode<InInstance extends boolean, T extends Layou
   inInstance,
   ...props
 }: RenderWithNodeTestProps<T, InInstance>): Promise<RenderWithNodeReturnType<InInstance>> {
-  const reduxState = _reduxState || getInitialStateMock();
-  if (!reduxState.formLayout.layouts) {
-    throw new Error('No layouts found, cannot render with nodes when no layout is in the redux state');
-  }
-
   function Child() {
     const root = useNodes();
 
@@ -641,7 +636,6 @@ export async function renderWithNode<InInstance extends boolean, T extends Layou
   return (await funcToCall({
     ...props,
     ...extraPropsNotInInstance,
-    reduxState,
     renderer: () => (
       <WaitForNodes
         waitForAllNodes={true}

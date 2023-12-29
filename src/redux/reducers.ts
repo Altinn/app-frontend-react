@@ -1,11 +1,10 @@
 import { combineReducers } from 'redux';
 
 import { devToolsSlice } from 'src/features/devtools/data/devToolsSlice';
-import { formLayoutSlice } from 'src/features/form/layout/formLayoutSlice';
 import { resetRootSagas } from 'src/redux/sagaSlice';
 import type { SliceReducers } from 'src/redux/sagaSlice';
 
-const slices = [devToolsSlice, formLayoutSlice];
+const slices = [devToolsSlice];
 
 type ReturnTypes<T extends Array<() => unknown>> = {
   [K in keyof T]: ReturnType<T[K]>;

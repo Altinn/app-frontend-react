@@ -149,7 +149,7 @@ describe('schemaUtils', () => {
 
       const notFound: string[] = [];
       for (const [pageKey, layout] of Object.entries(layouts)) {
-        for (const component of layout || []) {
+        for (const component of layout.data.layout || []) {
           if ('dataModelBindings' in component && component.dataModelBindings) {
             for (const binding of Object.values(component.dataModelBindings)) {
               const firstLeg = binding.split('.')[0];

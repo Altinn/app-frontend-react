@@ -34,10 +34,10 @@ export function FormProvider({ children }: React.PropsWithChildren) {
                   <FormDataReadWriteProvider>
                     <DataModelSchemaProvider>
                       <AttachmentsStoreProvider>
-                        <ValidationContext>
-                          <AllOptionsStoreProvider>
-                            <NodesProvider>
-                              <NavigateToNodeProvider>
+                        <AllOptionsStoreProvider>
+                          <NodesProvider>
+                            <NavigateToNodeProvider>
+                              <ValidationContext>
                                 <AttachmentsProvider>
                                   <AllOptionsProvider>
                                     {hasProcess ? (
@@ -47,10 +47,10 @@ export function FormProvider({ children }: React.PropsWithChildren) {
                                     )}
                                   </AllOptionsProvider>
                                 </AttachmentsProvider>
-                              </NavigateToNodeProvider>
-                            </NodesProvider>
-                          </AllOptionsStoreProvider>
-                        </ValidationContext>
+                              </ValidationContext>
+                            </NavigateToNodeProvider>
+                          </NodesProvider>
+                        </AllOptionsStoreProvider>
                       </AttachmentsStoreProvider>
                     </DataModelSchemaProvider>
                   </FormDataReadWriteProvider>

@@ -1,4 +1,3 @@
-import { getFormLayoutStateMock } from 'src/__mocks__/getFormLayoutStateMock';
 import { DevToolsTab } from 'src/features/devtools/data/types';
 import type { IRuntimeState } from 'src/types';
 
@@ -22,7 +21,6 @@ export function getInitialStateMock(custom?: Partial<IRuntimeState> | ((state: I
       },
       logs: [],
     },
-    formLayout: getFormLayoutStateMock(),
   };
 
   if (custom && typeof custom === 'function') {

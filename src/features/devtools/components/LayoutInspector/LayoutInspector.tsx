@@ -11,7 +11,6 @@ import { SplitView } from 'src/features/devtools/components/SplitView/SplitView'
 import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
 import { DevToolsTab } from 'src/features/devtools/data/types';
 import { useLayoutValidationForPage } from 'src/features/devtools/layoutValidation/useLayoutValidation';
-import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
@@ -71,7 +70,7 @@ export const LayoutInspector = () => {
     if (selectedComponent) {
       try {
         const updatedComponent = JSON.parse(componentProperties ?? '');
-        const updatedLayout = currentLayout?.map((component) => {
+        const _updatedLayout = currentLayout?.map((component) => {
           if (component.id === selectedComponent) {
             return updatedComponent;
           } else {
@@ -80,7 +79,9 @@ export const LayoutInspector = () => {
         });
 
         if (currentView) {
-          dispatch(FormLayoutActions.updateLayouts({ [currentView]: updatedLayout }));
+          // TODO: Fix this
+          alert('TODO: Update layout in tanstack query store');
+          // dispatch(FormLayoutActions.updateLayouts({ [currentView]: updatedLayout }));
         }
 
         setPropertiesHaveChanged(false);

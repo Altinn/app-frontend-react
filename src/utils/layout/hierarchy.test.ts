@@ -1,4 +1,4 @@
-import { getFormLayoutMock } from 'src/__mocks__/getFormLayoutStateMock';
+import { getFormLayoutMock } from 'src/__mocks__/getFormLayoutMock';
 import { getHierarchyDataSourcesMock } from 'src/__mocks__/getHierarchyDataSourcesMock';
 import { getLayoutComponentObject } from 'src/layout';
 import { _private } from 'src/utils/layout/hierarchy';

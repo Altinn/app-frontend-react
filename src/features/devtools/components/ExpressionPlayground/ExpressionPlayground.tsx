@@ -14,7 +14,7 @@ import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
-import { useNodes } from 'src/utils/layout/NodesContext';
+import { useHiddenComponents, useNodes } from 'src/utils/layout/NodesContext';
 import type { ExprConfig, Expression, ExprFunction } from 'src/features/expressions/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -47,7 +47,8 @@ export const ExpressionPlayground = () => {
   const nodes = useNodes();
   const { currentPageId } = useNavigatePage();
 
-  const dataSources = useExpressionDataSources();
+  const hidden = useHiddenComponents();
+  const dataSources = useExpressionDataSources(hidden);
 
   const setOutputWithHistory = useCallback(
     (newValue: string, isError: boolean): boolean => {

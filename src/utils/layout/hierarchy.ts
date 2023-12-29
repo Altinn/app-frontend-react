@@ -5,6 +5,7 @@ import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { usePageNavigationConfig } from 'src/features/form/layout/PageNavigationContext';
+import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
@@ -90,27 +91,14 @@ function resolvedNodesInLayouts(
   return unresolved as unknown as LayoutPages;
 }
 
-function innerResolvedLayoutsFromState(
-  layouts: ILayouts | null,
-  currentView: string | undefined,
-  dataSources: HierarchyDataSources,
-): LayoutPages | undefined {
-  if (!layouts) {
-    return undefined;
-  }
-
-  return resolvedNodesInLayouts(layouts, currentView, dataSources);
-}
-
-export function useExpressionDataSources(): HierarchyDataSources {
+export function useExpressionDataSources(hiddenComponents: Set<string>): HierarchyDataSources {
   const instance = useLaxInstanceData();
   const formData = FD.useDebounced();
-  const uiConfig = useAppSelector((state) => state.formLayout.uiConfig);
+  const layoutSettings = useLayoutSettings();
   const attachments = useAttachments();
   const options = useAllOptions();
   const process = useLaxProcessData();
   const applicationSettings = useApplicationSettings();
-  const hiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
   const devTools = useAppSelector((state) => state.devTools);
   const langTools = useLanguage();
   const currentLanguage = useCurrentLanguage();
@@ -120,13 +108,13 @@ export function useExpressionDataSources(): HierarchyDataSources {
     () => ({
       formData,
       attachments: attachments || {},
-      uiConfig,
+      layoutSettings,
       pageNavigationConfig,
       options: options || {},
       applicationSettings,
       instanceDataSources: buildInstanceDataSources(instance),
       authContext: buildAuthContext(process?.currentTask),
-      hiddenFields: new Set(hiddenFields),
+      hiddenFields: hiddenComponents,
       devTools,
       langTools,
       currentLanguage,
@@ -134,13 +122,13 @@ export function useExpressionDataSources(): HierarchyDataSources {
     [
       formData,
       attachments,
-      uiConfig,
+      layoutSettings,
       pageNavigationConfig,
       options,
       applicationSettings,
       instance,
       process?.currentTask,
-      hiddenFields,
+      hiddenComponents,
       devTools,
       langTools,
       currentLanguage,
@@ -148,19 +136,12 @@ export function useExpressionDataSources(): HierarchyDataSources {
   );
 }
 
-/**
- * This is a more efficient, memoized version of what happens above. This will only be used from ExprContext,
- * and trades verbosity and code duplication for performance and caching.
- */
-function useResolvedExpressions() {
+function useResolvedExpressions(hidden: Set<string>) {
   const layouts = useLayouts();
   const currentView = useCurrentView();
-  const dataSources = useExpressionDataSources();
+  const dataSources = useExpressionDataSources(hidden);
 
-  return useMemo(
-    () => innerResolvedLayoutsFromState(layouts, currentView, dataSources),
-    [layouts, currentView, dataSources],
-  );
+  return useMemo(() => resolvedNodesInLayouts(layouts, currentView, dataSources), [layouts, currentView, dataSources]);
 }
 
 /**

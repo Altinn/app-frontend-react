@@ -26,13 +26,13 @@ describe('All known apps should work with layout validation', () => {
   const allLayoutSets = getAllLayoutSets(dir);
   it.each(allLayoutSets)('$appName/$setName', async ({ layouts, setName }) => {
     const reduxState = getInitialStateMock();
-    reduxState.formLayout.layouts = layouts;
     reduxState.devTools.isOpen = true;
 
     await renderWithInstanceAndLayout({
       renderer: () => <DummyValidateApp />,
       reduxState,
       queries: {
+        fetchLayouts: async () => layouts,
         fetchLayoutSchema: async () => layoutSchema,
         fetchApplicationMetadata: async () =>
           getApplicationMetadataMock((a) => {
