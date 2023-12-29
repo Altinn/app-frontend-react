@@ -6,6 +6,7 @@ import {
   runExpressionsForLayouts,
   shouldUpdate,
 } from 'src/features/form/dynamics/conditionalRenderingSagas';
+import { useDynamics } from 'src/features/form/dynamics/DynamicsContext';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
@@ -88,7 +89,7 @@ export function useResolvedNode<T>(selector: string | undefined | T | LayoutNode
  */
 function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
   const _currentHiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
-  const rules = useAppSelector((state) => state.formDynamics.conditionalRendering);
+  const rules = useDynamics()?.conditionalRendering ?? null;
   const dataSources = useExpressionDataSources();
   const { setHiddenPages, hidden, hiddenExpr } = usePageNavigationContext();
   const dispatch = useAppDispatch();

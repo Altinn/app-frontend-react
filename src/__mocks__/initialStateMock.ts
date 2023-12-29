@@ -28,18 +28,7 @@ export function getInitialStateMock(custom?: Partial<IRuntimeState> | ((state: I
       },
       logs: [],
     },
-    formDynamics: {
-      APIs: null,
-      conditionalRendering: null,
-      ruleConnection: null,
-    },
     formLayout: getFormLayoutStateMock(),
-    formRules: {
-      model: [],
-    },
-    footerLayout: {
-      footerLayout: null,
-    },
     organisationMetaData: {
       allOrgs: getOrgsMock(),
     },
