@@ -42,7 +42,6 @@ const render = async ({
       fetchLayoutSettings: () =>
         Promise.resolve({ pages: { hideCloseButton, showLanguageSelector, order: ['1', '2', '3'] } }),
     },
-    reduxGateKeeper: (action) => 'type' in action && action.type === 'deprecated/setCurrentLanguage',
   });
 };
 

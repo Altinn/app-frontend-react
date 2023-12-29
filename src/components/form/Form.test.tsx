@@ -6,7 +6,6 @@ import { Form } from 'src/components/form/Form';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { CompExternal, ILayout } from 'src/layout/layout';
 import type { CompSummaryExternal } from 'src/layout/Summary/config.generated';
-import type { RootState } from 'src/redux/store';
 
 describe('Form', () => {
   const mockComponents: ILayout = [
@@ -237,17 +236,5 @@ describe('Form', () => {
         fetchLayoutSettings: () => Promise.resolve({ pages: { order: ['FormLayout', '2', '3'] } }),
       },
     });
-  }
-
-  function mockValidations(_validations): Partial<RootState> {
-    return {
-      // formValidations: {
-      //   error: null,
-      //   invalidDataTypes: [],
-      //   validations: {
-      //     page1: validations,
-      //   },
-      // },
-    };
   }
 });

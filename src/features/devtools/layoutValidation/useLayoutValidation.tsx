@@ -6,9 +6,9 @@ import { useCurrentDataModelSchema } from 'src/features/datamodel/DataModelSchem
 import { dotNotationToPointer } from 'src/features/datamodel/notations';
 import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
 import { useCurrentDataModelType } from 'src/features/datamodel/useBindingSchema';
+import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { useLayoutSchemaValidation } from 'src/features/devtools/layoutValidation/useLayoutSchemaValidation';
 import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useIsDev } from 'src/hooks/useIsDev';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { useNodes } from 'src/utils/layout/NodesContext';
@@ -124,7 +124,7 @@ export const useLayoutValidationForPage = () => {
 
 export function LayoutValidationProvider({ children }: PropsWithChildren) {
   const isDev = useIsDev();
-  const panelOpen = useAppSelector((state) => state.devTools.isOpen);
+  const panelOpen = useDevToolsStore((s) => s.isOpen);
   const enabled = isDev || panelOpen;
 
   const layoutSchemaValidations = useLayoutSchemaValidation(enabled);

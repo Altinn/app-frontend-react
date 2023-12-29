@@ -5,7 +5,6 @@ import fs from 'node:fs';
 import type { JSONSchema7 } from 'json-schema';
 
 import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
-import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { isStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
 import {
@@ -25,12 +24,9 @@ describe('All known apps should work with layout validation', () => {
 
   const allLayoutSets = getAllLayoutSets(dir);
   it.each(allLayoutSets)('$appName/$setName', async ({ layouts, setName }) => {
-    const reduxState = getInitialStateMock();
-    reduxState.devTools.isOpen = true;
-
+    // TODO: Make sure devTools panel is open in tests
     await renderWithInstanceAndLayout({
       renderer: () => <DummyValidateApp />,
-      reduxState,
       queries: {
         fetchLayouts: async () => layouts,
         fetchLayoutSchema: async () => layoutSchema,

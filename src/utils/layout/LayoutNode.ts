@@ -158,7 +158,7 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
     const { respectLegacy = true, respectDevTools = true, respectTracks = false } = options;
 
     const hiddenList = respectLegacy ? this.dataSources.hiddenFields : new Set();
-    if (respectDevTools && this.dataSources.devTools.isOpen && this.dataSources.devTools.hiddenComponents !== 'hide') {
+    if (respectDevTools && this.dataSources.devToolsIsOpen && this.dataSources.devToolsHiddenComponents !== 'hide') {
       return false;
     }
 

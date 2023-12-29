@@ -3,7 +3,6 @@ import { userEvent } from '@testing-library/user-event';
 
 import {
   createFormDataUpdateProp,
-  createFormError,
   defaultMockOptions,
   defaultMockQuestions,
   questionsWithAnswers,
@@ -230,7 +229,7 @@ describe('RepeatingGroupsLikertContainer', () => {
 
     it.skip('should render error message', async () => {
       await render({
-        validations: createFormError(1),
+        // TODO: Re-implement mocked validations
       });
       await waitFor(() => {
         expect(screen.getByRole('table')).toBeInTheDocument();
@@ -240,7 +239,7 @@ describe('RepeatingGroupsLikertContainer', () => {
 
     it.skip('should render 2 alerts', async () => {
       await render({
-        validations: { ...createFormError(1), ...createFormError(2) },
+        // TODO: Re-implement mocked validations
       });
       await waitFor(() => {
         expect(screen.getByRole('table')).toBeInTheDocument();
@@ -351,7 +350,7 @@ describe('RepeatingGroupsLikertContainer', () => {
 
     it.skip('should render error message', async () => {
       await render({
-        validations: { ...createFormError(1), ...createFormError(2) },
+        // TODO: Re-implement mocked validations
         mobileView: true,
       });
 

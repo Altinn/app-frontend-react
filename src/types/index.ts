@@ -1,5 +1,4 @@
 import type { ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
-import type { RootState } from 'src/redux/store';
 
 export interface ILayoutSets {
   sets: ILayoutSet[];
@@ -46,8 +45,6 @@ export type RuleFunc<T extends Record<string, any>> = (argObject: T) => T;
 export interface IRuleObject {
   [id: string]: RuleFunc<any>;
 }
-
-export type IRuntimeState = RootState;
 
 export interface ISimpleInstance {
   id: string;

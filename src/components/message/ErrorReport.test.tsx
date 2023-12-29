@@ -2,29 +2,22 @@ import React from 'react';
 
 import { screen } from '@testing-library/react';
 
-import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { ErrorReport } from 'src/components/message/ErrorReport';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 
 describe('ErrorReport', () => {
-  const render = async (_validations) => {
-    const reduxState = getInitialStateMock({
-      // formValidations: mockValidationState,
-    });
-
-    return await renderWithInstanceAndLayout({
+  const render = async () =>
+    await renderWithInstanceAndLayout({
       renderer: () => <ErrorReport nodes={[]} />,
-      reduxState,
     });
-  };
 
   it('should not render when there are no errors', async () => {
-    await render({});
+    await render();
     expect(screen.queryByTestId('ErrorReport')).not.toBeInTheDocument();
   });
 
-  it.skip('should list unmapped errors as unclickable', async () => {
-    const validations = {
+  it('should list unmapped errors as unclickable', async () => {
+    const _validations = {
       unmapped: {
         // unmapped layout
         unmapped: {
@@ -37,7 +30,7 @@ describe('ErrorReport', () => {
       },
     };
 
-    await render(validations);
+    await render();
     expect(screen.getByTestId('ErrorReport')).toBeInTheDocument();
 
     // Unmapped errors should not be clickable
@@ -47,8 +40,8 @@ describe('ErrorReport', () => {
     expect(errorNode.parentElement?.tagName).toEqual('LI');
   });
 
-  it.skip('should list mapped error as clickable', async () => {
-    const validations = {
+  it('should list mapped error as clickable', async () => {
+    const _validations = {
       page1: {
         someComponent: {
           simpleBinding: {
@@ -58,7 +51,7 @@ describe('ErrorReport', () => {
       },
     };
 
-    await render(validations);
+    await render();
     expect(screen.getByTestId('ErrorReport')).toBeInTheDocument();
 
     const errorNode = screen.getByText('some mapped error');

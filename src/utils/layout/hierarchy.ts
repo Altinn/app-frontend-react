@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 
 import { useApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
+import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { usePageNavigationConfig } from 'src/features/form/layout/PageNavigationContext';
@@ -12,7 +13,6 @@ import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useAllOptions } from 'src/features/options/useAllOptions';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { getLayoutComponentObject } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
@@ -99,7 +99,8 @@ export function useExpressionDataSources(hiddenComponents: Set<string>): Hierarc
   const options = useAllOptions();
   const process = useLaxProcessData();
   const applicationSettings = useApplicationSettings();
-  const devTools = useAppSelector((state) => state.devTools);
+  const devToolsIsOpen = useDevToolsStore((state) => state.isOpen);
+  const devToolsHiddenComponents = useDevToolsStore((state) => state.hiddenComponents);
   const langTools = useLanguage();
   const currentLanguage = useCurrentLanguage();
   const pageNavigationConfig = usePageNavigationConfig();
@@ -115,7 +116,8 @@ export function useExpressionDataSources(hiddenComponents: Set<string>): Hierarc
       instanceDataSources: buildInstanceDataSources(instance),
       authContext: buildAuthContext(process?.currentTask),
       hiddenFields: hiddenComponents,
-      devTools,
+      devToolsIsOpen,
+      devToolsHiddenComponents,
       langTools,
       currentLanguage,
     }),
@@ -129,7 +131,8 @@ export function useExpressionDataSources(hiddenComponents: Set<string>): Hierarc
       instance,
       process?.currentTask,
       hiddenComponents,
-      devTools,
+      devToolsIsOpen,
+      devToolsHiddenComponents,
       langTools,
       currentLanguage,
     ],

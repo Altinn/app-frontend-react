@@ -3,7 +3,6 @@ import React from 'react';
 import { screen, within } from '@testing-library/react';
 import type { AxiosResponse } from 'axios';
 
-import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { RepeatingGroupsLikertContainer } from 'src/layout/Likert/RepeatingGroupsLikertContainer';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
@@ -93,21 +92,6 @@ export const createFormDataUpdateProp = (index: number, optionValue: string): FD
   newValue: optionValue,
 });
 
-export const createFormError = (index: number) => ({
-  [`field1-${index}`]: {
-    simpleBinding: {
-      errors: ['Feltet er påkrevd'],
-      warnings: [],
-    },
-  },
-});
-
-// const createFormValidationsForCurrentView = (validations: ILayoutValidations = {}) => ({
-//   error: null,
-//   invalidDataTypes: [],
-//   validations: { FormLayout: validations },
-// });
-
 const createTextResource = (questions: IQuestion[], extraResources: IRawTextResource[]): ITextResourceResult => ({
   resources: [
     {
@@ -143,7 +127,6 @@ interface IRenderProps {
   radioButtonProps: Partial<CompLikertExternal>;
   likertContainerProps: Partial<CompGroupRepeatingLikertExternal>;
   extraTextResources: IRawTextResource[];
-  validations;
 }
 
 export const render = async ({
@@ -161,9 +144,6 @@ export const render = async ({
   setScreenWidth(mobileView ? 600 : 1200);
   return await renderWithInstanceAndLayout({
     renderer: () => <ContainerTester id={mockLikertContainer.id} />,
-    reduxState: getInitialStateMock({
-      // formValidations: createFormValidationsForCurrentView(validations),
-    }),
     queries: {
       fetchOptions: async () => ({ data: mockOptions, headers: {} }) as AxiosResponse<IOption[], any>,
       fetchTextResources: async () => createTextResource(mockQuestions, extraTextResources),
