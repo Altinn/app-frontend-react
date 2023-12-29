@@ -44,7 +44,6 @@ interface RepeatingGroupContainerProps {
 export function RepeatingGroupContainer({ node }: RepeatingGroupContainerProps): JSX.Element | null {
   const dispatch = useAppDispatch();
   const { pageKey } = useNavigationParams();
-
   const { triggerFocus } = useRepeatingGroupsFocusContext();
   const { textResourceBindings, id, edit, triggers, rowsBefore, rowsAfter } = node.item;
   const { title, description, add_button, add_button_full } = textResourceBindings || {};
@@ -256,71 +255,11 @@ export function RepeatingGroupContainer({ node }: RepeatingGroupContainerProps):
         </ConditionalWrapper>
         {edit?.mode === 'showAll' && displayBtn && <AddButton />}
         <Grid
-          container={true}
           item={true}
-          data-componentid={node.item.id}
+          xs={12}
         >
-          {(!edit?.mode ||
-            edit?.mode === 'showTable' ||
-            edit?.mode === 'onlyTable' ||
-            (edit?.mode === 'hideTable' && editIndex < 0)) && (
-            <RepeatingGroupTable
-              node={node}
-              editIndex={editIndex}
-              repeatingGroupIndex={repeatingGroupIndex}
-              deleting={deletingIndexes.includes(repeatingGroupIndex)}
-              setEditIndex={setEditIndex}
-              onClickRemove={handleOnRemoveClick}
-              setMultiPageIndex={setMultiPageIndex}
-              multiPageIndex={multiPageIndex}
-              rowsBefore={node.item.rowsBefore}
-              rowsAfter={node.item.rowsAfter}
-            />
-          )}
-          {edit?.mode !== 'showAll' && displayBtn && <AddButton />}
-          <ConditionalWrapper
-            condition={!isNested}
-            wrapper={(children) => <FullWidthWrapper>{children}</FullWidthWrapper>}
-          >
-            <>
-              {editIndex >= 0 && edit?.mode === 'hideTable' && (
-                <RepeatingGroupsEditContainer
-                  node={node}
-                  editIndex={editIndex}
-                  setEditIndex={setEditIndex}
-                  multiPageIndex={multiPageIndex}
-                  setMultiPageIndex={setMultiPageIndex}
-                />
-              )}
-              {edit?.mode === 'showAll' &&
-                // Generate array of length repeatingGroupIndex and iterate over indexes
-                Array(repeatingGroupIndex + 1)
-                  .fill(0)
-                  .map((_, index) => (
-                    <div
-                      key={index}
-                      style={{ width: '100%', marginBottom: !isNested && index == repeatingGroupIndex ? 15 : 0 }}
-                    >
-                      <RepeatingGroupsEditContainer
-                        node={node}
-                        editIndex={index}
-                        deleting={deletingIndexes.includes(index)}
-                        setEditIndex={setEditIndex}
-                        onClickRemove={handleOnRemoveClick}
-                        forceHideSaveButton={true}
-                      />
-                    </div>
-                  ))}
-            </>
-          </ConditionalWrapper>
-          {edit?.mode === 'showAll' && displayBtn && <AddButton />}
-          <Grid
-            item={true}
-            xs={12}
-          >
-            {node.getValidations('repeatingGroup') &&
-              renderValidationMessagesForComponent(node.getValidations('repeatingGroup'), id)}
-          </Grid>
+          {node.getValidations('repeatingGroup') &&
+            renderValidationMessagesForComponent(node.getValidations('repeatingGroup'), id)}
         </Grid>
       </Grid>
     </RepeatingGroupsFocusProvider>
