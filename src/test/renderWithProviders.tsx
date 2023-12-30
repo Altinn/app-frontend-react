@@ -4,7 +4,7 @@ import type { PropsWithChildren } from 'react';
 
 import { createTheme, MuiThemeProvider } from '@material-ui/core';
 import { QueryClient } from '@tanstack/react-query';
-import { render as rtlRender, waitFor } from '@testing-library/react';
+import { act, render as rtlRender, waitFor } from '@testing-library/react';
 import dotenv from 'dotenv';
 import type { RenderOptions, waitForOptions } from '@testing-library/react';
 import type { AxiosResponse } from 'axios';
@@ -26,7 +26,7 @@ import { FooterLayoutProvider } from 'src/features/footer/FooterLayoutProvider';
 import { FormProvider } from 'src/features/form/FormContext';
 import { PageNavigationProvider } from 'src/features/form/layout/PageNavigationContext';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { FormDataWriteGatekeepersProvider } from 'src/features/formData/FormDataWriteGatekeepers';
+import { FormDataWriteProxyProvider } from 'src/features/formData/FormDataWriteProxies';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
 import { LanguageProvider } from 'src/features/language/LanguageProvider';
@@ -40,7 +40,8 @@ import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { useNodes } from 'src/utils/layout/NodesContext';
 import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
-import type { FormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
+import type { FormDataWriteProxies, Proxy } from 'src/features/formData/FormDataWriteProxies';
+import type { FormDataMethods } from 'src/features/formData/FormDataWriteStateMachine';
 import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
 import type { IOption } from 'src/layout/common.generated';
 import type { CompExternalExact, CompTypes } from 'src/layout/layout';
@@ -61,9 +62,7 @@ interface InstanceRouterProps {
   instanceId?: string;
 }
 
-interface ExtendedRenderOptionsWithInstance extends ExtendedRenderOptions, InstanceRouterProps {
-  formDataMethods?: Partial<FormDataWriteGatekeepers>;
-}
+interface ExtendedRenderOptionsWithInstance extends ExtendedRenderOptions, InstanceRouterProps {}
 
 interface BaseRenderOptions extends ExtendedRenderOptions {
   Providers?: typeof DefaultProviders;
@@ -142,27 +141,45 @@ const defaultQueryMocks: AppQueries = {
   fetchInstanceData: async () => getInstanceDataMock(),
 };
 
-export function makeDefaultFormDataMethodMocks(): FormDataWriteGatekeepers {
-  const makeMockFn = <Name extends keyof FormDataWriteGatekeepers>(name: Name) =>
-    jest
-      .fn()
-      .mockImplementation(() => true)
-      .mockName(name);
+function makeProxy<Name extends keyof FormDataMethods>(name: Name) {
+  const mock = jest.fn().mockName(name);
+  const proxy: Proxy<Name> = (original) => ({
+    proxy: ({ args, toCall }) =>
+      act(() => {
+        // eslint-disable-next-line prefer-spread
+        (toCall as any).apply(null, args);
+      }),
+    method: mock.mockImplementation(original),
+  });
 
-  return {
-    setLeafValue: makeMockFn('setLeafValue'),
-    debounce: makeMockFn('debounce'),
-    saveFinished: makeMockFn('saveFinished'),
-    setMultiLeafValues: makeMockFn('setMultiLeafValues'),
-    removeValueFromList: makeMockFn('removeValueFromList'),
-    removeIndexFromList: makeMockFn('removeIndexFromList'),
-    appendToListUnique: makeMockFn('appendToListUnique'),
-    appendToList: makeMockFn('appendToList'),
-    unlock: makeMockFn('unlock'),
-    lock: makeMockFn('lock'),
-    requestManualSave: makeMockFn('requestManualSave'),
-  };
+  return { proxy, mock };
 }
+
+export const makeFormDataMethodProxies = (): { proxies: FormDataWriteProxies; mocks: FormDataMethods } => {
+  const all: { [M in keyof FormDataMethods]: { mock: jest.Mock; proxy: Proxy<M> } } = {
+    debounce: makeProxy('debounce'),
+    saveFinished: makeProxy('saveFinished'),
+    setLeafValue: makeProxy('setLeafValue'),
+    setMultiLeafValues: makeProxy('setMultiLeafValues'),
+    removeValueFromList: makeProxy('removeValueFromList'),
+    removeIndexFromList: makeProxy('removeIndexFromList'),
+    appendToListUnique: makeProxy('appendToListUnique'),
+    appendToList: makeProxy('appendToList'),
+    unlock: makeProxy('unlock'),
+    lock: makeProxy('lock'),
+    requestManualSave: makeProxy('requestManualSave'),
+  };
+
+  const proxies: FormDataWriteProxies = Object.fromEntries(
+    Object.entries(all).map(([name, { proxy }]) => [name, proxy]),
+  ) as unknown as FormDataWriteProxies;
+
+  const mocks: FormDataMethods = Object.fromEntries(
+    Object.entries(all).map(([name, { mock }]) => [name, mock]),
+  ) as unknown as FormDataMethods;
+
+  return { proxies, mocks };
+};
 
 function NotFound() {
   const location = useLocation();
@@ -456,29 +473,25 @@ export const renderWithInstanceAndLayout = async ({
   instanceId,
   taskId,
   initialPage = 'FormLayout',
-  formDataMethods,
   ...renderOptions
 }: ExtendedRenderOptionsWithInstance) => {
-  const _formDataMethods = {
-    ...makeDefaultFormDataMethodMocks(),
-    ...formDataMethods,
-  };
+  const { mocks: formDataMethods, proxies: formDataProxies } = makeFormDataMethodProxies();
 
   if (renderOptions.router) {
     throw new Error('Cannot use custom router with renderWithInstanceAndLayout');
   }
 
   return {
-    formDataMethods: _formDataMethods,
+    formDataMethods,
     ...(await renderBase({
       ...renderOptions,
       renderer: () => (
         <InstanceProvider>
-          <FormDataWriteGatekeepersProvider value={_formDataMethods}>
+          <FormDataWriteProxyProvider value={formDataProxies}>
             <FormProvider>
               <WaitForNodes waitForAllNodes={true}>{renderer()}</WaitForNodes>
             </FormProvider>
-          </FormDataWriteGatekeepersProvider>
+          </FormDataWriteProxyProvider>
         </InstanceProvider>
       ),
       router: ({ children }) => (

@@ -11,7 +11,7 @@ import { ContextNotProvided } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { useRuleConnections } from 'src/features/form/dynamics/DynamicsContext';
 import { diffModels } from 'src/features/formData/diffModels';
-import { useFormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
+import { useFormDataWriteProxies } from 'src/features/formData/FormDataWriteProxies';
 import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteStateMachine';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useIsDev } from 'src/hooks/useIsDev';
@@ -20,7 +20,7 @@ import { flattenObject } from 'src/utils/databindings';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 import type { IRuleConnections } from 'src/features/form/dynamics';
-import type { FormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
+import type { FormDataWriteProxies } from 'src/features/formData/FormDataWriteProxies';
 import type { FDNewValues, FormDataContext } from 'src/features/formData/FormDataWriteStateMachine';
 import type { IFormData } from 'src/features/formData/index';
 import type { SaveWhileTyping } from 'src/layout/common.generated';
@@ -44,15 +44,15 @@ interface FormDataContextInitialProps {
   url: string;
   initialData: object;
   autoSaving: boolean;
-  gatekeepers: FormDataWriteGatekeepers;
+  proxies: FormDataWriteProxies;
   ruleConnections: IRuleConnections | null;
 }
 
 const { Provider, useSelector, useLaxSelector } = createZustandContext({
   name: 'FormDataWrite',
   required: true,
-  initialCreateStore: ({ url, initialData, autoSaving, gatekeepers, ruleConnections }: FormDataContextInitialProps) =>
-    createFormDataWriteStore(url, initialData, autoSaving, gatekeepers, ruleConnections),
+  initialCreateStore: ({ url, initialData, autoSaving, proxies, ruleConnections }: FormDataContextInitialProps) =>
+    createFormDataWriteStore(url, initialData, autoSaving, proxies, ruleConnections),
 });
 
 function createFormDataRequestFromDiff(modelToSave: object, diff: object, pretty?: boolean) {
@@ -108,14 +108,14 @@ interface FormDataWriterProps extends PropsWithChildren {
 }
 
 export function FormDataWriteProvider({ url, initialData, autoSaving, children }: FormDataWriterProps) {
-  const gatekeepers = useFormDataWriteGatekeepers();
+  const proxies = useFormDataWriteProxies();
   const ruleConnections = useRuleConnections();
 
   return (
     <Provider
       url={url}
       autoSaving={autoSaving}
-      gatekeepers={gatekeepers}
+      proxies={proxies}
       initialData={initialData}
       ruleConnections={ruleConnections}
     >
