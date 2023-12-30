@@ -5,7 +5,8 @@ import type { PropsWithChildren } from 'react';
 import { createTheme, MuiThemeProvider } from '@material-ui/core';
 import { QueryClient } from '@tanstack/react-query';
 import { render as rtlRender, waitFor } from '@testing-library/react';
-import type { RenderOptions } from '@testing-library/react';
+import dotenv from 'dotenv';
+import type { RenderOptions, waitForOptions } from '@testing-library/react';
 import type { AxiosResponse } from 'axios';
 import type { JSONSchema7 } from 'json-schema';
 
@@ -67,6 +68,8 @@ interface ExtendedRenderOptionsWithInstance extends ExtendedRenderOptions, Insta
 interface BaseRenderOptions extends ExtendedRenderOptions {
   Providers?: typeof DefaultProviders;
 }
+
+const env = dotenv.config();
 
 const exampleGuid = '75154373-aed4-41f7-95b4-e5b5115c2edc';
 const exampleInstanceId = `512345/${exampleGuid}`;
@@ -351,6 +354,7 @@ const renderBase = async ({
     </Providers>
   );
 
+  const startTime = Date.now();
   const children = renderer();
   const utils = rtlRender(children, {
     ...renderOptions,
@@ -358,24 +362,57 @@ const renderBase = async ({
   });
 
   if (waitUntilLoaded) {
+    let loadingReason: string | null | undefined = 'did not start waiting';
+    const timeout = env.parsed?.WAITFOR_TIMEOUT ? parseInt(env.parsed.WAITFOR_TIMEOUT, 10) : 15000;
+    const waitOptions: waitForOptions = {
+      timeout,
+      onTimeout: () => {
+        const queryCalls: string[] = [];
+        for (const [name, fn] of Object.entries(queryMocks)) {
+          const mock = (fn as jest.Mock).mock;
+          if (mock.calls.length > 0) {
+            for (const args of mock.calls) {
+              const argsAsStr = args.map((arg: any) => JSON.stringify(arg)).join(', ');
+              queryCalls.push(`- ${name}(${argsAsStr})`);
+            }
+          }
+        }
+
+        const runTime = Date.now() - startTime;
+        const runTimeStr = runTime > 1000 ? `${(runTime / 1000).toFixed(2)}s` : `${runTime}ms`;
+
+        const msg = [
+          `Expected to not be loading, but was loading because of '${loadingReason}'.`,
+          `Run time: ${runTimeStr}`,
+          '',
+          `Queries called:`,
+          ...queryCalls,
+          '',
+          'Consider if you need to increase WAITFOR_TIMEOUT if your machine is slow.',
+        ].join('\n');
+
+        return new Error(msg);
+      },
+    };
+
     // This may fail early if any of the providers fail to load, and will give you the provider/reason for failure
     await waitFor(() => {
-      const loadingReason = utils.queryByTestId('loader')?.getAttribute('data-reason');
-      /** @see setupTests.ts */
-      (
-        expect({
-          loadingReason,
-          queries: queryMocks,
-        }) as any
-      ).toNotBeLoading();
-    });
+      loadingReason = utils.queryByTestId('loader')?.getAttribute('data-reason');
+      return expect(!loadingReason).toBeTruthy();
+    }, waitOptions);
 
     // This is a little broader, as it will catch both the loading state
     // in renderGenericComponentTest() below, but also the <Loader /> component.
-    await waitFor(() => expect(utils.queryByText('Loading...')).not.toBeInTheDocument());
+    await waitFor(() => {
+      loadingReason = 'Text "Loading..." found in document';
+      return expect(utils.queryByText('Loading...')).not.toBeInTheDocument();
+    }, waitOptions);
 
     // This also catches any AltinnSpinner components inside the DOM
-    await waitFor(() => expect(utils.queryByTestId('altinn-spinner')).not.toBeInTheDocument());
+    await waitFor(() => {
+      loadingReason = 'AltinnSpinner found in document (testid: altinn-spinner)';
+      return expect(utils.queryByTestId('altinn-spinner')).not.toBeInTheDocument();
+    }, waitOptions);
   }
 
   return {
