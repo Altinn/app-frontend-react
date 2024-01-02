@@ -194,7 +194,7 @@ export function getSchemaValidationErrors({
   }
 
   const { validator, rootElementPath } = getValidator(currentDataTaskDataTypeId, schema, dataType);
-  const valid = validator.validate(`schema${rootElementPath}`, formData);
+  const valid = validator.validate(`schema${rootElementPath}`, structuredClone(formData));
 
   if (valid) {
     return [];
