@@ -145,7 +145,9 @@ export const CustomButtonComponent = ({ node }: Props) => {
   const { handleClientActions } = useHandleClientActions();
   const { handleServerAction, mutation } = useHandleServerActionMutation(lockTools);
 
-  const isPermittedToPerformActions = actions.reduce((acc, action) => acc || isAuthorized(action.id), true);
+  const isPermittedToPerformActions = actions
+    .filter((action) => action.type === 'ServerAction')
+    .reduce((acc, action) => acc && isAuthorized(action.id), true);
   const disabled = !isPermittedToPerformActions || mutation.isLoading;
 
   const onClick = async () => {
