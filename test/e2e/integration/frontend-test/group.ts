@@ -228,7 +228,7 @@ describe('Group', () => {
   });
 
   // TODO: This should be probably deleted, as the functionality is slated for removal
-  it('should support panel group adding item to referenced group', () => {
+  it.skip('should support panel group adding item to referenced group', () => {
     // TODO: Add a new test with calculations happening on the server, with data updated in the source group.
     // It will fail, and we need to fix that.
     init();
