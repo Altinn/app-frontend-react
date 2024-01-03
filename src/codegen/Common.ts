@@ -353,7 +353,6 @@ const common = {
           ),
       ),
     ),
-  ITableColumnFormatting: () => new CG.obj().additionalProperties(CG.common('ITableColumnProperties')),
   ITableColumnProperties: () =>
     new CG.obj(
       new CG.prop(
