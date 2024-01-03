@@ -8,6 +8,8 @@ import { MessageBanner } from 'src/components/form/MessageBanner';
 import { ErrorReport } from 'src/components/message/ErrorReport';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
+import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { FrontendValidationSource } from 'src/features/validation';
 import { useTaskErrors } from 'src/features/validation/validationProvider';
 import { useCurrentView, useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -17,10 +19,26 @@ import { useNodes } from 'src/utils/layout/NodesContext';
 
 export function Form() {
   const currentPageId = useCurrentView();
-  const { isValidPageId } = useNavigatePage();
+  const { isValidPageId, navigateToPage } = useNavigatePage();
   const nodes = useNodes();
   const page = currentPageId && nodes?.all?.()?.[currentPageId];
   useRedirectToStoredPage();
+
+  const { scrollPosition } = usePageNavigationContext();
+  useEffect(() => {
+    if (currentPageId !== undefined && scrollPosition === undefined) {
+      window.scrollTo({ top: 0 });
+    }
+  }, [currentPageId, scrollPosition]);
+
+  useRegisterNodeNavigationHandler((targetNode) => {
+    const targetView = targetNode?.top.top.myKey;
+    if (targetView && targetView !== currentPageId) {
+      navigateToPage(targetView);
+      return true;
+    }
+    return false;
+  });
 
   const { formErrors, taskErrors } = useTaskErrors();
   const hasErrors = Boolean(formErrors.length) || Boolean(taskErrors.length);
