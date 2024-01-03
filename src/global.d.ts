@@ -3,7 +3,7 @@ import type { QueryClient } from '@tanstack/react-query';
 
 import type { IAttachments } from 'src/features/attachments';
 import type { IFeatureTogglesOptionalMap } from 'src/features/toggles';
-import type { IRuleObject, IRules, IRuntimeState } from 'src/types';
+import type { IRuleObject, IRuntimeState } from 'src/types';
 
 declare global {
   interface Window {
@@ -21,9 +21,7 @@ declare global {
     };
 
     conditionalRuleHandlerObject: IRuleObject;
-    conditionalRuleHandlerHelper: IRules;
     ruleHandlerObject: IRuleObject;
-    ruleHandlerHelper: IRules;
 
     /**
      * In React components, hierarchy generators, or other places that are run continuously, use window.logErrorOnce() instead

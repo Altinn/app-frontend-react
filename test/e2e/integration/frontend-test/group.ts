@@ -788,4 +788,40 @@ describe('Group', () => {
 
     cy.get(appFrontend.group.editContainer).find('input').first().should('have.value', 'NOK 120');
   });
+
+  it('should be possible do disable prefilling, and write to data model paths that are not in the layout', () => {
+    cy.goto('group');
+
+    // This should be checked by default. This tests that the data model definition on the backend can set a default
+    // value using C# default values in the strict model.
+    cy.get('#prefill-enabled').findByRole('radio', { name: 'Ja' }).should('be.checked');
+
+    cy.get(appFrontend.group.prefill.liten).dsCheck();
+    cy.gotoNavPage('repeating');
+    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+    cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 1);
+    cy.get(appFrontend.group.mainGroupTableBody).find('tr').eq(0).should('contain.text', 'NOK 1');
+
+    cy.gotoNavPage('prefill');
+    cy.get('#prefill-enabled').findByRole('radio', { name: 'Nei' }).click();
+    cy.get(appFrontend.group.prefill.middels).dsCheck();
+
+    cy.gotoNavPage('repeating');
+    cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 1);
+    cy.get(appFrontend.group.mainGroupTableBody).find('tr').eq(0).should('contain.text', 'NOK 1');
+
+    cy.gotoNavPage('prefill');
+    cy.get('#prefill-enabled').findByRole('radio', { name: 'Ja' }).click();
+    cy.get(appFrontend.group.prefill.stor).dsCheck();
+
+    // When we temporarily disabled the prefilling functionality, ruleHandler tricked the backend by
+    // setting PrefillValuesShadow to the same value as PrefillValues, making the backend think the 'middels' row we
+    // wanted was already present in the main repeating group. When we now re-enable prefilling, that value will
+    // persist in PrefillValuesShadow, still making the backend think the 'middels' row exists - so it still won't
+    // add it at this point.
+    cy.gotoNavPage('repeating');
+    cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 2);
+    cy.get(appFrontend.group.mainGroupTableBody).find('tr').eq(0).should('contain.text', 'NOK 1');
+    cy.get(appFrontend.group.mainGroupTableBody).find('tr').eq(1).should('contain.text', 'NOK 1 233');
+  });
 });
