@@ -55,6 +55,7 @@ describe('Summary', () => {
         });
 
       cy.wrap(summary)
+        .parent()
         .siblings()
         .contains(mui.gridContainer, texts.dateOfEffect)
         .then((summaryDate) => {
@@ -75,6 +76,7 @@ describe('Summary', () => {
     });
 
     cy.get(appFrontend.changeOfName.summaryNameChanges)
+      .parent()
       .siblings()
       .then((summary) => {
         cy.wrap(summary)
@@ -90,6 +92,7 @@ describe('Summary', () => {
     // Summary displays error when required field is not filled
     // Navigate to form and fill the required field
     cy.get(appFrontend.changeOfName.summaryNameChanges)
+      .parent()
       .siblings()
       .contains(mui.gridContainer, texts.dateOfEffect)
       .then((summaryDate) => {
@@ -103,6 +106,7 @@ describe('Summary', () => {
 
     // Error in summary field is removed when the required field is filled
     cy.get(appFrontend.changeOfName.summaryNameChanges)
+      .parent()
       .siblings()
       .contains(mui.gridContainer, texts.dateOfEffect)
       .then((summaryDate) => {
