@@ -758,4 +758,34 @@ describe('Group', () => {
     );
     cy.get('[data-componentid="reduxOptions"] input').should('have.value', selectedOption);
   });
+
+  it('openByDefault = first should work even if the first row is hidden', () => {
+    cy.interceptLayout('group', (c) => {
+      if (c.type === 'Group' && c.id === 'mainGroup' && groupIsRepeatingExt(c) && c.edit) {
+        c.edit.openByDefault = 'first';
+      }
+    });
+
+    cy.goto('group');
+    cy.get(appFrontend.group.prefill.svaer).dsCheck();
+    cy.get(appFrontend.group.prefill.stor).dsCheck();
+    cy.get(appFrontend.group.prefill.middels).dsCheck();
+    cy.get(appFrontend.group.prefill.liten).dsCheck();
+
+    cy.gotoNavPage('repeating');
+    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+    cy.get(appFrontend.group.editContainer).find('input').first().should('have.value', 'NOK 80 323');
+
+    cy.get(appFrontend.group.hideRepeatingGroupRow).numberFormatClear();
+    cy.get(appFrontend.group.hideRepeatingGroupRow).type('1000');
+
+    cy.get(appFrontend.group.editContainer).should('not.exist');
+
+    // Navigating between pages should clear the state for which group row is editing, so now the
+    // first one (that is not hidden) should be open
+    cy.gotoNavPage('prefill');
+    cy.gotoNavPage('repeating');
+
+    cy.get(appFrontend.group.editContainer).find('input').first().should('have.value', 'NOK 120');
+  });
 });
