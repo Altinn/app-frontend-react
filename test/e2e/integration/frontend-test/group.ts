@@ -682,4 +682,80 @@ describe('Group', () => {
     cy.get(appFrontend.group.editContainer).findAllByRole('button').eq(1).should('have.text', 'Lagre og åpne neste');
     cy.get(appFrontend.group.editContainer).findAllByRole('button').eq(2).should('have.text', 'Lagre og lukk');
   });
+
+  it('adding group rows should trigger backend calculations + selecting options from source', () => {
+    cy.goto('group');
+    cy.get(appFrontend.group.prefill.liten).dsCheck();
+    cy.get(appFrontend.group.prefill.middels).dsCheck();
+
+    cy.gotoNavPage('repeating');
+    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+
+    // The title and description is set to the same text resource binding, and duplicates the text we need to
+    // put in `name` for this to work
+    const selectedOption = 'Endre fra: 120, Endre til: 350';
+    const longSelectedText = `${selectedOption} Fungerer kalkulatoren din? ${selectedOption} Fungerer kalkulatoren din?`;
+
+    // First make sure to check the second item in the bottom-most radio group. This should also change the items
+    // in the two dropdowns above.
+    cy.get('#reduxOptions-expressions-radiobuttons').findByRole('radio', { name: longSelectedText }).click();
+    cy.get('[data-componentid="reduxOptions-expressions"] input').should(
+      'have.value',
+      `${selectedOption} Gjør du leksene dine?`,
+    );
+    cy.get('[data-componentid="reduxOptions"] input').should('have.value', selectedOption);
+
+    cy.get(appFrontend.group.secondGroup_add).click();
+    cy.get('#group2-teller-0').should('have.value', '1');
+    cy.dsSelect('#group2-input-0', 'Endre fra: 1, Endre til: 5');
+
+    cy.get(appFrontend.group.secondGroup).findByRole('button', { name: 'Lagre og lukk' }).clickAndGone();
+    cy.get(appFrontend.group.secondGroup_add).click();
+    cy.get('#group2-teller-1').should('have.value', '2');
+    cy.dsSelect('#group2-input-1', 'Endre fra: 120, Endre til: 350');
+    cy.get(appFrontend.group.secondGroup).findByRole('button', { name: 'Lagre og lukk' }).clickAndGone();
+
+    cy.get(appFrontend.group.secondGroup).find('tbody > tr').should('have.length', 2);
+    cy.get(appFrontend.group.secondGroup).find('tbody > tr').eq(0).should('contain.text', 'Endre fra: 1, Endre til: 5');
+    cy.get(appFrontend.group.secondGroup)
+      .find('tbody > tr')
+      .eq(1)
+      .should('contain.text', 'Endre fra: 120, Endre til: 350');
+
+    cy.get(appFrontend.group.secondGroup).findByRole('button', { name: 'Slett-1' }).click();
+    cy.get(appFrontend.group.secondGroup).find('tbody > tr').should('have.length', 1);
+    cy.get(appFrontend.group.secondGroup_add).click();
+    cy.get('#group2-teller-1').should('have.value', '3');
+    cy.dsSelect('#group2-input-1', 'Endre fra: 1, Endre til: 5');
+    cy.get(appFrontend.group.secondGroup).findByRole('button', { name: 'Lagre og lukk' }).clickAndGone();
+
+    cy.get(appFrontend.group.secondGroup).find('tbody > tr').should('have.length', 2);
+    cy.get(appFrontend.group.secondGroup)
+      .find('tbody > tr')
+      .eq(0)
+      .should('contain.text', 'Endre fra: 120, Endre til: 350');
+    cy.get(appFrontend.group.secondGroup).find('tbody > tr').eq(1).should('contain.text', 'Endre fra: 1, Endre til: 5');
+
+    // Adding a new row to the main group adds a new option
+    cy.gotoNavPage('prefill');
+    cy.get(appFrontend.group.prefill.stor).dsCheck();
+    cy.gotoNavPage('repeating');
+
+    cy.get(appFrontend.group.secondGroup).find('tbody > tr').should('have.length', 2);
+    cy.get(appFrontend.group.secondGroup)
+      .find('tbody > tr')
+      .eq(0)
+      .should('contain.text', 'Endre fra: 120, Endre til: 350');
+    cy.get(appFrontend.group.secondGroup).find('tbody > tr').eq(1).should('contain.text', 'Endre fra: 1, Endre til: 5');
+
+    // Also make sure the options we selected at first are still selected
+    cy.get('#reduxOptions-expressions-radiobuttons')
+      .findByRole('radio', { name: longSelectedText })
+      .should('be.checked');
+    cy.get('[data-componentid="reduxOptions-expressions"] input').should(
+      'have.value',
+      `${selectedOption} Gjør du leksene dine?`,
+    );
+    cy.get('[data-componentid="reduxOptions"] input').should('have.value', selectedOption);
+  });
 });
