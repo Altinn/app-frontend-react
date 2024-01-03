@@ -585,7 +585,7 @@ const common = {
           ),
       ),
     ),
-  IPagesSettings: () =>
+  IPagesBaseSettings: () =>
     new CG.obj(
       new CG.prop(
         'order',
@@ -618,7 +618,8 @@ const common = {
             'Name of a custom layout file to use for PDF creation instead of the automatically generated PDF.',
           ),
       ),
-    ).extends(CG.common('GlobalPageSettings')),
+    ),
+  IPagesSettings: () => new CG.obj().extends(CG.common('GlobalPageSettings')).extends(CG.common('IPagesBaseSettings')),
   ILayoutSettings: () =>
     new CG.obj(
       new CG.prop('pages', CG.common('IPagesSettings')),
