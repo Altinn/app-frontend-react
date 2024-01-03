@@ -353,6 +353,7 @@ const common = {
           ),
       ),
     ),
+  ITableColumnFormatting: () => new CG.obj().additionalProperties(CG.common('ITableColumnProperties')),
   ITableColumnProperties: () =>
     new CG.obj(
       new CG.prop(
@@ -531,6 +532,131 @@ const common = {
       ),
 
   HeadingLevel: () => new CG.enum(2, 3, 4, 5, 6),
+
+  // Layout settings:
+  IComponentsSettings: () =>
+    new CG.obj(
+      new CG.prop(
+        'excludeFromPdf',
+        new CG.arr(new CG.str())
+          .setTitle('Exclude from PDF')
+          .setDescription('List of components to exclude from the PDF generation'),
+      ),
+    ),
+  GlobalPageSettings: () =>
+    new CG.obj(
+      new CG.prop(
+        'hideCloseButton',
+        new CG.bool()
+          .optional({ default: false })
+          .setTitle('Hide close button')
+          .setDescription('Hide the close button in the upper right corner of the app'),
+      ),
+      new CG.prop(
+        'showLanguageSelector',
+        new CG.bool()
+          .optional({ default: false })
+          .setTitle('Show language selector')
+          .setDescription('Show the language selector in the upper right corner of the app'),
+      ),
+      new CG.prop(
+        'showExpandWidthButton',
+        new CG.bool()
+          .optional({ default: false })
+          .setTitle('Show expand width button')
+          .setDescription('Show the expand width button in the upper right corner of the app'),
+      ),
+      new CG.prop(
+        'showProgress',
+        new CG.bool()
+          .optional({ default: false })
+          .setTitle('Show progress indicator')
+          .setDescription(
+            'Enables a progress indicator in the upper right corner of the app (when on data tasks/forms)',
+          ),
+      ),
+      new CG.prop(
+        'autoSaveBehavior',
+        new CG.enum('onChangeFormData', 'onChangePage')
+          .optional({ default: 'onChangeFormData' })
+          .setTitle('Auto save behavior')
+          .setDescription(
+            'An attribute specifying when the application will save form data. onChangeFormData saves on every interaction with form elements. onChangePage saves on every page change.',
+          ),
+      ),
+    ),
+  IPagesSettings: () =>
+    new CG.obj(
+      new CG.prop(
+        'order',
+        new CG.arr(new CG.str())
+          .setTitle('Page order')
+          .setDescription('List of pages in the order they should appear in the application'),
+      ),
+      new CG.prop(
+        'excludeFromPdf',
+        new CG.arr(new CG.str())
+          .optional()
+          .setTitle('Exclude from PDF')
+          .setDescription('List of pages to exclude from the PDF generation'),
+      ),
+      new CG.prop(
+        'triggers',
+        new CG.arr(CG.common('Triggers'))
+          .optional()
+          .setTitle('Triggers')
+          .setDescription(
+            'Triggers that apply for all navigation components across all pages. Can be overridden at the component level.',
+          ),
+      ),
+      new CG.prop(
+        'pdfLayoutName',
+        new CG.str()
+          .optional()
+          .setTitle('PDF layout name')
+          .setDescription(
+            'Name of a custom layout file to use for PDF creation instead of the automatically generated PDF.',
+          ),
+      ),
+    ).extends(CG.common('GlobalPageSettings')),
+  ILayoutSettings: () =>
+    new CG.obj(
+      new CG.prop('pages', CG.common('IPagesSettings')),
+      new CG.prop('components', CG.common('IComponentsSettings').optional()),
+    )
+      .setTitle('Layout settings')
+      .setDescription('Settings regarding layout pages and components'),
+
+  // Layout sets:
+  ILayoutSets: () =>
+    new CG.obj(
+      new CG.prop(
+        'sets',
+        new CG.arr(CG.common('ILayoutSet'))
+          .setTitle('Layout sets')
+          .setDescription('List of layout sets for different data types'),
+      ),
+      new CG.prop('uiSettings', CG.common('GlobalPageSettings').optional()),
+    )
+      .setTitle('Layout sets')
+      .setDescription('Settings regarding layout pages and components'),
+  ILayoutSet: () =>
+    new CG.obj(
+      new CG.prop(
+        'id',
+        new CG.str().setTitle('ID').setDescription('The layout-set ID. Must be unique within a given application.'),
+      ),
+      new CG.prop('dataType', new CG.str().setTitle('Data type').setDescription('The datatype to use this layoyut.')),
+      new CG.prop(
+        'tasks',
+        new CG.arr(new CG.str())
+          .optional()
+          .setTitle('Tasks')
+          .setDescription('An array specifying which task to use a layout-set'),
+      ),
+    )
+      .setTitle('Layout set')
+      .setDescription('Settings regarding a specific layout-set'),
 };
 
 export type ValidCommonKeys = keyof typeof common;

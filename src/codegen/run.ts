@@ -5,6 +5,7 @@ import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
 import { generateAllCommonTypes, generateCommonTypeScript } from 'src/codegen/Common';
 import { LayoutSchemaV1 } from 'src/codegen/schemas/layout.schema.v1';
 import { LayoutSetsSchemaV1 } from 'src/codegen/schemas/layout-sets.schema.v1';
+import { LayoutSettingsSchemaV1 } from 'src/codegen/schemas/layoutSettings.schema.v1';
 import { saveFile, saveTsFile } from 'src/codegen/tools';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { SchemaFileProps } from 'src/codegen/SchemaFile';
@@ -76,7 +77,11 @@ async function getComponentList() {
   }
 
   const schemaProps: SchemaFileProps = { configMap, componentList, sortedKeys };
-  const schemas = [new LayoutSchemaV1(schemaProps), new LayoutSetsSchemaV1(schemaProps)];
+  const schemas = [
+    new LayoutSchemaV1(schemaProps),
+    new LayoutSetsSchemaV1(schemaProps),
+    new LayoutSettingsSchemaV1(schemaProps),
+  ];
 
   const schemaPathBase = 'schemas/json/';
   for (const file of schemas) {
