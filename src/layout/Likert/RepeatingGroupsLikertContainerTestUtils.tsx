@@ -3,6 +3,11 @@ import React from 'react';
 import { screen, within } from '@testing-library/react';
 import type { AxiosResponse } from 'axios';
 
+import {
+  type BackendValidationIssue,
+  BackendValidationSeverity,
+  ValidationIssueSources,
+} from 'src/features/validation';
 import { RepeatingGroupsLikertContainer } from 'src/layout/Likert/RepeatingGroupsLikertContainer';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
@@ -30,6 +35,18 @@ export const generateMockFormData = (likertQuestions: IQuestion[]) => ({
     [questionBinding]: likertQuestions[index].Question,
   })),
 });
+
+export const generateValidations = (validations: { index: number; message: string }[]): BackendValidationIssue[] =>
+  validations.map(
+    ({ index, message }) =>
+      ({
+        customTextKey: message,
+        field: `${groupBinding}[${index}].${answerBinding}`,
+        severity: BackendValidationSeverity.Error,
+        source: ValidationIssueSources.Custom,
+        showImmediately: true,
+      }) as unknown as BackendValidationIssue,
+  );
 
 export const defaultMockOptions: IOption[] = [
   {
@@ -127,6 +144,7 @@ interface IRenderProps {
   radioButtonProps: Partial<CompLikertExternal>;
   likertContainerProps: Partial<CompGroupRepeatingLikertExternal>;
   extraTextResources: IRawTextResource[];
+  validationIssues: BackendValidationIssue[];
 }
 
 export const render = async ({
@@ -136,6 +154,7 @@ export const render = async ({
   radioButtonProps,
   likertContainerProps,
   extraTextResources = [],
+  validationIssues = [],
 }: Partial<IRenderProps> = {}) => {
   const mockRadioButton = createRadioButton(radioButtonProps);
   const mockLikertContainer = createLikertContainer(likertContainerProps);
@@ -160,6 +179,7 @@ export const render = async ({
           order: ['FormLayout'],
         },
       }),
+      fetchBackendValidations: async () => validationIssues,
     },
   });
 };

@@ -1,37 +1,31 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { type BackendValidationIssue, ValidationIssueSources, ValidationMask, type ValidationState } from '..';
+import { ValidationIssueSources, ValidationMask, type ValidationState } from '..';
 
+import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
 import { getValidationIssueMessage, getValidationIssueSeverity } from 'src/features/validation/backend/backendUtils';
-import { httpGet } from 'src/utils/network/sharedNetworking';
-import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
 
 export function useBackendValidation() {
+  const { fetchBackendValidations } = useAppQueries();
   const lastSavedFormData = FD.useLastSaved();
   const instanceId = useLaxInstance()?.instanceId;
   const currentDataElementId = useCurrentDataModelGuid();
-  const url =
-    instanceId?.length && currentDataElementId?.length
-      ? getDataValidationUrl(instanceId, currentDataElementId)
-      : undefined;
 
   const { data: backendValidations, isFetching } = useQuery({
     queryKey: ['validation', instanceId, currentDataElementId, lastSavedFormData],
-    queryFn: async () => {
+    queryFn: () =>
+      instanceId?.length && currentDataElementId?.length
+        ? fetchBackendValidations(instanceId, currentDataElementId)
+        : [],
+    select: (validationIssues) => {
       const state: ValidationState = {
         fields: {},
         components: {},
         task: [],
       };
-
-      if (!url) {
-        return Promise.resolve(state);
-      }
-
-      const validationIssues: BackendValidationIssue[] = await httpGet(url);
 
       // Map validation issues to state
       for (const issue of validationIssues) {

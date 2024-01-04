@@ -5,6 +5,7 @@ import {
   createFormDataUpdateProp,
   defaultMockOptions,
   defaultMockQuestions,
+  generateValidations,
   questionsWithAnswers,
   render,
   validateRadioLayout,
@@ -229,7 +230,7 @@ describe('RepeatingGroupsLikertContainer', () => {
 
     it('should render error message', async () => {
       await render({
-        // TODO: Re-implement mocked validations
+        validationIssues: generateValidations([{ index: 0, message: 'Feltet er påkrevd' }]),
       });
       await waitFor(() => {
         expect(screen.getByRole('table')).toBeInTheDocument();
@@ -237,9 +238,12 @@ describe('RepeatingGroupsLikertContainer', () => {
       expect(screen.getByRole('alert')).toHaveTextContent('Feltet er påkrevd');
     });
 
-    it('should render 2 alerts', async () => {
+    it('should render 2 validations', async () => {
       await render({
-        // TODO: Re-implement mocked validations
+        validationIssues: generateValidations([
+          { index: 0, message: 'Feltet er påkrevd' },
+          { index: 1, message: 'Feltet er påkrevd' },
+        ]),
       });
       await waitFor(() => {
         expect(screen.getByRole('table')).toBeInTheDocument();
@@ -350,7 +354,7 @@ describe('RepeatingGroupsLikertContainer', () => {
 
     it('should render error message', async () => {
       await render({
-        // TODO: Re-implement mocked validations
+        validationIssues: generateValidations([{ index: 0, message: 'Feltet er påkrevd' }]),
         mobileView: true,
       });
 
@@ -359,7 +363,7 @@ describe('RepeatingGroupsLikertContainer', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getAllByRole('alert')).toHaveLength(2);
+        expect(screen.getByRole('alert')).toHaveTextContent('Feltet er påkrevd');
       });
     });
 
