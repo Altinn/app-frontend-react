@@ -28,9 +28,10 @@ export interface ISummaryComponent {
     largeGroup?: boolean;
     display?: SummaryDisplayProperties;
   };
+  ref?: React.Ref<HTMLDivElement>;
 }
 
-export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) {
+export function SummaryComponent({ summaryNode, overrides, ref }: ISummaryComponent) {
   const { id, grid } = summaryNode.item;
   const display = overrides?.display || summaryNode.item.display;
   const { langAsString } = useLanguage();
@@ -70,6 +71,7 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
 
   return (
     <Grid
+      ref={ref}
       item={true}
       xs={displayGrid?.xs || 12}
       sm={displayGrid?.sm || false}

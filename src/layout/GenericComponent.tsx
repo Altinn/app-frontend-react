@@ -69,10 +69,11 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     [item.baseComponentId, item.grid, id, node],
   );
 
-  useFinishNodeNavigation(async (targetNode, shouldFocus) => {
+  useFinishNodeNavigation(async (targetNode, shouldFocus, onHit) => {
     if (targetNode.item.id !== id) {
       return undefined;
     }
+    onHit();
     let retryCount = 0;
     while (!containerDivRef.current && retryCount < 100) {
       await new Promise((resolve) => setTimeout(resolve, 100));
