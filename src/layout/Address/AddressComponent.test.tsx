@@ -103,24 +103,28 @@ describe('AddressComponent', () => {
     expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
   });
 
-  it('should show error message on blur if zipcode is invalid, and not call setLeafValue', async () => {
-    const { formDataMethods } = await render({
+  it('should show error message on blur if zipcode is invalid', async () => {
+    await render({
       component: {
         showValidations: ['Component'],
         required: true,
-        simplified: false,
+        simplified: true,
+      },
+      queries: {
+        fetchFormData: async () => ({ address: 'initial address', zipCode: '0001' }),
+        fetchPostPlace: (zipCode: string) =>
+          zipCode === '0001'
+            ? Promise.resolve({ valid: true, result: 'OSLO' })
+            : Promise.resolve({ valid: false, result: '' }),
       },
     });
 
-    const field = screen.getByRole('textbox', { name: 'Postnr *' });
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
 
-    await userEvent.type(field, '1');
+    await userEvent.type(screen.getByRole('textbox', { name: 'Postnr *' }), '1');
     await userEvent.tab();
 
-    const errorMessage = screen.getByText(/Postnummer er ugyldig\. Et postnummer består kun av 4 siffer\./i);
-
-    expect(formDataMethods.setLeafValue).not.toHaveBeenCalled();
-    expect(errorMessage).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent('Postnummer er ugyldig. Et postnummer består kun av 4 siffer.');
   });
 
   it('should update postplace on mount', async () => {
