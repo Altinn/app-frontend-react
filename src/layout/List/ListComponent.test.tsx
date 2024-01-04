@@ -157,9 +157,9 @@ describe('ListComponent', () => {
     // Wait until the debounce timeout has definitely passed, then expect the form data to be saved. It should only
     // be saved once (even though we changed the value twice) because the debouncing happens globally.
     act(() => jest.advanceTimersByTime(2000));
-    await waitFor(() => expect(mutations.doPutFormData.mock).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(mutations.doPatchFormData.mock).toHaveBeenCalledTimes(1));
 
-    const multiPart: FormData = (mutations.doPutFormData.mock as jest.Mock).mock.calls[0][1];
+    const multiPart: FormData = (mutations.doPatchFormData.mock as jest.Mock).mock.calls[0][1];
     const formData = JSON.parse(multiPart.get('dataModel') as string);
     expect(formData).toEqual({
       CountryName: 'Denmark',

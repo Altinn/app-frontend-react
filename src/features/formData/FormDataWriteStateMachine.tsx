@@ -8,7 +8,6 @@ import { runLegacyRules } from 'src/features/formData/LegacyRules';
 import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
 import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { FormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
-import type { IFormData } from 'src/features/formData/types';
 
 export interface FormDataState {
   // These values contain the current data model, with the values immediately available whenever the user is typing.
@@ -91,15 +90,9 @@ export interface FDRemoveValueFromList {
   value: any;
 }
 
-export interface FormDataChangedFields {
-  changedFields: IFormData | undefined;
-}
-
-export interface FormDataChangedModel {
+export interface FormDataChanges {
   newModel: object;
 }
-
-export type FormDataChanges = FormDataChangedFields | FormDataChangedModel;
 
 export interface FormDataMethods {
   // Methods used for updating the data model. These methods will update the currentData model, and after
@@ -129,55 +122,23 @@ function makeActions(
     state.controlState.debounceTimeout = change.debounceTimeout ?? DEFAULT_DEBOUNCE_TIMEOUT;
   }
 
-  function changedFieldsToNewModel(state: FormDataContext, changedFields: IFormData) {
-    // Take a copy of the data we sent to the server, apply the changed fields to it
-    // and use that model as the ground truth for calculating the patch to apply to currentData.
-    const newModel = structuredClone(state.lastSavedData);
-    for (const path of Object.keys(changedFields)) {
-      const newValue = changedFields[path];
-      if (newValue === null) {
-        const currentData = dot.pick(path, newModel);
-        if (typeof currentData === 'string' || typeof currentData === 'number' || typeof currentData === 'boolean') {
-          dot.str(path, null, newModel);
-        }
-        // The server will send us null values for lists/objects, but that's a mistake, so we'll ignore them.
-      } else {
-        // Currently, all data model values are saved as strings, so let's cast values.
-        const newValueAsString = String(newValue);
-        dot.str(path, newValueAsString, newModel);
-      }
-    }
-
-    return newModel;
-  }
-
-  function processChanges(state: FormDataContext, _changes: FormDataChanges | undefined) {
-    let changes = _changes;
-    if (
-      changes &&
-      'changedFields' in changes &&
-      changes.changedFields &&
-      Object.keys(changes.changedFields).length > 0
-    ) {
-      changes = {
-        newModel: changedFieldsToNewModel(state, changes.changedFields),
-      };
-    }
-    if (changes && 'newModel' in changes && changes.newModel) {
+  function processChanges(state: FormDataContext, changes: FormDataChanges | undefined) {
+    const { newModel } = changes ?? {};
+    if (newModel) {
       const oldModel = state.lastSavedData;
-      const ruleResults = runLegacyRules(ruleConnections, oldModel, changes.newModel);
-      if (!deepEqual(oldModel, changes.newModel)) {
+      const ruleResults = runLegacyRules(ruleConnections, oldModel, newModel);
+      if (!deepEqual(oldModel, newModel)) {
         applyChanges({
           prev: oldModel,
-          next: changes.newModel,
+          next: newModel,
           applyTo: state.currentData,
         });
         applyChanges({
           prev: oldModel,
-          next: changes.newModel,
+          next: newModel,
           applyTo: state.debouncedCurrentData,
         });
-        state.lastSavedData = structuredClone(changes.newModel);
+        state.lastSavedData = structuredClone(newModel);
       }
       for (const model of [state.currentData, state.debouncedCurrentData, state.lastSavedData]) {
         for (const { path, newValue } of ruleResults) {

@@ -167,11 +167,9 @@ function compareValues({ prev, next, patch, path, stats }: CompareProps<any>) {
     patch.push({ op: 'remove', path: pointer(path) });
   } else if (prev === undefined) {
     patch.push({ op: 'add', path: pointer(path), value: next });
-  } else if (isScalarOrNull(prev) && isScalarOrNull(next)) {
+  } else {
     patch.push({ op: 'test', path: pointer(path), value: prev });
     patch.push({ op: 'replace', path: pointer(path), value: next });
-  } else {
-    throw new Error(`Unexpected values: ${JSON.stringify(prev)} and ${JSON.stringify(next)}`);
   }
 }
 

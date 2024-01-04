@@ -151,7 +151,7 @@ export const doPatchFormData = (url: string, data: IDataModelPatchRequest): Prom
   httpPatch(url, data);
 
 // When saving data for stateless apps
-export const doPostFormData = async (url: string, data: FormData): Promise<object> =>
+export const doPostStatelessFormData = async (url: string, data: object): Promise<object> =>
   (await httpPost(url, undefined, data)).data;
 
 /**

@@ -11,12 +11,11 @@ import { ContextNotProvided } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { useIsStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
 import { useRuleConnections } from 'src/features/form/dynamics/DynamicsContext';
-import { diffModels } from 'src/features/formData/diffModels';
 import { useFormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
 import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteStateMachine';
+import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAsRef } from 'src/hooks/useAsRef';
-import { useIsDev } from 'src/hooks/useIsDev';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { DeprecatedActions } from 'src/redux/deprecatedSlice';
 import { flattenObject } from 'src/utils/databindings';
@@ -37,8 +36,8 @@ type SetMultiLeafValuesForBindings<B extends IDataModelBindings> = (
 
 interface MutationArg {
   dataModelUrl: string;
-  newData: object;
-  diff: Record<string, any>;
+  next: object;
+  prev: object;
 }
 
 interface FormDataContextInitialProps {
@@ -56,47 +55,38 @@ const { Provider, useSelector, useLaxSelector } = createZustandContext({
     createFormDataWriteStore(url, initialData, autoSaving, gatekeepers, ruleConnections),
 });
 
-function createFormDataRequestFromDiff(modelToSave: object, diff: object, pretty?: boolean) {
-  const data = new FormData();
-  data.append('dataModel', JSON.stringify(modelToSave, undefined, pretty ? 2 : undefined));
-  data.append('previousValues', JSON.stringify(diff, undefined, pretty ? 2 : undefined));
-  return data;
-}
-
 const useFormDataSaveMutation = (ctx: FormDataContext) => {
-  const { doPutFormData, doPostFormData } = useAppMutations();
+  const { doPatchFormData, doPostStatelessFormData } = useAppMutations();
   const { saveFinished } = ctx;
-  const isDev = useIsDev();
   const isStateless = useIsStatelessApp();
 
   return useMutation({
     mutationKey: ['saveFormData'],
     mutationFn: async (arg: MutationArg) => {
-      const { dataModelUrl, newData, diff } = arg;
-      const data = createFormDataRequestFromDiff(newData, diff, isDev);
-      try {
-        if (isStateless) {
-          const newModel = await doPostFormData.call(dataModelUrl, data);
-          doPostFormData.setLastResult(newModel);
-          saveFinished(newData, { newModel });
-        } else {
-          const metaData = await doPutFormData.call(dataModelUrl, data);
-          doPutFormData.setLastResult(metaData);
-          saveFinished(newData, { changedFields: metaData.changedFields });
-        }
-      } catch (error) {
-        if (isAxiosError(error) && error.response?.status === 303) {
-          // Fallback to old behavior if the server responds with 303 when there are changes. We handle these just
-          // like we handle 200 responses.
-          const data = error.response.data as IDataModelPatchResponse;
-          if (isStateless) {
-            saveFinished(newData, { newModel: data });
-          } else {
-            saveFinished(newData, { changedFields: data.changedFields });
+      const { dataModelUrl, next, prev } = arg;
+      if (isStateless) {
+        try {
+          const newModel = await doPostStatelessFormData.call(dataModelUrl, next);
+          doPostStatelessFormData.setLastResult(newModel);
+          saveFinished(next, { newModel });
+        } catch (error) {
+          if (isAxiosError(error) && error.response?.status === 303) {
+            // Fallback to old behavior if the server responds with 303 when there are changes. We handle these just
+            // like we handle 200 responses.
+            const data = error.response.data as IDataModelPatchResponse;
+            saveFinished(next, { newModel: data });
+            return;
           }
-          return;
+          throw error;
         }
-        throw error;
+      } else {
+        const patch = createPatch({ prev, next });
+        const result = await doPatchFormData.call(dataModelUrl, {
+          patch,
+          ignoredValidators: [],
+        });
+        doPatchFormData.setLastResult(result);
+        saveFinished(next, { newModel: result.newDataModel });
       }
     },
   });
@@ -158,14 +148,10 @@ function FormDataEffects({ url }: { url: string }) {
         return;
       }
 
-      const toSaveFlat = flattenObject(dataToSave);
-      const lastSavedDataFlat = flattenObject(lastSavedDataRef.current);
-      const diff = diffModels(toSaveFlat, lastSavedDataFlat);
-
       mutate({
         dataModelUrl: url,
-        newData: dataToSave,
-        diff,
+        next: dataToSave,
+        prev: lastSavedDataRef.current,
       });
     },
     [isSavingRef, lastSavedDataRef, mutate, url],
