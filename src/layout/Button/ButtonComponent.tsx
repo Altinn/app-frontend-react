@@ -54,11 +54,11 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
   }
 
   const submitTask = async () => {
-    if (disabled || !next) {
+    if (disabled) {
       return;
     }
-    const allValid = await onFormSubmitValidation(node.top.top.collection);
-    if (!allValid) {
+    const hasErrors = await onFormSubmitValidation(node.top.top.collection);
+    if (!hasErrors) {
       setReturnToView(undefined);
       if (currentTaskType === ProcessTaskType.Data) {
         next({ nodeId: node.item.id });
@@ -71,7 +71,7 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
     <div style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}>
       <SubmitButton
         nodeId={node.item.id}
-        onClick={() => submitTask()}
+        onClick={submitTask}
         busyWithId={busyWithId}
         disabled={disabled}
         message={attachmentsPending ? langAsString('general.wait_for_attachments') : undefined}
