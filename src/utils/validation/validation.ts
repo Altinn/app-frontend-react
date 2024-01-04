@@ -8,7 +8,7 @@ import { runExpressionValidationsOnNode } from 'src/utils/validation/expressionV
 import { getSchemaValidationErrors } from 'src/utils/validation/schemaValidation';
 import { emptyValidation } from 'src/utils/validation/validationHelpers';
 import type { IAttachments, UploadedAttachment } from 'src/features/attachments';
-import type { IFormData } from 'src/features/formData';
+import type { IFormData } from 'src/features/formData/types';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';

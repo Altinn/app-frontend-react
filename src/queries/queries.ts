@@ -3,7 +3,7 @@ import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import type { JSONSchema7 } from 'json-schema';
 
 import { LAYOUT_SCHEMA_NAME } from 'src/features/devtools/utils/layoutSchemaValidation';
-import { httpDelete, httpGetRaw, httpPost, putWithoutConfig } from 'src/utils/network/networking';
+import { httpDelete, httpGetRaw, httpPatch, httpPost, putWithoutConfig } from 'src/utils/network/networking';
 import { httpGet, httpPut } from 'src/utils/network/sharedNetworking';
 import {
   applicationLanguagesUrl,
@@ -40,6 +40,7 @@ import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IDataList } from 'src/features/dataLists';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { IFormDynamics } from 'src/features/form/dynamics';
+import type { IDataModelPatchRequest, IDataModelPatchResponse } from 'src/features/formData/types';
 import type { Instantiation } from 'src/features/instantiate/InstantiationContext';
 import type { ITextResourceResult } from 'src/features/language/textResources';
 import type { IPdfFormat } from 'src/features/pdf/types';
@@ -53,7 +54,6 @@ import type {
   IAppLanguage,
   IApplicationSettings,
   IData,
-  IDataAfterDataModelSave,
   IInstance,
   IParty,
   IProcess,
@@ -146,7 +146,11 @@ export const doAttachmentRemove = async (instanceId: string, dataGuid: string): 
   return response.data;
 };
 
-export const doPutFormData = (url: string, data: FormData): Promise<IDataAfterDataModelSave> => httpPut(url, data);
+// When saving data for normal/stateful apps
+export const doPatchFormData = (url: string, data: IDataModelPatchRequest): Promise<IDataModelPatchResponse> =>
+  httpPatch(url, data);
+
+// When saving data for stateless apps
 export const doPostFormData = async (url: string, data: FormData): Promise<object> =>
   (await httpPost(url, undefined, data)).data;
 

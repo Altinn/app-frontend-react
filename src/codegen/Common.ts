@@ -1,6 +1,6 @@
 import { CG, Variant } from 'src/codegen/CG';
 import { ExprVal } from 'src/features/expressions/types';
-import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData';
+import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
 import type { MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
 
 const common = {

@@ -1,6 +1,6 @@
 import { dot, object } from 'dot-object';
 
-import type { IFormData } from 'src/features/formData';
+import type { IFormData } from 'src/features/formData/types';
 import type { IMapping } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
 

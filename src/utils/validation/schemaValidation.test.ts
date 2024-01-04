@@ -6,7 +6,7 @@ import { staticUseLanguageForTests } from 'src/features/language/useLanguage';
 import { createValidator, getSchemaValidationErrors } from 'src/utils/validation/schemaValidation';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IJsonSchemas } from 'src/features/datamodel';
-import type { IFormData } from 'src/features/formData';
+import type { IFormData } from 'src/features/formData/types';
 import type { ILayoutSets } from 'src/types';
 import type { IDataType, IInstance, IProcess, ITask } from 'src/types/shared';
 

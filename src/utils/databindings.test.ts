@@ -5,7 +5,7 @@ import {
   getKeyWithoutIndex,
   mapFormData,
 } from 'src/utils/databindings';
-import type { IFormData } from 'src/features/formData';
+import type { IFormData } from 'src/features/formData/types';
 import type { IMapping } from 'src/layout/common.generated';
 import type { ILayout } from 'src/layout/layout';
 

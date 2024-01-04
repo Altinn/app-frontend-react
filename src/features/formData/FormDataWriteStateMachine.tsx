@@ -4,11 +4,11 @@ import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
 import { applyChanges } from 'src/features/formData/applyChanges';
-import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/index';
 import { runLegacyRules } from 'src/features/formData/LegacyRules';
+import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
 import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { FormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
-import type { IFormData } from 'src/features/formData/index';
+import type { IFormData } from 'src/features/formData/types';
 
 export interface FormDataState {
   // These values contain the current data model, with the values immediately available whenever the user is typing.

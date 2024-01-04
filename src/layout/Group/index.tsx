@@ -17,7 +17,7 @@ import {
 import { runValidationOnNodes } from 'src/utils/validation/validation';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { IFormData } from 'src/features/formData';
+import type { IFormData } from 'src/features/formData/types';
 import type { ComponentValidation, GroupValidation, PropsFromGenericComponent } from 'src/layout';
 import type { CompExternalExact, CompInternal, HierarchyDataSources } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';

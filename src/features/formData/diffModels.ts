@@ -1,6 +1,6 @@
 import deepEqual from 'fast-deep-equal';
 
-import type { IFormData } from 'src/features/formData/index';
+import type { IFormData } from 'src/features/formData/types';
 
 export function diffModels(current: IFormData, prev: IFormData) {
   const changes: { [key: string]: string | null } = {};

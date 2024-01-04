@@ -14,7 +14,7 @@ import { useFormComponentCtx } from 'src/layout/FormComponentContext';
 import { flattenObject, getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
-import type { IFormData } from 'src/features/formData';
+import type { IFormData } from 'src/features/formData/types';
 import type { TextResourceMap } from 'src/features/language/textResources';
 import type { FixedLanguageList } from 'src/language/languages';
 import type { IRuntimeState } from 'src/types';

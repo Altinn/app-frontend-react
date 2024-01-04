@@ -12,7 +12,7 @@ import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useTextResources } from 'src/features/language/textResources/TextResourcesProvider';
 import { flattenObject } from 'src/utils/databindings';
 import { getDataElementUrl } from 'src/utils/urls/appUrlHelper';
-import type { IFormData } from 'src/features/formData/index';
+import type { IFormData } from 'src/features/formData/types';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 /**

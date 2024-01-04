@@ -4,7 +4,7 @@ import { asExpression } from 'src/features/expressions/validation';
 import { getBaseDataModelBindings } from 'src/utils/databindings';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { ExprConfig } from 'src/features/expressions/types';
-import type { IFormData } from 'src/features/formData';
+import type { IFormData } from 'src/features/formData/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   IExpressionValidation,

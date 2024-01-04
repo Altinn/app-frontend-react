@@ -24,10 +24,9 @@ import { isAxiosError } from 'src/utils/isAxiosError';
 import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { FormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
 import type { FDNewValues, FormDataContext } from 'src/features/formData/FormDataWriteStateMachine';
-import type { IFormData } from 'src/features/formData/index';
+import type { IDataModelPatchResponse, IFormData } from 'src/features/formData/types';
 import type { SaveWhileTyping } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
-import type { IDataAfterDataModelSave } from 'src/types/shared';
 
 export type FDValue = string | number | boolean | object | undefined | null | FDValue[];
 
@@ -89,7 +88,7 @@ const useFormDataSaveMutation = (ctx: FormDataContext) => {
         if (isAxiosError(error) && error.response?.status === 303) {
           // Fallback to old behavior if the server responds with 303 when there are changes. We handle these just
           // like we handle 200 responses.
-          const data = error.response.data as IDataAfterDataModelSave;
+          const data = error.response.data as IDataModelPatchResponse;
           if (isStateless) {
             saveFinished(newData, { newModel: data });
           } else {

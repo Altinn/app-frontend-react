@@ -2,7 +2,7 @@ import type { SortDirection } from '@digdir/design-system-react';
 
 import { mapFormData } from 'src/utils/databindings';
 import { getQueryStringFromObject } from 'src/utils/urls/urlHelper';
-import type { IFormData } from 'src/features/formData';
+import type { IFormData } from 'src/features/formData/types';
 import type { IMapping } from 'src/layout/common.generated';
 
 const { org, app } = window;

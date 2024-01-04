@@ -1,4 +1,4 @@
-import type { IFormData } from 'src/features/formData';
+import type { IFormData } from 'src/features/formData/types';
 import type { Triggers } from 'src/layout/common.generated';
 import type { ILayouts } from 'src/layout/layout';
 import type { IHiddenLayoutsExternal, ILayoutSets, ILayoutSettings, TriggersPageValidation } from 'src/types';

@@ -1,3 +1,5 @@
+import type { JsonPatch } from 'src/features/formData/jsonPatch/types';
+
 /**
  * This format is used to represent the form data in a flat structure. It has no hierarchy, and it's difficult to
  * work with objects and arrays in this format. Use it when you need direct access to leaf values (e.g. strings),
@@ -17,3 +19,15 @@ export interface IFormData {
  * configured separately by for example saving the data on page navigation only.
  */
 export const DEFAULT_DEBOUNCE_TIMEOUT = 400;
+
+export interface IDataModelPatchRequest {
+  patch: JsonPatch;
+  ignoredValidators: string[]; // TODO: Type this properly when implemented
+}
+
+export interface IDataModelPatchResponse {
+  validationIssues: {
+    [key: string]: never[]; // TODO: Type this properly when implemented
+  };
+  newDataModel: object;
+}

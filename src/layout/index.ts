@@ -3,7 +3,7 @@ import type { MutableRefObject } from 'react';
 import { type IUseLanguage } from 'src/features/language/useLanguage';
 import { ComponentConfigs } from 'src/layout/components.generated';
 import type { IAttachments } from 'src/features/attachments';
-import type { IFormData } from 'src/features/formData';
+import type { IFormData } from 'src/features/formData/types';
 import type { AllOptionsMap } from 'src/features/options/useAllOptions';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { CompInternal, CompRendersLabel, CompTypes } from 'src/layout/layout';

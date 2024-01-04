@@ -20,7 +20,7 @@ import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGen
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { IFormData } from 'src/features/formData';
+import type { IFormData } from 'src/features/formData/types';
 import type {
   CompExternalExact,
   CompInternal,

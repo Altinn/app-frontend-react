@@ -4,7 +4,7 @@ import { v4 as uuid } from 'uuid';
 
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
-import type { IFormData } from 'src/features/formData';
+import type { IFormData } from 'src/features/formData/types';
 
 const appFrontend = new AppFrontend();
 

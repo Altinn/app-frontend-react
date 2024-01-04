@@ -14,7 +14,7 @@ import {
   processInstancePath,
 } from 'src/utils/schemaUtils';
 import type { IJsonSchemas } from 'src/features/datamodel';
-import type { IFormData } from 'src/features/formData';
+import type { IFormData } from 'src/features/formData/types';
 import type { ValidLanguageKey } from 'src/features/language/useLanguage';
 import type { IDataType } from 'src/types/shared';
 import type { IValidationContext } from 'src/utils/validation/types';
