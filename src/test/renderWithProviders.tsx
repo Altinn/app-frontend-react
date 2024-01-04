@@ -139,6 +139,7 @@ const defaultQueryMocks: AppQueries = {
   fetchLayouts: () => Promise.reject(new Error('fetchLayouts not mocked')),
   fetchProcessState: async () => getProcessDataMock(),
   fetchInstanceData: async () => getInstanceDataMock(),
+  fetchBackendValidations: async () => [],
 };
 
 function makeProxy<Name extends keyof FormDataMethods>(name: Name) {

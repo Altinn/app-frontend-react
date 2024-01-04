@@ -15,6 +15,7 @@ import {
   getCreateInstancesUrl,
   getCustomValidationConfigUrl,
   getDataElementUrl,
+  getDataValidationUrl,
   getFetchFormDynamicsUrl,
   getFileTagUrl,
   getFileUploadUrl,
@@ -43,7 +44,7 @@ import type { IFormDynamics } from 'src/features/form/dynamics';
 import type { Instantiation } from 'src/features/instantiate/InstantiationContext';
 import type { ITextResourceResult } from 'src/features/language/textResources';
 import type { IPdfFormat } from 'src/features/pdf/types';
-import type { IExpressionValidationConfig } from 'src/features/validation';
+import type { BackendValidationIssue, IExpressionValidationConfig } from 'src/features/validation';
 import type { IOption } from 'src/layout/common.generated';
 import type { ActionResult } from 'src/layout/CustomButton/CustomButtonComponent';
 import type { ILayoutCollection } from 'src/layout/layout';
@@ -218,6 +219,11 @@ export const fetchRuleHandler = (layoutSetId?: string): Promise<string | null> =
 
 export const fetchTextResources = (selectedLanguage: string): Promise<ITextResourceResult> =>
   httpGet(textResourcesUrl(selectedLanguage));
+
+export const fetchBackendValidations = (
+  instanceId: string,
+  currentDataElementId: string,
+): Promise<BackendValidationIssue[]> => httpGet(getDataValidationUrl(instanceId, currentDataElementId));
 
 export const fetchLayoutSchema = (): Promise<JSONSchema7 | undefined> => {
   // Hacky (and only) way to get the correct CDN url
