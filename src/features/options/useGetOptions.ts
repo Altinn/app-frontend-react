@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { castOptionsToStrings } from 'src/features/options/castOptionsToStrings';
 import { useGetOptionsQuery } from 'src/features/options/useGetOptionsQuery';
 import { useSourceOptions } from 'src/hooks/useSourceOptions';
 import { duplicateOptionFilter } from 'src/utils/options';
@@ -113,7 +114,7 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
   const sourceOptions = useSourceOptions({ source, node });
   const staticOptions = optionsId ? undefined : options;
   const { data: fetchedOptions, isFetching } = useGetOptionsQuery(optionsId, mapping, queryParameters, secure);
-  const calculatedOptions = sourceOptions || fetchedOptions?.data || staticOptions;
+  const calculatedOptions = sourceOptions || fetchedOptions?.data || castOptionsToStrings(staticOptions);
   const { langAsString } = useLanguage();
   const selectedLanguage = useCurrentLanguage();
 

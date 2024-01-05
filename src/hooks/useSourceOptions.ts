@@ -3,6 +3,7 @@ import { pick } from 'dot-object';
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { asExpression } from 'src/features/expressions/validation';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
@@ -21,6 +22,12 @@ interface IUseSourceOptionsArgs {
 
 export const useSourceOptions = ({ source, node }: IUseSourceOptionsArgs): IOption[] | undefined => {
   const dataSources = useAppSelector(selectDataSourcesFromState);
+  // Hack to make sure langTools use the correct text resources in unit tests (the ones from the query/context, not
+  // the ones from the redux store). Remove this when redux is removed.
+  const language = useLanguage();
+  if (jest !== undefined) {
+    dataSources.langTools = language;
+  }
   const nodeAsRef = useAsRef(node);
 
   return useMemoDeepEqual(
@@ -85,21 +92,24 @@ export function getSourceOptions({ source, node, dataSources }: IGetSourceOption
 
         output.push({
           value: String(pick(valuePath, formData)),
-          label: !Array.isArray(label)
-            ? langTools.langAsStringUsingPathInDataModel(label, path)
-            : Array.isArray(labelExpression)
-              ? evalExpr(labelExpression, node, modifiedDataSources)
-              : null,
-          description: !Array.isArray(description)
-            ? langTools.langAsStringUsingPathInDataModel(description, path)
-            : Array.isArray(descriptionExpression)
-              ? evalExpr(descriptionExpression, node, modifiedDataSources)
-              : null,
-          helpText: !Array.isArray(helpText)
-            ? langTools.langAsStringUsingPathInDataModel(helpText, path)
-            : Array.isArray(helpTextExpression)
-              ? evalExpr(helpTextExpression, node, modifiedDataSources)
-              : null,
+          label:
+            label && !Array.isArray(label)
+              ? langTools.langAsStringUsingPathInDataModel(label, path)
+              : Array.isArray(labelExpression)
+                ? evalExpr(labelExpression, node, modifiedDataSources)
+                : undefined,
+          description:
+            description && !Array.isArray(description)
+              ? langTools.langAsStringUsingPathInDataModel(description, path)
+              : Array.isArray(descriptionExpression)
+                ? evalExpr(descriptionExpression, node, modifiedDataSources)
+                : undefined,
+          helpText:
+            helpText && !Array.isArray(helpText)
+              ? langTools.langAsStringUsingPathInDataModel(helpText, path)
+              : Array.isArray(helpTextExpression)
+                ? evalExpr(helpTextExpression, node, modifiedDataSources)
+                : undefined,
         });
       }
     }
