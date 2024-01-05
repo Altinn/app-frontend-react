@@ -44,10 +44,10 @@ import type { IDataModelPatchRequest, IDataModelPatchResponse } from 'src/featur
 import type { Instantiation } from 'src/features/instantiate/InstantiationContext';
 import type { ITextResourceResult } from 'src/features/language/textResources';
 import type { IPdfFormat } from 'src/features/pdf/types';
-import type { IOption } from 'src/layout/common.generated';
+import type { ILayoutSets, ILayoutSettings, IOption } from 'src/layout/common.generated';
 import type { ActionResult } from 'src/layout/CustomButton/CustomButtonComponent';
 import type { ILayoutCollection } from 'src/layout/layout';
-import type { ILayoutSets, ILayoutSettings, ISimpleInstance } from 'src/types';
+import type { ISimpleInstance } from 'src/types';
 import type {
   IActionType,
   IAltinnOrgs,
