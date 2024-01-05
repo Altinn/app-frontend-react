@@ -46,11 +46,29 @@ type CurrentValueAsString<T extends ValueType> = T extends 'single' ? string : s
 type ValueSetter<T extends ValueType> = T extends 'single'
   ? (value: string | IOption) => void
   : (value: string[] | IOption[]) => void;
+
 export interface OptionsResult<T extends ValueType> {
+  // The current value, as an option (for single-option components) or an array of options (for multi-option components)
+  // It is recommended to use this, and you can also compare this (object) value to the options (array of objects),
+  // as the object references themselves are guaranteed to be the same.
   current: CurrentValue<T>;
+
+  // The current value, as a string (for single-option components) or an array of strings (for multi-option components)
+  // This is useful if the downstream component you're using does not support options objects. Also, the value is
+  // guaranteed to be stringy even if the underlying options JSON and/or data model contains numbers, booleans, etc.
   currentStringy: CurrentValueAsString<T>;
+
+  // Function to set the current value. The value can be either a string or an option object. For multi-option
+  // components, you always set the value of all the selected options at the same time, not just one of them.
   setData: ValueSetter<T>;
+
+  // The final list of options deduced from the component settings. This will be an array of objects, where each object
+  // has a string-typed 'value' property, regardless of the underlying options configuration.
   options: IOption[];
+
+  // Whether the options are currently being fetched from the API. This is usually false in normal components, as
+  // options are always fetched on page load, but it can be true if the options are fetched dynamically based on
+  // mapping or query parameters. In those cases you most likely want to render a spinner.
   isFetching: boolean;
 }
 
