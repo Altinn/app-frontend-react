@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <ThemeWrapper>
                 <UiConfigProvider>
                   <RouterProvider router={router} />
-                </UiConfigProvider>{' '}
+                </UiConfigProvider>
               </ThemeWrapper>
             </LanguageProvider>
           </AppWrapper>
