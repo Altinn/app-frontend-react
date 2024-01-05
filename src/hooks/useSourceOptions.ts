@@ -25,7 +25,7 @@ export const useSourceOptions = ({ source, node }: IUseSourceOptionsArgs): IOpti
   // Hack to make sure langTools use the correct text resources in unit tests (the ones from the query/context, not
   // the ones from the redux store). Remove this when redux is removed.
   const language = useLanguage();
-  if (jest !== undefined) {
+  if (window.inUnitTest) {
     dataSources.langTools = language;
   }
   const nodeAsRef = useAsRef(node);

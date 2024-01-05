@@ -20,6 +20,9 @@ declare global {
       formData?: object;
     };
 
+    // Used to indicate that we are running in a unit test. Do not check this unless you really need to.
+    inUnitTest?: boolean;
+
     conditionalRuleHandlerObject: IRuleObject;
     ruleHandlerObject: IRuleObject;
 
