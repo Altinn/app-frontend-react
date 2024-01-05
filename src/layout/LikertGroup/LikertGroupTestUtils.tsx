@@ -63,7 +63,8 @@ const createLikertContainer = (props: Partial<CompLikertGroupExternal> | undefin
   type: 'LikertGroup',
   children: ['field1'],
   dataModelBindings: {
-    group: groupBinding,
+    simpleBinding: '',
+    questions: groupBinding,
   },
   ...props,
 });

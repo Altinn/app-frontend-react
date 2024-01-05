@@ -51,6 +51,13 @@ function makeRepeatingLikertGroup() {
     )
     .addTextResource(
       new CG.trb({
+        name: 'questions',
+        title: 'Questions',
+        description: 'The questions to be displayed in each row (use a dynamic text resource)',
+      }),
+    )
+    .addTextResource(
+      new CG.trb({
         name: 'description',
         title: 'Description (for repeating groups displayed as Likert)',
         description: 'The description text for the Likert table (when edit.mode is "likert")',
@@ -74,20 +81,7 @@ function makeRepeatingLikertGroup() {
         ).exportAs('HLikertGroupRows'),
       ).onlyIn(Variant.Internal),
     )
-    .addDataModelBinding(
-      new CG.obj(
-        new CG.prop(
-          'group',
-          new CG.str()
-            .setTitle('Group')
-            .setDescription(
-              'Dot notation location for a likert group structure (array of objects), where the data ' + 'is stored',
-            ),
-        ),
-      )
-        .exportAs('IDataModelBindingsForLikertGroup')
-        .optional({ onlyIn: Variant.Internal }),
-    )
+    .addDataModelBinding(CG.common('IDataModelBindingsLikertSimple').optional())
     .addProperty(
       new CG.prop(
         'edit',
