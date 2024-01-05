@@ -54,6 +54,7 @@ interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   router?: (props: PropsWithChildren) => React.ReactNode;
   waitUntilLoaded?: boolean;
   queries?: Partial<AppQueries>;
+  initialRenderRef?: InitialRenderRef;
 }
 
 interface InstanceRouterProps {
@@ -66,6 +67,10 @@ interface ExtendedRenderOptionsWithInstance extends ExtendedRenderOptions, Insta
 
 interface BaseRenderOptions extends ExtendedRenderOptions {
   Providers?: typeof DefaultProviders;
+}
+
+interface InitialRenderRef {
+  current: boolean;
 }
 
 const env = dotenv.config();
@@ -142,33 +147,42 @@ const defaultQueryMocks: AppQueries = {
   fetchBackendValidations: async () => [],
 };
 
-function makeProxy<Name extends keyof FormDataMethods>(name: Name) {
+function makeProxy<Name extends keyof FormDataMethods>(name: Name, ref: InitialRenderRef) {
   const mock = jest.fn().mockName(name);
   const proxy: Proxy<Name> = (original) => ({
-    proxy: ({ args, toCall }) =>
+    proxy: ({ args, toCall }) => {
+      if (ref.current) {
+        // eslint-disable-next-line prefer-spread
+        (toCall as any).apply(null, args);
+        return;
+      }
+
       act(() => {
         // eslint-disable-next-line prefer-spread
         (toCall as any).apply(null, args);
-      }),
+      });
+    },
     method: mock.mockImplementation(original),
   });
 
   return { proxy, mock };
 }
 
-export const makeFormDataMethodProxies = (): { proxies: FormDataWriteProxies; mocks: FormDataMethods } => {
+export const makeFormDataMethodProxies = (
+  ref: InitialRenderRef,
+): { proxies: FormDataWriteProxies; mocks: FormDataMethods } => {
   const all: { [M in keyof FormDataMethods]: { mock: jest.Mock; proxy: Proxy<M> } } = {
-    debounce: makeProxy('debounce'),
-    saveFinished: makeProxy('saveFinished'),
-    setLeafValue: makeProxy('setLeafValue'),
-    setMultiLeafValues: makeProxy('setMultiLeafValues'),
-    removeValueFromList: makeProxy('removeValueFromList'),
-    removeIndexFromList: makeProxy('removeIndexFromList'),
-    appendToListUnique: makeProxy('appendToListUnique'),
-    appendToList: makeProxy('appendToList'),
-    unlock: makeProxy('unlock'),
-    lock: makeProxy('lock'),
-    requestManualSave: makeProxy('requestManualSave'),
+    debounce: makeProxy('debounce', ref),
+    saveFinished: makeProxy('saveFinished', ref),
+    setLeafValue: makeProxy('setLeafValue', ref),
+    setMultiLeafValues: makeProxy('setMultiLeafValues', ref),
+    removeValueFromList: makeProxy('removeValueFromList', ref),
+    removeIndexFromList: makeProxy('removeIndexFromList', ref),
+    appendToListUnique: makeProxy('appendToListUnique', ref),
+    appendToList: makeProxy('appendToList', ref),
+    unlock: makeProxy('unlock', ref),
+    lock: makeProxy('lock', ref),
+    requestManualSave: makeProxy('requestManualSave', ref),
   };
 
   const proxies: FormDataWriteProxies = Object.fromEntries(
@@ -346,6 +360,7 @@ const renderBase = async ({
   queries = {},
   waitUntilLoaded = true,
   Providers = DefaultProviders,
+  initialRenderRef = { current: true },
   ...renderOptions
 }: BaseRenderOptions) => {
   const { queryClient, queriesOnly: finalQueries } = setupFakeApp({ queries });
@@ -433,6 +448,8 @@ const renderBase = async ({
     }, waitOptions);
   }
 
+  initialRenderRef.current = false;
+
   return {
     // Mutations are returned, which allows you to assert on the mocked functions, and resolve/reject them.
     // None of our mutations do anything in any of the unit tests, so you'll have to provide your own responses
@@ -476,7 +493,8 @@ export const renderWithInstanceAndLayout = async ({
   initialPage = 'FormLayout',
   ...renderOptions
 }: ExtendedRenderOptionsWithInstance) => {
-  const { mocks: formDataMethods, proxies: formDataProxies } = makeFormDataMethodProxies();
+  const initialRenderRef: InitialRenderRef = { current: true };
+  const { mocks: formDataMethods, proxies: formDataProxies } = makeFormDataMethodProxies(initialRenderRef);
 
   if (renderOptions.router) {
     throw new Error('Cannot use custom router with renderWithInstanceAndLayout');
@@ -486,6 +504,7 @@ export const renderWithInstanceAndLayout = async ({
     formDataMethods,
     ...(await renderBase({
       ...renderOptions,
+      initialRenderRef,
       renderer: () => (
         <InstanceProvider>
           <FormDataWriteProxyProvider value={formDataProxies}>

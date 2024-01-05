@@ -53,11 +53,13 @@ function NavigateBackButton() {
 }
 
 async function genericRender(props: Partial<Parameters<typeof renderWithMinimalProviders>[0]> = {}) {
-  const { mocks: formDataMethods, proxies: formDataProxies } = makeFormDataMethodProxies();
+  const initialRenderRef = { current: true };
+  const { mocks: formDataMethods, proxies: formDataProxies } = makeFormDataMethodProxies(initialRenderRef);
   return {
     formDataMethods,
     ...(await renderWithMinimalProviders({
       ...props,
+      initialRenderRef,
       router: ({ children }: PropsWithChildren) => (
         <MemoryRouter>
           <Routes>
