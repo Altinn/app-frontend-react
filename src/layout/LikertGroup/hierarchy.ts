@@ -103,12 +103,16 @@ const mutateComponentId: (rowIndex: number) => ChildMutator<'Likert'> = (rowInde
 
 const mutateTextResourceBindings: (props: ChildFactoryProps<'LikertGroup'>) => ChildMutator<'Likert'> =
   (props) => (item) => {
-    const question =
-      'textResourceBindings' in props.item ? (props.item.textResourceBindings?.questions as string) : undefined;
-    const textResourceBindings = item.textResourceBindings || {};
-    delete textResourceBindings.description;
-    if (question && textResourceBindings) {
-      textResourceBindings.title = question;
+    if ('textResourceBindings' in props.item) {
+      const question = (props.item.textResourceBindings?.questions as string) ?? undefined;
+      const description = (props.item.textResourceBindings?.questionDescriptions as string) ?? undefined;
+      const textResourceBindings = item.textResourceBindings || {};
+      if (question && textResourceBindings) {
+        textResourceBindings.title = question;
+      }
+      if (description && textResourceBindings) {
+        textResourceBindings.description = description;
+      }
     }
   };
 
