@@ -55,7 +55,7 @@ describe('DatepickerComponent', () => {
   });
 
   it('should not show calendar initially, and show calendar when clicking calendar button', async () => {
-    jest.spyOn(console, 'error').mockImplementation();
+    jest.spyOn(console, 'error').mockImplementation().mockName('console.error');
     await render();
 
     expect(getCalendarYearHeader('queryByRole')).not.toBeInTheDocument();
