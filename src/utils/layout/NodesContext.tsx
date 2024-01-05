@@ -7,6 +7,7 @@ import {
   shouldUpdate,
 } from 'src/features/form/dynamics/conditionalRenderingSagas';
 import { useDynamics } from 'src/features/form/dynamics/DynamicsContext';
+import { useHiddenLayoutsExpressions } from 'src/features/form/layout/LayoutsContext';
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
 import { _private, useExpressionDataSources } from 'src/utils/layout/hierarchy';
@@ -91,7 +92,8 @@ function useLegacyHiddenComponents(
 ) {
   const rules = useDynamics()?.conditionalRendering ?? null;
   const dataSources = useExpressionDataSources(hidden);
-  const { setHiddenPages, hidden: hiddenPages, hiddenExpr } = usePageNavigationContext();
+  const hiddenExpr = useHiddenLayoutsExpressions();
+  const { setHiddenPages, hidden: hiddenPages } = usePageNavigationContext();
 
   useEffect(() => {
     if (!resolvedNodes) {

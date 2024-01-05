@@ -7,7 +7,6 @@ import { DynamicsProvider } from 'src/features/form/dynamics/DynamicsContext';
 import { LayoutsProvider } from 'src/features/form/layout/LayoutsContext';
 import { NavigateToNodeProvider } from 'src/features/form/layout/NavigateToNode';
 import { PageNavigationProvider } from 'src/features/form/layout/PageNavigationContext';
-import { UiConfigProvider } from 'src/features/form/layout/UiConfigContext';
 import { LayoutSettingsProvider } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { RulesProvider } from 'src/features/form/rules/RulesContext';
 import { FormDataReadWriteProvider } from 'src/features/formData/FormDataReadWrite';
@@ -28,35 +27,33 @@ export function FormProvider({ children }: React.PropsWithChildren) {
       <LayoutsProvider>
         <LayoutSettingsProvider>
           <PageNavigationProvider>
-            <UiConfigProvider>
-              <DynamicsProvider>
-                <RulesProvider>
-                  <FormDataReadWriteProvider>
-                    <DataModelSchemaProvider>
-                      <AttachmentsStoreProvider>
-                        <AllOptionsStoreProvider>
-                          <NodesProvider>
-                            <NavigateToNodeProvider>
-                              <ValidationContext>
-                                <AttachmentsProvider>
-                                  <AllOptionsProvider>
-                                    {hasProcess ? (
-                                      <ProcessNavigationProvider>{children}</ProcessNavigationProvider>
-                                    ) : (
-                                      children
-                                    )}
-                                  </AllOptionsProvider>
-                                </AttachmentsProvider>
-                              </ValidationContext>
-                            </NavigateToNodeProvider>
-                          </NodesProvider>
-                        </AllOptionsStoreProvider>
-                      </AttachmentsStoreProvider>
-                    </DataModelSchemaProvider>
-                  </FormDataReadWriteProvider>
-                </RulesProvider>
-              </DynamicsProvider>
-            </UiConfigProvider>
+            <DynamicsProvider>
+              <RulesProvider>
+                <FormDataReadWriteProvider>
+                  <DataModelSchemaProvider>
+                    <AttachmentsStoreProvider>
+                      <AllOptionsStoreProvider>
+                        <NodesProvider>
+                          <NavigateToNodeProvider>
+                            <ValidationContext>
+                              <AttachmentsProvider>
+                                <AllOptionsProvider>
+                                  {hasProcess ? (
+                                    <ProcessNavigationProvider>{children}</ProcessNavigationProvider>
+                                  ) : (
+                                    children
+                                  )}
+                                </AllOptionsProvider>
+                              </AttachmentsProvider>
+                            </ValidationContext>
+                          </NavigateToNodeProvider>
+                        </NodesProvider>
+                      </AllOptionsStoreProvider>
+                    </AttachmentsStoreProvider>
+                  </DataModelSchemaProvider>
+                </FormDataReadWriteProvider>
+              </RulesProvider>
+            </DynamicsProvider>
           </PageNavigationProvider>
         </LayoutSettingsProvider>
       </LayoutsProvider>

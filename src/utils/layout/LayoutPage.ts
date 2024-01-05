@@ -1,6 +1,6 @@
 import type { PageNavigationConfig } from 'src/features/expressions/ExprContext';
+import type { ILayoutSettings } from 'src/layout/common.generated';
 import type { CompExceptGroup, CompInternal } from 'src/layout/layout';
-import type { ILayoutSettings } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';

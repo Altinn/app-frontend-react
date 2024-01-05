@@ -4,8 +4,7 @@ import type { NavigateOptions } from 'react-router-dom';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { useHiddenPages } from 'src/features/form/layout/PageNavigationContext';
-import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
-import { useLaxLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { useLaxLayoutSettings, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxProcessData, useTaskType } from 'src/features/instance/ProcessContext';
 import { ProcessTaskType } from 'src/types';
@@ -42,9 +41,12 @@ export const useNavigationParams = () => {
   };
 };
 
+const emptyArray: never[] = [];
+
 export const useCurrentView = () => useNavigationParams().pageKey;
 export const useOrder = () => {
-  const { orderWithHidden } = useUiConfigContext();
+  const maybeLayoutSettings = useLaxLayoutSettings();
+  const orderWithHidden = maybeLayoutSettings === ContextNotProvided ? emptyArray : maybeLayoutSettings.pages.order;
   const hidden = useHiddenPages();
   const hiddenPages = useMemo(() => new Set(hidden), [hidden]);
   return useMemo(() => orderWithHidden?.filter((page) => !hiddenPages.has(page)), [orderWithHidden, hiddenPages]);
@@ -58,9 +60,7 @@ export const useNavigatePage = () => {
   const lastTaskId = processTasks?.slice(-1)[0]?.elementId;
 
   const { partyId, instanceGuid, taskId, pageKey, queryKeys } = useNavigationParams();
-  const layoutSettings = useLaxLayoutSettings();
-  const autoSaveBehavior =
-    (layoutSettings !== ContextNotProvided && layoutSettings.pages.autoSaveBehavior) || undefined;
+  const { autoSaveBehavior } = usePageSettings();
 
   const taskType = useTaskType(taskId);
   const order = useOrder();
@@ -103,9 +103,11 @@ export const useNavigatePage = () => {
     (page?: string, options?: NavigateToPageOptions) => {
       const replace = options?.replace ?? false;
       if (!page) {
+        window.logWarn('navigateToPage called without page');
         return;
       }
       if (!order.includes(page)) {
+        window.logWarn('navigateToPage called with invalid page:', `"${page}"`);
         return;
       }
 
@@ -202,9 +204,11 @@ export const useNavigatePage = () => {
    */
   const navigateToNextPage = () => {
     const nextPage = getNextPage();
-    if (nextPage) {
-      navigateToPage(nextPage);
+    if (!nextPage) {
+      window.logWarn('Tried to navigate to next page when standing on the last page.');
+      return;
     }
+    navigateToPage(nextPage);
   };
   /**
    * This function fetches the previous page index on
@@ -214,9 +218,12 @@ export const useNavigatePage = () => {
    */
   const navigateToPreviousPage = () => {
     const previousPage = getPreviousPage();
-    if (previousPage) {
-      navigateToPage(previousPage);
+
+    if (!previousPage) {
+      window.logWarn('Tried to navigate to previous page when standing on the first page.');
+      return;
     }
+    navigateToPage(previousPage);
   };
 
   return {

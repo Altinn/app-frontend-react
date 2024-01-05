@@ -31,6 +31,7 @@ export function RepeatingGroupContainer({ containerDivRef }: IGroupProps): JSX.E
   const { textResourceBindings, id, edit, type } = node.item;
 
   const numRows = visibleRowIndexes.length;
+  const firstIndex = visibleRowIndexes[0];
   const lastIndex = visibleRowIndexes[numRows - 1];
   const { lang, langAsString } = useLanguage();
   const validations = useUnifiedValidationsForNode(node);
@@ -73,10 +74,10 @@ export function RepeatingGroupContainer({ containerDivRef }: IGroupProps): JSX.E
       ['first', 'last'].includes(edit.openByDefault) &&
       editingIndex === undefined
     ) {
-      const index = edit.openByDefault === 'last' ? lastIndex : 0;
+      const index = edit.openByDefault === 'last' ? lastIndex : firstIndex;
       openForEditing(index);
     }
-  }, [edit?.openByDefault, editingIndex, isFirstRender, lastIndex, openForEditing]);
+  }, [edit?.openByDefault, editingIndex, isFirstRender, firstIndex, lastIndex, openForEditing]);
 
   const handleOnAddKeypress = async (event: React.KeyboardEvent<HTMLButtonElement>) => {
     const allowedKeys = ['enter', ' ', 'spacebar'];

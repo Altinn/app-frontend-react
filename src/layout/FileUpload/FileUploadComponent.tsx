@@ -49,9 +49,8 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
   const { options } = useGetOptions({
     ...node.item,
     node,
-    formData: {
-      disable: 'I have read the code and know that core functionality will be missing',
-    },
+    valueType: 'single',
+    dataModelBindings: undefined,
   });
 
   const shouldShowFileUpload =

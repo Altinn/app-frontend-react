@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 
 import { ContextNotProvided, createContext } from 'src/core/contexts/context';
+import { useHiddenLayoutsExpressions } from 'src/features/form/layout/LayoutsContext';
 import { useCurrentView, useOrder } from 'src/hooks/useNavigatePage';
 import type { PageNavigationConfig } from 'src/features/expressions/ExprContext';
 import type { IComponentScrollPos } from 'src/features/form/layout/formLayoutTypes';
-import type { IHiddenLayoutsExternal } from 'src/types';
 
 export type PageNavigationContext = {
   /**
@@ -27,12 +27,6 @@ export type PageNavigationContext = {
    */
   hidden: string[];
   setHiddenPages: React.Dispatch<React.SetStateAction<string[]>>;
-
-  /**
-   * Keeps track of the hidden expressions for each page.
-   */
-  hiddenExpr: IHiddenLayoutsExternal;
-  setHiddenExpr: React.Dispatch<React.SetStateAction<IHiddenLayoutsExternal>>;
 };
 
 const { Provider, useCtx, useLaxCtx } = createContext<PageNavigationContext>({
@@ -44,7 +38,6 @@ export function PageNavigationProvider({ children }: React.PropsWithChildren) {
   const [returnToView, setReturnToView] = useState<string>();
   const [scrollPosition, setScrollPosition] = useState<IComponentScrollPos | undefined>();
   const [hidden, setHidden] = useState<string[]>([]);
-  const [hiddenExpr, setHiddenExpr] = useState<IHiddenLayoutsExternal>({});
 
   return (
     <Provider
@@ -55,8 +48,6 @@ export function PageNavigationProvider({ children }: React.PropsWithChildren) {
         setScrollPosition,
         hidden,
         setHiddenPages: setHidden,
-        setHiddenExpr,
-        hiddenExpr,
       }}
     >
       {children}
@@ -67,7 +58,8 @@ export function PageNavigationProvider({ children }: React.PropsWithChildren) {
 export const usePageNavigationContext = () => useCtx();
 export const usePageNavigationConfig = (): PageNavigationConfig => {
   const currentView = useCurrentView();
-  const { hidden, hiddenExpr } = usePageNavigationContext();
+  const hiddenExpr = useHiddenLayoutsExpressions();
+  const { hidden } = usePageNavigationContext();
   const order = useOrder();
   return {
     currentView,

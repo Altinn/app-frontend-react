@@ -4,7 +4,7 @@ import { v4 as uuid } from 'uuid';
 
 import { createValidator, getSchemaValidationErrors } from 'src/features/validation/frontend/schemaValidation';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
-import type { ILayoutSets } from 'src/types';
+import type { ILayoutSets } from 'src/layout/common.generated';
 import type { IDataType, IInstance, IProcess, ITask } from 'src/types/shared';
 
 function runGetSchemaValidationErrors(formData: object, schema: object) {

@@ -6,7 +6,7 @@ import type { IAttachments } from 'src/features/attachments';
 import type { Expression, ExprValToActual } from 'src/features/expressions/types';
 import type { TextReference, ValidLangParam } from 'src/features/language/useLanguage';
 import type { Visibility } from 'src/features/validation/visibility';
-import type { ILayoutSets } from 'src/types';
+import type { ILayoutSets } from 'src/layout/common.generated';
 import type { IInstance, IProcess } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
