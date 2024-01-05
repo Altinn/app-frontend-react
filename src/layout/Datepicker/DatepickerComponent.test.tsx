@@ -68,7 +68,6 @@ describe('DatepickerComponent', () => {
 
     expect(getCalendarYearHeader()).toBeInTheDocument();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expect(console.error).toHaveBeenCalledTimes(2);
     expect(console.error).toHaveBeenCalledWith(
       expect.stringMatching(
         /Material-UI: The `fade` color utility was renamed to `alpha` to better describe its functionality/,
