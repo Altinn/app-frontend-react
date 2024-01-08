@@ -3,7 +3,7 @@ import type { JSX, ReactNode } from 'react';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { useLaxApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
-import { useFormDataReadOnly } from 'src/features/formData/FormDataReadOnly';
+import { DMReaders, useDataModelReaders } from 'src/features/formData/FormDataReaders';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -11,10 +11,10 @@ import { useTextResources } from 'src/features/language/textResources/TextResour
 import { getLanguageFromCode } from 'src/language/languages';
 import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
 import { useFormComponentCtx } from 'src/layout/FormComponentContext';
-import { flattenObject, getKeyWithoutIndexIndicators } from 'src/utils/databindings';
+import { getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
-import type { IFormData } from 'src/features/formData';
+import type { DataModelReaders } from 'src/features/formData';
 import type { TextResourceMap } from 'src/features/language/textResources';
 import type { FixedLanguageList } from 'src/language/languages';
 import type { IRuntimeState } from 'src/types';
@@ -42,10 +42,10 @@ export interface IUseLanguage {
 
 interface TextResourceVariablesDataSources {
   node: LayoutNode | undefined;
-  formData: IFormData;
   applicationSettings: IApplicationSettings | null;
   instanceDataSources: IInstanceDataSources | null;
   dataModelPath?: string;
+  dataModels: DataModelReaders;
 }
 
 /**
@@ -80,7 +80,7 @@ export function useLanguage(node?: LayoutNode) {
   const selectedAppLanguage = useCurrentLanguage();
   const componentCtx = useFormComponentCtx();
   const nearestNode = node || componentCtx?.node;
-  const formData = useFormDataReadOnly();
+  const dataModels = useDataModelReaders();
   const _applicationSettings = useLaxApplicationSettings();
   const applicationSettings = _applicationSettings === ContextNotProvided ? emptyObject : _applicationSettings;
   const instance = useLaxInstanceData();
@@ -89,11 +89,11 @@ export function useLanguage(node?: LayoutNode) {
   const dataSources: TextResourceVariablesDataSources = useMemo(
     () => ({
       node: nearestNode,
-      formData,
+      dataModels,
       applicationSettings,
       instanceDataSources,
     }),
-    [nearestNode, formData, applicationSettings, instanceDataSources],
+    [nearestNode, dataModels, applicationSettings, instanceDataSources],
   );
 
   return useMemo(
@@ -108,12 +108,12 @@ export function useLanguage(node?: LayoutNode) {
 export function staticUseLanguageFromState(state: IRuntimeState, node?: LayoutNode) {
   const textResources = state.textResources.resourceMap;
   const selectedAppLanguage = state.deprecated.currentLanguage;
-  const formData = state.deprecated.formData;
   const applicationSettings = state.applicationSettings.applicationSettings;
   const instanceDataSources = buildInstanceDataSources(state.deprecated.lastKnownInstance);
   const dataSources: TextResourceVariablesDataSources = {
     node,
-    formData: flattenObject(formData),
+    // TODO: Remove this when redux is removed
+    dataModels: new DMReaders(),
     applicationSettings,
     instanceDataSources,
   };
@@ -144,7 +144,7 @@ export function staticUseLanguageForTests({
       instanceOwnerPartyId: '12345',
       instanceOwnerPartyType: 'person',
     },
-    formData: {},
+    dataModels: new DMReaders(),
     applicationSettings: {},
     node: undefined,
   },
@@ -281,19 +281,27 @@ function getTextResourceByKey(
 }
 
 function replaceVariables(text: string, variables: IVariable[], dataSources: TextResourceVariablesDataSources) {
-  const { node, formData, instanceDataSources, applicationSettings, dataModelPath } = dataSources;
+  const { node, dataModels, instanceDataSources, applicationSettings, dataModelPath } = dataSources;
   let out = text;
   for (const idx in variables) {
     const variable = variables[idx];
     let value = variables[idx].key;
 
     if (variable.dataSource.startsWith('dataModel')) {
+      const dataModelName = variable.dataSource.split('.')[1];
       const cleanPath = getKeyWithoutIndexIndicators(value);
       const transposedPath = dataModelPath
         ? transposeDataBinding({ subject: cleanPath, currentLocation: dataModelPath })
         : node?.transposeDataModel(cleanPath) || value;
-      if (transposedPath && formData && formData[transposedPath]) {
-        value = formData[transposedPath];
+      if (transposedPath) {
+        const dataModel = dataModels.getReader(dataModelName);
+        const isLoaded = dataModel.isLoaded();
+        const stringValue = dataModel.getAsString(transposedPath);
+        if (stringValue !== undefined) {
+          value = stringValue;
+        } else if (!isLoaded) {
+          value = '...'; // TODO: Use a loading indicator, or at least let this value be configurable
+        }
       }
     } else if (variable.dataSource === 'instanceContext') {
       value = instanceDataSources && variable.key in instanceDataSources ? instanceDataSources[variable.key] : value;

@@ -12,9 +12,9 @@ import { LayoutsProvider } from 'src/features/form/layout/LayoutsContext';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { LayoutSettingsProvider } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { RulesProvider } from 'src/features/form/rules/RulesContext';
-import { FormDataReadWriteProvider } from 'src/features/formData/FormDataReadWrite';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { FormDataWriteGatekeepersProvider } from 'src/features/formData/FormDataWriteGatekeepers';
+import { InitialFormDataProvider } from 'src/features/formData/InitialFormData';
 import { makeDefaultFormDataMethodMocks, renderWithMinimalProviders } from 'src/test/renderWithProviders';
 
 interface DataModelFlat {
@@ -85,7 +85,7 @@ async function genericRender(props: Partial<Parameters<typeof renderWithMinimalP
                 <DynamicsProvider>
                   <RulesProvider>
                     <FormDataWriteGatekeepersProvider value={formDataMethods}>
-                      <FormDataReadWriteProvider>{props.renderer && props.renderer()}</FormDataReadWriteProvider>
+                      <InitialFormDataProvider>{props.renderer && props.renderer()}</InitialFormDataProvider>
                     </FormDataWriteGatekeepersProvider>
                   </RulesProvider>
                 </DynamicsProvider>

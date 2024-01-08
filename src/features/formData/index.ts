@@ -17,3 +17,15 @@ export interface IFormData {
  * configured separately by for example saving the data on page navigation only.
  */
 export const DEFAULT_DEBOUNCE_TIMEOUT = 400;
+
+/**
+ * This is used by useLanguage() to get data models as sources for variables in text resources
+ */
+export abstract class DataModelReaders<T extends DataModelReader = DataModelReader> {
+  public abstract getReader(dataModelName: string): T;
+}
+
+export abstract class DataModelReader {
+  public abstract isLoaded(): boolean;
+  public abstract getAsString(path: string): string | undefined;
+}
