@@ -45,7 +45,6 @@ export class LikertGroupHierarchyGenerator extends ComponentHierarchyGenerator<'
    */
   private processLikertQuestions(ctx: HierarchyContext): ChildFactory<'LikertGroup'> {
     return (props) => {
-      delete (props.item as any)['children'];
       const item = props.item as CompLikertGroupExternal;
       const me = ctx.generator.makeNode(props);
       const rows: HLikertGroupRows = [];
@@ -99,12 +98,19 @@ const mutateTextResourceBindings: (props: ChildFactoryProps<'LikertGroup'>) => C
     if ('textResourceBindings' in props.item) {
       const question = (props.item.textResourceBindings?.questions as string) ?? undefined;
       const description = (props.item.textResourceBindings?.questionDescriptions as string) ?? undefined;
+      const helpText = (props.item.textResourceBindings?.questionHelpTexts as string) ?? undefined;
       const textResourceBindings = item.textResourceBindings || {};
+      delete textResourceBindings.title;
+      delete textResourceBindings.description;
+      delete textResourceBindings.help;
       if (question && textResourceBindings) {
         textResourceBindings.title = question;
       }
       if (description && textResourceBindings) {
         textResourceBindings.description = description;
+      }
+      if (helpText && textResourceBindings) {
+        textResourceBindings.help = helpText;
       }
     }
   };

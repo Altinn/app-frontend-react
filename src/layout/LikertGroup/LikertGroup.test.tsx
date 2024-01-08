@@ -277,6 +277,7 @@ describe('RepeatingGroupsLikertContainer', () => {
         likertContainerProps: {
           textResourceBindings: {
             leftColumnHeader,
+            questions: 'likert-questions',
           },
         },
         mobileView: true,

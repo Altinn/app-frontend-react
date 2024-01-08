@@ -57,7 +57,7 @@ export const questionsWithAnswers = ({ questions, selectedAnswers }) => {
   return questionsCopy;
 };
 
-const createLikertContainer = (props: Partial<CompLikertGroupExternal> | undefined): CompLikertGroupExternal => ({
+const createLikertLayout = (props: Partial<CompLikertGroupExternal> | undefined): CompLikertGroupExternal => ({
   id: 'likert-repeating-group-id',
   type: 'LikertGroup',
   textResourceBindings: {
@@ -125,7 +125,7 @@ interface IRenderProps {
   mockQuestions: IQuestion[];
   mockOptions: IOption[];
   radioButtonProps: Partial<CompLikertExternal>;
-  likertContainerProps: Partial<CompLikertGroupExternal>;
+  likertProps: Partial<CompLikertGroupExternal>;
   extraTextResources: IRawTextResource[];
   validations: ILayoutValidations;
 }
@@ -134,15 +134,15 @@ export const render = async ({
   mobileView = false,
   mockQuestions = defaultMockQuestions,
   mockOptions = defaultMockOptions,
-  likertContainerProps,
+  likertProps,
   extraTextResources = [],
   validations,
 }: Partial<IRenderProps> = {}) => {
-  const mockLikertContainer = createLikertContainer(likertContainerProps);
+  const mockLikertLayout = createLikertLayout(likertProps);
 
   setScreenWidth(mobileView ? 600 : 1200);
   return await renderWithInstanceAndLayout({
-    renderer: () => <ContainerTester id={mockLikertContainer.id} />,
+    renderer: () => <ContainerTester id={mockLikertLayout.id} />,
     reduxState: getInitialStateMock({
       formValidations: createFormValidationsForCurrentView(validations),
     }),
@@ -153,7 +153,7 @@ export const render = async ({
       fetchLayouts: async () => ({
         FormLayout: {
           data: {
-            layout: [mockLikertContainer],
+            layout: [mockLikertLayout],
           },
         },
       }),

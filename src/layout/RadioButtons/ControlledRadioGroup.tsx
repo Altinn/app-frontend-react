@@ -37,7 +37,7 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
   };
 
   const labelText = (
-    <span style={{ fontSize: '1rem', wordBreak: 'break-word' }}>
+    <span className={classes.labelContent}>
       {getLabelPrefixForLikert()}
       <Lang id={textResourceBindings?.title} />
       <RequiredIndicator required={required} />

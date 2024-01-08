@@ -63,6 +63,13 @@ function makeRepeatingLikertGroup() {
         description: 'The descriptions to be displayed in each row (use a dynamic text resource)',
       }),
     )
+    .addTextResource(
+      new CG.trb({
+        name: 'questionHelpTexts',
+        title: 'Question help texts',
+        description: 'The help texts to be displayed in each row (use a dynamic text resource)',
+      }),
+    )
     .addProperty(
       new CG.prop(
         'rows',
