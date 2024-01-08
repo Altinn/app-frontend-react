@@ -64,6 +64,31 @@ describe('useWaitForState', () => {
     await waitFor(() => expect(callback).toHaveBeenCalledTimes(1));
     expect(callback).toHaveBeenCalledWith('state now set to updated, return value was "fooBar"', 1);
   });
+
+  it('should wait for the state even if we wait right after setting it', async () => {
+    const callback = jest.fn();
+    render(
+      <TesterComponent
+        callback={callback}
+        initialState='initial'
+        targetState='updated'
+        buttonClickSets='updated'
+        waitImmediatelyAndSet='waited'
+      />,
+    );
+
+    expect(callback).not.toHaveBeenCalled();
+    expect(screen.getByTestId('current')).toHaveTextContent('initial');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Update' }));
+    await waitFor(() => expect(screen.getByTestId('current')).toHaveTextContent('waited'));
+
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(callback).toHaveBeenCalledWith('state now set to updated, return value was "fooBar"', 2);
+
+    // Render count is higher than 2, because the component renders once more when we set the state to 'waited'
+    expect(screen.getByTestId('renderCount')).toHaveTextContent('3');
+  });
 });
 
 interface Props {
@@ -71,9 +96,10 @@ interface Props {
   initialState: string;
   targetState: string;
   buttonClickSets: string;
+  waitImmediatelyAndSet?: string;
 }
 
-function TesterComponent({ callback, initialState, targetState, buttonClickSets }: Props) {
+function TesterComponent({ callback, initialState, targetState, buttonClickSets, waitImmediatelyAndSet }: Props) {
   const [mySimpleState, setMySimpleState] = useState<string>(initialState);
   const waitFor = useWaitForState<'fooBar', string>(mySimpleState);
   const renderCount = useRef(0);
@@ -97,7 +123,17 @@ function TesterComponent({ callback, initialState, targetState, buttonClickSets 
     <>
       <div data-testid='current'>{mySimpleState}</div>
       <div data-testid='renderCount'>{renderCount.current}</div>
-      <button onClick={() => setMySimpleState(buttonClickSets)}>Update</button>
+      <button
+        onClick={async () => {
+          setMySimpleState(buttonClickSets);
+          if (waitImmediatelyAndSet) {
+            await waitFor((state) => state === buttonClickSets);
+            setMySimpleState(waitImmediatelyAndSet);
+          }
+        }}
+      >
+        Update
+      </button>
     </>
   );
 }
