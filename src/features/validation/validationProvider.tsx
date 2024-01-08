@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useImmer } from 'use-immer';
 
@@ -42,6 +42,7 @@ import {
   setVisibilityForAttachment,
   setVisibilityForNode,
 } from 'src/features/validation/visibility';
+import { useAsRef } from 'src/hooks/useAsRef';
 import { useOrder } from 'src/hooks/useNavigatePage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { useNodes } from 'src/utils/layout/NodesContext';
@@ -61,6 +62,10 @@ const { Provider, useCtx } = createContext<ValidationContext>({
 
 export function ValidationContext({ children }) {
   const validationContext = useValidationContext();
+
+  const currentFormData = useAsRef(FD.useDebounced());
+  const lastValidatedFormData = useRef<object | undefined>(undefined);
+  const hasValidatedCurrentFormData = lastValidatedFormData.current === currentFormData.current;
 
   const [frontendValidations, setFrontendValidations] = useImmer<FormValidations>({
     fields: {},
@@ -86,6 +91,7 @@ export function ValidationContext({ children }) {
       mergeFormValidations(state, newValidations);
     });
 
+    lastValidatedFormData.current = currentFormData.current;
     validating().then(() => {
       reduceNodeVisibility(changedNodes);
     });
@@ -135,7 +141,7 @@ export function ValidationContext({ children }) {
   }, [backendValidations, frontendValidations]);
 
   // Provide a promise that resolves when all pending validations have been completed
-  const waitForValidating = useWaitForState(isFetching || hasUnsavedFormData);
+  const waitForValidating = useWaitForState(isFetching || hasUnsavedFormData || !hasValidatedCurrentFormData);
   const validating = useCallback(async () => {
     await waitForValidating((state) => !state);
   }, [waitForValidating]);
