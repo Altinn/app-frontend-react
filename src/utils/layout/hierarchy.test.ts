@@ -257,36 +257,20 @@ describe('Hierarchical layout tools', () => {
         {
           id: 'g1',
           type: 'LikertGroup',
-          children: ['g1c'],
-          dataModelBindings: { simpleBinding: '', questions: 'Group' },
-          edit: {
-            filter: [
-              { key: 'start', value: '0' },
-              { key: 'stop', value: '3' },
-            ],
-          },
-        },
-        {
-          id: 'g1c',
-          type: 'Input',
-          dataModelBindings: { simpleBinding: 'Group.Title' },
+          dataModelBindings: { simpleBinding: 'Group.Title', questions: 'Group' },
+          filter: [
+            { key: 'start', value: '0' },
+            { key: 'stop', value: '3' },
+          ],
         },
         {
           id: 'g2',
           type: 'LikertGroup',
-          children: ['g2c'],
-          dataModelBindings: { simpleBinding: '', questions: 'Group' },
-          edit: {
-            filter: [
-              { key: 'start', value: '3' },
-              { key: 'stop', value: '6' },
-            ],
-          },
-        },
-        {
-          id: 'g2c',
-          type: 'Input',
-          dataModelBindings: { simpleBinding: 'Group.Title' },
+          dataModelBindings: { simpleBinding: 'Group.Title', questions: 'Group' },
+          filter: [
+            { key: 'start', value: '3' },
+            { key: 'stop', value: '6' },
+          ],
         },
       ];
       const nodes = generateHierarchy(layout, { ...dataSources, formData }, getLayoutComponentObject);

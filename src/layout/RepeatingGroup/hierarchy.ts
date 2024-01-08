@@ -87,7 +87,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Repeat
         ? dot.pick(item.dataModelBindings.group, ctx.generator.dataSources.formData)
         : undefined;
       const lastIndex = formData && Array.isArray(formData) ? formData.length - 1 : -1;
-      const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(lastIndex, {});
+      const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(lastIndex);
 
       for (let rowIndex = startIndex; rowIndex <= stopIndex; rowIndex++) {
         const rowChildren: LayoutNode[] = [];

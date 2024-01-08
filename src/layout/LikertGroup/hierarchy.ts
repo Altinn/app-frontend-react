@@ -3,11 +3,7 @@ import dot from 'dot-object';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { CompLikertInternal } from 'src/layout/Likert/config.generated';
-import type {
-  CompLikertGroupExternal,
-  HLikertGroupRows,
-  ILikertGroupEditProperties,
-} from 'src/layout/LikertGroup/config.generated';
+import type { CompLikertGroupExternal, HLikertGroupRows, ILikertFilter } from 'src/layout/LikertGroup/config.generated';
 import type {
   ChildFactory,
   ChildFactoryProps,
@@ -58,10 +54,7 @@ export class LikertGroupHierarchyGenerator extends ComponentHierarchyGenerator<'
         : undefined;
       const lastIndex = formData && Array.isArray(formData) ? formData.length - 1 : -1;
 
-      const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(
-        lastIndex,
-        'edit' in props.item ? (props.item.edit as ILikertGroupEditProperties) : {},
-      );
+      const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(lastIndex, props.item.filter as ILikertFilter);
 
       const prototype = ctx.generator.prototype(ctx.id) as UnprocessedItem<'Likert'>;
 

@@ -89,9 +89,7 @@ describe('RepeatingGroupsLikertContainer', () => {
     it('should render table with start binding', async () => {
       await render({
         likertContainerProps: {
-          edit: {
-            filter: [{ key: 'start', value: '2' }],
-          },
+          filter: [{ key: 'start', value: '2' }],
         },
       });
 
@@ -105,9 +103,7 @@ describe('RepeatingGroupsLikertContainer', () => {
     it('should render table with end binding', async () => {
       await render({
         likertContainerProps: {
-          edit: {
-            filter: [{ key: 'stop', value: '3' }],
-          },
+          filter: [{ key: 'stop', value: '3' }],
         },
       });
 
@@ -121,12 +117,10 @@ describe('RepeatingGroupsLikertContainer', () => {
     it('should render table with start and end binding', async () => {
       await render({
         likertContainerProps: {
-          edit: {
-            filter: [
-              { key: 'start', value: '1' },
-              { key: 'stop', value: '3' },
-            ],
-          },
+          filter: [
+            { key: 'start', value: '1' },
+            { key: 'stop', value: '3' },
+          ],
         },
       });
 
@@ -365,12 +359,10 @@ describe('RepeatingGroupsLikertContainer', () => {
       await render({
         mobileView: true,
         likertContainerProps: {
-          edit: {
-            filter: [
-              { key: 'start', value: '1' },
-              { key: 'stop', value: '3' },
-            ],
-          },
+          filter: [
+            { key: 'start', value: '1' },
+            { key: 'stop', value: '3' },
+          ],
         },
       });
 

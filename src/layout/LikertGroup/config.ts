@@ -3,7 +3,7 @@ import { CompCategory } from 'src/layout/common';
 import type { GenerateComponentLike } from 'src/codegen/dataTypes/GenerateComponentLike';
 
 export const Config = new CG.component({
-  category: CompCategory.Container,
+  category: CompCategory.Form,
   rendersWithLabel: false,
   capabilities: {
     renderInTable: false,
@@ -11,14 +11,7 @@ export const Config = new CG.component({
     renderInAccordion: false,
     renderInAccordionGroup: false,
   },
-}).addProperty(
-  new CG.prop(
-    'children',
-    new CG.arr(new CG.str())
-      .setTitle('Children')
-      .setDescription('Array of component IDs that should be displayed in the LikertGroup'),
-  ).onlyIn(Variant.External),
-);
+});
 
 // Remove these so they're not set to undefined, as is the default for all other components. We override these anyway.
 Config.inner.removeProperty('textResourceBindings');
@@ -91,23 +84,16 @@ function makeRepeatingLikertGroup() {
     .addDataModelBinding(CG.common('IDataModelBindingsLikertSimple').optional())
     .addProperty(
       new CG.prop(
-        'edit',
-        new CG.obj(
-          new CG.prop(
-            'filter',
-            new CG.arr(
-              new CG.obj(new CG.prop('key', new CG.str()), new CG.prop('value', new CG.str())).exportAs('IGroupFilter'),
-            )
-              .optional()
-              .setTitle('Filter')
-              .setDescription(
-                'Optionally filter specific rows within the likert group using start/stop indexes for displaying the desired ones' +
-                  '(in other cases use an expression in the "hiddenRow" property instead)',
-              ),
-          ),
-        )
-          .exportAs('ILikertGroupEditProperties')
-          .optional(),
+        'filter',
+        new CG.arr(new CG.obj(new CG.prop('key', new CG.str()), new CG.prop('value', new CG.str())).exportAs('IFilter'))
+          .optional()
+          .setTitle('Filter')
+          .setDescription(
+            'Optionally filter specific rows within the likert group using start/stop indexes for displaying the desired ones' +
+              '(in other cases use an expression in the "hiddenRow" property instead)',
+          )
+          .exportAs('ILikertFilter'),
       ),
-    );
+    )
+    .makeSelectionComponent(false);
 }

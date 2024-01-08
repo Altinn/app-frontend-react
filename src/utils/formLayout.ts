@@ -1,4 +1,4 @@
-import type { ILikertGroupEditProperties } from 'src/layout/LikertGroup/config.generated';
+import type { ILikertFilter } from 'src/layout/LikertGroup/config.generated';
 import type { ILayoutSets } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -52,16 +52,13 @@ export function splitDashedKey(componentId: string): SplitKey {
   };
 }
 
-export const getRepeatingGroupStartStopIndex = (
-  repeatingGroupIndex: number,
-  edit: Pick<ILikertGroupEditProperties, 'filter'> | undefined,
-) => {
+export const getRepeatingGroupStartStopIndex = (repeatingGroupIndex: number, filter?: ILikertFilter) => {
   if (typeof repeatingGroupIndex === 'undefined') {
     return { startIndex: 0, stopIndex: -1 };
   }
 
-  const start = edit?.filter?.find(({ key }) => key === 'start')?.value;
-  const stop = edit?.filter?.find(({ key }) => key === 'stop')?.value;
+  const start = filter?.find(({ key }) => key === 'start')?.value;
+  const stop = filter?.find(({ key }) => key === 'stop')?.value;
   const startIndex = start ? parseInt(start) : 0;
   const stopIndex = stop ? Math.min(parseInt(stop) - 1, repeatingGroupIndex) : repeatingGroupIndex;
   return { startIndex, stopIndex };

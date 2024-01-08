@@ -12,7 +12,6 @@ import type { FDNewValue } from 'src/features/formData/FormDataWriteStateMachine
 import type { IRawTextResource, ITextResourceResult } from 'src/features/language/textResources';
 import type { IValidationState } from 'src/features/validation/validationSlice';
 import type { IOption } from 'src/layout/common.generated';
-import type { CompOrGroupExternal } from 'src/layout/layout';
 import type { CompLikertExternal } from 'src/layout/Likert/config.generated';
 import type { CompLikertGroupExternal } from 'src/layout/LikertGroup/config.generated';
 import type { ILayoutValidations } from 'src/utils/validation/types';
@@ -61,22 +60,12 @@ export const questionsWithAnswers = ({ questions, selectedAnswers }) => {
 const createLikertContainer = (props: Partial<CompLikertGroupExternal> | undefined): CompLikertGroupExternal => ({
   id: 'likert-repeating-group-id',
   type: 'LikertGroup',
-  children: ['field1'],
-  dataModelBindings: {
-    simpleBinding: '',
-    questions: groupBinding,
+  textResourceBindings: {
+    questions: 'likert-questions',
   },
-  ...props,
-});
-
-const createRadioButton = (props: Partial<CompLikertExternal> | undefined): CompLikertExternal => ({
-  id: 'field1',
-  type: 'Likert',
   dataModelBindings: {
     simpleBinding: `${groupBinding}.${answerBinding}`,
-  },
-  textResourceBindings: {
-    title: 'likert-questions',
+    questions: groupBinding,
   },
   optionsId: 'option-test',
   readOnly: false,
@@ -145,14 +134,11 @@ export const render = async ({
   mobileView = false,
   mockQuestions = defaultMockQuestions,
   mockOptions = defaultMockOptions,
-  radioButtonProps,
   likertContainerProps,
   extraTextResources = [],
   validations,
 }: Partial<IRenderProps> = {}) => {
-  const mockRadioButton = createRadioButton(radioButtonProps);
   const mockLikertContainer = createLikertContainer(likertContainerProps);
-  const components: CompOrGroupExternal[] = [mockRadioButton];
 
   setScreenWidth(mobileView ? 600 : 1200);
   return await renderWithInstanceAndLayout({
@@ -167,7 +153,7 @@ export const render = async ({
       fetchLayouts: async () => ({
         FormLayout: {
           data: {
-            layout: [mockLikertContainer, ...components],
+            layout: [mockLikertContainer],
           },
         },
       }),
