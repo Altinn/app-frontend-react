@@ -3,7 +3,7 @@ import type { JSX, ReactNode } from 'react';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { useLaxApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
-import { DMReaders, useDataModelReaders } from 'src/features/formData/FormDataReaders';
+import { DataModelReaders, useDataModelReaders } from 'src/features/formData/FormDataReaders';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -14,7 +14,6 @@ import { useFormComponentCtx } from 'src/layout/FormComponentContext';
 import { getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
-import type { DataModelReaders } from 'src/features/formData';
 import type { TextResourceMap } from 'src/features/language/textResources';
 import type { FixedLanguageList } from 'src/language/languages';
 import type { IRuntimeState } from 'src/types';
@@ -45,7 +44,7 @@ interface TextResourceVariablesDataSources {
   applicationSettings: IApplicationSettings | null;
   instanceDataSources: IInstanceDataSources | null;
   dataModelPath?: string;
-  dataModels: DataModelReaders;
+  dataModels: ReturnType<typeof useDataModelReaders>;
 }
 
 /**
@@ -113,7 +112,10 @@ export function staticUseLanguageFromState(state: IRuntimeState, node?: LayoutNo
   const dataSources: TextResourceVariablesDataSources = {
     node,
     // TODO: Remove this when redux is removed
-    dataModels: new DMReaders(),
+    dataModels: {
+      readers: new DataModelReaders(),
+      default: undefined,
+    },
     applicationSettings,
     instanceDataSources,
   };
@@ -144,7 +146,10 @@ export function staticUseLanguageForTests({
       instanceOwnerPartyId: '12345',
       instanceOwnerPartyType: 'person',
     },
-    dataModels: new DMReaders(),
+    dataModels: {
+      readers: new DataModelReaders(),
+      default: undefined,
+    },
     applicationSettings: {},
     node: undefined,
   },
@@ -294,12 +299,12 @@ function replaceVariables(text: string, variables: IVariable[], dataSources: Tex
         ? transposeDataBinding({ subject: cleanPath, currentLocation: dataModelPath })
         : node?.transposeDataModel(cleanPath) || value;
       if (transposedPath) {
-        const dataModel = dataModels.getReader(dataModelName);
-        const isLoaded = dataModel.isLoaded();
-        const stringValue = dataModel.getAsString(transposedPath);
+        const dataModel =
+          dataModelName === 'default' ? dataModels.default : dataModels.readers.getReader(dataModelName);
+        const stringValue = dataModel?.getAsString(transposedPath);
         if (stringValue !== undefined) {
           value = stringValue;
-        } else if (!isLoaded) {
+        } else if (dataModel?.isLoading()) {
           value = '...'; // TODO: Use a loading indicator, or at least let this value be configurable
         }
       }
