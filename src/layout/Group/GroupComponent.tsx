@@ -38,7 +38,6 @@ export function GroupComponent({ groupNode, id, onlyRowIndex, isSummary, renderL
 
   const isNested = groupNode.parent instanceof BaseLayoutNode;
   const isPanel = container.groupingIndicator === 'panel';
-  console.log('isPanel', isPanel);
   const isIndented = container.groupingIndicator === 'indented';
   const headingLevel = Math.min(Math.max(groupNode.parents().length + 1, 2), 6) as HeadingLevel;
   const headingSize = headingSizes[headingLevel];
