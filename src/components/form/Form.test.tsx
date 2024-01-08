@@ -59,7 +59,7 @@ describe('Form', () => {
     expect(screen.getByText('Third title')).toBeInTheDocument();
   });
 
-  it('should render DisplayGroupContainer and children if group is non repeating', async () => {
+  it('should render GroupComponent and children if group is non repeating', async () => {
     const layoutWithNonRepGroup: ILayout = [
       ...mockComponents,
       {
@@ -82,12 +82,12 @@ describe('Form', () => {
     ];
 
     await render(layoutWithNonRepGroup);
-    const container = screen.getByTestId('display-group-container');
+    const container = screen.getAllByTestId('display-group-container')[1];
     expect(container).toBeInTheDocument();
     expect(within(container).getByText('Title from non repeating child')).toBeInTheDocument();
   });
 
-  it('should render PanelGroupContainer and children if group has panel prop', async () => {
+  it('should render GroupComponent as panel and children if group has panel prop', async () => {
     const layoutWithPanelGroup: ILayout = [
       ...mockComponents,
       {
@@ -111,7 +111,7 @@ describe('Form', () => {
     ];
 
     await render(layoutWithPanelGroup);
-    const container = screen.getByTestId('panel-group-container');
+    const container = screen.getByTestId('fullWidthWrapper');
     expect(container).toBeInTheDocument();
     expect(within(container).getByText('Title from panel child')).toBeInTheDocument();
   });
