@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useInsertionEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useInsertionEffect, useMemo, useRef, useState } from 'react';
 
 import deepEqual from 'fast-deep-equal';
 
@@ -137,6 +137,7 @@ export function useOnAttachmentsChange(
   const onChangeEvent = useEffectEvent(onChange);
   const layoutNodes = useNodes();
   const attachments = useAttachments();
+  const [isBusy, setIsBusy] = useState(false);
 
   const lastAttachments = useRef<IAttachments>({});
 
@@ -144,6 +145,7 @@ export function useOnAttachmentsChange(
     if (!layoutNodes) {
       return;
     }
+    setIsBusy(true);
 
     const prevAttachments = lastAttachments.current;
     const allAttachments = Object.values(attachments)
@@ -179,8 +181,11 @@ export function useOnAttachmentsChange(
 
         onChangeEvent(changedNodes, addedAttachmentChanges, removedAttachmentChanges);
       }
+      setIsBusy(false);
     }
   }, [attachments, layoutNodes, onChangeEvent]);
+
+  return isBusy;
 }
 
 function getChangedAttachments(current: IAttachments<UploadedAttachment>, prev: IAttachments<UploadedAttachment>) {

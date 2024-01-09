@@ -82,7 +82,8 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
     if (!containerDivRef.current) {
       return NavigationResult.SuccessfulFailedToRender;
     }
-    containerDivRef.current.scrollIntoView();
+    requestAnimationFrame(() => containerDivRef.current?.scrollIntoView());
+
     if (!shouldFocus) {
       // Hooray, we've arrived at the component, but we don't need to focus it.
       return NavigationResult.SuccessfulNoFocus;

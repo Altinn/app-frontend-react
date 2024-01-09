@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useImmer } from 'use-immer';
 
 import { createContext } from 'src/core/contexts/context';
+import { useHasPendingAttachments } from 'src/features/attachments/AttachmentsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import {
   type BaseValidation,
@@ -42,7 +43,6 @@ import {
   setVisibilityForAttachment,
   setVisibilityForNode,
 } from 'src/features/validation/visibility';
-import { useAsRef } from 'src/hooks/useAsRef';
 import { useOrder } from 'src/hooks/useNavigatePage';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { useNodes } from 'src/utils/layout/NodesContext';
@@ -62,10 +62,6 @@ const { Provider, useCtx } = createContext<ValidationContext>({
 
 export function ValidationContext({ children }) {
   const validationContext = useValidationContext();
-
-  const currentFormData = useAsRef(FD.useDebounced());
-  const lastValidatedFormData = useRef<object | undefined>(undefined);
-  const hasValidatedCurrentFormData = lastValidatedFormData.current === currentFormData.current;
 
   const [frontendValidations, setFrontendValidations] = useImmer<FormValidations>({
     fields: {},
@@ -91,7 +87,6 @@ export function ValidationContext({ children }) {
       mergeFormValidations(state, newValidations);
     });
 
-    lastValidatedFormData.current = currentFormData.current;
     validating().then(() => {
       reduceNodeVisibility(changedNodes);
     });
@@ -113,7 +108,7 @@ export function ValidationContext({ children }) {
   });
 
   // Update frontend validations for nodes when their attachments change
-  useOnAttachmentsChange((changedNodes, addedAttachments, removedAttachments) => {
+  const attachmentsBusy = useOnAttachmentsChange((changedNodes, addedAttachments, removedAttachments) => {
     const newValidations = runValidationOnNodes(changedNodes, validationContext);
 
     setFrontendValidations((state) => {
@@ -129,6 +124,7 @@ export function ValidationContext({ children }) {
   // Get backend validations
   const { backendValidations, isFetching } = useBackendValidation();
   const hasUnsavedFormData = FD.useHasUnsavedChanges();
+  const hasPendingAttachments = useHasPendingAttachments();
 
   // Merge backend and frontend validations
   const validations = useMemo(() => {
@@ -141,7 +137,10 @@ export function ValidationContext({ children }) {
   }, [backendValidations, frontendValidations]);
 
   // Provide a promise that resolves when all pending validations have been completed
-  const waitForValidating = useWaitForState(isFetching || hasUnsavedFormData || !hasValidatedCurrentFormData);
+  const waitForValidating = useWaitForState(
+    isFetching || hasUnsavedFormData || hasPendingAttachments || attachmentsBusy,
+  );
+
   const validating = useCallback(async () => {
     await waitForValidating((state) => !state);
   }, [waitForValidating]);
