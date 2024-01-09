@@ -5,7 +5,7 @@ import { Grid } from '@material-ui/core';
 
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { Lang } from 'src/features/language/Lang';
-import { useOnPageValidation } from 'src/features/validation/validationProvider';
+import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import classes from 'src/layout/NavigationButtons/NavigationButtonsComponent.module.css';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -28,7 +28,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
   const disablePrevious = previous === undefined;
   const disableNext = next === undefined;
 
-  const onPageValidation = useOnPageValidation();
+  const onPageNavigationValidation = useOnPageNavigationValidation();
 
   const getScrollPosition = React.useCallback(
     () => document.querySelector(`[data-componentid="${id}"]`)?.getClientRects().item(0)?.y,
@@ -59,7 +59,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
     maybeSaveOnPageChange();
 
     const prevScrollPosition = getScrollPosition();
-    if (validateOnPrevious && (await onPageValidation(node.top, validateOnPrevious))) {
+    if (validateOnPrevious && (await onPageNavigationValidation(node.top, validateOnPrevious))) {
       // Block navigation if validation fails
       resetScrollPosition(prevScrollPosition);
       return;
@@ -77,7 +77,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
     maybeSaveOnPageChange();
 
     const prevScrollPosition = getScrollPosition();
-    if (validateOnNext && (await onPageValidation(node.top, validateOnNext)) && !returnToView) {
+    if (validateOnNext && (await onPageNavigationValidation(node.top, validateOnNext)) && !returnToView) {
       // Block navigation if validation fails, unless returnToView is set (Back to summary)
       resetScrollPosition(prevScrollPosition);
       return;

@@ -6,11 +6,9 @@ import { Label } from 'src/components/form/Label';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
+import { useBindingValidationsForNode } from 'src/features/validation/selectors/bindingValidationsForNode';
+import { useComponentValidationsForNode } from 'src/features/validation/selectors/componentValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
-import {
-  useBindingValidationsForNode,
-  useComponentValidationsForNode,
-} from 'src/features/validation/validationProvider';
 import { usePostPlaceQuery } from 'src/hooks/queries/usePostPlaceQuery';
 import classes from 'src/layout/Address/AddressComponent.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';

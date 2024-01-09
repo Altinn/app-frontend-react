@@ -142,7 +142,7 @@ export type AttachmentChange = {
 /**
  * Contains all of the necessary elements from the redux store to run frontend validations.
  */
-export type IValidationContext = {
+export type ValidationDataSources = {
   currentLanguage: string;
   formData: object;
   attachments: IAttachments;
@@ -154,7 +154,7 @@ export type IValidationContext = {
   customValidation: IExpressionValidations | null;
 };
 
-export type ValidationContextGenerator = (node: LayoutNode | undefined) => IValidationContext;
+export type ValidationContextGenerator = (node: LayoutNode | undefined) => ValidationDataSources;
 
 /**
  * This format is used by the backend to send validation issues to the frontend.

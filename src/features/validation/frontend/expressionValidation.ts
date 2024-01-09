@@ -11,7 +11,7 @@ import type {
   IExpressionValidationRefResolved,
   IExpressionValidationRefUnresolved,
   IExpressionValidations,
-  IValidationContext,
+  ValidationDataSources,
 } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -157,7 +157,7 @@ export function resolveExpressionValidationConfig(config: IExpressionValidationC
 
 export function runExpressionValidationsOnNode(
   node: LayoutNode,
-  { customValidation }: IValidationContext,
+  { customValidation }: ValidationDataSources,
 ): FieldValidation[] {
   const resolvedDataModelBindings = node.item.dataModelBindings;
   const baseDataModelBindings = getBaseDataModelBindings(resolvedDataModelBindings);

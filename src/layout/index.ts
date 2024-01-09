@@ -9,7 +9,7 @@ import type {
   FieldValidation,
   FormValidations,
   ISchemaValidationError,
-  IValidationContext,
+  ValidationDataSources,
 } from 'src/features/validation';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { CompInternal, CompRendersLabel, CompTypes } from 'src/layout/layout';
@@ -64,7 +64,7 @@ export type DefGetter = typeof getLayoutComponentObject;
 export interface ValidateAny {
   runValidations: (
     node: LayoutNode,
-    ctx: IValidationContext,
+    ctx: ValidationDataSources,
     schemaErrors: ISchemaValidationError[],
   ) => FormValidations;
 }
@@ -76,7 +76,7 @@ export function implementsAnyValidation<Type extends CompTypes>(
 }
 
 export interface ValidateEmptyField {
-  runEmptyFieldValidation: (node: LayoutNode, validationContext: IValidationContext) => ComponentValidation[];
+  runEmptyFieldValidation: (node: LayoutNode, validationContext: ValidationDataSources) => ComponentValidation[];
 }
 
 export function implementsValidateEmptyField<Type extends CompTypes>(
@@ -86,7 +86,7 @@ export function implementsValidateEmptyField<Type extends CompTypes>(
 }
 
 export interface ValidateComponent {
-  runComponentValidation: (node: LayoutNode, validationContext: IValidationContext) => ComponentValidation[];
+  runComponentValidation: (node: LayoutNode, validationContext: ValidationDataSources) => ComponentValidation[];
 }
 
 export function implementsValidateComponent<Type extends CompTypes>(

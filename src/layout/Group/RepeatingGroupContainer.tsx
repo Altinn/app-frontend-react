@@ -11,7 +11,7 @@ import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
-import { useUnifiedValidationsForNode } from 'src/features/validation/validationProvider';
+import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import classes from 'src/layout/Group/RepeatingGroupContainer.module.css';
 import { useRepeatingGroup } from 'src/layout/Group/RepeatingGroupContext';
 import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';

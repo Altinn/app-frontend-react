@@ -5,7 +5,7 @@ import { useLaxProcessData, useTaskTypeFromBackend } from 'src/features/instance
 import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useOnFormSubmitValidation } from 'src/features/validation/validationProvider';
+import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onFormSubmitValidation';
 import { getComponentFromMode } from 'src/layout/Button/getComponentFromMode';
 import { SubmitButton } from 'src/layout/Button/SubmitButton';
 import { ProcessTaskType } from 'src/types';

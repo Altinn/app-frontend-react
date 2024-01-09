@@ -21,7 +21,7 @@ import type {
   ComponentValidation,
   FormValidations,
   ISchemaValidationError,
-  IValidationContext,
+  ValidationDataSources,
 } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateAny, ValidateComponent } from 'src/layout';
 import type { CompExternalExact, CompInternal, HierarchyDataSources } from 'src/layout/layout';
@@ -71,7 +71,11 @@ export class Group extends GroupDef implements ValidateAny, ValidateComponent {
     return this._hierarchyGenerator;
   }
 
-  runValidations(node: LayoutNode, ctx: IValidationContext, schemaErrors: ISchemaValidationError[]): FormValidations {
+  runValidations(
+    node: LayoutNode,
+    ctx: ValidationDataSources,
+    schemaErrors: ISchemaValidationError[],
+  ): FormValidations {
     return runAllValidations(node, ctx, schemaErrors);
   }
 

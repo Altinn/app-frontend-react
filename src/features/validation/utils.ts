@@ -204,3 +204,48 @@ export function attachmentsValid(
 export function attachmentIsMissingTag(attachment: UploadedAttachment): boolean {
   return attachment.data.tags === undefined || attachment.data.tags.length === 0;
 }
+
+/**
+ * Updates an existing validation states using the values from the new state.
+ */
+export function mergeValidationState(prevState: ValidationState, newState: ValidationState): void {
+  mergeFormValidations(prevState, newState);
+
+  if (newState.task) {
+    prevState.task = newState.task;
+  }
+}
+
+/**
+ * Remove validation from removed nodes.
+ * This also removes field validations which are no longer bound to any other nodes.
+ */
+export function purgeValidationsForNodes(
+  state: FormValidations,
+  removedNodes: LayoutNode[],
+  currentNodes: LayoutNode[],
+): void {
+  if (removedNodes.length === 0) {
+    return;
+  }
+
+  const fieldsToKeep = new Set<string>();
+  for (const node of currentNodes) {
+    if (node.item.dataModelBindings) {
+      for (const field of Object.values(node.item.dataModelBindings)) {
+        fieldsToKeep.add(field);
+      }
+    }
+  }
+
+  for (const node of removedNodes) {
+    delete state.components[node.item.id];
+    if (node.item.dataModelBindings) {
+      for (const field of Object.values(node.item.dataModelBindings)) {
+        if (!fieldsToKeep.has(field)) {
+          delete state.fields[field];
+        }
+      }
+    }
+  }
+}

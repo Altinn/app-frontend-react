@@ -14,7 +14,7 @@ import type {
   ComponentValidation,
   FieldValidation,
   ISchemaValidationError,
-  IValidationContext,
+  ValidationDataSources,
 } from 'src/features/validation';
 import type { DisplayDataProps, PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -47,7 +47,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent {
 
   runComponentValidation(
     node: LayoutNode<'Datepicker'>,
-    { formData, currentLanguage }: IValidationContext,
+    { formData, currentLanguage }: ValidationDataSources,
   ): ComponentValidation[] {
     const field = node.item.dataModelBindings?.simpleBinding;
     const data = field ? dot.pick(field, formData) : undefined;

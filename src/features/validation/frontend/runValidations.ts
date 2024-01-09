@@ -1,10 +1,10 @@
 import { getSchemaValidationErrors } from 'src/features/validation/frontend/schemaValidation';
 import { mergeFormValidations } from 'src/features/validation/utils';
 import { implementsAnyValidation } from 'src/layout';
-import type { FormValidations, IValidationContext } from 'src/features/validation';
+import type { FormValidations, ValidationDataSources } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export function runValidationOnNodes(nodes: LayoutNode[], context: IValidationContext): FormValidations {
+export function runValidationOnNodes(nodes: LayoutNode[], context: ValidationDataSources): FormValidations {
   const nodesToValidate = nodes.filter(
     (node) => implementsAnyValidation(node.def) && !('renderAsSummary' in node.item && node.item.renderAsSummary),
   );

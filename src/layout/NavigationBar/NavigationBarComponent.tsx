@@ -5,7 +5,7 @@ import cn from 'classnames';
 
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useOnPageValidation } from 'src/features/validation/validationProvider';
+import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -112,7 +112,7 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
   const isMobile = useIsMobile() || compact === true;
   const { langAsString } = useLanguage();
   const { navigateToPage, currentPageId, order, maybeSaveOnPageChange } = useNavigatePage();
-  const onPageValidation = useOnPageValidation();
+  const onPageNavigationValidation = useOnPageNavigationValidation();
 
   const firstPageLink = React.useRef<HTMLButtonElement>();
 
@@ -130,12 +130,12 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
 
     maybeSaveOnPageChange();
 
-    if (isForward && validateOnForward && (await onPageValidation(node.top, validateOnForward))) {
+    if (isForward && validateOnForward && (await onPageNavigationValidation(node.top, validateOnForward))) {
       // Block navigation if validation fails
       return;
     }
 
-    if (isBackward && validateOnBackward && (await onPageValidation(node.top, validateOnBackward))) {
+    if (isBackward && validateOnBackward && (await onPageNavigationValidation(node.top, validateOnBackward))) {
       // Block navigation if validation fails
       return;
     }

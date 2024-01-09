@@ -13,13 +13,13 @@ import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useNodes } from 'src/utils/layout/NodesContext';
 import type { IAttachment, IAttachments, UploadedAttachment } from 'src/features/attachments';
-import type { AttachmentChange, IValidationContext } from 'src/features/validation';
+import type { AttachmentChange, ValidationDataSources } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 /**
  * Hook providing validation context generator
  */
-export function useValidationContext(): IValidationContext {
+export function useValidationDataSources(): ValidationDataSources {
   const formData = FD.useDebounced();
   const attachments = useAttachments();
   const currentLanguage = useCurrentLanguage();

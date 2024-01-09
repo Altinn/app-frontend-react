@@ -8,7 +8,7 @@ import type {
   FieldValidation,
   FormValidations,
   ISchemaValidationError,
-  IValidationContext,
+  ValidationDataSources,
 } from 'src/features/validation';
 import type { CompTypes } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -16,7 +16,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 // TODO(Validation): Merge all frontend validations into one group?
 export function runAllValidations<Type extends CompTypes>(
   node: LayoutNode<Type>,
-  ctx: IValidationContext,
+  ctx: ValidationDataSources,
   schemaErrors: ISchemaValidationError[],
 ): FormValidations {
   const formValidations: FormValidations = {

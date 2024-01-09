@@ -6,7 +6,7 @@ import { ErrorReport } from 'src/components/message/ErrorReport';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import classes from 'src/features/receipt/CustomReceipt.module.css';
-import { useTaskErrors } from 'src/features/validation/validationProvider';
+import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { extractBottomButtons } from 'src/utils/formLayout';
 import { useNodes } from 'src/utils/layout/NodesContext';

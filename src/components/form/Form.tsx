@@ -11,7 +11,7 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { FrontendValidationSource } from 'src/features/validation';
-import { useTaskErrors } from 'src/features/validation/validationProvider';
+import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { useCurrentView, useNavigatePage } from 'src/hooks/useNavigatePage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { extractBottomButtons, hasRequiredFields } from 'src/utils/formLayout';

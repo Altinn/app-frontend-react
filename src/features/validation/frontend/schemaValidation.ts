@@ -16,7 +16,7 @@ import type {
   ISchemaValidationError,
   ISchemaValidator,
   ISchemaValidators,
-  IValidationContext,
+  ValidationDataSources,
 } from 'src/features/validation';
 import type { IDataType } from 'src/types/shared';
 
@@ -182,7 +182,7 @@ export function getSchemaValidationErrors({
   process,
   layoutSets,
   schema,
-}: IValidationContext): ISchemaValidationError[] {
+}: ValidationDataSources): ISchemaValidationError[] {
   const currentDataTaskDataTypeId = getCurrentDataTypeForApplication({
     application,
     process,

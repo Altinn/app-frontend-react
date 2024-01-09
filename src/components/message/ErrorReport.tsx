@@ -7,7 +7,7 @@ import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import classes from 'src/components/message/ErrorReport.module.css';
 import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
-import { useTaskErrors } from 'src/features/validation/validationProvider';
+import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { useNodes } from 'src/utils/layout/NodesContext';
 import type { NodeValidation } from 'src/features/validation';

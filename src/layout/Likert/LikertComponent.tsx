@@ -5,7 +5,7 @@ import { Typography } from '@material-ui/core';
 
 import { RadioButton } from 'src/components/form/RadioButton';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
-import { useUnifiedValidationsForNode } from 'src/features/validation/validationProvider';
+import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { LayoutStyle } from 'src/layout/common.generated';
 import { GenericComponentLegend } from 'src/layout/GenericComponentUtils';
 import classes from 'src/layout/Likert/LikertComponent.module.css';

@@ -20,7 +20,7 @@ import type {
   FieldValidation,
   FormValidations,
   ISchemaValidationError,
-  IValidationContext,
+  ValidationDataSources,
 } from 'src/features/validation';
 import type {
   DisplayData,
@@ -299,11 +299,15 @@ export abstract class FormComponent<Type extends CompTypes>
 {
   readonly type = CompCategory.Form;
 
-  runValidations(node: LayoutNode, ctx: IValidationContext, schemaErrors: ISchemaValidationError[]): FormValidations {
+  runValidations(
+    node: LayoutNode,
+    ctx: ValidationDataSources,
+    schemaErrors: ISchemaValidationError[],
+  ): FormValidations {
     return runAllValidations(node, ctx, schemaErrors);
   }
 
-  runEmptyFieldValidation(node: LayoutNode<Type>, { formData }: IValidationContext): ComponentValidation[] {
+  runEmptyFieldValidation(node: LayoutNode<Type>, { formData }: ValidationDataSources): ComponentValidation[] {
     if (!('required' in node.item) || !node.item.required || !node.item.dataModelBindings) {
       return [];
     }

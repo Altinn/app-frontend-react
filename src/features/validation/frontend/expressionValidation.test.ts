@@ -11,7 +11,7 @@ import { buildAuthContext } from 'src/utils/authContext';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import { _private } from 'src/utils/layout/hierarchy';
 import type { Layouts } from 'src/features/expressions/shared';
-import type { IExpressionValidationConfig, IValidationContext } from 'src/features/validation';
+import type { IExpressionValidationConfig, ValidationDataSources } from 'src/features/validation';
 import type { HierarchyDataSources } from 'src/layout/layout';
 const { resolvedNodesInLayouts } = _private;
 
@@ -68,7 +68,7 @@ describe('Expression validation shared tests', () => {
 
     const validationContext = {
       customValidation,
-    } as IValidationContext;
+    } as ValidationDataSources;
 
     const _layouts = convertLayouts(layouts);
     const rootCollection = resolvedNodesInLayouts(_layouts, '', dataSources);
