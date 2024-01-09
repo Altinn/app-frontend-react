@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
 import { getVisibilityMask } from 'src/features/validation/utils';
-import { useValidationContext } from 'src/features/validation/validationProvider';
+import { useValidationContext } from 'src/features/validation/validationContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function useOnAttachmentSave() {

@@ -9,7 +9,7 @@ import {
   validationsFromGroups,
   validationsOfSeverity,
 } from 'src/features/validation/utils';
-import { useValidationContext } from 'src/features/validation/validationProvider';
+import { useValidationContext } from 'src/features/validation/validationContext';
 import { getVisibilityForNode } from 'src/features/validation/visibility';
 import { useNodes } from 'src/utils/layout/NodesContext';
 

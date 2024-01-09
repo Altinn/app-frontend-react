@@ -13,7 +13,7 @@ import { FormDataReadWriteProvider } from 'src/features/formData/FormDataReadWri
 import { useHasProcessProvider } from 'src/features/instance/ProcessContext';
 import { ProcessNavigationProvider } from 'src/features/instance/ProcessNavigationContext';
 import { AllOptionsProvider, AllOptionsStoreProvider } from 'src/features/options/useAllOptions';
-import { ValidationContext } from 'src/features/validation/validationProvider';
+import { ValidationContext } from 'src/features/validation/validationContext';
 import { NodesProvider } from 'src/utils/layout/NodesContext';
 
 /**

@@ -10,7 +10,7 @@ import {
   shouldValidateNode,
   validationsFromGroups,
 } from 'src/features/validation/utils';
-import { useValidationContext } from 'src/features/validation/validationProvider';
+import { useValidationContext } from 'src/features/validation/validationContext';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 export function useOnFormSubmitValidation() {

@@ -5,7 +5,7 @@ import { createContext } from 'src/core/contexts/context';
 import { useAttachmentDeletionInRepGroups } from 'src/features/attachments/useAttachmentDeletionInRepGroups';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useOnGroupCloseValidation } from 'src/features/validation/callbacks/onGroupCloseValidation';
-import { useOnDeleteGroupRow } from 'src/features/validation/validationProvider';
+import { useOnDeleteGroupRow } from 'src/features/validation/validationContext';
 import { useAsRef, useAsRefObject } from 'src/hooks/useAsRef';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { useWaitForState } from 'src/hooks/useWaitForState';
