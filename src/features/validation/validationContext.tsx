@@ -11,7 +11,7 @@ import {
   ValidationMask,
   type ValidationState,
 } from 'src/features/validation';
-import { useBackendValidation } from 'src/features/validation/backend/runServerValidation';
+import { useBackendValidation } from 'src/features/validation/backend/useBackendValidation';
 import { runValidationOnNodes } from 'src/features/validation/frontend/runValidations';
 import {
   useEffectEvent,
