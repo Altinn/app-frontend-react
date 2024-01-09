@@ -188,7 +188,8 @@ Cypress.Commands.add('clearSelectionAndWait', (viewport) => {
 
   // Work around slow state updates in Dropdown (possibly in combination with preselectedOptionIndex)
   cy.window().then((win) => {
-    const layouts = win.queryClient.getQueriesData(['formLayouts'])?.[0]?.[1]?.layouts;
+    const layoutCache = win.queryClient.getQueriesData(['formLayouts'])?.[0]?.[1] as LayoutContextValue | undefined;
+    const layouts = layoutCache?.layouts;
     cy.waitUntil(() => {
       const allDropdowns = win.document.querySelectorAll('[data-componenttype="Dropdown"]');
       const asArray = Array.from(allDropdowns);
