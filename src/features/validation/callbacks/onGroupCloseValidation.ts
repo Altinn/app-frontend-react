@@ -6,6 +6,10 @@ import { useValidationContext } from 'src/features/validation/validationContext'
 import type { ValidationMasks } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
+/**
+ * Checks if a repeating group row has validation errors when the group is closed.
+ * If there are errors, the visibility is set, and will return true, indicating that the row should not be closed.
+ */
 export function useOnGroupCloseValidation() {
   const setNodeVisibility = useValidationContext().setNodeVisibility;
   const state = useValidationContext().state;

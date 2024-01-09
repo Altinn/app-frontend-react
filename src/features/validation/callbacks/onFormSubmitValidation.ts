@@ -13,6 +13,13 @@ import {
 import { useValidationContext } from 'src/features/validation/validationContext';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
+/**
+ * Checks for any validation errors before submitting the form.
+ * returns true if there are any errors, in that case submitting should be prevented.
+ * It first shows any frontend errors.
+ * If there are no frontend errors, it shows any backend errors.
+ * If there are no backend errors, it shows any backend errors that cannot be mapped to a visible node. Including task errors.
+ */
 export function useOnFormSubmitValidation() {
   const setNodeVisibility = useValidationContext().setNodeVisibility;
   const state = useValidationContext().state;
