@@ -275,11 +275,11 @@ describe('Hierarchical layout tools', () => {
       ];
       const nodes = generateHierarchy(layout, { ...dataSources, formData }, getLayoutComponentObject);
 
-      expect(nodes.findAllById('g1c').length).toEqual(3);
-      expect(nodes.findAllById('g2c').length).toEqual(3);
+      expect(nodes.findAllById('g1').length).toEqual(4);
+      expect(nodes.findAllById('g2').length).toEqual(4);
 
-      expect(nodes.findById('g1c-0')?.rowIndex).toEqual(0);
-      expect(nodes.findById('g2c-3')?.rowIndex).toEqual(3);
+      expect(nodes.findById('g1-0')?.rowIndex).toEqual(0);
+      expect(nodes.findById('g2-3')?.rowIndex).toEqual(3);
     });
   });
 
