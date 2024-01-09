@@ -231,10 +231,7 @@ function makeRepeatingGroup() {
         new CG.int()
           .setMin(2)
           .setTitle('Max number of rows')
-          .setDescription(
-            'Maximum number of rows that can be added. Setting this to a value ' +
-              'higher than 1 turns the group into a repeating group',
-          ),
+          .setDescription('Maximum number of rows that can be added.'),
       ),
     )
     .addProperty(
