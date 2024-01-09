@@ -48,10 +48,7 @@ export function useFormDataQuery(url: string | undefined) {
         window.logError('Fetching form data failed:\n', error);
       }
 
-      const wasRedirected = await maybeAuthenticationRedirect(error);
-      if (!wasRedirected) {
-        throw error;
-      }
+      await maybeAuthenticationRedirect(error);
     },
   });
 }

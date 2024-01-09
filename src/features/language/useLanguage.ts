@@ -112,10 +112,7 @@ export function staticUseLanguageFromState(state: IRuntimeState, node?: LayoutNo
   const dataSources: TextResourceVariablesDataSources = {
     node,
     // TODO: Remove this when redux is removed
-    dataModels: {
-      readers: new DataModelReaders(),
-      default: undefined,
-    },
+    dataModels: new DataModelReaders({}, 'default'),
     applicationSettings,
     instanceDataSources,
   };
@@ -146,10 +143,7 @@ export function staticUseLanguageForTests({
       instanceOwnerPartyId: '12345',
       instanceOwnerPartyType: 'person',
     },
-    dataModels: {
-      readers: new DataModelReaders(),
-      default: undefined,
-    },
+    dataModels: new DataModelReaders({}, 'default'),
     applicationSettings: {},
     node: undefined,
   },
@@ -299,8 +293,7 @@ function replaceVariables(text: string, variables: IVariable[], dataSources: Tex
         ? transposeDataBinding({ subject: cleanPath, currentLocation: dataModelPath })
         : node?.transposeDataModel(cleanPath) || value;
       if (transposedPath) {
-        const dataModel =
-          dataModelName === 'default' ? dataModels.default : dataModels.readers.getReader(dataModelName);
+        const dataModel = dataModels.getReader(dataModelName);
         const stringValue = dataModel?.getAsString(transposedPath);
         if (stringValue !== undefined) {
           value = stringValue;
