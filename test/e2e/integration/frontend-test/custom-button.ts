@@ -37,6 +37,9 @@ describe('Custom Button', () => {
   it('It should execute frontend actions that are specified in the component', () => {
     cy.goto('changename');
 
+    cy.intercept('PUT', '**/data/**').as('saveData');
+    cy.wait('@saveData');
+
     cy.findByRole('button', { name: 'Trigger frontend actions' }).click();
     cy.findByRole('textbox', { name: /Hvor mye gjeld har du?/ }).should('be.visible');
   });
