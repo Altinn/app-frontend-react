@@ -32,7 +32,7 @@ export interface ILayouts {
 export type CompTypes = keyof typeof ComponentConfigs & keyof ComponentTypeConfigs;
 type AllComponents = ComponentTypeConfigs[CompTypes]['layout'];
 
-export type CompExceptGroup = Exclude<CompTypes, 'Group'>;
+export type CompExceptGroup = Exclude<CompTypes, 'Group', 'RepeatingGroup', 'LikertGroup'>;
 
 /**
  * This type can be used to reference the layout declaration for a component. You can either use it to specify

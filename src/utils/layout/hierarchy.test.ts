@@ -193,7 +193,7 @@ describe('Hierarchical layout tools', () => {
       const deepComponent = flatWithGroups.find((node) => node.item.id === `${components.group2nh.id}-2-2`);
       expect(deepComponent?.item.id).toEqual(`${components.group2nh.id}-2-2`);
       expect(deepComponent?.parent?.item?.id).toEqual(`${components.group2n.id}-2`);
-      expect(deepComponent?.parent?.item.type).toEqual(`Group`);
+      expect(deepComponent?.parent?.item.type).toEqual(`RepeatingGroup`);
       expect(deepComponent?.closest((c) => c.type === 'Input')?.item.id).toEqual(`${components.group2ni.id}-2-2`);
 
       expect(nodes.findAllById(components.group2ni.id).map((c) => c.item.id)).toEqual([
@@ -220,7 +220,9 @@ describe('Hierarchical layout tools', () => {
 
       const otherDeepComponent = nodes.findById(`${components.group2nh.id}-3-3`);
       expect(otherDeepComponent?.closest((c) => c.type === 'Input')?.item.id).toEqual(`${components.group2ni.id}-3-3`);
-      expect(otherDeepComponent?.closest((c) => c.type === 'Group')?.item.id).toEqual(`${components.group2n.id}-3`);
+      expect(otherDeepComponent?.closest((c) => c.type === 'RepeatingGroup')?.item.id).toEqual(
+        `${components.group2n.id}-3`,
+      );
       expect(otherDeepComponent?.closest((c) => c.baseComponentId === components.group2i.id)?.item.id).toEqual(
         `${components.group2i.id}-3`,
       );

@@ -92,7 +92,9 @@ export class LayoutPage implements LayoutObject {
   public flat(includeGroups: false): LayoutNode<CompExceptGroup>[];
   public flat(includeGroups: boolean): LayoutNode[] {
     if (!includeGroups) {
-      return this.allChildren.filter((c) => c.item.type !== 'Group');
+      return this.allChildren.filter(
+        (c) => c.item.type !== 'Group' && c.item.type !== 'RepeatingGroup' && c.item.type !== 'LikertGroup',
+      );
     }
 
     return this.allChildren;
