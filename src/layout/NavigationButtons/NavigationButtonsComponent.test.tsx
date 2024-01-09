@@ -6,7 +6,6 @@ import { NavigationButtonsComponent } from 'src/layout/NavigationButtons/Navigat
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { CompNavigationButtonsExternal } from 'src/layout/NavigationButtons/config.generated';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
-import { PageNavigationRouter } from "src/test/routerUtils";
 
 interface RenderProps extends Omit<Partial<RenderGenericComponentTestProps<'NavigationButtons'>>, 'component'> {
   component: CompNavigationButtonsExternal;

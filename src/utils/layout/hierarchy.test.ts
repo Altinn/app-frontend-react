@@ -13,7 +13,6 @@ import type { CompInternal, HierarchyDataSources, ILayout, ILayouts } from 'src/
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 const { resolvedNodesInLayouts } = _private;
-const testPageNavigationConfig = { currentView: 'formLayout', hidden: [], hiddenExpr: {}, order: [] };
 
 describe('Hierarchical layout tools', () => {
   const mkHeader = (id: string): CompHeaderExternal => ({ id, type: 'Header', size: 'L' });
