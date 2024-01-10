@@ -3,7 +3,6 @@ import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { Common } from 'test/e2e/pageobjects/common';
 
 import { Triggers } from 'src/layout/common.generated';
-import { groupIsRepeatingExt } from 'src/layout/Group/tools';
 
 const appFrontend = new AppFrontend();
 const mui = new Common();
@@ -17,7 +16,7 @@ describe('Group', () => {
 
   it('Dynamics on group', () => {
     cy.interceptLayout('group', (component) => {
-      if (component.type === 'Group' && groupIsRepeatingExt(component)) {
+      if (component.type === 'RepeatingGroup') {
         component.tableHeaders = [];
       }
     });
@@ -34,7 +33,7 @@ describe('Group', () => {
   [true, false].forEach((alwaysShowAddButton) => {
     it(`Add items on main group when AlwaysShowAddButton = ${alwaysShowAddButton}`, () => {
       cy.interceptLayout('group', (c) => {
-        if (c.type === 'Group' && groupIsRepeatingExt(c) && c.edit && c.id === 'mainGroup') {
+        if (c.type === 'RepeatingGroup' && c.edit && c.id === 'mainGroup') {
           c.edit.alwaysShowAddButton = alwaysShowAddButton;
           c.maxCount = 2;
         }
@@ -58,7 +57,7 @@ describe('Group', () => {
   [true, false].forEach((openByDefault) => {
     it(`Add and delete items on main and nested group (openByDefault = ${openByDefault ? 'true' : 'false'})`, () => {
       cy.interceptLayout('group', (c) => {
-        if (c.type === 'Group' && groupIsRepeatingExt(c) && c.edit && typeof c.edit.openByDefault !== 'undefined') {
+        if (c.type === 'RepeatingGroup' && c.edit && typeof c.edit.openByDefault !== 'undefined') {
           c.edit.openByDefault = openByDefault;
         }
       });
@@ -146,7 +145,7 @@ describe('Group', () => {
   it.skip('Validation on repeating group for minCount', () => {
     // set minCount to 3 on main group
     cy.interceptLayout('group', (c) => {
-      if (c.type === 'Group' && groupIsRepeatingExt(c) && c.edit && c.id === 'mainGroup') {
+      if (c.type === 'RepeatingGroup' && c.edit && c.id === 'mainGroup') {
         c.minCount = 3;
       }
     });
@@ -197,7 +196,7 @@ describe('Group', () => {
 
       cy.interceptLayout('group', (component) => {
         // Set trigger on main group
-        if (component.id === 'mainGroup' && component.type === 'Group' && groupIsRepeatingExt(component)) {
+        if (component.id === 'mainGroup' && component.type === 'RepeatingGroup') {
           component.triggers = [trigger];
         }
         // Remove component triggers and set required
@@ -395,7 +394,7 @@ describe('Group', () => {
     // as any other setting would just re-create it again.
     [true, 'first' as const, 'last' as const, false].forEach((openByDefault) => {
       cy.interceptLayout('group', (c) => {
-        if (c.type === 'Group' && groupIsRepeatingExt(c) && c.edit && c.edit.openByDefault !== undefined) {
+        if (c.type === 'RepeatingGroup' && c.edit && c.edit.openByDefault !== undefined) {
           c.edit.openByDefault = openByDefault;
         }
       });
@@ -431,7 +430,7 @@ describe('Group', () => {
 
     ['first' as const, 'last' as const, true, false].forEach((openByDefault) => {
       cy.changeLayout((c) => {
-        if (c.type === 'Group' && groupIsRepeatingExt(c) && c.edit && c.edit.openByDefault !== undefined) {
+        if (c.type === 'RepeatingGroup' && c.edit && c.edit.openByDefault !== undefined) {
           c.edit.openByDefault = openByDefault;
         }
       });
@@ -463,7 +462,7 @@ describe('Group', () => {
     });
 
     cy.changeLayout((c) => {
-      if (c.type === 'Group' && groupIsRepeatingExt(c) && c.edit && c.edit.openByDefault !== undefined) {
+      if (c.type === 'RepeatingGroup' && c.edit && c.edit.openByDefault !== undefined) {
         c.edit.openByDefault = true;
       }
     });
@@ -477,7 +476,7 @@ describe('Group', () => {
 
   it('Opens delete warning popup when alertOnDelete is true and deletes on confirm', () => {
     cy.interceptLayout('group', (c) => {
-      if (c.type === 'Group' && groupIsRepeatingExt(c) && c.edit && typeof c.edit.openByDefault !== 'undefined') {
+      if (c.type === 'RepeatingGroup' && c.edit && typeof c.edit.openByDefault !== 'undefined') {
         c.edit.alertOnDelete = true;
       }
     });
@@ -517,7 +516,7 @@ describe('Group', () => {
     cy.goto('group');
     cy.navPage('prefill').should('be.visible');
     cy.changeLayout((c) => {
-      if (c.type === 'Group' && groupIsRepeatingExt(c) && c.tableColumns && c.edit && c.id === 'mainGroup') {
+      if (c.type === 'RepeatingGroup' && c.tableColumns && c.edit && c.id === 'mainGroup') {
         c.tableColumns['currentValue'].editInTable = true;
         c.tableColumns['newValue'].editInTable = true;
         c.edit.editButton = false;
@@ -570,7 +569,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 3);
 
     cy.changeLayout((c) => {
-      if (c.type === 'Group' && groupIsRepeatingExt(c) && c.tableColumns && c.edit && c.id === 'mainGroup') {
+      if (c.type === 'RepeatingGroup' && c.tableColumns && c.edit && c.id === 'mainGroup') {
         c.tableColumns['currentValue'].showInExpandedEdit = false;
         c.tableColumns['newValue'].showInExpandedEdit = false;
       }
@@ -586,7 +585,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.saveMainGroup).clickAndGone();
 
     cy.changeLayout((c) => {
-      if (c.type === 'Group' && groupIsRepeatingExt(c) && c.tableColumns && c.edit && c.id === 'mainGroup') {
+      if (c.type === 'RepeatingGroup' && c.tableColumns && c.edit && c.id === 'mainGroup') {
         c.edit.mode = 'onlyTable';
 
         // This has no effect, as the edit button is always hidden when editing always is done in table. Still, we
@@ -622,7 +621,7 @@ describe('Group', () => {
     cy.goto('group');
     cy.get(appFrontend.nextButton).click();
     cy.changeLayout((c) => {
-      if (c.type === 'Group' && c.id === 'mainGroup' && c.textResourceBindings && groupIsRepeatingExt(c)) {
+      if (c.type === 'RepeatingGroup' && c.id === 'mainGroup' && c.textResourceBindings) {
         c.textResourceBindings.add_button_full = 'Hello World';
       }
     });
@@ -632,7 +631,7 @@ describe('Group', () => {
 
   it('should be possible to set text resource bindings to empty string to use default values', () => {
     cy.interceptLayout('group', (c) => {
-      if (c.type === 'Group' && c.id === 'mainGroup' && c.textResourceBindings && groupIsRepeatingExt(c) && c.edit) {
+      if (c.type === 'RepeatingGroup' && c.id === 'mainGroup' && c.textResourceBindings && c.edit) {
         // A bit special for repeating groups and these text resource bindings: They should use the default texts when
         // set to empty strings, so as to make it easy to default to conditionally set the text so something else, but
         // still be able to fall back to the default texts. This is usually not expected behavior for other components.
@@ -675,7 +674,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.editContainer).findAllByRole('button').eq(1).should('have.text', 'next-btn-text');
 
     cy.changeLayout((c) => {
-      if (c.type === 'Group' && c.id === 'mainGroup' && c.textResourceBindings && groupIsRepeatingExt(c)) {
+      if (c.type === 'RepeatingGroup' && c.id === 'mainGroup' && c.textResourceBindings) {
         c.textResourceBindings.save_and_next_button = '';
       }
     });
