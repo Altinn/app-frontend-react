@@ -253,8 +253,6 @@ describe('Validation', () => {
         field: 'Endringsmelding-grp-9786.Avgiver-grp-9787.OppgavegiverNavn-datadef-68.value',
         severity: BackendValidationSeverity.Error,
         source: 'Custom',
-        scope: null,
-        targetId: 'sendersName',
       },
     ] as BackendValidationIssue[]);
   }
