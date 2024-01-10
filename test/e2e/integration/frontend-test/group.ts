@@ -760,7 +760,7 @@ describe('Group', () => {
 
   it('openByDefault = first should work even if the first row is hidden', () => {
     cy.interceptLayout('group', (c) => {
-      if (c.type === 'Group' && c.id === 'mainGroup' && groupIsRepeatingExt(c) && c.edit) {
+      if (c.type === 'RepeatingGroup' && c.id === 'mainGroup' && c.edit) {
         c.edit.openByDefault = 'first';
       }
     });
