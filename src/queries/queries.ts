@@ -43,10 +43,10 @@ import type { IFormDynamics } from 'src/features/form/dynamics';
 import type { Instantiation } from 'src/features/instantiate/InstantiationContext';
 import type { ITextResourceResult } from 'src/features/language/textResources';
 import type { IPdfFormat } from 'src/features/pdf/types';
-import type { IOption } from 'src/layout/common.generated';
+import type { ILayoutSets, ILayoutSettings, IOption } from 'src/layout/common.generated';
 import type { ActionResult } from 'src/layout/CustomButton/CustomButtonComponent';
 import type { ILayoutCollection } from 'src/layout/layout';
-import type { ILayoutSets, ILayoutSettings, ISimpleInstance } from 'src/types';
+import type { ISimpleInstance } from 'src/types';
 import type {
   IActionType,
   IAltinnOrgs,
@@ -219,12 +219,16 @@ export const fetchRuleHandler = (layoutSetId?: string): Promise<string | null> =
 export const fetchTextResources = (selectedLanguage: string): Promise<ITextResourceResult> =>
   httpGet(textResourcesUrl(selectedLanguage));
 
-export const fetchLayoutSchema = (): Promise<JSONSchema7 | undefined> => {
+export const fetchLayoutSchema = async (): Promise<JSONSchema7 | undefined> => {
   // Hacky (and only) way to get the correct CDN url
   const schemaBaseUrl = document
     .querySelector('script[src$="altinn-app-frontend.js"]')
     ?.getAttribute('src')
     ?.replace('altinn-app-frontend.js', 'schemas/json/layout/');
 
-  return schemaBaseUrl ? httpGet(`${schemaBaseUrl}${LAYOUT_SCHEMA_NAME}`) : Promise.resolve(undefined);
+  if (!schemaBaseUrl) {
+    return Promise.resolve(undefined);
+  }
+
+  return (await axios.get(`${schemaBaseUrl}${LAYOUT_SCHEMA_NAME}`)).data ?? undefined;
 };
