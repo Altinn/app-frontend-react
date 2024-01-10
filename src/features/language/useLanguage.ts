@@ -158,6 +158,7 @@ function staticUseLanguage(
 
     const textResource = getTextResourceByKey(key, textResources, { ...dataSources, ...extendedSources });
     if (textResource !== key) {
+      // TODO(Validation): Use params if exists and only if no variables are specified (maybe add datasource params to variables definition)
       return processing ? getParsedLanguageFromText(textResource) : textResource;
     }
 

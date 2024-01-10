@@ -160,17 +160,16 @@ export type ValidationContextGenerator = (node: LayoutNode | undefined) => Valid
  * This format is used by the backend to send validation issues to the frontend.
  */
 export interface BackendValidationIssue {
-  code: string;
-  description: string;
-  field: string;
-  scope: string | null;
+  code?: string;
+  description?: string;
+  field?: string;
+  dataElementId?: string;
   severity: BackendValidationSeverity;
-  targetId: string;
   source: ValidationIssueSources;
   customTextKey?: string;
-  customTextParams?: ValidLangParam[];
-  showImmediately?: boolean;
-  actLikeRequired?: boolean;
+  customTextParams?: ValidLangParam[]; //TODO(Validation): Probably broken for text resources currently
+  showImmediately?: boolean; // Not made available
+  actLikeRequired?: boolean; // Not made available
 }
 
 /**
