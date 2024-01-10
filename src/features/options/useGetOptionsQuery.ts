@@ -17,16 +17,17 @@ export const useGetOptionsQuery = (
   secure?: boolean,
 ): UseQueryResult<AxiosResponse<IOption[], any>> => {
   const { fetchOptions } = useAppQueries();
-  const formData = FD.useDebouncedDotMap();
+  const mappingResult = FD.useMapping(mapping);
   const language = useCurrentLanguage();
   const instanceId = useLaxInstance()?.instanceId;
 
   const url = getOptionsUrl({
     optionsId: optionsId || '',
-    formData,
     language,
-    dataMapping: mapping,
-    fixedQueryParameters: queryParameters,
+    queryParameters: {
+      ...mappingResult,
+      ...queryParameters,
+    },
     secure,
     instanceId,
   });

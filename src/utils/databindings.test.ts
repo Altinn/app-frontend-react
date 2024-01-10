@@ -1,12 +1,4 @@
-import {
-  filterOutInvalidData,
-  flattenObject,
-  getKeyIndex,
-  getKeyWithoutIndex,
-  mapFormData,
-} from 'src/utils/databindings';
-import type { IFormData } from 'src/features/formData/types';
-import type { IMapping } from 'src/layout/common.generated';
+import { filterOutInvalidData, flattenObject, getKeyIndex, getKeyWithoutIndex } from 'src/utils/databindings';
 import type { ILayout } from 'src/layout/layout';
 
 describe('utils/databindings.ts', () => {
@@ -271,42 +263,6 @@ describe('utils/databindings.ts', () => {
       const expected = 'somegroup.someprop.someothergroup.someotherprop';
       const result = getKeyWithoutIndex(withIndex);
       expect(result).toEqual(expected);
-    });
-  });
-
-  describe('mapFormData', () => {
-    it('should map form data according to the defined mapping', () => {
-      const mapping: IMapping = {
-        'some.nested.field': 'nestedValueField',
-        'nested.group[0].field': 'nestedGroupField',
-        'field.does.not.exist': 'undefinedField',
-      };
-      const formData: IFormData = {
-        'some.nested.field': 'nested value',
-        'nested.group[0].field': 'nested group value',
-      };
-      const expectedResult: object = {
-        nestedValueField: 'nested value',
-        nestedGroupField: 'nested group value',
-        undefinedField: undefined,
-      };
-      const result = mapFormData(formData, mapping);
-      expect(result).toEqual(expectedResult);
-    });
-
-    it.each([{}, undefined, null])('should return an empty object if form data is %p', (formData) => {
-      const mapping: IMapping = {
-        someSource: 'someTarget',
-      };
-      expect(mapFormData(formData as any, mapping)).toEqual({});
-    });
-
-    it.each([undefined, null])('should return whole form data object if mapping is %p', (mapping) => {
-      const formData: IFormData = {
-        someField: 'someValue',
-        someOtherField: 'someOtherValue',
-      };
-      expect(mapFormData(formData, mapping as any)).toEqual(formData);
     });
   });
 

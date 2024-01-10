@@ -4,18 +4,16 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { WrappedButton } from 'src/layout/Button/WrappedButton';
-import { mapFormData } from 'src/utils/databindings';
 import type { IInstantiationButtonComponentProvidedProps } from 'src/layout/InstantiationButton/InstantiationButtonComponent';
 
 type Props = Omit<React.PropsWithChildren<IInstantiationButtonComponentProvidedProps>, 'text'>;
 
 export const InstantiationButton = ({ children, ...props }: Props) => {
   const instantiation = useInstantiation();
-  const formData = FD.useDebouncedDotMap();
+  const prefill = FD.useMapping(props.mapping);
   const party = useCurrentParty();
 
   const instantiate = () => {
-    const prefill = mapFormData(formData, props.mapping);
     instantiation.instantiateWithPrefill(props.node, {
       prefill,
       instanceOwner: {

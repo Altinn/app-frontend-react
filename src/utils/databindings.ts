@@ -1,7 +1,6 @@
 import { dot, object } from 'dot-object';
 
 import type { IFormData } from 'src/features/formData/types';
-import type { IMapping } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
 
 /**
@@ -11,6 +10,7 @@ import type { IDataModelBindings } from 'src/layout/layout';
  *
  * The opposite conversion:
  * @see flattenObject
+ * @deprecated
  */
 export function convertDataBindingToModel(formData: any): any {
   return object({ ...formData });
@@ -76,6 +76,7 @@ export function getKeyIndex(keyWithIndex: string): number[] {
  *
  * The opposite conversion:
  * @see convertDataBindingToModel
+ * @deprecated
  */
 export function flattenObject(data: any): IFormData {
   const flat = dot(data);
@@ -99,24 +100,4 @@ export function flattenObject(data: any): IFormData {
   }
 
   return flat;
-}
-
-/**
- * @deprecated Use (or implement) this via FD.useMapping() instead
- */
-export function mapFormData(formData: IFormData, mapping: IMapping | undefined) {
-  const mappedFormData = {};
-  if (!formData) {
-    return mappedFormData;
-  }
-
-  if (!mapping) {
-    return formData;
-  }
-
-  Object.keys(mapping).forEach((source: string) => {
-    const target: string = mapping[source];
-    mappedFormData[target] = formData[source];
-  });
-  return mappedFormData;
 }

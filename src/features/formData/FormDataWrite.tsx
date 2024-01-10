@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { useMutation } from '@tanstack/react-query';
@@ -18,13 +18,12 @@ import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { DeprecatedActions } from 'src/redux/deprecatedSlice';
-import { flattenObject } from 'src/utils/databindings';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { FormDataWriteGatekeepers } from 'src/features/formData/FormDataWriteGatekeepers';
 import type { FDNewValues, FormDataContext } from 'src/features/formData/FormDataWriteStateMachine';
-import type { IDataModelPatchResponse, IFormData } from 'src/features/formData/types';
-import type { SaveWhileTyping } from 'src/layout/common.generated';
+import type { IDataModelPatchResponse } from 'src/features/formData/types';
+import type { IMapping, SaveWhileTyping } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
 
 export type FDValue = string | number | boolean | object | undefined | null | FDValue[];
@@ -269,16 +268,6 @@ export const FD = {
   },
 
   /**
-   * This will return the form data as a dot map, where the keys are dot-separated paths. This is the same format
-   * as the older form data. Consider using any of the newer methods instead, which may come with performance benefits.
-   * This will always give you the debounced (late) data, which may or may not be saved to the backend yet.
-   */
-  useDebouncedDotMap(): IFormData {
-    const debouncedCurrentData = useSelector((v) => v.debouncedCurrentData);
-    return useMemo(() => flattenObject(debouncedCurrentData), [debouncedCurrentData]);
-  },
-
-  /**
    * This returns a single value, as picked from the form data. The data is always converted to a string.
    * If the path points to a complex data type, like an object or array, an empty string is returned.
    * Use this when you expect a string/leaf value, and provide that to a controlled React component
@@ -337,6 +326,31 @@ export const FD = {
 
       return out;
     }),
+
+  /**
+   * This returns an object that can be used to generate a query string for parts of the current form data.
+   * It is almost the same as usePickFreshStrings(), but with important differences:
+   *   1. The _keys_ in the input are expected to contain the data model paths, not the values. Mappings are reversed
+   *      in that sense.
+   *   2. The data is fetched from the debounced model, not the fresh/current one. That ensures queries that are
+   *      generated from this hook are more stable, and aren't re-fetched on every keystroke.
+   *   3. Values that don't exist in the debounced model are not included in the output at all.
+   */
+  useMapping(mapping: IMapping | undefined): { [key: string]: string } {
+    return useSelector((s) => {
+      const out: any = {};
+      if (mapping) {
+        for (const key of Object.keys(mapping)) {
+          const outputKey = mapping[key];
+          const value = dot.pick(mapping[key], s.debouncedCurrentData);
+          if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+            out[outputKey] = value;
+          }
+        }
+      }
+      return out;
+    });
+  },
 
   /**
    * This returns the raw method for setting a value in the form data. This is useful if you want to
