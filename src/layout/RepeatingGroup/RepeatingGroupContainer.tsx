@@ -89,9 +89,10 @@ export function RepeatingGroupContainer({ containerDivRef }: RepeatingGroupConta
 
   const isNested = node.parent instanceof BaseLayoutNode;
 
+  const tooManyRows = 'maxCount' in node.item && typeof node.item.maxCount == 'number' && numRows >= node.item.maxCount;
   const displayBtn =
     edit?.addButton !== false &&
-    numRows < node.item.maxCount &&
+    !tooManyRows &&
     (edit?.mode === 'showAll' || !isEditingAnyRow || edit?.alwaysShowAddButton === true);
 
   return (
