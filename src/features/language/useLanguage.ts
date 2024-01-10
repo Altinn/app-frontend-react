@@ -294,11 +294,22 @@ function replaceVariables(text: string, variables: IVariable[], dataSources: Tex
         : node?.transposeDataModel(cleanPath) || value;
       if (transposedPath) {
         const dataModel = dataModels.getReader(dataModelName);
-        const stringValue = dataModel?.getAsString(transposedPath);
+        const stringValue = dataModel.getAsString(transposedPath);
+        const hasDefaultValue = variable.defaultValue !== undefined && variable.defaultValue !== null;
         if (stringValue !== undefined) {
           value = stringValue;
-        } else if (dataModel?.isLoading()) {
+        } else if (dataModel.isLoading()) {
           value = '...'; // TODO: Use a loading indicator, or at least let this value be configurable
+        } else if (dataModelName === 'default' && !hasDefaultValue) {
+          window.logWarn(
+            `A text resource variable with key '${variable.key}' did not exist in the default data model. ` +
+              `You should provide a specific data model name instead, and/or set a defaultValue.`,
+          );
+        } else if (dataModel.hasError() && !hasDefaultValue) {
+          window.logWarn(
+            `A text resource variable with key '${variable.key}' did not exist in the data model '${dataModelName}'. ` +
+              `You may want to set a defaultValue to prevent the full key from being presented to the user.`,
+          );
         }
       }
     } else if (variable.dataSource === 'instanceContext') {

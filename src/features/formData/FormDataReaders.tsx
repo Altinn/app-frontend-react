@@ -55,6 +55,10 @@ export class DataModelReader {
     return this.status === 'loading';
   }
 
+  hasError(): boolean {
+    return this.status === 'error';
+  }
+
   equals(other: DataModelReader): boolean {
     return this.name === other.name && this.model === other.model && this.status === other.status;
   }
