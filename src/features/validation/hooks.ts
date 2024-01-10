@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useInsertionEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import deepEqual from 'fast-deep-equal';
 
@@ -11,6 +11,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { useNodes } from 'src/utils/layout/NodesContext';
 import type { IAttachment, IAttachments, UploadedAttachment } from 'src/features/attachments';
 import type { AttachmentChange, ValidationDataSources } from 'src/features/validation';
@@ -44,19 +45,6 @@ export function useValidationDataSources(): ValidationDataSources {
     }),
     [application, attachments, currentLanguage, customValidation, formData, instance, layoutSets, process, schema],
   );
-}
-
-/**
- * This is a polyfill for the not yet released useEffectEvent hook,
- * use at your own risk :)
- * @see https://react.dev/learn/separating-events-from-effects#declaring-an-effect-event
- */
-export function useEffectEvent<T extends (...args: any[]) => any>(event: T) {
-  const ref = useRef(event);
-  useInsertionEffect(() => {
-    ref.current = event;
-  }, [event]);
-  return useCallback((...args: Parameters<T>): ReturnType<T> => ref.current(...args), []);
 }
 
 /**

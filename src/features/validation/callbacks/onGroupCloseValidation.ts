@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
 
-import { useEffectEvent } from 'src/features/validation/hooks';
 import { getValidationsForNode, getVisibilityMask, shouldValidateNode } from 'src/features/validation/utils';
 import { useValidationContext } from 'src/features/validation/validationContext';
-import type { ValidationMasks } from 'src/layout/common.generated';
+import { useEffectEvent } from 'src/hooks/useEffectEvent';
+import type { AllowedValidationMasks } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 /**
@@ -16,7 +16,7 @@ export function useOnGroupCloseValidation() {
   const validating = useValidationContext().validating;
 
   /* Ensures the callback will have the latest state */
-  const callback = useEffectEvent((node: LayoutNode, rowIndex: number, masks: ValidationMasks): boolean => {
+  const callback = useEffectEvent((node: LayoutNode, rowIndex: number, masks: AllowedValidationMasks): boolean => {
     const mask = getVisibilityMask(masks);
 
     const nodesWithErrors = node
@@ -34,7 +34,7 @@ export function useOnGroupCloseValidation() {
   });
 
   return useCallback(
-    async (node: LayoutNode, rowIndex: number, masks: ValidationMasks) => {
+    async (node: LayoutNode, rowIndex: number, masks: AllowedValidationMasks) => {
       await validating();
       return callback(node, rowIndex, masks);
     },

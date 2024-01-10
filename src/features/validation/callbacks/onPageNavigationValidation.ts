@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 
-import { useEffectEvent } from 'src/features/validation/hooks';
 import { getValidationsForNode, getVisibilityMask, shouldValidateNode } from 'src/features/validation/utils';
 import { useValidationContext } from 'src/features/validation/validationContext';
+import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { useOrder } from 'src/hooks/useNavigatePage';
 import type { PageValidation } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';

@@ -2,7 +2,6 @@ import { useCallback } from 'react';
 
 import { ValidationMask } from '..';
 
-import { useEffectEvent } from 'src/features/validation/hooks';
 import {
   getValidationsForNode,
   getVisibilityMask,
@@ -11,6 +10,7 @@ import {
   validationsFromGroups,
 } from 'src/features/validation/utils';
 import { useValidationContext } from 'src/features/validation/validationContext';
+import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 /**
@@ -48,7 +48,7 @@ export function useOnFormSubmitValidation() {
     const nodesWithAnyError = layoutPages
       .allNodes()
       .filter(shouldValidateNode)
-      .filter((n) => getValidationsForNode(n, state, ValidationMask.All_Including_Backend, 'error').length > 0);
+      .filter((n) => getValidationsForNode(n, state, ValidationMask.AllIncludingBackend, 'error').length > 0);
 
     if (nodesWithAnyError.length > 0) {
       setNodeVisibility(nodesWithAnyError, ValidationMask.All);

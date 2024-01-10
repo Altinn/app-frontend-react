@@ -14,7 +14,6 @@ import {
 import { useBackendValidation } from 'src/features/validation/backend/useBackendValidation';
 import { runValidationOnNodes } from 'src/features/validation/frontend/runValidations';
 import {
-  useEffectEvent,
   useOnAttachmentsChange,
   useOnHierarchyChange,
   useOnNodeDataChange,
@@ -39,6 +38,7 @@ import {
   setVisibilityForAttachment,
   setVisibilityForNode,
 } from 'src/features/validation/visibility';
+import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import type { Visibility } from 'src/features/validation/visibility';
 import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
@@ -142,7 +142,7 @@ export function ValidationContext({ children }) {
         const currentValidationMask = getValidationsForNode(
           node,
           validations,
-          ValidationMask.All_Including_Backend,
+          ValidationMask.AllIncludingBackend,
         ).reduce((mask, validation) => mask | validation.category, 0);
 
         const currentVisibilityMask = getVisibilityForNode(node, state);

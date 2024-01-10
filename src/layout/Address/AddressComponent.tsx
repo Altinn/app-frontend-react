@@ -10,6 +10,7 @@ import { useBindingValidationsForNode } from 'src/features/validation/selectors/
 import { useComponentValidationsForNode } from 'src/features/validation/selectors/componentValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { usePostPlaceQuery } from 'src/hooks/queries/usePostPlaceQuery';
+import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import classes from 'src/layout/Address/AddressComponent.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -26,14 +27,13 @@ export function AddressComponent({ node }: IAddressComponentProps) {
   const debounce = FD.useDebounceImmediately();
   const { address, careOf, postPlace, zipCode, houseNumber } = FD.usePickFreshStrings(bindings);
 
-  const postPlaceQueryData = usePostPlaceQuery(zipCode, !hasValidationErrors(bindingValidations?.zipCode));
-  useEffect(() => {
-    if (postPlaceQueryData != null && postPlaceQueryData != postPlace) {
-      saveData('postPlace', postPlaceQueryData);
+  const updatePostPlace = useEffectEvent((newPostPlace) => {
+    if (newPostPlace != null && newPostPlace != postPlace) {
+      saveData('postPlace', newPostPlace);
     }
-    // TODO(useDelayedSavedState): This hook could disappear, but for now, a problem is that the function references are very volatile and will cause many rerenders
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [postPlaceQueryData, saveData]);
+  });
+  const postPlaceQueryData = usePostPlaceQuery(zipCode, !hasValidationErrors(bindingValidations?.zipCode));
+  useEffect(() => updatePostPlace(postPlaceQueryData), [postPlaceQueryData, updatePostPlace]);
 
   return (
     <div

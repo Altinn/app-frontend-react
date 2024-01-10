@@ -44,21 +44,9 @@ export enum ValidationMask {
   AllExceptRequired     = 0b0011111111111111, // All frontend validations except required
   All                   = 0b0111111111111111, // All frontend validations
   Backend               = 0b1000000000000000, // All backend validations except custom backend validations
-  All_Including_Backend = 0b1111111111111111, // All validations including backend validations that overlap with frontend validations
+  AllIncludingBackend   = 0b1111111111111111, // All validations including backend validations that overlap with frontend validations
 }
 export type ValidationMaskKeys = keyof typeof ValidationMask;
-
-/* AllowedValidationMaskList are ValidationMasks that are allowed to be used in the app configuration. */
-export const AllowedValidationMaskList = [
-  'Schema',
-  'Component',
-  'Expression',
-  'CustomBackend',
-  'Required',
-  'AllExceptRequired',
-  'All',
-] as const;
-export type AllowedValidationMaskKeys = (typeof AllowedValidationMaskList)[number];
 
 /* ValidationMaskCollectionKeys are used to group commonly used validation masks together. */
 export type ValidationMaskCollectionKeys = Extract<

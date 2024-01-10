@@ -1,7 +1,6 @@
 import { CG, Variant } from 'src/codegen/CG';
 import { ExprVal } from 'src/features/expressions/types';
 import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData';
-import { AllowedValidationMaskList } from 'src/features/validation';
 import type { MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
 
 const common = {
@@ -413,7 +412,7 @@ const common = {
             'Boolean value or expression indicating if the component should be required. Defaults to false.',
           ),
       ),
-      new CG.prop('showValidations', CG.common('ValidationMasks').optional()),
+      new CG.prop('showValidations', CG.common('AllowedValidationMasks').optional()),
     ),
   SummarizableComponentProps: () =>
     new CG.obj(
@@ -520,8 +519,10 @@ const common = {
 
   HeadingLevel: () => new CG.enum(2, 3, 4, 5, 6),
 
-  ValidationMasks: () =>
-    new CG.arr(new CG.enum(...AllowedValidationMaskList))
+  AllowedValidationMasks: () =>
+    new CG.arr(
+      new CG.enum('Schema', 'Component', 'Expression', 'CustomBackend', 'Required', 'AllExceptRequired', 'All'),
+    )
       .setTitle('Validation types')
       .setDescription('List of validation types to show'),
 
@@ -533,7 +534,7 @@ const common = {
           .setTitle('Page')
           .setDescription('Which pages should be validated when the next button is clicked.'),
       ),
-      new CG.prop('show', CG.common('ValidationMasks')),
+      new CG.prop('show', CG.common('AllowedValidationMasks')),
     ),
 
   // Layout settings:
