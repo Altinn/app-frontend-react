@@ -15,6 +15,7 @@ import { useNodes } from 'src/utils/layout/NodesContext';
 import { getRootElementPath } from 'src/utils/schemaUtils';
 import { duplicateStringFilter } from 'src/utils/stringHelper';
 import type { LayoutValidationErrors } from 'src/features/devtools/layoutValidation/types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface LayoutValidationProps {
   logErrors?: boolean;

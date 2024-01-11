@@ -1,6 +1,4 @@
 import { flattenObject, getKeyIndex, getKeyWithoutIndex } from 'src/utils/databindings';
-import type { IFormData } from 'src/features/formData';
-import type { IMapping } from 'src/layout/common.generated';
 
 describe('utils/databindings.ts', () => {
   let testObj: any;

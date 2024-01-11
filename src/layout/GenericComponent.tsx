@@ -5,9 +5,11 @@ import classNames from 'classnames';
 
 import { useLayoutValidationForNode } from 'src/features/devtools/layoutValidation/useLayoutValidation';
 import { NavigationResult, useFinishNodeNavigation } from 'src/features/form/layout/NavigateToNode';
+import { Lang } from 'src/features/language/Lang';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
+import { useIsDev } from 'src/hooks/useIsDev';
 import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import classes from 'src/layout/GenericComponent.module.css';
 import { GenericComponentDescription, GenericComponentLabel } from 'src/layout/GenericComponentUtils';
