@@ -3,7 +3,6 @@ import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { Common } from 'test/e2e/pageobjects/common';
 
 import { BackendValidationSeverity } from 'src/features/validation';
-import { groupIsRepeatingExt } from 'src/layout/Group/tools';
 import type { BackendValidationIssue } from 'src/features/validation';
 
 const appFrontend = new AppFrontend();
@@ -314,7 +313,7 @@ describe('Validation', () => {
       ) {
         component.required = true;
       }
-      if (component.type === 'Group' && groupIsRepeatingExt(component) && component.id === 'mainGroup') {
+      if (component.type === 'RepeatingGroup' && component.id === 'mainGroup') {
         component.validateOnSaveRow = ['All'];
       }
       if (component.type === 'NavigationButtons') {
