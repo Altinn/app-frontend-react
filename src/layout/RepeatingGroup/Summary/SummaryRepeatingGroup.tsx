@@ -5,6 +5,8 @@ import cn from 'classnames';
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { useDeepValidationsForNode } from 'src/features/validation/selectors/deepValidationsForNode';
+import { hasValidationErrors } from 'src/features/validation/utils';
 import { CompCategory } from 'src/layout/common';
 import { DisplayRepAsLargeGroup } from 'src/layout/RepeatingGroup/Summary/DisplayRepAsLargeGroup';
 import classes from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup.module.css';
@@ -37,7 +39,8 @@ export function SummaryRepeatingGroup({
     excludedChildren &&
     (excludedChildren.includes(n.item.id) || excludedChildren.includes(`${n.item.baseComponentId}`));
 
-  const groupHasErrors = targetNode.hasDeepValidationMessages();
+  const groupValidations = useDeepValidationsForNode(targetNode);
+  const groupHasErrors = hasValidationErrors(groupValidations);
 
   const textBindings = targetNode.item.textResourceBindings as ITextResourceBindings;
   const summaryAccessibleTitleTrb =

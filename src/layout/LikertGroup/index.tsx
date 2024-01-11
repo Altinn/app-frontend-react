@@ -3,20 +3,21 @@ import type { JSX } from 'react';
 
 import type { ErrorObject } from 'ajv';
 
+import type { PropsFromGenericComponent, ValidateAny } from '..';
+
+import { runAllValidations } from 'src/layout/componentValidation';
 import { LikertGroupDef } from 'src/layout/LikertGroup/config.def.generated';
 import { LikertGroupHierarchyGenerator } from 'src/layout/LikertGroup/hierarchy';
 import { LikertGroupComponent } from 'src/layout/LikertGroup/LikertGroup';
 import { LikertGroupSummary } from 'src/layout/LikertGroup/LikertGroupSummary';
 import { type LayoutNode } from 'src/utils/layout/LayoutNode';
-import { runValidationOnNodes } from 'src/utils/validation/validation';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { GroupValidation, PropsFromGenericComponent } from 'src/layout';
+import type { FormValidations, ISchemaValidationError, ValidationDataSources } from 'src/features/validation';
 import type { CompExternalExact } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
-import type { IValidationObject, ValidationContextGenerator } from 'src/utils/validation/types';
 
-export class LikertGroup extends LikertGroupDef implements GroupValidation {
+export class LikertGroup extends LikertGroupDef implements ValidateAny {
   private _hierarchyGenerator = new LikertGroupHierarchyGenerator();
 
   directRender(): boolean {
@@ -57,13 +58,12 @@ export class LikertGroup extends LikertGroupDef implements GroupValidation {
     return this._hierarchyGenerator;
   }
 
-  // Validering på hver enkel komponent/element i gruppen
-  runGroupValidations(
-    node: LayoutNode<'LikertGroup'>,
-    validationCtxGenerator: ValidationContextGenerator,
-    onlyInRowIndex?: number,
-  ): IValidationObject[] {
-    return runValidationOnNodes(node.flat(true, onlyInRowIndex), validationCtxGenerator);
+  runValidations(
+    node: LayoutNode,
+    ctx: ValidationDataSources,
+    schemaErrors: ISchemaValidationError[],
+  ): FormValidations {
+    return runAllValidations(node, ctx, schemaErrors);
   }
 
   isDataModelBindingsRequired(): boolean {

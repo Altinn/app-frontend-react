@@ -4,6 +4,8 @@ import cn from 'classnames';
 
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { useDeepValidationsForNode } from 'src/features/validation/selectors/deepValidationsForNode';
+import { hasValidationErrors } from 'src/features/validation/utils';
 import { CompCategory } from 'src/layout/common';
 import { DisplayLikertGroupContainer } from 'src/layout/LikertGroup/DisplayLikertGroupContainer';
 import classes from 'src/layout/LikertGroup/LikertGroupSummary.module.css';
@@ -36,7 +38,8 @@ export function LikertGroupSummary({
     excludedChildren &&
     (excludedChildren.includes(n.item.id) || excludedChildren.includes(`${n.item.baseComponentId}`));
 
-  const groupHasErrors = targetNode.hasDeepValidationMessages();
+  const groupValidations = useDeepValidationsForNode(targetNode);
+  const groupHasErrors = hasValidationErrors(groupValidations);
 
   const textBindings = targetNode.item.textResourceBindings as ITextResourceBindings;
   const summaryAccessibleTitleTrb =
