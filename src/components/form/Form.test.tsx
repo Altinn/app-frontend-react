@@ -144,7 +144,7 @@ describe('Form', () => {
     await render(mockComponents, [
       {
         customTextKey: 'some error message',
-        field: 'Group[0].prop1',
+        field: 'Group.prop1',
         source: ValidationIssueSources.Custom,
         severity: BackendValidationSeverity.Error,
         showImmediately: true,
@@ -194,7 +194,7 @@ describe('Form', () => {
       [
         {
           customTextKey: 'some error message',
-          field: 'Group[0].prop1',
+          field: 'Group.prop1',
           source: ValidationIssueSources.Custom,
           severity: BackendValidationSeverity.Error,
           showImmediately: true,
