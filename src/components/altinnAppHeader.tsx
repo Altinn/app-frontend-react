@@ -1,8 +1,10 @@
 import React from 'react';
 
 import { AppBar, Grid, Toolbar } from '@material-ui/core';
+import { Buldings3Icon, PersonIcon } from '@navikt/aksel-icons';
 
 import classes from 'src/components/AltinnAppHeader.module.css';
+import { CircleIcon } from 'src/components/CircleIcon';
 import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
 import { AltinnLogo, LogoColor } from 'src/components/logo/AltinnLogo';
 import { Lang } from 'src/features/language/Lang';
@@ -16,7 +18,6 @@ export interface IHeaderProps {
 
 export const AltinnAppHeader = ({ profile }: IHeaderProps) => {
   const party = profile?.party;
-  const blueClass = classes.blueDark;
 
   return (
     <div
@@ -62,19 +63,23 @@ export const AltinnAppHeader = ({ profile }: IHeaderProps) => {
             </ul>
           )}
           {party && (
-            <div title={renderParty(profile) || ''}>
-              {party && party.organization ? (
-                <i
-                  className={`fa fa-corp-circle-big ${classes.partyIcon} ${blueClass}`}
+            <CircleIcon
+              size='1.5rem'
+              className={classes.partyIcon}
+              title={renderParty(profile) || ''}
+            >
+              {party.orgNumber ? (
+                <Buldings3Icon
+                  color='white'
                   aria-hidden='true'
                 />
               ) : (
-                <i
-                  className={`fa fa-private-circle-big ${classes.partyIcon} ${blueClass}`}
+                <PersonIcon
+                  color='white'
                   aria-hidden='true'
                 />
               )}
-            </div>
+            </CircleIcon>
           )}
         </Toolbar>
       </AppBar>

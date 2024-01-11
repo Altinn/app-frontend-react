@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Grid, makeStyles } from '@material-ui/core';
+import { CaretDownFillIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
 import { Lang } from 'src/features/language/Lang';
@@ -67,8 +68,6 @@ const useStyles = makeStyles((theme) => ({
   },
   dropdownIcon: {
     marginLeft: '0.625rem',
-    marginTop: '0',
-    fontSize: '1em',
   },
 }));
 
@@ -183,7 +182,10 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
               <span>
                 {order.indexOf(currentPageId) + 1}/{order.length} <Lang id={currentPageId} />
               </span>
-              <i className={cn('ai ai-arrow-down', classes.dropdownIcon)} />
+              <CaretDownFillIcon
+                aria-hidden='true'
+                className={classes.dropdownIcon}
+              />
             </span>
           </NavigationButton>
         )}
