@@ -2,10 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 import type { AxiosRequestConfig } from 'axios';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
-import { useIsStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { maybeAuthenticationRedirect } from 'src/utils/maybeAuthenticationRedirect';
+import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 export function useFormDataQuery(url: string | undefined) {
