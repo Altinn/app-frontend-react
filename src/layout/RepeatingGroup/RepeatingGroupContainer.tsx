@@ -10,13 +10,14 @@ import { Fieldset } from 'src/components/form/Fieldset';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { ComponentValidations } from 'src/features/validation/ComponentValidations';
+import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import classes from 'src/layout/RepeatingGroup/RepeatingGroupContainer.module.css';
 import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
 import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/RepeatingGroupsEditContainer';
 import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/RepeatingGroupTable';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
-import { renderValidationMessagesForComponent } from 'src/utils/render';
 
 interface RepeatingGroupContainerProps {
   containerDivRef?: MutableRefObject<HTMLDivElement | null>;
@@ -33,6 +34,7 @@ export function RepeatingGroupContainer({ containerDivRef }: RepeatingGroupConta
   const firstIndex = visibleRowIndexes[0];
   const lastIndex = visibleRowIndexes[numRows - 1];
   const { lang, langAsString } = useLanguage();
+  const validations = useUnifiedValidationsForNode(node);
 
   const AddButton = (): JSX.Element => (
     <Button
@@ -147,8 +149,10 @@ export function RepeatingGroupContainer({ containerDivRef }: RepeatingGroupConta
         item={true}
         xs={12}
       >
-        {node.getValidations('repeatingGroup') &&
-          renderValidationMessagesForComponent(node.getValidations('repeatingGroup'), id)}
+        <ComponentValidations
+          validations={validations}
+          node={node}
+        />
       </Grid>
     </Grid>
   );

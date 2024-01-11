@@ -111,7 +111,7 @@ function makeRepeatingGroup() {
         .exportAs('IDataModelBindingsForGroup')
         .optional({ onlyIn: Variant.Internal }),
     )
-    .addProperty(new CG.prop('triggers', CG.common('TriggerList').optional()))
+    .addProperty(new CG.prop('validateOnSaveRow', CG.common('AllowedValidationMasks').optional()))
     .addProperty(
       new CG.prop(
         'edit',

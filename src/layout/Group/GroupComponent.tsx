@@ -14,6 +14,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IGroupComponent {
   groupNode: LayoutNode<'Group'>;
+  containerDivRef?: React.Ref<HTMLDivElement>;
   id?: string;
   onlyRowIndex?: number | undefined;
   isSummary?: boolean;
@@ -28,7 +29,14 @@ const headingSizes: { [k in HeadingLevel]: Parameters<typeof Heading>[0]['size']
   [6]: 'xsmall',
 };
 
-export function GroupComponent({ groupNode, id, onlyRowIndex, isSummary, renderLayoutNode }: IGroupComponent) {
+export function GroupComponent({
+  groupNode,
+  containerDivRef,
+  id,
+  onlyRowIndex,
+  isSummary,
+  renderLayoutNode,
+}: IGroupComponent) {
   const container = groupNode.item;
   const { title, summaryTitle, description } = container.textResourceBindings ?? {};
 
@@ -63,6 +71,7 @@ export function GroupComponent({ groupNode, id, onlyRowIndex, isSummary, renderL
         description={description && !isSummary && <Lang id={description} />}
       >
         <div
+          ref={containerDivRef}
           id={id || container.id}
           data-componentid={container.id}
           data-testid='display-group-container'

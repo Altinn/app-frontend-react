@@ -3,20 +3,27 @@ import type { JSX } from 'react';
 
 import type { ErrorObject } from 'ajv';
 
+import { runAllValidations } from 'src/layout/componentValidation';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { GroupDef } from 'src/layout/Group/config.def.generated';
 import { GroupComponent } from 'src/layout/Group/GroupComponent';
 import { GroupHierarchyGenerator } from 'src/layout/Group/hierarchy';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
-import { runValidationOnNodes } from 'src/utils/validation/validation';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { GroupValidation, PropsFromGenericComponent } from 'src/layout';
+import type {
+  ComponentValidation,
+  FormValidations,
+  ISchemaValidationError,
+  ValidationDataSources,
+} from 'src/features/validation';
+import type { PropsFromGenericComponent, ValidateAny, ValidateComponent } from 'src/layout';
 import type { CompExternalExact } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { IValidationObject, ValidationContextGenerator } from 'src/utils/validation/types';
-export class Group extends GroupDef implements GroupValidation {
+
+export class Group extends GroupDef implements ValidateAny, ValidateComponent {
+  runComponentValidation: (node: LayoutNode, validationContext: ValidationDataSources) => ComponentValidation[];
   private _hierarchyGenerator = new GroupHierarchyGenerator();
 
   directRender(): boolean {
@@ -67,12 +74,12 @@ export class Group extends GroupDef implements GroupValidation {
     return this._hierarchyGenerator;
   }
 
-  runGroupValidations(
-    node: LayoutNode<'Group'>,
-    validationCtxGenerator: ValidationContextGenerator,
-    onlyInRowIndex?: number,
-  ): IValidationObject[] {
-    return runValidationOnNodes(node.flat(true, onlyInRowIndex), validationCtxGenerator);
+  runValidations(
+    node: LayoutNode,
+    ctx: ValidationDataSources,
+    schemaErrors: ISchemaValidationError[],
+  ): FormValidations {
+    return runAllValidations(node, ctx, schemaErrors);
   }
 
   isDataModelBindingsRequired(): boolean {

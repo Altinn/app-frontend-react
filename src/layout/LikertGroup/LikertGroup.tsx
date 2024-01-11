@@ -15,9 +15,10 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface LikertGroupComponentProps {
   node: LayoutNode<'LikertGroup'>;
+  ref?: React.Ref<HTMLDivElement>;
 }
 
-export const LikertGroupComponent = ({ node }: LikertGroupComponentProps) => {
+export const LikertGroupComponent = ({ node, ref }: LikertGroupComponentProps) => {
   const firstLikertChild = node?.children((item) => item.type === 'Likert') as LayoutNode<'Likert'> | undefined;
   const mobileView = useIsMobileOrTablet();
   const { options: calculatedOptions, isFetching } = useGetOptions({
@@ -98,7 +99,10 @@ export const LikertGroupComponent = ({ node }: LikertGroupComponentProps) => {
       {isFetching ? (
         <AltinnSpinner />
       ) : (
-        <div className={classes.likertTableContainer}>
+        <div
+          className={classes.likertTableContainer}
+          ref={ref}
+        >
           <Table
             id={id}
             aria-labelledby={(hasTitle && titleId) || undefined}

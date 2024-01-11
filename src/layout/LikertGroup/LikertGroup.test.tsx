@@ -3,9 +3,9 @@ import { userEvent } from '@testing-library/user-event';
 
 import {
   createFormDataUpdateProp,
-  createFormError,
   defaultMockOptions,
   defaultMockQuestions,
+  generateValidations,
   questionsWithAnswers,
   render,
   validateRadioLayout,
@@ -219,9 +219,9 @@ describe('RepeatingGroupsLikertContainer', () => {
       screen.getByRole('radio', { name: 'Hvordan trives du på skolen? Dårlig' });
     });
 
-    it.skip('should render error message', async () => {
+    it('should render error message', async () => {
       await render({
-        validations: createFormError(1),
+        validationIssues: generateValidations([{ index: 0, message: 'Feltet er påkrevd' }]),
       });
       await waitFor(() => {
         expect(screen.getByRole('table')).toBeInTheDocument();
@@ -229,9 +229,12 @@ describe('RepeatingGroupsLikertContainer', () => {
       expect(screen.getByRole('alert')).toHaveTextContent('Feltet er påkrevd');
     });
 
-    it.skip('should render 2 alerts', async () => {
+    it('should render 2 validations', async () => {
       await render({
-        validations: { ...createFormError(1), ...createFormError(2) },
+        validationIssues: generateValidations([
+          { index: 0, message: 'Feltet er påkrevd' },
+          { index: 1, message: 'Feltet er påkrevd' },
+        ]),
       });
       await waitFor(() => {
         expect(screen.getByRole('table')).toBeInTheDocument();
@@ -341,9 +344,9 @@ describe('RepeatingGroupsLikertContainer', () => {
       expect(selectedRadio).toBeChecked();
     });
 
-    it.skip('should render error message', async () => {
+    it('should render error message', async () => {
       await render({
-        validations: { ...createFormError(1), ...createFormError(2) },
+        validationIssues: generateValidations([{ index: 0, message: 'Feltet er påkrevd' }]),
         mobileView: true,
       });
 
@@ -352,7 +355,7 @@ describe('RepeatingGroupsLikertContainer', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getAllByRole('alert')).toHaveLength(2);
+        expect(screen.getByRole('alert')).toHaveTextContent('Feltet er påkrevd');
       });
     });
 
