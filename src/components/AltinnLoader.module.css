@@ -7,7 +7,7 @@
   width: 0.625em;
   height: 0.625em;
   border-radius: 50%;
-  animation: 'loader-ellipsis' 1.8s infinite ease-in-out;
+  animation: loader-ellipsis 1.8s infinite ease-in-out;
   animation-delay: -0.16s;
   animation-fill-mode: both;
 }
@@ -19,7 +19,7 @@
   height: 100%;
   content: '';
   border-radius: 50%;
-  animation: 'loader-ellipsis' 1.8s infinite ease-in-out;
+  animation: loader-ellipsis 1.8s infinite ease-in-out;
   animation-fill-mode: both;
 }
 .loader::before {
@@ -28,4 +28,15 @@
 }
 .loader::after {
   left: 0.875em;
+}
+
+@keyframes loader-ellipsis {
+  0%,
+  100%,
+  80% {
+    box-shadow: 0 0.625em 0 -0.325em #008fd6;
+  }
+  40% {
+    box-shadow: 0 0.625em 0 0 #008fd6;
+  }
 }

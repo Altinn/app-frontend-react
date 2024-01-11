@@ -61,6 +61,9 @@ const useStyles = makeStyles((theme) => ({
     color: theme.altinnPalette.primary.white,
     backgroundColor: theme.altinnPalette.primary.blueDarker,
   },
+  hidden: {
+    display: 'none !important',
+  },
   dropdownMenuContent: {
     display: 'flex',
     alignItems: 'center',
@@ -90,6 +93,7 @@ const NavigationButton = React.forwardRef(
         type='button'
         className={cn(classes.buttonBase, {
           [classes.buttonSelected]: current,
+          [classes.hidden]: hidden,
         })}
         onClick={onClick}
         ref={ref}
