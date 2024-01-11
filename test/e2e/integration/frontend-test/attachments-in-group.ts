@@ -6,7 +6,6 @@ import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import type { makeUploaderSelectors } from 'test/e2e/pageobjects/app-frontend';
 
 import { isAttachmentUploaded } from 'src/features/attachments';
-import { flattenObject } from 'src/utils/databindings';
 import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
 
 const appFrontend = new AppFrontend();
@@ -131,7 +130,7 @@ describe('Repeating group attachments', () => {
 
         const expectedPrefix = 'Endringsmelding-grp-9786.OversiktOverEndringene-grp-9788';
         const innerObj = dot.pick(expectedPrefix, formData);
-        const innerFlat = flattenObject(innerObj);
+        const innerFlat = dot.dot(innerObj);
         for (const key of Object.keys(innerFlat)) {
           if (key.includes('fileUpload')) {
             const uuid = innerFlat[key];

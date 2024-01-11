@@ -3,16 +3,13 @@ import type { PropsWithChildren } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 
-import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { createContext } from 'src/core/contexts/context';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useTextResources } from 'src/features/language/textResources/TextResourcesProvider';
-import { flattenObject } from 'src/utils/databindings';
 import { getDataElementUrl } from 'src/utils/urls/appUrlHelper';
-import type { IFormData } from 'src/features/formData/types';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 /**
@@ -23,7 +20,6 @@ import type { HttpClientError } from 'src/utils/network/sharedNetworking';
  *            be able to fetch data from previous tasks on-demand once the text resource reference is used.
  */
 function useMergedFormDataQuery(taskId: string | undefined) {
-  const { fetchFormData } = useAppQueries();
   const appMetadata = useApplicationMetadata();
   const textResources = useTextResources();
   const instance = useLaxInstanceData();
@@ -45,24 +41,16 @@ function useMergedFormDataQuery(taskId: string | undefined) {
     }
   }
 
-  return useQuery<IFormData, HttpClientError>({
+  return useQuery<any, HttpClientError>({
     queryKey: ['fetchFormData', urlsToFetch, taskId],
     queryFn: async () => {
-      const out: IFormData = {};
-      const promises = urlsToFetch.map((url) => fetchFormData(url));
-      const fetched = await Promise.all(promises);
-      for (const fetchedData of fetched) {
-        const formData = flattenObject(fetchedData);
-        for (const [key, value] of Object.entries(formData)) {
-          out[key] = value;
-        }
-      }
+      const out: any = {};
       return out;
     },
   });
 }
 
-const { Provider, useCtx } = createContext<IFormData>({
+const { Provider, useCtx } = createContext<any>({
   name: 'FormDataReadOnly',
   required: false,
   default: {},
