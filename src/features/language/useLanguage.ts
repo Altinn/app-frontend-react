@@ -15,7 +15,6 @@ import { getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { smartLowerCaseFirst } from 'src/utils/formComponentUtils';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
-import type { IFormData } from 'src/features/formData/types';
 import type { TextResourceMap } from 'src/features/language/textResources';
 import type { FixedLanguageList } from 'src/language/languages';
 import type { IApplicationSettings, IInstanceDataSources, ILanguage, IVariable } from 'src/types/shared';
@@ -47,7 +46,7 @@ export interface IUseLanguage {
 
 interface TextResourceVariablesDataSources {
   node: LayoutNode | undefined;
-  formData: IFormData;
+  formData: any;
   applicationSettings: IApplicationSettings | null;
   instanceDataSources: IInstanceDataSources | null;
   dataModelPath?: string;

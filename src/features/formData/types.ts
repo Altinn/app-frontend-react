@@ -1,15 +1,6 @@
 import type { JsonPatch } from 'src/features/formData/jsonPatch/types';
 
 /**
- * This format is used to represent the form data in a flat structure. It has no hierarchy, and it's difficult to
- * work with objects and arrays in this format. Use it when you need direct access to leaf values (e.g. strings),
- * but use the object format when you need to work with objects and arrays.
- */
-export interface IFormData {
-  [dataFieldKey: string]: string;
-}
-
-/**
  * This is the default time (in milliseconds) to wait before debouncing the form data. That means, we'll wait this
  * long before we move the data the user is currently typing into the debouncedCurrentData object. The debounced
  * data is less fresh than currentData, but it's the data we'll use to evaluate expressions, output in text resources,
