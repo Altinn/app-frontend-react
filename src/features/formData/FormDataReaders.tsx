@@ -23,7 +23,7 @@ interface Context {
 }
 
 const { Provider, useLaxCtx, useCtx } = createContext<Context>({
-  name: 'FormDataReaders',
+  name: 'GlobalFormDataReaders',
   required: true,
 });
 

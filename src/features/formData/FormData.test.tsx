@@ -12,6 +12,7 @@ import { LayoutsProvider } from 'src/features/form/layout/LayoutsContext';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { LayoutSettingsProvider } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { RulesProvider } from 'src/features/form/rules/RulesContext';
+import { GlobalFormDataReadersProvider } from 'src/features/formData/FormDataReaders';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { FormDataWriteProxyProvider } from 'src/features/formData/FormDataWriteProxies';
 import { InitialFormDataProvider } from 'src/features/formData/InitialFormData';
@@ -81,19 +82,21 @@ async function genericRender(props: Partial<Parameters<typeof renderWithMinimalP
       ),
       renderer: () => (
         <ApplicationMetadataProvider>
-          <LayoutSetsProvider>
-            <LayoutsProvider>
-              <LayoutSettingsProvider>
-                <DynamicsProvider>
-                  <RulesProvider>
-                    <FormDataWriteProxyProvider value={formDataProxies}>
-                      <InitialFormDataProvider>{props.renderer && props.renderer()}</InitialFormDataProvider>
-                    </FormDataWriteProxyProvider>
-                  </RulesProvider>
-                </DynamicsProvider>
-              </LayoutSettingsProvider>
-            </LayoutsProvider>
-          </LayoutSetsProvider>
+          <GlobalFormDataReadersProvider>
+            <LayoutSetsProvider>
+              <LayoutsProvider>
+                <LayoutSettingsProvider>
+                  <DynamicsProvider>
+                    <RulesProvider>
+                      <FormDataWriteProxyProvider value={formDataProxies}>
+                        <InitialFormDataProvider>{props.renderer && props.renderer()}</InitialFormDataProvider>
+                      </FormDataWriteProxyProvider>
+                    </RulesProvider>
+                  </DynamicsProvider>
+                </LayoutSettingsProvider>
+              </LayoutsProvider>
+            </LayoutSetsProvider>
+          </GlobalFormDataReadersProvider>
         </ApplicationMetadataProvider>
       ),
       queries: {
