@@ -7,17 +7,17 @@ import type { AxiosRequestConfig } from 'axios/index';
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
-import { useIsStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
 import { useCurrentDataModelUrl } from 'src/features/datamodel/useBindingSchema';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FormDataReadOnlyProvider } from 'src/features/formData/FormDataReadOnly';
-import { FD, FormDataWriteProvider } from 'src/features/formData/FormDataWrite';
+import { FormDataWriteProvider } from 'src/features/formData/FormDataWrite';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import { maybeAuthenticationRedirect } from 'src/utils/maybeAuthenticationRedirect';
 import { HttpStatusCodes } from 'src/utils/network/networking';
+import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 function useFormDataQuery() {
@@ -108,6 +108,6 @@ export function FormDataReadWriteProvider({ children }: PropsWithChildren) {
 }
 
 function FormDataReadOnlyFromReadWriteProvider({ children }: PropsWithChildren) {
-  const formData = FD.useDebouncedDotMap();
+  const formData = {};
   return <FormDataReadOnlyProvider value={formData}>{children}</FormDataReadOnlyProvider>;
 }
