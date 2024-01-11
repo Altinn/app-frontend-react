@@ -19,6 +19,7 @@ import { getRootElementPath } from 'src/utils/schemaUtils';
 import { duplicateStringFilter } from 'src/utils/stringHelper';
 import type { LayoutValidationErrors } from 'src/features/devtools/layoutValidation/types';
 import type { ILayouts } from 'src/layout/layout';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface LayoutValidationProps {
   logErrors?: boolean;
@@ -140,6 +141,15 @@ export const useLayoutValidationForPage = () => {
   const { currentPageId } = useNavigatePage();
 
   return ctx?.[layoutSetId]?.[currentPageId];
+};
+
+export const useLayoutValidationForNode = (node: LayoutNode) => {
+  const componentId = node.item.baseComponentId || node.item.id;
+  const pageName = node.top.top.myKey;
+  const layoutSetId = useCurrentLayoutSetId() || 'default';
+  const ctx = useLayoutValidation();
+
+  return ctx?.[layoutSetId]?.[pageName]?.[componentId];
 };
 
 export function LayoutValidationProvider({ children }: PropsWithChildren) {
