@@ -100,7 +100,7 @@ export function SummaryComponent({ summaryNode, overrides, ref }: ISummaryCompon
         ) : (
           <GenericComponent node={targetNode} />
         )}
-        {errors.length && targetItem.type !== 'Group' && !display?.hideValidationMessages && (
+        {errors.length && targetItem.type !== 'Group' && !display?.hideValidationMessages ? (
           <Grid
             container={true}
             style={{ paddingTop: '12px' }}
@@ -132,7 +132,7 @@ export function SummaryComponent({ summaryNode, overrides, ref }: ISummaryCompon
               )}
             </Grid>
           </Grid>
-        )}
+        ) : null}
       </Grid>
     </Grid>
   );
