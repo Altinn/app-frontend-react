@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 
-import { FD } from 'src/features/formData/FormDataWrite';
+import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { castOptionsToStrings } from 'src/features/options/castOptionsToStrings';
@@ -109,8 +109,8 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
     dataModelBindings,
     valueType,
   } = props;
-  const value = FD.usePickFreshString(dataModelBindings?.simpleBinding);
-  const setDataUpstream = FD.useSetForBindings(dataModelBindings);
+  const { formData, setValue } = useDataModelBindings(dataModelBindings);
+  const value = formData.simpleBinding ?? '';
   const sourceOptions = useSourceOptions({ source, node });
   const staticOptions = optionsId ? undefined : options;
   const { data: fetchedOptions, isFetching } = useGetOptionsQuery(optionsId, mapping, queryParameters, secure);
@@ -121,9 +121,9 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
   const downstreamParameters: string = fetchedOptions?.headers['altinn-downstreamparameters'];
   useEffect(() => {
     if (dataModelBindings && 'metadata' in dataModelBindings && dataModelBindings.metadata && downstreamParameters) {
-      setDataUpstream('metadata' as any, downstreamParameters);
+      setValue('metadata' as any, downstreamParameters);
     }
-  }, [dataModelBindings, downstreamParameters, setDataUpstream]);
+  }, [dataModelBindings, downstreamParameters, setValue]);
 
   const optionsWithoutDuplicates =
     removeDuplicates && calculatedOptions
@@ -147,15 +147,14 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
 
   const setData = useMemo(() => {
     if (valueType === 'single') {
-      return (value: string | IOption) =>
-        setDataUpstream('simpleBinding', typeof value === 'string' ? value : value.value);
+      return (value: string | IOption) => setValue('simpleBinding', typeof value === 'string' ? value : value.value);
     }
 
     return (value: (string | IOption)[]) => {
       const asString = value.map((v) => (typeof v === 'string' ? v : v.value)).join(',');
-      setDataUpstream('simpleBinding', asString);
+      setValue('simpleBinding', asString);
     };
-  }, [setDataUpstream, valueType]) as ValueSetter<T>;
+  }, [setValue, valueType]) as ValueSetter<T>;
 
   const effectProps: EffectProps<T> = useMemo(
     () => ({

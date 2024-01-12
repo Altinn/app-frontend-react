@@ -12,7 +12,9 @@ export function getKeyWithoutIndex(keyWithIndex: string): string {
   );
 }
 
-export function getBaseDataModelBindings(dataModelBindings: IDataModelBindings): IDataModelBindings {
+export function getBaseDataModelBindings(
+  dataModelBindings: IDataModelBindings | undefined,
+): IDataModelBindings | undefined {
   if (typeof dataModelBindings === 'undefined') {
     return undefined;
   }

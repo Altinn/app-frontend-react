@@ -71,9 +71,7 @@ const commonRepGroupDataModelBinding = new CG.obj(
         'Dot notation location for a repeating group structure (array of objects), where the data ' + 'is stored',
       ),
   ),
-)
-  .exportAs('IDataModelBindingsForGroup')
-  .optional({ onlyIn: Variant.Internal });
+).exportAs('IDataModelBindingsForGroup');
 
 const commonUndefinedDataModelBinding = new CG.raw({ typeScript: 'undefined' }).optional();
 

@@ -15,6 +15,7 @@ import { RulesProvider } from 'src/features/form/rules/RulesContext';
 import { FormDataReadWriteProvider } from 'src/features/formData/FormDataReadWrite';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { FormDataWriteProxyProvider } from 'src/features/formData/FormDataWriteProxies';
+import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { makeFormDataMethodProxies, renderWithMinimalProviders } from 'src/test/renderWithProviders';
 
 interface DataModelFlat {
@@ -122,21 +123,29 @@ describe('FormData', () => {
   describe('Rendering and re-rendering', () => {
     function RenderCountingReader({ path, countKey, renderCounts }: Props) {
       renderCounts[countKey]++;
-      const value = FD.usePickFreshString(path);
+      const {
+        formData: { simpleBinding: value },
+      } = useDataModelBindings({
+        simpleBinding: path,
+      });
 
       return <div data-testid={`reader-${path}`}>{value}</div>;
     }
 
     function RenderCountingWriter({ path, countKey, renderCounts }: Props) {
       renderCounts[countKey]++;
-      const value = FD.usePickFreshString(path);
-      const save = FD.useSetForBinding(path);
+      const {
+        formData: { simpleBinding: value },
+        setValue,
+      } = useDataModelBindings({
+        simpleBinding: path,
+      });
 
       return (
         <input
           data-testid={`writer-${path}`}
           value={value}
-          onChange={(ev) => save(ev.target.value)}
+          onChange={(ev) => setValue('simpleBinding', ev.target.value)}
         />
       );
     }
@@ -238,14 +247,18 @@ describe('FormData', () => {
   });
 
   function SimpleWriter({ path }: { path: keyof DataModelFlat }) {
-    const value = FD.usePickFreshString(path);
-    const save = FD.useSetForBinding(path);
+    const {
+      formData: { simpleBinding: value },
+      setValue,
+    } = useDataModelBindings({
+      simpleBinding: path,
+    });
 
     return (
       <input
         data-testid={path}
         value={value}
-        onChange={(ev) => save(ev.target.value)}
+        onChange={(ev) => setValue('simpleBinding', ev.target.value)}
       />
     );
   }

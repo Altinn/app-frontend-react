@@ -19,9 +19,9 @@ import { isAxiosError } from 'src/utils/isAxiosError';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { FormDataWriteProxies } from 'src/features/formData/FormDataWriteProxies';
-import type { FDNewValues, FormDataContext } from 'src/features/formData/FormDataWriteStateMachine';
+import type { FormDataContext } from 'src/features/formData/FormDataWriteStateMachine';
 import type { IDataModelPatchResponse } from 'src/features/formData/types';
-import type { IMapping, SaveWhileTyping } from 'src/layout/common.generated';
+import type { IMapping } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
 
 export type FDValue = string | number | boolean | object | undefined | null | FDValue[];
@@ -270,59 +270,27 @@ export const FD = {
   },
 
   /**
-   * This returns a single value, as picked from the form data. The data is always converted to a string.
-   * If the path points to a complex data type, like an object or array, an empty string is returned.
-   * Use this when you expect a string/leaf value, and provide that to a controlled React component
-   */
-  usePickFreshString: (path: string | undefined): string => {
-    const value = useSelector((v) => (path ? dot.pick(path, v.currentData) : undefined));
-    return typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' ? value.toString() : '';
-  },
-
-  /**
-   * This is like the one above, but for multiple values. The values in the input object is expected to be
-   * dot-separated paths, and the return value will be an object with the same keys, but with the values picked
-   * from the form data.
-   */
-  usePickFreshStrings: <B extends IDataModelBindings>(_bindings: B): { [key in keyof B]: string } => {
-    const bindings = _bindings as any;
-    return useSelector((s) => {
-      const out: any = {};
-      if (bindings) {
-        for (const key of Object.keys(bindings)) {
-          const value = dot.pick(bindings[key], s.currentData);
-          if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
-            out[key] = value;
-          } else {
-            out[key] = '';
-          }
-        }
-      }
-      return out;
-    });
-  },
-
-  /**
-   * This returns a value, as picked from the form data. It may also return an array, object or null.
-   * If you only expect a string/leaf value, use usePickString() instead.
-   */
-  usePickFreshAny: (path: string | undefined): FDValue =>
-    useSelector((s) => (path ? dot.pick(path, s.currentData) : undefined)),
-
-  /**
    * This returns multiple values, as picked from the form data. The values in the input object is expected to be
    * dot-separated paths, and the return value will be an object with the same keys, but with the values picked
    * from the form data. If a value is not found, undefined is returned. Null may also be returned if the value
    * is explicitly set to null.
    */
-  useFreshBindings: <T extends IDataModelBindings | undefined>(
+  useFreshBindings: <T extends IDataModelBindings | undefined, O extends 'raw' | 'string'>(
     bindings: T,
-  ): T extends undefined ? Record<string, never> : { [key in keyof T]: FDValue } =>
+    dataAs: O,
+  ): T extends undefined ? Record<string, never> : { [key in keyof T]: O extends 'raw' ? FDValue : string } =>
     useSelector((s) => {
       const out: any = {};
       if (bindings) {
         for (const key of Object.keys(bindings)) {
-          out[key] = dot.pick(bindings[key], s.currentData);
+          const value = dot.pick(bindings[key], s.currentData);
+          if (dataAs === 'raw') {
+            out[key] = value;
+          } else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+            out[key] = String(value);
+          } else {
+            out[key] = '';
+          }
         }
       }
 
@@ -356,102 +324,19 @@ export const FD = {
 
   /**
    * This returns the raw method for setting a value in the form data. This is useful if you want to
-   * set a value in the form data.
+   * set a value in the form data. This is probably too low-level for what you really want to do, so
+   * consider using something like useDataModelBindings() instead.
+   * @see useDataModelBindings
    */
   useSetLeafValue: () => useSelector((s) => s.setLeafValue),
 
   /**
-   * Use this hook to get a function you can use to set a single value in the form data, using a binding.
+   * This returns the raw method for setting multiple leaf values in the form data at once. This is
+   * useful if you want to many values at the same time, atomically. This is probably too low-level
+   * for what you really want to do, so consider using something like useDataModelBindings() instead.
+   * @see useDataModelBindings
    */
-  useSetForBinding: (binding: string | undefined, saveWhileTyping?: SaveWhileTyping) => {
-    const setLeafValue = useSelector((s) => s.setLeafValue);
-
-    return useCallback(
-      (newValue: any) => {
-        if (!binding) {
-          window.logWarn(`No data model binding found, silently ignoring request to save ${newValue}`);
-          return;
-        }
-        setLeafValue({
-          path: binding,
-          newValue,
-          debounceTimeout: typeof saveWhileTyping === 'number' ? saveWhileTyping : undefined,
-        });
-      },
-      [binding, saveWhileTyping, setLeafValue],
-    );
-  },
-
-  /**
-   * Use this hook to get a function you can use to set multiple values in the form data, using a data model bindings
-   * object.
-   */
-  useSetForBindings: <B extends IDataModelBindings>(
-    bindings: B,
-    saveWhileTyping?: SaveWhileTyping,
-  ): SetLeafValueForBindings<B> => {
-    const setLeafValue = useSelector((s) => s.setLeafValue);
-
-    return useCallback(
-      (key: keyof B, newValue: any) => {
-        const binding = (bindings as any)[key];
-        if (!binding) {
-          const keyAsString = key as string;
-          window.logWarn(
-            `No data model binding found for ${keyAsString}, silently ignoring request to save ${newValue}`,
-          );
-          return;
-        }
-        setLeafValue({
-          path: binding,
-          newValue,
-          debounceTimeout: typeof saveWhileTyping === 'number' ? saveWhileTyping : undefined,
-        });
-      },
-      [bindings, saveWhileTyping, setLeafValue],
-    );
-  },
-
-  /**
-   * Use this hook to get a function you can use to set multiple values in the form data atomically, using a data model
-   * bindings object.
-   */
-  useMultiSetForBindings: <B extends IDataModelBindings>(
-    bindings: B,
-    saveWhileTyping?: SaveWhileTyping,
-  ): SetMultiLeafValuesForBindings<B> => {
-    const setMultiLeafValues = useSelector((s) => s.setMultiLeafValues);
-
-    return useCallback(
-      (changes: { binding: keyof B; newValue: any }[]) => {
-        const realChanges: FDNewValues = {
-          changes: [],
-          debounceTimeout: typeof saveWhileTyping === 'number' ? saveWhileTyping : undefined,
-        };
-
-        for (const change of changes) {
-          const { binding: key, newValue } = change;
-          const bindingPath = (bindings as any)[key];
-          if (!bindingPath) {
-            const keyAsString = key as string;
-            window.logWarn(
-              `No data model binding found for ${keyAsString}, silently ignoring request to save ${newValue}`,
-            );
-            return;
-          }
-          realChanges.changes.push({
-            path: bindingPath,
-            newValue,
-          });
-        }
-
-        if (realChanges.changes.length > 0) {
-          setMultiLeafValues(realChanges);
-        }
-      },
-      [bindings, saveWhileTyping, setMultiLeafValues],
-    );
-  },
+  useSetMultiLeafValues: () => useSelector((s) => s.setMultiLeafValues),
 
   /**
    * The locking functionality allows you to prevent form data from saving, even if the user stops typing (or navigates

@@ -5,7 +5,7 @@ import { userEvent } from '@testing-library/user-event';
 import type { AxiosResponse } from 'axios';
 
 import { getFormDataMockForRepGroup } from 'src/__mocks__/getFormDataMockForRepGroup';
-import { FD } from 'src/features/formData/FormDataWrite';
+import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
 import { queryPromiseMock, renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { IOption } from 'src/layout/common.generated';
@@ -31,14 +31,13 @@ interface Props extends Partial<Omit<RenderGenericComponentTestProps<'Dropdown'>
 }
 
 function MySuperSimpleInput() {
-  const setValue = FD.useSetForBinding('myInput');
-  const value = FD.usePickFreshString('myInput');
+  const { setValue, formData } = useDataModelBindings({ simpleBinding: 'myInput' });
 
   return (
     <input
       data-testid='my-input'
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
+      value={formData.simpleBinding}
+      onChange={(e) => setValue('simpleBinding', e.target.value)}
     />
   );
 }

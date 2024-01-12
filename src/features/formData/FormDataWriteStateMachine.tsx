@@ -63,7 +63,7 @@ export interface FDChange {
 
 export interface FDNewValue extends FDChange {
   path: string;
-  newValue: string;
+  newValue: string | number | boolean | undefined | null;
 }
 
 export interface FDNewValues extends FDChange {
@@ -180,7 +180,7 @@ function makeActions(
         if (newValue === '' || newValue === null || newValue === undefined) {
           dot.delete(path, state.currentData);
         } else {
-          dot.str(path, String(newValue), state.currentData);
+          dot.str(path, newValue, state.currentData);
         }
       }),
 
@@ -246,7 +246,7 @@ function makeActions(
           if (newValue === '' || newValue === null || newValue === undefined) {
             dot.delete(path, state.currentData);
           } else {
-            dot.str(path, String(newValue), state.currentData);
+            dot.str(path, newValue, state.currentData);
           }
           changesFound = true;
         }

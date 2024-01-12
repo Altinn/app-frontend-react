@@ -3,7 +3,7 @@ import React from 'react';
 import { act, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
-import { FD } from 'src/features/formData/FormDataWrite';
+import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { ListComponent } from 'src/layout/List/ListComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
@@ -51,11 +51,10 @@ const countries = [
 
 function RenderCounter({ node }: { node: LayoutNode<'List'> }) {
   const renderCount = React.useRef(0);
-  const bindings = node.item.dataModelBindings;
 
   // This simulates the List component data model fetching. It will trigger a re-render of the component once every
   // time any of the data model bindings change.
-  FD.usePickFreshStrings(bindings);
+  useDataModelBindings(node.item.dataModelBindings);
 
   renderCount.current++;
 
