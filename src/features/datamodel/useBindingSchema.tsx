@@ -26,7 +26,7 @@ import {
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 import type { IDataModelBindings } from 'src/layout/layout';
 
-type AsSchema<T> = {
+export type AsSchema<T> = {
   [P in keyof T]: JSONSchema7 | null;
 };
 
