@@ -1,9 +1,10 @@
 import dot from 'dot-object';
 import deepEqual from 'fast-deep-equal';
+import { applyPatch } from 'fast-json-patch';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
-import { applyChanges } from 'src/features/formData/applyChanges';
+import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
 import { runLegacyRules } from 'src/features/formData/LegacyRules';
 import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
 import type { IRuleConnections } from 'src/features/form/dynamics';
@@ -128,16 +129,9 @@ function makeActions(
       const oldModel = state.lastSavedData;
       const ruleResults = runLegacyRules(ruleConnections, oldModel, newModel);
       if (!deepEqual(oldModel, newModel)) {
-        applyChanges({
-          prev: oldModel,
-          next: newModel,
-          applyTo: state.currentData,
-        });
-        applyChanges({
-          prev: oldModel,
-          next: newModel,
-          applyTo: state.debouncedCurrentData,
-        });
+        const patchFromServer = createPatch({ prev: oldModel, next: newModel });
+        state.currentData = applyPatch(state.currentData, patchFromServer).newDocument;
+        state.debouncedCurrentData = applyPatch(state.debouncedCurrentData, patchFromServer).newDocument;
         state.lastSavedData = structuredClone(newModel);
       }
       for (const model of [state.currentData, state.debouncedCurrentData, state.lastSavedData]) {
