@@ -14,7 +14,7 @@ import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import { useResolvedNode } from 'src/utils/layout/NodesContext';
 import type { FDNewValue } from 'src/features/formData/FormDataWriteStateMachine';
 import type { IRawTextResource, ITextResourceResult } from 'src/features/language/textResources';
-import type { IOption } from 'src/layout/common.generated';
+import type { IRawOption } from 'src/layout/common.generated';
 import type { CompGroupRepeatingLikertExternal } from 'src/layout/Group/config.generated';
 import type { CompOrGroupExternal } from 'src/layout/layout';
 import type { CompLikertExternal } from 'src/layout/Likert/config.generated';
@@ -48,7 +48,7 @@ export const generateValidations = (validations: { index: number; message: strin
       }) as unknown as BackendValidationIssue,
   );
 
-export const defaultMockOptions: IOption[] = [
+export const defaultMockOptions: IRawOption[] = [
   {
     label: 'Bra',
     value: '1',
@@ -140,7 +140,7 @@ interface IQuestion {
 interface IRenderProps {
   mobileView: boolean;
   mockQuestions: IQuestion[];
-  mockOptions: IOption[];
+  mockOptions: IRawOption[];
   radioButtonProps: Partial<CompLikertExternal>;
   likertContainerProps: Partial<CompGroupRepeatingLikertExternal>;
   extraTextResources: IRawTextResource[];
@@ -164,7 +164,7 @@ export const render = async ({
   return await renderWithInstanceAndLayout({
     renderer: () => <ContainerTester id={mockLikertContainer.id} />,
     queries: {
-      fetchOptions: async () => ({ data: mockOptions, headers: {} }) as AxiosResponse<IOption[], any>,
+      fetchOptions: async () => ({ data: mockOptions, headers: {} }) as AxiosResponse<IRawOption[], any>,
       fetchTextResources: async () => createTextResource(mockQuestions, extraTextResources),
       fetchFormData: async () => generateMockFormData(mockQuestions),
       fetchLayouts: async () => ({
@@ -193,7 +193,7 @@ export function ContainerTester(props: { id: string }) {
   return <RepeatingGroupsLikertContainer node={node} />;
 }
 
-export const validateTableLayout = async (questions: IQuestion[], options: IOption[]) => {
+export const validateTableLayout = async (questions: IQuestion[], options: IRawOption[]) => {
   screen.getByRole('table');
 
   for (const option of defaultMockOptions) {
@@ -206,7 +206,7 @@ export const validateTableLayout = async (questions: IQuestion[], options: IOpti
   await validateRadioLayout(questions, options);
 };
 
-export const validateRadioLayout = async (questions: IQuestion[], options: IOption[], mobileView = false) => {
+export const validateRadioLayout = async (questions: IQuestion[], options: IRawOption[], mobileView = false) => {
   if (mobileView) {
     const radioGroups = await screen.findAllByRole('radiogroup');
     expect(radioGroups).toHaveLength(questions.length);
@@ -224,7 +224,7 @@ export const validateRadioLayout = async (questions: IQuestion[], options: IOpti
       // generates a DOM of several hundred nodes, and `getByRole` is quite slow since it has to traverse
       // the entire tree. Doing that in a loop (within another loop) on hundreds of nodes is not a good idea.
       // ref: https://github.com/testing-library/dom-testing-library/issues/698
-      const radio = within(row).getByDisplayValue(option.value);
+      const radio = within(row).getByDisplayValue(String(option.value));
 
       if (question.Answer && option.value === question.Answer) {
         expect(radio).toBeChecked();

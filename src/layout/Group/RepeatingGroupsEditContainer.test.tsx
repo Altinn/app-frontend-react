@@ -8,13 +8,13 @@ import { RepeatingGroupProvider, useRepeatingGroup } from 'src/layout/Group/Repe
 import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.generated';
-import type { IOption } from 'src/layout/common.generated';
+import type { IRawOption } from 'src/layout/common.generated';
 import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { CompExternal } from 'src/layout/layout';
 
 describe('RepeatingGroupsEditContainer', () => {
-  const options: IOption[] = [{ value: 'option.value', label: 'option.label' }];
+  const options: IRawOption[] = [{ value: 'option.value', label: 'option.label' }];
   const components: CompExternal[] = [
     {
       id: 'field1',

@@ -8,10 +8,10 @@ import { getFormDataMockForRepGroup } from 'src/__mocks__/getFormDataMockForRepG
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
 import { queryPromiseMock, renderGenericComponentTest } from 'src/test/renderWithProviders';
-import type { IOption } from 'src/layout/common.generated';
+import type { IRawOption } from 'src/layout/common.generated';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
-const countries: IOption[] = [
+const countries: IRawOption[] = [
   {
     label: 'Norway',
     value: 'norway',
@@ -27,7 +27,7 @@ const countries: IOption[] = [
 ];
 
 interface Props extends Partial<Omit<RenderGenericComponentTestProps<'Dropdown'>, 'renderer' | 'type' | 'queries'>> {
-  options?: IOption[];
+  options?: IRawOption[];
 }
 
 function MySuperSimpleInput() {
@@ -74,7 +74,7 @@ const render = async ({ component, genericProps, options, ...rest }: Props = {})
           : Promise.resolve({
               data: options,
               headers: {},
-            } as AxiosResponse<IOption[], any>),
+            } as AxiosResponse<IRawOption[], any>),
     },
     ...rest,
   });
@@ -149,7 +149,7 @@ describe('DropdownComponent', () => {
     fetchOptions.resolve({
       data: countries,
       headers: {},
-    } as AxiosResponse<IOption[], any>);
+    } as AxiosResponse<IRawOption[], any>);
 
     await screen.findByText('Denmark');
 
@@ -169,7 +169,7 @@ describe('DropdownComponent', () => {
         },
       ],
       headers: {},
-    } as AxiosResponse<IOption[], any>);
+    } as AxiosResponse<IRawOption[], any>);
 
     await waitFor(() => expect(screen.queryByTestId('altinn-spinner')).not.toBeInTheDocument());
     expect(screen.getByText('Finland')).toBeInTheDocument();

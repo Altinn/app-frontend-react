@@ -10,7 +10,8 @@ import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { useHiddenComponents } from 'src/utils/layout/NodesContext';
 import { memoize } from 'src/utils/memoize';
-import type { IOption, IOptionSourceExternal } from 'src/layout/common.generated';
+import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
+import type { IOptionSourceExternal } from 'src/layout/common.generated';
 import type { HierarchyDataSources } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -19,7 +20,7 @@ interface IUseSourceOptionsArgs {
   node: LayoutNode;
 }
 
-export const useSourceOptions = ({ source, node }: IUseSourceOptionsArgs): IOption[] | undefined => {
+export const useSourceOptions = ({ source, node }: IUseSourceOptionsArgs): IOptionInternal[] | undefined => {
   const hidden = useHiddenComponents();
   const dataSources = useExpressionDataSources(hidden);
   const nodeAsRef = useAsRef(node);
@@ -34,7 +35,7 @@ interface IGetSourceOptionsArgs extends IUseSourceOptionsArgs {
   dataSources: HierarchyDataSources;
 }
 
-export function getSourceOptions({ source, node, dataSources }: IGetSourceOptionsArgs): IOption[] | undefined {
+export function getSourceOptions({ source, node, dataSources }: IGetSourceOptionsArgs): IOptionInternal[] | undefined {
   if (!source) {
     return undefined;
   }
@@ -44,7 +45,7 @@ export function getSourceOptions({ source, node, dataSources }: IGetSourceOption
   const cleanValue = getKeyWithoutIndexIndicators(value);
   const cleanGroup = getKeyWithoutIndexIndicators(group);
   const groupPath = node.transposeDataModel(cleanGroup) || group;
-  const output: IOption[] = [];
+  const output: IOptionInternal[] = [];
 
   if (groupPath) {
     const groupData = pick(groupPath, formData);

@@ -44,7 +44,7 @@ import type { IFooterLayout } from 'src/features/footer/types';
 import type { FormDataWriteProxies, Proxy } from 'src/features/formData/FormDataWriteProxies';
 import type { FormDataMethods } from 'src/features/formData/FormDataWriteStateMachine';
 import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
-import type { IOption } from 'src/layout/common.generated';
+import type { IRawOption } from 'src/layout/common.generated';
 import type { CompExternalExact, CompTypes } from 'src/layout/layout';
 import type { AppMutations, AppQueries, AppQueriesContext } from 'src/queries/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -131,7 +131,7 @@ const defaultQueryMocks: AppQueries = {
   fetchRefreshJwtToken: async () => ({}),
   fetchCustomValidationConfig: async () => null,
   fetchFormData: async () => ({}),
-  fetchOptions: async () => ({ data: [], headers: {} }) as unknown as AxiosResponse<IOption[], any>,
+  fetchOptions: async () => ({ data: [], headers: {} }) as unknown as AxiosResponse<IRawOption[], any>,
   fetchDataList: async () => ({}) as unknown as IDataList,
   fetchPdfFormat: async () => ({ excludedPages: [], excludedComponents: [] }),
   fetchDynamics: async () => null,

@@ -10,7 +10,7 @@ import { RepeatingGroupTable } from 'src/layout/Group/RepeatingGroupTable';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.generated';
-import type { IOption } from 'src/layout/common.generated';
+import type { IRawOption } from 'src/layout/common.generated';
 import type { CompGroupRepeatingExternal, CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { CompOrGroupExternal, ILayoutCollection } from 'src/layout/layout';
@@ -29,7 +29,7 @@ describe('RepeatingGroupTable', () => {
   const group = getFormLayoutGroupMock({
     id: 'mock-container-id',
   });
-  const options: IOption[] = [{ value: 'option.value', label: 'option.label' }];
+  const options: IRawOption[] = [{ value: 'option.value', label: 'option.label' }];
   const components: CompOrGroupExternal[] = [
     {
       id: 'field1',

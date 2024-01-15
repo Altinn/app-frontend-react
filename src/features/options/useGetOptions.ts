@@ -8,12 +8,13 @@ import { useGetOptionsQuery } from 'src/features/options/useGetOptionsQuery';
 import { useSourceOptions } from 'src/hooks/useSourceOptions';
 import { duplicateOptionFilter } from 'src/utils/options';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
+import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type {
   IDataModelBindingsOptionsSimple,
   IDataModelBindingsSimple,
   IMapping,
-  IOption,
   IOptionSourceExternal,
+  IRawOption,
 } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -30,7 +31,7 @@ interface Props<T extends ValueType> {
   dataModelBindings?: IDataModelBindingsOptionsSimple | IDataModelBindingsSimple;
 
   // Simple options, static and pre-defined
-  options?: IOption[];
+  options?: IRawOption[];
 
   // Fetch options from API
   optionsId?: string;
@@ -42,11 +43,11 @@ interface Props<T extends ValueType> {
   sortOrder?: SortOrder;
 }
 
-type CurrentValue<T extends ValueType> = T extends 'single' ? IOption | undefined : IOption[];
+type CurrentValue<T extends ValueType> = T extends 'single' ? IOptionInternal | undefined : IOptionInternal[];
 type CurrentValueAsString<T extends ValueType> = T extends 'single' ? string : string[];
 type ValueSetter<T extends ValueType> = T extends 'single'
-  ? (value: string | IOption) => void
-  : (value: string[] | IOption[]) => void;
+  ? (value: string | IOptionInternal) => void
+  : (value: string[] | IOptionInternal[]) => void;
 
 export interface OptionsResult<T extends ValueType> {
   // The current value, as an option (for single-option components) or an array of options (for multi-option components)
@@ -65,7 +66,7 @@ export interface OptionsResult<T extends ValueType> {
 
   // The final list of options deduced from the component settings. This will be an array of objects, where each object
   // has a string-typed 'value' property, regardless of the underlying options configuration.
-  options: IOption[];
+  options: IOptionInternal[];
 
   // Whether the options are currently being fetched from the API. This is usually false in normal components, as
   // options are always fetched on page load, but it can be true if the options are fetched dynamically based on
@@ -74,7 +75,7 @@ export interface OptionsResult<T extends ValueType> {
 }
 
 interface EffectProps<T extends ValueType> {
-  options: IOption[] | undefined;
+  options: IOptionInternal[] | undefined;
   disable: boolean;
   valueType: T;
   preselectedOptionIndex?: number;
@@ -82,12 +83,12 @@ interface EffectProps<T extends ValueType> {
   setValue: ValueSetter<T>;
 }
 
-const defaultOptions: IOption[] = [];
+const defaultOptions: IOptionInternal[] = [];
 
 type SortOrder = 'asc' | 'desc';
 const compareOptionAlphabetically =
   (langAsString: IUseLanguage['langAsString'], sortOrder: SortOrder = 'asc', language: string = 'nb') =>
-  (a: IOption, b: IOption) => {
+  (a: IOptionInternal, b: IOptionInternal) => {
     const comparison = langAsString(a.label).localeCompare(langAsString(b.label), language, {
       sensitivity: 'base',
       numeric: true,
@@ -147,10 +148,11 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
 
   const setData = useMemo(() => {
     if (valueType === 'single') {
-      return (value: string | IOption) => setValue('simpleBinding', typeof value === 'string' ? value : value.value);
+      return (value: string | IOptionInternal) =>
+        setValue('simpleBinding', typeof value === 'string' ? value : value.value);
     }
 
-    return (value: (string | IOption)[]) => {
+    return (value: (string | IOptionInternal)[]) => {
       const asString = value.map((v) => (typeof v === 'string' ? v : v.value)).join(',');
       setValue('simpleBinding', asString);
     };

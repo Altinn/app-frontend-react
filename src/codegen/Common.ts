@@ -199,10 +199,16 @@ const common = {
     }),
 
   // Options/code lists:
-  IOption: () =>
+  IRawOption: () =>
     new CG.obj(
       new CG.prop('label', new CG.str()),
-      new CG.prop('value', new CG.str()),
+      new CG.prop(
+        'value',
+
+        // Options are converted to strings when working on them internally, but externally we can handle
+        // receiving them as any primitive type
+        new CG.union(new CG.str(), new CG.num(), new CG.bool()),
+      ),
       new CG.prop('description', new CG.str().optional()),
       new CG.prop('helpText', new CG.str().optional()),
     ).addExample({ label: '', value: '' }),
@@ -281,7 +287,10 @@ const common = {
       new CG.prop('queryParameters', CG.common('IQueryParameters').optional()),
       new CG.prop(
         'options',
-        new CG.arr(CG.common('IOption')).optional().setTitle('Static options').setDescription('List of static options'),
+        new CG.arr(CG.common('IRawOption'))
+          .optional()
+          .setTitle('Static options')
+          .setDescription('List of static options'),
       ),
       new CG.prop(
         'secure',

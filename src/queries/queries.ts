@@ -46,7 +46,7 @@ import type { Instantiation } from 'src/features/instantiate/InstantiationContex
 import type { ITextResourceResult } from 'src/features/language/textResources';
 import type { IPdfFormat } from 'src/features/pdf/types';
 import type { BackendValidationIssue, IExpressionValidationConfig } from 'src/features/validation';
-import type { ILayoutSets, ILayoutSettings, IOption } from 'src/layout/common.generated';
+import type { ILayoutSets, ILayoutSettings, IRawOption } from 'src/layout/common.generated';
 import type { ActionResult } from 'src/layout/CustomButton/CustomButtonComponent';
 import type { ILayoutCollection } from 'src/layout/layout';
 import type { ISimpleInstance } from 'src/types';
@@ -187,7 +187,7 @@ export const fetchLayouts = (layoutSetId: string): Promise<ILayoutCollection> =>
 export const fetchLayoutSettings = (layoutSetId: string | undefined): Promise<ILayoutSettings> =>
   httpGet(getLayoutSettingsUrl(layoutSetId));
 
-export const fetchOptions = (url: string): Promise<AxiosResponse<IOption[], any>> => httpGetRaw(url);
+export const fetchOptions = (url: string): Promise<AxiosResponse<IRawOption[], any>> => httpGetRaw(url);
 
 export const fetchDataList = (url: string): Promise<IDataList> => httpGet(url);
 

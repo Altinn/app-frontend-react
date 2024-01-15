@@ -9,7 +9,7 @@ import { useLaxProcessData, useRealTaskType } from 'src/features/instance/Proces
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { ProcessTaskType } from 'src/types';
 import { useNodes } from 'src/utils/layout/NodesContext';
-import type { IOption } from 'src/layout/common.generated';
+import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 /**
@@ -18,7 +18,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
  * the page with the option-based component is rendered. This way we can use the 'displayValue' expression
  * function, and show summaries/PDF even if the source component has not been rendered yet.
  */
-export type AllOptionsMap = { [nodeId: string]: IOption[] | undefined };
+export type AllOptionsMap = { [nodeId: string]: IOptionInternal[] | undefined };
 
 interface State {
   allInitiallyLoaded: boolean;
@@ -37,7 +37,7 @@ export const useAllOptions = () => useCtx().state.nodes;
 export const useAllOptionsInitiallyLoaded = () => useCtx().state.allInitiallyLoaded;
 
 type Actions =
-  | { type: 'nodeFetched'; nodeId: string; options: IOption[] }
+  | { type: 'nodeFetched'; nodeId: string; options: IOptionInternal[] }
   | { type: 'nodesFound'; nodesFound: string[] }
   | { type: 'setCurrentTask'; currentTaskId: string | undefined };
 
@@ -183,7 +183,13 @@ export function AllOptionsProvider({ children }: PropsWithChildren) {
   );
 }
 
-function DummyOptionsSaver({ node, loadingDone }: { node: LayoutNode; loadingDone: (options: IOption[]) => void }) {
+function DummyOptionsSaver({
+  node,
+  loadingDone,
+}: {
+  node: LayoutNode;
+  loadingDone: (options: IOptionInternal[]) => void;
+}) {
   const { options: calculatedOptions, isFetching } = useGetOptions({
     ...node.item,
     node,
