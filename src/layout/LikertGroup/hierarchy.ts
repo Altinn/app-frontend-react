@@ -64,6 +64,9 @@ export class LikertGroupHierarchyGenerator extends ComponentHierarchyGenerator<'
 
         const childItem = {
           ...itemProps,
+          dataModelBindings: {
+            simpleBinding: item?.dataModelBindings?.simpleBinding,
+          },
           type: 'Likert',
         } as unknown as CompLikertInternal;
 
@@ -81,7 +84,6 @@ export class LikertGroupHierarchyGenerator extends ComponentHierarchyGenerator<'
           items: rowChildren,
         });
       }
-
       me.item.rows = rows;
       return me;
     };
@@ -117,11 +119,11 @@ const mutateTextResourceBindings: (props: ChildFactoryProps<'LikertGroup'>) => C
 
 const mutateDataModelBindings: (props: ChildFactoryProps<'LikertGroup'>, rowIndex: number) => ChildMutator<'Likert'> =
   (props, rowIndex) => (item) => {
-    const groupBinding = 'dataModelBindings' in props.item ? props.item.dataModelBindings?.questions : undefined;
+    const questionsBinding = 'dataModelBindings' in props.item ? props.item.dataModelBindings?.questions : undefined;
     const bindings = item.dataModelBindings || {};
     for (const key of Object.keys(bindings)) {
-      if (groupBinding && bindings[key]) {
-        bindings[key] = bindings[key].replace(groupBinding, `${groupBinding}[${rowIndex}]`);
+      if (questionsBinding && bindings[key]) {
+        bindings[key] = bindings[key].replace(questionsBinding, `${questionsBinding}[${rowIndex}]`);
       }
     }
   };

@@ -12,7 +12,12 @@ import { LikertGroupComponent } from 'src/layout/LikertGroup/LikertGroup';
 import { LikertGroupSummary } from 'src/layout/LikertGroup/LikertGroupSummary';
 import { type LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { FormValidations, ISchemaValidationError, ValidationDataSources } from 'src/features/validation';
+import type {
+  ComponentValidation,
+  FormValidations,
+  ISchemaValidationError,
+  ValidationDataSources,
+} from 'src/features/validation';
 import type { CompExternalExact } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
@@ -64,6 +69,11 @@ export class LikertGroup extends LikertGroupDef implements ValidateAny {
     schemaErrors: ISchemaValidationError[],
   ): FormValidations {
     return runAllValidations(node, ctx, schemaErrors);
+  }
+
+  // This component does not have empty field validation, so has to override its inherited method
+  runEmptyFieldValidation(): ComponentValidation[] {
+    return [];
   }
 
   isDataModelBindingsRequired(): boolean {
