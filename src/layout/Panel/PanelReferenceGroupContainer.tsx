@@ -17,10 +17,10 @@ import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 
 export interface IPanelGroupContainerProps {
   node: LayoutNodeForGroup<CompGroupNonRepeatingPanelInternal>;
-  ref?: React.Ref<HTMLDivElement>;
+  divRef?: React.Ref<HTMLDivElement>;
 }
 
-export function PanelReferenceGroupContainer({ node, ref }: IPanelGroupContainerProps) {
+export function PanelReferenceGroupContainer({ node, divRef }: IPanelGroupContainerProps) {
   const container = node.item.panel ? node.item : undefined;
   const [open, setOpen] = useState<boolean>(!container?.panel?.groupReference);
   const hidden = node.isHidden();
@@ -49,7 +49,7 @@ export function PanelReferenceGroupContainer({ node, ref }: IPanelGroupContainer
 
   return (
     <Grid
-      ref={ref}
+      ref={divRef}
       item={true}
       data-componentid={node.item.id}
     >

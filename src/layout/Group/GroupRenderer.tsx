@@ -17,7 +17,7 @@ export function GroupRenderer({ node, containerDivRef }: GroupRendererProps) {
     return (
       <RepeatingGroupsLikertContainer
         node={node}
-        ref={containerDivRef}
+        divRef={containerDivRef}
       />
     );
   }
@@ -38,7 +38,7 @@ export function GroupRenderer({ node, containerDivRef }: GroupRendererProps) {
       <PanelReferenceGroupContainer
         key={node.item.id}
         node={node}
-        ref={containerDivRef}
+        divRef={containerDivRef}
       />
     );
   }
@@ -49,7 +49,7 @@ export function GroupRenderer({ node, containerDivRef }: GroupRendererProps) {
       <PanelGroupContainer
         key={node.item.id}
         node={node}
-        ref={containerDivRef}
+        divRef={containerDivRef}
       />
     );
   }
@@ -59,7 +59,7 @@ export function GroupRenderer({ node, containerDivRef }: GroupRendererProps) {
     return (
       <DisplayGroupContainer
         key={node.item.id}
-        ref={containerDivRef}
+        divRef={containerDivRef}
         groupNode={node}
         renderLayoutNode={(n) => (
           <GenericComponent

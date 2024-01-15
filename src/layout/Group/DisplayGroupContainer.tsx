@@ -16,7 +16,7 @@ import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IDisplayGroupContainer {
-  ref?: React.Ref<HTMLDivElement>;
+  divRef?: React.Ref<HTMLDivElement>;
   groupNode: LayoutNodeForGroup<CompGroupNonRepeatingInternal | CompGroupNonRepeatingPanelInternal>;
   id?: string;
   onlyRowIndex?: number | undefined;
@@ -33,7 +33,7 @@ const headingSizes: { [k in HeadingLevel]: Parameters<typeof Heading>[0]['size']
 };
 
 export function DisplayGroupContainer({
-  ref,
+  divRef,
   groupNode,
   id,
   onlyRowIndex,
@@ -68,7 +68,7 @@ export function DisplayGroupContainer({
       description={description && !isSummary && <Lang id={description} />}
     >
       <div
-        ref={ref}
+        ref={divRef}
         id={id || container.id}
         data-componentid={container.id}
         data-testid='display-group-container'

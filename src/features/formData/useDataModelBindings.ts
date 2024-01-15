@@ -7,6 +7,7 @@ import type { JSONSchema7 } from 'json-schema';
 import { useBindingSchema } from 'src/features/datamodel/useBindingSchema';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
+import { useAsRef } from 'src/hooks/useAsRef';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import type { AsSchema } from 'src/features/datamodel/useBindingSchema';
 import type { FDNewValue, FDNewValues } from 'src/features/formData/FormDataWriteStateMachine';
@@ -73,12 +74,9 @@ function useInnerDataModelBindings<B extends IDataModelBindings, O extends Requi
   const formData = FD.useFreshBindings(bindings, dataAs);
   const schemas = useBindingSchema(bindings);
 
-  const saveOptions: SaveOptions = useMemo(() => {
-    if (saveWhileTyping === DEFAULT_DEBOUNCE_TIMEOUT) {
-      return {};
-    }
-    return { debounceTimeout: saveWhileTyping };
-  }, [saveWhileTyping]);
+  const saveOptionsRef = useAsRef(
+    saveWhileTyping === DEFAULT_DEBOUNCE_TIMEOUT ? {} : { debounceTimeout: saveWhileTyping },
+  );
 
   // When the user is typing, for example a negative number, they will type the minus sign, and then the number. If we
   // try to save just the minus sign, that's not a valid number to store in the database, so we'll need to keep a
@@ -86,8 +84,8 @@ function useInnerDataModelBindings<B extends IDataModelBindings, O extends Requi
   // By this definition, if we have local data, the data in the binding is not valid. To prevent us from saving invalid
   // or stale data in the data model, we'll clear the data from the data model as long as we have local (invalid) data.
   const store = useMemo(
-    () => createBindingsStore(bindings, schemas, setLeafValue, setMultiLeafValue, saveOptions),
-    [bindings, saveOptions, schemas, setLeafValue, setMultiLeafValue],
+    () => createBindingsStore(bindings, schemas, setLeafValue, setMultiLeafValue, saveOptionsRef),
+    [bindings, saveOptionsRef, schemas, setLeafValue, setMultiLeafValue],
   );
 
   const localData = useStore(store, (state) => state.localValues);
@@ -118,7 +116,7 @@ function createBindingsStore<B extends IDataModelBindings>(
   schemas: AsSchema<B> | undefined,
   setLeafValue: (newValue: FDNewValue) => void,
   setMultiLeafValue: (changes: FDNewValues) => void,
-  saveOptions: SaveOptions,
+  saveOptionsRef: { current: SaveOptions },
 ) {
   const allIsValid = Object.fromEntries(
     Object.entries(bindings).map(([key]) => [key, true]),
@@ -135,7 +133,7 @@ function createBindingsStore<B extends IDataModelBindings>(
             state.localValues[key as string] = value;
             state.isValid[key as string] = false;
           });
-          setLeafValue({ path: bindings[key] as string, newValue: undefined, ...saveOptions });
+          setLeafValue({ path: bindings[key] as string, newValue: undefined, ...saveOptionsRef.current });
         } else {
           set((state) => {
             state.localValues[key as string] = undefined;
@@ -144,7 +142,7 @@ function createBindingsStore<B extends IDataModelBindings>(
           setLeafValue({
             path: bindings[key] as string,
             newValue,
-            ...saveOptions,
+            ...saveOptionsRef.current,
           });
         }
       },
@@ -167,7 +165,7 @@ function createBindingsStore<B extends IDataModelBindings>(
         });
         setMultiLeafValue({
           changes: newValues,
-          ...saveOptions,
+          ...saveOptionsRef.current,
         });
         set((state) => {
           Object.entries(newLocalValues).forEach(([key, value]) => {

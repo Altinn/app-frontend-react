@@ -16,10 +16,10 @@ import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 
 interface PanelGroupContainerProps {
   node: LayoutNodeForGroup<CompGroupNonRepeatingPanelInternal>;
-  ref?: React.Ref<HTMLDivElement>;
+  divRef?: React.Ref<HTMLDivElement>;
 }
 
-export const PanelGroupContainer = ({ node, ref }: PanelGroupContainerProps) => {
+export const PanelGroupContainer = ({ node, divRef }: PanelGroupContainerProps) => {
   const { iconUrl, iconAlt } = node.item.panel || {};
   const { title, description } = node.item.textResourceBindings || {};
   const fullWidth = node.parent instanceof LayoutPage;
@@ -28,7 +28,7 @@ export const PanelGroupContainer = ({ node, ref }: PanelGroupContainerProps) => 
 
   return (
     <Grid
-      ref={ref}
+      ref={divRef}
       item={true}
       xs={12}
       data-componentid={node.item.id}
