@@ -312,7 +312,7 @@ export const FD = {
       if (mapping) {
         for (const key of Object.keys(mapping)) {
           const outputKey = mapping[key];
-          const value = dot.pick(mapping[key], s.debouncedCurrentData);
+          const value = dot.pick(key, s.debouncedCurrentData);
           if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
             out[outputKey] = value;
           }
