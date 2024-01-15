@@ -88,6 +88,16 @@ function isSimilarEnough(stats: Stats): (left: any, right: any) => boolean {
       const innerStats = newStats();
       compareObjects({ prev: left, next: right, patch, path: [], stats: innerStats });
       const actualChanges = patch.filter((p) => p.op !== 'test').length;
+      const numAdd = patch.filter((p) => p.op === 'add').length;
+      const numRemove = patch.filter((p) => p.op === 'remove').length;
+      const numReplace = patch.filter((p) => p.op === 'replace').length;
+
+      if (numRemove === 0 && numReplace === 0 && numAdd > 0) {
+        // If there are only added properties, we'll consider it similar enough that, and we can just add data
+        // to the existing object.
+        return true;
+      }
+
       const potentialChanges = innerStats.comparisons;
       if (potentialChanges === 0 || actualChanges === 0) {
         return true;

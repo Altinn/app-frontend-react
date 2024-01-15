@@ -81,7 +81,8 @@ describe('createPatch', () => {
       prev: { a: [1, 2, 3] },
       next: { a: [1, 2, 3, 4] },
       expected: [
-        { op: 'test', path: '/a', value: [1, 2, 3] },
+        // TODO: Add back in when backend is fixed
+        // { op: 'test', path: '/a', value: [1, 2, 3] },
         { op: 'add', path: '/a/-', value: 4 },
       ],
     });
@@ -98,14 +99,15 @@ describe('createPatch', () => {
       },
       next: { a: [{ b: 1, ...common }, { b: 2, ...common }, { b: 3 }] },
       expected: [
-        {
-          op: 'test',
-          path: '/a',
-          value: [
-            { b: 1, ...common },
-            { b: 2, ...common },
-          ],
-        },
+        // TODO: Add back in when backend is fixed
+        // {
+        //   op: 'test',
+        //   path: '/a',
+        //   value: [
+        //     { b: 1, ...common },
+        //     { b: 2, ...common },
+        //   ],
+        // },
         { op: 'add', path: '/a/-', value: { b: 3 } },
       ],
     });
@@ -266,7 +268,8 @@ describe('createPatch', () => {
       prev: { a: [1, 2, 3] },
       next: { a: [1, 2, 3, 4] },
       expected: [
-        { op: 'test', path: '/a', value: [1, 2, 3] },
+        // TODO: Add back in when backend is fixed
+        // { op: 'test', path: '/a', value: [1, 2, 3] },
         { op: 'add', path: '/a/-', value: 4 },
       ],
     });
@@ -315,6 +318,19 @@ describe('createPatch', () => {
       expected: [
         { op: 'test', path: '/a/b', value: null },
         { op: 'replace', path: '/a/b', value: 'foo' },
+      ],
+    });
+  });
+
+  it('should create add operations for new properties in an empty object, even when inside an array', () => {
+    testPatch({
+      prev: { a: [{}] },
+      next: { a: [{ b: 1, d: 2, e: 5, f: 8 }] },
+      expected: [
+        { op: 'add', path: '/a/0/b', value: 1 },
+        { op: 'add', path: '/a/0/d', value: 2 },
+        { op: 'add', path: '/a/0/e', value: 5 },
+        { op: 'add', path: '/a/0/f', value: 8 },
       ],
     });
   });
