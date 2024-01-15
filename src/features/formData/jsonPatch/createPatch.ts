@@ -142,8 +142,18 @@ function compareArrays({ prev, next, patch, path, stats }: CompareProps<any[]>) 
   }
 
   if (localPatch.length) {
-    // Always add a test first to make sure the original array is still the same as the one we're changing
-    patch.push({ op: 'test', path: pointer(path), value: prev });
+    let addTestFirst = true;
+    if (localPatch.length === 1 && localPatch[0].op === 'add' && localPatch[0].path.endsWith('/-')) {
+      // When appending to an array, and that's the only thing we do, we don't care about the previous value (as long
+      // as we know it was an array - which was checked before we reached this function). This works around an issue
+      // where backend replies with an error in some instances.
+      // TODO: Remove this when backend is fixed.
+      addTestFirst = false;
+    }
+    if (addTestFirst) {
+      // Add a test first to make sure the original array is still the same as the one we're changing
+      patch.push({ op: 'test', path: pointer(path), value: prev });
+    }
     patch.push(...localPatch);
   }
 
