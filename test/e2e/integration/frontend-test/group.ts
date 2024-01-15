@@ -289,36 +289,27 @@ describe('Group', () => {
     expectRows(['NOK 1', 'NOK 5'], ['NOK 120', 'NOK 350'], ['NOK 80 323', 'NOK 123 455']);
     cy.snapshot('group:prefill');
 
-    // TODO: Comment back in when the full data model is returned from the backend, and we can know
-    //  about row deletions again
-    const disablePartsOfTest = JSON.parse('true');
-    if (!disablePartsOfTest) {
-      checkPrefills({ middels: false, svaer: false });
-      expectRows(['NOK 1', 'NOK 5']);
+    checkPrefills({ middels: false, svaer: false });
+    expectRows(['NOK 1', 'NOK 5']);
 
-      checkPrefills({ enorm: true, liten: false });
-      expectRows(['NOK 9 872 345', 'NOK 18 872 345']);
+    checkPrefills({ enorm: true, liten: false });
+    expectRows(['NOK 9 872 345', 'NOK 18 872 345']);
 
-      checkPrefills({ liten: true });
-      expectRows(['NOK 9 872 345', 'NOK 18 872 345'], ['NOK 1', 'NOK 5']);
-    }
+    checkPrefills({ liten: true });
+    expectRows(['NOK 9 872 345', 'NOK 18 872 345'], ['NOK 1', 'NOK 5']);
 
-    const middelsIndex = disablePartsOfTest ? 1 : 0;
-
-    cy.get(appFrontend.group.row(middelsIndex).editBtn).should('have.text', 'Se innhold');
-    cy.get(appFrontend.group.row(middelsIndex).deleteBtn).should('not.exist');
-    cy.get(appFrontend.group.row(middelsIndex).editBtn).click();
-    cy.get(appFrontend.group.row(middelsIndex).editBtn).should('have.text', 'Lukk');
+    cy.get(appFrontend.group.row(0).editBtn).should('have.text', 'Se innhold');
+    cy.get(appFrontend.group.row(0).deleteBtn).should('not.exist');
+    cy.get(appFrontend.group.row(0).editBtn).click();
+    cy.get(appFrontend.group.row(0).editBtn).should('have.text', 'Lukk');
     cy.get(appFrontend.group.saveMainGroup).should('have.text', 'Lukk');
     cy.get(appFrontend.group.saveMainGroup).clickAndGone();
 
-    const litenIndex = disablePartsOfTest ? 0 : 1;
-
     // The 'liten' row differs, as it should not have a save button on the bottom
-    cy.get(appFrontend.group.row(litenIndex).editBtn).should('have.text', 'Se innhold');
-    cy.get(appFrontend.group.row(litenIndex).deleteBtn).should('not.exist');
-    cy.get(appFrontend.group.row(litenIndex).editBtn).click();
-    cy.get(appFrontend.group.row(litenIndex).editBtn).should('have.text', 'Lukk');
+    cy.get(appFrontend.group.row(1).editBtn).should('have.text', 'Se innhold');
+    cy.get(appFrontend.group.row(1).deleteBtn).should('not.exist');
+    cy.get(appFrontend.group.row(1).editBtn).click();
+    cy.get(appFrontend.group.row(1).editBtn).should('have.text', 'Lukk');
     cy.get(appFrontend.group.saveMainGroup).should('not.exist');
   });
 
