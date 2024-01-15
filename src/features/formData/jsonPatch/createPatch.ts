@@ -167,6 +167,12 @@ function compareValues({ prev, next, patch, path, stats }: CompareProps<any>) {
     patch.push({ op: 'remove', path: pointer(path) });
   } else if (prev === undefined) {
     patch.push({ op: 'add', path: pointer(path), value: next });
+  } else if (!prev && Array.isArray(next)) {
+    // Special-case workaround for an apparent backend bug where repeating groups will be set to null, and we'll
+    // only be told the value is null, but as soon as we add an array here, backend will throw an error when our
+    // test case does not match its representation. For that reason, we'll work around it by not sending a test.
+    // TODO: Remove this when backend is fixed.
+    patch.push({ op: 'replace', path: pointer(path), value: next });
   } else {
     patch.push({ op: 'test', path: pointer(path), value: prev });
     patch.push({ op: 'replace', path: pointer(path), value: next });
