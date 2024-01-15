@@ -357,14 +357,6 @@ describe('Validation', () => {
 
     // Validation message should now have changed, since we filled out currentValue and saved
     cy.get(appFrontend.errorReport).findByText('Du må fylle ut 2. endre verdi 123 til').should('be.visible');
-
-    // TODO: Remove this wait when validation and saving happens in the same request. When we change the
-    // currentValue to 123 above, and then immediately delete row afterwards, the validation request that started
-    // running (but did not finish, as often happens on tt02 + github) results in a race condition where the
-    // validation result may no longer be applicable to the current form data.
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(3000);
-
     cy.get(appFrontend.group.row(2).deleteBtn).click();
 
     // Check that nested group with multipage gets focus
