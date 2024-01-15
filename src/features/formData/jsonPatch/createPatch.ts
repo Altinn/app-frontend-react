@@ -87,22 +87,21 @@ function isSimilarEnough(stats: Stats): (left: any, right: any) => boolean {
       const patch: JsonPatch = [];
       const innerStats = newStats();
       compareObjects({ prev: left, next: right, patch, path: [], stats: innerStats });
-      const actualChanges = patch.filter((p) => p.op !== 'test').length;
-      const numAdd = patch.filter((p) => p.op === 'add').length;
-      const numRemove = patch.filter((p) => p.op === 'remove').length;
-      const numReplace = patch.filter((p) => p.op === 'replace').length;
+      const actualChanges = patch.filter((p) => p.op !== 'test');
+      const notInNestedArrays = actualChanges.filter((p) => p.path.match(/\/(\d+|-)\/?/) === null);
+      const numRemove = notInNestedArrays.filter((p) => p.op === 'remove').length;
 
-      if (numRemove === 0 && numReplace === 0 && numAdd > 0) {
-        // If there are only added properties, we'll consider it similar enough that, and we can just add data
-        // to the existing object.
+      if (numRemove === 0) {
+        // If there are only added/replaced properties, we'll consider it similar enough. Object that can be extended
+        // without removing anything does not make destructive changes.
         return true;
       }
 
       const potentialChanges = innerStats.comparisons;
-      if (potentialChanges === 0 || actualChanges === 0) {
+      if (potentialChanges === 0 || actualChanges.length === 0) {
         return true;
       }
-      const changedPercentage = actualChanges / potentialChanges;
+      const changedPercentage = actualChanges.length / potentialChanges;
       return changedPercentage < 0.6;
     }
 

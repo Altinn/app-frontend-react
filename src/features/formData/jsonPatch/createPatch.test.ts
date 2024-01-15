@@ -334,4 +334,32 @@ describe('createPatch', () => {
       ],
     });
   });
+
+  it('should compare object individually, not taking arrays in them into account', () => {
+    // This case appears a lot when comparing backend changes in the data model to our own current model. The backend
+    // may send us lots of new properties on objects in arrays where we just added an empty object. For nested groups
+    // that could lead to the whole upper object being compared and it was assumed the whole object was changed enough
+    // that it should be removed and a new one added.
+    const complex = { d: 5, e: 6, f: 7 };
+    testPatch({
+      prev: { a: [{ b: { c: 1 }, nested: [{}, {}, {}] }] },
+      next: { a: [{ b: { c: 2 }, nested: [complex, complex, complex] }] },
+      expected: [
+        { op: 'test', path: '/a/0/b/c', value: 1 },
+        { op: 'replace', path: '/a/0/b/c', value: 2 },
+
+        { op: 'add', path: '/a/0/nested/0/d', value: 5 },
+        { op: 'add', path: '/a/0/nested/0/e', value: 6 },
+        { op: 'add', path: '/a/0/nested/0/f', value: 7 },
+
+        { op: 'add', path: '/a/0/nested/1/d', value: 5 },
+        { op: 'add', path: '/a/0/nested/1/e', value: 6 },
+        { op: 'add', path: '/a/0/nested/1/f', value: 7 },
+
+        { op: 'add', path: '/a/0/nested/2/d', value: 5 },
+        { op: 'add', path: '/a/0/nested/2/e', value: 6 },
+        { op: 'add', path: '/a/0/nested/2/f', value: 7 },
+      ],
+    });
+  });
 });
