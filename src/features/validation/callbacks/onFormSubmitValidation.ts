@@ -6,8 +6,8 @@ import {
   getValidationsForNode,
   getVisibilityMask,
   hasValidationErrors,
+  selectValidations,
   shouldValidateNode,
-  validationsFromGroups,
 } from 'src/features/validation/utils';
 import { useValidationContext } from 'src/features/validation/validationContext';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
@@ -61,7 +61,7 @@ export function useOnFormSubmitValidation() {
      */
     const backendMask = getVisibilityMask(['Backend', 'CustomBackend']);
     const hasFieldErrors =
-      Object.values(state.fields).flatMap((field) => validationsFromGroups(field, backendMask, 'error')).length > 0;
+      Object.values(state.fields).flatMap((field) => selectValidations(field, backendMask, 'error')).length > 0;
 
     if (hasFieldErrors || hasValidationErrors(state.task)) {
       setShowAllErrors(true);

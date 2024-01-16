@@ -43,7 +43,7 @@ export function Form() {
   const { formErrors, taskErrors } = useTaskErrors();
   const hasErrors = Boolean(formErrors.length) || Boolean(taskErrors.length);
   const requiredFieldsMissing = formErrors.some(
-    (error) => error.group === FrontendValidationSource.EmptyField && error.pageKey === currentPageId,
+    (error) => error.source === FrontendValidationSource.EmptyField && error.pageKey === currentPageId,
   );
 
   const [mainNodes, errorReportNodes] = React.useMemo(() => {

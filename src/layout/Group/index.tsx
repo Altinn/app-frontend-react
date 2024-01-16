@@ -19,7 +19,7 @@ import {
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type {
   ComponentValidation,
-  FormValidations,
+  FrontendValidations,
   ISchemaValidationError,
   ValidationDataSources,
 } from 'src/features/validation';
@@ -75,7 +75,7 @@ export class Group extends GroupDef implements ValidateAny, ValidateComponent {
     node: LayoutNode,
     ctx: ValidationDataSources,
     schemaErrors: ISchemaValidationError[],
-  ): FormValidations {
+  ): FrontendValidations {
     return runAllValidations(node, ctx, schemaErrors);
   }
 
@@ -100,7 +100,7 @@ export class Group extends GroupDef implements ValidateAny, ValidateComponent {
         message: { key: 'validation_errors.minItems', params: [repeatingGroupMinCount] },
         severity: 'error',
         componentId: node.item.id,
-        group: FrontendValidationSource.Component,
+        source: FrontendValidationSource.Component,
         category: ValidationMask.Component,
       });
     }
