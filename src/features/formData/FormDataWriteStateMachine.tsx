@@ -129,9 +129,10 @@ function makeActions(
       const oldModel = state.lastSavedData;
       const ruleResults = runLegacyRules(ruleConnections, oldModel, newModel);
       if (!deepEqual(oldModel, newModel)) {
-        const patchFromServer = createPatch({ prev: oldModel, next: newModel });
-        state.currentData = applyPatch(state.currentData, patchFromServer).newDocument;
-        state.debouncedCurrentData = applyPatch(state.debouncedCurrentData, patchFromServer).newDocument;
+        for (const current of [state.currentData, state.debouncedCurrentData]) {
+          const patch = createPatch({ prev: oldModel, next: newModel, current });
+          applyPatch(current, patch);
+        }
         state.lastSavedData = structuredClone(newModel);
       }
       for (const model of [state.currentData, state.debouncedCurrentData, state.lastSavedData]) {

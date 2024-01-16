@@ -1,21 +1,25 @@
+import dot from 'dot-object';
 import { getPatch } from 'fast-array-diff';
 import deepEqual from 'fast-deep-equal';
 
 import type { JsonPatch } from 'src/features/formData/jsonPatch/types';
 
 interface Props<T> {
-  prev: T;
-  next: T;
+  prev: T; // The old/original object
+  next: T; // The new object, which contains changes to the original
+
+  // The current object, which may have been changed since the new object was created. Supply this to
+  // ensure that the patch can be applied to the current object without overwriting any changes that may
+  // have been made to it since it started diverging from the original object.
+  // Please note: When a current object is supplied, the patch will be created WITHOUT test operations, as
+  // we already know what to expect from the object the patch is being applied to.
+  current?: T;
 }
 
 interface CompareProps<T> extends Props<T> {
+  hasCurrent: boolean;
   patch: JsonPatch;
   path: string[];
-  stats: Stats;
-}
-
-interface Stats {
-  comparisons: number;
 }
 
 /**
@@ -25,7 +29,7 @@ interface Stats {
  * that the patch can be applied to the previous object without overwriting any changes that may have
  * been made to the previous object since the next object was created.
  */
-export function createPatch({ prev, next }: Props<object>): JsonPatch {
+export function createPatch({ prev, next, current }: Props<object>): JsonPatch {
   const patch: JsonPatch = [];
   if (!isObject(prev)) {
     throw new Error('prev must be an object');
@@ -34,15 +38,9 @@ export function createPatch({ prev, next }: Props<object>): JsonPatch {
     throw new Error('next must be an object');
   }
 
-  const stats = newStats();
-  compareObjects({ prev, next, patch, path: [], stats });
+  const hasCurrent = isObject(current);
+  compareObjects({ prev, next, current, hasCurrent, patch, path: [] });
   return patch;
-}
-
-function newStats(): Stats {
-  return {
-    comparisons: 0,
-  };
 }
 
 function isObject(value: any): value is object {
@@ -62,12 +60,13 @@ function compareAny(props: CompareProps<any>) {
   compareValues(props);
 }
 
-function compareObjects({ prev, next, path, ...rest }: CompareProps<object>) {
+function compareObjects({ prev, next, current, path, ...rest }: CompareProps<object>) {
   const keys = new Set([...Object.keys(prev), ...Object.keys(next)]);
   for (const key of keys) {
     const prevValue = prev[key];
     const nextValue = next[key];
-    compareAny({ prev: prevValue, next: nextValue, path: [...path, key], ...rest });
+    const currentValue = isObject(current) ? current[key] : undefined;
+    compareAny({ prev: prevValue, next: nextValue, current: currentValue, path: [...path, key], ...rest });
   }
 }
 
@@ -76,37 +75,43 @@ function compareObjects({ prev, next, path, ...rest }: CompareProps<object>) {
  * the same. This is used to determine if an item has been removed or added - or if it has been (slightly) changed and
  * the values within it should be compared individually instead.
  */
-function isSimilarEnough(stats: Stats): (left: any, right: any) => boolean {
-  return (left, right) => {
-    stats.comparisons++;
-    if (isObject(left) && isObject(right)) {
-      const patch: JsonPatch = [];
-      const innerStats = newStats();
-      compareObjects({ prev: left, next: right, patch, path: [], stats: innerStats });
-      const actualChanges = patch.filter((p) => p.op !== 'test');
-      const notInNestedArrays = actualChanges.filter((p) => p.path.match(/\/(\d+|-)\/?/) === null);
-      const numRemove = notInNestedArrays.filter((p) => p.op === 'remove').length;
+function isSimilarEnough(left: any, right: any): boolean {
+  if (isObject(left) && isObject(right)) {
+    const flatLeft = dot.dot(left);
+    const flatRight = dot.dot(right);
 
-      if (numRemove === 0) {
-        // If there are only added/replaced properties, we'll consider it similar enough. Object that can be extended
-        // without removing anything does not make destructive changes.
-        return true;
-      }
+    // Produce a set of keys in left object, but leave out nested arrays (those should be compared separately).
+    const keysLeft = new Set(Object.keys(flatLeft).filter((key) => key.match(/^[^[\]]+$/)));
+    const keysRight = new Set(Object.keys(flatRight).filter((key) => key.match(/^[^[\]]+$/)));
 
-      const potentialChanges = innerStats.comparisons;
-      if (potentialChanges === 0 || actualChanges.length === 0) {
-        return true;
-      }
-      const changedPercentage = actualChanges.length / potentialChanges;
-      return changedPercentage < 0.6;
+    const numRemove = [...keysLeft].filter((key) => !keysRight.has(key)).length;
+    const numReplace = [...keysLeft].filter((key) => keysRight.has(key) && flatLeft[key] !== flatRight[key]).length;
+
+    // Object that can be extended without removing anything does not make destructive changes, so we can
+    // consider it similar enough.
+    if (numRemove > 0) {
+      return false;
     }
 
-    if (Array.isArray(left) && Array.isArray(right)) {
-      return deepEqual(left, right);
+    // We want to consider an object similar enough if it only replaces a single value, and does not
+    // remove anything. As soon as multiple values are replaced in an object, we'll consider it to be
+    // different enough to warrant a full comparison (which may lead to removing an item from the array
+    // and adding a new one instead).
+    // eslint-disable-next-line sonarjs/prefer-single-boolean-return
+    if (numReplace > 1) {
+      return false;
     }
 
-    return left === right;
-  };
+    // Finally, if there are only add operations left, and/or few enough replace and remove operations,
+    // objects are considered similar.
+    return true;
+  }
+
+  if (Array.isArray(left) && Array.isArray(right)) {
+    return deepEqual(left, right);
+  }
+
+  return left === right;
 }
 
 /**
@@ -116,8 +121,8 @@ function isSimilarEnough(stats: Stats): (left: any, right: any) => boolean {
  * produce the JsonPatch to create. Do not be fooled by the format returned from getPatch, it is not a JsonPatch
  * even if it looks like it at a glance.
  */
-function compareArrays({ prev, next, patch, path, stats }: CompareProps<any[]>) {
-  const diff = getPatch(prev, next, isSimilarEnough(stats));
+function compareArrays({ prev, next, current, hasCurrent, patch, path }: CompareProps<any[]>) {
+  const diff = getPatch(prev, next, isSimilarEnough);
   const localPatch: JsonPatch = [];
   const arrayAfterChanges = [...prev];
   for (const part of diff) {
@@ -147,8 +152,10 @@ function compareArrays({ prev, next, patch, path, stats }: CompareProps<any[]>) 
   }
 
   if (localPatch.length) {
-    // Always add a test first to make sure the original array is still the same as the one we're changing
-    patch.push({ op: 'test', path: pointer(path), value: prev });
+    if (!hasCurrent) {
+      // Always add a test first to make sure the original array is still the same as the one we're changing
+      patch.push({ op: 'test', path: pointer(path), value: prev });
+    }
     patch.push(...localPatch);
   }
 
@@ -157,23 +164,43 @@ function compareArrays({ prev, next, patch, path, stats }: CompareProps<any[]>) 
   const childPatches: JsonPatch = [];
   for (const [index, prevItem] of arrayAfterChanges.entries()) {
     const nextItem = next[index];
-    compareAny({ prev: prevItem, next: nextItem, patch: childPatches, path: [...path, String(index)], stats });
+    const currentItem = Array.isArray(current) ? current[index] : undefined;
+    compareAny({
+      prev: prevItem,
+      next: nextItem,
+      hasCurrent,
+      current: currentItem,
+      patch: childPatches,
+      path: [...path, String(index)],
+    });
   }
   patch.push(...childPatches);
 }
 
-function compareValues({ prev, next, patch, path, stats }: CompareProps<any>) {
-  stats.comparisons++;
+function compareValues({ prev, next, hasCurrent, current, patch, path }: CompareProps<any>) {
   if (prev === next) {
     return;
   }
+  if (hasCurrent && current !== prev) {
+    if (current === undefined && next !== undefined) {
+      patch.push({ op: 'add', path: pointer(path), value: next });
+      return;
+    }
+    if (current === next) {
+      // Definitely no need to make any changes here, the current model has the target value already.
+      return;
+    }
+    // Do not overwrite changes that have been made to the current object since the next object was created
+    return;
+  }
+
   if (next === undefined) {
-    patch.push({ op: 'test', path: pointer(path), value: prev });
+    current === undefined && patch.push({ op: 'test', path: pointer(path), value: prev });
     patch.push({ op: 'remove', path: pointer(path) });
   } else if (prev === undefined) {
     patch.push({ op: 'add', path: pointer(path), value: next });
   } else {
-    patch.push({ op: 'test', path: pointer(path), value: prev });
+    current === undefined && patch.push({ op: 'test', path: pointer(path), value: prev });
     patch.push({ op: 'replace', path: pointer(path), value: next });
   }
 }
