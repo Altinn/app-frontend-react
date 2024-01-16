@@ -202,7 +202,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.newValue).type('1');
     cy.get(appFrontend.group.saveMainGroup).click();
 
-    cy.intercept('PUT', '**/data/**').as('saveData');
+    cy.intercept('PATCH', '**/data/**').as('saveData');
     cy.get(appFrontend.group.addNewItem).click();
     cy.get(appFrontend.group.currentValue).type('123');
     cy.wait('@saveData');
@@ -347,7 +347,7 @@ describe('Group', () => {
   it("Open by default on prefilled group (openByDefault = ['first', 'last', true, false])", () => {
     init();
 
-    cy.intercept('PUT', '**/instances/*/*/data/*').as('saveData');
+    cy.intercept('PATCH', '**/instances/*/*/data/*').as('saveData');
     cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     cy.wait('@saveData');
 
