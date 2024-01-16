@@ -25,10 +25,10 @@ describe('Summary', () => {
     cy.gotoNavPage('summary');
 
     // Verify empty summary components
-    cy.get('[data-testid=summary-summary-2]').contains(texts.emptySummary);
-    cy.get('[data-testid=summary-summary-4]').contains(texts.emptySummary);
-    cy.get('[data-testid=summary-summary-5]').contains(texts.emptySummary);
-    cy.get('[data-testid=summary-summary-6]').contains(texts.emptySummary);
+    cy.get('[data-testid=summary-summary2]').contains(texts.emptySummary);
+    cy.get('[data-testid=summary-summary4]').contains(texts.emptySummary);
+    cy.get('[data-testid=summary-summary5]').contains(texts.emptySummary);
+    cy.get('[data-testid=summary-summary6]').contains(texts.emptySummary);
     cy.get('[data-testid=summary-summary-reference] [data-testid=summary-item-compact]')
       .and('have.length', 3)
       .then((items) => {
@@ -115,12 +115,12 @@ describe('Summary', () => {
       });
 
     // Hide the component the Summary refers to, which should hide the summary component as well
-    cy.get('[data-testid=summary-summary-1]').contains('span', 'Du har valgt å endre:').should('be.visible');
+    cy.get('[data-testid=summary-summary1]').contains('span', 'Du har valgt å endre:').should('be.visible');
     cy.gotoNavPage('form');
     cy.get(appFrontend.changeOfName.newFirstName).clear();
     cy.get(appFrontend.changeOfName.newFirstName).type('hidePrevName');
     cy.gotoNavPage('summary');
-    cy.get('[data-testid=summary-summary-1]').should('not.exist');
+    cy.get('[data-testid=summary-summary1]').should('not.exist');
 
     // Test summary of non-repeating group
     cy.gotoNavPage('form');
@@ -398,7 +398,7 @@ describe('Summary', () => {
     for (const config of pageValidationConfigs) {
       injectExtraPageAndSetTriggers(config);
 
-      const newFirstNameSummary = '[data-testid=summary-summary-2]';
+      const newFirstNameSummary = '[data-testid=summary-summary2]';
       const exampleSummary = '[data-testid=summary-summary-reference]';
 
       cy.navPage('form').click();
@@ -519,7 +519,7 @@ describe('Summary', () => {
       {
         id: 'dateOfEffect',
         type: 'Datepicker' as const,
-        summaryComponent: '[data-testid=summary-summary-4]',
+        summaryComponent: '[data-testid=summary-summary4]',
         defaultTitle: 'Dette vises når det ikke er satt summaryTitle',
       },
       {
