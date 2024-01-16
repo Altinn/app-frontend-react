@@ -5,12 +5,7 @@ import { useImmer } from 'use-immer';
 import { createContext } from 'src/core/contexts/context';
 import { useHasPendingAttachments } from 'src/features/attachments/AttachmentsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
-import {
-  type FormValidations,
-  type ValidationContext,
-  ValidationMask,
-  type ValidationState,
-} from 'src/features/validation';
+import { ValidationMask } from 'src/features/validation';
 import { useBackendValidation } from 'src/features/validation/backend/useBackendValidation';
 import { runValidationOnNodes } from 'src/features/validation/frontend/runValidations';
 import {
@@ -23,10 +18,10 @@ import {
   getValidationsForNode,
   getVisibilityMask,
   hasValidationErrors,
-  mergeFormValidations,
-  mergeValidationState,
+  mergeFieldValidations,
+  mergeNewFrontendValidations,
   purgeValidationsForNodes,
-  validationsFromGroups,
+  selectValidations,
 } from 'src/features/validation/utils';
 import {
   addVisibilityForAttachment,
@@ -40,6 +35,7 @@ import {
 } from 'src/features/validation/visibility';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { useWaitForState } from 'src/hooks/useWaitForState';
+import type { FrontendValidations, ValidationContext } from 'src/features/validation';
 import type { Visibility } from 'src/features/validation/visibility';
 import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
@@ -53,7 +49,7 @@ const { Provider, useCtx } = createContext<ValidationContext>({
 export function ValidationContext({ children }) {
   const validationContext = useValidationDataSources();
 
-  const [frontendValidations, setFrontendValidations] = useImmer<FormValidations>({
+  const [frontendValidations, setFrontendValidations] = useImmer<FrontendValidations>({
     fields: {},
     components: {},
   });
@@ -75,7 +71,7 @@ export function ValidationContext({ children }) {
     const newValidations = runValidationOnNodes(changedNodes, validationContext);
 
     setFrontendValidations((state) => {
-      mergeFormValidations(state, newValidations);
+      mergeNewFrontendValidations(state, newValidations);
     });
 
     validating().then(() => {
@@ -89,7 +85,7 @@ export function ValidationContext({ children }) {
 
     setFrontendValidations((state) => {
       purgeValidationsForNodes(state, removedNodes, currentNodes);
-      mergeFormValidations(state, newValidations);
+      mergeNewFrontendValidations(state, newValidations);
     });
 
     setVisibility((state) => {
@@ -103,7 +99,7 @@ export function ValidationContext({ children }) {
     const newValidations = runValidationOnNodes(changedNodes, validationContext);
 
     setFrontendValidations((state) => {
-      mergeFormValidations(state, newValidations);
+      mergeNewFrontendValidations(state, newValidations);
     });
 
     setVisibility((state) => {
@@ -113,24 +109,22 @@ export function ValidationContext({ children }) {
   });
 
   // Get backend validations
-  const { backendValidations, isFetching } = useBackendValidation();
+  const backendValidations = useBackendValidation();
   const hasUnsavedFormData = FD.useHasUnsavedChanges();
   const hasPendingAttachments = useHasPendingAttachments();
 
   // Merge backend and frontend validations
-  const validations = useMemo(() => {
-    const validations: ValidationState = { fields: {}, components: {}, task: [] };
-    if (backendValidations) {
-      mergeValidationState(validations, backendValidations);
-    }
-    mergeFormValidations(validations, frontendValidations);
-    return validations;
-  }, [backendValidations, frontendValidations]);
+  const validations = useMemo(
+    () => ({
+      task: backendValidations.task,
+      fields: mergeFieldValidations(backendValidations.fields, frontendValidations.fields),
+      components: frontendValidations.components,
+    }),
+    [backendValidations, frontendValidations],
+  );
 
   // Provide a promise that resolves when all pending validations have been completed
-  const waitForValidating = useWaitForState(
-    isFetching || hasUnsavedFormData || hasPendingAttachments || attachmentsBusy,
-  );
+  const waitForValidating = useWaitForState(hasUnsavedFormData || hasPendingAttachments || attachmentsBusy);
 
   const validating = useCallback(async () => {
     await waitForValidating((state) => !state);
@@ -181,8 +175,7 @@ export function ValidationContext({ children }) {
     if (showAllErrors) {
       const backendMask = getVisibilityMask(['Backend', 'CustomBackend']);
       const hasFieldErors =
-        Object.values(validations.fields).flatMap((field) => validationsFromGroups(field, backendMask, 'error'))
-          .length > 0;
+        Object.values(validations.fields).flatMap((field) => selectValidations(field, backendMask, 'error')).length > 0;
 
       if (!hasFieldErors && !hasValidationErrors(validations.task)) {
         setShowAllErrors(false);
