@@ -40,7 +40,11 @@ import '@digdir/design-system-tokens/brand/altinn/tokens.css';
 const router = createHashRouter([
   {
     path: '*',
-    element: <Root />,
+    element: (
+      <ErrorBoundary>
+        <Root />
+      </ErrorBoundary>
+    ),
   },
 ]);
 
