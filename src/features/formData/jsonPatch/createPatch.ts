@@ -49,10 +49,6 @@ function isObject(value: any): value is object {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function isScalarOrNull(value: any): value is string | number | boolean | null {
-  return typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' || value === null;
-}
-
 function compareAny(props: CompareProps<any>) {
   const { prev, next } = props;
   if (isObject(prev) && isObject(next)) {
@@ -151,18 +147,8 @@ function compareArrays({ prev, next, patch, path, stats }: CompareProps<any[]>) 
   }
 
   if (localPatch.length) {
-    let addTestFirst = true;
-    if (localPatch.length === 1 && localPatch[0].op === 'add' && localPatch[0].path.endsWith('/-')) {
-      // When appending to an array, and that's the only thing we do, we don't care about the previous value (as long
-      // as we know it was an array - which was checked before we reached this function). This works around an issue
-      // where backend replies with an error in some instances.
-      // TODO: Remove this when backend is fixed.
-      addTestFirst = false;
-    }
-    if (addTestFirst) {
-      // Add a test first to make sure the original array is still the same as the one we're changing
-      patch.push({ op: 'test', path: pointer(path), value: prev });
-    }
+    // Always add a test first to make sure the original array is still the same as the one we're changing
+    patch.push({ op: 'test', path: pointer(path), value: prev });
     patch.push(...localPatch);
   }
 
@@ -186,12 +172,6 @@ function compareValues({ prev, next, patch, path, stats }: CompareProps<any>) {
     patch.push({ op: 'remove', path: pointer(path) });
   } else if (prev === undefined) {
     patch.push({ op: 'add', path: pointer(path), value: next });
-  } else if (!prev && Array.isArray(next)) {
-    // Special-case workaround for an apparent backend bug where repeating groups will be set to null, and we'll
-    // only be told the value is null, but as soon as we add an array here, backend will throw an error when our
-    // test case does not match its representation. For that reason, we'll work around it by not sending a test.
-    // TODO: Remove this when backend is fixed.
-    patch.push({ op: 'replace', path: pointer(path), value: next });
   } else {
     patch.push({ op: 'test', path: pointer(path), value: prev });
     patch.push({ op: 'replace', path: pointer(path), value: next });

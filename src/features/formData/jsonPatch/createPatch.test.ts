@@ -81,8 +81,7 @@ describe('createPatch', () => {
       prev: { a: [1, 2, 3] },
       next: { a: [1, 2, 3, 4] },
       expected: [
-        // TODO: Add back in when backend is fixed
-        // { op: 'test', path: '/a', value: [1, 2, 3] },
+        { op: 'test', path: '/a', value: [1, 2, 3] },
         { op: 'add', path: '/a/-', value: 4 },
       ],
     });
@@ -99,15 +98,14 @@ describe('createPatch', () => {
       },
       next: { a: [{ b: 1, ...common }, { b: 2, ...common }, { b: 3 }] },
       expected: [
-        // TODO: Add back in when backend is fixed
-        // {
-        //   op: 'test',
-        //   path: '/a',
-        //   value: [
-        //     { b: 1, ...common },
-        //     { b: 2, ...common },
-        //   ],
-        // },
+        {
+          op: 'test',
+          path: '/a',
+          value: [
+            { b: 1, ...common },
+            { b: 2, ...common },
+          ],
+        },
         { op: 'add', path: '/a/-', value: { b: 3 } },
       ],
     });
@@ -268,8 +266,7 @@ describe('createPatch', () => {
       prev: { a: [1, 2, 3] },
       next: { a: [1, 2, 3, 4] },
       expected: [
-        // TODO: Add back in when backend is fixed
-        // { op: 'test', path: '/a', value: [1, 2, 3] },
+        { op: 'test', path: '/a', value: [1, 2, 3] },
         { op: 'add', path: '/a/-', value: 4 },
       ],
     });
