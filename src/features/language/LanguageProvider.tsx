@@ -31,10 +31,13 @@ export const LanguageProvider = ({ children }: PropsWithChildren) => {
   const updateProfile = (profile: IProfile) => {
     setUserId(profile.userId);
     const localStorageKey = `selectedAppLanguage${window.app}${profile.userId ?? ''}`;
-    const localStorageValue = localStorage.getItem(localStorageKey);
+    let localStorageValue = localStorage.getItem(localStorageKey);
+    if (localStorageValue === 'null' || localStorageValue === 'undefined') {
+      localStorageValue = null;
+    }
     const urlValue = getLanguageQueryParam();
 
-    const newLanguage = urlValue ?? localStorageValue ?? profile.profileSettingPreference.language;
+    const newLanguage = urlValue ?? localStorageValue ?? profile.profileSettingPreference.language ?? 'nb';
     setCurrent(newLanguage);
     localStorage.setItem(localStorageKey, newLanguage);
   };

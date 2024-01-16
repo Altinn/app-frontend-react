@@ -187,7 +187,7 @@ export interface IProfile {
 }
 
 export interface IProfileSettingPreference {
-  language: string;
+  language: string | null;
   preSelectedPartyId: number;
   doNotPromptForParty: boolean;
 }
