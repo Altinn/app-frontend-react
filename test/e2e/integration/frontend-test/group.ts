@@ -226,22 +226,6 @@ describe('Group', () => {
       .should('not.contain.text', texts.requiredFieldToValue);
   });
 
-  // TODO: This should be probably deleted, as the functionality is slated for removal
-  it.skip('should support panel group adding item to referenced group', () => {
-    // TODO: Add a new test with calculations happening on the server, with data updated in the source group.
-    // It will fail, and we need to fix that.
-    init();
-    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
-    cy.get(appFrontend.group.secondGroup_add).click();
-    cy.get(appFrontend.group.secondGroup_add_to_reference_group).click();
-    cy.get(appFrontend.group.secondGroup_currentValue).type('1');
-    cy.get(appFrontend.group.secondGroup_newValue).type('2');
-    cy.snapshot('group:panel');
-    cy.get(appFrontend.group.secondGroup_save).click();
-    cy.get(appFrontend.group.secondGroup_save_and_close).click();
-    cy.get(appFrontend.group.secondGroup_table).find('tbody').find('tr').its('length').should('eq', 1);
-  });
-
   it('Prefilling repeating group using calculation from server', () => {
     init();
     const expectRows = (...rows) => {
