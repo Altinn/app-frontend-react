@@ -441,4 +441,63 @@ describe('createPatch', () => {
       expectedPatch: [{ op: 'add', path: '/a/0/c', value: 3 }],
     });
   });
+
+  describe('should preserve row added by openByDefault in nested group (1)', () => {
+    testPatch({
+      prev: { group: [{}] },
+      next: { group: [{ a: 5, childGroup: [] }] },
+      current: { group: [{ childGroup: [{}] }] }, // While saving, our current model got a new blank row
+      final: { group: [{ a: 5, childGroup: [{}] }] }, // The final model should have the blank row
+      expectedPatch: [
+        // The patch should respect the change in current and not overwrite it
+        { op: 'add', path: '/group/0/a', value: 5 },
+      ],
+    });
+  });
+
+  describe('should preserve row added by openByDefault in nested group (2)', () => {
+    testPatch({
+      // The only change from the above is that we don't already have an object in prev, but that should not matter
+      // as the object exists in both next and current.
+      prev: { group: [] },
+      next: { group: [{ a: 5, childGroup: [] }] },
+      current: { group: [{ childGroup: [{}] }] },
+      final: { group: [{ a: 5, childGroup: [{}] }] },
+      expectedPatch: [{ op: 'add', path: '/group/0/a', value: 5 }],
+    });
+  });
+
+  describe('should ignore removed data in current array that is changed in next', () => {
+    testPatch({
+      // In many ways, this is the exact opposite of what happens in the two tests above
+      prev: { group: [{ a: 5 }] },
+      next: { group: [{ a: 6 }] },
+      current: { group: [] },
+      final: { group: [] },
+      expectedPatch: [],
+    });
+  });
+
+  describe('adding a row with backend updates will only add new properties', () => {
+    // It is important that we create new array objects for every `childGroup`, to make sure createPatch() compares
+    // these properly, not just by equality (===).
+    const existingRow = { a: 1, b: 2, childGroup: 'replace-this-with-an-empty-array' };
+    const newRow = { a: 1, b: 2, c: 3 };
+    testPatch({
+      prev: { group: [{ ...existingRow, childGroup: [] }, {}] },
+      next: { group: [{ ...existingRow, childGroup: [] }, newRow] },
+      current: { group: [{ ...existingRow, childGroup: [] }, { d: 5 }] },
+      final: {
+        group: [
+          { ...existingRow, childGroup: [] },
+          { ...newRow, d: 5 },
+        ],
+      },
+      expectedPatch: [
+        { op: 'add', path: '/group/1/a', value: 1 },
+        { op: 'add', path: '/group/1/b', value: 2 },
+        { op: 'add', path: '/group/1/c', value: 3 },
+      ],
+    });
+  });
 });

@@ -47,15 +47,25 @@ function isObject(value: any): value is object {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+function isScalarOrMissing(value: any): value is string | number | boolean | null | undefined {
+  return (
+    value === null ||
+    value === undefined ||
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean'
+  );
+}
+
 function compareAny(props: CompareProps<any>) {
   const { prev, next } = props;
   if (isObject(prev) && isObject(next)) {
-    compareObjects(props);
-    return;
+    return compareObjects(props);
   }
   if (Array.isArray(prev) && Array.isArray(next)) {
-    compareArrays(props);
-    return;
+    // TODO: Do something when both next and current are arrays, but prev is undefined/missing? In that case we should
+    // at least compare the arrays.
+    return compareArrays(props);
   }
   compareValues(props);
 }
@@ -85,7 +95,9 @@ function isSimilarEnough(left: any, right: any): boolean {
     const keysRight = new Set(Object.keys(flatRight).filter((key) => key.match(/^[^[\]]+$/)));
 
     const numRemove = [...keysLeft].filter((key) => !keysRight.has(key)).length;
-    const numReplace = [...keysLeft].filter((key) => keysRight.has(key) && flatLeft[key] !== flatRight[key]).length;
+    const numReplace = [...keysLeft].filter(
+      (key) => keysRight.has(key) && !deepEqual(flatLeft[key], flatRight[key]),
+    ).length;
 
     // Object that can be extended without removing anything does not make destructive changes, so we can
     // consider it similar enough.
@@ -122,9 +134,44 @@ function isSimilarEnough(left: any, right: any): boolean {
  * even if it looks like it at a glance.
  */
 function compareArrays({ prev, next, current, hasCurrent, patch, path }: CompareProps<any[]>) {
-  const diff = getPatch(prev, next, isSimilarEnough);
+  const realPrev = [...prev];
+  const realNext = [...next];
+  if (hasCurrent && Array.isArray(current)) {
+    if (current.length > realPrev.length) {
+      // Add empty objects in realPrev to make sure isSimilarEnough runs on every row, and that we create a patch
+      // that will update missing/outdated values in current array items even if we didn't have the array item before.
+      realPrev.push(...new Array(current.length - realPrev.length).fill({}));
+    } else if (current.length < realPrev.length) {
+      // Run a diff on current and prev to figure out which row(s) we deleted locally after saving. That row should not
+      // be considered when producing the patch, as there is no point in trying to update a row that has been deleted.
+      for (const origin of [realPrev, realNext]) {
+        const preDiff = getPatch(origin, current, isSimilarEnough);
+        for (const part of preDiff) {
+          const { type, newPos: nextPos, oldPos: prevPos, items } = part;
+          if (type === 'add') {
+            let nextIndex = nextPos;
+            for (const _item of items) {
+              origin.splice(nextIndex, 0, {});
+              nextIndex++;
+            }
+          }
+          if (type === 'remove') {
+            // We'll count down instead of up so that we can remove the items from the end first, and then we won't
+            // have to worry about the indices changing.
+            let addToIndex = items.length - 1;
+            for (const _item of items) {
+              const oldIdx = prevPos + addToIndex--;
+              origin.splice(oldIdx, 1);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  const diff = getPatch(realPrev, realNext, isSimilarEnough);
   const localPatch: JsonPatch = [];
-  const arrayAfterChanges = [...prev];
+  const arrayAfterChanges = [...realPrev];
   for (const part of diff) {
     const { type, newPos: nextPos, oldPos: prevPos, items } = part;
     if (type === 'add') {
@@ -154,7 +201,7 @@ function compareArrays({ prev, next, current, hasCurrent, patch, path }: Compare
   if (localPatch.length) {
     if (!hasCurrent) {
       // Always add a test first to make sure the original array is still the same as the one we're changing
-      patch.push({ op: 'test', path: pointer(path), value: prev });
+      patch.push({ op: 'test', path: pointer(path), value: realPrev });
     }
     patch.push(...localPatch);
   }
@@ -163,7 +210,7 @@ function compareArrays({ prev, next, current, hasCurrent, patch, path }: Compare
   // are similar enough, it doesn't check that they're entirely equal.
   const childPatches: JsonPatch = [];
   for (const [index, prevItem] of arrayAfterChanges.entries()) {
-    const nextItem = next[index];
+    const nextItem = realNext[index];
     const currentItem = Array.isArray(current) ? current[index] : undefined;
     compareAny({
       prev: prevItem,
@@ -181,14 +228,17 @@ function compareValues({ prev, next, hasCurrent, current, patch, path }: Compare
   if (prev === next) {
     return;
   }
-  if (hasCurrent && current !== prev) {
+  if (hasCurrent && !deepEqual(current, prev)) {
     if (current === undefined && next !== undefined) {
       patch.push({ op: 'add', path: pointer(path), value: next });
       return;
     }
-    if (current === next) {
+    if (deepEqual(current, next)) {
       // Definitely no need to make any changes here, the current model has the target value already.
       return;
+    }
+    if (!isScalarOrMissing(current) || !isScalarOrMissing(next)) {
+      // TODO: Investigate these cases and possibly log wantings/notices about them
     }
     // Do not overwrite changes that have been made to the current object since the next object was created
     return;
