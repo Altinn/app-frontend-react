@@ -1,17 +1,49 @@
 import { useEffect, useMemo } from 'react';
 
+import { useQuery } from '@tanstack/react-query';
 import { useImmer } from 'use-immer';
 
-import { ValidationIssueSources, ValidationMask } from '..';
 import type { BackendValidations, BackendValidatorGroups } from '..';
 
-import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
-import { getValidationIssueMessage, getValidationIssueSeverity } from 'src/features/validation/backend/backendUtils';
+import { useAppMutations, useAppQueries } from 'src/core/contexts/AppQueriesProvider';
+import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
+import { useLaxInstance } from 'src/features/instance/InstanceContext';
+import { mapValidationIssueToFieldValidation } from 'src/features/validation/backend/backendUtils';
 
 export function useBackendValidation(): BackendValidations {
-  const { doPatchFormData } = useAppMutations();
-
   const [backendValidatorGroups, setBackendValidatorGroups] = useImmer<BackendValidatorGroups>({});
+
+  /**
+   * Run full validation initially
+   */
+  const { fetchBackendValidations } = useAppQueries();
+  const instanceId = useLaxInstance()?.instanceId;
+  const currentDataElementId = useCurrentDataModelGuid();
+
+  const { data: initialValidations } = useQuery({
+    queryKey: ['validation', instanceId, currentDataElementId],
+    queryFn: () =>
+      instanceId?.length && currentDataElementId?.length
+        ? fetchBackendValidations(instanceId, currentDataElementId)
+        : [],
+  });
+
+  useEffect(() => {
+    setBackendValidatorGroups(
+      initialValidations?.map(mapValidationIssueToFieldValidation)?.reduce((validatorGroups, validation) => {
+        if (!validatorGroups[validation.source]) {
+          validatorGroups[validation.source] = [];
+        }
+        validatorGroups[validation.source].push(validation);
+        return validatorGroups;
+      }, {}) ?? {},
+    );
+  }, [initialValidations, setBackendValidatorGroups]);
+
+  /**
+   * Incrementally update validation state with each response from json-patch.
+   */
+  const { doPatchFormData } = useAppMutations();
 
   useEffect(() => {
     const validators = doPatchFormData.lastResult?.validationIssues;
@@ -22,33 +54,14 @@ export function useBackendValidation(): BackendValidations {
 
     setBackendValidatorGroups((validatorState) => {
       for (const [group, validationIssues] of Object.entries(validators)) {
-        validatorState[group] = validationIssues.map((issue) => {
-          const { field, source } = issue;
-          const severity = getValidationIssueSeverity(issue);
-          const message = getValidationIssueMessage(issue);
-
-          let category: number = ValidationMask.Backend;
-          if (source === ValidationIssueSources.Custom) {
-            if (issue.showImmediately) {
-              category = 0;
-            } else if (issue.actLikeRequired) {
-              category = ValidationMask.Required;
-            } else {
-              category = ValidationMask.CustomBackend;
-            }
-          }
-
-          if (!field) {
-            // Unmapped error (task validation)
-            return { severity, message, category, source };
-          }
-
-          return { field, severity, message, category, source };
-        });
+        validatorState[group] = validationIssues.map(mapValidationIssueToFieldValidation);
       }
     });
   }, [doPatchFormData.lastResult, setBackendValidatorGroups]);
 
+  /**
+   * Map validator groups to validations per field
+   */
   return useMemo(() => {
     const backendValidations: BackendValidations = {
       task: [],

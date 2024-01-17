@@ -1,7 +1,12 @@
-import { BackendValidationSeverity } from 'src/features/validation';
+import { BackendValidationSeverity, ValidationIssueSources, ValidationMask } from 'src/features/validation';
 import { validationTexts } from 'src/features/validation/backend/validationTexts';
 import type { TextReference } from 'src/features/language/useLanguage';
-import type { BackendValidationIssue, ValidationSeverity } from 'src/features/validation';
+import type {
+  BackendValidationIssue,
+  BaseValidation,
+  FieldValidation,
+  ValidationSeverity,
+} from 'src/features/validation';
 
 /**
  * We need to map the severity we get from backend into the format used when storing in redux.
@@ -15,6 +20,30 @@ const severityMap: { [s in BackendValidationSeverity]: ValidationSeverity } = {
 
 export function getValidationIssueSeverity(issue: BackendValidationIssue): ValidationSeverity {
   return severityMap[issue.severity];
+}
+
+export function mapValidationIssueToFieldValidation(issue: BackendValidationIssue): BaseValidation | FieldValidation {
+  const { field, source } = issue;
+  const severity = getValidationIssueSeverity(issue);
+  const message = getValidationIssueMessage(issue);
+
+  let category: number = ValidationMask.Backend;
+  if (source === ValidationIssueSources.Custom) {
+    if (issue.showImmediately) {
+      category = 0;
+    } else if (issue.actLikeRequired) {
+      category = ValidationMask.Required;
+    } else {
+      category = ValidationMask.CustomBackend;
+    }
+  }
+
+  if (!field) {
+    // Unmapped error (task validation)
+    return { severity, message, category, source };
+  }
+
+  return { field, severity, message, category, source };
 }
 
 /**
