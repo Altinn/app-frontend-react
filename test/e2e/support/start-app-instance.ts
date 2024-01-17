@@ -69,6 +69,10 @@ Cypress.Commands.add('startAppInstance', (appName, options) => {
         cy.spy(win, 'logError').as('window.logError');
         cy.spy(win, 'logWarn').as('window.logWarn');
         cy.spy(win, 'logInfo').as('window.logInfo');
+
+        cy.spy(win, 'logErrorOnce').as('window.logErrorOnce');
+        cy.spy(win, 'logWarnOnce').as('window.logWarnOnce');
+        cy.spy(win, 'logInfoOnce').as('window.logInfoOnce');
       }
     },
   };
