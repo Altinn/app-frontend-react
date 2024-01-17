@@ -8,13 +8,13 @@ import { ComponentValidations } from 'src/features/validation/ComponentValidatio
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { LayoutStyle } from 'src/layout/common.generated';
 import { GenericComponentLegend } from 'src/layout/GenericComponentUtils';
-import classes from 'src/layout/LikertItem/LikertItem.module.css';
+import classes from 'src/layout/LikertItem/LikertItemComponent.module.css';
 import { ControlledRadioGroup } from 'src/layout/RadioButtons/ControlledRadioGroup';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IControlledRadioGroupProps } from 'src/layout/RadioButtons/ControlledRadioGroup';
 
-export const LikertComponent = (props: PropsFromGenericComponent<'LikertItem'>) => {
+export const LikertItemComponent = (props: PropsFromGenericComponent<'LikertItem'>) => {
   const nodeLayout = props.node.item.layout;
   const overriddenLayout = props.overrideItemProps?.layout;
   const actualLayout = overriddenLayout || nodeLayout;
