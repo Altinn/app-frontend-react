@@ -24,6 +24,8 @@ export interface ILikertSummary {
   overrides?: ISummaryComponent['overrides'];
 }
 
+// test
+
 export function LikertSummary({ onChangeClick, changeText, summaryNode, targetNode, overrides }: ILikertSummary) {
   const excludedChildren = summaryNode.item.excludedChildren;
   const display = overrides?.display || summaryNode.item.display;
