@@ -1,5 +1,5 @@
 {
-  "name": "Display value of Likert component",
+  "name": "Display value of LikertItem component",
   "expression": [
     "displayValue",
     "color"
@@ -16,7 +16,7 @@
         "layout": [
           {
             "id": "color",
-            "type": "Likert",
+            "type": "LikertItem",
             "dataModelBindings": {
               "simpleBinding": "Skjema.Color"
             },

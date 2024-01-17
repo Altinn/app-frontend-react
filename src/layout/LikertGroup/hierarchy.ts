@@ -2,8 +2,8 @@ import dot from 'dot-object';
 
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
-import type { CompLikertInternal } from 'src/layout/Likert/config.generated';
 import type { CompLikertGroupExternal, HLikertGroupRows, ILikertFilter } from 'src/layout/LikertGroup/config.generated';
+import type { CompLikertItemInternal } from 'src/layout/LikertItem/config.generated';
 import type {
   ChildFactory,
   ChildFactoryProps,
@@ -55,7 +55,7 @@ export class LikertGroupHierarchyGenerator extends ComponentHierarchyGenerator<'
 
       const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(lastIndex, props.item.filter as ILikertFilter);
 
-      const prototype = ctx.generator.prototype(ctx.id) as UnprocessedItem<'Likert'>;
+      const prototype = ctx.generator.prototype(ctx.id) as UnprocessedItem<'LikertItem'>;
 
       for (let rowIndex = startIndex; rowIndex <= stopIndex; rowIndex++) {
         const rowChildren: LayoutNode[] = [];
@@ -67,8 +67,8 @@ export class LikertGroupHierarchyGenerator extends ComponentHierarchyGenerator<'
           dataModelBindings: {
             simpleBinding: item?.dataModelBindings?.simpleBinding,
           },
-          type: 'Likert',
-        } as unknown as CompLikertInternal;
+          type: 'LikertItem',
+        } as unknown as CompLikertItemInternal;
 
         mutateComponentId(rowIndex)(childItem);
         mutateTextResourceBindings(props)(childItem);
@@ -90,12 +90,12 @@ export class LikertGroupHierarchyGenerator extends ComponentHierarchyGenerator<'
   }
 }
 
-const mutateComponentId: (rowIndex: number) => ChildMutator<'Likert'> = (rowIndex) => (item) => {
+const mutateComponentId: (rowIndex: number) => ChildMutator<'LikertItem'> = (rowIndex) => (item) => {
   item.baseComponentId = item.baseComponentId || item.id;
   item.id += `-${rowIndex}`;
 };
 
-const mutateTextResourceBindings: (props: ChildFactoryProps<'LikertGroup'>) => ChildMutator<'Likert'> =
+const mutateTextResourceBindings: (props: ChildFactoryProps<'LikertGroup'>) => ChildMutator<'LikertItem'> =
   (props) => (item) => {
     if ('textResourceBindings' in props.item) {
       const question = (props.item.textResourceBindings?.questions as string) ?? undefined;
@@ -117,18 +117,20 @@ const mutateTextResourceBindings: (props: ChildFactoryProps<'LikertGroup'>) => C
     }
   };
 
-const mutateDataModelBindings: (props: ChildFactoryProps<'LikertGroup'>, rowIndex: number) => ChildMutator<'Likert'> =
-  (props, rowIndex) => (item) => {
-    const questionsBinding = 'dataModelBindings' in props.item ? props.item.dataModelBindings?.questions : undefined;
-    const bindings = item.dataModelBindings || {};
-    for (const key of Object.keys(bindings)) {
-      if (questionsBinding && bindings[key]) {
-        bindings[key] = bindings[key].replace(questionsBinding, `${questionsBinding}[${rowIndex}]`);
-      }
+const mutateDataModelBindings: (
+  props: ChildFactoryProps<'LikertGroup'>,
+  rowIndex: number,
+) => ChildMutator<'LikertItem'> = (props, rowIndex) => (item) => {
+  const questionsBinding = 'dataModelBindings' in props.item ? props.item.dataModelBindings?.questions : undefined;
+  const bindings = item.dataModelBindings || {};
+  for (const key of Object.keys(bindings)) {
+    if (questionsBinding && bindings[key]) {
+      bindings[key] = bindings[key].replace(questionsBinding, `${questionsBinding}[${rowIndex}]`);
     }
-  };
+  }
+};
 
-const mutateMapping: (ctx: HierarchyContext, rowIndex: number) => ChildMutator<'Likert'> =
+const mutateMapping: (ctx: HierarchyContext, rowIndex: number) => ChildMutator<'LikertItem'> =
   (ctx, rowIndex) => (item) => {
     if ('mapping' in item && item.mapping) {
       const depthMarker = ctx.depth - 1;

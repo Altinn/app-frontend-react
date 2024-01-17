@@ -38,15 +38,15 @@ function makeRepeatingLikertGroup() {
     .addTextResource(
       new CG.trb({
         name: 'description',
-        title: 'Description (for repeating groups displayed as Likert)',
-        description: 'The description text for the Likert table (when edit.mode is "likert")',
+        title: 'Description',
+        description: 'The description text for the Likert table.',
       }),
     )
     .addTextResource(
       new CG.trb({
         name: 'leftColumnHeader',
-        title: 'Left column header (for repeating groups displayed as Likert)',
-        description: 'The header text for the left column in the Likert table (when edit.mode is "likert")',
+        title: 'Left column header',
+        description: 'The header text for the left column in the Likert table',
       }),
     )
     .addTextResource(

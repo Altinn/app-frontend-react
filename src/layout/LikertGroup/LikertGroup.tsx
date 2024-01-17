@@ -9,7 +9,7 @@ import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { LayoutStyle } from 'src/layout/common.generated';
 import { GenericComponent } from 'src/layout/GenericComponent';
-import classes from 'src/layout/Likert/LikertComponent.module.css';
+import classes from 'src/layout/LikertItem/LikertItem.module.css';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -19,7 +19,7 @@ interface LikertGroupComponentProps {
 }
 
 export const LikertGroupComponent = ({ node, ref }: LikertGroupComponentProps) => {
-  const firstLikertChild = node?.children((item) => item.type === 'Likert') as LayoutNode<'Likert'> | undefined;
+  const firstLikertChild = node?.children((item) => item.type === 'LikertItem') as LayoutNode<'LikertItem'> | undefined;
   const mobileView = useIsMobileOrTablet();
   const { options: calculatedOptions, isFetching } = useGetOptions({
     ...(firstLikertChild?.item || {}),
@@ -136,14 +136,14 @@ export const LikertGroupComponent = ({ node, ref }: LikertGroupComponentProps) =
                   return;
                 }
 
-                const override: IGenericComponentProps<'Likert'>['overrideItemProps'] = {
+                const override: IGenericComponentProps<'LikertItem'>['overrideItemProps'] = {
                   layout: LayoutStyle.Table,
                 };
 
                 return (
                   <GenericComponent
                     key={comp.item.id}
-                    node={comp as LayoutNode<'Likert'>}
+                    node={comp as LayoutNode<'LikertItem'>}
                     overrideItemProps={override}
                   />
                 );

@@ -3,7 +3,7 @@ import type { JSX } from 'react';
 
 import { getSelectedValueToText } from 'src/features/options/getSelectedValueToText';
 import { LayoutStyle } from 'src/layout/common.generated';
-import { LikertDef } from 'src/layout/LikertItem/config.def.generated';
+import { LikertItemDef } from 'src/layout/LikertItem/config.def.generated';
 import { LikertComponent } from 'src/layout/LikertItem/LikertItem';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
@@ -11,16 +11,16 @@ import type { DisplayDataProps, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class Likert extends LikertDef {
-  render(props: PropsFromGenericComponent<'Likert'>): JSX.Element | null {
+export class LikertItem extends LikertItemDef {
+  render(props: PropsFromGenericComponent<'LikertItem'>): JSX.Element | null {
     return <LikertComponent {...props} />;
   }
 
-  directRender(props: PropsFromGenericComponent<'Likert'>): boolean {
+  directRender(props: PropsFromGenericComponent<'LikertItem'>): boolean {
     return props.node.item.layout === LayoutStyle.Table || props.overrideItemProps?.layout === LayoutStyle.Table;
   }
 
-  getDisplayData(node: LayoutNode<'Likert'>, { langTools, options }: DisplayDataProps): string {
+  getDisplayData(node: LayoutNode<'LikertItem'>, { langTools, options }: DisplayDataProps): string {
     if (!node.item.dataModelBindings?.simpleBinding) {
       return '';
     }
@@ -30,12 +30,12 @@ export class Likert extends LikertDef {
     return getSelectedValueToText(value, langTools, optionList) || '';
   }
 
-  renderSummary({ targetNode }: SummaryRendererProps<'Likert'>): JSX.Element | null {
+  renderSummary({ targetNode }: SummaryRendererProps<'LikertItem'>): JSX.Element | null {
     const displayData = this.useDisplayData(targetNode);
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
-  validateDataModelBindings(ctx: LayoutValidationCtx<'Likert'>): string[] {
+  validateDataModelBindings(ctx: LayoutValidationCtx<'LikertItem'>): string[] {
     return this.validateDataModelBindingsSimple(ctx);
   }
 }

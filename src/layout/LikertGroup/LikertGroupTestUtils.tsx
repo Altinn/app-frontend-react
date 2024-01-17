@@ -15,8 +15,8 @@ import { useResolvedNode } from 'src/utils/layout/NodesContext';
 import type { FDNewValue } from 'src/features/formData/FormDataWriteStateMachine';
 import type { IRawTextResource, ITextResourceResult } from 'src/features/language/textResources';
 import type { IOption } from 'src/layout/common.generated';
-import type { CompLikertExternal } from 'src/layout/Likert/config.generated';
 import type { CompLikertGroupExternal } from 'src/layout/LikertGroup/config.generated';
+import type { CompLikertItemExternal } from 'src/layout/LikertItem/config.generated';
 
 export const defaultMockQuestions = [
   { Question: 'Hvordan trives du på skolen?', Answer: '' },
@@ -125,7 +125,7 @@ interface IRenderProps {
   mobileView: boolean;
   mockQuestions: IQuestion[];
   mockOptions: IOption[];
-  radioButtonProps: Partial<CompLikertExternal>;
+  radioButtonProps: Partial<CompLikertItemExternal>;
   likertProps: Partial<CompLikertGroupExternal>;
   extraTextResources: IRawTextResource[];
   validationIssues: BackendValidationIssue[];
