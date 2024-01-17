@@ -1,5 +1,5 @@
 import type { JsonPatch } from 'src/features/formData/jsonPatch/types';
-import type { BackendValidationIssueGroups } from 'src/features/validation';
+import type { BackendValidationIssueGroups, ValidationIssueSources } from 'src/features/validation';
 
 /**
  * This is the default time (in milliseconds) to wait before debouncing the form data. That means, we'll wait this
@@ -14,7 +14,7 @@ export const DEFAULT_DEBOUNCE_TIMEOUT = 400;
 
 export interface IDataModelPatchRequest {
   patch: JsonPatch;
-  ignoredValidators: string[]; // TODO: Type this properly when implemented
+  ignoredValidators: ValidationIssueSources[];
 }
 
 export interface IDataModelPatchResponse {
