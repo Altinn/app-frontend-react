@@ -151,9 +151,7 @@ const common = {
         'questions',
         new CG.str()
           .setTitle('Qestions')
-          .setDescription(
-            'Dot notation location for a likert group structure (array of objects), where the data is stored',
-          ),
+          .setDescription('Dot notation location for a likert structure (array of objects), where the data is stored'),
       ),
     )
       .setTitle('Data model binding')

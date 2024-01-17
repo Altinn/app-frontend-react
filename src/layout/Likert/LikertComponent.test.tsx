@@ -10,7 +10,7 @@ import {
   render,
   validateRadioLayout,
   validateTableLayout,
-} from 'src/layout/LikertGroup/LikertGroupTestUtils';
+} from 'src/layout/Likert/LikertTestUtils';
 
 describe('RepeatingGroupsLikertContainer', () => {
   describe('Desktop', () => {

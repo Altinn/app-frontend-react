@@ -36,7 +36,7 @@ const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
   const validations = useUnifiedValidationsForNode(node);
 
   const id = node.item.id;
-  const groupContainerId = node.closest((n) => n.type === 'LikertGroup')?.item.id;
+  const groupContainerId = node.closest((n) => n.type === 'Likert')?.item.id;
   const rowLabelId = `row-label-${id}`;
 
   return (

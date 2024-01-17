@@ -6,10 +6,10 @@ import type { ErrorObject } from 'ajv';
 import type { PropsFromGenericComponent, ValidateAny } from '..';
 
 import { runAllValidations } from 'src/layout/componentValidation';
-import { LikertGroupDef } from 'src/layout/LikertGroup/config.def.generated';
-import { LikertGroupHierarchyGenerator } from 'src/layout/LikertGroup/hierarchy';
-import { LikertGroupComponent } from 'src/layout/LikertGroup/LikertGroup';
-import { LikertGroupSummary } from 'src/layout/LikertGroup/LikertGroupSummary';
+import { LikertDef } from 'src/layout/Likert/config.def.generated';
+import { LikertHierarchyGenerator } from 'src/layout/Likert/hierarchy';
+import { LikertComponent } from 'src/layout/Likert/LikertComponent';
+import { LikertSummary } from 'src/layout/Likert/LikertSummary';
 import { type LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type {
@@ -22,15 +22,15 @@ import type { CompExternalExact } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 
-export class LikertGroup extends LikertGroupDef implements ValidateAny {
-  private _hierarchyGenerator = new LikertGroupHierarchyGenerator();
+export class Likert extends LikertDef implements ValidateAny {
+  private _hierarchyGenerator = new LikertHierarchyGenerator();
 
   directRender(): boolean {
     return true;
   }
 
-  render(props: PropsFromGenericComponent<'LikertGroup'>): JSX.Element | null {
-    return <LikertGroupComponent {...props} />;
+  render(props: PropsFromGenericComponent<'Likert'>): JSX.Element | null {
+    return <LikertComponent {...props} />;
   }
 
   renderSummary({
@@ -39,9 +39,9 @@ export class LikertGroup extends LikertGroupDef implements ValidateAny {
     summaryNode,
     targetNode,
     overrides,
-  }: SummaryRendererProps<'LikertGroup'>): JSX.Element | null {
+  }: SummaryRendererProps<'Likert'>): JSX.Element | null {
     return (
-      <LikertGroupSummary
+      <LikertSummary
         onChangeClick={onChangeClick}
         changeText={changeText}
         summaryNode={summaryNode}
@@ -59,7 +59,7 @@ export class LikertGroup extends LikertGroupDef implements ValidateAny {
     return '';
   }
 
-  hierarchyGenerator(): ComponentHierarchyGenerator<'LikertGroup'> {
+  hierarchyGenerator(): ComponentHierarchyGenerator<'Likert'> {
     return this._hierarchyGenerator;
   }
 
@@ -80,8 +80,8 @@ export class LikertGroup extends LikertGroupDef implements ValidateAny {
     return true;
   }
 
-  validateDataModelBindings(ctx: LayoutValidationCtx<'LikertGroup'>): string[] {
-    const [errors, result] = this.validateDataModelBindingsAny(ctx, 'LikertGroup', ['array']);
+  validateDataModelBindings(ctx: LayoutValidationCtx<'Likert'>): string[] {
+    const [errors, result] = this.validateDataModelBindingsAny(ctx, 'Likert', ['array']);
     if (errors) {
       return errors;
     }
@@ -89,7 +89,7 @@ export class LikertGroup extends LikertGroupDef implements ValidateAny {
     if (result) {
       const innerType = Array.isArray(result.items) ? result.items[0] : result.items;
       if (!innerType || typeof innerType !== 'object' || !innerType.type || innerType.type !== 'object') {
-        return [`LikertGroup-datamodellbindingen peker mot en ukjent type i datamodellen`];
+        return [`Likert-datamodellbindingen peker mot en ukjent type i datamodellen`];
       }
     }
 
@@ -100,10 +100,10 @@ export class LikertGroup extends LikertGroupDef implements ValidateAny {
    * Override layout validation to select a specific pointer depending on the type of group.
    */
   validateLayoutConfing(
-    component: CompExternalExact<'LikertGroup'>,
+    component: CompExternalExact<'Likert'>,
     validatate: (pointer: string, data: unknown) => ErrorObject[] | undefined,
   ): ErrorObject[] | undefined {
-    const schemaPointer = '#/definitions/LikertGroup';
+    const schemaPointer = '#/definitions/Likert';
     return validatate(schemaPointer, component);
   }
 }

@@ -1,22 +1,25 @@
 {
-  "name": "Display value of RepeatingGroup component",
+  "name": "Display value of LikertItem component",
   "expression": [
     "displayValue",
-    "likert-group"
+    "color"
   ],
   "context": {
-    "component": "likert-group",
+    "component": "color",
     "currentLayout": "Page"
   },
-  "expects": "",
+  "expects": "Green car",
   "layouts": {
     "Page": {
       "$schema": "https://altinncdn.no/schemas/json/layout/layout.schema.v1.json",
       "data": {
         "layout": [
           {
-            "id": "likert-group",
-            "type": "LikertGroup",
+            "id": "color",
+            "type": "LikertItem",
+            "dataModelBindings": {
+              "simpleBinding": "Skjema.Color"
+            },
             "options": [
               {
                 "value": "red",
@@ -34,6 +37,11 @@
           }
         ]
       }
+    }
+  },
+  "dataModel": {
+    "Skjema": {
+      "Color": "green"
     }
   }
 }

@@ -1,5 +1,5 @@
 import type { DeepPartial } from 'utility-types';
 
-import type { CompLikertGroupInternal } from 'src/layout/LikertGroup/config.generated';
+import type { CompLikertInternal } from 'src/layout/Likert/config.generated';
 
-export type HLikertGroupExpressions = DeepPartial<CompLikertGroupInternal>;
+export type HLikertExpressions = DeepPartial<CompLikertInternal>;

@@ -256,7 +256,7 @@ describe('Hierarchical layout tools', () => {
       const layout: ILayout = [
         {
           id: 'g1',
-          type: 'LikertGroup',
+          type: 'Likert',
           dataModelBindings: { simpleBinding: 'Group.Title', questions: 'Group' },
           filter: [
             { key: 'start', value: '0' },
@@ -265,7 +265,7 @@ describe('Hierarchical layout tools', () => {
         },
         {
           id: 'g2',
-          type: 'LikertGroup',
+          type: 'Likert',
           dataModelBindings: { simpleBinding: 'Group.Title', questions: 'Group' },
           filter: [
             { key: 'start', value: '3' },

@@ -8,14 +8,14 @@ import {
   BackendValidationSeverity,
   ValidationIssueSources,
 } from 'src/features/validation';
-import { LikertGroupComponent } from 'src/layout/LikertGroup/LikertGroup';
+import { LikertComponent } from 'src/layout/Likert/LikertComponent';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import { useResolvedNode } from 'src/utils/layout/NodesContext';
 import type { FDNewValue } from 'src/features/formData/FormDataWriteStateMachine';
 import type { IRawTextResource, ITextResourceResult } from 'src/features/language/textResources';
 import type { IOption } from 'src/layout/common.generated';
-import type { CompLikertGroupExternal } from 'src/layout/LikertGroup/config.generated';
+import type { CompLikertExternal } from 'src/layout/Likert/config.generated';
 import type { CompLikertItemExternal } from 'src/layout/LikertItem/config.generated';
 
 export const defaultMockQuestions = [
@@ -72,9 +72,9 @@ export const questionsWithAnswers = ({ questions, selectedAnswers }) => {
   return questionsCopy;
 };
 
-const createLikertLayout = (props: Partial<CompLikertGroupExternal> | undefined): CompLikertGroupExternal => ({
+const createLikertLayout = (props: Partial<CompLikertExternal> | undefined): CompLikertExternal => ({
   id: 'likert-repeating-group-id',
-  type: 'LikertGroup',
+  type: 'Likert',
   textResourceBindings: {
     questions: 'likert-questions',
   },
@@ -126,7 +126,7 @@ interface IRenderProps {
   mockQuestions: IQuestion[];
   mockOptions: IOption[];
   radioButtonProps: Partial<CompLikertItemExternal>;
-  likertProps: Partial<CompLikertGroupExternal>;
+  likertProps: Partial<CompLikertExternal>;
   extraTextResources: IRawTextResource[];
   validationIssues: BackendValidationIssue[];
 }
@@ -167,11 +167,11 @@ export const render = async ({
 
 export function ContainerTester(props: { id: string }) {
   const node = useResolvedNode(props.id);
-  if (!node || !node.isType('LikertGroup')) {
+  if (!node || !node.isType('Likert')) {
     throw new Error(`Could not resolve node with id ${props.id}, or unexpected node type`);
   }
 
-  return <LikertGroupComponent node={node} />;
+  return <LikertComponent node={node} />;
 }
 
 export const validateTableLayout = async (questions: IQuestion[], options: IOption[]) => {

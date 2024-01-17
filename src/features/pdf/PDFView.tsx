@@ -9,7 +9,7 @@ import { usePdfPage } from 'src/hooks/usePdfPage';
 import { CompCategory } from 'src/layout/common';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { GroupComponent } from 'src/layout/Group/GroupComponent';
-import { DisplayLikertGroupContainer } from 'src/layout/LikertGroup/DisplayLikertGroupContainer';
+import { DisplayLikertContainer } from 'src/layout/Likert/DisplayLikertContainer';
 import { DisplayRepAsLargeGroup } from 'src/layout/RepeatingGroup/Summary/DisplayRepAsLargeGroup';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -39,8 +39,8 @@ const PDFComponent = ({ node }: { node: LayoutNode }) => {
     return <GroupComponent {...commonProps(node)} />;
   } else if (node.isType('RepeatingGroup')) {
     return <DisplayRepAsLargeGroup {...commonProps(node)} />;
-  } else if (node.isType('LikertGroup')) {
-    return <DisplayLikertGroupContainer {...commonProps(node)} />;
+  } else if (node.isType('Likert')) {
+    return <DisplayLikertContainer {...commonProps(node)} />;
   } else if (node.isCategory(CompCategory.Presentation)) {
     return (
       <GenericComponent

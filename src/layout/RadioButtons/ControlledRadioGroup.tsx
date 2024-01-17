@@ -30,7 +30,7 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
   const confirmChangeText = langAsString('form_filler.alert_confirm');
 
   const getLabelPrefixForLikert = () => {
-    if (node.parent.item.type === 'LikertGroup' && node.parent.item.textResourceBindings?.leftColumnHeader) {
+    if (node.parent.item.type === 'Likert' && node.parent.item.textResourceBindings?.leftColumnHeader) {
       return `${langAsString(node.parent.item.textResourceBindings.leftColumnHeader)} `;
     }
     return null;

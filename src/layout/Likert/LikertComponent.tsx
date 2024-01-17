@@ -9,16 +9,16 @@ import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { LayoutStyle } from 'src/layout/common.generated';
 import { GenericComponent } from 'src/layout/GenericComponent';
-import classes from 'src/layout/LikertItem/LikertItem.module.css';
+import classes from 'src/layout/LikertItem/LikertItemComponent.module.css';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-interface LikertGroupComponentProps {
-  node: LayoutNode<'LikertGroup'>;
+interface LikertComponentProps {
+  node: LayoutNode<'Likert'>;
   ref?: React.Ref<HTMLDivElement>;
 }
 
-export const LikertGroupComponent = ({ node, ref }: LikertGroupComponentProps) => {
+export const LikertComponent = ({ node, ref }: LikertComponentProps) => {
   const firstLikertChild = node?.children((item) => item.type === 'LikertItem') as LayoutNode<'LikertItem'> | undefined;
   const mobileView = useIsMobileOrTablet();
   const { options: calculatedOptions, isFetching } = useGetOptions({

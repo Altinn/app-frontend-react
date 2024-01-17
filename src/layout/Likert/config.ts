@@ -24,9 +24,9 @@ function commonExtensions(subType: GenerateComponentLike) {
     .extendTextResources(CG.common('TRBSummarizable'));
 }
 
-Config.overrideExported(new CG.union(commonExtensions(makeRepeatingLikertGroup()).inner.exportAs('LikertGroup')));
+Config.overrideExported(new CG.union(commonExtensions(makeLikert()).inner.exportAs('Likert')));
 
-function makeRepeatingLikertGroup() {
+function makeLikert() {
   return new CG.componentLike()
     .addTextResource(
       new CG.trb({
@@ -78,14 +78,14 @@ function makeRepeatingLikertGroup() {
             new CG.prop('index', new CG.num()),
             new CG.prop('items', new CG.arr(CG.layoutNode)),
             new CG.prop(
-              'likertGroupExpressions',
+              'likertExpressions',
               new CG.import({
-                import: 'HLikertGroupExpressions',
-                from: 'src/layout/LikertGroup/types',
+                import: 'HLikertExpressions',
+                from: 'src/layout/Likert/types',
               }).optional(),
             ),
-          ).exportAs('HLikertGroupRow'),
-        ).exportAs('HLikertGroupRows'),
+          ).exportAs('HLikertRow'),
+        ).exportAs('HLikertRows'),
       ).onlyIn(Variant.Internal),
     )
     .addDataModelBinding(CG.common('IDataModelBindingsLikertSimple').optional())

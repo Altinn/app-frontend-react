@@ -7,29 +7,23 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { useDeepValidationsForNode } from 'src/features/validation/selectors/deepValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { CompCategory } from 'src/layout/common';
-import { DisplayLikertGroupContainer } from 'src/layout/LikertGroup/DisplayLikertGroupContainer';
-import classes from 'src/layout/LikertGroup/LikertGroupSummary.module.css';
+import { DisplayLikertContainer } from 'src/layout/Likert/DisplayLikertContainer';
+import classes from 'src/layout/Likert/LikertSummary.module.css';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { ITextResourceBindings } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export interface ILikertGroupSummary {
+export interface ILikertSummary {
   changeText: string | null;
   onChangeClick: () => void;
   summaryNode: LayoutNode<'Summary'>;
-  targetNode: LayoutNode<'LikertGroup'>;
+  targetNode: LayoutNode<'Likert'>;
   overrides?: ISummaryComponent['overrides'];
 }
 
-export function LikertGroupSummary({
-  onChangeClick,
-  changeText,
-  summaryNode,
-  targetNode,
-  overrides,
-}: ILikertGroupSummary) {
+export function LikertSummary({ onChangeClick, changeText, summaryNode, targetNode, overrides }: ILikertSummary) {
   const excludedChildren = summaryNode.item.excludedChildren;
   const display = overrides?.display || summaryNode.item.display;
   const { lang, langAsString } = useLanguage();
@@ -54,7 +48,7 @@ export function LikertGroupSummary({
     return (
       <>
         {rowIndexes.map((idx) => (
-          <DisplayLikertGroupContainer
+          <DisplayLikertContainer
             key={`summary-${targetNode.item.id}-${idx}`}
             id={`summary-${targetNode.item.id}-${idx}`}
             groupNode={targetNode}

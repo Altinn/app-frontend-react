@@ -2,7 +2,7 @@ import dot from 'dot-object';
 
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
-import type { CompLikertGroupExternal, HLikertGroupRows, ILikertFilter } from 'src/layout/LikertGroup/config.generated';
+import type { CompLikertExternal, HLikertRows, ILikertFilter } from 'src/layout/Likert/config.generated';
 import type { CompLikertItemInternal } from 'src/layout/LikertItem/config.generated';
 import type {
   ChildFactory,
@@ -13,14 +13,14 @@ import type {
 } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class LikertGroupHierarchyGenerator extends ComponentHierarchyGenerator<'LikertGroup'> {
+export class LikertHierarchyGenerator extends ComponentHierarchyGenerator<'Likert'> {
   stage1(): void {}
 
-  stage2(ctx: HierarchyContext): ChildFactory<'LikertGroup'> {
+  stage2(ctx: HierarchyContext): ChildFactory<'Likert'> {
     return this.processLikertQuestions(ctx);
   }
 
-  childrenFromNode(node: LayoutNode<'LikertGroup'>, onlyInRowIndex?: number): LayoutNode[] {
+  childrenFromNode(node: LayoutNode<'Likert'>, onlyInRowIndex?: number): LayoutNode[] {
     const list: LayoutNode[] = [];
 
     const maybeNodes =
@@ -43,11 +43,11 @@ export class LikertGroupHierarchyGenerator extends ComponentHierarchyGenerator<'
    * For each likert question we need to generate a node based on the questions in the datamodel and rewrite their data
    * model bindings, mapping, etc based on which row they belong to.
    */
-  private processLikertQuestions(ctx: HierarchyContext): ChildFactory<'LikertGroup'> {
+  private processLikertQuestions(ctx: HierarchyContext): ChildFactory<'Likert'> {
     return (props) => {
-      const item = props.item as CompLikertGroupExternal;
+      const item = props.item as CompLikertExternal;
       const me = ctx.generator.makeNode(props);
-      const rows: HLikertGroupRows = [];
+      const rows: HLikertRows = [];
       const formData = item.dataModelBindings?.questions
         ? dot.pick(item.dataModelBindings.questions, ctx.generator.dataSources.formData)
         : undefined;
@@ -95,7 +95,7 @@ const mutateComponentId: (rowIndex: number) => ChildMutator<'LikertItem'> = (row
   item.id += `-${rowIndex}`;
 };
 
-const mutateTextResourceBindings: (props: ChildFactoryProps<'LikertGroup'>) => ChildMutator<'LikertItem'> =
+const mutateTextResourceBindings: (props: ChildFactoryProps<'Likert'>) => ChildMutator<'LikertItem'> =
   (props) => (item) => {
     if ('textResourceBindings' in props.item) {
       const question = (props.item.textResourceBindings?.questions as string) ?? undefined;
@@ -117,18 +117,16 @@ const mutateTextResourceBindings: (props: ChildFactoryProps<'LikertGroup'>) => C
     }
   };
 
-const mutateDataModelBindings: (
-  props: ChildFactoryProps<'LikertGroup'>,
-  rowIndex: number,
-) => ChildMutator<'LikertItem'> = (props, rowIndex) => (item) => {
-  const questionsBinding = 'dataModelBindings' in props.item ? props.item.dataModelBindings?.questions : undefined;
-  const bindings = item.dataModelBindings || {};
-  for (const key of Object.keys(bindings)) {
-    if (questionsBinding && bindings[key]) {
-      bindings[key] = bindings[key].replace(questionsBinding, `${questionsBinding}[${rowIndex}]`);
+const mutateDataModelBindings: (props: ChildFactoryProps<'Likert'>, rowIndex: number) => ChildMutator<'LikertItem'> =
+  (props, rowIndex) => (item) => {
+    const questionsBinding = 'dataModelBindings' in props.item ? props.item.dataModelBindings?.questions : undefined;
+    const bindings = item.dataModelBindings || {};
+    for (const key of Object.keys(bindings)) {
+      if (questionsBinding && bindings[key]) {
+        bindings[key] = bindings[key].replace(questionsBinding, `${questionsBinding}[${rowIndex}]`);
+      }
     }
-  }
-};
+  };
 
 const mutateMapping: (ctx: HierarchyContext, rowIndex: number) => ChildMutator<'LikertItem'> =
   (ctx, rowIndex) => (item) => {

@@ -6,11 +6,11 @@ import { Fieldset } from 'src/components/form/Fieldset';
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/Group/GroupComponent.module.css';
 import type { HeadingLevel } from 'src/layout/common.generated';
-import type { CompLikertGroupInternal } from 'src/layout/LikertGroup/config.generated';
+import type { CompLikertInternal } from 'src/layout/Likert/config.generated';
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export interface IDisplayLikertGroupContainer {
-  groupNode: BaseLayoutNode<CompLikertGroupInternal>;
+export interface IDisplayLikertContainer {
+  groupNode: BaseLayoutNode<CompLikertInternal>;
   ref?: React.Ref<HTMLDivElement>;
   id?: string;
   onlyRowIndex?: number | undefined;
@@ -26,14 +26,14 @@ const headingSizes: { [k in HeadingLevel]: Parameters<typeof Heading>[0]['size']
   [6]: 'xsmall',
 };
 
-export function DisplayLikertGroupContainer({
+export function DisplayLikertContainer({
   ref,
   groupNode,
   id,
   onlyRowIndex,
   isSummary,
   renderLayoutNode,
-}: IDisplayLikertGroupContainer) {
+}: IDisplayLikertContainer) {
   const container = groupNode.item;
   const { title, summaryTitle, description } = container.textResourceBindings ?? {};
 

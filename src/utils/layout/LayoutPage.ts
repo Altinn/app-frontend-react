@@ -92,7 +92,7 @@ export class LayoutPage implements LayoutObject {
   public flat(includeGroups: boolean): LayoutNode[] {
     if (!includeGroups) {
       return this.allChildren.filter(
-        (c) => c.item.type !== 'Group' && c.item.type !== 'RepeatingGroup' && c.item.type !== 'LikertGroup',
+        (c) => c.item.type !== 'Group' && c.item.type !== 'RepeatingGroup' && c.item.type !== 'Likert',
       );
     }
 
