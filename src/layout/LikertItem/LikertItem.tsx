@@ -8,7 +8,7 @@ import { ComponentValidations } from 'src/features/validation/ComponentValidatio
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { LayoutStyle } from 'src/layout/common.generated';
 import { GenericComponentLegend } from 'src/layout/GenericComponentUtils';
-import classes from 'src/layout/Likert/LikertComponent.module.css';
+import classes from 'src/layout/Likert/LikertItem.module.css';
 import { ControlledRadioGroup } from 'src/layout/RadioButtons/ControlledRadioGroup';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
 import type { PropsFromGenericComponent } from 'src/layout';

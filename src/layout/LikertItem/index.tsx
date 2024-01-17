@@ -3,8 +3,8 @@ import type { JSX } from 'react';
 
 import { getSelectedValueToText } from 'src/features/options/getSelectedValueToText';
 import { LayoutStyle } from 'src/layout/common.generated';
-import { LikertDef } from 'src/layout/Likert/config.def.generated';
-import { LikertComponent } from 'src/layout/Likert/LikertComponent';
+import { LikertDef } from 'src/layout/LikertItem/config.def.generated';
+import { LikertComponent } from 'src/layout/LikertItem/LikertItem';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps, PropsFromGenericComponent } from 'src/layout';
