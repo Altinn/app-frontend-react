@@ -719,6 +719,19 @@ describe('Group', () => {
       `${selectedOption} Gjør du leksene dine?`,
     );
     cy.get('[data-componentid="reduxOptions"] input').should('have.value', selectedOption);
+
+    // Now, find the row with number '3' in it, open it for editing, and then delete it while it's open
+    cy.get(appFrontend.group.secondGroup).find('tbody > tr').eq(1).find('td').first().should('contain.text', '3');
+    cy.get(appFrontend.group.secondGroup).find('tbody > tr').eq(1).find(appFrontend.group.edit).click();
+
+    // The add new row button should no longer exist now
+    cy.get(appFrontend.group.secondGroup_add).should('not.exist');
+
+    cy.get(appFrontend.group.secondGroup).find('tbody > tr').eq(1).find(appFrontend.group.delete).click();
+
+    // But now the button should exist again, and be clickable. The new row should have id 4.
+    cy.get(appFrontend.group.secondGroup_add).click();
+    cy.get('#group2-teller-1').should('have.value', '4');
   });
 
   it('openByDefault = first should work even if the first row is hidden', () => {
