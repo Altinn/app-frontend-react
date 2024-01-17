@@ -4,7 +4,7 @@ import { Fieldset, Heading } from '@digdir/design-system-react';
 import cn from 'classnames';
 
 import { Lang } from 'src/features/language/Lang';
-import classes from 'src/layout/RepeatingGroup/Summary/DisplayRepAsLargeGroup.module.css';
+import classes from 'src/layout/RepeatingGroup/Summary/LargeGroupSummaryContainer.module.css';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { HeadingLevel } from 'src/layout/common.generated';
@@ -15,7 +15,6 @@ export interface IDisplayRepAsLargeGroup {
   groupNode: BaseLayoutNode<CompRepeatingGroupInternal>;
   id?: string;
   onlyRowIndex?: number | undefined;
-  isSummary?: boolean;
   renderLayoutNode: (node: LayoutNode) => JSX.Element | null;
 }
 
@@ -27,23 +26,17 @@ const headingSizes: { [k in HeadingLevel]: Parameters<typeof Heading>[0]['size']
   [6]: 'xsmall',
 };
 
-export function DisplayRepAsLargeGroup({
-  groupNode,
-  id,
-  onlyRowIndex,
-  isSummary,
-  renderLayoutNode,
-}: IDisplayRepAsLargeGroup) {
+export function LargeGroupSummaryContainer({ groupNode, id, onlyRowIndex, renderLayoutNode }: IDisplayRepAsLargeGroup) {
   if (groupNode.isHidden()) {
     return null;
   }
   const container = groupNode.item;
-  const { title, description, summaryTitle } = container.textResourceBindings || {};
+  const { title, summaryTitle } = container.textResourceBindings || {};
 
   const isNested = groupNode.parent instanceof BaseLayoutNode;
   const headingLevel = Math.min(Math.max(groupNode.parents().length + 1, 2), 6) as HeadingLevel;
   const headingSize = headingSizes[headingLevel];
-  const legend = isSummary ? summaryTitle : title;
+  const legend = summaryTitle ?? title;
 
   return (
     <Fieldset
@@ -57,12 +50,9 @@ export function DisplayRepAsLargeGroup({
           </Heading>
         )
       }
-      className={cn(pageBreakStyles(container.pageBreak), {
+      className={cn(pageBreakStyles(container.pageBreak), classes.summary, {
         [classes.largeGroupContainer]: !isNested,
-        [classes.summary]: isSummary,
-        [classes.group]: !isSummary,
       })}
-      description={description && <Lang id={description} />}
     >
       <div
         id={id || container.id}

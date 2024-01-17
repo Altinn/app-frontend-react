@@ -9,7 +9,7 @@ import { runAllValidations } from 'src/layout/componentValidation';
 import { LikertDef } from 'src/layout/Likert/config.def.generated';
 import { LikertHierarchyGenerator } from 'src/layout/Likert/hierarchy';
 import { LikertComponent } from 'src/layout/Likert/LikertComponent';
-import { LikertSummary } from 'src/layout/Likert/LikertSummary';
+import { LikertSummary } from 'src/layout/Likert/Summary/LikertSummary';
 import { type LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type {

@@ -9,8 +9,8 @@ import { usePdfPage } from 'src/hooks/usePdfPage';
 import { CompCategory } from 'src/layout/common';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { GroupComponent } from 'src/layout/Group/GroupComponent';
-import { DisplayLikertContainer } from 'src/layout/Likert/DisplayLikertContainer';
-import { DisplayRepAsLargeGroup } from 'src/layout/RepeatingGroup/Summary/DisplayRepAsLargeGroup';
+import { LargeLikertSummaryContainer } from 'src/layout/Likert/Summary/LargeLikertSummaryContainer';
+import { LargeGroupSummaryContainer } from 'src/layout/RepeatingGroup/Summary/LargeGroupSummaryContainer';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -38,9 +38,9 @@ const PDFComponent = ({ node }: { node: LayoutNode }) => {
   } else if (node.isType('Group')) {
     return <GroupComponent {...commonProps(node)} />;
   } else if (node.isType('RepeatingGroup')) {
-    return <DisplayRepAsLargeGroup {...commonProps(node)} />;
+    return <LargeGroupSummaryContainer {...commonProps(node)} />;
   } else if (node.isType('Likert')) {
-    return <DisplayLikertContainer {...commonProps(node)} />;
+    return <LargeLikertSummaryContainer {...commonProps(node)} />;
   } else if (node.isCategory(CompCategory.Presentation)) {
     return (
       <GenericComponent

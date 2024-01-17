@@ -3,12 +3,13 @@ import React from 'react';
 import cn from 'classnames';
 
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useDeepValidationsForNode } from 'src/features/validation/selectors/deepValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { CompCategory } from 'src/layout/common';
-import { DisplayLikertContainer } from 'src/layout/Likert/DisplayLikertContainer';
-import classes from 'src/layout/Likert/LikertSummary.module.css';
+import { LargeLikertSummaryContainer } from 'src/layout/Likert/Summary/LargeLikertSummaryContainer';
+import classes from 'src/layout/Likert/Summary/LikertSummary.module.css';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { ITextResourceBindings } from 'src/layout/layout';
@@ -41,14 +42,14 @@ export function LikertSummary({ onChangeClick, changeText, summaryNode, targetNo
   const summaryTitleTrb = textBindings && 'summaryTitle' in textBindings ? textBindings.summaryTitle : undefined;
   const titleTrb = textBindings && 'title' in textBindings ? textBindings.title : undefined;
   const title = lang(summaryTitleTrb ?? titleTrb);
-  const ariaLabel = langAsString(summaryAccessibleTitleTrb ?? summaryTitleTrb ?? titleTrb);
+  const ariaLabel = langAsString(summaryTitleTrb ?? summaryAccessibleTitleTrb ?? titleTrb);
   const rowIndexes = targetNode.item.rows.map((row) => row && row.index);
 
   if (summaryNode.item.largeGroup && overrides?.largeGroup !== false && rowIndexes.length) {
     return (
       <>
         {rowIndexes.map((idx) => (
-          <DisplayLikertContainer
+          <LargeLikertSummaryContainer
             key={`summary-${targetNode.item.id}-${idx}`}
             id={`summary-${targetNode.item.id}-${idx}`}
             groupNode={targetNode}
@@ -146,7 +147,7 @@ export function LikertSummary({ onChangeClick, changeText, summaryNode, targetNo
                 onClick={onChangeClick}
                 type='button'
               >
-                {lang('form_filler.summary_go_to_correct_page')}
+                <Lang id={'form_filler.summary_go_to_correct_page'} />
               </button>
             )}
           </div>

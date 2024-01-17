@@ -4,7 +4,7 @@ import { Heading } from '@digdir/design-system-react';
 
 import { Fieldset } from 'src/components/form/Fieldset';
 import { Lang } from 'src/features/language/Lang';
-import classes from 'src/layout/Group/GroupComponent.module.css';
+import classes from 'src/layout/Likert/Summary/LikertSummary.module.css';
 import type { HeadingLevel } from 'src/layout/common.generated';
 import type { CompLikertInternal } from 'src/layout/Likert/config.generated';
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -14,7 +14,6 @@ export interface IDisplayLikertContainer {
   ref?: React.Ref<HTMLDivElement>;
   id?: string;
   onlyRowIndex?: number | undefined;
-  isSummary?: boolean;
   renderLayoutNode: (node: LayoutNode) => JSX.Element | null;
 }
 
@@ -26,16 +25,15 @@ const headingSizes: { [k in HeadingLevel]: Parameters<typeof Heading>[0]['size']
   [6]: 'xsmall',
 };
 
-export function DisplayLikertContainer({
+export function LargeLikertSummaryContainer({
   ref,
   groupNode,
   id,
   onlyRowIndex,
-  isSummary,
   renderLayoutNode,
 }: IDisplayLikertContainer) {
   const container = groupNode.item;
-  const { title, summaryTitle, description } = container.textResourceBindings ?? {};
+  const { title, summaryTitle } = container.textResourceBindings ?? {};
 
   if (groupNode.isHidden()) {
     return null;
@@ -43,7 +41,7 @@ export function DisplayLikertContainer({
 
   const headingLevel = Math.min(Math.max(groupNode.parents().length + 1, 2), 6) as HeadingLevel;
   const headingSize = headingSizes[headingLevel];
-  const legend = isSummary ? summaryTitle : title;
+  const legend = summaryTitle ?? title;
 
   return (
     <Fieldset
@@ -57,8 +55,7 @@ export function DisplayLikertContainer({
           </Heading>
         )
       }
-      className={isSummary ? classes.summary : classes.group}
-      description={description && !isSummary && <Lang id={description} />}
+      className={classes.summary}
     >
       <div
         ref={ref}

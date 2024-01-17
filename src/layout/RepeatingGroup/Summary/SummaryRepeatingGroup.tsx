@@ -8,7 +8,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { useDeepValidationsForNode } from 'src/features/validation/selectors/deepValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { CompCategory } from 'src/layout/common';
-import { DisplayRepAsLargeGroup } from 'src/layout/RepeatingGroup/Summary/DisplayRepAsLargeGroup';
+import { LargeGroupSummaryContainer } from 'src/layout/RepeatingGroup/Summary/LargeGroupSummaryContainer';
 import classes from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup.module.css';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
@@ -47,7 +47,7 @@ export function SummaryRepeatingGroup({
     textBindings && 'summaryAccessibleTitle' in textBindings ? textBindings.summaryAccessibleTitle : undefined;
   const summaryTitleTrb = textBindings && 'summaryTitle' in textBindings ? textBindings.summaryTitle : undefined;
   const titleTrb = textBindings && 'title' in textBindings ? textBindings.title : undefined;
-  const ariaLabel = langAsString(summaryAccessibleTitleTrb ?? summaryTitleTrb ?? titleTrb);
+  const ariaLabel = langAsString(summaryTitleTrb ?? summaryAccessibleTitleTrb ?? titleTrb);
 
   const rowIndexes: (number | undefined)[] = [];
   for (const row of targetNode.item.rows) {
@@ -63,12 +63,11 @@ export function SummaryRepeatingGroup({
           }
 
           return (
-            <DisplayRepAsLargeGroup
+            <LargeGroupSummaryContainer
               key={`summary-${targetNode.item.id}-${idx}`}
               id={`summary-${targetNode.item.id}-${idx}`}
               groupNode={targetNode}
               onlyRowIndex={idx}
-              isSummary={true}
               renderLayoutNode={(n) => {
                 if (inExcludedChildren(n) || n.isHidden()) {
                   return null;
@@ -157,7 +156,7 @@ export function SummaryRepeatingGroup({
 
       {groupHasErrors && !display?.hideValidationMessages && (
         <div className={classes.gridStyle}>
-          <ErrorPaper message={langAsString('group.row_error')} />
+          <ErrorPaper message={<Lang id={'group.row_error'} />} />
           <div>
             {!display?.hideChangeButton && (
               <button
