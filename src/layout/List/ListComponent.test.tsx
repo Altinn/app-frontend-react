@@ -6,6 +6,7 @@ import { userEvent } from '@testing-library/user-event';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { ListComponent } from 'src/layout/List/ListComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
+import type { JsonPatch } from 'src/features/formData/jsonPatch/types';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -89,6 +90,20 @@ const render = async ({ component, ...rest }: Partial<RenderGenericComponentTest
       ...component,
     },
     queries: {
+      fetchDataModelSchema: async () => ({
+        type: 'object',
+        properties: {
+          CountryName: {
+            type: 'string',
+          },
+          CountryPopulation: {
+            type: 'number',
+          },
+          CountryHighestMountain: {
+            type: 'number',
+          },
+        },
+      }),
       fetchDataList: async () => ({
         listItems: countries,
         _metaData: {
@@ -158,13 +173,12 @@ describe('ListComponent', () => {
     act(() => jest.advanceTimersByTime(2000));
     await waitFor(() => expect(mutations.doPatchFormData.mock).toHaveBeenCalledTimes(1));
 
-    const multiPart: FormData = (mutations.doPatchFormData.mock as jest.Mock).mock.calls[0][1];
-    const formData = JSON.parse(multiPart.get('dataModel') as string);
-    expect(formData).toEqual({
-      CountryName: 'Denmark',
-      CountryPopulation: '6',
-      CountryHighestMountain: '170',
-    });
+    const patch: JsonPatch = (mutations.doPatchFormData.mock as jest.Mock).mock.calls[0][1].patch;
+    expect(patch).toEqual([
+      { op: 'add', path: '/CountryName', value: 'Denmark' },
+      { op: 'add', path: '/CountryPopulation', value: 6 },
+      { op: 'add', path: '/CountryHighestMountain', value: 170 },
+    ]);
 
     jest.useRealTimers();
   });
