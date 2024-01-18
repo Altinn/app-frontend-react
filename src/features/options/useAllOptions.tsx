@@ -54,7 +54,7 @@ function newStore() {
       set((state) => {
         const missingNodes = nodesFound.filter((nodeId) => !(nodeId in state.nodes));
         if (missingNodes.length === 0) {
-          return state;
+          return { allInitiallyLoaded: isAllLoaded(state.nodes) };
         }
         const newNodes = {
           ...state.nodes,
