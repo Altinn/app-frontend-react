@@ -4,7 +4,6 @@ import { applyPatch } from 'fast-json-patch';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
-import { applyChanges } from 'src/features/formData/applyChanges';
 import { convertData } from 'src/features/formData/convertData';
 import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
 import { runLegacyRules } from 'src/features/formData/LegacyRules';
@@ -159,7 +158,7 @@ function makeActions(
       if (!deepEqual(oldModel, newModel)) {
         for (const current of [state.currentData, state.debouncedCurrentData]) {
           const patch = createPatch({ prev: oldModel, next: newModel, current });
-          applyChanges({ prev: oldModel, next: newModel, patch, applyTo: current });
+          // applyChanges({ prev: oldModel, next: newModel, patch, applyTo: current });
           applyPatch(current, patch);
         }
         state.lastSavedData = structuredClone(newModel);
