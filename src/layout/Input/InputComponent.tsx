@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import { SearchField } from '@altinn/altinn-design-system';
 import { LegacyTextField } from '@digdir/design-system-react';
@@ -37,12 +37,12 @@ export function InputComponent({ node, isValid, overrideDisplay }: IInputProps) 
   const reactNumberFormatConfig = useMapToReactNumberConfig(formatting as IInputFormatting | undefined, value);
   const [inputKey, rerenderInput] = useRerender('input');
 
-  function onBlur() {
+  const onBlur = useCallback(() => {
     if (reactNumberFormatConfig.number) {
       rerenderInput();
     }
     debounce();
-  }
+  }, [debounce, reactNumberFormatConfig.number, rerenderInput]);
 
   const ariaLabel = overrideDisplay?.renderedInTable === true ? langAsString(textResourceBindings?.title) : undefined;
 

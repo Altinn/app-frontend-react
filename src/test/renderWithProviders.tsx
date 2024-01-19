@@ -51,7 +51,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
-  renderer: () => React.ReactElement;
+  renderer: (() => React.ReactElement) | React.ReactElement;
   router?: (props: PropsWithChildren) => React.ReactNode;
   waitUntilLoaded?: boolean;
   queries?: Partial<AppQueries>;
@@ -393,7 +393,7 @@ const renderBase = async ({
   );
 
   const startTime = Date.now();
-  const children = renderer();
+  const children = typeof renderer === 'function' ? renderer() : renderer;
   const utils = rtlRender(children, {
     ...renderOptions,
     wrapper: ProviderWrapper,
@@ -510,11 +510,13 @@ export const renderWithInstanceAndLayout = async ({
     ...(await renderBase({
       ...renderOptions,
       initialRenderRef,
-      renderer: () => (
+      renderer: (
         <InstanceProvider>
           <FormDataWriteProxyProvider value={formDataProxies}>
             <FormProvider>
-              <WaitForNodes waitForAllNodes={true}>{renderer()}</WaitForNodes>
+              <WaitForNodes waitForAllNodes={true}>
+                {typeof renderer === 'function' ? renderer() : renderer}
+              </WaitForNodes>
             </FormProvider>
           </FormDataWriteProxyProvider>
         </InstanceProvider>

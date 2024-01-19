@@ -253,14 +253,14 @@ type MinimalError<T extends ErrorUnion> = Omit<
   'isError' | 'error' | 'stoppedAtDotNotation' | 'stoppedAtPointer' | 'fullPointer' | 'fullDotNotation'
 >;
 
-type Ret = [JSONSchema7, undefined] | [undefined, SchemaLookupError];
+export type SchemaLookupResult = [JSONSchema7, undefined] | [undefined, SchemaLookupError];
 
 /**
  * Looks up a binding in a schema to find the corresponding JSON schema definition for that binding.
  * Uses the SimpleSchemaTraversal class to do the actual lookup, but use this function instead of
  * instantiating the class directly.
  */
-export function lookupBindingInSchema(props: Props): Ret {
+export function lookupBindingInSchema(props: Props): SchemaLookupResult {
   const { schema, rootElementPath, targetPointer } = props;
 
   try {

@@ -7,6 +7,7 @@ import { userEvent } from '@testing-library/user-event';
 
 import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { DataModelSchemaProvider } from 'src/features/datamodel/DataModelSchemaProvider';
 import { DynamicsProvider } from 'src/features/form/dynamics/DynamicsContext';
 import { LayoutsProvider } from 'src/features/form/layout/LayoutsContext';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
@@ -89,9 +90,13 @@ async function genericRender(props: Partial<Parameters<typeof renderWithMinimalP
                 <LayoutSettingsProvider>
                   <DynamicsProvider>
                     <RulesProvider>
-                      <FormDataWriteProxyProvider value={formDataProxies}>
-                        <InitialFormDataProvider>{props.renderer && props.renderer()}</InitialFormDataProvider>
-                      </FormDataWriteProxyProvider>
+                      <DataModelSchemaProvider>
+                        <FormDataWriteProxyProvider value={formDataProxies}>
+                          <InitialFormDataProvider>
+                            {props.renderer && typeof props.renderer === 'function' ? props.renderer() : props.renderer}
+                          </InitialFormDataProvider>
+                        </FormDataWriteProxyProvider>
+                      </DataModelSchemaProvider>
                     </RulesProvider>
                   </DynamicsProvider>
                 </LayoutSettingsProvider>
@@ -101,6 +106,30 @@ async function genericRender(props: Partial<Parameters<typeof renderWithMinimalP
         </ApplicationMetadataProvider>
       ),
       queries: {
+        fetchDataModelSchema: async () => ({
+          type: 'object',
+          properties: {
+            obj1: {
+              type: 'object',
+              properties: {
+                prop1: {
+                  type: 'string',
+                },
+                prop2: {
+                  type: 'string',
+                },
+              },
+            },
+            obj2: {
+              type: 'object',
+              properties: {
+                prop1: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+        }),
         fetchApplicationMetadata: async () =>
           getApplicationMetadataMock({
             onEntry: {
@@ -113,13 +142,6 @@ async function genericRender(props: Partial<Parameters<typeof renderWithMinimalP
       },
     })),
   };
-}
-
-function destructPutFormDataMock(mock: any, call = 0) {
-  const multiPart: FormData = mock.mock.calls[call][1];
-  const dataModel = JSON.parse(multiPart.get('dataModel') as string);
-  const previousValues = JSON.parse(multiPart.get('previousValues') as string);
-  return { dataModel, previousValues };
 }
 
 describe('FormData', () => {
@@ -360,17 +382,12 @@ describe('FormData', () => {
       act(() => jest.advanceTimersByTime(5000));
       await waitFor(() => expect(mutations.doPostStatelessFormData.mock).toHaveBeenCalledTimes(1));
 
-      const { dataModel, previousValues } = destructPutFormDataMock(mutations.doPostStatelessFormData.mock);
+      const dataModel = (mutations.doPostStatelessFormData.mock as jest.Mock).mock.calls[0][1];
       expect(dataModel).toEqual({
         obj1: {
           prop1: 'new value',
           prop2: 'b',
         },
-      });
-      expect(previousValues).toEqual({
-        // obj1.prop1 was changed, but the value was overwritten by the server. In this case it won't be in previousValues
-        // because to the server it looks like the value was never changed.
-        'obj1.prop2': null, // This was not set before, so the previous value is null
       });
     });
 
@@ -415,7 +432,7 @@ describe('FormData', () => {
       expect(mutations.doPostStatelessFormData.mock).toHaveBeenCalledTimes(1);
       expect(screen.getByTestId('isLocked')).toHaveTextContent('false'); // The save has not finished yet
 
-      const { dataModel, previousValues } = destructPutFormDataMock(mutations.doPostStatelessFormData.mock);
+      const dataModel = (mutations.doPostStatelessFormData.mock as jest.Mock).mock.calls[0][1];
       expect(dataModel).toEqual({
         obj1: {
           prop1: 'value1',
@@ -423,9 +440,6 @@ describe('FormData', () => {
         obj2: {
           prop1: 'a',
         },
-      });
-      expect(previousValues).toEqual({
-        'obj2.prop1': null, // This was not set before, so the previous value is null
       });
 
       mutations.doPostStatelessFormData.resolve();
@@ -486,7 +500,7 @@ describe('FormData', () => {
       await user.click(screen.getByRole('button', { name: 'Navigate to a different page' }));
       expect(mutations.doPostStatelessFormData.mock).toHaveBeenCalledTimes(1);
 
-      const { dataModel } = destructPutFormDataMock(mutations.doPostStatelessFormData.mock);
+      const dataModel = (mutations.doPostStatelessFormData.mock as jest.Mock).mock.calls[0][1];
       expect(dataModel).toEqual({
         obj2: { prop1: 'a' },
       });

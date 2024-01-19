@@ -56,6 +56,9 @@ function newStore() {
     setCurrentTaskId: (currentTaskId) => set({ currentTaskId }),
     setNodesFound: (nodesFound) => {
       set((state) => {
+        if (state.allInitiallyLoaded) {
+          return state;
+        }
         const missingNodes = nodesFound.filter((nodeId) => !(nodeId in state.nodes));
         if (missingNodes.length === 0) {
           return { allInitiallyLoaded: isAllLoaded(state.nodes, state.allInitiallyLoaded) };

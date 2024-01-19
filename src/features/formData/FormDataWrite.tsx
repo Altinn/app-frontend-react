@@ -5,10 +5,12 @@ import type { PropsWithChildren } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import dot from 'dot-object';
 import deepEqual from 'fast-deep-equal';
+import { memoize } from 'proxy-memoize';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
+import { useCurrentDataModelSchemaLookup } from 'src/features/datamodel/DataModelSchemaProvider';
 import { useRuleConnections } from 'src/features/form/dynamics/DynamicsContext';
 import { useFormDataWriteProxies } from 'src/features/formData/FormDataWriteProxies';
 import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteStateMachine';
@@ -17,6 +19,7 @@ import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
+import type { SchemaLookupTool } from 'src/features/datamodel/DataModelSchemaProvider';
 import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { FormDataWriteProxies } from 'src/features/formData/FormDataWriteProxies';
 import type { FormDataContext } from 'src/features/formData/FormDataWriteStateMachine';
@@ -24,12 +27,8 @@ import type { IDataModelPatchResponse } from 'src/features/formData/types';
 import type { IMapping } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
 
-export type FDValue = string | number | boolean | object | undefined | null | FDValue[];
-
-type SetLeafValueForBindings<B extends IDataModelBindings> = (key: keyof Exclude<B, undefined>, newValue: any) => void;
-type SetMultiLeafValuesForBindings<B extends IDataModelBindings> = (
-  changes: { binding: keyof Exclude<B, undefined>; newValue: any }[],
-) => void;
+export type FDLeafValue = string | number | boolean | null | undefined;
+export type FDValue = FDLeafValue | object | FDValue[];
 
 interface MutationArg {
   dataModelUrl: string;
@@ -43,13 +42,21 @@ interface FormDataContextInitialProps {
   autoSaving: boolean;
   proxies: FormDataWriteProxies;
   ruleConnections: IRuleConnections | null;
+  schemaLookup: SchemaLookupTool;
 }
 
 const { Provider, useSelector, useLaxSelector } = createZustandContext({
   name: 'FormDataWrite',
   required: true,
-  initialCreateStore: ({ url, initialData, autoSaving, proxies, ruleConnections }: FormDataContextInitialProps) =>
-    createFormDataWriteStore(url, initialData, autoSaving, proxies, ruleConnections),
+  initialCreateStore: ({
+    url,
+    initialData,
+    autoSaving,
+    proxies,
+    ruleConnections,
+    schemaLookup,
+  }: FormDataContextInitialProps) =>
+    createFormDataWriteStore(url, initialData, autoSaving, proxies, ruleConnections, schemaLookup),
 });
 
 const useFormDataSaveMutation = (ctx: FormDataContext) => {
@@ -98,6 +105,7 @@ interface FormDataWriterProps extends PropsWithChildren {
 export function FormDataWriteProvider({ url, initialData, autoSaving, children }: FormDataWriterProps) {
   const proxies = useFormDataWriteProxies();
   const ruleConnections = useRuleConnections();
+  const schemaLookup = useCurrentDataModelSchemaLookup();
 
   return (
     <Provider
@@ -106,6 +114,7 @@ export function FormDataWriteProvider({ url, initialData, autoSaving, children }
       proxies={proxies}
       initialData={initialData}
       ruleConnections={ruleConnections}
+      schemaLookup={schemaLookup}
     >
       <FormDataEffects url={url} />
       {children}
@@ -115,7 +124,7 @@ export function FormDataWriteProvider({ url, initialData, autoSaving, children }
 
 function FormDataEffects({ url }: { url: string }) {
   const state = useSelector((s) => s);
-  const { currentData, debouncedCurrentData, lastSavedData, controlState } = state;
+  const { currentData, debouncedCurrentData, lastSavedData, controlState, hasUnsavedChanges } = state;
   const { debounceTimeout, autoSaving, manualSaveRequested, lockedBy } = controlState;
   const { mutate, isLoading: isSaving, error } = useFormDataSaveMutation(state);
   const debounce = useDebounceImmediately();
@@ -177,14 +186,11 @@ function FormDataEffects({ url }: { url: string }) {
   // to trigger when the user is typing, which is not what we want.
   useEffect(
     () => () => {
-      const hasUnsavedChanges =
-        currentDataRef.current !== lastSavedDataRef.current &&
-        !deepEqual(currentDataRef.current, lastSavedDataRef.current);
       if (hasUnsavedChanges) {
         performSave(currentDataRef.current);
       }
     },
-    [currentDataRef, lastSavedDataRef, performSave],
+    [currentDataRef, hasUnsavedChanges, performSave],
   );
 
   // Sets the debounced data in the window object, so that Cypress tests can access it.
@@ -218,12 +224,8 @@ const useDebounceImmediately = () => {
   }, [debounce]);
 };
 
-/**
- * TODO: This is being called from a lot of places now, and it should be optimized. Instead of calculating it
- * every time, we should probably store this in the zustand context.
- */
 const useHasUnsavedChanges = () => {
-  const result = useLaxSelector((s) => s.lastSavedData !== s.currentData && !deepEqual(s.lastSavedData, s.currentData));
+  const result = useLaxSelector((s) => s.hasUnsavedChanges);
   if (result === ContextNotProvided) {
     return false;
   }
@@ -262,14 +264,6 @@ export const FD = {
   },
 
   /**
-   * This will return the form data as a deep object, just like the server sends it to us (and the way we send it back).
-   * This will always give you the latest data, which is always the data the backend has saved.
-   */
-  useLastSaved(): object {
-    return useSelector((v) => v.lastSavedData);
-  },
-
-  /**
    * This returns multiple values, as picked from the form data. The values in the input object is expected to be
    * dot-separated paths, and the return value will be an object with the same keys, but with the values picked
    * from the form data. If a value is not found, undefined is returned. Null may also be returned if the value
@@ -279,10 +273,19 @@ export const FD = {
     bindings: T,
     dataAs: O,
   ): T extends undefined ? Record<string, never> : { [key in keyof T]: O extends 'raw' ? FDValue : string } =>
-    useSelector((s) => {
-      const out: any = {};
-      if (bindings) {
+    useSelector(
+      memoize((s) => {
+        const out: any = {};
+        if (!bindings) {
+          return out;
+        }
         for (const key of Object.keys(bindings)) {
+          const invalidValue = s.invalidCurrentData[bindings[key]];
+          if (invalidValue !== undefined) {
+            out[key] = invalidValue;
+            continue;
+          }
+
           const value = dot.pick(bindings[key], s.currentData);
           if (dataAs === 'raw') {
             out[key] = value;
@@ -292,10 +295,35 @@ export const FD = {
             out[key] = '';
           }
         }
-      }
 
-      return out;
-    }),
+        return out;
+      }),
+    ),
+
+  /**
+   * This returns multiple values, as picked from the form data. The values in the input object is expected to be
+   * dot-separated paths, and the return value will be an object with the same keys, but with boolean values
+   * indicating whether the current value is valid according to the schema or not. As an example, when typing '-5' into
+   * a number field that maps to a number-typed property in the data model, the value will be invalid when the user
+   * has only typed the '-' sign, but will be valid when the user has typed '-5'. We still store the invalid value
+   * temporarily, so that the user can see what they have typed, but we don't send that value to the backend, even
+   * when the user stops typing and the invalid value stays. This hook allows you to check whether the value is valid
+   * and warn the user if it is not.
+   */
+  useBindingsAreValid: <T extends IDataModelBindings | undefined>(bindings: T): { [key in keyof T]: boolean } =>
+    useSelector(
+      memoize((s) => {
+        const out: any = {};
+        if (!bindings) {
+          return out;
+        }
+        for (const key of Object.keys(bindings)) {
+          const invalidValue = s.invalidCurrentData[bindings[key]];
+          out[key] = invalidValue === undefined;
+        }
+        return out;
+      }),
+    ),
 
   /**
    * This returns an object that can be used to generate a query string for parts of the current form data.

@@ -4,16 +4,29 @@ import { applyPatch } from 'fast-json-patch';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
+import { applyChanges } from 'src/features/formData/applyChanges';
+import { convertData } from 'src/features/formData/convertData';
 import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
 import { runLegacyRules } from 'src/features/formData/LegacyRules';
 import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
+import type { SchemaLookupTool } from 'src/features/datamodel/DataModelSchemaProvider';
 import type { IRuleConnections } from 'src/features/form/dynamics';
+import type { FDLeafValue } from 'src/features/formData/FormDataWrite';
 import type { FormDataWriteProxies, Proxy } from 'src/features/formData/FormDataWriteProxies';
 
 export interface FormDataState {
   // These values contain the current data model, with the values immediately available whenever the user is typing.
   // Use these values to render the form, and for other cases where you need the current data model immediately.
   currentData: object;
+
+  // This is a key-value map of invalid data, where the key is the (dot) path in the current data model to where
+  // the data would be located. In the currentData/debounced object(s), these values will be missing/undefined.
+  // The point of these values is for the data model to _seem like_ it can store anything, even though some values
+  // are simply not valid according to the JsonSchema we need to follow. This is useful for example when the user
+  // is typing a number, as the current model is updated for every keystroke, but if the user types '-5', the model
+  // will be invalid until the user types the '5' as well. This way we can show the user the value they are typing,
+  // as they are typing it, while also keeping it away from the data model until it is valid to store in it.
+  invalidCurrentData: { [key: string]: string | number | boolean };
 
   // These values contain the current data model, with the values debounced at 400ms. This means that if the user is
   // typing, the values will be updated 400ms after the user stopped typing. Use these values when you need to perform
@@ -24,6 +37,12 @@ export interface FormDataState {
   // to determine if there are any unsaved changes, and to diff the current data model against the last saved data
   // model when saving. You probably don't need to use these values directly unless you know what you're doing.
   lastSavedData: object;
+
+  // Simple flag to track whether there are any unsaved changes in the data model. At every debounce, this will
+  // compare the current data model against the last saved data model, and as soon as users are typing into the form
+  // this value will be set to true (although it may flip back to false when debouncing, if the value stays the same
+  // as what we have saved to the server).
+  hasUnsavedChanges: boolean;
 
   // Control state is used to control the behavior of form data.
   controlState: {
@@ -64,7 +83,7 @@ export interface FDChange {
 
 export interface FDNewValue extends FDChange {
   path: string;
-  newValue: string | number | boolean | undefined | null;
+  newValue: FDLeafValue;
 }
 
 export interface FDNewValues extends FDChange {
@@ -118,6 +137,7 @@ export type FormDataContext = FormDataState & FormDataMethods;
 function makeActions(
   set: (fn: (state: FormDataContext) => void) => void,
   ruleConnections: IRuleConnections | null,
+  schemaLookup: SchemaLookupTool,
 ): FormDataMethods {
   function setDebounceTimeout(state: FormDataContext, change: FDChange) {
     state.controlState.debounceTimeout = change.debounceTimeout ?? DEFAULT_DEBOUNCE_TIMEOUT;
@@ -131,6 +151,7 @@ function makeActions(
       if (!deepEqual(oldModel, newModel)) {
         for (const current of [state.currentData, state.debouncedCurrentData]) {
           const patch = createPatch({ prev: oldModel, next: newModel, current });
+          applyChanges({ prev: oldModel, next: newModel, patch, applyTo: current });
           applyPatch(current, patch);
         }
         state.lastSavedData = structuredClone(newModel);
@@ -141,6 +162,7 @@ function makeActions(
         }
       }
     }
+    state.hasUnsavedChanges = !deepEqual(state.currentData, state.lastSavedData);
   }
 
   function debounce(state: FormDataContext) {
@@ -150,6 +172,24 @@ function makeActions(
     }
 
     state.debouncedCurrentData = state.currentData;
+    state.hasUnsavedChanges = !deepEqual(state.debouncedCurrentData, state.lastSavedData);
+  }
+
+  function setValue(props: { path: string; newValue: FDLeafValue; state: FormDataState & FormDataMethods }) {
+    const { path, newValue, state } = props;
+    if (newValue === '' || newValue === null || newValue === undefined) {
+      dot.delete(path, state.currentData);
+    } else {
+      const schema = schemaLookup.getSchemaForPath(path)[0];
+      const { newValue: convertedValue, error } = convertData(newValue, schema);
+      if (error) {
+        dot.delete(path, state.currentData);
+        state.invalidCurrentData[path] = newValue;
+      } else {
+        delete state.invalidCurrentData[path];
+        dot.str(path, convertedValue, state.currentData);
+      }
+    }
   }
 
   return {
@@ -171,12 +211,9 @@ function makeActions(
           return;
         }
 
+        state.hasUnsavedChanges = true;
         setDebounceTimeout(state, rest);
-        if (newValue === '' || newValue === null || newValue === undefined) {
-          dot.delete(path, state.currentData);
-        } else {
-          dot.str(path, newValue, state.currentData);
-        }
+        setValue({ newValue, path, state });
       }),
 
     // All the list methods perform their work immediately, without debouncing, so that UI updates for new/removed
@@ -189,6 +226,7 @@ function makeActions(
             continue;
           }
 
+          state.hasUnsavedChanges = true;
           if (Array.isArray(existingValue)) {
             existingValue.push(newValue);
           } else {
@@ -200,6 +238,7 @@ function makeActions(
       set((state) => {
         for (const model of [state.currentData, state.debouncedCurrentData]) {
           const existingValue = dot.pick(path, model);
+          state.hasUnsavedChanges = true;
           if (Array.isArray(existingValue)) {
             existingValue.push(newValue);
           } else {
@@ -215,6 +254,7 @@ function makeActions(
             continue;
           }
 
+          state.hasUnsavedChanges = true;
           existingValue.splice(index, 1);
         }
       }),
@@ -226,6 +266,7 @@ function makeActions(
             continue;
           }
 
+          state.hasUnsavedChanges = true;
           existingValue.splice(existingValue.indexOf(value), 1);
         }
       }),
@@ -238,14 +279,13 @@ function makeActions(
           if (existingValue === newValue) {
             continue;
           }
-          if (newValue === '' || newValue === null || newValue === undefined) {
-            dot.delete(path, state.currentData);
-          } else {
-            dot.str(path, newValue, state.currentData);
-          }
+          setValue({ newValue, path, state });
           changesFound = true;
         }
-        changesFound && setDebounceTimeout(state, rest);
+        if (changesFound) {
+          setDebounceTimeout(state, rest);
+          state.hasUnsavedChanges = true;
+        }
       }),
     requestManualSave: (setTo = true) =>
       set((state) => {
@@ -272,10 +312,11 @@ export const createFormDataWriteStore = (
   autoSaving: boolean,
   proxies: FormDataWriteProxies,
   ruleConnections: IRuleConnections | null,
+  schemaLookup: SchemaLookupTool,
 ) =>
   createStore<FormDataContext>()(
     immer((set) => {
-      const actions = makeActions(set, ruleConnections);
+      const actions = makeActions(set, ruleConnections, schemaLookup);
       for (const name of Object.keys(actions)) {
         const fnName = name as keyof FormDataMethods;
         const original = actions[fnName];
@@ -288,8 +329,10 @@ export const createFormDataWriteStore = (
 
       return {
         currentData: initialData,
+        invalidCurrentData: {},
         debouncedCurrentData: initialData,
         lastSavedData: initialData,
+        hasUnsavedChanges: false,
         controlState: {
           autoSaving,
           manualSaveRequested: false,
