@@ -19,9 +19,6 @@ export const Config = new CG.component({
       description: 'Title of the Likert component/row',
     }),
   )
-  // TODO: description/help only works on mobile, as it uses the ControlledRadioGroup component
-  // Ideally, it should be possible to use it on desktop as well, or the mobile mode should also not display
-  // anything here. Fixing this requires some refactoring.
   .addTextResource(
     new CG.trb({
       name: 'description',
