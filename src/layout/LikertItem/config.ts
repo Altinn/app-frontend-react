@@ -23,14 +23,14 @@ export const Config = new CG.component({
     new CG.trb({
       name: 'description',
       title: 'Description',
-      description: 'Description of the Likert component/row (only shown on mobile)',
+      description: 'Description of the Likert component/row',
     }),
   )
   .addTextResource(
     new CG.trb({
       name: 'help',
       title: 'Help',
-      description: 'Help text of the Likert component/row (only shown on mobile)',
+      description: 'Help text of the Likert component/row',
     }),
   )
   .makeSelectionComponent()
