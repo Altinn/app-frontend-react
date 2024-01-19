@@ -39,10 +39,7 @@ function useInstantiateMutation() {
   const { doInstantiate } = useAppMutations();
 
   return useMutation({
-    mutationFn: (instanceOwnerPartyId: string) => doInstantiate.call(instanceOwnerPartyId),
-    onSuccess: (data: IInstance) => {
-      doInstantiate.setLastResult(data);
-    },
+    mutationFn: (instanceOwnerPartyId: string) => doInstantiate(instanceOwnerPartyId),
     onError: (error: HttpClientError) => {
       window.logError('Instantiation failed:\n', error);
     },
@@ -53,10 +50,7 @@ function useInstantiateWithPrefillMutation() {
   const { doInstantiateWithPrefill } = useAppMutations();
 
   return useMutation({
-    mutationFn: (instantiation: Instantiation) => doInstantiateWithPrefill.call(instantiation),
-    onSuccess: (data: IInstance) => {
-      doInstantiateWithPrefill.setLastResult(data);
-    },
+    mutationFn: (instantiation: Instantiation) => doInstantiateWithPrefill(instantiation),
     onError: (error: HttpClientError) => {
       window.logError('Instantiation with prefill failed:\n', error);
     },

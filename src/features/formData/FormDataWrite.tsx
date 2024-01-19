@@ -69,27 +69,25 @@ const useFormDataSaveMutation = (ctx: FormDataContext) => {
       const { dataModelUrl, next, prev } = arg;
       if (isStateless) {
         try {
-          const newModel = await doPostStatelessFormData.call(dataModelUrl, next);
-          doPostStatelessFormData.setLastResult(newModel);
-          saveFinished(next, { newModel });
+          const newModel = await doPostStatelessFormData(dataModelUrl, next);
+          saveFinished(next, { newModel }, undefined);
         } catch (error) {
           if (isAxiosError(error) && error.response?.status === 303) {
             // Fallback to old behavior if the server responds with 303 when there are changes. We handle these just
             // like we handle 200 responses.
             const data = error.response.data as IDataModelPatchResponse;
-            saveFinished(next, { newModel: data });
+            saveFinished(next, { newModel: data }, undefined);
             return;
           }
           throw error;
         }
       } else {
         const patch = createPatch({ prev, next });
-        const result = await doPatchFormData.call(dataModelUrl, {
+        const result = await doPatchFormData(dataModelUrl, {
           patch,
           ignoredValidators: [],
         });
-        doPatchFormData.setLastResult(result);
-        saveFinished(next, { newModel: result.newDataModel });
+        saveFinished(next, { newModel: result.newDataModel }, result.validationIssues);
       }
     },
   });
@@ -464,4 +462,9 @@ export const FD = {
    * safer alternative to useRemoveIndexFromList().
    */
   useRemoveValueFromList: () => useSelector((s) => s.removeValueFromList),
+
+  /**
+   * Returns the latest validation issues from the backend, from the last time the form data was saved.
+   */
+  useLastSaveValidationIssues: () => useSelector((s) => s.validationIssues),
 };

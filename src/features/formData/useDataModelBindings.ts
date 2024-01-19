@@ -1,6 +1,5 @@
 import { useCallback, useMemo } from 'react';
 
-import { useRenderingTrace } from 'src/debug/useRenderingTrace';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
@@ -83,21 +82,6 @@ export function useDataModelBindings<B extends IDataModelBindings | undefined, D
     },
     [bindings, saveOptions, setMultiLeafValue],
   );
-
-  useRenderingTrace('useDataModelBindings', {
-    formData,
-    debounce,
-    setValue,
-    setValues,
-    isValid,
-    bindings,
-    saveOptions,
-    setLeafValue,
-    setMultiLeafValue,
-    debounceTimeout,
-    dataAs,
-    _bindings,
-  });
 
   return useMemo(
     () => ({ formData: formData as Output<B, DA>['formData'], debounce, setValue, setValues, isValid }),

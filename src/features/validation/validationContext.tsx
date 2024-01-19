@@ -109,7 +109,8 @@ export function ValidationContext({ children }) {
   });
 
   // Get backend validations
-  const backendValidations = useBackendValidation();
+  const lastSaveValidations = FD.useLastSaveValidationIssues();
+  const backendValidations = useBackendValidation(lastSaveValidations);
   const hasUnsavedFormData = FD.useHasUnsavedChanges();
   const hasPendingAttachments = useHasPendingAttachments();
 

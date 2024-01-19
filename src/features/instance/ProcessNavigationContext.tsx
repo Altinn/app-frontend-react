@@ -36,10 +36,9 @@ function useProcessNext() {
         throw new Error('Missing instance ID, cannot perform process/next');
       }
       await waitForSave(true);
-      return doProcessNext.call(instanceId, taskId, language, action);
+      return doProcessNext(instanceId, taskId, language, action);
     },
     onSuccess: async (data: IProcess) => {
-      doProcessNext.setLastResult(data);
       await reFetchInstanceData();
       setProcessData?.({ ...data, processTasks: currentProcessData?.processTasks });
       navigateToTask(data?.currentTask?.elementId);

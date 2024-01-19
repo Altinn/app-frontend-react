@@ -3,14 +3,14 @@ import { useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useImmer } from 'use-immer';
 
-import type { BackendValidations, BackendValidatorGroups } from '..';
+import type { BackendValidationIssueGroups, BackendValidations, BackendValidatorGroups } from '..';
 
-import { useAppMutations, useAppQueries } from 'src/core/contexts/AppQueriesProvider';
+import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
 import { mapValidationIssueToFieldValidation } from 'src/features/validation/backend/backendUtils';
 
-export function useBackendValidation(): BackendValidations {
+export function useBackendValidation(fromLastSave: BackendValidationIssueGroups | undefined): BackendValidations {
   const [backendValidatorGroups, setBackendValidatorGroups] = useImmer<BackendValidatorGroups>({});
 
   /**
@@ -40,24 +40,17 @@ export function useBackendValidation(): BackendValidations {
     );
   }, [initialValidations, setBackendValidatorGroups]);
 
-  /**
-   * Incrementally update validation state with each response from json-patch.
-   */
-  const { doPatchFormData } = useAppMutations();
-
   useEffect(() => {
-    const validators = doPatchFormData.lastResult?.validationIssues;
-
-    if (typeof validators === 'undefined' || Object.keys(validators).length === 0) {
+    if (typeof fromLastSave === 'undefined' || Object.keys(fromLastSave).length === 0) {
       return;
     }
 
     setBackendValidatorGroups((validatorState) => {
-      for (const [group, validationIssues] of Object.entries(validators)) {
+      for (const [group, validationIssues] of Object.entries(fromLastSave)) {
         validatorState[group] = validationIssues.map(mapValidationIssueToFieldValidation);
       }
     });
-  }, [doPatchFormData.lastResult, setBackendValidatorGroups]);
+  }, [fromLastSave, setBackendValidatorGroups]);
 
   /**
    * Map validator groups to validations per field

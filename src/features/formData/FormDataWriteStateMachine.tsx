@@ -13,6 +13,7 @@ import type { SchemaLookupTool } from 'src/features/datamodel/DataModelSchemaPro
 import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { FDLeafValue } from 'src/features/formData/FormDataWrite';
 import type { FormDataWriteProxies, Proxy } from 'src/features/formData/FormDataWriteProxies';
+import type { BackendValidationIssueGroups } from 'src/features/validation';
 
 export interface FormDataState {
   // These values contain the current data model, with the values immediately available whenever the user is typing.
@@ -43,6 +44,9 @@ export interface FormDataState {
   // this value will be set to true (although it may flip back to false when debouncing, if the value stays the same
   // as what we have saved to the server).
   hasUnsavedChanges: boolean;
+
+  // This contains the validation issues we receive from the server last time we saved the data model.
+  validationIssues: BackendValidationIssueGroups | undefined;
 
   // Control state is used to control the behavior of form data.
   controlState: {
@@ -126,7 +130,11 @@ export interface FormDataMethods {
 
   // Internal utility methods
   debounce: () => void;
-  saveFinished: (savedData: object, changes: FormDataChanges) => void;
+  saveFinished: (
+    savedData: object,
+    changes: FormDataChanges,
+    validationIssues: BackendValidationIssueGroups | undefined,
+  ) => void;
   requestManualSave: (setTo?: boolean) => void;
   lock: (lockName: string) => void;
   unlock: (newModel?: object) => void;
@@ -203,10 +211,11 @@ function makeActions(
         debounce(state);
       }),
 
-    saveFinished: (savedData, changes) =>
+    saveFinished: (savedData, changes, validationIssues) =>
       set((state) => {
         state.lastSavedData = structuredClone(savedData);
         state.controlState.manualSaveRequested = false;
+        state.validationIssues = validationIssues;
         processChanges(state, changes);
       }),
     setLeafValue: ({ path, newValue, ...rest }) =>
@@ -338,6 +347,7 @@ export const createFormDataWriteStore = (
         debouncedCurrentData: initialData,
         lastSavedData: initialData,
         hasUnsavedChanges: false,
+        validationIssues: undefined,
         controlState: {
           autoSaving,
           manualSaveRequested: false,

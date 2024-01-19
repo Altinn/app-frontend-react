@@ -186,7 +186,7 @@ function useAttachmentsUploadMutation() {
         throw new Error('Missing instanceId, cannot upload attachment');
       }
 
-      return doAttachmentUpload.call(instanceId, dataTypeId, file);
+      return doAttachmentUpload(instanceId, dataTypeId, file);
     },
     onError: (error: HttpClientError) => {
       window.logError('Failed to upload attachment:\n', error.message);
