@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { StrictMode } from 'react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
@@ -378,16 +378,18 @@ const renderBase = async ({
   ) as AppMutations;
 
   const ProviderWrapper = ({ children }: PropsWithChildren) => (
-    <Providers
-      Router={router || PageNavigationRouter({ currentPageId: 'formLayout' })}
-      queryClient={queryClient}
-      queries={{
-        ...queryMocks,
-        ...mutationMocks,
-      }}
-    >
-      {children}
-    </Providers>
+    <StrictMode>
+      <Providers
+        Router={router || PageNavigationRouter({ currentPageId: 'formLayout' })}
+        queryClient={queryClient}
+        queries={{
+          ...queryMocks,
+          ...mutationMocks,
+        }}
+      >
+        {children}
+      </Providers>
+    </StrictMode>
   );
 
   const startTime = Date.now();

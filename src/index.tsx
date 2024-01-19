@@ -2,7 +2,7 @@
 // all the polyfills we need and inject them here
 import 'core-js';
 
-import React from 'react';
+import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createHashRouter, RouterProvider } from 'react-router-dom';
 import { Slide, ToastContainer } from 'react-toastify';
@@ -52,19 +52,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const container = document.getElementById('root');
   const root = container && createRoot(container);
   root?.render(
-    <AppQueriesProvider {...queries}>
-      <ErrorBoundary>
-        <AppWrapper>
-          <LanguageProvider>
-            <ThemeWrapper>
-              <UiConfigProvider>
-                <RouterProvider router={router} />
-              </UiConfigProvider>
-            </ThemeWrapper>
-          </LanguageProvider>
-        </AppWrapper>
-      </ErrorBoundary>
-    </AppQueriesProvider>,
+    <StrictMode>
+      <AppQueriesProvider {...queries}>
+        <ErrorBoundary>
+          <AppWrapper>
+            <LanguageProvider>
+              <ThemeWrapper>
+                <UiConfigProvider>
+                  <RouterProvider router={router} />
+                </UiConfigProvider>
+              </ThemeWrapper>
+            </LanguageProvider>
+          </AppWrapper>
+        </ErrorBoundary>
+      </AppQueriesProvider>
+    </StrictMode>,
   );
 });
 
