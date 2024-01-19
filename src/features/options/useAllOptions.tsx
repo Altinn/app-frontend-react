@@ -34,7 +34,11 @@ interface Functions {
   setNodeOptions: (nodeId: string, options: IOptionInternal[]) => void;
 }
 
-function isAllLoaded(nodes: AllOptionsMap) {
+function isAllLoaded(nodes: AllOptionsMap, existingValue: boolean) {
+  if (existingValue) {
+    return true;
+  }
+
   for (const options of Object.values(nodes)) {
     if (options === undefined) {
       return false;
@@ -54,7 +58,7 @@ function newStore() {
       set((state) => {
         const missingNodes = nodesFound.filter((nodeId) => !(nodeId in state.nodes));
         if (missingNodes.length === 0) {
-          return { allInitiallyLoaded: isAllLoaded(state.nodes) };
+          return { allInitiallyLoaded: isAllLoaded(state.nodes, state.allInitiallyLoaded) };
         }
         const newNodes = {
           ...state.nodes,
@@ -62,7 +66,7 @@ function newStore() {
         };
         return {
           nodes: newNodes,
-          allInitiallyLoaded: isAllLoaded(newNodes),
+          allInitiallyLoaded: isAllLoaded(newNodes, state.allInitiallyLoaded),
         };
       });
     },
@@ -77,7 +81,7 @@ function newStore() {
         };
         return {
           nodes: newNodes,
-          allInitiallyLoaded: isAllLoaded(newNodes),
+          allInitiallyLoaded: isAllLoaded(newNodes, state.allInitiallyLoaded),
         };
       }),
   }));
