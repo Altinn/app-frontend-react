@@ -5,7 +5,6 @@ import type { PropsWithChildren } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import dot from 'dot-object';
 import deepEqual from 'fast-deep-equal';
-import { memoize } from 'proxy-memoize';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided } from 'src/core/contexts/context';
@@ -45,7 +44,7 @@ interface FormDataContextInitialProps {
   schemaLookup: SchemaLookupTool;
 }
 
-const { Provider, useSelector, useLaxSelector } = createZustandContext({
+const { Provider, useSelector, useMemoSelector, useLaxSelector } = createZustandContext({
   name: 'FormDataWrite',
   required: true,
   initialCreateStore: ({
@@ -254,6 +253,8 @@ const useWaitForSave = () => {
   );
 };
 
+const emptyObject: any = {};
+
 export const FD = {
   /**
    * This will return the form data as a deep object, just like the server sends it to us (and the way we send it back).
@@ -273,32 +274,30 @@ export const FD = {
     bindings: T,
     dataAs: O,
   ): T extends undefined ? Record<string, never> : { [key in keyof T]: O extends 'raw' ? FDValue : string } =>
-    useSelector(
-      memoize((s) => {
-        const out: any = {};
-        if (!bindings) {
-          return out;
-        }
-        for (const key of Object.keys(bindings)) {
-          const invalidValue = s.invalidCurrentData[bindings[key]];
-          if (invalidValue !== undefined) {
-            out[key] = invalidValue;
-            continue;
-          }
-
-          const value = dot.pick(bindings[key], s.currentData);
-          if (dataAs === 'raw') {
-            out[key] = value;
-          } else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
-            out[key] = String(value);
-          } else {
-            out[key] = '';
-          }
+    useMemoSelector((s) => {
+      if (!bindings || Object.keys(bindings).length === 0) {
+        return emptyObject;
+      }
+      const out: any = {};
+      for (const key of Object.keys(bindings)) {
+        const invalidValue = dot.pick(bindings[key], s.invalidCurrentData);
+        if (invalidValue !== undefined) {
+          out[key] = invalidValue;
+          continue;
         }
 
-        return out;
-      }),
-    ),
+        const value = dot.pick(bindings[key], s.currentData);
+        if (dataAs === 'raw') {
+          out[key] = value;
+        } else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+          out[key] = String(value);
+        } else {
+          out[key] = '';
+        }
+      }
+
+      return out;
+    }),
 
   /**
    * This returns multiple values, as picked from the form data. The values in the input object is expected to be
@@ -311,19 +310,16 @@ export const FD = {
    * and warn the user if it is not.
    */
   useBindingsAreValid: <T extends IDataModelBindings | undefined>(bindings: T): { [key in keyof T]: boolean } =>
-    useSelector(
-      memoize((s) => {
-        const out: any = {};
-        if (!bindings) {
-          return out;
-        }
-        for (const key of Object.keys(bindings)) {
-          const invalidValue = s.invalidCurrentData[bindings[key]];
-          out[key] = invalidValue === undefined;
-        }
-        return out;
-      }),
-    ),
+    useMemoSelector((s) => {
+      if (!bindings || Object.keys(bindings).length === 0) {
+        return emptyObject;
+      }
+      const out: any = {};
+      for (const key of Object.keys(bindings)) {
+        out[key] = dot.pick(bindings[key], s.invalidCurrentData) === undefined;
+      }
+      return out;
+    }),
 
   /**
    * This returns an object that can be used to generate a query string for parts of the current form data.
@@ -334,8 +330,8 @@ export const FD = {
    *      generated from this hook are more stable, and aren't re-fetched on every keystroke.
    *   3. Values that don't exist in the debounced model are not included in the output at all.
    */
-  useMapping(mapping: IMapping | undefined): { [key: string]: string } {
-    return useSelector((s) => {
+  useMapping: (mapping: IMapping | undefined): { [key: string]: string } =>
+    useMemoSelector((s) => {
       const out: any = {};
       if (mapping) {
         for (const key of Object.keys(mapping)) {
@@ -347,8 +343,7 @@ export const FD = {
         }
       }
       return out;
-    });
-  },
+    }),
 
   /**
    * This returns the raw method for setting a value in the form data. This is useful if you want to

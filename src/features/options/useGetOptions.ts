@@ -113,11 +113,24 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
   const { formData, setValue } = useDataModelBindings(dataModelBindings);
   const value = formData.simpleBinding ?? '';
   const sourceOptions = useSourceOptions({ source, node });
-  const staticOptions = optionsId ? undefined : options;
+  const staticOptions = useMemo(() => (optionsId ? undefined : castOptionsToStrings(options)), [options, optionsId]);
   const { data: fetchedOptions, isFetching } = useGetOptionsQuery(optionsId, mapping, queryParameters, secure);
-  const calculatedOptions = sourceOptions || fetchedOptions?.data || castOptionsToStrings(staticOptions);
   const { langAsString } = useLanguage();
   const selectedLanguage = useCurrentLanguage();
+
+  const calculatedOptions = useMemo(() => {
+    let draft = sourceOptions || fetchedOptions?.data || staticOptions;
+    if (draft && removeDuplicates) {
+      draft = draft.filter(duplicateOptionFilter);
+    }
+    if (draft && sortOrder) {
+      draft = [...draft].sort(compareOptionAlphabetically(langAsString, sortOrder, selectedLanguage));
+    }
+
+    return draft;
+  }, [fetchedOptions?.data, langAsString, removeDuplicates, selectedLanguage, sortOrder, sourceOptions, staticOptions]);
+
+  const alwaysOptions = calculatedOptions || defaultOptions;
 
   const downstreamParameters: string = fetchedOptions?.headers['altinn-downstreamparameters'];
   useEffect(() => {
@@ -126,18 +139,13 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
     }
   }, [dataModelBindings, downstreamParameters, setValue]);
 
-  const optionsWithoutDuplicates =
-    removeDuplicates && calculatedOptions
-      ? calculatedOptions.filter(duplicateOptionFilter)
-      : calculatedOptions || defaultOptions;
-
   const current = useMemo(() => {
     if (valueType === 'single') {
-      return optionsWithoutDuplicates.find((option) => String(option.value) === String(value)) as CurrentValue<T>;
+      return alwaysOptions.find((option) => String(option.value) === String(value)) as CurrentValue<T>;
     }
     const stringValues = value && value.length > 0 ? value.split(',') : [];
-    return optionsWithoutDuplicates.filter((option) => stringValues.includes(option.value)) as CurrentValue<T>;
-  }, [value, valueType, optionsWithoutDuplicates]);
+    return alwaysOptions.filter((option) => stringValues.includes(option.value)) as CurrentValue<T>;
+  }, [value, valueType, alwaysOptions]);
 
   const currentStringy = useMemo(() => {
     if (valueType === 'single') {
@@ -177,9 +185,7 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
     current,
     currentStringy,
     setData,
-    options: sortOrder
-      ? [...optionsWithoutDuplicates].sort(compareOptionAlphabetically(langAsString, sortOrder, selectedLanguage))
-      : optionsWithoutDuplicates,
+    options: alwaysOptions,
     isFetching: isFetching || !calculatedOptions,
   };
 }

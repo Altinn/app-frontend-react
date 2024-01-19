@@ -19,7 +19,7 @@ export function TextAreaComponent({ node, isValid, overrideDisplay }: ITextAreaP
     formData: { simpleBinding: value },
     setValue,
     debounce,
-  } = useDataModelBindings(dataModelBindings, { saveWhileTyping });
+  } = useDataModelBindings(dataModelBindings, saveWhileTyping);
 
   return (
     <LegacyTextArea

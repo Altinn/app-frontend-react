@@ -26,7 +26,7 @@ export interface FormDataState {
   // is typing a number, as the current model is updated for every keystroke, but if the user types '-5', the model
   // will be invalid until the user types the '5' as well. This way we can show the user the value they are typing,
   // as they are typing it, while also keeping it away from the data model until it is valid to store in it.
-  invalidCurrentData: { [key: string]: string | number | boolean };
+  invalidCurrentData: object;
 
   // These values contain the current data model, with the values debounced at 400ms. This means that if the user is
   // typing, the values will be updated 400ms after the user stopped typing. Use these values when you need to perform
@@ -166,6 +166,11 @@ function makeActions(
   }
 
   function debounce(state: FormDataContext) {
+    if (deepEqual(state.debouncedCurrentData, state.currentData)) {
+      state.hasUnsavedChanges = !deepEqual(state.currentData, state.lastSavedData);
+      return;
+    }
+
     const ruleChanges = runLegacyRules(ruleConnections, state.debouncedCurrentData, state.currentData);
     for (const { path, newValue } of ruleChanges) {
       dot.str(path, newValue, state.currentData);
@@ -184,9 +189,9 @@ function makeActions(
       const { newValue: convertedValue, error } = convertData(newValue, schema);
       if (error) {
         dot.delete(path, state.currentData);
-        state.invalidCurrentData[path] = newValue;
+        dot.str(path, newValue, state.invalidCurrentData);
       } else {
-        delete state.invalidCurrentData[path];
+        dot.delete(path, state.invalidCurrentData);
         dot.str(path, convertedValue, state.currentData);
       }
     }

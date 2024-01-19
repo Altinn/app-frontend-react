@@ -22,7 +22,7 @@ export function AddressComponent({ node }: IAddressComponentProps) {
   const bindingValidations = useBindingValidationsForNode(node);
   const componentValidations = useComponentValidationsForNode(node);
 
-  const { formData, setValue, debounce } = useDataModelBindings(node.item.dataModelBindings, { saveWhileTyping });
+  const { formData, setValue, debounce } = useDataModelBindings(node.item.dataModelBindings, saveWhileTyping);
   const { address, careOf, postPlace, zipCode, houseNumber } = formData;
 
   const updatePostPlace = useEffectEvent((newPostPlace) => {

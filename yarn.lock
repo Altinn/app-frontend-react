@@ -5954,7 +5954,6 @@ __metadata:
     node-polyfill-webpack-plugin: "npm:^2.0.1"
     postcss-modules: "npm:^6.0.0"
     prettier: "npm:3.1.0"
-    proxy-memoize: "npm:^2.0.5"
     react: "npm:18.2.0"
     react-content-loader: "npm:6.2.1"
     react-device-detect: "npm:2.2.3"
@@ -15567,13 +15566,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"proxy-compare@npm:2.6.0":
-  version: 2.6.0
-  resolution: "proxy-compare@npm:2.6.0"
-  checksum: afd82ddc83f34af6116a5e222399fb7e626a1a443feb9d70e7a1af65561c97f670c5c8c4bde53bfe12a7cda7ef00f9863d265f3a0e949ff031a9869ecc5feb0c
-  languageName: node
-  linkType: hard
-
 "proxy-from-env@npm:1.0.0":
   version: 1.0.0
   resolution: "proxy-from-env@npm:1.0.0"
@@ -15585,15 +15577,6 @@ __metadata:
   version: 1.1.0
   resolution: "proxy-from-env@npm:1.1.0"
   checksum: fe7dd8b1bdbbbea18d1459107729c3e4a2243ca870d26d34c2c1bcd3e4425b7bcc5112362df2d93cc7fb9746f6142b5e272fd1cc5c86ddf8580175186f6ad42b
-  languageName: node
-  linkType: hard
-
-"proxy-memoize@npm:^2.0.5":
-  version: 2.0.5
-  resolution: "proxy-memoize@npm:2.0.5"
-  dependencies:
-    proxy-compare: "npm:2.6.0"
-  checksum: c990f8dc123af7426df843e4686a344e8ae0b761113497599e4941dee9de129991b07a3b319b15c3ba1f0b63a4132ff0c688dcbee8ffbc1b2537caac3627f73d
   languageName: node
   linkType: hard
 

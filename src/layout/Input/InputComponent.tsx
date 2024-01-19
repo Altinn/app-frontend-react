@@ -32,7 +32,7 @@ export function InputComponent({ node, isValid, overrideDisplay }: IInputProps) 
     formData: { simpleBinding: value },
     setValue,
     debounce,
-  } = useDataModelBindings(dataModelBindings, { saveWhileTyping });
+  } = useDataModelBindings(dataModelBindings, saveWhileTyping);
 
   const reactNumberFormatConfig = useMapToReactNumberConfig(formatting as IInputFormatting | undefined, value);
   const [inputKey, rerenderInput] = useRerender('input');

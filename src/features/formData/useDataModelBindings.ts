@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react';
 
+import { useRenderingTrace } from 'src/debug/useRenderingTrace';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
@@ -8,30 +9,16 @@ import type { FDNewValue } from 'src/features/formData/FormDataWriteStateMachine
 import type { SaveWhileTyping } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
 
-export interface DMBOptions {
-  saveWhileTyping?: SaveWhileTyping;
+// Describes how you want the data to be returned from the useDataModelBindings hook. Usually, if you're
+// sending the data to a form input, it will expect a string. If you're sending raw data to an input, you'll
+// confuse it if it gets a 'undefined' then a string later, as it uses the input to decide whether to be controlled
+// or uncontrolled. However, if you're sending the data to a custom component that you know can handle undefined,
+// null, string, number, arrays, objects etc, you can set this to 'raw' and get the data as it is in the data model.
+type DataAs = 'raw' | 'string';
 
-  // Describes how you want the data to be returned from the useDataModelBindings hook. Usually, if you're
-  // sending the data to a form input, it will expect a string. If you're sending raw data to an input, you'll
-  // confuse it if it gets a 'undefined' then a string later, as it uses the input to decide whether to be controlled
-  // or uncontrolled. However, if you're sending the data to a custom component that you know can handle undefined,
-  // null, string, number, arrays, objects etc, you can set this to 'raw' and get the data as it is in the data model.
-  dataAs?: 'raw' | 'string';
-}
-
-interface DefaultOptions extends DMBOptions {
-  saveWhileTyping: number;
-  dataAs: 'string';
-}
-
-const defaultOptions: Required<DefaultOptions> = {
-  saveWhileTyping: DEFAULT_DEBOUNCE_TIMEOUT,
-  dataAs: 'string',
-};
-
-type DataType<O extends DMBOptions> = O['dataAs'] extends 'raw' ? any : string;
-interface Output<B extends IDataModelBindings | undefined, O extends DMBOptions> {
-  formData: B extends undefined ? Record<string, never> : { [key in keyof B]: DataType<O> };
+type DataType<DA extends DataAs> = DA extends 'raw' ? any : string;
+interface Output<B extends IDataModelBindings | undefined, DA extends DataAs> {
+  formData: B extends undefined ? Record<string, never> : { [key in keyof B]: DataType<DA> };
   debounce: () => void;
   setValue: (key: keyof Exclude<B, undefined>, value: FDLeafValue) => void;
   setValues: (values: Partial<{ [key in keyof B]: FDLeafValue }>) => void;
@@ -47,15 +34,12 @@ const defaultBindings = {};
  * from/into the data model. By default, it will convert values to strings for you, and convert them back into the
  * correct data type needed for the data model schema when saving values.
  */
-export function useDataModelBindings<B extends IDataModelBindings | undefined, O extends DMBOptions>(
+export function useDataModelBindings<B extends IDataModelBindings | undefined, DA extends DataAs = 'string'>(
   _bindings: B,
-  _options: O = defaultOptions as O,
-): Output<B, O> {
+  debounceTimeout: SaveWhileTyping = DEFAULT_DEBOUNCE_TIMEOUT,
+  dataAs: DA = 'string' as DA,
+): Output<B, DA> {
   const bindings = useMemoDeepEqual(() => (_bindings || defaultBindings) as Exclude<B, undefined>, [_bindings]);
-  const { dataAs, saveWhileTyping } = useMemoDeepEqual(
-    () => ({ ...defaultOptions, ..._options }) as DefaultOptions & O,
-    [_options],
-  );
 
   const setLeafValue = FD.useSetLeafValue();
   const setMultiLeafValue = FD.useSetMultiLeafValues();
@@ -65,12 +49,12 @@ export function useDataModelBindings<B extends IDataModelBindings | undefined, O
 
   const saveOptions: SaveOptions = useMemo(
     () =>
-      saveWhileTyping === DEFAULT_DEBOUNCE_TIMEOUT ||
-      saveWhileTyping === undefined ||
-      typeof (saveWhileTyping as any) === 'boolean'
+      debounceTimeout === DEFAULT_DEBOUNCE_TIMEOUT ||
+      debounceTimeout === undefined ||
+      typeof (debounceTimeout as any) === 'boolean'
         ? {}
-        : { debounceTimeout: saveWhileTyping },
-    [saveWhileTyping],
+        : { debounceTimeout },
+    [debounceTimeout],
   );
 
   const setValue = useCallback(
@@ -100,8 +84,23 @@ export function useDataModelBindings<B extends IDataModelBindings | undefined, O
     [bindings, saveOptions, setMultiLeafValue],
   );
 
+  useRenderingTrace('useDataModelBindings', {
+    formData,
+    debounce,
+    setValue,
+    setValues,
+    isValid,
+    bindings,
+    saveOptions,
+    setLeafValue,
+    setMultiLeafValue,
+    debounceTimeout,
+    dataAs,
+    _bindings,
+  });
+
   return useMemo(
-    () => ({ formData: formData as Output<B, O>['formData'], debounce, setValue, setValues, isValid }),
+    () => ({ formData: formData as Output<B, DA>['formData'], debounce, setValue, setValues, isValid }),
     [debounce, formData, isValid, setValue, setValues],
   );
 }
