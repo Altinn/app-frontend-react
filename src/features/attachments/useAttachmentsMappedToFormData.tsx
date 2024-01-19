@@ -3,10 +3,10 @@ import React from 'react';
 import { createContext } from 'src/core/contexts/context';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
-import { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
+import { type LayoutNode } from 'src/utils/layout/LayoutNode';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IDataModelBindingsSimple } from 'src/layout/common.generated';
 import type { IDataModelBindingsForList } from 'src/layout/List/config.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface MappingTools {
   addAttachment: (uuid: string) => void;
@@ -15,7 +15,7 @@ interface MappingTools {
 
 const noop = (node: LayoutNode<'FileUpload' | 'FileUploadWithTag'>): MappingTools => ({
   addAttachment: () => {
-    if (node.parent instanceof LayoutNodeForGroup && node.parent.isRepGroup()) {
+    if (node.parent instanceof BaseLayoutNode && node.parent.isType('RepeatingGroup')) {
       window.logError(
         'No valid data model binding for file uploader, cannot add attachment to form data. This is required ' +
           'when using a file uploader inside a repeating group.',
@@ -23,7 +23,7 @@ const noop = (node: LayoutNode<'FileUpload' | 'FileUploadWithTag'>): MappingTool
     }
   },
   removeAttachment: () => {
-    if (node.parent instanceof LayoutNodeForGroup && node.parent.isRepGroup()) {
+    if (node.parent instanceof BaseLayoutNode && node.parent.isType('RepeatingGroup')) {
       window.logError(
         'No valid data model binding for file uploader, cannot remove attachment from form data. This is required ' +
           'when using a file uploader inside a repeating group.',
