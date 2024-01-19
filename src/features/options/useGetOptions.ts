@@ -78,7 +78,7 @@ interface EffectProps<T extends ValueType> {
   options: IOptionInternal[] | undefined;
   disable: boolean;
   valueType: T;
-  preselectedOptionIndex?: number;
+  preselectedOption: IOptionInternal | undefined;
   currentValue: CurrentValue<T>;
   setValue: ValueSetter<T>;
 }
@@ -109,6 +109,7 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
     sortOrder,
     dataModelBindings,
     valueType,
+    preselectedOptionIndex,
   } = props;
   const { formData, setValue } = useDataModelBindings(dataModelBindings);
   const value = formData.simpleBinding ?? '';
@@ -118,8 +119,14 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
   const { langAsString } = useLanguage();
   const selectedLanguage = useCurrentLanguage();
 
-  const calculatedOptions = useMemo(() => {
+  const [calculatedOptions, preselectedOption] = useMemo(() => {
     let draft = sourceOptions || fetchedOptions?.data || staticOptions;
+    let preselectedOption: IOptionInternal | undefined = undefined;
+    if (preselectedOptionIndex !== undefined && draft && draft[preselectedOptionIndex]) {
+      // This index uses the original options array, before any filtering or sorting
+      preselectedOption = draft[preselectedOptionIndex];
+    }
+
     if (draft && removeDuplicates) {
       draft = draft.filter(duplicateOptionFilter);
     }
@@ -127,8 +134,17 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
       draft = [...draft].sort(compareOptionAlphabetically(langAsString, sortOrder, selectedLanguage));
     }
 
-    return draft;
-  }, [fetchedOptions?.data, langAsString, removeDuplicates, selectedLanguage, sortOrder, sourceOptions, staticOptions]);
+    return [draft, preselectedOption];
+  }, [
+    fetchedOptions?.data,
+    langAsString,
+    preselectedOptionIndex,
+    removeDuplicates,
+    selectedLanguage,
+    sortOrder,
+    sourceOptions,
+    staticOptions,
+  ]);
 
   const alwaysOptions = calculatedOptions || defaultOptions;
 
@@ -171,11 +187,11 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
       options: calculatedOptions,
       disable: !(props.dataModelBindings && 'simpleBinding' in props.dataModelBindings),
       valueType,
-      preselectedOptionIndex: props.preselectedOptionIndex,
+      preselectedOption,
       currentValue: current,
       setValue: setData,
     }),
-    [calculatedOptions, current, props.dataModelBindings, props.preselectedOptionIndex, setData, valueType],
+    [calculatedOptions, current, preselectedOption, props.dataModelBindings, setData, valueType],
   );
 
   usePreselectedOptionIndex(effectProps);
@@ -194,39 +210,21 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
  * as options are ready. The code is complex to guard against overwriting data that has been set by the user.
  */
 function usePreselectedOptionIndex<T extends ValueType>(props: EffectProps<T>) {
-  const { options, disable, preselectedOptionIndex } = props;
+  const { disable, preselectedOption } = props;
   const hasSelectedInitial = useRef(false);
-
-  let hasValue = false;
-  let shouldSelectOptionAutomatically = false;
-  let option: string | undefined;
-
-  if (!disable) {
-    hasValue = isSingle(props) ? !!props.currentValue : isMulti(props) ? props.currentValue.length > 0 : false;
-
-    shouldSelectOptionAutomatically =
-      !hasValue &&
-      typeof preselectedOptionIndex !== 'undefined' &&
-      preselectedOptionIndex >= 0 &&
-      !!options &&
-      preselectedOptionIndex < options.length &&
-      !hasSelectedInitial.current;
-    option =
-      shouldSelectOptionAutomatically && options && typeof preselectedOptionIndex !== 'undefined'
-        ? options[preselectedOptionIndex].value
-        : undefined;
-  }
+  const hasValue = isSingle(props) ? !!props.currentValue : isMulti(props) ? props.currentValue.length > 0 : false;
+  const shouldSelectOptionAutomatically = !disable && !hasValue && !hasSelectedInitial.current;
 
   useEffect(() => {
-    if (shouldSelectOptionAutomatically && option !== undefined && !disable) {
+    if (shouldSelectOptionAutomatically && preselectedOption !== undefined && !disable) {
       if (isMulti(props)) {
-        props.setValue([option]);
+        props.setValue([preselectedOption]);
       } else if (isSingle(props)) {
-        props.setValue(option);
+        props.setValue(preselectedOption);
       }
       hasSelectedInitial.current = true;
     }
-  }, [disable, option, props, shouldSelectOptionAutomatically]);
+  }, [disable, preselectedOption, props, shouldSelectOptionAutomatically]);
 }
 
 /**
