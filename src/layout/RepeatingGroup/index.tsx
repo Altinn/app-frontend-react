@@ -1,8 +1,6 @@
 import React from 'react';
 import type { JSX } from 'react';
 
-import type { ErrorObject } from 'ajv';
-
 import type { PropsFromGenericComponent, ValidateAny, ValidateComponent } from '..';
 
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
@@ -20,7 +18,6 @@ import type {
   ISchemaValidationError,
   ValidationDataSources,
 } from 'src/features/validation';
-import type { CompExternalExact } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -127,17 +124,5 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateAny, Va
     }
 
     return [];
-  }
-
-  /**
-   * Override layout validation to select a specific pointer depending on the type of group.
-   */
-  validateLayoutConfing(
-    component: CompExternalExact<'RepeatingGroup'>,
-    validatate: (pointer: string, data: unknown) => ErrorObject[] | undefined,
-  ): ErrorObject[] | undefined {
-    const schemaPointer = '#/definitions/CompGroupRepeating';
-
-    return validatate(schemaPointer, component);
   }
 }
