@@ -210,7 +210,11 @@ export const Config = new CG.component({
   .addProperty(
     new CG.prop(
       'maxCount',
-      new CG.int().setMin(2).setTitle('Max number of rows').setDescription('Maximum number of rows that can be added.'),
+      new CG.int()
+        .optional()
+        .setMin(2)
+        .setTitle('Max number of rows')
+        .setDescription('Maximum number of rows that can be added.'),
     ),
   )
   .addProperty(
