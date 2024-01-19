@@ -15,6 +15,7 @@ import { useLaxInstance, useLaxInstanceData } from 'src/features/instance/Instan
 import { useLanguage } from 'src/features/language/useLanguage';
 import { type BackendValidationIssue } from 'src/features/validation';
 import { getValidationIssueMessage } from 'src/features/validation/backend/backendUtils';
+import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import type {
   AttachmentActionUpload,
@@ -90,7 +91,8 @@ const initialState: State = {
 export const usePreUpload = () => {
   const [state, dispatch] = useImmerReducer(reducer, initialState);
   const upload = useUpload(dispatch);
-  const waitFor = useWaitForState<IData | false, State>(state);
+  const stateRef = useAsRef(state);
+  const waitFor = useWaitForState<IData | false, State>(stateRef);
 
   const awaitUpload = useCallback(
     (attachment: TemporaryAttachment) =>

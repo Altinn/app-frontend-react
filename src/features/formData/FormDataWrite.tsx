@@ -14,7 +14,7 @@ import { useRuleConnections } from 'src/features/form/dynamics/DynamicsContext';
 import { useFormDataWriteProxies } from 'src/features/formData/FormDataWriteProxies';
 import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteStateMachine';
 import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
-import { useAsRef } from 'src/hooks/useAsRef';
+import { useAsRef, useAsRefFromLaxSelector } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
@@ -44,7 +44,7 @@ interface FormDataContextInitialProps {
   schemaLookup: SchemaLookupTool;
 }
 
-const { Provider, useSelector, useMemoSelector, useLaxSelector } = createZustandContext({
+const { Provider, useSelector, useMemoSelector, useLaxSelector, useLaxStore } = createZustandContext({
   name: 'FormDataWrite',
   required: true,
   initialCreateStore: ({
@@ -232,8 +232,8 @@ const useHasUnsavedChanges = () => {
 const useWaitForSave = () => {
   const requestSave = useRequestManualSave();
   const url = useLaxSelector((s) => s.controlState.saveUrl);
-  const hasUnsavedChanges = useHasUnsavedChanges();
-  const waitForUnsaved = useWaitForState(hasUnsavedChanges);
+  const hasUnsavedChangesRef = useAsRefFromLaxSelector(useLaxStore(), (s) => s.hasUnsavedChanges);
+  const waitForUnsaved = useWaitForState(hasUnsavedChangesRef);
 
   return useCallback(
     (requestManualSave = false) => {

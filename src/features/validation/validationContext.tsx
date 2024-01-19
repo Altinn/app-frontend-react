@@ -33,6 +33,7 @@ import {
   setVisibilityForAttachment,
   setVisibilityForNode,
 } from 'src/features/validation/visibility';
+import { useAsRef } from 'src/hooks/useAsRef';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import type { FrontendValidations, ValidationContext } from 'src/features/validation';
@@ -110,7 +111,7 @@ export function ValidationContext({ children }) {
   // Get backend validations
   const lastSaveValidations = FD.useLastSaveValidationIssues();
   const backendValidations = useBackendValidation(lastSaveValidations);
-  const hasUnsavedFormData = FD.useHasUnsavedChanges();
+  const waitForSave = FD.useWaitForSave();
   const hasPendingAttachments = useHasPendingAttachments();
 
   // Merge backend and frontend validations
@@ -124,11 +125,13 @@ export function ValidationContext({ children }) {
   );
 
   // Provide a promise that resolves when all pending validations have been completed
-  const waitForValidating = useWaitForState(hasUnsavedFormData || hasPendingAttachments || attachmentsBusy);
+  const pendingAttachmentsRef = useAsRef(hasPendingAttachments || attachmentsBusy);
+  const waitForAttachments = useWaitForState(pendingAttachmentsRef);
 
   const validating = useCallback(async () => {
-    await waitForValidating((state) => !state);
-  }, [waitForValidating]);
+    await waitForAttachments((state) => !state);
+    await waitForSave();
+  }, [waitForAttachments, waitForSave]);
 
   const reduceNodeVisibility = useEffectEvent((nodes: LayoutNode[]) => {
     setVisibility((state) => {

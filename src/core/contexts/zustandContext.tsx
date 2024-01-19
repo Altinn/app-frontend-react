@@ -66,5 +66,7 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
     useMemoSelector,
     useLaxSelector,
     useHasProvider,
+    useStore: useCtx,
+    useLaxStore: useLaxCtx,
   };
 }

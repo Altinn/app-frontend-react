@@ -110,13 +110,8 @@ const { Provider, useCtx } = createContext<ContextData | undefined>({
 
 export function ProcessNavigationProvider({ children }: React.PropsWithChildren) {
   const { perform, error } = useProcessNext();
-  const [_busyWithId, setBusyWithId] = useState<string>('');
-  // const submittingState = useAppSelector((state) => state.formData.submittingState);
-
+  const [busyWithId, setBusyWithId] = useState<string>('');
   const attachmentsPending = useHasPendingAttachments();
-
-  // const busyWithId = submittingState === 'inactive' ? '' : _busyWithId;
-  const busyWithId = _busyWithId;
 
   const next = useCallback(
     async ({ nodeId, ...rest }: ProcessNextProps & { nodeId: string }) => {

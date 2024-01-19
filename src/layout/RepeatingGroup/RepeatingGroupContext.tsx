@@ -119,8 +119,8 @@ function useRepeatingGroupState(node: BaseLayoutNode<CompRepeatingGroupInternal>
     deletableRowIndexes,
     editingIndex,
   } = useAsRefObject(pureStates);
-  const waitForRows = useWaitForState(node.item.rows);
   const nodeRef = useAsRef(node);
+  const waitForRows = useWaitForState(nodeRef);
 
   const validateOnSaveRow = nodeRef.current.item.validateOnSaveRow;
 
@@ -216,8 +216,8 @@ function useRepeatingGroupState(node: BaseLayoutNode<CompRepeatingGroupInternal>
         path: binding.current,
         newValue: {},
       });
-      await waitForRows((rows) => rows.length === nextLength);
-      openForEditing(nextIndex);
+      await waitForRows((node) => node.item.rows.length === nextLength);
+      await openForEditing(nextIndex);
     }
   }, [appendToList, binding, maybeValidateRow, nodeRef, openForEditing, waitForRows]);
 
