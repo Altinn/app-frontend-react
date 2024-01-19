@@ -78,18 +78,31 @@ export class Likert extends LikertDef implements ValidateAny {
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'Likert'>): string[] {
-    const [errors, result] = this.validateDataModelBindingsAny(ctx, 'Likert', ['array']);
-    if (errors) {
-      return errors;
+    const [questionsErr, questions] = this.validateDataModelBindingsAny(ctx, 'questions', ['array']);
+    const [answerErr, answer] = this.validateDataModelBindingsAny(ctx, 'answer', ['string', 'number', 'boolean']);
+    const errors: string[] = [...(questionsErr || []), ...(answerErr || [])];
+
+    if (
+      questions &&
+      (!questions.items ||
+        typeof questions.items !== 'object' ||
+        Array.isArray(questions.items) ||
+        questions.items.type !== 'object')
+    ) {
+      errors.push(`questions-datamodellbindingen peker mot en ukjent type i datamodellen (forventet type: object)`);
     }
 
-    if (result) {
-      const innerType = Array.isArray(result.items) ? result.items[0] : result.items;
-      if (!innerType || typeof innerType !== 'object' || !innerType.type || innerType.type !== 'object') {
-        return [`Likert-datamodellbindingen peker mot en ukjent type i datamodellen`];
-      }
+    const bindings = ctx.node.item.dataModelBindings;
+    if (
+      answer &&
+      bindings &&
+      bindings.answer &&
+      bindings.questions &&
+      bindings.answer.startsWith(`${bindings.questions}.`)
+    ) {
+      errors.push(`answer-datamodellbindingen må peke på en egenskap inne i questions-datamodellbindingen`);
     }
 
-    return [];
+    return errors;
   }
 }

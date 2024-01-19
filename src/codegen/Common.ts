@@ -144,13 +144,22 @@ const common = {
         'Describes the location in the data model where the component should store its value(s). A simple ' +
           'binding is used for components that only store a single value, usually a string.',
       ),
-  IDataModelBindingsLikertSimple: () =>
+  IDataModelBindingsLikert: () =>
     new CG.obj(
-      new CG.prop('simpleBinding', new CG.str()),
+      new CG.prop(
+        'answer',
+        new CG.str()
+          .setTitle('Answer')
+          .setDescription(
+            'Dot notation location for the answers. This must point to a property of the objects inside the ' +
+              'question array. The answer for each question will be stored in the answer property of the ' +
+              'corresponding question object.',
+          ),
+      ),
       new CG.prop(
         'questions',
         new CG.str()
-          .setTitle('Qestions')
+          .setTitle('Questions')
           .setDescription('Dot notation location for a likert structure (array of objects), where the data is stored'),
       ),
     )

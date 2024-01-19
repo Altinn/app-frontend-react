@@ -71,7 +71,7 @@ export const Config = new CG.component({
       ).exportAs('HLikertRows'),
     ).onlyIn(Variant.Internal),
   )
-  .addDataModelBinding(CG.common('IDataModelBindingsLikertSimple'))
+  .addDataModelBinding(CG.common('IDataModelBindingsLikert'))
   .addProperty(
     new CG.prop(
       'filter',

@@ -257,7 +257,7 @@ describe('Hierarchical layout tools', () => {
         {
           id: 'g1',
           type: 'Likert',
-          dataModelBindings: { simpleBinding: 'Group.Title', questions: 'Group' },
+          dataModelBindings: { answer: 'Group.Title', questions: 'Group' },
           filter: [
             { key: 'start', value: '0' },
             { key: 'stop', value: '3' },
@@ -266,7 +266,7 @@ describe('Hierarchical layout tools', () => {
         {
           id: 'g2',
           type: 'Likert',
-          dataModelBindings: { simpleBinding: 'Group.Title', questions: 'Group' },
+          dataModelBindings: { answer: 'Group.Title', questions: 'Group' },
           filter: [
             { key: 'start', value: '3' },
             { key: 'stop', value: '6' },

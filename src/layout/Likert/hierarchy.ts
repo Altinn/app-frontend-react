@@ -64,10 +64,10 @@ export class LikertHierarchyGenerator extends ComponentHierarchyGenerator<'Liker
 
         const childItem = {
           ...itemProps,
-          dataModelBindings: {
-            simpleBinding: item?.dataModelBindings?.simpleBinding,
-          },
           type: 'LikertItem',
+          dataModelBindings: {
+            simpleBinding: item?.dataModelBindings?.answer,
+          },
         } as unknown as CompLikertItemInternal;
 
         mutateComponentId(rowIndex)(childItem);
