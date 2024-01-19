@@ -9,11 +9,11 @@ import { useOnDeleteGroupRow } from 'src/features/validation/validationContext';
 import { useAsRef, useAsRefObject } from 'src/hooks/useAsRef';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { useWaitForState } from 'src/hooks/useWaitForState';
-import type { CompGroupRepeatingInternal } from 'src/layout/RepeatingGroup/config.generated';
+import type { CompRepeatingGroupInternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface RepeatingGroupContext {
-  node: BaseLayoutNode<CompGroupRepeatingInternal>;
+  node: BaseLayoutNode<CompRepeatingGroupInternal>;
 
   // If this is true, we're rendering the group for the first time in this context. This is used to
   // determine whether we should open the first/last row for editing when first displaying the group. If, however,
@@ -47,7 +47,7 @@ const { Provider, useCtx } = createContext<RepeatingGroupContext>({
   required: true,
 });
 
-function usePureStates(node: BaseLayoutNode<CompGroupRepeatingInternal>) {
+function usePureStates(node: BaseLayoutNode<CompRepeatingGroupInternal>) {
   const editingAll = node.item.edit?.mode === 'showAll';
   const editingNone = node.item.edit?.mode === 'onlyTable';
   const binding = node.item.dataModelBindings?.group;
@@ -101,7 +101,7 @@ function usePureStates(node: BaseLayoutNode<CompGroupRepeatingInternal>) {
   };
 }
 
-function useRepeatingGroupState(node: BaseLayoutNode<CompGroupRepeatingInternal>): RepeatingGroupContext {
+function useRepeatingGroupState(node: BaseLayoutNode<CompRepeatingGroupInternal>): RepeatingGroupContext {
   const appendToList = FD.useAppendToList();
   const removeIndexFromList = FD.useRemoveIndexFromList();
   const { onBeforeRowDeletion } = useAttachmentDeletionInRepGroups(node);
@@ -308,7 +308,7 @@ function useRepeatingGroupState(node: BaseLayoutNode<CompGroupRepeatingInternal>
 }
 
 interface Props {
-  node: BaseLayoutNode<CompGroupRepeatingInternal>;
+  node: BaseLayoutNode<CompRepeatingGroupInternal>;
 }
 
 export function RepeatingGroupProvider({ node, children }: PropsWithChildren<Props>) {

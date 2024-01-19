@@ -15,8 +15,8 @@ import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { ILayout } from 'src/layout/layout';
 import type {
-  CompGroupRepeatingExternal,
-  CompGroupRepeatingInternal,
+  CompRepeatingGroupExternal,
+  CompRepeatingGroupInternal,
 } from 'src/layout/RepeatingGroup/config.generated';
 import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -26,7 +26,7 @@ const mockContainer = getFormLayoutRepeatingGroupMock({
 });
 
 interface IRender {
-  container?: Partial<CompGroupRepeatingExternal>;
+  container?: Partial<CompRepeatingGroupExternal>;
   numRows?: number;
   validationIssues?: BackendValidationIssue[];
 }
@@ -92,7 +92,7 @@ async function render({ container, numRows = 3, validationIssues = [] }: IRender
     },
   });
 
-  return await renderWithNode<true, BaseLayoutNode<CompGroupRepeatingInternal>>({
+  return await renderWithNode<true, BaseLayoutNode<CompRepeatingGroupInternal>>({
     renderer: ({ node }) => (
       <RepeatingGroupProvider node={node}>
         <LeakEditIndex />

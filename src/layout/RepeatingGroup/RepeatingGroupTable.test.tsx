@@ -13,14 +13,14 @@ import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.genera
 import type { IRawOption } from 'src/layout/common.generated';
 import type { CompOrGroupExternal, ILayoutCollection } from 'src/layout/layout';
 import type {
-  CompGroupRepeatingExternal,
-  CompGroupRepeatingInternal,
+  CompRepeatingGroupExternal,
+  CompRepeatingGroupInternal,
 } from 'src/layout/RepeatingGroup/config.generated';
 import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 
 (global as any).ResizeObserver = ResizeObserverModule;
 
-const getLayout = (group: CompGroupRepeatingExternal, components: CompOrGroupExternal[]): ILayoutCollection => ({
+const getLayout = (group: CompRepeatingGroupExternal, components: CompOrGroupExternal[]): ILayoutCollection => ({
   FormLayout: {
     data: {
       layout: [group, ...components],
@@ -165,7 +165,7 @@ describe('RepeatingGroupTable', () => {
   });
 
   const render = async (layout = getLayout(group, components)) =>
-    await renderWithNode<true, BaseLayoutNode<CompGroupRepeatingInternal>>({
+    await renderWithNode<true, BaseLayoutNode<CompRepeatingGroupInternal>>({
       nodeId: group.id,
       inInstance: true,
       renderer: ({ node }) => (

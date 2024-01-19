@@ -4,7 +4,7 @@ import { GridHierarchyGenerator } from 'src/layout/Grid/hierarchy';
 import { nodesFromGridRow } from 'src/layout/Grid/tools';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
-import type { CompGroupRepeatingExternal, HRepGroupRows } from 'src/layout/RepeatingGroup/config.generated';
+import type { CompRepeatingGroupExternal, HRepGroupRows } from 'src/layout/RepeatingGroup/config.generated';
 import type {
   ChildFactory,
   ChildFactoryProps,
@@ -80,7 +80,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Repeat
       const prototype = ctx.generator.prototype(ctx.id) as UnprocessedItem<'RepeatingGroup'>;
 
       delete (props.item as any)['children'];
-      const item = props.item as CompGroupRepeatingExternal;
+      const item = props.item as CompRepeatingGroupExternal;
       const me = ctx.generator.makeNode(props);
       const rows: HRepGroupRows = [];
       const formData = item.dataModelBindings?.group

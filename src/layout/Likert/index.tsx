@@ -12,7 +12,7 @@ import { type LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type {
   ComponentValidation,
-  FormValidations,
+  FrontendValidations,
   ISchemaValidationError,
   ValidationDataSources,
 } from 'src/features/validation';
@@ -64,7 +64,7 @@ export class Likert extends LikertDef implements ValidateAny {
     node: LayoutNode,
     ctx: ValidationDataSources,
     schemaErrors: ISchemaValidationError[],
-  ): FormValidations {
+  ): FrontendValidations {
     return runAllValidations(node, ctx, schemaErrors);
   }
 
