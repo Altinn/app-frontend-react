@@ -9,7 +9,6 @@ import { ErrorReport } from 'src/components/message/ErrorReport';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
-import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
 import { FrontendValidationSource } from 'src/features/validation';
 import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { useCurrentView, useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -23,13 +22,6 @@ export function Form() {
   const nodes = useNodes();
   const page = currentPageId && nodes?.all?.()?.[currentPageId];
   useRedirectToStoredPage();
-
-  const { scrollPosition } = usePageNavigationContext();
-  useEffect(() => {
-    if (currentPageId !== undefined && scrollPosition === undefined) {
-      window.scrollTo({ top: 0 });
-    }
-  }, [currentPageId, scrollPosition]);
 
   useRegisterNodeNavigationHandler((targetNode) => {
     const targetView = targetNode?.top.top.myKey;

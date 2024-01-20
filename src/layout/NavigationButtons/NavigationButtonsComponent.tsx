@@ -39,16 +39,24 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
    * If validation fails the ErrorReport will move the buttons down.
    * This resets the scroll position so that the buttons are in the same place.
    */
-  const resetScrollPosition = async (prevScrollPosition: number | undefined) => {
+  const resetScrollPosition = (prevScrollPosition: number | undefined) => {
     if (prevScrollPosition === undefined) {
       return;
     }
-    window.requestAnimationFrame(() => {
-      const newScrollPosition = getScrollPosition();
-      if (typeof prevScrollPosition === 'number' && typeof newScrollPosition === 'number') {
-        window.scrollBy({ top: newScrollPosition - prevScrollPosition });
+    let attemptsLeft = 10;
+    const check = () => {
+      attemptsLeft--;
+      if (attemptsLeft <= 0) {
+        return;
       }
-    });
+      const newScrollPosition = getScrollPosition();
+      if (newScrollPosition !== undefined && newScrollPosition !== prevScrollPosition) {
+        window.scrollBy({ top: newScrollPosition - prevScrollPosition });
+      } else {
+        requestAnimationFrame(check);
+      }
+    };
+    requestAnimationFrame(check);
   };
 
   const onClickPrevious = async () => {
