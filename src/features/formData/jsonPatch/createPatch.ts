@@ -235,11 +235,27 @@ function compareValues({ prev, next, hasCurrent, current, patch, path }: Compare
     }
     if (deepEqual(current, next)) {
       // Definitely no need to make any changes here, the current model has the target value already.
+      window.CypressLog?.(
+        'Ignoring change reported from backend (current and next are equal)',
+        JSON.stringify({ prev, next, current, path: pointer(path) }, undefined, 2),
+      );
       return;
     }
     if (!isScalarOrMissing(current) || !isScalarOrMissing(next)) {
       // TODO: Investigate these cases and possibly log wantings/notices about them
+      window.CypressLog?.(
+        'Inspect this: Ignoring change reported from backend (considered risky)',
+        JSON.stringify({ prev, next, current, path: pointer(path) }, undefined, 2),
+      );
+      window.CypressSaveLog?.();
+      return;
     }
+
+    window.CypressLog?.(
+      'Inspect this: Ignoring change reported from backend (considered safe)',
+      JSON.stringify({ prev, next, current, path: pointer(path) }, undefined, 2),
+    );
+    window.CypressSaveLog?.();
     // Do not overwrite changes that have been made to the current object since the next object was created
     return;
   }

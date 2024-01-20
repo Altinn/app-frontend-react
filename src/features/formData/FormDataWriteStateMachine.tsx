@@ -4,7 +4,7 @@ import { applyPatch } from 'fast-json-patch';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
-import { applyChanges } from 'src/features/formData/applyChanges';
+import { testApplyChanges } from 'src/features/formData/applyChanges';
 import { convertData } from 'src/features/formData/convertData';
 import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
 import { runLegacyRules } from 'src/features/formData/LegacyRules';
@@ -118,7 +118,7 @@ export interface FDRemoveValueFromList {
 export interface FDSaveFinished {
   patch?: JsonPatch;
   savedData: object;
-  newModel: object | undefined;
+  newDataModel: object;
   validationIssues: BackendValidationIssueGroups | undefined;
 }
 
@@ -151,23 +151,31 @@ function makeActions(
     state.controlState.debounceTimeout = change.debounceTimeout ?? DEFAULT_DEBOUNCE_TIMEOUT;
   }
 
-  function processChanges(state: FormDataContext, { newModel, patch }: Pick<FDSaveFinished, 'newModel' | 'patch'>) {
-    if (newModel) {
-      const oldModel = state.lastSavedData;
-      const ruleResults = runLegacyRules(ruleConnections, oldModel, newModel);
-      if (!deepEqual(oldModel, newModel)) {
-        for (const current of [state.currentData, state.debouncedCurrentData]) {
-          const backendChangesPatch = createPatch({ prev: oldModel, next: newModel, current });
-          applyChanges({ prev: oldModel, next: newModel, changesPatch: patch, backendChangesPatch, applyTo: current });
-          applyPatch(current, backendChangesPatch);
-        }
-        state.lastSavedData = structuredClone(newModel);
+  function processChanges(
+    state: FormDataContext,
+    { newDataModel, patch, savedData }: Pick<FDSaveFinished, 'newDataModel' | 'patch' | 'savedData'>,
+  ) {
+    if (newDataModel) {
+      for (const current of [state.currentData, state.debouncedCurrentData]) {
+        const backendChangesPatch = createPatch({ prev: savedData, next: newDataModel, current });
+        testApplyChanges({
+          prev: savedData,
+          next: newDataModel,
+          changesPatch: patch,
+          backendChangesPatch,
+          applyTo: current,
+        });
+        applyPatch(current, backendChangesPatch);
       }
+      state.lastSavedData = structuredClone(newDataModel);
+      const ruleResults = runLegacyRules(ruleConnections, state.lastSavedData, newDataModel);
       for (const model of [state.currentData, state.debouncedCurrentData, state.lastSavedData]) {
         for (const { path, newValue } of ruleResults) {
           dot.str(path, newValue, model);
         }
       }
+    } else {
+      state.lastSavedData = structuredClone(savedData);
     }
     state.hasUnsavedChanges = !deepEqual(state.currentData, state.lastSavedData);
   }
@@ -212,8 +220,7 @@ function makeActions(
 
     saveFinished: (props) =>
       set((state) => {
-        const { savedData, validationIssues } = props;
-        state.lastSavedData = structuredClone(savedData);
+        const { validationIssues } = props;
         state.controlState.manualSaveRequested = false;
         state.validationIssues = validationIssues;
         processChanges(state, props);
@@ -310,11 +317,11 @@ function makeActions(
       set((state) => {
         state.controlState.lockedBy = lockName;
       }),
-    unlock: (newModel) =>
+    unlock: (newDataModel) =>
       set((state) => {
         state.controlState.lockedBy = undefined;
-        if (newModel) {
-          processChanges(state, { newModel });
+        if (newDataModel) {
+          processChanges(state, { newDataModel, savedData: state.lastSavedData });
         }
       }),
   };

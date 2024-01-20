@@ -102,17 +102,17 @@ describe('Validation', () => {
     cy.get(appFrontend.changeOfName.newFirstName).clear();
     cy.get(appFrontend.changeOfName.newFirstName).type('test');
     cy.get(appFrontend.changeOfName.confirmChangeName).find('input').dsCheck();
-    cy.intercept('GET', '**/validate').as('validateData');
+    cy.navPage('form').should('have.attr', 'aria-current', 'page');
     cy.get(appFrontend.nextButton).scrollIntoView();
     cy.get(appFrontend.nextButton).should('be.inViewport');
     cy.get(appFrontend.nextButton).click();
-    cy.wait('@validateData');
     cy.get(appFrontend.errorReport)
       .should('be.inViewport')
       .should('contain.text', texts.errorReport)
       .should('contain.text', texts.requiredFieldLastName)
       .should('contain.text', texts.requiredFieldDateFrom)
       .should('contain.text', texts.next);
+    cy.navPage('form').should('have.attr', 'aria-current', 'page');
 
     // Make sure all the buttons in the form are now inside errorReport, not outside of it.
     // - 4 of the button roles belong to each of the errors in the report

@@ -18,7 +18,7 @@ before(() => {
 
 afterEach(function () {
   const testName = this.currentTest?.fullTitle();
-  const title = this.currentTest?.title.replace(/\s+/, '-').replace(/[^a-zA-Z\-0-9_]/, '');
+  const title = this.currentTest?.title.replace(/\s+/g, '-').replace(/[^a-zA-Z\-0-9_]/g, '');
   const specBaseName = Cypress.spec.relative.split(/[\\/]/).pop()?.split('.')[0];
   const fileName = `log-${specBaseName}-${title}.txt`;
 

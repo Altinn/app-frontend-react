@@ -68,8 +68,8 @@ const useFormDataSaveMutation = (ctx: FormDataContext) => {
     mutationFn: async (arg: MutationArg) => {
       const { dataModelUrl, next, prev } = arg;
       if (isStateless) {
-        const newModel = await doPostStatelessFormData(dataModelUrl, next);
-        saveFinished({ newModel, savedData: next, validationIssues: undefined });
+        const newDataModel = await doPostStatelessFormData(dataModelUrl, next);
+        saveFinished({ newDataModel, savedData: next, validationIssues: undefined });
       } else {
         const patch = createPatch({ prev, next });
         let result: IDataModelPatchResponse;
@@ -80,19 +80,19 @@ const useFormDataSaveMutation = (ctx: FormDataContext) => {
           });
         } catch (err) {
           if (isAxiosError(err) && err.response?.status === 412) {
+            window.CypressLog?.('Last sent request:', JSON.stringify({ patch, prev, next }, undefined, 2));
             window.CypressLog?.(
-              `Got 412 when saving form data: ${JSON.stringify({ response: err.response.data, patch }, undefined, 2)}`,
+              `Inspect this: Got 412 when saving form data: ${JSON.stringify(
+                { response: err.response.data, patch },
+                undefined,
+                2,
+              )}`,
             );
             window.CypressSaveLog?.();
           }
           throw err;
         }
-        saveFinished({
-          newModel: result.newDataModel,
-          validationIssues: result.validationIssues,
-          savedData: next,
-          patch,
-        });
+        saveFinished({ ...result, patch, savedData: next });
       }
     },
   });
