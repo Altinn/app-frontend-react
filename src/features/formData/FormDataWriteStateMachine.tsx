@@ -113,10 +113,6 @@ export interface FDRemoveValueFromList {
   value: any;
 }
 
-export interface FormDataChanges {
-  newModel: object;
-}
-
 export interface FormDataMethods {
   // Methods used for updating the data model. These methods will update the currentData model, and after
   // the debounce() method is called, the debouncedCurrentData model will be updated as well.
@@ -131,7 +127,7 @@ export interface FormDataMethods {
   debounce: () => void;
   saveFinished: (
     savedData: object,
-    changes: FormDataChanges,
+    newModel: object | undefined,
     validationIssues: BackendValidationIssueGroups | undefined,
   ) => void;
   requestManualSave: (setTo?: boolean) => void;
@@ -150,8 +146,7 @@ function makeActions(
     state.controlState.debounceTimeout = change.debounceTimeout ?? DEFAULT_DEBOUNCE_TIMEOUT;
   }
 
-  function processChanges(state: FormDataContext, changes: FormDataChanges | undefined) {
-    const { newModel } = changes ?? {};
+  function processChanges(state: FormDataContext, newModel: object | undefined) {
     if (newModel) {
       const oldModel = state.lastSavedData;
       const ruleResults = runLegacyRules(ruleConnections, oldModel, newModel);
@@ -210,12 +205,12 @@ function makeActions(
         debounce(state);
       }),
 
-    saveFinished: (savedData, changes, validationIssues) =>
+    saveFinished: (savedData, newModel, validationIssues) =>
       set((state) => {
         state.lastSavedData = structuredClone(savedData);
         state.controlState.manualSaveRequested = false;
         state.validationIssues = validationIssues;
-        processChanges(state, changes);
+        processChanges(state, newModel);
       }),
     setLeafValue: ({ path, newValue, ...rest }) =>
       set((state) => {
@@ -313,7 +308,7 @@ function makeActions(
       set((state) => {
         state.controlState.lockedBy = undefined;
         if (newModel) {
-          processChanges(state, { newModel });
+          processChanges(state, newModel);
         }
       }),
   };
