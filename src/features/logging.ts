@@ -83,3 +83,14 @@ window.logInfo = (...args: any[]) => {
 window.logInfoOnce = (...args: any[]) => {
   postLog('info', args, true);
 };
+
+window.CypressLog = (...args: string[]) => {
+  if (!window.Cypress) {
+    return;
+  }
+  (window as any)._cyLog = (window as any)._cyLog || [];
+  (window as any)._cyLog.push(args.join(' '));
+};
+window.CypressSaveLog = () => {
+  (window as any)._cyLogSave = true;
+};

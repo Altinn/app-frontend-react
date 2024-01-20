@@ -278,7 +278,7 @@ describe('Multipart save', () => {
         awaitingMatch,
       };
 
-      cy.writeFile(`test/redux-history/${fileName}`, JSON.stringify(debugContent, null, 2));
+      cy.writeFile(`test/logs/${fileName}`, JSON.stringify(debugContent, null, 2));
     }
   });
 });

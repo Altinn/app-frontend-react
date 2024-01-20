@@ -4,6 +4,7 @@ import { applyPatch } from 'fast-json-patch';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
+import { applyChanges } from 'src/features/formData/applyChanges';
 import { convertData } from 'src/features/formData/convertData';
 import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
 import { runLegacyRules } from 'src/features/formData/LegacyRules';
@@ -12,6 +13,7 @@ import type { SchemaLookupTool } from 'src/features/datamodel/DataModelSchemaPro
 import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { FDLeafValue } from 'src/features/formData/FormDataWrite';
 import type { FormDataWriteProxies, Proxy } from 'src/features/formData/FormDataWriteProxies';
+import type { JsonPatch } from 'src/features/formData/jsonPatch/types';
 import type { BackendValidationIssueGroups } from 'src/features/validation';
 
 export interface FormDataState {
@@ -113,6 +115,13 @@ export interface FDRemoveValueFromList {
   value: any;
 }
 
+export interface FDSaveFinished {
+  patch?: JsonPatch;
+  savedData: object;
+  newModel: object | undefined;
+  validationIssues: BackendValidationIssueGroups | undefined;
+}
+
 export interface FormDataMethods {
   // Methods used for updating the data model. These methods will update the currentData model, and after
   // the debounce() method is called, the debouncedCurrentData model will be updated as well.
@@ -125,11 +134,7 @@ export interface FormDataMethods {
 
   // Internal utility methods
   debounce: () => void;
-  saveFinished: (
-    savedData: object,
-    newModel: object | undefined,
-    validationIssues: BackendValidationIssueGroups | undefined,
-  ) => void;
+  saveFinished: (props: FDSaveFinished) => void;
   requestManualSave: (setTo?: boolean) => void;
   lock: (lockName: string) => void;
   unlock: (newModel?: object) => void;
@@ -146,15 +151,15 @@ function makeActions(
     state.controlState.debounceTimeout = change.debounceTimeout ?? DEFAULT_DEBOUNCE_TIMEOUT;
   }
 
-  function processChanges(state: FormDataContext, newModel: object | undefined) {
+  function processChanges(state: FormDataContext, { newModel, patch }: Pick<FDSaveFinished, 'newModel' | 'patch'>) {
     if (newModel) {
       const oldModel = state.lastSavedData;
       const ruleResults = runLegacyRules(ruleConnections, oldModel, newModel);
       if (!deepEqual(oldModel, newModel)) {
         for (const current of [state.currentData, state.debouncedCurrentData]) {
-          const patch = createPatch({ prev: oldModel, next: newModel, current });
-          // applyChanges({ prev: oldModel, next: newModel, patch, applyTo: current });
-          applyPatch(current, patch);
+          const backendChangesPatch = createPatch({ prev: oldModel, next: newModel, current });
+          applyChanges({ prev: oldModel, next: newModel, changesPatch: patch, backendChangesPatch, applyTo: current });
+          applyPatch(current, backendChangesPatch);
         }
         state.lastSavedData = structuredClone(newModel);
       }
@@ -205,12 +210,13 @@ function makeActions(
         debounce(state);
       }),
 
-    saveFinished: (savedData, newModel, validationIssues) =>
+    saveFinished: (props) =>
       set((state) => {
+        const { savedData, validationIssues } = props;
         state.lastSavedData = structuredClone(savedData);
         state.controlState.manualSaveRequested = false;
         state.validationIssues = validationIssues;
-        processChanges(state, newModel);
+        processChanges(state, props);
       }),
     setLeafValue: ({ path, newValue, ...rest }) =>
       set((state) => {
@@ -308,7 +314,7 @@ function makeActions(
       set((state) => {
         state.controlState.lockedBy = undefined;
         if (newModel) {
-          processChanges(state, newModel);
+          processChanges(state, { newModel });
         }
       }),
   };

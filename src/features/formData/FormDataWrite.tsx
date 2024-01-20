@@ -68,26 +68,31 @@ const useFormDataSaveMutation = (ctx: FormDataContext) => {
     mutationFn: async (arg: MutationArg) => {
       const { dataModelUrl, next, prev } = arg;
       if (isStateless) {
-        try {
-          const newModel = await doPostStatelessFormData(dataModelUrl, next);
-          saveFinished(next, { newModel }, undefined);
-        } catch (error) {
-          if (isAxiosError(error) && error.response?.status === 303) {
-            // Fallback to old behavior if the server responds with 303 when there are changes. We handle these just
-            // like we handle 200 responses.
-            const data = error.response.data as IDataModelPatchResponse;
-            saveFinished(next, { newModel: data }, undefined);
-            return;
-          }
-          throw error;
-        }
+        const newModel = await doPostStatelessFormData(dataModelUrl, next);
+        saveFinished({ newModel, savedData: next, validationIssues: undefined });
       } else {
         const patch = createPatch({ prev, next });
-        const result = await doPatchFormData(dataModelUrl, {
+        let result: IDataModelPatchResponse;
+        try {
+          result = await doPatchFormData(dataModelUrl, {
+            patch,
+            ignoredValidators: [],
+          });
+        } catch (err) {
+          if (isAxiosError(err) && err.response?.status === 412) {
+            window.CypressLog?.(
+              `Got 412 when saving form data: ${JSON.stringify({ response: err.response.data, patch }, undefined, 2)}`,
+            );
+            window.CypressSaveLog?.();
+          }
+          throw err;
+        }
+        saveFinished({
+          newModel: result.newDataModel,
+          validationIssues: result.validationIssues,
+          savedData: next,
           patch,
-          ignoredValidators: [],
         });
-        saveFinished(next, { newModel: result.newDataModel }, result.validationIssues);
       }
     },
   });
