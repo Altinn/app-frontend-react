@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
@@ -120,7 +120,7 @@ function useRepeatingGroupState(node: BaseLayoutNode<CompRepeatingGroupInternal>
     editingIndex,
   } = useAsRefObject(pureStates);
   const nodeRef = useAsRef(node);
-  const waitForRows = useWaitForState(nodeRef);
+  const waitForNode = useWaitForState(nodeRef);
 
   const validateOnSaveRow = nodeRef.current.item.validateOnSaveRow;
 
@@ -208,18 +208,21 @@ function useRepeatingGroupState(node: BaseLayoutNode<CompRepeatingGroupInternal>
     [editingAll, editingIndex, editingNone],
   );
 
+  const addingRowRef = useRef<number | false>(false);
   const addRow = useCallback(async () => {
-    if (binding.current && !(await maybeValidateRow())) {
+    if (binding.current && !(await maybeValidateRow()) && addingRowRef.current === false) {
       const nextIndex = nodeRef.current.item.rows.length;
       const nextLength = nextIndex + 1;
+      addingRowRef.current = nextIndex;
       appendToList({
         path: binding.current,
         newValue: {},
       });
-      await waitForRows((node) => node.item.rows.length === nextLength);
+      await waitForNode((node) => node.item.rows.length === nextLength);
       await openForEditing(nextIndex);
+      addingRowRef.current = false;
     }
-  }, [appendToList, binding, maybeValidateRow, nodeRef, openForEditing, waitForRows]);
+  }, [appendToList, binding, maybeValidateRow, nodeRef, openForEditing, waitForNode]);
 
   const deleteRow = useCallback(
     async (index: number) => {
