@@ -154,7 +154,10 @@ const common = {
             'Dot notation location for the answers. This must point to a property of the objects inside the ' +
               'question array. The answer for each question will be stored in the answer property of the ' +
               'corresponding question object.',
-          ),
+          )
+          .optional({
+            onlyIn: Variant.Internal,
+          }),
       ),
       new CG.prop(
         'questions',

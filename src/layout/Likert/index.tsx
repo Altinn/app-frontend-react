@@ -79,8 +79,7 @@ export class Likert extends LikertDef implements ValidateAny {
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'Likert'>): string[] {
     const [questionsErr, questions] = this.validateDataModelBindingsAny(ctx, 'questions', ['array']);
-    const [answerErr, answer] = this.validateDataModelBindingsAny(ctx, 'answer', ['string', 'number', 'boolean']);
-    const errors: string[] = [...(questionsErr || []), ...(answerErr || [])];
+    const errors: string[] = [...(questionsErr || [])];
 
     if (
       questions &&
@@ -90,17 +89,6 @@ export class Likert extends LikertDef implements ValidateAny {
         questions.items.type !== 'object')
     ) {
       errors.push(`questions-datamodellbindingen peker mot en ukjent type i datamodellen (forventet type: object)`);
-    }
-
-    const bindings = ctx.node.item.dataModelBindings;
-    if (
-      answer &&
-      bindings &&
-      bindings.answer &&
-      bindings.questions &&
-      bindings.answer.startsWith(`${bindings.questions}.`)
-    ) {
-      errors.push(`answer-datamodellbindingen må peke på en egenskap inne i questions-datamodellbindingen`);
     }
 
     return errors;

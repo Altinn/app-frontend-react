@@ -85,6 +85,12 @@ export class LikertHierarchyGenerator extends ComponentHierarchyGenerator<'Liker
         });
       }
       me.item.rows = rows;
+
+      // At this point we no longer need the 'answer' data model binding, so we remove it. Leaving it here would confuse
+      // later validation, because strictly speaking the binding is not valid when it does not point to indexes in the
+      // questions group.
+      delete me.item.dataModelBindings.answer;
+
       return me;
     };
   }
