@@ -21,9 +21,12 @@ export type ValidationSeverity = 'error' | 'warning' | 'info' | 'success';
 
 export enum ValidationIssueSources {
   File = 'File',
-  ModelState = 'ModelState',
+  ModelState = 'DataAnnotations',
   Required = 'Required',
   Expression = 'Expression',
+
+  // TODO: Custom does not really seem to be used on the backend?
+  // Every registered validator sets their own unique source/group.
   Custom = 'Custom',
 }
 
