@@ -500,4 +500,14 @@ describe('createPatch', () => {
       ],
     });
   });
+
+  describe('uploaded file on the client mapped to an array should not be overwritten by backend', () => {
+    testPatch({
+      prev: { group: [{ fileIds: [] }] },
+      next: { group: [{ fileIds: [] }] },
+      current: { group: [{ fileIds: ['fileId1'] }] },
+      final: { group: [{ fileIds: ['fileId1'] }] },
+      expectedPatch: [],
+    });
+  });
 });

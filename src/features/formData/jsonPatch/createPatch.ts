@@ -138,9 +138,11 @@ function compareArrays({ prev, next, current, hasCurrent, patch, path }: Compare
   const realNext = [...next];
   if (hasCurrent && Array.isArray(current)) {
     if (current.length > realPrev.length) {
-      // Add empty objects in realPrev to make sure isSimilarEnough runs on every row, and that we create a patch
-      // that will update missing/outdated values in current array items even if we didn't have the array item before.
+      // Add empty objects in realPrev + realNext to make sure isSimilarEnough runs on every row, and that we create
+      // a patch that will update missing/outdated values in current array items even if we didn't have
+      // the array item(s) before.
       realPrev.push(...new Array(current.length - realPrev.length).fill({}));
+      realNext.push(...new Array(current.length - realNext.length).fill({}));
     } else if (current.length < realPrev.length) {
       // Run a diff on current and prev to figure out which row(s) we deleted locally after saving. That row should not
       // be considered when producing the patch, as there is no point in trying to update a row that has been deleted.
