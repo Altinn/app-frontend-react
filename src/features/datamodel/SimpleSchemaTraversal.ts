@@ -219,14 +219,16 @@ class SimpleSchemaTraversal {
     return current;
   }
 
-  public getAlternatives(item = this.current): JSONSchema7[] {
-    const alternatives = [this.resolveRef(item)];
+  public getAlternatives(_item = this.current): JSONSchema7[] {
+    const item = this.resolveRef(_item);
+    const alternatives = [item];
     const others = [item.allOf, item.anyOf, item.oneOf].map((list) => list?.map((i) => this.resolveRef(i)));
     for (const other of others) {
-      for (const _item of other || []) {
-        const item = this.resolveRef(_item);
-        if (typeof item === 'object') {
-          alternatives.push(...this.getAlternatives(item));
+      for (const _innerItem of other || []) {
+        const innerItem = this.resolveRef(_innerItem);
+        if (typeof innerItem === 'object') {
+          const innerAlternatives = this.getAlternatives(innerItem);
+          alternatives.push(...innerAlternatives);
         }
       }
     }
