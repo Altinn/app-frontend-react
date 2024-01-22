@@ -175,7 +175,7 @@ describe('Form', () => {
     // Unmapped errors are not shown until submit is clicked
     await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
-    expect(screen.getByTestId('ErrorReport')).toBeInTheDocument();
+    await screen.findByTestId('ErrorReport');
   });
 
   it('should separate NavigationButtons and display them inside ErrorReport', async () => {

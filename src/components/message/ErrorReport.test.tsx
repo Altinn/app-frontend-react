@@ -66,11 +66,10 @@ describe('ErrorReport', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
-    expect(screen.getByTestId('ErrorReport')).toBeInTheDocument();
+    await screen.findByTestId('ErrorReport');
 
     // Unmapped errors should not be clickable
-    const errorNode = screen.getByText('some unmapped error');
-    expect(errorNode).toBeInTheDocument();
+    const errorNode = await screen.findByText('some unmapped error');
     // eslint-disable-next-line testing-library/no-node-access
     expect(errorNode.parentElement?.tagName).toEqual('LI');
   });
@@ -86,12 +85,11 @@ describe('ErrorReport', () => {
     ]);
 
     await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
-
-    expect(screen.getByTestId('ErrorReport')).toBeInTheDocument();
+    await screen.findByTestId('ErrorReport');
 
     // mapped errors not bound to any component should not be clickable
-    const errorNode = screen.getByText('some unbound mapped error');
-    expect(errorNode).toBeInTheDocument();
+    const errorNode = await screen.findByText('some unbound mapped error');
+
     // eslint-disable-next-line testing-library/no-node-access
     expect(errorNode.parentElement?.tagName).toEqual('LI');
   });
@@ -108,10 +106,9 @@ describe('ErrorReport', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
-    expect(screen.getByTestId('ErrorReport')).toBeInTheDocument();
+    await screen.findByTestId('ErrorReport');
+    const errorNode = await screen.findByText('some mapped error');
 
-    const errorNode = screen.getByText('some mapped error');
-    expect(errorNode).toBeInTheDocument();
     // eslint-disable-next-line testing-library/no-node-access
     expect(errorNode.parentElement?.tagName).toEqual('BUTTON');
     // eslint-disable-next-line testing-library/no-node-access
