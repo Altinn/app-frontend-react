@@ -19,15 +19,11 @@ export enum FrontendValidationSource {
 
 export type ValidationSeverity = 'error' | 'warning' | 'info' | 'success';
 
-export enum ValidationIssueSources {
+export enum BuiltInValidationIssueSources {
   File = 'File',
   ModelState = 'DataAnnotations',
   Required = 'Required',
   Expression = 'Expression',
-
-  // TODO: Custom does not really seem to be used on the backend?
-  // Every registered validator sets their own unique source/group.
-  Custom = 'Custom',
 }
 
 export enum BackendValidationSeverity {
@@ -196,7 +192,7 @@ export interface BackendValidationIssue {
   field?: string;
   dataElementId?: string;
   severity: BackendValidationSeverity;
-  source: ValidationIssueSources;
+  source: string;
   customTextKey?: string;
   customTextParams?: ValidLangParam[]; //TODO(Validation): Probably broken for text resources currently
   showImmediately?: boolean; // Not made available

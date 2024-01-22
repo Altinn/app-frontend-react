@@ -4,11 +4,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { getFormLayoutRepeatingGroupMock } from 'src/__mocks__/getFormLayoutGroupMock';
-import {
-  type BackendValidationIssue,
-  BackendValidationSeverity,
-  ValidationIssueSources,
-} from 'src/features/validation';
+import { type BackendValidationIssue, BackendValidationSeverity } from 'src/features/validation';
 import { RepeatingGroupContainer } from 'src/layout/RepeatingGroup/RepeatingGroupContainer';
 import { RepeatingGroupProvider, useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
@@ -214,7 +210,7 @@ describe('RepeatingGroupContainer', () => {
           customTextKey: 'Feltet er feil',
           field: 'Group[0].prop1',
           severity: BackendValidationSeverity.Error,
-          source: ValidationIssueSources.Custom,
+          source: 'custom',
         } as BackendValidationIssue,
       ],
     });
@@ -241,7 +237,7 @@ describe('RepeatingGroupContainer', () => {
           customTextKey: 'Feltet er feil',
           field: 'Group[0].prop1',
           severity: BackendValidationSeverity.Error,
-          source: ValidationIssueSources.Custom,
+          source: 'custom',
         } as BackendValidationIssue,
       ],
     });
