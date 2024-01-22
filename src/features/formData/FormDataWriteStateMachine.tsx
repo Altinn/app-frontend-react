@@ -168,8 +168,11 @@ function makeActions(
         applyPatch(current, backendChangesPatch);
       }
       state.lastSavedData = structuredClone(newDataModel);
-      const ruleResults = runLegacyRules(ruleConnections, state.lastSavedData, newDataModel);
-      for (const model of [state.currentData, state.debouncedCurrentData, state.lastSavedData]) {
+
+      // Run rules again, against current data. Now that we have updates from the backend, some rules may
+      // have caused data to change.
+      const ruleResults = runLegacyRules(ruleConnections, savedData, state.currentData);
+      for (const model of [state.currentData, state.debouncedCurrentData]) {
         for (const { path, newValue } of ruleResults) {
           dot.str(path, newValue, model);
         }
