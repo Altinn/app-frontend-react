@@ -319,7 +319,9 @@ function MinimalProviders({ children, queries, queryClient, Router = DefaultRout
       {...queries}
       queryClient={queryClient}
     >
-      <Router>{children}</Router>
+      <LangToolsStoreProvider>
+        <Router>{children}</Router>
+      </LangToolsStoreProvider>
     </AppQueriesProvider>
   );
 }

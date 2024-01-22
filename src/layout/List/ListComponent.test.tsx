@@ -142,7 +142,7 @@ describe('ListComponent', () => {
     await waitFor(() => expect(screen.getAllByRole('radio')).toHaveLength(6));
     expect(screen.queryByRole('radio', { checked: true })).not.toBeInTheDocument();
 
-    expect(screen.getByTestId('render-count')).toHaveTextContent('2');
+    expect(screen.getByTestId('render-count')).toHaveTextContent('1');
 
     // Select the second row
     await user.click(screen.getAllByRole('radio')[1]);
@@ -166,7 +166,7 @@ describe('ListComponent', () => {
         { path: 'CountryHighestMountain', newValue: 170 },
       ],
     });
-    expect(screen.getByTestId('render-count')).toHaveTextContent('4');
+    expect(screen.getByTestId('render-count')).toHaveTextContent('5');
 
     // Wait until the debounce timeout has definitely passed, then expect the form data to be saved. It should only
     // be saved once (even though we changed the value twice) because the debouncing happens globally.
