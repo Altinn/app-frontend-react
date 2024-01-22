@@ -6,5 +6,10 @@ export const currentSelectedPartyIdSelector = (state: IRuntimeState) => state.pa
 export const layoutSetsSelector = (state: IRuntimeState) => state.formLayout.layoutsets;
 export const selectAllOrgs = (state: IRuntimeState) => state.organisationMetaData.allOrgs;
 export const selectOrg = (state: IRuntimeState) => state.applicationMetadata.applicationMetadata?.org;
-export const selectAppLogoSize = (state: IRuntimeState) =>
-  state.applicationMetadata.applicationMetadata?.logo?.size ?? 'small';
+export const selectAppLogoSize = (state: IRuntimeState) => {
+  const size = state.applicationMetadata.applicationMetadata?.logo?.size;
+  if (size !== 'small' && size !== 'medium' && size !== 'large') {
+    return 'small';
+  }
+  return size;
+};
