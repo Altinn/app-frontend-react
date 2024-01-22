@@ -2,9 +2,6 @@ import texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { Common } from 'test/e2e/pageobjects/common';
 
-import { BackendValidationSeverity } from 'src/features/validation';
-import type { BackendValidationIssue } from 'src/features/validation';
-
 const appFrontend = new AppFrontend();
 const mui = new Common();
 
@@ -244,17 +241,6 @@ describe('Validation', () => {
     cy.get(appFrontend.errorReport).should('contain.text', 'task validation');
   });
 
-  function injectErrorOnSendersName() {
-    cy.intercept('GET', '**/validate', [
-      {
-        code: 'Tullevalidering',
-        description: 'Tullevalidering',
-        field: 'Endringsmelding-grp-9786.Avgiver-grp-9787.OppgavegiverNavn-datadef-68.value',
-        severity: BackendValidationSeverity.Error,
-        source: 'Custom',
-      },
-    ] as BackendValidationIssue[]);
-  }
   it('Validations are removed for hidden fields', () => {
     // Init and add data to group
     cy.goto('group');
@@ -276,23 +262,29 @@ describe('Validation', () => {
     cy.get(appFrontend.fieldValidation('comments-0-0')).should('not.exist');
     cy.get(appFrontend.errorReport).should('not.exist');
 
-    // Setting single field validation to trigger on the 'sendersName' component
     cy.changeLayout((component) => {
+      if (component.type === 'NavigationButtons') {
+        component.validateOnNext = { page: 'current', show: ['All'] };
+      }
       if (component.id === 'sendersName' && component.type === 'Input') {
         // Make sure changing this field triggers single field validation
         component.showValidations = ['AllExceptRequired'];
       }
     });
 
-    injectErrorOnSendersName();
-
     // Verify that validation message is shown, but also make sure only one error message is shown
     // (there is a hidden layout that also binds to the same location, and a bug caused it to show
     // up twice because of that component on the hidden layout)
     cy.gotoNavPage('hide');
-    cy.get(appFrontend.group.sendersName).type('hello world');
+    cy.get(appFrontend.group.sendersName).type('tull og tøys');
+
+    // Try to click next to observe the error report
+    cy.get(appFrontend.nextButton).click();
     cy.get(appFrontend.errorReport).should('contain.text', 'Tullevalidering');
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 1);
+
+    // The navigation should be stopped, so we should still be on the 'hide' page
+    cy.navPage('hide').should('have.attr', 'aria-current', 'page');
   });
 
   it('List component: validation messages should only show up once', () => {
@@ -593,10 +585,13 @@ describe('Validation', () => {
         c.hidden = ['equals', ['component', 'comments'], 'hideSendersName'];
       }
     });
-    injectErrorOnSendersName();
 
     cy.goto('group');
     cy.get(appFrontend.navMenuButtons).should('have.length', 4);
+
+    cy.gotoNavPage('hide');
+    cy.get(appFrontend.group.sendersName).type('tull og tøys'); // Causes validation error
+
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     cy.addItemToGroup(2, 3, 'hideSendersName');
@@ -645,10 +640,12 @@ describe('Validation', () => {
       });
     });
 
-    injectErrorOnSendersName();
-
     cy.goto('group');
     cy.get(appFrontend.navMenuButtons).should('have.length', 4);
+
+    cy.gotoNavPage('hide');
+    cy.get(appFrontend.group.sendersName).type('tull og tøys'); // Causes validation error
+
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     cy.addItemToGroup(1, 11, 'whatever');
@@ -671,10 +668,13 @@ describe('Validation', () => {
         layoutSet.hide.data.hidden = ['equals', ['component', 'comments'], 'hidePage'];
       },
     );
-    injectErrorOnSendersName();
 
     cy.goto('group');
     cy.get(appFrontend.navMenuButtons).should('have.length', 4);
+
+    cy.gotoNavPage('hide');
+    cy.get(appFrontend.group.sendersName).type('tull og tøys'); // Causes validation error
+
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     cy.addItemToGroup(2, 3, 'hidePage');
