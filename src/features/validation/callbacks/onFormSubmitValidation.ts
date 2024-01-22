@@ -10,7 +10,9 @@ import {
   shouldValidateNode,
 } from 'src/features/validation/utils';
 import { useValidationContext } from 'src/features/validation/validationContext';
+import { useAsRef } from 'src/hooks/useAsRef';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
+import { useWaitForState } from 'src/hooks/useWaitForState';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 /**
@@ -25,6 +27,9 @@ export function useOnFormSubmitValidation() {
   const state = useValidationContext().state;
   const validating = useValidationContext().validating;
   const setShowAllErrors = useValidationContext().setShowAllErrors;
+  const lastBackendValidations = useValidationContext().backendValidationsProcessedLast;
+  const lastBackendValidationsRef = useAsRef(lastBackendValidations);
+  const waitForBackendValidations = useWaitForState(lastBackendValidationsRef);
 
   /* Ensures the callback will have the latest state */
   const callback = useEffectEvent((layoutPages: LayoutPages): boolean => {
@@ -73,9 +78,10 @@ export function useOnFormSubmitValidation() {
 
   return useCallback(
     async (layoutPages: LayoutPages) => {
-      await validating();
+      const localWait = await validating();
+      await waitForBackendValidations(localWait);
       return callback(layoutPages);
     },
-    [callback, validating],
+    [callback, validating, waitForBackendValidations],
   );
 }

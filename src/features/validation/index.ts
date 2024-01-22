@@ -60,13 +60,14 @@ export type ValidationCategory = (typeof ValidationMask)[ValidationCategoryKey] 
 
 export type ValidationContext = {
   state: ValidationState;
-  validating: () => Promise<void>;
+  validating: () => Promise<(lastBackendValidations: BackendValidationIssueGroups | undefined) => boolean>;
   visibility: Visibility;
   setNodeVisibility: (nodes: LayoutNode[], newVisibility: number, rowIndex?: number) => void;
   showAllErrors: boolean;
   setShowAllErrors: (showAllErrors: boolean) => void;
   setAttachmentVisibility: (attachmentId: string, node: LayoutNode, newVisibility: number) => void;
   removeRowVisibilityOnDelete: (node: LayoutNode<'RepeatingGroup'>, rowIndex: number) => void;
+  backendValidationsProcessedLast: BackendValidationIssueGroups | undefined;
 };
 
 export type ValidationState = {

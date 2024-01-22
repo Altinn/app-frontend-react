@@ -36,7 +36,7 @@ import {
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { useWaitForState } from 'src/hooks/useWaitForState';
-import type { FrontendValidations, ValidationContext } from 'src/features/validation';
+import type { BackendValidationIssueGroups, FrontendValidations, ValidationContext } from 'src/features/validation';
 import type { Visibility } from 'src/features/validation/visibility';
 import type { CompRepeatingGroupInternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -137,6 +137,10 @@ export function ValidationContext({ children }) {
     // Wait until we've saved changed to backend, and we've processed the backend validations we got from that save
     const validationsFromSave = await waitForSave();
     await waitForBackendValidations((processedLast) => processedLast === validationsFromSave);
+
+    // At last, return a function to the caller that can be used to check if their local state is up-to-date
+    return (lastBackendValidations: BackendValidationIssueGroups | undefined) =>
+      lastBackendValidations === validationsFromSave;
   }, [waitForAttachments, waitForBackendValidations, waitForSave]);
 
   const reduceNodeVisibility = useEffectEvent((nodes: LayoutNode[]) => {
@@ -183,10 +187,10 @@ export function ValidationContext({ children }) {
   useEffect(() => {
     if (showAllErrors) {
       const backendMask = getVisibilityMask(['Backend', 'CustomBackend']);
-      const hasFieldErors =
+      const hasFieldErrors =
         Object.values(validations.fields).flatMap((field) => selectValidations(field, backendMask, 'error')).length > 0;
 
-      if (!hasFieldErors && !hasValidationErrors(validations.task)) {
+      if (!hasFieldErrors && !hasValidationErrors(validations.task)) {
         setShowAllErrors(false);
       }
     }
@@ -201,6 +205,7 @@ export function ValidationContext({ children }) {
     setNodeVisibility,
     setAttachmentVisibility,
     removeRowVisibilityOnDelete,
+    backendValidationsProcessedLast,
   };
 
   return <Provider value={out}>{children}</Provider>;

@@ -246,7 +246,7 @@ const useWaitForSave = () => {
   const waitFor = useWaitForState<BackendValidationIssueGroups | undefined, FromRef<typeof ref>>(ref);
 
   return useCallback(
-    (requestManualSave = false): Promise<BackendValidationIssueGroups | undefined> => {
+    async (requestManualSave = false): Promise<BackendValidationIssueGroups | undefined> => {
       if (url === ContextNotProvided) {
         return Promise.resolve(undefined);
       }
@@ -255,7 +255,7 @@ const useWaitForSave = () => {
         requestSave();
       }
 
-      return waitFor((state, setReturnValue) => {
+      return await waitFor((state, setReturnValue) => {
         if (state === ContextNotProvided) {
           setReturnValue(undefined);
           return true;

@@ -67,10 +67,13 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
     maybeSaveOnPageChange();
 
     const prevScrollPosition = getScrollPosition();
-    if (validateOnPrevious && (await onPageNavigationValidation(node.top, validateOnPrevious))) {
-      // Block navigation if validation fails
-      resetScrollPosition(prevScrollPosition);
-      return;
+    if (validateOnPrevious) {
+      const hasError = await onPageNavigationValidation(node.top, validateOnPrevious);
+      if (hasError) {
+        // Block navigation if validation fails
+        resetScrollPosition(prevScrollPosition);
+        return;
+      }
     }
 
     navigateToPage(previous, { skipAutoSave: true });
@@ -85,10 +88,13 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
     maybeSaveOnPageChange();
 
     const prevScrollPosition = getScrollPosition();
-    if (validateOnNext && (await onPageNavigationValidation(node.top, validateOnNext)) && !returnToView) {
-      // Block navigation if validation fails, unless returnToView is set (Back to summary)
-      resetScrollPosition(prevScrollPosition);
-      return;
+    if (validateOnNext && !returnToView) {
+      const hasErrors = await onPageNavigationValidation(node.top, validateOnNext);
+      if (hasErrors) {
+        // Block navigation if validation fails, unless returnToView is set (Back to summary)
+        resetScrollPosition(prevScrollPosition);
+        return;
+      }
     }
 
     setReturnToView(undefined);
