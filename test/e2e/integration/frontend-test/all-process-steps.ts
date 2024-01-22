@@ -201,7 +201,7 @@ function testInstanceData() {
         if (dataElement.contentType === 'application/xml') {
           const dataModelUrlParsed = new URL(dataElement.selfLinks!.apps);
           cy.request({ url: dataModelUrlParsed.pathname }).then((response) => {
-            const dataModel = replaceUuids(response.body);
+            const dataModel = replaceVariableData(response.body);
 
             expect(dataModel).to.deep.equal(knownDataModels[dataElement.dataType]);
           });
@@ -215,15 +215,25 @@ function isUuid(value: string) {
   return value.match(/^[a-f\d]{8}(-[a-f\d]{4}){4}[a-f\d]{8}$/i);
 }
 
-function replaceUuids(input: any) {
+const regexDate1 = /^\d{4}-\d{2}-\d{2}$/;
+const regexDate2 = /^\d{2}\.\d{2}\.\d{4}$/;
+function replaceVariableData(input: any) {
   if (typeof input === 'string' && isUuid(input)) {
     return 'ANY_UUID';
   }
+  if (typeof input === 'string' && (input.match(regexDate1) || input.match(regexDate2))) {
+    // Replaces dates (YYYY-MM-DD or DD.MM.YYYY)
+    return 'ANY_DATE';
+  }
+  if (typeof input === 'string' && input.includes('date=')) {
+    // Replaces dates in the KommunerMetadata field
+    return input.replace(/date=[^,]+/, 'date=ANY_DATE');
+  }
   if (Array.isArray(input)) {
-    return input.map((value) => replaceUuids(value));
+    return input.map((value) => replaceVariableData(value));
   }
   if (typeof input === 'object' && input !== null) {
-    return Object.fromEntries(Object.entries(input).map(([key, value]) => [key, replaceUuids(value)]));
+    return Object.fromEntries(Object.entries(input).map(([key, value]) => [key, replaceVariableData(value)]));
   }
   return input;
 }
@@ -256,7 +266,7 @@ const knownDataModels: { [key: string]: any } = {
         'SignererEkstraEpost-datadef-34749': null,
         'SignererEkstraMobiltelefonsnummer-datadef-34750': null,
         'SignererEkstraReferanseAltinn-datadef-34751': { orid: 34751, value: 'altinn' },
-        'SignererEkstraArkivDato-datadef-34752': { orid: 34752, value: '2024-01-21' },
+        'SignererEkstraArkivDato-datadef-34752': { orid: 34752, value: 'ANY_DATE' },
         'SignererEkstraTidspunkt-datadef-34753': null,
         'SignererEkstraAksept-datadef-34754': null,
         'SignererEkstraMalform-datadef-34895': null,
@@ -320,7 +330,7 @@ const knownDataModels: { [key: string]: any } = {
       Postnr: null,
       Poststed: null,
       Kommune: null,
-      KommunerMetadata: 'language=nb,id=131,variant=,date=21.01.2024,level=,parentCode=',
+      KommunerMetadata: 'language=nb,id=131,variant=,date=ANY_DATE,level=,parentCode=',
     },
     GridData: {
       TotalGjeld: 1000000,
