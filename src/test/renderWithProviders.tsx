@@ -20,6 +20,7 @@ import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
 import { getProfileMock } from 'src/__mocks__/getProfileMock';
 import { getTextResourcesMock } from 'src/__mocks__/getTextResourcesMock';
 import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
+import { RenderStart } from 'src/core/ui/RenderStart';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { FooterLayoutProvider } from 'src/features/footer/FooterLayoutProvider';
@@ -30,6 +31,7 @@ import { GlobalFormDataReadersProvider } from 'src/features/formData/FormDataRea
 import { FormDataWriteProxyProvider } from 'src/features/formData/FormDataWriteProxies';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
+import { LangToolsStoreProvider } from 'src/features/language/LangToolsStore';
 import { LanguageProvider } from 'src/features/language/LanguageProvider';
 import { TextResourcesProvider } from 'src/features/language/textResources/TextResourcesProvider';
 import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
@@ -262,33 +264,52 @@ function DefaultProviders({ children, queries, queryClient, Router = DefaultRout
       queryClient={queryClient}
     >
       <LanguageProvider>
-        <MuiThemeProvider theme={theme}>
-          <PageNavigationProvider>
-            <Router>
-              <ApplicationMetadataProvider>
-                <GlobalFormDataReadersProvider>
-                  <OrgsProvider>
-                    <ApplicationSettingsProvider>
-                      <LayoutSetsProvider>
-                        <ProfileProvider>
-                          <PartyProvider>
-                            <TextResourcesProvider>
-                              <FooterLayoutProvider>
-                                <InstantiationProvider>{children}</InstantiationProvider>
-                              </FooterLayoutProvider>
-                            </TextResourcesProvider>
-                          </PartyProvider>
-                        </ProfileProvider>
-                      </LayoutSetsProvider>
-                    </ApplicationSettingsProvider>
-                  </OrgsProvider>
-                </GlobalFormDataReadersProvider>
-              </ApplicationMetadataProvider>
-            </Router>
-          </PageNavigationProvider>
-        </MuiThemeProvider>
+        <LangToolsStoreProvider>
+          <MuiThemeProvider theme={theme}>
+            <PageNavigationProvider>
+              <Router>
+                <ApplicationMetadataProvider>
+                  <GlobalFormDataReadersProvider>
+                    <OrgsProvider>
+                      <ApplicationSettingsProvider>
+                        <LayoutSetsProvider>
+                          <ProfileProvider>
+                            <PartyProvider>
+                              <TextResourcesProvider>
+                                <FooterLayoutProvider>
+                                  <InstantiationProvider>{children}</InstantiationProvider>
+                                </FooterLayoutProvider>
+                              </TextResourcesProvider>
+                            </PartyProvider>
+                          </ProfileProvider>
+                        </LayoutSetsProvider>
+                      </ApplicationSettingsProvider>
+                    </OrgsProvider>
+                  </GlobalFormDataReadersProvider>
+                </ApplicationMetadataProvider>
+              </Router>
+            </PageNavigationProvider>
+          </MuiThemeProvider>
+        </LangToolsStoreProvider>
       </LanguageProvider>
     </AppQueriesProvider>
+  );
+}
+
+interface InstanceProvidersProps extends PropsWithChildren {
+  formDataProxies: FormDataWriteProxies;
+  waitForAllNodes: boolean;
+}
+
+function InstanceFormAndLayoutProviders({ children, formDataProxies, waitForAllNodes }: InstanceProvidersProps) {
+  return (
+    <InstanceProvider>
+      <FormDataWriteProxyProvider value={formDataProxies}>
+        <FormProvider>
+          <WaitForNodes waitForAllNodes={waitForAllNodes}>{children}</WaitForNodes>
+        </FormProvider>
+      </FormDataWriteProxyProvider>
+    </InstanceProvider>
   );
 }
 
@@ -387,7 +408,12 @@ const renderBase = async ({
           ...mutationMocks,
         }}
       >
-        {children}
+        <RenderStart
+          devTools={false}
+          dataModelFetcher={false}
+        >
+          {children}
+        </RenderStart>
       </Providers>
     </StrictMode>
   );
@@ -510,16 +536,16 @@ export const renderWithInstanceAndLayout = async ({
     ...(await renderBase({
       ...renderOptions,
       initialRenderRef,
-      renderer: (
-        <InstanceProvider>
-          <FormDataWriteProxyProvider value={formDataProxies}>
-            <FormProvider>
-              <WaitForNodes waitForAllNodes={true}>
-                {typeof renderer === 'function' ? renderer() : renderer}
-              </WaitForNodes>
-            </FormProvider>
-          </FormDataWriteProxyProvider>
-        </InstanceProvider>
+      renderer,
+      Providers: ({ children, ...props }: ProvidersProps) => (
+        <DefaultProviders {...props}>
+          <InstanceFormAndLayoutProviders
+            formDataProxies={formDataProxies}
+            waitForAllNodes={true}
+          >
+            {children}
+          </InstanceFormAndLayoutProviders>
+        </DefaultProviders>
       ),
       router: ({ children }) => (
         <InstanceRouter

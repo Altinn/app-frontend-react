@@ -2,7 +2,7 @@ import React from 'react';
 
 import { AltinnAppHeader } from 'src/components/altinnAppHeader';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
-import { DevTools } from 'src/features/devtools/DevTools';
+import { RenderStart } from 'src/core/ui/RenderStart';
 import { Footer } from 'src/features/footer/Footer';
 import classes from 'src/features/instantiate/containers/InstantiationContainer.module.css';
 import { useProfile } from 'src/features/profile/ProfileProvider';
@@ -18,14 +18,13 @@ export function InstantiationContainer({ children }: IInstantiateContainerProps)
   const profile = useProfile();
 
   return (
-    <>
+    <RenderStart>
       <div className={classes.container}>
         <AltinnAppHeader profile={profile} />
         <main id='main-content'>{children}</main>
         <Footer />
         <ReadyForPrint />
       </div>
-      <DevTools />
-    </>
+    </RenderStart>
   );
 }

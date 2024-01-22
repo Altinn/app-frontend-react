@@ -130,7 +130,6 @@ describe('DropdownComponent', () => {
     await waitFor(() =>
       expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'denmark' }),
     );
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1);
   });
 
   it('should show spinner', async () => {

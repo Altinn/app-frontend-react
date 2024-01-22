@@ -80,9 +80,11 @@ describe('Expressions shared function tests', () => {
           instanceDataSources: buildInstanceDataSources(instance),
           applicationSettings: frontendSettings || ({} as IApplicationSettings),
           authContext: buildAuthContext(permissions),
-          langTools: staticUseLanguageForTests({
-            textResources: textResources ? resourcesAsMap(textResources) : {},
-          }),
+          langToolsRef: {
+            current: staticUseLanguageForTests({
+              textResources: textResources ? resourcesAsMap(textResources) : {},
+            }),
+          },
           currentLanguage: profileSettings?.language || 'nb',
           options,
         };

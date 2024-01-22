@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { ContextNotProvided, createContext } from 'src/core/contexts/context';
 import { useHiddenLayoutsExpressions } from 'src/features/form/layout/LayoutsContext';
@@ -49,12 +49,16 @@ export const usePageNavigationConfig = (): PageNavigationConfig => {
   const hiddenExpr = useHiddenLayoutsExpressions();
   const { hidden } = usePageNavigationContext();
   const order = useOrder();
-  return {
-    currentView,
-    hidden,
-    hiddenExpr,
-    order,
-  };
+
+  return useMemo(
+    () => ({
+      currentView,
+      hidden,
+      hiddenExpr,
+      order,
+    }),
+    [currentView, hidden, hiddenExpr, order],
+  );
 };
 export const useHiddenPages = () => {
   const ctx = useLaxCtx();

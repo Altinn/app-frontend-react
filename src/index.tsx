@@ -26,6 +26,7 @@ import { UiConfigProvider } from 'src/features/form/layout/UiConfigContext';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { GlobalFormDataReadersProvider } from 'src/features/formData/FormDataReaders';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
+import { LangToolsStoreProvider } from 'src/features/language/LangToolsStore';
 import { LanguageProvider } from 'src/features/language/LanguageProvider';
 import { TextResourcesProvider } from 'src/features/language/textResources/TextResourcesProvider';
 import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
@@ -57,11 +58,13 @@ document.addEventListener('DOMContentLoaded', () => {
         <ErrorBoundary>
           <AppWrapper>
             <LanguageProvider>
-              <ThemeWrapper>
-                <UiConfigProvider>
-                  <RouterProvider router={router} />
-                </UiConfigProvider>
-              </ThemeWrapper>
+              <LangToolsStoreProvider>
+                <ThemeWrapper>
+                  <UiConfigProvider>
+                    <RouterProvider router={router} />
+                  </UiConfigProvider>
+                </ThemeWrapper>
+              </LangToolsStoreProvider>
             </LanguageProvider>
           </AppWrapper>
         </ErrorBoundary>
