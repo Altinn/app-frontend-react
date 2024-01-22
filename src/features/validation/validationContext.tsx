@@ -110,8 +110,11 @@ export function ValidationContext({ children }) {
 
   // Get backend validations
   const lastSaveValidations = FD.useLastSaveValidationIssues();
-  const backendValidations = useBackendValidation(lastSaveValidations);
+  const { validations: backendValidations, processedLast: backendValidationsProcessedLast } =
+    useBackendValidation(lastSaveValidations);
   const waitForSave = FD.useWaitForSave();
+  const backendValidationsProcessedLastRef = useAsRef(backendValidationsProcessedLast);
+  const waitForBackendValidations = useWaitForState(backendValidationsProcessedLastRef);
   const hasPendingAttachments = useHasPendingAttachments();
 
   // Merge backend and frontend validations
@@ -130,8 +133,11 @@ export function ValidationContext({ children }) {
 
   const validating = useCallback(async () => {
     await waitForAttachments((state) => !state);
-    await waitForSave();
-  }, [waitForAttachments, waitForSave]);
+
+    // Wait until we've saved changed to backend, and we've processed the backend validations we got from that save
+    const validationsFromSave = await waitForSave();
+    await waitForBackendValidations((processedLast) => processedLast === validationsFromSave);
+  }, [waitForAttachments, waitForBackendValidations, waitForSave]);
 
   const reduceNodeVisibility = useEffectEvent((nodes: LayoutNode[]) => {
     setVisibility((state) => {

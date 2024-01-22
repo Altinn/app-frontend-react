@@ -23,6 +23,7 @@ import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { FormDataWriteProxies } from 'src/features/formData/FormDataWriteProxies';
 import type { FormDataContext } from 'src/features/formData/FormDataWriteStateMachine';
 import type { IDataModelPatchResponse } from 'src/features/formData/types';
+import type { BackendValidationIssueGroups } from 'src/features/validation';
 import type { IMapping } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
 
@@ -234,25 +235,40 @@ const useHasUnsavedChanges = () => {
   return result;
 };
 
+type FromRef<T> = T extends React.MutableRefObject<infer U> ? U : T;
 const useWaitForSave = () => {
   const requestSave = useRequestManualSave();
   const url = useLaxSelector((s) => s.controlState.saveUrl);
-  const hasUnsavedChangesRef = useAsRefFromLaxSelector(useLaxStore(), (s) => s.hasUnsavedChanges);
-  const waitForUnsaved = useWaitForState(hasUnsavedChangesRef);
+  const ref = useAsRefFromLaxSelector(useLaxStore(), (s) => ({
+    hasUnsavedChanges: s.hasUnsavedChanges,
+    validation: s.validationIssues,
+  }));
+  const waitFor = useWaitForState<BackendValidationIssueGroups | undefined, FromRef<typeof ref>>(ref);
 
   return useCallback(
-    (requestManualSave = false) => {
+    (requestManualSave = false): Promise<BackendValidationIssueGroups | undefined> => {
       if (url === ContextNotProvided) {
-        return Promise.resolve();
+        return Promise.resolve(undefined);
       }
 
       if (requestManualSave) {
         requestSave();
       }
 
-      return waitForUnsaved((hasUnsavedChanges) => !hasUnsavedChanges);
+      return waitFor((state, setReturnValue) => {
+        if (state === ContextNotProvided) {
+          setReturnValue(undefined);
+          return true;
+        }
+        if (!state.hasUnsavedChanges) {
+          setReturnValue(state.validation);
+          return true;
+        }
+
+        return false;
+      });
     },
-    [requestSave, url, waitForUnsaved],
+    [requestSave, url, waitFor],
   );
 };
 
