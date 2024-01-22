@@ -333,14 +333,22 @@ export const FD = {
    *      generated from this hook are more stable, and aren't re-fetched on every keystroke.
    *   3. Values that don't exist in the debounced model are not included in the output at all.
    */
-  useMapping: (mapping: IMapping | undefined): { [key: string]: string } =>
+  useMapping: <D extends 'string' | 'raw' = 'string'>(
+    mapping: IMapping | undefined,
+    dataAs?: D,
+  ): D extends 'raw' ? { [key: string]: FDValue } : { [key: string]: string } =>
     useMemoSelector((s) => {
+      const realDataAs = dataAs || 'string';
       const out: any = {};
       if (mapping) {
         for (const key of Object.keys(mapping)) {
           const outputKey = mapping[key];
           const value = dot.pick(key, s.debouncedCurrentData);
           if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+            out[outputKey] = realDataAs === 'raw' ? value : String(value);
+          } else if (value && realDataAs === 'string') {
+            out[outputKey] = JSON.stringify(value);
+          } else if (value && realDataAs === 'raw') {
             out[outputKey] = value;
           }
         }

@@ -9,25 +9,25 @@ import type { IInstantiationButtonComponentProvidedProps } from 'src/layout/Inst
 type Props = Omit<React.PropsWithChildren<IInstantiationButtonComponentProvidedProps>, 'text'>;
 
 export const InstantiationButton = ({ children, ...props }: Props) => {
-  const instantiation = useInstantiation();
+  const { instantiateWithPrefill, error, isLoading } = useInstantiation();
   const prefill = FD.useMapping(props.mapping);
   const party = useCurrentParty();
 
   const instantiate = () => {
-    instantiation.instantiateWithPrefill(props.node, {
+    instantiateWithPrefill(props.node, {
       prefill,
       instanceOwner: {
         partyId: party?.partyId.toString(),
       },
     });
   };
-  const busyWithId = instantiation.isLoading ? props.id : '';
+  const busyWithId = isLoading ? props.id : '';
 
   React.useEffect(() => {
-    if (instantiation.error) {
-      throw new Error('Something went wrong trying to start new instance');
+    if (error) {
+      throw error;
     }
-  }, [instantiation.error]);
+  }, [error]);
 
   return (
     <WrappedButton
