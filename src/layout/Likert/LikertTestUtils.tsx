@@ -3,11 +3,7 @@ import React from 'react';
 import { screen, within } from '@testing-library/react';
 import type { AxiosResponse } from 'axios';
 
-import {
-  type BackendValidationIssue,
-  BackendValidationSeverity,
-  ValidationIssueSources,
-} from 'src/features/validation';
+import { type BackendValidationIssue, BackendValidationSeverity } from 'src/features/validation';
 import { LikertComponent } from 'src/layout/Likert/LikertComponent';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
@@ -42,7 +38,7 @@ export const generateValidations = (validations: { index: number; message: strin
         customTextKey: message,
         field: `${groupBinding}[${index}].${answerBinding}`,
         severity: BackendValidationSeverity.Error,
-        source: ValidationIssueSources.Custom,
+        source: 'custom',
         showImmediately: true,
       }) as unknown as BackendValidationIssue,
   );

@@ -4,11 +4,7 @@ import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { Form } from 'src/components/form/Form';
-import {
-  type BackendValidationIssue,
-  BackendValidationSeverity,
-  ValidationIssueSources,
-} from 'src/features/validation';
+import { type BackendValidationIssue, BackendValidationSeverity } from 'src/features/validation';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 
 describe('ErrorReport', () => {
@@ -85,7 +81,7 @@ describe('ErrorReport', () => {
         customTextKey: 'some unbound mapped error',
         field: 'unboundField',
         severity: BackendValidationSeverity.Error,
-        source: ValidationIssueSources.Custom,
+        source: 'custom',
       } as BackendValidationIssue,
     ]);
 
@@ -106,7 +102,7 @@ describe('ErrorReport', () => {
         customTextKey: 'some mapped error',
         field: 'boundField',
         severity: BackendValidationSeverity.Error,
-        source: ValidationIssueSources.Custom,
+        source: 'custom',
       } as BackendValidationIssue,
     ]);
 

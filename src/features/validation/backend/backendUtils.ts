@@ -1,4 +1,4 @@
-import { BackendValidationSeverity, ValidationIssueSources, ValidationMask } from 'src/features/validation';
+import { BackendValidationSeverity, BuiltInValidationIssueSources, ValidationMask } from 'src/features/validation';
 import { validationTexts } from 'src/features/validation/backend/validationTexts';
 import type { TextReference } from 'src/features/language/useLanguage';
 import type {
@@ -27,8 +27,13 @@ export function mapValidationIssueToFieldValidation(issue: BackendValidationIssu
   const severity = getValidationIssueSeverity(issue);
   const message = getValidationIssueMessage(issue);
 
+  /**
+   * Identify category (visibility mask)
+   * Standard validation sources should use the Backend mask
+   * Custom backend validations should use the CustomBackend mask
+   */
   let category: number = ValidationMask.Backend;
-  if (source === ValidationIssueSources.Custom) {
+  if (!Object.values<string>(BuiltInValidationIssueSources).includes(source)) {
     if (issue.showImmediately) {
       category = 0;
     } else if (issue.actLikeRequired) {
