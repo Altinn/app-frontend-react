@@ -204,7 +204,7 @@ describe('Validation', () => {
       },
       {
         text: 'Bruk 60 eller færre tegn',
-        shouldFocus: 'changeNameTo_æøå',
+        shouldFocus: 'changeNameTo',
       },
       {
         text: 'Du må fylle ut dato for navneendring',
@@ -347,9 +347,7 @@ describe('Validation', () => {
     cy.get(appFrontend.group.row(2).currentValue).should('exist').and('be.focused');
     cy.get(appFrontend.group.row(2).currentValue).type('123');
 
-    // At this point, even though we have filled out the required field, the validation message for the other
-    // field should still be there as it was.
-    cy.get(appFrontend.errorReport).findByText('Du må fylle ut 2. endre verdi til').click();
+    cy.get(appFrontend.errorReport).findByText('Du må fylle ut 2. endre verdi 123 til').click();
     cy.get(appFrontend.group.row(2).newValue).should('exist').and('be.focused');
     cy.get(appFrontend.group.saveMainGroup).click();
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 2);
