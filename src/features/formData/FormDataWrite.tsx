@@ -16,13 +16,11 @@ import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteSta
 import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
 import { useAsRef, useAsRefFromLaxSelector } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
-import { isAxiosError } from 'src/utils/isAxiosError';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 import type { SchemaLookupTool } from 'src/features/datamodel/DataModelSchemaProvider';
 import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { FormDataWriteProxies } from 'src/features/formData/FormDataWriteProxies';
 import type { FormDataContext } from 'src/features/formData/FormDataWriteStateMachine';
-import type { IDataModelPatchResponse } from 'src/features/formData/types';
 import type { BackendValidationIssueGroups } from 'src/features/validation';
 import type { IMapping } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
@@ -73,26 +71,10 @@ const useFormDataSaveMutation = (ctx: FormDataContext) => {
         saveFinished({ newDataModel, savedData: next, validationIssues: undefined });
       } else {
         const patch = createPatch({ prev, next });
-        let result: IDataModelPatchResponse;
-        try {
-          result = await doPatchFormData(dataModelUrl, {
-            patch,
-            ignoredValidators: [],
-          });
-        } catch (err) {
-          if (isAxiosError(err) && err.response?.status === 412) {
-            window.CypressLog?.('Last sent request:', JSON.stringify({ patch, prev, next }, undefined, 2));
-            window.CypressLog?.(
-              `Inspect this: Got 412 when saving form data: ${JSON.stringify(
-                { response: err.response.data, patch },
-                undefined,
-                2,
-              )}`,
-            );
-            window.CypressSaveLog?.();
-          }
-          throw err;
-        }
+        const result = await doPatchFormData(dataModelUrl, {
+          patch,
+          ignoredValidators: [],
+        });
         saveFinished({ ...result, patch, savedData: next });
       }
     },

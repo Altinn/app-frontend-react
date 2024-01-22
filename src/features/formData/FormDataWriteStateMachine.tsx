@@ -4,7 +4,6 @@ import { applyPatch } from 'fast-json-patch';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
-import { testApplyChanges } from 'src/features/formData/applyChanges';
 import { convertData } from 'src/features/formData/convertData';
 import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
 import { runLegacyRules } from 'src/features/formData/LegacyRules';
@@ -153,18 +152,11 @@ function makeActions(
 
   function processChanges(
     state: FormDataContext,
-    { newDataModel, patch, savedData }: Pick<FDSaveFinished, 'newDataModel' | 'patch' | 'savedData'>,
+    { newDataModel, savedData }: Pick<FDSaveFinished, 'newDataModel' | 'patch' | 'savedData'>,
   ) {
     if (newDataModel) {
       for (const current of [state.currentData, state.debouncedCurrentData]) {
         const backendChangesPatch = createPatch({ prev: savedData, next: newDataModel, current });
-        testApplyChanges({
-          prev: savedData,
-          next: newDataModel,
-          changesPatch: patch,
-          backendChangesPatch,
-          applyTo: current,
-        });
         applyPatch(current, backendChangesPatch);
       }
       state.lastSavedData = structuredClone(newDataModel);
