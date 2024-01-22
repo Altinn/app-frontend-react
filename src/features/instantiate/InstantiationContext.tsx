@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useMutation } from '@tanstack/react-query';
@@ -62,16 +62,19 @@ export function InstantiationProvider({ children }: React.PropsWithChildren) {
   const instantiate = useInstantiateMutation();
   const instantiateWithPrefill = useInstantiateWithPrefillMutation();
   const [busyWithId, setBusyWithId] = useState<string | undefined>(undefined);
+  const isInstantiatingRef = useRef(false);
 
   // Redirect to the instance page when instantiation completes
   useEffect(() => {
     if (instantiate.data?.id) {
       navigate(`/instance/${instantiate.data.id}`);
       setBusyWithId(undefined);
+      isInstantiatingRef.current = false;
     }
     if (instantiateWithPrefill.data?.id) {
       navigate(`/instance/${instantiateWithPrefill.data.id}`);
       setBusyWithId(undefined);
+      isInstantiatingRef.current = false;
     }
   }, [instantiate.data?.id, instantiateWithPrefill.data?.id, navigate]);
 
@@ -79,9 +82,10 @@ export function InstantiationProvider({ children }: React.PropsWithChildren) {
     <Provider
       value={{
         instantiate: (node, instanceOwnerPartyId) => {
-          if (instantiate.data || instantiate.isLoading || instantiate.error) {
+          if (instantiate.data || instantiate.isLoading || instantiate.error || isInstantiatingRef.current) {
             return;
           }
+          isInstantiatingRef.current = true;
           setBusyWithId(node ? node.item.id : 'unknown');
           instantiate.mutate(instanceOwnerPartyId);
         },
@@ -89,6 +93,7 @@ export function InstantiationProvider({ children }: React.PropsWithChildren) {
           if (instantiateWithPrefill.data || instantiateWithPrefill.isLoading || instantiateWithPrefill.error) {
             return;
           }
+          isInstantiatingRef.current = true;
           setBusyWithId(node ? node.item.id : 'unknown');
           instantiateWithPrefill.mutate(value);
         },
