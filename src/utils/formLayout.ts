@@ -52,16 +52,18 @@ export function splitDashedKey(componentId: string): SplitKey {
   };
 }
 
-export const getRepeatingGroupStartStopIndex = (repeatingGroupIndex: number, filter?: ILikertFilter) => {
-  if (typeof repeatingGroupIndex === 'undefined') {
+export const getLikertStartStopIndex = (lastIndex: number, filters: ILikertFilter = []) => {
+  if (typeof lastIndex === 'undefined') {
     return { startIndex: 0, stopIndex: -1 };
   }
 
-  const start = filter?.find(({ key }) => key === 'start')?.value;
-  const stop = filter?.find(({ key }) => key === 'stop')?.value;
-  const startIndex = start ? parseInt(start) : 0;
-  const stopIndex = stop ? Math.min(parseInt(stop) - 1, repeatingGroupIndex) : repeatingGroupIndex;
-  return { startIndex, stopIndex };
+  const start = filters.find(({ key }) => key === 'start')?.value;
+  const stop = filters.find(({ key }) => key === 'stop')?.value;
+  const startIndex = typeof start === 'string' ? parseInt(start) : start ?? 0;
+  const stopIndex = typeof stop === 'string' ? parseInt(stop) : stop ?? lastIndex;
+  const boundedStopIndex = Math.min(stopIndex - 1, lastIndex);
+
+  return { startIndex, stopIndex: boundedStopIndex };
 };
 
 /**

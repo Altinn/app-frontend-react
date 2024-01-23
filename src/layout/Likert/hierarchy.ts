@@ -1,8 +1,8 @@
 import dot from 'dot-object';
 
-import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
+import { getLikertStartStopIndex } from 'src/utils/formLayout';
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
-import type { CompLikertExternal, HLikertRows, ILikertFilter } from 'src/layout/Likert/config.generated';
+import type { CompLikertExternal, HLikertRows } from 'src/layout/Likert/config.generated';
 import type { CompLikertItemInternal } from 'src/layout/LikertItem/config.generated';
 import type {
   ChildFactory,
@@ -53,7 +53,7 @@ export class LikertHierarchyGenerator extends ComponentHierarchyGenerator<'Liker
         : undefined;
       const lastIndex = formData && Array.isArray(formData) ? formData.length - 1 : -1;
 
-      const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(lastIndex, props.item.filter as ILikertFilter);
+      const { startIndex, stopIndex } = getLikertStartStopIndex(lastIndex, props.item.filter);
 
       const prototype = ctx.generator.prototype(ctx.id) as UnprocessedItem<'LikertItem'>;
 

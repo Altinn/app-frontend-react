@@ -75,7 +75,12 @@ export const Config = new CG.component({
   .addProperty(
     new CG.prop(
       'filter',
-      new CG.arr(new CG.obj(new CG.prop('key', new CG.str()), new CG.prop('value', new CG.str())).exportAs('IFilter'))
+      new CG.arr(
+        new CG.obj(
+          new CG.prop('key', new CG.enum('start', 'stop')),
+          new CG.prop('value', new CG.union(new CG.str().setPattern(/^\d+$/), new CG.num())),
+        ),
+      )
         .optional()
         .setTitle('Filter')
         .setDescription(
