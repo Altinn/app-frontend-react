@@ -366,9 +366,13 @@ describe('Group', () => {
     });
 
     // Delete the stray row
-    cy.get(appFrontend.group.delete).click();
-    cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 0);
-    cy.wait('@saveData');
+    cy.get('@saveData.all').then((intercepts) => {
+      cy.get(appFrontend.group.delete).click();
+      cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 0);
+
+      // Wait until we've saved the deletion
+      cy.get('@saveData.all').should('have.length', intercepts.length + 1);
+    });
 
     cy.interceptLayout('group', (c) => {
       if (c.type === 'RepeatingGroup' && c.edit) {

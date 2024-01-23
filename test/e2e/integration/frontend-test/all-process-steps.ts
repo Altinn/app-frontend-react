@@ -232,13 +232,13 @@ function isUuid(value: string) {
 }
 
 const regexDate1 = /^\d{4}-\d{2}-\d{2}$/;
-const regexDate2 = /^\d{2}\.\d{2}\.\d{4}$/;
+const regexDate2 = /^\d{2}[./]\d{2}[./]\d{4}$/;
 function replaceVariableData(input: any) {
   if (typeof input === 'string' && isUuid(input)) {
     return 'ANY_UUID';
   }
   if (typeof input === 'string' && (input.match(regexDate1) || input.match(regexDate2))) {
-    // Replaces dates (YYYY-MM-DD or DD.MM.YYYY)
+    // Replaces dates (YYYY-MM-DD, DD.MM.YYYY, DD/MM/YYYY)
     return 'ANY_DATE';
   }
   if (typeof input === 'string' && input.includes('date=')) {
