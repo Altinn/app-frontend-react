@@ -340,7 +340,7 @@ describe('Group', () => {
     // as any other setting would just re-create it again.
     [true, 'first' as const, 'last' as const, false].forEach((openByDefault) => {
       cy.interceptLayout('group', (c) => {
-        if (c.type === 'RepeatingGroup' && c.edit && c.edit.openByDefault !== undefined) {
+        if (c.type === 'RepeatingGroup' && c.edit) {
           c.edit.openByDefault = openByDefault;
         }
       });
@@ -348,7 +348,7 @@ describe('Group', () => {
       cy.log('Testing whether new empty group is opened when openByDefault =', openByDefault);
       cy.reloadAndWait();
 
-      if (openByDefault === 'first' || openByDefault === 'last' || openByDefault) {
+      if (openByDefault) {
         cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 2);
         cy.get(appFrontend.group.mainGroupTableBody)
           .children()
@@ -360,7 +360,7 @@ describe('Group', () => {
         // Should be able to close the group for editing even if it was opened by default
         cy.get(appFrontend.group.saveMainGroup).clickAndGone();
         cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 1);
-      } else if (!openByDefault) {
+      } else {
         cy.get(appFrontend.group.mainGroupTableBody).find(appFrontend.group.saveMainGroup).should('not.exist');
       }
     });
@@ -368,11 +368,19 @@ describe('Group', () => {
     // Delete the stray row
     cy.get(appFrontend.group.delete).click();
     cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 0);
+    cy.wait('@saveData');
+
+    cy.interceptLayout('group', (c) => {
+      if (c.type === 'RepeatingGroup' && c.edit) {
+        c.edit.openByDefault = c.id === 'subGroup';
+      }
+    });
     cy.reloadAndWait();
 
     cy.addItemToGroup(1, 2, 'item 1');
     cy.addItemToGroup(20, 30, 'item 2');
     cy.addItemToGroup(400, 600, 'item 3');
+    cy.wait('@saveData');
 
     ['first' as const, 'last' as const, true, false].forEach((openByDefault) => {
       cy.changeLayout((c) => {
@@ -629,9 +637,12 @@ describe('Group', () => {
   });
 
   it('adding group rows should trigger backend calculations + selecting options from source', () => {
+    cy.intercept('PATCH', '**/instances/*/*/data/*').as('saveData');
+
     cy.goto('group');
     cy.get(appFrontend.group.prefill.liten).dsCheck();
     cy.get(appFrontend.group.prefill.middels).dsCheck();
+    cy.wait('@saveData');
 
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
@@ -718,6 +729,7 @@ describe('Group', () => {
   });
 
   it('openByDefault = first should work even if the first row is hidden', () => {
+    cy.intercept('PATCH', '**/instances/*/*/data/*').as('saveData');
     cy.interceptLayout('group', (c) => {
       if (c.type === 'RepeatingGroup' && c.id === 'mainGroup' && c.edit) {
         c.edit.openByDefault = 'first';
@@ -729,6 +741,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.prefill.stor).dsCheck();
     cy.get(appFrontend.group.prefill.middels).dsCheck();
     cy.get(appFrontend.group.prefill.liten).dsCheck();
+    cy.wait('@saveData');
 
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
