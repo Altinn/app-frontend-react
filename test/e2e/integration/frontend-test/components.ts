@@ -232,6 +232,7 @@ describe('UI Components', () => {
   it('radios, checkboxes and other components can be readOnly', () => {
     cy.interceptLayout('changename', (component) => {
       const formTypes: CompExternal['type'][] = [
+        'AddressComponent',
         'Checkboxes',
         'Datepicker',
         'Dropdown',
