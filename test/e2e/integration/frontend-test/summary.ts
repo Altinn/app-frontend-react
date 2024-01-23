@@ -44,36 +44,44 @@ describe('Summary', () => {
 
     // Summary displays change button for editable fields and does not for readonly fields
     // navigate back to form and clear date
-    cy.get(appFrontend.changeOfName.summaryNameChanges).then((summary) => {
-      cy.wrap(summary)
-        .children()
-        .contains(mui.gridContainer, 'Til:')
-        .children()
-        .then((items) => {
-          cy.wrap(items).should('contain.text', 'a a');
-          cy.wrap(items).find('button').should('not.exist');
-        });
-
-      cy.wrap(summary)
-        .parent()
-        .siblings()
-        .contains(mui.gridContainer, texts.dateOfEffect)
-        .then((summaryDate) => {
-          cy.wrap(summaryDate).children().find('button').click();
-        });
-
-      cy.get(appFrontend.changeOfName.dateOfEffect).clear();
-      cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
-      cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('test/e2e/fixtures/test.pdf', {
-        force: true,
+    cy.get(appFrontend.changeOfName.summaryNameChanges)
+      .children()
+      .contains(mui.gridContainer, 'Til:')
+      .children()
+      .then((items) => {
+        cy.wrap(items).should('contain.text', 'a a');
+        cy.wrap(items).find('button').should('not.exist');
       });
-      cy.dsSelect(appFrontend.changeOfName.uploadWithTag.tagsDropDown, 'Adresse');
-      cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
 
-      cy.get(appFrontend.backToSummaryButton).click();
-      cy.navPage('summary').should('have.attr', 'aria-current', 'page');
-      cy.get(appFrontend.errorReport).should('contain.text', texts.requiredFieldDateFrom);
+    cy.get(appFrontend.changeOfName.summaryNameChanges)
+      .parent()
+      .siblings()
+      .contains(mui.gridContainer, texts.dateOfEffect)
+      .then((summaryDate) => {
+        cy.wrap(summaryDate).children().find('button').click();
+      });
+
+    cy.get(appFrontend.changeOfName.dateOfEffect).clear();
+    cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
+    cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('test/e2e/fixtures/test.pdf', {
+      force: true,
     });
+    cy.dsSelect(appFrontend.changeOfName.uploadWithTag.tagsDropDown, 'Adresse');
+    cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
+
+    cy.get(appFrontend.backToSummaryButton).click();
+    cy.navPage('summary').should('have.attr', 'aria-current', 'page');
+
+    // This previously tested that the error report was visible here, and that it had 'texts.requiredFieldDateFrom'.
+    // However, we haven't clicked any buttons that should trigger that error report to be shown to the user yet.
+    cy.get(appFrontend.errorReport).should('not.exist');
+
+    // However, if we go to the grid page and try to submit, the error report will appear and we can
+    // continue the test as before
+    cy.gotoNavPage('grid');
+    cy.get(appFrontend.sendinButton).click();
+    cy.get(appFrontend.errorReport).should('contain.text', texts.requiredFieldDateFrom);
+    cy.gotoNavPage('summary');
 
     cy.get(appFrontend.changeOfName.summaryNameChanges)
       .parent()
