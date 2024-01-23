@@ -167,11 +167,6 @@ function FormDataEffects({ url }: { url: string }) {
         debouncedCurrentData !== lastSavedData && !deepEqual(debouncedCurrentData, lastSavedData);
 
       if (hasUnsavedDebouncedChanges) {
-        console.log('Saving debounced form data', {
-          currentData,
-          debouncedCurrentData,
-          lastSavedData,
-        });
         performSave(debouncedCurrentData);
       }
     }

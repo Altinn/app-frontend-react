@@ -680,6 +680,13 @@ describe('Group', () => {
 
     cy.get(appFrontend.group.secondGroup).findByRole('button', { name: 'Slett-1' }).click();
     cy.get(appFrontend.group.secondGroup).find('tbody > tr').should('have.length', 1);
+
+    // Waiting until save data runs here will make sure we don't construct a very complex patch request, combined with
+    // slow loading times on github workflows + tt02 may cause this to fail when both deleting and adding a new row
+    // very quickly leads to unexpected behavior.
+    // TODO: Investigate this properly, find a better solution
+    cy.wait('@saveData');
+
     cy.get(appFrontend.group.secondGroup_add).click();
     cy.get('#group2-teller-1').should('have.value', '3');
     cy.dsSelect('#group2-input-1', 'Endre fra: 1, Endre til: 5');
@@ -737,7 +744,18 @@ describe('Group', () => {
     });
 
     cy.goto('group');
-    cy.get(appFrontend.group.prefill.svaer).dsCheck();
+
+    for (const prefill of [
+      appFrontend.group.prefill.svaer,
+      appFrontend.group.prefill.middels,
+      appFrontend.group.prefill.liten,
+    ]) {
+      // It is very important that these gets checked in this order, as the rest of the test relies on that.
+      // Order is not guaranteed here, so we'll wait for each one to be saved before continuing.
+      cy.get(prefill).dsCheck();
+      cy.wait('@saveData');
+    }
+
     cy.get(appFrontend.group.prefill.stor).dsCheck();
     cy.get(appFrontend.group.prefill.middels).dsCheck();
     cy.get(appFrontend.group.prefill.liten).dsCheck();
