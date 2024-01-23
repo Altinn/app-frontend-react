@@ -85,7 +85,7 @@ export const Config = new CG.component({
         .setTitle('Filter')
         .setDescription(
           'Optionally filter specific rows within the likert group using start/stop indexes for displaying the desired ones' +
-            '(in other cases use an expression in the "hiddenRow" property instead)',
+            '(beware that start index starts at zero, and stop index starts at one, so {start, stop} = {0, 3} will display 3 rows, not 4)',
         )
         .exportAs('ILikertFilter'),
     ),
