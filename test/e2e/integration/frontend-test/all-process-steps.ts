@@ -1,3 +1,5 @@
+import dot from 'dot-object';
+
 import texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { Common } from 'test/e2e/pageobjects/common';
@@ -193,17 +195,31 @@ function testInstanceData() {
     const urlParsed = new URL(url);
     const maybeInstanceId = getInstanceIdRegExp().exec(url);
     const instanceId = maybeInstanceId ? maybeInstanceId[1] : 'instance-id-not-found';
-    const instanceUrl = [urlParsed.pathname, `/instances/`, instanceId].join('');
 
-    cy.request({ url: urlParsed.origin + instanceUrl }).then((response) => {
+    const host = Cypress.env('environment') === 'local' ? urlParsed.origin : 'https://ttd.apps.tt02.altinn.no';
+    const instanceUrl = [host, urlParsed.pathname, `/instances/`, instanceId].join('');
+
+    cy.request({ url: instanceUrl }).then((response) => {
       const instanceData = response.body as IInstance;
       for (const dataElement of instanceData.data) {
         if (dataElement.contentType === 'application/xml') {
           const dataModelUrlParsed = new URL(dataElement.selfLinks!.apps);
-          cy.request({ url: dataModelUrlParsed.pathname }).then((response) => {
+          const dataModelUrl =
+            Cypress.env('environment') === 'local' ? dataModelUrlParsed.pathname : dataElement.selfLinks!.apps;
+          cy.request({
+            url: dataModelUrl,
+          }).then((response) => {
             const dataModel = replaceVariableData(response.body);
+            const knownModel = knownDataModels[dataElement.dataType];
+            if (dataElement.dataType === 'ServiceModel-test') {
+              dot.str(
+                'Innledning-grp-9309.Kontaktinformasjon-grp-9311.MelderFultnavn.value',
+                Cypress.env('defaultFullName'),
+                knownModel,
+              );
+            }
 
-            expect(dataModel).to.deep.equal(knownDataModels[dataElement.dataType]);
+            expect(dataModel).to.deep.equal(knownModel);
           });
         }
       }
@@ -278,7 +294,7 @@ const knownDataModels: { [key: string]: any } = {
         'MelderFornavn-datadef-34736': null,
         'MelderMellomnavn-datadef-34737': null,
         'MelderEtternavn-datadef-34735': null,
-        MelderFultnavn: { orid: 34735, value: 'Ola Nordmann' },
+        MelderFultnavn: { orid: 34735, value: 'WILL BE REPLACED WITH THE USERS NAME' },
         'MelderEpost-datadef-34739': null,
         'MelderMobiltelefonnummer-datadef-34740': null,
         'MelderArkivDato-datadef-34741': null,
@@ -375,10 +391,10 @@ const knownDataModels: { [key: string]: any } = {
           fileUpload: 'ANY_UUID',
           fileUploadList: ['ANY_UUID', 'ANY_UUID'],
           isPrefill: false,
-          hideComment: null,
           'nested-grp-1234': [
             {
               gruppeid: 1234,
+              hideComment: null,
               'SkattemeldingEndringEtterFristPost-datadef-37130': null,
               'SkattemeldingEndringEtterFristOpprinneligBelop-datadef-37131': null,
               'SkattemeldingEndringEtterFristNyttBelop-datadef-37132': null,
