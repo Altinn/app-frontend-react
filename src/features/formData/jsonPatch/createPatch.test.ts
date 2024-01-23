@@ -396,6 +396,7 @@ describe('createPatch', () => {
       prev: { a: 1 },
       next: { a: 2 },
       current: { a: 1 },
+      final: { a: 2 },
       expectedPatch: [{ op: 'replace', path: '/a', value: 2 }],
     });
   });
@@ -428,6 +429,7 @@ describe('createPatch', () => {
       prev: { a: [{ b: 1, c: 2 }] },
       next: { a: [{ b: 1, c: 3 }] },
       current: { a: [{ b: 1, c: 2 }] },
+      final: { a: [{ b: 1, c: 3 }] },
       expectedPatch: [{ op: 'replace', path: '/a/0/c', value: 3 }],
     });
   });
@@ -457,13 +459,17 @@ describe('createPatch', () => {
 
   describe('should preserve row added by openByDefault in nested group (2)', () => {
     testPatch({
-      // The only change from the above is that we don't already have an object in prev, but that should not matter
-      // as the object exists in both next and current.
+      // The only change from the above is that we don't already have an object in prev, so in this case the two rows
+      // (one from next, one from current) should be treated as two separate rows.
       prev: { group: [] },
       next: { group: [{ a: 5, childGroup: [] }] },
       current: { group: [{ childGroup: [{}] }] },
-      final: { group: [{ a: 5, childGroup: [{}] }] },
-      expectedPatch: [{ op: 'add', path: '/group/0/a', value: 5 }],
+      final: { group: [{ a: 5, childGroup: [] }, { childGroup: [{}] }] },
+      expectedPatch: [
+        { op: 'add', path: '/group/-', value: { childGroup: [{}] } },
+        { op: 'remove', path: '/group/0/childGroup/0' },
+        { op: 'add', path: '/group/0/a', value: 5 },
+      ],
     });
   });
 
@@ -508,6 +514,44 @@ describe('createPatch', () => {
       current: { group: [{ fileIds: ['fileId1'] }] },
       final: { group: [{ fileIds: ['fileId1'] }] },
       expectedPatch: [],
+    });
+  });
+
+  describe('when backend is slow and responds a little late with a prefill value for an array, we should keep both', () => {
+    testPatch({
+      prev: { group: [] },
+      next: { group: [{ rowFrom: 'server' }] },
+      current: { group: [{ rowFrom: 'client' }] },
+      final: { group: [{ rowFrom: 'server' }, { rowFrom: 'client' }] },
+      expectedPatch: [
+        // The patch we generate is a bit weird, but it works.
+        { op: 'add', path: '/group/-', value: { rowFrom: 'client' } },
+        { op: 'replace', path: '/group/0/rowFrom', value: 'server' },
+      ],
+    });
+  });
+
+  describe('when backend is slow and response a little late with a prefill value for an array, we should still add it2', () => {
+    testPatch({
+      prev: {},
+      next: { group: [{ rowFrom: 'server' }] },
+      current: { group: [] },
+      final: { group: [{ rowFrom: 'server' }] },
+      expectedPatch: [{ op: 'add', path: '/group/-', value: { rowFrom: 'server' } }],
+    });
+  });
+
+  describe('same thing as above, but with existing rows', () => {
+    testPatch({
+      prev: { group: [{ rowFrom: 'client' }] },
+      next: { group: [{ rowFrom: 'client' }, { rowFrom: 'server' }] },
+      current: { group: [{ rowFrom: 'client' }, {}] },
+      final: { group: [{ rowFrom: 'client' }, { rowFrom: 'server' }, {}] },
+      expectedPatch: [
+        // The patch we generate is a bit weird, but it works.
+        { op: 'add', path: '/group/0', value: { rowFrom: 'client' } },
+        { op: 'add', path: '/group/1/rowFrom', value: 'server' },
+      ],
     });
   });
 });

@@ -138,11 +138,12 @@ function compareArrays({ prev, next, current, hasCurrent, patch, path }: Compare
   const realNext = [...next];
   if (hasCurrent && Array.isArray(current)) {
     if (current.length > realPrev.length) {
-      // Add empty objects in realPrev + realNext to make sure isSimilarEnough runs on every row, and that we create
-      // a patch that will update missing/outdated values in current array items even if we didn't have
+      // Add the objects we added locally to realPrev + realNext to make sure isSimilarEnough runs on every row, and
+      // that we create a patch that will update missing/outdated values in current array items even if we didn't have
       // the array item(s) before.
-      realPrev.push(...new Array(current.length - realPrev.length).fill({}));
-      realNext.push(...new Array(current.length - realNext.length).fill({}));
+      const locallyAdded = current.slice(realPrev.length);
+      realPrev.push(...locallyAdded);
+      realNext.push(...locallyAdded);
     } else if (current.length < realPrev.length) {
       // Run a diff on current and prev to figure out which row(s) we deleted locally after saving. That row should not
       // be considered when producing the patch, as there is no point in trying to update a row that has been deleted.
@@ -237,6 +238,17 @@ function compareValues({ prev, next, hasCurrent, current, patch, path }: Compare
     }
     if (deepEqual(current, next)) {
       // Definitely no need to make any changes here, the current model has the target value already.
+      return;
+    }
+    if (Array.isArray(current) && Array.isArray(next)) {
+      if (next.length > current.length) {
+        // Add the missing items to the current array
+        for (let i = current.length; i < next.length; i++) {
+          patch.push({ op: 'add', path: pointer([...path, '-']), value: next[i] });
+        }
+        return;
+      }
+      // TODO: Investigate if we should do something when next.length < current.length
       return;
     }
     if (!isScalarOrMissing(current) || !isScalarOrMissing(next)) {
