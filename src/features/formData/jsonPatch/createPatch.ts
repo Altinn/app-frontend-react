@@ -248,6 +248,9 @@ function compareValues({ prev, next, hasCurrent, current, patch, path }: Compare
       }
       return;
     }
+    if (isObject(current) && isObject(next)) {
+      return compareObjects({ prev: {}, next, hasCurrent, current, patch, path });
+    }
     if (!isScalarOrMissing(current) || !isScalarOrMissing(next)) {
       // TODO: Investigate these cases and possibly log wantings/notices about them
       return;

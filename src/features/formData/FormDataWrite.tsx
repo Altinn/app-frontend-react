@@ -59,13 +59,14 @@ const { Provider, useSelector, useMemoSelector, useLaxSelector, useLaxStore } = 
 
 const useFormDataSaveMutation = (ctx: FormDataContext) => {
   const { doPatchFormData, doPostStatelessFormData } = useAppMutations();
-  const { saveFinished } = ctx;
+  const { saveStarted, saveFinished } = ctx;
   const isStateless = useIsStatelessApp();
 
   return useMutation({
     mutationKey: ['saveFormData'],
     mutationFn: async (arg: MutationArg) => {
       const { dataModelUrl, next, prev } = arg;
+      saveStarted();
       if (isStateless) {
         const newDataModel = await doPostStatelessFormData(dataModelUrl, next);
         saveFinished({ newDataModel, savedData: next, validationIssues: undefined });
@@ -110,8 +111,8 @@ export function FormDataWriteProvider({ url, initialData, autoSaving, children }
 function FormDataEffects({ url }: { url: string }) {
   const state = useSelector((s) => s);
   const { currentData, debouncedCurrentData, lastSavedData, controlState, hasUnsavedChanges } = state;
-  const { debounceTimeout, autoSaving, manualSaveRequested, lockedBy } = controlState;
-  const { mutate, isLoading: isSaving, error } = useFormDataSaveMutation(state);
+  const { debounceTimeout, autoSaving, manualSaveRequested, lockedBy, isSaving } = controlState;
+  const { mutate, error } = useFormDataSaveMutation(state);
   const debounce = useDebounceImmediately();
 
   // This component re-renders on every keystroke in a form field. We don't want to save on every keystroke, nor
@@ -156,15 +157,31 @@ function FormDataEffects({ url }: { url: string }) {
 
   // Save the data model when the data has been frozen to debouncedCurrentData and is different from the saved data
   useEffect(() => {
-    const hasUnsavedDebouncedChanges =
-      debouncedCurrentData !== lastSavedData && !deepEqual(debouncedCurrentData, lastSavedData);
+    const isDebounced = currentData === debouncedCurrentData;
+    if (isDebounced) {
+      const hasUnsavedDebouncedChanges =
+        debouncedCurrentData !== lastSavedData && !deepEqual(debouncedCurrentData, lastSavedData);
 
-    const shouldSave = hasUnsavedDebouncedChanges && !isSaving && !lockedBy;
-
-    if (shouldSave && (autoSaving || manualSaveRequested)) {
-      performSave(debouncedCurrentData);
+      const shouldSave = hasUnsavedDebouncedChanges && !isSaving && !lockedBy;
+      if (shouldSave && (autoSaving || manualSaveRequested)) {
+        console.log('Saving debounced form data', {
+          currentData,
+          debouncedCurrentData,
+          lastSavedData,
+        });
+        performSave(debouncedCurrentData);
+      }
     }
-  }, [autoSaving, debouncedCurrentData, isSaving, lastSavedData, lockedBy, manualSaveRequested, performSave]);
+  }, [
+    autoSaving,
+    currentData,
+    debouncedCurrentData,
+    isSaving,
+    lastSavedData,
+    lockedBy,
+    manualSaveRequested,
+    performSave,
+  ]);
 
   // Always save unsaved changes when the user navigates away from the page and this component is unmounted.
   // We cannot put the current and last saved data in the dependency array, because that would cause the effect
@@ -223,6 +240,7 @@ const useWaitForSave = () => {
   const url = useLaxSelector((s) => s.controlState.saveUrl);
   const ref = useAsRefFromLaxSelector(useLaxStore(), (s) => ({
     hasUnsavedChanges: s.hasUnsavedChanges,
+    isSaving: s.controlState.isSaving,
     validation: s.validationIssues,
   }));
   const waitFor = useWaitForState<BackendValidationIssueGroups | undefined, FromRef<typeof ref>>(ref);
@@ -242,7 +260,7 @@ const useWaitForSave = () => {
           setReturnValue(undefined);
           return true;
         }
-        if (!state.hasUnsavedChanges) {
+        if (!state.hasUnsavedChanges && !state.isSaving) {
           setReturnValue(state.validation);
           return true;
         }

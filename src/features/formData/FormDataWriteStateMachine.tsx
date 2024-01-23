@@ -60,6 +60,9 @@ export interface FormDataState {
     // only when the user navigates to another page.
     autoSaving: boolean;
 
+    // This is used to track whether the data model is currently being saved to the server.
+    isSaving: boolean;
+
     // This is used to track whether the user has requested a manual save. When auto-saving is turned off, this is
     // the way we track when to save the data model to the server. It can also be used to trigger a manual save
     // as a way to immediately save the data model to the server, for example before locking the data model.
@@ -133,6 +136,7 @@ export interface FormDataMethods {
 
   // Internal utility methods
   debounce: () => void;
+  saveStarted: () => void;
   saveFinished: (props: FDSaveFinished) => void;
   requestManualSave: (setTo?: boolean) => void;
   lock: (lockName: string) => void;
@@ -155,19 +159,15 @@ function makeActions(
     { newDataModel, savedData }: Pick<FDSaveFinished, 'newDataModel' | 'patch' | 'savedData'>,
   ) {
     if (newDataModel) {
-      for (const current of [state.currentData, state.debouncedCurrentData]) {
-        const backendChangesPatch = createPatch({ prev: savedData, next: newDataModel, current });
-        applyPatch(current, backendChangesPatch);
-      }
+      const backendChangesPatch = createPatch({ prev: savedData, next: newDataModel, current: state.currentData });
+      applyPatch(state.currentData, backendChangesPatch);
       state.lastSavedData = structuredClone(newDataModel);
 
       // Run rules again, against current data. Now that we have updates from the backend, some rules may
       // have caused data to change.
       const ruleResults = runLegacyRules(ruleConnections, savedData, state.currentData);
-      for (const model of [state.currentData, state.debouncedCurrentData]) {
-        for (const { path, newValue } of ruleResults) {
-          dot.str(path, newValue, model);
-        }
+      for (const { path, newValue } of ruleResults) {
+        dot.str(path, newValue, state.currentData);
       }
     } else {
       state.lastSavedData = structuredClone(savedData);
@@ -213,11 +213,16 @@ function makeActions(
         debounce(state);
       }),
 
+    saveStarted: () =>
+      set((state) => {
+        state.controlState.isSaving = true;
+      }),
     saveFinished: (props) =>
       set((state) => {
         const { validationIssues } = props;
         state.controlState.manualSaveRequested = false;
         state.validationIssues = validationIssues;
+        state.controlState.isSaving = false;
         processChanges(state, props);
       }),
     setLeafValue: ({ path, newValue, ...rest }) =>
@@ -352,6 +357,7 @@ export const createFormDataWriteStore = (
         validationIssues: undefined,
         controlState: {
           autoSaving,
+          isSaving: false,
           manualSaveRequested: false,
           lockedBy: undefined,
           debounceTimeout: DEFAULT_DEBOUNCE_TIMEOUT,
