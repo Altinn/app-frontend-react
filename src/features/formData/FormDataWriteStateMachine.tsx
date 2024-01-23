@@ -137,6 +137,7 @@ export interface FormDataMethods {
   // Internal utility methods
   debounce: () => void;
   saveStarted: () => void;
+  cancelSave: () => void;
   saveFinished: (props: FDSaveFinished) => void;
   requestManualSave: (setTo?: boolean) => void;
   lock: (lockName: string) => void;
@@ -178,6 +179,7 @@ function makeActions(
   function debounce(state: FormDataContext) {
     if (deepEqual(state.debouncedCurrentData, state.currentData)) {
       state.hasUnsavedChanges = !deepEqual(state.currentData, state.lastSavedData);
+      state.debouncedCurrentData = state.currentData;
       return;
     }
 
@@ -216,6 +218,10 @@ function makeActions(
     saveStarted: () =>
       set((state) => {
         state.controlState.isSaving = true;
+      }),
+    cancelSave: () =>
+      set((state) => {
+        state.controlState.isSaving = false;
       }),
     saveFinished: (props) =>
       set((state) => {

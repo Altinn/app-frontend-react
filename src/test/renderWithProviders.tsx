@@ -177,6 +177,7 @@ export const makeFormDataMethodProxies = (
   const all: { [M in keyof FormDataMethods]: { mock: jest.Mock; proxy: Proxy<M> } } = {
     debounce: makeProxy('debounce', ref),
     saveStarted: makeProxy('saveStarted', ref),
+    cancelSave: makeProxy('cancelSave', ref),
     saveFinished: makeProxy('saveFinished', ref),
     setLeafValue: makeProxy('setLeafValue', ref),
     setMultiLeafValues: makeProxy('setMultiLeafValues', ref),

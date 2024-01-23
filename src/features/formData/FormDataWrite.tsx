@@ -110,7 +110,7 @@ export function FormDataWriteProvider({ url, initialData, autoSaving, children }
 
 function FormDataEffects({ url }: { url: string }) {
   const state = useSelector((s) => s);
-  const { currentData, debouncedCurrentData, lastSavedData, controlState, hasUnsavedChanges } = state;
+  const { currentData, debouncedCurrentData, lastSavedData, controlState, hasUnsavedChanges, cancelSave } = state;
   const { debounceTimeout, autoSaving, manualSaveRequested, lockedBy, isSaving } = controlState;
   const { mutate, error } = useFormDataSaveMutation(state);
   const debounce = useDebounceImmediately();
@@ -130,7 +130,11 @@ function FormDataEffects({ url }: { url: string }) {
 
   const performSave = useCallback(
     (dataToSave: object) => {
-      if (deepEqual(dataToSave, lastSavedDataRef.current) || isSavingRef.current) {
+      if (isSavingRef.current) {
+        return;
+      }
+      if (deepEqual(dataToSave, lastSavedDataRef.current)) {
+        cancelSave();
         return;
       }
 
@@ -140,7 +144,7 @@ function FormDataEffects({ url }: { url: string }) {
         prev: lastSavedDataRef.current,
       });
     },
-    [isSavingRef, lastSavedDataRef, mutate, url],
+    [cancelSave, isSavingRef, lastSavedDataRef, mutate, url],
   );
 
   // Debounce the data model when the user stops typing. This has the effect of triggering the useEffect below,
@@ -158,12 +162,11 @@ function FormDataEffects({ url }: { url: string }) {
   // Save the data model when the data has been frozen to debouncedCurrentData and is different from the saved data
   useEffect(() => {
     const isDebounced = currentData === debouncedCurrentData;
-    if (isDebounced) {
+    if (isDebounced && !isSaving && !lockedBy && (autoSaving || manualSaveRequested)) {
       const hasUnsavedDebouncedChanges =
         debouncedCurrentData !== lastSavedData && !deepEqual(debouncedCurrentData, lastSavedData);
 
-      const shouldSave = hasUnsavedDebouncedChanges && !isSaving && !lockedBy;
-      if (shouldSave && (autoSaving || manualSaveRequested)) {
+      if (hasUnsavedDebouncedChanges) {
         console.log('Saving debounced form data', {
           currentData,
           debouncedCurrentData,
