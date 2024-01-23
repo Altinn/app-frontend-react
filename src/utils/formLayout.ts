@@ -61,7 +61,7 @@ export const getLikertStartStopIndex = (lastIndex: number, filters: ILikertFilte
   const stop = filters.find(({ key }) => key === 'stop')?.value;
   const startIndex = typeof start === 'string' ? parseInt(start) : start ?? 0;
   const stopIndex = typeof stop === 'string' ? parseInt(stop) : stop ?? lastIndex;
-  const boundedStopIndex = Math.min(stopIndex - 1, lastIndex);
+  const boundedStopIndex = Math.min(stopIndex, lastIndex);
 
   return { startIndex, stopIndex: boundedStopIndex };
 };
