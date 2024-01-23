@@ -241,14 +241,11 @@ function compareValues({ prev, next, hasCurrent, current, patch, path }: Compare
       return;
     }
     if (Array.isArray(current) && Array.isArray(next)) {
-      if (next.length > current.length) {
-        // Add the missing items to the current array
-        for (let i = current.length; i < next.length; i++) {
-          patch.push({ op: 'add', path: pointer([...path, '-']), value: next[i] });
-        }
-        return;
+      // Add all the array items form the next (backend) array that are missing from the current (frontend) array
+      // patch.push({ op: 'add', path: pointer([...path, '-']), value: next[i] });
+      for (const item of next || []) {
+        patch.push({ op: 'add', path: pointer([...path, '-']), value: item });
       }
-      // TODO: Investigate if we should do something when next.length < current.length
       return;
     }
     if (!isScalarOrMissing(current) || !isScalarOrMissing(next)) {

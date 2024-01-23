@@ -554,4 +554,138 @@ describe('createPatch', () => {
       ],
     });
   });
+
+  interface InitialFetch<T extends object> {
+    type: 'initialFetch';
+    model: T;
+  }
+
+  interface LocalChange<T extends object> {
+    type: 'localChange';
+    makeChange: (model: T) => void;
+    expectedAfter: T;
+  }
+
+  interface PatchRequest {
+    type: 'patchRequest';
+    expected: JsonPatch;
+  }
+
+  interface PatchResponse<T extends object> {
+    type: 'patchResponse';
+    newModel: T;
+  }
+
+  interface FinalModel<T extends object> {
+    type: 'finalModel';
+    model: T;
+  }
+
+  type Action<T extends object> = InitialFetch<T> | LocalChange<T> | PatchRequest | PatchResponse<T> | FinalModel<T>;
+
+  describe('createPatch with complex sequential actions', () => {
+    function testActions<T extends object>(actions: Action<T>[]) {
+      const currentModel = {} as T;
+      const lastSavedModel = {} as T;
+      for (const action of actions) {
+        switch (action.type) {
+          case 'initialFetch':
+            Object.assign(currentModel, action.model);
+            Object.assign(lastSavedModel, action.model);
+            break;
+          case 'localChange':
+            action.makeChange(currentModel);
+            expect(currentModel).toEqual(action.expectedAfter);
+            break;
+          case 'patchRequest':
+            expect(createPatch({ prev: lastSavedModel, next: currentModel })).toEqual(action.expected);
+            break;
+          case 'patchResponse':
+            applyPatch(
+              currentModel,
+              createPatch({ prev: lastSavedModel, next: action.newModel, current: currentModel }),
+            );
+            Object.assign(lastSavedModel, action.newModel);
+            break;
+          case 'finalModel':
+            expect(currentModel).toEqual(action.model);
+            break;
+        }
+      }
+    }
+
+    function initialFetch<T extends object>(model: T): InitialFetch<T> {
+      return { type: 'initialFetch', model };
+    }
+
+    function localChange<T extends object>(makeChange: (model: T) => void, expectedAfter: T): LocalChange<T> {
+      return { type: 'localChange', makeChange, expectedAfter };
+    }
+
+    function patchRequest(expected: JsonPatch): PatchRequest {
+      return { type: 'patchRequest', expected };
+    }
+
+    function patchResponse<T extends object>(newModel: T): PatchResponse<T> {
+      return { type: 'patchResponse', newModel };
+    }
+
+    function finalModel<T extends object>(model: T): FinalModel<T> {
+      return { type: 'finalModel', model };
+    }
+
+    describe('should work with a simple add operation', () => {
+      testActions([
+        initialFetch({}),
+        localChange(
+          (model) => {
+            model['a'] = 1;
+          },
+          { a: 1 },
+        ),
+        patchRequest([{ op: 'add', path: '/a', value: 1 }]),
+        patchResponse({ a: 1 }),
+        finalModel({ a: 1 }),
+      ]);
+    });
+
+    describe('opening repeating group with delayed response', () => {
+      testActions<{ group: null | { rowFrom: string }[]; a: number }>([
+        initialFetch({ group: null, a: 0 }),
+        localChange(
+          (model) => {
+            model['a'] = 1;
+          },
+          { group: null, a: 1 },
+        ),
+        patchRequest([
+          { op: 'test', path: '/a', value: 0 },
+          { op: 'replace', path: '/a', value: 1 },
+        ]),
+
+        // While we're waiting for a response, the user renders the repeating group and makes it an array
+        localChange(
+          (model) => {
+            model['group'] = [];
+          },
+          { group: [], a: 1 },
+        ),
+
+        // Then openByDefault kicks in and adds a row to the array
+        localChange(
+          (model) => {
+            model['group'].push({ rowFrom: 'client' });
+          },
+          { group: [{ rowFrom: 'client' }], a: 1 },
+        ),
+
+        // The backend responds with a prefill value for the array
+        patchResponse({ group: [{ rowFrom: 'server' }], a: 1 }),
+
+        // Now we should have two rows in the array, one from the backend and one from the user. As the one we
+        // got from the backend appeared last, that one will be appended to the array.
+        finalModel({ group: [{ rowFrom: 'client' }, { rowFrom: 'server' }], a: 1 }),
+      ]);
+    });
+  });
 });
