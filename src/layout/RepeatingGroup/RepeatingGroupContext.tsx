@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createStore } from 'zustand';
@@ -66,6 +66,9 @@ const ZStore = createZustandContext({
   name: 'RepeatingGroupZ',
   required: true,
   initialCreateStore: newStore,
+  onReRender: (store, { node }) => {
+    store.getState().updateNode(node);
+  },
 });
 
 const ExtendedStore = createContext<ExtendedContext>({
@@ -160,7 +163,7 @@ function newStore({ node }: Props) {
           if (state.currentlyAddingRow !== undefined) {
             return state;
           }
-          return { currentlyAddingRow: idx };
+          return { currentlyAddingRow: idx, editingIndex: undefined };
         });
       },
 
@@ -361,11 +364,6 @@ function useExtendedRepeatingGroupState(node: BaseLayoutNode<CompRepeatingGroupI
 
 function ProvideTheRest({ node, children }: PropsWithChildren<Props>) {
   const extended = useExtendedRepeatingGroupState(node);
-  const updateNode = ZStore.useSelector((state) => state.updateNode);
-  useEffect(() => {
-    updateNode(node);
-  }, [node, updateNode]);
-
   return <ExtendedStore.Provider value={extended}>{children}</ExtendedStore.Provider>;
 }
 

@@ -15,9 +15,10 @@ const dummyStore = createStore(() => ({}));
 export function createZustandContext<Store extends StoreApi<Type>, Type = ExtractFromStoreApi<Store>, Props = any>(
   props: CreateContextProps<Store> & {
     initialCreateStore: (props: Props) => Store;
+    onReRender?: (store: Store, props: Props) => void;
   },
 ) {
-  const { initialCreateStore, ...rest } = props;
+  const { initialCreateStore, onReRender, ...rest } = props;
   const { Provider, useCtx, useLaxCtx, useHasProvider } = createContext<Store>(rest);
 
   /**
@@ -54,7 +55,11 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
 
   function MyProvider({ children, ...props }: PropsWithChildren<Props>) {
     const storeRef = useRef<Store>();
-    if (!storeRef.current) {
+    if (storeRef.current) {
+      if (onReRender) {
+        onReRender(storeRef.current, props as Props);
+      }
+    } else {
       storeRef.current = initialCreateStore(props as Props);
     }
     return <Provider value={storeRef.current}>{children}</Provider>;

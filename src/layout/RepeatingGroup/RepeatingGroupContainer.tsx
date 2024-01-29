@@ -27,12 +27,14 @@ export function RepeatingGroupContainer({ containerDivRef }: RepeatingGroupConta
   const { triggerFocus } = useRepeatingGroupsFocusContext();
 
   const { node, addRow, openForEditing } = useRepeatingGroup();
-  const { isEditingAnyRow, editingIndex, isFirstRender, visibleRowIndexes } = useRepeatingGroupSelector((state) => ({
-    isEditingAnyRow: state.isEditingAnyRow,
-    editingIndex: state.editingIndex,
-    isFirstRender: state.isFirstRender,
-    visibleRowIndexes: state.visibleRowIndexes,
-  }));
+  const { isEditingAnyRow, editingIndex, isFirstRender, visibleRowIndexes, currentlyAddingRow } =
+    useRepeatingGroupSelector((state) => ({
+      isEditingAnyRow: state.isEditingAnyRow,
+      editingIndex: state.editingIndex,
+      isFirstRender: state.isFirstRender,
+      visibleRowIndexes: state.visibleRowIndexes,
+      currentlyAddingRow: state.currentlyAddingRow !== undefined,
+    }));
 
   const { textResourceBindings, id, edit, type } = node.item;
   const { title, description, add_button, add_button_full } = textResourceBindings || {};
@@ -49,6 +51,7 @@ export function RepeatingGroupContainer({ containerDivRef }: RepeatingGroupConta
       onClick={handleOnAddButtonClick}
       onKeyUp={handleOnAddKeypress}
       variant='secondary'
+      disabled={currentlyAddingRow}
       icon={<AddIcon aria-hidden='true' />}
       iconPlacement='left'
       fullWidth
