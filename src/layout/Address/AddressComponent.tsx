@@ -14,9 +14,9 @@ import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import classes from 'src/layout/Address/AddressComponent.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export type IAddressComponentProps = PropsFromGenericComponent<'AddressComponent'>;
+export type IAddressProps = PropsFromGenericComponent<'Address'>;
 
-export function AddressComponent({ node }: IAddressComponentProps) {
+export function AddressComponent({ node }: IAddressProps) {
   const { id, required, readOnly, labelSettings, simplified, saveWhileTyping } = node.item;
 
   const bindingValidations = useBindingValidationsForNode(node);
