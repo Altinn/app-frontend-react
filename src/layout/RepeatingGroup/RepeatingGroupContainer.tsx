@@ -13,7 +13,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import classes from 'src/layout/RepeatingGroup/RepeatingGroupContainer.module.css';
-import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
+import { useRepeatingGroup, useRepeatingGroupSelector } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
 import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/RepeatingGroupsEditContainer';
 import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/RepeatingGroupTable';
@@ -25,8 +25,15 @@ interface RepeatingGroupContainerProps {
 
 export function RepeatingGroupContainer({ containerDivRef }: RepeatingGroupContainerProps): JSX.Element | null {
   const { triggerFocus } = useRepeatingGroupsFocusContext();
-  const { node, isEditingAnyRow, editingIndex, addRow, openForEditing, isFirstRender, visibleRowIndexes } =
-    useRepeatingGroup();
+
+  const { node, addRow, openForEditing } = useRepeatingGroup();
+  const { isEditingAnyRow, editingIndex, isFirstRender, visibleRowIndexes } = useRepeatingGroupSelector((state) => ({
+    isEditingAnyRow: state.isEditingAnyRow,
+    editingIndex: state.editingIndex,
+    isFirstRender: state.isFirstRender,
+    visibleRowIndexes: state.visibleRowIndexes,
+  }));
+
   const { textResourceBindings, id, edit, type } = node.item;
   const { title, description, add_button, add_button_full } = textResourceBindings || {};
 
