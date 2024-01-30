@@ -560,6 +560,10 @@ describe('Group', () => {
       }
     });
 
+    // Reset state by going back and forth
+    cy.gotoNavPage('prefill');
+    cy.gotoNavPage('repeating');
+
     cy.get(appFrontend.group.addNewItem).click();
     cy.get(appFrontend.group.editContainer).should('not.exist');
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 5);
