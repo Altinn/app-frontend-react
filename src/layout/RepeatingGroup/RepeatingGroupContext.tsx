@@ -30,7 +30,6 @@ interface Store {
   numVisibleRows: number;
   visibleRowIndexes: number[];
   hiddenRowIndexes: Set<number>;
-  moreVisibleRowsAfterEditIndex: boolean;
   editableRowIndexes: number[];
   deletableRowIndexes: number[];
   currentlyAddingRow: undefined | number;
@@ -111,7 +110,6 @@ function newStore({ node }: Props) {
       isFirstRender: true,
       editingIndex: undefined,
       isEditingAnyRow: false,
-      moreVisibleRowsAfterEditIndex: false,
       numVisibleRows: visibleRowIndexes.length,
       deletingIndexes: [],
       currentlyAddingRow: undefined,
@@ -217,10 +215,6 @@ function newStore({ node }: Props) {
           }
           if (state.isFirstRender) {
             newState.isFirstRender = false;
-          }
-          if (state.editingIndex !== undefined && newState.editingIndex === state.editingIndex) {
-            newState.moreVisibleRowsAfterEditIndex =
-              visibleRowIndexes.indexOf(state.editingIndex) < visibleRowIndexes.length - 1;
           }
           return newState;
         });

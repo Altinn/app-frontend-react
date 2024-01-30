@@ -68,7 +68,16 @@ function RepeatingGroupsEditContainerInternal({
   row: CompRepeatingGroupInternal['rows'][number];
 }): JSX.Element | null {
   const { node, closeForEditing, deleteRow, openNextForEditing, isDeleting } = useRepeatingGroup();
-  const moreVisibleRowsAfterEditIndex = useRepeatingGroupSelector((state) => state.moreVisibleRowsAfterEditIndex);
+
+  const visibleRowIndexes = useRepeatingGroupSelector((state) => state.visibleRowIndexes);
+  let moreVisibleRowsAfterEditIndex = false;
+  for (const visibleRowIndex of visibleRowIndexes) {
+    if (visibleRowIndex > editIndex) {
+      moreVisibleRowsAfterEditIndex = true;
+      break;
+    }
+  }
+
   const { multiPageEnabled, multiPageIndex, nextMultiPage, prevMultiPage, hasNextMultiPage, hasPrevMultiPage } =
     useRepeatingGroupEdit();
   const id = node.item.id;
