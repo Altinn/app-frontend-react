@@ -19,7 +19,6 @@ interface Store {
   editingNone: boolean;
   binding: string;
   deletingIndexes: number[];
-  isEditingAnyRow: boolean;
   editingIndex: number | undefined;
 
   // If this is true, we're rendering the group for the first time in this context. This is used to
@@ -109,7 +108,6 @@ function newStore({ node }: Props) {
       binding: node.item.dataModelBindings.group,
       isFirstRender: true,
       editingIndex: undefined,
-      isEditingAnyRow: false,
       numVisibleRows: visibleRowIndexes.length,
       deletingIndexes: [],
       currentlyAddingRow: undefined,
