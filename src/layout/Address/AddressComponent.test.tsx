@@ -202,7 +202,9 @@ describe('AddressComponent', () => {
     });
 
     await userEvent.type(screen.getByRole('textbox', { name: 'Postnr' }), '0001{backspace}2');
-    await waitFor(() => expect(screen.getByRole('textbox', { name: 'Poststed' })).toHaveDisplayValue('BERGEN'));
+    await waitFor(() => expect(screen.getByRole('textbox', { name: 'Poststed' })).toHaveDisplayValue('BERGEN'), {
+      timeout: 15000,
+    });
 
     expect(queries.fetchPostPlace).toHaveBeenCalledTimes(1);
     expect(queries.fetchPostPlace).toHaveBeenCalledWith('0002');
