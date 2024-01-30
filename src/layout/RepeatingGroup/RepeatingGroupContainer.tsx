@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import type { MutableRefObject } from 'react';
 
 import { Button } from '@digdir/design-system-react';
@@ -24,8 +24,8 @@ interface RepeatingGroupContainerProps {
 }
 
 export function RepeatingGroupContainer({ containerDivRef }: RepeatingGroupContainerProps): JSX.Element | null {
-  const { node, addRow, openForEditing } = useRepeatingGroup();
-  const { editingIndex, isFirstRender, visibleRowIndexes } = useRepeatingGroupSelector((state) => ({
+  const { node } = useRepeatingGroup();
+  const { editingIndex, visibleRowIndexes } = useRepeatingGroupSelector((state) => ({
     editingIndex: state.editingIndex,
     isFirstRender: state.isFirstRender,
     visibleRowIndexes: state.visibleRowIndexes,
@@ -36,31 +36,8 @@ export function RepeatingGroupContainer({ containerDivRef }: RepeatingGroupConta
   const { title, description } = textResourceBindings || {};
 
   const numRows = visibleRowIndexes.length;
-  const firstIndex = visibleRowIndexes[0];
   const lastIndex = visibleRowIndexes[numRows - 1];
   const validations = useUnifiedValidationsForNode(node);
-
-  // Add new row if openByDefault is true and no rows exist. This also makes sure to add a row immediately after the
-  // last one has been deleted.
-  useEffect((): void => {
-    if (edit?.openByDefault && numRows === 0) {
-      addRow().then();
-    }
-  }, [node, addRow, edit?.openByDefault, numRows]);
-
-  // Open the first or last row for editing, if openByDefault is set to 'first' or 'last'
-  useEffect((): void => {
-    if (
-      isFirstRender &&
-      edit?.openByDefault &&
-      typeof edit.openByDefault === 'string' &&
-      ['first', 'last'].includes(edit.openByDefault) &&
-      editingIndex === undefined
-    ) {
-      const index = edit.openByDefault === 'last' ? lastIndex : firstIndex;
-      openForEditing(index);
-    }
-  }, [edit?.openByDefault, editingIndex, isFirstRender, firstIndex, lastIndex, openForEditing]);
 
   if (node.isHidden() || type !== 'RepeatingGroup') {
     return null;
@@ -157,7 +134,7 @@ function AddButton() {
     return null;
   }
 
-  if (!forceShow && (tooManyRows || isEditingAnyRow)) {
+  if ((tooManyRows || isEditingAnyRow) && !forceShow) {
     return null;
   }
 

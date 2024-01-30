@@ -34,15 +34,15 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
    * a re-render if the selected value changes when compared with the previous value. Values are compared using
    * 'fast-deep-equal'.
    */
-  function useMemoSelector<U>(selector: (state: Type) => U) {
+  function useMemoSelector<U>(selector: (state: Type) => U): U {
     const prev = useRef<U | undefined>(undefined);
     return useSelector((state) => {
       const next = selector(state);
       if (deepEqual(next, prev.current)) {
-        return prev.current;
+        return prev.current as U;
       }
       prev.current = next;
-      return next;
+      return next as U;
     });
   }
 
