@@ -6,8 +6,8 @@ interface ReturnType {
 }
 
 type Value = string | number | boolean | null;
-type ValidTypes = 'string' | 'number' | 'integer' | 'boolean' | 'null';
-const AllValidTypes: ValidTypes[] = ['string', 'number', 'integer', 'boolean', 'null'];
+const AllValidTypes = ['string', 'number', 'integer', 'boolean', 'null'] as const;
+type ValidTypes = (typeof AllValidTypes)[number];
 
 /**
  * Converts a string to a value based on a schema.
