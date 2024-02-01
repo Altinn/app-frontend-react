@@ -31,7 +31,9 @@ export const LayoutInspector = () => {
   useEffect(() => {
     if (textAreaRef.current) {
       textAreaRef.current.style.height = 'auto';
-      textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
+      const scrollBarHeight = textAreaRef.current.offsetHeight - textAreaRef.current.clientHeight;
+      const scrollHeight = textAreaRef.current.scrollHeight;
+      textAreaRef.current.style.height = `${scrollHeight + scrollBarHeight}px`;
     }
   }, [componentProperties]);
 
