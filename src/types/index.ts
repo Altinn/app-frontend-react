@@ -16,6 +16,10 @@ export interface IHiddenLayoutsExternal {
   [layoutKey: string]: ExprValToActualOrExpr<ExprVal.Boolean> | undefined;
 }
 
+export interface IExpandedWidthLayoutsExternal {
+  [layoutKey: string]: boolean;
+}
+
 export enum ProcessTaskType {
   Unknown = 'unknown',
   Data = 'data',

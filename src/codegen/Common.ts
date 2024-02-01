@@ -36,6 +36,13 @@ const common = {
               .setDescription('Expression that will hide the page/form layout if true')
               .optional({ default: false }),
           ),
+          new CG.prop(
+            'expandedWidth',
+            new CG.bool()
+              .setTitle('Expanded width')
+              .setDescription('Expression that will expand the page/form layout if true')
+              .optional({ default: false }),
+          ),
         ),
       ),
     )

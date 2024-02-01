@@ -8,7 +8,9 @@ import { MessageBanner } from 'src/components/form/MessageBanner';
 import { ErrorReport } from 'src/components/message/ErrorReport';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { useExpandedWidthValues } from 'src/features/form/layout/LayoutsContext';
 import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
+import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { FrontendValidationSource } from 'src/features/validation';
 import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { useCurrentView, useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -22,6 +24,7 @@ export function Form() {
   const nodes = useNodes();
   const page = currentPageId && nodes?.all?.()?.[currentPageId];
   useRedirectToStoredPage();
+  useSetExpandedWidth();
 
   useRegisterNodeNavigationHandler((targetNode) => {
     const targetView = targetNode?.top.top.myKey;
@@ -114,4 +117,15 @@ function useRedirectToStoredPage() {
       }
     }
   }, [currentPageId, currentViewCacheKey, isValidPageId, location, navigateToPage]);
+}
+
+function useSetExpandedWidth() {
+  const currentPageId = useCurrentView();
+  const expandedPages = useExpandedWidthValues();
+  const { setExpandedWidth } = useUiConfigContext();
+
+  useEffect(() => {
+    const defaultExpandedWidth = currentPageId ? expandedPages?.[currentPageId] : false;
+    setExpandedWidth(defaultExpandedWidth);
+  }, [currentPageId, expandedPages, setExpandedWidth]);
 }
