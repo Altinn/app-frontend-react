@@ -1,7 +1,7 @@
 import React from 'react';
 import type { PropsWithChildren } from 'react';
 
-import { Table, TableBody, TableCell, TableHeader, TableRow } from '@digdir/design-system-react';
+import { Table } from '@digdir/design-system-react';
 import cn from 'classnames';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
@@ -150,16 +150,16 @@ function InternalRow({ header, readOnly, children }: InternalRowProps) {
 
   if (header) {
     return (
-      <TableHeader>
-        <TableRow className={className}>{children}</TableRow>
-      </TableHeader>
+      <Table.Head>
+        <Table.Row className={className}>{children}</Table.Row>
+      </Table.Head>
     );
   }
 
   return (
-    <TableBody>
-      <TableRow className={className}>{children}</TableRow>
-    </TableBody>
+    <Table.Body>
+      <Table.Row className={className}>{children}</Table.Row>
+    </Table.Body>
   );
 }
 
@@ -184,7 +184,7 @@ function CellWithComponent({ node, className, columnStyleOptions }: CellWithComp
   if (node && !node.isHidden()) {
     const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
     return (
-      <TableCell
+      <Table.Cell
         className={cn(css.tableCellFormatting, className)}
         style={columnStyles}
       >
@@ -196,18 +196,18 @@ function CellWithComponent({ node, className, columnStyleOptions }: CellWithComp
             renderedInTable: true,
           }}
         />
-      </TableCell>
+      </Table.Cell>
     );
   }
 
-  return <TableCell className={className} />;
+  return <Table.Cell className={className} />;
 }
 
 function CellWithText({ children, className, columnStyleOptions, help }: CellWithTextProps) {
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
   const { elementAsString } = useLanguage();
   return (
-    <TableCell
+    <Table.Cell
       className={cn(css.tableCellFormatting, className)}
       style={columnStyles}
     >
@@ -225,7 +225,7 @@ function CellWithText({ children, className, columnStyleOptions, help }: CellWit
           />
         )}
       </span>
-    </TableCell>
+    </Table.Cell>
   );
 }
 
@@ -243,7 +243,7 @@ function CellWithLabel({ className, columnStyleOptions, referenceComponent }: Ce
   const componentId = referenceComponent?.item.id ?? referenceComponent?.item.baseComponentId;
 
   return (
-    <TableCell
+    <Table.Cell
       className={cn(css.tableCellFormatting, className)}
       style={columnStyles}
     >
@@ -264,7 +264,7 @@ function CellWithLabel({ className, columnStyleOptions, referenceComponent }: Ce
           />
         </>
       )}
-    </TableCell>
+    </Table.Cell>
   );
 }
 
