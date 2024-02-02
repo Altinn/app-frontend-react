@@ -513,6 +513,10 @@ describe('Validation', () => {
       }
     });
 
+    // Go back to the first page and then here again to reset the repeating group after the change above
+    cy.gotoNavPage('prefill');
+    cy.gotoNavPage('repeating');
+
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 1);
     cy.get(appFrontend.group.editContainer).should('not.exist');
     cy.get(appFrontend.group.addNewItem).click();
@@ -717,5 +721,37 @@ describe('Validation', () => {
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 6);
     cy.findByText('Du må fylle ut dato for navneendring').click();
     cy.findByLabelText(/Når vil du at navnendringen skal skje?/).should('be.inViewport');
+  });
+
+  describe('Falsy values', () => {
+    it('should validate boolean fields as set in the data model even when they are set to false', () => {
+      cy.interceptLayout('message', (component) => {
+        if (component.id === 'falsyRadioButton') {
+          component.hidden = false;
+        }
+      });
+      cy.goto('message');
+
+      cy.findByRole('radio', { name: 'False' }).click();
+      cy.findByRole('button', { name: 'Send inn' }).click();
+
+      // content from next page
+      cy.findByText('Nåværende navn').should('exist');
+    });
+
+    it('should validate number fields as set in the data model when a falsy value is input', () => {
+      cy.interceptLayout('message', (component) => {
+        if (component.id === 'falsyInput') {
+          component.hidden = false;
+        }
+      });
+      cy.goto('message');
+
+      cy.findByRole('textbox', { name: 'Input with falsy value *' }).type('0');
+      cy.findByRole('button', { name: 'Send inn' }).click();
+
+      // Content from next page
+      cy.findByText('Nåværende navn').should('exist');
+    });
   });
 });
