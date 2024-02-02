@@ -17,7 +17,7 @@ describe('openByDefault', () => {
   function RenderTest() {
     const state = useRepeatingGroupSelector((state) => ({
       editingIndex: state.editingIndex,
-      currentlyAddingRow: state.currentlyAddingRow !== undefined,
+      addingIndexes: state.addingIndexes,
       visibleRowIndexes: state.visibleRowIndexes.sort(),
       hiddenRowIndexes: [...state.hiddenRowIndexes.values()].sort(),
     }));
@@ -34,7 +34,7 @@ describe('openByDefault', () => {
   }
 
   interface Row {
-    id: string;
+    id: number;
     name: string;
   }
 
@@ -95,16 +95,17 @@ describe('openByDefault', () => {
 
   interface WaitForStateProps {
     state: any;
-    mutations?: Awaited<ReturnType<typeof render>>['mutations'];
-    expectedPatch?: JsonPatch[];
+    mutations: Awaited<ReturnType<typeof render>>['mutations'];
+    expectedPatch?: JsonPatch;
     newModelAfterSave?: any;
+    expectedWarning?: any;
   }
 
-  async function waitUntil({ state, mutations, expectedPatch, newModelAfterSave }: WaitForStateProps) {
-    await waitFor(() => expect(getState()).toEqual(state));
-
+  async function waitUntil({ state, mutations, expectedPatch, newModelAfterSave, expectedWarning }: WaitForStateProps) {
+    jest.advanceTimersByTime(3000);
     if (newModelAfterSave && mutations) {
-      expect(mutations.doPatchFormData.mock).toHaveBeenCalledTimes(1);
+      await waitFor(() => expect(mutations.doPatchFormData.mock).toHaveBeenCalledTimes(1));
+
       expect(mutations.doPatchFormData.mock).toHaveBeenCalledWith(
         expect.anything(),
         expectedPatch ? expect.objectContaining({ patch: expectedPatch }) : expect.anything(),
@@ -116,14 +117,31 @@ describe('openByDefault', () => {
       (mutations.doPatchFormData.mock as jest.Mock).mockClear();
     }
 
+    // Ensure state is as expected
+    await waitFor(() => expect(getState()).toEqual(state));
+
     // Because this typically happens in a loop, we need to wait a little more and check again to make sure
     // the state doesn't change again.
+    jest.advanceTimersByTime(3000);
+    jest.useRealTimers();
     await new Promise((resolve) => setTimeout(resolve, 300));
+    jest.useFakeTimers();
     expect(getState()).toEqual(state);
+    expect(mutations?.doPatchFormData.mock).not.toHaveBeenCalled();
+
+    if (expectedWarning) {
+      expect(window.logWarn).toHaveBeenCalledWith(expectedWarning);
+    } else {
+      expect(window.logWarn).not.toHaveBeenCalled();
+    }
   }
 
   beforeAll(() => {
-    jest.spyOn(window, 'logWarn').mockImplementation(() => {});
+    jest.useFakeTimers();
+    jest
+      .spyOn(window, 'logWarn')
+      .mockImplementation(() => {})
+      .mockName('window.logWarn');
   });
 
   afterEach(() => {
@@ -131,11 +149,12 @@ describe('openByDefault', () => {
   });
 
   afterAll(() => {
+    jest.useRealTimers();
     jest.restoreAllMocks();
   });
 
   it('should not add a new row by default when off', async () => {
-    await render({
+    const { mutations } = await render({
       existingRows: [],
       edit: { openByDefault: false },
     });
@@ -143,64 +162,72 @@ describe('openByDefault', () => {
     await waitUntil({
       state: {
         editingIndex: undefined,
-        currentlyAddingRow: false,
+        addingIndexes: [],
         visibleRowIndexes: [],
         hiddenRowIndexes: [],
         data: [],
       },
+      mutations,
     });
   });
 
   it('should add one new row by default when on', async () => {
-    await render({
+    const { mutations } = await render({
       existingRows: [],
       edit: { openByDefault: true },
     });
-
     await waitUntil({
       state: {
         editingIndex: 0,
-        currentlyAddingRow: false,
+        addingIndexes: [],
         visibleRowIndexes: [0],
         hiddenRowIndexes: [],
-        data: [{}],
+        data: [{ id: 1, name: 'test' }],
       },
+      expectedPatch: [
+        { op: 'test', path: '/MyGroup', value: [] },
+        { op: 'add', path: '/MyGroup/-', value: {} },
+      ],
+      newModelAfterSave: { MyGroup: [{ id: 1, name: 'test' }] },
+      mutations,
     });
   });
 
   it('should not add a new row if one already exists', async () => {
-    await render({
-      existingRows: [{ id: '1', name: 'test' }],
+    const { mutations } = await render({
+      existingRows: [{ id: 1, name: 'test' }],
       edit: { openByDefault: true },
     });
 
     await waitUntil({
       state: {
         editingIndex: undefined,
-        currentlyAddingRow: false,
+        addingIndexes: [],
         visibleRowIndexes: [0],
         hiddenRowIndexes: [],
-        data: [{ id: '1', name: 'test' }],
+        data: [{ id: 1, name: 'test' }],
       },
+      mutations,
     });
   });
 
   it.each(['first', 'last'] as const)(
     'should open the row if one exist and openByDefault is %s',
     async (openByDefault) => {
-      await render({
-        existingRows: [{ id: '1', name: 'test' }],
+      const { mutations } = await render({
+        existingRows: [{ id: 1, name: 'test' }],
         edit: { openByDefault },
       });
 
       await waitUntil({
         state: {
           editingIndex: 0,
-          currentlyAddingRow: false,
+          addingIndexes: [],
           visibleRowIndexes: [0],
           hiddenRowIndexes: [],
-          data: [{ id: '1', name: 'test' }],
+          data: [{ id: 1, name: 'test' }],
         },
+        mutations,
       });
     },
   );
@@ -208,7 +235,7 @@ describe('openByDefault', () => {
   it.each(['first', 'last'] as const)(
     'should add the first row if none exists and openByDefault is %s',
     async (openByDefault) => {
-      await render({
+      const { mutations } = await render({
         existingRows: [],
         edit: { openByDefault },
       });
@@ -216,11 +243,17 @@ describe('openByDefault', () => {
       await waitUntil({
         state: {
           editingIndex: 0,
-          currentlyAddingRow: false,
+          addingIndexes: [],
           visibleRowIndexes: [0],
           hiddenRowIndexes: [],
-          data: [{}],
+          data: [{ id: 5, name: 'foo bar' }],
         },
+        expectedPatch: [
+          { op: 'test', path: '/MyGroup', value: [] },
+          { op: 'add', path: '/MyGroup/-', value: {} },
+        ],
+        newModelAfterSave: { MyGroup: [{ id: 5, name: 'foo bar' }] },
+        mutations,
       });
     },
   );
@@ -228,19 +261,20 @@ describe('openByDefault', () => {
   it.each(['first', 'last'] as const)(
     'should not add a new row if one already exists and openByDefault is %s',
     async (openByDefault) => {
-      await render({
-        existingRows: [{ id: '1', name: 'test' }],
+      const { mutations } = await render({
+        existingRows: [{ id: 1, name: 'test' }],
         edit: { openByDefault },
       });
 
       await waitUntil({
         state: {
           editingIndex: 0,
-          currentlyAddingRow: false,
+          addingIndexes: [],
           visibleRowIndexes: [0],
           hiddenRowIndexes: [],
-          data: [{ id: '1', name: 'test' }],
+          data: [{ id: 1, name: 'test' }],
         },
+        mutations,
       });
     },
   );
@@ -248,10 +282,10 @@ describe('openByDefault', () => {
   it.each(['first', 'last'] as const)(
     'should open the correct row if multiple exist and openByDefault is %s',
     async (openByDefault) => {
-      await render({
+      const { mutations } = await render({
         existingRows: [
-          { id: '1', name: 'test' },
-          { id: '2', name: 'test' },
+          { id: 1, name: 'test' },
+          { id: 2, name: 'test' },
         ],
         edit: { openByDefault },
       });
@@ -259,14 +293,15 @@ describe('openByDefault', () => {
       await waitUntil({
         state: {
           editingIndex: openByDefault === 'last' ? 1 : 0,
-          currentlyAddingRow: false,
+          addingIndexes: [],
           visibleRowIndexes: [0, 1],
           hiddenRowIndexes: [],
           data: [
-            { id: '1', name: 'test' },
-            { id: '2', name: 'test' },
+            { id: 1, name: 'test' },
+            { id: 2, name: 'test' },
           ],
         },
+        mutations,
       });
     },
   );
@@ -274,8 +309,8 @@ describe('openByDefault', () => {
   it.each(['first', 'last', true] as const)(
     'should add a new row if one already exists but is hidden, and openByDefault is %s',
     async (openByDefault) => {
-      await render({
-        existingRows: [{ id: '1', name: 'test' }],
+      const { mutations } = await render({
+        existingRows: [{ id: 1, name: 'test' }],
         edit: { openByDefault },
         hiddenRow: ['equals', ['dataModel', 'MyGroup.name'], 'test'],
       });
@@ -283,11 +318,25 @@ describe('openByDefault', () => {
       await waitUntil({
         state: {
           editingIndex: 1,
-          currentlyAddingRow: false,
+          addingIndexes: [],
           visibleRowIndexes: [1],
           hiddenRowIndexes: [0],
-          data: [{ id: '1', name: 'test' }, {}],
+          data: [
+            { id: 1, name: 'test' },
+            { id: 2, name: 'bar baz' },
+          ],
         },
+        expectedPatch: [
+          { op: 'test', path: '/MyGroup', value: [{ id: 1, name: 'test' }] },
+          { op: 'add', path: '/MyGroup/-', value: {} },
+        ],
+        newModelAfterSave: {
+          MyGroup: [
+            { id: 1, name: 'test' },
+            { id: 2, name: 'bar baz' },
+          ],
+        },
+        mutations,
       });
     },
   );
@@ -295,10 +344,10 @@ describe('openByDefault', () => {
   it.each(['first', 'last', true] as const)(
     'should only attempt to add one new row if new rows keep getting hidden, and openByDefault is %s',
     async (openByDefault) => {
-      await render({
-        existingRows: [{ id: '1', name: 'test' }],
+      const { mutations } = await render({
+        existingRows: [{ id: 1, name: 'test' }],
         edit: { openByDefault },
-        hiddenRow: true,
+        hiddenRow: ['equals', true, true],
       });
 
       // This should fail, because the new row we add is hidden. It's too late when we've already added it, so we
@@ -306,19 +355,71 @@ describe('openByDefault', () => {
       await waitUntil({
         state: {
           editingIndex: undefined,
-          currentlyAddingRow: false,
+          addingIndexes: [],
           visibleRowIndexes: [],
           hiddenRowIndexes: [0, 1],
-          data: [{ id: '1', name: 'test' }, {}],
+          data: [
+            { id: 1, name: 'test' },
+            { id: 2, name: 'test' },
+          ],
         },
+        expectedPatch: [
+          { op: 'test', path: '/MyGroup', value: [{ id: 1, name: 'test' }] },
+          { op: 'add', path: '/MyGroup/-', value: {} },
+        ],
+        newModelAfterSave: {
+          MyGroup: [
+            { id: 1, name: 'test' },
+            { id: 2, name: 'test' },
+          ],
+        },
+        expectedWarning: expect.stringContaining(
+          "openByDefault for repeating group 'myGroup' returned 'addedAndHidden'",
+        ),
+        mutations,
       });
 
       expect(window.logWarn).toHaveBeenCalledTimes(1);
     },
   );
 
+  it.each(['first', 'last', true] as const)(
+    'should immediately hide the row again, but not create a new one if the backend responds with prefill that makes the new row hidden again, and openByDefault is %s',
+    async (openByDefault) => {
+      const { mutations } = await render({
+        existingRows: [{ id: 1, name: 'test' }],
+        edit: { openByDefault },
+        hiddenRow: ['equals', ['dataModel', 'MyGroup.name'], 'test'],
+      });
+
+      await waitUntil({
+        state: {
+          editingIndex: undefined,
+          addingIndexes: [],
+          visibleRowIndexes: [],
+          hiddenRowIndexes: [0, 1],
+          data: [
+            { id: 1, name: 'test' },
+            { id: 2, name: 'test' },
+          ],
+        },
+        expectedPatch: [
+          { op: 'test', path: '/MyGroup', value: [{ id: 1, name: 'test' }] },
+          { op: 'add', path: '/MyGroup/-', value: {} },
+        ],
+        newModelAfterSave: {
+          MyGroup: [
+            { id: 1, name: 'test' },
+            { id: 2, name: 'test' },
+          ],
+        },
+        mutations,
+      });
+    },
+  );
+
   it('should not add rows if not allowed to', async () => {
-    await render({
+    const { mutations } = await render({
       existingRows: [],
       edit: { openByDefault: true, addButton: false },
     });
@@ -326,11 +427,12 @@ describe('openByDefault', () => {
     await waitUntil({
       state: {
         editingIndex: undefined,
-        currentlyAddingRow: false,
+        addingIndexes: [],
         visibleRowIndexes: [],
         hiddenRowIndexes: [],
         data: [],
       },
+      mutations,
     });
   });
 });

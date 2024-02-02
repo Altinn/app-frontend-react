@@ -116,7 +116,7 @@ function AddButton() {
       editingNone: state.editingNone,
       editingIndex: state.editingIndex,
       visibleRowIndexes: state.visibleRowIndexes,
-      currentlyAddingRow: state.currentlyAddingRow !== undefined,
+      currentlyAddingRow: state.addingIndexes.length > 0,
     }),
   );
   const isEditingAnyRow = editingIndex !== undefined;

@@ -19,8 +19,6 @@ interface Store {
   editingAll: boolean;
   editingNone: boolean;
   binding: string;
-  deletingIndexes: number[];
-  editingIndex: number | undefined;
 
   // If this is true, we're rendering the group for the first time in this context. This is used to
   // determine whether we should open the first/last row for editing when first displaying the group. If, however,
@@ -29,15 +27,17 @@ interface Store {
 
   visibleRowIndexes: number[];
   hiddenRowIndexes: Set<number>;
+
+  editingIndex: number | undefined;
   editableRowIndexes: number[];
   deletableRowIndexes: number[];
-  currentlyAddingRow: undefined | number;
+  deletingIndexes: number[];
+  addingIndexes: number[];
 }
 
 interface ZustandHiddenMethods {
   updateNode: (n: BaseLayoutNode<CompRepeatingGroupInternal>) => void;
   startAddingRow: (idx: number) => void;
-  endAddingRow: (idx: number) => void;
   startDeletingRow: (idx: number) => void;
   endDeletingRow: (idx: number, successful: boolean) => void;
 }
@@ -50,8 +50,13 @@ interface ExtendedMethods {
   closeForEditing: (index: number) => void;
 }
 
+type AddRowResult =
+  | { result: 'stoppedByBinding'; index: undefined }
+  | { result: 'stoppedByValidation'; index: undefined }
+  | { result: 'addedAndOpened' | 'addedAndHidden'; index: number };
+
 interface ContextMethods extends ExtendedMethods {
-  addRow: () => Promise<void>;
+  addRow: () => Promise<AddRowResult>;
   deleteRow: (index: number) => Promise<boolean>;
   isEditing: (index: number) => boolean;
   isDeleting: (index: number) => boolean;
@@ -110,7 +115,7 @@ function newStore({ node }: Props) {
       editingIndex: undefined,
       numVisibleRows: visibleRowIndexes.length,
       deletingIndexes: [],
-      currentlyAddingRow: undefined,
+      addingIndexes: [],
 
       visibleRowIndexes,
       hiddenRowIndexes,
@@ -156,19 +161,10 @@ function newStore({ node }: Props) {
 
       startAddingRow: (idx) => {
         set((state) => {
-          if (state.currentlyAddingRow !== undefined) {
+          if (state.addingIndexes.includes(idx)) {
             return state;
           }
-          return { currentlyAddingRow: idx, editingIndex: undefined };
-        });
-      },
-
-      endAddingRow: (idx) => {
-        set((state) => {
-          if (state.currentlyAddingRow !== idx) {
-            return state;
-          }
-          return { currentlyAddingRow: undefined };
+          return { addingIndexes: [...state.addingIndexes, idx], editingIndex: undefined };
         });
       },
 
@@ -214,6 +210,15 @@ function newStore({ node }: Props) {
           if (state.isFirstRender) {
             newState.isFirstRender = false;
           }
+
+          // If the rows have been added, we can remove them from the addingIndexes list. The same thing
+          // happens for the deletingIndexes list via the endDeletingRow method.
+          const allRowIndexes = n.item.rows.map((row) => row.index);
+          const recentlyAddedIndexes = state.addingIndexes.filter((idx) => allRowIndexes.includes(idx));
+          if (recentlyAddedIndexes.length > 0) {
+            newState.addingIndexes = state.addingIndexes.filter((idx) => !recentlyAddedIndexes.includes(idx));
+          }
+
           return newState;
         });
       },
@@ -297,20 +302,27 @@ function useExtendedRepeatingGroupState(node: BaseLayoutNode<CompRepeatingGroupI
     [stateRef],
   );
 
-  const addRow = useCallback(async () => {
-    const { binding, currentlyAddingRow, startAddingRow, endAddingRow } = stateRef.current;
-    if (binding && !currentlyAddingRow && !(await maybeValidateRow())) {
-      const nextIndex = nodeRef.current.item.rows.length;
-      const nextLength = nextIndex + 1;
-      startAddingRow(nextIndex);
-      appendToList({
-        path: binding,
-        newValue: {},
-      });
-      await waitForNode((node) => node.item.rows.length === nextLength);
-      await openForEditing(nextIndex);
-      endAddingRow(nextIndex);
+  const addRow = useCallback(async (): Promise<AddRowResult> => {
+    const { binding, startAddingRow } = stateRef.current;
+    if (!binding) {
+      return { result: 'stoppedByBinding', index: undefined };
     }
+    if (await maybeValidateRow()) {
+      return { result: 'stoppedByValidation', index: undefined };
+    }
+    const nextIndex = nodeRef.current.item.rows.length;
+    startAddingRow(nextIndex);
+    appendToList({
+      path: binding,
+      newValue: {},
+    });
+    await waitForNode((node) => node.item.rows.some((row) => row.index === nextIndex));
+    if (stateRef.current.visibleRowIndexes.includes(nextIndex)) {
+      await openForEditing(nextIndex);
+      return { result: 'addedAndOpened', index: nextIndex };
+    }
+
+    return { result: 'addedAndHidden', index: nextIndex };
   }, [appendToList, maybeValidateRow, nodeRef, openForEditing, stateRef, waitForNode]);
 
   const deleteRow = useCallback(
