@@ -119,6 +119,9 @@ function useRedirectToStoredPage() {
   }, [currentPageId, currentViewCacheKey, isValidPageId, location, navigateToPage]);
 }
 
+/**
+ * Sets the expanded width for the current page if it is defined in the currently viewed layout-page
+ */
 function useSetExpandedWidth() {
   const currentPageId = useCurrentView();
   const expandedPages = useExpandedWidthValues();
