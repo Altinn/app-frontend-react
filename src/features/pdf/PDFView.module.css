@@ -3,8 +3,8 @@
    * This makes testing easier as cypress does not support rendering in @media print mode
    * @see https://github.com/cypress-io/cypress/issues/790
    */
-  button,
-  [role='button'] {
+  & button,
+  & [role='button'] {
     display: none !important;
   }
 }
