@@ -29,16 +29,16 @@ export function PDFWrapper({ children }: PropsWithChildren) {
     return <PDFView />;
   }
 
-  if (previewPDF) {
-    return (
-      <>
-        <div className={classes['hide-form']}>{children}</div>
-        <PDFView />
-      </>
-    );
-  }
-
-  return <>{children}</>;
+  return (
+    <>
+      <div className={previewPDF ? classes.hideInPrint : undefined}>{children}</div>
+      {previewPDF && (
+        <div className={classes.onlyInPrint}>
+          <PDFView />
+        </div>
+      )}
+    </>
+  );
 }
 
 async function waitForPrint(timeOut = 5000): Promise<boolean> {
