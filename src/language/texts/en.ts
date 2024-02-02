@@ -109,6 +109,7 @@ export function en() {
     general: {
       action: 'Action',
       accessibility: 'Accessibility',
+      accessibility_url: 'https://info.altinn.no/en/about-altinn/tilgjengelighet/',
       add_connection: 'Add connection',
       add_new: 'Add new',
       add: 'Add',
@@ -322,6 +323,17 @@ export function en() {
       previousPage: 'Previous page in the table',
       nextPage: 'Next page in the table',
       navigateLastPage: 'Navigate to the last page in the table',
+    },
+    config_error: {
+      component_has_errors: 'We found the following errors when we interpreted the configuration for <code>{0}</code>:',
+      component_has_errors_after:
+        'As long as the component has configuration errors, we cannot show it in the form. Fix the errors and try again.',
+    },
+    version_error: {
+      version_mismatch: 'Version mismatch',
+      version_mismatch_message:
+        'This version of the app frontend is not compatible with the version of the backend libraries you are using. Update to the latest version of the packages and try again.',
+      min_backend_version: 'Minimum backend version is {0}',
     },
   };
 }

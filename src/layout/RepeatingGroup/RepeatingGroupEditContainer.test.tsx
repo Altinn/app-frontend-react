@@ -4,17 +4,21 @@ import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { getMultiPageGroupMock } from 'src/__mocks__/getMultiPageGroupMock';
-import { RepeatingGroupProvider, useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
+import {
+  RepeatingGroupProvider,
+  useRepeatingGroup,
+  useRepeatingGroupSelector,
+} from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/RepeatingGroupsEditContainer';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.generated';
-import type { IOption } from 'src/layout/common.generated';
+import type { IRawOption } from 'src/layout/common.generated';
 import type { CompExternal } from 'src/layout/layout';
-import type { CompGroupRepeatingInternal } from 'src/layout/RepeatingGroup/config.generated';
+import type { CompRepeatingGroupInternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 
 describe('RepeatingGroupsEditContainer', () => {
-  const options: IOption[] = [{ value: 'option.value', label: 'option.label' }];
+  const options: IRawOption[] = [{ value: 'option.value', label: 'option.label' }];
   const components: CompExternal[] = [
     {
       id: 'field1',
@@ -81,7 +85,7 @@ describe('RepeatingGroupsEditContainer', () => {
     const multiPageGroup = getMultiPageGroupMock({ id: 'group' });
     multiPageGroup.edit!.saveAndNextButton = true;
 
-    return await renderWithNode<true, BaseLayoutNode<CompGroupRepeatingInternal>>({
+    return await renderWithNode<true, BaseLayoutNode<CompRepeatingGroupInternal>>({
       nodeId: 'group',
       inInstance: true,
       renderer: ({ node }) => (
@@ -126,7 +130,8 @@ describe('RepeatingGroupsEditContainer', () => {
 });
 
 function TestRenderer() {
-  const { editingIndex, openForEditing } = useRepeatingGroup();
+  const editingIndex = useRepeatingGroupSelector((state) => state.editingIndex);
+  const { openForEditing } = useRepeatingGroup();
 
   if (editingIndex === undefined) {
     return (

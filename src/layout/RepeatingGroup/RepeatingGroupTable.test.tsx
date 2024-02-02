@@ -5,22 +5,22 @@ import { userEvent } from '@testing-library/user-event';
 import ResizeObserverModule from 'resize-observer-polyfill';
 
 import { getFormLayoutRepeatingGroupMock } from 'src/__mocks__/getFormLayoutGroupMock';
-import { RepeatingGroupProvider, useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
+import { RepeatingGroupProvider, useRepeatingGroupSelector } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/RepeatingGroupTable';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.generated';
-import type { IOption } from 'src/layout/common.generated';
+import type { IRawOption } from 'src/layout/common.generated';
 import type { CompOrGroupExternal, ILayoutCollection } from 'src/layout/layout';
 import type {
-  CompGroupRepeatingExternal,
-  CompGroupRepeatingInternal,
+  CompRepeatingGroupExternal,
+  CompRepeatingGroupInternal,
 } from 'src/layout/RepeatingGroup/config.generated';
 import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 
 (global as any).ResizeObserver = ResizeObserverModule;
 
-const getLayout = (group: CompGroupRepeatingExternal, components: CompOrGroupExternal[]): ILayoutCollection => ({
+const getLayout = (group: CompRepeatingGroupExternal, components: CompOrGroupExternal[]): ILayoutCollection => ({
   FormLayout: {
     data: {
       layout: [group, ...components],
@@ -32,7 +32,7 @@ describe('RepeatingGroupTable', () => {
   const group = getFormLayoutRepeatingGroupMock({
     id: 'mock-container-id',
   });
-  const options: IOption[] = [{ value: 'option.value', label: 'option.label' }];
+  const options: IRawOption[] = [{ value: 'option.value', label: 'option.label' }];
   const components: CompOrGroupExternal[] = [
     {
       id: 'field1',
@@ -165,7 +165,7 @@ describe('RepeatingGroupTable', () => {
   });
 
   const render = async (layout = getLayout(group, components)) =>
-    await renderWithNode<true, BaseLayoutNode<CompGroupRepeatingInternal>>({
+    await renderWithNode<true, BaseLayoutNode<CompRepeatingGroupInternal>>({
       nodeId: group.id,
       inInstance: true,
       renderer: ({ node }) => (
@@ -198,6 +198,6 @@ describe('RepeatingGroupTable', () => {
 });
 
 function LeakEditIndex() {
-  const { editingIndex } = useRepeatingGroup();
+  const editingIndex = useRepeatingGroupSelector((state) => state.editingIndex);
   return <div data-testid='editIndex'>{editingIndex === undefined ? 'undefined' : editingIndex}</div>;
 }

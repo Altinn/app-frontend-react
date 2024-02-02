@@ -111,6 +111,7 @@ export function nb(): FixedLanguageList {
     general: {
       action: 'Handling',
       accessibility: 'Tilgjengelighet',
+      accessibility_url: 'https://info.altinn.no/om-altinn/tilgjengelighet/',
       add_connection: 'Legg til tilkobling',
       add_new: 'Legg til ny',
       add: 'Legg til',
@@ -325,6 +326,17 @@ export function nb(): FixedLanguageList {
       previousPage: 'Forrige side i tabell',
       nextPage: 'Neste side i tabell',
       navigateLastPage: 'Naviger til siste side i tabell',
+    },
+    config_error: {
+      component_has_errors: 'Vi fant følgende feil når vi tolket konfigurasjonen for <code>{0}</code>:',
+      component_has_errors_after:
+        'Så lenge komponenten har konfigurasjonsfeil kan vi ikke vise den i skjemaet. Rett opp i feilene og prøv igjen.',
+    },
+    version_error: {
+      version_mismatch: 'Versjonsfeil',
+      version_mismatch_message:
+        'Denne versjonen av app frontend er ikke kompatibel med den versjonen av backend-bibliotekene du bruker. Oppdater til nyeste versjon av pakkene og prøv igjen.',
+      min_backend_version: 'Minimum backend versjon er {0}',
     },
   };
 }

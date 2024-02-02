@@ -5,13 +5,13 @@ import { userEvent } from '@testing-library/user-event';
 import type { AxiosResponse } from 'axios';
 
 import { getFormDataMockForRepGroup } from 'src/__mocks__/getFormDataMockForRepGroup';
-import { FD } from 'src/features/formData/FormDataWrite';
+import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
 import { queryPromiseMock, renderGenericComponentTest } from 'src/test/renderWithProviders';
-import type { IOption } from 'src/layout/common.generated';
+import type { IRawOption } from 'src/layout/common.generated';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
-const countries: IOption[] = [
+const countries: IRawOption[] = [
   {
     label: 'Norway',
     value: 'norway',
@@ -26,19 +26,18 @@ const countries: IOption[] = [
   },
 ];
 
-interface Props extends Partial<Omit<RenderGenericComponentTestProps<'Dropdown'>, 'renderer' | 'type' | 'queries'>> {
-  options?: IOption[];
+interface Props extends Partial<Omit<RenderGenericComponentTestProps<'Dropdown'>, 'renderer' | 'type'>> {
+  options?: IRawOption[];
 }
 
 function MySuperSimpleInput() {
-  const setValue = FD.useSetForBinding('myInput');
-  const value = FD.usePickFreshString('myInput');
+  const { setValue, formData } = useDataModelBindings({ simpleBinding: 'myInput' });
 
   return (
     <input
       data-testid='my-input'
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
+      value={formData.simpleBinding}
+      onChange={(e) => setValue('simpleBinding', e.target.value)}
     />
   );
 }
@@ -65,6 +64,7 @@ const render = async ({ component, genericProps, options, ...rest }: Props = {})
       isValid: true,
       ...genericProps,
     },
+    ...rest,
     queries: {
       fetchFormData: async () => ({
         ...getFormDataMockForRepGroup(),
@@ -75,9 +75,9 @@ const render = async ({ component, genericProps, options, ...rest }: Props = {})
           : Promise.resolve({
               data: options,
               headers: {},
-            } as AxiosResponse<IOption[], any>),
+            } as AxiosResponse<IRawOption[], any>),
+      ...rest.queries,
     },
-    ...rest,
   });
 
   return { ...utils, fetchOptions };
@@ -131,7 +131,6 @@ describe('DropdownComponent', () => {
     await waitFor(() =>
       expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'myDropdown', newValue: 'denmark' }),
     );
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1);
   });
 
   it('should show spinner', async () => {
@@ -150,7 +149,7 @@ describe('DropdownComponent', () => {
     fetchOptions.resolve({
       data: countries,
       headers: {},
-    } as AxiosResponse<IOption[], any>);
+    } as AxiosResponse<IRawOption[], any>);
 
     await screen.findByText('Denmark');
 
@@ -170,7 +169,7 @@ describe('DropdownComponent', () => {
         },
       ],
       headers: {},
-    } as AxiosResponse<IOption[], any>);
+    } as AxiosResponse<IRawOption[], any>);
 
     await waitFor(() => expect(screen.queryByTestId('altinn-spinner')).not.toBeInTheDocument());
     expect(screen.getByText('Finland')).toBeInTheDocument();
@@ -250,5 +249,46 @@ describe('DropdownComponent', () => {
     expect(options[0]).toHaveValue('sweden');
     expect(options[1]).toHaveValue('norway');
     expect(options[2]).toHaveValue('denmark');
+  });
+
+  it.each([
+    ['truthy', true],
+    ['falsy', false],
+    ['numeric', 123],
+    ['nullable', null],
+  ])('should be possible to use a %s option value', async (label, value) => {
+    const options: IRawOption[] = [{ label, value }];
+    jest.useFakeTimers();
+    const user = userEvent.setup({ delay: null });
+    const { mutations } = await render({
+      component: {
+        optionsId: 'countries',
+      },
+      options,
+      queries: {
+        fetchDataModelSchema: async () => ({
+          type: 'object',
+          properties: {
+            myDropdown: { anyOf: [{ type: 'boolean' }, { type: 'number' }, { type: 'null' }] },
+          },
+        }),
+      },
+    });
+
+    await user.click(await screen.findByRole('combobox'));
+    await user.click(screen.getByText(label));
+
+    expect(await screen.findByText(label)).toBeInTheDocument();
+    jest.advanceTimersByTime(1000);
+
+    await waitFor(() => expect(mutations.doPatchFormData.mock).toHaveBeenCalledTimes(1));
+    expect(mutations.doPatchFormData.mock).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        patch: [{ op: 'add', path: '/myDropdown', value }],
+      }),
+    );
+
+    jest.useRealTimers();
   });
 });

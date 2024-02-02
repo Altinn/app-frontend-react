@@ -2,9 +2,6 @@ import texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { Common } from 'test/e2e/pageobjects/common';
 
-import { BackendValidationSeverity } from 'src/features/validation';
-import type { BackendValidationIssue } from 'src/features/validation';
-
 const appFrontend = new AppFrontend();
 const mui = new Common();
 
@@ -102,17 +99,17 @@ describe('Validation', () => {
     cy.get(appFrontend.changeOfName.newFirstName).clear();
     cy.get(appFrontend.changeOfName.newFirstName).type('test');
     cy.get(appFrontend.changeOfName.confirmChangeName).find('input').dsCheck();
-    cy.intercept('GET', '**/validate').as('validateData');
+    cy.navPage('form').should('have.attr', 'aria-current', 'page');
     cy.get(appFrontend.nextButton).scrollIntoView();
     cy.get(appFrontend.nextButton).should('be.inViewport');
     cy.get(appFrontend.nextButton).click();
-    cy.wait('@validateData');
     cy.get(appFrontend.errorReport)
       .should('be.inViewport')
       .should('contain.text', texts.errorReport)
       .should('contain.text', texts.requiredFieldLastName)
       .should('contain.text', texts.requiredFieldDateFrom)
       .should('contain.text', texts.next);
+    cy.navPage('form').should('have.attr', 'aria-current', 'page');
 
     // Make sure all the buttons in the form are now inside errorReport, not outside of it.
     // - 4 of the button roles belong to each of the errors in the report
@@ -204,7 +201,7 @@ describe('Validation', () => {
       },
       {
         text: 'Bruk 60 eller færre tegn',
-        shouldFocus: 'changeNameTo_æøå',
+        shouldFocus: 'changeNameTo',
       },
       {
         text: 'Du må fylle ut dato for navneendring',
@@ -244,17 +241,6 @@ describe('Validation', () => {
     cy.get(appFrontend.errorReport).should('contain.text', 'task validation');
   });
 
-  function injectErrorOnSendersName() {
-    cy.intercept('GET', '**/validate', [
-      {
-        code: 'Tullevalidering',
-        description: 'Tullevalidering',
-        field: 'Endringsmelding-grp-9786.Avgiver-grp-9787.OppgavegiverNavn-datadef-68.value',
-        severity: BackendValidationSeverity.Error,
-        source: 'Custom',
-      },
-    ] as BackendValidationIssue[]);
-  }
   it('Validations are removed for hidden fields', () => {
     // Init and add data to group
     cy.goto('group');
@@ -276,23 +262,29 @@ describe('Validation', () => {
     cy.get(appFrontend.fieldValidation('comments-0-0')).should('not.exist');
     cy.get(appFrontend.errorReport).should('not.exist');
 
-    // Setting single field validation to trigger on the 'sendersName' component
     cy.changeLayout((component) => {
+      if (component.type === 'NavigationButtons') {
+        component.validateOnNext = { page: 'current', show: ['All'] };
+      }
       if (component.id === 'sendersName' && component.type === 'Input') {
         // Make sure changing this field triggers single field validation
         component.showValidations = ['AllExceptRequired'];
       }
     });
 
-    injectErrorOnSendersName();
-
     // Verify that validation message is shown, but also make sure only one error message is shown
     // (there is a hidden layout that also binds to the same location, and a bug caused it to show
     // up twice because of that component on the hidden layout)
     cy.gotoNavPage('hide');
-    cy.get(appFrontend.group.sendersName).type('hello world');
+    cy.get(appFrontend.group.sendersName).type('tull og tøys');
+
+    // Try to click next to observe the error report
+    cy.get(appFrontend.nextButton).click();
     cy.get(appFrontend.errorReport).should('contain.text', 'Tullevalidering');
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 1);
+
+    // The navigation should be stopped, so we should still be on the 'hide' page
+    cy.navPage('hide').should('have.attr', 'aria-current', 'page');
   });
 
   it('List component: validation messages should only show up once', () => {
@@ -347,23 +339,13 @@ describe('Validation', () => {
     cy.get(appFrontend.group.row(2).currentValue).should('exist').and('be.focused');
     cy.get(appFrontend.group.row(2).currentValue).type('123');
 
-    // At this point, even though we have filled out the required field, the validation message for the other
-    // field should still be there as it was.
-    cy.get(appFrontend.errorReport).findByText('Du må fylle ut 2. endre verdi til').click();
+    cy.get(appFrontend.errorReport).findByText('Du må fylle ut 2. endre verdi 123 til').click();
     cy.get(appFrontend.group.row(2).newValue).should('exist').and('be.focused');
     cy.get(appFrontend.group.saveMainGroup).click();
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 2);
 
     // Validation message should now have changed, since we filled out currentValue and saved
     cy.get(appFrontend.errorReport).findByText('Du må fylle ut 2. endre verdi 123 til').should('be.visible');
-
-    // TODO: Remove this wait when validation and saving happens in the same request. When we change the
-    // currentValue to 123 above, and then immediately delete row afterwards, the validation request that started
-    // running (but did not finish, as often happens on tt02 + github) results in a race condition where the
-    // validation result may no longer be applicable to the current form data.
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(3000);
-
     cy.get(appFrontend.group.row(2).deleteBtn).click();
 
     // Check that nested group with multipage gets focus
@@ -531,6 +513,10 @@ describe('Validation', () => {
       }
     });
 
+    // Go back to the first page and then here again to reset the repeating group after the change above
+    cy.gotoNavPage('prefill');
+    cy.gotoNavPage('repeating');
+
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 1);
     cy.get(appFrontend.group.editContainer).should('not.exist');
     cy.get(appFrontend.group.addNewItem).click();
@@ -603,10 +589,13 @@ describe('Validation', () => {
         c.hidden = ['equals', ['component', 'comments'], 'hideSendersName'];
       }
     });
-    injectErrorOnSendersName();
 
     cy.goto('group');
     cy.get(appFrontend.navMenuButtons).should('have.length', 4);
+
+    cy.gotoNavPage('hide');
+    cy.get(appFrontend.group.sendersName).type('tull og tøys'); // Causes validation error
+
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     cy.addItemToGroup(2, 3, 'hideSendersName');
@@ -655,10 +644,12 @@ describe('Validation', () => {
       });
     });
 
-    injectErrorOnSendersName();
-
     cy.goto('group');
     cy.get(appFrontend.navMenuButtons).should('have.length', 4);
+
+    cy.gotoNavPage('hide');
+    cy.get(appFrontend.group.sendersName).type('tull og tøys'); // Causes validation error
+
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     cy.addItemToGroup(1, 11, 'whatever');
@@ -681,10 +672,13 @@ describe('Validation', () => {
         layoutSet.hide.data.hidden = ['equals', ['component', 'comments'], 'hidePage'];
       },
     );
-    injectErrorOnSendersName();
 
     cy.goto('group');
     cy.get(appFrontend.navMenuButtons).should('have.length', 4);
+
+    cy.gotoNavPage('hide');
+    cy.get(appFrontend.group.sendersName).type('tull og tøys'); // Causes validation error
+
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     cy.addItemToGroup(2, 3, 'hidePage');
@@ -727,5 +721,37 @@ describe('Validation', () => {
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 6);
     cy.findByText('Du må fylle ut dato for navneendring').click();
     cy.findByLabelText(/Når vil du at navnendringen skal skje?/).should('be.inViewport');
+  });
+
+  describe('Falsy values', () => {
+    it('should validate boolean fields as set in the data model even when they are set to false', () => {
+      cy.interceptLayout('message', (component) => {
+        if (component.id === 'falsyRadioButton') {
+          component.hidden = false;
+        }
+      });
+      cy.goto('message');
+
+      cy.findByRole('radio', { name: 'False' }).click();
+      cy.findByRole('button', { name: 'Send inn' }).click();
+
+      // content from next page
+      cy.findByText('Nåværende navn').should('exist');
+    });
+
+    it('should validate number fields as set in the data model when a falsy value is input', () => {
+      cy.interceptLayout('message', (component) => {
+        if (component.id === 'falsyInput') {
+          component.hidden = false;
+        }
+      });
+      cy.goto('message');
+
+      cy.findByRole('textbox', { name: 'Input with falsy value *' }).type('0');
+      cy.findByRole('button', { name: 'Send inn' }).click();
+
+      // Content from next page
+      cy.findByText('Nåværende navn').should('exist');
+    });
   });
 });
