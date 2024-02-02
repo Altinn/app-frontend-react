@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
+import type { Ref } from 'react';
 
 import { TableCell, TableRow } from '@digdir/design-system-react';
 import { Typography } from '@material-ui/core';
@@ -12,13 +13,19 @@ import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IControlledRadioGroupProps } from 'src/layout/RadioButtons/ControlledRadioGroup';
 
-export const LikertComponent = (props: PropsFromGenericComponent<'Likert'>) => {
+// eslint-disable-next-line react/display-name
+export const LikertComponent = forwardRef((props: PropsFromGenericComponent<'Likert'>, ref: Ref<HTMLElement>) => {
   const nodeLayout = props.node.item.layout;
   const overriddenLayout = props.overrideItemProps?.layout;
   const actualLayout = overriddenLayout || nodeLayout;
 
   if (actualLayout === LayoutStyle.Table) {
-    return <RadioGroupTableRow {...props} />;
+    return (
+      <RadioGroupTableRow
+        {...props}
+        ref={ref as Ref<HTMLTableRowElement>}
+      />
+    );
   }
 
   return (
@@ -26,9 +33,9 @@ export const LikertComponent = (props: PropsFromGenericComponent<'Likert'>) => {
       <ControlledRadioGroup {...props} />
     </div>
   );
-};
+});
 
-const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
+const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroupProps>((props, ref) => {
   const { node, componentValidations, legend } = props;
   const { selected, handleChange, calculatedOptions, handleBlur, fetchingOptions } = useRadioButtons(props);
 
@@ -43,6 +50,7 @@ const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
       data-componentid={node.item.id}
       data-is-loading={fetchingOptions ? 'true' : 'false'}
       className={classes.likertTableRow}
+      ref={ref}
     >
       <TableCell
         scope='row'
@@ -76,4 +84,5 @@ const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
       })}
     </TableRow>
   );
-};
+});
+RadioGroupTableRow.displayName = 'RadioGroupTableRow';

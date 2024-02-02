@@ -8,9 +8,7 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class TextArea extends TextAreaDef {
-  render(props: PropsFromGenericComponent<'TextArea'>): JSX.Element | null {
-    return <TextAreaComponent {...props} />;
-  }
+  render = (props: PropsFromGenericComponent<'TextArea'>): JSX.Element | null => <TextAreaComponent {...props} />;
 
   getDisplayData(node: LayoutNode<'TextArea'>, { formData }): string {
     if (!node.item.dataModelBindings?.simpleBinding) {

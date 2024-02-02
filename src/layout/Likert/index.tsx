@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
+import type { Ref } from 'react';
 
 import { getOptionList } from 'src/features/options/getOptionList';
 import { getSelectedValueToText } from 'src/features/options/getSelectedValueToText';
@@ -11,9 +12,13 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Likert extends LikertDef {
-  render(props: PropsFromGenericComponent<'Likert'>): JSX.Element | null {
-    return <LikertComponent {...props} />;
-  }
+  // eslint-disable-next-line react/display-name
+  render = forwardRef((props: PropsFromGenericComponent<'Likert'>, ref: Ref<HTMLElement>): JSX.Element | null => (
+    <LikertComponent
+      {...props}
+      ref={ref}
+    />
+  ));
 
   directRender(props: PropsFromGenericComponent<'Likert'>): boolean {
     return props.node.item.layout === LayoutStyle.Table || props.overrideItemProps?.layout === LayoutStyle.Table;

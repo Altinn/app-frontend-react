@@ -14,9 +14,9 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
 
 export class FileUploadWithTag extends FileUploadWithTagDef implements ComponentValidation {
-  render(props: PropsFromGenericComponent<'FileUploadWithTag'>): JSX.Element | null {
-    return <FileUploadComponent {...props} />;
-  }
+  render = (props: PropsFromGenericComponent<'FileUploadWithTag'>): JSX.Element | null => (
+    <FileUploadComponent {...props} />
+  );
 
   renderDefaultValidations(): boolean {
     return false;

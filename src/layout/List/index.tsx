@@ -11,9 +11,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
 
 export class List extends ListDef {
-  render(props: PropsFromGenericComponent<'List'>): JSX.Element | null {
-    return <ListComponent {...props} />;
-  }
+  render = (props: PropsFromGenericComponent<'List'>): JSX.Element | null => <ListComponent {...props} />;
 
   getDisplayData(node: LayoutNode<'List'>): string {
     const formData = node.getFormData();
