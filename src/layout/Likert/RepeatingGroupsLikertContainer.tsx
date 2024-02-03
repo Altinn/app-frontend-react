@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Table, TableBody, TableCell, TableHeader, TableRow } from '@digdir/design-system-react';
+import { Table } from '@digdir/design-system-react-latest';
 import { Grid, Typography } from '@material-ui/core';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
@@ -106,29 +106,33 @@ export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertCo
             id={id}
             aria-labelledby={(hasTitle && titleId) || undefined}
             aria-describedby={(hasDescription && descriptionId) || undefined}
+            className={classes.likertTable}
+            border
           >
-            <TableHeader id={`likert-table-header-${id}`}>
-              <TableRow>
+            <Table.Head
+              id={`likert-table-header-${id}`}
+              className={classes.likertTableHeader}
+            >
+              <Table.Row>
                 {node?.item.textResourceBindings?.leftColumnHeader ? (
-                  <TableCell>{lang(node?.item.textResourceBindings?.leftColumnHeader)}</TableCell>
+                  <Table.HeaderCell>{lang(node?.item.textResourceBindings?.leftColumnHeader)}</Table.HeaderCell>
                 ) : (
-                  <TableCell />
+                  <Table.HeaderCell />
                 )}
                 {calculatedOptions.map((option, index) => {
                   const colLabelId = `${id}-likert-columnheader-${index}`;
                   return (
-                    <TableCell
+                    <Table.HeaderCell
                       key={option.value}
                       id={colLabelId}
-                      className={classes.likertTableHeaderTop}
                     >
                       {lang(option.label)}
-                    </TableCell>
+                    </Table.HeaderCell>
                   );
                 })}
-              </TableRow>
-            </TableHeader>
-            <TableBody id={`likert-table-body-${id}`}>
+              </Table.Row>
+            </Table.Head>
+            <Table.Body id={`likert-table-body-${id}`}>
               {node?.children().map((comp) => {
                 if (comp.isType('Group') || comp.isType('Summary')) {
                   window.logWarnOnce('Unexpected Group or Summary inside likert container:\n', comp.item.id);
@@ -147,7 +151,7 @@ export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertCo
                   />
                 );
               })}
-            </TableBody>
+            </Table.Body>
           </Table>
         </div>
       )}

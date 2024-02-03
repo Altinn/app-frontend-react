@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 import type { Ref } from 'react';
 
-import { TableCell, TableRow } from '@digdir/design-system-react';
+import { Table } from '@digdir/design-system-react-latest';
 import { Typography } from '@material-ui/core';
 
 import { RadioButton } from 'src/components/form/RadioButton';
@@ -13,7 +13,6 @@ import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IControlledRadioGroupProps } from 'src/layout/RadioButtons/ControlledRadioGroup';
 
-// eslint-disable-next-line react/display-name
 export const LikertComponent = forwardRef((props: PropsFromGenericComponent<'Likert'>, ref: Ref<HTMLElement>) => {
   const nodeLayout = props.node.item.layout;
   const overriddenLayout = props.overrideItemProps?.layout;
@@ -34,6 +33,7 @@ export const LikertComponent = forwardRef((props: PropsFromGenericComponent<'Lik
     </div>
   );
 });
+LikertComponent.displayName = 'LikertComponent';
 
 const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroupProps>((props, ref) => {
   const { node, componentValidations, legend } = props;
@@ -45,31 +45,24 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
   const rowLabelId = `row-label-${id}`;
 
   return (
-    <TableRow
+    <Table.Row
       aria-labelledby={rowLabelId}
       data-componentid={node.item.id}
       data-is-loading={fetchingOptions ? 'true' : 'false'}
-      className={classes.likertTableRow}
       ref={ref}
     >
-      <TableCell
-        scope='row'
-        id={rowLabelId}
-        className={classes.likertTableRowHeader}
-        variant='header'
-      >
+      <Table.Cell id={rowLabelId}>
         <Typography component={'div'}>
           <RenderLegend />
           {renderValidationMessagesForComponent(componentValidations?.simpleBinding, id)}
         </Typography>
-      </TableCell>
+      </Table.Cell>
       {calculatedOptions?.map((option, colIndex) => {
         const colLabelId = `${groupContainerId}-likert-columnheader-${colIndex}`;
         const isChecked = selected === option.value;
         return (
-          <TableCell
+          <Table.Cell
             key={option.value}
-            className={classes.likertTableCell}
             onBlur={handleBlur}
           >
             <RadioButton
@@ -79,10 +72,10 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
               value={option.value}
               name={rowLabelId}
             />
-          </TableCell>
+          </Table.Cell>
         );
       })}
-    </TableRow>
+    </Table.Row>
   );
 });
 RadioGroupTableRow.displayName = 'RadioGroupTableRow';

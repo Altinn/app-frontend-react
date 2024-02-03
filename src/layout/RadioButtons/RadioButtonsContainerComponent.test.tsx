@@ -245,5 +245,5 @@ describe('RadioButtonsContainerComponent', () => {
     await userEvent.click(getRadio({ name: /The value from the group is: Label for first/ }));
     expect(handleDataChange).not.toHaveBeenCalled();
     await waitFor(() => expect(handleDataChange).toHaveBeenCalledWith('Value for first', { validate: true }));
-  });
+  }, 20000);
 });

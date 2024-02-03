@@ -2,26 +2,16 @@
   padding-top: 12px;
 }
 
+.likertTableHeader {
+  background-color: var(--fds-semantic-surface-action-second-subtle);
+}
+
 .likertTableContainer {
   display: block;
   width: 100%;
   padding: 12px;
 }
 
-.likertTableHeaderTop {
-  text-align: center !important; /* remove important after https://github.com/Altinn/app-frontend-react/pull/1330*/
-}
-
-.likertTableRowHeader {
-  border-top: 1px solid #dde3e5;
-  border-bottom: 1px solid #dde3e5;
-  background-color: transparent !important; /* remove important after https://github.com/Altinn/app-frontend-react/pull/1330*/
-}
-
-.likertTableCell {
-  padding: 4px 12px;
-}
-
-.likertTableRow:hover {
-  background-color: #e3f7ff;
+.likertTable {
+  width: 100%;
 }

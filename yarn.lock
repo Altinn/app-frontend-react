@@ -2430,6 +2430,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@digdir/design-system-react-latest@npm:@digdir/design-system-react@latest":
+  version: 0.47.0
+  resolution: "@digdir/design-system-react@npm:0.47.0"
+  dependencies:
+    "@altinn/figma-design-tokens": ^6.0.1
+    "@digdir/design-system-tokens": ^0.12.0
+    "@floating-ui/react": 0.26.4
+    "@navikt/aksel-icons": ^5.12.2
+    "@radix-ui/react-slot": ^1.0.2
+    "@tanstack/react-virtual": ^3.0.1
+    react-number-format: 5.3.1
+  peerDependencies:
+    react: ">=18.2.0"
+    react-dom: ">=18.2.0"
+  checksum: c91df7b3f739cd8aacf8798cab11093d2aa2a2b6edd93e6e09ff4a0bed26875252d77740d71660ce4aa04fbd943d058da26cbdc9cb41324f64dabecb23bf2ce1
+  languageName: node
+  linkType: hard
+
 "@digdir/design-system-react@npm:0.16.0":
   version: 0.16.0
   resolution: "@digdir/design-system-react@npm:0.16.0"
@@ -2475,6 +2493,13 @@ __metadata:
   version: 0.10.0
   resolution: "@digdir/design-system-tokens@npm:0.10.0"
   checksum: d5d1c31b35d340e7b6953e1d5bf9355a82a10448ef95c79f3b0189e6504965d26a3dedd85ce1ff49d9c41bdddf4e4eb94c17426cb5408964592406872bc2326b
+  languageName: node
+  linkType: hard
+
+"@digdir/design-system-tokens@npm:^0.12.0":
+  version: 0.12.0
+  resolution: "@digdir/design-system-tokens@npm:0.12.0"
+  checksum: 7089ba919876fc73e5f13c696426f3c3553b7f0ebb5e8785411fc0bbc6fd86385ddd46a65073232a115f4c479b1eb40f2c20c5d31546e301fdf0cdf7edc715f9
   languageName: node
   linkType: hard
 
@@ -2568,6 +2593,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@floating-ui/core@npm:^1.6.0":
+  version: 1.6.0
+  resolution: "@floating-ui/core@npm:1.6.0"
+  dependencies:
+    "@floating-ui/utils": ^0.2.1
+  checksum: 2e25c53b0c124c5c9577972f8ae21d081f2f7895e6695836a53074463e8c65b47722744d6d2b5a993164936da006a268bcfe87fe68fd24dc235b1cb86bed3127
+  languageName: node
+  linkType: hard
+
 "@floating-ui/dom@npm:^0.5.3":
   version: 0.5.4
   resolution: "@floating-ui/dom@npm:0.5.4"
@@ -2593,6 +2627,16 @@ __metadata:
     "@floating-ui/core": ^1.4.2
     "@floating-ui/utils": ^0.1.3
   checksum: 00053742064aac70957f0bd5c1542caafb3bfe9716588bfe1d409fef72a67ed5e60450d08eb492a77f78c22ed1ce4f7955873cc72bf9f9caf2b0f43ae3561c21
+  languageName: node
+  linkType: hard
+
+"@floating-ui/dom@npm:^1.6.1":
+  version: 1.6.1
+  resolution: "@floating-ui/dom@npm:1.6.1"
+  dependencies:
+    "@floating-ui/core": ^1.6.0
+    "@floating-ui/utils": ^0.2.1
+  checksum: 5565e4dee612bab62950913c311d75d3f773bd1d9dc437f7e33b46340f32ec565733c995c6185381adaf64e627df3c79901d0a9d555f58c02509d0764bceb57d
   languageName: node
   linkType: hard
 
@@ -2633,6 +2677,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@floating-ui/react-dom@npm:^2.0.3":
+  version: 2.0.8
+  resolution: "@floating-ui/react-dom@npm:2.0.8"
+  dependencies:
+    "@floating-ui/dom": ^1.6.1
+  peerDependencies:
+    react: ">=16.8.0"
+    react-dom: ">=16.8.0"
+  checksum: 5da7f13a69281e38859a3203a608fe9de1d850b332b355c10c0c2427c7b7209a0374c10f6295b6577c1a70237af8b678340bd4cc0a4b1c66436a94755d81e526
+  languageName: node
+  linkType: hard
+
 "@floating-ui/react@npm:0.24.1":
   version: 0.24.1
   resolution: "@floating-ui/react@npm:0.24.1"
@@ -2661,10 +2717,31 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@floating-ui/utils@npm:^0.1.1, @floating-ui/utils@npm:^0.1.3":
+"@floating-ui/react@npm:0.26.4":
+  version: 0.26.4
+  resolution: "@floating-ui/react@npm:0.26.4"
+  dependencies:
+    "@floating-ui/react-dom": ^2.0.3
+    "@floating-ui/utils": ^0.1.5
+    tabbable: ^6.0.1
+  peerDependencies:
+    react: ">=16.8.0"
+    react-dom: ">=16.8.0"
+  checksum: 0cf27b223e7c0f6c5f1cf1c8a765d6f7fc58bf9c825930a39bd9ab2700e4d44873ba763135fc0055bc63d6b26e719a2cae287bbdbc35fb8a84992a7708b85efb
+  languageName: node
+  linkType: hard
+
+"@floating-ui/utils@npm:^0.1.1, @floating-ui/utils@npm:^0.1.3, @floating-ui/utils@npm:^0.1.5":
   version: 0.1.6
   resolution: "@floating-ui/utils@npm:0.1.6"
   checksum: b34d4b5470869727f52e312e08272edef985ba5a450a76de0917ba0a9c6f5df2bdbeb99448e2c60f39b177fb8981c772ff1831424e75123471a27ebd5b52c1eb
+  languageName: node
+  linkType: hard
+
+"@floating-ui/utils@npm:^0.2.1":
+  version: 0.2.1
+  resolution: "@floating-ui/utils@npm:0.2.1"
+  checksum: 9ed4380653c7c217cd6f66ae51f20fdce433730dbc77f95b5abfb5a808f5fdb029c6ae249b4e0490a816f2453aa6e586d9a873cd157fdba4690f65628efc6e06
   languageName: node
   linkType: hard
 
@@ -3314,6 +3391,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@navikt/aksel-icons@npm:^5.12.2":
+  version: 5.17.4
+  resolution: "@navikt/aksel-icons@npm:5.17.4"
+  checksum: bb6c59a29e455458e1f563d0b95bb33fff2228485a07d86a7a2f3127afc07c6b7df5401f0b6c9cbfea6f688952bc6b1dd08484376e6dd374bb7c057c92bc293b
+  languageName: node
+  linkType: hard
+
 "@navikt/ds-icons@npm:^2.3.0":
   version: 2.4.0
   resolution: "@navikt/ds-icons@npm:2.4.0"
@@ -3683,6 +3767,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@radix-ui/react-compose-refs@npm:1.0.1":
+  version: 1.0.1
+  resolution: "@radix-ui/react-compose-refs@npm:1.0.1"
+  dependencies:
+    "@babel/runtime": ^7.13.10
+  peerDependencies:
+    "@types/react": "*"
+    react: ^16.8 || ^17.0 || ^18.0
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+  checksum: 2b9a613b6db5bff8865588b6bf4065f73021b3d16c0a90b2d4c23deceeb63612f1f15de188227ebdc5f88222cab031be617a9dd025874c0487b303be3e5cc2a8
+  languageName: node
+  linkType: hard
+
 "@radix-ui/react-context@npm:1.0.0":
   version: 1.0.0
   resolution: "@radix-ui/react-context@npm:1.0.0"
@@ -3846,6 +3945,22 @@ __metadata:
   peerDependencies:
     react: ^16.8 || ^17.0 || ^18.0
   checksum: 60c0190ebdca21785b4f8b58a0c52717600c98953fc49da9580870519c60f52d5cf873dffa05446f4bb539066326ccec0827f4ca252b02ec4ff1a4ae203f59d7
+  languageName: node
+  linkType: hard
+
+"@radix-ui/react-slot@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "@radix-ui/react-slot@npm:1.0.2"
+  dependencies:
+    "@babel/runtime": ^7.13.10
+    "@radix-ui/react-compose-refs": 1.0.1
+  peerDependencies:
+    "@types/react": "*"
+    react: ^16.8 || ^17.0 || ^18.0
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+  checksum: edf5edf435ff594bea7e198bf16d46caf81b6fb559493acad4fa8c308218896136acb16f9b7238c788fd13e94a904f2fd0b6d834e530e4cae94522cdb8f77ce9
   languageName: node
   linkType: hard
 
@@ -4118,6 +4233,25 @@ __metadata:
     react-native:
       optional: true
   checksum: 1aff0a476859386f8d32253fa0d0bde7b81769a6d4d4d9cbd78778f0f955459a3bdb7ee27a0d2ee7373090f12998b45df80db0b5b313bd0a7a39d36c6e8e51c5
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-virtual@npm:^3.0.1":
+  version: 3.0.4
+  resolution: "@tanstack/react-virtual@npm:3.0.4"
+  dependencies:
+    "@tanstack/virtual-core": 3.0.0
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+  checksum: d01ea51d8a130c8f2cf87941d312a8d7929e19334bbe85a3ab125b935742cf58ee76d71f590cbd5c50b4fbdbbd6a7b8e58f7c0538c43aa4d5ccab20914246b28
+  languageName: node
+  linkType: hard
+
+"@tanstack/virtual-core@npm:3.0.0":
+  version: 3.0.0
+  resolution: "@tanstack/virtual-core@npm:3.0.0"
+  checksum: 7283d50fc7b7a56608c37a8e94a93b85890ff7e39c6281633a19c4d6f6f4fbf25f8418f1eec302a008a8746a0d1d0cd00630137b55e6cf019818d68af8ed16b6
   languageName: node
   linkType: hard
 
@@ -5583,6 +5717,7 @@ __metadata:
     "@babel/runtime-corejs3": ^7.21.0
     "@date-io/moment": 1.3.13
     "@digdir/design-system-react": ^0.37.0
+    "@digdir/design-system-react-latest": "npm:@digdir/design-system-react@latest"
     "@digdir/design-system-tokens": ^0.10.0
     "@material-ui/core": 4.12.4
     "@material-ui/icons": 4.11.3
@@ -14826,6 +14961,18 @@ __metadata:
     react: ^0.14 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
     react-dom: ^0.14 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
   checksum: ae788b550b759f3f3e475e5805f7c650472f3d06fe633a046288f62cf5deedbfa597cb8fea08f29538b04931d7453ffbbe653bdd50cfca6ac43e12397502fec3
+  languageName: node
+  linkType: hard
+
+"react-number-format@npm:5.3.1":
+  version: 5.3.1
+  resolution: "react-number-format@npm:5.3.1"
+  dependencies:
+    prop-types: ^15.7.2
+  peerDependencies:
+    react: ^0.14 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^0.14 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+  checksum: 316054bc8aa03d4fe5b283b1e498389393858728b69acc32e2546e9ce2e54e4e937ca4fdd0fa6e771f1b5f2d8b3c883cbc19c39799a27e91265c133d79103aaa
   languageName: node
   linkType: hard
 

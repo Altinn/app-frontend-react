@@ -5,11 +5,19 @@
 }
 
 tr > .fullWidthCellFirst {
-  padding-left: calc(var(--modal-padding-x) - var(--table-input-margin));
+  padding-left: var(--modal-padding-x);
 }
 
 tr > .fullWidthCellLast {
-  padding-right: calc(var(--modal-padding-x) - var(--table-input-margin));
+  padding-right: var(--modal-padding-x);
+}
+
+.repeatingGroupHeadRow {
+  background-color: var(--fds-semantic-surface-action-second-subtle);
+}
+
+.fullWidth {
+  width: 100%;
 }
 
 .contentFormatting {
@@ -30,15 +38,12 @@ tr > .fullWidthCellLast {
   width: var(--cell-width);
 }
 
-/* The width here should be: calc(var(--cell-width) + var(--modal-padding-x) - var(--table-input-margin));
-   Adding 8.15% is a workaround for calc not working with both percentages and pixels inside a cell element.
-*/
 .tableCellFormatting:first-child {
-  width: calc(var(--cell-width) + 8.15%);
+  width: calc(var(--cell-width) + var(--modal-padding-x));
 }
 
 .tableCellFormatting:last-child {
-  width: calc(var(--cell-width) + 8.15%);
+  width: calc(var(--cell-width) + var(--modal-padding-x));
 }
 
 .textCell,

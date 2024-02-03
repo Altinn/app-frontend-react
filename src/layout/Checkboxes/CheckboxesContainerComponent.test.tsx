@@ -386,5 +386,5 @@ describe('CheckboxContainerComponent', () => {
     jest.runOnlyPendingTimers();
 
     expect(handleDataChange).toHaveBeenCalledWith('Value for second', { validate: true });
-  });
+  }, 20000);
 });

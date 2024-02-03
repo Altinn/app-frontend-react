@@ -1,5 +1,5 @@
-.buttonCell {
-  padding: 4px 36px 4px 4px;
+.table {
+  width: 100%;
 }
 
 .tableButtonWrapper {
@@ -21,7 +21,12 @@
 
 .paginationWrapper {
   display: flex;
-  justify-content: left;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.semanticSurfaceBgColor {
+  background-color: var(--fds-semantic-surface-action-second-subtle);
 }
 
 .paginationWrapperMobile {
