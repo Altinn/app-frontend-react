@@ -71,7 +71,7 @@ describe('Auto save behavior', () => {
       });
 
       // Icon previous button
-      cy.get(appFrontend.group.showGroupToContinue).find('input').dsUncheck();
+      cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).uncheck();
       cy.get(appFrontend.prevButton).clickAndGone();
       cy.wait('@putFormData').then(() => {
         expect(formDataReqCounter).to.be.eq(4);
@@ -104,9 +104,11 @@ describe('Auto save behavior', () => {
       cy.get(appFrontend.changeOfName.newFirstName).type('test');
 
       cy.get(appFrontend.changeOfName.newMiddleName).type('Kråka');
-      cy.findByRole('checkbox', {
-        name: 'Ja, jeg bekrefter at navnet er riktig og slik jeg ønsker det Dette er en hjelpetekst',
-      }).check();
+      cy.get(appFrontend.changeOfName.confirmChangeName)
+        .findByRole('checkbox', {
+          name: /Ja[a-z, ]*/,
+        })
+        .check();
       cy.get(appFrontend.changeOfName.reasonRelationship).click();
       cy.get(appFrontend.changeOfName.reasonRelationship).type('hello world');
       cy.get(appFrontend.changeOfName.dateOfEffect).siblings().findByRole('button').click();
