@@ -12,7 +12,7 @@ it('should be possible to hide rows when "Endre fra" is greater or equals to [..
   const headerRow = 1;
 
   cy.get(appFrontend.nextButton).click();
-  cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+  cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
 
   // We start off with 5 rows in the repeating group
   cy.get(appFrontend.group.mainGroup)
@@ -133,7 +133,7 @@ it('"save and next"-button should open row 3 when row 2 is hidden', () => {
       c.edit.saveAndNextButton = true;
     }
   });
-  cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+  cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
   ['1', '6', '2'].forEach((value) => {
     cy.get(appFrontend.group.addNewItem).click();
     cy.get(appFrontend.group.currentValue).type(value);

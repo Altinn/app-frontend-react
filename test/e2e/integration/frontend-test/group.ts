@@ -23,7 +23,7 @@ describe('Group', () => {
 
     init();
     cy.get(appFrontend.group.addNewItem).should('not.exist');
-    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+    cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.get(appFrontend.group.addNewItem).click();
 
     // Make sure group is still visible even without table headers
@@ -39,7 +39,7 @@ describe('Group', () => {
         }
       });
       init();
-      cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+      cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
       if (alwaysShowAddButton) {
         cy.get(appFrontend.group.addNewItem).click();
         cy.get(appFrontend.group.mainGroup).should('exist');
@@ -67,7 +67,7 @@ describe('Group', () => {
       });
       init();
 
-      cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+      cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
       cy.addItemToGroup(1, 2, 'automation', openByDefault);
       cy.get(appFrontend.group.mainGroup).find('tbody > tr > td').first().should('have.text', 'NOK 1');
       cy.get(appFrontend.group.mainGroup).find('tbody > tr > td').eq(1).should('have.text', 'NOK 2');
@@ -102,7 +102,7 @@ describe('Group', () => {
 
   it('Calculation on Item in Main Group should update value', () => {
     init();
-    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+    cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.get(appFrontend.group.addNewItem).click();
     cy.get(appFrontend.group.currentValue).type('1337');
     // DataProcessingHandler.cs for frontend-test changes 1337 to 1338.
@@ -112,7 +112,7 @@ describe('Group', () => {
 
   it('Validation on group', () => {
     init();
-    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+    cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.get(appFrontend.group.addNewItem).click();
     cy.get(appFrontend.group.currentValue).type('1');
     cy.get(appFrontend.group.newValue).type('0');
@@ -145,7 +145,7 @@ describe('Group', () => {
     });
 
     init();
-    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+    cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
 
     // add row to main group
     cy.get(appFrontend.group.addNewItem).click();
@@ -198,7 +198,7 @@ describe('Group', () => {
 
     init();
 
-    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+    cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
 
     cy.get(appFrontend.group.addNewItem).click();
     cy.get(appFrontend.group.currentValue).type('123');
@@ -255,7 +255,7 @@ describe('Group', () => {
         });
     };
 
-    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+    cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     expectRows();
 
     function checkPrefills(items: { [key in keyof typeof appFrontend.group.prefill]?: boolean }) {
@@ -310,7 +310,7 @@ describe('Group', () => {
     });
     init();
 
-    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+    cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.get(appFrontend.group.addNewItem).click();
 
     cy.get(appFrontend.group.saveMainGroup).click();
@@ -338,7 +338,7 @@ describe('Group', () => {
     cy.intercept('PATCH', '**/instances/*/*/data/*').as('saveData');
 
     waitForOneMoreRequest(() => {
-      cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+      cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     });
 
     // Order is important here. True must be first, as it only opens the row for editing if there are no rows already,
@@ -444,7 +444,7 @@ describe('Group', () => {
     init();
 
     // Add test-data and verify
-    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+    cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.addItemToGroup(1, 2, 'automation');
     cy.get(appFrontend.group.mainGroup).find('tbody > tr > td').first().should('have.text', 'NOK 1');
     cy.get(appFrontend.group.mainGroup).find('tbody > tr > td').eq(1).should('have.text', 'NOK 2');
@@ -485,11 +485,11 @@ describe('Group', () => {
     });
 
     cy.navPage('prefill').click();
-    cy.get(appFrontend.group.prefill.liten).dsCheck();
-    cy.get(appFrontend.group.prefill.middels).dsCheck();
-    cy.get(appFrontend.group.prefill.enorm).dsCheck();
+    cy.get(appFrontend.group.prefill.liten).check();
+    cy.get(appFrontend.group.prefill.middels).check();
+    cy.get(appFrontend.group.prefill.enorm).check();
     cy.navPage('repeating').click();
-    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+    cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 3);
     cy.snapshot('group:edit-in-table');
 
@@ -590,7 +590,7 @@ describe('Group', () => {
         c.textResourceBindings.add_button_full = 'Hello World';
       }
     });
-    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+    cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.get(appFrontend.group.addNewItem).should('have.text', 'Hello World');
   });
 
@@ -616,11 +616,11 @@ describe('Group', () => {
     });
 
     cy.goto('group');
-    cy.get(appFrontend.group.prefill.liten).dsCheck();
-    cy.get(appFrontend.group.prefill.middels).dsCheck();
-    cy.get(appFrontend.group.prefill.enorm).dsCheck();
+    cy.get(appFrontend.group.prefill.liten).check();
+    cy.get(appFrontend.group.prefill.middels).check();
+    cy.get(appFrontend.group.prefill.enorm).check();
     cy.gotoNavPage('repeating');
-    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+    cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.get(appFrontend.group.addNewItem).click();
 
     cy.get('#group-mainGroup table th').eq(0).should('have.text', 'currentValue tableTitle');
@@ -653,12 +653,12 @@ describe('Group', () => {
     cy.goto('group');
 
     waitForOneMoreRequest(() => {
-      cy.get(appFrontend.group.prefill.liten).dsCheck();
-      cy.get(appFrontend.group.prefill.middels).dsCheck();
+      cy.get(appFrontend.group.prefill.liten).check();
+      cy.get(appFrontend.group.prefill.middels).check();
     });
 
     cy.gotoNavPage('repeating');
-    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+    cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
 
     // The title and description is set to the same text resource binding, and duplicates the text we need to
     // put in `name` for this to work
@@ -713,7 +713,7 @@ describe('Group', () => {
 
     // Adding a new row to the main group adds a new option
     cy.gotoNavPage('prefill');
-    cy.get(appFrontend.group.prefill.stor).dsCheck();
+    cy.get(appFrontend.group.prefill.stor).check();
     cy.gotoNavPage('repeating');
 
     cy.get(appFrontend.group.secondGroup).find('tbody > tr').should('have.length', 2);
@@ -770,7 +770,7 @@ describe('Group', () => {
     }
 
     cy.gotoNavPage('repeating');
-    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+    cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.get(appFrontend.group.editContainer).find('input').first().should('have.value', 'NOK 80 323');
 
     cy.get(appFrontend.group.hideRepeatingGroupRow).numberFormatClear();
@@ -793,15 +793,15 @@ describe('Group', () => {
     // value using C# default values in the strict model.
     cy.get('#prefill-enabled').findByRole('radio', { name: 'Ja' }).should('be.checked');
 
-    cy.get(appFrontend.group.prefill.liten).dsCheck();
+    cy.get(appFrontend.group.prefill.liten).check();
     cy.gotoNavPage('repeating');
-    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+    cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 1);
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').eq(0).should('contain.text', 'NOK 1');
 
     cy.gotoNavPage('prefill');
     cy.get('#prefill-enabled').findByRole('radio', { name: 'Nei' }).click();
-    cy.get(appFrontend.group.prefill.middels).dsCheck();
+    cy.get(appFrontend.group.prefill.middels).check();
 
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 1);
@@ -809,7 +809,7 @@ describe('Group', () => {
 
     cy.gotoNavPage('prefill');
     cy.get('#prefill-enabled').findByRole('radio', { name: 'Ja' }).click();
-    cy.get(appFrontend.group.prefill.stor).dsCheck();
+    cy.get(appFrontend.group.prefill.stor).check();
 
     // When we temporarily disabled the prefilling functionality, ruleHandler tricked the backend by
     // setting PrefillValuesShadow to the same value as PrefillValues, making the backend think the 'middels' row we
