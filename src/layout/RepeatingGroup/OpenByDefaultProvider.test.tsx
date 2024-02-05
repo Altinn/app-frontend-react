@@ -1,9 +1,14 @@
 import React from 'react';
 
 import { screen, waitFor } from '@testing-library/react';
+import { userEvent } from '@testing-library/user-event';
 
 import { FD } from 'src/features/formData/FormDataWrite';
-import { RepeatingGroupProvider, useRepeatingGroupSelector } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
+import {
+  RepeatingGroupProvider,
+  useRepeatingGroup,
+  useRepeatingGroupSelector,
+} from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { JsonPatch } from 'src/features/formData/jsonPatch/types';
 import type { ILayout } from 'src/layout/layout';
@@ -18,18 +23,28 @@ describe('openByDefault', () => {
     const state = useRepeatingGroupSelector((state) => ({
       editingIndex: state.editingIndex,
       addingIndexes: state.addingIndexes,
-      visibleRowIndexes: state.visibleRowIndexes.sort(),
-      hiddenRowIndexes: [...state.hiddenRowIndexes.values()].sort(),
     }));
+    const { deleteRow, visibleRowIndexes, hiddenRowIndexes } = useRepeatingGroup();
 
     const data = FD.useDebouncedPick('MyGroup');
     return (
-      <div data-testid='state'>
-        {JSON.stringify({
-          ...state,
-          data,
-        })}
-      </div>
+      <>
+        <div data-testid='state'>
+          {JSON.stringify({
+            ...state,
+            visibleRowIndexes,
+            hiddenRowIndexes: [...hiddenRowIndexes.values()],
+            data,
+          })}
+        </div>
+        <button
+          onClick={() => {
+            deleteRow(visibleRowIndexes[visibleRowIndexes.length - 1]);
+          }}
+        >
+          Delete last visible row
+        </button>
+      </>
     );
   }
 
@@ -138,6 +153,7 @@ describe('openByDefault', () => {
 
   beforeAll(() => {
     jest.useFakeTimers();
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
     jest
       .spyOn(window, 'logWarn')
       .mockImplementation(() => {})
@@ -384,7 +400,8 @@ describe('openByDefault', () => {
   );
 
   it.each(['first', 'last', true] as const)(
-    'should immediately hide the row again, but not create a new one if the backend responds with prefill that makes the new row hidden again, and openByDefault is %s',
+    'should immediately hide the row again, but not create a new one if the backend ' +
+      'responds with prefill that makes the new row hidden again, and openByDefault is %s',
     async (openByDefault) => {
       const { mutations } = await render({
         existingRows: [{ id: 1, name: 'test' }],
@@ -435,4 +452,44 @@ describe('openByDefault', () => {
       mutations,
     });
   });
+
+  it.each(['first', 'last', true] as const)(
+    'should not add a new row if the last one is deleted and openByDefault is %s',
+    async (openByDefault) => {
+      const user = userEvent.setup({ delay: null });
+      const { mutations } = await render({
+        existingRows: [{ id: 1, name: 'test' }],
+        edit: { openByDefault },
+      });
+
+      await waitUntil({
+        state: {
+          editingIndex: openByDefault === true ? undefined : 0,
+          addingIndexes: [],
+          visibleRowIndexes: [0],
+          hiddenRowIndexes: [],
+          data: [{ id: 1, name: 'test' }],
+        },
+        mutations,
+      });
+
+      await user.click(screen.getByText('Delete last visible row'));
+
+      await waitUntil({
+        state: {
+          editingIndex: undefined,
+          addingIndexes: [],
+          visibleRowIndexes: [],
+          hiddenRowIndexes: [],
+          data: [],
+        },
+        expectedPatch: [
+          { op: 'test', path: '/MyGroup', value: [{ id: 1, name: 'test' }] },
+          { op: 'remove', path: '/MyGroup/0' },
+        ],
+        newModelAfterSave: { MyGroup: [] },
+        mutations,
+      });
+    },
+  );
 });

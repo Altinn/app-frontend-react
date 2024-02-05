@@ -13,37 +13,40 @@ interface Props {
 export function OpenByDefaultProvider({ node, children }: PropsWithChildren<Props>) {
   const groupId = node.item.id;
   const openByDefault = node.item.edit?.openByDefault;
-  const { addRow, openForEditing } = useRepeatingGroup();
+  const { addRow, openForEditing, visibleRowIndexes, isFirstRender } = useRepeatingGroup();
   const state = useRepeatingGroupSelector((state) => ({
     editingIndex: state.editingIndex,
-    isFirstRender: state.isFirstRender,
-    visibleRowIndexes: state.visibleRowIndexes,
-    hiddenRowIndexes: state.hiddenRowIndexes,
     addingIndexes: state.addingIndexes,
   }));
 
+  const hasNoRows = visibleRowIndexes.length === 0;
   const stateRef = useAsRef({
     ...state,
-    numRows: state.visibleRowIndexes.length,
-    firstIndex: state.visibleRowIndexes[0],
-    lastIndex: state.visibleRowIndexes[state.visibleRowIndexes.length - 1],
+    firstIndex: visibleRowIndexes[0],
+    lastIndex: visibleRowIndexes[visibleRowIndexes.length - 1],
     addRow,
     openForEditing,
     canAddRows: node.item.edit?.addButton ?? true,
   });
 
-  // When this is true, the group won't try to add more rows using openByDefault
-  const disabled = useRef(false);
+  // When this is true, the group won't try to add more rows using openByDefault. This will reset again
+  // when the component is unmounted and mounted again, i.e. when the user navigates away and back to the page.
+  const hasAddedRow = useRef(false);
 
-  // Add new row if openByDefault is true and no (visible) rows exist. This also makes sure to add a row
-  // immediately after the last one has been deleted.
   useEffect((): void => {
     (async () => {
-      const { numRows, canAddRows } = stateRef.current;
-      if (openByDefault && numRows === 0 && canAddRows && !disabled.current) {
+      if (hasAddedRow.current) {
+        // Never run more than once
+        return;
+      }
+
+      // Add new row if openByDefault is true and no (visible) rows exist. This also makes sure to add a row
+      // immediately after the last one has been deleted.
+      const { canAddRows } = stateRef.current;
+      if (isFirstRender && openByDefault && hasNoRows && canAddRows) {
+        hasAddedRow.current = true;
         const { result } = await addRow();
         if (result !== 'addedAndOpened') {
-          disabled.current = true;
           window.logWarn(
             `openByDefault for repeating group '${groupId}' returned '${result}'. You may have rules that make it ` +
               `impossible to add a new blank row, or open the added row for editing, such as a restrictive ` +
@@ -53,24 +56,21 @@ export function OpenByDefaultProvider({ node, children }: PropsWithChildren<Prop
           );
         }
       }
-    })();
-  }, [openByDefault, stateRef, addRow, groupId]);
 
-  // Open the first or last row for editing, if openByDefault is set to 'first' or 'last'
-  const isFirstRender = state.isFirstRender;
-  useEffect((): void => {
-    const { editingIndex, firstIndex, lastIndex, openForEditing } = stateRef.current;
-    if (
-      isFirstRender &&
-      openByDefault &&
-      typeof openByDefault === 'string' &&
-      ['first', 'last'].includes(openByDefault) &&
-      editingIndex === undefined
-    ) {
-      const index = openByDefault === 'last' ? lastIndex : firstIndex;
-      openForEditing(index);
-    }
-  }, [openByDefault, isFirstRender, stateRef]);
+      // Open the first or last row for editing, if openByDefault is set to 'first' or 'last'
+      const { editingIndex, firstIndex, lastIndex, openForEditing } = stateRef.current;
+      if (
+        isFirstRender &&
+        openByDefault &&
+        typeof openByDefault === 'string' &&
+        ['first', 'last'].includes(openByDefault) &&
+        editingIndex === undefined
+      ) {
+        const index = openByDefault === 'last' ? lastIndex : firstIndex;
+        openForEditing(index);
+      }
+    })();
+  }, [openByDefault, stateRef, addRow, groupId, hasNoRows, isFirstRender]);
 
   return <>{children}</>;
 }
