@@ -6,7 +6,7 @@ it('should be possible to hide rows when "Endre fra" is greater or equals to [..
   cy.goto('group');
   cy.intercept('PATCH', '**/data/**').as('saveFormData');
   for (const prefill of Object.values(appFrontend.group.prefill)) {
-    cy.get(prefill).dsCheck();
+    cy.get(prefill).check();
     cy.wait('@saveFormData');
   }
   const headerRow = 1;
