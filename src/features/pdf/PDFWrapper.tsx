@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
+import cn from 'classnames';
+
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { PDFView } from 'src/features/pdf/PDFView';
 import classes from 'src/features/pdf/PDFView.module.css';
@@ -31,7 +33,7 @@ export function PDFWrapper({ children }: PropsWithChildren) {
 
   return (
     <>
-      <div className={previewPDF ? classes.hideInPrint : undefined}>{children}</div>
+      <div className={cn({ [classes.hideInPrint]: previewPDF })}>{children}</div>
       {previewPDF && (
         <div className={classes.onlyInPrint}>
           <PDFView />
