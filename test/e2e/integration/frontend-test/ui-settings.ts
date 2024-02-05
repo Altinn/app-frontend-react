@@ -5,7 +5,7 @@ const appFrontend = new AppFrontend();
 describe('Expanded width', () => {
   it('Shows page with expandedWidth as expanded', () => {
     cy.interceptLayout(
-      'layouts',
+      'changename',
       () => {},
       (layoutSet) => {
         layoutSet.grid.data.expandedWidth = true;
