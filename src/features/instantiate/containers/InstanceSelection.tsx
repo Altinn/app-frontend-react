@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 
 import { Pagination } from '@altinn/altinn-design-system';
-import { Button, Heading, Paragraph } from '@digdir/design-system-react';
-import { Table } from '@digdir/design-system-react-latest';
+import { Button, Heading, Paragraph, Table } from '@digdir/design-system-react';
 import { Edit as EditIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
 import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/src/components/Pagination/Pagination';

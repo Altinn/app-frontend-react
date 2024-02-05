@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 import type { Ref } from 'react';
 
-import { Table } from '@digdir/design-system-react-latest';
+import { Table } from '@digdir/design-system-react';
 import { Typography } from '@material-ui/core';
 
 import { RadioButton } from 'src/components/form/RadioButton';

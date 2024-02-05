@@ -15,7 +15,7 @@ describe('Auto save behavior', () => {
       cy.intercept('PUT', '**/data/**', () => {
         putFormDataCounter++;
       }).as('putFormData');
-      cy.get(appFrontend.group.prefill.liten).dsCheck();
+      cy.get(appFrontend.group.prefill.liten).click();
       cy.wait('@putFormData').then(() => {
         expect(putFormDataCounter).to.be.eq(1);
       });
@@ -37,7 +37,7 @@ describe('Auto save behavior', () => {
       cy.intercept('PUT', '**/data/**', () => {
         putFormDataCounter++;
       }).as('putFormData');
-      cy.get(appFrontend.group.prefill.liten).dsCheck();
+      cy.get(appFrontend.group.prefill.liten).click();
       // Doing a hard wait to be sure no request is sent to backend
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(1000).then(() => {
@@ -93,7 +93,7 @@ describe('Auto save behavior', () => {
     cy.get(appFrontend.navMenuButtons).should('have.length', 4);
 
     // This test relies on Cypress being fast enough to click the 'next' button before the next page is hidden
-    cy.get(appFrontend.group.prefill.stor).dsCheck();
+    cy.get(appFrontend.group.prefill.stor).click();
     // Double click to check that the request is cancelled and still navigates to next page
     cy.get(appFrontend.nextButton).dblclick();
 
@@ -131,7 +131,7 @@ describe('Auto save behavior', () => {
       cy.get(appFrontend.changeOfName.newFirstName).type('test');
 
       cy.get(appFrontend.changeOfName.newMiddleName).type('Kråka');
-      cy.get(appFrontend.changeOfName.confirmChangeName).find('input').dsCheck();
+      cy.get(appFrontend.changeOfName.confirmChangeName).find('input').click();
       cy.get(appFrontend.changeOfName.reasonRelationship).click();
       cy.get(appFrontend.changeOfName.reasonRelationship).type('hello world');
       cy.get(appFrontend.changeOfName.dateOfEffect).siblings().findByRole('button').click();

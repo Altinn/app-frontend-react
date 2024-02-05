@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Button, Select } from '@digdir/design-system-react';
+import { Button, LegacySelect } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
 import { CheckmarkCircleFillIcon } from '@navikt/aksel-icons';
 
@@ -206,7 +206,7 @@ export function EditWindowComponent({
             style={{ minWidth: '150px' }}
             xs
           >
-            <Select
+            <LegacySelect
               inputId={`attachment-tag-dropdown-${attachment.id}`}
               onChange={(value) => onDropdownDataChange(attachment.id, value)}
               options={formattedOptions}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { Button, Table } from '@digdir/design-system-react-latest';
+import { Button, Table } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
 import { Delete as DeleteIcon, Edit as EditIcon, ErrorColored as ErrorIcon } from '@navikt/ds-icons';
 import cn from 'classnames';

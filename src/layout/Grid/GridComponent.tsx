@@ -1,7 +1,7 @@
 import React from 'react';
 import type { PropsWithChildren } from 'react';
 
-import { Table } from '@digdir/design-system-react-latest';
+import { Table } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
 import cn from 'classnames';
 

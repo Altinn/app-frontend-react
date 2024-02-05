@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Table } from '@digdir/design-system-react-latest';
+import { Table } from '@digdir/design-system-react';
 import { Grid, Typography } from '@material-ui/core';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';

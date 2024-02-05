@@ -159,7 +159,7 @@ describe('Summary', () => {
 
     // Verify empty group summary
     cy.gotoNavPage('repeating');
-    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').click();
     cy.gotoNavPage('summary');
     cy.get('[data-testid=summary-group-component] > div').last().should('contain.text', texts.emptySummary);
     cy.gotoNavPage('prefill');
@@ -194,10 +194,10 @@ describe('Summary', () => {
     // Check to show a couple of nested options, then go back to the summary
     cy.get(appFrontend.group.row(0).editBtn).click();
     cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.next).click();
-    cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedDynamics).dsCheck();
+    cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedDynamics).click();
 
-    cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[1]).dsCheck();
-    cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[2]).dsCheck();
+    cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[1]).click();
+    cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[2]).click();
 
     cy.get(appFrontend.group.row(0).nestedGroup.saveBtn).click();
     cy.get(appFrontend.group.saveMainGroup).click();
@@ -215,9 +215,9 @@ describe('Summary', () => {
       });
 
     cy.gotoNavPage('prefill');
-    cy.get(appFrontend.group.prefill.liten).dsCheck();
-    cy.get(appFrontend.group.prefill.middels).dsCheck();
-    cy.get(appFrontend.group.prefill.svaer).dsCheck();
+    cy.get(appFrontend.group.prefill.liten).click();
+    cy.get(appFrontend.group.prefill.middels).click();
+    cy.get(appFrontend.group.prefill.svaer).click();
     cy.gotoNavPage('summary');
 
     function assertSummaryItem(groupRow: number, items: { [key: string]: boolean }) {
@@ -320,9 +320,9 @@ describe('Summary', () => {
     });
     cy.goto('group');
 
-    cy.get(appFrontend.group.prefill['liten']).dsCheck();
+    cy.get(appFrontend.group.prefill['liten']).click();
     cy.gotoNavPage('repeating');
-    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').click();
     // Add data
     cy.get(appFrontend.group.row(0).editBtn).click();
     cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.next).click();

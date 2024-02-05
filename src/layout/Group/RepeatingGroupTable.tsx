@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Table } from '@digdir/design-system-react-latest';
+import { Table } from '@digdir/design-system-react';
 import cn from 'classnames';
 
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
