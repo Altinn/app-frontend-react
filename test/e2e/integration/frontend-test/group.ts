@@ -262,9 +262,9 @@ describe('Group', () => {
       cy.get(appFrontend.prevButton).click();
       for (const item of Object.keys(items)) {
         if (items[item] === true) {
-          cy.get(appFrontend.group.prefill[item]).dsCheck();
+          cy.get(appFrontend.group.prefill[item]).check();
         } else {
-          cy.get(appFrontend.group.prefill[item]).dsUncheck();
+          cy.get(appFrontend.group.prefill[item]).uncheck();
         }
       }
       cy.get(appFrontend.nextButton).click();
@@ -765,7 +765,7 @@ describe('Group', () => {
       // It is very important that these gets checked in this order, as the rest of the test relies on that.
       // Order is not guaranteed here, so we'll wait for each one to be saved before continuing.
       waitForOneMoreRequest(() => {
-        cy.get(prefill).dsCheck();
+        cy.get(prefill).check();
       });
     }
 
