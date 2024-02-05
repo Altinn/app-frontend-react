@@ -18,7 +18,6 @@ const PDFComponent = ({ node }: { node: LayoutNode }) => {
       <SummaryComponent
         summaryNode={node as LayoutNode<'Summary'>}
         overrides={{
-          grid: { xs: 12 },
           display: { hideChangeButton: true, hideValidationMessages: true },
         }}
       />
