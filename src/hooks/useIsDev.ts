@@ -9,3 +9,7 @@ const devHostNames = [
 export function useIsDev(): boolean {
   return devHostNames.some((host) => host.test(window.location.hostname));
 }
+
+export function useIsLocalTest(): boolean {
+  return /^local\.altinn\.cloud$/.test(window.location.hostname);
+}
