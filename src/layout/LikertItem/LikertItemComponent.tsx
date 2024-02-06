@@ -47,7 +47,6 @@ const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
       className={classes.likertTableRow}
     >
       <LegacyTableCell
-        scope='row'
         id={rowLabelId}
         className={classes.likertTableRowHeader}
       >
