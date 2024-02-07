@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 
 import { IsLoadingActions } from 'src/features/isLoading/isLoadingSlice';
 import { ProcessActions } from 'src/features/process/processSlice';
@@ -20,6 +20,8 @@ export function useProcess() {
   const taskType = process?.taskType;
   const taskId = process?.taskId;
 
+  const lastStartedRef = useRef<string | null | undefined>(undefined);
+
   React.useEffect(() => {
     if (!applicationMetadata || !instanceData) {
       return;
@@ -31,7 +33,10 @@ export function useProcess() {
     }
 
     if (taskType === ProcessTaskType.Data || behavesLikeDataTask(taskId, layoutSets)) {
-      dispatch(QueueActions.startInitialDataTaskQueue());
+      if (lastStartedRef.current !== taskId) {
+        dispatch(QueueActions.startInitialDataTaskQueue());
+        lastStartedRef.current = taskId;
+      }
       return;
     }
 
