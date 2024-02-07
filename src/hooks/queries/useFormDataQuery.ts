@@ -64,8 +64,16 @@ export function useFormDataQuery(): UseQueryResult<IFormData> {
   const currentTaskId = instance?.process?.currentTask?.elementId;
 
   const { fetchFormData } = useAppQueriesContext();
-  const out = useQuery(['fetchFormData', url, currentTaskId], () => fetchFormData(url || '', options), {
+  const out = useQuery({
+    queryKey: ['fetchFormData', url, currentTaskId],
+    queryFn: () => fetchFormData(url || '', options),
     enabled: isEnabled && url !== undefined,
+
+    // Form data is only fetched to initially populate redux, after that we keep the state internally
+    // and push it back to the server.
+    cacheTime: 0,
+    retry: false,
+
     onSuccess: (formDataAsObj) => {
       const formData = convertModelToDataBinding(formDataAsObj);
       dispatch(FormDataActions.fetchFulfilled({ formData }));
