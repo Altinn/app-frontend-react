@@ -1,7 +1,5 @@
 import React from 'react';
 
-import cn from 'classnames';
-
 import { isAttachmentUploaded } from 'src/features/attachments';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -29,7 +27,7 @@ export function AttachmentSummaryComponent({ targetNode }: IAttachmentSummaryCom
 
   return (
     <div
-      className={cn(classes.container, { [classes.withTag]: hasTag })}
+      className={hasTag ? classes.containerWithTag : classes.container}
       data-testid={`${hasTag ? 'attachment-with-tag-summary' : 'attachment-summary-component'}`}
     >
       {attachments.length === 0 ? (
@@ -41,7 +39,7 @@ export function AttachmentSummaryComponent({ targetNode }: IAttachmentSummaryCom
           const uniqueId = isAttachmentUploaded(attachment) ? attachment.data.id : attachment.data.temporaryId;
           return (
             <div
-              className={classes.row}
+              className={hasTag ? classes.rowWithTag : classes.row}
               key={`attachment-summary-${uniqueId}`}
             >
               <div key={uniqueId}>{attachment.data.filename}</div>
