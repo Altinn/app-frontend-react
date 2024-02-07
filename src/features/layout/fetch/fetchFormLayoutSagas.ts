@@ -11,6 +11,7 @@ import { httpGet } from 'src/utils/network/networking';
 import { getLayoutSetsUrl, getLayoutSettingsUrl, getLayoutsUrl } from 'src/utils/urls/appUrlHelper';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { ExprObjConfig, ExprVal } from 'src/features/expressions/types';
+import type { IProcessState } from 'src/features/process';
 import type { ILayoutFileExternal } from 'src/layout/common.generated';
 import type { CompTypes, ILayout, ILayouts } from 'src/layout/layout';
 import type { IHiddenLayoutsExternal, ILayoutSets, ILayoutSettings, IRuntimeState } from 'src/types';
@@ -18,6 +19,7 @@ import type { IInstance } from 'src/types/shared';
 
 export const layoutSetsSelector = (state: IRuntimeState) => state.formLayout.layoutsets;
 export const instanceSelector = (state: IRuntimeState) => state.instanceData.instance;
+export const processSelector = (state: IRuntimeState) => state.process;
 export const applicationMetadataSelector = (state: IRuntimeState) => state.applicationMetadata.applicationMetadata;
 
 type ComponentTypeCaseMapping = { [key: string]: CompTypes };
@@ -48,8 +50,24 @@ export function cleanLayout(layout: ILayout): ILayout {
 export function* fetchLayoutSaga(): SagaIterator {
   try {
     const layoutSets: ILayoutSets | null = yield select(layoutSetsSelector);
-    const instance: IInstance | null = yield select(instanceSelector);
+    let instance: IInstance | null = yield select(instanceSelector);
+    const processData: IProcessState | null = yield select(processSelector);
     const applicationMetadata: IApplicationMetadata = yield select(applicationMetadataSelector);
+
+    if (
+      instance &&
+      processData &&
+      instance.process?.currentTask?.elementId &&
+      processData.taskId &&
+      instance.process.currentTask.elementId !== processData.taskId
+    ) {
+      // We'll inject the correct task into the instance here, to make sure we select the correct layout-set.
+      // This is a hacky workaround for a type of bug we shouldn't have at all in v4.
+      instance = { ...instance, process: { ...instance.process, currentTask: { ...instance.process.currentTask } } };
+      instance.process!.currentTask!.elementId = processData.taskId;
+      instance.process!.currentTask!.altinnTaskType = processData.taskType as any;
+    }
+
     const layoutSetId = getLayoutSetIdForApplication(applicationMetadata, instance, layoutSets);
     const layoutResponse: ILayoutFileExternal | { [key: string]: ILayoutFileExternal } = yield call(
       httpGet,
