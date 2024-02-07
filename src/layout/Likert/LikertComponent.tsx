@@ -113,7 +113,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
                 <Table.HeaderCell>
                   <span
                     className={cn({
-                      ['sr-only']: node?.item.textResourceBindings?.leftColumnHeader == null,
+                      'sr-only': node?.item.textResourceBindings?.leftColumnHeader == null,
                     })}
                   >
                     <Lang
