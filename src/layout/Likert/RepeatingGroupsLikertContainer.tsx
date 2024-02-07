@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Table } from '@digdir/design-system-react';
 import { Grid, Typography } from '@material-ui/core';
+import cn from 'classnames';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -114,11 +115,13 @@ export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertCo
               className={classes.likertTableHeader}
             >
               <Table.Row>
-                {node?.item.textResourceBindings?.leftColumnHeader ? (
-                  <Table.HeaderCell>{lang(node?.item.textResourceBindings?.leftColumnHeader)}</Table.HeaderCell>
-                ) : (
-                  <Table.HeaderCell />
-                )}
+                <Table.HeaderCell>
+                  <span className={cn({ 'sr-only': node?.item.textResourceBindings?.leftColumnHeader == null })}>
+                    {lang(
+                      node?.item.textResourceBindings?.leftColumnHeader ?? 'likert.left_column_default_header_text',
+                    )}
+                  </span>
+                </Table.HeaderCell>
                 {calculatedOptions.map((option, index) => {
                   const colLabelId = `${id}-likert-columnheader-${index}`;
                   return (

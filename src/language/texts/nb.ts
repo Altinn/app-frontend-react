@@ -317,5 +317,8 @@ export function nb(): FixedLanguageList {
       nextPage: 'Neste side i tabell',
       navigateLastPage: 'Naviger til siste side i tabell',
     },
+    likert: {
+      left_column_default_header_text: 'Spørsmål',
+    },
   };
 }
