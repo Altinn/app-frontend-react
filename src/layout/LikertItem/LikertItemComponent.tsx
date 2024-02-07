@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { LegacyTableCell, LegacyTableRow } from '@digdir/design-system-react';
+import { Table } from '@digdir/design-system-react';
 import { Typography } from '@material-ui/core';
 
 import { RadioButton } from 'src/components/form/RadioButton';
@@ -40,16 +40,12 @@ const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
   const rowLabelId = `row-label-${id}`;
 
   return (
-    <LegacyTableRow
+    <Table.Row
       aria-labelledby={rowLabelId}
       data-componentid={node.item.id}
       data-is-loading={fetchingOptions ? 'true' : 'false'}
-      className={classes.likertTableRow}
     >
-      <LegacyTableCell
-        id={rowLabelId}
-        className={classes.likertTableRowHeader}
-      >
+      <Table.Cell id={rowLabelId}>
         <Typography component={'div'}>
           <GenericComponentLegend />
           <ComponentValidations
@@ -57,25 +53,24 @@ const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
             node={node}
           />
         </Typography>
-      </LegacyTableCell>
+      </Table.Cell>
       {calculatedOptions?.map((option, colIndex) => {
         const colLabelId = `${groupContainerId}-likert-columnheader-${colIndex}`;
         const isChecked = selected === option.value;
         return (
-          <LegacyTableCell
-            key={option.value}
-            className={classes.likertTableCell}
-          >
+          <Table.Cell key={option.value}>
             <RadioButton
               aria-labelledby={`${rowLabelId} ${colLabelId}`}
               checked={isChecked}
               onChange={handleChange}
               value={option.value}
               name={rowLabelId}
+              label={option.label}
+              hideLabel
             />
-          </LegacyTableCell>
+          </Table.Cell>
         );
       })}
-    </LegacyTableRow>
+    </Table.Row>
   );
 };

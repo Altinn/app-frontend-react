@@ -1,15 +1,11 @@
 import React from 'react';
 
-import {
-  LegacyTable,
-  LegacyTableBody,
-  LegacyTableCell,
-  LegacyTableHeader,
-  LegacyTableRow,
-} from '@digdir/design-system-react';
+import { Table } from '@digdir/design-system-react';
 import { Grid, Typography } from '@material-ui/core';
+import cn from 'classnames';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
+import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
@@ -109,33 +105,40 @@ export const LikertComponent = ({ node, ref }: LikertComponentProps) => {
           className={classes.likertTableContainer}
           ref={ref}
         >
-          <LegacyTable
+          <Table
             id={id}
             aria-labelledby={(hasTitle && titleId) || undefined}
             aria-describedby={(hasDescription && descriptionId) || undefined}
+            border
+            className={classes.likertTable}
           >
-            <LegacyTableHeader id={`likert-table-header-${id}`}>
-              <LegacyTableRow>
-                {node?.item.textResourceBindings?.leftColumnHeader ? (
-                  <LegacyTableCell>{lang(node?.item.textResourceBindings?.leftColumnHeader)}</LegacyTableCell>
-                ) : (
-                  <LegacyTableCell />
-                )}
+            <Table.Head id={`likert-table-header-${id}`}>
+              <Table.Row>
+                <Table.HeaderCell>
+                  <span
+                    className={cn({
+                      ['sr-only']: node?.item.textResourceBindings?.leftColumnHeader == null,
+                    })}
+                  >
+                    <Lang
+                      id={node?.item.textResourceBindings?.leftColumnHeader ?? 'likert.left_column_default_header_text'}
+                    />
+                  </span>
+                </Table.HeaderCell>
                 {calculatedOptions.map((option, index) => {
                   const colLabelId = `${id}-likert-columnheader-${index}`;
                   return (
-                    <LegacyTableCell
+                    <Table.HeaderCell
                       key={option.value}
                       id={colLabelId}
-                      className={classes.likertTableHeaderTop}
                     >
                       {lang(option.label)}
-                    </LegacyTableCell>
+                    </Table.HeaderCell>
                   );
                 })}
-              </LegacyTableRow>
-            </LegacyTableHeader>
-            <LegacyTableBody id={`likert-table-body-${id}`}>
+              </Table.Row>
+            </Table.Head>
+            <Table.Body id={`likert-table-body-${id}`}>
               {node?.children().map((comp) => {
                 if (comp.isType('Group') || comp.isType('Summary')) {
                   window.logWarnOnce('Unexpected Group or Summary inside likert container:\n', comp.item.id);
@@ -154,8 +157,8 @@ export const LikertComponent = ({ node, ref }: LikertComponentProps) => {
                   />
                 );
               })}
-            </LegacyTableBody>
-          </LegacyTable>
+            </Table.Body>
+          </Table>
         </div>
       )}
     </>
