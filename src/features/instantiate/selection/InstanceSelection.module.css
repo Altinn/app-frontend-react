@@ -11,6 +11,14 @@
   margin-top: 26px;
 }
 
+.table {
+  width: 100%;
+}
+
+.tableFooter {
+  background-color: var(--fds-semantic-background-subtle);
+}
+
 .startNewButtonContainer {
   margin-top: 12px;
 }
