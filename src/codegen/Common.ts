@@ -36,13 +36,6 @@ const common = {
               .setDescription('Expression that will hide the page/form layout if true')
               .optional({ default: false }),
           ),
-          new CG.prop(
-            'expandedWidth',
-            new CG.bool()
-              .setTitle('Expanded width')
-              .setDescription('Expression that will expand the page/form layout if true')
-              .optional({ default: false }),
-          ),
         ),
       ),
     )
@@ -659,6 +652,13 @@ const common = {
           .setDescription(
             'Name of a custom layout file to use for PDF creation instead of the automatically generated PDF.',
           ),
+      ),
+      new CG.prop(
+        'expandedWidth',
+        new CG.arr(new CG.str())
+          .optional()
+          .setTitle('Expanded width pages')
+          .setDescription('List of pages that should be expanded in width'),
       ),
     ),
   IPagesSettings: () => new CG.obj().extends(CG.common('GlobalPageSettings')).extends(CG.common('IPagesBaseSettings')),

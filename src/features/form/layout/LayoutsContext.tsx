@@ -13,13 +13,12 @@ import { useNavigationParams } from 'src/hooks/useNavigatePage';
 import type { ExprObjConfig, ExprVal } from 'src/features/expressions/types';
 import type { ILayoutFileExternal } from 'src/layout/common.generated';
 import type { ILayoutCollection, ILayouts } from 'src/layout/layout';
-import type { IExpandedWidthLayoutsExternal, IHiddenLayoutsExternal } from 'src/types';
+import type { IHiddenLayoutsExternal } from 'src/types';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 export interface LayoutContextValue {
   layouts: ILayouts;
   hiddenLayoutsExpressions: IHiddenLayoutsExternal;
-  expandedWidthLayouts: IExpandedWidthLayoutsExternal;
 }
 
 function useLayoutQuery() {
@@ -61,8 +60,6 @@ export const useLayouts = () => useCtx().layouts;
 
 export const useHiddenLayoutsExpressions = () => useCtx().hiddenLayoutsExpressions;
 
-export const useExpandedWidthValues = () => useCtx().expandedWidthLayouts;
-
 function isSingleLayout(layouts: ILayoutCollection | ILayoutFileExternal): layouts is ILayoutFileExternal {
   return 'data' in layouts && 'layout' in layouts.data && Array.isArray(layouts.data.layout);
 }
@@ -70,17 +67,14 @@ function isSingleLayout(layouts: ILayoutCollection | ILayoutFileExternal): layou
 function processLayouts(input: ILayoutCollection | ILayoutFileExternal): LayoutContextValue {
   const layouts: ILayouts = {};
   const hiddenLayoutsExpressions: IHiddenLayoutsExternal = {};
-  const expandedWidthLayouts: IExpandedWidthLayoutsExternal = {};
   if (isSingleLayout(input)) {
     layouts['FormLayout'] = cleanLayout(input.data.layout);
     hiddenLayoutsExpressions['FormLayout'] = input.data.hidden;
-    expandedWidthLayouts['FormLayout'] = !!input.data.expandedWidth;
   } else {
     for (const key of Object.keys(input)) {
       const file = input[key];
       layouts[key] = cleanLayout(file.data.layout);
       hiddenLayoutsExpressions[key] = file.data.hidden;
-      expandedWidthLayouts[key] = !!file.data.expandedWidth;
     }
   }
 
@@ -96,13 +90,8 @@ function processLayouts(input: ILayoutCollection | ILayoutFileExternal): LayoutC
     hiddenLayoutsExpressions[key] = preProcessItem(hiddenLayoutsExpressions[key], config, ['hidden'], key);
   }
 
-  for (const key of Object.keys(expandedWidthLayouts)) {
-    expandedWidthLayouts[key] = preProcessItem(expandedWidthLayouts[key], config, ['expandedWidth'], key);
-  }
-
   return {
     layouts,
     hiddenLayoutsExpressions,
-    expandedWidthLayouts,
   };
 }

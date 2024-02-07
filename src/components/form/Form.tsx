@@ -8,9 +8,9 @@ import { MessageBanner } from 'src/components/form/MessageBanner';
 import { ErrorReport } from 'src/components/message/ErrorReport';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { useExpandedWidthValues } from 'src/features/form/layout/LayoutsContext';
 import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
+import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FrontendValidationSource } from 'src/features/validation';
 import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { useCurrentView, useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -124,11 +124,11 @@ function useRedirectToStoredPage() {
  */
 function useSetExpandedWidth() {
   const currentPageId = useCurrentView();
-  const expandedPages = useExpandedWidthValues();
+  const expandedPages = useLayoutSettings().pages.expandedWidth;
   const { setExpandedWidth } = useUiConfigContext();
 
   useEffect(() => {
-    const defaultExpandedWidth = currentPageId ? expandedPages?.[currentPageId] : false;
+    const defaultExpandedWidth = currentPageId && expandedPages ? expandedPages.indexOf(currentPageId) > -1 : false;
     setExpandedWidth(defaultExpandedWidth);
   }, [currentPageId, expandedPages, setExpandedWidth]);
 }

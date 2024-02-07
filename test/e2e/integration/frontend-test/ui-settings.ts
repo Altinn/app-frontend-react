@@ -4,13 +4,21 @@ const appFrontend = new AppFrontend();
 
 describe('Expanded width', () => {
   it('Shows page with expandedWidth as expanded', () => {
-    cy.interceptLayout(
-      'changename',
-      () => {},
-      (layoutSet) => {
-        layoutSet.grid.data.expandedWidth = true;
+    cy.intercept('GET', '**/api/layoutsettings/changename', {
+      statusCode: 200,
+      body: {
+        $schema: 'https://altinncdn.no/schemas/json/layout/layoutSettings.schema.v1.json',
+        pages: {
+          order: ['form', 'summary', 'grid'],
+          excludeFromPdf: ['summary'],
+          showLanguageSelector: true,
+          expandedWidth: ['grid'],
+        },
+        components: {
+          excludeFromPdf: ['confirmChangeName'],
+        },
       },
-    );
+    });
     cy.goto('changename');
     cy.get(appFrontend.notExpandedWidth).should('exist');
 
