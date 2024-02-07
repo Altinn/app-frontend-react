@@ -5,11 +5,15 @@
 }
 
 tr > .fullWidthCellFirst {
-  padding-left: calc(var(--modal-padding-x) - var(--table-input-margin));
+  padding-left: var(--modal-padding-x);
 }
 
 tr > .fullWidthCellLast {
-  padding-right: calc(var(--modal-padding-x) - var(--table-input-margin));
+  padding-right: var(--modal-padding-x);
+}
+
+.fullWidth {
+  width: 100%;
 }
 
 .contentFormatting {
