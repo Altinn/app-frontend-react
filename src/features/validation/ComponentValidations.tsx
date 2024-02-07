@@ -10,13 +10,13 @@ import type { NodeValidation } from 'src/features/validation';
 import type { AlertSeverity } from 'src/layout/Alert/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export function ComponentValidations({
-  validations,
-  node,
-}: {
+type Props = {
   validations: NodeValidation[] | undefined;
   node?: LayoutNode;
-}) {
+  ariaHide?: boolean;
+};
+
+export function ComponentValidations({ validations, node, ariaHide = false }: Props) {
   if (!validations || validations.length === 0) {
     return null;
   }
@@ -26,7 +26,10 @@ export function ComponentValidations({
   const success = validationsOfSeverity(validations, 'success');
 
   return (
-    <div data-validation={node?.item.id}>
+    <div
+      data-validation={node?.item.id}
+      aria-hidden={ariaHide}
+    >
       {errors.length > 0 && (
         <ErrorValidations
           validations={errors}

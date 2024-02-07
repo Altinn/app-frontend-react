@@ -60,6 +60,7 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
           <ComponentValidations
             validations={validations}
             node={node}
+            ariaHide
           />
         </Typography>
       </Table.Cell>
@@ -74,8 +75,6 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
               onChange={handleChange}
               value={option.value}
               name={rowLabelId}
-              label={option.label}
-              hideLabel
             />
           </Table.Cell>
         );
