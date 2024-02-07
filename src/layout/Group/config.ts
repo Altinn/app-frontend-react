@@ -46,7 +46,7 @@ export const Config = new CG.component({
   .addProperty(
     new CG.prop(
       'headingLevel',
-      new CG.enum(1, 2, 3, 4, 5, 6)
+      new CG.enum(2, 3, 4, 5, 6)
         .optional()
         .setTitle('Heading level')
         .setDescription('The heading level of the group title.'),
