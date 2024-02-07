@@ -686,4 +686,13 @@ describe('Validation', () => {
     // that was never even visible.
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 2);
   });
+
+  it('Should navigate and focus correct row in Likert component when clicking on error report', () => {
+    cy.goto('likert');
+    cy.findByRole('button', { name: /Send inn/ }).click();
+
+    cy.findByRole('radio', { name: 'Hører skolen på elevenes forslag? * Alltid' }).should('not.be.focused');
+    cy.findByRole('button', { name: /Du må fylle ut hører skolen på elevenes forslag/ }).click();
+    cy.findByRole('radio', { name: 'Hører skolen på elevenes forslag? * Alltid' }).should('be.focused');
+  });
 });
