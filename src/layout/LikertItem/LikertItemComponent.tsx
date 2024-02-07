@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 
 import { Table } from '@digdir/design-system-react';
 import { Typography } from '@material-ui/core';
@@ -14,23 +14,31 @@ import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IControlledRadioGroupProps } from 'src/layout/RadioButtons/ControlledRadioGroup';
 
-export const LikertItemComponent = (props: PropsFromGenericComponent<'LikertItem'>) => {
-  const nodeLayout = props.node.item.layout;
-  const overriddenLayout = props.overrideItemProps?.layout;
-  const actualLayout = overriddenLayout || nodeLayout;
+export const LikertItemComponent = forwardRef<HTMLTableRowElement, PropsFromGenericComponent<'LikertItem'>>(
+  (props, ref) => {
+    const nodeLayout = props.node.item.layout;
+    const overriddenLayout = props.overrideItemProps?.layout;
+    const actualLayout = overriddenLayout || nodeLayout;
 
-  if (actualLayout === LayoutStyle.Table) {
-    return <RadioGroupTableRow {...props} />;
-  }
+    if (actualLayout === LayoutStyle.Table) {
+      return (
+        <RadioGroupTableRow
+          {...props}
+          ref={ref}
+        />
+      );
+    }
 
-  return (
-    <div className={classes.likertRadioGroupWrapperMobile}>
-      <ControlledRadioGroup {...props} />
-    </div>
-  );
-};
+    return (
+      <div className={classes.likertRadioGroupWrapperMobile}>
+        <ControlledRadioGroup {...props} />
+      </div>
+    );
+  },
+);
+LikertItemComponent.displayName = 'LikertItemComponent';
 
-const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
+const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroupProps>((props, ref) => {
   const { node } = props;
   const { selected, handleChange, calculatedOptions, fetchingOptions } = useRadioButtons(props);
   const validations = useUnifiedValidationsForNode(node);
@@ -44,6 +52,7 @@ const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
       aria-labelledby={rowLabelId}
       data-componentid={node.item.id}
       data-is-loading={fetchingOptions ? 'true' : 'false'}
+      ref={ref}
     >
       <Table.Cell id={rowLabelId}>
         <Typography component={'div'}>
@@ -73,4 +82,5 @@ const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
       })}
     </Table.Row>
   );
-};
+});
+RadioGroupTableRow.displayName = 'RadioGroupTableRow';
