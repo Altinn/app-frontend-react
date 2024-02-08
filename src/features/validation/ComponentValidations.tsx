@@ -13,10 +13,9 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 type Props = {
   validations: NodeValidation[] | undefined;
   node?: LayoutNode;
-  ariaHide?: boolean;
 };
 
-export function ComponentValidations({ validations, node, ariaHide = false }: Props) {
+export function ComponentValidations({ validations, node }: Props) {
   if (!validations || validations.length === 0) {
     return null;
   }
@@ -26,10 +25,7 @@ export function ComponentValidations({ validations, node, ariaHide = false }: Pr
   const success = validationsOfSeverity(validations, 'success');
 
   return (
-    <div
-      data-validation={node?.item.id}
-      aria-hidden={ariaHide}
-    >
+    <div data-validation={node?.item.id}>
       {errors.length > 0 && (
         <ErrorValidations
           validations={errors}

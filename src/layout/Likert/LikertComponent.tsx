@@ -106,11 +106,15 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
             aria-labelledby={(hasTitle && titleId) || undefined}
             aria-describedby={(hasDescription && descriptionId) || undefined}
             border
+            role='presentation'
             className={classes.likertTable}
           >
-            <Table.Head id={`likert-table-header-${id}`}>
-              <Table.Row>
-                <Table.HeaderCell>
+            <Table.Head
+              id={`likert-table-header-${id}`}
+              role='presentation'
+            >
+              <Table.Row role='presentation'>
+                <Table.HeaderCell role='presentation'>
                   <span
                     className={cn({
                       'sr-only': node?.item.textResourceBindings?.leftColumnHeader == null,
@@ -127,6 +131,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
                     <Table.HeaderCell
                       key={option.value}
                       id={colLabelId}
+                      role='presentation'
                     >
                       {lang(option.label)}
                     </Table.HeaderCell>
@@ -134,7 +139,10 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
                 })}
               </Table.Row>
             </Table.Head>
-            <Table.Body id={`likert-table-body-${id}`}>
+            <Table.Body
+              id={`likert-table-body-${id}`}
+              role='presentation'
+            >
               {node?.children().map((comp) => {
                 if (comp.isType('Group') || comp.isType('Summary')) {
                   window.logWarnOnce('Unexpected Group or Summary inside likert container:\n', comp.item.id);
