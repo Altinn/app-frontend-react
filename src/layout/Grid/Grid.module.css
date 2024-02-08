@@ -16,8 +16,12 @@ tr > .fullWidthCellLast {
   background-color: var(--fds-semantic-surface-action-second-subtle);
 }
 
-.fullWidth {
+.table {
   width: 100%;
+}
+
+.table tr:hover {
+  background-color: unset;
 }
 
 .contentFormatting {

@@ -54,9 +54,7 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
       <Table.Cell id={rowLabelId}>
         <Typography component={'div'}>
           <RenderLegend />
-          <span aria-hidden='true'>
-            {renderValidationMessagesForComponent(componentValidations?.simpleBinding, id)}
-          </span>
+          {renderValidationMessagesForComponent(componentValidations?.simpleBinding, id)}
         </Typography>
       </Table.Cell>
       {calculatedOptions?.map((option, colIndex) => {

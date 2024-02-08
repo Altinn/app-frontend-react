@@ -2,6 +2,10 @@
   width: 100%;
 }
 
+.table tr:hover {
+  background-color: unset;
+}
+
 .tableButtonWrapper {
   display: flex;
   justify-content: right;

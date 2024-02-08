@@ -43,7 +43,7 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
     >
       <Table
         id={node.item.id}
-        className={css.fullWidth}
+        className={css.table}
       >
         {rows.map((row, rowIdx) => (
           <GridRowRenderer
