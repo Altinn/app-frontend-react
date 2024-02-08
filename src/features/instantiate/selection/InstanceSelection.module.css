@@ -15,6 +15,10 @@
   width: 100%;
 }
 
+.table tr:hover {
+  background-color: unset;
+}
+
 .tableFooter {
   background-color: var(--fds-semantic-background-subtle);
 }

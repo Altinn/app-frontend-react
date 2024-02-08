@@ -12,8 +12,12 @@ tr > .fullWidthCellLast {
   padding-right: var(--modal-padding-x);
 }
 
-.fullWidth {
+.table {
   width: 100%;
+}
+
+.table tr:hover {
+  background-color: unset;
 }
 
 .contentFormatting {
