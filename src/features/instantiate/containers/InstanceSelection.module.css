@@ -29,8 +29,11 @@
   width: 100%;
 }
 
-.semanticSurfaceBgColor {
+.tableFooter {
   background-color: var(--fds-semantic-surface-action-second-subtle);
+}
+tr.tableFooter:hover {
+  background-color: var(--fds-semantic-background-subtle);
 }
 
 .paginationWrapperMobile {

@@ -106,7 +106,7 @@ export function InstanceSelection({ instances, onNewInstance }: IInstanceSelecti
         </Table.Body>
         {instances.length > rowsPerPageOptions[0] && (
           <tfoot>
-            <Table.Row className={classes.semanticSurfaceBgColor}>
+            <Table.Row className={classes.tableFooter}>
               {/* @ts-expect-error colSpan is supported, but the types of TableCell are incorrect */}
               <Table.Cell colSpan={2}>
                 <div className={classes.paginationWrapperMobile}>
@@ -167,7 +167,7 @@ export function InstanceSelection({ instances, onNewInstance }: IInstanceSelecti
         ))}
       </Table.Body>
       {instances.length > rowsPerPageOptions[0] && (
-        <tfoot className={classes.semanticSurfaceBgColor}>
+        <tfoot className={classes.tableFooter}>
           <Table.Row>
             {/* @ts-expect-error colSpan is supported, but the types of TableCell are incorrect */}
             <Table.Cell colSpan={3}>
