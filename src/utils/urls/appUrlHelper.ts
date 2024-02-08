@@ -52,6 +52,8 @@ export const getDataValidationUrl = (instanceId: string, dataGuid: string) =>
 export const getPdfFormatUrl = (instanceId: string, dataGuid: string) =>
   `${appPath}/instances/${instanceId}/data/${dataGuid}/pdf/format`;
 
+export const getPdfPreviewUrl = (instanceId: string) => `${appPath}/instances/${instanceId}/pdf/preview`;
+
 export const getProcessNextUrl = (instanceId: string, taskId?: string, language?: string) => {
   const queryString = getQueryStringFromObject({
     elementId: taskId,
