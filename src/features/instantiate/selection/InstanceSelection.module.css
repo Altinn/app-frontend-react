@@ -22,6 +22,9 @@
 .tableFooter {
   background-color: var(--fds-semantic-background-subtle);
 }
+tr.tableFooter:hover {
+  background-color: var(--fds-semantic-background-subtle);
+}
 
 .startNewButtonContainer {
   margin-top: 12px;
