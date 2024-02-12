@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 
@@ -7,6 +7,7 @@ import type { BackendValidationIssueGroups, BackendValidations, BackendValidator
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { mapValidationIssueToFieldValidation } from 'src/features/validation/backend/backendUtils';
 
 interface RetVal {
@@ -20,21 +21,30 @@ export function useBackendValidation(fromLastSave: BackendValidationIssueGroups 
    * Run full validation initially
    */
   const { fetchBackendValidations } = useAppQueries();
+  const [initialValidationDone, setInitialValidationDone] = useState(false);
   const instanceId = useLaxInstance()?.instanceId;
   const currentDataElementId = useCurrentDataModelGuid();
+  const currentLanguage = useCurrentLanguage();
 
   const { data: initialValidations } = useQuery({
-    queryKey: ['validation', instanceId, currentDataElementId],
+    cacheTime: 0,
+    queryKey: ['validation', instanceId, currentDataElementId, currentLanguage],
     queryFn: () =>
       instanceId?.length && currentDataElementId?.length
-        ? fetchBackendValidations(instanceId, currentDataElementId)
+        ? fetchBackendValidations(instanceId, currentDataElementId, currentLanguage)
         : [],
   });
+
+  useEffect(() => {
+    if (initialValidations != null && !initialValidationDone) {
+      setInitialValidationDone(true);
+    }
+  }, [initialValidations, initialValidationDone]);
 
   /**
    * Map validator groups to validations per field
    */
-  return useMemo(() => {
+  const { validations, processedLast } = useMemo(() => {
     const backendValidations: BackendValidations = {
       task: [],
       fields: {},
@@ -72,7 +82,12 @@ export function useBackendValidation(fromLastSave: BackendValidationIssueGroups 
     return {
       validations: backendValidations,
       processedLast: fromLastSave,
-      initialValidationDone: initialValidations !== undefined,
     };
   }, [fromLastSave, initialValidations]);
+
+  return {
+    validations,
+    processedLast,
+    initialValidationDone,
+  };
 }
