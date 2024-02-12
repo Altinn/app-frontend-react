@@ -97,7 +97,26 @@ describe('InputComponent', () => {
     expect(inputComponent).not.toHaveAttribute('aria-describedby');
   });
 
-  it('should allow decimal separators specified in allowedDecimalSeparators', async () => {
+  it('should allow decimal separators specified in allowedDecimalSeparators when typing', async () => {
+    const typedValue = '11.1';
+    const { formDataMethods } = await render({
+      component: {
+        formatting: {
+          number: {
+            allowedDecimalSeparators: [',', '.'],
+            decimalSeparator: ',',
+          },
+        },
+      },
+    });
+    const inputComponent = screen.getByRole('textbox');
+    await userEvent.type(inputComponent, typedValue);
+    expect(inputComponent).toHaveValue(typedValue);
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'some.field', newValue: typedValue });
+    expect(inputComponent).toHaveValue(typedValue);
+  });
+
+  it('should allow decimal separators specified in allowedDecimalSeparators when pasting', async () => {
     const typedValue = '11.1';
     const { formDataMethods } = await render({
       component: {
