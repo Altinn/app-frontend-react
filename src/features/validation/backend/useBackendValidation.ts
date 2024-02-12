@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 
@@ -21,30 +21,23 @@ export function useBackendValidation(fromLastSave: BackendValidationIssueGroups 
    * Run full validation initially
    */
   const { fetchBackendValidations } = useAppQueries();
-  const [initialValidationDone, setInitialValidationDone] = useState(false);
   const instanceId = useLaxInstance()?.instanceId;
   const currentDataElementId = useCurrentDataModelGuid();
   const currentLanguage = useCurrentLanguage();
 
   const { data: initialValidations } = useQuery({
     cacheTime: 0,
-    queryKey: ['validation', instanceId, currentDataElementId, currentLanguage],
+    queryKey: ['validation', instanceId, currentDataElementId],
     queryFn: () =>
       instanceId?.length && currentDataElementId?.length
         ? fetchBackendValidations(instanceId, currentDataElementId, currentLanguage)
         : [],
   });
 
-  useEffect(() => {
-    if (initialValidations != null && !initialValidationDone) {
-      setInitialValidationDone(true);
-    }
-  }, [initialValidations, initialValidationDone]);
-
   /**
    * Map validator groups to validations per field
    */
-  const { validations, processedLast } = useMemo(() => {
+  return useMemo(() => {
     const backendValidations: BackendValidations = {
       task: [],
       fields: {},
@@ -82,12 +75,7 @@ export function useBackendValidation(fromLastSave: BackendValidationIssueGroups 
     return {
       validations: backendValidations,
       processedLast: fromLastSave,
+      initialValidationDone: initialValidations !== undefined,
     };
   }, [fromLastSave, initialValidations]);
-
-  return {
-    validations,
-    processedLast,
-    initialValidationDone,
-  };
 }
