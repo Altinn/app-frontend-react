@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Select } from '@digdir/design-system-react';
+import { LegacySelect } from '@digdir/design-system-react';
 
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useFormattedOptions } from 'src/hooks/useFormattedOptions';
@@ -36,7 +36,7 @@ export function MultipleSelectComponent({
     .map((option) => option.value);
 
   return (
-    <Select
+    <LegacySelect
       label={langAsString('general.choose')}
       hideLabel={true}
       options={formattedOptions}

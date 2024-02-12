@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Table, TableBody, TableCell, TableHeader, TableRow } from '@digdir/design-system-react';
+import { Table } from '@digdir/design-system-react';
 import cn from 'classnames';
 
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
@@ -163,20 +163,20 @@ export function RepeatingGroupTable({
       }
 
       return (
-        <TableBody>
-          <TableRow>
-            <TableCell className={classes.mobileTableCell}>
+        <Table.Body>
+          <Table.Row>
+            <Table.Cell className={classes.mobileTableCell}>
               {nodes.map((child) => (
                 <GenericComponent
                   key={child.item.id}
                   node={child}
                 />
               ))}
-            </TableCell>
+            </Table.Cell>
             {/* One extra cell to make place for edit/delete buttons */}
-            <TableCell className={classes.mobileTableCell} />
-          </TableRow>
-        </TableBody>
+            <Table.Cell className={classes.mobileTableCell} />
+          </Table.Row>
+        </Table.Body>
       );
     }
 
@@ -207,17 +207,21 @@ export function RepeatingGroupTable({
     >
       <Table
         id={`group-${id}-table`}
-        className={cn({ [classes.editingBorder]: isNested }, classes.repeatingGroupTable)}
+        className={cn(classes.repeatingGroupTable, {
+          [classes.editingBorder]: isNested,
+          [classes.nestedTable]: isNested,
+        })}
+        border={isNested}
       >
         <RenderExtraRows
           rows={rowsBefore}
           where={'Before'}
         />
         {showTableHeader && !mobileView && (
-          <TableHeader id={`group-${id}-table-header`}>
-            <TableRow className={classes.repeatingGroupRow}>
+          <Table.Head id={`group-${id}-table-header`}>
+            <Table.Row>
               {tableNodes?.map((n) => (
-                <TableCell
+                <Table.HeaderCell
                   key={n.item.id}
                   className={classes.tableCellFormatting}
                   style={getColumnStylesRepeatingGroups(n, columnSettings)}
@@ -228,22 +232,22 @@ export function RepeatingGroupTable({
                   >
                     {lang(getTableTitle('textResourceBindings' in n.item ? n.item.textResourceBindings : {}))}
                   </span>
-                </TableCell>
+                </Table.HeaderCell>
               ))}
               {displayEditColumn && (
-                <TableCell style={{ padding: 0, paddingRight: '10px' }}>
+                <Table.HeaderCell style={{ padding: 0, paddingRight: '10px' }}>
                   <span className={classes.visuallyHidden}>{lang('general.edit')}</span>
-                </TableCell>
+                </Table.HeaderCell>
               )}
               {displayDeleteColumn && (
-                <TableCell style={{ padding: 0 }}>
+                <Table.HeaderCell style={{ padding: 0 }}>
                   <span className={classes.visuallyHidden}>{lang('general.delete')}</span>
-                </TableCell>
+                </Table.HeaderCell>
               )}
-            </TableRow>
-          </TableHeader>
+            </Table.Row>
+          </Table.Head>
         )}
-        <TableBody id={`group-${id}-table-body`}>
+        <Table.Body id={`group-${id}-table-body`}>
           {repeatingGroupIndex >= 0 &&
             [...Array(repeatingGroupIndex + 1)].map((_x: any, index: number) => {
               const children = node.children(undefined, index);
@@ -284,12 +288,13 @@ export function RepeatingGroupTable({
                     displayEditColumn={displayEditColumn}
                   />
                   {isEditingRow && (
-                    <TableRow
+                    <Table.Row
                       key={`edit-container-${index}`}
                       className={classes.editContainerRow}
                     >
-                      <TableCell
+                      <Table.Cell
                         style={{ padding: 0, borderTop: 0 }}
+                        // @ts-expect-error colSpan is supported, but the types of TableCell are incorrect
                         colSpan={
                           mobileView
                             ? 2
@@ -297,13 +302,13 @@ export function RepeatingGroupTable({
                         }
                       >
                         {renderRepeatingGroupsEditContainer()}
-                      </TableCell>
-                    </TableRow>
+                      </Table.Cell>
+                    </Table.Row>
                   )}
                 </React.Fragment>
               );
             })}
-        </TableBody>
+        </Table.Body>
         <RenderExtraRows
           rows={rowsAfter}
           where={'After'}

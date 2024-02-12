@@ -3,7 +3,7 @@ import React from 'react';
 import { Pagination } from '@altinn/altinn-design-system';
 import { LegacyFieldSet, LegacyResponsiveTable } from '@digdir/design-system-react';
 import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/src/components/Pagination/Pagination';
-import type { ChangeProps, LegacyResponsiveTableConfig, SortProps } from '@digdir/design-system-react';
+import type { LegacyChangeProps, LegacyResponsiveTableConfig, LegacySortProps } from '@digdir/design-system-react';
 
 import { DataListsActions } from 'src/features/dataLists/dataListsSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
@@ -35,7 +35,7 @@ export const ListComponent = ({ node, formData, handleDataChange, legend }: ILis
     (state) => state.dataListState.dataLists[id]?.paginationData?.totaltItemsCount || 0,
   );
 
-  const handleChange = ({ selectedValue: selectedValue }: ChangeProps<Record<string, string>>) => {
+  const handleChange = ({ selectedValue: selectedValue }: LegacyChangeProps<Record<string, string>>) => {
     for (const key in formData) {
       handleDataChange(selectedValue[key], { key });
     }
@@ -65,7 +65,7 @@ export const ListComponent = ({ node, formData, handleDataChange, legend }: ILis
 
   const dispatch = useAppDispatch();
 
-  const handleSortChange = (props: SortProps & { column: string }) => {
+  const handleSortChange = (props: LegacySortProps & { column: string }) => {
     dispatch(
       DataListsActions.setSort({
         key: id || '',

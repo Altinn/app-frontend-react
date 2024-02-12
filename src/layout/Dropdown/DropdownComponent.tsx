@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Select } from '@digdir/design-system-react';
+import { LegacySelect } from '@digdir/design-system-react';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -67,7 +67,7 @@ export function DropdownComponent({ node, formData, handleDataChange, isValid, o
       {fetchingOptions ? (
         <AltinnSpinner />
       ) : (
-        <Select
+        <LegacySelect
           label={langAsString('general.choose')}
           hideLabel={true}
           inputId={id}

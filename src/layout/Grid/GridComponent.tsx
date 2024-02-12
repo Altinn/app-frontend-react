@@ -1,7 +1,7 @@
 import React from 'react';
 import type { PropsWithChildren } from 'react';
 
-import { Table, TableBody, TableCell, TableHeader, TableRow } from '@digdir/design-system-react';
+import { Table } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
 import cn from 'classnames';
 
@@ -41,7 +41,10 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
       condition={shouldHaveFullWidth}
       wrapper={(child) => <FullWidthWrapper>{child}</FullWidthWrapper>}
     >
-      <Table id={node.item.id}>
+      <Table
+        id={node.item.id}
+        className={css.table}
+      >
         {rows.map((row, rowIdx) => (
           <GridRowRenderer
             key={rowIdx}
@@ -65,8 +68,11 @@ interface GridRowProps {
 
 export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: GridRowProps) {
   const { lang } = useLanguage();
+  if (isGridRowHidden(row)) {
+    return null;
+  }
 
-  return isGridRowHidden(row) ? null : (
+  return (
     <InternalRow
       header={row.header}
       readOnly={row.readOnly}
@@ -96,6 +102,7 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: 
                 className={className}
                 help={cell?.help}
                 columnStyleOptions={textCellSettings}
+                isHeaderCell={row.header}
               >
                 {lang(cell.text)}
               </CellWithText>
@@ -112,6 +119,7 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: 
                 className={className}
                 columnStyleOptions={textCellSettings}
                 referenceComponent={closestComponent}
+                isHeaderCell={row.header}
               />
             );
           }
@@ -124,6 +132,7 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: 
             node={componentNode}
             className={className}
             columnStyleOptions={mutableColumnSettings[cellIdx]}
+            isHeaderCell={row.header}
           />
         );
       })}
@@ -138,22 +147,23 @@ function InternalRow({ header, readOnly, children }: InternalRowProps) {
 
   if (header) {
     return (
-      <TableHeader>
-        <TableRow className={className}>{children}</TableRow>
-      </TableHeader>
+      <Table.Head>
+        <Table.Row className={className}>{children}</Table.Row>
+      </Table.Head>
     );
   }
 
   return (
-    <TableBody>
-      <TableRow className={className}>{children}</TableRow>
-    </TableBody>
+    <Table.Body>
+      <Table.Row className={className}>{children}</Table.Row>
+    </Table.Body>
   );
 }
 
 interface CellProps {
   className?: string;
   columnStyleOptions?: ITableColumnProperties;
+  isHeaderCell?: boolean;
 }
 
 interface CellWithComponentProps extends CellProps {
@@ -168,11 +178,13 @@ interface CellWithLabelProps extends CellProps {
   referenceComponent?: LayoutNode;
 }
 
-function CellWithComponent({ node, className, columnStyleOptions }: CellWithComponentProps) {
+function CellWithComponent({ node, className, columnStyleOptions, isHeaderCell = false }: CellWithComponentProps) {
+  const CellComponent = isHeaderCell ? Table.HeaderCell : Table.Cell;
+
   if (node && !node.isHidden()) {
     const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
     return (
-      <TableCell
+      <CellComponent
         className={cn(css.tableCellFormatting, className)}
         style={columnStyles}
       >
@@ -184,18 +196,21 @@ function CellWithComponent({ node, className, columnStyleOptions }: CellWithComp
             renderedInTable: true,
           }}
         />
-      </TableCell>
+      </CellComponent>
     );
   }
 
-  return <TableCell className={className} />;
+  return <CellComponent className={className} />;
 }
 
-function CellWithText({ children, className, columnStyleOptions, help }: CellWithTextProps) {
+function CellWithText({ children, className, columnStyleOptions, help, isHeaderCell = false }: CellWithTextProps) {
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
   const { lang } = useLanguage();
+
+  const CellComponent = isHeaderCell ? Table.HeaderCell : Table.Cell;
+
   return (
-    <TableCell
+    <CellComponent
       className={cn(css.tableCellFormatting, className)}
       style={columnStyles}
     >
@@ -213,11 +228,16 @@ function CellWithText({ children, className, columnStyleOptions, help }: CellWit
           />
         )}
       </span>
-    </TableCell>
+    </CellComponent>
   );
 }
 
-function CellWithLabel({ className, columnStyleOptions, referenceComponent }: CellWithLabelProps) {
+function CellWithLabel({
+  className,
+  columnStyleOptions,
+  referenceComponent,
+  isHeaderCell = false,
+}: CellWithLabelProps) {
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
   const refItem = referenceComponent?.item;
   const trb = (refItem && 'textResourceBindings' in refItem ? refItem.textResourceBindings : {}) as
@@ -230,8 +250,11 @@ function CellWithLabel({ className, columnStyleOptions, referenceComponent }: Ce
     (referenceComponent && 'required' in referenceComponent.item && referenceComponent.item.required) ?? false;
   const componentId = referenceComponent?.item.id ?? referenceComponent?.item.baseComponentId;
   const { lang } = useLanguage();
+
+  const CellComponent = isHeaderCell ? Table.HeaderCell : Table.Cell;
+
   return (
-    <TableCell
+    <CellComponent
       className={cn(css.tableCellFormatting, className)}
       style={columnStyles}
     >
@@ -252,7 +275,7 @@ function CellWithLabel({ className, columnStyleOptions, referenceComponent }: Ce
           />
         </>
       )}
-    </TableCell>
+    </CellComponent>
   );
 }
 

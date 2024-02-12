@@ -54,7 +54,7 @@ describe('Calculate Page Order', () => {
 
     cy.goto('group');
     cy.get(appFrontend.nextButton).click();
-    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').check();
 
     cy.get(appFrontend.navMenuButtons).should('have.length', 4);
     cy.gotoNavPage('summary');
@@ -165,7 +165,7 @@ describe('Calculate Page Order', () => {
     cy.get(appFrontend.navMenuButtons).should('have.length', 4);
 
     // This test relies on Cypress being fast enough to click the 'next' button before the next page is hidden
-    cy.get(appFrontend.group.prefill.stor).dsCheck();
+    cy.get(appFrontend.group.prefill.stor).check();
     cy.get(appFrontend.nextButton).click();
 
     // Both pages the 'repeating' and 'hide' pages are now hidden

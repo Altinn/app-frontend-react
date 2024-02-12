@@ -1,13 +1,19 @@
 import React, { useMemo } from 'react';
 
-import type { MultiSelectOption, SingleSelectOption } from '@digdir/design-system-react';
+import type { LegacyMultiSelectOption, LegacySingleSelectOption } from '@digdir/design-system-react';
 
 import { SelectOptionItem } from 'src/components/form/SelectOptionItem';
 import { useLanguage } from 'src/hooks/useLanguage';
 import type { IOption } from 'src/layout/common.generated';
 
-export function useFormattedOptions(options: IOption[] | undefined, includeDeleteLabel?: false): SingleSelectOption[];
-export function useFormattedOptions(options: IOption[] | undefined, includeDeleteLabel: true): MultiSelectOption[];
+export function useFormattedOptions(
+  options: IOption[] | undefined,
+  includeDeleteLabel?: false,
+): LegacySingleSelectOption[];
+export function useFormattedOptions(
+  options: IOption[] | undefined,
+  includeDeleteLabel: true,
+): LegacyMultiSelectOption[];
 export function useFormattedOptions(options: IOption[] | undefined, includeDeleteLabel?: boolean) {
   const { langAsString } = useLanguage();
   const listHasDescription = options?.some((option) => option.description) || false;

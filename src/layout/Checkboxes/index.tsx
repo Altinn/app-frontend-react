@@ -14,9 +14,9 @@ import type { IOptions, IRepeatingGroups } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Checkboxes extends CheckboxesDef {
-  render(props: PropsFromGenericComponent<'Checkboxes'>): JSX.Element | null {
-    return <CheckboxContainerComponent {...props} />;
-  }
+  render = (props: PropsFromGenericComponent<'Checkboxes'>): JSX.Element | null => (
+    <CheckboxContainerComponent {...props} />
+  );
 
   private getSummaryData(
     node: LayoutNode<'Checkboxes'>,

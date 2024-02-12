@@ -44,14 +44,14 @@ function testChangeName() {
 
 function testGroup(mode: Mode) {
   cy.wait('@getLayoutGroup');
-  cy.get(appFrontend.group.prefill.liten).dsCheck();
-  cy.get(appFrontend.group.prefill.middels).dsCheck();
-  cy.get(appFrontend.group.prefill.stor).dsCheck();
-  cy.get(appFrontend.group.prefill.svaer).dsCheck();
-  cy.get(appFrontend.group.prefill.enorm).dsCheck();
+  cy.get(appFrontend.group.prefill.liten).click();
+  cy.get(appFrontend.group.prefill.middels).click();
+  cy.get(appFrontend.group.prefill.stor).click();
+  cy.get(appFrontend.group.prefill.svaer).click();
+  cy.get(appFrontend.group.prefill.enorm).click();
 
   cy.navPage('repeating').click();
-  cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+  cy.get(appFrontend.group.showGroupToContinue).find('input').click();
   cy.addItemToGroup(1, 2, 'automation');
 
   // Mobile tables always have two columns

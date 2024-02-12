@@ -8,9 +8,9 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Address extends AddressDef {
-  render(props: PropsFromGenericComponent<'AddressComponent'>): JSX.Element | null {
-    return <AddressComponent {...props} />;
-  }
+  render = (props: PropsFromGenericComponent<'AddressComponent'>): JSX.Element | null => (
+    <AddressComponent {...props} />
+  );
 
   getDisplayData(node: LayoutNode<'AddressComponent'>): string {
     const data = node.getFormData();

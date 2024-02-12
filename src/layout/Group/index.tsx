@@ -24,9 +24,7 @@ export class Group extends GroupDef implements GroupValidation, ComponentValidat
     return true;
   }
 
-  render(props: PropsFromGenericComponent<'Group'>): JSX.Element | null {
-    return <GroupRenderer {...props} />;
-  }
+  render = (props: PropsFromGenericComponent<'Group'>): JSX.Element | null => <GroupRenderer {...props} />;
 
   renderSummary({
     onChangeClick,

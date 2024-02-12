@@ -259,6 +259,7 @@ describe('Group', () => {
   it('Prefilling repeating group using calculation from server', () => {
     init();
     const expectRows = (...rows) => {
+      cy.log('Rows', rows);
       if (!rows.length) {
         cy.get(appFrontend.group.mainGroup).find(mui.tableElement).should('have.length', 0);
         return;
@@ -267,14 +268,14 @@ describe('Group', () => {
         .find(mui.tableBody)
         .then((table) => {
           if (rows.length) {
-            cy.wrap(table).find('tr').should('have.length', rows.length);
+            cy.wrap(table).findAllByRole('row').should('have.length', rows.length);
           } else {
-            cy.wrap(table).find('tr').should('not.exist');
+            cy.wrap(table).findByRole('row').should('not.exist');
           }
           let index = 0;
           for (const row of rows) {
-            cy.wrap(table).find('tr').eq(index).find('td').first().should('contain.text', row[0]);
-            cy.wrap(table).find('tr').eq(index).find('td').eq(1).should('contain.text', row[1]);
+            cy.wrap(table).findAllByRole('row').eq(index).find('td').first().should('contain.text', row[0]);
+            cy.wrap(table).findAllByRole('row').eq(index).find('td').eq(1).should('contain.text', row[1]);
             index++;
           }
         });
@@ -286,11 +287,7 @@ describe('Group', () => {
     function checkPrefills(items: { [key in keyof typeof appFrontend.group.prefill]?: boolean }) {
       cy.get(appFrontend.prevButton).click();
       for (const item of Object.keys(items)) {
-        if (items[item] === true) {
-          cy.get(appFrontend.group.prefill[item]).dsCheck();
-        } else {
-          cy.get(appFrontend.group.prefill[item]).dsUncheck();
-        }
+        cy.get(appFrontend.group.prefill[item]).click();
       }
       cy.get(appFrontend.nextButton).click();
     }
@@ -453,16 +450,16 @@ describe('Group', () => {
     cy.get(appFrontend.group.mainGroup).find('tbody > tr > td').eq(1).should('have.text', 'NOK 2');
     cy.get(appFrontend.group.mainGroup).find(appFrontend.group.edit).click();
 
-    // Navigate to nested group and test delete warning popoup cancel and confirm
+    // Navigate to nested group and test delete warning popup cancel and confirm
     cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.next).click();
 
     cy.get(appFrontend.group.subGroup).find('tbody > tr > td').first().should('have.text', 'automation');
     cy.get(appFrontend.group.subGroup).find(appFrontend.group.delete).click();
     cy.snapshot('group: delete-warning-popup');
 
-    cy.get(appFrontend.group.subGroup).find(appFrontend.group.popOverCancelButton).click();
+    cy.get(appFrontend.group.subGroup).find(appFrontend.group.popOverCancelButton).click({ force: true });
     cy.get(appFrontend.group.subGroup).find(appFrontend.group.delete).click();
-    cy.get(appFrontend.group.subGroup).find(appFrontend.group.popOverDeleteButton).click();
+    cy.get(appFrontend.group.subGroup).find(appFrontend.group.popOverDeleteButton).click({ force: true });
 
     cy.get(appFrontend.group.subGroup).find('tbody > tr > td').eq(0).should('not.contain.text', 'automation');
 
@@ -488,9 +485,9 @@ describe('Group', () => {
     });
 
     cy.navPage('prefill').click();
-    cy.get(appFrontend.group.prefill.liten).dsCheck();
-    cy.get(appFrontend.group.prefill.middels).dsCheck();
-    cy.get(appFrontend.group.prefill.enorm).dsCheck();
+    cy.get(appFrontend.group.prefill.liten).click();
+    cy.get(appFrontend.group.prefill.middels).click();
+    cy.get(appFrontend.group.prefill.enorm).click();
     cy.navPage('repeating').click();
     cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 3);
@@ -615,11 +612,11 @@ describe('Group', () => {
     });
 
     cy.goto('group');
-    cy.get(appFrontend.group.prefill.liten).dsCheck();
-    cy.get(appFrontend.group.prefill.middels).dsCheck();
-    cy.get(appFrontend.group.prefill.enorm).dsCheck();
+    cy.get(appFrontend.group.prefill.liten).click();
+    cy.get(appFrontend.group.prefill.middels).click();
+    cy.get(appFrontend.group.prefill.enorm).click();
     cy.gotoNavPage('repeating');
-    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').click();
     cy.get(appFrontend.group.addNewItem).click();
 
     cy.get('#group-mainGroup table th').eq(0).should('have.text', 'currentValue tableTitle');

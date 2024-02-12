@@ -296,7 +296,10 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
   if (layoutComponent.directRender(componentProps) || overrideDisplay?.directRender) {
     return (
       <FormComponentContext.Provider value={formComponentContext}>
-        <RenderComponent {...componentProps} />
+        <RenderComponent
+          {...componentProps}
+          ref={gridRef}
+        />
       </FormComponentContext.Provider>
     );
   }

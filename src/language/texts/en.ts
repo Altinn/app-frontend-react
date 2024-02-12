@@ -314,5 +314,8 @@ export function en() {
       nextPage: 'Next page in the table',
       navigateLastPage: 'Navigate to the last page in the table',
     },
+    likert: {
+      left_column_default_header_text: 'Question',
+    },
   };
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { Chip, Fieldset, Select } from '@digdir/design-system-react';
+import { Chip, Fieldset, LegacySelect } from '@digdir/design-system-react';
 import cn from 'classnames';
 
 import classes from 'src/features/devtools/components/DevNavigationButtons/DevNavigationButtons.module.css';
@@ -86,7 +86,7 @@ export const DevNavigationButtons = () => {
         </Chip.Group>
       </div>
       <div className={cn(classes.dropdown, { [classes.responsiveDropdown]: !compactView })}>
-        <Select
+        <LegacySelect
           value={currentView}
           options={
             order?.map((page) => ({

@@ -8,9 +8,7 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Map extends MapDef {
-  render(props: PropsFromGenericComponent<'Map'>): JSX.Element | null {
-    return <MapComponent {...props} />;
-  }
+  render = (props: PropsFromGenericComponent<'Map'>): JSX.Element | null => <MapComponent {...props} />;
 
   getDisplayData(node: LayoutNode<'Map'>, { formData }): string {
     if (!node.item.dataModelBindings?.simpleBinding) {

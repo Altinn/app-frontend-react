@@ -1,7 +1,8 @@
 import React from 'react';
 
-import { Table, TableBody, TableCell, TableHeader, TableRow } from '@digdir/design-system-react';
+import { Table } from '@digdir/design-system-react';
 import { Grid, Typography } from '@material-ui/core';
+import cn from 'classnames';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -106,29 +107,34 @@ export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertCo
             id={id}
             aria-labelledby={(hasTitle && titleId) || undefined}
             aria-describedby={(hasDescription && descriptionId) || undefined}
+            className={classes.likertTable}
           >
-            <TableHeader id={`likert-table-header-${id}`}>
-              <TableRow>
-                {node?.item.textResourceBindings?.leftColumnHeader ? (
-                  <TableCell>{lang(node?.item.textResourceBindings?.leftColumnHeader)}</TableCell>
-                ) : (
-                  <TableCell />
-                )}
+            <Table.Head
+              id={`likert-table-header-${id}`}
+              className={classes.likertTableHeader}
+            >
+              <Table.Row>
+                <Table.HeaderCell>
+                  <span className={cn({ 'sr-only': node?.item.textResourceBindings?.leftColumnHeader == null })}>
+                    {lang(
+                      node?.item.textResourceBindings?.leftColumnHeader ?? 'likert.left_column_default_header_text',
+                    )}
+                  </span>
+                </Table.HeaderCell>
                 {calculatedOptions.map((option, index) => {
                   const colLabelId = `${id}-likert-columnheader-${index}`;
                   return (
-                    <TableCell
+                    <Table.HeaderCell
                       key={option.value}
                       id={colLabelId}
-                      className={classes.likertTableHeaderTop}
                     >
                       {lang(option.label)}
-                    </TableCell>
+                    </Table.HeaderCell>
                   );
                 })}
-              </TableRow>
-            </TableHeader>
-            <TableBody id={`likert-table-body-${id}`}>
+              </Table.Row>
+            </Table.Head>
+            <Table.Body id={`likert-table-body-${id}`}>
               {node?.children().map((comp) => {
                 if (comp.isType('Group') || comp.isType('Summary')) {
                   window.logWarnOnce('Unexpected Group or Summary inside likert container:\n', comp.item.id);
@@ -147,7 +153,7 @@ export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertCo
                   />
                 );
               })}
-            </TableBody>
+            </Table.Body>
           </Table>
         </div>
       )}

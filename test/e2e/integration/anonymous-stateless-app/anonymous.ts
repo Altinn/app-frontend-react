@@ -29,10 +29,10 @@ describe('Anonymous (stateless)', () => {
 
   it('should cancel previous requests when changing answers', () => {
     // Do not remove the delay, it's added to ensure that the test has time to cancel the request
-    cy.intercept('**/data/anonymous?dataType=default', { delay: 200 }).as('postDefault');
+    cy.intercept('**/data/anonymous?dataType=default', { delay: 500 }).as('postDefault');
     cy.get(appFrontend.stateless.name).type('test');
-    cy.get('label:contains("kvinne")').click();
-    cy.get('label:contains("mann")').click();
+    cy.findByRole('radio', { name: /kvinne/ }).click();
+    cy.findByRole('radio', { name: /mann/ }).click();
     cy.get('@window.logInfo').should('have.been.calledWith', 'Request aborted due to saga cancellation');
   });
 

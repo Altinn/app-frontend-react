@@ -16,9 +16,7 @@ import type { ISchemaValidationError } from 'src/utils/validation/schemaValidati
 import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
 
 export class Datepicker extends DatepickerDef implements ComponentValidation {
-  render(props: PropsFromGenericComponent<'Datepicker'>): JSX.Element | null {
-    return <DatepickerComponent {...props} />;
-  }
+  render = (props: PropsFromGenericComponent<'Datepicker'>): JSX.Element | null => <DatepickerComponent {...props} />;
 
   getDisplayData(node: LayoutNode<'Datepicker'>, { formData, langTools }): string {
     const { selectedLanguage } = langTools;
