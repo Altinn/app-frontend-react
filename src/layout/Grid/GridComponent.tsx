@@ -147,7 +147,7 @@ function InternalRow({ header, readOnly, children }: InternalRowProps) {
 
   if (header) {
     return (
-      <Table.Head className={css.repeatingGroupHeadRow}>
+      <Table.Head>
         <Table.Row className={className}>{children}</Table.Row>
       </Table.Head>
     );

@@ -68,7 +68,6 @@ export function InstanceSelection({ instances, onNewInstance }: IInstanceSelecti
         {lang('instance_selection.left_of')}
       </Heading>
       <Table
-        border
         id='instance-selection-mobile-table'
         className={classes.table}
       >
@@ -134,8 +133,6 @@ export function InstanceSelection({ instances, onNewInstance }: IInstanceSelecti
     <Table
       id='instance-selection-table'
       className={cn(classes.table, classes.tableContainer)}
-      size='large'
-      border
     >
       <Table.Head id='instance-selection-table-header'>
         <Table.Row>

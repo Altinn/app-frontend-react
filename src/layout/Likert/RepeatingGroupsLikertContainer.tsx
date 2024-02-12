@@ -108,7 +108,6 @@ export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertCo
             aria-labelledby={(hasTitle && titleId) || undefined}
             aria-describedby={(hasDescription && descriptionId) || undefined}
             className={classes.likertTable}
-            border
           >
             <Table.Head
               id={`likert-table-header-${id}`}
