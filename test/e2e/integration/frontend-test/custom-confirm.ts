@@ -1,26 +1,17 @@
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { Datalist } from 'test/e2e/pageobjects/datalist';
 
-import type { ILayoutSets } from 'src/types';
-
 const appFrontend = new AppFrontend();
 const dataListPage = new Datalist();
 
 describe('Custom confirm page', () => {
   it('Should load the custom confirm page and allow the user to navigate back', () => {
-    cy.intercept('GET', '**/api/layoutsets', (req) => {
-      req.reply((res) => {
-        const layoutSets = JSON.parse(res.body) as ILayoutSets;
-        layoutSets.sets.push({
-          id: 'confirm',
-          dataType: 'datalist',
-          tasks: ['Task_6'],
-        });
-        res.body = JSON.stringify(layoutSets);
-      });
-    });
-
     cy.goto('datalist');
+
+    cy.get(dataListPage.tableBody).contains('Johanne').closest('tr').click();
+    cy.get(appFrontend.nextButton).click();
+    cy.get('[data-componentid="useCustomConfirm"]').findByText('Ja, bruk egendefinert').click();
+    cy.get(appFrontend.backButton).click();
 
     for (const name of ['Caroline', 'Kåre', 'Petter']) {
       cy.get(dataListPage.tableBody).contains(name).closest('tr').click();
