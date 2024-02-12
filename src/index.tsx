@@ -12,6 +12,7 @@ import 'src/features/logging';
 import 'src/features/styleInjection';
 
 import { AppWrapper } from '@altinn/altinn-design-system';
+import { LegacyTextField } from '@digdir/design-system-react';
 
 import { App } from 'src/App';
 import { ErrorBoundary } from 'src/components/ErrorBoundary';
@@ -87,6 +88,22 @@ function Root() {
                       <TextResourcesProvider>
                         <KeepAliveProvider>
                           <WindowTitleProvider>
+                            {/*<InputComponent overrideItemProps={}></InputComponent>*/}
+                            {/*<Textfield*/}
+                            {/*  formatting={{*/}
+                            {/*    number: {*/}
+                            {/*      allowedDecimalSeparators: [',', '.'],*/}
+                            {/*    },*/}
+                            {/*  }}*/}
+                            {/*></Textfield>*/}
+                            <LegacyTextField
+                              formatting={{
+                                number: {
+                                  allowedDecimalSeparators: ['.'],
+                                  decimalSeparator: ',',
+                                },
+                              }}
+                            />
                             <App />
                             <ToastContainer
                               position='top-center'

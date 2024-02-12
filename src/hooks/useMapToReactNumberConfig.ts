@@ -38,5 +38,8 @@ export const getMapToReactNumberConfig = (
     ...formatting.number,
   };
 
+  console.log('numberFormatResult');
+  console.log(JSON.stringify(numberFormatResult, null, 2));
+
   return { ...formatting, number: numberFormatResult };
 };
