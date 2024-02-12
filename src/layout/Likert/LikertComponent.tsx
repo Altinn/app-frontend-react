@@ -105,7 +105,6 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
             id={id}
             aria-labelledby={(hasTitle && titleId) || undefined}
             aria-describedby={(hasDescription && descriptionId) || undefined}
-            border
             className={classes.likertTable}
           >
             <Table.Head id={`likert-table-header-${id}`}>

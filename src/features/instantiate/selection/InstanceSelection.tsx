@@ -82,7 +82,6 @@ function InstanceSelection() {
       <Table
         id='instance-selection-mobile-table'
         className={classes.table}
-        border
       >
         <Table.Body>
           {paginatedInstances.map((instance) => (
@@ -147,7 +146,6 @@ function InstanceSelection() {
       <Table
         id='instance-selection-table'
         className={classes.table}
-        border
       >
         <Table.Head id='instance-selection-table-header'>
           <Table.Row>
