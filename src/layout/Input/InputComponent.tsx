@@ -12,8 +12,6 @@ import { useRerender } from 'src/hooks/useReload';
 import { useCharacterLimit } from 'src/utils/inputUtils';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IInputFormatting, NumberFormatProps } from 'src/layout/Input/config.generated';
-// import { returnBaseUrlToAltinn } from 'src/utils/urls/urlHelper';
-// import { removeFormatting } from "react-number-format/types/numeric_format";
 
 export type IInputProps = PropsFromGenericComponent<'Input'>;
 
@@ -69,9 +67,6 @@ export function InputComponent({ node, isValid, overrideDisplay }: IInputProps) 
   } = useDataModelBindings(dataModelBindings, saveWhileTyping);
 
   const [localValue, setLocalValue] = useState<string>();
-
-  console.log('formatting', formatting);
-
   const reactNumberFormatConfig = useMapToReactNumberConfig(formatting as IInputFormatting | undefined, formValue);
   const [inputKey, rerenderInput] = useRerender('input');
 
@@ -84,22 +79,9 @@ export function InputComponent({ node, isValid, overrideDisplay }: IInputProps) 
 
   const ariaLabel = overrideDisplay?.renderedInTable === true ? langAsString(textResourceBindings?.title) : undefined;
 
-  useEffect(() => {}, []);
-
-  // console.log('TEESTING!!');
-  //
-  // const res = numericFormatter('123345', {
-  //   thousandSeparator: true,
-  //   prefix: '$',
-  // });
-  //
-  // console.log(
-  //   numericFormatter(res, {
-  //     thousandSeparator: true,
-  //     prefix: '$',
-  //   }),
-  // );
-
+  useEffect(() => {
+    valueChanged(formValue);
+  });
   const valueChanged = (newValue: string) => {
     if (!formatting) {
       setLocalValue(newValue);
@@ -111,38 +93,7 @@ export function InputComponent({ node, isValid, overrideDisplay }: IInputProps) 
       setLocalValue(getFormattedValue(newValue, formatting.number));
       setValue('simpleBinding', getCleanValue(newValue, formatting.number));
     }
-
-    // if (formatting?.number && isNumericFormat(formatting?.number)) {
-    //   const cleanedValue = removeNumericFormat(newValue, getChangeMeta(newValue), {
-    //     ...formatting.number,
-    //   });
-    //
-    //   setLocalValue(
-    //     numericFormatter(cleanedValue, {
-    //       ...formatting.number,
-    //     }),
-    //   );
   };
-
-  // if (formatting?.number && isPatternFormat(formatting?.number)) {
-  //   const cleanedValue = removePatternFormat(newValue, getChangeMeta(newValue), {
-  //     ...formatting.number,
-  //   });
-  //
-  //   setLocalValue(
-  //     numericFormatter(cleanedValue, {
-  //       ...formatting.number,
-  //     }),
-  //   );
-  //
-  //   return setValue(
-  //     'simpleBinding',
-  //     patternFormatter(newValue, {
-  //       ...formatting.number,
-  //     }),
-  //   );
-  // }
-  // };
 
   if (variant === 'search') {
     return (

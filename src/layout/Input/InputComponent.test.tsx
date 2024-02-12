@@ -48,7 +48,7 @@ describe('InputComponent', () => {
     expect(inputComponent).toHaveValue(typedValue);
   });
 
-  it.only('should render input with formatted number when this is specified', async () => {
+  it('should render input with formatted number when this is specified', async () => {
     const inputValuePlainText = '123456';
     const inputValueFormatted = '$123,456';
     const typedValue = '789';
