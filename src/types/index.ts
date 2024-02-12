@@ -16,6 +16,10 @@ export interface IHiddenLayoutsExternal {
   [layoutKey: string]: ExprValToActualOrExpr<ExprVal.Boolean> | undefined;
 }
 
+export interface IExpandedWidthLayouts {
+  [layoutKey: string]: boolean | undefined;
+}
+
 export interface IExpandedWidthLayoutsExternal {
   [layoutKey: string]: boolean;
 }
