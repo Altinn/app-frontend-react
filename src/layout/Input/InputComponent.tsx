@@ -122,13 +122,13 @@ export function InputComponent({ node, isValid, overrideDisplay }: IInputProps) 
 
   return (
     <Textfield
+      error={!isValid}
       key={inputKey}
       id={id}
       onBlur={onBlur}
       onChange={(e) => valueChanged(e.target.value)}
       characterLimit={!readOnly ? characterLimit : undefined}
       readOnly={readOnly}
-      // isValid={isValid}
       required={required}
       value={localValue}
       aria-label={ariaLabel}
