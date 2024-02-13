@@ -34,7 +34,7 @@
     "cy:start:localtest": "node test/scripts/startLocaltest.mjs",
     "cy:start:app": "node test/scripts/startApp.mjs",
     "cy:before:appfrontend": "concurrently --kill-others --names localtest,app,frontend \"yarn cy:start:localtest\" \"yarn cy:start:app\" \"yarn start\"",
-    "cy:test:frontend": "yarn run cy:delete:reports && cypress run -b chrome -s 'test/e2e/integration/frontend-test/group.ts'",
+    "cy:test:frontend": "yarn run cy:delete:reports && cypress run -b chrome -s 'test/e2e/integration/frontend-test/*.ts'",
     "cy:test:stateless": "yarn run cy:delete:reports && cypress run -b chrome -s 'test/e2e/integration/stateless-app/*.ts'",
     "cy:test:stateless-anonymous": "yarn run cy:delete:reports && cypress run -b chrome -s 'test/e2e/integration/anonymous-stateless-app/*.ts'",
     "cy:test:signing": "yarn run cy:delete:reports && cypress run -b chrome -s 'test/e2e/integration/signing-test/*.ts'",
