@@ -150,7 +150,7 @@ describe('Form', () => {
     expect(screen.getByTestId('ErrorReport')).toBeInTheDocument();
   });
 
-  it.only('should render ErrorReport when there are unmapped validation errors', async () => {
+  it('should render ErrorReport when there are unmapped validation errors', async () => {
     await render(
       [
         ...mockComponents,

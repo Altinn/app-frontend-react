@@ -200,7 +200,7 @@ describe('RepeatingGroupContainer', () => {
     expect(within(editContainer).getByText('Title4')).toBeInTheDocument();
   });
 
-  it.only('should trigger validate when saving if validateOnSaveRow is set', async () => {
+  it('should trigger validate when saving if validateOnSaveRow is set', async () => {
     await render({
       container: {
         validateOnSaveRow: ['All'],

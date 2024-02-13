@@ -37,7 +37,9 @@ export function Form() {
   });
 
   const { formErrors, taskErrors } = useTaskErrors();
+
   const hasErrors = Boolean(formErrors.length) || Boolean(taskErrors.length);
+
   const requiredFieldsMissing = formErrors.some(
     (error) => error.source === FrontendValidationSource.EmptyField && error.pageKey === currentPageId,
   );
@@ -46,6 +48,7 @@ export function Form() {
     if (!page) {
       return [[], []];
     }
+
     return hasErrors ? extractBottomButtons(page) : [page.children(), []];
   }, [page, hasErrors]);
 
