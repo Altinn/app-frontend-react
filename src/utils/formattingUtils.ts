@@ -21,18 +21,12 @@ export const formatNumber = (
   options: CurrencyFormattingOptions | UnitFormattingOptions | undefined,
   position: 'prefix' | 'suffix' | undefined,
 ): FormattingResult => {
-  console.log('FOMRATTING NUMBER!!!');
-  console.log(JSON.stringify(options, null, 2));
-
   const defaultFormat: FormattingResult = {
     thousandSeparator: undefined,
     decimalSeparator: undefined,
     prefix: undefined,
     suffix: undefined,
   };
-
-  console.log('defaultFormat', JSON.stringify(defaultFormat, null, 2));
-
   if (!options) {
     return defaultFormat;
   }

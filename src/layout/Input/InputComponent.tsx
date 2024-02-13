@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { numericFormatter, removeNumericFormat, removePatternFormat } from 'react-number-format';
+import { numericFormatter, patternFormatter, removeNumericFormat, removePatternFormat } from 'react-number-format';
 import type { NumericFormatProps, PatternFormatProps } from 'react-number-format';
 
 import { SearchField } from '@altinn/altinn-design-system';
@@ -15,13 +15,17 @@ import type { IInputFormatting, NumberFormatProps } from 'src/layout/Input/confi
 
 export type IInputProps = PropsFromGenericComponent<'Input'>;
 
+function isEmptyObject(obj: Record<string, any>): boolean {
+  return Object.keys(obj).length === 0;
+}
+
 const getChangeMeta = (newValue: string) => ({
   from: { start: 0, end: 0 },
   to: { start: 0, end: newValue.length },
   lastValue: '',
 });
 
-const getCleanValue = (newValue: string, inputFormatting: PatternFormatProps | NumberFormatProps) => {
+const getCleanValue = (newValue: string, inputFormatting: IInputFormatting) => {
   if (isNumericFormat(inputFormatting)) {
     return removeNumericFormat(newValue, getChangeMeta(newValue), {
       ...inputFormatting,
@@ -31,12 +35,22 @@ const getCleanValue = (newValue: string, inputFormatting: PatternFormatProps | N
     ...(inputFormatting as PatternFormatProps),
   });
 };
-const getFormattedValue = (newValue: string, inputFormatting: PatternFormatProps | NumberFormatProps): string => {
+
+const getFormattedValue = (newValue: string, inputFormatting: IInputFormatting): string => {
   const cleanedValue = getCleanValue(newValue, inputFormatting);
-  if (isNumericFormat(inputFormatting)) {
-    return numericFormatter(cleanedValue, inputFormatting);
+
+  if (isNumericFormat(inputFormatting) && inputFormatting.number) {
+    if ((inputFormatting.number as NumberFormatProps).allowedDecimalSeparators) {
+      return numericFormatter(cleanedValue, inputFormatting);
+    }
+
+    return numericFormatter(cleanedValue, inputFormatting.number);
   }
-  return numericFormatter(cleanedValue, inputFormatting);
+
+  if (isPatternFormat(inputFormatting) && !isEmptyObject(inputFormatting)) {
+    return patternFormatter(cleanedValue, inputFormatting);
+  }
+  return newValue;
 };
 
 export const isPatternFormat = (
@@ -88,11 +102,8 @@ export function InputComponent({ node, isValid, overrideDisplay }: IInputProps) 
       setValue('simpleBinding', newValue);
       return;
     }
-
-    if (formatting.number) {
-      setLocalValue(getFormattedValue(newValue, formatting.number));
-      setValue('simpleBinding', getCleanValue(newValue, formatting.number));
-    }
+    setLocalValue(getFormattedValue(newValue, formatting));
+    setValue('simpleBinding', getCleanValue(newValue, formatting));
   };
 
   if (variant === 'search') {

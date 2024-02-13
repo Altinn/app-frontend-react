@@ -13,18 +13,11 @@ type ValidTypes = (typeof AllValidTypes)[number];
  * Converts a string to a value based on a schema.
  */
 export function convertData(value: Value, schema: JSONSchema7 | undefined): ReturnType {
-  console.log('CONVERT DATAAAAAAAAAA');
-
   if (!schema) {
-    console.log('WE HAAAVE NOOO JSONSXCEMAA!!');
-
     // Assume it's a string if we don't have a binding. This is not likely to happen as long as components aren't
     // even rendered when their data model bindings fail.
     return { newValue: String(value), error: false };
   }
-
-  console.log(JSON.stringify(schema, null, 2));
-
   try {
     return convertToType(value, schema);
   } catch (e) {

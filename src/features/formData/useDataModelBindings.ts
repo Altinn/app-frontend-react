@@ -58,7 +58,6 @@ export function useDataModelBindings<B extends IDataModelBindings | undefined, D
 
   const setValue = useCallback(
     (key: keyof B, newValue: FDLeafValue) => {
-      console.log('newValue', newValue);
       setLeafValue({
         path: bindings[key] as string,
         newValue,
