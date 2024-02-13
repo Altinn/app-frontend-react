@@ -10,13 +10,12 @@ import type { NodeValidation } from 'src/features/validation';
 import type { AlertSeverity } from 'src/layout/Alert/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export function ComponentValidations({
-  validations,
-  node,
-}: {
+type Props = {
   validations: NodeValidation[] | undefined;
   node?: LayoutNode;
-}) {
+};
+
+export function ComponentValidations({ validations, node }: Props) {
   if (!validations || validations.length === 0) {
     return null;
   }
@@ -62,7 +61,7 @@ function ErrorValidations({ validations, node }: { validations: NodeValidation<'
   return (
     <div style={{ paddingTop: '0.375rem' }}>
       <ErrorMessage size='small'>
-        <ol style={{ padding: 0, margin: 0 }}>
+        <ol style={{ padding: 0, margin: 0, listStyleType: 'none' }}>
           {validations.map((validation) => (
             <li
               role='alert'

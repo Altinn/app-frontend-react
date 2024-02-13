@@ -22,8 +22,8 @@ describe('PDF', () => {
     cy.findByRole('textbox', { name: /nytt fornavn/i }).type('Ola');
     cy.findByRole('textbox', { name: /nytt etternavn/i }).type('Nordmann');
     cy.findByRole('textbox', { name: /nytt mellomnavn/i }).type('"Big G"');
-    cy.findByRole('checkbox', { name: /ja, jeg bekrefter/i }).dsCheck();
-    cy.findByRole('radio', { name: /adoptivforelders/i }).dsCheck();
+    cy.findByRole('checkbox', { name: /ja, jeg bekrefter/i }).check();
+    cy.findByRole('radio', { name: /adoptivforelders/i }).check();
     cy.findByRole('textbox', { name: /når vil du at/i }).type('01012020');
     cy.findByRole('textbox', { name: /mobil nummer/i }).type('98765432');
     cy.dsSelect(appFrontend.changeOfName.sources, 'Digitaliseringsdirektoratet');
@@ -56,7 +56,7 @@ describe('PDF', () => {
       cy.getSummary('Adresse').should('contain.text', 'Økern 1');
     }, true);
 
-    cy.findByRole('radio', { name: /gårdsbruk/i }).dsCheck();
+    cy.findByRole('radio', { name: /gårdsbruk/i }).check();
     cy.findByRole('textbox', { name: /gårdsbruk du vil ta navnet fra/i }).type('Økern gård');
     cy.findByRole('textbox', { name: /kommune gårdsbruket ligger i/i }).type('4444');
     cy.findByRole('textbox', { name: /gårdsnummer/i }).type('1234');
@@ -91,12 +91,12 @@ describe('PDF', () => {
 
   it('should generate PDF for group step', () => {
     cy.goto('group');
-    cy.findByRole('checkbox', { name: /liten/i }).dsCheck();
-    cy.findByRole('checkbox', { name: /middels/i }).dsCheck();
-    cy.findByRole('checkbox', { name: /stor/i }).dsCheck();
+    cy.findByRole('checkbox', { name: /liten/i }).check();
+    cy.findByRole('checkbox', { name: /middels/i }).check();
+    cy.findByRole('checkbox', { name: /stor/i }).check();
 
     cy.gotoNavPage('repeating');
-    cy.findByRole('checkbox', { name: /ja/i }).dsCheck();
+    cy.findByRole('checkbox', { name: /ja/i }).check();
 
     cy.get(appFrontend.group.edit).first().click();
     cy.get(appFrontend.group.editContainer).should('be.visible');
@@ -179,6 +179,47 @@ describe('PDF', () => {
     cy.testPdf(() => {
       cy.findByRole('table').should('contain.text', 'Mottaker:Testdepartementet');
       cy.getSummary('Hvem gjelder saken?').should('contain.text', 'Caroline');
+    });
+  });
+
+  it('should use custom PDF if set', () => {
+    const pdfLayoutName = 'CustomPDF';
+
+    cy.intercept('GET', '**/layoutsettings/**', (req) => {
+      req.continue((res) => {
+        const body = JSON.parse(res.body);
+        res.body = JSON.stringify({
+          ...body,
+          pages: { ...body.pages, pdfLayoutName },
+        });
+      });
+    });
+
+    cy.intercept('GET', '**/layouts/**', (req) => {
+      req.continue((res) => {
+        const body = JSON.parse(res.body);
+        res.body = JSON.stringify({
+          ...body,
+          [pdfLayoutName]: {
+            data: {
+              layout: [
+                {
+                  id: 'title',
+                  type: 'Header',
+                  textResourceBindings: { title: 'This is a custom PDF' },
+                  size: 'L',
+                },
+              ],
+            },
+          },
+        });
+      });
+    });
+
+    cy.goto('changename');
+
+    cy.testPdf(() => {
+      cy.findByRole('heading', { name: /this is a custom pdf/i }).should('be.visible');
     });
   });
 });

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Table, TableBody, TableCell, TableHeader, TableRow } from '@digdir/design-system-react';
+import { Table } from '@digdir/design-system-react';
 import cn from 'classnames';
 
 import { Caption } from 'src/components/form/Caption';
@@ -11,7 +11,7 @@ import { GenericComponent } from 'src/layout/GenericComponent';
 import { GridRowRenderer } from 'src/layout/Grid/GridComponent';
 import { nodesFromGridRows } from 'src/layout/Grid/tools';
 import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
-import { useRepeatingGroup, useRepeatingGroupSelector } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
+import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/RepeatingGroupsEditContainer';
 import { RepeatingGroupTableRow } from 'src/layout/RepeatingGroup/RepeatingGroupTableRow';
 import { RepeatingGroupTableTitle } from 'src/layout/RepeatingGroup/RepeatingGroupTableTitle';
@@ -20,8 +20,7 @@ import type { GridRowsInternal, ITableColumnFormatting } from 'src/layout/common
 
 export function RepeatingGroupTable(): React.JSX.Element | null {
   const mobileView = useIsMobileOrTablet();
-  const { node, isEditing } = useRepeatingGroup();
-  const visibleRowIndexes = useRepeatingGroupSelector((state) => state.visibleRowIndexes);
+  const { node, isEditing, visibleRowIndexes } = useRepeatingGroup();
   const rowsBefore = node.item.rowsBefore;
   const rowsAfter = node.item.rowsAfter;
 
@@ -101,20 +100,20 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
       }
 
       return (
-        <TableBody>
-          <TableRow>
-            <TableCell className={classes.mobileTableCell}>
+        <Table.Body>
+          <Table.Row>
+            <Table.Cell className={classes.mobileTableCell}>
               {nodes.map((child) => (
                 <GenericComponent
                   key={child.item.id}
                   node={child}
                 />
               ))}
-            </TableCell>
+            </Table.Cell>
             {/* One extra cell to make place for edit/delete buttons */}
-            <TableCell className={classes.mobileTableCell} />
-          </TableRow>
-        </TableBody>
+            <Table.Cell className={classes.mobileTableCell} />
+          </Table.Row>
+        </Table.Body>
       );
     }
 
@@ -145,7 +144,13 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
     >
       <Table
         id={`group-${id}-table`}
-        className={cn({ [classes.editingBorder]: isNested }, classes.repeatingGroupTable)}
+        className={cn(
+          { [classes.editingBorder]: isNested, [classes.nestedTable]: isNested },
+          classes.repeatingGroupTable,
+        )}
+        // If the list is empty, the border of the table will be visible as a line above
+        // the "Legg til ny" button.
+        border={isNested && visibleRowIndexes.length > 0}
       >
         {textResourceBindings?.title && (
           <Caption
@@ -163,10 +168,10 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
           where={'Before'}
         />
         {showTableHeader && !mobileView && (
-          <TableHeader id={`group-${id}-table-header`}>
-            <TableRow className={classes.repeatingGroupRow}>
+          <Table.Head id={`group-${id}-table-header`}>
+            <Table.Row className={classes.repeatingGroupRow}>
               {tableNodes?.map((n) => (
-                <TableCell
+                <Table.HeaderCell
                   key={n.item.id}
                   className={classes.tableCellFormatting}
                   style={getColumnStylesRepeatingGroups(n, columnSettings)}
@@ -175,26 +180,26 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
                     node={n}
                     columnSettings={columnSettings}
                   />
-                </TableCell>
+                </Table.HeaderCell>
               ))}
               {displayEditColumn && (
-                <TableCell style={{ padding: 0, paddingRight: '10px' }}>
+                <Table.HeaderCell style={{ padding: 0, paddingRight: '10px' }}>
                   <span className={classes.visuallyHidden}>
                     <Lang id={'general.edit'} />
                   </span>
-                </TableCell>
+                </Table.HeaderCell>
               )}
               {displayDeleteColumn && (
-                <TableCell style={{ padding: 0 }}>
+                <Table.HeaderCell style={{ padding: 0 }}>
                   <span className={classes.visuallyHidden}>
                     <Lang id={'general.delete'} />
                   </span>
-                </TableCell>
+                </Table.HeaderCell>
               )}
-            </TableRow>
-          </TableHeader>
+            </Table.Row>
+          </Table.Head>
         )}
-        <TableBody id={`group-${id}-table-body`}>
+        <Table.Body id={`group-${id}-table-body`}>
           {visibleRowIndexes.map((index: number) => {
             const isEditingRow = isEditing(index) && edit?.mode !== 'onlyTable';
             return (
@@ -210,12 +215,13 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
                   displayEditColumn={displayEditColumn}
                 />
                 {isEditingRow && (
-                  <TableRow
+                  <Table.Row
                     key={`edit-container-${index}`}
                     className={classes.editContainerRow}
                   >
-                    <TableCell
+                    <Table.Cell
                       style={{ padding: 0, borderTop: 0 }}
+                      // @ts-expect-error this will be fixed in v0.48.0 of the design system
                       colSpan={
                         mobileView
                           ? 2
@@ -223,13 +229,13 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
                       }
                     >
                       {edit?.mode !== 'onlyTable' && <RepeatingGroupsEditContainer editIndex={index} />}
-                    </TableCell>
-                  </TableRow>
+                    </Table.Cell>
+                  </Table.Row>
                 )}
               </React.Fragment>
             );
           })}
-        </TableBody>
+        </Table.Body>
         <RenderExtraRows
           rows={rowsAfter}
           where={'After'}

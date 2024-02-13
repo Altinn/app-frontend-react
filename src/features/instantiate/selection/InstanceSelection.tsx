@@ -1,17 +1,7 @@
 import React, { useState } from 'react';
 
 import { Pagination } from '@altinn/altinn-design-system';
-import {
-  Button,
-  Heading,
-  Paragraph,
-  Table,
-  TableBody,
-  TableCell,
-  TableFooter,
-  TableHeader,
-  TableRow,
-} from '@digdir/design-system-react';
+import { Button, Heading, Paragraph, Table } from '@digdir/design-system-react';
 import { Edit as EditIcon } from '@navikt/ds-icons';
 import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/src/components/Pagination/Pagination';
 
@@ -89,11 +79,14 @@ function InstanceSelection() {
       >
         <Lang id={'instance_selection.left_of'} />
       </Heading>
-      <Table id='instance-selection-mobile-table'>
-        <TableBody>
+      <Table
+        id='instance-selection-mobile-table'
+        className={classes.table}
+      >
+        <Table.Body>
           {paginatedInstances.map((instance) => (
-            <TableRow key={instance.id}>
-              <TableCell className={classes.mobileTableCell}>
+            <Table.Row key={instance.id}>
+              <Table.Cell className={classes.mobileTableCell}>
                 <div>
                   <b>{langAsString('instance_selection.last_changed')}:</b>
                   <br />
@@ -104,8 +97,8 @@ function InstanceSelection() {
                   <br />
                   <span>{instance.lastChangedBy}</span>
                 </div>
-              </TableCell>
-              <TableCell>
+              </Table.Cell>
+              <Table.Cell>
                 <div className={classes.tableButtonWrapper}>
                   <Button
                     variant='tertiary'
@@ -118,14 +111,15 @@ function InstanceSelection() {
                     aria-label={`${langAsString('instance_selection.continue')}`}
                   />
                 </div>
-              </TableCell>
-            </TableRow>
+              </Table.Cell>
+            </Table.Row>
           ))}
-        </TableBody>
+        </Table.Body>
         {instances.length > rowsPerPageOptions[0] && (
-          <TableFooter>
-            <TableRow>
-              <TableCell colSpan={2}>
+          <tfoot>
+            <Table.Row className={classes.tableFooter}>
+              {/* @ts-expect-error this will be fixed in v0.48.0 of the design system */}
+              <Table.Cell colSpan={2}>
                 <div className={classes.paginationWrapperMobile}>
                   <Pagination
                     numberOfRows={instances.length}
@@ -139,9 +133,9 @@ function InstanceSelection() {
                     descriptionTexts={language && (language['list_component'] as DescriptionText)}
                   />
                 </div>
-              </TableCell>
-            </TableRow>
-          </TableFooter>
+              </Table.Cell>
+            </Table.Row>
+          </tfoot>
         )}
       </Table>
     </>
@@ -149,24 +143,27 @@ function InstanceSelection() {
 
   const renderTable = () => (
     <div className={classes.tableContainer}>
-      <Table id='instance-selection-table'>
-        <TableHeader id='instance-selection-table-header'>
-          <TableRow>
-            <TableCell>
+      <Table
+        id='instance-selection-table'
+        className={classes.table}
+      >
+        <Table.Head id='instance-selection-table-header'>
+          <Table.Row>
+            <Table.HeaderCell>
               <Lang id={'instance_selection.last_changed'} />
-            </TableCell>
-            <TableCell>
+            </Table.HeaderCell>
+            <Table.HeaderCell>
               <Lang id={'instance_selection.changed_by'} />
-            </TableCell>
-            <TableCell />
-          </TableRow>
-        </TableHeader>
-        <TableBody id='instance-selection-table-body'>
+            </Table.HeaderCell>
+            <Table.HeaderCell />
+          </Table.Row>
+        </Table.Head>
+        <Table.Body id='instance-selection-table-body'>
           {paginatedInstances.map((instance: ISimpleInstance) => (
-            <TableRow key={instance.id}>
-              <TableCell>{getDateDisplayString(instance.lastChanged)}</TableCell>
-              <TableCell>{instance.lastChangedBy}</TableCell>
-              <TableCell className={classes.buttonCell}>
+            <Table.Row key={instance.id}>
+              <Table.Cell>{getDateDisplayString(instance.lastChanged)}</Table.Cell>
+              <Table.Cell>{instance.lastChangedBy}</Table.Cell>
+              <Table.Cell className={classes.buttonCell}>
                 <div className={classes.tableButtonWrapper}>
                   <Button
                     variant='tertiary'
@@ -179,14 +176,15 @@ function InstanceSelection() {
                     <Lang id={'instance_selection.continue'} />
                   </Button>
                 </div>
-              </TableCell>
-            </TableRow>
+              </Table.Cell>
+            </Table.Row>
           ))}
-        </TableBody>
+        </Table.Body>
         {instances.length > rowsPerPageOptions[0] && (
-          <TableFooter>
-            <TableRow>
-              <TableCell colSpan={3}>
+          <tfoot>
+            <Table.Row className={classes.tableFooter}>
+              {/* @ts-expect-error this will be fixed in v0.48.0 of the design system */}
+              <Table.Cell colSpan={3}>
                 <div className={classes.paginationWrapper}>
                   <Pagination
                     numberOfRows={instances.length}
@@ -200,9 +198,9 @@ function InstanceSelection() {
                     descriptionTexts={language && (language['list_component'] as DescriptionText)}
                   />
                 </div>
-              </TableCell>
-            </TableRow>
-          </TableFooter>
+              </Table.Cell>
+            </Table.Row>
+          </tfoot>
         )}
       </Table>
     </div>
