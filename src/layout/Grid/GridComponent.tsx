@@ -263,16 +263,18 @@ function CellWithLabel({
           <span className={css.textLabel}>
             <Label
               key={`label-${componentId}`}
-              labelText={title}
+              labelText={lang(title)}
               id={componentId}
               required={required}
-              helpText={lang(help)}
+              helpText={help && lang(help)}
             />
           </span>
-          <Description
-            id={componentId}
-            description={description}
-          />
+          {description && (
+            <Description
+              id={componentId}
+              description={lang(description)}
+            />
+          )}
         </>
       )}
     </CellComponent>
