@@ -1,4 +1,5 @@
 import {
+  type NumericFormatProps,
   numericFormatter,
   type PatternFormatProps,
   patternFormatter,
@@ -6,8 +7,14 @@ import {
   removePatternFormat,
 } from 'react-number-format';
 
-import { isNumericFormat, isPatternFormat } from 'src/layout/Input/InputComponent';
 import type { IInputFormatting, NumberFormatProps } from 'src/layout/Input/config.generated';
+
+export const isPatternFormat = (
+  numberFormat: NumericFormatProps | PatternFormatProps,
+): numberFormat is PatternFormatProps => (numberFormat as PatternFormatProps).format !== undefined;
+export const isNumericFormat = (
+  numberFormat: NumericFormatProps | PatternFormatProps,
+): numberFormat is NumericFormatProps => (numberFormat as PatternFormatProps).format === undefined;
 
 export function isEmptyObject(obj: Record<string, any>): boolean {
   return Object.keys(obj).length === 0;

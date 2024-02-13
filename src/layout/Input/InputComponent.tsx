@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from 'react';
-import type { NumericFormatProps, PatternFormatProps } from 'react-number-format';
 
 import { SearchField } from '@altinn/altinn-design-system';
 import { Textfield } from '@digdir/design-system-react';
@@ -15,12 +14,6 @@ import type { IInputFormatting } from 'src/layout/Input/config.generated';
 
 export type IInputProps = PropsFromGenericComponent<'Input'>;
 
-export const isPatternFormat = (
-  numberFormat: NumericFormatProps | PatternFormatProps,
-): numberFormat is PatternFormatProps => (numberFormat as PatternFormatProps).format !== undefined;
-export const isNumericFormat = (
-  numberFormat: NumericFormatProps | PatternFormatProps,
-): numberFormat is NumericFormatProps => (numberFormat as PatternFormatProps).format === undefined;
 export function InputComponent({ node, isValid, overrideDisplay }: IInputProps) {
   const {
     id,
