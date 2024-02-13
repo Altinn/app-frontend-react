@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 
 import { SearchField } from '@altinn/altinn-design-system';
 import { Textfield } from '@digdir/design-system-react';
@@ -7,7 +7,7 @@ import { useDataModelBindings } from 'src/features/formData/useDataModelBindings
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
 import { useRerender } from 'src/hooks/useReload';
-import { getCleanValue, getFormattedValue, isEmptyObject } from 'src/layout/Input/number-format-helpers';
+import { getCleanValue, getFormattedValue } from 'src/layout/Input/number-format-helpers';
 import { useCharacterLimit } from 'src/utils/inputUtils';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IInputFormatting } from 'src/layout/Input/config.generated';
@@ -37,8 +37,6 @@ export function InputComponent({ node, isValid, overrideDisplay }: IInputProps) 
 
   const reactNumberFormatConfig = useMapToReactNumberConfig(formatting as IInputFormatting | undefined, formValue);
 
-  const [localValue, setLocalValue] = useState<string>(getFormattedValue(formValue, reactNumberFormatConfig));
-
   const [inputKey, rerenderInput] = useRerender('input');
 
   const onBlur = useCallback(() => {
@@ -51,12 +49,6 @@ export function InputComponent({ node, isValid, overrideDisplay }: IInputProps) 
   const ariaLabel = overrideDisplay?.renderedInTable === true ? langAsString(textResourceBindings?.title) : undefined;
 
   const valueChanged = (newValue: string) => {
-    if (isEmptyObject(reactNumberFormatConfig)) {
-      setLocalValue(newValue);
-      setValue('simpleBinding', newValue);
-      return;
-    }
-    setLocalValue(getFormattedValue(newValue, reactNumberFormatConfig));
     setValue('simpleBinding', getCleanValue(newValue, reactNumberFormatConfig));
   };
 
@@ -84,7 +76,7 @@ export function InputComponent({ node, isValid, overrideDisplay }: IInputProps) 
       characterLimit={!readOnly ? characterLimit : undefined}
       readOnly={readOnly}
       required={required}
-      value={localValue}
+      value={getFormattedValue(formValue, reactNumberFormatConfig)}
       aria-label={ariaLabel}
       aria-describedby={textResourceBindings?.description ? `description-${id}` : undefined}
       autoComplete={autocomplete}
