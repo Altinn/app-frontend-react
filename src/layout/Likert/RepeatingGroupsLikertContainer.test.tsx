@@ -161,12 +161,11 @@ describe('RepeatingGroupsLikertContainer', () => {
       const { mockStoreDispatch } = render();
       validateTableLayout(defaultMockQuestions, defaultMockOptions);
 
-      await act(async () => {
-        await user.tab();
-        await user.keyboard('[Space]');
-      });
-      expect(mockStoreDispatch).not.toHaveBeenCalled();
+      await user.tab();
+      await user.keyboard('[Space]');
       jest.runOnlyPendingTimers();
+
+      expect(mockStoreDispatch).toHaveBeenCalledTimes(1);
       expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(0, '1'));
     });
 

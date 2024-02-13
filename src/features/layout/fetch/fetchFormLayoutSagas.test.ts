@@ -7,9 +7,11 @@ import {
   fetchLayoutSaga,
   instanceSelector,
   layoutSetsSelector,
+  processSelector,
 } from 'src/features/layout/fetch/fetchFormLayoutSagas';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import * as networking from 'src/utils/network/networking';
+import type { IProcessState } from 'src/features/process';
 import type { CompFileUploadWithTagExternal } from 'src/layout/FileUploadWithTag/config.generated';
 import type { CompGroupExternal } from 'src/layout/Group/config.generated';
 import type { CompSummaryExternal } from 'src/layout/Summary/config.generated';
@@ -39,6 +41,9 @@ describe('fetchFormLayoutSagas', () => {
     const instance = {
       id: 'some-instance-id',
     } as IInstance;
+    const process = {
+      taskId: undefined,
+    } as IProcessState;
     const application = {
       id: 'someOrg/someApp',
     } as IApplication;
@@ -83,6 +88,7 @@ describe('fetchFormLayoutSagas', () => {
         .provide([
           [select(layoutSetsSelector), undefined],
           [select(instanceSelector), instance],
+          [select(processSelector), process],
           [select(applicationMetadataSelector), application],
         ])
         .put(FormLayoutActions.setCurrentViewCacheKey({ key: instance.id }))
@@ -109,6 +115,7 @@ describe('fetchFormLayoutSagas', () => {
         .provide([
           [select(layoutSetsSelector), undefined],
           [select(instanceSelector), instance],
+          [select(processSelector), process],
           [select(applicationMetadataSelector), application],
         ])
         .put(
@@ -134,6 +141,7 @@ describe('fetchFormLayoutSagas', () => {
         .provide([
           [select(layoutSetsSelector), undefined],
           [select(instanceSelector), instance],
+          [select(processSelector), process],
           [select(applicationMetadataSelector), application],
         ])
         .put(
@@ -153,6 +161,7 @@ describe('fetchFormLayoutSagas', () => {
         .provide([
           [select(layoutSetsSelector), undefined],
           [select(instanceSelector), instance],
+          [select(processSelector), process],
           [select(applicationMetadataSelector), application],
         ])
         .put(FormLayoutActions.setCurrentViewCacheKey({ key: instance.id }))
@@ -184,6 +193,7 @@ describe('fetchFormLayoutSagas', () => {
         .provide([
           [select(layoutSetsSelector), undefined],
           [select(instanceSelector), instance],
+          [select(processSelector), process],
           [select(applicationMetadataSelector), application],
         ])
         .put(FormLayoutActions.setCurrentViewCacheKey({ key: instance.id }))
@@ -212,6 +222,7 @@ describe('fetchFormLayoutSagas', () => {
         .provide([
           [select(layoutSetsSelector), undefined],
           [select(instanceSelector), instance],
+          [select(processSelector), process],
           [select(applicationMetadataSelector), application],
         ])
         .put(FormLayoutActions.setCurrentViewCacheKey({ key: instance.id }))
@@ -237,6 +248,7 @@ describe('fetchFormLayoutSagas', () => {
         .provide([
           [select(layoutSetsSelector), undefined],
           [select(instanceSelector), undefined],
+          [select(processSelector), process],
           [select(applicationMetadataSelector), application],
         ])
         .put(FormLayoutActions.setCurrentViewCacheKey({ key: application.id }))
