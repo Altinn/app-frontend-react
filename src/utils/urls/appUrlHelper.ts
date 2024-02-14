@@ -56,7 +56,10 @@ export const getDataValidationUrl = (instanceId: string, dataGuid: string, langu
 export const getPdfFormatUrl = (instanceId: string, dataGuid: string) =>
   `${appPath}/instances/${instanceId}/data/${dataGuid}/pdf/format`;
 
-export const getPdfPreviewUrl = (instanceId: string) => `${appPath}/instances/${instanceId}/pdf/preview`;
+export const getPdfPreviewUrl = (instanceId: string, language: string) => {
+  const queryString = getQueryStringFromObject({ language });
+  return `${appPath}/instances/${instanceId}/pdf/preview${queryString}`;
+};
 
 export const getProcessNextUrl = (instanceId: string, language?: string) => {
   const queryString = getQueryStringFromObject({ language });

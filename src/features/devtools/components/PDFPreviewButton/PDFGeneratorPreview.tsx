@@ -6,6 +6,7 @@ import { FilePdfIcon } from '@navikt/aksel-icons';
 import classes from 'src/features/devtools/components/PDFPreviewButton/PDFPreview.module.css';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
 import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useIsDev } from 'src/hooks/useIsDev';
 import { ProcessTaskType } from 'src/types';
 import { getPdfPreviewUrl } from 'src/utils/urls/appUrlHelper';
@@ -19,6 +20,7 @@ export function PDFGeneratorPreview() {
 
   const taskType = useTaskTypeFromBackend();
   const instanceId = useLaxInstance()?.data?.id;
+  const language = useCurrentLanguage();
   const isDev = useIsDev();
 
   const disabled = taskType !== ProcessTaskType.Data || !instanceId || !isDev;
@@ -34,7 +36,7 @@ export function PDFGeneratorPreview() {
     abortRef.current = new AbortController();
     modalRef.current?.showModal();
 
-    const response: Response | Error = await fetch(getPdfPreviewUrl(instanceId), {
+    const response: Response | Error = await fetch(getPdfPreviewUrl(instanceId, language), {
       signal: abortRef.current?.signal,
       headers: { Pragma: 'no-cache' },
     }).catch((error) => error);
