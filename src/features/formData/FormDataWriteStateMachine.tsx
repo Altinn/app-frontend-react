@@ -117,6 +117,12 @@ export interface FDRemoveValueFromList {
   value: any;
 }
 
+export interface FDRemoveFromListCallback {
+  path: string;
+  startAtIndex?: number;
+  callback: (value: any) => boolean;
+}
+
 export interface FDSaveFinished {
   patch?: JsonPatch;
   savedData: object;
@@ -133,6 +139,7 @@ export interface FormDataMethods {
   appendToList: (change: FDAppendToList) => void;
   removeIndexFromList: (change: FDRemoveIndexFromList) => void;
   removeValueFromList: (change: FDRemoveValueFromList) => void;
+  removeFromListCallback: (change: FDRemoveFromListCallback) => void;
 
   // Internal utility methods
   debounce: () => void;
@@ -247,54 +254,75 @@ function makeActions(
     // list items are immediate.
     appendToListUnique: ({ path, newValue }) =>
       set((state) => {
-        for (const model of [state.currentData, state.debouncedCurrentData]) {
-          const existingValue = dot.pick(path, model);
-          if (Array.isArray(existingValue) && existingValue.includes(newValue)) {
-            continue;
-          }
+        const existingValue = dot.pick(path, state.currentData);
+        if (Array.isArray(existingValue) && existingValue.includes(newValue)) {
+          return;
+        }
 
-          state.hasUnsavedChanges = true;
-          if (Array.isArray(existingValue)) {
-            existingValue.push(newValue);
-          } else {
-            dot.str(path, [newValue], model);
-          }
+        state.hasUnsavedChanges = true;
+        if (Array.isArray(existingValue)) {
+          existingValue.push(newValue);
+        } else {
+          dot.str(path, [newValue], state.currentData);
         }
       }),
     appendToList: ({ path, newValue }) =>
       set((state) => {
-        for (const model of [state.currentData, state.debouncedCurrentData]) {
-          const existingValue = dot.pick(path, model);
-          state.hasUnsavedChanges = true;
-          if (Array.isArray(existingValue)) {
-            existingValue.push(newValue);
-          } else {
-            dot.str(path, [newValue], model);
-          }
+        const existingValue = dot.pick(path, state.currentData);
+        state.hasUnsavedChanges = true;
+        if (Array.isArray(existingValue)) {
+          existingValue.push(newValue);
+        } else {
+          dot.str(path, [newValue], state.currentData);
         }
       }),
     removeIndexFromList: ({ path, index }) =>
       set((state) => {
-        for (const model of [state.currentData, state.debouncedCurrentData]) {
-          const existingValue = dot.pick(path, model);
-          if (index >= existingValue.length) {
-            continue;
-          }
-
-          state.hasUnsavedChanges = true;
-          existingValue.splice(index, 1);
+        const existingValue = dot.pick(path, state.currentData);
+        if (index >= existingValue.length) {
+          return;
         }
+
+        state.hasUnsavedChanges = true;
+        existingValue.splice(index, 1);
       }),
     removeValueFromList: ({ path, value }) =>
       set((state) => {
-        for (const model of [state.currentData, state.debouncedCurrentData]) {
-          const existingValue = dot.pick(path, model);
-          if (!existingValue.includes(value)) {
-            continue;
-          }
+        const existingValue = dot.pick(path, state.currentData);
+        if (!existingValue.includes(value)) {
+          return;
+        }
 
+        state.hasUnsavedChanges = true;
+        existingValue.splice(existingValue.indexOf(value), 1);
+      }),
+    removeFromListCallback: ({ path, startAtIndex, callback }) =>
+      set((state) => {
+        const existingValue = dot.pick(path, state.currentData);
+        if (!Array.isArray(existingValue)) {
+          return;
+        }
+
+        if (
+          startAtIndex !== undefined &&
+          startAtIndex >= 0 &&
+          startAtIndex < existingValue.length &&
+          callback(existingValue[startAtIndex])
+        ) {
           state.hasUnsavedChanges = true;
-          existingValue.splice(existingValue.indexOf(value), 1);
+          existingValue.splice(startAtIndex, 1);
+          return;
+        }
+
+        // Continue looking for the item to remove from the start of the list if we didn't find it at the start index
+        let index = 0;
+        while (index < existingValue.length) {
+          if (callback(existingValue[index])) {
+            state.hasUnsavedChanges = true;
+            existingValue.splice(index, 1);
+            return;
+          }
+          index++;
         }
       }),
 

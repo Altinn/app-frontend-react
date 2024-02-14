@@ -23,17 +23,17 @@ const { Provider, useCtx } = createContext<RepeatingGroupEditRowContext>({
 
 function useRepeatingGroupEditRowState(
   node: BaseLayoutNode<CompRepeatingGroupInternal>,
-  editIndex: number,
+  editId: string,
 ): RepeatingGroupEditRowContext & { setMultiPageIndex: (index: number) => void } {
   const multiPageEnabled = node.item.edit?.multiPage ?? false;
   const lastPage = useMemo(() => {
-    const row = node.item.rows[editIndex];
+    const row = node.item.rows.find((r) => r.uuid === editId);
     let lastPage = 0;
-    for (const childNode of row.items) {
+    for (const childNode of row?.items ?? []) {
       lastPage = Math.max(lastPage, childNode.item.multiPageIndex ?? 0);
     }
     return lastPage;
-  }, [editIndex, node.item.rows]);
+  }, [editId, node.item.rows]);
 
   const [multiPageIndex, setMultiPageIndex] = useState(0);
 
@@ -58,11 +58,11 @@ function useRepeatingGroupEditRowState(
 
 interface Props {
   node: BaseLayoutNode<CompRepeatingGroupInternal>;
-  editIndex: number;
+  editId: string;
 }
 
-export function RepeatingGroupEditRowProvider({ node, editIndex, children }: PropsWithChildren<Props>) {
-  const { setMultiPageIndex, ...state } = useRepeatingGroupEditRowState(node, editIndex);
+export function RepeatingGroupEditRowProvider({ node, editId, children }: PropsWithChildren<Props>) {
+  const { setMultiPageIndex, ...state } = useRepeatingGroupEditRowState(node, editId);
 
   useRegisterNodeNavigationHandler((targetNode) => {
     if (!state.multiPageEnabled) {

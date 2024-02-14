@@ -233,7 +233,9 @@ describe('Hierarchical layout tools', () => {
 
       const group2 = flatWithGroups.find((node) => node.item.id === components.group2.id);
       expect(group2?.children((n) => n.type === 'Input')?.item.id).toEqual(`${components.group2i.id}-0`);
-      expect(group2?.children((n) => n.type === 'Input', 1)?.item.id).toEqual(`${components.group2i.id}-1`);
+      expect(group2?.children((n) => n.type === 'Input', { onlyInRowIndex: 1 })?.item.id).toEqual(
+        `${components.group2i.id}-1`,
+      );
 
       expect(otherDeepComponent?.closest((c) => c.id === 'not-found')).toBeUndefined();
     });

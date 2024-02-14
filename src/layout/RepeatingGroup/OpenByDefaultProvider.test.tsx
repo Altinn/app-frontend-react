@@ -21,10 +21,10 @@ import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 describe('openByDefault', () => {
   function RenderTest() {
     const state = useRepeatingGroupSelector((state) => ({
-      editingIndex: state.editingIndex,
-      addingIndexes: state.addingIndexes,
+      editingId: state.editingId,
+      addingIds: state.addingIds,
     }));
-    const { deleteRow, visibleRowIndexes, hiddenRowIndexes } = useRepeatingGroup();
+    const { deleteRow, visibleRows, hiddenRows } = useRepeatingGroup();
 
     const data = FD.useDebouncedPick('MyGroup');
     return (
@@ -32,14 +32,14 @@ describe('openByDefault', () => {
         <div data-testid='state'>
           {JSON.stringify({
             ...state,
-            visibleRowIndexes,
-            hiddenRowIndexes: [...hiddenRowIndexes.values()],
+            visibleRows: visibleRows.map((row) => row.index),
+            hiddenRows: hiddenRows.map((row) => row.index),
             data,
           })}
         </div>
         <button
           onClick={() => {
-            deleteRow(visibleRowIndexes[visibleRowIndexes.length - 1]);
+            deleteRow(visibleRows[visibleRows.length - 1].uuid);
           }}
         >
           Delete last visible row

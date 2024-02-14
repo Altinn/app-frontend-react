@@ -121,8 +121,9 @@ export abstract class AnyComponent<Type extends CompTypes> {
     top: LayoutPage,
     dataSources: HierarchyDataSources,
     rowIndex?: number,
+    rowId?: string,
   ): LayoutNode<Type> {
-    return new BaseLayoutNode(item, parent, top, dataSources, rowIndex) as LayoutNode<Type>;
+    return new BaseLayoutNode(item, parent, top, dataSources, rowIndex, rowId) as LayoutNode<Type>;
   }
 
   /**

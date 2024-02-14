@@ -17,10 +17,11 @@ import { RepeatingGroupTableRow } from 'src/layout/RepeatingGroup/RepeatingGroup
 import { RepeatingGroupTableTitle } from 'src/layout/RepeatingGroup/RepeatingGroupTableTitle';
 import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import type { GridRowsInternal, ITableColumnFormatting } from 'src/layout/common.generated';
+import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 
 export function RepeatingGroupTable(): React.JSX.Element | null {
   const mobileView = useIsMobileOrTablet();
-  const { node, isEditing, visibleRowIndexes } = useRepeatingGroup();
+  const { node, isEditing, visibleRows } = useRepeatingGroup();
   const rowsBefore = node.item.rowsBefore;
   const rowsAfter = node.item.rowsAfter;
 
@@ -33,9 +34,9 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
     ? structuredClone(container.tableColumns)
     : ({} as ITableColumnFormatting);
 
-  const getTableNodes = (rowIndex: number) => {
+  const getTableNodes = (restriction: ChildLookupRestriction) => {
     const tableHeaders = container?.tableHeaders;
-    const nodes = node.children(undefined, rowIndex).filter((child) => {
+    const nodes = node.children(undefined, restriction).filter((child) => {
       if (tableHeaders) {
         const { id, baseComponentId } = child.item;
         return !!(tableHeaders.includes(id) || (baseComponentId && tableHeaders.includes(baseComponentId)));
@@ -55,12 +56,12 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
     return nodes;
   };
 
-  const tableNodes = getTableNodes(0);
-  const numRows = visibleRowIndexes.length;
-  const firstRowIndex = visibleRowIndexes[0];
+  const tableNodes = getTableNodes({ onlyInRowIndex: 0 });
+  const numRows = visibleRows.length;
+  const firstRowId = visibleRows[0].uuid;
 
   const isEmpty = numRows === 0;
-  const showTableHeader = numRows > 0 && !(numRows == 1 && isEditing(firstRowIndex));
+  const showTableHeader = numRows > 0 && !(numRows == 1 && isEditing(firstRowId));
 
   const showDeleteButtonColumns = new Set<boolean>();
   const showEditButtonColumns = new Set<boolean>();
@@ -150,7 +151,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
         )}
         // If the list is empty, the border of the table will be visible as a line above
         // the "Legg til ny" button.
-        border={isNested && visibleRowIndexes.length > 0}
+        border={isNested && visibleRows.length > 0}
       >
         {textResourceBindings?.title && (
           <Caption
@@ -200,15 +201,15 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
           </Table.Head>
         )}
         <Table.Body id={`group-${id}-table-body`}>
-          {visibleRowIndexes.map((index: number) => {
-            const isEditingRow = isEditing(index) && edit?.mode !== 'onlyTable';
+          {visibleRows.map((row) => {
+            const isEditingRow = isEditing(row.uuid) && edit?.mode !== 'onlyTable';
             return (
-              <React.Fragment key={index}>
+              <React.Fragment key={row.uuid}>
                 <RepeatingGroupTableRow
                   className={cn({
                     [classes.editingRow]: isEditingRow,
                   })}
-                  index={index}
+                  uuid={row.uuid}
                   getTableNodes={getTableNodes}
                   mobileView={mobileView}
                   displayDeleteColumn={displayDeleteColumn}
@@ -216,7 +217,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
                 />
                 {isEditingRow && (
                   <Table.Row
-                    key={`edit-container-${index}`}
+                    key={`edit-container-${row.uuid}`}
                     className={classes.editContainerRow}
                   >
                     <Table.Cell
@@ -228,7 +229,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
                           : tableNodes.length + 3 + (displayEditColumn ? 1 : 0) + (displayDeleteColumn ? 1 : 0)
                       }
                     >
-                      {edit?.mode !== 'onlyTable' && <RepeatingGroupsEditContainer editIndex={index} />}
+                      {edit?.mode !== 'onlyTable' && <RepeatingGroupsEditContainer editId={row.uuid} />}
                     </Table.Cell>
                   </Table.Row>
                 )}

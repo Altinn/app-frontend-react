@@ -486,12 +486,10 @@ export const FD = {
   useAppendToList: () => useSelector((s) => s.appendToList),
 
   /**
-   * Returns a function to remove a value from a list, by index. You should try to avoid using this, as it might
-   * not do what you want if it is triggered at a moment where your copy of the form data is outdated. Calling this
-   * function twice in a row for index 0 will remove the first item in the list, even if the list has changed in
-   * the meantime.
+   * Returns a function to remove a value from a list, by use of a callback that lets you find the correct row to
+   * remove. When the callback returns true, that row will be removed.
    */
-  useRemoveIndexFromList: () => useSelector((s) => s.removeIndexFromList),
+  useRemoveFromListCallback: () => useSelector((s) => s.removeFromListCallback),
 
   /**
    * Returns a function to remove a value from a list, by value. If your list contains unique values, this is the
