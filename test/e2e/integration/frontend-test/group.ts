@@ -764,7 +764,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.get(appFrontend.group.editContainer).find('input').first().should('have.value', 'NOK 80 323');
 
-    cy.get(appFrontend.group.hideRepeatingGroupRow).numberFormatClear();
+    cy.get(appFrontend.group.hideRepeatingGroupRow).clear();
     cy.get(appFrontend.group.hideRepeatingGroupRow).type('1000');
 
     cy.get(appFrontend.group.editContainer).should('not.exist');
@@ -827,7 +827,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.prefill.enorm).check();
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
-    cy.get(appFrontend.group.hideRepeatingGroupRow).numberFormatClear();
+    cy.get(appFrontend.group.hideRepeatingGroupRow).clear();
     cy.get(appFrontend.group.hideRepeatingGroupRow).type('1000');
     cy.gotoNavPage('summary');
     cy.get('[data-testid="summary-repeating-row"]').should('have.length', 2);

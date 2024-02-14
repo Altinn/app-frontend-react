@@ -577,9 +577,9 @@ describe('Validation', () => {
     cy.goto('changename');
     cy.fillOut('changename');
 
-    cy.get(appFrontend.grid.bolig.percent).numberFormatClear();
-    cy.get(appFrontend.grid.studie.percent).numberFormatClear();
-    cy.get(appFrontend.grid.kredittkort.percent).numberFormatClear();
+    cy.get(appFrontend.grid.bolig.percent).clear();
+    cy.get(appFrontend.grid.studie.percent).clear();
+    cy.get(appFrontend.grid.kredittkort.percent).clear();
     cy.get(appFrontend.grid.kredittkort.percent).type('44');
     cy.get(appFrontend.grid.studie.percent).type('56');
 
