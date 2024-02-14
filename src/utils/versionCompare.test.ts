@@ -24,4 +24,9 @@ describe('versionCompare', () => {
   test.each(testCases)('isAtLeastVersion($version, $minVersion) returns $expected', (testCase) => {
     expect(isAtLeastVersion(testCase.version, testCase.minVersion)).toBe(testCase.expected);
   });
+
+  test('should allow zero in last part', () => {
+    expect(isAtLeastVersion('1.2.0', '1.2.3', false)).toBe(false);
+    expect(isAtLeastVersion('1.2.0', '1.2.3', true)).toBe(true);
+  });
 });
