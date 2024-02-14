@@ -161,10 +161,6 @@ export const ReceiptContainer = () => {
 
   return (
     <div id='ReceiptContainer'>
-      {/* TODO: This code was here to render CustomReceipt, but does not work when we don't fetch layouts here*/}
-      {/*{receiptLayoutName && layouts.includes(receiptLayoutName) ? (*/}
-      {/*  <CustomReceipt />*/}
-      {/*)}*/}
       {!applicationMetadata.autoDeleteOnProcessEnd && (
         <ReceiptComponent
           attachmentGroupings={getAttachmentGroupings(attachments, applicationMetadata, langTools)}
