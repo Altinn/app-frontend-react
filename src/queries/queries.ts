@@ -83,12 +83,8 @@ export const doInstantiateWithPrefill = async (data: Instantiation): Promise<IIn
 export const doInstantiate = async (partyId: string): Promise<IInstance> =>
   cleanUpInstanceData((await httpPost(getCreateInstancesUrl(partyId))).data);
 
-export const doProcessNext = async (
-  instanceId: string,
-  taskId?: string,
-  language?: string,
-  action?: IActionType,
-): Promise<IProcess> => httpPut(getProcessNextUrl(instanceId, taskId, language), action ? { action } : null);
+export const doProcessNext = async (instanceId: string, language?: string, action?: IActionType): Promise<IProcess> =>
+  httpPut(getProcessNextUrl(instanceId, language), action ? { action } : null);
 
 export const doAttachmentUpload = async (instanceId: string, dataTypeId: string, file: File): Promise<IData> => {
   const url = getFileUploadUrl(instanceId, dataTypeId);
@@ -139,8 +135,8 @@ export const doPerformAction = async (partyId: string, dataGuid: string, data: a
   return response.data;
 };
 
-export const doAttachmentRemove = async (instanceId: string, dataGuid: string): Promise<void> => {
-  const response = await httpDelete(getDataElementUrl(instanceId, dataGuid));
+export const doAttachmentRemove = async (instanceId: string, dataGuid: string, language: string): Promise<void> => {
+  const response = await httpDelete(getDataElementUrl(instanceId, dataGuid, language));
   if (response.status !== 200) {
     throw new Error('Failed to remove attachment');
   }
@@ -227,7 +223,8 @@ export const fetchTextResources = (selectedLanguage: string): Promise<ITextResou
 export const fetchBackendValidations = (
   instanceId: string,
   currentDataElementId: string,
-): Promise<BackendValidationIssue[]> => httpGet(getDataValidationUrl(instanceId, currentDataElementId));
+  language: string,
+): Promise<BackendValidationIssue[]> => httpGet(getDataValidationUrl(instanceId, currentDataElementId, language));
 
 export const fetchLayoutSchema = async (): Promise<JSONSchema7 | undefined> => {
   // Hacky (and only) way to get the correct CDN url

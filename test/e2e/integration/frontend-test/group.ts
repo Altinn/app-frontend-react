@@ -448,9 +448,9 @@ describe('Group', () => {
     cy.get(appFrontend.group.subGroup).find(appFrontend.group.delete).click();
     cy.snapshot('group: delete-warning-popup');
 
-    cy.get(appFrontend.group.subGroup).find(appFrontend.group.popOverCancelButton).click();
+    cy.get(appFrontend.group.subGroup).find(appFrontend.group.popOverCancelButton).click({ force: true });
     cy.get(appFrontend.group.subGroup).find(appFrontend.group.delete).click();
-    cy.get(appFrontend.group.subGroup).find(appFrontend.group.popOverDeleteButton).click();
+    cy.get(appFrontend.group.subGroup).find(appFrontend.group.popOverDeleteButton).click({ force: true });
 
     cy.get(appFrontend.group.subGroup).find('tbody > tr > td').should('have.length', 0);
 
@@ -811,6 +811,26 @@ describe('Group', () => {
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 2);
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').eq(0).should('contain.text', 'NOK 1');
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').eq(1).should('contain.text', 'NOK 1 233');
+  });
+
+  it('verify that hidden rows are not shown in summary', () => {
+    cy.interceptLayout('group', (c) => {
+      if (c.id === 'summary1' && c.type === 'Summary') {
+        c.largeGroup = false;
+      }
+    });
+    cy.goto('group');
+    cy.get(appFrontend.group.prefill.liten).check();
+    cy.get(appFrontend.group.prefill.middels).check();
+    cy.get(appFrontend.group.prefill.stor).check();
+    cy.get(appFrontend.group.prefill.svaer).check();
+    cy.get(appFrontend.group.prefill.enorm).check();
+    cy.gotoNavPage('repeating');
+    cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
+    cy.get(appFrontend.group.hideRepeatingGroupRow).numberFormatClear();
+    cy.get(appFrontend.group.hideRepeatingGroupRow).type('1000');
+    cy.gotoNavPage('summary');
+    cy.get('[data-testid="summary-repeating-row"]').should('have.length', 2);
   });
 });
 
