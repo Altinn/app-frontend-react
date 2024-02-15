@@ -26,8 +26,8 @@ export class LikertHierarchyGenerator extends ComponentHierarchyGenerator<'Liker
     const list: LayoutNode[] = [];
 
     const maybeNodes =
-      restriction && 'onlyInRowId' in restriction
-        ? node.item.rows.find((r) => r && r.uuid === restriction.onlyInRowId)?.items || []
+      restriction && 'onlyInRowUuid' in restriction
+        ? node.item.rows.find((r) => r && r.uuid === restriction.onlyInRowUuid)?.items || []
         : restriction && 'onlyInRowIndex' in restriction
           ? node.item.rows.find((r) => r && r.index === restriction.onlyInRowIndex)?.items || []
           : // Beware: In most cases this will just match the first row.
