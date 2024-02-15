@@ -22,8 +22,8 @@ export function OpenByDefaultProvider({ node, children }: PropsWithChildren<Prop
   const hasNoRows = visibleRows.length === 0;
   const stateRef = useAsRef({
     ...state,
-    firstId: visibleRows[0].uuid,
-    lastId: visibleRows[visibleRows.length - 1].uuid,
+    firstId: hasNoRows ? undefined : visibleRows[0].uuid,
+    lastId: hasNoRows ? undefined : visibleRows[visibleRows.length - 1].uuid,
     addRow,
     openForEditing,
     canAddRows: node.item.edit?.addButton ?? true,
@@ -67,7 +67,7 @@ export function OpenByDefaultProvider({ node, children }: PropsWithChildren<Prop
         editingId === undefined
       ) {
         const uuid = openByDefault === 'last' ? lastId : firstId;
-        openForEditing(uuid);
+        uuid !== undefined && openForEditing(uuid);
       }
     })();
   }, [openByDefault, stateRef, addRow, groupId, hasNoRows, isFirstRender]);
