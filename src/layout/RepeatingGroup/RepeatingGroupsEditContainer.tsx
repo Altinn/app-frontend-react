@@ -1,4 +1,5 @@
 import React from 'react';
+import type { JSX } from 'react';
 
 import { Button } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
@@ -28,22 +29,14 @@ export interface IRepeatingGroupsEditContainer {
 export function RepeatingGroupsEditContainer({ editId, ...props }: IRepeatingGroupsEditContainer): JSX.Element | null {
   const { node } = useRepeatingGroup();
   const group = node.item;
-  const row = group.rows[editId];
+  const row = group.rows.find((r) => r.uuid === editId);
 
-  if (!row) {
-    return null;
-  }
-
-  const shouldHideRow = node.item.rows[editId]?.groupExpressions?.hiddenRow;
-  if (shouldHideRow) {
+  if (!row || row.groupExpressions.hiddenRow) {
     return null;
   }
 
   return (
-    <RepeatingGroupEditRowProvider
-      node={node}
-      editId={editId}
-    >
+    <RepeatingGroupEditRowProvider editId={editId}>
       <RepeatingGroupsEditContainerInternal
         editId={editId}
         group={group}

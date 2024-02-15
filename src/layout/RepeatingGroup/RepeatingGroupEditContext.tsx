@@ -3,6 +3,7 @@ import type { PropsWithChildren } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
 import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
+import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { CompRepeatingGroupInternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
@@ -57,11 +58,11 @@ function useRepeatingGroupEditRowState(
 }
 
 interface Props {
-  node: BaseLayoutNode<CompRepeatingGroupInternal>;
   editId: string;
 }
 
-export function RepeatingGroupEditRowProvider({ node, editId, children }: PropsWithChildren<Props>) {
+export function RepeatingGroupEditRowProvider({ editId, children }: PropsWithChildren<Props>) {
+  const { node } = useRepeatingGroup();
   const { setMultiPageIndex, ...state } = useRepeatingGroupEditRowState(node, editId);
 
   useRegisterNodeNavigationHandler((targetNode) => {
