@@ -73,6 +73,7 @@ Altinn, and making sure they are consistent. */
 }
 
 .nestedNonSticky > thead > tr > th {
+  /*needed !important to override sticky-header css from design system for nested repeating-groups*/
   position: static !important;
 }
 
