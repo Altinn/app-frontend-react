@@ -319,7 +319,7 @@ describe('Group', () => {
         cy.wrap(table).find(appFrontend.group.delete).click();
       });
 
-    cy.get(appFrontend.nextButton).click();
+    cy.gotoNavPage('hide');
     cy.get(appFrontend.group.sendersName).should('exist');
   });
 
