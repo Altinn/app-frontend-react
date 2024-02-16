@@ -137,7 +137,9 @@ export const ProcessWrapper = () => {
   }
 
   if (taskType === ProcessTaskType.Data && customReceiptDataModelNotFound) {
-    window.logWarn('You specified a custom receipt, but the data model is missing. Falling back to default receipt.');
+    window.logWarnOnce(
+      'You specified a custom receipt, but the data model is missing. Falling back to default receipt.',
+    );
     return (
       <PresentationComponent type={realTaskType}>
         <ReceiptContainer />
