@@ -27,18 +27,21 @@ export const getChangeMeta = (newValue: string) => ({
 });
 
 export const getCleanValue = (newValue: string, inputFormatting: IInputFormatting): string => {
-  if (isEmptyObject(inputFormatting)) {
+  if (!inputFormatting?.number) {
     return newValue;
   }
-  if (isNumericFormat(inputFormatting)) {
+
+  if (isNumericFormat(inputFormatting.number)) {
+    console.log('clean num');
     return removeNumericFormat(newValue, getChangeMeta(newValue), {
-      ...inputFormatting,
+      ...inputFormatting.number,
     });
   }
 
-  if (isPatternFormat(inputFormatting)) {
+  if (isPatternFormat(inputFormatting.number)) {
+    console.log('clean pattern');
     return removePatternFormat(newValue, getChangeMeta(newValue), {
-      ...(inputFormatting as PatternFormatProps),
+      ...(inputFormatting.number as PatternFormatProps),
     });
   }
   throw new Error('Tried to remove input formatting with an invalid input config. ');
@@ -49,16 +52,47 @@ export const getFormattedValue = (newValue: string, inputFormatting: IInputForma
     return newValue;
   }
 
+  if (!inputFormatting.number) {
+    return newValue;
+  }
+
   const cleanedValue = getCleanValue(newValue, inputFormatting);
+
+  console.log('cleanedValue', cleanedValue);
+  console.log('inputFormatting');
+  console.log(JSON.stringify(inputFormatting, null, 2));
+
+  if (isPatternFormat(inputFormatting.number)) {
+    console.log('PATTERN!!');
+    return patternFormatter(cleanedValue, inputFormatting.number);
+  }
+
   if (isNumericFormat(inputFormatting) && inputFormatting.number) {
+    console.log('NUM!!!!');
     if ((inputFormatting.number as NumberFormatProps).allowedDecimalSeparators) {
       return numericFormatter(cleanedValue, inputFormatting);
     }
     return numericFormatter(cleanedValue, inputFormatting.number);
   }
 
-  if (isPatternFormat(inputFormatting)) {
-    return patternFormatter(cleanedValue, inputFormatting);
-  }
   throw new Error('Tried to get a formatted value with invalid input formatting config.');
+
+  //
+  // const cleanedValue = getCleanValue(newValue, inputFormatting);
+  //
+  // console.log('cleanedValue', cleanedValue);
+  //
+  // return patternFormatter(cleanedValue, inputFormatting.number);
+  //
+  // if (isNumericFormat(inputFormatting) && inputFormatting.number) {
+  //   if ((inputFormatting.number as NumberFormatProps).allowedDecimalSeparators) {
+  //     return numericFormatter(cleanedValue, inputFormatting);
+  //   }
+  //   return numericFormatter(cleanedValue, inputFormatting.number);
+  // }
+  //
+  // if (isPatternFormat(inputFormatting)) {
+  //   return patternFormatter(cleanedValue, inputFormatting);
+  // }
+  // throw new Error('Tried to get a formatted value with invalid input formatting config.');
 };
