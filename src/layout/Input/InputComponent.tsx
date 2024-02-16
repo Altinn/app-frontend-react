@@ -57,6 +57,7 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
     'aria-describedby': textResourceBindings?.description ? `description-${id}` : undefined,
     autoComplete: autocomplete,
     characterLimit: !readOnly ? characterLimit : undefined,
+    role: 'textbox',
     readOnly,
     isValid,
     required,
@@ -129,7 +130,6 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
           setLocalValue(pastedText);
         }}
         customInput={Textfield as React.ComponentType}
-        role={'textbox'}
         {...reactNumberFormatConfig.number}
         {...commonProps}
       />

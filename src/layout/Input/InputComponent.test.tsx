@@ -149,13 +149,24 @@ describe('InputComponent', () => {
   //       },
   //     },
   //   });
+  //
   //   const inputComponent = screen.getByRole('textbox') as HTMLInputElement;
-  //   await userEvent.click(inputComponent);
-  //   await userEvent.paste(typedValue);
-  //   jest.advanceTimersByTime(1);
+  //
+  //   await act(async () => {
+  //     await userEvent.click(inputComponent);
+  //     await userEvent.paste(typedValue);
+  //   });
+  //
   //   expect(inputComponent).toHaveValue(formattedValue);
-  //   expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'some.field', newValue: typedValue });
-  //   expect(inputComponent).toHaveValue(formattedValue);
+  //   // expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'some.field', newValue: typedValue });
+  //
+  //   // await waitFor(() => {
+  //   //   expect(inputComponent).toHaveValue(formattedValue);
+  //   // });
+  //   //
+  //   // await waitFor(() => {
+  //   //   expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'some.field', newValue: typedValue });
+  //   // });
   // });
 
   const render = async ({ component, genericProps, ...rest }: Partial<RenderGenericComponentTestProps<'Input'>> = {}) =>
