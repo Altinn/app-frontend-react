@@ -72,6 +72,10 @@ Altinn, and making sure they are consistent. */
   border-top-right-radius: 0 !important;
 }
 
+.nestedNonSticky > thead > tr > th {
+  position: static !important;
+}
+
 .tableEmpty {
   margin: 0;
 }

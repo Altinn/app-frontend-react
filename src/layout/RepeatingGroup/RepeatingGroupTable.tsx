@@ -146,7 +146,11 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
         id={`group-${id}-table`}
         stickyHeader={stickyHeader}
         className={cn(
-          { [classes.editingBorder]: isNested, [classes.nestedTable]: isNested },
+          {
+            [classes.editingBorder]: isNested,
+            [classes.nestedTable]: isNested,
+            [classes.nestedNonSticky]: isNested && !stickyHeader,
+          },
           classes.repeatingGroupTable,
         )}
         // If the list is empty, the border of the table will be visible as a line above
@@ -208,7 +212,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
                 <RepeatingGroupTableRow
                   className={cn({
                     [classes.editingRow]: isEditingRow,
-                    [classes.onTopOfStickyHeader]: stickyHeader,
+                    [classes.onTopOfStickyHeader]: isEditingRow && stickyHeader,
                   })}
                   index={index}
                   getTableNodes={getTableNodes}
