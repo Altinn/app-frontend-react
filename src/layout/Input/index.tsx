@@ -6,7 +6,6 @@ import { formatNumericText } from '@digdir/design-system-react';
 import { getMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
 import { InputDef } from 'src/layout/Input/config.def.generated';
 import { InputComponent } from 'src/layout/Input/InputComponent';
-// import { InputComponent } from 'src/layout/Input/InputComponentAlt2';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps, PropsFromGenericComponent } from 'src/layout';

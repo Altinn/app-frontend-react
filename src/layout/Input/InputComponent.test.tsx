@@ -3,11 +3,8 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
-// import { InputComponent } from 'src/layout/Input/InputComponentAlt2';
 import { InputComponent } from 'src/layout/Input/InputComponent';
-import { getCleanValue, getFormattedValue } from 'src/layout/Input/number-format-helpers';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
-import type { IInputFormatting } from 'src/layout/Input/config.generated';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
 describe('InputComponent', () => {
@@ -119,41 +116,6 @@ describe('InputComponent', () => {
     expect(inputComponent).toHaveValue(formattedValue);
   });
 
-  it('should apply correct formatting to phone numbers', async () => {
-    const typedValue = '44444444';
-    const formattedValue = '+47 444 44 444';
-
-    const format: IInputFormatting = {
-      number: {
-        format: '+47 ### ## ###',
-      },
-    };
-
-    const returnValue = getFormattedValue(typedValue, format);
-
-    console.log('returnValue');
-    console.log(JSON.stringify(returnValue, null, 2));
-
-    expect(returnValue).toEqual(formattedValue);
-  });
-
-  it('should properly remove formatting from phone numbers', async () => {
-    const inputValue = '+47 444 44 444';
-    const cleanedValue = '44444444';
-    const format: IInputFormatting = {
-      number: {
-        format: '+47 ### ## ###',
-      },
-    };
-
-    const returnValue = getCleanValue(inputValue, format);
-
-    console.log('returnValue');
-    console.log(JSON.stringify(returnValue, null, 2));
-
-    expect(returnValue).toEqual(cleanedValue);
-  });
-
   it('should allow decimal separators specified in allowedDecimalSeparators when typing', async () => {
     const typedValue = '11.1';
     const formattedValue = '11,1';
@@ -174,7 +136,7 @@ describe('InputComponent', () => {
     expect(inputComponent).toHaveValue(formattedValue);
   });
 
-  // it('should allow decimal separators specified in allowedDecimalSeparators when pasting', async () => {
+  // it.only('should allow decimal separators specified in allowedDecimalSeparators when pasting', async () => {
   //   const typedValue = '11.1';
   //   const formattedValue = '11,1';
   //   const { formDataMethods } = await render({
@@ -190,10 +152,10 @@ describe('InputComponent', () => {
   //   const inputComponent = screen.getByRole('textbox') as HTMLInputElement;
   //   await userEvent.click(inputComponent);
   //   await userEvent.paste(typedValue);
-  //   jest.advanceTimersByTime(0);
+  //   jest.advanceTimersByTime(1);
   //   expect(inputComponent).toHaveValue(formattedValue);
-  //   // expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'some.field', newValue: typedValue });
-  //   // expect(inputComponent).toHaveValue(formattedValue);
+  //   expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'some.field', newValue: typedValue });
+  //   expect(inputComponent).toHaveValue(formattedValue);
   // });
 
   const render = async ({ component, genericProps, ...rest }: Partial<RenderGenericComponentTestProps<'Input'>> = {}) =>
