@@ -25,8 +25,13 @@
   width: 100%;
 }
 
-.onTopOfStickyHeader {
+.editContainerOnTopOfStickyHeader {
   z-index: 2;
+  position: relative;
+}
+
+.editRowOnTopOfStickyHeader {
+  z-index: 3;
   position: relative;
 }
 
@@ -93,8 +98,6 @@ Altinn, and making sure they are consistent. */
 .editingRow {
   border-top: 2px dotted var(--repeating-group-edit-border-color);
   background-color: var(--repeating-group-edit-surface-color);
-  z-index: 2;
-  position: relative;
 }
 
 table > tbody > tr.editingRow:hover {
@@ -198,8 +201,6 @@ table > tbody > tr.editingRow:hover {
   display: inline-block;
   padding: var(--modal-padding-y) var(--modal-padding-x);
   box-sizing: border-box;
-  z-index: 2;
-  position: relative;
 }
 
 .nestedEditContainer {
@@ -208,8 +209,6 @@ table > tbody > tr.editingRow:hover {
   display: inline-block;
   padding: 12px 24px;
   box-sizing: border-box;
-  z-index: 2;
-  position: relative;
 }
 
 .hideTable {

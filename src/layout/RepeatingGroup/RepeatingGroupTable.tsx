@@ -212,7 +212,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
                 <RepeatingGroupTableRow
                   className={cn({
                     [classes.editingRow]: isEditingRow,
-                    [classes.onTopOfStickyHeader]: isEditingRow && stickyHeader,
+                    [classes.editRowOnTopOfStickyHeader]: isEditingRow && stickyHeader,
                   })}
                   index={index}
                   getTableNodes={getTableNodes}
@@ -223,7 +223,10 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
                 {isEditingRow && (
                   <Table.Row
                     key={`edit-container-${index}`}
-                    className={classes.editContainerRow}
+                    className={cn(
+                      { [classes.editContainerOnTopOfStickyHeader]: isEditingRow && stickyHeader },
+                      classes.editContainerRow,
+                    )}
                   >
                     <Table.Cell
                       style={{ padding: 0, borderTop: 0 }}
@@ -234,12 +237,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
                           : tableNodes.length + 3 + (displayEditColumn ? 1 : 0) + (displayDeleteColumn ? 1 : 0)
                       }
                     >
-                      {edit?.mode !== 'onlyTable' && (
-                        <RepeatingGroupsEditContainer
-                          editIndex={index}
-                          className={cn({ [classes.onTopOfStickyHeader]: stickyHeader })}
-                        />
-                      )}
+                      {edit?.mode !== 'onlyTable' && <RepeatingGroupsEditContainer editIndex={index} />}
                     </Table.Cell>
                   </Table.Row>
                 )}
