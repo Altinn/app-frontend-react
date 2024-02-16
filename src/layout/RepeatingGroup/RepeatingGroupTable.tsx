@@ -144,6 +144,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
     >
       <Table
         id={`group-${id}-table`}
+        stickyHeader={stickyHeader}
         className={cn(
           { [classes.editingBorder]: isNested, [classes.nestedTable]: isNested },
           classes.repeatingGroupTable,
