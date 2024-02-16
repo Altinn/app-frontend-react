@@ -25,7 +25,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
   const rowsAfter = node.item.rowsAfter;
 
   const container = node.item;
-  const { textResourceBindings, labelSettings, id, edit, minCount } = container;
+  const { textResourceBindings, labelSettings, id, edit, minCount, stickyHeader } = container;
 
   const required = !!minCount && minCount > 0;
 
@@ -207,6 +207,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
                 <RepeatingGroupTableRow
                   className={cn({
                     [classes.editingRow]: isEditingRow,
+                    [classes.onTopOfStickyHeader]: stickyHeader,
                   })}
                   index={index}
                   getTableNodes={getTableNodes}
@@ -228,7 +229,12 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
                           : tableNodes.length + 3 + (displayEditColumn ? 1 : 0) + (displayDeleteColumn ? 1 : 0)
                       }
                     >
-                      {edit?.mode !== 'onlyTable' && <RepeatingGroupsEditContainer editIndex={index} />}
+                      {edit?.mode !== 'onlyTable' && (
+                        <RepeatingGroupsEditContainer
+                          editIndex={index}
+                          className={cn({ [classes.onTopOfStickyHeader]: stickyHeader })}
+                        />
+                      )}
                     </Table.Cell>
                   </Table.Row>
                 )}
