@@ -113,7 +113,7 @@ export function ValidationContext({ children, isCustomReceipt = false }: Props) 
     });
   });
 
-  // Get backend validations expect if we are in a custom receipt
+  // Get backend validations except if we are in a custom receipt
   const lastSaveValidations = FD.useLastSaveValidationIssues();
   const {
     validations: backendValidations,
