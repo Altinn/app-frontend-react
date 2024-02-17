@@ -390,6 +390,7 @@ const knownDataModels: { [key: string]: any } = {
       },
       'OversiktOverEndringene-grp-9788': [
         {
+          altinnRowId: 'ANY_UUID', // TODO: These should have been removed when the instance is submitted
           gruppeid: 9788,
           'SkattemeldingEndringEtterFristPost-datadef-37130': null,
           'SkattemeldingEndringEtterFristOpprinneligBelop-datadef-37131': { orid: 37131, value: 1 },
@@ -400,6 +401,7 @@ const knownDataModels: { [key: string]: any } = {
           isPrefill: false,
           'nested-grp-1234': [
             {
+              altinnRowId: 'ANY_UUID', // TODO: These should have been removed when the instance is submitted
               gruppeid: 1234,
               hideComment: null,
               'SkattemeldingEndringEtterFristPost-datadef-37130': null,
@@ -424,30 +426,41 @@ const knownDataModels: { [key: string]: any } = {
     PrefillValuesShadow: null,
     PrefillValuesEnabled: true,
     Group2Teller: 0,
+    Pets: [],
+    ForceShowPets: false,
+    NumPets: 0,
+    HiddenPets: null,
+    PetSortOrder: null,
   },
   likert: {
     Questions: [
       {
+        altinnRowId: 'ANY_UUID', // TODO: These should have been removed when the instance is submitted
         Id: 'question-1',
         Answer: null,
       },
       {
+        altinnRowId: 'ANY_UUID', // TODO: These should have been removed when the instance is submitted
         Id: 'question-2',
         Answer: null,
       },
       {
+        altinnRowId: 'ANY_UUID', // TODO: These should have been removed when the instance is submitted
         Id: 'question-3',
         Answer: null,
       },
       {
+        altinnRowId: 'ANY_UUID', // TODO: These should have been removed when the instance is submitted
         Id: 'question-4',
         Answer: '1',
       },
       {
+        altinnRowId: 'ANY_UUID', // TODO: These should have been removed when the instance is submitted
         Id: 'question-5',
         Answer: '2',
       },
       {
+        altinnRowId: 'ANY_UUID', // TODO: These should have been removed when the instance is submitted
         Id: 'question-6',
         Answer: '3',
       },

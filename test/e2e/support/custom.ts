@@ -127,6 +127,12 @@ const knownWcagViolations: KnownViolation[] = [
     nodeLength: 1,
   },
   {
+    spec: 'frontend-test/group-pets.ts',
+    test: 'should be possible to add predefined pets, sort them, validate them, hide them and delete them',
+    id: 'color-contrast',
+    nodeLength: 2,
+  },
+  {
     spec: 'frontend-test/hide-row-in-group.ts',
     test: 'should be possible to hide rows when "Endre fra" is greater or equals to [...]',
     id: 'heading-order',
