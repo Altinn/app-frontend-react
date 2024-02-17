@@ -20,7 +20,7 @@ import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 import type { SchemaLookupTool } from 'src/features/datamodel/DataModelSchemaProvider';
 import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { FormDataWriteProxies } from 'src/features/formData/FormDataWriteProxies';
-import type { FormDataContext } from 'src/features/formData/FormDataWriteStateMachine';
+import type { FDSaveResult, FormDataContext } from 'src/features/formData/FormDataWriteStateMachine';
 import type { BackendValidationIssueGroups } from 'src/features/validation';
 import type { IMapping } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
@@ -436,7 +436,7 @@ export const FD = {
     }, [hasUnsavedChangesRef, isLockedByMeRef, isLockedRef, lockId, lockedByRef, rawLock, requestSave, waitForSave]);
 
     const unlock = useCallback(
-      (newModel?: object) => {
+      (saveResult?: FDSaveResult) => {
         if (!isLockedRef.current) {
           window.logWarn(`Form data is not locked, cannot unlock it (requested by ${lockId})`);
         }
@@ -447,7 +447,7 @@ export const FD = {
           return false;
         }
 
-        rawUnlock(newModel);
+        rawUnlock(saveResult);
         return true;
       },
       [isLockedRef, isLockedByMeRef, lockId, lockedByRef, rawUnlock],

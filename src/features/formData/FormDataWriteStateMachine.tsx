@@ -123,11 +123,14 @@ export interface FDRemoveFromListCallback {
   callback: (value: any) => boolean;
 }
 
-export interface FDSaveFinished {
-  patch?: JsonPatch;
-  savedData: object;
+export interface FDSaveResult {
   newDataModel: object;
   validationIssues: BackendValidationIssueGroups | undefined;
+}
+
+export interface FDSaveFinished extends FDSaveResult {
+  patch?: JsonPatch;
+  savedData: object;
 }
 
 export interface FormDataMethods {
@@ -148,7 +151,7 @@ export interface FormDataMethods {
   saveFinished: (props: FDSaveFinished) => void;
   requestManualSave: (setTo?: boolean) => void;
   lock: (lockName: string) => void;
-  unlock: (newModel?: object) => void;
+  unlock: (saveResult?: FDSaveResult) => void;
 }
 
 export type FormDataContext = FormDataState & FormDataMethods;
@@ -351,11 +354,14 @@ function makeActions(
       set((state) => {
         state.controlState.lockedBy = lockName;
       }),
-    unlock: (newDataModel) =>
+    unlock: (saveResult) =>
       set((state) => {
         state.controlState.lockedBy = undefined;
-        if (newDataModel) {
-          processChanges(state, { newDataModel, savedData: state.lastSavedData });
+        if (saveResult?.newDataModel) {
+          processChanges(state, { newDataModel: saveResult.newDataModel, savedData: state.lastSavedData });
+        }
+        if (saveResult?.validationIssues) {
+          state.validationIssues = saveResult.validationIssues;
         }
       }),
   };
