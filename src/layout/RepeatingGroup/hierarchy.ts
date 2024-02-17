@@ -95,8 +95,9 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Repeat
 
         const uuid = formData[rowIndex][ALTINN_ROW_ID];
         if (uuid === undefined) {
-          // TODO: This should be a validation error, not a runtime error.
-          throw new Error(`Repeating group row is missing unique row id: ${item.dataModelBindings.group}[${rowIndex}]`);
+          const key = `${item.dataModelBindings.group}[${rowIndex}]`;
+          window.logErrorOnce(`RepeatingGroup row is missing unique row id in ${key}`);
+          continue;
         }
 
         for (const id of prototype.children) {

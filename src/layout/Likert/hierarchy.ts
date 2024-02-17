@@ -68,8 +68,9 @@ export class LikertHierarchyGenerator extends ComponentHierarchyGenerator<'Liker
 
         const uuid = formData[rowIndex][ALTINN_ROW_ID];
         if (uuid === undefined) {
-          // TODO: This should be a validation error, not a runtime error.
-          throw new Error(`Likert row is missing unique row id: ${item.dataModelBindings.questions}[${rowIndex}]`);
+          const key = `${item.dataModelBindings.questions}[${rowIndex}]`;
+          window.logErrorOnce(`Likert row is missing unique row id in ${key}`);
+          continue;
         }
 
         const childItem = {
