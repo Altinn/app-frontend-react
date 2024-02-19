@@ -127,6 +127,7 @@ export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertCo
                     <Table.HeaderCell
                       key={option.value}
                       id={colLabelId}
+                      className={classes.likertTableHeaderCell}
                     >
                       {lang(option.label)}
                     </Table.HeaderCell>

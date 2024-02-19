@@ -70,6 +70,7 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
               checked={isChecked}
               onChange={handleChange}
               value={option.value}
+              className={classes.likertRadioButton}
               name={rowLabelId}
             />
           </Table.Cell>
