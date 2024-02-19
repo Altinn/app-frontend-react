@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
@@ -14,7 +14,10 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class FileUpload extends FileUploadDef implements ValidateComponent {
-  render = (props: PropsFromGenericComponent<'FileUpload'>): JSX.Element | null => <FileUploadComponent {...props} />;
+  // eslint-disable-next-line react/display-name
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'FileUpload'>>((props, _): JSX.Element | null => (
+    <FileUploadComponent {...props} />
+  ));
 
   renderDefaultValidations(): boolean {
     return false;

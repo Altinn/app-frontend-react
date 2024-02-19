@@ -30,15 +30,13 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateAny, Va
   }
 
   // eslint-disable-next-line react/display-name
-  render = forwardRef<HTMLDivElement, PropsFromGenericComponent<'RepeatingGroup'>>(
-    (props, ref: React.ForwardedRef<HTMLDivElement>): JSX.Element | null => (
-      <RepeatingGroupProvider node={props.node}>
-        <RepeatingGroupsFocusProvider>
-          <RepeatingGroupContainer ref={ref} />
-        </RepeatingGroupsFocusProvider>
-      </RepeatingGroupProvider>
-    ),
-  );
+  render = forwardRef<HTMLDivElement, PropsFromGenericComponent<'RepeatingGroup'>>((props, ref): JSX.Element | null => (
+    <RepeatingGroupProvider node={props.node}>
+      <RepeatingGroupsFocusProvider>
+        <RepeatingGroupContainer ref={ref} />
+      </RepeatingGroupsFocusProvider>
+    </RepeatingGroupProvider>
+  ));
 
   renderSummary({
     onChangeClick,

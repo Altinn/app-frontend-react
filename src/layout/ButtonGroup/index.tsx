@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
 import type { PropsFromGenericComponent } from '..';
@@ -12,7 +12,10 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 export class ButtonGroup extends ButtonGroupDef {
   private _hierarchyGenerator = new ButtonGroupHierarchyGenerator();
 
-  render = (props: PropsFromGenericComponent<'ButtonGroup'>): JSX.Element | null => <ButtonGroupComponent {...props} />;
+  // eslint-disable-next-line react/display-name
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'ButtonGroup'>>((props, _): JSX.Element | null => (
+    <ButtonGroupComponent {...props} />
+  ));
 
   shouldRenderInAutomaticPDF() {
     return false;

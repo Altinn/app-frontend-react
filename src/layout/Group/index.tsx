@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
 import { runAllValidations } from 'src/layout/componentValidation';
@@ -27,7 +27,8 @@ export class Group extends GroupDef implements ValidateAny, ValidateComponent {
     return true;
   }
 
-  render = (props: PropsFromGenericComponent<'Group'>): JSX.Element | null => (
+  // eslint-disable-next-line react/display-name
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Group'>>((props, _): JSX.Element | null => (
     <GroupComponent
       groupNode={props.node}
       renderLayoutNode={(n) => (
@@ -37,7 +38,7 @@ export class Group extends GroupDef implements ValidateAny, ValidateComponent {
         />
       )}
     />
-  );
+  ));
 
   renderSummary({
     onChangeClick,

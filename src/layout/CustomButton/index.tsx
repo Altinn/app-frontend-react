@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
 import { CustomButtonDef } from 'src/layout/CustomButton/config.def.generated';
@@ -7,9 +7,10 @@ import type { PropsFromGenericComponent } from 'src/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class CustomButton extends CustomButtonDef {
-  render = (props: PropsFromGenericComponent<'CustomButton'>): JSX.Element | null => (
+  // eslint-disable-next-line react/display-name
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'CustomButton'>>((props, _): JSX.Element | null => (
     <CustomButtonComponent {...props} />
-  );
+  ));
 
   renderSummaryBoilerplate(): boolean {
     return false;

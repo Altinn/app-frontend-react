@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
 import { SummaryDef } from 'src/layout/Summary/config.def.generated';
@@ -10,13 +10,14 @@ export class Summary extends SummaryDef {
     return true;
   }
 
-  render = (props: PropsFromGenericComponent<'Summary'>): JSX.Element | null => (
+  // eslint-disable-next-line react/display-name
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Summary'>>((props, _): JSX.Element | null => (
     <SummaryComponent
       summaryNode={props.node}
       overrides={props.overrideItemProps}
       ref={props.containerDivRef}
     />
-  );
+  ));
 
   renderSummary(): JSX.Element | null {
     // If the code ever ends up with a Summary component referencing another Summary component, we should not end up

@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 
 import { ImageDef } from 'src/layout/Image/config.def.generated';
 import { ImageComponent } from 'src/layout/Image/ImageComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export class Image extends ImageDef {
-  render = (props: PropsFromGenericComponent<'Image'>): JSX.Element | null => <ImageComponent {...props} />;
+  // eslint-disable-next-line react/display-name
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Image'>>((props, _): JSX.Element | null => (
+    <ImageComponent {...props} />
+  ));
 }

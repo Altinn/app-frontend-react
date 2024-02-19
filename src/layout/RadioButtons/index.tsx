@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
 import { getSelectedValueToText } from 'src/features/options/getSelectedValueToText';
@@ -11,9 +11,10 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class RadioButtons extends RadioButtonsDef {
-  render = (props: PropsFromGenericComponent<'RadioButtons'>): JSX.Element | null => (
+  // eslint-disable-next-line react/display-name
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'RadioButtons'>>((props, _): JSX.Element | null => (
     <RadioButtonContainerComponent {...props} />
-  );
+  ));
 
   getDisplayData(node: LayoutNode<'RadioButtons'>, { langTools, options }: DisplayDataProps): string {
     const value = String(node.getFormData().simpleBinding ?? '');

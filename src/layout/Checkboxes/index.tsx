@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -15,9 +15,10 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Checkboxes extends CheckboxesDef {
-  render = (props: PropsFromGenericComponent<'Checkboxes'>): JSX.Element | null => (
+  // eslint-disable-next-line react/display-name
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Checkboxes'>>((props, _): JSX.Element | null => (
     <CheckboxContainerComponent {...props} />
-  );
+  ));
 
   private getSummaryData(
     node: LayoutNode<'Checkboxes'>,

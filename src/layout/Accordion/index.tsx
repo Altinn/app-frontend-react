@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 
 import { Accordion as AccordionComponent } from 'src/layout/Accordion/Accordion';
 import { AccordionDef } from 'src/layout/Accordion/config.def.generated';
@@ -11,9 +11,10 @@ import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGene
 export class Accordion extends AccordionDef {
   private _hierarchyGenerator = new AccordionHierarchyGenerator();
 
-  render = (props: PropsFromGenericComponent<'Accordion'>): React.JSX.Element | null => (
+  // eslint-disable-next-line react/display-name
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Accordion'>>((props, _): React.JSX.Element | null => (
     <AccordionComponent {...props} />
-  );
+  ));
 
   hierarchyGenerator(): ComponentHierarchyGenerator<'Accordion'> {
     return this._hierarchyGenerator;

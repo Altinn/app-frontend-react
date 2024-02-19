@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 
 import { isAttachmentUploaded } from 'src/features/attachments';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
@@ -14,9 +14,10 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateComponent {
-  render = (props: PropsFromGenericComponent<'FileUploadWithTag'>): JSX.Element | null => (
+  // eslint-disable-next-line react/display-name
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'FileUploadWithTag'>>((props, _): JSX.Element | null => (
     <FileUploadComponent {...props} />
-  );
+  ));
 
   renderDefaultValidations(): boolean {
     return false;

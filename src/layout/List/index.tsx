@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
 import dot from 'dot-object';
@@ -15,7 +15,10 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class List extends ListDef {
-  render = (props: PropsFromGenericComponent<'List'>): JSX.Element | null => <ListComponent {...props} />;
+  // eslint-disable-next-line react/display-name
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'List'>>((props, _): JSX.Element | null => (
+    <ListComponent {...props} />
+  ));
 
   getDisplayData(node: LayoutNode<'List'>): string {
     const formData = node.getFormData();

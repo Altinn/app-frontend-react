@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
 import { formatNumericText } from '@digdir/design-system-react';
@@ -14,7 +14,10 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Input extends InputDef {
-  render = (props: PropsFromGenericComponent<'Input'>): JSX.Element | null => <InputComponent {...props} />;
+  // eslint-disable-next-line react/display-name
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Input'>>((props, _): JSX.Element | null => (
+    <InputComponent {...props} />
+  ));
 
   getDisplayData(node: LayoutNode<'Input'>, { currentLanguage }: DisplayDataProps): string {
     if (!node.item.dataModelBindings?.simpleBinding) {
