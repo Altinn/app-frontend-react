@@ -169,6 +169,7 @@ export const formLayoutSlice = () => {
           takeEvery: (action) => {
             if (!action.payload.focusComponentId) {
               window.scrollTo({ top: 0 });
+              document.getElementById('main-content')?.focus({ preventScroll: true });
             }
           },
           reducer: (state, action) => {
