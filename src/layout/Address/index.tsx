@@ -14,10 +14,11 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Address extends AddressDef implements ValidateComponent {
-  // eslint-disable-next-line react/display-name
-  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Address'>>((props, _): JSX.Element | null => (
-    <AddressComponent {...props} />
-  ));
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Address'>>(
+    function LayoutComponentAddressRender(props, _): JSX.Element | null {
+      return <AddressComponent {...props} />;
+    },
+  );
 
   getDisplayData(node: LayoutNode<'Address'>): string {
     const data = node.getFormData();

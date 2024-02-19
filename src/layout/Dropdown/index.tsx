@@ -11,10 +11,11 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Dropdown extends DropdownDef {
-  // eslint-disable-next-line react/display-name
-  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Dropdown'>>((props, _): JSX.Element | null => (
-    <DropdownComponent {...props} />
-  ));
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Dropdown'>>(
+    function LayoutComponentDropdownRender(props, _): JSX.Element | null {
+      return <DropdownComponent {...props} />;
+    },
+  );
 
   getDisplayData(node: LayoutNode<'Dropdown'>, { langTools, options }: DisplayDataProps): string {
     if (!node.item.dataModelBindings?.simpleBinding) {

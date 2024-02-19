@@ -9,10 +9,11 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Custom extends CustomDef {
-  // eslint-disable-next-line react/display-name
-  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Custom'>>((props, _): JSX.Element | null => (
-    <CustomWebComponent {...props} />
-  ));
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Custom'>>(
+    function LayoutComponentCustomRender(props, _): JSX.Element | null {
+      return <CustomWebComponent {...props} />;
+    },
+  );
 
   getDisplayData(node: LayoutNode<'Custom'>): string {
     const data = node.getFormData();

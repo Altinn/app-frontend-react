@@ -14,10 +14,11 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateComponent {
-  // eslint-disable-next-line react/display-name
-  render = forwardRef<HTMLElement, PropsFromGenericComponent<'FileUploadWithTag'>>((props, _): JSX.Element | null => (
-    <FileUploadComponent {...props} />
-  ));
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'FileUploadWithTag'>>(
+    function LayoutComponentFileUploadWithTagRender(props, _): JSX.Element | null {
+      return <FileUploadComponent {...props} />;
+    },
+  );
 
   renderDefaultValidations(): boolean {
     return false;

@@ -5,8 +5,9 @@ import { HeaderComponent } from 'src/layout/Header/HeaderComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export class Header extends HeaderDef {
-  // eslint-disable-next-line react/display-name
-  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Header'>>((props, _): JSX.Element | null => (
-    <HeaderComponent {...props} />
-  ));
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Header'>>(
+    function LayoutComponentHeaderRender(props, _): JSX.Element | null {
+      return <HeaderComponent {...props} />;
+    },
+  );
 }

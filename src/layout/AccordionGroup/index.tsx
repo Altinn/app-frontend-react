@@ -13,10 +13,11 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 export class AccordionGroup extends AccordionGroupDef {
   private _hierarchyGenerator = new AccordionGroupHierarchyGenerator();
 
-  // eslint-disable-next-line react/display-name
-  render = forwardRef<HTMLElement, PropsFromGenericComponent<'AccordionGroup'>>((props, _): JSX.Element | null => (
-    <AccordionGroupComponent {...props} />
-  ));
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'AccordionGroup'>>(
+    function LayoutComponentAccordionGroupRender(props, _): JSX.Element | null {
+      return <AccordionGroupComponent {...props} />;
+    },
+  );
 
   hierarchyGenerator(): ComponentHierarchyGenerator<'AccordionGroup'> {
     return this._hierarchyGenerator;

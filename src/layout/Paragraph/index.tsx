@@ -5,8 +5,9 @@ import { ParagraphComponent } from 'src/layout/Paragraph/ParagraphComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export class Paragraph extends ParagraphDef {
-  // eslint-disable-next-line react/display-name
-  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Paragraph'>>((props, _): JSX.Element | null => (
-    <ParagraphComponent {...props} />
-  ));
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Paragraph'>>(
+    function LayoutComponentParagraphRender(props, _): JSX.Element | null {
+      return <ParagraphComponent {...props} />;
+    },
+  );
 }

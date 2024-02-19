@@ -27,18 +27,21 @@ export class Group extends GroupDef implements ValidateAny, ValidateComponent {
     return true;
   }
 
-  // eslint-disable-next-line react/display-name
-  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Group'>>((props, _): JSX.Element | null => (
-    <GroupComponent
-      groupNode={props.node}
-      renderLayoutNode={(n) => (
-        <GenericComponent
-          key={n.item.id}
-          node={n}
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Group'>>(
+    function LayoutComponentGroupRender(props, _): JSX.Element | null {
+      return (
+        <GroupComponent
+          groupNode={props.node}
+          renderLayoutNode={(n) => (
+            <GenericComponent
+              key={n.item.id}
+              node={n}
+            />
+          )}
         />
-      )}
-    />
-  ));
+      );
+    },
+  );
 
   renderSummary({
     onChangeClick,

@@ -14,10 +14,11 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Input extends InputDef {
-  // eslint-disable-next-line react/display-name
-  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Input'>>((props, _): JSX.Element | null => (
-    <InputComponent {...props} />
-  ));
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Input'>>(
+    function LayoutComponentInputRender(props, _): JSX.Element | null {
+      return <InputComponent {...props} />;
+    },
+  );
 
   getDisplayData(node: LayoutNode<'Input'>, { currentLanguage }: DisplayDataProps): string {
     if (!node.item.dataModelBindings?.simpleBinding) {

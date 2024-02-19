@@ -5,8 +5,9 @@ import { NavigationButtonsComponent } from 'src/layout/NavigationButtons/Navigat
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export class NavigationButtons extends NavigationButtonsDef {
-  // eslint-disable-next-line react/display-name
-  render = forwardRef<HTMLElement, PropsFromGenericComponent<'NavigationButtons'>>((props, _): JSX.Element | null => (
-    <NavigationButtonsComponent {...props} />
-  ));
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'NavigationButtons'>>(
+    function LayoutComponentNavigationButtonRender(props, _): JSX.Element | null {
+      return <NavigationButtonsComponent {...props} />;
+    },
+  );
 }

@@ -5,8 +5,9 @@ import { InstanceInformationComponent } from 'src/layout/InstanceInformation/Ins
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export class InstanceInformation extends InstanceInformationDef {
-  // eslint-disable-next-line react/display-name
-  render = forwardRef<HTMLElement, PropsFromGenericComponent<'InstanceInformation'>>((props, _): JSX.Element | null => (
-    <InstanceInformationComponent {...props} />
-  ));
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'InstanceInformation'>>(
+    function LayoutComponentInstanceInformationRender(props, _): JSX.Element | null {
+      return <InstanceInformationComponent {...props} />;
+    },
+  );
 }

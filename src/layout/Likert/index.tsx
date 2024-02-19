@@ -26,10 +26,11 @@ export class Likert extends LikertDef implements ValidateAny {
     return true;
   }
 
-  // eslint-disable-next-line react/display-name
-  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Likert'>>((props, _): JSX.Element | null => (
-    <LikertComponent {...props} />
-  ));
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Likert'>>(
+    function LayoutComponentLikertRender(props, _): JSX.Element | null {
+      return <LikertComponent {...props} />;
+    },
+  );
 
   renderSummary({
     onChangeClick,

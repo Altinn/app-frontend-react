@@ -15,10 +15,11 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Checkboxes extends CheckboxesDef {
-  // eslint-disable-next-line react/display-name
-  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Checkboxes'>>((props, _): JSX.Element | null => (
-    <CheckboxContainerComponent {...props} />
-  ));
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Checkboxes'>>(
+    function LayoutComponentCheckboxesRender(props, _): JSX.Element | null {
+      return <CheckboxContainerComponent {...props} />;
+    },
+  );
 
   private getSummaryData(
     node: LayoutNode<'Checkboxes'>,

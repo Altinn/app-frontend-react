@@ -5,8 +5,9 @@ import { NavigationBarComponent } from 'src/layout/NavigationBar/NavigationBarCo
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export class NavigationBar extends NavigationBarDef {
-  // eslint-disable-next-line react/display-name
-  render = forwardRef<HTMLElement, PropsFromGenericComponent<'NavigationBar'>>((props, _): JSX.Element | null => (
-    <NavigationBarComponent {...props} />
-  ));
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'NavigationBar'>>(
+    function LayoutComponentNavigationBarRender(props, _): JSX.Element | null {
+      return <NavigationBarComponent {...props} />;
+    },
+  );
 }

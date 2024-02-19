@@ -6,8 +6,9 @@ import { LinkDef } from 'src/layout/Link/config.def.generated';
 import { LinkComponent } from 'src/layout/Link/LinkComponent';
 
 export class Link extends LinkDef {
-  // eslint-disable-next-line react/display-name
-  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Link'>>((props, _): JSX.Element | null => (
-    <LinkComponent {...props} />
-  ));
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Link'>>(
+    function LayoutComponentLinkRender(props, _): JSX.Element | null {
+      return <LinkComponent {...props} />;
+    },
+  );
 }

@@ -5,8 +5,9 @@ import { AttachmentListDef } from 'src/layout/AttachmentList/config.def.generate
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export class AttachmentList extends AttachmentListDef {
-  // eslint-disable-next-line react/display-name
-  render = forwardRef<HTMLElement, PropsFromGenericComponent<'AttachmentList'>>((props, _): JSX.Element | null => (
-    <AttachmentListComponent {...props} />
-  ));
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'AttachmentList'>>(
+    function LayoutComponentAttachmentListRender(props, _): JSX.Element | null {
+      return <AttachmentListComponent {...props} />;
+    },
+  );
 }

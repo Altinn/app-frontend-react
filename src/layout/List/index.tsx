@@ -15,10 +15,11 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class List extends ListDef {
-  // eslint-disable-next-line react/display-name
-  render = forwardRef<HTMLElement, PropsFromGenericComponent<'List'>>((props, _): JSX.Element | null => (
-    <ListComponent {...props} />
-  ));
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'List'>>(
+    function LayoutComponentListRender(props, _): JSX.Element | null {
+      return <ListComponent {...props} />;
+    },
+  );
 
   getDisplayData(node: LayoutNode<'List'>): string {
     const formData = node.getFormData();

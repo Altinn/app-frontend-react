@@ -7,10 +7,11 @@ import type { PropsFromGenericComponent } from 'src/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class CustomButton extends CustomButtonDef {
-  // eslint-disable-next-line react/display-name
-  render = forwardRef<HTMLElement, PropsFromGenericComponent<'CustomButton'>>((props, _): JSX.Element | null => (
-    <CustomButtonComponent {...props} />
-  ));
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'CustomButton'>>(
+    function LayoutComponentCustomButtonRender(props, _): JSX.Element | null {
+      return <CustomButtonComponent {...props} />;
+    },
+  );
 
   renderSummaryBoilerplate(): boolean {
     return false;

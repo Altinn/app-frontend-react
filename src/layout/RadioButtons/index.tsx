@@ -11,10 +11,11 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class RadioButtons extends RadioButtonsDef {
-  // eslint-disable-next-line react/display-name
-  render = forwardRef<HTMLElement, PropsFromGenericComponent<'RadioButtons'>>((props, _): JSX.Element | null => (
-    <RadioButtonContainerComponent {...props} />
-  ));
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'RadioButtons'>>(
+    function LayoutComponentRadioButtonsRender(props, _): JSX.Element | null {
+      return <RadioButtonContainerComponent {...props} />;
+    },
+  );
 
   getDisplayData(node: LayoutNode<'RadioButtons'>, { langTools, options }: DisplayDataProps): string {
     const value = String(node.getFormData().simpleBinding ?? '');

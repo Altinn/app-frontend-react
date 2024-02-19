@@ -10,10 +10,11 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Map extends MapDef {
-  // eslint-disable-next-line react/display-name
-  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Map'>>((props, _): JSX.Element | null => (
-    <MapComponent {...props} />
-  ));
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'Map'>>(
+    function LayoutComponentMapRender(props, _): JSX.Element | null {
+      return <MapComponent {...props} />;
+    },
+  );
 
   getDisplayData(node: LayoutNode<'Map'>): string {
     if (!node.item.dataModelBindings?.simpleBinding) {

@@ -10,10 +10,11 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class TextArea extends TextAreaDef {
-  // eslint-disable-next-line react/display-name
-  render = forwardRef<HTMLElement, PropsFromGenericComponent<'TextArea'>>((props, _): JSX.Element | null => (
-    <TextAreaComponent {...props} />
-  ));
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'TextArea'>>(
+    function LayoutComponentTextAreaRender(props, _): JSX.Element | null {
+      return <TextAreaComponent {...props} />;
+    },
+  );
 
   getDisplayData(node: LayoutNode<'TextArea'>): string {
     if (!node.item.dataModelBindings?.simpleBinding) {

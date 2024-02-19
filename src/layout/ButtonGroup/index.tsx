@@ -12,10 +12,11 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 export class ButtonGroup extends ButtonGroupDef {
   private _hierarchyGenerator = new ButtonGroupHierarchyGenerator();
 
-  // eslint-disable-next-line react/display-name
-  render = forwardRef<HTMLElement, PropsFromGenericComponent<'ButtonGroup'>>((props, _): JSX.Element | null => (
-    <ButtonGroupComponent {...props} />
-  ));
+  render = forwardRef<HTMLElement, PropsFromGenericComponent<'ButtonGroup'>>(
+    function LayoutComponentButtonGroupRender(props, _): JSX.Element | null {
+      return <ButtonGroupComponent {...props} />;
+    },
+  );
 
   shouldRenderInAutomaticPDF() {
     return false;
