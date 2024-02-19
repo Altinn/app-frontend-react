@@ -365,6 +365,7 @@ const DeleteElement = ({
       onClick={() => handleDelete(index)}
       aria-label={`${deleteButtonText}-${firstCellData}`}
       data-testid='delete-button'
+      icon={!children}
       className={classes.tableButton}
     >
       {children}
