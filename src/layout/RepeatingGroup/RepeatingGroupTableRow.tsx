@@ -271,7 +271,7 @@ export function RepeatingGroupTableRow({
                 variant='tertiary'
                 color='second'
                 size='small'
-                icon={!isEditingRow || mobileViewSmall}
+                icon={!isEditingRow && mobileViewSmall}
                 onClick={() => toggleEditing(index)}
                 aria-label={`${editButtonText} ${firstCellData}`}
                 data-testid='edit-button'
