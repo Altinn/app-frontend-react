@@ -85,6 +85,7 @@ export function FileTableButtons({ node, attachment, mobileView, editWindowIsOpe
         onClick={() => (showEditButton ? handleEdit(index) : handleDelete())}
         data-testid={`attachment-delete-${index}`}
         aria-label={langAsString(showEditButton ? 'general.edit_alt' : 'general.delete')}
+        icon={mobileView}
       >
         {!mobileView && <Lang id={showEditButton ? 'general.edit_alt' : 'form_filler.file_uploader_list_delete'} />}
         {showEditButton ? <PencilIcon aria-hidden={true} /> : <TrashIcon aria-hidden={true} />}
