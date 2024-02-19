@@ -13,7 +13,8 @@ import { useLaxCurrentDataModelSchemaLookup } from 'src/features/datamodel/DataM
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
-import { useLaxProcessData } from 'src/features/instance/ProcessContext';
+import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useAllowAnonymous } from 'src/features/stateless/getAllowAnonymous';
 import {
   getAnonymousStatelessDataModelUrl,
@@ -29,11 +30,11 @@ export type AsSchema<T> = {
 
 export function useCurrentDataModelGuid() {
   const instance = useLaxInstanceData();
-  const process = useLaxProcessData();
   const application = useApplicationMetadata();
   const layoutSets = useLayoutSets();
+  const taskId = useProcessTaskId();
 
-  return getCurrentTaskDataElementId({ application, instance, process, layoutSets });
+  return getCurrentTaskDataElementId({ application, instance, taskId, layoutSets });
 }
 
 export function useCurrentDataModelUrl() {
@@ -43,6 +44,7 @@ export function useCurrentDataModelUrl() {
   const dataType = useDataTypeByLayoutSetId(layoutSetId);
   const dataElementUuid = useCurrentDataModelGuid();
   const isStateless = useIsStatelessApp();
+  const language = useCurrentLanguage();
 
   if (isStateless && isAnonymous && dataType) {
     return getAnonymousStatelessDataModelUrl(dataType);
@@ -53,7 +55,7 @@ export function useCurrentDataModelUrl() {
   }
 
   if (instance?.id && dataElementUuid) {
-    return getDataElementUrl(instance.id, dataElementUuid);
+    return getDataElementUrl(instance.id, dataElementUuid, language);
   }
 
   return undefined;
@@ -63,6 +65,7 @@ export function useDataModelUrl(dataType: string | undefined) {
   const isAnonymous = useAllowAnonymous();
   const isStateless = useIsStatelessApp();
   const instance = useLaxInstanceData();
+  const language = useCurrentLanguage();
 
   if (isStateless && isAnonymous && dataType) {
     return getAnonymousStatelessDataModelUrl(dataType);
@@ -75,7 +78,7 @@ export function useDataModelUrl(dataType: string | undefined) {
   if (instance?.id && dataType) {
     const uuid = getFirstDataElementId(instance, dataType);
     if (uuid) {
-      return getDataElementUrl(instance.id, uuid);
+      return getDataElementUrl(instance.id, uuid, language);
     }
   }
 
@@ -83,13 +86,14 @@ export function useDataModelUrl(dataType: string | undefined) {
 }
 
 export function useCurrentDataModelName() {
-  const process = useLaxProcessData();
   const application = useApplicationMetadata();
   const layoutSets = useLayoutSets();
+  const taskId = useProcessTaskId();
+
   return getCurrentDataTypeForApplication({
     application,
-    process,
     layoutSets,
+    taskId,
   });
 }
 

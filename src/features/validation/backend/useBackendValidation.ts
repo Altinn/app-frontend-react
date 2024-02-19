@@ -7,6 +7,7 @@ import type { BackendValidationIssueGroups, BackendValidations, BackendValidator
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { mapValidationIssueToFieldValidation } from 'src/features/validation/backend/backendUtils';
 
 interface RetVal {
@@ -15,19 +16,27 @@ interface RetVal {
   initialValidationDone: boolean;
 }
 
-export function useBackendValidation(fromLastSave: BackendValidationIssueGroups | undefined): RetVal {
+interface UseBackendValidationProps {
+  fromLastSave: BackendValidationIssueGroups | undefined;
+  enabled?: boolean;
+}
+
+export function useBackendValidation({ fromLastSave, enabled = true }: UseBackendValidationProps): RetVal {
   /**
    * Run full validation initially
    */
   const { fetchBackendValidations } = useAppQueries();
   const instanceId = useLaxInstance()?.instanceId;
   const currentDataElementId = useCurrentDataModelGuid();
+  const currentLanguage = useCurrentLanguage();
 
   const { data: initialValidations } = useQuery({
+    cacheTime: 0,
     queryKey: ['validation', instanceId, currentDataElementId],
+    enabled,
     queryFn: () =>
       instanceId?.length && currentDataElementId?.length
-        ? fetchBackendValidations(instanceId, currentDataElementId)
+        ? fetchBackendValidations(instanceId, currentDataElementId, currentLanguage)
         : [],
   });
 
