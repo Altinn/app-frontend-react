@@ -129,7 +129,7 @@ export const useNavigatePage = () => {
        * done so that the focus of a screen reader user will not be placed at random
        */
       await promisify(() => navigate(url, { replace }))();
-      if (options?.shouldFocusComponent === false) {
+      if (options?.shouldFocusComponent !== true) {
         document.getElementById('main-content')?.focus({ preventScroll: true });
       }
     },
