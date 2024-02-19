@@ -22,7 +22,7 @@ import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator
 export function RepeatingGroupTable(): React.JSX.Element | null {
   const mobileView = useIsMobileOrTablet();
   const { node, isEditing, visibleRows } = useRepeatingGroup();
-  const { textResourceBindings, labelSettings, id, edit, minCount } = node.item;
+  const { textResourceBindings, labelSettings, id, edit, minCount, stickyHeader } = node.item;
   const required = !!minCount && minCount > 0;
 
   const columnSettings = node.item.tableColumns
@@ -98,8 +98,13 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
     >
       <Table
         id={`group-${id}-table`}
+        stickyHeader={stickyHeader}
         className={cn(
-          { [classes.editingBorder]: isNested, [classes.nestedTable]: isNested },
+          {
+            [classes.editingBorder]: isNested,
+            [classes.nestedTable]: isNested,
+            [classes.nestedNonSticky]: isNested && !stickyHeader,
+          },
           classes.repeatingGroupTable,
         )}
         // If the list is empty, the border of the table will be visible as a line above
@@ -161,6 +166,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
                 <RepeatingGroupTableRow
                   className={cn({
                     [classes.editingRow]: isEditingRow,
+                    [classes.editRowOnTopOfStickyHeader]: isEditingRow && stickyHeader,
                   })}
                   uuid={row.uuid}
                   getTableNodes={getTableNodes}
@@ -171,7 +177,10 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
                 {isEditingRow && (
                   <Table.Row
                     key={`edit-container-${row.uuid}`}
-                    className={classes.editContainerRow}
+                    className={cn(
+                      { [classes.editContainerOnTopOfStickyHeader]: isEditingRow && stickyHeader },
+                      classes.editContainerRow,
+                    )}
                   >
                     <Table.Cell
                       style={{ padding: 0, borderTop: 0 }}
