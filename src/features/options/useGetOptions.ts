@@ -72,6 +72,9 @@ export interface OptionsResult<T extends ValueType> {
   // options are always fetched on page load, but it can be true if the options are fetched dynamically based on
   // mapping or query parameters. In those cases you most likely want to render a spinner.
   isFetching: boolean;
+
+  // Whether there was an error fetching the options from the API. If this is true, you should probably render the unknown error page
+  isError: boolean;
 }
 
 interface EffectProps<T extends ValueType> {
@@ -115,7 +118,7 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
   const value = formData.simpleBinding ?? '';
   const sourceOptions = useSourceOptions({ source, node });
   const staticOptions = useMemo(() => (optionsId ? undefined : castOptionsToStrings(options)), [options, optionsId]);
-  const { data: fetchedOptions, isFetching } = useGetOptionsQuery(optionsId, mapping, queryParameters, secure);
+  const { data: fetchedOptions, isFetching, isError } = useGetOptionsQuery(optionsId, mapping, queryParameters, secure);
   const { langAsString } = useLanguage();
   const selectedLanguage = useCurrentLanguage();
 
@@ -203,6 +206,7 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
     setData,
     options: alwaysOptions,
     isFetching: isFetching || !calculatedOptions,
+    isError,
   };
 }
 /**
