@@ -47,16 +47,6 @@ function isObject(value: any): value is object {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function isScalarOrMissing(value: any): value is string | number | boolean | null | undefined {
-  return (
-    value === null ||
-    value === undefined ||
-    typeof value === 'string' ||
-    typeof value === 'number' ||
-    typeof value === 'boolean'
-  );
-}
-
 function compareAny(props: CompareProps<any>) {
   const { prev, next } = props;
   if (isObject(prev) && isObject(next)) {
@@ -110,12 +100,9 @@ function isSameRow(left: any, right: any): boolean {
  * even if it looks like it at a glance.
  */
 function compareArrays({ prev, next, current, hasCurrent, patch, path }: CompareProps<any[]>) {
-  const realPrev = [...prev];
-  const realNext = [...next];
-
-  const diff = getPatch(realPrev, realNext, isSameRow);
+  const diff = getPatch(prev, next, isSameRow);
   const localPatch: JsonPatch = [];
-  const arrayAfterChanges = [...realPrev];
+  const arrayAfterChanges = [...prev];
   for (const part of diff) {
     const { type, newPos: nextPos, oldPos: prevPos, items } = part;
     if (type === 'add') {
@@ -145,7 +132,7 @@ function compareArrays({ prev, next, current, hasCurrent, patch, path }: Compare
   if (localPatch.length) {
     if (!hasCurrent) {
       // Always add a test first to make sure the original array is still the same as the one we're changing
-      patch.push({ op: 'test', path: pointer(path), value: realPrev });
+      patch.push({ op: 'test', path: pointer(path), value: prev });
     }
     patch.push(...localPatch);
   }
@@ -154,8 +141,14 @@ function compareArrays({ prev, next, current, hasCurrent, patch, path }: Compare
   // are similar enough, it doesn't check that they're entirely equal.
   const childPatches: JsonPatch = [];
   for (const [index, prevItem] of arrayAfterChanges.entries()) {
-    const nextItem = realNext[index];
+    const nextItem = next[index];
     const currentItem = Array.isArray(current) ? current[index] : undefined;
+    if (hasCurrent && currentItem === undefined) {
+      // The array item that the backend made changes to have been deleted from the frontend, so we don't need to
+      // compare it to the current model. A later PATCH from app-frontend will delete the row.
+      continue;
+    }
+
     compareAny({
       prev: prevItem,
       next: nextItem,
@@ -183,7 +176,6 @@ function compareValues({ prev, next, hasCurrent, current, patch, path }: Compare
     }
     if (Array.isArray(current) && Array.isArray(next)) {
       // Add all the array items form the next (backend) array that are missing from the current (frontend) array
-      // patch.push({ op: 'add', path: pointer([...path, '-']), value: next[i] });
       for (const item of next || []) {
         patch.push({ op: 'add', path: pointer([...path, '-']), value: item });
       }
@@ -192,12 +184,12 @@ function compareValues({ prev, next, hasCurrent, current, patch, path }: Compare
     if (isObject(current) && isObject(next)) {
       return compareObjects({ prev: {}, next, hasCurrent, current, patch, path });
     }
-    if (!isScalarOrMissing(current) || !isScalarOrMissing(next)) {
-      // TODO: Investigate these cases and possibly log wantings/notices about them
-      return;
-    }
 
-    // Do not overwrite changes that have been made to the current object since the next object was created
+    // Do not overwrite changes that have been made to the current object since the next object was created.
+    // This way we'll possibly overwrite changes made by other users (or the backend), but we'll do that in
+    // the next request. most times this will happen is when the user has been editing the form after the
+    // save request started (and before the response was returned), and as long as the ProcessDataWrite code
+    // on the backend that potentially makes changes to the code is idempotent, this should be fine.
     return;
   }
 
