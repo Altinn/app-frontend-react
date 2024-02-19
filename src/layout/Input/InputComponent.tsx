@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { NumericFormat, PatternFormat } from 'react-number-format';
 
 import { SearchField } from '@altinn/altinn-design-system';
@@ -38,9 +38,6 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
 
   const reactNumberFormatConfig = useMapToReactNumberConfig(formatting as IInputFormatting | undefined, formValue);
   const ariaLabel = overrideDisplay?.renderedInTable === true ? langAsString(textResourceBindings?.title) : undefined;
-
-  const [localValue, setLocalValue] = useState<string>(formValue);
-
   const [inputKey, rerenderInput] = useRerender('input');
 
   const onBlur = useCallback(() => {
@@ -58,6 +55,7 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
     autoComplete: autocomplete,
     characterLimit: !readOnly ? characterLimit : undefined,
     role: 'textbox',
+    id,
     readOnly,
     isValid,
     required,
@@ -74,6 +72,7 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
         disabled={readOnly}
         aria-label={ariaLabel}
         aria-describedby={textResourceBindings?.description ? `description-${id}` : undefined}
+        data-testid={`${id}-${variant}`}
       />
     );
   }
@@ -82,14 +81,12 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
     return (
       <Textfield
         key={inputKey}
-        required={required}
-        readOnly={readOnly}
-        aria-label={ariaLabel}
         value={formValue}
-        aria-describedby={textResourceBindings?.description ? `description-${id}` : undefined}
         onChange={(event) => {
           setValue('simpleBinding', event.target.value);
         }}
+        data-testid={`${id}-${variant}`}
+        {...commonProps}
       />
     );
   }
@@ -102,6 +99,7 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
           setValue('simpleBinding', values.value);
         }}
         customInput={Textfield as React.ComponentType}
+        data-testid={`${id}-formatted-number-${variant}`}
         {...reactNumberFormatConfig.number}
         {...commonProps}
       />
@@ -112,11 +110,11 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
     return (
       <NumericFormat
         key={inputKey}
-        value={localValue}
+        value={formValue}
         onValueChange={(values, sourceInfo) => {
-          if (sourceInfo.source !== 'prop') {
-            setLocalValue(values.value);
-          }
+          // if (sourceInfo.source !== 'prop') {
+          //   setLocalValue(values.value);
+          // }
           setValue('simpleBinding', values.value);
         }}
         onPaste={(event) => {
@@ -127,9 +125,11 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
            *  */
           const pastedText = event.clipboardData.getData('Text');
           event.preventDefault();
-          setLocalValue(pastedText);
+          // setLocalValue(pastedText);
+          setValue('simpleBinding', pastedText);
         }}
         customInput={Textfield as React.ComponentType}
+        data-testid={`${id}-formatted-number-${variant}`}
         {...reactNumberFormatConfig.number}
         {...commonProps}
       />
