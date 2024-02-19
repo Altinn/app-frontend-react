@@ -28,12 +28,11 @@ export function AltinnAttachment({ attachments, id, title }: IAltinnAttachmentPr
     <List.Root
       id={id}
       data-testid='attachment-list'
-      className={classes.attachmentList}
     >
-      <List.Unordered>
-        <List.Heading>
-          <Lang id={title} />
-        </List.Heading>
+      <List.Heading>
+        <Lang id={title} />
+      </List.Heading>
+      <List.Unordered className={classes.attachmentList}>
         {filteredAndSortedAttachments?.map((attachment, index) => (
           <List.Item key={index}>
             <Link
