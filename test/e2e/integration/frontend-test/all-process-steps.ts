@@ -262,6 +262,7 @@ const knownDataModels: { [key: string]: any } = {
     Sender: null,
     SomeNumberValue: null,
     IsSomeValue: null,
+    GwTargetTask: 'Task_2',
   },
   'ServiceModel-test': {
     skjemanummer: 1533,
