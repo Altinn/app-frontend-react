@@ -158,7 +158,7 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
         'queryParameters' in node.item ? `\nqueryParameters: ${JSON.stringify(node.item.queryParameters)}` : '';
       const secure = 'secure' in node.item ? `\nsecure: ${node.item.secure}` : '';
 
-      window.logError(
+      window.logErrorOnce(
         `Failed to fetch options for node ${node.item.id}${optionsId}${mapping}${queryParameters}${secure}`,
       );
     }
