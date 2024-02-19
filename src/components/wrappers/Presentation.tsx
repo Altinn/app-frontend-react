@@ -111,6 +111,7 @@ export const PresentationComponent = (props: IPresentationProvidedProps) => {
         <section
           id='main-content'
           className={classes.modal}
+          tabIndex={-1}
         >
           <Header {...props} />
           <div className={classes.modalBody}>{props.children}</div>
