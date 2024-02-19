@@ -160,15 +160,6 @@ export function AllOptionsProvider({ children }: PropsWithChildren) {
           setNodeOptions(node.item.id, options);
         }}
         onError={() => {
-          const optionsId = 'optionsId' in node.item ? `\noptionsId: ${node.item.optionsId}` : '';
-          const mapping = 'mapping' in node.item ? `\nmapping: ${JSON.stringify(node.item.mapping)}` : '';
-          const queryParameters =
-            'queryParameters' in node.item ? `\nqueryParameters: ${JSON.stringify(node.item.queryParameters)}` : '';
-          const secure = 'secure' in node.item ? `\nsecure: ${node.item.secure}` : '';
-
-          window.logError(
-            `Failed to fetch options for node ${node.item.id}${optionsId}${mapping}${queryParameters}${secure}`,
-          );
           setError(true);
         }}
       />

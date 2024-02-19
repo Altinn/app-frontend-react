@@ -149,6 +149,21 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
     staticOptions,
   ]);
 
+  // Log error if fetching options failed
+  useEffect(() => {
+    if (isError) {
+      const optionsId = 'optionsId' in node.item ? `\noptionsId: ${node.item.optionsId}` : '';
+      const mapping = 'mapping' in node.item ? `\nmapping: ${JSON.stringify(node.item.mapping)}` : '';
+      const queryParameters =
+        'queryParameters' in node.item ? `\nqueryParameters: ${JSON.stringify(node.item.queryParameters)}` : '';
+      const secure = 'secure' in node.item ? `\nsecure: ${node.item.secure}` : '';
+
+      window.logError(
+        `Failed to fetch options for node ${node.item.id}${optionsId}${mapping}${queryParameters}${secure}`,
+      );
+    }
+  }, [isError, node.item]);
+
   const alwaysOptions = calculatedOptions || defaultOptions;
 
   const downstreamParameters: string = fetchedOptions?.headers['altinn-downstreamparameters'];
