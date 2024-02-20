@@ -126,6 +126,7 @@ export function* fetchLayoutSaga(): SagaIterator {
       FormLayoutActions.updateCurrentView({
         newView: firstLayoutKey,
         skipPageCaching: true,
+        skipFocusMainContent: true,
       }),
     );
   } catch (error) {
