@@ -173,16 +173,12 @@ function makeActions(
     } else {
       state.lastSavedData = structuredClone(savedData);
     }
-    const result = !deepEqual(state.currentData, state.lastSavedData);
     state.hasUnsavedChanges = !deepEqual(state.currentData, state.lastSavedData);
-    console.log('debug, finished save', result);
   }
 
   function debounce(state: FormDataContext) {
     if (deepEqual(state.debouncedCurrentData, state.currentData)) {
-      const result = !deepEqual(state.currentData, state.lastSavedData);
-      state.hasUnsavedChanges = result;
-      console.log('debug, debounce aborted', result);
+      state.hasUnsavedChanges = !deepEqual(state.currentData, state.lastSavedData);
       state.debouncedCurrentData = state.currentData;
       return;
     }
@@ -193,9 +189,7 @@ function makeActions(
     }
 
     state.debouncedCurrentData = state.currentData;
-    const result = !deepEqual(state.debouncedCurrentData, state.lastSavedData);
-    state.hasUnsavedChanges = result;
-    console.log('debug, debounce successful', result);
+    state.hasUnsavedChanges = !deepEqual(state.debouncedCurrentData, state.lastSavedData);
   }
 
   function setValue(props: { path: string; newValue: FDLeafValue; state: FormDataState & FormDataMethods }) {
@@ -213,7 +207,6 @@ function makeActions(
         dot.str(path, convertedValue, state.currentData);
       }
     }
-    state.hasUnsavedChanges = state.currentData !== state.lastSavedData;
   }
 
   return {
@@ -225,14 +218,10 @@ function makeActions(
     saveStarted: () =>
       set((state) => {
         state.controlState.isSaving = true;
-        console.log('debug, save started');
       }),
     cancelSave: () =>
       set((state) => {
         state.controlState.isSaving = false;
-        const result = !deepEqual(state.currentData, state.lastSavedData);
-        state.hasUnsavedChanges = result;
-        console.log('debug, cancelSave, result:', result);
       }),
     saveFinished: (props) =>
       set((state) => {
@@ -249,7 +238,7 @@ function makeActions(
           return;
         }
 
-        console.log('debug, setting leaf value', path, newValue);
+        state.hasUnsavedChanges = true;
         setDebounceTimeout(state, rest);
         setValue({ newValue, path, state });
       }),
@@ -264,24 +253,24 @@ function makeActions(
             continue;
           }
 
+          state.hasUnsavedChanges = true;
           if (Array.isArray(existingValue)) {
             existingValue.push(newValue);
           } else {
             dot.str(path, [newValue], model);
           }
-          state.hasUnsavedChanges = state.currentData !== state.lastSavedData;
         }
       }),
     appendToList: ({ path, newValue }) =>
       set((state) => {
         for (const model of [state.currentData, state.debouncedCurrentData]) {
           const existingValue = dot.pick(path, model);
+          state.hasUnsavedChanges = true;
           if (Array.isArray(existingValue)) {
             existingValue.push(newValue);
           } else {
             dot.str(path, [newValue], model);
           }
-          state.hasUnsavedChanges = state.currentData !== state.lastSavedData;
         }
       }),
     removeIndexFromList: ({ path, index }) =>
@@ -292,8 +281,8 @@ function makeActions(
             continue;
           }
 
+          state.hasUnsavedChanges = true;
           existingValue.splice(index, 1);
-          state.hasUnsavedChanges = state.currentData !== state.lastSavedData;
         }
       }),
     removeValueFromList: ({ path, value }) =>
@@ -304,8 +293,8 @@ function makeActions(
             continue;
           }
 
+          state.hasUnsavedChanges = true;
           existingValue.splice(existingValue.indexOf(value), 1);
-          state.hasUnsavedChanges = state.currentData !== state.lastSavedData;
         }
       }),
 
@@ -322,7 +311,7 @@ function makeActions(
         }
         if (changesFound) {
           setDebounceTimeout(state, rest);
-          state.hasUnsavedChanges = state.currentData !== state.lastSavedData;
+          state.hasUnsavedChanges = true;
         }
       }),
     requestManualSave: (setTo = true) =>
