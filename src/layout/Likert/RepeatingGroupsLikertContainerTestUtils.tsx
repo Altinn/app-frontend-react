@@ -254,28 +254,23 @@ export function ContainerTester(props: { id: string }) {
 }
 
 export const validateTableLayout = (questions: IQuestion[], options: IOption[]) => {
-  screen.getByRole('table');
+  screen.getByRole('group');
 
   for (const option of defaultMockOptions) {
-    const columnHeader = screen.getByRole('columnheader', {
-      name: new RegExp(option.label),
-    });
-    expect(columnHeader).toBeInTheDocument();
+    const allElements = screen.getAllByRole('radio', { name: option.label });
+    for (const element of allElements) {
+      expect(element).toBeInTheDocument();
+    }
   }
 
   validateRadioLayout(questions, options);
 };
 
-export const validateRadioLayout = (questions: IQuestion[], options: IOption[], mobileView = false) => {
-  if (mobileView) {
-    expect(screen.getAllByRole('radiogroup')).toHaveLength(questions.length);
-  } else {
-    // Header and questions
-    expect(screen.getAllByRole('row')).toHaveLength(questions.length + 1);
-  }
+export const validateRadioLayout = (questions: IQuestion[], options: IOption[]) => {
+  expect(screen.getAllByRole('radiogroup')).toHaveLength(questions.length);
 
   for (const question of questions) {
-    const row = screen.getByRole(mobileView ? 'radiogroup' : 'row', {
+    const row = screen.getByRole('radiogroup', {
       name: question.Question,
     });
 

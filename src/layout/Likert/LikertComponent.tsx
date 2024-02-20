@@ -1,10 +1,10 @@
 import React, { forwardRef } from 'react';
 import type { Ref } from 'react';
 
-import { Table } from '@digdir/design-system-react';
+import { Radio, Table } from '@digdir/design-system-react';
 import { Typography } from '@material-ui/core';
 
-import { RadioButton } from 'src/components/form/RadioButton';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { LayoutStyle } from 'src/layout/common.generated';
 import classes from 'src/layout/Likert/LikertComponent.module.css';
 import { ControlledRadioGroup } from 'src/layout/RadioButtons/ControlledRadioGroup';
@@ -38,9 +38,9 @@ LikertComponent.displayName = 'LikertComponent';
 const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroupProps>((props, ref) => {
   const { node, componentValidations, legend } = props;
   const { selected, handleChange, calculatedOptions, handleBlur, fetchingOptions } = useRadioButtons(props);
+  const { langAsString } = useLanguage();
 
   const id = node.item.id;
-  const groupContainerId = node.closest((n) => n.type === 'Group')?.item.id;
   const RenderLegend = legend;
   const rowLabelId = `row-label-${id}`;
 
@@ -50,6 +50,7 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
       data-componentid={node.item.id}
       data-is-loading={fetchingOptions ? 'true' : 'false'}
       ref={ref}
+      role='radiogroup'
     >
       <Table.Cell id={rowLabelId}>
         <Typography component={'div'}>
@@ -57,22 +58,22 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
           {renderValidationMessagesForComponent(componentValidations?.simpleBinding, id)}
         </Typography>
       </Table.Cell>
-      {calculatedOptions?.map((option, colIndex) => {
-        const colLabelId = `${groupContainerId}-likert-columnheader-${colIndex}`;
+      {calculatedOptions?.map((option) => {
         const isChecked = selected === option.value;
         return (
           <Table.Cell
             key={option.value}
             onBlur={handleBlur}
           >
-            <RadioButton
-              aria-labelledby={`${rowLabelId} ${colLabelId}`}
+            <Radio
               checked={isChecked}
               onChange={handleChange}
               value={option.value}
               className={classes.likertRadioButton}
               name={rowLabelId}
-            />
+            >
+              <span className='sr-only'>{langAsString(option.label)}</span>
+            </Radio>
           </Table.Cell>
         );
       })}
