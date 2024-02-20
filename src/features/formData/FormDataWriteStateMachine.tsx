@@ -39,12 +39,6 @@ export interface FormDataState {
   // model when saving. You probably don't need to use these values directly unless you know what you're doing.
   lastSavedData: object;
 
-  // Simple flag to track whether there are any unsaved changes in the data model. At every debounce, this will
-  // compare the current data model against the last saved data model, and as soon as users are typing into the form
-  // this value will be set to true (although it may flip back to false when debouncing, if the value stays the same
-  // as what we have saved to the server).
-  hasUnsavedChanges: boolean;
-
   // This contains the validation issues we receive from the server last time we saved the data model.
   validationIssues: BackendValidationIssueGroups | undefined;
 
@@ -155,6 +149,32 @@ function makeActions(
     state.controlState.debounceTimeout = change.debounceTimeout ?? DEFAULT_DEBOUNCE_TIMEOUT;
   }
 
+  /**
+   * Deduplicate the current data model and the debounced data model. This is used to prevent unnecessary
+   * copies of the data model when the content inside them is the same. We do this when debouncing and saving,
+   * as deepEqual is a fairly expensive operation, and the object references has to be the same for hasUnsavedChanges
+   * to work properly.
+   */
+  function deduplicateModels(state: FormDataContext) {
+    const models = [
+      { key: 'currentData', model: state.currentData },
+      { key: 'debouncedCurrentData', model: state.debouncedCurrentData },
+      { key: 'lastSavedData', model: state.lastSavedData },
+    ];
+
+    for (const modelA of models) {
+      for (const modelB of models) {
+        if (modelA.model === modelB.model) {
+          continue;
+        }
+        if (deepEqual(modelA.model, modelB.model)) {
+          state[modelB.key] = modelA.model;
+          modelB.model = modelA.model;
+        }
+      }
+    }
+  }
+
   function processChanges(
     state: FormDataContext,
     { newDataModel, savedData }: Pick<FDSaveFinished, 'newDataModel' | 'patch' | 'savedData'>,
@@ -173,17 +193,13 @@ function makeActions(
     } else {
       state.lastSavedData = structuredClone(savedData);
     }
-    const result = !deepEqual(state.currentData, state.lastSavedData);
-    state.hasUnsavedChanges = !deepEqual(state.currentData, state.lastSavedData);
-    console.log('debug, finished save', result);
+    deduplicateModels(state);
   }
 
   function debounce(state: FormDataContext) {
     if (deepEqual(state.debouncedCurrentData, state.currentData)) {
-      const result = !deepEqual(state.currentData, state.lastSavedData);
-      state.hasUnsavedChanges = result;
-      console.log('debug, debounce aborted', result);
       state.debouncedCurrentData = state.currentData;
+      deduplicateModels(state);
       return;
     }
 
@@ -193,9 +209,7 @@ function makeActions(
     }
 
     state.debouncedCurrentData = state.currentData;
-    const result = !deepEqual(state.debouncedCurrentData, state.lastSavedData);
-    state.hasUnsavedChanges = result;
-    console.log('debug, debounce successful', result);
+    deduplicateModels(state);
   }
 
   function setValue(props: { path: string; newValue: FDLeafValue; state: FormDataState & FormDataMethods }) {
@@ -213,7 +227,6 @@ function makeActions(
         dot.str(path, convertedValue, state.currentData);
       }
     }
-    state.hasUnsavedChanges = state.currentData !== state.lastSavedData;
   }
 
   return {
@@ -225,14 +238,10 @@ function makeActions(
     saveStarted: () =>
       set((state) => {
         state.controlState.isSaving = true;
-        console.log('debug, save started');
       }),
     cancelSave: () =>
       set((state) => {
         state.controlState.isSaving = false;
-        const result = !deepEqual(state.currentData, state.lastSavedData);
-        state.hasUnsavedChanges = result;
-        console.log('debug, cancelSave, result:', result);
       }),
     saveFinished: (props) =>
       set((state) => {
@@ -249,7 +258,6 @@ function makeActions(
           return;
         }
 
-        console.log('debug, setting leaf value', path, newValue);
         setDebounceTimeout(state, rest);
         setValue({ newValue, path, state });
       }),
@@ -269,7 +277,6 @@ function makeActions(
           } else {
             dot.str(path, [newValue], model);
           }
-          state.hasUnsavedChanges = state.currentData !== state.lastSavedData;
         }
       }),
     appendToList: ({ path, newValue }) =>
@@ -281,7 +288,6 @@ function makeActions(
           } else {
             dot.str(path, [newValue], model);
           }
-          state.hasUnsavedChanges = state.currentData !== state.lastSavedData;
         }
       }),
     removeIndexFromList: ({ path, index }) =>
@@ -293,7 +299,6 @@ function makeActions(
           }
 
           existingValue.splice(index, 1);
-          state.hasUnsavedChanges = state.currentData !== state.lastSavedData;
         }
       }),
     removeValueFromList: ({ path, value }) =>
@@ -305,7 +310,6 @@ function makeActions(
           }
 
           existingValue.splice(existingValue.indexOf(value), 1);
-          state.hasUnsavedChanges = state.currentData !== state.lastSavedData;
         }
       }),
 
@@ -322,7 +326,6 @@ function makeActions(
         }
         if (changesFound) {
           setDebounceTimeout(state, rest);
-          state.hasUnsavedChanges = state.currentData !== state.lastSavedData;
         }
       }),
     requestManualSave: (setTo = true) =>
