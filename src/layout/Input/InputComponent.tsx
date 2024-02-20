@@ -95,6 +95,7 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
     return (
       <PatternFormat
         key={inputKey}
+        value={formValue}
         onValueChange={(values, sourceInfo) => {
           setValue('simpleBinding', values.value);
         }}
