@@ -62,6 +62,7 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
     readOnly,
     isValid,
     required,
+    disabled: readOnly,
   };
 
   if (variant === 'search') {
