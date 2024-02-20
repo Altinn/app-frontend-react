@@ -347,6 +347,11 @@ export const FD = {
       return out;
     }),
 
+  /** This returns the current invalid data which cannot be saved to backend as an object. */
+  useInvalid(): object {
+    return useSelector((v) => v.invalidCurrentData);
+  },
+
   /**
    * This returns an object that can be used to generate a query string for parts of the current form data.
    * It is almost the same as usePickFreshStrings(), but with important differences:

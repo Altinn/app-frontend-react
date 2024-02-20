@@ -37,6 +37,7 @@ function runGetSchemaValidationErrors(formData: object, schema: object) {
     attachments,
     currentLanguage: 'nb',
     formData,
+    invalidData: {},
     application,
     instance,
     process,

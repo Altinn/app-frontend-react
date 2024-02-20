@@ -105,6 +105,16 @@ export function implementsValidateSchema<Type extends CompTypes>(
   return 'runSchemaValidation' in component;
 }
 
+export interface ValidateInvalidData {
+  runInvalidDataValidation: (node: LayoutNode, invalidData: object) => FieldValidation[];
+}
+
+export function implementsValidateInvalidData<Type extends CompTypes>(
+  component: AnyComponent<Type>,
+): component is typeof component & ValidateInvalidData {
+  return 'runInvalidDataValidation' in component;
+}
+
 export interface DisplayDataProps {
   attachments: IAttachments;
   options: AllOptionsMap;

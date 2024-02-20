@@ -15,6 +15,7 @@ export enum FrontendValidationSource {
   Schema = '__schema__',
   Component = '__component__',
   Expression = '__expression__',
+  InvalidData = '__invalid_data__',
 }
 
 export type ValidationSeverity = 'error' | 'warning' | 'info' | 'success';
@@ -39,6 +40,7 @@ export enum ValidationMask {
   Component             = 0b0000000000000010,
   Expression            = 0b0000000000000100,
   CustomBackend         = 0b0000000000001000,
+  InvalidData           = 0b0000000000010000, // TODO(Validation): Should this always be visible?
   Required              = 0b0100000000000000,
   AllExceptRequired     = 0b0011111111111111, // All frontend validations except required
   All                   = 0b0111111111111111, // All frontend validations
@@ -173,6 +175,7 @@ export type AttachmentChange = {
 export type ValidationDataSources = {
   currentLanguage: string;
   formData: object;
+  invalidData: object;
   attachments: IAttachments;
   application: IApplicationMetadata;
   instance: IInstance | null;
@@ -265,6 +268,5 @@ export interface ISchemaValidators {
 export type ISchemaValidationError = {
   message: TextReference;
   bindingField: string;
-  invalidDataType: boolean;
   keyword: string;
 };

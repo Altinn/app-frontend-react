@@ -1,4 +1,9 @@
-import { implementsValidateComponent, implementsValidateEmptyField, implementsValidateSchema } from '.';
+import {
+  implementsValidateComponent,
+  implementsValidateEmptyField,
+  implementsValidateInvalidData,
+  implementsValidateSchema,
+} from '.';
 
 import { runExpressionValidationsOnNode } from 'src/features/validation/frontend/expressionValidation';
 import { isComponentValidation, isFieldValidation } from 'src/features/validation/utils';
@@ -43,6 +48,9 @@ export function runAllValidations<Type extends CompTypes>(
   }
   if (implementsValidateSchema(node.def)) {
     validations.push(...node.def.runSchemaValidation(node as any, schemaErrors));
+  }
+  if (implementsValidateInvalidData(node.def)) {
+    validations.push(...node.def.runInvalidDataValidation(node as any, ctx));
   }
   validations.push(...runExpressionValidationsOnNode(node, ctx));
 

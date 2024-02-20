@@ -221,8 +221,6 @@ export function getSchemaValidationErrors({
       continue;
     }
 
-    const invalidDataType = error.keyword === 'type' || error.keyword === 'format';
-
     let errorParams = error.params[errorMessageKeys[error.keyword]?.paramKey];
     if (errorParams === undefined && error.keyword !== 'const') {
       console.warn(`WARN: Error message for ${error.keyword} not implemented`);
@@ -244,7 +242,7 @@ export function getSchemaValidationErrors({
         };
 
     const field = processInstancePath(error.instancePath);
-    validationErrors.push({ message: errorMessage, bindingField: field, invalidDataType, keyword: error.keyword });
+    validationErrors.push({ message: errorMessage, bindingField: field, keyword: error.keyword });
   }
 
   return validationErrors;

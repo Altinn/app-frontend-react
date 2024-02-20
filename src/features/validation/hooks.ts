@@ -23,6 +23,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
  */
 export function useValidationDataSources(): ValidationDataSources {
   const formData = FD.useDebounced();
+  const invalidData = FD.useInvalid();
   const attachments = useAttachments();
   const currentLanguage = useCurrentLanguage();
   const application = useApplicationMetadata();
@@ -36,6 +37,7 @@ export function useValidationDataSources(): ValidationDataSources {
   return useMemo(
     () => ({
       formData,
+      invalidData,
       attachments,
       currentLanguage,
       application,
@@ -52,6 +54,7 @@ export function useValidationDataSources(): ValidationDataSources {
       currentLanguage,
       customValidation,
       formData,
+      invalidData,
       instance,
       layoutSets,
       process,
