@@ -8,12 +8,14 @@ import { useDataModelBindings } from 'src/features/formData/useDataModelBindings
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
 import { useRerender } from 'src/hooks/useReload';
+import classes from 'src/layout/Input/InputComponent.module.css';
 import { isNumericFormat, isPatternFormat } from 'src/layout/Input/number-format-helpers';
 import { useCharacterLimit } from 'src/utils/inputUtils';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IInputFormatting } from 'src/layout/Input/config.generated';
 
 export type IInputProps = PropsFromGenericComponent<'Input'>;
+
 export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isValid, overrideDisplay }) => {
   const {
     id,
@@ -55,6 +57,7 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
     autoComplete: autocomplete,
     characterLimit: !readOnly ? characterLimit : undefined,
     role: 'textbox',
+    className: reactNumberFormatConfig.align ? classes[`text-align-${reactNumberFormatConfig.align}`] : '',
     id,
     readOnly,
     isValid,
@@ -113,10 +116,9 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
         key={inputKey}
         value={formValue}
         onValueChange={(values, sourceInfo) => {
-          // if (sourceInfo.source !== 'prop') {
-          //   setLocalValue(values.value);
-          // }
-          setValue('simpleBinding', values.value);
+          if (values.value !== formValue) {
+            setValue('simpleBinding', values.value);
+          }
         }}
         onPaste={(event) => {
           /* This is a workaround for a react-number-format bug that
@@ -126,7 +128,6 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
            *  */
           const pastedText = event.clipboardData.getData('Text');
           event.preventDefault();
-          // setLocalValue(pastedText);
           setValue('simpleBinding', pastedText);
         }}
         customInput={Textfield as React.ComponentType}
