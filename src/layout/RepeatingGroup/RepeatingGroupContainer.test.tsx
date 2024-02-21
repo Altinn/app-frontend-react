@@ -190,7 +190,7 @@ describe('RepeatingGroupContainer', () => {
     })[0];
     await userEvent.click(addButton);
 
-    expect(screen.getAllByRole('row')).toHaveLength(6); // 4 rows, 1 header, 1 edit container
+    await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(6)); // 4 rows, 1 header, 1 edit container
     expect(screen.getByTestId('editIndex')).toHaveTextContent('3'); // Editing the last row we just added
     const editContainer = screen.getByTestId('group-edit-container');
     expect(editContainer).toBeInTheDocument();
