@@ -2,15 +2,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import deepEqual from 'fast-deep-equal';
 
-import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { useCustomValidationConfig } from 'src/features/customValidation/CustomValidationContext';
 import { useCurrentDataModelSchema } from 'src/features/datamodel/DataModelSchemaProvider';
-import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
+import { useCurrentDataModelType } from 'src/features/datamodel/useBindingSchema';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
-import { useLaxProcessData } from 'src/features/instance/ProcessContext';
-import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { useNodes } from 'src/utils/layout/NodesContext';
@@ -26,13 +22,9 @@ export function useValidationDataSources(): ValidationDataSources {
   const invalidData = FD.useInvalid();
   const attachments = useAttachments();
   const currentLanguage = useCurrentLanguage();
-  const application = useApplicationMetadata();
-  const instance = useLaxInstanceData() ?? null;
-  const process = useLaxProcessData() ?? null;
-  const layoutSets = useLayoutSets();
+  const dataType = useCurrentDataModelType()!;
   const schema = useCurrentDataModelSchema()!;
   const customValidation = useCustomValidationConfig();
-  const taskId = useProcessTaskId();
 
   return useMemo(
     () => ({
@@ -40,27 +32,11 @@ export function useValidationDataSources(): ValidationDataSources {
       invalidData,
       attachments,
       currentLanguage,
-      application,
-      instance,
-      process,
-      layoutSets,
+      dataType,
       schema,
-      taskId,
       customValidation,
     }),
-    [
-      application,
-      attachments,
-      currentLanguage,
-      customValidation,
-      formData,
-      invalidData,
-      instance,
-      layoutSets,
-      process,
-      schema,
-      taskId,
-    ],
+    [attachments, currentLanguage, customValidation, formData, invalidData, schema, dataType],
   );
 }
 

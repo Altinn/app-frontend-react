@@ -5,7 +5,6 @@ import addAdditionalFormats from 'ajv-formats-draft2019';
 import type { ErrorObject, Options } from 'ajv';
 import type { JSONSchema7 } from 'json-schema';
 
-import { getCurrentDataTypeForApplication } from 'src/features/applicationMetadata/appMetadataUtils';
 import {
   getRootElementPath,
   getSchemaPart,
@@ -22,11 +21,11 @@ import type { IDataType } from 'src/types/shared';
 
 const validators: ISchemaValidators = {};
 
-export function getValidator(typeId: string, schema: JSONSchema7, dataType: IDataType) {
-  if (!validators[typeId]) {
-    validators[typeId] = createValidator(schema, dataType);
+export function getValidator(schema: JSONSchema7, dataType: IDataType) {
+  if (!validators[dataType.id]) {
+    validators[dataType.id] = createValidator(schema, dataType);
   }
-  return validators[typeId];
+  return validators[dataType.id];
 }
 
 export function createValidator(schema: any, dataType: IDataType): ISchemaValidator {
@@ -188,22 +187,10 @@ function isNullOrEmpty(value: any): boolean {
  */
 export function getSchemaValidationErrors({
   formData,
-  application,
-  layoutSets,
   schema,
-  taskId,
+  dataType,
 }: ValidationDataSources): ISchemaValidationError[] {
-  const currentDataTaskDataTypeId = getCurrentDataTypeForApplication({
-    application,
-    layoutSets,
-    taskId,
-  });
-  const dataType = application?.dataTypes.find((d) => d.id === currentDataTaskDataTypeId);
-  if (!currentDataTaskDataTypeId || !dataType) {
-    return [];
-  }
-
-  const { validator, rootElementPath } = getValidator(currentDataTaskDataTypeId, schema, dataType);
+  const { validator, rootElementPath } = getValidator(schema, dataType);
   const valid = validator.validate(`schema${rootElementPath}`, structuredClone(formData));
 
   if (valid) {

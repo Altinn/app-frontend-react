@@ -3,47 +3,20 @@ import Ajv2020 from 'ajv/dist/2020';
 import { v4 as uuid } from 'uuid';
 
 import { createValidator, getSchemaValidationErrors } from 'src/features/validation/frontend/schemaValidation';
-import type { IApplicationMetadata } from 'src/features/applicationMetadata';
-import type { ILayoutSets } from 'src/layout/common.generated';
-import type { IDataType, IInstance, IProcess, ITask } from 'src/types/shared';
+import type { IDataType } from 'src/types/shared';
 
 function runGetSchemaValidationErrors(formData: object, schema: object) {
-  const layoutName = 'layout';
-  const taskId = 'task';
-  const dataTypeId = uuid(); // Validators object is stored as a singleton, so we need a unique id for each dataType
-
-  const attachments = {};
-  const application: IApplicationMetadata = {
-    dataTypes: [
-      {
-        taskId,
-        id: dataTypeId,
-      } as IDataType,
-    ],
-  } as IApplicationMetadata;
-  const instance: IInstance = {} as IInstance;
-  const process = { currentTask: { elementId: taskId } as ITask } as IProcess;
-  const layoutSets: ILayoutSets = {
-    sets: [
-      {
-        id: layoutName,
-        dataType: dataTypeId,
-        tasks: [taskId],
-      },
-    ],
-  };
+  const dataType = {
+    id: uuid(), // Validators object is stored as a singleton, so we need a unique id for each dataType
+  } as IDataType;
 
   return getSchemaValidationErrors({
-    attachments,
+    attachments: {},
     currentLanguage: 'nb',
     formData,
     invalidData: {},
-    application,
-    instance,
-    process,
-    layoutSets,
+    dataType,
     schema,
-    taskId,
     customValidation: null,
   });
 }

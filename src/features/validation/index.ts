@@ -1,13 +1,11 @@
 import type Ajv from 'ajv';
 import type { JSONSchema7 } from 'json-schema';
 
-import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IAttachments } from 'src/features/attachments';
 import type { Expression, ExprValToActual } from 'src/features/expressions/types';
 import type { TextReference, ValidLangParam } from 'src/features/language/useLanguage';
 import type { Visibility } from 'src/features/validation/visibility';
-import type { ILayoutSets } from 'src/layout/common.generated';
-import type { IInstance, IProcess } from 'src/types/shared';
+import type { IDataType } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export enum FrontendValidationSource {
@@ -177,11 +175,7 @@ export type ValidationDataSources = {
   formData: object;
   invalidData: object;
   attachments: IAttachments;
-  application: IApplicationMetadata;
-  instance: IInstance | null;
-  process: IProcess | null;
-  taskId: string | undefined;
-  layoutSets: ILayoutSets;
+  dataType: IDataType;
   schema: JSONSchema7;
   customValidation: IExpressionValidations | null;
 };
