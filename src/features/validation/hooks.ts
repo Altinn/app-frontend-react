@@ -19,7 +19,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
  */
 export function useValidationDataSources(): ValidationDataSources {
   const formData = FD.useDebounced();
-  const invalidData = FD.useInvalid();
+  const invalidData = FD.useInvalidDebounced();
   const attachments = useAttachments();
   const currentLanguage = useCurrentLanguage();
   const dataType = useCurrentDataModelType()!;

@@ -7,7 +7,7 @@ import { FrontendValidationSource, ValidationMask } from 'src/features/validatio
 import type { FieldValidations } from 'src/features/validation';
 
 export function useInvalidDataValidation(): FieldValidations {
-  const invalidData = FD.useInvalid();
+  const invalidData = FD.useInvalidDebounced();
 
   return useMemo(
     () =>

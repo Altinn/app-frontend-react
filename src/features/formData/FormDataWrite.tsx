@@ -347,9 +347,14 @@ export const FD = {
       return out;
     }),
 
-  /** This returns the current invalid data which cannot be saved to backend as an object. */
-  useInvalid(): object {
-    return useSelector((v) => v.invalidCurrentData);
+  /**
+   * This returns the current invalid data which cannot be saved to backend as an object. For example, this will
+   * include data such as a stringy `-` in a number field (where presumably the user will type the rest of the number
+   * later, such as `-5`). As this is the debounced data, it will only be updated when the user stops typing for a
+   * while, so that this model can be used for i.e. validation messages.
+   */
+  useInvalidDebounced(): object {
+    return useSelector((v) => v.invalidDebouncedCurrentData);
   },
 
   /**
