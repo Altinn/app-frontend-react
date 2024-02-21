@@ -2,8 +2,10 @@ import React from 'react';
 
 import { screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import { v4 as uuidv4 } from 'uuid';
 
 import { getFormLayoutRepeatingGroupMock } from 'src/__mocks__/getFormLayoutGroupMock';
+import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { type BackendValidationIssue, BackendValidationSeverity } from 'src/features/validation';
 import { RepeatingGroupContainer } from 'src/layout/RepeatingGroup/RepeatingGroupContainer';
 import {
@@ -121,6 +123,7 @@ async function render({ container, numRows = 3, validationIssues = [] }: IRender
         }),
       fetchFormData: async () => ({
         Group: Array.from({ length: numRows }).map((_, index) => ({
+          [ALTINN_ROW_ID]: uuidv4(),
           prop1: `value${index + 1}`,
           checkboxBinding: ['option.value'],
         })),

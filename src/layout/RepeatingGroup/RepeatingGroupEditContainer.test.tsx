@@ -4,6 +4,7 @@ import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { getMultiPageGroupMock } from 'src/__mocks__/getMultiPageGroupMock';
+import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import {
   RepeatingGroupProvider,
   useRepeatingGroup,
@@ -113,11 +114,13 @@ describe('RepeatingGroupsEditContainer', () => {
         fetchFormData: async () => ({
           multipageGroup: [
             {
+              [ALTINN_ROW_ID]: 'abc123',
               prop1: 'prop1',
               prop2: 'prop2',
               prop3: 'prop3',
             },
             {
+              [ALTINN_ROW_ID]: 'def456',
               prop1: 'prop4',
               prop2: 'prop5',
               prop3: 'prop6',
