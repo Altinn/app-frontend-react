@@ -25,13 +25,24 @@ export function isComponentValidation(
   return 'componentId' in validation;
 }
 
-export function mergeFieldValidations(a: FieldValidations, b: FieldValidations): FieldValidations {
-  const out = { ...a };
-  for (const [field, validations] of Object.entries(b)) {
-    if (!out[field]) {
-      out[field] = [];
+export function mergeFieldValidations(...X: FieldValidations[]): FieldValidations {
+  if (X.length === 0) {
+    return {};
+  }
+
+  if (X.length === 1) {
+    return X[0];
+  }
+
+  const [X1, ...XRest] = X;
+  const out = { ...X1 };
+  for (const Xn of XRest) {
+    for (const [field, validations] of Object.entries(Xn)) {
+      if (!out[field]) {
+        out[field] = [];
+      }
+      out[field].push(...validations);
     }
-    out[field].push(...validations);
   }
   return out;
 }

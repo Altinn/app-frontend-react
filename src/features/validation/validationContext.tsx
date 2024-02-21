@@ -9,6 +9,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { ValidationMask } from 'src/features/validation';
 import { useBackendValidation } from 'src/features/validation/backend/useBackendValidation';
 import { runValidationOnNodes } from 'src/features/validation/frontend/runValidations';
+import { useInvalidDataValidation } from 'src/features/validation/frontend/useInvalidDataValidation';
 import {
   useOnAttachmentsChange,
   useOnHierarchyChange,
@@ -113,6 +114,9 @@ export function ValidationContext({ children, isCustomReceipt = false }: Props) 
     });
   });
 
+  // Get invalid data validations
+  const invalidDataValdiations = useInvalidDataValidation();
+
   // Get backend validations except if we are in a custom receipt
   const {
     validations: backendValidations,
@@ -128,10 +132,10 @@ export function ValidationContext({ children, isCustomReceipt = false }: Props) 
   const validations = useMemo(
     () => ({
       task: backendValidations.task,
-      fields: mergeFieldValidations(backendValidations.fields, frontendValidations.fields),
+      fields: mergeFieldValidations(backendValidations.fields, invalidDataValdiations, frontendValidations.fields),
       components: frontendValidations.components,
     }),
-    [backendValidations, frontendValidations],
+    [backendValidations, frontendValidations, invalidDataValdiations],
   );
 
   // Provide a promise that resolves when all pending validations have been completed

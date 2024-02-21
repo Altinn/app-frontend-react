@@ -28,7 +28,6 @@ import type {
   PropsFromGenericComponent,
   ValidateAny,
   ValidateEmptyField,
-  ValidateInvalidData,
   ValidateSchema,
 } from 'src/layout/index';
 import type {
@@ -297,7 +296,7 @@ export abstract class ActionComponent<Type extends CompTypes> extends AnyCompone
 
 export abstract class FormComponent<Type extends CompTypes>
   extends _FormComponent<Type>
-  implements ValidateAny, ValidateEmptyField, ValidateSchema, ValidateInvalidData
+  implements ValidateAny, ValidateEmptyField, ValidateSchema
 {
   readonly type = CompCategory.Form;
 
@@ -356,25 +355,6 @@ export abstract class FormComponent<Type extends CompTypes>
               category: ValidationMask.Schema,
             });
           }
-        }
-      }
-    }
-    return validations;
-  }
-
-  runInvalidDataValidation(node: LayoutNode<Type>, { invalidData }: ValidationDataSources): FieldValidation[] {
-    const validations: FieldValidation[] = [];
-    if ('dataModelBindings' in node.item && node.item.dataModelBindings) {
-      for (const field of Object.values(node.item.dataModelBindings)) {
-        const invalidValue = dot.pick(field, invalidData);
-        if (typeof invalidValue !== 'undefined') {
-          validations.push({
-            field,
-            source: FrontendValidationSource.InvalidData,
-            message: { key: 'validation_errors.pattern' },
-            severity: 'error',
-            category: ValidationMask.InvalidData,
-          });
         }
       }
     }
