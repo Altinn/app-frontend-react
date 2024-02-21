@@ -328,7 +328,6 @@ function makeActions(
           startAtIndex < existingValue.length &&
           callback(existingValue[startAtIndex])
         ) {
-          state.hasUnsavedChanges = true;
           existingValue.splice(startAtIndex, 1);
           return;
         }
@@ -337,7 +336,6 @@ function makeActions(
         let index = 0;
         while (index < existingValue.length) {
           if (callback(existingValue[index])) {
-            state.hasUnsavedChanges = true;
             existingValue.splice(index, 1);
             return;
           }

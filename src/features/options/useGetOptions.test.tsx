@@ -82,7 +82,7 @@ async function render(props: RenderProps) {
         },
       }),
       fetchFormData: async () => ({
-        Group: structuredClone(props.options).map((option, index) => ({
+        Group: structuredClone(props.options ?? []).map((option, index) => ({
           [ALTINN_ROW_ID]: `row-${index}`,
           ...option,
         })),
