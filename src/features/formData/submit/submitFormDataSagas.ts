@@ -11,6 +11,7 @@ import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { getCurrentDataTypeForApplication, getCurrentTaskDataElementId, isStatelessApp } from 'src/utils/appMetadata';
 import { convertDataBindingToModel, convertModelToDataBinding, filterOutInvalidData } from 'src/utils/databindings';
+import { focusMainContent } from 'src/utils/formLayout';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpPost } from 'src/utils/network/networking';
 import { httpGet, httpPut } from 'src/utils/network/sharedNetworking';
@@ -52,6 +53,7 @@ export function* submitFormSaga(): SagaIterator {
     yield call(putFormData, {});
     yield call(submitComplete, state, resolvedNodes);
     yield put(FormDataActions.submitFulfilled());
+    focusMainContent();
   } catch (error) {
     window.logError('Submit form data failed:\n', error);
     yield put(FormDataActions.submitRejected({ error }));

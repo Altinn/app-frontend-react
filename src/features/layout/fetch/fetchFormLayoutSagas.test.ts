@@ -103,6 +103,7 @@ describe('fetchFormLayoutSagas', () => {
           FormLayoutActions.updateCurrentView({
             newView: 'page1',
             skipPageCaching: true,
+            skipFocusMainContent: true,
           }),
         )
         .run();
@@ -129,6 +130,7 @@ describe('fetchFormLayoutSagas', () => {
           FormLayoutActions.updateCurrentView({
             newView: 'FormLayout',
             skipPageCaching: true,
+            skipFocusMainContent: true,
           }),
         )
         .run();
@@ -179,6 +181,7 @@ describe('fetchFormLayoutSagas', () => {
           FormLayoutActions.updateCurrentView({
             newView: 'page2',
             skipPageCaching: true,
+            skipFocusMainContent: true,
           }),
         )
         .run();
@@ -211,6 +214,7 @@ describe('fetchFormLayoutSagas', () => {
           FormLayoutActions.updateCurrentView({
             newView: 'page1',
             skipPageCaching: true,
+            skipFocusMainContent: true,
           }),
         )
         .run();
@@ -237,6 +241,7 @@ describe('fetchFormLayoutSagas', () => {
           FormLayoutActions.updateCurrentView({
             newView: 'page1',
             skipPageCaching: true,
+            skipFocusMainContent: true,
           }),
         )
         .run();
@@ -263,6 +268,7 @@ describe('fetchFormLayoutSagas', () => {
           FormLayoutActions.updateCurrentView({
             newView: 'page1',
             skipPageCaching: true,
+            skipFocusMainContent: true,
           }),
         )
         .run();

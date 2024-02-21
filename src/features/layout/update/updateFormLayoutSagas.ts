@@ -53,6 +53,7 @@ export function* updateCurrentViewSaga({
     keepScrollPos,
     focusComponentId,
     allowNavigationToHidden,
+    skipFocusMainContent,
   },
 }: PayloadAction<IUpdateCurrentView>): SagaIterator {
   try {
@@ -102,6 +103,7 @@ export function* updateCurrentViewSaga({
           newView,
           returnToView,
           focusComponentId,
+          skipFocusMainContent,
         }),
       );
     } else {

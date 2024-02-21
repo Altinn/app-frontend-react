@@ -38,6 +38,7 @@ export interface IUpdateCurrentView {
   returnToView?: string;
   runValidations?: TriggersPageValidation;
   skipPageCaching?: boolean;
+  skipFocusMainContent?: boolean;
   focusComponentId?: string;
   keepScrollPos?: IKeepComponentScrollPos;
   allowNavigationToHidden?: boolean;
@@ -47,6 +48,7 @@ export interface IUpdateCurrentViewFulfilled {
   newView: string;
   returnToView?: string;
   focusComponentId?: string;
+  skipFocusMainContent?: boolean;
 }
 
 export interface IUpdateCurrentViewRejected extends IFormLayoutActionRejected {
