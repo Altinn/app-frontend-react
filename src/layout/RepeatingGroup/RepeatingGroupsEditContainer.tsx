@@ -143,13 +143,12 @@ function RepeatingGroupsEditContainerInternal({
               variant='tertiary'
               color='danger'
               size='small'
-              icon={<DeleteIcon />}
-              iconPlacement='right'
               disabled={isDeleting(editId)}
               onClick={() => deleteRow(editId)}
               data-testid='delete-button'
             >
               <Lang id={'general.delete'} />
+              <DeleteIcon />
             </Button>
           </Grid>
         </Grid>
@@ -180,12 +179,12 @@ function RepeatingGroupsEditContainerInternal({
               {hasPrevMultiPage && (
                 <Grid item={true}>
                   <Button
-                    icon={<Back aria-hidden='true' />}
                     size='small'
                     variant='tertiary'
                     color='second'
                     onClick={() => prevMultiPage()}
                   >
+                    <Back aria-hidden='true' />
                     <Lang id={'general.back'} />
                   </Button>
                 </Grid>
@@ -193,14 +192,13 @@ function RepeatingGroupsEditContainerInternal({
               {hasNextMultiPage && (
                 <Grid item={true}>
                   <Button
-                    icon={<Next aria-hidden='true' />}
-                    iconPlacement='right'
                     size='small'
                     variant='tertiary'
                     color='second'
                     onClick={() => nextMultiPage()}
                   >
                     <Lang id={'general.next'} />
+                    <Next aria-hidden='true' />
                   </Button>
                 </Grid>
               )}

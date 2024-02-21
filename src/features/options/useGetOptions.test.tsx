@@ -14,7 +14,9 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 interface RenderProps {
   type: 'single' | 'multi';
   via: 'layout' | 'api' | 'repeatingGroups';
-  options: IRawOption[];
+  options?: IRawOption[];
+  mapping?: Record<string, string>;
+  fetchOptions?: () => Promise<AxiosResponse<IRawOption[], any>>;
 }
 
 function TestOptions({ node }: { node: LayoutNode<'Dropdown' | 'MultipleSelect'> }) {
@@ -44,6 +46,7 @@ async function render(props: RenderProps) {
   const layoutConfig: ISelectionComponentExternal = {
     options: props.via === 'layout' ? props.options : undefined,
     optionsId: props.via === 'api' ? 'myOptions' : undefined,
+    mapping: props.via === 'api' ? props.mapping : undefined,
     source:
       props.via === 'repeatingGroups'
         ? {
@@ -84,12 +87,15 @@ async function render(props: RenderProps) {
           ...option,
         })),
         result: '',
+        someOther: 'value',
       }),
-      fetchOptions: async () =>
-        ({
-          data: props.options,
-          headers: {},
-        }) as AxiosResponse<IRawOption[], any>,
+      fetchOptions:
+        props.fetchOptions ??
+        (async () =>
+          ({
+            data: props.options,
+            headers: {},
+          }) as AxiosResponse<IRawOption[], any>),
       fetchTextResources: async () => ({
         resources: [
           {
@@ -172,5 +178,19 @@ describe('useGetOptions', () => {
         expect(currentStringy).toEqual([option.value.toString()]);
       }
     }
+  });
+
+  it('should include the mapping in the api request', async () => {
+    const fetchOptions = jest.fn().mockResolvedValue({ data: [], headers: {} });
+    await render({
+      via: 'api',
+      type: 'single',
+      mapping: { someOther: 'someParam', result: 'someEmpty' },
+      fetchOptions,
+    });
+
+    expect(fetchOptions).toHaveBeenCalledWith(
+      expect.stringMatching(/^.+\/api\/options\/myOptions.+someParam=value&someEmpty=$/),
+    );
   });
 });

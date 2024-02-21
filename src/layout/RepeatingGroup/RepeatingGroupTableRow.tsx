@@ -214,7 +214,6 @@ export function RepeatingGroupTableRow({
           {edit?.editButton === false && edit?.deleteButton === false && (displayEditColumn || displayDeleteColumn) ? (
             <Table.Cell
               key={`editDelete-${uuid}`}
-              // @ts-expect-error this will be fixed in v0.48.0 of the design system
               colSpan={displayEditColumn && displayDeleteColumn ? 2 : 1}
             />
           ) : null}
@@ -222,7 +221,6 @@ export function RepeatingGroupTableRow({
             <Table.Cell
               key={`edit-${uuid}`}
               className={classes.buttonCell}
-              // @ts-expect-error this will be fixed in v0.48.0 of the design system
               colSpan={displayDeleteColumn && edit?.deleteButton === false ? 2 : 1}
             >
               <div className={classes.buttonInCellWrapper}>
@@ -232,14 +230,13 @@ export function RepeatingGroupTableRow({
                   variant='tertiary'
                   color='second'
                   size='small'
-                  icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
-                  iconPlacement='right'
                   onClick={() => toggleEditing(uuid)}
                   aria-label={`${editButtonText} ${firstCellData}`}
                   data-testid='edit-button'
                   className={classes.tableButton}
                 >
                   {editButtonText}
+                  {rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
                 </Button>
               </div>
             </Table.Cell>
@@ -248,7 +245,6 @@ export function RepeatingGroupTableRow({
             <Table.Cell
               key={`delete-${uuid}`}
               className={cn(classes.buttonCell)}
-              // @ts-expect-error this will be fixed in v0.48.0 of the design system
               colSpan={displayEditColumn && edit?.editButton === false ? 2 : 1}
             >
               <div className={classes.buttonInCellWrapper}>
@@ -280,14 +276,14 @@ export function RepeatingGroupTableRow({
                 variant='tertiary'
                 color='second'
                 size='small'
-                icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
-                iconPlacement='right'
+                icon={!isEditingRow && mobileViewSmall}
                 onClick={() => toggleEditing(uuid)}
                 aria-label={`${editButtonText} ${firstCellData}`}
                 data-testid='edit-button'
                 className={classes.tableButton}
               >
                 {(isEditingRow || !mobileViewSmall) && editButtonText}
+                {rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
               </Button>
             )}
             {edit?.deleteButton !== false && (
@@ -368,16 +364,17 @@ const DeleteElement = ({
     <Button
       variant='tertiary'
       color='danger'
-      icon={<DeleteIcon aria-hidden='true' />}
       iconPlacement='right'
       size='small'
       disabled={isDeletingRow}
       onClick={() => handleDelete(uuid)}
       aria-label={`${deleteButtonText}-${firstCellData}`}
       data-testid='delete-button'
+      icon={!children}
       className={classes.tableButton}
     >
       {children}
+      <DeleteIcon aria-hidden='true' />
     </Button>
   </ConditionalWrapper>
 );
