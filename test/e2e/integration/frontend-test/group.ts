@@ -731,6 +731,7 @@ describe('Group', () => {
       // It is very important that these gets checked in this order, as the rest of the test relies on that.
       // Order is not guaranteed here, so we'll wait for each one to be saved before continuing.
       cy.get(prefill).check();
+      cy.waitUntilSaved();
     }
 
     cy.gotoNavPage('repeating');

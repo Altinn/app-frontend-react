@@ -86,6 +86,12 @@ describe('Group (Pets)', () => {
     assertPetOrder(manuallyAddedPets);
   });
 
+  it('should snapshot the decision panel', () => {
+    cy.goto('group');
+    cy.gotoNavPage('Kjæledyr');
+    cy.snapshot('pets-decision-panel');
+  });
+
   it('should be possible to add predefined pets, sort them, validate them, hide them and delete them', () => {
     cy.goto('group');
     cy.gotoNavPage('Kjæledyr');

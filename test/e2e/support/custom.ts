@@ -145,6 +145,12 @@ const knownWcagViolations: KnownViolation[] = [
     nodeLength: 2,
   },
   {
+    spec: 'frontend-test/group-pets.ts',
+    test: 'should snapshot the decision panel',
+    id: 'color-contrast',
+    nodeLength: 1,
+  },
+  {
     spec: 'frontend-test/hide-row-in-group.ts',
     test: 'should be possible to hide rows when "Endre fra" is greater or equals to [...]',
     id: 'heading-order',
@@ -254,6 +260,7 @@ Cypress.Commands.add('getCurrentPageId', () => cy.location('hash').then((hash) =
 
 Cypress.Commands.add('snapshot', (name: string) => {
   cy.clearSelectionAndWait();
+  cy.waitUntilSaved();
 
   // Running wcag tests before taking snapshot, because the resizing of the viewport can cause some elements to
   // re-render and go slightly out of sync with the proper state of the application. One example is the Dropdown
