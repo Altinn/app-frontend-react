@@ -129,22 +129,6 @@ function FormDataEffects({ url }: { url: string }) {
     throw error;
   }
 
-  // Marking the document as having unsaved changes. The data attribute is used in tests, while the beforeunload
-  // event is used to warn the user when they try to navigate away from the page with unsaved changes.
-  useEffect(() => {
-    document.body.setAttribute('data-unsaved-changes', hasUnsavedChanges ? 'true' : 'false');
-    if (hasUnsavedChanges) {
-      window.onbeforeunload = () => true;
-    } else {
-      window.onbeforeunload = null;
-    }
-
-    return () => {
-      document.body.removeAttribute('data-unsaved-changes');
-      window.onbeforeunload = null;
-    };
-  }, [hasUnsavedChanges]);
-
   const performSave = useCallback(
     (dataToSave: object) => {
       if (isSavingRef.current) {
@@ -198,6 +182,18 @@ function FormDataEffects({ url }: { url: string }) {
     performSave,
   ]);
 
+  // Marking the document as having unsaved changes. The data attribute is used in tests, while the beforeunload
+  // event is used to warn the user when they try to navigate away from the page with unsaved changes.
+  useEffect(() => {
+    document.body.setAttribute('data-unsaved-changes', hasUnsavedChanges.toString());
+    window.onbeforeunload = hasUnsavedChanges ? () => true : null;
+
+    return () => {
+      document.body.removeAttribute('data-unsaved-changes');
+      window.onbeforeunload = null;
+    };
+  }, [hasUnsavedChanges]);
+
   // Always save unsaved changes when the user navigates away from the page and this component is unmounted.
   // We cannot put the current and last saved data in the dependency array, because that would cause the effect
   // to trigger when the user is typing, which is not what we want.
@@ -242,14 +238,14 @@ const useDebounceImmediately = () => {
 };
 
 const useHasUnsavedChanges = () => {
-  const result = useLaxSelector((s) => {
-    if (s.controlState.isSaving) {
+  const result = useLaxSelector((state) => {
+    if (state.controlState.isSaving) {
       return true;
     }
-    if (s.currentData !== s.lastSavedData) {
+    if (state.currentData !== state.lastSavedData) {
       return true;
     }
-    return s.debouncedCurrentData !== s.lastSavedData;
+    return state.debouncedCurrentData !== state.lastSavedData;
   });
 
   if (result === ContextNotProvided) {
