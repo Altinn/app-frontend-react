@@ -24,6 +24,7 @@ import {
 } from 'src/features/layout/update/updateFormLayoutSagas';
 import { OptionsActions } from 'src/features/options/optionsSlice';
 import { createSagaSlice } from 'src/redux/sagaSlice';
+import { focusMainContent } from 'src/utils/formLayout';
 import type * as LayoutTypes from 'src/features/layout/formLayoutTypes';
 import type { ILayouts } from 'src/layout/layout';
 import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
@@ -169,8 +170,8 @@ export const formLayoutSlice = () => {
           takeEvery: (action) => {
             if (!action.payload.focusComponentId) {
               window.scrollTo({ top: 0 });
-              if (action.payload.skipFocusMainContent !== false) {
-                document.getElementById('main-content')?.focus({ preventScroll: true });
+              if (action.payload.skipFocusMainContent !== true) {
+                focusMainContent();
               }
             }
           },

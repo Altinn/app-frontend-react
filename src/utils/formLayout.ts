@@ -408,3 +408,7 @@ export function getRepeatingGroupFilteredIndices(formData: IFormData, filter?: I
   }
   return null;
 }
+
+export function focusMainContent() {
+  document.getElementById('main-content')?.focus({ preventScroll: true });
+}
