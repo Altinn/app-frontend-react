@@ -34,6 +34,18 @@ Cypress.Commands.add('dsUncheck', { prevSubject: true }, (subject: JQueryWithSel
   }
 });
 
+Cypress.Commands.add('waitUntilSaved', () => {
+  // If the data-unsaved-changes attribute does not exist, the page is not in a data/form state, and we should not
+  // wait for it to be saved.
+  cy.get('body')
+    .should('have.attr', 'data-unsaved-changes')
+    .then((unsavedChanges: any) => {
+      if (unsavedChanges === 'true') {
+        cy.get('body').should('have.attr', 'data-unsaved-changes', 'false');
+      }
+    });
+});
+
 Cypress.Commands.add('dsSelect', (selector, value) => {
   cy.log(`Selecting ${value} in ${selector}`);
   cy.get(selector).should('not.be.disabled');
@@ -342,6 +354,7 @@ Cypress.Commands.add('testWcag', () => {
 });
 
 Cypress.Commands.add('reloadAndWait', () => {
+  cy.waitUntilSaved();
   cy.reload();
   cy.get('#readyForPrint').should('exist');
   cy.findByRole('progressbar').should('not.exist');

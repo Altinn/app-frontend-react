@@ -176,8 +176,6 @@ describe('Group', () => {
   });
 
   it('Validates group on row save', () => {
-    cy.intercept('GET', '**/instances/*/*/data/*/validate').as('validate');
-
     const layoutMutator = (component: CompExternal) => {
       // Remove component triggers and set required
       if (['currentValue', 'newValue'].includes(component.id) && component.type === 'Input') {
@@ -191,30 +189,24 @@ describe('Group', () => {
 
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
 
+    // Filling out everything works fine
     cy.get(appFrontend.group.addNewItem).click();
     cy.get(appFrontend.group.currentValue).type('123');
     cy.get(appFrontend.group.newValue).type('1');
+    cy.get(appFrontend.group.saveMainGroup).clickAndGone();
+
+    // Forgetting the second field triggers validation
+    cy.get(appFrontend.group.addNewItem).click();
+    cy.get(appFrontend.group.currentValue).type('456');
     cy.get(appFrontend.group.saveMainGroup).click();
+    cy.get(appFrontend.fieldValidation('newValue-1')).should('have.text', texts.requiredFieldToValue456);
+    cy.get(appFrontend.errorReport).should('contain.text', texts.requiredFieldToValue456);
+    cy.get(appFrontend.group.newValue).type('1');
+    cy.get(appFrontend.group.saveMainGroup).clickAndGone();
 
-    cy.intercept('PATCH', '**/data/**').as('saveData');
-    waitForOneMoreRequest(() => {
-      cy.get(appFrontend.group.addNewItem).click();
-      cy.get(appFrontend.group.currentValue).type('123');
-    });
-
-    // Sneaky way to avoid triggering validation on closing the row
-    cy.interceptLayout('group', layoutMutator);
-    cy.reloadAndWait();
-
-    cy.get(appFrontend.group.row(0).editBtn).click();
-    cy.get(appFrontend.group.saveMainGroup).click();
-
-    cy.get(appFrontend.group.saveMainGroup).should('not.exist');
-    cy.get(appFrontend.errorReport).should('not.exist');
-
-    cy.get(appFrontend.group.row(0).editBtn).click();
-    cy.get(appFrontend.group.currentValue).clear();
-    cy.get(appFrontend.group.currentValue).should('have.value', '');
+    // Forgetting the first field triggers validation
+    cy.get(appFrontend.group.addNewItem).click();
+    cy.get(appFrontend.group.newValue).type('789');
     cy.get(appFrontend.group.saveMainGroup).click();
 
     cy.get(appFrontend.errorReport)
@@ -326,12 +318,7 @@ describe('Group', () => {
   it("Open by default on prefilled group (openByDefault = ['first', 'last', true, false])", () => {
     init();
 
-    cy.intercept('PATCH', '**/instances/*/*/data/*').as('saveData');
-
-    waitForOneMoreRequest(() => {
-      cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
-    });
-
+    cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     // Order is important here. True must be first, as it only opens the row for editing if there are no rows already,
     // whereas 'first' and 'last' will always open the existing row.
     // False must always be last here, so that we are allowed to delete the stray row before proceeding in the test,
@@ -364,10 +351,8 @@ describe('Group', () => {
     });
 
     // Delete the stray row, wait until we've saved it
-    waitForOneMoreRequest(() => {
-      cy.get(appFrontend.group.delete).click();
-      cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 0);
-    });
+    cy.get(appFrontend.group.delete).click();
+    cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 0);
 
     cy.interceptLayout('group', (c) => {
       if (c.type === 'RepeatingGroup' && c.edit) {
@@ -639,14 +624,10 @@ describe('Group', () => {
   });
 
   it('adding group rows should trigger backend calculations + selecting options from source', () => {
-    cy.intercept('PATCH', '**/instances/*/*/data/*').as('saveData');
-
     cy.goto('group');
 
-    waitForOneMoreRequest(() => {
-      cy.get(appFrontend.group.prefill.liten).check();
-      cy.get(appFrontend.group.prefill.middels).check();
-    });
+    cy.get(appFrontend.group.prefill.liten).check();
+    cy.get(appFrontend.group.prefill.middels).check();
 
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
@@ -682,13 +663,8 @@ describe('Group', () => {
       .eq(1)
       .should('contain.text', 'Endre fra: 120, Endre til: 350');
 
-    // Waiting until save data runs here will make sure we don't construct a very complex patch request, combined with
-    // slow loading times on github workflows + tt02 may cause this to fail when both deleting and adding a new row
-    // very quickly leads to unexpected behavior.
-    waitForOneMoreRequest(() => {
-      cy.get(appFrontend.group.secondGroup).findByRole('button', { name: 'Slett-1' }).click();
-      cy.get(appFrontend.group.secondGroup).find('tbody > tr').should('have.length', 1);
-    });
+    cy.get(appFrontend.group.secondGroup).findByRole('button', { name: 'Slett-1' }).click();
+    cy.get(appFrontend.group.secondGroup).find('tbody > tr').should('have.length', 1);
 
     cy.get(appFrontend.group.secondGroup_add).click();
     cy.get('#group2-teller-1').should('have.value', '3');
@@ -739,7 +715,6 @@ describe('Group', () => {
   });
 
   it('openByDefault = first should work even if the first row is hidden', () => {
-    cy.intercept('PATCH', '**/instances/*/*/data/*').as('saveData');
     cy.interceptLayout('group', (c) => {
       if (c.type === 'RepeatingGroup' && c.id === 'mainGroup' && c.edit) {
         c.edit.openByDefault = 'first';
@@ -755,9 +730,7 @@ describe('Group', () => {
     ]) {
       // It is very important that these gets checked in this order, as the rest of the test relies on that.
       // Order is not guaranteed here, so we'll wait for each one to be saved before continuing.
-      waitForOneMoreRequest(() => {
-        cy.get(prefill).check();
-      });
+      cy.get(prefill).check();
     }
 
     cy.gotoNavPage('repeating');
@@ -833,24 +806,3 @@ describe('Group', () => {
     cy.get('[data-testid="summary-repeating-row"]').should('have.length', 2);
   });
 });
-
-/**
- * This was created because some operations in this test suite would fail in strange ways when Cypress works
- * fast enough to change too much in the data model at one time before the form data has a chance to save
- * the changes and get updates back from the backend.
- *
- * For normal users, they don't click and type fast enough to trigger this, but when running tests, we can
- * encounter such situations. Still, it points at a core problem with the way we handle data model updates
- * by sending a JsonPatch for our local changes, and then wait for changes from the backend which we then compare
- * with the (possibly modified) local data model. This method is getting too complex and brittle for the workloads
- * in this test, but, as mentioned, not a big problem for normal workloads.
- *
- * This is to be considered technical debt, and should be fixed by moving to a more robust solution for handling
- * data model updates from the backend.
- */
-function waitForOneMoreRequest(testCode: () => void, interceptedRequest = 'saveData') {
-  cy.get(`@${interceptedRequest}.all`).then((intercepts) => {
-    testCode();
-    cy.get(`@${interceptedRequest}.all`).should('have.length', intercepts.length + 1);
-  });
-}
