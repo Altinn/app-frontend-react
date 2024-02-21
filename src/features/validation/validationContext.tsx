@@ -114,12 +114,11 @@ export function ValidationContext({ children, isCustomReceipt = false }: Props) 
   });
 
   // Get backend validations except if we are in a custom receipt
-  const lastSaveValidations = FD.useLastSaveValidationIssues();
   const {
     validations: backendValidations,
     processedLast: backendValidationsProcessedLast,
     initialValidationDone,
-  } = useBackendValidation({ fromLastSave: lastSaveValidations, enabled: !isCustomReceipt });
+  } = useBackendValidation({ enabled: !isCustomReceipt });
   const waitForSave = FD.useWaitForSave();
   const backendValidationsProcessedLastRef = useAsRef(backendValidationsProcessedLast);
   const waitForBackendValidations = useWaitForState(backendValidationsProcessedLastRef);
