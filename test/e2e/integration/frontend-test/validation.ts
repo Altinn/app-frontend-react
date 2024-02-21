@@ -774,5 +774,26 @@ describe('Validation', () => {
         name: 'Hører skolen på elevenes forslag? * Du må fylle ut hører skolen på elevenes forslag? Alltid',
       }).should('be.focused');
     });
+
+    it('Existing validations should not disappear when a backend validator is not executed', () => {
+      cy.goto('changename');
+      cy.get(appFrontend.changeOfName.newFirstName).type('test');
+      cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.newFirstName)).should(
+        'have.text',
+        texts.testIsNotValidValue,
+      );
+
+      cy.intercept('PATCH', '**/data/**', (req) =>
+        req.reply((res) => res.send(JSON.stringify({ ...res.body, validationIssues: {} }))),
+      ).as('patchData');
+
+      cy.get(appFrontend.changeOfName.newMiddleName).type('hei');
+      cy.wait('@patchData');
+
+      cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.newFirstName)).should(
+        'have.text',
+        texts.testIsNotValidValue,
+      );
+    });
   });
 });
