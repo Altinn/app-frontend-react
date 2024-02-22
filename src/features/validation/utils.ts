@@ -1,4 +1,5 @@
 import { ValidationMask } from 'src/features/validation';
+import { implementsValidationFilter } from 'src/layout';
 import type { IAttachments, UploadedAttachment } from 'src/features/attachments';
 import type {
   BaseValidation,
@@ -11,6 +12,7 @@ import type {
   ValidationSeverity,
   ValidationState,
 } from 'src/features/validation';
+import type { ValidationFilterFunction } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -72,6 +74,20 @@ export function hasValidationErrors<V extends BaseValidation>(validations: V[] |
   return validations?.some((validation: any) => validation.severity === 'error') ?? false;
 }
 
+function __default_filter__() {
+  return true;
+}
+export function validationNodeFilter(node: LayoutNode): ValidationFilterFunction {
+  if (implementsValidationFilter(node.def)) {
+    return node.def.getValidationFilter(node as any) ?? __default_filter__;
+  }
+  return __default_filter__;
+}
+
+/**
+ * Converts a field or component validation to a node validation
+ * NodeValidation contains additional information useful for navigating using the error report
+ */
 export function buildNodeValidation<Severity extends ValidationSeverity = ValidationSeverity>(
   node: LayoutNode,
   validation: FieldValidation<Severity> | ComponentValidation<Severity>,
@@ -134,24 +150,28 @@ export function getValidationsForNode(
     for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings)) {
       if (state.fields[field]) {
         const validations = selectValidations(state.fields[field], mask, severity);
-        for (const validation of validations) {
-          validationMessages.push(buildNodeValidation(node, validation, bindingKey));
-        }
+        validationMessages.push(
+          ...validations
+            .filter(validationNodeFilter(node))
+            .map((validation) => buildNodeValidation(node, validation, bindingKey)),
+        );
       }
 
       if (state.components[node.item.id]?.bindingKeys?.[bindingKey]) {
         const validations = selectValidations(state.components[node.item.id].bindingKeys[bindingKey], mask, severity);
-        for (const validation of validations) {
-          validationMessages.push(buildNodeValidation(node, validation, bindingKey));
-        }
+        validationMessages.push(
+          ...validations
+            .filter(validationNodeFilter(node))
+            .map((validation) => buildNodeValidation(node, validation, bindingKey)),
+        );
       }
     }
   }
   if (state.components[node.item.id]?.component) {
     const validations = selectValidations(state.components[node.item.id].component, mask, severity);
-    for (const validation of validations) {
-      validationMessages.push(buildNodeValidation(node, validation));
-    }
+    validationMessages.push(
+      ...validations.filter(validationNodeFilter(node)).map((validation) => buildNodeValidation(node, validation)),
+    );
   }
   return validationMessages;
 }

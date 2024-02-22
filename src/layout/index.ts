@@ -5,10 +5,9 @@ import type { IAttachments } from 'src/features/attachments';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { AllOptionsMap } from 'src/features/options/useAllOptions';
 import type {
+  BaseValidation,
   ComponentValidation,
-  FieldValidation,
   FrontendValidations,
-  ISchemaValidationError,
   ValidationDataSources,
 } from 'src/features/validation';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
@@ -62,11 +61,7 @@ export function shouldComponentRenderLabel<T extends CompTypes>(type: T): CompRe
 export type DefGetter = typeof getLayoutComponentObject;
 
 export interface ValidateAny {
-  runValidations: (
-    node: LayoutNode,
-    ctx: ValidationDataSources,
-    schemaErrors: ISchemaValidationError[],
-  ) => FrontendValidations;
+  runValidations: (node: LayoutNode, ctx: ValidationDataSources) => FrontendValidations;
 }
 
 export function implementsAnyValidation<Type extends CompTypes>(
@@ -95,14 +90,20 @@ export function implementsValidateComponent<Type extends CompTypes>(
   return 'runComponentValidation' in component;
 }
 
-export interface ValidateSchema {
-  runSchemaValidation: (node: LayoutNode, schemaValidations: ISchemaValidationError[]) => FieldValidation[];
+export type ValidationFilterFunction = (
+  validation: BaseValidation,
+  index: number,
+  validations: BaseValidation[],
+) => boolean;
+
+export interface ValidationFilter {
+  getValidationFilter: (node: LayoutNode) => ValidationFilterFunction | null;
 }
 
-export function implementsValidateSchema<Type extends CompTypes>(
+export function implementsValidationFilter<Type extends CompTypes>(
   component: AnyComponent<Type>,
-): component is typeof component & ValidateSchema {
-  return 'runSchemaValidation' in component;
+): component is typeof component & ValidationFilter {
+  return 'getValidationFilter' in component;
 }
 
 export interface DisplayDataProps {

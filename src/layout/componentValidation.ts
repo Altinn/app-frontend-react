@@ -1,4 +1,4 @@
-import { implementsValidateComponent, implementsValidateEmptyField, implementsValidateSchema } from '.';
+import { implementsValidateComponent, implementsValidateEmptyField } from '.';
 
 import { runExpressionValidationsOnNode } from 'src/features/validation/frontend/expressionValidation';
 import { isComponentValidation, isFieldValidation } from 'src/features/validation/utils';
@@ -6,7 +6,6 @@ import type {
   ComponentValidation,
   FieldValidation,
   FrontendValidations,
-  ISchemaValidationError,
   ValidationDataSources,
 } from 'src/features/validation';
 import type { CompTypes } from 'src/layout/layout';
@@ -15,7 +14,6 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 export function runAllValidations<Type extends CompTypes>(
   node: LayoutNode<Type>,
   ctx: ValidationDataSources,
-  schemaErrors: ISchemaValidationError[],
 ): FrontendValidations {
   const formValidations: FrontendValidations = {
     fields: {},
@@ -40,9 +38,6 @@ export function runAllValidations<Type extends CompTypes>(
   }
   if (implementsValidateComponent(node.def)) {
     validations.push(...node.def.runComponentValidation(node as any, ctx));
-  }
-  if (implementsValidateSchema(node.def)) {
-    validations.push(...node.def.runSchemaValidation(node as any, schemaErrors));
   }
   validations.push(...runExpressionValidationsOnNode(node, ctx));
 

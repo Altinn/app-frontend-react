@@ -12,12 +12,7 @@ import { RepeatingGroupProvider } from 'src/layout/RepeatingGroup/RepeatingGroup
 import { RepeatingGroupsFocusProvider } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
 import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type {
-  ComponentValidation,
-  FrontendValidations,
-  ISchemaValidationError,
-  ValidationDataSources,
-} from 'src/features/validation';
+import type { ComponentValidation, FrontendValidations, ValidationDataSources } from 'src/features/validation';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -71,12 +66,8 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateAny, Va
     return this._hierarchyGenerator;
   }
 
-  runValidations(
-    node: LayoutNode,
-    ctx: ValidationDataSources,
-    schemaErrors: ISchemaValidationError[],
-  ): FrontendValidations {
-    return runAllValidations(node, ctx, schemaErrors);
+  runValidations(node: LayoutNode, ctx: ValidationDataSources): FrontendValidations {
+    return runAllValidations(node, ctx);
   }
 
   runComponentValidation(node: LayoutNode<'RepeatingGroup'>): ComponentValidation[] {

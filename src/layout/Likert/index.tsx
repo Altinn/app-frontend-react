@@ -10,12 +10,7 @@ import { LikertComponent } from 'src/layout/Likert/LikertComponent';
 import { LikertSummary } from 'src/layout/Likert/Summary/LikertSummary';
 import { type LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type {
-  ComponentValidation,
-  FrontendValidations,
-  ISchemaValidationError,
-  ValidationDataSources,
-} from 'src/features/validation';
+import type { ComponentValidation, FrontendValidations, ValidationDataSources } from 'src/features/validation';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 
@@ -62,12 +57,8 @@ export class Likert extends LikertDef implements ValidateAny {
     return this._hierarchyGenerator;
   }
 
-  runValidations(
-    node: LayoutNode,
-    ctx: ValidationDataSources,
-    schemaErrors: ISchemaValidationError[],
-  ): FrontendValidations {
-    return runAllValidations(node, ctx, schemaErrors);
+  runValidations(node: LayoutNode, ctx: ValidationDataSources): FrontendValidations {
+    return runAllValidations(node, ctx);
   }
 
   // This component does not have empty field validation, so has to override its inherited method

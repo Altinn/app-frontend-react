@@ -1,4 +1,3 @@
-import { getSchemaValidationErrors } from 'src/features/validation/frontend/schemaValidation';
 import { implementsAnyValidation } from 'src/layout';
 import type { FrontendValidations, ValidationDataSources } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -14,11 +13,9 @@ export function runValidationOnNodes(nodes: LayoutNode[], context: ValidationDat
     return validations;
   }
 
-  const schemaErrors = getSchemaValidationErrors(context);
-
   for (const node of nodesToValidate) {
     if (implementsAnyValidation(node.def)) {
-      validations.push(node.def.runValidations(node as any, context, schemaErrors));
+      validations.push(node.def.runValidations(node as any, context));
     }
   }
 

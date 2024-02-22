@@ -8,12 +8,7 @@ import { GroupComponent } from 'src/layout/Group/GroupComponent';
 import { GroupHierarchyGenerator } from 'src/layout/Group/hierarchy';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type {
-  ComponentValidation,
-  FrontendValidations,
-  ISchemaValidationError,
-  ValidationDataSources,
-} from 'src/features/validation';
+import type { ComponentValidation, FrontendValidations, ValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateAny, ValidateComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
@@ -73,12 +68,8 @@ export class Group extends GroupDef implements ValidateAny, ValidateComponent {
     return this._hierarchyGenerator;
   }
 
-  runValidations(
-    node: LayoutNode,
-    ctx: ValidationDataSources,
-    schemaErrors: ISchemaValidationError[],
-  ): FrontendValidations {
-    return runAllValidations(node, ctx, schemaErrors);
+  runValidations(node: LayoutNode, ctx: ValidationDataSources): FrontendValidations {
+    return runAllValidations(node, ctx);
   }
 
   isDataModelBindingsRequired(): boolean {

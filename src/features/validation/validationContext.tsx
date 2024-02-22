@@ -10,6 +10,7 @@ import { ValidationMask } from 'src/features/validation';
 import { useBackendValidation } from 'src/features/validation/backend/useBackendValidation';
 import { runValidationOnNodes } from 'src/features/validation/frontend/runValidations';
 import { useInvalidDataValidation } from 'src/features/validation/frontend/useInvalidDataValidation';
+import { useSchemaValidation } from 'src/features/validation/frontend/useSchemaValidation';
 import {
   useOnAttachmentsChange,
   useOnHierarchyChange,
@@ -114,6 +115,9 @@ export function ValidationContext({ children, isCustomReceipt = false }: Props) 
     });
   });
 
+  // Get schema validations
+  const schemaValidations = useSchemaValidation();
+
   // Get invalid data validations
   const invalidDataValdiations = useInvalidDataValidation();
 
@@ -123,6 +127,7 @@ export function ValidationContext({ children, isCustomReceipt = false }: Props) 
     processedLast: backendValidationsProcessedLast,
     initialValidationDone,
   } = useBackendValidation({ enabled: !isCustomReceipt });
+
   const waitForSave = FD.useWaitForSave();
   const backendValidationsProcessedLastRef = useAsRef(backendValidationsProcessedLast);
   const waitForBackendValidations = useWaitForState(backendValidationsProcessedLastRef);
@@ -132,10 +137,15 @@ export function ValidationContext({ children, isCustomReceipt = false }: Props) 
   const validations = useMemo(
     () => ({
       task: backendValidations.task,
-      fields: mergeFieldValidations(backendValidations.fields, invalidDataValdiations, frontendValidations.fields),
+      fields: mergeFieldValidations(
+        backendValidations.fields,
+        invalidDataValdiations,
+        schemaValidations,
+        frontendValidations.fields,
+      ),
       components: frontendValidations.components,
     }),
-    [backendValidations, frontendValidations, invalidDataValdiations],
+    [backendValidations, frontendValidations, invalidDataValdiations, schemaValidations],
   );
 
   // Provide a promise that resolves when all pending validations have been completed
