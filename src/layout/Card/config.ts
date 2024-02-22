@@ -73,6 +73,15 @@ export const Config = new CG.component({
   )
   .addProperty(
     new CG.prop(
+      'position',
+      new CG.enum('top', 'buttom')
+        .setTitle('ImagePosition')
+        .setDescription('Positon of the image')
+        .exportAs('Position'),
+    ),
+  )
+  .addProperty(
+    new CG.prop(
       'media',
       new CG.obj(
         new CG.prop(
