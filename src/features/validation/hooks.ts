@@ -4,8 +4,6 @@ import deepEqual from 'fast-deep-equal';
 
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { useCustomValidationConfig } from 'src/features/customValidation/CustomValidationContext';
-import { useCurrentDataModelSchema } from 'src/features/datamodel/DataModelSchemaProvider';
-import { useCurrentDataModelType } from 'src/features/datamodel/useBindingSchema';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
@@ -19,24 +17,18 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
  */
 export function useValidationDataSources(): ValidationDataSources {
   const formData = FD.useDebounced();
-  const invalidData = FD.useInvalidDebounced();
   const attachments = useAttachments();
   const currentLanguage = useCurrentLanguage();
-  const dataType = useCurrentDataModelType()!;
-  const schema = useCurrentDataModelSchema()!;
   const customValidation = useCustomValidationConfig();
 
   return useMemo(
     () => ({
       formData,
-      invalidData,
       attachments,
       currentLanguage,
-      dataType,
-      schema,
       customValidation,
     }),
-    [attachments, currentLanguage, customValidation, formData, invalidData, schema, dataType],
+    [attachments, currentLanguage, customValidation, formData],
   );
 }
 

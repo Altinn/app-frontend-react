@@ -1,11 +1,9 @@
 import type Ajv from 'ajv';
-import type { JSONSchema7 } from 'json-schema';
 
 import type { IAttachments } from 'src/features/attachments';
 import type { Expression, ExprValToActual } from 'src/features/expressions/types';
 import type { TextReference, ValidLangParam } from 'src/features/language/useLanguage';
 import type { Visibility } from 'src/features/validation/visibility';
-import type { IDataType } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export enum FrontendValidationSource {
@@ -172,10 +170,7 @@ export type AttachmentChange = {
 export type ValidationDataSources = {
   currentLanguage: string;
   formData: object;
-  invalidData: object;
   attachments: IAttachments;
-  dataType: IDataType;
-  schema: JSONSchema7;
   customValidation: IExpressionValidations | null;
 };
 
