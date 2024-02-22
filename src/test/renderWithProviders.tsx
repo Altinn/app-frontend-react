@@ -259,7 +259,7 @@ interface ProvidersProps extends PropsWithChildren {
   Router?: (props: PropsWithChildren) => React.ReactNode;
 }
 
-export function DefaultProviders({ children, queries, queryClient, Router = DefaultRouter }: ProvidersProps) {
+function DefaultProviders({ children, queries, queryClient, Router = DefaultRouter }: ProvidersProps) {
   const theme = createTheme(AltinnAppTheme);
   return (
     <AppQueriesProvider
@@ -306,7 +306,7 @@ interface InstanceProvidersProps extends PropsWithChildren {
   waitForAllNodes: boolean;
 }
 
-export function InstanceFormAndLayoutProviders({ children, formDataProxies, waitForAllNodes }: InstanceProvidersProps) {
+function InstanceFormAndLayoutProviders({ children, formDataProxies, waitForAllNodes }: InstanceProvidersProps) {
   return (
     <InstanceProvider>
       <FormDataWriteProxyProvider value={formDataProxies}>
