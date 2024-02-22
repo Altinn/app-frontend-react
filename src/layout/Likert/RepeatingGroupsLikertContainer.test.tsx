@@ -31,7 +31,7 @@ describe('RepeatingGroupsLikertContainer', () => {
           options: defaultMockOptions,
         },
       });
-      validateTableLayout(defaultMockQuestions, defaultMockOptions);
+      validateTableLayout(defaultMockQuestions, defaultMockOptions, { leftColumnHeader: 'Spørsmål' });
     });
 
     it('should render title, description and left column header', () => {
@@ -45,9 +45,9 @@ describe('RepeatingGroupsLikertContainer', () => {
         },
       });
       expect(screen.getByText('Test title')).toBeInTheDocument();
-      expect(screen.getByRole('table', { name: 'Test title' })).toBeInTheDocument();
+      expect(screen.getByRole('group', { name: 'Test title' })).toBeInTheDocument();
       expect(screen.getByText('Test description')).toBeInTheDocument();
-      expect(screen.getByRole('columnheader', { name: 'Test left column header' })).toBeInTheDocument();
+      expect(screen.getByText('Test left column header')).toBeInTheDocument();
     });
 
     it('should render table with one selected row', () => {
@@ -57,7 +57,7 @@ describe('RepeatingGroupsLikertContainer', () => {
       });
       render({ mockQuestions: questions });
 
-      validateTableLayout(defaultMockQuestions, defaultMockOptions);
+      validateTableLayout(defaultMockQuestions, defaultMockOptions, { leftColumnHeader: 'Spørsmål' });
     });
 
     it('should render table with two selected row', () => {
@@ -78,7 +78,7 @@ describe('RepeatingGroupsLikertContainer', () => {
       });
 
       render({ mockQuestions: questions });
-      validateTableLayout(defaultMockQuestions, defaultMockOptions);
+      validateTableLayout(defaultMockQuestions, defaultMockOptions, { leftColumnHeader: 'Spørsmål' });
     });
 
     it('should render table with start binding', () => {
@@ -91,7 +91,7 @@ describe('RepeatingGroupsLikertContainer', () => {
         },
       });
 
-      validateTableLayout(defaultMockQuestions.slice(2), defaultMockOptions);
+      validateTableLayout(defaultMockQuestions.slice(2), defaultMockOptions, { leftColumnHeader: 'Spørsmål' });
     });
 
     it('should render table with end binding', () => {
@@ -104,7 +104,7 @@ describe('RepeatingGroupsLikertContainer', () => {
         },
       });
 
-      validateTableLayout(defaultMockQuestions.slice(0, 3), defaultMockOptions);
+      validateTableLayout(defaultMockQuestions.slice(0, 3), defaultMockOptions, { leftColumnHeader: 'Spørsmål' });
     });
 
     it('should render table with start and end binding', () => {
@@ -120,25 +120,25 @@ describe('RepeatingGroupsLikertContainer', () => {
         },
       });
 
-      validateTableLayout(defaultMockQuestions.slice(1, 3), defaultMockOptions);
+      validateTableLayout(defaultMockQuestions.slice(1, 3), defaultMockOptions, { leftColumnHeader: 'Spørsmål' });
     });
 
     it('should render table view and click radiobuttons', async () => {
       const { mockStoreDispatch } = render();
-      validateTableLayout(defaultMockQuestions, defaultMockOptions);
+      validateTableLayout(defaultMockQuestions, defaultMockOptions, { leftColumnHeader: 'Spørsmål' });
 
-      const rad1 = screen.getByRole('row', {
-        name: /Hvordan trives du på skolen/i,
+      const row1 = screen.getByRole('radiogroup', {
+        name: /Spørsmål Hvordan trives du på skolen/i,
       });
-      const btn1 = within(rad1).getByRole('radio', {
+      const btn1 = within(row1).getByRole('radio', {
         name: /Bra/i,
       });
 
-      const rad2 = screen.getByRole('row', {
-        name: /Har du det bra/i,
+      const row2 = screen.getByRole('radiogroup', {
+        name: /Spørsmål Har du det bra/i,
       });
 
-      const btn2 = within(rad2).getByRole('radio', {
+      const btn2 = within(row2).getByRole('radio', {
         name: /Dårlig/i,
       });
 
@@ -159,7 +159,7 @@ describe('RepeatingGroupsLikertContainer', () => {
 
     it('should render standard view and use keyboard to navigate', async () => {
       const { mockStoreDispatch } = render();
-      validateTableLayout(defaultMockQuestions, defaultMockOptions);
+      validateTableLayout(defaultMockQuestions, defaultMockOptions, { leftColumnHeader: 'Spørsmål' });
 
       await user.tab();
       await user.keyboard('[Space]');
@@ -179,10 +179,16 @@ describe('RepeatingGroupsLikertContainer', () => {
         Question: `nested-question-binding-${i}`,
       }));
       render({ mockQuestions, extraTextResources });
-      validateTableLayout(defaultMockQuestions, defaultMockOptions);
-      screen.getByRole('radio', { name: 'Hvordan trives du på skolen? Bra' });
-      screen.getByRole('radio', { name: 'Hvordan trives du på skolen? Ok' });
-      screen.getByRole('radio', { name: 'Hvordan trives du på skolen? Dårlig' });
+      validateTableLayout(defaultMockQuestions, defaultMockOptions, { leftColumnHeader: 'Spørsmål' });
+      within(screen.getByRole('radiogroup', { name: 'Spørsmål Hvordan trives du på skolen?' })).getByRole('radio', {
+        name: 'Bra',
+      });
+      within(screen.getByRole('radiogroup', { name: 'Spørsmål Hvordan trives du på skolen?' })).getByRole('radio', {
+        name: 'Ok',
+      });
+      within(screen.getByRole('radiogroup', { name: 'Spørsmål Hvordan trives du på skolen?' })).getByRole('radio', {
+        name: 'Dårlig',
+      });
     });
 
     it('should support nested binding for options label referencing text resources', async () => {
@@ -195,10 +201,16 @@ describe('RepeatingGroupsLikertContainer', () => {
         label: `nested-option-binding-${i}`,
       }));
       render({ mockOptions, extraTextResources });
-      validateTableLayout(defaultMockQuestions, mockOptions);
-      screen.getByRole('radio', { name: 'Hvordan trives du på skolen? Bra' });
-      screen.getByRole('radio', { name: 'Hvordan trives du på skolen? Ok' });
-      screen.getByRole('radio', { name: 'Hvordan trives du på skolen? Dårlig' });
+      validateTableLayout(defaultMockQuestions, mockOptions, { leftColumnHeader: 'Spørsmål' });
+      within(screen.getByRole('radiogroup', { name: 'Spørsmål Hvordan trives du på skolen?' })).getByRole('radio', {
+        name: 'Bra',
+      });
+      within(screen.getByRole('radiogroup', { name: 'Spørsmål Hvordan trives du på skolen?' })).getByRole('radio', {
+        name: 'Ok',
+      });
+      within(screen.getByRole('radiogroup', { name: 'Spørsmål Hvordan trives du på skolen?' })).getByRole('radio', {
+        name: 'Dårlig',
+      });
     });
 
     it('should render error message', async () => {
@@ -224,7 +236,7 @@ describe('RepeatingGroupsLikertContainer', () => {
           },
         },
       });
-      expect(screen.getByRole('table', { name: /Likert test title/i })).toHaveAccessibleDescription(
+      expect(screen.getByRole('group', { name: /Likert test title/i })).toHaveAccessibleDescription(
         'This is a test description',
       );
     });
@@ -255,16 +267,12 @@ describe('RepeatingGroupsLikertContainer', () => {
         },
         mobileView: true,
       });
-      validateRadioLayout(
-        defaultMockQuestions.map((q) => ({ ...q, Question: `${leftColumnHeader} ${q.Question}` })),
-        defaultMockOptions,
-        true,
-      );
+      validateRadioLayout(defaultMockQuestions, defaultMockOptions, { leftColumnHeader });
     });
 
     it('should render mobile view and click radiobuttons', async () => {
       const { mockStoreDispatch } = render({ mobileView: true });
-      validateRadioLayout(defaultMockQuestions, defaultMockOptions, true);
+      validateRadioLayout(defaultMockQuestions, defaultMockOptions);
       const rad1 = screen.getByRole('radiogroup', {
         name: /Hvordan trives du på skolen/i,
       });
@@ -301,7 +309,7 @@ describe('RepeatingGroupsLikertContainer', () => {
       });
 
       render({ mockQuestions: questions, mobileView: true });
-      validateRadioLayout(questions, defaultMockOptions, true);
+      validateRadioLayout(questions, defaultMockOptions);
 
       // Validate that radio is selected
       const selectedRow = screen.getByRole('radiogroup', {
@@ -337,7 +345,7 @@ describe('RepeatingGroupsLikertContainer', () => {
         },
       });
 
-      validateRadioLayout(defaultMockQuestions.slice(1, 3), defaultMockOptions, true);
+      validateRadioLayout(defaultMockQuestions.slice(1, 3), defaultMockOptions);
     });
   });
 });

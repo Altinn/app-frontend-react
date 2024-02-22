@@ -253,30 +253,37 @@ export function ContainerTester(props: { id: string }) {
   return <RepeatingGroupsLikertContainer node={node} />;
 }
 
-export const validateTableLayout = (questions: IQuestion[], options: IOption[]) => {
-  screen.getByRole('table');
+export const validateTableLayout = (
+  questions: IQuestion[],
+  options: IOption[],
+  validateRadioLayoutOptions: ValidateRadioLayoutOptions,
+) => {
+  screen.getByRole('group');
 
   for (const option of defaultMockOptions) {
-    const columnHeader = screen.getByRole('columnheader', {
-      name: new RegExp(option.label),
-    });
-    expect(columnHeader).toBeInTheDocument();
+    const allElements = screen.getAllByRole('radio', { name: option.label });
+    for (const element of allElements) {
+      expect(element).toBeInTheDocument();
+    }
   }
 
-  validateRadioLayout(questions, options);
+  validateRadioLayout(questions, options, validateRadioLayoutOptions);
 };
 
-export const validateRadioLayout = (questions: IQuestion[], options: IOption[], mobileView = false) => {
-  if (mobileView) {
-    expect(screen.getAllByRole('radiogroup')).toHaveLength(questions.length);
-  } else {
-    // Header and questions
-    expect(screen.getAllByRole('row')).toHaveLength(questions.length + 1);
-  }
+type ValidateRadioLayoutOptions = {
+  leftColumnHeader?: string;
+};
+
+export const validateRadioLayout = (
+  questions: IQuestion[],
+  options: IOption[],
+  { leftColumnHeader }: ValidateRadioLayoutOptions = {},
+) => {
+  expect(screen.getAllByRole('radiogroup')).toHaveLength(questions.length);
 
   for (const question of questions) {
-    const row = screen.getByRole(mobileView ? 'radiogroup' : 'row', {
-      name: question.Question,
+    const row = screen.getByRole('radiogroup', {
+      name: leftColumnHeader != null ? `${leftColumnHeader} ${question.Question}` : question.Question,
     });
 
     for (const option of options) {

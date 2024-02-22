@@ -106,7 +106,7 @@ function ensureTableHasNumColumns(tableContainer: string, numColumns: number) {
 }
 
 function testLikert() {
-  likertPage.selectRequiredRadiosInMobile();
+  likertPage.selectRequiredRadios();
   sendIn();
 }
 

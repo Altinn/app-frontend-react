@@ -108,13 +108,17 @@ export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertCo
             aria-labelledby={(hasTitle && titleId) || undefined}
             aria-describedby={(hasDescription && descriptionId) || undefined}
             className={classes.likertTable}
+            role='group'
           >
             <Table.Head
               id={`likert-table-header-${id}`}
               className={classes.likertTableHeader}
             >
               <Table.Row>
-                <Table.HeaderCell>
+                <Table.HeaderCell
+                  id={`${id}-likert-columnheader-left`}
+                  aria-hidden={true}
+                >
                   <span className={cn({ 'sr-only': node?.item.textResourceBindings?.leftColumnHeader == null })}>
                     {lang(
                       node?.item.textResourceBindings?.leftColumnHeader ?? 'likert.left_column_default_header_text',
@@ -126,7 +130,9 @@ export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertCo
                   return (
                     <Table.HeaderCell
                       key={option.value}
+                      aria-hidden='true'
                       id={colLabelId}
+                      className={classes.likertTableHeaderCell}
                     >
                       {lang(option.label)}
                     </Table.HeaderCell>
