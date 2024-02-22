@@ -253,7 +253,11 @@ export function ContainerTester(props: { id: string }) {
   return <RepeatingGroupsLikertContainer node={node} />;
 }
 
-export const validateTableLayout = (questions: IQuestion[], options: IOption[]) => {
+export const validateTableLayout = (
+  questions: IQuestion[],
+  options: IOption[],
+  validateRadioLayoutOptions: ValidateRadioLayoutOptions,
+) => {
   screen.getByRole('group');
 
   for (const option of defaultMockOptions) {
@@ -263,15 +267,23 @@ export const validateTableLayout = (questions: IQuestion[], options: IOption[]) 
     }
   }
 
-  validateRadioLayout(questions, options);
+  validateRadioLayout(questions, options, validateRadioLayoutOptions);
 };
 
-export const validateRadioLayout = (questions: IQuestion[], options: IOption[]) => {
+type ValidateRadioLayoutOptions = {
+  leftColumnHeader?: string;
+};
+
+export const validateRadioLayout = (
+  questions: IQuestion[],
+  options: IOption[],
+  { leftColumnHeader }: ValidateRadioLayoutOptions = {},
+) => {
   expect(screen.getAllByRole('radiogroup')).toHaveLength(questions.length);
 
   for (const question of questions) {
     const row = screen.getByRole('radiogroup', {
-      name: question.Question,
+      name: leftColumnHeader != null ? `${leftColumnHeader} ${question.Question}` : question.Question,
     });
 
     for (const option of options) {

@@ -41,12 +41,16 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
   const { langAsString } = useLanguage();
 
   const id = node.item.id;
-  const RenderLegend = legend;
+  const likertId = node.parents((p) => p.item.type === 'Group')?.[0].item.id;
+
   const rowLabelId = `row-label-${id}`;
+  const headerColumnId = `${likertId}-likert-columnheader-left`;
+
+  const RenderLegend = legend;
 
   return (
     <Table.Row
-      aria-labelledby={rowLabelId}
+      aria-labelledby={`${headerColumnId} ${rowLabelId}`}
       data-componentid={node.item.id}
       data-is-loading={fetchingOptions ? 'true' : 'false'}
       ref={ref}

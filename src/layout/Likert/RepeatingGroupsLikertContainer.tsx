@@ -115,7 +115,10 @@ export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertCo
               className={classes.likertTableHeader}
             >
               <Table.Row>
-                <Table.HeaderCell aria-hidden='true'>
+                <Table.HeaderCell
+                  id={`${id}-likert-columnheader-left`}
+                  aria-hidden={true}
+                >
                   <span className={cn({ 'sr-only': node?.item.textResourceBindings?.leftColumnHeader == null })}>
                     {lang(
                       node?.item.textResourceBindings?.leftColumnHeader ?? 'likert.left_column_default_header_text',

@@ -21,7 +21,7 @@ export class Likert {
   }
 
   selectRadio(question, option) {
-    cy.findByRole('radiogroup', { name: question }).within(() => {
+    cy.findByRole('radiogroup', { name: new RegExp(question) }).within(() => {
       cy.findByRole('radio', { name: new RegExp(option) }).check();
     });
   }

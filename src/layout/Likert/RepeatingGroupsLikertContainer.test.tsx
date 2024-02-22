@@ -31,7 +31,7 @@ describe('RepeatingGroupsLikertContainer', () => {
           options: defaultMockOptions,
         },
       });
-      validateTableLayout(defaultMockQuestions, defaultMockOptions);
+      validateTableLayout(defaultMockQuestions, defaultMockOptions, { leftColumnHeader: 'Spørsmål' });
     });
 
     it('should render title, description and left column header', () => {
@@ -57,7 +57,7 @@ describe('RepeatingGroupsLikertContainer', () => {
       });
       render({ mockQuestions: questions });
 
-      validateTableLayout(defaultMockQuestions, defaultMockOptions);
+      validateTableLayout(defaultMockQuestions, defaultMockOptions, { leftColumnHeader: 'Spørsmål' });
     });
 
     it('should render table with two selected row', () => {
@@ -78,7 +78,7 @@ describe('RepeatingGroupsLikertContainer', () => {
       });
 
       render({ mockQuestions: questions });
-      validateTableLayout(defaultMockQuestions, defaultMockOptions);
+      validateTableLayout(defaultMockQuestions, defaultMockOptions, { leftColumnHeader: 'Spørsmål' });
     });
 
     it('should render table with start binding', () => {
@@ -91,7 +91,7 @@ describe('RepeatingGroupsLikertContainer', () => {
         },
       });
 
-      validateTableLayout(defaultMockQuestions.slice(2), defaultMockOptions);
+      validateTableLayout(defaultMockQuestions.slice(2), defaultMockOptions, { leftColumnHeader: 'Spørsmål' });
     });
 
     it('should render table with end binding', () => {
@@ -104,7 +104,7 @@ describe('RepeatingGroupsLikertContainer', () => {
         },
       });
 
-      validateTableLayout(defaultMockQuestions.slice(0, 3), defaultMockOptions);
+      validateTableLayout(defaultMockQuestions.slice(0, 3), defaultMockOptions, { leftColumnHeader: 'Spørsmål' });
     });
 
     it('should render table with start and end binding', () => {
@@ -120,22 +120,22 @@ describe('RepeatingGroupsLikertContainer', () => {
         },
       });
 
-      validateTableLayout(defaultMockQuestions.slice(1, 3), defaultMockOptions);
+      validateTableLayout(defaultMockQuestions.slice(1, 3), defaultMockOptions, { leftColumnHeader: 'Spørsmål' });
     });
 
     it('should render table view and click radiobuttons', async () => {
       const { mockStoreDispatch } = render();
-      validateTableLayout(defaultMockQuestions, defaultMockOptions);
+      validateTableLayout(defaultMockQuestions, defaultMockOptions, { leftColumnHeader: 'Spørsmål' });
 
       const row1 = screen.getByRole('radiogroup', {
-        name: /Hvordan trives du på skolen/i,
+        name: /Spørsmål Hvordan trives du på skolen/i,
       });
       const btn1 = within(row1).getByRole('radio', {
         name: /Bra/i,
       });
 
       const row2 = screen.getByRole('radiogroup', {
-        name: /Har du det bra/i,
+        name: /Spørsmål Har du det bra/i,
       });
 
       const btn2 = within(row2).getByRole('radio', {
@@ -159,7 +159,7 @@ describe('RepeatingGroupsLikertContainer', () => {
 
     it('should render standard view and use keyboard to navigate', async () => {
       const { mockStoreDispatch } = render();
-      validateTableLayout(defaultMockQuestions, defaultMockOptions);
+      validateTableLayout(defaultMockQuestions, defaultMockOptions, { leftColumnHeader: 'Spørsmål' });
 
       await user.tab();
       await user.keyboard('[Space]');
@@ -179,14 +179,14 @@ describe('RepeatingGroupsLikertContainer', () => {
         Question: `nested-question-binding-${i}`,
       }));
       render({ mockQuestions, extraTextResources });
-      validateTableLayout(defaultMockQuestions, defaultMockOptions);
-      within(screen.getByRole('radiogroup', { name: 'Hvordan trives du på skolen?' })).getByRole('radio', {
+      validateTableLayout(defaultMockQuestions, defaultMockOptions, { leftColumnHeader: 'Spørsmål' });
+      within(screen.getByRole('radiogroup', { name: 'Spørsmål Hvordan trives du på skolen?' })).getByRole('radio', {
         name: 'Bra',
       });
-      within(screen.getByRole('radiogroup', { name: 'Hvordan trives du på skolen?' })).getByRole('radio', {
+      within(screen.getByRole('radiogroup', { name: 'Spørsmål Hvordan trives du på skolen?' })).getByRole('radio', {
         name: 'Ok',
       });
-      within(screen.getByRole('radiogroup', { name: 'Hvordan trives du på skolen?' })).getByRole('radio', {
+      within(screen.getByRole('radiogroup', { name: 'Spørsmål Hvordan trives du på skolen?' })).getByRole('radio', {
         name: 'Dårlig',
       });
     });
@@ -201,14 +201,14 @@ describe('RepeatingGroupsLikertContainer', () => {
         label: `nested-option-binding-${i}`,
       }));
       render({ mockOptions, extraTextResources });
-      validateTableLayout(defaultMockQuestions, mockOptions);
-      within(screen.getByRole('radiogroup', { name: 'Hvordan trives du på skolen?' })).getByRole('radio', {
+      validateTableLayout(defaultMockQuestions, mockOptions, { leftColumnHeader: 'Spørsmål' });
+      within(screen.getByRole('radiogroup', { name: 'Spørsmål Hvordan trives du på skolen?' })).getByRole('radio', {
         name: 'Bra',
       });
-      within(screen.getByRole('radiogroup', { name: 'Hvordan trives du på skolen?' })).getByRole('radio', {
+      within(screen.getByRole('radiogroup', { name: 'Spørsmål Hvordan trives du på skolen?' })).getByRole('radio', {
         name: 'Ok',
       });
-      within(screen.getByRole('radiogroup', { name: 'Hvordan trives du på skolen?' })).getByRole('radio', {
+      within(screen.getByRole('radiogroup', { name: 'Spørsmål Hvordan trives du på skolen?' })).getByRole('radio', {
         name: 'Dårlig',
       });
     });
@@ -267,10 +267,7 @@ describe('RepeatingGroupsLikertContainer', () => {
         },
         mobileView: true,
       });
-      validateRadioLayout(
-        defaultMockQuestions.map((q) => ({ ...q, Question: `${leftColumnHeader} ${q.Question}` })),
-        defaultMockOptions,
-      );
+      validateRadioLayout(defaultMockQuestions, defaultMockOptions, { leftColumnHeader });
     });
 
     it('should render mobile view and click radiobuttons', async () => {
