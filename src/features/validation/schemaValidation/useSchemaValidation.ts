@@ -8,7 +8,7 @@ import {
   createValidator,
   getErrorParams,
   getErrorTextKey,
-} from 'src/features/validation/frontend/schemaValidationUtils';
+} from 'src/features/validation/schemaValidation/schemaValidationUtils';
 import {
   getRootElementPath,
   getSchemaPart,

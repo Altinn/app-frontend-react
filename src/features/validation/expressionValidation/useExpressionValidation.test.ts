@@ -7,7 +7,7 @@ import { resolveExpressionValidationConfig } from 'src/features/customValidation
 import { convertLayouts } from 'src/features/expressions/shared';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { staticUseLanguageForTests } from 'src/features/language/useLanguage';
-import { useExpressionValidation } from 'src/features/validation/frontend/useExpressionValidation';
+import { useExpressionValidation } from 'src/features/validation/expressionValidation/useExpressionValidation';
 import { buildAuthContext } from 'src/utils/authContext';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import { _private } from 'src/utils/layout/hierarchy';

@@ -14,7 +14,7 @@ import {
   removeVisibilityForNode,
   setVisibilityForNode,
   type Visibility,
-} from 'src/features/validation/visibility';
+} from 'src/features/validation/visibility/visibilityUtils';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useNodes } from 'src/utils/layout/NodesContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';

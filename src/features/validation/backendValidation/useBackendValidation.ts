@@ -10,7 +10,7 @@ import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
-import { mapValidationIssueToFieldValidation } from 'src/features/validation/backend/backendUtils';
+import { mapValidationIssueToFieldValidation } from 'src/features/validation/backendValidation/backendValidationUtils';
 
 interface RetVal {
   validations: BackendValidations;

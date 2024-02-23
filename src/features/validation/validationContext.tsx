@@ -4,23 +4,23 @@ import { createContext } from 'src/core/contexts/context';
 import { Loader } from 'src/core/loading/Loader';
 import { useHasPendingAttachments } from 'src/features/attachments/AttachmentsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useBackendValidation } from 'src/features/validation/backend/useBackendValidation';
-import { useExpressionValidation } from 'src/features/validation/frontend/useExpressionValidation';
-import { useInvalidDataValidation } from 'src/features/validation/frontend/useInvalidDataValidation';
-import { useNodeValidation } from 'src/features/validation/frontend/useNodeValidation';
-import { useSchemaValidation } from 'src/features/validation/frontend/useSchemaValidation';
-import { useVisibility } from 'src/features/validation/useVisibility';
+import { useBackendValidation } from 'src/features/validation/backendValidation/useBackendValidation';
+import { useExpressionValidation } from 'src/features/validation/expressionValidation/useExpressionValidation';
+import { useInvalidDataValidation } from 'src/features/validation/invalidDataValidation/useInvalidDataValidation';
+import { useNodeValidation } from 'src/features/validation/nodeValidation/useNodeValidation';
+import { useSchemaValidation } from 'src/features/validation/schemaValidation/useSchemaValidation';
 import {
   getVisibilityMask,
   hasValidationErrors,
   mergeFieldValidations,
   selectValidations,
 } from 'src/features/validation/utils';
+import { useVisibility } from 'src/features/validation/visibility/useVisibility';
 import {
   onBeforeRowDelete,
   setVisibilityForAttachment,
   setVisibilityForNode,
-} from 'src/features/validation/visibility';
+} from 'src/features/validation/visibility/visibilityUtils';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { useWaitForState } from 'src/hooks/useWaitForState';

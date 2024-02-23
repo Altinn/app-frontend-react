@@ -2,7 +2,7 @@ import Ajv from 'ajv';
 import Ajv2020 from 'ajv/dist/2020';
 import type { JSONSchema7 } from 'json-schema';
 
-import { createValidator } from 'src/features/validation/frontend/schemaValidationUtils';
+import { createValidator } from 'src/features/validation/schemaValidation/schemaValidationUtils';
 
 describe('schemaValidationUtils', () => {
   describe('createValidator', () => {
