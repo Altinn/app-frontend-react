@@ -171,7 +171,6 @@ export type ValidationDataSources = {
   currentLanguage: string;
   formData: object;
   attachments: IAttachments;
-  customValidation: IExpressionValidations | null;
 };
 
 export type ValidationContextGenerator = (node: LayoutNode | undefined) => ValidationDataSources;

@@ -3,7 +3,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import deepEqual from 'fast-deep-equal';
 
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
-import { useCustomValidationConfig } from 'src/features/customValidation/CustomValidationContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
@@ -19,16 +18,14 @@ export function useValidationDataSources(): ValidationDataSources {
   const formData = FD.useDebounced();
   const attachments = useAttachments();
   const currentLanguage = useCurrentLanguage();
-  const customValidation = useCustomValidationConfig();
 
   return useMemo(
     () => ({
       formData,
       attachments,
       currentLanguage,
-      customValidation,
     }),
-    [attachments, currentLanguage, customValidation, formData],
+    [attachments, currentLanguage, formData],
   );
 }
 
