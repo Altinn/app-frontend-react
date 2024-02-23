@@ -1,5 +1,6 @@
 import dot from 'dot-object';
 
+import { MissingRowIdException } from 'src/features/formData/MissingRowIdException';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { GridHierarchyGenerator } from 'src/layout/Grid/hierarchy';
 import { nodesFromGridRow } from 'src/layout/Grid/tools';
@@ -95,9 +96,8 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Repeat
 
         const uuid = formData[rowIndex][ALTINN_ROW_ID];
         if (uuid === undefined) {
-          const key = `${item.dataModelBindings.group}[${rowIndex}]`;
-          window.logErrorOnce(`RepeatingGroup row is missing unique row id in ${key}`);
-          continue;
+          const path = `${item.dataModelBindings.group}[${rowIndex}]`;
+          throw new MissingRowIdException(path);
         }
 
         for (const id of prototype.children) {

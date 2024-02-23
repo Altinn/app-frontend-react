@@ -6,9 +6,19 @@ import { DownloadIcon, UploadIcon } from '@navikt/aksel-icons';
 import axios from 'axios';
 
 import { useCurrentDataModelUrl } from 'src/features/datamodel/useBindingSchema';
+import { useIsInFormContext } from 'src/features/form/FormContext';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 
-export const DownloadXMLButton = () => {
+export function DownloadXMLButton() {
+  const isInForm = useIsInFormContext();
+  if (!isInForm) {
+    return null;
+  }
+
+  return <InnerDownloadXMLButton />;
+}
+
+const InnerDownloadXMLButton = () => {
   const instance = useLaxInstanceData();
   const dataUrl = useCurrentDataModelUrl();
 
