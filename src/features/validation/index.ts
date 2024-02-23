@@ -1,5 +1,3 @@
-import type Ajv from 'ajv';
-
 import type { IAttachments } from 'src/features/attachments';
 import type { Expression, ExprValToActual } from 'src/features/expressions/types';
 import type { TextReference, ValidLangParam } from 'src/features/language/useLanguage';
@@ -81,14 +79,6 @@ export type BackendValidations = {
   fields: FieldValidations;
 };
 
-/**
- * Validation format returned by frontend validation.
- */
-export type FrontendValidations = {
-  fields: FieldValidations;
-  components: ComponentValidations;
-};
-
 export type FieldValidations = {
   [field: string]: FieldValidation[];
 };
@@ -105,13 +95,6 @@ export type BackendValidationIssueGroups = {
  */
 export type BackendValidatorGroups = {
   [validator: string]: (BaseValidation | FieldValidation)[];
-};
-
-/**
- * (Future?) storage format for frontend expression validations.
- */
-export type ValidatorGroups = {
-  [validator: string]: FieldValidation[];
 };
 
 /**
@@ -159,11 +142,6 @@ export type NodeValidation<Severity extends ValidationSeverity = ValidationSever
   meta?: Record<string, string>;
 };
 
-export type AttachmentChange = {
-  node: LayoutNode;
-  attachmentId: string;
-};
-
 /**
  * Contains all of the necessary elements from the redux store to run frontend validations.
  */
@@ -172,8 +150,6 @@ export type ValidationDataSources = {
   formData: object;
   attachments: IAttachments;
 };
-
-export type ValidationContextGenerator = (node: LayoutNode | undefined) => ValidationDataSources;
 
 /**
  * This format is used by the backend to send validation issues to the frontend.
@@ -238,22 +214,4 @@ export type IExpressionValidationRefUnresolved =
 export type IExpressionValidationConfig = {
   validations: { [field: string]: (IExpressionValidationRefUnresolved | string)[] };
   definitions: { [name: string]: IExpressionValidationRefUnresolved };
-};
-
-export interface ISchemaValidator {
-  rootElementPath: string;
-  validator: Ajv;
-}
-
-export interface ISchemaValidators {
-  [id: string]: ISchemaValidator;
-}
-
-/**
- * This format is returned by the json schema validation, and needs to be mapped to components based on the datamodel bindingField.
- */
-export type ISchemaValidationError = {
-  message: TextReference;
-  bindingField: string;
-  keyword: string;
 };
