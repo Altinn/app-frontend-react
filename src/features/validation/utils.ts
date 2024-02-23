@@ -4,9 +4,9 @@ import type { IAttachments, UploadedAttachment } from 'src/features/attachments'
 import type {
   BaseValidation,
   ComponentValidation,
+  ComponentValidations,
   FieldValidation,
   FieldValidations,
-  FrontendValidations,
   NodeValidation,
   ValidationMaskKeys,
   ValidationSeverity,
@@ -37,9 +37,9 @@ export function mergeFieldValidations(...X: FieldValidations[]): FieldValidation
   }
 
   const [X1, ...XRest] = X;
-  const out = { ...X1 };
+  const out = structuredClone(X1);
   for (const Xn of XRest) {
-    for (const [field, validations] of Object.entries(Xn)) {
+    for (const [field, validations] of Object.entries(structuredClone(Xn))) {
       if (!out[field]) {
         out[field] = [];
       }
@@ -49,13 +49,10 @@ export function mergeFieldValidations(...X: FieldValidations[]): FieldValidation
   return out;
 }
 
-export function mergeNewFrontendValidations(dest: FrontendValidations, newValidations: FrontendValidations[]): void {
+export function mergeNewFrontendValidations(dest: ComponentValidations, newValidations: ComponentValidations[]): void {
   for (const validations of newValidations) {
-    for (const field of Object.keys(validations.fields)) {
-      dest.fields[field] = validations.fields[field];
-    }
-    for (const componentId of Object.keys(validations.components)) {
-      dest.components[componentId] = validations.components[componentId];
+    for (const componentId of Object.keys(validations)) {
+      dest[componentId] = validations[componentId];
     }
   }
 }
@@ -216,34 +213,13 @@ export function attachmentIsMissingTag(attachment: UploadedAttachment): boolean 
 
 /**
  * Remove validation from removed nodes.
- * This also removes field validations which are no longer bound to any other nodes.
  */
-export function purgeValidationsForNodes(
-  state: FrontendValidations,
-  removedNodes: LayoutNode[],
-  currentNodes: LayoutNode[],
-): void {
+export function purgeValidationsForNodes(state: ComponentValidations, removedNodes: LayoutNode[]): void {
   if (removedNodes.length === 0) {
     return;
   }
 
-  const fieldsToKeep = new Set<string>();
-  for (const node of currentNodes) {
-    if (node.item.dataModelBindings) {
-      for (const field of Object.values(node.item.dataModelBindings)) {
-        fieldsToKeep.add(field);
-      }
-    }
-  }
-
   for (const node of removedNodes) {
     delete state.components[node.item.id];
-    if (node.item.dataModelBindings) {
-      for (const field of Object.values(node.item.dataModelBindings)) {
-        if (!fieldsToKeep.has(field)) {
-          delete state.fields[field];
-        }
-      }
-    }
   }
 }

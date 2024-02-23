@@ -9,6 +9,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { ValidationMask } from 'src/features/validation';
 import { useBackendValidation } from 'src/features/validation/backend/useBackendValidation';
 import { runValidationOnNodes } from 'src/features/validation/frontend/runValidations';
+import { useExpressionValidation } from 'src/features/validation/frontend/useExpressionValidation';
 import { useInvalidDataValidation } from 'src/features/validation/frontend/useInvalidDataValidation';
 import { useSchemaValidation } from 'src/features/validation/frontend/useSchemaValidation';
 import {
@@ -39,7 +40,7 @@ import {
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { useWaitForState } from 'src/hooks/useWaitForState';
-import type { BackendValidationIssueGroups, FrontendValidations, ValidationContext } from 'src/features/validation';
+import type { BackendValidationIssueGroups, ComponentValidations, ValidationContext } from 'src/features/validation';
 import type { Visibility } from 'src/features/validation/visibility';
 import type { CompRepeatingGroupInternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -57,10 +58,7 @@ type Props = {
 export function ValidationContext({ children, isCustomReceipt = false }: Props) {
   const validationContext = useValidationDataSources();
 
-  const [frontendValidations, setFrontendValidations] = useImmer<FrontendValidations>({
-    fields: {},
-    components: {},
-  });
+  const [frontendValidations, setFrontendValidations] = useImmer<ComponentValidations>({});
 
   const [visibility, setVisibility] = useImmer<Visibility>({
     mask: 0,
@@ -87,11 +85,11 @@ export function ValidationContext({ children, isCustomReceipt = false }: Props) 
   });
 
   // Update frontend validations and visibility for nodes when they are added or removed
-  useOnHierarchyChange((addedNodes, removedNodes, currentNodes) => {
+  useOnHierarchyChange((addedNodes, removedNodes) => {
     const newValidations = runValidationOnNodes(addedNodes, validationContext);
 
     setFrontendValidations((state) => {
-      purgeValidationsForNodes(state, removedNodes, currentNodes);
+      purgeValidationsForNodes(state, removedNodes);
       mergeNewFrontendValidations(state, newValidations);
     });
 
@@ -114,6 +112,9 @@ export function ValidationContext({ children, isCustomReceipt = false }: Props) 
       addedAttachments.forEach(({ attachmentId, node }) => addVisibilityForAttachment(attachmentId, node, state));
     });
   });
+
+  // Get expression validations
+  const expressionValidations = useExpressionValidation();
 
   // Get schema validations
   const schemaValidations = useSchemaValidation();
@@ -141,11 +142,18 @@ export function ValidationContext({ children, isCustomReceipt = false }: Props) 
         backendValidations.fields,
         invalidDataValdiations,
         schemaValidations,
-        frontendValidations.fields,
+        expressionValidations,
       ),
-      components: frontendValidations.components,
+      components: frontendValidations,
     }),
-    [backendValidations, frontendValidations, invalidDataValdiations, schemaValidations],
+    [
+      backendValidations.fields,
+      backendValidations.task,
+      expressionValidations,
+      frontendValidations,
+      invalidDataValdiations,
+      schemaValidations,
+    ],
   );
 
   // Provide a promise that resolves when all pending validations have been completed

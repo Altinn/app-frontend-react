@@ -15,7 +15,7 @@ import { getFieldNameKey } from 'src/utils/formComponentUtils';
 import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { ComponentValidation, FrontendValidations, ValidationDataSources } from 'src/features/validation';
+import type { ComponentValidation, ComponentValidations, ValidationDataSources } from 'src/features/validation';
 import type {
   DisplayData,
   DisplayDataProps,
@@ -293,7 +293,7 @@ export abstract class FormComponent<Type extends CompTypes>
 {
   readonly type = CompCategory.Form;
 
-  runValidations(node: LayoutNode, ctx: ValidationDataSources): FrontendValidations {
+  runValidations(node: LayoutNode, ctx: ValidationDataSources): ComponentValidations {
     return runAllValidations(node, ctx);
   }
 

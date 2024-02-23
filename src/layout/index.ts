@@ -7,7 +7,7 @@ import type { AllOptionsMap } from 'src/features/options/useAllOptions';
 import type {
   BaseValidation,
   ComponentValidation,
-  FrontendValidations,
+  ComponentValidations,
   ValidationDataSources,
 } from 'src/features/validation';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
@@ -61,7 +61,7 @@ export function shouldComponentRenderLabel<T extends CompTypes>(type: T): CompRe
 export type DefGetter = typeof getLayoutComponentObject;
 
 export interface ValidateAny {
-  runValidations: (node: LayoutNode, ctx: ValidationDataSources) => FrontendValidations;
+  runValidations: (node: LayoutNode, ctx: ValidationDataSources) => ComponentValidations;
 }
 
 export function implementsAnyValidation<Type extends CompTypes>(

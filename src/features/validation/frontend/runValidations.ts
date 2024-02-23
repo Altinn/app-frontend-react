@@ -1,13 +1,13 @@
 import { implementsAnyValidation } from 'src/layout';
-import type { FrontendValidations, ValidationDataSources } from 'src/features/validation';
+import type { ComponentValidations, ValidationDataSources } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export function runValidationOnNodes(nodes: LayoutNode[], context: ValidationDataSources): FrontendValidations[] {
+export function runValidationOnNodes(nodes: LayoutNode[], context: ValidationDataSources): ComponentValidations[] {
   const nodesToValidate = nodes.filter(
     (node) => implementsAnyValidation(node.def) && !('renderAsSummary' in node.item && node.item.renderAsSummary),
   );
 
-  const validations: FrontendValidations[] = [];
+  const validations: ComponentValidations[] = [];
 
   if (nodesToValidate.length === 0) {
     return validations;

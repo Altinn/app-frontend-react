@@ -10,7 +10,7 @@ import { LikertComponent } from 'src/layout/Likert/LikertComponent';
 import { LikertSummary } from 'src/layout/Likert/Summary/LikertSummary';
 import { type LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { ComponentValidation, FrontendValidations, ValidationDataSources } from 'src/features/validation';
+import type { ComponentValidation, ComponentValidations, ValidationDataSources } from 'src/features/validation';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 
@@ -57,7 +57,7 @@ export class Likert extends LikertDef implements ValidateAny {
     return this._hierarchyGenerator;
   }
 
-  runValidations(node: LayoutNode, ctx: ValidationDataSources): FrontendValidations {
+  runValidations(node: LayoutNode, ctx: ValidationDataSources): ComponentValidations {
     return runAllValidations(node, ctx);
   }
 
