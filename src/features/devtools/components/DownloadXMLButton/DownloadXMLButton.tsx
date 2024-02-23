@@ -20,7 +20,7 @@ export function DownloadXMLButton() {
 
 const InnerDownloadXMLButton = () => {
   const instance = useLaxInstanceData();
-  const dataUrl = useCurrentDataModelUrl();
+  const dataUrl = useCurrentDataModelUrl(false);
 
   const downloadXML = async () => {
     if (dataUrl) {
