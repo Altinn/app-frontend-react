@@ -4,12 +4,7 @@ import { ComponentConfigs } from 'src/layout/components.generated';
 import type { IAttachments } from 'src/features/attachments';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { AllOptionsMap } from 'src/features/options/useAllOptions';
-import type {
-  BaseValidation,
-  ComponentValidation,
-  ComponentValidations,
-  ValidationDataSources,
-} from 'src/features/validation';
+import type { BaseValidation, ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { CompInternal, CompRendersLabel, CompTypes } from 'src/layout/layout';
 import type { AnyComponent, LayoutComponent } from 'src/layout/LayoutComponent';
@@ -60,14 +55,8 @@ export function shouldComponentRenderLabel<T extends CompTypes>(type: T): CompRe
 
 export type DefGetter = typeof getLayoutComponentObject;
 
-export interface ValidateAny {
-  runValidations: (node: LayoutNode, ctx: ValidationDataSources) => ComponentValidations;
-}
-
-export function implementsAnyValidation<Type extends CompTypes>(
-  component: AnyComponent<Type>,
-): component is typeof component & ValidateAny {
-  return 'runValidations' in component;
+export function implementsAnyValidation<Type extends CompTypes>(component: AnyComponent<Type>): boolean {
+  return 'runEmptyFieldValidation' in component || 'runComponentValidation' in component;
 }
 
 export interface ValidateEmptyField {

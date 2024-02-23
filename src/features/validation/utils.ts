@@ -4,7 +4,6 @@ import type { IAttachments, UploadedAttachment } from 'src/features/attachments'
 import type {
   BaseValidation,
   ComponentValidation,
-  ComponentValidations,
   FieldValidation,
   FieldValidations,
   NodeValidation,
@@ -16,16 +15,6 @@ import type { ValidationFilterFunction } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
-
-export function isFieldValidation(validation: ComponentValidation | FieldValidation): validation is FieldValidation {
-  return 'field' in validation;
-}
-
-export function isComponentValidation(
-  validation: ComponentValidation | FieldValidation,
-): validation is ComponentValidation {
-  return 'componentId' in validation;
-}
 
 export function mergeFieldValidations(...X: FieldValidations[]): FieldValidations {
   if (X.length === 0) {
@@ -47,14 +36,6 @@ export function mergeFieldValidations(...X: FieldValidations[]): FieldValidation
     }
   }
   return out;
-}
-
-export function mergeNewFrontendValidations(dest: ComponentValidations, newValidations: ComponentValidations[]): void {
-  for (const validations of newValidations) {
-    for (const componentId of Object.keys(validations)) {
-      dest[componentId] = validations[componentId];
-    }
-  }
 }
 
 function isOfSeverity<V extends BaseValidation, S extends ValidationSeverity>(severity: S) {
@@ -209,17 +190,4 @@ export function attachmentsValid(
 
 export function attachmentIsMissingTag(attachment: UploadedAttachment): boolean {
   return attachment.data.tags === undefined || attachment.data.tags.length === 0;
-}
-
-/**
- * Remove validation from removed nodes.
- */
-export function purgeValidationsForNodes(state: ComponentValidations, removedNodes: LayoutNode[]): void {
-  if (removedNodes.length === 0) {
-    return;
-  }
-
-  for (const node of removedNodes) {
-    delete state.components[node.item.id];
-  }
 }

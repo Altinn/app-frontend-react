@@ -9,20 +9,13 @@ import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspe
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { useDisplayDataProps } from 'src/hooks/useDisplayData';
 import { CompCategory } from 'src/layout/common';
-import { runAllValidations } from 'src/layout/componentValidation';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
 import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { ComponentValidation, ComponentValidations, ValidationDataSources } from 'src/features/validation';
-import type {
-  DisplayData,
-  DisplayDataProps,
-  PropsFromGenericComponent,
-  ValidateAny,
-  ValidateEmptyField,
-} from 'src/layout/index';
+import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
+import type { DisplayData, DisplayDataProps, PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
 import type {
   CompExternalExact,
   CompInternal,
@@ -287,15 +280,8 @@ export abstract class ActionComponent<Type extends CompTypes> extends AnyCompone
   }
 }
 
-export abstract class FormComponent<Type extends CompTypes>
-  extends _FormComponent<Type>
-  implements ValidateAny, ValidateEmptyField
-{
+export abstract class FormComponent<Type extends CompTypes> extends _FormComponent<Type> implements ValidateEmptyField {
   readonly type = CompCategory.Form;
-
-  runValidations(node: LayoutNode, ctx: ValidationDataSources): ComponentValidations {
-    return runAllValidations(node, ctx);
-  }
 
   runEmptyFieldValidation(node: LayoutNode<Type>, { formData }: ValidationDataSources): ComponentValidation[] {
     if (!('required' in node.item) || !node.item.required || !node.item.dataModelBindings) {
