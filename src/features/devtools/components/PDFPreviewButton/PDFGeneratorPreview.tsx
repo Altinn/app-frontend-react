@@ -62,8 +62,8 @@ export function PDFGeneratorPreview() {
         size='small'
         disabled={disabled}
         color='second'
-        icon={<FilePdfIcon aria-hidden />}
       >
+        {<FilePdfIcon aria-hidden />}
         Generer PDF
       </Button>
       <Modal
