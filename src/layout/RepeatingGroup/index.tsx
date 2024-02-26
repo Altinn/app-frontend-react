@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
 import type { PropsFromGenericComponent, ValidateAny, ValidateComponent } from '..';
@@ -29,12 +29,16 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateAny, Va
     return true;
   }
 
-  render = (props: PropsFromGenericComponent<'RepeatingGroup'>): JSX.Element | null => (
-    <RepeatingGroupProvider node={props.node}>
-      <RepeatingGroupsFocusProvider>
-        <RepeatingGroupContainer containerDivRef={props.containerDivRef} />
-      </RepeatingGroupsFocusProvider>
-    </RepeatingGroupProvider>
+  render = forwardRef<HTMLDivElement, PropsFromGenericComponent<'RepeatingGroup'>>(
+    function LayoutComponentRepeatingGroupRender(props, ref): JSX.Element | null {
+      return (
+        <RepeatingGroupProvider node={props.node}>
+          <RepeatingGroupsFocusProvider>
+            <RepeatingGroupContainer ref={ref} />
+          </RepeatingGroupsFocusProvider>
+        </RepeatingGroupProvider>
+      );
+    },
   );
 
   renderSummary({
