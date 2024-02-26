@@ -102,9 +102,30 @@ function asNumber(value: string, type: 'float' | 'int', isValid: (n: number) => 
     return NaN;
   }
 
-  // The number must both be valid according to the callback and be the same
-  // as the trimmed string when converted to a string
-  return isValid(parsedValue) && parsedValue.toString() === trimmed ? parsedValue : NaN;
+  if (!isValid(parsedValue)) {
+    return NaN;
+  }
+
+  // The number type in JS is sneaky, because it cannot properly represent all numbers, and it will lie to you
+  // about it by rounding them. By checking the string representation of the number, we can see if it was rounded
+  // when parsed. If it was, we return NaN to indicate that the number is not valid and could not be parsed properly.
+  // We don't know the importance of the precision, so instead of losing precision, we show validation errors.
+  const toStr = parsedValue.toString();
+  if (toStr !== trimmed) {
+    // Remove leading zeros and check again (0001 === 1)
+    const trimmedNoLeadingZeros = trimmed.replace(/^(-?)0+/, '$1');
+    if (parsedValue.toString() === trimmedNoLeadingZeros) {
+      return parsedValue;
+    }
+    // If the number is a decimal, try to remove trailing zeros (1.2000 === 1.2)
+    const trimmedNoTrailingZeros = trimmed.replace(/(\.\d+?)0+$/, '$1');
+    if (parsedValue.toString() === trimmedNoTrailingZeros) {
+      return parsedValue;
+    }
+    return NaN;
+  }
+
+  return parsedValue;
 }
 
 /**
