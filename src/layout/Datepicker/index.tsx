@@ -109,7 +109,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent, Vali
     );
   }
 
-  getValidationFilter(): ValidationFilterFunction | null {
+  getValidationFilter(_node: LayoutNode): ValidationFilterFunction | null {
     return this.formatFilter;
   }
 
