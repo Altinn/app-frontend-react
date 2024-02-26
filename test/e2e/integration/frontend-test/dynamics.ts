@@ -1,9 +1,22 @@
 import texts from 'test/e2e/fixtures/texts.json';
+import { changeToLang } from 'test/e2e/integration/frontend-test/formatting';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
 import type { CompOrGroupExternal } from 'src/layout/layout';
 
 const appFrontend = new AppFrontend();
+
+const showReasons = () => {
+  cy.goto('changename');
+  cy.get(appFrontend.changeOfName.newFirstName).type('test');
+  cy.get(appFrontend.changeOfName.newLastName).type('test');
+  cy.get(appFrontend.changeOfName.confirmChangeName)
+    .findByRole('checkbox', {
+      name: /Ja[a-z, ]*/,
+    })
+    .check();
+  cy.get(appFrontend.changeOfName.reasons).should('be.visible');
+};
 
 describe('Dynamics', () => {
   it('Show and hide confirm name change checkbox on changing firstname', () => {
@@ -17,15 +30,15 @@ describe('Dynamics', () => {
   });
 
   it('Show and hide name change reasons radio buttons', () => {
-    cy.goto('changename');
-    cy.get(appFrontend.changeOfName.newFirstName).type('test');
-    cy.get(appFrontend.changeOfName.newLastName).type('test');
-    cy.get(appFrontend.changeOfName.confirmChangeName)
-      .findByRole('checkbox', {
-        name: /Ja[a-z, ]*/,
-      })
-      .check();
-    cy.get(appFrontend.changeOfName.reasons).should('be.visible');
+    showReasons();
+  });
+
+  it.only('Should save the label of the chosen option', () => {
+    showReasons();
+    cy.findByRole('radio', { name: /Slektskap/ }).click();
+    cy.get('#reasonLabel').should('have.value', 'Slektskap');
+    changeToLang('en');
+    cy.get('#reasonLabel').should('have.value', 'Kinship');
   });
 
   it('Remove validation message when field disappears', () => {

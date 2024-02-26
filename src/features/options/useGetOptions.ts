@@ -149,7 +149,20 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
     staticOptions,
   ]);
 
-  // Log error if fetching options failed
+  useEffect(() => {
+    if (valueType === 'single') {
+      const currentOption = calculatedOptions?.find((option) => option.value === value);
+      const currentLabel = langAsString(currentOption?.label);
+      if ((dataModelBindings as IDataModelBindingsOptionsSimple)?.labelBinding && currentLabel) {
+        setValue('labelBinding' as any, langAsString(currentLabel));
+      }
+
+      const stringValues = value && value.length > 0 ? value.split(',') : [];
+      console.log('stringValues', stringValues);
+      // alwaysOptions.filter((option) => stringValues.includes(option.value)) as CurrentValue<T>;
+    }
+  }, [calculatedOptions, dataModelBindings, langAsString, setValue, value, valueType]);
+
   useEffect(() => {
     if (isError) {
       const optionsId = 'optionsId' in node.item ? `\noptionsId: ${node.item.optionsId}` : '';
