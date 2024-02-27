@@ -162,7 +162,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
             id={`group-${id}-caption`}
             className={cn({ [classes.tableNotEmptyCaption]: !isEmpty })}
             title={<Lang id={textResourceBindings.title} />}
-            description={<Lang id={textResourceBindings.description} />}
+            description={textResourceBindings.description && <Lang id={textResourceBindings.description} />}
             labelSettings={labelSettings}
             required={required}
           />
