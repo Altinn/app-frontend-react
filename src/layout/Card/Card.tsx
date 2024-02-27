@@ -31,7 +31,7 @@ export const Card = ({ node }: ICardProps) => {
   }
 
   if (image) {
-    if (position === 'buttom') {
+    if (position === 'bottom') {
       return (
         <DesignSystemCard color={color}>
           <DesignSystemCard.Header>{title}</DesignSystemCard.Header>
@@ -68,7 +68,7 @@ export const Card = ({ node }: ICardProps) => {
     }
   }
   if (media) {
-    if (position === 'buttom') {
+    if (position === 'bottom') {
       return (
         <DesignSystemCard color={color}>
           <DesignSystemCard.Header>{title}</DesignSystemCard.Header>
