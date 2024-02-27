@@ -7,7 +7,7 @@ import classes from 'src/features/devtools/components/PDFPreviewButton/PDFPrevie
 import { useLaxInstance } from 'src/features/instance/InstanceContext';
 import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
-import { useIsDev } from 'src/hooks/useIsDev';
+import { useIsLocalOrStaging } from 'src/hooks/useIsDev';
 import { ProcessTaskType } from 'src/types';
 import { getPdfPreviewUrl } from 'src/utils/urls/appUrlHelper';
 
@@ -21,9 +21,9 @@ export function PDFGeneratorPreview() {
   const taskType = useTaskTypeFromBackend();
   const instanceId = useLaxInstance()?.data?.id;
   const language = useCurrentLanguage();
-  const isDev = useIsDev();
+  const isLocalOrStaging = useIsLocalOrStaging();
 
-  const disabled = taskType !== ProcessTaskType.Data || !instanceId || !isDev;
+  const disabled = taskType !== ProcessTaskType.Data || !instanceId || !isLocalOrStaging;
 
   async function generatePDF() {
     if (disabled) {
