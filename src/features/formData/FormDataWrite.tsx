@@ -25,7 +25,7 @@ import type { BackendValidationIssueGroups } from 'src/features/validation';
 import type { IMapping } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
 
-export type FDLeafValue = string | number | boolean | null | undefined;
+export type FDLeafValue = string | number | boolean | null | undefined | string[];
 export type FDValue = FDLeafValue | object | FDValue[];
 
 interface MutationArg {
@@ -66,6 +66,7 @@ const useFormDataSaveMutation = (ctx: FormDataContext) => {
     mutationKey: ['saveFormData'],
     mutationFn: async (arg: MutationArg) => {
       const { dataModelUrl, next, prev } = arg;
+
       saveStarted();
       if (isStateless) {
         const newDataModel = await doPostStatelessFormData(dataModelUrl, next);
@@ -134,6 +135,7 @@ function FormDataEffects({ url }: { url: string }) {
       if (isSavingRef.current) {
         return;
       }
+
       if (deepEqual(dataToSave, lastSavedDataRef.current)) {
         cancelSave();
         return;
@@ -163,6 +165,7 @@ function FormDataEffects({ url }: { url: string }) {
   // Save the data model when the data has been frozen to debouncedCurrentData and is different from the saved data
   useEffect(() => {
     const isDebounced = currentData === debouncedCurrentData;
+
     if (isDebounced && !isSaving && !lockedBy && (autoSaving || manualSaveRequested)) {
       const hasUnsavedDebouncedChanges =
         debouncedCurrentData !== lastSavedData && !deepEqual(debouncedCurrentData, lastSavedData);

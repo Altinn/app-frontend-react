@@ -150,20 +150,6 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
   ]);
 
   useEffect(() => {
-    if (valueType === 'single') {
-      const currentOption = calculatedOptions?.find((option) => option.value === value);
-      const currentLabel = langAsString(currentOption?.label);
-      if ((dataModelBindings as IDataModelBindingsOptionsSimple)?.labelBinding && currentLabel) {
-        setValue('labelBinding' as any, langAsString(currentLabel));
-      }
-
-      const stringValues = value && value.length > 0 ? value.split(',') : [];
-      console.log('stringValues', stringValues);
-      // alwaysOptions.filter((option) => stringValues.includes(option.value)) as CurrentValue<T>;
-    }
-  }, [calculatedOptions, dataModelBindings, langAsString, setValue, value, valueType]);
-
-  useEffect(() => {
     if (isError) {
       const optionsId = 'optionsId' in node.item ? `\noptionsId: ${node.item.optionsId}` : '';
       const mapping = 'mapping' in node.item ? `\nmapping: ${JSON.stringify(node.item.mapping)}` : '';
@@ -203,15 +189,30 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
 
   const setData = useMemo(() => {
     if (valueType === 'single') {
-      return (value: string | IOptionInternal) =>
+      return (value: string | IOptionInternal) => {
         setValue('simpleBinding', typeof value === 'string' ? value : value.value);
+        if (dataModelBindings?.label) {
+          if ((value as IOptionInternal).label) {
+            setValue('label' as any, (value as IOptionInternal).label);
+          }
+        }
+      };
     }
 
     return (value: (string | IOptionInternal)[]) => {
       const asString = value.map((v) => (typeof v === 'string' ? v : v.value)).join(',');
       setValue('simpleBinding', asString);
+      if (dataModelBindings?.label) {
+        const options = value as IOptionInternal[];
+        const labels = options.map((option) => langAsString(option.label));
+        if (labels.length < 1) {
+          setValue('label' as any, undefined);
+        } else {
+          setValue('label' as any, labels);
+        }
+      }
     };
-  }, [setValue, valueType]) as ValueSetter<T>;
+  }, [setValue, valueType, dataModelBindings, langAsString]) as ValueSetter<T>;
 
   const effectProps: EffectProps<T> = useMemo(
     () => ({
