@@ -223,6 +223,7 @@ function makeActions(
     const { path, newValue, state } = props;
     if (newValue === '' || newValue === null || newValue === undefined) {
       dot.delete(path, state.currentData);
+      dot.delete(path, state.invalidCurrentData);
     } else {
       const schema = schemaLookup.getSchemaForPath(path)[0];
       const { newValue: convertedValue, error } = convertData(newValue, schema);
