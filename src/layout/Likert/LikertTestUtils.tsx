@@ -1,8 +1,10 @@
 import React from 'react';
 
 import { screen, within } from '@testing-library/react';
+import { v4 as uuidv4 } from 'uuid';
 import type { AxiosResponse } from 'axios';
 
+import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { type BackendValidationIssue, BackendValidationSeverity } from 'src/features/validation';
 import { LikertComponent } from 'src/layout/Likert/LikertComponent';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
@@ -26,6 +28,7 @@ const questionBinding = 'Question';
 
 export const generateMockFormData = (likertQuestions: IQuestion[]) => ({
   [groupBinding]: Array.from({ length: likertQuestions.length }, (_, index) => ({
+    [ALTINN_ROW_ID]: uuidv4(),
     [answerBinding]: likertQuestions[index].Answer,
     [questionBinding]: likertQuestions[index].Question,
   })),
@@ -170,30 +173,40 @@ export function ContainerTester(props: { id: string }) {
   return <LikertComponent node={node} />;
 }
 
-export const validateTableLayout = async (questions: IQuestion[], options: IRawOption[]) => {
-  screen.getByRole('table');
+export const validateTableLayout = async (
+  questions: IQuestion[],
+  options: IRawOption[],
+  validateRadioLayoutOptions: ValidateRadioLayoutOptions,
+) => {
+  screen.getByRole('group');
 
   for (const option of defaultMockOptions) {
-    const columnHeader = await screen.findByRole('columnheader', {
+    const allAlternatives = await screen.findAllByRole('radio', {
       name: new RegExp(option.label),
     });
-    expect(columnHeader).toBeInTheDocument();
+    for (const alternative of allAlternatives) {
+      expect(alternative).toBeInTheDocument();
+    }
   }
 
-  await validateRadioLayout(questions, options);
+  await validateRadioLayout(questions, options, validateRadioLayoutOptions);
 };
 
-export const validateRadioLayout = async (questions: IQuestion[], options: IRawOption[], mobileView = false) => {
-  if (mobileView) {
-    const radioGroups = await screen.findAllByRole('radiogroup');
-    expect(radioGroups).toHaveLength(questions.length);
-  } else {
-    expect(await screen.findAllByRole('row')).toHaveLength(questions.length + 1);
-  }
+type ValidateRadioLayoutOptions = {
+  leftColumnHeader?: string;
+};
+
+export const validateRadioLayout = async (
+  questions: IQuestion[],
+  options: IRawOption[],
+  { leftColumnHeader }: ValidateRadioLayoutOptions = {},
+) => {
+  const radioGroups = await screen.findAllByRole('radiogroup');
+  expect(radioGroups).toHaveLength(questions.length);
 
   for (const question of questions) {
-    const row = await screen.findByRole(mobileView ? 'radiogroup' : 'row', {
-      name: question.Question,
+    const row = await screen.findByRole('radiogroup', {
+      name: leftColumnHeader != null ? `${leftColumnHeader} ${question.Question}` : question.Question,
     });
 
     for (const option of options) {

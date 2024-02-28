@@ -381,6 +381,8 @@ describe('Validation', () => {
     cy.get(appFrontend.group.sendersName).type('hello world');
     cy.get(appFrontend.errorReport).should('not.exist');
     cy.get(appFrontend.prevButton).click();
+    cy.navPage('Kjæledyr').should('have.attr', 'aria-current', 'page');
+    cy.get(appFrontend.prevButton).click();
 
     cy.changeLayout((component) => {
       if (
@@ -599,7 +601,7 @@ describe('Validation', () => {
     });
 
     cy.goto('group');
-    cy.get(appFrontend.navMenuButtons).should('have.length', 4);
+    cy.get(appFrontend.navMenuButtons).should('have.length', 5);
 
     cy.gotoNavPage('hide');
     cy.get(appFrontend.group.sendersName).type('tull og tøys'); // Causes validation error
@@ -608,7 +610,9 @@ describe('Validation', () => {
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.addItemToGroup(2, 3, 'hideSendersName');
     cy.get(appFrontend.nextButton).click();
-    cy.get(appFrontend.navMenuButtons).should('have.length', 4); // 'hide' page is still visible
+    cy.navPage('Kjæledyr').should('have.attr', 'aria-current', 'page');
+    cy.get(appFrontend.nextButton).click();
+    cy.get(appFrontend.navMenuButtons).should('have.length', 5); // 'hide' page is still visible
     cy.navPage('hide').should('have.attr', 'aria-current', 'page');
     cy.get(appFrontend.group.sendersName).should('not.exist');
     cy.get(appFrontend.errorReport).should('not.exist');
@@ -653,7 +657,7 @@ describe('Validation', () => {
     });
 
     cy.goto('group');
-    cy.get(appFrontend.navMenuButtons).should('have.length', 4);
+    cy.get(appFrontend.navMenuButtons).should('have.length', 5);
 
     cy.gotoNavPage('hide');
     cy.get(appFrontend.group.sendersName).type('tull og tøys'); // Causes validation error
@@ -662,7 +666,9 @@ describe('Validation', () => {
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.addItemToGroup(1, 11, 'whatever');
     cy.get(appFrontend.nextButton).click();
-    cy.get(appFrontend.navMenuButtons).should('have.length', 4); // 'hide' page should be visible and active
+    cy.navPage('Kjæledyr').should('have.attr', 'aria-current', 'page');
+    cy.get(appFrontend.nextButton).click();
+    cy.get(appFrontend.navMenuButtons).should('have.length', 5); // 'hide' page should be visible and active
     cy.navPage('hide').should('have.attr', 'aria-current', 'page');
     cy.get(appFrontend.group.sendersName).should('not.exist');
     cy.get(appFrontend.errorReport).should('not.exist');
@@ -682,7 +688,7 @@ describe('Validation', () => {
     );
 
     cy.goto('group');
-    cy.get(appFrontend.navMenuButtons).should('have.length', 4);
+    cy.get(appFrontend.navMenuButtons).should('have.length', 5);
 
     cy.gotoNavPage('hide');
     cy.get(appFrontend.group.sendersName).type('tull og tøys'); // Causes validation error
@@ -691,7 +697,9 @@ describe('Validation', () => {
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.addItemToGroup(2, 3, 'hidePage');
     cy.get(appFrontend.nextButton).click();
-    cy.get(appFrontend.navMenuButtons).should('have.length', 3); // 'hide' page is now invisible
+    cy.navPage('Kjæledyr').should('have.attr', 'aria-current', 'page');
+    cy.get(appFrontend.nextButton).click();
+    cy.get(appFrontend.navMenuButtons).should('have.length', 4); // 'hide' page is now invisible
     cy.get(appFrontend.errorReport).should('not.exist');
     cy.navPage('summary').should('have.attr', 'aria-current', 'page');
 
@@ -766,13 +774,77 @@ describe('Validation', () => {
       cy.goto('likert');
       cy.findByRole('button', { name: /Send inn/ }).click();
 
-      cy.findByRole('radio', {
-        name: 'Hører skolen på elevenes forslag? * Du må fylle ut hører skolen på elevenes forslag? Alltid',
-      }).should('not.be.focused');
+      cy.findByRole('radiogroup', {
+        name: 'Spørsmål Hører skolen på elevenes forslag? * Du må fylle ut hører skolen på elevenes forslag?',
+      }).within(() => {
+        cy.findByRole('radio', { name: 'Alltid' }).should('not.be.focused');
+      });
+
       cy.findByRole('button', { name: /Du må fylle ut hører skolen på elevenes forslag/ }).click();
-      cy.findByRole('radio', {
-        name: 'Hører skolen på elevenes forslag? * Du må fylle ut hører skolen på elevenes forslag? Alltid',
-      }).should('be.focused');
+
+      cy.findByRole('radiogroup', {
+        name: 'Spørsmål Hører skolen på elevenes forslag? * Du må fylle ut hører skolen på elevenes forslag?',
+      }).within(() => {
+        cy.findByRole('radio', { name: 'Alltid' }).should('be.focused');
+      });
+    });
+
+    it('Existing validations should not disappear when a backend validator is not executed', () => {
+      cy.goto('changename');
+      cy.get(appFrontend.changeOfName.newFirstName).type('test');
+      cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.newFirstName)).should(
+        'have.text',
+        texts.testIsNotValidValue,
+      );
+
+      cy.intercept('PATCH', '**/data/**', (req) =>
+        req.reply((res) => res.send(JSON.stringify({ ...res.body, validationIssues: {} }))),
+      ).as('patchData');
+
+      cy.get(appFrontend.changeOfName.newMiddleName).type('hei');
+      cy.wait('@patchData');
+
+      cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.newFirstName)).should(
+        'have.text',
+        texts.testIsNotValidValue,
+      );
+    });
+
+    it('Datepicker should show component validation instead of format error from schema', () => {
+      cy.interceptLayout('changename', (component) => {
+        if (component.type === 'Datepicker' && component.id === 'dateOfEffect') {
+          component.showValidations = ['AllExceptRequired'];
+        }
+      });
+
+      let c = 0;
+      cy.intercept('PATCH', '**/data/**', () => {
+        c++;
+      }).as('patchData');
+
+      cy.goto('changename');
+
+      cy.get(appFrontend.changeOfName.dateOfEffect).type('01012020');
+      cy.wait('@patchData').then(() => {
+        expect(c).to.be.eq(1);
+      });
+
+      cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.dateOfEffect)).should('not.exist');
+
+      cy.get(appFrontend.changeOfName.dateOfEffect).clear();
+      cy.get(appFrontend.changeOfName.dateOfEffect).type('45451234');
+      cy.wait('@patchData').then(() => {
+        expect(c).to.be.eq(2);
+      });
+
+      cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.dateOfEffect)).should(
+        'contain.text',
+        'Ugyldig datoformat',
+      );
+      cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.dateOfEffect)).should(
+        'not.contain.text',
+        'Feil format',
+      );
     });
   });
 });
