@@ -137,7 +137,9 @@ function asNumber(value: string, type: 'float' | 'int', isValid: (n: number) => 
  * @see https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/floating-point-numeric-types
  */
 export function asDecimal(value: string): number {
-  return asNumber(value, 'float', (n) => n <= Number.MAX_VALUE && n >= Number.MIN_VALUE);
+  // We always indicate that this is valid as long as it's possible to parse it as a number. The limits for a decimal
+  // type in C# are larger than the limits for a number in JS, so we can't check for overflow.
+  return asNumber(value, 'float', () => true);
 }
 
 export function asInt32(value: string): number {
