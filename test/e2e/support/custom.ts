@@ -1,12 +1,13 @@
-import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
-import JQueryWithSelector = Cypress.JQueryWithSelector;
 import deepEqual from 'fast-deep-equal';
 import type axe from 'axe-core';
 import type { Options as AxeOptions } from 'cypress-axe';
 
+import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
+
 import { breakpoints } from 'src/hooks/useIsMobile';
 import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
 import type { LayoutContextValue } from 'src/features/form/layout/LayoutsContext';
+import JQueryWithSelector = Cypress.JQueryWithSelector;
 
 const appFrontend = new AppFrontend();
 
@@ -37,13 +38,13 @@ Cypress.Commands.add('dsUncheck', { prevSubject: true }, (subject: JQueryWithSel
 Cypress.Commands.add('waitUntilSaved', () => {
   // If the data-unsaved-changes attribute does not exist, the page is not in a data/form state, and we should not
   // wait for it to be saved.
-  cy.get('body')
-    .should('have.attr', 'data-unsaved-changes')
-    .then((unsavedChanges: any) => {
-      if (unsavedChanges === 'true') {
-        cy.get('body').should('have.attr', 'data-unsaved-changes', 'false');
-      }
-    });
+  cy.get('body').then(($body) => {
+    if ($body.data('unsaved-changes') === undefined) {
+      cy.log('Not in a data task/form, no need to wait for save');
+    } else {
+      cy.get('body').should('have.attr', 'data-unsaved-changes', 'false');
+    }
+  });
 });
 
 Cypress.Commands.add('dsSelect', (selector, value) => {

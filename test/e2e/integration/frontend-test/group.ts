@@ -319,6 +319,8 @@ describe('Group', () => {
     init();
 
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
+    cy.get(appFrontend.group.addNewItem).should('be.visible');
+
     // Order is important here. True must be first, as it only opens the row for editing if there are no rows already,
     // whereas 'first' and 'last' will always open the existing row.
     // False must always be last here, so that we are allowed to delete the stray row before proceeding in the test,

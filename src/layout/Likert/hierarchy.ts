@@ -1,5 +1,6 @@
 import dot from 'dot-object';
 
+import { MissingRowIdException } from 'src/features/formData/MissingRowIdException';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { getLikertStartStopIndex } from 'src/utils/formLayout';
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
@@ -67,10 +68,9 @@ export class LikertHierarchyGenerator extends ComponentHierarchyGenerator<'Liker
         const itemProps = structuredClone(prototype);
 
         const uuid = formData[rowIndex][ALTINN_ROW_ID];
-        if (uuid === undefined) {
-          const key = `${item.dataModelBindings.questions}[${rowIndex}]`;
-          window.logErrorOnce(`Likert row is missing unique row id in ${key}`);
-          continue;
+        if (typeof uuid !== 'string' || !uuid.length) {
+          const path = `${item.dataModelBindings.questions}[${rowIndex}]`;
+          throw new MissingRowIdException(path);
         }
 
         const childItem = {
