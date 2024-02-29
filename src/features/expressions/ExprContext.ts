@@ -5,9 +5,9 @@ import { prettyErrors, prettyErrorsToConsole } from 'src/features/expressions/pr
 import type { IAttachments } from 'src/features/attachments';
 import type { EvalExprOptions } from 'src/features/expressions/index';
 import type { ExprConfig, Expression, ExprPositionalArgs } from 'src/features/expressions/types';
-import type { FD } from 'src/features/formData/FormDataWrite';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { AllOptionsMap } from 'src/features/options/useAllOptions';
+import type { FormDataSelector } from 'src/layout';
 import type { ILayoutSettings } from 'src/layout/common.generated';
 import type { IHiddenLayoutsExternal } from 'src/types';
 import type { IApplicationSettings, IAuthContext, IInstanceDataSources } from 'src/types/shared';
@@ -24,7 +24,7 @@ export type PageNavigationConfig = {
 export interface ContextDataSources {
   instanceDataSources: IInstanceDataSources | null;
   applicationSettings: IApplicationSettings | null;
-  formDataSelector: ReturnType<typeof FD.useDebouncedSelector>;
+  formDataSelector: FormDataSelector;
   attachments: IAttachments;
   layoutSettings: ILayoutSettings;
   pageNavigationConfig: PageNavigationConfig;

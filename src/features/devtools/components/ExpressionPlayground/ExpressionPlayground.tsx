@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 
 import { Checkbox, Fieldset, LegacySelect, Tabs } from '@digdir/design-system-react';
 import cn from 'classnames';
@@ -49,7 +49,14 @@ export const ExpressionPlayground = () => {
   const { currentPageId } = useNavigatePage();
 
   const hidden = useHiddenComponents();
-  const dataSources = useExpressionDataSources(hidden);
+  const _dataSources = useExpressionDataSources(hidden);
+  const dataSources = useMemo(
+    () => ({
+      ..._dataSources,
+      formDataSelector: (path: string) => _dataSources.formDataSelector(path),
+    }),
+    [_dataSources],
+  );
 
   const setOutputWithHistory = useCallback(
     (newValue: string, isError: boolean): boolean => {

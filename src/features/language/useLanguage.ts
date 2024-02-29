@@ -17,6 +17,7 @@ import { smartLowerCaseFirst } from 'src/utils/formComponentUtils';
 import type { useDataModelReaders } from 'src/features/formData/FormDataReaders';
 import type { TextResourceMap } from 'src/features/language/textResources';
 import type { FixedLanguageList } from 'src/language/languages';
+import type { FormDataSelector } from 'src/layout';
 import type { IApplicationSettings, IInstanceDataSources, ILanguage, IVariable } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -56,7 +57,7 @@ export interface TextResourceVariablesDataSources {
   dataModelPath?: string;
   dataModels: ReturnType<typeof useDataModelReaders>;
   currentDataModelName: string | undefined;
-  currentDataModel: ReturnType<typeof FD.useLaxDebouncedSelector>;
+  currentDataModel: FormDataSelector | typeof ContextNotProvided;
 }
 
 /**

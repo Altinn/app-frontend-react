@@ -102,6 +102,8 @@ const { Provider, useSelector } = createZustandContext<ReturnType<typeof newStor
 });
 
 export const useAllOptions = () => useSelector((state) => state.nodes);
+export const useAllOptionsWhenLoaded = () =>
+  useSelector((state) => (state.allInitiallyLoaded ? state.nodes : undefined));
 export const useAllOptionsInitiallyLoaded = () => useSelector((state) => state.allInitiallyLoaded);
 
 function isNodeOptionBased(node: LayoutNode) {

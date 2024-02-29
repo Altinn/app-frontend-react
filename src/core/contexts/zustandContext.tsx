@@ -65,7 +65,8 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
    * will not be able to be used as a cache key.
    */
   const useDelayedMemoSelectorProto = (store: Store | typeof ContextNotProvided): SelectorFunc<Type> => {
-    const [selectorsCalled, setSelectorsCalled] = useState<DelayedSelectorState<Type>>([]);
+    const selectorsCalled = useRef<DelayedSelectorState<Type>>([]);
+    const [renderCount, forceRerender] = useState(0);
 
     useEffect(() => {
       if (store === ContextNotProvided) {
@@ -75,10 +76,12 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
       return store.subscribe((state) => {
         // When the state changes, we run all the known selectors again to figure out if anything changed. If it
         // did change, we'll clear the list of selectors to force a re-render.
-        setSelectorsCalled((selectors) => {
-          const changed = selectors.some((s) => !deepEqual(s.prevValue, s.selector(state)));
-          return changed ? [] : selectors;
-        });
+        const selectors = selectorsCalled.current;
+        const changed = selectors.some((s) => !deepEqual(s.prevValue, s.selector(state)));
+        if (changed) {
+          selectorsCalled.current = [];
+          forceRerender((prev) => prev + 1);
+        }
       });
     }, [store]);
 
@@ -87,27 +90,28 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
         if (store === ContextNotProvided) {
           return undefined;
         }
+        if (isNaN(renderCount)) {
+          // This should not happen, and this piece of code looks a bit out of place. This really is only here
+          // to make sure the callback is re-created and the component re-renders when the store changes.
+          throw new Error('useDelayedMemoSelector: renderCount is NaN');
+        }
 
         const state = store.getState();
         const value = selector(state);
 
         // Check if this function has been called before, and if the value has not changed since the last time it
         // was called we can return the previous value and prevent re-rendering.
-        const prev = selectorsCalled.find((s) => s.selector === selector);
-        if (prev && deepEqual(prev.prevValue, value)) {
+        const prev = selectorsCalled.current.find((s) => s.selector === selector);
+        if (prev && !deepEqual(prev.prevValue, value)) {
           return prev.prevValue;
         }
 
-        // The value has changed, or the callback is new to us. We need to re-render the component.
-        setSelectorsCalled((prev) => {
-          const next = prev.filter((s) => s.selector !== selector);
-          next.push({ selector, prevValue: value });
-          return next;
-        });
-
+        // The value has changed, or the callback is new to us. No need to re-render the component now, because
+        // this is always the first render where this value is referenced, and we're always selecting from fresh state.
+        selectorsCalled.current.push({ selector, prevValue: value });
         return value;
       },
-      [store, selectorsCalled],
+      [store, renderCount],
     );
   };
 

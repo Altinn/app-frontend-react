@@ -22,6 +22,7 @@ import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { FormDataWriteProxies } from 'src/features/formData/FormDataWriteProxies';
 import type { FormDataContext } from 'src/features/formData/FormDataWriteStateMachine';
 import type { BackendValidationIssueGroups } from 'src/features/validation';
+import type { FormDataSelector } from 'src/layout';
 import type { IMapping } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
 
@@ -305,7 +306,7 @@ export const FD = {
    * changes. This is useful if you want to avoid re-rendering when the form data changes, but you still want to
    * pretend to have the full data model available to look up values from.
    */
-  useDebouncedSelector(): (path: string) => unknown {
+  useDebouncedSelector(): FormDataSelector {
     const selector = useDelayedMemoSelector();
     const callbacks = useRef<Record<string, Parameters<typeof selector>[0]>>({});
 
@@ -313,6 +314,7 @@ export const FD = {
       (path: string) => {
         if (!callbacks.current[path]) {
           callbacks.current[path] = (state) => dot.pick(path, state.debouncedCurrentData);
+          (callbacks.current[path] as any).DisplayName = `useDebouncedSelector(${path})`;
         }
         return selector(callbacks.current[path]);
       },
@@ -324,7 +326,7 @@ export const FD = {
    * This is the same as useDebouncedSelector(), but will return ContextNotProvided immediately if the context
    * provider is not present.
    */
-  useLaxDebouncedSelector(): ((path: string) => unknown) | typeof ContextNotProvided {
+  useLaxDebouncedSelector(): FormDataSelector | typeof ContextNotProvided {
     const selector = useLaxDelayedMemoSelector();
     const callbacks = useRef<Record<string, Parameters<Exclude<typeof selector, typeof ContextNotProvided>>[0]>>({});
     const out = useCallback(
@@ -337,6 +339,7 @@ export const FD = {
 
         if (!callbacks.current[path]) {
           callbacks.current[path] = (state) => dot.pick(path, state.debouncedCurrentData);
+          (callbacks.current[path] as any).DisplayName = `useDebouncedSelector(${path})`;
         }
 
         return selector(callbacks.current[path]);

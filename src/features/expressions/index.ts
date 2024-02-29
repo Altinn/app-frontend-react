@@ -27,7 +27,7 @@ import type {
   ExprValToActual,
   FuncDef,
 } from 'src/features/expressions/types';
-import type { FD } from 'src/features/formData/FormDataWrite';
+import type { FormDataSelector } from 'src/layout';
 import type { CompGroupExternal } from 'src/layout/Group/config.generated';
 import type { CompExternal } from 'src/layout/layout';
 import type { CompLikertExternal } from 'src/layout/Likert/config.generated';
@@ -343,7 +343,7 @@ const authContextKeys: { [key in keyof IAuthContext]: true } = {
   reject: true,
 };
 
-function pickSimpleValue(path: string | undefined | null, selector: ReturnType<typeof FD.useDebouncedSelector>) {
+function pickSimpleValue(path: string | undefined | null, selector: FormDataSelector) {
   if (!path) {
     return null;
   }
@@ -589,6 +589,7 @@ export const ExprFunctions = {
         options: this.dataSources.options,
         langTools: this.dataSources.langToolsRef.current,
         currentLanguage: this.dataSources.currentLanguage,
+        formDataSelector: this.dataSources.formDataSelector,
       });
     },
     args: [ExprVal.String] as const,

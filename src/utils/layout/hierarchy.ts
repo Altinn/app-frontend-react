@@ -8,15 +8,14 @@ import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { usePageNavigationConfig } from 'src/features/form/layout/PageNavigationContext';
 import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { useLaxInstanceDataSources } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useLangToolsRef } from 'src/features/language/LangToolsStore';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
-import { useAllOptions } from 'src/features/options/useAllOptions';
+import { useAllOptionsWhenLoaded } from 'src/features/options/useAllOptions';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { getLayoutComponentObject } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
-import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { CompInternal, HierarchyDataSources, ILayouts } from 'src/layout/layout';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
@@ -90,12 +89,13 @@ function resolvedNodesInLayouts(
   return unresolved as unknown as LayoutPages;
 }
 
+const emptyObject = {};
 export function useExpressionDataSources(hiddenComponents: Set<string>): HierarchyDataSources {
-  const instance = useLaxInstanceData();
+  const instanceDataSources = useLaxInstanceDataSources();
   const formDataSelector = FD.useDebouncedSelector();
   const layoutSettings = useLayoutSettings();
   const attachments = useAttachments();
-  const options = useAllOptions();
+  const options = useAllOptionsWhenLoaded();
   const process = useLaxProcessData();
   const applicationSettings = useApplicationSettings();
   const devToolsIsOpen = useDevToolsStore((state) => state.isOpen);
@@ -103,17 +103,18 @@ export function useExpressionDataSources(hiddenComponents: Set<string>): Hierarc
   const langToolsRef = useLangToolsRef();
   const currentLanguage = useCurrentLanguage();
   const pageNavigationConfig = usePageNavigationConfig();
+  const authContext = useMemo(() => buildAuthContext(process?.currentTask), [process?.currentTask]);
 
   return useMemo(
     () => ({
       formDataSelector,
-      attachments: attachments || {},
+      attachments: attachments || emptyObject,
       layoutSettings,
       pageNavigationConfig,
-      options: options || {},
+      options: options || emptyObject,
       applicationSettings,
-      instanceDataSources: buildInstanceDataSources(instance),
-      authContext: buildAuthContext(process?.currentTask),
+      instanceDataSources,
+      authContext,
       hiddenFields: hiddenComponents,
       devToolsIsOpen,
       devToolsHiddenComponents,
@@ -127,8 +128,8 @@ export function useExpressionDataSources(hiddenComponents: Set<string>): Hierarc
       pageNavigationConfig,
       options,
       applicationSettings,
-      instance,
-      process?.currentTask,
+      instanceDataSources,
+      authContext,
       hiddenComponents,
       devToolsIsOpen,
       devToolsHiddenComponents,
