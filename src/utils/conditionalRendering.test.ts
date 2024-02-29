@@ -1,6 +1,8 @@
 import dot from 'dot-object';
+import { v4 as uuidv4 } from 'uuid';
 
 import { getHierarchyDataSourcesMock } from 'src/__mocks__/getHierarchyDataSourcesMock';
+import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
 import { _private } from 'src/utils/layout/hierarchy';
 import type { IConditionalRenderingRules } from 'src/features/form/dynamics';
@@ -84,7 +86,7 @@ describe('conditionalRendering', () => {
       },
     };
 
-    const formDataAsObj = { parentGroup: [{ mockField: '8' }] };
+    const formDataAsObj = { parentGroup: [{ [ALTINN_ROW_ID]: uuidv4(), mockField: '8' }] };
     const nodes = makeNodes(formDataAsObj);
 
     // eslint-disable-next-line testing-library/render-result-naming-convention
@@ -113,8 +115,22 @@ describe('conditionalRendering', () => {
 
     const formDataAsObj = {
       parentGroup: [
-        { childGroup: [{ mockField: '11' }, { mockField: '8' }, { mockField: '8' }] },
-        { childGroup: [{ mockField: '8' }, { mockField: '8' }, { mockField: '11' }] },
+        {
+          [ALTINN_ROW_ID]: uuidv4(),
+          childGroup: [
+            { [ALTINN_ROW_ID]: uuidv4(), mockField: '11' },
+            { [ALTINN_ROW_ID]: uuidv4(), mockField: '8' },
+            { [ALTINN_ROW_ID]: uuidv4(), mockField: '8' },
+          ],
+        },
+        {
+          [ALTINN_ROW_ID]: uuidv4(),
+          childGroup: [
+            { [ALTINN_ROW_ID]: uuidv4(), mockField: '8' },
+            { [ALTINN_ROW_ID]: uuidv4(), mockField: '8' },
+            { [ALTINN_ROW_ID]: uuidv4(), mockField: '11' },
+          ],
+        },
       ],
     };
     const nodes = makeNodes(formDataAsObj);
