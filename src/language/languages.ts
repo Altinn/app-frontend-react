@@ -10,14 +10,20 @@ const cachedLanguages: Record<string, FixedLanguageList> = {};
 const langFuncMap = { en, nb, nn };
 
 export function getLanguageFromCode(languageCode: string) {
-  if (cachedLanguages[languageCode]) {
-    return cachedLanguages[languageCode];
+  const isValid = Object.prototype.hasOwnProperty.call(langFuncMap, languageCode);
+  if (!isValid) {
+    return en();
   }
 
-  const langFunc = langFuncMap[languageCode];
+  const validCode = languageCode as keyof typeof langFuncMap;
+  if (cachedLanguages[validCode]) {
+    return cachedLanguages[validCode];
+  }
+
+  const langFunc = langFuncMap[validCode];
   if (langFunc) {
     const language = langFunc();
-    cachedLanguages[languageCode] = language;
+    cachedLanguages[validCode] = language;
     return language;
   }
 
