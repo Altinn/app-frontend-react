@@ -9,8 +9,7 @@ import {
   selectValidations,
   shouldValidateNode,
 } from 'src/features/validation/utils';
-import { useValidationContext } from 'src/features/validation/validationContext';
-import { useAsRef } from 'src/hooks/useAsRef';
+import { Validation } from 'src/features/validation/validationContext';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
@@ -23,12 +22,12 @@ import type { LayoutPages } from 'src/utils/layout/LayoutPages';
  * If there are no backend errors, it shows any backend errors that cannot be mapped to a visible node. Including task errors.
  */
 export function useOnFormSubmitValidation() {
-  const setNodeVisibility = useValidationContext().setNodeVisibility;
-  const state = useValidationContext().state;
-  const validating = useValidationContext().validating;
-  const setShowAllErrors = useValidationContext().setShowAllErrors;
-  const lastBackendValidations = useValidationContext().backendValidationsProcessedLast;
-  const lastBackendValidationsRef = useAsRef(lastBackendValidations);
+  const setNodeVisibility = Validation.useSetNodeVisibility();
+  const selector = Validation.useSelector();
+  const stateRef = Validation.useFullStateRef();
+  const validating = Validation.useValidating();
+  const setShowAllErrors = Validation.useSetShowAllErrors();
+  const lastBackendValidationsRef = Validation.useProcessedLastFromBackendRef();
   const waitForBackendValidations = useWaitForState(lastBackendValidationsRef);
 
   /* Ensures the callback will have the latest state */
@@ -39,7 +38,7 @@ export function useOnFormSubmitValidation() {
     const nodesWithFrontendErrors = layoutPages
       .allNodes()
       .filter(shouldValidateNode)
-      .filter((n) => getValidationsForNode(n, state, ValidationMask.All, 'error').length > 0);
+      .filter((n) => getValidationsForNode(n, selector, ValidationMask.All, 'error').length > 0);
 
     if (nodesWithFrontendErrors.length > 0) {
       setNodeVisibility(nodesWithFrontendErrors, ValidationMask.All);
@@ -53,7 +52,7 @@ export function useOnFormSubmitValidation() {
     const nodesWithAnyError = layoutPages
       .allNodes()
       .filter(shouldValidateNode)
-      .filter((n) => getValidationsForNode(n, state, ValidationMask.AllIncludingBackend, 'error').length > 0);
+      .filter((n) => getValidationsForNode(n, selector, ValidationMask.AllIncludingBackend, 'error').length > 0);
 
     if (nodesWithAnyError.length > 0) {
       setNodeVisibility(nodesWithAnyError, ValidationMask.All);
@@ -66,9 +65,10 @@ export function useOnFormSubmitValidation() {
      */
     const backendMask = getVisibilityMask(['Backend', 'CustomBackend']);
     const hasFieldErrors =
-      Object.values(state.fields).flatMap((field) => selectValidations(field, backendMask, 'error')).length > 0;
+      Object.values(stateRef.current.fields).flatMap((field) => selectValidations(field, backendMask, 'error')).length >
+      0;
 
-    if (hasFieldErrors || hasValidationErrors(state.task)) {
+    if (hasFieldErrors || hasValidationErrors(stateRef.current.task)) {
       setShowAllErrors(true);
       return true;
     }
