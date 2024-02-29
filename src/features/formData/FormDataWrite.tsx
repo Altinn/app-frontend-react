@@ -254,17 +254,18 @@ const useDebounceImmediately = () => {
   }, [debounce]);
 };
 
-const useHasUnsavedChanges = () => {
-  const result = useLaxSelector((state) => {
-    if (state.controlState.isSaving) {
-      return true;
-    }
-    if (state.currentData !== state.lastSavedData) {
-      return true;
-    }
-    return state.debouncedCurrentData !== state.lastSavedData;
-  });
+function hasUnsavedChanges(state: FormDataContext) {
+  if (state.controlState.isSaving) {
+    return true;
+  }
+  if (state.currentData !== state.lastSavedData) {
+    return true;
+  }
+  return state.debouncedCurrentData !== state.lastSavedData;
+}
 
+const useHasUnsavedChanges = () => {
+  const result = useLaxSelector((state) => hasUnsavedChanges(state));
   if (result === ContextNotProvided) {
     return false;
   }
@@ -278,8 +279,8 @@ const useWaitForSave = () => {
   const ref = useAsRefFromLaxSelector(useLaxStore(), (s) => ({
     isSaving: s.controlState.isSaving,
     validation: s.validationIssues,
+    hasUnsavedChanges: hasUnsavedChanges(s),
   }));
-  const hasUnsavedChangesRef = useAsRef(useHasUnsavedChanges());
   const waitFor = useWaitForState<BackendValidationIssueGroups | undefined, FromRef<typeof ref>>(ref);
 
   return useCallback(
@@ -293,11 +294,11 @@ const useWaitForSave = () => {
       }
 
       return await waitFor((state, setReturnValue) => {
-        if (state === ContextNotProvided) {
+        if (state === ContextNotProvided || ref.current === ContextNotProvided) {
           setReturnValue(undefined);
           return true;
         }
-        if (!hasUnsavedChangesRef.current && !state.isSaving) {
+        if (!ref.current.hasUnsavedChanges && !state.isSaving) {
           setReturnValue(state.validation);
           return true;
         }
@@ -305,7 +306,7 @@ const useWaitForSave = () => {
         return false;
       });
     },
-    [hasUnsavedChangesRef, requestSave, url, waitFor],
+    [ref, requestSave, url, waitFor],
   );
 };
 
