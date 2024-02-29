@@ -1,5 +1,3 @@
-import dot from 'dot-object';
-
 import { getLikertStartStopIndex } from 'src/utils/formLayout';
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { CompLikertExternal, HLikertRows } from 'src/layout/Likert/config.generated';
@@ -48,9 +46,13 @@ export class LikertHierarchyGenerator extends ComponentHierarchyGenerator<'Liker
       const item = props.item as CompLikertExternal;
       const me = ctx.generator.makeNode(props);
       const rows: HLikertRows = [];
+
+      // TODO: Only select the number of rows and the row uuid. The rest of the form data is irrelevant and should
+      // not cause re-rendering.
       const formData = item.dataModelBindings?.questions
-        ? dot.pick(item.dataModelBindings.questions, ctx.generator.dataSources.formData)
+        ? ctx.generator.dataSources.formDataSelector(item.dataModelBindings.questions)
         : undefined;
+
       const lastIndex = formData && Array.isArray(formData) ? formData.length - 1 : -1;
 
       const { startIndex, stopIndex } = getLikertStartStopIndex(lastIndex, props.item.filter);

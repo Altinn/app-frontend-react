@@ -70,16 +70,16 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
     return useCallback(
       (selector) => {
         const state = store.getState();
+        const value = selector(state);
 
         // Check if this function has been called before, and if the value has not changed since the last time it
         // was called we can return the previous value and prevent re-rendering.
         const prev = selectorsCalled.find((s) => s.selector === selector);
-        if (prev && deepEqual(prev.prevValue, selector(state))) {
+        if (prev && deepEqual(prev.prevValue, value)) {
           return prev.prevValue;
         }
 
         // The value has changed, or the callback is new to us. We need to re-render the component.
-        const value = selector(state);
         setSelectorsCalled((prev) => {
           const next = prev.filter((s) => s.selector !== selector);
           next.push({ selector, prevValue: value });

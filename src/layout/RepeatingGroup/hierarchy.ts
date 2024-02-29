@@ -1,5 +1,3 @@
-import dot from 'dot-object';
-
 import { GridHierarchyGenerator } from 'src/layout/Grid/hierarchy';
 import { nodesFromGridRow } from 'src/layout/Grid/tools';
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
@@ -82,9 +80,13 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Repeat
       const item = props.item as CompRepeatingGroupExternal;
       const me = ctx.generator.makeNode(props);
       const rows: HRepGroupRows = [];
+
+      // TODO: Only select the number of rows and the row uuid. The rest of the form data is irrelevant and should
+      // not cause re-rendering.
       const formData = item.dataModelBindings?.group
-        ? dot.pick(item.dataModelBindings.group, ctx.generator.dataSources.formData)
+        ? ctx.generator.dataSources.formDataSelector(item.dataModelBindings.group)
         : undefined;
+
       const lastIndex = formData && Array.isArray(formData) ? formData.length - 1 : -1;
       for (let rowIndex = 0; rowIndex <= lastIndex; rowIndex++) {
         const rowChildren: LayoutNode[] = [];

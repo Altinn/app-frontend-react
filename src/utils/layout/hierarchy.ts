@@ -92,7 +92,7 @@ function resolvedNodesInLayouts(
 
 export function useExpressionDataSources(hiddenComponents: Set<string>): HierarchyDataSources {
   const instance = useLaxInstanceData();
-  const formData = FD.useDebounced();
+  const formDataSelector = FD.useDebouncedSelector();
   const layoutSettings = useLayoutSettings();
   const attachments = useAttachments();
   const options = useAllOptions();
@@ -106,7 +106,7 @@ export function useExpressionDataSources(hiddenComponents: Set<string>): Hierarc
 
   return useMemo(
     () => ({
-      formData,
+      formDataSelector,
       attachments: attachments || {},
       layoutSettings,
       pageNavigationConfig,
@@ -121,7 +121,7 @@ export function useExpressionDataSources(hiddenComponents: Set<string>): Hierarc
       currentLanguage,
     }),
     [
-      formData,
+      formDataSelector,
       attachments,
       layoutSettings,
       pageNavigationConfig,

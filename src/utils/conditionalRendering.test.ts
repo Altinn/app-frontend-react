@@ -1,3 +1,5 @@
+import dot from 'dot-object';
+
 import { getHierarchyDataSourcesMock } from 'src/__mocks__/getHierarchyDataSourcesMock';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
 import { _private } from 'src/utils/layout/hierarchy';
@@ -60,7 +62,7 @@ describe('conditionalRendering', () => {
   function makeNodes(formData: object) {
     return resolvedNodesInLayouts({ FormLayout: layout }, 'FormLayout', {
       ...getHierarchyDataSourcesMock(),
-      formData,
+      formDataSelector: (path: string) => dot.pick(path, formData),
     });
   }
 

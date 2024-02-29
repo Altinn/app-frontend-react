@@ -1,5 +1,3 @@
-import dot from 'dot-object';
-
 import { getLayoutComponentObject } from 'src/layout';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -262,11 +260,11 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
       return {} as IComponentFormData<Type>;
     }
 
-    const fullFormData = this.dataSources.formData;
+    const formDataSelector = this.dataSources.formDataSelector;
     const formDataObj: { [key: string]: any } = {};
     for (const key of Object.keys(this.item.dataModelBindings)) {
       const binding = this.item.dataModelBindings[key];
-      const data = dot.pick(binding, fullFormData);
+      const data = formDataSelector(binding);
 
       if (key === 'list') {
         formDataObj[key] = data ?? [];

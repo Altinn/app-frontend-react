@@ -1,3 +1,5 @@
+import dot from 'dot-object';
+
 import { getHierarchyDataSourcesMock } from 'src/__mocks__/getHierarchyDataSourcesMock';
 import { evalExpr } from 'src/features/expressions';
 import { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
@@ -75,7 +77,7 @@ describe('Expressions shared function tests', () => {
         const options: AllOptionsMap = {};
         const dataSources: HierarchyDataSources = {
           ...getHierarchyDataSourcesMock(),
-          formData: dataModel ?? {},
+          formDataSelector: (path) => dot.pick(path, dataModel ?? {}),
           attachments: convertInstanceDataToAttachments(instanceDataElements),
           instanceDataSources: buildInstanceDataSources(instance),
           applicationSettings: frontendSettings || ({} as IApplicationSettings),
@@ -175,7 +177,7 @@ describe('Expressions shared context tests', () => {
       ({ layouts, dataModel, instanceDataElements, instance, frontendSettings, permissions, expectedContexts }) => {
         const dataSources: HierarchyDataSources = {
           ...getHierarchyDataSourcesMock(),
-          formData: dataModel ?? {},
+          formDataSelector: (path) => dot.pick(path, dataModel ?? {}),
           attachments: convertInstanceDataToAttachments(instanceDataElements),
           instanceDataSources: buildInstanceDataSources(instance),
           applicationSettings: frontendSettings || ({} as IApplicationSettings),

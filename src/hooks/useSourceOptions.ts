@@ -1,5 +1,3 @@
-import { pick } from 'dot-object';
-
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { asExpression } from 'src/features/expressions/validation';
@@ -40,7 +38,7 @@ export function getSourceOptions({ source, node, dataSources }: IGetSourceOption
     return undefined;
   }
 
-  const { formData, langToolsRef } = dataSources;
+  const { formDataSelector, langToolsRef } = dataSources;
   const { group, value, label, helpText, description } = source;
   const cleanValue = getKeyWithoutIndexIndicators(value);
   const cleanGroup = getKeyWithoutIndexIndicators(group);
@@ -48,7 +46,7 @@ export function getSourceOptions({ source, node, dataSources }: IGetSourceOption
   const output: IOptionInternal[] = [];
 
   if (groupPath) {
-    const groupData = pick(groupPath, formData);
+    const groupData = formDataSelector(groupPath);
     if (groupData && Array.isArray(groupData)) {
       for (const idx in groupData) {
         const path = `${groupPath}[${idx}]`;
@@ -90,7 +88,7 @@ export function getSourceOptions({ source, node, dataSources }: IGetSourceOption
         const helpTextExpression = memoizedAsExpression(helpText, config);
 
         output.push({
-          value: String(pick(valuePath, formData)),
+          value: String(formDataSelector(valuePath)),
           label:
             label && !Array.isArray(label)
               ? langToolsRef.current.langAsStringUsingPathInDataModel(label, path)

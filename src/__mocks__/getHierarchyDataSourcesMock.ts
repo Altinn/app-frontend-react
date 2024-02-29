@@ -4,7 +4,7 @@ import type { HierarchyDataSources } from 'src/layout/layout';
 
 export function getHierarchyDataSourcesMock(): HierarchyDataSources {
   return {
-    formData: {},
+    formDataSelector: () => null,
     attachments: {},
     layoutSettings: { pages: { order: [] } },
     pageNavigationConfig: { hidden: [], hiddenExpr: {} },
