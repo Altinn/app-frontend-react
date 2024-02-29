@@ -15,15 +15,25 @@ import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettings
 import { FrontendValidationSource } from 'src/features/validation';
 import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { useCurrentView, useNavigatePage } from 'src/hooks/useNavigatePage';
-import { GenericComponent } from 'src/layout/GenericComponent';
+import { GenericComponentById } from 'src/layout/GenericComponent';
 import { extractBottomButtons, hasRequiredFields } from 'src/utils/formLayout';
-import { useNodes } from 'src/utils/layout/NodesContext';
+import { useNodesMemoSelector } from 'src/utils/layout/NodesContext';
 
 export function Form() {
   const currentPageId = useCurrentView();
   const { isValidPageId, navigateToPage } = useNavigatePage();
-  const nodes = useNodes();
-  const page = currentPageId && nodes?.all?.()?.[currentPageId];
+  const topLevelNodeIds = useNodesMemoSelector(
+    (nodes) =>
+      nodes
+        .findLayout(currentPageId)
+        ?.children()
+        .map((n) => n.item.id),
+  );
+  const hasRequired = useNodesMemoSelector((nodes) => {
+    const page = nodes.findLayout(currentPageId);
+    return page ? hasRequiredFields(page) : false;
+  });
+
   useRedirectToStoredPage();
   useSetExpandedWidth();
 
@@ -38,16 +48,16 @@ export function Form() {
 
   const { formErrors, taskErrors } = useTaskErrors();
   const hasErrors = Boolean(formErrors.length) || Boolean(taskErrors.length);
+  const [mainIds, errorReportIds] = useNodesMemoSelector((nodes) => {
+    const page = nodes.findLayout(currentPageId);
+    if (!hasErrors || !page) {
+      return [topLevelNodeIds, []];
+    }
+    return extractBottomButtons(page);
+  });
   const requiredFieldsMissing = formErrors.some(
     (error) => error.source === FrontendValidationSource.EmptyField && error.pageKey === currentPageId,
   );
-
-  const [mainNodes, errorReportNodes] = React.useMemo(() => {
-    if (!page) {
-      return [[], []];
-    }
-    return hasErrors ? extractBottomButtons(page) : [page.children(), []];
-  }, [page, hasErrors]);
 
   if (!currentPageId || !isValidPageId(currentPageId)) {
     return <FormFirstPage />;
@@ -55,7 +65,7 @@ export function Form() {
 
   return (
     <>
-      {page && hasRequiredFields(page) && (
+      {hasRequired && (
         <MessageBanner
           error={requiredFieldsMissing}
           messageKey={'form_filler.required_description'}
@@ -66,10 +76,10 @@ export function Form() {
         spacing={3}
         alignItems='flex-start'
       >
-        {mainNodes?.map((n) => (
-          <GenericComponent
-            key={n.item.id}
-            node={n}
+        {mainIds?.map((id) => (
+          <GenericComponentById
+            key={id}
+            id={id}
           />
         ))}
         <Grid
@@ -78,7 +88,7 @@ export function Form() {
           aria-live='polite'
           className={classes.errorReport}
         >
-          <ErrorReport nodes={errorReportNodes} />
+          <ErrorReport renderIds={errorReportIds} />
         </Grid>
       </Grid>
       <ReadyForPrint />

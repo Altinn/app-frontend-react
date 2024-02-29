@@ -128,7 +128,7 @@ function initialCreateStore({ validating }: NewStoreProps) {
   );
 }
 
-const { Provider, useSelector, useDelayedMemoSelector, useStore } = createZustandContext({
+const { Provider, useSelector, useDelayedMemoSelector, useSelectorAsRef } = createZustandContext({
   name: 'Validation',
   required: true,
   initialCreateStore,
@@ -281,30 +281,9 @@ export type ValidationFieldSelector = ReturnType<typeof useDelayedSelector<Field
 export type ValidationComponentSelector = ReturnType<typeof useDelayedSelector<ComponentValidations>>;
 export type ValidationVisibilitySelector = ReturnType<typeof useDelayedSelector<Visibility>>;
 
-/**
- * This hook returns a ref to the full validation state. It will not cause a re-render when the state changes,
- * but you can at any time access the latest state by reading the ref.
- */
-function useSelectionAsRef<U>(selector: (state: ValidationContext) => U) {
-  const store = useStore();
-  const fullStateRef = useRef<U>(selector(store.getState()));
-
-  useEffect(
-    () =>
-      store.subscribe((state) => {
-        fullStateRef.current = selector(state);
-      }),
-    // The selector is not expected to change, so we don't need to include it in the dependencies
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [store],
-  );
-
-  return fullStateRef;
-}
-
 export const Validation = {
-  useFullStateRef: () => useSelectionAsRef((state) => state.state),
-  useProcessedLastFromBackendRef: () => useSelectionAsRef((state) => state.backendValidationsProcessedLast),
+  useFullStateRef: () => useSelectorAsRef((state) => state.state),
+  useProcessedLastFromBackendRef: () => useSelectorAsRef((state) => state.backendValidationsProcessedLast),
 
   // Selectors. These are memoized, so they won't cause a re-render unless the selected fields change.
   useSelector: () => useDelayedSelector((state) => state),

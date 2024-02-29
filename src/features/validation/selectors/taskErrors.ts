@@ -11,7 +11,9 @@ import {
 } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { getVisibilityForNode } from 'src/features/validation/visibility/visibilityUtils';
-import { useNodes } from 'src/utils/layout/NodesContext';
+import { useNodesMemoSelector } from 'src/utils/layout/NodesContext';
+
+const emptyArray: [] = [];
 
 /**
  * Returns all validation errors (not warnings, info, etc.) for a layout set.
@@ -21,22 +23,25 @@ export function useTaskErrors(): {
   formErrors: NodeValidation<'error'>[];
   taskErrors: BaseValidation<'error'>[];
 } {
-  const pages = useNodes();
   const selector = Validation.useSelector();
   const visibilitySelector = Validation.useVisibilitySelector();
-
-  return useMemo(() => {
-    if (!pages) {
-      return { formErrors: [], taskErrors: [] };
+  const formErrors = useNodesMemoSelector((nodes) => {
+    if (!nodes) {
+      return emptyArray;
     }
-    const formErrors: NodeValidation<'error'>[] = [];
-    const taskErrors: BaseValidation<'error'>[] = [];
 
-    for (const node of pages.allNodes().filter(shouldValidateNode)) {
+    const formErrors: NodeValidation<'error'>[] = [];
+    for (const node of nodes.allNodes().filter(shouldValidateNode)) {
       formErrors.push(
         ...getValidationsForNode(node, selector, getVisibilityForNode(node, visibilitySelector), 'error'),
       );
     }
+
+    return formErrors;
+  });
+
+  const taskErrors = useMemo(() => {
+    const taskErrors: BaseValidation<'error'>[] = [];
 
     const allShown = selector('allFieldsIfShown', (state) => {
       if (state.showAllErrors) {
@@ -53,6 +58,9 @@ export function useTaskErrors(): {
         taskErrors.push(validation);
       }
     }
-    return { formErrors, taskErrors };
-  }, [pages, selector, visibilitySelector]);
+
+    return taskErrors;
+  }, [selector]);
+
+  return useMemo(() => ({ formErrors, taskErrors }), [formErrors, taskErrors]);
 }

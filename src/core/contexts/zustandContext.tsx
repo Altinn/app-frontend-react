@@ -14,6 +14,7 @@ const dummyStore = createStore(() => ({}));
 
 type Selector<T, U> = (state: T) => U;
 type SelectorFunc<T> = <U>(selector: Selector<T, U>) => U;
+type SelectorRefFunc<T> = <U>(selector: Selector<T, U>) => { current: U };
 type DelayedSelectorFunc<T> = <U>(selector: Selector<T, U>, postProcessor?: (data: unknown) => U) => U;
 type SelectorFuncLax<T> = <U>(selector: Selector<T, U>) => U | typeof ContextNotProvided;
 
@@ -37,6 +38,23 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
    */
   const useSelector: SelectorFunc<Type> = (selector) => useStore(useCtx(), selector);
 
+  const useSelectorAsRef: SelectorRefFunc<Type> = (selector) => {
+    const store = useCtx();
+    const ref = useRef<any>(selector(store.getState()));
+
+    useEffect(
+      () =>
+        store.subscribe((state) => {
+          ref.current = selector(state);
+        }),
+      // The selector is not expected to change, so we don't need to include it in the dependency array.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [store],
+    );
+
+    return ref;
+  };
+
   /**
    * Same as useSelector, but can be used to select complex values, such as objects or arrays, and will only trigger
    * a re-render if the selected value changes when compared with the previous value. Values are compared using
@@ -45,6 +63,24 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
   const useMemoSelector: SelectorFunc<Type> = (selector) => {
     const prev = useRef<any>(undefined);
     return useSelector((state) => {
+      const next = selector(state);
+      if (deepEqual(next, prev.current)) {
+        return prev.current;
+      }
+      prev.current = next;
+      return next;
+    });
+  };
+
+  const useLaxMemoSelector: SelectorFuncLax<Type> = (selector) => {
+    const _store = useLaxCtx();
+    const store = _store === ContextNotProvided ? dummyStore : _store;
+    const prev = useRef<any>(undefined);
+    return useStore(store as any, (state: Type) => {
+      if (_store === ContextNotProvided) {
+        return ContextNotProvided;
+      }
+
       const next = selector(state);
       if (deepEqual(next, prev.current)) {
         return prev.current;
@@ -163,7 +199,9 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
   return {
     Provider: MyProvider,
     useSelector,
+    useSelectorAsRef,
     useMemoSelector,
+    useLaxMemoSelector,
     useLaxSelector,
     useDelayedMemoSelector,
     useLaxDelayedMemoSelector,

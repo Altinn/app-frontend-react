@@ -16,6 +16,7 @@ import { GenericComponentDescription, GenericComponentLabel } from 'src/layout/G
 import { shouldComponentRenderLabel } from 'src/layout/index';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
+import { useNode } from 'src/utils/layout/NodesContext';
 import type { IGridStyling } from 'src/layout/common.generated';
 import type { GenericComponentOverrideDisplay, IFormComponentContext } from 'src/layout/FormComponentContext';
 import type { PropsFromGenericComponent } from 'src/layout/index';
@@ -27,6 +28,20 @@ export interface IGenericComponentProps<Type extends CompTypes> {
   node: LayoutNode<Type>;
   overrideItemProps?: Partial<Omit<CompInternal<Type>, 'id'>>;
   overrideDisplay?: GenericComponentOverrideDisplay;
+}
+
+/**
+ * Lazily renders a component referenced by a component ID. This is useful when you want to optimize rendering
+ * (for example in Form.tsx) where it's important that a component does not re-render when other nodes in the
+ * node hierarchy have been re-created.
+ */
+export function GenericComponentById({ id }: { id: string }) {
+  const node = useNode(id);
+  if (!node) {
+    throw new Error(`Node with id ${id} not found`);
+  }
+
+  return <GenericComponent node={node} />;
 }
 
 export function GenericComponent<Type extends CompTypes = CompTypes>({

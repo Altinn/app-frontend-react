@@ -1,6 +1,10 @@
 import React, { useEffect } from 'react';
+import type { PropsWithChildren } from 'react';
 
-import { createContext } from 'src/core/contexts/context';
+import { createStore } from 'zustand';
+
+import { createZustandContext } from 'src/core/contexts/zustandContext';
+import { Loader } from 'src/core/loading/Loader';
 import {
   runExpressionRules,
   runExpressionsForLayouts,
@@ -16,27 +20,66 @@ import type { LayoutNodeFromObj } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
-const NodesCtx = createContext<LayoutPages>({
+interface NodesContext {
+  nodes: LayoutPages | undefined;
+  hiddenComponents: Set<string>;
+  setNodes: (nodes: LayoutPages) => void;
+  setHiddenComponents: (mutator: (hidden: Set<string>) => Set<string>) => void;
+}
+
+function initialCreateStore() {
+  return createStore<NodesContext>((set) => ({
+    nodes: undefined,
+    setNodes: (nodes: LayoutPages) => set({ nodes }),
+    hiddenComponents: new Set(),
+    setHiddenComponents: (mutator: (hidden: Set<string>) => Set<string>) =>
+      set((state) => ({ hiddenComponents: mutator(state.hiddenComponents) })),
+  }));
+}
+
+const { Provider, useSelector, useMemoSelector, useSelectorAsRef } = createZustandContext({
   name: 'Nodes',
   required: true,
+  initialCreateStore,
 });
 
-const HiddenComponentsCtx = createContext<Set<string>>({
-  name: 'HiddenComponents',
-  required: true,
-});
+export const NodesProvider = (props: React.PropsWithChildren) => (
+  <Provider>
+    <InnerNodesProvider />
+    <InnerHiddenComponentsProvider />
+    <BlockUntilLoaded>{props.children}</BlockUntilLoaded>
+  </Provider>
+);
 
-export const NodesProvider = (props: React.PropsWithChildren) => {
-  const [hidden, setHidden] = React.useState<Set<string>>(new Set());
+function InnerNodesProvider() {
+  const hidden = useSelector((state) => state.hiddenComponents);
   const resolvedNodes = _private.useResolvedExpressions(hidden);
+  const setNodes = useSelector((state) => state.setNodes);
+
+  useEffect(() => {
+    setNodes(resolvedNodes);
+  }, [setNodes, resolvedNodes]);
+
+  return null;
+}
+
+function InnerHiddenComponentsProvider() {
+  const hidden = useSelector((state) => state.hiddenComponents);
+  const setHidden = useSelector((state) => state.setHiddenComponents);
+  const resolvedNodes = useSelector((state) => state.nodes);
+
   useLegacyHiddenComponents(resolvedNodes, hidden, setHidden);
 
-  return (
-    <HiddenComponentsCtx.Provider value={hidden}>
-      <NodesCtx.Provider value={resolvedNodes}>{props.children}</NodesCtx.Provider>
-    </HiddenComponentsCtx.Provider>
-  );
-};
+  return null;
+}
+
+function BlockUntilLoaded({ children }: PropsWithChildren) {
+  const hasNodes = useMemoSelector((state) => !!state.nodes);
+  if (!hasNodes) {
+    return <Loader reason='nodes' />;
+  }
+  return <>{children}</>;
+}
 
 /**
  * Use the expression context. This will return a LayoutPages object containing the full tree of resolved
@@ -45,9 +88,15 @@ export const NodesProvider = (props: React.PropsWithChildren) => {
  *
  * Usually, if you're looking for a specific component/node, useResolvedNode() is better.
  */
-export const useNodes = () => NodesCtx.useCtx();
+export const useNode = (id: string) => useSelector((s) => s.nodes?.findById(id));
+export const useNodes = () => useSelector((s) => s.nodes!);
+export const useNodesAsRef = () => useSelectorAsRef((s) => s.nodes!);
 
-export const useHiddenComponents = () => HiddenComponentsCtx.useCtx();
+export function useNodesMemoSelector<U>(selector: (s: LayoutPages) => U) {
+  return useMemoSelector((state) => selector(state.nodes!));
+}
+
+export const useHiddenComponents = () => useSelector((s) => s.hiddenComponents);
 
 /**
  * Given a selector, get a LayoutNode object
