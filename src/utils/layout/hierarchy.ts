@@ -1,4 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
+
+import deepEqual from 'fast-deep-equal';
 
 import { useApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
@@ -27,6 +29,7 @@ function resolvedNodesInLayouts(
   layouts: ILayouts | null,
   currentView: string | undefined,
   dataSources: HierarchyDataSources,
+  previousNodes?: LayoutPages,
 ) {
   // A full copy is needed here because formLayout comes from the redux store, and in production code (not the
   // development server!) the properties are not mutable (but we have to mutate them below).
@@ -82,6 +85,31 @@ function resolvedNodesInLayouts(
         // Mutates node.item directly - this also mutates references to it and makes sure
         // we resolve expressions deep inside recursive structures.
         node.item[key] = resolvedItem[key];
+      }
+    }
+  }
+
+  // We know that the hierarchy is re-generated much too often, and while a proper solution is difficult to implement,
+  // a stop-gap solution is to compare the previous hierarchy with the new one, and replace unchanged nodes with the
+  // old ones. Since React uses shallow comparison, this will prevent unnecessary re-renders.
+  if (previousNodes) {
+    for (const pageKey of previousNodes.allPageKeys()) {
+      const oldPage = previousNodes.findLayout(pageKey);
+      const newPage = unresolved.findLayout(pageKey);
+      if (!newPage || !oldPage) {
+        continue;
+      }
+
+      for (const oldNode of oldPage.flat(false)) {
+        const newNode = newPage.findById(oldNode.item.id);
+        if (newNode && deepEqual(oldNode.item, newNode.item)) {
+          // Some values in oldNode needs to be replaced so that references and functions still work
+          oldNode.parent = newNode.parent;
+          oldNode.top = newNode.top;
+          oldNode.dataSources = newNode.dataSources;
+
+          newPage.replaceNode(newNode, oldNode);
+        }
       }
     }
   }
@@ -143,8 +171,14 @@ function useResolvedExpressions(hidden: Set<string>) {
   const layouts = useLayouts();
   const currentView = useCurrentView();
   const dataSources = useExpressionDataSources(hidden);
+  const previousNodesRef = useRef<LayoutPages>();
+  const nodes = useMemo(
+    () => resolvedNodesInLayouts(layouts, currentView, dataSources, previousNodesRef.current),
+    [layouts, currentView, dataSources],
+  );
+  previousNodesRef.current = nodes;
 
-  return useMemo(() => resolvedNodesInLayouts(layouts, currentView, dataSources), [layouts, currentView, dataSources]);
+  return nodes;
 }
 
 /**

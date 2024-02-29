@@ -37,7 +37,7 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
     public item: Item,
     public parent: ParentNode,
     public top: LayoutPage,
-    private readonly dataSources: HierarchyDataSources,
+    public dataSources: HierarchyDataSources,
     public readonly rowIndex?: number,
     public readonly rowId?: string,
   ) {
