@@ -202,6 +202,7 @@ export function setVisibilityForNode(
     return;
   }
 
+  // Always keep showValidations categories visible
   const initialMask = getInitialMaskFromNode(node);
 
   visibility.mask = mask | initialMask;
