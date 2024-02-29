@@ -64,11 +64,30 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
    * because the function itself will be recreated every time the component re-renders, and the function
    * will not be able to be used as a cache key.
    */
-  const useDelayedMemoSelectorProto = (store: Store): SelectorFunc<Type> => {
+  const useDelayedMemoSelectorProto = (store: Store | typeof ContextNotProvided): SelectorFunc<Type> => {
     const [selectorsCalled, setSelectorsCalled] = useState<DelayedSelectorState<Type>>([]);
+
+    useEffect(() => {
+      if (store === ContextNotProvided) {
+        return;
+      }
+
+      return store.subscribe((state) => {
+        // When the state changes, we run all the known selectors again to figure out if anything changed. If it
+        // did change, we'll clear the list of selectors to force a re-render.
+        setSelectorsCalled((selectors) => {
+          const changed = selectors.some((s) => !deepEqual(s.prevValue, s.selector(state)));
+          return changed ? [] : selectors;
+        });
+      });
+    }, [store]);
 
     return useCallback(
       (selector) => {
+        if (store === ContextNotProvided) {
+          return undefined;
+        }
+
         const state = store.getState();
         const value = selector(state);
 
