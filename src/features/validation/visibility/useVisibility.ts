@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 
 import { original } from 'immer';
-import { useImmer } from 'use-immer';
 
 import { type IAttachments, isAttachmentUploaded, type UploadedAttachment } from 'src/features/attachments';
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
@@ -23,18 +22,15 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 /**
  * Manages the visibility state of validations on components
  */
-export function useVisibility(validations: ValidationState) {
+export function useVisibility(
+  validations: ValidationState,
+  setVisibility: (updater: (draft: Visibility) => void) => void,
+) {
   const layoutPages = useNodes();
   const nodesRef = useAsRef(layoutPages);
   const lastNodes = useRef<LayoutNode[]>([]);
   const currentAttachments = useAttachments();
   const lastAttachments = useRef<IAttachments<UploadedAttachment>>({});
-
-  const [visibility, setVisibility] = useImmer<Visibility>({
-    mask: 0,
-    children: {},
-    items: [],
-  });
 
   /**
    * Add and remove visibility as nodes are added and removed
@@ -140,8 +136,6 @@ export function useVisibility(validations: ValidationState) {
       });
     });
   }, [currentAttachments, nodesRef, setVisibility]);
-
-  return { visibility, setVisibility };
 }
 
 function getNodeChanges(prevNodes: LayoutNode[], newNodes: LayoutNode[]) {

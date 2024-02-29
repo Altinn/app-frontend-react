@@ -57,11 +57,26 @@ export type ValidationContext = {
   state: ValidationState;
   validating: () => Promise<(lastBackendValidations: BackendValidationIssueGroups | undefined) => boolean>;
   visibility: Visibility;
+
+  /**
+   * Set the visibility for a node
+   */
   setNodeVisibility: (nodes: LayoutNode[], newVisibility: number, rowIndex?: number) => void;
-  showAllErrors: boolean;
+
+  /**
+   * This is a last resort to show all errors, to prevent unknown error
+   * if this is ever visible, there is probably something wrong in the app.
+   */
   setShowAllErrors: (showAllErrors: boolean) => void;
+  showAllErrors: boolean;
+
   setAttachmentVisibility: (attachmentId: string, node: LayoutNode, newVisibility: number) => void;
+
+  /**
+   * Properly remove visibility for a row when it is deleted
+   */
   removeRowVisibilityOnDelete: (node: LayoutNode<'RepeatingGroup'>, rowIndex: number) => void;
+
   backendValidationsProcessedLast: BackendValidationIssueGroups | undefined;
 };
 
