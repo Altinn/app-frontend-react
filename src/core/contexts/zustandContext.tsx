@@ -14,6 +14,7 @@ const dummyStore = createStore(() => ({}));
 
 type Selector<T, U> = (state: T) => U;
 type SelectorFunc<T> = <U>(selector: Selector<T, U>) => U;
+type DelayedSelectorFunc<T> = <U>(selector: Selector<T, U>, postProcessor?: (data: unknown) => U) => U;
 type SelectorFuncLax<T> = <U>(selector: Selector<T, U>) => U | typeof ContextNotProvided;
 
 type DelayedSelectorState<T> = {
@@ -64,7 +65,7 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
    * because the function itself will be recreated every time the component re-renders, and the function
    * will not be able to be used as a cache key.
    */
-  const useDelayedMemoSelectorProto = (store: Store | typeof ContextNotProvided): SelectorFunc<Type> => {
+  const useDelayedMemoSelectorProto = (store: Store | typeof ContextNotProvided): DelayedSelectorFunc<Type> => {
     const selectorsCalled = useRef<DelayedSelectorState<Type>>([]);
     const [renderCount, forceRerender] = useState(0);
 
@@ -86,7 +87,7 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
     }, [store]);
 
     return useCallback(
-      (selector) => {
+      (selector, postProcessor) => {
         if (store === ContextNotProvided) {
           return undefined;
         }
@@ -97,7 +98,10 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
         }
 
         const state = store.getState();
-        const value = selector(state);
+        let value = selector(state);
+        if (postProcessor) {
+          value = postProcessor(value);
+        }
 
         // Check if this function has been called before, and if the value has not changed since the last time it
         // was called we can return the previous value and prevent re-rendering.
@@ -124,7 +128,7 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
    * The same as useDelayedMemoSelector, but will also work if the context provider is not present.
    * If the context provider is not present, the hook will return the ContextNotProvided value instead.
    */
-  const useLaxDelayedMemoSelector = (): SelectorFunc<Type> | typeof ContextNotProvided => {
+  const useLaxDelayedMemoSelector = (): DelayedSelectorFunc<Type> | typeof ContextNotProvided => {
     const _store = useLaxCtx();
     const delayedSelector = useDelayedMemoSelectorProto(_store as any);
     return _store === ContextNotProvided ? ContextNotProvided : delayedSelector;

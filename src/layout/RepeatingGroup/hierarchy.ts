@@ -86,17 +86,19 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Repeat
       const me = ctx.generator.makeNode(props);
       const rows: HRepGroupRows = [];
 
-      // TODO: Only select the number of rows and the row uuid. The rest of the form data is irrelevant and should
-      // not cause re-rendering.
+      // Only fetch the row ID (and by extension the number of rows) so that we only re-generate the hierarchy
+      // when the number for rows and/or the row IDs change, not the other data within it.
       const formData = item.dataModelBindings?.group
-        ? ctx.generator.dataSources.formDataSelector(item.dataModelBindings.group)
+        ? ctx.generator.dataSources.formDataSelector(item.dataModelBindings.group, (rows) =>
+            Array.isArray(rows) ? rows.map((row) => ({ [ALTINN_ROW_ID]: row[ALTINN_ROW_ID] })) : [],
+          )
         : undefined;
 
       const lastIndex = formData && Array.isArray(formData) ? formData.length - 1 : -1;
       for (let rowIndex = 0; rowIndex <= lastIndex; rowIndex++) {
         const rowChildren: LayoutNode[] = [];
 
-        const uuid = formData[rowIndex][ALTINN_ROW_ID];
+        const uuid = formData && formData[rowIndex][ALTINN_ROW_ID];
         if (uuid === undefined) {
           const path = `${item.dataModelBindings.group}[${rowIndex}]`;
           throw new MissingRowIdException(path);

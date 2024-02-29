@@ -52,10 +52,12 @@ export class LikertHierarchyGenerator extends ComponentHierarchyGenerator<'Liker
       const me = ctx.generator.makeNode(props);
       const rows: HLikertRows = [];
 
-      // TODO: Only select the number of rows and the row uuid. The rest of the form data is irrelevant and should
-      // not cause re-rendering.
+      // Only fetch the row ID (and by extension the number of rows) so that we only re-generate the hierarchy
+      // when the number for rows and/or the row IDs change, not the other data within it.
       const formData = item.dataModelBindings?.questions
-        ? ctx.generator.dataSources.formDataSelector(item.dataModelBindings.questions)
+        ? ctx.generator.dataSources.formDataSelector(item.dataModelBindings.questions, (rows) =>
+            Array.isArray(rows) ? rows.map((row) => ({ [ALTINN_ROW_ID]: row[ALTINN_ROW_ID] })) : [],
+          )
         : undefined;
 
       const lastIndex = formData && Array.isArray(formData) ? formData.length - 1 : -1;
@@ -69,7 +71,7 @@ export class LikertHierarchyGenerator extends ComponentHierarchyGenerator<'Liker
 
         const itemProps = structuredClone(prototype);
 
-        const uuid = formData[rowIndex][ALTINN_ROW_ID];
+        const uuid = formData && formData[rowIndex][ALTINN_ROW_ID];
         if (typeof uuid !== 'string' || !uuid.length) {
           const path = `${item.dataModelBindings.questions}[${rowIndex}]`;
           throw new MissingRowIdException(path);

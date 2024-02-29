@@ -87,7 +87,7 @@ export interface ValidationFilter {
   getValidationFilter: (node: LayoutNode) => ValidationFilterFunction | null;
 }
 
-export type FormDataSelector = (path: string) => unknown;
+export type FormDataSelector = (path: string, postProcessor?: (data: unknown) => unknown) => unknown;
 
 export function implementsValidationFilter<Type extends CompTypes>(
   component: AnyComponent<Type>,
