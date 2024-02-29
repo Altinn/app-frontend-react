@@ -14,7 +14,6 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 export function useOnGroupCloseValidation() {
   const setNodeVisibility = Validation.useSetNodeVisibility();
   const selector = Validation.useSelector();
-  const stateRef = Validation.useFullStateRef();
   const validating = Validation.useValidating();
   const lastBackendValidationsRef = Validation.useProcessedLastFromBackendRef();
   const waitForBackendValidations = useWaitForState(lastBackendValidationsRef);
