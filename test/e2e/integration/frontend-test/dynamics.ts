@@ -43,54 +43,10 @@ describe('Dynamics', () => {
 
   it.only('Should save multiple chosen checkboxes as string array.', () => {
     showReasons();
-    // cy.goto('changename');
-    // cy.findByRole('checkbox', { name: /Slektskap/ }).check();
-    //
-    // cy.findByRole('checkbox', { name: /Gårdsbruk/ }).check();
-    //
-    // cy.findByRole('checkbox', { name: /Ste- eller fosterforeldres etternavn eller mellomnavn/ }).dsCheck();
     cy.findByRole('checkbox', { name: /Label Databindings/ }).check();
     cy.findByRole('button', { name: /Neste/ }).click();
     cy.navPage('label-data-bindings').click();
     cy.findByRole('checkbox', { name: /Slektskap/ }).dsCheck();
-    // Promise.all([
-    //   cy.findByRole('checkbox', { name: /Slektskap/ }).dsCheck(),
-    //   cy.findByRole('checkbox', { name: /Gårdsbruk/ }).dsCheck(),
-    //   cy.findByRole('checkbox', { name: /Ste- eller fosterforeldres etternavn eller mellomnavn/ }).dsCheck(),
-    // ]);
-
-    // cy.intercept({ method: 'PATCH', url: '**/instances/**' }).as('updateLabels1');
-
-    // cy.intercept({ method: 'PATCH', url: '**/instances/**' }).as('updateLabels2');
-
-    // cy.wait(2000);
-    //
-    // cy.wait(['@updateLabels1', '@updateLabels2']).then(([updateLabels1, updateLabels2]) => {
-    //   cy.log(JSON.stringify(updateLabels1, null, 2));
-    //   cy.log(JSON.stringify(updateLabels2, null, 2));
-    //   // Perform assertions or actions after both requests are complete
-    //   cy.get('#reasonLabelsVerify').should('have.value', 'Annen begrunnelse ,Gårdsbruk,Slektskap');
-    // });
-
-    // cy.get('#reasonLabelsVerify').should('have.value', 'Annen begrunnelse ,Gårdsbruk,Slektskap');
-
-    // cy.intercept({ method: 'PATCH', url: '**/instances/**' }).as('updateLabels');
-    //
-    // cy.wait('@updateLabels').then((interception) => {
-    //   // Extract the data from the intercepted request
-    //   // const responseData = interception?.response?.body?.data;
-    //   // @ts-ignore
-    //   console.log(JSON.stringify(responseData, null, 2));
-    //   cy.get('#reasonLabelsVerify').should('have.value', 'Annen begrunnelse ,Gårdsbruk,Slektskap');
-    // });
-
-    //local.altinn.cloud/ttd/frontend-test/instances/512345/1367c8a7-ec31-49ee-af95-b4924d8912c4/data/6bfe9129-1b81-4e6b-9e9a-1db9102a8b12?language=nb
-    // cy.intercept({ method: 'PATCH', url: '**/instances/**' }).as('updateLabels');
-    // cy.wait('@updateLabels', { timeout: 2000 });
-    // cy.findByRole('checkbox', { name: /Annen begrunnelse/ }).click();
-    // cy.get('#reasonLabel').should('have.value', 'Slektskap');
-    // changeToLang('en');
-    // cy.get('#reasonLabel').should('have.value', 'Kinship');
   });
 
   it('Remove validation message when field disappears', () => {
