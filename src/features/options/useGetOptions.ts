@@ -20,6 +20,21 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type ValueType = 'single' | 'multi';
 
+const getLabelsForActiveOptions = (selectedOptions: string[], allOptions: IOptionInternal[]): string[] =>
+  allOptions.filter((option) => selectedOptions.includes(option.value)).map((option) => option.label);
+
+const usePrevious = (value: any) => {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+};
+const useHasChanged = (val: any) => {
+  const prevVal = usePrevious(val);
+  return prevVal !== val;
+};
+
 interface Props<T extends ValueType> {
   valueType: T;
 
@@ -149,6 +164,7 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
     staticOptions,
   ]);
 
+  // Log error if fetching options failed
   useEffect(() => {
     if (isError) {
       const optionsId = 'optionsId' in node.item ? `\noptionsId: ${node.item.optionsId}` : '';
@@ -187,32 +203,38 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
     return (value ? value.split(',') : []) as CurrentValueAsString<T>;
   }, [value, valueType]);
 
+  const translatedLabels = useMemo(
+    () =>
+      getLabelsForActiveOptions(
+        Array.isArray(currentStringy) ? currentStringy : [currentStringy],
+        calculatedOptions || [],
+      ).map((label) => langAsString(label)),
+
+    [calculatedOptions, currentStringy, langAsString],
+  );
+
+  const labelsHaveChanged = useHasChanged(translatedLabels.join(','));
+
+  useEffect(() => {
+    if (!dataModelBindings?.label) {
+      return;
+    }
+    if (labelsHaveChanged) {
+      setValue('label' as any, translatedLabels);
+    }
+  }, [translatedLabels, labelsHaveChanged, dataModelBindings?.label, setValue]);
+
   const setData = useMemo(() => {
     if (valueType === 'single') {
-      return (value: string | IOptionInternal) => {
+      return (value: string | IOptionInternal) =>
         setValue('simpleBinding', typeof value === 'string' ? value : value.value);
-        if (dataModelBindings?.label) {
-          if ((value as IOptionInternal).label) {
-            setValue('label' as any, (value as IOptionInternal).label);
-          }
-        }
-      };
     }
 
     return (value: (string | IOptionInternal)[]) => {
       const asString = value.map((v) => (typeof v === 'string' ? v : v.value)).join(',');
       setValue('simpleBinding', asString);
-      if (dataModelBindings?.label) {
-        const options = value as IOptionInternal[];
-        const labels = options.map((option) => langAsString(option.label));
-        if (labels.length < 1) {
-          setValue('label' as any, undefined);
-        } else {
-          setValue('label' as any, labels);
-        }
-      }
     };
-  }, [setValue, valueType, dataModelBindings, langAsString]) as ValueSetter<T>;
+  }, [setValue, valueType]) as ValueSetter<T>;
 
   const effectProps: EffectProps<T> = useMemo(
     () => ({
