@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { useMutation } from '@tanstack/react-query';
@@ -43,7 +43,15 @@ interface FormDataContextInitialProps {
   schemaLookup: SchemaLookupTool;
 }
 
-const { Provider, useSelector, useMemoSelector, useLaxSelector, useLaxStore } = createZustandContext({
+const {
+  Provider,
+  useSelector,
+  useMemoSelector,
+  useLaxDelayedMemoSelector,
+  useDelayedMemoSelector,
+  useLaxSelector,
+  useLaxStore,
+} = createZustandContext({
   name: 'FormDataWrite',
   required: true,
   initialCreateStore: ({
@@ -289,6 +297,54 @@ export const FD = {
    */
   useDebounced(): object {
     return useSelector((v) => v.debouncedCurrentData);
+  },
+
+  /**
+   * Gives you a selector function that can be used to look up paths in the data model. This is similar to
+   * useDebounced(), but it will only re-render the component if the value at the path(s) you selected actually
+   * changes. This is useful if you want to avoid re-rendering when the form data changes, but you still want to
+   * pretend to have the full data model available to look up values from.
+   */
+  useDebouncedSelector(): (path: string) => unknown {
+    const selector = useDelayedMemoSelector();
+    const callbacks = useRef<Record<string, Parameters<typeof selector>[0]>>({});
+
+    return useCallback(
+      (path: string) => {
+        if (!callbacks.current[path]) {
+          callbacks.current[path] = (state) => dot.pick(path, state.debouncedCurrentData);
+        }
+        return selector(callbacks.current[path]);
+      },
+      [selector],
+    );
+  },
+
+  /**
+   * This is the same as useDebouncedSelector(), but will return ContextNotProvided immediately if the context
+   * provider is not present.
+   */
+  useLaxDebouncedSelector(): ((path: string) => unknown) | typeof ContextNotProvided {
+    const selector = useLaxDelayedMemoSelector();
+    const callbacks = useRef<Record<string, Parameters<Exclude<typeof selector, typeof ContextNotProvided>>[0]>>({});
+    const out = useCallback(
+      (path: string) => {
+        if (selector === ContextNotProvided) {
+          throw new Error(
+            'useLaxDebouncedSelector() cannot be used without a FormDataWriteProvider (and this should not be thrown)',
+          );
+        }
+
+        if (!callbacks.current[path]) {
+          callbacks.current[path] = (state) => dot.pick(path, state.debouncedCurrentData);
+        }
+
+        return selector(callbacks.current[path]);
+      },
+      [selector],
+    );
+
+    return selector === ContextNotProvided ? ContextNotProvided : out;
   },
 
   /**
