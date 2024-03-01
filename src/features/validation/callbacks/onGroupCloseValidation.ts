@@ -3,7 +3,6 @@ import { useCallback } from 'react';
 import { getValidationsForNode, getVisibilityMask, shouldValidateNode } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
-import { useWaitForState } from 'src/hooks/useWaitForState';
 import type { AllowedValidationMasks } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -15,8 +14,6 @@ export function useOnGroupCloseValidation() {
   const setNodeVisibility = Validation.useSetNodeVisibility();
   const selector = Validation.useSelector();
   const validating = Validation.useValidating();
-  const lastBackendValidationsRef = Validation.useProcessedLastFromBackendRef();
-  const waitForBackendValidations = useWaitForState(lastBackendValidationsRef);
 
   /* Ensures the callback will have the latest state */
   const callback = useEffectEvent((node: LayoutNode, rowUuid: string, masks: AllowedValidationMasks): boolean => {
@@ -38,10 +35,9 @@ export function useOnGroupCloseValidation() {
 
   return useCallback(
     async (node: LayoutNode, rowUuid: string, masks: AllowedValidationMasks) => {
-      const localWait = await validating();
-      await waitForBackendValidations(localWait);
+      await validating();
       return callback(node, rowUuid, masks);
     },
-    [callback, validating, waitForBackendValidations],
+    [callback, validating],
   );
 }

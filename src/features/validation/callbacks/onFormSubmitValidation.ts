@@ -11,7 +11,6 @@ import {
 } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
-import { useWaitForState } from 'src/hooks/useWaitForState';
 import { useNodesAsRef } from 'src/utils/layout/NodesContext';
 
 /**
@@ -28,8 +27,6 @@ export function useOnFormSubmitValidation() {
   const stateRef = Validation.useFullStateRef();
   const validating = Validation.useValidating();
   const setShowAllErrors = Validation.useSetShowAllErrors();
-  const lastBackendValidationsRef = Validation.useProcessedLastFromBackendRef();
-  const waitForBackendValidations = useWaitForState(lastBackendValidationsRef);
 
   /* Ensures the callback will have the latest state */
   const callback = useEffectEvent((): boolean => {
@@ -80,8 +77,7 @@ export function useOnFormSubmitValidation() {
   });
 
   return useCallback(async () => {
-    const localWait = await validating(true);
-    await waitForBackendValidations(localWait);
+    await validating();
     return callback();
-  }, [callback, validating, waitForBackendValidations]);
+  }, [callback, validating]);
 }

@@ -4,7 +4,6 @@ import { getValidationsForNode, getVisibilityMask, shouldValidateNode } from 'sr
 import { Validation } from 'src/features/validation/validationContext';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { useOrder } from 'src/hooks/useNavigatePage';
-import { useWaitForState } from 'src/hooks/useWaitForState';
 import type { PageValidation } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -19,8 +18,6 @@ export function useOnPageNavigationValidation() {
   const selector = Validation.useSelector();
   const validating = Validation.useValidating();
   const pageOrder = useOrder();
-  const lastBackendValidationsRef = Validation.useProcessedLastFromBackendRef();
-  const waitForBackendValidations = useWaitForState(lastBackendValidationsRef);
 
   /* Ensures the callback will have the latest state */
   const callback = useEffectEvent((currentPage: LayoutPage, config: PageValidation): boolean => {
@@ -69,10 +66,9 @@ export function useOnPageNavigationValidation() {
 
   return useCallback(
     async (currentPage: LayoutPage, config: PageValidation) => {
-      const localWait = await validating();
-      await waitForBackendValidations(localWait);
+      await validating();
       return callback(currentPage, config);
     },
-    [callback, validating, waitForBackendValidations],
+    [callback, validating],
   );
 }

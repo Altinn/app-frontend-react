@@ -36,9 +36,9 @@ import type {
   WaitForValidation,
 } from 'src/features/validation';
 import type { Visibility } from 'src/features/validation/visibility/visibilityUtils';
+import type { WaitForState } from 'src/hooks/useWaitForState';
 
 interface NewStoreProps {
-  backendValidationsProcessedLastRef: React.MutableRefObject<BackendValidationIssueGroups | undefined>;
   validating: WaitForValidation;
 }
 
@@ -51,6 +51,7 @@ interface Internals {
     schema: FieldValidations;
     invalidData: FieldValidations;
   };
+  issueGroupsProcessedLast: BackendValidationIssueGroups | undefined;
   updateValidations: <K extends keyof Internals['individualValidations']>(
     key: K,
     value: Internals['individualValidations'][K],
@@ -75,7 +76,6 @@ function initialCreateStore({ validating }: NewStoreProps) {
         children: {},
         items: [],
       },
-      backendValidationsProcessedLast: undefined,
       removeRowVisibilityOnDelete: (node, rowIndex) =>
         set((state) => {
           onBeforeRowDelete(node, rowIndex, state.visibility);
@@ -105,12 +105,13 @@ function initialCreateStore({ validating }: NewStoreProps) {
         schema: {},
         invalidData: {},
       },
+      issueGroupsProcessedLast: undefined,
       updateValidations: (key, validations, issueGroups) =>
         set((state) => {
           if (key === 'backend') {
             state.isLoading = false;
             state.state.task = (validations as BackendValidations).task;
-            state.backendValidationsProcessedLast = issueGroups;
+            state.issueGroupsProcessedLast = issueGroups;
           }
           state.individualValidations[key] = validations;
           if (key === 'component') {
@@ -136,7 +137,7 @@ function initialCreateStore({ validating }: NewStoreProps) {
   );
 }
 
-const { Provider, useSelector, useDelayedMemoSelector, useSelectorAsRef } = createZustandContext({
+const { Provider, useSelector, useDelayedMemoSelector, useSelectorAsRef, useStore } = createZustandContext({
   name: 'Validation',
   required: true,
   initialCreateStore,
@@ -151,8 +152,7 @@ interface Props {
 
 export function ValidationProvider({ children, isCustomReceipt = false }: PropsWithChildren<Props>) {
   const waitForSave = FD.useWaitForSave();
-  const backendValidationsProcessedLastRef = useRef<BackendValidationIssueGroups | undefined>(undefined);
-  const waitForBackendValidations = useWaitForState(backendValidationsProcessedLastRef);
+  const waitForStateRef = useRef<WaitForState<ValidationContext & Internals, unknown>>();
   const hasPendingAttachments = useHasPendingAttachments();
 
   // Provide a promise that resolves when all pending validations have been completed
@@ -160,34 +160,42 @@ export function ValidationProvider({ children, isCustomReceipt = false }: PropsW
   const waitForAttachments = useWaitForState(pendingAttachmentsRef);
 
   const validating: WaitForValidation = useCallback(
-    async (forceSave = false) => {
+    async (forceSave = true) => {
+      console.log('debug, waiting for validation: attachments');
       await waitForAttachments((state) => !state);
 
       // Wait until we've saved changed to backend, and we've processed the backend validations we got from that save
+      console.log('debug, waiting for validation: saving');
       const validationsFromSave = await waitForSave(forceSave);
 
-      await waitForBackendValidations((processedLast) => processedLast === validationsFromSave);
+      console.log('debug, waiting for validation: validation');
+      await waitForStateRef.current!((state) => state.issueGroupsProcessedLast === validationsFromSave);
 
       // At last, return a function to the caller that can be used to check if their local state is up-to-date
+      console.log('debug, waiting for validation done');
       return (lastBackendValidations: BackendValidationIssueGroups | undefined) =>
         lastBackendValidations === validationsFromSave;
     },
-    [waitForAttachments, waitForBackendValidations, waitForSave],
+    [waitForAttachments, waitForSave],
   );
 
   return (
-    <Provider
-      backendValidationsProcessedLastRef={backendValidationsProcessedLastRef}
-      validating={validating}
-    >
-      <UpdateValidations
-        isCustomReceipt={isCustomReceipt}
-        backendValidationsProcessedLastRef={backendValidationsProcessedLastRef}
-      />
+    <Provider validating={validating}>
+      <MakeWaitForState waitForStateRef={waitForStateRef} />
+      <UpdateValidations isCustomReceipt={isCustomReceipt} />
       <ManageVisibility />
       <LoadingBlocker isCustomReceipt={isCustomReceipt}>{children}</LoadingBlocker>
     </Provider>
   );
+}
+
+function MakeWaitForState({
+  waitForStateRef,
+}: {
+  waitForStateRef: React.MutableRefObject<WaitForState<ValidationContext & Internals, unknown> | undefined>;
+}) {
+  waitForStateRef.current = useWaitForState(useStore());
+  return null;
 }
 
 function LoadingBlocker({ children, isCustomReceipt }: PropsWithChildren<Props>) {
@@ -199,24 +207,16 @@ function LoadingBlocker({ children, isCustomReceipt }: PropsWithChildren<Props>)
   return <>{children}</>;
 }
 
-interface UpdateValidationsProps extends Props {
-  backendValidationsProcessedLastRef: React.MutableRefObject<BackendValidationIssueGroups | undefined>;
-}
-
-function UpdateValidations({ isCustomReceipt, backendValidationsProcessedLastRef }: UpdateValidationsProps) {
+function UpdateValidations({ isCustomReceipt }: Props) {
   const updateValidations = useSelector((state) => state.updateValidations);
-  const {
-    validations: backendValidations,
-    processedLast,
-    initialValidationDone,
-  } = useBackendValidation({ enabled: !isCustomReceipt });
-  backendValidationsProcessedLastRef.current = processedLast;
+  const backendValidation = useBackendValidation({ enabled: !isCustomReceipt });
 
   useEffect(() => {
+    const { validations: backendValidations, processedLast, initialValidationDone } = backendValidation;
     if (initialValidationDone) {
       updateValidations('backend', backendValidations, processedLast);
     }
-  }, [backendValidations, initialValidationDone, processedLast, updateValidations]);
+  }, [backendValidation, updateValidations]);
 
   const componentValidations = useNodeValidation();
   const expressionValidations = useExpressionValidation();
@@ -298,7 +298,6 @@ export type ValidationVisibilitySelector = ReturnType<typeof useDelayedSelector<
 
 export const Validation = {
   useFullStateRef: () => useSelectorAsRef((state) => state.state),
-  useProcessedLastFromBackendRef: () => useSelectorAsRef((state) => state.backendValidationsProcessedLast),
 
   // Selectors. These are memoized, so they won't cause a re-render unless the selected fields change.
   useSelector: () => useDelayedSelector((state) => state),

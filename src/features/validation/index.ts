@@ -80,8 +80,6 @@ export type ValidationContext = {
    * Properly remove visibility for a row when it is deleted
    */
   removeRowVisibilityOnDelete: (node: LayoutNode<'RepeatingGroup'>, rowIndex: number) => void;
-
-  backendValidationsProcessedLast: BackendValidationIssueGroups | undefined;
 };
 
 export type ValidationState = {

@@ -47,11 +47,11 @@ interface FormDataContextInitialProps {
 const {
   Provider,
   useSelector,
-  useLaxSelectorAsRef,
   useMemoSelector,
   useLaxDelayedMemoSelector,
   useDelayedMemoSelector,
   useLaxSelector,
+  useLaxStore,
 } = createZustandContext({
   name: 'FormDataWrite',
   required: true,
@@ -272,16 +272,13 @@ const useHasUnsavedChanges = () => {
   return result;
 };
 
-type FromRef<T> = T extends React.MutableRefObject<infer U> ? U : T;
 const useWaitForSave = () => {
   const requestSave = useRequestManualSave();
   const url = useLaxSelector((s) => s.controlState.saveUrl);
-  const ref = useLaxSelectorAsRef((s) => ({
-    isSaving: s.controlState.isSaving,
-    validation: s.validationIssues,
-    hasUnsavedChanges: hasUnsavedChanges(s),
-  }));
-  const waitFor = useWaitForState<BackendValidationIssueGroups | undefined, FromRef<typeof ref>>(ref);
+  const waitFor = useWaitForState<
+    BackendValidationIssueGroups | undefined,
+    FormDataContext | typeof ContextNotProvided
+  >(useLaxStore());
 
   return useCallback(
     async (requestManualSave = false): Promise<BackendValidationIssueGroups | undefined> => {
@@ -298,12 +295,15 @@ const useWaitForSave = () => {
           setReturnValue(undefined);
           return true;
         }
-        if (!state.hasUnsavedChanges && !state.isSaving) {
-          setReturnValue(state.validation);
-          return true;
+        if (state.controlState.isSaving) {
+          return false;
+        }
+        if (hasUnsavedChanges(state)) {
+          return false;
         }
 
-        return false;
+        setReturnValue(state.validationIssues);
+        return true;
       });
     },
     [requestSave, url, waitFor],
