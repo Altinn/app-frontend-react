@@ -11,7 +11,7 @@ export function getHierarchyDataSourcesMock(): HierarchyDataSources {
     options: () => [],
     applicationSettings: getApplicationSettingsMock(),
     instanceDataSources: {} as any,
-    hiddenFields: new Set(),
+    isHidden: () => false,
     authContext: null,
     devToolsIsOpen: false,
     devToolsHiddenComponents: 'hide',

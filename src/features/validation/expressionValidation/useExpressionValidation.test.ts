@@ -69,7 +69,7 @@ describe('Expression validation shared tests', () => {
       formDataSelector: (path) => dot.pick(path, formData),
       instanceDataSources: buildInstanceDataSources(),
       authContext: buildAuthContext(undefined),
-      hiddenFields,
+      isHidden: (nodeId: string) => hiddenFields.has(nodeId),
       langToolsRef: { current: langTools },
     };
 

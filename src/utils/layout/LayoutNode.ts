@@ -159,16 +159,16 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
   public isHidden(options: IsHiddenOptions = {}): boolean {
     const { respectLegacy = true, respectDevTools = true, respectTracks = false } = options;
 
-    const hiddenList = respectLegacy ? this.dataSources.hiddenFields : new Set();
+    const isHidden = respectLegacy ? this.dataSources.isHidden : () => false;
     if (respectDevTools && this.dataSources.devToolsIsOpen && this.dataSources.devToolsHiddenComponents !== 'hide') {
       return false;
     }
 
-    if (this.item.baseComponentId && hiddenList.has(this.item.baseComponentId)) {
+    if (this.item.baseComponentId && isHidden(this.item.baseComponentId)) {
       return true;
     }
 
-    if (this.item.hidden === true || hiddenList.has(this.item.id)) {
+    if (this.item.hidden === true || isHidden(this.item.id)) {
       return true;
     }
 

@@ -74,6 +74,7 @@ describe('Expressions shared function tests', () => {
           return;
         }
 
+        const hidden = new Set<string>();
         const options: AllOptionsMap = {};
         const dataSources: HierarchyDataSources = {
           ...getHierarchyDataSourcesMock(),
@@ -89,6 +90,7 @@ describe('Expressions shared function tests', () => {
           },
           currentLanguage: profileSettings?.language || 'nb',
           options: (nodeId) => options[nodeId] || [],
+          isHidden: (nodeId: string) => hidden.has(nodeId),
         };
 
         const _layouts = convertLayouts(layouts);
@@ -121,7 +123,7 @@ describe('Expressions shared function tests', () => {
 
             for (const node of layout.flat(true)) {
               if (node.isHidden()) {
-                dataSources.hiddenFields.add(node.item.id);
+                hidden.add(node.item.id);
               }
             }
             if (layouts && layouts[layoutKey].data.hidden) {
@@ -129,7 +131,7 @@ describe('Expressions shared function tests', () => {
               const isHidden = evalExpr(hiddenExpr, layout, dataSources);
               if (isHidden) {
                 for (const hiddenComponent of layout.flat(true)) {
-                  dataSources.hiddenFields.add(hiddenComponent.item.id);
+                  hidden.add(hiddenComponent.item.id);
                 }
               }
             }

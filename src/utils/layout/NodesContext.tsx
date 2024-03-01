@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createStore } from 'zustand';
@@ -37,11 +37,12 @@ function initialCreateStore() {
   }));
 }
 
-const { Provider, useSelector, useMemoSelector, useSelectorAsRef, useLaxSelectorAsRef } = createZustandContext({
-  name: 'Nodes',
-  required: true,
-  initialCreateStore,
-});
+const { Provider, useSelector, useMemoSelector, useSelectorAsRef, useLaxSelectorAsRef, useDelayedMemoSelector } =
+  createZustandContext({
+    name: 'Nodes',
+    required: true,
+    initialCreateStore,
+  });
 
 export const NodesProvider = (props: React.PropsWithChildren) => (
   <Provider>
@@ -52,8 +53,8 @@ export const NodesProvider = (props: React.PropsWithChildren) => (
 );
 
 function InnerNodesProvider() {
-  const hidden = useSelector((state) => state.hiddenComponents);
-  const resolvedNodes = _private.useResolvedExpressions(hidden);
+  const isHidden = useIsHiddenComponent();
+  const resolvedNodes = _private.useResolvedExpressions(isHidden);
   const setNodes = useSelector((state) => state.setNodes);
 
   useEffect(() => {
@@ -64,11 +65,10 @@ function InnerNodesProvider() {
 }
 
 function InnerHiddenComponentsProvider() {
-  const hidden = useSelector((state) => state.hiddenComponents);
   const setHidden = useSelector((state) => state.setHiddenComponents);
   const resolvedNodes = useSelector((state) => state.nodes);
 
-  useLegacyHiddenComponents(resolvedNodes, hidden, setHidden);
+  useLegacyHiddenComponents(resolvedNodes, setHidden);
 
   return null;
 }
@@ -98,6 +98,21 @@ export function useNodesMemoSelector<U>(selector: (s: LayoutPages) => U) {
 }
 
 export const useHiddenComponents = () => useSelector((s) => s.hiddenComponents);
+
+export function useIsHiddenComponent() {
+  const selector = useDelayedMemoSelector();
+  const callbacks = useRef<Record<string, Parameters<typeof selector>[0]>>({});
+
+  return useCallback(
+    (nodeId: string) => {
+      if (!callbacks.current[nodeId]) {
+        callbacks.current[nodeId] = (state): boolean => state.hiddenComponents.has(nodeId);
+      }
+      return selector(callbacks.current[nodeId]) as boolean;
+    },
+    [selector],
+  );
+}
 
 /**
  * Given a selector, get a LayoutNode object
@@ -137,11 +152,11 @@ export function useResolvedNode<T>(selector: string | undefined | T | LayoutNode
  */
 function useLegacyHiddenComponents(
   resolvedNodes: LayoutPages | undefined,
-  hidden: Set<string>,
   setHidden: React.Dispatch<React.SetStateAction<Set<string>>>,
 ) {
   const rules = useDynamics()?.conditionalRendering ?? null;
-  const dataSources = useExpressionDataSources(hidden);
+  const isHidden = useIsHiddenComponent();
+  const dataSources = useExpressionDataSources(isHidden);
   const hiddenExpr = useHiddenLayoutsExpressions();
   const { setHiddenPages, hidden: hiddenPages } = usePageNavigationContext();
 

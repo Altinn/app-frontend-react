@@ -2,7 +2,6 @@ import { useMemo, useRef } from 'react';
 
 import deepEqual from 'fast-deep-equal';
 
-import { useRenderingTrace } from 'src/debug/useRenderingTrace';
 import { useApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
@@ -23,6 +22,7 @@ import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { CompInternal, HierarchyDataSources, ILayouts } from 'src/layout/layout';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
+import type { useIsHiddenComponent } from 'src/utils/layout/NodesContext';
 /**
  * This will generate an entire layout hierarchy, iterate each
  * component/group in the layout and resolve all expressions for them.
@@ -147,7 +147,7 @@ function containsLayoutNode(obj: any): boolean {
 }
 
 const emptyObject = {};
-export function useExpressionDataSources(hiddenComponents: Set<string>): HierarchyDataSources {
+export function useExpressionDataSources(isHidden: ReturnType<typeof useIsHiddenComponent>): HierarchyDataSources {
   const instanceDataSources = useLaxInstanceDataSources();
   const formDataSelector = FD.useDebouncedSelector();
   const layoutSettings = useLayoutSettings();
@@ -162,22 +162,6 @@ export function useExpressionDataSources(hiddenComponents: Set<string>): Hierarc
   const pageNavigationConfig = usePageNavigationConfig();
   const authContext = useMemo(() => buildAuthContext(process?.currentTask), [process?.currentTask]);
 
-  useRenderingTrace('debug, useExpressionDataSources', {
-    formDataSelector,
-    attachments,
-    layoutSettings,
-    pageNavigationConfig,
-    options,
-    applicationSettings,
-    instanceDataSources,
-    authContext,
-    hiddenComponents,
-    devToolsIsOpen,
-    devToolsHiddenComponents,
-    langToolsRef,
-    currentLanguage,
-  });
-
   return useMemo(
     () => ({
       formDataSelector,
@@ -188,7 +172,7 @@ export function useExpressionDataSources(hiddenComponents: Set<string>): Hierarc
       applicationSettings,
       instanceDataSources,
       authContext,
-      hiddenFields: hiddenComponents,
+      isHidden,
       devToolsIsOpen,
       devToolsHiddenComponents,
       langToolsRef,
@@ -203,7 +187,7 @@ export function useExpressionDataSources(hiddenComponents: Set<string>): Hierarc
       applicationSettings,
       instanceDataSources,
       authContext,
-      hiddenComponents,
+      isHidden,
       devToolsIsOpen,
       devToolsHiddenComponents,
       langToolsRef,
@@ -212,10 +196,10 @@ export function useExpressionDataSources(hiddenComponents: Set<string>): Hierarc
   );
 }
 
-function useResolvedExpressions(hidden: Set<string>) {
+function useResolvedExpressions(isHidden: ReturnType<typeof useIsHiddenComponent>) {
   const layouts = useLayouts();
   const currentView = useCurrentView();
-  const dataSources = useExpressionDataSources(hidden);
+  const dataSources = useExpressionDataSources(isHidden);
   const previousNodesRef = useRef<LayoutPages>();
   const nodes = useMemo(
     () => resolvedNodesInLayouts(layouts, currentView, dataSources, previousNodesRef.current),
