@@ -53,9 +53,13 @@ export type ValidationCategoryKey = Exclude<ValidationMaskKeys, ValidationMaskCo
 /*  A value of 0 represents a validation to be shown immediately */
 export type ValidationCategory = (typeof ValidationMask)[ValidationCategoryKey] | 0;
 
+export type WaitForValidation = (
+  forceSave?: boolean,
+) => Promise<(lastBackendValidations: BackendValidationIssueGroups | undefined) => boolean>;
+
 export type ValidationContext = {
   state: ValidationState;
-  validating: () => Promise<(lastBackendValidations: BackendValidationIssueGroups | undefined) => boolean>;
+  validating: WaitForValidation;
   visibility: Visibility;
 
   /**

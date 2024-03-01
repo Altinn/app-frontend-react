@@ -15,6 +15,7 @@ const dummyStore = createStore(() => ({}));
 type Selector<T, U> = (state: T) => U;
 type SelectorFunc<T> = <U>(selector: Selector<T, U>) => U;
 type SelectorRefFunc<T> = <U>(selector: Selector<T, U>) => { current: U };
+type SelectorRefFuncLax<T> = <U>(selector: Selector<T, U>) => { current: U | typeof ContextNotProvided };
 type DelayedSelectorFunc<T> = <U>(selector: Selector<T, U>, postProcessor?: (data: unknown) => U) => U;
 type SelectorFuncLax<T> = <U>(selector: Selector<T, U>) => U | typeof ContextNotProvided;
 
@@ -47,6 +48,28 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
         store.subscribe((state) => {
           ref.current = selector(state);
         }),
+      // The selector is not expected to change, so we don't need to include it in the dependency array.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [store],
+    );
+
+    return ref;
+  };
+
+  const useLaxSelectorAsRef: SelectorRefFuncLax<Type> = (selector) => {
+    const store = useLaxCtx();
+    const ref = useRef<any>(store === ContextNotProvided ? ContextNotProvided : selector(store.getState() as Type));
+
+    useEffect(
+      () => {
+        if (store === ContextNotProvided) {
+          ref.current = ContextNotProvided;
+          return;
+        }
+        return store.subscribe((state) => {
+          ref.current = selector(state);
+        });
+      },
       // The selector is not expected to change, so we don't need to include it in the dependency array.
       // eslint-disable-next-line react-hooks/exhaustive-deps
       [store],
@@ -200,6 +223,7 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
     Provider: MyProvider,
     useSelector,
     useSelectorAsRef,
+    useLaxSelectorAsRef,
     useMemoSelector,
     useLaxMemoSelector,
     useLaxSelector,

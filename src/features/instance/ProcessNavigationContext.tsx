@@ -6,10 +6,10 @@ import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { createContext } from 'src/core/contexts/context';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { useHasPendingAttachments } from 'src/features/attachments/AttachmentsContext';
-import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstance, useStrictInstance } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData, useSetProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onFormSubmitValidation';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import type { IActionType, IProcess } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
@@ -26,14 +26,18 @@ function useProcessNext() {
   const currentProcessData = useLaxProcessData();
   const { navigateToTask } = useNavigatePage();
   const instanceId = useLaxInstance()?.instanceId;
-  const waitForSave = FD.useWaitForSave();
+  const onFormSubmitValidation = useOnFormSubmitValidation();
 
   const utils = useMutation({
     mutationFn: async ({ action }: ProcessNextProps = {}) => {
       if (!instanceId) {
         throw new Error('Missing instance ID, cannot perform process/next');
       }
-      await waitForSave(true);
+      const hasErrors = await onFormSubmitValidation();
+      if (hasErrors) {
+        return;
+      }
+
       return doProcessNext(instanceId, language, action);
     },
     onSuccess: async (data: IProcess) => {

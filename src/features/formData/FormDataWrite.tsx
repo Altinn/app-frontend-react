@@ -14,7 +14,7 @@ import { useRuleConnections } from 'src/features/form/dynamics/DynamicsContext';
 import { useFormDataWriteProxies } from 'src/features/formData/FormDataWriteProxies';
 import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteStateMachine';
 import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
-import { useAsRef, useAsRefFromLaxSelector } from 'src/hooks/useAsRef';
+import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 import type { SchemaLookupTool } from 'src/features/datamodel/DataModelSchemaProvider';
@@ -47,11 +47,11 @@ interface FormDataContextInitialProps {
 const {
   Provider,
   useSelector,
+  useLaxSelectorAsRef,
   useMemoSelector,
   useLaxDelayedMemoSelector,
   useDelayedMemoSelector,
   useLaxSelector,
-  useLaxStore,
 } = createZustandContext({
   name: 'FormDataWrite',
   required: true,
@@ -276,7 +276,7 @@ type FromRef<T> = T extends React.MutableRefObject<infer U> ? U : T;
 const useWaitForSave = () => {
   const requestSave = useRequestManualSave();
   const url = useLaxSelector((s) => s.controlState.saveUrl);
-  const ref = useAsRefFromLaxSelector(useLaxStore(), (s) => ({
+  const ref = useLaxSelectorAsRef((s) => ({
     isSaving: s.controlState.isSaving,
     validation: s.validationIssues,
     hasUnsavedChanges: hasUnsavedChanges(s),
@@ -294,11 +294,11 @@ const useWaitForSave = () => {
       }
 
       return await waitFor((state, setReturnValue) => {
-        if (state === ContextNotProvided || ref.current === ContextNotProvided) {
+        if (state === ContextNotProvided) {
           setReturnValue(undefined);
           return true;
         }
-        if (!ref.current.hasUnsavedChanges && !state.isSaving) {
+        if (!state.hasUnsavedChanges && !state.isSaving) {
           setReturnValue(state.validation);
           return true;
         }
@@ -306,7 +306,7 @@ const useWaitForSave = () => {
         return false;
       });
     },
-    [ref, requestSave, url, waitFor],
+    [requestSave, url, waitFor],
   );
 };
 

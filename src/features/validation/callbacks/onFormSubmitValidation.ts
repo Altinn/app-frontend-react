@@ -12,7 +12,7 @@ import {
 import { Validation } from 'src/features/validation/validationContext';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { useWaitForState } from 'src/hooks/useWaitForState';
-import type { LayoutPages } from 'src/utils/layout/LayoutPages';
+import { useNodesAsRef } from 'src/utils/layout/NodesContext';
 
 /**
  * Checks for any validation errors before submitting the form.
@@ -22,6 +22,7 @@ import type { LayoutPages } from 'src/utils/layout/LayoutPages';
  * If there are no backend errors, it shows any backend errors that cannot be mapped to a visible node. Including task errors.
  */
 export function useOnFormSubmitValidation() {
+  const nodes = useNodesAsRef();
   const setNodeVisibility = Validation.useSetNodeVisibility();
   const selector = Validation.useSelector();
   const stateRef = Validation.useFullStateRef();
@@ -31,7 +32,9 @@ export function useOnFormSubmitValidation() {
   const waitForBackendValidations = useWaitForState(lastBackendValidationsRef);
 
   /* Ensures the callback will have the latest state */
-  const callback = useEffectEvent((layoutPages: LayoutPages): boolean => {
+  const callback = useEffectEvent((): boolean => {
+    const layoutPages = nodes.current;
+
     /*
      * First: check and show any frontend errors
      */
@@ -76,12 +79,9 @@ export function useOnFormSubmitValidation() {
     return false;
   });
 
-  return useCallback(
-    async (layoutPages: LayoutPages) => {
-      const localWait = await validating();
-      await waitForBackendValidations(localWait);
-      return callback(layoutPages);
-    },
-    [callback, validating, waitForBackendValidations],
-  );
+  return useCallback(async () => {
+    const localWait = await validating(true);
+    await waitForBackendValidations(localWait);
+    return callback();
+  }, [callback, validating, waitForBackendValidations]);
 }

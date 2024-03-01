@@ -33,12 +33,13 @@ import type {
   ComponentValidations,
   FieldValidations,
   ValidationContext,
+  WaitForValidation,
 } from 'src/features/validation';
 import type { Visibility } from 'src/features/validation/visibility/visibilityUtils';
 
 interface NewStoreProps {
   backendValidationsProcessedLastRef: React.MutableRefObject<BackendValidationIssueGroups | undefined>;
-  validating: () => Promise<(lastBackendValidations: BackendValidationIssueGroups | undefined) => boolean>;
+  validating: WaitForValidation;
 }
 
 interface Internals {
@@ -53,8 +54,10 @@ interface Internals {
   updateValidations: <K extends keyof Internals['individualValidations']>(
     key: K,
     value: Internals['individualValidations'][K],
+    issueGroups?: BackendValidationIssueGroups,
   ) => void;
   updateVisibility: (mutator: (visibility: Visibility) => void) => void;
+  updateValidating: (validating: WaitForValidation) => void;
 }
 
 function initialCreateStore({ validating }: NewStoreProps) {
@@ -102,11 +105,12 @@ function initialCreateStore({ validating }: NewStoreProps) {
         schema: {},
         invalidData: {},
       },
-      updateValidations: (key, validations) =>
+      updateValidations: (key, validations, issueGroups) =>
         set((state) => {
           if (key === 'backend') {
             state.isLoading = false;
             state.state.task = (validations as BackendValidations).task;
+            state.backendValidationsProcessedLast = issueGroups;
           }
           state.individualValidations[key] = validations;
           if (key === 'component') {
@@ -124,6 +128,10 @@ function initialCreateStore({ validating }: NewStoreProps) {
         set((state) => {
           mutator(state.visibility);
         }),
+      updateValidating: (newValidating) =>
+        set((state) => {
+          state.validating = newValidating;
+        }),
     })),
   );
 }
@@ -132,6 +140,9 @@ const { Provider, useSelector, useDelayedMemoSelector, useSelectorAsRef } = crea
   name: 'Validation',
   required: true,
   initialCreateStore,
+  onReRender: (store, { validating }) => {
+    store.getState().updateValidating(validating);
+  },
 });
 
 interface Props {
@@ -148,17 +159,21 @@ export function ValidationProvider({ children, isCustomReceipt = false }: PropsW
   const pendingAttachmentsRef = useAsRef(hasPendingAttachments);
   const waitForAttachments = useWaitForState(pendingAttachmentsRef);
 
-  const validating = useCallback(async () => {
-    await waitForAttachments((state) => !state);
+  const validating: WaitForValidation = useCallback(
+    async (forceSave = false) => {
+      await waitForAttachments((state) => !state);
 
-    // Wait until we've saved changed to backend, and we've processed the backend validations we got from that save
-    const validationsFromSave = await waitForSave();
-    await waitForBackendValidations((processedLast) => processedLast === validationsFromSave);
+      // Wait until we've saved changed to backend, and we've processed the backend validations we got from that save
+      const validationsFromSave = await waitForSave(forceSave);
 
-    // At last, return a function to the caller that can be used to check if their local state is up-to-date
-    return (lastBackendValidations: BackendValidationIssueGroups | undefined) =>
-      lastBackendValidations === validationsFromSave;
-  }, [waitForAttachments, waitForBackendValidations, waitForSave]);
+      await waitForBackendValidations((processedLast) => processedLast === validationsFromSave);
+
+      // At last, return a function to the caller that can be used to check if their local state is up-to-date
+      return (lastBackendValidations: BackendValidationIssueGroups | undefined) =>
+        lastBackendValidations === validationsFromSave;
+    },
+    [waitForAttachments, waitForBackendValidations, waitForSave],
+  );
 
   return (
     <Provider
@@ -199,9 +214,9 @@ function UpdateValidations({ isCustomReceipt, backendValidationsProcessedLastRef
 
   useEffect(() => {
     if (initialValidationDone) {
-      updateValidations('backend', backendValidations);
+      updateValidations('backend', backendValidations, processedLast);
     }
-  }, [backendValidations, initialValidationDone, updateValidations]);
+  }, [backendValidations, initialValidationDone, processedLast, updateValidations]);
 
   const componentValidations = useNodeValidation();
   const expressionValidations = useExpressionValidation();
