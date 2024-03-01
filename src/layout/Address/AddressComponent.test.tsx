@@ -358,4 +358,29 @@ describe('AddressComponent', () => {
     ).not.toBeInTheDocument();
     expect(screen.queryByRole('textbox', { name: 'Bolignummer (Valgfri)' })).not.toBeInTheDocument();
   });
+
+  it('should display optional title when set', async () => {
+    await render({
+      component: {
+        required: true,
+        simplified: false,
+        id: 'address-title',
+        textResourceBindings: {
+          title: 'TEST TITLE',
+        },
+      },
+    });
+    expect(screen.getByTestId('label-address_address_address-title')).toHaveTextContent('TEST TITLE');
+  });
+
+  it('should display default title when title is not set', async () => {
+    await render({
+      component: {
+        required: true,
+        simplified: false,
+        id: 'address-title',
+      },
+    });
+    expect(screen.getByTestId('label-address_address_address-title')).toHaveTextContent('Gateadresse');
+  });
 });

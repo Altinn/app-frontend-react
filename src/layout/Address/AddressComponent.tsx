@@ -20,6 +20,7 @@ export type IAddressProps = PropsFromGenericComponent<'Address'>;
 export function AddressComponent({ node }: IAddressProps) {
   const { id, required, readOnly, labelSettings, simplified, saveWhileTyping } = node.item;
 
+  const { textResourceBindings } = node.item;
   const bindingValidations = useBindingValidationsForNode(node);
   const componentValidations = useComponentValidationsForNode(node);
 
@@ -44,7 +45,7 @@ export function AddressComponent({ node }: IAddressProps) {
     >
       <div>
         <Label
-          label={<Lang id={'address_component.address'} />}
+          label={<Lang id={textResourceBindings?.title || 'address_component.address'} />}
           helpText={undefined}
           id={`address_address_${id}`}
           required={required}
