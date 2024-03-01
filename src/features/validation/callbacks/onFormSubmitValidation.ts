@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 
 import { ValidationMask } from '..';
 
+import { ContextNotProvided } from 'src/core/contexts/context';
 import {
   getValidationsForNode,
   getVisibilityMask,
@@ -11,7 +12,7 @@ import {
 } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
-import { useNodesAsRef } from 'src/utils/layout/NodesContext';
+import { useNodesAsLaxRef } from 'src/utils/layout/NodesContext';
 
 /**
  * Checks for any validation errors before submitting the form.
@@ -21,16 +22,26 @@ import { useNodesAsRef } from 'src/utils/layout/NodesContext';
  * If there are no backend errors, it shows any backend errors that cannot be mapped to a visible node. Including task errors.
  */
 export function useOnFormSubmitValidation() {
-  const nodes = useNodesAsRef();
-  const setNodeVisibility = Validation.useSetNodeVisibility();
-  const selector = Validation.useSelector();
-  const stateRef = Validation.useFullStateRef();
-  const validating = Validation.useValidating();
-  const setShowAllErrors = Validation.useSetShowAllErrors();
+  const nodes = useNodesAsLaxRef();
+  const validation = Validation.useLaxRef();
 
   /* Ensures the callback will have the latest state */
   const callback = useEffectEvent((): boolean => {
     const layoutPages = nodes.current;
+
+    if (layoutPages === ContextNotProvided) {
+      // If the nodes are not provided, we cannot validate them
+      return false;
+    }
+
+    if (validation.current === ContextNotProvided) {
+      // If the validation context is not provided, we cannot validate
+      return false;
+    }
+
+    const setNodeVisibility = validation.current.setNodeVisibility;
+    const state = validation.current.state;
+    const setShowAllErrors = validation.current.setShowAllErrors;
 
     /*
      * First: check and show any frontend errors
@@ -38,7 +49,7 @@ export function useOnFormSubmitValidation() {
     const nodesWithFrontendErrors = layoutPages
       .allNodes()
       .filter(shouldValidateNode)
-      .filter((n) => getValidationsForNode(n, selector, ValidationMask.All, 'error').length > 0);
+      .filter((n) => getValidationsForNode(n, state, ValidationMask.All, 'error').length > 0);
 
     if (nodesWithFrontendErrors.length > 0) {
       setNodeVisibility(nodesWithFrontendErrors, ValidationMask.All);
@@ -52,7 +63,7 @@ export function useOnFormSubmitValidation() {
     const nodesWithAnyError = layoutPages
       .allNodes()
       .filter(shouldValidateNode)
-      .filter((n) => getValidationsForNode(n, selector, ValidationMask.AllIncludingBackend, 'error').length > 0);
+      .filter((n) => getValidationsForNode(n, state, ValidationMask.AllIncludingBackend, 'error').length > 0);
 
     if (nodesWithAnyError.length > 0) {
       setNodeVisibility(nodesWithAnyError, ValidationMask.All);
@@ -65,10 +76,9 @@ export function useOnFormSubmitValidation() {
      */
     const backendMask = getVisibilityMask(['Backend', 'CustomBackend']);
     const hasFieldErrors =
-      Object.values(stateRef.current.fields).flatMap((field) => selectValidations(field, backendMask, 'error')).length >
-      0;
+      Object.values(state.fields).flatMap((field) => selectValidations(field, backendMask, 'error')).length > 0;
 
-    if (hasFieldErrors || hasValidationErrors(stateRef.current.task)) {
+    if (hasFieldErrors || hasValidationErrors(state.task)) {
       setShowAllErrors(true);
       return true;
     }
@@ -77,7 +87,12 @@ export function useOnFormSubmitValidation() {
   });
 
   return useCallback(async () => {
-    await validating();
+    if (validation.current === ContextNotProvided) {
+      // If the validation context is not provided, we cannot validate
+      return false;
+    }
+
+    await validation.current.validating();
     return callback();
-  }, [callback, validating]);
+  }, [callback, validation]);
 }

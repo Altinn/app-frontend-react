@@ -37,7 +37,7 @@ function initialCreateStore() {
   }));
 }
 
-const { Provider, useSelector, useMemoSelector, useSelectorAsRef } = createZustandContext({
+const { Provider, useSelector, useMemoSelector, useSelectorAsRef, useLaxSelectorAsRef } = createZustandContext({
   name: 'Nodes',
   required: true,
   initialCreateStore,
@@ -91,6 +91,7 @@ function BlockUntilLoaded({ children }: PropsWithChildren) {
 export const useNode = (id: string) => useSelector((s) => s.nodes?.findById(id));
 export const useNodes = () => useSelector((s) => s.nodes!);
 export const useNodesAsRef = () => useSelectorAsRef((s) => s.nodes!);
+export const useNodesAsLaxRef = () => useLaxSelectorAsRef((s) => s.nodes!);
 
 export function useNodesMemoSelector<U>(selector: (s: LayoutPages) => U) {
   return useMemoSelector((state) => selector(state.nodes!));

@@ -137,14 +137,15 @@ function initialCreateStore({ validating }: NewStoreProps) {
   );
 }
 
-const { Provider, useSelector, useDelayedMemoSelector, useSelectorAsRef, useStore } = createZustandContext({
-  name: 'Validation',
-  required: true,
-  initialCreateStore,
-  onReRender: (store, { validating }) => {
-    store.getState().updateValidating(validating);
-  },
-});
+const { Provider, useSelector, useDelayedMemoSelector, useSelectorAsRef, useStore, useLaxSelectorAsRef } =
+  createZustandContext({
+    name: 'Validation',
+    required: true,
+    initialCreateStore,
+    onReRender: (store, { validating }) => {
+      store.getState().updateValidating(validating);
+    },
+  });
 
 interface Props {
   isCustomReceipt?: boolean;
@@ -310,4 +311,6 @@ export const Validation = {
   useSetNodeVisibility: () => useSelector((state) => state.setNodeVisibility),
   useSetShowAllErrors: () => useSelector((state) => state.setShowAllErrors),
   useValidating: () => useSelector((state) => state.validating),
+
+  useLaxRef: () => useLaxSelectorAsRef((state) => state),
 };
