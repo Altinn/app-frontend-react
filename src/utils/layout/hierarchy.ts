@@ -19,6 +19,7 @@ import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { getLayoutComponentObject } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { CompInternal, HierarchyDataSources, ILayouts } from 'src/layout/layout';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 /**
@@ -100,7 +101,13 @@ function resolvedNodesInLayouts(
         continue;
       }
 
-      for (const oldNode of oldPage.flat(false)) {
+      for (const oldNode of oldPage.children()) {
+        if (containsLayoutNode(oldNode.item)) {
+          // We don't want to replace nodes that contain other nodes, because at that point we would have to
+          // compare and replace at that level as well. This, along with .children() above, ensures that we only
+          // replace the top-level nodes.
+          continue;
+        }
         const newNode = newPage.findById(oldNode.item.id);
         if (newNode && deepEqual(oldNode.item, newNode.item)) {
           // Some values in oldNode needs to be replaced so that references and functions still work
@@ -115,6 +122,27 @@ function resolvedNodesInLayouts(
   }
 
   return unresolved as unknown as LayoutPages;
+}
+
+/**
+ * Recursive function to check if a node.item contains other LayoutNode objects somewhere inside
+ */
+function containsLayoutNode(obj: any): boolean {
+  if (obj instanceof BaseLayoutNode) {
+    return true;
+  }
+
+  if (typeof obj !== 'object') {
+    return false;
+  }
+
+  for (const key of Object.keys(obj)) {
+    if (containsLayoutNode(obj[key])) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 const emptyObject = {};
