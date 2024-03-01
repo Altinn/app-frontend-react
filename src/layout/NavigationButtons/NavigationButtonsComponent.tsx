@@ -97,7 +97,6 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
       }
     }
 
-    setReturnToView(undefined);
     navigateToPage(goToView, { skipAutoSave: true });
   };
 
