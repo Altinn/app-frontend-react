@@ -50,8 +50,7 @@ export const useCurrentView = () => useNavigationParams().pageKey;
 export const useOrder = () => {
   const maybeLayoutSettings = useLaxLayoutSettings();
   const orderWithHidden = maybeLayoutSettings === ContextNotProvided ? emptyArray : maybeLayoutSettings.pages.order;
-  const hidden = useHiddenPages();
-  const hiddenPages = useMemo(() => new Set(hidden), [hidden]);
+  const hiddenPages = useHiddenPages();
   return useMemo(() => orderWithHidden?.filter((page) => !hiddenPages.has(page)), [orderWithHidden, hiddenPages]);
 };
 

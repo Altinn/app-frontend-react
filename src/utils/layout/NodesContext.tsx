@@ -12,7 +12,7 @@ import {
 } from 'src/features/form/dynamics/conditionalRenderingSagas';
 import { useDynamics } from 'src/features/form/dynamics/DynamicsContext';
 import { useHiddenLayoutsExpressions } from 'src/features/form/layout/LayoutsContext';
-import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
+import { useHiddenPages, useSetHiddenPages } from 'src/features/form/layout/PageNavigationContext';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
 import { _private, useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
@@ -97,8 +97,6 @@ export function useNodesMemoSelector<U>(selector: (s: LayoutPages) => U) {
   return useMemoSelector((state) => selector(state.nodes!));
 }
 
-export const useHiddenComponents = () => useSelector((s) => s.hiddenComponents);
-
 export function useIsHiddenComponent() {
   const selector = useDelayedMemoSelector();
   const callbacks = useRef<Record<string, Parameters<typeof selector>[0]>>({});
@@ -158,7 +156,8 @@ function useLegacyHiddenComponents(
   const isHidden = useIsHiddenComponent();
   const dataSources = useExpressionDataSources(isHidden);
   const hiddenExpr = useHiddenLayoutsExpressions();
-  const { setHiddenPages, hidden: hiddenPages } = usePageNavigationContext();
+  const hiddenPages = useHiddenPages();
+  const setHiddenPages = useSetHiddenPages();
 
   useEffect(() => {
     if (!resolvedNodes) {
@@ -169,7 +168,7 @@ function useLegacyHiddenComponents(
     const futureHiddenLayouts = runExpressionsForLayouts(resolvedNodes, hiddenExpr, dataSources);
 
     if (shouldUpdate(currentHiddenLayouts, futureHiddenLayouts)) {
-      setHiddenPages([...futureHiddenLayouts.values()]);
+      setHiddenPages?.(futureHiddenLayouts);
     }
 
     let futureHiddenFields: Set<string>;

@@ -17,7 +17,7 @@ import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 export type PageNavigationConfig = {
   currentView?: string;
   order?: string[];
-  hidden: string[];
+  isHiddenPage: (pageKey: string) => boolean;
   hiddenExpr: IHiddenLayoutsExternal;
 };
 

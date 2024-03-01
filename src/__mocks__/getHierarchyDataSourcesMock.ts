@@ -7,7 +7,7 @@ export function getHierarchyDataSourcesMock(): HierarchyDataSources {
     formDataSelector: () => null,
     attachments: {},
     layoutSettings: { pages: { order: [] } },
-    pageNavigationConfig: { hidden: [], hiddenExpr: {} },
+    pageNavigationConfig: { isHiddenPage: () => false, hiddenExpr: {} },
     options: () => [],
     applicationSettings: getApplicationSettingsMock(),
     instanceDataSources: {} as any,

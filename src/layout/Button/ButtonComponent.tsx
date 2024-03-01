@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
+import { useSetReturnToView } from 'src/features/form/layout/PageNavigationContext';
 import { useLaxProcessData, useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
 import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
@@ -25,7 +25,7 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
   const currentTaskType = useTaskTypeFromBackend();
   const { actions, write } = useLaxProcessData()?.currentTask || {};
   const { next, canSubmit, busyWithId, attachmentsPending } = useProcessNavigation() || {};
-  const { setReturnToView } = usePageNavigationContext() || {};
+  const setReturnToView = useSetReturnToView();
 
   const disabled =
     !canSubmit ||
@@ -54,7 +54,7 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
     if (disabled) {
       return;
     }
-    setReturnToView(undefined);
+    setReturnToView?.(undefined);
     if (currentTaskType === ProcessTaskType.Data) {
       next({ nodeId: node.item.id });
     } else if (currentTaskType === ProcessTaskType.Confirm) {

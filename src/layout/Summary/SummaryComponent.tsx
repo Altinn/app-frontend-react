@@ -5,7 +5,7 @@ import cn from 'classnames';
 
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
-import { usePageNavigationContext } from 'src/features/form/layout/PageNavigationContext';
+import { useSetReturnToView } from 'src/features/form/layout/PageNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
@@ -45,13 +45,13 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
   const errors = validationsOfSeverity(validations, 'error');
 
   const navigateTo = useNavigateToNode();
-  const { setReturnToView } = usePageNavigationContext();
+  const setReturnToView = useSetReturnToView();
   const onChangeClick = async () => {
     if (!targetView) {
       return;
     }
 
-    setReturnToView(currentPageId);
+    setReturnToView?.(currentPageId);
     await navigateTo(targetNode, true);
   };
 

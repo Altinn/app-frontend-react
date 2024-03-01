@@ -75,12 +75,12 @@ function generateAutomaticPage(
 
   const excludedPages = new Set(pdfFormat?.excludedPages);
   const excludedComponents = new Set(pdfFormat?.excludedComponents);
-  const hiddenPages = new Set(pageNavigationConfig.hidden);
+  const isHiddenPage = pageNavigationConfig.isHiddenPage;
   const pageOrder = pageNavigationConfig.order;
 
   // Iterate over all pages, and add all components that should be included in the automatic PDF as summary components
   Object.entries(layoutPages.all())
-    .filter(([pageName]) => !excludedPages.has(pageName) && !hiddenPages.has(pageName) && pageOrder?.includes(pageName))
+    .filter(([pageName]) => !excludedPages.has(pageName) && !isHiddenPage(pageName) && pageOrder?.includes(pageName))
     .sort(([pA], [pB]) => (pageOrder ? pageOrder.indexOf(pA) - pageOrder.indexOf(pB) : 0))
     .flatMap(([_, layoutPage]) => layoutPage.children().filter((node) => !excludedComponents.has(node.item.id)))
     .map((node) => {
