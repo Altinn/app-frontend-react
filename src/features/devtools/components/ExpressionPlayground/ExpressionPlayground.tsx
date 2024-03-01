@@ -12,7 +12,7 @@ import { ExprVal } from 'src/features/expressions/types';
 import { asExpression } from 'src/features/expressions/validation';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
-import { useIsHiddenComponent, useNodes } from 'src/utils/layout/NodesContext';
+import { useNodes } from 'src/utils/layout/NodesContext';
 import type { ExprConfig, Expression, ExprFunction } from 'src/features/expressions/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -48,8 +48,7 @@ export const ExpressionPlayground = () => {
   const nodes = useNodes();
   const { currentPageId } = useNavigatePage();
 
-  const isHidden = useIsHiddenComponent();
-  const _dataSources = useExpressionDataSources(isHidden);
+  const _dataSources = useExpressionDataSources();
   const dataSources = useMemo(
     () => ({
       ..._dataSources,

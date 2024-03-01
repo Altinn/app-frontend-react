@@ -6,7 +6,7 @@ import { usePdfFormatQuery } from 'src/features/pdf/usePdfFormatQuery';
 import { getLayoutComponentObject } from 'src/layout';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
-import { useIsHiddenComponent, useNodes } from 'src/utils/layout/NodesContext';
+import { useNodes } from 'src/utils/layout/NodesContext';
 import type { PageNavigationConfig } from 'src/features/expressions/ExprContext';
 import type { IPdfFormat } from 'src/features/pdf/types';
 import type { CompInstanceInformationExternal } from 'src/layout/InstanceInformation/config.generated';
@@ -20,8 +20,7 @@ const PDF_LAYOUT_NAME = '__pdf__';
 export const usePdfPage = (): LayoutPage | null => {
   const layoutPages = useNodes();
   const pageNavigationConfig = usePageNavigationConfig();
-  const isHidden = useIsHiddenComponent();
-  const dataSources = useExpressionDataSources(isHidden);
+  const dataSources = useExpressionDataSources();
   const pdfLayoutName = useLayoutSettings().pages.pdfLayoutName;
 
   const customPdfPage = pdfLayoutName ? layoutPages.findLayout(pdfLayoutName) : undefined;

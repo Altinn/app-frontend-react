@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createStore } from 'zustand';
@@ -22,18 +22,26 @@ import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 interface NodesContext {
   nodes: LayoutPages | undefined;
-  hiddenComponents: Set<string>;
+  hiddenViaExpressions: Set<string>;
+  hiddenViaLegacyRules: Set<string>;
+  hiddenByParentPage: Set<string>;
   setNodes: (nodes: LayoutPages) => void;
-  setHiddenComponents: (mutator: (hidden: Set<string>) => Set<string>) => void;
+  setHiddenComponents: (
+    hiddenViaExpressions: Set<string>,
+    hiddenViaLegacyRules: Set<string>,
+    hiddenByParentPage: Set<string>,
+  ) => void;
 }
 
 function initialCreateStore() {
   return createStore<NodesContext>((set) => ({
     nodes: undefined,
     setNodes: (nodes: LayoutPages) => set({ nodes }),
-    hiddenComponents: new Set(),
-    setHiddenComponents: (mutator: (hidden: Set<string>) => Set<string>) =>
-      set((state) => ({ hiddenComponents: mutator(state.hiddenComponents) })),
+    hiddenViaExpressions: new Set(),
+    hiddenViaLegacyRules: new Set(),
+    hiddenByParentPage: new Set(),
+    setHiddenComponents: (hiddenViaExpressions, hiddenViaLegacyRules, hiddenByParentPage) =>
+      set({ hiddenViaExpressions, hiddenViaLegacyRules, hiddenByParentPage }),
   }));
 }
 
@@ -53,8 +61,7 @@ export const NodesProvider = (props: React.PropsWithChildren) => (
 );
 
 function InnerNodesProvider() {
-  const isHidden = useIsHiddenComponent();
-  const resolvedNodes = _private.useResolvedExpressions(isHidden);
+  const resolvedNodes = _private.useResolvedExpressions();
   const setNodes = useSelector((state) => state.setNodes);
 
   useEffect(() => {
@@ -65,10 +72,8 @@ function InnerNodesProvider() {
 }
 
 function InnerHiddenComponentsProvider() {
-  const setHidden = useSelector((state) => state.setHiddenComponents);
   const resolvedNodes = useSelector((state) => state.nodes);
-
-  useLegacyHiddenComponents(resolvedNodes, setHidden);
+  useLegacyHiddenComponents(resolvedNodes);
 
   return null;
 }
@@ -97,18 +102,28 @@ export function useNodesMemoSelector<U>(selector: (s: LayoutPages) => U) {
   return useMemoSelector((state) => selector(state.nodes!));
 }
 
-export function useIsHiddenComponent() {
+type HiddenBy = 'expressions' | 'legacyRules' | 'parentPage' | 'any';
+export function useIsHiddenComponent(_by: HiddenBy, ...byMore: HiddenBy[]) {
   const selector = useDelayedMemoSelector();
   const callbacks = useRef<Record<string, Parameters<typeof selector>[0]>>({});
+  const by = useMemo(() => [_by, ...byMore], [_by, byMore]);
 
   return useCallback(
     (nodeId: string) => {
       if (!callbacks.current[nodeId]) {
-        callbacks.current[nodeId] = (state): boolean => state.hiddenComponents.has(nodeId);
+        callbacks.current[nodeId] = (state): boolean => {
+          if ((by.includes('expressions') || by.includes('any')) && state.hiddenViaExpressions.has(nodeId)) {
+            return true;
+          }
+          if ((by.includes('legacyRules') || by.includes('any')) && state.hiddenViaLegacyRules.has(nodeId)) {
+            return true;
+          }
+          return (by.includes('parentPage') || by.includes('any')) && state.hiddenByParentPage.has(nodeId);
+        };
       }
       return selector(callbacks.current[nodeId]) as boolean;
     },
-    [selector],
+    [selector, by],
   );
 }
 
@@ -148,13 +163,10 @@ export function useResolvedNode<T>(selector: string | undefined | T | LayoutNode
  * thus continually run the expressions until they stabilize. You _could_ run into an infinite loop if you
  * have a circular dependency in your expressions, but that's a problem with your form, not this hook.
  */
-function useLegacyHiddenComponents(
-  resolvedNodes: LayoutPages | undefined,
-  setHidden: React.Dispatch<React.SetStateAction<Set<string>>>,
-) {
+function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
+  const setHidden = useSelector((state) => state.setHiddenComponents);
   const rules = useDynamics()?.conditionalRendering ?? null;
-  const isHidden = useIsHiddenComponent();
-  const dataSources = useExpressionDataSources(isHidden);
+  const dataSources = useExpressionDataSources();
   const hiddenExpr = useHiddenLayoutsExpressions();
   const hiddenPages = useHiddenPages();
   const setHiddenPages = useSetHiddenPages();
@@ -171,30 +183,25 @@ function useLegacyHiddenComponents(
       setHiddenPages?.(futureHiddenLayouts);
     }
 
-    let futureHiddenFields: Set<string>;
+    let futureHiddenByLegacyRules: Set<string>;
     try {
-      futureHiddenFields = runConditionalRenderingRules(rules, resolvedNodes);
+      futureHiddenByLegacyRules = runConditionalRenderingRules(rules, resolvedNodes);
     } catch (error) {
       window.logError('Error while evaluating conditional rendering rules:\n', error);
-      futureHiddenFields = new Set();
+      futureHiddenByLegacyRules = new Set();
     }
 
-    runExpressionRules(resolvedNodes, futureHiddenFields);
+    const futureHiddenByExpressions = new Set<string>();
+    runExpressionRules(resolvedNodes, futureHiddenByExpressions);
 
-    // Add all fields from hidden layouts to hidden fields
+    // All fields from hidden layouts
+    const futureHiddenByParentPage = new Set<string>();
     for (const layout of futureHiddenLayouts) {
       for (const node of resolvedNodes.findLayout(layout)?.flat(true) || []) {
-        if (!futureHiddenFields.has(node.item.id)) {
-          futureHiddenFields.add(node.item.id);
-        }
+        futureHiddenByParentPage.add(node.item.id);
       }
     }
 
-    setHidden((currentlyHidden) => {
-      if (shouldUpdate(currentlyHidden, futureHiddenFields)) {
-        return new Set([...futureHiddenFields.values()]);
-      }
-      return currentlyHidden;
-    });
+    setHidden(futureHiddenByExpressions, futureHiddenByLegacyRules, futureHiddenByParentPage);
   }, [dataSources, hiddenPages, hiddenExpr, resolvedNodes, rules, setHiddenPages, setHidden]);
 }

@@ -20,9 +20,9 @@ import { getLayoutComponentObject } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { useIsHiddenComponent } from 'src/utils/layout/NodesContext';
 import type { CompInternal, HierarchyDataSources, ILayouts } from 'src/layout/layout';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
-import type { useIsHiddenComponent } from 'src/utils/layout/NodesContext';
 /**
  * This will generate an entire layout hierarchy, iterate each
  * component/group in the layout and resolve all expressions for them.
@@ -147,7 +147,8 @@ function containsLayoutNode(obj: any): boolean {
 }
 
 const emptyObject = {};
-export function useExpressionDataSources(isHidden: ReturnType<typeof useIsHiddenComponent>): HierarchyDataSources {
+export function useExpressionDataSources(): HierarchyDataSources {
+  const isLegacyHidden = useIsHiddenComponent('legacyRules');
   const instanceDataSources = useLaxInstanceDataSources();
   const formDataSelector = FD.useDebouncedSelector();
   const layoutSettings = useLayoutSettings();
@@ -172,7 +173,7 @@ export function useExpressionDataSources(isHidden: ReturnType<typeof useIsHidden
       applicationSettings,
       instanceDataSources,
       authContext,
-      isHidden,
+      isLegacyHidden,
       devToolsIsOpen,
       devToolsHiddenComponents,
       langToolsRef,
@@ -187,7 +188,7 @@ export function useExpressionDataSources(isHidden: ReturnType<typeof useIsHidden
       applicationSettings,
       instanceDataSources,
       authContext,
-      isHidden,
+      isLegacyHidden,
       devToolsIsOpen,
       devToolsHiddenComponents,
       langToolsRef,
@@ -196,10 +197,10 @@ export function useExpressionDataSources(isHidden: ReturnType<typeof useIsHidden
   );
 }
 
-function useResolvedExpressions(isHidden: ReturnType<typeof useIsHiddenComponent>) {
+function useResolvedExpressions() {
   const layouts = useLayouts();
   const currentView = useCurrentView();
-  const dataSources = useExpressionDataSources(isHidden);
+  const dataSources = useExpressionDataSources();
   const previousNodesRef = useRef<LayoutPages>();
   const nodes = useMemo(
     () => resolvedNodesInLayouts(layouts, currentView, dataSources, previousNodesRef.current),
