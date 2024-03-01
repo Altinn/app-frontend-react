@@ -2,8 +2,10 @@ import React, { useEffect, useMemo, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import deepEqual from 'fast-deep-equal';
+import { createStore } from 'zustand';
 
 import { ContextNotProvided, createContext } from 'src/core/contexts/context';
+import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { usePostUpload } from 'src/features/attachments/utils/postUpload';
 import { usePreUpload } from 'src/features/attachments/utils/preUpload';
 import { mergeAndSort } from 'src/features/attachments/utils/sorting';
@@ -27,17 +29,32 @@ interface IAttachmentsMethodsCtx {
 
 interface IAttachmentsStoreCtx {
   attachments: IAttachments;
-  setAttachments: React.Dispatch<React.SetStateAction<IAttachments>>;
+  setAttachments: (newAttachments: IAttachments) => void;
+}
+
+function initialCreateStore() {
+  return createStore<IAttachmentsStoreCtx>((set) => ({
+    attachments: {},
+    setAttachments: (attachments) =>
+      set((state) => {
+        if (deepEqual(state.attachments, attachments)) {
+          return state;
+        }
+        return { attachments };
+      }),
+  }));
 }
 
 const {
   Provider: StoreProvider,
-  useCtx: useStoreCtx,
-  useLaxCtx: useLaxStoreCtx,
-} = createContext<IAttachmentsStoreCtx>({
+  useSelector,
+  useLaxMemoSelector,
+} = createZustandContext({
   name: 'AttachmentsStore',
   required: true,
+  initialCreateStore,
 });
+
 const { Provider: MethodsProvider, useCtx: useMethodsCtx } = createContext<IAttachmentsMethodsCtx>({
   name: 'AttachmentsMethods',
   required: true,
@@ -52,19 +69,14 @@ const { Provider: MethodsProvider, useCtx: useMethodsCtx } = createContext<IAtta
  *   AttachmentsProvider and NodesProvider makes it impossible to do this in a single provider.
  */
 export const AttachmentsProvider = ({ children }: PropsWithChildren) => {
-  const { setAttachments } = useStoreCtx();
+  const setAttachments = useSelector((store) => store.setAttachments);
   const { state: preUpload, upload, awaitUpload } = usePreUpload();
   const { state: postUpload, update, remove } = usePostUpload();
 
   const attachments = useMemo(() => mergeAndSort(preUpload, postUpload), [preUpload, postUpload]);
 
   useEffect(() => {
-    setAttachments((oldAttachments) => {
-      if (deepEqual(oldAttachments, attachments)) {
-        return oldAttachments;
-      }
-      return attachments;
-    });
+    setAttachments(attachments);
   }, [attachments, setAttachments]);
 
   return (
@@ -102,25 +114,24 @@ export const AttachmentsStoreProvider = ({ children }: PropsWithChildren) => {
   );
 };
 
-export const useAttachments = () => useStoreCtx().attachments;
+export const useAttachments = () => useSelector((store) => store.attachments);
 export const useAttachmentsUploader = () => useMethodsCtx().upload;
 export const useAttachmentsUpdater = () => useMethodsCtx().update;
 export const useAttachmentsRemover = () => useMethodsCtx().remove;
 export const useAttachmentsAwaiter = () => useMethodsCtx().awaitUpload;
-export const useAttachmentsFor = (node: LayoutNode<'FileUploadWithTag' | 'FileUpload'>) => {
-  const { attachments } = useStoreCtx();
-  return attachments[node.item.id] || [];
-};
+
+const emptyArray = [];
+export const useAttachmentsFor = (node: LayoutNode<'FileUploadWithTag' | 'FileUpload'>) =>
+  useSelector((store) => store.attachments[node.item.id]) || emptyArray;
 
 export const useHasPendingAttachments = () => {
-  const store = useLaxStoreCtx();
-  if (store === ContextNotProvided) {
-    return false;
-  }
+  const out = useLaxMemoSelector((store) => {
+    const { attachments } = store;
+    return Object.values(attachments).some(
+      (fileUploader) =>
+        fileUploader?.some((attachment) => !attachment.uploaded || attachment.updating || attachment.deleting),
+    );
+  });
 
-  const { attachments } = store;
-  return Object.values(attachments).some(
-    (fileUploader) =>
-      fileUploader?.some((attachment) => !attachment.uploaded || attachment.updating || attachment.deleting),
-  );
+  return out === ContextNotProvided ? false : out;
 };
