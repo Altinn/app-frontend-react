@@ -8,7 +8,7 @@ export function getHierarchyDataSourcesMock(): HierarchyDataSources {
     attachments: {},
     layoutSettings: { pages: { order: [] } },
     pageNavigationConfig: { hidden: [], hiddenExpr: {} },
-    options: {},
+    options: () => [],
     applicationSettings: getApplicationSettingsMock(),
     instanceDataSources: {} as any,
     hiddenFields: new Set(),

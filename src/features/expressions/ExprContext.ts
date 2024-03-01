@@ -6,7 +6,7 @@ import type { IAttachments } from 'src/features/attachments';
 import type { EvalExprOptions } from 'src/features/expressions/index';
 import type { ExprConfig, Expression, ExprPositionalArgs } from 'src/features/expressions/types';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
-import type { AllOptionsMap } from 'src/features/options/useAllOptions';
+import type { useAllOptionsSelector } from 'src/features/options/useAllOptions';
 import type { FormDataSelector } from 'src/layout';
 import type { ILayoutSettings } from 'src/layout/common.generated';
 import type { IHiddenLayoutsExternal } from 'src/types';
@@ -28,7 +28,7 @@ export interface ContextDataSources {
   attachments: IAttachments;
   layoutSettings: ILayoutSettings;
   pageNavigationConfig: PageNavigationConfig;
-  options: AllOptionsMap;
+  options: ReturnType<typeof useAllOptionsSelector>;
   authContext: Partial<IAuthContext> | null;
   hiddenFields: Set<string>;
   langToolsRef: {

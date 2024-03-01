@@ -1,13 +1,13 @@
 import type { IAttachments } from 'src/features/attachments';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
-import type { AllOptionsMap } from 'src/features/options/useAllOptions';
+import type { useAllOptionsSelector } from 'src/features/options/useAllOptions';
 import type { FormDataSelector } from 'src/layout';
 import type { CompTypes } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface DisplayDataProps {
   attachments: IAttachments;
-  options: AllOptionsMap;
+  options: ReturnType<typeof useAllOptionsSelector>;
   langTools: IUseLanguage;
   currentLanguage: string;
   formDataSelector: FormDataSelector;

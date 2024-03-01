@@ -3,14 +3,13 @@ import type { JSX } from 'react';
 
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
-import { useAllOptions } from 'src/features/options/useAllOptions';
+import { useAllOptionsSelector } from 'src/features/options/useAllOptions';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import { MultipleSelectDef } from 'src/layout/MultipleSelect/config.def.generated';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
-import type { AllOptionsMap } from 'src/features/options/useAllOptions';
 import type { FormDataSelector, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -25,7 +24,7 @@ export class MultipleSelect extends MultipleSelectDef {
   private getSummaryData(
     node: LayoutNode<'MultipleSelect'>,
     langTools: IUseLanguage,
-    options: AllOptionsMap,
+    options: ReturnType<typeof useAllOptionsSelector>,
     formDataSelector: FormDataSelector,
   ): { [key: string]: string } {
     if (!node.item.dataModelBindings?.simpleBinding) {
@@ -33,7 +32,7 @@ export class MultipleSelect extends MultipleSelectDef {
     }
 
     const value = String(node.getFormData(formDataSelector).simpleBinding ?? '');
-    const optionList = options[node.item.id] || [];
+    const optionList = options(node.item.id);
     return getCommaSeparatedOptionsToText(value, optionList, langTools);
   }
 
@@ -46,7 +45,7 @@ export class MultipleSelect extends MultipleSelectDef {
 
   renderSummary({ targetNode, formDataSelector }: SummaryRendererProps<'MultipleSelect'>): JSX.Element | null {
     const langTools = useLanguage();
-    const options = useAllOptions();
+    const options = useAllOptionsSelector();
     const summaryData = this.getSummaryData(targetNode, langTools, options, formDataSelector);
     return <MultipleChoiceSummary formData={summaryData} />;
   }

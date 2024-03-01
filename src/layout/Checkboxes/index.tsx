@@ -3,14 +3,13 @@ import type { JSX } from 'react';
 
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
-import { useAllOptions } from 'src/features/options/useAllOptions';
+import { useAllOptionsSelector } from 'src/features/options/useAllOptions';
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
 import { CheckboxesDef } from 'src/layout/Checkboxes/config.def.generated';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
-import type { AllOptionsMap } from 'src/features/options/useAllOptions';
 import type { FormDataSelector, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -25,11 +24,11 @@ export class Checkboxes extends CheckboxesDef {
   private getSummaryData(
     node: LayoutNode<'Checkboxes'>,
     langTools: IUseLanguage,
-    options: AllOptionsMap,
+    options: ReturnType<typeof useAllOptionsSelector>,
     formDataSelector: FormDataSelector,
   ): { [key: string]: string } {
     const value = node.getFormData(formDataSelector).simpleBinding ?? '';
-    const optionList = options[node.item.id] || [];
+    const optionList = options(node.item.id);
     return getCommaSeparatedOptionsToText(value, optionList, langTools);
   }
 
@@ -39,7 +38,7 @@ export class Checkboxes extends CheckboxesDef {
 
   renderSummary({ targetNode, formDataSelector }: SummaryRendererProps<'Checkboxes'>): JSX.Element | null {
     const langTools = useLanguage();
-    const options = useAllOptions();
+    const options = useAllOptionsSelector();
     const summaryData = this.getSummaryData(targetNode, langTools, options, formDataSelector);
     return <MultipleChoiceSummary formData={summaryData} />;
   }

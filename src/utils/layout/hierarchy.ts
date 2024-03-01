@@ -2,6 +2,7 @@ import { useMemo, useRef } from 'react';
 
 import deepEqual from 'fast-deep-equal';
 
+import { useRenderingTrace } from 'src/debug/useRenderingTrace';
 import { useApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
@@ -14,7 +15,7 @@ import { useLaxInstanceDataSources } from 'src/features/instance/InstanceContext
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useLangToolsRef } from 'src/features/language/LangToolsStore';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
-import { useAllOptionsWhenLoaded } from 'src/features/options/useAllOptions';
+import { useAllOptionsSelector } from 'src/features/options/useAllOptions';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { getLayoutComponentObject } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
@@ -151,7 +152,7 @@ export function useExpressionDataSources(hiddenComponents: Set<string>): Hierarc
   const formDataSelector = FD.useDebouncedSelector();
   const layoutSettings = useLayoutSettings();
   const attachments = useAttachments();
-  const options = useAllOptionsWhenLoaded();
+  const options = useAllOptionsSelector(true);
   const process = useLaxProcessData();
   const applicationSettings = useApplicationSettings();
   const devToolsIsOpen = useDevToolsStore((state) => state.isOpen);
@@ -160,6 +161,22 @@ export function useExpressionDataSources(hiddenComponents: Set<string>): Hierarc
   const currentLanguage = useCurrentLanguage();
   const pageNavigationConfig = usePageNavigationConfig();
   const authContext = useMemo(() => buildAuthContext(process?.currentTask), [process?.currentTask]);
+
+  useRenderingTrace('debug, useExpressionDataSources', {
+    formDataSelector,
+    attachments,
+    layoutSettings,
+    pageNavigationConfig,
+    options,
+    applicationSettings,
+    instanceDataSources,
+    authContext,
+    hiddenComponents,
+    devToolsIsOpen,
+    devToolsHiddenComponents,
+    langToolsRef,
+    currentLanguage,
+  });
 
   return useMemo(
     () => ({

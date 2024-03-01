@@ -88,7 +88,7 @@ describe('Expressions shared function tests', () => {
             }),
           },
           currentLanguage: profileSettings?.language || 'nb',
-          options,
+          options: (nodeId) => options[nodeId] || [],
         };
 
         const _layouts = convertLayouts(layouts);
