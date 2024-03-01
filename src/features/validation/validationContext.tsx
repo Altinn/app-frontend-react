@@ -162,18 +162,13 @@ export function ValidationProvider({ children, isCustomReceipt = false }: PropsW
 
   const validating: WaitForValidation = useCallback(
     async (forceSave = true) => {
-      console.log('debug, waiting for validation: attachments');
       await waitForAttachments((state) => !state);
 
       // Wait until we've saved changed to backend, and we've processed the backend validations we got from that save
-      console.log('debug, waiting for validation: saving');
       const validationsFromSave = await waitForSave(forceSave);
-
-      console.log('debug, waiting for validation: validation');
       await waitForStateRef.current!((state) => state.issueGroupsProcessedLast === validationsFromSave);
 
       // At last, return a function to the caller that can be used to check if their local state is up-to-date
-      console.log('debug, waiting for validation done');
       return (lastBackendValidations: BackendValidationIssueGroups | undefined) =>
         lastBackendValidations === validationsFromSave;
     },
