@@ -28,10 +28,9 @@ export interface ISummaryComponent {
     largeGroup?: boolean;
     display?: SummaryDisplayProperties;
   };
-  ref?: React.Ref<HTMLDivElement>;
 }
 
-export function SummaryComponent({ summaryNode, overrides, ref }: ISummaryComponent) {
+function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: React.Ref<HTMLDivElement>) {
   const { id, grid } = summaryNode.item;
   const display = overrides?.display || summaryNode.item.display;
   const { langAsString } = useLanguage();
@@ -138,3 +137,5 @@ export function SummaryComponent({ summaryNode, overrides, ref }: ISummaryCompon
     </Grid>
   );
 }
+
+export const SummaryComponent = React.forwardRef(_SummaryComponent);
