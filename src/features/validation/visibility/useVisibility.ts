@@ -65,12 +65,15 @@ export function useVisibility(
           ValidationMask.AllIncludingBackend,
         ).reduce((mask, validation) => mask | validation.category, 0);
 
-        // Checking the original(state) is much cheaper than checking the draft, so its worth potentially doing it twice to not make uneccessary updates
-        const currentVisibilityMask = getVisibilityForNode(node, original(state)!);
+        // Checking the original(state) is much cheaper than checking the draft, so its worth
+        // potentially doing it twice to not make unnecessary updates
+        const originalState = original(state) ?? state;
+        const currentVisibilityMask = getVisibilityForNode(node, originalState);
         const newVisibilityMask = currentVisibilityMask & currentValidationMask;
 
         // Updating is a bit expensive, so only do it if the mask is different
-        // We need to OR with the initial mask for comparison as this always happens when the mask is updated, otherwise there could be false positives
+        // We need to OR with the initial mask for comparison as this always happens when the
+        // mask is updated, otherwise there could be false positives
         const initialMask = getInitialMaskFromNode(node);
         if ((newVisibilityMask | initialMask) === currentVisibilityMask) {
           continue;
