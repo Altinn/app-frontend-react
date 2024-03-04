@@ -32,6 +32,7 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
 {
   public readonly itemWithExpressions: Item;
   public readonly def: CompClassMap[Type];
+  private hiddenCached: { [key: number]: boolean | undefined } = {};
 
   public constructor(
     public item: Item,
@@ -159,16 +160,26 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
   public isHidden(options: IsHiddenOptions = {}): boolean {
     const { respectLegacy = true, respectDevTools = true, respectTracks = false } = options;
 
+    // Bit field containing the flags
+    const cacheKey = (respectLegacy ? 1 : 0) | (respectDevTools ? 2 : 0) | (respectTracks ? 4 : 0);
+
+    if (this.hiddenCached[cacheKey] !== undefined) {
+      return this.hiddenCached[cacheKey] as boolean;
+    }
+
     const isHidden = respectLegacy ? this.dataSources.isHidden : () => false;
     if (respectDevTools && this.dataSources.devToolsIsOpen && this.dataSources.devToolsHiddenComponents !== 'hide') {
+      this.hiddenCached[cacheKey] = false;
       return false;
     }
 
     if (this.item.baseComponentId && isHidden(this.item.baseComponentId)) {
+      this.hiddenCached[cacheKey] = true;
       return true;
     }
 
     if (this.item.hidden === true || isHidden(this.item.id)) {
+      this.hiddenCached[cacheKey] = true;
       return true;
     }
 
@@ -179,6 +190,7 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
     ) {
       const isHiddenRow = this.parent.item.rows[this.rowIndex]?.groupExpressions?.hiddenRow;
       if (isHiddenRow) {
+        this.hiddenCached[cacheKey] = true;
         return true;
       }
 
@@ -199,6 +211,7 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
       }
 
       if (hiddenImplicitly) {
+        this.hiddenCached[cacheKey] = true;
         return true;
       }
     }
@@ -208,10 +221,13 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
       this.parent instanceof LayoutPage &&
       this.parent.isHiddenViaTracks(this.dataSources.layoutSettings, this.dataSources.pageNavigationConfig)
     ) {
+      this.hiddenCached[cacheKey] = true;
       return true;
     }
 
-    return this.parent instanceof BaseLayoutNode && this.parent.isHidden(options);
+    const hiddenByParent = this.parent instanceof BaseLayoutNode && this.parent.isHidden(options);
+    this.hiddenCached[cacheKey] = hiddenByParent;
+    return hiddenByParent;
   }
 
   private firstDataModelBinding() {
