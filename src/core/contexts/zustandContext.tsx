@@ -17,12 +17,18 @@ type SelectorFunc<T> = <U>(selector: Selector<T, U>) => U;
 type SelectorRefFunc<T> = <U>(selector: Selector<T, U>) => { current: U };
 type SelectorRefFuncLax<T> = <U>(selector: Selector<T, U>) => { current: U | typeof ContextNotProvided };
 type DelayedSelectorFunc<T> = <U>(selector: Selector<T, U>, postProcessor?: (data: unknown) => U) => U;
+type DelayedSelectorFuncWithArg<Arg, U> = (lookup: Arg, postProcessor?: (data: unknown) => U) => U;
 type SelectorFuncLax<T> = <U>(selector: Selector<T, U>) => U | typeof ContextNotProvided;
 
 type DelayedSelectorState<T> = {
   selector: Selector<T, any>;
   prevValue: any;
 }[];
+
+interface DelayedSelectorFactory<Param, RetVal, T> {
+  selector: (lookup: Param) => Selector<T, RetVal>;
+  makeCacheKey: (lookup: Param) => string;
+}
 
 export function createZustandContext<Store extends StoreApi<Type>, Type = ExtractFromStoreApi<Store>, Props = any>(
   props: CreateContextProps<Store> & {
@@ -60,20 +66,15 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
     const store = useLaxCtx();
     const ref = useRef<any>(store === ContextNotProvided ? ContextNotProvided : selector(store.getState() as Type));
 
-    useEffect(
-      () => {
-        if (store === ContextNotProvided) {
-          ref.current = ContextNotProvided;
-          return;
-        }
-        return store.subscribe((state) => {
-          ref.current = selector(state);
-        });
-      },
-      // The selector is not expected to change, so we don't need to include it in the dependency array.
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      [store],
-    );
+    useEffect(() => {
+      if (store === ContextNotProvided) {
+        ref.current = ContextNotProvided;
+        return;
+      }
+      return store.subscribe((state) => {
+        ref.current = selector(state);
+      });
+    }, [store, selector]);
 
     return ref;
   };
@@ -194,6 +195,62 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
   };
 
   /**
+   * Even more abstraction on top of useDelayedMemoSelector. This hook expects a callback factory that will create
+   * the selector function for you, along with a cache key.
+   */
+  const useDelayedMemoSelectorFactory = <Arg, RetVal>({
+    selector,
+    makeCacheKey,
+  }: DelayedSelectorFactory<Arg, RetVal, Type>): DelayedSelectorFuncWithArg<Arg, RetVal> => {
+    const delayedSelector = useDelayedMemoSelector();
+    const callbacks = useRef<Record<string, Selector<Type, RetVal>>>({});
+
+    useEffect(() => {
+      callbacks.current = {};
+    }, [delayedSelector]);
+
+    return useCallback(
+      (arg: Arg, postProcessor) => {
+        const cacheKey = makeCacheKey(arg);
+        if (!callbacks.current[cacheKey]) {
+          callbacks.current[cacheKey] = selector(arg);
+        }
+        return delayedSelector(callbacks.current[cacheKey], postProcessor) as RetVal;
+      },
+      [delayedSelector, selector, makeCacheKey],
+    );
+  };
+
+  const useLaxDelayedMemoSelectorFactory = <Arg, RetVal>({
+    selector,
+    makeCacheKey,
+  }: DelayedSelectorFactory<Arg, RetVal, Type>) => {
+    const delayedSelector = useLaxDelayedMemoSelector();
+    const callbacks = useRef<Record<string, Selector<Type, RetVal>>>({});
+
+    useEffect(() => {
+      callbacks.current = {};
+    }, [delayedSelector]);
+
+    const callback: DelayedSelectorFuncWithArg<Arg, RetVal> = useCallback(
+      (arg: Arg, postProcessor) => {
+        if (delayedSelector === ContextNotProvided) {
+          return ContextNotProvided as RetVal;
+        }
+
+        const cacheKey = makeCacheKey(arg);
+        if (!callbacks.current[cacheKey]) {
+          callbacks.current[cacheKey] = selector(arg);
+        }
+        return delayedSelector(callbacks.current[cacheKey], postProcessor) as RetVal;
+      },
+      [delayedSelector, selector, makeCacheKey],
+    );
+
+    return delayedSelector === ContextNotProvided ? ContextNotProvided : callback;
+  };
+
+  /**
    * A hook much like useSelector(), but will also work if the context provider is not present. If the context provider
    * is not present, the hook will return the ContextNotProvided value instead.
    */
@@ -228,7 +285,9 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
     useLaxMemoSelector,
     useLaxSelector,
     useDelayedMemoSelector,
+    useDelayedMemoSelectorFactory,
     useLaxDelayedMemoSelector,
+    useLaxDelayedMemoSelectorFactory,
     useHasProvider,
     useStore: useCtx,
     useLaxStore: useLaxCtx,

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createStore } from 'zustand';
@@ -37,7 +37,7 @@ function initialCreateStore() {
   }));
 }
 
-const { Provider, useSelector, useMemoSelector, useSelectorAsRef, useLaxSelectorAsRef, useDelayedMemoSelector } =
+const { Provider, useSelector, useMemoSelector, useSelectorAsRef, useLaxSelectorAsRef, useDelayedMemoSelectorFactory } =
   createZustandContext({
     name: 'Nodes',
     required: true,
@@ -98,18 +98,10 @@ export function useNodesMemoSelector<U>(selector: (s: LayoutPages) => U) {
 }
 
 export function useIsHiddenComponent() {
-  const selector = useDelayedMemoSelector();
-  const callbacks = useRef<Record<string, Parameters<typeof selector>[0]>>({});
-
-  return useCallback(
-    (nodeId: string) => {
-      if (!callbacks.current[nodeId]) {
-        callbacks.current[nodeId] = (state): boolean => state.hiddenComponents.has(nodeId);
-      }
-      return selector(callbacks.current[nodeId]) as boolean;
-    },
-    [selector],
-  );
+  return useDelayedMemoSelectorFactory({
+    selector: (nodeId: string) => (state) => state.hiddenComponents.has(nodeId),
+    makeCacheKey: (nodeId) => nodeId,
+  });
 }
 
 /**

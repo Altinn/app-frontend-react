@@ -274,6 +274,10 @@ function useDelayedSelector<U>(
   const selector = useDelayedMemoSelector();
   const callbacks = useRef<Record<string, Parameters<typeof selector>[0]>>({});
 
+  useEffect(() => {
+    callbacks.current = {};
+  }, [selector]);
+
   return useCallback(
     (cacheKey, innerSelector) => {
       if (!callbacks.current[cacheKey]) {

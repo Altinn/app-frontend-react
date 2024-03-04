@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import deepEqual from 'fast-deep-equal';
@@ -100,7 +100,7 @@ function newStore() {
   }));
 }
 
-const { Provider, useSelector, useDelayedMemoSelector } = createZustandContext<ReturnType<typeof newStore>>({
+const { Provider, useSelector, useDelayedMemoSelectorFactory } = createZustandContext<ReturnType<typeof newStore>>({
   name: 'AllOptions',
   required: true,
   initialCreateStore: newStore,
@@ -108,24 +108,15 @@ const { Provider, useSelector, useDelayedMemoSelector } = createZustandContext<R
 
 const emptyArray: IOptionInternal[] = [];
 export function useAllOptionsSelector(onlyWhenAllLoaded = false) {
-  const selector = useDelayedMemoSelector();
-  const callbacks = useRef<Record<string, Parameters<typeof selector>[0]>>({});
-
-  return useCallback(
-    (nodeId: string) => {
-      const fullCacheKey = `${nodeId}-${onlyWhenAllLoaded.toString()}`;
-      if (!callbacks.current[fullCacheKey]) {
-        callbacks.current[fullCacheKey] = (state): IOptionInternal[] => {
-          if (onlyWhenAllLoaded && !state.allInitiallyLoaded) {
-            return emptyArray;
-          }
-          return state.nodes[nodeId] || emptyArray;
-        };
+  return useDelayedMemoSelectorFactory({
+    selector: (nodeId: string) => (state) => {
+      if (onlyWhenAllLoaded && !state.allInitiallyLoaded) {
+        return emptyArray;
       }
-      return selector(callbacks.current[fullCacheKey]) as IOptionInternal[];
+      return state.nodes[nodeId] || emptyArray;
     },
-    [onlyWhenAllLoaded, selector],
-  );
+    makeCacheKey: (nodeId: string) => nodeId + (onlyWhenAllLoaded ? '|onlyWhenAllLoaded' : ''),
+  });
 }
 
 export const useAllOptions = () => useSelector((state) => state.nodes);
