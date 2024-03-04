@@ -29,13 +29,16 @@ export class LikertItem extends LikertItemDef {
     return props.node.item.layout === LayoutStyle.Table || props.overrideItemProps?.layout === LayoutStyle.Table;
   }
 
-  getDisplayData(node: LayoutNode<'LikertItem'>, { langTools, options, formDataSelector }: DisplayDataProps): string {
+  getDisplayData(
+    node: LayoutNode<'LikertItem'>,
+    { langTools, optionsSelector, formDataSelector }: DisplayDataProps,
+  ): string {
     if (!node.item.dataModelBindings?.simpleBinding) {
       return '';
     }
 
     const value = String(node.getFormData(formDataSelector).simpleBinding ?? '');
-    const optionList = options[node.item.id] || [];
+    const optionList = optionsSelector(node.item.id);
     return getSelectedValueToText(value, langTools, optionList) || '';
   }
 

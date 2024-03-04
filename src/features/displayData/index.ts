@@ -7,7 +7,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface DisplayDataProps {
   attachments: IAttachments;
-  options: ReturnType<typeof useAllOptionsSelector>;
+  optionsSelector: ReturnType<typeof useAllOptionsSelector>;
   langTools: IUseLanguage;
   currentLanguage: string;
   formDataSelector: FormDataSelector;

@@ -18,13 +18,16 @@ export class Dropdown extends DropdownDef {
     },
   );
 
-  getDisplayData(node: LayoutNode<'Dropdown'>, { langTools, options, formDataSelector }: DisplayDataProps): string {
+  getDisplayData(
+    node: LayoutNode<'Dropdown'>,
+    { langTools, optionsSelector, formDataSelector }: DisplayDataProps,
+  ): string {
     if (!node.item.dataModelBindings?.simpleBinding) {
       return '';
     }
 
     const value = String(node.getFormData(formDataSelector).simpleBinding ?? '');
-    const optionList = options[node.item.id] || [];
+    const optionList = optionsSelector(node.item.id);
     return getSelectedValueToText(value, langTools, optionList) || '';
   }
 

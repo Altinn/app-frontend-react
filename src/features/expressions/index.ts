@@ -586,7 +586,7 @@ export const ExprFunctions = {
 
       return component.def.getDisplayData(component as any, {
         attachments: this.dataSources.attachments,
-        options: this.dataSources.options,
+        optionsSelector: this.dataSources.options,
         langTools: this.dataSources.langToolsRef.current,
         currentLanguage: this.dataSources.currentLanguage,
         formDataSelector: this.dataSources.formDataSelector,

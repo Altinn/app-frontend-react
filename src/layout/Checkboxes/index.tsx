@@ -24,16 +24,19 @@ export class Checkboxes extends CheckboxesDef {
   private getSummaryData(
     node: LayoutNode<'Checkboxes'>,
     langTools: IUseLanguage,
-    options: ReturnType<typeof useAllOptionsSelector>,
+    optionsSelector: ReturnType<typeof useAllOptionsSelector>,
     formDataSelector: FormDataSelector,
   ): { [key: string]: string } {
     const value = node.getFormData(formDataSelector).simpleBinding ?? '';
-    const optionList = options(node.item.id);
+    const optionList = optionsSelector(node.item.id);
     return getCommaSeparatedOptionsToText(value, optionList, langTools);
   }
 
-  getDisplayData(node: LayoutNode<'Checkboxes'>, { langTools, options, formDataSelector }: DisplayDataProps): string {
-    return Object.values(this.getSummaryData(node, langTools, options, formDataSelector)).join(', ');
+  getDisplayData(
+    node: LayoutNode<'Checkboxes'>,
+    { langTools, optionsSelector, formDataSelector }: DisplayDataProps,
+  ): string {
+    return Object.values(this.getSummaryData(node, langTools, optionsSelector, formDataSelector)).join(', ');
   }
 
   renderSummary({ targetNode, formDataSelector }: SummaryRendererProps<'Checkboxes'>): JSX.Element | null {

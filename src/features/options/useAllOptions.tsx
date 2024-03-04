@@ -30,7 +30,6 @@ interface State {
 }
 
 interface Functions {
-  setAllInitiallyLoaded: (allInitiallyLoaded: boolean) => void;
   setCurrentTaskId: (currentTaskId?: string) => void;
   setNodesFound: (nodesFound: string[]) => void;
   setNodeOptions: (nodeId: string, options: IOptionInternal[]) => void;
@@ -42,13 +41,7 @@ function isAllLoaded(nodes: AllOptionsMap, existingValue: boolean) {
     return true;
   }
 
-  for (const options of Object.values(nodes)) {
-    if (options === undefined) {
-      return false;
-    }
-  }
-
-  return true;
+  return Object.values(nodes).every((options) => options !== undefined);
 }
 
 function newStore() {
@@ -56,8 +49,20 @@ function newStore() {
     allInitiallyLoaded: false,
     nodes: {},
     error: false,
-    setAllInitiallyLoaded: (allInitiallyLoaded) => set({ allInitiallyLoaded }),
-    setCurrentTaskId: (currentTaskId) => set({ currentTaskId }),
+    setCurrentTaskId: (currentTaskId) => {
+      set((state) => {
+        if (state.currentTaskId === currentTaskId) {
+          return state;
+        }
+
+        return {
+          currentTaskId,
+          allInitiallyLoaded: false,
+          nodes: {},
+          error: false,
+        };
+      });
+    },
     setNodesFound: (nodesFound) => {
       set((state) => {
         if (state.allInitiallyLoaded) {
@@ -108,7 +113,7 @@ export function useAllOptionsSelector(onlyWhenAllLoaded = false) {
 
   return useCallback(
     (nodeId: string) => {
-      const fullCacheKey = `${nodeId}-${onlyWhenAllLoaded}`;
+      const fullCacheKey = `${nodeId}-${onlyWhenAllLoaded.toString()}`;
       if (!callbacks.current[fullCacheKey]) {
         callbacks.current[fullCacheKey] = (state): IOptionInternal[] => {
           if (onlyWhenAllLoaded && !state.allInitiallyLoaded) {
@@ -124,8 +129,6 @@ export function useAllOptionsSelector(onlyWhenAllLoaded = false) {
 }
 
 export const useAllOptions = () => useSelector((state) => state.nodes);
-export const useAllOptionsWhenLoaded = () =>
-  useSelector((state) => (state.allInitiallyLoaded ? state.nodes : undefined));
 export const useAllOptionsInitiallyLoaded = () => useSelector((state) => state.allInitiallyLoaded);
 
 function isNodeOptionBased(node: LayoutNode) {
@@ -144,7 +147,6 @@ export function AllOptionsProvider({ children }: PropsWithChildren) {
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
   const setCurrentTaskId = useSelector((state) => state.setCurrentTaskId);
   const setNodesFound = useSelector((state) => state.setNodesFound);
-  const setNodeOptions = useSelector((state) => state.setNodeOptions);
   const setError = useSelector((state) => state.setError);
   const isError = useSelector((state) => state.error);
   const allInitiallyLoaded = useAllOptionsInitiallyLoaded();
@@ -171,13 +173,6 @@ export function AllOptionsProvider({ children }: PropsWithChildren) {
     }
   }, [currentTaskType, nodes, setNodesFound]);
 
-  const loadingDone = useCallback(
-    (id: string, options: IOptionInternal[]) => {
-      setNodeOptions(id, options);
-    },
-    [setNodeOptions],
-  );
-
   const onError = useCallback(() => {
     setError(true);
   }, [setError]);
@@ -191,7 +186,6 @@ export function AllOptionsProvider({ children }: PropsWithChildren) {
       <DummyOptionsSaver
         key={node.item.id}
         node={node}
-        loadingDone={loadingDone}
         onError={onError}
       />
     ));
@@ -217,15 +211,8 @@ export function AllOptionsProvider({ children }: PropsWithChildren) {
   );
 }
 
-function DummyOptionsSaver({
-  node,
-  loadingDone,
-  onError,
-}: {
-  node: LayoutNode;
-  loadingDone: (id: string, options: IOptionInternal[]) => void;
-  onError: () => void;
-}) {
+function DummyOptionsSaver({ node, onError }: { node: LayoutNode; onError: () => void }) {
+  const setNodeOptions = useSelector((state) => state.setNodeOptions);
   const {
     options: calculatedOptions,
     isFetching,
@@ -243,9 +230,9 @@ function DummyOptionsSaver({
 
   useEffect(() => {
     if (!isFetching) {
-      loadingDone(node.item.id, calculatedOptions);
+      setNodeOptions(node.item.id, calculatedOptions);
     }
-  }, [isFetching, node.item.id, calculatedOptions, loadingDone]);
+  }, [node.item.id, calculatedOptions, isFetching, setNodeOptions]);
 
   useEffect(() => {
     if (isError) {
