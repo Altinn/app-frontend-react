@@ -220,13 +220,16 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
     if (!dataModelBindings?.label) {
       return;
     }
-    if (labelsHaveChanged) {
-      if (valueType === 'single') {
-        const labelToSet = translatedLabels?.length > 0 ? translatedLabels[0] : undefined;
-        setValue('label' as any, labelToSet);
-      } else {
-        setValue('label' as any, translatedLabels);
-      }
+
+    if (!labelsHaveChanged) {
+      return;
+    }
+
+    if (valueType === 'single') {
+      const labelToSet = translatedLabels?.length > 0 ? translatedLabels[0] : undefined;
+      setValue('label' as any, labelToSet);
+    } else {
+      setValue('label' as any, translatedLabels);
     }
   }, [translatedLabels, labelsHaveChanged, dataModelBindings?.label, setValue, valueType]);
 
