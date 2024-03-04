@@ -90,7 +90,7 @@ describe('Expressions shared function tests', () => {
           },
           currentLanguage: profileSettings?.language || 'nb',
           options: (nodeId) => options[nodeId] || [],
-          isLegacyHidden: (nodeId: string) => hidden.has(nodeId),
+          isHidden: (nodeId: string) => hidden.has(nodeId),
         };
 
         const _layouts = convertLayouts(layouts);

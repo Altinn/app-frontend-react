@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createStore } from 'zustand';
@@ -22,26 +22,18 @@ import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 interface NodesContext {
   nodes: LayoutPages | undefined;
-  hiddenViaExpressions: Set<string>;
-  hiddenViaLegacyRules: Set<string>;
-  hiddenByParentPage: Set<string>;
+  hiddenComponents: Set<string>;
   setNodes: (nodes: LayoutPages) => void;
-  setHiddenComponents: (
-    hiddenViaExpressions: Set<string>,
-    hiddenViaLegacyRules: Set<string>,
-    hiddenByParentPage: Set<string>,
-  ) => void;
+  setHiddenComponents: (mutator: (hidden: Set<string>) => Set<string>) => void;
 }
 
 function initialCreateStore() {
   return createStore<NodesContext>((set) => ({
     nodes: undefined,
     setNodes: (nodes: LayoutPages) => set({ nodes }),
-    hiddenViaExpressions: new Set(),
-    hiddenViaLegacyRules: new Set(),
-    hiddenByParentPage: new Set(),
-    setHiddenComponents: (hiddenViaExpressions, hiddenViaLegacyRules, hiddenByParentPage) =>
-      set({ hiddenViaExpressions, hiddenViaLegacyRules, hiddenByParentPage }),
+    hiddenComponents: new Set(),
+    setHiddenComponents: (mutator: (hidden: Set<string>) => Set<string>) =>
+      set((state) => ({ hiddenComponents: mutator(state.hiddenComponents) })),
   }));
 }
 
@@ -61,7 +53,8 @@ export const NodesProvider = (props: React.PropsWithChildren) => (
 );
 
 function InnerNodesProvider() {
-  const resolvedNodes = _private.useResolvedExpressions();
+  const isHidden = useIsHiddenComponent();
+  const resolvedNodes = _private.useResolvedExpressions(isHidden);
   const setNodes = useSelector((state) => state.setNodes);
 
   useEffect(() => {
@@ -72,8 +65,10 @@ function InnerNodesProvider() {
 }
 
 function InnerHiddenComponentsProvider() {
+  const setHidden = useSelector((state) => state.setHiddenComponents);
   const resolvedNodes = useSelector((state) => state.nodes);
-  useLegacyHiddenComponents(resolvedNodes);
+
+  useLegacyHiddenComponents(resolvedNodes, setHidden);
 
   return null;
 }
@@ -102,28 +97,18 @@ export function useNodesMemoSelector<U>(selector: (s: LayoutPages) => U) {
   return useMemoSelector((state) => selector(state.nodes!));
 }
 
-type HiddenBy = 'expressions' | 'legacyRules' | 'parentPage' | 'any';
-export function useIsHiddenComponent(_by: HiddenBy, ...byMore: HiddenBy[]) {
+export function useIsHiddenComponent() {
   const selector = useDelayedMemoSelector();
   const callbacks = useRef<Record<string, Parameters<typeof selector>[0]>>({});
-  const by = useMemo(() => [_by, ...byMore], [_by, byMore]);
 
   return useCallback(
     (nodeId: string) => {
       if (!callbacks.current[nodeId]) {
-        callbacks.current[nodeId] = (state): boolean => {
-          if ((by.includes('expressions') || by.includes('any')) && state.hiddenViaExpressions.has(nodeId)) {
-            return true;
-          }
-          if ((by.includes('legacyRules') || by.includes('any')) && state.hiddenViaLegacyRules.has(nodeId)) {
-            return true;
-          }
-          return (by.includes('parentPage') || by.includes('any')) && state.hiddenByParentPage.has(nodeId);
-        };
+        callbacks.current[nodeId] = (state): boolean => state.hiddenComponents.has(nodeId);
       }
       return selector(callbacks.current[nodeId]) as boolean;
     },
-    [selector, by],
+    [selector],
   );
 }
 
@@ -163,10 +148,13 @@ export function useResolvedNode<T>(selector: string | undefined | T | LayoutNode
  * thus continually run the expressions until they stabilize. You _could_ run into an infinite loop if you
  * have a circular dependency in your expressions, but that's a problem with your form, not this hook.
  */
-function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
-  const setHidden = useSelector((state) => state.setHiddenComponents);
+function useLegacyHiddenComponents(
+  resolvedNodes: LayoutPages | undefined,
+  setHidden: React.Dispatch<React.SetStateAction<Set<string>>>,
+) {
   const rules = useDynamics()?.conditionalRendering ?? null;
-  const dataSources = useExpressionDataSources();
+  const isHidden = useIsHiddenComponent();
+  const dataSources = useExpressionDataSources(isHidden);
   const hiddenExpr = useHiddenLayoutsExpressions();
   const hiddenPages = useHiddenPages();
   const setHiddenPages = useSetHiddenPages();
@@ -183,25 +171,30 @@ function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
       setHiddenPages?.(futureHiddenLayouts);
     }
 
-    let futureHiddenByLegacyRules: Set<string>;
+    let futureHiddenFields: Set<string>;
     try {
-      futureHiddenByLegacyRules = runConditionalRenderingRules(rules, resolvedNodes);
+      futureHiddenFields = runConditionalRenderingRules(rules, resolvedNodes);
     } catch (error) {
       window.logError('Error while evaluating conditional rendering rules:\n', error);
-      futureHiddenByLegacyRules = new Set();
+      futureHiddenFields = new Set();
     }
 
-    const futureHiddenByExpressions = new Set<string>();
-    runExpressionRules(resolvedNodes, futureHiddenByExpressions);
+    runExpressionRules(resolvedNodes, futureHiddenFields);
 
-    // All fields from hidden layouts
-    const futureHiddenByParentPage = new Set<string>();
+    // Add all fields from hidden layouts to hidden fields
     for (const layout of futureHiddenLayouts) {
       for (const node of resolvedNodes.findLayout(layout)?.flat(true) || []) {
-        futureHiddenByParentPage.add(node.item.id);
+        if (!futureHiddenFields.has(node.item.id)) {
+          futureHiddenFields.add(node.item.id);
+        }
       }
     }
 
-    setHidden(futureHiddenByExpressions, futureHiddenByLegacyRules, futureHiddenByParentPage);
+    setHidden((currentlyHidden) => {
+      if (shouldUpdate(currentlyHidden, futureHiddenFields)) {
+        return new Set([...futureHiddenFields.values()]);
+      }
+      return currentlyHidden;
+    });
   }, [dataSources, hiddenPages, hiddenExpr, resolvedNodes, rules, setHiddenPages, setHidden]);
 }
