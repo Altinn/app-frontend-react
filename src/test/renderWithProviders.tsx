@@ -189,7 +189,6 @@ export const makeFormDataMethodProxies = (
     appendToList: makeProxy('appendToList', ref),
     unlock: makeProxy('unlock', ref),
     lock: makeProxy('lock', ref),
-    requestManualSave: makeProxy('requestManualSave', ref),
   };
 
   const proxies: FormDataWriteProxies = Object.fromEntries(

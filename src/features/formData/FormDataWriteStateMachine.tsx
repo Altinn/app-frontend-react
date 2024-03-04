@@ -1,8 +1,10 @@
 import dot from 'dot-object';
 import deepEqual from 'fast-deep-equal';
 import { applyPatch } from 'fast-json-patch';
+import { current, isDraft } from 'immer';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
+import type { Draft } from 'immer';
 
 import { convertData } from 'src/features/formData/convertData';
 import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
@@ -62,11 +64,6 @@ export interface FormDataState {
 
     // This is used to track whether the data model is currently being saved to the server.
     isSaving: boolean;
-
-    // This is used to track whether the user has requested a manual save. When auto-saving is turned off, this is
-    // the way we track when to save the data model to the server. It can also be used to trigger a manual save
-    // as a way to immediately save the data model to the server, for example before locking the data model.
-    manualSaveRequested: boolean;
 
     // This is used to track which component is currently blocking the auto-saving feature. If this is set to a string
     // value, auto-saving will be disabled, even if the autoSaving flag is set to true. This is useful when you want
@@ -145,16 +142,19 @@ export interface FormDataMethods {
   removeFromListCallback: (change: FDRemoveFromListCallback) => void;
 
   // Internal utility methods
-  debounce: () => void;
+  debounce: (whenDone?: (debounced: object) => void) => void;
   saveStarted: () => void;
   cancelSave: () => void;
   saveFinished: (props: FDSaveFinished) => void;
-  requestManualSave: (setTo?: boolean) => void;
   lock: (lockName: string) => void;
   unlock: (saveResult?: FDSaveResult) => void;
 }
 
 export type FormDataContext = FormDataState & FormDataMethods;
+
+function alwaysCurrent<T>(value: Draft<T> | T): T {
+  return isDraft(value) ? (current(value) as T) : (value as T);
+}
 
 function makeActions(
   set: (fn: (state: FormDataContext) => void) => void,
@@ -183,7 +183,7 @@ function makeActions(
         if (modelA.model === modelB.model) {
           continue;
         }
-        if (deepEqual(modelA.model, modelB.model)) {
+        if (deepEqual(alwaysCurrent(modelA.model), alwaysCurrent(modelB.model))) {
           state[modelB.key] = modelA.model;
           modelB.model = modelA.model;
         }
@@ -198,7 +198,7 @@ function makeActions(
     if (newDataModel) {
       const backendChangesPatch = createPatch({ prev: savedData, next: newDataModel, current: state.currentData });
       applyPatch(state.currentData, backendChangesPatch);
-      state.lastSavedData = structuredClone(newDataModel);
+      state.lastSavedData = newDataModel;
 
       // Run rules again, against current data. Now that we have updates from the backend, some rules may
       // have caused data to change.
@@ -207,16 +207,17 @@ function makeActions(
         dot.str(path, newValue, state.currentData);
       }
     } else {
-      state.lastSavedData = structuredClone(savedData);
+      state.lastSavedData = savedData;
     }
     deduplicateModels(state);
   }
 
-  function debounce(state: FormDataContext) {
+  function debounce(state: FormDataContext, whenDone?: (debounced: object) => void) {
     state.invalidDebouncedCurrentData = state.invalidCurrentData;
     if (deepEqual(state.debouncedCurrentData, state.currentData)) {
       state.debouncedCurrentData = state.currentData;
       deduplicateModels(state);
+      whenDone?.(alwaysCurrent(state.debouncedCurrentData));
       return;
     }
 
@@ -227,6 +228,7 @@ function makeActions(
 
     state.debouncedCurrentData = state.currentData;
     deduplicateModels(state);
+    whenDone?.(alwaysCurrent(state.debouncedCurrentData));
   }
 
   function setValue(props: { path: string; newValue: FDLeafValue; state: FormDataState & FormDataMethods }) {
@@ -248,9 +250,9 @@ function makeActions(
   }
 
   return {
-    debounce: () =>
+    debounce: (whenDone) =>
       set((state) => {
-        debounce(state);
+        debounce(state, whenDone);
       }),
 
     saveStarted: () =>
@@ -260,11 +262,11 @@ function makeActions(
     cancelSave: () =>
       set((state) => {
         state.controlState.isSaving = false;
+        deduplicateModels(state);
       }),
     saveFinished: (props) =>
       set((state) => {
         const { validationIssues } = props;
-        state.controlState.manualSaveRequested = false;
         state.validationIssues = validationIssues;
         state.controlState.isSaving = false;
         processChanges(state, props);
@@ -366,11 +368,6 @@ function makeActions(
           setDebounceTimeout(state, rest);
         }
       }),
-    requestManualSave: (setTo = true) =>
-      set((state) => {
-        state.controlState.manualSaveRequested = setTo;
-        debounce(state);
-      }),
     lock: (lockName) =>
       set((state) => {
         state.controlState.lockedBy = lockName;
@@ -421,7 +418,6 @@ export const createFormDataWriteStore = (
         controlState: {
           autoSaving,
           isSaving: false,
-          manualSaveRequested: false,
           lockedBy: undefined,
           debounceTimeout: DEFAULT_DEBOUNCE_TIMEOUT,
           saveUrl: url,

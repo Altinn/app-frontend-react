@@ -299,10 +299,10 @@ describe('FormData', () => {
 
       return (
         <>
-          <div data-testid='isLocked'>{isLocked() ? 'true' : 'false'}</div>
+          <div data-testid='isLocked'>{isLocked ? 'true' : 'false'}</div>
           <button
             onClick={async () => {
-              if (isLocked()) {
+              if (isLocked) {
                 // Unlock with some pretend updated form data
                 unlock({
                   newDataModel: { obj1: { prop1: 'new value' } },
@@ -313,7 +313,7 @@ describe('FormData', () => {
               }
             }}
           >
-            {isLocked() ? 'Unlock' : 'Lock'} form data
+            {isLocked ? 'Unlock' : 'Lock'} form data
           </button>
         </>
       );
