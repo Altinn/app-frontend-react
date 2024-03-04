@@ -222,7 +222,8 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
     }
     if (labelsHaveChanged) {
       if (valueType === 'single') {
-        setValue('label' as any, translatedLabels?.length > 1 ? translatedLabels[0] : undefined);
+        const labelToSet = translatedLabels?.length > 0 ? translatedLabels[0] : undefined;
+        setValue('label' as any, labelToSet);
       } else {
         setValue('label' as any, translatedLabels);
       }

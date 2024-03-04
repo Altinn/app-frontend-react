@@ -33,20 +33,29 @@ describe('Dynamics', () => {
     showReasons();
   });
 
-  it('Should save the label of the chosen option', () => {
-    showReasons();
-    cy.findByRole('radio', { name: /Slektskap/ }).click();
-    cy.get('#reasonLabel').should('have.value', 'Slektskap');
+  it.only('Should save the label of the chosen option', () => {
+    cy.goto('changename');
+    cy.get(appFrontend.changeOfName.newFirstName).type('123');
+    cy.get('#choose-extra').findByText('Label Databindings').click();
+    cy.gotoNavPage('label-data-bindings');
+
+    cy.findByRole('checkbox', { name: 'Blå' }).click();
+    cy.findByRole('checkbox', { name: 'Grønn' }).click();
+    cy.get('#ColorsLabelsVerify').should('have.value', 'Blå,Grønn');
     changeToLang('en');
-    cy.get('#reasonLabel').should('have.value', 'Kinship');
+    cy.get('#ColorsLabelsVerify').should('have.value', 'Blue,Green');
   });
 
-  it.only('Should save multiple chosen checkboxes as string array.', () => {
-    showReasons();
-    cy.findByRole('checkbox', { name: /Label Databindings/ }).check();
-    cy.findByRole('button', { name: /Neste/ }).click();
-    cy.navPage('label-data-bindings').click();
-    cy.findByRole('checkbox', { name: /Slektskap/ }).dsCheck();
+  it.only('Should save the label of the chosen option', () => {
+    cy.goto('changename');
+    cy.get(appFrontend.changeOfName.newFirstName).type('123');
+    cy.get('#choose-extra').findByText('Label Databindings').click();
+    cy.gotoNavPage('label-data-bindings');
+
+    cy.findByRole('radio', { name: 'Gulrot' }).click();
+    cy.get('#colorLabel').should('have.value', 'Gulrot');
+    changeToLang('en');
+    cy.get('#colorLabel').should('have.value', 'Carrot');
   });
 
   it('Remove validation message when field disappears', () => {
