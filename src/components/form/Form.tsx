@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 
 import Grid from '@material-ui/core/Grid';
@@ -19,20 +19,24 @@ import { GenericComponentById } from 'src/layout/GenericComponent';
 import { extractBottomButtons, hasRequiredFields } from 'src/utils/formLayout';
 import { useNodesMemoSelector } from 'src/utils/layout/NodesContext';
 
+interface FormState {
+  hasRequired: boolean;
+  requiredFieldsMissing: boolean;
+  mainIds: string[];
+  errorReportIds: string[];
+}
+
 export function Form() {
   const currentPageId = useCurrentView();
   const { isValidPageId, navigateToPage } = useNavigatePage();
-  const topLevelNodeIds = useNodesMemoSelector(
-    (nodes) =>
-      nodes
-        .findLayout(currentPageId)
-        ?.children()
-        .map((n) => n.item.id),
-  );
-  const hasRequired = useNodesMemoSelector((nodes) => {
-    const page = nodes.findLayout(currentPageId);
-    return page ? hasRequiredFields(page) : false;
+
+  const [formState, setFormState] = useState<FormState>({
+    hasRequired: false,
+    requiredFieldsMissing: false,
+    mainIds: [],
+    errorReportIds: [],
   });
+  const { hasRequired, requiredFieldsMissing, mainIds, errorReportIds } = formState;
 
   useRedirectToStoredPage();
   useSetExpandedWidth();
@@ -46,25 +50,13 @@ export function Form() {
     return false;
   });
 
-  const { formErrors, taskErrors } = useTaskErrors();
-  const hasErrors = Boolean(formErrors.length) || Boolean(taskErrors.length);
-  const [mainIds, errorReportIds] = useNodesMemoSelector((nodes) => {
-    const page = nodes.findLayout(currentPageId);
-    if (!hasErrors || !page) {
-      return [topLevelNodeIds, []];
-    }
-    return extractBottomButtons(page);
-  });
-  const requiredFieldsMissing = formErrors.some(
-    (error) => error.source === FrontendValidationSource.EmptyField && error.pageKey === currentPageId,
-  );
-
   if (!currentPageId || !isValidPageId(currentPageId)) {
     return <FormFirstPage />;
   }
 
   return (
     <>
+      <ErrorProcessing setFormState={setFormState} />
       {hasRequired && (
         <MessageBanner
           error={requiredFieldsMissing}
@@ -76,7 +68,7 @@ export function Form() {
         spacing={3}
         alignItems='flex-start'
       >
-        {mainIds?.map((id) => (
+        {mainIds.map((id) => (
           <GenericComponentById
             key={id}
             id={id}
@@ -148,4 +140,52 @@ function useSetExpandedWidth() {
     }
     setExpandedWidth(defaultExpandedWidth);
   }, [currentPageId, expandedPagesFromLayout, expandedWidthFromSettings, setExpandedWidth]);
+}
+
+const emptyArray = [];
+interface ErrorProcessingProps {
+  setFormState: (formState: FormState) => void;
+}
+
+/**
+ * Instead of re-rendering the entire Form component when any of this changes, we just report the
+ * state to the parent component.
+ */
+function ErrorProcessing({ setFormState }: ErrorProcessingProps) {
+  const currentPageId = useCurrentView();
+  const topLevelNodeIds = useNodesMemoSelector(
+    (nodes) =>
+      nodes
+        .findLayout(currentPageId)
+        ?.children()
+        .map((n) => n.item.id) || emptyArray,
+  );
+  const hasRequired = useNodesMemoSelector((nodes) => {
+    const page = nodes.findLayout(currentPageId);
+    return page ? hasRequiredFields(page) : false;
+  });
+
+  const { formErrors, taskErrors } = useTaskErrors();
+  const hasErrors = Boolean(formErrors.length) || Boolean(taskErrors.length);
+  const [mainIds, errorReportIds] = useNodesMemoSelector((nodes) => {
+    const page = nodes.findLayout(currentPageId);
+    if (!hasErrors || !page) {
+      return [topLevelNodeIds, []];
+    }
+    return extractBottomButtons(page);
+  });
+  const requiredFieldsMissing = formErrors.some(
+    (error) => error.source === FrontendValidationSource.EmptyField && error.pageKey === currentPageId,
+  );
+
+  useEffect(() => {
+    setFormState({
+      hasRequired,
+      requiredFieldsMissing,
+      mainIds,
+      errorReportIds,
+    });
+  }, [setFormState, hasRequired, requiredFieldsMissing, mainIds, errorReportIds]);
+
+  return null;
 }

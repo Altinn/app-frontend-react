@@ -11,7 +11,7 @@ import {
 } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { getVisibilityForNode } from 'src/features/validation/visibility/visibilityUtils';
-import { useNodesMemoSelector } from 'src/utils/layout/NodesContext';
+import { useNodes } from 'src/utils/layout/NodesContext';
 
 const emptyArray: [] = [];
 
@@ -25,7 +25,9 @@ export function useTaskErrors(): {
 } {
   const selector = Validation.useSelector();
   const visibilitySelector = Validation.useVisibilitySelector();
-  const formErrors = useNodesMemoSelector((nodes) => {
+  const nodes = useNodes();
+
+  const formErrors = useMemo(() => {
     if (!nodes) {
       return emptyArray;
     }
@@ -38,7 +40,7 @@ export function useTaskErrors(): {
     }
 
     return formErrors;
-  });
+  }, [nodes, selector, visibilitySelector]);
 
   const taskErrors = useMemo(() => {
     const taskErrors: BaseValidation<'error'>[] = [];
