@@ -53,7 +53,6 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
     readOnly,
     isValid,
     required,
-    disabled: readOnly,
     onBlur: debounce,
   };
 
