@@ -52,8 +52,8 @@ export function SummaryComponent({ summaryNode, overrides, ref }: ISummaryCompon
       return;
     }
 
-    setReturnToView(currentPageId);
     await navigateTo(targetNode, true);
+    setReturnToView(currentPageId);
   };
 
   if (!targetNode || !targetItem || targetNode.isHidden() || targetItem.type === 'Summary') {
@@ -113,6 +113,7 @@ export function SummaryComponent({ summaryNode, overrides, ref }: ISummaryCompon
                   <Lang
                     id={message.key}
                     params={message.params}
+                    node={targetNode}
                   />
                 }
               />

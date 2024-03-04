@@ -20,7 +20,7 @@ import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 import type { SchemaLookupTool } from 'src/features/datamodel/DataModelSchemaProvider';
 import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { FormDataWriteProxies } from 'src/features/formData/FormDataWriteProxies';
-import type { FormDataContext } from 'src/features/formData/FormDataWriteStateMachine';
+import type { FDSaveResult, FormDataContext } from 'src/features/formData/FormDataWriteStateMachine';
 import type { BackendValidationIssueGroups } from 'src/features/validation';
 import type { IMapping } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
@@ -111,7 +111,15 @@ export function FormDataWriteProvider({ url, initialData, autoSaving, children }
 
 function FormDataEffects({ url }: { url: string }) {
   const state = useSelector((s) => s);
-  const { currentData, debouncedCurrentData, lastSavedData, controlState, cancelSave } = state;
+  const {
+    currentData,
+    debouncedCurrentData,
+    lastSavedData,
+    controlState,
+    cancelSave,
+    invalidCurrentData,
+    invalidDebouncedCurrentData,
+  } = state;
   const { debounceTimeout, autoSaving, manualSaveRequested, lockedBy, isSaving } = controlState;
   const { mutate, error } = useFormDataSaveMutation(state);
   const debounce = useDebounceImmediately();
@@ -154,13 +162,13 @@ function FormDataEffects({ url }: { url: string }) {
   // saving the data model to the backend. Freezing can also be triggered manually, when a manual save is requested.
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (currentData !== debouncedCurrentData) {
+      if (currentData !== debouncedCurrentData || invalidCurrentData !== invalidDebouncedCurrentData) {
         debounce();
       }
     }, debounceTimeout);
 
     return () => clearTimeout(timer);
-  }, [debounce, currentData, debouncedCurrentData, debounceTimeout]);
+  }, [debounce, currentData, debouncedCurrentData, debounceTimeout, invalidCurrentData, invalidDebouncedCurrentData]);
 
   // Save the data model when the data has been frozen to debouncedCurrentData and is different from the saved data
   useEffect(() => {
@@ -184,6 +192,18 @@ function FormDataEffects({ url }: { url: string }) {
     manualSaveRequested,
     performSave,
   ]);
+
+  // Marking the document as having unsaved changes. The data attribute is used in tests, while the beforeunload
+  // event is used to warn the user when they try to navigate away from the page with unsaved changes.
+  useEffect(() => {
+    document.body.setAttribute('data-unsaved-changes', hasUnsavedChanges.toString());
+    window.onbeforeunload = hasUnsavedChanges ? () => true : null;
+
+    return () => {
+      document.body.removeAttribute('data-unsaved-changes');
+      window.onbeforeunload = null;
+    };
+  }, [hasUnsavedChanges]);
 
   // Always save unsaved changes when the user navigates away from the page and this component is unmounted.
   // We cannot put the current and last saved data in the dependency array, because that would cause the effect
@@ -229,14 +249,14 @@ const useDebounceImmediately = () => {
 };
 
 const useHasUnsavedChanges = () => {
-  const result = useLaxSelector((s) => {
-    if (s.controlState.isSaving) {
+  const result = useLaxSelector((state) => {
+    if (state.controlState.isSaving) {
       return true;
     }
-    if (s.currentData !== s.lastSavedData) {
+    if (state.currentData !== state.lastSavedData) {
       return true;
     }
-    return s.debouncedCurrentData !== s.lastSavedData;
+    return state.debouncedCurrentData !== state.lastSavedData;
   });
 
   if (result === ContextNotProvided) {
@@ -361,6 +381,16 @@ export const FD = {
     }),
 
   /**
+   * This returns the current invalid data which cannot be saved to backend as an object. For example, this will
+   * include data such as a stringy `-` in a number field (where presumably the user will type the rest of the number
+   * later, such as `-5`). As this is the debounced data, it will only be updated when the user stops typing for a
+   * while, so that this model can be used for i.e. validation messages.
+   */
+  useInvalidDebounced(): object {
+    return useSelector((v) => v.invalidDebouncedCurrentData);
+  },
+
+  /**
    * This returns an object that can be used to generate a query string for parts of the current form data.
    * It is almost the same as usePickFreshStrings(), but with important differences:
    *   1. The _keys_ in the input are expected to contain the data model paths, not the values. Mappings are reversed
@@ -451,7 +481,7 @@ export const FD = {
     }, [hasUnsavedChangesRef, isLockedByMeRef, isLockedRef, lockId, lockedByRef, rawLock, requestSave, waitForSave]);
 
     const unlock = useCallback(
-      (newModel?: object) => {
+      (saveResult?: FDSaveResult) => {
         if (!isLockedRef.current) {
           window.logWarn(`Form data is not locked, cannot unlock it (requested by ${lockId})`);
         }
@@ -462,7 +492,7 @@ export const FD = {
           return false;
         }
 
-        rawUnlock(newModel);
+        rawUnlock(saveResult);
         return true;
       },
       [isLockedRef, isLockedByMeRef, lockId, lockedByRef, rawUnlock],
@@ -501,12 +531,10 @@ export const FD = {
   useAppendToList: () => useSelector((s) => s.appendToList),
 
   /**
-   * Returns a function to remove a value from a list, by index. You should try to avoid using this, as it might
-   * not do what you want if it is triggered at a moment where your copy of the form data is outdated. Calling this
-   * function twice in a row for index 0 will remove the first item in the list, even if the list has changed in
-   * the meantime.
+   * Returns a function to remove a value from a list, by use of a callback that lets you find the correct row to
+   * remove. When the callback returns true, that row will be removed.
    */
-  useRemoveIndexFromList: () => useSelector((s) => s.removeIndexFromList),
+  useRemoveFromListCallback: () => useSelector((s) => s.removeFromListCallback),
 
   /**
    * Returns a function to remove a value from a list, by value. If your list contains unique values, this is the

@@ -20,19 +20,25 @@ export interface FormDataState {
   // Use these values to render the form, and for other cases where you need the current data model immediately.
   currentData: object;
 
-  // This is a key-value map of invalid data, where the key is the (dot) path in the current data model to where
-  // the data would be located. In the currentData/debounced object(s), these values will be missing/undefined.
-  // The point of these values is for the data model to _seem like_ it can store anything, even though some values
-  // are simply not valid according to the JsonSchema we need to follow. This is useful for example when the user
-  // is typing a number, as the current model is updated for every keystroke, but if the user types '-5', the model
-  // will be invalid until the user types the '5' as well. This way we can show the user the value they are typing,
-  // as they are typing it, while also keeping it away from the data model until it is valid to store in it.
+  // This is a partial object containing potential invalid data, In the currentData object, these values will be
+  // missing/undefined. The point of these values is for the data model to _seem like_ it can store anything, even
+  // though some values are simply not valid according to the JsonSchema we need to follow. This is useful for example
+  // when the user is typing a number, as the current model is updated for every keystroke, but if the user
+  // types '-5', the model will be invalid until the user types the '5' as well. This way we can show the user the
+  // value they are typing, as they are typing it, while also keeping it away from the data model until it is valid
+  // to store in it.
   invalidCurrentData: object;
 
   // These values contain the current data model, with the values debounced at 400ms. This means that if the user is
   // typing, the values will be updated 400ms after the user stopped typing. Use these values when you need to perform
   // expensive operations on the data model, such as validation, calculations, or sending a request to save the model.
   debouncedCurrentData: object;
+
+  // This is a debounced variant of the invalidCurrentData model. This is useful for example when you want to show
+  // validation errors to the user, but you don't want to show them immediately as the user is typing. Instead,
+  // should wait until the user has stopped typing for a while, and then show the validation errors based off of
+  // this model.
+  invalidDebouncedCurrentData: object;
 
   // These values contain the last saved data model, with the values that were last saved to the server. We use this
   // to determine if there are any unsaved changes, and to diff the current data model against the last saved data
@@ -111,11 +117,20 @@ export interface FDRemoveValueFromList {
   value: any;
 }
 
-export interface FDSaveFinished {
-  patch?: JsonPatch;
-  savedData: object;
+export interface FDRemoveFromListCallback {
+  path: string;
+  startAtIndex?: number;
+  callback: (value: any) => boolean;
+}
+
+export interface FDSaveResult {
   newDataModel: object;
   validationIssues: BackendValidationIssueGroups | undefined;
+}
+
+export interface FDSaveFinished extends FDSaveResult {
+  patch?: JsonPatch;
+  savedData: object;
 }
 
 export interface FormDataMethods {
@@ -127,6 +142,7 @@ export interface FormDataMethods {
   appendToList: (change: FDAppendToList) => void;
   removeIndexFromList: (change: FDRemoveIndexFromList) => void;
   removeValueFromList: (change: FDRemoveValueFromList) => void;
+  removeFromListCallback: (change: FDRemoveFromListCallback) => void;
 
   // Internal utility methods
   debounce: () => void;
@@ -135,7 +151,7 @@ export interface FormDataMethods {
   saveFinished: (props: FDSaveFinished) => void;
   requestManualSave: (setTo?: boolean) => void;
   lock: (lockName: string) => void;
-  unlock: (newModel?: object) => void;
+  unlock: (saveResult?: FDSaveResult) => void;
 }
 
 export type FormDataContext = FormDataState & FormDataMethods;
@@ -197,6 +213,7 @@ function makeActions(
   }
 
   function debounce(state: FormDataContext) {
+    state.invalidDebouncedCurrentData = state.invalidCurrentData;
     if (deepEqual(state.debouncedCurrentData, state.currentData)) {
       state.debouncedCurrentData = state.currentData;
       deduplicateModels(state);
@@ -216,6 +233,7 @@ function makeActions(
     const { path, newValue, state } = props;
     if (newValue === '' || newValue === null || newValue === undefined) {
       dot.delete(path, state.currentData);
+      dot.delete(path, state.invalidCurrentData);
     } else {
       const schema = schemaLookup.getSchemaForPath(path)[0];
       const { newValue: convertedValue, error } = convertData(newValue, schema);
@@ -266,50 +284,70 @@ function makeActions(
     // list items are immediate.
     appendToListUnique: ({ path, newValue }) =>
       set((state) => {
-        for (const model of [state.currentData, state.debouncedCurrentData]) {
-          const existingValue = dot.pick(path, model);
-          if (Array.isArray(existingValue) && existingValue.includes(newValue)) {
-            continue;
-          }
+        const existingValue = dot.pick(path, state.currentData);
+        if (Array.isArray(existingValue) && existingValue.includes(newValue)) {
+          return;
+        }
 
-          if (Array.isArray(existingValue)) {
-            existingValue.push(newValue);
-          } else {
-            dot.str(path, [newValue], model);
-          }
+        if (Array.isArray(existingValue)) {
+          existingValue.push(newValue);
+        } else {
+          dot.str(path, [newValue], state.currentData);
         }
       }),
     appendToList: ({ path, newValue }) =>
       set((state) => {
-        for (const model of [state.currentData, state.debouncedCurrentData]) {
-          const existingValue = dot.pick(path, model);
-          if (Array.isArray(existingValue)) {
-            existingValue.push(newValue);
-          } else {
-            dot.str(path, [newValue], model);
-          }
+        const existingValue = dot.pick(path, state.currentData);
+
+        if (Array.isArray(existingValue)) {
+          existingValue.push(newValue);
+        } else {
+          dot.str(path, [newValue], state.currentData);
         }
       }),
     removeIndexFromList: ({ path, index }) =>
       set((state) => {
-        for (const model of [state.currentData, state.debouncedCurrentData]) {
-          const existingValue = dot.pick(path, model);
-          if (index >= existingValue.length) {
-            continue;
-          }
-
-          existingValue.splice(index, 1);
+        const existingValue = dot.pick(path, state.currentData);
+        if (index >= existingValue.length) {
+          return;
         }
+
+        existingValue.splice(index, 1);
       }),
     removeValueFromList: ({ path, value }) =>
       set((state) => {
-        for (const model of [state.currentData, state.debouncedCurrentData]) {
-          const existingValue = dot.pick(path, model);
-          if (!existingValue.includes(value)) {
-            continue;
-          }
+        const existingValue = dot.pick(path, state.currentData);
+        if (!existingValue.includes(value)) {
+          return;
+        }
 
-          existingValue.splice(existingValue.indexOf(value), 1);
+        existingValue.splice(existingValue.indexOf(value), 1);
+      }),
+    removeFromListCallback: ({ path, startAtIndex, callback }) =>
+      set((state) => {
+        const existingValue = dot.pick(path, state.currentData);
+        if (!Array.isArray(existingValue)) {
+          return;
+        }
+
+        if (
+          startAtIndex !== undefined &&
+          startAtIndex >= 0 &&
+          startAtIndex < existingValue.length &&
+          callback(existingValue[startAtIndex])
+        ) {
+          existingValue.splice(startAtIndex, 1);
+          return;
+        }
+
+        // Continue looking for the item to remove from the start of the list if we didn't find it at the start index
+        let index = 0;
+        while (index < existingValue.length) {
+          if (callback(existingValue[index])) {
+            existingValue.splice(index, 1);
+            return;
+          }
+          index++;
         }
       }),
 
@@ -337,11 +375,14 @@ function makeActions(
       set((state) => {
         state.controlState.lockedBy = lockName;
       }),
-    unlock: (newDataModel) =>
+    unlock: (saveResult) =>
       set((state) => {
         state.controlState.lockedBy = undefined;
-        if (newDataModel) {
-          processChanges(state, { newDataModel, savedData: state.lastSavedData });
+        if (saveResult?.newDataModel) {
+          processChanges(state, { newDataModel: saveResult.newDataModel, savedData: state.lastSavedData });
+        }
+        if (saveResult?.validationIssues) {
+          state.validationIssues = saveResult.validationIssues;
         }
       }),
   };
@@ -368,10 +409,12 @@ export const createFormDataWriteStore = (
         };
       }
 
+      const emptyInvalidData = {};
       return {
         currentData: initialData,
-        invalidCurrentData: {},
+        invalidCurrentData: emptyInvalidData,
         debouncedCurrentData: initialData,
+        invalidDebouncedCurrentData: emptyInvalidData,
         lastSavedData: initialData,
         hasUnsavedChanges: false,
         validationIssues: undefined,
