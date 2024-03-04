@@ -33,7 +33,7 @@ describe('Dynamics', () => {
     showReasons();
   });
 
-  it.only('Should save the labels of multiple chosen options', () => {
+  it('Should save the labels of multiple chosen options', () => {
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.newFirstName).type('123');
     cy.get('#choose-extra').findByText('Label Databindings').click();
@@ -46,7 +46,7 @@ describe('Dynamics', () => {
     cy.get('#ColorsLabelsVerify').should('have.value', 'Blue,Green');
   });
 
-  it.only('Should save the label of a chosen option', () => {
+  it('Should save the label of a chosen option', () => {
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.newFirstName).type('123');
     cy.get('#choose-extra').findByText('Label Databindings').click();
