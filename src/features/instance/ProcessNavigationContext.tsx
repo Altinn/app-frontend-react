@@ -18,6 +18,9 @@ interface ProcessNextProps {
   action?: IActionType;
 }
 
+const AbortedDueToFormErrors = Symbol('AbortedDueToErrors');
+const AbortedDueToFailure = Symbol('AbortedDueToFailure');
+
 function useProcessNext() {
   const { doProcessNext } = useAppMutations();
   const { reFetch: reFetchInstanceData } = useStrictInstance();
@@ -33,11 +36,6 @@ function useProcessNext() {
       if (!instanceId) {
         throw new Error('Missing instance ID, cannot perform process/next');
       }
-      const hasErrors = await onFormSubmitValidation();
-      if (hasErrors) {
-        return;
-      }
-
       return doProcessNext(instanceId, language, action);
     },
     onSuccess: async (data: IProcess) => {
@@ -54,9 +52,10 @@ function useProcessNext() {
   const nativeMutate = useCallback(
     async (props: ProcessNextProps = {}) => {
       try {
-        await mutateAsync(props);
+        return await mutateAsync(props);
       } catch (err) {
-        // Do nothing, the error is handled above
+        // The error is handled above
+        return AbortedDueToFailure;
       }
     },
     [mutateAsync],
@@ -64,9 +63,14 @@ function useProcessNext() {
 
   const perform = useCallback(
     async (props: ProcessNextProps) => {
-      await nativeMutate(props || {});
+      const hasErrors = await onFormSubmitValidation();
+      if (hasErrors) {
+        return AbortedDueToFormErrors;
+      }
+
+      return await nativeMutate(props || {});
     },
-    [nativeMutate],
+    [nativeMutate, onFormSubmitValidation],
   );
 
   return { perform, error: utils.error };
@@ -98,7 +102,10 @@ export function ProcessNavigationProvider({ children }: React.PropsWithChildren)
       }
 
       setBusyWithId(nodeId);
-      await perform(rest);
+      const result = await perform(rest);
+      if (result === AbortedDueToFormErrors) {
+        setBusyWithId('');
+      }
     },
     [busyWithId, perform],
   );
