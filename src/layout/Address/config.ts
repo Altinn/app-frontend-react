@@ -14,7 +14,7 @@ export const Config = new CG.component({
   .addTextResource(
     new CG.trb({
       name: 'title',
-      title: 'Title from Summary',
+      title: 'Title',
       description: 'Title of the component',
     }),
   )
