@@ -148,7 +148,7 @@ export function FormDataWriteProvider({ url, initialData, autoSaving, children }
 function FormDataEffects() {
   const state = useSelector((s) => s);
   const { currentData, debouncedCurrentData, controlState, invalidCurrentData, invalidDebouncedCurrentData } = state;
-  const { debounceTimeout, autoSaving, lockedBy, isSaving } = controlState;
+  const { debounceTimeout, autoSaving, manualSaveRequested, lockedBy, isSaving } = controlState;
   const { mutate: performSave, error } = useFormDataSaveMutation();
   const debounce = useDebounceImmediately();
   const hasUnsavedChanges = useHasUnsavedChanges();
@@ -176,10 +176,10 @@ function FormDataEffects() {
   // Save the data model when the data has been frozen to debouncedCurrentData
   useEffect(() => {
     const isDebounced = debouncedCurrentData !== currentDataRef.current;
-    if (isDebounced && !isSaving && !lockedBy && autoSaving) {
+    if (isDebounced && !isSaving && !lockedBy && (autoSaving || manualSaveRequested)) {
       performSave();
     }
-  }, [autoSaving, currentDataRef, debouncedCurrentData, isSaving, lockedBy, performSave]);
+  }, [autoSaving, currentDataRef, debouncedCurrentData, isSaving, lockedBy, manualSaveRequested, performSave]);
 
   // Marking the document as having unsaved changes. The data attribute is used in tests, while the beforeunload
   // event is used to warn the user when they try to navigate away from the page with unsaved changes.
@@ -215,6 +215,18 @@ function FormDataEffects() {
   return null;
 }
 
+const useRequestManualSave = () => {
+  const requestSave = useLaxSelector((s) => s.requestManualSave);
+  return useCallback(
+    (setTo = true) => {
+      if (requestSave !== ContextNotProvided) {
+        requestSave(setTo);
+      }
+    },
+    [requestSave],
+  );
+};
+
 const useDebounceImmediately = () => {
   const debounce = useLaxSelector((s) => s.debounce);
   return useCallback(() => {
@@ -246,12 +258,12 @@ const useHasUnsavedChangesRef = (respectIsSaving = true) =>
   useLaxSelectorAsRef((state) => hasUnsavedChanges(state, respectIsSaving));
 
 const useWaitForSave = () => {
+  const requestSave = useRequestManualSave();
   const url = useLaxSelector((s) => s.controlState.saveUrl);
   const waitFor = useWaitForState<
     BackendValidationIssueGroups | undefined,
     FormDataContext | typeof ContextNotProvided
   >(useLaxStore());
-  const { mutate: requestSave } = useFormDataSaveMutation();
 
   return useCallback(
     async (requestManualSave = false): Promise<BackendValidationIssueGroups | undefined> => {

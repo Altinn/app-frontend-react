@@ -65,6 +65,11 @@ export interface FormDataState {
     // This is used to track whether the data model is currently being saved to the server.
     isSaving: boolean;
 
+    // This is used to track whether the user has requested a manual save. When auto-saving is turned off, this is
+    // the way we track when to save the data model to the server. It can also be used to trigger a manual save
+    // as a way to immediately save the data model to the server, for example before locking the data model.
+    manualSaveRequested: boolean;
+
     // This is used to track which component is currently blocking the auto-saving feature. If this is set to a string
     // value, auto-saving will be disabled, even if the autoSaving flag is set to true. This is useful when you want
     // to temporarily disable auto-saving, for example when clicking a CustomButton and waiting for the server to
@@ -146,6 +151,7 @@ export interface FormDataMethods {
   saveStarted: () => void;
   cancelSave: () => void;
   saveFinished: (props: FDSaveFinished) => void;
+  requestManualSave: (setTo?: boolean) => void;
   lock: (lockName: string) => void;
   unlock: (saveResult?: FDSaveResult) => void;
 }
@@ -368,6 +374,10 @@ function makeActions(
           setDebounceTimeout(state, rest);
         }
       }),
+    requestManualSave: (setTo = true) =>
+      set((state) => {
+        state.controlState.manualSaveRequested = setTo;
+      }),
     lock: (lockName) =>
       set((state) => {
         state.controlState.lockedBy = lockName;
@@ -418,6 +428,7 @@ export const createFormDataWriteStore = (
         controlState: {
           autoSaving,
           isSaving: false,
+          manualSaveRequested: false,
           lockedBy: undefined,
           debounceTimeout: DEFAULT_DEBOUNCE_TIMEOUT,
           saveUrl: url,
