@@ -31,8 +31,6 @@ export type FDValue = FDLeafValue | object | FDValue[];
 
 interface MutationArg {
   dataModelUrl: string;
-  next: object;
-  prev: object;
 }
 
 interface FormDataContextInitialProps {
@@ -48,6 +46,7 @@ const {
   Provider,
   useSelector,
   useMemoSelector,
+  useSelectorAsRef,
   useLaxDelayedMemoSelector,
   useDelayedMemoSelector,
   useLaxSelector,
@@ -66,21 +65,41 @@ const {
     createFormDataWriteStore(url, initialData, autoSaving, proxies, ruleConnections, schemaLookup),
 });
 
-const useFormDataSaveMutation = (ctx: FormDataContext) => {
+const useFormDataSaveMutation = () => {
   const { doPatchFormData, doPostStatelessFormData } = useAppMutations();
-  const { saveStarted, saveFinished } = ctx;
+  const saveStarted = useSelector((s) => s.saveStarted);
+  const saveFinished = useSelector((s) => s.saveFinished);
+  const cancelSave = useSelector((s) => s.cancelSave);
   const isStateless = useIsStatelessApp();
+  const lastSavedAsRef = useSelectorAsRef((s) => s.lastSavedData);
+  const debouncedAsRef = useSelectorAsRef((s) => s.debouncedCurrentData);
+  const isSavingRef = useSelectorAsRef((s) => s.controlState.isSaving);
 
   return useMutation({
     mutationKey: ['saveFormData'],
     mutationFn: async (arg: MutationArg) => {
-      const { dataModelUrl, next, prev } = arg;
+      const { dataModelUrl } = arg;
+      if (isSavingRef.current) {
+        return;
+      }
+      const next = debouncedAsRef.current;
+      const prev = lastSavedAsRef.current;
+      if (deepEqual(prev, next)) {
+        cancelSave();
+        return;
+      }
+
       saveStarted();
       if (isStateless) {
         const newDataModel = await doPostStatelessFormData(dataModelUrl, next);
         saveFinished({ newDataModel, savedData: next, validationIssues: undefined });
       } else {
         const patch = createPatch({ prev, next });
+        if (patch.length === 0) {
+          cancelSave();
+          return;
+        }
+
         const result = await doPatchFormData(dataModelUrl, {
           patch,
           ignoredValidators: [],
@@ -124,21 +143,13 @@ function FormDataEffects({ url }: { url: string }) {
     debouncedCurrentData,
     lastSavedData,
     controlState,
-    cancelSave,
     invalidCurrentData,
     invalidDebouncedCurrentData,
   } = state;
   const { debounceTimeout, autoSaving, manualSaveRequested, lockedBy, isSaving } = controlState;
-  const { mutate, error } = useFormDataSaveMutation(state);
+  const { mutate, error } = useFormDataSaveMutation();
   const debounce = useDebounceImmediately();
   const hasUnsavedChanges = useHasUnsavedChanges();
-
-  // This component re-renders on every keystroke in a form field. We don't want to save on every keystroke, nor
-  // create a new performSave function after every save, so we use a ref to make sure the performSave function
-  // and the unmount effect always have the latest values.
-  const currentDataRef = useAsRef(currentData);
-  const lastSavedDataRef = useAsRef(lastSavedData);
-  const isSavingRef = useAsRef(isSaving);
 
   // If errors occur, we want to throw them so that the user can see them, and they
   // can be handled by the error boundary.
@@ -146,24 +157,7 @@ function FormDataEffects({ url }: { url: string }) {
     throw error;
   }
 
-  const performSave = useCallback(
-    (dataToSave: object) => {
-      if (isSavingRef.current) {
-        return;
-      }
-      if (deepEqual(dataToSave, lastSavedDataRef.current)) {
-        cancelSave();
-        return;
-      }
-
-      mutate({
-        dataModelUrl: url,
-        next: dataToSave,
-        prev: lastSavedDataRef.current,
-      });
-    },
-    [cancelSave, isSavingRef, lastSavedDataRef, mutate, url],
-  );
+  const performSave = useCallback(() => mutate({ dataModelUrl: url }), [mutate, url]);
 
   // Debounce the data model when the user stops typing. This has the effect of triggering the useEffect below,
   // saving the data model to the backend. Freezing can also be triggered manually, when a manual save is requested.
@@ -185,7 +179,7 @@ function FormDataEffects({ url }: { url: string }) {
         debouncedCurrentData !== lastSavedData && !deepEqual(debouncedCurrentData, lastSavedData);
 
       if (hasUnsavedDebouncedChanges) {
-        performSave(debouncedCurrentData);
+        performSave();
       }
     }
   }, [
@@ -217,10 +211,10 @@ function FormDataEffects({ url }: { url: string }) {
   useEffect(
     () => () => {
       if (hasUnsavedChanges) {
-        performSave(currentDataRef.current);
+        debounce();
       }
     },
-    [currentDataRef, hasUnsavedChanges, performSave],
+    [debounce, hasUnsavedChanges],
   );
 
   // Sets the debounced data in the window object, so that Cypress tests can access it.
@@ -508,23 +502,21 @@ export const FD = {
     const requestSave = useRequestManualSave();
 
     const lockedBy = useSelector((s) => s.controlState.lockedBy);
-    const lockedByRef = useAsRef(lockedBy);
-    const isLocked = lockedBy !== undefined;
-    const isLockedRef = useAsRef(isLocked);
-    const isLockedByMe = lockedBy === lockId;
-    const isLockedByMeRef = useAsRef(isLockedByMe);
+    const lockedByRef = useSelectorAsRef((s) => s.controlState.lockedBy);
+    const isLocked = useCallback(() => lockedByRef.current !== undefined, [lockedByRef]);
+    const isLockedByMe = useCallback(() => lockedByRef.current === lockId, [lockedByRef, lockId]);
 
     const hasUnsavedChanges = useHasUnsavedChanges();
     const hasUnsavedChangesRef = useAsRef(hasUnsavedChanges);
     const waitForSave = useWaitForSave();
 
     const lock = useCallback(async () => {
-      if (isLockedRef.current && !isLockedByMeRef.current) {
+      if (isLocked() && !isLockedByMe()) {
         window.logWarn(
           `Form data is already locked by ${lockedByRef.current}, cannot lock it again (requested by ${lockId})`,
         );
       }
-      if (isLockedRef.current) {
+      if (isLocked()) {
         return false;
       }
 
@@ -535,24 +527,24 @@ export const FD = {
 
       rawLock(lockId);
       return true;
-    }, [hasUnsavedChangesRef, isLockedByMeRef, isLockedRef, lockId, lockedByRef, rawLock, requestSave, waitForSave]);
+    }, [hasUnsavedChangesRef, isLocked, isLockedByMe, lockId, lockedByRef, rawLock, requestSave, waitForSave]);
 
     const unlock = useCallback(
       (saveResult?: FDSaveResult) => {
-        if (!isLockedRef.current) {
+        if (!isLocked()) {
           window.logWarn(`Form data is not locked, cannot unlock it (requested by ${lockId})`);
         }
-        if (!isLockedByMeRef.current) {
+        if (!isLockedByMe()) {
           window.logWarn(`Form data is locked by ${lockedByRef.current}, cannot unlock it (requested by ${lockId})`);
         }
-        if (!isLockedRef.current || !isLockedByMeRef.current) {
+        if (!isLocked() || !isLockedByMe()) {
           return false;
         }
 
         rawUnlock(saveResult);
         return true;
       },
-      [isLockedRef, isLockedByMeRef, lockId, lockedByRef, rawUnlock],
+      [isLocked, isLockedByMe, lockId, lockedByRef, rawUnlock],
     );
 
     return { lock, unlock, isLocked, lockedBy, isLockedByMe };
