@@ -167,10 +167,6 @@ export function ValidationProvider({ children, isCustomReceipt = false }: PropsW
       // Wait until we've saved changed to backend, and we've processed the backend validations we got from that save
       const validationsFromSave = await waitForSave(forceSave);
       await waitForStateRef.current!((state) => state.issueGroupsProcessedLast === validationsFromSave);
-
-      // At last, return a function to the caller that can be used to check if their local state is up-to-date
-      return (lastBackendValidations: BackendValidationIssueGroups | undefined) =>
-        lastBackendValidations === validationsFromSave;
     },
     [waitForAttachments, waitForSave],
   );

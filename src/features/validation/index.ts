@@ -3,6 +3,7 @@ import type { Expression, ExprValToActual } from 'src/features/expressions/types
 import type { TextReference, ValidLangParam } from 'src/features/language/useLanguage';
 import type { Visibility } from 'src/features/validation/visibility/visibilityUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 export enum FrontendValidationSource {
   EmptyField = '__empty_field__',
@@ -53,9 +54,7 @@ export type ValidationCategoryKey = Exclude<ValidationMaskKeys, ValidationMaskCo
 /*  A value of 0 represents a validation to be shown immediately */
 export type ValidationCategory = (typeof ValidationMask)[ValidationCategoryKey] | 0;
 
-export type WaitForValidation = (
-  forceSave?: boolean,
-) => Promise<(lastBackendValidations: BackendValidationIssueGroups | undefined) => boolean>;
+export type WaitForValidation = (forceSave?: boolean) => Promise<void>;
 
 export type ValidationContext = {
   state: ValidationState;
@@ -160,12 +159,13 @@ export type NodeValidation<Severity extends ValidationSeverity = ValidationSever
 };
 
 /**
- * Contains all of the necessary elements from the redux store to run frontend validations.
+ * Contains all the necessary elements from the store to run frontend validations.
  */
 export type ValidationDataSources = {
   currentLanguage: string;
   formData: object;
   attachments: IAttachments;
+  nodes: LayoutPages;
 };
 
 /**
