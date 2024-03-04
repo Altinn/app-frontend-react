@@ -221,9 +221,13 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
       return;
     }
     if (labelsHaveChanged) {
-      setValue('label' as any, translatedLabels);
+      if (valueType === 'single') {
+        setValue('label' as any, translatedLabels?.length > 1 ? translatedLabels[0] : undefined);
+      } else {
+        setValue('label' as any, translatedLabels);
+      }
     }
-  }, [translatedLabels, labelsHaveChanged, dataModelBindings?.label, setValue]);
+  }, [translatedLabels, labelsHaveChanged, dataModelBindings?.label, setValue, valueType]);
 
   const setData = useMemo(() => {
     if (valueType === 'single') {

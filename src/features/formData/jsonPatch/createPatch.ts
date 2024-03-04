@@ -99,66 +99,22 @@ function isSameRow(left: any, right: any): boolean {
  * produce the JsonPatch to create. Do not be fooled by the format returned from getPatch, it is not a JsonPatch
  * even if it looks like it at a glance.
  */
-function compareArrays({ prev, next, current, hasCurrent, patch, path }: CompareProps<any[]>) {
+function compareArrays({ prev, next, patch, path }: CompareProps<any[]>) {
   const diff = getPatch(prev, next, isSameRow);
-  const localPatch: JsonPatch = [];
-  const arrayAfterChanges = [...prev];
-  for (const part of diff) {
-    const { type, newPos: nextPos, oldPos: prevPos, items } = part;
-    if (type === 'add') {
-      let nextIndex = nextPos;
-      for (const item of items) {
-        const isAppend = nextIndex === arrayAfterChanges.length;
-        localPatch.push({ op: 'add', path: pointer([...path, isAppend ? '-' : String(nextIndex)]), value: item });
-        if (isAppend) {
-          arrayAfterChanges.push(item);
-        } else {
-          arrayAfterChanges.splice(nextIndex, 0, item);
-        }
-        nextIndex++;
-      }
-    } else if (type === 'remove') {
-      // We'll count down instead of up so that we can remove the items from the end first, and then we won't have to
-      // worry about the indices changing.
-      let addToIndex = items.length - 1;
-      for (const _item of items) {
-        const oldIdx = prevPos + addToIndex--;
-        localPatch.push({ op: 'remove', path: pointer([...path, String(oldIdx)]) });
-        arrayAfterChanges.splice(oldIdx, 1);
-      }
+  if (diff.length > 0) {
+    if (next.length > 0) {
+      patch.push({
+        op: 'replace',
+        path: pointer(path),
+        value: next,
+      });
+    } else {
+      patch.push({
+        op: 'remove',
+        path: pointer(path),
+      });
     }
   }
-
-  if (localPatch.length) {
-    if (!hasCurrent) {
-      // Always add a test first to make sure the original array is still the same as the one we're changing
-      patch.push({ op: 'test', path: pointer(path), value: prev });
-    }
-    patch.push(...localPatch);
-  }
-
-  // We still have to compare items within the array, as the code above just checks if items within
-  // are similar enough, it doesn't check that they're entirely equal.
-  const childPatches: JsonPatch = [];
-  for (const [index, prevItem] of arrayAfterChanges.entries()) {
-    const nextItem = next[index];
-    const currentItem = Array.isArray(current) ? current[index] : undefined;
-    if (hasCurrent && currentItem === undefined) {
-      // The array item that the backend made changes to have been deleted from the frontend, so we don't need to
-      // compare it to the current model. A later PATCH from app-frontend will delete the row.
-      continue;
-    }
-
-    compareAny({
-      prev: prevItem,
-      next: nextItem,
-      hasCurrent,
-      current: currentItem,
-      patch: childPatches,
-      path: [...path, String(index)],
-    });
-  }
-  patch.push(...childPatches);
 }
 
 function compareValues({ prev, next, hasCurrent, current, patch, path }: CompareProps<any>) {
