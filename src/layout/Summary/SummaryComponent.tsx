@@ -51,7 +51,7 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
       return;
     }
 
-    await navigateTo(targetNode, true);
+    navigateTo(targetNode, true);
     setReturnToView?.(currentPageId);
   };
 
