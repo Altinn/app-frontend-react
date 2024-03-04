@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 
 import Grid from '@material-ui/core/Grid';
+import deepEqual from 'fast-deep-equal';
 
 import classes from 'src/components/form/Form.module.css';
 import { MessageBanner } from 'src/components/form/MessageBanner';
 import { ErrorReport } from 'src/components/message/ErrorReport';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
+import { Loader } from 'src/core/loading/Loader';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useExpandedWidthLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
@@ -22,7 +24,7 @@ import { useNodesMemoSelector } from 'src/utils/layout/NodesContext';
 interface FormState {
   hasRequired: boolean;
   requiredFieldsMissing: boolean;
-  mainIds: string[];
+  mainIds: string[] | undefined;
   errorReportIds: string[];
 }
 
@@ -33,7 +35,7 @@ export function Form() {
   const [formState, setFormState] = useState<FormState>({
     hasRequired: false,
     requiredFieldsMissing: false,
-    mainIds: [],
+    mainIds: undefined,
     errorReportIds: [],
   });
   const { hasRequired, requiredFieldsMissing, mainIds, errorReportIds } = formState;
@@ -52,6 +54,18 @@ export function Form() {
 
   if (!currentPageId || !isValidPageId(currentPageId)) {
     return <FormFirstPage />;
+  }
+
+  if (mainIds === undefined) {
+    return (
+      <>
+        <ErrorProcessing setFormState={setFormState} />
+        <Loader
+          reason='form-ids'
+          renderPresentation={false}
+        />
+      </>
+    );
   }
 
   return (
@@ -144,7 +158,7 @@ function useSetExpandedWidth() {
 
 const emptyArray = [];
 interface ErrorProcessingProps {
-  setFormState: (formState: FormState) => void;
+  setFormState: React.Dispatch<React.SetStateAction<FormState>>;
 }
 
 /**
@@ -179,11 +193,22 @@ function ErrorProcessing({ setFormState }: ErrorProcessingProps) {
   );
 
   useEffect(() => {
-    setFormState({
-      hasRequired,
-      requiredFieldsMissing,
-      mainIds,
-      errorReportIds,
+    setFormState((prevState) => {
+      if (
+        prevState.hasRequired === hasRequired &&
+        prevState.requiredFieldsMissing === requiredFieldsMissing &&
+        deepEqual(mainIds, prevState.mainIds) &&
+        deepEqual(errorReportIds, prevState.errorReportIds)
+      ) {
+        return prevState;
+      }
+
+      return {
+        hasRequired,
+        requiredFieldsMissing,
+        mainIds,
+        errorReportIds,
+      };
     });
   }, [setFormState, hasRequired, requiredFieldsMissing, mainIds, errorReportIds]);
 
