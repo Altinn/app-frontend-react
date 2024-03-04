@@ -32,7 +32,7 @@ function initialCreateStore() {
     nodes: undefined,
     setNodes: (nodes: LayoutPages) => set({ nodes }),
     hiddenComponents: new Set(),
-    setHiddenComponents: (mutator: (hidden: Set<string>) => Set<string>) =>
+    setHiddenComponents: (mutator: (currentlyHidden: Set<string>) => Set<string>) =>
       set((state) => ({ hiddenComponents: mutator(state.hiddenComponents) })),
   }));
 }
@@ -192,7 +192,7 @@ function useLegacyHiddenComponents(
 
     setHidden((currentlyHidden) => {
       if (shouldUpdate(currentlyHidden, futureHiddenFields)) {
-        return new Set([...futureHiddenFields.values()]);
+        return futureHiddenFields;
       }
       return currentlyHidden;
     });

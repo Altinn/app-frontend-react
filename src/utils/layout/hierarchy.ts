@@ -115,6 +115,7 @@ function resolvedNodesInLayouts(
           oldNode.parent = newNode.parent;
           oldNode.top = newNode.top;
           oldNode.dataSources = newNode.dataSources;
+          oldNode.hiddenCache = {};
 
           newPage.replaceNode(newNode, oldNode);
         }
