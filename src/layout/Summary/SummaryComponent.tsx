@@ -52,7 +52,7 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
     }
 
     await navigateTo(targetNode, true);
-    setReturnToView(currentPageId);
+    setReturnToView?.(currentPageId);
   };
 
   if (!targetNode || !targetItem || targetNode.isHidden() || targetItem.type === 'Summary') {

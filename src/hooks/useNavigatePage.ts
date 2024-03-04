@@ -3,7 +3,7 @@ import { useLocation, useMatch, useNavigate } from 'react-router-dom';
 import type { NavigateFunction, NavigateOptions } from 'react-router-dom';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
-import { useHiddenPages, useReturnToView } from 'src/features/form/layout/PageNavigationContext';
+import { useHiddenPages, useSetReturnToView } from 'src/features/form/layout/PageNavigationContext';
 import { useLaxLayoutSettings, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxProcessData, useTaskType } from 'src/features/instance/ProcessContext';
@@ -75,7 +75,7 @@ export const useNavigatePage = () => {
    * Navigation function for react-router-dom
    * Make sure to clear returnToView on navigation
    */
-  const { setReturnToView } = useReturnToView();
+  const setReturnToView = useSetReturnToView();
   const _navigate = useNavigate();
   const navigate = useCallback(
     (...args: Parameters<NavigateFunction>) => {
