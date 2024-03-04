@@ -26,10 +26,10 @@ interface NodesContext {
   hiddenViaLegacyRules: Set<string>;
   hiddenByParentPage: Set<string>;
   setNodes: (nodes: LayoutPages) => void;
-  setHidden: (
-    mutator: (
-      state: NodesContext,
-    ) => Partial<Pick<NodesContext, 'hiddenByParentPage' | 'hiddenViaLegacyRules' | 'hiddenViaExpressions'>>,
+  setHiddenComponents: (
+    hiddenViaExpressions: Set<string>,
+    hiddenViaLegacyRules: Set<string>,
+    hiddenByParentPage: Set<string>,
   ) => void;
 }
 
@@ -40,7 +40,8 @@ function initialCreateStore() {
     hiddenViaExpressions: new Set(),
     hiddenViaLegacyRules: new Set(),
     hiddenByParentPage: new Set(),
-    setHidden: (mutator) => set(mutator),
+    setHiddenComponents: (hiddenViaExpressions, hiddenViaLegacyRules, hiddenByParentPage) =>
+      set({ hiddenViaExpressions, hiddenViaLegacyRules, hiddenByParentPage }),
   }));
 }
 
@@ -163,7 +164,7 @@ export function useResolvedNode<T>(selector: string | undefined | T | LayoutNode
  * have a circular dependency in your expressions, but that's a problem with your form, not this hook.
  */
 function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
-  const setHidden = useSelector((state) => state.setHidden);
+  const setHidden = useSelector((state) => state.setHiddenComponents);
   const rules = useDynamics()?.conditionalRendering ?? null;
   const dataSources = useExpressionDataSources();
   const hiddenExpr = useHiddenLayoutsExpressions();
@@ -182,43 +183,25 @@ function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
       setHiddenPages?.(futureHiddenLayouts);
     }
 
-    setHidden(({ hiddenByParentPage, hiddenViaExpressions, hiddenViaLegacyRules }) => {
-      let futureHiddenByLegacyRules: Set<string>;
-      try {
-        futureHiddenByLegacyRules = runConditionalRenderingRules(rules, resolvedNodes);
-      } catch (error) {
-        window.logError('Error while evaluating conditional rendering rules:\n', error);
-        futureHiddenByLegacyRules = new Set();
+    let futureHiddenByLegacyRules: Set<string>;
+    try {
+      futureHiddenByLegacyRules = runConditionalRenderingRules(rules, resolvedNodes);
+    } catch (error) {
+      window.logError('Error while evaluating conditional rendering rules:\n', error);
+      futureHiddenByLegacyRules = new Set();
+    }
+
+    const futureHiddenByExpressions = new Set<string>();
+    runExpressionRules(resolvedNodes, futureHiddenByExpressions);
+
+    // All fields from hidden layouts
+    const futureHiddenByParentPage = new Set<string>();
+    for (const layout of futureHiddenLayouts) {
+      for (const node of resolvedNodes.findLayout(layout)?.flat(true) || []) {
+        futureHiddenByParentPage.add(node.item.id);
       }
+    }
 
-      const futureHiddenByExpressions = new Set<string>();
-      runExpressionRules(resolvedNodes, futureHiddenByExpressions);
-
-      // All fields from hidden layouts
-      const futureHiddenByParentPage = new Set<string>();
-      for (const layout of futureHiddenLayouts) {
-        for (const node of resolvedNodes.findLayout(layout)?.flat(true) || []) {
-          futureHiddenByParentPage.add(node.item.id);
-        }
-      }
-
-      const output: Partial<
-        Pick<NodesContext, 'hiddenByParentPage' | 'hiddenViaLegacyRules' | 'hiddenViaExpressions'>
-      > = {};
-
-      if (shouldUpdate(hiddenByParentPage, futureHiddenByParentPage)) {
-        output.hiddenByParentPage = futureHiddenByParentPage;
-      }
-
-      if (shouldUpdate(hiddenViaLegacyRules, futureHiddenByLegacyRules)) {
-        output.hiddenViaLegacyRules = futureHiddenByLegacyRules;
-      }
-
-      if (shouldUpdate(hiddenViaExpressions, futureHiddenByExpressions)) {
-        output.hiddenViaExpressions = futureHiddenByExpressions;
-      }
-
-      return output;
-    });
+    setHidden(futureHiddenByExpressions, futureHiddenByLegacyRules, futureHiddenByParentPage);
   }, [dataSources, hiddenPages, hiddenExpr, resolvedNodes, rules, setHiddenPages, setHidden]);
 }

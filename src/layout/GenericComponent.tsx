@@ -16,7 +16,7 @@ import { GenericComponentDescription, GenericComponentLabel } from 'src/layout/G
 import { shouldComponentRenderLabel } from 'src/layout/index';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
-import { useIsHiddenComponent, useNode } from 'src/utils/layout/NodesContext';
+import { useNode } from 'src/utils/layout/NodesContext';
 import type { IGridStyling } from 'src/layout/common.generated';
 import type { GenericComponentOverrideDisplay, IFormComponentContext } from 'src/layout/FormComponentContext';
 import type { PropsFromGenericComponent } from 'src/layout/index';
@@ -86,7 +86,6 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   const containerDivRef = React.useRef<HTMLDivElement | null>(null);
   const validations = useUnifiedValidationsForNode(node);
   const isValid = !hasValidationErrors(validations);
-  const isHidden = useIsHiddenComponent('any');
 
   // If maxLength is set in both schema and component, don't display the schema error message
   const maxLength = 'maxLength' in node.item && node.item.maxLength;
@@ -139,7 +138,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
     return NavigationResult.SuccessfulWithFocus;
   });
 
-  if (isHidden(node.item.id) || (node.item.baseComponentId && isHidden(node.item.baseComponentId))) {
+  if (node.isHidden()) {
     return null;
   }
 
