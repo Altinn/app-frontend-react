@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import { Grid } from '@material-ui/core';
 import classNames from 'classnames';
 
+import { ContextNotProvided } from 'src/core/contexts/context';
 import { useLayoutValidationForNode } from 'src/features/devtools/layoutValidation/useLayoutValidation';
 import { NavigationResult, useFinishNodeNavigation } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
@@ -50,7 +51,7 @@ export function GenericComponent<Type extends CompTypes = CompTypes>({
   overrideDisplay,
 }: IGenericComponentProps<Type>) {
   const layoutErrors = useLayoutValidationForNode(node);
-  if (layoutErrors?.length !== undefined && layoutErrors?.length > 0) {
+  if (layoutErrors !== ContextNotProvided && layoutErrors?.length !== undefined && layoutErrors?.length > 0) {
     return (
       <ErrorList
         node={node}

@@ -175,11 +175,26 @@ function FormDataEffects() {
 
   // Save the data model when the data has been frozen to debouncedCurrentData
   useEffect(() => {
-    const isDebounced = debouncedCurrentData !== currentDataRef.current;
-    if (isDebounced && !isSaving && !lockedBy && (autoSaving || manualSaveRequested)) {
+    const isDebounced = debouncedCurrentData === currentDataRef.current;
+    if (
+      (isDebounced || manualSaveRequested) &&
+      (autoSaving || manualSaveRequested) &&
+      hasUnsavedChanges &&
+      !isSaving &&
+      !lockedBy
+    ) {
       performSave();
     }
-  }, [autoSaving, currentDataRef, debouncedCurrentData, isSaving, lockedBy, manualSaveRequested, performSave]);
+  }, [
+    autoSaving,
+    currentDataRef,
+    debouncedCurrentData,
+    hasUnsavedChanges,
+    isSaving,
+    lockedBy,
+    manualSaveRequested,
+    performSave,
+  ]);
 
   // Marking the document as having unsaved changes. The data attribute is used in tests, while the beforeunload
   // event is used to warn the user when they try to navigate away from the page with unsaved changes.

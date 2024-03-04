@@ -137,6 +137,11 @@ describe('Expressions shared function tests', () => {
             }
           }
 
+          // We've manipulated internal state, so we need to reset the cache for hidden to work again
+          for (const n of rootCollection.allNodes()) {
+            n.hiddenCache = {};
+          }
+
           const expr = asExpression(expression) as Expression;
           expect(evalExpr(expr, component, dataSources)).toEqual(expects);
         }

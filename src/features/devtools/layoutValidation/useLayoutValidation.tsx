@@ -142,7 +142,7 @@ export const useLayoutValidationForPage = () => {
   const layoutSetId = useCurrentLayoutSetId() || 'default';
   const currentView = useCurrentView();
 
-  return useSelector((state) => {
+  return useLaxSelector((state) => {
     const layoutSet = state.errors?.[layoutSetId];
     return layoutSet && currentView ? layoutSet[currentView] : undefined;
   });
@@ -153,7 +153,7 @@ export const useLayoutValidationForNode = (node: LayoutNode) => {
   const pageName = node.top.top.myKey;
   const layoutSetId = useCurrentLayoutSetId() || 'default';
 
-  return useSelector((state) => state.errors?.[layoutSetId]?.[pageName]?.[componentId]);
+  return useLaxSelector((state) => state.errors?.[layoutSetId]?.[pageName]?.[componentId]);
 };
 
 export function LayoutValidationProvider({ children }: PropsWithChildren) {
