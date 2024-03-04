@@ -5,7 +5,7 @@ import type { NavigateOptions } from 'react-router-dom';
 import { create } from 'zustand';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
-import { useHiddenPages } from 'src/features/form/layout/PageNavigationContext';
+import { useHiddenPages, useSetReturnToView } from 'src/features/form/layout/PageNavigationContext';
 import { useLaxLayoutSettings, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxProcessData, useTaskType } from 'src/features/instance/ProcessContext';
@@ -55,7 +55,7 @@ const emptyArray: never[] = [];
 const useNavigate = () => {
   const navigate = useRouterNavigate();
   const storeCallback = useNavigationEffectStore((state) => state.storeCallback);
-  const { setReturnToView } = useReturnToView();
+  const setReturnToView = useSetReturnToView();
 
   return useCallback(
     (path: string, options?: NavigateOptions, cb?: Callback) => {
