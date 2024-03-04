@@ -9,27 +9,13 @@ import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspe
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { useDisplayDataProps } from 'src/hooks/useDisplayData';
 import { CompCategory } from 'src/layout/common';
-import { runAllValidations } from 'src/layout/componentValidation';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
 import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type {
-  ComponentValidation,
-  FieldValidation,
-  FrontendValidations,
-  ISchemaValidationError,
-  ValidationDataSources,
-} from 'src/features/validation';
-import type {
-  DisplayData,
-  DisplayDataProps,
-  PropsFromGenericComponent,
-  ValidateAny,
-  ValidateEmptyField,
-  ValidateSchema,
-} from 'src/layout/index';
+import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
+import type { DisplayData, DisplayDataProps, PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
 import type {
   CompExternalExact,
   CompInternal,
@@ -120,8 +106,9 @@ export abstract class AnyComponent<Type extends CompTypes> {
     top: LayoutPage,
     dataSources: HierarchyDataSources,
     rowIndex?: number,
+    rowId?: string,
   ): LayoutNode<Type> {
-    return new BaseLayoutNode(item, parent, top, dataSources, rowIndex) as LayoutNode<Type>;
+    return new BaseLayoutNode(item, parent, top, dataSources, rowIndex, rowId) as LayoutNode<Type>;
   }
 
   /**
@@ -294,19 +281,8 @@ export abstract class ActionComponent<Type extends CompTypes> extends AnyCompone
   }
 }
 
-export abstract class FormComponent<Type extends CompTypes>
-  extends _FormComponent<Type>
-  implements ValidateAny, ValidateEmptyField, ValidateSchema
-{
+export abstract class FormComponent<Type extends CompTypes> extends _FormComponent<Type> implements ValidateEmptyField {
   readonly type = CompCategory.Form;
-
-  runValidations(
-    node: LayoutNode,
-    ctx: ValidationDataSources,
-    schemaErrors: ISchemaValidationError[],
-  ): FrontendValidations {
-    return runAllValidations(node, ctx, schemaErrors);
-  }
 
   runEmptyFieldValidation(node: LayoutNode<Type>, { formData }: ValidationDataSources): ComponentValidation[] {
     if (!('required' in node.item) || !node.item.required || !node.item.dataModelBindings) {
@@ -336,26 +312,6 @@ export abstract class FormComponent<Type extends CompTypes>
           severity: 'error',
           category: ValidationMask.Required,
         });
-      }
-    }
-    return validations;
-  }
-
-  runSchemaValidation(node: LayoutNode<Type>, schemaErrors: ISchemaValidationError[]): FieldValidation[] {
-    const validations: FieldValidation[] = [];
-    if ('dataModelBindings' in node.item && node.item.dataModelBindings) {
-      for (const field of Object.values(node.item.dataModelBindings)) {
-        for (const error of schemaErrors) {
-          if (field === error.bindingField) {
-            validations.push({
-              field,
-              source: FrontendValidationSource.Schema,
-              message: error.message,
-              severity: 'error',
-              category: ValidationMask.Schema,
-            });
-          }
-        }
       }
     }
     return validations;
