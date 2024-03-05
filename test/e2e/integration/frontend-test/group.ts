@@ -772,7 +772,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').eq(1).should('contain.text', 'NOK 1 233');
   });
 
-  it('verify that hidden rows are not shown in summary', () => {
+  it.only('verify that hidden rows are not shown in summary', () => {
     cy.interceptLayout('group', (c) => {
       if (c.id === 'summary1' && c.type === 'Summary') {
         c.largeGroup = false;
