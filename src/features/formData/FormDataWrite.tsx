@@ -257,14 +257,18 @@ function hasUnsavedChanges(state: FormDataContext) {
 }
 
 const useHasUnsavedChanges = () => {
+  const isSaving = useIsSaving();
   const result = useLaxMemoSelector((state) => hasUnsavedChanges(state));
   if (result === ContextNotProvided) {
     return false;
   }
-  return result;
+  return result || isSaving;
 };
 
-const useHasUnsavedChangesRef = () => useLaxSelectorAsRef((state) => hasUnsavedChanges(state));
+const useHasUnsavedChangesRef = () => {
+  const isSaving = useIsSaving();
+  return useLaxSelectorAsRef((state) => hasUnsavedChanges(state) || isSaving);
+};
 
 const useWaitForSave = () => {
   const requestSave = useRequestManualSave();
@@ -273,8 +277,6 @@ const useWaitForSave = () => {
     BackendValidationIssueGroups | undefined,
     FormDataContext | typeof ContextNotProvided
   >(useLaxStore());
-  const isSaving = useIsSaving();
-  const isSavingRef = useAsRef(isSaving);
 
   return useCallback(
     async (requestManualSave = false): Promise<BackendValidationIssueGroups | undefined> => {
@@ -282,7 +284,7 @@ const useWaitForSave = () => {
         return Promise.resolve(undefined);
       }
 
-      if (requestManualSave && !isSavingRef.current) {
+      if (requestManualSave) {
         requestSave();
       }
 
@@ -290,9 +292,6 @@ const useWaitForSave = () => {
         if (state === ContextNotProvided) {
           setReturnValue(undefined);
           return true;
-        }
-        if (isSavingRef.current) {
-          return false;
         }
 
         if (hasUnsavedChanges(state)) {
@@ -303,7 +302,7 @@ const useWaitForSave = () => {
         return true;
       });
     },
-    [isSavingRef, requestSave, url, waitFor],
+    [requestSave, url, waitFor],
   );
 };
 
