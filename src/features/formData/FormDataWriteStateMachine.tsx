@@ -1,10 +1,8 @@
 import dot from 'dot-object';
 import deepEqual from 'fast-deep-equal';
 import { applyPatch } from 'fast-json-patch';
-import { current, isDraft } from 'immer';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import type { Draft } from 'immer';
 
 import { convertData } from 'src/features/formData/convertData';
 import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
@@ -158,10 +156,6 @@ export interface FormDataMethods {
 
 export type FormDataContext = FormDataState & FormDataMethods;
 
-function alwaysCurrent<T>(value: Draft<T> | T): T {
-  return isDraft(value) ? (current(value) as T) : (value as T);
-}
-
 function makeActions(
   set: (fn: (state: FormDataContext) => void) => void,
   ruleConnections: IRuleConnections | null,
@@ -189,7 +183,7 @@ function makeActions(
         if (modelA.model === modelB.model) {
           continue;
         }
-        if (deepEqual(alwaysCurrent(modelA.model), alwaysCurrent(modelB.model))) {
+        if (deepEqual(modelA.model, modelB.model)) {
           state[modelB.key] = modelA.model;
           modelB.model = modelA.model;
         }
@@ -224,7 +218,7 @@ function makeActions(
     if (deepEqual(state.debouncedCurrentData, state.currentData)) {
       state.debouncedCurrentData = state.currentData;
       deduplicateModels(state);
-      whenDone?.(alwaysCurrent(state.debouncedCurrentData));
+      whenDone?.(state.debouncedCurrentData);
       window.CypressLog?.('Debouncing done, no changes');
       return;
     }
@@ -236,7 +230,7 @@ function makeActions(
 
     state.debouncedCurrentData = state.currentData;
     deduplicateModels(state);
-    whenDone?.(alwaysCurrent(state.debouncedCurrentData));
+    whenDone?.(state.debouncedCurrentData);
     window.CypressLog?.('Debouncing done, changes found');
   }
 
