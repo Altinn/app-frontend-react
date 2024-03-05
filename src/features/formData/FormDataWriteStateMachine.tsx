@@ -201,6 +201,7 @@ function makeActions(
     state: FormDataContext,
     { newDataModel, savedData }: Pick<FDSaveFinished, 'newDataModel' | 'patch' | 'savedData'>,
   ) {
+    window.CypressLog?.('Saving successful, updating data model');
     if (newDataModel) {
       const backendChangesPatch = createPatch({ prev: savedData, next: newDataModel, current: state.currentData });
       applyPatch(state.currentData, backendChangesPatch);
@@ -224,6 +225,7 @@ function makeActions(
       state.debouncedCurrentData = state.currentData;
       deduplicateModels(state);
       whenDone?.(alwaysCurrent(state.debouncedCurrentData));
+      window.CypressLog?.('Debouncing done, no changes');
       return;
     }
 
@@ -235,6 +237,7 @@ function makeActions(
     state.debouncedCurrentData = state.currentData;
     deduplicateModels(state);
     whenDone?.(alwaysCurrent(state.debouncedCurrentData));
+    window.CypressLog?.('Debouncing done, changes found');
   }
 
   function setValue(props: { path: string; newValue: FDLeafValue; state: FormDataState & FormDataMethods }) {
@@ -242,6 +245,7 @@ function makeActions(
     if (newValue === '' || newValue === null || newValue === undefined) {
       dot.delete(path, state.currentData);
       dot.delete(path, state.invalidCurrentData);
+      window.CypressLog?.('Deleted value at path', path);
     } else {
       const schema = schemaLookup.getSchemaForPath(path)[0];
       const { newValue: convertedValue, error } = convertData(newValue, schema);
@@ -252,6 +256,7 @@ function makeActions(
         dot.delete(path, state.invalidCurrentData);
         dot.str(path, convertedValue, state.currentData);
       }
+      window.CypressLog?.('Set value at path', path, 'to', JSON.stringify(newValue));
     }
   }
 

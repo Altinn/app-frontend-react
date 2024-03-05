@@ -80,6 +80,7 @@ const useFormDataSaveMutation = () => {
       if (isSavingRef.current) {
         return;
       }
+      window.CypressLog?.('Starting saving operation');
       saveStarted();
 
       // While we could get the next model from a ref, we want to make sure we get the latest model after debounce
@@ -92,20 +93,24 @@ const useFormDataSaveMutation = () => {
       });
       const prev = lastSavedAsRef.current;
       if (deepEqual(prev, next)) {
+        window.CypressLog?.('Cancelling save, as the data model has not changed from last save');
         cancelSave();
         return;
       }
 
       if (isStateless) {
+        window.CypressLog?.('Saving stateless data model');
         const newDataModel = await doPostStatelessFormData(dataModelUrl, next);
         saveFinished({ newDataModel, savedData: next, validationIssues: undefined });
       } else {
         const patch = createPatch({ prev, next });
         if (patch.length === 0) {
+          window.CypressLog?.('Cancelling save, as the patch is empty');
           cancelSave();
           return;
         }
 
+        window.CypressLog?.('Saving data model with PATCH');
         const result = await doPatchFormData(dataModelUrl, {
           patch,
           ignoredValidators: [],
@@ -172,6 +177,7 @@ function FormDataEffects() {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (currentData !== debouncedCurrentData || invalidCurrentData !== invalidDebouncedCurrentData) {
+        window.CypressLog?.('FormDataWrite: Debouncing data model');
         debounce();
       }
     }, debounceTimeout);
@@ -183,8 +189,31 @@ function FormDataEffects() {
   const needsToSave = lastSavedData !== debouncedCurrentData;
   const canSaveNow = !isSaving && !lockedBy;
   const shouldSave = (needsToSave && canSaveNow && autoSaving) || manualSaveRequested;
+
+  useEffect(() => {
+    window.CypressLog?.('---- needsToSave:', needsToSave.toString());
+  }, [needsToSave]);
+
+  useEffect(() => {
+    window.CypressLog?.('---- isSaving:', isSaving.toString());
+  }, [isSaving]);
+
+  useEffect(() => {
+    window.CypressLog?.('---- autoSaving:', autoSaving.toString());
+  }, [autoSaving]);
+
+  useEffect(() => {
+    window.CypressLog?.('---- manualSaveRequested:', manualSaveRequested.toString());
+  }, [manualSaveRequested]);
+
+  useEffect(() => {
+    window.CypressLog?.('---- hasUnsavedChanges:', hasUnsavedChanges.toString());
+  }, [hasUnsavedChanges]);
+
+  window.CypressSaveLog?.();
   useEffect(() => {
     shouldSave && performSave();
+    shouldSave && window.CypressLog?.('Saving data model');
   }, [performSave, shouldSave]);
 
   // Marking the document as having unsaved changes. The data attribute is used in tests, while the beforeunload
