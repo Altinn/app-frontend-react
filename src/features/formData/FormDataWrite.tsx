@@ -20,7 +20,7 @@ import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 import type { SchemaLookupTool } from 'src/features/datamodel/DataModelSchemaProvider';
 import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { FormDataWriteProxies } from 'src/features/formData/FormDataWriteProxies';
-import type { FDSaveResult, FormDataContext } from 'src/features/formData/FormDataWriteStateMachine';
+import type { FDSaveFinished, FDSaveResult, FormDataContext } from 'src/features/formData/FormDataWriteStateMachine';
 import type { BackendValidationIssueGroups } from 'src/features/validation';
 import type { FormDataSelector } from 'src/layout';
 import type { IMapping } from 'src/layout/common.generated';
@@ -49,6 +49,7 @@ const {
   useDelayedMemoSelectorFactory,
   useLaxSelector,
   useLaxStore,
+  useStore,
 } = createZustandContext({
   name: 'FormDataWrite',
   required: true,
@@ -66,47 +67,43 @@ const {
 const useFormDataSaveMutation = () => {
   const { doPatchFormData, doPostStatelessFormData } = useAppMutations();
   const dataModelUrl = useSelector((s) => s.controlState.saveUrl);
-  const saveStarted = useSelector((s) => s.saveStarted);
   const saveFinished = useSelector((s) => s.saveFinished);
   const cancelSave = useSelector((s) => s.cancelSave);
   const isStateless = useIsStatelessApp();
-  const lastSavedAsRef = useSelectorAsRef((s) => s.lastSavedData);
-  const isSavingRef = useSelectorAsRef((s) => s.controlState.isSaving);
   const debounce = useSelector((s) => s.debounce);
+  const waitFor = useWaitForState<{ prev: object; next: object }, FormDataContext>(useStore());
 
   return useMutation({
     mutationKey: ['saveFormData'],
-    mutationFn: async () => {
-      if (isSavingRef.current) {
-        return;
-      }
+    mutationFn: async (): Promise<FDSaveFinished | undefined> => {
       window.CypressLog?.('Starting saving operation');
-      saveStarted();
 
       // While we could get the next model from a ref, we want to make sure we get the latest model after debounce
       // at the moment we're saving. This is especially important when automatically saving (and debouncing) when
       // navigating away from the form context.
-      const next: object = await new Promise((resolve) => {
-        debounce((next) => {
-          resolve(next);
-        });
+      debounce();
+      const { next, prev } = await waitFor((state, setReturnValue) => {
+        if (state.debouncedCurrentData === state.currentData) {
+          setReturnValue({ next: state.debouncedCurrentData, prev: state.lastSavedData });
+          return true;
+        }
+
+        return false;
       });
-      const prev = lastSavedAsRef.current;
+
       if (deepEqual(prev, next)) {
         window.CypressLog?.('Cancelling save, as the data model has not changed from last save');
-        cancelSave();
-        return;
+        return undefined;
       }
 
       if (isStateless) {
         window.CypressLog?.('Saving stateless data model');
         const newDataModel = await doPostStatelessFormData(dataModelUrl, next);
-        saveFinished({ newDataModel, savedData: next, validationIssues: undefined });
+        return { newDataModel, savedData: next, validationIssues: undefined };
       } else {
         const patch = createPatch({ prev, next });
         if (patch.length === 0) {
           window.CypressLog?.('Cancelling save, as the patch is empty');
-          cancelSave();
           return;
         }
 
@@ -115,11 +112,15 @@ const useFormDataSaveMutation = () => {
           patch,
           ignoredValidators: [],
         });
-        saveFinished({ ...result, patch, savedData: next });
+        return { ...result, patch, savedData: next };
       }
     },
     onError: () => {
       cancelSave();
+    },
+    onSuccess: (result) => {
+      result && saveFinished(result);
+      !result && cancelSave();
     },
   });
 };
@@ -160,11 +161,11 @@ function FormDataEffects() {
     invalidCurrentData,
     invalidDebouncedCurrentData,
   } = state;
-  const { debounceTimeout, autoSaving, manualSaveRequested, lockedBy, isSaving } = controlState;
-  const { mutate: performSave, error } = useFormDataSaveMutation();
+  const { debounceTimeout, autoSaving, manualSaveRequested, lockedBy } = controlState;
+  const { mutate: performSave, error, isLoading: isSaving } = useFormDataSaveMutation();
   const debounce = useDebounceImmediately();
   const hasUnsavedChanges = useHasUnsavedChanges();
-  const hasUnsavedChangesRef = useHasUnsavedChangesRef(false);
+  const hasUnsavedChangesRef = useHasUnsavedChangesRef();
 
   // If errors occur, we want to throw them so that the user can see them, and they
   // can be handled by the error boundary.
@@ -271,26 +272,22 @@ const useDebounceImmediately = () => {
   }, [debounce]);
 };
 
-function hasUnsavedChanges(state: FormDataContext, respectIsSaving = true) {
-  if (state.controlState.isSaving && respectIsSaving) {
-    return true;
-  }
+function hasUnsavedChanges(state: FormDataContext) {
   if (state.currentData !== state.lastSavedData) {
     return true;
   }
   return state.debouncedCurrentData !== state.lastSavedData;
 }
 
-const useHasUnsavedChanges = (respectIsSaving = true) => {
-  const result = useLaxMemoSelector((state) => hasUnsavedChanges(state, respectIsSaving));
+const useHasUnsavedChanges = () => {
+  const result = useLaxMemoSelector((state) => hasUnsavedChanges(state));
   if (result === ContextNotProvided) {
     return false;
   }
   return result;
 };
 
-const useHasUnsavedChangesRef = (respectIsSaving = true) =>
-  useLaxSelectorAsRef((state) => hasUnsavedChanges(state, respectIsSaving));
+const useHasUnsavedChangesRef = () => useLaxSelectorAsRef((state) => hasUnsavedChanges(state));
 
 const useWaitForSave = () => {
   const requestSave = useRequestManualSave();
@@ -314,9 +311,6 @@ const useWaitForSave = () => {
         if (state === ContextNotProvided) {
           setReturnValue(undefined);
           return true;
-        }
-        if (state.controlState.isSaving) {
-          return false;
         }
         if (hasUnsavedChanges(state)) {
           return false;

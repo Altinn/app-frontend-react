@@ -60,9 +60,6 @@ export interface FormDataState {
     // only when the user navigates to another page.
     autoSaving: boolean;
 
-    // This is used to track whether the data model is currently being saved to the server.
-    isSaving: boolean;
-
     // This is used to track whether the user has requested a manual save. When auto-saving is turned off, this is
     // the way we track when to save the data model to the server. It can also be used to trigger a manual save
     // as a way to immediately save the data model to the server, for example before locking the data model.
@@ -145,8 +142,7 @@ export interface FormDataMethods {
   removeFromListCallback: (change: FDRemoveFromListCallback) => void;
 
   // Internal utility methods
-  debounce: (whenDone?: (debounced: object) => void) => void;
-  saveStarted: () => void;
+  debounce: () => void;
   cancelSave: () => void;
   saveFinished: (props: FDSaveFinished) => void;
   requestManualSave: (setTo?: boolean) => void;
@@ -177,6 +173,13 @@ function makeActions(
       { key: 'debouncedCurrentData', model: state.debouncedCurrentData },
       { key: 'lastSavedData', model: state.lastSavedData },
     ];
+
+    const currentIsDebounced = state.currentData === state.debouncedCurrentData;
+    const currentIsSaved = state.currentData === state.lastSavedData;
+    const debouncedIsSaved = state.debouncedCurrentData === state.lastSavedData;
+    if (currentIsDebounced && currentIsSaved && debouncedIsSaved) {
+      return;
+    }
 
     for (const modelA of models) {
       for (const modelB of models) {
@@ -213,12 +216,10 @@ function makeActions(
     deduplicateModels(state);
   }
 
-  function debounce(state: FormDataContext, whenDone?: (debounced: object) => void) {
+  function debounce(state: FormDataContext) {
     state.invalidDebouncedCurrentData = state.invalidCurrentData;
     if (deepEqual(state.debouncedCurrentData, state.currentData)) {
       state.debouncedCurrentData = state.currentData;
-      deduplicateModels(state);
-      whenDone?.(state.debouncedCurrentData);
       window.CypressLog?.('Debouncing done, no changes');
       return;
     }
@@ -229,8 +230,6 @@ function makeActions(
     }
 
     state.debouncedCurrentData = state.currentData;
-    deduplicateModels(state);
-    whenDone?.(state.debouncedCurrentData);
     window.CypressLog?.('Debouncing done, changes found');
   }
 
@@ -255,25 +254,19 @@ function makeActions(
   }
 
   return {
-    debounce: (whenDone) =>
+    debounce: () =>
       set((state) => {
-        debounce(state, whenDone);
-      }),
-
-    saveStarted: () =>
-      set((state) => {
-        state.controlState.isSaving = true;
+        debounce(state);
       }),
     cancelSave: () =>
       set((state) => {
-        state.controlState.isSaving = false;
+        state.controlState.manualSaveRequested = false;
         deduplicateModels(state);
       }),
     saveFinished: (props) =>
       set((state) => {
         const { validationIssues } = props;
         state.validationIssues = validationIssues;
-        state.controlState.isSaving = false;
         processChanges(state, props);
       }),
     setLeafValue: ({ path, newValue, ...rest }) =>
@@ -426,7 +419,6 @@ export const createFormDataWriteStore = (
         validationIssues: undefined,
         controlState: {
           autoSaving,
-          isSaving: false,
           manualSaveRequested: false,
           lockedBy: undefined,
           debounceTimeout: DEFAULT_DEBOUNCE_TIMEOUT,
