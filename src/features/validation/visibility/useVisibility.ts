@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-import { current } from 'immer';
+import { original } from 'immer';
 
 import { type IAttachments, isAttachmentUploaded, type UploadedAttachment } from 'src/features/attachments';
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
@@ -67,7 +67,8 @@ export function useVisibility(
 
         // Checking the current(state) is much cheaper than checking the draft, so its worth
         // potentially doing it twice to not make unnecessary updates
-        const currentVisibilityMask = getVisibilityForNode(node, current(state));
+        const fasterState = original(state) ?? state;
+        const currentVisibilityMask = getVisibilityForNode(node, fasterState);
         const newVisibilityMask = currentVisibilityMask & currentValidationMask;
 
         // Updating is a bit expensive, so only do it if the mask is different
