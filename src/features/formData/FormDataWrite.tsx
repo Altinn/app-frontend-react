@@ -147,13 +147,19 @@ export function FormDataWriteProvider({ url, initialData, autoSaving, children }
 
 function FormDataEffects() {
   const state = useSelector((s) => s);
-  const { currentData, debouncedCurrentData, controlState, invalidCurrentData, invalidDebouncedCurrentData } = state;
+  const {
+    currentData,
+    debouncedCurrentData,
+    lastSavedData,
+    controlState,
+    invalidCurrentData,
+    invalidDebouncedCurrentData,
+  } = state;
   const { debounceTimeout, autoSaving, manualSaveRequested, lockedBy, isSaving } = controlState;
   const { mutate: performSave, error } = useFormDataSaveMutation();
   const debounce = useDebounceImmediately();
   const hasUnsavedChanges = useHasUnsavedChanges();
   const hasUnsavedChangesRef = useHasUnsavedChangesRef(false);
-  const currentDataRef = useSelectorAsRef((s) => s.currentData);
 
   // If errors occur, we want to throw them so that the user can see them, and they
   // can be handled by the error boundary.
@@ -173,28 +179,13 @@ function FormDataEffects() {
     return () => clearTimeout(timer);
   }, [debounce, currentData, debouncedCurrentData, debounceTimeout, invalidCurrentData, invalidDebouncedCurrentData]);
 
-  // Save the data model when the data has been frozen to debouncedCurrentData
+  // Save the data model when the data has been frozen/debounced, and we're ready
+  const needsToSave = lastSavedData !== debouncedCurrentData;
+  const canSaveNow = !isSaving && !lockedBy;
+  const shouldSave = (needsToSave && canSaveNow && autoSaving) || manualSaveRequested;
   useEffect(() => {
-    const isDebounced = debouncedCurrentData === currentDataRef.current;
-    if (
-      (isDebounced || manualSaveRequested) &&
-      (autoSaving || manualSaveRequested) &&
-      hasUnsavedChanges &&
-      !isSaving &&
-      !lockedBy
-    ) {
-      performSave();
-    }
-  }, [
-    autoSaving,
-    currentDataRef,
-    debouncedCurrentData,
-    hasUnsavedChanges,
-    isSaving,
-    lockedBy,
-    manualSaveRequested,
-    performSave,
-  ]);
+    shouldSave && performSave();
+  }, [performSave, shouldSave]);
 
   // Marking the document as having unsaved changes. The data attribute is used in tests, while the beforeunload
   // event is used to warn the user when they try to navigate away from the page with unsaved changes.
