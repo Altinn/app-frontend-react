@@ -198,6 +198,7 @@ function makeActions(
     state: FormDataContext,
     { newDataModel, savedData }: Pick<FDSaveFinished, 'newDataModel' | 'patch' | 'savedData'>,
   ) {
+    state.controlState.manualSaveRequested = false;
     if (newDataModel) {
       const backendChangesPatch = createPatch({ prev: savedData, next: newDataModel, current: state.currentData });
       applyPatch(state.currentData, backendChangesPatch);

@@ -119,12 +119,12 @@ export const useNavigatePage = () => {
     }
   }, [isStatelessApp, order, navigate, currentPageId, isValidPageId, queryKeys]);
 
-  const waitForSave = FD.useWaitForSave();
+  const requestManualSave = FD.useRequestManualSave();
   const maybeSaveOnPageChange = useCallback(() => {
     if (autoSaveBehavior === 'onChangePage') {
-      waitForSave(true).then();
+      requestManualSave();
     }
-  }, [autoSaveBehavior, waitForSave]);
+  }, [autoSaveBehavior, requestManualSave]);
 
   const navigateToPage = useCallback(
     async (page?: string, options?: NavigateToPageOptions) => {

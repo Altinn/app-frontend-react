@@ -72,10 +72,15 @@ function useFormDataSaveMutation() {
   const isStateless = useIsStatelessApp();
   const debounce = useSelector((s) => s.debounce);
   const waitFor = useWaitForState<{ prev: object; next: object }, FormDataContext>(useStore());
+  const useIsSavingRef = useAsRef(useIsSaving());
 
   return useMutation({
     mutationKey: ['saveFormData', dataModelUrl],
     mutationFn: async (): Promise<FDSaveFinished | undefined> => {
+      if (useIsSavingRef.current) {
+        return;
+      }
+
       // While we could get the next model from a ref, we want to make sure we get the latest model after debounce
       // at the moment we're saving. This is especially important when automatically saving (and debouncing) when
       // navigating away from the form context.
@@ -85,12 +90,11 @@ function useFormDataSaveMutation() {
           setReturnValue({ next: state.debouncedCurrentData, prev: state.lastSavedData });
           return true;
         }
-
         return false;
       });
 
       if (deepEqual(prev, next)) {
-        return undefined;
+        return;
       }
 
       if (isStateless) {
@@ -536,6 +540,11 @@ export const FD = {
    * This will work (and return immediately) even if there is no FormDataWriteProvider in the tree.
    */
   useWaitForSave,
+
+  /**
+   * Returns a function you can use to request a manual save of the form data.
+   */
+  useRequestManualSave,
 
   /**
    * Returns true if the form data has unsaved changes
