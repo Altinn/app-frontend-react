@@ -39,7 +39,7 @@
     "cy:test:stateless-anonymous": "yarn run cy:delete:reports && cypress run -b chrome -s 'test/e2e/integration/anonymous-stateless-app/*.ts'",
     "cy:test:signing": "yarn run cy:delete:reports && cypress run -b chrome -s 'test/e2e/integration/signing-test/*.ts'",
     "cy:test:all": "yarn run cy:delete:reports && cypress run -b chrome -s 'test/e2e/integration/*/*.ts'",
-    "cy:test:all:headless": "yarn run cy:delete:reports && cypress run -s 'test/e2e/integration/frontend-test/group.ts'"
+    "cy:test:all:headless": "yarn run cy:delete:reports && cypress run -s 'test/e2e/integration/*/*.ts'"
   },
   "devDependencies": {
     "@babel/core": "7.23.3",
