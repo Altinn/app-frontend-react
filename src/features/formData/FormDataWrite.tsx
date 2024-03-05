@@ -2,7 +2,7 @@
 import React, { useCallback, useEffect } from 'react';
 import type { PropsWithChildren } from 'react';
 
-import { useMutation } from '@tanstack/react-query';
+import { useIsMutating, useMutation } from '@tanstack/react-query';
 import dot from 'dot-object';
 import deepEqual from 'fast-deep-equal';
 
@@ -64,7 +64,7 @@ const {
     createFormDataWriteStore(url, initialData, autoSaving, proxies, ruleConnections, schemaLookup),
 });
 
-const useFormDataSaveMutation = () => {
+function useFormDataSaveMutation() {
   const { doPatchFormData, doPostStatelessFormData } = useAppMutations();
   const dataModelUrl = useSelector((s) => s.controlState.saveUrl);
   const saveFinished = useSelector((s) => s.saveFinished);
@@ -74,7 +74,7 @@ const useFormDataSaveMutation = () => {
   const waitFor = useWaitForState<{ prev: object; next: object }, FormDataContext>(useStore());
 
   return useMutation({
-    mutationKey: ['saveFormData'],
+    mutationKey: ['saveFormData', dataModelUrl],
     mutationFn: async (): Promise<FDSaveFinished | undefined> => {
       // While we could get the next model from a ref, we want to make sure we get the latest model after debounce
       // at the moment we're saving. This is especially important when automatically saving (and debouncing) when
@@ -117,7 +117,12 @@ const useFormDataSaveMutation = () => {
       !result && cancelSave();
     },
   });
-};
+}
+
+function useIsSaving() {
+  const dataModelUrl = useLaxSelector((s) => s.controlState.saveUrl);
+  return useIsMutating(['saveFormData', dataModelUrl === ContextNotProvided ? '__never__' : dataModelUrl]) > 0;
+}
 
 interface FormDataWriterProps extends PropsWithChildren {
   url: string;
@@ -156,7 +161,8 @@ function FormDataEffects() {
     invalidDebouncedCurrentData,
   } = state;
   const { debounceTimeout, autoSaving, manualSaveRequested, lockedBy } = controlState;
-  const { mutate: performSave, error, isLoading: isSaving } = useFormDataSaveMutation();
+  const { mutate: performSave, error } = useFormDataSaveMutation();
+  const isSaving = useIsSaving();
   const debounce = useDebounceImmediately();
   const hasUnsavedChanges = useHasUnsavedChanges();
   const hasUnsavedChangesRef = useHasUnsavedChangesRef();
@@ -267,6 +273,8 @@ const useWaitForSave = () => {
     BackendValidationIssueGroups | undefined,
     FormDataContext | typeof ContextNotProvided
   >(useLaxStore());
+  const isSaving = useIsSaving();
+  const isSavingRef = useAsRef(isSaving);
 
   return useCallback(
     async (requestManualSave = false): Promise<BackendValidationIssueGroups | undefined> => {
@@ -274,7 +282,7 @@ const useWaitForSave = () => {
         return Promise.resolve(undefined);
       }
 
-      if (requestManualSave) {
+      if (requestManualSave && !isSavingRef.current) {
         requestSave();
       }
 
@@ -283,6 +291,10 @@ const useWaitForSave = () => {
           setReturnValue(undefined);
           return true;
         }
+        if (isSavingRef.current) {
+          return false;
+        }
+
         if (hasUnsavedChanges(state)) {
           return false;
         }
@@ -291,7 +303,7 @@ const useWaitForSave = () => {
         return true;
       });
     },
-    [requestSave, url, waitFor],
+    [isSavingRef, requestSave, url, waitFor],
   );
 };
 
