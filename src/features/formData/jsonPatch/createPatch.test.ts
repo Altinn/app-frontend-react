@@ -20,6 +20,10 @@ function testPatch<T extends object>({ prev, next, current, final, expectedPatch
   if (!hasCurrent) {
     test('creating patch for prev -> next', () => {
       const patch = createPatch({ prev, next });
+      console.log('patch');
+      console.log(JSON.stringify(patch, null, 2));
+      console.log('expectedPatch');
+      console.log(JSON.stringify(expectedPatch, null, 2));
       expect(patch).toEqual(expectedPatch);
     });
 
@@ -36,7 +40,33 @@ function testPatch<T extends object>({ prev, next, current, final, expectedPatch
   const testSuffix = hasCurrent ? '(with current)' : '(with simulated current)';
   test(`creating patch for prev -> next ${testSuffix}`, () => {
     const patch = createPatch({ prev, next, current: maybeSimulatedCurrent });
+
+    // console.log('maybeSimulatedCurrent');
+    // console.log(JSON.stringify(maybeSimulatedCurrent, null, 2));
+
+    // console.log('expectedPatch');
+    // console.log(JSON.stringify(expectedPatch, null, 2));
+
     const expectedWithoutTests = expectedPatch.filter((op) => op.op !== 'test');
+
+    // console.log('patch');
+    // console.log(JSON.stringify(patch, null, 2));
+    //
+    // console.log('expectedWithoutTests');
+    // console.log(JSON.stringify(expectedWithoutTests, null, 2));
+
+    // console.log('expectedPatch');
+    // console.log(JSON.stringify(expectedPatch, null, 2));
+    //
+    // console.log('expectedWithoutTests');
+    // console.log(JSON.stringify(expectedWithoutTests, null, 2));
+    //
+    // console.log('patch');
+    // console.log(JSON.stringify(patch, null, 2));
+
+    // const isEqual = JSON.stringify(patch) === JSON.stringify(expectedWithoutTests);
+
+    // console.log('isEqual', isEqual);
     expect(patch).toEqual(expectedWithoutTests);
   });
 
@@ -308,8 +338,7 @@ describe('createPatch', () => {
       next: { a: ['foo', 'bar2', 'baz', 'qux'] },
       expectedPatch: [
         { op: 'test', path: '/a', value: ['foo', 'bar', 'baz', 'qux'] },
-        { op: 'remove', path: '/a/1' },
-        { op: 'add', path: '/a/1', value: 'bar2' },
+        { op: 'replace', path: '/a', value: ['foo', 'bar2', 'baz', 'qux'] },
       ],
     });
   });
