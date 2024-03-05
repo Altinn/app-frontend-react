@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { useLocation, useMatch, useNavigate } from 'react-router-dom';
-import type { NavigateFunction, NavigateOptions } from 'react-router-dom';
+import { useLocation, useMatch, useNavigate as useRouterNavigate } from 'react-router-dom';
+import type { NavigateOptions } from 'react-router-dom';
+
+import { create } from 'zustand';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { useHiddenPages, useReturnToView } from 'src/features/form/layout/PageNavigationContext';
@@ -8,7 +10,6 @@ import { useLaxLayoutSettings, usePageSettings } from 'src/features/form/layoutS
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxProcessData, useTaskType } from 'src/features/instance/ProcessContext';
 import { ProcessTaskType } from 'src/types';
-import { promisify } from 'src/utils/promisify';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 
 type NavigateToPageOptions = {
@@ -46,6 +47,30 @@ export const useNavigationParams = () => {
 
 const emptyArray: never[] = [];
 
+/**
+ * Navigation function for react-router-dom
+ * Makes sure to clear returnToView on navigation
+ * Takes an optional callback
+ */
+const useNavigate = () => {
+  const navigate = useRouterNavigate();
+  const storeCallback = useNavigationEffectStore((state) => state.storeCallback);
+  const { setReturnToView } = useReturnToView();
+
+  return useCallback(
+    (path: string, options?: NavigateOptions, cb?: Callback) => {
+      if (setReturnToView) {
+        setReturnToView(undefined);
+      }
+      if (cb) {
+        storeCallback(cb);
+      }
+      navigate(path, options);
+    },
+    [navigate, setReturnToView, storeCallback],
+  );
+};
+
 export const useCurrentView = () => useNavigationParams().pageKey;
 export const useOrder = () => {
   const maybeLayoutSettings = useLaxLayoutSettings();
@@ -60,6 +85,7 @@ export const useNavigatePage = () => {
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
   const processTasks = useLaxProcessData()?.processTasks;
   const lastTaskId = processTasks?.slice(-1)[0]?.elementId;
+  const navigate = useNavigate();
 
   const { partyId, instanceGuid, taskId, pageKey, queryKeys } = useNavigationParams();
   const { autoSaveBehavior } = usePageSettings();
@@ -71,20 +97,6 @@ export const useNavigatePage = () => {
   const currentPageIndex = order?.indexOf(currentPageId) ?? -1;
   const nextPageIndex = currentPageIndex !== -1 ? currentPageIndex + 1 : -1;
   const previousPageIndex = currentPageIndex !== -1 ? currentPageIndex - 1 : -1;
-
-  /**
-   * Navigation function for react-router-dom
-   * Make sure to clear returnToView on navigation
-   */
-  const { setReturnToView } = useReturnToView();
-  const _navigate = useNavigate();
-  const navigate = useCallback(
-    (...args: Parameters<NavigateFunction>) => {
-      setReturnToView && setReturnToView(undefined);
-      return _navigate(...args);
-    },
-    [_navigate, setReturnToView],
-  ) as NavigateFunction;
 
   const isValidPageId = useCallback(
     (pageId: string) => {
@@ -136,15 +148,7 @@ export const useNavigatePage = () => {
       }
 
       const url = `/instance/${partyId}/${instanceGuid}/${taskId}/${page}${queryKeys}`;
-      /**
-       * Promisify the navigate function to ensure that the page has been navigated to before
-       * moving the page focus to the main content on each page navigation. This is
-       * done so that the focus of a screen reader user will not be placed at random
-       */
-      await promisify(() => navigate(url, { replace }))();
-      if (options?.shouldFocusComponent !== true) {
-        document.getElementById('main-content')?.focus({ preventScroll: true });
-      }
+      navigate(url, { replace }, () => focusMainContent(options));
     },
     [instanceGuid, isStatelessApp, maybeSaveOnPageChange, navigate, order, partyId, queryKeys, taskId],
   );
@@ -155,9 +159,9 @@ export const useNavigatePage = () => {
         return;
       }
       const url = `/instance/${partyId}/${instanceGuid}/${newTaskId ?? lastTaskId}${queryKeys}`;
-      navigate(url, options);
+      navigate(url, options, () => focusMainContent(options));
     },
-    [partyId, instanceGuid, lastTaskId, queryKeys, navigate, taskId],
+    [taskId, partyId, instanceGuid, lastTaskId, queryKeys, navigate],
   );
 
   const isCurrentTask = useMemo(() => {
@@ -278,3 +282,20 @@ export const useNavigatePage = () => {
     maybeSaveOnPageChange,
   };
 };
+
+function focusMainContent(options?: NavigateToPageOptions) {
+  if (options?.shouldFocusComponent !== true) {
+    document.getElementById('main-content')?.focus({ preventScroll: true });
+  }
+}
+
+type Callback = () => void;
+type NavigationEffectStore = {
+  callback: Callback | null;
+  storeCallback: (cb: Callback | null) => void;
+};
+
+export const useNavigationEffectStore = create<NavigationEffectStore>((set) => ({
+  callback: null,
+  storeCallback: (cb: Callback) => set({ callback: cb }),
+}));
