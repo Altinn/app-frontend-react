@@ -217,7 +217,7 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
   const labelsHaveChanged = useHasChanged(translatedLabels.join(','));
 
   useEffect(() => {
-    if (!dataModelBindings?.label) {
+    if (!(dataModelBindings as IDataModelBindingsOptionsSimple)?.label) {
       return;
     }
 
@@ -231,7 +231,7 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
     } else {
       setValue('label' as any, translatedLabels);
     }
-  }, [translatedLabels, labelsHaveChanged, dataModelBindings?.label, setValue, valueType]);
+  }, [translatedLabels, labelsHaveChanged, dataModelBindings, setValue, valueType]);
 
   const setData = useMemo(() => {
     if (valueType === 'single') {
