@@ -128,7 +128,7 @@ const common = {
 
   // Data model bindings:
   IDataModelBindingsSimple: () =>
-    new CG.obj(new CG.prop('simpleBinding', new CG.str()), new CG.prop('label', new CG.str().optional()))
+    new CG.obj(new CG.prop('simpleBinding', new CG.str()))
       .setTitle('Data model binding')
       .setDescription(
         'Describes the location in the data model where the component should store its value(s). A simple ' +

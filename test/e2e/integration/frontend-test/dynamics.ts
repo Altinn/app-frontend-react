@@ -6,18 +6,6 @@ import type { CompOrGroupExternal } from 'src/layout/layout';
 
 const appFrontend = new AppFrontend();
 
-const showReasons = () => {
-  cy.goto('changename');
-  cy.get(appFrontend.changeOfName.newFirstName).type('geir');
-  cy.get(appFrontend.changeOfName.newLastName).type('hoel');
-  cy.get(appFrontend.changeOfName.confirmChangeName)
-    .findByRole('checkbox', {
-      name: /Ja[a-z, ]*/,
-    })
-    .check();
-  cy.get(appFrontend.changeOfName.reasons).should('be.visible');
-};
-
 describe('Dynamics', () => {
   it('Show and hide confirm name change checkbox on changing firstname', () => {
     cy.goto('changename');
@@ -30,7 +18,15 @@ describe('Dynamics', () => {
   });
 
   it('Show and hide name change reasons radio buttons', () => {
-    showReasons();
+    cy.goto('changename');
+    cy.get(appFrontend.changeOfName.newFirstName).type('test');
+    cy.get(appFrontend.changeOfName.newLastName).type('test');
+    cy.get(appFrontend.changeOfName.confirmChangeName)
+      .findByRole('checkbox', {
+        name: /Ja[a-z, ]*/,
+      })
+      .check();
+    cy.get(appFrontend.changeOfName.reasons).should('be.visible');
   });
 
   it('Should save the labels of multiple chosen options', () => {
