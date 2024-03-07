@@ -176,10 +176,11 @@ export function getValidationsForNode(
 }
 
 export function getInitialMaskFromNode(node: LayoutNode | LayoutPage): number {
+  let mask = 0;
   if ('showValidations' in node.item) {
-    return getVisibilityMask(node.item.showValidations);
+    mask = getVisibilityMask(node.item.showValidations);
   }
-  return 0;
+  return mask || ValidationMask.AllExceptRequired;
 }
 
 export function getVisibilityMask(maskKeys?: ValidationMaskKeys[]): number {
