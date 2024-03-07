@@ -23,13 +23,6 @@ const useDataModelSchemaQuery = () => {
     enabled,
     queryKey: ['fetchDataModelSchemas', dataModelName],
     queryFn: () => fetchDataModelSchema(dataModelName!),
-    // onError: (error: HttpClientError) => {
-    //   if (error.status === 404) {
-    //     window.logWarn('Data model schema not found:\n', error);
-    //   } else {
-    //     window.logError('Data model schema request failed:\n', error);
-    //   }
-    // },
     select: (schema) => {
       const rootElementPath = getRootElementPath(schema, dataType);
       const lookupTool = new SchemaLookupTool(schema, rootElementPath);

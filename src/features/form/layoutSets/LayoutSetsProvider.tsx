@@ -12,9 +12,6 @@ const useLayoutSetsQuery = () => {
   const utils = useQuery({
     queryKey: ['fetchLayoutSets'],
     queryFn: fetchLayoutSets,
-    // onError: (error: HttpClientError) => {
-    //   window.logError('Fetching layout sets failed:\n', error);
-    // },
   });
 
   useEffect(() => {
