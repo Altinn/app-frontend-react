@@ -20,7 +20,7 @@ export function useOnGroupCloseValidation() {
     const mask = getVisibilityMask(masks);
 
     const nodesWithErrors = node
-      .flat(true, { onlyInRowUuid: rowUuid })
+      .flat({ onlyInRowUuid: rowUuid })
       .filter((n) => n.item.id !== node.item.id) // Exclude self, only check children
       .filter(shouldValidateNode)
       .filter((n) => getValidationsForNode(n, selector, mask, 'error').length > 0);

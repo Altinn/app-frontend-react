@@ -15,7 +15,7 @@ function evalAllExpressions(layouts: Layouts) {
     getLayoutComponentObject,
   );
   for (const page of Object.values(nodes.all())) {
-    for (const node of page.flat(true)) {
+    for (const node of page.flat()) {
       const input = { ...node.item };
       delete input['children'];
       delete input['rows'];

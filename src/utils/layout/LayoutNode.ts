@@ -1,11 +1,10 @@
 import { getLayoutComponentObject } from 'src/layout';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { CompClassMap, FormDataSelector } from 'src/layout';
+import type { CompClassMap, FormDataSelector, MinimalItem } from 'src/layout';
 import type { CompCategory } from 'src/layout/common';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated';
 import type {
-  CompExceptGroup,
   CompInternal,
   CompTypes,
   HierarchyDataSources,
@@ -30,9 +29,9 @@ export interface IsHiddenOptions {
 export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type extends CompTypes = TypeFromConfig<Item>>
   implements LayoutObject
 {
-  public readonly itemWithExpressions: Item;
   public readonly def: CompClassMap[Type];
   public hiddenCache: { [key: number]: boolean | undefined } = {};
+  public minimalItem: MinimalItem<Item>;
 
   public constructor(
     public item: Item,
@@ -43,11 +42,11 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
     public readonly rowId?: string,
   ) {
     this.def = getLayoutComponentObject(item.type as any);
-    this.itemWithExpressions = structuredClone(item);
+    this.minimalItem = item;
   }
 
   public isType<T extends CompTypes>(type: T): this is LayoutNode<T> {
-    return this.item.type === type;
+    return this.minimalItem.type === type;
   }
 
   public isCategory<T extends CompCategory>(category: T): this is LayoutNodeFromCategory<T> {
@@ -62,8 +61,8 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
    * Looks for a matching component upwards in the hierarchy, returning the first one (or undefined if
    * none can be found).
    */
-  public closest(matching: (item: CompInternal) => boolean): this | LayoutNode | undefined {
-    if (matching(this.item)) {
+  public closest(matching: (item: MinimalItem<CompInternal>) => boolean): this | LayoutNode | undefined {
+    if (matching(this.minimalItem)) {
       return this;
     }
 
@@ -109,18 +108,18 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
    */
   public children(): LayoutNode[];
   public children(
-    matching: (item: CompInternal) => boolean,
+    matching: (item: MinimalItem<CompInternal>) => boolean,
     restriction?: ChildLookupRestriction,
   ): LayoutNode | undefined;
   public children(matching: undefined, restriction?: ChildLookupRestriction): LayoutNode[];
-  public children(matching?: (item: CompInternal) => boolean, restriction?: ChildLookupRestriction): any {
+  public children(matching?: (item: MinimalItem<CompInternal>) => boolean, restriction?: ChildLookupRestriction): any {
     const list = this.childrenAsList(restriction);
     if (!matching) {
       return list;
     }
 
     for (const node of list) {
-      if (matching(node.item)) {
+      if (matching(node.minimalItem)) {
         return node;
       }
     }
@@ -132,18 +131,13 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
    * This returns all the child nodes (including duplicate components for repeating groups) as a flat list of
    * LayoutNode objects. Implemented here for parity with LayoutPage.
    *
-   * @param includeGroups If true, also includes the group nodes (which also includes self, when this node is a group)
    * @param restriction If set, it will only include children with the given row UUID or row index. It will still
    *        include all children of nested groups regardless of row-id or index.
    */
-  public flat(includeGroups: true, restriction?: ChildLookupRestriction): LayoutNode[];
-  public flat(includeGroups: false, restriction?: ChildLookupRestriction): LayoutNode<CompExceptGroup>[];
-  public flat(includeGroups: boolean, restriction?: ChildLookupRestriction): LayoutNode[] {
+  public flat(restriction?: ChildLookupRestriction): LayoutNode[] {
     const out: BaseLayoutNode[] = [];
     const recurse = (item: BaseLayoutNode, restriction?: ChildLookupRestriction) => {
-      if (includeGroups || item.item.type !== 'Group') {
-        out.push(item);
-      }
+      out.push(item);
       for (const child of item.children(undefined, restriction)) {
         recurse(child);
       }
@@ -173,12 +167,12 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
       return false;
     }
 
-    if (this.item.baseComponentId && isHidden(this.item.baseComponentId)) {
+    if (this.minimalItem.baseComponentId && isHidden(this.minimalItem.baseComponentId)) {
       this.hiddenCache[cacheKey] = true;
       return true;
     }
 
-    if (this.item.hidden === true || isHidden(this.item.id)) {
+    if (isHidden(this.minimalItem.id)) {
       this.hiddenCache[cacheKey] = true;
       return true;
     }
@@ -188,15 +182,16 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
       this.parent.isType('RepeatingGroup') &&
       typeof this.rowIndex === 'number'
     ) {
-      const isHiddenRow = this.parent.item.rows[this.rowIndex]?.groupExpressions?.hiddenRow;
+      const isHiddenRow = this.parent.minimalItem.rows[this.rowIndex]?.groupExpressions?.hiddenRow;
       if (isHiddenRow) {
         this.hiddenCache[cacheKey] = true;
         return true;
       }
 
-      const myBaseId = this.item.baseComponentId || this.item.id;
-      const groupMode = this.parent.item.edit?.mode;
-      const tableColSetup = this.parent.item.tableColumns && this.parent.item.tableColumns[myBaseId];
+      // TODO: Move this code to where it belongs, in the repeating groups code
+      const myBaseId = this.minimalItem.baseComponentId || this.minimalItem.id;
+      const groupMode = this.parent.minimalItem.edit?.mode;
+      const tableColSetup = this.parent.minimalItem.tableColumns && this.parent.minimalItem.tableColumns[myBaseId];
 
       // This specific configuration hides the component fully, without having set hidden=true on the component itself.
       // It's most likely done by mistake, but we still need to respect it when checking if the component is hidden,
@@ -231,9 +226,9 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
   }
 
   private firstDataModelBinding() {
-    const firstBinding = Object.keys(this.item.dataModelBindings || {}).shift();
-    if (firstBinding && 'dataModelBindings' in this.item && this.item.dataModelBindings) {
-      return this.item.dataModelBindings[firstBinding];
+    const firstBinding = Object.keys(this.minimalItem.dataModelBindings || {}).shift();
+    if (firstBinding && 'dataModelBindings' in this.minimalItem && this.minimalItem.dataModelBindings) {
+      return this.minimalItem.dataModelBindings[firstBinding];
     }
 
     return undefined;
@@ -277,13 +272,13 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
    * Gets the current form data for this component
    */
   public getFormData(formDataSelector: FormDataSelector): IComponentFormData<Type> {
-    if (!('dataModelBindings' in this.item) || !this.item.dataModelBindings) {
+    if (!('dataModelBindings' in this.minimalItem) || !this.minimalItem.dataModelBindings) {
       return {} as IComponentFormData<Type>;
     }
 
     const formDataObj: { [key: string]: any } = {};
-    for (const key of Object.keys(this.item.dataModelBindings)) {
-      const binding = this.item.dataModelBindings[key];
+    for (const key of Object.keys(this.minimalItem.dataModelBindings)) {
+      const binding = this.minimalItem.dataModelBindings[key];
       const data = formDataSelector(binding);
 
       if (key === 'list') {
@@ -296,24 +291,6 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
     }
 
     return formDataObj as IComponentFormData<Type>;
-  }
-
-  public getRowIndices(): number[] {
-    const rowIndices: number[] = [];
-    if (typeof this.rowIndex !== 'undefined') {
-      rowIndices.splice(0, 0, this.rowIndex);
-    }
-    if (this.parent instanceof BaseLayoutNode) {
-      const parentIndices = this.parent.getRowIndices();
-      if (parentIndices) {
-        rowIndices.splice(0, 0, ...parentIndices);
-      }
-    }
-    return rowIndices;
-  }
-
-  public getDataSources(): HierarchyDataSources {
-    return this.dataSources;
   }
 }
 

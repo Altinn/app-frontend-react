@@ -121,7 +121,7 @@ describe('Expressions shared function tests', () => {
               throw new Error('No layout found - check your test data!');
             }
 
-            for (const node of layout.flat(true)) {
+            for (const node of layout.flat()) {
               if (node.isHidden()) {
                 hidden.add(node.item.id);
               }
@@ -130,7 +130,7 @@ describe('Expressions shared function tests', () => {
               const hiddenExpr = asExpression(layouts[layoutKey].data.hidden) as Expression;
               const isHidden = evalExpr(hiddenExpr, layout, dataSources);
               if (isHidden) {
-                for (const hiddenComponent of layout.flat(true)) {
+                for (const hiddenComponent of layout.flat()) {
                   hidden.add(hiddenComponent.item.id);
                 }
               }

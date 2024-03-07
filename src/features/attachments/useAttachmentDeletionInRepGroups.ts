@@ -30,7 +30,7 @@ export function useAttachmentDeletionInRepGroups(node: LayoutNode<'RepeatingGrou
   return useCallback(
     async (uuid: string): Promise<boolean> => {
       const uploaders = nodeRef.current
-        .flat(true, { onlyInRowUuid: uuid })
+        .flat({ onlyInRowUuid: uuid })
         .filter((node) => node.item.type === 'FileUpload' || node.item.type === 'FileUploadWithTag') as UploaderNode[];
 
       // This code is intentionally not parallelized, as especially LocalTest can't handle parallel requests to

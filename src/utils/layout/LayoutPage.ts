@@ -1,6 +1,7 @@
 import type { PageNavigationConfig } from 'src/features/expressions/ExprContext';
+import type { MinimalItem } from 'src/layout';
 import type { ILayoutSettings } from 'src/layout/common.generated';
-import type { CompExceptGroup, CompInternal } from 'src/layout/layout';
+import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
@@ -28,10 +29,10 @@ export class LayoutPage implements LayoutObject {
     const idx = this.allChildren.length;
     this.allChildren.push(child);
 
-    this.idMap[child.item.id] = this.idMap[child.item.id] || [];
-    this.idMap[child.item.id].push(idx);
+    this.idMap[child.minimalItem.id] = this.idMap[child.minimalItem.id] || [];
+    this.idMap[child.minimalItem.id].push(idx);
 
-    const baseComponentId: string | undefined = child.item.baseComponentId;
+    const baseComponentId: string | undefined = child.minimalItem.baseComponentId;
     if (baseComponentId) {
       this.idMap[baseComponentId] = this.idMap[baseComponentId] || [];
       this.idMap[baseComponentId].push(idx);
@@ -42,7 +43,7 @@ export class LayoutPage implements LayoutObject {
    * Looks for a matching component upwards in the hierarchy, returning the first one (or undefined if
    * none can be found). Implemented here for parity with LayoutNode
    */
-  public closest(matching: (item: CompInternal) => boolean, traversePages = true): LayoutNode | undefined {
+  public closest(matching: (item: MinimalItem<CompInternal>) => boolean, traversePages = true): LayoutNode | undefined {
     const out = this.children(matching);
     if (out) {
       return out;
@@ -66,14 +67,14 @@ export class LayoutPage implements LayoutObject {
    * here for parity with LayoutNode.
    */
   public children(): LayoutNode[];
-  public children(matching: (item: CompInternal) => boolean): LayoutNode | undefined;
-  public children(matching?: (item: CompInternal) => boolean): any {
+  public children(matching: (item: MinimalItem<CompInternal>) => boolean): LayoutNode | undefined;
+  public children(matching?: (item: MinimalItem<CompInternal>) => boolean): any {
     if (!matching) {
       return this.directChildren;
     }
 
     for (const item of this.directChildren) {
-      if (matching(item.item)) {
+      if (matching(item.minimalItem)) {
         return item;
       }
     }
@@ -84,18 +85,8 @@ export class LayoutPage implements LayoutObject {
   /**
    * This returns all the child nodes (including duplicate components for repeating groups) as a flat list of
    * LayoutNode objects.
-   *
-   * @param includeGroups If true, also includes the group nodes
    */
-  public flat(includeGroups: true): LayoutNode[];
-  public flat(includeGroups: false): LayoutNode<CompExceptGroup>[];
-  public flat(includeGroups: boolean): LayoutNode[] {
-    if (!includeGroups) {
-      return this.allChildren.filter(
-        (c) => c.item.type !== 'Group' && c.item.type !== 'RepeatingGroup' && c.item.type !== 'Likert',
-      );
-    }
-
+  public flat(): LayoutNode[] {
     return this.allChildren;
   }
 
@@ -155,23 +146,5 @@ export class LayoutPage implements LayoutObject {
     }
 
     return !order.includes(myKey);
-  }
-
-  /**
-   * This will look through references to the existing node object and replace them with the new node object.
-   */
-  public replaceNode(existingNode: LayoutNode, newNode: LayoutNode) {
-    const idxDirect = this.directChildren.indexOf(existingNode);
-    if (idxDirect === -1) {
-      // If the node is not a direct child, we would have to replace it in the parent node references, which
-      // depends on component type internal (generated) types. This is not supported at the moment.
-      return;
-    }
-
-    this.directChildren[idxDirect] = newNode;
-    const idxAll = this.allChildren.indexOf(existingNode);
-    if (idxAll !== -1) {
-      this.allChildren[idxAll] = newNode;
-    }
   }
 }

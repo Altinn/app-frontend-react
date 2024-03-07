@@ -7,6 +7,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { type FieldValidations, FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { getKeyWithoutIndex } from 'src/utils/databindings';
+import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { useNodes } from 'src/utils/layout/NodesContext';
 import type { ExprConfig, Expression } from 'src/features/expressions/types';
 
@@ -22,6 +23,7 @@ export function useExpressionValidation(): FieldValidations {
   const formData = FD.useDebounced();
   const customValidationConfig = useCustomValidationConfig();
   const nodesRef = useAsRef(useNodes());
+  const dataSources = useExpressionDataSources();
 
   /**
    * Should only update when form data changes
@@ -51,7 +53,7 @@ export function useExpressionValidation(): FieldValidations {
         }
 
         for (const validationDef of validationDefs) {
-          const isInvalid = evalExpr(validationDef.condition as Expression, node, node.getDataSources(), {
+          const isInvalid = evalExpr(validationDef.condition as Expression, node, dataSources, {
             config: EXPR_CONFIG,
             positionalArguments: [field],
           });
@@ -73,5 +75,5 @@ export function useExpressionValidation(): FieldValidations {
 
       return validations;
     }, {});
-  }, [customValidationConfig, nodesRef, formData]);
+  }, [customValidationConfig, formData, nodesRef, dataSources]);
 }

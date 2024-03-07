@@ -82,7 +82,7 @@ function useDataModelBindingsValidation(props: LayoutValidationProps) {
       });
 
     for (const [pageName, layout] of Object.entries(nodes.all())) {
-      for (const node of layout.flat(true)) {
+      for (const node of layout.flat()) {
         if ('validateDataModelBindings' in node.def) {
           const errors = node.def.validateDataModelBindings({
             node: node as any,

@@ -88,7 +88,7 @@ export class LayoutPages<
   }
 
   public allNodes(): LayoutNode[] {
-    return Object.values(this.objects).flatMap((layout) => layout.flat(true));
+    return Object.values(this.objects).flatMap((layout) => layout.flat());
   }
 
   public allPageKeys(): string[] {

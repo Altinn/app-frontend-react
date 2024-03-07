@@ -120,7 +120,7 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: 
 
           if ('labelFrom' in cell && cell.labelFrom) {
             const closestComponent = node
-              .flat(true)
+              .flat()
               .find((n) => n.item.id === cell.labelFrom || n.item.baseComponentId === cell.labelFrom);
             return (
               <CellWithLabel

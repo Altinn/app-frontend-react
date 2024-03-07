@@ -53,8 +53,7 @@ export const NodesProvider = (props: React.PropsWithChildren) => (
 );
 
 function InnerNodesProvider() {
-  const isHidden = useIsHiddenComponent();
-  const resolvedNodes = _private.useResolvedExpressions(isHidden);
+  const resolvedNodes = _private.useResolvedExpressions();
   const setNodes = useSelector((state) => state.setNodes);
 
   useEffect(() => {
@@ -145,8 +144,7 @@ function useLegacyHiddenComponents(
   setHidden: React.Dispatch<React.SetStateAction<Set<string>>>,
 ) {
   const rules = useDynamics()?.conditionalRendering ?? null;
-  const isHidden = useIsHiddenComponent();
-  const dataSources = useExpressionDataSources(isHidden);
+  const dataSources = useExpressionDataSources();
   const hiddenExpr = useHiddenLayoutsExpressions();
   const hiddenPages = useHiddenPages();
   const setHiddenPages = useSetHiddenPages();
@@ -165,7 +163,7 @@ function useLegacyHiddenComponents(
 
     let futureHiddenFields: Set<string>;
     try {
-      futureHiddenFields = runConditionalRenderingRules(rules, resolvedNodes);
+      futureHiddenFields = runConditionalRenderingRules(rules, resolvedNodes, dataSources.formDataSelector);
     } catch (error) {
       window.logError('Error while evaluating conditional rendering rules:\n', error);
       futureHiddenFields = new Set();
@@ -175,7 +173,7 @@ function useLegacyHiddenComponents(
 
     // Add all fields from hidden layouts to hidden fields
     for (const layout of futureHiddenLayouts) {
-      for (const node of resolvedNodes.findLayout(layout)?.flat(true) || []) {
+      for (const node of resolvedNodes.findLayout(layout)?.flat() || []) {
         if (!futureHiddenFields.has(node.item.id)) {
           futureHiddenFields.add(node.item.id);
         }

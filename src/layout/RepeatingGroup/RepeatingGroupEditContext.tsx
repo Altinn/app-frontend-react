@@ -70,7 +70,7 @@ export function RepeatingGroupEditRowProvider({ editId, children }: PropsWithChi
       // Nothing to do here. Other navigation handlers will make sure this row is opened for editing.
       return false;
     }
-    const ourChildRecursively = node.flat(true).find((item) => item.item.id === targetNode.item.id);
+    const ourChildRecursively = node.flat().find((item) => item.item.id === targetNode.item.id);
     if (!ourChildRecursively) {
       return false;
     }

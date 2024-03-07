@@ -75,7 +75,7 @@ export const getLikertStartStopIndex = (lastIndex: number, filters: ILikertFilte
  * dynamic behaviour dictates it).
  */
 export function hasRequiredFields(page: LayoutPage): boolean {
-  return !!page.flat(true).find((n) => 'required' in n.item && n.item.required === true);
+  return !!page.flat().find((n) => 'required' in n.item && n.item.required === true);
 }
 
 /**

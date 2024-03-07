@@ -31,7 +31,7 @@ export function useOnPageNavigationValidation() {
 
     if (pageConfig === 'current') {
       // Get nodes for current page
-      nodes = currentPage.flat(true);
+      nodes = currentPage.flat();
     } else if (pageConfig === 'currentAndPrevious') {
       // Get nodes for current and previous pages
       if (!pageOrder || currentIndex === -1) {
@@ -39,7 +39,7 @@ export function useOnPageNavigationValidation() {
       }
       const pageKeysToCheck = pageOrder.slice(0, currentIndex + 1);
       const layoutPagesToCheck = pageKeysToCheck.map((key) => currentPage.top.collection.all()[key]);
-      nodes = layoutPagesToCheck.flatMap((page) => page.flat(true));
+      nodes = layoutPagesToCheck.flatMap((page) => page.flat());
     } else {
       // Get all nodes
       nodes = currentPage.top.collection.allNodes();

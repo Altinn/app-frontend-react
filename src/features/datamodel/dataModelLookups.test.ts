@@ -40,7 +40,7 @@ describe('Data model lookups in real apps', () => {
     const failures: any[] = [];
 
     for (const [pageKey, layout] of Object.entries(nodes.all())) {
-      for (const node of layout.flat(true)) {
+      for (const node of layout.flat()) {
         const ctx: LayoutValidationCtx<any> = {
           node,
           lookupBinding(binding: string) {

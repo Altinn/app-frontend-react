@@ -90,7 +90,7 @@ describe('conditionalRendering', () => {
     const nodes = makeNodes(formDataAsObj);
 
     // eslint-disable-next-line testing-library/render-result-naming-convention
-    const result = runConditionalRenderingRules(showRules, nodes);
+    const result = runConditionalRenderingRules(showRules, nodes, (path) => dot.pick(path, formDataAsObj));
     expect([...result.values()]).toEqual(['layoutElement_2-0', 'layoutElement_3-0']);
   });
 
@@ -136,7 +136,7 @@ describe('conditionalRendering', () => {
     const nodes = makeNodes(formDataAsObj);
 
     // eslint-disable-next-line testing-library/render-result-naming-convention
-    const result = runConditionalRenderingRules(showRules, nodes);
+    const result = runConditionalRenderingRules(showRules, nodes, (path) => dot.pick(path, formDataAsObj));
 
     expect([...result.values()]).toEqual([
       'someField-0-0',
