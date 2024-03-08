@@ -30,14 +30,14 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
   implements LayoutObject
 {
   public readonly def: CompClassMap[Type];
-  public hiddenCache: { [key: number]: boolean | undefined } = {};
+  private readonly hiddenCache: { [key: number]: boolean | undefined } = {};
   public minimalItem: MinimalItem<Item>;
 
   public constructor(
     public item: Item,
     public parent: ParentNode,
     public top: LayoutPage,
-    public dataSources: HierarchyDataSources,
+    private dataSources: HierarchyDataSources,
     public readonly rowIndex?: number,
     public readonly rowId?: string,
   ) {
