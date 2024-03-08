@@ -20,6 +20,7 @@ import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
 import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { AlertOnChange } from 'src/hooks/useAlertOnChange';
 import type { ITextResourceBindings } from 'src/layout/layout';
@@ -86,7 +87,7 @@ export function RepeatingGroupTableRow({
   const langTools = useLanguage();
   const { langAsString } = langTools;
   const id = node.item.id;
-  const group = node.item;
+  const group = useNodeItem(node);
   const row = group.rows.find((r) => r.uuid === uuid);
   const expressionsForRow = row?.groupExpressions;
   const columnSettings = group.tableColumns;

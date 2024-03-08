@@ -18,6 +18,7 @@ import { shouldComponentRenderLabel } from 'src/layout/index';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useIsHiddenComponent, useNode } from 'src/utils/layout/NodesContext';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IGridStyling } from 'src/layout/common.generated';
 import type { GenericComponentOverrideDisplay, IFormComponentContext } from 'src/layout/FormComponentContext';
 import type { PropsFromGenericComponent } from 'src/layout/index';
@@ -74,7 +75,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   overrideItemProps,
   overrideDisplay,
 }: IGenericComponentProps<Type>) {
-  let item = node.item;
+  let item = useNodeItem(node);
   const id = item.id;
 
   if (overrideItemProps) {

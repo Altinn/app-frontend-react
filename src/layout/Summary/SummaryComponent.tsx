@@ -16,6 +16,7 @@ import classes from 'src/layout/Summary/SummaryComponent.module.css';
 import { SummaryContent } from 'src/layout/Summary/SummaryContent';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/NodesContext';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IGrid } from 'src/layout/common.generated';
 import type { SummaryDisplayProperties } from 'src/layout/Summary/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -35,7 +36,7 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
   const display = overrides?.display || summaryNode.item.display;
   const { langAsString } = useLanguage();
   const { currentPageId } = useNavigatePage();
-  const summaryItem = summaryNode.item;
+  const summaryItem = useNodeItem(summaryNode);
 
   const targetNode = useResolvedNode(overrides?.targetNode || summaryNode.item.componentRef || summaryNode.item.id);
   const targetItem = targetNode?.item;

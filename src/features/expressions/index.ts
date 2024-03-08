@@ -3,7 +3,6 @@ import type { Mutable } from 'utility-types';
 
 import {
   ExprRuntimeError,
-  NodeNotFoundWithoutContext,
   UnexpectedType,
   UnknownSourceType,
   UnknownTargetType,
@@ -16,6 +15,7 @@ import { isDate } from 'src/utils/dateHelpers';
 import { formatDateLocale } from 'src/utils/formatDateLocale';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type {
   ExprConfig,
@@ -165,7 +165,7 @@ function evalExprInObjectRecursive<T>(input: any, args: Omit<EvalExprInObjArgs<T
  */
 function evalExprInObjectCaller<T>(expr: Expression, args: Omit<EvalExprInObjArgs<T>, 'input'>, path: string[]) {
   const pathString = path.join('.');
-  const nodeId = args.node instanceof NodeNotFoundWithoutContext ? args.node.nodeId : args.node.item.id;
+  const nodeId = args.node.getId();
 
   const exprOptions: EvalExprOptions = {
     config: args.config && getConfigFor(path, args.config),

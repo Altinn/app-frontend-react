@@ -9,6 +9,7 @@ import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/Group/GroupComponent.module.css';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { HeadingLevel } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -37,7 +38,7 @@ export function GroupComponent({
   isSummary,
   renderLayoutNode,
 }: IGroupComponent) {
-  const container = groupNode.item;
+  const container = useNodeItem(groupNode);
   const { title, summaryTitle, description } = container.textResourceBindings ?? {};
 
   if (groupNode.isHidden()) {

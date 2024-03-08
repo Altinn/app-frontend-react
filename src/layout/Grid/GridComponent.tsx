@@ -20,6 +20,7 @@ import { isGridRowHidden, nodesFromGrid } from 'src/layout/Grid/tools';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { GridRowInternal, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/common.generated';
 import type { ITextResourceBindings } from 'src/layout/layout';
@@ -241,7 +242,7 @@ function CellWithText({ children, className, columnStyleOptions, help, isHeader 
 
 function CellWithLabel({ className, columnStyleOptions, referenceComponent, isHeader = false }: CellWithLabelProps) {
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
-  const refItem = referenceComponent?.item;
+  const refItem = useNodeItem(referenceComponent);
   const trb = (refItem && 'textResourceBindings' in refItem ? refItem.textResourceBindings : {}) as
     | ITextResourceBindings
     | undefined;

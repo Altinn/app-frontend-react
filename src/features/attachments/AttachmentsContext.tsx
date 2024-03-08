@@ -137,7 +137,7 @@ export const useAttachmentsAwaiter = () => useSelector((state) => state.methods.
 
 const emptyArray = [];
 export const useAttachmentsFor = (node: LayoutNode<'FileUploadWithTag' | 'FileUpload'>) =>
-  useSelector((store) => store.attachments[node.item.id]) || emptyArray;
+  useSelector((store) => store.attachments[node.getId()]) || emptyArray;
 
 export const useHasPendingAttachments = () => {
   const out = useLaxMemoSelector((store) => {

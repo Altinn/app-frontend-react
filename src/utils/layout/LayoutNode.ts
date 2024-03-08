@@ -45,8 +45,24 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
     this.minimalItem = item;
   }
 
+  public getId() {
+    return this.minimalItem.id;
+  }
+
+  public getBaseId() {
+    return this.minimalItem.baseComponentId || this.minimalItem.id;
+  }
+
+  public getMultiPageIndex() {
+    return this.minimalItem.multiPageIndex;
+  }
+
   public isType<T extends CompTypes>(type: T): this is LayoutNode<T> {
     return this.minimalItem.type === type;
+  }
+
+  public getType(): Type {
+    return this.minimalItem.type as Type;
   }
 
   public isCategory<T extends CompCategory>(category: T): this is LayoutNodeFromCategory<T> {

@@ -17,14 +17,16 @@ export interface SimpleAttachments {
 }
 
 function validNodeType(node: LayoutNode): node is LayoutNode<'FileUpload' | 'FileUploadWithTag'> {
-  return node.item.type === 'FileUpload' || node.item.type === 'FileUploadWithTag';
+  const type = node.getType();
+  return type === 'FileUpload' || type === 'FileUploadWithTag';
 }
 
 function addAttachment(attachments: SimpleAttachments, node: LayoutNode, data: IData) {
-  if (!attachments[node.item.id]) {
-    attachments[node.item.id] = [];
+  const id = node.getId();
+  if (!attachments[id]) {
+    attachments[id] = [];
   }
-  attachments[node.item.id]?.push(data);
+  attachments[id]?.push(data);
 }
 
 function mapAttachments(
@@ -65,8 +67,8 @@ function mapAttachments(
     const matchingNodes = nodes.findAllById(data.dataType).filter((node) => {
       if (!validNodeType(node)) {
         window.logWarnOnce(
-          `Attachment with id ${data.id} indicates it may belong to the component ${node.item.id}, which is ` +
-            `not a FileUpload or FileUploadWithTag (it is a ${node.item.type})`,
+          `Attachment with id ${data.id} indicates it may belong to the component ${node.getId()}, which is ` +
+            `not a FileUpload or FileUploadWithTag (it is a ${node.getType()})`,
         );
         return false;
       }

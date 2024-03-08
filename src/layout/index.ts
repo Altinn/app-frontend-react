@@ -29,7 +29,10 @@ const _componentsTypeCheck: {
   ...ComponentConfigs,
 };
 
-export type MinimalItem<T extends CompInternal> = Pick<T, 'id' | 'baseComponentId' | 'type' | 'dataModelBindings'>;
+export type MinimalItem<T extends CompInternal> = Pick<
+  T,
+  'id' | 'baseComponentId' | 'type' | 'dataModelBindings' | 'multiPageIndex'
+>;
 
 export interface IComponentProps {
   containerDivRef: MutableRefObject<HTMLDivElement | null>;

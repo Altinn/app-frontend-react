@@ -15,6 +15,7 @@ import {
   useRepeatingGroupEdit,
 } from 'src/layout/RepeatingGroup/RepeatingGroupEditContext';
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type {
   CompRepeatingGroupInternal,
   IGroupEditPropertiesInternal,
@@ -28,7 +29,7 @@ export interface IRepeatingGroupsEditContainer {
 
 export function RepeatingGroupsEditContainer({ editId, ...props }: IRepeatingGroupsEditContainer): JSX.Element | null {
   const { node } = useRepeatingGroup();
-  const group = node.item;
+  const group = useNodeItem(node);
   const row = group.rows.find((r) => r.uuid === editId);
 
   if (!row || row.groupExpressions.hiddenRow) {

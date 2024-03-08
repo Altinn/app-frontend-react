@@ -11,7 +11,7 @@ export function runExpressionRules(layouts: LayoutPages, future: Set<string>) {
   for (const layout of Object.values(layouts.all())) {
     for (const node of layout.flat()) {
       if (node.isHidden({ respectLegacy: false })) {
-        future.add(node.item.id);
+        future.add(node.getId());
       }
     }
   }

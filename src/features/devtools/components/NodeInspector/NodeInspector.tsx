@@ -47,7 +47,7 @@ export const NodeInspector = () => {
                 href='#'
                 onClick={(e) => {
                   e.preventDefault();
-                  setSelectedInLayoutInspector(selectedNode?.item.baseComponentId || selectedNode?.item.id);
+                  setSelectedInLayoutInspector(selectedNode?.getBaseId());
                   setActiveTab(DevToolsTab.Layout);
                 }}
               >

@@ -89,7 +89,7 @@ function useDataModelBindingsValidation(props: LayoutValidationProps) {
             lookupBinding,
           });
           if (errors.length) {
-            const id = node.item.baseComponentId || node.item.id;
+            const id = node.getBaseId();
             failures[layoutSetId][pageName] = failures[layoutSetId][pageName] ?? {};
             failures[layoutSetId][pageName][id] = errors;
 
@@ -149,7 +149,7 @@ export const useLayoutValidationForPage = () => {
 };
 
 export const useLayoutValidationForNode = (node: LayoutNode) => {
-  const componentId = node.item.baseComponentId || node.item.id;
+  const componentId = node.getBaseId();
   const pageName = node.top.top.myKey;
   const layoutSetId = useCurrentLayoutSetId() || 'default';
 

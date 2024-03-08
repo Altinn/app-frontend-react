@@ -6,6 +6,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { useAllOptions } from 'src/features/options/useAllOptions';
 import classes from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent.module.css';
 import { useUploaderSummaryData } from 'src/layout/FileUpload/Summary/summary';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IAttachmentSummaryComponent {
@@ -15,7 +16,7 @@ export interface IAttachmentSummaryComponent {
 export function AttachmentSummaryComponent({ targetNode }: IAttachmentSummaryComponent) {
   const attachments = useUploaderSummaryData(targetNode);
   const { langAsString } = useLanguage();
-  const component = targetNode.item;
+  const component = useNodeItem(targetNode);
   const allOptions = useAllOptions();
   const hasTag = component.type === 'FileUploadWithTag';
   const options = hasTag ? allOptions[component.id] : undefined;
