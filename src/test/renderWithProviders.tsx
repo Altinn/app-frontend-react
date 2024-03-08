@@ -177,7 +177,6 @@ export const makeFormDataMethodProxies = (
 ): { proxies: FormDataWriteProxies; mocks: FormDataMethods } => {
   const all: { [M in keyof FormDataMethods]: { mock: jest.Mock; proxy: Proxy<M> } } = {
     debounce: makeProxy('debounce', ref),
-    saveStarted: makeProxy('saveStarted', ref),
     cancelSave: makeProxy('cancelSave', ref),
     saveFinished: makeProxy('saveFinished', ref),
     setLeafValue: makeProxy('setLeafValue', ref),
@@ -348,14 +347,6 @@ interface SetupFakeAppProps {
  */
 export function setupFakeApp({ queries, mutations }: SetupFakeAppProps = {}) {
   const queryClient = new QueryClient({
-    logger: {
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      log: () => {},
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      warn: () => {},
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      error: () => {},
-    },
     defaultOptions: {
       mutations: { retry: false },
       queries: { retry: false, staleTime: Infinity },

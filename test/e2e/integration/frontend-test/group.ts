@@ -138,39 +138,22 @@ describe('Group', () => {
     init();
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
 
-    // add row to main group
-    cy.get(appFrontend.group.addNewItem).click();
-    cy.get(appFrontend.group.currentValue).type('1');
-    cy.get(appFrontend.group.newValue).type('1');
-    cy.get(appFrontend.group.saveMainGroup).clickAndGone();
+    const rowsToAdd = [1, 2, 3];
+    for (const idx in rowsToAdd) {
+      cy.get(appFrontend.group.addNewItem).click();
+      cy.get(appFrontend.group.currentValue).type(`${rowsToAdd[idx]}`);
+      cy.get(appFrontend.group.newValue).type(`${rowsToAdd[idx]}`);
+      cy.get(appFrontend.group.saveMainGroup).clickAndGone();
 
-    // assert error message to exist
-    cy.get(appFrontend.nextButton).click();
-    cy.get(appFrontend.fieldValidation('mainGroup')).should('have.text', texts.minCountError);
+      if (parseInt(idx) < rowsToAdd.length - 1) {
+        cy.get(appFrontend.nextButton).click();
+        cy.get(appFrontend.fieldValidation('mainGroup')).should('have.text', texts.minCountError);
+      } else {
+        cy.get(appFrontend.fieldValidation('mainGroup')).should('not.exist');
+      }
+    }
 
-    // add row to main group
-    cy.get(appFrontend.group.addNewItem).click();
-    cy.get(appFrontend.group.currentValue).type('1');
-    cy.get(appFrontend.group.newValue).type('1');
-    cy.get(appFrontend.group.saveMainGroup).clickAndGone();
-
-    // assert error message to exist
-    cy.get(appFrontend.nextButton).click();
-    cy.get(appFrontend.fieldValidation('mainGroup')).should('have.text', texts.minCountError);
-
-    // add row to main group
-    cy.get(appFrontend.group.addNewItem).click();
-    cy.get(appFrontend.group.currentValue).type('1');
-    cy.get(appFrontend.group.newValue).type('1');
-    cy.get(appFrontend.group.saveMainGroup).clickAndGone();
-
-    // assert error message to not exist
-    cy.get(appFrontend.fieldValidation('mainGroup')).should('not.exist');
-
-    // remove row from main group
     cy.get(appFrontend.group.mainGroup).find(appFrontend.group.delete).first().click();
-
-    // assert error message to exist
     cy.get(appFrontend.nextButton).click();
     cy.get(appFrontend.fieldValidation('mainGroup')).should('have.text', texts.minCountError);
   });
@@ -604,10 +587,10 @@ describe('Group', () => {
     cy.get('#group-mainGroup table th').eq(0).should('have.text', 'currentValue tableTitle');
     cy.get('#group-mainGroup table th').eq(1).should('have.text', 'newValue title');
 
-    cy.get(appFrontend.group.mainGroupTableBody).find('tr').as('rows');
-    cy.get('@rows').eq(0).find('td').last().should('contain.text', 'Rediger');
-    cy.get('@rows').eq(3).find('td').eq(4).should('contain.text', 'Lagre og lukk');
-    cy.get('@rows').eq(3).find('td').eq(5).should('contain.text', 'Slett');
+    const getRows = () => cy.get(appFrontend.group.mainGroupTableBody).find('tr');
+    getRows().eq(0).find('td').last().should('contain.text', 'Rediger');
+    getRows().eq(3).find('td').eq(4).should('contain.text', 'Lagre og lukk');
+    getRows().eq(3).find('td').eq(5).should('contain.text', 'Slett');
 
     cy.get(appFrontend.group.editContainer).findAllByRole('button').last().should('have.text', 'Lagre og lukk');
     cy.get(appFrontend.group.saveMainGroup).clickAndGone();

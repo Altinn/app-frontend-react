@@ -6,7 +6,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { castOptionsToStrings } from 'src/features/options/castOptionsToStrings';
 import { useGetOptionsQuery } from 'src/features/options/useGetOptionsQuery';
 import { useSourceOptions } from 'src/hooks/useSourceOptions';
-import { duplicateOptionFilter } from 'src/utils/options';
+import { filterDuplicateOptions } from 'src/utils/options';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type {
@@ -19,6 +19,21 @@ import type {
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type ValueType = 'single' | 'multi';
+
+const getLabelsForActiveOptions = (selectedOptions: string[], allOptions: IOptionInternal[]): string[] =>
+  allOptions.filter((option) => selectedOptions.includes(option.value)).map((option) => option.label);
+
+const usePrevious = (value: any) => {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+};
+const useHasChanged = (val: any) => {
+  const prevVal = usePrevious(val);
+  return prevVal !== val;
+};
 
 interface Props<T extends ValueType> {
   valueType: T;
@@ -131,7 +146,7 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
     }
 
     if (draft && removeDuplicates) {
-      draft = draft.filter(duplicateOptionFilter);
+      draft = filterDuplicateOptions(draft);
     }
     if (draft && sortOrder) {
       draft = [...draft].sort(compareOptionAlphabetically(langAsString, sortOrder, selectedLanguage));
@@ -188,6 +203,35 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
     }
     return (value ? value.split(',') : []) as CurrentValueAsString<T>;
   }, [value, valueType]);
+
+  const translatedLabels = useMemo(
+    () =>
+      getLabelsForActiveOptions(
+        Array.isArray(currentStringy) ? currentStringy : [currentStringy],
+        calculatedOptions || [],
+      ).map((label) => langAsString(label)),
+
+    [calculatedOptions, currentStringy, langAsString],
+  );
+
+  const labelsHaveChanged = useHasChanged(translatedLabels.join(','));
+
+  useEffect(() => {
+    if (!(dataModelBindings as IDataModelBindingsOptionsSimple)?.label) {
+      return;
+    }
+
+    if (!labelsHaveChanged) {
+      return;
+    }
+
+    if (valueType === 'single') {
+      const labelToSet = translatedLabels?.length > 0 ? translatedLabels[0] : undefined;
+      setValue('label' as any, labelToSet);
+    } else {
+      setValue('label' as any, translatedLabels);
+    }
+  }, [translatedLabels, labelsHaveChanged, dataModelBindings, setValue, valueType]);
 
   const setData = useMemo(() => {
     if (valueType === 'single') {

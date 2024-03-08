@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
@@ -8,22 +8,24 @@ import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import { OldVersionError } from 'src/features/applicationMetadata/OldVersionError';
 import { isAtLeastVersion } from 'src/utils/versionCompare';
-import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 export const MINIMUM_APPLICATION_VERSION = {
-  build: '8.0.0.106',
-  name: 'v8.0.0-rc1',
+  build: '8.0.0.108',
+  name: 'v8.0.0',
 };
 
 const useApplicationMetadataQuery = () => {
   const { fetchApplicationMetadata } = useAppQueries();
-  return useQuery({
+  const utils = useQuery({
     queryKey: ['fetchApplicationMetadata'],
     queryFn: () => fetchApplicationMetadata(),
-    onError: (error: HttpClientError) => {
-      window.logError('Fetching application metadata failed:\n', error);
-    },
   });
+
+  useEffect(() => {
+    utils.error && window.logError('Fetching application metadata failed:\n', utils.error);
+  }, [utils.error]);
+
+  return utils;
 };
 
 const { Provider, useCtx, useLaxCtx, useHasProvider } = delayedContext(() =>
