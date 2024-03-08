@@ -65,8 +65,9 @@ export function getDataTypeByTaskId({ taskId, application, layoutSets }: GetData
     return typeFromLayoutSet;
   }
 
-  const firstInTask = application?.dataTypes.find((element) => element.appLogic?.classRef && element.taskId === taskId)
-    ?.id;
+  const firstInTask = application?.dataTypes.find(
+    (element) => element.appLogic?.classRef && element.taskId === taskId,
+  )?.id;
 
   if (firstInTask) {
     return firstInTask;

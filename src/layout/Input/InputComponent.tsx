@@ -88,7 +88,7 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
     return (
       <PatternFormat
         value={formValue}
-        onValueChange={(values, sourceInfo) => {
+        onValueChange={(values) => {
           setValue('simpleBinding', values.value);
         }}
         customInput={Textfield as React.ComponentType}
@@ -103,10 +103,10 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
     return (
       <NumericFormat
         value={formValue}
-        onValueChange={(values, sourceInfo) => {
+        onValueChange={(values) => {
           setValue('simpleBinding', values.value);
         }}
-        onPaste={(event) => {
+        onPaste={(event: React.ClipboardEvent<HTMLInputElement>) => {
           /* This is a workaround for a react-number-format bug that
            * removes the decimal on paste.
            * We should be able to remove it when this issue gets fixed:
