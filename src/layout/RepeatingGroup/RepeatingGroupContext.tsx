@@ -363,7 +363,7 @@ function useExtendedRepeatingGroupState(node: BaseLayoutNode<CompRepeatingGroupI
       startDeletingRow(uuid);
       const attachmentDeletionSuccessful = await onBeforeRowDeletion(uuid);
       if (attachmentDeletionSuccessful && binding) {
-        onDeleteGroupRow(nodeRef.current, row.index);
+        onDeleteGroupRow(nodeRef.current, row.uuid);
         removeFromList({
           path: binding,
           startAtIndex: row.index,

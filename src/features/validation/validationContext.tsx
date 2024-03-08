@@ -74,15 +74,14 @@ function initialCreateStore({ validating }: NewStoreProps) {
       visibility: {
         mask: 0,
         children: {},
-        items: [],
       },
-      removeRowVisibilityOnDelete: (node, rowIndex) =>
+      removeRowVisibilityOnDelete: (node, rowId) =>
         set((state) => {
-          onBeforeRowDelete(node, rowIndex, state.visibility);
+          onBeforeRowDelete(node, rowId, state.visibility);
         }),
-      setNodeVisibility: (nodes, newVisibility, rowIndex) =>
+      setNodeVisibility: (nodes, newVisibility, rowId) =>
         set((state) => {
-          nodes.forEach((node) => setVisibilityForNode(node, state.visibility, newVisibility, rowIndex));
+          nodes.forEach((node) => setVisibilityForNode(node, state.visibility, newVisibility, rowId));
         }),
       setAttachmentVisibility: (attachmentId, node, newVisibility) =>
         set((state) => {
