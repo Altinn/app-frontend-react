@@ -18,10 +18,11 @@ import type {
   ValidationFilter,
   ValidationFilterFunction,
 } from 'src/layout';
+import type { CompDatepickerInternal } from 'src/layout/Datepicker/config.generated';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class Datepicker extends DatepickerDef implements ValidateComponent, ValidationFilter {
+export class Datepicker extends DatepickerDef implements ValidateComponent<'Datepicker'>, ValidationFilter {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Datepicker'>>(
     function LayoutComponentDatepickerRender(props, _): JSX.Element | null {
       return <DatepickerComponent {...props} />;
@@ -50,9 +51,10 @@ export class Datepicker extends DatepickerDef implements ValidateComponent, Vali
 
   runComponentValidation(
     node: LayoutNode<'Datepicker'>,
+    item: CompDatepickerInternal,
     { formData, currentLanguage }: ValidationDataSources,
   ): ComponentValidation[] {
-    const field = node.item.dataModelBindings?.simpleBinding;
+    const field = item.dataModelBindings?.simpleBinding;
     const data = field ? dot.pick(field, formData) : undefined;
     const dataAsString = typeof data === 'string' || typeof data === 'number' ? String(data) : undefined;
 
@@ -60,9 +62,9 @@ export class Datepicker extends DatepickerDef implements ValidateComponent, Vali
       return [];
     }
 
-    const minDate = getDateConstraint(node.item.minDate, 'min');
-    const maxDate = getDateConstraint(node.item.maxDate, 'max');
-    const format = getDateFormat(node.item.format, currentLanguage);
+    const minDate = getDateConstraint(item.minDate, 'min');
+    const maxDate = getDateConstraint(item.maxDate, 'max');
+    const format = getDateFormat(item.format, currentLanguage);
 
     const validations: ComponentValidation[] = [];
 

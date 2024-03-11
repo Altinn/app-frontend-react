@@ -11,10 +11,11 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
+import type { CompFileUploadInternal } from 'src/layout/FileUpload/config.generated';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class FileUpload extends FileUploadDef implements ValidateComponent {
+export class FileUpload extends FileUploadDef implements ValidateComponent<'FileUpload'> {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'FileUpload'>>(
     function LayoutComponentFileUploadRender(props, _): JSX.Element | null {
       return <FileUploadComponent {...props} />;
@@ -40,15 +41,16 @@ export class FileUpload extends FileUploadDef implements ValidateComponent {
 
   runComponentValidation(
     node: LayoutNode<'FileUpload'>,
+    item: CompFileUploadInternal,
     { attachments }: ValidationDataSources,
   ): ComponentValidation[] {
     const validations: ComponentValidation[] = [];
 
-    if (!attachmentsValid(attachments, node.item)) {
+    if (!attachmentsValid(attachments, item)) {
       validations.push({
         message: {
           key: 'form_filler.file_uploader_validation_error_file_number',
-          params: [node.item.minNumberOfAttachments],
+          params: [item.minNumberOfAttachments],
         },
         severity: 'error',
         source: FrontendValidationSource.Component,

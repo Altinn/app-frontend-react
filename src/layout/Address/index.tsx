@@ -11,10 +11,11 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
+import type { CompAddressInternal } from 'src/layout/Address/config.generated';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class Address extends AddressDef implements ValidateComponent {
+export class Address extends AddressDef implements ValidateComponent<'Address'> {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Address'>>(
     function LayoutComponentAddressRender(props, _): JSX.Element | null {
       return <AddressComponent {...props} />;
@@ -35,13 +36,17 @@ export class Address extends AddressDef implements ValidateComponent {
     return false;
   }
 
-  runComponentValidation(node: LayoutNode<'Address'>, { formData }: ValidationDataSources): ComponentValidation[] {
-    if (!node.item.dataModelBindings) {
+  runComponentValidation(
+    node: LayoutNode<'Address'>,
+    item: CompAddressInternal,
+    { formData }: ValidationDataSources,
+  ): ComponentValidation[] {
+    if (!item.dataModelBindings) {
       return [];
     }
     const validations: ComponentValidation[] = [];
 
-    const zipCodeField = node.item.dataModelBindings.zipCode;
+    const zipCodeField = item.dataModelBindings.zipCode;
     const zipCode = zipCodeField ? dot.pick(zipCodeField, formData) : undefined;
     const zipCodeAsString = typeof zipCode === 'string' || typeof zipCode === 'number' ? String(zipCode) : undefined;
 
@@ -57,7 +62,7 @@ export class Address extends AddressDef implements ValidateComponent {
       });
     }
 
-    const houseNumberField = node.item.dataModelBindings.houseNumber;
+    const houseNumberField = item.dataModelBindings.houseNumber;
     const houseNumber = houseNumberField ? dot.pick(houseNumberField, formData) : undefined;
     const houseNumberAsString =
       typeof houseNumber === 'string' || typeof houseNumber === 'number' ? String(houseNumber) : undefined;

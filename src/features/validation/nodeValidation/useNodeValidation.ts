@@ -54,7 +54,9 @@ export function useNodeValidation(): ComponentValidations {
        * Run component validation
        */
       if (implementsValidateComponent(node.def)) {
-        for (const validation of node.def.runComponentValidation(node as any, validationDataSources)) {
+        const item = node.item as any;
+        const validations = node.def.runComponentValidation(node as any, item, validationDataSources);
+        for (const validation of validations) {
           if (validation.bindingKey) {
             validations[id].bindingKeys[validation.bindingKey].push(validation);
           } else {

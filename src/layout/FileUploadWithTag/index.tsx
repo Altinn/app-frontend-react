@@ -11,10 +11,11 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
+import type { CompFileUploadWithTagInternal } from 'src/layout/FileUploadWithTag/config.generated';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateComponent {
+export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateComponent<'FileUploadWithTag'> {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'FileUploadWithTag'>>(
     function LayoutComponentFileUploadWithTagRender(props, _): JSX.Element | null {
       return <FileUploadComponent {...props} />;
@@ -40,11 +41,12 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
 
   runComponentValidation(
     node: LayoutNode<'FileUploadWithTag'>,
+    item: CompFileUploadWithTagInternal,
     { attachments }: ValidationDataSources,
   ): ComponentValidation[] {
     const validations: ComponentValidation[] = [];
 
-    if (attachmentsValid(attachments, node.item)) {
+    if (attachmentsValid(attachments, item)) {
       const missingTagAttachmentIds: string[] = [];
       for (const attachment of attachments[node.getId()] || []) {
         if (isAttachmentUploaded(attachment) && attachmentIsMissingTag(attachment)) {
@@ -54,7 +56,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
 
       if (missingTagAttachmentIds?.length > 0) {
         missingTagAttachmentIds.forEach((attachmentId) => {
-          const tagKey = node.item.textResourceBindings?.tagTitle;
+          const tagKey = item.textResourceBindings?.tagTitle;
           const tagReference = tagKey
             ? {
                 key: tagKey,
@@ -79,7 +81,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
       validations.push({
         message: {
           key: 'form_filler.file_uploader_validation_error_file_number',
-          params: [node.item.minNumberOfAttachments],
+          params: [item.minNumberOfAttachments],
         },
         severity: 'error',
         componentId: node.getId(),

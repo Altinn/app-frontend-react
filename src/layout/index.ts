@@ -62,10 +62,10 @@ export function implementsAnyValidation<Type extends CompTypes>(component: AnyCo
   return 'runEmptyFieldValidation' in component || 'runComponentValidation' in component;
 }
 
-export interface ValidateEmptyField<T extends CompTypes> {
+export interface ValidateEmptyField<Type extends CompTypes> {
   runEmptyFieldValidation: (
-    node: LayoutNode<T>,
-    item: CompInternal<T>,
+    node: LayoutNode<Type>,
+    item: CompInternal<Type>,
     validationContext: ValidationDataSources,
   ) => ComponentValidation[];
 }
@@ -76,13 +76,17 @@ export function implementsValidateEmptyField<Type extends CompTypes>(
   return 'runEmptyFieldValidation' in component;
 }
 
-export interface ValidateComponent {
-  runComponentValidation: (node: LayoutNode, validationContext: ValidationDataSources) => ComponentValidation[];
+export interface ValidateComponent<Type extends CompTypes> {
+  runComponentValidation: (
+    node: LayoutNode,
+    item: CompInternal<Type>,
+    validationContext: ValidationDataSources,
+  ) => ComponentValidation[];
 }
 
 export function implementsValidateComponent<Type extends CompTypes>(
   component: AnyComponent<Type>,
-): component is typeof component & ValidateComponent {
+): component is typeof component & ValidateComponent<Type> {
   return 'runComponentValidation' in component;
 }
 
