@@ -68,8 +68,8 @@ export class FileUpload extends FileUploadDef implements ValidateComponent<'File
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'FileUpload'>): string[] {
-    const { node } = ctx;
-    const { dataModelBindings } = node.item;
+    const { node, item } = ctx;
+    const { dataModelBindings } = item;
     const isRequired = this.isDataModelBindingsRequired(node);
     const hasBinding = dataModelBindings && ('simpleBinding' in dataModelBindings || 'list' in dataModelBindings);
 

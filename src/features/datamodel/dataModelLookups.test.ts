@@ -43,6 +43,7 @@ describe('Data model lookups in real apps', () => {
       for (const node of layout.flat()) {
         const ctx: LayoutValidationCtx<any> = {
           node,
+          item: node.item,
           lookupBinding(binding: string) {
             const schemaPath = dotNotationToPointer(binding);
             return lookupBindingInSchema({
@@ -54,7 +55,7 @@ describe('Data model lookups in real apps', () => {
         };
 
         if ('validateDataModelBindings' in node.def) {
-          const errors = node.def.validateDataModelBindings(ctx);
+          const errors = node.def.validateDataModelBindings(ctx as any);
           if (errors.length) {
             failures.push({
               pageKey,

@@ -98,8 +98,8 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'FileUploadWithTag'>): string[] {
-    const { node } = ctx;
-    const { dataModelBindings } = node.item;
+    const { node, item } = ctx;
+    const { dataModelBindings } = item;
     const isRequired = this.isDataModelBindingsRequired(node);
     const hasBinding = dataModelBindings && ('simpleBinding' in dataModelBindings || 'list' in dataModelBindings);
 

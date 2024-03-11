@@ -88,7 +88,7 @@ export class List extends ListDef {
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'List'>): string[] {
-    const possibleBindings = Object.keys(ctx.node.item.tableHeaders || {});
+    const possibleBindings = Object.keys(ctx.item.tableHeaders || {});
 
     const errors: string[] = [];
     for (const binding of possibleBindings) {

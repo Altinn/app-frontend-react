@@ -88,12 +88,12 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
       ...(this.validateDataModelBindingsAny(ctx, 'postPlace', ['string'])[0] || []),
     ];
 
-    if (ctx.node.item.simplified === false) {
+    if (ctx.item.simplified === false) {
       errors.push(...(this.validateDataModelBindingsAny(ctx, 'careOf', ['string'])[0] || []));
       errors.push(...(this.validateDataModelBindingsAny(ctx, 'houseNumber', ['string', 'number', 'integer'])[0] || []));
     } else {
-      const hasCareOf = ctx.node.item.dataModelBindings?.careOf;
-      const hasHouseNumber = ctx.node.item.dataModelBindings?.houseNumber;
+      const hasCareOf = ctx.item.dataModelBindings?.careOf;
+      const hasHouseNumber = ctx.item.dataModelBindings?.houseNumber;
       if (hasCareOf) {
         errors.push(`Datamodellbindingen 'careOf' støttes ikke for en forenklet adresse-komponent`);
       }

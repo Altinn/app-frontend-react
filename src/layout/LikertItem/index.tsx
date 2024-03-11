@@ -56,7 +56,7 @@ export class LikertItem extends LikertItemDef {
     const errors: string[] = [...(answerErr || [])];
 
     const parentBindings = ctx.node.parent?.item.dataModelBindings as IDataModelBindingsLikertInternal | undefined;
-    const bindings = ctx.node.item.dataModelBindings;
+    const bindings = ctx.item.dataModelBindings;
     if (
       answer &&
       bindings &&

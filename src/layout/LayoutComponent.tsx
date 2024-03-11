@@ -13,7 +13,6 @@ import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
 import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayData, DisplayDataProps } from 'src/features/displayData';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
@@ -202,8 +201,7 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
     isRequired = this.isDataModelBindingsRequired(ctx.node),
     name = key,
   ): [string[], undefined] | [undefined, JSONSchema7] {
-    const { node, lookupBinding } = ctx;
-    const item = useNodeItem(node);
+    const { item, lookupBinding } = ctx;
     const value = ((item.dataModelBindings as any) || {})[key] || '';
 
     if (!value) {
