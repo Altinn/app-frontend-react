@@ -285,21 +285,28 @@ export abstract class ActionComponent<Type extends CompTypes> extends AnyCompone
   }
 }
 
-export abstract class FormComponent<Type extends CompTypes> extends _FormComponent<Type> implements ValidateEmptyField {
+export abstract class FormComponent<Type extends CompTypes>
+  extends _FormComponent<Type>
+  implements ValidateEmptyField<Type>
+{
   readonly type = CompCategory.Form;
 
-  runEmptyFieldValidation(node: LayoutNode<Type>, { formData }: ValidationDataSources): ComponentValidation[] {
-    if (!('required' in node.item) || !node.item.required || !node.item.dataModelBindings) {
+  runEmptyFieldValidation(
+    node: LayoutNode<Type>,
+    item: CompInternal<Type>,
+    { formData }: ValidationDataSources,
+  ): ComponentValidation[] {
+    if (!('required' in item) || !item.required || !item.dataModelBindings) {
       return [];
     }
 
     const validations: ComponentValidation[] = [];
 
-    for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings) as [string, string][]) {
+    for (const [bindingKey, field] of Object.entries(item.dataModelBindings) as [string, string][]) {
       const data = dot.pick(field, formData);
       const asString =
         typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : '';
-      const trb: ITextResourceBindings = 'textResourceBindings' in node.item ? node.item.textResourceBindings : {};
+      const trb: ITextResourceBindings = 'textResourceBindings' in item ? item.textResourceBindings : {};
 
       if (asString.length === 0) {
         const key =
