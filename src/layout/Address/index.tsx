@@ -22,7 +22,11 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
     },
   );
 
-  getDisplayData(node: LayoutNode<'Address'>, { formDataSelector }: DisplayDataProps): string {
+  getDisplayData(
+    node: LayoutNode<'Address'>,
+    _item: CompAddressInternal,
+    { formDataSelector }: DisplayDataProps,
+  ): string {
     const data = node.getFormData(formDataSelector);
     return Object.values(data).join(' ');
   }

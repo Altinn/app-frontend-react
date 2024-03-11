@@ -26,7 +26,11 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
     return false;
   }
 
-  getDisplayData(node: LayoutNode<'FileUploadWithTag'>, { attachments }: DisplayDataProps): string {
+  getDisplayData(
+    node: LayoutNode<'FileUploadWithTag'>,
+    item: CompFileUploadWithTagInternal,
+    { attachments }: DisplayDataProps,
+  ): string {
     return (attachments[node.getId()] || []).map((a) => a.data.filename).join(', ');
   }
 

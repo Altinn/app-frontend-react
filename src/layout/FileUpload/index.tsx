@@ -26,7 +26,11 @@ export class FileUpload extends FileUploadDef implements ValidateComponent<'File
     return false;
   }
 
-  getDisplayData(node: LayoutNode<'FileUpload'>, { attachments }: DisplayDataProps): string {
+  getDisplayData(
+    node: LayoutNode<'FileUpload'>,
+    item: CompFileUploadInternal,
+    { attachments }: DisplayDataProps,
+  ): string {
     return (attachments[node.getId()] || []).map((a) => a.data.filename).join(', ');
   }
 

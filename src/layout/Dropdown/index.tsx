@@ -8,6 +8,7 @@ import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { CompDropdownInternal } from 'src/layout/Dropdown/config.generated';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -20,9 +21,10 @@ export class Dropdown extends DropdownDef {
 
   getDisplayData(
     node: LayoutNode<'Dropdown'>,
+    item: CompDropdownInternal,
     { langTools, optionsSelector, formDataSelector }: DisplayDataProps,
   ): string {
-    if (!node.item.dataModelBindings?.simpleBinding) {
+    if (!item.dataModelBindings?.simpleBinding) {
       return '';
     }
 

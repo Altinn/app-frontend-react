@@ -11,6 +11,7 @@ import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelBindingsLikertInternal } from 'src/layout/common.generated';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { CompLikertItemInternal } from 'src/layout/LikertItem/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class LikertItem extends LikertItemDef {
@@ -31,9 +32,10 @@ export class LikertItem extends LikertItemDef {
 
   getDisplayData(
     node: LayoutNode<'LikertItem'>,
+    item: CompLikertItemInternal,
     { langTools, optionsSelector, formDataSelector }: DisplayDataProps,
   ): string {
-    if (!node.item.dataModelBindings?.simpleBinding) {
+    if (!item.dataModelBindings?.simpleBinding) {
       return '';
     }
 

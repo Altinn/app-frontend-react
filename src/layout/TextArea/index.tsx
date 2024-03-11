@@ -8,6 +8,7 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { CompTextAreaInternal } from 'src/layout/TextArea/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class TextArea extends TextAreaDef {
@@ -17,8 +18,12 @@ export class TextArea extends TextAreaDef {
     },
   );
 
-  getDisplayData(node: LayoutNode<'TextArea'>, { formDataSelector }: DisplayDataProps): string {
-    if (!node.item.dataModelBindings?.simpleBinding) {
+  getDisplayData(
+    node: LayoutNode<'TextArea'>,
+    item: CompTextAreaInternal,
+    { formDataSelector }: DisplayDataProps,
+  ): string {
+    if (!item.dataModelBindings?.simpleBinding) {
       return '';
     }
 

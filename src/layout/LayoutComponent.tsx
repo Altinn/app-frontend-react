@@ -13,6 +13,7 @@ import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
 import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayData, DisplayDataProps } from 'src/features/displayData';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
@@ -147,11 +148,12 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
    * @see renderSummary
    * @see renderCompactSummary
    */
-  abstract getDisplayData(node: LayoutNode<Type>, displayDataProps: DisplayDataProps): string;
+  abstract getDisplayData(node: LayoutNode<Type>, item: CompInternal<Type>, displayDataProps: DisplayDataProps): string;
 
   useDisplayData(node: LayoutNode<Type>): string {
     const displayDataProps = useDisplayDataProps();
-    return this.getDisplayData(node, displayDataProps);
+    const item = useNodeItem(node);
+    return this.getDisplayData(node, item, displayDataProps);
   }
 
   /**

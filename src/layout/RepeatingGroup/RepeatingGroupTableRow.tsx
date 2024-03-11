@@ -24,6 +24,7 @@ import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { AlertOnChange } from 'src/hooks/useAlertOnChange';
 import type { ITextResourceBindings } from 'src/layout/layout';
+import type { AnyComponent } from 'src/layout/LayoutComponent';
 import type {
   CompRepeatingGroupExternal,
   CompRepeatingGroupInternal,
@@ -107,9 +108,14 @@ export function RepeatingGroupTableRow({
 
   const tableNodes = getTableNodes({ onlyInRowUuid: uuid }) || [];
   const displayDataProps = useDisplayDataProps();
-  const displayData = tableNodes.map((node) =>
-    implementsDisplayData(node.def) ? node.def.getDisplayData(node as any, displayDataProps) : '',
-  );
+  const displayData = tableNodes.map((node) => {
+    const def = node.def as AnyComponent<any>;
+    if (!implementsDisplayData(def)) {
+      return '';
+    }
+
+    return def.getDisplayData(node as any, node.item as any, displayDataProps);
+  });
   const firstCellData = displayData.find((c) => !!c);
   const isEditingRow = isEditing(uuid);
   const isDeletingRow = isDeleting(uuid);

@@ -11,7 +11,6 @@ import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompExternalExact } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Grid extends GridDef {
   private _hierarchyGenerator = new GridHierarchyGenerator();
@@ -30,7 +29,7 @@ export class Grid extends GridDef {
     return false;
   }
 
-  getDisplayData(_node: LayoutNode<'Grid'>): string {
+  getDisplayData(): string {
     return '';
   }
 
