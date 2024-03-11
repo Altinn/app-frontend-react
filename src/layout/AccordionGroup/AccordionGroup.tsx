@@ -10,7 +10,7 @@ export const AccordionGroup = ({ node }: IAccordionGroupProps) => (
   <>
     {node.item.childComponents.map((n: LayoutNode<'Accordion'>) => (
       <GenericComponent<'Accordion'>
-        key={n.item.id}
+        key={n.getId()}
         node={n}
         overrideItemProps={{
           renderAsAccordionItem: true,

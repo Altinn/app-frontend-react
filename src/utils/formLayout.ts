@@ -90,9 +90,9 @@ export function extractBottomButtons(page: LayoutPage) {
   for (const node of all.reverse()) {
     const isButtonLike = node.isType('ButtonGroup') || (node.def.canRenderInButtonGroup() && !node.isType('Custom'));
     if (isButtonLike && toMainLayout.length === 0) {
-      toErrorReport.push(node.item.id);
+      toErrorReport.push(node.getId());
     } else {
-      toMainLayout.push(node.item.id);
+      toMainLayout.push(node.getId());
     }
   }
 

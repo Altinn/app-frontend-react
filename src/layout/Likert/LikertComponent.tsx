@@ -30,7 +30,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
   });
   const { lang } = useLanguage();
 
-  const id = node.item.id;
+  const id = node.getId();
   const hasDescription = !!node?.item.textResourceBindings?.description;
   const hasTitle = !!node?.item.textResourceBindings?.title;
   const titleId = `likert-title-${id}`;
@@ -40,7 +40,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
     <Grid
       item={true}
       xs={12}
-      data-componentid={node?.item.id}
+      data-componentid={node?.getId()}
     >
       {hasTitle && (
         <Typography
@@ -78,13 +78,13 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
         >
           {node?.children().map((comp) => {
             if (comp.isType('Group') || comp.isType('Summary')) {
-              window.logWarnOnce('Unexpected Group or Summary inside likert container:\n', comp.item.id);
+              window.logWarnOnce('Unexpected Group or Summary inside likert container:\n', comp.getId());
               return;
             }
 
             return (
               <GenericComponent
-                key={comp.item.id}
+                key={comp.getId()}
                 node={comp}
               />
             );
@@ -141,7 +141,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
             <Table.Body id={`likert-table-body-${id}`}>
               {node?.children().map((comp) => {
                 if (comp.isType('Group') || comp.isType('Summary')) {
-                  window.logWarnOnce('Unexpected Group or Summary inside likert container:\n', comp.item.id);
+                  window.logWarnOnce('Unexpected Group or Summary inside likert container:\n', comp.getId());
                   return;
                 }
 
@@ -151,7 +151,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
 
                 return (
                   <GenericComponent
-                    key={comp.item.id}
+                    key={comp.getId()}
                     node={comp as LayoutNode<'LikertItem'>}
                     overrideItemProps={override}
                   />

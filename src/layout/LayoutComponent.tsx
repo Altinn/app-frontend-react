@@ -307,7 +307,7 @@ export abstract class FormComponent<Type extends CompTypes> extends _FormCompone
         const fieldReference = { key: getFieldNameKey(trb, bindingKey), makeLowerCase: true };
 
         validations.push({
-          componentId: node.item.id,
+          componentId: node.getId(),
           source: FrontendValidationSource.EmptyField,
           bindingKey,
           message: { key, params: [fieldReference] },

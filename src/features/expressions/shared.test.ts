@@ -104,7 +104,7 @@ describe('Expressions shared function tests', () => {
           if ('options' in node.item) {
             // Extremely simple mock of useGetOptions() and useAllOptions(), assuming
             // all components use plain static options
-            options[node.item.id] = castOptionsToStrings(node.item.options);
+            options[node.getId()] = castOptionsToStrings(node.item.options);
           }
         }
 
@@ -123,7 +123,7 @@ describe('Expressions shared function tests', () => {
 
             for (const node of layout.flat()) {
               if (node.isHidden()) {
-                hidden.add(node.item.id);
+                hidden.add(node.getId());
               }
             }
             if (layouts && layouts[layoutKey].data.hidden) {
@@ -157,7 +157,7 @@ describe('Expressions shared context tests', () => {
   }
 
   function recurse(node: LayoutNode, key: string): SharedTestContextList {
-    const splitKey = splitDashedKey(node.item.id);
+    const splitKey = splitDashedKey(node.getId());
     const context: SharedTestContextList = {
       component: splitKey.baseComponentId,
       currentLayout: key,

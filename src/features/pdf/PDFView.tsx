@@ -30,7 +30,7 @@ const PDFComponent = ({ node }: { node: LayoutNode }) => {
         groupNode={node}
         renderLayoutNode={(child: LayoutNode) => (
           <PDFComponent
-            key={child.item.id}
+            key={child.getId()}
             node={child}
           />
         )}
@@ -46,7 +46,7 @@ const PDFComponent = ({ node }: { node: LayoutNode }) => {
       />
     );
   } else {
-    window.logWarnOnce(`Component type: "${node.item.type}" is not allowed in PDF. Component id: "${node.item.id}"`);
+    window.logWarnOnce(`Component type: "${node.item.type}" is not allowed in PDF. Component id: "${node.getId()}"`);
     return null;
   }
 };
@@ -80,7 +80,7 @@ export const PDFView = () => {
       >
         {pdfPage.children().map((node) => (
           <PDFComponent
-            key={node.item.id}
+            key={node.getId()}
             node={node}
           />
         ))}

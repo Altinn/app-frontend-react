@@ -76,7 +76,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   overrideDisplay,
 }: IGenericComponentProps<Type>) {
   let item = useNodeItem(node);
-  const id = item.id;
+  const id = node.getId();
 
   if (overrideItemProps) {
     item = {
@@ -110,7 +110,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   );
 
   useFinishNodeNavigation(async (targetNode, shouldFocus, onHit) => {
-    if (targetNode.item.id !== id) {
+    if (targetNode.getId() !== id) {
       return undefined;
     }
     onHit();
@@ -141,7 +141,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
     return NavigationResult.SuccessfulWithFocus;
   });
 
-  if (isHidden(node.item.id) || (node.item.baseComponentId && isHidden(node.item.baseComponentId))) {
+  if (isHidden(node.getId()) || isHidden(node.getBaseId())) {
     return null;
   }
 
@@ -187,9 +187,9 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   return (
     <FormComponentContextProvider value={formComponentContext}>
       <Grid
-        data-componentbaseid={item.baseComponentId || item.id}
-        data-componentid={item.id}
-        data-componenttype={item.type}
+        data-componentbaseid={node.getBaseId()}
+        data-componentid={node.getId()}
+        data-componenttype={node.getType()}
         ref={containerDivRef}
         item={true}
         container={true}

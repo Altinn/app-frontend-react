@@ -1,3 +1,4 @@
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { DefGetter } from 'src/layout';
@@ -198,7 +199,7 @@ export class HierarchyGenerator {
     directMutators = [],
     recursiveMutators = [],
   }: NewChildProps): LayoutNode | undefined {
-    const parentId = overrideParentId || parent.item.baseComponentId || parent.item.id;
+    const parentId = overrideParentId || (parent instanceof BaseLayoutNode ? parent.getBaseId() : parent.top.myKey);
     const fullParentId = `${parentPage}/${parentId}`;
     const fullChildId = `${childPage}/${childId}`;
     if (!this.map[fullChildId]) {

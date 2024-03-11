@@ -42,8 +42,8 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
     // Sort using the order from tableHeaders
     if (tableHeaders) {
       nodes?.sort((a, b) => {
-        const aIndex = tableHeaders.indexOf(a.item.baseComponentId || a.item.id);
-        const bIndex = tableHeaders.indexOf(b.item.baseComponentId || b.item.id);
+        const aIndex = tableHeaders.indexOf(a.getBaseId());
+        const bIndex = tableHeaders.indexOf(b.getBaseId());
         return aIndex - bIndex;
       });
     }
@@ -131,7 +131,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
             <Table.Row className={classes.repeatingGroupRow}>
               {tableNodes?.map((n) => (
                 <Table.HeaderCell
-                  key={n.item.id}
+                  key={n.getId()}
                   className={classes.tableCellFormatting}
                   style={getColumnStylesRepeatingGroups(n, columnSettings)}
                 >
@@ -238,7 +238,7 @@ function ExtraRows({ where, extraCells, columnSettings }: ExtraRowsProps) {
           <Table.Cell className={classes.mobileTableCell}>
             {nodes.map((child) => (
               <GenericComponent
-                key={child.item.id}
+                key={child.getId()}
                 node={child}
               />
             ))}

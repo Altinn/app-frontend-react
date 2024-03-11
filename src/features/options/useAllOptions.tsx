@@ -13,6 +13,7 @@ import { ProcessTaskType } from 'src/types';
 import { useNodes } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
+import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 /**
@@ -123,11 +124,9 @@ export function useAllOptionsSelector(onlyWhenAllLoaded = false) {
 export const useAllOptions = () => useSelector((state) => state.nodes);
 export const useAllOptionsInitiallyLoaded = () => useSelector((state) => state.allInitiallyLoaded);
 
-function isNodeOptionBased(node: LayoutNode) {
+function isNodeOptionBased(item: CompInternal) {
   return (
-    ('options' in node.item && node.item.options) ||
-    ('optionsId' in node.item && node.item.optionsId) ||
-    ('source' in node.item && node.item.source)
+    ('options' in item && item.options) || ('optionsId' in item && item.optionsId) || ('source' in item && item.source)
   );
 }
 

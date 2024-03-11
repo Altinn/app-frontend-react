@@ -26,7 +26,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
   }
 
   getDisplayData(node: LayoutNode<'FileUploadWithTag'>, { attachments }: DisplayDataProps): string {
-    return (attachments[node.item.id] || []).map((a) => a.data.filename).join(', ');
+    return (attachments[node.getId()] || []).map((a) => a.data.filename).join(', ');
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'FileUploadWithTag'>): JSX.Element | null {
@@ -46,7 +46,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
 
     if (attachmentsValid(attachments, node.item)) {
       const missingTagAttachmentIds: string[] = [];
-      for (const attachment of attachments[node.item.id] || []) {
+      for (const attachment of attachments[node.getId()] || []) {
         if (isAttachmentUploaded(attachment) && attachmentIsMissingTag(attachment)) {
           missingTagAttachmentIds.push(attachment.data.id);
         }
@@ -68,7 +68,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
               params: [tagReference],
             },
             severity: 'error',
-            componentId: node.item.id,
+            componentId: node.getId(),
             source: FrontendValidationSource.Component,
             meta: { attachmentId },
             category: ValidationMask.Component,
@@ -82,7 +82,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
           params: [node.item.minNumberOfAttachments],
         },
         severity: 'error',
-        componentId: node.item.id,
+        componentId: node.getId(),
         source: FrontendValidationSource.Component,
         category: ValidationMask.Component,
       });

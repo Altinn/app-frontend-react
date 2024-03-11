@@ -4,7 +4,7 @@ import type { PropsWithChildren } from 'react';
 import { createContext } from 'src/core/contexts/context';
 import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
-import type { ParentNode } from 'src/layout/layout';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 
 type FocusableHTMLElement = HTMLElement &
   HTMLButtonElement &
@@ -47,9 +47,9 @@ export function RepeatingGroupsFocusProvider({ children }: PropsWithChildren) {
       return true;
     }
 
-    let targetChild: ParentNode = targetNode;
+    let targetChild = targetNode;
     for (const parent of targetNode.parents()) {
-      if (parent.item.id !== node.item.id) {
+      if (node.isSameAs(parent) && parent instanceof BaseLayoutNode) {
         targetChild = parent;
         continue;
       }
@@ -57,7 +57,7 @@ export function RepeatingGroupsFocusProvider({ children }: PropsWithChildren) {
       // We are a parent of the target component, and the targetChild is the target component (or a nested group
       // containing the target component). We should most likely open the row containing targetChild for editing.
       const tableColSetup =
-        (node.item.tableColumns && targetChild.item.id && node.item.tableColumns[targetChild.item.id]) || {};
+        (node.item.tableColumns && targetChild.getId() && node.item.tableColumns[targetChild.getId()]) || {};
 
       if (tableColSetup.editInTable || tableColSetup.showInExpandedEdit === false) {
         // No need to open rows or set editIndex for components that are rendered
@@ -66,7 +66,7 @@ export function RepeatingGroupsFocusProvider({ children }: PropsWithChildren) {
       }
 
       for (const row of node.item.rows) {
-        if (row.items.find((item) => item.item.id === targetChild?.item.id)) {
+        if (row.items.find((item) => targetChild.isSameAs(item))) {
           openForEditing(row.uuid);
           return true;
         }

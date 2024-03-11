@@ -174,8 +174,8 @@ function useLegacyHiddenComponents(
     // Add all fields from hidden layouts to hidden fields
     for (const layout of futureHiddenLayouts) {
       for (const node of resolvedNodes.findLayout(layout)?.flat() || []) {
-        if (!futureHiddenFields.has(node.item.id)) {
-          futureHiddenFields.add(node.item.id);
+        if (!futureHiddenFields.has(node.getId())) {
+          futureHiddenFields.add(node.getId());
         }
       }
     }

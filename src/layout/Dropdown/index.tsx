@@ -27,7 +27,7 @@ export class Dropdown extends DropdownDef {
     }
 
     const value = String(node.getFormData(formDataSelector).simpleBinding ?? '');
-    const optionList = optionsSelector(node.item.id);
+    const optionList = optionsSelector(node.getId());
     return getSelectedValueToText(value, langTools, optionList) || '';
   }
 

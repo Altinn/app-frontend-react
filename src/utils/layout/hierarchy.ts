@@ -65,7 +65,7 @@ function resolvedNodesInLayouts(
           if (!first) {
             continue;
           }
-          const firstItemNode = unresolved.findById(first.item.id);
+          const firstItemNode = unresolved.findById(first.getId());
           if (firstItemNode) {
             row.groupExpressions = evalExprInObj({
               input,

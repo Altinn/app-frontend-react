@@ -37,7 +37,7 @@ export function runConditionalRenderingRules(
           runConditionalRenderingRule(connection, firstChild, componentsToHide, formDataSelector);
           if (connection.repeatingGroup.childGroupId) {
             const childId = `${connection.repeatingGroup.childGroupId}-${row.index}`;
-            const childNode = node.flat({ onlyInRowUuid: row.uuid }).find((n) => n.item.id === childId);
+            const childNode = node.flat({ onlyInRowUuid: row.uuid }).find((n) => n.getId() === childId);
             if (childNode && childNode.isType('RepeatingGroup')) {
               for (const childRow of childNode.item.rows) {
                 const firstNestedChild = childRow.items[0] as LayoutNode | undefined;
@@ -81,7 +81,7 @@ function runConditionalRenderingRule(
   const action = rule.selectedAction;
   const hide = (action === 'Show' && !result) || (action === 'Hide' && result);
 
-  const splitId = splitDashedKey(node?.item.id ?? '');
+  const splitId = splitDashedKey(node?.getId() ?? '');
   for (const elementToPerformActionOn of Object.keys(rule.selectedFields)) {
     if (elementToPerformActionOn && hide) {
       const elementId = rule.selectedFields[elementToPerformActionOn].replace(/{\d+}/g, (match) => {

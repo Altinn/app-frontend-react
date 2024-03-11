@@ -42,7 +42,7 @@ export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HT
     <Grid
       container={true}
       item={true}
-      data-componentid={node.item.id}
+      data-componentid={node.getId()}
       ref={ref}
     >
       {(!edit?.mode ||

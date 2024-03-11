@@ -81,13 +81,13 @@ function generateAutomaticPage(
   Object.entries(layoutPages.all())
     .filter(([pageName]) => !excludedPages.has(pageName) && !isHiddenPage(pageName) && pageOrder?.includes(pageName))
     .sort(([pA], [pB]) => (pageOrder ? pageOrder.indexOf(pA) - pageOrder.indexOf(pB) : 0))
-    .flatMap(([_, layoutPage]) => layoutPage.children().filter((node) => !excludedComponents.has(node.item.id)))
+    .flatMap(([_, layoutPage]) => layoutPage.children().filter((node) => !excludedComponents.has(node.getId())))
     .map((node) => {
       if (node.def.shouldRenderInAutomaticPDF(node as any)) {
         return {
-          id: `__pdf__${node.item.id}`,
+          id: `__pdf__${node.getId()}`,
           type: 'Summary',
-          componentRef: node.item.id,
+          componentRef: node.getId(),
           excludedChildren: pdfFormat?.excludedComponents,
           grid: node.item.grid,
           largeGroup: node.isType('Group'),

@@ -20,8 +20,7 @@ function getPathFromRoot(node: LayoutNode | LayoutPage): string[] {
   let currentNode: LayoutNode | LayoutPage = node;
   while (typeof currentNode !== 'undefined') {
     if (currentNode instanceof BaseLayoutNode) {
-      const key = currentNode.item.baseComponentId ?? currentNode.item.id;
-      path.push(key);
+      path.push(currentNode.getBaseId());
 
       if (typeof currentNode.rowId !== 'undefined') {
         path.push(makeRowKey(currentNode.rowId));

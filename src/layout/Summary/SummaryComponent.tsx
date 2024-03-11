@@ -32,13 +32,13 @@ export interface ISummaryComponent {
 }
 
 function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: React.Ref<HTMLDivElement>) {
-  const { id, grid } = summaryNode.item;
   const display = overrides?.display || summaryNode.item.display;
   const { langAsString } = useLanguage();
   const { currentPageId } = useNavigatePage();
   const summaryItem = useNodeItem(summaryNode);
+  const { id, grid } = summaryItem;
 
-  const targetNode = useResolvedNode(overrides?.targetNode || summaryNode.item.componentRef || summaryNode.item.id);
+  const targetNode = useResolvedNode(overrides?.targetNode || summaryItem.componentRef || id);
   const targetItem = targetNode?.item;
   const targetView = targetNode?.top.top.myKey;
 
@@ -78,7 +78,7 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
       md={displayGrid?.md || false}
       lg={displayGrid?.lg || false}
       xl={displayGrid?.xl || false}
-      data-testid={`summary-${overrides?.targetNode?.item.id || id}`}
+      data-testid={`summary-${overrides?.targetNode?.getId() || id}`}
       data-componentid={summaryItem.id}
       className={cn(pageBreakStyles(summaryItem.pageBreak ?? targetItem?.pageBreak))}
     >

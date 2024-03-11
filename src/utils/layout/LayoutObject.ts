@@ -8,6 +8,9 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
  * LayoutNode (aka an instance of a component inside a layout, or possibly inside a repeating group).
  */
 export interface LayoutObject<Item extends CompInternal = CompInternal, Child extends LayoutNode = LayoutNode> {
+  isSameAs(otherObject: LayoutObject): boolean;
+  isSame(): (otherObject: LayoutObject) => boolean;
+
   /**
    * Looks for a matching component upwards in the hierarchy, returning the first one (or undefined if
    * none can be found)

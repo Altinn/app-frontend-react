@@ -39,6 +39,14 @@ export class LayoutPage implements LayoutObject {
     }
   }
 
+  public isSameAs(otherObject: LayoutObject): boolean {
+    return otherObject instanceof LayoutPage && this.top.myKey === otherObject.top.myKey;
+  }
+
+  public isSame(): (otherObject: LayoutObject) => boolean {
+    return (otherObject) => this.isSameAs(otherObject);
+  }
+
   /**
    * Looks for a matching component upwards in the hierarchy, returning the first one (or undefined if
    * none can be found). Implemented here for parity with LayoutNode

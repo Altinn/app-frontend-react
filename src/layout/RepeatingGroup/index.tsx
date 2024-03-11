@@ -85,7 +85,7 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
       validations.push({
         message: { key: 'validation_errors.minItems', params: [repeatingGroupMinCount] },
         severity: 'error',
-        componentId: node.item.id,
+        componentId: node.getId(),
         source: FrontendValidationSource.Component,
         category: ValidationMask.Component,
       });

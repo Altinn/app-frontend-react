@@ -45,6 +45,14 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
     this.minimalItem = item;
   }
 
+  public isSameAs(otherNode: LayoutObject) {
+    return otherNode instanceof BaseLayoutNode && this.minimalItem.id === otherNode.minimalItem.id;
+  }
+
+  public isSame(): (otherNode: LayoutObject) => boolean {
+    return (otherNode) => this.isSameAs(otherNode);
+  }
+
   public getId() {
     return this.minimalItem.id;
   }

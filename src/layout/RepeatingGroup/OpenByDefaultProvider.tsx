@@ -11,7 +11,7 @@ interface Props {
 }
 
 export function OpenByDefaultProvider({ node, children }: PropsWithChildren<Props>) {
-  const groupId = node.item.id;
+  const groupId = node.getId();
   const openByDefault = node.item.edit?.openByDefault;
   const { addRow, openForEditing, visibleRows, isFirstRender } = useRepeatingGroup();
   const state = useRepeatingGroupSelector((state) => ({

@@ -58,7 +58,7 @@ describe('Data model lookups in real apps', () => {
           if (errors.length) {
             failures.push({
               pageKey,
-              component: node.item.baseComponentId || node.item.id,
+              component: node.getBaseId(),
               errors,
             });
           }

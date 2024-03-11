@@ -26,7 +26,7 @@ export class FileUpload extends FileUploadDef implements ValidateComponent {
   }
 
   getDisplayData(node: LayoutNode<'FileUpload'>, { attachments }: DisplayDataProps): string {
-    return (attachments[node.item.id] || []).map((a) => a.data.filename).join(', ');
+    return (attachments[node.getId()] || []).map((a) => a.data.filename).join(', ');
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'FileUpload'>): JSX.Element | null {
@@ -52,7 +52,7 @@ export class FileUpload extends FileUploadDef implements ValidateComponent {
         },
         severity: 'error',
         source: FrontendValidationSource.Component,
-        componentId: node.item.id,
+        componentId: node.getId(),
         category: ValidationMask.Component,
       });
     }

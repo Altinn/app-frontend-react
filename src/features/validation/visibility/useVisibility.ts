@@ -118,7 +118,7 @@ export function useVisibility(
     const nodes = nodesRef.current.allNodes();
     const nodeMap = new Map<string, LayoutNode>();
     for (const node of nodes) {
-      nodeMap.set(node.item.id, node);
+      nodeMap.set(node.getId(), node);
     }
 
     setVisibility((state) => {
@@ -144,15 +144,15 @@ export function useVisibility(
 function getNodeChanges(prevNodes: LayoutNode[], newNodes: LayoutNode[]) {
   const newNodeIds = new Set<string>();
   for (const node of newNodes) {
-    newNodeIds.add(node.item.id);
+    newNodeIds.add(node.getId());
   }
 
   const prevNodeIds = new Set<string>();
   const removedNodes: LayoutNode[] = [];
   for (const node of prevNodes) {
-    prevNodeIds.add(node.item.id);
+    prevNodeIds.add(node.getId());
 
-    if (newNodeIds.has(node.item.id)) {
+    if (newNodeIds.has(node.getId())) {
       continue;
     }
     removedNodes.push(node);
@@ -160,7 +160,7 @@ function getNodeChanges(prevNodes: LayoutNode[], newNodes: LayoutNode[]) {
 
   const addedNodes: LayoutNode[] = [];
   for (const node of newNodes) {
-    if (prevNodeIds.has(node.item.id)) {
+    if (prevNodeIds.has(node.getId())) {
       continue;
     }
     addedNodes.push(node);

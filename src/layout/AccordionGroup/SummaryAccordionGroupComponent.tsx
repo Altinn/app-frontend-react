@@ -18,7 +18,7 @@ export const SummaryAccordionGroupComponent = ({ targetNode, ...rest }: ISummary
   <DesignSystemAccordion>
     {targetNode.item.childComponents.map((n: LayoutNode<'Accordion'>) => (
       <SummaryAccordionComponent
-        key={n.item.id}
+        key={n.getId()}
         targetNode={n}
         {...rest}
       />

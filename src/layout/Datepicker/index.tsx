@@ -72,7 +72,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent, Vali
       validations.push({
         message: { key: 'date_picker.invalid_date_message', params: [format] },
         severity: 'error',
-        componentId: node.item.id,
+        componentId: node.getId(),
         source: FrontendValidationSource.Component,
         category: ValidationMask.Component,
       });
@@ -82,7 +82,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent, Vali
       validations.push({
         message: { key: 'date_picker.min_date_exeeded' },
         severity: 'error',
-        componentId: node.item.id,
+        componentId: node.getId(),
         source: FrontendValidationSource.Component,
         category: ValidationMask.Component,
       });
@@ -90,7 +90,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent, Vali
       validations.push({
         message: { key: 'date_picker.max_date_exeeded' },
         severity: 'error',
-        componentId: node.item.id,
+        componentId: node.getId(),
         source: FrontendValidationSource.Component,
         category: ValidationMask.Component,
       });

@@ -76,7 +76,7 @@ export class List extends ListDef {
           params: [fieldNameReference],
         },
         severity: 'error',
-        componentId: node.item.id,
+        componentId: node.getId(),
         source: FrontendValidationSource.EmptyField,
         category: ValidationMask.Required,
       });

@@ -15,7 +15,7 @@ export function GridSummaryComponent({
     <>
       {nodes.map((node, idx) => (
         <SummaryComponent
-          key={node.item.id}
+          key={node.getId()}
           summaryNode={summaryNode}
           overrides={{
             targetNode: node,

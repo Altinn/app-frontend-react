@@ -25,7 +25,7 @@ export function ComponentValidations({ validations, node }: Props) {
   const success = validationsOfSeverity(validations, 'success');
 
   return (
-    <div data-validation={node?.item.id}>
+    <div data-validation={node?.getId()}>
       {errors.length > 0 && (
         <ErrorValidations
           validations={errors}

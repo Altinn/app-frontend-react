@@ -28,7 +28,7 @@ export class Checkboxes extends CheckboxesDef {
     formDataSelector: FormDataSelector,
   ): { [key: string]: string } {
     const value = node.getFormData(formDataSelector).simpleBinding ?? '';
-    const optionList = optionsSelector(node.item.id);
+    const optionList = optionsSelector(node.getId());
     return getCommaSeparatedOptionsToText(value, optionList, langTools);
   }
 

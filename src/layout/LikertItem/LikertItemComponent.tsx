@@ -43,8 +43,8 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
   const { selected, handleChange, calculatedOptions, fetchingOptions } = useRadioButtons(props);
   const validations = useUnifiedValidationsForNode(node);
 
-  const id = node.item.id;
-  const groupContainerId = node.closest((n) => n.type === 'Likert')?.item.id;
+  const id = node.getId();
+  const groupContainerId = node.closest((n) => n.type === 'Likert')?.getId();
 
   const headerColumnId = `${groupContainerId}-likert-columnheader-left`;
   const rowLabelId = `row-label-${id}`;
@@ -52,7 +52,7 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
   return (
     <Table.Row
       aria-labelledby={`${headerColumnId} ${rowLabelId}`}
-      data-componentid={node.item.id}
+      data-componentid={node.getId()}
       data-is-loading={fetchingOptions ? 'true' : 'false'}
       role='radiogroup'
       ref={ref}

@@ -86,7 +86,7 @@ export function RepeatingGroupTableRow({
   const { node, deleteRow, isEditing, isDeleting, toggleEditing } = useRepeatingGroup();
   const langTools = useLanguage();
   const { langAsString } = langTools;
-  const id = node.item.id;
+  const id = node.getId();
   const group = useNodeItem(node);
   const row = group.rows.find((r) => r.uuid === uuid);
   const expressionsForRow = row?.groupExpressions;
@@ -139,10 +139,10 @@ export function RepeatingGroupTableRow({
         tableNodes.map((n, idx) =>
           shouldEditInTable(edit, n, columnSettings) ? (
             <Table.Cell
-              key={n.item.id}
+              key={n.getId()}
               className={classes.tableCell}
             >
-              <div ref={(ref) => refSetter && refSetter(row.index, `component-${n.item.id}`, ref)}>
+              <div ref={(ref) => refSetter && refSetter(row.index, `component-${n.getId()}`, ref)}>
                 <GenericComponent
                   node={n}
                   overrideDisplay={{
@@ -158,7 +158,7 @@ export function RepeatingGroupTableRow({
             </Table.Cell>
           ) : (
             <Table.Cell
-              key={`${n.item.id}-${row.index}`}
+              key={`${n.getId()}`}
               className={classes.tableCell}
             >
               <span
@@ -183,8 +183,8 @@ export function RepeatingGroupTableRow({
                   <Grid
                     container={true}
                     item={true}
-                    key={n.item.id}
-                    ref={(ref) => refSetter && refSetter(row.index, `component-${n.item.id}`, ref)}
+                    key={n.getId()}
+                    ref={(ref) => refSetter && refSetter(row.index, `component-${n.getId()}`, ref)}
                   >
                     <GenericComponent
                       node={n}
@@ -197,7 +197,7 @@ export function RepeatingGroupTableRow({
                   <Grid
                     container={true}
                     item={true}
-                    key={n.item.id}
+                    key={n.getId()}
                   >
                     <b className={cn(classes.contentFormatting, classes.spaceAfterContent)}>
                       <Lang id={getTableTitle('textResourceBindings' in n.item ? n.item.textResourceBindings : {})} />:
@@ -315,7 +315,7 @@ export function shouldEditInTable(
   tableNode: LayoutNode,
   columnSettings: CompRepeatingGroupExternal['tableColumns'],
 ) {
-  const column = columnSettings && columnSettings[tableNode.item.baseComponentId || tableNode.item.id];
+  const column = columnSettings && columnSettings[tableNode.getBaseId()];
   if (groupEdit?.mode === 'onlyTable' && column?.editInTable !== false) {
     return tableNode.def.canRenderInTable();
   }

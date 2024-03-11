@@ -38,8 +38,7 @@ export function SummaryGroupComponent({
   const formDataSelector = FD.useDebouncedSelector();
 
   const inExcludedChildren = (n: LayoutNode) =>
-    excludedChildren &&
-    (excludedChildren.includes(n.item.id) || excludedChildren.includes(`${n.item.baseComponentId}`));
+    excludedChildren && (excludedChildren.includes(n.getId()) || excludedChildren.includes(n.getBaseId()));
 
   const groupValidations = useDeepValidationsForNode(targetNode);
   const groupHasErrors = hasValidationErrors(groupValidations);
@@ -56,8 +55,8 @@ export function SummaryGroupComponent({
       <>
         {
           <GroupComponent
-            key={`summary-${targetNode.item.id}`}
-            id={`summary-${targetNode.item.id}`}
+            key={`summary-${targetNode.getId()}`}
+            id={`summary-${targetNode.getId()}`}
             groupNode={targetNode}
             isSummary={true}
             renderLayoutNode={(n) => {
@@ -67,7 +66,7 @@ export function SummaryGroupComponent({
 
               return (
                 <SummaryComponent
-                  key={n.item.id}
+                  key={n.getId()}
                   summaryNode={summaryNode}
                   overrides={{
                     ...overrides,
@@ -96,7 +95,7 @@ export function SummaryGroupComponent({
         <RenderCompactSummary
           onChangeClick={onChangeClick}
           changeText={changeText}
-          key={child.item.id}
+          key={child.getId()}
           targetNode={child as any}
           summaryNode={summaryNode}
           overrides={{}}
