@@ -28,10 +28,11 @@ export function useNodeValidation(): ComponentValidations {
     const validations: ComponentValidations = {};
     for (const node of nodesToValidate) {
       const id = node.getId();
+      const item = node.item;
       validations[id] = {
         component: [],
-        bindingKeys: node.item.dataModelBindings
-          ? Object.fromEntries(Object.keys(node.item.dataModelBindings).map((key) => [key, []]))
+        bindingKeys: item.dataModelBindings
+          ? Object.fromEntries(Object.keys(item.dataModelBindings).map((key) => [key, []]))
           : {},
       };
 
@@ -39,8 +40,7 @@ export function useNodeValidation(): ComponentValidations {
        * Run required validation
        */
       if (implementsValidateEmptyField(node.def)) {
-        const item = node.item as any;
-        const validations = node.def.runEmptyFieldValidation(node as any, item, validationDataSources);
+        const validations = node.def.runEmptyFieldValidation(node as any, item as any, validationDataSources);
         for (const validation of validations) {
           if (validation.bindingKey) {
             validations[id].bindingKeys[validation.bindingKey].push(validation);
@@ -54,8 +54,7 @@ export function useNodeValidation(): ComponentValidations {
        * Run component validation
        */
       if (implementsValidateComponent(node.def)) {
-        const item = node.item as any;
-        const validations = node.def.runComponentValidation(node as any, item, validationDataSources);
+        const validations = node.def.runComponentValidation(node as any, item as any, validationDataSources);
         for (const validation of validations) {
           if (validation.bindingKey) {
             validations[id].bindingKeys[validation.bindingKey].push(validation);
