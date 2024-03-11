@@ -4,10 +4,9 @@ const appFrontend = new AppFrontend();
 
 it('should be possible to hide rows when "Endre fra" is greater or equals to [...]', () => {
   cy.goto('group');
-  cy.intercept('PATCH', '**/data/**').as('saveFormData');
   for (const prefill of Object.values(appFrontend.group.prefill)) {
     cy.get(prefill).check();
-    cy.wait('@saveFormData');
+    cy.waitUntilSaved();
   }
   const headerRow = 1;
 
@@ -21,13 +20,13 @@ it('should be possible to hide rows when "Endre fra" is greater or equals to [..
   cy.get(appFrontend.group.hiddenRowsInfoMsg).should('not.exist');
 
   // When hiding every row with value over 1, all rows including the header should be hidden
-  cy.get(appFrontend.group.hideRepeatingGroupRow).clear();
+  cy.get(appFrontend.group.hideRepeatingGroupRow).numberFormatClear();
   cy.get(appFrontend.group.hideRepeatingGroupRow).type('1');
   cy.get(appFrontend.group.mainGroup).find('tr').should('not.exist');
   cy.get(appFrontend.group.hiddenRowsInfoMsg).should('exist');
 
   // Hiding rows with value over 1000 to split the group in two
-  cy.get(appFrontend.group.hideRepeatingGroupRow).clear();
+  cy.get(appFrontend.group.hideRepeatingGroupRow).numberFormatClear();
   cy.get(appFrontend.group.hideRepeatingGroupRow).type('1000');
   cy.get(appFrontend.group.mainGroup)
     .find('tr')
@@ -139,7 +138,7 @@ it('"save and next"-button should open row 3 when row 2 is hidden', () => {
     cy.get(appFrontend.group.currentValue).type(value);
     cy.get(appFrontend.group.saveMainGroup).click();
   });
-  cy.get(appFrontend.group.hideRepeatingGroupRow).clear();
+  cy.get(appFrontend.group.hideRepeatingGroupRow).numberFormatClear();
   cy.get(appFrontend.group.hideRepeatingGroupRow).type('5');
   cy.get(appFrontend.group.row(0).editBtn).click();
   cy.get(appFrontend.group.saveAndNextMainGroup).click();

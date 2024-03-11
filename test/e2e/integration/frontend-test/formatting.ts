@@ -43,7 +43,7 @@ describe('Formatting', () => {
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.get(appFrontend.group.addNewItem).click();
 
-    cy.get(appFrontend.group.currentValue).clear();
+    cy.get(appFrontend.group.currentValue).numberFormatClear();
     cy.get(appFrontend.group.currentValue).type('10000');
 
     const alternatives: { format: IInputFormatting; expected: any }[] = [
