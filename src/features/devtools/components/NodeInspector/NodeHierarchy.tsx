@@ -2,6 +2,7 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import React from 'react';
 
+import { EyeSlashIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
 import classes from 'src/features/devtools/components/LayoutInspector/LayoutInspector.module.css';
@@ -78,6 +79,11 @@ export const NodeHierarchyItem = ({ node, onClick, selected }: INodeHierarchyIte
           {nodeMultiPageIndex !== undefined ? `${nodeMultiPageIndex}:` : ''}
           {nodeId}
         </span>
+        {node.isHidden({ respectDevTools: false }) && (
+          <span className={classes.listIcon}>
+            <EyeSlashIcon title='Denne komponenten er skjult' />
+          </span>
+        )}
       </li>
       {/* Support for generic components with children */}
       {hasChildren && !node.isType('RepeatingGroup') && (

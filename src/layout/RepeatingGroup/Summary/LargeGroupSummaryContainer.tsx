@@ -33,11 +33,11 @@ export function LargeGroupSummaryContainer({
   onlyInRowUuid,
   renderLayoutNode,
 }: IDisplayRepAsLargeGroup) {
-  const container = useNodeItem(groupNode);
+  const item = useNodeItem(groupNode);
   if (groupNode.isHidden()) {
     return null;
   }
-  const { title, summaryTitle } = container.textResourceBindings || {};
+  const { title, summaryTitle } = item.textResourceBindings || {};
 
   const isNested = groupNode.parent instanceof BaseLayoutNode;
   const headingLevel = Math.min(Math.max(groupNode.parents().length + 1, 2), 6) as HeadingLevel;
@@ -53,16 +53,19 @@ export function LargeGroupSummaryContainer({
             level={headingLevel}
             size={headingSize}
           >
-            <Lang id={summaryTitle} />
+            <Lang
+              id={legend}
+              node={groupNode}
+            />
           </Heading>
         )
       }
-      className={cn(pageBreakStyles(container.pageBreak), classes.summary, {
+      className={cn(pageBreakStyles(item.pageBreak), classes.summary, {
         [classes.largeGroupContainer]: !isNested,
       })}
     >
       <div
-        id={id || container.id}
+        id={id || item.id}
         className={classes.largeGroupContainer}
       >
         {groupNode.children(undefined, restriction).map((n) => renderLayoutNode(n))}
