@@ -12,6 +12,7 @@ import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useParties } from 'src/features/party/PartiesProvider';
 import { getDateFormat } from 'src/utils/dateHelpers';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { IParty } from 'src/types/shared';
@@ -56,7 +57,7 @@ export const returnInstanceMetaDataObject = (
 };
 
 export function InstanceInformationComponent({ node }: PropsFromGenericComponent<'InstanceInformation'>) {
-  const elements = node.item.elements;
+  const elements = useNodeItem(node).elements;
   const { dateSent, sender, receiver, referenceNumber } = elements || {};
   const langTools = useLanguage();
   const selectedLanguage = useCurrentLanguage();

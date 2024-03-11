@@ -12,6 +12,7 @@ import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { LayoutStyle } from 'src/layout/common.generated';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/LikertItem/LikertItemComponent.module.css';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -21,9 +22,11 @@ interface LikertComponentProps {
 
 export const LikertComponent = ({ node }: LikertComponentProps) => {
   const firstLikertChild = node?.children((item) => item.type === 'LikertItem') as LayoutNode<'LikertItem'> | undefined;
+  const firstLikertChildItem = useNodeItem(firstLikertChild);
+  const { textResourceBindings } = useNodeItem(node);
   const mobileView = useIsMobileOrTablet();
   const { options: calculatedOptions, isFetching } = useGetOptions({
-    ...(firstLikertChild?.item || {}),
+    ...(firstLikertChildItem || {}),
     node,
     valueType: 'single',
     dataModelBindings: undefined,
@@ -31,8 +34,8 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
   const { lang } = useLanguage();
 
   const id = node.getId();
-  const hasDescription = !!node?.item.textResourceBindings?.description;
-  const hasTitle = !!node?.item.textResourceBindings?.title;
+  const hasDescription = !!textResourceBindings?.description;
+  const hasTitle = !!textResourceBindings?.title;
   const titleId = `likert-title-${id}`;
   const descriptionId = `likert-description-${id}`;
 
@@ -49,7 +52,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
           style={{ width: '100%' }}
           id={titleId}
         >
-          {lang(node?.item.textResourceBindings?.title)}
+          <Lang id={textResourceBindings?.title} />
         </Typography>
       )}
       {hasDescription && (
@@ -58,7 +61,7 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
           gutterBottom
           id={descriptionId}
         >
-          {lang(node?.item.textResourceBindings?.description)}
+          <Lang id={textResourceBindings?.description} />
         </Typography>
       )}
     </Grid>
@@ -116,12 +119,10 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
                 <Table.HeaderCell id={`${id}-likert-columnheader-left`}>
                   <span
                     className={cn(classes.likertTableHeaderCell, {
-                      'sr-only': node?.item.textResourceBindings?.leftColumnHeader == null,
+                      'sr-only': textResourceBindings?.leftColumnHeader == null,
                     })}
                   >
-                    <Lang
-                      id={node?.item.textResourceBindings?.leftColumnHeader ?? 'likert.left_column_default_header_text'}
-                    />
+                    <Lang id={textResourceBindings?.leftColumnHeader ?? 'likert.left_column_default_header_text'} />
                   </span>
                 </Table.HeaderCell>
                 {calculatedOptions.map((option, index) => {

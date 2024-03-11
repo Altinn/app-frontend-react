@@ -12,6 +12,7 @@ import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { getDateConstraint, getDateFormat, getDateString } from 'src/utils/dateHelpers';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 import 'src/layout/Datepicker/DatepickerComponent.css';
@@ -117,7 +118,7 @@ export function DatepickerComponent({ node, isValid, overrideDisplay }: IDatepic
     id,
     textResourceBindings,
     dataModelBindings,
-  } = node.item;
+  } = useNodeItem(node);
 
   const calculatedMinDate = getDateConstraint(minDate, 'min');
   const calculatedMaxDate = getDateConstraint(maxDate, 'max');

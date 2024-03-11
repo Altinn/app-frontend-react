@@ -6,6 +6,7 @@ import { Grid } from '@material-ui/core';
 import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IHeaderProps = PropsFromGenericComponent<'Header'>;
@@ -43,7 +44,7 @@ function getHeaderProps(size?: string): HeadingProps {
 }
 
 export const HeaderComponent = ({ node }: IHeaderProps) => {
-  const { id, size, textResourceBindings } = node.item;
+  const { id, size, textResourceBindings } = useNodeItem(node);
   const { langAsString } = useLanguage();
   return (
     <Grid

@@ -18,6 +18,7 @@ import { AttachmentFileName } from 'src/layout/FileUpload/FileUploadTable/Attach
 import { FileTableButtons } from 'src/layout/FileUpload/FileUploadTable/FileTableButtons';
 import { useFileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
 import classes from 'src/layout/FileUploadWithTag/EditWindowComponent.module.css';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IAttachment } from 'src/features/attachments';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -30,7 +31,7 @@ export interface EditWindowProps {
 }
 
 export function EditWindowComponent({ attachment, mobileView, node, options }: EditWindowProps): React.JSX.Element {
-  const { textResourceBindings, readOnly } = node.item;
+  const { textResourceBindings, readOnly } = useNodeItem(node);
   const { langAsString } = useLanguage();
   const { setEditIndex } = useFileTableRow();
   const uploadedAttachment = isAttachmentUploaded(attachment) ? attachment : undefined;

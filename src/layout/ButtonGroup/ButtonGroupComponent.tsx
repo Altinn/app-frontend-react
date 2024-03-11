@@ -6,10 +6,12 @@ import type { PropsFromGenericComponent } from '..';
 
 import classes from 'src/layout/ButtonGroup/ButtonGroupComponent.module.css';
 import { GenericComponent } from 'src/layout/GenericComponent';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function ButtonGroupComponent({ node }: PropsFromGenericComponent<'ButtonGroup'>) {
-  const childNodes = node.item.childComponents;
+  const item = useNodeItem(node);
+  const childNodes = item.childComponents;
   return (
     <Grid
       item

@@ -13,18 +13,27 @@ import { hasValidationErrors } from 'src/features/validation/utils';
 import { usePostPlaceQuery } from 'src/hooks/queries/usePostPlaceQuery';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import classes from 'src/layout/Address/AddressComponent.module.css';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IAddressProps = PropsFromGenericComponent<'Address'>;
 
 export function AddressComponent({ node }: IAddressProps) {
-  const { id, required, readOnly, labelSettings, simplified, saveWhileTyping } = node.item;
+  const {
+    id,
+    required,
+    readOnly,
+    labelSettings,
+    simplified,
+    saveWhileTyping,
+    textResourceBindings,
+    dataModelBindings,
+  } = useNodeItem(node);
 
-  const { textResourceBindings } = node.item;
   const bindingValidations = useBindingValidationsForNode(node);
   const componentValidations = useComponentValidationsForNode(node);
 
-  const { formData, setValue, debounce } = useDataModelBindings(node.item.dataModelBindings, saveWhileTyping);
+  const { formData, setValue, debounce } = useDataModelBindings(dataModelBindings, saveWhileTyping);
   const { address, careOf, postPlace, zipCode, houseNumber } = formData;
 
   const updatePostPlace = useEffectEvent((newPostPlace) => {
@@ -33,7 +42,7 @@ export function AddressComponent({ node }: IAddressProps) {
     }
   });
 
-  const zipCodeDebounced = FD.useDebouncedPick(node.item.dataModelBindings.zipCode);
+  const zipCodeDebounced = FD.useDebouncedPick(dataModelBindings.zipCode);
   const slowZip = typeof zipCodeDebounced === 'string' ? zipCodeDebounced : undefined;
   const postPlaceQueryData = usePostPlaceQuery(slowZip, !hasValidationErrors(bindingValidations?.zipCode));
   useEffect(() => updatePostPlace(postPlaceQueryData), [postPlaceQueryData, updatePostPlace]);

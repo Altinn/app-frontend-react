@@ -13,12 +13,14 @@ import { useGetOptions } from 'src/features/options/useGetOptions';
 import classes from 'src/layout/Checkboxes/CheckboxesContainerComponent.module.css';
 import { WrappedCheckbox } from 'src/layout/Checkboxes/WrappedCheckbox';
 import { shouldUseRowLayout } from 'src/utils/layout';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type ICheckboxContainerProps = PropsFromGenericComponent<'Checkboxes'>;
 
 export const CheckboxContainerComponent = ({ node, isValid, overrideDisplay }: ICheckboxContainerProps) => {
-  const { id, layout, readOnly, textResourceBindings, required, labelSettings, alertOnChange } = node.item;
+  const item = useNodeItem(node);
+  const { id, layout, readOnly, textResourceBindings, required, labelSettings, alertOnChange } = item;
   const { langAsString } = useLanguage();
 
   const debounce = FD.useDebounceImmediately();
@@ -31,13 +33,13 @@ export const CheckboxContainerComponent = ({ node, isValid, overrideDisplay }: I
     currentStringy,
   } = useGetOptions({
     valueType: 'multi',
-    ...node.item,
+    ...item,
     node,
   });
 
   const labelTextGroup = (
     <span className={classes.checkBoxLabelContainer}>
-      <Lang id={node.item.textResourceBindings?.title} />
+      <Lang id={textResourceBindings?.title} />
       <RequiredIndicator required={required} />
       <OptionalIndicator
         labelSettings={labelSettings}

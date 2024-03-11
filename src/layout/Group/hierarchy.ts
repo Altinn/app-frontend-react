@@ -28,8 +28,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
   }
 
   childrenFromNode(node: LayoutNode<'Group'>): LayoutNode[] {
-    const list: LayoutNode[] = node.item.childComponents;
-    return list;
+    return node.item.childComponents;
   }
 
   /**

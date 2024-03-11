@@ -16,6 +16,8 @@ import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/Repeatin
 import { RepeatingGroupTableRow } from 'src/layout/RepeatingGroup/RepeatingGroupTableRow';
 import { RepeatingGroupTableTitle } from 'src/layout/RepeatingGroup/RepeatingGroupTableTitle';
 import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 
@@ -219,9 +221,10 @@ function ExtraRows({ where, extraCells, columnSettings }: ExtraRowsProps) {
   const { visibleRows, node } = useRepeatingGroup();
   const numRows = visibleRows.length;
   const isEmpty = numRows === 0;
-  const isNested = typeof node.item.baseComponentId === 'string';
+  const item = useNodeItem(node);
+  const isNested = node.parent instanceof BaseLayoutNode;
 
-  const rows = where === 'Before' ? node.item.rowsBefore : node.item.rowsAfter;
+  const rows = where === 'Before' ? item.rowsBefore : item.rowsAfter;
   if (isEmpty || !rows) {
     return null;
   }

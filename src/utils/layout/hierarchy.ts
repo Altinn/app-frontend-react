@@ -56,7 +56,7 @@ function resolvedNodesInLayouts(
         resolvingPerRow: false,
       }) as unknown as CompInternal;
 
-      if (node.item.type === 'RepeatingGroup') {
+      if (node.isType('RepeatingGroup')) {
         for (const row of node.item.rows) {
           if (!row) {
             continue;

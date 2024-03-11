@@ -28,7 +28,7 @@ export class Group extends GroupDef implements ValidateComponent {
           groupNode={props.node}
           renderLayoutNode={(n) => (
             <GenericComponent
-              key={n.item.id}
+              key={n.getId()}
               node={n}
             />
           )}

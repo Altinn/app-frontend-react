@@ -23,11 +23,11 @@ function TestOptions({ node }: { node: LayoutNode<'Dropdown' | 'MultipleSelect'>
   const { options, setData, current, currentStringy } = useGetOptions({
     ...node.item,
     node,
-    valueType: node.item.type === 'Dropdown' ? 'single' : 'multi',
+    valueType: node.isType('Dropdown') ? 'single' : 'multi',
   });
 
   const setterFor = (index: number) => () =>
-    (setData as any)(node.item.type === 'Dropdown' ? options[index] : [options[index]]);
+    (setData as any)(node.isType('Dropdown') ? options[index] : [options[index]]);
 
   return (
     <>

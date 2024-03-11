@@ -3,6 +3,7 @@ import ReactDOMServer from 'react-dom/server';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompInternal, ITextResourceBindings } from 'src/layout/layout';
@@ -25,7 +26,7 @@ export function CustomWebComponent({
 }: ICustomComponentProps) {
   const langTools = useLanguage();
   const { language, langAsString } = langTools;
-  const { tagName, textResourceBindings, dataModelBindings, ...passThroughPropsFromNode } = node.item;
+  const { tagName, textResourceBindings, dataModelBindings, ...passThroughPropsFromNode } = useNodeItem(node);
   const passThroughProps: IPassedOnProps = {
     ...passThroughPropsFromGenericComponent,
     ...passThroughPropsFromNode,

@@ -28,7 +28,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
   const { node } = props;
-  const { rows, textResourceBindings, labelSettings } = node.item;
+  const { rows, textResourceBindings, labelSettings } = useNodeItem(node);
   const { title, description, help } = textResourceBindings ?? {};
   const shouldHaveFullWidth = node.parent instanceof LayoutPage;
   const columnSettings: ITableColumnFormatting = {};
@@ -247,8 +247,7 @@ function CellWithLabel({ className, columnStyleOptions, referenceComponent, isHe
   const title = trb && 'title' in trb ? trb.title : undefined;
   const help = trb && 'help' in trb ? trb.help : undefined;
   const description = trb && 'description' in trb ? trb.description : undefined;
-  const required =
-    (referenceComponent && 'required' in referenceComponent.item && referenceComponent.item.required) ?? false;
+  const required = (refItem && 'required' in refItem && refItem.required) ?? false;
   const componentId = referenceComponent?.getId();
 
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;

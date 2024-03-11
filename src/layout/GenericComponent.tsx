@@ -91,7 +91,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   const isHidden = useIsHiddenComponent();
 
   // If maxLength is set in both schema and component, don't display the schema error message
-  const maxLength = 'maxLength' in node.item && node.item.maxLength;
+  const maxLength = 'maxLength' in item && item.maxLength;
   const filteredValidationErrors = maxLength
     ? validations.filter(
         (validation) =>
@@ -158,7 +158,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
 
   const showValidationMessages = layoutComponent.renderDefaultValidations();
 
-  if ('renderAsSummary' in node.item && node.item.renderAsSummary) {
+  if ('renderAsSummary' in item && item.renderAsSummary) {
     const RenderSummary = 'renderSummary' in node.def ? node.def.renderSummary.bind(node.def) : null;
 
     if (!RenderSummary) {
@@ -202,7 +202,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
         )}
         alignItems='baseline'
       >
-        {shouldComponentRenderLabel(node.item.type) && overrideDisplay?.renderLabel !== false && (
+        {shouldComponentRenderLabel(node.getType()) && overrideDisplay?.renderLabel !== false && (
           <Grid
             item={true}
             {...gridBreakpoints(item.grid?.labelGrid)}
@@ -245,7 +245,7 @@ const gridToClasses = (labelGrid: IGridStyling | undefined, classes: { [key: str
 };
 
 const ErrorList = ({ node, errors }: { node: LayoutNode; errors: string[] }) => {
-  const { id } = node.item;
+  const id = node.getId();
   const isDev = useIsDev();
   if (!isDev) {
     return null;

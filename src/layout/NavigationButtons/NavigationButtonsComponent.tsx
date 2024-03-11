@@ -9,11 +9,12 @@ import { useOnPageNavigationValidation } from 'src/features/validation/callbacks
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import classes from 'src/layout/NavigationButtons/NavigationButtonsComponent.module.css';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 export type INavigationButtons = PropsFromGenericComponent<'NavigationButtons'>;
 
 export function NavigationButtonsComponent({ node }: INavigationButtons) {
-  const { id, showBackButton, textResourceBindings, validateOnNext, validateOnPrevious } = node.item;
+  const { id, showBackButton, textResourceBindings, validateOnNext, validateOnPrevious } = useNodeItem(node);
   const { navigateToPage, next, previous, maybeSaveOnPageChange } = useNavigatePage();
   const returnToView = useReturnToView();
 

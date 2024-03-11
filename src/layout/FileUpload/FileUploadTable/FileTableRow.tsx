@@ -24,7 +24,7 @@ export const bytesInOneMB = 1048576;
 
 export function FileTableRow({ node, attachment, mobileView, tagLabel }: IFileUploadTableRowProps) {
   const { langAsString } = useLanguage();
-  const hasTag = node.item.type === 'FileUploadWithTag';
+  const hasTag = node.isType('FileUploadWithTag');
 
   const readableSize = `${(attachment.data.size / bytesInOneMB).toFixed(2)} ${langAsString(
     'form_filler.file_uploader_mb',

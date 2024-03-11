@@ -13,6 +13,7 @@ import { GroupComponent } from 'src/layout/Group/GroupComponent';
 import classes from 'src/layout/Group/SummaryGroupComponent.module.css';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ITextResourceBindings } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -32,8 +33,10 @@ export function SummaryGroupComponent({
   targetNode,
   overrides,
 }: ISummaryGroupComponent) {
-  const excludedChildren = summaryNode.item.excludedChildren;
-  const display = overrides?.display || summaryNode.item.display;
+  const summaryItem = useNodeItem(summaryNode);
+  const targetItem = useNodeItem(targetNode);
+  const excludedChildren = summaryItem.excludedChildren;
+  const display = overrides?.display || summaryItem.display;
   const { langAsString } = useLanguage();
   const formDataSelector = FD.useDebouncedSelector();
 
@@ -43,14 +46,14 @@ export function SummaryGroupComponent({
   const groupValidations = useDeepValidationsForNode(targetNode);
   const groupHasErrors = hasValidationErrors(groupValidations);
 
-  const textBindings = targetNode.item.textResourceBindings as ITextResourceBindings;
+  const textBindings = targetItem.textResourceBindings as ITextResourceBindings;
   const summaryAccessibleTitleTrb =
     textBindings && 'summaryAccessibleTitle' in textBindings ? textBindings.summaryAccessibleTitle : undefined;
   const summaryTitleTrb = textBindings && 'summaryTitle' in textBindings ? textBindings.summaryTitle : undefined;
   const titleTrb = textBindings && 'title' in textBindings ? textBindings.title : undefined;
   const ariaLabel = langAsString(summaryAccessibleTitleTrb ?? summaryTitleTrb ?? titleTrb);
 
-  if (summaryNode.item.largeGroup && overrides?.largeGroup !== false) {
+  if (summaryItem.largeGroup && overrides?.largeGroup !== false) {
     return (
       <>
         {

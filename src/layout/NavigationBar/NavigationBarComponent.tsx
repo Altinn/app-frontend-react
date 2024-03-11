@@ -9,6 +9,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 const useStyles = makeStyles((theme) => ({
@@ -109,7 +110,7 @@ const NavigationButton = React.forwardRef(
 NavigationButton.displayName = 'NavigationButton';
 
 export const NavigationBarComponent = ({ node }: INavigationBar) => {
-  const { compact, validateOnForward, validateOnBackward } = node.item;
+  const { compact, validateOnForward, validateOnBackward } = useNodeItem(node);
   const classes = useStyles();
   const [showMenu, setShowMenu] = React.useState(false);
   const isMobile = useIsMobile() || compact === true;

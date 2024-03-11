@@ -7,6 +7,7 @@ import type { PropsFromGenericComponent } from '..';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ButtonColor, ButtonVariant } from 'src/layout/Button/WrappedButton';
 import type { LinkStyle } from 'src/layout/Link/config.generated';
 
@@ -20,7 +21,7 @@ export const buttonStyles: {
 export type ILinkComponent = PropsFromGenericComponent<'Link'>;
 
 export function LinkComponent({ node }: ILinkComponent) {
-  const { id, style, openInNewTab, textResourceBindings } = node.item;
+  const { id, style, openInNewTab, textResourceBindings } = useNodeItem(node);
   const { langAsString } = useLanguage();
   const parentIsPage = node.parent instanceof LayoutPage;
 

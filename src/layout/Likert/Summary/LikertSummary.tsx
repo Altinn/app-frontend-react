@@ -13,6 +13,7 @@ import { LargeLikertSummaryContainer } from 'src/layout/Likert/Summary/LargeLike
 import classes from 'src/layout/Likert/Summary/LikertSummary.module.css';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ITextResourceBindings } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -26,8 +27,10 @@ export interface ILikertSummary {
 }
 
 export function LikertSummary({ onChangeClick, changeText, summaryNode, targetNode, overrides }: ILikertSummary) {
-  const excludedChildren = summaryNode.item.excludedChildren;
-  const display = overrides?.display || summaryNode.item.display;
+  const targetItem = useNodeItem(targetNode);
+  const summaryItem = useNodeItem(summaryNode);
+  const excludedChildren = summaryItem.excludedChildren;
+  const display = overrides?.display || summaryItem.display;
   const { lang, langAsString } = useLanguage();
   const formDataSelector = FD.useDebouncedSelector();
 
@@ -37,16 +40,16 @@ export function LikertSummary({ onChangeClick, changeText, summaryNode, targetNo
   const groupValidations = useDeepValidationsForNode(targetNode);
   const groupHasErrors = hasValidationErrors(groupValidations);
 
-  const textBindings = targetNode.item.textResourceBindings as ITextResourceBindings;
+  const textBindings = targetItem.textResourceBindings as ITextResourceBindings;
   const summaryAccessibleTitleTrb =
     textBindings && 'summaryAccessibleTitle' in textBindings ? textBindings.summaryAccessibleTitle : undefined;
   const summaryTitleTrb = textBindings && 'summaryTitle' in textBindings ? textBindings.summaryTitle : undefined;
   const titleTrb = textBindings && 'title' in textBindings ? textBindings.title : undefined;
   const title = lang(summaryTitleTrb ?? titleTrb);
   const ariaLabel = langAsString(summaryTitleTrb ?? summaryAccessibleTitleTrb ?? titleTrb);
-  const rows = targetNode.item.rows;
+  const rows = targetItem.rows;
 
-  if (summaryNode.item.largeGroup && overrides?.largeGroup !== false && rows.length) {
+  if (summaryItem.largeGroup && overrides?.largeGroup !== false && rows.length) {
     return (
       <>
         {rows.map((row) => (

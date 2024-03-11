@@ -11,10 +11,12 @@ import { CompCategory } from 'src/layout/common';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { GroupComponent } from 'src/layout/Group/GroupComponent';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 const PDFComponent = ({ node }: { node: LayoutNode }) => {
-  if (node.isType('Summary') || ('renderAsSummary' in node.item && node.item.renderAsSummary)) {
+  const item = useNodeItem(node);
+  if (item.type === 'Summary' || ('renderAsSummary' in item && item.renderAsSummary)) {
     return (
       <SummaryComponent
         summaryNode={node as LayoutNode<'Summary'>}
@@ -46,7 +48,7 @@ const PDFComponent = ({ node }: { node: LayoutNode }) => {
       />
     );
   } else {
-    window.logWarnOnce(`Component type: "${node.item.type}" is not allowed in PDF. Component id: "${node.getId()}"`);
+    window.logWarnOnce(`Component type: "${node.getType()}" is not allowed in PDF. Component id: "${node.getId()}"`);
     return null;
   }
 };

@@ -8,12 +8,13 @@ import { getVariant } from 'src/components/form/Panel';
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/Panel/Panel.module.css';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 type IPanelProps = PropsFromGenericComponent<'Panel'>;
 
 export const PanelComponent = ({ node }: IPanelProps) => {
-  const { textResourceBindings, variant, showIcon } = node.item;
-  const fullWidth = !node.item.grid && node.parent instanceof LayoutPage;
+  const { textResourceBindings, variant, showIcon, grid } = useNodeItem(node);
+  const fullWidth = !grid && node.parent instanceof LayoutPage;
   const isOnBottom = node.parent.children().indexOf(node) === node.parent.children().length - 1;
   const isOnTop = node.parent.children().indexOf(node) === 0;
 
