@@ -408,7 +408,7 @@ Cypress.Commands.add('moveProcessNext', () => {
     const maybeInstanceId = getInstanceIdRegExp().exec(url);
     const instanceId = maybeInstanceId ? maybeInstanceId[1] : 'instance-id-not-found';
     const baseUrl =
-      Cypress.env('environment') === 'local'
+      Cypress.env('type') === 'localtest'
         ? Cypress.config().baseUrl || ''
         : `https://ttd.apps.${Cypress.config('baseUrl')?.slice(8)}`;
     const urlPath = url.replace(baseUrl, '');
