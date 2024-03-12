@@ -127,8 +127,10 @@ const common = {
     ),
 
   // Data model bindings:
+  IDataModelBinding: () =>
+    new CG.union(new CG.str(), new CG.obj(new CG.prop('dataType', new CG.str()), new CG.prop('path', new CG.str()))),
   IDataModelBindingsSimple: () =>
-    new CG.obj(new CG.prop('simpleBinding', new CG.str()))
+    new CG.obj(new CG.prop('simpleBinding', CG.common('IDataModelBinding')))
       .setTitle('Data model binding')
       .setDescription(
         'Describes the location in the data model where the component should store its value(s). A simple ' +
@@ -136,11 +138,11 @@ const common = {
       ),
   IDataModelBindingsOptionsSimple: () =>
     new CG.obj(
-      new CG.prop('simpleBinding', new CG.str()),
-      new CG.prop('label', new CG.str().optional()),
+      new CG.prop('simpleBinding', CG.common('IDataModelBinding')),
+      new CG.prop('label', CG.common('IDataModelBinding').optional()),
       new CG.prop(
         'metadata',
-        new CG.str()
+        CG.common('IDataModelBinding')
           .optional()
           .setDescription(
             'Describes the location where metadata for the option based component should be stored in the datamodel.',
