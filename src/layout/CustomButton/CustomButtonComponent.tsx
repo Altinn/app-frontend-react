@@ -150,6 +150,9 @@ export function useActionAuthorization() {
   const currentTask = useLaxProcessData()?.currentTask;
   const userActions = currentTask?.userActions;
   const actionPermissions = currentTask?.actions;
+
+  console.log(JSON.stringify({ currentTask, userActions, actionPermissions }, null, 2));
+
   return {
     isAuthorized: (action: IUserAction['id']) =>
       (!!actionPermissions?.[action] || userActions?.find((a) => a.id === action)?.authorized) ?? false,

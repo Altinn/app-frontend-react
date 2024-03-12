@@ -24,6 +24,7 @@ import {
   getLayoutSetsUrl,
   getLayoutSettingsUrl,
   getLayoutsUrl,
+  getPaymentInfoUrl,
   getPdfFormatUrl,
   getProcessNextUrl,
   getProcessStateUrl,
@@ -219,6 +220,9 @@ export const fetchRuleHandler = (layoutSetId: string): Promise<string | null> =>
 
 export const fetchTextResources = (selectedLanguage: string): Promise<ITextResourceResult> =>
   httpGet(textResourcesUrl(selectedLanguage));
+
+export const fetchPaymentInfo = (instanceId: string, partyId: string): Promise<any> =>
+  httpGet(getPaymentInfoUrl(instanceId, partyId));
 
 export const fetchBackendValidations = (
   instanceId: string,

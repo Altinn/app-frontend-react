@@ -149,6 +149,7 @@ const defaultQueryMocks: AppQueries = {
   fetchProcessState: async () => getProcessDataMock(),
   fetchInstanceData: async () => getInstanceDataMock(),
   fetchBackendValidations: async () => [],
+  fetchPaymentInfo: async () => {},
 };
 
 function makeProxy<Name extends keyof FormDataMethods>(name: Name, ref: InitialRenderRef) {
