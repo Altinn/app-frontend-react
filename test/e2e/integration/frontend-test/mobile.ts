@@ -70,7 +70,7 @@ function testGroup(mode: Mode) {
     }
   });
 
-  cy.get(appFrontend.group.hideRepeatingGroupRow).clear();
+  cy.get(appFrontend.group.hideRepeatingGroupRow).numberFormatClear();
   cy.get(appFrontend.group.hideRepeatingGroupRow).type('1000');
 
   cy.navPage('repeating (store endringer)').click();

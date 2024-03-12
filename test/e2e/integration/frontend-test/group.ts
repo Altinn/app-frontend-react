@@ -582,6 +582,10 @@ describe('Group', () => {
     cy.get(appFrontend.group.prefill.enorm).check();
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
+
+    // Make sure the new row is added last, and that the last few things we did has been saved
+    // (and thus that the new rows have been received from the backend)
+    cy.waitUntilSaved();
     cy.get(appFrontend.group.addNewItem).click();
 
     cy.get('#group-mainGroup table th').eq(0).should('have.text', 'currentValue tableTitle');
@@ -723,7 +727,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.get(appFrontend.group.editContainer).find('input').first().should('have.value', 'NOK 80 323');
 
-    cy.get(appFrontend.group.hideRepeatingGroupRow).clear();
+    cy.get(appFrontend.group.hideRepeatingGroupRow).numberFormatClear();
     cy.get(appFrontend.group.hideRepeatingGroupRow).type('1000');
 
     cy.get(appFrontend.group.editContainer).should('not.exist');
@@ -752,6 +756,7 @@ describe('Group', () => {
     cy.gotoNavPage('prefill');
     cy.get('#prefill-enabled').findByRole('radio', { name: 'Nei' }).click();
     cy.get(appFrontend.group.prefill.middels).check();
+    cy.waitUntilSaved();
 
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 1);
@@ -786,7 +791,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.prefill.enorm).check();
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
-    cy.get(appFrontend.group.hideRepeatingGroupRow).clear();
+    cy.get(appFrontend.group.hideRepeatingGroupRow).numberFormatClear();
     cy.get(appFrontend.group.hideRepeatingGroupRow).type('1000');
     cy.gotoNavPage('summary');
     cy.get('[data-testid="summary-repeating-row"]').should('have.length', 2);

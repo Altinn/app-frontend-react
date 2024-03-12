@@ -51,7 +51,12 @@ Cypress.Commands.add('dsSelect', (selector, value) => {
   cy.log(`Selecting ${value} in ${selector}`);
   cy.get(selector).should('not.be.disabled');
   cy.get(selector).click();
-  cy.findByRole('option', { name: value }).click();
+
+  // It is tempting to just use findByRole('option', { name: value }) here, but that's flakier than using findByText()
+  // as it never retries if the element re-renders. More information here:
+  // https://github.com/testing-library/cypress-testing-library/issues/205#issuecomment-974688283
+  cy.get('[id^="fds-select-"] [aria-expanded=true]').findByText(value).click();
+
   cy.get('body').click();
 });
 
@@ -72,6 +77,25 @@ Cypress.Commands.add('navPage', (page: string) => {
 Cypress.Commands.add('gotoNavPage', (page: string) => {
   cy.navPage(page).click();
   cy.navPage(page).should('have.attr', 'aria-current', 'page');
+});
+
+Cypress.Commands.add('numberFormatClear', { prevSubject: true }, (subject: JQueryWithSelector | undefined) => {
+  cy.log('Clearing number formatted input field');
+  if (!subject) {
+    throw new Error('Subject is undefined');
+  }
+
+  // Since we cannot use {selectall} on number formatted input fields, because react-number-format messes with
+  // our selection, we need to delete the content by moving to the start of the input field and deleting one
+  // character at a time.
+  const strLength = subject.val()?.toString().length;
+  const del = new Array(strLength).fill('{del}').join('');
+
+  // We also add {moveToStart} multiple times to ensure that we are at the start of the input field, as
+  // react-number-format messes with our cursor position here as well.
+  const moveToStart = new Array(5).fill('{moveToStart}').join('');
+
+  cy.wrap(subject).type(`${moveToStart}${del}`);
 });
 
 interface KnownViolation extends Pick<axe.Result, 'id'> {
