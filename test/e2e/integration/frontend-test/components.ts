@@ -104,6 +104,12 @@ describe('UI Components', () => {
       force: true,
     });
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('be.visible');
+    cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.uploadWithTag.uploadZone)).should('not.exist');
+    cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
+    cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.uploadWithTag.uploadZone)).should(
+      'contain.text',
+      'Du må velge file type',
+    );
     cy.dsSelect(appFrontend.changeOfName.uploadWithTag.tagsDropDown, 'Adresse');
     cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
     cy.wait('@saveTags');

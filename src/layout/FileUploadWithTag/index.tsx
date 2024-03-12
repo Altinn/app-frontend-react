@@ -84,7 +84,8 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
           componentId: node.item.id,
           source: FrontendValidationSource.Component,
           meta: { attachmentId: attachment.data.id },
-          category: ValidationMask.Component,
+          // Treat visibility of missing tag the same as required to prevent showing an error immediately
+          category: ValidationMask.Required,
         });
       }
     }
