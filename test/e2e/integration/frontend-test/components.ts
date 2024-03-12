@@ -176,6 +176,29 @@ describe('UI Components', () => {
     }
   });
 
+  it('minNumberOfAttachments should validate like required', () => {
+    cy.interceptLayout('changename', (component) => {
+      if (component.type === 'FileUpload' || component.type === 'FileUploadWithTag') {
+        component.minNumberOfAttachments = 1;
+      }
+    });
+    cy.goto('changename');
+    cy.get(appFrontend.changeOfName.newFirstName).type('Per');
+    cy.get(appFrontend.errorReport).should('not.exist');
+    cy.gotoNavPage('grid');
+    cy.get(appFrontend.sendinButton).click();
+    cy.get(appFrontend.errorReport).should('contain.text', 'For å fortsette må du laste opp 1 vedlegg');
+    cy.gotoNavPage('form');
+    cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.upload)).should(
+      'contain.text',
+      'For å fortsette må du laste opp 1 vedlegg',
+    );
+    cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.uploadWithTag.uploadZone)).should(
+      'contain.text',
+      'For å fortsette må du laste opp 1 vedlegg',
+    );
+  });
+
   it('is possible to navigate between pages using navigation bar', () => {
     cy.goto('changename');
     cy.get(appFrontend.navMenuButtons).should('have.length', 3);
