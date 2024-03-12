@@ -45,6 +45,7 @@ import type { IFormDynamics } from 'src/features/form/dynamics';
 import type { IDataModelPatchRequest, IDataModelPatchResponse } from 'src/features/formData/types';
 import type { Instantiation } from 'src/features/instantiate/InstantiationContext';
 import type { ITextResourceResult } from 'src/features/language/textResources';
+import type { PaymentResponsePayload } from 'src/features/payment/types';
 import type { IPdfFormat } from 'src/features/pdf/types';
 import type { BackendValidationIssue, IExpressionValidationConfig } from 'src/features/validation';
 import type { ILayoutSets, ILayoutSettings, IRawOption } from 'src/layout/common.generated';
@@ -221,8 +222,8 @@ export const fetchRuleHandler = (layoutSetId: string): Promise<string | null> =>
 export const fetchTextResources = (selectedLanguage: string): Promise<ITextResourceResult> =>
   httpGet(textResourcesUrl(selectedLanguage));
 
-export const fetchPaymentInfo = (instanceId: string, partyId: string): Promise<any> =>
-  httpGet(getPaymentInfoUrl(instanceId, partyId));
+export const fetchPaymentInfo = (instanceOwnerPartyId: string, instanceGuid: string): Promise<PaymentResponsePayload> =>
+  httpGet(getPaymentInfoUrl(instanceOwnerPartyId, instanceGuid));
 
 export const fetchBackendValidations = (
   instanceId: string,

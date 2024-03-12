@@ -21,8 +21,8 @@ export const getSetCurrentPartyUrl = (partyId: string) => `${appPath}/api/v1/par
 
 export const textResourcesUrl = (language: string) => `${origin}/${org}/${app}/api/v1/texts/${language}`;
 
-export const getPaymentInfoUrl = (instanceId: string, partyId: string) =>
-  `${origin}/${org}/${app}/instances/${partyId}/instanceId/payment`;
+export const getPaymentInfoUrl = (instanceOwnerPartyId: string, instanceGuid: string) =>
+  `${origin}/${org}/${app}/instances/${instanceOwnerPartyId}/${instanceGuid}/payment`;
 
 export const getFileUploadUrl = (instanceId: string, attachmentType: string) =>
   `${appPath}/instances/${instanceId}/data?dataType=${attachmentType}`;

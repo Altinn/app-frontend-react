@@ -24,9 +24,6 @@ export function ActionButtonComponent({ node }: IActionButton) {
   const { isAuthorized } = useActionAuthorization();
 
   const { action, buttonStyle, id, textResourceBindings } = node.item;
-
-  console.log(JSON.stringify(action, null, 2));
-
   const disabled = !isAuthorized(action);
   const isLoadingHere = busyWithId === id;
 

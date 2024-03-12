@@ -150,9 +150,11 @@ export const ProcessWrapper = () => {
 
   if (taskType === ProcessTaskType.Payment) {
     return (
-      <PresentationComponent type={realTaskType}>
-        <Payment></Payment>
-      </PresentationComponent>
+      <ProcessNavigationProvider>
+        <PresentationComponent type={realTaskType}>
+          <Payment></Payment>
+        </PresentationComponent>
+      </ProcessNavigationProvider>
     );
   }
 
