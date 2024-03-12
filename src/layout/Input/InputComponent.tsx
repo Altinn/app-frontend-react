@@ -15,6 +15,20 @@ import type { IInputFormatting } from 'src/layout/Input/config.generated';
 
 export type IInputProps = PropsFromGenericComponent<'Input'>;
 
+import type { TextfieldProps } from '@digdir/design-system-react/dist/types/components/form/Textfield/Textfield';
+
+// We need to use this wrapped Textfield component because we have a conflict between the 'size' prop
+// of the TextField and the react-number-format components which also have a 'size' prop
+const TextfieldWrapped: React.FunctionComponent<TextfieldProps> = (props) => {
+  const { size, ...customProps } = props;
+  return (
+    <Textfield
+      size={'small'}
+      {...customProps}
+    ></Textfield>
+  );
+};
+
 export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isValid, overrideDisplay }) => {
   const {
     id,
@@ -73,7 +87,7 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
 
   if (!reactNumberFormatConfig?.number) {
     return (
-      <Textfield
+      <TextfieldWrapped
         value={formValue}
         onChange={(event) => {
           setValue('simpleBinding', event.target.value);
@@ -91,7 +105,7 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
         onValueChange={(values) => {
           setValue('simpleBinding', values.value);
         }}
-        customInput={Textfield as React.ComponentType}
+        customInput={TextfieldWrapped as React.ComponentType}
         data-testid={`${id}-formatted-number-${variant}`}
         {...reactNumberFormatConfig.number}
         {...commonProps}
@@ -116,7 +130,7 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
           event.preventDefault();
           setValue('simpleBinding', pastedText);
         }}
-        customInput={Textfield as React.ComponentType}
+        customInput={TextfieldWrapped as React.ComponentType}
         data-testid={`${id}-formatted-number-${variant}`}
         {...reactNumberFormatConfig.number}
         {...commonProps}

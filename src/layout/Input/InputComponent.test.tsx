@@ -136,39 +136,6 @@ describe('InputComponent', () => {
     expect(inputComponent).toHaveValue(formattedValue);
   });
 
-  // it.only('should allow decimal separators specified in allowedDecimalSeparators when pasting', async () => {
-  //   const typedValue = '11.1';
-  //   const formattedValue = '11,1';
-  //   const { formDataMethods } = await render({
-  //     component: {
-  //       formatting: {
-  //         number: {
-  //           allowedDecimalSeparators: [',', '.'],
-  //           decimalSeparator: ',',
-  //         },
-  //       },
-  //     },
-  //   });
-  //
-  //   const inputComponent = screen.getByRole('textbox') as HTMLInputElement;
-  //
-  //   await act(async () => {
-  //     await userEvent.click(inputComponent);
-  //     await userEvent.paste(typedValue);
-  //   });
-  //
-  //   expect(inputComponent).toHaveValue(formattedValue);
-  //   // expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'some.field', newValue: typedValue });
-  //
-  //   // await waitFor(() => {
-  //   //   expect(inputComponent).toHaveValue(formattedValue);
-  //   // });
-  //   //
-  //   // await waitFor(() => {
-  //   //   expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'some.field', newValue: typedValue });
-  //   // });
-  // });
-
   const render = async ({ component, genericProps, ...rest }: Partial<RenderGenericComponentTestProps<'Input'>> = {}) =>
     await renderGenericComponentTest({
       type: 'Input',
