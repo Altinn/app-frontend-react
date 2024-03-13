@@ -2,15 +2,16 @@ import React from 'react';
 
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/Summary/SummaryItemCompact.module.css';
+import type { ITextResourceBindings } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface ICompactSummaryItem {
-  targetNode: LayoutNode;
+  targetNode?: LayoutNode;
+  textBindings?: ITextResourceBindings;
   displayData: string;
 }
 
-export function SummaryItemCompact({ targetNode, displayData }: ICompactSummaryItem) {
-  const textBindings = 'textResourceBindings' in targetNode.item ? targetNode.item.textResourceBindings : undefined;
+export function SummaryItemCompact({ targetNode, textBindings, displayData }: ICompactSummaryItem) {
   const summaryTitleTrb = textBindings && 'summaryTitle' in textBindings ? textBindings.summaryTitle : undefined;
   const titleTrb = textBindings && 'title' in textBindings ? textBindings.title : undefined;
 

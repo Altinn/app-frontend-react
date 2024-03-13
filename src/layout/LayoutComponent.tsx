@@ -177,6 +177,7 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
     return (
       <SummaryItemCompact
         targetNode={targetNode}
+        textBindings={targetNode.item.textResourceBindings}
         displayData={displayData}
       />
     );
@@ -200,9 +201,14 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
     validTypes: string[],
     isRequired = this.isDataModelBindingsRequired(ctx.node),
     name = key,
+    manipulateBinding?: (binding: string) => string,
   ): [string[], undefined] | [undefined, JSONSchema7] {
     const { node, lookupBinding } = ctx;
-    const value = ((node.item.dataModelBindings as any) || {})[key] || '';
+    let value = ((node.item.dataModelBindings as any) || {})[key] || '';
+
+    if (manipulateBinding) {
+      value = manipulateBinding(value);
+    }
 
     if (!value) {
       if (isRequired) {

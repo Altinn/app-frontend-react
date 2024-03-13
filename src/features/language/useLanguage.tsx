@@ -1,4 +1,4 @@
-import { Children, isValidElement, useMemo } from 'react';
+import { Children, createContext, isValidElement, useContext, useMemo } from 'react';
 import type { JSX, ReactNode } from 'react';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
@@ -15,6 +15,7 @@ import { getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { smartLowerCaseFirst } from 'src/utils/formComponentUtils';
 import type { useDataModelReaders } from 'src/features/formData/FormDataReaders';
+import type { LangDataSources } from 'src/features/language/LangDataSourcesProvider';
 import type { TextResourceMap } from 'src/features/language/textResources';
 import type { FixedLanguageList } from 'src/language/languages';
 import type { FormDataSelector } from 'src/layout';
@@ -77,6 +78,13 @@ type ObjectToDotNotation<T extends Record<string, any>, Prefix extends string = 
 
 export type ValidLanguageKey = ObjectToDotNotation<FixedLanguageList>;
 
+interface LangSpecificity {
+  dataSources?: Partial<LangDataSources>;
+}
+
+const LangSpecificityContext = createContext<LangSpecificity | undefined>(undefined);
+export const OverrideLang = LangSpecificityContext.Provider;
+
 /**
  * Hook to resolve a key to a language string or React element (if the key is found and contains markdown or HTML).
  * Prefer this over using the long-named language functions. When those are less used, we can refactor their
@@ -93,7 +101,8 @@ export function useLanguage(node?: LayoutNode) {
 }
 
 export function useLanguageWithForcedNode(node: LayoutNode | undefined) {
-  const { textResources, language, selectedLanguage, ...dataSources } = useLangToolsDataSources() || {};
+  const { textResources, language, selectedLanguage, ...allDataSources } = useLangToolsDataSources() || {};
+  const dataSourcesOverrides = useContext(LangSpecificityContext)?.dataSources;
   const layoutSetId = useCurrentLayoutSetId();
   const currentDataModelName = useDataTypeByLayoutSetId(layoutSetId);
   const currentDataModel = FD.useLaxDebouncedSelector();
@@ -104,12 +113,25 @@ export function useLanguageWithForcedNode(node: LayoutNode | undefined) {
     }
 
     return staticUseLanguage(textResources, language, selectedLanguage, {
-      ...(dataSources as Omit<TextResourceVariablesDataSources, 'node' | 'currentDataModel' | 'currentDataModelName'>),
+      ...(allDataSources as Omit<
+        TextResourceVariablesDataSources,
+        'node' | 'currentDataModel' | 'currentDataModelName'
+      >),
       node,
       currentDataModel,
       currentDataModelName,
+      ...dataSourcesOverrides,
     });
-  }, [currentDataModel, currentDataModelName, dataSources, language, node, selectedLanguage, textResources]);
+  }, [
+    currentDataModel,
+    currentDataModelName,
+    allDataSources,
+    dataSourcesOverrides,
+    language,
+    node,
+    selectedLanguage,
+    textResources,
+  ]);
 }
 
 interface ILanguageState {

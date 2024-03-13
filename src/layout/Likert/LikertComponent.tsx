@@ -9,26 +9,21 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
-import { LayoutStyle } from 'src/layout/common.generated';
-import { GenericComponent } from 'src/layout/GenericComponent';
-import classes from 'src/layout/LikertItem/LikertItemComponent.module.css';
-import type { IGenericComponentProps } from 'src/layout/GenericComponent';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import { DisplayLikertRow } from 'src/layout/Likert/LikertRow';
+import classes from 'src/layout/Likert/LikertRow.module.css';
+import { useLikertRows } from 'src/layout/Likert/useLikertRows';
+import type { PropsFromGenericComponent } from 'src/layout';
 
-interface LikertComponentProps {
-  node: LayoutNode<'Likert'>;
-}
-
-export const LikertComponent = ({ node }: LikertComponentProps) => {
-  const firstLikertChild = node?.children((item) => item.type === 'LikertItem') as LayoutNode<'LikertItem'> | undefined;
+export const LikertComponent = ({ node }: PropsFromGenericComponent<'Likert'>) => {
   const mobileView = useIsMobileOrTablet();
   const { options: calculatedOptions, isFetching } = useGetOptions({
-    ...(firstLikertChild?.item || {}),
+    ...node.item,
     node,
     valueType: 'single',
     dataModelBindings: undefined,
   });
   const { lang } = useLanguage();
+  const rows = useLikertRows(node.item);
 
   const id = node.item.id;
   const hasDescription = !!node?.item.textResourceBindings?.description;
@@ -76,19 +71,14 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
           aria-labelledby={(hasTitle && titleId) || undefined}
           aria-describedby={(hasDescription && descriptionId) || undefined}
         >
-          {node?.children().map((comp) => {
-            if (comp.isType('Group') || comp.isType('Summary')) {
-              window.logWarnOnce('Unexpected Group or Summary inside likert container:\n', comp.item.id);
-              return;
-            }
-
-            return (
-              <GenericComponent
-                key={comp.item.id}
-                node={comp}
-              />
-            );
-          })}
+          {rows.map((row) => (
+            <DisplayLikertRow
+              key={`likert-row-${row.uuid}`}
+              node={node}
+              mobile={true}
+              row={row}
+            />
+          ))}
         </div>
       </Grid>
     );
@@ -139,24 +129,14 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
               </Table.Row>
             </Table.Head>
             <Table.Body id={`likert-table-body-${id}`}>
-              {node?.children().map((comp) => {
-                if (comp.isType('Group') || comp.isType('Summary')) {
-                  window.logWarnOnce('Unexpected Group or Summary inside likert container:\n', comp.item.id);
-                  return;
-                }
-
-                const override: IGenericComponentProps<'LikertItem'>['overrideItemProps'] = {
-                  layout: LayoutStyle.Table,
-                };
-
-                return (
-                  <GenericComponent
-                    key={comp.item.id}
-                    node={comp as LayoutNode<'LikertItem'>}
-                    overrideItemProps={override}
-                  />
-                );
-              })}
+              {rows.map((row) => (
+                <DisplayLikertRow
+                  key={`likert-row-${row.uuid}`}
+                  mobile={false}
+                  node={node}
+                  row={row}
+                />
+              ))}
             </Table.Body>
           </Table>
         </div>

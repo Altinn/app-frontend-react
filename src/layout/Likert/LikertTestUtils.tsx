@@ -14,7 +14,6 @@ import type { FDNewValue } from 'src/features/formData/FormDataWriteStateMachine
 import type { IRawTextResource, ITextResourceResult } from 'src/features/language/textResources';
 import type { IRawOption } from 'src/layout/common.generated';
 import type { CompLikertExternal } from 'src/layout/Likert/config.generated';
-import type { CompLikertItemExternal } from 'src/layout/LikertItem/config.generated';
 
 export const defaultMockQuestions = [
   { Question: 'Hvordan trives du på skolen?', Answer: '' },
@@ -124,7 +123,7 @@ interface IRenderProps {
   mobileView: boolean;
   mockQuestions: IQuestion[];
   mockOptions: IRawOption[];
-  radioButtonProps: Partial<CompLikertItemExternal>;
+  radioButtonProps: Partial<CompLikertExternal>;
   likertProps: Partial<CompLikertExternal>;
   extraTextResources: IRawTextResource[];
   validationIssues: BackendValidationIssue[];
@@ -170,7 +169,12 @@ export function ContainerTester(props: { id: string }) {
     throw new Error(`Could not resolve node with id ${props.id}, or unexpected node type`);
   }
 
-  return <LikertComponent node={node} />;
+  return (
+    <LikertComponent
+      node={node}
+      containerDivRef={{ current: null }}
+    />
+  );
 }
 
 export const validateTableLayout = async (

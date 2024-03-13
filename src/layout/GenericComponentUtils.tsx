@@ -5,7 +5,7 @@ import { Label } from 'src/components/form/Label';
 import { Legend } from 'src/components/form/Legend';
 import { Lang } from 'src/features/language/Lang';
 import { useFormComponentCtxStrict } from 'src/layout/FormComponentContext';
-import type { ITextResourceBindings } from 'src/layout/layout';
+import type { CompTypes, ITextResourceBindings } from 'src/layout/layout';
 
 export function GenericComponentLabel() {
   const { overrideDisplay, id, node } = useFormComponentCtxStrict();
@@ -48,13 +48,20 @@ export function GenericComponentDescription() {
   );
 }
 
-export function GenericComponentLegend() {
+export interface LegendProps<T extends CompTypes> {
+  overrideTextResources?: Partial<ITextResourceBindings<T>>;
+}
+
+export function GenericComponentLegend<T extends CompTypes = CompTypes>({ overrideTextResources }: LegendProps<T>) {
   const { overrideDisplay, id, node } = useFormComponentCtxStrict();
   if (overrideDisplay?.renderLegend === false) {
     return null;
   }
 
-  const trb = (node.item.textResourceBindings || {}) as Exclude<ITextResourceBindings, undefined>;
+  const trb = {
+    ...((node.item.textResourceBindings || {}) as Exclude<ITextResourceBindings, undefined>),
+    ...overrideTextResources,
+  };
   const titleTrb = 'title' in trb ? trb.title : undefined;
   const helpTrb = 'help' in trb ? trb.help : undefined;
   const descriptionTrb = 'description' in trb ? trb.description : undefined;
