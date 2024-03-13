@@ -1,6 +1,5 @@
 import { ValidationMask } from 'src/features/validation';
 import { implementsValidationFilter } from 'src/layout';
-import type { IAttachments, UploadedAttachment } from 'src/features/attachments';
 import type {
   BaseValidation,
   ComponentValidation,
@@ -14,7 +13,6 @@ import type {
 } from 'src/features/validation';
 import type { ValidationSelector } from 'src/features/validation/validationContext';
 import type { ValidationFilterFunction } from 'src/layout';
-import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
@@ -175,11 +173,16 @@ export function getValidationsForNode(
   return validationMessages;
 }
 
+/**
+ * Gets the initial validation mask for a component using its showValidations property
+ * If the value is not set, it will default to all validations except required
+ */
 export function getInitialMaskFromNode(node: LayoutNode | LayoutPage): number {
-  if ('showValidations' in node.item) {
-    return getVisibilityMask(node.item.showValidations);
+  // If not set, null, or undefined, default to all validations except required
+  if (!('showValidations' in node.item) || node.item.showValidations == null) {
+    return ValidationMask.AllExceptRequired;
   }
-  return 0;
+  return getVisibilityMask(node.item.showValidations);
 }
 
 export function getVisibilityMask(maskKeys?: ValidationMaskKeys[]): number {
@@ -191,24 +194,4 @@ export function getVisibilityMask(maskKeys?: ValidationMaskKeys[]): number {
     mask |= ValidationMask[maskKey];
   }
   return mask;
-}
-
-export function attachmentsValid(
-  attachments: IAttachments,
-  component: CompInternal<'FileUpload' | 'FileUploadWithTag'>,
-): boolean {
-  if (component.minNumberOfAttachments === 0) {
-    return true;
-  }
-
-  const attachmentsForComponent = attachments[component.id];
-  if (!attachmentsForComponent) {
-    return false;
-  }
-
-  return attachmentsForComponent.length >= component.minNumberOfAttachments;
-}
-
-export function attachmentIsMissingTag(attachment: UploadedAttachment): boolean {
-  return attachment.data.tags === undefined || attachment.data.tags.length === 0;
 }
