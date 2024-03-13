@@ -127,69 +127,61 @@ const common = {
     ),
 
   // Data model bindings:
-  IDataModelBinding: () =>
-    new CG.union(new CG.str(), new CG.obj(new CG.prop('dataType', new CG.str()), new CG.prop('path', new CG.str()))),
   IDataModelBindingsSimple: () =>
-    new CG.obj(new CG.prop('simpleBinding', CG.common('IDataModelBinding')))
-      .setTitle('Data model binding')
-      .setDescription(
-        'Describes the location in the data model where the component should store its value(s). A simple ' +
-          'binding is used for components that only store a single value, usually a string.',
-      ),
+    new CG.obj(
+      new CG.dmb({
+        name: 'simpleBinding',
+        title: 'Data model binding',
+        description:
+          'Describes the location in the data model where the component should store its value(s). ' +
+          'A simple binding is used for components that only store a single value, usually a string.',
+      }),
+    ),
   IDataModelBindingsOptionsSimple: () =>
     new CG.obj(
-      new CG.prop('simpleBinding', CG.common('IDataModelBinding')),
-      new CG.prop('label', CG.common('IDataModelBinding').optional()),
-      new CG.prop(
-        'metadata',
-        CG.common('IDataModelBinding')
-          .optional()
-          .setDescription(
-            'Describes the location where metadata for the option based component should be stored in the datamodel.',
-          ),
-      ),
-    )
-      .setTitle('Data model binding')
-      .setDescription(
-        'Describes the location in the data model where the component should store its value(s). A simple ' +
-          'binding is used for components that only store a single value, usually a string.',
-      ),
+      new CG.dmb({
+        name: 'simpleBinding',
+        title: 'Data model binding for value',
+        description: 'Describes the location in the data model where the component should store its values.',
+      }),
+      new CG.dmb({
+        name: 'label',
+        title: 'Data model binding for label',
+        description: 'Describes the location in the data model where the component should store its labels',
+      }).optional(),
+      new CG.dmb({
+        name: 'metadata',
+        title: 'Data model binding for metadata',
+        description: 'Describes the location in the data model where the component should store its metadata',
+      }).optional(),
+    ),
   IDataModelBindingsLikert: () =>
     new CG.obj(
-      new CG.prop(
-        'answer',
-        new CG.str()
-          .setTitle('Answer')
-          .setDescription(
-            'Dot notation location for the answers. This must point to a property of the objects inside the ' +
-              'question array. The answer for each question will be stored in the answer property of the ' +
-              'corresponding question object.',
-          )
-          .optional({
-            onlyIn: Variant.Internal,
-          }),
-      ),
-      new CG.prop(
-        'questions',
-        new CG.str()
-          .setTitle('Questions')
-          .setDescription('Dot notation location for a likert structure (array of objects), where the data is stored'),
-      ),
-    )
-      .setTitle('Data model binding')
-      .setDescription(
-        'Describes the location in the data model where the component should store its value(s). A list binding ' +
-          'should be pointed to an array structure in the data model, and is used for components that store multiple ' +
-          'simple values (e.g. a list of strings).',
-      ),
+      new CG.dmb({
+        name: 'answer',
+        title: 'Data model binding for answer',
+        description:
+          'Dot notation location for the answers. This must point to a property of the objects inside the ' +
+          'question array. The answer for each question will be stored in the answer property of the ' +
+          'corresponding question object.',
+      }).optional({ onlyIn: Variant.Internal }),
+      new CG.dmb({
+        name: 'questions',
+        title: 'Data model binding for questions',
+        description: 'Dot notation location for a likert structure (array of objects), where the data is stored',
+      }),
+    ),
   IDataModelBindingsList: () =>
-    new CG.obj(new CG.prop('list', new CG.str()))
-      .setTitle('Data model binding')
-      .setDescription(
-        'Describes the location in the data model where the component should store its value(s). A list binding ' +
+    new CG.obj(
+      new CG.dmb({
+        name: 'list',
+        title: 'Data model binding for values',
+        description:
+          'Describes the location in the data model where the component should store its values. A list binding ' +
           'should be pointed to an array structure in the data model, and is used for components that store multiple ' +
           'simple values (e.g. a list of strings).',
-      ),
+      }),
+    ),
 
   // Text resource bindings:
   TRBSummarizable: () =>

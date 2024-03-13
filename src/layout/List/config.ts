@@ -12,6 +12,7 @@ export const Config = new CG.component({
   },
 })
   .addTextResourcesForLabel()
+  // TODO(DMB): Fix this
   .addDataModelBinding(new CG.obj().optional().additionalProperties(new CG.str()).exportAs('IDataModelBindingsForList'))
   .addProperty(
     new CG.prop(

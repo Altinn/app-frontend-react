@@ -5,7 +5,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { type LayoutNode } from 'src/utils/layout/LayoutNode';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
-import type { IDataModelBindingsSimple } from 'src/layout/common.generated';
+import type { IDataModelBindingsSimpleInternal } from 'src/layout/common.generated';
 import type { IDataModelBindingsForList } from 'src/layout/List/config.generated';
 
 interface MappingTools {
@@ -77,7 +77,7 @@ function useMappingToolsForList(node: LayoutNode<'FileUpload' | 'FileUploadWithT
 }
 
 function useMappingToolsForSimple(node: LayoutNode<'FileUpload' | 'FileUploadWithTag'>): MappingTools {
-  const bindings = (node.item.dataModelBindings || {}) as IDataModelBindingsSimple;
+  const bindings = (node.item.dataModelBindings || {}) as IDataModelBindingsSimpleInternal;
   const { setValue } = useDataModelBindings(bindings);
   return {
     addAttachment: (uuid: string) => {

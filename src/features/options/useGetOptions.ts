@@ -10,8 +10,7 @@ import { filterDuplicateOptions } from 'src/utils/options';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type {
-  IDataModelBindingsOptionsSimple,
-  IDataModelBindingsSimple,
+  IDataModelBindingsOptionsSimpleInternal,
   IMapping,
   IOptionSourceExternal,
   IRawOption,
@@ -43,7 +42,7 @@ interface Props<T extends ValueType> {
   removeDuplicates?: boolean;
   preselectedOptionIndex?: number;
 
-  dataModelBindings?: IDataModelBindingsOptionsSimple | IDataModelBindingsSimple;
+  dataModelBindings?: IDataModelBindingsOptionsSimpleInternal;
 
   // Simple options, static and pre-defined
   options?: IRawOption[];
@@ -217,7 +216,7 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
   const labelsHaveChanged = useHasChanged(translatedLabels.join(','));
 
   useEffect(() => {
-    if (!(dataModelBindings as IDataModelBindingsOptionsSimple)?.label) {
+    if (!(dataModelBindings as IDataModelBindingsOptionsSimpleInternal)?.label) {
       return;
     }
 
