@@ -91,13 +91,6 @@ export interface RadioGroupProps {
   };
 }
 
-// const getLabelPrefixForLikert = () => {
-//   if (node.parent.item.type === 'Likert' && node.parent.item.textResourceBindings?.leftColumnHeader) {
-//     return `${langAsString(node.parent.item.textResourceBindings.leftColumnHeader)} `;
-//   }
-//   return null;
-// };
-
 export const InnerRadioGroup = ({
   id,
   options,

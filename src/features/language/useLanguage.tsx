@@ -28,6 +28,7 @@ export type TextReference = {
   key: ValidLanguageKey | string | undefined;
   params?: ValidLangParam[];
   makeLowerCase?: boolean;
+  dataModelPath?: string;
 };
 
 export interface IUseLanguage {
@@ -41,6 +42,7 @@ export interface IUseLanguage {
     key: ValidLanguageKey | string | undefined,
     dataModelPath: string,
     params?: ValidLangParam[],
+    makeLowerCase?: boolean,
   ): string;
   langAsNonProcessedString(key: ValidLanguageKey | string | undefined, params?: ValidLangParam[]): string;
   langAsNonProcessedStringUsingPathInDataModel(
@@ -192,7 +194,9 @@ export function staticUseLanguage(
     }
 
     const name = getLanguageFromKey(key, language);
-    const out = params ? replaceParameters(name, simplifyParams(params, langAsString)) : name;
+    const out = params
+      ? replaceParameters(name, simplifyParams(params, langAsString, langAsStringUsingPathInDataModel))
+      : name;
 
     return processing ? getParsedLanguageFromText(out) : out;
   }
@@ -214,13 +218,15 @@ export function staticUseLanguage(
     key,
     dataModelPath,
     params,
+    makeLowerCase,
   ) => {
+    const postProcess = makeLowerCase ? smartLowerCaseFirst : (str: string | undefined) => str;
     const result = base(key, params, { dataModelPath });
     if (result === undefined || result === null) {
       return key || '';
     }
 
-    return getPlainTextFromNode(result, langAsString);
+    return postProcess(getPlainTextFromNode(result, langAsString))!;
   };
 
   const langAsNonProcessedString: IUseLanguage['langAsNonProcessedString'] = (key, params) =>
@@ -245,9 +251,16 @@ export function staticUseLanguage(
   };
 }
 
-const simplifyParams = (params: ValidLangParam[], langAsString: IUseLanguage['langAsString']): SimpleLangParam[] =>
+const simplifyParams = (
+  params: ValidLangParam[],
+  langAsString: IUseLanguage['langAsString'],
+  langAsStringUsingPathInDataModel: IUseLanguage['langAsStringUsingPathInDataModel'],
+): SimpleLangParam[] =>
   params.map((param) => {
     if (isTextReference(param)) {
+      if (param.dataModelPath) {
+        return langAsStringUsingPathInDataModel(param.key, param.dataModelPath, param.params, param.makeLowerCase);
+      }
       return langAsString(param.key, param.params, param.makeLowerCase);
     }
     if (isValidElement(param)) {
@@ -415,12 +428,11 @@ const replaceParameters = (nameString: string | undefined, params: SimpleLangPar
   return mutatingString;
 };
 
-function isTextReference(obj: any): obj is TextReference {
+export function isTextReference(obj: any): obj is TextReference {
   return (
     typeof obj === 'object' &&
     'key' in obj &&
     typeof obj.key === 'string' &&
-    Object.keys(obj).length <= 3 &&
-    Object.keys(obj).every((k) => k === 'key' || k === 'params' || k === 'makeLowerCase')
+    Object.keys(obj).every((k) => k === 'key' || k === 'params' || k === 'makeLowerCase' || k === 'dataModelPath')
   );
 }

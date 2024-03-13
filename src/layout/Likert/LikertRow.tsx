@@ -5,7 +5,7 @@ import { Typography } from '@material-ui/core';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { Lang } from 'src/features/language/Lang';
-import { OverrideLang } from 'src/features/language/useLanguage';
+import { isTextReference, OverrideLang } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
@@ -52,9 +52,17 @@ const useLikertOptions = (node: LayoutNode<'Likert'>, row: LikertRow) =>
     valueType: 'single',
   });
 
+const useLikertValidations = (node: LayoutNode<'Likert'>, row: LikertRow) =>
+  useUnifiedValidationsForNode(node).filter((v) => {
+    // We only want to show the validations for the current row
+    const firstParam = v.message.params?.[0];
+    return firstParam && isTextReference(firstParam) && firstParam.dataModelPath === row.answerPath;
+  });
+
 const MobileRow = ({ node, row }: Props) => {
   const { id, textResourceBindings } = node.item;
   const { options, isFetching, currentStringy, setData, current } = useLikertOptions(node, row);
+  const validations = useLikertValidations(node, row);
 
   if (isFetching) {
     return (
@@ -72,11 +80,17 @@ const MobileRow = ({ node, row }: Props) => {
         currentStringy={currentStringy}
         setData={setData}
         current={current}
+        isValid={validations.length === 0}
         texts={{
+          labelPrefix: textResourceBindings?.leftColumnHeader,
           help: textResourceBindings?.questionHelpTexts,
           title: textResourceBindings?.questions,
           description: textResourceBindings?.questionDescriptions,
         }}
+      />
+      <ComponentValidations
+        validations={validations}
+        node={node}
       />
     </OverrideLang>
   );
@@ -84,7 +98,7 @@ const MobileRow = ({ node, row }: Props) => {
 
 const DesktopRow = ({ node, row }: Props) => {
   const { options, isFetching, current, setData } = useLikertOptions(node, row);
-  const validations = useUnifiedValidationsForNode(node);
+  const validations = useLikertValidations(node, row);
   const rowLabelId = `row-label-${node.item.id}-${row.uuid}`;
 
   return (

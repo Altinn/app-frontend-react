@@ -1,14 +1,20 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
+import dot from 'dot-object';
+
 import type { PropsFromGenericComponent } from '..';
 
+import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { LikertDef } from 'src/layout/Likert/config.def.generated';
 import { LikertComponent } from 'src/layout/Likert/LikertComponent';
 import { LikertSummary } from 'src/layout/Likert/Summary/LikertSummary';
+import { getLikertRows, questionToAnswerBinding } from 'src/layout/Likert/useLikertRows';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { ComponentValidation } from 'src/features/validation';
+import type { TextReference } from 'src/features/language/useLanguage';
+import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Likert extends LikertDef {
   directRender(): boolean {
@@ -52,9 +58,50 @@ export class Likert extends LikertDef {
     return '';
   }
 
-  // This component does not have empty field validation, so has to override its inherited method
-  runEmptyFieldValidation(): ComponentValidation[] {
-    return [];
+  /**
+   * In a required Likert component, each unanswered question will be considered an error.
+   */
+  runEmptyFieldValidation(node: LayoutNode<'Likert'>, { formData }: ValidationDataSources): ComponentValidation[] {
+    if (!node.item.required || !node.item.dataModelBindings) {
+      return [];
+    }
+
+    const validations: ComponentValidation[] = [];
+    const textResourceBindings = node.item.textResourceBindings;
+    const rows = getLikertRows(dot.pick(node.item.dataModelBindings.questions, formData), node.item.filter);
+
+    for (const row of rows || []) {
+      const answerBinding = questionToAnswerBinding(node.item.dataModelBindings, row);
+      const answer = answerBinding ? dot.pick(answerBinding, formData) : undefined;
+
+      if (answer !== undefined && answer !== null) {
+        continue;
+      }
+
+      const key = textResourceBindings?.requiredValidation
+        ? textResourceBindings?.requiredValidation
+        : 'form_filler.error_required';
+
+      const fieldNameReference: TextReference = {
+        key: textResourceBindings?.questions,
+        makeLowerCase: true,
+        dataModelPath: answerBinding,
+      };
+
+      validations.push({
+        message: {
+          key,
+          params: [fieldNameReference],
+          dataModelPath: answerBinding,
+        },
+        severity: 'error',
+        componentId: node.item.id,
+        source: FrontendValidationSource.EmptyField,
+        category: ValidationMask.Required,
+      });
+    }
+
+    return validations;
   }
 
   isDataModelBindingsRequired(): boolean {
