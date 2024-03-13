@@ -11,12 +11,12 @@ export class Summary extends SummaryDef {
   }
 
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Summary'>>(
-    function LayoutComponentSummaryRender(props, _): JSX.Element | null {
+    function LayoutComponentSummaryRender(props, ref): JSX.Element | null {
       return (
         <SummaryComponent
           summaryNode={props.node}
           overrides={props.overrideItemProps}
-          ref={props.containerDivRef}
+          ref={ref}
         />
       );
     },

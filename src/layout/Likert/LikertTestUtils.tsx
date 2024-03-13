@@ -172,7 +172,7 @@ export function ContainerTester(props: { id: string }) {
   return (
     <LikertComponent
       node={node}
-      containerDivRef={{ current: null }}
+      ref={{ current: null }}
     />
   );
 }

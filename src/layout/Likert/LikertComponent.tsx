@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 
 import { Table } from '@digdir/design-system-react';
 import { Grid, Typography } from '@material-ui/core';
@@ -14,7 +14,7 @@ import classes from 'src/layout/Likert/LikertRow.module.css';
 import { useLikertRows } from 'src/layout/Likert/useLikertRows';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export const LikertComponent = ({ node }: PropsFromGenericComponent<'Likert'>) => {
+export const LikertComponent = forwardRef<HTMLElement, PropsFromGenericComponent<'Likert'>>(({ node }, ref) => {
   const mobileView = useIsMobileOrTablet();
   const { options: calculatedOptions, isFetching } = useGetOptions({
     ...node.item,
@@ -90,7 +90,10 @@ export const LikertComponent = ({ node }: PropsFromGenericComponent<'Likert'>) =
       {isFetching ? (
         <AltinnSpinner />
       ) : (
-        <div className={classes.likertTableContainer}>
+        <div
+          className={classes.likertTableContainer}
+          ref={ref as React.RefObject<HTMLDivElement>}
+        >
           <Table
             id={id}
             aria-labelledby={(hasTitle && titleId) || undefined}
@@ -143,4 +146,5 @@ export const LikertComponent = ({ node }: PropsFromGenericComponent<'Likert'>) =
       )}
     </>
   );
-};
+});
+LikertComponent.displayName = 'LikertComponent';

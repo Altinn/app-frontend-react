@@ -30,7 +30,7 @@ export interface ISummaryComponent {
   };
 }
 
-function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: React.Ref<HTMLDivElement>) {
+function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: React.Ref<HTMLElement>) {
   const { id, grid } = summaryNode.item;
   const display = overrides?.display || summaryNode.item.display;
   const { langAsString } = useLanguage();
@@ -70,7 +70,7 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
 
   return (
     <Grid
-      ref={ref}
+      ref={ref as React.RefObject<HTMLDivElement>}
       item={true}
       xs={displayGrid?.xs || 12}
       sm={displayGrid?.sm || false}

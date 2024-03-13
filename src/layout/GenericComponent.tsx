@@ -84,7 +84,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
     };
   }
 
-  const containerDivRef = React.useRef<HTMLDivElement | null>(null);
+  const ref = React.useRef<HTMLElement | null>(null);
   const validations = useUnifiedValidationsForNode(node);
   const isValid = !hasValidationErrors(validations);
   const isHidden = useIsHiddenComponent();
@@ -114,21 +114,21 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
     }
     onHit();
     let retryCount = 0;
-    while (!containerDivRef.current && retryCount < 100) {
+    while (!ref.current && retryCount < 100) {
       await new Promise((resolve) => setTimeout(resolve, 100));
       retryCount++;
     }
-    if (!containerDivRef.current) {
+    if (!ref.current) {
       return NavigationResult.SuccessfulFailedToRender;
     }
-    requestAnimationFrame(() => containerDivRef.current?.scrollIntoView());
+    requestAnimationFrame(() => ref.current?.scrollIntoView());
 
     if (!shouldFocus) {
       // Hooray, we've arrived at the component, but we don't need to focus it.
       return NavigationResult.SuccessfulNoFocus;
     }
 
-    const maybeInput = containerDivRef.current.querySelector('input,textarea,select') as
+    const maybeInput = ref.current.querySelector('input,textarea,select') as
       | HTMLSelectElement
       | HTMLInputElement
       | HTMLTextAreaElement;
@@ -148,7 +148,6 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   const RenderComponent = layoutComponent.render;
 
   const componentProps: PropsFromGenericComponent<Type> = {
-    containerDivRef,
     isValid,
     node: node as unknown as LayoutNode<Type>,
     overrideItemProps,
@@ -177,7 +176,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
       <FormComponentContextProvider value={formComponentContext}>
         <RenderComponent
           {...componentProps}
-          ref={containerDivRef}
+          ref={ref}
         />
       </FormComponentContextProvider>
     );
@@ -189,7 +188,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
         data-componentbaseid={item.baseComponentId || item.id}
         data-componentid={item.id}
         data-componenttype={item.type}
-        ref={containerDivRef}
+        ref={ref as React.RefObject<HTMLDivElement>}
         item={true}
         container={true}
         {...gridBreakpoints(item.grid)}

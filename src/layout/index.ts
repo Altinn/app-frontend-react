@@ -1,5 +1,3 @@
-import type { MutableRefObject } from 'react';
-
 import { ComponentConfigs } from 'src/layout/components.generated';
 import type { DisplayData } from 'src/features/displayData';
 import type { BaseValidation, ComponentValidation, ValidationDataSources } from 'src/features/validation';
@@ -30,7 +28,6 @@ const _componentsTypeCheck: {
 };
 
 export interface IComponentProps {
-  containerDivRef: MutableRefObject<HTMLDivElement | null>;
   isValid?: boolean;
 }
 

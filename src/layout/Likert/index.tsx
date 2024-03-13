@@ -16,8 +16,13 @@ export class Likert extends LikertDef {
   }
 
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Likert'>>(
-    function LayoutComponentLikertRender(props, _): JSX.Element | null {
-      return <LikertComponent {...props} />;
+    function LayoutComponentLikertRender(props, ref): JSX.Element | null {
+      return (
+        <LikertComponent
+          {...props}
+          ref={ref}
+        />
+      );
     },
   );
 
