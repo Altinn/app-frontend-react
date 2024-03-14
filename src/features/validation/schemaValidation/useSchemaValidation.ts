@@ -53,13 +53,21 @@ export function useSchemaValidation(): FieldValidations {
 
     for (const error of validator.errors || []) {
       /**
-       * Skip schema validation for empty fields and ignore required errors. Let component validation handle these.
+       * Skip schema validation for empty fields and ignore required errors.
+       * JSON schema required does not work too well for our use case. The expectation that a missing field should give an error is not necessarily true,
+       * since it will not work in nested objects if the parent is also missing.
        * Check if AVJ validation error is a oneOf error ("must match exactly one schema in oneOf").
        * We don't currently support oneOf validation.
        * These can be ignored, as there will be other, specific validation errors that actually
        * from the specified sub-schemas that will trigger validation errors where relevant.
        */
-      if (error.data == null || error.data === '' || error.keyword === 'oneOf' || error.params?.type === 'null') {
+      if (
+        error.data == null ||
+        error.data === '' ||
+        error.keyword === 'required' ||
+        error.keyword === 'oneOf' ||
+        error.params?.type === 'null'
+      ) {
         continue;
       }
 

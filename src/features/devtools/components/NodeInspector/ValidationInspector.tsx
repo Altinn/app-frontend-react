@@ -151,10 +151,9 @@ const ValidationItem = ({ validation, node, nodeVisibility, filters }: Validatio
   return (
     <li
       className={classes.listItem}
-      style={{ color, textDecoration: isFiltered ? 'line-through' : 'none' }}
       title={isFiltered ? 'Denne valideringen er filtrert bort' : undefined}
     >
-      <div>
+      <div style={{ color, textDecoration: isFiltered ? 'line-through' : 'none' }}>
         {!isVisible && (
           <EyeSlashIcon
             style={{ marginRight: '6px' }}

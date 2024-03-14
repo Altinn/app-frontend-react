@@ -15,14 +15,8 @@ import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGen
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayData, DisplayDataProps } from 'src/features/displayData';
-import type { BaseValidation, ComponentValidation, ValidationDataSources } from 'src/features/validation';
-import type {
-  FormDataSelector,
-  PropsFromGenericComponent,
-  ValidateEmptyField,
-  ValidationFilter,
-  ValidationFilterFunction,
-} from 'src/layout/index';
+import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
+import type { FormDataSelector, PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
 import type {
   CompExternalExact,
   CompInternal,
@@ -289,10 +283,7 @@ export abstract class ActionComponent<Type extends CompTypes> extends AnyCompone
   }
 }
 
-export abstract class FormComponent<Type extends CompTypes>
-  extends _FormComponent<Type>
-  implements ValidateEmptyField, ValidationFilter
-{
+export abstract class FormComponent<Type extends CompTypes> extends _FormComponent<Type> implements ValidateEmptyField {
   readonly type = CompCategory.Form;
 
   runEmptyFieldValidation(node: LayoutNode<Type>, { formData }: ValidationDataSources): ComponentValidation[] {
@@ -326,22 +317,6 @@ export abstract class FormComponent<Type extends CompTypes>
       }
     }
     return validations;
-  }
-
-  /**
-   * If required is true on the component, we should filter out the required validation from schema.
-   */
-  schemaRequiredFilter(validation: BaseValidation): boolean {
-    return !(
-      validation.source === FrontendValidationSource.Schema && validation.message.key === 'validation_errors.required'
-    );
-  }
-
-  getValidationFilters(_node: LayoutNode<Type>): ValidationFilterFunction[] {
-    if ('required' in _node.item && _node.item.required === true) {
-      return [this.schemaRequiredFilter];
-    }
-    return [];
   }
 }
 

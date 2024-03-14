@@ -166,6 +166,8 @@ export function getErrorParams(error: ErrorObject): string | null {
 
 /**
  * Get the category of an error object.
+ * Validation types that act essentially like required should be treated as such
+ * so they do not give errors before the user has an opportunity to fill anything out.
  */
 export function getErrorCategory(error: ErrorObject): ValidationCategory {
   switch (error.keyword) {

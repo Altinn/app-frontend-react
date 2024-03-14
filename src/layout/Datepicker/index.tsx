@@ -110,9 +110,6 @@ export class Datepicker extends DatepickerDef implements ValidateComponent, Vali
   }
 
   getValidationFilters(_node: LayoutNode): ValidationFilterFunction[] {
-    if ('required' in _node.item && _node.item.required === true) {
-      return [this.schemaRequiredFilter, this.schemaFormatFilter];
-    }
     return [this.schemaFormatFilter];
   }
 
