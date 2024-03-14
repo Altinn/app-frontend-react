@@ -11,6 +11,12 @@ export const Config = new CG.component({
     renderInAccordionGroup: true,
   },
 })
+  .setLayoutNodeType(
+    new CG.import({
+      import: 'AccordionNode',
+      from: 'src/layout/Accordion/AccordionNode',
+    }),
+  )
   .addTextResource(
     new CG.trb({
       name: 'title',
@@ -26,6 +32,5 @@ export const Config = new CG.component({
         .setDescription('List of child component IDs to show inside the Accordion (limited to a few component types)'),
     ).onlyIn(Variant.External),
   )
-  .addProperty(new CG.prop('childComponents', new CG.arr(CG.layoutNode)).onlyIn(Variant.Internal))
   .addProperty(new CG.prop('renderAsAccordionItem', new CG.bool().optional()).onlyIn(Variant.Internal))
   .addProperty(new CG.prop('headingLevel', CG.common('HeadingLevel').optional()));

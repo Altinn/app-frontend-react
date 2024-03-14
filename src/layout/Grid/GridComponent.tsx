@@ -20,6 +20,8 @@ import { isGridRowHidden, nodesFromGrid } from 'src/layout/Grid/tools';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import { isNodeRef } from 'src/utils/layout/nodeRef';
+import { useNodes } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { GridRowInternal, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/common.generated';
@@ -79,6 +81,7 @@ interface GridRowProps {
 }
 
 export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: GridRowProps) {
+  const nodes = useNodes();
   return isGridRowHidden(row) ? null : (
     <InternalRow
       header={row.header}
@@ -132,12 +135,11 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: 
             );
           }
         }
-        const componentNode = cell && 'node' in cell ? cell.node : undefined;
-        const componentId = componentNode && componentNode.getId();
+        const targetNode = isNodeRef(cell) ? nodes.findById(cell.nodeRef) : undefined;
         return (
           <CellWithComponent
-            key={`${componentId}/${cellIdx}`}
-            node={componentNode}
+            key={`${targetNode?.getId()}/${cellIdx}`}
+            node={targetNode}
             isHeader={row.header}
             className={className}
             columnStyleOptions={mutableColumnSettings[cellIdx]}

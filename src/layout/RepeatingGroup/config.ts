@@ -12,6 +12,12 @@ export const Config = new CG.component({
     renderInAccordionGroup: false,
   },
 })
+  .setLayoutNodeType(
+    new CG.import({
+      import: 'RepGroupNode',
+      from: 'src/layout/RepeatingGroup/RepGroupNode',
+    }),
+  )
   .addProperty(
     new CG.prop(
       'children',
@@ -188,25 +194,6 @@ export const Config = new CG.component({
         .exportAs('IGroupEditProperties')
         .optional(),
     ),
-  )
-  .addProperty(
-    new CG.prop(
-      'rows',
-      new CG.arr(
-        new CG.obj(
-          new CG.prop('uuid', new CG.str()),
-          new CG.prop('index', new CG.num()),
-          new CG.prop('items', new CG.arr(CG.layoutNode)),
-          new CG.prop(
-            'groupExpressions',
-            new CG.import({
-              import: 'HGroupExpressions',
-              from: 'src/layout/Group/types',
-            }).optional(),
-          ),
-        ).exportAs('HRepGroupRow'),
-      ).exportAs('HRepGroupRows'),
-    ).onlyIn(Variant.Internal),
   )
   .addProperty(
     new CG.prop(

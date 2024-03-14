@@ -34,6 +34,17 @@ export type MinimalItem<T extends CompInternal> = Pick<
   'id' | 'baseComponentId' | 'type' | 'dataModelBindings' | 'multiPageIndex'
 >;
 
+/**
+ * A nodeRef represents a reference to a node in the layout tree. It is used to reference a specific node,
+ * and you can use it to find the node in the layout tree via hooks and utilities like:
+ * @see useNodeRef
+ * @see useNodeRefSelector
+ * @see isNodeRef
+ */
+export interface NodeRef {
+  nodeRef: string;
+}
+
 export interface IComponentProps {
   containerDivRef: MutableRefObject<HTMLDivElement | null>;
   isValid?: boolean;
