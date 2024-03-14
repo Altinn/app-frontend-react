@@ -17,10 +17,24 @@ export type IInputProps = PropsFromGenericComponent<'Input'>;
 
 import type { TextfieldProps } from '@digdir/design-system-react/dist/types/components/form/Textfield/Textfield';
 
+interface InputComponentProps extends TextfieldProps {
+  textOnly?: boolean;
+}
+
+const TextOnly: React.FunctionComponent<TextfieldProps> = (props) => {
+  const { size, className, ...customProps } = props;
+  return <div style={{ textAlign: 'right' }}>{customProps.value}</div>;
+};
+
 // We need to use this wrapped Textfield component because we have a conflict between the 'size' prop
 // of the TextField and the react-number-format components which also have a 'size' prop
-const TextfieldWrapped: React.FunctionComponent<TextfieldProps> = (props) => {
-  const { size, ...customProps } = props;
+const TextfieldWrapped: React.FunctionComponent<InputComponentProps> = (props) => {
+  const { size, textOnly, ...customProps } = props;
+
+  if (textOnly) {
+    return <TextOnly {...customProps}></TextOnly>;
+  }
+
   return (
     <Textfield
       size={'small'}
@@ -68,6 +82,7 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
     isValid,
     required,
     onBlur: debounce,
+    textOnly: overrideDisplay?.rowReadOnly && readOnly,
   };
 
   if (variant === 'search') {
