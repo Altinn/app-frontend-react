@@ -2,7 +2,7 @@ import React from 'react';
 import { NumericFormat, PatternFormat } from 'react-number-format';
 
 import { SearchField } from '@altinn/altinn-design-system';
-import { Textfield } from '@digdir/design-system-react';
+import { Paragraph, Textfield } from '@digdir/design-system-react';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -23,7 +23,14 @@ interface InputComponentProps extends TextfieldProps {
 
 const TextOnly: React.FunctionComponent<TextfieldProps> = (props) => {
   const { size, className, ...customProps } = props;
-  return <div style={{ textAlign: 'right' }}>{customProps.value}</div>;
+  return (
+    <Paragraph
+      size='small'
+      className={className}
+    >
+      {customProps.value}
+    </Paragraph>
+  );
 };
 
 // We need to use this wrapped Textfield component because we have a conflict between the 'size' prop
