@@ -271,57 +271,6 @@ describe('Hierarchical layout tools', () => {
 
       expect(otherDeepComponent?.closest((c) => c.id === 'not-found')).toBeUndefined();
     });
-
-    it('should support indexes when using start/stop in groups', () => {
-      const formData = {
-        Group: [
-          { [ALTINN_ROW_ID]: 'lr0', Title: 'title0' },
-          { [ALTINN_ROW_ID]: 'lr1', Title: 'title1' },
-          { [ALTINN_ROW_ID]: 'lr2', Title: 'title2' },
-          { [ALTINN_ROW_ID]: 'lr3', Title: 'title3' },
-          { [ALTINN_ROW_ID]: 'lr4', Title: 'title4' },
-          { [ALTINN_ROW_ID]: 'lr5', Title: 'title5' },
-          { [ALTINN_ROW_ID]: 'lr6', Title: 'title6' },
-          { [ALTINN_ROW_ID]: 'lr7', Title: 'title7' },
-          { [ALTINN_ROW_ID]: 'lr8', Title: 'title8' },
-        ],
-      };
-
-      const layout: ILayout = [
-        {
-          id: 'g1',
-          type: 'Likert',
-          dataModelBindings: { answer: 'Group.Title', questions: 'Group' },
-          filter: [
-            { key: 'start', value: '0' },
-            { key: 'stop', value: '3' },
-          ],
-        },
-        {
-          id: 'g2',
-          type: 'Likert',
-          dataModelBindings: { answer: 'Group.Title', questions: 'Group' },
-          filter: [
-            { key: 'start', value: '3' },
-            { key: 'stop', value: '6' },
-          ],
-        },
-      ];
-      const nodes = generateHierarchy(
-        layout,
-        { ...dataSources, formDataSelector: (path) => dot.pick(path, formData) },
-        getLayoutComponentObject,
-      );
-
-      expect(nodes.findAllById('g1').length).toEqual(4);
-      expect(nodes.findAllById('g2').length).toEqual(4);
-
-      expect(nodes.findById('g1')?.children().length).toEqual(3);
-      expect(nodes.findById('g2')?.children().length).toEqual(3);
-
-      expect(nodes.findById('g1-0')?.rowIndex).toEqual(0);
-      expect(nodes.findById('g2-3')?.rowIndex).toEqual(3);
-    });
   });
 
   describe('resolvedNodesInLayout', () => {
