@@ -3,9 +3,10 @@ import { useMemo } from 'react';
 import { useCurrentDataModelSchema } from 'src/features/datamodel/DataModelSchemaProvider';
 import { useCurrentDataModelType } from 'src/features/datamodel/useBindingSchema';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { type FieldValidations, FrontendValidationSource, ValidationMask } from 'src/features/validation';
+import { type FieldValidations, FrontendValidationSource } from 'src/features/validation';
 import {
   createValidator,
+  getErrorCategory,
   getErrorParams,
   getErrorTextKey,
 } from 'src/features/validation/schemaValidation/schemaValidationUtils';
@@ -58,13 +59,7 @@ export function useSchemaValidation(): FieldValidations {
        * These can be ignored, as there will be other, specific validation errors that actually
        * from the specified sub-schemas that will trigger validation errors where relevant.
        */
-      if (
-        error.data == null ||
-        error.data === '' ||
-        error.keyword === 'required' || // TODO(Validation): Check if this can be filtered out later
-        error.keyword === 'oneOf' ||
-        error.params?.type === 'null'
-      ) {
+      if (error.data == null || error.data === '' || error.keyword === 'oneOf' || error.params?.type === 'null') {
         continue;
       }
 
@@ -85,6 +80,8 @@ export function useSchemaValidation(): FieldValidations {
         : {
             key: getErrorTextKey(error),
           };
+
+      const category = getErrorCategory(error);
 
       /**
        * Extract error parameters and add to message if available.
@@ -107,7 +104,7 @@ export function useSchemaValidation(): FieldValidations {
         message,
         field,
         source: FrontendValidationSource.Schema,
-        category: ValidationMask.Schema,
+        category,
         severity: 'error',
       });
     }
