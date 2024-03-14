@@ -16,6 +16,7 @@ import { useHiddenPages, useSetHiddenPages } from 'src/features/form/layout/Page
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
 import { _private, useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { NodesGenerator } from 'src/utils/layout/NodesGenerator';
 import type { LayoutNodeFromObj } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
@@ -47,6 +48,7 @@ const { Provider, useSelector, useMemoSelector, useSelectorAsRef, useLaxSelector
 export const NodesProvider = (props: React.PropsWithChildren) => (
   <Provider>
     <InnerNodesProvider />
+    <NodesGenerator />
     <InnerHiddenComponentsProvider />
     <BlockUntilLoaded>{props.children}</BlockUntilLoaded>
   </Provider>

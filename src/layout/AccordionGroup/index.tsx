@@ -6,6 +6,7 @@ import { AccordionGroupDef } from 'src/layout/AccordionGroup/config.def.generate
 import { AccordionGroupHierarchyGenerator } from 'src/layout/AccordionGroup/hierarchy';
 import { SummaryAccordionGroupComponent } from 'src/layout/AccordionGroup/SummaryAccordionGroupComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { CompExternal } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -18,6 +19,15 @@ export class AccordionGroup extends AccordionGroupDef {
       return <AccordionGroupComponent {...props} />;
     },
   );
+
+  claimChildren(_item: CompExternal<'AccordionGroup'>, _claimChild: (id: string) => void) {
+    // for (const childId of item.children) {
+    //   if (!this.canRenderInAccordionGroup(generator, childId)) {
+    //     continue;
+    //   }
+    //   claimChild(childId);
+    // }
+  }
 
   hierarchyGenerator(): ComponentHierarchyGenerator<'AccordionGroup'> {
     return this._hierarchyGenerator;

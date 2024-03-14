@@ -11,7 +11,8 @@ export interface ICompactSummaryItem {
 
 export function SummaryItemCompact({ targetNode, displayData }: ICompactSummaryItem) {
   const textBindings = 'textResourceBindings' in targetNode.item ? targetNode.item.textResourceBindings : undefined;
-  const summaryTitleTrb = textBindings && 'summaryTitle' in textBindings ? textBindings.summaryTitle : undefined;
+  const summaryTitleTrb =
+    textBindings && 'summaryTitle' in textBindings ? (textBindings.summaryTitle as string) : undefined;
   const titleTrb = textBindings && 'title' in textBindings ? textBindings.title : undefined;
 
   return (

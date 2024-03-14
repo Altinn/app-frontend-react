@@ -35,8 +35,11 @@ export function SummaryContent({
 
   const textBindings = 'textResourceBindings' in targetNode.item ? targetNode.item.textResourceBindings : undefined;
   const summaryAccessibleTitleTrb =
-    textBindings && 'summaryAccessibleTitle' in textBindings ? textBindings.summaryAccessibleTitle : undefined;
-  const summaryTitleTrb = textBindings && 'summaryTitle' in textBindings ? textBindings.summaryTitle : undefined;
+    textBindings && 'summaryAccessibleTitle' in textBindings
+      ? (textBindings.summaryAccessibleTitle as string)
+      : undefined;
+  const summaryTitleTrb =
+    textBindings && 'summaryTitle' in textBindings ? (textBindings.summaryTitle as string) : undefined;
   const titleTrb = textBindings && 'title' in textBindings ? textBindings.title : undefined;
   const formDataSelector = FD.useDebouncedSelector();
 

@@ -12,6 +12,7 @@ import { RepeatingGroupsFocusProvider } from 'src/layout/RepeatingGroup/Repeatin
 import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { ComponentValidation } from 'src/features/validation';
+import type { CompExternal } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -34,6 +35,22 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
       );
     },
   );
+
+  claimChildren(_item: CompExternal<'RepeatingGroup'>, _claimChild: (id: string) => void) {
+    // for (const id of item.children) {
+    //   const [, childId] = item.edit?.multiPage ? id.split(':', 2) : [undefined, id];
+    //   claimChild(childId);
+    // }
+    //
+    // for (const rows of [item.rowsBefore, item.rowsAfter]) {
+    //   if (rows) {
+    //     this.innerGrid.stage1(generator, {
+    //       id: item.id,
+    //       rows,
+    //     });
+    //   }
+    // }
+  }
 
   renderSummary({
     onChangeClick,

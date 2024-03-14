@@ -1,4 +1,5 @@
 import { getLayoutComponentObject } from 'src/layout';
+import { ContainerComponent } from 'src/layout/LayoutComponent';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { CompClassMap, FormDataSelector } from 'src/layout';
@@ -13,8 +14,9 @@ import type {
   ParentNode,
   TypeFromConfig,
 } from 'src/layout/layout';
+import type { AnyComponent } from 'src/layout/LayoutComponent';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
-import type { ChildLookupRestriction, ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
+import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
 
 export interface IsHiddenOptions {
@@ -98,8 +100,13 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
   }
 
   private childrenAsList(restriction?: ChildLookupRestriction): LayoutNode[] {
-    const hierarchy = this.def.hierarchyGenerator() as unknown as ComponentHierarchyGenerator<Type>;
-    return hierarchy.childrenFromNode(this as unknown as LayoutNode<Type>, restriction);
+    const def = this.def as AnyComponent<any>;
+    if (def instanceof ContainerComponent) {
+      const hierarchy = def.hierarchyGenerator();
+      return hierarchy.childrenFromNode(this, restriction);
+    }
+
+    return [];
   }
 
   /**

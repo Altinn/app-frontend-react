@@ -1,3 +1,4 @@
+import { ContainerComponent } from 'src/layout/LayoutComponent';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { DefGetter } from 'src/layout';
@@ -304,7 +305,8 @@ export class HierarchyGenerator {
         window.logWarnOnce(`No component definition found for type '${type}'`);
         return;
       }
-      this.instances[type] = def.hierarchyGenerator();
+      this.instances[type] =
+        def instanceof ContainerComponent ? def.hierarchyGenerator() : new SimpleComponentHierarchyGenerator();
     }
 
     return this.instances[type];

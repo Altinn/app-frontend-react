@@ -8,7 +8,7 @@ import { RenderGrid } from 'src/layout/Grid/GridComponent';
 import { GridSummaryComponent } from 'src/layout/Grid/GridSummaryComponent';
 import { GridHierarchyGenerator } from 'src/layout/Grid/hierarchy';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompExternalExact } from 'src/layout/layout';
+import type { CompExternal, CompExternalExact } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -21,6 +21,21 @@ export class Grid extends GridDef {
       return <RenderGrid {...props} />;
     },
   );
+
+  claimChildren(_item: CompExternal<'Grid'>, _claimChild: (id: string) => void) {
+    // for (const row of item.rows) {
+    //   for (const cell of row.cells) {
+    //     if (cell && 'component' in cell && cell.component) {
+    //       const childId = cell.component;
+    //       if (!this.canRenderInTable(generator, childId)) {
+    //         continue;
+    //       }
+    //
+    //       claimChild(childId);
+    //     }
+    //   }
+    // }
+  }
 
   renderSummary(props: SummaryRendererProps<'Grid'>): JSX.Element | null {
     return <GridSummaryComponent {...props} />;

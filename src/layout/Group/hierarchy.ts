@@ -1,4 +1,3 @@
-import { GridHierarchyGenerator } from 'src/layout/Grid/hierarchy';
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type {
   ChildFactory,
@@ -9,13 +8,6 @@ import type {
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'> {
-  private innerGrid: GridHierarchyGenerator;
-
-  constructor() {
-    super();
-    this.innerGrid = new GridHierarchyGenerator();
-  }
-
   stage1(generator: HierarchyGenerator, item: UnprocessedItem<'Group'>): void {
     for (const id of item.children) {
       const [, childId] = [undefined, id];
@@ -28,8 +20,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
   }
 
   childrenFromNode(node: LayoutNode<'Group'>): LayoutNode[] {
-    const list: LayoutNode[] = node.item.childComponents;
-    return list;
+    return node.item.childComponents;
   }
 
   /**

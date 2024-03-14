@@ -11,13 +11,13 @@ import { FrontendValidationSource, ValidationMask } from 'src/features/validatio
 import { CompCategory } from 'src/layout/common';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
-import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayData, DisplayDataProps } from 'src/features/displayData';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { FormDataSelector, PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
 import type {
+  CompExternal,
   CompExternalExact,
   CompInternal,
   CompTypes,
@@ -29,7 +29,6 @@ import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGene
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
-const defaultGenerator = new SimpleComponentHierarchyGenerator();
 export abstract class AnyComponent<Type extends CompTypes> {
   /**
    * Given properties from GenericComponent, render this layout component
@@ -91,14 +90,6 @@ export abstract class AnyComponent<Type extends CompTypes> {
    */
   renderDefaultValidations(): boolean {
     return true;
-  }
-
-  /**
-   * Returns a new instance of a class to perform the component hierarchy generation process
-   * @see HierarchyGenerator
-   */
-  hierarchyGenerator(): ComponentHierarchyGenerator<Type> {
-    return defaultGenerator;
   }
 
   makeNode(
@@ -326,6 +317,14 @@ export abstract class ContainerComponent<Type extends CompTypes> extends _FormCo
   isDataModelBindingsRequired(_node: LayoutNode<Type>): boolean {
     return false;
   }
+
+  /**
+   * Returns a new instance of a class to perform the component hierarchy generation process
+   * @see HierarchyGenerator
+   */
+  abstract hierarchyGenerator(): ComponentHierarchyGenerator<Type>;
+
+  abstract claimChildren(item: CompExternal<Type>, claimChild: (id: string) => void);
 }
 
 export type LayoutComponent<Type extends CompTypes = CompTypes> =
