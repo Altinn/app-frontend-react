@@ -3,6 +3,8 @@ import React, { forwardRef } from 'react';
 import { ButtonComponent } from 'src/layout/Button/ButtonComponent';
 import { ButtonDef } from 'src/layout/Button/config.def.generated';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { CompInternal } from 'src/layout/layout';
+import type { ExprResolver } from 'src/layout/LayoutComponent';
 
 export class Button extends ButtonDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Button'>>(
@@ -10,4 +12,12 @@ export class Button extends ButtonDef {
       return <ButtonComponent {...props} />;
     },
   );
+
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Button'>): CompInternal<'Button'> {
+    return {
+      ...item,
+      ...evalCommon(item),
+      ...evalTrb(item),
+    };
+  }
 }

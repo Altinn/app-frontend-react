@@ -11,7 +11,8 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IInputFormatting } from 'src/layout/Input/config.generated';
-import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { CompInternal } from 'src/layout/layout';
+import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Input extends InputDef {
@@ -20,6 +21,14 @@ export class Input extends InputDef {
       return <InputComponent {...props} />;
     },
   );
+
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Input'>): CompInternal<'Input'> {
+    return {
+      ...item,
+      ...evalCommon(item),
+      ...evalTrb(item),
+    };
+  }
 
   getDisplayData(node: LayoutNode<'Input'>, { currentLanguage, formDataSelector }: DisplayDataProps): string {
     if (!node.item.dataModelBindings?.simpleBinding) {

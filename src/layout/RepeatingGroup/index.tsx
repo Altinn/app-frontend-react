@@ -13,7 +13,8 @@ import { RepeatingGroupsFocusProvider } from 'src/layout/RepeatingGroup/Repeatin
 import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { ComponentValidation } from 'src/features/validation';
-import type { ChildClaimerProps, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { CompInternal } from 'src/layout/layout';
+import type { ChildClaimerProps, ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -48,6 +49,14 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
         getLayoutComponentObject('Grid').claimChildrenForRows(rows, props);
       }
     }
+  }
+
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'RepeatingGroup'>): CompInternal<'RepeatingGroup'> {
+    return {
+      ...item,
+      ...evalCommon(item),
+      ...evalTrb(item),
+    };
   }
 
   renderSummary({

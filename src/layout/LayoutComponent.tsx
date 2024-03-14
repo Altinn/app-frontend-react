@@ -1,4 +1,5 @@
 import React from 'react';
+import type { JSX } from 'react';
 
 import dot from 'dot-object';
 import type { ErrorObject } from 'ajv';
@@ -11,10 +12,20 @@ import { FrontendValidationSource, ValidationMask } from 'src/features/validatio
 import { CompCategory } from 'src/layout/common';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
+import { DefaultNodeGenerator } from 'src/utils/layout/DefaultNodeGenerator';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayData, DisplayDataProps } from 'src/features/displayData';
+import type { SimpleEval } from 'src/features/expressions';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
+import type {
+  ComponentBaseExternal,
+  ComponentBaseInternal,
+  FormComponentPropsExternal,
+  FormComponentPropsInternal,
+  SummarizableComponentPropsExternal,
+  SummarizableComponentPropsInternal,
+} from 'src/layout/common.generated';
 import type { FormDataSelector, PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
 import type {
   CompExternal,
@@ -22,12 +33,38 @@ import type {
   CompInternal,
   CompTypes,
   HierarchyDataSources,
+  IsContainerComp,
   ITextResourceBindings,
 } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
+
+export interface BasicNodeGeneratorProps<Type extends CompTypes> {
+  item: CompExternalExact<Type>;
+}
+
+export interface ContainerGeneratorProps<Type extends CompTypes> extends BasicNodeGeneratorProps<Type> {
+  childIds: string[];
+  getChild: (id: string) => CompExternal;
+}
+
+export type NodeGeneratorProps<Type extends CompTypes> =
+  IsContainerComp<Type> extends true ? ContainerGeneratorProps<Type> : BasicNodeGeneratorProps<Type>;
+
+export interface ExprResolver<Type extends CompTypes> {
+  item: CompExternalExact<Type>;
+  evalCommon: (
+    item: ComponentBaseExternal | FormComponentPropsExternal | SummarizableComponentPropsExternal,
+  ) => Required<ComponentBaseInternal> &
+    Required<FormComponentPropsInternal> &
+    Required<SummarizableComponentPropsInternal>;
+  evalExpr: SimpleEval;
+  evalTrb: (item: CompExternal<Type>) => {
+    textResourceBindings: ITextResourceBindings<Type>;
+  };
+}
 
 export abstract class AnyComponent<Type extends CompTypes> {
   /**
@@ -36,6 +73,20 @@ export abstract class AnyComponent<Type extends CompTypes> {
   abstract render:
     | ReturnType<typeof React.forwardRef<HTMLElement, PropsFromGenericComponent<Type>>>
     | ((props: PropsFromGenericComponent<Type>) => JSX.Element | null);
+
+  /**
+   * Render a node generator for this component. This can be overridden if you want to extend
+   * the default node generator with additional functionality.
+   */
+  renderNodeGenerator(props: NodeGeneratorProps<Type>): JSX.Element | null {
+    return <DefaultNodeGenerator {...(props as BasicNodeGeneratorProps<Type>)} />;
+  }
+
+  /**
+   * Resolves all expressions in the layout configuration, and returns a new layout configuration
+   * with expressions resolved.
+   */
+  abstract evalExpressions(props: ExprResolver<Type>): CompInternal<Type>;
 
   /**
    * Given a node, a list of the node's data, for display in the devtools node inspector
@@ -328,6 +379,8 @@ export abstract class ContainerComponent<Type extends CompTypes> extends _FormCo
   isDataModelBindingsRequired(_node: LayoutNode<Type>): boolean {
     return false;
   }
+
+  abstract renderNodeGenerator(props: NodeGeneratorProps<Type>): JSX.Element | null;
 
   /**
    * Returns a new instance of a class to perform the component hierarchy generation process

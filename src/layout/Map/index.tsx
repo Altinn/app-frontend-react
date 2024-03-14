@@ -7,7 +7,8 @@ import { MapComponentSummary } from 'src/layout/Map/MapComponentSummary';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { CompInternal } from 'src/layout/layout';
+import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Map extends MapDef {
@@ -16,6 +17,14 @@ export class Map extends MapDef {
       return <MapComponent {...props} />;
     },
   );
+
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Map'>): CompInternal<'Map'> {
+    return {
+      ...item,
+      ...evalCommon(item),
+      ...evalTrb(item),
+    };
+  }
 
   getDisplayData(node: LayoutNode<'Map'>, { formDataSelector }: DisplayDataProps): string {
     if (!node.item.dataModelBindings?.simpleBinding) {

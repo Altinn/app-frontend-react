@@ -11,7 +11,8 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { FormDataSelector, PropsFromGenericComponent } from 'src/layout';
-import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { CompInternal } from 'src/layout/layout';
+import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Checkboxes extends CheckboxesDef {
@@ -20,6 +21,14 @@ export class Checkboxes extends CheckboxesDef {
       return <CheckboxContainerComponent {...props} />;
     },
   );
+
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Checkboxes'>): CompInternal<'Checkboxes'> {
+    return {
+      ...item,
+      ...evalCommon(item),
+      ...evalTrb(item),
+    };
+  }
 
   private getSummaryData(
     node: LayoutNode<'Checkboxes'>,

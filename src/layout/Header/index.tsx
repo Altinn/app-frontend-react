@@ -3,6 +3,8 @@ import React, { forwardRef } from 'react';
 import { HeaderDef } from 'src/layout/Header/config.def.generated';
 import { HeaderComponent } from 'src/layout/Header/HeaderComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { CompInternal } from 'src/layout/layout';
+import type { ExprResolver } from 'src/layout/LayoutComponent';
 
 export class Header extends HeaderDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Header'>>(
@@ -10,4 +12,12 @@ export class Header extends HeaderDef {
       return <HeaderComponent {...props} />;
     },
   );
+
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Header'>): CompInternal<'Header'> {
+    return {
+      ...item,
+      ...evalCommon(item),
+      ...evalTrb(item),
+    };
+  }
 }

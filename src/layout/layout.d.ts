@@ -66,6 +66,9 @@ export type IDataModelBindings<T extends CompTypes = CompTypes> = Exclude<
   undefined
 >;
 
+export type ITextResourceBindingsExternal<T extends CompTypes = CompTypes> =
+  ComponentTypeConfigs[T]['layout']['textResourceBindings'];
+
 export type ITextResourceBindings<T extends CompTypes = CompTypes> =
   ComponentTypeConfigs[T]['nodeItem']['textResourceBindings'];
 
@@ -129,3 +132,15 @@ export type LayoutNodeFromCategory<Type> = Type extends CompCategory
   : LayoutNode;
 
 export type ILayoutCollection = { [pageName: string]: ILayoutFileExternal };
+
+export type IsContainerComp<T extends CompTypes> = ComponentTypeConfigs[T]['category'] extends 'container'
+  ? true
+  : false;
+
+export type IsActionComp<T extends CompTypes> = ComponentTypeConfigs[T]['category'] extends 'action' ? true : false;
+
+export type IsFormComp<T extends CompTypes> = ComponentTypeConfigs[T]['category'] extends 'form' ? true : false;
+
+export type IsPresentationComp<T extends CompTypes> = ComponentTypeConfigs[T]['category'] extends 'presentation'
+  ? true
+  : false;

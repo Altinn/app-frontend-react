@@ -18,7 +18,8 @@ import type {
   ValidationFilter,
   ValidationFilterFunction,
 } from 'src/layout';
-import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { CompInternal } from 'src/layout/layout';
+import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Datepicker extends DatepickerDef implements ValidateComponent, ValidationFilter {
@@ -27,6 +28,14 @@ export class Datepicker extends DatepickerDef implements ValidateComponent, Vali
       return <DatepickerComponent {...props} />;
     },
   );
+
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Datepicker'>): CompInternal<'Datepicker'> {
+    return {
+      ...item,
+      ...evalCommon(item),
+      ...evalTrb(item),
+    };
+  }
 
   getDisplayData(node: LayoutNode<'Datepicker'>, { currentLanguage, formDataSelector }: DisplayDataProps): string {
     if (!node.item.dataModelBindings?.simpleBinding) {

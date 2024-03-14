@@ -10,7 +10,8 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelBindingsLikertInternal } from 'src/layout/common.generated';
-import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { CompInternal } from 'src/layout/layout';
+import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class LikertItem extends LikertItemDef {
@@ -24,6 +25,14 @@ export class LikertItem extends LikertItemDef {
       );
     },
   );
+
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'LikertItem'>): CompInternal<'LikertItem'> {
+    return {
+      ...item,
+      ...evalCommon(item),
+      ...evalTrb(item),
+    };
+  }
 
   directRender(props: PropsFromGenericComponent<'LikertItem'>): boolean {
     return props.node.item.layout === LayoutStyle.Table || props.overrideItemProps?.layout === LayoutStyle.Table;

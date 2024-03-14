@@ -9,7 +9,8 @@ import { LikertComponent } from 'src/layout/Likert/LikertComponent';
 import { LikertSummary } from 'src/layout/Likert/Summary/LikertSummary';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { ComponentValidation } from 'src/features/validation';
-import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { CompInternal } from 'src/layout/layout';
+import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 
 export class Likert extends LikertDef {
@@ -45,6 +46,14 @@ export class Likert extends LikertDef {
 
   renderSummaryBoilerplate(): boolean {
     return false;
+  }
+
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Likert'>): CompInternal<'Likert'> {
+    return {
+      ...item,
+      ...evalCommon(item),
+      ...evalTrb(item),
+    };
   }
 
   getDisplayData(): string {

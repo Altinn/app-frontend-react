@@ -4,7 +4,12 @@ import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { getLayoutComponentObject } from 'src/layout';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
 import type { CompExternal, ILayout } from 'src/layout/layout';
-import type { ChildClaimerProps, ComponentProto } from 'src/layout/LayoutComponent';
+import type {
+  BasicNodeGeneratorProps,
+  ChildClaimerProps,
+  ComponentProto,
+  ContainerGeneratorProps,
+} from 'src/layout/LayoutComponent';
 
 const debug = false;
 const style: React.CSSProperties = debug
@@ -81,6 +86,16 @@ function Page({ layout, name }: { layout: ILayout; name: string }) {
     return (id: string) => proto[id];
   }, [layout]);
 
+  const getItem = useMemo(() => {
+    const item: { [id: string]: CompExternal } = {};
+
+    for (const component of layout) {
+      item[component.id] = component;
+    }
+
+    return (id: string) => item[id];
+  }, [layout]);
+
   const map = children.map;
   const claimedChildren = new Set(map ? Object.values(map).flat() : []);
 
@@ -107,6 +122,7 @@ function Page({ layout, name }: { layout: ILayout; name: string }) {
               key={component.id}
               component={component}
               childIds={map[component.id]}
+              getItem={getItem}
             />
           );
         })}
@@ -114,15 +130,13 @@ function Page({ layout, name }: { layout: ILayout; name: string }) {
   );
 }
 
-function ComponentClaimChildren({
-  component,
-  setChildren,
-  getProto,
-}: {
+interface ComponentClaimChildrenProps {
   component: CompExternal;
   setChildren: React.Dispatch<React.SetStateAction<ChildrenState>>;
   getProto: (id: string) => ComponentProto | undefined;
-}) {
+}
+
+function ComponentClaimChildren({ component, setChildren, getProto }: ComponentClaimChildrenProps) {
   const def = getLayoutComponentObject(component.type);
 
   // The first render will be used to determine which components will be claimed as children by others (which will
@@ -133,8 +147,20 @@ function ComponentClaimChildren({
       const claimedChildren: string[] = [];
       const props: ChildClaimerProps<any> = {
         item: component,
-        claimChild: (id) => claimedChildren.push(id),
-        getProto,
+        claimChild: (id) => {
+          if (getProto(id) === undefined) {
+            window.logError(`Component '${id}' (as referenced by '${component.id}') does not exist`);
+            return;
+          }
+          claimedChildren.push(id);
+        },
+        getProto: (id) => {
+          const proto = getProto(id);
+          if (proto === undefined) {
+            window.logError(`Component '${id}' (as referenced by '${component.id}') does not exist`);
+          }
+          return proto;
+        },
       };
 
       def.claimChildren(props as unknown as any);
@@ -162,8 +188,38 @@ function ComponentClaimChildren({
   );
 }
 
-function Component({ component, childIds }: { component: CompExternal; childIds: string[] | undefined }) {
-  // const def = getLayoutComponentObject(component.type);
+interface ComponentProps {
+  component: CompExternal;
+  childIds: string[] | undefined;
+  getItem: (id: string) => CompExternal;
+}
+
+function Component({ component, childIds, getItem }: ComponentProps) {
+  const def = getLayoutComponentObject(component.type);
+  const Generator = def.renderNodeGenerator;
+
+  const props = useMemo(() => {
+    if (def instanceof ContainerComponent) {
+      const out: ContainerGeneratorProps<any> = {
+        item: component,
+        childIds: childIds ?? [],
+        getChild: (id: string) => {
+          if (childIds?.includes(id)) {
+            return getItem(id);
+          }
+
+          throw new Error(`Child '${id}' not claimed by component '${component.id}'`);
+        },
+      };
+      return out;
+    }
+
+    const out: BasicNodeGeneratorProps<any> = {
+      item: component,
+    };
+
+    return out;
+  }, [childIds, component, def, getItem]);
 
   return (
     <>
@@ -174,6 +230,7 @@ function Component({ component, childIds }: { component: CompExternal; childIds:
       )}
       {debug && <span>{childIds ? `Children: ${childIds.join(', ')}` : 'No children'}</span>}
       {debug && <pre style={{ fontSize: '0.8em' }}>{JSON.stringify(component, null, 2)}</pre>}
+      <Generator {...(props as any)} />
     </>
   );
 }

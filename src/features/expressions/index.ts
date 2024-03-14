@@ -18,12 +18,14 @@ import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type {
+  ActualOrExpr,
   ExprConfig,
   Expression,
   ExprFunction,
   ExprObjConfig,
   ExprPositionalArgs,
   ExprResolved,
+  ExprRetVal,
   ExprValToActual,
   FuncDef,
 } from 'src/features/expressions/types';
@@ -174,6 +176,9 @@ function evalExprInObjectCaller<T>(expr: Expression, args: Omit<EvalExprInObjArg
 
   return evalExpr(expr, args.node, args.dataSources, exprOptions);
 }
+
+export type ExprRetVal = boolean | string | number | undefined | null;
+export type SimpleEval = <Ret extends ExprRetVal>(expr: ActualOrExpr<Ret>, defaultValue: Ret) => Ret;
 
 /**
  * Run/evaluate an expression. You have to provide your own context containing functions for looking up external
