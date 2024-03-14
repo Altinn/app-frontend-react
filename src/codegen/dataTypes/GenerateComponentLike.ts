@@ -29,6 +29,9 @@ export class GenerateComponentLike {
     }
   }
 
+  /**
+   * TODO: Add support for some required text resource bindings (but only make them required in external types)
+   */
   public addTextResource(arg: GenerateTextResourceBinding): this {
     this.ensureTextResourceBindings();
     this.inner.getProperty('textResourceBindings')?.type.addProperty(arg);
