@@ -8,8 +8,9 @@ import { RenderGrid } from 'src/layout/Grid/GridComponent';
 import { GridSummaryComponent } from 'src/layout/Grid/GridSummaryComponent';
 import { GridHierarchyGenerator } from 'src/layout/Grid/hierarchy';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompExternal, CompExternalExact } from 'src/layout/layout';
-import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { GridRowsExternal } from 'src/layout/common.generated';
+import type { CompExternalExact } from 'src/layout/layout';
+import type { ChildClaimerProps, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -22,19 +23,30 @@ export class Grid extends GridDef {
     },
   );
 
-  claimChildren(_item: CompExternal<'Grid'>, _claimChild: (id: string) => void) {
-    // for (const row of item.rows) {
-    //   for (const cell of row.cells) {
-    //     if (cell && 'component' in cell && cell.component) {
-    //       const childId = cell.component;
-    //       if (!this.canRenderInTable(generator, childId)) {
-    //         continue;
-    //       }
-    //
-    //       claimChild(childId);
-    //     }
-    //   }
-    // }
+  claimChildren({ claimChild, getProto, item }: ChildClaimerProps<'Grid'>): void {
+    this.claimChildrenForRows(item.rows, { claimChild, getProto, item });
+  }
+
+  claimChildrenForRows(rows: GridRowsExternal, { claimChild, getProto }: ChildClaimerProps<any>): void {
+    for (const row of rows) {
+      for (const cell of row.cells) {
+        if (cell && 'component' in cell && cell.component) {
+          const childId = cell.component;
+          const proto = getProto(childId);
+          if (!proto) {
+            continue;
+          }
+          if (!proto.def.canRenderInTable()) {
+            window.logWarn(
+              `Grid component included a cell with component '${childId}', which ` +
+                `is a '${proto.type}' and cannot be rendered in a table.`,
+            );
+            continue;
+          }
+          claimChild(childId);
+        }
+      }
+    }
   }
 
   renderSummary(props: SummaryRendererProps<'Grid'>): JSX.Element | null {

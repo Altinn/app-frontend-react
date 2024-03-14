@@ -311,6 +311,17 @@ export abstract class FormComponent<Type extends CompTypes> extends _FormCompone
   }
 }
 
+export interface ComponentProto {
+  type: CompTypes;
+  def: AnyComponent<CompTypes>;
+}
+
+export interface ChildClaimerProps<Type extends CompTypes> {
+  item: CompExternal<Type>;
+  claimChild: (id: string) => void;
+  getProto: (id: string) => ComponentProto | undefined;
+}
+
 export abstract class ContainerComponent<Type extends CompTypes> extends _FormComponent<Type> {
   readonly type = CompCategory.Container;
 
@@ -324,7 +335,7 @@ export abstract class ContainerComponent<Type extends CompTypes> extends _FormCo
    */
   abstract hierarchyGenerator(): ComponentHierarchyGenerator<Type>;
 
-  abstract claimChildren(item: CompExternal<Type>, claimChild: (id: string) => void);
+  abstract claimChildren(props: ChildClaimerProps<Type>): void;
 }
 
 export type LayoutComponent<Type extends CompTypes = CompTypes> =

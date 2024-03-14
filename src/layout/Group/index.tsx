@@ -8,8 +8,7 @@ import { GroupHierarchyGenerator } from 'src/layout/Group/hierarchy';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompExternal } from 'src/layout/layout';
-import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { ChildClaimerProps, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 
 export class Group extends GroupDef {
@@ -35,10 +34,10 @@ export class Group extends GroupDef {
     },
   );
 
-  claimChildren(_item: CompExternal<'Group'>, _claimChild: (id: string) => void) {
-    // for (const id of item.children) {
-    //   claimChild(id);
-    // }
+  claimChildren({ item, claimChild }: ChildClaimerProps<'Group'>): void {
+    for (const id of item.children) {
+      claimChild(id);
+    }
   }
 
   renderSummary({

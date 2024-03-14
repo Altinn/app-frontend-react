@@ -1,6 +1,7 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
+import { getLayoutComponentObject } from '..';
 import type { PropsFromGenericComponent, ValidateComponent } from '..';
 
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
@@ -12,8 +13,7 @@ import { RepeatingGroupsFocusProvider } from 'src/layout/RepeatingGroup/Repeatin
 import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { ComponentValidation } from 'src/features/validation';
-import type { CompExternal } from 'src/layout/layout';
-import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { ChildClaimerProps, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -36,20 +36,18 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     },
   );
 
-  claimChildren(_item: CompExternal<'RepeatingGroup'>, _claimChild: (id: string) => void) {
-    // for (const id of item.children) {
-    //   const [, childId] = item.edit?.multiPage ? id.split(':', 2) : [undefined, id];
-    //   claimChild(childId);
-    // }
-    //
-    // for (const rows of [item.rowsBefore, item.rowsAfter]) {
-    //   if (rows) {
-    //     this.innerGrid.stage1(generator, {
-    //       id: item.id,
-    //       rows,
-    //     });
-    //   }
-    // }
+  claimChildren(props: ChildClaimerProps<'RepeatingGroup'>): void {
+    const { claimChild, item } = props;
+    for (const id of item.children) {
+      const [, childId] = item.edit?.multiPage ? id.split(':', 2) : [undefined, id];
+      claimChild(childId);
+    }
+
+    for (const rows of [item.rowsBefore, item.rowsAfter]) {
+      if (rows) {
+        getLayoutComponentObject('Grid').claimChildrenForRows(rows, props);
+      }
+    }
   }
 
   renderSummary({

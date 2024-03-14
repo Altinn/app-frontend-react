@@ -6,8 +6,7 @@ import { AccordionGroupDef } from 'src/layout/AccordionGroup/config.def.generate
 import { AccordionGroupHierarchyGenerator } from 'src/layout/AccordionGroup/hierarchy';
 import { SummaryAccordionGroupComponent } from 'src/layout/AccordionGroup/SummaryAccordionGroupComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompExternal } from 'src/layout/layout';
-import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { ChildClaimerProps, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -20,13 +19,22 @@ export class AccordionGroup extends AccordionGroupDef {
     },
   );
 
-  claimChildren(_item: CompExternal<'AccordionGroup'>, _claimChild: (id: string) => void) {
-    // for (const childId of item.children) {
-    //   if (!this.canRenderInAccordionGroup(generator, childId)) {
-    //     continue;
-    //   }
-    //   claimChild(childId);
-    // }
+  claimChildren({ claimChild, item, getProto }: ChildClaimerProps<'AccordionGroup'>): void {
+    for (const childId of item.children) {
+      const proto = getProto(childId);
+      if (!proto) {
+        continue;
+      }
+      if (!proto.def.canRenderInAccordionGroup()) {
+        window.logWarn(
+          `Accordion component included a component '${childId}', which ` +
+            `is a '${proto.type}' and cannot be rendered in an Accordion.`,
+        );
+        continue;
+      }
+
+      claimChild(childId);
+    }
   }
 
   hierarchyGenerator(): ComponentHierarchyGenerator<'AccordionGroup'> {
