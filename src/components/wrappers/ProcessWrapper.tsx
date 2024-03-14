@@ -152,7 +152,7 @@ export const ProcessWrapper = () => {
     return (
       <ProcessNavigationProvider>
         <PresentationComponent type={realTaskType}>
-          <Payment></Payment>
+          <Payment />
         </PresentationComponent>
       </ProcessNavigationProvider>
     );
