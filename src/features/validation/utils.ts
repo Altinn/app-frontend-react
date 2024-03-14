@@ -104,7 +104,7 @@ export function shouldValidateNode(node: LayoutNode): boolean {
   return !node.isHidden({ respectTracks: true }) && !('renderAsSummary' in node.item && node.item.renderAsSummary);
 }
 
-function isValidationVisible<T extends BaseValidation>(validation: T, mask: number): boolean {
+export function isValidationVisible<T extends BaseValidation>(validation: T, mask: number): boolean {
   if (validation.category === 0) {
     return true;
   }
