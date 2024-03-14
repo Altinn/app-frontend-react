@@ -8,7 +8,7 @@ import { Lang } from 'src/features/language/Lang';
 import { isTextReference, OverrideLang } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
-import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
+import { useDeepValidationsForNode } from 'src/features/validation/selectors/deepValidationsForNode';
 import { GenericComponentLegend } from 'src/layout/GenericComponentUtils';
 import classes from 'src/layout/Likert/LikertRow.module.css';
 import { InnerRadioGroup } from 'src/layout/RadioButtons/ControlledRadioGroup';
@@ -53,10 +53,10 @@ const useLikertOptions = (node: LayoutNode<'Likert'>, row: LikertRow) =>
   });
 
 const useLikertValidations = (node: LayoutNode<'Likert'>, row: LikertRow) =>
-  useUnifiedValidationsForNode(node).filter((v) => {
+  useDeepValidationsForNode(node).filter((v) => {
     // We only want to show the validations for the current row
     const firstParam = v.message.params?.[0];
-    return firstParam && isTextReference(firstParam) && firstParam.dataModelPath === row.answerPath;
+    return firstParam ? isTextReference(firstParam) && firstParam.dataModelPath === row.answerPath : true;
   });
 
 const MobileRow = ({ node, row }: Props) => {

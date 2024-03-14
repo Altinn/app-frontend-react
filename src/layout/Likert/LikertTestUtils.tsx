@@ -8,8 +8,7 @@ import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { type BackendValidationIssue, BackendValidationSeverity } from 'src/features/validation';
 import { LikertComponent } from 'src/layout/Likert/LikertComponent';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
-import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
-import { useResolvedNode } from 'src/utils/layout/NodesContext';
+import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { FDNewValue } from 'src/features/formData/FormDataWriteStateMachine';
 import type { IRawTextResource, ITextResourceResult } from 'src/features/language/textResources';
 import type { IRawOption } from 'src/layout/common.generated';
@@ -34,16 +33,13 @@ export const generateMockFormData = (likertQuestions: IQuestion[]) => ({
 });
 
 export const generateValidations = (validations: { index: number; message: string }[]): BackendValidationIssue[] =>
-  validations.map(
-    ({ index, message }) =>
-      ({
-        customTextKey: message,
-        field: `${groupBinding}[${index}].${answerBinding}`,
-        severity: BackendValidationSeverity.Error,
-        source: 'custom',
-        showImmediately: true,
-      }) as unknown as BackendValidationIssue,
-  );
+  validations.map(({ index, message }) => ({
+    customTextKey: message,
+    field: `${groupBinding}[${index}].${answerBinding}`,
+    severity: BackendValidationSeverity.Error,
+    source: 'custom',
+    showImmediately: true,
+  }));
 
 export const defaultMockOptions: IRawOption[] = [
   {
@@ -140,42 +136,18 @@ export const render = async ({
   const mockLikertLayout = createLikertLayout(likertProps);
 
   setScreenWidth(mobileView ? 600 : 1200);
-  return await renderWithInstanceAndLayout({
-    renderer: () => <ContainerTester id={mockLikertLayout.id} />,
+  return await renderGenericComponentTest({
+    type: 'Likert',
+    component: mockLikertLayout,
+    renderer: (props) => <LikertComponent {...props} />,
     queries: {
       fetchOptions: async () => ({ data: mockOptions, headers: {} }) as AxiosResponse<IRawOption[], any>,
       fetchTextResources: async () => createTextResource(mockQuestions, extraTextResources),
       fetchFormData: async () => generateMockFormData(mockQuestions),
-      fetchLayouts: async () => ({
-        FormLayout: {
-          data: {
-            layout: [mockLikertLayout],
-          },
-        },
-      }),
-      fetchLayoutSettings: async () => ({
-        pages: {
-          order: ['FormLayout'],
-        },
-      }),
       fetchBackendValidations: async () => validationIssues,
     },
   });
 };
-
-export function ContainerTester(props: { id: string }) {
-  const node = useResolvedNode(props.id);
-  if (!node || !node.isType('Likert')) {
-    throw new Error(`Could not resolve node with id ${props.id}, or unexpected node type`);
-  }
-
-  return (
-    <LikertComponent
-      node={node}
-      ref={{ current: null }}
-    />
-  );
-}
 
 export const validateTableLayout = async (
   questions: IQuestion[],

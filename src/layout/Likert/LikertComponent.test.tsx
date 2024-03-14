@@ -12,7 +12,7 @@ import {
   validateTableLayout,
 } from 'src/layout/Likert/LikertTestUtils';
 
-describe('RepeatingGroupsLikertContainer', () => {
+describe('LikertComponent', () => {
   describe('Desktop', () => {
     it('should render table using options and not optionsId', async () => {
       await render({
@@ -221,9 +221,6 @@ describe('RepeatingGroupsLikertContainer', () => {
     it('should render error message', async () => {
       await render({
         validationIssues: generateValidations([{ index: 0, message: 'Feltet er påkrevd' }]),
-      });
-      await waitFor(() => {
-        expect(screen.getByRole('group')).toBeInTheDocument();
       });
       expect(screen.getByRole('alert')).toHaveTextContent('Feltet er påkrevd');
     });
