@@ -108,7 +108,7 @@ export type ValidationFilterFunction = (
 ) => boolean;
 
 export interface ValidationFilter {
-  getValidationFilter: (node: LayoutNode) => ValidationFilterFunction | null;
+  getValidationFilters: (node: LayoutNode) => ValidationFilterFunction[];
 }
 
 export type FormDataSelector = (path: string, postProcessor?: (data: unknown) => unknown) => unknown;
@@ -116,7 +116,7 @@ export type FormDataSelector = (path: string, postProcessor?: (data: unknown) =>
 export function implementsValidationFilter<Type extends CompTypes>(
   component: AnyComponent<Type>,
 ): component is typeof component & ValidationFilter {
-  return 'getValidationFilter' in component;
+  return 'getValidationFilters' in component;
 }
 
 export function implementsDisplayData<Type extends CompTypes>(
