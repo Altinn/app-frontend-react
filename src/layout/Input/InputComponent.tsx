@@ -35,7 +35,7 @@ const TextOnly: React.FunctionComponent<TextfieldProps> = ({ className, id, valu
 // We need to use this wrapped Textfield component because we have a conflict between the 'size' prop
 // of the TextField and the react-number-format components which also have a 'size' prop
 const TextfieldWrapped: React.FunctionComponent<InputComponentProps> = (props) => {
-  const { size, textOnly, ...customProps } = props;
+  const { size: _, textOnly, ...customProps } = props;
 
   if (textOnly) {
     return <TextOnly {...customProps}></TextOnly>;

@@ -174,7 +174,7 @@ describe('Validation', () => {
     cy.get(appFrontend.errorReport).should('not.contain.text', appFrontend.changeOfName.uploadWithTag.unwantedChar);
   });
 
-  it.only('Client side validation from json schema', () => {
+  it('Client side validation from json schema', () => {
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.newFirstName).type('a');
 

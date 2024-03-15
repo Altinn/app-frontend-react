@@ -2,9 +2,6 @@
 .rowReadOnly td,
 .rowReadOnly th {
   background-color: var(--fds-semantic-surface-neutral-subtle);
-  input {
-    border: none;
-  }
 }
 
 tr > .fullWidthCellFirst {
