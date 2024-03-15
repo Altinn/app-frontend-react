@@ -25,7 +25,6 @@ import type {
   ExprObjConfig,
   ExprPositionalArgs,
   ExprResolved,
-  ExprRetVal,
   ExprValToActual,
   FuncDef,
 } from 'src/features/expressions/types';

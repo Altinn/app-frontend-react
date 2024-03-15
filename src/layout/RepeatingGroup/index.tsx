@@ -97,11 +97,11 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
 
     const validations: ComponentValidation[] = [];
     // check if minCount is less than visible rows
-    const repeatingGroupMinCount = item.minCount || 0;
-    const repeatingGroupVisibleRows = item.rows.filter((row) => row && !row.groupExpressions?.hiddenRow).length;
+    const minCount = item.minCount || 0;
+    const visibleRows = item.rows.filter((row) => row && !row.groupExpressions?.hiddenRow).length;
 
     // Validate minCount
-    if (repeatingGroupVisibleRows < repeatingGroupMinCount) {
+    if (visibleRows < minCount) {
       validations.push({
         message: { key: 'validation_errors.minItems', params: [minCount] },
         severity: 'error',

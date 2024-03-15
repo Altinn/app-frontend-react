@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import type { JSX, JSX } from 'react';
+import type { JSX } from 'react';
 
 import { AccordionGroup as AccordionGroupComponent } from 'src/layout/AccordionGroup/AccordionGroup';
 import { AccordionGroupDef } from 'src/layout/AccordionGroup/config.def.generated';

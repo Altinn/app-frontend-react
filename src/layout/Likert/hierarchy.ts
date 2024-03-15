@@ -2,7 +2,7 @@ import { MissingRowIdException } from 'src/features/formData/MissingRowIdExcepti
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { getLikertStartStopIndex } from 'src/utils/formLayout';
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
-import type { CompLikertExternal, HLikertRows } from 'src/layout/Likert/config.generated';
+import type { CompLikertExternal } from 'src/layout/Likert/config.generated';
 import type { CompLikertItemInternal } from 'src/layout/LikertItem/config.generated';
 import type {
   ChildFactory,
