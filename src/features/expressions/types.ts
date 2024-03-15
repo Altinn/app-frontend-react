@@ -115,12 +115,11 @@ export type NonRecursiveExpression<F extends ExprFunction = ExprFunction> = [F, 
  * This type removes all expressions from the input type (replacing them with the type
  * the expression is expected to return)
  *
- * @deprecated Use internal types for components instead
  * @see https://www.typescriptlang.org/docs/handbook/2/conditional-types.html#distributive-conditional-types
  * @see https://stackoverflow.com/a/54487392
  */
-export type ExprResolved<T> = T extends ExprVal
-  ? ExprValToActual<T>
+export type ExprResolved<T> = T extends [FunctionsReturning<any>, ...any]
+  ? never
   : T extends any
     ? T extends object
       ? {

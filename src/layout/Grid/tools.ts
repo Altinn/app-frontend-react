@@ -1,12 +1,12 @@
 import { isNodeRef } from 'src/utils/layout/nodeRef';
-import type { GridRowInternal, GridRowsInternal } from 'src/layout/common.generated';
+import type { GridRow, GridRows } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function nodesFromGrid(grid: LayoutNode<'Grid'>): LayoutNode[] {
   return nodesFromGridRows(grid.item.rows);
 }
 
-export function nodesFromGridRows(rows: GridRowsInternal): LayoutNode[] {
+export function nodesFromGridRows(rows: GridRows): LayoutNode[] {
   const out: LayoutNode[] = [];
   for (const row of rows) {
     if (isGridRowHidden(row)) {
@@ -19,7 +19,7 @@ export function nodesFromGridRows(rows: GridRowsInternal): LayoutNode[] {
   return out;
 }
 
-export function nodesFromGridRow(row: GridRowInternal): LayoutNode[] {
+export function nodesFromGridRow(row: GridRow): LayoutNode[] {
   const out: LayoutNode[] = [];
   for (const cell of row.cells) {
     if (isNodeRef(cell)) {
@@ -30,7 +30,7 @@ export function nodesFromGridRow(row: GridRowInternal): LayoutNode[] {
   return out;
 }
 
-export function isGridRowHidden(row: GridRowInternal) {
+export function isGridRowHidden(row: GridRow) {
   let atLeastNoneNodeExists = false;
   const allCellsAreHidden = row.cells.every((cell) => {
     if (isNodeRef(cell)) {

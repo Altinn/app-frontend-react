@@ -7,9 +7,9 @@ import cn from 'classnames';
 
 import classes from 'src/features/devtools/components/LayoutInspector/LayoutInspector.module.css';
 import { useComponentHighlighter } from 'src/features/devtools/hooks/useComponentHighlighter';
+import { GridRows } from 'src/layout/common.generated';
 import { nodesFromGridRow } from 'src/layout/Grid/tools';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { GridRowsInternal } from 'src/layout/common.generated';
 import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -27,7 +27,7 @@ interface INodeHierarchyProps extends Common {
 }
 
 interface IGridRowsRenderer extends Common {
-  rows: GridRowsInternal;
+  rows: GridRows;
   text: string;
 }
 

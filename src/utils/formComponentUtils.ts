@@ -3,10 +3,11 @@ import type React from 'react';
 import { isAttachmentUploaded } from 'src/features/attachments';
 import printStyles from 'src/styles/print.module.css';
 import type { IAttachment } from 'src/features/attachments';
+import type { ExprResolved } from 'src/features/expressions/types';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type {
   IGridStyling,
-  IPageBreakInternal,
+  IPageBreak,
   ITableColumnFormatting,
   ITableColumnProperties,
 } from 'src/layout/common.generated';
@@ -145,7 +146,7 @@ export const gridBreakpoints = (grid?: IGridStyling) => {
   };
 };
 
-export const pageBreakStyles = (pageBreak: IPageBreakInternal | undefined) => {
+export const pageBreakStyles = (pageBreak: ExprResolved<IPageBreak> | undefined) => {
   if (!pageBreak) {
     return {};
   }

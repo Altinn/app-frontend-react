@@ -13,21 +13,17 @@ import { CompCategory } from 'src/layout/common';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
 import { DefaultNodeGenerator } from 'src/utils/layout/DefaultNodeGenerator';
-import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayData, DisplayDataProps } from 'src/features/displayData';
 import type { SimpleEval } from 'src/features/expressions';
+import type { ExprResolved } from 'src/features/expressions/types';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type {
-  ComponentBaseExternal,
-  ComponentBaseInternal,
-  FormComponentPropsExternal,
-  FormComponentPropsInternal,
-  ISelectionComponentFullExternal,
-  ISelectionComponentFullInternal,
-  SummarizableComponentPropsExternal,
-  SummarizableComponentPropsInternal,
+  ComponentBase,
+  FormComponentProps,
+  ISelectionComponentFull,
+  SummarizableComponentProps,
 } from 'src/layout/common.generated';
 import type { FormDataSelector, PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
 import type {
@@ -35,13 +31,12 @@ import type {
   CompExternalExact,
   CompInternal,
   CompTypes,
-  HierarchyDataSources,
   IsContainerComp,
   ITextResourceBindings,
+  ITextResourceBindingsExternal,
 } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 export interface BasicNodeGeneratorProps<Type extends CompTypes> {
   item: CompExternalExact<Type>;
@@ -58,18 +53,14 @@ export type NodeGeneratorProps<Type extends CompTypes> =
 export interface ExprResolver<Type extends CompTypes> {
   item: CompExternalExact<Type>;
   evalCommon: (
-    item:
-      | ComponentBaseExternal
-      | FormComponentPropsExternal
-      | SummarizableComponentPropsExternal
-      | ISelectionComponentFullExternal,
-  ) => Required<ComponentBaseInternal> &
-    Required<FormComponentPropsInternal> &
-    Required<SummarizableComponentPropsInternal> &
-    Required<ISelectionComponentFullInternal>;
+    item: ComponentBase | FormComponentProps | SummarizableComponentProps | ISelectionComponentFull,
+  ) => ExprResolved<Required<ComponentBase>> &
+    ExprResolved<Required<FormComponentProps>> &
+    ExprResolved<Required<SummarizableComponentProps>> &
+    ExprResolved<Required<ISelectionComponentFull>>;
   evalExpr: SimpleEval;
   evalTrb: (item: CompExternal<Type>) => {
-    textResourceBindings: ITextResourceBindings<Type>;
+    textResourceBindings: ExprResolved<ITextResourceBindingsExternal<Type>>;
   };
 }
 
@@ -148,17 +139,6 @@ export abstract class AnyComponent<Type extends CompTypes> {
    */
   renderDefaultValidations(): boolean {
     return true;
-  }
-
-  makeNode(
-    item: CompInternal<Type>,
-    parent: LayoutNode | LayoutPage,
-    top: LayoutPage,
-    dataSources: HierarchyDataSources,
-    rowIndex?: number,
-    rowId?: string,
-  ): LayoutNode<Type> {
-    return new BaseLayoutNode(item, parent, top, dataSources, rowIndex, rowId) as LayoutNode<Type>;
   }
 
   /**
