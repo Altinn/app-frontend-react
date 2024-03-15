@@ -17,6 +17,7 @@ import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/Repeat
 import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/RepeatingGroupsEditContainer';
 import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/RepeatingGroupTable';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 
 export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HTMLDivElement>): JSX.Element | null => {
   const { node, visibleRows } = useRepeatingGroup();
@@ -25,7 +26,7 @@ export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HT
   }));
   const isEditingAnyRow = editingId !== undefined;
 
-  const { textResourceBindings, edit, type } = node.item;
+  const { textResourceBindings, edit, type } = useNodeItem(node);
   const { title, description } = textResourceBindings || {};
 
   const numRows = visibleRows.length;
@@ -42,7 +43,7 @@ export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HT
     <Grid
       container={true}
       item={true}
-      data-componentid={node.item.id}
+      data-componentid={node.getId()}
       ref={ref}
     >
       {(!edit?.mode ||
@@ -112,11 +113,12 @@ function AddButton() {
   }));
   const isEditingAnyRow = editingId !== undefined;
 
-  const { textResourceBindings, id, edit } = node.item;
+  const item = useNodeItem(node);
+  const { textResourceBindings, id, edit } = item;
   const { add_button, add_button_full } = textResourceBindings || {};
 
   const numRows = visibleRows.length;
-  const tooManyRows = 'maxCount' in node.item && typeof node.item.maxCount == 'number' && numRows >= node.item.maxCount;
+  const tooManyRows = 'maxCount' in item && typeof item.maxCount == 'number' && numRows >= item.maxCount;
   const forceShow = editingAll || editingNone || edit?.alwaysShowAddButton === true;
 
   if (edit?.addButton === false) {

@@ -12,6 +12,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelBindingsLikertInternal } from 'src/layout/common.generated';
 import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { CompLikertItemInternal } from 'src/layout/LikertItem/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class LikertItem extends LikertItemDef {
@@ -40,14 +41,15 @@ export class LikertItem extends LikertItemDef {
 
   getDisplayData(
     node: LayoutNode<'LikertItem'>,
+    item: CompLikertItemInternal,
     { langTools, optionsSelector, formDataSelector }: DisplayDataProps,
   ): string {
-    if (!node.item.dataModelBindings?.simpleBinding) {
+    if (!item.dataModelBindings?.simpleBinding) {
       return '';
     }
 
     const value = String(node.getFormData(formDataSelector).simpleBinding ?? '');
-    const optionList = optionsSelector(node.item.id);
+    const optionList = optionsSelector(node.getId());
     return getSelectedValueToText(value, langTools, optionList) || '';
   }
 
@@ -65,7 +67,7 @@ export class LikertItem extends LikertItemDef {
     const errors: string[] = [...(answerErr || [])];
 
     const parentBindings = ctx.node.parent?.item.dataModelBindings as IDataModelBindingsLikertInternal | undefined;
-    const bindings = ctx.node.item.dataModelBindings;
+    const bindings = ctx.item.dataModelBindings;
     if (
       answer &&
       bindings &&

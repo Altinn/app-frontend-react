@@ -6,6 +6,7 @@ import classes from 'src/features/devtools/components/NodeInspector/NodeInspecto
 import { NodeInspectorDataField } from 'src/features/devtools/components/NodeInspector/NodeInspectorDataField';
 import { NodeInspectorDataModelBindings } from 'src/features/devtools/components/NodeInspector/NodeInspectorDataModelBindings';
 import { NodeInspectorTextResourceBindings } from 'src/features/devtools/components/NodeInspector/NodeInspectorTextResourceBindings';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface DefaultNodeInspectorParams {
@@ -14,18 +15,19 @@ interface DefaultNodeInspectorParams {
 }
 
 export function DefaultNodeInspector({ node, ignoredProperties }: DefaultNodeInspectorParams) {
+  const item = useNodeItem(node);
   const ignoredPropertiesFinal = new Set(
     ['id', 'type', 'multiPageIndex', 'baseComponentId'].concat(ignoredProperties ?? []),
   );
 
   return (
     <dl className={cn(classes.propertyList, classes.mainPropertyList)}>
-      {Object.keys(node.item).map((key) => {
+      {Object.keys(item).map((key) => {
         if (ignoredPropertiesFinal.has(key)) {
           return null;
         }
 
-        const value = node.item[key];
+        const value = item[key];
         if (key === 'dataModelBindings' && typeof value === 'object' && Object.keys(value).length > 0) {
           return (
             <NodeInspectorDataModelBindings

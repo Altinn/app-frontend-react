@@ -20,6 +20,9 @@ import { isGridRowHidden, nodesFromGrid } from 'src/layout/Grid/tools';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import { isNodeRef } from 'src/utils/layout/nodeRef';
+import { useNodes } from 'src/utils/layout/NodesContext';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { GridRowInternal, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/common.generated';
 import type { ITextResourceBindings } from 'src/layout/layout';
@@ -27,7 +30,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
   const { node } = props;
-  const { rows, textResourceBindings, labelSettings } = node.item;
+  const { rows, textResourceBindings, labelSettings } = useNodeItem(node);
   const { title, description, help } = textResourceBindings ?? {};
   const shouldHaveFullWidth = node.parent instanceof LayoutPage;
   const columnSettings: ITableColumnFormatting = {};
@@ -44,7 +47,7 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
       wrapper={(child) => <FullWidthWrapper>{child}</FullWidthWrapper>}
     >
       <Table
-        id={node.item.id}
+        id={node.getId()}
         className={css.table}
       >
         {title && (
@@ -78,6 +81,7 @@ interface GridRowProps {
 }
 
 export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: GridRowProps) {
+  const nodes = useNodes();
   return isGridRowHidden(row) ? null : (
     <InternalRow
       header={row.header}
@@ -119,9 +123,7 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: 
           }
 
           if ('labelFrom' in cell && cell.labelFrom) {
-            const closestComponent = node
-              .flat(true)
-              .find((n) => n.item.id === cell.labelFrom || n.item.baseComponentId === cell.labelFrom);
+            const closestComponent = node.flat().find((n) => n.getBaseId() === cell.labelFrom);
             return (
               <CellWithLabel
                 key={`${cell.labelFrom}/${cellIdx}`}
@@ -133,12 +135,11 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: 
             );
           }
         }
-        const componentNode = cell && 'node' in cell ? cell.node : undefined;
-        const componentId = componentNode && componentNode.item.id;
+        const targetNode = isNodeRef(cell) ? nodes.findById(cell.nodeRef) : undefined;
         return (
           <CellWithComponent
-            key={`${componentId}/${cellIdx}`}
-            node={componentNode}
+            key={`${targetNode?.getId()}/${cellIdx}`}
+            node={targetNode}
             isHeader={row.header}
             className={className}
             columnStyleOptions={mutableColumnSettings[cellIdx]}
@@ -241,16 +242,15 @@ function CellWithText({ children, className, columnStyleOptions, help, isHeader 
 
 function CellWithLabel({ className, columnStyleOptions, referenceComponent, isHeader = false }: CellWithLabelProps) {
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
-  const refItem = referenceComponent?.item;
+  const refItem = useNodeItem(referenceComponent);
   const trb = (refItem && 'textResourceBindings' in refItem ? refItem.textResourceBindings : {}) as
     | ITextResourceBindings
     | undefined;
   const title = trb && 'title' in trb ? trb.title : undefined;
   const help = trb && 'help' in trb ? trb.help : undefined;
   const description = trb && 'description' in trb ? trb.description : undefined;
-  const required =
-    (referenceComponent && 'required' in referenceComponent.item && referenceComponent.item.required) ?? false;
-  const componentId = referenceComponent?.item.id ?? referenceComponent?.item.baseComponentId;
+  const required = (refItem && 'required' in refItem && refItem.required) ?? false;
+  const componentId = referenceComponent?.getId();
 
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
 
@@ -283,7 +283,7 @@ function CellWithLabel({ className, columnStyleOptions, referenceComponent, isHe
 }
 
 function MobileGrid({ node }: PropsFromGenericComponent<'Grid'>) {
-  const { textResourceBindings, id, labelSettings } = node.item;
+  const { textResourceBindings, id, labelSettings } = useNodeItem(node);
   const { title, description, help } = textResourceBindings ?? {};
   return (
     <Fieldset
@@ -298,7 +298,7 @@ function MobileGrid({ node }: PropsFromGenericComponent<'Grid'>) {
         .filter((child) => !child.isHidden())
         .map((child) => (
           <GenericComponent
-            key={child.item.id}
+            key={child.getId()}
             node={child}
           />
         ))}

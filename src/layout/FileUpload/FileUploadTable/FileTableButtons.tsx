@@ -13,6 +13,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { useAlertOnChange } from 'src/hooks/useAlertOnChange';
 import classes from 'src/layout/FileUpload/FileUploadTable/FileTableRow.module.css';
 import { useFileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IAttachment } from 'src/features/attachments';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -24,7 +25,7 @@ interface IFileTableButtonsProps {
 }
 
 export function FileTableButtons({ node, attachment, mobileView, editWindowIsOpen }: IFileTableButtonsProps) {
-  const { alertOnDelete, type } = node.item;
+  const { alertOnDelete, type } = useNodeItem(node);
   const hasTag = type === 'FileUploadWithTag';
   const showEditButton = hasTag && !editWindowIsOpen;
   const { langAsString } = useLanguage();

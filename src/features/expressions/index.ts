@@ -3,7 +3,6 @@ import type { Mutable } from 'utility-types';
 
 import {
   ExprRuntimeError,
-  NodeNotFoundWithoutContext,
   UnexpectedType,
   UnknownSourceType,
   UnknownTargetType,
@@ -16,6 +15,7 @@ import { isDate } from 'src/utils/dateHelpers';
 import { formatDateLocale } from 'src/utils/formatDateLocale';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type {
   ActualOrExpr,
@@ -32,6 +32,7 @@ import type {
 import type { FormDataSelector } from 'src/layout';
 import type { CompGroupExternal } from 'src/layout/Group/config.generated';
 import type { CompExternal } from 'src/layout/layout';
+import type { AnyComponent } from 'src/layout/LayoutComponent';
 import type { CompLikertExternal } from 'src/layout/Likert/config.generated';
 import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { IAuthContext, IInstanceDataSources } from 'src/types/shared';
@@ -167,7 +168,7 @@ function evalExprInObjectRecursive<T>(input: any, args: Omit<EvalExprInObjArgs<T
  */
 function evalExprInObjectCaller<T>(expr: Expression, args: Omit<EvalExprInObjArgs<T>, 'input'>, path: string[]) {
   const pathString = path.join('.');
-  const nodeId = args.node instanceof NodeNotFoundWithoutContext ? args.node.nodeId : args.node.item.id;
+  const nodeId = args.node.getId();
 
   const exprOptions: EvalExprOptions = {
     config: args.config && getConfigFor(path, args.config),
@@ -575,21 +576,23 @@ export const ExprFunctions = {
 
       const node = this.failWithoutNode();
       const closestComponent = node.closest((c) => c.id === id || c.baseComponentId === id);
-      const component = closestComponent ?? (node instanceof LayoutPage ? node.findById(id) : node.top.findById(id));
+      const targetNode = closestComponent ?? (node instanceof LayoutPage ? node.findById(id) : node.top.findById(id));
 
-      if (!component) {
+      if (!targetNode) {
         throw new ExprRuntimeError(this, `Unable to find component with identifier ${id}`);
       }
 
-      if (!implementsDisplayData(component.def)) {
+      const def = targetNode.def as AnyComponent<any>;
+      if (!implementsDisplayData(def)) {
         throw new ExprRuntimeError(this, `Component with identifier ${id} does not have a displayValue`);
       }
 
-      if (component.isHidden()) {
+      if (targetNode.isHidden()) {
         return null;
       }
 
-      return component.def.getDisplayData(component as any, {
+      const targetItem = node.item as any;
+      return def.getDisplayData(targetNode as any, targetItem, {
         attachments: this.dataSources.attachments,
         optionsSelector: this.dataSources.options,
         langTools: this.dataSources.langToolsRef.current,

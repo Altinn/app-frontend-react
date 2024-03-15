@@ -7,12 +7,13 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/Accordion/Accordion.module.css';
 import { AccordionItem } from 'src/layout/Accordion/AccordionItem';
 import { GenericComponent } from 'src/layout/GenericComponent';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 type IAccordionProps = PropsFromGenericComponent<'Accordion'>;
 
 export const Accordion = ({ node }: IAccordionProps) => {
-  const { textResourceBindings, renderAsAccordionItem, headingLevel } = node.item;
+  const { textResourceBindings, renderAsAccordionItem, headingLevel, childComponents } = useNodeItem(node);
   const { langAsString } = useLanguage();
 
   const title = langAsString(textResourceBindings?.title ?? '');
@@ -30,9 +31,9 @@ export const Accordion = ({ node }: IAccordionProps) => {
           spacing={3}
           alignItems='flex-start'
         >
-          {node.item.childComponents.map((n) => (
+          {childComponents.map((n) => (
             <GenericComponent
-              key={n.item.id}
+              key={n.getId()}
               node={n}
             />
           ))}
@@ -57,9 +58,9 @@ export const Accordion = ({ node }: IAccordionProps) => {
           spacing={3}
           alignItems='flex-start'
         >
-          {node.item.childComponents.map((n) => (
+          {childComponents.map((n) => (
             <GenericComponent
-              key={n.item.id}
+              key={n.getId()}
               node={n}
             />
           ))}

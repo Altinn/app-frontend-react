@@ -75,7 +75,7 @@ export const getLikertStartStopIndex = (lastIndex: number, filters: ILikertFilte
  * dynamic behaviour dictates it).
  */
 export function hasRequiredFields(page: LayoutPage): boolean {
-  return !!page.flat(true).find((n) => 'required' in n.item && n.item.required === true);
+  return !!page.flat().find((n) => 'required' in n.item && n.item.required === true);
 }
 
 /**
@@ -90,9 +90,9 @@ export function extractBottomButtons(page: LayoutPage) {
   for (const node of all.reverse()) {
     const isButtonLike = node.isType('ButtonGroup') || (node.def.canRenderInButtonGroup() && !node.isType('Custom'));
     if (isButtonLike && toMainLayout.length === 0) {
-      toErrorReport.push(node.item.id);
+      toErrorReport.push(node.getId());
     } else {
-      toMainLayout.push(node.item.id);
+      toMainLayout.push(node.getId());
     }
   }
 

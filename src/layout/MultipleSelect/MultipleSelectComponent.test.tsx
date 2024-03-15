@@ -18,7 +18,7 @@ const render = async ({
     type: 'MultipleSelect',
     renderer: (props) => (
       <>
-        <label htmlFor={props.node.item.id}>{dummyLabel}</label>
+        <label htmlFor={props.node.getId()}>{dummyLabel}</label>
         <MultipleSelectComponent {...props} />
       </>
     ),

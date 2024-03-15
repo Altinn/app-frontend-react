@@ -11,6 +11,12 @@ export const Config = new CG.component({
     renderInAccordionGroup: false,
   },
 })
+  .setLayoutNodeType(
+    new CG.import({
+      import: 'GroupNode',
+      from: 'src/layout/Group/GroupNode',
+    }),
+  )
   .addTextResource(
     new CG.trb({
       name: 'title',
@@ -25,7 +31,6 @@ export const Config = new CG.component({
       description: 'The description text shown underneath the title',
     }),
   )
-  .addProperty(new CG.prop('childComponents', new CG.arr(CG.layoutNode)).onlyIn(Variant.Internal))
   .addProperty(
     new CG.prop(
       'groupingIndicator',

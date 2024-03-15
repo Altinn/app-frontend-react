@@ -40,7 +40,7 @@ export const NodeInspector = () => {
                 href='#'
                 onClick={(e) => {
                   e.preventDefault();
-                  focusLayoutInspector(selectedNode?.item.baseComponentId || selectedNode?.item.id);
+                  focusLayoutInspector(selectedNode?.getBaseId());
                 }}
               >
                 Rediger konfigurasjonen i Layout-fanen

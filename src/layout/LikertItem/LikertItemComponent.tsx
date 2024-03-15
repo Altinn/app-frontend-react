@@ -11,14 +11,15 @@ import { GenericComponentLegend } from 'src/layout/GenericComponentUtils';
 import classes from 'src/layout/LikertItem/LikertItemComponent.module.css';
 import { ControlledRadioGroup } from 'src/layout/RadioButtons/ControlledRadioGroup';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IControlledRadioGroupProps } from 'src/layout/RadioButtons/ControlledRadioGroup';
 
 export const LikertItemComponent = forwardRef<HTMLTableRowElement, PropsFromGenericComponent<'LikertItem'>>(
   (props, ref) => {
-    const nodeLayout = props.node.item.layout;
+    const item = useNodeItem(props.node);
     const overriddenLayout = props.overrideItemProps?.layout;
-    const actualLayout = overriddenLayout || nodeLayout;
+    const actualLayout = overriddenLayout || item.layout;
 
     if (actualLayout === LayoutStyle.Table) {
       return (
@@ -43,8 +44,8 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
   const { selected, handleChange, calculatedOptions, fetchingOptions } = useRadioButtons(props);
   const validations = useUnifiedValidationsForNode(node);
 
-  const id = node.item.id;
-  const groupContainerId = node.closest((n) => n.type === 'Likert')?.item.id;
+  const id = node.getId();
+  const groupContainerId = node.closest((n) => n.type === 'Likert')?.getId();
 
   const headerColumnId = `${groupContainerId}-likert-columnheader-left`;
   const rowLabelId = `row-label-${id}`;
@@ -52,7 +53,7 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
   return (
     <Table.Row
       aria-labelledby={`${headerColumnId} ${rowLabelId}`}
-      data-componentid={node.item.id}
+      data-componentid={node.getId()}
       data-is-loading={fetchingOptions ? 'true' : 'false'}
       role='radiogroup'
       ref={ref}

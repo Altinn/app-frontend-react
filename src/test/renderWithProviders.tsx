@@ -608,7 +608,7 @@ const WaitForNodes = ({
           <div>All other nodes loaded:</div>
           <ul>
             {nodes.allNodes().map((node) => (
-              <li key={node.item.id}>{node.item.id}</li>
+              <li key={node.getId()}>{node.getId()}</li>
             ))}
           </ul>
         </>
@@ -704,7 +704,7 @@ export async function renderGenericComponentTest<T extends CompTypes, InInstance
         value={{
           node,
           baseComponentId: node.item.baseComponentId,
-          id: node.item.id,
+          id: node.getId(),
         }}
       >
         {renderer(props)}

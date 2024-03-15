@@ -5,6 +5,7 @@ import { LegacyTextArea } from '@digdir/design-system-react';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useCharacterLimit } from 'src/utils/inputUtils';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 import 'src/styles/shared.css';
@@ -13,7 +14,8 @@ export type ITextAreaProps = PropsFromGenericComponent<'TextArea'>;
 
 export function TextAreaComponent({ node, isValid, overrideDisplay }: ITextAreaProps) {
   const { langAsString } = useLanguage();
-  const { id, readOnly, textResourceBindings, dataModelBindings, saveWhileTyping, autocomplete, maxLength } = node.item;
+  const { id, readOnly, textResourceBindings, dataModelBindings, saveWhileTyping, autocomplete, maxLength } =
+    useNodeItem(node);
   const characterLimit = useCharacterLimit(maxLength);
   const {
     formData: { simpleBinding: value },

@@ -1,16 +1,18 @@
 import type React from 'react';
 
 import { useGetOptions } from 'src/features/options/useGetOptions';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IRadioButtonsContainerProps } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 
 export const useRadioButtons = ({ node }: IRadioButtonsContainerProps) => {
+  const item = useNodeItem(node);
   const {
     options: calculatedOptions,
     isFetching: fetchingOptions,
     setData,
     currentStringy,
   } = useGetOptions({
-    ...node.item,
+    ...item,
     node,
     valueType: 'single',
   });

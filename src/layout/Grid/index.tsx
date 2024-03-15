@@ -12,7 +12,6 @@ import type { GridRowsExternal } from 'src/layout/common.generated';
 import type { CompExternalExact, CompInternal } from 'src/layout/layout';
 import type { ChildClaimerProps, ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Grid extends GridDef {
   private _hierarchyGenerator = new GridHierarchyGenerator();
@@ -65,7 +64,7 @@ export class Grid extends GridDef {
     return false;
   }
 
-  getDisplayData(_node: LayoutNode<'Grid'>): string {
+  getDisplayData(): string {
     return '';
   }
 

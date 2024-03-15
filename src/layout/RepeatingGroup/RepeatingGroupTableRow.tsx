@@ -20,9 +20,11 @@ import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
 import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { AlertOnChange } from 'src/hooks/useAlertOnChange';
 import type { ITextResourceBindings } from 'src/layout/layout';
+import type { AnyComponent } from 'src/layout/LayoutComponent';
 import type {
   CompRepeatingGroupExternal,
   CompRepeatingGroupInternal,
@@ -85,8 +87,8 @@ export function RepeatingGroupTableRow({
   const { node, deleteRow, isEditing, isDeleting, toggleEditing } = useRepeatingGroup();
   const langTools = useLanguage();
   const { langAsString } = langTools;
-  const id = node.item.id;
-  const group = node.item;
+  const id = node.getId();
+  const group = useNodeItem(node);
   const row = group.rows.find((r) => r.uuid === uuid);
   const expressionsForRow = row?.groupExpressions;
   const columnSettings = group.tableColumns;
@@ -106,9 +108,14 @@ export function RepeatingGroupTableRow({
 
   const tableNodes = getTableNodes({ onlyInRowUuid: uuid }) || [];
   const displayDataProps = useDisplayDataProps();
-  const displayData = tableNodes.map((node) =>
-    implementsDisplayData(node.def) ? node.def.getDisplayData(node as any, displayDataProps) : '',
-  );
+  const displayData = tableNodes.map((node) => {
+    const def = node.def as AnyComponent<any>;
+    if (!implementsDisplayData(def)) {
+      return '';
+    }
+
+    return def.getDisplayData(node as any, node.item as any, displayDataProps);
+  });
   const firstCellData = displayData.find((c) => !!c);
   const isEditingRow = isEditing(uuid);
   const isDeletingRow = isDeleting(uuid);
@@ -138,10 +145,10 @@ export function RepeatingGroupTableRow({
         tableNodes.map((n, idx) =>
           shouldEditInTable(edit, n, columnSettings) ? (
             <Table.Cell
-              key={n.item.id}
+              key={n.getId()}
               className={classes.tableCell}
             >
-              <div ref={(ref) => refSetter && refSetter(row.index, `component-${n.item.id}`, ref)}>
+              <div ref={(ref) => refSetter && refSetter(row.index, `component-${n.getId()}`, ref)}>
                 <GenericComponent
                   node={n}
                   overrideDisplay={{
@@ -157,7 +164,7 @@ export function RepeatingGroupTableRow({
             </Table.Cell>
           ) : (
             <Table.Cell
-              key={`${n.item.id}-${row.index}`}
+              key={`${n.getId()}`}
               className={classes.tableCell}
             >
               <span
@@ -182,8 +189,8 @@ export function RepeatingGroupTableRow({
                   <Grid
                     container={true}
                     item={true}
-                    key={n.item.id}
-                    ref={(ref) => refSetter && refSetter(row.index, `component-${n.item.id}`, ref)}
+                    key={n.getId()}
+                    ref={(ref) => refSetter && refSetter(row.index, `component-${n.getId()}`, ref)}
                   >
                     <GenericComponent
                       node={n}
@@ -196,7 +203,7 @@ export function RepeatingGroupTableRow({
                   <Grid
                     container={true}
                     item={true}
-                    key={n.item.id}
+                    key={n.getId()}
                   >
                     <b className={cn(classes.contentFormatting, classes.spaceAfterContent)}>
                       <Lang id={getTableTitle('textResourceBindings' in n.item ? n.item.textResourceBindings : {})} />:
@@ -314,7 +321,7 @@ export function shouldEditInTable(
   tableNode: LayoutNode,
   columnSettings: CompRepeatingGroupExternal['tableColumns'],
 ) {
-  const column = columnSettings && columnSettings[tableNode.item.baseComponentId || tableNode.item.id];
+  const column = columnSettings && columnSettings[tableNode.getBaseId()];
   if (groupEdit?.mode === 'onlyTable' && column?.editInTable !== false) {
     return tableNode.def.canRenderInTable();
   }

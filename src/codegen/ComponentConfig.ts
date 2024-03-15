@@ -4,11 +4,6 @@ import { CG, Variant } from 'src/codegen/CG';
 import { GenerateComponentLike } from 'src/codegen/dataTypes/GenerateComponentLike';
 import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import { CompCategory } from 'src/layout/common';
-import type { MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
-import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
-import type { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
-import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
-import type { GenerateTextResourceBinding } from 'src/codegen/dataTypes/GenerateTextResourceBinding';
 import type {
   ActionComponent,
   ContainerComponent,
@@ -46,12 +41,15 @@ const CategoryImports: { [Category in CompCategory]: GenerateImportedSymbol<any>
   }),
 };
 
+const baseLayoutNode = new GenerateImportedSymbol({
+  import: 'BaseLayoutNode',
+  from: 'src/utils/layout/LayoutNode',
+});
+
 export class ComponentConfig extends GenerateComponentLike {
   public type: string;
   public typeSymbol: string;
-  public layoutNodeType = CG.baseLayoutNode;
-
-  private exportedComp: MaybeSymbolizedCodeGenerator<any> = this.inner;
+  public layoutNodeType = baseLayoutNode;
 
   constructor(public readonly config: RequiredComponentConfig) {
     super();
@@ -78,76 +76,15 @@ export class ComponentConfig extends GenerateComponentLike {
     }
   }
 
-  private ensureNotOverridden(): void {
-    if (this.inner !== this.exportedComp) {
-      throw new Error('The exported symbol has been overridden, you cannot call this method anymore');
-    }
-  }
-
-  addProperty(prop: GenerateProperty<any>): this {
-    this.ensureNotOverridden();
-    return super.addProperty(prop);
-  }
-
-  makeSelectionComponent(full = true): this {
-    this.ensureNotOverridden();
-    return super.makeSelectionComponent(full);
-  }
-
-  addTextResourcesForLabel(): this {
-    this.ensureNotOverridden();
-    return super.addTextResourcesForLabel();
-  }
-
-  addDataModelBinding(
-    type:
-      | GenerateCommonImport<
-          | 'IDataModelBindingsSimple'
-          | 'IDataModelBindingsList'
-          | 'IDataModelBindingsOptionsSimple'
-          | 'IDataModelBindingsLikert'
-        >
-      | GenerateObject<any>,
-  ): this {
-    this.ensureNotOverridden();
-    return super.addDataModelBinding(type);
-  }
-
-  extendTextResources(type: GenerateCommonImport<any>): this {
-    this.ensureNotOverridden();
-    return super.extendTextResources(type);
-  }
-
-  /**
-   * TODO: Add support for some required text resource bindings (but only make them required in external types)
-   */
-  addTextResource(arg: GenerateTextResourceBinding): this {
-    this.ensureNotOverridden();
-    return super.addTextResource(arg);
-  }
-
   public setType(type: string, symbol?: string): this {
     const symbolName = symbol ?? type;
     this.type = type;
     this.typeSymbol = symbolName;
     this.inner.addProperty(new CG.prop('type', new CG.const(this.type)).insertFirst());
-    if (this.inner !== this.exportedComp) {
-      this.inner.exportAs(`${symbolName}Base`);
-    }
 
     return this;
   }
 
-  /**
-   * Overrides the exported symbol for this component with something else. This lets you change the base component
-   * type to, for example, a union of multiple types. This is for example useful for components that have
-   * configurations that change a lot of options based on some other options. Examples include the Group component,
-   * where many options rely on the Group being configured as repeating or not.
-   */
-  public overrideExported(comp: MaybeSymbolizedCodeGenerator<any>): this {
-    this.exportedComp = comp;
-    return this;
-  }
   // This will not be used at the moment after we split the group to several components.
   // However, this is nice to keep for future components that might need it.
   public setLayoutNodeType(type: GenerateImportedSymbol<any>): this {
@@ -157,10 +94,10 @@ export class ComponentConfig extends GenerateComponentLike {
 
   public generateConfigFile(): string {
     // Forces the objects to register in the context and be exported via the context symbols table
-    this.exportedComp.exportAs(`Comp${this.typeSymbol}`);
-    const ext = this.exportedComp.transformTo(Variant.External);
+    this.inner.exportAs(`Comp${this.typeSymbol}`);
+    const ext = this.inner.transformTo(Variant.External);
     ext.toTypeScript();
-    const int = this.exportedComp.transformTo(Variant.Internal);
+    const int = this.inner.transformTo(Variant.Internal);
     int.toTypeScript();
 
     const impl = new CG.import({
@@ -169,7 +106,7 @@ export class ComponentConfig extends GenerateComponentLike {
     }).transformTo(Variant.Internal);
 
     const nodeObj = this.layoutNodeType.transformTo(Variant.Internal).toTypeScript();
-    const nodeSuffix = this.layoutNodeType === CG.baseLayoutNode ? `<${int.getName()}, '${this.type}'>` : '';
+    const nodeSuffix = this.layoutNodeType === baseLayoutNode ? `<${int.getName()}, '${this.type}'>` : '';
 
     const staticElements = [
       `export const Config = {
@@ -210,6 +147,6 @@ export class ComponentConfig extends GenerateComponentLike {
   }
 
   public toJsonSchema(): JSONSchema7 {
-    return this.exportedComp.transformTo(Variant.External).toJsonSchema();
+    return this.inner.transformTo(Variant.External).toJsonSchema();
   }
 }

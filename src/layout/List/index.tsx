@@ -14,6 +14,7 @@ import type { ComponentValidation, ValidationDataSources } from 'src/features/va
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { CompListInternal } from 'src/layout/List/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class List extends ListDef {
@@ -31,11 +32,11 @@ export class List extends ListDef {
     };
   }
 
-  getDisplayData(node: LayoutNode<'List'>, { formDataSelector }: DisplayDataProps): string {
+  getDisplayData(node: LayoutNode<'List'>, item: CompListInternal, { formDataSelector }: DisplayDataProps): string {
     const formData = node.getFormData(formDataSelector);
-    const dmBindings = node.item.dataModelBindings;
+    const dmBindings = item.dataModelBindings;
     for (const [key, binding] of Object.entries(dmBindings || {})) {
-      if (binding == node.item.bindingToShowInSummary) {
+      if (binding == item.bindingToShowInSummary) {
         return formData[key] || '';
       }
     }
@@ -48,16 +49,18 @@ export class List extends ListDef {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
-  runEmptyFieldValidation(node: LayoutNode<'List'>, { formData }: ValidationDataSources): ComponentValidation[] {
-    if (!node.item.required || !node.item.dataModelBindings) {
+  runEmptyFieldValidation(
+    node: LayoutNode<'List'>,
+    item: CompInternal<'List'>,
+    { formData }: ValidationDataSources,
+  ): ComponentValidation[] {
+    if (!item.required || !item.dataModelBindings) {
       return [];
     }
 
-    const fields = Object.values(node.item.dataModelBindings);
-
+    const fields = Object.values(item.dataModelBindings);
     const validations: ComponentValidation[] = [];
-
-    const textResourceBindings = node.item.textResourceBindings;
+    const textResourceBindings = item.textResourceBindings;
 
     let listHasErrors = false;
     for (const field of fields) {
@@ -75,7 +78,7 @@ export class List extends ListDef {
         : 'form_filler.error_required';
 
       const fieldNameReference = {
-        key: getFieldNameKey(node.item.textResourceBindings, undefined),
+        key: getFieldNameKey(item.textResourceBindings, undefined),
         makeLowerCase: true,
       };
 
@@ -85,7 +88,7 @@ export class List extends ListDef {
           params: [fieldNameReference],
         },
         severity: 'error',
-        componentId: node.item.id,
+        componentId: node.getId(),
         source: FrontendValidationSource.EmptyField,
         category: ValidationMask.Required,
       });
@@ -94,7 +97,7 @@ export class List extends ListDef {
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'List'>): string[] {
-    const possibleBindings = Object.keys(ctx.node.item.tableHeaders || {});
+    const possibleBindings = Object.keys(ctx.item.tableHeaders || {});
 
     const errors: string[] = [];
     for (const binding of possibleBindings) {

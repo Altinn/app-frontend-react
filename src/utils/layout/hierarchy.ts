@@ -1,7 +1,5 @@
 import { useMemo, useRef } from 'react';
 
-import deepEqual from 'fast-deep-equal';
-
 import { useApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
@@ -19,10 +17,9 @@ import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { getLayoutComponentObject } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
-import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { useIsHiddenComponent } from 'src/utils/layout/NodesContext';
 import type { CompInternal, HierarchyDataSources, ILayouts } from 'src/layout/layout';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
-import type { useIsHiddenComponent } from 'src/utils/layout/NodesContext';
 /**
  * This will generate an entire layout hierarchy, iterate each
  * component/group in the layout and resolve all expressions for them.
@@ -31,7 +28,6 @@ function resolvedNodesInLayouts(
   layouts: ILayouts | null,
   currentView: string | undefined,
   dataSources: HierarchyDataSources,
-  previousNodes?: LayoutPages,
 ) {
   // A full copy is needed here because formLayout comes from the redux store, and in production code (not the
   // development server!) the properties are not mutable (but we have to mutate them below).
@@ -44,7 +40,7 @@ function resolvedNodesInLayouts(
   } as any;
 
   for (const layout of Object.values(unresolved.all())) {
-    for (const node of layout.flat(true)) {
+    for (const node of layout.flat()) {
       const input = { ...node.item };
       delete input['children'];
       delete input['rows'];
@@ -60,7 +56,7 @@ function resolvedNodesInLayouts(
         resolvingPerRow: false,
       }) as unknown as CompInternal;
 
-      if (node.item.type === 'RepeatingGroup') {
+      if (node.isType('RepeatingGroup')) {
         for (const row of node.item.rows) {
           if (!row) {
             continue;
@@ -69,7 +65,7 @@ function resolvedNodesInLayouts(
           if (!first) {
             continue;
           }
-          const firstItemNode = unresolved.findById(first.item.id);
+          const firstItemNode = unresolved.findById(first.getId());
           if (firstItemNode) {
             row.groupExpressions = evalExprInObj({
               input,
@@ -91,64 +87,11 @@ function resolvedNodesInLayouts(
     }
   }
 
-  // We know that the hierarchy is re-generated much too often, and while a proper solution is difficult to implement,
-  // a stop-gap solution is to compare the previous hierarchy with the new one, and replace unchanged nodes with the
-  // old ones. Since React uses shallow comparison, this will prevent unnecessary re-renders.
-  if (previousNodes) {
-    for (const pageKey of previousNodes.allPageKeys()) {
-      const oldPage = previousNodes.findLayout(pageKey);
-      const newPage = unresolved.findLayout(pageKey);
-      if (!newPage || !oldPage) {
-        continue;
-      }
-
-      for (const oldNode of oldPage.children()) {
-        if (containsLayoutNode(oldNode.item)) {
-          // We don't want to replace nodes that contain other nodes, because at that point we would have to
-          // compare and replace at that level as well. This, along with .children() above, ensures that we only
-          // replace the top-level nodes.
-          continue;
-        }
-        const newNode = newPage.findById(oldNode.item.id);
-        if (newNode && deepEqual(oldNode.item, newNode.item)) {
-          // Some values in oldNode needs to be replaced so that references and functions still work
-          oldNode.parent = newNode.parent;
-          oldNode.top = newNode.top;
-          oldNode.dataSources = newNode.dataSources;
-          oldNode.hiddenCache = {};
-
-          newPage.replaceNode(newNode, oldNode);
-        }
-      }
-    }
-  }
-
   return unresolved as unknown as LayoutPages;
 }
 
-/**
- * Recursive function to check if a node.item contains other LayoutNode objects somewhere inside
- */
-function containsLayoutNode(obj: any): boolean {
-  if (obj instanceof BaseLayoutNode) {
-    return true;
-  }
-
-  if (typeof obj !== 'object') {
-    return false;
-  }
-
-  for (const key of Object.keys(obj)) {
-    if (containsLayoutNode(obj[key])) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
 const emptyObject = {};
-export function useExpressionDataSources(isHidden: ReturnType<typeof useIsHiddenComponent>): HierarchyDataSources {
+export function useExpressionDataSources(): HierarchyDataSources {
   const instanceDataSources = useLaxInstanceDataSources();
   const formDataSelector = FD.useDebouncedSelector();
   const layoutSettings = useLayoutSettings();
@@ -162,6 +105,7 @@ export function useExpressionDataSources(isHidden: ReturnType<typeof useIsHidden
   const currentLanguage = useCurrentLanguage();
   const pageNavigationConfig = usePageNavigationConfig();
   const authContext = useMemo(() => buildAuthContext(process?.currentTask), [process?.currentTask]);
+  const isHidden = useIsHiddenComponent();
 
   return useMemo(
     () => ({
@@ -197,13 +141,13 @@ export function useExpressionDataSources(isHidden: ReturnType<typeof useIsHidden
   );
 }
 
-function useResolvedExpressions(isHidden: ReturnType<typeof useIsHiddenComponent>) {
+function useResolvedExpressions() {
   const layouts = useLayouts();
   const currentView = useCurrentView();
-  const dataSources = useExpressionDataSources(isHidden);
+  const dataSources = useExpressionDataSources();
   const previousNodesRef = useRef<LayoutPages>();
   const nodes = useMemo(
-    () => resolvedNodesInLayouts(layouts, currentView, dataSources, previousNodesRef.current),
+    () => resolvedNodesInLayouts(layouts, currentView, dataSources),
     [layouts, currentView, dataSources],
   );
   previousNodesRef.current = nodes;

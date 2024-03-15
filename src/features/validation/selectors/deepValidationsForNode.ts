@@ -24,7 +24,7 @@ export function useDeepValidationsForNode(
     }
 
     const restriction = onlyInRowUuid ? { onlyInRowUuid } : undefined;
-    const nodesToValidate = onlyChildren ? node.flat(true, restriction) : [node, ...node.flat(true, restriction)];
+    const nodesToValidate = onlyChildren ? node.flat(restriction) : [node, ...node.flat(restriction)];
     return nodesToValidate.flatMap((node) =>
       getValidationsForNode(node, selector, getVisibilityForNode(node, visibilitySelector)),
     );

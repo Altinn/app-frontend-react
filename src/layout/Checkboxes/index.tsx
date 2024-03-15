@@ -11,6 +11,7 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { FormDataSelector, PropsFromGenericComponent } from 'src/layout';
+import type { CompCheckboxesInternal } from 'src/layout/Checkboxes/config.generated';
 import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -37,12 +38,13 @@ export class Checkboxes extends CheckboxesDef {
     formDataSelector: FormDataSelector,
   ): { [key: string]: string } {
     const value = node.getFormData(formDataSelector).simpleBinding ?? '';
-    const optionList = optionsSelector(node.item.id);
+    const optionList = optionsSelector(node.getId());
     return getCommaSeparatedOptionsToText(value, optionList, langTools);
   }
 
   getDisplayData(
     node: LayoutNode<'Checkboxes'>,
+    _item: CompCheckboxesInternal,
     { langTools, optionsSelector, formDataSelector }: DisplayDataProps,
   ): string {
     return Object.values(this.getSummaryData(node, langTools, optionsSelector, formDataSelector)).join(', ');

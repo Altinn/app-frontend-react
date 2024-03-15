@@ -503,8 +503,8 @@ const common = {
       new CG.linked(
         CG.common('GridComponentRef'),
         new CG.import({
-          import: 'GridComponent',
-          from: 'src/layout/Grid/types',
+          import: 'NodeRef',
+          from: 'src/layout/index',
         }),
       ),
       CG.null,

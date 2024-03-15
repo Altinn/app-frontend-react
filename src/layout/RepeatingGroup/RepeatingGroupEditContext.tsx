@@ -4,9 +4,9 @@ import type { PropsWithChildren } from 'react';
 import { createContext } from 'src/core/contexts/context';
 import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { CompRepeatingGroupInternal } from 'src/layout/RepeatingGroup/config.generated';
-import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface RepeatingGroupEditRowContext {
   multiPageEnabled: boolean;
@@ -70,12 +70,12 @@ export function RepeatingGroupEditRowProvider({ editId, children }: PropsWithChi
       // Nothing to do here. Other navigation handlers will make sure this row is opened for editing.
       return false;
     }
-    const ourChildRecursively = node.flat(true).find((item) => item.item.id === targetNode.item.id);
+    const ourChildRecursively = node.flat().find(targetNode.isSame());
     if (!ourChildRecursively) {
       return false;
     }
     const ourDirectChildren = node.children();
-    const ourChildDirectly = ourDirectChildren.find((n) => n.item.id === targetNode.item.id);
+    const ourChildDirectly = ourDirectChildren.find(targetNode.isSame());
     if (ourChildDirectly) {
       const targetMultiPageIndex = targetNode.item.multiPageIndex ?? 0;
       if (targetMultiPageIndex !== state.multiPageIndex) {
@@ -86,8 +86,10 @@ export function RepeatingGroupEditRowProvider({ editId, children }: PropsWithChi
 
     // It's our child, but not directly. We need to figure out which of our children contains the target node,
     // and navigate there. Then it's a problem that can be forwarded there.
-    const ourChildrenIds = new Set(ourDirectChildren.map((n) => n.item.id));
-    const childWeAreLookingFor = targetNode.parents((n) => (n?.item.id ? ourChildrenIds.has(n.item.id) : false))[0];
+    const ourChildrenIds = new Set(ourDirectChildren.map((n) => n.getId()));
+    const childWeAreLookingFor = targetNode.parents((n) =>
+      n && n instanceof BaseLayoutNode && n.getId() ? ourChildrenIds.has(n.getId()) : false,
+    )[0];
     if (childWeAreLookingFor && !(childWeAreLookingFor instanceof LayoutPage)) {
       const targetMultiPageIndex = childWeAreLookingFor.item.multiPageIndex ?? 0;
       if (targetMultiPageIndex !== state.multiPageIndex) {

@@ -19,11 +19,13 @@ import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneCompon
 import classes from 'src/layout/FileUpload/FileUploadComponent.module.css';
 import { FileTable } from 'src/layout/FileUpload/FileUploadTable/FileTable';
 import { handleRejectedFiles } from 'src/layout/FileUpload/handleRejectedFiles';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IFileUploadWithTagProps = PropsFromGenericComponent<'FileUpload' | 'FileUploadWithTag'>;
 
 export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JSX.Element {
+  const item = useNodeItem(node);
   const {
     id,
     maxFileSizeInMB,
@@ -34,7 +36,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
     hasCustomFileEndings,
     validFileEndings,
     textResourceBindings,
-  } = node.item;
+  } = item;
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useIsMobileOrTablet();
   const attachments = useAttachmentsFor(node);
@@ -47,7 +49,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
   const langTools = useLanguage();
 
   const { options } = useGetOptions({
-    ...node.item,
+    ...item,
     node,
     valueType: 'single',
     dataModelBindings: undefined,

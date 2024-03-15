@@ -27,10 +27,12 @@ export function useNodeValidation(): ComponentValidations {
 
     const validations: ComponentValidations = {};
     for (const node of nodesToValidate) {
-      validations[node.item.id] = {
+      const id = node.getId();
+      const item = node.item;
+      validations[id] = {
         component: [],
-        bindingKeys: node.item.dataModelBindings
-          ? Object.fromEntries(Object.keys(node.item.dataModelBindings).map((key) => [key, []]))
+        bindingKeys: item.dataModelBindings
+          ? Object.fromEntries(Object.keys(item.dataModelBindings).map((key) => [key, []]))
           : {},
       };
 
@@ -38,11 +40,12 @@ export function useNodeValidation(): ComponentValidations {
        * Run required validation
        */
       if (implementsValidateEmptyField(node.def)) {
-        for (const validation of node.def.runEmptyFieldValidation(node as any, validationDataSources)) {
+        const validations = node.def.runEmptyFieldValidation(node as any, item as any, validationDataSources);
+        for (const validation of validations) {
           if (validation.bindingKey) {
-            validations[node.item.id].bindingKeys[validation.bindingKey].push(validation);
+            validations[id].bindingKeys[validation.bindingKey].push(validation);
           } else {
-            validations[node.item.id].component.push(validation);
+            validations[id].component.push(validation);
           }
         }
       }
@@ -51,11 +54,12 @@ export function useNodeValidation(): ComponentValidations {
        * Run component validation
        */
       if (implementsValidateComponent(node.def)) {
-        for (const validation of node.def.runComponentValidation(node as any, validationDataSources)) {
+        const validations = node.def.runComponentValidation(node as any, item as any, validationDataSources);
+        for (const validation of validations) {
           if (validation.bindingKey) {
-            validations[node.item.id].bindingKeys[validation.bindingKey].push(validation);
+            validations[id].bindingKeys[validation.bindingKey].push(validation);
           } else {
-            validations[node.item.id].component.push(validation);
+            validations[id].component.push(validation);
           }
         }
       }

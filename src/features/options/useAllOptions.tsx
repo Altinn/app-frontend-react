@@ -11,7 +11,9 @@ import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { ProcessTaskType } from 'src/types';
 import { useNodes } from 'src/utils/layout/NodesContext';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
+import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 /**
@@ -122,11 +124,9 @@ export function useAllOptionsSelector(onlyWhenAllLoaded = false) {
 export const useAllOptions = () => useSelector((state) => state.nodes);
 export const useAllOptionsInitiallyLoaded = () => useSelector((state) => state.allInitiallyLoaded);
 
-function isNodeOptionBased(node: LayoutNode) {
+function isNodeOptionBased(item: CompInternal) {
   return (
-    ('options' in node.item && node.item.options) ||
-    ('optionsId' in node.item && node.item.optionsId) ||
-    ('source' in node.item && node.item.source)
+    ('options' in item && item.options) || ('optionsId' in item && item.optionsId) || ('source' in item && item.source)
   );
 }
 
@@ -152,7 +152,7 @@ export function AllOptionsProvider({ children }: PropsWithChildren) {
     if (nodes) {
       for (const node of nodes.allNodes()) {
         if (isNodeOptionBased(node)) {
-          nodesFound.push(node.item.id);
+          nodesFound.push(node.getId());
         }
       }
     }
@@ -172,10 +172,10 @@ export function AllOptionsProvider({ children }: PropsWithChildren) {
     ?.allNodes()
     .filter((n) => isNodeOptionBased(n))
     // Until allInitiallyLoaded is true, we want to wait for nodesFound to be set before we start fetching options
-    .filter((n) => allInitiallyLoaded || Object.keys(allOptions).includes(n.item.id))
+    .filter((n) => allInitiallyLoaded || Object.keys(allOptions).includes(n.getId()))
     .map((node) => (
       <DummyOptionsSaver
-        key={node.item.id}
+        key={node.getId()}
         node={node}
         onError={onError}
       />
@@ -204,12 +204,13 @@ export function AllOptionsProvider({ children }: PropsWithChildren) {
 
 function DummyOptionsSaver({ node, onError }: { node: LayoutNode; onError: () => void }) {
   const setNodeOptions = useSelector((state) => state.setNodeOptions);
+  const nodeItem = useNodeItem(node);
   const {
     options: calculatedOptions,
     isFetching,
     isError,
   } = useGetOptions({
-    ...node.item,
+    ...nodeItem,
     node,
 
     // These don't really matter to us, but by setting them we effectively disable the 'preselectedOptionIndex'
@@ -219,11 +220,12 @@ function DummyOptionsSaver({ node, onError }: { node: LayoutNode; onError: () =>
     dataModelBindings: undefined,
   });
 
+  const nodeId = node.getId();
   useEffect(() => {
     if (!isFetching) {
-      setNodeOptions(node.item.id, calculatedOptions);
+      setNodeOptions(nodeId, calculatedOptions);
     }
-  }, [node.item.id, calculatedOptions, isFetching, setNodeOptions]);
+  }, [nodeId, calculatedOptions, isFetching, setNodeOptions]);
 
   useEffect(() => {
     if (isError) {

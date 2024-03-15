@@ -32,7 +32,7 @@ export const InstantiationButton = ({ children, ...props }: Props) => {
   return (
     <WrappedButton
       {...props}
-      nodeId={props.node.item.id}
+      nodeId={props.node.getId()}
       onClick={instantiate}
       busyWithId={busyWithId}
     >

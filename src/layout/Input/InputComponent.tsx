@@ -9,6 +9,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { useMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
 import { useRerender } from 'src/hooks/useReload';
 import { useCharacterLimit } from 'src/utils/inputUtils';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IInputFormatting } from 'src/layout/Input/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -27,7 +28,7 @@ export function InputComponent({ node, isValid, overrideDisplay }: IInputProps) 
     saveWhileTyping,
     autocomplete,
     maxLength,
-  } = node.item;
+  } = useNodeItem(node);
   const characterLimit = useCharacterLimit(maxLength);
   const { langAsString } = useLanguage();
   const {
@@ -84,7 +85,7 @@ export function InputComponent({ node, isValid, overrideDisplay }: IInputProps) 
 }
 
 function useBetterWithNumberFormattingError(node: LayoutNode<'Input'>) {
-  const { id, readOnly, formatting, dataModelBindings } = node.item;
+  const { id, readOnly, formatting, dataModelBindings } = useNodeItem(node);
   const simpleBinding = dataModelBindings.simpleBinding;
   const valueSchema = useBindingSchema({ simpleBinding });
   const betterWithNumberFormatting =

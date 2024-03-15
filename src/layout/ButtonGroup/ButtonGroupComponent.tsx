@@ -6,22 +6,24 @@ import type { PropsFromGenericComponent } from '..';
 
 import classes from 'src/layout/ButtonGroup/ButtonGroupComponent.module.css';
 import { GenericComponent } from 'src/layout/GenericComponent';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function ButtonGroupComponent({ node }: PropsFromGenericComponent<'ButtonGroup'>) {
-  const childNodes = node.item.childComponents;
+  const item = useNodeItem(node);
+  const childNodes = item.childComponents;
   return (
     <Grid
       item
       container
       alignItems='center'
       className={classes.container}
-      data-componentid={node.item.id}
+      data-componentid={node.getId()}
     >
       {childNodes.map((n: LayoutNode) => (
         <div
-          key={n.item.id}
-          data-componentid={n.item.id}
+          key={n.getId()}
+          data-componentid={n.getId()}
         >
           <GenericComponent
             node={n}

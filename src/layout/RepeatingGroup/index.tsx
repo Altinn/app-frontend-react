@@ -15,10 +15,11 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { ComponentValidation } from 'src/features/validation';
 import type { CompInternal } from 'src/layout/layout';
 import type { ChildClaimerProps, ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { CompRepeatingGroupInternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent {
+export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent<'RepeatingGroup'> {
   private _hierarchyGenerator = new GroupHierarchyGenerator();
 
   directRender(): boolean {
@@ -89,25 +90,22 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     return this._hierarchyGenerator;
   }
 
-  runComponentValidation(node: LayoutNode<'RepeatingGroup'>): ComponentValidation[] {
-    if (!node.item.dataModelBindings) {
+  runComponentValidation(node: LayoutNode<'RepeatingGroup'>, item: CompRepeatingGroupInternal): ComponentValidation[] {
+    if (!item.dataModelBindings) {
       return [];
     }
 
     const validations: ComponentValidation[] = [];
     // check if minCount is less than visible rows
-    const repeatingGroupComponent = node.item;
-    const repeatingGroupMinCount = repeatingGroupComponent.minCount || 0;
-    const repeatingGroupVisibleRows = repeatingGroupComponent.rows.filter(
-      (row) => row && !row.groupExpressions?.hiddenRow,
-    ).length;
+    const repeatingGroupMinCount = item.minCount || 0;
+    const repeatingGroupVisibleRows = item.rows.filter((row) => row && !row.groupExpressions?.hiddenRow).length;
 
     // Validate minCount
     if (repeatingGroupVisibleRows < repeatingGroupMinCount) {
       validations.push({
-        message: { key: 'validation_errors.minItems', params: [repeatingGroupMinCount] },
+        message: { key: 'validation_errors.minItems', params: [minCount] },
         severity: 'error',
-        componentId: node.item.id,
+        componentId: node.getId(),
         source: FrontendValidationSource.Component,
         // Treat visibility of minCount the same as required to prevent showing an error immediately
         category: ValidationMask.Required,

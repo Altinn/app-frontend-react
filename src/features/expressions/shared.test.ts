@@ -104,7 +104,7 @@ describe('Expressions shared function tests', () => {
           if ('options' in node.item) {
             // Extremely simple mock of useGetOptions() and useAllOptions(), assuming
             // all components use plain static options
-            options[node.item.id] = castOptionsToStrings(node.item.options);
+            options[node.getId()] = castOptionsToStrings(node.item.options);
           }
         }
 
@@ -121,25 +121,20 @@ describe('Expressions shared function tests', () => {
               throw new Error('No layout found - check your test data!');
             }
 
-            for (const node of layout.flat(true)) {
+            for (const node of layout.flat()) {
               if (node.isHidden()) {
-                hidden.add(node.item.id);
+                hidden.add(node.getId());
               }
             }
             if (layouts && layouts[layoutKey].data.hidden) {
               const hiddenExpr = asExpression(layouts[layoutKey].data.hidden) as Expression;
               const isHidden = evalExpr(hiddenExpr, layout, dataSources);
               if (isHidden) {
-                for (const hiddenComponent of layout.flat(true)) {
+                for (const hiddenComponent of layout.flat()) {
                   hidden.add(hiddenComponent.item.id);
                 }
               }
             }
-          }
-
-          // We've manipulated internal state, so we need to reset the cache for hidden to work again
-          for (const n of rootCollection.allNodes()) {
-            n.hiddenCache = {};
           }
 
           const expr = asExpression(expression) as Expression;
@@ -162,7 +157,7 @@ describe('Expressions shared context tests', () => {
   }
 
   function recurse(node: LayoutNode, key: string): SharedTestContextList {
-    const splitKey = splitDashedKey(node.item.id);
+    const splitKey = splitDashedKey(node.getId());
     const context: SharedTestContextList = {
       component: splitKey.baseComponentId,
       currentLayout: key,

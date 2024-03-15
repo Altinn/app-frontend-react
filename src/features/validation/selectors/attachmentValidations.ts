@@ -15,7 +15,7 @@ export function useAttachmentValidations(node: LayoutNode, attachmentId: string 
   const visibilitySelector = Validation.useVisibilitySelector();
 
   return useMemo(() => {
-    const component = componentSelector(node.item.id, (components) => components[node.item.id]);
+    const component = componentSelector(node.getId(), (components) => components[node.getId()]);
     if (!component?.component || !attachmentId) {
       return [];
     }

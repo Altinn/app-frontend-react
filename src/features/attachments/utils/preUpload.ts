@@ -51,7 +51,7 @@ interface State {
 
 const reducer: ImmerReducer<State, Actions> = (draft, action) => {
   const { node, temporaryId } = action;
-  const { id } = node.item;
+  const id = node.getId();
 
   if (action.action === 'upload') {
     const { file } = action;
@@ -133,7 +133,7 @@ const useUpload = (dispatch: Dispatch) => {
 
     try {
       const reply = await mutateAsync({
-        dataTypeId: node.item.baseComponentId || node.item.id,
+        dataTypeId: node.getBaseId(),
         file,
       });
       if (!reply || !reply.blobStoragePath) {

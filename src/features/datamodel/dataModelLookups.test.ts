@@ -40,9 +40,10 @@ describe('Data model lookups in real apps', () => {
     const failures: any[] = [];
 
     for (const [pageKey, layout] of Object.entries(nodes.all())) {
-      for (const node of layout.flat(true)) {
+      for (const node of layout.flat()) {
         const ctx: LayoutValidationCtx<any> = {
           node,
+          item: node.item,
           lookupBinding(binding: string) {
             const schemaPath = dotNotationToPointer(binding);
             return lookupBindingInSchema({
@@ -54,11 +55,11 @@ describe('Data model lookups in real apps', () => {
         };
 
         if ('validateDataModelBindings' in node.def) {
-          const errors = node.def.validateDataModelBindings(ctx);
+          const errors = node.def.validateDataModelBindings(ctx as any);
           if (errors.length) {
             failures.push({
               pageKey,
-              component: node.item.baseComponentId || node.item.id,
+              component: node.getBaseId(),
               errors,
             });
           }

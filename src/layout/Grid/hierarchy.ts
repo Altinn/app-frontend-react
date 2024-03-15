@@ -67,7 +67,7 @@ export class GridHierarchyGenerator extends ComponentHierarchyGenerator<'Grid'> 
           });
 
           delete cell['component'];
-          cell['node'] = node;
+          cell['nodeRef'] = node!.getId();
         }
       }
     }

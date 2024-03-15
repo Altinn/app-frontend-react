@@ -13,6 +13,7 @@ import { GroupComponent } from 'src/layout/Group/GroupComponent';
 import classes from 'src/layout/Group/SummaryGroupComponent.module.css';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ITextResourceBindings } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -32,32 +33,33 @@ export function SummaryGroupComponent({
   targetNode,
   overrides,
 }: ISummaryGroupComponent) {
-  const excludedChildren = summaryNode.item.excludedChildren;
-  const display = overrides?.display || summaryNode.item.display;
+  const summaryItem = useNodeItem(summaryNode);
+  const targetItem = useNodeItem(targetNode);
+  const excludedChildren = summaryItem.excludedChildren;
+  const display = overrides?.display || summaryItem.display;
   const { langAsString } = useLanguage();
   const formDataSelector = FD.useDebouncedSelector();
 
   const inExcludedChildren = (n: LayoutNode) =>
-    excludedChildren &&
-    (excludedChildren.includes(n.item.id) || excludedChildren.includes(`${n.item.baseComponentId}`));
+    excludedChildren && (excludedChildren.includes(n.getId()) || excludedChildren.includes(n.getBaseId()));
 
   const groupValidations = useDeepValidationsForNode(targetNode);
   const groupHasErrors = hasValidationErrors(groupValidations);
 
-  const textBindings = targetNode.item.textResourceBindings as ITextResourceBindings;
+  const textBindings = targetItem.textResourceBindings as ITextResourceBindings;
   const summaryAccessibleTitleTrb =
     textBindings && 'summaryAccessibleTitle' in textBindings ? textBindings.summaryAccessibleTitle : undefined;
   const summaryTitleTrb = textBindings && 'summaryTitle' in textBindings ? textBindings.summaryTitle : undefined;
   const titleTrb = textBindings && 'title' in textBindings ? textBindings.title : undefined;
   const ariaLabel = langAsString(summaryAccessibleTitleTrb ?? summaryTitleTrb ?? titleTrb);
 
-  if (summaryNode.item.largeGroup && overrides?.largeGroup !== false) {
+  if (summaryItem.largeGroup && overrides?.largeGroup !== false) {
     return (
       <>
         {
           <GroupComponent
-            key={`summary-${targetNode.item.id}`}
-            id={`summary-${targetNode.item.id}`}
+            key={`summary-${targetNode.getId()}`}
+            id={`summary-${targetNode.getId()}`}
             groupNode={targetNode}
             isSummary={true}
             renderLayoutNode={(n) => {
@@ -67,7 +69,7 @@ export function SummaryGroupComponent({
 
               return (
                 <SummaryComponent
-                  key={n.item.id}
+                  key={n.getId()}
                   summaryNode={summaryNode}
                   overrides={{
                     ...overrides,
@@ -96,7 +98,7 @@ export function SummaryGroupComponent({
         <RenderCompactSummary
           onChangeClick={onChangeClick}
           changeText={changeText}
-          key={child.item.id}
+          key={child.getId()}
           targetNode={child as any}
           summaryNode={summaryNode}
           overrides={{}}

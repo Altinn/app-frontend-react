@@ -9,6 +9,7 @@ import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import classes from 'src/layout/Summary/SummaryContent.module.css';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CompTypes } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 
@@ -25,15 +26,17 @@ export function SummaryContent({
   RenderSummary,
 }: SummaryContentProps) {
   const { langAsString } = useLanguage(targetNode);
-  const display = overrides?.display || summaryNode.item.display;
-  const readOnlyComponent = 'readOnly' in targetNode.item && targetNode.item.readOnly === true;
+  const summaryItem = useNodeItem(summaryNode);
+  const targetItem = useNodeItem(targetNode);
+  const display = overrides?.display || summaryItem.display;
+  const readOnlyComponent = 'readOnly' in targetItem && targetItem.readOnly === true;
   const validations = useUnifiedValidationsForNode(targetNode);
   const hasErrors = hasValidationErrors(validations);
   const shouldShowChangeButton = !readOnlyComponent && !display?.hideChangeButton;
   const displaySummaryBoilerPlate =
     'renderSummaryBoilerplate' in targetNode.def && targetNode.def.renderSummaryBoilerplate();
 
-  const textBindings = 'textResourceBindings' in targetNode.item ? targetNode.item.textResourceBindings : undefined;
+  const textBindings = 'textResourceBindings' in targetItem ? targetItem.textResourceBindings : undefined;
   const summaryAccessibleTitleTrb =
     textBindings && 'summaryAccessibleTitle' in textBindings
       ? (textBindings.summaryAccessibleTitle as string)

@@ -7,6 +7,7 @@ import { FileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRow
 import { FileTableRowProvider } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
 import { EditWindowComponent } from 'src/layout/FileUploadWithTag/EditWindowComponent';
 import { atLeastOneTagExists } from 'src/utils/formComponentUtils';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IAttachment } from 'src/features/attachments';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -20,7 +21,7 @@ export interface FileTableProps {
 }
 
 export function FileTable({ attachments, mobileView, node, options }: FileTableProps): React.JSX.Element | null {
-  const { textResourceBindings, type } = node.item;
+  const { textResourceBindings, type } = useNodeItem(node);
   const hasTag = type === 'FileUploadWithTag';
   const [editIndex, setEditIndex] = React.useState<number>(-1);
 

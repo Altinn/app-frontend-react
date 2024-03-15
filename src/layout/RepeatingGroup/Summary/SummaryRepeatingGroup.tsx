@@ -39,8 +39,7 @@ export function SummaryRepeatingGroup({
   const formDataSelector = FD.useDebouncedSelector();
 
   const inExcludedChildren = (n: LayoutNode) =>
-    excludedChildren &&
-    (excludedChildren.includes(n.item.id) || excludedChildren.includes(`${n.item.baseComponentId}`));
+    excludedChildren && (excludedChildren.includes(n.getId()) || excludedChildren.includes(n.getBaseId()));
 
   const groupValidations = useDeepValidationsForNode(targetNode);
   const groupHasErrors = hasValidationErrors(groupValidations);
@@ -65,8 +64,8 @@ export function SummaryRepeatingGroup({
       <>
         {rows.map((row) => (
           <LargeGroupSummaryContainer
-            key={`summary-${targetNode.item.id}-${row.uuid}`}
-            id={`summary-${targetNode.item.id}-${row.index}`}
+            key={`summary-${targetNode.getId()}-${row.uuid}`}
+            id={`summary-${targetNode.getId()}-${row.index}`}
             groupNode={targetNode}
             onlyInRowUuid={row.uuid}
             renderLayoutNode={(n) => {
@@ -76,7 +75,7 @@ export function SummaryRepeatingGroup({
 
               return (
                 <SummaryComponent
-                  key={n.item.id}
+                  key={n.getId()}
                   summaryNode={summaryNode}
                   overrides={{
                     ...overrides,
@@ -140,7 +139,7 @@ export function SummaryRepeatingGroup({
                       <RenderCompactSummary
                         onChangeClick={onChangeClick}
                         changeText={changeText}
-                        key={child.item.id}
+                        key={child.getId()}
                         targetNode={child as any}
                         summaryNode={summaryNode}
                         overrides={{}}

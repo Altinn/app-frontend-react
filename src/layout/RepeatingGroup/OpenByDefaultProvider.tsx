@@ -3,6 +3,7 @@ import type { PropsWithChildren } from 'react';
 
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useRepeatingGroup, useRepeatingGroupSelector } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CompRepeatingGroupInternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -11,8 +12,9 @@ interface Props {
 }
 
 export function OpenByDefaultProvider({ node, children }: PropsWithChildren<Props>) {
-  const groupId = node.item.id;
-  const openByDefault = node.item.edit?.openByDefault;
+  const groupId = node.getId();
+  const item = useNodeItem(node);
+  const openByDefault = item.edit?.openByDefault;
   const { addRow, openForEditing, visibleRows, isFirstRender } = useRepeatingGroup();
   const state = useRepeatingGroupSelector((state) => ({
     editingId: state.editingId,
@@ -26,7 +28,7 @@ export function OpenByDefaultProvider({ node, children }: PropsWithChildren<Prop
     lastId: hasNoRows ? undefined : visibleRows[visibleRows.length - 1].uuid,
     addRow,
     openForEditing,
-    canAddRows: node.item.edit?.addButton ?? true,
+    canAddRows: item.edit?.addButton ?? true,
   });
 
   // When this is true, the group won't try to add more rows using openByDefault. This will reset again

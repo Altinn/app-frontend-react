@@ -6,12 +6,13 @@ import type { PropsFromGenericComponent } from '..';
 import { ButtonGroupComponent } from 'src/layout/ButtonGroup/ButtonGroupComponent';
 import { ButtonGroupDef } from 'src/layout/ButtonGroup/config.def.generated';
 import { ButtonGroupHierarchyGenerator } from 'src/layout/ButtonGroup/hierarchy';
+import type { DisplayData } from 'src/features/displayData';
 import type { CompInternal } from 'src/layout/layout';
 import type { ChildClaimerProps, ExprResolver } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class ButtonGroup extends ButtonGroupDef {
+export class ButtonGroup extends ButtonGroupDef implements DisplayData<'ButtonGroup'> {
   private _hierarchyGenerator = new ButtonGroupHierarchyGenerator();
 
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'ButtonGroup'>>(

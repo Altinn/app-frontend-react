@@ -30,13 +30,13 @@ export function useAttachmentDeletionInRepGroups(node: LayoutNode<'RepeatingGrou
   return useCallback(
     async (uuid: string): Promise<boolean> => {
       const uploaders = nodeRef.current
-        .flat(true, { onlyInRowUuid: uuid })
-        .filter((node) => node.item.type === 'FileUpload' || node.item.type === 'FileUploadWithTag') as UploaderNode[];
+        .flat({ onlyInRowUuid: uuid })
+        .filter((node) => node.isType('FileUpload') || node.isType('FileUploadWithTag')) as UploaderNode[];
 
       // This code is intentionally not parallelized, as especially LocalTest can't handle parallel requests to
       // delete attachments. It might return a 500 if you try. To be safe, we do them one by one.
       for (const uploader of uploaders) {
-        const files = attachments.current[uploader.item.id] ?? [];
+        const files = attachments.current[uploader.getId()] ?? [];
         for (const file of files) {
           if (isAttachmentUploaded(file)) {
             const result = await remove.current({

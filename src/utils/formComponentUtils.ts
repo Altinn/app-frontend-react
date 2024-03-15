@@ -178,7 +178,7 @@ export function getColumnStylesRepeatingGroups(
   tableItem: LayoutNode,
   columnSettings: ITableColumnFormatting | undefined,
 ) {
-  const column = columnSettings && columnSettings[tableItem.item.baseComponentId || tableItem.item.id];
+  const column = columnSettings && columnSettings[tableItem.getBaseId()];
   if (!column) {
     return;
   }

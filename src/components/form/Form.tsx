@@ -172,7 +172,7 @@ function ErrorProcessing({ setFormState }: ErrorProcessingProps) {
       nodes
         .findLayout(currentPageId)
         ?.children()
-        .map((n) => n.item.id) || emptyArray,
+        .map((n) => n.getId()) || emptyArray,
   );
   const hasRequired = useNodesMemoSelector((nodes) => {
     const page = nodes.findLayout(currentPageId);

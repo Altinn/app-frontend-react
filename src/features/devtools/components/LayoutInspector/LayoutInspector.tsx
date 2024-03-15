@@ -140,8 +140,8 @@ export const LayoutInspector = () => {
               {matchingNodes.length === 0 && 'Ingen aktive komponenter funnet'}
               {matchingNodes.map((node) => (
                 <NodeLink
-                  key={node.item.id}
-                  nodeId={node.item.id}
+                  key={node.getId()}
+                  nodeId={node.getId()}
                 />
               ))}
             </div>

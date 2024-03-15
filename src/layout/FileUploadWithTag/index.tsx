@@ -10,11 +10,12 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
+import type { CompFileUploadWithTagInternal } from 'src/layout/FileUploadWithTag/config.generated';
 import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateComponent {
+export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateComponent<'FileUploadWithTag'> {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'FileUploadWithTag'>>(
     function LayoutComponentFileUploadWithTagRender(props, _): JSX.Element | null {
       return <FileUploadComponent {...props} />;
@@ -33,8 +34,12 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
     return false;
   }
 
-  getDisplayData(node: LayoutNode<'FileUploadWithTag'>, { attachments }: DisplayDataProps): string {
-    return (attachments[node.item.id] || []).map((a) => a.data.filename).join(', ');
+  getDisplayData(
+    node: LayoutNode<'FileUploadWithTag'>,
+    item: CompFileUploadWithTagInternal,
+    { attachments }: DisplayDataProps,
+  ): string {
+    return (attachments[node.getId()] || []).map((a) => a.data.filename).join(', ');
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'FileUploadWithTag'>): JSX.Element | null {
@@ -48,35 +53,37 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
 
   runComponentValidation(
     node: LayoutNode<'FileUploadWithTag'>,
+    item: CompFileUploadWithTagInternal,
     { attachments }: ValidationDataSources,
   ): ComponentValidation[] {
     const validations: ComponentValidation[] = [];
 
     // Validate minNumberOfAttachments
+    const id = node.getId();
     if (
-      node.item.minNumberOfAttachments > 0 &&
-      (!attachments[node.item.id] || attachments[node.item.id]!.length < node.item.minNumberOfAttachments)
+      item.minNumberOfAttachments > 0 &&
+      (!attachments[id] || attachments[id]!.length < item.minNumberOfAttachments)
     ) {
       validations.push({
         message: {
           key: 'form_filler.file_uploader_validation_error_file_number',
-          params: [node.item.minNumberOfAttachments],
+          params: [item.minNumberOfAttachments],
         },
         severity: 'error',
         source: FrontendValidationSource.Component,
-        componentId: node.item.id,
+        componentId: id,
         // Treat visibility of minNumberOfAttachments the same as required to prevent showing an error immediately
         category: ValidationMask.Required,
       });
     }
 
     // Validate missing tags
-    for (const attachment of attachments[node.item.id] || []) {
+    for (const attachment of attachments[id] || []) {
       if (
         isAttachmentUploaded(attachment) &&
         (attachment.data.tags === undefined || attachment.data.tags.length === 0)
       ) {
-        const tagKey = node.item.textResourceBindings?.tagTitle;
+        const tagKey = item.textResourceBindings?.tagTitle;
         const tagReference = tagKey
           ? {
               key: tagKey,
@@ -90,7 +97,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
             params: [tagReference],
           },
           severity: 'error',
-          componentId: node.item.id,
+          componentId: id,
           source: FrontendValidationSource.Component,
           meta: { attachmentId: attachment.data.id },
           // Treat visibility of missing tag the same as required to prevent showing an error immediately
@@ -108,8 +115,8 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'FileUploadWithTag'>): string[] {
-    const { node } = ctx;
-    const { dataModelBindings } = node.item;
+    const { node, item } = ctx;
+    const { dataModelBindings } = item;
     const isRequired = this.isDataModelBindingsRequired(node);
     const hasBinding = dataModelBindings && ('simpleBinding' in dataModelBindings || 'list' in dataModelBindings);
 

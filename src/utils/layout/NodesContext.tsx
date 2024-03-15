@@ -55,8 +55,7 @@ export const NodesProvider = (props: React.PropsWithChildren) => (
 );
 
 function InnerNodesProvider() {
-  const isHidden = useIsHiddenComponent();
-  const resolvedNodes = _private.useResolvedExpressions(isHidden);
+  const resolvedNodes = _private.useResolvedExpressions();
   const setNodes = useSelector((state) => state.setNodes);
 
   useEffect(() => {
@@ -97,6 +96,13 @@ export const useNodesAsLaxRef = () => useLaxSelectorAsRef((s) => s.nodes!);
 
 export function useNodesMemoSelector<U>(selector: (s: LayoutPages) => U) {
   return useMemoSelector((state) => selector(state.nodes!));
+}
+
+export function useNodeSelector() {
+  return useDelayedMemoSelectorFactory({
+    selector: (nodeId: string) => (state) => state.nodes?.findById(nodeId),
+    makeCacheKey: (nodeId) => nodeId,
+  });
 }
 
 export function useIsHiddenComponent() {
@@ -147,8 +153,7 @@ function useLegacyHiddenComponents(
   setHidden: React.Dispatch<React.SetStateAction<Set<string>>>,
 ) {
   const rules = useDynamics()?.conditionalRendering ?? null;
-  const isHidden = useIsHiddenComponent();
-  const dataSources = useExpressionDataSources(isHidden);
+  const dataSources = useExpressionDataSources();
   const hiddenExpr = useHiddenLayoutsExpressions();
   const hiddenPages = useHiddenPages();
   const setHiddenPages = useSetHiddenPages();
@@ -167,7 +172,7 @@ function useLegacyHiddenComponents(
 
     let futureHiddenFields: Set<string>;
     try {
-      futureHiddenFields = runConditionalRenderingRules(rules, resolvedNodes);
+      futureHiddenFields = runConditionalRenderingRules(rules, resolvedNodes, dataSources.formDataSelector);
     } catch (error) {
       window.logError('Error while evaluating conditional rendering rules:\n', error);
       futureHiddenFields = new Set();
@@ -177,9 +182,9 @@ function useLegacyHiddenComponents(
 
     // Add all fields from hidden layouts to hidden fields
     for (const layout of futureHiddenLayouts) {
-      for (const node of resolvedNodes.findLayout(layout)?.flat(true) || []) {
-        if (!futureHiddenFields.has(node.item.id)) {
-          futureHiddenFields.add(node.item.id);
+      for (const node of resolvedNodes.findLayout(layout)?.flat() || []) {
+        if (!futureHiddenFields.has(node.getId())) {
+          futureHiddenFields.add(node.getId());
         }
       }
     }

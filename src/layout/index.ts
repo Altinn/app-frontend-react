@@ -29,6 +29,22 @@ const _componentsTypeCheck: {
   ...ComponentConfigs,
 };
 
+export type MinimalItem<T extends CompInternal> = Pick<
+  T,
+  'id' | 'baseComponentId' | 'type' | 'dataModelBindings' | 'multiPageIndex'
+>;
+
+/**
+ * A nodeRef represents a reference to a node in the layout tree. It is used to reference a specific node,
+ * and you can use it to find the node in the layout tree via hooks and utilities like:
+ * @see useNodeRef
+ * @see useNodeRefSelector
+ * @see isNodeRef
+ */
+export interface NodeRef {
+  nodeRef: string;
+}
+
 export interface IComponentProps {
   containerDivRef: MutableRefObject<HTMLDivElement | null>;
   isValid?: boolean;
@@ -57,23 +73,31 @@ export function implementsAnyValidation<Type extends CompTypes>(component: AnyCo
   return 'runEmptyFieldValidation' in component || 'runComponentValidation' in component;
 }
 
-export interface ValidateEmptyField {
-  runEmptyFieldValidation: (node: LayoutNode, validationContext: ValidationDataSources) => ComponentValidation[];
+export interface ValidateEmptyField<Type extends CompTypes> {
+  runEmptyFieldValidation: (
+    node: LayoutNode<Type>,
+    item: CompInternal<Type>,
+    validationContext: ValidationDataSources,
+  ) => ComponentValidation[];
 }
 
 export function implementsValidateEmptyField<Type extends CompTypes>(
   component: AnyComponent<Type>,
-): component is typeof component & ValidateEmptyField {
+): component is typeof component & ValidateEmptyField<Type> {
   return 'runEmptyFieldValidation' in component;
 }
 
-export interface ValidateComponent {
-  runComponentValidation: (node: LayoutNode, validationContext: ValidationDataSources) => ComponentValidation[];
+export interface ValidateComponent<Type extends CompTypes> {
+  runComponentValidation: (
+    node: LayoutNode,
+    item: CompInternal<Type>,
+    validationContext: ValidationDataSources,
+  ) => ComponentValidation[];
 }
 
 export function implementsValidateComponent<Type extends CompTypes>(
   component: AnyComponent<Type>,
-): component is typeof component & ValidateComponent {
+): component is typeof component & ValidateComponent<Type> {
   return 'runComponentValidation' in component;
 }
 

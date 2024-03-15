@@ -18,6 +18,7 @@ import { shouldComponentRenderLabel } from 'src/layout/index';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useIsHiddenComponent, useNode } from 'src/utils/layout/NodesContext';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IGridStyling } from 'src/layout/common.generated';
 import type { GenericComponentOverrideDisplay, IFormComponentContext } from 'src/layout/FormComponentContext';
 import type { PropsFromGenericComponent } from 'src/layout/index';
@@ -74,8 +75,8 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   overrideItemProps,
   overrideDisplay,
 }: IGenericComponentProps<Type>) {
-  let item = node.item;
-  const id = item.id;
+  let item = useNodeItem(node);
+  const id = node.getId();
 
   if (overrideItemProps) {
     item = {
@@ -90,7 +91,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   const isHidden = useIsHiddenComponent();
 
   // If maxLength is set in both schema and component, don't display the schema error message
-  const maxLength = 'maxLength' in node.item && node.item.maxLength;
+  const maxLength = 'maxLength' in item && item.maxLength;
   const filteredValidationErrors = maxLength
     ? validations.filter(
         (validation) =>
@@ -109,7 +110,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   );
 
   useFinishNodeNavigation(async (targetNode, shouldFocus, onHit) => {
-    if (targetNode.item.id !== id) {
+    if (targetNode.getId() !== id) {
       return undefined;
     }
     onHit();
@@ -140,7 +141,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
     return NavigationResult.SuccessfulWithFocus;
   });
 
-  if (isHidden(node.item.id) || (node.item.baseComponentId && isHidden(node.item.baseComponentId))) {
+  if (isHidden(node.getId()) || isHidden(node.getBaseId())) {
     return null;
   }
 
@@ -157,7 +158,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
 
   const showValidationMessages = layoutComponent.renderDefaultValidations();
 
-  if ('renderAsSummary' in node.item && node.item.renderAsSummary) {
+  if ('renderAsSummary' in item && item.renderAsSummary) {
     const RenderSummary = 'renderSummary' in node.def ? node.def.renderSummary.bind(node.def) : null;
 
     if (!RenderSummary) {
@@ -186,9 +187,9 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   return (
     <FormComponentContextProvider value={formComponentContext}>
       <Grid
-        data-componentbaseid={item.baseComponentId || item.id}
-        data-componentid={item.id}
-        data-componenttype={item.type}
+        data-componentbaseid={node.getBaseId()}
+        data-componentid={node.getId()}
+        data-componenttype={node.getType()}
         ref={containerDivRef}
         item={true}
         container={true}
@@ -201,7 +202,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
         )}
         alignItems='baseline'
       >
-        {shouldComponentRenderLabel(node.item.type) && overrideDisplay?.renderLabel !== false && (
+        {shouldComponentRenderLabel(node.getType()) && overrideDisplay?.renderLabel !== false && (
           <Grid
             item={true}
             {...gridBreakpoints(item.grid?.labelGrid)}
@@ -244,7 +245,7 @@ const gridToClasses = (labelGrid: IGridStyling | undefined, classes: { [key: str
 };
 
 const ErrorList = ({ node, errors }: { node: LayoutNode; errors: string[] }) => {
-  const { id } = node.item;
+  const id = node.getId();
   const isDev = useIsDev();
   if (!isDev) {
     return null;

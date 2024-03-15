@@ -5,6 +5,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { type LayoutNode } from 'src/utils/layout/LayoutNode';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IDataModelBindingsSimple } from 'src/layout/common.generated';
 import type { IDataModelBindingsForList } from 'src/layout/List/config.generated';
 
@@ -44,7 +45,7 @@ const noop = (node: LayoutNode<'FileUpload' | 'FileUploadWithTag'>): MappingTool
 export function useAttachmentsMappedToFormData(node: LayoutNode<'FileUpload' | 'FileUploadWithTag'>): MappingTools {
   const forList = useMappingToolsForList(node);
   const forSimple = useMappingToolsForSimple(node);
-  const bindings = node.item.dataModelBindings;
+  const bindings = useNodeItem(node).dataModelBindings;
   if (!bindings) {
     return noop(node);
   }
@@ -59,7 +60,7 @@ export function useAttachmentsMappedToFormData(node: LayoutNode<'FileUpload' | '
 function useMappingToolsForList(node: LayoutNode<'FileUpload' | 'FileUploadWithTag'>): MappingTools {
   const appendToListUnique = FD.useAppendToListUnique();
   const removeValueFromList = FD.useRemoveValueFromList();
-  const field = ((node.item.dataModelBindings || {}) as IDataModelBindingsForList).list;
+  const field = ((useNodeItem(node).dataModelBindings || {}) as IDataModelBindingsForList).list;
   return {
     addAttachment: (uuid: string) => {
       appendToListUnique({
@@ -77,7 +78,7 @@ function useMappingToolsForList(node: LayoutNode<'FileUpload' | 'FileUploadWithT
 }
 
 function useMappingToolsForSimple(node: LayoutNode<'FileUpload' | 'FileUploadWithTag'>): MappingTools {
-  const bindings = (node.item.dataModelBindings || {}) as IDataModelBindingsSimple;
+  const bindings = (useNodeItem(node).dataModelBindings || {}) as IDataModelBindingsSimple;
   const { setValue } = useDataModelBindings(bindings);
   return {
     addAttachment: (uuid: string) => {

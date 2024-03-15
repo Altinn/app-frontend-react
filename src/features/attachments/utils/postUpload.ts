@@ -57,7 +57,7 @@ const reducer: ImmerReducer<IAttachments<UploadedAttachment>, Actions> = (draft,
   if (action.action === 'update' && action.success === undefined) {
     const { tags, attachment, node } = action;
 
-    const attachments = draft[node.item.id];
+    const attachments = draft[node.getId()];
     if (attachments) {
       const index = attachments.findIndex((a) => a.data.id === attachment.data.id);
       if (index !== -1) {
@@ -70,7 +70,7 @@ const reducer: ImmerReducer<IAttachments<UploadedAttachment>, Actions> = (draft,
   if (action.action === 'update' && action.success) {
     const { attachment, node } = action;
 
-    const attachments = draft[node.item.id];
+    const attachments = draft[node.getId()];
     if (attachments) {
       const index = attachments.findIndex((a) => a.data.id === attachment.data.id);
       if (index !== -1) {
@@ -82,7 +82,7 @@ const reducer: ImmerReducer<IAttachments<UploadedAttachment>, Actions> = (draft,
   if (action.action === 'update' && !action.success) {
     const { attachment, node, error } = action;
 
-    const attachments = draft[node.item.id];
+    const attachments = draft[node.getId()];
     if (attachments) {
       const index = attachments.findIndex((a) => a.data.id === attachment.data.id);
       if (index !== -1) {
@@ -95,7 +95,7 @@ const reducer: ImmerReducer<IAttachments<UploadedAttachment>, Actions> = (draft,
   if (action.action === 'remove' && action.success === undefined) {
     const { attachment, node } = action;
 
-    const attachments = draft[node.item.id];
+    const attachments = draft[node.getId()];
     if (attachments) {
       const index = attachments.findIndex((a) => a.data.id === attachment.data.id);
       if (index !== -1) {
@@ -107,7 +107,7 @@ const reducer: ImmerReducer<IAttachments<UploadedAttachment>, Actions> = (draft,
   if (action.action === 'remove' && action.success) {
     const { attachment, node } = action;
 
-    const attachments = draft[node.item.id];
+    const attachments = draft[node.getId()];
     if (attachments) {
       const index = attachments.findIndex((a) => a.data.id === attachment.data.id);
       if (index !== -1) {
@@ -119,7 +119,7 @@ const reducer: ImmerReducer<IAttachments<UploadedAttachment>, Actions> = (draft,
   if (action.action === 'remove' && !action.success) {
     const { attachment, node, error } = action;
 
-    const attachments = draft[node.item.id];
+    const attachments = draft[node.getId()];
     if (attachments) {
       const index = attachments.findIndex((a) => a.data.id === attachment.data.id);
       if (index !== -1) {

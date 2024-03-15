@@ -6,12 +6,13 @@ import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/Paragraph/ParagraphComponent.module.css';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IParagraphProps = PropsFromGenericComponent<'Paragraph'>;
 
 export function ParagraphComponent({ node }: IParagraphProps) {
-  const { id, textResourceBindings } = node.item;
+  const { id, textResourceBindings } = useNodeItem(node);
   const { lang, elementAsString } = useLanguage();
   const text = lang(textResourceBindings?.title);
 

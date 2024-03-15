@@ -11,15 +11,18 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/RadioButtons/ControlledRadioGroup.module.css';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
 import { shouldUseRowLayout } from 'src/utils/layout';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IRadioButtonsContainerProps } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 
 export type IControlledRadioGroupProps = IRadioButtonsContainerProps;
 
 export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
   const { node, isValid, overrideDisplay } = props;
-  const { id, layout, readOnly, textResourceBindings, required, showAsCard } = node.item;
-  const alertOnChange = 'alertOnChange' in node.item ? node.item.alertOnChange : undefined;
-  const labelSettings = 'labelSettings' in node.item ? node.item.labelSettings : undefined;
+  const item = useNodeItem(node);
+  const parentItem = useNodeItem(node.parent);
+  const { id, layout, readOnly, textResourceBindings, required, showAsCard } = item;
+  const alertOnChange = 'alertOnChange' in item ? item.alertOnChange : undefined;
+  const labelSettings = 'labelSettings' in item ? item.labelSettings : undefined;
   const { selected, handleChange, fetchingOptions, calculatedOptions } = useRadioButtons(props);
   const { lang, langAsString } = useLanguage();
   const selectedLabel = calculatedOptions.find((option) => option.value === selected)?.label;
@@ -30,8 +33,8 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
   const confirmChangeText = langAsString('form_filler.alert_confirm');
 
   const getLabelPrefixForLikert = () => {
-    if (node.parent.item.type === 'Likert' && node.parent.item.textResourceBindings?.leftColumnHeader) {
-      return `${langAsString(node.parent.item.textResourceBindings.leftColumnHeader)} `;
+    if (parentItem.type === 'Likert' && parentItem.textResourceBindings?.leftColumnHeader) {
+      return `${langAsString(parentItem.textResourceBindings.leftColumnHeader)} `;
     }
     return null;
   };

@@ -7,6 +7,7 @@ import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/RepeatingGroup/Summary/LargeGroupSummaryContainer.module.css';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { HeadingLevel } from 'src/layout/common.generated';
 import type { CompRepeatingGroupInternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -32,10 +33,10 @@ export function LargeGroupSummaryContainer({
   onlyInRowUuid,
   renderLayoutNode,
 }: IDisplayRepAsLargeGroup) {
+  const item = useNodeItem(groupNode);
   if (groupNode.isHidden()) {
     return null;
   }
-  const item = groupNode.item;
   const { title, summaryTitle } = item.textResourceBindings || {};
 
   const isNested = groupNode.parent instanceof BaseLayoutNode;

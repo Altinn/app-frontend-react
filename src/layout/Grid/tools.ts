@@ -1,3 +1,4 @@
+import { isNodeRef } from 'src/utils/layout/nodeRef';
 import type { GridRowInternal, GridRowsInternal } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -21,11 +22,9 @@ export function nodesFromGridRows(rows: GridRowsInternal): LayoutNode[] {
 export function nodesFromGridRow(row: GridRowInternal): LayoutNode[] {
   const out: LayoutNode[] = [];
   for (const cell of row.cells) {
-    if (cell && ('text' in cell || 'labelFrom' in cell)) {
-      continue;
+    if (isNodeRef(cell)) {
+      out.push(cell.node);
     }
-    const node = cell?.node;
-    node && out.push(node);
   }
 
   return out;
@@ -34,8 +33,7 @@ export function nodesFromGridRow(row: GridRowInternal): LayoutNode[] {
 export function isGridRowHidden(row: GridRowInternal) {
   let atLeastNoneNodeExists = false;
   const allCellsAreHidden = row.cells.every((cell) => {
-    const node = cell && 'node' in cell && (cell?.node as LayoutNode);
-    if (node && typeof node === 'object') {
+    if (isNodeRef(cell)) {
       atLeastNoneNodeExists = true;
       return node.isHidden();
     }

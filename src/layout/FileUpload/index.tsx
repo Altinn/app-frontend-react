@@ -10,11 +10,12 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
+import type { CompFileUploadInternal } from 'src/layout/FileUpload/config.generated';
 import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class FileUpload extends FileUploadDef implements ValidateComponent {
+export class FileUpload extends FileUploadDef implements ValidateComponent<'FileUpload'> {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'FileUpload'>>(
     function LayoutComponentFileUploadRender(props, _): JSX.Element | null {
       return <FileUploadComponent {...props} />;
@@ -33,8 +34,12 @@ export class FileUpload extends FileUploadDef implements ValidateComponent {
     return false;
   }
 
-  getDisplayData(node: LayoutNode<'FileUpload'>, { attachments }: DisplayDataProps): string {
-    return (attachments[node.item.id] || []).map((a) => a.data.filename).join(', ');
+  getDisplayData(
+    node: LayoutNode<'FileUpload'>,
+    item: CompFileUploadInternal,
+    { attachments }: DisplayDataProps,
+  ): string {
+    return (attachments[node.getId()] || []).map((a) => a.data.filename).join(', ');
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'FileUpload'>): JSX.Element | null {
@@ -48,23 +53,25 @@ export class FileUpload extends FileUploadDef implements ValidateComponent {
 
   runComponentValidation(
     node: LayoutNode<'FileUpload'>,
+    item: CompFileUploadInternal,
     { attachments }: ValidationDataSources,
   ): ComponentValidation[] {
     const validations: ComponentValidation[] = [];
 
     // Validate minNumberOfAttachments
+    const id = node.getId();
     if (
-      node.item.minNumberOfAttachments > 0 &&
-      (!attachments[node.item.id] || attachments[node.item.id]!.length < node.item.minNumberOfAttachments)
+      item.minNumberOfAttachments > 0 &&
+      (!attachments[id] || attachments[id]!.length < item.minNumberOfAttachments)
     ) {
       validations.push({
         message: {
           key: 'form_filler.file_uploader_validation_error_file_number',
-          params: [node.item.minNumberOfAttachments],
+          params: [item.minNumberOfAttachments],
         },
         severity: 'error',
         source: FrontendValidationSource.Component,
-        componentId: node.item.id,
+        componentId: id,
         // Treat visibility of minNumberOfAttachments the same as required to prevent showing an error immediately
         category: ValidationMask.Required,
       });
@@ -79,8 +86,8 @@ export class FileUpload extends FileUploadDef implements ValidateComponent {
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'FileUpload'>): string[] {
-    const { node } = ctx;
-    const { dataModelBindings } = node.item;
+    const { node, item } = ctx;
+    const { dataModelBindings } = item;
     const isRequired = this.isDataModelBindingsRequired(node);
     const hasBinding = dataModelBindings && ('simpleBinding' in dataModelBindings || 'list' in dataModelBindings);
 

@@ -6,6 +6,7 @@ import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IImageProps = PropsFromGenericComponent<'Image'>;
@@ -18,7 +19,7 @@ const useStyles = makeStyles({
 
 export function ImageComponent({ node }: IImageProps) {
   const { langAsString } = useLanguage();
-  const { id, image, textResourceBindings } = node.item;
+  const { id, image, textResourceBindings } = useNodeItem(node);
   const classes = useStyles();
   const languageKey = useCurrentLanguage();
   const width = image?.width || '100%';

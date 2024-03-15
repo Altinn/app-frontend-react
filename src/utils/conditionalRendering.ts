@@ -1,5 +1,6 @@
 import { splitDashedKey } from 'src/utils/formLayout';
 import type { IConditionalRenderingRule, IConditionalRenderingRules } from 'src/features/form/dynamics';
+import type { FormDataSelector } from 'src/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
@@ -9,6 +10,7 @@ import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 export function runConditionalRenderingRules(
   rules: IConditionalRenderingRules | null,
   nodes: LayoutPages,
+  formDataSelector: FormDataSelector,
 ): Set<string> {
   const componentsToHide = new Set<string>();
   if (!window.conditionalRuleHandlerObject) {
@@ -32,21 +34,21 @@ export function runConditionalRenderingRules(
       if (node?.isType('RepeatingGroup')) {
         for (const row of node.item.rows) {
           const firstChild = row.items[0] as LayoutNode | undefined;
-          runConditionalRenderingRule(connection, firstChild, componentsToHide);
+          runConditionalRenderingRule(connection, firstChild, componentsToHide, formDataSelector);
           if (connection.repeatingGroup.childGroupId) {
             const childId = `${connection.repeatingGroup.childGroupId}-${row.index}`;
-            const childNode = node.flat(true, { onlyInRowUuid: row.uuid }).find((n) => n.item.id === childId);
+            const childNode = node.flat({ onlyInRowUuid: row.uuid }).find((n) => n.getId() === childId);
             if (childNode && childNode.isType('RepeatingGroup')) {
               for (const childRow of childNode.item.rows) {
                 const firstNestedChild = childRow.items[0] as LayoutNode | undefined;
-                runConditionalRenderingRule(connection, firstNestedChild, componentsToHide);
+                runConditionalRenderingRule(connection, firstNestedChild, componentsToHide, formDataSelector);
               }
             }
           }
         }
       }
     } else {
-      runConditionalRenderingRule(connection, topLevelNode, componentsToHide);
+      runConditionalRenderingRule(connection, topLevelNode, componentsToHide, formDataSelector);
     }
   }
 
@@ -57,10 +59,10 @@ function runConditionalRenderingRule(
   rule: IConditionalRenderingRule,
   node: LayoutNode | undefined,
   hiddenFields: Set<string>,
+  formDataSelector: FormDataSelector,
 ) {
   const functionToRun = rule.selectedFunction;
   const inputKeys = Object.keys(rule.inputParams);
-  const formDataSelector = node?.getDataSources().formDataSelector ?? (() => null);
 
   const inputObj = {} as Record<string, string | number | boolean | null>;
   for (const key of inputKeys) {
@@ -79,7 +81,7 @@ function runConditionalRenderingRule(
   const action = rule.selectedAction;
   const hide = (action === 'Show' && !result) || (action === 'Hide' && result);
 
-  const splitId = splitDashedKey(node?.item.id ?? '');
+  const splitId = splitDashedKey(node?.getId() ?? '');
   for (const elementToPerformActionOn of Object.keys(rule.selectedFields)) {
     if (elementToPerformActionOn && hide) {
       const elementId = rule.selectedFields[elementToPerformActionOn].replace(/{\d+}/g, (match) => {

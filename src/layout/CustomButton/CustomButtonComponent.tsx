@@ -12,6 +12,7 @@ import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useNavigatePage, useNavigationParams } from 'src/hooks/useNavigatePage';
 import { isSpecificClientAction } from 'src/layout/CustomButton/typeHelpers';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { promisify } from 'src/utils/promisify';
 import type { BackendValidationIssueGroups } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -162,8 +163,8 @@ export const buttonStyles: { [style in CBTypes.CustomButtonStyle]: { color: Butt
 };
 
 export const CustomButtonComponent = ({ node }: Props) => {
-  const { textResourceBindings, actions, id, buttonStyle = 'secondary' } = node.item;
-  const lockTools = FD.useLocking(node.item.id);
+  const { textResourceBindings, actions, id, buttonStyle = 'secondary' } = useNodeItem(node);
+  const lockTools = FD.useLocking(node.getId());
   const { isAuthorized } = useActionAuthorization();
   const { handleClientActions } = useHandleClientActions();
   const { handleServerAction, mutation } = useHandleServerActionMutation(lockTools);

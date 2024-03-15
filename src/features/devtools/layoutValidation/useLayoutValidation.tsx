@@ -17,7 +17,8 @@ import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { useNodes } from 'src/utils/layout/NodesContext';
 import { getRootElementPath } from 'src/utils/schemaUtils';
 import { duplicateStringFilter } from 'src/utils/stringHelper';
-import type { LayoutValidationErrors } from 'src/features/devtools/layoutValidation/types';
+import type { LayoutValidationCtx, LayoutValidationErrors } from 'src/features/devtools/layoutValidation/types';
+import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface LayoutValidationProps {
@@ -82,14 +83,16 @@ function useDataModelBindingsValidation(props: LayoutValidationProps) {
       });
 
     for (const [pageName, layout] of Object.entries(nodes.all())) {
-      for (const node of layout.flat(true)) {
+      for (const node of layout.flat()) {
         if ('validateDataModelBindings' in node.def) {
-          const errors = node.def.validateDataModelBindings({
-            node: node as any,
+          const ctx: LayoutValidationCtx<any> = {
+            node: node as LayoutNode<any>,
+            item: node.item as CompInternal<any>,
             lookupBinding,
-          });
+          };
+          const errors = node.def.validateDataModelBindings(ctx as any);
           if (errors.length) {
-            const id = node.item.baseComponentId || node.item.id;
+            const id = node.getBaseId();
             failures[layoutSetId][pageName] = failures[layoutSetId][pageName] ?? {};
             failures[layoutSetId][pageName][id] = errors;
 
@@ -149,7 +152,7 @@ export const useLayoutValidationForPage = () => {
 };
 
 export const useLayoutValidationForNode = (node: LayoutNode) => {
-  const componentId = node.item.baseComponentId || node.item.id;
+  const componentId = node.getBaseId();
   const pageName = node.top.top.myKey;
   const layoutSetId = useCurrentLayoutSetId() || 'default';
 

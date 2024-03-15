@@ -11,6 +11,12 @@ export const Config = new CG.component({
     renderInAccordionGroup: false,
   },
 })
+  .setLayoutNodeType(
+    new CG.import({
+      import: 'ButtonGroupNode',
+      from: 'src/layout/ButtonGroup/ButtonGroupNode',
+    }),
+  )
   .addProperty(
     new CG.prop(
       'children',
@@ -18,5 +24,4 @@ export const Config = new CG.component({
         .setTitle('Children')
         .setDescription('Child component IDs of button-like components to be rendered in this group'),
     ).onlyIn(Variant.External),
-  )
-  .addProperty(new CG.prop('childComponents', new CG.arr(CG.layoutNode)).onlyIn(Variant.Internal));
+  );

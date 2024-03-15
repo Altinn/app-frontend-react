@@ -64,7 +64,7 @@ export type ValidationContext = {
   /**
    * Set the visibility for a node
    */
-  setNodeVisibility: (nodes: LayoutNode[], newVisibility: number, rowIndex?: number) => void;
+  setNodeVisibility: (nodes: LayoutNode[], newVisibility: number, rowId?: string) => void;
 
   /**
    * This is a last resort to show all errors, to prevent unknown error
@@ -78,7 +78,7 @@ export type ValidationContext = {
   /**
    * Properly remove visibility for a row when it is deleted
    */
-  removeRowVisibilityOnDelete: (node: LayoutNode<'RepeatingGroup'>, rowIndex: number) => void;
+  removeRowVisibilityOnDelete: (node: LayoutNode<'RepeatingGroup'>, rowId: string) => void;
 };
 
 export type ValidationState = {

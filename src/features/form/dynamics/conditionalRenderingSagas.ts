@@ -8,11 +8,10 @@ import type { IHiddenLayoutsExternal } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 export function runExpressionRules(layouts: LayoutPages, future: Set<string>) {
-  const shouldIncludeGroups = true;
   for (const layout of Object.values(layouts.all())) {
-    for (const node of layout.flat(shouldIncludeGroups)) {
+    for (const node of layout.flat()) {
       if (node.isHidden({ respectLegacy: false })) {
-        future.add(node.item.id);
+        future.add(node.getId());
       }
     }
   }

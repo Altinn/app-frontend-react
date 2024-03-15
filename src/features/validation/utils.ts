@@ -74,7 +74,7 @@ export function buildNodeValidation<Severity extends ValidationSeverity = Valida
   return {
     ...validation,
     bindingKey,
-    componentId: node.item.id,
+    componentId: node.getId(),
     pageKey: node.pageKey(),
   };
 }
@@ -147,10 +147,10 @@ export function getValidationsForNode(
         );
       }
 
-      const cacheKey = ['binding', node.item.id, bindingKey].join('-');
+      const cacheKey = ['binding', node.getId(), bindingKey].join('-');
       const bindingValidations = selector(
         cacheKey,
-        (state) => state.state.components[node.item.id]?.bindingKeys?.[bindingKey],
+        (state) => state.state.components[node.getId()]?.bindingKeys?.[bindingKey],
       );
       if (bindingValidations) {
         const validations = selectValidations(bindingValidations, mask, severity);
@@ -163,7 +163,7 @@ export function getValidationsForNode(
     }
   }
 
-  const componentValidations = selector(node.item.id, (state) => state.state.components[node.item.id]?.component);
+  const componentValidations = selector(node.getId(), (state) => state.state.components[node.getId()]?.component);
   if (componentValidations) {
     const validations = selectValidations(componentValidations, mask, severity);
     validationMessages.push(

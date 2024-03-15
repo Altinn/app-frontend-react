@@ -14,6 +14,7 @@ import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
 import { DefaultNodeGenerator } from 'src/utils/layout/DefaultNodeGenerator';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayData, DisplayDataProps } from 'src/features/displayData';
 import type { SimpleEval } from 'src/features/expressions';
@@ -189,11 +190,12 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
    * @see renderSummary
    * @see renderCompactSummary
    */
-  abstract getDisplayData(node: LayoutNode<Type>, displayDataProps: DisplayDataProps): string;
+  abstract getDisplayData(node: LayoutNode<Type>, item: CompInternal<Type>, displayDataProps: DisplayDataProps): string;
 
   useDisplayData(node: LayoutNode<Type>): string {
     const displayDataProps = useDisplayDataProps();
-    return this.getDisplayData(node, displayDataProps);
+    const item = useNodeItem(node);
+    return this.getDisplayData(node, item, displayDataProps);
   }
 
   /**
@@ -243,8 +245,8 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
     isRequired = this.isDataModelBindingsRequired(ctx.node),
     name = key,
   ): [string[], undefined] | [undefined, JSONSchema7] {
-    const { node, lookupBinding } = ctx;
-    const value = ((node.item.dataModelBindings as any) || {})[key] || '';
+    const { item, lookupBinding } = ctx;
+    const value = ((item.dataModelBindings as any) || {})[key] || '';
 
     if (!value) {
       if (isRequired) {
@@ -325,21 +327,28 @@ export abstract class ActionComponent<Type extends CompTypes> extends AnyCompone
   }
 }
 
-export abstract class FormComponent<Type extends CompTypes> extends _FormComponent<Type> implements ValidateEmptyField {
+export abstract class FormComponent<Type extends CompTypes>
+  extends _FormComponent<Type>
+  implements ValidateEmptyField<Type>
+{
   readonly type = CompCategory.Form;
 
-  runEmptyFieldValidation(node: LayoutNode<Type>, { formData }: ValidationDataSources): ComponentValidation[] {
-    if (!('required' in node.item) || !node.item.required || !node.item.dataModelBindings) {
+  runEmptyFieldValidation(
+    node: LayoutNode<Type>,
+    item: CompInternal<Type>,
+    { formData }: ValidationDataSources,
+  ): ComponentValidation[] {
+    if (!('required' in item) || !item.required || !item.dataModelBindings) {
       return [];
     }
 
     const validations: ComponentValidation[] = [];
 
-    for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings) as [string, string][]) {
+    for (const [bindingKey, field] of Object.entries(item.dataModelBindings) as [string, string][]) {
       const data = dot.pick(field, formData);
       const asString =
         typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : '';
-      const trb: ITextResourceBindings = 'textResourceBindings' in node.item ? node.item.textResourceBindings : {};
+      const trb: ITextResourceBindings = 'textResourceBindings' in item ? item.textResourceBindings : {};
 
       if (asString.length === 0) {
         const key =
@@ -349,7 +358,7 @@ export abstract class FormComponent<Type extends CompTypes> extends _FormCompone
         const fieldReference = { key: getFieldNameKey(trb, bindingKey), makeLowerCase: true };
 
         validations.push({
-          componentId: node.item.id,
+          componentId: node.getId(),
           source: FrontendValidationSource.EmptyField,
           bindingKey,
           message: { key, params: [fieldReference] },

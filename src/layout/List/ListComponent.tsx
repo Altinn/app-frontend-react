@@ -13,6 +13,7 @@ import { useDataListQuery } from 'src/features/dataLists/useDataListQuery';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { GenericComponentLegend } from 'src/layout/GenericComponentUtils';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { Filter } from 'src/features/dataLists/useDataListQuery';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelBindingsForList } from 'src/layout/List/config.generated';
@@ -23,7 +24,8 @@ const defaultDataList: any[] = [];
 const defaultBindings: IDataModelBindingsForList = {};
 
 export const ListComponent = ({ node }: IListProps) => {
-  const { tableHeaders, pagination, sortableColumns, tableHeadersMobile, mapping, secure, dataListId } = node.item;
+  const item = useNodeItem(node);
+  const { tableHeaders, pagination, sortableColumns, tableHeadersMobile, mapping, secure, dataListId } = item;
   const { langAsString, language, lang } = useLanguage();
   const [pageSize, setPageSize] = useState<number>(pagination?.default || 0);
   const [pageNumber, setPageNumber] = useState<number>(0);
@@ -42,7 +44,7 @@ export const ListComponent = ({ node }: IListProps) => {
   const { data } = useDataListQuery(filter, dataListId, secure, mapping);
   const calculatedDataList = (data && data.listItems) || defaultDataList;
 
-  const bindings = node.item.dataModelBindings || defaultBindings;
+  const bindings = item.dataModelBindings || defaultBindings;
   const { formData, setValues } = useDataModelBindings(bindings);
 
   const handleChange = ({ selectedValue: selectedValue }: ChangeProps<Record<string, string>>) => {
