@@ -5,8 +5,8 @@ import addAdditionalFormats from 'ajv-formats-draft2019';
 import type { ErrorObject, Options } from 'ajv';
 import type { JSONSchema7 } from 'json-schema';
 
-import { ValidationMask } from '..';
-import type { ValidationCategory } from '..';
+import { ValidationMask } from 'src/features/validation';
+import type { ValidationCategory } from 'src/features/validation';
 
 /**
  * Create a new ajv validator for a given schema.

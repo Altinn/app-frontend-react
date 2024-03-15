@@ -96,7 +96,7 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
   /**
    * Repeating group has its own minCount property, so if set, we should filter out the minItems validation from schema.
    */
-  schemaMinItemsFilter(validation: BaseValidation): boolean {
+  private schemaMinItemsFilter(validation: BaseValidation): boolean {
     return !(
       validation.source === FrontendValidationSource.Schema && validation.message.key === 'validation_errors.minItems'
     );
