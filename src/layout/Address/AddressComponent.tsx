@@ -54,6 +54,7 @@ export function AddressComponent({ node }: IAddressProps) {
         />
         <Textfield
           id={`address_address_${id}`}
+          error={hasValidationErrors(bindingValidations?.address)}
           size={'small'}
           value={address}
           onChange={(ev) => setValue('address', ev.target.value)}
@@ -80,6 +81,7 @@ export function AddressComponent({ node }: IAddressProps) {
           />
           <Textfield
             id={`address_care_of_${id}`}
+            error={hasValidationErrors(bindingValidations?.careOf)}
             size={'small'}
             value={careOf}
             onChange={(ev) => setValue('careOf', ev.target.value)}
@@ -107,6 +109,7 @@ export function AddressComponent({ node }: IAddressProps) {
           <div className={classes.addressComponentSmallInputs}>
             <Textfield
               id={`address_zip_code_${id}`}
+              error={hasValidationErrors(bindingValidations?.zipCode)}
               size={'small'}
               value={zipCode}
               onChange={(ev) => setValue('zipCode', ev.target.value)}
@@ -130,6 +133,7 @@ export function AddressComponent({ node }: IAddressProps) {
           />
           <Textfield
             id={`address_post_place_${id}`}
+            error={hasValidationErrors(bindingValidations?.postPlace)}
             size={'small'}
             value={postPlace}
             readOnly={true}
@@ -163,6 +167,7 @@ export function AddressComponent({ node }: IAddressProps) {
           <div className={classes.addressComponentSmallInputs}>
             <Textfield
               id={`address_house_number_${id}`}
+              error={hasValidationErrors(bindingValidations?.houseNumber)}
               size={'small'}
               value={houseNumber}
               onChange={(ev) => setValue('houseNumber', ev.target.value)}

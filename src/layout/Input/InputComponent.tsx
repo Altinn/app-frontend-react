@@ -25,7 +25,7 @@ const TextOnly: React.FunctionComponent<TextfieldProps> = ({ className, id, valu
   <Paragraph
     id={id}
     size='small'
-    className={className}
+    className={`${classes['text-padding']} ${className}`}
     tabindex='0'
   >
     {value}
@@ -85,7 +85,7 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
     className: reactNumberFormatConfig.align ? classes[`text-align-${reactNumberFormatConfig.align}`] : '',
     id,
     readOnly,
-    isValid,
+    error: !isValid,
     required,
     onBlur: debounce,
     textOnly: overrideDisplay?.rowReadOnly && readOnly,
