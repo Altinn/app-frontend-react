@@ -38,7 +38,6 @@ import type {
   ITextResourceBindings,
 } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
@@ -390,12 +389,6 @@ export abstract class ContainerComponent<Type extends CompTypes> extends _FormCo
   }
 
   abstract renderNodeGenerator(props: NodeGeneratorProps<Type>): JSX.Element | null;
-
-  /**
-   * Returns a new instance of a class to perform the component hierarchy generation process
-   * @see HierarchyGenerator
-   */
-  abstract hierarchyGenerator(): ComponentHierarchyGenerator<Type>;
 
   abstract claimChildren(props: ChildClaimerProps<Type>): void;
 }

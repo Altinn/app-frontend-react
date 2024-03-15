@@ -6,7 +6,6 @@ import type { PropsFromGenericComponent, ValidateComponent } from '..';
 
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { RepeatingGroupDef } from 'src/layout/RepeatingGroup/config.def.generated';
-import { GroupHierarchyGenerator } from 'src/layout/RepeatingGroup/hierarchy';
 import { RepeatingGroupContainer } from 'src/layout/RepeatingGroup/RepeatingGroupContainer';
 import { RepeatingGroupProvider } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { RepeatingGroupsFocusProvider } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
@@ -16,12 +15,9 @@ import type { ComponentValidation } from 'src/features/validation';
 import type { CompInternal } from 'src/layout/layout';
 import type { ChildClaimerProps, ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { CompRepeatingGroupInternal } from 'src/layout/RepeatingGroup/config.generated';
-import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent<'RepeatingGroup'> {
-  private _hierarchyGenerator = new GroupHierarchyGenerator();
-
   directRender(): boolean {
     return true;
   }
@@ -84,10 +80,6 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
 
   getDisplayData(): string {
     return '';
-  }
-
-  hierarchyGenerator(): ComponentHierarchyGenerator<'RepeatingGroup'> {
-    return this._hierarchyGenerator;
   }
 
   runComponentValidation(node: LayoutNode<'RepeatingGroup'>, item: CompRepeatingGroupInternal): ComponentValidation[] {

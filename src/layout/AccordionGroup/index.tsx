@@ -3,17 +3,13 @@ import type { JSX } from 'react';
 
 import { AccordionGroup as AccordionGroupComponent } from 'src/layout/AccordionGroup/AccordionGroup';
 import { AccordionGroupDef } from 'src/layout/AccordionGroup/config.def.generated';
-import { AccordionGroupHierarchyGenerator } from 'src/layout/AccordionGroup/hierarchy';
 import { SummaryAccordionGroupComponent } from 'src/layout/AccordionGroup/SummaryAccordionGroupComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
 import type { ChildClaimerProps, ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class AccordionGroup extends AccordionGroupDef {
-  private _hierarchyGenerator = new AccordionGroupHierarchyGenerator();
-
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'AccordionGroup'>>(
     function LayoutComponentAccordionGroupRender(props, _): JSX.Element | null {
       return <AccordionGroupComponent {...props} />;
@@ -44,10 +40,6 @@ export class AccordionGroup extends AccordionGroupDef {
       ...evalCommon(item),
       ...evalTrb(item),
     };
-  }
-
-  hierarchyGenerator(): ComponentHierarchyGenerator<'AccordionGroup'> {
-    return this._hierarchyGenerator;
   }
 
   renderSummary(props: SummaryRendererProps<'AccordionGroup'>): JSX.Element | null {

@@ -6,16 +6,12 @@ import type { ErrorObject } from 'ajv';
 import { GridDef } from 'src/layout/Grid/config.def.generated';
 import { RenderGrid } from 'src/layout/Grid/GridComponent';
 import { GridSummaryComponent } from 'src/layout/Grid/GridSummaryComponent';
-import { GridHierarchyGenerator } from 'src/layout/Grid/hierarchy';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { GridRowsExternal } from 'src/layout/common.generated';
 import type { CompExternalExact, CompInternal } from 'src/layout/layout';
 import type { ChildClaimerProps, ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 
 export class Grid extends GridDef {
-  private _hierarchyGenerator = new GridHierarchyGenerator();
-
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Grid'>>(
     function LayoutComponentGridRender(props, _): JSX.Element | null {
       return <RenderGrid {...props} />;
@@ -66,10 +62,6 @@ export class Grid extends GridDef {
 
   getDisplayData(): string {
     return '';
-  }
-
-  hierarchyGenerator(): ComponentHierarchyGenerator<'Grid'> {
-    return this._hierarchyGenerator;
   }
 
   validateDataModelBindings(): string[] {

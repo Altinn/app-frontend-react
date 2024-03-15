@@ -4,17 +4,13 @@ import type { JSX } from 'react';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { GroupDef } from 'src/layout/Group/config.def.generated';
 import { GroupComponent } from 'src/layout/Group/GroupComponent';
-import { GroupHierarchyGenerator } from 'src/layout/Group/hierarchy';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
 import type { ChildClaimerProps, ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 
 export class Group extends GroupDef {
-  private _hierarchyGenerator = new GroupHierarchyGenerator();
-
   directRender(): boolean {
     return true;
   }
@@ -73,10 +69,6 @@ export class Group extends GroupDef {
 
   getDisplayData(): string {
     return '';
-  }
-
-  hierarchyGenerator(): ComponentHierarchyGenerator<'Group'> {
-    return this._hierarchyGenerator;
   }
 
   isDataModelBindingsRequired(): boolean {

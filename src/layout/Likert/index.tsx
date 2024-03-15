@@ -4,18 +4,14 @@ import type { JSX } from 'react';
 import type { PropsFromGenericComponent } from '..';
 
 import { LikertDef } from 'src/layout/Likert/config.def.generated';
-import { LikertHierarchyGenerator } from 'src/layout/Likert/hierarchy';
 import { LikertComponent } from 'src/layout/Likert/LikertComponent';
 import { LikertSummary } from 'src/layout/Likert/Summary/LikertSummary';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { ComponentValidation } from 'src/features/validation';
 import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 
 export class Likert extends LikertDef {
-  private _hierarchyGenerator = new LikertHierarchyGenerator();
-
   directRender(): boolean {
     return true;
   }
@@ -58,10 +54,6 @@ export class Likert extends LikertDef {
 
   getDisplayData(): string {
     return '';
-  }
-
-  hierarchyGenerator(): ComponentHierarchyGenerator<'Likert'> {
-    return this._hierarchyGenerator;
   }
 
   // This component does not have empty field validation, so has to override its inherited method
