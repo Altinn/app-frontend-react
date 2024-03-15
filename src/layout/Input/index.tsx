@@ -10,7 +10,7 @@ import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompInputInternal, IInputFormatting } from 'src/layout/Input/config.generated';
+import type { IInputFormatting } from 'src/layout/Input/config.generated';
 import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -22,7 +22,7 @@ export class Input extends InputDef {
     },
   );
 
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Input'>): CompInternal<'Input'> {
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Input'>) {
     return {
       ...item,
       ...evalCommon(item),
@@ -32,7 +32,7 @@ export class Input extends InputDef {
 
   getDisplayData(
     node: LayoutNode<'Input'>,
-    item: CompInputInternal,
+    item: CompInternal<'Input'>,
     { currentLanguage, formDataSelector }: DisplayDataProps,
   ): string {
     if (!item.dataModelBindings?.simpleBinding) {

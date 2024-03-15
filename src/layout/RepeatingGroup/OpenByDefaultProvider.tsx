@@ -4,11 +4,10 @@ import type { PropsWithChildren } from 'react';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useRepeatingGroup, useRepeatingGroupSelector } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { CompRepeatingGroupInternal } from 'src/layout/RepeatingGroup/config.generated';
-import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface Props {
-  node: BaseLayoutNode<CompRepeatingGroupInternal>;
+  node: LayoutNode<'RepeatingGroup'>;
 }
 
 export function OpenByDefaultProvider({ node, children }: PropsWithChildren<Props>) {

@@ -10,7 +10,7 @@ import { useComponentHighlighter } from 'src/features/devtools/hooks/useComponen
 import { nodesFromGridRow } from 'src/layout/Grid/tools';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { GridRowsInternal } from 'src/layout/common.generated';
-import type { CompRepeatingGroupInternal } from 'src/layout/RepeatingGroup/config.generated';
+import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface Common {
@@ -107,7 +107,7 @@ export const NodeHierarchyItem = ({ node, onClick, selected }: INodeHierarchyIte
 
 function RepeatingGroupExtensions({ node, selected, onClick }: INodeHierarchyItemProps) {
   const isRepGroup = node.isType('RepeatingGroup');
-  const nodeItem = useNodeItem(node) as CompRepeatingGroupInternal;
+  const nodeItem = useNodeItem(node) as CompInternal<'RepeatingGroup'>;
 
   if (!isRepGroup) {
     return null;

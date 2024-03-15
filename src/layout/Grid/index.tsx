@@ -8,7 +8,7 @@ import { RenderGrid } from 'src/layout/Grid/GridComponent';
 import { GridSummaryComponent } from 'src/layout/Grid/GridSummaryComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { GridRowsExternal } from 'src/layout/common.generated';
-import type { CompExternalExact, CompInternal } from 'src/layout/layout';
+import type { CompExternalExact } from 'src/layout/layout';
 import type { ChildClaimerProps, ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 
 export class Grid extends GridDef {
@@ -44,7 +44,7 @@ export class Grid extends GridDef {
     }
   }
 
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Grid'>): CompInternal<'Grid'> {
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Grid'>) {
     return {
       ...item,
       ...evalCommon(item),

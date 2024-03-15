@@ -23,13 +23,9 @@ import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { AlertOnChange } from 'src/hooks/useAlertOnChange';
-import type { ITextResourceBindings } from 'src/layout/layout';
+import type { CompInternal, ITextResourceBindings } from 'src/layout/layout';
 import type { AnyComponent } from 'src/layout/LayoutComponent';
-import type {
-  CompRepeatingGroupExternal,
-  CompRepeatingGroupInternal,
-  IGroupEditPropertiesInternal,
-} from 'src/layout/RepeatingGroup/config.generated';
+import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -61,7 +57,7 @@ function getTableTitle(textResourceBindings: ITextResourceBindings) {
 function getEditButtonText(
   isEditing: boolean,
   langTools: IUseLanguage,
-  textResourceBindings: CompRepeatingGroupInternal['textResourceBindings'] | undefined,
+  textResourceBindings: CompInternal<'RepeatingGroup'>['textResourceBindings'] | undefined,
 ) {
   const buttonTextKey = isEditing
     ? textResourceBindings?.edit_button_close
@@ -95,11 +91,11 @@ export function RepeatingGroupTableRow({
   const edit = {
     ...group.edit,
     ...expressionsForRow?.edit,
-  } as IGroupEditPropertiesInternal;
+  } as CompInternal<'RepeatingGroup'>['edit'];
   const resolvedTextBindings = {
     ...group.textResourceBindings,
     ...expressionsForRow?.textResourceBindings,
-  } as CompRepeatingGroupInternal['textResourceBindings'];
+  } as CompInternal<'RepeatingGroup'>['textResourceBindings'];
 
   const rowValidations = useDeepValidationsForNode(node, true, uuid);
   const rowHasErrors = hasValidationErrors(rowValidations);

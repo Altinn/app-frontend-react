@@ -14,7 +14,7 @@ import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
  */
 export function useBindingValidationsForNode<
   N extends LayoutNode,
-  T extends CompTypes = N extends BaseLayoutNode<any, infer T> ? T : never,
+  T extends CompTypes = N extends BaseLayoutNode<infer T> ? T : never,
 >(node: N): { [binding in keyof NonNullable<IDataModelBindings<T>>]: NodeValidation[] } | undefined {
   const fieldSelector = Validation.useFieldSelector();
   const componentSelector = Validation.useComponentSelector();

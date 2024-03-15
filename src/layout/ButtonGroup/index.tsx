@@ -6,7 +6,6 @@ import type { PropsFromGenericComponent } from '..';
 import { ButtonGroupComponent } from 'src/layout/ButtonGroup/ButtonGroupComponent';
 import { ButtonGroupDef } from 'src/layout/ButtonGroup/config.def.generated';
 import type { DisplayData } from 'src/features/displayData';
-import type { CompInternal } from 'src/layout/layout';
 import type { ChildClaimerProps, ExprResolver } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -37,7 +36,7 @@ export class ButtonGroup extends ButtonGroupDef implements DisplayData<'ButtonGr
     }
   }
 
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'ButtonGroup'>): CompInternal<'ButtonGroup'> {
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'ButtonGroup'>) {
     return {
       ...item,
       ...evalCommon(item),

@@ -93,7 +93,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
    * Resolves all expressions in the layout configuration, and returns a new layout configuration
    * with expressions resolved.
    */
-  abstract evalExpressions(props: ExprResolver<Type>): CompInternal<Type>;
+  abstract evalExpressions(props: ExprResolver<Type>);
 
   /**
    * Given a node, a list of the node's data, for display in the devtools node inspector

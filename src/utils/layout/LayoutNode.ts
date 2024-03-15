@@ -11,7 +11,6 @@ import type {
   HierarchyDataSources,
   LayoutNodeFromCategory,
   ParentNode,
-  TypeFromConfig,
 } from 'src/layout/layout';
 import type { AnyComponent } from 'src/layout/LayoutComponent';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
@@ -28,15 +27,13 @@ export interface IsHiddenOptions {
  * A LayoutNode wraps a component with information about its parent, allowing you to traverse a component (or an
  * instance of a component inside a repeating group), finding other components near it.
  */
-export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type extends CompTypes = TypeFromConfig<Item>>
-  implements LayoutObject
-{
+export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements LayoutObject {
   public readonly def: CompClassMap[Type];
   private readonly hiddenCache: { [key: number]: boolean | undefined } = {};
-  public minimalItem: MinimalItem<Item>;
+  public minimalItem: MinimalItem<CompInternal<Type>>;
 
   public constructor(
-    public item: Item,
+    public item: CompInternal<Type>,
     public parent: ParentNode,
     public top: LayoutPage,
     private dataSources: HierarchyDataSources,

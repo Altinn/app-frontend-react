@@ -18,7 +18,6 @@ import type {
   ValidationFilter,
   ValidationFilterFunction,
 } from 'src/layout';
-import type { CompDatepickerInternal } from 'src/layout/Datepicker/config.generated';
 import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -30,7 +29,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
     },
   );
 
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Datepicker'>): CompInternal<'Datepicker'> {
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Datepicker'>) {
     return {
       ...item,
       ...evalCommon(item),
@@ -40,7 +39,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
 
   getDisplayData(
     node: LayoutNode<'Datepicker'>,
-    item: CompDatepickerInternal,
+    item: CompInternal<'Datepicker'>,
     { currentLanguage, formDataSelector }: DisplayDataProps,
   ): string {
     if (!item.dataModelBindings?.simpleBinding) {
@@ -64,7 +63,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
 
   runComponentValidation(
     node: LayoutNode<'Datepicker'>,
-    item: CompDatepickerInternal,
+    item: CompInternal<'Datepicker'>,
     { formData, currentLanguage }: ValidationDataSources,
   ): ComponentValidation[] {
     const field = item.dataModelBindings?.simpleBinding;

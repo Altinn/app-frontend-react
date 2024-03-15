@@ -13,7 +13,6 @@ import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { FormDataSelector, PropsFromGenericComponent } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { CompMultipleSelectInternal } from 'src/layout/MultipleSelect/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class MultipleSelect extends MultipleSelectDef {
@@ -23,7 +22,7 @@ export class MultipleSelect extends MultipleSelectDef {
     },
   );
 
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'MultipleSelect'>): CompInternal<'MultipleSelect'> {
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'MultipleSelect'>) {
     return {
       ...item,
       ...evalCommon(item),
@@ -48,7 +47,7 @@ export class MultipleSelect extends MultipleSelectDef {
 
   getDisplayData(
     node: LayoutNode<'MultipleSelect'>,
-    _item: CompMultipleSelectInternal,
+    _item: CompInternal<'MultipleSelect'>,
     { langTools, optionsSelector, formDataSelector }: DisplayDataProps,
   ): string {
     return Object.values(this.getSummaryData(node, langTools, optionsSelector, formDataSelector)).join(', ');

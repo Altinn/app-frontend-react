@@ -5,7 +5,6 @@ import { AccordionGroup as AccordionGroupComponent } from 'src/layout/AccordionG
 import { AccordionGroupDef } from 'src/layout/AccordionGroup/config.def.generated';
 import { SummaryAccordionGroupComponent } from 'src/layout/AccordionGroup/SummaryAccordionGroupComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompInternal } from 'src/layout/layout';
 import type { ChildClaimerProps, ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -34,7 +33,7 @@ export class AccordionGroup extends AccordionGroupDef {
     }
   }
 
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'AccordionGroup'>): CompInternal<'AccordionGroup'> {
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'AccordionGroup'>) {
     return {
       ...item,
       ...evalCommon(item),

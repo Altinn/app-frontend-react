@@ -10,7 +10,6 @@ import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { CompRadioButtonsInternal } from 'src/layout/RadioButtons/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class RadioButtons extends RadioButtonsDef {
@@ -20,7 +19,7 @@ export class RadioButtons extends RadioButtonsDef {
     },
   );
 
-  evalExpressions({ item, evalTrb, evalCommon, evalExpr }: ExprResolver<'RadioButtons'>): CompInternal<'RadioButtons'> {
+  evalExpressions({ item, evalTrb, evalCommon, evalExpr }: ExprResolver<'RadioButtons'>) {
     return {
       ...item,
       ...evalCommon(item),
@@ -31,7 +30,7 @@ export class RadioButtons extends RadioButtonsDef {
 
   getDisplayData(
     node: LayoutNode<'RadioButtons'>,
-    _item: CompRadioButtonsInternal,
+    _item: CompInternal<'RadioButtons'>,
     { langTools, optionsSelector, formDataSelector }: DisplayDataProps,
   ): string {
     const value = String(node.getFormData(formDataSelector).simpleBinding ?? '');

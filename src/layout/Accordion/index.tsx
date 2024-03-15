@@ -4,7 +4,6 @@ import { Accordion as AccordionComponent } from 'src/layout/Accordion/Accordion'
 import { AccordionDef } from 'src/layout/Accordion/config.def.generated';
 import { SummaryAccordionComponent } from 'src/layout/Accordion/SummaryAccordion';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 
 export class Accordion extends AccordionDef {
@@ -14,7 +13,7 @@ export class Accordion extends AccordionDef {
     },
   );
 
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Accordion'>): CompInternal<'Accordion'> {
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Accordion'>) {
     return {
       ...item,
       ...evalCommon(item),

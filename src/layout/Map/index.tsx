@@ -9,7 +9,6 @@ import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { CompMapInternal } from 'src/layout/Map/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Map extends MapDef {
@@ -19,7 +18,7 @@ export class Map extends MapDef {
     },
   );
 
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Map'>): CompInternal<'Map'> {
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Map'>) {
     return {
       ...item,
       ...evalCommon(item),
@@ -27,7 +26,7 @@ export class Map extends MapDef {
     };
   }
 
-  getDisplayData(node: LayoutNode<'Map'>, item: CompMapInternal, { formDataSelector }: DisplayDataProps): string {
+  getDisplayData(node: LayoutNode<'Map'>, item: CompInternal<'Map'>, { formDataSelector }: DisplayDataProps): string {
     if (!item.dataModelBindings?.simpleBinding) {
       return '';
     }

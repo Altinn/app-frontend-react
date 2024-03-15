@@ -1,6 +1,6 @@
 import type { JSONSchema7 } from 'json-schema';
 
-import { CG, Variant } from 'src/codegen/CG';
+import { CG } from 'src/codegen/CG';
 import { GenerateComponentLike } from 'src/codegen/dataTypes/GenerateComponentLike';
 import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import { CompCategory } from 'src/layout/common';
@@ -54,12 +54,6 @@ export class ComponentConfig extends GenerateComponentLike {
   constructor(public readonly config: RequiredComponentConfig) {
     super();
     this.inner.extends(CG.common('ComponentBase'));
-    this.inner.addProperty(
-      new CG.prop('textResourceBindings', new CG.raw({ typeScript: 'undefined' }).optional()).onlyIn(Variant.Internal),
-    );
-    this.inner.addProperty(
-      new CG.prop('dataModelBindings', new CG.raw({ typeScript: 'undefined' }).optional()).onlyIn(Variant.Internal),
-    );
 
     if (config.category === CompCategory.Form) {
       this.inner.extends(CG.common('FormComponentProps'));
@@ -94,19 +88,16 @@ export class ComponentConfig extends GenerateComponentLike {
 
   public generateConfigFile(): string {
     // Forces the objects to register in the context and be exported via the context symbols table
-    this.inner.exportAs(`Comp${this.typeSymbol}`);
-    const ext = this.inner.transformTo(Variant.External);
-    ext.toTypeScript();
-    const int = this.inner.transformTo(Variant.Internal);
-    int.toTypeScript();
+    this.inner.exportAs(`Comp${this.typeSymbol}External`);
+    this.inner.toTypeScript();
 
     const impl = new CG.import({
       import: this.typeSymbol,
       from: `./index`,
-    }).transformTo(Variant.Internal);
+    });
 
-    const nodeObj = this.layoutNodeType.transformTo(Variant.Internal).toTypeScript();
-    const nodeSuffix = this.layoutNodeType === baseLayoutNode ? `<${int.getName()}, '${this.type}'>` : '';
+    const nodeObj = this.layoutNodeType.toTypeScript();
+    const nodeSuffix = this.layoutNodeType === baseLayoutNode ? `<'${this.type}'>` : '';
 
     const staticElements = [
       `export const Config = {
@@ -115,8 +106,7 @@ export class ComponentConfig extends GenerateComponentLike {
          nodeConstructor: ${nodeObj},
        }`,
       `export type TypeConfig = {
-         layout: ${ext.getName()};
-         nodeItem: ${int.getName()};
+         layout: ${this.inner.getName()};
          nodeObj: ${nodeObj}${nodeSuffix};
        }`,
     ];
@@ -127,7 +117,7 @@ export class ComponentConfig extends GenerateComponentLike {
   public generateDefClass(): string {
     const symbol = this.typeSymbol;
     const category = this.config.category;
-    const categorySymbol = CategoryImports[category].transformTo(Variant.Internal).toTypeScript();
+    const categorySymbol = CategoryImports[category].toTypeScript();
 
     const methods: string[] = [];
     for (const [key, value] of Object.entries(this.config.capabilities)) {
@@ -147,6 +137,6 @@ export class ComponentConfig extends GenerateComponentLike {
   }
 
   public toJsonSchema(): JSONSchema7 {
-    return this.inner.transformTo(Variant.External).toJsonSchema();
+    return this.inner.toJsonSchema();
   }
 }

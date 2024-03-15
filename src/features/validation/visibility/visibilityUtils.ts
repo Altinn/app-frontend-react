@@ -2,7 +2,6 @@ import { getInitialMaskFromNode } from 'src/features/validation/utils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { ValidationVisibilitySelector } from 'src/features/validation/validationContext';
-import type { CompRepeatingGroupInternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export type Visibility = {
@@ -130,11 +129,7 @@ export function removeVisibilityForAttachment(attachmentId: string, node: Layout
   deleteChildVisibility(nodeVisibility, attachmentId);
 }
 
-export function onBeforeRowDelete(
-  groupNode: BaseLayoutNode<CompRepeatingGroupInternal>,
-  rowId: string,
-  state: Visibility,
-) {
+export function onBeforeRowDelete(groupNode: LayoutNode<'RepeatingGroup'>, rowId: string, state: Visibility) {
   const path = getPathFromRoot(groupNode);
   const groupVisibility = getVisibilityFromPath(path, state);
   if (groupVisibility) {

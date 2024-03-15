@@ -1,4 +1,4 @@
-import { CG, Variant } from 'src/codegen/CG';
+import { CG } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
@@ -23,5 +23,5 @@ export const Config = new CG.component({
       new CG.arr(new CG.str())
         .setTitle('Children')
         .setDescription('Child component IDs of button-like components to be rendered in this group'),
-    ).onlyIn(Variant.External),
+    ),
   );

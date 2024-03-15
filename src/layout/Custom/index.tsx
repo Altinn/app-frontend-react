@@ -6,7 +6,6 @@ import { CustomWebComponent } from 'src/layout/Custom/CustomWebComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompCustomInternal } from 'src/layout/Custom/config.generated';
 import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -18,7 +17,7 @@ export class Custom extends CustomDef {
     },
   );
 
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Custom'>): CompInternal<'Custom'> {
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Custom'>) {
     return {
       ...item,
       ...evalCommon(item),
@@ -28,7 +27,7 @@ export class Custom extends CustomDef {
 
   getDisplayData(
     node: LayoutNode<'Custom'>,
-    _item: CompCustomInternal,
+    _item: CompInternal<'Custom'>,
     { formDataSelector }: DisplayDataProps,
   ): string {
     const data = node.getFormData(formDataSelector);

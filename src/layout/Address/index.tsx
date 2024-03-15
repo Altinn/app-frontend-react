@@ -11,7 +11,6 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
-import type { CompAddressInternal } from 'src/layout/Address/config.generated';
 import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -23,7 +22,7 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
     },
   );
 
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Address'>): CompInternal<'Address'> {
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Address'>) {
     return {
       ...item,
       ...evalCommon(item),
@@ -33,7 +32,7 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
 
   getDisplayData(
     node: LayoutNode<'Address'>,
-    _item: CompAddressInternal,
+    _item: CompInternal<'Address'>,
     { formDataSelector }: DisplayDataProps,
   ): string {
     const data = node.getFormData(formDataSelector);
@@ -51,7 +50,7 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
 
   runComponentValidation(
     node: LayoutNode<'Address'>,
-    item: CompAddressInternal,
+    item: CompInternal<'Address'>,
     { formData }: ValidationDataSources,
   ): ComponentValidation[] {
     if (!item.dataModelBindings) {

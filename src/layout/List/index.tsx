@@ -14,7 +14,6 @@ import type { ComponentValidation, ValidationDataSources } from 'src/features/va
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { CompListInternal } from 'src/layout/List/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class List extends ListDef {
@@ -24,7 +23,7 @@ export class List extends ListDef {
     },
   );
 
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'List'>): CompInternal<'List'> {
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'List'>) {
     return {
       ...item,
       ...evalCommon(item),
@@ -32,7 +31,7 @@ export class List extends ListDef {
     };
   }
 
-  getDisplayData(node: LayoutNode<'List'>, item: CompListInternal, { formDataSelector }: DisplayDataProps): string {
+  getDisplayData(node: LayoutNode<'List'>, item: CompInternal<'List'>, { formDataSelector }: DisplayDataProps): string {
     const formData = node.getFormData(formDataSelector);
     const dmBindings = item.dataModelBindings;
     for (const [key, binding] of Object.entries(dmBindings || {})) {

@@ -12,7 +12,6 @@ import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelBindingsLikertInternal } from 'src/layout/common.generated';
 import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { CompLikertItemInternal } from 'src/layout/LikertItem/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class LikertItem extends LikertItemDef {
@@ -27,7 +26,7 @@ export class LikertItem extends LikertItemDef {
     },
   );
 
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'LikertItem'>): CompInternal<'LikertItem'> {
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'LikertItem'>) {
     return {
       ...item,
       ...evalCommon(item),
@@ -41,7 +40,7 @@ export class LikertItem extends LikertItemDef {
 
   getDisplayData(
     node: LayoutNode<'LikertItem'>,
-    item: CompLikertItemInternal,
+    item: CompInternal<'LikertItem'>,
     { langTools, optionsSelector, formDataSelector }: DisplayDataProps,
   ): string {
     if (!item.dataModelBindings?.simpleBinding) {

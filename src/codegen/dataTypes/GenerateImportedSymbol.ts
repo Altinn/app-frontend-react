@@ -2,7 +2,6 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { MaybeOptionalCodeGenerator } from 'src/codegen/CodeGenerator';
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
-import type { Variant } from 'src/codegen/CG';
 
 export interface ImportDef {
   import: string;
@@ -16,11 +15,6 @@ export interface ImportDef {
 export class GenerateImportedSymbol<T> extends MaybeOptionalCodeGenerator<T> {
   public constructor(private readonly val: ImportDef) {
     super();
-  }
-
-  transformTo(variant: Variant): this | GenerateImportedSymbol<any> {
-    this.currentVariant = variant;
-    return this;
   }
 
   toTypeScriptDefinition(symbol: string | undefined): string {

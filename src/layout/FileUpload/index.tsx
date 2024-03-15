@@ -10,7 +10,6 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
-import type { CompFileUploadInternal } from 'src/layout/FileUpload/config.generated';
 import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -22,7 +21,7 @@ export class FileUpload extends FileUploadDef implements ValidateComponent<'File
     },
   );
 
-  evalExpressions({ item, evalTrb, evalCommon, evalExpr }: ExprResolver<'FileUpload'>): CompInternal<'FileUpload'> {
+  evalExpressions({ item, evalTrb, evalCommon, evalExpr }: ExprResolver<'FileUpload'>) {
     return {
       ...item,
       ...evalCommon(item),
@@ -37,7 +36,7 @@ export class FileUpload extends FileUploadDef implements ValidateComponent<'File
 
   getDisplayData(
     node: LayoutNode<'FileUpload'>,
-    item: CompFileUploadInternal,
+    _item: CompInternal<'FileUpload'>,
     { attachments }: DisplayDataProps,
   ): string {
     return (attachments[node.getId()] || []).map((a) => a.data.filename).join(', ');
@@ -54,7 +53,7 @@ export class FileUpload extends FileUploadDef implements ValidateComponent<'File
 
   runComponentValidation(
     node: LayoutNode<'FileUpload'>,
-    item: CompFileUploadInternal,
+    item: CompInternal<'FileUpload'>,
     { attachments }: ValidationDataSources,
   ): ComponentValidation[] {
     const validations: ComponentValidation[] = [];

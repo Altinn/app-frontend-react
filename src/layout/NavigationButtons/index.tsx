@@ -3,7 +3,6 @@ import React, { forwardRef } from 'react';
 import { NavigationButtonsDef } from 'src/layout/NavigationButtons/config.def.generated';
 import { NavigationButtonsComponent } from 'src/layout/NavigationButtons/NavigationButtonsComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver } from 'src/layout/LayoutComponent';
 
 export class NavigationButtons extends NavigationButtonsDef {
@@ -13,7 +12,7 @@ export class NavigationButtons extends NavigationButtonsDef {
     },
   );
 
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'NavigationButtons'>): CompInternal<'NavigationButtons'> {
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'NavigationButtons'>) {
     return {
       ...item,
       ...evalCommon(item),

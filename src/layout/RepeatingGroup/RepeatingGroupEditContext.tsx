@@ -6,7 +6,7 @@ import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/Navig
 import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { CompRepeatingGroupInternal } from 'src/layout/RepeatingGroup/config.generated';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface RepeatingGroupEditRowContext {
   multiPageEnabled: boolean;
@@ -23,7 +23,7 @@ const { Provider, useCtx } = createContext<RepeatingGroupEditRowContext>({
 });
 
 function useRepeatingGroupEditRowState(
-  node: BaseLayoutNode<CompRepeatingGroupInternal>,
+  node: LayoutNode<'RepeatingGroup'>,
   editId: string,
 ): RepeatingGroupEditRowContext & { setMultiPageIndex: (index: number) => void } {
   const multiPageEnabled = node.item.edit?.multiPage ?? false;

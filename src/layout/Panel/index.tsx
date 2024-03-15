@@ -3,7 +3,6 @@ import React, { forwardRef } from 'react';
 import { PanelDef } from 'src/layout/Panel/config.def.generated';
 import { PanelComponent } from 'src/layout/Panel/PanelComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver } from 'src/layout/LayoutComponent';
 
 export class Panel extends PanelDef {
@@ -13,7 +12,7 @@ export class Panel extends PanelDef {
     },
   );
 
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Panel'>): CompInternal<'Panel'> {
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Panel'>) {
     return {
       ...item,
       ...evalCommon(item),

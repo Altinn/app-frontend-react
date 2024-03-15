@@ -7,7 +7,6 @@ import { GroupComponent } from 'src/layout/Group/GroupComponent';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompInternal } from 'src/layout/layout';
 import type { ChildClaimerProps, ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 
 export class Group extends GroupDef {
@@ -37,7 +36,7 @@ export class Group extends GroupDef {
     }
   }
 
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Group'>): CompInternal<'Group'> {
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Group'>) {
     return {
       ...item,
       ...evalCommon(item),

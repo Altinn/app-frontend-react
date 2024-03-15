@@ -1,4 +1,4 @@
-import { CG, Variant } from 'src/codegen/CG';
+import { CG } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
@@ -34,11 +34,4 @@ export const Config = new CG.component({
     }),
   )
   .makeSelectionComponent()
-  .addProperty(new CG.prop('layout', CG.common('LayoutStyle').optional()))
-  .addProperty(
-    new CG.prop('showAsCard', new CG.bool().optional()).onlyIn(
-      // TODO: This should probably not be available on the Likert component (if it should, only on mobile?)
-      // Marking it as internal only for now, in case it is needed for some reason.
-      Variant.Internal,
-    ),
-  );
+  .addProperty(new CG.prop('layout', CG.common('LayoutStyle').optional()));

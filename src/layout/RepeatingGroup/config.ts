@@ -1,4 +1,4 @@
-import { CG, Variant } from 'src/codegen/CG';
+import { CG } from 'src/codegen/CG';
 import { ExprVal } from 'src/features/expressions/types';
 import { CompCategory } from 'src/layout/common';
 
@@ -24,7 +24,7 @@ export const Config = new CG.component({
       new CG.arr(new CG.str())
         .setTitle('Children')
         .setDescription('Array of component IDs that should be displayed in the repeating group'),
-    ).onlyIn(Variant.External),
+    ),
   )
   .addTextResource(
     new CG.trb({

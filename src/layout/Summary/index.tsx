@@ -4,7 +4,6 @@ import type { JSX } from 'react';
 import { SummaryDef } from 'src/layout/Summary/config.def.generated';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver } from 'src/layout/LayoutComponent';
 
 export class Summary extends SummaryDef {
@@ -24,7 +23,7 @@ export class Summary extends SummaryDef {
     },
   );
 
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Summary'>): CompInternal<'Summary'> {
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Summary'>) {
     return {
       ...item,
       ...evalCommon(item),

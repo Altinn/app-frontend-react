@@ -14,7 +14,6 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { BaseValidation, ComponentValidation } from 'src/features/validation';
 import type { CompInternal } from 'src/layout/layout';
 import type { ChildClaimerProps, ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { CompRepeatingGroupInternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent, ValidationFilter {
@@ -48,12 +47,7 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     }
   }
 
-  evalExpressions({
-    item,
-    evalTrb,
-    evalCommon,
-    evalExpr,
-  }: ExprResolver<'RepeatingGroup'>): CompInternal<'RepeatingGroup'> {
+  evalExpressions({ item, evalTrb, evalCommon, evalExpr }: ExprResolver<'RepeatingGroup'>) {
     return {
       ...item,
       ...evalCommon(item),
@@ -99,7 +93,10 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     return '';
   }
 
-  runComponentValidation(node: LayoutNode<'RepeatingGroup'>, item: CompRepeatingGroupInternal): ComponentValidation[] {
+  runComponentValidation(
+    node: LayoutNode<'RepeatingGroup'>,
+    item: CompInternal<'RepeatingGroup'>,
+  ): ComponentValidation[] {
     if (!item.dataModelBindings) {
       return [];
     }

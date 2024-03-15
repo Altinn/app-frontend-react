@@ -62,15 +62,14 @@ export type CompRendersLabel<T extends CompTypes> = (typeof ComponentConfigs)[T]
  * you the correct data model bindings for that component.
  */
 export type IDataModelBindings<T extends CompTypes = CompTypes> = Exclude<
-  ComponentTypeConfigs[T]['nodeItem']['dataModelBindings'],
+  CompInternal<T>['dataModelBindings'],
   undefined
 >;
 
 export type ITextResourceBindingsExternal<T extends CompTypes = CompTypes> =
   ComponentTypeConfigs[T]['layout']['textResourceBindings'];
 
-export type ITextResourceBindings<T extends CompTypes = CompTypes> =
-  ComponentTypeConfigs[T]['nodeItem']['textResourceBindings'];
+export type ITextResourceBindings<T extends CompTypes = CompTypes> = CompInternal<T>['textResourceBindings'];
 
 export type ILayout = CompOrGroupExternal[];
 
@@ -88,7 +87,7 @@ interface HierarchyExtensions {
  * Any item inside a hierarchy. Note that a LayoutNode _contains_ an item. The LayoutNode itself is an instance of the
  * LayoutNode class, while _an item_ is the object inside it that is somewhat similar to layout objects.
  */
-type NodeItem<T extends CompTypes> = ComponentTypeConfigs[T]['nodeItem'];
+type NodeItem<T extends CompTypes> = ReturnType<(typeof ComponentConfigs)[T]['def']['evalExpressions']>;
 
 export type CompInternal<T extends CompTypes = CompTypes> = NodeItem<T> & HierarchyExtensions;
 

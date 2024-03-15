@@ -4,7 +4,6 @@ import type { PropsFromGenericComponent } from '..';
 
 import { LinkDef } from 'src/layout/Link/config.def.generated';
 import { LinkComponent } from 'src/layout/Link/LinkComponent';
-import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver } from 'src/layout/LayoutComponent';
 
 export class Link extends LinkDef {
@@ -14,7 +13,7 @@ export class Link extends LinkDef {
     },
   );
 
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Link'>): CompInternal<'Link'> {
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Link'>) {
     return {
       ...item,
       ...evalCommon(item),

@@ -1,4 +1,4 @@
-import { CG, Variant } from 'src/codegen/CG';
+import { CG } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
@@ -30,5 +30,5 @@ export const Config = new CG.component({
       new CG.arr(new CG.str())
         .setTitle('Children')
         .setDescription('List of child component IDs to show inside the Accordion (limited to a few component types)'),
-    ).onlyIn(Variant.External),
+    ),
   );

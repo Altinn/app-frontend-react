@@ -3,7 +3,6 @@ import React, { forwardRef } from 'react';
 import { AttachmentListComponent } from 'src/layout/AttachmentList/AttachmentListComponent';
 import { AttachmentListDef } from 'src/layout/AttachmentList/config.def.generated';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver } from 'src/layout/LayoutComponent';
 
 export class AttachmentList extends AttachmentListDef {
@@ -13,7 +12,7 @@ export class AttachmentList extends AttachmentListDef {
     },
   );
 
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'AttachmentList'>): CompInternal<'AttachmentList'> {
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'AttachmentList'>) {
     return {
       ...item,
       ...evalCommon(item),

@@ -4,7 +4,7 @@ import { screen } from '@testing-library/react';
 
 import { Alert } from 'src/layout/Alert/Alert';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
-import type { CompAlertInternal } from 'src/layout/Alert/config.generated';
+import type { CompExternal } from 'src/layout/layout';
 
 describe('Alert', () => {
   it('should display title', async () => {
@@ -38,7 +38,7 @@ const render = async ({
   hidden,
   title,
   body,
-}: Partial<CompAlertInternal> & { title?: string; body?: string } = {}) =>
+}: Partial<CompExternal<'Alert'>> & { title?: string; body?: string } = {}) =>
   await renderGenericComponentTest<'Alert'>({
     type: 'Alert',
     renderer: (props) => <Alert {...props} />,

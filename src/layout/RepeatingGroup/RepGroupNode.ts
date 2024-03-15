@@ -1,11 +1,10 @@
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
-import type { HierarchyDataSources, ParentNode } from 'src/layout/layout';
-import type { CompRepeatingGroupInternal } from 'src/layout/RepeatingGroup/config.generated';
+import type { CompInternal, HierarchyDataSources, ParentNode } from 'src/layout/layout';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
-export class RepGroupNode extends BaseLayoutNode<CompRepeatingGroupInternal, 'RepeatingGroup'> {
+export class RepGroupNode extends BaseLayoutNode<'RepeatingGroup'> {
   constructor(
-    item: CompRepeatingGroupInternal,
+    item: CompInternal<'RepeatingGroup'>,
     parent: ParentNode,
     top: LayoutPage,
     dataSources: HierarchyDataSources,

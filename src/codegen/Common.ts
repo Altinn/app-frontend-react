@@ -1,4 +1,4 @@
-import { CG, Variant } from 'src/codegen/CG';
+import { CG } from 'src/codegen/CG';
 import { ExprVal } from 'src/features/expressions/types';
 import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
 import type { MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
@@ -14,15 +14,10 @@ const common = {
             'layout',
             new CG.arr(
               new CG.raw({
-                typeScript: new CG.linked(
-                  new CG.import({
-                    import: 'CompOrGroupExternal',
-                    from: 'src/layout/layout.d',
-                  }),
-                  new CG.raw({
-                    typeScript: 'never',
-                  }),
-                ),
+                typeScript: new CG.import({
+                  import: 'CompOrGroupExternal',
+                  from: 'src/layout/layout.d',
+                }),
                 jsonSchema: () => ({
                   $ref: '#/definitions/AnyComponent',
                 }),
@@ -162,10 +157,7 @@ const common = {
             'Dot notation location for the answers. This must point to a property of the objects inside the ' +
               'question array. The answer for each question will be stored in the answer property of the ' +
               'corresponding question object.',
-          )
-          .optional({
-            onlyIn: Variant.Internal,
-          }),
+          ),
       ),
       new CG.prop(
         'questions',
@@ -432,10 +424,6 @@ const common = {
       ),
       new CG.prop('grid', CG.common('IGrid').optional()),
       new CG.prop('pageBreak', CG.common('IPageBreak').optional()),
-
-      // Internal-only properties (these are added by the hierarchy generator):
-      new CG.prop('baseComponentId', new CG.str().optional()).onlyIn(Variant.Internal),
-      new CG.prop('multiPageIndex', new CG.int().optional()).onlyIn(Variant.Internal),
     ),
   FormComponentProps: () =>
     new CG.obj(
@@ -499,18 +487,7 @@ const common = {
       new CG.prop('columnOptions', CG.common('ITableColumnProperties').optional()),
     ).extends(CG.common('ITableColumnProperties')),
   GridCell: () =>
-    new CG.union(
-      new CG.linked(
-        CG.common('GridComponentRef'),
-        new CG.import({
-          import: 'NodeRef',
-          from: 'src/layout/index',
-        }),
-      ),
-      CG.null,
-      CG.common('GridCellText'),
-      CG.common('GridCellLabelFrom'),
-    ),
+    new CG.union(CG.common('GridComponentRef'), CG.null, CG.common('GridCellText'), CG.common('GridCellLabelFrom')),
   GridRow: () =>
     new CG.obj(
       new CG.prop('header', new CG.bool().optional({ default: false }).setTitle('Is header row?')),
@@ -746,10 +723,6 @@ export function getSourceForCommon(key: ValidCommonKeys) {
   return impl;
 }
 
-export function commonContainsVariationDifferences(key: ValidCommonKeys): boolean {
-  return getSourceForCommon(key).containsVariationDifferences();
-}
-
 export function generateAllCommonTypes() {
   for (const key in common) {
     getSourceForCommon(key as ValidCommonKeys);
@@ -762,18 +735,13 @@ export function generateCommonTypeScript() {
 
     // Calling toTypeScript() on an exported symbol will register it in the currently
     // generated file, so there's no need to output the result here
-    if (val.containsVariationDifferences()) {
-      val.transformTo(Variant.External).toTypeScript();
-      val.transformTo(Variant.Internal).toTypeScript();
-    } else {
-      val.transformTo(Variant.External).toTypeScript();
-    }
+    val.toTypeScript();
   }
 }
 
 export function generateCommonSchema() {
   for (const key in common) {
     const val = getSourceForCommon(key as ValidCommonKeys);
-    val.transformTo(Variant.External).toJsonSchema();
+    val.toJsonSchema();
   }
 }

@@ -10,7 +10,6 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
-import type { CompFileUploadWithTagInternal } from 'src/layout/FileUploadWithTag/config.generated';
 import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -42,7 +41,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
 
   getDisplayData(
     node: LayoutNode<'FileUploadWithTag'>,
-    item: CompFileUploadWithTagInternal,
+    _item: CompInternal<'FileUploadWithTag'>,
     { attachments }: DisplayDataProps,
   ): string {
     return (attachments[node.getId()] || []).map((a) => a.data.filename).join(', ');
@@ -59,7 +58,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
 
   runComponentValidation(
     node: LayoutNode<'FileUploadWithTag'>,
-    item: CompFileUploadWithTagInternal,
+    item: CompInternal<'FileUploadWithTag'>,
     { attachments }: ValidationDataSources,
   ): ComponentValidation[] {
     const validations: ComponentValidation[] = [];

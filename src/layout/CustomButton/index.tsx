@@ -4,7 +4,6 @@ import type { JSX } from 'react';
 import { CustomButtonDef } from 'src/layout/CustomButton/config.def.generated';
 import { CustomButtonComponent } from 'src/layout/CustomButton/CustomButtonComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -15,7 +14,7 @@ export class CustomButton extends CustomButtonDef {
     },
   );
 
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'CustomButton'>): CompInternal<'CustomButton'> {
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'CustomButton'>) {
     return {
       ...item,
       ...evalCommon(item),

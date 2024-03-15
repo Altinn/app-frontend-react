@@ -16,10 +16,7 @@ import {
 } from 'src/layout/RepeatingGroup/RepeatingGroupEditContext';
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type {
-  CompRepeatingGroupInternal,
-  IGroupEditPropertiesInternal,
-} from 'src/layout/RepeatingGroup/config.generated';
+import type { CompInternal } from 'src/layout/layout';
 
 export interface IRepeatingGroupsEditContainer {
   editId: string;
@@ -55,8 +52,8 @@ function RepeatingGroupsEditContainerInternal({
   group,
   row,
 }: IRepeatingGroupsEditContainer & {
-  group: CompRepeatingGroupInternal;
-  row: CompRepeatingGroupInternal['rows'][number];
+  group: CompInternal<'RepeatingGroup'>;
+  row: CompInternal<'RepeatingGroup'>['rows'][number];
 }): JSX.Element | null {
   const { node, closeForEditing, deleteRow, openNextForEditing, isDeleting, visibleRows } = useRepeatingGroup();
 

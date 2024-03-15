@@ -9,11 +9,10 @@ import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { HeadingLevel } from 'src/layout/common.generated';
-import type { CompRepeatingGroupInternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IDisplayRepAsLargeGroup {
-  groupNode: BaseLayoutNode<CompRepeatingGroupInternal>;
+  groupNode: LayoutNode<'RepeatingGroup'>;
   id?: string;
   onlyInRowUuid?: string | undefined;
   renderLayoutNode: (node: LayoutNode) => JSX.Element | null;

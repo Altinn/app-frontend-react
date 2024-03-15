@@ -9,7 +9,6 @@ import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { CompTextAreaInternal } from 'src/layout/TextArea/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class TextArea extends TextAreaDef {
@@ -19,7 +18,7 @@ export class TextArea extends TextAreaDef {
     },
   );
 
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'TextArea'>): CompInternal<'TextArea'> {
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'TextArea'>) {
     return {
       ...item,
       ...evalCommon(item),
@@ -29,7 +28,7 @@ export class TextArea extends TextAreaDef {
 
   getDisplayData(
     node: LayoutNode<'TextArea'>,
-    item: CompTextAreaInternal,
+    item: CompInternal<'TextArea'>,
     { formDataSelector }: DisplayDataProps,
   ): string {
     if (!item.dataModelBindings?.simpleBinding) {

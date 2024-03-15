@@ -1,11 +1,10 @@
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
-import type { CompGroupInternal } from 'src/layout/Group/config.generated';
-import type { HierarchyDataSources, ParentNode } from 'src/layout/layout';
+import type { CompInternal, HierarchyDataSources, ParentNode } from 'src/layout/layout';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
-export class GroupNode extends BaseLayoutNode<CompGroupInternal, 'Group'> {
+export class GroupNode extends BaseLayoutNode<'Group'> {
   constructor(
-    item: CompGroupInternal,
+    item: CompInternal<'Group'>,
     parent: ParentNode,
     top: LayoutPage,
     dataSources: HierarchyDataSources,

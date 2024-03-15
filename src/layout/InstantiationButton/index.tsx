@@ -3,7 +3,6 @@ import React, { forwardRef } from 'react';
 import { InstantiationButtonDef } from 'src/layout/InstantiationButton/config.def.generated';
 import { InstantiationButtonComponent } from 'src/layout/InstantiationButton/InstantiationButtonComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver } from 'src/layout/LayoutComponent';
 
 export class InstantiationButton extends InstantiationButtonDef {
@@ -13,11 +12,7 @@ export class InstantiationButton extends InstantiationButtonDef {
     },
   );
 
-  evalExpressions({
-    item,
-    evalTrb,
-    evalCommon,
-  }: ExprResolver<'InstantiationButton'>): CompInternal<'InstantiationButton'> {
+  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'InstantiationButton'>) {
     return {
       ...item,
       ...evalCommon(item),

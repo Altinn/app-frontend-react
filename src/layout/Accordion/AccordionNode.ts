@@ -1,11 +1,10 @@
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
-import type { CompAccordionInternal } from 'src/layout/Accordion/config.generated';
-import type { HierarchyDataSources, ParentNode } from 'src/layout/layout';
+import type { CompInternal, HierarchyDataSources, ParentNode } from 'src/layout/layout';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
-export class AccordionNode extends BaseLayoutNode<CompAccordionInternal, 'Accordion'> {
+export class AccordionNode extends BaseLayoutNode<'Accordion'> {
   constructor(
-    item: CompAccordionInternal,
+    item: CompInternal<'Accordion'>,
     parent: ParentNode,
     top: LayoutPage,
     dataSources: HierarchyDataSources,

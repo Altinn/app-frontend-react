@@ -14,8 +14,7 @@ import { Validation } from 'src/features/validation/validationContext';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { OpenByDefaultProvider } from 'src/layout/RepeatingGroup/OpenByDefaultProvider';
-import type { CompRepeatingGroupInternal } from 'src/layout/RepeatingGroup/config.generated';
-import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface Store {
   editingAll: boolean;
@@ -84,7 +83,7 @@ interface NodeState {
   deletableRows: Row[];
 }
 
-function produceStateFromNode(node: BaseLayoutNode<CompRepeatingGroupInternal>): NodeState {
+function produceStateFromNode(node: LayoutNode<'RepeatingGroup'>): NodeState {
   const hidden: Row[] = [];
   const visible: Row[] = [];
   const editable: Row[] = [];
@@ -125,7 +124,7 @@ function produceStateFromNode(node: BaseLayoutNode<CompRepeatingGroupInternal>):
 }
 
 interface NewStoreProps {
-  nodeRef: React.MutableRefObject<BaseLayoutNode<CompRepeatingGroupInternal>>;
+  nodeRef: React.MutableRefObject<LayoutNode<'RepeatingGroup'>>;
 }
 
 function newStore({ nodeRef }: NewStoreProps) {
@@ -228,7 +227,7 @@ function newStore({ nodeRef }: NewStoreProps) {
   }));
 }
 
-function useExtendedRepeatingGroupState(node: BaseLayoutNode<CompRepeatingGroupInternal>): ExtendedContext {
+function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): ExtendedContext {
   const nodeRef = useAsRef(node);
   const state = ZStore.useSelector((state) => state);
   const stateRef = useAsRef(state);
@@ -403,7 +402,7 @@ function ProvideTheRest({ node, children }: PropsWithChildren<Props>) {
 }
 
 interface Props {
-  node: BaseLayoutNode<CompRepeatingGroupInternal>;
+  node: LayoutNode<'RepeatingGroup'>;
 }
 
 export function RepeatingGroupProvider({ node, children }: PropsWithChildren<Props>) {
