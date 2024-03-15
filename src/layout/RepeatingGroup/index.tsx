@@ -16,7 +16,7 @@ import type { CompInternal } from 'src/layout/layout';
 import type { ChildClaimerProps, ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent, ValidationFilter {
+export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent<'RepeatingGroup'>, ValidationFilter {
   directRender(): boolean {
     return true;
   }

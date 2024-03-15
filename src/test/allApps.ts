@@ -4,7 +4,7 @@ import path from 'node:path';
 
 import { cleanLayout } from 'src/features/form/layout/cleanLayout';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
-import type { ILayoutFileExternal, ILayoutSet, ILayoutSets } from 'src/layout/common.generated';
+import type { ILayoutFile, ILayoutSet, ILayoutSets } from 'src/layout/common.generated';
 import type { ILayoutCollection } from 'src/layout/layout';
 import type { IDataType } from 'src/types/shared';
 
@@ -69,7 +69,7 @@ export function getAllLayoutSets(dir: string): AppLayoutSet[] {
       for (const layoutFile of layoutFiles.filter((s) => s.endsWith('.json'))) {
         const basename = path.basename(layoutFile).replace('.json', '');
         const fileContent = fs.readFileSync(path.join(...setPath, layoutFile));
-        const layoutContent = parseJsonTolerantly<ILayoutFileExternal>(fileContent.toString().trim());
+        const layoutContent = parseJsonTolerantly<ILayoutFile>(fileContent.toString().trim());
         layouts[basename] = {
           ...layoutContent,
           data: {

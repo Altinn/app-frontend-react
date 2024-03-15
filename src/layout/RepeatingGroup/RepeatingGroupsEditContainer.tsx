@@ -75,7 +75,7 @@ function RepeatingGroupsEditContainerInternal({
   const edit = {
     ...editForGroup,
     ...editForRow,
-  } as IGroupEditPropertiesInternal;
+  } as CompInternal<'RepeatingGroup'>['edit'];
   const rowItems = row.items;
   const { refSetter } = useRepeatingGroupsFocusContext();
   const texts = {

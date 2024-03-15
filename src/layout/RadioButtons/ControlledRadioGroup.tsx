@@ -20,7 +20,8 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
   const { node, isValid, overrideDisplay } = props;
   const item = useNodeItem(node);
   const parentItem = useNodeItem(node.parent);
-  const { id, layout, readOnly, textResourceBindings, required, showAsCard } = item;
+  const { id, layout, readOnly, textResourceBindings, required } = item;
+  const showAsCard = 'showAsCard' in item ? item.showAsCard : false;
   const alertOnChange = 'alertOnChange' in item ? item.alertOnChange : undefined;
   const labelSettings = 'labelSettings' in item ? item.labelSettings : undefined;
   const { selected, handleChange, fetchingOptions, calculatedOptions } = useRadioButtons(props);

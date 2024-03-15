@@ -8,12 +8,12 @@ import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { memoize } from 'src/utils/memoize';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
-import type { IOptionSourceExternal } from 'src/layout/common.generated';
+import type { IOptionSource } from 'src/layout/common.generated';
 import type { HierarchyDataSources } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface IUseSourceOptionsArgs {
-  source: IOptionSourceExternal | undefined;
+  source: IOptionSource | undefined;
   node: LayoutNode;
 }
 

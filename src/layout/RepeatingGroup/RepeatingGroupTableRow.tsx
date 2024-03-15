@@ -313,7 +313,7 @@ export function RepeatingGroupTableRow({
 }
 
 export function shouldEditInTable(
-  groupEdit: IGroupEditPropertiesInternal,
+  groupEdit: CompInternal<'RepeatingGroup'>['edit'],
   tableNode: LayoutNode,
   columnSettings: CompRepeatingGroupExternal['tableColumns'],
 ) {
@@ -341,7 +341,7 @@ const DeleteElement = ({
 }: {
   uuid: string;
   isDeletingRow: boolean;
-  edit: IGroupEditPropertiesInternal;
+  edit: CompInternal<'RepeatingGroup'>['edit'];
   deleteButtonText: string;
   firstCellData: string | undefined;
   langAsString: (key: string) => string;

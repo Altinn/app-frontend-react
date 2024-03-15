@@ -7,7 +7,7 @@ import { GridDef } from 'src/layout/Grid/config.def.generated';
 import { RenderGrid } from 'src/layout/Grid/GridComponent';
 import { GridSummaryComponent } from 'src/layout/Grid/GridSummaryComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { GridRowsExternal } from 'src/layout/common.generated';
+import type { GridRows } from 'src/layout/common.generated';
 import type { CompExternalExact } from 'src/layout/layout';
 import type { ChildClaimerProps, ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 
@@ -22,7 +22,7 @@ export class Grid extends GridDef {
     this.claimChildrenForRows(item.rows, { claimChild, getProto, item });
   }
 
-  claimChildrenForRows(rows: GridRowsExternal, { claimChild, getProto }: ChildClaimerProps<any>): void {
+  claimChildrenForRows(rows: GridRows, { claimChild, getProto }: ChildClaimerProps<any>): void {
     for (const row of rows) {
       for (const cell of row.cells) {
         if (cell && 'component' in cell && cell.component) {
