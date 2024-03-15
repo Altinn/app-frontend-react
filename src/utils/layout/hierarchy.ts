@@ -3,7 +3,6 @@ import { useMemo, useRef } from 'react';
 import { useApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
-import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { usePageNavigationConfig } from 'src/features/form/layout/PageNavigationContext';
 import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
@@ -18,7 +17,7 @@ import { getLayoutComponentObject } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { useIsHiddenComponent } from 'src/utils/layout/NodesContext';
-import type { CompInternal, HierarchyDataSources, ILayouts } from 'src/layout/layout';
+import type { HierarchyDataSources, ILayouts } from 'src/layout/layout';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 /**
  * This will generate an entire layout hierarchy, iterate each
@@ -33,60 +32,6 @@ function resolvedNodesInLayouts(
   // development server!) the properties are not mutable (but we have to mutate them below).
   const layoutsCopy: ILayouts = layouts ? structuredClone(layouts) : {};
   const unresolved = generateEntireHierarchy(layoutsCopy, currentView, dataSources, getLayoutComponentObject);
-
-  const config = {
-    ...ExprConfigForComponent,
-    ...ExprConfigForGroup,
-  } as any;
-
-  for (const layout of Object.values(unresolved.all())) {
-    for (const node of layout.flat()) {
-      const input = { ...node.item };
-      delete input['children'];
-      delete input['rows'];
-      delete input['childComponents'];
-      delete input['rowsAfter'];
-      delete input['rowsBefore'];
-
-      const resolvedItem = evalExprInObj({
-        input,
-        node,
-        dataSources,
-        config,
-        resolvingPerRow: false,
-      }) as unknown as CompInternal;
-
-      if (node.isType('RepeatingGroup')) {
-        for (const row of node.item.rows) {
-          if (!row) {
-            continue;
-          }
-          const first = row.items[0];
-          if (!first) {
-            continue;
-          }
-          const firstItemNode = unresolved.findById(first.getId());
-          if (firstItemNode) {
-            row.groupExpressions = evalExprInObj({
-              input,
-              node: firstItemNode,
-              dataSources,
-              config,
-              resolvingPerRow: true,
-              deleteNonExpressions: true,
-            }) as any;
-          }
-        }
-      }
-
-      for (const key of Object.keys(resolvedItem)) {
-        // Mutates node.item directly - this also mutates references to it and makes sure
-        // we resolve expressions deep inside recursive structures.
-        node.item[key] = resolvedItem[key];
-      }
-    }
-  }
-
   return unresolved as unknown as LayoutPages;
 }
 

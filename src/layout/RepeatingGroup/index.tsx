@@ -48,11 +48,28 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     }
   }
 
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'RepeatingGroup'>): CompInternal<'RepeatingGroup'> {
+  evalExpressions({
+    item,
+    evalTrb,
+    evalCommon,
+    evalExpr,
+  }: ExprResolver<'RepeatingGroup'>): CompInternal<'RepeatingGroup'> {
     return {
       ...item,
       ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalTrb(item), // TODO: Resolve per row
+      hiddenRow: evalExpr<boolean | undefined>(item.hiddenRow, false), // TODO: Resolve per row
+      edit: item.edit
+        ? {
+            ...item.edit,
+            addButton: evalExpr<boolean | undefined>(item.edit.addButton, true),
+            saveButton: evalExpr<boolean | undefined>(item.edit.saveButton, true), // TODO: Resolve per row
+            deleteButton: evalExpr<boolean | undefined>(item.edit.deleteButton, true), // TODO: Resolve per row
+            editButton: evalExpr<boolean | undefined>(item.edit.editButton, true), // TODO: Resolve per row
+            alertOnDelete: evalExpr<boolean | undefined>(item.edit.alertOnDelete, false), // TODO: Resolve per row
+            saveAndNextButton: evalExpr<boolean | undefined>(item.edit.saveAndNextButton, false), // TODO: Resolve per row
+          }
+        : undefined,
     };
   }
 

@@ -1,4 +1,3 @@
-import dot from 'dot-object';
 import type { Mutable } from 'utility-types';
 
 import {
@@ -9,7 +8,7 @@ import {
 } from 'src/features/expressions/errors';
 import { ExprContext } from 'src/features/expressions/ExprContext';
 import { ExprVal } from 'src/features/expressions/types';
-import { addError, asExpression, canBeExpression } from 'src/features/expressions/validation';
+import { addError } from 'src/features/expressions/validation';
 import { implementsDisplayData } from 'src/layout';
 import { isDate } from 'src/utils/dateHelpers';
 import { formatDateLocale } from 'src/utils/formatDateLocale';
@@ -22,18 +21,12 @@ import type {
   ExprConfig,
   Expression,
   ExprFunction,
-  ExprObjConfig,
   ExprPositionalArgs,
-  ExprResolved,
   ExprValToActual,
   FuncDef,
 } from 'src/features/expressions/types';
 import type { FormDataSelector } from 'src/layout';
-import type { CompGroupExternal } from 'src/layout/Group/config.generated';
-import type { CompExternal } from 'src/layout/layout';
 import type { AnyComponent } from 'src/layout/LayoutComponent';
-import type { CompLikertExternal } from 'src/layout/Likert/config.generated';
-import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { IAuthContext, IInstanceDataSources } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -43,138 +36,6 @@ export interface EvalExprOptions {
   onBeforeFunctionCall?: (path: string[], func: ExprFunction, args: any[]) => void;
   onAfterFunctionCall?: (path: string[], func: ExprFunction, args: any[], result: any) => void;
   positionalArguments?: ExprPositionalArgs;
-}
-
-export interface EvalExprInObjArgs<T> {
-  input: T;
-  node: LayoutNode | NodeNotFoundWithoutContext;
-  dataSources: ContextDataSources;
-  config?: ExprObjConfig<T>;
-  resolvingPerRow?: boolean;
-  deleteNonExpressions?: boolean;
-}
-
-/**
- * Magic key used to indicate a config value for all possible values in an object
- */
-export const CONFIG_FOR_ALL_VALUES_IN_OBJ = '__default__';
-
-/**
- * This function will find any expressions inside a deep object and resolve them
- */
-export function evalExprInObj<T>(args: EvalExprInObjArgs<T>): ExprResolved<T> {
-  if (!args.input) {
-    return args.input as ExprResolved<T>;
-  }
-
-  const out = evalExprInObjectRecursive<T>(args.input, args as Omit<EvalExprInObjArgs<T>, 'input'>, []);
-
-  if (args.deleteNonExpressions && out === DELETE_LATER) {
-    return {} as any;
-  }
-
-  return out;
-}
-
-export function getConfigFor(path: string[], config: ExprObjConfig<any>): ExprConfig<any> | undefined {
-  const pathString = path.join('.');
-  const pathStringAnyDefault = [...path.slice(0, path.length - 1), CONFIG_FOR_ALL_VALUES_IN_OBJ].join('.');
-  const configSpecific = dot.pick(pathString, config);
-  const configGeneric = dot.pick(pathStringAnyDefault, config);
-
-  if (typeof configSpecific !== 'undefined' && 'returnType' in configSpecific) {
-    return configSpecific;
-  }
-
-  if (typeof configGeneric !== 'undefined' && 'returnType' in configGeneric) {
-    return configGeneric;
-  }
-
-  return undefined;
-}
-
-const DELETE_LATER = '__DELETE_LATER__';
-
-/**
- * Recurse through an input object/array/any, finds expressions and evaluates them
- */
-function evalExprInObjectRecursive<T>(input: any, args: Omit<EvalExprInObjArgs<T>, 'input'>, path: string[]) {
-  if (typeof input !== 'object' || input === null) {
-    if (args.deleteNonExpressions) {
-      return DELETE_LATER;
-    }
-
-    return input;
-  }
-
-  if (Array.isArray(input)) {
-    let config: ExprConfig<any> | undefined = undefined;
-    let evaluateAsExpression = false;
-    if (args.config) {
-      config = getConfigFor(path, args.config);
-      evaluateAsExpression = typeof config !== 'undefined';
-    } else if (canBeExpression(input)) {
-      evaluateAsExpression = true;
-    }
-
-    if (args.resolvingPerRow === false && config && config.resolvePerRow) {
-      // Leave some expressions deep inside objects alone. I.e., for Group components, some of the properties should
-      // only be evaluated in the context of each row (when the Group is repeating).
-      evaluateAsExpression = false;
-    }
-
-    if (evaluateAsExpression) {
-      const expression = asExpression(input);
-      if (expression) {
-        if (!Array.isArray(expression)) {
-          return expression;
-        }
-
-        return evalExprInObjectCaller<T>(expression, args, path);
-      }
-    }
-
-    const newPath = [...path];
-    const lastLeg = newPath.pop() || '';
-    const out = input
-      .map((item, idx) => evalExprInObjectRecursive<T>(item, args, [...newPath, `${lastLeg}[${idx}]`]))
-      .filter((item) => item !== DELETE_LATER);
-
-    if (args.deleteNonExpressions && out.length === 0) {
-      return DELETE_LATER;
-    }
-
-    return out;
-  }
-
-  const out = {};
-  for (const key of Object.keys(input)) {
-    out[key] = evalExprInObjectRecursive<T>(input[key], args, [...path, key]);
-    if (out[key] === DELETE_LATER) {
-      delete out[key];
-    }
-  }
-
-  if (args.deleteNonExpressions && Object.keys(out).length === 0) {
-    return DELETE_LATER;
-  }
-
-  return out;
-}
-
-/**
- * Extracted function for evaluating expressions in the context of a larger object
- */
-function evalExprInObjectCaller<T>(expr: Expression, args: Omit<EvalExprInObjArgs<T>, 'input'>, path: string[]) {
-  const pathString = path.join('.');
-  const nodeId = args.node.getId();
-
-  const exprOptions: EvalExprOptions = {
-    config: args.config && getConfigFor(path, args.config),
-    errorIntroText: `Evaluated expression for '${pathString}' in component '${nodeId}'`,
-  };
-
-  return evalExpr(expr, args.node, args.dataSources, exprOptions);
 }
 
 export type ExprRetVal = boolean | string | number | undefined | null;
@@ -817,123 +678,5 @@ export const ExprTypes: {
     nullable: true,
     accepts: [ExprVal.Boolean, ExprVal.String, ExprVal.Number, ExprVal.Any],
     impl: (arg) => arg,
-  },
-};
-
-export const ExprConfigForComponent: ExprObjConfig<CompExternal> = {
-  readOnly: {
-    returnType: ExprVal.Boolean,
-    defaultValue: false,
-    resolvePerRow: false,
-  },
-  required: {
-    returnType: ExprVal.Boolean,
-    defaultValue: false,
-    resolvePerRow: false,
-  },
-  hidden: {
-    returnType: ExprVal.Boolean,
-    defaultValue: false,
-    resolvePerRow: false,
-  },
-  textResourceBindings: {
-    [CONFIG_FOR_ALL_VALUES_IN_OBJ]: {
-      returnType: ExprVal.String,
-      defaultValue: '',
-      resolvePerRow: false,
-    },
-  },
-  pageBreak: {
-    breakBefore: {
-      returnType: ExprVal.String,
-      defaultValue: 'auto',
-      resolvePerRow: false,
-    },
-    breakAfter: {
-      returnType: ExprVal.String,
-      defaultValue: 'auto',
-      resolvePerRow: false,
-    },
-  },
-  alertOnDelete: {
-    returnType: ExprVal.Boolean,
-    defaultValue: false,
-    resolvePerRow: false,
-  },
-  alertOnChange: {
-    returnType: ExprVal.Boolean,
-    defaultValue: false,
-    resolvePerRow: false,
-  },
-};
-
-export const ExprConfigForGroup:
-  | ExprObjConfig<CompGroupExternal>
-  | ExprObjConfig<CompRepeatingGroupExternal>
-  | ExprObjConfig<CompLikertExternal> = {
-  ...ExprConfigForComponent,
-  hiddenRow: {
-    returnType: ExprVal.Boolean,
-    defaultValue: false,
-    resolvePerRow: true,
-  },
-  textResourceBindings: {
-    [CONFIG_FOR_ALL_VALUES_IN_OBJ]: {
-      returnType: ExprVal.String,
-      defaultValue: '',
-      resolvePerRow: false,
-    },
-    save_and_next_button: {
-      returnType: ExprVal.String,
-      defaultValue: '',
-      resolvePerRow: true,
-    },
-    save_button: {
-      returnType: ExprVal.String,
-      defaultValue: '',
-      resolvePerRow: true,
-    },
-    edit_button_close: {
-      returnType: ExprVal.String,
-      defaultValue: '',
-      resolvePerRow: true,
-    },
-    edit_button_open: {
-      returnType: ExprVal.String,
-      defaultValue: '',
-      resolvePerRow: true,
-    },
-  },
-  edit: {
-    addButton: {
-      returnType: ExprVal.Boolean,
-      defaultValue: true,
-      resolvePerRow: false,
-    },
-    deleteButton: {
-      returnType: ExprVal.Boolean,
-      defaultValue: true,
-      resolvePerRow: true,
-    },
-    saveButton: {
-      returnType: ExprVal.Boolean,
-      defaultValue: true,
-      resolvePerRow: true,
-    },
-    editButton: {
-      returnType: ExprVal.Boolean,
-      defaultValue: true,
-      resolvePerRow: true,
-    },
-    alertOnDelete: {
-      returnType: ExprVal.Boolean,
-      defaultValue: false,
-      resolvePerRow: true,
-    },
-    saveAndNextButton: {
-      returnType: ExprVal.Boolean,
-      defaultValue: false,
-      resolvePerRow: true,
-    },
   },
 };

@@ -24,6 +24,8 @@ import type {
   ComponentBaseInternal,
   FormComponentPropsExternal,
   FormComponentPropsInternal,
+  ISelectionComponentFullExternal,
+  ISelectionComponentFullInternal,
   SummarizableComponentPropsExternal,
   SummarizableComponentPropsInternal,
 } from 'src/layout/common.generated';
@@ -56,10 +58,15 @@ export type NodeGeneratorProps<Type extends CompTypes> =
 export interface ExprResolver<Type extends CompTypes> {
   item: CompExternalExact<Type>;
   evalCommon: (
-    item: ComponentBaseExternal | FormComponentPropsExternal | SummarizableComponentPropsExternal,
+    item:
+      | ComponentBaseExternal
+      | FormComponentPropsExternal
+      | SummarizableComponentPropsExternal
+      | ISelectionComponentFullExternal,
   ) => Required<ComponentBaseInternal> &
     Required<FormComponentPropsInternal> &
-    Required<SummarizableComponentPropsInternal>;
+    Required<SummarizableComponentPropsInternal> &
+    Required<ISelectionComponentFullInternal>;
   evalExpr: SimpleEval;
   evalTrb: (item: CompExternal<Type>) => {
     textResourceBindings: ITextResourceBindings<Type>;

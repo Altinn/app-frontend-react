@@ -12,7 +12,6 @@ import type {
 const EXPR_CONFIG: ExprConfig<ExprVal.Boolean> = {
   defaultValue: false,
   returnType: ExprVal.Boolean,
-  resolvePerRow: false,
 };
 
 /**

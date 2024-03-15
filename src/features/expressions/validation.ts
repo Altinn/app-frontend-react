@@ -1,22 +1,7 @@
-import {
-  argTypeAt,
-  ExprConfigForComponent,
-  ExprConfigForGroup,
-  ExprFunctions,
-  ExprTypes,
-  getConfigFor,
-} from 'src/features/expressions';
+import { argTypeAt, ExprFunctions, ExprTypes } from 'src/features/expressions';
 import { prettyErrors, prettyErrorsToConsole } from 'src/features/expressions/prettyErrors';
 import { ExprVal } from 'src/features/expressions/types';
-import type {
-  ExprConfig,
-  Expression,
-  ExprFunction,
-  ExprObjConfig,
-  ExprValToActual,
-  FuncDef,
-} from 'src/features/expressions/types';
-import type { ILayout } from 'src/layout/layout';
+import type { ExprConfig, Expression, ExprFunction, ExprValToActual, FuncDef } from 'src/features/expressions/types';
 
 enum ValidationErrorMessage {
   InvalidType = 'Invalid type "%s"',
@@ -267,34 +252,35 @@ export function asExpression(
   return obj as unknown as Expression;
 }
 
-export function preProcessItem<T>(
-  input: T,
-  config: ExprObjConfig<any>,
-  componentPath: string[],
-  componentId: string,
-): any {
-  const pathStr = componentPath.join('.');
-  const cfg = getConfigFor(componentPath, config);
-  if (cfg) {
-    if (typeof input === 'object' && input !== null) {
-      const errText = `Invalid expression when parsing ${pathStr} for "${componentId}"`;
-      return asExpression(input, cfg, errText);
-    }
-
-    return input;
-  }
-
-  if (typeof input === 'object' && !Array.isArray(input) && input !== null) {
-    for (const property of Object.keys(input)) {
-      const newValue = preProcessItem(input[property], config, [...componentPath, property], componentId);
-      if (newValue !== input[property]) {
-        input[property] = newValue;
-      }
-    }
-  }
-
-  return input;
-}
+// TODO: Implement this when generating hiearchy of components
+// export function preProcessItem<T>(
+//   input: T,
+//   config: ExprObjConfig<any>,
+//   componentPath: string[],
+//   componentId: string,
+// ): any {
+//   const pathStr = componentPath.join('.');
+//   const cfg = getConfigFor(componentPath, config);
+//   if (cfg) {
+//     if (typeof input === 'object' && input !== null) {
+//       const errText = `Invalid expression when parsing ${pathStr} for "${componentId}"`;
+//       return asExpression(input, cfg, errText);
+//     }
+//
+//     return input;
+//   }
+//
+//   if (typeof input === 'object' && !Array.isArray(input) && input !== null) {
+//     for (const property of Object.keys(input)) {
+//       const newValue = preProcessItem(input[property], config, [...componentPath, property], componentId);
+//       if (newValue !== input[property]) {
+//         input[property] = newValue;
+//       }
+//     }
+//   }
+//
+//   return input;
+// }
 
 /**
  * Pre-process a layout array. This iterates all components and makes sure to validate expressions (making sure they
@@ -305,13 +291,14 @@ export function preProcessItem<T>(
  *
  * Please note: This mutates the layout array passed to the function, and returns nothing.
  */
-export function preProcessLayout(layout: ILayout) {
-  const config = {
-    ...ExprConfigForComponent,
-    ...ExprConfigForGroup,
-  };
-
-  for (const comp of layout) {
-    preProcessItem(comp, config, [], comp.id);
-  }
-}
+// TODO: Implement this when generating hiearchy of components
+// export function preProcessLayout(layout: ILayout) {
+//   const config = {
+//     ...ExprConfigForComponent,
+//     ...ExprConfigForGroup,
+//   };
+//
+//   for (const comp of layout) {
+//     preProcessItem(comp, config, [], comp.id);
+//   }
+// }

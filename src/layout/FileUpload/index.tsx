@@ -22,11 +22,12 @@ export class FileUpload extends FileUploadDef implements ValidateComponent<'File
     },
   );
 
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'FileUpload'>): CompInternal<'FileUpload'> {
+  evalExpressions({ item, evalTrb, evalCommon, evalExpr }: ExprResolver<'FileUpload'>): CompInternal<'FileUpload'> {
     return {
       ...item,
       ...evalCommon(item),
       ...evalTrb(item),
+      alertOnDelete: evalExpr<boolean | undefined>(item.alertOnDelete, false),
     };
   }
 

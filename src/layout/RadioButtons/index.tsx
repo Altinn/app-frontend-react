@@ -20,11 +20,12 @@ export class RadioButtons extends RadioButtonsDef {
     },
   );
 
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'RadioButtons'>): CompInternal<'RadioButtons'> {
+  evalExpressions({ item, evalTrb, evalCommon, evalExpr }: ExprResolver<'RadioButtons'>): CompInternal<'RadioButtons'> {
     return {
       ...item,
       ...evalCommon(item),
       ...evalTrb(item),
+      alertOnChange: evalExpr<boolean | undefined>(item.alertOnChange, false),
     };
   }
 

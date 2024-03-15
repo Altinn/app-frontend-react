@@ -23,11 +23,12 @@ export class Checkboxes extends CheckboxesDef {
     },
   );
 
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Checkboxes'>): CompInternal<'Checkboxes'> {
+  evalExpressions({ item, evalTrb, evalCommon, evalExpr }: ExprResolver<'Checkboxes'>): CompInternal<'Checkboxes'> {
     return {
       ...item,
       ...evalCommon(item),
       ...evalTrb(item),
+      alertOnChange: evalExpr<boolean | undefined>(item.alertOnChange, false),
     };
   }
 

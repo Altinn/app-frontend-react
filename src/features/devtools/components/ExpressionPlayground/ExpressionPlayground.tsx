@@ -92,7 +92,6 @@ export const ExpressionPlayground = () => {
       const config: ExprConfig<ExprVal.Any> = {
         returnType: ExprVal.Any,
         defaultValue: null,
-        resolvePerRow: false,
         errorAsException: true,
       };
 

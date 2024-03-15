@@ -22,11 +22,17 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
     },
   );
 
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'FileUploadWithTag'>): CompInternal<'FileUploadWithTag'> {
+  evalExpressions({
+    item,
+    evalTrb,
+    evalCommon,
+    evalExpr,
+  }: ExprResolver<'FileUploadWithTag'>): CompInternal<'FileUploadWithTag'> {
     return {
       ...item,
       ...evalCommon(item),
       ...evalTrb(item),
+      alertOnDelete: evalExpr<boolean | undefined>(item.alertOnDelete, false),
     };
   }
 
