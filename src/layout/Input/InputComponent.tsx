@@ -21,17 +21,16 @@ interface InputComponentProps extends TextfieldProps {
   textOnly?: boolean;
 }
 
-const TextOnly: React.FunctionComponent<TextfieldProps> = (props) => {
-  const { size, className, ...customProps } = props;
-  return (
-    <Paragraph
-      size='small'
-      className={className}
-    >
-      {customProps.value}
-    </Paragraph>
-  );
-};
+const TextOnly: React.FunctionComponent<TextfieldProps> = ({ className, id, value }) => (
+  <Paragraph
+    id={id}
+    size='small'
+    className={className}
+    tabindex='0'
+  >
+    {value}
+  </Paragraph>
+);
 
 // We need to use this wrapped Textfield component because we have a conflict between the 'size' prop
 // of the TextField and the react-number-format components which also have a 'size' prop

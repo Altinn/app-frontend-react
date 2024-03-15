@@ -174,7 +174,7 @@ describe('Validation', () => {
     cy.get(appFrontend.errorReport).should('not.contain.text', appFrontend.changeOfName.uploadWithTag.unwantedChar);
   });
 
-  it('Client side validation from json schema', () => {
+  it.only('Client side validation from json schema', () => {
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.newFirstName).type('a');
 
@@ -206,19 +206,19 @@ describe('Validation', () => {
     const expectedErrors = [
       {
         text: 'Må summeres opp til 100%',
-        shouldFocus: 'fordeling-total',
+        elementIdToFocus: 'fordeling-total',
       },
       {
         text: 'Bruk 60 eller færre tegn',
-        shouldFocus: 'changeNameTo',
+        elementIdToFocus: 'changeNameTo',
       },
       {
         text: 'Du må fylle ut dato for navneendring',
-        shouldFocus: 'dateOfEffect',
+        elementIdToFocus: 'dateOfEffect',
       },
       {
         text: 'Du må fylle ut bekreftelse av navn',
-        shouldFocus: 'confirmChangeName',
+        elementIdToFocus: 'confirmChangeName',
       },
     ];
 
@@ -227,11 +227,10 @@ describe('Validation', () => {
     cy.gotoNavPage('grid');
     cy.get(appFrontend.sendinButton).click();
     cy.get(appFrontend.errorReport).find('li').should('have.length', expectedErrors.length);
-    for (const { text, shouldFocus } of expectedErrors) {
+    for (const { text, elementIdToFocus } of expectedErrors) {
       cy.get(appFrontend.errorReport).should('contain.text', text);
       cy.get(`button:contains("${text}")`).click();
-      // eslint-disable-next-line cypress/unsafe-to-chain-command
-      cy.focused().closest('[data-componentid]').should('have.attr', 'data-componentid', shouldFocus);
+      cy.focused().closest('[data-componentid]').should('have.attr', 'data-componentid', elementIdToFocus);
     }
   });
 
