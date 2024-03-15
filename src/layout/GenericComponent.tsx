@@ -129,7 +129,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
       return NavigationResult.SuccessfulNoFocus;
     }
 
-    const maybeInput = containerDivRef.current.querySelector('input,textarea,select') as
+    const maybeInput = containerDivRef.current.querySelector('input,textarea,select,p') as
       | HTMLSelectElement
       | HTMLInputElement
       | HTMLTextAreaElement;

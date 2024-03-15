@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { LegacyTextField } from '@digdir/design-system-react';
+import { Textfield } from '@digdir/design-system-react';
 
 import { Label } from 'src/components/form/Label';
 import { FD } from 'src/features/formData/FormDataWrite';
@@ -61,9 +61,10 @@ export function AddressComponent({ node }: IAddressProps) {
           readOnly={readOnly}
           labelSettings={labelSettings}
         />
-        <LegacyTextField
+        <Textfield
           id={`address_address_${id}`}
-          isValid={!hasValidationErrors(bindingValidations?.address)}
+          error={hasValidationErrors(bindingValidations?.address)}
+          size={'small'}
           value={address}
           onChange={(ev) => setValue('address', ev.target.value)}
           onBlur={debounce}
@@ -87,9 +88,10 @@ export function AddressComponent({ node }: IAddressProps) {
             readOnly={readOnly}
             labelSettings={labelSettings}
           />
-          <LegacyTextField
+          <Textfield
             id={`address_care_of_${id}`}
-            isValid={!hasValidationErrors(bindingValidations?.careOf)}
+            error={hasValidationErrors(bindingValidations?.careOf)}
+            size={'small'}
             value={careOf}
             onChange={(ev) => setValue('careOf', ev.target.value)}
             onBlur={debounce}
@@ -114,9 +116,10 @@ export function AddressComponent({ node }: IAddressProps) {
             labelSettings={labelSettings}
           />
           <div className={classes.addressComponentSmallInputs}>
-            <LegacyTextField
+            <Textfield
               id={`address_zip_code_${id}`}
-              isValid={!hasValidationErrors(bindingValidations?.zipCode)}
+              error={hasValidationErrors(bindingValidations?.zipCode)}
+              size={'small'}
               value={zipCode}
               onChange={(ev) => setValue('zipCode', ev.target.value)}
               onBlur={debounce}
@@ -137,9 +140,10 @@ export function AddressComponent({ node }: IAddressProps) {
             readOnly={true}
             labelSettings={labelSettings}
           />
-          <LegacyTextField
+          <Textfield
             id={`address_post_place_${id}`}
-            isValid={!hasValidationErrors(bindingValidations?.postPlace)}
+            error={hasValidationErrors(bindingValidations?.postPlace)}
+            size={'small'}
             value={postPlace}
             readOnly={true}
             required={required}
@@ -170,9 +174,10 @@ export function AddressComponent({ node }: IAddressProps) {
             <Lang id={'address_component.house_number_helper'} />
           </p>
           <div className={classes.addressComponentSmallInputs}>
-            <LegacyTextField
+            <Textfield
               id={`address_house_number_${id}`}
-              isValid={!hasValidationErrors(bindingValidations?.houseNumber)}
+              error={hasValidationErrors(bindingValidations?.houseNumber)}
+              size={'small'}
               value={houseNumber}
               onChange={(ev) => setValue('houseNumber', ev.target.value)}
               onBlur={debounce}

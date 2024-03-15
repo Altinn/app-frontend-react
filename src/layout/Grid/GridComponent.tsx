@@ -138,6 +138,7 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: 
         const targetNode = isNodeRef(cell) ? nodes.findById(cell.nodeRef) : undefined;
         return (
           <CellWithComponent
+            rowReadOnly={row.readOnly}
             key={`${targetNode?.getId()}/${cellIdx}`}
             node={targetNode}
             isHeader={row.header}
@@ -174,6 +175,7 @@ interface CellProps {
   className?: string;
   columnStyleOptions?: ITableColumnProperties;
   isHeader?: boolean;
+  rowReadOnly?: boolean;
 }
 
 interface CellWithComponentProps extends CellProps {
@@ -188,7 +190,13 @@ interface CellWithLabelProps extends CellProps {
   referenceComponent?: LayoutNode;
 }
 
-function CellWithComponent({ node, className, columnStyleOptions, isHeader = false }: CellWithComponentProps) {
+function CellWithComponent({
+  node,
+  className,
+  columnStyleOptions,
+  isHeader = false,
+  rowReadOnly,
+}: CellWithComponentProps) {
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
   if (node && !node.isHidden()) {
     const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
@@ -203,6 +211,7 @@ function CellWithComponent({ node, className, columnStyleOptions, isHeader = fal
             renderLabel: false,
             renderLegend: false,
             renderedInTable: true,
+            rowReadOnly,
           }}
         />
       </CellComponent>
