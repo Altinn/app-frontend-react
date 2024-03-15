@@ -2,7 +2,6 @@ import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
-import { attachmentsValid } from 'src/features/validation/utils';
 import { FileUploadDef } from 'src/layout/FileUpload/config.def.generated';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
@@ -50,7 +49,12 @@ export class FileUpload extends FileUploadDef implements ValidateComponent<'File
   ): ComponentValidation[] {
     const validations: ComponentValidation[] = [];
 
-    if (!attachmentsValid(attachments, item)) {
+    // Validate minNumberOfAttachments
+    const id = node.getId();
+    if (
+      item.minNumberOfAttachments > 0 &&
+      (!attachments[id] || attachments[id]!.length < item.minNumberOfAttachments)
+    ) {
       validations.push({
         message: {
           key: 'form_filler.file_uploader_validation_error_file_number',
@@ -58,8 +62,9 @@ export class FileUpload extends FileUploadDef implements ValidateComponent<'File
         },
         severity: 'error',
         source: FrontendValidationSource.Component,
-        componentId: node.getId(),
-        category: ValidationMask.Component,
+        componentId: id,
+        // Treat visibility of minNumberOfAttachments the same as required to prevent showing an error immediately
+        category: ValidationMask.Required,
       });
     }
 

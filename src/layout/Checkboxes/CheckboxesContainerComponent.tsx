@@ -6,7 +6,6 @@ import cn from 'classnames';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
-import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
@@ -22,8 +21,6 @@ export const CheckboxContainerComponent = ({ node, isValid, overrideDisplay }: I
   const item = useNodeItem(node);
   const { id, layout, readOnly, textResourceBindings, required, labelSettings, alertOnChange } = item;
   const { langAsString } = useLanguage();
-
-  const debounce = FD.useDebounceImmediately();
 
   const {
     options: calculatedOptions,
@@ -66,7 +63,6 @@ export const CheckboxContainerComponent = ({ node, isValid, overrideDisplay }: I
     <div
       id={id}
       key={`checkboxes_group_${id}`}
-      onBlur={debounce}
     >
       <Checkbox.Group
         className={cn({ [classes.horizontal]: horizontal }, classes.checkboxGroup)}

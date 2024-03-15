@@ -2,7 +2,6 @@ import React, { forwardRef } from 'react';
 
 import { isAttachmentUploaded } from 'src/features/attachments';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
-import { attachmentIsMissingTag, attachmentsValid } from 'src/features/validation/utils';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
 import { FileUploadWithTagDef } from 'src/layout/FileUploadWithTag/config.def.generated';
@@ -50,49 +49,54 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
   ): ComponentValidation[] {
     const validations: ComponentValidation[] = [];
 
-    if (attachmentsValid(attachments, item)) {
-      const missingTagAttachmentIds: string[] = [];
-      for (const attachment of attachments[node.getId()] || []) {
-        if (isAttachmentUploaded(attachment) && attachmentIsMissingTag(attachment)) {
-          missingTagAttachmentIds.push(attachment.data.id);
-        }
-      }
-
-      if (missingTagAttachmentIds?.length > 0) {
-        missingTagAttachmentIds.forEach((attachmentId) => {
-          const tagKey = item.textResourceBindings?.tagTitle;
-          const tagReference = tagKey
-            ? {
-                key: tagKey,
-                makeLowerCase: true,
-              }
-            : 'tag';
-
-          validations.push({
-            message: {
-              key: 'form_filler.file_uploader_validation_error_no_chosen_tag',
-              params: [tagReference],
-            },
-            severity: 'error',
-            componentId: node.getId(),
-            source: FrontendValidationSource.Component,
-            meta: { attachmentId },
-            category: ValidationMask.Component,
-          });
-        });
-      }
-    } else {
+    // Validate minNumberOfAttachments
+    const id = node.getId();
+    if (
+      item.minNumberOfAttachments > 0 &&
+      (!attachments[id] || attachments[id]!.length < item.minNumberOfAttachments)
+    ) {
       validations.push({
         message: {
           key: 'form_filler.file_uploader_validation_error_file_number',
           params: [item.minNumberOfAttachments],
         },
         severity: 'error',
-        componentId: node.getId(),
         source: FrontendValidationSource.Component,
-        category: ValidationMask.Component,
+        componentId: id,
+        // Treat visibility of minNumberOfAttachments the same as required to prevent showing an error immediately
+        category: ValidationMask.Required,
       });
     }
+
+    // Validate missing tags
+    for (const attachment of attachments[id] || []) {
+      if (
+        isAttachmentUploaded(attachment) &&
+        (attachment.data.tags === undefined || attachment.data.tags.length === 0)
+      ) {
+        const tagKey = item.textResourceBindings?.tagTitle;
+        const tagReference = tagKey
+          ? {
+              key: tagKey,
+              makeLowerCase: true,
+            }
+          : 'tag';
+
+        validations.push({
+          message: {
+            key: 'form_filler.file_uploader_validation_error_no_chosen_tag',
+            params: [tagReference],
+          },
+          severity: 'error',
+          componentId: id,
+          source: FrontendValidationSource.Component,
+          meta: { attachmentId: attachment.data.id },
+          // Treat visibility of missing tag the same as required to prevent showing an error immediately
+          category: ValidationMask.Required,
+        });
+      }
+    }
+
     return validations;
   }
 

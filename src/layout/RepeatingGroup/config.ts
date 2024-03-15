@@ -99,6 +99,7 @@ export const Config = new CG.component({
       ),
     ).exportAs('IDataModelBindingsForGroup'),
   )
+  .addProperty(new CG.prop('showValidations', CG.common('AllowedValidationMasks').optional()))
   .addProperty(new CG.prop('validateOnSaveRow', CG.common('AllowedValidationMasks').optional()))
   .addProperty(
     new CG.prop(
