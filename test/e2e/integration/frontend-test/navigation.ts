@@ -96,4 +96,49 @@ describe('Navigation', () => {
     cy.findByRole('button', { name: /Endre/ }).click();
     cy.findByRole('button', { name: /Updated text from Summary Component/ });
   });
+
+  it('should navigate to a specified page clicking a linkToPage', () => {
+    cy.interceptLayout(
+      'group',
+      (component) => component,
+      (layout) => {
+        layout['prefill'].data.layout.push({
+          id: 'paragraph-formLink-test',
+          type: 'Paragraph',
+          textResourceBindings: {
+            title: ['linkToPage', 'Klikk på meg', 'repeating'],
+          },
+        });
+
+        return layout;
+      },
+    );
+    cy.goto('group');
+    cy.findByRole('link', { name: 'Klikk på meg' }).click();
+
+    cy.url().should('satisfy', (url) => url.endsWith('/Task_3/repeating'));
+  });
+
+  it('should navigate to a specified page and focus component when clicking a linkToComponent', () => {
+    cy.interceptLayout(
+      'group',
+      (component) => component,
+      (layout) => {
+        layout['prefill'].data.layout.push({
+          id: 'paragraph-formLink-test',
+          type: 'Paragraph',
+          textResourceBindings: {
+            title: ['linkToComponent', 'Klikk på meg', 'hideRepeatingGroupRow'],
+          },
+        });
+
+        return layout;
+      },
+    );
+    cy.goto('group');
+    cy.findByRole('link', { name: 'Klikk på meg' }).click();
+
+    cy.url().should('satisfy', (url) => url.endsWith('/Task_3/repeating'));
+    cy.findByLabelText('Hvilket tall må "Endre fra" være større enn for å skjule rader?').should('be.focused');
+  });
 });

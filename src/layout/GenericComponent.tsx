@@ -5,19 +5,20 @@ import classNames from 'classnames';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { useLayoutValidationForNode } from 'src/features/devtools/layoutValidation/useLayoutValidation';
-import { NavigationResult, useFinishNodeNavigation } from 'src/features/form/layout/NavigateToNode';
+import { NavigationResult, useFinishNodeNavigation, useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { useIsDev } from 'src/hooks/useIsDev';
+import { SearchParams, useNavigationParams } from 'src/hooks/useNavigatePage';
 import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import classes from 'src/layout/GenericComponent.module.css';
 import { GenericComponentDescription, GenericComponentLabel } from 'src/layout/GenericComponentUtils';
 import { shouldComponentRenderLabel } from 'src/layout/index';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
-import { useIsHiddenComponent, useNode } from 'src/utils/layout/NodesContext';
+import { useIsHiddenComponent, useNode, useResolvedNode } from 'src/utils/layout/NodesContext';
 import type { IGridStyling } from 'src/layout/common.generated';
 import type { GenericComponentOverrideDisplay, IFormComponentContext } from 'src/layout/FormComponentContext';
 import type { PropsFromGenericComponent } from 'src/layout/index';
@@ -89,6 +90,18 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   const isValid = !hasValidationErrors(validations);
   const isHidden = useIsHiddenComponent();
 
+  const { searchParams, clearSearchParam } = useNavigationParams();
+  const componentId = searchParams.get(SearchParams.FocusComponentId);
+  const focusNode = useResolvedNode(componentId);
+  const navigateTo = useNavigateToNode();
+
+  React.useEffect(() => {
+    if (focusNode != null) {
+      navigateTo(focusNode);
+    }
+    clearSearchParam(SearchParams.FocusComponentId);
+  }, [componentId, clearSearchParam, navigateTo, focusNode]);
+
   // If maxLength is set in both schema and component, don't display the schema error message
   const maxLength = 'maxLength' in node.item && node.item.maxLength;
   const filteredValidationErrors = maxLength
@@ -128,7 +141,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
       return NavigationResult.SuccessfulNoFocus;
     }
 
-    const maybeInput = containerDivRef.current.querySelector('input,textarea,select,p') as
+    const maybeInput = containerDivRef.current?.querySelector('input,textarea,select,p') as
       | HTMLSelectElement
       | HTMLInputElement
       | HTMLTextAreaElement;
