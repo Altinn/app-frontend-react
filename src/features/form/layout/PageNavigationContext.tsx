@@ -8,8 +8,8 @@ import { useHiddenLayoutsExpressions } from 'src/features/form/layout/LayoutsCon
 import { useCurrentView, useOrder } from 'src/hooks/useNavigatePage';
 import { useResolvedNode } from 'src/utils/layout/NodesContext';
 import type { PageNavigationConfig } from 'src/features/expressions/ExprContext';
-import type { CompSummaryExternal, CompSummaryInternal } from 'src/layout/Summary/config.generated';
-import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import type { CompSummaryExternal } from 'src/layout/Summary/config.generated';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export type PageNavigationContext = {
   /**
@@ -113,7 +113,7 @@ export const useSetReturnToView = () => {
   return func === ContextNotProvided ? undefined : func;
 };
 
-export const useSummaryNodeOfOrigin = (): BaseLayoutNode<CompSummaryInternal> | undefined => {
+export const useSummaryNodeOfOrigin = (): LayoutNode<'Summary'> | undefined => {
   const func = useLaxSelector((ctx) => ctx.summaryNodeOfOrigin);
   const node = useResolvedNode<CompSummaryExternal>(func === ContextNotProvided ? undefined : func);
   return func === ContextNotProvided ? undefined : node;
