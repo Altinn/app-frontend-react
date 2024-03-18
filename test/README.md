@@ -61,7 +61,7 @@ If you ran app-localtest with podman:
 npx cypress run --env environment=podman -s 'test/e2e/integration/frontend-test/*.ts'
 ```
 
-5. Stop the running app (using `Ctrl+C` or `Cmd+C` in the terminal where it's running) and
+5. Stop the running app (using `Ctrl+C` in the terminal where it's running) and
    repeat step 3 and 4 for the next app you want to test.
 
 ### Running a single test/opening the Cypress runner
