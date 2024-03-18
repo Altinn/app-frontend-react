@@ -48,11 +48,31 @@ export const Config = new CG.component({
   )
   .addDataModelBinding(
     new CG.obj(
-      new CG.prop('address', new CG.str()),
-      new CG.prop('zipCode', new CG.str()),
-      new CG.prop('postPlace', new CG.str()),
-      new CG.prop('careOf', new CG.str().optional()),
-      new CG.prop('houseNumber', new CG.str().optional()),
+      new CG.dmb({
+        name: 'address',
+        title: 'Data model binding for address',
+        description: 'Describes the location in the data model where the component should store the address.',
+      }),
+      new CG.dmb({
+        name: 'zipCode',
+        title: 'Data model binding for zip code',
+        description: 'Describes the location in the data model where the component should store the zip code.',
+      }),
+      new CG.dmb({
+        name: 'postPlace',
+        title: 'Data model binding for post place',
+        description: 'Describes the location in the data model where the component should store the post place.',
+      }),
+      new CG.dmb({
+        name: 'careOf',
+        title: 'Data model binding for care of',
+        description: 'Describes the location in the data model where the component should store care of.',
+      }).optional(),
+      new CG.dmb({
+        name: 'houseNumber',
+        title: 'Data model binding for house number',
+        description: 'Describes the location in the data model where the component should store the house number.',
+      }).optional(),
     ).exportAs('IDataModelBindingsForAddress'),
   )
   .addProperty(new CG.prop('saveWhileTyping', CG.common('SaveWhileTyping').optional({ default: true })))

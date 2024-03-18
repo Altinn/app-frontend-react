@@ -83,14 +83,12 @@ export const Config = new CG.component({
   )
   .addDataModelBinding(
     new CG.obj(
-      new CG.prop(
-        'group',
-        new CG.str()
-          .setTitle('Group')
-          .setDescription(
-            'Dot notation location for a repeating group structure (array of objects), where the data is stored',
-          ),
-      ),
+      new CG.dmb({
+        name: 'group',
+        title: 'Group',
+        description:
+          'Dot notation location for a repeating group structure (array of objects), where the data is stored',
+      }),
     ).exportAs('IDataModelBindingsForGroup'),
   )
   .addProperty(new CG.prop('showValidations', CG.common('AllowedValidationMasks').optional()))

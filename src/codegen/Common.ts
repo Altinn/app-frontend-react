@@ -126,6 +126,7 @@ const common = {
       ),
     ),
 
+  IDataModelReference: () => new CG.obj(new CG.prop('dataType', new CG.str()), new CG.prop('property', new CG.str())),
   // Data model bindings:
   IDataModelBindingsSimple: () =>
     new CG.obj(

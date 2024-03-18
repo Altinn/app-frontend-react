@@ -17,5 +17,6 @@ export function getHierarchyDataSourcesMock(): HierarchyDataSources {
     devToolsHiddenComponents: 'hide',
     langToolsRef: { current: staticUseLanguageForTests() },
     currentLanguage: 'nb',
+    currentLayoutSet: { id: 'form', dataType: 'data', tasks: ['task1'] },
   };
 }

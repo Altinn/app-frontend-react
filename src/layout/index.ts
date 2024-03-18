@@ -3,6 +3,7 @@ import type { MutableRefObject } from 'react';
 import { ComponentConfigs } from 'src/layout/components.generated';
 import type { DisplayData } from 'src/features/displayData';
 import type { BaseValidation, ComponentValidation, ValidationDataSources } from 'src/features/validation';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { CompInternal, CompRendersLabel, CompTypes } from 'src/layout/layout';
 import type { AnyComponent, LayoutComponent } from 'src/layout/LayoutComponent';
@@ -87,7 +88,7 @@ export interface ValidationFilter {
   getValidationFilters: (node: LayoutNode) => ValidationFilterFunction[];
 }
 
-export type FormDataSelector = (path: string, postProcessor?: (data: unknown) => unknown) => unknown;
+export type FormDataSelector = (path: IDataModelReference, postProcessor?: (data: unknown) => unknown) => unknown;
 
 export function implementsValidationFilter<Type extends CompTypes>(
   component: AnyComponent<Type>,

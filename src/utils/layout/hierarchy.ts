@@ -8,6 +8,7 @@ import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { usePageNavigationConfig } from 'src/features/form/layout/PageNavigationContext';
+import { useCurrentLayoutSet } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
 import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstanceDataSources } from 'src/features/instance/InstanceContext';
@@ -18,6 +19,7 @@ import { useAllOptionsSelector } from 'src/features/options/useAllOptions';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { getLayoutComponentObject } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
+import { resolveDataModelBindings } from 'src/utils/databindings';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { CompInternal, HierarchyDataSources, ILayouts } from 'src/layout/layout';
@@ -59,6 +61,8 @@ function resolvedNodesInLayouts(
         config,
         resolvingPerRow: false,
       }) as unknown as CompInternal;
+
+      resolveDataModelBindings(resolvedItem, dataSources.currentLayoutSet);
 
       if (node.item.type === 'RepeatingGroup') {
         for (const row of node.item.rows) {
@@ -162,6 +166,7 @@ export function useExpressionDataSources(isHidden: ReturnType<typeof useIsHidden
   const currentLanguage = useCurrentLanguage();
   const pageNavigationConfig = usePageNavigationConfig();
   const authContext = useMemo(() => buildAuthContext(process?.currentTask), [process?.currentTask]);
+  const currentLayoutSet = useCurrentLayoutSet() ?? null;
 
   return useMemo(
     () => ({
@@ -178,6 +183,7 @@ export function useExpressionDataSources(isHidden: ReturnType<typeof useIsHidden
       devToolsHiddenComponents,
       langToolsRef,
       currentLanguage,
+      currentLayoutSet,
     }),
     [
       formDataSelector,
@@ -193,6 +199,7 @@ export function useExpressionDataSources(isHidden: ReturnType<typeof useIsHidden
       devToolsHiddenComponents,
       langToolsRef,
       currentLanguage,
+      currentLayoutSet,
     ],
   );
 }

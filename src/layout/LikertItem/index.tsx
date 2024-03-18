@@ -57,13 +57,14 @@ export class LikertItem extends LikertItemDef {
 
     const parentBindings = ctx.node.parent?.item.dataModelBindings as IDataModelBindingsLikertInternal | undefined;
     const bindings = ctx.node.item.dataModelBindings;
+    // TODO(Datamodels): Does this check make any sense?
     if (
       answer &&
       bindings &&
       bindings.simpleBinding &&
       parentBindings &&
       parentBindings.questions &&
-      bindings.simpleBinding.startsWith(`${parentBindings.questions}.`)
+      bindings.simpleBinding.property.startsWith(`${parentBindings.questions}.`)
     ) {
       errors.push(`answer-datamodellbindingen må peke på en egenskap inne i questions-datamodellbindingen`);
     }

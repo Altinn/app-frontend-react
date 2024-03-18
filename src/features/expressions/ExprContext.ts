@@ -8,7 +8,7 @@ import type { ExprConfig, Expression, ExprPositionalArgs } from 'src/features/ex
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { useAllOptionsSelector } from 'src/features/options/useAllOptions';
 import type { FormDataSelector } from 'src/layout';
-import type { ILayoutSettings } from 'src/layout/common.generated';
+import type { ILayoutSet, ILayoutSettings } from 'src/layout/common.generated';
 import type { IHiddenLayoutsExternal } from 'src/types';
 import type { IApplicationSettings, IAuthContext, IInstanceDataSources } from 'src/types/shared';
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -37,6 +37,7 @@ export interface ContextDataSources {
     current: IUseLanguage;
   };
   currentLanguage: string;
+  currentLayoutSet: ILayoutSet | null;
 }
 
 export interface PrettyErrorsOptions {
