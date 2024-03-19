@@ -5,7 +5,7 @@ import classNames from 'classnames';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { useLayoutValidationForNode } from 'src/features/devtools/layoutValidation/useLayoutValidation';
-import { NavigationResult, useFinishNodeNavigation, useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
+import { NavigationResult, useFinishNodeNavigation } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
@@ -18,7 +18,7 @@ import { GenericComponentDescription, GenericComponentLabel } from 'src/layout/G
 import { shouldComponentRenderLabel } from 'src/layout/index';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
-import { useIsHiddenComponent, useNode, useResolvedNode } from 'src/utils/layout/NodesContext';
+import { useIsHiddenComponent, useNode } from 'src/utils/layout/NodesContext';
 import type { IGridStyling } from 'src/layout/common.generated';
 import type { GenericComponentOverrideDisplay, IFormComponentContext } from 'src/layout/FormComponentContext';
 import type { PropsFromGenericComponent } from 'src/layout/index';
@@ -89,18 +89,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   const validations = useUnifiedValidationsForNode(node);
   const isValid = !hasValidationErrors(validations);
   const isHidden = useIsHiddenComponent();
-
-  const { searchParams, clearSearchParam } = useNavigationParams();
-  const componentId = searchParams.get(SearchParams.FocusComponentId);
-  const focusNode = useResolvedNode(componentId);
-  const navigateTo = useNavigateToNode();
-
-  React.useEffect(() => {
-    if (focusNode != null) {
-      navigateTo(focusNode);
-    }
-    clearSearchParam(SearchParams.FocusComponentId);
-  }, [componentId, clearSearchParam, navigateTo, focusNode]);
+  const { clearSearchParam } = useNavigationParams();
 
   // If maxLength is set in both schema and component, don't display the schema error message
   const maxLength = 'maxLength' in node.item && node.item.maxLength;
@@ -125,6 +114,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
     if (targetNode.item.id !== id) {
       return undefined;
     }
+    clearSearchParam(SearchParams.FocusComponentId);
     onHit();
     let retryCount = 0;
     while (!containerDivRef.current && retryCount < 100) {

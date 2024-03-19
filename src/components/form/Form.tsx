@@ -11,15 +11,15 @@ import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { Loader } from 'src/core/loading/Loader';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useExpandedWidthLayouts } from 'src/features/form/layout/LayoutsContext';
-import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
+import { useNavigateToNode, useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FrontendValidationSource } from 'src/features/validation';
 import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
-import { useCurrentView, useNavigatePage } from 'src/hooks/useNavigatePage';
+import { SearchParams, useCurrentView, useNavigatePage, useNavigationParams } from 'src/hooks/useNavigatePage';
 import { GenericComponentById } from 'src/layout/GenericComponent';
 import { extractBottomButtons, hasRequiredFields } from 'src/utils/formLayout';
-import { useNodesMemoSelector } from 'src/utils/layout/NodesContext';
+import { useNodesMemoSelector, useResolvedNode } from 'src/utils/layout/NodesContext';
 
 interface FormState {
   hasRequired: boolean;
@@ -31,6 +31,11 @@ interface FormState {
 export function Form() {
   const currentPageId = useCurrentView();
   const { isValidPageId, navigateToPage } = useNavigatePage();
+  const { searchParams, clearSearchParam } = useNavigationParams();
+  const componentId = searchParams.get(SearchParams.FocusComponentId);
+  const focusNode = useResolvedNode(componentId);
+  const navigateTo = useNavigateToNode();
+  const location = useLocation();
 
   const [formState, setFormState] = useState<FormState>({
     hasRequired: false,
@@ -46,11 +51,24 @@ export function Form() {
   useRegisterNodeNavigationHandler((targetNode) => {
     const targetView = targetNode?.top.top.myKey;
     if (targetView && targetView !== currentPageId) {
-      navigateToPage(targetView, { shouldFocusComponent: true });
+      navigateToPage(targetView, {
+        shouldFocusComponent: true,
+        replace: window.location.href.includes(SearchParams.FocusComponentId),
+      });
       return true;
     }
     return false;
   });
+
+  React.useEffect(() => {
+    clearSearchParam(SearchParams.FocusComponentId);
+  }, [location, clearSearchParam]);
+
+  React.useEffect(() => {
+    if (focusNode != null) {
+      navigateTo(focusNode);
+    }
+  }, [navigateTo, focusNode]);
 
   if (!currentPageId || !isValidPageId(currentPageId)) {
     return <FormFirstPage />;

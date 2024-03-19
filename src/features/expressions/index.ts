@@ -639,10 +639,11 @@ export const ExprFunctions = {
         window.logWarn('Link text was empty but must be set for linkToComponent to work');
         return null;
       }
-      const url = window.location.hash;
-      const hasQueryParams = url.split('#')?.[1]?.includes('?');
-      const newUrl = `${url}${hasQueryParams ? '&' : '?'}${SearchParams.FocusComponentId}=${componentId}`;
-      return `<a href="${newUrl}" class="same-window">${linkText}</a>`;
+      const [_url, queryParams] = window.location.hash.split('#')?.[1]?.split('?') ?? [];
+      const searchParams = new URLSearchParams(queryParams);
+      searchParams.set(SearchParams.FocusComponentId, componentId);
+      const newUrl = `${_url}?${searchParams.toString()}`;
+      return `<a href="${newUrl}" data-link-type="LinkToPotentialNode">${linkText}</a>`;
     },
     args: [ExprVal.String, ExprVal.String] as const,
     minArguments: 2,
