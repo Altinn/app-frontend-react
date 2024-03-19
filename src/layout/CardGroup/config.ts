@@ -7,7 +7,7 @@ export const Config = new CG.component({
   capabilities: {
     renderInTable: false,
     renderInButtonGroup: false,
-    renderInAccordion: false,
+    renderInAccordion: true,
     renderInAccordionGroup: false,
     renderInCardGroup: false,
   },
@@ -17,7 +17,7 @@ export const Config = new CG.component({
       'children',
       new CG.arr(new CG.str())
         .setTitle('Children')
-        .setDescription('Child component IDs of button-like components to be rendered in this group'),
+        .setDescription('Child component IDs of card-like components to be rendered in this group'),
     ).onlyIn(Variant.External),
   )
   .addProperty(new CG.prop('childComponents', new CG.arr(CG.layoutNode)).onlyIn(Variant.Internal));

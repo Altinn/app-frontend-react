@@ -9,6 +9,7 @@ export const Config = new CG.component({
     renderInButtonGroup: false,
     renderInAccordion: false,
     renderInAccordionGroup: false,
+    renderInCardGroup: false,
   },
 }).addProperty(
   new CG.prop(

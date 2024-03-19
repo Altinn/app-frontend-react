@@ -9,6 +9,7 @@ export const Config = new CG.component({
     renderInButtonGroup: false,
     renderInAccordion: true,
     renderInAccordionGroup: false,
+    renderInCardGroup: false,
   },
 })
   .addTextResource(

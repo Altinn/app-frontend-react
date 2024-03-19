@@ -9,6 +9,7 @@ export const Config = new CG.component({
     renderInButtonGroup: false,
     renderInAccordion: true,
     renderInAccordionGroup: false,
+    renderInCardGroup: true,
   },
 })
   .addTextResource(
@@ -73,11 +74,16 @@ export const Config = new CG.component({
   )
   .addProperty(
     new CG.prop(
-      'position',
-      new CG.enum('top', 'bottom')
-        .setTitle('ImagePosition')
-        .setDescription('Positon of the image')
-        .exportAs('Position'),
+      'edit',
+      new CG.obj(
+        new CG.prop(
+          'position',
+          new CG.enum('top', 'bottom')
+            .setTitle('ImagePosition')
+            .setDescription('Positon of the image')
+            .exportAs('Position'),
+        ),
+      ),
     ),
   )
   .addProperty(
@@ -107,7 +113,7 @@ export const Config = new CG.component({
   .addProperty(
     new CG.prop(
       'color',
-      new CG.enum('neutral', 'subtle', 'first', 'second', 'third')
+      new CG.enum('neutral', 'subtle')
         .setTitle('Card color')
         .setDescription('The colorstyle of the card')
         .exportAs('CardColor'),

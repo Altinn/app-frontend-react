@@ -4,6 +4,7 @@ import { Card as DesignSystemCard } from '@digdir/design-system-react';
 
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
+import classes from 'src/layout/Card/Card.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 import '@digdir/design-system-tokens/brand/digdir/tokens.css';
@@ -11,12 +12,11 @@ import '@digdir/design-system-tokens/brand/digdir/tokens.css';
 type ICardProps = PropsFromGenericComponent<'Card'>;
 
 export const Card = ({ node }: ICardProps) => {
-  const { color, textResourceBindings, image, media, position } = node.item;
+  const { id, color, textResourceBindings, image, media, edit } = node.item;
   const { langAsString } = useLanguage();
-
   const languageKey = useCurrentLanguage();
-
   const width = image?.width || '100%';
+
   const altText = textResourceBindings?.altText && langAsString(textResourceBindings.altText);
   const title = textResourceBindings?.title && langAsString(textResourceBindings.title);
   const body = textResourceBindings?.body && langAsString(textResourceBindings.body);
@@ -31,14 +31,15 @@ export const Card = ({ node }: ICardProps) => {
   }
 
   if (image) {
-    if (position === 'bottom') {
-      return (
-        <DesignSystemCard color={color}>
-          <DesignSystemCard.Header>{title}</DesignSystemCard.Header>
-          <DesignSystemCard.Content>{body}</DesignSystemCard.Content>
-          <DesignSystemCard.Footer>{footer}</DesignSystemCard.Footer>
+    return (
+      <DesignSystemCard
+        color={color}
+        className={classes.container}
+      >
+        {edit?.position === 'top' && (
           <DesignSystemCard.Media>
             <img
+              id={id}
               src={imgSrc}
               alt={altText}
               style={{
@@ -46,13 +47,15 @@ export const Card = ({ node }: ICardProps) => {
               }}
             />
           </DesignSystemCard.Media>
-        </DesignSystemCard>
-      );
-    } else {
-      return (
-        <DesignSystemCard color={color}>
+        )}
+        <DesignSystemCard.Header>{title}</DesignSystemCard.Header>
+        <DesignSystemCard.Content>{body}</DesignSystemCard.Content>
+        <DesignSystemCard.Footer>{footer}</DesignSystemCard.Footer>
+
+        {edit?.position === 'bottom' && (
           <DesignSystemCard.Media>
             <img
+              id={id}
               src={imgSrc}
               alt={altText}
               style={{
@@ -60,28 +63,24 @@ export const Card = ({ node }: ICardProps) => {
               }}
             />
           </DesignSystemCard.Media>
-          <DesignSystemCard.Header>{title}</DesignSystemCard.Header>
-          <DesignSystemCard.Content>{body}</DesignSystemCard.Content>
-          <DesignSystemCard.Footer>{footer}</DesignSystemCard.Footer>
-        </DesignSystemCard>
-      );
-    }
+        )}
+      </DesignSystemCard>
+    );
   }
   if (media) {
-    if (position === 'bottom') {
-      return (
-        <DesignSystemCard color={color}>
-          <DesignSystemCard.Header>{title}</DesignSystemCard.Header>
-          <DesignSystemCard.Content>{body}</DesignSystemCard.Content>
-          <DesignSystemCard.Footer>{footer}</DesignSystemCard.Footer>
+    return (
+      <DesignSystemCard
+        color={color}
+        className={classes.container}
+      >
+        {edit.position === 'top' && (
           <DesignSystemCard.Media>
             <video controls>
-              alt={altText}
               <track
                 kind='captions'
                 src={mediaSrc}
                 //bytt til default senere
-                label='English'
+                label={languageKey}
               />
               <source
                 src={mediaSrc}
@@ -89,19 +88,18 @@ export const Card = ({ node }: ICardProps) => {
               />
             </video>
           </DesignSystemCard.Media>
-        </DesignSystemCard>
-      );
-    } else {
-      return (
-        <DesignSystemCard color={color}>
+        )}
+        <DesignSystemCard.Header>{title}</DesignSystemCard.Header>
+        <DesignSystemCard.Content>{body}</DesignSystemCard.Content>
+        <DesignSystemCard.Footer>{footer}</DesignSystemCard.Footer>
+        {edit.position === 'bottom' && (
           <DesignSystemCard.Media>
             <video controls>
-              alt={altText}
               <track
                 kind='captions'
                 src={mediaSrc}
                 //bytt til default senere
-                label='English'
+                label={languageKey}
               />
               <source
                 src={mediaSrc}
@@ -109,11 +107,8 @@ export const Card = ({ node }: ICardProps) => {
               />
             </video>
           </DesignSystemCard.Media>
-          <DesignSystemCard.Header>{title}</DesignSystemCard.Header>
-          <DesignSystemCard.Content>{body}</DesignSystemCard.Content>
-          <DesignSystemCard.Footer>{footer}</DesignSystemCard.Footer>
-        </DesignSystemCard>
-      );
-    }
+        )}
+      </DesignSystemCard>
+    );
   }
 };
