@@ -62,7 +62,14 @@ export const Payment: React.FunctionComponent = () => {
           <Button
             className={classes.payButton}
             color='success'
-            onClick={() => doPerformAction(partyId, instanceGuid, { action: 'pay', buttonId: 'pay-button' })}
+            onClick={() => {
+              if (paymentInfoQuery.data?.redirectUrl) {
+                // window.location = paymentInfoQuery.data?.redirectUrl;
+                window.location.href = paymentInfoQuery.data?.redirectUrl;
+              }
+
+              //doPerformAction(partyId, instanceGuid, { action: 'pay', buttonId: 'pay-button' })
+            }}
           >
             Pay!
           </Button>

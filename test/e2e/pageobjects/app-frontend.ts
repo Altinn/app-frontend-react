@@ -16,6 +16,8 @@ export class AppFrontend {
 
     /** @see https://dev.altinn.studio/repos/ttd/expression-validation-test */
     expressionValidationTest: 'expression-validation-test',
+
+    paymentTest: 'payment-test',
   };
 
   //Start app instance page

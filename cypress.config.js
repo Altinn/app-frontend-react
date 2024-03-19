@@ -19,6 +19,11 @@ module.exports = defineConfig({
           launchOptions.args.push(`--window-size=${CYPRESS_WINDOW_WIDTH},${CYPRESS_WINDOW_HEIGHT}`);
         }
 
+        // Adding chromeWebSecurity: false
+        if (browser.name === 'chrome') {
+          launchOptions.args.push('--disable-web-security');
+        }
+
         return launchOptions;
       });
 
