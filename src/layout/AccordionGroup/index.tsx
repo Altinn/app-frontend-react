@@ -4,8 +4,14 @@ import type { JSX } from 'react';
 import { AccordionGroup as AccordionGroupComponent } from 'src/layout/AccordionGroup/AccordionGroup';
 import { AccordionGroupDef } from 'src/layout/AccordionGroup/config.def.generated';
 import { SummaryAccordionGroupComponent } from 'src/layout/AccordionGroup/SummaryAccordionGroupComponent';
+import { DefaultNodeGenerator } from 'src/utils/layout/DefaultNodeGenerator';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { ChildClaimerProps, ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type {
+  ChildClaimerProps,
+  ExprResolver,
+  NodeGeneratorProps,
+  SummaryRendererProps,
+} from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class AccordionGroup extends AccordionGroupDef {
@@ -31,6 +37,11 @@ export class AccordionGroup extends AccordionGroupDef {
 
       claimChild(childId);
     }
+  }
+
+  renderNodeGenerator(props: NodeGeneratorProps<'AccordionGroup'>): JSX.Element | null {
+    // TODO: Implement custom node generator
+    return <DefaultNodeGenerator {...props} />;
   }
 
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'AccordionGroup'>) {

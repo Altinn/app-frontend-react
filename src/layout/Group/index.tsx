@@ -5,9 +5,15 @@ import { GenericComponent } from 'src/layout/GenericComponent';
 import { GroupDef } from 'src/layout/Group/config.def.generated';
 import { GroupComponent } from 'src/layout/Group/GroupComponent';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
+import { DefaultNodeGenerator } from 'src/utils/layout/DefaultNodeGenerator';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { ChildClaimerProps, ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type {
+  ChildClaimerProps,
+  ExprResolver,
+  NodeGeneratorProps,
+  SummaryRendererProps,
+} from 'src/layout/LayoutComponent';
 
 export class Group extends GroupDef {
   directRender(): boolean {
@@ -34,6 +40,11 @@ export class Group extends GroupDef {
     for (const id of item.children) {
       claimChild(id);
     }
+  }
+
+  renderNodeGenerator(props: NodeGeneratorProps<'Group'>): JSX.Element | null {
+    // TODO: Implement custom node generator
+    return <DefaultNodeGenerator {...props} />;
   }
 
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Group'>) {

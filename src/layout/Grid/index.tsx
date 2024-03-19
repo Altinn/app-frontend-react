@@ -6,10 +6,16 @@ import type { ErrorObject } from 'ajv';
 import { GridDef } from 'src/layout/Grid/config.def.generated';
 import { RenderGrid } from 'src/layout/Grid/GridComponent';
 import { GridSummaryComponent } from 'src/layout/Grid/GridSummaryComponent';
+import { DefaultNodeGenerator } from 'src/utils/layout/DefaultNodeGenerator';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { GridRows } from 'src/layout/common.generated';
 import type { CompExternalExact } from 'src/layout/layout';
-import type { ChildClaimerProps, ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type {
+  ChildClaimerProps,
+  ExprResolver,
+  NodeGeneratorProps,
+  SummaryRendererProps,
+} from 'src/layout/LayoutComponent';
 
 export class Grid extends GridDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Grid'>>(
@@ -20,6 +26,11 @@ export class Grid extends GridDef {
 
   claimChildren({ claimChild, getProto, item }: ChildClaimerProps<'Grid'>): void {
     this.claimChildrenForRows(item.rows, { claimChild, getProto, item });
+  }
+
+  renderNodeGenerator(props: NodeGeneratorProps<'Grid'>): JSX.Element | null {
+    // TODO: Implement custom node generator
+    return <DefaultNodeGenerator {...props} />;
   }
 
   claimChildrenForRows(rows: GridRows, { claimChild, getProto }: ChildClaimerProps<any>): void {
