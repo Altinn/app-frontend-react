@@ -1,5 +1,5 @@
-import dot from 'dot-object';
-
+import { MissingRowIdException } from 'src/features/formData/MissingRowIdException';
+import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { getLikertStartStopIndex } from 'src/utils/formLayout';
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { CompLikertExternal, HLikertRows } from 'src/layout/Likert/config.generated';
@@ -7,6 +7,7 @@ import type { CompLikertItemInternal } from 'src/layout/LikertItem/config.genera
 import type {
   ChildFactory,
   ChildFactoryProps,
+  ChildLookupRestriction,
   ChildMutator,
   HierarchyContext,
   UnprocessedItem,
@@ -20,16 +21,18 @@ export class LikertHierarchyGenerator extends ComponentHierarchyGenerator<'Liker
     return this.processLikertQuestions(ctx);
   }
 
-  childrenFromNode(node: LayoutNode<'Likert'>, onlyInRowIndex?: number): LayoutNode[] {
+  childrenFromNode(node: LayoutNode<'Likert'>, restriction?: ChildLookupRestriction): LayoutNode[] {
     const list: LayoutNode[] = [];
 
     const maybeNodes =
-      typeof onlyInRowIndex === 'number'
-        ? node.item.rows.find((r) => r && r.index === onlyInRowIndex)?.items || []
-        : // Beware: In most cases this will just match the first row.
-          Object.values(node.item.rows)
-            .map((r) => r?.items)
-            .flat();
+      restriction && 'onlyInRowUuid' in restriction
+        ? node.item.rows.find((r) => r && r.uuid === restriction.onlyInRowUuid)?.items || []
+        : restriction && 'onlyInRowIndex' in restriction
+          ? node.item.rows.find((r) => r && r.index === restriction.onlyInRowIndex)?.items || []
+          : // Beware: In most cases this will just match the first row.
+            Object.values(node.item.rows)
+              .map((r) => r?.items)
+              .flat();
 
     for (const node of maybeNodes) {
       if (node) {
@@ -48,9 +51,15 @@ export class LikertHierarchyGenerator extends ComponentHierarchyGenerator<'Liker
       const item = props.item as CompLikertExternal;
       const me = ctx.generator.makeNode(props);
       const rows: HLikertRows = [];
+
+      // Only fetch the row ID (and by extension the number of rows) so that we only re-generate the hierarchy
+      // when the number for rows and/or the row IDs change, not the other data within it.
       const formData = item.dataModelBindings?.questions
-        ? dot.pick(item.dataModelBindings.questions, ctx.generator.dataSources.formData)
+        ? ctx.generator.dataSources.formDataSelector(item.dataModelBindings.questions, (rows) =>
+            Array.isArray(rows) ? rows.map((row) => ({ [ALTINN_ROW_ID]: row[ALTINN_ROW_ID] })) : [],
+          )
         : undefined;
+
       const lastIndex = formData && Array.isArray(formData) ? formData.length - 1 : -1;
 
       const { startIndex, stopIndex } = getLikertStartStopIndex(lastIndex, props.item.filter);
@@ -61,6 +70,12 @@ export class LikertHierarchyGenerator extends ComponentHierarchyGenerator<'Liker
         const rowChildren: LayoutNode[] = [];
 
         const itemProps = structuredClone(prototype);
+
+        const uuid = formData && formData[rowIndex][ALTINN_ROW_ID];
+        if (typeof uuid !== 'string' || !uuid.length) {
+          const path = `${item.dataModelBindings.questions}[${rowIndex}]`;
+          throw new MissingRowIdException(path);
+        }
 
         const childItem = {
           ...itemProps,
@@ -75,11 +90,12 @@ export class LikertHierarchyGenerator extends ComponentHierarchyGenerator<'Liker
         mutateDataModelBindings(props, rowIndex)(childItem);
         mutateMapping(ctx, rowIndex)(childItem);
 
-        const child = ctx.generator.makeNode({ item: childItem, parent: me, rowIndex });
+        const child = ctx.generator.makeNode({ item: childItem, parent: me, rowIndex, rowId: uuid });
 
         child && rowChildren.push(child as LayoutNode);
 
         rows.push({
+          uuid,
           index: rowIndex,
           items: rowChildren,
         });

@@ -3,6 +3,7 @@ import React from 'react';
 import cn from 'classnames';
 
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useDeepValidationsForNode } from 'src/features/validation/selectors/deepValidationsForNode';
@@ -34,6 +35,7 @@ export function SummaryGroupComponent({
   const excludedChildren = summaryNode.item.excludedChildren;
   const display = overrides?.display || summaryNode.item.display;
   const { langAsString } = useLanguage();
+  const formDataSelector = FD.useDebouncedSelector();
 
   const inExcludedChildren = (n: LayoutNode) =>
     excludedChildren &&
@@ -57,7 +59,6 @@ export function SummaryGroupComponent({
             key={`summary-${targetNode.item.id}`}
             id={`summary-${targetNode.item.id}`}
             groupNode={targetNode}
-            onlyRowIndex={undefined}
             isSummary={true}
             renderLayoutNode={(n) => {
               if (inExcludedChildren(n) || n.isHidden()) {
@@ -99,6 +100,7 @@ export function SummaryGroupComponent({
           targetNode={child as any}
           summaryNode={summaryNode}
           overrides={{}}
+          formDataSelector={formDataSelector}
         />
       );
     });

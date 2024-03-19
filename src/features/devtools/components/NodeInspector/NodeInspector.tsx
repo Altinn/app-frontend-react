@@ -1,30 +1,25 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useEffect } from 'react';
+import React from 'react';
 
-import { Button } from '@digdir/design-system-react';
+import { Button, Tabs } from '@digdir/design-system-react';
 import { Close } from '@navikt/ds-icons';
 
 import reusedClasses from 'src/features/devtools/components/LayoutInspector/LayoutInspector.module.css';
 import { NodeHierarchy } from 'src/features/devtools/components/NodeInspector/NodeHierarchy';
 import { NodeInspectorContextProvider } from 'src/features/devtools/components/NodeInspector/NodeInspectorContext';
+import { ValidationInspector } from 'src/features/devtools/components/NodeInspector/ValidationInspector';
 import { SplitView } from 'src/features/devtools/components/SplitView/SplitView';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
-import { DevToolsTab } from 'src/features/devtools/data/types';
+import { implementsAnyValidation } from 'src/layout';
 import { useNodes } from 'src/utils/layout/NodesContext';
 
 export const NodeInspector = () => {
   const pages = useNodes();
   const currentPage = pages?.current();
-  const currentPageKey = currentPage?.top.myKey;
   const selectedId = useDevToolsStore((state) => state.nodeInspector.selectedNodeId);
   const selectedNode = selectedId ? currentPage?.findById(selectedId) : undefined;
   const setSelected = useDevToolsStore((state) => state.actions.nodeInspectorSet);
-  const setSelectedInLayoutInspector = useDevToolsStore((state) => state.actions.layoutInspectorSet);
-  const setActiveTab = useDevToolsStore((state) => state.actions.setActiveTab);
-
-  useEffect(() => {
-    setSelected(undefined);
-  }, [setSelected, currentPageKey]);
+  const focusLayoutInspector = useDevToolsStore((state) => state.actions.focusLayoutInspector);
 
   return (
     <SplitView
@@ -39,21 +34,8 @@ export const NodeInspector = () => {
         />
       </div>
       {selectedId && selectedNode && (
-        <div className={reusedClasses.properties}>
-          <div className={reusedClasses.header}>
-            <h3>Egenskaper for {selectedId}</h3>
-            <div className={reusedClasses.headerLink}>
-              <a
-                href='#'
-                onClick={(e) => {
-                  e.preventDefault();
-                  setSelectedInLayoutInspector(selectedNode?.item.baseComponentId || selectedNode?.item.id);
-                  setActiveTab(DevToolsTab.Layout);
-                }}
-              >
-                Rediger konfigurasjonen i Layout-fanen
-              </a>
-            </div>
+        <>
+          <div className={reusedClasses.closeButton}>
             <Button
               onClick={() => setSelected(undefined)}
               size='small'
@@ -72,9 +54,39 @@ export const NodeInspector = () => {
               selectNode: setSelected,
             }}
           >
-            {selectedNode.def.renderDevToolsInspector(selectedNode as any)}
+            <Tabs
+              size='small'
+              defaultValue='properties'
+              className={reusedClasses.tabs}
+            >
+              <Tabs.List>
+                <Tabs.Tab value='properties'>Egenskaper</Tabs.Tab>
+                {implementsAnyValidation(selectedNode.def) && <Tabs.Tab value='validation'>Validering</Tabs.Tab>}
+              </Tabs.List>
+              <Tabs.Content value='properties'>
+                <div className={reusedClasses.properties}>
+                  <div className={reusedClasses.headerLink}>
+                    <a
+                      href='#'
+                      onClick={(e) => {
+                        e.preventDefault();
+                        focusLayoutInspector(selectedNode?.item.baseComponentId || selectedNode?.item.id);
+                      }}
+                    >
+                      Rediger konfigurasjonen i Layout-fanen
+                    </a>
+                  </div>
+                  {selectedNode.def.renderDevToolsInspector(selectedNode as any)}
+                </div>
+              </Tabs.Content>
+              <Tabs.Content value='validation'>
+                <div className={reusedClasses.scrollable}>
+                  <ValidationInspector node={selectedNode} />
+                </div>
+              </Tabs.Content>
+            </Tabs>
           </NodeInspectorContextProvider>
-        </div>
+        </>
       )}
     </SplitView>
   );

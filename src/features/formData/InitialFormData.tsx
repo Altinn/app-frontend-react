@@ -5,7 +5,6 @@ import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { useCurrentDataModelUrl } from 'src/features/datamodel/useBindingSchema';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
-import { FormDataReaderProvider } from 'src/features/formData/FormDataReaders';
 import { FormDataWriteProvider } from 'src/features/formData/FormDataWrite';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
@@ -17,7 +16,7 @@ import { HttpStatusCodes } from 'src/utils/network/networking';
  * initial data. When this is provided, you'll have the tools needed to read/write form data.
  */
 export function InitialFormDataProvider({ children }: PropsWithChildren) {
-  const url = useCurrentDataModelUrl();
+  const url = useCurrentDataModelUrl(true);
   const { error, isLoading, data } = useFormDataQuery(url);
   const autoSaveBehaviour = usePageSettings().autoSaveBehavior;
 
@@ -44,7 +43,7 @@ export function InitialFormDataProvider({ children }: PropsWithChildren) {
       initialData={data}
       autoSaving={!autoSaveBehaviour || autoSaveBehaviour === 'onChangeFormData'}
     >
-      <FormDataReaderProvider>{children}</FormDataReaderProvider>
+      {children}
     </FormDataWriteProvider>
   );
 }

@@ -121,10 +121,11 @@ describe('Validation', () => {
 
     // Make sure all the buttons in the form are now inside errorReport, not outside of it.
     // - 4 of the button roles belong to each of the errors in the report
-    // - 3 of the button roles belong to the buttons on the bottom of the form (print, next, custom)
+    // - 2 of the button roles belong to the buttons on the bottom of the form (print, next)
+    cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 4);
     cy.get(appFrontend.errorReport)
       .findAllByRole('button')
-      .should('have.length', 4 + 3);
+      .should('have.length', 4 + 2);
 
     const lastNameError = appFrontend.fieldValidation(appFrontend.changeOfName.newLastName);
     cy.get(lastNameError).should('exist').should('not.be.inViewport');
@@ -205,19 +206,19 @@ describe('Validation', () => {
     const expectedErrors = [
       {
         text: 'Må summeres opp til 100%',
-        shouldFocus: 'fordeling-total',
+        elementIdToFocus: 'fordeling-total',
       },
       {
         text: 'Bruk 60 eller færre tegn',
-        shouldFocus: 'changeNameTo',
+        elementIdToFocus: 'changeNameTo',
       },
       {
         text: 'Du må fylle ut dato for navneendring',
-        shouldFocus: 'dateOfEffect',
+        elementIdToFocus: 'dateOfEffect',
       },
       {
         text: 'Du må fylle ut bekreftelse av navn',
-        shouldFocus: 'confirmChangeName',
+        elementIdToFocus: 'confirmChangeName',
       },
     ];
 
@@ -226,11 +227,10 @@ describe('Validation', () => {
     cy.gotoNavPage('grid');
     cy.get(appFrontend.sendinButton).click();
     cy.get(appFrontend.errorReport).find('li').should('have.length', expectedErrors.length);
-    for (const { text, shouldFocus } of expectedErrors) {
+    for (const { text, elementIdToFocus } of expectedErrors) {
       cy.get(appFrontend.errorReport).should('contain.text', text);
       cy.get(`button:contains("${text}")`).click();
-      // eslint-disable-next-line cypress/unsafe-to-chain-command
-      cy.focused().closest('[data-componentid]').should('have.attr', 'data-componentid', shouldFocus);
+      cy.focused().closest('[data-componentid]').should('have.attr', 'data-componentid', elementIdToFocus);
     }
   });
 
@@ -380,6 +380,8 @@ describe('Validation', () => {
     cy.get(appFrontend.group.sendersName).should('be.focused');
     cy.get(appFrontend.group.sendersName).type('hello world');
     cy.get(appFrontend.errorReport).should('not.exist');
+    cy.get(appFrontend.prevButton).click();
+    cy.navPage('Kjæledyr').should('have.attr', 'aria-current', 'page');
     cy.get(appFrontend.prevButton).click();
 
     cy.changeLayout((component) => {
@@ -578,9 +580,11 @@ describe('Validation', () => {
     cy.fillOut('changename');
 
     cy.get(appFrontend.grid.bolig.percent).numberFormatClear();
-    cy.get(appFrontend.grid.studie.percent).numberFormatClear();
+
     cy.get(appFrontend.grid.kredittkort.percent).numberFormatClear();
     cy.get(appFrontend.grid.kredittkort.percent).type('44');
+
+    cy.get(appFrontend.grid.studie.percent).numberFormatClear();
     cy.get(appFrontend.grid.studie.percent).type('56');
 
     // When filling out the credit card field with 44%, there is a special validation that triggers and is added to
@@ -589,6 +593,7 @@ describe('Validation', () => {
     // the dreaded 'unknown error' message to appear.
     cy.get(appFrontend.sendinButton).click();
     cy.get(appFrontend.errorReport).should('contain.text', 'Valideringsmelding på felt som aldri vises');
+    cy.navPage('grid').should('have.attr', 'aria-current', 'page');
   });
 
   it('Submitting should be rejected if validation fails on field hidden using expression', () => {
@@ -599,7 +604,7 @@ describe('Validation', () => {
     });
 
     cy.goto('group');
-    cy.get(appFrontend.navMenuButtons).should('have.length', 4);
+    cy.get(appFrontend.navMenuButtons).should('have.length', 5);
 
     cy.gotoNavPage('hide');
     cy.get(appFrontend.group.sendersName).type('tull og tøys'); // Causes validation error
@@ -608,7 +613,9 @@ describe('Validation', () => {
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.addItemToGroup(2, 3, 'hideSendersName');
     cy.get(appFrontend.nextButton).click();
-    cy.get(appFrontend.navMenuButtons).should('have.length', 4); // 'hide' page is still visible
+    cy.navPage('Kjæledyr').should('have.attr', 'aria-current', 'page');
+    cy.get(appFrontend.nextButton).click();
+    cy.get(appFrontend.navMenuButtons).should('have.length', 5); // 'hide' page is still visible
     cy.navPage('hide').should('have.attr', 'aria-current', 'page');
     cy.get(appFrontend.group.sendersName).should('not.exist');
     cy.get(appFrontend.errorReport).should('not.exist');
@@ -653,7 +660,7 @@ describe('Validation', () => {
     });
 
     cy.goto('group');
-    cy.get(appFrontend.navMenuButtons).should('have.length', 4);
+    cy.get(appFrontend.navMenuButtons).should('have.length', 5);
 
     cy.gotoNavPage('hide');
     cy.get(appFrontend.group.sendersName).type('tull og tøys'); // Causes validation error
@@ -662,7 +669,9 @@ describe('Validation', () => {
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.addItemToGroup(1, 11, 'whatever');
     cy.get(appFrontend.nextButton).click();
-    cy.get(appFrontend.navMenuButtons).should('have.length', 4); // 'hide' page should be visible and active
+    cy.navPage('Kjæledyr').should('have.attr', 'aria-current', 'page');
+    cy.get(appFrontend.nextButton).click();
+    cy.get(appFrontend.navMenuButtons).should('have.length', 5); // 'hide' page should be visible and active
     cy.navPage('hide').should('have.attr', 'aria-current', 'page');
     cy.get(appFrontend.group.sendersName).should('not.exist');
     cy.get(appFrontend.errorReport).should('not.exist');
@@ -682,7 +691,7 @@ describe('Validation', () => {
     );
 
     cy.goto('group');
-    cy.get(appFrontend.navMenuButtons).should('have.length', 4);
+    cy.get(appFrontend.navMenuButtons).should('have.length', 5);
 
     cy.gotoNavPage('hide');
     cy.get(appFrontend.group.sendersName).type('tull og tøys'); // Causes validation error
@@ -691,7 +700,9 @@ describe('Validation', () => {
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.addItemToGroup(2, 3, 'hidePage');
     cy.get(appFrontend.nextButton).click();
-    cy.get(appFrontend.navMenuButtons).should('have.length', 3); // 'hide' page is now invisible
+    cy.navPage('Kjæledyr').should('have.attr', 'aria-current', 'page');
+    cy.get(appFrontend.nextButton).click();
+    cy.get(appFrontend.navMenuButtons).should('have.length', 4); // 'hide' page is now invisible
     cy.get(appFrontend.errorReport).should('not.exist');
     cy.navPage('summary').should('have.attr', 'aria-current', 'page');
 

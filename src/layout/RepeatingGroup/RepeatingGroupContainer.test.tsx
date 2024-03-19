@@ -2,11 +2,17 @@ import React from 'react';
 
 import { screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import { v4 as uuidv4 } from 'uuid';
 
 import { getFormLayoutRepeatingGroupMock } from 'src/__mocks__/getFormLayoutGroupMock';
+import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { type BackendValidationIssue, BackendValidationSeverity } from 'src/features/validation';
 import { RepeatingGroupContainer } from 'src/layout/RepeatingGroup/RepeatingGroupContainer';
-import { RepeatingGroupProvider, useRepeatingGroupSelector } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
+import {
+  RepeatingGroupProvider,
+  useRepeatingGroup,
+  useRepeatingGroupSelector,
+} from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { ILayout } from 'src/layout/layout';
@@ -35,6 +41,7 @@ async function render({ container, numRows = 3, validationIssues = [] }: IRender
       dataModelBindings: {
         simpleBinding: 'Group.prop1',
       },
+      showValidations: [],
       textResourceBindings: {
         title: 'Title1',
       },
@@ -47,6 +54,7 @@ async function render({ container, numRows = 3, validationIssues = [] }: IRender
       dataModelBindings: {
         simpleBinding: 'Group.prop2',
       },
+      showValidations: [],
       textResourceBindings: {
         title: 'Title2',
       },
@@ -59,6 +67,7 @@ async function render({ container, numRows = 3, validationIssues = [] }: IRender
       dataModelBindings: {
         simpleBinding: 'Group.prop3',
       },
+      showValidations: [],
       textResourceBindings: {
         title: 'Title3',
       },
@@ -71,6 +80,7 @@ async function render({ container, numRows = 3, validationIssues = [] }: IRender
       dataModelBindings: {
         simpleBinding: 'Group.checkboxBinding',
       },
+      showValidations: [],
       textResourceBindings: {
         title: 'Title4',
       },
@@ -117,6 +127,7 @@ async function render({ container, numRows = 3, validationIssues = [] }: IRender
         }),
       fetchFormData: async () => ({
         Group: Array.from({ length: numRows }).map((_, index) => ({
+          [ALTINN_ROW_ID]: uuidv4(),
           prop1: `value${index + 1}`,
           checkboxBinding: ['option.value'],
         })),
@@ -183,7 +194,7 @@ describe('RepeatingGroupContainer', () => {
     })[0];
     await userEvent.click(addButton);
 
-    expect(screen.getAllByRole('row')).toHaveLength(6); // 4 rows, 1 header, 1 edit container
+    await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(6)); // 4 rows, 1 header, 1 edit container
     expect(screen.getByTestId('editIndex')).toHaveTextContent('3'); // Editing the last row we just added
     const editContainer = screen.getByTestId('group-edit-container');
     expect(editContainer).toBeInTheDocument();
@@ -339,6 +350,8 @@ describe('RepeatingGroupContainer', () => {
 });
 
 function LeakEditIndex() {
-  const editingIndex = useRepeatingGroupSelector((state) => state.editingIndex);
+  const editingId = useRepeatingGroupSelector((state) => state.editingId);
+  const { visibleRows } = useRepeatingGroup();
+  const editingIndex = visibleRows.find((r) => r.uuid === editingId)?.index;
   return <div data-testid='editIndex'>{editingIndex === undefined ? 'undefined' : editingIndex}</div>;
 }

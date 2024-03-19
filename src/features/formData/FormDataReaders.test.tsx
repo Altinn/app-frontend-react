@@ -87,7 +87,8 @@ async function render(props: TestProps) {
   function urlFor(dataModelName: string) {
     for (const [uuid, name] of Object.entries(idToNameMap)) {
       if (name === dataModelName) {
-        return `https://local.altinn.cloud/ttd/test/instances/${instanceId}/data/${uuid}?language=nb`;
+        const isDefault = dataModelName === props.defaultDataModel;
+        return `https://local.altinn.cloud/ttd/test/instances/${instanceId}/data/${uuid}?language=nb&includeRowId=${isDefault.toString()}`;
       }
     }
     return false;
@@ -139,9 +140,18 @@ async function render(props: TestProps) {
 
 describe('FormDataReaders', () => {
   beforeAll(() => {
-    jest.spyOn(window, 'logWarnOnce').mockImplementation(() => {});
-    jest.spyOn(window, 'logError').mockImplementation(() => {});
-    jest.spyOn(window, 'logErrorOnce').mockImplementation(() => {});
+    jest
+      .spyOn(window, 'logWarnOnce')
+      .mockImplementation(() => {})
+      .mockName('window.logWarnOnce');
+    jest
+      .spyOn(window, 'logError')
+      .mockImplementation(() => {})
+      .mockName('window.logError');
+    jest
+      .spyOn(window, 'logErrorOnce')
+      .mockImplementation(() => {})
+      .mockName('window.logErrorOnce');
   });
 
   it('simple, should render a resource with a variable lookup', async () => {
@@ -179,6 +189,8 @@ describe('FormDataReaders', () => {
   it('advanced, should fetch data from multiple models, handle failures', async () => {
     jest.useFakeTimers();
     const missingError = new Error('This should fail when fetching');
+    (missingError as any).isAxiosError = true;
+
     const model2Promise = new Promise((resolve) => {
       setTimeout(() => resolve({ name: 'Universe' }), 100);
     });

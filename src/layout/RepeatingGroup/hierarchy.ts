@@ -1,5 +1,5 @@
-import dot from 'dot-object';
-
+import { MissingRowIdException } from 'src/features/formData/MissingRowIdException';
+import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { GridHierarchyGenerator } from 'src/layout/Grid/hierarchy';
 import { nodesFromGridRow } from 'src/layout/Grid/tools';
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
@@ -7,6 +7,7 @@ import type { CompRepeatingGroupExternal, HRepGroupRows } from 'src/layout/Repea
 import type {
   ChildFactory,
   ChildFactoryProps,
+  ChildLookupRestriction,
   ChildMutator,
   HierarchyContext,
   HierarchyGenerator,
@@ -42,20 +43,22 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Repeat
     return this.processRepeating(ctx);
   }
 
-  childrenFromNode(node: LayoutNode<'RepeatingGroup'>, onlyInRowIndex?: number): LayoutNode[] {
+  childrenFromNode(node: LayoutNode<'RepeatingGroup'>, restriction?: ChildLookupRestriction): LayoutNode[] {
     const list: LayoutNode[] = [];
 
-    if (node.item.rowsBefore && onlyInRowIndex === undefined) {
+    if (node.item.rowsBefore && restriction === undefined) {
       list.push(...node.item.rowsBefore.map(nodesFromGridRow).flat());
     }
 
     const maybeNodes =
-      typeof onlyInRowIndex === 'number'
-        ? node.item.rows.find((r) => r && r.index === onlyInRowIndex)?.items || []
-        : // Beware: In most cases this will just match the first row.
-          Object.values(node.item.rows)
-            .map((r) => r?.items)
-            .flat();
+      restriction && 'onlyInRowUuid' in restriction
+        ? node.item.rows.find((r) => r && r.uuid === restriction.onlyInRowUuid)?.items || []
+        : restriction && 'onlyInRowIndex' in restriction
+          ? node.item.rows.find((r) => r && r.index === restriction.onlyInRowIndex)?.items || []
+          : // Beware: In most cases this will just match the first row.
+            Object.values(node.item.rows)
+              .map((r) => r?.items)
+              .flat();
 
     for (const node of maybeNodes) {
       if (node) {
@@ -63,7 +66,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Repeat
       }
     }
 
-    if (node.item.rowsAfter && onlyInRowIndex === undefined) {
+    if (node.item.rowsAfter && restriction === undefined) {
       list.push(...node.item.rowsAfter.map(nodesFromGridRow).flat());
     }
 
@@ -82,12 +85,24 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Repeat
       const item = props.item as CompRepeatingGroupExternal;
       const me = ctx.generator.makeNode(props);
       const rows: HRepGroupRows = [];
+
+      // Only fetch the row ID (and by extension the number of rows) so that we only re-generate the hierarchy
+      // when the number for rows and/or the row IDs change, not the other data within it.
       const formData = item.dataModelBindings?.group
-        ? dot.pick(item.dataModelBindings.group, ctx.generator.dataSources.formData)
+        ? ctx.generator.dataSources.formDataSelector(item.dataModelBindings.group, (rows) =>
+            Array.isArray(rows) ? rows.map((row) => ({ [ALTINN_ROW_ID]: row[ALTINN_ROW_ID] })) : [],
+          )
         : undefined;
+
       const lastIndex = formData && Array.isArray(formData) ? formData.length - 1 : -1;
       for (let rowIndex = 0; rowIndex <= lastIndex; rowIndex++) {
         const rowChildren: LayoutNode[] = [];
+
+        const uuid = formData && formData[rowIndex][ALTINN_ROW_ID];
+        if (uuid === undefined) {
+          const path = `${item.dataModelBindings.group}[${rowIndex}]`;
+          throw new MissingRowIdException(path);
+        }
 
         for (const id of prototype.children) {
           const [multiPageIndex, childId] = item.edit?.multiPage ? id.split(':', 2) : [undefined, id];
@@ -96,6 +111,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Repeat
             childId,
             parent: me,
             rowIndex,
+            rowId: uuid,
             directMutators: [addMultiPageIndex(multiPageIndex)],
             recursiveMutators: [
               mutateComponentId(rowIndex),
@@ -107,6 +123,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Repeat
         }
 
         rows.push({
+          uuid,
           index: rowIndex,
           items: rowChildren,
         });

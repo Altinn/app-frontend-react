@@ -40,13 +40,13 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -69,9 +69,10 @@ jobs:
           PERCY_PARALLEL_TOTAL: 3
           PERCY_PARALLEL_NONCE: ${{ github.run_id }}-${{ github.run_attempt }}
         run: "
-          yarn run cy:verify\n
+          npx cypress verify\n
           bash -c 'yarn serve 8080 >/dev/null &'\n
-          bash -c 'npx percy exec --parallel -- yarn run cy:test:all:headless
+          bash -c 'npx percy exec --parallel -- npx cypress run
+            --spec \'test/e2e/integration/*/*.ts\'
             --env environment=tt02
             --record
             --parallel
@@ -80,7 +81,7 @@ jobs:
             --ci-build-id $GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT'
         "
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: logs
@@ -103,13 +104,13 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -125,14 +126,15 @@ jobs:
 
       - name: Verify cypress and run tests
         run: "
-          yarn run cy:verify\n
+          npx cypress verify\n
           bash -c 'yarn serve 8080 >/dev/null &'\n
-          bash -c 'yarn run cy:test:all:headless
+          bash -c 'yarn run npx cypress run
+              --spec \'test/e2e/integration/*/*.ts\'
               --config watchForFileChanges=false
               --env environment=tt02'
         "
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: redux-state-history

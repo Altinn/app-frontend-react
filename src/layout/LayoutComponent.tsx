@@ -6,16 +6,17 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { lookupErrorAsText } from 'src/features/datamodel/lookupErrorAsText';
 import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspector/DefaultNodeInspector';
+import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
-import { useDisplayDataProps } from 'src/hooks/useDisplayData';
 import { CompCategory } from 'src/layout/common';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
 import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
+import type { DisplayData, DisplayDataProps } from 'src/features/displayData';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
-import type { DisplayData, DisplayDataProps, PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
+import type { FormDataSelector, PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
 import type {
   CompExternalExact,
   CompInternal,
@@ -111,8 +112,9 @@ export abstract class AnyComponent<Type extends CompTypes> {
     top: LayoutPage,
     dataSources: HierarchyDataSources,
     rowIndex?: number,
+    rowId?: string,
   ): LayoutNode<Type> {
-    return new BaseLayoutNode(item, parent, top, dataSources, rowIndex) as LayoutNode<Type>;
+    return new BaseLayoutNode(item, parent, top, dataSources, rowIndex, rowId) as LayoutNode<Type>;
   }
 
   /**
@@ -136,6 +138,7 @@ export abstract class PresentationComponent<Type extends CompTypes> extends AnyC
 export interface SummaryRendererProps<Type extends CompTypes> {
   summaryNode: LayoutNode<'Summary'>;
   targetNode: LayoutNode<Type>;
+  formDataSelector: FormDataSelector;
   onChangeClick: () => void;
   changeText: string | null;
   overrides?: ISummaryComponent['overrides'];

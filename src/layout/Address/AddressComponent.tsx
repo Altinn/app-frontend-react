@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { LegacyTextField } from '@digdir/design-system-react';
+import { Textfield } from '@digdir/design-system-react';
 
 import { Label } from 'src/components/form/Label';
 import { FD } from 'src/features/formData/FormDataWrite';
@@ -20,6 +20,7 @@ export type IAddressProps = PropsFromGenericComponent<'Address'>;
 export function AddressComponent({ node }: IAddressProps) {
   const { id, required, readOnly, labelSettings, simplified, saveWhileTyping } = node.item;
 
+  const { textResourceBindings } = node.item;
   const bindingValidations = useBindingValidationsForNode(node);
   const componentValidations = useComponentValidationsForNode(node);
 
@@ -44,16 +45,17 @@ export function AddressComponent({ node }: IAddressProps) {
     >
       <div>
         <Label
-          label={<Lang id={'address_component.address'} />}
+          label={<Lang id={textResourceBindings?.title || 'address_component.address'} />}
           helpText={undefined}
           id={`address_address_${id}`}
           required={required}
           readOnly={readOnly}
           labelSettings={labelSettings}
         />
-        <LegacyTextField
+        <Textfield
           id={`address_address_${id}`}
-          isValid={!hasValidationErrors(bindingValidations?.address)}
+          error={hasValidationErrors(bindingValidations?.address)}
+          size={'small'}
           value={address}
           onChange={(ev) => setValue('address', ev.target.value)}
           onBlur={debounce}
@@ -70,16 +72,17 @@ export function AddressComponent({ node }: IAddressProps) {
       {!simplified && (
         <div>
           <Label
-            label={<Lang id={'address_component.care_of'} />}
+            label={<Lang id={textResourceBindings?.careOfTitle || 'address_component.care_of'} />}
             helpText={undefined}
             id={`address_care_of_${id}`}
             required={required}
             readOnly={readOnly}
             labelSettings={labelSettings}
           />
-          <LegacyTextField
+          <Textfield
             id={`address_care_of_${id}`}
-            isValid={!hasValidationErrors(bindingValidations?.careOf)}
+            error={hasValidationErrors(bindingValidations?.careOf)}
+            size={'small'}
             value={careOf}
             onChange={(ev) => setValue('careOf', ev.target.value)}
             onBlur={debounce}
@@ -96,7 +99,7 @@ export function AddressComponent({ node }: IAddressProps) {
       <div className={classes.addressComponentPostplaceZipCode}>
         <div className={classes.addressComponentZipCode}>
           <Label
-            label={<Lang id={'address_component.zip_code'} />}
+            label={<Lang id={textResourceBindings?.zipCodeTitle || 'address_component.zip_code'} />}
             helpText={undefined}
             id={`address_zip_code_${id}`}
             required={required}
@@ -104,9 +107,10 @@ export function AddressComponent({ node }: IAddressProps) {
             labelSettings={labelSettings}
           />
           <div className={classes.addressComponentSmallInputs}>
-            <LegacyTextField
+            <Textfield
               id={`address_zip_code_${id}`}
-              isValid={!hasValidationErrors(bindingValidations?.zipCode)}
+              error={hasValidationErrors(bindingValidations?.zipCode)}
+              size={'small'}
               value={zipCode}
               onChange={(ev) => setValue('zipCode', ev.target.value)}
               onBlur={debounce}
@@ -120,16 +124,17 @@ export function AddressComponent({ node }: IAddressProps) {
 
         <div className={classes.addressComponentPostplace}>
           <Label
-            label={<Lang id={'address_component.post_place'} />}
+            label={<Lang id={textResourceBindings?.postPlaceTitle || 'address_component.post_place'} />}
             helpText={undefined}
             id={`address_post_place_${id}`}
             required={required}
             readOnly={true}
             labelSettings={labelSettings}
           />
-          <LegacyTextField
+          <Textfield
             id={`address_post_place_${id}`}
-            isValid={!hasValidationErrors(bindingValidations?.postPlace)}
+            error={hasValidationErrors(bindingValidations?.postPlace)}
+            size={'small'}
             value={postPlace}
             readOnly={true}
             required={required}
@@ -149,7 +154,7 @@ export function AddressComponent({ node }: IAddressProps) {
       {!simplified && (
         <div>
           <Label
-            label={<Lang id={'address_component.house_number'} />}
+            label={<Lang id={textResourceBindings?.houseNumberTitle || 'address_component.house_number'} />}
             helpText={undefined}
             id={`address_house_number_${id}`}
             required={required}
@@ -160,9 +165,10 @@ export function AddressComponent({ node }: IAddressProps) {
             <Lang id={'address_component.house_number_helper'} />
           </p>
           <div className={classes.addressComponentSmallInputs}>
-            <LegacyTextField
+            <Textfield
               id={`address_house_number_${id}`}
-              isValid={!hasValidationErrors(bindingValidations?.houseNumber)}
+              error={hasValidationErrors(bindingValidations?.houseNumber)}
+              size={'small'}
               value={houseNumber}
               onChange={(ev) => setValue('houseNumber', ev.target.value)}
               onBlur={debounce}

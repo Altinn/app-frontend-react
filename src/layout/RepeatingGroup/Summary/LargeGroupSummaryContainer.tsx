@@ -14,7 +14,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 export interface IDisplayRepAsLargeGroup {
   groupNode: BaseLayoutNode<CompRepeatingGroupInternal>;
   id?: string;
-  onlyRowIndex?: number | undefined;
+  onlyInRowUuid?: string | undefined;
   renderLayoutNode: (node: LayoutNode) => JSX.Element | null;
 }
 
@@ -26,17 +26,23 @@ const headingSizes: { [k in HeadingLevel]: Parameters<typeof Heading>[0]['size']
   [6]: 'xsmall',
 };
 
-export function LargeGroupSummaryContainer({ groupNode, id, onlyRowIndex, renderLayoutNode }: IDisplayRepAsLargeGroup) {
+export function LargeGroupSummaryContainer({
+  groupNode,
+  id,
+  onlyInRowUuid,
+  renderLayoutNode,
+}: IDisplayRepAsLargeGroup) {
   if (groupNode.isHidden()) {
     return null;
   }
-  const container = groupNode.item;
-  const { title, summaryTitle } = container.textResourceBindings || {};
+  const item = groupNode.item;
+  const { title, summaryTitle } = item.textResourceBindings || {};
 
   const isNested = groupNode.parent instanceof BaseLayoutNode;
   const headingLevel = Math.min(Math.max(groupNode.parents().length + 1, 2), 6) as HeadingLevel;
   const headingSize = headingSizes[headingLevel];
   const legend = summaryTitle ?? title;
+  const restriction = typeof onlyInRowUuid === 'string' ? { onlyInRowUuid } : undefined;
 
   return (
     <Fieldset
@@ -46,19 +52,22 @@ export function LargeGroupSummaryContainer({ groupNode, id, onlyRowIndex, render
             level={headingLevel}
             size={headingSize}
           >
-            <Lang id={summaryTitle} />
+            <Lang
+              id={legend}
+              node={groupNode}
+            />
           </Heading>
         )
       }
-      className={cn(pageBreakStyles(container.pageBreak), classes.summary, {
+      className={cn(pageBreakStyles(item.pageBreak), classes.summary, {
         [classes.largeGroupContainer]: !isNested,
       })}
     >
       <div
-        id={id || container.id}
+        id={id || item.id}
         className={classes.largeGroupContainer}
       >
-        {groupNode.children(undefined, onlyRowIndex).map((n) => renderLayoutNode(n))}
+        {groupNode.children(undefined, restriction).map((n) => renderLayoutNode(n))}
       </div>
     </Fieldset>
   );

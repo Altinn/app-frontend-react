@@ -184,27 +184,24 @@ describe('Summary', () => {
 
     cy.fillOut('group');
 
-    cy.get(appFrontend.group.mainGroupSummaryContent)
-      .should('have.length', 1)
-      .first()
-      .children(mui.gridItem)
-      .should('have.length', 7)
-      .then((item) => {
-        cy.wrap(item).find('button').should('have.length', 7);
-        cy.wrap(item).eq(2).should('contain.text', 'attachment-in-single.pdf');
-        cy.wrap(item).eq(3).should('contain.text', 'attachment-in-multi1.pdf');
-        cy.wrap(item).eq(3).should('contain.text', 'attachment-in-multi2.pdf');
-        cy.wrap(item).eq(4).should('contain.text', 'attachment-in-nested.pdf');
-        cy.wrap(item).eq(4).should('contain.text', 'automation');
-        cy.wrap(item).eq(4).should('contain.text', texts.nestedOptionsToggle);
-        cy.wrap(item).eq(4).should('not.contain.text', texts.nestedOptions);
-        cy.wrap(item).eq(4).should('contain.text', 'hvor fikk du vite om skjemaet? : Annet');
-        cy.wrap(item).eq(4).should('contain.text', 'Referanse : Test');
-        cy.wrap(item).eq(5).should('contain.text', 'Digitaliseringsdirektoratet');
-        cy.wrap(item).eq(6).should('contain.text', 'Sophie Salt');
+    cy.get(appFrontend.group.mainGroupSummaryContent).should('have.length', 1);
+    const groupElements = () => cy.get(appFrontend.group.mainGroupSummaryContent).first().children(mui.gridItem);
 
-        cy.wrap(item).eq(4).find('button').first().should('contain.text', texts.change);
-      });
+    groupElements().should('have.length', 7);
+    groupElements().find('button').should('have.length', 7);
+
+    groupElements().eq(2).should('contain.text', 'attachment-in-single.pdf');
+    groupElements().eq(3).should('contain.text', 'attachment-in-multi1.pdf');
+    groupElements().eq(3).should('contain.text', 'attachment-in-multi2.pdf');
+    groupElements().eq(4).should('contain.text', 'attachment-in-nested.pdf');
+    groupElements().eq(4).should('contain.text', 'automation');
+    groupElements().eq(4).should('contain.text', texts.nestedOptionsToggle);
+    groupElements().eq(4).should('not.contain.text', texts.nestedOptions);
+    groupElements().eq(4).should('contain.text', 'hvor fikk du vite om skjemaet? : Annet');
+    groupElements().eq(4).should('contain.text', 'Referanse : Test');
+    groupElements().eq(5).should('contain.text', 'Digitaliseringsdirektoratet');
+    groupElements().eq(6).should('contain.text', 'Sophie Salt');
+    groupElements().eq(4).find('button').first().should('contain.text', texts.change);
 
     // Go back to the repeating group in order to set nested options
     cy.get(appFrontend.group.mainGroupSummaryContent)
@@ -222,16 +219,11 @@ describe('Summary', () => {
     cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[2]).check();
     cy.get(appFrontend.backToSummaryButton).click();
 
-    cy.get(appFrontend.group.mainGroupSummaryContent)
-      .should('have.length', 1)
-      .first()
-      .children(mui.gridItem)
-      .should('have.length', 7)
-      .then((item) => {
-        cy.wrap(item).eq(4).should('contain.text', texts.nestedOptionsToggle);
-        cy.wrap(item).eq(4).should('contain.text', texts.nestedOptions);
-        cy.wrap(item).eq(4).should('contain.text', `${texts.nestedOption2}, ${texts.nestedOption3}`);
-      });
+    cy.get(appFrontend.group.mainGroupSummaryContent).should('have.length', 1);
+    groupElements().should('have.length', 7);
+    groupElements().eq(4).should('contain.text', texts.nestedOptionsToggle);
+    groupElements().eq(4).should('contain.text', texts.nestedOptions);
+    groupElements().eq(4).should('contain.text', `${texts.nestedOption2}, ${texts.nestedOption3}`);
 
     cy.gotoNavPage('prefill');
     cy.get(appFrontend.group.prefill.liten).check();
@@ -571,6 +563,67 @@ describe('Summary', () => {
           );
       });
     }
+  });
+
+  it('backToSummary should disappear when navigating away from the current page', () => {
+    cy.goto('changename');
+
+    cy.get(appFrontend.changeOfName.newLastName).type('Hansen');
+    cy.get(appFrontend.changeOfName.confirmChangeName).find('label').click();
+    cy.get(appFrontend.nextButton).should('be.visible');
+    cy.get(appFrontend.backToSummaryButton).should('not.exist');
+    // Get some validation messages
+    cy.gotoNavPage('grid');
+    cy.get(appFrontend.sendinButton).click();
+
+    /**
+     * test() should return true if backToSummary should be gone, and false if it should still be visible
+     */
+    function testNavigationMethod(test: () => boolean) {
+      cy.gotoNavPage('summary');
+      cy.get('[data-componentid="summary3"] button').click();
+      cy.navPage('form').should('have.attr', 'aria-current', 'page');
+      cy.get(appFrontend.backToSummaryButton).should('be.visible');
+      cy.get(appFrontend.nextButton).should('not.exist');
+
+      if (test()) {
+        cy.get(appFrontend.nextButton).should('be.visible');
+        cy.get(appFrontend.backToSummaryButton).should('not.exist');
+      } else {
+        cy.get(appFrontend.backToSummaryButton).should('be.visible');
+        cy.get(appFrontend.nextButton).should('not.exist');
+      }
+    }
+
+    // Navigation bare should clear backToSummary
+    testNavigationMethod(() => {
+      cy.gotoNavPage('summary');
+      return true;
+    });
+
+    // Error report on the same page should not clear backToSummary
+    testNavigationMethod(() => {
+      cy.get(appFrontend.errorReport).find(`li:contains("${texts.requiredFieldFromBackend}")`).find('button').click();
+      cy.get(appFrontend.changeOfName.newFirstName).should('be.focused');
+      return false;
+    });
+
+    // Clicking backToSummary should clear it
+    testNavigationMethod(() => {
+      cy.get(appFrontend.backToSummaryButton).click();
+      cy.navPage('summary').should('have.attr', 'aria-current', 'page');
+      return true;
+    });
+
+    // Error report to different page shoud clear backToSummary
+    cy.gotoNavPage('summary');
+    cy.get('[data-testid="summary-fordeling-bolig"] button').click();
+    cy.navPage('grid').should('have.attr', 'aria-current', 'page');
+    cy.get(appFrontend.errorReport).find(`li:contains("${texts.requiredFieldFromBackend}")`).find('button').click();
+    cy.navPage('form').should('have.attr', 'aria-current', 'page');
+    cy.get(appFrontend.changeOfName.newFirstName).should('be.focused');
+    cy.get(appFrontend.nextButton).should('be.visible');
+    cy.get(appFrontend.backToSummaryButton).should('not.exist');
   });
 });
 

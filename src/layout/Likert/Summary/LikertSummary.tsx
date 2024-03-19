@@ -3,6 +3,7 @@ import React from 'react';
 import cn from 'classnames';
 
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useDeepValidationsForNode } from 'src/features/validation/selectors/deepValidationsForNode';
@@ -28,6 +29,7 @@ export function LikertSummary({ onChangeClick, changeText, summaryNode, targetNo
   const excludedChildren = summaryNode.item.excludedChildren;
   const display = overrides?.display || summaryNode.item.display;
   const { lang, langAsString } = useLanguage();
+  const formDataSelector = FD.useDebouncedSelector();
 
   const inExcludedChildren = (n: LayoutNode) =>
     excludedChildren &&
@@ -43,17 +45,17 @@ export function LikertSummary({ onChangeClick, changeText, summaryNode, targetNo
   const titleTrb = textBindings && 'title' in textBindings ? textBindings.title : undefined;
   const title = lang(summaryTitleTrb ?? titleTrb);
   const ariaLabel = langAsString(summaryTitleTrb ?? summaryAccessibleTitleTrb ?? titleTrb);
-  const rowIndexes = targetNode.item.rows.map((row) => row && row.index);
+  const rows = targetNode.item.rows;
 
-  if (summaryNode.item.largeGroup && overrides?.largeGroup !== false && rowIndexes.length) {
+  if (summaryNode.item.largeGroup && overrides?.largeGroup !== false && rows.length) {
     return (
       <>
-        {rowIndexes.map((idx) => (
+        {rows.map((row) => (
           <LargeLikertSummaryContainer
-            key={`summary-${targetNode.item.id}-${idx}`}
-            id={`summary-${targetNode.item.id}-${idx}`}
+            key={`summary-${targetNode.item.id}-${row.uuid}`}
+            id={`summary-${targetNode.item.id}-${row.index}`}
             groupNode={targetNode}
-            onlyRowIndex={idx}
+            onlyInRowUuid={row.uuid}
             renderLayoutNode={(n) => {
               if (inExcludedChildren(n) || n.isHidden()) {
                 return null;
@@ -100,12 +102,11 @@ export function LikertSummary({ onChangeClick, changeText, summaryNode, targetNo
           ) : null}
         </div>
         <div style={{ width: '100%' }}>
-          {rowIndexes.length === 0 ? (
+          {rows.length === 0 ? (
             <span className={classes.emptyField}>{lang('general.empty_summary')}</span>
           ) : (
-            rowIndexes.map((idx) => {
-              const childSummaryComponents = targetNode
-                .children(undefined, idx)
+            rows.map((row) => {
+              const childSummaryComponents = row.items
                 .filter((n) => !inExcludedChildren(n))
                 .map((child) => {
                   if (child.isHidden() || !child.isCategory(CompCategory.Form)) {
@@ -120,13 +121,14 @@ export function LikertSummary({ onChangeClick, changeText, summaryNode, targetNo
                       targetNode={child as any}
                       summaryNode={summaryNode}
                       overrides={{}}
+                      formDataSelector={formDataSelector}
                     />
                   );
                 });
 
               return (
                 <div
-                  key={`row-${idx}`}
+                  key={`row-${row.uuid}`}
                   className={classes.border}
                 >
                   {childSummaryComponents}

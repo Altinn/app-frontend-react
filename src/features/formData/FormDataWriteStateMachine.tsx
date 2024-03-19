@@ -60,9 +60,6 @@ export interface FormDataState {
     // only when the user navigates to another page.
     autoSaving: boolean;
 
-    // This is used to track whether the data model is currently being saved to the server.
-    isSaving: boolean;
-
     // This is used to track whether the user has requested a manual save. When auto-saving is turned off, this is
     // the way we track when to save the data model to the server. It can also be used to trigger a manual save
     // as a way to immediately save the data model to the server, for example before locking the data model.
@@ -117,11 +114,20 @@ export interface FDRemoveValueFromList {
   value: any;
 }
 
-export interface FDSaveFinished {
-  patch?: JsonPatch;
-  savedData: object;
+export interface FDRemoveFromListCallback {
+  path: string;
+  startAtIndex?: number;
+  callback: (value: any) => boolean;
+}
+
+export interface FDSaveResult {
   newDataModel: object;
   validationIssues: BackendValidationIssueGroups | undefined;
+}
+
+export interface FDSaveFinished extends FDSaveResult {
+  patch?: JsonPatch;
+  savedData: object;
 }
 
 export interface FormDataMethods {
@@ -133,15 +139,15 @@ export interface FormDataMethods {
   appendToList: (change: FDAppendToList) => void;
   removeIndexFromList: (change: FDRemoveIndexFromList) => void;
   removeValueFromList: (change: FDRemoveValueFromList) => void;
+  removeFromListCallback: (change: FDRemoveFromListCallback) => void;
 
   // Internal utility methods
   debounce: () => void;
-  saveStarted: () => void;
   cancelSave: () => void;
   saveFinished: (props: FDSaveFinished) => void;
   requestManualSave: (setTo?: boolean) => void;
   lock: (lockName: string) => void;
-  unlock: (newModel?: object) => void;
+  unlock: (saveResult?: FDSaveResult) => void;
 }
 
 export type FormDataContext = FormDataState & FormDataMethods;
@@ -168,6 +174,13 @@ function makeActions(
       { key: 'lastSavedData', model: state.lastSavedData },
     ];
 
+    const currentIsDebounced = state.currentData === state.debouncedCurrentData;
+    const currentIsSaved = state.currentData === state.lastSavedData;
+    const debouncedIsSaved = state.debouncedCurrentData === state.lastSavedData;
+    if (currentIsDebounced && currentIsSaved && debouncedIsSaved) {
+      return;
+    }
+
     for (const modelA of models) {
       for (const modelB of models) {
         if (modelA.model === modelB.model) {
@@ -185,10 +198,11 @@ function makeActions(
     state: FormDataContext,
     { newDataModel, savedData }: Pick<FDSaveFinished, 'newDataModel' | 'patch' | 'savedData'>,
   ) {
+    state.controlState.manualSaveRequested = false;
     if (newDataModel) {
       const backendChangesPatch = createPatch({ prev: savedData, next: newDataModel, current: state.currentData });
       applyPatch(state.currentData, backendChangesPatch);
-      state.lastSavedData = structuredClone(newDataModel);
+      state.lastSavedData = newDataModel;
 
       // Run rules again, against current data. Now that we have updates from the backend, some rules may
       // have caused data to change.
@@ -197,7 +211,7 @@ function makeActions(
         dot.str(path, newValue, state.currentData);
       }
     } else {
-      state.lastSavedData = structuredClone(savedData);
+      state.lastSavedData = savedData;
     }
     deduplicateModels(state);
   }
@@ -206,7 +220,6 @@ function makeActions(
     state.invalidDebouncedCurrentData = state.invalidCurrentData;
     if (deepEqual(state.debouncedCurrentData, state.currentData)) {
       state.debouncedCurrentData = state.currentData;
-      deduplicateModels(state);
       return;
     }
 
@@ -216,13 +229,13 @@ function makeActions(
     }
 
     state.debouncedCurrentData = state.currentData;
-    deduplicateModels(state);
   }
 
   function setValue(props: { path: string; newValue: FDLeafValue; state: FormDataState & FormDataMethods }) {
     const { path, newValue, state } = props;
     if (newValue === '' || newValue === null || newValue === undefined) {
       dot.delete(path, state.currentData);
+      dot.delete(path, state.invalidCurrentData);
     } else {
       const schema = schemaLookup.getSchemaForPath(path)[0];
       const { newValue: convertedValue, error } = convertData(newValue, schema);
@@ -241,21 +254,15 @@ function makeActions(
       set((state) => {
         debounce(state);
       }),
-
-    saveStarted: () =>
-      set((state) => {
-        state.controlState.isSaving = true;
-      }),
     cancelSave: () =>
       set((state) => {
-        state.controlState.isSaving = false;
+        state.controlState.manualSaveRequested = false;
+        deduplicateModels(state);
       }),
     saveFinished: (props) =>
       set((state) => {
         const { validationIssues } = props;
-        state.controlState.manualSaveRequested = false;
         state.validationIssues = validationIssues;
-        state.controlState.isSaving = false;
         processChanges(state, props);
       }),
     setLeafValue: ({ path, newValue, ...rest }) =>
@@ -273,50 +280,70 @@ function makeActions(
     // list items are immediate.
     appendToListUnique: ({ path, newValue }) =>
       set((state) => {
-        for (const model of [state.currentData, state.debouncedCurrentData]) {
-          const existingValue = dot.pick(path, model);
-          if (Array.isArray(existingValue) && existingValue.includes(newValue)) {
-            continue;
-          }
+        const existingValue = dot.pick(path, state.currentData);
+        if (Array.isArray(existingValue) && existingValue.includes(newValue)) {
+          return;
+        }
 
-          if (Array.isArray(existingValue)) {
-            existingValue.push(newValue);
-          } else {
-            dot.str(path, [newValue], model);
-          }
+        if (Array.isArray(existingValue)) {
+          existingValue.push(newValue);
+        } else {
+          dot.str(path, [newValue], state.currentData);
         }
       }),
     appendToList: ({ path, newValue }) =>
       set((state) => {
-        for (const model of [state.currentData, state.debouncedCurrentData]) {
-          const existingValue = dot.pick(path, model);
-          if (Array.isArray(existingValue)) {
-            existingValue.push(newValue);
-          } else {
-            dot.str(path, [newValue], model);
-          }
+        const existingValue = dot.pick(path, state.currentData);
+
+        if (Array.isArray(existingValue)) {
+          existingValue.push(newValue);
+        } else {
+          dot.str(path, [newValue], state.currentData);
         }
       }),
     removeIndexFromList: ({ path, index }) =>
       set((state) => {
-        for (const model of [state.currentData, state.debouncedCurrentData]) {
-          const existingValue = dot.pick(path, model);
-          if (index >= existingValue.length) {
-            continue;
-          }
-
-          existingValue.splice(index, 1);
+        const existingValue = dot.pick(path, state.currentData);
+        if (index >= existingValue.length) {
+          return;
         }
+
+        existingValue.splice(index, 1);
       }),
     removeValueFromList: ({ path, value }) =>
       set((state) => {
-        for (const model of [state.currentData, state.debouncedCurrentData]) {
-          const existingValue = dot.pick(path, model);
-          if (!existingValue.includes(value)) {
-            continue;
-          }
+        const existingValue = dot.pick(path, state.currentData);
+        if (!existingValue.includes(value)) {
+          return;
+        }
 
-          existingValue.splice(existingValue.indexOf(value), 1);
+        existingValue.splice(existingValue.indexOf(value), 1);
+      }),
+    removeFromListCallback: ({ path, startAtIndex, callback }) =>
+      set((state) => {
+        const existingValue = dot.pick(path, state.currentData);
+        if (!Array.isArray(existingValue)) {
+          return;
+        }
+
+        if (
+          startAtIndex !== undefined &&
+          startAtIndex >= 0 &&
+          startAtIndex < existingValue.length &&
+          callback(existingValue[startAtIndex])
+        ) {
+          existingValue.splice(startAtIndex, 1);
+          return;
+        }
+
+        // Continue looking for the item to remove from the start of the list if we didn't find it at the start index
+        let index = 0;
+        while (index < existingValue.length) {
+          if (callback(existingValue[index])) {
+            existingValue.splice(index, 1);
+            return;
+          }
+          index++;
         }
       }),
 
@@ -338,17 +365,19 @@ function makeActions(
     requestManualSave: (setTo = true) =>
       set((state) => {
         state.controlState.manualSaveRequested = setTo;
-        debounce(state);
       }),
     lock: (lockName) =>
       set((state) => {
         state.controlState.lockedBy = lockName;
       }),
-    unlock: (newDataModel) =>
+    unlock: (saveResult) =>
       set((state) => {
         state.controlState.lockedBy = undefined;
-        if (newDataModel) {
-          processChanges(state, { newDataModel, savedData: state.lastSavedData });
+        if (saveResult?.newDataModel) {
+          processChanges(state, { newDataModel: saveResult.newDataModel, savedData: state.lastSavedData });
+        }
+        if (saveResult?.validationIssues) {
+          state.validationIssues = saveResult.validationIssues;
         }
       }),
   };
@@ -386,7 +415,6 @@ export const createFormDataWriteStore = (
         validationIssues: undefined,
         controlState: {
           autoSaving,
-          isSaving: false,
           manualSaveRequested: false,
           lockedBy: undefined,
           debounceTimeout: DEFAULT_DEBOUNCE_TIMEOUT,

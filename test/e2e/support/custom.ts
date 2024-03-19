@@ -1,12 +1,13 @@
-import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
-import JQueryWithSelector = Cypress.JQueryWithSelector;
 import deepEqual from 'fast-deep-equal';
 import type axe from 'axe-core';
 import type { Options as AxeOptions } from 'cypress-axe';
 
+import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
+
 import { breakpoints } from 'src/hooks/useIsMobile';
 import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
 import type { LayoutContextValue } from 'src/features/form/layout/LayoutsContext';
+import JQueryWithSelector = Cypress.JQueryWithSelector;
 
 const appFrontend = new AppFrontend();
 
@@ -34,11 +35,28 @@ Cypress.Commands.add('dsUncheck', { prevSubject: true }, (subject: JQueryWithSel
   }
 });
 
+Cypress.Commands.add('waitUntilSaved', () => {
+  // If the data-unsaved-changes attribute does not exist, the page is not in a data/form state, and we should not
+  // wait for it to be saved.
+  cy.get('body').then(($body) => {
+    if ($body.data('unsaved-changes') === undefined) {
+      cy.log('Not in a data task/form, no need to wait for save');
+    } else {
+      cy.get('body').should('have.attr', 'data-unsaved-changes', 'false');
+    }
+  });
+});
+
 Cypress.Commands.add('dsSelect', (selector, value) => {
   cy.log(`Selecting ${value} in ${selector}`);
   cy.get(selector).should('not.be.disabled');
   cy.get(selector).click();
-  cy.findByRole('option', { name: value }).click();
+
+  // It is tempting to just use findByRole('option', { name: value }) here, but that's flakier than using findByText()
+  // as it never retries if the element re-renders. More information here:
+  // https://github.com/testing-library/cypress-testing-library/issues/205#issuecomment-974688283
+  cy.get('[id^="fds-select-"] [aria-expanded=true]').findByText(value).click();
+
   cy.get('body').click();
 });
 
@@ -127,6 +145,18 @@ const knownWcagViolations: KnownViolation[] = [
     nodeLength: 1,
   },
   {
+    spec: 'frontend-test/group-pets.ts',
+    test: 'should be possible to add predefined pets, sort them, validate them, hide them and delete them',
+    id: 'color-contrast',
+    nodeLength: 2,
+  },
+  {
+    spec: 'frontend-test/group-pets.ts',
+    test: 'should snapshot the decision panel',
+    id: 'color-contrast',
+    nodeLength: 1,
+  },
+  {
     spec: 'frontend-test/hide-row-in-group.ts',
     test: 'should be possible to hide rows when "Endre fra" is greater or equals to [...]',
     id: 'heading-order',
@@ -188,7 +218,9 @@ Cypress.Commands.add('clearSelectionAndWait', (viewport) => {
 
   // Work around slow state updates in Dropdown (possibly in combination with preselectedOptionIndex)
   cy.window().then((win) => {
-    const layoutCache = win.queryClient.getQueriesData(['formLayouts'])?.[0]?.[1] as LayoutContextValue | undefined;
+    const layoutCache = win.queryClient.getQueriesData({
+      queryKey: ['formLayouts'],
+    })?.[0]?.[1] as LayoutContextValue | undefined;
     const layouts = layoutCache?.layouts;
     cy.waitUntil(() => {
       const allDropdowns = win.document.querySelectorAll('[data-componenttype="Dropdown"]');
@@ -236,6 +268,7 @@ Cypress.Commands.add('getCurrentPageId', () => cy.location('hash').then((hash) =
 
 Cypress.Commands.add('snapshot', (name: string) => {
   cy.clearSelectionAndWait();
+  cy.waitUntilSaved();
 
   // Running wcag tests before taking snapshot, because the resizing of the viewport can cause some elements to
   // re-render and go slightly out of sync with the proper state of the application. One example is the Dropdown
@@ -336,6 +369,7 @@ Cypress.Commands.add('testWcag', () => {
 });
 
 Cypress.Commands.add('reloadAndWait', () => {
+  cy.waitUntilSaved();
   cy.reload();
   cy.get('#readyForPrint').should('exist');
   cy.findByRole('progressbar').should('not.exist');
@@ -379,7 +413,7 @@ Cypress.Commands.add('moveProcessNext', () => {
     const maybeInstanceId = getInstanceIdRegExp().exec(url);
     const instanceId = maybeInstanceId ? maybeInstanceId[1] : 'instance-id-not-found';
     const baseUrl =
-      Cypress.env('environment') === 'local'
+      Cypress.env('type') === 'localtest'
         ? Cypress.config().baseUrl || ''
         : `https://ttd.apps.${Cypress.config('baseUrl')?.slice(8)}`;
     const urlPath = url.replace(baseUrl, '');

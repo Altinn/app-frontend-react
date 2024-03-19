@@ -94,6 +94,7 @@ export const Config = new CG.component({
       ),
     ).exportAs('IDataModelBindingsForGroup'),
   )
+  .addProperty(new CG.prop('showValidations', CG.common('AllowedValidationMasks').optional()))
   .addProperty(new CG.prop('validateOnSaveRow', CG.common('AllowedValidationMasks').optional()))
   .addProperty(
     new CG.prop(
@@ -195,6 +196,7 @@ export const Config = new CG.component({
       'rows',
       new CG.arr(
         new CG.obj(
+          new CG.prop('uuid', new CG.str()),
           new CG.prop('index', new CG.num()),
           new CG.prop('items', new CG.arr(CG.layoutNode)),
           new CG.prop(

@@ -13,6 +13,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useNavigatePage, useNavigationParams } from 'src/hooks/useNavigatePage';
 import { isSpecificClientAction } from 'src/layout/CustomButton/typeHelpers';
 import { promisify } from 'src/utils/promisify';
+import type { BackendValidationIssueGroups } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ButtonColor, ButtonVariant } from 'src/layout/Button/WrappedButton';
 import type * as CBTypes from 'src/layout/CustomButton/config.generated';
@@ -25,16 +26,21 @@ type UpdatedDataModels = {
   [dataModelGuid: string]: object;
 };
 
+type UpdatedValidationIssues = {
+  [dataModelGuid: string]: BackendValidationIssueGroups;
+};
+
 type FormDataLockTools = ReturnType<typeof FD.useLocking>;
 
 export type ActionResult = {
   updatedDataModels?: UpdatedDataModels;
+  updatedValidationIssues?: UpdatedValidationIssues;
   clientActions?: CBTypes.ClientAction[];
 };
 
 type UseHandleClientActions = {
   handleClientActions: (actions: CBTypes.ClientAction[]) => Promise<void>;
-  handleDataModelUpdate: (lockTools: FormDataLockTools, updatedDataModels?: UpdatedDataModels) => Promise<void>;
+  handleDataModelUpdate: (lockTools: FormDataLockTools, result: ActionResult) => Promise<void>;
 };
 
 /**
@@ -73,10 +79,22 @@ function useHandleClientActions(): UseHandleClientActions {
         await handleClientAction(action);
       }
     },
-    handleDataModelUpdate: async (lockTools, updatedDataModels) => {
+    handleDataModelUpdate: async (lockTools, result) => {
       const newDataModel =
-        currentDataModelGuid && updatedDataModels ? updatedDataModels[currentDataModelGuid] : undefined;
-      lockTools.unlock(newDataModel);
+        currentDataModelGuid && result.updatedDataModels ? result.updatedDataModels[currentDataModelGuid] : undefined;
+      const validationIssues =
+        currentDataModelGuid && result.updatedValidationIssues
+          ? result.updatedValidationIssues[currentDataModelGuid]
+          : undefined;
+
+      if (newDataModel && validationIssues) {
+        lockTools.unlock({
+          newDataModel,
+          validationIssues,
+        });
+      } else {
+        lockTools.unlock();
+      }
     },
   };
 }
@@ -111,7 +129,7 @@ function useHandleServerActionMutation(lockTools: FormDataLockTools): UsePerform
       await lockTools.lock();
       try {
         const result = await mutation.mutateAsync({ action, buttonId });
-        await handleDataModelUpdate(lockTools, result.updatedDataModels);
+        await handleDataModelUpdate(lockTools, result);
         if (result.clientActions) {
           await handleClientActions(result.clientActions);
         }
@@ -153,7 +171,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
   const isPermittedToPerformActions = actions
     .filter((action) => action.type === 'ServerAction')
     .reduce((acc, action) => acc && isAuthorized(action.id), true);
-  const disabled = !isPermittedToPerformActions || mutation.isLoading;
+  const disabled = !isPermittedToPerformActions || mutation.isPending;
 
   const onClick = async () => {
     if (disabled) {
@@ -178,7 +196,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
       onClick={onClick}
       color={color}
       variant={variant}
-      aria-busy={mutation.isLoading}
+      aria-busy={mutation.isPending}
     >
       <Lang id={textResourceBindings?.title} />
     </Button>

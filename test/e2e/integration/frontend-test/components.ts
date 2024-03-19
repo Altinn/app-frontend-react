@@ -53,7 +53,7 @@ describe('UI Components', () => {
     cy.interceptLayout('changename', (component) => {
       if (component.id === 'newFirstName') {
         // TODO(Validation): Once it is possible to treat custom validations as required, this can be removed.
-        (component as CompInputExternal).showValidations = undefined;
+        (component as CompInputExternal).showValidations = [];
       }
     });
     cy.goto('changename');
@@ -94,7 +94,7 @@ describe('UI Components', () => {
     cy.interceptLayout('changename', (component) => {
       if (component.id === 'newFirstName') {
         // TODO(Validation): Once it is possible to treat custom validations as required, this can be removed.
-        (component as CompInputExternal).showValidations = undefined;
+        (component as CompInputExternal).showValidations = [];
       }
     });
     cy.goto('changename');
@@ -104,6 +104,12 @@ describe('UI Components', () => {
       force: true,
     });
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('be.visible');
+    cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.uploadWithTag.uploadZone)).should('not.exist');
+    cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
+    cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.uploadWithTag.uploadZone)).should(
+      'contain.text',
+      'Du må velge file type',
+    );
     cy.dsSelect(appFrontend.changeOfName.uploadWithTag.tagsDropDown, 'Adresse');
     cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
     cy.wait('@saveTags');
@@ -174,6 +180,29 @@ describe('UI Components', () => {
       cy.get(appFrontend.changeOfName.popOverDeleteButton).click();
       cy.get(shouldExist).should('not.exist');
     }
+  });
+
+  it('minNumberOfAttachments should validate like required', () => {
+    cy.interceptLayout('changename', (component) => {
+      if (component.type === 'FileUpload' || component.type === 'FileUploadWithTag') {
+        component.minNumberOfAttachments = 1;
+      }
+    });
+    cy.goto('changename');
+    cy.get(appFrontend.changeOfName.newFirstName).type('Per');
+    cy.get(appFrontend.errorReport).should('not.exist');
+    cy.gotoNavPage('grid');
+    cy.get(appFrontend.sendinButton).click();
+    cy.get(appFrontend.errorReport).should('contain.text', 'For å fortsette må du laste opp 1 vedlegg');
+    cy.gotoNavPage('form');
+    cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.upload)).should(
+      'contain.text',
+      'For å fortsette må du laste opp 1 vedlegg',
+    );
+    cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.uploadWithTag.uploadZone)).should(
+      'contain.text',
+      'For å fortsette må du laste opp 1 vedlegg',
+    );
   });
 
   it('is possible to navigate between pages using navigation bar', () => {
@@ -475,5 +504,114 @@ describe('UI Components', () => {
     cy.get('[data-testid="label-newFirstName"]').should('contain.text', 'New first name');
     changeLang('Norwegian bokmål', 'Language');
     cy.get('[data-testid="label-newFirstName"]').should('contain.text', 'Nytt fornavn');
+  });
+
+  interface Field {
+    targets: string[];
+    suffix: string;
+  }
+
+  interface TestNumber {
+    number: string; // The number we type in
+    withoutTrailing?: string; // The number as it should appear in the string-formatted field, if different from the number we typed
+    withoutLeading?: string; // The number as it should appear in the string-formatted field, if different from the number we typed
+    formatted: string; // The number as it should appear in the number-formatted field
+    invalidFor: string[]; // Which types the number should be invalid for
+  }
+
+  it('number conversion in regular form fields and number-formatted fields', () => {
+    cy.goto('changename');
+    cy.get(appFrontend.changeOfName.newFirstName).type('123');
+    cy.get('#choose-extra').findByText('Tall-input').click();
+    cy.gotoNavPage('numeric-fields');
+    cy.get(appFrontend.errorReport).should('not.exist');
+
+    const fields: { [key: string]: Field } = {
+      decimal: { targets: ['#decimalAsNumber', '#decimalAsString'], suffix: ' flis' },
+      int32: { targets: ['#int32AsNumber', '#int32AsString'], suffix: ' ganger' },
+      int64: { targets: ['#int64AsNumber', '#int64AsString'], suffix: ' ganger' },
+      int16: { targets: ['#int16AsNumber', '#int16AsString'], suffix: ' stikk' },
+    };
+
+    const testNumbers: TestNumber[] = [
+      { number: '123', formatted: '123', invalidFor: [] },
+      { number: '123.456', formatted: '123,456', invalidFor: ['int32', 'int16', 'int64'] },
+      { number: '0', formatted: '0', invalidFor: [] },
+      { number: '-123', formatted: '-123', invalidFor: [] },
+      { number: '-123.456', formatted: '-123,456', invalidFor: ['int32', 'int16', 'int64'] },
+      { number: '123456', formatted: '123 456', invalidFor: ['int16'] },
+      { number: '12345678901', formatted: '12 345 678 901', invalidFor: ['int16', 'int32'] },
+      {
+        number: '123456789012345678901',
+        formatted: '123 456 789 012 345 678 901',
+        invalidFor: ['int16', 'int32', 'int64', 'decimal'],
+      },
+      { number: '123456789012.345', formatted: '123 456 789 012,345', invalidFor: ['int16', 'int32', 'int64'] },
+      {
+        number: '123.4560',
+        withoutTrailing: '123.456',
+        formatted: '123,4560',
+        invalidFor: ['int32', 'int16', 'int64'],
+      },
+      {
+        number: '123.456000',
+        withoutTrailing: '123.456',
+        formatted: '123,456000',
+        invalidFor: ['int32', 'int16', 'int64'],
+      },
+      { number: '000123', withoutLeading: '123', formatted: '123', invalidFor: [] },
+      { number: '01', withoutLeading: '1', formatted: '1', invalidFor: [] },
+      {
+        number: '01.23',
+        withoutLeading: '1.23',
+        formatted: '1,23',
+        invalidFor: ['int32', 'int16', 'int64'],
+      },
+    ];
+
+    // Initialize the fields in the form data by typing 0 into the first field. this should create
+    // the object in the data model and initialize the rest of the fields to 0.
+    cy.get('#decimalAsNumber').type('0');
+    cy.get('#decimalAsNumber').should('have.value', '0 flis');
+    cy.get('#decimalAsString').should('have.value', '0');
+    cy.get('#int32AsString').should('have.value', '0');
+    cy.get('#int32AsNumber').should('have.value', '0 ganger');
+    cy.get('#int64AsString').should('have.value', '0');
+    cy.get('#int64AsNumber').should('have.value', '0 ganger');
+    cy.get('#int16AsString').should('have.value', '0');
+    cy.get('#int16AsNumber').should('have.value', '0 stikk');
+
+    for (const { number, withoutTrailing, withoutLeading, formatted, invalidFor } of testNumbers) {
+      for (const [type, value] of Object.entries(fields)) {
+        const { targets, suffix } = value;
+        const [asNumber, asString] = targets;
+        const isValid = !invalidFor.includes(type);
+
+        // Type into the number-formatted field
+        cy.get(asNumber).type(`{selectall}${number}`);
+        cy.get(asNumber).should('have.value', formatted + suffix);
+
+        // Test that the string-formatted field is updated correctly
+        if (isValid) {
+          cy.get(asString).should('have.value', withoutTrailing ?? withoutLeading ?? number);
+          cy.get(`[data-validation="${asNumber.substring(1)}"]`).should('not.exist');
+        } else {
+          // react-number-format removes leading zeroes for invalid numbers, but keeps trailing zeroes
+          cy.get(asString).should('have.value', withoutLeading ?? number);
+          cy.get(`[data-validation="${asNumber.substring(1)}"]`).should('contain.text', 'Feil format eller verdi');
+        }
+      }
+
+      for (const type of invalidFor) {
+        // Validation messages are only shown for the first target of each type
+        const target = fields[type].targets[0] as string;
+        cy.get(`[data-validation="${target.substring(1)}"]`).should('contain.text', 'Feil format eller verdi');
+      }
+      for (const [type, { targets }] of Object.entries(fields)) {
+        if (!invalidFor.includes(type)) {
+          cy.get(`[data-validation="${targets[0].substring(1)}"]`).should('not.exist');
+        }
+      }
+    }
   });
 });

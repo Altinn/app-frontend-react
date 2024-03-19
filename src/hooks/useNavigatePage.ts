@@ -1,14 +1,19 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { useLocation, useMatch, useNavigate } from 'react-router-dom';
+import { useLocation, useMatch, useNavigate as useRouterNavigate } from 'react-router-dom';
 import type { NavigateOptions } from 'react-router-dom';
 
+import { create } from 'zustand';
+
 import { ContextNotProvided } from 'src/core/contexts/context';
-import { useHiddenPages } from 'src/features/form/layout/PageNavigationContext';
+import {
+  useHiddenPages,
+  useSetReturnToView,
+  useSetSummaryNodeOfOrigin,
+} from 'src/features/form/layout/PageNavigationContext';
 import { useLaxLayoutSettings, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxProcessData, useTaskType } from 'src/features/instance/ProcessContext';
 import { ProcessTaskType } from 'src/types';
-import { promisify } from 'src/utils/promisify';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 
 type NavigateToPageOptions = {
@@ -33,7 +38,8 @@ export const useNavigationParams = () => {
   const instanceGuid =
     pageKeyMatch?.params.instanceGuid ?? taskIdMatch?.params.instanceGuid ?? instanceMatch?.params.instanceGuid;
   const taskId = pageKeyMatch?.params.taskId ?? taskIdMatch?.params.taskId;
-  const pageKey = pageKeyMatch?.params.pageKey ?? statelessMatch?.params.pageKey;
+  const _pageKey = pageKeyMatch?.params.pageKey ?? statelessMatch?.params.pageKey;
+  const pageKey = _pageKey === undefined ? undefined : decodeURIComponent(_pageKey);
 
   return {
     partyId,
@@ -46,21 +52,44 @@ export const useNavigationParams = () => {
 
 const emptyArray: never[] = [];
 
+/**
+ * Navigation function for react-router-dom
+ * Makes sure to clear returnToView and summaryNodeOfOrigin on navigation
+ * Takes an optional callback
+ */
+const useNavigate = () => {
+  const navigate = useRouterNavigate();
+  const storeCallback = useNavigationEffectStore((state) => state.storeCallback);
+  const setReturnToView = useSetReturnToView();
+  const setSummaryNodeOfOrigin = useSetSummaryNodeOfOrigin();
+
+  return useCallback(
+    (path: string, options?: NavigateOptions, cb?: Callback) => {
+      setReturnToView?.(undefined);
+      setSummaryNodeOfOrigin?.(undefined);
+      if (cb) {
+        storeCallback(cb);
+      }
+      navigate(path, options);
+    },
+    [navigate, setReturnToView, storeCallback, setSummaryNodeOfOrigin],
+  );
+};
+
 export const useCurrentView = () => useNavigationParams().pageKey;
 export const useOrder = () => {
   const maybeLayoutSettings = useLaxLayoutSettings();
   const orderWithHidden = maybeLayoutSettings === ContextNotProvided ? emptyArray : maybeLayoutSettings.pages.order;
-  const hidden = useHiddenPages();
-  const hiddenPages = useMemo(() => new Set(hidden), [hidden]);
+  const hiddenPages = useHiddenPages();
   return useMemo(() => orderWithHidden?.filter((page) => !hiddenPages.has(page)), [orderWithHidden, hiddenPages]);
 };
 
 export const useNavigatePage = () => {
-  const navigate = useNavigate();
   const isStatelessApp = useIsStatelessApp();
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
   const processTasks = useLaxProcessData()?.processTasks;
   const lastTaskId = processTasks?.slice(-1)[0]?.elementId;
+  const navigate = useNavigate();
 
   const { partyId, instanceGuid, taskId, pageKey, queryKeys } = useNavigationParams();
   const { autoSaveBehavior } = usePageSettings();
@@ -74,7 +103,9 @@ export const useNavigatePage = () => {
   const previousPageIndex = currentPageIndex !== -1 ? currentPageIndex - 1 : -1;
 
   const isValidPageId = useCallback(
-    (pageId: string) => {
+    (_pageId: string) => {
+      // The page ID may be URL encoded already, if we got this from react-router.
+      const pageId = decodeURIComponent(_pageId);
       if (taskType !== ProcessTaskType.Data) {
         return false;
       }
@@ -95,12 +126,12 @@ export const useNavigatePage = () => {
     }
   }, [isStatelessApp, order, navigate, currentPageId, isValidPageId, queryKeys]);
 
-  const waitForSave = FD.useWaitForSave();
+  const requestManualSave = FD.useRequestManualSave();
   const maybeSaveOnPageChange = useCallback(() => {
     if (autoSaveBehavior === 'onChangePage') {
-      waitForSave(true).then();
+      requestManualSave();
     }
-  }, [autoSaveBehavior, waitForSave]);
+  }, [autoSaveBehavior, requestManualSave]);
 
   const navigateToPage = useCallback(
     async (page?: string, options?: NavigateToPageOptions) => {
@@ -119,32 +150,25 @@ export const useNavigatePage = () => {
       }
 
       if (isStatelessApp) {
-        return navigate(`/${page}${queryKeys}`, { replace });
+        return navigate(`/${page}${queryKeys}`, { replace }, () => focusMainContent(options));
       }
 
       const url = `/instance/${partyId}/${instanceGuid}/${taskId}/${page}${queryKeys}`;
-      /**
-       * Promisify the navigate function to ensure that the page has been navigated to before
-       * moving the page focus to the main content on each page navigation. This is
-       * done so that the focus of a screen reader user will not be placed at random
-       */
-      await promisify(() => navigate(url, { replace }))();
-      if (options?.shouldFocusComponent !== true) {
-        document.getElementById('main-content')?.focus({ preventScroll: true });
-      }
+      navigate(url, { replace }, () => focusMainContent(options));
     },
     [instanceGuid, isStatelessApp, maybeSaveOnPageChange, navigate, order, partyId, queryKeys, taskId],
   );
 
   const navigateToTask = useCallback(
-    (newTaskId?: string, options?: NavigateOptions) => {
+    (newTaskId?: string, options?: NavigateOptions & { runEffect?: boolean }) => {
+      const { runEffect = true } = options ?? {};
       if (newTaskId === taskId) {
         return;
       }
       const url = `/instance/${partyId}/${instanceGuid}/${newTaskId ?? lastTaskId}${queryKeys}`;
-      navigate(url, options);
+      navigate(url, options, runEffect ? () => focusMainContent(options) : undefined);
     },
-    [partyId, instanceGuid, lastTaskId, queryKeys, navigate, taskId],
+    [taskId, partyId, instanceGuid, lastTaskId, queryKeys, navigate],
   );
 
   const isCurrentTask = useMemo(() => {
@@ -265,3 +289,20 @@ export const useNavigatePage = () => {
     maybeSaveOnPageChange,
   };
 };
+
+export function focusMainContent(options?: NavigateToPageOptions) {
+  if (options?.shouldFocusComponent !== true) {
+    document.getElementById('main-content')?.focus({ preventScroll: true });
+  }
+}
+
+type Callback = () => void;
+type NavigationEffectStore = {
+  callback: Callback | null;
+  storeCallback: (cb: Callback | null) => void;
+};
+
+export const useNavigationEffectStore = create<NavigationEffectStore>((set) => ({
+  callback: null,
+  storeCallback: (cb: Callback) => set({ callback: cb }),
+}));

@@ -2,14 +2,14 @@ import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
-import { attachmentsValid } from 'src/features/validation/utils';
 import { FileUploadDef } from 'src/layout/FileUpload/config.def.generated';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
+import type { DisplayDataProps } from 'src/features/displayData';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
-import type { DisplayDataProps, PropsFromGenericComponent, ValidateComponent } from 'src/layout';
+import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -43,7 +43,11 @@ export class FileUpload extends FileUploadDef implements ValidateComponent {
   ): ComponentValidation[] {
     const validations: ComponentValidation[] = [];
 
-    if (!attachmentsValid(attachments, node.item)) {
+    // Validate minNumberOfAttachments
+    if (
+      node.item.minNumberOfAttachments > 0 &&
+      (!attachments[node.item.id] || attachments[node.item.id]!.length < node.item.minNumberOfAttachments)
+    ) {
       validations.push({
         message: {
           key: 'form_filler.file_uploader_validation_error_file_number',
@@ -52,7 +56,8 @@ export class FileUpload extends FileUploadDef implements ValidateComponent {
         severity: 'error',
         source: FrontendValidationSource.Component,
         componentId: node.item.id,
-        category: ValidationMask.Component,
+        // Treat visibility of minNumberOfAttachments the same as required to prevent showing an error immediately
+        category: ValidationMask.Required,
       });
     }
 

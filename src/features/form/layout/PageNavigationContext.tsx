@@ -1,9 +1,15 @@
 import React, { useMemo, useState } from 'react';
 
-import { ContextNotProvided, createContext } from 'src/core/contexts/context';
+import { createStore } from 'zustand';
+
+import { ContextNotProvided } from 'src/core/contexts/context';
+import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { useHiddenLayoutsExpressions } from 'src/features/form/layout/LayoutsContext';
 import { useCurrentView, useOrder } from 'src/hooks/useNavigatePage';
+import { useResolvedNode } from 'src/utils/layout/NodesContext';
 import type { PageNavigationConfig } from 'src/features/expressions/ExprContext';
+import type { CompSummaryExternal } from 'src/layout/Summary/config.generated';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export type PageNavigationContext = {
   /**
@@ -11,18 +17,36 @@ export type PageNavigationContext = {
    * with the summary component buttons.
    */
   returnToView?: string;
-  setReturnToView: React.Dispatch<React.SetStateAction<string | undefined>>;
+  setReturnToView: (returnToView?: string) => void;
 
   /**
    * Keeps track of which pages are hidden by expressions.
    */
-  hidden: string[];
-  setHiddenPages: React.Dispatch<React.SetStateAction<string[]>>;
+  hidden: Set<string>;
+  setHiddenPages: (hidden: Set<string>) => void;
+
+  /**
+   * Keeps track of which Summary component the user navigated from.
+   */
+  summaryNodeOfOrigin?: string;
+  setSummaryNodeOfOrigin: (componentOrigin?: string) => void;
 };
 
-const { Provider, useCtx, useLaxCtx } = createContext<PageNavigationContext>({
+function initialCreateStore() {
+  return createStore<PageNavigationContext>((set) => ({
+    returnToView: undefined,
+    setReturnToView: (returnToView) => set({ returnToView }),
+    hidden: new Set(),
+    setHiddenPages: (hidden) => set({ hidden }),
+    summaryNodeOfOrigin: undefined,
+    setSummaryNodeOfOrigin: (summaryNodeOfOrigin) => set({ summaryNodeOfOrigin }),
+  }));
+}
+
+const { Provider, useLaxSelector, useLaxSelectorAsRef } = createZustandContext({
   name: 'PageNavigationContext',
   required: true,
+  initialCreateStore,
 });
 
 export function PageNavigationProvider({ children }: React.PropsWithChildren) {
@@ -43,36 +67,59 @@ export function PageNavigationProvider({ children }: React.PropsWithChildren) {
   );
 }
 
-export const usePageNavigationContext = () => useCtx();
 export const usePageNavigationConfig = (): PageNavigationConfig => {
   const currentView = useCurrentView();
   const hiddenExpr = useHiddenLayoutsExpressions();
-  const { hidden } = usePageNavigationContext();
+  const isHiddenPage = useIsHiddenPage();
   const order = useOrder();
 
   return useMemo(
     () => ({
       currentView,
-      hidden,
+      isHiddenPage,
       hiddenExpr,
       order,
     }),
-    [currentView, hidden, hiddenExpr, order],
+    [currentView, isHiddenPage, hiddenExpr, order],
   );
 };
+
+const emptySet = new Set<string>();
 export const useHiddenPages = () => {
-  const ctx = useLaxCtx();
-  if (ctx === ContextNotProvided) {
-    return [];
-  }
-
-  return ctx.hidden;
+  const hidden = useLaxSelector((ctx) => ctx.hidden);
+  return hidden === ContextNotProvided ? emptySet : hidden;
 };
-export const useReturnToView = () => {
-  const ctx = useLaxCtx();
-  if (ctx === ContextNotProvided) {
-    return undefined;
-  }
 
-  return ctx.returnToView;
+export const useIsHiddenPage = () => {
+  const hidden = useLaxSelectorAsRef((state) => state.hidden);
+  return (pageId: string) => {
+    const current = hidden.current;
+    return current === ContextNotProvided ? false : current.has(pageId);
+  };
+};
+
+export const useSetHiddenPages = () => {
+  const func = useLaxSelector((ctx) => ctx.setHiddenPages);
+  return func === ContextNotProvided ? undefined : func;
+};
+
+export const useReturnToView = () => {
+  const returnToView = useLaxSelector((ctx) => ctx.returnToView);
+  return returnToView === ContextNotProvided ? undefined : returnToView;
+};
+
+export const useSetReturnToView = () => {
+  const func = useLaxSelector((ctx) => ctx.setReturnToView);
+  return func === ContextNotProvided ? undefined : func;
+};
+
+export const useSummaryNodeOfOrigin = (): LayoutNode<'Summary'> | undefined => {
+  const func = useLaxSelector((ctx) => ctx.summaryNodeOfOrigin);
+  const node = useResolvedNode<CompSummaryExternal>(func === ContextNotProvided ? undefined : func);
+  return func === ContextNotProvided ? undefined : node;
+};
+
+export const useSetSummaryNodeOfOrigin = () => {
+  const func = useLaxSelector((ctx) => ctx.setSummaryNodeOfOrigin);
+  return func === ContextNotProvided ? undefined : func;
 };
