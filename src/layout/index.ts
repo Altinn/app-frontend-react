@@ -5,7 +5,6 @@ import type { DisplayData } from 'src/features/displayData';
 import type { BaseValidation, ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { CompInternal, CompRendersLabel, CompTypes } from 'src/layout/layout';
-import type { AnyComponent, LayoutComponent } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export type CompClassMap = {
@@ -16,18 +15,7 @@ export type CompClassMapTypes = {
   [K in keyof CompClassMap]: CompClassMap[K]['type'];
 };
 
-// noinspection JSUnusedLocalSymbols
-/**
- * This type is only used to make sure all components exist and are correct in the list above. If any component is
- * missing above, this type will give you an error.
- */
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-const _componentsTypeCheck: {
-  [Type in CompTypes]: { def: LayoutComponent<Type> };
-} = {
-  ...ComponentConfigs,
-};
+export type CompDef<T extends CompTypes = CompTypes> = (typeof ComponentConfigs)[T]['def'];
 
 export type MinimalItem<T extends CompInternal> = Pick<T, 'id' | 'baseComponentId' | 'type' | 'multiPageIndex'>;
 
@@ -64,10 +52,12 @@ export function shouldComponentRenderLabel<T extends CompTypes>(type: T): CompRe
   return ComponentConfigs[type].rendersWithLabel;
 }
 
-export type DefGetter = typeof getLayoutComponentObject;
+type TypeFromDef<Def extends CompDef> = Def extends CompDef<infer T> ? T : CompTypes;
 
-export function implementsAnyValidation<Type extends CompTypes>(component: AnyComponent<Type>): boolean {
-  return 'runEmptyFieldValidation' in component || 'runComponentValidation' in component;
+export function implementsAnyValidation<Def extends CompDef>(
+  def: Def,
+): def is Def & (ValidateEmptyField<TypeFromDef<Def>> | ValidateComponent<TypeFromDef<Def>>) {
+  return 'runEmptyFieldValidation' in def || 'runComponentValidation' in def;
 }
 
 export interface ValidateEmptyField<Type extends CompTypes> {
@@ -78,10 +68,10 @@ export interface ValidateEmptyField<Type extends CompTypes> {
   ) => ComponentValidation[];
 }
 
-export function implementsValidateEmptyField<Type extends CompTypes>(
-  component: AnyComponent<Type>,
-): component is typeof component & ValidateEmptyField<Type> {
-  return 'runEmptyFieldValidation' in component;
+export function implementsValidateEmptyField<Def extends CompDef>(
+  def: Def,
+): def is Def & ValidateEmptyField<TypeFromDef<Def>> {
+  return 'runEmptyFieldValidation' in def;
 }
 
 export interface ValidateComponent<Type extends CompTypes> {
@@ -92,10 +82,10 @@ export interface ValidateComponent<Type extends CompTypes> {
   ) => ComponentValidation[];
 }
 
-export function implementsValidateComponent<Type extends CompTypes>(
-  component: AnyComponent<Type>,
-): component is typeof component & ValidateComponent<Type> {
-  return 'runComponentValidation' in component;
+export function implementsValidateComponent<Def extends CompDef>(
+  def: Def,
+): def is Def & ValidateComponent<TypeFromDef<Def>> {
+  return 'runComponentValidation' in def;
 }
 
 export type ValidationFilterFunction = (
@@ -110,14 +100,10 @@ export interface ValidationFilter {
 
 export type FormDataSelector = (path: string, postProcessor?: (data: unknown) => unknown) => unknown;
 
-export function implementsValidationFilter<Type extends CompTypes>(
-  component: AnyComponent<Type>,
-): component is typeof component & ValidationFilter {
-  return 'getValidationFilters' in component;
+export function implementsValidationFilter<Def extends CompDef>(def: Def): def is Def & ValidationFilter {
+  return 'getValidationFilters' in def;
 }
 
-export function implementsDisplayData<Type extends CompTypes>(
-  component: AnyComponent<Type>,
-): component is typeof component & DisplayData<Type> {
-  return 'getDisplayData' in component && 'useDisplayData' in component;
+export function implementsDisplayData<Def extends CompDef>(def: Def): def is Def & DisplayData<TypeFromDef<Def>> {
+  return 'getDisplayData' in def && 'useDisplayData' in def;
 }

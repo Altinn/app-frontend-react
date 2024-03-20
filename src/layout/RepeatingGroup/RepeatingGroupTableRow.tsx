@@ -21,10 +21,10 @@ import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupConte
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
 import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import type { DisplayData } from 'src/features/displayData';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { AlertOnChange } from 'src/hooks/useAlertOnChange';
 import type { CompInternal, ITextResourceBindings } from 'src/layout/layout';
-import type { AnyComponent } from 'src/layout/LayoutComponent';
 import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { GroupExpressions } from 'src/layout/RepeatingGroup/types';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
@@ -101,12 +101,12 @@ export function RepeatingGroupTableRow({
   const tableNodes = getTableNodes({ onlyInRowUuid: uuid }) || [];
   const displayDataProps = useDisplayDataProps();
   const displayData = tableNodes.map((node) => {
-    const def = node.def as AnyComponent<any>;
+    const def = node.def;
     if (!implementsDisplayData(def)) {
       return '';
     }
 
-    return def.getDisplayData(node as any, node.item as any, displayDataProps);
+    return (def as DisplayData<any>).getDisplayData(node, node.item, displayDataProps);
   });
   const firstCellData = displayData.find((c) => !!c);
   const isEditingRow = isEditing(uuid);

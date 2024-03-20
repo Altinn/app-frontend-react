@@ -25,7 +25,11 @@ export class LayoutPages<
     }
   }
 
-  public findById(id: string, exceptInPage?: string): LayoutNode | undefined {
+  public findById(id: string | undefined, exceptInPage?: string): LayoutNode | undefined {
+    if (!id) {
+      return undefined;
+    }
+
     const current = this.current();
     if (current && this.currentView !== exceptInPage) {
       const inCurrent = this.current()?.findById(id, false);

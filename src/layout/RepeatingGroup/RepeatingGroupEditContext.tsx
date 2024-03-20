@@ -31,7 +31,7 @@ function useRepeatingGroupEditRowState(
     const row = node.item.rows.find((r) => r.uuid === editId);
     let lastPage = 0;
     for (const childNode of row?.items ?? []) {
-      lastPage = Math.max(lastPage, childNode.item.multiPageIndex ?? 0);
+      lastPage = Math.max(lastPage, childNode.multiPageIndex ?? 0);
     }
     return lastPage;
   }, [editId, node.item.rows]);

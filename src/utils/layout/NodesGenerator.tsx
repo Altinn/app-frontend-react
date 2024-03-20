@@ -5,7 +5,6 @@ import { getLayoutComponentObject } from 'src/layout';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
 import type { CompExternal, ILayout } from 'src/layout/layout';
 import type {
-  AnyComponent,
   BasicNodeGeneratorProps,
   ChildClaimerProps,
   ComponentProto,
@@ -80,7 +79,7 @@ function Page({ layout, name }: { layout: ILayout; name: string }) {
     for (const component of layout) {
       proto[component.id] = {
         type: component.type,
-        def: getLayoutComponentObject(component.type) as AnyComponent<any>,
+        def: getLayoutComponentObject(component.type),
       };
     }
 

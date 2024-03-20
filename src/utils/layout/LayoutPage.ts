@@ -1,5 +1,6 @@
+import { isNodeRef } from 'src/utils/layout/nodeRef';
 import type { PageNavigationConfig } from 'src/features/expressions/ExprContext';
-import type { MinimalItem } from 'src/layout';
+import type { MinimalItem, NodeRef } from 'src/layout';
 import type { ILayoutSettings } from 'src/layout/common.generated';
 import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -39,11 +40,15 @@ export class LayoutPage implements LayoutObject {
     }
   }
 
-  public isSameAs(otherObject: LayoutObject): boolean {
+  public isSameAs(otherObject: LayoutObject | NodeRef): boolean {
+    if (isNodeRef(otherObject)) {
+      return false;
+    }
+
     return otherObject instanceof LayoutPage && this.top.myKey === otherObject.top.myKey;
   }
 
-  public isSame(): (otherObject: LayoutObject) => boolean {
+  public isSame(): (otherObject: LayoutObject | NodeRef) => boolean {
     return (otherObject) => this.isSameAs(otherObject);
   }
 

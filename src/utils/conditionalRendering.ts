@@ -33,15 +33,17 @@ export function runConditionalRenderingRules(
       const node = nodes.findById(connection.repeatingGroup.groupId);
       if (node?.isType('RepeatingGroup')) {
         for (const row of node.item.rows) {
-          const firstChild = row.items[0] as LayoutNode | undefined;
-          runConditionalRenderingRule(connection, firstChild, componentsToHide, formDataSelector);
+          const firstChild = row.items[0];
+          const firstChildNode = nodes.findById(firstChild?.nodeRef);
+          runConditionalRenderingRule(connection, firstChildNode, componentsToHide, formDataSelector);
           if (connection.repeatingGroup.childGroupId) {
             const childId = `${connection.repeatingGroup.childGroupId}-${row.index}`;
             const childNode = node.flat({ onlyInRowUuid: row.uuid }).find((n) => n.getId() === childId);
             if (childNode && childNode.isType('RepeatingGroup')) {
               for (const childRow of childNode.item.rows) {
-                const firstNestedChild = childRow.items[0] as LayoutNode | undefined;
-                runConditionalRenderingRule(connection, firstNestedChild, componentsToHide, formDataSelector);
+                const firstNestedChild = childRow.items[0];
+                const firstNestedChildNode = nodes.findById(firstNestedChild?.nodeRef);
+                runConditionalRenderingRule(connection, firstNestedChildNode, componentsToHide, formDataSelector);
               }
             }
           }

@@ -14,6 +14,7 @@ import { isDate } from 'src/utils/dateHelpers';
 import { formatDateLocale } from 'src/utils/formatDateLocale';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { DisplayData } from 'src/features/displayData';
 import type { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type {
@@ -26,7 +27,6 @@ import type {
   FuncDef,
 } from 'src/features/expressions/types';
 import type { FormDataSelector } from 'src/layout';
-import type { AnyComponent } from 'src/layout/LayoutComponent';
 import type { IAuthContext, IInstanceDataSources } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -439,13 +439,14 @@ export const ExprFunctions = {
 
       const node = this.failWithoutNode();
       const closestComponent = node.closest((c) => c.id === id || c.baseComponentId === id);
-      const targetNode = closestComponent ?? (node instanceof LayoutPage ? node.findById(id) : node.top.findById(id));
+      const _targetNode = closestComponent ?? (node instanceof LayoutPage ? node.findById(id) : node.top.findById(id));
 
-      if (!targetNode) {
+      if (!_targetNode) {
         throw new ExprRuntimeError(this, `Unable to find component with identifier ${id}`);
       }
 
-      const def = targetNode.def as AnyComponent<any>;
+      const targetNode = _targetNode as LayoutNode;
+      const def = targetNode.def;
       if (!implementsDisplayData(def)) {
         throw new ExprRuntimeError(this, `Component with identifier ${id} does not have a displayValue`);
       }
@@ -454,8 +455,7 @@ export const ExprFunctions = {
         return null;
       }
 
-      const targetItem = node.item as any;
-      return def.getDisplayData(targetNode as any, targetItem, {
+      return (def as DisplayData<any>).getDisplayData(targetNode, node.item, {
         attachments: this.dataSources.attachments,
         optionsSelector: this.dataSources.options,
         langTools: this.dataSources.langToolsRef.current,

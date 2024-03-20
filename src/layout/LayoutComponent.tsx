@@ -25,7 +25,7 @@ import type {
   ISelectionComponentFull,
   SummarizableComponentProps,
 } from 'src/layout/common.generated';
-import type { FormDataSelector, PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
+import type { CompDef, FormDataSelector, PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
 import type {
   CompExternal,
   CompExternalExact,
@@ -363,7 +363,7 @@ export abstract class FormComponent<Type extends CompTypes>
 
 export interface ComponentProto {
   type: CompTypes;
-  def: AnyComponent<CompTypes>;
+  def: CompDef;
 }
 
 export interface ChildClaimerProps<Type extends CompTypes> {

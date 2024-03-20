@@ -2,7 +2,8 @@ import { getLayoutComponentObject } from 'src/layout';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { CompClassMap, FormDataSelector, MinimalItem } from 'src/layout';
+import { isNodeRef } from 'src/utils/layout/nodeRef';
+import type { CompClassMap, CompDef, FormDataSelector, MinimalItem, NodeRef } from 'src/layout';
 import type { CompCategory } from 'src/layout/common';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated';
 import type {
@@ -12,7 +13,6 @@ import type {
   LayoutNodeFromCategory,
   ParentNode,
 } from 'src/layout/layout';
-import type { AnyComponent } from 'src/layout/LayoutComponent';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
@@ -44,11 +44,15 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
     this.minimalItem = item;
   }
 
-  public isSameAs(otherNode: LayoutObject) {
+  public isSameAs(otherNode: LayoutObject | NodeRef) {
+    if (isNodeRef(otherNode)) {
+      return this.minimalItem.id === otherNode.nodeRef;
+    }
+
     return otherNode instanceof BaseLayoutNode && this.minimalItem.id === otherNode.minimalItem.id;
   }
 
-  public isSame(): (otherNode: LayoutObject) => boolean {
+  public isSame(): (otherNode: LayoutObject | NodeRef) => boolean {
     return (otherNode) => this.isSameAs(otherNode);
   }
 
@@ -120,7 +124,7 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
   }
 
   private childrenAsList(restriction?: ChildLookupRestriction): LayoutNode[] {
-    const def = this.def as AnyComponent<any>;
+    const def = this.def as CompDef<any>;
     if (def instanceof ContainerComponent) {
       const hierarchy = def.hierarchyGenerator();
       return hierarchy.childrenFromNode(this, restriction);

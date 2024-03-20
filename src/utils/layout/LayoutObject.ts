@@ -1,4 +1,4 @@
-import type { MinimalItem } from 'src/layout';
+import type { MinimalItem, NodeRef } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -8,8 +8,8 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
  * LayoutNode (aka an instance of a component inside a layout, or possibly inside a repeating group).
  */
 export interface LayoutObject<Item extends CompInternal = CompInternal, Child extends LayoutNode = LayoutNode> {
-  isSameAs(otherObject: LayoutObject): boolean;
-  isSame(): (otherObject: LayoutObject) => boolean;
+  isSameAs(otherObject: LayoutObject | NodeRef): boolean;
+  isSame(): (otherObject: LayoutObject | NodeRef) => boolean;
 
   /**
    * Looks for a matching component upwards in the hierarchy, returning the first one (or undefined if
