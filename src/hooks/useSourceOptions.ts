@@ -39,14 +39,16 @@ export function getSourceOptions({ source, node, dataSources }: IGetSourceOption
   }
 
   const { formDataSelector, langToolsRef } = dataSources;
-  const { group, value, label, helpText, description } = source;
+  const { group, value, label, helpText, description, dataType } = source;
   const cleanValue = getKeyWithoutIndexIndicators(value);
   const cleanGroup = getKeyWithoutIndexIndicators(group);
   const groupPath = node.transposeDataModel(cleanGroup) || group;
   const output: IOptionInternal[] = [];
 
-  if (groupPath) {
-    const groupData = formDataSelector(groupPath);
+  const groupDataType = dataType ?? dataSources.currentLayoutSet?.dataType;
+
+  if (groupPath && groupDataType) {
+    const groupData = formDataSelector({ dataType: groupDataType, property: groupPath });
     if (groupData && Array.isArray(groupData)) {
       for (const idx in groupData) {
         const path = `${groupPath}[${idx}]`;
@@ -88,7 +90,7 @@ export function getSourceOptions({ source, node, dataSources }: IGetSourceOption
         const helpTextExpression = memoizedAsExpression(helpText, config);
 
         output.push({
-          value: String(formDataSelector(valuePath)),
+          value: String(formDataSelector({ dataType: groupDataType, property: valuePath })),
           label:
             label && !Array.isArray(label)
               ? langToolsRef.current.langAsStringUsingPathInDataModel(label, path)

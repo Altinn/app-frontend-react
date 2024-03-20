@@ -278,6 +278,15 @@ const common = {
   IOptionSource: () =>
     new CG.obj(
       new CG.prop(
+        'dataType',
+        new CG.str()
+          .setTitle('Data type')
+          .setDescription(
+            'The datamodel where the repeating group data is stored. If not specified, the data model defined in the layout-set will be used.',
+          )
+          .optional(),
+      ),
+      new CG.prop(
         'group',
         new CG.str()
           .setTitle('Group')

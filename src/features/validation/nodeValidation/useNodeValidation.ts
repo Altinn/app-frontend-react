@@ -67,7 +67,7 @@ export function useNodeValidation(): ComponentValidations {
 /**
  * Hook providing validation data sources
  */
-export function useValidationDataSources(): ValidationDataSources {
+function useValidationDataSources(): ValidationDataSources {
   const formData = FD.useDebounced();
   const attachments = useAttachments();
   const currentLanguage = useCurrentLanguage();
