@@ -71,4 +71,56 @@ describe('Navigation', () => {
     cy.findByText('Appen for test av app frontend').should('exist');
     cy.get('#main-content').should('not.be.focused');
   });
+
+  it("should read the summary component's textResourceBindings.returnToSummaryButtonTitle and display this text as button title", () => {
+    cy.interceptLayout(
+      'group',
+      (component) => component,
+      (layout) => {
+        layout['prefill'].data.layout.push({
+          id: 'summary-group-test',
+          type: 'Summary',
+          componentRef: 'choose-group-prefills',
+          textResourceBindings: {
+            returnToSummaryButtonTitle: 'Updated text from Summary Component',
+          },
+        });
+
+        return layout;
+      },
+    );
+    cy.goto('group');
+
+    cy.findByText(/Aktiver preutfylling/).should('exist');
+
+    cy.findByRole('button', { name: /Endre/ }).click();
+    cy.findByRole('button', { name: /Updated text from Summary Component/ }).should('exist');
+  });
+
+  it("should read the summary component's display.nextButton and display the next button as well as the back to summary button", () => {
+    cy.interceptLayout(
+      'group',
+      (component) => component,
+      (layout) => {
+        layout['prefill'].data.layout.push({
+          id: 'summary-group-test',
+          type: 'Summary',
+          componentRef: 'choose-group-prefills',
+          display: {
+            nextButton: true,
+          },
+        });
+
+        return layout;
+      },
+    );
+    cy.goto('group');
+
+    cy.findByText(/Aktiver preutfylling/).should('exist');
+
+    cy.findByRole('button', { name: /Endre/ }).click();
+
+    cy.findByRole('button', { name: /Neste/ }).should('exist');
+    cy.findByRole('button', { name: /Tilbake til oppsummering/ }).should('exist');
+  });
 });
