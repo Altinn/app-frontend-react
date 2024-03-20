@@ -4,13 +4,15 @@ import { Alert, Button, Heading, Label, Table } from '@digdir/design-system-reac
 import { useQuery } from '@tanstack/react-query';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
+import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
 import classes from 'src/features/payment/Payment.module.css';
-import { ConfirmButton } from 'src/features/processEnd/confirm/components/ConfirmButton';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 import { fetchPaymentInfo } from 'src/queries/queries';
 export const Payment: React.FunctionComponent = () => {
   const { partyId, instanceGuid } = useInstanceIdParams();
   const { doPerformAction } = useAppMutations();
+  const { next, busyWithId: processNextBusyId } = useProcessNavigation() || {};
+
   const paymentInfoQuery = useQuery({
     queryKey: ['fetchPaymentInfo', partyId, instanceGuid],
     queryFn: () => {
@@ -61,15 +63,30 @@ export const Payment: React.FunctionComponent = () => {
         <div>
           <Button
             className={classes.payButton}
+            variant='secondary'
+            onClick={() => next && next({ action: 'reject', nodeId: 'reject-button' })}
+          >
+            Back
+          </Button>
+          <Button
+            className={classes.payButton}
             color='success'
             onClick={() => doPerformAction(partyId, instanceGuid, { action: 'pay', buttonId: 'pay-button' })}
           >
             Pay!
           </Button>
+
+          <a href={paymentInfoQuery.data?.redirectUrl}>test</a>
         </div>
       )}
       {paymentInfoQuery.isFetched && paymentInfoQuery.data?.status === 'Paid' && (
-        <ConfirmButton nodeId={'confirm-button'} />
+        <Button
+          className={classes.payButton}
+          variant='secondary'
+          onClick={() => next && next({ nodeId: 'next-button' })}
+        >
+          Next
+        </Button>
       )}
     </div>
   );
