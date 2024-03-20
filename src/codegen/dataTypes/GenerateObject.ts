@@ -223,7 +223,10 @@ export class GenerateObject<P extends Props>
       : `{ ${properties.join('\n')} }${extendsIntersection}`;
   }
 
-  private getPropertyList(): { all: { [key: string]: GenerateProperty<any> }; required: string[] } {
+  private getPropertyList(target: 'typeScript' | 'jsonSchema'): {
+    all: { [key: string]: GenerateProperty<any> };
+    required: string[];
+  } {
     const all: { [key: string]: GenerateProperty<any> } = {};
     const required: string[] = [];
 
@@ -233,7 +236,7 @@ export class GenerateObject<P extends Props>
         throw new Error(`Cannot extend a non-object type`);
       }
 
-      const { all: allFromExtend, required: requiredFromExtend } = obj.getPropertyList();
+      const { all: allFromExtend, required: requiredFromExtend } = obj.getPropertyList(target);
       for (const key of Object.keys(allFromExtend)) {
         const ourProp = this.getProperty(key);
         const theirProp = allFromExtend[key];
@@ -249,6 +252,10 @@ export class GenerateObject<P extends Props>
     }
 
     for (const prop of this.properties) {
+      if (target === 'jsonSchema' && prop.shouldOmitInSchema()) {
+        continue;
+      }
+
       all[prop.name] = prop;
       if (!(prop.type instanceof MaybeOptionalCodeGenerator) || !prop.type.isOptional()) {
         required.push(prop.name);
@@ -265,7 +272,7 @@ export class GenerateObject<P extends Props>
         return { $ref: `#/definitions/${this._extends[0].getName(false)}` };
       }
 
-      const { all: allProperties, required: requiredProperties } = this.getPropertyList();
+      const { all: allProperties, required: requiredProperties } = this.getPropertyList('jsonSchema');
       const allPropsAsTrue: { [key: string]: true } = {};
       for (const key of Object.keys(allProperties)) {
         allPropsAsTrue[key] = true;
@@ -300,13 +307,17 @@ export class GenerateObject<P extends Props>
 
   private innerToJsonSchema(respectAdditionalProperties = true): JSONSchema7 {
     const properties: { [key: string]: JSONSchema7 } = {};
+    const requiredProps: string[] = [];
     for (const prop of this.properties) {
+      if (prop.shouldOmitInSchema()) {
+        continue;
+      }
       properties[prop.name] = prop.type.toJsonSchema();
-    }
 
-    const requiredProps = this.properties
-      .filter((prop) => !(prop.type instanceof MaybeOptionalCodeGenerator) || !prop.type.isOptional())
-      .map((prop) => prop.name);
+      if (!(prop.type instanceof MaybeOptionalCodeGenerator) || !prop.type.isOptional()) {
+        requiredProps.push(prop.name);
+      }
+    }
 
     return {
       ...this.getInternalJsonSchema(),

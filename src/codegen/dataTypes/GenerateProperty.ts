@@ -12,6 +12,7 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
   private _insertAfter?: string;
   private _insertFirst = false;
   private _added = false;
+  private _inSchema = true;
 
   constructor(
     public readonly name: string,
@@ -54,6 +55,15 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
     this._insertAfter = undefined;
     this._insertFirst = true;
     return this;
+  }
+
+  omitInSchema(): this {
+    this._inSchema = false;
+    return this;
+  }
+
+  shouldOmitInSchema(): boolean {
+    return !this._inSchema;
   }
 
   toObject() {

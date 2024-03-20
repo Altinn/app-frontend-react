@@ -86,7 +86,23 @@ export class ComponentConfig extends GenerateComponentLike {
     return this;
   }
 
+  private beforeFinalizing(): void {
+    // We have to add these to our typescript types in order for ITextResourceBindings<T>, and similar to work.
+    // Components that doesn't have them, will always have the 'undefined' value.
+    if (!this.inner.hasProperty('dataModelBindings')) {
+      this.inner.addProperty(
+        new CG.prop('dataModelBindings', new CG.raw({ typeScript: 'undefined' }).optional()).omitInSchema(),
+      );
+    }
+    if (!this.inner.hasProperty('textResourceBindings')) {
+      this.inner.addProperty(
+        new CG.prop('textResourceBindings', new CG.raw({ typeScript: 'undefined' }).optional()).omitInSchema(),
+      );
+    }
+  }
+
   public generateConfigFile(): string {
+    this.beforeFinalizing();
     // Forces the objects to register in the context and be exported via the context symbols table
     this.inner.exportAs(`Comp${this.typeSymbol}External`);
     this.inner.toTypeScript();
@@ -137,6 +153,7 @@ export class ComponentConfig extends GenerateComponentLike {
   }
 
   public toJsonSchema(): JSONSchema7 {
+    this.beforeFinalizing();
     return this.inner.toJsonSchema();
   }
 }
