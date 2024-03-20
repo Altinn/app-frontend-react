@@ -45,8 +45,6 @@ export type ExprValToActualOrExpr<T extends ExprVal> =
   | ExprValToActual<T>
   | NonRecursiveExpression<FunctionsReturning<T>>;
 
-export type ActualOrExpr<T> = T | NonRecursiveExpression<FunctionsReturning<ActualToExprVal<T>>>;
-
 type ArgsToActualOrNull<T extends readonly ExprVal[]> = {
   [Index in keyof T]: ExprValToActual<T[Index]> | null;
 };

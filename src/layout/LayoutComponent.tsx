@@ -17,7 +17,7 @@ import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayData, DisplayDataProps } from 'src/features/displayData';
 import type { SimpleEval } from 'src/features/expressions';
-import type { ExprResolved } from 'src/features/expressions/types';
+import type { ExprResolved, ExprVal } from 'src/features/expressions/types';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type {
   ComponentBase,
@@ -52,13 +52,17 @@ export type NodeGeneratorProps<Type extends CompTypes> =
 
 export interface ExprResolver<Type extends CompTypes> {
   item: CompExternalExact<Type>;
+  formDataSelector: FormDataSelector;
   evalCommon: (
     item: ComponentBase | FormComponentProps | SummarizableComponentProps | ISelectionComponentFull,
   ) => ExprResolved<Required<ComponentBase>> &
     ExprResolved<Required<FormComponentProps>> &
     ExprResolved<Required<SummarizableComponentProps>> &
     ExprResolved<Required<ISelectionComponentFull>>;
-  evalExpr: SimpleEval;
+  evalStr: SimpleEval<ExprVal.String>;
+  evalNum: SimpleEval<ExprVal.Number>;
+  evalBool: SimpleEval<ExprVal.Boolean>;
+  evalAny: SimpleEval<ExprVal.Any>;
   evalTrb: (item: CompExternal<Type>) => {
     textResourceBindings: ExprResolved<ITextResourceBindingsExternal<Type>>;
   };

@@ -11,7 +11,7 @@ import type {
   ITableColumnFormatting,
   ITableColumnProperties,
 } from 'src/layout/common.generated';
-import type { CompInternal, CompTypes, IDataModelBindings, ITextResourceBindings } from 'src/layout/layout';
+import type { CompTypes, IDataModelBindings, ITextResourceBindings } from 'src/layout/layout';
 import type { IDataModelBindingsForList } from 'src/layout/List/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -21,7 +21,7 @@ export type BindingToValues<B extends IDataModelBindings | undefined> = B extend
     ? { list: string[] | undefined }
     : { [key in keyof B]: string | undefined };
 
-export type IComponentFormData<T extends CompTypes> = BindingToValues<CompInternal<T>['dataModelBindings']>;
+export type IComponentFormData<T extends CompTypes> = BindingToValues<IDataModelBindings<T>>;
 
 export const atLeastOneTagExists = (attachments: IAttachment[]): boolean => {
   let totalTagCount = 0;

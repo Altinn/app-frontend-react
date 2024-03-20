@@ -17,12 +17,12 @@ import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type {
-  ActualOrExpr,
   ExprConfig,
   Expression,
   ExprFunction,
   ExprPositionalArgs,
   ExprValToActual,
+  ExprValToActualOrExpr,
   FuncDef,
 } from 'src/features/expressions/types';
 import type { FormDataSelector } from 'src/layout';
@@ -38,8 +38,11 @@ export interface EvalExprOptions {
   positionalArguments?: ExprPositionalArgs;
 }
 
-export type ExprRetVal = boolean | string | number | undefined | null;
-export type SimpleEval = <Ret extends ExprRetVal>(expr: ActualOrExpr<Ret>, defaultValue: Ret) => Ret;
+export type SimpleEval<T extends ExprVal> = (
+  expr: ExprValToActualOrExpr<T> | undefined,
+  defaultValue: ExprValToActual<T>,
+  dataSources?: Partial<ContextDataSources>,
+) => ExprValToActual<T>;
 
 /**
  * Run/evaluate an expression. You have to provide your own context containing functions for looking up external

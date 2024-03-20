@@ -4,6 +4,7 @@ import type { JSX } from 'react';
 import { getLayoutComponentObject } from '..';
 import type { PropsFromGenericComponent, ValidateComponent, ValidationFilter, ValidationFilterFunction } from '..';
 
+import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { RepeatingGroupDef } from 'src/layout/RepeatingGroup/config.def.generated';
 import { RepeatingGroupContainer } from 'src/layout/RepeatingGroup/RepeatingGroupContainer';
@@ -20,6 +21,7 @@ import type {
   NodeGeneratorProps,
   SummaryRendererProps,
 } from 'src/layout/LayoutComponent';
+import type { HRepGroupRows, RepGroupInternal } from 'src/layout/RepeatingGroup/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent<'RepeatingGroup'>, ValidationFilter {
@@ -58,24 +60,37 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     return <DefaultNodeGenerator {...props} />;
   }
 
-  evalExpressions({ item, evalTrb, evalCommon, evalExpr }: ExprResolver<'RepeatingGroup'>) {
+  evalExpressions({ item, evalTrb, evalCommon, evalBool, formDataSelector }: ExprResolver<'RepeatingGroup'>) {
+    // Only fetch the row ID (and by extension the number of rows) so that we only re-evaluate expressions
+    // when the number of rows change.
+    const formData = item.dataModelBindings?.group
+      ? (formDataSelector(item.dataModelBindings.group, (rows) =>
+          Array.isArray(rows) ? rows.map((row, index) => ({ [ALTINN_ROW_ID]: row[ALTINN_ROW_ID], index })) : [],
+        ) as { altinnRowId: string; index: number }[])
+      : undefined;
+
+    const rows: HRepGroupRows =
+      formData?.map((row) => ({
+        uuid: row[ALTINN_ROW_ID],
+        index: row.index,
+        groupExpressions: {
+          hiddenRow: evalBool(item.hiddenRow, false), // TODO: Implement support for row-eval
+          // TODO: Implement the rest
+        },
+      })) ?? [];
+
     return {
       ...item,
       ...evalCommon(item),
-      ...evalTrb(item), // TODO: Resolve per row
-      hiddenRow: evalExpr<boolean | undefined>(item.hiddenRow, false), // TODO: Resolve per row
+      ...evalTrb(item),
       edit: item.edit
         ? {
             ...item.edit,
-            addButton: evalExpr<boolean | undefined>(item.edit.addButton, true),
-            saveButton: evalExpr<boolean | undefined>(item.edit.saveButton, true), // TODO: Resolve per row
-            deleteButton: evalExpr<boolean | undefined>(item.edit.deleteButton, true), // TODO: Resolve per row
-            editButton: evalExpr<boolean | undefined>(item.edit.editButton, true), // TODO: Resolve per row
-            alertOnDelete: evalExpr<boolean | undefined>(item.edit.alertOnDelete, false), // TODO: Resolve per row
-            saveAndNextButton: evalExpr<boolean | undefined>(item.edit.saveAndNextButton, false), // TODO: Resolve per row
+            addButton: evalBool(item.edit.addButton, true),
           }
         : undefined,
-    };
+      rows,
+    } as RepGroupInternal;
   }
 
   renderSummary({
