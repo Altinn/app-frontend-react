@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { useLocation, useMatch, useNavigate as useRouterNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useMatch, useNavigate as useRouterNavigate } from 'react-router-dom';
 import type { NavigateOptions } from 'react-router-dom';
 
 import { create } from 'zustand';
@@ -37,7 +37,6 @@ export const useNavigationParams = () => {
   const pageKeyMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId/:pageKey');
   const statelessMatch = useMatch('/:pageKey');
   const queryKeys = useLocation().search ?? '';
-  const [searchParams, setSearchParams] = useSearchParams();
 
   const partyId = pageKeyMatch?.params.partyId ?? taskIdMatch?.params.partyId ?? instanceMatch?.params.partyId;
   const instanceGuid =
@@ -46,25 +45,11 @@ export const useNavigationParams = () => {
   const _pageKey = pageKeyMatch?.params.pageKey ?? statelessMatch?.params.pageKey;
   const pageKey = _pageKey === undefined ? undefined : decodeURIComponent(_pageKey);
 
-  const clearSearchParam = useCallback(
-    (property: string) => {
-      if (!searchParams.has(property)) {
-        return;
-      }
-
-      searchParams.delete(property);
-      setSearchParams(searchParams, { replace: true, preventScrollReset: true });
-    },
-    [searchParams, setSearchParams],
-  );
-
   return {
     partyId,
     instanceGuid,
     taskId,
     pageKey,
-    clearSearchParam,
-    searchParams,
     queryKeys,
   };
 };

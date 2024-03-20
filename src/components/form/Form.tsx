@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useSearchParams } from 'react-router-dom';
 
 import Grid from '@material-ui/core/Grid';
 import deepEqual from 'fast-deep-equal';
@@ -16,7 +16,7 @@ import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FrontendValidationSource } from 'src/features/validation';
 import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
-import { SearchParams, useCurrentView, useNavigatePage, useNavigationParams } from 'src/hooks/useNavigatePage';
+import { SearchParams, useCurrentView, useNavigatePage } from 'src/hooks/useNavigatePage';
 import { GenericComponentById } from 'src/layout/GenericComponent';
 import { extractBottomButtons, hasRequiredFields } from 'src/utils/formLayout';
 import { useNodesMemoSelector, useResolvedNode } from 'src/utils/layout/NodesContext';
@@ -31,11 +31,6 @@ interface FormState {
 export function Form() {
   const currentPageId = useCurrentView();
   const { isValidPageId, navigateToPage } = useNavigatePage();
-  const { searchParams, clearSearchParam } = useNavigationParams();
-  const componentId = searchParams.get(SearchParams.FocusComponentId);
-  const focusNode = useResolvedNode(componentId);
-  const navigateTo = useNavigateToNode();
-  const location = useLocation();
 
   const [formState, setFormState] = useState<FormState>({
     hasRequired: false,
@@ -59,16 +54,6 @@ export function Form() {
     }
     return false;
   });
-
-  React.useEffect(() => {
-    clearSearchParam(SearchParams.FocusComponentId);
-  }, [location, clearSearchParam]);
-
-  React.useEffect(() => {
-    if (focusNode != null) {
-      navigateTo(focusNode);
-    }
-  }, [navigateTo, focusNode]);
 
   if (!currentPageId || !isValidPageId(currentPageId)) {
     return <FormFirstPage />;
@@ -116,6 +101,7 @@ export function Form() {
         </Grid>
       </Grid>
       <ReadyForPrint />
+      <HandleNavigationFocusComponent />
     </>
   );
 }
@@ -229,6 +215,27 @@ function ErrorProcessing({ setFormState }: ErrorProcessingProps) {
       };
     });
   }, [setFormState, hasRequired, requiredFieldsMissing, mainIds, errorReportIds]);
+
+  return null;
+}
+
+function HandleNavigationFocusComponent() {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const componentId = searchParams.get(SearchParams.FocusComponentId);
+  const focusNode = useResolvedNode(componentId);
+  const navigateTo = useNavigateToNode();
+
+  React.useEffect(() => {
+    searchParams.delete(SearchParams.FocusComponentId);
+    setSearchParams(searchParams, { replace: true, preventScrollReset: true });
+  }, [searchParams, setSearchParams]);
+
+  React.useEffect(() => {
+    if (focusNode != null) {
+      navigateTo(focusNode);
+    }
+  }, [navigateTo, focusNode]);
 
   return null;
 }

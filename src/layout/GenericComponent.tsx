@@ -11,7 +11,6 @@ import { ComponentValidations } from 'src/features/validation/ComponentValidatio
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { useIsDev } from 'src/hooks/useIsDev';
-import { SearchParams, useNavigationParams } from 'src/hooks/useNavigatePage';
 import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import classes from 'src/layout/GenericComponent.module.css';
 import { GenericComponentDescription, GenericComponentLabel } from 'src/layout/GenericComponentUtils';
@@ -89,7 +88,6 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   const validations = useUnifiedValidationsForNode(node);
   const isValid = !hasValidationErrors(validations);
   const isHidden = useIsHiddenComponent();
-  const { clearSearchParam } = useNavigationParams();
 
   // If maxLength is set in both schema and component, don't display the schema error message
   const maxLength = 'maxLength' in node.item && node.item.maxLength;
@@ -114,7 +112,6 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
     if (targetNode.item.id !== id) {
       return undefined;
     }
-    clearSearchParam(SearchParams.FocusComponentId);
     onHit();
     let retryCount = 0;
     while (!containerDivRef.current && retryCount < 100) {
