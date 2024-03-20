@@ -14,6 +14,7 @@ import classes from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup.mod
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { ITextResourceBindings } from 'src/layout/layout';
+import type { HRepGroupRow } from 'src/layout/RepeatingGroup/types';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 

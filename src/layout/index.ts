@@ -29,10 +29,7 @@ const _componentsTypeCheck: {
   ...ComponentConfigs,
 };
 
-export type MinimalItem<T extends CompInternal> = Pick<
-  T,
-  'id' | 'baseComponentId' | 'type' | 'dataModelBindings' | 'multiPageIndex'
->;
+export type MinimalItem<T extends CompInternal> = Pick<T, 'id' | 'baseComponentId' | 'type' | 'multiPageIndex'>;
 
 /**
  * A nodeRef represents a reference to a node in the layout tree. It is used to reference a specific node,

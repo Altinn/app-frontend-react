@@ -1,6 +1,6 @@
 import type { ExprResolved } from 'src/features/expressions/types';
+import type { NodeRef } from 'src/layout';
 import type { CompExternal } from 'src/layout/layout';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type Comp = CompExternal<'RepeatingGroup'>;
 type RepGroupTrb = Exclude<Comp['textResourceBindings'], undefined>;
@@ -31,7 +31,7 @@ export type RepGroupInternal = ExprResolved<
 export interface HRepGroupRow {
   uuid: string;
   index: number;
-  items: LayoutNode[];
+  items: NodeRef[];
   groupExpressions?: HGroupExpressions;
 }
 

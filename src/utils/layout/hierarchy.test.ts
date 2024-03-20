@@ -341,18 +341,27 @@ describe('Hierarchical layout tools', () => {
     expect(uniqueHidden(nodes.current()?.flat())).toEqual(plain);
     expect(uniqueHidden(nodes.current()?.children())).toEqual(plain);
 
-    if (group2?.isType('RepeatingGroup')) {
-      expect(group2.item.rows[0]?.items[1].item.hidden).toEqual(true);
-      expect(group2.item.rows[0]?.items[2].item.hidden).toEqual(true);
-      const group2n = group2.item.rows[0]?.items[2];
-      if (group2n?.isType('RepeatingGroup')) {
-        expect(group2n.item.rows[0]?.items[1].item.hidden).toEqual(true);
-      } else {
-        expect(false).toEqual(true);
-      }
-    } else {
-      expect(false).toEqual(true);
+    if (!group2?.isType('RepeatingGroup')) {
+      throw new Error('Expected group2 to be a repeating group');
     }
+
+    const secondNodeRef = group2.item.rows[0]?.items[1];
+    const secondNode = nodes.findById(secondNodeRef?.nodeRef);
+    expect(secondNode?.item.hidden).toEqual(true);
+
+    const thirdNodeRef = group2.item.rows[0]?.items[2];
+    const thirdNode = nodes.findById(thirdNodeRef?.nodeRef);
+    expect(thirdNode?.item.hidden).toEqual(true);
+
+    const group2nRef = group2.item.rows[0]?.items[2];
+    const group2n = nodes.findById(group2nRef?.nodeRef);
+    if (!group2n?.isType('RepeatingGroup')) {
+      throw new Error('Expected group2n to be a repeating group');
+    }
+
+    const group2nNestedRef = group2n.item.rows[0]?.items[1];
+    const group2nNested = nodes.findById(group2nNestedRef?.nodeRef);
+    expect(group2nNested?.item.hidden).toEqual(true);
   });
 
   describe('LayoutPages', () => {

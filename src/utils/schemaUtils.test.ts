@@ -7,6 +7,7 @@ import * as refOnRootSchema from 'src/__mocks__/json-schema/ref-on-root.json';
 import { lookupPropertiesInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
 import { ensureAppsDirIsSet, getAllLayoutSetsWithDataModelSchema, parseJsonTolerantly } from 'src/test/allApps';
 import { getRootElementPath, getSchemaPart, getSchemaPartOldGenerator } from 'src/utils/schemaUtils';
+import type { IDataModelBindings } from 'src/layout/layout';
 
 describe('schemaUtils', () => {
   describe('getRootElementPath', () => {
@@ -150,22 +151,24 @@ describe('schemaUtils', () => {
       const notFound: string[] = [];
       for (const [pageKey, layout] of Object.entries(layouts)) {
         for (const component of layout.data.layout || []) {
-          if ('dataModelBindings' in component && component.dataModelBindings) {
-            for (const binding of Object.values(component.dataModelBindings)) {
-              const firstLeg = binding.split('.')[0];
-              const foundInPath = availableProperties.has(firstLeg);
-              const foundInRoot = availablePropertiesOnRoot.has(firstLeg);
-              const foundInFirstProperty = availablePropertiesOnFirstProperty.has(firstLeg);
-              const location = `Used in ${setName}/${pageKey}/${component.id} (${component.type}) (binding = ${binding})`;
-              if (!foundInPath && foundInRoot) {
-                notFound.push(
-                  [`${firstLeg} was found in the root of the schema, but not in ${rootPath}.`, location].join(' '),
-                );
-              } else if (!foundInPath && foundInFirstProperty) {
-                notFound.push(
-                  [`${firstLeg} was found in the first property of the schema, but not in ${rootPath}.`, ''].join(' '),
-                );
-              }
+          if (!('dataModelBindings' in component && component.dataModelBindings)) {
+            continue;
+          }
+          const bindings = component.dataModelBindings as IDataModelBindings;
+          for (const binding of Object.values(bindings)) {
+            const firstLeg = binding.split('.')[0];
+            const foundInPath = availableProperties.has(firstLeg);
+            const foundInRoot = availablePropertiesOnRoot.has(firstLeg);
+            const foundInFirstProperty = availablePropertiesOnFirstProperty.has(firstLeg);
+            const location = `Used in ${setName}/${pageKey}/${component.id} (${component.type}) (binding = ${binding})`;
+            if (!foundInPath && foundInRoot) {
+              notFound.push(
+                [`${firstLeg} was found in the root of the schema, but not in ${rootPath}.`, location].join(' '),
+              );
+            } else if (!foundInPath && foundInFirstProperty) {
+              notFound.push(
+                [`${firstLeg} was found in the first property of the schema, but not in ${rootPath}.`, ''].join(' '),
+              );
             }
           }
         }

@@ -205,38 +205,11 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
       return true;
     }
 
-    if (
-      this.parent instanceof BaseLayoutNode &&
-      this.parent.isType('RepeatingGroup') &&
-      typeof this.rowIndex === 'number'
-    ) {
-      const isHiddenRow = this.parent.minimalItem.rows[this.rowIndex]?.groupExpressions?.hiddenRow;
-      if (isHiddenRow) {
-        this.hiddenCache[cacheKey] = true;
-        return true;
-      }
-
-      // TODO: Move this code to where it belongs, in the repeating groups code
-      const myBaseId = this.minimalItem.baseComponentId || this.minimalItem.id;
-      const groupMode = this.parent.minimalItem.edit?.mode;
-      const tableColSetup = this.parent.minimalItem.tableColumns && this.parent.minimalItem.tableColumns[myBaseId];
-
-      // This specific configuration hides the component fully, without having set hidden=true on the component itself.
-      // It's most likely done by mistake, but we still need to respect it when checking if the component is hidden,
-      // because it doesn't make sense to validate a component that is hidden in the UI and the
-      // user cannot interact with.
-      let hiddenImplicitly =
-        tableColSetup?.showInExpandedEdit === false && !tableColSetup?.editInTable && groupMode !== 'onlyTable';
-
-      if (groupMode === 'onlyTable' && tableColSetup?.editInTable === false) {
-        // This is also a way to hide a component implicitly
-        hiddenImplicitly = true;
-      }
-
-      if (hiddenImplicitly) {
-        this.hiddenCache[cacheKey] = true;
-        return true;
-      }
+    const hiddenInParent =
+      this.parent instanceof BaseLayoutNode && (this.parent as BaseLayoutNode).isDirectChildHidden(this, options);
+    if (hiddenInParent) {
+      this.hiddenCache[cacheKey] = true;
+      return true;
     }
 
     if (
@@ -251,6 +224,10 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
     const hiddenByParent = this.parent instanceof BaseLayoutNode && this.parent.isHidden(options);
     this.hiddenCache[cacheKey] = hiddenByParent;
     return hiddenByParent;
+  }
+
+  protected isDirectChildHidden(_directChild: BaseLayoutNode, _options: IsHiddenOptions): boolean {
+    return false;
   }
 
   private firstDataModelBinding() {
