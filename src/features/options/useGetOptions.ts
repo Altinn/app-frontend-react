@@ -78,6 +78,8 @@ export interface OptionsResult<T extends ValueType> {
   // components, you always set the value of all the selected options at the same time, not just one of them.
   setData: ValueSetter<T>;
 
+  debounce: () => void;
+
   // The final list of options deduced from the component settings. This will be an array of objects, where each object
   // has a string-typed 'value' property, regardless of the underlying options configuration.
   options: IOptionInternal[];
@@ -128,7 +130,7 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
     valueType,
     preselectedOptionIndex,
   } = props;
-  const { formData, setValue } = useDataModelBindings(dataModelBindings);
+  const { formData, setValue, debounce } = useDataModelBindings(dataModelBindings);
   const value = formData.simpleBinding ?? '';
   const sourceOptions = useSourceOptions({ source, node });
   const staticOptions = useMemo(() => (optionsId ? undefined : castOptionsToStrings(options)), [options, optionsId]);
@@ -263,6 +265,7 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
     current,
     currentStringy,
     setData,
+    debounce,
     options: alwaysOptions,
     isFetching: isFetching || !calculatedOptions,
     isError,

@@ -126,7 +126,25 @@ const common = {
       ),
     ),
 
-  IDataModelReference: () => new CG.obj(new CG.prop('dataType', new CG.str()), new CG.prop('property', new CG.str())),
+  IDataModelReference: () =>
+    new CG.obj(
+      new CG.prop(
+        'dataType',
+        new CG.str().setTitle('Data type').setDescription('The name of the datamodel type to reference'),
+      ),
+      new CG.prop(
+        'property',
+        new CG.str().setTitle('Property').setDescription('The path to the property using dot-notation'),
+      ),
+    ),
+  IDataModelBinding: () =>
+    new CG.union(
+      new CG.str().setDescription(
+        '**Deprecated** Defining dataModelBindings using strings will be removed in the next major version. Use the object definition instead.',
+      ),
+      CG.common('IDataModelReference'),
+    ),
+
   // Data model bindings:
   IDataModelBindingsSimple: () =>
     new CG.obj(
@@ -248,11 +266,11 @@ const common = {
       .additionalProperties(new CG.str())
       .setTitle('Mapping')
       .setDescription(
-        'A mapping of key-value pairs (usually used for mapping a path in the data model to a query string parameter).',
+        '**Deprecated**: Will be removed in the next major version. Use `queryParameters` with expressions instead. \nA mapping of key-value pairs (usually used for mapping a path in the data model to a query string parameter).',
       ),
   IQueryParameters: () =>
     new CG.obj()
-      .additionalProperties(new CG.str())
+      .additionalProperties(new CG.expr(ExprVal.String))
       .setTitle('Query parameters')
       .setDescription(
         'A mapping of query string parameters to values. Will be appended to the URL when fetching options.',

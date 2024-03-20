@@ -10,6 +10,7 @@ import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { CompCategory } from 'src/layout/common';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
+import { resolveDataModelBindings } from 'src/utils/databindings';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
 import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
@@ -25,7 +26,7 @@ import type {
   ITextResourceBindings,
 } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
+import type { ComponentHierarchyGenerator, UnprocessedItem } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
@@ -101,14 +102,24 @@ export abstract class AnyComponent<Type extends CompTypes> {
     return defaultGenerator;
   }
 
+  /**
+   * Resolves unprocessed item into internal item (does not resolve expressions)
+   */
+  private resolveItem(unprocessedItem: UnprocessedItem<Type>, dataSources: HierarchyDataSources): CompInternal<Type> {
+    const item = structuredClone(unprocessedItem);
+    resolveDataModelBindings(item, dataSources.currentLayoutSet);
+    return item as unknown as CompInternal<Type>;
+  }
+
   makeNode(
-    item: CompInternal<Type>,
+    unprocessedItem: UnprocessedItem<Type>,
     parent: LayoutNode | LayoutPage,
     top: LayoutPage,
     dataSources: HierarchyDataSources,
     rowIndex?: number,
     rowId?: string,
   ): LayoutNode<Type> {
+    const item = this.resolveItem(unprocessedItem, dataSources);
     return new BaseLayoutNode(item, parent, top, dataSources, rowIndex, rowId) as LayoutNode<Type>;
   }
 

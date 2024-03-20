@@ -1,5 +1,6 @@
 import { MissingRowIdException } from 'src/features/formData/MissingRowIdException';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
+import { isDataModelReference } from 'src/utils/databindings';
 import { getLikertStartStopIndex } from 'src/utils/formLayout';
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { CompLikertExternal, HLikertRows } from 'src/layout/Likert/config.generated';
@@ -54,8 +55,8 @@ export class LikertHierarchyGenerator extends ComponentHierarchyGenerator<'Liker
 
       // Only fetch the row ID (and by extension the number of rows) so that we only re-generate the hierarchy
       // when the number for rows and/or the row IDs change, not the other data within it.
-      const formData = item.dataModelBindings?.questions
-        ? ctx.generator.dataSources.formDataSelector(item.dataModelBindings.questions, (rows) =>
+      const formData = me.item.dataModelBindings?.questions
+        ? ctx.generator.dataSources.formDataSelector(me.item.dataModelBindings.questions, (rows) =>
             Array.isArray(rows) ? rows.map((row) => ({ [ALTINN_ROW_ID]: row[ALTINN_ROW_ID] })) : [],
           )
         : undefined;
@@ -144,10 +145,21 @@ const mutateTextResourceBindings: (props: ChildFactoryProps<'Likert'>) => ChildM
 const mutateDataModelBindings: (props: ChildFactoryProps<'Likert'>, rowIndex: number) => ChildMutator<'LikertItem'> =
   (props, rowIndex) => (item) => {
     const questionsBinding = 'dataModelBindings' in props.item ? props.item.dataModelBindings?.questions : undefined;
-    const bindings = item.dataModelBindings || {};
-    for (const key of Object.keys(bindings)) {
-      if (questionsBinding && bindings[key]) {
-        bindings[key] = bindings[key].replace(questionsBinding, `${questionsBinding}[${rowIndex}]`);
+    const questionsBindingProperty = isDataModelReference(questionsBinding)
+      ? questionsBinding.property
+      : questionsBinding;
+
+    if (questionsBindingProperty) {
+      const bindings = item.dataModelBindings || {};
+      for (const key of Object.keys(bindings)) {
+        if (typeof bindings[key] === 'string') {
+          bindings[key] = bindings[key].replace(questionsBindingProperty, `${questionsBindingProperty}[${rowIndex}]`);
+        } else if (isDataModelReference(bindings[key])) {
+          bindings[key].property = bindings[key].property.replace(
+            questionsBindingProperty,
+            `${questionsBindingProperty}[${rowIndex}]`,
+          );
+        }
       }
     }
   };

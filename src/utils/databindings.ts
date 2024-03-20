@@ -1,5 +1,6 @@
-import type { ILayoutSet } from 'src/layout/common.generated';
-import type { CompInternal, IDataModelBindings } from 'src/layout/layout';
+import type { IDataModelReference, ILayoutSet } from 'src/layout/common.generated';
+import type { IDataModelBindings } from 'src/layout/layout';
+import type { UnprocessedItem } from 'src/utils/layout/HierarchyGenerator';
 
 export const GLOBAL_INDEX_KEY_INDICATOR_REGEX = /\[{\d+}]/g;
 
@@ -42,10 +43,22 @@ export function getKeyIndex(keyWithIndex: string): number[] {
   return match.map((n) => parseInt(n.replace('[', '').replace(']', ''), 10));
 }
 
+export function isDataModelReference(binding: unknown): binding is IDataModelReference {
+  return (
+    typeof binding === 'object' &&
+    binding != null &&
+    !Array.isArray(binding) &&
+    'property' in binding &&
+    typeof binding.property === 'string' &&
+    'dataType' in binding &&
+    binding.dataType === 'string'
+  );
+}
+
 /**
  * Mutates the data model bindings to convert from string representation with implicit data type to object with explicit data type
  */
-export function resolveDataModelBindings<Item extends CompInternal = CompInternal>(
+export function resolveDataModelBindings<Item extends UnprocessedItem = UnprocessedItem>(
   item: Item,
   currentLayoutSet: ILayoutSet | null,
 ) {
@@ -54,7 +67,7 @@ export function resolveDataModelBindings<Item extends CompInternal = CompInterna
     return;
   }
 
-  if (item.dataModelBindings) {
+  if ('dataModelBindings' in item && item.dataModelBindings) {
     const dataType = currentLayoutSet.dataType;
     for (const [bindingKey, binding] of Object.entries(item.dataModelBindings)) {
       if (typeof binding === 'string') {

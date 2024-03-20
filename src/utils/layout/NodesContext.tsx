@@ -152,7 +152,7 @@ function useLegacyHiddenComponents(
   const setHiddenPages = useSetHiddenPages();
 
   useEffect(() => {
-    if (!resolvedNodes) {
+    if (!resolvedNodes || !dataSources.currentLayoutSet) {
       return;
     }
 
@@ -165,7 +165,7 @@ function useLegacyHiddenComponents(
 
     let futureHiddenFields: Set<string>;
     try {
-      futureHiddenFields = runConditionalRenderingRules(rules, resolvedNodes);
+      futureHiddenFields = runConditionalRenderingRules(rules, resolvedNodes, dataSources.currentLayoutSet.dataType);
     } catch (error) {
       window.logError('Error while evaluating conditional rendering rules:\n', error);
       futureHiddenFields = new Set();

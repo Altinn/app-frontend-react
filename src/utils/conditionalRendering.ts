@@ -9,6 +9,7 @@ import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 export function runConditionalRenderingRules(
   rules: IConditionalRenderingRules | null,
   nodes: LayoutPages,
+  dataType: string,
 ): Set<string> {
   const componentsToHide = new Set<string>();
   if (!window.conditionalRuleHandlerObject) {
@@ -32,21 +33,21 @@ export function runConditionalRenderingRules(
       if (node?.isType('RepeatingGroup')) {
         for (const row of node.item.rows) {
           const firstChild = row.items[0] as LayoutNode | undefined;
-          runConditionalRenderingRule(connection, firstChild, componentsToHide);
+          runConditionalRenderingRule(connection, firstChild, componentsToHide, dataType);
           if (connection.repeatingGroup.childGroupId) {
             const childId = `${connection.repeatingGroup.childGroupId}-${row.index}`;
             const childNode = node.flat(true, { onlyInRowUuid: row.uuid }).find((n) => n.item.id === childId);
             if (childNode && childNode.isType('RepeatingGroup')) {
               for (const childRow of childNode.item.rows) {
                 const firstNestedChild = childRow.items[0] as LayoutNode | undefined;
-                runConditionalRenderingRule(connection, firstNestedChild, componentsToHide);
+                runConditionalRenderingRule(connection, firstNestedChild, componentsToHide, dataType);
               }
             }
           }
         }
       }
     } else {
-      runConditionalRenderingRule(connection, topLevelNode, componentsToHide);
+      runConditionalRenderingRule(connection, topLevelNode, componentsToHide, dataType);
     }
   }
 
@@ -57,6 +58,7 @@ function runConditionalRenderingRule(
   rule: IConditionalRenderingRule,
   node: LayoutNode | undefined,
   hiddenFields: Set<string>,
+  dataType: string,
 ) {
   const functionToRun = rule.selectedFunction;
   const inputKeys = Object.keys(rule.inputParams);
@@ -66,7 +68,7 @@ function runConditionalRenderingRule(
   for (const key of inputKeys) {
     const param = rule.inputParams[key].replace(/{\d+}/g, '');
     const transposed = node?.transposeDataModel(param) ?? param;
-    const value = formDataSelector(transposed);
+    const value = formDataSelector({ dataType, property: transposed });
 
     if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
       inputObj[key] = value;

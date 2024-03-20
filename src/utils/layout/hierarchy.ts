@@ -19,7 +19,6 @@ import { useAllOptionsSelector } from 'src/features/options/useAllOptions';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { getLayoutComponentObject } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
-import { resolveDataModelBindings } from 'src/utils/databindings';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { CompInternal, HierarchyDataSources, ILayouts } from 'src/layout/layout';
@@ -61,8 +60,6 @@ function resolvedNodesInLayouts(
         config,
         resolvingPerRow: false,
       }) as unknown as CompInternal;
-
-      resolveDataModelBindings(resolvedItem, dataSources.currentLayoutSet);
 
       if (node.item.type === 'RepeatingGroup') {
         for (const row of node.item.rows) {

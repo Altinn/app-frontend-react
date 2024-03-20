@@ -3,7 +3,6 @@ import React from 'react';
 import { LegacySelect } from '@digdir/design-system-react';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
-import { FD } from 'src/features/formData/FormDataWrite';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useFormattedOptions } from 'src/hooks/useFormattedOptions';
@@ -15,9 +14,7 @@ export function DropdownComponent({ node, isValid, overrideDisplay }: IDropdownP
   const { id, readOnly, textResourceBindings } = node.item;
   const { langAsString } = useLanguage();
 
-  const debounce = FD.useDebounceImmediately();
-
-  const { options, isFetching, currentStringy, setData } = useGetOptions({
+  const { options, isFetching, currentStringy, setData, debounce } = useGetOptions({
     ...node.item,
     node,
     removeDuplicates: true,

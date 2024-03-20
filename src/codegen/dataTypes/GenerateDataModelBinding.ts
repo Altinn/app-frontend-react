@@ -2,8 +2,6 @@ import { CG, Variant } from 'src/codegen/CG';
 import { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 import type { Optionality } from 'src/codegen/CodeGenerator';
 import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
-import type { GenerateString } from 'src/codegen/dataTypes/GenerateString';
-import type { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 
 export interface DataModelBindingConfig {
   name: string;
@@ -12,8 +10,7 @@ export interface DataModelBindingConfig {
 }
 
 type InternalType = GenerateCommonImport<'IDataModelReference'>;
-type ExternalType = GenerateUnion<[GenerateString, InternalType]>;
-
+type ExternalType = GenerateCommonImport<'IDataModelBinding'>;
 /**
  * Generates a data model binding property. This is just a regular property, but this class is used as a
  * helper to make sure you always provide a description and title, and never specify the inner type yourself.
@@ -23,9 +20,9 @@ export class GenerateDataModelBinding extends GenerateProperty<ExternalType> {
   private readonly internalProp: InternalType;
 
   constructor(config: DataModelBindingConfig) {
+    // TODO(Datamodels): Add title and description
     const internalProp = CG.common('IDataModelReference');
-    const externalProp = new CG.union(new CG.str(), CG.common('IDataModelReference'));
-
+    const externalProp = CG.common('IDataModelBinding');
     super(config.name, externalProp);
     this.internalProp = internalProp;
     this.externalProp = externalProp;

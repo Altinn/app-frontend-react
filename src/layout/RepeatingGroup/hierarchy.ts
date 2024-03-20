@@ -2,6 +2,7 @@ import { MissingRowIdException } from 'src/features/formData/MissingRowIdExcepti
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { GridHierarchyGenerator } from 'src/layout/Grid/hierarchy';
 import { nodesFromGridRow } from 'src/layout/Grid/tools';
+import { isDataModelReference } from 'src/utils/databindings';
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { CompRepeatingGroupExternal, HRepGroupRows } from 'src/layout/RepeatingGroup/config.generated';
 import type {
@@ -88,8 +89,8 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Repeat
 
       // Only fetch the row ID (and by extension the number of rows) so that we only re-generate the hierarchy
       // when the number for rows and/or the row IDs change, not the other data within it.
-      const formData = item.dataModelBindings?.group
-        ? ctx.generator.dataSources.formDataSelector(item.dataModelBindings.group, (rows) =>
+      const formData = me.item.dataModelBindings?.group
+        ? ctx.generator.dataSources.formDataSelector(me.item.dataModelBindings.group, (rows) =>
             Array.isArray(rows) ? rows.map((row) => ({ [ALTINN_ROW_ID]: row[ALTINN_ROW_ID] })) : [],
           )
         : undefined;
@@ -156,18 +157,26 @@ const mutateComponentId: (rowIndex: number) => ChildMutator = (rowIndex) => (ite
   item.id += `-${rowIndex}`;
 };
 
-const mutateDataModelBindings: (
-  props: ChildFactoryProps<'RepeatingGroup'>,
-  rowIndex: number,
-) => ChildMutator<'RepeatingGroup'> = (props, rowIndex) => (item) => {
-  const groupBinding = 'dataModelBindings' in props.item ? props.item.dataModelBindings?.group : undefined;
-  const bindings = item.dataModelBindings || {};
-  for (const key of Object.keys(bindings)) {
-    if (groupBinding && bindings[key]) {
-      bindings[key] = bindings[key].replace(groupBinding, `${groupBinding}[${rowIndex}]`);
+const mutateDataModelBindings: (props: ChildFactoryProps<'RepeatingGroup'>, rowIndex: number) => ChildMutator =
+  (props, rowIndex) => (item) => {
+    const groupBinding = 'dataModelBindings' in props.item ? props.item.dataModelBindings?.group : undefined;
+    const groupBindingProperty = isDataModelReference(groupBinding) ? groupBinding.property : groupBinding;
+
+    if (groupBindingProperty) {
+      const bindings = item.dataModelBindings || {};
+      for (const key of Object.keys(bindings)) {
+        // Work for both string and IDataModelReference
+        if (typeof bindings[key] === 'string') {
+          bindings[key] = bindings[key].replace(groupBindingProperty, `${groupBindingProperty}[${rowIndex}]`);
+        } else if (isDataModelReference(bindings[key])) {
+          bindings[key].property = bindings[key].property.replace(
+            groupBindingProperty,
+            `${groupBindingProperty}[${rowIndex}]`,
+          );
+        }
+      }
     }
-  }
-};
+  };
 
 const mutateMapping: (ctx: HierarchyContext, rowIndex: number) => ChildMutator = (ctx, rowIndex) => (item) => {
   if ('mapping' in item && item.mapping) {

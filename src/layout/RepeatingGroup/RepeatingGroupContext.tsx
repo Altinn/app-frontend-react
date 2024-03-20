@@ -332,7 +332,7 @@ function useExtendedRepeatingGroupState(node: BaseLayoutNode<CompRepeatingGroupI
     const uuid = uuidv4();
     startAddingRow(uuid);
     appendToList({
-      path: binding,
+      reference: binding,
       newValue: { [ALTINN_ROW_ID]: uuid },
     });
     let foundRow: HRepGroupRow | undefined;
@@ -365,7 +365,7 @@ function useExtendedRepeatingGroupState(node: BaseLayoutNode<CompRepeatingGroupI
       if (attachmentDeletionSuccessful && binding) {
         onDeleteGroupRow(nodeRef.current, row.index);
         removeFromList({
-          path: binding,
+          reference: binding,
           startAtIndex: row.index,
           callback: (item) => item[ALTINN_ROW_ID] === uuid,
         });
