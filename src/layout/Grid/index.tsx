@@ -9,6 +9,7 @@ import { GridSummaryComponent } from 'src/layout/Grid/GridSummaryComponent';
 import { DefaultNodeGenerator } from 'src/utils/layout/DefaultNodeGenerator';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { GridRows } from 'src/layout/common.generated';
+import type { GridRowsInternal } from 'src/layout/Grid/types';
 import type { CompExternalExact } from 'src/layout/layout';
 import type {
   ChildClaimerProps,
@@ -60,6 +61,9 @@ export class Grid extends GridDef {
       ...item,
       ...evalCommon(item),
       ...evalTrb(item),
+
+      // TODO: Process rows and get make refs
+      rows: item.rows as GridRowsInternal,
     };
   }
 

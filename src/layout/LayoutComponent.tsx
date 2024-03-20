@@ -185,7 +185,7 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
   useDisplayData(node: LayoutNode<Type>): string {
     const displayDataProps = useDisplayDataProps();
     const item = useNodeItem(node);
-    return this.getDisplayData(node, item, displayDataProps);
+    return this.getDisplayData(node, item as any, displayDataProps);
   }
 
   /**

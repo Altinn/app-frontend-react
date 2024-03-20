@@ -1,5 +1,6 @@
 import { isNodeRef } from 'src/utils/layout/nodeRef';
-import type { GridRow, GridRows } from 'src/layout/common.generated';
+import type { GridCell, GridCellLabelFrom, GridCellText, GridRow, GridRows } from 'src/layout/common.generated';
+import type { GridCellInternal, GridCellNodeRef } from 'src/layout/Grid/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function nodesFromGrid(grid: LayoutNode<'Grid'>): LayoutNode[] {
@@ -43,4 +44,20 @@ export function isGridRowHidden(row: GridRow) {
   });
 
   return atLeastNoneNodeExists && allCellsAreHidden;
+}
+
+export function isGridCellText(cell: GridCellInternal | GridCell): cell is GridCellText {
+  return !!(cell && 'text' in cell && cell.text !== undefined);
+}
+
+export function isGridCellLabelFrom(cell: GridCellInternal | GridCell): cell is GridCellLabelFrom {
+  return !!(cell && 'labelFrom' in cell && cell.labelFrom !== undefined);
+}
+
+export function isGridCellEmpty(cell: GridCellInternal | GridCell): boolean {
+  return cell === null || (isGridCellText(cell) && cell.text === '');
+}
+
+export function isGridCellNode(cell: GridCellInternal): cell is GridCellNodeRef {
+  return isNodeRef(cell);
 }

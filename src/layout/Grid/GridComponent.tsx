@@ -16,7 +16,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import css from 'src/layout/Grid/Grid.module.css';
-import { isGridRowHidden, nodesFromGrid } from 'src/layout/Grid/tools';
+import { isGridCellLabelFrom, isGridCellText, isGridRowHidden, nodesFromGrid } from 'src/layout/Grid/tools';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -24,7 +24,8 @@ import { isNodeRef } from 'src/utils/layout/nodeRef';
 import { useNodes } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { GridRowInternal, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/common.generated';
+import type { ITableColumnFormatting, ITableColumnProperties } from 'src/layout/common.generated';
+import type { GridRowInternal } from 'src/layout/Grid/types';
 import type { ITextResourceBindings } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -99,13 +100,13 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: 
           mutableColumnSettings[cellIdx] = cell.columnOptions;
         }
 
-        if (cell && ('labelFrom' in cell || 'text' in cell)) {
+        if (isGridCellText(cell) || isGridCellLabelFrom(cell)) {
           let textCellSettings: ITableColumnProperties = mutableColumnSettings[cellIdx]
             ? structuredClone(mutableColumnSettings[cellIdx])
             : {};
           textCellSettings = { ...textCellSettings, ...cell };
 
-          if ('text' in cell && cell.text) {
+          if (isGridCellText(cell)) {
             return (
               <CellWithText
                 key={`${cell.text}/${cellIdx}`}
@@ -122,18 +123,16 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: 
             );
           }
 
-          if ('labelFrom' in cell && cell.labelFrom) {
-            const closestComponent = node.flat().find((n) => n.getBaseId() === cell.labelFrom);
-            return (
-              <CellWithLabel
-                key={`${cell.labelFrom}/${cellIdx}`}
-                className={className}
-                isHeader={row.header}
-                columnStyleOptions={textCellSettings}
-                referenceComponent={closestComponent}
-              />
-            );
-          }
+          const closestComponent = node.flat().find((n) => n.getBaseId() === cell.labelFrom);
+          return (
+            <CellWithLabel
+              key={`${cell.labelFrom}/${cellIdx}`}
+              className={className}
+              isHeader={row.header}
+              columnStyleOptions={textCellSettings}
+              referenceComponent={closestComponent}
+            />
+          );
         }
         const targetNode = isNodeRef(cell) ? nodes.findById(cell.nodeRef) : undefined;
         return (
