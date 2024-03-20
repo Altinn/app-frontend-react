@@ -11,7 +11,7 @@ type RepGroupEdit = Exclude<Comp['edit'], undefined>;
 type PerRowProps = 'hiddenRow';
 type PerRowTrb = 'save_and_next_button' | 'save_button' | 'edit_button_close' | 'edit_button_open';
 type PerRowEdit = 'deleteButton' | 'saveButton' | 'editButton' | 'alertOnDelete' | 'saveAndNextButton';
-export type HGroupExpressions = ExprResolved<
+export type GroupExpressions = ExprResolved<
   Pick<Comp, PerRowProps> & {
     textResourceBindings?: Pick<RepGroupTrb, PerRowTrb>;
     edit?: Pick<RepGroupEdit, PerRowEdit>;
@@ -24,15 +24,20 @@ export type RepGroupInternal = ExprResolved<
   Omit<Comp, PerRowProps | 'textResourceBindings' | 'edit'> & {
     textResourceBindings?: Omit<RepGroupTrb, PerRowTrb>;
     edit?: Omit<RepGroupEdit, PerRowEdit>;
-    rows: HRepGroupRows;
+    rows: RepGroupRows;
   }
 >;
 
-export interface HRepGroupRow {
-  uuid: string;
-  index: number;
-  items: NodeRef[];
-  groupExpressions?: HGroupExpressions;
+export interface NodeRefInRow extends NodeRef {
+  baseId: string;
+  multiPageIndex: number;
 }
 
-export type HRepGroupRows = HRepGroupRow[];
+export interface RepGroupRow {
+  uuid: string;
+  index: number;
+  groupExpressions: GroupExpressions;
+  items: NodeRefInRow[];
+}
+
+export type RepGroupRows = RepGroupRow[];

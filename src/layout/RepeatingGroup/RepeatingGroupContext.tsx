@@ -14,6 +14,7 @@ import { Validation } from 'src/features/validation/validationContext';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { OpenByDefaultProvider } from 'src/layout/RepeatingGroup/OpenByDefaultProvider';
+import type { RepGroupRow } from 'src/layout/RepeatingGroup/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface Store {
@@ -334,7 +335,7 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
       path: binding,
       newValue: { [ALTINN_ROW_ID]: uuid },
     });
-    let foundRow: HRepGroupRow | undefined;
+    let foundRow: RepGroupRow | undefined;
     await waitForNode((node) => {
       foundRow = node.item.rows.find((row) => row.uuid === uuid);
       return !!foundRow;

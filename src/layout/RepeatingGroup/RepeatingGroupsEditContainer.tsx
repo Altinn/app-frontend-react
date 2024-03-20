@@ -7,7 +7,7 @@ import { Back, Delete as DeleteIcon, Next } from '@navikt/ds-icons';
 import cn from 'classnames';
 
 import { Lang } from 'src/features/language/Lang';
-import { GenericComponent } from 'src/layout/GenericComponent';
+import { GenericComponentByRef } from 'src/layout/GenericComponent';
 import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import {
@@ -69,13 +69,9 @@ function RepeatingGroupsEditContainerInternal({
   const { multiPageEnabled, multiPageIndex, nextMultiPage, prevMultiPage, hasNextMultiPage, hasPrevMultiPage } =
     useRepeatingGroupEdit();
   const id = node.getId();
-  const textsForRow = row.groupExpressions?.textResourceBindings;
-  const editForRow = row.groupExpressions?.edit;
+  const textsForRow = row.groupExpressions.textResourceBindings;
+  const editForRow = row.groupExpressions.edit;
   const editForGroup = group.edit;
-  const edit = {
-    ...editForGroup,
-    ...editForRow,
-  } as CompInternal<'RepeatingGroup'>['edit'];
   const rowItems = row.items;
   const { refSetter } = useRepeatingGroupsFocusContext();
   const texts = {
@@ -85,20 +81,19 @@ function RepeatingGroupsEditContainerInternal({
 
   const getGenericComponentsToRender = (): (JSX.Element | null)[] =>
     rowItems.map((n): JSX.Element | null => {
-      const isOnOtherMultiPage = multiPageEnabled && n.item.multiPageIndex !== multiPageIndex;
+      const isOnOtherMultiPage = multiPageEnabled && n.multiPageIndex !== multiPageIndex;
       if (isOnOtherMultiPage) {
         return null;
       }
 
-      const baseId = n.getBaseId();
-      if (group.tableColumns && baseId && group.tableColumns[baseId]?.showInExpandedEdit === false) {
+      if (group.tableColumns && group.tableColumns[n.baseId]?.showInExpandedEdit === false) {
         return null;
       }
 
       return (
-        <GenericComponent
-          node={n}
-          key={n.getId()}
+        <GenericComponentByRef
+          nodeRef={n}
+          key={n.nodeRef}
         />
       );
     });
@@ -106,11 +101,11 @@ function RepeatingGroupsEditContainerInternal({
   const isNested = typeof group.baseComponentId === 'string';
   const saveButtonVisible =
     !forceHideSaveButton &&
-    (edit?.saveButton !== false || (edit.saveAndNextButton === true && !moreVisibleRowsAfterEditIndex));
+    (editForRow?.saveButton !== false || (editForRow.saveAndNextButton === true && !moreVisibleRowsAfterEditIndex));
   const saveAndNextButtonVisible =
-    !forceHideSaveButton && edit.saveAndNextButton === true && moreVisibleRowsAfterEditIndex;
+    !forceHideSaveButton && editForRow?.saveAndNextButton === true && moreVisibleRowsAfterEditIndex;
 
-  const hideTable = edit.mode === 'hideTable' || edit.mode === 'showAll';
+  const hideTable = editForGroup?.mode === 'hideTable' || editForGroup?.mode === 'showAll';
 
   return (
     <div
@@ -120,10 +115,10 @@ function RepeatingGroupsEditContainerInternal({
         { [classes.hideTable]: hideTable, [classes.nestedHideTable]: hideTable && isNested },
         className,
       )}
-      style={{ marginBottom: isNested && edit?.mode === 'showAll' ? 15 : undefined }}
+      style={{ marginBottom: isNested && editForGroup?.mode === 'showAll' ? 15 : undefined }}
       data-testid='group-edit-container'
     >
-      {edit?.deleteButton !== false && edit?.mode === 'showAll' && (
+      {editForRow?.deleteButton !== false && editForGroup?.mode === 'showAll' && (
         <Grid
           item={true}
           container={true}
@@ -162,7 +157,7 @@ function RepeatingGroupsEditContainerInternal({
           {getGenericComponentsToRender()}
         </Grid>
         <Grid item={true}>
-          {edit?.multiPage && (
+          {editForGroup?.multiPage && (
             <Grid
               container={true}
               direction='row'

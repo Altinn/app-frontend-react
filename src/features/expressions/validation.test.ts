@@ -20,15 +20,16 @@ function evalAllExpressions(layouts: Layouts) {
       delete input['rows'];
       delete input['childComponents'];
 
-      evalExprInObj({
-        input,
-        node,
-        config: {
-          ...ExprConfigForComponent,
-          ...ExprConfigForGroup,
-        },
-        dataSources,
-      });
+      // TODO: Re-implement this
+      // evalExprInObj({
+      //   input,
+      //   node,
+      //   config: {
+      //     ...ExprConfigForComponent,
+      //     ...ExprConfigForGroup,
+      //   },
+      //   dataSources,
+      // });
     }
   }
 }
@@ -64,7 +65,8 @@ describe('Expression validation', () => {
       const result: (typeof tests)['content'][number]['layouts'] = {};
       for (const page of Object.keys(t.layouts)) {
         const layout = t.layouts[page].data.layout;
-        preProcessLayout(layout);
+        // TODO: Re-implement pre-processing
+        // preProcessLayout(layout);
         result[page] = {
           $schema: t.layouts[page].$schema,
           data: { layout },

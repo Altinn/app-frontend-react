@@ -21,7 +21,7 @@ import type {
   NodeGeneratorProps,
   SummaryRendererProps,
 } from 'src/layout/LayoutComponent';
-import type { HRepGroupRows, RepGroupInternal } from 'src/layout/RepeatingGroup/types';
+import type { RepGroupInternal, RepGroupRows } from 'src/layout/RepeatingGroup/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent<'RepeatingGroup'>, ValidationFilter {
@@ -69,7 +69,7 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
         ) as { altinnRowId: string; index: number }[])
       : undefined;
 
-    const rows: HRepGroupRows =
+    const rows: RepGroupRows =
       formData?.map((row) => ({
         uuid: row[ALTINN_ROW_ID],
         index: row.index,

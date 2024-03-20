@@ -26,6 +26,7 @@ import type { AlertOnChange } from 'src/hooks/useAlertOnChange';
 import type { CompInternal, ITextResourceBindings } from 'src/layout/layout';
 import type { AnyComponent } from 'src/layout/LayoutComponent';
 import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
+import type { GroupExpressions } from 'src/layout/RepeatingGroup/types';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -57,7 +58,7 @@ function getTableTitle(textResourceBindings: ITextResourceBindings) {
 function getEditButtonText(
   isEditing: boolean,
   langTools: IUseLanguage,
-  textResourceBindings: CompInternal<'RepeatingGroup'>['textResourceBindings'] | undefined,
+  textResourceBindings: GroupExpressions['textResourceBindings'] | undefined,
 ) {
   const buttonTextKey = isEditing
     ? textResourceBindings?.edit_button_close
@@ -86,21 +87,16 @@ export function RepeatingGroupTableRow({
   const id = node.getId();
   const group = useNodeItem(node);
   const row = group.rows.find((r) => r.uuid === uuid);
-  const expressionsForRow = row?.groupExpressions;
+  const rowExpressions = row?.groupExpressions;
+  const editForRow = rowExpressions?.edit;
+  const editForGroup = group.edit;
+  const trbForRow = rowExpressions?.textResourceBindings;
   const columnSettings = group.tableColumns;
-  const edit = {
-    ...group.edit,
-    ...expressionsForRow?.edit,
-  } as CompInternal<'RepeatingGroup'>['edit'];
-  const resolvedTextBindings = {
-    ...group.textResourceBindings,
-    ...expressionsForRow?.textResourceBindings,
-  } as CompInternal<'RepeatingGroup'>['textResourceBindings'];
 
   const rowValidations = useDeepValidationsForNode(node, true, uuid);
   const rowHasErrors = hasValidationErrors(rowValidations);
 
-  const alertOnDelete = useAlertOnChange(Boolean(edit?.alertOnDelete), deleteRow);
+  const alertOnDelete = useAlertOnChange(Boolean(editForRow?.alertOnDelete), deleteRow);
 
   const tableNodes = getTableNodes({ onlyInRowUuid: uuid }) || [];
   const displayDataProps = useDisplayDataProps();
@@ -118,7 +114,7 @@ export function RepeatingGroupTableRow({
 
   const editButtonText = rowHasErrors
     ? langAsString('general.edit_alt_error')
-    : getEditButtonText(isEditingRow, langTools, resolvedTextBindings);
+    : getEditButtonText(isEditingRow, langTools, trbForRow);
 
   const deleteButtonText = langAsString('general.delete');
 
@@ -139,7 +135,7 @@ export function RepeatingGroupTableRow({
     >
       {!mobileView ? (
         tableNodes.map((n, idx) =>
-          shouldEditInTable(edit, n, columnSettings) ? (
+          shouldEditInTable(editForGroup, n, columnSettings) ? (
             <Table.Cell
               key={n.getId()}
               className={classes.tableCell}
@@ -181,7 +177,7 @@ export function RepeatingGroupTableRow({
             {tableNodes.map(
               (n, i, { length }) =>
                 !isEditingRow &&
-                (shouldEditInTable(edit, n, columnSettings) ? (
+                (shouldEditInTable(editForGroup, n, columnSettings) ? (
                   <Grid
                     container={true}
                     item={true}
@@ -214,17 +210,19 @@ export function RepeatingGroupTableRow({
       )}
       {!mobileView ? (
         <>
-          {edit?.editButton === false && edit?.deleteButton === false && (displayEditColumn || displayDeleteColumn) ? (
+          {editForRow?.editButton === false &&
+          editForRow?.deleteButton === false &&
+          (displayEditColumn || displayDeleteColumn) ? (
             <Table.Cell
               key={`editDelete-${uuid}`}
               colSpan={displayEditColumn && displayDeleteColumn ? 2 : 1}
             />
           ) : null}
-          {edit?.editButton !== false && displayEditColumn && (
+          {editForRow?.editButton !== false && displayEditColumn && (
             <Table.Cell
               key={`edit-${uuid}`}
               className={classes.buttonCell}
-              colSpan={displayDeleteColumn && edit?.deleteButton === false ? 2 : 1}
+              colSpan={displayDeleteColumn && editForRow?.deleteButton === false ? 2 : 1}
             >
               <div className={classes.buttonInCellWrapper}>
                 <Button
@@ -244,17 +242,17 @@ export function RepeatingGroupTableRow({
               </div>
             </Table.Cell>
           )}
-          {edit?.deleteButton !== false && displayDeleteColumn && (
+          {editForRow?.deleteButton !== false && displayDeleteColumn && (
             <Table.Cell
               key={`delete-${uuid}`}
               className={cn(classes.buttonCell)}
-              colSpan={displayEditColumn && edit?.editButton === false ? 2 : 1}
+              colSpan={displayEditColumn && editForRow?.editButton === false ? 2 : 1}
             >
               <div className={classes.buttonInCellWrapper}>
                 <DeleteElement
                   uuid={uuid}
                   isDeletingRow={isDeletingRow}
-                  edit={edit}
+                  editForRow={editForRow}
                   deleteButtonText={deleteButtonText}
                   firstCellData={firstCellData}
                   alertOnDeleteProps={alertOnDelete}
@@ -272,7 +270,7 @@ export function RepeatingGroupTableRow({
           style={{ verticalAlign: 'top' }}
         >
           <div className={classes.buttonInCellWrapper}>
-            {edit?.editButton !== false && (
+            {editForRow?.editButton !== false && (
               <Button
                 aria-expanded={isEditingRow}
                 aria-controls={isEditingRow ? `group-edit-container-${id}-${uuid}` : undefined}
@@ -289,13 +287,13 @@ export function RepeatingGroupTableRow({
                 {rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
               </Button>
             )}
-            {edit?.deleteButton !== false && (
+            {editForRow?.deleteButton !== false && (
               <>
                 <div style={{ height: 8 }} />
                 <DeleteElement
                   uuid={uuid}
                   isDeletingRow={isDeletingRow}
-                  edit={edit}
+                  editForRow={editForRow}
                   deleteButtonText={deleteButtonText}
                   firstCellData={firstCellData}
                   alertOnDeleteProps={alertOnDelete}
@@ -332,7 +330,7 @@ export function shouldEditInTable(
 const DeleteElement = ({
   uuid,
   isDeletingRow,
-  edit,
+  editForRow,
   deleteButtonText,
   firstCellData,
   langAsString,
@@ -341,7 +339,7 @@ const DeleteElement = ({
 }: {
   uuid: string;
   isDeletingRow: boolean;
-  edit: CompInternal<'RepeatingGroup'>['edit'];
+  editForRow: GroupExpressions['edit'];
   deleteButtonText: string;
   firstCellData: string | undefined;
   langAsString: (key: string) => string;
@@ -349,7 +347,7 @@ const DeleteElement = ({
   children: React.ReactNode;
 }) => (
   <ConditionalWrapper
-    condition={Boolean(edit?.alertOnDelete)}
+    condition={Boolean(editForRow?.alertOnDelete)}
     wrapper={(children) => (
       <DeleteWarningPopover
         placement='left'

@@ -14,7 +14,7 @@ import classes from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup.mod
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { ITextResourceBindings } from 'src/layout/layout';
-import type { HRepGroupRow } from 'src/layout/RepeatingGroup/types';
+import type { RepGroupRow } from 'src/layout/RepeatingGroup/types';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -51,7 +51,7 @@ export function SummaryRepeatingGroup({
   const titleTrb = textBindings && 'title' in textBindings ? textBindings.title : undefined;
   const ariaLabel = langAsString(summaryTitleTrb ?? summaryAccessibleTitleTrb ?? titleTrb);
 
-  const rows: HRepGroupRow[] = [];
+  const rows: RepGroupRow[] = [];
   for (const row of targetNode.item.rows) {
     if (!row || row.groupExpressions?.hiddenRow || row.index === undefined) {
       continue;

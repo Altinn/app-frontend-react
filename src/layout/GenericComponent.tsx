@@ -17,11 +17,12 @@ import { GenericComponentDescription, GenericComponentLabel } from 'src/layout/G
 import { shouldComponentRenderLabel } from 'src/layout/index';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
+import { useNodeRef } from 'src/utils/layout/nodeRef';
 import { useIsHiddenComponent, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IGridStyling } from 'src/layout/common.generated';
 import type { GenericComponentOverrideDisplay, IFormComponentContext } from 'src/layout/FormComponentContext';
-import type { PropsFromGenericComponent } from 'src/layout/index';
+import type { NodeRef, PropsFromGenericComponent } from 'src/layout/index';
 import type { CompInternal, CompTypes } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -41,6 +42,15 @@ export function GenericComponentById({ id }: { id: string }) {
   const node = useNode(id);
   if (!node) {
     throw new Error(`Node with id ${id} not found`);
+  }
+
+  return <GenericComponent node={node} />;
+}
+
+export function GenericComponentByRef({ nodeRef }: { nodeRef: NodeRef }) {
+  const node = useNodeRef(nodeRef);
+  if (!node) {
+    throw new Error(`Node with ref '${nodeRef.nodeRef}' not found`);
   }
 
   return <GenericComponent node={node} />;

@@ -68,14 +68,8 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
       showEditButtonColumns.add(row.groupExpressions.edit?.editButton !== false);
     }
   }
-  let displayDeleteColumn = showDeleteButtonColumns.has(true) || !showDeleteButtonColumns.has(false);
+  const displayDeleteColumn = showDeleteButtonColumns.has(true) || !showDeleteButtonColumns.has(false);
   let displayEditColumn = showEditButtonColumns.has(true) || !showEditButtonColumns.has(false);
-  if (edit?.editButton === false) {
-    displayEditColumn = false;
-  }
-  if (edit?.deleteButton === false) {
-    displayDeleteColumn = false;
-  }
   if (edit?.mode === 'onlyTable') {
     displayEditColumn = false;
   }
