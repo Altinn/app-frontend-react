@@ -24,6 +24,9 @@ export const textResourcesUrl = (language: string) => `${origin}/${org}/${app}/a
 export const getPaymentInfoUrl = (instanceOwnerPartyId: string, instanceGuid: string) =>
   `${origin}/${org}/${app}/instances/${instanceOwnerPartyId}/${instanceGuid}/payment`;
 
+export const getOrderDetailsUrl = (instanceOwnerPartyId: string, instanceGuid: string) =>
+  `${origin}/${org}/${app}/instances/${instanceOwnerPartyId}/${instanceGuid}/payment/order-details`;
+
 export const getFileUploadUrl = (instanceId: string, attachmentType: string) =>
   `${appPath}/instances/${instanceId}/data?dataType=${attachmentType}`;
 

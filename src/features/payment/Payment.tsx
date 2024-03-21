@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react';
 
-import { Alert, Button, Heading, Label, Skeleton, Table } from '@digdir/design-system-react';
+import { Alert, Button, Heading, Skeleton } from '@digdir/design-system-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
 import classes from 'src/features/payment/Payment.module.css';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
+import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTable';
 import { fetchPaymentInfo } from 'src/queries/queries';
 export const Payment: React.FunctionComponent = () => {
   const { partyId, instanceGuid } = useInstanceIdParams();
@@ -82,33 +83,7 @@ export const Payment: React.FunctionComponent = () => {
           <Skeleton.Text width='80%' />
         </div>
       ) : (
-        <Table className={classes.orderDetailsTable}>
-          <caption className={classes.tableCaption}>
-            <Heading level={2}>Summary</Heading>
-          </caption>
-          <Table.Head>
-            <Table.Row>
-              <Table.HeaderCell>Description</Table.HeaderCell>
-              <Table.HeaderCell>Quantity</Table.HeaderCell>
-              <Table.HeaderCell>Price</Table.HeaderCell>
-            </Table.Row>
-          </Table.Head>
-          <Table.Body>
-            {paymentInfoQuery.data?.orderDetails.orderLines.map((orderLine, index) => (
-              <Table.Row key={index}>
-                <Table.Cell>{orderLine.name}</Table.Cell>
-                <Table.Cell>{orderLine.quantity}</Table.Cell>
-                <Table.Cell>{orderLine.priceExVat + orderLine.priceExVat * (orderLine.vatPercent / 100)}</Table.Cell>
-              </Table.Row>
-            ))}
-            <Table.Row>
-              <Table.Cell colSpan={2}>
-                <Label>Total</Label>
-              </Table.Cell>
-              <Table.Cell>{paymentInfoQuery.data?.orderDetails.totalPriceIncVat}</Table.Cell>
-            </Table.Row>
-          </Table.Body>
-        </Table>
+        <PaymentDetailsTable orderDetails={paymentInfoQuery.data?.orderDetails} />
       )}
 
       {paymentInfoQuery.isFetched && paymentInfoQuery.data?.paymentDetails?.status === 'Failed' && (
