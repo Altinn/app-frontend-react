@@ -545,3 +545,15 @@ Cypress.Commands.add('testPdf', (callback, returnToForm = false) => {
     cy.get('#readyForPrint').should('exist');
   }
 });
+
+Cypress.Commands.add(
+  'iframeCustom',
+  // @ts-expect-error need this
+  { prevSubject: 'element' },
+  ($iframe) =>
+    new Cypress.Promise((resolve) => {
+      $iframe.ready(function () {
+        resolve($iframe.contents().find('body'));
+      });
+    }),
+);

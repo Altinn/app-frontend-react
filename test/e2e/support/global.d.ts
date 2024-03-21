@@ -125,6 +125,8 @@ declare global {
 
       interceptLayoutSetsUiSettings(uiSettings: Partial<ILayoutSets['uiSettings']>): Chainable<null>;
 
+      iframeCustom({ prevSubject: string }): Chainable<null>;
+
       assertUser(user: CyUser): Chainable<null>;
       interceptPermissions(): Chainable<null>;
       setPermissions(permissionFormat: string): void;
