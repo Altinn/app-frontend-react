@@ -120,7 +120,7 @@ export const Payment: React.FunctionComponent = () => {
         <Button
           className={classes.payButton}
           variant='secondary'
-          onClick={() => next && next({ nodeId: 'next-button' })}
+          onClick={() => next && next({ action: 'confirm', nodeId: 'next-button' })}
         >
           Next
         </Button>
