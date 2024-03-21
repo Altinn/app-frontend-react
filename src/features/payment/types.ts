@@ -5,14 +5,21 @@ export enum PaymentStatus {
 }
 
 export interface PaymentResponsePayload {
-  redirectUrl: string;
-  paymentReference: string;
-  status: PaymentStatus;
+  taskId: string;
+  paymentProcessorId: string;
   orderDetails: OrderDetails;
+  paymentDetails?: PaymentDetails;
+}
+
+export interface PaymentDetails {
+  paymentId: string;
+  redirectUrl: string;
+  receiptUrl?: string;
+  status: PaymentStatus;
 }
 
 export interface OrderDetails {
-  orderReference: string;
+  orderReference?: string;
   currency: string;
   orderLines: OrderLine[];
   totalPriceExVat: number;
