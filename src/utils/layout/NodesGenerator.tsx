@@ -3,6 +3,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { getLayoutComponentObject } from 'src/layout';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
+import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { CompExternal, ILayout } from 'src/layout/layout';
 import type {
   BasicNodeGeneratorProps,
@@ -39,6 +41,7 @@ interface ChildrenState {
 
 export function NodesGenerator() {
   const layouts = useLayouts();
+  const layoutSet = useMemo(() => new LayoutPages(), []);
 
   return (
     <div style={style}>
@@ -56,6 +59,7 @@ export function NodesGenerator() {
               key={key}
               name={key}
               layout={layout}
+              layoutSet={layoutSet}
             />
           );
         })}
@@ -63,8 +67,19 @@ export function NodesGenerator() {
   );
 }
 
-function Page({ layout, name }: { layout: ILayout; name: string }) {
+interface PageProps {
+  layout: ILayout;
+  name: string;
+  layoutSet: LayoutPages;
+}
+
+function Page({ layout, name, layoutSet }: PageProps) {
   const [children, setChildren] = useState<ChildrenState>({ forLayout: layout, map: undefined });
+  const page = useMemo(() => new LayoutPage(), []);
+
+  useEffect(() => {
+    page.registerCollection(name, layoutSet);
+  }, [layoutSet, name, page]);
 
   useEffect(() => {
     if (children.forLayout !== layout) {
@@ -123,6 +138,7 @@ function Page({ layout, name }: { layout: ILayout; name: string }) {
               component={component}
               childIds={map[component.id]}
               getItem={getItem}
+              parent={page}
             />
           );
         })}
@@ -192,9 +208,10 @@ interface ComponentProps {
   component: CompExternal;
   childIds: string[] | undefined;
   getItem: (id: string) => CompExternal;
+  parent: LayoutPage;
 }
 
-function Component({ component, childIds, getItem }: ComponentProps) {
+function Component({ component, childIds, getItem, parent }: ComponentProps) {
   const def = getLayoutComponentObject(component.type);
   const Generator = def.renderNodeGenerator;
 
@@ -202,6 +219,7 @@ function Component({ component, childIds, getItem }: ComponentProps) {
     if (def instanceof ContainerComponent) {
       const out: ContainerGeneratorProps<any> = {
         item: component,
+        parent,
         childIds: childIds ?? [],
         getChild: (id: string) => {
           if (childIds?.includes(id)) {
@@ -216,10 +234,11 @@ function Component({ component, childIds, getItem }: ComponentProps) {
 
     const out: BasicNodeGeneratorProps<any> = {
       item: component,
+      parent,
     };
 
     return out;
-  }, [childIds, component, def, getItem]);
+  }, [childIds, component, def, getItem, parent]);
 
   return (
     <>

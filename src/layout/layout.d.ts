@@ -126,9 +126,7 @@ export type DefFromCategory<C extends CompCategory> = C extends 'presentation'
         ? ContainerComponent<any>
         : never;
 
-export type LayoutNodeFromCategory<Type> = Type extends CompCategory
-  ? LayoutNode<TypesFromCategory<Type>> & DefFromCategory<Type>
-  : LayoutNode;
+export type LayoutNodeFromCategory<Type> = Type extends CompCategory ? LayoutNode<TypesFromCategory<Type>> : LayoutNode;
 
 export type ILayoutCollection = { [pageName: string]: ILayoutFileExternal };
 

@@ -35,7 +35,7 @@ export function Value({ children, className, property, collapsible, wasExpressio
 
   const editExpression = () => {
     setExpression(JSON.stringify(wasExpression, null, 2));
-    setExprContext(context.node?.top.top.myKey, context.node?.getId());
+    setExprContext(context.node?.page.pageKey, context.node?.getId());
     setActiveTab(DevToolsTab.Expressions);
   };
 

@@ -51,11 +51,15 @@ export type SimpleEval<T extends ExprVal> = (
  * @see evalExprInObj
  */
 export function evalExpr(
-  expr: Expression,
+  _expr: Expression | ExprValToActual | undefined,
   node: LayoutNode | LayoutPage | NodeNotFoundWithoutContext,
   dataSources: ContextDataSources,
   options?: EvalExprOptions,
 ) {
+  if (_expr === undefined || _expr === null || ['string', 'number', 'boolean'].includes(typeof _expr)) {
+    return _expr;
+  }
+  const expr = _expr as Expression;
   let ctx = ExprContext.withBlankPath(
     expr,
     node,
@@ -387,7 +391,7 @@ export const ExprFunctions = {
 
       const node = this.failWithoutNode();
       const closestComponent = node.closest((c) => c.id === id || c.baseComponentId === id);
-      const component = closestComponent ?? (node instanceof LayoutPage ? node.findById(id) : node.top.findById(id));
+      const component = closestComponent ?? (node instanceof LayoutPage ? node.findById(id) : node.page.findById(id));
       const dataModelBindings =
         component && 'dataModelBindings' in component.item ? component.item.dataModelBindings : undefined;
       const simpleBinding =
@@ -402,7 +406,7 @@ export const ExprFunctions = {
 
       // Expressions can technically be used without having all the layouts available, which might lead to unexpected
       // results. We should note this in the error message, so we know the reason we couldn't find the component.
-      const hasAllLayouts = node instanceof LayoutPage ? !!node.top : !!node.top.top;
+      const hasAllLayouts = node instanceof LayoutPage ? !!node.layoutSet : !!node.page.layoutSet;
       throw new ExprRuntimeError(
         this,
         hasAllLayouts
@@ -440,7 +444,7 @@ export const ExprFunctions = {
 
       const node = this.failWithoutNode();
       const closestComponent = node.closest((c) => c.id === id || c.baseComponentId === id);
-      const _targetNode = closestComponent ?? (node instanceof LayoutPage ? node.findById(id) : node.top.findById(id));
+      const _targetNode = closestComponent ?? (node instanceof LayoutPage ? node.findById(id) : node.page.findById(id));
 
       if (!_targetNode) {
         throw new ExprRuntimeError(this, `Unable to find component with identifier ${id}`);

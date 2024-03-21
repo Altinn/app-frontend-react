@@ -1,6 +1,6 @@
 import { isNodeRef } from 'src/utils/layout/nodeRef';
 import type { PageNavigationConfig } from 'src/features/expressions/ExprContext';
-import type { MinimalItem, NodeRef } from 'src/layout';
+import type { NodeRef } from 'src/layout';
 import type { ILayoutSettings } from 'src/layout/common.generated';
 import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -14,7 +14,8 @@ import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 export class LayoutPage implements LayoutObject {
   public item: Record<string, undefined> = {};
   public parent: this;
-  public top: { myKey: string; collection: LayoutPages };
+  public layoutSet: LayoutPages;
+  public pageKey: string;
 
   private directChildren: LayoutNode[] = [];
   private allChildren: LayoutNode[] = [];
@@ -30,11 +31,12 @@ export class LayoutPage implements LayoutObject {
     const idx = this.allChildren.length;
     this.allChildren.push(child);
 
-    this.idMap[child.minimalItem.id] = this.idMap[child.minimalItem.id] || [];
-    this.idMap[child.minimalItem.id].push(idx);
+    const id = child.getId();
+    this.idMap[id] = this.idMap[id] || [];
+    this.idMap[id].push(idx);
 
-    const baseComponentId: string | undefined = child.minimalItem.baseComponentId;
-    if (baseComponentId) {
+    const baseComponentId = child.getBaseId();
+    if (baseComponentId && baseComponentId !== id) {
       this.idMap[baseComponentId] = this.idMap[baseComponentId] || [];
       this.idMap[baseComponentId].push(idx);
     }
@@ -45,7 +47,7 @@ export class LayoutPage implements LayoutObject {
       return false;
     }
 
-    return otherObject instanceof LayoutPage && this.top.myKey === otherObject.top.myKey;
+    return otherObject instanceof LayoutPage && this.pageKey === otherObject.pageKey;
   }
 
   public isSame(): (otherObject: LayoutObject | NodeRef) => boolean {
@@ -56,14 +58,14 @@ export class LayoutPage implements LayoutObject {
    * Looks for a matching component upwards in the hierarchy, returning the first one (or undefined if
    * none can be found). Implemented here for parity with LayoutNode
    */
-  public closest(matching: (item: MinimalItem<CompInternal>) => boolean, traversePages = true): LayoutNode | undefined {
+  public closest(matching: (item: CompInternal) => boolean, traversePages = true): LayoutNode | undefined {
     const out = this.children(matching);
     if (out) {
       return out;
     }
 
-    if (traversePages && this.top) {
-      const otherLayouts = this.top.collection.flat(this.top.myKey);
+    if (traversePages && this.layoutSet) {
+      const otherLayouts = this.layoutSet.flat(this.pageKey);
       for (const page of otherLayouts) {
         const found = page.closest(matching, false);
         if (found) {
@@ -80,15 +82,15 @@ export class LayoutPage implements LayoutObject {
    * here for parity with LayoutNode.
    */
   public children(): LayoutNode[];
-  public children(matching: (item: MinimalItem<CompInternal>) => boolean): LayoutNode | undefined;
-  public children(matching?: (item: MinimalItem<CompInternal>) => boolean): any {
+  public children(matching: (item: CompInternal) => boolean): LayoutNode | undefined;
+  public children(matching?: (item: CompInternal) => boolean): any {
     if (!matching) {
       return this.directChildren;
     }
 
-    for (const item of this.directChildren) {
-      if (matching(item.minimalItem)) {
-        return item;
+    for (const node of this.directChildren) {
+      if (matching(node.item)) {
+        return node;
       }
     }
 
@@ -108,8 +110,8 @@ export class LayoutPage implements LayoutObject {
       return this.allChildren[this.idMap[id][0]];
     }
 
-    if (traversePages && this.top) {
-      return this.top.collection.findById(id, this.top.myKey);
+    if (traversePages && this.layoutSet) {
+      return this.layoutSet.findById(id, this.pageKey);
     }
 
     return undefined;
@@ -123,8 +125,8 @@ export class LayoutPage implements LayoutObject {
       }
     }
 
-    if (traversePages && this.top) {
-      for (const item of this.top.collection.findAllById(id, this.top.myKey)) {
+    if (traversePages && this.layoutSet) {
+      for (const item of this.layoutSet.findAllById(id, this.pageKey)) {
         out.push(item);
       }
     }
@@ -132,15 +134,13 @@ export class LayoutPage implements LayoutObject {
     return out;
   }
 
-  public registerCollection(myKey: string, collection: LayoutPages<any>) {
-    this.top = {
-      myKey,
-      collection,
-    };
+  public registerCollection(pageKey: string, layoutSet: LayoutPages<any>) {
+    this.pageKey = pageKey;
+    this.layoutSet = layoutSet;
   }
 
   public isHiddenViaTracks(layoutSettings: ILayoutSettings, pageNavigationConfig: PageNavigationConfig): boolean {
-    const myKey = this.top.myKey;
+    const myKey = this.pageKey;
     if (myKey === pageNavigationConfig.currentView) {
       // If this is the current view, then it's never hidden. This avoids settings fields as hidden when
       // code caused this to be the current view even if it's not in the common order.

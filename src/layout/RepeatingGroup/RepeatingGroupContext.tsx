@@ -16,6 +16,7 @@ import { useWaitForState } from 'src/hooks/useWaitForState';
 import { OpenByDefaultProvider } from 'src/layout/RepeatingGroup/OpenByDefaultProvider';
 import type { RepGroupRow } from 'src/layout/RepeatingGroup/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { BaseRow } from 'src/utils/layout/types';
 
 interface Store {
   editingAll: boolean;
@@ -48,7 +49,7 @@ interface ExtendedState {
 type AddRowResult =
   | { result: 'stoppedByBinding'; uuid: undefined; index: undefined }
   | { result: 'stoppedByValidation'; uuid: undefined; index: undefined }
-  | { result: 'addedAndOpened' | 'addedAndHidden'; uuid: string; index: number };
+  | ({ result: 'addedAndOpened' | 'addedAndHidden' } & BaseRow);
 
 interface ContextMethods extends ExtendedState {
   addRow: () => Promise<AddRowResult>;
@@ -71,26 +72,21 @@ const ExtendedStore = createContext<ExtendedContext>({
   required: true,
 });
 
-interface Row {
-  index: number;
-  uuid: string;
-}
-
 interface NodeState {
   numVisibleRows: number;
-  visibleRows: Row[];
-  hiddenRows: Row[];
-  editableRows: Row[];
-  deletableRows: Row[];
+  visibleRows: BaseRow[];
+  hiddenRows: BaseRow[];
+  editableRows: BaseRow[];
+  deletableRows: BaseRow[];
 }
 
 function produceStateFromNode(node: LayoutNode<'RepeatingGroup'>): NodeState {
-  const hidden: Row[] = [];
-  const visible: Row[] = [];
-  const editable: Row[] = [];
-  const deletable: Row[] = [];
+  const hidden: BaseRow[] = [];
+  const visible: BaseRow[] = [];
+  const editable: BaseRow[] = [];
+  const deletable: BaseRow[] = [];
   for (const row of node.item.rows) {
-    const rowObj: Row = {
+    const rowObj: BaseRow = {
       index: row.index,
       uuid: row.uuid,
     };

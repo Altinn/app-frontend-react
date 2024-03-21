@@ -17,8 +17,6 @@ export type CompClassMapTypes = {
 
 export type CompDef<T extends CompTypes = CompTypes> = (typeof ComponentConfigs)[T]['def'];
 
-export type MinimalItem<T extends CompInternal> = Pick<T, 'id' | 'baseComponentId' | 'type' | 'multiPageIndex'>;
-
 /**
  * A nodeRef represents a reference to a node in the layout tree. It is used to reference a specific node,
  * and you can use it to find the node in the layout tree via hooks and utilities like:
@@ -45,6 +43,14 @@ export function getLayoutComponentObject<T extends keyof CompClassMap>(type: T):
   if (type && type in ComponentConfigs) {
     return ComponentConfigs[type as keyof typeof ComponentConfigs].def as any;
   }
+  return undefined as any;
+}
+
+export function getNodeConstructor<T extends CompTypes>(type: T): (typeof ComponentConfigs)[T]['nodeConstructor'] {
+  if (type && type in ComponentConfigs) {
+    return ComponentConfigs[type].nodeConstructor;
+  }
+
   return undefined as any;
 }
 

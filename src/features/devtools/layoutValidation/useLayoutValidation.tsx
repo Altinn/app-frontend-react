@@ -153,7 +153,7 @@ export const useLayoutValidationForPage = () => {
 
 export const useLayoutValidationForNode = (node: LayoutNode) => {
   const componentId = node.getBaseId();
-  const pageName = node.top.top.myKey;
+  const pageName = node.page.pageKey;
   const layoutSetId = useCurrentLayoutSetId() || 'default';
 
   return useLaxSelector((state) => state.errors?.[layoutSetId]?.[pageName]?.[componentId]);

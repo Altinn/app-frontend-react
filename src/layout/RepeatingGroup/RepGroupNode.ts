@@ -1,18 +1,11 @@
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
-import type { CompInternal, HierarchyDataSources, ParentNode } from 'src/layout/layout';
+import type { ParentNode } from 'src/layout/layout';
 import type { IsHiddenOptions } from 'src/utils/layout/LayoutNode';
-import type { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { BaseRow, ItemStore } from 'src/utils/layout/types';
 
 export class RepGroupNode extends BaseLayoutNode<'RepeatingGroup'> {
-  constructor(
-    item: CompInternal<'RepeatingGroup'>,
-    parent: ParentNode,
-    top: LayoutPage,
-    dataSources: HierarchyDataSources,
-    rowIndex?: number,
-    rowId?: string,
-  ) {
-    super(item, parent, top, dataSources, rowIndex, rowId);
+  constructor(store: ItemStore<'RepeatingGroup'>, parent: ParentNode, row?: BaseRow) {
+    super(store, parent, row);
   }
 
   protected isDirectChildHidden(_directChild: BaseLayoutNode, _options: IsHiddenOptions): boolean {

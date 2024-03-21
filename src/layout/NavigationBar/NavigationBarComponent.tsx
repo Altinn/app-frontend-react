@@ -134,12 +134,12 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
 
     maybeSaveOnPageChange();
 
-    if (isForward && validateOnForward && (await onPageNavigationValidation(node.top, validateOnForward))) {
+    if (isForward && validateOnForward && (await onPageNavigationValidation(node.page, validateOnForward))) {
       // Block navigation if validation fails
       return;
     }
 
-    if (isBackward && validateOnBackward && (await onPageNavigationValidation(node.top, validateOnBackward))) {
+    if (isBackward && validateOnBackward && (await onPageNavigationValidation(node.page, validateOnBackward))) {
       // Block navigation if validation fails
       return;
     }

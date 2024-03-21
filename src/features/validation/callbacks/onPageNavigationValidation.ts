@@ -27,7 +27,7 @@ export function useOnPageNavigationValidation() {
     const mask = getVisibilityMask(masks);
     let nodes: LayoutNode[] = [];
 
-    const currentIndex = pageOrder.indexOf(currentPage.top.myKey);
+    const currentIndex = pageOrder.indexOf(currentPage.pageKey);
 
     if (pageConfig === 'current') {
       // Get nodes for current page
@@ -38,11 +38,11 @@ export function useOnPageNavigationValidation() {
         return false;
       }
       const pageKeysToCheck = pageOrder.slice(0, currentIndex + 1);
-      const layoutPagesToCheck = pageKeysToCheck.map((key) => currentPage.top.collection.all()[key]);
+      const layoutPagesToCheck = pageKeysToCheck.map((key) => currentPage.layoutSet.all()[key]);
       nodes = layoutPagesToCheck.flatMap((page) => page.flat());
     } else {
       // Get all nodes
-      nodes = currentPage.top.collection.allNodes();
+      nodes = currentPage.layoutSet.allNodes();
     }
 
     // Get nodes with errors along with their errors

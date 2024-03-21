@@ -103,6 +103,6 @@ function generateAutomaticPage(
 
   // Generate the hierarchy for the automatic PDF layout
   const pdfPage = generateHierarchy(automaticPdfLayout, dataSources, getLayoutComponentObject);
-  pdfPage.top = { myKey: PDF_LAYOUT_NAME, collection: layoutPages };
+  pdfPage.registerCollection(PDF_LAYOUT_NAME, layoutPages);
   return pdfPage;
 }

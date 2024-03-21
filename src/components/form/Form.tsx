@@ -44,7 +44,7 @@ export function Form() {
   useSetExpandedWidth();
 
   useRegisterNodeNavigationHandler((targetNode) => {
-    const targetView = targetNode?.top.top.myKey;
+    const targetView = targetNode?.page.pageKey;
     if (targetView && targetView !== currentPageId) {
       navigateToPage(targetView, {
         shouldFocusComponent: true,

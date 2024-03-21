@@ -14,6 +14,7 @@ export class LayoutPages<
 > {
   private readonly objects: Collection;
 
+  // TODO: Set currentView, or remove it if we don't need it
   public constructor(
     private currentView?: keyof Collection,
     objects?: Collection,

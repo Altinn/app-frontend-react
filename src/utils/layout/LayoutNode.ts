@@ -3,19 +3,14 @@ import { ContainerComponent } from 'src/layout/LayoutComponent';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
-import type { CompClassMap, CompDef, FormDataSelector, MinimalItem, NodeRef } from 'src/layout';
+import type { CompClassMap, CompDef, FormDataSelector, NodeRef } from 'src/layout';
 import type { CompCategory } from 'src/layout/common';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated';
-import type {
-  CompInternal,
-  CompTypes,
-  HierarchyDataSources,
-  LayoutNodeFromCategory,
-  ParentNode,
-} from 'src/layout/layout';
+import type { CompInternal, CompTypes, LayoutNodeFromCategory, ParentNode } from 'src/layout/layout';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
+import type { BaseRow, ItemStore } from 'src/utils/layout/types';
 
 export interface IsHiddenOptions {
   respectLegacy?: boolean;
@@ -29,27 +24,48 @@ export interface IsHiddenOptions {
  */
 export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements LayoutObject {
   public readonly def: CompClassMap[Type];
+  public readonly page: LayoutPage;
   private readonly hiddenCache: { [key: number]: boolean | undefined } = {};
-  public minimalItem: MinimalItem<CompInternal<Type>>;
+
+  // Common properties that are overwritten when changed in the item store
+  protected id: string;
+  protected baseId: string;
+  protected type: Type;
+  protected multiPageIndex: number | undefined;
 
   public constructor(
-    public item: CompInternal<Type>,
+    public store: ItemStore<Type>,
     public parent: ParentNode,
-    public top: LayoutPage,
-    private dataSources: HierarchyDataSources,
-    public readonly rowIndex?: number,
-    public readonly rowId?: string,
+    public readonly row?: BaseRow,
   ) {
-    this.def = getLayoutComponentObject(item.type as any);
-    this.minimalItem = item;
+    this.updateCommonProps();
+    this.page = parent instanceof LayoutPage ? parent : parent.page;
+    this.def = getLayoutComponentObject(this.type);
+  }
+
+  /**
+   * Gets the item state from the store.
+   * Please note that this state is the current state, and getting this state will not make your component
+   * re-render if this state changes. For that, useNodeItem() instead.
+   */
+  public get item() {
+    return this.store.getState().item as CompInternal<Type>;
+  }
+
+  public updateCommonProps() {
+    const item = this.item;
+    this.id = item.id;
+    this.baseId = item.baseComponentId || item.id;
+    this.type = item.type as Type;
+    this.multiPageIndex = item.multiPageIndex;
   }
 
   public isSameAs(otherNode: LayoutObject | NodeRef) {
     if (isNodeRef(otherNode)) {
-      return this.minimalItem.id === otherNode.nodeRef;
+      return this.id === otherNode.nodeRef;
     }
 
-    return otherNode instanceof BaseLayoutNode && this.minimalItem.id === otherNode.minimalItem.id;
+    return otherNode instanceof BaseLayoutNode && this.id === otherNode.id;
   }
 
   public isSame(): (otherNode: LayoutObject | NodeRef) => boolean {
@@ -57,23 +73,23 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
   }
 
   public getId() {
-    return this.minimalItem.id;
+    return this.id;
   }
 
   public getBaseId() {
-    return this.minimalItem.baseComponentId || this.minimalItem.id;
+    return this.baseId;
   }
 
   public getMultiPageIndex() {
-    return this.minimalItem.multiPageIndex;
+    return this.multiPageIndex;
   }
 
   public isType<T extends CompTypes>(type: T): this is LayoutNode<T> {
-    return this.minimalItem.type === type;
+    return (this.type as any) === type;
   }
 
   public getType(): Type {
-    return this.minimalItem.type as Type;
+    return this.type;
   }
 
   public isCategory<T extends CompCategory>(category: T): this is LayoutNodeFromCategory<T> {
@@ -81,19 +97,19 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
   }
 
   public pageKey(): string {
-    return this.top.top.myKey;
+    return this.page.pageKey;
   }
 
   /**
    * Looks for a matching component upwards in the hierarchy, returning the first one (or undefined if
    * none can be found).
    */
-  public closest(matching: (item: MinimalItem<CompInternal>) => boolean): this | LayoutNode | undefined {
-    if (matching(this.minimalItem)) {
+  public closest(matching: (item: CompInternal) => boolean): this | LayoutNode | undefined {
+    if (matching(this.item as CompInternal)) {
       return this;
     }
 
-    const restriction = typeof this.rowId !== 'undefined' ? { onlyInRowUuid: this.rowId } : undefined;
+    const restriction = typeof this.row?.uuid !== 'undefined' ? { onlyInRowUuid: this.row.uuid } : undefined;
     const sibling = this.parent.children(matching, restriction);
     if (sibling) {
       return sibling as LayoutNode;
@@ -140,18 +156,18 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
    */
   public children(): LayoutNode[];
   public children(
-    matching: (item: MinimalItem<CompInternal>) => boolean,
+    matching: (item: CompInternal) => boolean,
     restriction?: ChildLookupRestriction,
   ): LayoutNode | undefined;
   public children(matching: undefined, restriction?: ChildLookupRestriction): LayoutNode[];
-  public children(matching?: (item: MinimalItem<CompInternal>) => boolean, restriction?: ChildLookupRestriction): any {
+  public children(matching?: (item: CompInternal) => boolean, restriction?: ChildLookupRestriction): any {
     const list = this.childrenAsList(restriction);
     if (!matching) {
       return list;
     }
 
     for (const node of list) {
-      if (matching(node.minimalItem)) {
+      if (matching(node.item)) {
         return node;
       }
     }
@@ -199,12 +215,12 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
       return false;
     }
 
-    if (this.minimalItem.baseComponentId && isHidden(this.minimalItem.baseComponentId)) {
+    if (isHidden(this.baseId)) {
       this.hiddenCache[cacheKey] = true;
       return true;
     }
 
-    if (isHidden(this.minimalItem.id)) {
+    if (isHidden(this.id)) {
       this.hiddenCache[cacheKey] = true;
       return true;
     }
@@ -235,9 +251,10 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
   }
 
   private firstDataModelBinding() {
-    const firstBinding = Object.keys(this.minimalItem.dataModelBindings || {}).shift();
-    if (firstBinding && 'dataModelBindings' in this.minimalItem && this.minimalItem.dataModelBindings) {
-      return this.minimalItem.dataModelBindings[firstBinding];
+    const item = this.item;
+    const firstBinding = Object.keys(item.dataModelBindings || {}).shift();
+    if (firstBinding && 'dataModelBindings' in item && item.dataModelBindings) {
+      return item.dataModelBindings[firstBinding];
     }
 
     return undefined;
@@ -262,7 +279,7 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
     const firstBinding = this.firstDataModelBinding();
     if (!firstBinding) {
       if (this.parent instanceof BaseLayoutNode) {
-        return this.parent.transposeDataModel(dataModelPath, this.rowIndex);
+        return this.parent.transposeDataModel(dataModelPath, this.row?.index);
       }
 
       return dataModelPath;
@@ -281,13 +298,14 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
    * Gets the current form data for this component
    */
   public getFormData(formDataSelector: FormDataSelector): IComponentFormData<Type> {
-    if (!('dataModelBindings' in this.minimalItem) || !this.minimalItem.dataModelBindings) {
+    const item = this.item;
+    if (!('dataModelBindings' in item) || !item.dataModelBindings) {
       return {} as IComponentFormData<Type>;
     }
 
     const formDataObj: { [key: string]: any } = {};
-    for (const key of Object.keys(this.minimalItem.dataModelBindings)) {
-      const binding = this.minimalItem.dataModelBindings[key];
+    for (const key of Object.keys(item.dataModelBindings)) {
+      const binding = item.dataModelBindings[key];
       const data = formDataSelector(binding);
 
       if (key === 'list') {

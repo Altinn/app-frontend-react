@@ -208,7 +208,7 @@ export const ExpressionPlayground = () => {
               options={Object.values(nodes?.all() || [])
                 .map((page) => page.flat())
                 .flat()
-                .map((n) => ({ label: n.getId(), value: `${n.top.top.myKey}|${n.getId()}` }))}
+                .map((n) => ({ label: n.getId(), value: `${n.page.pageKey}|${n.getId()}` }))}
             />
             {forComponentId && forPage === currentPageId && (
               // eslint-disable-next-line jsx-a11y/anchor-is-valid

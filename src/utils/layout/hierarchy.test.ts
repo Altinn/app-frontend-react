@@ -288,8 +288,8 @@ describe('Hierarchical layout tools', () => {
       expect(nodes.findById('g1')?.children().length).toEqual(3);
       expect(nodes.findById('g2')?.children().length).toEqual(3);
 
-      expect(nodes.findById('g1-0')?.rowIndex).toEqual(0);
-      expect(nodes.findById('g2-3')?.rowIndex).toEqual(3);
+      expect(nodes.findById('g1-0')?.row?.index).toEqual(0);
+      expect(nodes.findById('g2-3')?.row?.index).toEqual(3);
     });
   });
 
@@ -472,7 +472,7 @@ describe('Hierarchical layout tools', () => {
 
     // Using 'findById' on the wrong page
     expect(resolved?.findLayout('page2')?.findById('field3')?.getId()).toEqual('field3');
-    expect(field3?.top.findAllById(components.group2i.id).map((i) => i.getId())).toEqual([
+    expect(field3?.page.findAllById(components.group2i.id).map((i) => i.getId())).toEqual([
       'group2i-0',
       'group2i-1',
       'group2i-2',

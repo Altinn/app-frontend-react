@@ -21,13 +21,13 @@ function getPathFromRoot(node: LayoutNode | LayoutPage): string[] {
     if (currentNode instanceof BaseLayoutNode) {
       path.push(currentNode.getBaseId());
 
-      if (typeof currentNode.rowId !== 'undefined') {
-        path.push(makeRowKey(currentNode.rowId));
+      if (typeof currentNode.row?.uuid !== 'undefined') {
+        path.push(makeRowKey(currentNode.row.uuid));
       }
     }
 
     if (currentNode instanceof LayoutPage) {
-      path.push(currentNode.top.myKey);
+      path.push(currentNode.pageKey);
     }
 
     currentNode = currentNode.parent;

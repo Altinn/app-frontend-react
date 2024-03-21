@@ -2,6 +2,7 @@ import type { ExprResolved } from 'src/features/expressions/types';
 import type { NodeRef } from 'src/layout';
 import type { GridRowsInternal } from 'src/layout/Grid/types';
 import type { CompExternal } from 'src/layout/layout';
+import type { BaseRow } from 'src/utils/layout/types';
 
 type Comp = CompExternal<'RepeatingGroup'>;
 type RepGroupTrb = Exclude<Comp['textResourceBindings'], undefined>;
@@ -36,9 +37,7 @@ export interface NodeRefInRow extends NodeRef {
   multiPageIndex: number;
 }
 
-export interface RepGroupRow {
-  uuid: string;
-  index: number;
+export interface RepGroupRow extends BaseRow {
   groupExpressions: GroupExpressions;
   items: NodeRefInRow[];
 }

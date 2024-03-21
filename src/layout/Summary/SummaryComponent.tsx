@@ -40,7 +40,7 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
 
   const targetNode = useResolvedNode(overrides?.targetNode || summaryItem.componentRef || id);
   const targetItem = targetNode?.item;
-  const targetView = targetNode?.top.top.myKey;
+  const targetView = targetNode?.page.pageKey;
 
   const validations = useUnifiedValidationsForNode(targetNode);
   const errors = validationsOfSeverity(validations, 'error');

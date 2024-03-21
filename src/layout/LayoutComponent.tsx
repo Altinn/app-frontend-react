@@ -37,9 +37,13 @@ import type {
 } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { BaseRow } from 'src/utils/layout/types';
 
 export interface BasicNodeGeneratorProps<Type extends CompTypes> {
   item: CompExternalExact<Type>;
+  parent: LayoutNode | LayoutPage;
+  row?: BaseRow;
 }
 
 export interface ContainerGeneratorProps<Type extends CompTypes> extends BasicNodeGeneratorProps<Type> {

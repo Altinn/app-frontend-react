@@ -99,7 +99,7 @@ export function SummaryGroupComponent({
           onChangeClick={onChangeClick}
           changeText={changeText}
           key={child.getId()}
-          targetNode={child as any}
+          targetNode={child}
           summaryNode={summaryNode}
           overrides={{}}
           formDataSelector={formDataSelector}
