@@ -100,9 +100,9 @@ export const Config = new CG.component({
       new CG.str()
         .optional()
         .setTitle('Binding to show in summary')
+        .setDeprecated('This property will be removed in the next major version, use `summaryBinding` instead.')
         .setDescription(
-          '**Deprecated**: This property will be removed in the next major version, use `summaryBinding` instead. ' +
-            'The value of this binding will be shown in the summary component for the list. ' +
+          'The value of this binding will be shown in the summary component for the list. ' +
             'It expects a path in the datamodel. The binding must be one of the specified bindings under dataModelBindings.',
         ),
     ),

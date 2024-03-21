@@ -139,8 +139,8 @@ const common = {
     ),
   IDataModelBinding: () =>
     new CG.union(
-      new CG.str().setDescription(
-        '**Deprecated**: Defining dataModelBindings using strings will be removed in the next major version. Use the object definition instead.',
+      new CG.str().setDeprecated(
+        'Defining `dataModelBindings` using strings will be removed in the next major version. Consider using the object definition instead.',
       ),
       CG.common('IDataModelReference'),
     ),
@@ -278,8 +278,9 @@ const common = {
     new CG.obj()
       .additionalProperties(new CG.str())
       .setTitle('Mapping')
+      .setDeprecated('Will be removed in the next major version. Use `queryParameters` with expressions instead.')
       .setDescription(
-        '**Deprecated**: Will be removed in the next major version. Use `queryParameters` with expressions instead. \nA mapping of key-value pairs (usually used for mapping a path in the data model to a query string parameter).',
+        'A mapping of key-value pairs (usually used for mapping a path in the data model to a query string parameter).',
       ),
   IQueryParameters: () =>
     new CG.obj()
