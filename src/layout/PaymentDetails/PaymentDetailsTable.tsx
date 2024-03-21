@@ -1,19 +1,23 @@
 import React from 'react';
 
-import { Heading, Label, Table } from '@digdir/design-system-react';
+import { Label, Table } from '@digdir/design-system-react';
 
+import { Caption } from 'src/components/form/Caption';
 import classes from 'src/layout/PaymentDetails/PaymentDetailsTable.module.css';
 import type { OrderDetails } from 'src/features/payment/types';
 
 type PaymentDetailsTableProps = {
   orderDetails?: OrderDetails;
+  title?: string;
+  description?: string;
 };
 
 export const PaymentDetailsTable = (props: PaymentDetailsTableProps) => (
   <Table className={classes.orderDetailsTable}>
-    <caption className={classes.tableCaption}>
-      <Heading level={2}>Summary</Heading>
-    </caption>
+    <Caption
+      title={props.title}
+      description={props.description}
+    />
     <Table.Head>
       <Table.Row>
         <Table.HeaderCell>Description</Table.HeaderCell>

@@ -11,6 +11,7 @@ export type IPaymentDetailsProps = PropsFromGenericComponent<'PaymentDetails'>;
 
 export function PaymentDetailsComponent({ node }: IPaymentDetailsProps) {
   const { partyId, instanceGuid } = useInstanceIdParams();
+  const { title, description } = node.item.textResourceBindings || {};
 
   const useOrderDetailsQuery = useQuery({
     queryKey: ['fetchOrderDetails', partyId, instanceGuid],
@@ -19,7 +20,14 @@ export function PaymentDetailsComponent({ node }: IPaymentDetailsProps) {
         return fetchOrderDetails(partyId, instanceGuid);
       }
     },
+    enabled: !!partyId && !!instanceGuid,
   });
 
-  return <PaymentDetailsTable orderDetails={useOrderDetailsQuery.data} />;
+  return (
+    <PaymentDetailsTable
+      orderDetails={useOrderDetailsQuery.data}
+      title={title}
+      description={description}
+    />
+  );
 }

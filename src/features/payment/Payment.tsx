@@ -83,7 +83,10 @@ export const Payment: React.FunctionComponent = () => {
           <Skeleton.Text width='80%' />
         </div>
       ) : (
-        <PaymentDetailsTable orderDetails={paymentInfoQuery.data?.orderDetails} />
+        <PaymentDetailsTable
+          orderDetails={paymentInfoQuery.data?.orderDetails}
+          title={'Summary'}
+        />
       )}
 
       {paymentInfoQuery.isFetched && paymentInfoQuery.data?.paymentDetails?.status === 'Failed' && (
