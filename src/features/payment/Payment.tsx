@@ -41,10 +41,10 @@ export const Payment: React.FunctionComponent = () => {
 
   useEffect(() => {
     // if no paymentDetails exists, the payment has not been initiated, initiate it by calling the pay action
-    if (!paymentInfoQuery.data?.paymentDetails) {
+    if (paymentInfoQuery.isFetched && !paymentInfoQuery.data?.paymentDetails) {
       performPayment();
     }
-  }, [performPayment, paymentInfoQuery.data?.paymentDetails]);
+  }, [performPayment, paymentInfoQuery.data?.paymentDetails, paymentInfoQuery.isFetched]);
 
   return (
     <div className={classes.paymentContainer}>
