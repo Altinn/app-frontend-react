@@ -50,8 +50,8 @@ export class Group extends GroupDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Group'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
     };
   }
 

@@ -25,8 +25,8 @@ export class Input extends InputDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Input'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
     };
   }
 

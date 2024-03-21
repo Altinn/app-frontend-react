@@ -19,12 +19,7 @@ import type { DisplayData, DisplayDataProps } from 'src/features/displayData';
 import type { SimpleEval } from 'src/features/expressions';
 import type { ExprResolved, ExprVal } from 'src/features/expressions/types';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
-import type {
-  ComponentBase,
-  FormComponentProps,
-  ISelectionComponentFull,
-  SummarizableComponentProps,
-} from 'src/layout/common.generated';
+import type { ComponentBase, FormComponentProps, SummarizableComponentProps } from 'src/layout/common.generated';
 import type { CompDef, FormDataSelector, PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
 import type {
   CompExternal,
@@ -57,17 +52,14 @@ export type NodeGeneratorProps<Type extends CompTypes> =
 export interface ExprResolver<Type extends CompTypes> {
   item: CompExternalExact<Type>;
   formDataSelector: FormDataSelector;
-  evalCommon: (
-    item: ComponentBase | FormComponentProps | SummarizableComponentProps | ISelectionComponentFull,
-  ) => ExprResolved<Required<ComponentBase>> &
+  evalCommon: () => ExprResolved<Required<ComponentBase>> &
     ExprResolved<Required<FormComponentProps>> &
-    ExprResolved<Required<SummarizableComponentProps>> &
-    ExprResolved<Required<ISelectionComponentFull>>;
+    ExprResolved<Required<SummarizableComponentProps>>;
   evalStr: SimpleEval<ExprVal.String>;
   evalNum: SimpleEval<ExprVal.Number>;
   evalBool: SimpleEval<ExprVal.Boolean>;
   evalAny: SimpleEval<ExprVal.Any>;
-  evalTrb: (item: CompExternal<Type>) => {
+  evalTrb: () => {
     textResourceBindings: ExprResolved<ITextResourceBindingsExternal<Type>>;
   };
 }

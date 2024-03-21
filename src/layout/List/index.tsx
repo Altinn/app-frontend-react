@@ -26,8 +26,8 @@ export class List extends ListDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'List'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
     };
   }
 

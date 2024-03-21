@@ -59,8 +59,8 @@ export class Grid extends GridDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Grid'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
 
       // TODO: Process rows and get make refs
       rows: item.rows as GridRowsInternal,

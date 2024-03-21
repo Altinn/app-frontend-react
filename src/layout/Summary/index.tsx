@@ -26,8 +26,8 @@ export class Summary extends SummaryDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Summary'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
     };
   }
 

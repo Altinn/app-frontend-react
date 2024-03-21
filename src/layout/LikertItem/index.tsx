@@ -29,8 +29,8 @@ export class LikertItem extends LikertItemDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'LikertItem'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
     };
   }
 

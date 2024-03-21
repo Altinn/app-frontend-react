@@ -15,8 +15,8 @@ export class Header extends HeaderDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Header'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
     };
   }
 }

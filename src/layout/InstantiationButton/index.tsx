@@ -15,8 +15,8 @@ export class InstantiationButton extends InstantiationButtonDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'InstantiationButton'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
     };
   }
 }

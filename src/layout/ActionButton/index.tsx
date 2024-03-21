@@ -15,8 +15,8 @@ export class ActionButton extends ActionButtonDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'ActionButton'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
     };
   }
 }

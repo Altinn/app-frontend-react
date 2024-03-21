@@ -21,8 +21,8 @@ export class TextArea extends TextAreaDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'TextArea'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
     };
   }
 

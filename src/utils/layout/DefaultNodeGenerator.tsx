@@ -7,8 +7,15 @@ import { useAsRef } from 'src/hooks/useAsRef';
 import { getNodeConstructor } from 'src/layout';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import type { SimpleEval } from 'src/features/expressions';
-import type { ExprConfig, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
-import type { CompExternalExact, CompTypes, HierarchyDataSources } from 'src/layout/layout';
+import type { ExprConfig, ExprResolved, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
+import type { FormComponentProps, SummarizableComponentProps } from 'src/layout/common.generated';
+import type {
+  CompExternal,
+  CompExternalExact,
+  CompTypes,
+  HierarchyDataSources,
+  ITextResourceBindings,
+} from 'src/layout/layout';
 import type { BasicNodeGeneratorProps, ExprResolver } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -75,6 +82,41 @@ export function useExpressionResolverProps<T extends CompTypes>(
     [evalProto],
   );
 
+  // This resolves common expressions that are used by multiple components
+  // and are not specific to a single component type.
+  const evalCommon = useCallback<ExprResolver<T>['evalCommon']>(() => {
+    const extras: any = {};
+    if (isFormItem(item)) {
+      if (item.required !== undefined) {
+        extras.required = evalBool(item.required, false);
+      }
+      if (item.readOnly !== undefined) {
+        extras.readOnly = evalBool(item.readOnly, false);
+      }
+    }
+    if (isSummarizableItem(item) && item.renderAsSummary !== undefined) {
+      extras.renderAsSummary = evalBool(item.renderAsSummary, false);
+    }
+
+    return {
+      ...item,
+      hidden: evalBool(item.hidden, false),
+      ...extras,
+    };
+  }, [evalBool, item]);
+
+  // This resolves all text resource bindings in a component
+  const evalTrb = useCallback<ExprResolver<T>['evalTrb']>(() => {
+    const trb: Record<string, string> = {};
+    if (item.textResourceBindings) {
+      for (const [key, value] of Object.entries(item.textResourceBindings)) {
+        trb[key] = evalStr(value, '');
+      }
+    }
+
+    return { textResourceBindings: trb as ExprResolved<ITextResourceBindings<T>> };
+  }, [evalStr, item]);
+
   return {
     item,
     evalBool,
@@ -97,4 +139,12 @@ function useNewNode<T extends CompTypes>({ item, parent, row }: BasicNodeGenerat
 
     return new LNode(item as any, parent, row) as LayoutNode<T>;
   }, [item, parent, row]);
+}
+
+function isFormItem(item: CompExternal): item is CompExternal & FormComponentProps {
+  return 'readOnly' in item || 'required' in item || 'showValidations' in item;
+}
+
+function isSummarizableItem(item: CompExternal): item is CompExternal & SummarizableComponentProps {
+  return 'renderAsSummary' in item;
 }

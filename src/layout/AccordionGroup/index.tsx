@@ -47,8 +47,8 @@ export class AccordionGroup extends AccordionGroupDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'AccordionGroup'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
 
       // TODO: Implement
       childComponents: [] as NodeRef[],

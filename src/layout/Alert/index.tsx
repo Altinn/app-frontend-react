@@ -15,8 +15,8 @@ export class Alert extends AlertDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Alert'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
     };
   }
 }

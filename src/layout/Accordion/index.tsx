@@ -16,8 +16,8 @@ export class Accordion extends AccordionDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Accordion'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
 
       // TODO: Implement
       childComponents: [] as NodeRef[],

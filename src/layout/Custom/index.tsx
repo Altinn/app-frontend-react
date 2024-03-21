@@ -20,8 +20,8 @@ export class Custom extends CustomDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Custom'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
     };
   }
 

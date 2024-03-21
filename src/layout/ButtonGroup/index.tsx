@@ -45,8 +45,8 @@ export class ButtonGroup extends ButtonGroupDef implements DisplayData<'ButtonGr
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'ButtonGroup'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
 
       // TODO: Implement
       childComponents: [] as NodeRef[],

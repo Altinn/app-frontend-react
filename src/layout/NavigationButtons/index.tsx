@@ -15,8 +15,8 @@ export class NavigationButtons extends NavigationButtonsDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'NavigationButtons'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
     };
   }
 }

@@ -15,8 +15,8 @@ export class IFrame extends IFrameDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'IFrame'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
     };
   }
 }

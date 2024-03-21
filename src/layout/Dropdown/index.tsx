@@ -22,8 +22,8 @@ export class Dropdown extends DropdownDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Dropdown'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
     };
   }
 

@@ -15,8 +15,8 @@ export class Paragraph extends ParagraphDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Paragraph'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
     };
   }
 }

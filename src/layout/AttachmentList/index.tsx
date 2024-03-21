@@ -15,8 +15,8 @@ export class AttachmentList extends AttachmentListDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'AttachmentList'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
     };
   }
 }

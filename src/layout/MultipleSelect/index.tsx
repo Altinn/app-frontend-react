@@ -25,8 +25,8 @@ export class MultipleSelect extends MultipleSelectDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'MultipleSelect'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
     };
   }
 

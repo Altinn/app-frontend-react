@@ -15,8 +15,8 @@ export class Panel extends PanelDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Panel'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
     };
   }
 }

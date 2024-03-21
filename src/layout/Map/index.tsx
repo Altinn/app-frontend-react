@@ -21,8 +21,8 @@ export class Map extends MapDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Map'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
     };
   }
 

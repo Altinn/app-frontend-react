@@ -22,8 +22,8 @@ export class RadioButtons extends RadioButtonsDef {
   evalExpressions({ item, evalTrb, evalCommon, evalBool }: ExprResolver<'RadioButtons'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
       alertOnChange: evalBool(item.alertOnChange, false),
     };
   }

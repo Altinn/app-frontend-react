@@ -24,8 +24,8 @@ export class FileUpload extends FileUploadDef implements ValidateComponent<'File
   evalExpressions({ item, evalTrb, evalCommon, evalBool }: ExprResolver<'FileUpload'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
       alertOnDelete: evalBool(item.alertOnDelete, false),
     };
   }

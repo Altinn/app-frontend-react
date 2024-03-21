@@ -15,8 +15,8 @@ export class NavigationBar extends NavigationBarDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'NavigationBar'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
     };
   }
 }

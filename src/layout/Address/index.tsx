@@ -25,8 +25,8 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Address'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
     };
   }
 

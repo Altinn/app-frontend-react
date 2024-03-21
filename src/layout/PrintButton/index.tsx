@@ -16,8 +16,8 @@ export class PrintButton extends PrintButtonDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'PrintButton'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
     };
   }
 }

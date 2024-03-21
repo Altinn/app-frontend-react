@@ -1,4 +1,3 @@
-import { preProcessLayout } from 'src/features/expressions/validation';
 import { ComponentConfigs } from 'src/layout/components.generated';
 import type { CompTypes, ILayout } from 'src/layout/layout';
 
@@ -22,7 +21,10 @@ export function cleanLayout(layout: ILayout, validateExpressions = true): ILayou
     type: mapping[component.type.toLowerCase()] || component.type,
   })) as ILayout;
 
-  validateExpressions && preProcessLayout(newLayout);
+  if (validateExpressions) {
+    // TODO: Re-implement layout cleaning
+    // preProcessLayout(newLayout);
+  }
 
   return newLayout;
 }

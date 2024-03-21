@@ -32,8 +32,8 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Datepicker'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
     };
   }
 

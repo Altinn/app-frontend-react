@@ -88,8 +88,8 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
 
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
       edit: item.edit
         ? {
             ...item.edit,

@@ -25,8 +25,8 @@ export class Checkboxes extends CheckboxesDef {
   evalExpressions({ item, evalTrb, evalCommon, evalBool }: ExprResolver<'Checkboxes'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
       alertOnChange: evalBool(item.alertOnChange, false),
     };
   }

@@ -16,8 +16,8 @@ export class Link extends LinkDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Link'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
     };
   }
 }

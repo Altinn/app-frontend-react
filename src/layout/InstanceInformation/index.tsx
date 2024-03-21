@@ -15,8 +15,8 @@ export class InstanceInformation extends InstanceInformationDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'InstanceInformation'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
     };
   }
 }

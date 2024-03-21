@@ -17,8 +17,8 @@ export class CustomButton extends CustomButtonDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'CustomButton'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
     };
   }
 

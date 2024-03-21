@@ -15,8 +15,8 @@ export class Image extends ImageDef {
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Image'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
     };
   }
 }

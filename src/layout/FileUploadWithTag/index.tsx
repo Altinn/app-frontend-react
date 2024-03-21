@@ -24,8 +24,8 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
   evalExpressions({ item, evalTrb, evalCommon, evalBool }: ExprResolver<'FileUploadWithTag'>) {
     return {
       ...item,
-      ...evalCommon(item),
-      ...evalTrb(item),
+      ...evalCommon(),
+      ...evalTrb(),
       alertOnDelete: evalBool(item.alertOnDelete, false),
     };
   }
