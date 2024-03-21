@@ -13,7 +13,7 @@ export type ICustomComponentProps = PropsFromGenericComponent<'Custom'> & {
 };
 
 export type IPassedOnProps = Omit<PropsFromGenericComponent<'Custom'>, 'node' | 'componentValidations'> &
-  Omit<CompInternal<'Custom'>, 'tagName'> & {
+  Omit<CompInternal<'Custom'>, 'tagName' | 'textResourceBindings'> & {
     [key: string]: string | number | boolean | object | null | undefined;
     text: string | undefined;
     getTextResourceAsString: (textResource: string | undefined) => string;

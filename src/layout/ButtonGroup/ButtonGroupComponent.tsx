@@ -5,13 +5,12 @@ import { Grid } from '@material-ui/core';
 import type { PropsFromGenericComponent } from '..';
 
 import classes from 'src/layout/ButtonGroup/ButtonGroupComponent.module.css';
-import { GenericComponent } from 'src/layout/GenericComponent';
+import { GenericComponentByRef } from 'src/layout/GenericComponent';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function ButtonGroupComponent({ node }: PropsFromGenericComponent<'ButtonGroup'>) {
   const item = useNodeItem(node);
-  const childNodes = item.childComponents;
+  const childNodeRefs = item.childComponents;
   return (
     <Grid
       item
@@ -20,13 +19,13 @@ export function ButtonGroupComponent({ node }: PropsFromGenericComponent<'Button
       className={classes.container}
       data-componentid={node.getId()}
     >
-      {childNodes.map((n: LayoutNode) => (
+      {childNodeRefs.map((nodeRef) => (
         <div
-          key={n.getId()}
-          data-componentid={n.getId()}
+          key={nodeRef.nodeRef}
+          data-componentid={nodeRef.nodeRef}
         >
-          <GenericComponent
-            node={n}
+          <GenericComponentByRef
+            nodeRef={nodeRef}
             overrideDisplay={{ directRender: true }}
           />
         </div>

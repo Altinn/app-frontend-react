@@ -13,7 +13,7 @@ import type {
   IDataModelBindingsOptionsSimple,
   IDataModelBindingsSimple,
   IMapping,
-  IOptionSourceExternal,
+  IOptionSource,
   IRawOption,
 } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -53,7 +53,7 @@ interface Props<T extends ValueType> {
   secure?: boolean;
   mapping?: IMapping;
   queryParameters?: Record<string, string>;
-  source?: IOptionSourceExternal;
+  source?: IOptionSource;
 
   sortOrder?: SortOrder;
 }

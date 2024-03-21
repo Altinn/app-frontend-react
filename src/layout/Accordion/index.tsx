@@ -3,7 +3,7 @@ import React, { forwardRef } from 'react';
 import { Accordion as AccordionComponent } from 'src/layout/Accordion/Accordion';
 import { AccordionDef } from 'src/layout/Accordion/config.def.generated';
 import { SummaryAccordionComponent } from 'src/layout/Accordion/SummaryAccordion';
-import type { PropsFromGenericComponent } from 'src/layout';
+import type { NodeRef, PropsFromGenericComponent } from 'src/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 
 export class Accordion extends AccordionDef {
@@ -18,6 +18,9 @@ export class Accordion extends AccordionDef {
       ...item,
       ...evalCommon(item),
       ...evalTrb(item),
+
+      // TODO: Implement
+      childComponents: [] as NodeRef[],
     };
   }
 

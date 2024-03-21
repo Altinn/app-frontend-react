@@ -9,7 +9,9 @@ import classes from 'src/features/devtools/components/LayoutInspector/LayoutInsp
 import { useComponentHighlighter } from 'src/features/devtools/hooks/useComponentHighlighter';
 import { GridRows } from 'src/layout/common.generated';
 import { nodesFromGridRow } from 'src/layout/Grid/tools';
+import { isNodeRef, useNodeRefSelector } from 'src/utils/layout/nodeRef';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import type { NodeRef } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -23,7 +25,7 @@ interface INodeHierarchyItemProps extends Common {
 }
 
 interface INodeHierarchyProps extends Common {
-  nodes: LayoutNode[] | undefined;
+  nodes: (NodeRef | LayoutNode)[] | undefined;
 }
 
 interface IGridRowsRenderer extends Common {
@@ -151,16 +153,25 @@ function RepeatingGroupExtensions({ node, selected, onClick }: INodeHierarchyIte
 }
 
 export function NodeHierarchy({ nodes, selected, onClick }: INodeHierarchyProps) {
+  const nodeRefSelector = useNodeRefSelector();
+
   return (
     <ul className={classes.list}>
-      {nodes?.map((child) => (
-        <NodeHierarchyItem
-          key={child.getId()}
-          node={child}
-          selected={selected}
-          onClick={onClick}
-        />
-      ))}
+      {nodes?.map((child) => {
+        const node = isNodeRef(child) ? nodeRefSelector(child) : child;
+        if (!node) {
+          return null;
+        }
+
+        return (
+          <NodeHierarchyItem
+            key={node.getId()}
+            node={node}
+            selected={selected}
+            onClick={onClick}
+          />
+        );
+      })}
     </ul>
   );
 }

@@ -5,14 +5,14 @@ import { useQuery } from '@tanstack/react-query';
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
-import { preProcessItem } from 'src/features/expressions/validation';
+import { ExprVal } from 'src/features/expressions/types';
 import { cleanLayout } from 'src/features/form/layout/cleanLayout';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
 import { useHasInstance } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useNavigationParams } from 'src/hooks/useNavigatePage';
-import type { ExprObjConfig, ExprVal } from 'src/features/expressions/types';
+import type { ExprConfig } from 'src/features/expressions/types';
 import type { ILayoutCollection, ILayouts } from 'src/layout/layout';
 import type { IExpandedWidthLayouts, IHiddenLayoutsExternal } from 'src/types';
 
@@ -77,21 +77,19 @@ function processLayouts(input: ILayoutCollection): LayoutContextValue {
     expandedWidthLayouts[key] = file.data.expandedWidth;
   }
 
-  const config: ExprObjConfig<{ hidden: ExprVal.Boolean; whatever: string }> = {
-    hidden: {
-      returnType: 'test',
-      defaultValue: false,
-      resolvePerRow: false,
-    },
+  const _config: ExprConfig = {
+    returnType: ExprVal.Boolean,
+    defaultValue: false,
   };
 
-  for (const key of Object.keys(hiddenLayoutsExpressions)) {
-    hiddenLayoutsExpressions[key] = preProcessItem(hiddenLayoutsExpressions[key], config, ['hidden'], key);
-  }
-
-  for (const key of Object.keys(expandedWidthLayouts)) {
-    expandedWidthLayouts[key] = preProcessItem(expandedWidthLayouts[key], config, ['hidden'], key);
-  }
+  // TODO: Re-implement pre-processing for layouts
+  // for (const key of Object.keys(hiddenLayoutsExpressions)) {
+  //   hiddenLayoutsExpressions[key] = preProcessItem(hiddenLayoutsExpressions[key], config, ['hidden'], key);
+  // }
+  //
+  // for (const key of Object.keys(expandedWidthLayouts)) {
+  //   expandedWidthLayouts[key] = preProcessItem(expandedWidthLayouts[key], config, ['hidden'], key);
+  // }
 
   return {
     layouts,

@@ -27,10 +27,21 @@ import type { CompInternal, CompTypes } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export interface IGenericComponentProps<Type extends CompTypes> {
-  node: LayoutNode<Type>;
+interface OverrideProps<Type extends CompTypes> {
   overrideItemProps?: Partial<Omit<CompInternal<Type>, 'id'>>;
   overrideDisplay?: GenericComponentOverrideDisplay;
+}
+
+export interface IGenericComponentProps<Type extends CompTypes> extends OverrideProps<Type> {
+  node: LayoutNode<Type>;
+}
+
+export interface IGenericComponentByIdProps<Type extends CompTypes> extends OverrideProps<Type> {
+  id: string;
+}
+
+export interface IGenericComponentByRefProps<Type extends CompTypes> extends OverrideProps<Type> {
+  nodeRef: NodeRef;
 }
 
 /**
@@ -38,22 +49,34 @@ export interface IGenericComponentProps<Type extends CompTypes> {
  * (for example in Form.tsx) where it's important that a component does not re-render when other nodes in the
  * node hierarchy have been re-created.
  */
-export function GenericComponentById({ id }: { id: string }) {
-  const node = useNode(id);
+export function GenericComponentById<Type extends CompTypes = CompTypes>(props: IGenericComponentByIdProps<Type>) {
+  const node = useNode(props.id);
   if (!node) {
-    throw new Error(`Node with id ${id} not found`);
+    throw new Error(`Node with id '${props.id}' not found`);
   }
 
-  return <GenericComponent node={node} />;
+  return (
+    <GenericComponent
+      node={node}
+      overrideItemProps={props.overrideItemProps}
+      overrideDisplay={props.overrideDisplay}
+    />
+  );
 }
 
-export function GenericComponentByRef({ nodeRef }: { nodeRef: NodeRef }) {
-  const node = useNodeRef(nodeRef);
+export function GenericComponentByRef<Type extends CompTypes = CompTypes>(props: IGenericComponentByRefProps<Type>) {
+  const node = useNodeRef(props.nodeRef);
   if (!node) {
-    throw new Error(`Node with ref '${nodeRef.nodeRef}' not found`);
+    throw new Error(`Node with ref '${props.nodeRef.nodeRef}' not found`);
   }
 
-  return <GenericComponent node={node} />;
+  return (
+    <GenericComponent
+      node={node}
+      overrideItemProps={props.overrideItemProps}
+      overrideDisplay={props.overrideDisplay}
+    />
+  );
 }
 
 export function GenericComponent<Type extends CompTypes = CompTypes>({

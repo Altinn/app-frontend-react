@@ -9,7 +9,7 @@ import {
   runExpressionRules,
   runExpressionsForLayouts,
   shouldUpdate,
-} from 'src/features/form/dynamics/conditionalRenderingSagas';
+} from 'src/features/form/dynamics/conditionalRendering';
 import { useDynamics } from 'src/features/form/dynamics/DynamicsContext';
 import { useHiddenLayoutsExpressions } from 'src/features/form/layout/LayoutsContext';
 import { useHiddenPages, useSetHiddenPages } from 'src/features/form/layout/PageNavigationContext';

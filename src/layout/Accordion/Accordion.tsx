@@ -6,7 +6,7 @@ import { Grid } from '@material-ui/core';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/Accordion/Accordion.module.css';
 import { AccordionItem } from 'src/layout/Accordion/AccordionItem';
-import { GenericComponent } from 'src/layout/GenericComponent';
+import { GenericComponentByRef } from 'src/layout/GenericComponent';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -31,10 +31,10 @@ export const Accordion = ({ node }: IAccordionProps) => {
           spacing={3}
           alignItems='flex-start'
         >
-          {childComponents.map((n) => (
-            <GenericComponent
-              key={n.getId()}
-              node={n}
+          {childComponents.map((nodeRef) => (
+            <GenericComponentByRef
+              key={nodeRef.nodeRef}
+              nodeRef={nodeRef}
             />
           ))}
         </Grid>
@@ -58,10 +58,10 @@ export const Accordion = ({ node }: IAccordionProps) => {
           spacing={3}
           alignItems='flex-start'
         >
-          {childComponents.map((n) => (
-            <GenericComponent
-              key={n.getId()}
-              node={n}
+          {childComponents.map((nodeRef) => (
+            <GenericComponentByRef
+              key={nodeRef.nodeRef}
+              nodeRef={nodeRef}
             />
           ))}
         </Grid>

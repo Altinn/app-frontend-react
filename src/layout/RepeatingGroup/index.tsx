@@ -14,6 +14,7 @@ import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/Summary
 import { DefaultNodeGenerator } from 'src/utils/layout/DefaultNodeGenerator';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { BaseValidation, ComponentValidation } from 'src/features/validation';
+import type { GridRowsInternal } from 'src/layout/Grid/types';
 import type { CompInternal } from 'src/layout/layout';
 import type {
   ChildClaimerProps,
@@ -60,7 +61,13 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     return <DefaultNodeGenerator {...props} />;
   }
 
-  evalExpressions({ item, evalTrb, evalCommon, evalBool, formDataSelector }: ExprResolver<'RepeatingGroup'>) {
+  evalExpressions({
+    item,
+    evalTrb,
+    evalCommon,
+    evalBool,
+    formDataSelector,
+  }: ExprResolver<'RepeatingGroup'>): RepGroupInternal {
     // Only fetch the row ID (and by extension the number of rows) so that we only re-evaluate expressions
     // when the number of rows change.
     const formData = item.dataModelBindings?.group
@@ -90,7 +97,11 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
           }
         : undefined,
       rows,
-    } as RepGroupInternal;
+
+      // TODO: Call the code in Grid to evaluate the rowsBefore and rowsAfter
+      rowsBefore: item.rowsBefore as GridRowsInternal | undefined,
+      rowsAfter: item.rowsAfter as GridRowsInternal | undefined,
+    };
   }
 
   renderSummary({

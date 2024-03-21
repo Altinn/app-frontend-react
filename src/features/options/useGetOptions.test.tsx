@@ -8,7 +8,7 @@ import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
-import type { IRawOption, ISelectionComponentExternal } from 'src/layout/common.generated';
+import type { IRawOption, ISelectionComponent } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface RenderProps {
@@ -43,7 +43,7 @@ function TestOptions({ node }: { node: LayoutNode<'Dropdown' | 'MultipleSelect'>
 }
 
 async function render(props: RenderProps) {
-  const layoutConfig: ISelectionComponentExternal = {
+  const layoutConfig: ISelectionComponent = {
     options: props.via === 'layout' ? props.options : undefined,
     optionsId: props.via === 'api' ? 'myOptions' : undefined,
     mapping: props.via === 'api' ? props.mapping : undefined,

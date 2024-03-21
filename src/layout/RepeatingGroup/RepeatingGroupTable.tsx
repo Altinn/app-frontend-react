@@ -19,6 +19,7 @@ import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
+import type { GridCellInternal } from 'src/layout/Grid/types';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 
 export function RepeatingGroupTable(): React.JSX.Element | null {
@@ -206,7 +207,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
 
 interface ExtraRowsProps {
   where: 'Before' | 'After';
-  extraCells: null[];
+  extraCells: GridCellInternal[];
   columnSettings: ITableColumnFormatting;
 }
 

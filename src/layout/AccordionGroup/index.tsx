@@ -5,7 +5,7 @@ import { AccordionGroup as AccordionGroupComponent } from 'src/layout/AccordionG
 import { AccordionGroupDef } from 'src/layout/AccordionGroup/config.def.generated';
 import { SummaryAccordionGroupComponent } from 'src/layout/AccordionGroup/SummaryAccordionGroupComponent';
 import { DefaultNodeGenerator } from 'src/utils/layout/DefaultNodeGenerator';
-import type { PropsFromGenericComponent } from 'src/layout';
+import type { NodeRef, PropsFromGenericComponent } from 'src/layout';
 import type {
   ChildClaimerProps,
   ExprResolver,
@@ -49,6 +49,9 @@ export class AccordionGroup extends AccordionGroupDef {
       ...item,
       ...evalCommon(item),
       ...evalTrb(item),
+
+      // TODO: Implement
+      childComponents: [] as NodeRef[],
     };
   }
 

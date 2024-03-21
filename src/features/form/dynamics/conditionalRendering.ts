@@ -25,7 +25,6 @@ export function runExpressionsForLayouts(
   const config: ExprConfig<ExprVal.Boolean> = {
     returnType: ExprVal.Boolean,
     defaultValue: false,
-    resolvePerRow: false,
   };
 
   const hiddenLayouts: Set<string> = new Set();
