@@ -48,7 +48,7 @@ export const Payment: React.FunctionComponent = () => {
 
   return (
     <div className={classes.paymentContainer}>
-      {paymentInfoQuery.isFetched && partyId && !paymentInfoQuery.data?.paymentDetails ? (
+      {paymentInfoQuery.isFetched && !paymentInfoQuery.data?.paymentDetails ? (
         <div
           style={{
             width: '100%',
@@ -136,8 +136,6 @@ export const Payment: React.FunctionComponent = () => {
             >
               Pay!
             </Button>
-
-            <a href={paymentInfoQuery.data?.paymentDetails?.redirectUrl}>test</a>
           </div>
         )}
       {paymentInfoQuery.isFetched && paymentInfoQuery.data?.paymentDetails?.status === 'Paid' && (
