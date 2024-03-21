@@ -30,7 +30,7 @@ export const Payment: React.FunctionComponent = () => {
         return await doPerformAction(partyId, instanceGuid, { action: 'pay' });
       }
     },
-    onSettled: (data) => {
+    onSuccess: (data) => {
       if (data?.redirectUrl) {
         window.location.href = data.redirectUrl;
       }
