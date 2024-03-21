@@ -3,6 +3,7 @@ import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { CompClassMap, FormDataSelector } from 'src/layout';
 import type { CompCategory } from 'src/layout/common';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated';
 import type {
   CompExceptGroup,
@@ -283,7 +284,7 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
 
     const formDataObj: { [key: string]: any } = {};
     for (const key of Object.keys(this.item.dataModelBindings)) {
-      const binding = this.item.dataModelBindings[key];
+      const binding: IDataModelReference = this.item.dataModelBindings[key];
       const data = formDataSelector(binding);
 
       if (key === 'list') {

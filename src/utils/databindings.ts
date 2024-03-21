@@ -22,7 +22,10 @@ export function getBaseDataModelBindings(
   }
 
   return Object.fromEntries(
-    Object.entries(dataModelBindings).map(([bindingKey, field]) => [bindingKey, getKeyWithoutIndex(field)]),
+    Object.entries(dataModelBindings).map(([bindingKey, { dataType, property }]: [string, IDataModelReference]) => [
+      bindingKey,
+      { dataType, property: getKeyWithoutIndex(property) },
+    ]),
   );
 }
 

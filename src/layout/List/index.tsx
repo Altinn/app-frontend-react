@@ -25,9 +25,14 @@ export class List extends ListDef {
   getDisplayData(node: LayoutNode<'List'>, { formDataSelector }: DisplayDataProps): string {
     const formData = node.getFormData(formDataSelector);
     const dmBindings = node.item.dataModelBindings;
-    for (const [key, binding] of Object.entries(dmBindings || {})) {
-      if (binding == node.item.bindingToShowInSummary) {
-        return formData[key] || '';
+
+    if (node.item.summaryBinding && dmBindings) {
+      return formData[node.item.summaryBinding] ?? '';
+    } else if (node.item.bindingToShowInSummary && dmBindings) {
+      for (const [key, binding] of Object.entries(dmBindings)) {
+        if (binding.property === node.item.bindingToShowInSummary) {
+          return formData[key] ?? '';
+        }
       }
     }
 
@@ -85,10 +90,10 @@ export class List extends ListDef {
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'List'>): string[] {
-    const possibleBindings = Object.keys(ctx.node.item.tableHeaders || {});
+    const possibleBindings = Object.keys(ctx.node.item.tableHeaders ?? {});
 
     const errors: string[] = [];
-    for (const binding of possibleBindings) {
+    for (const binding of Object.keys(ctx.node.item.dataModelBindings ?? {})) {
       if (possibleBindings.includes(binding)) {
         const [newErrors] = this.validateDataModelBindingsAny(
           ctx,

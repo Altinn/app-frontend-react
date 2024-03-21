@@ -1,35 +1,21 @@
 import { CG, Variant } from 'src/codegen/CG';
-import { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
+import { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
 import type { Optionality } from 'src/codegen/CodeGenerator';
-import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
 
-export interface DataModelBindingConfig {
-  name: string;
-  title: string;
-  description: string;
-}
-
-type InternalType = GenerateCommonImport<'IDataModelReference'>;
-type ExternalType = GenerateCommonImport<'IDataModelBinding'>;
 /**
  * Generates a data model binding property. This is just a regular property, but this class is used as a
  * helper to make sure you always provide a description and title, and never specify the inner type yourself.
  */
-export class GenerateDataModelBinding extends GenerateProperty<ExternalType> {
-  private readonly externalProp: ExternalType;
-  private readonly internalProp: InternalType;
+export class GenerateDataModelBinding extends GenerateCommonImport<'IDataModelBinding'> {
+  private readonly internalProp: GenerateCommonImport<'IDataModelReference'>;
 
-  constructor(config: DataModelBindingConfig) {
-    // TODO(Datamodels): Add title and description
-    const internalProp = CG.common('IDataModelReference');
-    const externalProp = CG.common('IDataModelBinding');
-    super(config.name, externalProp);
-    this.internalProp = internalProp;
-    this.externalProp = externalProp;
+  constructor() {
+    super('IDataModelBinding');
+    this.internalProp = CG.common('IDataModelReference');
   }
 
   optional(optionality?: Optionality<any>): this {
-    this.externalProp.optional(optionality);
+    super.optional(optionality);
     this.internalProp.optional(optionality);
     return this;
   }
@@ -38,15 +24,11 @@ export class GenerateDataModelBinding extends GenerateProperty<ExternalType> {
     return true;
   }
 
-  toTypeScript(): string {
-    throw new Error('Not transformed to any variant yet - please call transformTo(variant) first');
-  }
-
-  transformTo(variant: Variant): GenerateProperty<any> {
+  transformTo(variant: Variant): GenerateCommonImport<any> {
     if (variant === Variant.External) {
-      return new CG.prop(this.name, this.externalProp).transformTo(variant);
+      return super.transformTo(variant);
     }
 
-    return new CG.prop(this.name, this.internalProp).transformTo(variant);
+    return this.internalProp.transformTo(variant);
   }
 }

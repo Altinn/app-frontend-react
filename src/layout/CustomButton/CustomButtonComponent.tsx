@@ -163,6 +163,7 @@ export const buttonStyles: { [style in CBTypes.CustomButtonStyle]: { color: Butt
 
 export const CustomButtonComponent = ({ node }: Props) => {
   const { textResourceBindings, actions, id, buttonStyle = 'secondary' } = node.item;
+  // TODO(Datamodels): Should it lock all datamodels?
   const lockTools = FD.useLocking(node.item.id);
   const { isAuthorized } = useActionAuthorization();
   const { handleClientActions } = useHandleClientActions();

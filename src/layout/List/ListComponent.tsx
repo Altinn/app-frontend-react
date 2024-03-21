@@ -15,12 +15,12 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { GenericComponentLegend } from 'src/layout/GenericComponentUtils';
 import type { Filter } from 'src/features/dataLists/useDataListQuery';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { IDataModelBindingsForList } from 'src/layout/List/config.generated';
+import type { IDataModelBindingsForListInternal } from 'src/layout/List/config.generated';
 
 export type IListProps = PropsFromGenericComponent<'List'>;
 
 const defaultDataList: any[] = [];
-const defaultBindings: IDataModelBindingsForList = {};
+const defaultBindings: IDataModelBindingsForListInternal = {};
 
 export const ListComponent = ({ node }: IListProps) => {
   const { tableHeaders, pagination, sortableColumns, tableHeadersMobile, mapping, secure, dataListId } = node.item;

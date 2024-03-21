@@ -12,8 +12,7 @@ export const Config = new CG.component({
   },
 })
   .addTextResourcesForLabel()
-  // TODO(DMB): Fix this
-  .addDataModelBinding(new CG.obj().optional().additionalProperties(new CG.str()).exportAs('IDataModelBindingsForList'))
+  .addDataModelBinding(new CG.obj().optional().additionalProperties(new CG.dmb()).exportAs('IDataModelBindingsForList'))
   .addProperty(
     new CG.prop(
       'tableHeaders',
@@ -86,13 +85,25 @@ export const Config = new CG.component({
   .addProperty(new CG.prop('mapping', CG.common('IMapping').optional()))
   .addProperty(
     new CG.prop(
+      'summaryBinding',
+      new CG.str()
+        .optional()
+        .setTitle('Data model binding to show in summary')
+        .setDescription(
+          'Specify one of the keys in the `dataModelBindings` object to show in the summary component for the list.',
+        ),
+    ),
+  )
+  .addProperty(
+    new CG.prop(
       'bindingToShowInSummary',
       new CG.str()
         .optional()
         .setTitle('Binding to show in summary')
         .setDescription(
-          'The value of this binding will be shown in the summary component for the list. This binding must be one ' +
-            'of the specified bindings under dataModelBindings.',
+          '**Deprecated**: This property will be removed in the next major version, use `summaryBinding` instead. ' +
+            'The value of this binding will be shown in the summary component for the list. ' +
+            'It expects a path in the datamodel. The binding must be one of the specified bindings under dataModelBindings.',
         ),
     ),
   )
