@@ -14,6 +14,7 @@ import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadata
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getLayoutSetsMock } from 'src/__mocks__/getLayoutSetsMock';
 import { getLogoMock } from 'src/__mocks__/getLogoMock';
+import { orderDetailsResponsePayload } from 'src/__mocks__/getOrderDetailsPayloadMock';
 import { getOrgsMock } from 'src/__mocks__/getOrgsMock';
 import { getPartyMock } from 'src/__mocks__/getPartyMock';
 import { paymentResponsePayload } from 'src/__mocks__/getPaymentPayloadMock';
@@ -151,6 +152,7 @@ const defaultQueryMocks: AppQueries = {
   fetchInstanceData: async () => getInstanceDataMock(),
   fetchBackendValidations: async () => [],
   fetchPaymentInfo: async () => paymentResponsePayload,
+  fetchOrderDetails: async () => orderDetailsResponsePayload,
 };
 
 function makeProxy<Name extends keyof FormDataMethods>(name: Name, ref: InitialRenderRef) {
