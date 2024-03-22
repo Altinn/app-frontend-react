@@ -6,6 +6,7 @@ import { Grid } from '@material-ui/core';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/Accordion/Accordion.module.css';
 import { AccordionItem } from 'src/layout/Accordion/AccordionItem';
+import { useIsInAccordionGroup } from 'src/layout/AccordionGroup/AccordionGroupContext';
 import { GenericComponentByRef } from 'src/layout/GenericComponent';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -13,8 +14,9 @@ import type { PropsFromGenericComponent } from 'src/layout';
 type IAccordionProps = PropsFromGenericComponent<'Accordion'>;
 
 export const Accordion = ({ node }: IAccordionProps) => {
-  const { textResourceBindings, renderAsAccordionItem, headingLevel, childComponents } = useNodeItem(node);
+  const { textResourceBindings, headingLevel, childComponents } = useNodeItem(node);
   const { langAsString } = useLanguage();
+  const renderAsAccordionItem = useIsInAccordionGroup();
 
   const title = langAsString(textResourceBindings?.title ?? '');
 
