@@ -1,6 +1,5 @@
-import type { StoreApi } from 'zustand';
-
-import type { CompExternal, CompInternal, CompTypes } from 'src/layout/layout';
+import type { CompDef } from 'src/layout';
+import type { CompExternalExact, CompInternal, CompTypes } from 'src/layout/layout';
 
 /**
  * A row (from the data model) in a repeating group, or other components using such a structure (object[]).
@@ -13,11 +12,9 @@ export interface BaseRow {
   index: number;
 }
 
-interface BaseItemState<T extends CompTypes> {
-  layout: CompExternal<T>;
-  item: CompInternal<T>;
+export interface BaseItemState<T extends CompTypes> {
+  layout: CompExternalExact<T>;
+  item: CompInternal<T> | undefined;
 }
 
-interface ItemFunctions {}
-
-export type ItemStore<Type extends CompTypes> = StoreApi<BaseItemState<Type> & ItemFunctions>;
+export type ItemStore<Type extends CompTypes> = ReturnType<CompDef<Type>['storeFactory']>;

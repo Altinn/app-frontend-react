@@ -12,7 +12,7 @@ import type { DisplayDataProps } from 'src/features/displayData';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { FormDataSelector, PropsFromGenericComponent } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
-import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { ExprResolver, StoreFactoryProps, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class MultipleSelect extends MultipleSelectDef {
@@ -21,6 +21,10 @@ export class MultipleSelect extends MultipleSelectDef {
       return <MultipleSelectComponent {...props} />;
     },
   );
+
+  storeFactory(props: StoreFactoryProps<'MultipleSelect'>) {
+    return this.defaultStoreFactory(props);
+  }
 
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'MultipleSelect'>) {
     return {

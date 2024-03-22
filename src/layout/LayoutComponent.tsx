@@ -2,6 +2,8 @@ import React from 'react';
 import type { JSX } from 'react';
 
 import dot from 'dot-object';
+import { createStore } from 'zustand';
+import { immer } from 'zustand/middleware/immer';
 import type { ErrorObject } from 'ajv';
 import type { JSONSchema7 } from 'json-schema';
 
@@ -33,7 +35,7 @@ import type {
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { BaseRow } from 'src/utils/layout/types';
+import type { BaseItemState, BaseRow } from 'src/utils/layout/types';
 
 export interface BasicNodeGeneratorProps<Type extends CompTypes> {
   item: CompExternalExact<Type>;
@@ -64,6 +66,12 @@ export interface ExprResolver<Type extends CompTypes> {
   };
 }
 
+export interface StoreFactoryProps<Type extends CompTypes> {
+  item: CompExternalExact<Type>;
+  parent: LayoutNode | LayoutPage;
+  row?: BaseRow;
+}
+
 export abstract class AnyComponent<Type extends CompTypes> {
   /**
    * Given properties from GenericComponent, render this layout component
@@ -80,11 +88,25 @@ export abstract class AnyComponent<Type extends CompTypes> {
     return <DefaultNodeGenerator {...(props as BasicNodeGeneratorProps<Type>)} />;
   }
 
+  protected defaultStoreFactory(props: StoreFactoryProps<Type>) {
+    return createStore<BaseItemState<Type>>()(
+      immer((_set) => ({
+        item: undefined,
+        layout: props.item,
+      })),
+    );
+  }
+
+  /**
+   * Creates the zustand store for a node of this component type
+   */
+  abstract storeFactory(props: StoreFactoryProps<Type>): any;
+
   /**
    * Resolves all expressions in the layout configuration, and returns a new layout configuration
    * with expressions resolved.
    */
-  abstract evalExpressions(props: ExprResolver<Type>);
+  abstract evalExpressions(props: ExprResolver<Type>): any;
 
   /**
    * Given a node, a list of the node's data, for display in the devtools node inspector

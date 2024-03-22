@@ -4,7 +4,7 @@ import { Accordion as AccordionComponent } from 'src/layout/Accordion/Accordion'
 import { AccordionDef } from 'src/layout/Accordion/config.def.generated';
 import { SummaryAccordionComponent } from 'src/layout/Accordion/SummaryAccordion';
 import type { NodeRef, PropsFromGenericComponent } from 'src/layout';
-import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { ExprResolver, StoreFactoryProps, SummaryRendererProps } from 'src/layout/LayoutComponent';
 
 export class Accordion extends AccordionDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Accordion'>>(
@@ -12,6 +12,10 @@ export class Accordion extends AccordionDef {
       return <AccordionComponent {...props} />;
     },
   );
+
+  storeFactory(props: StoreFactoryProps<'Accordion'>) {
+    return this.defaultStoreFactory(props);
+  }
 
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Accordion'>) {
     return {

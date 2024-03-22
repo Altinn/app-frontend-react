@@ -7,7 +7,12 @@ import { ButtonGroupComponent } from 'src/layout/ButtonGroup/ButtonGroupComponen
 import { ButtonGroupDef } from 'src/layout/ButtonGroup/config.def.generated';
 import { DefaultNodeGenerator } from 'src/utils/layout/DefaultNodeGenerator';
 import type { DisplayData } from 'src/features/displayData';
-import type { ChildClaimerProps, ExprResolver, NodeGeneratorProps } from 'src/layout/LayoutComponent';
+import type {
+  ChildClaimerProps,
+  ExprResolver,
+  NodeGeneratorProps,
+  StoreFactoryProps,
+} from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class ButtonGroup extends ButtonGroupDef implements DisplayData<'ButtonGroup'> {
@@ -40,6 +45,10 @@ export class ButtonGroup extends ButtonGroupDef implements DisplayData<'ButtonGr
   renderNodeGenerator(props: NodeGeneratorProps<'ButtonGroup'>): JSX.Element | null {
     // TODO: Implement custom node generator
     return <DefaultNodeGenerator {...props} />;
+  }
+
+  storeFactory(props: StoreFactoryProps<'ButtonGroup'>) {
+    return this.defaultStoreFactory(props);
   }
 
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'ButtonGroup'>) {

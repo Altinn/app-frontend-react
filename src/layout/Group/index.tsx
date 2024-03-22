@@ -12,6 +12,7 @@ import type {
   ChildClaimerProps,
   ExprResolver,
   NodeGeneratorProps,
+  StoreFactoryProps,
   SummaryRendererProps,
 } from 'src/layout/LayoutComponent';
 
@@ -45,6 +46,10 @@ export class Group extends GroupDef {
   renderNodeGenerator(props: NodeGeneratorProps<'Group'>): JSX.Element | null {
     // TODO: Implement custom node generator
     return <DefaultNodeGenerator {...props} />;
+  }
+
+  storeFactory(props: StoreFactoryProps<'Group'>) {
+    return this.defaultStoreFactory(props);
   }
 
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Group'>) {

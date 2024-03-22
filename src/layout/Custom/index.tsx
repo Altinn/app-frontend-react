@@ -7,7 +7,7 @@ import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
-import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { ExprResolver, StoreFactoryProps, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Custom extends CustomDef {
@@ -16,6 +16,10 @@ export class Custom extends CustomDef {
       return <CustomWebComponent {...props} />;
     },
   );
+
+  storeFactory(props: StoreFactoryProps<'Custom'>) {
+    return this.defaultStoreFactory(props);
+  }
 
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Custom'>) {
     return {

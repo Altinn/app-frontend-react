@@ -25,7 +25,6 @@ export interface IsHiddenOptions {
 export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements LayoutObject {
   public readonly def: CompClassMap[Type];
   public readonly page: LayoutPage;
-  private readonly hiddenCache: { [key: number]: boolean | undefined } = {};
 
   // Common properties that are overwritten when changed in the item store
   protected id: string;
@@ -183,15 +182,15 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
    *        include all children of nested groups regardless of row-id or index.
    */
   public flat(restriction?: ChildLookupRestriction): LayoutNode[] {
-    const out: BaseLayoutNode[] = [];
-    const recurse = (item: BaseLayoutNode, restriction?: ChildLookupRestriction) => {
+    const out: LayoutNode[] = [];
+    const recurse = (item: LayoutNode, restriction?: ChildLookupRestriction) => {
       out.push(item);
       for (const child of item.children(undefined, restriction)) {
         recurse(child);
       }
     };
 
-    recurse(this, restriction);
+    recurse(this as unknown as LayoutNode, restriction);
     return out as LayoutNode[];
   }
 
@@ -199,51 +198,53 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
    * Checks if this field should be hidden. This also takes into account the group this component is in, so the
    * methods returns true if the component is inside a hidden group.
    */
-  public isHidden(options: IsHiddenOptions = {}): boolean {
-    const { respectLegacy = true, respectDevTools = true, respectTracks = false } = options;
-
-    // Bit field containing the flags
-    const cacheKey = (respectLegacy ? 1 : 0) | (respectDevTools ? 2 : 0) | (respectTracks ? 4 : 0);
-
-    if (this.hiddenCache[cacheKey] !== undefined) {
-      return this.hiddenCache[cacheKey] as boolean;
-    }
-
-    const isHidden = respectLegacy ? this.dataSources.isHidden : () => false;
-    if (respectDevTools && this.dataSources.devToolsIsOpen && this.dataSources.devToolsHiddenComponents !== 'hide') {
-      this.hiddenCache[cacheKey] = false;
-      return false;
-    }
-
-    if (isHidden(this.baseId)) {
-      this.hiddenCache[cacheKey] = true;
-      return true;
-    }
-
-    if (isHidden(this.id)) {
-      this.hiddenCache[cacheKey] = true;
-      return true;
-    }
-
-    const hiddenInParent =
-      this.parent instanceof BaseLayoutNode && (this.parent as BaseLayoutNode).isDirectChildHidden(this, options);
-    if (hiddenInParent) {
-      this.hiddenCache[cacheKey] = true;
-      return true;
-    }
-
-    if (
-      respectTracks &&
-      this.parent instanceof LayoutPage &&
-      this.parent.isHiddenViaTracks(this.dataSources.layoutSettings, this.dataSources.pageNavigationConfig)
-    ) {
-      this.hiddenCache[cacheKey] = true;
-      return true;
-    }
-
-    const hiddenByParent = this.parent instanceof BaseLayoutNode && this.parent.isHidden(options);
-    this.hiddenCache[cacheKey] = hiddenByParent;
-    return hiddenByParent;
+  public isHidden(_options: IsHiddenOptions = {}): boolean {
+    // TODO: Enable this again, but calculate it all in the hiearchy generator component instead of here.
+    return false;
+    //   const { respectLegacy = true, respectDevTools = true, respectTracks = false } = options;
+    //
+    //   // Bit field containing the flags
+    //   const cacheKey = (respectLegacy ? 1 : 0) | (respectDevTools ? 2 : 0) | (respectTracks ? 4 : 0);
+    //
+    //   if (this.hiddenCache[cacheKey] !== undefined) {
+    //     return this.hiddenCache[cacheKey] as boolean;
+    //   }
+    //
+    //   const isHidden = respectLegacy ? this.dataSources.isHidden : () => false;
+    //   if (respectDevTools && this.dataSources.devToolsIsOpen && this.dataSources.devToolsHiddenComponents !== 'hide') {
+    //     this.hiddenCache[cacheKey] = false;
+    //     return false;
+    //   }
+    //
+    //   if (isHidden(this.baseId)) {
+    //     this.hiddenCache[cacheKey] = true;
+    //     return true;
+    //   }
+    //
+    //   if (isHidden(this.id)) {
+    //     this.hiddenCache[cacheKey] = true;
+    //     return true;
+    //   }
+    //
+    //   const hiddenInParent =
+    //     this.parent instanceof BaseLayoutNode && (this.parent as BaseLayoutNode).isDirectChildHidden(this, options);
+    //   if (hiddenInParent) {
+    //     this.hiddenCache[cacheKey] = true;
+    //     return true;
+    //   }
+    //
+    //   if (
+    //     respectTracks &&
+    //     this.parent instanceof LayoutPage &&
+    //     this.parent.isHiddenViaTracks(this.dataSources.layoutSettings, this.dataSources.pageNavigationConfig)
+    //   ) {
+    //     this.hiddenCache[cacheKey] = true;
+    //     return true;
+    //   }
+    //
+    //   const hiddenByParent = this.parent instanceof BaseLayoutNode && this.parent.isHidden(options);
+    //   this.hiddenCache[cacheKey] = hiddenByParent;
+    //   return hiddenByParent;
   }
 
   protected isDirectChildHidden(_directChild: BaseLayoutNode, _options: IsHiddenOptions): boolean {

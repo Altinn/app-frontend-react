@@ -19,7 +19,7 @@ import type {
   ValidationFilterFunction,
 } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
-import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { ExprResolver, StoreFactoryProps, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Datepicker extends DatepickerDef implements ValidateComponent<'Datepicker'>, ValidationFilter {
@@ -28,6 +28,10 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
       return <DatepickerComponent {...props} />;
     },
   );
+
+  storeFactory(props: StoreFactoryProps<'Datepicker'>) {
+    return this.defaultStoreFactory(props);
+  }
 
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Datepicker'>) {
     return {

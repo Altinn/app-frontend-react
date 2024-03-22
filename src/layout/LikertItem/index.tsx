@@ -11,7 +11,7 @@ import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelBindingsLikert } from 'src/layout/common.generated';
 import type { CompInternal } from 'src/layout/layout';
-import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { ExprResolver, StoreFactoryProps, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class LikertItem extends LikertItemDef {
@@ -25,6 +25,10 @@ export class LikertItem extends LikertItemDef {
       );
     },
   );
+
+  storeFactory(props: StoreFactoryProps<'LikertItem'>) {
+    return this.defaultStoreFactory(props);
+  }
 
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'LikertItem'>) {
     return {
