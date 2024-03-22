@@ -89,6 +89,8 @@ export const Payment: React.FunctionComponent = () => {
         />
       )}
 
+      <pre>{JSON.stringify(paymentInfoQuery.data, null, 2)}</pre>
+
       {paymentInfoQuery.isFetched && paymentInfoQuery.data?.paymentDetails?.status === 'Failed' && (
         <Alert severity='warning'>Your payment has failed</Alert>
       )}
