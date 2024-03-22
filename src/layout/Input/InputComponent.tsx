@@ -150,7 +150,6 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, isV
           event.preventDefault();
           const pastedText = event.clipboardData.getData('Text');
           if (pastedText.indexOf(',') !== -1) {
-            event.preventDefault();
             setValue('simpleBinding', pastedText.replace(',', '.'));
           } else {
             setValue('simpleBinding', pastedText);
