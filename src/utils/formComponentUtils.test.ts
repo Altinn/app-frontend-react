@@ -1,4 +1,5 @@
 import { staticUseLanguageForTests } from 'src/features/language/useLanguage';
+import { newLayoutNodeForTesting } from 'src/test/node';
 import {
   getColumnStyles,
   getColumnStylesRepeatingGroups,
@@ -6,11 +7,7 @@ import {
   gridBreakpoints,
   smartLowerCaseFirst,
 } from 'src/utils/formComponentUtils';
-import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
-import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { IGridStyling, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/common.generated';
-import type { CompExternal, CompInternal } from 'src/layout/layout';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 describe('formComponentUtils', () => {
   describe('getFieldName', () => {
@@ -127,13 +124,13 @@ describe('formComponentUtils', () => {
   });
   describe('getColumnStylesRepeatingGroups', () => {
     it('should return undefined if columnSettings does not contain specified baseComponentId', () => {
-      const node = fakeLayoutNode({ baseComponentId: 'headerName1' });
+      const node = newLayoutNodeForTesting({ baseComponentId: 'headerName1' });
       const columnSettings = { headerName2: { width: '100px' } };
       expect(getColumnStylesRepeatingGroups(node, columnSettings)).toBeUndefined();
     });
 
     it('should set textAlignment to alignText property of columnSettings if present', () => {
-      const node = fakeLayoutNode({ baseComponentId: 'headerName1' });
+      const node = newLayoutNodeForTesting({ baseComponentId: 'headerName1' });
       const columnSettings: ITableColumnFormatting = { headerName1: { width: '100px', alignText: 'center' } };
       const columnStyles = getColumnStylesRepeatingGroups(node, columnSettings);
       expect(columnStyles).toEqual({
@@ -144,7 +141,7 @@ describe('formComponentUtils', () => {
     });
 
     it('should set textAlignment to getTextAlignment(tableHeader) if alignText is not present in columnSettings', () => {
-      const node = fakeLayoutNode({
+      const node = newLayoutNodeForTesting({
         baseComponentId: 'headerName1',
         id: 'headerName1',
         type: 'Input',
@@ -160,7 +157,7 @@ describe('formComponentUtils', () => {
     });
 
     it('should return columnStyles object if columnSettings is provided and contains specified baseComponentId', () => {
-      const node = fakeLayoutNode({ baseComponentId: 'headerName1' });
+      const node = newLayoutNodeForTesting({ baseComponentId: 'headerName1' });
       const columnSettings: ITableColumnFormatting = { headerName1: { width: '100px' } };
       const columnStyles = getColumnStylesRepeatingGroups(node, columnSettings);
       expect(columnStyles).toBeDefined();
@@ -193,6 +190,3 @@ describe('formComponentUtils', () => {
     });
   });
 });
-
-const fakeLayoutNode = (item: Partial<CompExternal> & Partial<CompInternal>) =>
-  new BaseLayoutNode(item as any, new LayoutPage(), new LayoutPage(), {} as any) as LayoutNode;

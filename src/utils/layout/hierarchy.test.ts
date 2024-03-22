@@ -4,17 +4,17 @@ import { getFormLayoutMock } from 'src/__mocks__/getFormLayoutMock';
 import { getHierarchyDataSourcesMock } from 'src/__mocks__/getHierarchyDataSourcesMock';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { getLayoutComponentObject } from 'src/layout';
+import { newLayoutNodeForTesting } from 'src/test/node';
 import { _private } from 'src/utils/layout/hierarchy';
 import { generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
-import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { CompGroupExternal } from 'src/layout/Group/config.generated';
 import type { CompHeaderExternal } from 'src/layout/Header/config.generated';
 import type { CompInputExternal } from 'src/layout/Input/config.generated';
-import type { CompInternal, HierarchyDataSources, ILayout, ILayouts } from 'src/layout/layout';
+import type { HierarchyDataSources, ILayout, ILayouts } from 'src/layout/layout';
 import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 
 const { resolvedNodesInLayouts } = _private;
 
@@ -135,10 +135,8 @@ describe('Hierarchical layout tools', () => {
   describe('generateHierarchy', () => {
     it('should resolve a very simple layout', () => {
       const root = new LayoutPage();
-      const top1 = new BaseLayoutNode(components.top1 as CompInternal, root, root, dataSources) as LayoutNode;
-      const top2 = new BaseLayoutNode(components.top2 as CompInternal, root, root, dataSources) as LayoutNode;
-      root._addChild(top1);
-      root._addChild(top2);
+      newLayoutNodeForTesting(components.top1, root);
+      newLayoutNodeForTesting(components.top2, root);
 
       const result = generateHierarchy([components.top1, components.top2], dataSources, getLayoutComponentObject);
       expect(result).toEqual(root);
