@@ -92,7 +92,7 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
   }
 
   public isCategory<T extends CompCategory>(category: T): this is LayoutNodeFromCategory<T> {
-    return this.def.type === category;
+    return this.def.category === category;
   }
 
   public pageKey(): string {
@@ -141,8 +141,10 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
   private childrenAsList(restriction?: ChildLookupRestriction): LayoutNode[] {
     const def = this.def as CompDef<any>;
     if (def instanceof ContainerComponent) {
-      const hierarchy = def.hierarchyGenerator();
-      return hierarchy.childrenFromNode(this, restriction);
+      // TODO: Get children from the hierarchy generator
+      // const hierarchy = def.hierarchyGenerator();
+      // return hierarchy.childrenFromNode(this, restriction);
+      return [];
     }
 
     return [];

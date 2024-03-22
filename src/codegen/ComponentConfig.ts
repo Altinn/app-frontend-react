@@ -120,6 +120,7 @@ export class ComponentConfig extends GenerateComponentLike {
          def: new ${impl.toTypeScript()}(),
          rendersWithLabel: ${this.config.rendersWithLabel ? 'true' : 'false'} as const,
          nodeConstructor: ${nodeObj},
+         capabilities: ${JSON.stringify(this.config.capabilities, null, 2)} as const,
        }`,
       `export type TypeConfig = {
          layout: ${this.inner.getName()};
@@ -135,20 +136,8 @@ export class ComponentConfig extends GenerateComponentLike {
     const category = this.config.category;
     const categorySymbol = CategoryImports[category].toTypeScript();
 
-    const methods: string[] = [];
-    for (const [key, value] of Object.entries(this.config.capabilities)) {
-      if (key.startsWith('renderIn')) {
-        const name = key.replace('renderIn', '');
-        const valueStr = JSON.stringify(value);
-        methods.push(`canRenderIn${name}(): ${valueStr} {\nreturn ${valueStr}; }`);
-        continue;
-      }
-
-      throw new Error(`Unknown capability ${key}`);
-    }
-
     return `export abstract class ${symbol}Def extends ${categorySymbol}<'${this.type}'> {
-      ${methods.join('\n\n')}
+      protected readonly type = '${this.type}';
     }`;
   }
 

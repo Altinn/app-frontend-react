@@ -12,6 +12,7 @@ import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspe
 import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { CompCategory } from 'src/layout/common';
+import { getComponentCapabilities } from 'src/layout/index';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
 import { DefaultNodeGenerator } from 'src/utils/layout/DefaultNodeGenerator';
@@ -73,6 +74,8 @@ export interface StoreFactoryProps<Type extends CompTypes> {
 }
 
 export abstract class AnyComponent<Type extends CompTypes> {
+  protected readonly type: Type;
+
   /**
    * Given properties from GenericComponent, render this layout component
    */
@@ -135,23 +138,31 @@ export abstract class AnyComponent<Type extends CompTypes> {
    * Return false to prevent this component from being rendered in a table
    * Should be configured as a capability in the component configuration (config.ts)
    */
-  abstract canRenderInTable(): boolean;
+  canRenderInTable() {
+    return getComponentCapabilities(this.type).renderInTable;
+  }
 
   /**
    * Return true to allow this component to be rendered in a ButtonGroup
    * Should be configured as a capability in the component configuration (config.ts)
    */
-  abstract canRenderInButtonGroup(): boolean;
+  canRenderInButtonGroup() {
+    return getComponentCapabilities(this.type).renderInButtonGroup;
+  }
 
   /**
    * Return true to allow this component to be rendered in an Accordion
    */
-  abstract canRenderInAccordion(): boolean;
+  canRenderInAccordion() {
+    return getComponentCapabilities(this.type).renderInAccordion;
+  }
 
   /**
    * Return true to allow this component to be rendered in an AccordionGroup
    */
-  abstract canRenderInAccordionGroup(): boolean;
+  canRenderInAccordionGroup() {
+    return getComponentCapabilities(this.type).renderInAccordionGroup;
+  }
 
   /**
    * Should GenericComponent render validation messages for simpleBinding outside of this component?
@@ -178,7 +189,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
 }
 
 export abstract class PresentationComponent<Type extends CompTypes> extends AnyComponent<Type> {
-  readonly type = CompCategory.Presentation;
+  readonly category = CompCategory.Presentation;
 }
 
 export interface SummaryRendererProps<Type extends CompTypes> {
@@ -328,7 +339,7 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
 }
 
 export abstract class ActionComponent<Type extends CompTypes> extends AnyComponent<Type> {
-  readonly type = CompCategory.Action;
+  readonly category = CompCategory.Action;
 
   shouldRenderInAutomaticPDF() {
     return false;
@@ -339,7 +350,7 @@ export abstract class FormComponent<Type extends CompTypes>
   extends _FormComponent<Type>
   implements ValidateEmptyField<Type>
 {
-  readonly type = CompCategory.Form;
+  readonly category = CompCategory.Form;
 
   runEmptyFieldValidation(
     node: LayoutNode<Type>,
@@ -391,7 +402,7 @@ export interface ChildClaimerProps<Type extends CompTypes> {
 }
 
 export abstract class ContainerComponent<Type extends CompTypes> extends _FormComponent<Type> {
-  readonly type = CompCategory.Container;
+  readonly category = CompCategory.Container;
 
   isDataModelBindingsRequired(_node: LayoutNode<Type>): boolean {
     return false;

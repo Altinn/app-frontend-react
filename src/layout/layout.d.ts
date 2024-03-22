@@ -6,7 +6,7 @@ import type { CompCategory } from 'src/layout/common';
 import type { ILayoutFileExternal } from 'src/layout/common.generated';
 import type { ComponentConfigs, ComponentTypeConfigs } from 'src/layout/components.generated';
 import type { CompGroupExternal } from 'src/layout/Group/config.generated';
-import type { CompClassMapTypes } from 'src/layout/index';
+import type { CompClassMapCategories } from 'src/layout/index';
 import type {
   ActionComponent,
   ContainerComponent,
@@ -114,7 +114,7 @@ export type LayoutNodeFromObj<T> = T extends { type: infer Type }
     : LayoutNode
   : LayoutNode;
 
-export type TypesFromCategory<Type extends CompCategory> = $Keys<PickByValue<CompClassMapTypes, Type>>;
+export type TypesFromCategory<Cat extends CompCategory> = $Keys<PickByValue<CompClassMapCategories, Cat>>;
 
 export type DefFromCategory<C extends CompCategory> = C extends 'presentation'
   ? PresentationComponent<any>

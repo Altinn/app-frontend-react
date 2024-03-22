@@ -11,8 +11,8 @@ export type CompClassMap = {
   [K in keyof typeof ComponentConfigs]: (typeof ComponentConfigs)[K]['def'];
 };
 
-export type CompClassMapTypes = {
-  [K in keyof CompClassMap]: CompClassMap[K]['type'];
+export type CompClassMapCategories = {
+  [K in keyof CompClassMap]: CompClassMap[K]['category'];
 };
 
 export type CompDef<T extends CompTypes = CompTypes> = (typeof ComponentConfigs)[T]['def'];
@@ -49,6 +49,14 @@ export function getLayoutComponentObject<T extends keyof CompClassMap>(type: T):
 export function getNodeConstructor<T extends CompTypes>(type: T): (typeof ComponentConfigs)[T]['nodeConstructor'] {
   if (type && type in ComponentConfigs) {
     return ComponentConfigs[type].nodeConstructor;
+  }
+
+  return undefined as any;
+}
+
+export function getComponentCapabilities<T extends CompTypes>(type: T): (typeof ComponentConfigs)[T]['capabilities'] {
+  if (type && type in ComponentConfigs) {
+    return ComponentConfigs[type].capabilities;
   }
 
   return undefined as any;
