@@ -1,9 +1,10 @@
 import { CG } from 'src/codegen/CG';
+import { LabelRendering } from 'src/codegen/ComponentConfig';
 import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
   category: CompCategory.Form,
-  rendersWithLabel: false,
+  rendersWithLabel: LabelRendering.OnlySettings,
   capabilities: {
     renderInTable: false,
     renderInButtonGroup: false,
@@ -65,6 +66,3 @@ export const Config = new CG.component({
         .setDescription('Whether to use the simplified address input or not'),
     ),
   );
-
-// Even though this component does not render a label, it's still possible to configure labelSettings on it
-Config.inner.extends(CG.common('LabeledComponentProps'));

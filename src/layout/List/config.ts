@@ -1,9 +1,10 @@
 import { CG } from 'src/codegen/CG';
+import { LabelRendering } from 'src/codegen/ComponentConfig';
 import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
   category: CompCategory.Form,
-  rendersWithLabel: false,
+  rendersWithLabel: LabelRendering.InSelf,
   capabilities: {
     renderInTable: false,
     renderInButtonGroup: false,
@@ -11,7 +12,6 @@ export const Config = new CG.component({
     renderInAccordionGroup: false,
   },
 })
-  .addTextResourcesForLabel()
   .addDataModelBinding(new CG.obj().optional().additionalProperties(new CG.str()).exportAs('IDataModelBindingsForList'))
   .addProperty(
     new CG.prop(

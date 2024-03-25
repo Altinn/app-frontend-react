@@ -1,9 +1,10 @@
 import { CG } from 'src/codegen/CG';
+import { LabelRendering } from 'src/codegen/ComponentConfig';
 import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
   category: CompCategory.Container,
-  rendersWithLabel: false,
+  rendersWithLabel: LabelRendering.InSelf,
   capabilities: {
     renderInTable: false,
     renderInButtonGroup: false,
@@ -11,6 +12,3 @@ export const Config = new CG.component({
     renderInAccordionGroup: false,
   },
 }).addProperty(new CG.prop('rows', CG.common('GridRows')));
-// We don't render the label in GenericComponent, but we still need the
-// text resource bindings for rendering them on our own
-Config.addTextResourcesForLabel().inner.extends(CG.common('LabeledComponentProps'));

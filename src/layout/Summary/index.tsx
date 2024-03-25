@@ -7,10 +7,6 @@ import type { PropsFromGenericComponent } from 'src/layout';
 import type { ExprResolver, StoreFactoryProps } from 'src/layout/LayoutComponent';
 
 export class Summary extends SummaryDef {
-  directRender(): boolean {
-    return true;
-  }
-
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Summary'>>(
     function LayoutComponentSummaryRender(props, _): JSX.Element | null {
       return (

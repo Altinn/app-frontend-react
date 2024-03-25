@@ -1,4 +1,5 @@
 import { CG } from 'src/codegen/CG';
+import { LabelRendering } from 'src/codegen/ComponentConfig';
 import { ExprVal } from 'src/features/expressions/types';
 import { CompCategory } from 'src/layout/common';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
@@ -6,7 +7,7 @@ import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 export const Config = asUploaderComponent(
   new CG.component({
     category: CompCategory.Form,
-    rendersWithLabel: true,
+    rendersWithLabel: LabelRendering.FromGenericComponent,
     capabilities: {
       renderInTable: false,
       renderInButtonGroup: false,

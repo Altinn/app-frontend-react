@@ -1,9 +1,11 @@
 import { CG } from 'src/codegen/CG';
+import { LabelRendering } from 'src/codegen/ComponentConfig';
 import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
   category: CompCategory.Presentation,
-  rendersWithLabel: false,
+  rendersWithLabel: LabelRendering.Off,
+  directRendering: true,
   capabilities: {
     renderInTable: false,
     renderInButtonGroup: false,

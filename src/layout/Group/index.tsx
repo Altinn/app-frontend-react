@@ -17,10 +17,6 @@ import type {
 } from 'src/layout/LayoutComponent';
 
 export class Group extends GroupDef {
-  directRender(): boolean {
-    return true;
-  }
-
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Group'>>(
     function LayoutComponentGroupRender(props, _): JSX.Element | null {
       return (

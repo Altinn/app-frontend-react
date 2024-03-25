@@ -14,7 +14,7 @@ import { useIsDev } from 'src/hooks/useIsDev';
 import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import classes from 'src/layout/GenericComponent.module.css';
 import { GenericComponentDescription, GenericComponentLabel } from 'src/layout/GenericComponentUtils';
-import { shouldComponentRenderLabel } from 'src/layout/index';
+import { shouldRenderLabelInGenericComponent } from 'src/layout/index';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useNodeRef } from 'src/utils/layout/nodeRef';
@@ -235,7 +235,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
         )}
         alignItems='baseline'
       >
-        {shouldComponentRenderLabel(node.getType()) && overrideDisplay?.renderLabel !== false && (
+        {shouldRenderLabelInGenericComponent(node.getType()) && overrideDisplay?.renderLabel !== false && (
           <Grid
             item={true}
             {...gridBreakpoints(item.grid?.labelGrid)}

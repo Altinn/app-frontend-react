@@ -15,9 +15,16 @@ async function getComponentList() {
   const files = await fs.readdir('src/layout');
   for (const file of files) {
     const stat = await fs.stat(path.join('src/layout', file));
-    if (stat.isDirectory()) {
-      out[file] = file;
+    if (!stat.isDirectory()) {
+      continue;
     }
+
+    const filesInside = await fs.readdir(path.join('src/layout', file));
+    if (filesInside.length === 0) {
+      continue;
+    }
+
+    out[file] = file;
   }
 
   return out;

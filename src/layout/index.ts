@@ -1,10 +1,12 @@
 import type { MutableRefObject } from 'react';
 
+import { LabelRendering } from 'src/codegen/ComponentConfig';
 import { ComponentConfigs } from 'src/layout/components.generated';
+import type { ComponentBehaviors } from 'src/codegen/ComponentConfig';
 import type { DisplayData } from 'src/features/displayData';
 import type { BaseValidation, ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
-import type { CompInternal, CompRendersLabel, CompTypes } from 'src/layout/layout';
+import type { CompInternal, CompTypes } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export type CompClassMap = {
@@ -62,8 +64,15 @@ export function getComponentCapabilities<T extends CompTypes>(type: T): (typeof 
   return undefined as any;
 }
 
-export function shouldComponentRenderLabel<T extends CompTypes>(type: T): CompRendersLabel<T> {
-  return ComponentConfigs[type].rendersWithLabel;
+export function getComponentBehavior<T extends CompTypes, K extends keyof ComponentBehaviors>(
+  type: T,
+  behavior: K,
+): (typeof ComponentConfigs)[T]['behaviors'][K] {
+  return ComponentConfigs[type].behaviors[behavior];
+}
+
+export function shouldRenderLabelInGenericComponent<T extends CompTypes>(type: T): boolean {
+  return ComponentConfigs[type].rendersWithLabel === LabelRendering.FromGenericComponent;
 }
 
 type TypeFromDef<Def extends CompDef> = Def extends CompDef<infer T> ? T : CompTypes;

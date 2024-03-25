@@ -11,10 +11,6 @@ import type { ComponentValidation } from 'src/features/validation';
 import type { ExprResolver, StoreFactoryProps, SummaryRendererProps } from 'src/layout/LayoutComponent';
 
 export class Likert extends LikertDef {
-  directRender(): boolean {
-    return true;
-  }
-
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Likert'>>(
     function LayoutComponentLikertRender(props, _): JSX.Element | null {
       return <LikertComponent {...props} />;

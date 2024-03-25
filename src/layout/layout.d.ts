@@ -1,5 +1,6 @@
 import type { $Keys, PickByValue } from 'utility-types';
 
+import type { ComponentBehaviors, ComponentCapabilities } from 'src/codegen/ComponentConfig';
 import type { DevToolsHiddenComponents } from 'src/features/devtools/data/types';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { CompCategory } from 'src/layout/common';
@@ -54,8 +55,6 @@ export type CompExternal<Type extends CompExceptGroup = CompExceptGroup> = Extra
 export type CompExternalExact<Type extends CompTypes> = ComponentTypeConfigs[Type]['layout'];
 
 export type CompOrGroupExternal = CompRepeatingGroupExternal | CompLikertExternal | CompGroupExternal | CompExternal;
-
-export type CompRendersLabel<T extends CompTypes> = (typeof ComponentConfigs)[T]['rendersWithLabel'];
 
 /**
  * This is the type you should use when referencing a specific component type, and will give
@@ -141,3 +140,11 @@ export type IsFormComp<T extends CompTypes> = ComponentTypeConfigs[T]['category'
 export type IsPresentationComp<T extends CompTypes> = ComponentTypeConfigs[T]['category'] extends 'presentation'
   ? true
   : false;
+
+export type CompWithCap<Capability extends keyof ComponentCapabilities> = {
+  [Type in CompTypes]: (typeof ComponentConfigs)[Type]['capabilities'][Capability] extends true ? Type : never;
+}[CompTypes];
+
+export type CompWithBehavior<Behavior extends keyof ComponentBehaviors> = {
+  [Type in CompTypes]: (typeof ComponentConfigs)[Type]['behaviors'][Behavior] extends true ? Type : never;
+}[CompTypes];

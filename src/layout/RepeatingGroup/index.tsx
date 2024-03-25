@@ -27,10 +27,6 @@ import type { RepGroupInternal, RepGroupRows } from 'src/layout/RepeatingGroup/t
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent<'RepeatingGroup'>, ValidationFilter {
-  directRender(): boolean {
-    return true;
-  }
-
   render = forwardRef<HTMLDivElement, PropsFromGenericComponent<'RepeatingGroup'>>(
     function LayoutComponentRepeatingGroupRender(props, ref): JSX.Element | null {
       return (

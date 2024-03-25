@@ -16,15 +16,50 @@ import type {
   PresentationComponent,
 } from 'src/layout/LayoutComponent';
 
+export enum LabelRendering {
+  /** Turns off label rendering */
+  Off = 'off',
+
+  /** Turns off label rendering (sets no text resource bindings for you), but enables labelSettings */
+  OnlySettings = 'onlySettings',
+
+  /** Renders the label automatically outside the component (from GenericComponent.tsx) */
+  FromGenericComponent = 'fromGenericComponent',
+
+  /** Lets you render the label yourself, inside the component code */
+  InSelf = 'inSelf',
+}
+
 export interface RequiredComponentConfig {
   category: CompCategory;
-  rendersWithLabel: boolean;
-  capabilities: {
-    renderInTable: boolean;
-    renderInButtonGroup: boolean;
-    renderInAccordion: boolean;
-    renderInAccordionGroup: boolean;
-  };
+  rendersWithLabel: LabelRendering;
+  directRendering?: boolean;
+  capabilities: ComponentCapabilities;
+}
+
+/**
+ * Capabilities are configured directly when setting up a component config. You have to fill out each of the
+ * properties in the object.
+ * @see CompWithCap
+ * @see getComponentCapabilities
+ */
+export interface ComponentCapabilities {
+  renderInTable: boolean;
+  renderInButtonGroup: boolean;
+  renderInAccordion: boolean;
+  renderInAccordionGroup: boolean;
+}
+
+/**
+ * Behaviors are more implicit, and are derived from the component config. I.e. when making a component summarizable,
+ * the behavior is set to true.
+ * @see CompWithBehavior
+ * @see getComponentBehavior
+ */
+export interface ComponentBehaviors {
+  isSummarizable: boolean;
+  canHaveLabel: boolean;
+  canHaveOptions: boolean;
 }
 
 const CategoryImports: { [Category in CompCategory]: GenerateImportedSymbol<any> } = {
@@ -56,6 +91,11 @@ export class ComponentConfig {
   public typeSymbol: string;
   public layoutNodeType = baseLayoutNode;
   readonly inner = new CG.obj();
+  public behaviors: ComponentBehaviors = {
+    isSummarizable: false,
+    canHaveLabel: false,
+    canHaveOptions: false,
+  };
 
   constructor(public readonly config: RequiredComponentConfig) {
     this.inner.extends(CG.common('ComponentBase'));
@@ -67,11 +107,18 @@ export class ComponentConfig {
     if (config.category === CompCategory.Form || config.category === CompCategory.Container) {
       this.inner.extends(CG.common('SummarizableComponentProps'));
       this.extendTextResources(CG.common('TRBSummarizable'));
+      this.behaviors.isSummarizable = true;
     }
 
-    if (config.rendersWithLabel) {
+    if (
+      config.rendersWithLabel === LabelRendering.FromGenericComponent ||
+      config.rendersWithLabel === LabelRendering.InSelf
+    ) {
       this.inner.extends(CG.common('LabeledComponentProps'));
       this.extendTextResources(CG.common('TRBLabel'));
+      this.behaviors.canHaveLabel = true;
+    } else if (config.rendersWithLabel === LabelRendering.OnlySettings) {
+      this.inner.extends(CG.common('LabeledComponentProps'));
     }
   }
 
@@ -113,12 +160,9 @@ export class ComponentConfig {
     return this;
   }
 
-  public addTextResourcesForLabel(): this {
-    return this.extendTextResources(CG.common('TRBLabel'));
-  }
-
   public makeSelectionComponent(full = true): this {
     this.inner.extends(full ? CG.common('ISelectionComponentFull') : CG.common('ISelectionComponent'));
+    this.behaviors.canHaveOptions = true;
 
     return this;
   }
@@ -193,15 +237,21 @@ export class ComponentConfig {
       from: `./index`,
     });
 
+    const labelRendering = new CG.import({
+      import: 'LabelRendering',
+      from: `src/codegen/ComponentConfig`,
+    });
+
     const nodeObj = this.layoutNodeType.toTypeScript();
     const nodeSuffix = this.layoutNodeType === baseLayoutNode ? `<'${this.type}'>` : '';
 
     const staticElements = [
       `export const Config = {
          def: new ${impl.toTypeScript()}(),
-         rendersWithLabel: ${this.config.rendersWithLabel ? 'true' : 'false'} as const,
+         rendersWithLabel: ${labelRendering.toTypeScript()}.${ucFirst(this.config.rendersWithLabel)} as const,
          nodeConstructor: ${nodeObj},
          capabilities: ${JSON.stringify(this.config.capabilities, null, 2)} as const,
+         behaviors: ${JSON.stringify(this.behaviors, null, 2)} as const,
        }`,
       `export type TypeConfig = {
          layout: ${this.inner.getName()};
@@ -217,8 +267,20 @@ export class ComponentConfig {
     const category = this.config.category;
     const categorySymbol = CategoryImports[category].toTypeScript();
 
+    if (this.config.directRendering && this.config.rendersWithLabel === LabelRendering.FromGenericComponent) {
+      throw new Error(
+        `Component ${symbol} is set to directRendering, but also rendersWithLabel: LabelRendering.FromGenericComponent. ` +
+          `This is not allowed, as the label cannot be rendered outside the component when it is set ` +
+          `up to render directly.`,
+      );
+    }
+
+    const extra = this.config.directRendering ? 'directRender(): boolean { return true; }' : '';
+
     return `export abstract class ${symbol}Def extends ${categorySymbol}<'${this.type}'> {
       protected readonly type = '${this.type}';
+
+      ${extra}
     }`;
   }
 
@@ -226,4 +288,8 @@ export class ComponentConfig {
     this.beforeFinalizing();
     return this.inner.toJsonSchema();
   }
+}
+
+function ucFirst(str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
