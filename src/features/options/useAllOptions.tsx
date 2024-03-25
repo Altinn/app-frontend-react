@@ -9,11 +9,12 @@ import { Loader } from 'src/core/loading/Loader';
 import { useLaxProcessData, useRealTaskType } from 'src/features/instance/ProcessContext';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { useGetOptions } from 'src/features/options/useGetOptions';
+import { getComponentBehavior } from 'src/layout';
 import { ProcessTaskType } from 'src/types';
 import { useNodes } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
-import type { CompInternal } from 'src/layout/layout';
+import type { CompWithBehavior } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 /**
@@ -124,10 +125,8 @@ export function useAllOptionsSelector(onlyWhenAllLoaded = false) {
 export const useAllOptions = () => useSelector((state) => state.nodes);
 export const useAllOptionsInitiallyLoaded = () => useSelector((state) => state.allInitiallyLoaded);
 
-function isNodeOptionBased(item: CompInternal) {
-  return (
-    ('options' in item && item.options) || ('optionsId' in item && item.optionsId) || ('source' in item && item.source)
-  );
+function isNodeOptionBased(node: LayoutNode): node is LayoutNode<CompWithBehavior<'canHaveOptions'>> {
+  return getComponentBehavior(node.getType(), 'canHaveOptions');
 }
 
 export const AllOptionsStoreProvider = Provider;
