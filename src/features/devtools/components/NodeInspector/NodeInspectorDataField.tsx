@@ -9,6 +9,7 @@ import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { DevToolsTab } from 'src/features/devtools/data/types';
 import { canBeExpression } from 'src/features/expressions/validation';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import type { CompExternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface NodeInspectorDataFieldParams {
@@ -146,8 +147,12 @@ function ExpandArray(props: { path: string[]; property: string; elements: unknow
 export function NodeInspectorDataField({ path, property, value: inputValue }: NodeInspectorDataFieldParams) {
   const { node } = useNodeInspectorContext();
 
+  // TODO: Implement
+  // const itemWithExpressions = useNodeItem();
+  const itemWithExpressions: CompExternal = {} as any;
+
   let value = inputValue;
-  const preEvaluatedValue = dot.pick(path.join('.'), node?.itemWithExpressions);
+  const preEvaluatedValue = dot.pick(path.join('.'), itemWithExpressions);
   const isExpression =
     (preEvaluatedValue !== value && Array.isArray(preEvaluatedValue) && !Array.isArray(value)) ||
     canBeExpression(value, true);

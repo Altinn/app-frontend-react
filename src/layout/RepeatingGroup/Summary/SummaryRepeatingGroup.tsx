@@ -14,6 +14,7 @@ import classes from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup.mod
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { ITextResourceBindings } from 'src/layout/layout';
+import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { RepGroupRow } from 'src/layout/RepeatingGroup/types';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -134,13 +135,15 @@ export function SummaryRepeatingGroup({
                     if (child.isHidden() || !child.isCategory(CompCategory.Form)) {
                       return;
                     }
-                    const RenderCompactSummary = child.def.renderCompactSummary.bind(child.def);
+                    const RenderCompactSummary = child.def.renderCompactSummary.bind(child.def) as React.FC<
+                      SummaryRendererProps<any>
+                    >;
                     return (
                       <RenderCompactSummary
                         onChangeClick={onChangeClick}
                         changeText={changeText}
                         key={child.getId()}
-                        targetNode={child as any}
+                        targetNode={child}
                         summaryNode={summaryNode}
                         overrides={{}}
                         formDataSelector={formDataSelector}

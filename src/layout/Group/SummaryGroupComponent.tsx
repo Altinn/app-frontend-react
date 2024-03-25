@@ -15,6 +15,7 @@ import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ITextResourceBindings } from 'src/layout/layout';
+import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -93,7 +94,9 @@ export function SummaryGroupComponent({
       if (child.isHidden() || !child.isCategory(CompCategory.Form)) {
         return;
       }
-      const RenderCompactSummary = child.def.renderCompactSummary.bind(child.def);
+      const RenderCompactSummary = child.def.renderCompactSummary.bind(child.def) as React.FC<
+        SummaryRendererProps<any>
+      >;
       return (
         <RenderCompactSummary
           onChangeClick={onChangeClick}
