@@ -47,7 +47,10 @@ export function LikertSummary({ onChangeClick, changeText, summaryNode, targetNo
   const titleTrb = textBindings && 'title' in textBindings ? textBindings.title : undefined;
   const title = lang(summaryTitleTrb ?? titleTrb);
   const ariaLabel = langAsString(summaryTitleTrb ?? summaryAccessibleTitleTrb ?? titleTrb);
-  const rows = targetItem.rows;
+
+  // TODO: Implement Likert rows
+  // const rows = targetItem.rows;
+  const rows = undefined as any;
 
   if (summaryItem.largeGroup && overrides?.largeGroup !== false && rows.length) {
     return (
