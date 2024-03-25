@@ -1,5 +1,5 @@
 import { CG } from 'src/codegen/CG';
-import { LabelRendering } from 'src/codegen/ComponentConfig';
+import { LabelRendering } from 'src/codegen/Config';
 import { ExprVal } from 'src/features/expressions/types';
 import { CompCategory } from 'src/layout/common';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';

@@ -1,5 +1,5 @@
 import { CG } from 'src/codegen/CG';
-import { LabelRendering } from 'src/codegen/ComponentConfig';
+import { LabelRendering } from 'src/codegen/Config';
 import { CompCategory } from 'src/layout/common';
 import { asUploaderComponent } from 'src/layout/FileUpload/config';
 

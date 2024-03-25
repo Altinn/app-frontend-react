@@ -1,10 +1,12 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { CG } from 'src/codegen/CG';
+import { LabelRendering } from 'src/codegen/Config';
 import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import { GenerateRaw } from 'src/codegen/dataTypes/GenerateRaw';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 import { CompCategory } from 'src/layout/common';
+import type { ComponentBehaviors, RequiredComponentConfig } from 'src/codegen/Config';
 import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
 import type { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
@@ -15,52 +17,6 @@ import type {
   FormComponent,
   PresentationComponent,
 } from 'src/layout/LayoutComponent';
-
-export enum LabelRendering {
-  /** Turns off label rendering */
-  Off = 'off',
-
-  /** Turns off label rendering (sets no text resource bindings for you), but enables labelSettings */
-  OnlySettings = 'onlySettings',
-
-  /** Renders the label automatically outside the component (from GenericComponent.tsx) */
-  FromGenericComponent = 'fromGenericComponent',
-
-  /** Lets you render the label yourself, inside the component code */
-  InSelf = 'inSelf',
-}
-
-export interface RequiredComponentConfig {
-  category: CompCategory;
-  rendersWithLabel: LabelRendering;
-  directRendering?: boolean;
-  capabilities: ComponentCapabilities;
-}
-
-/**
- * Capabilities are configured directly when setting up a component config. You have to fill out each of the
- * properties in the object.
- * @see CompWithCap
- * @see getComponentCapabilities
- */
-export interface ComponentCapabilities {
-  renderInTable: boolean;
-  renderInButtonGroup: boolean;
-  renderInAccordion: boolean;
-  renderInAccordionGroup: boolean;
-}
-
-/**
- * Behaviors are more implicit, and are derived from the component config. I.e. when making a component summarizable,
- * the behavior is set to true.
- * @see CompWithBehavior
- * @see getComponentBehavior
- */
-export interface ComponentBehaviors {
-  isSummarizable: boolean;
-  canHaveLabel: boolean;
-  canHaveOptions: boolean;
-}
 
 const CategoryImports: { [Category in CompCategory]: GenerateImportedSymbol<any> } = {
   [CompCategory.Action]: new GenerateImportedSymbol<ActionComponent<any>>({
@@ -239,7 +195,7 @@ export class ComponentConfig {
 
     const labelRendering = new CG.import({
       import: 'LabelRendering',
-      from: `src/codegen/ComponentConfig`,
+      from: `src/codegen/Config`,
     });
 
     const nodeObj = this.layoutNodeType.toTypeScript();

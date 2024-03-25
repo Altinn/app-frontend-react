@@ -1,8 +1,8 @@
 import type { MutableRefObject } from 'react';
 
-import { LabelRendering } from 'src/codegen/ComponentConfig';
+import { LabelRendering } from 'src/codegen/Config';
 import { ComponentConfigs } from 'src/layout/components.generated';
-import type { ComponentBehaviors } from 'src/codegen/ComponentConfig';
+import type { ComponentBehaviors } from 'src/codegen/Config';
 import type { DisplayData } from 'src/features/displayData';
 import type { BaseValidation, ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
