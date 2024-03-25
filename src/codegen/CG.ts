@@ -2,7 +2,6 @@ import { ComponentConfig } from 'src/codegen/ComponentConfig';
 import { GenerateArray } from 'src/codegen/dataTypes/GenerateArray';
 import { GenerateBoolean } from 'src/codegen/dataTypes/GenerateBoolean';
 import { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
-import { GenerateComponentLike } from 'src/codegen/dataTypes/GenerateComponentLike';
 import { GenerateConst } from 'src/codegen/dataTypes/GenerateConst';
 import { GenerateEnum } from 'src/codegen/dataTypes/GenerateEnum';
 import { GenerateExpressionOr } from 'src/codegen/dataTypes/GenerateExpressionOr';
@@ -24,7 +23,6 @@ function generateCommonImport<T extends ValidCommonKeys>(key: T): GenerateCommon
 
 export const CG = {
   component: ComponentConfig,
-  componentLike: GenerateComponentLike,
 
   // Scalars, types and expressions
   const: GenerateConst,

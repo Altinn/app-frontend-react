@@ -1,9 +1,14 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { CG } from 'src/codegen/CG';
-import { GenerateComponentLike } from 'src/codegen/dataTypes/GenerateComponentLike';
 import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
+import { GenerateRaw } from 'src/codegen/dataTypes/GenerateRaw';
+import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 import { CompCategory } from 'src/layout/common';
+import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
+import type { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
+import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
+import type { GenerateTextResourceBinding } from 'src/codegen/dataTypes/GenerateTextResourceBinding';
 import type {
   ActionComponent,
   ContainerComponent,
@@ -46,13 +51,13 @@ const baseLayoutNode = new GenerateImportedSymbol({
   from: 'src/utils/layout/LayoutNode',
 });
 
-export class ComponentConfig extends GenerateComponentLike {
+export class ComponentConfig {
   public type: string;
   public typeSymbol: string;
   public layoutNodeType = baseLayoutNode;
+  readonly inner = new CG.obj();
 
   constructor(public readonly config: RequiredComponentConfig) {
-    super();
     this.inner.extends(CG.common('ComponentBase'));
 
     if (config.category === CompCategory.Form) {
@@ -76,6 +81,82 @@ export class ComponentConfig extends GenerateComponentLike {
     this.typeSymbol = symbolName;
     this.inner.addProperty(new CG.prop('type', new CG.const(this.type)).insertFirst());
 
+    return this;
+  }
+
+  public addProperty(prop: GenerateProperty<any>): this {
+    this.inner.addProperty(prop);
+    return this;
+  }
+
+  private ensureTextResourceBindings(): void {
+    const existing = this.inner.getProperty('textResourceBindings');
+    if (!existing || existing.type instanceof GenerateRaw) {
+      this.inner.addProperty(new CG.prop('textResourceBindings', new CG.obj().optional()));
+    }
+  }
+
+  /**
+   * TODO: Add support for some required text resource bindings (but only make them required in external types)
+   */
+  public addTextResource(arg: GenerateTextResourceBinding): this {
+    this.ensureTextResourceBindings();
+    this.inner.getProperty('textResourceBindings')?.type.addProperty(arg);
+
+    return this;
+  }
+
+  public extendTextResources(type: GenerateCommonImport<any>): this {
+    this.ensureTextResourceBindings();
+    this.inner.getProperty('textResourceBindings')?.type.extends(type);
+
+    return this;
+  }
+
+  public addTextResourcesForLabel(): this {
+    return this.extendTextResources(CG.common('TRBLabel'));
+  }
+
+  public makeSelectionComponent(full = true): this {
+    this.inner.extends(full ? CG.common('ISelectionComponentFull') : CG.common('ISelectionComponent'));
+
+    return this;
+  }
+
+  /**
+   * Adding multiple data model bindings to the component makes it a union
+   */
+  public addDataModelBinding(
+    type:
+      | GenerateCommonImport<
+          | 'IDataModelBindingsSimple'
+          | 'IDataModelBindingsList'
+          | 'IDataModelBindingsOptionsSimple'
+          | 'IDataModelBindingsLikert'
+        >
+      | GenerateObject<any>,
+  ): this {
+    const name = 'dataModelBindings';
+    const existing = this.inner.getProperty(name)?.type;
+    if (existing && existing instanceof GenerateUnion) {
+      existing.addType(type);
+    } else if (existing && !(existing instanceof GenerateRaw)) {
+      const union = new CG.union(existing, type);
+      this.inner.addProperty(new CG.prop(name, union));
+    } else {
+      this.inner.addProperty(new CG.prop(name, type));
+    }
+
+    return this;
+  }
+
+  extends(type: GenerateCommonImport<any> | ComponentConfig): this {
+    if (type instanceof ComponentConfig) {
+      this.inner.extends(type.inner);
+      return this;
+    }
+
+    this.inner.extends(type);
     return this;
   }
 
