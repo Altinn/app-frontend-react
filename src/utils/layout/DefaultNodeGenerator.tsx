@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { evalExpr } from 'src/features/expressions';
@@ -6,6 +6,7 @@ import { ExprVal } from 'src/features/expressions/types';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { getLayoutComponentObject, getNodeConstructor } from 'src/layout';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
+import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { SimpleEval } from 'src/features/expressions';
 import type { ExprConfig, ExprResolved, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { CompDef } from 'src/layout';
@@ -13,6 +14,7 @@ import type { FormComponentProps, SummarizableComponentProps } from 'src/layout/
 import type {
   CompExternal,
   CompExternalExact,
+  CompInternal,
   CompTypes,
   HierarchyDataSources,
   ITextResourceBindings,
@@ -37,6 +39,12 @@ export function DefaultNodeGenerator<T extends CompTypes>({
   const store = useNodeStore(props);
   const node = useNewNode(store, props);
   const resolverProps = useExpressionResolverProps(node, props.item);
+  useResolvedItem(node, props.item, resolverProps);
+
+  const page = props.parent instanceof LayoutPage ? props.parent : props.parent.page;
+  useEffect(() => {
+    page._addChild(node);
+  }, [node, page]);
 
   return <>{children}</>;
 }
@@ -158,6 +166,24 @@ function useNewNode<T extends CompTypes>(
 
     return new LNode(store as any, parent, row) as LayoutNode<T>;
   }, [store, item.type, parent, row]);
+}
+
+function useResolvedItem<T extends CompTypes>(
+  node: LayoutNode<T>,
+  item: CompExternalExact<T>,
+  resolverProps: ExprResolver<T>,
+): CompInternal<T> {
+  return useMemo(() => {
+    const def = getLayoutComponentObject(item.type);
+    if (!def) {
+      // TODO: Log error and produce an error node instead
+      throw new Error(`Component type "${item.type}" not found`);
+    }
+
+    const resolvedItem = (def as CompDef<T>).evalExpressions(resolverProps as any) as CompInternal<T>;
+    node.store.getState().updateItem(resolvedItem as any);
+    return resolvedItem;
+  }, [item.type, node.store, resolverProps]);
 }
 
 function isFormItem(item: CompExternal): item is CompExternal & FormComponentProps {

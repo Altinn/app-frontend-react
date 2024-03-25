@@ -24,7 +24,7 @@ import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 const { resolvedNodesInLayouts } = _private;
 
-function findComponent(context: FunctionTest['context'], collection: LayoutPages<any>) {
+function findComponent(context: FunctionTest['context'], collection: LayoutPages) {
   const { component, rowIndices } = context || { component: 'no-component' };
   const componentId = (component || 'no-component') + (rowIndices ? `-${rowIndices.join('-')}` : '');
   const found = collection.findById(componentId);

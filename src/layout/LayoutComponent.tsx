@@ -93,9 +93,10 @@ export abstract class AnyComponent<Type extends CompTypes> {
 
   protected defaultStoreFactory(props: StoreFactoryProps<Type>) {
     return createStore<BaseItemState<Type>>()(
-      immer((_set) => ({
-        item: undefined,
+      immer((set) => ({
+        item: props.item as CompInternal<Type>,
         layout: props.item,
+        updateItem: (newItem) => set(() => ({ item: newItem as CompInternal<Type> })),
       })),
     );
   }

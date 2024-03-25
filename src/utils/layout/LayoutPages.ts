@@ -3,26 +3,34 @@ import type { $Values } from 'utility-types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
+interface Collection {
+  [layoutKey: string]: LayoutPage;
+}
+
 /**
  * A tool when you have more than one LayoutPage (i.e. a full layout set). It can help you look up components
  * by ID, and if you have colliding component IDs in multiple layouts it will prefer the one in the current layout.
  */
-export class LayoutPages<
-  Collection extends { [layoutKey: string]: LayoutPage } = {
-    [layoutKey: string]: LayoutPage;
-  },
-> {
-  private readonly objects: Collection;
+export class LayoutPages {
+  private _currentPage: string | undefined;
+  private readonly objects: Collection = {};
 
-  // TODO: Set currentView, or remove it if we don't need it
-  public constructor(
-    private currentView?: keyof Collection,
-    objects?: Collection,
-  ) {
-    this.objects = objects || ({} as any);
+  public constructor() {
     for (const layoutKey of Object.keys(this.objects)) {
       const layout = this.objects[layoutKey];
       layout.registerCollection(layoutKey, this);
+    }
+  }
+
+  public isReady(): boolean {
+    // TODO: Do something smarter, such as listening for ready events from all pages/nodes
+    return Object.keys(this.objects).length > 0;
+  }
+
+  public setCurrentPage(currentView: string | undefined) {
+    this._currentPage = undefined;
+    if (currentView && this.objects[currentView]) {
+      this._currentPage = currentView;
     }
   }
 
@@ -31,16 +39,16 @@ export class LayoutPages<
       return undefined;
     }
 
-    const current = this.current();
-    if (current && this.currentView !== exceptInPage) {
-      const inCurrent = this.current()?.findById(id, false);
+    const current = this.currentPage();
+    if (current && this._currentPage !== exceptInPage) {
+      const inCurrent = this.currentPage()?.findById(id, false);
       if (inCurrent) {
         return inCurrent;
       }
     }
 
     for (const otherLayoutKey of Object.keys(this.objects)) {
-      if (otherLayoutKey === this.currentView || otherLayoutKey === exceptInPage) {
+      if (otherLayoutKey === this._currentPage || otherLayoutKey === exceptInPage) {
         continue;
       }
       const inOther = this.objects[otherLayoutKey].findById(id, false);
@@ -71,11 +79,11 @@ export class LayoutPages<
     return this.objects[key];
   }
 
-  public current(): LayoutPage | undefined {
-    if (!this.currentView) {
+  public currentPage(): LayoutPage | undefined {
+    if (!this._currentPage) {
       return undefined;
     }
-    const current = this.findLayout(this.currentView);
+    const current = this.findLayout(this._currentPage);
     if (current) {
       return current;
     }
@@ -107,5 +115,9 @@ export class LayoutPages<
         .map((key) => this.objects[key])
         .flat(),
     ] as $Values<Omit<Collection, L>>[];
+  }
+
+  public replacePage(param: LayoutPage) {
+    this.objects[param.pageKey as keyof Collection] = param as any;
   }
 }

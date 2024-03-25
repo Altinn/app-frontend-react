@@ -336,8 +336,8 @@ describe('Hierarchical layout tools', () => {
     expect(uniqueHidden(group2ni?.parent.children())).toEqual(plain);
     expect(uniqueHidden(group2ni?.parent.parent.children())).toEqual(plain);
     expect(uniqueHidden(group2?.flat())).toEqual(plain);
-    expect(uniqueHidden(nodes.current()?.flat())).toEqual(plain);
-    expect(uniqueHidden(nodes.current()?.children())).toEqual(plain);
+    expect(uniqueHidden(nodes.currentPage()?.flat())).toEqual(plain);
+    expect(uniqueHidden(nodes.currentPage()?.children())).toEqual(plain);
 
     if (!group2?.isType('RepeatingGroup')) {
       throw new Error('Expected group2 to be a repeating group');
@@ -372,15 +372,14 @@ describe('Hierarchical layout tools', () => {
       l2: generateHierarchy(layout2, dataSources, getLayoutComponentObject),
     };
 
-    const collection1 = new LayoutPages('l1', layouts);
-    const collection2 = new LayoutPages('l2', layouts);
+    // TODO: Re-implement
+    // const collection1 = new LayoutPages('l1', layouts);
+    // const collection2 = new LayoutPages('l2', layouts);
+    const collection1 = new LayoutPages();
+    const collection2 = new LayoutPages();
 
     it('should find the component in the current layout first', () => {
-      function expectReadOnly(
-        collection: LayoutPages<{ l1: LayoutPage; l2: LayoutPage }> | undefined,
-        id: string,
-        expected: true | undefined,
-      ) {
+      function expectReadOnly(collection: LayoutPages | undefined, id: string, expected: true | undefined) {
         const item = collection?.findById(id)?.item;
         const readOnly = item && 'readOnly' in item ? item.readOnly : undefined;
         expect(readOnly).toEqual(expected);
@@ -393,8 +392,8 @@ describe('Hierarchical layout tools', () => {
     });
 
     it('should find the current layout', () => {
-      expect(collection1.current()).toEqual(layouts['l1']);
-      expect(collection2.current()).toEqual(layouts['l2']);
+      expect(collection1.currentPage()).toEqual(layouts['l1']);
+      expect(collection2.currentPage()).toEqual(layouts['l2']);
     });
 
     it('should find a named layout', () => {

@@ -100,7 +100,7 @@ export const ExpressionPlayground = () => {
         throw new Error('Ugyldig uttrykk');
       }
 
-      let evalContext: LayoutPage | LayoutNode | undefined = nodes?.current();
+      let evalContext: LayoutPage | LayoutNode | undefined = nodes?.currentPage();
       if (!evalContext) {
         throw new Error('Fant ikke nåværende side/layout');
       }

@@ -78,14 +78,14 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
       : undefined;
 
     const rows: RepGroupRows =
-      formData?.map((row) => ({
+      (formData?.map((row) => ({
         uuid: row[ALTINN_ROW_ID],
         index: row.index,
         groupExpressions: {
           hiddenRow: evalBool(item.hiddenRow, false), // TODO: Implement support for row-eval
           // TODO: Implement the rest
         },
-      })) ?? [];
+      })) as RepGroupRows) ?? [];
 
     return {
       ...item,

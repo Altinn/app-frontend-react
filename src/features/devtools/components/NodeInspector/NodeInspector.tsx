@@ -15,7 +15,7 @@ import { useNodes } from 'src/utils/layout/NodesContext';
 
 export const NodeInspector = () => {
   const pages = useNodes();
-  const currentPage = pages?.current();
+  const currentPage = pages?.currentPage();
   const selectedId = useDevToolsStore((state) => state.nodeInspector.selectedNodeId);
   const selectedNode = selectedId ? currentPage?.findById(selectedId) : undefined;
   const setSelected = useDevToolsStore((state) => state.actions.nodeInspectorSet);

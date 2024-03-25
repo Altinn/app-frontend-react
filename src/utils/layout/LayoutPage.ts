@@ -134,9 +134,10 @@ export class LayoutPage implements LayoutObject {
     return out;
   }
 
-  public registerCollection(pageKey: string, layoutSet: LayoutPages<any>) {
+  public registerCollection(pageKey: string, layoutSet: LayoutPages) {
     this.pageKey = pageKey;
     this.layoutSet = layoutSet;
+    layoutSet.replacePage(this);
   }
 
   public isHiddenViaTracks(layoutSettings: ILayoutSettings, pageNavigationConfig: PageNavigationConfig): boolean {

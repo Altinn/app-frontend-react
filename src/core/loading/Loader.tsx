@@ -12,7 +12,7 @@ interface LoaderProps {
   renderPresentation?: boolean;
 }
 
-export const Loader = ({ reason, details, renderPresentation = true }: LoaderProps) => {
+export const Loader = ({ renderPresentation = true, ...rest }: LoaderProps) => {
   if (renderPresentation) {
     return (
       <PresentationComponent
@@ -21,26 +21,21 @@ export const Loader = ({ reason, details, renderPresentation = true }: LoaderPro
         renderNavBar={false}
         runNavigationEffect={false}
       >
-        <AltinnContentLoader
-          width='100%'
-          height='400'
-          reason={reason}
-          details={details}
-        >
-          <AltinnContentIconFormData />
-        </AltinnContentLoader>
+        <InnerLoader {...rest} />
       </PresentationComponent>
     );
   }
 
-  return (
-    <AltinnContentLoader
-      width='100%'
-      height='400'
-      reason={reason}
-      details={details}
-    >
-      <AltinnContentIconFormData />
-    </AltinnContentLoader>
-  );
+  return <InnerLoader {...rest} />;
 };
+
+const InnerLoader = ({ reason, details }: LoaderProps) => (
+  <AltinnContentLoader
+    width='100%'
+    height='400'
+    reason={reason}
+    details={details}
+  >
+    <AltinnContentIconFormData />
+  </AltinnContentLoader>
+);

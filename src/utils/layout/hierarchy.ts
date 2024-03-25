@@ -1,9 +1,8 @@
-import { useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 
 import { useApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
-import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { usePageNavigationConfig } from 'src/features/form/layout/PageNavigationContext';
 import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
@@ -12,7 +11,6 @@ import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useLangToolsRef } from 'src/features/language/LangToolsStore';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useAllOptionsSelector } from 'src/features/options/useAllOptions';
-import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { getLayoutComponentObject } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
@@ -88,24 +86,9 @@ export function useExpressionDataSources(): HierarchyDataSources {
   );
 }
 
-function useResolvedExpressions() {
-  const layouts = useLayouts();
-  const currentView = useCurrentView();
-  const dataSources = useExpressionDataSources();
-  const previousNodesRef = useRef<LayoutPages>();
-  const nodes = useMemo(
-    () => resolvedNodesInLayouts(layouts, currentView, dataSources),
-    [layouts, currentView, dataSources],
-  );
-  previousNodesRef.current = nodes;
-
-  return nodes;
-}
-
 /**
  * Exported only for testing. Please do not use!
  */
 export const _private = {
   resolvedNodesInLayouts,
-  useResolvedExpressions,
 };

@@ -21,5 +21,12 @@ export function useNodeRef<T extends NodeRef | undefined>(ref: T): RetValFromNod
 }
 
 export function isNodeRef(ref: any): ref is NodeRef {
-  return ref !== undefined && ref !== null && 'nodeRef' in ref && typeof ref.nodeRef === 'string' && ref.nodeRef !== '';
+  return (
+    ref !== undefined &&
+    ref !== null &&
+    typeof ref === 'object' &&
+    'nodeRef' in ref &&
+    typeof ref.nodeRef === 'string' &&
+    ref.nodeRef !== ''
+  );
 }

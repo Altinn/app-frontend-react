@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
+import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { getLayoutComponentObject } from 'src/layout';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -39,9 +40,24 @@ interface ChildrenState {
   map: ChildrenMap | undefined;
 }
 
-export function NodesGenerator() {
+interface NodesGeneratorProps {
+  setNodes: (nodes: LayoutPages) => void;
+}
+
+export function NodesGenerator({ setNodes }: NodesGeneratorProps) {
   const layouts = useLayouts();
   const layoutSet = useMemo(() => new LayoutPages(), []);
+  const currentView = useCurrentView();
+
+  useLayoutEffect(() => {
+    if (layoutSet && layoutSet.isReady()) {
+      setNodes(layoutSet);
+    }
+  }, [layoutSet, setNodes]);
+
+  useEffect(() => {
+    layoutSet.setCurrentPage(currentView);
+  }, [currentView, layoutSet]);
 
   return (
     <div style={style}>

@@ -14,7 +14,7 @@ import { useDynamics } from 'src/features/form/dynamics/DynamicsContext';
 import { useHiddenLayoutsExpressions } from 'src/features/form/layout/LayoutsContext';
 import { useHiddenPages, useSetHiddenPages } from 'src/features/form/layout/PageNavigationContext';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
-import { _private, useExpressionDataSources } from 'src/utils/layout/hierarchy';
+import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
 import { NodesGenerator } from 'src/utils/layout/NodesGenerator';
@@ -50,21 +50,14 @@ const { Provider, useSelector, useMemoSelector, useSelectorAsRef, useLaxSelector
 export const NodesProvider = (props: React.PropsWithChildren) => (
   <Provider>
     <InnerNodesProvider />
-    <NodesGenerator />
     <InnerHiddenComponentsProvider />
     <BlockUntilLoaded>{props.children}</BlockUntilLoaded>
   </Provider>
 );
 
 function InnerNodesProvider() {
-  const resolvedNodes = _private.useResolvedExpressions();
   const setNodes = useSelector((state) => state.setNodes);
-
-  useEffect(() => {
-    setNodes(resolvedNodes);
-  }, [setNodes, resolvedNodes]);
-
-  return null;
+  return <NodesGenerator setNodes={setNodes} />;
 }
 
 function InnerHiddenComponentsProvider() {

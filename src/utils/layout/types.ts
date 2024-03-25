@@ -15,6 +15,7 @@ export interface BaseRow {
 export interface BaseItemState<T extends CompTypes> {
   layout: CompExternalExact<T>;
   item: CompInternal<T> | undefined;
+  updateItem: (item: CompInternal<T>) => void;
 }
 
 export type ItemStore<Type extends CompTypes> = ReturnType<CompDef<Type>['storeFactory']>;
