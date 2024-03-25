@@ -1,3 +1,4 @@
+import { splitDashedKey } from 'src/utils/formLayout';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
 import type { PageNavigationConfig } from 'src/features/expressions/ExprContext';
 import type { NodeRef } from 'src/layout';
@@ -17,29 +18,17 @@ export class LayoutPage implements LayoutObject {
   public layoutSet: LayoutPages;
   public pageKey: string;
 
-  private directChildren: LayoutNode[] = [];
-  private allChildren: LayoutNode[] = [];
-  private idMap: { [id: string]: number[] } = {};
+  private allChildren: Map<string, LayoutNode> = new Map();
 
   /**
    * Adds a child to the collection. For internal use only.
    */
   public _addChild(child: LayoutNode) {
-    if (child.parent === this) {
-      this.directChildren.push(child as LayoutNode);
-    }
-    const idx = this.allChildren.length;
-    this.allChildren.push(child);
+    this.allChildren.set(child.getId(), child);
+  }
 
-    const id = child.getId();
-    this.idMap[id] = this.idMap[id] || [];
-    this.idMap[id].push(idx);
-
-    const baseComponentId = child.getBaseId();
-    if (baseComponentId && baseComponentId !== id) {
-      this.idMap[baseComponentId] = this.idMap[baseComponentId] || [];
-      this.idMap[baseComponentId].push(idx);
-    }
+  public _removeChild(child: LayoutNode) {
+    this.allChildren.delete(child.getId());
   }
 
   public isSameAs(otherObject: LayoutObject | NodeRef): boolean {
@@ -77,6 +66,10 @@ export class LayoutPage implements LayoutObject {
     return undefined;
   }
 
+  protected get directChildren(): LayoutNode[] {
+    return [...this.allChildren.values()].filter((node) => node.parent === this);
+  }
+
   /**
    * Returns a list of direct children, or finds the first node matching a given criteria. Implemented
    * here for parity with LayoutNode.
@@ -102,12 +95,17 @@ export class LayoutPage implements LayoutObject {
    * LayoutNode objects.
    */
   public flat(): LayoutNode[] {
-    return this.allChildren;
+    return [...this.allChildren.values()];
   }
 
   public findById(id: string, traversePages = true): LayoutNode | undefined {
-    if (this.idMap[id] && this.idMap[id].length) {
-      return this.allChildren[this.idMap[id][0]];
+    if (this.allChildren.has(id)) {
+      return this.allChildren.get(id);
+    }
+
+    const baseId = splitDashedKey(id).baseComponentId;
+    if (this.allChildren.has(baseId)) {
+      return this.allChildren.get(baseId);
     }
 
     if (traversePages && this.layoutSet) {
@@ -118,10 +116,18 @@ export class LayoutPage implements LayoutObject {
   }
 
   public findAllById(id: string, traversePages = true): LayoutNode[] {
+    const baseId = splitDashedKey(id).baseComponentId;
     const out: LayoutNode[] = [];
-    if (this.idMap[id] && this.idMap[id].length) {
-      for (const idx of this.idMap[id]) {
-        out.push(this.allChildren[idx]);
+    if (this.allChildren.has(id)) {
+      out.push(this.allChildren.get(id) as LayoutNode);
+    }
+    if (this.allChildren.has(baseId)) {
+      out.push(this.allChildren.get(baseId) as LayoutNode);
+    }
+
+    for (const key of this.allChildren.keys()) {
+      if (key.startsWith(`${baseId}-`)) {
+        out.push(this.allChildren.get(key) as LayoutNode);
       }
     }
 

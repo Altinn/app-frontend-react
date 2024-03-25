@@ -236,6 +236,7 @@ function Component({ component, childIds, getItem, parent }: ComponentProps) {
       const out: ContainerGeneratorProps<any> = {
         item: component,
         parent,
+        debug,
         childIds: childIds ?? [],
         getChild: (id: string) => {
           if (childIds?.includes(id)) {
@@ -251,6 +252,7 @@ function Component({ component, childIds, getItem, parent }: ComponentProps) {
     const out: BasicNodeGeneratorProps<any> = {
       item: component,
       parent,
+      debug,
     };
 
     return out;
@@ -264,7 +266,6 @@ function Component({ component, childIds, getItem, parent }: ComponentProps) {
         </h3>
       )}
       {debug && <span>{childIds ? `Children: ${childIds.join(', ')}` : 'No children'}</span>}
-      {debug && <pre style={{ fontSize: '0.8em' }}>{JSON.stringify(component, null, 2)}</pre>}
       <Generator {...(props as any)} />
     </>
   );

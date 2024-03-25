@@ -39,14 +39,20 @@ export function DefaultNodeGenerator<T extends CompTypes>({
   const store = useNodeStore(props);
   const node = useNewNode(store, props);
   const resolverProps = useExpressionResolverProps(node, props.item);
-  useResolvedItem(node, props.item, resolverProps);
+  const resolvedItem = useResolvedItem(node, props.item, resolverProps);
 
   const page = props.parent instanceof LayoutPage ? props.parent : props.parent.page;
   useEffect(() => {
     page._addChild(node);
+    return () => page._removeChild(node);
   }, [node, page]);
 
-  return <>{children}</>;
+  return (
+    <>
+      {props.debug && <pre style={{ fontSize: '0.8em' }}>{JSON.stringify(resolvedItem, null, 2)}</pre>}
+      {children}
+    </>
+  );
 }
 
 export function useExpressionResolverProps<T extends CompTypes>(

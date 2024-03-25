@@ -42,6 +42,7 @@ export interface BasicNodeGeneratorProps<Type extends CompTypes> {
   item: CompExternalExact<Type>;
   parent: LayoutNode | LayoutPage;
   row?: BaseRow;
+  debug: boolean;
 }
 
 export interface ContainerGeneratorProps<Type extends CompTypes> extends BasicNodeGeneratorProps<Type> {
