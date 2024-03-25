@@ -16,7 +16,9 @@ import { useHiddenPages, useSetHiddenPages } from 'src/features/form/layout/Page
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
 import { _private, useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { isNodeRef } from 'src/utils/layout/nodeRef';
 import { NodesGenerator } from 'src/utils/layout/NodesGenerator';
+import type { NodeRef } from 'src/layout';
 import type { LayoutNodeFromObj } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
@@ -100,17 +102,23 @@ export function useNodesMemoSelector<U>(selector: (s: LayoutPages) => U) {
 
 export function useNodeSelector() {
   return useDelayedMemoSelectorFactory({
-    selector: (nodeId: string) => (state) => state.nodes?.findById(nodeId),
-    makeCacheKey: (nodeId) => nodeId,
+    selector: (nodeId: string | NodeRef) => (state) =>
+      state.nodes?.findById(isNodeRef(nodeId) ? nodeId.nodeRef : nodeId),
+    makeCacheKey: (nodeId) => (isNodeRef(nodeId) ? nodeId.nodeRef : nodeId),
   });
 }
 
+export type NodeSelector = ReturnType<typeof useNodeSelector>;
+
 export function useIsHiddenComponent() {
   return useDelayedMemoSelectorFactory({
-    selector: (nodeId: string) => (state) => state.hiddenComponents.has(nodeId),
-    makeCacheKey: (nodeId) => nodeId,
+    selector: (nodeId: string | NodeRef) => (state) =>
+      state.hiddenComponents.has(isNodeRef(nodeId) ? nodeId.nodeRef : nodeId),
+    makeCacheKey: (nodeId) => (isNodeRef(nodeId) ? nodeId.nodeRef : nodeId),
   });
 }
+
+export type IsHiddenSelector = ReturnType<typeof useIsHiddenComponent>;
 
 /**
  * Given a selector, get a LayoutNode object

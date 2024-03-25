@@ -9,7 +9,7 @@ import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { CompCategory } from 'src/layout/common';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { GridRowRenderer } from 'src/layout/Grid/GridComponent';
-import { nodesFromGridRows } from 'src/layout/Grid/tools';
+import { useNodesFromGridRows } from 'src/layout/Grid/tools';
 import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/RepeatingGroupsEditContainer';
@@ -220,13 +220,13 @@ function ExtraRows({ where, extraCells, columnSettings }: ExtraRowsProps) {
   const isNested = node.parent instanceof BaseLayoutNode;
 
   const rows = where === 'Before' ? item.rowsBefore : item.rowsAfter;
+  const mobileNodes = useNodesFromGridRows(rows, mobileView);
   if (isEmpty || !rows) {
     return null;
   }
 
   if (mobileView) {
-    const nodes = nodesFromGridRows(rows).filter((child) => !child.isHidden());
-    if (!nodes) {
+    if (!mobileNodes || mobileNodes.length === 0) {
       return null;
     }
 
@@ -234,7 +234,7 @@ function ExtraRows({ where, extraCells, columnSettings }: ExtraRowsProps) {
       <Table.Body>
         <Table.Row>
           <Table.Cell className={classes.mobileTableCell}>
-            {nodes.map((child) => (
+            {mobileNodes.map((child) => (
               <GenericComponent
                 key={child.getId()}
                 node={child}

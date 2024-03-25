@@ -1,6 +1,4 @@
-import { useCallback } from 'react';
-
-import { useNode, useNodeSelector } from 'src/utils/layout/NodesContext';
+import { useNode } from 'src/utils/layout/NodesContext';
 import type { NodeRef } from 'src/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -24,21 +22,4 @@ export function useNodeRef<T extends NodeRef | undefined>(ref: T): RetValFromNod
 
 export function isNodeRef(ref: any): ref is NodeRef {
   return ref !== undefined && ref !== null && 'nodeRef' in ref && typeof ref.nodeRef === 'string' && ref.nodeRef !== '';
-}
-
-type NodeRefSelector = (ref: MaybeNodeRef) => RetValFromNodeRef<MaybeNodeRef>;
-
-export function useNodeRefSelector(): NodeRefSelector {
-  const selector = useNodeSelector();
-
-  return useCallback(
-    (ref) => {
-      if (ref === undefined || ref === null) {
-        return undefined;
-      }
-
-      return selector(ref.nodeRef);
-    },
-    [selector],
-  );
 }

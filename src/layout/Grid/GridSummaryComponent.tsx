@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { nodesFromGrid } from 'src/layout/Grid/tools';
+import { useNodesFromGrid } from 'src/layout/Grid/tools';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 
@@ -9,7 +9,7 @@ export function GridSummaryComponent({
   summaryNode,
   overrides,
 }: SummaryRendererProps<'Grid'>): JSX.Element | null {
-  const nodes = nodesFromGrid(targetNode).filter((node) => 'renderSummary' in node.def);
+  const nodes = useNodesFromGrid(targetNode).filter((node) => 'renderSummary' in node.def);
 
   return (
     <>

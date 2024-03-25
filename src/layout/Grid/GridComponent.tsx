@@ -16,12 +16,12 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import css from 'src/layout/Grid/Grid.module.css';
-import { isGridCellLabelFrom, isGridCellText, isGridRowHidden, nodesFromGrid } from 'src/layout/Grid/tools';
+import { isGridCellLabelFrom, isGridCellText, isGridRowHidden, useNodesFromGrid } from 'src/layout/Grid/tools';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
-import { useNodes } from 'src/utils/layout/NodesContext';
+import { useIsHiddenComponent, useNodes } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ITableColumnFormatting, ITableColumnProperties } from 'src/layout/common.generated';
@@ -83,7 +83,8 @@ interface GridRowProps {
 
 export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: GridRowProps) {
   const nodes = useNodes();
-  return isGridRowHidden(row) ? null : (
+  const isHiddenSelector = useIsHiddenComponent();
+  return isGridRowHidden(row, isHiddenSelector) ? null : (
     <InternalRow
       header={row.header}
       readOnly={row.readOnly}
@@ -293,6 +294,8 @@ function CellWithLabel({ className, columnStyleOptions, referenceComponent, isHe
 function MobileGrid({ node }: PropsFromGenericComponent<'Grid'>) {
   const { textResourceBindings, id, labelSettings } = useNodeItem(node);
   const { title, description, help } = textResourceBindings ?? {};
+  const nodes = useNodesFromGrid(node);
+
   return (
     <Fieldset
       id={id}
@@ -302,7 +305,7 @@ function MobileGrid({ node }: PropsFromGenericComponent<'Grid'>) {
       labelSettings={labelSettings}
       className={css.mobileFieldset}
     >
-      {nodesFromGrid(node)
+      {nodes
         .filter((child) => !child.isHidden())
         .map((child) => (
           <GenericComponent

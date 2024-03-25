@@ -9,7 +9,8 @@ import classes from 'src/features/devtools/components/LayoutInspector/LayoutInsp
 import { useComponentHighlighter } from 'src/features/devtools/hooks/useComponentHighlighter';
 import { GridRows } from 'src/layout/common.generated';
 import { nodesFromGridRow } from 'src/layout/Grid/tools';
-import { isNodeRef, useNodeRefSelector } from 'src/utils/layout/nodeRef';
+import { isNodeRef } from 'src/utils/layout/nodeRef';
+import { useNodeSelector } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { NodeRef } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
@@ -33,30 +34,33 @@ interface IGridRowsRenderer extends Common {
   text: string;
 }
 
-const GridRows = ({ rows, onClick, text, selected }: IGridRowsRenderer) => (
-  <>
-    {rows.map((row, idx) => {
-      const nodes = nodesFromGridRow(row);
-      return (
-        <li
-          className={classes.repGroupRow}
-          key={idx}
-        >
-          <span className={classes.componentMetadata}>{text}</span>
-          {nodes.length > 0 ? (
-            <NodeHierarchy
-              nodes={nodes}
-              selected={selected}
-              onClick={onClick}
-            />
-          ) : (
-            <li className={cn(classes.componentMetadata, classes.list)}>Ingen komponenter å vise her</li>
-          )}
-        </li>
-      );
-    })}
-  </>
-);
+const GridRows = ({ rows, onClick, text, selected }: IGridRowsRenderer) => {
+  const nodeSelector = useNodeSelector();
+  return (
+    <>
+      {rows.map((row, idx) => {
+        const nodes = nodesFromGridRow(row, nodeSelector);
+        return (
+          <li
+            className={classes.repGroupRow}
+            key={idx}
+          >
+            <span className={classes.componentMetadata}>{text}</span>
+            {nodes.length > 0 ? (
+              <NodeHierarchy
+                nodes={nodes}
+                selected={selected}
+                onClick={onClick}
+              />
+            ) : (
+              <li className={cn(classes.componentMetadata, classes.list)}>Ingen komponenter å vise her</li>
+            )}
+          </li>
+        );
+      })}
+    </>
+  );
+};
 
 export const NodeHierarchyItem = ({ node, onClick, selected }: INodeHierarchyItemProps) => {
   const nodeId = node.getId();
@@ -153,12 +157,12 @@ function RepeatingGroupExtensions({ node, selected, onClick }: INodeHierarchyIte
 }
 
 export function NodeHierarchy({ nodes, selected, onClick }: INodeHierarchyProps) {
-  const nodeRefSelector = useNodeRefSelector();
+  const nodeSelector = useNodeSelector();
 
   return (
     <ul className={classes.list}>
       {nodes?.map((child) => {
-        const node = isNodeRef(child) ? nodeRefSelector(child) : child;
+        const node = isNodeRef(child) ? nodeSelector(child) : child;
         if (!node) {
           return null;
         }

@@ -23,7 +23,7 @@ export type CompDef<T extends CompTypes = CompTypes> = (typeof ComponentConfigs)
  * A nodeRef represents a reference to a node in the layout tree. It is used to reference a specific node,
  * and you can use it to find the node in the layout tree via hooks and utilities like:
  * @see useNodeRef
- * @see useNodeRefSelector
+ * @see useNodeSelector
  * @see isNodeRef
  */
 export interface NodeRef {
