@@ -57,19 +57,11 @@ describe('Expression validation shared tests', () => {
   it.each(sharedTests)('$name', ({ name: _, expects, validationConfig, formData, layouts }) => {
     const langTools = staticUseLanguageForTests();
 
-    const hiddenFields = new Set<string>(
-      Object.values(layouts)
-        .filter((l) => l.data.hidden)
-        .flatMap((l) => l.data.layout)
-        .map((c) => c.id),
-    );
-
     const dataSources: HierarchyDataSources = {
       ...getHierarchyDataSourcesMock(),
       formDataSelector: (path) => dot.pick(path, formData),
       instanceDataSources: buildInstanceDataSources(),
       authContext: buildAuthContext(undefined),
-      isHidden: (nodeId: string) => hiddenFields.has(nodeId),
       langToolsRef: { current: langTools },
     };
 

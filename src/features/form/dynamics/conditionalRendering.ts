@@ -7,17 +7,9 @@ import type { ExprConfig } from 'src/features/expressions/types';
 import type { IHiddenLayoutsExternal } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
-export function runExpressionRules(layouts: LayoutPages, future: Set<string>) {
-  for (const layout of Object.values(layouts.all())) {
-    for (const node of layout.flat()) {
-      if (node.isHidden({ respectLegacy: false })) {
-        future.add(node.getId());
-      }
-    }
-  }
-}
-
-export function runExpressionsForLayouts(
+// TODO: Move this to run in NodesGenerator.tsx, run the expressions to hide/unhide the page
+// in the Page component there.
+export function runHiddenExpressionsForPages(
   nodes: LayoutPages,
   hiddenLayoutsExpr: IHiddenLayoutsExternal,
   dataSources: ContextDataSources,
@@ -45,6 +37,16 @@ export function runExpressionsForLayouts(
 
   return hiddenLayouts;
 }
+
+// TODO: Move this code with it:
+// Add all fields from hidden layouts to hidden fields
+// for (const layout of futureHiddenLayouts) {
+//   for (const node of resolvedNodes.findLayout(layout)?.flat() || []) {
+//     if (!futureHiddenFields.has(node.getId())) {
+//       futureHiddenFields.add(node.getId());
+//     }
+//   }
+// }
 
 export function shouldUpdate(currentList: Set<string>, newList: Set<string>): boolean {
   if (currentList.size !== newList.size) {

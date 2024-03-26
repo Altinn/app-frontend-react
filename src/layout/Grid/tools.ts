@@ -1,33 +1,33 @@
 import { isNodeRef } from 'src/utils/layout/nodeRef';
-import { useIsHiddenComponent, useNodeSelector } from 'src/utils/layout/NodesContext';
+import { useIsHiddenViaRules, useNodeSelector } from 'src/utils/layout/NodesContext';
 import type { GridCell, GridCellLabelFrom, GridCellText, GridRow, GridRows } from 'src/layout/common.generated';
 import type { GridCellInternal, GridCellNodeRef } from 'src/layout/Grid/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { IsHiddenSelector, NodeSelector } from 'src/utils/layout/NodesContext';
+import type { IsHiddenViaRulesSelector, NodeSelector } from 'src/utils/layout/NodesContext';
 
 export function useNodesFromGrid(grid: LayoutNode<'Grid'> | undefined, enabled = true) {
-  const isHiddenSelector = useIsHiddenComponent();
+  const isHiddenSelector = useIsHiddenViaRules();
   const nodeSelector = useNodeSelector();
   return enabled && grid ? nodesFromGrid(grid, isHiddenSelector, nodeSelector) : [];
 }
 
 export function nodesFromGrid(
   grid: LayoutNode<'Grid'>,
-  isHiddenSelector: IsHiddenSelector,
+  isHiddenSelector: IsHiddenViaRulesSelector,
   nodeSelector: NodeSelector,
 ): LayoutNode[] {
   return nodesFromGridRows(grid.item.rows, isHiddenSelector, nodeSelector);
 }
 
 export function useNodesFromGridRows(rows: GridRows | undefined, enabled = true) {
-  const isHiddenSelector = useIsHiddenComponent();
+  const isHiddenSelector = useIsHiddenViaRules();
   const nodeSelector = useNodeSelector();
   return enabled && rows ? nodesFromGridRows(rows, isHiddenSelector, nodeSelector) : [];
 }
 
 export function nodesFromGridRows(
   rows: GridRows,
-  isHiddenSelector: IsHiddenSelector,
+  isHiddenSelector: IsHiddenViaRulesSelector,
   nodeSelector: NodeSelector,
 ): LayoutNode[] {
   const out: LayoutNode[] = [];
@@ -54,7 +54,7 @@ export function nodesFromGridRow(row: GridRow, nodeSelector: NodeSelector): Layo
   return out;
 }
 
-export function isGridRowHidden(row: GridRow, isHiddenSelector: IsHiddenSelector) {
+export function isGridRowHidden(row: GridRow, isHiddenSelector: IsHiddenViaRulesSelector) {
   let atLeastNoneNodeExists = false;
   const allCellsAreHidden = row.cells.every((cell) => {
     if (isNodeRef(cell)) {

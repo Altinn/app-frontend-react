@@ -5,11 +5,7 @@ import { createStore } from 'zustand';
 
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { Loader } from 'src/core/loading/Loader';
-import {
-  runExpressionRules,
-  runExpressionsForLayouts,
-  shouldUpdate,
-} from 'src/features/form/dynamics/conditionalRendering';
+import { shouldUpdate } from 'src/features/form/dynamics/conditionalRendering';
 import { useDynamics } from 'src/features/form/dynamics/DynamicsContext';
 import { useHiddenLayoutsExpressions } from 'src/features/form/layout/LayoutsContext';
 import { useHiddenPages, useSetHiddenPages } from 'src/features/form/layout/PageNavigationContext';
@@ -25,18 +21,20 @@ import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 interface NodesContext {
   nodes: LayoutPages | undefined;
-  hiddenComponents: Set<string>;
   setNodes: (nodes: LayoutPages) => void;
-  setHiddenComponents: (mutator: (hidden: Set<string>) => Set<string>) => void;
+
+  hiddenViaRules: Set<string>;
+  setHiddenViaRules: (mutator: (hidden: Set<string>) => Set<string>) => void;
 }
 
 function initialCreateStore() {
   return createStore<NodesContext>((set) => ({
     nodes: undefined,
     setNodes: (nodes: LayoutPages) => set({ nodes }),
-    hiddenComponents: new Set(),
-    setHiddenComponents: (mutator: (currentlyHidden: Set<string>) => Set<string>) =>
-      set((state) => ({ hiddenComponents: mutator(state.hiddenComponents) })),
+
+    hiddenViaRules: new Set(),
+    setHiddenViaRules: (mutator: (currentlyHidden: Set<string>) => Set<string>) =>
+      set((state) => ({ hiddenViaRules: mutator(state.hiddenViaRules) })),
   }));
 }
 
@@ -61,7 +59,7 @@ function InnerNodesProvider() {
 }
 
 function InnerHiddenComponentsProvider() {
-  const setHidden = useSelector((state) => state.setHiddenComponents);
+  const setHidden = useSelector((state) => state.setHiddenViaRules);
   const resolvedNodes = useSelector((state) => state.nodes);
 
   useLegacyHiddenComponents(resolvedNodes, setHidden);
@@ -77,6 +75,17 @@ function BlockUntilLoaded({ children }: PropsWithChildren) {
   return <>{children}</>;
 }
 
+type MaybeNodeRef = string | NodeRef | undefined | null;
+type RetValFromNodeRef<T extends MaybeNodeRef> = T extends undefined
+  ? undefined
+  : T extends null
+    ? null
+    : T extends NodeRef
+      ? LayoutNode
+      : T extends string
+        ? LayoutNode
+        : never;
+
 /**
  * Use the expression context. This will return a LayoutPages object containing the full tree of resolved
  * nodes (meaning, instances of layout components in a tree, with their expressions evaluated and resolved to
@@ -84,7 +93,11 @@ function BlockUntilLoaded({ children }: PropsWithChildren) {
  *
  * Usually, if you're looking for a specific component/node, useResolvedNode() is better.
  */
-export const useNode = (id: string) => useSelector((s) => s.nodes?.findById(id));
+export function useNode<T extends string | NodeRef | undefined>(idOrRef: T): RetValFromNodeRef<T> {
+  const node = useSelector((s) => s.nodes?.findById(isNodeRef(idOrRef) ? idOrRef.nodeRef : idOrRef));
+  return node as RetValFromNodeRef<T>;
+}
+
 export const useNodes = () => useSelector((s) => s.nodes!);
 export const useNodesAsRef = () => useSelectorAsRef((s) => s.nodes!);
 export const useNodesAsLaxRef = () => useLaxSelectorAsRef((s) => s.nodes!);
@@ -93,6 +106,7 @@ export function useNodesMemoSelector<U>(selector: (s: LayoutPages) => U) {
   return useMemoSelector((state) => selector(state.nodes!));
 }
 
+export type NodeSelector = ReturnType<typeof useNodeSelector>;
 export function useNodeSelector() {
   return useDelayedMemoSelectorFactory({
     selector: (nodeId: string | NodeRef) => (state) =>
@@ -101,17 +115,14 @@ export function useNodeSelector() {
   });
 }
 
-export type NodeSelector = ReturnType<typeof useNodeSelector>;
-
-export function useIsHiddenComponent() {
+export type IsHiddenViaRulesSelector = ReturnType<typeof useIsHiddenViaRules>;
+export function useIsHiddenViaRules() {
   return useDelayedMemoSelectorFactory({
     selector: (nodeId: string | NodeRef) => (state) =>
-      state.hiddenComponents.has(isNodeRef(nodeId) ? nodeId.nodeRef : nodeId),
+      state.hiddenViaRules.has(isNodeRef(nodeId) ? nodeId.nodeRef : nodeId),
     makeCacheKey: (nodeId) => (isNodeRef(nodeId) ? nodeId.nodeRef : nodeId),
   });
 }
-
-export type IsHiddenSelector = ReturnType<typeof useIsHiddenComponent>;
 
 /**
  * Given a selector, get a LayoutNode object
@@ -164,30 +175,12 @@ function useLegacyHiddenComponents(
       return;
     }
 
-    const currentHiddenLayouts = new Set<string>(hiddenPages);
-    const futureHiddenLayouts = runExpressionsForLayouts(resolvedNodes, hiddenExpr, dataSources);
-
-    if (shouldUpdate(currentHiddenLayouts, futureHiddenLayouts)) {
-      setHiddenPages?.(futureHiddenLayouts);
-    }
-
     let futureHiddenFields: Set<string>;
     try {
       futureHiddenFields = runConditionalRenderingRules(rules, resolvedNodes, dataSources.formDataSelector);
     } catch (error) {
       window.logError('Error while evaluating conditional rendering rules:\n', error);
       futureHiddenFields = new Set();
-    }
-
-    runExpressionRules(resolvedNodes, futureHiddenFields);
-
-    // Add all fields from hidden layouts to hidden fields
-    for (const layout of futureHiddenLayouts) {
-      for (const node of resolvedNodes.findLayout(layout)?.flat() || []) {
-        if (!futureHiddenFields.has(node.getId())) {
-          futureHiddenFields.add(node.getId());
-        }
-      }
     }
 
     setHidden((currentlyHidden) => {

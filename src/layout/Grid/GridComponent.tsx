@@ -21,7 +21,7 @@ import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
-import { useIsHiddenComponent, useNodes } from 'src/utils/layout/NodesContext';
+import { useIsHiddenViaRules, useNodes } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ITableColumnFormatting, ITableColumnProperties } from 'src/layout/common.generated';
@@ -83,7 +83,7 @@ interface GridRowProps {
 
 export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: GridRowProps) {
   const nodes = useNodes();
-  const isHiddenSelector = useIsHiddenComponent();
+  const isHiddenSelector = useIsHiddenViaRules();
   return isGridRowHidden(row, isHiddenSelector) ? null : (
     <InternalRow
       header={row.header}

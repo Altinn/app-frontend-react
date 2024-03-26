@@ -17,8 +17,7 @@ import { GenericComponentDescription, GenericComponentLabel } from 'src/layout/G
 import { shouldRenderLabelInGenericComponent } from 'src/layout/index';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
-import { useNodeRef } from 'src/utils/layout/nodeRef';
-import { useIsHiddenComponent, useNode } from 'src/utils/layout/NodesContext';
+import { useIsHiddenViaRules, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IGridStyling } from 'src/layout/common.generated';
 import type { GenericComponentOverrideDisplay, IFormComponentContext } from 'src/layout/FormComponentContext';
@@ -65,7 +64,7 @@ export function GenericComponentById<Type extends CompTypes = CompTypes>(props: 
 }
 
 export function GenericComponentByRef<Type extends CompTypes = CompTypes>(props: IGenericComponentByRefProps<Type>) {
-  const node = useNodeRef(props.nodeRef);
+  const node = useNode(props.nodeRef);
   if (!node) {
     throw new Error(`Node with ref '${props.nodeRef.nodeRef}' not found`);
   }
@@ -121,7 +120,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   const containerDivRef = React.useRef<HTMLDivElement | null>(null);
   const validations = useUnifiedValidationsForNode(node);
   const isValid = !hasValidationErrors(validations);
-  const isHidden = useIsHiddenComponent();
+  const isHidden = useIsHiddenViaRules();
 
   // If maxLength is set in both schema and component, don't display the schema error message
   const maxLength = 'maxLength' in item && item.maxLength;
