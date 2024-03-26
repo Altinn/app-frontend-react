@@ -3,7 +3,7 @@ import React, { forwardRef } from 'react';
 import { Alert as AlertComponent } from 'src/layout/Alert/Alert';
 import { AlertDef } from 'src/layout/Alert/config.def.generated';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { ExprResolver, StoreFactoryProps } from 'src/layout/LayoutComponent';
+import type { ExprResolver } from 'src/layout/LayoutComponent';
 
 export class Alert extends AlertDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Alert'>>(
@@ -11,10 +11,6 @@ export class Alert extends AlertDef {
       return <AlertComponent {...props} />;
     },
   );
-
-  storeFactory(props: StoreFactoryProps<'Alert'>) {
-    return this.defaultStoreFactory(props);
-  }
 
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Alert'>) {
     return {

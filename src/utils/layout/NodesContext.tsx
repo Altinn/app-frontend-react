@@ -2,6 +2,9 @@ import React, { useEffect } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createStore } from 'zustand';
+import { immer } from 'zustand/middleware/immer';
+import type { Draft } from 'immer';
+import type { StoreApi } from 'zustand';
 
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { Loader } from 'src/core/loading/Loader';
@@ -9,17 +12,19 @@ import { shouldUpdate } from 'src/features/form/dynamics/conditionalRendering';
 import { useDynamics } from 'src/features/form/dynamics/DynamicsContext';
 import { useHiddenLayoutsExpressions } from 'src/features/form/layout/LayoutsContext';
 import { useHiddenPages, useSetHiddenPages } from 'src/features/form/layout/PageNavigationContext';
+import { getLayoutComponentObject } from 'src/layout';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
 import { NodesGenerator } from 'src/utils/layout/NodesGenerator';
 import type { NodeRef } from 'src/layout';
-import type { LayoutNodeFromObj } from 'src/layout/layout';
+import type { CompTypes, LayoutNodeFromObj } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
+import type { ItemStore, ItemStoreFromNode } from 'src/utils/layout/types';
 
-interface NodesContext {
+export interface NodesContext {
   nodes: LayoutPages | undefined;
   setNodes: (nodes: LayoutPages) => void;
 
@@ -27,7 +32,8 @@ interface NodesContext {
   setHiddenViaRules: (mutator: (hidden: Set<string>) => Set<string>) => void;
 }
 
-function initialCreateStore() {
+export type NodesStore = ReturnType<typeof createNodesStore>;
+function createNodesStore() {
   return createStore<NodesContext>((set) => ({
     nodes: undefined,
     setNodes: (nodes: LayoutPages) => set({ nodes }),
@@ -38,29 +44,121 @@ function initialCreateStore() {
   }));
 }
 
-const { Provider, useSelector, useMemoSelector, useSelectorAsRef, useLaxSelectorAsRef, useDelayedMemoSelectorFactory } =
-  createZustandContext({
-    name: 'Nodes',
-    required: true,
-    initialCreateStore,
-  });
+export interface PageHierarchy {
+  type: 'pages';
+  pages: PageStores;
+}
+
+interface PageStores {
+  [key: string]: PageStore;
+}
+
+export interface PageStore {
+  type: 'page';
+  hidden: boolean;
+  topLevelNodes: TopLevelNodesStore;
+}
+
+export interface TopLevelNodesStore<Types extends CompTypes = CompTypes> {
+  [key: string]: ItemStore<Types>;
+}
+
+type ValueOrCallback<T> = T | ((draft: Draft<T>) => void);
+export interface NodesDataContext {
+  pages: PageHierarchy;
+  setNodeProp: <N extends LayoutNode, K extends keyof ItemStoreFromNode<N>>(
+    node: N,
+    prop: K,
+    valueOrCallback: ValueOrCallback<ItemStoreFromNode<N>[K]>,
+  ) => void;
+
+  addPage: (pageKey: string) => void;
+  removePage: (pageKey: string) => void;
+  setPageProp: <K extends keyof PageStore>(
+    pageKey: string,
+    prop: K,
+    valueOrCallback: ValueOrCallback<PageStore[K]>,
+  ) => void;
+}
+
+export type NodesDataStore = StoreApi<NodesDataContext>;
+export function createNodesDataStore() {
+  return createStore<NodesDataContext>()(
+    immer((set) => ({
+      pages: {
+        type: 'pages',
+        pages: {},
+      },
+      setNodeProp: (node, prop, valueOrCallback) =>
+        set((state) => {
+          const obj = pickNodePath(state.pages, node.path);
+          if (typeof valueOrCallback === 'function') {
+            (valueOrCallback as any)(obj[prop]);
+          } else {
+            obj[prop] = valueOrCallback;
+          }
+        }),
+      addPage: (pageKey) =>
+        set((state) => {
+          state.pages.pages[pageKey] = {
+            type: 'page',
+            hidden: state.pages.pages[pageKey]?.hidden ?? false,
+            topLevelNodes: state.pages.pages[pageKey]?.topLevelNodes ?? {},
+          };
+        }),
+      removePage: (pageKey) =>
+        set((state) => {
+          delete state.pages.pages[pageKey];
+        }),
+      setPageProp: (pageKey, prop, valueOrCallback) =>
+        set((state) => {
+          const obj = state.pages.pages[pageKey];
+          if (typeof valueOrCallback === 'function') {
+            valueOrCallback(obj[prop]);
+          } else {
+            obj[prop] = valueOrCallback;
+          }
+        }),
+    })),
+  );
+}
+
+const NodesStore = createZustandContext({
+  name: 'Nodes',
+  required: true,
+  initialCreateStore: createNodesStore,
+});
+
+const DataStore = createZustandContext<NodesDataStore, NodesDataContext>({
+  name: 'NodesData',
+  required: true,
+  initialCreateStore: createNodesDataStore,
+});
 
 export const NodesProvider = (props: React.PropsWithChildren) => (
-  <Provider>
-    <InnerNodesProvider />
-    <InnerHiddenComponentsProvider />
-    <BlockUntilLoaded>{props.children}</BlockUntilLoaded>
-  </Provider>
+  <NodesStore.Provider>
+    <DataStore.Provider>
+      <InnerNodesProvider />
+      <InnerHiddenComponentsProvider />
+      <BlockUntilLoaded>{props.children}</BlockUntilLoaded>
+    </DataStore.Provider>
+  </NodesStore.Provider>
 );
 
 function InnerNodesProvider() {
-  const setNodes = useSelector((state) => state.setNodes);
-  return <NodesGenerator setNodes={setNodes} />;
+  const nodesStore = NodesStore.useStore();
+  const dataStore = DataStore.useStore();
+  return (
+    <NodesGenerator
+      nodesStore={nodesStore}
+      dataStore={dataStore}
+    />
+  );
 }
 
 function InnerHiddenComponentsProvider() {
-  const setHidden = useSelector((state) => state.setHiddenViaRules);
-  const resolvedNodes = useSelector((state) => state.nodes);
+  const setHidden = NodesStore.useSelector((state) => state.setHiddenViaRules);
+  const resolvedNodes = NodesStore.useSelector((state) => state.nodes);
 
   useLegacyHiddenComponents(resolvedNodes, setHidden);
 
@@ -68,7 +166,7 @@ function InnerHiddenComponentsProvider() {
 }
 
 function BlockUntilLoaded({ children }: PropsWithChildren) {
-  const hasNodes = useMemoSelector((state) => !!state.nodes);
+  const hasNodes = NodesStore.useMemoSelector((state) => !!state.nodes);
   if (!hasNodes) {
     return <Loader reason='nodes' />;
   }
@@ -94,21 +192,21 @@ type RetValFromNodeRef<T extends MaybeNodeRef> = T extends undefined
  * Usually, if you're looking for a specific component/node, useResolvedNode() is better.
  */
 export function useNode<T extends string | NodeRef | undefined>(idOrRef: T): RetValFromNodeRef<T> {
-  const node = useSelector((s) => s.nodes?.findById(isNodeRef(idOrRef) ? idOrRef.nodeRef : idOrRef));
+  const node = NodesStore.useSelector((s) => s.nodes?.findById(isNodeRef(idOrRef) ? idOrRef.nodeRef : idOrRef));
   return node as RetValFromNodeRef<T>;
 }
 
-export const useNodes = () => useSelector((s) => s.nodes!);
-export const useNodesAsRef = () => useSelectorAsRef((s) => s.nodes!);
-export const useNodesAsLaxRef = () => useLaxSelectorAsRef((s) => s.nodes!);
+export const useNodes = () => NodesStore.useSelector((s) => s.nodes!);
+export const useNodesAsRef = () => NodesStore.useSelectorAsRef((s) => s.nodes!);
+export const useNodesAsLaxRef = () => NodesStore.useLaxSelectorAsRef((s) => s.nodes!);
 
 export function useNodesMemoSelector<U>(selector: (s: LayoutPages) => U) {
-  return useMemoSelector((state) => selector(state.nodes!));
+  return NodesStore.useMemoSelector((state) => selector(state.nodes!));
 }
 
 export type NodeSelector = ReturnType<typeof useNodeSelector>;
 export function useNodeSelector() {
-  return useDelayedMemoSelectorFactory({
+  return NodesStore.useDelayedMemoSelectorFactory({
     selector: (nodeId: string | NodeRef) => (state) =>
       state.nodes?.findById(isNodeRef(nodeId) ? nodeId.nodeRef : nodeId),
     makeCacheKey: (nodeId) => (isNodeRef(nodeId) ? nodeId.nodeRef : nodeId),
@@ -117,7 +215,7 @@ export function useNodeSelector() {
 
 export type IsHiddenViaRulesSelector = ReturnType<typeof useIsHiddenViaRules>;
 export function useIsHiddenViaRules() {
-  return useDelayedMemoSelectorFactory({
+  return NodesStore.useDelayedMemoSelectorFactory({
     selector: (nodeId: string | NodeRef) => (state) =>
       state.hiddenViaRules.has(isNodeRef(nodeId) ? nodeId.nodeRef : nodeId),
     makeCacheKey: (nodeId) => (isNodeRef(nodeId) ? nodeId.nodeRef : nodeId),
@@ -190,4 +288,60 @@ function useLegacyHiddenComponents(
       return currentlyHidden;
     });
   }, [dataSources, hiddenPages, hiddenExpr, resolvedNodes, rules, setHiddenPages, setHidden]);
+}
+
+/**
+ * Recursive function to look up a node stored in the page hierarchy. Components may store their children
+ * in different ways, so this function has to call out to each component specific implementation to look up
+ * children.
+ */
+export function pickNodePath(
+  container: PageHierarchy | PageStore | ItemStore<CompTypes>,
+  path: string[],
+  parentPath: string[] = [],
+): ItemStore<any> | PageStore {
+  if (path.length === 0) {
+    if (parentPath.length === 0) {
+      throw new Error('Cannot pick root node');
+    }
+
+    return container;
+  }
+
+  const [target, ...remaining] = path;
+  if (!target) {
+    throw new Error('Invalid leg in path');
+  }
+  const fullPath = [...parentPath, target];
+
+  if (isPages(container)) {
+    const page = container.pages[target];
+    if (!page) {
+      throw new Error(`Page not found at path /${fullPath.join('/')}`);
+    }
+    return pickNodePath(page, remaining, fullPath);
+  }
+
+  if (isPage(container)) {
+    const node = container.topLevelNodes[target];
+    if (!node) {
+      throw new Error(`Top level node not found at path /${fullPath.join('/')}`);
+    }
+    return pickNodePath(node, remaining, fullPath);
+  }
+
+  const def = getLayoutComponentObject(container.layout.type);
+  if (!def) {
+    throw new Error(`Component type "${container.layout.type}" not found`);
+  }
+
+  return def.pickChild(container as ItemStore<any>, remaining, fullPath);
+}
+
+function isPages(state: PageHierarchy | PageStore | ItemStore<CompTypes>): state is PageHierarchy {
+  return 'type' in state && state.type === 'pages';
+}
+
+function isPage(state: PageHierarchy | PageStore | ItemStore<CompTypes>): state is PageStore {
+  return 'type' in state && state.type === 'page';
 }

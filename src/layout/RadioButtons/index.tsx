@@ -9,7 +9,7 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
-import type { ExprResolver, StoreFactoryProps, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class RadioButtons extends RadioButtonsDef {
@@ -18,10 +18,6 @@ export class RadioButtons extends RadioButtonsDef {
       return <RadioButtonContainerComponent {...props} />;
     },
   );
-
-  storeFactory(props: StoreFactoryProps<'RadioButtons'>) {
-    return this.defaultStoreFactory(props);
-  }
 
   evalExpressions({ item, evalTrb, evalCommon, evalBool }: ExprResolver<'RadioButtons'>) {
     return {

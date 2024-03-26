@@ -12,7 +12,7 @@ import type { DisplayDataProps } from 'src/features/displayData';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { FormDataSelector, PropsFromGenericComponent } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
-import type { ExprResolver, StoreFactoryProps, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Checkboxes extends CheckboxesDef {
@@ -21,10 +21,6 @@ export class Checkboxes extends CheckboxesDef {
       return <CheckboxContainerComponent {...props} />;
     },
   );
-
-  storeFactory(props: StoreFactoryProps<'Checkboxes'>) {
-    return this.defaultStoreFactory(props);
-  }
 
   evalExpressions({ item, evalTrb, evalCommon, evalBool }: ExprResolver<'Checkboxes'>) {
     return {

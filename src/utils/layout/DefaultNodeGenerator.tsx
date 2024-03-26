@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
+import { useStore } from 'zustand';
+
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { useAsRef } from 'src/hooks/useAsRef';
@@ -19,9 +21,8 @@ import type {
   HierarchyDataSources,
   ITextResourceBindings,
 } from 'src/layout/layout';
-import type { BasicNodeGeneratorProps, ExprResolver, StoreFactoryProps } from 'src/layout/LayoutComponent';
+import type { BasicNodeGeneratorProps, ExprResolver } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { ItemStore } from 'src/utils/layout/types';
 
 /**
  * A node generator will always be rendered when a component is present in a layout, even if the component
@@ -36,16 +37,22 @@ export function DefaultNodeGenerator<T extends CompTypes>({
   children,
   ...props
 }: PropsWithChildren<BasicNodeGeneratorProps<T>>) {
-  const store = useNodeStore(props);
-  const node = useNewNode(store, props);
+  const node = useNewNode(props);
   const resolverProps = useExpressionResolverProps(node, props.item);
   const resolvedItem = useResolvedItem(node, props.item, resolverProps);
+  // const addNode = useStore(props.store, (state) => state.addNode);
+  // const removeNode = useStore(props.store, (state) => state.removeNode);
 
   const page = props.parent instanceof LayoutPage ? props.parent : props.parent.page;
   useEffect(() => {
     page._addChild(node);
     return () => page._removeChild(node);
   }, [node, page]);
+
+  // useEffect(() => {
+  //   addNode(node);
+  //   return () => removeNode(node);
+  // }, [addNode, node, removeNode]);
 
   return (
     <>
@@ -146,23 +153,13 @@ export function useExpressionResolverProps<T extends CompTypes>(
   };
 }
 
-function useNodeStore<T extends CompTypes>({ item, parent, row }: BasicNodeGeneratorProps<T>): ItemStore<T> {
-  return useMemo(() => {
-    const def = getLayoutComponentObject(item.type);
-    if (!def) {
-      // TODO: Log error and produce an error node instead
-      throw new Error(`Component type "${item.type}" not found`);
-    }
-
-    const props = { item, parent, row } as StoreFactoryProps<T>;
-    return (def as CompDef<T>).storeFactory(props as any) as ItemStore<T>;
-  }, [item, parent, row]);
-}
-
-function useNewNode<T extends CompTypes>(
-  store: ItemStore<T>,
-  { item, parent, row }: BasicNodeGeneratorProps<T>,
-): LayoutNode<T> {
+function useNewNode<T extends CompTypes>({
+  item,
+  parent,
+  row,
+  store,
+  path,
+}: BasicNodeGeneratorProps<T>): LayoutNode<T> {
   return useMemo(() => {
     const LNode = getNodeConstructor(item.type);
     if (!LNode) {
@@ -170,8 +167,8 @@ function useNewNode<T extends CompTypes>(
       throw new Error(`Component type "${item.type}" not found`);
     }
 
-    return new LNode(store as any, parent, row) as LayoutNode<T>;
-  }, [store, item.type, parent, row]);
+    return new LNode(store, path, parent, row) as LayoutNode<T>;
+  }, [store, path, item.type, parent, row]);
 }
 
 function useResolvedItem<T extends CompTypes>(
@@ -179,6 +176,7 @@ function useResolvedItem<T extends CompTypes>(
   item: CompExternalExact<T>,
   resolverProps: ExprResolver<T>,
 ): CompInternal<T> {
+  const setNodeProp = useStore(node.store, (state) => state.setNodeProp);
   return useMemo(() => {
     const def = getLayoutComponentObject(item.type);
     if (!def) {
@@ -187,9 +185,9 @@ function useResolvedItem<T extends CompTypes>(
     }
 
     const resolvedItem = (def as CompDef<T>).evalExpressions(resolverProps as any) as CompInternal<T>;
-    node.store.getState().updateItem(resolvedItem as any);
+    setNodeProp(node, 'item', resolvedItem);
     return resolvedItem;
-  }, [item.type, node.store, resolverProps]);
+  }, [item.type, node, resolverProps, setNodeProp]);
 }
 
 function isFormItem(item: CompExternal): item is CompExternal & FormComponentProps {

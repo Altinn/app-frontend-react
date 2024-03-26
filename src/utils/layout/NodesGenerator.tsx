@@ -1,6 +1,8 @@
 import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 
-import { useLayouts } from 'src/features/form/layout/LayoutsContext';
+import { useStore } from 'zustand';
+
+import { useHiddenLayoutsExpressions, useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { getLayoutComponentObject } from 'src/layout';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
@@ -13,6 +15,7 @@ import type {
   ComponentProto,
   ContainerGeneratorProps,
 } from 'src/layout/LayoutComponent';
+import type { NodesDataStore, NodesStore } from 'src/utils/layout/NodesContext';
 
 const debug = false;
 const style: React.CSSProperties = debug
@@ -41,13 +44,15 @@ interface ChildrenState {
 }
 
 interface NodesGeneratorProps {
-  setNodes: (nodes: LayoutPages) => void;
+  nodesStore: NodesStore;
+  dataStore: NodesDataStore;
 }
 
-export function NodesGenerator({ setNodes }: NodesGeneratorProps) {
+export function NodesGenerator({ nodesStore, dataStore }: NodesGeneratorProps) {
   const layouts = useLayouts();
   const layoutSet = useMemo(() => new LayoutPages(), []);
   const currentView = useCurrentView();
+  const setNodes = useStore(nodesStore, (state) => state.setNodes);
 
   useLayoutEffect(() => {
     if (layoutSet && layoutSet.isReady()) {
@@ -76,6 +81,7 @@ export function NodesGenerator({ setNodes }: NodesGeneratorProps) {
               name={key}
               layout={layout}
               layoutSet={layoutSet}
+              store={dataStore}
             />
           );
         })}
@@ -87,11 +93,14 @@ interface PageProps {
   layout: ILayout;
   name: string;
   layoutSet: LayoutPages;
+  store: NodesDataStore;
 }
 
-function Page({ layout, name, layoutSet }: PageProps) {
+function Page({ layout, name, layoutSet, store }: PageProps) {
   const [children, setChildren] = useState<ChildrenState>({ forLayout: layout, map: undefined });
   const page = useMemo(() => new LayoutPage(), []);
+  const addPage = useStore(store, (state) => state.addPage);
+  const removePage = useStore(store, (state) => state.removePage);
 
   useEffect(() => {
     page.registerCollection(name, layoutSet);
@@ -103,6 +112,11 @@ function Page({ layout, name, layoutSet }: PageProps) {
       setChildren({ forLayout: layout, map: undefined });
     }
   }, [layout, children.forLayout]);
+
+  useEffect(() => {
+    addPage(name);
+    return () => removePage(name);
+  }, [addPage, name, removePage]);
 
   const getProto = useMemo(() => {
     const proto: { [id: string]: ComponentProto } = {};
@@ -132,6 +146,10 @@ function Page({ layout, name, layoutSet }: PageProps) {
 
   return (
     <>
+      <MaintainPageState
+        name={name}
+        store={store}
+      />
       {debug && <h2>Page: {name}</h2>}
       {map === undefined &&
         layout.map((component) => (
@@ -155,11 +173,25 @@ function Page({ layout, name, layoutSet }: PageProps) {
               childIds={map[component.id]}
               getItem={getItem}
               parent={page}
+              store={store}
+              path={[name, component.id]}
             />
           );
         })}
     </>
   );
+}
+
+interface MaintainPageStateProps {
+  name: string;
+  store: NodesDataStore;
+}
+
+function MaintainPageState(_props: MaintainPageStateProps) {
+  // TODO: Implement evaluating expressions for hidden pages
+  const _hiddenExpr = useHiddenLayoutsExpressions();
+
+  return null;
 }
 
 interface ComponentClaimChildrenProps {
@@ -225,9 +257,11 @@ interface ComponentProps {
   childIds: string[] | undefined;
   getItem: (id: string) => CompExternal;
   parent: LayoutPage;
+  store: NodesDataStore;
+  path: string[];
 }
 
-function Component({ component, childIds, getItem, parent }: ComponentProps) {
+function Component({ component, childIds, getItem, parent, store, path }: ComponentProps) {
   const def = getLayoutComponentObject(component.type);
   const Generator = def.renderNodeGenerator;
 
@@ -237,6 +271,8 @@ function Component({ component, childIds, getItem, parent }: ComponentProps) {
         item: component,
         parent,
         debug,
+        store,
+        path,
         childIds: childIds ?? [],
         getChild: (id: string) => {
           if (childIds?.includes(id)) {
@@ -253,10 +289,12 @@ function Component({ component, childIds, getItem, parent }: ComponentProps) {
       item: component,
       parent,
       debug,
+      store,
+      path,
     };
 
     return out;
-  }, [childIds, component, def, getItem, parent]);
+  }, [childIds, component, def, getItem, parent, path, store]);
 
   return (
     <>

@@ -1,13 +1,7 @@
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
-import type { ParentNode } from 'src/layout/layout';
 import type { IsHiddenOptions } from 'src/utils/layout/LayoutNode';
-import type { BaseRow, ItemStore } from 'src/utils/layout/types';
 
 export class RepGroupNode extends BaseLayoutNode<'RepeatingGroup'> {
-  constructor(store: ItemStore<'RepeatingGroup'>, parent: ParentNode, row?: BaseRow) {
-    super(store, parent, row);
-  }
-
   protected isDirectChildHidden(_directChild: BaseLayoutNode, _options: IsHiddenOptions): boolean {
     // TODO: This was copied from BaseLayoutNode, but should be adapted to check if a direct child (in one of the rows)
     // should be hidden implicitly.

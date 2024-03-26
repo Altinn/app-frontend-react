@@ -15,7 +15,6 @@ import type {
   ChildClaimerProps,
   ExprResolver,
   NodeGeneratorProps,
-  StoreFactoryProps,
   SummaryRendererProps,
 } from 'src/layout/LayoutComponent';
 
@@ -55,10 +54,6 @@ export class Grid extends GridDef {
         }
       }
     }
-  }
-
-  storeFactory(props: StoreFactoryProps<'Grid'>) {
-    return this.defaultStoreFactory(props);
   }
 
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Grid'>) {

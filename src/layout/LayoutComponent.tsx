@@ -2,8 +2,6 @@ import React from 'react';
 import type { JSX } from 'react';
 
 import dot from 'dot-object';
-import { createStore } from 'zustand';
-import { immer } from 'zustand/middleware/immer';
 import type { ErrorObject } from 'ajv';
 import type { JSONSchema7 } from 'json-schema';
 
@@ -36,11 +34,14 @@ import type {
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { BaseItemState, BaseRow } from 'src/utils/layout/types';
+import type { NodesDataStore } from 'src/utils/layout/NodesContext';
+import type { BaseItemState, BaseRow, ItemStore } from 'src/utils/layout/types';
 
 export interface BasicNodeGeneratorProps<Type extends CompTypes> {
   item: CompExternalExact<Type>;
   parent: LayoutNode | LayoutPage;
+  path: string[];
+  store: NodesDataStore;
   row?: BaseRow;
   debug: boolean;
 }
@@ -92,20 +93,36 @@ export abstract class AnyComponent<Type extends CompTypes> {
     return <DefaultNodeGenerator {...(props as BasicNodeGeneratorProps<Type>)} />;
   }
 
+  /**
+   * Creates the default zustand store for a node of this component type. Override this if you need to
+   * add additional state to the store.
+   */
   protected defaultStoreFactory(props: StoreFactoryProps<Type>) {
-    return createStore<BaseItemState<Type>>()(
-      immer((set) => ({
-        item: props.item as CompInternal<Type>,
-        layout: props.item,
-        updateItem: (newItem) => set(() => ({ item: newItem as CompInternal<Type> })),
-      })),
-    );
+    return {
+      item: props.item as CompInternal<Type>,
+      layout: props.item,
+      hidden: false,
+    } as BaseItemState<Type>;
   }
 
   /**
-   * Creates the zustand store for a node of this component type
+   * Creates the zustand store for a node of this component type. Usually calls defaultStoreFactory(),
+   * but you can add your own state and logic here as well.
    */
-  abstract storeFactory(props: StoreFactoryProps<Type>): any;
+  storeFactory(props: StoreFactoryProps<Type>) {
+    return this.defaultStoreFactory(props);
+  }
+
+  /**
+   * Picks a (direct) child state from the nodes store, returning the item store for that child. This must be
+   * implemented for every component type that can adopt children.
+   */
+  public pickChild<C extends CompTypes>(_state: ItemStore<Type>, _path: string[], _parentPath: string[]): ItemStore<C> {
+    throw new Error(
+      `pickChild() is not implemented yet for '${this.type}'. ` +
+        `You have to implement this if the component type supports children.`,
+    );
+  }
 
   /**
    * Resolves all expressions in the layout configuration, and returns a new layout configuration

@@ -4,7 +4,7 @@ import type { JSX } from 'react';
 import { SummaryDef } from 'src/layout/Summary/config.def.generated';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { ExprResolver, StoreFactoryProps } from 'src/layout/LayoutComponent';
+import type { ExprResolver } from 'src/layout/LayoutComponent';
 
 export class Summary extends SummaryDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Summary'>>(
@@ -18,10 +18,6 @@ export class Summary extends SummaryDef {
       );
     },
   );
-
-  storeFactory(props: StoreFactoryProps<'Summary'>) {
-    return this.defaultStoreFactory(props);
-  }
 
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Summary'>) {
     return {

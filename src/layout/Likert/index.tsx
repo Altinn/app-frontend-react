@@ -8,7 +8,7 @@ import { LikertComponent } from 'src/layout/Likert/LikertComponent';
 import { LikertSummary } from 'src/layout/Likert/Summary/LikertSummary';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { ComponentValidation } from 'src/features/validation';
-import type { ExprResolver, StoreFactoryProps, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 
 export class Likert extends LikertDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Likert'>>(
@@ -37,10 +37,6 @@ export class Likert extends LikertDef {
 
   renderSummaryBoilerplate(): boolean {
     return false;
-  }
-
-  storeFactory(props: StoreFactoryProps<'Likert'>) {
-    return this.defaultStoreFactory(props);
   }
 
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Likert'>) {

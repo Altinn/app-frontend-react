@@ -20,7 +20,6 @@ import type {
   ChildClaimerProps,
   ExprResolver,
   NodeGeneratorProps,
-  StoreFactoryProps,
   SummaryRendererProps,
 } from 'src/layout/LayoutComponent';
 import type { RepGroupInternal, RepGroupRows } from 'src/layout/RepeatingGroup/types';
@@ -56,10 +55,6 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
   renderNodeGenerator(props: NodeGeneratorProps<'RepeatingGroup'>): JSX.Element | null {
     // TODO: Implement custom node generator
     return <DefaultNodeGenerator {...props} />;
-  }
-
-  storeFactory(props: StoreFactoryProps<'RepeatingGroup'>) {
-    return this.defaultStoreFactory(props);
   }
 
   evalExpressions({

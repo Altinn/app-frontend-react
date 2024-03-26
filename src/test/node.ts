@@ -1,10 +1,10 @@
-import { getLayoutComponentObject, getNodeConstructor } from 'src/layout';
+import { getNodeConstructor } from 'src/layout';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { CompDef } from 'src/layout';
+import { createNodesDataStore } from 'src/utils/layout/NodesContext';
 import type { CompExternal, CompInternal, CompTypes, ParentNode } from 'src/layout/layout';
-import type { StoreFactoryProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { BaseRow, ItemStore } from 'src/utils/layout/types';
+import type { NodesDataStore } from 'src/utils/layout/NodesContext';
+import type { BaseRow } from 'src/utils/layout/types';
 
 /**
  * This function creates a new LayoutNode for testing purposes. It is not meant to be used in production code, and
@@ -14,13 +14,14 @@ export function newLayoutNodeForTesting<T extends CompTypes = CompTypes>(
   item: Partial<CompExternal<T>> | Partial<CompInternal<T>>,
   parent?: ParentNode,
   row?: BaseRow,
+  store?: NodesDataStore,
 ): LayoutNode {
+  const id = item.id || 'test';
   const LNode = getNodeConstructor(item.type as T);
-  const def = getLayoutComponentObject(item.type as T);
   const _parent = parent || new LayoutPage();
-  const props = { item, parent: _parent, row } as StoreFactoryProps<T>;
-  const store = (def as CompDef<T>).storeFactory(props as any) as ItemStore<T>;
-  const node = new LNode(store as any, _parent as any, row) as LayoutNode;
+  const path: string[] = ['formLayout', id];
+  const _store = store ?? createNodesDataStore();
+  const node = new LNode(_store, path, _parent as any, row) as LayoutNode;
 
   if (_parent instanceof LayoutPage) {
     _parent._addChild(node);

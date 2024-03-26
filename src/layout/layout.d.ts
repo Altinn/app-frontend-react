@@ -102,6 +102,8 @@ export type TypeFromConfig<T extends CompInternal | CompExternal> = T extends { 
     : CompTypes
   : CompTypes;
 
+export type TypeFromNode<N extends LayoutNode> = N extends LayoutNode<infer Type> ? Type : CompTypes;
+
 export interface HierarchyDataSources extends ContextDataSources {
   devToolsIsOpen: boolean;
   devToolsHiddenComponents: DevToolsHiddenComponents;

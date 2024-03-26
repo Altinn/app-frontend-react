@@ -10,7 +10,6 @@ import type {
   ChildClaimerProps,
   ExprResolver,
   NodeGeneratorProps,
-  StoreFactoryProps,
   SummaryRendererProps,
 } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -43,10 +42,6 @@ export class AccordionGroup extends AccordionGroupDef {
   renderNodeGenerator(props: NodeGeneratorProps<'AccordionGroup'>): JSX.Element | null {
     // TODO: Implement custom node generator
     return <DefaultNodeGenerator {...props} />;
-  }
-
-  storeFactory(props: StoreFactoryProps<'AccordionGroup'>) {
-    return this.defaultStoreFactory(props);
   }
 
   evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'AccordionGroup'>) {

@@ -1,5 +1,6 @@
 import type { CompDef } from 'src/layout';
-import type { CompExternalExact, CompInternal, CompTypes } from 'src/layout/layout';
+import type { CompExternalExact, CompInternal, CompTypes, TypeFromNode } from 'src/layout/layout';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 /**
  * A row (from the data model) in a repeating group, or other components using such a structure (object[]).
@@ -15,7 +16,8 @@ export interface BaseRow {
 export interface BaseItemState<T extends CompTypes> {
   layout: CompExternalExact<T>;
   item: CompInternal<T> | undefined;
-  updateItem: (item: CompInternal<T>) => void;
+  hidden: boolean;
 }
 
 export type ItemStore<Type extends CompTypes> = ReturnType<CompDef<Type>['storeFactory']>;
+export type ItemStoreFromNode<N extends LayoutNode> = ItemStore<TypeFromNode<N>>;

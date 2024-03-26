@@ -3,6 +3,7 @@ import { ContainerComponent } from 'src/layout/LayoutComponent';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
+import { pickNodePath } from 'src/utils/layout/NodesContext';
 import type { CompClassMap, CompDef, FormDataSelector, NodeRef } from 'src/layout';
 import type { CompCategory } from 'src/layout/common';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated';
@@ -10,7 +11,8 @@ import type { CompInternal, CompTypes, LayoutNodeFromCategory, ParentNode } from
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
-import type { BaseRow, ItemStore } from 'src/utils/layout/types';
+import type { NodesDataStore } from 'src/utils/layout/NodesContext';
+import type { BaseRow } from 'src/utils/layout/types';
 
 export interface IsHiddenOptions {
   respectLegacy?: boolean;
@@ -33,7 +35,8 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
   protected multiPageIndex: number | undefined;
 
   public constructor(
-    public store: ItemStore<Type>,
+    public store: NodesDataStore,
+    public readonly path: string[],
     public parent: ParentNode,
     public readonly row?: BaseRow,
   ) {
@@ -48,7 +51,7 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
    * re-render if this state changes. For that, useNodeItem() instead.
    */
   public get item() {
-    return this.store.getState().item as CompInternal<Type>;
+    return pickNodePath(this.store.getState().pages, this.path).item as CompInternal<Type>;
   }
 
   public updateCommonProps() {
@@ -138,7 +141,7 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
     return parents;
   }
 
-  private childrenAsList(restriction?: ChildLookupRestriction): LayoutNode[] {
+  private childrenAsList(_restriction?: ChildLookupRestriction): LayoutNode[] {
     const def = this.def as CompDef<any>;
     if (def instanceof ContainerComponent) {
       // TODO: Get children from the hierarchy generator
