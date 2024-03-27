@@ -171,13 +171,12 @@ interface ErrorProcessingProps {
  */
 function ErrorProcessing({ setFormState }: ErrorProcessingProps) {
   const currentPageId = useCurrentView();
-  const topLevelNodeIds = useNodesMemoSelector(
-    (nodes) =>
-      nodes
-        .findLayout(currentPageId)
-        ?.children()
-        .map((n) => n.getId()) || emptyArray,
-  );
+  const topLevelNodeIds = useNodesMemoSelector((nodes) => {
+    const page = nodes.findLayout(currentPageId);
+    const all = page?.children() || emptyArray;
+    return all.map((n) => n.getId());
+  });
+
   const hasRequired = useNodesMemoSelector((nodes) => {
     const page = nodes.findLayout(currentPageId);
     return page ? hasRequiredFields(page) : false;

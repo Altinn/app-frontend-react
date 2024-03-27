@@ -69,7 +69,7 @@ export interface ExprResolver<Type extends CompTypes> {
   };
 }
 
-export interface StoreFactoryProps<Type extends CompTypes> {
+export interface StateFactoryProps<Type extends CompTypes> {
   item: CompExternalExact<Type>;
   parent: LayoutNode | LayoutPage;
   row?: BaseRow;
@@ -94,10 +94,10 @@ export abstract class AnyComponent<Type extends CompTypes> {
   }
 
   /**
-   * Creates the default zustand store for a node of this component type. Override this if you need to
-   * add additional state to the store.
+   * Creates the default zustand store state for a node of this component type. Do not override this method,
+   * instead override stateFactory().
    */
-  protected defaultStoreFactory(props: StoreFactoryProps<Type>) {
+  protected defaultStateFactory(props: StateFactoryProps<Type>) {
     return {
       item: props.item as CompInternal<Type>,
       layout: props.item,
@@ -106,11 +106,11 @@ export abstract class AnyComponent<Type extends CompTypes> {
   }
 
   /**
-   * Creates the zustand store for a node of this component type. Usually calls defaultStoreFactory(),
+   * Creates the zustand store default state for a node of this component type. Usually calls defaultStateFactory(),
    * but you can add your own state and logic here as well.
    */
-  storeFactory(props: StoreFactoryProps<Type>) {
-    return this.defaultStoreFactory(props);
+  stateFactory(props: StateFactoryProps<Type>) {
+    return this.defaultStateFactory(props);
   }
 
   /**

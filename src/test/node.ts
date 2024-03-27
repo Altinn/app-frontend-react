@@ -2,7 +2,7 @@ import { getNodeConstructor } from 'src/layout';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { createNodesDataStore } from 'src/utils/layout/NodesContext';
 import type { CompExternal, CompInternal, CompTypes, ParentNode } from 'src/layout/layout';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode, LayoutNodeProps } from 'src/utils/layout/LayoutNode';
 import type { NodesDataStore } from 'src/utils/layout/NodesContext';
 import type { BaseRow } from 'src/utils/layout/types';
 
@@ -21,7 +21,8 @@ export function newLayoutNodeForTesting<T extends CompTypes = CompTypes>(
   const _parent = parent || new LayoutPage();
   const path: string[] = ['formLayout', id];
   const _store = store ?? createNodesDataStore();
-  const node = new LNode(_store, path, _parent as any, row) as LayoutNode;
+  const props: LayoutNodeProps<T> = { item: item as any, store: _store, path, parent: _parent, row };
+  const node = new LNode(props as any) as LayoutNode;
 
   if (_parent instanceof LayoutPage) {
     _parent._addChild(node);

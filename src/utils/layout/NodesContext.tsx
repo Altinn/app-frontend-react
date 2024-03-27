@@ -66,6 +66,8 @@ export interface TopLevelNodesStore<Types extends CompTypes = CompTypes> {
 type ValueOrCallback<T> = T | ((draft: Draft<T>) => void);
 export interface NodesDataContext {
   pages: PageHierarchy;
+  addTopLevelNode: <N extends LayoutNode>(node: N, state: any) => void;
+  removeTopLevelNode: (node: LayoutNode) => void;
   setNodeProp: <N extends LayoutNode, K extends keyof ItemStoreFromNode<N>>(
     node: N,
     prop: K,
@@ -89,6 +91,18 @@ export function createNodesDataStore() {
         type: 'pages',
         pages: {},
       },
+      addTopLevelNode: (node, state) =>
+        set((s) => {
+          const parentPath = node.path.slice(0, -1);
+          const parent = pickNodePath(s.pages, parentPath);
+          parent.topLevelNodes[node.getId()] = state;
+        }),
+      removeTopLevelNode: (node) =>
+        set((s) => {
+          const parentPath = node.path.slice(0, -1);
+          const parent = pickNodePath(s.pages, parentPath);
+          delete parent.topLevelNodes[node.getId()];
+        }),
       setNodeProp: (node, prop, valueOrCallback) =>
         set((state) => {
           const obj = pickNodePath(state.pages, node.path);

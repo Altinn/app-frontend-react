@@ -13,12 +13,6 @@ export const Config = new CG.component({
     renderInAccordionGroup: false,
   },
 })
-  .setLayoutNodeType(
-    new CG.import({
-      import: 'LikertNode',
-      from: 'src/layout/Likert/LikertNode',
-    }),
-  )
   .addTextResource(
     new CG.trb({
       name: 'title',

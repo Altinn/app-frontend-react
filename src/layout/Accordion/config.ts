@@ -12,12 +12,6 @@ export const Config = new CG.component({
     renderInAccordionGroup: true,
   },
 })
-  .setLayoutNodeType(
-    new CG.import({
-      import: 'AccordionNode',
-      from: 'src/layout/Accordion/AccordionNode',
-    }),
-  )
   .addTextResource(
     new CG.trb({
       name: 'title',

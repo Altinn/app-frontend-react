@@ -11,18 +11,11 @@ export const Config = new CG.component({
     renderInAccordion: false,
     renderInAccordionGroup: false,
   },
-})
-  .setLayoutNodeType(
-    new CG.import({
-      import: 'ButtonGroupNode',
-      from: 'src/layout/ButtonGroup/ButtonGroupNode',
-    }),
-  )
-  .addProperty(
-    new CG.prop(
-      'children',
-      new CG.arr(new CG.str())
-        .setTitle('Children')
-        .setDescription('Child component IDs of button-like components to be rendered in this group'),
-    ),
-  );
+}).addProperty(
+  new CG.prop(
+    'children',
+    new CG.arr(new CG.str())
+      .setTitle('Children')
+      .setDescription('Child component IDs of button-like components to be rendered in this group'),
+  ),
+);

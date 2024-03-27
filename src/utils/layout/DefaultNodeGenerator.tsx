@@ -21,8 +21,8 @@ import type {
   HierarchyDataSources,
   ITextResourceBindings,
 } from 'src/layout/layout';
-import type { BasicNodeGeneratorProps, ExprResolver } from 'src/layout/LayoutComponent';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { BasicNodeGeneratorProps, ExprResolver, StateFactoryProps } from 'src/layout/LayoutComponent';
+import type { LayoutNode, LayoutNodeProps } from 'src/utils/layout/LayoutNode';
 
 /**
  * A node generator will always be rendered when a component is present in a layout, even if the component
@@ -40,19 +40,24 @@ export function DefaultNodeGenerator<T extends CompTypes>({
   const node = useNewNode(props);
   const resolverProps = useExpressionResolverProps(node, props.item);
   const resolvedItem = useResolvedItem(node, props.item, resolverProps);
-  // const addNode = useStore(props.store, (state) => state.addNode);
-  // const removeNode = useStore(props.store, (state) => state.removeNode);
 
   const page = props.parent instanceof LayoutPage ? props.parent : props.parent.page;
-  useEffect(() => {
-    page._addChild(node);
-    return () => page._removeChild(node);
-  }, [node, page]);
-
-  // useEffect(() => {
-  //   addNode(node);
-  //   return () => removeNode(node);
-  // }, [addNode, node, removeNode]);
+  const isTopLevel = props.parent === page;
+  const isTopLevelRef = useAsRef(isTopLevel);
+  const removeTopLevelNode = useStore(props.store, (state) => state.removeTopLevelNode);
+  const nodeRef = useAsRef(node);
+  const pageRef = useAsRef(page);
+  useEffect(() => () => pageRef.current._removeChild(nodeRef.current), [nodeRef, pageRef]);
+  useEffect(
+    () => () => {
+      if (isTopLevelRef.current) {
+        removeTopLevelNode(nodeRef.current);
+      } else {
+        throw new Error('Child components are not supported yet.');
+      }
+    },
+    [isTopLevelRef, nodeRef, removeTopLevelNode],
+  );
 
   return (
     <>
@@ -62,6 +67,10 @@ export function DefaultNodeGenerator<T extends CompTypes>({
   );
 }
 
+/**
+ * Creates props for the expression resolver that can be used to evaluate expressions in a component configuration.
+ * These props are passed on to your component's `evalExpressions` method.
+ */
 export function useExpressionResolverProps<T extends CompTypes>(
   node: LayoutNode<T>,
   item: CompExternalExact<T>,
@@ -153,6 +162,9 @@ export function useExpressionResolverProps<T extends CompTypes>(
   };
 }
 
+/**
+ * Creates a new node instance for a component item, and adds that to the parent node and the store.
+ */
 function useNewNode<T extends CompTypes>({
   item,
   parent,
@@ -160,6 +172,10 @@ function useNewNode<T extends CompTypes>({
   store,
   path,
 }: BasicNodeGeneratorProps<T>): LayoutNode<T> {
+  const page = parent instanceof LayoutPage ? parent : parent.page;
+  const isTopLevel = parent === page;
+  const addTopLevelNode = useStore(store, (state) => state.addTopLevelNode);
+
   return useMemo(() => {
     const LNode = getNodeConstructor(item.type);
     if (!LNode) {
@@ -167,10 +183,28 @@ function useNewNode<T extends CompTypes>({
       throw new Error(`Component type "${item.type}" not found`);
     }
 
-    return new LNode(store, path, parent, row) as LayoutNode<T>;
-  }, [store, path, item.type, parent, row]);
+    const newNodeProps: LayoutNodeProps<T> = { item, parent, row, store, path };
+    const node = new LNode(newNodeProps as any) as LayoutNode<T>;
+    page._addChild(node);
+
+    const def = getLayoutComponentObject<T>(item.type as T)!;
+    const stateFactoryProps: StateFactoryProps<T> = { item: item as any, parent, row };
+    const defaultState = def.stateFactory(stateFactoryProps as any);
+
+    if (isTopLevel) {
+      addTopLevelNode(node, defaultState);
+    } else {
+      throw new Error('Child components are not supported yet.');
+    }
+
+    return node;
+  }, [addTopLevelNode, isTopLevel, item, page, parent, path, row, store]);
 }
 
+/**
+ * Takes the resolver props and the item configuration, and resolves the item configuration into a CompInternal<Type>
+ * object, which is then set on the node.
+ */
 function useResolvedItem<T extends CompTypes>(
   node: LayoutNode<T>,
   item: CompExternalExact<T>,
@@ -186,6 +220,8 @@ function useResolvedItem<T extends CompTypes>(
 
     const resolvedItem = (def as CompDef<T>).evalExpressions(resolverProps as any) as CompInternal<T>;
     setNodeProp(node, 'item', resolvedItem);
+    node.updateCommonProps(resolvedItem as any);
+
     return resolvedItem;
   }, [item.type, node, resolverProps, setNodeProp]);
 }

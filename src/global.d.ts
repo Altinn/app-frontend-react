@@ -3,6 +3,7 @@ import type { QueryClient } from '@tanstack/react-query';
 import type { IAttachments } from 'src/features/attachments';
 import type { IFeatureTogglesOptionalMap } from 'src/features/toggles';
 import type { IRuleObject } from 'src/types';
+import type { NodesDataStore, NodesStore } from 'src/utils/layout/NodesContext';
 
 declare global {
   interface Window {
@@ -23,6 +24,8 @@ declare global {
     CypressState?: {
       attachments?: IAttachments;
       formData?: object;
+      nodesStore?: NodesStore;
+      nodesDataStore?: NodesDataStore;
     };
 
     // This may be used to log stuff, which may or may not be saved to a file when a cypress test ends. The purpose

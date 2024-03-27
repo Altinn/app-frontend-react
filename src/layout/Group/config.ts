@@ -13,12 +13,6 @@ export const Config = new CG.component({
     renderInAccordionGroup: false,
   },
 })
-  .setLayoutNodeType(
-    new CG.import({
-      import: 'GroupNode',
-      from: 'src/layout/Group/GroupNode',
-    }),
-  )
   .addTextResource(
     new CG.trb({
       name: 'title',

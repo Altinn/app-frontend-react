@@ -7,7 +7,7 @@ import { pickNodePath } from 'src/utils/layout/NodesContext';
 import type { CompClassMap, CompDef, FormDataSelector, NodeRef } from 'src/layout';
 import type { CompCategory } from 'src/layout/common';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated';
-import type { CompInternal, CompTypes, LayoutNodeFromCategory, ParentNode } from 'src/layout/layout';
+import type { CompExternalExact, CompInternal, CompTypes, LayoutNodeFromCategory, ParentNode } from 'src/layout/layout';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
@@ -20,13 +20,25 @@ export interface IsHiddenOptions {
   respectTracks?: boolean;
 }
 
+export interface LayoutNodeProps<Type extends CompTypes> {
+  item: CompExternalExact<Type>;
+  store: NodesDataStore;
+  path: string[];
+  parent: ParentNode;
+  row?: BaseRow;
+}
+
 /**
  * A LayoutNode wraps a component with information about its parent, allowing you to traverse a component (or an
  * instance of a component inside a repeating group), finding other components near it.
  */
 export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements LayoutObject {
-  public readonly def: CompClassMap[Type];
+  public readonly store: NodesDataStore;
+  public readonly path: string[];
+  public readonly parent: ParentNode;
   public readonly page: LayoutPage;
+  public readonly row?: BaseRow;
+  public readonly def: CompClassMap[Type];
 
   // Common properties that are overwritten when changed in the item store
   protected id: string;
@@ -34,15 +46,14 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
   protected type: Type;
   protected multiPageIndex: number | undefined;
 
-  public constructor(
-    public store: NodesDataStore,
-    public readonly path: string[],
-    public parent: ParentNode,
-    public readonly row?: BaseRow,
-  ) {
-    this.updateCommonProps();
+  public constructor({ item, store, path, parent, row }: LayoutNodeProps<Type>) {
+    this.updateCommonProps(item as CompInternal<Type>);
     this.page = parent instanceof LayoutPage ? parent : parent.page;
     this.def = getLayoutComponentObject(this.type);
+    this.store = store;
+    this.path = path;
+    this.parent = parent;
+    this.row = row;
   }
 
   /**
@@ -54,8 +65,7 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
     return pickNodePath(this.store.getState().pages, this.path).item as CompInternal<Type>;
   }
 
-  public updateCommonProps() {
-    const item = this.item;
+  public updateCommonProps(item = this.item) {
     this.id = item.id;
     this.baseId = item.baseComponentId || item.id;
     this.type = item.type as Type;
@@ -204,7 +214,7 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
    * methods returns true if the component is inside a hidden group.
    */
   public isHidden(_options: IsHiddenOptions = {}): boolean {
-    // TODO: Enable this again, but calculate it all in the hiearchy generator component instead of here.
+    // TODO: Enable this again, but calculate it all in the hierarchy generator component instead of here.
     return false;
     //   const { respectLegacy = true, respectDevTools = true, respectTracks = false } = options;
     //

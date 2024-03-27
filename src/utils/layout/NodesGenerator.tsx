@@ -64,6 +64,12 @@ export function NodesGenerator({ nodesStore, dataStore }: NodesGeneratorProps) {
     layoutSet.setCurrentPage(currentView);
   }, [currentView, layoutSet]);
 
+  useEffect(() => {
+    window.CypressState = window.CypressState || {};
+    window.CypressState.nodesStore = nodesStore;
+    window.CypressState.nodesDataStore = dataStore;
+  }, [nodesStore, dataStore]);
+
   return (
     <div style={style}>
       {debug && <h1>Node generator</h1>}
@@ -263,8 +269,6 @@ interface ComponentProps {
 
 function Component({ component, childIds, getItem, parent, store, path }: ComponentProps) {
   const def = getLayoutComponentObject(component.type);
-  const Generator = def.renderNodeGenerator;
-
   const props = useMemo(() => {
     if (def instanceof ContainerComponent) {
       const out: ContainerGeneratorProps<any> = {
@@ -304,7 +308,15 @@ function Component({ component, childIds, getItem, parent, store, path }: Compon
         </h3>
       )}
       {debug && <span>{childIds ? `Children: ${childIds.join(', ')}` : 'No children'}</span>}
-      <Generator {...(props as any)} />
+      <Generator {...props} />
     </>
   );
 }
+
+function _Generator(props: any) {
+  const def = getLayoutComponentObject(props.item.type);
+  const InnerGenerator = def.renderNodeGenerator;
+
+  return <InnerGenerator {...props} />;
+}
+const Generator = React.memo(_Generator);

@@ -19,5 +19,5 @@ export interface BaseItemState<T extends CompTypes> {
   hidden: boolean;
 }
 
-export type ItemStore<Type extends CompTypes> = ReturnType<CompDef<Type>['storeFactory']>;
+export type ItemStore<Type extends CompTypes> = ReturnType<CompDef<Type>['stateFactory']>;
 export type ItemStoreFromNode<N extends LayoutNode> = ItemStore<TypeFromNode<N>>;
