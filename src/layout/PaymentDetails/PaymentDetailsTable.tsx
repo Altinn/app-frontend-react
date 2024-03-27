@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Label, Table } from '@digdir/design-system-react';
+import cn from 'classnames';
 
 import { Caption } from 'src/components/form/Caption';
 import classes from 'src/layout/PaymentDetails/PaymentDetailsTable.module.css';
@@ -10,13 +11,16 @@ type PaymentDetailsTableProps = {
   orderDetails?: OrderDetails;
   title?: string;
   description?: string;
-};
+} & React.HTMLAttributes<HTMLTableElement>;
 
-export const PaymentDetailsTable = (props: PaymentDetailsTableProps) => (
-  <Table className={classes.orderDetailsTable}>
+export const PaymentDetailsTable = ({ orderDetails, title, description, ...rest }: PaymentDetailsTableProps) => (
+  <Table
+    {...rest}
+    className={cn(classes.orderDetailsTable, rest.className)}
+  >
     <Caption
-      title={props.title}
-      description={props.description}
+      title={title}
+      description={description}
     />
     <Table.Head>
       <Table.Row>
@@ -26,7 +30,7 @@ export const PaymentDetailsTable = (props: PaymentDetailsTableProps) => (
       </Table.Row>
     </Table.Head>
     <Table.Body>
-      {props.orderDetails?.orderLines.map((orderLine, index) => (
+      {orderDetails?.orderLines.map((orderLine, index) => (
         <Table.Row key={index}>
           <Table.Cell>{orderLine.name}</Table.Cell>
           <Table.Cell>{orderLine.quantity}</Table.Cell>
@@ -37,7 +41,7 @@ export const PaymentDetailsTable = (props: PaymentDetailsTableProps) => (
         <Table.Cell colSpan={2}>
           <Label>Total</Label>
         </Table.Cell>
-        <Table.Cell>{props.orderDetails?.totalPriceIncVat}</Table.Cell>
+        <Table.Cell>{orderDetails?.totalPriceIncVat}</Table.Cell>
       </Table.Row>
     </Table.Body>
   </Table>
