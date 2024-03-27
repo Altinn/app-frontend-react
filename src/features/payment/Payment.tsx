@@ -1,61 +1,38 @@
 import React, { useEffect } from 'react';
 
 import { Alert, Button, Heading } from '@digdir/design-system-react';
-import { useMutation, useQuery } from '@tanstack/react-query';
 
-import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/features/payment/Payment.module.css';
 import { SkeletonLoader } from 'src/features/payment/SkeletonLoader';
+import { usePaymentInformationQuery } from 'src/features/payment/usePaymentInformationQuery';
+import { usePerformPayActionMutation } from 'src/features/payment/usePerformPaymentMutation';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTable';
-import { fetchPaymentInfo } from 'src/queries/queries';
 export const Payment: React.FunctionComponent = () => {
   const { partyId, instanceGuid } = useInstanceIdParams();
-  const { doPerformAction } = useAppMutations();
   const { next } = useProcessNavigation() || {};
 
-  const paymentInfoQuery = useQuery({
-    queryKey: ['fetchPaymentInfo', partyId, instanceGuid],
-    queryFn: () => {
-      if (partyId) {
-        return fetchPaymentInfo(partyId, instanceGuid);
-      }
-    },
-    enabled: !!partyId && !!instanceGuid,
-  });
+  const { data: paymentInfoQuery, isFetched } = usePaymentInformationQuery(partyId, instanceGuid);
 
-  const performPayActionMutation = useMutation({
-    mutationKey: ['performPayAction', partyId, instanceGuid],
-    mutationFn: async () => {
-      if (partyId) {
-        return await doPerformAction(partyId, instanceGuid, { action: 'pay' });
-      }
-    },
-    onSuccess: (data) => {
-      if (data?.redirectUrl) {
-        window.location.href = data.redirectUrl;
-      }
-    },
-  });
-
+  const performPayActionMutation = usePerformPayActionMutation(partyId, instanceGuid);
   const { mutate: performPayment } = performPayActionMutation;
 
   useEffect(() => {
     // if no paymentDetails exists, the payment has not been initiated, initiate it by calling the pay action
-    if (paymentInfoQuery.isFetched && !paymentInfoQuery.data?.paymentDetails) {
+    if (isFetched && !paymentInfoQuery?.paymentDetails) {
       performPayment();
     }
-  }, [performPayment, paymentInfoQuery.data?.paymentDetails, paymentInfoQuery.isFetched]);
+  }, [performPayment, paymentInfoQuery?.paymentDetails, isFetched]);
 
   return (
     <>
-      {paymentInfoQuery.isFetched && !paymentInfoQuery.data?.paymentDetails ? (
+      {isFetched && !paymentInfoQuery?.paymentDetails ? (
         <SkeletonLoader />
       ) : (
         <PaymentDetailsTable
-          orderDetails={paymentInfoQuery.data?.orderDetails}
+          orderDetails={paymentInfoQuery?.orderDetails}
           tableTitle={
             <Heading
               level={2}
@@ -68,20 +45,20 @@ export const Payment: React.FunctionComponent = () => {
         />
       )}
       <div className={classes.container}>
-        {paymentInfoQuery.isFetched && paymentInfoQuery.data?.paymentDetails?.status === 'Failed' && (
+        {isFetched && paymentInfoQuery?.paymentDetails?.status === 'Failed' && (
           <Alert severity='warning'>
             <Lang id='payment.alert.failed' />
           </Alert>
         )}
-        {paymentInfoQuery.isFetched && paymentInfoQuery.data?.paymentDetails?.status === 'Paid' && (
+        {isFetched && paymentInfoQuery?.paymentDetails?.status === 'Paid' && (
           <Alert severity={'info'}>
             <Lang id='payment.alert.paid' />
           </Alert>
         )}
       </div>
-      {paymentInfoQuery.isFetched && paymentInfoQuery.data?.paymentDetails && (
+      {isFetched && paymentInfoQuery?.paymentDetails && (
         <div className={classes.buttonContainer}>
-          {paymentInfoQuery.data?.paymentDetails?.status !== 'Paid' ? (
+          {paymentInfoQuery?.paymentDetails?.status !== 'Paid' ? (
             <>
               <Button
                 variant='secondary'
