@@ -17,6 +17,9 @@ export const Payment: React.FunctionComponent = () => {
   const { data: paymentInfo, isFetched } = usePaymentInformationQuery(partyId, instanceGuid);
 
   const performPayActionMutation = usePerformPayActionMutation(partyId, instanceGuid);
+
+  // performPayActionMutation changes each render, so we need to destructure it to get the mutate function
+  // which does not change and is safe to use in the useEffect dependency array
   const { mutate: performPayment } = performPayActionMutation;
 
   useEffect(() => {
