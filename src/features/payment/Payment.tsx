@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react';
 
-import { Alert, Button, Heading, Skeleton } from '@digdir/design-system-react';
+import { Alert, Button, Heading } from '@digdir/design-system-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
 import classes from 'src/features/payment/Payment.module.css';
+import { SkeletonLoader } from 'src/features/payment/SkeletonLoader';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTable';
 import { fetchPaymentInfo } from 'src/queries/queries';
@@ -50,38 +51,7 @@ export const Payment: React.FunctionComponent = () => {
   return (
     <>
       {paymentInfoQuery.isFetched && !paymentInfoQuery.data?.paymentDetails ? (
-        <div
-          style={{
-            width: '100%',
-          }}
-        >
-          <Skeleton.Rectangle
-            width='100%'
-            height='150px'
-          />
-          <div
-            style={{
-              display: 'flex',
-              gap: '10px',
-              alignItems: 'center',
-              padding: '5px 0 5px 0',
-            }}
-          >
-            <Skeleton.Circle
-              width='30px'
-              height='30px'
-            />
-            <Heading
-              asChild
-              size='medium'
-            >
-              <Skeleton.Text>En medium tittel</Skeleton.Text>
-            </Heading>
-          </div>
-          <Skeleton.Text width='100%' />
-          <Skeleton.Text width='100%' />
-          <Skeleton.Text width='80%' />
-        </div>
+        <SkeletonLoader />
       ) : (
         <PaymentDetailsTable
           orderDetails={paymentInfoQuery.data?.orderDetails}
