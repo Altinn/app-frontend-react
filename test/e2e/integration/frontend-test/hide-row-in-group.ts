@@ -4,10 +4,9 @@ const appFrontend = new AppFrontend();
 
 it('should be possible to hide rows when "Endre fra" is greater or equals to [...]', () => {
   cy.goto('group');
-  cy.intercept('PATCH', '**/data/**').as('saveFormData');
   for (const prefill of Object.values(appFrontend.group.prefill)) {
     cy.get(prefill).check();
-    cy.wait('@saveFormData');
+    cy.waitUntilSaved();
   }
   const headerRow = 1;
 
@@ -22,6 +21,13 @@ it('should be possible to hide rows when "Endre fra" is greater or equals to [..
 
   // When hiding every row with value over 1, all rows including the header should be hidden
   cy.get(appFrontend.group.hideRepeatingGroupRow).numberFormatClear();
+
+  // By waiting until this is saved, we ensure that a previous flaky bug is not reproduced. The `hideRowValue` field
+  // in the data model used to have a default value of 99999+, but a default value in a numeric field like this
+  // means it will be reset back to the default value once you clear it. Prefill is the more appropriate solution
+  // for such fields in the data model.
+  cy.waitUntilSaved();
+
   cy.get(appFrontend.group.hideRepeatingGroupRow).type('1');
   cy.get(appFrontend.group.mainGroup).find('tr').should('not.exist');
   cy.get(appFrontend.group.hiddenRowsInfoMsg).should('exist');
@@ -46,8 +52,8 @@ it('should be possible to hide rows when "Endre fra" is greater or equals to [..
 
   // Make sure the sum row is correct
   cy.get('@lastRow').eq(0).should('contain.text', 'SUM');
-  cy.get('@lastRow').eq(1).find('input').should('have.value', 'NOK 9 045 621');
-  cy.get('@lastRow').eq(2).find('input').should('have.value', 'NOK 9 045 387');
+  cy.get('@lastRow').eq(1).find('p').should('have.text', 'NOK 9 045 621');
+  cy.get('@lastRow').eq(2).find('p').should('have.text', 'NOK 9 045 387');
 
   // Testing column order. The repeating group defines its children as "Endre fra", "Endre til", "Kilde", but the
   // column order is overridden to be "Kilde", "Endre fra", "Endre til".
