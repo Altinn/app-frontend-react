@@ -48,7 +48,7 @@ export const Payment: React.FunctionComponent = () => {
   }, [performPayment, paymentInfoQuery.data?.paymentDetails, paymentInfoQuery.isFetched]);
 
   return (
-    <div className={classes.paymentContainer}>
+    <>
       {paymentInfoQuery.isFetched && !paymentInfoQuery.data?.paymentDetails ? (
         <div
           style={{
@@ -85,46 +85,52 @@ export const Payment: React.FunctionComponent = () => {
       ) : (
         <PaymentDetailsTable
           orderDetails={paymentInfoQuery.data?.orderDetails}
-          title={'Summary'}
+          tableTitle={
+            <Heading
+              level={2}
+              size='medium'
+            >
+              Summary
+            </Heading>
+          }
+          className={classes.container}
         />
       )}
-
-      {paymentInfoQuery.isFetched && paymentInfoQuery.data?.paymentDetails?.status === 'Failed' && (
-        <Alert severity='warning'>Your payment has failed</Alert>
-      )}
-      {paymentInfoQuery.isFetched && paymentInfoQuery.data?.paymentDetails?.status === 'Paid' && (
-        <Alert severity={'info'}>You have paid!</Alert>
-      )}
-      {paymentInfoQuery.isFetched &&
-        paymentInfoQuery.data?.paymentDetails &&
-        paymentInfoQuery.data?.paymentDetails?.status !== 'Paid' &&
-        partyId && (
-          <div>
-            <Button
-              className={classes.payButton}
-              variant='secondary'
-              onClick={() => next && next({ action: 'reject', nodeId: 'reject-button' })}
-            >
-              Back
-            </Button>
-            <Button
-              className={classes.payButton}
-              color='success'
-              onClick={() => performPayment()}
-            >
-              Pay!
-            </Button>
-          </div>
+      <div className={classes.container}>
+        {paymentInfoQuery.isFetched && paymentInfoQuery.data?.paymentDetails?.status === 'Failed' && (
+          <Alert severity='warning'>Your payment has failed</Alert>
         )}
-      {paymentInfoQuery.isFetched && paymentInfoQuery.data?.paymentDetails?.status === 'Paid' && (
-        <Button
-          className={classes.payButton}
-          variant='secondary'
-          onClick={() => next && next({ action: 'confirm', nodeId: 'next-button' })}
-        >
-          Next
-        </Button>
+        {paymentInfoQuery.isFetched && paymentInfoQuery.data?.paymentDetails?.status === 'Paid' && (
+          <Alert severity={'info'}>You have paid!</Alert>
+        )}
+      </div>
+      {paymentInfoQuery.isFetched && paymentInfoQuery.data?.paymentDetails && (
+        <div className={classes.buttonContainer}>
+          {paymentInfoQuery.data?.paymentDetails?.status !== 'Paid' ? (
+            <>
+              <Button
+                variant='secondary'
+                onClick={() => next && next({ action: 'reject', nodeId: 'reject-button' })}
+              >
+                Back
+              </Button>
+              <Button
+                color='success'
+                onClick={() => performPayment()}
+              >
+                Pay!
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant='secondary'
+              onClick={() => next && next({ action: 'confirm', nodeId: 'next-button' })}
+            >
+              Next
+            </Button>
+          )}
+        </div>
       )}
-    </div>
+    </>
   );
 };

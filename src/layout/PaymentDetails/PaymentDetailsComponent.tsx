@@ -23,7 +23,6 @@ export function PaymentDetailsComponent({ node }: IPaymentDetailsProps) {
   const mappedValues = FD.useMapping(node.item.mapping);
 
   const test = JSON.stringify(mappedValues);
-  console.log('mappedValues', test);
 
   const { data: useOrderDetailsQuery } = useQuery({
     queryKey: ['fetchOrderDetails', partyId, instanceGuid, test],
@@ -38,7 +37,7 @@ export function PaymentDetailsComponent({ node }: IPaymentDetailsProps) {
   return (
     <PaymentDetailsTable
       orderDetails={useOrderDetailsQuery}
-      title={title}
+      tableTitle={title}
       description={description}
     />
   );
