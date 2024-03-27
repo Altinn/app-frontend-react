@@ -13,9 +13,7 @@ import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTab
 export const Payment: React.FunctionComponent = () => {
   const { partyId, instanceGuid } = useInstanceIdParams();
   const { next } = useProcessNavigation() || {};
-
   const { data: paymentInfo, isFetched } = usePaymentInformationQuery(partyId, instanceGuid);
-
   const performPayActionMutation = usePerformPayActionMutation(partyId, instanceGuid);
 
   // performPayActionMutation changes each render, so we need to destructure it to get the mutate function
