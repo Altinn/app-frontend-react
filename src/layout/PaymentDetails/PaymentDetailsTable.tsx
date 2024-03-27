@@ -5,6 +5,7 @@ import { Label, Table } from '@digdir/design-system-react';
 import cn from 'classnames';
 
 import { Caption } from 'src/components/form/Caption';
+import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/PaymentDetails/PaymentDetailsTable.module.css';
 import type { OrderDetails } from 'src/features/payment/types';
 
@@ -25,9 +26,15 @@ export const PaymentDetailsTable = ({ orderDetails, tableTitle, description, ...
     />
     <Table.Head>
       <Table.Row>
-        <Table.HeaderCell>Description</Table.HeaderCell>
-        <Table.HeaderCell>Quantity</Table.HeaderCell>
-        <Table.HeaderCell>Price</Table.HeaderCell>
+        <Table.HeaderCell>
+          <Lang id='payment.component.description' />
+        </Table.HeaderCell>
+        <Table.HeaderCell>
+          <Lang id='payment.component.quantity' />
+        </Table.HeaderCell>
+        <Table.HeaderCell>
+          <Lang id='payment.component.price' />
+        </Table.HeaderCell>
       </Table.Row>
     </Table.Head>
     <Table.Body>
@@ -40,7 +47,9 @@ export const PaymentDetailsTable = ({ orderDetails, tableTitle, description, ...
       ))}
       <Table.Row>
         <Table.Cell colSpan={2}>
-          <Label>Total</Label>
+          <Label>
+            <Lang id='payment.component.total' />
+          </Label>
         </Table.Cell>
         <Table.Cell>{orderDetails?.totalPriceIncVat}</Table.Cell>
       </Table.Row>

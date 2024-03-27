@@ -5,6 +5,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
+import { Lang } from 'src/features/language/Lang';
 import classes from 'src/features/payment/Payment.module.css';
 import { SkeletonLoader } from 'src/features/payment/SkeletonLoader';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
@@ -60,7 +61,7 @@ export const Payment: React.FunctionComponent = () => {
               level={2}
               size='medium'
             >
-              Summary
+              <Lang id='payment.summary' />
             </Heading>
           }
           className={classes.container}
@@ -68,10 +69,14 @@ export const Payment: React.FunctionComponent = () => {
       )}
       <div className={classes.container}>
         {paymentInfoQuery.isFetched && paymentInfoQuery.data?.paymentDetails?.status === 'Failed' && (
-          <Alert severity='warning'>Your payment has failed</Alert>
+          <Alert severity='warning'>
+            <Lang id='payment.alert.failed' />
+          </Alert>
         )}
         {paymentInfoQuery.isFetched && paymentInfoQuery.data?.paymentDetails?.status === 'Paid' && (
-          <Alert severity={'info'}>You have paid!</Alert>
+          <Alert severity={'info'}>
+            <Lang id='payment.alert.paid' />
+          </Alert>
         )}
       </div>
       {paymentInfoQuery.isFetched && paymentInfoQuery.data?.paymentDetails && (
@@ -82,13 +87,13 @@ export const Payment: React.FunctionComponent = () => {
                 variant='secondary'
                 onClick={() => next && next({ action: 'reject', nodeId: 'reject-button' })}
               >
-                Back
+                <Lang id='general.back' />
               </Button>
               <Button
                 color='success'
                 onClick={() => performPayment()}
               >
-                Pay!
+                <Lang id='payment.pay' />
               </Button>
             </>
           ) : (
@@ -96,7 +101,7 @@ export const Payment: React.FunctionComponent = () => {
               variant='secondary'
               onClick={() => next && next({ action: 'confirm', nodeId: 'next-button' })}
             >
-              Next
+              <Lang id='general.next' />
             </Button>
           )}
         </div>
