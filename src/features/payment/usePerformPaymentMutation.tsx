@@ -1,0 +1,20 @@
+import { useMutation } from '@tanstack/react-query';
+
+import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
+
+export const usePerformPayActionMutation = (partyId?: string, instanceGuid?: string) => {
+  const { doPerformAction } = useAppMutations();
+  return useMutation({
+    mutationKey: ['performPayAction', partyId, instanceGuid],
+    mutationFn: async () => {
+      if (partyId && instanceGuid) {
+        return await doPerformAction(partyId, instanceGuid, { action: 'pay' });
+      }
+    },
+    onSuccess: (data) => {
+      if (data?.redirectUrl) {
+        window.location.href = data.redirectUrl;
+      }
+    },
+  });
+};

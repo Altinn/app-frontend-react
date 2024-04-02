@@ -259,6 +259,20 @@ export function nn(): FixedLanguageList {
         'Du kan endra [profilinnstillingane](https://altinn.no/ui/Profile) dine for å ikkje bli spurt om aktør kvar gong du startar utfylling av eit nytt skjema. Du finn denne innstillinga under **Profil** > **Avanserte innstillingar** > **Eg ønskjer ikkje å bli spurt om aktør kvar gong eg startar utfylling av eit nytt skjema**.',
       seeing_this_override: 'Denne appen er sett opp til å alltid spørja om aktør.',
     },
+    payment: {
+      pay: 'Betal',
+      summary: 'Oppsummering',
+      alert: {
+        paid: 'Du har betalt!',
+        failed: 'Betalinga feilet',
+      },
+      component: {
+        description: 'Beskrivelse',
+        quantity: 'Antall',
+        price: 'Pris',
+        total: 'Totalt',
+      },
+    },
     helptext: {
       button_title: 'Hjelp',
       button_title_prefix: 'Hjelpetekst for',

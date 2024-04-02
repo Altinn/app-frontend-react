@@ -1,4 +1,5 @@
 import { CG } from 'src/codegen/CG';
+import { ExprVal } from 'src/features/expressions/types';
 import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
@@ -11,6 +12,16 @@ export const Config = new CG.component({
     renderInAccordionGroup: false,
   },
 })
+  .addProperty(
+    new CG.prop(
+      'updateOrderDetailsWhenChanged',
+      new CG.expr(ExprVal.String)
+        .setTitle('Update order details when changed')
+        .setDescription('Expression that should trigger a refetch of the order details when its value changes')
+        .optional(),
+    ),
+  )
+  .addProperty(new CG.prop('mapping', CG.common('IMapping').optional()))
   .addTextResource(
     new CG.trb({
       name: 'title',
