@@ -28,6 +28,7 @@ import type {
   FuncDef,
 } from 'src/features/expressions/types';
 import type { FormDataSelector } from 'src/layout';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompGroupExternal } from 'src/layout/Group/config.generated';
 import type { CompExternal } from 'src/layout/layout';
 import type { CompLikertExternal } from 'src/layout/Likert/config.generated';
@@ -343,12 +344,8 @@ const authContextKeys: { [key in keyof IAuthContext]: true } = {
   reject: true,
 };
 
-function pickSimpleValue(path: string | undefined | null, selector: FormDataSelector) {
-  if (!path) {
-    return null;
-  }
-
-  const value = selector(path);
+function pickSimpleValue(reference: IDataModelReference, selector: FormDataSelector) {
+  const value = selector(reference);
   if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
     return value;
   }
@@ -544,22 +541,27 @@ export const ExprFunctions = {
     returns: ExprVal.Any,
   }),
   dataModel: defineFunc({
-    impl(path): any {
-      if (path === null) {
+    impl(propertyPath, maybeDataType): any {
+      if (propertyPath === null) {
         throw new ExprRuntimeError(this, `Cannot lookup dataModel null`);
+      }
+
+      const dataType = maybeDataType ?? this.dataSources.currentLayoutSet?.dataType;
+      if (dataType == null) {
+        throw new ExprRuntimeError(this, `Cannot lookup dataType undefined`);
       }
 
       const maybeNode = this.failWithoutNode();
       if (maybeNode instanceof BaseLayoutNode) {
-        const newPath = maybeNode?.transposeDataModel(path);
-        return pickSimpleValue(newPath, this.dataSources.formDataSelector);
+        const newPath = maybeNode?.transposeDataModel(propertyPath);
+        return pickSimpleValue({ property: newPath, dataType }, this.dataSources.formDataSelector);
       }
 
       // No need to transpose the data model according to the location inside a repeating group when the context is
       // a LayoutPage (i.e., when we're resolving an expression directly on the layout definition).
-      return pickSimpleValue(path, this.dataSources.formDataSelector);
+      return pickSimpleValue({ property: propertyPath, dataType }, this.dataSources.formDataSelector);
     },
-    args: [ExprVal.String] as const,
+    args: [ExprVal.String, ExprVal.String] as const,
     returns: ExprVal.Any,
   }),
   displayValue: defineFunc({
