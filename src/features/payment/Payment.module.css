@@ -1,0 +1,9 @@
+.buttonContainer {
+  display: flex;
+  gap: var(--fds-spacing-3);
+  padding: var(--fds-spacing-3) 0;
+}
+
+.container {
+  padding: var(--fds-spacing-3) 0;
+}

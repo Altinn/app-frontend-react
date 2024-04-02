@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
 
-import { useReturnToView } from 'src/features/form/layout/PageNavigationContext';
+import { useReturnToView, useSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -16,17 +16,24 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
   const { id, showBackButton, textResourceBindings, validateOnNext, validateOnPrevious } = node.item;
   const { navigateToPage, next, previous, maybeSaveOnPageChange } = useNavigatePage();
   const returnToView = useReturnToView();
+  const summaryItem = useSummaryNodeOfOrigin()?.item;
+
+  const parentIsPage = node.parent instanceof LayoutPage;
 
   const refPrev = React.useRef<HTMLButtonElement>(null);
   const refNext = React.useRef<HTMLButtonElement>(null);
 
-  const nextTextKey = returnToView ? 'form_filler.back_to_summary' : textResourceBindings?.next || 'next';
+  const nextTextKey = textResourceBindings?.next || 'next';
   const backTextKey = textResourceBindings?.back || 'back';
-
-  const parentIsPage = node.parent instanceof LayoutPage;
+  const returnToViewText =
+    summaryItem?.textResourceBindings?.returnToSummaryButtonTitle ?? 'form_filler.back_to_summary';
 
   const disablePrevious = previous === undefined;
   const disableNext = next === undefined;
+
+  const showBackToSummaryButton = returnToView !== undefined;
+  const showNextButtonSummary = summaryItem?.display != null && summaryItem?.display?.nextButton === true;
+  const showNextButton = showBackToSummaryButton ? showNextButtonSummary : !disableNext;
 
   const onPageNavigationValidation = useOnPageNavigationValidation();
 
@@ -79,9 +86,8 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
     navigateToPage(previous, { skipAutoSave: true });
   };
 
-  const OnClickNext = async () => {
-    const goToView = returnToView || next;
-    if (!goToView || disableNext) {
+  const onClickNext = async () => {
+    if (!next || disableNext) {
       return;
     }
 
@@ -97,36 +103,62 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
       }
     }
 
-    navigateToPage(goToView, { skipAutoSave: true });
+    navigateToPage(next, { skipAutoSave: true });
   };
 
+  const onClickBackToSummary = () => {
+    if (!returnToView) {
+      return;
+    }
+
+    maybeSaveOnPageChange();
+    navigateToPage(returnToView, { skipAutoSave: true });
+  };
+
+  /**
+   * The buttons are rendered in order BackToSummary -> Next -> Previous, but shown in the form as Previous -> Next -> BackToSummary.
+   * This is done with css and flex-direction: row-reverse. The reason for this is so that screen readers
+   * will read Next before Previous, as this is the primary Button for the user.
+   */
   return (
     <div
       data-testid='NavigationButtons'
       className={classes.container}
       style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}
     >
+      {showBackToSummaryButton && (
+        <Grid item>
+          <Button
+            ref={refNext}
+            size='small'
+            onClick={onClickBackToSummary}
+          >
+            <Lang id={returnToViewText} />
+          </Button>
+        </Grid>
+      )}
+      {showNextButton && (
+        <Grid item>
+          <Button
+            ref={refNext}
+            size='small'
+            onClick={onClickNext}
+            // If we are showing a back to summary button, we want the "next" button to be secondary
+            variant={showBackToSummaryButton ? 'secondary' : 'primary'}
+          >
+            <Lang id={nextTextKey} />
+          </Button>
+        </Grid>
+      )}
       {!disablePrevious && showBackButton && (
         <Grid item>
           <Button
             ref={refPrev}
             size='small'
+            variant={showNextButton || showBackToSummaryButton ? 'secondary' : 'primary'}
             onClick={onClickPrevious}
-            disabled={disablePrevious}
           >
             <Lang id={backTextKey} />
-          </Button>
-        </Grid>
-      )}
-      {!disableNext && (
-        <Grid item>
-          <Button
-            ref={refNext}
-            size='small'
-            onClick={OnClickNext}
-            disabled={disableNext}
-          >
-            <Lang id={nextTextKey} />
           </Button>
         </Grid>
       )}

@@ -1,32 +1,44 @@
 import React from 'react';
+import type { ReactNode } from 'react';
 
 import { Label, Table } from '@digdir/design-system-react';
+import cn from 'classnames';
 
 import { Caption } from 'src/components/form/Caption';
+import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/PaymentDetails/PaymentDetailsTable.module.css';
 import type { OrderDetails } from 'src/features/payment/types';
 
 type PaymentDetailsTableProps = {
   orderDetails?: OrderDetails;
-  title?: string;
-  description?: string;
-};
+  tableTitle?: ReactNode;
+  description?: ReactNode;
+} & React.HTMLAttributes<HTMLTableElement>;
 
-export const PaymentDetailsTable = (props: PaymentDetailsTableProps) => (
-  <Table className={classes.orderDetailsTable}>
+export const PaymentDetailsTable = ({ orderDetails, tableTitle, description, ...rest }: PaymentDetailsTableProps) => (
+  <Table
+    {...rest}
+    className={cn(classes.orderDetailsTable, rest.className)}
+  >
     <Caption
-      title={props.title}
-      description={props.description}
+      title={tableTitle}
+      description={description}
     />
     <Table.Head>
       <Table.Row>
-        <Table.HeaderCell>Description</Table.HeaderCell>
-        <Table.HeaderCell>Quantity</Table.HeaderCell>
-        <Table.HeaderCell>Price</Table.HeaderCell>
+        <Table.HeaderCell>
+          <Lang id='payment.component.description' />
+        </Table.HeaderCell>
+        <Table.HeaderCell>
+          <Lang id='payment.component.quantity' />
+        </Table.HeaderCell>
+        <Table.HeaderCell>
+          <Lang id='payment.component.price' />
+        </Table.HeaderCell>
       </Table.Row>
     </Table.Head>
     <Table.Body>
-      {props.orderDetails?.orderLines.map((orderLine, index) => (
+      {orderDetails?.orderLines.map((orderLine, index) => (
         <Table.Row key={index}>
           <Table.Cell>{orderLine.name}</Table.Cell>
           <Table.Cell>{orderLine.quantity}</Table.Cell>
@@ -35,9 +47,11 @@ export const PaymentDetailsTable = (props: PaymentDetailsTableProps) => (
       ))}
       <Table.Row>
         <Table.Cell colSpan={2}>
-          <Label>Total</Label>
+          <Label>
+            <Lang id='payment.component.total' />
+          </Label>
         </Table.Cell>
-        <Table.Cell>{props.orderDetails?.totalPriceIncVat}</Table.Cell>
+        <Table.Cell>{orderDetails?.totalPriceIncVat}</Table.Cell>
       </Table.Row>
     </Table.Body>
   </Table>
