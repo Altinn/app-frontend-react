@@ -226,7 +226,7 @@ function makeActions(
 
       // Run rules again, against current data. Now that we have updates from the backend, some rules may
       // have caused data to change.
-      const ruleResults = runLegacyRules(ruleConnections, savedData, state.dataModels[dataType].currentData);
+      const ruleResults = runLegacyRules(ruleConnections, savedData, state.dataModels[dataType].currentData, dataType);
       for (const { reference, newValue } of ruleResults) {
         dot.str(reference.property, newValue, state.dataModels[dataType].currentData);
       }
@@ -247,6 +247,7 @@ function makeActions(
       ruleConnections,
       state.dataModels[dataType].debouncedCurrentData,
       state.dataModels[dataType].currentData,
+      dataType,
     );
     for (const { reference, newValue } of ruleChanges) {
       dot.str(reference.property, newValue, state.dataModels[dataType].currentData);
@@ -481,16 +482,14 @@ export const createFormDataWriteStore = (
             lastSavedData: initialData,
             hasUnsavedChanges: false,
             validationIssues: undefined,
-            controlState: {
-              autoSaving,
-              manualSaveRequested: false,
-              lockedBy: undefined,
-              debounceTimeout: DEFAULT_DEBOUNCE_TIMEOUT,
-              saveUrl: url,
-              dataElementId,
-            },
+            debounceTimeout: DEFAULT_DEBOUNCE_TIMEOUT,
+            saveUrl: url,
+            dataElementId,
           },
         },
+        autoSaving,
+        manualSaveRequested: false,
+        lockedBy: undefined,
         ...actions,
       };
     }),

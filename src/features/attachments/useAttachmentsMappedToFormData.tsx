@@ -6,7 +6,7 @@ import { useDataModelBindings } from 'src/features/formData/useDataModelBindings
 import { type LayoutNode } from 'src/utils/layout/LayoutNode';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IDataModelBindingsSimpleInternal } from 'src/layout/common.generated';
-import type { IDataModelBindingsForList } from 'src/layout/List/config.generated';
+import type { IDataModelBindingsForListInternal } from 'src/layout/List/config.generated';
 
 interface MappingTools {
   addAttachment: (uuid: string) => void;
@@ -59,17 +59,17 @@ export function useAttachmentsMappedToFormData(node: LayoutNode<'FileUpload' | '
 function useMappingToolsForList(node: LayoutNode<'FileUpload' | 'FileUploadWithTag'>): MappingTools {
   const appendToListUnique = FD.useAppendToListUnique();
   const removeValueFromList = FD.useRemoveValueFromList();
-  const field = ((node.item.dataModelBindings || {}) as IDataModelBindingsForList).list;
+  const field = ((node.item.dataModelBindings || {}) as IDataModelBindingsForListInternal).list;
   return {
     addAttachment: (uuid: string) => {
       appendToListUnique({
-        path: field,
+        reference: field,
         newValue: uuid,
       });
     },
     removeAttachment: (uuid: string) => {
       removeValueFromList({
-        path: field,
+        reference: field,
         value: uuid,
       });
     },
