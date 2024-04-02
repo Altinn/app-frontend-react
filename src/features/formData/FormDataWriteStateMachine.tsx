@@ -16,7 +16,7 @@ import type { JsonPatch } from 'src/features/formData/jsonPatch/types';
 import type { BackendValidationIssueGroups } from 'src/features/validation';
 import type { IDataModelReference } from 'src/layout/common.generated';
 
-export interface FormDataState {
+export interface DataModelState {
   // These values contain the current data model, with the values immediately available whenever the user is typing.
   // Use these values to render the form, and for other cases where you need the current data model immediately.
   currentData: object;
@@ -49,35 +49,40 @@ export interface FormDataState {
   // This contains the validation issues we receive from the server last time we saved the data model.
   validationIssues: BackendValidationIssueGroups | undefined;
 
-  // Control state is used to control the behavior of form data.
-  controlState: {
-    // The time in milliseconds to debounce the currentData model. This is used to determine how long to wait after the
-    // user has stopped typing before updating that data into the debouncedCurrentData model. Usually this will follow
-    // the default value, it can also be changed at any time by each component that uses the FormDataWriter.
-    debounceTimeout: number;
+  // The time in milliseconds to debounce the currentData model. This is used to determine how long to wait after the
+  // user has stopped typing before updating that data into the debouncedCurrentData model. Usually this will follow
+  // the default value, it can also be changed at any time by each component that uses the FormDataWriter.
+  debounceTimeout: number;
 
-    // Auto-saving is turned on by default, and will automatically save the data model to the server whenever the
-    // debouncedCurrentData model changes. This can be turned off when, for example, you want to save the data model
-    // only when the user navigates to another page.
-    autoSaving: boolean;
+  // This is the url to use when saving the data model to the server. This can also be used to uniquely identify
+  // the data model, so that we can save multiple data models to the server at the same time.
+  saveUrl: string;
 
-    // This is used to track whether the user has requested a manual save. When auto-saving is turned off, this is
-    // the way we track when to save the data model to the server. It can also be used to trigger a manual save
-    // as a way to immediately save the data model to the server, for example before locking the data model.
-    manualSaveRequested: boolean;
-
-    // This is used to track which component is currently blocking the auto-saving feature. If this is set to a string
-    // value, auto-saving will be disabled, even if the autoSaving flag is set to true. This is useful when you want
-    // to temporarily disable auto-saving, for example when clicking a CustomButton and waiting for the server to
-    // respond. The server might read the data model, change it, and return changes back to the client, which could
-    // cause data loss if we were to auto-save the data model while the server is still processing the request.
-    lockedBy: string | undefined;
-
-    // This is the url to use when saving the data model to the server. This can also be used to uniquely identify
-    // the data model, so that we can save multiple data models to the server at the same time.
-    saveUrl: string;
-  };
+  // This identifies the specific data element in storage. This is needed for identifying the correct model when receiving updates from the server.
+  dataElementId: string;
 }
+
+type FormDataState = {
+  // Data model state
+  dataModels: { [dataType: string]: DataModelState };
+
+  // Auto-saving is turned on by default, and will automatically save the data model to the server whenever the
+  // debouncedCurrentData model changes. This can be turned off when, for example, you want to save the data model
+  // only when the user navigates to another page.
+  autoSaving: boolean;
+
+  // This is used to track whether the user has requested a manual save. When auto-saving is turned off, this is
+  // the way we track when to save the data model to the server. It can also be used to trigger a manual save
+  // as a way to immediately save the data model to the server, for example before locking the data model.
+  manualSaveRequested: boolean;
+
+  // This is used to track which component is currently blocking the auto-saving feature. If this is set to a string
+  // value, auto-saving will be disabled, even if the autoSaving flag is set to true. This is useful when you want
+  // to temporarily disable auto-saving, for example when clicking a CustomButton and waiting for the server to
+  // respond. The server might read the data model, change it, and return changes back to the client, which could
+  // cause data loss if we were to auto-save the data model while the server is still processing the request.
+  lockedBy: string | undefined;
+};
 
 export interface FDChange {
   // Overrides the timeout before the change is applied to the debounced data model. If not set, the default
@@ -126,6 +131,15 @@ export interface FDSaveResult {
   validationIssues: BackendValidationIssueGroups | undefined;
 }
 
+export interface FDActionResult {
+  updatedDataModels: {
+    [dataElementId: string]: object;
+  };
+  updatedValidationIssues: {
+    [dataElementId: string]: BackendValidationIssueGroups | undefined;
+  };
+}
+
 export interface FDSaveFinished extends FDSaveResult {
   patch?: JsonPatch;
   savedData: object;
@@ -146,16 +160,12 @@ export interface FormDataMethods {
   debounce: (dataType: string) => void;
   cancelSave: (dataType: string) => void;
   saveFinished: (dataType: string, props: FDSaveFinished) => void;
-  requestManualSave: (dataType: string, setTo?: boolean) => void;
-  lock: (dataType: string, lockName: string) => void;
-  unlock: (dataType: string, saveResult?: FDSaveResult) => void;
+  requestManualSave: (setTo?: boolean) => void;
+  lock: (lockName: string) => void;
+  unlock: (saveResult?: FDActionResult) => void;
 }
 
-type FormDataStates = {
-  [dataType: string]: FormDataState;
-};
-
-export type FormDataContext = { datamodels: FormDataStates } & FormDataMethods;
+export type FormDataContext = FormDataState & FormDataMethods;
 
 function makeActions(
   set: (fn: (state: FormDataContext) => void) => void,
@@ -163,7 +173,7 @@ function makeActions(
   schemaLookup: SchemaLookupTool,
 ): FormDataMethods {
   function setDebounceTimeout(state: FormDataContext, dataType: string, change: FDChange) {
-    state.datamodels[dataType].controlState.debounceTimeout = change.debounceTimeout ?? DEFAULT_DEBOUNCE_TIMEOUT;
+    state.dataModels[dataType].debounceTimeout = change.debounceTimeout ?? DEFAULT_DEBOUNCE_TIMEOUT;
   }
 
   /**
@@ -173,7 +183,7 @@ function makeActions(
    * to work properly.
    */
   function deduplicateModels(state: FormDataContext, dataType: string) {
-    const { currentData, debouncedCurrentData, lastSavedData } = state.datamodels[dataType];
+    const { currentData, debouncedCurrentData, lastSavedData } = state.dataModels[dataType];
     const models = [
       { key: 'currentData', model: currentData },
       { key: 'debouncedCurrentData', model: debouncedCurrentData },
@@ -193,7 +203,7 @@ function makeActions(
           continue;
         }
         if (deepEqual(modelA.model, modelB.model)) {
-          state.datamodels[dataType][modelB.key] = modelA.model;
+          state.dataModels[dataType][modelB.key] = modelA.model;
           modelB.model = modelA.model;
         }
       }
@@ -205,61 +215,60 @@ function makeActions(
     dataType: string,
     { newDataModel, savedData }: Pick<FDSaveFinished, 'newDataModel' | 'patch' | 'savedData'>,
   ) {
-    state.datamodels[dataType].controlState.manualSaveRequested = false;
     if (newDataModel) {
       const backendChangesPatch = createPatch({
         prev: savedData,
         next: newDataModel,
-        current: state.datamodels[dataType].currentData,
+        current: state.dataModels[dataType].currentData,
       });
-      applyPatch(state.datamodels[dataType].currentData, backendChangesPatch);
-      state.datamodels[dataType].lastSavedData = newDataModel;
+      applyPatch(state.dataModels[dataType].currentData, backendChangesPatch);
+      state.dataModels[dataType].lastSavedData = newDataModel;
 
       // Run rules again, against current data. Now that we have updates from the backend, some rules may
       // have caused data to change.
-      const ruleResults = runLegacyRules(ruleConnections, savedData, state.datamodels[dataType].currentData);
+      const ruleResults = runLegacyRules(ruleConnections, savedData, state.dataModels[dataType].currentData);
       for (const { reference, newValue } of ruleResults) {
-        dot.str(reference.property, newValue, state.datamodels[dataType].currentData);
+        dot.str(reference.property, newValue, state.dataModels[dataType].currentData);
       }
     } else {
-      state.datamodels[dataType].lastSavedData = savedData;
+      state.dataModels[dataType].lastSavedData = savedData;
     }
     deduplicateModels(state, dataType);
   }
 
   function debounce(state: FormDataContext, dataType: string) {
-    state.datamodels[dataType].invalidDebouncedCurrentData = state.datamodels[dataType].invalidCurrentData;
-    if (deepEqual(state.datamodels[dataType].debouncedCurrentData, state.datamodels[dataType].currentData)) {
-      state.datamodels[dataType].debouncedCurrentData = state.datamodels[dataType].currentData;
+    state.dataModels[dataType].invalidDebouncedCurrentData = state.dataModels[dataType].invalidCurrentData;
+    if (deepEqual(state.dataModels[dataType].debouncedCurrentData, state.dataModels[dataType].currentData)) {
+      state.dataModels[dataType].debouncedCurrentData = state.dataModels[dataType].currentData;
       return;
     }
 
     const ruleChanges = runLegacyRules(
       ruleConnections,
-      state.datamodels[dataType].debouncedCurrentData,
-      state.datamodels[dataType].currentData,
+      state.dataModels[dataType].debouncedCurrentData,
+      state.dataModels[dataType].currentData,
     );
     for (const { reference, newValue } of ruleChanges) {
-      dot.str(reference.property, newValue, state.datamodels[dataType].currentData);
+      dot.str(reference.property, newValue, state.dataModels[dataType].currentData);
     }
 
-    state.datamodels[dataType].debouncedCurrentData = state.datamodels[dataType].currentData;
+    state.dataModels[dataType].debouncedCurrentData = state.dataModels[dataType].currentData;
   }
 
   function setValue(props: { reference: IDataModelReference; newValue: FDLeafValue; state: FormDataContext }) {
     const { reference, newValue, state } = props;
     if (newValue === '' || newValue === null || newValue === undefined) {
-      dot.delete(reference.property, state.datamodels[reference.dataType].currentData);
-      dot.delete(reference.property, state.datamodels[reference.dataType].invalidCurrentData);
+      dot.delete(reference.property, state.dataModels[reference.dataType].currentData);
+      dot.delete(reference.property, state.dataModels[reference.dataType].invalidCurrentData);
     } else {
       const schema = schemaLookup.getSchemaForPath(reference.property)[0];
       const { newValue: convertedValue, error } = convertData(newValue, schema);
       if (error) {
-        dot.delete(reference.property, state.datamodels[reference.dataType].currentData);
-        dot.str(reference.property, newValue, state.datamodels[reference.dataType].invalidCurrentData);
+        dot.delete(reference.property, state.dataModels[reference.dataType].currentData);
+        dot.str(reference.property, newValue, state.dataModels[reference.dataType].invalidCurrentData);
       } else {
-        dot.delete(reference.property, state.datamodels[reference.dataType].invalidCurrentData);
-        dot.str(reference.property, convertedValue, state.datamodels[reference.dataType].currentData);
+        dot.delete(reference.property, state.dataModels[reference.dataType].invalidCurrentData);
+        dot.str(reference.property, convertedValue, state.dataModels[reference.dataType].currentData);
       }
     }
   }
@@ -271,18 +280,25 @@ function makeActions(
       }),
     cancelSave: (dataType) =>
       set((state) => {
-        state.datamodels[dataType].controlState.manualSaveRequested = false;
+        // TODO(Datamodels): How should this be handled?
+        // state.dataModels[dataType].controlState.manualSaveRequested = false;
+        // First try:
+        state.manualSaveRequested = false;
         deduplicateModels(state, dataType);
       }),
     saveFinished: (dataType, props) =>
       set((state) => {
         const { validationIssues } = props;
-        state.datamodels[dataType].validationIssues = validationIssues;
+        state.dataModels[dataType].validationIssues = validationIssues;
+        // TODO(Datamodels): How should this be handled?
+        // state.dataModels[dataType].controlState.manualSaveRequested = false;
+        // First try:
+        state.manualSaveRequested = false;
         processChanges(state, dataType, props);
       }),
     setLeafValue: ({ reference, newValue, ...rest }) =>
       set((state) => {
-        const existingValue = dot.pick(reference.property, state.datamodels[reference.dataType].currentData);
+        const existingValue = dot.pick(reference.property, state.dataModels[reference.dataType].currentData);
         if (existingValue === newValue) {
           return;
         }
@@ -295,7 +311,7 @@ function makeActions(
     // list items are immediate.
     appendToListUnique: ({ reference, newValue }) =>
       set((state) => {
-        const existingValue = dot.pick(reference.property, state.datamodels[reference.dataType].currentData);
+        const existingValue = dot.pick(reference.property, state.dataModels[reference.dataType].currentData);
         if (Array.isArray(existingValue) && existingValue.includes(newValue)) {
           return;
         }
@@ -303,22 +319,22 @@ function makeActions(
         if (Array.isArray(existingValue)) {
           existingValue.push(newValue);
         } else {
-          dot.str(reference.property, [newValue], state.datamodels[reference.dataType].currentData);
+          dot.str(reference.property, [newValue], state.dataModels[reference.dataType].currentData);
         }
       }),
     appendToList: ({ reference, newValue }) =>
       set((state) => {
-        const existingValue = dot.pick(reference.property, state.datamodels[reference.dataType].currentData);
+        const existingValue = dot.pick(reference.property, state.dataModels[reference.dataType].currentData);
 
         if (Array.isArray(existingValue)) {
           existingValue.push(newValue);
         } else {
-          dot.str(reference.property, [newValue], state.datamodels[reference.dataType].currentData);
+          dot.str(reference.property, [newValue], state.dataModels[reference.dataType].currentData);
         }
       }),
     removeIndexFromList: ({ reference, index }) =>
       set((state) => {
-        const existingValue = dot.pick(reference.property, state.datamodels[reference.dataType].currentData);
+        const existingValue = dot.pick(reference.property, state.dataModels[reference.dataType].currentData);
         if (index >= existingValue.length) {
           return;
         }
@@ -327,7 +343,7 @@ function makeActions(
       }),
     removeValueFromList: ({ reference, value }) =>
       set((state) => {
-        const existingValue = dot.pick(reference.property, state.datamodels[reference.dataType].currentData);
+        const existingValue = dot.pick(reference.property, state.dataModels[reference.dataType].currentData);
         if (!existingValue.includes(value)) {
           return;
         }
@@ -336,7 +352,7 @@ function makeActions(
       }),
     removeFromListCallback: ({ reference, startAtIndex, callback }) =>
       set((state) => {
-        const existingValue = dot.pick(reference.property, state.datamodels[reference.dataType].currentData);
+        const existingValue = dot.pick(reference.property, state.dataModels[reference.dataType].currentData);
         if (!Array.isArray(existingValue)) {
           return;
         }
@@ -366,7 +382,7 @@ function makeActions(
       set((state) => {
         const changedTypes = new Set<string>();
         for (const { reference, newValue } of changes) {
-          const existingValue = dot.pick(reference.property, state.datamodels[reference.dataType].currentData);
+          const existingValue = dot.pick(reference.property, state.dataModels[reference.dataType].currentData);
           if (existingValue === newValue) {
             continue;
           }
@@ -377,25 +393,55 @@ function makeActions(
           setDebounceTimeout(state, dataType, rest);
         }
       }),
-    requestManualSave: (dataType, setTo = true) =>
+    requestManualSave: (setTo = true) =>
       set((state) => {
-        state.datamodels[dataType].controlState.manualSaveRequested = setTo;
+        state.manualSaveRequested = setTo;
       }),
-    lock: (dataType, lockName) =>
+    lock: (lockName) =>
       set((state) => {
-        state.datamodels[dataType].controlState.lockedBy = lockName;
+        state.lockedBy = lockName;
       }),
-    unlock: (dataType, saveResult) =>
+    unlock: (actionResult) =>
       set((state) => {
-        state.datamodels[dataType].controlState.lockedBy = undefined;
-        if (saveResult?.newDataModel) {
-          processChanges(state, dataType, {
-            newDataModel: saveResult.newDataModel,
-            savedData: state.datamodels[dataType].lastSavedData,
-          });
+        state.lockedBy = undefined;
+        // Update form data
+        if (actionResult?.updatedDataModels) {
+          // TODO(Datamodels): How should this be handled?
+          // state.dataModels[dataType].controlState.manualSaveRequested = false;
+          // First try:
+          state.manualSaveRequested = false;
+          for (const [dataElementId, newDataModel] of Object.entries(actionResult.updatedDataModels)) {
+            if (newDataModel) {
+              const dataModelTuple = Object.entries(state.dataModels).find(
+                ([_, dataModel]) => dataModel.dataElementId === dataElementId,
+              );
+              if (dataModelTuple) {
+                const [dataType, dataModel] = dataModelTuple;
+                processChanges(state, dataType, { newDataModel, savedData: dataModel.lastSavedData });
+              } else {
+                window.logError(
+                  `Tried to update form data for data element '${dataElementId}', but no such data element was found in the FormDataWrite context.`,
+                );
+              }
+            }
+          }
         }
-        if (saveResult?.validationIssues) {
-          state.datamodels[dataType].validationIssues = saveResult.validationIssues;
+        // Update validation issues
+        if (actionResult?.updatedValidationIssues) {
+          for (const [dataElementId, validationIssues] of Object.entries(actionResult.updatedValidationIssues)) {
+            if (validationIssues) {
+              const dataModel = Object.values(state.dataModels).find(
+                (dataModel) => dataModel.dataElementId === dataElementId,
+              );
+              if (dataModel) {
+                dataModel.validationIssues = validationIssues;
+              } else {
+                window.logError(
+                  `Tried to update validationIssues for data element '${dataElementId}', but no such data element was found in the FormDataWrite context.`,
+                );
+              }
+            }
+          }
         }
       }),
   };
@@ -403,6 +449,7 @@ function makeActions(
 
 export const createFormDataWriteStore = (
   url: string,
+  dataElementId: string,
   initialData: object,
   autoSaving: boolean,
   proxies: FormDataWriteProxies,
@@ -424,7 +471,7 @@ export const createFormDataWriteStore = (
 
       const emptyInvalidData = {};
       return {
-        datamodels: {
+        dataModels: {
           // TODO(Datamodels): Fix this somehow
           __default__: {
             currentData: initialData,
@@ -440,6 +487,7 @@ export const createFormDataWriteStore = (
               lockedBy: undefined,
               debounceTimeout: DEFAULT_DEBOUNCE_TIMEOUT,
               saveUrl: url,
+              dataElementId,
             },
           },
         },

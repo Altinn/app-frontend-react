@@ -165,6 +165,7 @@ export function ValidationProvider({ children, isCustomReceipt = false }: PropsW
       await waitForAttachments((state) => !state);
 
       // Wait until we've saved changed to backend, and we've processed the backend validations we got from that save
+      // TODO(Datamodels): Update to check if all datamodels validations are updated
       const validationsFromSave = await waitForSave(forceSave);
       await waitForStateRef.current!((state) => state.issueGroupsProcessedLast === validationsFromSave);
     },

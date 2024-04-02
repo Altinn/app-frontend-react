@@ -6,7 +6,6 @@ import { useMutation } from '@tanstack/react-query';
 import type { UseMutationResult } from '@tanstack/react-query';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
-import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
@@ -53,7 +52,6 @@ const isClientAction = (action: CBTypes.CustomAction): action is CBTypes.ClientA
 const isServerAction = (action: CBTypes.CustomAction): action is CBTypes.ServerAction => action.type === 'ServerAction';
 
 function useHandleClientActions(): UseHandleClientActions {
-  const currentDataModelGuid = useCurrentDataModelGuid();
   const { navigateToPage, navigateToNextPage, navigateToPreviousPage } = useNavigatePage();
 
   const frontendActions: ClientActionHandlers = {
@@ -80,17 +78,12 @@ function useHandleClientActions(): UseHandleClientActions {
       }
     },
     handleDataModelUpdate: async (lockTools, result) => {
-      const newDataModel =
-        currentDataModelGuid && result.updatedDataModels ? result.updatedDataModels[currentDataModelGuid] : undefined;
-      const validationIssues =
-        currentDataModelGuid && result.updatedValidationIssues
-          ? result.updatedValidationIssues[currentDataModelGuid]
-          : undefined;
+      const { updatedDataModels, updatedValidationIssues } = result;
 
-      if (newDataModel && validationIssues) {
+      if (updatedDataModels && updatedValidationIssues) {
         lockTools.unlock({
-          newDataModel,
-          validationIssues,
+          updatedDataModels,
+          updatedValidationIssues,
         });
       } else {
         lockTools.unlock();
@@ -163,7 +156,6 @@ export const buttonStyles: { [style in CBTypes.CustomButtonStyle]: { color: Butt
 
 export const CustomButtonComponent = ({ node }: Props) => {
   const { textResourceBindings, actions, id, buttonStyle = 'secondary' } = node.item;
-  // TODO(Datamodels): Should it lock all datamodels?
   const lockTools = FD.useLocking(node.item.id);
   const { isAuthorized } = useActionAuthorization();
   const { handleClientActions } = useHandleClientActions();

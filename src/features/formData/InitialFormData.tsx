@@ -3,7 +3,7 @@ import type { PropsWithChildren } from 'react';
 
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
-import { useCurrentDataModelUrl } from 'src/features/datamodel/useBindingSchema';
+import { useCurrentDataModelGuid, useCurrentDataModelUrl } from 'src/features/datamodel/useBindingSchema';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FormDataWriteProvider } from 'src/features/formData/FormDataWrite';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
@@ -17,11 +17,12 @@ import { HttpStatusCodes } from 'src/utils/network/networking';
  */
 export function InitialFormDataProvider({ children }: PropsWithChildren) {
   const url = useCurrentDataModelUrl(true);
+  const dataElementId = useCurrentDataModelGuid();
   const { error, isLoading, data } = useFormDataQuery(url);
   const autoSaveBehaviour = usePageSettings().autoSaveBehavior;
 
-  if (!url) {
-    throw new Error('InitialFormDataProvider cannot be provided without a url');
+  if (!url || !dataElementId) {
+    throw new Error('InitialFormDataProvider cannot be provided without a url and dataElementId');
   }
 
   if (error) {
@@ -40,6 +41,7 @@ export function InitialFormDataProvider({ children }: PropsWithChildren) {
   return (
     <FormDataWriteProvider
       url={url}
+      dataElementId={dataElementId}
       initialData={data}
       autoSaving={!autoSaveBehaviour || autoSaveBehaviour === 'onChangeFormData'}
     >
