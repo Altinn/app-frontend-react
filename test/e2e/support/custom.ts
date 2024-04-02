@@ -548,9 +548,10 @@ Cypress.Commands.add('testPdf', (callback, returnToForm = false) => {
 
 Cypress.Commands.add(
   'iframeCustom',
-  // @ts-expect-error need this
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
   { prevSubject: 'element' },
-  ($iframe) =>
+  ($iframe: JQueryWithSelector) =>
     new Cypress.Promise((resolve) => {
       $iframe.ready(function () {
         resolve($iframe.contents().find('body'));
