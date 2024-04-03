@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import type { PropsWithChildren } from 'react';
 
+import dot from 'dot-object';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import type { Draft } from 'immer';
 import type { StoreApi } from 'zustand';
 
 import { createZustandContext } from 'src/core/contexts/zustandContext';
@@ -63,7 +63,6 @@ export interface TopLevelNodesStore<Types extends CompTypes = CompTypes> {
   [key: string]: ItemStore<Types>;
 }
 
-type ValueOrCallback<T> = T | ((draft: Draft<T>) => void);
 export interface NodesDataContext {
   pages: PageHierarchy;
   addTopLevelNode: <N extends LayoutNode>(node: N, state: any) => void;
@@ -71,16 +70,31 @@ export interface NodesDataContext {
   setNodeProp: <N extends LayoutNode, K extends keyof ItemStoreFromNode<N>>(
     node: N,
     prop: K,
-    valueOrCallback: ValueOrCallback<ItemStoreFromNode<N>[K]>,
+    value: ItemStoreFromNode<N>[K],
   ) => void;
 
   addPage: (pageKey: string) => void;
   removePage: (pageKey: string) => void;
-  setPageProp: <K extends keyof PageStore>(
-    pageKey: string,
-    prop: K,
-    valueOrCallback: ValueOrCallback<PageStore[K]>,
-  ) => void;
+  setPageProp: <K extends keyof PageStore>(pageKey: string, prop: K, value: PageStore[K]) => void;
+}
+
+/**
+ * Function that takes a source object and sets every property on the target object to the same value.
+ * Use this utility to make sure immer can avoid updating state whenever the value of a property is the same.
+ */
+function setEveryProperty(obj: any, target: any) {
+  let changed = false;
+  const map = dot.dot(obj);
+  for (const [key, value] of Object.entries(map)) {
+    const previous = dot.pick(key, target);
+    if (previous !== value) {
+      console.log('debug, path changed', key, 'was', previous, 'now', value);
+      dot.str(key, value, target);
+      changed = true;
+    }
+  }
+
+  return changed;
 }
 
 export type NodesDataStore = StoreApi<NodesDataContext>;
@@ -88,7 +102,7 @@ export function createNodesDataStore() {
   return createStore<NodesDataContext>()(
     immer((set) => ({
       pages: {
-        type: 'pages',
+        type: 'pages' as const,
         pages: {},
       },
       addTopLevelNode: (node, state) =>
@@ -103,35 +117,34 @@ export function createNodesDataStore() {
           const parent = pickNodePath(s.pages, parentPath);
           delete parent.topLevelNodes[node.getId()];
         }),
-      setNodeProp: (node, prop, valueOrCallback) =>
+      setNodeProp: (node, prop, value) =>
         set((state) => {
           const obj = pickNodePath(state.pages, node.path);
-          if (typeof valueOrCallback === 'function') {
-            (valueOrCallback as any)(obj[prop]);
-          } else {
-            obj[prop] = valueOrCallback;
-          }
+          const changed = setEveryProperty(value, obj[prop]);
+          changed && console.log('debug, One or more properties changed in node', node.path);
         }),
       addPage: (pageKey) =>
         set((state) => {
+          if (state.pages.pages[pageKey]) {
+            console.log('debug, ignoring add page', pageKey);
+            return;
+          }
+
           state.pages.pages[pageKey] = {
             type: 'page',
-            hidden: state.pages.pages[pageKey]?.hidden ?? false,
-            topLevelNodes: state.pages.pages[pageKey]?.topLevelNodes ?? {},
+            hidden: false,
+            topLevelNodes: {},
           };
         }),
       removePage: (pageKey) =>
         set((state) => {
           delete state.pages.pages[pageKey];
         }),
-      setPageProp: (pageKey, prop, valueOrCallback) =>
+      setPageProp: (pageKey, prop, value) =>
         set((state) => {
           const obj = state.pages.pages[pageKey];
-          if (typeof valueOrCallback === 'function') {
-            valueOrCallback(obj[prop]);
-          } else {
-            obj[prop] = valueOrCallback;
-          }
+          const changed = setEveryProperty(value, obj[prop]);
+          changed && console.log('debug, One or more properties changed in page', pageKey);
         }),
     })),
   );
@@ -152,23 +165,12 @@ const DataStore = createZustandContext<NodesDataStore, NodesDataContext>({
 export const NodesProvider = (props: React.PropsWithChildren) => (
   <NodesStore.Provider>
     <DataStore.Provider>
-      <InnerNodesProvider />
+      <NodesGenerator />
       <InnerHiddenComponentsProvider />
       <BlockUntilLoaded>{props.children}</BlockUntilLoaded>
     </DataStore.Provider>
   </NodesStore.Provider>
 );
-
-function InnerNodesProvider() {
-  const nodesStore = NodesStore.useStore();
-  const dataStore = DataStore.useStore();
-  return (
-    <NodesGenerator
-      nodesStore={nodesStore}
-      dataStore={dataStore}
-    />
-  );
-}
 
 function InnerHiddenComponentsProvider() {
   const setHidden = NodesStore.useSelector((state) => state.setHiddenViaRules);
@@ -180,7 +182,7 @@ function InnerHiddenComponentsProvider() {
 }
 
 function BlockUntilLoaded({ children }: PropsWithChildren) {
-  const hasNodes = NodesStore.useMemoSelector((state) => !!state.nodes);
+  const hasNodes = NodesStore.useSelector((state) => !!state.nodes);
   if (!hasNodes) {
     return <Loader reason='nodes' />;
   }
@@ -235,6 +237,19 @@ export function useIsHiddenViaRules() {
     makeCacheKey: (nodeId) => (isNodeRef(nodeId) ? nodeId.nodeRef : nodeId),
   });
 }
+
+/**
+ * A set of tools, selectors and functions to use internally in node generator components.
+ */
+export const NodesInternal = {
+  useNodesStore: () => NodesStore.useStore(),
+  useDataStore: () => DataStore.useStore(),
+  useSetNodes: () => NodesStore.useSelector((s) => s.setNodes),
+  useAddPage: () => DataStore.useSelector((s) => s.addPage),
+  useRemovePage: () => DataStore.useSelector((s) => s.removePage),
+  useAddTopLevelNode: () => DataStore.useSelector((s) => s.addTopLevelNode),
+  useRemoveTopLevelNode: () => DataStore.useSelector((s) => s.removeTopLevelNode),
+};
 
 /**
  * Given a selector, get a LayoutNode object

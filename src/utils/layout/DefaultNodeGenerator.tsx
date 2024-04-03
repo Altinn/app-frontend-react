@@ -9,6 +9,7 @@ import { useAsRef } from 'src/hooks/useAsRef';
 import { getLayoutComponentObject, getNodeConstructor } from 'src/layout';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { SimpleEval } from 'src/features/expressions';
 import type { ExprConfig, ExprResolved, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { CompDef } from 'src/layout';
@@ -44,9 +45,10 @@ export function DefaultNodeGenerator<T extends CompTypes>({
   const page = props.parent instanceof LayoutPage ? props.parent : props.parent.page;
   const isTopLevel = props.parent === page;
   const isTopLevelRef = useAsRef(isTopLevel);
-  const removeTopLevelNode = useStore(props.store, (state) => state.removeTopLevelNode);
+  const removeTopLevelNode = NodesInternal.useRemoveTopLevelNode();
   const nodeRef = useAsRef(node);
   const pageRef = useAsRef(page);
+
   useEffect(() => () => pageRef.current._removeChild(nodeRef.current), [nodeRef, pageRef]);
   useEffect(
     () => () => {
@@ -165,16 +167,11 @@ export function useExpressionResolverProps<T extends CompTypes>(
 /**
  * Creates a new node instance for a component item, and adds that to the parent node and the store.
  */
-function useNewNode<T extends CompTypes>({
-  item,
-  parent,
-  row,
-  store,
-  path,
-}: BasicNodeGeneratorProps<T>): LayoutNode<T> {
+function useNewNode<T extends CompTypes>({ item, parent, row, path }: BasicNodeGeneratorProps<T>): LayoutNode<T> {
   const page = parent instanceof LayoutPage ? parent : parent.page;
   const isTopLevel = parent === page;
-  const addTopLevelNode = useStore(store, (state) => state.addTopLevelNode);
+  const addTopLevelNode = NodesInternal.useAddTopLevelNode();
+  const store = NodesInternal.useDataStore();
 
   return useMemo(() => {
     const LNode = getNodeConstructor(item.type);

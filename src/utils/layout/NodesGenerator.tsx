@@ -1,6 +1,4 @@
-import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react';
-
-import { useStore } from 'zustand';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import { useHiddenLayoutsExpressions, useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
@@ -8,6 +6,7 @@ import { getLayoutComponentObject } from 'src/layout';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { CompExternal, ILayout } from 'src/layout/layout';
 import type {
   BasicNodeGeneratorProps,
@@ -15,7 +14,6 @@ import type {
   ComponentProto,
   ContainerGeneratorProps,
 } from 'src/layout/LayoutComponent';
-import type { NodesDataStore, NodesStore } from 'src/utils/layout/NodesContext';
 
 const debug = false;
 const style: React.CSSProperties = debug
@@ -43,35 +41,36 @@ interface ChildrenState {
   map: ChildrenMap | undefined;
 }
 
-interface NodesGeneratorProps {
-  nodesStore: NodesStore;
-  dataStore: NodesDataStore;
-}
-
-export function NodesGenerator({ nodesStore, dataStore }: NodesGeneratorProps) {
+export function NodesGenerator() {
   const layouts = useLayouts();
-  const layoutSet = useMemo(() => new LayoutPages(), []);
-  const currentView = useCurrentView();
-  const setNodes = useStore(nodesStore, (state) => state.setNodes);
+  const pages = useMemo(() => new LayoutPages(), []);
+  const [pagesReady, setPagesReady] = useState<{ [key: string]: boolean }>({});
+  const setNodes = NodesInternal.useSetNodes();
 
-  useLayoutEffect(() => {
-    if (layoutSet && layoutSet.isReady()) {
-      setNodes(layoutSet);
+  useEffect(() => {
+    // With this being a useEffect, it will always run after all the children here have rendered - unless, importantly,
+    // the children themselves rely on useEffect() to run in order to reach a stable state.
+    const numPages = Object.keys(layouts).length;
+    if (!pages) {
+      return;
     }
-  }, [layoutSet, setNodes]);
+    if (numPages === 0) {
+      console.log('debug, settings final nodes, no pages', pages);
+      setNodes(pages);
+      return;
+    }
 
-  useEffect(() => {
-    layoutSet.setCurrentPage(currentView);
-  }, [currentView, layoutSet]);
-
-  useEffect(() => {
-    window.CypressState = window.CypressState || {};
-    window.CypressState.nodesStore = nodesStore;
-    window.CypressState.nodesDataStore = dataStore;
-  }, [nodesStore, dataStore]);
+    const allReady = Object.keys(layouts).every((key) => pagesReady[key] ?? false);
+    if (allReady) {
+      console.log('debug, settings final nodes, all pages ready', pages);
+      setNodes(pages);
+    }
+  }, [layouts, pages, pagesReady, setNodes]);
 
   return (
     <div style={style}>
+      <SetCurrentPage pages={pages} />
+      <ExportStores />
       {debug && <h1>Node generator</h1>}
       {layouts &&
         Object.keys(layouts).map((key) => {
@@ -86,8 +85,9 @@ export function NodesGenerator({ nodesStore, dataStore }: NodesGeneratorProps) {
               key={key}
               name={key}
               layout={layout}
-              layoutSet={layoutSet}
-              store={dataStore}
+              layoutSet={pages}
+              wasReady={pagesReady[key] ?? false}
+              setPagesReady={setPagesReady}
             />
           );
         })}
@@ -95,34 +95,55 @@ export function NodesGenerator({ nodesStore, dataStore }: NodesGeneratorProps) {
   );
 }
 
+function SetCurrentPage({ pages }: { pages: LayoutPages }) {
+  const currentView = useCurrentView();
+  if (pages.currentPageKey() !== currentView) {
+    pages.setCurrentPage(currentView);
+  }
+
+  return null;
+}
+
+function ExportStores() {
+  const nodesStore = NodesInternal.useNodesStore();
+  const dataStore = NodesInternal.useDataStore();
+
+  useEffect(() => {
+    window.CypressState = window.CypressState || {};
+    window.CypressState.nodesStore = nodesStore;
+    window.CypressState.nodesDataStore = dataStore;
+  }, [nodesStore, dataStore]);
+
+  return null;
+}
+
 interface PageProps {
   layout: ILayout;
   name: string;
   layoutSet: LayoutPages;
-  store: NodesDataStore;
+  wasReady: boolean;
+  setPagesReady: React.Dispatch<React.SetStateAction<{ [key: string]: boolean }>>;
 }
 
-function Page({ layout, name, layoutSet, store }: PageProps) {
+function Page({ layout, name, layoutSet, wasReady, setPagesReady }: PageProps) {
   const [children, setChildren] = useState<ChildrenState>({ forLayout: layout, map: undefined });
   const page = useMemo(() => new LayoutPage(), []);
-  const addPage = useStore(store, (state) => state.addPage);
-  const removePage = useStore(store, (state) => state.removePage);
+  const addPage = NodesInternal.useAddPage();
+  const removePage = NodesInternal.useRemovePage();
 
-  useEffect(() => {
+  addPage(name);
+  if (!page.isRegisteredInCollection(layoutSet)) {
     page.registerCollection(name, layoutSet);
-  }, [layoutSet, name, page]);
+  }
 
-  useEffect(() => {
-    if (children.forLayout !== layout) {
-      // Force a new first pass if the layout changes
-      setChildren({ forLayout: layout, map: undefined });
-    }
-  }, [layout, children.forLayout]);
-
-  useEffect(() => {
-    addPage(name);
-    return () => removePage(name);
-  }, [addPage, name, removePage]);
+  // Removes the page from the store when is removed from the react tree
+  useEffect(
+    () => () => {
+      removePage(page.pageKey);
+      page.unregisterCollection();
+    },
+    [page, removePage],
+  );
 
   const getProto = useMemo(() => {
     const proto: { [id: string]: ComponentProto } = {};
@@ -147,15 +168,29 @@ function Page({ layout, name, layoutSet, store }: PageProps) {
     return (id: string) => item[id];
   }, [layout]);
 
+  if (children.forLayout !== layout) {
+    // Force a new first pass if the layout changes
+    setChildren({ forLayout: layout, map: undefined });
+    return null;
+  }
+
+  if (layout.length === 0) {
+    if (!wasReady) {
+      setPagesReady((prev) => ({ ...prev, [name]: true }));
+    }
+    return null;
+  }
+
   const map = children.map;
   const claimedChildren = new Set(map ? Object.values(map).flat() : []);
 
+  if (!wasReady && map !== undefined) {
+    setPagesReady((prev) => ({ ...prev, [name]: true }));
+  }
+
   return (
     <>
-      <MaintainPageState
-        name={name}
-        store={store}
-      />
+      <MaintainPageState name={name} />
       {debug && <h2>Page: {name}</h2>}
       {map === undefined &&
         layout.map((component) => (
@@ -179,7 +214,6 @@ function Page({ layout, name, layoutSet, store }: PageProps) {
               childIds={map[component.id]}
               getItem={getItem}
               parent={page}
-              store={store}
               path={[name, component.id]}
             />
           );
@@ -190,7 +224,6 @@ function Page({ layout, name, layoutSet, store }: PageProps) {
 
 interface MaintainPageStateProps {
   name: string;
-  store: NodesDataStore;
 }
 
 function MaintainPageState(_props: MaintainPageStateProps) {
@@ -263,11 +296,10 @@ interface ComponentProps {
   childIds: string[] | undefined;
   getItem: (id: string) => CompExternal;
   parent: LayoutPage;
-  store: NodesDataStore;
   path: string[];
 }
 
-function Component({ component, childIds, getItem, parent, store, path }: ComponentProps) {
+function Component({ component, childIds, getItem, parent, path }: ComponentProps) {
   const def = getLayoutComponentObject(component.type);
   const props = useMemo(() => {
     if (def instanceof ContainerComponent) {
@@ -275,7 +307,6 @@ function Component({ component, childIds, getItem, parent, store, path }: Compon
         item: component,
         parent,
         debug,
-        store,
         path,
         childIds: childIds ?? [],
         getChild: (id: string) => {
@@ -293,12 +324,11 @@ function Component({ component, childIds, getItem, parent, store, path }: Compon
       item: component,
       parent,
       debug,
-      store,
       path,
     };
 
     return out;
-  }, [childIds, component, def, getItem, parent, path, store]);
+  }, [childIds, component, def, getItem, parent, path]);
 
   return (
     <>

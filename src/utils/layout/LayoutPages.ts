@@ -22,9 +22,8 @@ export class LayoutPages {
     }
   }
 
-  public isReady(): boolean {
-    // TODO: Do something smarter, such as listening for ready events from all pages/nodes
-    return Object.keys(this.objects).length > 0;
+  public currentPageKey() {
+    return this._currentPage;
   }
 
   public setCurrentPage(currentView: string | undefined) {
@@ -117,7 +116,15 @@ export class LayoutPages {
     ] as $Values<Omit<Collection, L>>[];
   }
 
-  public replacePage(param: LayoutPage) {
-    this.objects[param.pageKey as keyof Collection] = param as any;
+  public replacePage(page: LayoutPage) {
+    this.objects[page.pageKey as keyof Collection] = page;
+  }
+
+  public removePage(pageKey: string) {
+    delete this.objects[pageKey];
+  }
+
+  public isPageRegistered(pageKey: string, page: LayoutPage): boolean {
+    return this.objects[pageKey] === page;
   }
 }

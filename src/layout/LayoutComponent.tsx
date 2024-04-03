@@ -34,14 +34,12 @@ import type {
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { NodesDataStore } from 'src/utils/layout/NodesContext';
 import type { BaseItemState, BaseRow, ItemStore } from 'src/utils/layout/types';
 
 export interface BasicNodeGeneratorProps<Type extends CompTypes> {
   item: CompExternalExact<Type>;
   parent: LayoutNode | LayoutPage;
   path: string[];
-  store: NodesDataStore;
   row?: BaseRow;
   debug: boolean;
 }

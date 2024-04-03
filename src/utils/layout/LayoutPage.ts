@@ -140,10 +140,20 @@ export class LayoutPage implements LayoutObject {
     return out;
   }
 
+  public isRegisteredInCollection(layoutSet: LayoutPages): boolean {
+    return this.pageKey !== undefined && layoutSet.isPageRegistered(this.pageKey, this);
+  }
+
   public registerCollection(pageKey: string, layoutSet: LayoutPages) {
     this.pageKey = pageKey;
     this.layoutSet = layoutSet;
     layoutSet.replacePage(this);
+  }
+
+  public unregisterCollection() {
+    if (this.pageKey !== undefined && this.layoutSet) {
+      this.layoutSet.removePage(this.pageKey);
+    }
   }
 
   public isHiddenViaTracks(layoutSettings: ILayoutSettings, pageNavigationConfig: PageNavigationConfig): boolean {
