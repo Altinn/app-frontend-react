@@ -62,7 +62,11 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
    * re-render if this state changes. For that, useNodeItem() instead.
    */
   public get item() {
-    return pickNodePath(this.store.getState().pages, this.path).item as CompInternal<Type>;
+    const node = pickNodePath(this.store.getState().pages, this.path);
+    if (!node || node.type !== 'node') {
+      throw new Error(`Node not found in path: /${this.path.join('/')}`);
+    }
+    return node.item as CompInternal<Type>;
   }
 
   public updateCommonProps(item = this.item) {

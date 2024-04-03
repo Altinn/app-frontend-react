@@ -40,8 +40,8 @@ export function useNodeValidation(): ComponentValidations {
        * Run required validation
        */
       if (implementsValidateEmptyField(node.def)) {
-        const validations = node.def.runEmptyFieldValidation(node as any, item as any, validationDataSources);
-        for (const validation of validations) {
+        const v = node.def.runEmptyFieldValidation(node as any, item as any, validationDataSources);
+        for (const validation of v) {
           if (validation.bindingKey) {
             validations[id].bindingKeys[validation.bindingKey].push(validation);
           } else {
@@ -54,8 +54,8 @@ export function useNodeValidation(): ComponentValidations {
        * Run component validation
        */
       if (implementsValidateComponent(node.def)) {
-        const validations = node.def.runComponentValidation(node as any, item as any, validationDataSources);
-        for (const validation of validations) {
+        const v = node.def.runComponentValidation(node as any, item as any, validationDataSources);
+        for (const validation of v) {
           if (validation.bindingKey) {
             validations[id].bindingKeys[validation.bindingKey].push(validation);
           } else {

@@ -14,6 +14,7 @@ export interface BaseRow {
 }
 
 export interface BaseItemState<T extends CompTypes> {
+  type: 'node';
   layout: CompExternalExact<T>;
   item: CompInternal<T> | undefined;
   hidden: boolean;

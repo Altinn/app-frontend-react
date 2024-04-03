@@ -44,31 +44,10 @@ interface ChildrenState {
 export function NodesGenerator() {
   const layouts = useLayouts();
   const pages = useMemo(() => new LayoutPages(), []);
-  const [pagesReady, setPagesReady] = useState<{ [key: string]: boolean }>({});
-  const setNodes = NodesInternal.useSetNodes();
-
-  useEffect(() => {
-    // With this being a useEffect, it will always run after all the children here have rendered - unless, importantly,
-    // the children themselves rely on useEffect() to run in order to reach a stable state.
-    const numPages = Object.keys(layouts).length;
-    if (!pages) {
-      return;
-    }
-    if (numPages === 0) {
-      console.log('debug, settings final nodes, no pages', pages);
-      setNodes(pages);
-      return;
-    }
-
-    const allReady = Object.keys(layouts).every((key) => pagesReady[key] ?? false);
-    if (allReady) {
-      console.log('debug, settings final nodes, all pages ready', pages);
-      setNodes(pages);
-    }
-  }, [layouts, pages, pagesReady, setNodes]);
 
   return (
     <div style={style}>
+      <SaveFinishedNodesToStore pages={pages} />
       <SetCurrentPage pages={pages} />
       <ExportStores />
       {debug && <h1>Node generator</h1>}
@@ -86,13 +65,40 @@ export function NodesGenerator() {
               name={key}
               layout={layout}
               layoutSet={pages}
-              wasReady={pagesReady[key] ?? false}
-              setPagesReady={setPagesReady}
             />
           );
         })}
     </div>
   );
+}
+
+function SaveFinishedNodesToStore({ pages }: { pages: LayoutPages }) {
+  const layouts = useLayouts();
+  const setNodes = NodesInternal.useSetNodes();
+  const readyPages = NodesInternal.useReadyPages();
+  const layoutKeys = useMemo(() => Object.keys(layouts), [layouts]);
+
+  useEffect(() => {
+    // With this being a useEffect, it will always run after all the children here have rendered - unless, importantly,
+    // the children themselves rely on useEffect() to run in order to reach a stable state.
+    const numPages = layoutKeys.length;
+    if (!pages) {
+      return;
+    }
+    if (numPages === 0) {
+      setNodes(pages);
+      return;
+    }
+
+    const ready = new Set(readyPages);
+    const allReady = layoutKeys.every((key) => ready.has(key));
+    if (allReady) {
+      console.log('debug, settings final nodes, all pages ready', pages);
+      setNodes(pages);
+    }
+  }, [layoutKeys, pages, readyPages, setNodes]);
+
+  return null;
 }
 
 function SetCurrentPage({ pages }: { pages: LayoutPages }) {
@@ -121,14 +127,14 @@ interface PageProps {
   layout: ILayout;
   name: string;
   layoutSet: LayoutPages;
-  wasReady: boolean;
-  setPagesReady: React.Dispatch<React.SetStateAction<{ [key: string]: boolean }>>;
 }
 
-function Page({ layout, name, layoutSet, wasReady, setPagesReady }: PageProps) {
+function Page({ layout, name, layoutSet }: PageProps) {
   const [children, setChildren] = useState<ChildrenState>({ forLayout: layout, map: undefined });
   const page = useMemo(() => new LayoutPage(), []);
   const addPage = NodesInternal.useAddPage();
+  const wasReady = NodesInternal.useIsPageReady(name);
+  const markPageReady = NodesInternal.useMarkPageReady();
   const removePage = NodesInternal.useRemovePage();
 
   addPage(name);
@@ -168,6 +174,16 @@ function Page({ layout, name, layoutSet, wasReady, setPagesReady }: PageProps) {
     return (id: string) => item[id];
   }, [layout]);
 
+  const map = children.map;
+  const isReady = map !== undefined && children.forLayout === layout;
+  const claimedChildren = new Set(map ? Object.values(map).flat() : []);
+
+  useEffect(() => {
+    if (!wasReady && isReady) {
+      markPageReady(name);
+    }
+  }, [isReady, markPageReady, name, wasReady]);
+
   if (children.forLayout !== layout) {
     // Force a new first pass if the layout changes
     setChildren({ forLayout: layout, map: undefined });
@@ -176,16 +192,9 @@ function Page({ layout, name, layoutSet, wasReady, setPagesReady }: PageProps) {
 
   if (layout.length === 0) {
     if (!wasReady) {
-      setPagesReady((prev) => ({ ...prev, [name]: true }));
+      markPageReady(name);
     }
     return null;
-  }
-
-  const map = children.map;
-  const claimedChildren = new Set(map ? Object.values(map).flat() : []);
-
-  if (!wasReady && map !== undefined) {
-    setPagesReady((prev) => ({ ...prev, [name]: true }));
   }
 
   return (

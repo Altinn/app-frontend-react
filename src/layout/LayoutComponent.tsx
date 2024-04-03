@@ -97,6 +97,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
    */
   protected defaultStateFactory(props: StateFactoryProps<Type>) {
     return {
+      type: 'node',
       item: props.item as CompInternal<Type>,
       layout: props.item,
       hidden: false,

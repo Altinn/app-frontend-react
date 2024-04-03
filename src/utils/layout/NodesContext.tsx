@@ -55,6 +55,7 @@ interface PageStores {
 
 export interface PageStore {
   type: 'page';
+  ready: boolean;
   hidden: boolean;
   topLevelNodes: TopLevelNodesStore;
 }
@@ -74,6 +75,7 @@ export interface NodesDataContext {
   ) => void;
 
   addPage: (pageKey: string) => void;
+  markPageReady: (pageKey: string) => void;
   removePage: (pageKey: string) => void;
   setPageProp: <K extends keyof PageStore>(pageKey: string, prop: K, value: PageStore[K]) => void;
 }
@@ -109,32 +111,48 @@ export function createNodesDataStore() {
         set((s) => {
           const parentPath = node.path.slice(0, -1);
           const parent = pickNodePath(s.pages, parentPath);
+          if (parent.type !== 'page') {
+            throw new Error('Parent node is not a page');
+          }
           parent.topLevelNodes[node.getId()] = state;
         }),
       removeTopLevelNode: (node) =>
         set((s) => {
           const parentPath = node.path.slice(0, -1);
           const parent = pickNodePath(s.pages, parentPath);
+          if (parent.type !== 'page') {
+            throw new Error('Parent node is not a page');
+          }
           delete parent.topLevelNodes[node.getId()];
         }),
       setNodeProp: (node, prop, value) =>
         set((state) => {
           const obj = pickNodePath(state.pages, node.path);
-          const changed = setEveryProperty(value, obj[prop]);
+          if (obj.type === 'page') {
+            throw new Error('Parent node is not a node');
+          }
+          const changed = setEveryProperty(value, (obj as any)[prop]);
           changed && console.log('debug, One or more properties changed in node', node.path);
         }),
       addPage: (pageKey) =>
         set((state) => {
           if (state.pages.pages[pageKey]) {
-            console.log('debug, ignoring add page', pageKey);
             return;
           }
 
           state.pages.pages[pageKey] = {
             type: 'page',
             hidden: false,
+            ready: false,
             topLevelNodes: {},
           };
+        }),
+      markPageReady: (pageKey) =>
+        set((state) => {
+          const page = state.pages.pages[pageKey];
+          if (page) {
+            page.ready = true;
+          }
         }),
       removePage: (pageKey) =>
         set((state) => {
@@ -246,6 +264,10 @@ export const NodesInternal = {
   useDataStore: () => DataStore.useStore(),
   useSetNodes: () => NodesStore.useSelector((s) => s.setNodes),
   useAddPage: () => DataStore.useSelector((s) => s.addPage),
+  useIsPageReady: (pageKey: string) => DataStore.useSelector((s) => s.pages.pages[pageKey]?.ready ?? false),
+  useMarkPageReady: () => DataStore.useSelector((s) => s.markPageReady),
+  useReadyPages: () =>
+    DataStore.useMemoSelector((s) => Object.keys(s.pages.pages).filter((k) => s.pages.pages[k].ready)),
   useRemovePage: () => DataStore.useSelector((s) => s.removePage),
   useAddTopLevelNode: () => DataStore.useSelector((s) => s.addTopLevelNode),
   useRemoveTopLevelNode: () => DataStore.useSelector((s) => s.removeTopLevelNode),
@@ -328,13 +350,13 @@ export function pickNodePath(
   container: PageHierarchy | PageStore | ItemStore<CompTypes>,
   path: string[],
   parentPath: string[] = [],
-): ItemStore<any> | PageStore {
+): ItemStore<CompTypes> | PageStore {
   if (path.length === 0) {
     if (parentPath.length === 0) {
       throw new Error('Cannot pick root node');
     }
 
-    return container;
+    return container as ItemStore<CompTypes> | PageStore;
   }
 
   const [target, ...remaining] = path;
