@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTable';
-import { fetchOrderDetails } from 'src/queries/queries';
+import { useOrderDetailsQuery } from 'src/layout/PaymentDetails/useOrderDetailsQuery';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IPaymentDetailsProps = PropsFromGenericComponent<'PaymentDetails'>;
@@ -15,6 +15,7 @@ export function PaymentDetailsComponent({ node }: IPaymentDetailsProps) {
   const { title, description } = node.item.textResourceBindings || {};
   const hasUnsavedChanges = FD.useHasUnsavedChanges();
   const queryClient = useQueryClient();
+  const { data: orderDetails } = useOrderDetailsQuery(partyId, instanceGuid);
 
   useEffect(() => {
     if (!hasUnsavedChanges) {
@@ -22,19 +23,9 @@ export function PaymentDetailsComponent({ node }: IPaymentDetailsProps) {
     }
   }, [hasUnsavedChanges, queryClient]);
 
-  const { data: useOrderDetailsQuery } = useQuery({
-    queryKey: ['fetchOrderDetails'],
-    queryFn: () => {
-      if (partyId) {
-        return fetchOrderDetails(partyId, instanceGuid);
-      }
-    },
-    enabled: !!partyId && !!instanceGuid,
-  });
-
   return (
     <PaymentDetailsTable
-      orderDetails={useOrderDetailsQuery}
+      orderDetails={orderDetails}
       tableTitle={title}
       description={description}
     />
