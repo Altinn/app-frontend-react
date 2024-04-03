@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
@@ -13,19 +13,17 @@ export type IPaymentDetailsProps = PropsFromGenericComponent<'PaymentDetails'>;
 export function PaymentDetailsComponent({ node }: IPaymentDetailsProps) {
   const { partyId, instanceGuid } = useInstanceIdParams();
   const { title, description } = node.item.textResourceBindings || {};
-  /*   const updateOrderDetailsWhenChanged = node.item?.updateOrderDetailsWhenChanged;
+  const hasUnsavedChanges = FD.useHasUnsavedChanges();
+  const queryClient = useQueryClient();
 
-  const testNode = useResolvedNode<IPaymentDetailsProps>(node.item.id);
-  const updateWhenChanged = testNode?.item.updateOrderDetailsWhenChanged;
-
-  console.log('updateOrderDetailsWhenChanged', updateWhenChanged); */
-
-  const mappedValues = FD.useMapping(node.item.mapping);
-
-  const test = JSON.stringify(mappedValues);
+  useEffect(() => {
+    if (!hasUnsavedChanges) {
+      queryClient.invalidateQueries({ queryKey: ['fetchOrderDetails'] });
+    }
+  }, [hasUnsavedChanges, queryClient]);
 
   const { data: useOrderDetailsQuery } = useQuery({
-    queryKey: ['fetchOrderDetails', partyId, instanceGuid, test],
+    queryKey: ['fetchOrderDetails'],
     queryFn: () => {
       if (partyId) {
         return fetchOrderDetails(partyId, instanceGuid);
