@@ -25,7 +25,7 @@ import {
   getLayoutSettingsUrl,
   getLayoutsUrl,
   getOrderDetailsUrl,
-  getPaymentInfoUrl,
+  getPaymentInformationUrl,
   getPdfFormatUrl,
   getProcessNextUrl,
   getProcessStateUrl,
@@ -223,8 +223,10 @@ export const fetchRuleHandler = (layoutSetId: string): Promise<string | null> =>
 export const fetchTextResources = (selectedLanguage: string): Promise<ITextResourceResult> =>
   httpGet(textResourcesUrl(selectedLanguage));
 
-export const fetchPaymentInfo = (instanceOwnerPartyId: string, instanceGuid: string): Promise<PaymentResponsePayload> =>
-  httpGet(getPaymentInfoUrl(instanceOwnerPartyId, instanceGuid));
+export const fetchPaymentInformation = (
+  instanceOwnerPartyId: string,
+  instanceGuid: string,
+): Promise<PaymentResponsePayload> => httpGet(getPaymentInformationUrl(instanceOwnerPartyId, instanceGuid));
 
 export const fetchOrderDetails = (instanceOwnerPartyId: string, instanceGuid: string): Promise<OrderDetails> =>
   httpGet(getOrderDetailsUrl(instanceOwnerPartyId, instanceGuid));

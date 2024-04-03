@@ -13,8 +13,12 @@ import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTab
 export const Payment: React.FunctionComponent = () => {
   const { partyId, instanceGuid } = useInstanceIdParams();
   const { next, busy } = useProcessNavigation() || {};
-  const { data: paymentInfo, isFetched } = usePaymentInformationQuery(partyId, instanceGuid);
+  const { data: paymentInfo, isFetched: isPaymentInformationFetched } = usePaymentInformationQuery(
+    partyId,
+    instanceGuid,
+  );
   const performPayActionMutation = usePerformPayActionMutation(partyId, instanceGuid);
+  const paymentDoesNotExist = isPaymentInformationFetched && !paymentInfo?.paymentDetails;
 
   // performPayActionMutation changes each render, so we need to destructure it to get the mutate function
   // which does not change and is safe to use in the useEffect dependency array
@@ -22,16 +26,18 @@ export const Payment: React.FunctionComponent = () => {
 
   useEffect(() => {
     // if no paymentDetails exists, the payment has not been initiated, initiate it by calling the pay action
-    if (isFetched && !paymentInfo?.paymentDetails) {
+    if (paymentDoesNotExist) {
       performPayment();
     }
-  }, [performPayment, paymentInfo?.paymentDetails, isFetched]);
+  }, [performPayment, paymentDoesNotExist]);
+
+  if (busy || !isPaymentInformationFetched || paymentDoesNotExist) {
+    return <SkeletonLoader />;
+  }
 
   return (
     <>
-      {(isFetched && !paymentInfo?.paymentDetails) || busy ? (
-        <SkeletonLoader />
-      ) : (
+      {
         <PaymentDetailsTable
           orderDetails={paymentInfo?.orderDetails}
           tableTitle={
@@ -44,20 +50,20 @@ export const Payment: React.FunctionComponent = () => {
           }
           className={classes.container}
         />
-      )}
+      }
       <div className={classes.container}>
-        {isFetched && paymentInfo?.paymentDetails?.status === 'Failed' && (
+        {paymentInfo?.paymentDetails?.status === 'Failed' && (
           <Alert severity='warning'>
             <Lang id='payment.alert.failed' />
           </Alert>
         )}
-        {isFetched && paymentInfo?.paymentDetails?.status === 'Paid' && (
+        {paymentInfo?.paymentDetails?.status === 'Paid' && (
           <Alert severity={'info'}>
             <Lang id='payment.alert.paid' />
           </Alert>
         )}
       </div>
-      {isFetched && paymentInfo?.paymentDetails && (
+      {paymentInfo?.paymentDetails && (
         <div className={classes.buttonContainer}>
           {paymentInfo?.paymentDetails?.status !== 'Paid' ? (
             <>

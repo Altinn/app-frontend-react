@@ -151,7 +151,7 @@ const defaultQueryMocks: AppQueries = {
   fetchProcessState: async () => getProcessDataMock(),
   fetchInstanceData: async () => getInstanceDataMock(),
   fetchBackendValidations: async () => [],
-  fetchPaymentInfo: async () => paymentResponsePayload,
+  fetchPaymentInformation: async () => paymentResponsePayload,
   fetchOrderDetails: async () => orderDetailsResponsePayload,
 };
 

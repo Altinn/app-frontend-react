@@ -11,6 +11,11 @@ export const usePerformPayActionMutation = (partyId?: string, instanceGuid?: str
         return await doPerformAction(partyId, instanceGuid, { action: 'pay' });
       }
     },
+    onError: (error) => {
+      if (error) {
+        console.error('Error performing pay action', error);
+      }
+    },
     onSuccess: (data) => {
       if (data?.redirectUrl) {
         window.location.href = data.redirectUrl;

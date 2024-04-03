@@ -21,7 +21,7 @@ export const getSetCurrentPartyUrl = (partyId: string) => `${appPath}/api/v1/par
 
 export const textResourcesUrl = (language: string) => `${origin}/${org}/${app}/api/v1/texts/${language}`;
 
-export const getPaymentInfoUrl = (instanceOwnerPartyId: string, instanceGuid: string) =>
+export const getPaymentInformationUrl = (instanceOwnerPartyId: string, instanceGuid: string) =>
   `${origin}/${org}/${app}/instances/${instanceOwnerPartyId}/${instanceGuid}/payment`;
 
 export const getOrderDetailsUrl = (instanceOwnerPartyId: string, instanceGuid: string) =>
