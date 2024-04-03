@@ -35,13 +35,15 @@ export const CheckboxContainerComponent = ({ node, isValid, overrideDisplay }: I
   });
 
   const labelTextGroup = (
-    <span className={classes.checkBoxLabelContainer}>
-      <Lang id={textResourceBindings?.title} />
-      <RequiredIndicator required={required} />
-      <OptionalIndicator
-        labelSettings={labelSettings}
-        required={required}
-      />
+    <span className={classes.checkboxLabelContainer}>
+      <span className={classes.labelContent}>
+        <Lang id={textResourceBindings?.title} />
+        <RequiredIndicator required={required} />
+        <OptionalIndicator
+          labelSettings={labelSettings}
+          required={required}
+        />
+      </span>
       {textResourceBindings?.help && (
         <HelpText title={langAsString(textResourceBindings?.help)}>
           <Lang id={textResourceBindings?.help} />
