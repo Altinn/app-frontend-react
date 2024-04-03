@@ -83,31 +83,64 @@ export const Config = new CG.component({
             .setDescription('Positon of the image')
             .exportAs('Position'),
         ),
+        new CG.prop(
+          'minMediaHeight',
+          new CG.str()
+            .setTitle('minMediaHeight')
+            .setDescription('Fixed minimun height of media (optional)')
+            .exportAs('MinMediaHeight')
+            .optional()
+            .addExample('100px', '100%', '100rem'),
+        ),
       ),
     ),
   )
   .addProperty(
     new CG.prop(
-      'media',
+      'video',
       new CG.obj(
         new CG.prop(
           'src',
           new CG.obj(
-            new CG.prop('nb', new CG.str().optional().setTitle('Media source (when using norwegian bokmål language)')),
-            new CG.prop('nn', new CG.str().optional().setTitle('Media source (when using norwegian nynorsk language)')),
-            new CG.prop('en', new CG.str().optional().setTitle('Media source (when using english language)')),
+            new CG.prop('nb', new CG.str().optional().setTitle('Video source (when using norwegian bokmål language)')),
+            new CG.prop('nn', new CG.str().optional().setTitle('Video source (when using norwegian nynorsk language)')),
+            new CG.prop('en', new CG.str().optional().setTitle('Video source (when using english language)')),
           )
-            .additionalProperties(new CG.str().optional().setTitle('Media source (when using other languages)'))
+            .additionalProperties(new CG.str().optional().setTitle('Video source (when using other languages)'))
             .addExample({
               nb: 'https://example.com/video.mp4',
               nn: 'https://example.com/video.mp4',
               en: 'https://example.com/video.mp4',
             })
-            .exportAs('IMediaSrc'),
+            .exportAs('IVideoSrc'),
         ),
       )
         .optional()
-        .exportAs('IMedia'),
+        .exportAs('IVideo'),
+    ),
+  )
+  .addProperty(
+    new CG.prop(
+      'audio',
+      new CG.obj(
+        new CG.prop(
+          'src',
+          new CG.obj(
+            new CG.prop('nb', new CG.str().optional().setTitle('Audio source (when using norwegian bokmål language)')),
+            new CG.prop('nn', new CG.str().optional().setTitle('Audio source (when using norwegian nynorsk language)')),
+            new CG.prop('en', new CG.str().optional().setTitle('Audio source (when using english language)')),
+          )
+            .additionalProperties(new CG.str().optional().setTitle('Audio source (when using other languages)'))
+            .addExample({
+              nb: 'https://example.com/audio.mp3',
+              nn: 'https://example.com/audio.mp3',
+              en: 'https://example.com/audio.mp3',
+            })
+            .exportAs('IAudioSrc'),
+        ),
+      )
+        .optional()
+        .exportAs('IAudio'),
     ),
   )
   .addProperty(
