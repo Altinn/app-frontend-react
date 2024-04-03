@@ -151,7 +151,9 @@ export function useExpressionResolverProps<T extends CompTypes>(
       }
     }
 
-    return { textResourceBindings: trb as ExprResolved<ITextResourceBindings<T>> };
+    return {
+      textResourceBindings: (item.textResourceBindings ? trb : undefined) as ExprResolved<ITextResourceBindings<T>>,
+    };
   }, [evalStr, item]);
 
   return {
@@ -188,19 +190,19 @@ function useRegisterNode<T extends CompTypes>(
   isTopLevel: boolean,
   props: BasicNodeGeneratorProps<T>,
 ) {
-  const { item, row, parent } = props;
+  const propsRef = useAsRef(props);
   const addTopLevelNode = NodesInternal.useAddTopLevelNode();
-  const def = node.def;
   useEffect(() => {
+    const { item, row, parent } = propsRef.current;
     const stateFactoryProps: StateFactoryProps<T> = { item: item as any, parent, row };
-    const defaultState = def.stateFactory(stateFactoryProps as any);
+    const defaultState = node.def.stateFactory(stateFactoryProps as any);
 
     if (isTopLevel) {
       addTopLevelNode(node, defaultState);
     } else {
       throw new Error('Child components are not supported yet.');
     }
-  }, [addTopLevelNode, def, isTopLevel, item, node, parent, row]);
+  }, [addTopLevelNode, isTopLevel, node, propsRef]);
 }
 
 /**

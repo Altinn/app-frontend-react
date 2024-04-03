@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 
 import { useHiddenLayoutsExpressions, useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
+import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { getLayoutComponentObject } from 'src/layout';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -333,7 +334,8 @@ interface ComponentProps {
   path: string[];
 }
 
-function Component({ component, childIds, getItem, parent, path }: ComponentProps) {
+function Component({ component, childIds, getItem, parent, path: _path }: ComponentProps) {
+  const path = useMemoDeepEqual(() => _path, [_path]);
   const def = getLayoutComponentObject(component.type);
   const props = useMemo(() => {
     if (def instanceof ContainerComponent) {

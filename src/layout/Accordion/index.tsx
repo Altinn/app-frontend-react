@@ -20,6 +20,7 @@ export class Accordion extends AccordionDef {
       ...evalTrb(),
 
       // TODO: Implement
+      children: undefined,
       childComponents: [] as NodeRef[],
     };
   }

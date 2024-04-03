@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import dot from 'dot-object';
+import deepEqual from 'fast-deep-equal';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import type { StoreApi } from 'zustand';
@@ -89,7 +90,7 @@ function setEveryProperty(obj: any, target: any) {
   const map = dot.dot(obj);
   for (const [key, value] of Object.entries(map)) {
     const previous = dot.pick(key, target);
-    if (previous !== value) {
+    if (previous !== value && !deepEqual(previous, value)) {
       console.log('debug, path changed', key, 'was', previous, 'now', value);
       dot.str(key, value, target);
       changed = true;
@@ -113,6 +114,9 @@ export function createNodesDataStore() {
           const parent = pickDataStorePath(s.pages, parentPath);
           if (parent.type !== 'page') {
             throw new Error('Parent node is not a page');
+          }
+          if (parent.topLevelNodes[node.getId()]) {
+            throw new Error(`Node already exists: ${node.getId()}`);
           }
           parent.topLevelNodes[node.getId()] = state;
         }),

@@ -53,6 +53,7 @@ export class AccordionGroup extends AccordionGroupDef {
       ...evalTrb(),
 
       // TODO: Implement
+      children: undefined,
       childComponents: [] as NodeRef[],
     };
   }

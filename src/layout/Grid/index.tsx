@@ -65,6 +65,7 @@ export class Grid extends GridDef {
       ...evalTrb(),
 
       // TODO: Process rows and get make refs
+      children: undefined,
       rows: item.rows as GridRowsInternal,
     };
   }

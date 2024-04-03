@@ -51,6 +51,7 @@ export class ButtonGroup extends ButtonGroupDef implements DisplayData<'ButtonGr
       ...evalTrb(),
 
       // TODO: Implement
+      children: undefined,
       childComponents: [] as NodeRef[],
     };
   }
