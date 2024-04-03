@@ -110,7 +110,7 @@ export function createNodesDataStore() {
       addTopLevelNode: (node, state) =>
         set((s) => {
           const parentPath = node.path.slice(0, -1);
-          const parent = pickNodePath(s.pages, parentPath);
+          const parent = pickDataStorePath(s.pages, parentPath);
           if (parent.type !== 'page') {
             throw new Error('Parent node is not a page');
           }
@@ -119,7 +119,7 @@ export function createNodesDataStore() {
       removeTopLevelNode: (node) =>
         set((s) => {
           const parentPath = node.path.slice(0, -1);
-          const parent = pickNodePath(s.pages, parentPath);
+          const parent = pickDataStorePath(s.pages, parentPath);
           if (parent.type !== 'page') {
             throw new Error('Parent node is not a page');
           }
@@ -127,10 +127,11 @@ export function createNodesDataStore() {
         }),
       setNodeProp: (node, prop, value) =>
         set((state) => {
-          const obj = pickNodePath(state.pages, node.path);
+          const obj = pickDataStorePath(state.pages, node.path);
           if (obj.type === 'page') {
             throw new Error('Parent node is not a node');
           }
+          obj.ready = true;
           const changed = setEveryProperty(value, (obj as any)[prop]);
           changed && console.log('debug, One or more properties changed in node', node.path);
         }),
@@ -202,9 +203,19 @@ function InnerHiddenComponentsProvider() {
 function BlockUntilLoaded({ children }: PropsWithChildren) {
   const hasNodes = NodesStore.useSelector((state) => !!state.nodes);
   if (!hasNodes) {
-    return <Loader reason='nodes' />;
+    return <NodesLoader />;
   }
   return <>{children}</>;
+}
+
+function NodesLoader() {
+  const notReady = NodesInternal.useAllNotReady();
+  return (
+    <Loader
+      reason='nodes'
+      details={`Nodes not ready:\n${notReady.join('\n')}`}
+    />
+  );
 }
 
 type MaybeNodeRef = string | NodeRef | undefined | null;
@@ -264,14 +275,64 @@ export const NodesInternal = {
   useDataStore: () => DataStore.useStore(),
   useSetNodes: () => NodesStore.useSelector((s) => s.setNodes),
   useAddPage: () => DataStore.useSelector((s) => s.addPage),
-  useIsPageReady: (pageKey: string) => DataStore.useSelector((s) => s.pages.pages[pageKey]?.ready ?? false),
-  useMarkPageReady: () => DataStore.useSelector((s) => s.markPageReady),
-  useReadyPages: () =>
-    DataStore.useMemoSelector((s) => Object.keys(s.pages.pages).filter((k) => s.pages.pages[k].ready)),
+  useIsReady: (path: string[], ...morePaths: string[][]) =>
+    DataStore.useMemoSelector((s) => {
+      try {
+        const isReady = pickDataStorePath(s.pages, path).ready ?? false;
+        if (!isReady) {
+          return false;
+        }
+        for (const p of morePaths) {
+          if (!pickDataStorePath(s.pages, p).ready) {
+            return false;
+          }
+        }
+        return true;
+      } catch (error) {
+        return false;
+      }
+    }),
+  useMarkAsReady: () => DataStore.useSelector((s) => s.markPageReady),
+  useIsAllReady: (expectedPages: number) =>
+    DataStore.useMemoSelector(
+      (s) => Object.keys(s.pages.pages).length === expectedPages && getNotReady(s.pages).length === 0,
+    ),
+  useAllNotReady: () => DataStore.useMemoSelector((s) => getNotReady(s.pages)),
   useRemovePage: () => DataStore.useSelector((s) => s.removePage),
   useAddTopLevelNode: () => DataStore.useSelector((s) => s.addTopLevelNode),
   useRemoveTopLevelNode: () => DataStore.useSelector((s) => s.removeTopLevelNode),
 };
+
+function getNotReady(pages: PageHierarchy) {
+  const notReady: string[] = [];
+  for (const key of Object.keys(pages.pages)) {
+    const page = pages.pages[key];
+    if (!page.ready) {
+      notReady.push(`/${key}`);
+    }
+
+    for (const node of Object.values(page.topLevelNodes)) {
+      notReady.push(...getNotReadyNodes(node as ItemStore, [key]));
+    }
+  }
+
+  return notReady;
+}
+
+function getNotReadyNodes(node: ItemStore, parentPath: string[]) {
+  const notReady: string[] = [];
+  const id = node.item?.id ?? '';
+  if (!node.ready) {
+    notReady.push(`/${parentPath.join('/')}/${id}`);
+  }
+
+  const def = getLayoutComponentObject(node.layout.type);
+  for (const child of def.pickDirectChildren(node as any)) {
+    notReady.push(...getNotReadyNodes(child, [...parentPath, id]));
+  }
+
+  return notReady;
+}
 
 /**
  * Given a selector, get a LayoutNode object
@@ -346,17 +407,17 @@ function useLegacyHiddenComponents(
  * in different ways, so this function has to call out to each component specific implementation to look up
  * children.
  */
-export function pickNodePath(
-  container: PageHierarchy | PageStore | ItemStore<CompTypes>,
+export function pickDataStorePath(
+  container: PageHierarchy | PageStore | ItemStore,
   path: string[],
   parentPath: string[] = [],
-): ItemStore<CompTypes> | PageStore {
+): ItemStore | PageStore {
   if (path.length === 0) {
     if (parentPath.length === 0) {
       throw new Error('Cannot pick root node');
     }
 
-    return container as ItemStore<CompTypes> | PageStore;
+    return container as ItemStore | PageStore;
   }
 
   const [target, ...remaining] = path;
@@ -370,7 +431,7 @@ export function pickNodePath(
     if (!page) {
       throw new Error(`Page not found at path /${fullPath.join('/')}`);
     }
-    return pickNodePath(page, remaining, fullPath);
+    return pickDataStorePath(page, remaining, fullPath);
   }
 
   if (isPage(container)) {
@@ -378,7 +439,7 @@ export function pickNodePath(
     if (!node) {
       throw new Error(`Top level node not found at path /${fullPath.join('/')}`);
     }
-    return pickNodePath(node, remaining, fullPath);
+    return pickDataStorePath(node, remaining, fullPath);
   }
 
   const def = getLayoutComponentObject(container.layout.type);
@@ -389,10 +450,10 @@ export function pickNodePath(
   return def.pickChild(container as ItemStore<any>, remaining, fullPath);
 }
 
-function isPages(state: PageHierarchy | PageStore | ItemStore<CompTypes>): state is PageHierarchy {
+function isPages(state: PageHierarchy | PageStore | ItemStore): state is PageHierarchy {
   return 'type' in state && state.type === 'pages';
 }
 
-function isPage(state: PageHierarchy | PageStore | ItemStore<CompTypes>): state is PageStore {
+function isPage(state: PageHierarchy | PageStore | ItemStore): state is PageStore {
   return 'type' in state && state.type === 'page';
 }

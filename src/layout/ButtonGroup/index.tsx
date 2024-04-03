@@ -8,7 +8,9 @@ import { ButtonGroupDef } from 'src/layout/ButtonGroup/config.def.generated';
 import { DefaultNodeGenerator } from 'src/utils/layout/DefaultNodeGenerator';
 import type { DisplayData } from 'src/features/displayData';
 import type { ChildClaimerProps, ExprResolver, NodeGeneratorProps } from 'src/layout/LayoutComponent';
+import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { ItemStore } from 'src/utils/layout/types';
 
 export class ButtonGroup extends ButtonGroupDef implements DisplayData<'ButtonGroup'> {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'ButtonGroup'>>(
@@ -51,6 +53,11 @@ export class ButtonGroup extends ButtonGroupDef implements DisplayData<'ButtonGr
       // TODO: Implement
       childComponents: [] as NodeRef[],
     };
+  }
+
+  pickDirectChildren(_state: ItemStore<'ButtonGroup'>, _restriction?: ChildLookupRestriction): ItemStore[] {
+    // TODO: Implement
+    return [];
   }
 
   shouldRenderInAutomaticPDF() {

@@ -17,6 +17,8 @@ import type {
   NodeGeneratorProps,
   SummaryRendererProps,
 } from 'src/layout/LayoutComponent';
+import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
+import type { ItemStore } from 'src/utils/layout/types';
 
 export class Grid extends GridDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Grid'>>(
@@ -65,6 +67,11 @@ export class Grid extends GridDef {
       // TODO: Process rows and get make refs
       rows: item.rows as GridRowsInternal,
     };
+  }
+
+  pickDirectChildren(_state: ItemStore<'Grid'>, _restriction?: ChildLookupRestriction): ItemStore[] {
+    // TODO: Implement
+    return [];
   }
 
   renderSummary(props: SummaryRendererProps<'Grid'>): JSX.Element | null {

@@ -23,7 +23,9 @@ import type {
   SummaryRendererProps,
 } from 'src/layout/LayoutComponent';
 import type { RepGroupInternal, RepGroupRows } from 'src/layout/RepeatingGroup/types';
+import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { ItemStore } from 'src/utils/layout/types';
 
 export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent<'RepeatingGroup'>, ValidationFilter {
   render = forwardRef<HTMLDivElement, PropsFromGenericComponent<'RepeatingGroup'>>(
@@ -98,6 +100,11 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
       rowsBefore: item.rowsBefore as GridRowsInternal | undefined,
       rowsAfter: item.rowsAfter as GridRowsInternal | undefined,
     };
+  }
+
+  pickDirectChildren(_state: ItemStore<'RepeatingGroup'>, _restriction?: ChildLookupRestriction): ItemStore[] {
+    // TODO: Implement
+    return [];
   }
 
   renderSummary({

@@ -6,7 +6,7 @@ import { getLayoutComponentObject } from 'src/layout';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
 import type { CompExternal, ILayout } from 'src/layout/layout';
 import type {
   BasicNodeGeneratorProps,
@@ -74,11 +74,16 @@ export function NodesGenerator() {
 
 function SaveFinishedNodesToStore({ pages }: { pages: LayoutPages }) {
   const layouts = useLayouts();
+  const existingNodes = useNodes();
   const setNodes = NodesInternal.useSetNodes();
-  const readyPages = NodesInternal.useReadyPages();
+  const allReady = NodesInternal.useIsAllReady(Object.keys(layouts).length);
   const layoutKeys = useMemo(() => Object.keys(layouts), [layouts]);
 
   useEffect(() => {
+    if (existingNodes === pages) {
+      return;
+    }
+
     // With this being a useEffect, it will always run after all the children here have rendered - unless, importantly,
     // the children themselves rely on useEffect() to run in order to reach a stable state.
     const numPages = layoutKeys.length;
@@ -90,13 +95,18 @@ function SaveFinishedNodesToStore({ pages }: { pages: LayoutPages }) {
       return;
     }
 
-    const ready = new Set(readyPages);
-    const allReady = layoutKeys.every((key) => ready.has(key));
     if (allReady) {
-      console.log('debug, settings final nodes, all pages ready', pages);
       setNodes(pages);
+
+      console.log('debug, all ready. Nodes:');
+      for (const page of Object.values(pages.all())) {
+        console.log('debug, --- page:', page.pageKey);
+        for (const node of page.flat()) {
+          console.log('debug, ------ node:', node.getId());
+        }
+      }
     }
-  }, [layoutKeys, pages, readyPages, setNodes]);
+  }, [layoutKeys, pages, allReady, setNodes, existingNodes]);
 
   return null;
 }
@@ -133,8 +143,6 @@ function Page({ layout, name, layoutSet }: PageProps) {
   const [children, setChildren] = useState<ChildrenState>({ forLayout: layout, map: undefined });
   const page = useMemo(() => new LayoutPage(), []);
   const addPage = NodesInternal.useAddPage();
-  const wasReady = NodesInternal.useIsPageReady(name);
-  const markPageReady = NodesInternal.useMarkPageReady();
   const removePage = NodesInternal.useRemovePage();
 
   addPage(name);
@@ -177,12 +185,7 @@ function Page({ layout, name, layoutSet }: PageProps) {
   const map = children.map;
   const isReady = map !== undefined && children.forLayout === layout;
   const claimedChildren = new Set(map ? Object.values(map).flat() : []);
-
-  useEffect(() => {
-    if (!wasReady && isReady) {
-      markPageReady(name);
-    }
-  }, [isReady, markPageReady, name, wasReady]);
+  const topLevelIds = layout.filter((component) => !claimedChildren.has(component.id)).map((component) => component.id);
 
   if (children.forLayout !== layout) {
     // Force a new first pass if the layout changes
@@ -191,14 +194,22 @@ function Page({ layout, name, layoutSet }: PageProps) {
   }
 
   if (layout.length === 0) {
-    if (!wasReady) {
-      markPageReady(name);
-    }
-    return null;
+    return (
+      <MarkPageReady
+        name={name}
+        isReady={true}
+        topLevelIds={topLevelIds}
+      />
+    );
   }
 
   return (
     <>
+      <MarkPageReady
+        name={name}
+        isReady={isReady}
+        topLevelIds={topLevelIds}
+      />
       <MaintainPageState name={name} />
       {debug && <h2>Page: {name}</h2>}
       {map === undefined &&
@@ -229,6 +240,20 @@ function Page({ layout, name, layoutSet }: PageProps) {
         })}
     </>
   );
+}
+
+function MarkPageReady({ name, isReady, topLevelIds }: { name: string; isReady: boolean; topLevelIds: string[] }) {
+  const topLevelPaths = topLevelIds.map((id) => [name, id]);
+  const wasReady = NodesInternal.useIsReady([name], ...topLevelPaths);
+  const markPageReady = NodesInternal.useMarkAsReady();
+
+  useEffect(() => {
+    if (!wasReady && isReady) {
+      markPageReady(name);
+    }
+  }, [isReady, markPageReady, name, wasReady]);
+
+  return null;
 }
 
 interface MaintainPageStateProps {

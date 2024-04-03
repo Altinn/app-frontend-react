@@ -3,7 +3,7 @@ import { ContainerComponent } from 'src/layout/LayoutComponent';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
-import { pickNodePath } from 'src/utils/layout/NodesContext';
+import { pickDataStorePath } from 'src/utils/layout/NodesContext';
 import type { CompClassMap, CompDef, FormDataSelector, NodeRef } from 'src/layout';
 import type { CompCategory } from 'src/layout/common';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated';
@@ -62,7 +62,7 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
    * re-render if this state changes. For that, useNodeItem() instead.
    */
   public get item() {
-    const node = pickNodePath(this.store.getState().pages, this.path);
+    const node = pickDataStorePath(this.store.getState().pages, this.path);
     if (!node || node.type !== 'node') {
       throw new Error(`Node not found in path: /${this.path.join('/')}`);
     }

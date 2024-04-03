@@ -39,9 +39,6 @@ export function DefaultNodeGenerator<T extends CompTypes>({
   ...props
 }: PropsWithChildren<BasicNodeGeneratorProps<T>>) {
   const node = useNewNode(props);
-  const resolverProps = useExpressionResolverProps(node, props.item);
-  const resolvedItem = useResolvedItem(node, props.item, resolverProps);
-
   const page = props.parent instanceof LayoutPage ? props.parent : props.parent.page;
   const isTopLevel = props.parent === page;
   const isTopLevelRef = useAsRef(isTopLevel);
@@ -49,16 +46,21 @@ export function DefaultNodeGenerator<T extends CompTypes>({
   const nodeRef = useAsRef(node);
   const pageRef = useAsRef(page);
 
-  useEffect(() => () => pageRef.current._removeChild(nodeRef.current), [nodeRef, pageRef]);
+  useRegisterNode(node, isTopLevel, props);
+
+  const resolverProps = useExpressionResolverProps(node, props.item);
+  const resolvedItem = useResolvedItem(node, props.item, resolverProps);
+
   useEffect(
     () => () => {
+      pageRef.current._removeChild(nodeRef.current);
       if (isTopLevelRef.current) {
         removeTopLevelNode(nodeRef.current);
       } else {
         throw new Error('Child components are not supported yet.');
       }
     },
-    [isTopLevelRef, nodeRef, removeTopLevelNode],
+    [isTopLevelRef, nodeRef, pageRef, removeTopLevelNode],
   );
 
   return (
@@ -169,22 +171,27 @@ export function useExpressionResolverProps<T extends CompTypes>(
  */
 function useNewNode<T extends CompTypes>({ item, parent, row, path }: BasicNodeGeneratorProps<T>): LayoutNode<T> {
   const page = parent instanceof LayoutPage ? parent : parent.page;
-  const isTopLevel = parent === page;
-  const addTopLevelNode = NodesInternal.useAddTopLevelNode();
   const store = NodesInternal.useDataStore();
+  const LNode = useNodeConstructor(item.type);
 
   return useMemo(() => {
-    const LNode = getNodeConstructor(item.type);
-    if (!LNode) {
-      // TODO: Log error and produce an error node instead
-      throw new Error(`Component type "${item.type}" not found`);
-    }
-
     const newNodeProps: LayoutNodeProps<T> = { item, parent, row, store, path };
     const node = new LNode(newNodeProps as any) as LayoutNode<T>;
     page._addChild(node);
 
-    const def = getLayoutComponentObject<T>(item.type as T)!;
+    return node;
+  }, [LNode, item, page, parent, path, row, store]);
+}
+
+function useRegisterNode<T extends CompTypes>(
+  node: LayoutNode<T>,
+  isTopLevel: boolean,
+  props: BasicNodeGeneratorProps<T>,
+) {
+  const { item, row, parent } = props;
+  const addTopLevelNode = NodesInternal.useAddTopLevelNode();
+  const def = node.def;
+  useEffect(() => {
     const stateFactoryProps: StateFactoryProps<T> = { item: item as any, parent, row };
     const defaultState = def.stateFactory(stateFactoryProps as any);
 
@@ -193,9 +200,7 @@ function useNewNode<T extends CompTypes>({ item, parent, row, path }: BasicNodeG
     } else {
       throw new Error('Child components are not supported yet.');
     }
-
-    return node;
-  }, [addTopLevelNode, isTopLevel, item, page, parent, path, row, store]);
+  }, [addTopLevelNode, def, isTopLevel, item, node, parent, row]);
 }
 
 /**
@@ -207,20 +212,19 @@ function useResolvedItem<T extends CompTypes>(
   item: CompExternalExact<T>,
   resolverProps: ExprResolver<T>,
 ): CompInternal<T> {
+  const def = useDef(item.type);
   const setNodeProp = useStore(node.store, (state) => state.setNodeProp);
-  return useMemo(() => {
-    const def = getLayoutComponentObject(item.type);
-    if (!def) {
-      // TODO: Log error and produce an error node instead
-      throw new Error(`Component type "${item.type}" not found`);
-    }
+  const resolvedItem = useMemo(
+    () => (def as CompDef<T>).evalExpressions(resolverProps as any) as CompInternal<T>,
+    [def, resolverProps],
+  );
 
-    const resolvedItem = (def as CompDef<T>).evalExpressions(resolverProps as any) as CompInternal<T>;
+  useEffect(() => {
     setNodeProp(node, 'item', resolvedItem);
     node.updateCommonProps(resolvedItem as any);
+  }, [node, resolvedItem, setNodeProp]);
 
-    return resolvedItem;
-  }, [item.type, node, resolverProps, setNodeProp]);
+  return resolvedItem;
 }
 
 function isFormItem(item: CompExternal): item is CompExternal & FormComponentProps {
@@ -229,4 +233,24 @@ function isFormItem(item: CompExternal): item is CompExternal & FormComponentPro
 
 function isSummarizableItem(item: CompExternal): item is CompExternal & SummarizableComponentProps {
   return 'renderAsSummary' in item;
+}
+
+function useDef<T extends CompTypes>(type: T) {
+  const def = getLayoutComponentObject<T>(type)!;
+  if (!def) {
+    // TODO: Log error and produce an error node instead
+    throw new Error(`Component type "${type}" not found`);
+  }
+
+  return def;
+}
+
+function useNodeConstructor<T extends CompTypes>(type: T) {
+  const LNode = getNodeConstructor(type);
+  if (!LNode) {
+    // TODO: Log error and produce an error node instead
+    throw new Error(`Component type "${type}" not found`);
+  }
+
+  return LNode;
 }

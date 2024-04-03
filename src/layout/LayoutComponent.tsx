@@ -32,6 +32,7 @@ import type {
   ITextResourceBindingsExternal,
 } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
+import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { BaseItemState, BaseRow, ItemStore } from 'src/utils/layout/types';
@@ -95,13 +96,14 @@ export abstract class AnyComponent<Type extends CompTypes> {
    * Creates the default zustand store state for a node of this component type. Do not override this method,
    * instead override stateFactory().
    */
-  protected defaultStateFactory(props: StateFactoryProps<Type>) {
+  protected defaultStateFactory(props: StateFactoryProps<Type>): BaseItemState<Type> {
     return {
       type: 'node',
       item: props.item as CompInternal<Type>,
       layout: props.item,
       hidden: false,
-    } as BaseItemState<Type>;
+      ready: false,
+    };
   }
 
   /**
@@ -121,6 +123,14 @@ export abstract class AnyComponent<Type extends CompTypes> {
       `pickChild() is not implemented yet for '${this.type}'. ` +
         `You have to implement this if the component type supports children.`,
     );
+  }
+
+  /**
+   * Picks all direct children of a node, returning an array of item stores for each child. This must be implemented for
+   * every component type that can adopt children.
+   */
+  public pickDirectChildren(_state: ItemStore<Type>, _restriction?: ChildLookupRestriction): ItemStore[] {
+    return [];
   }
 
   /**
@@ -429,6 +439,8 @@ export abstract class ContainerComponent<Type extends CompTypes> extends _FormCo
   abstract renderNodeGenerator(props: NodeGeneratorProps<Type>): JSX.Element | null;
 
   abstract claimChildren(props: ChildClaimerProps<Type>): void;
+
+  abstract pickDirectChildren(state: ItemStore<Type>, restriction?: ChildLookupRestriction): ItemStore[];
 }
 
 export type LayoutComponent<Type extends CompTypes = CompTypes> =

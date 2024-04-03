@@ -12,7 +12,9 @@ import type {
   NodeGeneratorProps,
   SummaryRendererProps,
 } from 'src/layout/LayoutComponent';
+import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { ItemStore } from 'src/utils/layout/types';
 
 export class AccordionGroup extends AccordionGroupDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'AccordionGroup'>>(
@@ -53,6 +55,11 @@ export class AccordionGroup extends AccordionGroupDef {
       // TODO: Implement
       childComponents: [] as NodeRef[],
     };
+  }
+
+  pickDirectChildren(_state: ItemStore<'AccordionGroup'>, _restriction?: ChildLookupRestriction): ItemStore[] {
+    // TODO: Implement
+    return [];
   }
 
   renderSummary(props: SummaryRendererProps<'AccordionGroup'>): JSX.Element | null {

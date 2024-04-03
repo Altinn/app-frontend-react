@@ -14,6 +14,8 @@ import type {
   NodeGeneratorProps,
   SummaryRendererProps,
 } from 'src/layout/LayoutComponent';
+import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
+import type { ItemStore } from 'src/utils/layout/types';
 
 export class Group extends GroupDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Group'>>(
@@ -49,6 +51,11 @@ export class Group extends GroupDef {
       ...evalCommon(),
       ...evalTrb(),
     };
+  }
+
+  pickDirectChildren(_state: ItemStore<'Group'>, _restriction?: ChildLookupRestriction): ItemStore[] {
+    // TODO: Implement
+    return [];
   }
 
   renderSummary({
