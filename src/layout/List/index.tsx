@@ -51,7 +51,7 @@ export class List extends ListDef {
   runEmptyFieldValidation(
     node: LayoutNode<'List'>,
     item: CompInternal<'List'>,
-    { formData }: ValidationDataSources,
+    { formData, invalidData }: ValidationDataSources,
   ): ComponentValidation[] {
     if (!item.required || !item.dataModelBindings) {
       return [];
@@ -63,7 +63,7 @@ export class List extends ListDef {
 
     let listHasErrors = false;
     for (const field of fields) {
-      const data = dot.pick(field, formData);
+      const data = dot.pick(field, formData) ?? dot.pick(field, invalidData);
       const dataAsString =
         typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : undefined;
 

@@ -383,7 +383,7 @@ export abstract class FormComponent<Type extends CompTypes>
   runEmptyFieldValidation(
     node: LayoutNode<Type>,
     item: CompInternal<Type>,
-    { formData }: ValidationDataSources,
+    { formData, invalidData }: ValidationDataSources,
   ): ComponentValidation[] {
     if (!('required' in item) || !item.required || !item.dataModelBindings) {
       return [];
@@ -392,7 +392,7 @@ export abstract class FormComponent<Type extends CompTypes>
     const validations: ComponentValidation[] = [];
 
     for (const [bindingKey, field] of Object.entries(item.dataModelBindings) as [string, string][]) {
-      const data = dot.pick(field, formData);
+      const data = dot.pick(field, formData) ?? dot.pick(field, invalidData);
       const asString =
         typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : '';
       const trb: ITextResourceBindings = 'textResourceBindings' in item ? item.textResourceBindings : {};

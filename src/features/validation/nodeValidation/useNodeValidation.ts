@@ -73,6 +73,7 @@ export function useNodeValidation(): ComponentValidations {
  */
 export function useValidationDataSources(): ValidationDataSources {
   const formData = FD.useDebounced();
+  const invalidData = FD.useInvalidDebounced();
   const attachments = useAttachments();
   const currentLanguage = useCurrentLanguage();
   const nodes = useNodes();
@@ -80,10 +81,11 @@ export function useValidationDataSources(): ValidationDataSources {
   return useMemo(
     () => ({
       formData,
+      invalidData,
       attachments,
       currentLanguage,
       nodes,
     }),
-    [attachments, currentLanguage, formData, nodes],
+    [attachments, currentLanguage, formData, invalidData, nodes],
   );
 }
