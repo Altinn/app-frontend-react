@@ -12,7 +12,7 @@ import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTable';
 export const Payment: React.FunctionComponent = () => {
   const { partyId, instanceGuid } = useInstanceIdParams();
-  const { next } = useProcessNavigation() || {};
+  const { next, busy } = useProcessNavigation() || {};
   const { data: paymentInfo, isFetched } = usePaymentInformationQuery(partyId, instanceGuid);
   const performPayActionMutation = usePerformPayActionMutation(partyId, instanceGuid);
 
@@ -29,7 +29,7 @@ export const Payment: React.FunctionComponent = () => {
 
   return (
     <>
-      {isFetched && !paymentInfo?.paymentDetails ? (
+      {(isFetched && !paymentInfo?.paymentDetails) || busy ? (
         <SkeletonLoader />
       ) : (
         <PaymentDetailsTable
