@@ -39,19 +39,24 @@ export const PaymentDetailsTable = ({ orderDetails, tableTitle, description, ...
     </Table.Head>
     <Table.Body>
       {orderDetails?.orderLines.map((orderLine, index) => (
-        <Table.Row key={index}>
+        <Table.Row
+          key={index}
+          className={classes.tableRow}
+        >
           <Table.Cell>{orderLine.name}</Table.Cell>
-          <Table.Cell>{orderLine.quantity}</Table.Cell>
-          <Table.Cell>{orderLine.priceExVat + orderLine.priceExVat * (orderLine.vatPercent / 100)}</Table.Cell>
+          <Table.Cell align='right'>{orderLine.quantity}</Table.Cell>
+          <Table.Cell align='right'>
+            {orderLine.priceExVat + orderLine.priceExVat * (orderLine.vatPercent / 100)}
+          </Table.Cell>
         </Table.Row>
       ))}
-      <Table.Row>
+      <Table.Row className={classes.tableRow}>
         <Table.Cell colSpan={2}>
           <Label>
             <Lang id='payment.component.total' />
           </Label>
         </Table.Cell>
-        <Table.Cell>{orderDetails?.totalPriceIncVat}</Table.Cell>
+        <Table.Cell align='right'>{orderDetails?.totalPriceIncVat}</Table.Cell>
       </Table.Row>
     </Table.Body>
   </Table>

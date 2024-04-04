@@ -5,3 +5,7 @@
 .tableCaption {
   text-align: left;
 }
+
+.tableRow:hover td {
+  background-color: var(--fds-semantic-surface-neutral-default);
+}
