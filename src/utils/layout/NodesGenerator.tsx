@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
+import { ExprVal } from 'src/features/expressions/types';
 import { useHiddenLayoutsExpressions, useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
@@ -9,6 +10,7 @@ import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import { NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
 import { NodesGeneratorProvider } from 'src/utils/layout/NodesGeneratorContext';
+import { useResolvedExpression } from 'src/utils/layout/useResolvedExpression';
 import type { CompExternal, ILayout } from 'src/layout/layout';
 import type {
   BasicNodeGeneratorProps,
@@ -146,6 +148,7 @@ function Page({ layout, name, layoutSet }: PageProps) {
   const page = useMemo(() => new LayoutPage(), []);
   const addPage = NodesInternal.useAddPage();
   const removePage = NodesInternal.useRemovePage();
+  const hidden = useIsHiddenPage(page);
 
   addPage(name);
   if (!page.isRegisteredInCollection(layoutSet)) {
@@ -212,8 +215,10 @@ function Page({ layout, name, layoutSet }: PageProps) {
         isReady={isReady}
         topLevelIds={topLevelIds}
       />
-      <MaintainPageState name={name} />
-      <NodesGeneratorProvider>
+      <NodesGeneratorProvider
+        parent={page}
+        hidden={hidden}
+      >
         {debug && <h2>Page: {name}</h2>}
         {map === undefined &&
           layout.map((component) => (
@@ -260,15 +265,9 @@ function MarkPageReady({ name, isReady, topLevelIds }: { name: string; isReady: 
   return null;
 }
 
-interface MaintainPageStateProps {
-  name: string;
-}
-
-function MaintainPageState(_props: MaintainPageStateProps) {
-  // TODO: Implement evaluating expressions for hidden pages
-  const _hiddenExpr = useHiddenLayoutsExpressions();
-
-  return null;
+function useIsHiddenPage(page: LayoutPage) {
+  const hiddenExpr = useHiddenLayoutsExpressions();
+  return useResolvedExpression(ExprVal.Boolean, page, hiddenExpr[page.pageKey], false);
 }
 
 interface ComponentClaimChildrenProps {

@@ -3,17 +3,20 @@ import type { PropsWithChildren } from 'react';
 
 import { ContextNotProvided, createContext } from 'src/core/contexts/context';
 import type { CompInternal, CompTypes } from 'src/layout/layout';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 type ChildMutator<T extends CompTypes = CompTypes> = (item: CompInternal<T>) => void;
 
 interface ProviderProps {
-  hidden?: boolean;
+  parent: LayoutNode | LayoutPage;
+  hidden: boolean | undefined;
   directMutators?: ChildMutator[];
   recursiveMutators?: ChildMutator[];
 }
 
 interface NodesGeneratorContext extends ProviderProps {
-  depth: number; // Starts at 1 (for top level nodes)
+  depth: number; // Depth is 1 for top level nodes, 2 for children of top level nodes, etc.
 }
 
 const { Provider, useCtx, useLaxCtx } = createContext<NodesGeneratorContext>({
@@ -32,6 +35,15 @@ export function NodesGeneratorProvider({ children, ...rest }: PropsWithChildren<
   const value: NodesGeneratorContext = {
     ...parent,
     ...rest,
+
+    // Direct mutators are not meant to be inherited, if none are passed to us directly we'll use an empty array.
+    directMutators: rest.directMutators ?? [],
+
+    // If the parent is hidden, we are also hidden. The default is false, and every component inside a hidden one
+    // will be marked as hidden as well.
+    hidden: rest.hidden ? true : parent?.hidden ?? false,
+
+    // The first place this is provided is the page, so the depth is 1 for top level nodes.
     depth: (parent?.depth ?? 0) + 1,
   };
 

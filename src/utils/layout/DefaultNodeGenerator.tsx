@@ -11,6 +11,7 @@ import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { NodesGeneratorProvider } from 'src/utils/layout/NodesGeneratorContext';
+import { useResolvedExpression } from 'src/utils/layout/useResolvedExpression';
 import type { SimpleEval } from 'src/features/expressions';
 import type { ExprConfig, ExprResolved, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { CompDef } from 'src/layout';
@@ -47,6 +48,7 @@ export function DefaultNodeGenerator<T extends CompTypes>({
   const removeTopLevelNode = NodesInternal.useRemoveTopLevelNode();
   const nodeRef = useAsRef(node);
   const pageRef = useAsRef(page);
+  const hidden = useResolvedExpression(ExprVal.Boolean, node, props.item.hidden, false);
 
   useEffect(
     () => () => {
@@ -66,7 +68,12 @@ export function DefaultNodeGenerator<T extends CompTypes>({
         {...props}
         node={node}
       />
-      <NodesGeneratorProvider>{children}</NodesGeneratorProvider>
+      <NodesGeneratorProvider
+        parent={node}
+        hidden={hidden}
+      >
+        {children}
+      </NodesGeneratorProvider>
     </>
   );
 }
