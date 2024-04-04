@@ -210,7 +210,7 @@ export class ComponentConfig {
          behaviors: ${JSON.stringify(this.behaviors, null, 2)} as const,
        }`,
       `export type TypeConfig = {
-         layout: ${this.inner.getName()};
+         layout: ${this.inner};
          nodeObj: ${nodeObj}${nodeSuffix};
        }`,
     ];
@@ -231,12 +231,60 @@ export class ComponentConfig {
       );
     }
 
-    const extra = this.config.directRendering ? 'directRender(): boolean { return true; }' : '';
+    const StateFactoryProps = new CG.import({
+      import: 'StateFactoryProps',
+      from: 'src/utils/layout/itemState',
+    });
+
+    const BaseItemState = new CG.import({
+      import: 'BaseItemState',
+      from: 'src/utils/layout/itemState',
+    });
+
+    const CompInternal = new CG.import({
+      import: 'CompInternal',
+      from: 'src/layout/layout',
+    });
+
+    const ExprResolver = new CG.import({
+      import: 'ExprResolver',
+      from: 'src/layout/LayoutComponent',
+    });
 
     return `export abstract class ${symbol}Def extends ${categorySymbol}<'${this.type}'> {
       protected readonly type = '${this.type}';
 
-      ${extra}
+      ${this.config.directRendering ? 'directRender(): boolean { return true; }' : ''}
+
+      stateFactory(props: ${StateFactoryProps}<'${this.type}'>): ${BaseItemState}<'${this.type}'> {
+        return {
+          type: 'node',
+          item: props.item as unknown as ${CompInternal}<'${this.type}'>,
+          layout: props.item,
+          hidden: false,
+          ready: false,
+        };
+      }
+
+      // Do not override this one, set functionality.customExpressions to true instead
+      evalDefaultExpressions({ item, evalTrb, evalCommon }: ${ExprResolver}<'${this.type}'>) {
+        return {
+          ...item,
+          ...evalCommon(),
+          ...evalTrb(),
+        };
+      }
+
+      ${
+        this.config.functionality.customExpressions
+          ? ''
+          : `
+      // Do not override this one, set functionality.customExpressions to true instead
+      evalExpressions(props: ${ExprResolver}<'${this.type}'>) {
+        return this.evalDefaultExpressions(props);
+      }
+      `
+      }
     }`;
   }
 

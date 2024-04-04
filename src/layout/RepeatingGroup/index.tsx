@@ -11,21 +11,15 @@ import { RepeatingGroupContainer } from 'src/layout/RepeatingGroup/RepeatingGrou
 import { RepeatingGroupProvider } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { RepeatingGroupsFocusProvider } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
 import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup';
-import { DefaultNodeGenerator } from 'src/utils/layout/DefaultNodeGenerator';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { BaseValidation, ComponentValidation } from 'src/features/validation';
 import type { GridRowsInternal } from 'src/layout/Grid/types';
 import type { CompInternal } from 'src/layout/layout';
-import type {
-  ChildClaimerProps,
-  ExprResolver,
-  NodeGeneratorProps,
-  SummaryRendererProps,
-} from 'src/layout/LayoutComponent';
+import type { ChildClaimerProps, ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { RepGroupInternal, RepGroupRows } from 'src/layout/RepeatingGroup/types';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
+import type { ItemStore } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { ItemStore } from 'src/utils/layout/types';
 
 export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent<'RepeatingGroup'>, ValidationFilter {
   render = forwardRef<HTMLDivElement, PropsFromGenericComponent<'RepeatingGroup'>>(
@@ -54,18 +48,9 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     }
   }
 
-  renderNodeGenerator(props: NodeGeneratorProps<'RepeatingGroup'>): JSX.Element | null {
-    // TODO: Implement custom node generator
-    return <DefaultNodeGenerator {...props} />;
-  }
+  evalExpressions(props: ExprResolver<'RepeatingGroup'>): RepGroupInternal {
+    const { item, evalBool, formDataSelector } = props;
 
-  evalExpressions({
-    item,
-    evalTrb,
-    evalCommon,
-    evalBool,
-    formDataSelector,
-  }: ExprResolver<'RepeatingGroup'>): RepGroupInternal {
     // Only fetch the row ID (and by extension the number of rows) so that we only re-evaluate expressions
     // when the number of rows change.
     const formData = item.dataModelBindings?.group
@@ -85,9 +70,7 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
       })) as RepGroupRows) ?? [];
 
     return {
-      ...item,
-      ...evalCommon(),
-      ...evalTrb(),
+      ...this.evalDefaultExpressions(props),
       edit: item.edit
         ? {
             ...item.edit,

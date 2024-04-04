@@ -11,6 +11,9 @@ export const Config = new CG.component({
     renderInAccordion: false,
     renderInAccordionGroup: false,
   },
+  functionality: {
+    customExpressions: false,
+  },
 })
   .makeSelectionComponent()
   .addDataModelBinding(CG.common('IDataModelBindingsOptionsSimple'));

@@ -13,13 +13,9 @@ export class Accordion extends AccordionDef {
     },
   );
 
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Accordion'>) {
+  override evalExpressions(props: ExprResolver<'Accordion'>) {
     return {
-      ...item,
-      ...evalCommon(),
-      ...evalTrb(),
-
-      // TODO: Implement
+      ...this.evalDefaultExpressions(props),
       children: undefined,
       childComponents: [] as NodeRef[],
     };

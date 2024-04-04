@@ -33,9 +33,9 @@ import type {
 } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
+import type { BaseRow, ItemStore, StateFactoryProps } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { BaseItemState, BaseRow, ItemStore } from 'src/utils/layout/types';
 
 export interface BasicNodeGeneratorProps<Type extends CompTypes> {
   item: CompExternalExact<Type>;
@@ -68,12 +68,6 @@ export interface ExprResolver<Type extends CompTypes> {
   };
 }
 
-export interface StateFactoryProps<Type extends CompTypes> {
-  item: CompExternalExact<Type>;
-  parent: LayoutNode | LayoutPage;
-  row?: BaseRow;
-}
-
 export abstract class AnyComponent<Type extends CompTypes> {
   protected readonly type: Type;
 
@@ -93,26 +87,10 @@ export abstract class AnyComponent<Type extends CompTypes> {
   }
 
   /**
-   * Creates the default zustand store state for a node of this component type. Do not override this method,
-   * instead override stateFactory().
+   * Creates the zustand store default state for a node of this component type. Usually this is implemented
+   * automatically by code generation, but you can override it if you need to add additional properties to the state.
    */
-  protected defaultStateFactory(props: StateFactoryProps<Type>): BaseItemState<Type> {
-    return {
-      type: 'node',
-      item: props.item as CompInternal<Type>,
-      layout: props.item,
-      hidden: false,
-      ready: false,
-    };
-  }
-
-  /**
-   * Creates the zustand store default state for a node of this component type. Usually calls defaultStateFactory(),
-   * but you can add your own state and logic here as well.
-   */
-  stateFactory(props: StateFactoryProps<Type>) {
-    return this.defaultStateFactory(props);
-  }
+  abstract stateFactory(props: StateFactoryProps<Type>): unknown;
 
   /**
    * Picks a (direct) child state from the nodes store, returning the item store for that child. This must be
@@ -134,10 +112,17 @@ export abstract class AnyComponent<Type extends CompTypes> {
   }
 
   /**
-   * Resolves all expressions in the layout configuration, and returns a new layout configuration
-   * with expressions resolved.
+   * The default expression evaluator, implemented by code generation. Do not try to override this yourself. If you
+   * need custom expression support, set that in your component configuration.
    */
-  abstract evalExpressions(props: ExprResolver<Type>): any;
+  abstract evalDefaultExpressions(props: ExprResolver<Type>): unknown;
+
+  /**
+   * Resolves all expressions in the layout configuration, and returns a new layout configuration
+   * with expressions resolved. Will either be implemented using code generation (if your component has no custom
+   * expressions), or must be implemented manually.
+   */
+  abstract evalExpressions(props: ExprResolver<Type>): unknown;
 
   /**
    * Given a node, a list of the node's data, for display in the devtools node inspector
@@ -435,8 +420,6 @@ export abstract class ContainerComponent<Type extends CompTypes> extends _FormCo
   isDataModelBindingsRequired(_node: LayoutNode<Type>): boolean {
     return false;
   }
-
-  abstract renderNodeGenerator(props: NodeGeneratorProps<Type>): JSX.Element | null;
 
   abstract claimChildren(props: ChildClaimerProps<Type>): void;
 

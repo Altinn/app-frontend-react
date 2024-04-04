@@ -11,6 +11,9 @@ export const Config = new CG.component({
     renderInAccordion: false,
     renderInAccordionGroup: false,
   },
+  functionality: {
+    customExpressions: false,
+  },
 })
   .addDataModelBinding(new CG.obj().optional().additionalProperties(new CG.str()).exportAs('IDataModelBindingsForList'))
   .addProperty(

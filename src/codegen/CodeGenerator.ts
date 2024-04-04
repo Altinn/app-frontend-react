@@ -109,6 +109,10 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
     return this.internal.symbol?.name;
   }
 
+  toString(): string {
+    return this.toTypeScript();
+  }
+
   private shouldBeExported(): boolean {
     return this.internal.symbol?.exported ?? false;
   }

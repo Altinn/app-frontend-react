@@ -13,6 +13,9 @@ export const Config = new CG.component({
     renderInAccordion: false,
     renderInAccordionGroup: false,
   },
+  functionality: {
+    customExpressions: true,
+  },
 })
   .setLayoutNodeType(
     new CG.import({

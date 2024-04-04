@@ -13,6 +13,9 @@ export const Config = asUploaderComponent(
       renderInAccordion: false,
       renderInAccordionGroup: false,
     },
+    functionality: {
+      customExpressions: false,
+    },
   }),
 )
   .addTextResource(

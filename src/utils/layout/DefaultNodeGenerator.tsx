@@ -22,7 +22,8 @@ import type {
   HierarchyDataSources,
   ITextResourceBindings,
 } from 'src/layout/layout';
-import type { BasicNodeGeneratorProps, ExprResolver, StateFactoryProps } from 'src/layout/LayoutComponent';
+import type { BasicNodeGeneratorProps, ExprResolver } from 'src/layout/LayoutComponent';
+import type { StateFactoryProps } from 'src/utils/layout/itemState';
 import type { LayoutNode, LayoutNodeProps } from 'src/utils/layout/LayoutNode';
 
 /**

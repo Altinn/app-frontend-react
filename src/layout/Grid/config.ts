@@ -11,4 +11,7 @@ export const Config = new CG.component({
     renderInAccordion: false,
     renderInAccordionGroup: false,
   },
+  functionality: {
+    customExpressions: false,
+  },
 }).addProperty(new CG.prop('rows', CG.common('GridRows')));

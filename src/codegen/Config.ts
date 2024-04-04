@@ -19,6 +19,15 @@ export interface RequiredComponentConfig {
   rendersWithLabel: LabelRendering;
   directRendering?: boolean;
   capabilities: ComponentCapabilities;
+  functionality: FunctionalityConfig;
+}
+
+export interface FunctionalityConfig {
+  /**
+   * If true, the component must implement its own evalExpressions() method, otherwise it will use the default
+   * implementation.
+   */
+  customExpressions: boolean;
 }
 
 /**

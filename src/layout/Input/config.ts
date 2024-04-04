@@ -11,6 +11,9 @@ export const Config = new CG.component({
     renderInAccordion: false,
     renderInAccordionGroup: false,
   },
+  functionality: {
+    customExpressions: false,
+  },
 })
   .addDataModelBinding(CG.common('IDataModelBindingsSimple'))
   .addProperty(new CG.prop('saveWhileTyping', CG.common('SaveWhileTyping').optional({ default: true })))

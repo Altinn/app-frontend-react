@@ -21,9 +21,9 @@ import { isNodeRef } from 'src/utils/layout/nodeRef';
 import { NodesGenerator } from 'src/utils/layout/NodesGenerator';
 import type { NodeRef } from 'src/layout';
 import type { CompTypes, LayoutNodeFromObj } from 'src/layout/layout';
+import type { ItemStore, ItemStoreFromNode } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
-import type { ItemStore, ItemStoreFromNode } from 'src/utils/layout/types';
 
 export interface NodesContext {
   nodes: LayoutPages | undefined;

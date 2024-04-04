@@ -10,9 +10,9 @@ import type { ComponentTypeConfigs } from 'src/layout/components.generated';
 import type { CompExternalExact, CompInternal, CompTypes, LayoutNodeFromCategory, ParentNode } from 'src/layout/layout';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
+import type { BaseRow } from 'src/utils/layout/itemState';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
 import type { NodesDataStore } from 'src/utils/layout/NodesContext';
-import type { BaseRow } from 'src/utils/layout/types';
 
 export interface IsHiddenOptions {
   respectLegacy?: boolean;

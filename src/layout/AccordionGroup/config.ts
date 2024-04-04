@@ -11,6 +11,9 @@ export const Config = new CG.component({
     renderInAccordion: false,
     renderInAccordionGroup: false,
   },
+  functionality: {
+    customExpressions: true,
+  },
 })
   .addTextResource(
     new CG.trb({
