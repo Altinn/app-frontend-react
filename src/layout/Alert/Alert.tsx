@@ -9,10 +9,10 @@ import type { PropsFromGenericComponent } from 'src/layout';
 export type AlertProps = PropsFromGenericComponent<'Alert'>;
 
 export const Alert = ({ node }: AlertProps) => {
-  const { severity, textResourceBindings, hidden } = useNodeItem(node);
+  const { severity, textResourceBindings } = useNodeItem(node);
   const { langAsString } = useLanguage();
 
-  const shouldAlertScreenReaders = hidden === false;
+  const shouldAlertScreenReaders = !node.isHidden();
 
   return (
     <AlertBaseComponent

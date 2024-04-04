@@ -14,7 +14,7 @@ import type { CompHeaderExternal } from 'src/layout/Header/config.generated';
 import type { CompInputExternal } from 'src/layout/Input/config.generated';
 import type { HierarchyDataSources, ILayout, ILayouts } from 'src/layout/layout';
 import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
-import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 
 const { resolvedNodesInLayouts } = _private;
 
@@ -291,76 +291,77 @@ describe('Hierarchical layout tools', () => {
     });
   });
 
-  describe('resolvedNodesInLayout', () => {
-    const dataSources: HierarchyDataSources = {
-      ...getHierarchyDataSourcesMock(),
-      formDataSelector: (path) =>
-        dot.pick(path, {
-          ...repeatingGroupsFormData,
-          ExprBase: {
-            ShouldBeTrue: 'true',
-            ShouldBeFalse: 'false',
-          },
-        }),
-      instanceDataSources: {
-        instanceId: 'test',
-        instanceOwnerPartyId: 'test',
-        appId: 'test',
-        instanceOwnerPartyType: 'unknown',
-      },
-    };
-
-    const nodes = resolvedNodesInLayouts(layouts, 'FormLayout', dataSources);
-    const topInput = nodes.findById(components.top2.id);
-    const group2 = nodes.findById(components.group2.id);
-    const group2i = nodes.findById(`${components.group2i.id}-0`);
-    const group2ni = nodes.findById(`${components.group2ni.id}-0-1`);
-
-    function uniqueHidden(nodes: LayoutNode[] | undefined): any[] | undefined {
-      if (!nodes) {
-        return undefined;
-      }
-
-      return [...new Set(nodes.map((n) => n.item.hidden))].sort();
-    }
-    const plain = [true, undefined];
-
-    // Tests to make sure all children also have their expressions resolved
-    expect(topInput?.item.hidden).toEqual(true);
-    expect(group2i?.item.hidden).toEqual(true);
-    expect(group2ni?.item.hidden).toEqual(true);
-    expect(group2i?.parent.item.hidden).toEqual(true);
-    expect(group2ni?.parent.parent.item.hidden).toEqual(true);
-    expect(uniqueHidden(group2?.children())).toEqual(plain);
-    expect(uniqueHidden(group2i?.parent.children())).toEqual(plain);
-    expect(uniqueHidden(group2ni?.parent.children())).toEqual(plain);
-    expect(uniqueHidden(group2ni?.parent.parent.children())).toEqual(plain);
-    expect(uniqueHidden(group2?.flat())).toEqual(plain);
-    expect(uniqueHidden(nodes.currentPage()?.flat())).toEqual(plain);
-    expect(uniqueHidden(nodes.currentPage()?.children())).toEqual(plain);
-
-    if (!group2?.isType('RepeatingGroup')) {
-      throw new Error('Expected group2 to be a repeating group');
-    }
-
-    const secondNodeRef = group2.item.rows[0]?.items[1];
-    const secondNode = nodes.findById(secondNodeRef?.nodeRef);
-    expect(secondNode?.item.hidden).toEqual(true);
-
-    const thirdNodeRef = group2.item.rows[0]?.items[2];
-    const thirdNode = nodes.findById(thirdNodeRef?.nodeRef);
-    expect(thirdNode?.item.hidden).toEqual(true);
-
-    const group2nRef = group2.item.rows[0]?.items[2];
-    const group2n = nodes.findById(group2nRef?.nodeRef);
-    if (!group2n?.isType('RepeatingGroup')) {
-      throw new Error('Expected group2n to be a repeating group');
-    }
-
-    const group2nNestedRef = group2n.item.rows[0]?.items[1];
-    const group2nNested = nodes.findById(group2nNestedRef?.nodeRef);
-    expect(group2nNested?.item.hidden).toEqual(true);
-  });
+  // TODO: Re-implement this test? Hidden is not set locally anymore
+  // describe('resolvedNodesInLayout', () => {
+  //   const dataSources: HierarchyDataSources = {
+  //     ...getHierarchyDataSourcesMock(),
+  //     formDataSelector: (path) =>
+  //       dot.pick(path, {
+  //         ...repeatingGroupsFormData,
+  //         ExprBase: {
+  //           ShouldBeTrue: 'true',
+  //           ShouldBeFalse: 'false',
+  //         },
+  //       }),
+  //     instanceDataSources: {
+  //       instanceId: 'test',
+  //       instanceOwnerPartyId: 'test',
+  //       appId: 'test',
+  //       instanceOwnerPartyType: 'unknown',
+  //     },
+  //   };
+  //
+  //   const nodes = resolvedNodesInLayouts(layouts, 'FormLayout', dataSources);
+  //   const topInput = nodes.findById(components.top2.id);
+  //   const group2 = nodes.findById(components.group2.id);
+  //   const group2i = nodes.findById(`${components.group2i.id}-0`);
+  //   const group2ni = nodes.findById(`${components.group2ni.id}-0-1`);
+  //
+  //   function uniqueHidden(nodes: LayoutNode[] | undefined): any[] | undefined {
+  //     if (!nodes) {
+  //       return undefined;
+  //     }
+  //
+  //     return [...new Set(nodes.map((n) => n.item.hidden))].sort();
+  //   }
+  //   const plain = [true, undefined];
+  //
+  //   // Tests to make sure all children also have their expressions resolved
+  //   expect(topInput?.item.hidden).toEqual(true);
+  //   expect(group2i?.item.hidden).toEqual(true);
+  //   expect(group2ni?.item.hidden).toEqual(true);
+  //   expect(group2i?.parent.item.hidden).toEqual(true);
+  //   expect(group2ni?.parent.parent.item.hidden).toEqual(true);
+  //   expect(uniqueHidden(group2?.children())).toEqual(plain);
+  //   expect(uniqueHidden(group2i?.parent.children())).toEqual(plain);
+  //   expect(uniqueHidden(group2ni?.parent.children())).toEqual(plain);
+  //   expect(uniqueHidden(group2ni?.parent.parent.children())).toEqual(plain);
+  //   expect(uniqueHidden(group2?.flat())).toEqual(plain);
+  //   expect(uniqueHidden(nodes.currentPage()?.flat())).toEqual(plain);
+  //   expect(uniqueHidden(nodes.currentPage()?.children())).toEqual(plain);
+  //
+  //   if (!group2?.isType('RepeatingGroup')) {
+  //     throw new Error('Expected group2 to be a repeating group');
+  //   }
+  //
+  //   const secondNodeRef = group2.item.rows[0]?.items[1];
+  //   const secondNode = nodes.findById(secondNodeRef?.nodeRef);
+  //   expect(secondNode?.item.hidden).toEqual(true);
+  //
+  //   const thirdNodeRef = group2.item.rows[0]?.items[2];
+  //   const thirdNode = nodes.findById(thirdNodeRef?.nodeRef);
+  //   expect(thirdNode?.item.hidden).toEqual(true);
+  //
+  //   const group2nRef = group2.item.rows[0]?.items[2];
+  //   const group2n = nodes.findById(group2nRef?.nodeRef);
+  //   if (!group2n?.isType('RepeatingGroup')) {
+  //     throw new Error('Expected group2n to be a repeating group');
+  //   }
+  //
+  //   const group2nNestedRef = group2n.item.rows[0]?.items[1];
+  //   const group2nNested = nodes.findById(group2nNestedRef?.nodeRef);
+  //   expect(group2nNested?.item.hidden).toEqual(true);
+  // });
 
   describe('LayoutPages', () => {
     const layout1: ILayout = [components.top1, components.top2];
