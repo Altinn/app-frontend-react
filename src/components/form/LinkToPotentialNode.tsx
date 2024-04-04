@@ -26,9 +26,7 @@ export const LinkToPotentialNode = (props: Props) => {
   const shouldShowLink = nodeExists && !isNodeHidden;
 
   if (shouldShowLink) {
-    return (
-      <Link {...props} />
-    );
+    return <Link {...props} />;
   }
 
   if (!nodeExists) {
