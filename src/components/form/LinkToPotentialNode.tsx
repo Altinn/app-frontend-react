@@ -27,10 +27,7 @@ export const LinkToPotentialNode = (props: Props) => {
 
   if (shouldShowLink) {
     return (
-      <Link
-        {...props}
-        replace={!nodeExists}
-      ></Link>
+      <Link {...props} />
     );
   }
 
