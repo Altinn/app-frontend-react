@@ -22,12 +22,10 @@ export class Checkboxes extends CheckboxesDef {
     },
   );
 
-  evalExpressions({ item, evalTrb, evalCommon, evalBool }: ExprResolver<'Checkboxes'>) {
+  evalExpressions(props: ExprResolver<'Checkboxes'>) {
     return {
-      ...item,
-      ...evalCommon(),
-      ...evalTrb(),
-      alertOnChange: evalBool(item.alertOnChange, false),
+      ...this.evalDefaultExpressions(props),
+      alertOnChange: props.evalBool(props.item.alertOnChange, false),
     };
   }
 

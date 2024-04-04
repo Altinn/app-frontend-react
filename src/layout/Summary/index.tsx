@@ -4,7 +4,6 @@ import type { JSX } from 'react';
 import { SummaryDef } from 'src/layout/Summary/config.def.generated';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { ExprResolver } from 'src/layout/LayoutComponent';
 
 export class Summary extends SummaryDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Summary'>>(
@@ -18,14 +17,6 @@ export class Summary extends SummaryDef {
       );
     },
   );
-
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Summary'>) {
-    return {
-      ...item,
-      ...evalCommon(),
-      ...evalTrb(),
-    };
-  }
 
   renderSummary(): JSX.Element | null {
     // If the code ever ends up with a Summary component referencing another Summary component, we should not end up

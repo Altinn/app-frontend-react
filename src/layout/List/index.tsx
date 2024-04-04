@@ -13,7 +13,7 @@ import type { DisplayDataProps } from 'src/features/displayData';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
-import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class List extends ListDef {
@@ -22,14 +22,6 @@ export class List extends ListDef {
       return <ListComponent {...props} />;
     },
   );
-
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'List'>) {
-    return {
-      ...item,
-      ...evalCommon(),
-      ...evalTrb(),
-    };
-  }
 
   getDisplayData(node: LayoutNode<'List'>, item: CompInternal<'List'>, { formDataSelector }: DisplayDataProps): string {
     const formData = node.getFormData(formDataSelector);

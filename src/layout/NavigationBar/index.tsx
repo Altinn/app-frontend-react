@@ -3,7 +3,6 @@ import React, { forwardRef } from 'react';
 import { NavigationBarDef } from 'src/layout/NavigationBar/config.def.generated';
 import { NavigationBarComponent } from 'src/layout/NavigationBar/NavigationBarComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { ExprResolver } from 'src/layout/LayoutComponent';
 
 export class NavigationBar extends NavigationBarDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'NavigationBar'>>(
@@ -11,12 +10,4 @@ export class NavigationBar extends NavigationBarDef {
       return <NavigationBarComponent {...props} />;
     },
   );
-
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'NavigationBar'>) {
-    return {
-      ...item,
-      ...evalCommon(),
-      ...evalTrb(),
-    };
-  }
 }

@@ -11,7 +11,7 @@ import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelBindingsLikert } from 'src/layout/common.generated';
 import type { CompInternal } from 'src/layout/layout';
-import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class LikertItem extends LikertItemDef {
@@ -25,14 +25,6 @@ export class LikertItem extends LikertItemDef {
       );
     },
   );
-
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'LikertItem'>) {
-    return {
-      ...item,
-      ...evalCommon(),
-      ...evalTrb(),
-    };
-  }
 
   directRender(props: PropsFromGenericComponent<'LikertItem'>): boolean {
     return props.node.item.layout === LayoutStyle.Table || props.overrideItemProps?.layout === LayoutStyle.Table;

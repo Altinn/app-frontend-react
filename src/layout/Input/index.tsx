@@ -12,7 +12,7 @@ import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IInputFormatting } from 'src/layout/Input/config.generated';
 import type { CompInternal } from 'src/layout/layout';
-import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Input extends InputDef {
@@ -21,14 +21,6 @@ export class Input extends InputDef {
       return <InputComponent {...props} />;
     },
   );
-
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Input'>) {
-    return {
-      ...item,
-      ...evalCommon(),
-      ...evalTrb(),
-    };
-  }
 
   getDisplayData(
     node: LayoutNode<'Input'>,

@@ -7,7 +7,7 @@ import { GroupComponent } from 'src/layout/Group/GroupComponent';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { ChildClaimerProps, ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { ChildClaimerProps, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 import type { ItemStore } from 'src/utils/layout/itemState';
 
@@ -32,14 +32,6 @@ export class Group extends GroupDef {
     for (const id of item.children) {
       claimChild(id);
     }
-  }
-
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Group'>) {
-    return {
-      ...item,
-      ...evalCommon(),
-      ...evalTrb(),
-    };
   }
 
   pickDirectChildren(_state: ItemStore<'Group'>, _restriction?: ChildLookupRestriction): ItemStore[] {

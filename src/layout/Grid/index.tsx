@@ -47,15 +47,13 @@ export class Grid extends GridDef {
     }
   }
 
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Grid'>) {
+  evalExpressions(props: ExprResolver<'Grid'>) {
     return {
-      ...item,
-      ...evalCommon(),
-      ...evalTrb(),
+      ...this.evalDefaultExpressions(props),
 
       // TODO: Process rows and get make refs
       children: undefined,
-      rows: item.rows as GridRowsInternal,
+      rows: props.item.rows as GridRowsInternal,
     };
   }
 

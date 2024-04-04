@@ -12,7 +12,7 @@ export const Config = new CG.component({
     renderInAccordionGroup: false,
   },
   functionality: {
-    customExpressions: true,
+    customExpressions: false,
   },
 })
   .addDataModelBinding(CG.common('IDataModelBindingsOptionsSimple'))

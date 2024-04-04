@@ -21,12 +21,10 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
     },
   );
 
-  evalExpressions({ item, evalTrb, evalCommon, evalBool }: ExprResolver<'FileUploadWithTag'>) {
+  evalExpressions(props: ExprResolver<'FileUploadWithTag'>) {
     return {
-      ...item,
-      ...evalCommon(),
-      ...evalTrb(),
-      alertOnDelete: evalBool(item.alertOnDelete, false),
+      ...this.evalDefaultExpressions(props),
+      alertOnDelete: props.evalBool(props.item.alertOnDelete, false),
     };
   }
 

@@ -9,7 +9,7 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
-import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Dropdown extends DropdownDef {
@@ -18,14 +18,6 @@ export class Dropdown extends DropdownDef {
       return <DropdownComponent {...props} />;
     },
   );
-
-  evalExpressions({ item, evalTrb, evalCommon }: ExprResolver<'Dropdown'>) {
-    return {
-      ...item,
-      ...evalCommon(),
-      ...evalTrb(),
-    };
-  }
 
   getDisplayData(
     node: LayoutNode<'Dropdown'>,

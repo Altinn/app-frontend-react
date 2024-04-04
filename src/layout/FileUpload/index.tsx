@@ -21,12 +21,10 @@ export class FileUpload extends FileUploadDef implements ValidateComponent<'File
     },
   );
 
-  evalExpressions({ item, evalTrb, evalCommon, evalBool }: ExprResolver<'FileUpload'>) {
+  evalExpressions(props: ExprResolver<'FileUpload'>) {
     return {
-      ...item,
-      ...evalCommon(),
-      ...evalTrb(),
-      alertOnDelete: evalBool(item.alertOnDelete, false),
+      ...this.evalDefaultExpressions(props),
+      alertOnDelete: props.evalBool(props.item.alertOnDelete, false),
     };
   }
 
