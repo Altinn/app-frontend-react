@@ -104,6 +104,12 @@ export function useCurrentDataModelType() {
   return application.dataTypes.find((dt) => dt.id === name);
 }
 
+export function useDataModelType(dataType: string) {
+  const application = useApplicationMetadata();
+
+  return application.dataTypes.find((dt) => dt.id === dataType);
+}
+
 export function useBindingSchema<T extends IDataModelBindings | undefined>(bindings: T): AsSchema<T> | undefined {
   const lookup = useLaxCurrentDataModelSchemaLookup();
 

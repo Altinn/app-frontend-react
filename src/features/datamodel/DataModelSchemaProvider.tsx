@@ -4,19 +4,15 @@ import { useQuery } from '@tanstack/react-query';
 import type { JSONSchema7 } from 'json-schema';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
-import { ContextNotProvided } from 'src/core/contexts/context';
-import { delayedContext } from 'src/core/contexts/delayedContext';
-import { createQueryContext } from 'src/core/contexts/queryContext';
 import { dotNotationToPointer } from 'src/features/datamodel/notations';
 import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
-import { useCurrentDataModelName, useCurrentDataModelType } from 'src/features/datamodel/useBindingSchema';
+import { useDataModelType } from 'src/features/datamodel/useBindingSchema';
 import { getRootElementPath } from 'src/utils/schemaUtils';
 import type { SchemaLookupResult } from 'src/features/datamodel/SimpleSchemaTraversal';
 
-const useDataModelSchemaQuery = () => {
+export const useDataModelSchemaQuery = (dataModelName: string) => {
   const { fetchDataModelSchema } = useAppQueries();
-  const dataModelName = useCurrentDataModelName();
-  const dataType = useCurrentDataModelType();
+  const dataType = useDataModelType(dataModelName);
   const enabled = !!dataModelName;
 
   const utils = useQuery({
@@ -69,22 +65,3 @@ export class SchemaLookupTool {
     return result;
   }
 }
-
-const { Provider, useCtx, useLaxCtx } = delayedContext(() =>
-  createQueryContext<DataModelSchemaContext, true>({
-    name: 'DataModelSchema',
-    required: true,
-    query: useDataModelSchemaQuery,
-  }),
-);
-
-export const DataModelSchemaProvider = Provider;
-export const useCurrentDataModelSchema = () => useCtx().schema;
-export const useCurrentDataModelSchemaLookup = () => useCtx().lookupTool;
-export const useLaxCurrentDataModelSchemaLookup = () => {
-  const ctx = useLaxCtx();
-  if (ctx === ContextNotProvided) {
-    return undefined;
-  }
-  return ctx.lookupTool;
-};
