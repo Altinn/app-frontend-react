@@ -147,6 +147,7 @@ function Page({ layout, name, layoutSet }: PageProps) {
   const [children, setChildren] = useState<ChildrenState>({ forLayout: layout, map: undefined });
   const page = useMemo(() => new LayoutPage(), []);
   const addPage = NodesInternal.useAddPage();
+  const setPageProp = NodesInternal.useSetPageProp();
   const removePage = NodesInternal.useRemovePage();
   const hidden = useIsHiddenPage(page);
 
@@ -155,7 +156,7 @@ function Page({ layout, name, layoutSet }: PageProps) {
     page.registerCollection(name, layoutSet);
   }
 
-  // Removes the page from the store when is removed from the react tree
+  // Removes the page from the store when is removed from the React tree
   useEffect(
     () => () => {
       removePage(page.pageKey);
@@ -163,6 +164,10 @@ function Page({ layout, name, layoutSet }: PageProps) {
     },
     [page, removePage],
   );
+
+  useEffect(() => {
+    setPageProp(name, 'hidden', hidden ?? false);
+  }, [hidden, name, setPageProp]);
 
   const getProto = useMemo(() => {
     const proto: { [id: string]: ComponentProto } = {};

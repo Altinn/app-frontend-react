@@ -66,6 +66,7 @@ export function DefaultNodeGenerator<T extends CompTypes>({
     <>
       <NodeResolver
         {...props}
+        hidden={hidden}
         node={node}
       />
       <NodesGeneratorProvider
@@ -80,14 +81,43 @@ export function DefaultNodeGenerator<T extends CompTypes>({
 
 interface NodeResolverProps<T extends CompTypes> extends BasicNodeGeneratorProps<T> {
   node: LayoutNode<T>;
+  hidden: boolean;
 }
 
-function NodeResolver<T extends CompTypes>({ node, ...props }: NodeResolverProps<T>) {
+function NodeResolver<T extends CompTypes>({ node, hidden, ...props }: NodeResolverProps<T>) {
   const page = props.parent instanceof LayoutPage ? props.parent : props.parent.page;
   const isTopLevel = props.parent === page;
-  useRegisterNode(node, isTopLevel, props);
   const resolverProps = useExpressionResolverProps(node, props.item);
-  const resolvedItem = useResolvedItem(node, props.item, resolverProps);
+
+  const def = useDef(props.item.type);
+  const setNodeProp = useStore(node.store, (state) => state.setNodeProp);
+  const resolvedItem = useMemo(
+    () => (def as CompDef<T>).evalExpressions(resolverProps as any) as CompInternal<T>,
+    [def, resolverProps],
+  );
+
+  const propsRef = useAsRef(props);
+  const addTopLevelNode = NodesInternal.useAddTopLevelNode();
+  useEffect(() => {
+    const { item, row, parent } = propsRef.current;
+    const stateFactoryProps: StateFactoryProps<T> = { item: item as any, parent, row };
+    const defaultState = node.def.stateFactory(stateFactoryProps as any);
+
+    if (isTopLevel) {
+      addTopLevelNode(node, defaultState);
+    } else {
+      throw new Error('Child components are not supported yet.');
+    }
+  }, [addTopLevelNode, isTopLevel, node, propsRef]);
+
+  useEffect(() => {
+    setNodeProp(node, 'item', resolvedItem);
+    node.updateCommonProps(resolvedItem as any);
+  }, [node, resolvedItem, setNodeProp]);
+
+  useEffect(() => {
+    setNodeProp(node, 'hidden', hidden ?? false);
+  }, [hidden, node, setNodeProp]);
 
   return <>{props.debug && <pre style={{ fontSize: '0.8em' }}>{JSON.stringify(resolvedItem, null, 2)}</pre>}</>;
 }
@@ -223,50 +253,6 @@ function useNewNode<T extends CompTypes>({ item, parent, row, path }: BasicNodeG
 
     return node;
   }, [LNode, item, page, parent, path, row, store]);
-}
-
-function useRegisterNode<T extends CompTypes>(
-  node: LayoutNode<T>,
-  isTopLevel: boolean,
-  props: BasicNodeGeneratorProps<T>,
-) {
-  const propsRef = useAsRef(props);
-  const addTopLevelNode = NodesInternal.useAddTopLevelNode();
-  useEffect(() => {
-    const { item, row, parent } = propsRef.current;
-    const stateFactoryProps: StateFactoryProps<T> = { item: item as any, parent, row };
-    const defaultState = node.def.stateFactory(stateFactoryProps as any);
-
-    if (isTopLevel) {
-      addTopLevelNode(node, defaultState);
-    } else {
-      throw new Error('Child components are not supported yet.');
-    }
-  }, [addTopLevelNode, isTopLevel, node, propsRef]);
-}
-
-/**
- * Takes the resolver props and the item configuration, and resolves the item configuration into a CompInternal<Type>
- * object, which is then set on the node.
- */
-function useResolvedItem<T extends CompTypes>(
-  node: LayoutNode<T>,
-  item: CompExternalExact<T>,
-  resolverProps: ExprResolver<T>,
-): CompInternal<T> {
-  const def = useDef(item.type);
-  const setNodeProp = useStore(node.store, (state) => state.setNodeProp);
-  const resolvedItem = useMemo(
-    () => (def as CompDef<T>).evalExpressions(resolverProps as any) as CompInternal<T>,
-    [def, resolverProps],
-  );
-
-  useEffect(() => {
-    setNodeProp(node, 'item', resolvedItem);
-    node.updateCommonProps(resolvedItem as any);
-  }, [node, resolvedItem, setNodeProp]);
-
-  return resolvedItem;
 }
 
 function isFormItem(item: CompExternal): item is CompExternal & FormComponentProps {

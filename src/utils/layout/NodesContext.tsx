@@ -100,6 +100,19 @@ function setEveryProperty(obj: any, target: any) {
   return changed;
 }
 
+function setProperty(obj: any, prop: string, value: any) {
+  const existing = obj[prop];
+  if (typeof existing === 'object' && existing !== null) {
+    return setEveryProperty(value, existing);
+  } else if (existing !== value) {
+    obj[prop] = value;
+    console.log('debug, property changed', prop, 'was', existing, 'now', value);
+    return true;
+  }
+
+  return false;
+}
+
 export type NodesDataStore = StoreApi<NodesDataContext>;
 export function createNodesDataStore() {
   return createStore<NodesDataContext>()(
@@ -136,7 +149,7 @@ export function createNodesDataStore() {
             throw new Error('Parent node is not a node');
           }
           obj.ready = true;
-          const changed = setEveryProperty(value, (obj as any)[prop]);
+          const changed = setProperty(obj, prop as string, value);
           changed && console.log('debug, One or more properties changed in node', node.path);
         }),
       addPage: (pageKey) =>
@@ -166,7 +179,7 @@ export function createNodesDataStore() {
       setPageProp: (pageKey, prop, value) =>
         set((state) => {
           const obj = state.pages.pages[pageKey];
-          const changed = setEveryProperty(value, obj[prop]);
+          const changed = setProperty(obj, prop as string, value);
           changed && console.log('debug, One or more properties changed in page', pageKey);
         }),
     })),
@@ -279,6 +292,7 @@ export const NodesInternal = {
   useDataStore: () => DataStore.useStore(),
   useSetNodes: () => NodesStore.useSelector((s) => s.setNodes),
   useAddPage: () => DataStore.useSelector((s) => s.addPage),
+  useSetPageProp: () => DataStore.useSelector((s) => s.setPageProp),
   useIsReady: (path: string[], ...morePaths: string[][]) =>
     DataStore.useMemoSelector((s) => {
       try {
