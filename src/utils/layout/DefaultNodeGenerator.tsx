@@ -46,11 +46,6 @@ export function DefaultNodeGenerator<T extends CompTypes>({
   const nodeRef = useAsRef(node);
   const pageRef = useAsRef(page);
 
-  useRegisterNode(node, isTopLevel, props);
-
-  const resolverProps = useExpressionResolverProps(node, props.item);
-  const resolvedItem = useResolvedItem(node, props.item, resolverProps);
-
   useEffect(
     () => () => {
       pageRef.current._removeChild(nodeRef.current);
@@ -65,10 +60,27 @@ export function DefaultNodeGenerator<T extends CompTypes>({
 
   return (
     <>
-      {props.debug && <pre style={{ fontSize: '0.8em' }}>{JSON.stringify(resolvedItem, null, 2)}</pre>}
+      <NodeResolver
+        {...props}
+        node={node}
+      />
       {children}
     </>
   );
+}
+
+interface NodeResolverProps<T extends CompTypes> extends BasicNodeGeneratorProps<T> {
+  node: LayoutNode<T>;
+}
+
+function NodeResolver<T extends CompTypes>({ node, ...props }: NodeResolverProps<T>) {
+  const page = props.parent instanceof LayoutPage ? props.parent : props.parent.page;
+  const isTopLevel = props.parent === page;
+  useRegisterNode(node, isTopLevel, props);
+  const resolverProps = useExpressionResolverProps(node, props.item);
+  const resolvedItem = useResolvedItem(node, props.item, resolverProps);
+
+  return <>{props.debug && <pre style={{ fontSize: '0.8em' }}>{JSON.stringify(resolvedItem, null, 2)}</pre>}</>;
 }
 
 /**
