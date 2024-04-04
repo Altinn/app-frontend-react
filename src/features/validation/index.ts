@@ -83,7 +83,7 @@ export type ValidationContext = {
 
 export type ValidationState = {
   task: BaseValidation[];
-  fields: FieldValidations;
+  dataModels: DataModelValidations;
   components: ComponentValidations;
 };
 
@@ -92,7 +92,11 @@ export type ValidationState = {
  */
 export type BackendValidations = {
   task: BaseValidation[];
-  fields: FieldValidations;
+  dataModels: DataModelValidations;
+};
+
+export type DataModelValidations = {
+  [dataType: string]: FieldValidations;
 };
 
 export type FieldValidations = {

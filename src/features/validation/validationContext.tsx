@@ -10,7 +10,7 @@ import { useHasPendingAttachments } from 'src/features/attachments/AttachmentsCo
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useBackendValidation } from 'src/features/validation/backendValidation/useBackendValidation';
 import { useExpressionValidation } from 'src/features/validation/expressionValidation/useExpressionValidation';
-import { useInvalidDataValidation } from 'src/features/validation/invalidDataValidation/useInvalidDataValidation';
+import { InvalidDataValidation } from 'src/features/validation/invalidDataValidation/InvalidDataValidation';
 import { useNodeValidation } from 'src/features/validation/nodeValidation/useNodeValidation';
 import { useSchemaValidation } from 'src/features/validation/schemaValidation/useSchemaValidation';
 import {
@@ -31,6 +31,7 @@ import type {
   BackendValidationIssueGroups,
   BackendValidations,
   ComponentValidations,
+  DataModelValidations,
   FieldValidations,
   ValidationContext,
   WaitForValidation,
@@ -47,9 +48,9 @@ interface Internals {
   individualValidations: {
     backend: BackendValidations;
     component: ComponentValidations;
-    expression: FieldValidations;
-    schema: FieldValidations;
-    invalidData: FieldValidations;
+    expression: DataModelValidations;
+    schema: DataModelValidations;
+    invalidData: DataModelValidations;
   };
   issueGroupsProcessedLast: BackendValidationIssueGroups | undefined;
   updateValidations: <K extends keyof Internals['individualValidations']>(
@@ -68,7 +69,7 @@ function initialCreateStore({ validating }: NewStoreProps) {
       // Publicly exposed state
       state: {
         task: [],
-        fields: {},
+        dataModels: {},
         components: {},
       },
       visibility: {
@@ -99,7 +100,7 @@ function initialCreateStore({ validating }: NewStoreProps) {
       // Internal state
       isLoading: true,
       individualValidations: {
-        backend: { task: [], fields: {} },
+        backend: { task: [], dataModels: {} },
         component: {},
         expression: {},
         schema: {},
@@ -113,16 +114,19 @@ function initialCreateStore({ validating }: NewStoreProps) {
             state.state.task = (validations as BackendValidations).task;
             state.issueGroupsProcessedLast = issueGroups;
           }
-          state.individualValidations[key] = validations;
           if (key === 'component') {
+            state.individualValidations.component = validations as ComponentValidations;
             state.state.components = validations as ComponentValidations;
           } else {
-            state.state.fields = mergeFieldValidations(
-              state.individualValidations.backend.fields,
-              state.individualValidations.invalidData,
-              state.individualValidations.schema,
-              state.individualValidations.expression,
-            );
+            for (const [dataType, fieldValidations] of Object.entries(validations)) {
+              state.individualValidations[key][dataType] = fieldValidations;
+              state.state.dataModels[dataType] = mergeFieldValidations(
+                state.individualValidations.backend[dataType].fields,
+                state.individualValidations.invalidData[dataType],
+                state.individualValidations.schema[dataType],
+                state.individualValidations.expression[dataType],
+              );
+            }
           }
         }),
       updateVisibility: (mutator) =>
@@ -176,6 +180,7 @@ export function ValidationProvider({ children, isCustomReceipt = false }: PropsW
     <Provider validating={validating}>
       <MakeWaitForState waitForStateRef={waitForStateRef} />
       <UpdateValidations isCustomReceipt={isCustomReceipt} />
+      <InvalidDataValidation />
       <ManageVisibility />
       <LoadingBlocker isCustomReceipt={isCustomReceipt}>{children}</LoadingBlocker>
     </Provider>
@@ -214,7 +219,6 @@ function UpdateValidations({ isCustomReceipt }: Props) {
   const componentValidations = useNodeValidation();
   const expressionValidations = useExpressionValidation();
   const schemaValidations = useSchemaValidation();
-  const invalidDataValidations = useInvalidDataValidation();
 
   useEffect(() => {
     updateValidations('component', componentValidations);
@@ -227,10 +231,6 @@ function UpdateValidations({ isCustomReceipt }: Props) {
   useEffect(() => {
     updateValidations('schema', schemaValidations);
   }, [schemaValidations, updateValidations]);
-
-  useEffect(() => {
-    updateValidations('invalidData', invalidDataValidations);
-  }, [invalidDataValidations, updateValidations]);
 
   return null;
 }
@@ -307,6 +307,7 @@ export const Validation = {
   useSetNodeVisibility: () => useSelector((state) => state.setNodeVisibility),
   useSetShowAllErrors: () => useSelector((state) => state.setShowAllErrors),
   useValidating: () => useSelector((state) => state.validating),
+  useUpdateValidations: () => useSelector((state) => state.updateValidations),
 
   useLaxRef: () => useLaxSelectorAsRef((state) => state),
 };

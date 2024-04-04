@@ -170,7 +170,7 @@ export function FormDataWriteProvider({ url, dataElementId, initialData, autoSav
 }
 
 function AllFormDataEffects() {
-  const dataTypes = useSelector((s) => Object.keys(s.dataModels));
+  const dataTypes = useMemoSelector((s) => Object.keys(s.dataModels));
 
   return (
     <>
@@ -642,4 +642,10 @@ export const FD = {
    * Returns the latest validation issues from the backend, from the last time the form data was saved.
    */
   useLastSaveValidationIssues: (dataType: string) => useSelector((s) => s.dataModels[dataType].validationIssues),
+
+  /**
+   * Returns the names of the current data types that are writable,
+   * this is memoized because otherwise Object.keys would create a new list on every render.
+   */
+  useDataTypes: () => useMemoSelector((s) => Object.keys(s.dataModels)),
 };
