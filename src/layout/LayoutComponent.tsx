@@ -56,9 +56,9 @@ export type NodeGeneratorProps<Type extends CompTypes> =
 export interface ExprResolver<Type extends CompTypes> {
   item: CompExternalExact<Type>;
   formDataSelector: FormDataSelector;
-  evalCommon: () => ExprResolved<Required<ComponentBase>> &
-    ExprResolved<Required<FormComponentProps>> &
-    ExprResolved<Required<SummarizableComponentProps>>;
+  evalBase: () => ExprResolved<Omit<ComponentBase, 'hidden'>>;
+  evalFormProps: () => ExprResolved<FormComponentProps>;
+  evalSummarizable: () => ExprResolved<SummarizableComponentProps>;
   evalStr: SimpleEval<ExprVal.String>;
   evalNum: SimpleEval<ExprVal.Number>;
   evalBool: SimpleEval<ExprVal.Boolean>;

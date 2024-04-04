@@ -8,6 +8,7 @@ import { ContainerComponent } from 'src/layout/LayoutComponent';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import { NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
+import { NodesGeneratorProvider } from 'src/utils/layout/NodesGeneratorContext';
 import type { CompExternal, ILayout } from 'src/layout/layout';
 import type {
   BasicNodeGeneratorProps,
@@ -212,33 +213,35 @@ function Page({ layout, name, layoutSet }: PageProps) {
         topLevelIds={topLevelIds}
       />
       <MaintainPageState name={name} />
-      {debug && <h2>Page: {name}</h2>}
-      {map === undefined &&
-        layout.map((component) => (
-          <ComponentClaimChildren
-            key={component.id}
-            component={component}
-            setChildren={setChildren}
-            getProto={getProto}
-          />
-        ))}
-      {map !== undefined &&
-        layout.map((component) => {
-          if (claimedChildren.has(component.id)) {
-            return null;
-          }
-
-          return (
-            <Component
+      <NodesGeneratorProvider>
+        {debug && <h2>Page: {name}</h2>}
+        {map === undefined &&
+          layout.map((component) => (
+            <ComponentClaimChildren
               key={component.id}
               component={component}
-              childIds={map[component.id]}
-              getItem={getItem}
-              parent={page}
-              path={[name, component.id]}
+              setChildren={setChildren}
+              getProto={getProto}
             />
-          );
-        })}
+          ))}
+        {map !== undefined &&
+          layout.map((component) => {
+            if (claimedChildren.has(component.id)) {
+              return null;
+            }
+
+            return (
+              <Component
+                key={component.id}
+                component={component}
+                childIds={map[component.id]}
+                getItem={getItem}
+                parent={page}
+                path={[name, component.id]}
+              />
+            );
+          })}
+      </NodesGeneratorProvider>
     </>
   );
 }

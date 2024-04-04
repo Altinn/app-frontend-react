@@ -251,6 +251,24 @@ export class ComponentConfig {
       from: 'src/layout/LayoutComponent',
     });
 
+    const isFormComponent = this.config.category === CompCategory.Form;
+    const isSummarizable = this.behaviors.isSummarizable;
+
+    const evalCommonProps = [
+      { base: CG.common('ComponentBase'), condition: true, evaluator: 'evalBase' },
+      { base: CG.common('FormComponentProps'), condition: isFormComponent, evaluator: 'evalFormProps' },
+      { base: CG.common('SummarizableComponentProps'), condition: isSummarizable, evaluator: 'evalSummarizable' },
+    ];
+
+    const evalLines: string[] = [];
+    const itemLine: string[] = [];
+    for (const { base, condition, evaluator } of evalCommonProps) {
+      if (condition) {
+        itemLine.push(`keyof ${base}`);
+        evalLines.push(`...props.${evaluator}(),`);
+      }
+    }
+
     return `export abstract class ${symbol}Def extends ${categorySymbol}<'${this.type}'> {
       protected readonly type = '${this.type}';
 
@@ -267,11 +285,11 @@ export class ComponentConfig {
       }
 
       // Do not override this one, set functionality.customExpressions to true instead
-      evalDefaultExpressions({ item, evalTrb, evalCommon }: ${ExprResolver}<'${this.type}'>) {
+      evalDefaultExpressions(props: ${ExprResolver}<'${this.type}'>) {
         return {
-          ...item,
-          ...evalCommon(),
-          ...evalTrb(),
+          ...props.item as Omit<typeof props.item, ${itemLine.join(' | ')} | 'hidden'>,
+          ${evalLines.join('\n')}
+          ...props.evalTrb(),
         };
       }
 

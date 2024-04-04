@@ -10,6 +10,7 @@ import { getLayoutComponentObject, getNodeConstructor } from 'src/layout';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { NodesGeneratorProvider } from 'src/utils/layout/NodesGeneratorContext';
 import type { SimpleEval } from 'src/features/expressions';
 import type { ExprConfig, ExprResolved, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { CompDef } from 'src/layout';
@@ -65,7 +66,7 @@ export function DefaultNodeGenerator<T extends CompTypes>({
         {...props}
         node={node}
       />
-      {children}
+      <NodesGeneratorProvider>{children}</NodesGeneratorProvider>
     </>
   );
 }
@@ -134,25 +135,42 @@ export function useExpressionResolverProps<T extends CompTypes>(
 
   // This resolves common expressions that are used by multiple components
   // and are not specific to a single component type.
-  const evalCommon = useCallback<ExprResolver<T>['evalCommon']>(() => {
-    const extras: any = {};
+  const evalBase = useCallback<ExprResolver<T>['evalBase']>(() => {
+    const { hidden: _hidden, ...rest } = item;
+    return {
+      ...rest,
+      ...(rest.pageBreak
+        ? {
+            pageBreak: {
+              breakBefore: evalStr(rest.pageBreak.breakBefore, 'auto'),
+              breakAfter: evalStr(rest.pageBreak.breakAfter, 'auto'),
+            },
+          }
+        : {}),
+    };
+  }, [evalStr, item]);
+
+  const evalFormProps = useCallback<ExprResolver<T>['evalFormProps']>(() => {
+    const out: any = {};
     if (isFormItem(item)) {
       if (item.required !== undefined) {
-        extras.required = evalBool(item.required, false);
+        out.required = evalBool(item.required, false);
       }
       if (item.readOnly !== undefined) {
-        extras.readOnly = evalBool(item.readOnly, false);
+        out.readOnly = evalBool(item.readOnly, false);
       }
     }
+
+    return out;
+  }, [evalBool, item]);
+
+  const evalSummarizable = useCallback<ExprResolver<T>['evalSummarizable']>(() => {
+    const out: any = {};
     if (isSummarizableItem(item) && item.renderAsSummary !== undefined) {
-      extras.renderAsSummary = evalBool(item.renderAsSummary, false);
+      out.renderAsSummary = evalBool(item.renderAsSummary, false);
     }
 
-    return {
-      ...item,
-      hidden: evalBool(item.hidden, false),
-      ...extras,
-    };
+    return out;
   }, [evalBool, item]);
 
   // This resolves all text resource bindings in a component
@@ -175,7 +193,9 @@ export function useExpressionResolverProps<T extends CompTypes>(
     evalNum,
     evalStr,
     evalAny,
-    evalCommon,
+    evalBase,
+    evalFormProps,
+    evalSummarizable,
     evalTrb,
     formDataSelector: allDataSources.formDataSelector,
   };
