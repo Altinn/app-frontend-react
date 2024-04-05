@@ -9,8 +9,8 @@ import { useAsRef } from 'src/hooks/useAsRef';
 import { getLayoutComponentObject, getNodeConstructor } from 'src/layout';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
-import { NodesGeneratorProvider } from 'src/utils/layout/NodesGeneratorContext';
+import { NodesInternal, useIsHiddenViaRules } from 'src/utils/layout/NodesContext';
+import { NodeGeneratorInternal, NodesGeneratorProvider } from 'src/utils/layout/NodesGeneratorContext';
 import { useResolvedExpression } from 'src/utils/layout/useResolvedExpression';
 import type { SimpleEval } from 'src/features/expressions';
 import type { ExprConfig, ExprResolved, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
@@ -48,7 +48,11 @@ export function DefaultNodeGenerator<T extends CompTypes>({
   const removeTopLevelNode = NodesInternal.useRemoveTopLevelNode();
   const nodeRef = useAsRef(node);
   const pageRef = useAsRef(page);
-  const hidden = useResolvedExpression(ExprVal.Boolean, node, props.item.hidden, false);
+
+  const hiddenByParent = NodeGeneratorInternal.useIsHiddenByParent();
+  const hiddenByExpression = useResolvedExpression(ExprVal.Boolean, node, props.item.hidden, false);
+  const hiddenByRule = useIsHiddenViaRules(node);
+  const hidden = hiddenByExpression || hiddenByRule || hiddenByParent;
 
   useEffect(
     () => () => {

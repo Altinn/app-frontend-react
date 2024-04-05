@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 
 import { ExprVal } from 'src/features/expressions/types';
 import { useHiddenLayoutsExpressions, useLayouts } from 'src/features/form/layout/LayoutsContext';
+import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { getLayoutComponentObject } from 'src/layout';
@@ -149,7 +150,11 @@ function Page({ layout, name, layoutSet }: PageProps) {
   const addPage = NodesInternal.useAddPage();
   const setPageProp = NodesInternal.useSetPageProp();
   const removePage = NodesInternal.useRemovePage();
-  const hidden = useIsHiddenPage(page);
+
+  const pageOrder = useLayoutSettings().pages.order;
+  const hiddenByOrder = pageOrder && !pageOrder.includes(name);
+  const hiddenByExpression = useIsHiddenPage(page);
+  const hidden = hiddenByExpression || hiddenByOrder;
 
   addPage(name);
   if (!page.isRegisteredInCollection(layoutSet)) {

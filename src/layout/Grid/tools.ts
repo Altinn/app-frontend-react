@@ -1,12 +1,12 @@
 import { isNodeRef } from 'src/utils/layout/nodeRef';
-import { useIsHiddenViaRules, useNodeSelector } from 'src/utils/layout/NodesContext';
+import { useIsHiddenViaRulesSelector, useNodeSelector } from 'src/utils/layout/NodesContext';
 import type { GridCell, GridCellLabelFrom, GridCellText, GridRow, GridRows } from 'src/layout/common.generated';
 import type { GridCellInternal, GridCellNodeRef } from 'src/layout/Grid/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IsHiddenViaRulesSelector, NodeSelector } from 'src/utils/layout/NodesContext';
 
 export function useNodesFromGrid(grid: LayoutNode<'Grid'> | undefined, enabled = true) {
-  const isHiddenSelector = useIsHiddenViaRules();
+  const isHiddenSelector = useIsHiddenViaRulesSelector();
   const nodeSelector = useNodeSelector();
   return enabled && grid ? nodesFromGrid(grid, isHiddenSelector, nodeSelector) : [];
 }
@@ -20,7 +20,7 @@ export function nodesFromGrid(
 }
 
 export function useNodesFromGridRows(rows: GridRows | undefined, enabled = true) {
-  const isHiddenSelector = useIsHiddenViaRules();
+  const isHiddenSelector = useIsHiddenViaRulesSelector();
   const nodeSelector = useNodeSelector();
   return enabled && rows ? nodesFromGridRows(rows, isHiddenSelector, nodeSelector) : [];
 }

@@ -32,6 +32,7 @@ const { Provider, useCtx, useLaxCtx } = createContext<NodesGeneratorContext>({
 export function NodesGeneratorProvider({ children, ...rest }: PropsWithChildren<ProviderProps>) {
   const _parent = useLaxCtx();
   const parent = _parent === ContextNotProvided ? undefined : _parent;
+
   const value: NodesGeneratorContext = {
     ...parent,
     ...rest,

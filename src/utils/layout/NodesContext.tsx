@@ -275,8 +275,12 @@ export function useNodeSelector() {
   });
 }
 
-export type IsHiddenViaRulesSelector = ReturnType<typeof useIsHiddenViaRules>;
-export function useIsHiddenViaRules() {
+export function useIsHiddenViaRules(node: LayoutNode) {
+  return NodesStore.useSelector((s) => s.hiddenViaRules.has(node.getId()));
+}
+
+export type IsHiddenViaRulesSelector = ReturnType<typeof useIsHiddenViaRulesSelector>;
+export function useIsHiddenViaRulesSelector() {
   return NodesStore.useDelayedMemoSelectorFactory({
     selector: (nodeId: string | NodeRef) => (state) =>
       state.hiddenViaRules.has(isNodeRef(nodeId) ? nodeId.nodeRef : nodeId),
