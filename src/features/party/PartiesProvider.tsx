@@ -91,10 +91,9 @@ const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
   const validParties = usePartiesCtx() as IParty[];
   const [sentToMutation, setSentToMutation] = useState<IParty | undefined>(undefined);
   const { mutateAsync, data: dataFromMutation, error: errorFromMutation } = useSetCurrentPartyMutation();
-  const queryEnabled = true; //validParties.length > 1 && !prompt;
-  const { data: partyFromQuery, isLoading, error: errorFromQuery } = useCurrentPartyQuery(queryEnabled);
+  const { data: partyFromQuery, isLoading, error: errorFromQuery } = useCurrentPartyQuery(true);
 
-  if (queryEnabled && isLoading) {
+  if (isLoading) {
     return <Loader reason={'current-party'} />;
   }
 
