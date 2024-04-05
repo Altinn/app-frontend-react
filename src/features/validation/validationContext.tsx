@@ -10,7 +10,7 @@ import { useHasPendingAttachments } from 'src/features/attachments/AttachmentsCo
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useBackendValidation } from 'src/features/validation/backendValidation/useBackendValidation';
-import { useExpressionValidation } from 'src/features/validation/expressionValidation/useExpressionValidation';
+import { ExpressionValidation } from 'src/features/validation/expressionValidation/ExpressionValidation';
 import { InvalidDataValidation } from 'src/features/validation/invalidDataValidation/InvalidDataValidation';
 import { useNodeValidation } from 'src/features/validation/nodeValidation/useNodeValidation';
 import { SchemaValidation } from 'src/features/validation/schemaValidation/SchemaValidation';
@@ -185,6 +185,7 @@ export function ValidationProvider({ children, isCustomReceipt = false }: PropsW
       {dataTypes.map((dataType) => (
         <React.Fragment key={dataType}>
           <SchemaValidation dataType={dataType} />
+          <ExpressionValidation dataType={dataType} />
           <InvalidDataValidation dataType={dataType} />
         </React.Fragment>
       ))}
@@ -224,15 +225,10 @@ function UpdateValidations({ isCustomReceipt }: Props) {
   }, [backendValidation, updateValidations]);
 
   const componentValidations = useNodeValidation();
-  const expressionValidations = useExpressionValidation();
 
   useEffect(() => {
     updateValidations('component', componentValidations);
   }, [componentValidations, updateValidations]);
-
-  useEffect(() => {
-    updateValidations('expression', expressionValidations);
-  }, [expressionValidations, updateValidations]);
 
   return null;
 }
