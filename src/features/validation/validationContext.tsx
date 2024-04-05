@@ -7,12 +7,13 @@ import { immer } from 'zustand/middleware/immer';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { Loader } from 'src/core/loading/Loader';
 import { useHasPendingAttachments } from 'src/features/attachments/AttachmentsContext';
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useBackendValidation } from 'src/features/validation/backendValidation/useBackendValidation';
 import { useExpressionValidation } from 'src/features/validation/expressionValidation/useExpressionValidation';
 import { InvalidDataValidation } from 'src/features/validation/invalidDataValidation/InvalidDataValidation';
 import { useNodeValidation } from 'src/features/validation/nodeValidation/useNodeValidation';
-import { useSchemaValidation } from 'src/features/validation/schemaValidation/useSchemaValidation';
+import { SchemaValidation } from 'src/features/validation/schemaValidation/SchemaValidation';
 import {
   getVisibilityMask,
   hasValidationErrors,
@@ -156,6 +157,7 @@ interface Props {
 }
 
 export function ValidationProvider({ children, isCustomReceipt = false }: PropsWithChildren<Props>) {
+  const dataTypes = DataModels.useWritableDataTypes();
   const waitForSave = FD.useWaitForSave();
   const waitForStateRef = useRef<WaitForState<ValidationContext & Internals, unknown>>();
   const hasPendingAttachments = useHasPendingAttachments();
@@ -180,7 +182,12 @@ export function ValidationProvider({ children, isCustomReceipt = false }: PropsW
     <Provider validating={validating}>
       <MakeWaitForState waitForStateRef={waitForStateRef} />
       <UpdateValidations isCustomReceipt={isCustomReceipt} />
-      <InvalidDataValidation />
+      {dataTypes.map((dataType) => (
+        <React.Fragment key={dataType}>
+          <SchemaValidation dataType={dataType} />
+          <InvalidDataValidation dataType={dataType} />
+        </React.Fragment>
+      ))}
       <ManageVisibility />
       <LoadingBlocker isCustomReceipt={isCustomReceipt}>{children}</LoadingBlocker>
     </Provider>
@@ -218,7 +225,6 @@ function UpdateValidations({ isCustomReceipt }: Props) {
 
   const componentValidations = useNodeValidation();
   const expressionValidations = useExpressionValidation();
-  const schemaValidations = useSchemaValidation();
 
   useEffect(() => {
     updateValidations('component', componentValidations);
@@ -227,10 +233,6 @@ function UpdateValidations({ isCustomReceipt }: Props) {
   useEffect(() => {
     updateValidations('expression', expressionValidations);
   }, [expressionValidations, updateValidations]);
-
-  useEffect(() => {
-    updateValidations('schema', schemaValidations);
-  }, [schemaValidations, updateValidations]);
 
   return null;
 }

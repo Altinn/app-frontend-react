@@ -182,8 +182,13 @@ function LoadExpressionValidationConfig({ dataType }: LoaderProps) {
   return null;
 }
 
-export const useWritableDataTypes = () => useSelector((state) => state.dataTypes);
-export const useDataModelSchema = (dataType: string) => useSelector((state) => state.schemas[dataType]);
-export const useDataModelSchemaLookupTool = (dataType: string) => useSelector((state) => state.schemaLookup[dataType]);
-export const useExpressionValidationConfig = (dataType: string) =>
-  useSelector((state) => state.expressionValidationConfigs[dataType]);
+export const DataModels = {
+  useWritableDataTypes: () => useSelector((state) => state.dataTypes!),
+
+  useDataModelSchema: (dataType: string) => useSelector((state) => state.schemas[dataType]),
+
+  useDataModelSchemaLookupTool: (dataType: string) => useSelector((state) => state.schemaLookup[dataType]),
+
+  useExpressionValidationConfig: (dataType: string) =>
+    useSelector((state) => state.expressionValidationConfigs[dataType]),
+};

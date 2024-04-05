@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 
 import dot from 'dot-object';
 
@@ -7,26 +7,11 @@ import { FrontendValidationSource, ValidationMask } from '..';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { Validation } from 'src/features/validation/validationContext';
 
-export function InvalidDataValidation() {
-  const dataTypes = FD.useDataTypes();
-
-  return (
-    <>
-      {dataTypes.map((dataType) => (
-        <InvalidDataValidationEffect
-          key={dataType}
-          dataType={dataType}
-        />
-      ))}
-    </>
-  );
-}
-
 function isScalar(value: any): value is string | number | boolean {
   return typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean';
 }
 
-function InvalidDataValidationEffect({ dataType }: { dataType: string }) {
+export function InvalidDataValidation({ dataType }: { dataType: string }) {
   const updateValidations = Validation.useUpdateValidations();
   const invalidData = FD.useInvalidDebounced(dataType);
 
