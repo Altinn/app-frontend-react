@@ -39,6 +39,8 @@ const { Provider, useCtx } = createContext<NodesGeneratorContext>({
 
 type RealNodeGeneratorProps = PropsWithChildren<ProviderProps> & { parent: LayoutPage | LayoutNode };
 
+const emptyArray: never[] = [];
+
 /**
  * This provider will use upper contexts to set the hidden and depth values, as well as inherit recursive
  * mutators from the parent. This way we can have a single recursive mutator that is applied to all children, no
@@ -51,7 +53,7 @@ export function NodesGeneratorProvider({ children, ...rest }: RealNodeGeneratorP
     ...rest,
 
     // Direct mutators and rows are not meant to be inherited, if none are passed to us directly we'll reset
-    directMutators: rest.directMutators ?? [],
+    directMutators: rest.directMutators ?? emptyArray,
     row: rest.row ?? undefined,
 
     // If the parent is hidden, we are also hidden. The default is false, and every component inside a hidden one
@@ -81,8 +83,8 @@ export function NodesGeneratorPageProvider({ children, ...rest }: RealNodeGenera
 }
 
 export const NodeGeneratorInternal = {
-  useDirectMutators: () => useCtx().directMutators ?? [],
-  useRecursiveMutators: () => useCtx().recursiveMutators ?? [],
+  useDirectMutators: () => useCtx().directMutators ?? emptyArray,
+  useRecursiveMutators: () => useCtx().recursiveMutators ?? emptyArray,
   useIsHiddenByParent: () => useCtx().hidden ?? false,
   useDepth: () => useCtx().depth,
   useLayoutMap: () => useCtx().layoutMap,
