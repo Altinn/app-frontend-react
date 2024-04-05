@@ -63,7 +63,7 @@ export const App = () => (
 
       <Route
         path='*'
-        element={<DefaultComponent></DefaultComponent>}
+        element={<DefaultComponent />}
       />
     </Route>
   </Routes>
