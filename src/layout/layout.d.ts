@@ -131,17 +131,20 @@ export type LayoutNodeFromCategory<Type> = Type extends CompCategory ? LayoutNod
 
 export type ILayoutCollection = { [pageName: string]: ILayoutFileExternal };
 
-export type IsContainerComp<T extends CompTypes> = ComponentTypeConfigs[T]['category'] extends 'container'
+export type IsContainerComp<T extends CompTypes> = ComponentTypeConfigs[T]['category'] extends CompCategory.Container
   ? true
   : false;
 
-export type IsActionComp<T extends CompTypes> = ComponentTypeConfigs[T]['category'] extends 'action' ? true : false;
-
-export type IsFormComp<T extends CompTypes> = ComponentTypeConfigs[T]['category'] extends 'form' ? true : false;
-
-export type IsPresentationComp<T extends CompTypes> = ComponentTypeConfigs[T]['category'] extends 'presentation'
+export type IsActionComp<T extends CompTypes> = ComponentTypeConfigs[T]['category'] extends CompCategory.Action
   ? true
   : false;
+
+export type IsFormComp<T extends CompTypes> = ComponentTypeConfigs[T]['category'] extends CompCategory.Form
+  ? true
+  : false;
+
+export type IsPresentationComp<T extends CompTypes> =
+  ComponentTypeConfigs[T]['category'] extends CompCategory.Presentation ? true : false;
 
 export type CompWithCap<Capability extends keyof ComponentCapabilities> = {
   [Type in CompTypes]: (typeof ComponentConfigs)[Type]['capabilities'][Capability] extends true ? Type : never;

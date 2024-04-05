@@ -10,6 +10,7 @@ import { getLayoutComponentObject, getNodeConstructor } from 'src/layout';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { NodesInternal, useIsHiddenViaRules } from 'src/utils/layout/NodesContext';
+import { NodeGeneratorDebug } from 'src/utils/layout/NodesGenerator';
 import { NodeGeneratorInternal, NodesGeneratorProvider } from 'src/utils/layout/NodesGeneratorContext';
 import { useResolvedExpression } from 'src/utils/layout/useResolvedExpression';
 import type { SimpleEval } from 'src/features/expressions';
@@ -37,20 +38,21 @@ import type { LayoutNode, LayoutNodeProps } from 'src/utils/layout/LayoutNode';
  * can always be up-to-date, and so that we can implement effects for components that run even when the
  * component is not visible/rendered.
  */
-export function DefaultNodeGenerator<T extends CompTypes>({
-  children,
-  ...props
-}: PropsWithChildren<BasicNodeGeneratorProps<T>>) {
-  const node = useNewNode(props);
-  const page = props.parent instanceof LayoutPage ? props.parent : props.parent.page;
-  const isTopLevel = props.parent === page;
+export function DefaultNodeGenerator({ children, baseId }: PropsWithChildren<BasicNodeGeneratorProps>) {
+  const layoutMap = NodeGeneratorInternal.useLayoutMap();
+  const parent = NodeGeneratorInternal.useParent();
+  const item = useItem(layoutMap[baseId]);
+  const path = usePath(item);
+  const node = useNewNode(item, path);
+  const page = NodeGeneratorInternal.usePage();
+  const isTopLevel = parent === page;
   const isTopLevelRef = useAsRef(isTopLevel);
   const removeTopLevelNode = NodesInternal.useRemoveTopLevelNode();
   const nodeRef = useAsRef(node);
   const pageRef = useAsRef(page);
 
   const hiddenByParent = NodeGeneratorInternal.useIsHiddenByParent();
-  const hiddenByExpression = useResolvedExpression(ExprVal.Boolean, node, props.item.hidden, false);
+  const hiddenByExpression = useResolvedExpression(ExprVal.Boolean, node, item.hidden, false);
   const hiddenByRule = useIsHiddenViaRules(node);
   const hidden = hiddenByExpression || hiddenByRule || hiddenByParent;
 
@@ -69,7 +71,7 @@ export function DefaultNodeGenerator<T extends CompTypes>({
   return (
     <>
       <NodeResolver
-        {...props}
+        item={item}
         hidden={hidden}
         node={node}
       />
@@ -83,36 +85,37 @@ export function DefaultNodeGenerator<T extends CompTypes>({
   );
 }
 
-interface NodeResolverProps<T extends CompTypes> extends BasicNodeGeneratorProps<T> {
+interface NodeResolverProps<T extends CompTypes> {
   node: LayoutNode<T>;
   hidden: boolean;
+  item: CompExternal<T>;
 }
 
-function NodeResolver<T extends CompTypes>({ node, hidden, ...props }: NodeResolverProps<T>) {
-  const page = props.parent instanceof LayoutPage ? props.parent : props.parent.page;
-  const isTopLevel = props.parent === page;
-  const resolverProps = useExpressionResolverProps(node, props.item);
+function NodeResolver<T extends CompTypes = CompTypes>({ node, hidden, item }: NodeResolverProps<T>) {
+  const page = NodeGeneratorInternal.usePage();
+  const parent = NodeGeneratorInternal.useParent();
+  const row = NodeGeneratorInternal.useRow();
+  const isTopLevel = parent === page;
+  const resolverProps = useExpressionResolverProps(node, item);
 
-  const def = useDef(props.item.type);
+  const def = useDef(item.type);
   const setNodeProp = useStore(node.store, (state) => state.setNodeProp);
   const resolvedItem = useMemo(
     () => (def as CompDef<T>).evalExpressions(resolverProps as any) as CompInternal<T>,
     [def, resolverProps],
   );
 
-  const propsRef = useAsRef(props);
+  const stateFactoryProps = useAsRef<StateFactoryProps<T>>({ item: item as any, parent, row });
   const addTopLevelNode = NodesInternal.useAddTopLevelNode();
   useEffect(() => {
-    const { item, row, parent } = propsRef.current;
-    const stateFactoryProps: StateFactoryProps<T> = { item: item as any, parent, row };
-    const defaultState = node.def.stateFactory(stateFactoryProps as any);
+    const defaultState = node.def.stateFactory(stateFactoryProps.current as any);
 
     if (isTopLevel) {
       addTopLevelNode(node, defaultState);
     } else {
       throw new Error('Child components are not supported yet.');
     }
-  }, [addTopLevelNode, isTopLevel, node, propsRef]);
+  }, [addTopLevelNode, isTopLevel, node, stateFactoryProps]);
 
   useEffect(() => {
     setNodeProp(node, 'item', resolvedItem);
@@ -123,7 +126,7 @@ function NodeResolver<T extends CompTypes>({ node, hidden, ...props }: NodeResol
     setNodeProp(node, 'hidden', hidden ?? false);
   }, [hidden, node, setNodeProp]);
 
-  return <>{props.debug && <pre style={{ fontSize: '0.8em' }}>{JSON.stringify(resolvedItem, null, 2)}</pre>}</>;
+  return <>{NodeGeneratorDebug && <pre style={{ fontSize: '0.8em' }}>{JSON.stringify(resolvedItem, null, 2)}</pre>}</>;
 }
 
 /**
@@ -242,11 +245,39 @@ export function useExpressionResolverProps<T extends CompTypes>(
   };
 }
 
+function useItem<T extends CompTypes = CompTypes>(item: CompExternal<T>): CompExternal<T> {
+  const directMutators = NodeGeneratorInternal.useDirectMutators();
+  const recursiveMutators = NodeGeneratorInternal.useRecursiveMutators();
+
+  return useMemo(() => {
+    const newItem = structuredClone(item);
+    for (const mutator of directMutators) {
+      mutator(newItem);
+    }
+    for (const mutator of recursiveMutators) {
+      mutator(newItem);
+    }
+
+    return newItem;
+  }, [directMutators, item, recursiveMutators]);
+}
+
+function usePath<T extends CompTypes>(item: CompExternal<T>): string[] {
+  const parent = NodeGeneratorInternal.useParent();
+
+  return useMemo(() => {
+    const parentPath = parent instanceof LayoutPage ? [parent.pageKey] : parent.path;
+    return [...parentPath, item.id];
+  }, [item.id, parent]);
+}
+
 /**
  * Creates a new node instance for a component item, and adds that to the parent node and the store.
  */
-function useNewNode<T extends CompTypes>({ item, parent, row, path }: BasicNodeGeneratorProps<T>): LayoutNode<T> {
-  const page = parent instanceof LayoutPage ? parent : parent.page;
+function useNewNode<T extends CompTypes>(item: CompExternal<T>, path: string[]): LayoutNode<T> {
+  const page = NodeGeneratorInternal.usePage();
+  const parent = NodeGeneratorInternal.useParent();
+  const row = NodeGeneratorInternal.useRow();
   const store = NodesInternal.useDataStore();
   const LNode = useNodeConstructor(item.type);
 

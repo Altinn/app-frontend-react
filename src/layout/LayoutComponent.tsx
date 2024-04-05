@@ -33,25 +33,19 @@ import type {
 } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
-import type { BaseRow, ItemStore, StateFactoryProps } from 'src/utils/layout/itemState';
+import type { ItemStore, StateFactoryProps } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
-export interface BasicNodeGeneratorProps<Type extends CompTypes> {
-  item: CompExternalExact<Type>;
-  parent: LayoutNode | LayoutPage;
-  path: string[];
-  row?: BaseRow;
-  debug: boolean;
+export interface BasicNodeGeneratorProps {
+  baseId: string;
 }
 
-export interface ContainerGeneratorProps<Type extends CompTypes> extends BasicNodeGeneratorProps<Type> {
+export interface ContainerGeneratorProps extends BasicNodeGeneratorProps {
   childIds: string[];
-  getChild: (id: string) => CompExternal;
 }
 
 export type NodeGeneratorProps<Type extends CompTypes> =
-  IsContainerComp<Type> extends true ? ContainerGeneratorProps<Type> : BasicNodeGeneratorProps<Type>;
+  IsContainerComp<Type> extends true ? ContainerGeneratorProps : BasicNodeGeneratorProps;
 
 export interface ExprResolver<Type extends CompTypes> {
   item: CompExternalExact<Type>;
@@ -83,7 +77,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
    * the default node generator with additional functionality.
    */
   renderNodeGenerator(props: NodeGeneratorProps<Type>): JSX.Element | null {
-    return <DefaultNodeGenerator {...(props as BasicNodeGeneratorProps<Type>)} />;
+    return <DefaultNodeGenerator {...props} />;
   }
 
   /**

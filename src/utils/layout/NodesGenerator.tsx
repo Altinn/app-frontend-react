@@ -4,24 +4,25 @@ import { ExprVal } from 'src/features/expressions/types';
 import { useHiddenLayoutsExpressions, useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
-import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { getLayoutComponentObject } from 'src/layout';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import { NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
-import { NodesGeneratorProvider } from 'src/utils/layout/NodesGeneratorContext';
+import { NodeGeneratorInternal, NodesGeneratorPageProvider } from 'src/utils/layout/NodesGeneratorContext';
 import { useResolvedExpression } from 'src/utils/layout/useResolvedExpression';
-import type { CompExternal, ILayout } from 'src/layout/layout';
+import type { CompExternal, CompTypes, ILayout } from 'src/layout/layout';
 import type {
   BasicNodeGeneratorProps,
   ChildClaimerProps,
   ComponentProto,
   ContainerGeneratorProps,
 } from 'src/layout/LayoutComponent';
+import type { ChildrenMap } from 'src/utils/layout/NodesGeneratorContext';
 
-const debug = false;
-const style: React.CSSProperties = debug
+export const NodeGeneratorDebug = false;
+
+const style: React.CSSProperties = NodeGeneratorDebug
   ? {
       display: 'block',
       position: 'fixed',
@@ -37,10 +38,6 @@ const style: React.CSSProperties = debug
     }
   : { display: 'none' };
 
-interface ChildrenMap {
-  [parentId: string]: string[];
-}
-
 interface ChildrenState {
   forLayout: ILayout;
   map: ChildrenMap | undefined;
@@ -55,7 +52,7 @@ export function NodesGenerator() {
       <SaveFinishedNodesToStore pages={pages} />
       <SetCurrentPage pages={pages} />
       <ExportStores />
-      {debug && <h1>Node generator</h1>}
+      {NodeGeneratorDebug && <h1>Node generator</h1>}
       {layouts &&
         Object.keys(layouts).map((key) => {
           const layout = layouts[key];
@@ -187,20 +184,19 @@ function Page({ layout, name, layoutSet }: PageProps) {
     return (id: string) => proto[id];
   }, [layout]);
 
-  const getItem = useMemo(() => {
-    const item: { [id: string]: CompExternal } = {};
-
-    for (const component of layout) {
-      item[component.id] = component;
-    }
-
-    return (id: string) => item[id];
-  }, [layout]);
-
   const map = children.map;
   const isReady = map !== undefined && children.forLayout === layout;
   const claimedChildren = new Set(map ? Object.values(map).flat() : []);
   const topLevelIds = layout.filter((component) => !claimedChildren.has(component.id)).map((component) => component.id);
+
+  const layoutMap = useMemo(() => {
+    const out: { [id: string]: CompExternal } = {};
+    for (const component of layout) {
+      out[component.id] = component;
+    }
+
+    return out;
+  }, [layout]);
 
   if (children.forLayout !== layout) {
     // Force a new first pass if the layout changes
@@ -225,38 +221,55 @@ function Page({ layout, name, layoutSet }: PageProps) {
         isReady={isReady}
         topLevelIds={topLevelIds}
       />
-      <NodesGeneratorProvider
-        parent={page}
-        hidden={hidden}
-      >
-        {debug && <h2>Page: {name}</h2>}
-        {map === undefined &&
-          layout.map((component) => (
-            <ComponentClaimChildren
-              key={component.id}
-              component={component}
-              setChildren={setChildren}
-              getProto={getProto}
-            />
-          ))}
-        {map !== undefined &&
-          layout.map((component) => {
-            if (claimedChildren.has(component.id)) {
-              return null;
-            }
+      {map === undefined &&
+        layout.map((component) => (
+          <ComponentClaimChildren
+            key={component.id}
+            component={component}
+            setChildren={setChildren}
+            getProto={getProto}
+          />
+        ))}
+      {NodeGeneratorDebug && <h2>Page: {name}</h2>}
+      {map !== undefined && (
+        <NodesGeneratorPageProvider
+          parent={page}
+          hidden={hidden}
+          layoutMap={layoutMap}
+          childrenMap={map}
+        >
+          <NodeChildren childIds={topLevelIds} />
+        </NodesGeneratorPageProvider>
+      )}
+    </>
+  );
+}
 
-            return (
-              <Component
-                key={component.id}
-                component={component}
-                childIds={map[component.id]}
-                getItem={getItem}
-                parent={page}
-                path={[name, component.id]}
-              />
-            );
-          })}
-      </NodesGeneratorProvider>
+interface NodeChildrenProps {
+  childIds: string[];
+}
+
+export function NodeChildren({ childIds }: NodeChildrenProps) {
+  const claimedChildren = NodeGeneratorInternal.useClaimedChildren();
+  const layoutMap = NodeGeneratorInternal.useLayoutMap();
+  const map = NodeGeneratorInternal.useChildrenMap();
+
+  return (
+    <>
+      {childIds.map((id) => {
+        if (claimedChildren.has(id)) {
+          return null;
+        }
+
+        return (
+          <Component
+            key={id}
+            baseId={id}
+            childIds={map[id]}
+            type={layoutMap[id].type}
+          />
+        );
+      })}
     </>
   );
 }
@@ -328,73 +341,50 @@ function ComponentClaimChildren({ component, setChildren, getProto }: ComponentC
 
   return (
     <>
-      {debug && (
+      {NodeGeneratorDebug && (
         <h3>
           {component.id} ({component.type})
         </h3>
       )}
-      {debug && <span>(first pass render)</span>}
+      {NodeGeneratorDebug && <span>(first pass render)</span>}
     </>
   );
 }
 
 interface ComponentProps {
-  component: CompExternal;
+  baseId: string;
+  type: CompTypes;
   childIds: string[] | undefined;
-  getItem: (id: string) => CompExternal;
-  parent: LayoutPage;
-  path: string[];
 }
 
-function Component({ component, childIds, getItem, parent, path: _path }: ComponentProps) {
-  const path = useMemoDeepEqual(() => _path, [_path]);
-  const def = getLayoutComponentObject(component.type);
+function Component({ baseId, type, childIds }: ComponentProps) {
+  const def = getLayoutComponentObject(type);
+  const Generator = def.renderNodeGenerator;
   const props = useMemo(() => {
     if (def instanceof ContainerComponent) {
-      const out: ContainerGeneratorProps<any> = {
-        item: component,
-        parent,
-        debug,
-        path,
+      const out: ContainerGeneratorProps = {
+        baseId,
         childIds: childIds ?? [],
-        getChild: (id: string) => {
-          if (childIds?.includes(id)) {
-            return getItem(id);
-          }
-
-          throw new Error(`Child '${id}' not claimed by component '${component.id}'`);
-        },
       };
       return out;
     }
 
-    const out: BasicNodeGeneratorProps<any> = {
-      item: component,
-      parent,
-      debug,
-      path,
+    const out: BasicNodeGeneratorProps = {
+      baseId,
     };
 
     return out;
-  }, [childIds, component, def, getItem, parent, path]);
+  }, [childIds, baseId, def]);
 
   return (
     <>
-      {debug && (
+      {NodeGeneratorDebug && (
         <h3>
-          {component.id} ({component.type})
+          {baseId} ({type})
         </h3>
       )}
-      {debug && <span>{childIds ? `Children: ${childIds.join(', ')}` : 'No children'}</span>}
-      <Generator {...props} />
+      {NodeGeneratorDebug && <span>{childIds ? `Children: ${childIds.join(', ')}` : 'No children'}</span>}
+      <Generator {...(props as any)} />
     </>
   );
 }
-
-function _Generator(props: any) {
-  const def = getLayoutComponentObject(props.item.type);
-  const InnerGenerator = def.renderNodeGenerator;
-
-  return <InnerGenerator {...props} />;
-}
-const Generator = React.memo(_Generator);

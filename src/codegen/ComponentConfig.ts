@@ -201,6 +201,11 @@ export class ComponentConfig {
     const nodeObj = this.layoutNodeType.toTypeScript();
     const nodeSuffix = this.layoutNodeType === baseLayoutNode ? `<'${this.type}'>` : '';
 
+    const CompCategory = new CG.import({
+      import: 'CompCategory',
+      from: `src/layout/common`,
+    });
+
     const staticElements = [
       `export const Config = {
          def: new ${impl.toTypeScript()}(),
@@ -210,6 +215,7 @@ export class ComponentConfig {
          behaviors: ${JSON.stringify(this.behaviors, null, 2)} as const,
        }`,
       `export type TypeConfig = {
+         category: ${CompCategory}.${this.config.category},
          layout: ${this.inner};
          nodeObj: ${nodeObj}${nodeSuffix};
        }`,
