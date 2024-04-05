@@ -1,48 +1,44 @@
 import React from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 
 import { Form, FormFirstPage } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
-import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { LayoutValidationProvider } from 'src/features/devtools/layoutValidation/useLayoutValidation';
 import { FormProvider } from 'src/features/form/FormContext';
-import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
-import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { useCurrentParty, useCurrentPartyIsValid } from 'src/features/party/PartiesProvider';
 import { useAllowAnonymousIs } from 'src/features/stateless/getAllowAnonymous';
 import { usePromptForParty } from 'src/hooks/usePromptForParty';
 import { PresentationType } from 'src/types';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
-import type { ShowTypes } from 'src/features/applicationMetadata';
 
 export function Entrypoint() {
-  const applicationMetadata = useApplicationMetadata();
   const isStateless = useIsStatelessApp();
-  const show: ShowTypes = applicationMetadata.onEntry?.show ?? 'new-instance';
   const party = useCurrentParty();
   const partyIsValid = useCurrentPartyIsValid();
   const allowAnonymous = useAllowAnonymousIs(true);
   const alwaysPromptForParty = usePromptForParty();
 
+  const location = useLocation();
+
   const isMissingParty = party === undefined && !allowAnonymous;
-  if (partyIsValid === false || isMissingParty) {
-    const extraInfo = alwaysPromptForParty ? 'explained' : partyIsValid === false && party ? 'error' : '';
+
+  if (alwaysPromptForParty) {
     return (
       <Navigate
-        to={`/party-selection/${extraInfo}`}
+        to={`/party-selection`}
         replace={true}
       />
     );
   }
 
-  if (show === 'new-instance') {
-    return <InstantiateContainer />;
-  }
+  if (!partyIsValid || isMissingParty) {
+    if (location.pathname.includes('party-selection')) {
+      return <Outlet />;
+    }
 
-  if (show === 'select-instance') {
     return (
       <Navigate
-        to={'/instance-selection/'}
+        to={`/party-selection/403`}
         replace={true}
       />
     );
@@ -72,6 +68,5 @@ export function Entrypoint() {
     );
   }
 
-  window.logErrorOnce('Unknown applicationMetadata.onEntry type:', show);
-  return <UnknownError />;
+  return <Outlet />;
 }

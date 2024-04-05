@@ -11,7 +11,6 @@ import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
-import { useForcePromptForParty, usePromptForParty } from 'src/hooks/usePromptForParty';
 import type { IParty } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
@@ -88,42 +87,11 @@ const { Provider: RealCurrentPartyProvider, useCtx: useCurrentPartyCtx } = creat
   },
 });
 
-function FixedCurrentPartyProvider({
-  value,
-  mutateAsync,
-  children,
-}: PropsWithChildren<{
-  value: IParty;
-  mutateAsync: (party: IParty) => Promise<unknown>;
-}>) {
-  useEffect(() => {
-    (async () => {
-      await mutateAsync(value);
-    })();
-  }, [mutateAsync, value]);
-
-  return (
-    <RealCurrentPartyProvider
-      value={{
-        party: value,
-        currentIsValid: true,
-        setParty: async () => {
-          throw new Error('Not possible to choose another party when only one is available');
-        },
-      }}
-    >
-      {children}
-    </RealCurrentPartyProvider>
-  );
-}
-
 const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
   const validParties = usePartiesCtx() as IParty[];
-  const prompt = usePromptForParty();
-  const forcePrompt = useForcePromptForParty();
   const [sentToMutation, setSentToMutation] = useState<IParty | undefined>(undefined);
   const { mutateAsync, data: dataFromMutation, error: errorFromMutation } = useSetCurrentPartyMutation();
-  const queryEnabled = validParties.length > 1 && !prompt;
+  const queryEnabled = true; //validParties.length > 1 && !prompt;
   const { data: partyFromQuery, isLoading, error: errorFromQuery } = useCurrentPartyQuery(queryEnabled);
 
   if (queryEnabled && isLoading) {
@@ -137,17 +105,6 @@ const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
 
   if (!validParties.length) {
     return <NoValidPartiesError />;
-  }
-
-  if (validParties.length === 1 && !forcePrompt) {
-    return (
-      <FixedCurrentPartyProvider
-        value={validParties[0]}
-        mutateAsync={mutateAsync}
-      >
-        {children}
-      </FixedCurrentPartyProvider>
-    );
   }
 
   const partyFromMutation = dataFromMutation === 'Party successfully updated' ? sentToMutation : undefined;

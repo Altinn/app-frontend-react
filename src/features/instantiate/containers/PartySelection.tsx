@@ -149,7 +149,7 @@ export const PartySelection = () => {
   }
 
   function templateErrorMessage() {
-    if (errorCode === `error`) {
+    if (errorCode) {
       return (
         <Typography
           data-testid={`error-code-${HttpStatusCodes.Forbidden}`}
