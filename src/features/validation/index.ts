@@ -1,9 +1,7 @@
-import type { IAttachments } from 'src/features/attachments';
 import type { Expression, ExprValToActual } from 'src/features/expressions/types';
 import type { TextReference, ValidLangParam } from 'src/features/language/useLanguage';
 import type { Visibility } from 'src/features/validation/visibility/visibilityUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 export enum FrontendValidationSource {
   EmptyField = '__empty_field__',
@@ -160,17 +158,6 @@ export type NodeValidation<Severity extends ValidationSeverity = ValidationSever
   pageKey: string;
   bindingKey?: string;
   meta?: Record<string, string>;
-};
-
-/**
- * Contains all the necessary elements from the store to run frontend validations.
- */
-export type ValidationDataSources = {
-  currentLanguage: string;
-  formData: object;
-  invalidData: object;
-  attachments: IAttachments;
-  nodes: LayoutPages;
 };
 
 /**

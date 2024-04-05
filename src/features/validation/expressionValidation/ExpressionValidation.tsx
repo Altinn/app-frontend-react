@@ -78,10 +78,10 @@ export function ExpressionValidation({ dataType }: { dataType: string }) {
 
       updateValidations('expression', validations);
     }
-
-    // Cleanup function
-    return () => updateValidations('expression', { [dataType]: {} });
   }, [expressionValidationConfig, nodesRef, formData, dataType, updateValidations]);
+
+  // Cleanup on unmount
+  useEffect(() => () => updateValidations('expression', { [dataType]: {} }), [dataType, updateValidations]);
 
   return null;
 }

@@ -2,7 +2,7 @@ import type { MutableRefObject } from 'react';
 
 import { ComponentConfigs } from 'src/layout/components.generated';
 import type { DisplayData } from 'src/features/displayData';
-import type { BaseValidation, ComponentValidation, ValidationDataSources } from 'src/features/validation';
+import type { BaseValidation, ComponentValidation } from 'src/features/validation';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { CompInternal, CompRendersLabel, CompTypes } from 'src/layout/layout';
@@ -59,7 +59,7 @@ export function implementsAnyValidation<Type extends CompTypes>(component: AnyCo
 }
 
 export interface ValidateEmptyField {
-  runEmptyFieldValidation: (node: LayoutNode, validationContext: ValidationDataSources) => ComponentValidation[];
+  runEmptyFieldValidation: (node: LayoutNode) => ComponentValidation[];
 }
 
 export function implementsValidateEmptyField<Type extends CompTypes>(
@@ -69,7 +69,7 @@ export function implementsValidateEmptyField<Type extends CompTypes>(
 }
 
 export interface ValidateComponent {
-  runComponentValidation: (node: LayoutNode, validationContext: ValidationDataSources) => ComponentValidation[];
+  runComponentValidation: (node: LayoutNode) => ComponentValidation[];
 }
 
 export function implementsValidateComponent<Type extends CompTypes>(

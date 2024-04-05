@@ -38,10 +38,10 @@ export function InvalidDataValidation({ dataType }: { dataType: string }) {
         }, {});
     }
     updateValidations('invalidData', validations);
-
-    // Cleanup function
-    return () => updateValidations('invalidData', { [dataType]: {} });
   }, [dataType, invalidData, updateValidations]);
+
+  // Cleanup on unmount
+  useEffect(() => () => updateValidations('invalidData', { [dataType]: {} }), [dataType, updateValidations]);
 
   return null;
 }

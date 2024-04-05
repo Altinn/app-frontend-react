@@ -1,8 +1,6 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-import dot from 'dot-object';
-
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { ListDef } from 'src/layout/List/config.def.generated';
 import { ListComponent } from 'src/layout/List/ListComponent';
@@ -10,7 +8,7 @@ import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
-import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
+import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -44,23 +42,21 @@ export class List extends ListDef {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
-  runEmptyFieldValidation(
-    node: LayoutNode<'List'>,
-    { formData, invalidData }: ValidationDataSources,
-  ): ComponentValidation[] {
+  runEmptyFieldValidation(node: LayoutNode<'List'>): ComponentValidation[] {
     if (!node.item.required || !node.item.dataModelBindings) {
       return [];
     }
-
-    const fields = Object.values(node.item.dataModelBindings);
 
     const validations: ComponentValidation[] = [];
 
     const textResourceBindings = node.item.textResourceBindings;
 
     let listHasErrors = false;
-    for (const field of fields) {
-      const data = dot.pick(field, formData) ?? dot.pick(field, invalidData);
+
+    const formData = node.getFormData(node.dataSources.formDataSelector);
+    const invalidData = node.getFormData(node.dataSources.invalidDataSelector);
+    for (const bindingKey of Object.keys(node.item.dataModelBindings)) {
+      const data = formData[bindingKey] ?? invalidData[bindingKey];
       const dataAsString =
         typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : undefined;
 

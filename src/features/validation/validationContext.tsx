@@ -12,7 +12,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { useBackendValidation } from 'src/features/validation/backendValidation/useBackendValidation';
 import { ExpressionValidation } from 'src/features/validation/expressionValidation/ExpressionValidation';
 import { InvalidDataValidation } from 'src/features/validation/invalidDataValidation/InvalidDataValidation';
-import { useNodeValidation } from 'src/features/validation/nodeValidation/useNodeValidation';
+import { NodeValidation } from 'src/features/validation/nodeValidation/NodeValidation';
 import { SchemaValidation } from 'src/features/validation/schemaValidation/SchemaValidation';
 import {
   getVisibilityMask,
@@ -116,8 +116,10 @@ function initialCreateStore({ validating }: NewStoreProps) {
             state.issueGroupsProcessedLast = issueGroups;
           }
           if (key === 'component') {
-            state.individualValidations.component = validations as ComponentValidations;
-            state.state.components = validations as ComponentValidations;
+            for (const [componentId, componentValidations] of Object.entries(validations as ComponentValidations)) {
+              state.individualValidations.component[componentId] = componentValidations;
+              state.state.components[componentId] = componentValidations;
+            }
           } else {
             for (const [dataType, fieldValidations] of Object.entries(validations)) {
               state.individualValidations[key][dataType] = fieldValidations;
@@ -182,6 +184,7 @@ export function ValidationProvider({ children, isCustomReceipt = false }: PropsW
     <Provider validating={validating}>
       <MakeWaitForState waitForStateRef={waitForStateRef} />
       <UpdateValidations isCustomReceipt={isCustomReceipt} />
+      <NodeValidation />
       {dataTypes.map((dataType) => (
         <React.Fragment key={dataType}>
           <SchemaValidation dataType={dataType} />
@@ -223,12 +226,6 @@ function UpdateValidations({ isCustomReceipt }: Props) {
       updateValidations('backend', backendValidations, processedLast);
     }
   }, [backendValidation, updateValidations]);
-
-  const componentValidations = useNodeValidation();
-
-  useEffect(() => {
-    updateValidations('component', componentValidations);
-  }, [componentValidations, updateValidations]);
 
   return null;
 }

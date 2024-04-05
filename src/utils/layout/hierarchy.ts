@@ -152,6 +152,7 @@ const emptyObject = {};
 export function useExpressionDataSources(isHidden: ReturnType<typeof useIsHiddenComponent>): HierarchyDataSources {
   const instanceDataSources = useLaxInstanceDataSources();
   const formDataSelector = FD.useDebouncedSelector();
+  const invalidDataSelector = FD.useInvalidDebouncedSelector();
   const layoutSettings = useLayoutSettings();
   const attachments = useAttachments();
   const options = useAllOptionsSelector(true);
@@ -168,6 +169,7 @@ export function useExpressionDataSources(isHidden: ReturnType<typeof useIsHidden
   return useMemo(
     () => ({
       formDataSelector,
+      invalidDataSelector,
       attachments: attachments || emptyObject,
       layoutSettings,
       pageNavigationConfig,
@@ -185,6 +187,7 @@ export function useExpressionDataSources(isHidden: ReturnType<typeof useIsHidden
     }),
     [
       formDataSelector,
+      invalidDataSelector,
       attachments,
       layoutSettings,
       pageNavigationConfig,

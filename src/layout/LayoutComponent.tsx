@@ -1,6 +1,5 @@
 import React from 'react';
 
-import dot from 'dot-object';
 import type { ErrorObject } from 'ajv';
 import type { JSONSchema7 } from 'json-schema';
 
@@ -16,7 +15,7 @@ import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGen
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayData, DisplayDataProps } from 'src/features/displayData';
-import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
+import type { ComponentValidation } from 'src/features/validation';
 import type { FormDataSelector, PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
 import type {
   CompExternalExact,
@@ -297,18 +296,17 @@ export abstract class ActionComponent<Type extends CompTypes> extends AnyCompone
 export abstract class FormComponent<Type extends CompTypes> extends _FormComponent<Type> implements ValidateEmptyField {
   readonly type = CompCategory.Form;
 
-  runEmptyFieldValidation(
-    node: LayoutNode<Type>,
-    { formData, invalidData }: ValidationDataSources,
-  ): ComponentValidation[] {
+  runEmptyFieldValidation(node: LayoutNode<Type>): ComponentValidation[] {
     if (!('required' in node.item) || !node.item.required || !node.item.dataModelBindings) {
       return [];
     }
 
     const validations: ComponentValidation[] = [];
 
-    for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings) as [string, string][]) {
-      const data = dot.pick(field, formData) ?? dot.pick(field, invalidData);
+    const formData = node.getFormData(node.dataSources.formDataSelector);
+    const invalidData = node.getFormData(node.dataSources.invalidDataSelector);
+    for (const bindingKey of Object.keys(node.item.dataModelBindings)) {
+      const data = formData[bindingKey] ?? invalidData[bindingKey];
       const asString =
         typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : '';
       const trb: ITextResourceBindings = 'textResourceBindings' in node.item ? node.item.textResourceBindings : {};

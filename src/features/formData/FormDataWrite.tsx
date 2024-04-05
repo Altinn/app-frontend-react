@@ -483,6 +483,17 @@ export const FD = {
   },
 
   /**
+   * Selector for invalid debounced data
+   */
+  useInvalidDebouncedSelector(): FormDataSelector {
+    return useDelayedMemoSelectorFactory({
+      selector: (reference: IDataModelReference) => (state) =>
+        dot.pick(reference.property, state.dataModels[reference.dataType].invalidDebouncedCurrentData),
+      makeCacheKey: (reference: IDataModelReference) => `${reference.dataType}/${reference.property}`,
+    });
+  },
+
+  /**
    * This returns an object that can be used to generate a query string for parts of the current form data.
    * It is almost the same as usePickFreshStrings(), but with important differences:
    *   1. The _keys_ in the input are expected to contain the data model paths, not the values. Mappings are reversed

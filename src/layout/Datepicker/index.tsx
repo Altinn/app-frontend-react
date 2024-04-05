@@ -1,6 +1,5 @@
 import React, { forwardRef } from 'react';
 
-import dot from 'dot-object';
 import moment from 'moment';
 
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
@@ -11,7 +10,7 @@ import { getDateConstraint, getDateFormat } from 'src/utils/dateHelpers';
 import { formatISOString } from 'src/utils/formatDate';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
-import type { BaseValidation, ComponentValidation, ValidationDataSources } from 'src/features/validation';
+import type { BaseValidation, ComponentValidation } from 'src/features/validation';
 import type {
   PropsFromGenericComponent,
   ValidateComponent,
@@ -48,12 +47,9 @@ export class Datepicker extends DatepickerDef implements ValidateComponent, Vali
     );
   }
 
-  runComponentValidation(
-    node: LayoutNode<'Datepicker'>,
-    { formData, currentLanguage }: ValidationDataSources,
-  ): ComponentValidation[] {
-    const field = node.item.dataModelBindings?.simpleBinding;
-    const data = field ? dot.pick(field, formData) : undefined;
+  runComponentValidation(node: LayoutNode<'Datepicker'>): ComponentValidation[] {
+    const currentLanguage = node.dataSources.currentLanguage;
+    const data = node.getFormData(node.dataSources.formDataSelector).simpleBinding;
     const dataAsString = typeof data === 'string' || typeof data === 'number' ? String(data) : undefined;
 
     if (!dataAsString) {

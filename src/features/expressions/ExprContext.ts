@@ -26,6 +26,7 @@ export interface ContextDataSources {
   instanceDataSources: IInstanceDataSources | null;
   applicationSettings: IApplicationSettings | null;
   formDataSelector: FormDataSelector;
+  invalidDataSelector: FormDataSelector;
   attachments: IAttachments;
   layoutSettings: ILayoutSettings;
   pageNavigationConfig: PageNavigationConfig;
