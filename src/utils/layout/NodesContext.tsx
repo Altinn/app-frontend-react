@@ -17,6 +17,7 @@ import { getLayoutComponentObject } from 'src/layout';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
 import { NodesGenerator } from 'src/utils/layout/NodesGenerator';
 import type { NodeRef } from 'src/layout';
@@ -276,15 +277,34 @@ export function useNodeSelector() {
 }
 
 export function useIsHiddenViaRules(node: LayoutNode) {
-  return NodesStore.useSelector((s) => s.hiddenViaRules.has(node.getId()));
+  return NodesStore.useSelector((s) => s.hiddenViaRules.has(node.getId()) || s.hiddenViaRules.has(node.getBaseId()));
 }
 
-export type IsHiddenViaRulesSelector = ReturnType<typeof useIsHiddenViaRulesSelector>;
-export function useIsHiddenViaRulesSelector() {
-  return NodesStore.useDelayedMemoSelectorFactory({
-    selector: (nodeId: string | NodeRef) => (state) =>
-      state.hiddenViaRules.has(isNodeRef(nodeId) ? nodeId.nodeRef : nodeId),
-    makeCacheKey: (nodeId) => (isNodeRef(nodeId) ? nodeId.nodeRef : nodeId),
+export function useIsHidden(node: LayoutNode | LayoutPage) {
+  return DataStore.useMemoSelector((s) => pickDataStorePath(s.pages, node).hidden);
+}
+
+function getNodePath(nodeId: string | NodeRef | LayoutNode | LayoutPage, nodes: LayoutPages) {
+  const node = isNodeRef(nodeId)
+    ? nodes.findById(nodeId.nodeRef)
+    : typeof nodeId === 'string'
+      ? nodes.findById(nodeId)
+      : nodeId;
+
+  if (!node) {
+    throw new Error(`Node not found: ${nodeId}`);
+  }
+
+  return node instanceof LayoutPage ? [node.pageKey] : node.path;
+}
+
+export type IsHiddenSelector = ReturnType<typeof useIsHiddenSelector>;
+export function useIsHiddenSelector() {
+  const nodes = useNodes();
+  return DataStore.useDelayedMemoSelectorFactory({
+    selector: (nodeId: string | NodeRef | LayoutNode | LayoutPage) => (state) =>
+      pickDataStorePath(state.pages, getNodePath(nodeId, nodes)).hidden,
+    makeCacheKey: (nodeId) => getNodePath(nodeId, nodes).join('/'),
   });
 }
 
@@ -431,9 +451,16 @@ function useLegacyHiddenComponents(
  */
 export function pickDataStorePath(
   container: PageHierarchy | PageStore | ItemStore,
-  path: string[],
+  _pathOrNode: string[] | LayoutNode | LayoutPage,
   parentPath: string[] = [],
 ): ItemStore | PageStore {
+  const path =
+    _pathOrNode instanceof LayoutPage
+      ? [_pathOrNode.pageKey]
+      : _pathOrNode instanceof BaseLayoutNode
+        ? _pathOrNode.path
+        : _pathOrNode;
+
   if (path.length === 0) {
     if (parentPath.length === 0) {
       throw new Error('Cannot pick root node');
