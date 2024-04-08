@@ -47,14 +47,16 @@ export function useTaskErrors(): {
 
     const allShown = selector('allFieldsIfShown', (state) => {
       if (state.showAllErrors) {
-        return { fields: state.state.fields, task: state.state.task };
+        return { dataModels: state.state.dataModels, task: state.state.task };
       }
       return undefined;
     });
     if (allShown) {
       const backendMask = getVisibilityMask(['Backend', 'CustomBackend']);
-      for (const field of Object.values(allShown.fields)) {
-        taskErrors.push(...(selectValidations(field, backendMask, 'error') as BaseValidation<'error'>[]));
+      for (const fields of Object.values(allShown.dataModels)) {
+        for (const field of Object.values(fields)) {
+          taskErrors.push(...(selectValidations(field, backendMask, 'error') as BaseValidation<'error'>[]));
+        }
       }
       for (const validation of validationsOfSeverity(allShown.task, 'error')) {
         taskErrors.push(validation);

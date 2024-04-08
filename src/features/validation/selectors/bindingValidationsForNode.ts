@@ -5,6 +5,7 @@ import type { NodeValidation } from '..';
 import { buildNodeValidation, filterValidations, selectValidations } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { getVisibilityForNode } from 'src/features/validation/visibility/visibilityUtils';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompTypes, IDataModelBindings } from 'src/layout/layout';
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -16,7 +17,7 @@ export function useBindingValidationsForNode<
   N extends LayoutNode,
   T extends CompTypes = N extends BaseLayoutNode<any, infer T> ? T : never,
 >(node: N): { [binding in keyof NonNullable<IDataModelBindings<T>>]: NodeValidation[] } | undefined {
-  const fieldSelector = Validation.useFieldSelector();
+  const dataModelSelector = Validation.useDataModelSelector();
   const componentSelector = Validation.useComponentSelector();
   const visibilitySelector = Validation.useVisibilitySelector();
 
@@ -26,12 +27,14 @@ export function useBindingValidationsForNode<
     }
     const mask = getVisibilityForNode(node, visibilitySelector);
     const bindingValidations = {};
-    for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings)) {
+    for (const [bindingKey, reference] of Object.entries(
+      node.item.dataModelBindings as Record<string, IDataModelReference>,
+    )) {
       bindingValidations[bindingKey] = [];
 
-      const fieldValidation = fieldSelector(field, (fields) => fields[field]);
-      if (fieldValidation) {
-        const validations = filterValidations(selectValidations(fieldValidation, mask), node);
+      const fieldValidations = dataModelSelector(reference);
+      if (fieldValidations) {
+        const validations = filterValidations(selectValidations(fieldValidations, mask), node);
         bindingValidations[bindingKey].push(
           ...validations.map((validation) => buildNodeValidation(node, validation, bindingKey)),
         );
@@ -45,5 +48,5 @@ export function useBindingValidationsForNode<
       }
     }
     return bindingValidations as { [binding in keyof NonNullable<IDataModelBindings<T>>]: NodeValidation[] };
-  }, [node, visibilitySelector, fieldSelector, componentSelector]);
+  }, [node, visibilitySelector, dataModelSelector, componentSelector]);
 }

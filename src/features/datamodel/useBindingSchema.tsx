@@ -9,7 +9,6 @@ import {
   getFirstDataElementId,
   useDataTypeByLayoutSetId,
 } from 'src/features/applicationMetadata/appMetadataUtils';
-import { useLaxCurrentDataModelSchemaLookup } from 'src/features/datamodel/DataModelSchemaProvider';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';

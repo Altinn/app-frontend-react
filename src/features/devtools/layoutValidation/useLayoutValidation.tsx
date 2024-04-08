@@ -5,7 +5,6 @@ import { createStore } from 'zustand';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
-import { useCurrentDataModelSchema } from 'src/features/datamodel/DataModelSchemaProvider';
 import { dotNotationToPointer } from 'src/features/datamodel/notations';
 import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
 import { useCurrentDataModelType } from 'src/features/datamodel/useBindingSchema';

@@ -14,6 +14,7 @@ import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { useIsHiddenComponent, useNodes } from 'src/utils/layout/NodesContext';
 import type { ExprConfig, Expression, ExprFunction } from 'src/features/expressions/types';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
@@ -53,7 +54,7 @@ export const ExpressionPlayground = () => {
   const dataSources = useMemo(
     () => ({
       ..._dataSources,
-      formDataSelector: (path: string) => _dataSources.formDataSelector(path),
+      formDataSelector: (reference: IDataModelReference) => _dataSources.formDataSelector(reference),
     }),
     [_dataSources],
   );

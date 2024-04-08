@@ -9,7 +9,6 @@ import deepEqual from 'fast-deep-equal';
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
-import { useCurrentDataModelSchemaLookup } from 'src/features/datamodel/DataModelSchemaProvider';
 import { useCurrentDataModelName } from 'src/features/datamodel/useBindingSchema';
 import { useRuleConnections } from 'src/features/form/dynamics/DynamicsContext';
 import { useFormDataWriteProxies } from 'src/features/formData/FormDataWriteProxies';

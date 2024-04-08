@@ -32,12 +32,14 @@ import type {
   BaseValidation,
   ComponentValidations,
   DataModelValidations,
+  FieldValidation,
   FieldValidations,
   ValidationContext,
   WaitForValidation,
 } from 'src/features/validation';
 import type { Visibility } from 'src/features/validation/visibility/visibilityUtils';
 import type { WaitForState } from 'src/hooks/useWaitForState';
+import type { IDataModelReference } from 'src/layout/common.generated';
 
 interface NewStoreProps {
   validating: WaitForValidation;
@@ -106,9 +108,7 @@ function initialCreateStore({ validating }: NewStoreProps) {
       // Internal state
       isLoading: true,
       individualFieldValidations: {
-        task: [],
         backend: {},
-        component: {},
         expression: {},
         schema: {},
         invalidData: {},
@@ -223,13 +223,15 @@ function ManageVisibility() {
     if (showAllErrors) {
       const backendMask = getVisibilityMask(['Backend', 'CustomBackend']);
       const hasFieldErrors =
-        Object.values(validations.fields).flatMap((field) => selectValidations(field, backendMask, 'error')).length > 0;
+        Object.values(validations.dataModels)
+          .flatMap((fields) => Object.values(fields))
+          .flatMap((field) => selectValidations(field, backendMask, 'error')).length > 0;
 
       if (!hasFieldErrors && !hasValidationErrors(validations.task)) {
         setShowAllErrors(false);
       }
     }
-  }, [setShowAllErrors, showAllErrors, validations.fields, validations.task]);
+  }, [setShowAllErrors, showAllErrors, validations.dataModels, validations.task]);
 
   return null;
 }
@@ -261,6 +263,26 @@ function useDelayedSelector<U>(
   );
 }
 
+function useDataModelSelector(): (reference: IDataModelReference) => FieldValidation[] {
+  const selector = useDelayedMemoSelector();
+  const callbacks = useRef<Record<string, Parameters<typeof selector>[0]>>({});
+
+  useEffect(() => {
+    callbacks.current = {};
+  }, [selector]);
+
+  return useCallback(
+    (reference: IDataModelReference) => {
+      const cacheKey = `${reference.dataType}/${reference.property}`;
+      if (!callbacks.current[cacheKey]) {
+        callbacks.current[cacheKey] = (state) => state.state.dataModels[reference.dataType][reference.property];
+      }
+      return selector(callbacks.current[cacheKey]) as any;
+    },
+    [selector],
+  );
+}
+
 export type ValidationSelector = ReturnType<typeof useDelayedSelector<ValidationContext>>;
 export type ValidationFieldSelector = ReturnType<typeof useDelayedSelector<FieldValidations>>;
 export type ValidationComponentSelector = ReturnType<typeof useDelayedSelector<ComponentValidations>>;
@@ -271,7 +293,7 @@ export const Validation = {
 
   // Selectors. These are memoized, so they won't cause a re-render unless the selected fields change.
   useSelector: () => useDelayedSelector((state) => state),
-  useFieldSelector: () => useDelayedSelector((state) => state.state.fields),
+  useDataModelSelector,
   useComponentSelector: () => useDelayedSelector((state) => state.state.components),
   useVisibilitySelector: () => useDelayedSelector((state) => state.visibility),
 
