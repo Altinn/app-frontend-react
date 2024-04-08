@@ -29,10 +29,10 @@ export const PaymentDetailsTable = ({ orderDetails, tableTitle, description, ...
         <Table.HeaderCell>
           <Lang id='payment.component.description' />
         </Table.HeaderCell>
-        <Table.HeaderCell>
+        <Table.HeaderCell align='right'>
           <Lang id='payment.component.quantity' />
         </Table.HeaderCell>
-        <Table.HeaderCell>
+        <Table.HeaderCell align='right'>
           <Lang id='payment.component.price' />
         </Table.HeaderCell>
       </Table.Row>
