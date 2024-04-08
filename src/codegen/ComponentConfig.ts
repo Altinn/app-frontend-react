@@ -55,7 +55,7 @@ export class ComponentConfig {
     canHaveLabel: false,
     canHaveOptions: false,
   };
-  protected plugins: NodeStatePlugin[] = [];
+  protected plugins: NodeStatePlugin<any, any, any>[] = [];
 
   constructor(public readonly config: RequiredComponentConfig) {
     this.inner.extends(CG.common('ComponentBase'));
@@ -91,7 +91,7 @@ export class ComponentConfig {
     return this;
   }
 
-  public addPlugin(plugin: NodeStatePlugin): this {
+  public addPlugin(plugin: NodeStatePlugin<any, any, any>): this {
     this.plugins.push(plugin);
     return this;
   }
@@ -296,21 +296,15 @@ export class ComponentConfig {
       }
     }
 
+    const pluginInstances = this.plugins.map(
+      (plugin) => `protected readonly ${plugin.import} = new ${plugin.import}();`,
+    );
+
     const pluginStateFactories = this.plugins
-      .map(
-        (plugin) => `
-        /** @see ${plugin.constructor.name} */
-        ${plugin.stateFactory()}
-        /** --------- */`,
-      )
+      .map((plugin) => `...this.${plugin.import}.stateFactory(props),`)
       .join('\n');
     const pluginEvalExpressions = this.plugins
-      .map(
-        (plugin) => `
-        /** @see ${plugin.constructor.name} */
-        ${plugin.evalDefaultExpressions()}
-        /** --------- */`,
-      )
+      .map((plugin) => `...this.${plugin.import}.evalDefaultExpressions(props),`)
       .join(',\n');
 
     const additionalMethods: string[] = [];
@@ -326,7 +320,7 @@ export class ComponentConfig {
 
     const childrenPlugins = this.plugins.filter((plugin) =>
       implementsNodeStateChildrenPlugin(plugin),
-    ) as unknown as NodeStateChildrenPlugin[];
+    ) as unknown as (NodeStateChildrenPlugin<any, any> & NodeStatePlugin<any, any, any>)[];
 
     if (childrenPlugins.length > 0) {
       if (childrenPlugins.length > 1) {
@@ -345,27 +339,24 @@ export class ComponentConfig {
 
       const plugin = childrenPlugins[0];
       additionalMethods.push(
-        `/** @see ${plugin.constructor.name} */
-        pickDirectChildren(state: ${ItemStore}<'${this.type}'>, restriction?: ${ChildLookupRestriction} | undefined): ${ItemStore}[] {
-          ${plugin.pickDirectChildren()};
+        `pickDirectChildren(state: ${ItemStore}<'${this.type}'>, restriction?: ${ChildLookupRestriction} | undefined) {
+          return this.${plugin.import}.pickDirectChildren(state, restriction);
         }`,
-        `/** @see ${plugin.constructor.name} */
-        pickChild<C extends ${CompTypes}>(state: ItemStore<'${this.type}'>, path: string[], parentPath: string[]): ItemStore<C> {
-          ${plugin.pickChild()};
+        `pickChild<C extends ${CompTypes}>(state: ItemStore<'${this.type}'>, path: string[], parentPath: string[]) {
+          return this.${plugin.import}.pickChild<C>(state, path, parentPath);
         }`,
-        `/** @see ${plugin.constructor.name} */
-        addChild(state: ${ItemStore}<'${this.type}'>, childNode: ${LayoutNode}, childStore: ${ItemStore}): void {
-          ${plugin.addChild()};
+        `addChild(state: ${ItemStore}<'${this.type}'>, childNode: ${LayoutNode}, childStore: ${ItemStore}): void {
+          this.${plugin.import}.addChild(state, childNode, childStore);
         }`,
-        `/** @see ${plugin.constructor.name} */
-        removeChild(state: ${ItemStore}<'${this.type}'>, childNode: ${LayoutNode}): void {
-          ${plugin.removeChild()};
+        `removeChild(state: ${ItemStore}<'${this.type}'>, childNode: ${LayoutNode}): void {
+          this.${plugin.import}.removeChild(state, childNode);
         }`,
       );
     }
 
     return `export abstract class ${symbol}Def extends ${categorySymbol}<'${this.type}'> {
       protected readonly type = '${this.type}';
+      ${pluginInstances.join('\n')}
 
       ${this.config.directRendering ? 'directRender(): boolean { return true; }' : ''}
 

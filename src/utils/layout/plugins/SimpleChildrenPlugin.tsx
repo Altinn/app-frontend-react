@@ -1,38 +1,66 @@
 import { CG } from 'src/codegen/CG';
 import { NodeStatePlugin } from 'src/utils/layout/NodeStatePlugin';
+import type { CompDef, NodeRef } from 'src/layout';
+import type { CompTypes } from 'src/layout/layout';
+import type { ExprResolver } from 'src/layout/LayoutComponent';
+import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
+import type { BaseItemState, ItemStore, StateFactoryProps } from 'src/utils/layout/itemState';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeStateChildrenPlugin } from 'src/utils/layout/NodeStatePlugin';
 
-export class SimpleChildrenPlugin extends NodeStatePlugin implements NodeStateChildrenPlugin {
-  stateFactory(): string {
-    return 'childItems: [],';
-  }
+interface ChildrenStateExtension {
+  childItems: { [key: string]: ItemStore };
+}
 
-  evalDefaultExpressions(): string {
-    const NodeRef = new CG.import({
-      import: 'NodeRef',
-      from: 'src/layout',
+interface ChildrenEvalOutput {
+  children: undefined;
+  childComponents: NodeRef[];
+}
+
+export class SimpleChildrenPlugin<Type extends CompTypes>
+  extends NodeStatePlugin<Type, ChildrenStateExtension, ChildrenEvalOutput>
+  implements NodeStateChildrenPlugin<Type, ChildrenStateExtension>
+{
+  makeImport() {
+    return new CG.import({
+      import: 'SimpleChildrenPlugin',
+      from: 'src/utils/layout/plugins/SimpleChildrenPlugin',
     });
-    return [
-      // It is important that we clear out the 'children' property, so that the property cannot be used to access
-      // the claimed children - we want to force the use of the 'childComponents' property instead.
-      'children: undefined,',
-      `childComponents: [] as ${NodeRef}[],`,
-    ].join('\n');
   }
 
-  pickDirectChildren(): string {
-    return '// TODO: Implement\nreturn [];';
+  stateFactory(_props: StateFactoryProps<Type>): ChildrenStateExtension {
+    return {
+      childItems: {},
+    };
   }
 
-  pickChild(): string {
-    return '// TODO: Implement\nreturn undefined as any;';
+  evalDefaultExpressions(_props: ExprResolver<Type>): ChildrenEvalOutput {
+    return {
+      children: undefined,
+      childComponents: [],
+    };
   }
 
-  addChild(): string {
-    return '// TODO: Implement';
+  pickDirectChildren(
+    _state: ChildrenStateExtension & BaseItemState<Type>,
+    _restriction?: ChildLookupRestriction | undefined,
+  ): ItemStore[] {
+    throw new Error('Method not implemented.');
   }
 
-  removeChild(): string {
-    return '// TODO: Implement';
+  pickChild<C extends CompTypes>(
+    _state: ChildrenStateExtension & BaseItemState<Type>,
+    _path: string[],
+    _parentPath: string[],
+  ): ReturnType<CompDef<C>['stateFactory']> {
+    throw new Error('Method not implemented.');
+  }
+
+  addChild(_state: ChildrenStateExtension & BaseItemState<Type>, _childNode: LayoutNode, _childStore: ItemStore): void {
+    throw new Error('Method not implemented.');
+  }
+
+  removeChild(_state: ChildrenStateExtension & BaseItemState<Type>, _childNode: LayoutNode): void {
+    throw new Error('Method not implemented.');
   }
 }
