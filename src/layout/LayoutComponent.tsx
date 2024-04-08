@@ -106,6 +106,27 @@ export abstract class AnyComponent<Type extends CompTypes> {
   }
 
   /**
+   * Adds a child node to the parent node. This must be implemented for every component type that can adopt children.
+   */
+  public addChild(_state: ItemStore<Type>, _childNode: LayoutNode, _childStore: ItemStore): void {
+    throw new Error(
+      `addChild() is not implemented yet for '${this.type}'. ` +
+        `You have to implement this if the component type supports children.`,
+    );
+  }
+
+  /**
+   * Removes a child node from the parent node. This must be implemented for every component
+   * type that can adopt children.
+   */
+  public removeChild(_state: ItemStore<Type>, _childNode: LayoutNode): void {
+    throw new Error(
+      `removeChild() is not implemented yet for '${this.type}'. ` +
+        `You have to implement this if the component type supports children.`,
+    );
+  }
+
+  /**
    * The default expression evaluator, implemented by code generation. Do not try to override this yourself. If you
    * need custom expression support, set that in your component configuration.
    */
@@ -417,7 +438,13 @@ export abstract class ContainerComponent<Type extends CompTypes> extends _FormCo
 
   abstract claimChildren(props: ChildClaimerProps<Type>): void;
 
+  abstract pickChild<C extends CompTypes>(state: ItemStore<Type>, path: string[], parentPath: string[]): ItemStore<C>;
+
   abstract pickDirectChildren(state: ItemStore<Type>, restriction?: ChildLookupRestriction): ItemStore[];
+
+  abstract addChild(state: ItemStore<Type>, childNode: LayoutNode, childStore: ItemStore): void;
+
+  abstract removeChild(state: ItemStore<Type>, childNode: LayoutNode): void;
 }
 
 export type LayoutComponent<Type extends CompTypes = CompTypes> =

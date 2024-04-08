@@ -3,8 +3,8 @@ import React, { forwardRef } from 'react';
 import { Accordion as AccordionComponent } from 'src/layout/Accordion/Accordion';
 import { AccordionDef } from 'src/layout/Accordion/config.def.generated';
 import { SummaryAccordionComponent } from 'src/layout/Accordion/SummaryAccordion';
-import type { NodeRef, PropsFromGenericComponent } from 'src/layout';
-import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { PropsFromGenericComponent } from 'src/layout';
+import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 
 export class Accordion extends AccordionDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Accordion'>>(
@@ -12,14 +12,6 @@ export class Accordion extends AccordionDef {
       return <AccordionComponent {...props} />;
     },
   );
-
-  override evalExpressions(props: ExprResolver<'Accordion'>) {
-    return {
-      ...this.evalDefaultExpressions(props),
-      children: undefined,
-      childComponents: [] as NodeRef[],
-    };
-  }
 
   renderSummary(props: SummaryRendererProps<'Accordion'>): React.JSX.Element | null {
     return <SummaryAccordionComponent {...props} />;

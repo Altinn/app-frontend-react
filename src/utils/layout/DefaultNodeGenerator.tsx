@@ -40,14 +40,11 @@ import type { LayoutNode, LayoutNodeProps } from 'src/utils/layout/LayoutNode';
  */
 export function DefaultNodeGenerator({ children, baseId }: PropsWithChildren<BasicNodeGeneratorProps>) {
   const layoutMap = NodeGeneratorInternal.useLayoutMap();
-  const parent = NodeGeneratorInternal.useParent();
   const item = useItem(layoutMap[baseId]);
   const path = usePath(item);
   const node = useNewNode(item, path);
   const page = NodeGeneratorInternal.usePage();
-  const isTopLevel = parent === page;
-  const isTopLevelRef = useAsRef(isTopLevel);
-  const removeTopLevelNode = NodesInternal.useRemoveTopLevelNode();
+  const removeNode = NodesInternal.useRemoveNode();
   const nodeRef = useAsRef(node);
   const pageRef = useAsRef(page);
 
@@ -59,13 +56,9 @@ export function DefaultNodeGenerator({ children, baseId }: PropsWithChildren<Bas
   useEffect(
     () => () => {
       pageRef.current._removeChild(nodeRef.current);
-      if (isTopLevelRef.current) {
-        removeTopLevelNode(nodeRef.current);
-      } else {
-        throw new Error('Child components are not supported yet.');
-      }
+      removeNode(nodeRef.current);
     },
-    [isTopLevelRef, nodeRef, pageRef, removeTopLevelNode],
+    [nodeRef, pageRef, removeNode],
   );
 
   return (
@@ -92,10 +85,8 @@ interface NodeResolverProps<T extends CompTypes> {
 }
 
 function NodeResolver<T extends CompTypes = CompTypes>({ node, hidden, item }: NodeResolverProps<T>) {
-  const page = NodeGeneratorInternal.usePage();
   const parent = NodeGeneratorInternal.useParent();
   const row = NodeGeneratorInternal.useRow();
-  const isTopLevel = parent === page;
   const resolverProps = useExpressionResolverProps(node, item);
 
   const def = useDef(item.type);
@@ -106,16 +97,11 @@ function NodeResolver<T extends CompTypes = CompTypes>({ node, hidden, item }: N
   );
 
   const stateFactoryProps = useAsRef<StateFactoryProps<T>>({ item: item as any, parent, row });
-  const addTopLevelNode = NodesInternal.useAddTopLevelNode();
+  const addNode = NodesInternal.useAddNode();
   useEffect(() => {
     const defaultState = node.def.stateFactory(stateFactoryProps.current as any);
-
-    if (isTopLevel) {
-      addTopLevelNode(node, defaultState);
-    } else {
-      throw new Error('Child components are not supported yet.');
-    }
-  }, [addTopLevelNode, isTopLevel, node, stateFactoryProps]);
+    addNode(node, defaultState);
+  }, [addNode, node, stateFactoryProps]);
 
   useEffect(() => {
     setNodeProp(node, 'item', resolvedItem);

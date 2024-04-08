@@ -6,6 +6,8 @@ import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSy
 import { GenerateRaw } from 'src/codegen/dataTypes/GenerateRaw';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 import { CompCategory } from 'src/layout/common';
+import { implementsNodeStateChildrenPlugin } from 'src/utils/layout/NodeStatePlugin';
+import { SimpleChildrenPlugin } from 'src/utils/layout/plugins/SimpleChildrenPlugin';
 import type { ComponentBehaviors, RequiredComponentConfig } from 'src/codegen/Config';
 import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
 import type { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
@@ -17,6 +19,7 @@ import type {
   FormComponent,
   PresentationComponent,
 } from 'src/layout/LayoutComponent';
+import type { NodeStateChildrenPlugin, NodeStatePlugin } from 'src/utils/layout/NodeStatePlugin';
 
 const CategoryImports: { [Category in CompCategory]: GenerateImportedSymbol<any> } = {
   [CompCategory.Action]: new GenerateImportedSymbol<ActionComponent<any>>({
@@ -52,6 +55,7 @@ export class ComponentConfig {
     canHaveLabel: false,
     canHaveOptions: false,
   };
+  protected plugins: NodeStatePlugin[] = [];
 
   constructor(public readonly config: RequiredComponentConfig) {
     this.inner.extends(CG.common('ComponentBase'));
@@ -83,6 +87,23 @@ export class ComponentConfig {
     this.type = type;
     this.typeSymbol = symbolName;
     this.inner.addProperty(new CG.prop('type', new CG.const(this.type)).insertFirst());
+
+    return this;
+  }
+
+  public addPlugin(plugin: NodeStatePlugin): this {
+    this.plugins.push(plugin);
+    return this;
+  }
+
+  /**
+   * Shortcut to adding support for simple (non-repeating) children in a component
+   */
+  public addSimpleChildrenPlugin(description = 'List of child component IDs to show inside'): this {
+    this.plugins.push(new SimpleChildrenPlugin());
+    this.addProperty(
+      new CG.prop('children', new CG.arr(new CG.str()).setTitle('Children').setDescription(description)),
+    );
 
     return this;
   }
@@ -275,19 +296,89 @@ export class ComponentConfig {
       }
     }
 
+    const pluginStateFactories = this.plugins
+      .map(
+        (plugin) => `
+        /** @see ${plugin.constructor.name} */
+        ${plugin.stateFactory()}
+        /** --------- */`,
+      )
+      .join('\n');
+    const pluginEvalExpressions = this.plugins
+      .map(
+        (plugin) => `
+        /** @see ${plugin.constructor.name} */
+        ${plugin.evalDefaultExpressions()}
+        /** --------- */`,
+      )
+      .join(',\n');
+
+    const additionalMethods: string[] = [];
+
+    if (!this.config.functionality.customExpressions) {
+      additionalMethods.push(
+        `// Do not override this one, set functionality.customExpressions to true instead
+        evalExpressions(props: ${ExprResolver}<'${this.type}'>) {
+          return this.evalDefaultExpressions(props);
+        }`,
+      );
+    }
+
+    const childrenPlugins = this.plugins.filter((plugin) =>
+      implementsNodeStateChildrenPlugin(plugin),
+    ) as unknown as NodeStateChildrenPlugin[];
+
+    if (childrenPlugins.length > 0) {
+      if (childrenPlugins.length > 1) {
+        throw new Error(
+          `Component ${symbol} has multiple children plugins. Only one children plugin is allowed per component.`,
+        );
+      }
+
+      const ItemStore = new CG.import({ import: 'ItemStore', from: 'src/utils/layout/itemState' });
+      const ChildLookupRestriction = new CG.import({
+        import: 'ChildLookupRestriction',
+        from: 'src/utils/layout/HierarchyGenerator',
+      });
+      const CompTypes = new CG.import({ import: 'CompTypes', from: 'src/layout/layout' });
+      const LayoutNode = new CG.import({ import: 'LayoutNode', from: 'src/utils/layout/LayoutNode' });
+
+      const plugin = childrenPlugins[0];
+      additionalMethods.push(
+        `/** @see ${plugin.constructor.name} */
+        pickDirectChildren(state: ${ItemStore}<'${this.type}'>, restriction?: ${ChildLookupRestriction} | undefined): ${ItemStore}[] {
+          ${plugin.pickDirectChildren()};
+        }`,
+        `/** @see ${plugin.constructor.name} */
+        pickChild<C extends ${CompTypes}>(state: ItemStore<'${this.type}'>, path: string[], parentPath: string[]): ItemStore<C> {
+          ${plugin.pickChild()};
+        }`,
+        `/** @see ${plugin.constructor.name} */
+        addChild(state: ${ItemStore}<'${this.type}'>, childNode: ${LayoutNode}, childStore: ${ItemStore}): void {
+          ${plugin.addChild()};
+        }`,
+        `/** @see ${plugin.constructor.name} */
+        removeChild(state: ${ItemStore}<'${this.type}'>, childNode: ${LayoutNode}): void {
+          ${plugin.removeChild()};
+        }`,
+      );
+    }
+
     return `export abstract class ${symbol}Def extends ${categorySymbol}<'${this.type}'> {
       protected readonly type = '${this.type}';
 
       ${this.config.directRendering ? 'directRender(): boolean { return true; }' : ''}
 
-      stateFactory(props: ${StateFactoryProps}<'${this.type}'>): ${BaseItemState}<'${this.type}'> {
-        return {
+      stateFactory(props: ${StateFactoryProps}<'${this.type}'>) {
+        const baseState: ${BaseItemState}<'${this.type}'> = {
           type: 'node',
           item: props.item as unknown as ${CompInternal}<'${this.type}'>,
           layout: props.item,
           hidden: false,
           ready: false,
         };
+
+        return { ...baseState, ${pluginStateFactories} };
       }
 
       // Do not override this one, set functionality.customExpressions to true instead
@@ -295,20 +386,11 @@ export class ComponentConfig {
         return {
           ...props.item as Omit<typeof props.item, ${itemLine.join(' | ')} | 'hidden'>,
           ${evalLines.join('\n')}
-          ...props.evalTrb(),
+          ...props.evalTrb(),${pluginEvalExpressions}
         };
       }
 
-      ${
-        this.config.functionality.customExpressions
-          ? ''
-          : `
-      // Do not override this one, set functionality.customExpressions to true instead
-      evalExpressions(props: ${ExprResolver}<'${this.type}'>) {
-        return this.evalDefaultExpressions(props);
-      }
-      `
-      }
+      ${additionalMethods.join('\n\n')}
     }`;
   }
 

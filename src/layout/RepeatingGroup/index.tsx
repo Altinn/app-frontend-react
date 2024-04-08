@@ -14,7 +14,7 @@ import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/Summary
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { BaseValidation, ComponentValidation } from 'src/features/validation';
 import type { GridRowsInternal } from 'src/layout/Grid/types';
-import type { CompInternal } from 'src/layout/layout';
+import type { CompInternal, CompTypes } from 'src/layout/layout';
 import type { ChildClaimerProps, ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { RepGroupInternal, RepGroupRows } from 'src/layout/RepeatingGroup/types';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
@@ -89,6 +89,18 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     // TODO: Implement
     return [];
   }
+
+  pickChild<C extends CompTypes>(
+    _state: ItemStore<'RepeatingGroup'>,
+    _path: string[],
+    _parentPath: string[],
+  ): ItemStore<C> {
+    return {} as any;
+  }
+
+  addChild(_state: ItemStore<'RepeatingGroup'>, _childNode: LayoutNode, _childStore: ItemStore) {}
+
+  removeChild(_state: ItemStore<'RepeatingGroup'>, _childNode: LayoutNode) {}
 
   renderSummary({
     onChangeClick,

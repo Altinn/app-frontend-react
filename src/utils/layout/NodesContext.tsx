@@ -68,8 +68,8 @@ export interface TopLevelNodesStore<Types extends CompTypes = CompTypes> {
 
 export interface NodesDataContext {
   pages: PageHierarchy;
-  addTopLevelNode: <N extends LayoutNode>(node: N, state: any) => void;
-  removeTopLevelNode: (node: LayoutNode) => void;
+  addNode: <N extends LayoutNode>(node: N, targetState: any) => void;
+  removeNode: (node: LayoutNode) => void;
   setNodeProp: <N extends LayoutNode, K extends keyof ItemStoreFromNode<N>>(
     node: N,
     prop: K,
@@ -122,26 +122,31 @@ export function createNodesDataStore() {
         type: 'pages' as const,
         pages: {},
       },
-      addTopLevelNode: (node, state) =>
+      addNode: (node, targetState) =>
         set((s) => {
           const parentPath = node.path.slice(0, -1);
           const parent = pickDataStorePath(s.pages, parentPath);
-          if (parent.type !== 'page') {
-            throw new Error('Parent node is not a page');
+          if (parent.type === 'page') {
+            const id = node.getId();
+            if (parent.topLevelNodes[id]) {
+              throw new Error(`Node already exists: ${id}`);
+            }
+            parent.topLevelNodes[id] = targetState;
+          } else {
+            const def = getLayoutComponentObject(parent.layout.type);
+            def.addChild(parent as any, node, targetState);
           }
-          if (parent.topLevelNodes[node.getId()]) {
-            throw new Error(`Node already exists: ${node.getId()}`);
-          }
-          parent.topLevelNodes[node.getId()] = state;
         }),
-      removeTopLevelNode: (node) =>
+      removeNode: (node) =>
         set((s) => {
           const parentPath = node.path.slice(0, -1);
           const parent = pickDataStorePath(s.pages, parentPath);
-          if (parent.type !== 'page') {
-            throw new Error('Parent node is not a page');
+          if (parent.type === 'page') {
+            delete parent.topLevelNodes[node.getId()];
+          } else {
+            const def = getLayoutComponentObject(parent.layout.type);
+            def.removeChild(parent as any, node);
           }
-          delete parent.topLevelNodes[node.getId()];
         }),
       setNodeProp: (node, prop, value) =>
         set((state) => {
@@ -341,8 +346,8 @@ export const NodesInternal = {
     ),
   useAllNotReady: () => DataStore.useMemoSelector((s) => getNotReady(s.pages)),
   useRemovePage: () => DataStore.useSelector((s) => s.removePage),
-  useAddTopLevelNode: () => DataStore.useSelector((s) => s.addTopLevelNode),
-  useRemoveTopLevelNode: () => DataStore.useSelector((s) => s.removeTopLevelNode),
+  useAddNode: () => DataStore.useSelector((s) => s.addNode),
+  useRemoveNode: () => DataStore.useSelector((s) => s.removeNode),
 };
 
 function getNotReady(pages: PageHierarchy) {
@@ -496,7 +501,8 @@ export function pickDataStorePath(
     throw new Error(`Component type "${container.layout.type}" not found`);
   }
 
-  return def.pickChild(container as ItemStore<any>, remaining, fullPath);
+  const child = def.pickChild(container as ItemStore<any>, remaining, fullPath);
+  return pickDataStorePath(child, remaining, fullPath);
 }
 
 function isPages(state: PageHierarchy | PageStore | ItemStore): state is PageHierarchy {

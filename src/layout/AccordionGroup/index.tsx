@@ -4,10 +4,8 @@ import type { JSX } from 'react';
 import { AccordionGroup as AccordionGroupComponent } from 'src/layout/AccordionGroup/AccordionGroup';
 import { AccordionGroupDef } from 'src/layout/AccordionGroup/config.def.generated';
 import { SummaryAccordionGroupComponent } from 'src/layout/AccordionGroup/SummaryAccordionGroupComponent';
-import type { NodeRef, PropsFromGenericComponent } from 'src/layout';
-import type { ChildClaimerProps, ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
-import type { ItemStore } from 'src/utils/layout/itemState';
+import type { PropsFromGenericComponent } from 'src/layout';
+import type { ChildClaimerProps, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class AccordionGroup extends AccordionGroupDef {
@@ -33,21 +31,6 @@ export class AccordionGroup extends AccordionGroupDef {
 
       claimChild(childId);
     }
-  }
-
-  evalExpressions(props: ExprResolver<'AccordionGroup'>) {
-    return {
-      ...this.evalDefaultExpressions(props),
-
-      // TODO: Implement
-      children: undefined,
-      childComponents: [] as NodeRef[],
-    };
-  }
-
-  pickDirectChildren(_state: ItemStore<'AccordionGroup'>, _restriction?: ChildLookupRestriction): ItemStore[] {
-    // TODO: Implement
-    return [];
   }
 
   renderSummary(props: SummaryRendererProps<'AccordionGroup'>): JSX.Element | null {

@@ -12,13 +12,6 @@ export const Config = new CG.component({
     renderInAccordionGroup: false,
   },
   functionality: {
-    customExpressions: true,
+    customExpressions: false,
   },
-}).addProperty(
-  new CG.prop(
-    'children',
-    new CG.arr(new CG.str())
-      .setTitle('Children')
-      .setDescription('Child component IDs of button-like components to be rendered in this group'),
-  ),
-);
+}).addSimpleChildrenPlugin('Child component IDs of button-like components to be rendered in this group');

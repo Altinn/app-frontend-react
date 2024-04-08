@@ -12,7 +12,7 @@ export const Config = new CG.component({
     renderInAccordionGroup: false,
   },
   functionality: {
-    customExpressions: true,
+    customExpressions: false,
   },
 })
   .addTextResource(
@@ -22,11 +22,6 @@ export const Config = new CG.component({
       description: 'The title of the accordion group',
     }),
   )
-  .addProperty(
-    new CG.prop(
-      'children',
-      new CG.arr(new CG.str())
-        .setTitle('Children')
-        .setDescription('List of child component IDs to show inside the Accordion (limited to a few component types)'),
-    ),
+  .addSimpleChildrenPlugin(
+    'List of child component IDs to show inside the Accordion (limited to a few component types)',
   );

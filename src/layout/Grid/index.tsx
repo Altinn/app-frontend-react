@@ -8,11 +8,8 @@ import { RenderGrid } from 'src/layout/Grid/GridComponent';
 import { GridSummaryComponent } from 'src/layout/Grid/GridSummaryComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { GridRows } from 'src/layout/common.generated';
-import type { GridRowsInternal } from 'src/layout/Grid/types';
 import type { CompExternalExact } from 'src/layout/layout';
-import type { ChildClaimerProps, ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
-import type { ItemStore } from 'src/utils/layout/itemState';
+import type { ChildClaimerProps, SummaryRendererProps } from 'src/layout/LayoutComponent';
 
 export class Grid extends GridDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Grid'>>(
@@ -45,21 +42,6 @@ export class Grid extends GridDef {
         }
       }
     }
-  }
-
-  evalExpressions(props: ExprResolver<'Grid'>) {
-    return {
-      ...this.evalDefaultExpressions(props),
-
-      // TODO: Process rows and get make refs
-      children: undefined,
-      rows: props.item.rows as GridRowsInternal,
-    };
-  }
-
-  pickDirectChildren(_state: ItemStore<'Grid'>, _restriction?: ChildLookupRestriction): ItemStore[] {
-    // TODO: Implement
-    return [];
   }
 
   renderSummary(props: SummaryRendererProps<'Grid'>): JSX.Element | null {

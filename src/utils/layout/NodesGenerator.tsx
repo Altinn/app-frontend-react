@@ -250,26 +250,19 @@ interface NodeChildrenProps {
 }
 
 export function NodeChildren({ childIds }: NodeChildrenProps) {
-  const claimedChildren = NodeGeneratorInternal.useClaimedChildren();
   const layoutMap = NodeGeneratorInternal.useLayoutMap();
   const map = NodeGeneratorInternal.useChildrenMap();
 
   return (
     <>
-      {childIds.map((id) => {
-        if (claimedChildren.has(id)) {
-          return null;
-        }
-
-        return (
-          <Component
-            key={id}
-            baseId={id}
-            childIds={map[id]}
-            type={layoutMap[id].type}
-          />
-        );
-      })}
+      {childIds.map((id) => (
+        <Component
+          key={id}
+          baseId={id}
+          childIds={map[id]}
+          type={layoutMap[id].type}
+        />
+      ))}
     </>
   );
 }

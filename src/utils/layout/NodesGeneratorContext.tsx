@@ -49,6 +49,7 @@ const emptyArray: never[] = [];
 export function NodesGeneratorProvider({ children, ...rest }: RealNodeGeneratorProps) {
   const parent = useCtx();
   const value: NodesGeneratorContext = {
+    // Inherit all values from the parent, overwrite with our own if they are passed
     ...parent,
     ...rest,
 

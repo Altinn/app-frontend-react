@@ -1,16 +1,14 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-import type { NodeRef, PropsFromGenericComponent } from '..';
+import type { PropsFromGenericComponent } from '..';
 
 import { ButtonGroupComponent } from 'src/layout/ButtonGroup/ButtonGroupComponent';
 import { ButtonGroupDef } from 'src/layout/ButtonGroup/config.def.generated';
 import { DefaultNodeGenerator } from 'src/utils/layout/DefaultNodeGenerator';
 import { NodeChildren } from 'src/utils/layout/NodesGenerator';
 import type { DisplayData } from 'src/features/displayData';
-import type { ChildClaimerProps, ExprResolver, NodeGeneratorProps } from 'src/layout/LayoutComponent';
-import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
-import type { ItemStore } from 'src/utils/layout/itemState';
+import type { ChildClaimerProps, NodeGeneratorProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class ButtonGroup extends ButtonGroupDef implements DisplayData<'ButtonGroup'> {
@@ -46,21 +44,6 @@ export class ButtonGroup extends ButtonGroupDef implements DisplayData<'ButtonGr
         <NodeChildren childIds={props.childIds} />
       </DefaultNodeGenerator>
     );
-  }
-
-  evalExpressions(props: ExprResolver<'ButtonGroup'>) {
-    return {
-      ...this.evalDefaultExpressions(props),
-
-      // TODO: Implement
-      children: undefined,
-      childComponents: [] as NodeRef[],
-    };
-  }
-
-  pickDirectChildren(_state: ItemStore<'ButtonGroup'>, _restriction?: ChildLookupRestriction): ItemStore[] {
-    // TODO: Implement
-    return [];
   }
 
   shouldRenderInAutomaticPDF() {
