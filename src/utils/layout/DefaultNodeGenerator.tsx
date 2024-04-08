@@ -26,7 +26,7 @@ import type {
   ITextResourceBindings,
 } from 'src/layout/layout';
 import type { BasicNodeGeneratorProps, ExprResolver } from 'src/layout/LayoutComponent';
-import type { StateFactoryProps } from 'src/utils/layout/itemState';
+import type { ItemStore, StateFactoryProps } from 'src/utils/layout/itemState';
 import type { LayoutNode, LayoutNodeProps } from 'src/utils/layout/LayoutNode';
 
 /**
@@ -123,6 +123,7 @@ export function useExpressionResolverProps<T extends CompTypes>(
   node: LayoutNode<T>,
   item: CompExternalExact<T>,
 ): ExprResolver<T> {
+  const state = NodesInternal.useDataStoreFor(node) as ItemStore<T>;
   const allDataSources = useExpressionDataSources();
   const allDataSourcesAsRef = useAsRef(allDataSources);
 
@@ -219,6 +220,7 @@ export function useExpressionResolverProps<T extends CompTypes>(
 
   return {
     item,
+    state,
     evalBool,
     evalNum,
     evalStr,

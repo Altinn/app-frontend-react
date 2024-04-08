@@ -23,7 +23,7 @@ export type PluginState<Config extends PluginConfig> = BaseItemState<
   PluginExtraState<Config>;
 
 export type PluginStateFactoryProps<Config extends PluginConfig> = StateFactoryProps<PluginType<Config>>;
-export type PluginExprResolver<Config extends PluginConfig> = ExprResolver<PluginType<Config>>;
+export type PluginExprResolver<Config extends PluginConfig> = ExprResolver<PluginType<Config>, PluginState<Config>>;
 
 /**
  * A node state plugin work when generating code for a component. Adding such a plugin to your component

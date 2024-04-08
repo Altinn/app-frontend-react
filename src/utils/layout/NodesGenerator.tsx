@@ -105,6 +105,7 @@ function SaveFinishedNodesToStore({ pages }: { pages: LayoutPages }) {
         console.log(`debug, --- page:`, page.pageKey);
         logNodes(page.children());
       }
+      console.log('debug, nodes', pages);
     }
   }, [layoutKeys, pages, allReady, setNodes, existingNodes]);
 

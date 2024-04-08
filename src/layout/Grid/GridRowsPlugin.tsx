@@ -35,13 +35,13 @@ export class GridRowsPlugin<Type extends CompTypes>
     });
   }
 
-  stateFactory(_props: PluginStateFactoryProps<Config<Type>>) {
+  stateFactory(_props: PluginStateFactoryProps<Config<Type>>): Config<Type>['extraState'] {
     return {
       rowItems: [],
     };
   }
 
-  evalDefaultExpressions(props: PluginExprResolver<Config<Type>>) {
+  evalDefaultExpressions(props: PluginExprResolver<Config<Type>>): Config<Type>['extraInItem'] {
     return {
       rows: (props.item as any).rows as GridRowsInternal,
     };

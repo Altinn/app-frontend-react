@@ -318,6 +318,14 @@ export function useIsHiddenSelector() {
  */
 export const NodesInternal = {
   useNodesStore: () => NodesStore.useStore(),
+  useDataStoreFor: (node: LayoutNode) =>
+    DataStore.useSelector((s) => {
+      try {
+        return pickDataStorePath(s.pages, node);
+      } catch (e) {
+        return undefined;
+      }
+    }),
   useDataStore: () => DataStore.useStore(),
   useSetNodes: () => NodesStore.useSelector((s) => s.setNodes),
   useAddPage: () => DataStore.useSelector((s) => s.addPage),

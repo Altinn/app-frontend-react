@@ -53,8 +53,9 @@ export interface ContainerGeneratorProps extends BasicNodeGeneratorProps {
 export type NodeGeneratorProps<Type extends CompTypes> =
   IsContainerComp<Type> extends true ? ContainerGeneratorProps : BasicNodeGeneratorProps;
 
-export interface ExprResolver<Type extends CompTypes> {
+export interface ExprResolver<Type extends CompTypes, State = ItemStore<Type>> {
   item: CompExternalExact<Type>;
+  state: State | undefined;
   formDataSelector: FormDataSelector;
   evalBase: () => ExprResolved<Omit<ComponentBase, 'hidden'>>;
   evalFormProps: () => ExprResolved<FormComponentProps>;
