@@ -12,18 +12,19 @@ export interface PluginConfig {
   extraInItem: any;
 }
 
-export type PluginType<Config extends PluginConfig> = Config['componentType'];
+interface PluginBaseItemState<Config extends PluginConfig> extends BaseItemState<PluginCompType<Config>> {
+  item: PluginCompInternal<Config> & PluginExtraInItem<Config>;
+}
+
+export type PluginCompType<Config extends PluginConfig> = Config['componentType'];
 export type PluginExtraState<Config extends PluginConfig> = Config['extraState'];
 export type PluginExtraInItem<Config extends PluginConfig> = Config['extraInItem'];
-export type PluginCompInternal<Config extends PluginConfig> = CompInternal<PluginType<Config>>;
-export type PluginState<Config extends PluginConfig> = BaseItemState<
-  PluginType<Config>,
-  PluginCompInternal<Config> & PluginExtraInItem<Config>
-> &
-  PluginExtraState<Config>;
-
-export type PluginStateFactoryProps<Config extends PluginConfig> = StateFactoryProps<PluginType<Config>>;
-export type PluginExprResolver<Config extends PluginConfig> = ExprResolver<PluginType<Config>, PluginState<Config>>;
+export type PluginCompInternal<Config extends PluginConfig> = CompInternal<PluginCompType<Config>>;
+export type PluginState<Config extends PluginConfig> = PluginBaseItemState<Config> & PluginExtraState<Config>;
+export type PluginStateFactoryProps<Config extends PluginConfig> = StateFactoryProps<PluginCompType<Config>>;
+export type PluginExprResolver<Config extends PluginConfig> = ExprResolver<PluginCompType<Config>> & {
+  state: PluginState<Config>;
+};
 
 /**
  * A node state plugin work when generating code for a component. Adding such a plugin to your component

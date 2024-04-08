@@ -301,10 +301,10 @@ export class ComponentConfig {
     );
 
     const pluginStateFactories = this.plugins
-      .map((plugin) => `...this.${plugin.import}.stateFactory(props),`)
+      .map((plugin) => `...this.${plugin.import}.stateFactory(props as any),`)
       .join('\n');
     const pluginEvalExpressions = this.plugins
-      .map((plugin) => `...this.${plugin.import}.evalDefaultExpressions(props),`)
+      .map((plugin) => `...this.${plugin.import}.evalDefaultExpressions(props as any),`)
       .join(',\n');
 
     const additionalMethods: string[] = [];
@@ -340,16 +340,16 @@ export class ComponentConfig {
       const plugin = childrenPlugins[0];
       additionalMethods.push(
         `pickDirectChildren(state: ${ItemStore}<'${this.type}'>, restriction?: ${ChildLookupRestriction} | undefined) {
-          return this.${plugin.import}.pickDirectChildren(state, restriction);
+          return this.${plugin.import}.pickDirectChildren(state as any, restriction);
         }`,
         `pickChild<C extends ${CompTypes}>(state: ItemStore<'${this.type}'>, childId: string, parentPath: string[]) {
-          return this.${plugin.import}.pickChild<C>(state, childId, parentPath);
+          return this.${plugin.import}.pickChild<C>(state as any, childId, parentPath);
         }`,
         `addChild(state: ${ItemStore}<'${this.type}'>, childNode: ${LayoutNode}, childStore: ${ItemStore}): void {
-          this.${plugin.import}.addChild(state, childNode, childStore);
+          this.${plugin.import}.addChild(state as any, childNode, childStore);
         }`,
         `removeChild(state: ${ItemStore}<'${this.type}'>, childNode: ${LayoutNode}): void {
-          this.${plugin.import}.removeChild(state, childNode);
+          this.${plugin.import}.removeChild(state as any, childNode);
         }`,
       );
     }

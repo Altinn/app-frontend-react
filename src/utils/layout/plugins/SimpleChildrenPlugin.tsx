@@ -12,15 +12,17 @@ import type {
   PluginStateFactoryProps,
 } from 'src/utils/layout/NodeStatePlugin';
 
+interface ExtraInItem {
+  children: undefined;
+  childComponents: NodeRef[];
+}
+
 interface Config<Type extends CompTypes> {
   componentType: Type;
   extraState: {
     childItems: { [key: string]: ItemStore };
   };
-  extraInItem: {
-    children: undefined;
-    childComponents: NodeRef[];
-  };
+  extraInItem: ExtraInItem;
 }
 
 export class SimpleChildrenPlugin<Type extends CompTypes>
@@ -34,13 +36,13 @@ export class SimpleChildrenPlugin<Type extends CompTypes>
     });
   }
 
-  stateFactory(_props: PluginStateFactoryProps<Config<Type>>): Config<Type>['extraState'] {
+  stateFactory(_props: PluginStateFactoryProps<Config<Type>>) {
     return {
       childItems: {},
     };
   }
 
-  evalDefaultExpressions(props: PluginExprResolver<Config<Type>>): Config<Type>['extraInItem'] {
+  evalDefaultExpressions(props: PluginExprResolver<Config<Type>>): ExtraInItem {
     return {
       children: undefined,
       childComponents: Object.keys(props.state?.childItems || {}).map((id) => ({
