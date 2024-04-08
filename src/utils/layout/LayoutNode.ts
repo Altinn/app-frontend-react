@@ -1,5 +1,4 @@
 import { getLayoutComponentObject } from 'src/layout';
-import { ContainerComponent } from 'src/layout/LayoutComponent';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
@@ -157,14 +156,7 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
 
   private childrenAsList(_restriction?: ChildLookupRestriction): LayoutNode[] {
     const def = this.def as CompDef<any>;
-    if (def instanceof ContainerComponent) {
-      // TODO: Get children from the hierarchy generator
-      // const hierarchy = def.hierarchyGenerator();
-      // return hierarchy.childrenFromNode(this, restriction);
-      return [];
-    }
-
-    return [];
+    return def.pickDirectChildren(this.store.getState(), _restriction);
   }
 
   /**

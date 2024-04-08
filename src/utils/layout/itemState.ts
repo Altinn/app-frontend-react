@@ -20,10 +20,10 @@ export interface StateFactoryProps<Type extends CompTypes> {
   row?: BaseRow;
 }
 
-export interface BaseItemState<T extends CompTypes> {
+export interface BaseItemState<T extends CompTypes, Internal = CompInternal<T>> {
   type: 'node';
   layout: CompExternalExact<T>;
-  item: CompInternal<T> | undefined;
+  item: Internal | undefined;
   hidden: boolean;
   ready: boolean;
 }

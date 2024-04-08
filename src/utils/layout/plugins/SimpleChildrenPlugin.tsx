@@ -4,22 +4,24 @@ import type { NodeRef } from 'src/layout';
 import type { CompTypes } from 'src/layout/layout';
 import type { ExprResolver } from 'src/layout/LayoutComponent';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
-import type { BaseItemState, ItemStore, StateFactoryProps } from 'src/utils/layout/itemState';
+import type { ItemStore, StateFactoryProps } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodeStateChildrenPlugin } from 'src/utils/layout/NodeStatePlugin';
+import type { NodeStateChildrenPlugin, PluginState } from 'src/utils/layout/NodeStatePlugin';
 
-interface ChildrenStateExtension {
-  childItems: { [key: string]: ItemStore };
-}
-
-interface ChildrenEvalOutput {
-  children: undefined;
-  childComponents: NodeRef[];
+interface Config<Type extends CompTypes> {
+  componentType: Type;
+  extraState: {
+    childItems: { [key: string]: ItemStore };
+  };
+  extraInItem: {
+    children: undefined;
+    childComponents: NodeRef[];
+  };
 }
 
 export class SimpleChildrenPlugin<Type extends CompTypes>
-  extends NodeStatePlugin<Type, ChildrenStateExtension, ChildrenEvalOutput>
-  implements NodeStateChildrenPlugin<Type, ChildrenStateExtension>
+  extends NodeStatePlugin<Config<Type>>
+  implements NodeStateChildrenPlugin<Config<Type>>
 {
   makeImport() {
     return new CG.import({
@@ -28,28 +30,30 @@ export class SimpleChildrenPlugin<Type extends CompTypes>
     });
   }
 
-  stateFactory(_props: StateFactoryProps<Type>): ChildrenStateExtension {
+  stateFactory(_props: StateFactoryProps<Type>): {
+    childItems: { [key: string]: ItemStore };
+  } {
     return {
       childItems: {},
     };
   }
 
-  evalDefaultExpressions(_props: ExprResolver<Type>): ChildrenEvalOutput {
+  evalDefaultExpressions(_props: ExprResolver<Type>): {
+    children: undefined;
+    childComponents: NodeRef[];
+  } {
     return {
       children: undefined,
       childComponents: [],
     };
   }
 
-  pickDirectChildren(
-    state: ChildrenStateExtension & BaseItemState<Type>,
-    _restriction?: ChildLookupRestriction,
-  ): ItemStore[] {
-    return Object.values(state.childItems);
+  pickDirectChildren(state: PluginState<Config<Type>>, _restriction?: ChildLookupRestriction): NodeRef[] {
+    return Object.keys(state.item?.childComponents || {}).map((key) => ({ nodeRef: key }));
   }
 
   pickChild<C extends CompTypes>(
-    state: ChildrenStateExtension & BaseItemState<Type>,
+    state: PluginState<Config<Type>>,
     childId: string,
     parentPath: string[],
   ): ItemStore<C> {
@@ -60,11 +64,11 @@ export class SimpleChildrenPlugin<Type extends CompTypes>
     return child as ItemStore<C>;
   }
 
-  addChild(state: ChildrenStateExtension & BaseItemState<Type>, childNode: LayoutNode, childStore: ItemStore): void {
+  addChild(state: PluginState<Config<Type>>, childNode: LayoutNode, childStore: ItemStore): void {
     state.childItems[childNode.getId()] = childStore;
   }
 
-  removeChild(state: ChildrenStateExtension & BaseItemState<Type>, childNode: LayoutNode): void {
+  removeChild(state: PluginState<Config<Type>>, childNode: LayoutNode): void {
     delete state.childItems[childNode.getId()];
   }
 }

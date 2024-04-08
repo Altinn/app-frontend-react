@@ -21,7 +21,13 @@ import type { SimpleEval } from 'src/features/expressions';
 import type { ExprResolved, ExprVal } from 'src/features/expressions/types';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { ComponentBase, FormComponentProps, SummarizableComponentProps } from 'src/layout/common.generated';
-import type { CompDef, FormDataSelector, PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
+import type {
+  CompDef,
+  FormDataSelector,
+  NodeRef,
+  PropsFromGenericComponent,
+  ValidateEmptyField,
+} from 'src/layout/index';
 import type {
   CompExternal,
   CompExternalExact,
@@ -105,7 +111,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
    * Picks all direct children of a node, returning an array of item stores for each child. This must be implemented for
    * every component type that can adopt children.
    */
-  public pickDirectChildren(_state: ItemStore<Type>, _restriction?: ChildLookupRestriction): ItemStore[] {
+  public pickDirectChildren(_state: ItemStore<Type>, _restriction?: ChildLookupRestriction): NodeRef[] {
     return [];
   }
 
@@ -444,7 +450,7 @@ export abstract class ContainerComponent<Type extends CompTypes> extends _FormCo
 
   abstract pickChild<C extends CompTypes>(state: ItemStore<Type>, childId: string, parentPath: string[]): ItemStore<C>;
 
-  abstract pickDirectChildren(state: ItemStore<Type>, restriction?: ChildLookupRestriction): ItemStore[];
+  abstract pickDirectChildren(state: ItemStore<Type>, restriction?: ChildLookupRestriction): NodeRef[];
 
   abstract addChild(state: ItemStore<Type>, childNode: LayoutNode, childStore: ItemStore): void;
 

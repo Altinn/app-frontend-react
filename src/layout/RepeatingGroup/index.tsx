@@ -2,7 +2,13 @@ import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
 import { getLayoutComponentObject } from '..';
-import type { PropsFromGenericComponent, ValidateComponent, ValidationFilter, ValidationFilterFunction } from '..';
+import type {
+  NodeRef,
+  PropsFromGenericComponent,
+  ValidateComponent,
+  ValidationFilter,
+  ValidationFilterFunction,
+} from '..';
 
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
@@ -85,7 +91,7 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     };
   }
 
-  pickDirectChildren(_state: ItemStore<'RepeatingGroup'>, _restriction?: ChildLookupRestriction): ItemStore[] {
+  pickDirectChildren(_state: ItemStore<'RepeatingGroup'>, _restriction?: ChildLookupRestriction): NodeRef[] {
     // TODO: Implement
     return [];
   }

@@ -6,7 +6,7 @@ import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSy
 import { GenerateRaw } from 'src/codegen/dataTypes/GenerateRaw';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 import { CompCategory } from 'src/layout/common';
-import { implementsNodeStateChildrenPlugin } from 'src/utils/layout/NodeStatePlugin';
+import { isNodeStateChildrenPlugin } from 'src/utils/layout/NodeStatePlugin';
 import { SimpleChildrenPlugin } from 'src/utils/layout/plugins/SimpleChildrenPlugin';
 import type { ComponentBehaviors, RequiredComponentConfig } from 'src/codegen/Config';
 import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
@@ -55,7 +55,7 @@ export class ComponentConfig {
     canHaveLabel: false,
     canHaveOptions: false,
   };
-  protected plugins: NodeStatePlugin<any, any, any>[] = [];
+  protected plugins: NodeStatePlugin<any>[] = [];
 
   constructor(public readonly config: RequiredComponentConfig) {
     this.inner.extends(CG.common('ComponentBase'));
@@ -91,7 +91,7 @@ export class ComponentConfig {
     return this;
   }
 
-  public addPlugin(plugin: NodeStatePlugin<any, any, any>): this {
+  public addPlugin(plugin: NodeStatePlugin<any>): this {
     this.plugins.push(plugin);
     return this;
   }
@@ -319,8 +319,8 @@ export class ComponentConfig {
     }
 
     const childrenPlugins = this.plugins.filter((plugin) =>
-      implementsNodeStateChildrenPlugin(plugin),
-    ) as unknown as (NodeStateChildrenPlugin<any, any> & NodeStatePlugin<any, any, any>)[];
+      isNodeStateChildrenPlugin(plugin),
+    ) as unknown as (NodeStateChildrenPlugin<any> & NodeStatePlugin<any>)[];
 
     if (childrenPlugins.length > 0) {
       if (childrenPlugins.length > 1) {

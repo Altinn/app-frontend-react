@@ -374,8 +374,11 @@ function getNotReadyNodes(node: ItemStore, parentPath: string[]) {
   }
 
   const def = getLayoutComponentObject(node.layout.type);
-  for (const child of def.pickDirectChildren(node as any)) {
-    notReady.push(...getNotReadyNodes(child, [...parentPath, id]));
+  for (const childRef of def.pickDirectChildren(node as any)) {
+    const childItem = pickDataStorePath(node, [childRef.nodeRef], parentPath);
+    if (childItem && childItem.type === 'node') {
+      notReady.push(...getNotReadyNodes(childItem, [...parentPath, id]));
+    }
   }
 
   return notReady;

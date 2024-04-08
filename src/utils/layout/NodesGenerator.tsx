@@ -18,6 +18,7 @@ import type {
   ComponentProto,
   ContainerGeneratorProps,
 } from 'src/layout/LayoutComponent';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ChildrenMap } from 'src/utils/layout/NodesGeneratorContext';
 
 export const NodeGeneratorDebug = false;
@@ -99,18 +100,25 @@ function SaveFinishedNodesToStore({ pages }: { pages: LayoutPages }) {
 
     if (allReady) {
       setNodes(pages);
-
       console.log('debug, all ready. Nodes:');
       for (const page of Object.values(pages.all())) {
-        console.log('debug, --- page:', page.pageKey);
-        for (const node of page.flat()) {
-          console.log('debug, ------ node:', node.getId());
-        }
+        console.log(`debug, --- page:`, page.pageKey);
+        logNodes(page.children());
       }
     }
   }, [layoutKeys, pages, allReady, setNodes, existingNodes]);
 
   return null;
+}
+
+function logNodes(nodes: LayoutNode[], prefix = '------') {
+  for (const node of nodes) {
+    console.log(`debug, ${prefix} node:`, node.getId());
+    const children = node.children();
+    if (children.length > 0) {
+      logNodes(children, `${prefix}---`);
+    }
+  }
 }
 
 function SetCurrentPage({ pages }: { pages: LayoutPages }) {

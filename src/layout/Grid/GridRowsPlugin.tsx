@@ -1,26 +1,32 @@
-import type { CompDef } from '..';
+import type { CompDef, NodeRef } from '..';
 
 import { CG } from 'src/codegen/CG';
 import { NodeStatePlugin } from 'src/utils/layout/NodeStatePlugin';
 import type { GridRowsInternal } from 'src/layout/Grid/types';
 import type { CompTypes } from 'src/layout/layout';
-import type { ExprResolver } from 'src/layout/LayoutComponent';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
-import type { BaseItemState, ItemStore, StateFactoryProps } from 'src/utils/layout/itemState';
+import type { ItemStore } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodeStateChildrenPlugin } from 'src/utils/layout/NodeStatePlugin';
+import type {
+  NodeStateChildrenPlugin,
+  PluginExprResolver,
+  PluginState,
+  PluginStateFactoryProps,
+} from 'src/utils/layout/NodeStatePlugin';
 
-interface GridRowsStateExtension {
-  rowItems: any[];
-}
-
-interface GridRowsEvalOutput {
-  rows: GridRowsInternal;
+interface Config<Type extends CompTypes> {
+  componentType: Type;
+  extraState: {
+    rowItems: any[];
+  };
+  extraInItem: {
+    rows: GridRowsInternal;
+  };
 }
 
 export class GridRowsPlugin<Type extends CompTypes>
-  extends NodeStatePlugin<Type, GridRowsStateExtension, GridRowsEvalOutput>
-  implements NodeStateChildrenPlugin<Type, GridRowsStateExtension>
+  extends NodeStatePlugin<Config<Type>>
+  implements NodeStateChildrenPlugin<Config<Type>>
 {
   makeImport() {
     return new CG.import({
@@ -29,38 +35,35 @@ export class GridRowsPlugin<Type extends CompTypes>
     });
   }
 
-  stateFactory(_props: StateFactoryProps<Type>): GridRowsStateExtension {
+  stateFactory(_props: PluginStateFactoryProps<Config<Type>>) {
     return {
       rowItems: [],
     };
   }
 
-  evalDefaultExpressions(props: ExprResolver<Type>): GridRowsEvalOutput {
+  evalDefaultExpressions(props: PluginExprResolver<Config<Type>>) {
     return {
       rows: (props.item as any).rows as GridRowsInternal,
     };
   }
 
-  pickDirectChildren(
-    _state: GridRowsStateExtension & BaseItemState<Type>,
-    _restriction?: ChildLookupRestriction | undefined,
-  ): ItemStore[] {
+  pickDirectChildren(_state: PluginState<Config<Type>>, _restriction?: ChildLookupRestriction | undefined): NodeRef[] {
     throw new Error('Method not implemented.');
   }
 
   pickChild<C extends CompTypes>(
-    _state: GridRowsStateExtension & BaseItemState<Type>,
+    _state: PluginState<Config<Type>>,
     _childId: string,
     _parentPath: string[],
   ): ReturnType<CompDef<C>['stateFactory']> {
     throw new Error('Method not implemented.');
   }
 
-  addChild(_state: GridRowsStateExtension & BaseItemState<Type>, _childNode: LayoutNode, _childStore: ItemStore): void {
+  addChild(_state: PluginState<Config<Type>>, _childNode: LayoutNode, _childStore: ItemStore): void {
     throw new Error('Method not implemented.');
   }
 
-  removeChild(_state: GridRowsStateExtension & BaseItemState<Type>, _childNode: LayoutNode): void {
+  removeChild(_state: PluginState<Config<Type>>, _childNode: LayoutNode): void {
     throw new Error('Method not implemented.');
   }
 }
