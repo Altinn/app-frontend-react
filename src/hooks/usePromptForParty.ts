@@ -8,21 +8,27 @@ export function usePromptForParty(): boolean | null {
   const parties = useParties();
 
   if (!profile?.partyId || !parties) {
+    console.log('null');
     return null;
   }
 
   if (applicationMetadata.promptForParty === 'never') {
+    console.log('never');
     return false;
   }
 
   if (applicationMetadata.promptForParty === 'always') {
+    console.log('always');
     return true;
   }
 
   // No point in prompting if there is only one party
   if (parties.length === 1) {
+    console.log('length 1');
     return false;
   }
+
+  console.log('pofile setting', profile.profileSettingPreference.doNotPromptForParty);
 
   return !profile.profileSettingPreference.doNotPromptForParty;
 }

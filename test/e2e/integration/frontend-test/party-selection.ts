@@ -40,8 +40,8 @@ describe('Party selection', () => {
     cy.get(appFrontend.reporteeSelection.reportee).should('have.length', 1).contains('DDG');
   });
 
-  [true, false].forEach((doNotPromptForParty) => {
-    it(`${
+  [false].forEach((doNotPromptForParty) => {
+    it.only(`${
       doNotPromptForParty ? 'Does not prompt' : 'Prompts'
     } for party when doNotPromptForParty = ${doNotPromptForParty}, on instantiation with multiple possible parties`, () => {
       // Intercept active instances

@@ -22,6 +22,8 @@ export function Entrypoint() {
 
   const isMissingParty = party === undefined && !allowAnonymous;
 
+  console.log('alwaysPromptForParty', alwaysPromptForParty);
+
   if (alwaysPromptForParty) {
     return (
       <Navigate
@@ -32,6 +34,8 @@ export function Entrypoint() {
   }
 
   if (!partyIsValid || isMissingParty) {
+    console.log('part not valid');
+
     if (location.pathname.includes('party-selection')) {
       return <Outlet />;
     }
@@ -67,6 +71,8 @@ export function Entrypoint() {
       </FormProvider>
     );
   }
+
+  console.log('outlet');
 
   return <Outlet />;
 }
