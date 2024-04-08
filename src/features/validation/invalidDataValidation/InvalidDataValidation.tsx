@@ -12,14 +12,14 @@ function isScalar(value: any): value is string | number | boolean {
 }
 
 export function InvalidDataValidation({ dataType }: { dataType: string }) {
-  const updateValidations = Validation.useUpdateValidations();
+  const updateDataModelValidations = Validation.useUpdateDataModelValidations();
   const invalidData = FD.useInvalidDebounced(dataType);
 
   useEffect(() => {
-    const validations = { [dataType]: {} };
+    let validations = {};
 
     if (Object.keys(invalidData).length > 0) {
-      validations[dataType] = Object.entries(dot.dot(invalidData))
+      validations = Object.entries(dot.dot(invalidData))
         .filter(([_, value]) => isScalar(value))
         .reduce((validations, [field, _]) => {
           if (!validations[field]) {
@@ -37,11 +37,14 @@ export function InvalidDataValidation({ dataType }: { dataType: string }) {
           return validations;
         }, {});
     }
-    updateValidations('invalidData', validations);
-  }, [dataType, invalidData, updateValidations]);
+    updateDataModelValidations('invalidData', dataType, validations);
+  }, [dataType, invalidData, updateDataModelValidations]);
 
   // Cleanup on unmount
-  useEffect(() => () => updateValidations('invalidData', { [dataType]: {} }), [dataType, updateValidations]);
+  useEffect(
+    () => () => updateDataModelValidations('invalidData', dataType, {}),
+    [dataType, updateDataModelValidations],
+  );
 
   return null;
 }

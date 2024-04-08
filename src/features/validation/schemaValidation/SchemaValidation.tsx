@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react';
 
 import { FrontendValidationSource } from '..';
+import type { FieldValidations } from '..';
 
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useDataModelType } from 'src/features/datamodel/useBindingSchema';
@@ -21,7 +22,7 @@ import {
 import type { TextReference } from 'src/features/language/useLanguage';
 
 export function SchemaValidation({ dataType }: { dataType: string }) {
-  const updateValidations = Validation.useUpdateValidations();
+  const updateDataModelValidations = Validation.useUpdateDataModelValidations();
 
   const formData = FD.useDebounced(dataType);
   const schema = DataModels.useDataModelSchema(dataType);
@@ -44,7 +45,7 @@ export function SchemaValidation({ dataType }: { dataType: string }) {
   useEffect(() => {
     if (validator && rootElementPath !== undefined && schema) {
       const valid = validator.validate(`schema${rootElementPath}`, structuredClone(formData));
-      const validations = { [dataType]: {} };
+      const validations: FieldValidations = {};
       if (!valid) {
         for (const error of validator.errors || []) {
           /**
@@ -99,11 +100,11 @@ export function SchemaValidation({ dataType }: { dataType: string }) {
            */
           const field = processInstancePath(error.instancePath);
 
-          if (!validations[dataType][field]) {
-            validations[dataType][field] = [];
+          if (!validations[field]) {
+            validations[field] = [];
           }
 
-          validations[dataType][field].push({
+          validations[field].push({
             message,
             field,
             source: FrontendValidationSource.Schema,
@@ -113,12 +114,12 @@ export function SchemaValidation({ dataType }: { dataType: string }) {
         }
       }
 
-      updateValidations('schema', validations);
+      updateDataModelValidations('schema', dataType, validations);
     }
-  }, [dataType, formData, rootElementPath, schema, updateValidations, validator]);
+  }, [dataType, formData, rootElementPath, schema, updateDataModelValidations, validator]);
 
   // Cleanup on unmount
-  useEffect(() => () => updateValidations('schema', { [dataType]: {} }), [dataType, updateValidations]);
+  useEffect(() => () => updateDataModelValidations('schema', dataType, {}), [dataType, updateDataModelValidations]);
 
   return null;
 }

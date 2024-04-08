@@ -20,14 +20,14 @@ const EXPR_CONFIG: ExprConfig<ExprVal.Boolean> = {
 };
 
 export function ExpressionValidation({ dataType }: { dataType: string }) {
-  const updateValidations = Validation.useUpdateValidations();
+  const updateDataModelValidations = Validation.useUpdateDataModelValidations();
   const formData = FD.useDebounced(dataType);
   const expressionValidationConfig = DataModels.useExpressionValidationConfig(dataType);
   const nodesRef = useAsRef(useNodes());
 
   useEffect(() => {
     if (expressionValidationConfig && Object.keys(expressionValidationConfig).length > 0 && formData) {
-      const validations = { [dataType]: {} };
+      const validations = {};
 
       for (const node of nodesRef.current.allNodes()) {
         if (!node.item.dataModelBindings) {
@@ -44,7 +44,7 @@ export function ExpressionValidation({ dataType }: { dataType: string }) {
           /**
            * Should not run validations on the same field multiple times
            */
-          if (validations[dataType][field]) {
+          if (validations[field]) {
             continue;
           }
 
@@ -60,11 +60,11 @@ export function ExpressionValidation({ dataType }: { dataType: string }) {
               positionalArguments: [field, dataType],
             });
             if (isInvalid) {
-              if (!validations[dataType][field]) {
-                validations[dataType][field] = [];
+              if (!validations[field]) {
+                validations[field] = [];
               }
 
-              validations[dataType][field].push({
+              validations[field].push({
                 field,
                 source: FrontendValidationSource.Expression,
                 message: { key: validationDef.message },
@@ -76,12 +76,12 @@ export function ExpressionValidation({ dataType }: { dataType: string }) {
         }
       }
 
-      updateValidations('expression', validations);
+      updateDataModelValidations('expression', dataType, validations);
     }
-  }, [expressionValidationConfig, nodesRef, formData, dataType, updateValidations]);
+  }, [expressionValidationConfig, nodesRef, formData, dataType, updateDataModelValidations]);
 
   // Cleanup on unmount
-  useEffect(() => () => updateValidations('expression', { [dataType]: {} }), [dataType, updateValidations]);
+  useEffect(() => () => updateDataModelValidations('expression', dataType, {}), [dataType, updateDataModelValidations]);
 
   return null;
 }

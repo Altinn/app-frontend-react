@@ -26,18 +26,16 @@ export function NodeValidation() {
 }
 
 function SpecificNodeValidation({ node }: { node: LayoutNode }) {
-  const updateValidations = Validation.useUpdateValidations();
+  const updateComponentValidations = Validation.useUpdateComponentValidations();
   const nodeId = node.item.id;
 
   // TODO(Datamodels): Will this actually run when only formData changes for a node?
   useEffect(() => {
-    const validations: ComponentValidations = {
-      [nodeId]: {
-        component: [],
-        bindingKeys: node.item.dataModelBindings
-          ? Object.fromEntries(Object.keys(node.item.dataModelBindings).map((key) => [key, []]))
-          : {},
-      },
+    const validations: ComponentValidations[string] = {
+      component: [],
+      bindingKeys: node.item.dataModelBindings
+        ? Object.fromEntries(Object.keys(node.item.dataModelBindings).map((key) => [key, []]))
+        : {},
     };
 
     /**
@@ -46,9 +44,9 @@ function SpecificNodeValidation({ node }: { node: LayoutNode }) {
     if (implementsValidateEmptyField(node.def)) {
       for (const validation of node.def.runEmptyFieldValidation(node as any)) {
         if (validation.bindingKey) {
-          validations[nodeId].bindingKeys[validation.bindingKey].push(validation);
+          validations.bindingKeys[validation.bindingKey].push(validation);
         } else {
-          validations[nodeId].component.push(validation);
+          validations.component.push(validation);
         }
       }
     }
@@ -59,20 +57,20 @@ function SpecificNodeValidation({ node }: { node: LayoutNode }) {
     if (implementsValidateComponent(node.def)) {
       for (const validation of node.def.runComponentValidation(node as any)) {
         if (validation.bindingKey) {
-          validations[nodeId].bindingKeys[validation.bindingKey].push(validation);
+          validations.bindingKeys[validation.bindingKey].push(validation);
         } else {
-          validations[nodeId].component.push(validation);
+          validations.component.push(validation);
         }
       }
     }
 
-    updateValidations('component', validations);
-  }, [node, nodeId, updateValidations]);
+    updateComponentValidations(nodeId, validations);
+  }, [node, nodeId, updateComponentValidations]);
 
   // Cleanup on unmount
   useEffect(
-    () => () => updateValidations('component', { [nodeId]: { component: [], bindingKeys: {} } }),
-    [nodeId, updateValidations],
+    () => () => updateComponentValidations(nodeId, { component: [], bindingKeys: {} }),
+    [nodeId, updateComponentValidations],
   );
 
   return null;

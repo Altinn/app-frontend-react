@@ -5,11 +5,10 @@ import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
 import { createZustandContext } from 'src/core/contexts/zustandContext';
-import { Loader } from 'src/core/loading/Loader';
 import { useHasPendingAttachments } from 'src/features/attachments/AttachmentsContext';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useBackendValidation } from 'src/features/validation/backendValidation/useBackendValidation';
+import { BackendValidation } from 'src/features/validation/backendValidation/BackendValidation';
 import { ExpressionValidation } from 'src/features/validation/expressionValidation/ExpressionValidation';
 import { InvalidDataValidation } from 'src/features/validation/invalidDataValidation/InvalidDataValidation';
 import { NodeValidation } from 'src/features/validation/nodeValidation/NodeValidation';
@@ -30,7 +29,7 @@ import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import type {
   BackendValidationIssueGroups,
-  BackendValidations,
+  BaseValidation,
   ComponentValidations,
   DataModelValidations,
   FieldValidations,
@@ -46,18 +45,24 @@ interface NewStoreProps {
 
 interface Internals {
   isLoading: boolean;
-  individualValidations: {
-    backend: BackendValidations;
-    component: ComponentValidations;
+  individualFieldValidations: {
+    backend: DataModelValidations;
     expression: DataModelValidations;
     schema: DataModelValidations;
     invalidData: DataModelValidations;
   };
-  issueGroupsProcessedLast: BackendValidationIssueGroups | undefined;
-  updateValidations: <K extends keyof Internals['individualValidations']>(
-    key: K,
-    value: Internals['individualValidations'][K],
-    issueGroups?: BackendValidationIssueGroups,
+  issueGroupsProcessedLast: { [dataType: string]: BackendValidationIssueGroups | undefined };
+  updateTaskValidations: (validations: BaseValidation[]) => void;
+  updateComponentValidations: (componentId: string, validations: ComponentValidations[string]) => void;
+  /**
+   * updateDataModelValidations
+   * if validations is undefined, nothing will be changed
+   */
+  updateDataModelValidations: (
+    key: keyof Internals['individualFieldValidations'],
+    dataType: string,
+    validations?: FieldValidations,
+    issueGroupsProcessedLast?: BackendValidationIssueGroups,
   ) => void;
   updateVisibility: (mutator: (visibility: Visibility) => void) => void;
   updateValidating: (validating: WaitForValidation) => void;
@@ -100,36 +105,36 @@ function initialCreateStore({ validating }: NewStoreProps) {
       // =======
       // Internal state
       isLoading: true,
-      individualValidations: {
-        backend: { task: [], dataModels: {} },
+      individualFieldValidations: {
+        task: [],
+        backend: {},
         component: {},
         expression: {},
         schema: {},
         invalidData: {},
       },
-      issueGroupsProcessedLast: undefined,
-      updateValidations: (key, validations, issueGroups) =>
+      issueGroupsProcessedLast: {},
+      updateTaskValidations: (validations) =>
+        set((state) => {
+          state.state.task = validations;
+        }),
+      updateComponentValidations: (componentId, validations) =>
+        set((state) => {
+          state.state.components[componentId] = validations;
+        }),
+      updateDataModelValidations: (key, dataType, validations, issueGroupsProcessedLast) =>
         set((state) => {
           if (key === 'backend') {
-            state.isLoading = false;
-            state.state.task = (validations as BackendValidations).task;
-            state.issueGroupsProcessedLast = issueGroups;
+            state.issueGroupsProcessedLast[dataType] = issueGroupsProcessedLast;
           }
-          if (key === 'component') {
-            for (const [componentId, componentValidations] of Object.entries(validations as ComponentValidations)) {
-              state.individualValidations.component[componentId] = componentValidations;
-              state.state.components[componentId] = componentValidations;
-            }
-          } else {
-            for (const [dataType, fieldValidations] of Object.entries(validations)) {
-              state.individualValidations[key][dataType] = fieldValidations;
-              state.state.dataModels[dataType] = mergeFieldValidations(
-                state.individualValidations.backend[dataType].fields,
-                state.individualValidations.invalidData[dataType],
-                state.individualValidations.schema[dataType],
-                state.individualValidations.expression[dataType],
-              );
-            }
+          if (validations) {
+            state.individualFieldValidations[key][dataType] = validations;
+            state.state.dataModels[dataType] = mergeFieldValidations(
+              state.individualFieldValidations.backend[dataType],
+              state.individualFieldValidations.invalidData[dataType],
+              state.individualFieldValidations.schema[dataType],
+              state.individualFieldValidations.expression[dataType],
+            );
           }
         }),
       updateVisibility: (mutator) =>
@@ -154,11 +159,7 @@ const { Provider, useSelector, useDelayedMemoSelector, useSelectorAsRef, useStor
     },
   });
 
-interface Props {
-  isCustomReceipt?: boolean;
-}
-
-export function ValidationProvider({ children, isCustomReceipt = false }: PropsWithChildren<Props>) {
+export function ValidationProvider({ children }: PropsWithChildren) {
   const dataTypes = DataModels.useWritableDataTypes();
   const waitForSave = FD.useWaitForSave();
   const waitForStateRef = useRef<WaitForState<ValidationContext & Internals, unknown>>();
@@ -183,17 +184,17 @@ export function ValidationProvider({ children, isCustomReceipt = false }: PropsW
   return (
     <Provider validating={validating}>
       <MakeWaitForState waitForStateRef={waitForStateRef} />
-      <UpdateValidations isCustomReceipt={isCustomReceipt} />
       <NodeValidation />
       {dataTypes.map((dataType) => (
         <React.Fragment key={dataType}>
+          <BackendValidation dataType={dataType} />
           <SchemaValidation dataType={dataType} />
           <ExpressionValidation dataType={dataType} />
           <InvalidDataValidation dataType={dataType} />
         </React.Fragment>
       ))}
       <ManageVisibility />
-      <LoadingBlocker isCustomReceipt={isCustomReceipt}>{children}</LoadingBlocker>
+      {children}
     </Provider>
   );
 }
@@ -204,29 +205,6 @@ function MakeWaitForState({
   waitForStateRef: React.MutableRefObject<WaitForState<ValidationContext & Internals, unknown> | undefined>;
 }) {
   waitForStateRef.current = useWaitForState(useStore());
-  return null;
-}
-
-function LoadingBlocker({ children, isCustomReceipt }: PropsWithChildren<Props>) {
-  const isLoading = useSelector((state) => state.isLoading);
-  if (isLoading && !isCustomReceipt) {
-    return <Loader reason='validation' />;
-  }
-
-  return <>{children}</>;
-}
-
-function UpdateValidations({ isCustomReceipt }: Props) {
-  const updateValidations = useSelector((state) => state.updateValidations);
-  const backendValidation = useBackendValidation({ enabled: !isCustomReceipt });
-
-  useEffect(() => {
-    const { validations: backendValidations, processedLast, initialValidationDone } = backendValidation;
-    if (initialValidationDone) {
-      updateValidations('backend', backendValidations, processedLast);
-    }
-  }, [backendValidation, updateValidations]);
-
   return null;
 }
 
@@ -302,7 +280,9 @@ export const Validation = {
   useSetNodeVisibility: () => useSelector((state) => state.setNodeVisibility),
   useSetShowAllErrors: () => useSelector((state) => state.setShowAllErrors),
   useValidating: () => useSelector((state) => state.validating),
-  useUpdateValidations: () => useSelector((state) => state.updateValidations),
+  useUpdateTaskValidations: () => useSelector((state) => state.updateTaskValidations),
+  useUpdateComponentValidations: () => useSelector((state) => state.updateComponentValidations),
+  useUpdateDataModelValidations: () => useSelector((state) => state.updateDataModelValidations),
 
   useLaxRef: () => useLaxSelectorAsRef((state) => state),
 };

@@ -11,19 +11,24 @@ import { useDataModelSchemaQuery } from 'src/features/datamodel/DataModelSchemaP
 import { useCurrentDataModelName, useDataModelUrl } from 'src/features/datamodel/useBindingSchema';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
+import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
+import { useBackendValidationQuery } from 'src/features/validation/backendValidation/backendValidationQuery';
+import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { isDataModelReference } from 'src/utils/databindings';
 import type { SchemaLookupTool } from 'src/features/datamodel/DataModelSchemaProvider';
-import type { IExpressionValidations } from 'src/features/validation';
+import type { BackendValidatorGroups, IExpressionValidations } from 'src/features/validation';
 
 interface DataModelsContext {
   dataTypes: string[] | null;
   initialData: { [dataType: string]: object };
+  initialValidations: { [dataType: string]: BackendValidatorGroups };
   schemas: { [dataType: string]: JSONSchema7 };
   schemaLookup: { [dataType: string]: SchemaLookupTool };
   expressionValidationConfigs: { [dataType: string]: IExpressionValidations | null };
 
   setDataTypes: (dataTypes: string[]) => void;
   setInitialData: (dataType: string, initialData: object) => void;
+  setInitialValidations: (dataType: string, initialValidations: BackendValidatorGroups) => void;
   setDataModelSchema: (dataType: string, schema: JSONSchema7, lookupTool: SchemaLookupTool) => void;
   setExpressionValidationConfig: (dataType: string, config: IExpressionValidations | null) => void;
 }
@@ -32,6 +37,7 @@ function initialCreateStore() {
   return createStore<DataModelsContext>((set) => ({
     dataTypes: null,
     initialData: {},
+    initialValidations: {},
     schemas: {},
     schemaLookup: {},
     expressionValidationConfigs: {},
@@ -45,6 +51,12 @@ function initialCreateStore() {
     setInitialData: (dataType, initialData) => {
       set((state) => {
         state.initialData[dataType] = initialData;
+        return state;
+      });
+    },
+    setInitialValidations: (dataType, initialValidations) => {
+      set((state) => {
+        state.initialData[dataType] = initialValidations;
         return state;
       });
     },
@@ -104,6 +116,7 @@ export function DataModelsProvider({ children }: PropsWithChildren) {
       {dataTypes?.map((dataType) => {
         <React.Fragment key={dataType}>
           <LoadInitialData dataType={dataType} />
+          <LoadInitialValidations dataType={dataType} />
           <LoadSchema dataType={dataType} />
           <LoadExpressionValidationConfig dataType={dataType} />
         </React.Fragment>;
@@ -114,7 +127,10 @@ export function DataModelsProvider({ children }: PropsWithChildren) {
 }
 
 function BlockUntilLoaded({ children }: PropsWithChildren) {
-  const { dataTypes, initialData, schemas, expressionValidationConfigs } = useSelector((state) => state);
+  const { dataTypes, initialData, initialValidations, schemas, expressionValidationConfigs } = useSelector(
+    (state) => state,
+  );
+
   if (!dataTypes) {
     return <Loader reason='data-types' />;
   }
@@ -122,6 +138,10 @@ function BlockUntilLoaded({ children }: PropsWithChildren) {
   for (const dataType of dataTypes) {
     if (!Object.keys(initialData).includes(dataType)) {
       return <Loader reason='initial-data' />;
+    }
+
+    if (!Object.keys(initialValidations).includes(dataType)) {
+      return <Loader reason='initial-validations' />;
     }
 
     if (!Object.keys(schemas).includes(dataType)) {
@@ -156,6 +176,22 @@ function LoadInitialData({ dataType }: LoaderProps) {
   return null;
 }
 
+function LoadInitialValidations({ dataType }: LoaderProps) {
+  const setInitialValidations = useSelector((state) => state.setInitialValidations);
+  const isCustomReceipt = useProcessTaskId() === TaskKeys.CustomReceipt;
+  const { data } = useBackendValidationQuery(dataType, !isCustomReceipt);
+
+  useEffect(() => {
+    if (isCustomReceipt) {
+      setInitialValidations(dataType, {});
+    } else if (data) {
+      setInitialValidations(dataType, data);
+    }
+  }, [data, dataType, isCustomReceipt, setInitialValidations]);
+
+  return null;
+}
+
 function LoadSchema({ dataType }: LoaderProps) {
   const setDataModelSchema = useSelector((state) => state.setDataModelSchema);
   const { data } = useDataModelSchemaQuery(dataType);
@@ -184,6 +220,8 @@ function LoadExpressionValidationConfig({ dataType }: LoaderProps) {
 
 export const DataModels = {
   useWritableDataTypes: () => useSelector((state) => state.dataTypes!),
+
+  useInitialValidations: (dataType: string) => useSelector((state) => state.initialValidations[dataType]),
 
   useDataModelSchema: (dataType: string) => useSelector((state) => state.schemas[dataType]),
 
