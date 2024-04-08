@@ -342,8 +342,8 @@ export class ComponentConfig {
         `pickDirectChildren(state: ${ItemStore}<'${this.type}'>, restriction?: ${ChildLookupRestriction} | undefined) {
           return this.${plugin.import}.pickDirectChildren(state, restriction);
         }`,
-        `pickChild<C extends ${CompTypes}>(state: ItemStore<'${this.type}'>, path: string[], parentPath: string[]) {
-          return this.${plugin.import}.pickChild<C>(state, path, parentPath);
+        `pickChild<C extends ${CompTypes}>(state: ItemStore<'${this.type}'>, childId: string, parentPath: string[]) {
+          return this.${plugin.import}.pickChild<C>(state, childId, parentPath);
         }`,
         `addChild(state: ${ItemStore}<'${this.type}'>, childNode: ${LayoutNode}, childStore: ${ItemStore}): void {
           this.${plugin.import}.addChild(state, childNode, childStore);

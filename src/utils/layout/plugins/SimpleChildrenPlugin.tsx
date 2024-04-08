@@ -1,6 +1,6 @@
 import { CG } from 'src/codegen/CG';
 import { NodeStatePlugin } from 'src/utils/layout/NodeStatePlugin';
-import type { CompDef, NodeRef } from 'src/layout';
+import type { NodeRef } from 'src/layout';
 import type { CompTypes } from 'src/layout/layout';
 import type { ExprResolver } from 'src/layout/LayoutComponent';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
@@ -42,25 +42,29 @@ export class SimpleChildrenPlugin<Type extends CompTypes>
   }
 
   pickDirectChildren(
-    _state: ChildrenStateExtension & BaseItemState<Type>,
-    _restriction?: ChildLookupRestriction | undefined,
+    state: ChildrenStateExtension & BaseItemState<Type>,
+    _restriction?: ChildLookupRestriction,
   ): ItemStore[] {
-    throw new Error('Method not implemented.');
+    return Object.values(state.childItems);
   }
 
   pickChild<C extends CompTypes>(
-    _state: ChildrenStateExtension & BaseItemState<Type>,
-    _path: string[],
-    _parentPath: string[],
-  ): ReturnType<CompDef<C>['stateFactory']> {
-    throw new Error('Method not implemented.');
+    state: ChildrenStateExtension & BaseItemState<Type>,
+    childId: string,
+    parentPath: string[],
+  ): ItemStore<C> {
+    const child = state.childItems[childId];
+    if (!child) {
+      throw new Error(`Child with id ${childId} not found in /${parentPath.join('/')}`);
+    }
+    return child as ItemStore<C>;
   }
 
-  addChild(_state: ChildrenStateExtension & BaseItemState<Type>, _childNode: LayoutNode, _childStore: ItemStore): void {
-    throw new Error('Method not implemented.');
+  addChild(state: ChildrenStateExtension & BaseItemState<Type>, childNode: LayoutNode, childStore: ItemStore): void {
+    state.childItems[childNode.getId()] = childStore;
   }
 
-  removeChild(_state: ChildrenStateExtension & BaseItemState<Type>, _childNode: LayoutNode): void {
-    throw new Error('Method not implemented.');
+  removeChild(state: ChildrenStateExtension & BaseItemState<Type>, childNode: LayoutNode): void {
+    delete state.childItems[childNode.getId()];
   }
 }

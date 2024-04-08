@@ -39,14 +39,7 @@ export const Config = new CG.component({
         .setDescription('Can visually group components together by indenting them or by putting them in a panel. '),
     ),
   )
-  .addProperty(
-    new CG.prop(
-      'children',
-      new CG.arr(new CG.str())
-        .setTitle('Children')
-        .setDescription('Array of component IDs that should be displayed in the group'),
-    ),
-  )
+  .addSimpleChildrenPlugin('Array of component IDs that should be displayed in the group')
   .addProperty(
     new CG.prop(
       'headingLevel',

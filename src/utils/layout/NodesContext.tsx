@@ -501,7 +501,7 @@ export function pickDataStorePath(
     throw new Error(`Component type "${container.layout.type}" not found`);
   }
 
-  const child = def.pickChild(container as ItemStore<any>, remaining, fullPath);
+  const child = def.pickChild(container as ItemStore<any>, target, fullPath);
   return pickDataStorePath(child, remaining, fullPath);
 }
 

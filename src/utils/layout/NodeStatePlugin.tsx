@@ -30,13 +30,10 @@ export abstract class NodeStatePlugin<Type extends CompTypes, StateExtension, Ev
  * Implement this interface if your component needs to support children in some form.
  */
 export interface NodeStateChildrenPlugin<Type extends CompTypes, StateExtension> {
-  pickDirectChildren(
-    state: StateExtension & BaseItemState<Type>,
-    restriction?: ChildLookupRestriction | undefined,
-  ): ItemStore[];
+  pickDirectChildren(state: StateExtension & BaseItemState<Type>, restriction?: ChildLookupRestriction): ItemStore[];
   pickChild<C extends CompTypes>(
     state: StateExtension & BaseItemState<Type>,
-    path: string[],
+    childId: string,
     parentPath: string[],
   ): ItemStore<C>;
   addChild(state: StateExtension & BaseItemState<Type>, childNode: LayoutNode, childStore: ItemStore): void;

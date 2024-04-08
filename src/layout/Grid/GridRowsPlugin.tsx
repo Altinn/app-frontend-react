@@ -50,7 +50,7 @@ export class GridRowsPlugin<Type extends CompTypes>
 
   pickChild<C extends CompTypes>(
     _state: GridRowsStateExtension & BaseItemState<Type>,
-    _path: string[],
+    _childId: string,
     _parentPath: string[],
   ): ReturnType<CompDef<C>['stateFactory']> {
     throw new Error('Method not implemented.');

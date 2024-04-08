@@ -92,7 +92,7 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
 
   pickChild<C extends CompTypes>(
     _state: ItemStore<'RepeatingGroup'>,
-    _path: string[],
+    _childId: string,
     _parentPath: string[],
   ): ItemStore<C> {
     return {} as any;

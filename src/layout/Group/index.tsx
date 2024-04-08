@@ -7,11 +7,7 @@ import { GroupComponent } from 'src/layout/Group/GroupComponent';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompTypes } from 'src/layout/layout';
 import type { ChildClaimerProps, SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
-import type { ItemStore } from 'src/utils/layout/itemState';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Group extends GroupDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Group'>>(
@@ -35,19 +31,6 @@ export class Group extends GroupDef {
       claimChild(id);
     }
   }
-
-  pickDirectChildren(_state: ItemStore<'Group'>, _restriction?: ChildLookupRestriction): ItemStore[] {
-    // TODO: Implement
-    return [];
-  }
-
-  pickChild<C extends CompTypes>(_state: ItemStore<'Group'>, _path: string[], _parentPath: string[]): ItemStore<C> {
-    return {} as any;
-  }
-
-  addChild(_state: ItemStore<'Group'>, _childNode: LayoutNode, _childStore: ItemStore) {}
-
-  removeChild(_state: ItemStore<'Group'>, _childNode: LayoutNode) {}
 
   renderSummary({
     onChangeClick,
