@@ -14,4 +14,4 @@ export const Config = new CG.component({
   functionality: {
     customExpressions: false,
   },
-}).addSimpleChildrenPlugin('Child component IDs of button-like components to be rendered in this group');
+}).addNonRepeatingChildren('Child component IDs of button-like components to be rendered in this group');

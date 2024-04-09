@@ -56,10 +56,6 @@ export class Grid extends GridDef {
     return '';
   }
 
-  validateDataModelBindings(): string[] {
-    return [];
-  }
-
   /**
    * Override layout validation to validate grid cells individually
    */

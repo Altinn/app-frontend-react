@@ -294,7 +294,9 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
   /**
    * Runs validation on data model bindings. Returns an array of error messages.
    */
-  public abstract validateDataModelBindings(ctx: LayoutValidationCtx<Type>): string[];
+  public validateDataModelBindings(_ctx: LayoutValidationCtx<Type>): string[] {
+    return [];
+  }
 
   protected validateDataModelBindingsAny(
     ctx: LayoutValidationCtx<Type>,

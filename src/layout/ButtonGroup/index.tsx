@@ -57,8 +57,4 @@ export class ButtonGroup extends ButtonGroupDef implements DisplayData<'ButtonGr
   renderSummary(): JSX.Element | null {
     return null;
   }
-
-  validateDataModelBindings(): string[] {
-    return [];
-  }
 }

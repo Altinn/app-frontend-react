@@ -20,8 +20,4 @@ export class CustomButton extends CustomButtonDef {
   getDisplayData(_node: LayoutNode<'Grid'>): string {
     return '';
   }
-
-  validateDataModelBindings(): string[] {
-    return [];
-  }
 }

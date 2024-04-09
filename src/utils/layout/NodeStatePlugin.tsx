@@ -1,3 +1,4 @@
+import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import type { NodeRef } from 'src/layout';
 import type { CompInternal, CompTypes } from 'src/layout/layout';
@@ -43,6 +44,7 @@ export abstract class NodeStatePlugin<Config extends PluginConfig> {
   }
 
   abstract makeImport(): GenerateImportedSymbol<any>;
+  abstract verifyComponent(component: ComponentConfig): void;
   abstract stateFactory(props: PluginStateFactoryProps<Config>): PluginExtraState<Config>;
   abstract evalDefaultExpressions(props: PluginExprResolver<Config>): PluginExtraInItem<Config>;
 }

@@ -22,6 +22,6 @@ export const Config = new CG.component({
       description: 'The title of the accordion group',
     }),
   )
-  .addSimpleChildrenPlugin(
+  .addNonRepeatingChildren(
     'List of child component IDs to show inside the Accordion (limited to a few component types)',
   );

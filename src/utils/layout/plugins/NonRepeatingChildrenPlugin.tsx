@@ -1,5 +1,7 @@
 import { CG } from 'src/codegen/CG';
+import { CompCategory } from 'src/layout/common';
 import { NodeStatePlugin } from 'src/utils/layout/NodeStatePlugin';
+import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { NodeRef } from 'src/layout';
 import type { CompTypes } from 'src/layout/layout';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
@@ -25,15 +27,21 @@ interface Config<Type extends CompTypes> {
   extraInItem: ExtraInItem;
 }
 
-export class SimpleChildrenPlugin<Type extends CompTypes>
+export class NonRepeatingChildrenPlugin<Type extends CompTypes>
   extends NodeStatePlugin<Config<Type>>
   implements NodeStateChildrenPlugin<Config<Type>>
 {
   makeImport() {
     return new CG.import({
-      import: 'SimpleChildrenPlugin',
-      from: 'src/utils/layout/plugins/SimpleChildrenPlugin',
+      import: 'NonRepeatingChildrenPlugin',
+      from: 'src/utils/layout/plugins/NonRepeatingChildrenPlugin',
     });
+  }
+
+  verifyComponent(component: ComponentConfig): void {
+    if (component.config.category !== CompCategory.Container) {
+      throw new Error('NonRepeatingChildrenPlugin can only be used with container components');
+    }
   }
 
   stateFactory(_props: PluginStateFactoryProps<Config<Type>>) {

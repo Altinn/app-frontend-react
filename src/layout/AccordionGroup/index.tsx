@@ -48,8 +48,4 @@ export class AccordionGroup extends AccordionGroupDef {
   getDisplayData(): string {
     return '';
   }
-
-  validateDataModelBindings(): string[] {
-    return [];
-  }
 }

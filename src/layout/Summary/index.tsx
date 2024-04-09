@@ -31,8 +31,4 @@ export class Summary extends SummaryDef {
   getDisplayData(): string {
     return '';
   }
-
-  validateDataModelBindings(): string[] {
-    return [];
-  }
 }

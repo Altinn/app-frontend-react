@@ -1,7 +1,9 @@
 import type { CompDef, NodeRef } from '..';
 
 import { CG } from 'src/codegen/CG';
+import { CompCategory } from 'src/layout/common';
 import { NodeStatePlugin } from 'src/utils/layout/NodeStatePlugin';
+import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { GridRowsInternal } from 'src/layout/Grid/types';
 import type { CompTypes } from 'src/layout/layout';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
@@ -33,6 +35,12 @@ export class GridRowsPlugin<Type extends CompTypes>
       import: 'GridRowsPlugin',
       from: 'src/layout/Grid/GridRowsPlugin',
     });
+  }
+
+  verifyComponent(component: ComponentConfig): void {
+    if (component.config.category !== CompCategory.Container) {
+      throw new Error('GridRowsPlugin can only be used with container components');
+    }
   }
 
   stateFactory(_props: PluginStateFactoryProps<Config<Type>>): Config<Type>['extraState'] {

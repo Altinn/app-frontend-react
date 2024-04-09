@@ -3,7 +3,7 @@ import { LabelRendering } from 'src/codegen/Config';
 import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
-  category: CompCategory.Presentation,
+  category: CompCategory.Container,
   rendersWithLabel: LabelRendering.Off,
   capabilities: {
     renderInTable: false,
@@ -22,7 +22,7 @@ export const Config = new CG.component({
       description: 'The title of the accordion',
     }),
   )
-  .addSimpleChildrenPlugin(
+  .addNonRepeatingChildren(
     'List of child component IDs to show inside the Accordion (limited to a few component types)',
   )
   .addProperty(new CG.prop('headingLevel', CG.common('HeadingLevel').optional()));

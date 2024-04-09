@@ -7,7 +7,7 @@ import { GenerateRaw } from 'src/codegen/dataTypes/GenerateRaw';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 import { CompCategory } from 'src/layout/common';
 import { isNodeStateChildrenPlugin } from 'src/utils/layout/NodeStatePlugin';
-import { SimpleChildrenPlugin } from 'src/utils/layout/plugins/SimpleChildrenPlugin';
+import { NonRepeatingChildrenPlugin } from 'src/utils/layout/plugins/NonRepeatingChildrenPlugin';
 import type { ComponentBehaviors, RequiredComponentConfig } from 'src/codegen/Config';
 import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
 import type { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
@@ -92,6 +92,7 @@ export class ComponentConfig {
   }
 
   public addPlugin(plugin: NodeStatePlugin<any>): this {
+    plugin.verifyComponent(this);
     this.plugins.push(plugin);
     return this;
   }
@@ -99,8 +100,8 @@ export class ComponentConfig {
   /**
    * Shortcut to adding support for simple (non-repeating) children in a component
    */
-  public addSimpleChildrenPlugin(description = 'List of child component IDs to show inside'): this {
-    this.plugins.push(new SimpleChildrenPlugin());
+  public addNonRepeatingChildren(description = 'List of child component IDs to show inside'): this {
+    this.addPlugin(new NonRepeatingChildrenPlugin());
     this.addProperty(
       new CG.prop('children', new CG.arr(new CG.str()).setTitle('Children').setDescription(description)),
     );
@@ -157,6 +158,13 @@ export class ComponentConfig {
         >
       | GenerateObject<any>,
   ): this {
+    if (this.config.category !== CompCategory.Form && this.config.category !== CompCategory.Container) {
+      throw new Error(
+        `Component wants dataModelBindings, but is not a form nor a container component. ` +
+          `Only these categories can have data model bindings.`,
+      );
+    }
+
     const name = 'dataModelBindings';
     const existing = this.inner.getProperty(name)?.type;
     if (existing && existing instanceof GenerateUnion) {
@@ -315,6 +323,18 @@ export class ComponentConfig {
         evalExpressions(props: ${ExprResolver}<'${this.type}'>) {
           return this.evalDefaultExpressions(props);
         }`,
+      );
+    }
+
+    const dataModelBindings = this.inner.getProperty('dataModelBindings')?.type;
+    if (dataModelBindings && !(dataModelBindings instanceof GenerateRaw)) {
+      const LayoutValidationCtx = new CG.import({
+        import: 'LayoutValidationCtx',
+        from: 'src/features/devtools/layoutValidation/types',
+      });
+      additionalMethods.push(
+        `// You must implement this because the component has data model bindings defined
+        abstract validateDataModelBindings(ctx: ${LayoutValidationCtx}<'${this.type}'>): string[];`,
       );
     }
 
