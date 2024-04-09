@@ -6,7 +6,7 @@ import { GroupDef } from 'src/layout/Group/config.def.generated';
 import { GroupComponent } from 'src/layout/Group/GroupComponent';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { ChildClaimerProps, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 
 export class Group extends GroupDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Group'>>(
@@ -24,12 +24,6 @@ export class Group extends GroupDef {
       );
     },
   );
-
-  claimChildren({ item, claimChild }: ChildClaimerProps<'Group'>): void {
-    for (const id of item.children) {
-      claimChild(id);
-    }
-  }
 
   renderSummary({
     onChangeClick,

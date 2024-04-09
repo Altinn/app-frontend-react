@@ -7,7 +7,6 @@ import { GenerateRaw } from 'src/codegen/dataTypes/GenerateRaw';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 import { CompCategory } from 'src/layout/common';
 import { isNodeStateChildrenPlugin } from 'src/utils/layout/NodeStatePlugin';
-import { NonRepeatingChildrenPlugin } from 'src/utils/layout/plugins/NonRepeatingChildrenPlugin';
 import type { ComponentBehaviors, RequiredComponentConfig } from 'src/codegen/Config';
 import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
 import type { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
@@ -92,20 +91,14 @@ export class ComponentConfig {
   }
 
   public addPlugin(plugin: NodeStatePlugin<any>): this {
-    plugin.verifyComponent(this);
+    for (const existing of this.plugins) {
+      if (existing.getKey() === plugin.getKey()) {
+        throw new Error(`Component already has a plugin with the key ${plugin.getKey()}!`);
+      }
+    }
+
+    plugin.addToComponent(this);
     this.plugins.push(plugin);
-    return this;
-  }
-
-  /**
-   * Shortcut to adding support for simple (non-repeating) children in a component
-   */
-  public addNonRepeatingChildren(description = 'List of child component IDs to show inside'): this {
-    this.addPlugin(new NonRepeatingChildrenPlugin());
-    this.addProperty(
-      new CG.prop('children', new CG.arr(new CG.str()).setTitle('Children').setDescription(description)),
-    );
-
     return this;
   }
 
@@ -314,7 +307,7 @@ export class ComponentConfig {
     }
 
     const pluginInstances = this.plugins.map(
-      (plugin) => `protected readonly ${plugin.import} = new ${plugin.import}();`,
+      (plugin) => `protected readonly ${plugin.import} = new ${plugin.import}(${plugin.makeConstructorArguments()});`,
     );
 
     const pluginStateFactories = this.plugins
@@ -362,6 +355,7 @@ export class ComponentConfig {
         );
       }
 
+      const ChildClaimerProps = new CG.import({ import: 'ChildClaimerProps', from: 'src/layout/LayoutComponent' });
       const ItemStore = new CG.import({ import: 'ItemStore', from: 'src/utils/layout/itemState' });
       const ChildLookupRestriction = new CG.import({
         import: 'ChildLookupRestriction',
@@ -372,7 +366,10 @@ export class ComponentConfig {
 
       const plugin = childrenPlugins[0];
       additionalMethods.push(
-        `pickDirectChildren(state: ${ItemStore}<'${this.type}'>, restriction?: ${ChildLookupRestriction} | undefined) {
+        `claimChildren(props: ${ChildClaimerProps}<'${this.type}'>) {
+          return this.${plugin.import}.claimChildren(props as any);
+        }`,
+        `pickDirectChildren(state: ${ItemStore}<'${this.type}'>, restriction?: ${ChildLookupRestriction}) {
           return this.${plugin.import}.pickDirectChildren(state as any, restriction);
         }`,
         `pickChild<C extends ${CompTypes}>(state: ItemStore<'${this.type}'>, childId: string, parentPath: string[]) {

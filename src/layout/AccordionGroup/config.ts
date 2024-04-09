@@ -1,6 +1,7 @@
 import { CG } from 'src/codegen/CG';
 import { LabelRendering } from 'src/codegen/Config';
 import { CompCategory } from 'src/layout/common';
+import { NonRepeatingChildrenPlugin } from 'src/utils/layout/plugins/NonRepeatingChildrenPlugin';
 
 export const Config = new CG.component({
   category: CompCategory.Container,
@@ -22,6 +23,8 @@ export const Config = new CG.component({
       description: 'The title of the accordion group',
     }),
   )
-  .addNonRepeatingChildren(
-    'List of child component IDs to show inside the Accordion (limited to a few component types)',
+  .addPlugin(
+    new NonRepeatingChildrenPlugin({
+      description: 'List of child component IDs to show inside the Accordion (limited to a few component types)',
+    }),
   );
