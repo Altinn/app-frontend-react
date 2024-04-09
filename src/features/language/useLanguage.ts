@@ -2,8 +2,8 @@ import { Children, isValidElement, useMemo } from 'react';
 import type { JSX, ReactNode } from 'react';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
-import { useDataTypeByLayoutSetId } from 'src/features/applicationMetadata/appMetadataUtils';
-import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
+import { useCurrentDataModelName } from 'src/features/datamodel/useBindingSchema';
 import { DataModelReaders } from 'src/features/formData/FormDataReaders';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
@@ -56,8 +56,9 @@ export interface TextResourceVariablesDataSources {
   instanceDataSources: IInstanceDataSources | null;
   dataModelPath?: string;
   dataModels: ReturnType<typeof useDataModelReaders>;
-  currentDataModelName: string | undefined;
-  currentDataModel: FormDataSelector | typeof ContextNotProvided;
+  defaultDataType: string | undefined;
+  writableDataTypes: string[];
+  formDataSelector: FormDataSelector | typeof ContextNotProvided;
 }
 
 /**
@@ -94,9 +95,9 @@ export function useLanguage(node?: LayoutNode) {
 
 export function useLanguageWithForcedNode(node: LayoutNode | undefined) {
   const { textResources, language, selectedLanguage, ...dataSources } = useLangToolsDataSources() || {};
-  const layoutSetId = useCurrentLayoutSetId();
-  const currentDataModelName = useDataTypeByLayoutSetId(layoutSetId);
-  const currentDataModel = FD.useLaxDebouncedSelector();
+  const defaultDataType = useCurrentDataModelName();
+  const writableDataTypes = DataModels.useWritableDataTypes();
+  const formDataSelector = FD.useLaxDebouncedSelector();
 
   return useMemo(() => {
     if (!textResources || !language || !selectedLanguage) {
@@ -106,10 +107,20 @@ export function useLanguageWithForcedNode(node: LayoutNode | undefined) {
     return staticUseLanguage(textResources, language, selectedLanguage, {
       ...(dataSources as Omit<TextResourceVariablesDataSources, 'node' | 'currentDataModel' | 'currentDataModelName'>),
       node,
-      currentDataModel,
-      currentDataModelName,
+      formDataSelector,
+      defaultDataType,
+      writableDataTypes,
     });
-  }, [currentDataModel, currentDataModelName, dataSources, language, node, selectedLanguage, textResources]);
+  }, [
+    dataSources,
+    defaultDataType,
+    formDataSelector,
+    language,
+    node,
+    selectedLanguage,
+    textResources,
+    writableDataTypes,
+  ]);
 }
 
 interface ILanguageState {
@@ -136,8 +147,9 @@ export function staticUseLanguageForTests({
       instanceOwnerPartyType: 'person',
     },
     dataModels: new DataModelReaders({}),
-    currentDataModelName: undefined,
-    currentDataModel: () => null,
+    defaultDataType: undefined,
+    writableDataTypes: [],
+    formDataSelector: () => null,
     applicationSettings: {},
     node: undefined,
   },
@@ -294,8 +306,9 @@ function replaceVariables(text: string, variables: IVariable[], dataSources: Tex
     instanceDataSources,
     applicationSettings,
     dataModelPath,
-    currentDataModelName,
-    currentDataModel,
+    defaultDataType,
+    writableDataTypes,
+    formDataSelector,
   } = dataSources;
   let out = text;
   for (const idx in variables) {
@@ -311,14 +324,17 @@ function replaceVariables(text: string, variables: IVariable[], dataSources: Tex
       if (transposedPath) {
         // If the data model is the current one, look up there
         const modelReader =
-          dataModelName === 'default' || dataModelName === currentDataModelName
+          dataModelName === 'default' || writableDataTypes.includes(dataModelName)
             ? undefined
             : dataModels.getReader(dataModelName);
         const readValue = modelReader
           ? modelReader.getAsString(transposedPath)
-          : currentDataModel === ContextNotProvided
+          : formDataSelector === ContextNotProvided || (dataModelName === 'default' && !defaultDataType)
             ? undefined
-            : currentDataModel(transposedPath);
+            : formDataSelector({
+                dataType: dataModelName === 'default' ? defaultDataType! : dataModelName,
+                property: transposedPath,
+              });
         const stringValue =
           typeof readValue === 'string' || typeof readValue === 'number' || typeof readValue === 'boolean'
             ? readValue.toString()

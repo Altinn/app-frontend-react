@@ -16,6 +16,7 @@ import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayData, DisplayDataProps } from 'src/features/displayData';
 import type { ComponentValidation } from 'src/features/validation';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { FormDataSelector, PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
 import type {
   CompExternalExact,
@@ -212,7 +213,7 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
     name = key,
   ): [string[], undefined] | [undefined, JSONSchema7] {
     const { node, lookupBinding } = ctx;
-    const value = ((node.item.dataModelBindings as any) || {})[key] || '';
+    const value: IDataModelReference | undefined = ((node.item.dataModelBindings as any) || {})[key] ?? undefined;
 
     if (!value) {
       if (isRequired) {

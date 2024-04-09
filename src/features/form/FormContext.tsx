@@ -2,13 +2,13 @@ import React from 'react';
 
 import { ContextNotProvided, createContext } from 'src/core/contexts/context';
 import { AttachmentsProvider, AttachmentsStoreProvider } from 'src/features/attachments/AttachmentsContext';
+import { DataModelsProvider } from 'src/features/datamodel/DataModelsProvider';
 import { DynamicsProvider } from 'src/features/form/dynamics/DynamicsContext';
 import { LayoutsProvider } from 'src/features/form/layout/LayoutsContext';
 import { NavigateToNodeProvider } from 'src/features/form/layout/NavigateToNode';
 import { PageNavigationProvider } from 'src/features/form/layout/PageNavigationContext';
 import { LayoutSettingsProvider } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { RulesProvider } from 'src/features/form/rules/RulesContext';
-import { InitialFormDataProvider } from 'src/features/formData/InitialFormData';
 import { useHasProcessProvider } from 'src/features/instance/ProcessContext';
 import { ProcessNavigationProvider } from 'src/features/instance/ProcessNavigationContext';
 import { AllOptionsProvider, AllOptionsStoreProvider } from 'src/features/options/useAllOptions';
@@ -36,7 +36,7 @@ export function FormProvider({ children }: React.PropsWithChildren) {
         <PageNavigationProvider>
           <DynamicsProvider>
             <RulesProvider>
-              <InitialFormDataProvider>
+              <DataModelsProvider>
                 <AttachmentsStoreProvider>
                   <AllOptionsStoreProvider>
                     <NodesProvider>
@@ -58,7 +58,7 @@ export function FormProvider({ children }: React.PropsWithChildren) {
                     </NodesProvider>
                   </AllOptionsStoreProvider>
                 </AttachmentsStoreProvider>
-              </InitialFormDataProvider>
+              </DataModelsProvider>
             </RulesProvider>
           </DynamicsProvider>
         </PageNavigationProvider>

@@ -6,11 +6,14 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { Loader } from 'src/core/loading/Loader';
+import { getFirstDataElementId } from 'src/features/applicationMetadata/appMetadataUtils';
 import { useCustomValidationConfigQuery } from 'src/features/customValidation/CustomValidationContext';
 import { useDataModelSchemaQuery } from 'src/features/datamodel/DataModelSchemaProvider';
 import { useCurrentDataModelName, useDataModelUrl } from 'src/features/datamodel/useBindingSchema';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
+import { FormDataWriteProvider } from 'src/features/formData/FormDataWrite';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
+import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { useBackendValidationQuery } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { TaskKeys } from 'src/hooks/useNavigatePage';
@@ -21,13 +24,15 @@ import type { BackendValidatorGroups, IExpressionValidations } from 'src/feature
 interface DataModelsContext {
   dataTypes: string[] | null;
   initialData: { [dataType: string]: object };
+  urls: { [dataType: string]: string };
+  dataElementIds: { [dataType: string]: string | null };
   initialValidations: { [dataType: string]: BackendValidatorGroups };
   schemas: { [dataType: string]: JSONSchema7 };
   schemaLookup: { [dataType: string]: SchemaLookupTool };
   expressionValidationConfigs: { [dataType: string]: IExpressionValidations | null };
 
   setDataTypes: (dataTypes: string[]) => void;
-  setInitialData: (dataType: string, initialData: object) => void;
+  setInitialData: (dataType: string, initialData: object, url: string, dataElementId: string | null) => void;
   setInitialValidations: (dataType: string, initialValidations: BackendValidatorGroups) => void;
   setDataModelSchema: (dataType: string, schema: JSONSchema7, lookupTool: SchemaLookupTool) => void;
   setExpressionValidationConfig: (dataType: string, config: IExpressionValidations | null) => void;
@@ -37,6 +42,8 @@ function initialCreateStore() {
   return createStore<DataModelsContext>((set) => ({
     dataTypes: null,
     initialData: {},
+    urls: {},
+    dataElementIds: {},
     initialValidations: {},
     schemas: {},
     schemaLookup: {},
@@ -48,9 +55,11 @@ function initialCreateStore() {
         return state;
       });
     },
-    setInitialData: (dataType, initialData) => {
+    setInitialData: (dataType, initialData, url, dataElementId) => {
       set((state) => {
         state.initialData[dataType] = initialData;
+        state.urls[dataType] = url;
+        state.dataElementIds[dataType] = dataElementId;
         return state;
       });
     },
@@ -83,6 +92,17 @@ const { Provider, useSelector } = createZustandContext({
 });
 
 export function DataModelsProvider({ children }: PropsWithChildren) {
+  return (
+    <Provider>
+      <DataModelsLoader />
+      <BlockUntilLoaded>
+        <FormDataWriteProvider>{children}</FormDataWriteProvider>
+      </BlockUntilLoaded>
+    </Provider>
+  );
+}
+
+function DataModelsLoader() {
   const setDataTypes = useSelector((state) => state.setDataTypes);
   const dataTypes = useSelector((state) => state.dataTypes);
   const layouts = useLayouts();
@@ -112,7 +132,7 @@ export function DataModelsProvider({ children }: PropsWithChildren) {
   }, [defaultDataType, layouts, setDataTypes]);
 
   return (
-    <Provider>
+    <>
       {dataTypes?.map((dataType) => {
         <React.Fragment key={dataType}>
           <LoadInitialData dataType={dataType} />
@@ -121,8 +141,7 @@ export function DataModelsProvider({ children }: PropsWithChildren) {
           <LoadExpressionValidationConfig dataType={dataType} />
         </React.Fragment>;
       })}
-      <BlockUntilLoaded>{children}</BlockUntilLoaded>
-    </Provider>
+    </>
   );
 }
 
@@ -165,13 +184,15 @@ interface LoaderProps {
 function LoadInitialData({ dataType }: LoaderProps) {
   const setInitialData = useSelector((state) => state.setInitialData);
   const url = useDataModelUrl(true, dataType);
+  const instance = useLaxInstanceData();
+  const dataElementId = (instance && getFirstDataElementId(instance, dataType)) ?? null;
   const { data } = useFormDataQuery(url);
 
   useEffect(() => {
-    if (data) {
-      setInitialData(dataType, data);
+    if (data && url) {
+      setInitialData(dataType, data, url, dataElementId);
     }
-  }, [data, dataType, setInitialData]);
+  }, [data, dataElementId, dataType, setInitialData, url]);
 
   return null;
 }
@@ -219,6 +240,8 @@ function LoadExpressionValidationConfig({ dataType }: LoaderProps) {
 }
 
 export const DataModels = {
+  useFullState: () => useSelector((state) => state),
+
   useWritableDataTypes: () => useSelector((state) => state.dataTypes!),
 
   useInitialValidations: (dataType: string) => useSelector((state) => state.initialValidations[dataType]),

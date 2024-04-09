@@ -9,18 +9,26 @@ import deepEqual from 'fast-deep-equal';
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useCurrentDataModelName } from 'src/features/datamodel/useBindingSchema';
 import { useRuleConnections } from 'src/features/form/dynamics/DynamicsContext';
+import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useFormDataWriteProxies } from 'src/features/formData/FormDataWriteProxies';
 import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteStateMachine';
 import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
+import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 import type { SchemaLookupTool } from 'src/features/datamodel/DataModelSchemaProvider';
 import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { FormDataWriteProxies } from 'src/features/formData/FormDataWriteProxies';
-import type { FDActionResult, FDSaveFinished, FormDataContext } from 'src/features/formData/FormDataWriteStateMachine';
+import type {
+  DataModelState,
+  FDActionResult,
+  FDSaveFinished,
+  FormDataContext,
+} from 'src/features/formData/FormDataWriteStateMachine';
 import type { BackendValidationIssueGroups } from 'src/features/validation';
 import type { FormDataSelector } from 'src/layout';
 import type { IDataModelReference, IMapping } from 'src/layout/common.generated';
@@ -30,13 +38,11 @@ export type FDLeafValue = string | number | boolean | null | undefined | string[
 export type FDValue = FDLeafValue | object | FDValue[];
 
 interface FormDataContextInitialProps {
-  url: string;
-  dataElementId: string;
-  initialData: object;
+  initialDataModels: { [dataType: string]: DataModelState };
   autoSaving: boolean;
   proxies: FormDataWriteProxies;
   ruleConnections: IRuleConnections | null;
-  schemaLookup: SchemaLookupTool;
+  schemaLookup: { [dataType: string]: SchemaLookupTool };
 }
 
 const {
@@ -55,15 +61,13 @@ const {
   name: 'FormDataWrite',
   required: true,
   initialCreateStore: ({
-    url,
-    dataElementId,
-    initialData,
+    initialDataModels,
     autoSaving,
     proxies,
     ruleConnections,
     schemaLookup,
   }: FormDataContextInitialProps) =>
-    createFormDataWriteStore(url, dataElementId, initialData, autoSaving, proxies, ruleConnections, schemaLookup),
+    createFormDataWriteStore(initialDataModels, autoSaving, proxies, ruleConnections, schemaLookup),
 });
 
 function useFormDataSaveMutation(dataType: string) {
@@ -140,25 +144,35 @@ function useIsSaving(dataType?: string) {
   );
 }
 
-interface FormDataWriterProps extends PropsWithChildren {
-  url: string;
-  dataElementId: string;
-  initialData: object;
-  autoSaving: boolean;
-}
-
-export function FormDataWriteProvider({ url, dataElementId, initialData, autoSaving, children }: FormDataWriterProps) {
+export function FormDataWriteProvider({ children }: PropsWithChildren) {
   const proxies = useFormDataWriteProxies();
   const ruleConnections = useRuleConnections();
-  const schemaLookup = useCurrentDataModelSchemaLookup();
+  const { dataTypes, initialData, schemaLookup, urls, dataElementIds } = DataModels.useFullState();
+  const autoSaveBehaviour = usePageSettings().autoSaveBehavior;
+
+  const initialDataModels = dataTypes!.reduce((dm, dt) => {
+    const emptyInvalidData = {};
+    dm[dt] = {
+      currentData: initialData[dt],
+      invalidCurrentData: emptyInvalidData,
+      debouncedCurrentData: initialData[dt],
+      invalidDebouncedCurrentData: emptyInvalidData,
+      lastSavedData: initialData[dt],
+      hasUnsavedChanges: false,
+      validationIssues: undefined,
+      debounceTimeout: DEFAULT_DEBOUNCE_TIMEOUT,
+      saveUrl: urls[dt],
+      dataElementId: dataElementIds[dt],
+      manualSaveRequested: false,
+    };
+    return dm;
+  }, {});
 
   return (
     <Provider
-      url={url}
-      dataElementId={dataElementId}
-      autoSaving={autoSaving}
+      initialDataModels={initialDataModels}
+      autoSaving={!autoSaveBehaviour || autoSaveBehaviour === 'onChangeFormData'}
       proxies={proxies}
-      initialData={initialData}
       ruleConnections={ruleConnections}
       schemaLookup={schemaLookup}
     >

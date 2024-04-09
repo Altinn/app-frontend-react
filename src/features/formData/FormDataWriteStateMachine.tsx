@@ -170,7 +170,7 @@ export type FormDataContext = FormDataState & FormDataMethods;
 function makeActions(
   set: (fn: (state: FormDataContext) => void) => void,
   ruleConnections: IRuleConnections | null,
-  schemaLookup: SchemaLookupTool,
+  schemaLookup: { [dataType: string]: SchemaLookupTool },
 ): FormDataMethods {
   function setDebounceTimeout(state: FormDataContext, dataType: string, change: FDChange) {
     state.dataModels[dataType].debounceTimeout = change.debounceTimeout ?? DEFAULT_DEBOUNCE_TIMEOUT;
@@ -262,7 +262,7 @@ function makeActions(
       dot.delete(reference.property, state.dataModels[reference.dataType].currentData);
       dot.delete(reference.property, state.dataModels[reference.dataType].invalidCurrentData);
     } else {
-      const schema = schemaLookup.getSchemaForPath(reference.property)[0];
+      const schema = schemaLookup[reference.dataType].getSchemaForPath(reference.property)[0];
       const { newValue: convertedValue, error } = convertData(newValue, schema);
       if (error) {
         dot.delete(reference.property, state.dataModels[reference.dataType].currentData);
@@ -453,13 +453,11 @@ function makeActions(
 }
 
 export const createFormDataWriteStore = (
-  url: string,
-  dataElementId: string,
-  initialData: object,
+  initialDataModels: { [dataType: string]: DataModelState },
   autoSaving: boolean,
   proxies: FormDataWriteProxies,
   ruleConnections: IRuleConnections | null,
-  schemaLookup: SchemaLookupTool,
+  schemaLookup: { [dataType: string]: SchemaLookupTool },
 ) =>
   createStore<FormDataContext>()(
     immer((set) => {
@@ -474,24 +472,8 @@ export const createFormDataWriteStore = (
         };
       }
 
-      const emptyInvalidData = {};
       return {
-        dataModels: {
-          // TODO(Datamodels): Fix this somehow
-          __default__: {
-            currentData: initialData,
-            invalidCurrentData: emptyInvalidData,
-            debouncedCurrentData: initialData,
-            invalidDebouncedCurrentData: emptyInvalidData,
-            lastSavedData: initialData,
-            hasUnsavedChanges: false,
-            validationIssues: undefined,
-            debounceTimeout: DEFAULT_DEBOUNCE_TIMEOUT,
-            saveUrl: url,
-            dataElementId,
-            manualSaveRequested: false,
-          },
-        },
+        dataModels: initialDataModels,
         autoSaving,
         lockedBy: undefined,
         ...actions,
