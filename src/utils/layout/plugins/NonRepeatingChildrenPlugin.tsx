@@ -76,7 +76,7 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
     return [this.constructor.name, this.settings.externalProp].join('/');
   }
 
-  makeConstructorArguments(): string {
+  makeConstructorArgs(): string {
     if (!this.component) {
       throw new Error('Component not set, cannot make constructor args for plugin not attached to a component');
     }

@@ -1,6 +1,6 @@
 import { CG } from 'src/codegen/CG';
 import { LabelRendering } from 'src/codegen/Config';
-import { ExprVal } from 'src/features/expressions/types';
+import { AlertOnChangePlugin } from 'src/features/alertOnChange/AlertOnChangePlugin';
 import { CompCategory } from 'src/layout/common';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 
@@ -66,15 +66,12 @@ export function asUploaderComponent(config: ComponentConfig) {
           .addExample('.csv', '.doc', '.docx', '.gif', '.jpeg', '.pdf', '.txt'),
       ),
     )
-    .addProperty(
-      new CG.prop(
-        'alertOnDelete',
-        new CG.expr(ExprVal.Boolean)
-          .optional({ default: false })
-          .setTitle('Alert on delete')
-          .setDescription(
-            'Boolean value indicating if warning popup should be displayed when attempting to delete an element',
-          ),
-      ),
+    .addPlugin(
+      new AlertOnChangePlugin({
+        propName: 'alertOnDelete',
+        title: 'Alert on delete',
+        description:
+          'Boolean value indicating if warning popup should be displayed when attempting to delete an element',
+      }),
     );
 }

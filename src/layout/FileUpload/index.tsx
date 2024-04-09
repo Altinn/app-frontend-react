@@ -11,7 +11,7 @@ import type { DisplayDataProps } from 'src/features/displayData';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
-import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class FileUpload extends FileUploadDef implements ValidateComponent<'FileUpload'> {
@@ -20,13 +20,6 @@ export class FileUpload extends FileUploadDef implements ValidateComponent<'File
       return <FileUploadComponent {...props} />;
     },
   );
-
-  evalExpressions(props: ExprResolver<'FileUpload'>) {
-    return {
-      ...this.evalDefaultExpressions(props),
-      alertOnDelete: props.evalBool(props.item.alertOnDelete, false),
-    };
-  }
 
   renderDefaultValidations(): boolean {
     return false;

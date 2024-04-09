@@ -6,7 +6,7 @@ import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSy
 import { GenerateRaw } from 'src/codegen/dataTypes/GenerateRaw';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 import { CompCategory } from 'src/layout/common';
-import { isNodeStateChildrenPlugin } from 'src/utils/layout/NodeStatePlugin';
+import { isNodeStateChildrenPlugin, NodeStatePlugin } from 'src/utils/layout/NodeStatePlugin';
 import type { ComponentBehaviors, RequiredComponentConfig } from 'src/codegen/Config';
 import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
 import type { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
@@ -18,7 +18,7 @@ import type {
   FormComponent,
   PresentationComponent,
 } from 'src/layout/LayoutComponent';
-import type { NodeStateChildrenPlugin, NodeStatePlugin } from 'src/utils/layout/NodeStatePlugin';
+import type { NodeStateChildrenPlugin } from 'src/utils/layout/NodeStatePlugin';
 
 const CategoryImports: { [Category in CompCategory]: GenerateImportedSymbol<any> } = {
   [CompCategory.Action]: new GenerateImportedSymbol<ActionComponent<any>>({
@@ -306,14 +306,18 @@ export class ComponentConfig {
       }
     }
 
-    const pluginInstances = this.plugins.map(
-      (plugin) => `protected readonly ${plugin.import} = new ${plugin.import}(${plugin.makeConstructorArguments()});`,
-    );
+    const pluginInstances = this.plugins.map((plugin) => {
+      const argsPlain = plugin.makeConstructorArgs();
+      const args = argsPlain ? `${argsPlain} as const` : '';
+      return `protected readonly ${plugin.import} = new ${plugin.import}(${args});`;
+    });
 
     const pluginStateFactories = this.plugins
+      .filter((plugin) => plugin.stateFactory !== NodeStatePlugin.prototype.stateFactory)
       .map((plugin) => `...this.${plugin.import}.stateFactory(props as any),`)
       .join('\n');
     const pluginEvalExpressions = this.plugins
+      .filter((plugin) => plugin.evalDefaultExpressions !== NodeStatePlugin.prototype.evalDefaultExpressions)
       .map((plugin) => `...this.${plugin.import}.evalDefaultExpressions(props as any),`)
       .join(',\n');
 

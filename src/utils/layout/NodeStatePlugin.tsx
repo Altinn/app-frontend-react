@@ -9,9 +9,9 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface PluginConfig {
   componentType: CompTypes;
-  expectedFromExternal: any;
-  extraState: any;
-  extraInItem: any;
+  expectedFromExternal?: Record<string, any>;
+  extraState?: Record<string, any>;
+  extraInItem?: Record<string, any>;
   settings?: any;
 }
 
@@ -78,7 +78,7 @@ export abstract class NodeStatePlugin<Config extends PluginConfig> {
    * Makes constructor arguments (must be a string, most often JSON). This is used to add custom constructor arguments
    * when instantiating this plugin in code generation.
    */
-  makeConstructorArguments(): string {
+  makeConstructorArgs(): string {
     return '';
   }
 
@@ -86,12 +86,16 @@ export abstract class NodeStatePlugin<Config extends PluginConfig> {
    * Adds state factory properties to the component. This is called when creating the state for the component for the
    * first time.
    */
-  abstract stateFactory(props: PluginStateFactoryProps<Config>): PluginExtraState<Config>;
+  stateFactory(_props: PluginStateFactoryProps<Config>): PluginExtraState<Config> {
+    return {} as PluginExtraState<Config>;
+  }
 
   /**
    * Evaluates some expressions for the component. This can be used to add custom expressions to the component.
    */
-  abstract evalDefaultExpressions(props: PluginExprResolver<Config>): PluginExtraInItem<Config>;
+  evalDefaultExpressions(_props: PluginExprResolver<Config>): PluginExtraInItem<Config> {
+    return {} as PluginExtraInItem<Config>;
+  }
 }
 
 /**
