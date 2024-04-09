@@ -27,8 +27,4 @@ export class Summary extends SummaryDef {
   shouldRenderInAutomaticPDF() {
     return false;
   }
-
-  getDisplayData(): string {
-    return '';
-  }
 }

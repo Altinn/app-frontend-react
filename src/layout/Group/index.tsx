@@ -5,7 +5,6 @@ import { GenericComponent } from 'src/layout/GenericComponent';
 import { GroupDef } from 'src/layout/Group/config.def.generated';
 import { GroupComponent } from 'src/layout/Group/GroupComponent';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
-import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ChildClaimerProps, SummaryRendererProps } from 'src/layout/LayoutComponent';
 
@@ -52,29 +51,5 @@ export class Group extends GroupDef {
 
   renderSummaryBoilerplate(): boolean {
     return false;
-  }
-
-  getDisplayData(): string {
-    return '';
-  }
-
-  isDataModelBindingsRequired(): boolean {
-    return false;
-  }
-
-  validateDataModelBindings(ctx: LayoutValidationCtx<'Group'>): string[] {
-    const [errors, result] = this.validateDataModelBindingsAny(ctx, 'group', ['array']);
-    if (errors) {
-      return errors;
-    }
-
-    if (result) {
-      const innerType = Array.isArray(result.items) ? result.items[0] : result.items;
-      if (!innerType || typeof innerType !== 'object' || !innerType.type || innerType.type !== 'object') {
-        return [`group-datamodellbindingen peker mot en ukjent type i datamodellen`];
-      }
-    }
-
-    return [];
   }
 }

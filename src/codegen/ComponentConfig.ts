@@ -145,6 +145,15 @@ export class ComponentConfig {
     return this;
   }
 
+  private isFormLike(): boolean {
+    return this.config.category === CompCategory.Form || this.config.category === CompCategory.Container;
+  }
+
+  private hasDataModelBindings(): boolean {
+    const prop = this.inner.getProperty('dataModelBindings');
+    return this.isFormLike() && prop !== undefined && !(prop.type instanceof GenerateRaw);
+  }
+
   /**
    * Adding multiple data model bindings to the component makes it a union
    */
@@ -158,7 +167,7 @@ export class ComponentConfig {
         >
       | GenerateObject<any>,
   ): this {
-    if (this.config.category !== CompCategory.Form && this.config.category !== CompCategory.Container) {
+    if (!this.isFormLike()) {
       throw new Error(
         `Component wants dataModelBindings, but is not a form nor a container component. ` +
           `Only these categories can have data model bindings.`,
@@ -326,8 +335,7 @@ export class ComponentConfig {
       );
     }
 
-    const dataModelBindings = this.inner.getProperty('dataModelBindings')?.type;
-    if (dataModelBindings && !(dataModelBindings instanceof GenerateRaw)) {
+    if (this.hasDataModelBindings()) {
       const LayoutValidationCtx = new CG.import({
         import: 'LayoutValidationCtx',
         from: 'src/features/devtools/layoutValidation/types',
@@ -335,6 +343,11 @@ export class ComponentConfig {
       additionalMethods.push(
         `// You must implement this because the component has data model bindings defined
         abstract validateDataModelBindings(ctx: ${LayoutValidationCtx}<'${this.type}'>): string[];`,
+      );
+    } else if (this.isFormLike()) {
+      additionalMethods.push(
+        `// This component could have, but does not have any data model bindings defined
+        getDisplayData() { return ''; }`,
       );
     }
 

@@ -44,8 +44,4 @@ export class AccordionGroup extends AccordionGroupDef {
   shouldRenderInAutomaticPDF(node: LayoutNode<'AccordionGroup'>): boolean {
     return !node.item.renderAsSummary;
   }
-
-  getDisplayData(): string {
-    return '';
-  }
 }

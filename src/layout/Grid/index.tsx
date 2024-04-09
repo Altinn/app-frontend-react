@@ -52,10 +52,6 @@ export class Grid extends GridDef {
     return false;
   }
 
-  getDisplayData(): string {
-    return '';
-  }
-
   /**
    * Override layout validation to validate grid cells individually
    */

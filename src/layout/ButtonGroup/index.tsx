@@ -9,7 +9,6 @@ import { DefaultNodeGenerator } from 'src/utils/layout/DefaultNodeGenerator';
 import { NodeChildren } from 'src/utils/layout/NodesGenerator';
 import type { DisplayData } from 'src/features/displayData';
 import type { ChildClaimerProps, NodeGeneratorProps } from 'src/layout/LayoutComponent';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class ButtonGroup extends ButtonGroupDef implements DisplayData<'ButtonGroup'> {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'ButtonGroup'>>(
@@ -48,10 +47,6 @@ export class ButtonGroup extends ButtonGroupDef implements DisplayData<'ButtonGr
 
   shouldRenderInAutomaticPDF() {
     return false;
-  }
-
-  getDisplayData(_node: LayoutNode<'ButtonGroup'>): string {
-    return '';
   }
 
   renderSummary(): JSX.Element | null {
