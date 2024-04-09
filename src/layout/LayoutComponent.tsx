@@ -15,19 +15,14 @@ import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
 import { DefaultNodeGenerator } from 'src/utils/layout/DefaultNodeGenerator';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import type { CompCapabilities } from 'src/codegen/Config';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayData, DisplayDataProps } from 'src/features/displayData';
 import type { SimpleEval } from 'src/features/expressions';
 import type { ExprResolved, ExprVal } from 'src/features/expressions/types';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { ComponentBase, FormComponentProps, SummarizableComponentProps } from 'src/layout/common.generated';
-import type {
-  CompDef,
-  FormDataSelector,
-  NodeRef,
-  PropsFromGenericComponent,
-  ValidateEmptyField,
-} from 'src/layout/index';
+import type { FormDataSelector, NodeRef, PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
 import type {
   CompExternal,
   CompExternalExact,
@@ -179,28 +174,6 @@ export abstract class AnyComponent<Type extends CompTypes> {
    */
   canRenderInTable() {
     return getComponentCapabilities(this.type).renderInTable;
-  }
-
-  /**
-   * Return true to allow this component to be rendered in a ButtonGroup
-   * Should be configured as a capability in the component configuration (config.ts)
-   */
-  canRenderInButtonGroup() {
-    return getComponentCapabilities(this.type).renderInButtonGroup;
-  }
-
-  /**
-   * Return true to allow this component to be rendered in an Accordion
-   */
-  canRenderInAccordion() {
-    return getComponentCapabilities(this.type).renderInAccordion;
-  }
-
-  /**
-   * Return true to allow this component to be rendered in an AccordionGroup
-   */
-  canRenderInAccordionGroup() {
-    return getComponentCapabilities(this.type).renderInAccordionGroup;
   }
 
   /**
@@ -433,7 +406,7 @@ export abstract class FormComponent<Type extends CompTypes>
 
 export interface ComponentProto {
   type: CompTypes;
-  def: CompDef;
+  capabilities: CompCapabilities;
 }
 
 export interface ChildClaimerProps<Type extends CompTypes> {

@@ -13,7 +13,7 @@ import { shouldUpdate } from 'src/features/form/dynamics/conditionalRendering';
 import { useDynamics } from 'src/features/form/dynamics/DynamicsContext';
 import { useHiddenLayoutsExpressions } from 'src/features/form/layout/LayoutsContext';
 import { useHiddenPages, useSetHiddenPages } from 'src/features/form/layout/PageNavigationContext';
-import { getLayoutComponentObject } from 'src/layout';
+import { getComponentDef } from 'src/layout';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
@@ -133,7 +133,7 @@ export function createNodesDataStore() {
             }
             parent.topLevelNodes[id] = targetState;
           } else {
-            const def = getLayoutComponentObject(parent.layout.type);
+            const def = getComponentDef(parent.layout.type);
             def.addChild(parent as any, node, targetState);
           }
         }),
@@ -144,7 +144,7 @@ export function createNodesDataStore() {
           if (parent.type === 'page') {
             delete parent.topLevelNodes[node.getId()];
           } else {
-            const def = getLayoutComponentObject(parent.layout.type);
+            const def = getComponentDef(parent.layout.type);
             def.removeChild(parent as any, node);
           }
         }),
@@ -381,7 +381,7 @@ function getNotReadyNodes(node: ItemStore, parentPath: string[]) {
     notReady.push(`/${parentPath.join('/')}/${id}`);
   }
 
-  const def = getLayoutComponentObject(node.layout.type);
+  const def = getComponentDef(node.layout.type);
   for (const childRef of def.pickDirectChildren(node as any)) {
     const childItem = pickDataStorePath(node, [childRef.nodeRef], parentPath);
     if (childItem && childItem.type === 'node') {
@@ -507,7 +507,7 @@ export function pickDataStorePath(
     return pickDataStorePath(node, remaining, fullPath);
   }
 
-  const def = getLayoutComponentObject(container.layout.type);
+  const def = getComponentDef(container.layout.type);
   if (!def) {
     throw new Error(`Component type "${container.layout.type}" not found`);
   }

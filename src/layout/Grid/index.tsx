@@ -31,7 +31,7 @@ export class Grid extends GridDef {
           if (!proto) {
             continue;
           }
-          if (!proto.def.canRenderInTable()) {
+          if (!proto.capabilities.renderInTable) {
             window.logWarn(
               `Grid component included a cell with component '${childId}', which ` +
                 `is a '${proto.type}' and cannot be rendered in a table.`,

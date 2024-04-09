@@ -1,3 +1,4 @@
+import { getComponentCapabilities } from 'src/layout';
 import type { ILayoutSets } from 'src/layout/common.generated';
 import type { ILikertFilter } from 'src/layout/Likert/config.generated';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -88,7 +89,8 @@ export function extractBottomButtons(page: LayoutPage) {
   const toMainLayout: string[] = [];
   const toErrorReport: string[] = [];
   for (const node of all.reverse()) {
-    const isButtonLike = node.isType('ButtonGroup') || (node.def.canRenderInButtonGroup() && !node.isType('Custom'));
+    const capabilities = getComponentCapabilities(node.getType());
+    const isButtonLike = node.isType('ButtonGroup') || (capabilities.renderInButtonGroup && !node.isType('Custom'));
     if (isButtonLike && toMainLayout.length === 0) {
       toErrorReport.push(node.getId());
     } else {

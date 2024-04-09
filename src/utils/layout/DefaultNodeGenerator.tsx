@@ -6,7 +6,7 @@ import { useStore } from 'zustand';
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { useAsRef } from 'src/hooks/useAsRef';
-import { getLayoutComponentObject, getNodeConstructor } from 'src/layout';
+import { getComponentDef, getNodeConstructor } from 'src/layout';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { NodesInternal, useIsHiddenViaRules } from 'src/utils/layout/NodesContext';
@@ -287,7 +287,7 @@ function isSummarizableItem(item: CompExternal): item is CompExternal & Summariz
 }
 
 function useDef<T extends CompTypes>(type: T) {
-  const def = getLayoutComponentObject<T>(type)!;
+  const def = getComponentDef<T>(type)!;
   if (!def) {
     // TODO: Log error and produce an error node instead
     throw new Error(`Component type "${type}" not found`);

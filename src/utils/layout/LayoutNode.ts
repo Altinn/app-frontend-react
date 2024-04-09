@@ -1,4 +1,4 @@
-import { getLayoutComponentObject } from 'src/layout';
+import { getComponentDef } from 'src/layout';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
@@ -48,7 +48,7 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
   public constructor({ item, store, path, parent, row }: LayoutNodeProps<Type>) {
     this.updateCommonProps(item as CompInternal<Type>);
     this.page = parent instanceof LayoutPage ? parent : parent.page;
-    this.def = getLayoutComponentObject(this.type);
+    this.def = getComponentDef(this.type);
     this.store = store;
     this.path = path;
     this.parent = parent;

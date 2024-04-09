@@ -1,18 +1,13 @@
 import { getHierarchyDataSourcesMock } from 'src/__mocks__/getHierarchyDataSourcesMock';
 import { convertLayouts, getSharedTests } from 'src/features/expressions/shared';
 import { asExpression } from 'src/features/expressions/validation';
-import { getLayoutComponentObject } from 'src/layout';
+import { getComponentDef } from 'src/layout';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { Layouts } from 'src/features/expressions/shared';
 
 function evalAllExpressions(layouts: Layouts) {
   const dataSources = getHierarchyDataSourcesMock();
-  const nodes = generateEntireHierarchy(
-    convertLayouts(layouts),
-    Object.keys(layouts)[0],
-    dataSources,
-    getLayoutComponentObject,
-  );
+  const nodes = generateEntireHierarchy(convertLayouts(layouts), Object.keys(layouts)[0], dataSources, getComponentDef);
   for (const page of Object.values(nodes.all())) {
     for (const node of page.flat()) {
       const input = { ...node.item };

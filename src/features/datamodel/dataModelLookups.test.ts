@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import { getHierarchyDataSourcesMock } from 'src/__mocks__/getHierarchyDataSourcesMock';
 import { dotNotationToPointer } from 'src/features/datamodel/notations';
 import { lookupBindingInSchema } from 'src/features/datamodel/SimpleSchemaTraversal';
-import { getLayoutComponentObject } from 'src/layout';
+import { getComponentDef } from 'src/layout';
 import { ensureAppsDirIsSet, getAllLayoutSetsWithDataModelSchema, parseJsonTolerantly } from 'src/test/allApps';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { getRootElementPath } from 'src/utils/schemaUtils';
@@ -28,12 +28,7 @@ describe('Data model lookups in real apps', () => {
       processedLayouts[page] = layouts[page].data.layout;
     }
 
-    const nodes = generateEntireHierarchy(
-      processedLayouts,
-      firstKey,
-      getHierarchyDataSourcesMock(),
-      getLayoutComponentObject,
-    );
+    const nodes = generateEntireHierarchy(processedLayouts, firstKey, getHierarchyDataSourcesMock(), getComponentDef);
 
     const schema = parseJsonTolerantly(fs.readFileSync(modelPath, 'utf-8'));
     const rootPath = getRootElementPath(schema, dataTypeDef);

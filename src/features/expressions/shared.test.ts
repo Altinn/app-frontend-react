@@ -8,7 +8,7 @@ import { asExpression } from 'src/features/expressions/validation';
 import { resourcesAsMap } from 'src/features/language/textResources/resourcesAsMap';
 import { staticUseLanguageForTests } from 'src/features/language/useLanguage';
 import { castOptionsToStrings } from 'src/features/options/castOptionsToStrings';
-import { getLayoutComponentObject } from 'src/layout';
+import { getComponentDef } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
 import { splitDashedKey } from 'src/utils/formLayout';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
@@ -105,7 +105,7 @@ describe('Expressions shared function tests', () => {
         const _layouts = convertLayouts(layouts);
         const currentLayout = (context && context.currentLayout) || '';
         const rootCollection = expectsFailure
-          ? generateEntireHierarchy(_layouts, currentLayout, dataSources, getLayoutComponentObject)
+          ? generateEntireHierarchy(_layouts, currentLayout, dataSources, getComponentDef)
           : resolvedNodesInLayouts(_layouts, currentLayout, dataSources);
         const component = findComponent(context, rootCollection);
 
@@ -183,7 +183,7 @@ describe('Expressions shared context tests', () => {
         const foundContexts: SharedTestContextList[] = [];
         const _layouts = layouts || {};
         for (const key of Object.keys(_layouts)) {
-          const layout = generateHierarchy(_layouts[key].data.layout, dataSources, getLayoutComponentObject);
+          const layout = generateHierarchy(_layouts[key].data.layout, dataSources, getComponentDef);
 
           foundContexts.push({
             component: key,

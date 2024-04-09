@@ -11,7 +11,7 @@ import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useLangToolsRef } from 'src/features/language/LangToolsStore';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useAllOptionsSelector } from 'src/features/options/useAllOptions';
-import { getLayoutComponentObject } from 'src/layout';
+import { getComponentDef } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { HierarchyDataSources, ILayouts } from 'src/layout/layout';
@@ -28,7 +28,7 @@ function resolvedNodesInLayouts(
   // A full copy is needed here because formLayout comes from the redux store, and in production code (not the
   // development server!) the properties are not mutable (but we have to mutate them below).
   const layoutsCopy: ILayouts = layouts ? structuredClone(layouts) : {};
-  const unresolved = generateEntireHierarchy(layoutsCopy, currentView, dataSources, getLayoutComponentObject);
+  const unresolved = generateEntireHierarchy(layoutsCopy, currentView, dataSources, getComponentDef);
   return unresolved as unknown as LayoutPages;
 }
 

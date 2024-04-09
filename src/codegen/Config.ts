@@ -18,7 +18,7 @@ export interface RequiredComponentConfig {
   category: CompCategory;
   rendersWithLabel: LabelRendering;
   directRendering?: boolean;
-  capabilities: ComponentCapabilities;
+  capabilities: CompCapabilities;
   functionality: FunctionalityConfig;
 }
 
@@ -36,7 +36,7 @@ export interface FunctionalityConfig {
  * @see CompWithCap
  * @see getComponentCapabilities
  */
-export interface ComponentCapabilities {
+export interface CompCapabilities {
   renderInTable: boolean;
   renderInButtonGroup: boolean;
   renderInAccordion: boolean;

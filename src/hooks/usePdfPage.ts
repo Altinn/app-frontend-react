@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { usePageNavigationConfig } from 'src/features/form/layout/PageNavigationContext';
 import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { usePdfFormatQuery } from 'src/features/pdf/usePdfFormatQuery';
-import { getLayoutComponentObject } from 'src/layout';
+import { getComponentDef } from 'src/layout';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { useNodes } from 'src/utils/layout/NodesContext';
@@ -102,7 +102,7 @@ function generateAutomaticPage(
     });
 
   // Generate the hierarchy for the automatic PDF layout
-  const pdfPage = generateHierarchy(automaticPdfLayout, dataSources, getLayoutComponentObject);
+  const pdfPage = generateHierarchy(automaticPdfLayout, dataSources, getComponentDef);
   pdfPage.registerCollection(PDF_LAYOUT_NAME, layoutPages);
   return pdfPage;
 }

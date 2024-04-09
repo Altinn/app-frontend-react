@@ -4,7 +4,7 @@ import { ExprVal } from 'src/features/expressions/types';
 import { useHiddenLayoutsExpressions, useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
-import { getLayoutComponentObject } from 'src/layout';
+import { getComponentCapabilities, getComponentDef } from 'src/layout';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
@@ -186,7 +186,7 @@ function Page({ layout, name, layoutSet }: PageProps) {
     for (const component of layout) {
       proto[component.id] = {
         type: component.type,
-        def: getLayoutComponentObject(component.type),
+        capabilities: getComponentCapabilities(component.type),
       };
     }
 
@@ -302,7 +302,7 @@ interface ComponentClaimChildrenProps {
 }
 
 function ComponentClaimChildren({ component, setChildren, getProto }: ComponentClaimChildrenProps) {
-  const def = getLayoutComponentObject(component.type);
+  const def = getComponentDef(component.type);
 
   // The first render will be used to determine which components will be claimed as children by others (which will
   // prevent them from rendering on the top-level on the next render pass). We must always set a state here,
@@ -360,7 +360,7 @@ interface ComponentProps {
 }
 
 function Component({ baseId, type, childIds }: ComponentProps) {
-  const def = getLayoutComponentObject(type);
+  const def = getComponentDef(type);
   const Generator = def.renderNodeGenerator;
   const props = useMemo(() => {
     if (def instanceof ContainerComponent) {

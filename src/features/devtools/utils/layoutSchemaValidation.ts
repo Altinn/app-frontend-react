@@ -3,7 +3,7 @@ import Ajv from 'ajv';
 import type { DefinedError, ErrorObject } from 'ajv';
 import type { JSONSchema7 } from 'json-schema';
 
-import { getLayoutComponentObject } from 'src/layout';
+import { getComponentDef } from 'src/layout';
 import { duplicateStringFilter } from 'src/utils/stringHelper';
 import type { LayoutValidationErrors } from 'src/features/devtools/layoutValidation/types';
 import type { ILayouts } from 'src/layout/layout';
@@ -57,7 +57,7 @@ export function validateLayoutSet(layoutSetId: string, layouts: ILayouts, valida
   for (const [layoutName, layout] of Object.entries(layouts)) {
     out[layoutSetId][layoutName] = {};
     for (const component of layout || []) {
-      const def = getLayoutComponentObject(component.type);
+      const def = getComponentDef(component.type);
       const errors = def?.validateLayoutConfing(component as any, validate);
 
       out[layoutSetId][layoutName][component.id] = [];

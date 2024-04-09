@@ -41,7 +41,7 @@ export interface PropsFromGenericComponent<T extends CompTypes = CompTypes> exte
   overrideDisplay?: IGenericComponentProps<T>['overrideDisplay'];
 }
 
-export function getLayoutComponentObject<T extends keyof CompClassMap>(type: T): CompClassMap[T] {
+export function getComponentDef<T extends keyof CompClassMap>(type: T): CompClassMap[T] {
   if (type && type in ComponentConfigs) {
     return ComponentConfigs[type as keyof typeof ComponentConfigs].def as any;
   }

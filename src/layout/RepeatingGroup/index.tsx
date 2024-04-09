@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-import { getLayoutComponentObject } from '..';
+import { getComponentDef } from '..';
 import type {
   NodeRef,
   PropsFromGenericComponent,
@@ -49,7 +49,7 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
 
     for (const rows of [item.rowsBefore, item.rowsAfter]) {
       if (rows) {
-        getLayoutComponentObject('Grid').claimChildrenForRows(rows, props);
+        getComponentDef('Grid').claimChildrenForRows(rows, props);
       }
     }
   }

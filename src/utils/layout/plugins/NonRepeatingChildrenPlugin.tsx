@@ -2,6 +2,7 @@ import { CG } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
 import { NodeStatePlugin } from 'src/utils/layout/NodeStatePlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
+import type { CompCapabilities } from 'src/codegen/Config';
 import type { NodeRef } from 'src/layout';
 import type { CompTypes } from 'src/layout/layout';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
@@ -30,13 +31,16 @@ interface Config<Type extends CompTypes, ExternalProp extends string, InternalPr
 }
 
 export interface ExternalConfig {
+  componentType?: CompTypes;
   externalProp?: string;
   internalProp?: string;
   title?: string;
   description?: string;
+  onlyWithCapability?: keyof CompCapabilities;
 }
 
 const defaultConfig = {
+  componentType: 'unknown' as CompTypes,
   externalProp: 'children' as const,
   internalProp: 'childComponents' as const,
   title: 'Children',
@@ -44,16 +48,21 @@ const defaultConfig = {
 };
 
 type Combined<E extends ExternalConfig> = typeof defaultConfig & E;
-type ToInternal<E extends ExternalConfig> = Config<CompTypes, Combined<E>['externalProp'], Combined<E>['internalProp']>;
+type ToInternal<E extends ExternalConfig> = Config<
+  Combined<E>['componentType'],
+  Combined<E>['externalProp'],
+  Combined<E>['internalProp']
+>;
 
 export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
   extends NodeStatePlugin<ToInternal<E>>
   implements NodeStateChildrenPlugin<ToInternal<E>>
 {
   protected settings: Combined<E>;
+  protected component: ComponentConfig | undefined;
   constructor(settings: E) {
     super();
-    this.settings = { ...defaultConfig, ...settings };
+    this.settings = { ...defaultConfig, ...settings, componentType: 'unknown' as CompTypes } as Combined<E>;
   }
 
   makeImport() {
@@ -68,16 +77,23 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
   }
 
   makeConstructorArguments(): string {
-    const nonDefaultSettings = Object.keys(this.settings)
+    if (!this.component) {
+      throw new Error('Component not set, cannot make constructor args for plugin not attached to a component');
+    }
+
+    const nonDefaultSettings: any = Object.keys(this.settings)
       .filter((key) => this.settings[key] !== defaultConfig[key])
       .reduce((acc, key) => {
         acc[key] = this.settings[key];
         return acc;
-      }, {} as ExternalConfig);
+      }, {});
+
+    nonDefaultSettings.componentType = this.component.type;
     return JSON.stringify(nonDefaultSettings);
   }
 
   addToComponent(component: ComponentConfig): void {
+    this.component = component;
     if (component.config.category !== CompCategory.Container) {
       throw new Error('NonRepeatingChildrenPlugin can only be used with container components');
     }
@@ -91,8 +107,21 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
     );
   }
 
-  claimChildren({ item, claimChild }: PluginChildClaimerProps<ToInternal<E>>): void {
+  claimChildren({ item, claimChild, getProto }: PluginChildClaimerProps<ToInternal<E>>): void {
     for (const id of item[this.settings.externalProp]) {
+      if (this.settings.onlyWithCapability) {
+        const proto = getProto(id);
+        if (!proto) {
+          continue;
+        }
+        if (!proto.capabilities[this.settings.onlyWithCapability]) {
+          window.logWarn(
+            `${this.settings.componentType} component included a component '${id}', which ` +
+              `is a '${proto.type}' and cannot be rendered in an ${this.settings.componentType}.`,
+          );
+          continue;
+        }
+      }
       claimChild(id);
     }
   }

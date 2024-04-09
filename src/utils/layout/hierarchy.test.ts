@@ -3,7 +3,7 @@ import dot from 'dot-object';
 import { getFormLayoutMock } from 'src/__mocks__/getFormLayoutMock';
 import { getHierarchyDataSourcesMock } from 'src/__mocks__/getHierarchyDataSourcesMock';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
-import { getLayoutComponentObject } from 'src/layout';
+import { getComponentDef } from 'src/layout';
 import { newLayoutNodeForTesting } from 'src/test/node';
 import { _private } from 'src/utils/layout/hierarchy';
 import { generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
@@ -138,7 +138,7 @@ describe('Hierarchical layout tools', () => {
       newLayoutNodeForTesting(components.top1, root);
       newLayoutNodeForTesting(components.top2, root);
 
-      const result = generateHierarchy([components.top1, components.top2], dataSources, getLayoutComponentObject);
+      const result = generateHierarchy([components.top1, components.top2], dataSources, getComponentDef);
       expect(result).toEqual(root);
     });
 
@@ -146,7 +146,7 @@ describe('Hierarchical layout tools', () => {
       const nodes = generateHierarchy(
         layout,
         { ...dataSources, formDataSelector: (path) => dot.pick(path, repeatingGroupsFormData) },
-        getLayoutComponentObject,
+        getComponentDef,
       );
       const flatWithGroups = nodes.flat();
       expect(flatWithGroups.map((n) => n.getId()).sort()).toEqual(
@@ -183,7 +183,7 @@ describe('Hierarchical layout tools', () => {
       const nodes = generateHierarchy(
         layout,
         { ...dataSources, formDataSelector: (path) => dot.pick(path, manyRepeatingGroupsFormData) },
-        getLayoutComponentObject,
+        getComponentDef,
       );
       const flatWithGroups = nodes.flat();
       const deepComponent = flatWithGroups.find((node) => node.getId() === `${components.group2nh.id}-2-2`);
@@ -277,7 +277,7 @@ describe('Hierarchical layout tools', () => {
       const nodes = generateHierarchy(
         layout,
         { ...dataSources, formDataSelector: (path) => dot.pick(path, formData) },
-        getLayoutComponentObject,
+        getComponentDef,
       );
 
       expect(nodes.findAllById('g1').length).toEqual(4);
@@ -369,8 +369,8 @@ describe('Hierarchical layout tools', () => {
     const layout2: ILayout = [{ ...components.top1 }, { ...components.top2, readOnly: true }];
 
     const layouts = {
-      l1: generateHierarchy(layout1, dataSources, getLayoutComponentObject),
-      l2: generateHierarchy(layout2, dataSources, getLayoutComponentObject),
+      l1: generateHierarchy(layout1, dataSources, getComponentDef),
+      l2: generateHierarchy(layout2, dataSources, getComponentDef),
     };
 
     // TODO: Re-implement
@@ -414,7 +414,7 @@ describe('Hierarchical layout tools', () => {
     const nodes = generateHierarchy(
       layout,
       { ...dataSources, formDataSelector: (path) => dot.pick(path, manyRepeatingGroupsFormData) },
-      getLayoutComponentObject,
+      getComponentDef,
     );
     const inputNode = nodes.findById(`${components.group2ni.id}-2-2`);
     const topHeaderNode = nodes.findById(components.top1.id);
