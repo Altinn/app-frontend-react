@@ -25,6 +25,7 @@ export const Config = new CG.component({
   )
   .addPlugin(
     new NonRepeatingChildrenPlugin({
+      onlyWithCapability: 'renderInAccordionGroup',
       description: 'List of child component IDs to show inside the Accordion (limited to a few component types)',
     }),
   );

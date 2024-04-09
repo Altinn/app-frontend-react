@@ -17,6 +17,7 @@ export const Config = new CG.component({
   },
 }).addPlugin(
   new NonRepeatingChildrenPlugin({
+    onlyWithCapability: 'renderInButtonGroup',
     description: 'Child component IDs of button-like components to be rendered in this group',
   }),
 );
