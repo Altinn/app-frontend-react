@@ -5,7 +5,11 @@
   "baseBranches": ["main", "v3"],
   "packageRules": [
     {
-      "matchPackageNames": ["@digdir/design-system-react", "@digdir/design-system-tokens"],
+      "matchPackageNames": [
+        "@digdir/designsystemet-react",
+        "@digdir/designsystemet-css",
+        "@digdir/designsystemet-theme"
+      ],
       "groupName": "Digdir design system",
       "schedule": ["* 0-7 * * 1-5"],
       "minimumReleaseAge": "0"

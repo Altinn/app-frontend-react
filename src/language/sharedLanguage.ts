@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Heading } from '@digdir/design-system-react';
+import { Heading } from '@digdir/designsystemet-react';
 import DOMPurify from 'dompurify';
 import parseHtmlToReact, { domToReact } from 'html-react-parser';
 import { marked } from 'marked';
