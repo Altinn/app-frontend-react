@@ -4,13 +4,13 @@ import { Button } from '@digdir/design-system-react';
 import { PencilIcon, TrashIcon } from '@navikt/aksel-icons';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
-import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
+import { DeleteWarningPopover } from 'src/features/alertOnChange/DeleteWarningPopover';
+import { useAlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
 import { isAttachmentUploaded } from 'src/features/attachments';
 import { useAttachmentsRemover } from 'src/features/attachments/AttachmentsContext';
 import { useAttachmentsMappedToFormDataProvider } from 'src/features/attachments/useAttachmentsMappedToFormData';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useAlertOnChange } from 'src/hooks/useAlertOnChange';
 import classes from 'src/layout/FileUpload/FileUploadTable/FileTableRow.module.css';
 import { useFileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';

@@ -4,10 +4,17 @@ export enum LabelRendering {
   /** Turns off label rendering */
   Off = 'off',
 
-  /** Turns off label rendering (sets no text resource bindings for you), but enables labelSettings */
+  /**
+   * Turns off label rendering (sets no text resource bindings for you), but enables labelSettings
+   * @see ILabelSettings
+   */
   OnlySettings = 'onlySettings',
 
-  /** Renders the label automatically outside the component (from GenericComponent.tsx) */
+  /**
+   * Renders the label automatically outside the component (from GenericComponent.tsx)
+   * @see GenericComponentLabel
+   * @see shouldRenderLabelInGenericComponent
+   */
   FromGenericComponent = 'fromGenericComponent',
 
   /** Lets you render the label yourself, inside the component code */

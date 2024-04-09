@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Button, LegacyPopover } from '@digdir/design-system-react';
 
-import classes from 'src/components/molecules/DeleteWarningPopover.module.css';
+import classes from 'src/features/alertOnChange/DeleteWarningPopover.module.css';
 import { Lang } from 'src/features/language/Lang';
 
 export interface IDeleteWarningPopover {

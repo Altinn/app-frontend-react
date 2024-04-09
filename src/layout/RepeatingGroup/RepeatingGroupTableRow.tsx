@@ -6,13 +6,13 @@ import { Delete as DeleteIcon, Edit as EditIcon, ErrorColored as ErrorIcon } fro
 import cn from 'classnames';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
-import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
+import { DeleteWarningPopover } from 'src/features/alertOnChange/DeleteWarningPopover';
+import { useAlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
 import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useDeepValidationsForNode } from 'src/features/validation/selectors/deepValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
-import { useAlertOnChange } from 'src/hooks/useAlertOnChange';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { implementsDisplayData } from 'src/layout';
 import { GenericComponent } from 'src/layout/GenericComponent';
@@ -21,9 +21,9 @@ import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupConte
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
 import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import type { AlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
 import type { DisplayData } from 'src/features/displayData';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
-import type { AlertOnChange } from 'src/hooks/useAlertOnChange';
 import type { CompInternal, ITextResourceBindings } from 'src/layout/layout';
 import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { GroupExpressions } from 'src/layout/RepeatingGroup/types';
