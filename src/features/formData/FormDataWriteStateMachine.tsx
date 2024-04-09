@@ -60,6 +60,11 @@ export interface DataModelState {
 
   // This identifies the specific data element in storage. This is needed for identifying the correct model when receiving updates from the server.
   dataElementId: string;
+
+  // This is used to track whether the user has requested a manual save. When auto-saving is turned off, this is
+  // the way we track when to save the data model to the server. It can also be used to trigger a manual save
+  // as a way to immediately save the data model to the server, for example before locking the data model.
+  manualSaveRequested: boolean;
 }
 
 type FormDataState = {
@@ -70,11 +75,6 @@ type FormDataState = {
   // debouncedCurrentData model changes. This can be turned off when, for example, you want to save the data model
   // only when the user navigates to another page.
   autoSaving: boolean;
-
-  // This is used to track whether the user has requested a manual save. When auto-saving is turned off, this is
-  // the way we track when to save the data model to the server. It can also be used to trigger a manual save
-  // as a way to immediately save the data model to the server, for example before locking the data model.
-  manualSaveRequested: boolean;
 
   // This is used to track which component is currently blocking the auto-saving feature. If this is set to a string
   // value, auto-saving will be disabled, even if the autoSaving flag is set to true. This is useful when you want
@@ -284,7 +284,7 @@ function makeActions(
         // TODO(Datamodels): How should this be handled?
         // state.dataModels[dataType].controlState.manualSaveRequested = false;
         // First try:
-        state.manualSaveRequested = false;
+        state.dataModels[dataType].manualSaveRequested = false;
         deduplicateModels(state, dataType);
       }),
     saveFinished: (dataType, props) =>
@@ -294,7 +294,7 @@ function makeActions(
         // TODO(Datamodels): How should this be handled?
         // state.dataModels[dataType].controlState.manualSaveRequested = false;
         // First try:
-        state.manualSaveRequested = false;
+        state.dataModels[dataType].manualSaveRequested = false;
         processChanges(state, dataType, props);
       }),
     setLeafValue: ({ reference, newValue, ...rest }) =>
@@ -396,7 +396,9 @@ function makeActions(
       }),
     requestManualSave: (setTo = true) =>
       set((state) => {
-        state.manualSaveRequested = setTo;
+        for (const dataType of Object.keys(state.dataModels)) {
+          state.dataModels[dataType].manualSaveRequested = setTo;
+        }
       }),
     lock: (lockName) =>
       set((state) => {
@@ -410,7 +412,9 @@ function makeActions(
           // TODO(Datamodels): How should this be handled?
           // state.dataModels[dataType].controlState.manualSaveRequested = false;
           // First try:
-          state.manualSaveRequested = false;
+          for (const dataType of Object.keys(state.dataModels)) {
+            state.dataModels[dataType].manualSaveRequested = false;
+          }
           for (const [dataElementId, newDataModel] of Object.entries(actionResult.updatedDataModels)) {
             if (newDataModel) {
               const dataModelTuple = Object.entries(state.dataModels).find(
@@ -485,10 +489,10 @@ export const createFormDataWriteStore = (
             debounceTimeout: DEFAULT_DEBOUNCE_TIMEOUT,
             saveUrl: url,
             dataElementId,
+            manualSaveRequested: false,
           },
         },
         autoSaving,
-        manualSaveRequested: false,
         lockedBy: undefined,
         ...actions,
       };

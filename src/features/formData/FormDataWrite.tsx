@@ -184,7 +184,7 @@ function AllFormDataEffects() {
 }
 
 function FormDataEffects({ dataType }: { dataType: string }) {
-  const { autoSaving, manualSaveRequested, lockedBy } = useSelector((s) => s);
+  const { autoSaving, lockedBy } = useSelector((s) => s);
   const {
     currentData,
     debouncedCurrentData,
@@ -192,6 +192,7 @@ function FormDataEffects({ dataType }: { dataType: string }) {
     lastSavedData,
     invalidCurrentData,
     invalidDebouncedCurrentData,
+    manualSaveRequested,
   } = useSelector((s) => s.dataModels[dataType]);
 
   const { mutate: performSave, error } = useFormDataSaveMutation(dataType);
