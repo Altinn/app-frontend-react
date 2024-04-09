@@ -187,9 +187,12 @@ export function ValidationProvider({ children }: PropsWithChildren) {
       await waitForAttachments((state) => !state);
 
       // Wait until we've saved changed to backend, and we've processed the backend validations we got from that save
-      // TODO(Datamodels): Update to check if all datamodels validations are updated
       const validationsFromSave = await waitForSave(forceSave);
-      await waitForStateRef.current!((state) => state.issueGroupsProcessedLast === validationsFromSave);
+      await waitForStateRef.current!((state) =>
+        Object.keys(state.issueGroupsProcessedLast).every(
+          (dataType) => state.issueGroupsProcessedLast[dataType] === validationsFromSave?.[dataType],
+        ),
+      );
     },
     [waitForAttachments, waitForSave],
   );
