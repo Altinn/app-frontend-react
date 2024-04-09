@@ -56,6 +56,7 @@ interface Internals {
   issueGroupsProcessedLast: { [dataType: string]: BackendValidationIssueGroups | undefined };
   updateTaskValidations: (validations: BaseValidation[]) => void;
   updateComponentValidations: (componentId: string, validations: ComponentValidations[string]) => void;
+  removeComponentValidations: (componentId: string) => void;
   /**
    * updateDataModelValidations
    * if validations is undefined, nothing will be changed
@@ -66,6 +67,7 @@ interface Internals {
     validations?: FieldValidations,
     issueGroupsProcessedLast?: BackendValidationIssueGroups,
   ) => void;
+  removeDataModelValidations: (dataType: string) => void;
   updateVisibility: (mutator: (visibility: Visibility) => void) => void;
   updateValidating: (validating: WaitForValidation) => void;
 }
@@ -122,6 +124,10 @@ function initialCreateStore({ validating }: NewStoreProps) {
         set((state) => {
           state.state.components[componentId] = validations;
         }),
+      removeComponentValidations: (componentId) =>
+        set((state) => {
+          delete state.state.components[componentId];
+        }),
       updateDataModelValidations: (key, dataType, validations, issueGroupsProcessedLast) =>
         set((state) => {
           if (key === 'backend') {
@@ -135,6 +141,13 @@ function initialCreateStore({ validating }: NewStoreProps) {
               state.individualFieldValidations.schema[dataType],
               state.individualFieldValidations.expression[dataType],
             );
+          }
+        }),
+      removeDataModelValidations: (dataType: string) =>
+        set((state) => {
+          delete state.state.dataModels[dataType];
+          for (const key of Object.keys(state.individualFieldValidations)) {
+            delete state.individualFieldValidations[key][dataType];
           }
         }),
       updateVisibility: (mutator) =>
@@ -186,16 +199,30 @@ export function ValidationProvider({ children }: PropsWithChildren) {
       <MakeWaitForState waitForStateRef={waitForStateRef} />
       <NodeValidation />
       {dataTypes.map((dataType) => (
-        <React.Fragment key={dataType}>
-          <BackendValidation dataType={dataType} />
-          <SchemaValidation dataType={dataType} />
-          <ExpressionValidation dataType={dataType} />
-          <InvalidDataValidation dataType={dataType} />
-        </React.Fragment>
+        <DataModelValidations
+          key={dataType}
+          dataType={dataType}
+        />
       ))}
       <ManageVisibility />
       {children}
     </Provider>
+  );
+}
+
+function DataModelValidations({ dataType }: { dataType: string }) {
+  const removeDataModelValidations = Validation.useRemoveDataModelValidations();
+
+  // Cleanup on unmount
+  useEffect(() => () => removeDataModelValidations(dataType), [dataType, removeDataModelValidations]);
+
+  return (
+    <>
+      <BackendValidation dataType={dataType} />
+      <SchemaValidation dataType={dataType} />
+      <ExpressionValidation dataType={dataType} />
+      <InvalidDataValidation dataType={dataType} />
+    </>
   );
 }
 
@@ -304,7 +331,9 @@ export const Validation = {
   useValidating: () => useSelector((state) => state.validating),
   useUpdateTaskValidations: () => useSelector((state) => state.updateTaskValidations),
   useUpdateComponentValidations: () => useSelector((state) => state.updateComponentValidations),
+  useRemoveComponentValidations: () => useSelector((state) => state.removeComponentValidations),
   useUpdateDataModelValidations: () => useSelector((state) => state.updateDataModelValidations),
+  useRemoveDataModelValidations: () => useSelector((state) => state.removeDataModelValidations),
 
   useLaxRef: () => useLaxSelectorAsRef((state) => state),
 };

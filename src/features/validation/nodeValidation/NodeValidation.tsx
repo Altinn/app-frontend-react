@@ -27,6 +27,7 @@ export function NodeValidation() {
 
 function SpecificNodeValidation({ node }: { node: LayoutNode }) {
   const updateComponentValidations = Validation.useUpdateComponentValidations();
+  const removeComponentValidations = Validation.useRemoveComponentValidations();
   const nodeId = node.item.id;
 
   // TODO(Datamodels): Will this actually run when only formData changes for a node?
@@ -68,10 +69,7 @@ function SpecificNodeValidation({ node }: { node: LayoutNode }) {
   }, [node, nodeId, updateComponentValidations]);
 
   // Cleanup on unmount
-  useEffect(
-    () => () => updateComponentValidations(nodeId, { component: [], bindingKeys: {} }),
-    [nodeId, updateComponentValidations],
-  );
+  useEffect(() => () => removeComponentValidations(nodeId), [nodeId, removeComponentValidations]);
 
   return null;
 }
