@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, Outlet, Route, Routes, useNavigate } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 
 import { ProcessWrapperWrapper } from 'src/components/wrappers/ProcessWrapper';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
@@ -7,7 +7,8 @@ import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
 import { PartySelection } from 'src/features/instantiate/containers/PartySelection';
 import { InstanceSelectionWrapper } from 'src/features/instantiate/selection/InstanceSelection';
-import { useCurrentParty, useCurrentPartyIsValid, useParties } from 'src/features/party/PartiesProvider';
+import { useCurrentPartyIsValid, useValidParties } from 'src/features/party/PartiesProvider';
+import { useProfile } from 'src/features/profile/ProfileProvider';
 import type { ShowTypes } from 'src/features/applicationMetadata';
 export const DefaultComponent = () => {
   const applicationMetadata = useApplicationMetadata();
@@ -28,58 +29,67 @@ export const DefaultComponent = () => {
 };
 
 export const ProtectedRoute = () => {
-  const navigate = useNavigate();
-
-  const party = useCurrentParty();
   const partyIsValid = useCurrentPartyIsValid();
 
-  //  const validParties = usePartiesCtx() as IParty[];
+  const validParties = useValidParties();
 
-  const parties = useParties();
+  const profile = useProfile();
 
-  const applicationMetadata = useApplicationMetadata();
+  // profile.profileSettingPreference.doNotPromptForParty
 
-  // parties.
+  console.log(JSON.stringify(validParties, null, 2));
 
-  // const usersValidParties = parties.filter((party) => party.partyTypeName)
+  const location = useLocation();
+  if (!partyIsValid && !location.pathname.includes('party-selection')) {
+    console.log('ARE WE ALSO ENDING UP HERE?????');
+    return (
+      <Navigate
+        to={'/party-selection'}
+        replace={true}
+      />
+    );
+  }
 
-  //applicationMetadata.partyTypesAllowed.person
-
-  // const { partyTypesAllowed } = appMetadata || {};
-
-  // if (!isAuthenticated) {
-  //   navigate('/sign-in');
-  // }
+  console.log(
+    'profile?.profileSettingPreference.doNotPromptForParty',
+    profile?.profileSettingPreference.doNotPromptForParty,
+  );
 
   console.log('partyIsValid', partyIsValid);
-
-  if (!partyIsValid) {
-    <Navigate
-      to={'/party-selection'}
-      replace={true}
-    />;
+  if (validParties?.length && validParties?.length > 1 && !profile?.profileSettingPreference.doNotPromptForParty) {
+    console.log('We should end up here!!');
+    return (
+      <Navigate
+        to={'/party-selection/403'}
+        replace={true}
+      />
+    );
   }
+
   return <Outlet />;
 };
 
 export const App = () => (
   <Routes>
-    <Route element={<ProtectedRoute />}>
-      <Route
-        path='/'
-        element={<DefaultComponent />}
-      />
+    <Route
+      path={'/'}
+      element={<DefaultComponent />}
+    />
 
+    <Route
+      path='/*'
+      element={<ProtectedRoute />}
+    >
       <Route
-        path='/instance-selection/*'
+        path='instance-selection/*'
         element={<InstanceSelectionWrapper />}
       />
       <Route
-        path='/party-selection/*'
+        path='party-selection/*'
         element={<PartySelection />}
       />
       <Route
-        path='/instance/:partyId/:instanceGuid/*'
+        path='instance/:partyId/:instanceGuid/*'
         element={
           <InstanceProvider>
             <ProcessWrapperWrapper />
@@ -91,7 +101,7 @@ export const App = () => (
        * Redirects from legacy URLs to new URLs
        */}
       <Route
-        path='/partyselection/*'
+        path='partyselection/*'
         element={
           <Navigate
             to='/party-selection/'

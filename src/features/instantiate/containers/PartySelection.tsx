@@ -70,6 +70,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export const PartySelection = () => {
+  console.log('SELECTION PARTY!!!');
   changeBodyBackground(AltinnAppTheme.altinnPalette.primary.white);
   const classes = useStyles();
   const match = useMatch(`/party-selection/:errorCode`);

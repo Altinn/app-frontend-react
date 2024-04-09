@@ -71,6 +71,7 @@ const { Provider: PartiesProvider, useCtx: usePartiesCtx } = delayedContext(() =
 
 interface CurrentParty {
   party: IParty | undefined;
+  validParties: IParty[] | undefined;
   currentIsValid: boolean | undefined;
   setParty: (party: IParty) => Promise<IParty | undefined>;
 }
@@ -80,6 +81,7 @@ const { Provider: RealCurrentPartyProvider, useCtx: useCurrentPartyCtx } = creat
   required: false,
   default: {
     party: undefined,
+    validParties: undefined,
     currentIsValid: undefined,
     setParty: () => {
       throw new Error('CurrentPartyProvider not initialized');
@@ -114,6 +116,7 @@ const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
     <RealCurrentPartyProvider
       value={{
         party: currentParty,
+        validParties,
         currentIsValid,
         setParty: async (party) => {
           try {
@@ -158,3 +161,5 @@ export const useParties = () => usePartiesCtx();
 export const useCurrentParty = () => useCurrentPartyCtx().party;
 export const useCurrentPartyIsValid = () => useCurrentPartyCtx().currentIsValid;
 export const useSetCurrentParty = () => useCurrentPartyCtx().setParty;
+
+export const useValidParties = () => useCurrentPartyCtx().validParties;
