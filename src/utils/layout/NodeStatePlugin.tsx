@@ -96,6 +96,17 @@ export abstract class NodeStatePlugin<Config extends PluginConfig> {
   evalDefaultExpressions(_props: PluginExprResolver<Config>): PluginExtraInItem<Config> {
     return {} as PluginExtraInItem<Config>;
   }
+
+  /**
+   * Outputs the code to render any child components that are needed for this plugin to work.
+   * The reason this expects a string instead of JSX is because the code generator will run this function
+   * and insert the output into the generated code. If we just output a reference to this function, the code
+   * generator would have to load our entire application to run this function, which would inevitably lead to
+   * circular dependencies and import errors (i.e. trying to import CSS into a CLI tool).
+   */
+  extraNodeGeneratorChildren(): string {
+    return '';
+  }
 }
 
 /**

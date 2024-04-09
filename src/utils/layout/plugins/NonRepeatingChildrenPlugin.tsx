@@ -4,7 +4,7 @@ import { NodeStatePlugin } from 'src/utils/layout/NodeStatePlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { CompCapabilities } from 'src/codegen/Config';
 import type { NodeRef } from 'src/layout';
-import type { CompTypes } from 'src/layout/layout';
+import type { CompTypes, TypesFromCategory } from 'src/layout/layout';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 import type { ItemStore } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -16,7 +16,11 @@ import type {
   PluginStateFactoryProps,
 } from 'src/utils/layout/NodeStatePlugin';
 
-interface Config<Type extends CompTypes, ExternalProp extends string, InternalProp extends string> {
+interface Config<
+  Type extends TypesFromCategory<CompCategory.Container>,
+  ExternalProp extends string,
+  InternalProp extends string,
+> {
   componentType: Type;
   settings: {
     property: ExternalProp;
@@ -31,7 +35,7 @@ interface Config<Type extends CompTypes, ExternalProp extends string, InternalPr
 }
 
 export interface ExternalConfig {
-  componentType?: CompTypes;
+  componentType?: TypesFromCategory<CompCategory.Container>;
   externalProp?: string;
   internalProp?: string;
   title?: string;
@@ -40,7 +44,7 @@ export interface ExternalConfig {
 }
 
 const defaultConfig = {
-  componentType: 'unknown' as CompTypes,
+  componentType: 'unknown' as TypesFromCategory<CompCategory.Container>,
   externalProp: 'children' as const,
   internalProp: 'childComponents' as const,
   title: 'Children',
@@ -62,7 +66,11 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
   protected component: ComponentConfig | undefined;
   constructor(settings: E) {
     super();
-    this.settings = { ...defaultConfig, ...settings, componentType: 'unknown' as CompTypes } as Combined<E>;
+    this.settings = {
+      ...defaultConfig,
+      ...settings,
+      componentType: 'unknown' as TypesFromCategory<CompCategory.Container>,
+    } as Combined<E>;
   }
 
   makeImport() {
@@ -105,6 +113,14 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
           .setDescription(this.settings.description ?? 'List of child component IDs to show inside'),
       ),
     );
+  }
+
+  extraNodeGeneratorChildren(): string {
+    const NodeChildren = new CG.import({
+      import: 'NodeChildren',
+      from: 'src/utils/layout/NodesGenerator',
+    });
+    return `<${NodeChildren} childIds={props.childIds} />`;
   }
 
   claimChildren({ item, claimChild, getProto }: PluginChildClaimerProps<ToInternal<E>>): void {

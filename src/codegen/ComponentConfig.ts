@@ -288,6 +288,21 @@ export class ComponentConfig {
       from: 'src/layout/LayoutComponent',
     });
 
+    const NodeGeneratorProps = new CG.import({
+      import: 'NodeGeneratorProps',
+      from: 'src/layout/LayoutComponent',
+    });
+
+    const ReactJSX = new CG.import({
+      import: 'JSX',
+      from: 'react',
+    });
+
+    const DefaultNodeGenerator = new CG.import({
+      import: 'DefaultNodeGenerator',
+      from: 'src/utils/layout/DefaultNodeGenerator',
+    });
+
     const isFormComponent = this.config.category === CompCategory.Form;
     const isSummarizable = this.behaviors.isSummarizable;
 
@@ -316,10 +331,16 @@ export class ComponentConfig {
       .filter((plugin) => plugin.stateFactory !== NodeStatePlugin.prototype.stateFactory)
       .map((plugin) => `...this.${plugin.import}.stateFactory(props as any),`)
       .join('\n');
+
     const pluginEvalExpressions = this.plugins
       .filter((plugin) => plugin.evalDefaultExpressions !== NodeStatePlugin.prototype.evalDefaultExpressions)
       .map((plugin) => `...this.${plugin.import}.evalDefaultExpressions(props as any),`)
       .join(',\n');
+
+    const pluginGeneratorChildren = this.plugins
+      .filter((plugin) => plugin.extraNodeGeneratorChildren !== NodeStatePlugin.prototype.extraNodeGeneratorChildren)
+      .map((plugin) => plugin.extraNodeGeneratorChildren())
+      .join('\n');
 
     const additionalMethods: string[] = [];
 
@@ -393,6 +414,14 @@ export class ComponentConfig {
       ${pluginInstances.join('\n')}
 
       ${this.config.directRendering ? 'directRender(): boolean { return true; }' : ''}
+
+      renderNodeGenerator(props: ${NodeGeneratorProps}<'${this.type}'>): ${ReactJSX}.Element | null {
+        return (
+          <${DefaultNodeGenerator} {...props}>
+            ${pluginGeneratorChildren}
+          </${DefaultNodeGenerator}>
+        );
+      }
 
       stateFactory(props: ${StateFactoryProps}<'${this.type}'>) {
         const baseState: ${BaseItemState}<'${this.type}'> = {

@@ -60,7 +60,7 @@ async function getComponentList() {
   const configMap: { [key: string]: ComponentConfig } = {};
   for (const key of sortedKeys) {
     const tsPathConfig = `src/layout/${key}/config.generated.ts`;
-    const tsPathDef = `src/layout/${key}/config.def.generated.ts`;
+    const tsPathDef = `src/layout/${key}/config.def.generated.tsx`;
 
     const content = await CodeGeneratorContext.generateTypeScript(tsPathConfig, () => {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -69,7 +69,10 @@ async function getComponentList() {
       configMap[key] = config;
       return config.generateConfigFile();
     });
-    const defClass = await CodeGeneratorContext.generateTypeScript(tsPathDef, () => configMap[key].generateDefClass());
+    const defClass = await CodeGeneratorContext.generateTypeScript(tsPathDef, () => {
+      const def = configMap[key].generateDefClass();
+      return `import React from 'react';\n\n${def}`;
+    });
 
     promises.push(saveTsFile(tsPathConfig, content));
     promises.push(saveTsFile(tsPathDef, defClass));
