@@ -35,20 +35,6 @@ const ExampleOrgWithSubUnit: IParty = {
   ],
 };
 
-const ExampleOrgWithoutSubUnit: IParty = {
-  partyId: 500300,
-  partyTypeName: PartyType.Organisation,
-  orgNumber: '897069630',
-  ssn: null,
-  unitType: 'AS',
-  name: 'Lønn & Regnskap AS',
-  isDeleted: false,
-  onlyHierarchyElementWithNoAccess: false,
-  person: null,
-  organization: null,
-  childParties: [],
-};
-
 const ExampleDeletedOrg: IParty = {
   partyId: 500600,
   partyTypeName: PartyType.Organisation,
@@ -63,7 +49,7 @@ const ExampleDeletedOrg: IParty = {
   childParties: [],
 };
 
-const ExamplePerson: IParty = {
+const ExamplePerson1: IParty = {
   partyId: 12345678,
   partyTypeName: PartyType.Person,
   orgNumber: '9879879876',
@@ -77,7 +63,22 @@ const ExamplePerson: IParty = {
   childParties: null,
 };
 
+const ExamplePerson2: IParty = {
+  partyId: 12345679,
+  partyTypeName: PartyType.Person,
+  orgNumber: null,
+  ssn: '12312312344',
+  unitType: null,
+  name: 'Fake Person2',
+  isDeleted: false,
+  onlyHierarchyElementWithNoAccess: false,
+  person: null,
+  organization: null,
+  childParties: null,
+};
+
 interface Mockable {
+  preSelectedParty?: number;
   allowedToInstantiate?: IParty[] | ((parties: IParty[]) => IParty[]);
   doNotPromptForParty?: boolean;
   appPromptForPartyOverride?: IApplicationMetadata['promptForParty'];
@@ -85,6 +86,11 @@ interface Mockable {
 }
 
 function mockResponses(whatToMock: Mockable) {
+  if (whatToMock.preSelectedParty !== undefined) {
+    // Sets the 'AltinnPartyId' cookie to emulate having selected a party when logging in to Altinn
+    cy.setCookie('AltinnPartyId', whatToMock.preSelectedParty.toString());
+  }
+
   if (whatToMock.allowedToInstantiate) {
     cy.intercept('GET', `**/api/v1/parties?allowedtoinstantiatefilter=true`, (req) => {
       req.on('response', (res) => {
@@ -121,7 +127,7 @@ function mockResponses(whatToMock: Mockable) {
 }
 
 describe('Party selection', () => {
-  it('Party selection in data app', () => {
+  it('Party selection filtering and search', () => {
     mockResponses({ allowedToInstantiate: [ExampleOrgWithSubUnit, ExampleDeletedOrg] });
     cy.startAppInstance(appFrontend.apps.frontendTest);
 
@@ -138,12 +144,99 @@ describe('Party selection', () => {
     cy.get(appFrontend.reporteeSelection.reportee).should('have.length', 1).contains('DDG');
   });
 
+  it('Org number should not be displayed for persons', () => {
+    mockResponses({
+      allowedToInstantiate: [ExamplePerson1, ExamplePerson2],
+      partyTypesAllowed: {
+        person: true,
+        subUnit: false,
+        bankruptcyEstate: false,
+        organisation: false,
+      },
+    });
+
+    cy.startAppInstance(appFrontend.apps.frontendTest);
+
+    // TODO: Implement the rest
+  });
+
+  it('Should skip party selection if you can only represent one person', () => {
+    mockResponses({
+      allowedToInstantiate: [ExamplePerson1],
+      partyTypesAllowed: {
+        person: true,
+        subUnit: false,
+        bankruptcyEstate: false,
+        organisation: false,
+      },
+    });
+
+    cy.startAppInstance(appFrontend.apps.frontendTest);
+    cy.get(appFrontend.reporteeSelection.appHeader).should('not.exist');
+    cy.findByRole('heading', { name: 'Appen for test av app frontend' }).should('be.visible');
+  });
+
+  it('Should show party selection with a warning when you cannot use the preselected party', () => {
+    mockResponses({
+      preSelectedParty: ExampleOrgWithSubUnit.partyId,
+
+      // We'll only allow one party to be selected, and it's not the preselected one. Even though one-party-choices
+      // normally won't show up as being selectable, we'll still show the warning in these cases.
+      allowedToInstantiate: [ExamplePerson2],
+      partyTypesAllowed: {
+        person: true,
+        subUnit: false,
+        bankruptcyEstate: false,
+        organisation: false,
+      },
+    });
+
+    cy.startAppInstance(appFrontend.apps.frontendTest);
+    cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
+    cy.findByRole('heading', { name: 'Hvorfor ser jeg dette?' }).should('be.visible');
+    cy.findByRole('heading', { name: 'Hvorfor ser jeg dette?' })
+      .siblings('p')
+      .first()
+      .should(
+        'contain.text',
+        'Når du åpnet skjemaet hadde du forhåndsvalgt en aktør som ikke har tilgang til å fylle ut dette ' +
+          'skjemaet. Velg en annen aktør for å fortsette utfyllingen.',
+      );
+  });
+
+  it('Should show an error if there are no parties to select from', () => {
+    mockResponses({ allowedToInstantiate: [] });
+    cy.startAppInstance(appFrontend.apps.frontendTest);
+    cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
+
+    // TODO: Implement the rest
+    cy.get('#some-error-page').should('contain.text', 'Her burde det stå en mer spesifikk feilmelding.');
+  });
+
+  it('Selecting a party should instantiate using that party', () => {
+    // TODO: Implement the rest
+  });
+
+  it('Auto-selecting a party when only one is available should instantiate using that party', () => {
+    mockResponses({
+      allowedToInstantiate: [ExamplePerson1],
+      partyTypesAllowed: {
+        person: true,
+        subUnit: false,
+        bankruptcyEstate: false,
+        organisation: false,
+      },
+    });
+
+    // TODO: Implement the rest
+  });
+
   [true, false].forEach((doNotPromptForParty) => {
     it(`${
       doNotPromptForParty ? 'Does not prompt' : 'Prompts'
     } for party when doNotPromptForParty = ${doNotPromptForParty}, on instantiation with multiple possible parties`, () => {
       mockResponses({
-        allowedToInstantiate: (parties) => [...parties, ExamplePerson],
+        allowedToInstantiate: (parties) => [...parties, ExamplePerson1],
         doNotPromptForParty,
       });
       cy.startAppInstance(appFrontend.apps.frontendTest);
