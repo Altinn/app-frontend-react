@@ -1,11 +1,14 @@
 import texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
+import { PartyType } from 'src/types/shared';
+import type { IParty } from 'src/types/shared';
+
 const appFrontend = new AppFrontend();
 
-const fakeParty = {
+const fakeParty: IParty = {
   partyId: 12345678,
-  partyTypeName: 1,
+  partyTypeName: PartyType.Person,
   orgNumber: '9879879876',
   ssn: '12312312345',
   unitType: null,
@@ -17,12 +20,53 @@ const fakeParty = {
   childParties: null,
 };
 
+const fakeAllowedParties: IParty[] = [
+  {
+    partyId: 500000,
+    partyTypeName: PartyType.Organisation,
+    orgNumber: '897069650',
+    ssn: null,
+    unitType: 'AS',
+    name: 'DDG Fitness AS',
+    isDeleted: false,
+    onlyHierarchyElementWithNoAccess: false,
+    person: null,
+    organization: null,
+    childParties: [
+      {
+        partyId: 500001,
+        partyTypeName: PartyType.Organisation,
+        orgNumber: '897069651',
+        ssn: null,
+        unitType: 'BEDR',
+        name: 'DDG Fitness Bergen',
+        isDeleted: false,
+        onlyHierarchyElementWithNoAccess: false,
+        person: null,
+        organization: null,
+        childParties: null,
+      },
+    ],
+  },
+  {
+    partyId: 500600,
+    partyTypeName: PartyType.Organisation,
+    orgNumber: '897069631',
+    ssn: null,
+    unitType: 'AS',
+    name: 'EAS Health Consulting',
+    isDeleted: true,
+    onlyHierarchyElementWithNoAccess: false,
+    person: null,
+    organization: null,
+    childParties: [],
+  },
+];
+
 describe('Party selection', () => {
   it('Party selection in data app', () => {
-    cy.fixture('allowed-parties.json').then((allowedParties) => {
-      cy.intercept('GET', `**/api/v1/parties?allowedtoinstantiatefilter=true`, {
-        body: allowedParties,
-      });
+    cy.intercept('GET', `**/api/v1/parties?allowedtoinstantiatefilter=true`, {
+      body: fakeAllowedParties,
     });
     cy.intercept('**/active', []).as('noActiveInstances');
 
@@ -40,8 +84,8 @@ describe('Party selection', () => {
     cy.get(appFrontend.reporteeSelection.reportee).should('have.length', 1).contains('DDG');
   });
 
-  [true].forEach((doNotPromptForParty) => {
-    it.only(`${
+  [true, false].forEach((doNotPromptForParty) => {
+    it(`${
       doNotPromptForParty ? 'Does not prompt' : 'Prompts'
     } for party when doNotPromptForParty = ${doNotPromptForParty}, on instantiation with multiple possible parties`, () => {
       // Intercept active instances
