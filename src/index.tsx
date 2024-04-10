@@ -10,7 +10,6 @@ import { Slide, ToastContainer } from 'react-toastify';
 import 'src/features/toggles';
 import 'src/features/logging';
 import 'src/features/styleInjection';
-import '@digdir/designsystemet-theme';
 import '@digdir/designsystemet-css';
 
 import { AppWrapper } from '@altinn/altinn-design-system';
