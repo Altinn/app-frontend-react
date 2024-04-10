@@ -126,7 +126,7 @@ export interface IOrganisation {
   mailingPostalCity: string;
   businessPostalCode: string;
   businessPostalCity: string;
-  unitStatus: string;
+  // unitStatus: string; // This exists in the model but is not clearly defined, and not used in the frontend
 }
 
 /**
