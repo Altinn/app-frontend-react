@@ -2,11 +2,68 @@ import texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
 import { PartyType } from 'src/types/shared';
+import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IParty } from 'src/types/shared';
 
 const appFrontend = new AppFrontend();
 
-const fakeParty: IParty = {
+const ExampleOrgWithSubUnit: IParty = {
+  partyId: 500000,
+  partyTypeName: PartyType.Organisation,
+  orgNumber: '897069650',
+  ssn: null,
+  unitType: 'AS',
+  name: 'DDG Fitness AS',
+  isDeleted: false,
+  onlyHierarchyElementWithNoAccess: false,
+  person: null,
+  organization: null,
+  childParties: [
+    {
+      partyId: 500001,
+      partyTypeName: PartyType.Organisation,
+      orgNumber: '897069651',
+      ssn: null,
+      unitType: 'BEDR',
+      name: 'DDG Fitness Bergen',
+      isDeleted: false,
+      onlyHierarchyElementWithNoAccess: false,
+      person: null,
+      organization: null,
+      childParties: null,
+    },
+  ],
+};
+
+const ExampleOrgWithoutSubUnit: IParty = {
+  partyId: 500300,
+  partyTypeName: PartyType.Organisation,
+  orgNumber: '897069630',
+  ssn: null,
+  unitType: 'AS',
+  name: 'Lønn & Regnskap AS',
+  isDeleted: false,
+  onlyHierarchyElementWithNoAccess: false,
+  person: null,
+  organization: null,
+  childParties: [],
+};
+
+const ExampleDeletedOrg: IParty = {
+  partyId: 500600,
+  partyTypeName: PartyType.Organisation,
+  orgNumber: '897069631',
+  ssn: null,
+  unitType: 'AS',
+  name: 'EAS Health Consulting',
+  isDeleted: true,
+  onlyHierarchyElementWithNoAccess: false,
+  person: null,
+  organization: null,
+  childParties: [],
+};
+
+const ExamplePerson: IParty = {
   partyId: 12345678,
   partyTypeName: PartyType.Person,
   orgNumber: '9879879876',
@@ -20,57 +77,54 @@ const fakeParty: IParty = {
   childParties: null,
 };
 
-const fakeAllowedParties: IParty[] = [
-  {
-    partyId: 500000,
-    partyTypeName: PartyType.Organisation,
-    orgNumber: '897069650',
-    ssn: null,
-    unitType: 'AS',
-    name: 'DDG Fitness AS',
-    isDeleted: false,
-    onlyHierarchyElementWithNoAccess: false,
-    person: null,
-    organization: null,
-    childParties: [
-      {
-        partyId: 500001,
-        partyTypeName: PartyType.Organisation,
-        orgNumber: '897069651',
-        ssn: null,
-        unitType: 'BEDR',
-        name: 'DDG Fitness Bergen',
-        isDeleted: false,
-        onlyHierarchyElementWithNoAccess: false,
-        person: null,
-        organization: null,
-        childParties: null,
+interface Mockable {
+  allowedToInstantiate?: IParty[] | ((parties: IParty[]) => IParty[]);
+  doNotPromptForParty?: boolean;
+  appPromptForPartyOverride?: IApplicationMetadata['promptForParty'];
+  partyTypesAllowed?: IApplicationMetadata['partyTypesAllowed'];
+}
+
+function mockResponses(whatToMock: Mockable) {
+  if (whatToMock.allowedToInstantiate) {
+    cy.intercept('GET', `**/api/v1/parties?allowedtoinstantiatefilter=true`, (req) => {
+      req.on('response', (res) => {
+        res.body =
+          whatToMock.allowedToInstantiate instanceof Function
+            ? whatToMock.allowedToInstantiate(res.body)
+            : whatToMock.allowedToInstantiate;
+      });
+    });
+  }
+  if (whatToMock.doNotPromptForParty !== undefined) {
+    cy.intercept('GET', '**/api/v1/profile/user', {
+      body: {
+        profileSettingPreference: {
+          doNotPromptForParty: whatToMock.doNotPromptForParty,
+        },
       },
-    ],
-  },
-  {
-    partyId: 500600,
-    partyTypeName: PartyType.Organisation,
-    orgNumber: '897069631',
-    ssn: null,
-    unitType: 'AS',
-    name: 'EAS Health Consulting',
-    isDeleted: true,
-    onlyHierarchyElementWithNoAccess: false,
-    person: null,
-    organization: null,
-    childParties: [],
-  },
-];
+    });
+  }
+  if (whatToMock.appPromptForPartyOverride !== undefined || whatToMock.partyTypesAllowed !== undefined) {
+    cy.intercept('GET', '**/api/v1/applicationmetadata', (req) => {
+      req.on('response', (res) => {
+        if (whatToMock.appPromptForPartyOverride !== undefined) {
+          res.body.promptForParty = whatToMock.appPromptForPartyOverride;
+        }
+        if (whatToMock.partyTypesAllowed !== undefined) {
+          res.body.partyTypesAllowed = whatToMock.partyTypesAllowed;
+        }
+      });
+    });
+  }
+
+  cy.intercept('**/active', []).as('noActiveInstances');
+}
 
 describe('Party selection', () => {
   it('Party selection in data app', () => {
-    cy.intercept('GET', `**/api/v1/parties?allowedtoinstantiatefilter=true`, {
-      body: fakeAllowedParties,
-    });
-    cy.intercept('**/active', []).as('noActiveInstances');
-
+    mockResponses({ allowedToInstantiate: [ExampleOrgWithSubUnit, ExampleDeletedOrg] });
     cy.startAppInstance(appFrontend.apps.frontendTest);
+
     cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
     cy.get(appFrontend.reporteeSelection.error).contains(texts.selectNewReportee);
     cy.findByText('underenheter').click();
@@ -88,23 +142,10 @@ describe('Party selection', () => {
     it(`${
       doNotPromptForParty ? 'Does not prompt' : 'Prompts'
     } for party when doNotPromptForParty = ${doNotPromptForParty}, on instantiation with multiple possible parties`, () => {
-      // Intercept active instances
-      cy.intercept('**/active', []).as('noActiveInstances');
-
-      // Intercept profile doNotPromptForPartyPreference
-      cy.intercept('GET', '**/api/v1/profile/user', (req) => {
-        req.on('response', (res) => {
-          res.body.profileSettingPreference.doNotPromptForParty = doNotPromptForParty;
-        });
+      mockResponses({
+        allowedToInstantiate: (parties) => [...parties, ExamplePerson],
+        doNotPromptForParty,
       });
-
-      // Intercept allowed parties
-      cy.intercept('GET', `**/api/v1/parties?allowedtoinstantiatefilter=true`, (req) => {
-        req.on('response', (res) => {
-          res.body.push(fakeParty);
-        });
-      });
-
       cy.startAppInstance(appFrontend.apps.frontendTest);
       cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
 
@@ -138,22 +179,9 @@ describe('Party selection', () => {
 
   [true, false].forEach((doNotPromptForParty) => {
     it(`Does not prompt for party when doNotPromptForParty = ${doNotPromptForParty}, on instantiation with only one possible party`, () => {
-      // Intercept active instances
-      cy.intercept('**/active', []).as('noActiveInstances');
-
-      // Intercept profile doNotPromptForPartyPreference
-      cy.intercept('GET', '**/api/v1/profile/user', (req) => {
-        req.on('response', (res) => {
-          res.body.profileSettingPreference.doNotPromptForParty = doNotPromptForParty;
-        });
-      });
-
-      // Intercept allowed parties, only return one
-      cy.intercept('GET', `**/api/v1/parties?allowedtoinstantiatefilter=true`, (req) => {
-        req.on('response', (res) => {
-          const firstParty = res.body[0];
-          res.send({ ...res, body: [firstParty] });
-        });
+      mockResponses({
+        allowedToInstantiate: (parties) => [parties[0]],
+        doNotPromptForParty,
       });
 
       cy.startAppInstance(appFrontend.apps.frontendTest);
@@ -165,26 +193,14 @@ describe('Party selection', () => {
   });
 
   [
-    { doNotPromptForPartyPreference: true, appPromptForPartyOverride: 'always' },
-    { doNotPromptForPartyPreference: false, appPromptForPartyOverride: 'never' },
+    { doNotPromptForPartyPreference: true, appPromptForPartyOverride: 'always' as const },
+    { doNotPromptForPartyPreference: false, appPromptForPartyOverride: 'never' as const },
   ].forEach(({ doNotPromptForPartyPreference, appPromptForPartyOverride }) => {
     it(`Correctly overrides the profile doNotPromptForPartyPreference when doNotPromptForPartyPreference=${doNotPromptForPartyPreference} and appPromptForPartyOverride=${appPromptForPartyOverride}`, () => {
-      // Intercept active instances
-      cy.intercept('**/active', []).as('noActiveInstances');
-
-      // Intercept profile doNotPromptForPartyPreference
-      cy.intercept('GET', '**/api/v1/profile/user', (req) => {
-        req.on('response', (res) => {
-          res.body.profileSettingPreference.doNotPromptForParty = doNotPromptForPartyPreference;
-        });
+      mockResponses({
+        doNotPromptForParty: doNotPromptForPartyPreference,
+        appPromptForPartyOverride,
       });
-
-      cy.intercept('GET', '**/applicationmetadata', (req) => {
-        req.on('response', (res) => {
-          res.body.promptForParty = appPromptForPartyOverride;
-        });
-      });
-
       cy.startAppInstance(appFrontend.apps.frontendTest);
       cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
 
