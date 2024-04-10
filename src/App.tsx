@@ -1,19 +1,53 @@
 import React from 'react';
-import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import type { PropsWithChildren } from 'react';
 
 import { ProcessWrapperWrapper } from 'src/components/wrappers/ProcessWrapper';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
 import { PartySelection } from 'src/features/instantiate/containers/PartySelection';
+import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { InstanceSelectionWrapper } from 'src/features/instantiate/selection/InstanceSelection';
 import { useCurrentPartyIsValid, useValidParties } from 'src/features/party/PartiesProvider';
 import { useProfile } from 'src/features/profile/ProfileProvider';
+import { usePromptForParty } from 'src/hooks/usePromptForParty';
 import type { ShowTypes } from 'src/features/applicationMetadata';
 export const DefaultComponent = () => {
   const applicationMetadata = useApplicationMetadata();
   const show: ShowTypes = applicationMetadata.onEntry?.show ?? 'new-instance';
-  console.log('show', show);
+  const validParties = useValidParties();
+  const profile = useProfile();
+  const partyIsValid = useCurrentPartyIsValid();
+  const alwaysPromptForParty = usePromptForParty();
+
+  if (!partyIsValid) {
+    return (
+      <Navigate
+        to={'/party-selection/403'}
+        replace={true}
+      />
+    );
+  }
+
+  if (alwaysPromptForParty) {
+    return (
+      <Navigate
+        to={'/party-selection/explained'}
+        replace={true}
+      />
+    );
+  }
+
+  if (validParties?.length && validParties?.length > 1 && !profile?.profileSettingPreference.doNotPromptForParty) {
+    return (
+      <Navigate
+        to={'/party-selection/explained'}
+        replace={true}
+      />
+    );
+  }
+
   if (show === 'select-instance') {
     return (
       <Navigate
@@ -23,41 +57,16 @@ export const DefaultComponent = () => {
     );
   }
 
-  console.log('InstantiateContainer');
-
-  return <InstantiateContainer />;
-};
-
-export const ProtectedRoute = () => {
-  const partyIsValid = useCurrentPartyIsValid();
-
-  const validParties = useValidParties();
-
-  const profile = useProfile();
-
-  // profile.profileSettingPreference.doNotPromptForParty
-
-  console.log(JSON.stringify(validParties, null, 2));
-
-  const location = useLocation();
-  if (!partyIsValid && !location.pathname.includes('party-selection')) {
-    console.log('ARE WE ALSO ENDING UP HERE?????');
-    return (
-      <Navigate
-        to={'/party-selection'}
-        replace={true}
-      />
-    );
+  if (show === 'new-instance') {
+    return <InstantiateContainer />;
   }
 
-  console.log(
-    'profile?.profileSettingPreference.doNotPromptForParty',
-    profile?.profileSettingPreference.doNotPromptForParty,
-  );
-
-  console.log('partyIsValid', partyIsValid);
-  if (validParties?.length && validParties?.length > 1 && !profile?.profileSettingPreference.doNotPromptForParty) {
-    console.log('We should end up here!!');
+  window.logErrorOnce('Unknown applicationMetadata.onEntry type:', show);
+  return <UnknownError />;
+};
+export const ProtectedRoute: React.FC<PropsWithChildren> = ({ children }) => {
+  const partyIsValid = useCurrentPartyIsValid();
+  if (!partyIsValid) {
     return (
       <Navigate
         to={'/party-selection/403'}
@@ -65,8 +74,7 @@ export const ProtectedRoute = () => {
       />
     );
   }
-
-  return <Outlet />;
+  return children;
 };
 
 export const App = () => (
@@ -75,45 +83,34 @@ export const App = () => (
       path={'/'}
       element={<DefaultComponent />}
     />
+    <Route
+      path='/instance-selection/*'
+      element={
+        <ProtectedRoute>
+          <InstanceSelectionWrapper />
+        </ProtectedRoute>
+      }
+    />
 
     <Route
-      path='/*'
-      element={<ProtectedRoute />}
-    >
-      <Route
-        path='instance-selection/*'
-        element={<InstanceSelectionWrapper />}
-      />
-      <Route
-        path='party-selection/*'
-        element={<PartySelection />}
-      />
-      <Route
-        path='instance/:partyId/:instanceGuid/*'
-        element={
+      path='/party-selection/*'
+      element={<PartySelection />}
+    />
+
+    <Route
+      path='/instance/:partyId/:instanceGuid/*'
+      element={
+        <ProtectedRoute>
           <InstanceProvider>
             <ProcessWrapperWrapper />
           </InstanceProvider>
-        }
-      />
+        </ProtectedRoute>
+      }
+    />
 
-      {/**
-       * Redirects from legacy URLs to new URLs
-       */}
-      <Route
-        path='partyselection/*'
-        element={
-          <Navigate
-            to='/party-selection/'
-            replace={true}
-          />
-        }
-      />
-
-      <Route
-        path='*'
-        element={<ProtectedRoute />}
-      />
-    </Route>
+    <Route
+      path='*'
+      element={<UnknownError />}
+    />
   </Routes>
 );

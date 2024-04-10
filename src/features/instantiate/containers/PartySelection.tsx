@@ -74,7 +74,7 @@ export const PartySelection = () => {
   changeBodyBackground(AltinnAppTheme.altinnPalette.primary.white);
   const classes = useStyles();
   const match = useMatch(`/party-selection/:errorCode`);
-  const errorCode = match?.params.errorCode as 'error' | 'explained' | undefined;
+  const errorCode = match?.params.errorCode as 'error' | 'explained' | '403' | undefined;
 
   const selectParty = useSetCurrentParty();
   const selectedParty = useCurrentParty();
@@ -94,7 +94,7 @@ export const PartySelection = () => {
 
   const onSelectParty = async (party: IParty) => {
     await selectParty(party);
-    navigate('/'); // Back to Entrypoint.tsx, where the next step will be determined
+    navigate('/instance-selection'); // Back to Entrypoint.tsx, where the next step will be determined
   };
 
   function renderParties() {
@@ -150,7 +150,7 @@ export const PartySelection = () => {
   }
 
   function templateErrorMessage() {
-    if (errorCode) {
+    if (errorCode === '403') {
       return (
         <Typography
           data-testid={`error-code-${HttpStatusCodes.Forbidden}`}

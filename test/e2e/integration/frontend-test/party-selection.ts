@@ -1,6 +1,5 @@
 import texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
-
 const appFrontend = new AppFrontend();
 
 const fakeParty = {
@@ -40,13 +39,12 @@ describe('Party selection', () => {
     cy.get(appFrontend.reporteeSelection.reportee).should('have.length', 1).contains('DDG');
   });
 
-  [true].forEach((doNotPromptForParty) => {
-    it.only(`${
+  [true, false].forEach((doNotPromptForParty) => {
+    it(`${
       doNotPromptForParty ? 'Does not prompt' : 'Prompts'
     } for party when doNotPromptForParty = ${doNotPromptForParty}, on instantiation with multiple possible parties`, () => {
       // Intercept active instances
       cy.intercept('**/active', []).as('noActiveInstances');
-
       // Intercept profile doNotPromptForPartyPreference
       cy.intercept('GET', '**/api/v1/profile/user', (req) => {
         req.on('response', (res) => {
@@ -77,7 +75,6 @@ describe('Party selection', () => {
         cy.findByRole('heading', { name: 'Appen for test av app frontend' }).should('not.exist');
 
         cy.snapshot('reportee-selection');
-
         cy.get('[id^="party-"]').eq(0).click();
       }
 
