@@ -39,7 +39,7 @@ export type PluginSettings<Config extends PluginConfig> = Config['settings'];
  * will extend the functionality of the component storage. The output of these functions will be added to the
  * generated code for the component.
  */
-export abstract class NodeStatePlugin<Config extends PluginConfig> {
+export abstract class NodeDefPlugin<Config extends PluginConfig> {
   public import: GenerateImportedSymbol<any>;
 
   public constructor() {
@@ -112,7 +112,7 @@ export abstract class NodeStatePlugin<Config extends PluginConfig> {
 /**
  * Implement this interface if your plugin/component needs to support children in some form.
  */
-export interface NodeStateChildrenPlugin<Config extends PluginConfig> {
+export interface NodeDefChildrenPlugin<Config extends PluginConfig> {
   claimChildren(props: PluginChildClaimerProps<Config>): void;
   pickDirectChildren(state: PluginState<Config>, restriction?: ChildLookupRestriction): NodeRef[];
   pickChild<C extends CompTypes>(state: PluginState<Config>, childId: string, parentPath: string[]): ItemStore<C>;
@@ -120,7 +120,7 @@ export interface NodeStateChildrenPlugin<Config extends PluginConfig> {
   removeChild(state: PluginState<Config>, childNode: LayoutNode): void;
 }
 
-export function isNodeStateChildrenPlugin(plugin: any): plugin is NodeStateChildrenPlugin<any> {
+export function isNodeDefChildrenPlugin(plugin: any): plugin is NodeDefChildrenPlugin<any> {
   return (
     typeof plugin.claimChildren === 'function' &&
     typeof plugin.pickDirectChildren === 'function' &&

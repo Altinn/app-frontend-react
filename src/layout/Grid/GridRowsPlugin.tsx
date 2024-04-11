@@ -2,7 +2,7 @@ import type { CompDef, NodeRef } from '..';
 
 import { CG } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
-import { NodeStatePlugin } from 'src/utils/layout/NodeStatePlugin';
+import { NodeDefPlugin } from 'src/utils/layout/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { GridRows } from 'src/layout/common.generated';
 import type { GridRowsInternal } from 'src/layout/Grid/types';
@@ -11,12 +11,12 @@ import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator
 import type { ItemStore } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
-  NodeStateChildrenPlugin,
+  NodeDefChildrenPlugin,
   PluginChildClaimerProps,
   PluginExprResolver,
   PluginState,
   PluginStateFactoryProps,
-} from 'src/utils/layout/NodeStatePlugin';
+} from 'src/utils/layout/NodeDefPlugin';
 
 interface Config<Type extends CompTypes> {
   componentType: Type;
@@ -32,8 +32,8 @@ interface Config<Type extends CompTypes> {
 }
 
 export class GridRowsPlugin<Type extends CompTypes>
-  extends NodeStatePlugin<Config<Type>>
-  implements NodeStateChildrenPlugin<Config<Type>>
+  extends NodeDefPlugin<Config<Type>>
+  implements NodeDefChildrenPlugin<Config<Type>>
 {
   makeImport() {
     return new CG.import({

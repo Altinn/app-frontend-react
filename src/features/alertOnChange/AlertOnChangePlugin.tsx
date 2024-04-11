@@ -1,9 +1,9 @@
 import { CG } from 'src/codegen/CG';
 import { ExprVal } from 'src/features/expressions/types';
-import { NodeStatePlugin } from 'src/utils/layout/NodeStatePlugin';
+import { NodeDefPlugin } from 'src/utils/layout/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { CompTypes } from 'src/layout/layout';
-import type { PluginExprResolver, PluginExtraInItem } from 'src/utils/layout/NodeStatePlugin';
+import type { PluginExprResolver, PluginExtraInItem } from 'src/utils/layout/NodeDefPlugin';
 
 interface Config<PropName extends string> {
   componentType: CompTypes;
@@ -26,7 +26,7 @@ type ToInternal<E extends ExternalConfig> = Config<E['propName']>;
 /**
  * Add this to your component to configure support for a alertOnDelete/alertOnChange property
  */
-export class AlertOnChangePlugin<E extends ExternalConfig> extends NodeStatePlugin<ToInternal<E>> {
+export class AlertOnChangePlugin<E extends ExternalConfig> extends NodeDefPlugin<ToInternal<E>> {
   constructor(protected settings: E) {
     super();
   }

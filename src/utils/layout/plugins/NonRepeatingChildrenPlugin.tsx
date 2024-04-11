@@ -1,6 +1,6 @@
 import { CG } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
-import { NodeStatePlugin } from 'src/utils/layout/NodeStatePlugin';
+import { NodeDefPlugin } from 'src/utils/layout/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { CompCapabilities } from 'src/codegen/Config';
 import type { NodeRef } from 'src/layout';
@@ -9,12 +9,12 @@ import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator
 import type { ItemStore } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
-  NodeStateChildrenPlugin,
+  NodeDefChildrenPlugin,
   PluginChildClaimerProps,
   PluginExprResolver,
   PluginState,
   PluginStateFactoryProps,
-} from 'src/utils/layout/NodeStatePlugin';
+} from 'src/utils/layout/NodeDefPlugin';
 
 interface Config<
   Type extends TypesFromCategory<CompCategory.Container>,
@@ -59,8 +59,8 @@ type ToInternal<E extends ExternalConfig> = Config<
 >;
 
 export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
-  extends NodeStatePlugin<ToInternal<E>>
-  implements NodeStateChildrenPlugin<ToInternal<E>>
+  extends NodeDefPlugin<ToInternal<E>>
+  implements NodeDefChildrenPlugin<ToInternal<E>>
 {
   protected settings: Combined<E>;
   protected component: ComponentConfig | undefined;

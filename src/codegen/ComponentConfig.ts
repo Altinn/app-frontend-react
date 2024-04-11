@@ -6,7 +6,7 @@ import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSy
 import { GenerateRaw } from 'src/codegen/dataTypes/GenerateRaw';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 import { CompCategory } from 'src/layout/common';
-import { isNodeStateChildrenPlugin, NodeStatePlugin } from 'src/utils/layout/NodeStatePlugin';
+import { isNodeDefChildrenPlugin, NodeDefPlugin } from 'src/utils/layout/NodeDefPlugin';
 import type { ComponentBehaviors, RequiredComponentConfig } from 'src/codegen/Config';
 import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
 import type { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
@@ -18,7 +18,7 @@ import type {
   FormComponent,
   PresentationComponent,
 } from 'src/layout/LayoutComponent';
-import type { NodeStateChildrenPlugin } from 'src/utils/layout/NodeStatePlugin';
+import type { NodeDefChildrenPlugin } from 'src/utils/layout/NodeDefPlugin';
 
 const CategoryImports: { [Category in CompCategory]: GenerateImportedSymbol<any> } = {
   [CompCategory.Action]: new GenerateImportedSymbol<ActionComponent<any>>({
@@ -54,7 +54,7 @@ export class ComponentConfig {
     canHaveLabel: false,
     canHaveOptions: false,
   };
-  protected plugins: NodeStatePlugin<any>[] = [];
+  protected plugins: NodeDefPlugin<any>[] = [];
 
   constructor(public readonly config: RequiredComponentConfig) {
     this.inner.extends(CG.common('ComponentBase'));
@@ -90,7 +90,7 @@ export class ComponentConfig {
     return this;
   }
 
-  public addPlugin(plugin: NodeStatePlugin<any>): this {
+  public addPlugin(plugin: NodeDefPlugin<any>): this {
     for (const existing of this.plugins) {
       if (existing.getKey() === plugin.getKey()) {
         throw new Error(`Component already has a plugin with the key ${plugin.getKey()}!`);
@@ -328,17 +328,17 @@ export class ComponentConfig {
     });
 
     const pluginStateFactories = this.plugins
-      .filter((plugin) => plugin.stateFactory !== NodeStatePlugin.prototype.stateFactory)
+      .filter((plugin) => plugin.stateFactory !== NodeDefPlugin.prototype.stateFactory)
       .map((plugin) => `...this.${plugin.import}.stateFactory(props as any),`)
       .join('\n');
 
     const pluginEvalExpressions = this.plugins
-      .filter((plugin) => plugin.evalDefaultExpressions !== NodeStatePlugin.prototype.evalDefaultExpressions)
+      .filter((plugin) => plugin.evalDefaultExpressions !== NodeDefPlugin.prototype.evalDefaultExpressions)
       .map((plugin) => `...this.${plugin.import}.evalDefaultExpressions(props as any),`)
       .join(',\n');
 
     const pluginGeneratorChildren = this.plugins
-      .filter((plugin) => plugin.extraNodeGeneratorChildren !== NodeStatePlugin.prototype.extraNodeGeneratorChildren)
+      .filter((plugin) => plugin.extraNodeGeneratorChildren !== NodeDefPlugin.prototype.extraNodeGeneratorChildren)
       .map((plugin) => plugin.extraNodeGeneratorChildren())
       .join('\n');
 
@@ -370,8 +370,8 @@ export class ComponentConfig {
     }
 
     const childrenPlugins = this.plugins.filter((plugin) =>
-      isNodeStateChildrenPlugin(plugin),
-    ) as unknown as (NodeStateChildrenPlugin<any> & NodeStatePlugin<any>)[];
+      isNodeDefChildrenPlugin(plugin),
+    ) as unknown as (NodeDefChildrenPlugin<any> & NodeDefPlugin<any>)[];
 
     if (childrenPlugins.length > 0) {
       if (childrenPlugins.length > 1) {
