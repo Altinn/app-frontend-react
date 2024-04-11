@@ -16,18 +16,21 @@ import type { IDataModelReference } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
-export function mergeFieldValidations(...X: FieldValidations[]): FieldValidations {
+export function mergeFieldValidations(...X: (FieldValidations | undefined)[]): FieldValidations {
   if (X.length === 0) {
     return {};
   }
 
   if (X.length === 1) {
-    return X[0];
+    return X[0] ?? {};
   }
 
   const [X1, ...XRest] = X;
-  const out = structuredClone(X1);
+  const out = X1 ? structuredClone(X1) : {};
   for (const Xn of XRest) {
+    if (!Xn) {
+      continue;
+    }
     for (const [field, validations] of Object.entries(structuredClone(Xn))) {
       if (!out[field]) {
         out[field] = [];
@@ -160,7 +163,7 @@ export function getValidationsForNode(
     )) {
       const fieldValidations = selector(
         `field/${reference.dataType}/${reference.property}`,
-        (state) => state.state.dataModels[reference.dataType][reference.property],
+        (state) => state.state.dataModels[reference.dataType]?.[reference.property],
       );
       if (fieldValidations) {
         const validations = filterValidations(selectValidations(fieldValidations, mask, severity), node);

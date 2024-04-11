@@ -231,7 +231,7 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
     return hiddenByParent;
   }
 
-  private firstDataModelBinding() {
+  private firstDataModelBinding(): IDataModelReference | undefined {
     const firstBinding = Object.keys(this.item.dataModelBindings || {}).shift();
     if (firstBinding && 'dataModelBindings' in this.item && this.item.dataModelBindings) {
       return this.item.dataModelBindings[firstBinding];
@@ -268,7 +268,7 @@ export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type exten
     const currentLocationIsRepGroup = this.isType('RepeatingGroup');
     return transposeDataBinding({
       subject: dataModelPath,
-      currentLocation: firstBinding,
+      currentLocation: firstBinding.property,
       rowIndex,
       currentLocationIsRepGroup,
     });

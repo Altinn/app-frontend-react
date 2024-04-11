@@ -134,7 +134,7 @@ function useFormDataSaveMutation(dataType: string) {
 
 function useIsSaving(dataType?: string) {
   const dataModels = useLaxSelector((s) => s.dataModels);
-  const saveUrl = dataType && dataModels !== ContextNotProvided ? dataType[dataType].saveUrl : undefined;
+  const saveUrl = dataType && dataModels !== ContextNotProvided ? dataModels[dataType].saveUrl : undefined;
   return (
     useIsMutating({
       mutationKey: dataType

@@ -21,7 +21,8 @@ import { isDataModelReference } from 'src/utils/databindings';
 import type { SchemaLookupTool } from 'src/features/datamodel/DataModelSchemaProvider';
 import type { BackendValidatorGroups, IExpressionValidations } from 'src/features/validation';
 
-interface DataModelsContext {
+interface DataModelsState {
+  defaultDataType: string | undefined;
   dataTypes: string[] | null;
   initialData: { [dataType: string]: object };
   urls: { [dataType: string]: string };
@@ -30,8 +31,10 @@ interface DataModelsContext {
   schemas: { [dataType: string]: JSONSchema7 };
   schemaLookup: { [dataType: string]: SchemaLookupTool };
   expressionValidationConfigs: { [dataType: string]: IExpressionValidations | null };
+}
 
-  setDataTypes: (dataTypes: string[]) => void;
+interface DataModelsMethods {
+  setDataTypes: (dataTypes: string[], defaultDataType: string | undefined) => void;
   setInitialData: (dataType: string, initialData: object, url: string, dataElementId: string | null) => void;
   setInitialValidations: (dataType: string, initialValidations: BackendValidatorGroups) => void;
   setDataModelSchema: (dataType: string, schema: JSONSchema7, lookupTool: SchemaLookupTool) => void;
@@ -39,7 +42,8 @@ interface DataModelsContext {
 }
 
 function initialCreateStore() {
-  return createStore<DataModelsContext>((set) => ({
+  return createStore<DataModelsState & DataModelsMethods>()((set) => ({
+    defaultDataType: undefined,
     dataTypes: null,
     initialData: {},
     urls: {},
@@ -49,43 +53,57 @@ function initialCreateStore() {
     schemaLookup: {},
     expressionValidationConfigs: {},
 
-    setDataTypes: (dataTypes) => {
-      set((state) => {
-        state.dataTypes = dataTypes;
-        return state;
-      });
+    setDataTypes: (dataTypes, defaultDataType) => {
+      set(() => ({ dataTypes, defaultDataType }));
     },
     setInitialData: (dataType, initialData, url, dataElementId) => {
-      set((state) => {
-        state.initialData[dataType] = initialData;
-        state.urls[dataType] = url;
-        state.dataElementIds[dataType] = dataElementId;
-        return state;
-      });
+      set((state) => ({
+        initialData: {
+          ...state.initialData,
+          [dataType]: initialData,
+        },
+        urls: {
+          ...state.urls,
+          [dataType]: url,
+        },
+        dataElementIds: {
+          ...state.dataElementIds,
+          [dataType]: dataElementId,
+        },
+      }));
     },
     setInitialValidations: (dataType, initialValidations) => {
-      set((state) => {
-        state.initialData[dataType] = initialValidations;
-        return state;
-      });
+      set((state) => ({
+        initialValidations: {
+          ...state.initialValidations,
+          [dataType]: initialValidations,
+        },
+      }));
     },
     setDataModelSchema: (dataType, schema, lookupTool) => {
-      set((state) => {
-        state.schemas[dataType] = schema;
-        state.schemaLookup[dataType] = lookupTool;
-        return state;
-      });
+      set((state) => ({
+        schemas: {
+          ...state.schemas,
+          [dataType]: schema,
+        },
+        schemaLookup: {
+          ...state.schemaLookup,
+          [dataType]: lookupTool,
+        },
+      }));
     },
     setExpressionValidationConfig: (dataType, config) => {
-      set((state) => {
-        state.expressionValidationConfigs[dataType] = config;
-        return state;
-      });
+      set((state) => ({
+        expressionValidationConfigs: {
+          ...state.expressionValidationConfigs,
+          [dataType]: config,
+        },
+      }));
     },
   }));
 }
 
-const { Provider, useSelector } = createZustandContext({
+const { Provider, useSelector, useLaxSelector } = createZustandContext({
   name: 'DataModels',
   required: true,
   initialCreateStore,
@@ -128,19 +146,19 @@ function DataModelsLoader() {
       }
     }
 
-    setDataTypes([...dataTypes]);
+    setDataTypes([...dataTypes], defaultDataType);
   }, [defaultDataType, layouts, setDataTypes]);
 
   return (
     <>
-      {dataTypes?.map((dataType) => {
+      {dataTypes?.map((dataType) => (
         <React.Fragment key={dataType}>
           <LoadInitialData dataType={dataType} />
           <LoadInitialValidations dataType={dataType} />
           <LoadSchema dataType={dataType} />
           <LoadExpressionValidationConfig dataType={dataType} />
-        </React.Fragment>;
-      })}
+        </React.Fragment>
+      ))}
     </>
   );
 }
@@ -228,19 +246,23 @@ function LoadSchema({ dataType }: LoaderProps) {
 
 function LoadExpressionValidationConfig({ dataType }: LoaderProps) {
   const setExpressionValidationConfig = useSelector((state) => state.setExpressionValidationConfig);
-  const { data } = useCustomValidationConfigQuery(dataType);
+  const { data, isSuccess } = useCustomValidationConfigQuery(dataType);
 
   useEffect(() => {
-    if (data) {
+    if (isSuccess) {
       setExpressionValidationConfig(dataType, data);
     }
-  }, [data, dataType, setExpressionValidationConfig]);
+  }, [data, dataType, isSuccess, setExpressionValidationConfig]);
 
   return null;
 }
 
 export const DataModels = {
   useFullState: () => useSelector((state) => state),
+
+  useLaxDefaultDataType: () => useLaxSelector((state) => state.defaultDataType),
+
+  useLaxWritableDataTypes: () => useLaxSelector((state) => state.dataTypes!),
 
   useWritableDataTypes: () => useSelector((state) => state.dataTypes!),
 

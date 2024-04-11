@@ -3,7 +3,6 @@ import type { JSX, ReactNode } from 'react';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
-import { useCurrentDataModelName } from 'src/features/datamodel/useBindingSchema';
 import { DataModelReaders } from 'src/features/formData/FormDataReaders';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
@@ -14,7 +13,7 @@ import { useFormComponentCtx } from 'src/layout/FormComponentContext';
 import { getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { smartLowerCaseFirst } from 'src/utils/formComponentUtils';
-import type { useDataModelReaders } from 'src/features/formData/FormDataReaders';
+import type { DataModelReader, useDataModelReaders } from 'src/features/formData/FormDataReaders';
 import type { TextResourceMap } from 'src/features/language/textResources';
 import type { FixedLanguageList } from 'src/language/languages';
 import type { FormDataSelector } from 'src/layout';
@@ -56,8 +55,8 @@ export interface TextResourceVariablesDataSources {
   instanceDataSources: IInstanceDataSources | null;
   dataModelPath?: string;
   dataModels: ReturnType<typeof useDataModelReaders>;
-  defaultDataType: string | undefined;
-  writableDataTypes: string[];
+  defaultDataType: string | undefined | typeof ContextNotProvided;
+  writableDataTypes: string[] | typeof ContextNotProvided;
   formDataSelector: FormDataSelector | typeof ContextNotProvided;
 }
 
@@ -95,8 +94,8 @@ export function useLanguage(node?: LayoutNode) {
 
 export function useLanguageWithForcedNode(node: LayoutNode | undefined) {
   const { textResources, language, selectedLanguage, ...dataSources } = useLangToolsDataSources() || {};
-  const defaultDataType = useCurrentDataModelName();
-  const writableDataTypes = DataModels.useWritableDataTypes();
+  const defaultDataType = DataModels.useLaxDefaultDataType();
+  const writableDataTypes = DataModels.useLaxWritableDataTypes();
   const formDataSelector = FD.useLaxDebouncedSelector();
 
   return useMemo(() => {
@@ -321,20 +320,26 @@ function replaceVariables(text: string, variables: IVariable[], dataSources: Tex
       const transposedPath = dataModelPath
         ? transposeDataBinding({ subject: cleanPath, currentLocation: dataModelPath })
         : node?.transposeDataModel(cleanPath) || value;
+
       if (transposedPath) {
-        // If the data model is the current one, look up there
-        const modelReader =
-          dataModelName === 'default' || writableDataTypes.includes(dataModelName)
-            ? undefined
-            : dataModels.getReader(dataModelName);
-        const readValue = modelReader
-          ? modelReader.getAsString(transposedPath)
-          : formDataSelector === ContextNotProvided || (dataModelName === 'default' && !defaultDataType)
-            ? undefined
-            : formDataSelector({
-                dataType: dataModelName === 'default' ? defaultDataType! : dataModelName,
-                property: transposedPath,
-              });
+        let readValue: unknown = undefined;
+        let modelReader: DataModelReader | undefined = undefined;
+
+        const dataFromDataModel = tryReadFromDataModel(
+          transposedPath,
+          dataModelName,
+          defaultDataType,
+          writableDataTypes,
+          formDataSelector,
+        );
+
+        if (dataFromDataModel !== dataModelNotReadable) {
+          readValue = dataFromDataModel;
+        } else {
+          modelReader = dataModels.getReader(dataModelName);
+          readValue = modelReader.getAsString(transposedPath);
+        }
+
         const stringValue =
           typeof readValue === 'string' || typeof readValue === 'number' || typeof readValue === 'boolean'
             ? readValue.toString()
@@ -380,6 +385,31 @@ function replaceVariables(text: string, variables: IVariable[], dataSources: Tex
   }
 
   return out;
+}
+
+const dataModelNotReadable = Symbol('dataModelNotReadable');
+function tryReadFromDataModel(
+  path: string,
+  dataModelName: string,
+  defaultDataType: string | undefined | typeof ContextNotProvided,
+  writableDataTypes: string[] | typeof ContextNotProvided,
+  formDataSelector: FormDataSelector | typeof ContextNotProvided,
+): unknown | typeof dataModelNotReadable {
+  if (formDataSelector === ContextNotProvided || writableDataTypes === ContextNotProvided) {
+    return dataModelNotReadable;
+  }
+  if (dataModelName === 'default') {
+    if (typeof defaultDataType !== 'string' || !writableDataTypes.includes(defaultDataType)) {
+      // TODO(Datamodels): should we log a warning/error here?
+      return undefined;
+    }
+    return formDataSelector({ dataType: defaultDataType, property: path });
+  } else {
+    if (!writableDataTypes.includes(dataModelName)) {
+      return dataModelNotReadable;
+    }
+    return formDataSelector({ dataType: dataModelName, property: path });
+  }
 }
 
 function getNestedObject(nestedObj: ILanguage, pathArr: string[]) {

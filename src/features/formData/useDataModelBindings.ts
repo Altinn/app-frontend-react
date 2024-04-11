@@ -87,7 +87,7 @@ export function useDataModelBindings<B extends IDataModelBindings | undefined, D
    * Debounce all data types referenced in bindings
    */
   const debounce = useCallback(() => {
-    const dataTypes = new Set(...Object.values(bindings).map((b: IDataModelReference) => b.dataType));
+    const dataTypes = new Set(Object.values(bindings).map((b: IDataModelReference) => b.dataType));
     for (const dataType of dataTypes) {
       debounceDataType(dataType);
     }
