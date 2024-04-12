@@ -187,7 +187,7 @@ table > tbody > tr.editingRow:hover {
   width: 100%;
 }
 
-.tableRowError {
+.tableRowError > td {
   background-color: var(--repeating-group-error-color);
 }
 
