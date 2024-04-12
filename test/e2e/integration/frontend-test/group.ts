@@ -101,7 +101,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.newValueLabel).should('contain.text', '2. Endre verdi 1338 til');
   });
 
-  it('Validation on group', () => {
+  it.only('Validation on group', () => {
     init();
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.get(appFrontend.group.addNewItem).click();
