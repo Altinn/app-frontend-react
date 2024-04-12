@@ -6,7 +6,7 @@ import type { BaseValidation, ComponentValidation } from 'src/features/validatio
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { CompInternal, CompRendersLabel, CompTypes } from 'src/layout/layout';
-import type { AnyComponent, LayoutComponent } from 'src/layout/LayoutComponent';
+import type { AnyComponent } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export type CompClassMap = {
@@ -15,19 +15,6 @@ export type CompClassMap = {
 
 export type CompClassMapTypes = {
   [K in keyof CompClassMap]: CompClassMap[K]['type'];
-};
-
-// noinspection JSUnusedLocalSymbols
-/**
- * This type is only used to make sure all components exist and are correct in the list above. If any component is
- * missing above, this type will give you an error.
- */
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-const _componentsTypeCheck: {
-  [Type in CompTypes]: { def: LayoutComponent<Type> };
-} = {
-  ...ComponentConfigs,
 };
 
 export interface IComponentProps {
