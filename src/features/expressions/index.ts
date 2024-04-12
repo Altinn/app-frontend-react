@@ -563,6 +563,7 @@ export const ExprFunctions = {
       return pickSimpleValue({ property: propertyPath, dataType }, this.dataSources.formDataSelector);
     },
     args: [ExprVal.String, ExprVal.String] as const,
+    minArguments: 1,
     returns: ExprVal.Any,
   }),
   displayValue: defineFunc({
