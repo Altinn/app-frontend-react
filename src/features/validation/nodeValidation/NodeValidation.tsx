@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import type { ComponentValidations } from '..';
 
 import { Validation } from 'src/features/validation/validationContext';
+import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { implementsAnyValidation, implementsValidateComponent, implementsValidateEmptyField } from 'src/layout';
 import { useNodes } from 'src/utils/layout/NodesContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -30,7 +31,11 @@ function SpecificNodeValidation({ node }: { node: LayoutNode }) {
   const removeComponentValidations = Validation.useRemoveComponentValidations();
   const nodeId = node.item.id;
 
-  // TODO(Datamodels): Will this actually run when only formData changes for a node?
+  const _formData = node.getFormData(node.dataSources.formDataSelector);
+  const _invalidData = node.getFormData(node.dataSources.invalidDataSelector);
+  const formData = useMemoDeepEqual(() => _formData, [_formData]);
+  const invalidData = useMemoDeepEqual(() => _invalidData, [_invalidData]);
+
   useEffect(() => {
     const validations: ComponentValidations[string] = {
       component: [],
@@ -66,7 +71,7 @@ function SpecificNodeValidation({ node }: { node: LayoutNode }) {
     }
 
     updateComponentValidations(nodeId, validations);
-  }, [node, nodeId, updateComponentValidations]);
+  }, [node, nodeId, updateComponentValidations, formData, invalidData]);
 
   // Cleanup on unmount
   useEffect(() => () => removeComponentValidations(nodeId), [nodeId, removeComponentValidations]);

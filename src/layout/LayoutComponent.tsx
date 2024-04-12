@@ -307,7 +307,7 @@ export abstract class FormComponent<Type extends CompTypes> extends _FormCompone
     const formData = node.getFormData(node.dataSources.formDataSelector);
     const invalidData = node.getFormData(node.dataSources.invalidDataSelector);
     for (const bindingKey of Object.keys(node.item.dataModelBindings)) {
-      const data = formData[bindingKey] ?? invalidData[bindingKey];
+      const data = formData[bindingKey] || invalidData[bindingKey];
       const asString =
         typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : '';
       const trb: ITextResourceBindings = 'textResourceBindings' in node.item ? node.item.textResourceBindings : {};

@@ -56,7 +56,7 @@ export class List extends ListDef {
     const formData = node.getFormData(node.dataSources.formDataSelector);
     const invalidData = node.getFormData(node.dataSources.invalidDataSelector);
     for (const bindingKey of Object.keys(node.item.dataModelBindings)) {
-      const data = formData[bindingKey] ?? invalidData[bindingKey];
+      const data = formData[bindingKey] || invalidData[bindingKey];
       const dataAsString =
         typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : undefined;
 
