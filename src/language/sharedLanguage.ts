@@ -15,7 +15,7 @@ marked.use(mangle());
 
 DOMPurify.addHook('afterSanitizeAttributes', (node) => {
   if (node.tagName === 'A') {
-    node.classList.add('linkFromTextResource');
+    node.classList.add('altinnLink');
     const url = node.getAttribute('href') || '';
     if (url.startsWith('http') && !url.match(/(local\.altinn|altinn\.no|altinn\.cloud|basefarm\.net)/)) {
       node.classList.add('target-external');
