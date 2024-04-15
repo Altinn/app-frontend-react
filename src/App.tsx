@@ -1,57 +1,23 @@
 import React from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import type { PropsWithChildren } from 'react';
 
 import { ProcessWrapperWrapper } from 'src/components/wrappers/ProcessWrapper';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
+import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { PartySelection } from 'src/features/instantiate/containers/PartySelection';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { InstanceSelectionWrapper } from 'src/features/instantiate/selection/InstanceSelection';
-import { useCurrentPartyIsValid, useValidParties } from 'src/features/party/PartiesProvider';
+import { useCurrentParty, useCurrentPartyIsValid, useValidParties } from 'src/features/party/PartiesProvider';
 import { useProfile } from 'src/features/profile/ProfileProvider';
-import { usePromptForParty } from 'src/hooks/usePromptForParty';
 import type { ShowTypes } from 'src/features/applicationMetadata';
-export const DefaultComponent = () => {
-  const applicationMetadata = useApplicationMetadata();
-  const show: ShowTypes = applicationMetadata.onEntry?.show ?? 'new-instance';
-  const validParties = useValidParties();
-  const profile = useProfile();
-  const partyIsValid = useCurrentPartyIsValid();
-  const alwaysPromptForParty = usePromptForParty();
 
-  if (!partyIsValid) {
-    return (
-      <Navigate
-        to={'/party-selection/403'}
-        replace={true}
-      />
-    );
-  }
-
-  if (alwaysPromptForParty) {
-    return (
-      <Navigate
-        to={'/party-selection/explained'}
-        replace={true}
-      />
-    );
-  }
-
-  if (validParties?.length && validParties?.length > 1 && !profile?.profileSettingPreference.doNotPromptForParty) {
-    return (
-      <Navigate
-        to={'/party-selection/explained'}
-        replace={true}
-      />
-    );
-  }
-
+const ShowOrInstantiate: React.FC<{ show: ShowTypes }> = ({ show }) => {
   if (show === 'select-instance') {
     return (
       <Navigate
-        to={'/instance-selection/'}
+        to={'/instance-selection'}
         replace={true}
       />
     );
@@ -64,8 +30,17 @@ export const DefaultComponent = () => {
   window.logErrorOnce('Unknown applicationMetadata.onEntry type:', show);
   return <UnknownError />;
 };
-export const ProtectedRoute: React.FC<PropsWithChildren> = ({ children }) => {
+
+export const DefaultComponent = () => {
+  const applicationMetadata = useApplicationMetadata();
+  const show: ShowTypes = applicationMetadata.onEntry?.show ?? 'new-instance';
+  const validParties = useValidParties();
+  const profile = useProfile();
+  const currentParty = useCurrentParty();
   const partyIsValid = useCurrentPartyIsValid();
+
+  console.log('partyIsValid', partyIsValid);
+  //debugger;
   if (!partyIsValid) {
     return (
       <Navigate
@@ -74,7 +49,49 @@ export const ProtectedRoute: React.FC<PropsWithChildren> = ({ children }) => {
       />
     );
   }
-  return children;
+
+  if (!validParties?.length) {
+    return <NoValidPartiesError />;
+  }
+
+  if (validParties?.length === 1) {
+    return <ShowOrInstantiate show={show} />;
+  }
+
+  if (validParties?.length && validParties?.length > 1) {
+    console.log('more than one valid party');
+
+    if (applicationMetadata.promptForParty === 'always') {
+      console.log('ARE WE GETTING HERE?????');
+
+      console.log('promptForParty always');
+      return (
+        <Navigate
+          to={'/party-selection/explained'}
+          replace={true}
+        />
+      );
+    }
+
+    if (applicationMetadata.promptForParty === 'never') {
+      console.log('promptForParty never');
+      return <ShowOrInstantiate show={show} />;
+    }
+
+    if (profile?.profileSettingPreference.doNotPromptForParty) {
+      console.log('doNotPromptForParty = true');
+      return <ShowOrInstantiate show={show} />;
+    }
+    console.log('doNotPromptForParty = false');
+    return (
+      <Navigate
+        to={'/party-selection/explained'}
+        replace={true}
+      />
+    );
+  }
+  //debugger;
+  return <UnknownError />;
 };
 
 export const App = () => (
@@ -85,11 +102,7 @@ export const App = () => (
     />
     <Route
       path='/instance-selection/*'
-      element={
-        <ProtectedRoute>
-          <InstanceSelectionWrapper />
-        </ProtectedRoute>
-      }
+      element={<InstanceSelectionWrapper />}
     />
 
     <Route
@@ -100,11 +113,9 @@ export const App = () => (
     <Route
       path='/instance/:partyId/:instanceGuid/*'
       element={
-        <ProtectedRoute>
-          <InstanceProvider>
-            <ProcessWrapperWrapper />
-          </InstanceProvider>
-        </ProtectedRoute>
+        <InstanceProvider>
+          <ProcessWrapperWrapper />
+        </InstanceProvider>
       }
     />
 
