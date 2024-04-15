@@ -7,12 +7,12 @@ import { AddressDef } from 'src/layout/Address/config.def.generated';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
-import type { ComponentValidation } from 'src/features/validation';
+import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class Address extends AddressDef implements ValidateComponent {
+export class Address extends AddressDef implements ValidateComponent<'Address'> {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Address'>>(
     function LayoutComponentAddressRender(props, _): JSX.Element | null {
       return <AddressComponent {...props} />;
@@ -33,13 +33,16 @@ export class Address extends AddressDef implements ValidateComponent {
     return false;
   }
 
-  runComponentValidation(node: LayoutNode<'Address'>): ComponentValidation[] {
+  runComponentValidation(
+    node: LayoutNode<'Address'>,
+    { formData }: ValidationDataSources<'Address'>,
+  ): ComponentValidation[] {
     if (!node.item.dataModelBindings) {
       return [];
     }
     const validations: ComponentValidation[] = [];
 
-    const { zipCode, houseNumber } = node.getFormData(node.dataSources.formDataSelector);
+    const { zipCode, houseNumber } = formData;
 
     const zipCodeAsString = typeof zipCode === 'string' || typeof zipCode === 'number' ? String(zipCode) : undefined;
 

@@ -10,7 +10,7 @@ import { getDateConstraint, getDateFormat } from 'src/utils/dateHelpers';
 import { formatISOString } from 'src/utils/formatDate';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
-import type { BaseValidation, ComponentValidation } from 'src/features/validation';
+import type { BaseValidation, ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type {
   PropsFromGenericComponent,
   ValidateComponent,
@@ -20,7 +20,7 @@ import type {
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class Datepicker extends DatepickerDef implements ValidateComponent, ValidationFilter {
+export class Datepicker extends DatepickerDef implements ValidateComponent<'Datepicker'>, ValidationFilter {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Datepicker'>>(
     function LayoutComponentDatepickerRender(props, _): JSX.Element | null {
       return <DatepickerComponent {...props} />;
@@ -47,9 +47,11 @@ export class Datepicker extends DatepickerDef implements ValidateComponent, Vali
     );
   }
 
-  runComponentValidation(node: LayoutNode<'Datepicker'>): ComponentValidation[] {
-    const currentLanguage = node.dataSources.currentLanguage;
-    const data = node.getFormData(node.dataSources.formDataSelector).simpleBinding;
+  runComponentValidation(
+    node: LayoutNode<'Datepicker'>,
+    { formData, currentLanguage }: ValidationDataSources<'Datepicker'>,
+  ): ComponentValidation[] {
+    const data = formData.simpleBinding;
     const dataAsString = typeof data === 'string' || typeof data === 'number' ? String(data) : undefined;
 
     if (!dataAsString) {

@@ -8,12 +8,12 @@ import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/Attach
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
-import type { ComponentValidation } from 'src/features/validation';
+import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class FileUpload extends FileUploadDef implements ValidateComponent {
+export class FileUpload extends FileUploadDef implements ValidateComponent<'FileUpload'> {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'FileUpload'>>(
     function LayoutComponentFileUploadRender(props, _): JSX.Element | null {
       return <FileUploadComponent {...props} />;
@@ -37,14 +37,16 @@ export class FileUpload extends FileUploadDef implements ValidateComponent {
     return [];
   }
 
-  runComponentValidation(node: LayoutNode<'FileUpload'>): ComponentValidation[] {
-    const attachments = node.dataSources.attachments;
+  runComponentValidation(
+    node: LayoutNode<'FileUpload'>,
+    { attachments }: ValidationDataSources<'FileUpload'>,
+  ): ComponentValidation[] {
     const validations: ComponentValidation[] = [];
 
     // Validate minNumberOfAttachments
     if (
       node.item.minNumberOfAttachments > 0 &&
-      (!attachments[node.item.id] || attachments[node.item.id]!.length < node.item.minNumberOfAttachments)
+      (!attachments || attachments.length < node.item.minNumberOfAttachments)
     ) {
       validations.push({
         message: {

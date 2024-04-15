@@ -15,7 +15,7 @@ import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGen
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayData, DisplayDataProps } from 'src/features/displayData';
-import type { ComponentValidation } from 'src/features/validation';
+import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { FormDataSelector, PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
 import type {
@@ -294,18 +294,22 @@ export abstract class ActionComponent<Type extends CompTypes> extends AnyCompone
   }
 }
 
-export abstract class FormComponent<Type extends CompTypes> extends _FormComponent<Type> implements ValidateEmptyField {
+export abstract class FormComponent<Type extends CompTypes>
+  extends _FormComponent<Type>
+  implements ValidateEmptyField<Type>
+{
   readonly type = CompCategory.Form;
 
-  runEmptyFieldValidation(node: LayoutNode<Type>): ComponentValidation[] {
+  runEmptyFieldValidation(
+    node: LayoutNode<Type>,
+    { formData, invalidData }: ValidationDataSources<Type>,
+  ): ComponentValidation[] {
     if (!('required' in node.item) || !node.item.required || !node.item.dataModelBindings) {
       return [];
     }
 
     const validations: ComponentValidation[] = [];
 
-    const formData = node.getFormData(node.dataSources.formDataSelector);
-    const invalidData = node.getFormData(node.dataSources.invalidDataSelector);
     for (const bindingKey of Object.keys(node.item.dataModelBindings)) {
       const data = formData[bindingKey] || invalidData[bindingKey];
       const asString =

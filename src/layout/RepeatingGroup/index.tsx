@@ -16,7 +16,7 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent, ValidationFilter {
+export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent<'RepeatingGroup'>, ValidationFilter {
   private _hierarchyGenerator = new GroupHierarchyGenerator();
 
   directRender(): boolean {

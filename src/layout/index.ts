@@ -2,7 +2,7 @@ import type { MutableRefObject } from 'react';
 
 import { ComponentConfigs } from 'src/layout/components.generated';
 import type { DisplayData } from 'src/features/displayData';
-import type { BaseValidation, ComponentValidation } from 'src/features/validation';
+import type { BaseValidation, ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { CompInternal, CompRendersLabel, CompTypes } from 'src/layout/layout';
@@ -45,23 +45,23 @@ export function implementsAnyValidation<Type extends CompTypes>(component: AnyCo
   return 'runEmptyFieldValidation' in component || 'runComponentValidation' in component;
 }
 
-export interface ValidateEmptyField {
-  runEmptyFieldValidation: (node: LayoutNode) => ComponentValidation[];
+export interface ValidateEmptyField<Type extends CompTypes> {
+  runEmptyFieldValidation: (node: LayoutNode<Type>, dataSources: ValidationDataSources<Type>) => ComponentValidation[];
 }
 
 export function implementsValidateEmptyField<Type extends CompTypes>(
   component: AnyComponent<Type>,
-): component is typeof component & ValidateEmptyField {
+): component is typeof component & ValidateEmptyField<Type> {
   return 'runEmptyFieldValidation' in component;
 }
 
-export interface ValidateComponent {
-  runComponentValidation: (node: LayoutNode) => ComponentValidation[];
+export interface ValidateComponent<Type extends CompTypes> {
+  runComponentValidation: (node: LayoutNode<Type>, dataSources: ValidationDataSources<Type>) => ComponentValidation[];
 }
 
 export function implementsValidateComponent<Type extends CompTypes>(
   component: AnyComponent<Type>,
-): component is typeof component & ValidateComponent {
+): component is typeof component & ValidateComponent<Type> {
   return 'runComponentValidation' in component;
 }
 

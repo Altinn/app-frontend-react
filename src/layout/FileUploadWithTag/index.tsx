@@ -8,12 +8,12 @@ import { FileUploadWithTagDef } from 'src/layout/FileUploadWithTag/config.def.ge
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
-import type { ComponentValidation } from 'src/features/validation';
+import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateComponent {
+export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateComponent<'FileUploadWithTag'> {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'FileUploadWithTag'>>(
     function LayoutComponentFileUploadWithTagRender(props, _): JSX.Element | null {
       return <FileUploadComponent {...props} />;
@@ -37,14 +37,16 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
     return [];
   }
 
-  runComponentValidation(node: LayoutNode<'FileUploadWithTag'>): ComponentValidation[] {
-    const attachments = node.dataSources.attachments;
+  runComponentValidation(
+    node: LayoutNode<'FileUploadWithTag'>,
+    { attachments }: ValidationDataSources<'FileUploadWithTag'>,
+  ): ComponentValidation[] {
     const validations: ComponentValidation[] = [];
 
     // Validate minNumberOfAttachments
     if (
       node.item.minNumberOfAttachments > 0 &&
-      (!attachments[node.item.id] || attachments[node.item.id]!.length < node.item.minNumberOfAttachments)
+      (!attachments || attachments.length < node.item.minNumberOfAttachments)
     ) {
       validations.push({
         message: {
@@ -60,7 +62,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
     }
 
     // Validate missing tags
-    for (const attachment of attachments[node.item.id] || []) {
+    for (const attachment of attachments || []) {
       if (
         isAttachmentUploaded(attachment) &&
         (attachment.data.tags === undefined || attachment.data.tags.length === 0)

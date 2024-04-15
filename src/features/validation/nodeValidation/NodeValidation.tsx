@@ -1,11 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
-import type { ComponentValidations } from '..';
+import type { ComponentValidations, ValidationDataSources } from '..';
 
+import { useAttachments } from 'src/features/attachments/AttachmentsContext';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { Validation } from 'src/features/validation/validationContext';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { implementsAnyValidation, implementsValidateComponent, implementsValidateEmptyField } from 'src/layout';
 import { useNodes } from 'src/utils/layout/NodesContext';
+import type { CompTypes } from 'src/layout/layout';
+import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function NodeValidation() {
@@ -26,15 +30,12 @@ export function NodeValidation() {
   );
 }
 
-function SpecificNodeValidation({ node }: { node: LayoutNode }) {
+function SpecificNodeValidation<Type extends CompTypes>({ node }: { node: LayoutNode<Type> }) {
   const updateComponentValidations = Validation.useUpdateComponentValidations();
   const removeComponentValidations = Validation.useRemoveComponentValidations();
   const nodeId = node.item.id;
 
-  const _formData = node.getFormData(node.dataSources.formDataSelector);
-  const _invalidData = node.getFormData(node.dataSources.invalidDataSelector);
-  const formData = useMemoDeepEqual(() => _formData, [_formData]);
-  const invalidData = useMemoDeepEqual(() => _invalidData, [_invalidData]);
+  const validationDataSources = useValidationDataSourcesForNode(node);
 
   useEffect(() => {
     const validations: ComponentValidations[string] = {
@@ -48,7 +49,7 @@ function SpecificNodeValidation({ node }: { node: LayoutNode }) {
      * Run required validation
      */
     if (implementsValidateEmptyField(node.def)) {
-      for (const validation of node.def.runEmptyFieldValidation(node as any)) {
+      for (const validation of node.def.runEmptyFieldValidation(node as any, validationDataSources as any)) {
         if (validation.bindingKey) {
           validations.bindingKeys[validation.bindingKey].push(validation);
         } else {
@@ -61,7 +62,7 @@ function SpecificNodeValidation({ node }: { node: LayoutNode }) {
      * Run component validation
      */
     if (implementsValidateComponent(node.def)) {
-      for (const validation of node.def.runComponentValidation(node as any)) {
+      for (const validation of node.def.runComponentValidation(node as any, validationDataSources as any)) {
         if (validation.bindingKey) {
           validations.bindingKeys[validation.bindingKey].push(validation);
         } else {
@@ -71,10 +72,33 @@ function SpecificNodeValidation({ node }: { node: LayoutNode }) {
     }
 
     updateComponentValidations(nodeId, validations);
-  }, [node, nodeId, updateComponentValidations, formData, invalidData]);
+  }, [node, nodeId, updateComponentValidations, validationDataSources]);
 
   // Cleanup on unmount
   useEffect(() => () => removeComponentValidations(nodeId), [nodeId, removeComponentValidations]);
 
   return null;
+}
+
+function useValidationDataSourcesForNode<T extends CompTypes>(node: LayoutNode<T>): ValidationDataSources<T> {
+  const currentLanguage = useCurrentLanguage();
+
+  const _formData = node.getFormData(node.dataSources.formDataSelector) as IComponentFormData<T>;
+  const formData = useMemoDeepEqual(() => _formData, [_formData]);
+
+  const _invalidData = node.getFormData(node.dataSources.invalidDataSelector) as IComponentFormData<T>;
+  const invalidData = useMemoDeepEqual(() => _invalidData, [_invalidData]);
+
+  const _attachments = useAttachments()[node.item.id];
+  const attachments = useMemoDeepEqual(() => _attachments, [_attachments]);
+
+  return useMemo(
+    () => ({
+      currentLanguage,
+      formData,
+      invalidData,
+      attachments,
+    }),
+    [attachments, currentLanguage, formData, invalidData],
+  );
 }

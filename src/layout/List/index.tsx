@@ -8,7 +8,7 @@ import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
-import type { ComponentValidation } from 'src/features/validation';
+import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -42,7 +42,10 @@ export class List extends ListDef {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
-  runEmptyFieldValidation(node: LayoutNode<'List'>): ComponentValidation[] {
+  runEmptyFieldValidation(
+    node: LayoutNode<'List'>,
+    { formData, invalidData }: ValidationDataSources<'List'>,
+  ): ComponentValidation[] {
     if (!node.item.required || !node.item.dataModelBindings) {
       return [];
     }
@@ -53,8 +56,6 @@ export class List extends ListDef {
 
     let listHasErrors = false;
 
-    const formData = node.getFormData(node.dataSources.formDataSelector);
-    const invalidData = node.getFormData(node.dataSources.invalidDataSelector);
     for (const bindingKey of Object.keys(node.item.dataModelBindings)) {
       const data = formData[bindingKey] || invalidData[bindingKey];
       const dataAsString =
