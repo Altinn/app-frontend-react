@@ -822,12 +822,13 @@ describe('Validation', () => {
         }
       });
 
+      cy.goto('changename');
+      cy.waitForLoad();
+
       let c = 0;
       cy.intercept('PATCH', '**/data/**', () => {
         c++;
       }).as('patchData');
-
-      cy.goto('changename');
 
       cy.get(appFrontend.changeOfName.dateOfEffect).type('01012020');
       cy.wait('@patchData').then(() => {
