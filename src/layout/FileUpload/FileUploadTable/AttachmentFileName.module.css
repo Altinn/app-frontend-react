@@ -13,6 +13,7 @@
 }
 
 .download {
+  display: flex;
   gap: 0;
 }
 
