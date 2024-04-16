@@ -62,14 +62,14 @@ const ExamplePerson1: IParty = {
   childParties: null,
 };
 
-const Sophie: IParty = {
-  partyId: 501337,
+const OlaNordmann: IParty = {
+  partyId: 512345,
   partyUuid: null,
   partyTypeName: 1,
   orgNumber: null,
-  ssn: '01039012345',
+  ssn: '01017512345',
   unitType: null,
-  name: 'Sophie Salt',
+  name: 'Ola Nordmann',
   isDeleted: false,
   onlyHierarchyElementWithNoAccess: false,
   organization: null,
@@ -153,7 +153,6 @@ describe('Party selection', () => {
   it('Party selection filtering and search', () => {
     mockResponses({ allowedToInstantiate: [ExampleOrgWithSubUnit, ExampleDeletedOrg] });
     cy.startAppInstance(appFrontend.apps.frontendTest);
-
     cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
     cy.get(appFrontend.reporteeSelection.error).contains(texts.selectNewReportee);
     cy.findByText('underenheter').click();
@@ -230,39 +229,6 @@ describe('Party selection', () => {
     cy.get('[data-testid=StatusCode').should('exist');
   });
 
-  // it.only('Should prompt fo', () => {
-  //   mockResponses({
-  //     allowedToInstantiate: [],
-  //     partyTypesAllowed: {
-  //       person: false,
-  //       subUnit: false,
-  //       bankruptcyEstate: false,
-  //       organisation: true,
-  //     },
-  //   });
-  //   cy.startAppInstance(appFrontend.apps.frontendTest);
-  //   cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
-  //   cy.get('[data-testid=StatusCode').should('exist');
-  // });
-
-  // it('Selecting a party should instantiate using that party', () => {
-  //   // TODO: Implement the rest
-  // });
-
-  // it('Auto-selecting a party when only one is available should instantiate using that party', () => {
-  //   mockResponses({
-  //     allowedToInstantiate: [ExamplePerson1],
-  //     partyTypesAllowed: {
-  //       person: true,
-  //       subUnit: false,
-  //       bankruptcyEstate: false,
-  //       organisation: false,
-  //     },
-  //   });
-  //
-  //   // TODO: Implement the rest
-  // });
-
   [true, false].forEach((doNotPromptForParty) => {
     it(`${
       doNotPromptForParty ? 'Does not prompt' : 'Prompts'
@@ -317,18 +283,15 @@ describe('Party selection', () => {
     });
   });
 
-  // Correctly overrides the profile doNotPromptForPartyPreference when doNotPromptForPartyPreference=true and appPromptForPartyOverride=always
-
   [
     { doNotPromptForPartyPreference: true, appPromptForPartyOverride: 'always' as const },
-    //{ doNotPromptForPartyPreference: false, appPromptForPartyOverride: 'never' as const },
+    { doNotPromptForPartyPreference: false, appPromptForPartyOverride: 'never' as const },
   ].forEach(({ doNotPromptForPartyPreference, appPromptForPartyOverride }) => {
-    it.only(`Correctly overrides the profile doNotPromptForPartyPreference when doNotPromptForPartyPreference=${doNotPromptForPartyPreference} and appPromptForPartyOverride=${appPromptForPartyOverride}`, () => {
+    it(`Correctly overrides the profile doNotPromptForPartyPreference when doNotPromptForPartyPreference=${doNotPromptForPartyPreference} and appPromptForPartyOverride=${appPromptForPartyOverride}`, () => {
       mockResponses({
         doNotPromptForParty: doNotPromptForPartyPreference,
         appPromptForPartyOverride,
-        allowedToInstantiate: [Sophie, ExamplePerson2],
-        currentParty: Sophie,
+        allowedToInstantiate: [OlaNordmann, ExamplePerson2],
       });
       cy.startAppInstance(appFrontend.apps.frontendTest);
       cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');

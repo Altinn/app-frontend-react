@@ -38,9 +38,6 @@ export const DefaultComponent = () => {
   const profile = useProfile();
   const currentParty = useCurrentParty();
   const partyIsValid = useCurrentPartyIsValid();
-
-  console.log('partyIsValid', partyIsValid);
-  //debugger;
   if (!partyIsValid) {
     return (
       <Navigate
@@ -90,7 +87,6 @@ export const DefaultComponent = () => {
       />
     );
   }
-  //debugger;
   return <UnknownError />;
 };
 
