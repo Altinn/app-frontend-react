@@ -80,13 +80,9 @@ function useFormDataSaveMutation(dataType: string) {
   const waitFor = useWaitForState<{ prev: object; next: object }, FormDataContext>(useStore());
   const useIsSavingRef = useAsRef(useIsSaving(dataType));
 
-  return useMutation({
+  const utils = useMutation({
     mutationKey: ['saveFormData', dataModelUrl],
     mutationFn: async (): Promise<FDSaveFinished | undefined> => {
-      if (useIsSavingRef.current) {
-        return;
-      }
-
       // While we could get the next model from a ref, we want to make sure we get the latest model after debounce
       // at the moment we're saving. This is especially important when automatically saving (and debouncing) when
       // navigating away from the form context.
@@ -130,6 +126,23 @@ function useFormDataSaveMutation(dataType: string) {
       !result && cancelSave(dataType);
     },
   });
+
+  const _mutate = utils.mutate;
+  const mutate: typeof utils.mutate = useCallback(
+    (...args) => {
+      // Check if save has already started before calling mutate
+      if (useIsSavingRef.current) {
+        return;
+      }
+      return _mutate(...args);
+    },
+    [useIsSavingRef, _mutate],
+  );
+
+  return {
+    ...utils,
+    mutate,
+  };
 }
 
 function useIsSaving(dataType?: string) {
