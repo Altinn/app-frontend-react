@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Button, Table } from '@digdir/design-system-react';
+import { Button, Table } from '@digdir/designsystemet-react';
 import { Grid } from '@material-ui/core';
 import { Delete as DeleteIcon, Edit as EditIcon, ErrorColored as ErrorIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
@@ -237,7 +237,17 @@ export function RepeatingGroupTableRow({
                   className={classes.tableButton}
                 >
                   {editButtonText}
-                  {rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
+                  {rowHasErrors ? (
+                    <ErrorIcon
+                      fontSize='1rem'
+                      aria-hidden='true'
+                    />
+                  ) : (
+                    <EditIcon
+                      fontSize='1rem'
+                      aria-hidden='true'
+                    />
+                  )}
                 </Button>
               </div>
             </Table.Cell>
@@ -284,7 +294,17 @@ export function RepeatingGroupTableRow({
                 className={classes.tableButton}
               >
                 {(isEditingRow || !mobileViewSmall) && editButtonText}
-                {rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
+                {rowHasErrors ? (
+                  <ErrorIcon
+                    fontSize='1rem'
+                    aria-hidden='true'
+                  />
+                ) : (
+                  <EditIcon
+                    fontSize='1rem'
+                    aria-hidden='true'
+                  />
+                )}
               </Button>
             )}
             {editForRow?.deleteButton !== false && (
@@ -375,7 +395,10 @@ const DeleteElement = ({
       className={classes.tableButton}
     >
       {children}
-      <DeleteIcon aria-hidden='true' />
+      <DeleteIcon
+        fontSize='1rem'
+        aria-hidden='true'
+      />
     </Button>
   </ConditionalWrapper>
 );
