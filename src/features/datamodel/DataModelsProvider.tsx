@@ -7,9 +7,9 @@ import type { JSONSchema7 } from 'json-schema';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { Loader } from 'src/core/loading/Loader';
 import { getFirstDataElementId } from 'src/features/applicationMetadata/appMetadataUtils';
-import { useCustomValidationConfigQuery } from 'src/features/customValidation/CustomValidationContext';
-import { useDataModelSchemaQuery } from 'src/features/datamodel/DataModelSchemaProvider';
+import { useCustomValidationConfigQuery } from 'src/features/customValidation/useCustomValidationQuery';
 import { useCurrentDataModelName, useDataModelUrl } from 'src/features/datamodel/useBindingSchema';
+import { useDataModelSchemaQuery } from 'src/features/datamodel/useDataModelSchemaQuery';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { FormDataWriteProvider } from 'src/features/formData/FormDataWrite';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
@@ -18,7 +18,7 @@ import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { useBackendValidationQuery } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { isDataModelReference } from 'src/utils/databindings';
-import type { SchemaLookupTool } from 'src/features/datamodel/DataModelSchemaProvider';
+import type { SchemaLookupTool } from 'src/features/datamodel/useDataModelSchemaQuery';
 import type { BackendValidatorGroups, IExpressionValidations } from 'src/features/validation';
 
 interface DataModelsState {

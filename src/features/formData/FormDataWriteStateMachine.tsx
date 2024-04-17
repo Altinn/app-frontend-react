@@ -8,7 +8,7 @@ import { convertData } from 'src/features/formData/convertData';
 import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
 import { runLegacyRules } from 'src/features/formData/LegacyRules';
 import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
-import type { SchemaLookupTool } from 'src/features/datamodel/DataModelSchemaProvider';
+import type { SchemaLookupTool } from 'src/features/datamodel/useDataModelSchemaQuery';
 import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { FDLeafValue } from 'src/features/formData/FormDataWrite';
 import type { FormDataWriteProxies, Proxy } from 'src/features/formData/FormDataWriteProxies';

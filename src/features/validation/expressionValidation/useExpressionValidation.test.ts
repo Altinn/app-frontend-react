@@ -3,8 +3,8 @@ import dot from 'dot-object';
 import fs from 'node:fs';
 
 import { getHierarchyDataSourcesMock } from 'src/__mocks__/getHierarchyDataSourcesMock';
-import * as CustomValidationContext from 'src/features/customValidation/CustomValidationContext';
 import { resolveExpressionValidationConfig } from 'src/features/customValidation/customValidationUtils';
+import * as CustomValidationContext from 'src/features/customValidation/useCustomValidationQuery';
 import { convertLayouts } from 'src/features/expressions/shared';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { staticUseLanguageForTests } from 'src/features/language/useLanguage';

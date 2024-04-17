@@ -1,8 +1,8 @@
 import { renderHook } from '@testing-library/react';
 import type { JSONSchema7 } from 'json-schema';
 
-import * as DataModelSchemaProvider from 'src/features/datamodel/DataModelSchemaProvider';
 import * as UseBindingSchema from 'src/features/datamodel/useBindingSchema';
+import * as DataModelSchemaProvider from 'src/features/datamodel/useDataModelSchemaQuery';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useSchemaValidation } from 'src/features/validation/schemaValidation/useSchemaValidation';
 import type { IDataType } from 'src/types/shared';

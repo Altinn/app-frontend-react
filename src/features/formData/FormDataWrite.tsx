@@ -20,7 +20,7 @@ import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
-import type { SchemaLookupTool } from 'src/features/datamodel/DataModelSchemaProvider';
+import type { SchemaLookupTool } from 'src/features/datamodel/useDataModelSchemaQuery';
 import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { FormDataWriteProxies } from 'src/features/formData/FormDataWriteProxies';
 import type {
