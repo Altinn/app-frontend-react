@@ -37,7 +37,7 @@ describe('UI Components', () => {
       cy.wrap(alert).find('b').should('have.length', 1);
       cy.wrap(alert).find('a').should('have.length', 1);
     });
-    cy.percySnapshot();
+    cy.snapshot('helptext');
   });
 
   it('while file upload is in progress, the animation should be visible', () => {
