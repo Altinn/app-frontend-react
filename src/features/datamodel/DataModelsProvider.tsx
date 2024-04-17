@@ -5,6 +5,7 @@ import { createStore } from 'zustand';
 import type { JSONSchema7 } from 'json-schema';
 
 import { createZustandContext } from 'src/core/contexts/zustandContext';
+import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { getFirstDataElementId } from 'src/features/applicationMetadata/appMetadataUtils';
 import { useCustomValidationConfigQuery } from 'src/features/customValidation/useCustomValidationQuery';
@@ -15,9 +16,12 @@ import { FormDataWriteProvider } from 'src/features/formData/FormDataWrite';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
+import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { useBackendValidationQuery } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { isDataModelReference } from 'src/utils/databindings';
+import { isAxiosError } from 'src/utils/isAxiosError';
+import { HttpStatusCodes } from 'src/utils/network/networking';
 import type { SchemaLookupTool } from 'src/features/datamodel/useDataModelSchemaQuery';
 import type { BackendValidatorGroups, IExpressionValidations } from 'src/features/validation';
 
@@ -31,6 +35,7 @@ interface DataModelsState {
   schemas: { [dataType: string]: JSONSchema7 };
   schemaLookup: { [dataType: string]: SchemaLookupTool };
   expressionValidationConfigs: { [dataType: string]: IExpressionValidations | null };
+  error: Error | null;
 }
 
 interface DataModelsMethods {
@@ -39,6 +44,7 @@ interface DataModelsMethods {
   setInitialValidations: (dataType: string, initialValidations: BackendValidatorGroups) => void;
   setDataModelSchema: (dataType: string, schema: JSONSchema7, lookupTool: SchemaLookupTool) => void;
   setExpressionValidationConfig: (dataType: string, config: IExpressionValidations | null) => void;
+  setError: (error: Error) => void;
 }
 
 function initialCreateStore() {
@@ -52,6 +58,7 @@ function initialCreateStore() {
     schemas: {},
     schemaLookup: {},
     expressionValidationConfigs: {},
+    error: null,
 
     setDataTypes: (dataTypes, defaultDataType) => {
       set(() => ({ dataTypes, defaultDataType }));
@@ -99,6 +106,15 @@ function initialCreateStore() {
           [dataType]: config,
         },
       }));
+    },
+    setError(error: Error) {
+      set((state) => {
+        // Only set the first error, no need to overwrite if additional errors occur
+        if (!state.error) {
+          return { error };
+        }
+        return {};
+      });
     },
   }));
 }
@@ -164,9 +180,18 @@ function DataModelsLoader() {
 }
 
 function BlockUntilLoaded({ children }: PropsWithChildren) {
-  const { dataTypes, initialData, initialValidations, schemas, expressionValidationConfigs } = useSelector(
+  const { dataTypes, initialData, initialValidations, schemas, expressionValidationConfigs, error } = useSelector(
     (state) => state,
   );
+
+  if (error) {
+    // Error trying to fetch data, if missing rights we display relevant page
+    if (isAxiosError(error) && error.response?.status === HttpStatusCodes.Forbidden) {
+      return <MissingRolesError />;
+    }
+
+    return <DisplayError error={error} />;
+  }
 
   if (!dataTypes) {
     return <Loader reason='data-types' />;
@@ -197,14 +222,13 @@ interface LoaderProps {
   dataType: string;
 }
 
-// TODO(Datamodels): Handle errors from queries
-
 function LoadInitialData({ dataType }: LoaderProps) {
   const setInitialData = useSelector((state) => state.setInitialData);
+  const setError = useSelector((state) => state.setError);
   const url = useDataModelUrl(true, dataType);
   const instance = useLaxInstanceData();
   const dataElementId = (instance && getFirstDataElementId(instance, dataType)) ?? null;
-  const { data } = useFormDataQuery(url);
+  const { data, error } = useFormDataQuery(url);
 
   useEffect(() => {
     if (data && url) {
@@ -212,13 +236,18 @@ function LoadInitialData({ dataType }: LoaderProps) {
     }
   }, [data, dataElementId, dataType, setInitialData, url]);
 
+  useEffect(() => {
+    error && setError(error);
+  }, [error, setError]);
+
   return null;
 }
 
 function LoadInitialValidations({ dataType }: LoaderProps) {
   const setInitialValidations = useSelector((state) => state.setInitialValidations);
+  const setError = useSelector((state) => state.setError);
   const isCustomReceipt = useProcessTaskId() === TaskKeys.CustomReceipt;
-  const { data } = useBackendValidationQuery(dataType, !isCustomReceipt);
+  const { data, error } = useBackendValidationQuery(dataType, !isCustomReceipt);
 
   useEffect(() => {
     if (isCustomReceipt) {
@@ -228,12 +257,17 @@ function LoadInitialValidations({ dataType }: LoaderProps) {
     }
   }, [data, dataType, isCustomReceipt, setInitialValidations]);
 
+  useEffect(() => {
+    error && setError(error);
+  }, [error, setError]);
+
   return null;
 }
 
 function LoadSchema({ dataType }: LoaderProps) {
   const setDataModelSchema = useSelector((state) => state.setDataModelSchema);
-  const { data } = useDataModelSchemaQuery(dataType);
+  const setError = useSelector((state) => state.setError);
+  const { data, error } = useDataModelSchemaQuery(dataType);
 
   useEffect(() => {
     if (data) {
@@ -241,18 +275,27 @@ function LoadSchema({ dataType }: LoaderProps) {
     }
   }, [data, dataType, setDataModelSchema]);
 
+  useEffect(() => {
+    error && setError(error);
+  }, [error, setError]);
+
   return null;
 }
 
 function LoadExpressionValidationConfig({ dataType }: LoaderProps) {
   const setExpressionValidationConfig = useSelector((state) => state.setExpressionValidationConfig);
-  const { data, isSuccess } = useCustomValidationConfigQuery(dataType);
+  const setError = useSelector((state) => state.setError);
+  const { data, isSuccess, error } = useCustomValidationConfigQuery(dataType);
 
   useEffect(() => {
     if (isSuccess) {
       setExpressionValidationConfig(dataType, data);
     }
   }, [data, dataType, isSuccess, setExpressionValidationConfig]);
+
+  useEffect(() => {
+    error && setError(error);
+  }, [error, setError]);
 
   return null;
 }
