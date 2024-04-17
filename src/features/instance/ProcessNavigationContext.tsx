@@ -3,7 +3,7 @@ import React, { useCallback, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
-import { createContext } from 'src/core/contexts/context';
+import { ContextNotProvided, createContext } from 'src/core/contexts/context';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { useHasPendingAttachments } from 'src/features/attachments/AttachmentsContext';
 import { useLaxInstance, useStrictInstance } from 'src/features/instance/InstanceContext';
@@ -45,6 +45,14 @@ function useProcessNext() {
         .catch((error) => {
           // If process next failed due to validation, return validationIssues instead of throwing
           if (error.response?.status === 409 && error.response?.data?.['validationIssues']?.length) {
+            if (updateTaskValidations === ContextNotProvided) {
+              window.logError(
+                "PUT 'process/next' returned validation issues, but there is no ValidationProvider available.",
+              );
+              throw error;
+            }
+
+            // Return validation issues
             return [null, error.response.data['validationIssues'] as BackendValidationIssue[]] as const;
           } else {
             throw error;
@@ -56,7 +64,7 @@ function useProcessNext() {
         await reFetchInstanceData();
         setProcessData?.({ ...processData, processTasks: currentProcessData?.processTasks });
         navigateToTask(processData?.currentTask?.elementId);
-      } else if (validationIssues) {
+      } else if (validationIssues && updateTaskValidations !== ContextNotProvided) {
         updateTaskValidations(validationIssues.map(mapValidationIssueToFieldValidation));
       }
     },

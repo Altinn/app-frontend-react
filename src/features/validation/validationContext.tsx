@@ -162,15 +162,22 @@ function initialCreateStore({ validating }: NewStoreProps) {
   );
 }
 
-const { Provider, useSelector, useDelayedMemoSelector, useSelectorAsRef, useStore, useLaxSelectorAsRef } =
-  createZustandContext({
-    name: 'Validation',
-    required: true,
-    initialCreateStore,
-    onReRender: (store, { validating }) => {
-      store.getState().updateValidating(validating);
-    },
-  });
+const {
+  Provider,
+  useSelector,
+  useLaxSelector,
+  useDelayedMemoSelector,
+  useSelectorAsRef,
+  useStore,
+  useLaxSelectorAsRef,
+} = createZustandContext({
+  name: 'Validation',
+  required: true,
+  initialCreateStore,
+  onReRender: (store, { validating }) => {
+    store.getState().updateValidating(validating);
+  },
+});
 
 export function ValidationProvider({ children }: PropsWithChildren) {
   const dataTypes = DataModels.useWritableDataTypes();
@@ -332,7 +339,7 @@ export const Validation = {
   useSetNodeVisibility: () => useSelector((state) => state.setNodeVisibility),
   useSetShowAllErrors: () => useSelector((state) => state.setShowAllErrors),
   useValidating: () => useSelector((state) => state.validating),
-  useUpdateTaskValidations: () => useSelector((state) => state.updateTaskValidations),
+  useUpdateTaskValidations: () => useLaxSelector((state) => state.updateTaskValidations),
   useUpdateComponentValidations: () => useSelector((state) => state.updateComponentValidations),
   useRemoveComponentValidations: () => useSelector((state) => state.removeComponentValidations),
   useUpdateDataModelValidations: () => useSelector((state) => state.updateDataModelValidations),
