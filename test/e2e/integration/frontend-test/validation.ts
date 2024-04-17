@@ -238,17 +238,30 @@ describe('Validation', () => {
 
   it('Task validation', () => {
     cy.intercept('**/active', []).as('noActiveInstances');
-    cy.intercept('GET', '**/validate*', [
+
+    cy.intercept(
+      { method: 'PUT', url: '**/process/next*', times: 1 },
       {
-        severity: 1,
-        code: 'error',
-        description: 'task validation',
+        statusCode: 409,
+        body: {
+          validationIssues: [
+            {
+              severity: 1,
+              code: 'error',
+              description: 'task validation',
+            },
+          ],
+        },
       },
-    ]).as('validate');
+    );
+
     cy.startAppInstance(appFrontend.apps.frontendTest);
-    cy.get(appFrontend.closeButton).should('be.visible');
-    cy.get(appFrontend.sendinButton).click();
+    cy.waitForLoad();
+    cy.get(appFrontend.errorReport).should('not.exist');
+    cy.get(appFrontend.sendinButton).click(); // Should fail the first time due to validation
     cy.get(appFrontend.errorReport).should('contain.text', 'task validation');
+    cy.get(appFrontend.sendinButton).click(); // Second time should succeed
+    cy.get(appFrontend.changeOfName.currentName).should('be.visible');
   });
 
   it('Validations are removed for hidden fields', () => {

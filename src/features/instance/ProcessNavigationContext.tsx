@@ -9,8 +9,11 @@ import { useHasPendingAttachments } from 'src/features/attachments/AttachmentsCo
 import { useLaxInstance, useStrictInstance } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData, useSetProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+import { mapValidationIssueToFieldValidation } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onFormSubmitValidation';
+import { Validation } from 'src/features/validation/validationContext';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
+import type { BackendValidationIssue } from 'src/features/validation';
 import type { IActionType, IProcess } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
@@ -30,18 +33,32 @@ function useProcessNext() {
   const { navigateToTask } = useNavigatePage();
   const instanceId = useLaxInstance()?.instanceId;
   const onFormSubmitValidation = useOnFormSubmitValidation();
+  const updateTaskValidations = Validation.useUpdateTaskValidations();
 
   const utils = useMutation({
     mutationFn: async ({ action }: ProcessNextProps = {}) => {
       if (!instanceId) {
         throw new Error('Missing instance ID, cannot perform process/next');
       }
-      return doProcessNext(instanceId, language, action);
+      return doProcessNext(instanceId, language, action)
+        .then((process) => [process as IProcess, null] as const)
+        .catch((error) => {
+          // If process next failed due to validation, return validationIssues instead of throwing
+          if (error.response?.status === 409 && error.response?.data?.['validationIssues']?.length) {
+            return [null, error.response.data['validationIssues'] as BackendValidationIssue[]] as const;
+          } else {
+            throw error;
+          }
+        });
     },
-    onSuccess: async (data: IProcess) => {
-      await reFetchInstanceData();
-      setProcessData?.({ ...data, processTasks: currentProcessData?.processTasks });
-      navigateToTask(data?.currentTask?.elementId);
+    onSuccess: async ([processData, validationIssues]) => {
+      if (processData) {
+        await reFetchInstanceData();
+        setProcessData?.({ ...processData, processTasks: currentProcessData?.processTasks });
+        navigateToTask(processData?.currentTask?.elementId);
+      } else if (validationIssues) {
+        updateTaskValidations(validationIssues.map(mapValidationIssueToFieldValidation));
+      }
     },
     onError: (error: HttpClientError) => {
       window.logError('Process next failed:\n', error);
@@ -52,7 +69,8 @@ function useProcessNext() {
   const nativeMutate = useCallback(
     async (props: ProcessNextProps = {}) => {
       try {
-        return await mutateAsync(props);
+        const [result] = await mutateAsync(props);
+        return result ? result : AbortedDueToFormErrors;
       } catch (err) {
         // The error is handled above
         return AbortedDueToFailure;
