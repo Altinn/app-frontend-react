@@ -15,7 +15,8 @@ import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTab
 
 export type IPaymentProps = PropsFromGenericComponent<'Payment'>;
 
-export const PaymentComponent = () => {
+export const PaymentComponent = ({ node }) => {
+  console.log(node);
   // Render these values in the receipt PDF:
   // From API:
   //   - Payment ID

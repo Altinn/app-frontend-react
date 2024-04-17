@@ -9,20 +9,21 @@ import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 import classes from 'src/layout/Payment/PaymentComponent.module.css';
 import { usePaymentInformationQuery } from 'src/layout/Payment/queries/usePaymentInformationQuery';
 import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTable';
-// import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
-// import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export type IPaymentProps = PropsFromGenericComponent<'Payment'>;
 
-// interface ISummaryPaymentComponentProps {
-//   changeText: string | null;
-//   onChangeClick: () => void;
-//   summaryNode: LayoutNode<'Summary'>;
-//   targetNode: LayoutNode<'Payment'>;
-//   overrides?: ISummaryComponent['overrides'];
-// }
+interface ISummaryPaymentComponentProps {
+  changeText: string | null;
+  onChangeClick: () => void;
+  summaryNode: LayoutNode<'Summary'>;
+  targetNode: LayoutNode<'Payment'>;
+  overrides?: ISummaryComponent['overrides'];
+}
 
-export const SummaryPaymentComponent = () => {
+export const SummaryPaymentComponent = ({ targetNode }: ISummaryPaymentComponentProps) => {
+  console.log(targetNode);
   // Render these values in the receipt PDF:
   // From API:
   //   - Payment ID
@@ -42,6 +43,18 @@ export const SummaryPaymentComponent = () => {
 
   return (
     <>
+      <div className={classes.container}>
+        {paymentInfo?.paymentDetails?.status === 'Failed' && (
+          <Alert severity='warning'>
+            <Lang id='payment.alert.failed' />
+          </Alert>
+        )}
+        {paymentInfo?.paymentDetails?.status === 'Created' && (
+          <Alert severity={'success'}>
+            <Lang id='payment.alert.paid' />
+          </Alert>
+        )}
+      </div>
       <PaymentDetailsTable
         orderDetails={paymentInfo?.orderDetails}
         tableTitle={
@@ -54,19 +67,6 @@ export const SummaryPaymentComponent = () => {
         }
         className={classes.container}
       />
-
-      <div className={classes.container}>
-        {paymentInfo?.paymentDetails?.status === 'Failed' && (
-          <Alert severity='warning'>
-            <Lang id='payment.alert.failed' />
-          </Alert>
-        )}
-        {paymentInfo?.paymentDetails?.status === 'Paid' && (
-          <Alert severity={'success'}>
-            <Lang id='payment.alert.paid' />
-          </Alert>
-        )}
-      </div>
     </>
   );
 };
