@@ -400,7 +400,9 @@ function tryReadFromDataModel(
   }
   if (dataModelName === 'default') {
     if (typeof defaultDataType !== 'string' || !writableDataTypes.includes(defaultDataType)) {
-      // TODO(Datamodels): should we log a warning/error here?
+      window.logErrorOnce(
+        "Tried to access a text resource variable using the dataSource: 'dataModel.default'. However, a default data model could not be found.",
+      );
       return undefined;
     }
     return formDataSelector({ dataType: defaultDataType, property: path });
