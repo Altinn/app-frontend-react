@@ -451,11 +451,11 @@ const common = {
     new CG.obj(
       new CG.prop(
         'renderAsSummary',
-        new CG.expr(ExprVal.Boolean)
+        new CG.bool()
           .optional({ default: false })
           .setTitle('Render as summary')
           .setDescription(
-            'Boolean value or expression indicating if the component should be rendered as a summary. Defaults to false.',
+            'Boolean value indicating if the component should be rendered as a summary. Defaults to false.',
           ),
       ),
     ),
