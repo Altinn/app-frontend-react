@@ -46,12 +46,12 @@ import type { IFormDynamics } from 'src/features/form/dynamics';
 import type { IDataModelPatchRequest, IDataModelPatchResponse } from 'src/features/formData/types';
 import type { Instantiation } from 'src/features/instantiate/InstantiationContext';
 import type { ITextResourceResult } from 'src/features/language/textResources';
-import type { OrderDetails, PaymentResponsePayload } from 'src/features/payment/types';
 import type { IPdfFormat } from 'src/features/pdf/types';
 import type { BackendValidationIssue, IExpressionValidationConfig } from 'src/features/validation';
 import type { ILayoutSets, ILayoutSettings, IRawOption } from 'src/layout/common.generated';
 import type { ActionResult } from 'src/layout/CustomButton/CustomButtonComponent';
 import type { ILayoutCollection } from 'src/layout/layout';
+import type { OrderDetails, PaymentResponsePayload } from 'src/layout/Payment/queries/types';
 import type { ISimpleInstance } from 'src/types';
 import type {
   IActionType,

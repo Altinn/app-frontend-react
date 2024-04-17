@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Heading, Skeleton } from '@digdir/design-system-react';
 
-import classes from 'src/features/payment/SkeletonLoader.module.css';
+import classes from 'src/layout/Payment/SkeletonLoader/SkeletonLoader.module.css';
 
 export const SkeletonLoader = () => (
   <div className={classes.skeletonWrapper}>

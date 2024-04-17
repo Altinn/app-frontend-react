@@ -16,4 +16,8 @@ export class Payment extends PaymentDef {
   renderSummary(props: SummaryRendererProps<'Payment'>): React.JSX.Element | null {
     return <SummaryPaymentComponent {...props} />;
   }
+
+  renderSummaryBoilerplate(): boolean {
+    return false;
+  }
 }

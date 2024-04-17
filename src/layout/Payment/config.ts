@@ -1,4 +1,5 @@
 import { CG } from 'src/codegen/CG';
+import { ExprVal } from 'src/features/expressions/types';
 import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
@@ -11,6 +12,17 @@ export const Config = new CG.component({
     renderInAccordionGroup: false,
   },
 })
+  .addProperty(
+    new CG.prop(
+      'renderAsSummary',
+      new CG.expr(ExprVal.Boolean)
+        .optional({ default: false })
+        .setTitle('Render as summary')
+        .setDescription(
+          'Boolean value or expression indicating if the component should be rendered as a summary. Defaults to false.',
+        ),
+    ),
+  )
   .addTextResource(
     new CG.trb({
       name: 'title',

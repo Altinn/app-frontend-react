@@ -1,23 +1,28 @@
 import React from 'react';
 
+import { Alert, Heading } from '@digdir/design-system-react';
+
 import type { PropsFromGenericComponent } from '..';
 
-import { usePaymentInformationQuery } from 'src/features/payment/usePaymentInformationQuery';
+import { Lang } from 'src/features/language/Lang';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
-import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import classes from 'src/layout/Payment/PaymentComponent.module.css';
+import { usePaymentInformationQuery } from 'src/layout/Payment/queries/usePaymentInformationQuery';
+import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTable';
+// import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
+// import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export type IPaymentProps = PropsFromGenericComponent<'Payment'>;
 
-interface ISummaryPaymentComponentProps {
-  changeText: string | null;
-  onChangeClick: () => void;
-  summaryNode: LayoutNode<'Summary'>;
-  targetNode: LayoutNode<'Payment'>;
-  overrides?: ISummaryComponent['overrides'];
-}
+// interface ISummaryPaymentComponentProps {
+//   changeText: string | null;
+//   onChangeClick: () => void;
+//   summaryNode: LayoutNode<'Summary'>;
+//   targetNode: LayoutNode<'Payment'>;
+//   overrides?: ISummaryComponent['overrides'];
+// }
 
-export const SummaryPaymentComponent = ({ targetNode }: ISummaryPaymentComponentProps) => {
+export const SummaryPaymentComponent = () => {
   // Render these values in the receipt PDF:
   // From API:
   //   - Payment ID
@@ -33,14 +38,11 @@ export const SummaryPaymentComponent = ({ targetNode }: ISummaryPaymentComponent
   //   - contact details
 
   const { partyId, instanceGuid } = useInstanceIdParams();
-  const { data: paymentInfo, isFetched: isPaymentInformationFetched } = usePaymentInformationQuery(
-    partyId,
-    instanceGuid,
-  );
+  const { data: paymentInfo } = usePaymentInformationQuery(partyId, instanceGuid);
 
   return (
     <>
-      {/*       <PaymentDetailsTable
+      <PaymentDetailsTable
         orderDetails={paymentInfo?.orderDetails}
         tableTitle={
           <Heading
@@ -60,12 +62,11 @@ export const SummaryPaymentComponent = ({ targetNode }: ISummaryPaymentComponent
           </Alert>
         )}
         {paymentInfo?.paymentDetails?.status === 'Paid' && (
-          <Alert severity={'info'}>
+          <Alert severity={'success'}>
             <Lang id='payment.alert.paid' />
           </Alert>
         )}
-      </div> */}
-      test
+      </div>
     </>
   );
 };

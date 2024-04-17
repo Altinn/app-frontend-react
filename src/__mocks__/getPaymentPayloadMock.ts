@@ -1,4 +1,4 @@
-import { PaymentStatus } from 'src/features/payment/types';
+import { PaymentStatus } from 'src/layout/Payment/queries/types';
 
 export const paymentResponsePayload = {
   taskId: '00cd000065f03e6a75269b94dc7c38df',

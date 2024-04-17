@@ -6,16 +6,16 @@ import type { PropsFromGenericComponent } from '..';
 
 import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
-import classes from 'src/features/payment/Payment.module.css';
-import { SkeletonLoader } from 'src/features/payment/SkeletonLoader';
-import { usePaymentInformationQuery } from 'src/features/payment/usePaymentInformationQuery';
-import { usePerformPayActionMutation } from 'src/features/payment/usePerformPaymentMutation';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
+import classes from 'src/layout/Payment/PaymentComponent.module.css';
+import { usePaymentInformationQuery } from 'src/layout/Payment/queries/usePaymentInformationQuery';
+import { usePerformPayActionMutation } from 'src/layout/Payment/queries/usePerformPaymentMutation';
+import { SkeletonLoader } from 'src/layout/Payment/SkeletonLoader/SkeletonLoader';
 import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTable';
 
 export type IPaymentProps = PropsFromGenericComponent<'Payment'>;
 
-export const PaymentComponent = ({ node }) => {
+export const PaymentComponent = () => {
   // Render these values in the receipt PDF:
   // From API:
   //   - Payment ID

@@ -15,7 +15,6 @@ import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useLaxProcessData, useRealTaskType, useTaskType } from 'src/features/instance/ProcessContext';
 import { ProcessNavigationProvider } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
-import { Payment } from 'src/features/payment/Payment';
 import { PDFWrapper } from 'src/features/pdf/PDFWrapper';
 import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { Feedback } from 'src/features/processEnd/feedback/Feedback';
@@ -145,16 +144,6 @@ export const ProcessWrapper = () => {
       <PresentationComponent type={realTaskType}>
         <ReceiptContainer />
       </PresentationComponent>
-    );
-  }
-
-  if (taskType === ProcessTaskType.Payment) {
-    return (
-      <ProcessNavigationProvider>
-        <PresentationComponent type={realTaskType}>
-          <Payment />
-        </PresentationComponent>
-      </ProcessNavigationProvider>
     );
   }
 
