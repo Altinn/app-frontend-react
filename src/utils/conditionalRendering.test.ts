@@ -64,7 +64,7 @@ describe('conditionalRendering', () => {
   function makeNodes(formData: object) {
     return resolvedNodesInLayouts({ FormLayout: layout }, 'FormLayout', {
       ...getHierarchyDataSourcesMock(),
-      formDataSelector: (path: string) => dot.pick(path, formData),
+      formDataSelector: (reference) => dot.pick(reference.property, formData), // the dataType is ignored and can set to whatever
     });
   }
 
@@ -90,7 +90,7 @@ describe('conditionalRendering', () => {
     const nodes = makeNodes(formDataAsObj);
 
     // eslint-disable-next-line testing-library/render-result-naming-convention
-    const result = runConditionalRenderingRules(showRules, nodes);
+    const result = runConditionalRenderingRules(showRules, nodes, 'default');
     expect([...result.values()]).toEqual(['layoutElement_2-0', 'layoutElement_3-0']);
   });
 
@@ -136,7 +136,7 @@ describe('conditionalRendering', () => {
     const nodes = makeNodes(formDataAsObj);
 
     // eslint-disable-next-line testing-library/render-result-naming-convention
-    const result = runConditionalRenderingRules(showRules, nodes);
+    const result = runConditionalRenderingRules(showRules, nodes, 'default');
 
     expect([...result.values()]).toEqual([
       'someField-0-0',

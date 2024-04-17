@@ -147,7 +147,7 @@ describe('Hierarchical layout tools', () => {
     it('should resolve a complex layout without groups', () => {
       const nodes = generateHierarchy(
         layout,
-        { ...dataSources, formDataSelector: (path) => dot.pick(path, repeatingGroupsFormData) },
+        { ...dataSources, formDataSelector: (reference) => dot.pick(reference.property, repeatingGroupsFormData) },
         getLayoutComponentObject,
       );
       const flatNoGroups = nodes.flat(false);
@@ -179,7 +179,7 @@ describe('Hierarchical layout tools', () => {
     it('should resolve a complex layout with groups', () => {
       const nodes = generateHierarchy(
         layout,
-        { ...dataSources, formDataSelector: (path) => dot.pick(path, repeatingGroupsFormData) },
+        { ...dataSources, formDataSelector: (reference) => dot.pick(reference.property, repeatingGroupsFormData) },
         getLayoutComponentObject,
       );
       const flatWithGroups = nodes.flat(true);
@@ -216,7 +216,7 @@ describe('Hierarchical layout tools', () => {
     it('should enable traversal of layout', () => {
       const nodes = generateHierarchy(
         layout,
-        { ...dataSources, formDataSelector: (path) => dot.pick(path, manyRepeatingGroupsFormData) },
+        { ...dataSources, formDataSelector: (reference) => dot.pick(reference.property, manyRepeatingGroupsFormData) },
         getLayoutComponentObject,
       );
       const flatWithGroups = nodes.flat(true);
@@ -309,7 +309,7 @@ describe('Hierarchical layout tools', () => {
       ];
       const nodes = generateHierarchy(
         layout,
-        { ...dataSources, formDataSelector: (path) => dot.pick(path, formData) },
+        { ...dataSources, formDataSelector: (reference) => dot.pick(reference.property, formData) },
         getLayoutComponentObject,
       );
 
@@ -327,8 +327,8 @@ describe('Hierarchical layout tools', () => {
   describe('resolvedNodesInLayout', () => {
     const dataSources: HierarchyDataSources = {
       ...getHierarchyDataSourcesMock(),
-      formDataSelector: (path) =>
-        dot.pick(path, {
+      formDataSelector: (reference) =>
+        dot.pick(reference.property, {
           ...repeatingGroupsFormData,
           ExprBase: {
             ShouldBeTrue: 'true',
@@ -438,7 +438,7 @@ describe('Hierarchical layout tools', () => {
   it('transposeDataModel', () => {
     const nodes = generateHierarchy(
       layout,
-      { ...dataSources, formDataSelector: (path) => dot.pick(path, manyRepeatingGroupsFormData) },
+      { ...dataSources, formDataSelector: (reference) => dot.pick(reference.property, manyRepeatingGroupsFormData) },
       getLayoutComponentObject,
     );
     const inputNode = nodes.findById(`${components.group2ni.id}-2-2`);
@@ -477,7 +477,7 @@ describe('Hierarchical layout tools', () => {
   it('find functions', () => {
     const dataSources: HierarchyDataSources = {
       ...getHierarchyDataSourcesMock(),
-      formDataSelector: (path) => dot.pick(path, manyRepeatingGroupsFormData),
+      formDataSelector: (reference) => dot.pick(reference.property, manyRepeatingGroupsFormData),
     };
 
     const layouts: ILayouts = { page2: layout, FormLayout: getFormLayoutMock() };

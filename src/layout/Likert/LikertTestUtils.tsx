@@ -4,6 +4,7 @@ import { screen, within } from '@testing-library/react';
 import { v4 as uuidv4 } from 'uuid';
 import type { AxiosResponse } from 'axios';
 
+import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { type BackendValidationIssue, BackendValidationSeverity } from 'src/features/validation';
 import { LikertComponent } from 'src/layout/Likert/LikertComponent';
@@ -88,7 +89,10 @@ const createLikertLayout = (props: Partial<CompLikertExternal> | undefined): Com
 });
 
 export const createFormDataUpdateProp = (index: number, optionValue: string): FDNewValue => ({
-  path: `Questions[${index}].Answer`,
+  reference: {
+    dataType: defaultDataTypeMock,
+    property: `Questions[${index}].Answer`,
+  },
   newValue: optionValue,
 });
 

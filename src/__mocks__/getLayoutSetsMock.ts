@@ -1,5 +1,6 @@
 import type { ILayoutSets } from 'src/layout/common.generated';
 
+export const defaultDataTypeMock = 'test-data-model';
 export function getLayoutSetsMock(): ILayoutSets {
   return {
     sets: [
@@ -15,7 +16,7 @@ export function getLayoutSetsMock(): ILayoutSets {
       },
       {
         id: 'some-data-task',
-        dataType: 'test-data-model',
+        dataType: defaultDataTypeMock,
         tasks: ['Task_1'],
       },
     ],

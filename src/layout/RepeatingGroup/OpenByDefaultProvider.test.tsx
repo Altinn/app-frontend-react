@@ -3,6 +3,7 @@ import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
+import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import {
@@ -38,7 +39,7 @@ describe('openByDefault', () => {
     }));
     const { deleteRow, visibleRows, hiddenRows } = useRepeatingGroup();
 
-    const data = FD.useDebouncedPick('MyGroup');
+    const data = FD.useDebouncedPick({ property: 'MyGroup', dataType: defaultDataTypeMock });
     return (
       <>
         <div data-testid='state'>

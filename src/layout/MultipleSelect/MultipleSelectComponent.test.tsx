@@ -3,6 +3,7 @@ import React from 'react';
 import { screen, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
+import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
@@ -63,6 +64,9 @@ describe('MultipleSelect', () => {
 
     await userEvent.click(screen.getByRole('button', { name: /Slett label2/i }));
 
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({ path: 'someField', newValue: 'value1,value3' });
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+      reference: { property: 'someField', dataType: defaultDataTypeMock },
+      newValue: 'value1,value3',
+    });
   });
 });

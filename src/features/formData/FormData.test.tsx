@@ -7,7 +7,7 @@ import { userEvent } from '@testing-library/user-event';
 
 import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { DataModelSchemaProvider } from 'src/features/datamodel/useDataModelSchemaQuery';
+import { DataModelsProvider } from 'src/features/datamodel/DataModelsProvider';
 import { DynamicsProvider } from 'src/features/form/dynamics/DynamicsContext';
 import { LayoutsProvider } from 'src/features/form/layout/LayoutsContext';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
@@ -16,7 +16,6 @@ import { RulesProvider } from 'src/features/form/rules/RulesContext';
 import { GlobalFormDataReadersProvider } from 'src/features/formData/FormDataReaders';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { FormDataWriteProxyProvider } from 'src/features/formData/FormDataWriteProxies';
-import { InitialFormDataProvider } from 'src/features/formData/InitialFormData';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { makeFormDataMethodProxies, renderWithMinimalProviders } from 'src/test/renderWithProviders';
 
@@ -90,13 +89,11 @@ async function genericRender(props: Partial<Parameters<typeof renderWithMinimalP
                 <LayoutSettingsProvider>
                   <DynamicsProvider>
                     <RulesProvider>
-                      <DataModelSchemaProvider>
-                        <FormDataWriteProxyProvider value={formDataProxies}>
-                          <InitialFormDataProvider>
-                            {props.renderer && typeof props.renderer === 'function' ? props.renderer() : props.renderer}
-                          </InitialFormDataProvider>
-                        </FormDataWriteProxyProvider>
-                      </DataModelSchemaProvider>
+                      <FormDataWriteProxyProvider value={formDataProxies}>
+                        <DataModelsProvider>
+                          {props.renderer && typeof props.renderer === 'function' ? props.renderer() : props.renderer}
+                        </DataModelsProvider>
+                      </FormDataWriteProxyProvider>
                     </RulesProvider>
                   </DynamicsProvider>
                 </LayoutSettingsProvider>
@@ -151,7 +148,7 @@ describe('FormData', () => {
       const {
         formData: { simpleBinding: value },
       } = useDataModelBindings({
-        simpleBinding: path,
+        simpleBinding: { property: path, dataType: 'default' },
       });
 
       return <div data-testid={`reader-${path}`}>{value}</div>;
@@ -163,7 +160,7 @@ describe('FormData', () => {
         formData: { simpleBinding: value },
         setValue,
       } = useDataModelBindings({
-        simpleBinding: path,
+        simpleBinding: { property: path, dataType: 'default' },
       });
 
       return (
@@ -276,7 +273,7 @@ describe('FormData', () => {
       formData: { simpleBinding: value },
       setValue,
     } = useDataModelBindings({
-      simpleBinding: path,
+      simpleBinding: { property: path, dataType: 'default' },
     });
 
     return (
@@ -305,8 +302,8 @@ describe('FormData', () => {
               if (isLocked) {
                 // Unlock with some pretend updated form data
                 unlock({
-                  newDataModel: { obj1: { prop1: 'new value' } },
-                  validationIssues: { obj1: [] },
+                  updatedDataModels: { dataElementId: { obj1: { prop1: 'new value' } } }, // TODO(Datamodels): What shold the data element id be in this case?
+                  updatedValidationIssues: { dataElementId: { obj1: [] } },
                 });
               } else {
                 await lock();

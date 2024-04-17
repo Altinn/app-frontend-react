@@ -8,6 +8,7 @@ import { ensureAppsDirIsSet, getAllLayoutSetsWithDataModelSchema, parseJsonToler
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { getRootElementPath } from 'src/utils/schemaUtils';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { ILayouts } from 'src/layout/layout';
 
 describe('Data model lookups in real apps', () => {
@@ -43,8 +44,8 @@ describe('Data model lookups in real apps', () => {
       for (const node of layout.flat(true)) {
         const ctx: LayoutValidationCtx<any> = {
           node,
-          lookupBinding(binding: string) {
-            const schemaPath = dotNotationToPointer(binding);
+          lookupBinding(reference: IDataModelReference) {
+            const schemaPath = dotNotationToPointer(reference.property);
             return lookupBindingInSchema({
               schema,
               targetPointer: schemaPath,
