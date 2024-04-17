@@ -367,7 +367,7 @@ export abstract class FormComponent<Type extends CompTypes>
   readonly category = CompCategory.Form;
 
   runEmptyFieldValidation(
-    node: LayoutNode<Type>,
+    _node: LayoutNode<Type>,
     item: CompInternal<Type>,
     { formData, invalidData }: ValidationDataSources,
   ): ComponentValidation[] {
@@ -391,7 +391,6 @@ export abstract class FormComponent<Type extends CompTypes>
         const fieldReference = { key: getFieldNameKey(trb, bindingKey), makeLowerCase: true };
 
         validations.push({
-          componentId: node.getId(),
           source: FrontendValidationSource.EmptyField,
           bindingKey,
           message: { key, params: [fieldReference] },

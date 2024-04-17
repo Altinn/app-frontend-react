@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import type { BaseValidation, NodeValidation } from '..';
+import type { AnyValidation, BaseValidation, NodeValidation } from '..';
 
 import {
   getValidationsForNode,
@@ -10,8 +10,8 @@ import {
   validationsOfSeverity,
 } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
-import { getVisibilityForNode } from 'src/features/validation/visibility/visibilityUtils';
-import { useNodes } from 'src/utils/layout/NodesContext';
+import { NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
+import type { ValidationLookupSources } from 'src/features/validation/utils';
 
 const emptyArray: [] = [];
 
@@ -20,27 +20,31 @@ const emptyArray: [] = [];
  * This includes unmapped/task errors as well
  */
 export function useTaskErrors(): {
-  formErrors: NodeValidation<'error'>[];
+  formErrors: NodeValidation<AnyValidation<'error'>>[];
   taskErrors: BaseValidation<'error'>[];
 } {
   const selector = Validation.useSelector();
-  const visibilitySelector = Validation.useVisibilitySelector();
+  const visibilitySelector = NodesInternal.useValidationVisibilitySelector();
   const nodes = useNodes();
+  const nodeValidationsSelector = NodesInternal.useValidationsSelector();
 
   const formErrors = useMemo(() => {
     if (!nodes) {
       return emptyArray;
     }
 
-    const formErrors: NodeValidation<'error'>[] = [];
+    const findIn: ValidationLookupSources = {
+      validationState: selector,
+      nodeValidationsSelector,
+    };
+
+    const formErrors: NodeValidation<AnyValidation<'error'>>[] = [];
     for (const node of nodes.allNodes().filter(shouldValidateNode)) {
-      formErrors.push(
-        ...getValidationsForNode(node, selector, getVisibilityForNode(node, visibilitySelector), 'error'),
-      );
+      formErrors.push(...getValidationsForNode(node, findIn, visibilitySelector(node), 'error'));
     }
 
     return formErrors;
-  }, [nodes, selector, visibilitySelector]);
+  }, [nodeValidationsSelector, nodes, selector, visibilitySelector]);
 
   const taskErrors = useMemo(() => {
     const taskErrors: BaseValidation<'error'>[] = [];

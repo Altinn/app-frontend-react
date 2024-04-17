@@ -72,10 +72,7 @@ export function AddressComponent({ node }: IAddressProps) {
           required={required}
           autoComplete={simplified ? 'street-address' : 'address-line1'}
         />
-        <ComponentValidations
-          validations={bindingValidations?.address}
-          node={node}
-        />
+        <ComponentValidations validations={bindingValidations?.address} />
       </div>
 
       {!simplified && (
@@ -98,10 +95,7 @@ export function AddressComponent({ node }: IAddressProps) {
             readOnly={readOnly}
             autoComplete='address-line2'
           />
-          <ComponentValidations
-            validations={bindingValidations?.careOf}
-            node={node}
-          />
+          <ComponentValidations validations={bindingValidations?.careOf} />
         </div>
       )}
 
@@ -150,14 +144,8 @@ export function AddressComponent({ node }: IAddressProps) {
             autoComplete='address-level1'
           />
         </div>
-        <ComponentValidations
-          validations={bindingValidations?.zipCode}
-          node={node}
-        />
-        <ComponentValidations
-          validations={bindingValidations?.postPlace}
-          node={node}
-        />
+        <ComponentValidations validations={bindingValidations?.zipCode} />
+        <ComponentValidations validations={bindingValidations?.postPlace} />
       </div>
 
       {!simplified && (
@@ -185,17 +173,11 @@ export function AddressComponent({ node }: IAddressProps) {
               autoComplete='address-line3'
             />
           </div>
-          <ComponentValidations
-            validations={bindingValidations?.houseNumber}
-            node={node}
-          />
+          <ComponentValidations validations={bindingValidations?.houseNumber} />
         </div>
       )}
 
-      <ComponentValidations
-        validations={componentValidations}
-        node={node}
-      />
+      <ComponentValidations validations={componentValidations} />
     </div>
   );
 }

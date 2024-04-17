@@ -1,9 +1,9 @@
 import { CG } from 'src/codegen/CG';
 import { ExprVal } from 'src/features/expressions/types';
-import { NodeDefPlugin } from 'src/utils/layout/NodeDefPlugin';
+import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { CompTypes } from 'src/layout/layout';
-import type { PluginExprResolver, PluginExtraInItem } from 'src/utils/layout/NodeDefPlugin';
+import type { DefPluginExprResolver, DefPluginExtraInItem } from 'src/utils/layout/plugins/NodeDefPlugin';
 
 interface Config<PropName extends string> {
   componentType: CompTypes;
@@ -42,10 +42,6 @@ export class AlertOnChangePlugin<E extends ExternalConfig> extends NodeDefPlugin
     });
   }
 
-  makeConstructorArgs(): string {
-    return JSON.stringify(this.settings);
-  }
-
   addToComponent(component: ComponentConfig): void {
     component.addProperty(
       new CG.prop(
@@ -58,9 +54,9 @@ export class AlertOnChangePlugin<E extends ExternalConfig> extends NodeDefPlugin
     );
   }
 
-  evalDefaultExpressions(props: PluginExprResolver<ToInternal<E>>): PluginExtraInItem<ToInternal<E>> {
+  evalDefaultExpressions(props: DefPluginExprResolver<ToInternal<E>>): DefPluginExtraInItem<ToInternal<E>> {
     return {
       [this.settings.propName]: props.evalBool(props.item[this.settings.propName], false),
-    } as PluginExtraInItem<ToInternal<E>>;
+    } as DefPluginExtraInItem<ToInternal<E>>;
   }
 }

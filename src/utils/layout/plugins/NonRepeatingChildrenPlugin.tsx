@@ -1,6 +1,6 @@
 import { CG } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
-import { NodeDefPlugin } from 'src/utils/layout/NodeDefPlugin';
+import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { CompCapabilities } from 'src/codegen/Config';
 import type { NodeRef } from 'src/layout';
@@ -9,12 +9,12 @@ import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator
 import type { ItemStore } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
+  DefPluginChildClaimerProps,
+  DefPluginExprResolver,
+  DefPluginState,
+  DefPluginStateFactoryProps,
   NodeDefChildrenPlugin,
-  PluginChildClaimerProps,
-  PluginExprResolver,
-  PluginState,
-  PluginStateFactoryProps,
-} from 'src/utils/layout/NodeDefPlugin';
+} from 'src/utils/layout/plugins/NodeDefPlugin';
 
 interface Config<
   Type extends TypesFromCategory<CompCategory.Container>,
@@ -22,9 +22,7 @@ interface Config<
   InternalProp extends string,
 > {
   componentType: Type;
-  settings: {
-    property: ExternalProp;
-  };
+  settings: Required<Pick<ExternalConfig, 'title' | 'description'>>;
   expectedFromExternal: {
     [key in ExternalProp]: string[];
   };
@@ -65,12 +63,11 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
   protected settings: Combined<E>;
   protected component: ComponentConfig | undefined;
   constructor(settings: E) {
-    super();
-    this.settings = {
+    super({
       ...defaultConfig,
       ...settings,
       componentType: 'unknown' as TypesFromCategory<CompCategory.Container>,
-    } as Combined<E>;
+    } as Combined<E>);
   }
 
   makeImport() {
@@ -123,7 +120,7 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
     return `<${NodeChildren} childIds={props.childIds} />`;
   }
 
-  claimChildren({ item, claimChild, getProto }: PluginChildClaimerProps<ToInternal<E>>): void {
+  claimChildren({ item, claimChild, getProto }: DefPluginChildClaimerProps<ToInternal<E>>): void {
     for (const id of item[this.settings.externalProp]) {
       if (this.settings.onlyWithCapability) {
         const proto = getProto(id);
@@ -142,13 +139,13 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
     }
   }
 
-  stateFactory(_props: PluginStateFactoryProps<ToInternal<E>>) {
+  stateFactory(_props: DefPluginStateFactoryProps<ToInternal<E>>) {
     return {
       [this.settings.externalProp as Combined<E>['externalProp']]: {} as { [key: string]: ItemStore },
     };
   }
 
-  evalDefaultExpressions(props: PluginExprResolver<ToInternal<E>>) {
+  evalDefaultExpressions(props: DefPluginExprResolver<ToInternal<E>>) {
     const nodeRefs: NodeRef[] = Object.keys(props.state?.[this.settings.externalProp] || {}).map((id) => ({
       nodeRef: id,
     }));
@@ -159,11 +156,11 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
     } as ToInternal<E>['extraInItem'];
   }
 
-  pickDirectChildren(state: PluginState<ToInternal<E>>, _restriction?: ChildLookupRestriction) {
+  pickDirectChildren(state: DefPluginState<ToInternal<E>>, _restriction?: ChildLookupRestriction) {
     return state.item?.[this.settings.internalProp] || [];
   }
 
-  pickChild<C extends CompTypes>(state: PluginState<ToInternal<E>>, childId: string, parentPath: string[]) {
+  pickChild<C extends CompTypes>(state: DefPluginState<ToInternal<E>>, childId: string, parentPath: string[]) {
     const child = state[this.settings.externalProp][childId];
     if (!child) {
       throw new Error(`Child with id ${childId} not found in /${parentPath.join('/')}`);
@@ -171,11 +168,11 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
     return child as ItemStore<C>;
   }
 
-  addChild(state: PluginState<ToInternal<E>>, childNode: LayoutNode, childStore: ItemStore) {
+  addChild(state: DefPluginState<ToInternal<E>>, childNode: LayoutNode, childStore: ItemStore) {
     state[this.settings.externalProp][childNode.getId()] = childStore;
   }
 
-  removeChild(state: PluginState<ToInternal<E>>, childNode: LayoutNode) {
+  removeChild(state: DefPluginState<ToInternal<E>>, childNode: LayoutNode) {
     delete state[this.settings.externalProp][childNode.getId()];
   }
 }

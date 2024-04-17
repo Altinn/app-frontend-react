@@ -1,14 +1,14 @@
 import { useCallback } from 'react';
 
 import { getVisibilityMask } from 'src/features/validation/utils';
-import { Validation } from 'src/features/validation/validationContext';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 /**
  * Sets attachment validations as visible for when an attachment is saved (tag is changed).
  */
 export function useOnAttachmentSave() {
-  const setAttachmentVisibility = Validation.useSetAttachmentVisibility();
+  const setAttachmentVisibility = NodesInternal.useSetAttachmentVisibility();
 
   return useCallback(
     (node: LayoutNode, attachmentId: string) => {

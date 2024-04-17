@@ -41,7 +41,7 @@ export class List extends ListDef {
   }
 
   runEmptyFieldValidation(
-    node: LayoutNode<'List'>,
+    _node: LayoutNode<'List'>,
     item: CompInternal<'List'>,
     { formData, invalidData }: ValidationDataSources,
   ): ComponentValidation[] {
@@ -79,7 +79,6 @@ export class List extends ListDef {
           params: [fieldNameReference],
         },
         severity: 'error',
-        componentId: node.getId(),
         source: FrontendValidationSource.EmptyField,
         category: ValidationMask.Required,
       });

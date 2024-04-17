@@ -41,7 +41,7 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
   }
 
   runComponentValidation(
-    node: LayoutNode<'Address'>,
+    _node: LayoutNode<'Address'>,
     item: CompInternal<'Address'>,
     { formData }: ValidationDataSources,
   ): ComponentValidation[] {
@@ -60,7 +60,6 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
         message: { key: 'address_component.validation_error_zipcode' },
         severity: 'error',
         bindingKey: 'zipCode',
-        componentId: node.getId(),
         source: FrontendValidationSource.Component,
         category: ValidationMask.Component,
       });
@@ -76,7 +75,6 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
         message: { key: 'address_component.validation_error_house_number' },
         severity: 'error',
         bindingKey: 'houseNumber',
-        componentId: node.getId(),
         source: FrontendValidationSource.Component,
         category: ValidationMask.Component,
       });

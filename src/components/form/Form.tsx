@@ -192,7 +192,7 @@ function ErrorProcessing({ setFormState }: ErrorProcessingProps) {
     return extractBottomButtons(page);
   });
   const requiredFieldsMissing = formErrors.some(
-    (error) => error.source === FrontendValidationSource.EmptyField && error.pageKey === currentPageId,
+    (error) => error.source === FrontendValidationSource.EmptyField && error.node.pageKey() === currentPageId,
   );
 
   useEffect(() => {

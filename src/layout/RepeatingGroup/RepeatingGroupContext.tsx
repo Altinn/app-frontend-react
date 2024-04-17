@@ -10,7 +10,6 @@ import { useAttachmentDeletionInRepGroups } from 'src/features/attachments/useAt
 import { FD } from 'src/features/formData/FormDataWrite';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { useOnGroupCloseValidation } from 'src/features/validation/callbacks/onGroupCloseValidation';
-import { Validation } from 'src/features/validation/validationContext';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { OpenByDefaultProvider } from 'src/layout/RepeatingGroup/OpenByDefaultProvider';
@@ -232,7 +231,6 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
   const appendToList = FD.useAppendToList();
   const removeFromList = FD.useRemoveFromListCallback();
   const onBeforeRowDeletion = useAttachmentDeletionInRepGroups(node);
-  const onDeleteGroupRow = Validation.useOnDeleteGroupRow();
   const onGroupCloseValidation = useOnGroupCloseValidation();
   const waitForNode = useWaitForState<undefined, LayoutNode<'RepeatingGroup'>>(nodeRef);
   const nodeState = produceStateFromNode(node);
@@ -359,7 +357,6 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
       startDeletingRow(uuid);
       const attachmentDeletionSuccessful = await onBeforeRowDeletion(uuid);
       if (attachmentDeletionSuccessful && binding) {
-        onDeleteGroupRow(nodeRef.current, row.uuid);
         removeFromList({
           path: binding,
           startAtIndex: row.index,
@@ -373,7 +370,7 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
       endDeletingRow(uuid, false);
       return false;
     },
-    [nodeRef, nodeStateRef, onBeforeRowDeletion, onDeleteGroupRow, removeFromList, stateRef],
+    [nodeRef, nodeStateRef, onBeforeRowDeletion, removeFromList, stateRef],
   );
 
   const isDeleting = useCallback((uuid: string) => stateRef.current.deletingIds.includes(uuid), [stateRef]);

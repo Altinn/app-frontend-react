@@ -1,33 +1,39 @@
 import { useMemo } from 'react';
 
-import type { NodeValidation } from '..';
+import type { AttachmentValidation, NodeValidation } from '..';
 
-import { buildNodeValidation, filterValidations, selectValidations } from 'src/features/validation/utils';
-import { Validation } from 'src/features/validation/validationContext';
+import { filterValidations, selectValidations } from 'src/features/validation/utils';
 import { getResolvedVisibilityForAttachment } from 'src/features/validation/visibility/visibilityUtils';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
+import type { AttachmentsPlugin } from 'src/features/attachments/AttachmentsPlugin';
+import type { ValidationPlugin } from 'src/features/validation/ValidationPlugin';
+import type { CompWithPlugin } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+
+type ValidTypes = CompWithPlugin<AttachmentsPlugin> & CompWithPlugin<ValidationPlugin>;
 
 /**
  * Returns the validations for the given attachment.
  */
-export function useAttachmentValidations(node: LayoutNode, attachmentId: string | undefined): NodeValidation[] {
-  const componentSelector = Validation.useComponentSelector();
-  const visibilitySelector = Validation.useVisibilitySelector();
+export function useAttachmentValidations(
+  node: LayoutNode<ValidTypes>,
+  attachmentId: string | undefined,
+): NodeValidation<AttachmentValidation>[] {
+  const visibility = NodesInternal.useValidationVisibility(node);
+  const validations = NodesInternal.useValidations(node);
 
   return useMemo(() => {
-    const component = componentSelector(node.getId(), (components) => components[node.getId()]);
-    if (!component?.component || !attachmentId) {
+    if (!attachmentId) {
       return [];
     }
-    const validations = filterValidations(
-      selectValidations(
-        component.component!,
-        getResolvedVisibilityForAttachment(attachmentId, node, visibilitySelector),
-      ),
+    const validation = validations.filter(
+      (v) => 'attachmentId' in v && v.attachmentId === attachmentId,
+    ) as AttachmentValidation[];
+
+    const output = filterValidations(
+      selectValidations(validation, getResolvedVisibilityForAttachment(validation[0]?.visibility, visibility)),
       node,
     );
-    return validations
-      .filter((validation) => validation.meta?.attachmentId === attachmentId)
-      .map((validation) => buildNodeValidation(node, validation));
-  }, [componentSelector, node, attachmentId, visibilitySelector]);
+    return output.map((validation) => ({ ...validation, node }));
+  }, [attachmentId, node, validations, visibility]);
 }

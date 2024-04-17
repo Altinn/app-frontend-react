@@ -1,8 +1,6 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
-import { useStore } from 'zustand';
-
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { useAsRef } from 'src/hooks/useAsRef';
@@ -90,7 +88,7 @@ function NodeResolver<T extends CompTypes = CompTypes>({ node, hidden, item }: N
   const resolverProps = useExpressionResolverProps(node, item);
 
   const def = useDef(item.type);
-  const setNodeProp = useStore(node.store, (state) => state.setNodeProp);
+  const setNodeProp = NodesInternal.useSetNodeProp();
   const resolvedItem = useMemo(
     () => (def as CompDef<T>).evalExpressions(resolverProps as any) as CompInternal<T>,
     [def, resolverProps],

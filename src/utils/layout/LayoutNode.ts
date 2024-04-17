@@ -32,7 +32,7 @@ export interface LayoutNodeProps<Type extends CompTypes> {
  * instance of a component inside a repeating group), finding other components near it.
  */
 export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements LayoutObject {
-  public readonly store: NodesDataStore;
+  protected readonly store: NodesDataStore;
   public readonly path: string[];
   public readonly parent: ParentNode;
   public readonly page: LayoutPage;

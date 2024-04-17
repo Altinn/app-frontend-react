@@ -6,14 +6,13 @@ import { isAttachmentUploaded } from 'src/features/attachments';
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import classes from 'src/features/devtools/components/NodeInspector/ValidationInspector.module.css';
 import { Lang } from 'src/features/language/Lang';
-import { type NodeValidation, ValidationMask, type ValidationSeverity } from 'src/features/validation';
-import { buildNodeValidation, isValidationVisible } from 'src/features/validation/utils';
+import { ValidationMask } from 'src/features/validation';
+import { isValidationVisible } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
-import {
-  getResolvedVisibilityForAttachment,
-  getVisibilityForNode,
-} from 'src/features/validation/visibility/visibilityUtils';
+import { getResolvedVisibilityForAttachment } from 'src/features/validation/visibility/visibilityUtils';
 import { implementsAnyValidation, implementsValidationFilter } from 'src/layout';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
+import type { AttachmentValidation, NodeValidation, ValidationSeverity } from 'src/features/validation';
 import type { ValidationFilterFunction } from 'src/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -32,8 +31,10 @@ const categories = [
 
 export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
   const fieldSelector = Validation.useFieldSelector();
-  const componentSelector = Validation.useComponentSelector();
-  const visibilitySelector = Validation.useVisibilitySelector();
+
+  const validations = NodesInternal.useValidations(node);
+  const nodeVisibility = NodesInternal.useValidationVisibility(node);
+
   const attachments = useAttachments();
 
   if (!implementsAnyValidation(node.def)) {
@@ -44,33 +45,36 @@ export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
     );
   }
 
-  const nodeVisibility = getVisibilityForNode(node, visibilitySelector);
   const filters = implementsValidationFilter(node.def) ? node.def.getValidationFilters(node as any) : [];
-  const component = componentSelector(node.item.id, (components) => components[node.item.id]);
-  const componentValidations = component?.component?.map((validation) => buildNodeValidation(node, validation)) ?? [];
+  const componentValidations: NodeValidation[] = validations.map((validation) => ({ ...validation, node })) ?? [];
 
-  // Validations that are not bound to any datamodel field or attachment
-  const unboundComponentValidations = componentValidations.filter((validation) => !validation.meta?.attachmentId);
+  // Validations that are not bound to any data model field or attachment
+  const unboundComponentValidations = componentValidations.filter(
+    (validation) => !('bindingKey' in validation) && !('attachmentId' in validation),
+  );
 
   // Validations for attachments
-  const attachmentValidations: { [key: string]: { attachmentVisibility: number; validations: NodeValidation[] } } =
-    componentValidations.reduce((obj, val) => {
-      const attachmentId = val.meta?.attachmentId;
-      if (attachmentId) {
-        const attachment = attachments[node.item.id]?.find(
-          (a) => isAttachmentUploaded(a) && a.data.id === attachmentId,
+  const attachmentValidations: {
+    [key: string]: { attachmentVisibility: number; validations: NodeValidation<AttachmentValidation>[] };
+  } = componentValidations.reduce((obj, val) => {
+    const attachmentValidation = 'attachmentId' in val ? val : undefined;
+    if (attachmentValidation) {
+      const attachmentId = attachmentValidation.attachmentId;
+      const attachment = attachments[node.item.id]?.find((a) => isAttachmentUploaded(a) && a.data.id === attachmentId);
+      const key = `Vedlegg ${attachment?.data.filename ?? attachmentId}`;
+      if (!obj[key]) {
+        const attachmentVisibility = getResolvedVisibilityForAttachment(
+          attachmentValidation.visibility,
+          nodeVisibility,
         );
-        const key = `Vedlegg ${attachment?.data.filename ?? attachmentId}`;
-        if (!obj[key]) {
-          const attachmentVisibility = getResolvedVisibilityForAttachment(attachmentId, node, visibilitySelector);
-          obj[key] = { attachmentVisibility, validations: [] };
-        }
-        obj[key].validations.push(val);
+        obj[key] = { attachmentVisibility, validations: [] };
       }
-      return obj;
-    }, {});
+      obj[key].validations.push(val);
+    }
+    return obj;
+  }, {});
 
-  // Validations for datamodel bindings
+  // Validations for data model bindings
   const bindingValidations: { [key: string]: NodeValidation[] } = {};
   for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings ?? {})) {
     const key = `Datamodell ${bindingKey}`;
@@ -78,15 +82,10 @@ export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
 
     const fieldValidation = fieldSelector(field, (fields) => fields[field]);
     if (fieldValidation) {
-      bindingValidations[key].push(
-        ...fieldValidation.map((validation) => buildNodeValidation(node, validation, bindingKey)),
-      );
+      bindingValidations[key].push(...fieldValidation.map((validation) => ({ ...validation, node, bindingKey })));
     }
-    if (component?.bindingKeys?.[bindingKey]) {
-      bindingValidations[key].push(
-        ...component.bindingKeys[bindingKey].map((validation) => buildNodeValidation(node, validation, bindingKey)),
-      );
-    }
+    const validationsForKey = componentValidations.filter((v) => 'bindingKey' in v && v.bindingKey === bindingKey);
+    bindingValidations[key].push(...validationsForKey.map((validation) => ({ ...validation, node, bindingKey })));
   }
 
   return (
@@ -162,7 +161,7 @@ const ValidationItems = ({ grouping, validations, node, visibility, filters }: V
       <ul style={{ padding: 0 }}>
         {validations.map((validation) => (
           <ValidationItem
-            key={`${validation.source}-${validation.message.key}-${validation.severity}`}
+            key={`${validation.node.getId()}-${validation.source}-${validation.message.key}-${validation.severity}`}
             validation={validation}
             node={node}
             visibility={visibility}

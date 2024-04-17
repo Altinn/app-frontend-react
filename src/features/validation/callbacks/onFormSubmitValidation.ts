@@ -12,7 +12,8 @@ import {
 } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
-import { useNodesAsLaxRef } from 'src/utils/layout/NodesContext';
+import { NodesInternal, useNodesAsLaxRef } from 'src/utils/layout/NodesContext';
+import type { ValidationLookupSources } from 'src/features/validation/utils';
 
 /**
  * Checks for any validation errors before submitting the form.
@@ -24,6 +25,8 @@ import { useNodesAsLaxRef } from 'src/utils/layout/NodesContext';
 export function useOnFormSubmitValidation() {
   const nodes = useNodesAsLaxRef();
   const validation = Validation.useLaxRef();
+  const setNodeVisibility = NodesInternal.useSetNodeVisibility();
+  const nodeValidationsSelector = NodesInternal.useValidationsSelector();
 
   /* Ensures the callback will have the latest state */
   const callback = useEffectEvent((): boolean => {
@@ -39,9 +42,13 @@ export function useOnFormSubmitValidation() {
       return false;
     }
 
-    const setNodeVisibility = validation.current.setNodeVisibility;
     const state = validation.current.state;
     const setShowAllErrors = validation.current.setShowAllErrors;
+
+    const findIn: ValidationLookupSources = {
+      validationState: state,
+      nodeValidationsSelector,
+    };
 
     /*
      * First: check and show any frontend errors
@@ -49,7 +56,7 @@ export function useOnFormSubmitValidation() {
     const nodesWithFrontendErrors = layoutPages
       .allNodes()
       .filter(shouldValidateNode)
-      .filter((n) => getValidationsForNode(n, state, ValidationMask.All, 'error').length > 0);
+      .filter((n) => getValidationsForNode(n, findIn, ValidationMask.All, 'error').length > 0);
 
     if (nodesWithFrontendErrors.length > 0) {
       setNodeVisibility(nodesWithFrontendErrors, ValidationMask.All);
@@ -63,7 +70,7 @@ export function useOnFormSubmitValidation() {
     const nodesWithAnyError = layoutPages
       .allNodes()
       .filter(shouldValidateNode)
-      .filter((n) => getValidationsForNode(n, state, ValidationMask.AllIncludingBackend, 'error').length > 0);
+      .filter((n) => getValidationsForNode(n, findIn, ValidationMask.AllIncludingBackend, 'error').length > 0);
 
     if (nodesWithAnyError.length > 0) {
       setNodeVisibility(nodesWithAnyError, ValidationMask.All);

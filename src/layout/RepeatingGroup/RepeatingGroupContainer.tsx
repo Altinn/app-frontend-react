@@ -91,10 +91,7 @@ export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HT
         item={true}
         xs={12}
       >
-        <ComponentValidations
-          validations={validations}
-          node={node}
-        />
+        <ComponentValidations validations={validations} />
       </Grid>
     </Grid>
   );

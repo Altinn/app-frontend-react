@@ -4,6 +4,8 @@ import { getValidationsForNode, getVisibilityMask, shouldValidateNode } from 'sr
 import { Validation } from 'src/features/validation/validationContext';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { useOrder } from 'src/hooks/useNavigatePage';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
+import type { ValidationLookupSources } from 'src/features/validation/utils';
 import type { PageValidation } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -14,10 +16,15 @@ import type { LayoutPage } from 'src/utils/layout/LayoutPage';
  *
  */
 export function useOnPageNavigationValidation() {
-  const setNodeVisibility = Validation.useSetNodeVisibility();
+  const setNodeVisibility = NodesInternal.useSetNodeVisibility();
   const selector = Validation.useSelector();
   const validating = Validation.useValidating();
   const pageOrder = useOrder();
+
+  const findIn: ValidationLookupSources = {
+    validationState: selector,
+    nodeValidationsSelector: NodesInternal.useValidationsSelector(),
+  };
 
   /* Ensures the callback will have the latest state */
   const callback = useEffectEvent((currentPage: LayoutPage, config: PageValidation): boolean => {
@@ -48,7 +55,7 @@ export function useOnPageNavigationValidation() {
     // Get nodes with errors along with their errors
     const nodeErrors = nodes
       .filter(shouldValidateNode)
-      .map((n) => [n, getValidationsForNode(n, selector, mask, 'error')] as const)
+      .map((n) => [n, getValidationsForNode(n, findIn, mask, 'error')] as const)
       .filter(([_, e]) => e.length > 0);
 
     if (nodeErrors.length > 0) {
@@ -58,7 +65,7 @@ export function useOnPageNavigationValidation() {
       );
 
       // Only block navigation if there are errors on the current or previous pages
-      return nodeErrors.some(([_, e]) => e.some((v) => pageOrder.indexOf(v.pageKey) <= currentIndex));
+      return nodeErrors.some(([_, e]) => e.some((v) => pageOrder.indexOf(v.node.pageKey()) <= currentIndex));
     }
 
     return false;

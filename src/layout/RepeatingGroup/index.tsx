@@ -135,7 +135,7 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
   }
 
   runComponentValidation(
-    node: LayoutNode<'RepeatingGroup'>,
+    _node: LayoutNode<'RepeatingGroup'>,
     item: CompInternal<'RepeatingGroup'>,
   ): ComponentValidation[] {
     if (!item.dataModelBindings) {
@@ -152,7 +152,6 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
       validations.push({
         message: { key: 'validation_errors.minItems', params: [minCount] },
         severity: 'error',
-        componentId: node.getId(),
         source: FrontendValidationSource.Component,
         // Treat visibility of minCount the same as required to prevent showing an error immediately
         category: ValidationMask.Required,

@@ -250,12 +250,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
           {...gridBreakpoints(item.grid?.innerGrid)}
         >
           <RenderComponent {...componentProps} />
-          {showValidationMessages && (
-            <ComponentValidations
-              validations={filteredValidationErrors}
-              node={node}
-            />
-          )}
+          {showValidationMessages && <ComponentValidations validations={filteredValidationErrors} />}
         </Grid>
       </Grid>
     </FormComponentContextProvider>

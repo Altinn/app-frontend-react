@@ -1,9 +1,8 @@
 import { ValidationMask } from 'src/features/validation';
 import { implementsValidationFilter } from 'src/layout';
 import type {
+  AnyValidation,
   BaseValidation,
-  ComponentValidation,
-  FieldValidation,
   FieldValidations,
   NodeValidation,
   ValidationContext,
@@ -12,6 +11,7 @@ import type {
   ValidationState,
 } from 'src/features/validation';
 import type { ValidationSelector } from 'src/features/validation/validationContext';
+import type { ValidationsSelector } from 'src/features/validation/ValidationStorePlugin';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
@@ -81,23 +81,6 @@ export function filterValidations<Validation extends BaseValidation>(
 }
 
 /**
- * Converts a field or component validation to a node validation
- * NodeValidation contains additional information useful for navigating using the error report
- */
-export function buildNodeValidation<Severity extends ValidationSeverity = ValidationSeverity>(
-  node: LayoutNode,
-  validation: FieldValidation<Severity> | ComponentValidation<Severity>,
-  bindingKey?: string,
-): NodeValidation<Severity> {
-  return {
-    ...validation,
-    bindingKey,
-    componentId: node.getId(),
-    pageKey: node.pageKey(),
-  };
-}
-
-/**
  * This can be used in a filter to remove hidden nodes from consideration when checking for validation errors
  */
 export function shouldValidateNode(node: LayoutNode): boolean {
@@ -120,24 +103,29 @@ export function selectValidations<T extends BaseValidation>(
   return filteredValidations.filter((validation) => isValidationVisible(validation, mask));
 }
 
-/*
+export interface ValidationLookupSources {
+  validationState: ValidationState | ValidationSelector;
+  nodeValidationsSelector: ValidationsSelector;
+}
+
+/**
  * Gets all validations for a node in a single list, optionally filtered by severity
  * Looks at data model bindings to get field validations
  */
 export function getValidationsForNode(
   node: LayoutNode,
-  findIn: ValidationSelector | ValidationState,
+  findIn: ValidationLookupSources,
   mask: number,
 ): NodeValidation[];
 export function getValidationsForNode<Severity extends ValidationSeverity>(
   node: LayoutNode,
-  findIn: ValidationSelector | ValidationState,
+  findIn: ValidationLookupSources,
   mask: number,
   severity: Severity,
-): NodeValidation<Severity>[];
+): NodeValidation<AnyValidation<Severity>>[];
 export function getValidationsForNode(
   node: LayoutNode,
-  findIn: ValidationSelector | ValidationState,
+  findIn: ValidationLookupSources,
   mask: number,
   severity?: ValidationSeverity,
 ): NodeValidation[] {
@@ -147,10 +135,10 @@ export function getValidationsForNode(
   }
 
   const selector: ValidationSelector = (cacheKey, selector) => {
-    if (typeof findIn === 'function') {
-      return findIn(cacheKey, selector);
+    if (typeof findIn.validationState === 'function') {
+      return findIn.validationState(cacheKey, selector);
     }
-    return selector({ state: findIn } as ValidationContext);
+    return selector({ state: findIn.validationState } as ValidationContext);
   };
 
   if (node.item.dataModelBindings) {
@@ -158,26 +146,15 @@ export function getValidationsForNode(
       const fieldValidations = selector(`field-${field}`, (state) => state.state.fields[field]);
       if (fieldValidations) {
         const validations = filterValidations(selectValidations(fieldValidations, mask, severity), node);
-        validationMessages.push(...validations.map((validation) => buildNodeValidation(node, validation, bindingKey)));
-      }
-
-      const cacheKey = ['binding', node.getId(), bindingKey].join('-');
-      const bindingValidations = selector(
-        cacheKey,
-        (state) => state.state.components[node.getId()]?.bindingKeys?.[bindingKey],
-      );
-      if (bindingValidations) {
-        const validations = filterValidations(selectValidations(bindingValidations, mask, severity), node);
-        validationMessages.push(...validations.map((validation) => buildNodeValidation(node, validation, bindingKey)));
+        validationMessages.push(...validations.map((validation) => ({ ...validation, node, bindingKey })));
       }
     }
   }
 
-  const componentValidations = selector(node.getId(), (state) => state.state.components[node.getId()]?.component);
-  if (componentValidations) {
-    const validations = filterValidations(selectValidations(componentValidations, mask, severity), node);
-    validationMessages.push(...validations.map((validation) => buildNodeValidation(node, validation)));
-  }
+  const componentValidations = findIn.nodeValidationsSelector(node);
+  const validations = filterValidations(selectValidations(componentValidations, mask, severity), node);
+  validationMessages.push(...validations.map((validation) => ({ ...validation, node })));
+
   return validationMessages;
 }
 

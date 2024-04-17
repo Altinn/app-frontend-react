@@ -11,7 +11,6 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { useBackendValidation } from 'src/features/validation/backendValidation/useBackendValidation';
 import { useExpressionValidation } from 'src/features/validation/expressionValidation/useExpressionValidation';
 import { useInvalidDataValidation } from 'src/features/validation/invalidDataValidation/useInvalidDataValidation';
-import { useNodeValidation } from 'src/features/validation/nodeValidation/useNodeValidation';
 import { useSchemaValidation } from 'src/features/validation/schemaValidation/useSchemaValidation';
 import {
   getVisibilityMask,
@@ -19,23 +18,15 @@ import {
   mergeFieldValidations,
   selectValidations,
 } from 'src/features/validation/utils';
-import { useVisibility } from 'src/features/validation/visibility/useVisibility';
-import {
-  onBeforeRowDelete,
-  setVisibilityForAttachment,
-  setVisibilityForNode,
-} from 'src/features/validation/visibility/visibilityUtils';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import type {
   BackendValidationIssueGroups,
   BackendValidations,
-  ComponentValidations,
   FieldValidations,
   ValidationContext,
   WaitForValidation,
 } from 'src/features/validation';
-import type { Visibility } from 'src/features/validation/visibility/visibilityUtils';
 import type { WaitForState } from 'src/hooks/useWaitForState';
 
 interface NewStoreProps {
@@ -46,7 +37,6 @@ interface Internals {
   isLoading: boolean;
   individualValidations: {
     backend: BackendValidations;
-    component: ComponentValidations;
     expression: FieldValidations;
     schema: FieldValidations;
     invalidData: FieldValidations;
@@ -57,7 +47,6 @@ interface Internals {
     value: Internals['individualValidations'][K],
     issueGroups?: BackendValidationIssueGroups,
   ) => void;
-  updateVisibility: (mutator: (visibility: Visibility) => void) => void;
   updateValidating: (validating: WaitForValidation) => void;
 }
 
@@ -69,24 +58,7 @@ function initialCreateStore({ validating }: NewStoreProps) {
       state: {
         task: [],
         fields: {},
-        components: {},
       },
-      visibility: {
-        mask: 0,
-        children: {},
-      },
-      removeRowVisibilityOnDelete: (node, rowId) =>
-        set((state) => {
-          onBeforeRowDelete(node, rowId, state.visibility);
-        }),
-      setNodeVisibility: (nodes, newVisibility, rowId) =>
-        set((state) => {
-          nodes.forEach((node) => setVisibilityForNode(node, state.visibility, newVisibility, rowId));
-        }),
-      setAttachmentVisibility: (attachmentId, node, newVisibility) =>
-        set((state) => {
-          setVisibilityForAttachment(attachmentId, node, state.visibility, newVisibility);
-        }),
       setShowAllErrors: (newValue) =>
         set((state) => {
           state.showAllErrors = newValue;
@@ -99,7 +71,6 @@ function initialCreateStore({ validating }: NewStoreProps) {
       isLoading: true,
       individualValidations: {
         backend: { task: [], fields: {} },
-        component: {},
         expression: {},
         schema: {},
         invalidData: {},
@@ -113,20 +84,12 @@ function initialCreateStore({ validating }: NewStoreProps) {
             state.issueGroupsProcessedLast = issueGroups;
           }
           state.individualValidations[key] = validations;
-          if (key === 'component') {
-            state.state.components = validations as ComponentValidations;
-          } else {
-            state.state.fields = mergeFieldValidations(
-              state.individualValidations.backend.fields,
-              state.individualValidations.invalidData,
-              state.individualValidations.schema,
-              state.individualValidations.expression,
-            );
-          }
-        }),
-      updateVisibility: (mutator) =>
-        set((state) => {
-          mutator(state.visibility);
+          state.state.fields = mergeFieldValidations(
+            state.individualValidations.backend.fields,
+            state.individualValidations.invalidData,
+            state.individualValidations.schema,
+            state.individualValidations.expression,
+          );
         }),
       updateValidating: (newValidating) =>
         set((state) => {
@@ -174,7 +137,7 @@ export function ValidationProvider({ children, isCustomReceipt = false }: PropsW
     <Provider validating={validating}>
       <MakeWaitForState waitForStateRef={waitForStateRef} />
       <UpdateValidations isCustomReceipt={isCustomReceipt} />
-      <ManageVisibility />
+      <ManageShowAllErrors />
       <LoadingBlocker isCustomReceipt={isCustomReceipt}>{children}</LoadingBlocker>
     </Provider>
   );
@@ -209,14 +172,9 @@ function UpdateValidations({ isCustomReceipt }: Props) {
     }
   }, [backendValidation, updateValidations]);
 
-  const componentValidations = useNodeValidation();
   const expressionValidations = useExpressionValidation();
   const schemaValidations = useSchemaValidation();
   const invalidDataValidations = useInvalidDataValidation();
-
-  useEffect(() => {
-    updateValidations('component', componentValidations);
-  }, [componentValidations, updateValidations]);
 
   useEffect(() => {
     updateValidations('expression', expressionValidations);
@@ -233,13 +191,11 @@ function UpdateValidations({ isCustomReceipt }: Props) {
   return null;
 }
 
-function ManageVisibility() {
-  const validations = useSelector((state) => state.state);
-  const setVisibility = useSelector((state) => state.updateVisibility);
+function ManageShowAllErrors() {
+  const taskValidations = useSelector((state) => state.state.task);
+  const fieldValidations = useSelector((state) => state.state.fields);
   const showAllErrors = useSelector((state) => state.showAllErrors);
   const setShowAllErrors = useSelector((state) => state.setShowAllErrors);
-
-  useVisibility(validations, setVisibility);
 
   /**
    * Hide unbound errors as soon as possible.
@@ -248,13 +204,13 @@ function ManageVisibility() {
     if (showAllErrors) {
       const backendMask = getVisibilityMask(['Backend', 'CustomBackend']);
       const hasFieldErrors =
-        Object.values(validations.fields).flatMap((field) => selectValidations(field, backendMask, 'error')).length > 0;
+        Object.values(fieldValidations).flatMap((field) => selectValidations(field, backendMask, 'error')).length > 0;
 
-      if (!hasFieldErrors && !hasValidationErrors(validations.task)) {
+      if (!hasFieldErrors && !hasValidationErrors(taskValidations)) {
         setShowAllErrors(false);
       }
     }
-  }, [setShowAllErrors, showAllErrors, validations.fields, validations.task]);
+  }, [fieldValidations, setShowAllErrors, showAllErrors, taskValidations]);
 
   return null;
 }
@@ -288,8 +244,6 @@ function useDelayedSelector<U>(
 
 export type ValidationSelector = ReturnType<typeof useDelayedSelector<ValidationContext>>;
 export type ValidationFieldSelector = ReturnType<typeof useDelayedSelector<FieldValidations>>;
-export type ValidationComponentSelector = ReturnType<typeof useDelayedSelector<ComponentValidations>>;
-export type ValidationVisibilitySelector = ReturnType<typeof useDelayedSelector<Visibility>>;
 
 export const Validation = {
   useFullStateRef: () => useSelectorAsRef((state) => state.state),
@@ -297,12 +251,7 @@ export const Validation = {
   // Selectors. These are memoized, so they won't cause a re-render unless the selected fields change.
   useSelector: () => useDelayedSelector((state) => state),
   useFieldSelector: () => useDelayedSelector((state) => state.state.fields),
-  useComponentSelector: () => useDelayedSelector((state) => state.state.components),
-  useVisibilitySelector: () => useDelayedSelector((state) => state.visibility),
 
-  useOnDeleteGroupRow: () => useSelector((state) => state.removeRowVisibilityOnDelete),
-  useSetAttachmentVisibility: () => useSelector((state) => state.setAttachmentVisibility),
-  useSetNodeVisibility: () => useSelector((state) => state.setNodeVisibility),
   useSetShowAllErrors: () => useSelector((state) => state.setShowAllErrors),
   useValidating: () => useSelector((state) => state.validating),
 

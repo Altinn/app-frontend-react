@@ -61,10 +61,7 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, IControlledRadioGroup
       <Table.Cell id={rowLabelId}>
         <Typography component={'div'}>
           <GenericComponentLegend />
-          <ComponentValidations
-            validations={validations}
-            node={node}
-          />
+          <ComponentValidations validations={validations} />
         </Typography>
       </Table.Cell>
       {calculatedOptions?.map((option) => {

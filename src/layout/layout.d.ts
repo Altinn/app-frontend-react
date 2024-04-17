@@ -117,6 +117,10 @@ export type LayoutNodeFromObj<T> = T extends { type: infer Type }
 
 export type TypesFromCategory<Cat extends CompCategory> = $Keys<PickByValue<CompClassMapCategories, Cat>>;
 
+export type CompWithPlugin<Plugin> = {
+  [Type in CompTypes]: Extract<ComponentTypeConfigs[Type]['plugins'], Plugin> extends never ? never : Type;
+}[CompTypes];
+
 export type DefFromCategory<C extends CompCategory> = C extends 'presentation'
   ? PresentationComponent<any>
   : C extends 'form'

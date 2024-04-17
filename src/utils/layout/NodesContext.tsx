@@ -5,6 +5,7 @@ import dot from 'dot-object';
 import deepEqual from 'fast-deep-equal';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
+import type { UnionToIntersection } from 'utility-types';
 import type { StoreApi } from 'zustand';
 
 import { createZustandContext } from 'src/core/contexts/zustandContext';
@@ -13,6 +14,7 @@ import { shouldUpdate } from 'src/features/form/dynamics/conditionalRendering';
 import { useDynamics } from 'src/features/form/dynamics/DynamicsContext';
 import { useHiddenLayoutsExpressions } from 'src/features/form/layout/LayoutsContext';
 import { useHiddenPages, useSetHiddenPages } from 'src/features/form/layout/PageNavigationContext';
+import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
 import { getComponentDef } from 'src/layout';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
@@ -20,11 +22,13 @@ import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
 import { NodesGenerator } from 'src/utils/layout/NodesGenerator';
+import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
 import type { NodeRef } from 'src/layout';
 import type { CompTypes, LayoutNodeFromObj } from 'src/layout/layout';
 import type { ItemStore, ItemStoreFromNode } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
+import type { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 
 export interface NodesContext {
   nodes: LayoutPages | undefined;
@@ -66,7 +70,23 @@ export interface TopLevelNodesStore<Types extends CompTypes = CompTypes> {
   [key: string]: ItemStore<Types>;
 }
 
-export interface NodesDataContext {
+export type NodeDataStorePlugins = {
+  validation: ValidationStorePluginConfig;
+};
+
+const DataStorePlugins: { [K in keyof NodeDataStorePlugins]: NodeDataPlugin<NodeDataStorePlugins[K]> } = {
+  validation: new ValidationStorePlugin(),
+};
+
+type AllFlat<T> = UnionToIntersection<T extends Record<string, infer U> ? U : never>;
+type ExtraFunctions = AllFlat<{
+  [K in keyof NodeDataStorePlugins]: NodeDataStorePlugins[K]['extraFunctions'];
+}>;
+type ExtraHooks = AllFlat<{
+  [K in keyof NodeDataStorePlugins]: NodeDataStorePlugins[K]['extraHooks'];
+}>;
+
+export type NodesDataContext = {
   pages: PageHierarchy;
   addNode: <N extends LayoutNode>(node: N, targetState: any) => void;
   removeNode: (node: LayoutNode) => void;
@@ -80,7 +100,7 @@ export interface NodesDataContext {
   markPageReady: (pageKey: string) => void;
   removePage: (pageKey: string) => void;
   setPageProp: <K extends keyof PageStore>(pageKey: string, prop: K, value: PageStore[K]) => void;
-}
+} & ExtraFunctions;
 
 /**
  * Function that takes a source object and sets every property on the target object to the same value.
@@ -188,6 +208,12 @@ export function createNodesDataStore() {
           const changed = setProperty(obj, prop as string, value);
           changed && console.log('debug, One or more properties changed in page', pageKey);
         }),
+      ...(Object.fromEntries(
+        Object.entries(DataStorePlugins).map(([key, plugin]) => [
+          key,
+          plugin.extraFunctions((data) => set(() => data)),
+        ]),
+      ) as unknown as ExtraFunctions),
     })),
   );
 }
@@ -203,6 +229,7 @@ const DataStore = createZustandContext<NodesDataStore, NodesDataContext>({
   required: true,
   initialCreateStore: createNodesDataStore,
 });
+export type NodesDataStoreFull = typeof DataStore;
 
 export const NodesProvider = (props: React.PropsWithChildren) => (
   <NodesStore.Provider>
@@ -317,6 +344,13 @@ export function useIsHiddenSelector() {
  * A set of tools, selectors and functions to use internally in node generator components.
  */
 export const NodesInternal = {
+  useNodeStateSelector<N extends LayoutNode | undefined, Out>(
+    node: N,
+    selector: (state: ItemStoreFromNode<N>) => Out,
+  ): N extends undefined ? Out | undefined : Out {
+    return DataStore.useSelector((s) => (node ? selector(pickDataStorePath(s.pages, node)) : undefined)) as any;
+  },
+
   useNodesStore: () => NodesStore.useStore(),
   useDataStoreFor: (node: LayoutNode) =>
     DataStore.useSelector((s) => {
@@ -327,6 +361,7 @@ export const NodesInternal = {
       }
     }),
   useDataStore: () => DataStore.useStore(),
+  useSetNodeProp: () => DataStore.useSelector((s) => s.setNodeProp),
   useSetNodes: () => NodesStore.useSelector((s) => s.setNodes),
   useAddPage: () => DataStore.useSelector((s) => s.addPage),
   useSetPageProp: () => DataStore.useSelector((s) => s.setPageProp),
@@ -356,6 +391,10 @@ export const NodesInternal = {
   useRemovePage: () => DataStore.useSelector((s) => s.removePage),
   useAddNode: () => DataStore.useSelector((s) => s.addNode),
   useRemoveNode: () => DataStore.useSelector((s) => s.removeNode),
+
+  ...(Object.fromEntries(
+    Object.entries(DataStorePlugins).map(([key, plugin]) => [key, plugin.extraHooks(DataStore)]),
+  ) as unknown as ExtraHooks),
 };
 
 function getNotReady(pages: PageHierarchy) {

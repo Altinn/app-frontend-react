@@ -11,6 +11,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/RadioButtons/ControlledRadioGroup.module.css';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
 import { shouldUseRowLayout } from 'src/utils/layout';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IRadioButtonsContainerProps } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 
@@ -19,7 +20,7 @@ export type IControlledRadioGroupProps = IRadioButtonsContainerProps;
 export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
   const { node, isValid, overrideDisplay } = props;
   const item = useNodeItem(node);
-  const parentItem = useNodeItem(node.parent);
+  const parentItem = useNodeItem(node.parent instanceof BaseLayoutNode ? node.parent : undefined);
   const { id, layout, readOnly, textResourceBindings, required } = item;
   const showAsCard = 'showAsCard' in item ? item.showAsCard : false;
   const alertOnChange = 'alertOnChange' in item ? item.alertOnChange : undefined;
@@ -34,7 +35,7 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
   const confirmChangeText = langAsString('form_filler.alert_confirm');
 
   const getLabelPrefixForLikert = () => {
-    if (parentItem.type === 'Likert' && parentItem.textResourceBindings?.leftColumnHeader) {
+    if (parentItem?.type === 'Likert' && parentItem.textResourceBindings?.leftColumnHeader) {
       return `${langAsString(parentItem.textResourceBindings.leftColumnHeader)} `;
     }
     return null;

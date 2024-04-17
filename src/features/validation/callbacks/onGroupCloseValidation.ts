@@ -3,6 +3,8 @@ import { useCallback } from 'react';
 import { getValidationsForNode, getVisibilityMask, shouldValidateNode } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
+import type { ValidationLookupSources } from 'src/features/validation/utils';
 import type { AllowedValidationMasks } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -11,9 +13,15 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
  * If there are errors, the visibility is set, and will return true, indicating that the row should not be closed.
  */
 export function useOnGroupCloseValidation() {
-  const setNodeVisibility = Validation.useSetNodeVisibility();
+  const setNodeVisibility = NodesInternal.useSetNodeVisibility();
+  const nodeValidationSelector = NodesInternal.useValidationsSelector();
   const selector = Validation.useSelector();
   const validating = Validation.useValidating();
+
+  const findIn: ValidationLookupSources = {
+    validationState: selector,
+    nodeValidationsSelector: nodeValidationSelector,
+  };
 
   /* Ensures the callback will have the latest state */
   const callback = useEffectEvent((node: LayoutNode, rowUuid: string, masks: AllowedValidationMasks): boolean => {
@@ -23,7 +31,7 @@ export function useOnGroupCloseValidation() {
       .flat({ onlyInRowUuid: rowUuid })
       .filter((n) => !n.isSameAs(node)) // Exclude self, only check children
       .filter(shouldValidateNode)
-      .filter((n) => getValidationsForNode(n, selector, mask, 'error').length > 0);
+      .filter((n) => getValidationsForNode(n, findIn, mask, 'error').length > 0);
 
     if (nodesWithErrors.length > 0) {
       setNodeVisibility(nodesWithErrors, mask);

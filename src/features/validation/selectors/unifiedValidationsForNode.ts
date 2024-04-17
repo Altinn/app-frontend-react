@@ -4,7 +4,9 @@ import type { NodeValidation } from '..';
 
 import { getValidationsForNode } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
-import { getVisibilityForNode } from 'src/features/validation/visibility/visibilityUtils';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
+import type { ValidationLookupSources } from 'src/features/validation/utils';
+import type { ItemStore } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 /**
@@ -12,14 +14,25 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
  * Both validations connected to specific data model bindings,
  * and general component validations in a single list.
  */
+const emptyArray = [];
 export function useUnifiedValidationsForNode(node: LayoutNode | undefined): NodeValidation[] {
+  const visibility = NodesInternal.useNodeStateSelector(node, (state: ItemStore) =>
+    'validationVisibility' in state ? state.validationVisibility : 0,
+  );
+
   const selector = Validation.useSelector();
-  const visibilitySelector = Validation.useVisibilitySelector();
+  const nodeValidationsSelector = NodesInternal.useValidationsSelector();
 
   return useMemo(() => {
     if (!node) {
-      return [];
+      return emptyArray;
     }
-    return getValidationsForNode(node, selector, getVisibilityForNode(node, visibilitySelector));
-  }, [node, selector, visibilitySelector]);
+
+    const findIn: ValidationLookupSources = {
+      validationState: selector,
+      nodeValidationsSelector,
+    };
+
+    return getValidationsForNode(node, findIn, visibility);
+  }, [node, nodeValidationsSelector, selector, visibility]);
 }

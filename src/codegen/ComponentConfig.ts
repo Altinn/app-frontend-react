@@ -5,8 +5,9 @@ import { LabelRendering } from 'src/codegen/Config';
 import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import { GenerateRaw } from 'src/codegen/dataTypes/GenerateRaw';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
+import { ValidationPlugin } from 'src/features/validation/ValidationPlugin';
 import { CompCategory } from 'src/layout/common';
-import { isNodeDefChildrenPlugin, NodeDefPlugin } from 'src/utils/layout/NodeDefPlugin';
+import { isNodeDefChildrenPlugin, NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { ComponentBehaviors, RequiredComponentConfig } from 'src/codegen/Config';
 import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
 import type { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
@@ -18,7 +19,7 @@ import type {
   FormComponent,
   PresentationComponent,
 } from 'src/layout/LayoutComponent';
-import type { NodeDefChildrenPlugin } from 'src/utils/layout/NodeDefPlugin';
+import type { NodeDefChildrenPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 
 const CategoryImports: { [Category in CompCategory]: GenerateImportedSymbol<any> } = {
   [CompCategory.Action]: new GenerateImportedSymbol<ActionComponent<any>>({
@@ -63,10 +64,11 @@ export class ComponentConfig {
       this.inner.extends(CG.common('FormComponentProps'));
       this.extendTextResources(CG.common('TRBFormComp'));
     }
-    if (config.category === CompCategory.Form || config.category === CompCategory.Container) {
+    if (this.isFormLike()) {
       this.inner.extends(CG.common('SummarizableComponentProps'));
       this.extendTextResources(CG.common('TRBSummarizable'));
       this.behaviors.isSummarizable = true;
+      this.addPlugin(new ValidationPlugin());
     }
 
     if (
@@ -138,7 +140,7 @@ export class ComponentConfig {
     return this;
   }
 
-  private isFormLike(): boolean {
+  public isFormLike(): boolean {
     return this.config.category === CompCategory.Form || this.config.category === CompCategory.Container;
   }
 
@@ -237,6 +239,17 @@ export class ComponentConfig {
       from: `src/layout/common`,
     });
 
+    const pluginUnion =
+      this.plugins.length === 0
+        ? 'never'
+        : this.plugins
+            .map((plugin) => {
+              const PluginName = plugin.makeImport();
+              const genericArgs = plugin.makeGenericArgs();
+              return genericArgs ? `${PluginName}<${genericArgs}>` : `${PluginName}`;
+            })
+            .join(' | ');
+
     const staticElements = [
       `export const Config = {
          def: new ${impl.toTypeScript()}(),
@@ -249,6 +262,7 @@ export class ComponentConfig {
          category: ${CompCategory}.${this.config.category},
          layout: ${this.inner};
          nodeObj: ${nodeObj}${nodeSuffix};
+         plugins: ${pluginUnion};
        }`,
     ];
 

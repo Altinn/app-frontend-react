@@ -1,6 +1,7 @@
 import { CG } from 'src/codegen/CG';
 import { LabelRendering } from 'src/codegen/Config';
 import { AlertOnChangePlugin } from 'src/features/alertOnChange/AlertOnChangePlugin';
+import { AttachmentsPlugin } from 'src/features/attachments/AttachmentsPlugin';
 import { CompCategory } from 'src/layout/common';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 
@@ -22,6 +23,7 @@ export const Config = asUploaderComponent(
 
 export function asUploaderComponent(config: ComponentConfig) {
   return config
+    .addPlugin(new AttachmentsPlugin())
     .addDataModelBinding(CG.common('IDataModelBindingsSimple').optional())
     .addDataModelBinding(CG.common('IDataModelBindingsList').optional())
     .addProperty(

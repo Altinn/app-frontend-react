@@ -7,7 +7,7 @@ import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator
 import type { BaseItemState, ItemStore, StateFactoryProps } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export interface PluginConfig {
+export interface DefPluginConfig {
   componentType: CompTypes;
   expectedFromExternal?: Record<string, any>;
   extraState?: Record<string, any>;
@@ -15,34 +15,38 @@ export interface PluginConfig {
   settings?: any;
 }
 
-interface PluginBaseItemState<Config extends PluginConfig> extends BaseItemState<PluginCompType<Config>> {
-  item: PluginCompInternal<Config> & PluginExtraInItem<Config>;
+interface DefPluginBaseItemState<Config extends DefPluginConfig> extends BaseItemState<DefPluginCompType<Config>> {
+  item: DefPluginCompInternal<Config> & DefPluginExtraInItem<Config>;
 }
 
-export type PluginCompType<Config extends PluginConfig> = Config['componentType'];
-export type PluginExtraState<Config extends PluginConfig> = Config['extraState'];
-export type PluginExtraInItem<Config extends PluginConfig> = Config['extraInItem'];
-export type PluginCompInternal<Config extends PluginConfig> = CompInternal<PluginCompType<Config>>;
-export type PluginState<Config extends PluginConfig> = PluginBaseItemState<Config> & PluginExtraState<Config>;
-export type PluginStateFactoryProps<Config extends PluginConfig> = StateFactoryProps<PluginCompType<Config>>;
-export type PluginExprResolver<Config extends PluginConfig> = ExprResolver<PluginCompType<Config>> & {
-  state: PluginState<Config>;
+export type DefPluginCompType<Config extends DefPluginConfig> = Config['componentType'];
+export type DefPluginExtraState<Config extends DefPluginConfig> = Config['extraState'];
+export type DefPluginExtraInItem<Config extends DefPluginConfig> = Config['extraInItem'];
+export type DefPluginCompInternal<Config extends DefPluginConfig> = CompInternal<DefPluginCompType<Config>>;
+export type DefPluginState<Config extends DefPluginConfig> = DefPluginBaseItemState<Config> &
+  DefPluginExtraState<Config>;
+export type DefPluginStateFactoryProps<Config extends DefPluginConfig> = StateFactoryProps<DefPluginCompType<Config>>;
+export type DefPluginExprResolver<Config extends DefPluginConfig> = ExprResolver<DefPluginCompType<Config>> & {
+  state: DefPluginState<Config>;
 };
-export type PluginCompExternal<Config extends PluginConfig> = Config['expectedFromExternal'];
-export type PluginChildClaimerProps<Config extends PluginConfig> = ChildClaimerProps<PluginCompType<Config>> & {
-  item: PluginCompExternal<Config>;
+export type DefPluginCompExternal<Config extends DefPluginConfig> = Config['expectedFromExternal'];
+export type DefPluginChildClaimerProps<Config extends DefPluginConfig> = ChildClaimerProps<
+  DefPluginCompType<Config>
+> & {
+  item: DefPluginCompExternal<Config>;
 };
-export type PluginSettings<Config extends PluginConfig> = Config['settings'];
+export type DefPluginSettings<Config extends DefPluginConfig> = Config['settings'];
+export type ConfigFromDefPlugin<C extends NodeDefPlugin<any>> = C extends NodeDefPlugin<infer Config> ? Config : never;
 
 /**
  * A node state plugin work when generating code for a component. Adding such a plugin to your component
  * will extend the functionality of the component storage. The output of these functions will be added to the
  * generated code for the component.
  */
-export abstract class NodeDefPlugin<Config extends PluginConfig> {
+export abstract class NodeDefPlugin<Config extends DefPluginConfig> {
   public import: GenerateImportedSymbol<any>;
 
-  public constructor() {
+  public constructor(protected settings?: Config['settings']) {
     this.import = this.makeImport();
   }
 
@@ -79,22 +83,33 @@ export abstract class NodeDefPlugin<Config extends PluginConfig> {
    * when instantiating this plugin in code generation.
    */
   makeConstructorArgs(): string {
+    if (this.settings) {
+      return JSON.stringify(this.settings);
+    }
     return '';
+  }
+
+  /**
+   * Makes generic arguments (YourClass<THIS THING HERE>) for the plugin. This is used to list the component plugin
+   * configurations for components.
+   */
+  makeGenericArgs(): string {
+    return this.makeConstructorArgs();
   }
 
   /**
    * Adds state factory properties to the component. This is called when creating the state for the component for the
    * first time.
    */
-  stateFactory(_props: PluginStateFactoryProps<Config>): PluginExtraState<Config> {
-    return {} as PluginExtraState<Config>;
+  stateFactory(_props: DefPluginStateFactoryProps<Config>): DefPluginExtraState<Config> {
+    return {} as DefPluginExtraState<Config>;
   }
 
   /**
    * Evaluates some expressions for the component. This can be used to add custom expressions to the component.
    */
-  evalDefaultExpressions(_props: PluginExprResolver<Config>): PluginExtraInItem<Config> {
-    return {} as PluginExtraInItem<Config>;
+  evalDefaultExpressions(_props: DefPluginExprResolver<Config>): DefPluginExtraInItem<Config> {
+    return {} as DefPluginExtraInItem<Config>;
   }
 
   /**
@@ -112,12 +127,12 @@ export abstract class NodeDefPlugin<Config extends PluginConfig> {
 /**
  * Implement this interface if your plugin/component needs to support children in some form.
  */
-export interface NodeDefChildrenPlugin<Config extends PluginConfig> {
-  claimChildren(props: PluginChildClaimerProps<Config>): void;
-  pickDirectChildren(state: PluginState<Config>, restriction?: ChildLookupRestriction): NodeRef[];
-  pickChild<C extends CompTypes>(state: PluginState<Config>, childId: string, parentPath: string[]): ItemStore<C>;
-  addChild(state: PluginState<Config>, childNode: LayoutNode, childStore: ItemStore): void;
-  removeChild(state: PluginState<Config>, childNode: LayoutNode): void;
+export interface NodeDefChildrenPlugin<Config extends DefPluginConfig> {
+  claimChildren(props: DefPluginChildClaimerProps<Config>): void;
+  pickDirectChildren(state: DefPluginState<Config>, restriction?: ChildLookupRestriction): NodeRef[];
+  pickChild<C extends CompTypes>(state: DefPluginState<Config>, childId: string, parentPath: string[]): ItemStore<C>;
+  addChild(state: DefPluginState<Config>, childNode: LayoutNode, childStore: ItemStore): void;
+  removeChild(state: DefPluginState<Config>, childNode: LayoutNode): void;
 }
 
 export function isNodeDefChildrenPlugin(plugin: any): plugin is NodeDefChildrenPlugin<any> {

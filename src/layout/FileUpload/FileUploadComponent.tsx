@@ -43,9 +43,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
   const uploadAttachment = useAttachmentsUploader();
   const mappingTools = useAttachmentsMappedToFormData(node);
 
-  const validations = useUnifiedValidationsForNode(node);
-  const componentValidations = validations?.filter((v) => !v.meta?.attachmentId);
-
+  const validations = useUnifiedValidationsForNode(node).filter((v) => !('attachmentId' in v) || !v.attachmentId);
   const langTools = useLanguage();
 
   const { options } = useGetOptions({
@@ -136,16 +134,13 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
               readOnly={!!readOnly}
               onClick={(e) => e.preventDefault()}
               onDrop={handleDrop}
-              hasValidationMessages={hasValidationErrors(componentValidations)}
+              hasValidationMessages={hasValidationErrors(validations)}
               hasCustomFileEndings={hasCustomFileEndings}
               validFileEndings={validFileEndings}
               textResourceBindings={textResourceBindings}
             />
             {attachmentsCounter}
-            <ComponentValidations
-              validations={componentValidations}
-              node={node}
-            />
+            <ComponentValidations validations={validations} />
           </>
         )}
 
@@ -159,10 +154,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
         {!shouldShowFileUpload && (
           <>
             {attachmentsCounter}
-            <ComponentValidations
-              validations={componentValidations}
-              node={node}
-            />
+            <ComponentValidations validations={validations} />
           </>
         )}
         {renderAddMoreAttachmentsButton()}

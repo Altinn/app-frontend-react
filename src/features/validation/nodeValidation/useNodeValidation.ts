@@ -3,69 +3,36 @@ import { useMemo } from 'react';
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
-import { implementsAnyValidation, implementsValidateComponent, implementsValidateEmptyField } from 'src/layout';
-import { useNodes } from 'src/utils/layout/NodesContext';
-import type { ComponentValidations, ValidationDataSources } from 'src/features/validation';
+import { implementsValidateComponent, implementsValidateEmptyField } from 'src/layout';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-const __default__ = {};
+const __default__ = [];
 
 /**
  * Runs validations defined in the component classes
  */
-export function useNodeValidation(): ComponentValidations {
+export function useNodeValidation(node: LayoutNode): ComponentValidation[] {
   const validationDataSources = useValidationDataSources();
+  const item = useNodeItem(node);
 
   return useMemo(() => {
-    const nodes = validationDataSources.nodes.allNodes();
-    const nodesToValidate = nodes.filter(
-      (node) => implementsAnyValidation(node.def) && !('renderAsSummary' in node.item && node.item.renderAsSummary),
-    );
-
-    if (nodesToValidate.length === 0) {
+    if ('renderAsSummary' in item && item.renderAsSummary) {
       return __default__;
     }
 
-    const validations: ComponentValidations = {};
-    for (const node of nodesToValidate) {
-      const id = node.getId();
-      const item = node.item;
-      validations[id] = {
-        component: [],
-        bindingKeys: item.dataModelBindings
-          ? Object.fromEntries(Object.keys(item.dataModelBindings).map((key) => [key, []]))
-          : {},
-      };
+    const validations: ComponentValidation[] = [];
 
-      /**
-       * Run required validation
-       */
-      if (implementsValidateEmptyField(node.def)) {
-        const v = node.def.runEmptyFieldValidation(node as any, item as any, validationDataSources);
-        for (const validation of v) {
-          if (validation.bindingKey) {
-            validations[id].bindingKeys[validation.bindingKey].push(validation);
-          } else {
-            validations[id].component.push(validation);
-          }
-        }
-      }
+    if (implementsValidateEmptyField(node.def)) {
+      validations.push(...node.def.runEmptyFieldValidation(node as any, item as any, validationDataSources));
+    }
 
-      /**
-       * Run component validation
-       */
-      if (implementsValidateComponent(node.def)) {
-        const v = node.def.runComponentValidation(node as any, item as any, validationDataSources);
-        for (const validation of v) {
-          if (validation.bindingKey) {
-            validations[id].bindingKeys[validation.bindingKey].push(validation);
-          } else {
-            validations[id].component.push(validation);
-          }
-        }
-      }
+    if (implementsValidateComponent(node.def)) {
+      validations.push(...node.def.runComponentValidation(node as any, item as any, validationDataSources));
     }
     return validations;
-  }, [validationDataSources]);
+  }, [item, node, validationDataSources]);
 }
 
 /**
@@ -76,7 +43,6 @@ export function useValidationDataSources(): ValidationDataSources {
   const invalidData = FD.useInvalidDebounced();
   const attachments = useAttachments();
   const currentLanguage = useCurrentLanguage();
-  const nodes = useNodes();
 
   return useMemo(
     () => ({
@@ -84,8 +50,7 @@ export function useValidationDataSources(): ValidationDataSources {
       invalidData,
       attachments,
       currentLanguage,
-      nodes,
     }),
-    [attachments, currentLanguage, formData, invalidData, nodes],
+    [attachments, currentLanguage, formData, invalidData],
   );
 }

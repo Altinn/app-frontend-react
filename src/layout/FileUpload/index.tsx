@@ -62,7 +62,6 @@ export class FileUpload extends FileUploadDef implements ValidateComponent<'File
         },
         severity: 'error',
         source: FrontendValidationSource.Component,
-        componentId: id,
         // Treat visibility of minNumberOfAttachments the same as required to prevent showing an error immediately
         category: ValidationMask.Required,
       });

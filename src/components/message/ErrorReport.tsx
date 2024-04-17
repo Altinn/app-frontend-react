@@ -9,7 +9,6 @@ import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
 import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { GenericComponentById } from 'src/layout/GenericComponent';
-import { useNodesAsRef } from 'src/utils/layout/NodesContext';
 import type { NodeValidation } from 'src/features/validation';
 
 export interface IErrorReportProps {
@@ -22,7 +21,6 @@ const ArrowForwardSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24
 const listStyleImg = `url("data:image/svg+xml,${encodeURIComponent(ArrowForwardSvg)}")`;
 
 export const ErrorReport = ({ renderIds }: IErrorReportProps) => {
-  const allNodesRef = useNodesAsRef();
   const { formErrors, taskErrors } = useTaskErrors();
   const hasErrors = Boolean(formErrors.length) || Boolean(taskErrors.length);
   const navigateTo = useNavigateToNode();
@@ -32,17 +30,17 @@ export const ErrorReport = ({ renderIds }: IErrorReportProps) => {
   }
 
   const handleErrorClick = (error: NodeValidation) => async (ev: React.KeyboardEvent | React.MouseEvent) => {
+    const { node } = error;
     if (ev.type === 'keydown' && (ev as React.KeyboardEvent).key !== 'Enter') {
       return;
     }
     ev.preventDefault();
-    const componentNode = allNodesRef.current.findById(error.componentId);
-    if (!componentNode || componentNode.isHidden()) {
+    if (node.isHidden()) {
       // No point in trying to focus on a hidden component
       return;
     }
 
-    await navigateTo(componentNode, true);
+    await navigateTo(node, true);
   };
 
   return (
@@ -88,7 +86,7 @@ export const ErrorReport = ({ renderIds }: IErrorReportProps) => {
                       <Lang
                         id={error.message.key}
                         params={error.message.params}
-                        node={allNodesRef.current.findById(error.componentId)}
+                        node={error.node}
                       />
                     </button>
                   </li>

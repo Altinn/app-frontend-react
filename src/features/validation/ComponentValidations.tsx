@@ -6,17 +6,18 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { AlertBaseComponent } from 'src/layout/Alert/AlertBaseComponent';
-import type { NodeValidation } from 'src/features/validation';
+import { useCurrentNode } from 'src/layout/FormComponentContext';
+import type { BaseValidation, NodeValidation } from 'src/features/validation';
 import type { AlertSeverity } from 'src/layout/Alert/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type Props = {
   validations: NodeValidation[] | undefined;
-  node?: LayoutNode;
 };
 
-export function ComponentValidations({ validations, node }: Props) {
-  if (!validations || validations.length === 0) {
+export function ComponentValidations({ validations }: Props) {
+  const node = useCurrentNode();
+  if (!validations || validations.length === 0 || !node) {
     return null;
   }
   const errors = validationsOfSeverity(validations, 'error');
@@ -25,7 +26,7 @@ export function ComponentValidations({ validations, node }: Props) {
   const success = validationsOfSeverity(validations, 'success');
 
   return (
-    <div data-validation={node?.getId()}>
+    <div data-validation={node.getId()}>
       {errors.length > 0 && (
         <ErrorValidations
           validations={errors}
@@ -57,7 +58,7 @@ export function ComponentValidations({ validations, node }: Props) {
   );
 }
 
-function ErrorValidations({ validations, node }: { validations: NodeValidation<'error'>[]; node?: LayoutNode }) {
+function ErrorValidations({ validations, node }: { validations: BaseValidation<'error'>[]; node: LayoutNode }) {
   return (
     <div style={{ paddingTop: '0.375rem' }}>
       <ErrorMessage size='small'>
@@ -85,9 +86,9 @@ function SoftValidations({
   variant,
   node,
 }: {
-  validations: NodeValidation<'warning' | 'info' | 'success'>[];
+  validations: BaseValidation<'warning' | 'info' | 'success'>[];
   variant: AlertSeverity;
-  node?: LayoutNode;
+  node: LayoutNode;
 }) {
   const { langAsString } = useLanguage();
 
