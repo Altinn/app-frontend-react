@@ -281,9 +281,6 @@ function makeActions(
       }),
     cancelSave: (dataType) =>
       set((state) => {
-        // TODO(Datamodels): How should this be handled?
-        // state.dataModels[dataType].controlState.manualSaveRequested = false;
-        // First try:
         state.dataModels[dataType].manualSaveRequested = false;
         deduplicateModels(state, dataType);
       }),
@@ -291,9 +288,6 @@ function makeActions(
       set((state) => {
         const { validationIssues } = props;
         state.dataModels[dataType].validationIssues = validationIssues;
-        // TODO(Datamodels): How should this be handled?
-        // state.dataModels[dataType].controlState.manualSaveRequested = false;
-        // First try:
         state.dataModels[dataType].manualSaveRequested = false;
         processChanges(state, dataType, props);
       }),
@@ -409,9 +403,6 @@ function makeActions(
         state.lockedBy = undefined;
         // Update form data
         if (actionResult?.updatedDataModels) {
-          // TODO(Datamodels): How should this be handled?
-          // state.dataModels[dataType].controlState.manualSaveRequested = false;
-          // First try:
           for (const dataType of Object.keys(state.dataModels)) {
             state.dataModels[dataType].manualSaveRequested = false;
           }
