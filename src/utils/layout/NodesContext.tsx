@@ -3,6 +3,7 @@ import type { PropsWithChildren } from 'react';
 
 import dot from 'dot-object';
 import deepEqual from 'fast-deep-equal';
+import { current, isDraft } from 'immer';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import type { UnionToIntersection } from 'utility-types';
@@ -125,9 +126,25 @@ function setProperty(obj: any, prop: string, value: any) {
   const existing = obj[prop];
   if (typeof existing === 'object' && existing !== null && !Array.isArray(existing)) {
     return setEveryProperty(value, existing);
+  } else if (Array.isArray(existing)) {
+    if (!deepEqual(existing, value)) {
+      obj[prop] = value;
+      if (isDraft(existing)) {
+        console.log('debug, array changed', prop, 'was', current(existing), 'now', value);
+      } else {
+        console.log('debug, array changed', prop, 'was', existing, 'now', value);
+      }
+      return true;
+    }
+    return false;
   } else if (existing !== value) {
     obj[prop] = value;
-    console.log('debug, property changed', prop, 'was', existing, 'now', value);
+
+    if (isDraft(existing)) {
+      console.log('debug, property changed', prop, 'was', current(existing), 'now', value);
+    } else {
+      console.log('debug, property changed', prop, 'was', existing, 'now', value);
+    }
     return true;
   }
 
@@ -210,12 +227,9 @@ export function createNodesDataStore() {
           const changed = setProperty(obj, prop as string, value);
           changed && console.log('debug, One or more properties changed in page', pageKey);
         }),
-      ...(Object.fromEntries(
-        Object.entries(DataStorePlugins).map(([key, plugin]) => [
-          key,
-          plugin.extraFunctions((data) => set(() => data)),
-        ]),
-      ) as unknown as ExtraFunctions),
+      ...(Object.values(DataStorePlugins)
+        .map((plugin) => plugin.extraFunctions(set))
+        .reduce((acc, val) => ({ ...acc, ...val }), {}) as ExtraFunctions),
     })),
   );
 }
@@ -403,9 +417,9 @@ export const NodesInternal = {
   useAddNode: () => DataStore.useSelector((s) => s.addNode),
   useRemoveNode: () => DataStore.useSelector((s) => s.removeNode),
 
-  ...(Object.fromEntries(
-    Object.entries(DataStorePlugins).map(([key, plugin]) => [key, plugin.extraHooks(DataStore)]),
-  ) as unknown as ExtraHooks),
+  ...(Object.values(DataStorePlugins)
+    .map((plugin) => plugin.extraHooks(DataStore))
+    .reduce((acc, val) => ({ ...acc, ...val }), {}) as ExtraHooks),
 };
 
 function getNotReady(pages: PageHierarchy) {
