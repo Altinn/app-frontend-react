@@ -19,10 +19,7 @@ export function Entrypoint() {
   const alwaysPromptForParty = usePromptForParty();
 
   const location = useLocation();
-
   const isMissingParty = party === undefined && !allowAnonymous;
-
-  console.log('alwaysPromptForParty', alwaysPromptForParty);
 
   if (alwaysPromptForParty) {
     return (
@@ -34,8 +31,6 @@ export function Entrypoint() {
   }
 
   if (!partyIsValid || isMissingParty) {
-    console.log('part not valid');
-
     if (location.pathname.includes('party-selection')) {
       return <Outlet />;
     }

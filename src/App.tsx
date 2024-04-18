@@ -1,8 +1,12 @@
 import React from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
+import { Form, FormFirstPage } from 'src/components/form/Form';
+import { PresentationComponent } from 'src/components/presentation/Presentation';
 import { ProcessWrapperWrapper } from 'src/components/wrappers/ProcessWrapper';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { LayoutValidationProvider } from 'src/features/devtools/layoutValidation/useLayoutValidation';
+import { FormProvider } from 'src/features/form/FormContext';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
@@ -11,7 +15,31 @@ import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { InstanceSelectionWrapper } from 'src/features/instantiate/selection/InstanceSelection';
 import { useCurrentParty, useCurrentPartyIsValid, useValidParties } from 'src/features/party/PartiesProvider';
 import { useProfile } from 'src/features/profile/ProfileProvider';
+import { useAllowAnonymousIs } from 'src/features/stateless/getAllowAnonymous';
+import { PresentationType } from 'src/types';
+import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 import type { ShowTypes } from 'src/features/applicationMetadata';
+
+export const RenderStateless = () => (
+  <FormProvider>
+    <LayoutValidationProvider>
+      <Routes>
+        <Route
+          path=':pageKey'
+          element={
+            <PresentationComponent type={PresentationType.Stateless}>
+              <Form />
+            </PresentationComponent>
+          }
+        />
+        <Route
+          path='*'
+          element={<FormFirstPage />}
+        />
+      </Routes>
+    </LayoutValidationProvider>
+  </FormProvider>
+);
 
 const ShowOrInstantiate: React.FC<{ show: ShowTypes }> = ({ show }) => {
   if (show === 'select-instance') {
@@ -27,7 +55,16 @@ const ShowOrInstantiate: React.FC<{ show: ShowTypes }> = ({ show }) => {
     return <InstantiateContainer />;
   }
 
+  if (show === 'stateless') {
+    return <RenderStateless />;
+  }
+
+  if (show === 'stateless-anon') {
+    return <RenderStateless />;
+  }
+
   window.logErrorOnce('Unknown applicationMetadata.onEntry type:', show);
+
   return <UnknownError />;
 };
 
@@ -36,8 +73,17 @@ export const DefaultComponent = () => {
   const show: ShowTypes = applicationMetadata.onEntry?.show ?? 'new-instance';
   const validParties = useValidParties();
   const profile = useProfile();
-  const currentParty = useCurrentParty();
   const partyIsValid = useCurrentPartyIsValid();
+  const isStateless = useIsStatelessApp();
+  const party = useCurrentParty();
+  const allowAnonymous = useAllowAnonymousIs(true);
+
+  if (isStateless && allowAnonymous) {
+    if (party === undefined) {
+      return <RenderStateless />;
+    }
+  }
+
   if (!partyIsValid) {
     return (
       <Navigate
@@ -56,12 +102,7 @@ export const DefaultComponent = () => {
   }
 
   if (validParties?.length && validParties?.length > 1) {
-    console.log('more than one valid party');
-
     if (applicationMetadata.promptForParty === 'always') {
-      console.log('ARE WE GETTING HERE?????');
-
-      console.log('promptForParty always');
       return (
         <Navigate
           to={'/party-selection/explained'}
@@ -71,15 +112,12 @@ export const DefaultComponent = () => {
     }
 
     if (applicationMetadata.promptForParty === 'never') {
-      console.log('promptForParty never');
       return <ShowOrInstantiate show={show} />;
     }
 
     if (profile?.profileSettingPreference.doNotPromptForParty) {
-      console.log('doNotPromptForParty = true');
       return <ShowOrInstantiate show={show} />;
     }
-    console.log('doNotPromptForParty = false');
     return (
       <Navigate
         to={'/party-selection/explained'}
@@ -93,7 +131,7 @@ export const DefaultComponent = () => {
 export const App = () => (
   <Routes>
     <Route
-      path={'/'}
+      path={'*'}
       element={<DefaultComponent />}
     />
     <Route
@@ -113,11 +151,6 @@ export const App = () => (
           <ProcessWrapperWrapper />
         </InstanceProvider>
       }
-    />
-
-    <Route
-      path='*'
-      element={<UnknownError />}
     />
   </Routes>
 );
