@@ -24,12 +24,8 @@ export function usePromptForParty(): boolean | null {
 
   // No point in prompting if there is only one party
   if (parties.length === 1) {
-    console.log('length 1');
     return false;
   }
-
-  console.log('pofile setting', profile.profileSettingPreference.doNotPromptForParty);
-
   return !profile.profileSettingPreference.doNotPromptForParty;
 }
 

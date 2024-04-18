@@ -70,7 +70,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export const PartySelection = () => {
-  console.log('SELECTION PARTY!!!');
   changeBodyBackground(AltinnAppTheme.altinnPalette.primary.white);
   const classes = useStyles();
   const match = useMatch(`/party-selection/:errorCode`);
@@ -94,7 +93,7 @@ export const PartySelection = () => {
 
   const onSelectParty = async (party: IParty) => {
     await selectParty(party);
-    navigate('/instance-selection'); // Back to Entrypoint.tsx, where the next step will be determined
+    navigate('/instance-selection');
   };
 
   function renderParties() {

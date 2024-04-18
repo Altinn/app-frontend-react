@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { ProcessWrapperWrapper } from 'src/components/wrappers/ProcessWrapper';
 import { Entrypoint } from 'src/features/entrypoint/Entrypoint';
@@ -29,6 +29,19 @@ export const App = () => (
         <InstanceProvider>
           <ProcessWrapperWrapper />
         </InstanceProvider>
+      }
+    />
+
+    {/**
+     * Redirects from legacy URLs to new URLs
+     */}
+    <Route
+      path='/partyselection/*'
+      element={
+        <Navigate
+          to='/party-selection/'
+          replace={true}
+        />
       }
     />
   </Routes>
