@@ -23,19 +23,9 @@ interface ISummaryPaymentComponentProps {
 }
 
 export const SummaryPaymentComponent = ({ targetNode }: ISummaryPaymentComponentProps) => {
-  console.log(targetNode);
-  // const {
-  //   receiptOrgName,
-  //   receiptOrgNumber,
-  //   receiptBankAcountNumber,
-  //   receiptEmailAdress,
-  //   receiptPhoneNumber,
-  //   receiptSupportPhoneNumber,
-  //   receiptStreetAdress,
-  //   receiptZipCode,
-  //   receiptCity,
-  //   receiptCountry,
-  // } = targetNode.item.textResourceBindings;
+  console.log(targetNode.item.textResourceBindings);
+  const textResourceBindings = targetNode.item.textResourceBindings;
+
   // Render these values in the receipt PDF:
   // From API:
   //   - Payment ID
@@ -80,6 +70,76 @@ export const SummaryPaymentComponent = ({ targetNode }: ISummaryPaymentComponent
         }
         className={classes.container}
       />
+      <div className={classes.receipDetailsContainer}>
+        <div className={classes.infoContainer}>
+          <div className={classes.infoDetailsContainer}>
+            <span>Betailngs ID:</span>
+            <span>Referansenummer:</span>
+          </div>
+          <div className={classes.infoDetailsContainer}>
+            <span>{paymentInfo?.paymentDetails?.paymentId}</span>
+            <span>{'4324bj234ne'}</span>
+          </div>
+        </div>
+      </div>
+      <div className={classes.receipDetailsContainer}>
+        <Heading
+          level={3}
+          size='small'
+        >
+          Mottaker
+        </Heading>
+        <div className={classes.infoContainer}>
+          <div className={classes.infoDetailsContainer}>
+            <span>Navn:</span>
+            <span>Telefon:</span>
+            <span>Adresse:</span>
+            <span>Organisasjonsnummer:</span>
+            <span>Kontonumer:</span>
+            <span>E-post:</span>
+          </div>
+          <div className={classes.infoDetailsContainer}>
+            <span>{textResourceBindings?.receiptOrgName}</span>
+            <span>{textResourceBindings?.receiptPhoneNumber}</span>
+            <span>
+              {textResourceBindings?.receiptStreetAdress} {textResourceBindings?.receiptCity}{' '}
+              {textResourceBindings?.receiptCountry}
+            </span>
+            <span>{textResourceBindings?.receiptOrgNumber}</span>
+            <span>{textResourceBindings?.receiptBankAcountNumber}</span>
+            <span>{textResourceBindings?.receiptEmailAdress}</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <Heading
+          level={3}
+          size='small'
+        >
+          Avsender
+        </Heading>
+        <div className={classes.infoContainer}>
+          <div className={classes.infoDetailsContainer}>
+            <span>Navn:</span>
+            <span>Telefon:</span>
+            <span>Adresse:</span>
+            <span>Organisasjonsnummer:</span>
+            <span>Kontonumer:</span>
+            <span>E-post:</span>
+          </div>
+          <div className={classes.infoDetailsContainer}>
+            <span>{textResourceBindings?.receiptOrgName}</span>
+            <span>{textResourceBindings?.receiptPhoneNumber}</span>
+            <span>
+              {textResourceBindings?.receiptStreetAdress} {textResourceBindings?.receiptCity}{' '}
+              {textResourceBindings?.receiptCountry}
+            </span>
+            <span>{textResourceBindings?.receiptOrgNumber}</span>
+            <span>{textResourceBindings?.receiptBankAcountNumber}</span>
+            <span>{textResourceBindings?.receiptEmailAdress}</span>
+          </div>
+        </div>
+      </div>
     </>
   );
 };
