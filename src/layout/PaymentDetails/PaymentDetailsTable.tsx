@@ -46,17 +46,27 @@ export const PaymentDetailsTable = ({ orderDetails, tableTitle, description, ...
           <Table.Cell>{orderLine.name}</Table.Cell>
           <Table.Cell align='right'>{orderLine.quantity}</Table.Cell>
           <Table.Cell align='right'>
-            {orderLine.priceExVat + orderLine.priceExVat * (orderLine.vatPercent / 100)}
+            {orderLine.priceExVat} {orderDetails?.currency}
           </Table.Cell>
         </Table.Row>
       ))}
+      <Table.Row className={classes.tableRow}>
+        <Table.Cell colSpan={2}>
+          <Label>MVA.</Label>
+        </Table.Cell>
+        <Table.Cell align='right'>
+          {orderDetails?.totalVat} {orderDetails?.currency}
+        </Table.Cell>
+      </Table.Row>
       <Table.Row className={classes.tableRow}>
         <Table.Cell colSpan={2}>
           <Label>
             <Lang id='payment.component.total' />
           </Label>
         </Table.Cell>
-        <Table.Cell align='right'>{orderDetails?.totalPriceIncVat}</Table.Cell>
+        <Table.Cell align='right'>
+          {orderDetails?.totalPriceIncVat} {orderDetails?.currency}
+        </Table.Cell>
       </Table.Row>
     </Table.Body>
   </Table>

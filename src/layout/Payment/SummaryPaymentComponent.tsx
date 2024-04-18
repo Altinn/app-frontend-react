@@ -24,6 +24,18 @@ interface ISummaryPaymentComponentProps {
 
 export const SummaryPaymentComponent = ({ targetNode }: ISummaryPaymentComponentProps) => {
   console.log(targetNode);
+  // const {
+  //   receiptOrgName,
+  //   receiptOrgNumber,
+  //   receiptBankAcountNumber,
+  //   receiptEmailAdress,
+  //   receiptPhoneNumber,
+  //   receiptSupportPhoneNumber,
+  //   receiptStreetAdress,
+  //   receiptZipCode,
+  //   receiptCity,
+  //   receiptCountry,
+  // } = targetNode.item.textResourceBindings;
   // Render these values in the receipt PDF:
   // From API:
   //   - Payment ID
@@ -49,9 +61,10 @@ export const SummaryPaymentComponent = ({ targetNode }: ISummaryPaymentComponent
             <Lang id='payment.alert.failed' />
           </Alert>
         )}
-        {paymentInfo?.paymentDetails?.status === 'Created' && (
+        {paymentInfo?.paymentDetails?.status === 'Paid' && (
           <Alert severity={'success'}>
             <Lang id='payment.alert.paid' />
+            <span>ID: {paymentInfo.paymentDetails.paymentId}</span>
           </Alert>
         )}
       </div>
