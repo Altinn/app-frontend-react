@@ -6,6 +6,7 @@ import ResizeObserverModule from 'resize-observer-polyfill';
 import { v4 as uuidv4 } from 'uuid';
 
 import { getFormLayoutRepeatingGroupMock } from 'src/__mocks__/getFormLayoutGroupMock';
+import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import {
   RepeatingGroupProvider,
@@ -134,7 +135,7 @@ describe('RepeatingGroupTable', () => {
 
       expect(formDataMethods.removeFromListCallback).toBeCalledTimes(1);
       expect(formDataMethods.removeFromListCallback).toBeCalledWith({
-        path: 'some-group',
+        reference: { property: 'some-group', dataType: defaultDataTypeMock },
         startAtIndex: 0,
         callback: expect.any(Function),
       });

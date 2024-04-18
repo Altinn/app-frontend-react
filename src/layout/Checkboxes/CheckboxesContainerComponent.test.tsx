@@ -74,7 +74,7 @@ describe('CheckboxesContainerComponent', () => {
 
     await waitFor(() => {
       expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-        path: 'selectedValues',
+        reference: { property: 'selectedValues', dataType: defaultDataTypeMock },
         newValue: 'sweden',
       });
     });
@@ -132,7 +132,7 @@ describe('CheckboxesContainerComponent', () => {
 
     await waitFor(() => {
       expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-        path: 'selectedValues',
+        reference: { property: 'selectedValues', dataType: defaultDataTypeMock },
         newValue: 'norway,denmark',
       });
     });
@@ -280,7 +280,7 @@ describe('CheckboxesContainerComponent', () => {
 
     await waitFor(() => {
       expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-        path: 'selectedValues',
+        reference: { property: 'selectedValues', dataType: defaultDataTypeMock },
         newValue: 'Value for second',
       });
     });

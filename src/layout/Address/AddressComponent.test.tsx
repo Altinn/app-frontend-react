@@ -3,6 +3,7 @@ import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
+import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { AddressComponent } from 'src/layout/Address/AddressComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
@@ -86,7 +87,7 @@ describe('AddressComponent', () => {
     await userEvent.tab();
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      path: 'address',
+      reference: { property: 'address', dataType: defaultDataTypeMock },
       newValue: 'Slottsplassen 1',
     });
   });
@@ -145,7 +146,7 @@ describe('AddressComponent', () => {
     await screen.findByDisplayValue('OSLO');
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      path: 'postPlace',
+      reference: { property: 'postPlace', dataType: defaultDataTypeMock },
       newValue: 'OSLO',
     });
   });
@@ -164,7 +165,7 @@ describe('AddressComponent', () => {
     await userEvent.tab();
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      path: 'zipCode',
+      reference: { property: 'zipCode', dataType: defaultDataTypeMock },
       newValue: '0001',
     });
   });
@@ -183,11 +184,11 @@ describe('AddressComponent', () => {
     await userEvent.tab();
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      path: 'zipCode',
+      reference: { property: 'zipCode', dataType: defaultDataTypeMock },
       newValue: '',
     });
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      path: 'postPlace',
+      reference: { property: 'postPlace', dataType: defaultDataTypeMock },
       newValue: '',
     });
 

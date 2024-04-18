@@ -130,7 +130,7 @@ describe('useDataModelBindings', () => {
     expect(screen.getByTestId('isValid-stringy')).toHaveTextContent('yes');
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      path: 'stringyField',
+      reference: { property: 'stringyField', dataType: defaultDataTypeMock },
       newValue: fooBar,
     });
     expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(fooBar.length);
@@ -146,7 +146,7 @@ describe('useDataModelBindings', () => {
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1);
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      path: 'decimalField',
+      reference: { property: 'decimalField', dataType: defaultDataTypeMock },
       newValue: '-',
     });
 
@@ -176,7 +176,7 @@ describe('useDataModelBindings', () => {
     expect(screen.getByTestId('isValid-decimal')).toHaveTextContent('yes');
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      path: 'decimalField',
+      reference: { property: 'decimalField', dataType: defaultDataTypeMock },
       newValue: '-1.53', // Inputs are passed as strings
     });
     expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(fullDecimal.length);
@@ -193,7 +193,7 @@ describe('useDataModelBindings', () => {
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1);
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      path: 'integerField',
+      reference: { property: 'integerField', dataType: defaultDataTypeMock },
       newValue: '-',
     });
 
@@ -223,7 +223,7 @@ describe('useDataModelBindings', () => {
     expect(screen.getByTestId('isValid-integer')).toHaveTextContent('yes');
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      path: 'integerField',
+      reference: { property: 'integerField', dataType: defaultDataTypeMock },
       newValue: '-153', // Inputs are passed as strings
     });
 
@@ -246,7 +246,7 @@ describe('useDataModelBindings', () => {
     expect(screen.getByTestId('isValid-boolean')).toHaveTextContent('yes');
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      path: 'booleanField',
+      reference: { property: 'booleanField', dataType: defaultDataTypeMock },
       newValue: 'true', // Inputs are passed as strings
     });
     expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(4);

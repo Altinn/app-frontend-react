@@ -4,6 +4,7 @@ import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import type { AxiosResponse } from 'axios';
 
+import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { renderWithNode } from 'src/test/renderWithProviders';
@@ -151,7 +152,7 @@ describe('useGetOptions', () => {
     for (const option of options) {
       await userEvent.click(screen.getByRole('button', { name: `Choose ${option.label} option` }));
       expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-        path: 'result',
+        reference: { property: 'result', dataType: defaultDataTypeMock },
         newValue: option.value.toString(),
       });
       (formDataMethods.setLeafValue as jest.Mock).mockClear();

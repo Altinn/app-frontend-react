@@ -105,7 +105,7 @@ describe('DatepickerComponent', () => {
     // Ignore TZ part of timestamp to avoid test failing when this changes
     // Calendar opens up on current year/month by default, so we need to cater for this in the expected output
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      path: 'myDate',
+      reference: { property: 'myDate', dataType: defaultDataTypeMock },
       newValue: expect.stringContaining(`${currentYearNumeric}-${currentMonthNumeric}-15T12:00:00.000+`),
     });
   });
@@ -131,7 +131,7 @@ describe('DatepickerComponent', () => {
     await userEvent.type(screen.getByRole('textbox'), '31122022');
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      path: 'myDate',
+      reference: { property: 'myDate', dataType: defaultDataTypeMock },
       newValue: expect.stringContaining('2022-12-31T12:00:00.000+'),
     });
   });
@@ -153,7 +153,7 @@ describe('DatepickerComponent', () => {
     await userEvent.type(screen.getByRole('textbox'), '31122022');
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      path: 'myDate',
+      reference: { property: 'myDate', dataType: defaultDataTypeMock },
       newValue: expect.stringContaining('2022-12-31T12:00:00.000+'),
     });
   });
