@@ -30,9 +30,12 @@ const emptyArray: never[] = [];
 export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginConfig> {
   extraFunctions(set: NodeDataPluginSetState<NodesDataContext>) {
     const out: ValidationStorePluginConfig['extraFunctions'] = {
-      setNodeVisibility: (_nodes, _newVisibility, _rowIndex) => {
-        set((_state) => {
-          throw new Error('Method not implemented.');
+      setNodeVisibility: (nodes, newVisibility, _rowIndex) => {
+        set((state) => {
+          for (const node of nodes) {
+            const nodeStore = pickDataStorePath(state.pages, node) as ItemStore;
+            nodeStore.validationVisibility = newVisibility;
+          }
         });
       },
       setAttachmentVisibility: (_attachmentId, _node, _newVisibility) => {

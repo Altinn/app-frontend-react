@@ -64,7 +64,7 @@ export const ErrorReport = ({ renderIds }: IErrorReportProps) => {
               <ul className={classes.errorList}>
                 {taskErrors.map((error) => (
                   <li
-                    key={JSON.stringify(error)}
+                    key={`${error.message.key}/${error.source}/${error.category}/${error.severity}`}
                     style={{ listStyleImage: listStyleImg }}
                   >
                     <Lang
@@ -75,7 +75,7 @@ export const ErrorReport = ({ renderIds }: IErrorReportProps) => {
                 ))}
                 {formErrors.map((error) => (
                   <li
-                    key={JSON.stringify(error)}
+                    key={`${error.message}/${error.source}/${error.category}/${error.severity}`}
                     style={{ listStyleImage: listStyleImg }}
                   >
                     <button
