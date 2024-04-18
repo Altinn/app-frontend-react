@@ -19,7 +19,7 @@ export function BackendValidation({ dataType }: { dataType: string }) {
     const validations: FieldValidations = {};
 
     // Map validator groups to validations per field
-    for (const group of Object.values(validatorGroups.current)) {
+    for (const [key, group] of Object.entries(validatorGroups.current)) {
       for (const validation of group) {
         // TODO(Validation): Consider removing this check if it is no longer possible to get task errors mixed in with form data errors
         if ('field' in validation) {
@@ -30,7 +30,7 @@ export function BackendValidation({ dataType }: { dataType: string }) {
         } else {
           // Unmapped error (task validation)
           window.logWarn(
-            `When validating datamodel ${dataTypeRef.current}, validator ${group} returned a validation error without a field\n`,
+            `When validating datamodel ${dataTypeRef.current}, validator ${key} returned a validation error without a field\n`,
             validation,
           );
         }
