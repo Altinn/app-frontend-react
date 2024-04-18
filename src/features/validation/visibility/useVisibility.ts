@@ -4,11 +4,7 @@ import { original } from 'immer';
 
 import { ValidationMask, type ValidationState } from 'src/features/validation';
 import { getInitialMaskFromNode, getValidationsForNode } from 'src/features/validation/utils';
-import {
-  getVisibilityForNode,
-  setVisibilityForNode,
-  type Visibility,
-} from 'src/features/validation/visibility/visibilityUtils';
+import { getVisibilityForNode, type Visibility } from 'src/features/validation/visibility/visibilityUtils';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
 import type { ValidationLookupSources } from 'src/features/validation/utils';
@@ -49,12 +45,12 @@ export function useVisibility(
         // Updating is a bit expensive, so only do it if the mask is different
         // We need to OR with the initial mask for comparison as this always happens when the
         // mask is updated, otherwise there could be false positives
-        const initialMask = getInitialMaskFromNode(node);
+        const initialMask = getInitialMaskFromNode(node.item);
         if ((newVisibilityMask | initialMask) === currentVisibilityMask) {
-          continue;
+          // continue;
         }
 
-        setVisibilityForNode(node, state, newVisibilityMask);
+        // setVisibilityForNode(node, state, newVisibilityMask);
       }
     });
   }, [nodeValidationsSelector, nodesRef, setVisibility, validations]);

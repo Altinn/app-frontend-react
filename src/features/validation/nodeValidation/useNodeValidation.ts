@@ -4,7 +4,7 @@ import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { implementsValidateComponent, implementsValidateEmptyField } from 'src/layout';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { NodeGeneratorInternal } from 'src/utils/layout/NodesGeneratorContext';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -15,10 +15,10 @@ const __default__ = [];
  */
 export function useNodeValidation(node: LayoutNode): ComponentValidation[] {
   const validationDataSources = useValidationDataSources();
-  const item = useNodeItem(node);
+  const item = NodeGeneratorInternal.useItem();
 
   return useMemo(() => {
-    if ('renderAsSummary' in item && item.renderAsSummary) {
+    if (!item || ('renderAsSummary' in item && item.renderAsSummary)) {
       return __default__;
     }
 

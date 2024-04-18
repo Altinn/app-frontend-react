@@ -146,7 +146,7 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
   }
 
   evalDefaultExpressions(props: DefPluginExprResolver<ToInternal<E>>) {
-    const nodeRefs: NodeRef[] = Object.keys(props.state?.[this.settings.externalProp] || {}).map((id) => ({
+    const nodeRefs: NodeRef[] = props.item[this.settings.externalProp].map((id: string) => ({
       nodeRef: id,
     }));
 

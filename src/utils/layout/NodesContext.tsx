@@ -123,7 +123,7 @@ function setEveryProperty(obj: any, target: any) {
 
 function setProperty(obj: any, prop: string, value: any) {
   const existing = obj[prop];
-  if (typeof existing === 'object' && existing !== null) {
+  if (typeof existing === 'object' && existing !== null && !Array.isArray(existing)) {
     return setEveryProperty(value, existing);
   } else if (existing !== value) {
     obj[prop] = value;
@@ -146,6 +146,7 @@ export function createNodesDataStore() {
         set((s) => {
           const parentPath = node.path.slice(0, -1);
           const parent = pickDataStorePath(s.pages, parentPath);
+          console.log(`debug, adding node /${node.path.join('/')}`);
           if (parent.type === 'page') {
             const id = node.getId();
             if (parent.topLevelNodes[id]) {
@@ -161,6 +162,7 @@ export function createNodesDataStore() {
         set((s) => {
           const parentPath = node.path.slice(0, -1);
           const parent = pickDataStorePath(s.pages, parentPath);
+          console.log(`debug, removing node /${node.path.join('/')}`);
           if (parent.type === 'page') {
             delete parent.topLevelNodes[node.getId()];
           } else {
@@ -351,6 +353,15 @@ export const NodesInternal = {
     return DataStore.useSelector((s) => (node ? selector(pickDataStorePath(s.pages, node)) : undefined)) as any;
   },
 
+  useIsAdded: (node: LayoutNode | LayoutPage) =>
+    DataStore.useSelector((s) => {
+      try {
+        pickDataStorePath(s.pages, node);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }),
   useNodesStore: () => NodesStore.useStore(),
   useDataStoreFor: (node: LayoutNode) =>
     DataStore.useSelector((s) => {

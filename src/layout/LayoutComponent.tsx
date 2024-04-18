@@ -50,7 +50,6 @@ export type NodeGeneratorProps<Type extends CompTypes> =
 
 export interface ExprResolver<Type extends CompTypes> {
   item: CompExternalExact<Type>;
-  state: ItemStore<Type> | undefined;
   formDataSelector: FormDataSelector;
   evalBase: () => ExprResolved<Omit<ComponentBase, 'hidden'>>;
   evalFormProps: () => ExprResolved<FormComponentProps>;

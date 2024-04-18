@@ -12,8 +12,8 @@ import type {
 } from 'src/features/validation';
 import type { ValidationSelector } from 'src/features/validation/validationContext';
 import type { ValidationsSelector } from 'src/features/validation/ValidationStorePlugin';
+import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 export function mergeFieldValidations(...X: FieldValidations[]): FieldValidations {
   if (X.length === 0) {
@@ -162,12 +162,12 @@ export function getValidationsForNode(
  * Gets the initial validation mask for a component using its showValidations property
  * If the value is not set, it will default to all validations except required
  */
-export function getInitialMaskFromNode(node: LayoutNode | LayoutPage): number {
+export function getInitialMaskFromNode(item: CompInternal): number {
   // If not set, null, or undefined, default to all validations except required
-  if (!('showValidations' in node.item) || node.item.showValidations == null) {
+  if (!('showValidations' in item) || item.showValidations == null) {
     return ValidationMask.AllExceptRequired;
   }
-  return getVisibilityMask(node.item.showValidations);
+  return getVisibilityMask(item.showValidations);
 }
 
 export function getVisibilityMask(maskKeys?: ValidationMaskKeys[]): number {

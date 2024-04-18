@@ -1,4 +1,3 @@
-import { getInitialMaskFromNode } from 'src/features/validation/utils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -74,28 +73,4 @@ export function getResolvedVisibilityForAttachment(
     mask |= attachmentVisibility;
   }
   return mask;
-}
-
-export function setVisibilityForNode(
-  node: LayoutNode | LayoutPage,
-  state: Visibility,
-  mask: number,
-  rowId?: string,
-): void {
-  const path = getPathFromRoot(node);
-  if (typeof rowId !== 'undefined') {
-    path.push(makeRowKey(rowId));
-  }
-  const visibility = getVisibilityFromPath(path, state);
-
-  if (!visibility) {
-    const keys = path.join(' -> ');
-    window.logWarn(`Set node validation visibility: Could not find visibility for ${keys}`);
-    return;
-  }
-
-  // Always keep showValidations categories visible
-  const initialMask = getInitialMaskFromNode(node);
-
-  visibility.mask = mask | initialMask;
 }

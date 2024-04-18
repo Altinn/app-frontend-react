@@ -24,7 +24,7 @@ import type {
   ITextResourceBindings,
 } from 'src/layout/layout';
 import type { BasicNodeGeneratorProps, ExprResolver } from 'src/layout/LayoutComponent';
-import type { ItemStore, StateFactoryProps } from 'src/utils/layout/itemState';
+import type { StateFactoryProps } from 'src/utils/layout/itemState';
 import type { LayoutNode, LayoutNodeProps } from 'src/utils/layout/LayoutNode';
 
 /**
@@ -51,6 +51,8 @@ export function DefaultNodeGenerator({ children, baseId }: PropsWithChildren<Bas
   const hiddenByRule = useIsHiddenViaRules(node);
   const hidden = hiddenByExpression || hiddenByRule || hiddenByParent;
 
+  const resolvedItem = useResolvedItem({ node, hidden, item });
+
   useEffect(
     () => () => {
       pageRef.current._removeChild(nodeRef.current);
@@ -61,14 +63,11 @@ export function DefaultNodeGenerator({ children, baseId }: PropsWithChildren<Bas
 
   return (
     <>
-      <NodeResolver
-        item={item}
-        hidden={hidden}
-        node={node}
-      />
+      {NodeGeneratorDebug && <pre style={{ fontSize: '0.8em' }}>{JSON.stringify(resolvedItem, null, 2)}</pre>}
       <NodesGeneratorProvider
         parent={node}
         hidden={hidden}
+        item={resolvedItem}
       >
         {children}
       </NodesGeneratorProvider>
@@ -82,7 +81,7 @@ interface NodeResolverProps<T extends CompTypes> {
   item: CompExternal<T>;
 }
 
-function NodeResolver<T extends CompTypes = CompTypes>({ node, hidden, item }: NodeResolverProps<T>) {
+function useResolvedItem<T extends CompTypes = CompTypes>({ node, hidden, item }: NodeResolverProps<T>) {
   const parent = NodeGeneratorInternal.useParent();
   const row = NodeGeneratorInternal.useRow();
   const resolverProps = useExpressionResolverProps(node, item);
@@ -96,21 +95,30 @@ function NodeResolver<T extends CompTypes = CompTypes>({ node, hidden, item }: N
 
   const stateFactoryProps = useAsRef<StateFactoryProps<T>>({ item: item as any, parent, row });
   const addNode = NodesInternal.useAddNode();
-  useEffect(() => {
-    const defaultState = node.def.stateFactory(stateFactoryProps.current as any);
-    addNode(node, defaultState);
-  }, [addNode, node, stateFactoryProps]);
+  const isAdded = NodesInternal.useIsAdded(node);
+  const isParentAdded = NodesInternal.useIsAdded(parent);
 
   useEffect(() => {
-    setNodeProp(node, 'item', resolvedItem);
-    node.updateCommonProps(resolvedItem as any);
-  }, [node, resolvedItem, setNodeProp]);
+    if (isParentAdded) {
+      const defaultState = node.def.stateFactory(stateFactoryProps.current as any);
+      addNode(node, defaultState);
+    }
+  }, [addNode, node, stateFactoryProps, isParentAdded]);
 
   useEffect(() => {
-    setNodeProp(node, 'hidden', hidden ?? false);
-  }, [hidden, node, setNodeProp]);
+    if (isAdded) {
+      setNodeProp(node, 'item', resolvedItem);
+      node.updateCommonProps(resolvedItem as any);
+    }
+  }, [node, resolvedItem, setNodeProp, isAdded]);
 
-  return <>{NodeGeneratorDebug && <pre style={{ fontSize: '0.8em' }}>{JSON.stringify(resolvedItem, null, 2)}</pre>}</>;
+  useEffect(() => {
+    if (isAdded) {
+      setNodeProp(node, 'hidden', hidden ?? false);
+    }
+  }, [hidden, node, setNodeProp, isAdded]);
+
+  return resolvedItem;
 }
 
 /**
@@ -121,7 +129,6 @@ export function useExpressionResolverProps<T extends CompTypes>(
   node: LayoutNode<T>,
   item: CompExternalExact<T>,
 ): ExprResolver<T> {
-  const state = NodesInternal.useDataStoreFor(node) as ItemStore<T>;
   const allDataSources = useExpressionDataSources();
   const allDataSourcesAsRef = useAsRef(allDataSources);
 
@@ -218,7 +225,6 @@ export function useExpressionResolverProps<T extends CompTypes>(
 
   return {
     item,
-    state,
     evalBool,
     evalNum,
     evalStr,

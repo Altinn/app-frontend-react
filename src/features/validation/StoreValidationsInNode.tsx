@@ -9,20 +9,22 @@ import type { TypesFromCategory } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function StoreValidationsInNode() {
+  const item = NodeGeneratorInternal.useItem();
   const node = NodeGeneratorInternal.useParent() as LayoutNode<
     TypesFromCategory<CompCategory.Form | CompCategory.Container>
   >;
   const validations = useNodeValidation(node);
   const setNodeProp = NodesInternal.useSetNodeProp();
+  const isAdded = NodesInternal.useIsAdded(node);
 
   useEffect(() => {
-    setNodeProp(node, 'validations', validations);
-  }, [node, setNodeProp, validations]);
+    isAdded && setNodeProp(node, 'validations', validations);
+  }, [isAdded, node, setNodeProp, validations]);
 
-  const initialMask = getInitialMaskFromNode(node);
+  const initialMask = getInitialMaskFromNode(item!);
   useEffect(() => {
-    setNodeProp(node, 'validationVisibility', initialMask);
-  }, [initialMask, node, setNodeProp]);
+    isAdded && setNodeProp(node, 'validationVisibility', initialMask);
+  }, [isAdded, initialMask, node, setNodeProp]);
 
   return null;
 }
