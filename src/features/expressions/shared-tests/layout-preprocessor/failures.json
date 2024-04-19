@@ -131,7 +131,7 @@
               "simpleBinding": "Bedrifter.Ansatte.Navn"
             },
             "hidden": false,
-            "required": false
+            "required": ["dataModel", "Bedrifter.isRequired", "other.model"]
           },
           {
             "id": "alder",
@@ -155,7 +155,6 @@
   "expectsWarnings": [
     "Function \"bedriftsNavn\" not implemented",
     "Function \"non-existing-function\" not implemented",
-    "Expected 1 argument(s), got 2",
     "Expected 1 argument(s), got 4",
     "Expected 2 argument(s), got 3"
   ]
