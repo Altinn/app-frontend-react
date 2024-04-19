@@ -2,6 +2,7 @@ import React from 'react';
 import type { CSSProperties } from 'react';
 
 import { Card } from '@digdir/design-system-react';
+import { Grid } from '@material-ui/core';
 
 import { Lang } from 'src/features/language/Lang';
 import { CardProvider } from 'src/layout/Cards/CardContext';
@@ -45,6 +46,34 @@ export const Cards = ({ node }: ICardsProps) => {
             <Card.Content>
               <Lang id={card.body} />
             </Card.Content>
+          )}
+          {card.childNodes.length > 0 && (
+            <Grid
+              container={true}
+              item={true}
+              direction='row'
+              spacing={3}
+            >
+              <Grid
+                container={true}
+                alignItems='flex-start'
+                item={true}
+                spacing={3}
+              >
+                {card.childNodes.map((childNode, idx) => (
+                  <CardProvider
+                    key={node.item.id}
+                    node={node}
+                    renderedInMedia={false}
+                  >
+                    <GenericComponent
+                      key={idx}
+                      node={childNode}
+                    />
+                  </CardProvider>
+                ))}
+              </Grid>
+            </Grid>
           )}
           {card.footer && (
             <Card.Footer>

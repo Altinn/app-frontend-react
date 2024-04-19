@@ -1,8 +1,10 @@
 import React, { forwardRef } from 'react';
+import type { JSX } from 'react';
 
 import { Cards as CardsComponent } from 'src/layout/Cards/Cards';
 import { CardsDef } from 'src/layout/Cards/config.def.generated';
 import { CardsHierarchyGenerator } from 'src/layout/Cards/hierarchy';
+import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -27,9 +29,29 @@ export class Cards extends CardsDef {
     return '';
   }
 
-  renderSummary(_props: SummaryRendererProps<'Cards'>): JSX.Element | null {
-    // TODO: Render summary just like Group does
-    return null;
+  renderSummaryBoilerplate(): boolean {
+    return false;
+  }
+
+  renderSummary({ summaryNode, targetNode, overrides }: SummaryRendererProps<'Cards'>): JSX.Element | null {
+    const children = targetNode.item.cardsInternal.map((card) => card.childNodes).flat();
+
+    return (
+      <>
+        {children.map((child) => (
+          <SummaryComponent
+            key={child.item.id}
+            summaryNode={summaryNode}
+            overrides={{
+              ...overrides,
+              targetNode: child,
+              grid: {},
+              largeGroup: true,
+            }}
+          />
+        ))}
+      </>
+    );
   }
 
   validateDataModelBindings(_ctx: LayoutValidationCtx<'Cards'>): string[] {
