@@ -33,13 +33,6 @@ export const Config = new CG.component({
       description: 'The footer of the Card',
     }),
   )
-  .addTextResource(
-    new CG.trb({
-      name: 'altText',
-      title: 'Alt text',
-      description: 'Alternative text for the image (for screen readers).',
-    }),
-  )
   .addProperty(
     new CG.prop(
       'image',
@@ -60,6 +53,10 @@ export const Config = new CG.component({
             .exportAs('CardSrcImage'),
         ),
         new CG.prop('width', new CG.str().setTitle('Image width').addExample('100%').optional({ default: '100%' })),
+        new CG.prop(
+          'altText',
+          new CG.str().setTitle('Alt text').setDescription('Alternative text for the image (for screen readers)'),
+        ),
       )
         .optional()
         .exportAs('CardImage'),

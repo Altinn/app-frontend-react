@@ -12,21 +12,20 @@ import type { PropsFromGenericComponent } from 'src/layout';
 type ICardProps = PropsFromGenericComponent<'Card'>;
 
 export const Card = ({ node }: ICardProps) => {
-  const { textResourceBindings, image, video, audio, minMediaHeight } = node.item;
+  const { image, video, audio, minMediaHeight } = node.item;
   const { langAsString } = useLanguage();
   const languageKey = useCurrentLanguage();
   const width = image?.width || '100%';
-  const altText = textResourceBindings?.altText && langAsString(textResourceBindings.altText);
   const audioSource = audio?.src?.[languageKey] || '';
   const videoSource = video?.src?.[languageKey] || '';
   const imageSource = image?.src?.[languageKey] || '';
 
-  if (image && imageSource) {
+  if (image && imageSource && image.altText) {
     return (
       <SharedCard node={node}>
         <img
           src={imageSource}
-          alt={altText}
+          alt={langAsString(image.altText)}
           style={{
             width,
             height: minMediaHeight,
