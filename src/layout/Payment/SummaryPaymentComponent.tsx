@@ -71,18 +71,6 @@ export const SummaryPaymentComponent = ({ targetNode }: ISummaryPaymentComponent
         className={classes.container}
       />
       <div className={classes.receipDetailsContainer}>
-        <div className={classes.infoContainer}>
-          <div className={classes.infoDetailsContainer}>
-            <span>Betailngs ID:</span>
-            <span>Referansenummer:</span>
-          </div>
-          <div className={classes.infoDetailsContainer}>
-            <span>{paymentInfo?.paymentDetails?.paymentId}</span>
-            <span>{'4324bj234ne'}</span>
-          </div>
-        </div>
-      </div>
-      <div className={classes.receipDetailsContainer}>
         <Heading
           level={3}
           size='small'
