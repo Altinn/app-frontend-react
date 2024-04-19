@@ -88,12 +88,6 @@ export const useOrder = () => {
   return useMemo(() => orderWithHidden?.filter((page) => !hiddenPages.has(page)), [orderWithHidden, hiddenPages]);
 };
 
-export const useIsHiddenByTracks = (pageName: string) => {
-  const maybeLayoutSettings = useLaxLayoutSettings();
-  const orderWithHidden = maybeLayoutSettings === ContextNotProvided ? emptyArray : maybeLayoutSettings.pages.order;
-  return !orderWithHidden.includes(pageName);
-};
-
 export const useNavigatePage = () => {
   const isStatelessApp = useIsStatelessApp();
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;

@@ -2,13 +2,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 
 import { ExprVal } from 'src/features/expressions/types';
 import { useHiddenLayoutsExpressions, useLayouts } from 'src/features/form/layout/LayoutsContext';
-import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { getComponentCapabilities, getComponentDef } from 'src/layout';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
-import { NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
+import { Hidden, NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
 import { NodeGeneratorInternal, NodesGeneratorPageProvider } from 'src/utils/layout/NodesGeneratorContext';
 import { useResolvedExpression } from 'src/utils/layout/useResolvedExpression';
 import type { CompExternal, CompTypes, ILayout } from 'src/layout/layout';
@@ -19,6 +18,7 @@ import type {
   ContainerGeneratorProps,
 } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { HiddenStatePage } from 'src/utils/layout/NodesContext';
 import type { ChildrenMap } from 'src/utils/layout/NodesGeneratorContext';
 
 export const NodeGeneratorDebug = false;
@@ -157,10 +157,18 @@ function Page({ layout, name, layoutSet }: PageProps) {
   const setPageProp = NodesInternal.useSetPageProp();
   const removePage = NodesInternal.useRemovePage();
 
-  const pageOrder = useLayoutSettings().pages.order;
-  const hiddenByOrder = pageOrder && !pageOrder.includes(name);
+  const hiddenByTracks = Hidden.useIsPageHiddenViaTracks(name);
   const hiddenByExpression = useIsHiddenPage(page);
-  const hidden = hiddenByExpression || hiddenByOrder;
+
+  const hidden: HiddenStatePage = useMemo(
+    () => ({
+      hiddenByTracks,
+      hiddenByExpression,
+      hiddenByRules: false,
+      parent: undefined,
+    }),
+    [hiddenByTracks, hiddenByExpression],
+  );
 
   addPage(name);
   if (!page.isRegisteredInCollection(layoutSet)) {
@@ -177,7 +185,7 @@ function Page({ layout, name, layoutSet }: PageProps) {
   );
 
   useEffect(() => {
-    setPageProp(name, 'hidden', hidden ?? false);
+    setPageProp(name, 'hidden', hidden);
   }, [hidden, name, setPageProp]);
 
   const getProto = useMemo(() => {

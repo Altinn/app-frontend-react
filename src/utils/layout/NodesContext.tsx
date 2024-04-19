@@ -1,14 +1,12 @@
 import React, { useEffect } from 'react';
 import type { PropsWithChildren } from 'react';
 
-import dot from 'dot-object';
-import deepEqual from 'fast-deep-equal';
-import { current, isDraft } from 'immer';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import type { UnionToIntersection } from 'utility-types';
 import type { StoreApi } from 'zustand';
 
+import { ContextNotProvided } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { Loader } from 'src/core/loading/Loader';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
@@ -16,10 +14,10 @@ import { shouldUpdate } from 'src/features/form/dynamics/conditionalRendering';
 import { useDynamics } from 'src/features/form/dynamics/DynamicsContext';
 import { useHiddenLayoutsExpressions } from 'src/features/form/layout/LayoutsContext';
 import { useHiddenPages, useSetHiddenPages } from 'src/features/form/layout/PageNavigationContext';
-import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { useLaxLayoutSettings, useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { UpdateExpressionValidation } from 'src/features/validation/validationContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
-import { useCurrentView, useIsHiddenByTracks } from 'src/hooks/useNavigatePage';
+import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { getComponentDef } from 'src/layout';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
@@ -123,54 +121,6 @@ export type NodesDataContext = {
   setPageProp: <K extends keyof PageStore>(pageKey: string, prop: K, value: PageStore[K]) => void;
 } & ExtraFunctions;
 
-/**
- * Function that takes a source object and sets every property on the target object to the same value.
- * Use this utility to make sure immer can avoid updating state whenever the value of a property is the same.
- */
-function setEveryProperty(obj: any, target: any) {
-  let changed = false;
-  const map = dot.dot(obj);
-  for (const [key, value] of Object.entries(map)) {
-    const previous = dot.pick(key, target);
-    if (previous !== value && !deepEqual(previous, value)) {
-      console.log('debug, path changed', key, 'was', previous, 'now', value);
-      dot.str(key, value, target);
-      changed = true;
-    }
-  }
-
-  return changed;
-}
-
-function setProperty(obj: any, prop: string, value: any) {
-  const existing = obj[prop];
-  if (typeof existing === 'object' && existing !== null && !Array.isArray(existing)) {
-    return setEveryProperty(value, existing);
-  } else if (Array.isArray(existing)) {
-    if (!deepEqual(existing, value)) {
-      obj[prop] = value;
-      if (isDraft(existing)) {
-        console.log('debug, array changed', prop, 'was', current(existing), 'now', value);
-      } else {
-        console.log('debug, array changed', prop, 'was', existing, 'now', value);
-      }
-      return true;
-    }
-    return false;
-  } else if (existing !== value) {
-    obj[prop] = value;
-
-    if (isDraft(existing)) {
-      console.log('debug, property changed', prop, 'was', current(existing), 'now', value);
-    } else {
-      console.log('debug, property changed', prop, 'was', existing, 'now', value);
-    }
-    return true;
-  }
-
-  return false;
-}
-
 export type NodesDataStore = StoreApi<NodesDataContext>;
 export function createNodesDataStore() {
   return createStore<NodesDataContext>()(
@@ -214,8 +164,7 @@ export function createNodesDataStore() {
             throw new Error('Parent node is not a node');
           }
           obj.ready = true;
-          const changed = setProperty(obj, prop as string, value);
-          changed && console.log('debug, One or more properties changed in node', node.path);
+          Object.assign(obj, { [prop]: value });
         }),
       addPage: (pageKey) =>
         set((state) => {
@@ -249,8 +198,7 @@ export function createNodesDataStore() {
       setPageProp: (pageKey, prop, value) =>
         set((state) => {
           const obj = state.pages.pages[pageKey];
-          const changed = setProperty(obj, prop as string, value);
-          changed && console.log('debug, One or more properties changed in page', pageKey);
+          Object.assign(obj, { [prop]: value });
         }),
       ...(Object.values(DataStorePlugins)
         .map((plugin) => plugin.extraFunctions(set))
@@ -410,10 +358,11 @@ export const Hidden = {
 
     return devToolsIsOpen && devToolsHiddenComponents !== 'hide';
   },
-  useIsPageHiddenViaTracks: (node: LayoutNode) => {
-    const pageKey = node.pageKey();
+  useIsPageHiddenViaTracks: (pageKey: string) => {
     const currentView = useCurrentView();
-    const isHiddenByTracks = useIsHiddenByTracks(pageKey);
+    const maybeLayoutSettings = useLaxLayoutSettings();
+    const orderWithHidden = maybeLayoutSettings === ContextNotProvided ? [] : maybeLayoutSettings.pages.order;
+    const isHiddenByTracks = !orderWithHidden.includes(pageKey);
     const layoutSettings = useLayoutSettings();
 
     if (pageKey === currentView) {

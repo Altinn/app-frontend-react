@@ -9,8 +9,6 @@ import { NodeGeneratorInternal } from 'src/utils/layout/NodesGeneratorContext';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-const __default__ = [];
-
 /**
  * Runs validations defined in the component classes. This runs from the node generator, and will collect all
  * validations for a node and return them.
@@ -21,11 +19,11 @@ export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): Co
   const item = NodeGeneratorInternal.useItem();
 
   return useMemo(() => {
+    const validations: ComponentValidation[] = [];
     if (!item || !shouldValidate) {
-      return __default__;
+      return validations;
     }
 
-    const validations: ComponentValidation[] = [];
     if (implementsValidateEmptyField(node.def)) {
       validations.push(...node.def.runEmptyFieldValidation(node as any, item as any, validationDataSources));
     }
