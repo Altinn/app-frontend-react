@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { Alert, Button, Heading } from '@digdir/design-system-react';
+import { Alert, Button } from '@digdir/design-system-react';
 
 import type { PropsFromGenericComponent } from '..';
 
@@ -16,7 +16,6 @@ import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTab
 export type IPaymentProps = PropsFromGenericComponent<'Payment'>;
 
 export const PaymentComponent = ({ node }) => {
-  console.log(node);
   // Render these values in the receipt PDF:
   // From API:
   //   - Payment ID
@@ -39,6 +38,7 @@ export const PaymentComponent = ({ node }) => {
   );
   const performPayActionMutation = usePerformPayActionMutation(partyId, instanceGuid);
   const paymentDoesNotExist = isPaymentInformationFetched && !paymentInfo?.paymentDetails;
+  const { title, description } = node.item.textResourceBindings;
 
   // performPayActionMutation changes each render, so we need to destructure it to get the mutate function
   // which does not change and is safe to use in the useEffect dependency array
@@ -60,14 +60,8 @@ export const PaymentComponent = ({ node }) => {
       {
         <PaymentDetailsTable
           orderDetails={paymentInfo?.orderDetails}
-          tableTitle={
-            <Heading
-              level={2}
-              size='medium'
-            >
-              <Lang id='payment.summary' />
-            </Heading>
-          }
+          tableTitle={title}
+          description={description}
           className={classes.container}
         />
       }
