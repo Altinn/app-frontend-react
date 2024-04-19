@@ -10,6 +10,8 @@ export const Config = new CG.component({
     renderInAccordion: false,
     renderInAccordionGroup: false,
     renderInCardGroup: false,
+    renderInCards: false,
+    renderInCardsMedia: false,
   },
 }).addProperty(new CG.prop('rows', CG.common('GridRows')));
 // We don't render the label in GenericComponent, but we still need the

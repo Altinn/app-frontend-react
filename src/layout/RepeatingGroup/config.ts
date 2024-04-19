@@ -11,6 +11,8 @@ export const Config = new CG.component({
     renderInAccordion: false,
     renderInAccordionGroup: false,
     renderInCardGroup: false,
+    renderInCards: false,
+    renderInCardsMedia: false,
   },
 })
   .addProperty(
