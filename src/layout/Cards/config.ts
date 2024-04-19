@@ -36,6 +36,17 @@ export const Config = new CG.component({
   )
   .addProperty(
     new CG.prop(
+      'minWidth',
+      new CG.str()
+        .setTitle('minWidth')
+        .setDescription('Fixed minimum width of the card')
+        .optional({ default: '250px' })
+        .setPattern(/^[0-9]+(px|rem|%)?$/)
+        .addExample('100', '100px', '100%', '100rem'),
+    ),
+  )
+  .addProperty(
+    new CG.prop(
       'color',
       new CG.enum('neutral', 'subtle')
         .setTitle('Card color')

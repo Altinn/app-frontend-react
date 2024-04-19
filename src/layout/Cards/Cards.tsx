@@ -14,12 +14,14 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 type ICardsProps = PropsFromGenericComponent<'Cards'>;
 
 export const Cards = ({ node }: ICardsProps) => {
-  const { cardsInternal, minMediaHeight, color, mediaPosition } = node.item;
+  const { cardsInternal, minMediaHeight, minWidth, color, mediaPosition } = node.item;
+
+  const processedMinWidth = minWidth && /^[0-9]+$/.test(minWidth) ? `${minWidth}px` : minWidth ?? '250px';
 
   const cardContainer: CSSProperties = {
     display: 'grid',
     gap: '28px',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+    gridTemplateColumns: `repeat(auto-fit, minmax(${processedMinWidth}, 1fr))`,
   };
 
   return (
