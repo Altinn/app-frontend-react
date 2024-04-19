@@ -33,6 +33,7 @@ export const Cards = ({ node }: ICardsProps) => {
             <Media
               card={card}
               node={node}
+              minMediaHeight={minMediaHeight}
             />
           )}
           {card.title && (
@@ -54,6 +55,7 @@ export const Cards = ({ node }: ICardsProps) => {
             <Media
               card={card}
               node={node}
+              minMediaHeight={minMediaHeight}
             />
           )}
         </DesignSystemCard>
@@ -62,7 +64,13 @@ export const Cards = ({ node }: ICardsProps) => {
   );
 };
 
-function Media({ card, node }: { card: CardConfigInternal; node: LayoutNode<'Cards'> }) {
+interface MediaProps {
+  card: CardConfigInternal;
+  node: LayoutNode<'Cards'>;
+  minMediaHeight: string | undefined;
+}
+
+function Media({ card, node, minMediaHeight }: MediaProps) {
   if (!card.mediaNode) {
     return null;
   }
@@ -72,6 +80,7 @@ function Media({ card, node }: { card: CardConfigInternal; node: LayoutNode<'Car
       <CardProvider
         node={node}
         renderedInMedia={true}
+        minMediaHeight={minMediaHeight}
       >
         <GenericComponent
           key={card.mediaNode.item.id}

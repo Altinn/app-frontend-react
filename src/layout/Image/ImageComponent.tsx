@@ -35,6 +35,7 @@ export function ImageComponent({ node }: IImageProps) {
   const renderSvg = imgType.toLowerCase() === 'svg';
 
   const renderedInCardMedia = useParentCard()?.renderedInMedia;
+  const cardMediaHeight = useParentCard()?.minMediaHeight;
   if (renderedInCardMedia) {
     return (
       <InnerImage
@@ -43,6 +44,7 @@ export function ImageComponent({ node }: IImageProps) {
         altText={altText}
         imgSrc={imgSrc}
         width={width}
+        height={cardMediaHeight}
       />
     );
   }
@@ -84,9 +86,10 @@ interface InnerImageProps {
   imgSrc: string;
   altText: string | undefined;
   width: string;
+  height?: string;
 }
 
-function InnerImage({ renderSvg, id, imgSrc, altText, width }: InnerImageProps) {
+function InnerImage({ renderSvg, id, imgSrc, altText, width, height }: InnerImageProps) {
   if (renderSvg) {
     return (
       <object
@@ -100,6 +103,7 @@ function InnerImage({ renderSvg, id, imgSrc, altText, width }: InnerImageProps) 
           alt={altText}
           style={{
             width,
+            height,
           }}
         />
       </object>
@@ -113,6 +117,7 @@ function InnerImage({ renderSvg, id, imgSrc, altText, width }: InnerImageProps) 
       alt={altText}
       style={{
         width,
+        height,
       }}
     />
   );

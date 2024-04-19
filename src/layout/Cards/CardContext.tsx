@@ -7,6 +7,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 interface CardContext {
   node: LayoutNode<'Cards'>;
   renderedInMedia: boolean;
+  minMediaHeight: string | undefined;
 }
 
 const { Provider, useCtx } = createContext<CardContext | undefined>({
