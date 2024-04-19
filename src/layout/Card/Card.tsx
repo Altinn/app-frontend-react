@@ -1,30 +1,25 @@
 import React from 'react';
+import type { PropsWithChildren } from 'react';
 
+import { Card as DesignSystemCard } from '@digdir/design-system-react';
+
+import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { CardInternal } from 'src/layout/Card/CardInternal';
+import styles from 'src/layout/Card/Card.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 type ICardProps = PropsFromGenericComponent<'Card'>;
 
 export const Card = ({ node }: ICardProps) => {
-  const { textResourceBindings, image, video, audio, edit } = node.item;
+  const { textResourceBindings, image, video, audio, minMediaHeight } = node.item;
   const { langAsString } = useLanguage();
   const languageKey = useCurrentLanguage();
   const width = image?.width || '100%';
   const altText = textResourceBindings?.altText && langAsString(textResourceBindings.altText);
-  const audioSource = isWwwRoot(audio) ? getSourceUrl(audio) : audio?.src || '';
-  const videoSource = isWwwRoot(video) ? getSourceUrl(video) : video?.src || '';
-  const imageSource = isWwwRoot(image) ? getSourceUrl(image) : image?.src || '';
-  const height = edit.minMediaHeight;
-
-  function isWwwRoot(content): boolean {
-    return content && content.src[languageKey].startsWith('wwwroot');
-  }
-
-  function getSourceUrl(content) {
-    return content && content.src[languageKey].replace('wwwroot', `/${window.org}/${window.app}`);
-  }
+  const audioSource = audio?.src?.[languageKey] || '';
+  const videoSource = video?.src?.[languageKey] || '';
+  const imageSource = image?.src?.[languageKey] || '';
 
   if (image && imageSource) {
     return (
@@ -34,7 +29,7 @@ export const Card = ({ node }: ICardProps) => {
           alt={altText}
           style={{
             width,
-            height,
+            height: minMediaHeight,
           }}
         />
       </SharedCard>
@@ -45,7 +40,7 @@ export const Card = ({ node }: ICardProps) => {
       <SharedCard node={node}>
         <video
           controls
-          style={{ height }}
+          style={{ height: minMediaHeight }}
         >
           <source src={videoSource}></source>
           <track
@@ -62,7 +57,7 @@ export const Card = ({ node }: ICardProps) => {
       <SharedCard node={node}>
         <audio
           controls
-          style={{ height }}
+          style={{ height: minMediaHeight }}
         >
           <source src={audioSource}></source>
           <track
@@ -76,23 +71,31 @@ export const Card = ({ node }: ICardProps) => {
   }
 };
 
-const SharedCard = ({ children, node }: { children: React.ReactNode; node: ICardProps['node'] }) => {
-  const { langAsString } = useLanguage();
-  const { color, textResourceBindings, edit } = node.item;
-
-  const title = textResourceBindings?.title && langAsString(textResourceBindings.title);
-  const body = textResourceBindings?.body && langAsString(textResourceBindings.body);
-  const footer = textResourceBindings?.footer && langAsString(textResourceBindings.footer);
+const SharedCard = ({ children, node }: PropsWithChildren<{ node: ICardProps['node'] }>) => {
+  const { color, textResourceBindings, position } = node.item;
 
   return (
-    <CardInternal
-      title={title}
-      body={body}
-      footer={footer}
+    <DesignSystemCard
       color={color}
-      position={edit.position}
+      className={styles.container}
     >
-      {children}
-    </CardInternal>
+      {position === 'top' && <DesignSystemCard.Media>{children}</DesignSystemCard.Media>}
+      {textResourceBindings?.title && (
+        <DesignSystemCard.Header>
+          <Lang id={textResourceBindings?.title} />
+        </DesignSystemCard.Header>
+      )}
+      {textResourceBindings?.body && (
+        <DesignSystemCard.Content>
+          <Lang id={textResourceBindings?.body} />
+        </DesignSystemCard.Content>
+      )}
+      {textResourceBindings?.footer && (
+        <DesignSystemCard.Footer>
+          <Lang id={textResourceBindings?.footer} />
+        </DesignSystemCard.Footer>
+      )}
+      {position === 'bottom' && <DesignSystemCard.Media>{children}</DesignSystemCard.Media>}
+    </DesignSystemCard>
   );
 };
