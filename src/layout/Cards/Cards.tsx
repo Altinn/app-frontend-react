@@ -1,7 +1,7 @@
 import React from 'react';
 import type { CSSProperties } from 'react';
 
-import { Card as DesignSystemCard } from '@digdir/design-system-react';
+import { Card } from '@digdir/design-system-react';
 
 import { Lang } from 'src/features/language/Lang';
 import { CardProvider } from 'src/layout/Cards/CardContext';
@@ -24,7 +24,7 @@ export const Cards = ({ node }: ICardsProps) => {
   return (
     <div style={cardContainer}>
       {cardsInternal.map((card, idx) => (
-        <DesignSystemCard
+        <Card
           key={idx}
           color={color}
           style={{ height: '100%' }}
@@ -37,19 +37,19 @@ export const Cards = ({ node }: ICardsProps) => {
             />
           )}
           {card.title && (
-            <DesignSystemCard.Header>
+            <Card.Header>
               <Lang id={card.title} />
-            </DesignSystemCard.Header>
+            </Card.Header>
           )}
           {card.body && (
-            <DesignSystemCard.Content>
+            <Card.Content>
               <Lang id={card.body} />
-            </DesignSystemCard.Content>
+            </Card.Content>
           )}
           {card.footer && (
-            <DesignSystemCard.Footer>
+            <Card.Footer>
               <Lang id={card.footer} />
-            </DesignSystemCard.Footer>
+            </Card.Footer>
           )}
           {mediaPosition === 'bottom' && (
             <Media
@@ -58,7 +58,7 @@ export const Cards = ({ node }: ICardsProps) => {
               minMediaHeight={minMediaHeight}
             />
           )}
-        </DesignSystemCard>
+        </Card>
       ))}
     </div>
   );
@@ -76,7 +76,7 @@ function Media({ card, node, minMediaHeight }: MediaProps) {
   }
 
   return (
-    <DesignSystemCard.Media>
+    <Card.Media>
       <CardProvider
         node={node}
         renderedInMedia={true}
@@ -90,6 +90,6 @@ function Media({ card, node, minMediaHeight }: MediaProps) {
           }}
         />
       </CardProvider>
-    </DesignSystemCard.Media>
+    </Card.Media>
   );
 }
