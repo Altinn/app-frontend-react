@@ -172,13 +172,8 @@ function UpdateValidations({ isCustomReceipt }: Props) {
     }
   }, [backendValidation, updateValidations]);
 
-  const expressionValidations = useExpressionValidation();
   const schemaValidations = useSchemaValidation();
   const invalidDataValidations = useInvalidDataValidation();
-
-  useEffect(() => {
-    updateValidations('expression', expressionValidations);
-  }, [expressionValidations, updateValidations]);
 
   useEffect(() => {
     updateValidations('schema', schemaValidations);
@@ -187,6 +182,17 @@ function UpdateValidations({ isCustomReceipt }: Props) {
   useEffect(() => {
     updateValidations('invalidData', invalidDataValidations);
   }, [invalidDataValidations, updateValidations]);
+
+  return null;
+}
+
+export function UpdateExpressionValidation() {
+  const updateValidations = useSelector((state) => state.updateValidations);
+  const expressionValidations = useExpressionValidation();
+
+  useEffect(() => {
+    updateValidations('expression', expressionValidations);
+  }, [expressionValidations, updateValidations]);
 
   return null;
 }

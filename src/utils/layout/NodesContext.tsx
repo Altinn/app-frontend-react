@@ -17,6 +17,7 @@ import { useDynamics } from 'src/features/form/dynamics/DynamicsContext';
 import { useHiddenLayoutsExpressions } from 'src/features/form/layout/LayoutsContext';
 import { useHiddenPages, useSetHiddenPages } from 'src/features/form/layout/PageNavigationContext';
 import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { UpdateExpressionValidation } from 'src/features/validation/validationContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
 import { useCurrentView, useIsHiddenByTracks } from 'src/hooks/useNavigatePage';
 import { getComponentDef } from 'src/layout';
@@ -276,6 +277,7 @@ export const NodesProvider = (props: React.PropsWithChildren) => (
     <DataStore.Provider>
       <NodesGenerator />
       <InnerHiddenComponentsProvider />
+      <UpdateExpressionValidation />
       <BlockUntilLoaded>{props.children}</BlockUntilLoaded>
     </DataStore.Provider>
   </NodesStore.Provider>

@@ -46,9 +46,9 @@ export function FormProvider({ children }: React.PropsWithChildren) {
                   <InitialFormDataProvider>
                     <AttachmentsStoreProvider>
                       <AllOptionsStoreProvider>
-                        <NodesProvider>
-                          <NavigateToNodeProvider>
-                            <ValidationProvider isCustomReceipt={isCustomReceipt}>
+                        <ValidationProvider isCustomReceipt={isCustomReceipt}>
+                          <NodesProvider>
+                            <NavigateToNodeProvider>
                               <AttachmentsProvider>
                                 <AllOptionsProvider>
                                   {hasProcess ? (
@@ -60,9 +60,9 @@ export function FormProvider({ children }: React.PropsWithChildren) {
                                   )}
                                 </AllOptionsProvider>
                               </AttachmentsProvider>
-                            </ValidationProvider>
-                          </NavigateToNodeProvider>
-                        </NodesProvider>
+                            </NavigateToNodeProvider>
+                          </NodesProvider>
+                        </ValidationProvider>
                       </AllOptionsStoreProvider>
                     </AttachmentsStoreProvider>
                   </InitialFormDataProvider>
