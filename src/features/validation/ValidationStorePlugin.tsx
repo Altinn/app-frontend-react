@@ -1,12 +1,12 @@
 import { pickDataStorePath } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
-import type { AttachmentValidation, ComponentValidation } from 'src/features/validation/index';
+import type { AttachmentValidation, ComponentValidation, FieldValidation } from 'src/features/validation/index';
 import type { ItemStore } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodesDataContext, NodesDataStoreFull } from 'src/utils/layout/NodesContext';
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
 
-type Validations = ComponentValidation | AttachmentValidation;
+type Validations = ComponentValidation | AttachmentValidation | FieldValidation;
 export type ValidationVisibilitySelector = (node: LayoutNode) => number;
 export type ValidationsSelector = (node: LayoutNode) => Validations[];
 

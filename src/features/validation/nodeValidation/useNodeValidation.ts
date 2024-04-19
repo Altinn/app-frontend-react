@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+import { Validation } from 'src/features/validation/validationContext';
 import { implementsValidateComponent, implementsValidateEmptyField } from 'src/layout';
 import { NodeGeneratorInternal } from 'src/utils/layout/NodesGeneratorContext';
 import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
@@ -11,19 +12,20 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 const __default__ = [];
 
 /**
- * Runs validations defined in the component classes
+ * Runs validations defined in the component classes. This runs from the node generator, and will collect all
+ * validations for a node and return them.
  */
-export function useNodeValidation(node: LayoutNode): ComponentValidation[] {
+export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): ComponentValidation[] {
+  const selector = Validation.useFieldSelector();
   const validationDataSources = useValidationDataSources();
   const item = NodeGeneratorInternal.useItem();
 
   return useMemo(() => {
-    if (!item || ('renderAsSummary' in item && item.renderAsSummary)) {
+    if (!item || !shouldValidate) {
       return __default__;
     }
 
     const validations: ComponentValidation[] = [];
-
     if (implementsValidateEmptyField(node.def)) {
       validations.push(...node.def.runEmptyFieldValidation(node as any, item as any, validationDataSources));
     }
@@ -31,14 +33,24 @@ export function useNodeValidation(node: LayoutNode): ComponentValidation[] {
     if (implementsValidateComponent(node.def)) {
       validations.push(...node.def.runComponentValidation(node as any, item as any, validationDataSources));
     }
+
+    if (item.dataModelBindings) {
+      for (const [bindingKey, field] of Object.entries(item.dataModelBindings)) {
+        const fieldValidations = selector(field, (fields) => fields[field]);
+        if (fieldValidations) {
+          validations.push(...fieldValidations.map((v) => ({ ...v, node, bindingKey })));
+        }
+      }
+    }
+
     return validations;
-  }, [item, node, validationDataSources]);
+  }, [item, node, selector, shouldValidate, validationDataSources]);
 }
 
 /**
  * Hook providing validation data sources
  */
-export function useValidationDataSources(): ValidationDataSources {
+function useValidationDataSources(): ValidationDataSources {
   const formData = FD.useDebounced();
   const invalidData = FD.useInvalidDebounced();
   const attachments = useAttachments();

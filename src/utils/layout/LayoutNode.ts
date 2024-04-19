@@ -13,12 +13,6 @@ import type { BaseRow } from 'src/utils/layout/itemState';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
 import type { NodesDataStore } from 'src/utils/layout/NodesContext';
 
-export interface IsHiddenOptions {
-  respectLegacy?: boolean;
-  respectDevTools?: boolean;
-  respectTracks?: boolean;
-}
-
 export interface LayoutNodeProps<Type extends CompTypes> {
   item: CompExternalExact<Type>;
   store: NodesDataStore;
@@ -208,40 +202,16 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
   /**
    * Checks if this field should be hidden. This also takes into account the group this component is in, so the
    * methods returns true if the component is inside a hidden group.
+   * @deprecated
    */
-  public isHidden(_options: IsHiddenOptions = {}): boolean {
+  public isHidden(): boolean {
     // TODO: Enable this again, but calculate it all in the hierarchy generator component instead of here.
     return false;
     //   const { respectLegacy = true, respectDevTools = true, respectTracks = false } = options;
     //
-    //   // Bit field containing the flags
-    //   const cacheKey = (respectLegacy ? 1 : 0) | (respectDevTools ? 2 : 0) | (respectTracks ? 4 : 0);
-    //
-    //   if (this.hiddenCache[cacheKey] !== undefined) {
-    //     return this.hiddenCache[cacheKey] as boolean;
-    //   }
-    //
     //   const isHidden = respectLegacy ? this.dataSources.isHidden : () => false;
     //   if (respectDevTools && this.dataSources.devToolsIsOpen && this.dataSources.devToolsHiddenComponents !== 'hide') {
-    //     this.hiddenCache[cacheKey] = false;
     //     return false;
-    //   }
-    //
-    //   if (isHidden(this.baseId)) {
-    //     this.hiddenCache[cacheKey] = true;
-    //     return true;
-    //   }
-    //
-    //   if (isHidden(this.id)) {
-    //     this.hiddenCache[cacheKey] = true;
-    //     return true;
-    //   }
-    //
-    //   const hiddenInParent =
-    //     this.parent instanceof BaseLayoutNode && (this.parent as BaseLayoutNode).isDirectChildHidden(this, options);
-    //   if (hiddenInParent) {
-    //     this.hiddenCache[cacheKey] = true;
-    //     return true;
     //   }
     //
     //   if (
@@ -249,17 +219,8 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
     //     this.parent instanceof LayoutPage &&
     //     this.parent.isHiddenViaTracks(this.dataSources.layoutSettings, this.dataSources.pageNavigationConfig)
     //   ) {
-    //     this.hiddenCache[cacheKey] = true;
     //     return true;
     //   }
-    //
-    //   const hiddenByParent = this.parent instanceof BaseLayoutNode && this.parent.isHidden(options);
-    //   this.hiddenCache[cacheKey] = hiddenByParent;
-    //   return hiddenByParent;
-  }
-
-  protected isDirectChildHidden(_directChild: BaseLayoutNode, _options: IsHiddenOptions): boolean {
-    return false;
   }
 
   private firstDataModelBinding() {

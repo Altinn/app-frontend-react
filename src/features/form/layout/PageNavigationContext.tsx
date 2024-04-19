@@ -90,6 +90,9 @@ export const useHiddenPages = () => {
   return hidden === ContextNotProvided ? emptySet : hidden;
 };
 
+/**
+ * TODO: Figure out if this is needed, or if we can replace it with the hidden state in the node hierarchy instead
+ */
 export const useIsHiddenPage = () => {
   const hidden = useLaxSelectorAsRef((state) => state.hidden);
   return (pageId: string) => {

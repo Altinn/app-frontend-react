@@ -2,10 +2,8 @@ import { useMemo } from 'react';
 
 import type { NodeValidation } from '..';
 
-import { getValidationsForNode } from 'src/features/validation/utils';
-import { Validation } from 'src/features/validation/validationContext';
+import { filterValidations, selectValidations } from 'src/features/validation/utils';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
-import type { ValidationLookupSources } from 'src/features/validation/utils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 /**
@@ -16,7 +14,6 @@ export function useDeepValidationsForNode(
   onlyChildren: boolean = false,
   onlyInRowUuid?: string,
 ): NodeValidation[] {
-  const selector = Validation.useSelector();
   const visibilitySelector = NodesInternal.useValidationVisibilitySelector();
   const validationsSelector = NodesInternal.useValidationsSelector();
 
@@ -25,13 +22,13 @@ export function useDeepValidationsForNode(
       return [];
     }
 
-    const findIn: ValidationLookupSources = {
-      validationState: selector,
-      nodeValidationsSelector: validationsSelector,
-    };
-
     const restriction = onlyInRowUuid ? { onlyInRowUuid } : undefined;
     const nodesToValidate = onlyChildren ? node.flat(restriction) : [node, ...node.flat(restriction)];
-    return nodesToValidate.flatMap((node) => getValidationsForNode(node, findIn, visibilitySelector(node)));
-  }, [node, onlyChildren, onlyInRowUuid, selector, validationsSelector, visibilitySelector]);
+    return nodesToValidate.flatMap((node) => {
+      const mask = visibilitySelector(node);
+      const validations = validationsSelector(node);
+      const filtered = filterValidations(selectValidations(validations, mask), node);
+      return filtered.map((validation) => ({ ...validation, node }));
+    });
+  }, [node, onlyChildren, onlyInRowUuid, visibilitySelector, validationsSelector]);
 }

@@ -1,17 +1,6 @@
 import { ValidationMask } from 'src/features/validation';
 import { implementsValidationFilter } from 'src/layout';
-import type {
-  AnyValidation,
-  BaseValidation,
-  FieldValidations,
-  NodeValidation,
-  ValidationContext,
-  ValidationMaskKeys,
-  ValidationSeverity,
-  ValidationState,
-} from 'src/features/validation';
-import type { ValidationSelector } from 'src/features/validation/validationContext';
-import type { ValidationsSelector } from 'src/features/validation/ValidationStorePlugin';
+import type { BaseValidation, FieldValidations, ValidationMaskKeys, ValidationSeverity } from 'src/features/validation';
 import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -80,13 +69,6 @@ export function filterValidations<Validation extends BaseValidation>(
   return out;
 }
 
-/**
- * This can be used in a filter to remove hidden nodes from consideration when checking for validation errors
- */
-export function shouldValidateNode(node: LayoutNode): boolean {
-  return !node.isHidden({ respectTracks: true }) && !('renderAsSummary' in node.item && node.item.renderAsSummary);
-}
-
 export function isValidationVisible<T extends BaseValidation>(validation: T, mask: number): boolean {
   if (validation.category === 0) {
     return true;
@@ -101,61 +83,6 @@ export function selectValidations<T extends BaseValidation>(
 ) {
   const filteredValidations = severity ? validationsOfSeverity(validations, severity) : validations;
   return filteredValidations.filter((validation) => isValidationVisible(validation, mask));
-}
-
-export interface ValidationLookupSources {
-  validationState: ValidationState | ValidationSelector;
-  nodeValidationsSelector: ValidationsSelector;
-}
-
-/**
- * Gets all validations for a node in a single list, optionally filtered by severity
- * Looks at data model bindings to get field validations
- */
-export function getValidationsForNode(
-  node: LayoutNode,
-  findIn: ValidationLookupSources,
-  mask: number,
-): NodeValidation[];
-export function getValidationsForNode<Severity extends ValidationSeverity>(
-  node: LayoutNode,
-  findIn: ValidationLookupSources,
-  mask: number,
-  severity: Severity,
-): NodeValidation<AnyValidation<Severity>>[];
-export function getValidationsForNode(
-  node: LayoutNode,
-  findIn: ValidationLookupSources,
-  mask: number,
-  severity?: ValidationSeverity,
-): NodeValidation[] {
-  const validationMessages: NodeValidation[] = [];
-  if (!shouldValidateNode(node)) {
-    return validationMessages;
-  }
-
-  const selector: ValidationSelector = (cacheKey, selector) => {
-    if (typeof findIn.validationState === 'function') {
-      return findIn.validationState(cacheKey, selector);
-    }
-    return selector({ state: findIn.validationState } as ValidationContext);
-  };
-
-  if (node.item.dataModelBindings) {
-    for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings)) {
-      const fieldValidations = selector(`field-${field}`, (state) => state.state.fields[field]);
-      if (fieldValidations) {
-        const validations = filterValidations(selectValidations(fieldValidations, mask, severity), node);
-        validationMessages.push(...validations.map((validation) => ({ ...validation, node, bindingKey })));
-      }
-    }
-  }
-
-  const componentValidations = findIn.nodeValidationsSelector(node);
-  const validations = filterValidations(selectValidations(componentValidations, mask, severity), node);
-  validationMessages.push(...validations.map((validation) => ({ ...validation, node })));
-
-  return validationMessages;
 }
 
 /**

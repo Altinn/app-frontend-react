@@ -6,6 +6,7 @@ import type { CompExternal, CompInternal, CompTypes } from 'src/layout/layout';
 import type { BaseRow } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { HiddenState, HiddenStateNode, HiddenStatePage } from 'src/utils/layout/NodesContext';
 
 type ChildMutator<T extends CompTypes = CompTypes> = (item: CompExternal<T>) => void;
 
@@ -14,7 +15,6 @@ export interface ChildrenMap {
 }
 
 interface ProviderProps {
-  hidden: boolean | undefined;
   directMutators?: ChildMutator[];
   recursiveMutators?: ChildMutator[];
   row?: BaseRow;
@@ -23,9 +23,11 @@ interface ProviderProps {
 interface PageProviderProps extends ProviderProps {
   layoutMap: Record<string, CompExternal>;
   childrenMap: ChildrenMap;
+  hidden: HiddenStatePage;
 }
 
-interface NodesGeneratorContext extends PageProviderProps {
+interface NodesGeneratorContext extends Omit<PageProviderProps, 'hidden'> {
+  hidden: HiddenState;
   parent: LayoutNode | LayoutPage;
   item: CompInternal | undefined;
   claimedChildren: Set<string>;
@@ -39,6 +41,7 @@ const { Provider, useCtx } = createContext<NodesGeneratorContext>({
 });
 
 type RealNodeGeneratorProps = PropsWithChildren<ProviderProps> & {
+  hidden: Omit<HiddenStateNode, 'parent'>;
   parent: LayoutNode;
   item: CompInternal;
 };
@@ -63,7 +66,10 @@ export function NodesGeneratorProvider({ children, ...rest }: RealNodeGeneratorP
 
     // If the parent is hidden, we are also hidden. The default is false, and every component inside a hidden one
     // will be marked as hidden as well.
-    hidden: rest.hidden ? true : parent.hidden ?? false,
+    hidden: {
+      parent: parent.hidden,
+      ...rest.hidden,
+    },
 
     depth: parent.depth + 1,
   };
@@ -91,7 +97,7 @@ export function NodesGeneratorPageProvider({ children, ...rest }: RealNodeGenera
 export const NodeGeneratorInternal = {
   useDirectMutators: () => useCtx().directMutators ?? emptyArray,
   useRecursiveMutators: () => useCtx().recursiveMutators ?? emptyArray,
-  useIsHiddenByParent: () => useCtx().hidden ?? false,
+  useHiddenState: () => useCtx().hidden,
   useDepth: () => useCtx().depth,
   useLayoutMap: () => useCtx().layoutMap,
   useChildrenMap: () => useCtx().childrenMap,

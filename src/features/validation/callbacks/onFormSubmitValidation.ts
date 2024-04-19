@@ -4,16 +4,14 @@ import { ValidationMask } from '..';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import {
-  getValidationsForNode,
+  filterValidations,
   getVisibilityMask,
   hasValidationErrors,
   selectValidations,
-  shouldValidateNode,
 } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { NodesInternal, useNodesAsLaxRef } from 'src/utils/layout/NodesContext';
-import type { ValidationLookupSources } from 'src/features/validation/utils';
 
 /**
  * Checks for any validation errors before submitting the form.
@@ -45,18 +43,14 @@ export function useOnFormSubmitValidation() {
     const state = validation.current.state;
     const setShowAllErrors = validation.current.setShowAllErrors;
 
-    const findIn: ValidationLookupSources = {
-      validationState: state,
-      nodeValidationsSelector,
-    };
-
     /*
      * First: check and show any frontend errors
      */
-    const nodesWithFrontendErrors = layoutPages
-      .allNodes()
-      .filter(shouldValidateNode)
-      .filter((n) => getValidationsForNode(n, findIn, ValidationMask.All, 'error').length > 0);
+    const nodesWithFrontendErrors = layoutPages.allNodes().filter((n) => {
+      const validations = nodeValidationsSelector(n);
+      const filtered = filterValidations(selectValidations(validations, ValidationMask.All, 'error'), n);
+      return filtered.length > 0;
+    });
 
     if (nodesWithFrontendErrors.length > 0) {
       setNodeVisibility(nodesWithFrontendErrors, ValidationMask.All);
@@ -67,10 +61,12 @@ export function useOnFormSubmitValidation() {
      * Normally, backend errors should be in sync with frontend errors.
      * But if not, show them now.
      */
-    const nodesWithAnyError = layoutPages
-      .allNodes()
-      .filter(shouldValidateNode)
-      .filter((n) => getValidationsForNode(n, findIn, ValidationMask.AllIncludingBackend, 'error').length > 0);
+    const nodesWithAnyError = layoutPages.allNodes().filter((n) => {
+      const validations = nodeValidationsSelector(n);
+      return (
+        filterValidations(selectValidations(validations, ValidationMask.AllIncludingBackend, 'error'), n).length > 0
+      );
+    });
 
     if (nodesWithAnyError.length > 0) {
       setNodeVisibility(nodesWithAnyError, ValidationMask.All);

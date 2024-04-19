@@ -3,15 +3,13 @@ import { useMemo } from 'react';
 import type { AnyValidation, BaseValidation, NodeValidation } from '..';
 
 import {
-  getValidationsForNode,
+  filterValidations,
   getVisibilityMask,
   selectValidations,
-  shouldValidateNode,
   validationsOfSeverity,
 } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
-import type { ValidationLookupSources } from 'src/features/validation/utils';
 
 const emptyArray: [] = [];
 
@@ -33,18 +31,17 @@ export function useTaskErrors(): {
       return emptyArray;
     }
 
-    const findIn: ValidationLookupSources = {
-      validationState: selector,
-      nodeValidationsSelector,
-    };
-
     const formErrors: NodeValidation<AnyValidation<'error'>>[] = [];
-    for (const node of nodes.allNodes().filter(shouldValidateNode)) {
-      formErrors.push(...getValidationsForNode(node, findIn, visibilitySelector(node), 'error'));
+    for (const node of nodes.allNodes()) {
+      const mask = visibilitySelector(node);
+      const validations = nodeValidationsSelector(node);
+      const selected = selectValidations(validations, mask, 'error');
+      const filtered = filterValidations(selected, node) as AnyValidation<'error'>[];
+      formErrors.push(...filtered.map((v) => ({ ...v, node })));
     }
 
     return formErrors;
-  }, [nodeValidationsSelector, nodes, selector, visibilitySelector]);
+  }, [nodeValidationsSelector, nodes, visibilitySelector]);
 
   const taskErrors = useMemo(() => {
     const taskErrors: BaseValidation<'error'>[] = [];

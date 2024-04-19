@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { useNodeValidation } from 'src/features/validation/nodeValidation/useNodeValidation';
 import { getInitialMaskFromNode } from 'src/features/validation/utils';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { NodeGeneratorInternal } from 'src/utils/layout/NodesGeneratorContext';
 import type { CompCategory } from 'src/layout/common';
 import type { TypesFromCategory } from 'src/layout/layout';
@@ -13,9 +13,20 @@ export function StoreValidationsInNode() {
   const node = NodeGeneratorInternal.useParent() as LayoutNode<
     TypesFromCategory<CompCategory.Form | CompCategory.Container>
   >;
-  const validations = useNodeValidation(node);
   const setNodeProp = NodesInternal.useSetNodeProp();
   const isAdded = NodesInternal.useIsAdded(node);
+  const isHidden = Hidden.useIsHiddenSelector();
+
+  const shouldValidate = useMemo(
+    () =>
+      isAdded &&
+      item !== undefined &&
+      !isHidden({ node, options: { respectTracks: true } }) &&
+      !('renderAsSummary' in item && item.renderAsSummary),
+    [isAdded, isHidden, item, node],
+  );
+
+  const validations = useNodeValidation(node, shouldValidate);
 
   useEffect(() => {
     isAdded && setNodeProp(node, 'validations', validations);

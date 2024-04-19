@@ -1,10 +1,9 @@
 import { useCallback } from 'react';
 
-import { getValidationsForNode, getVisibilityMask, shouldValidateNode } from 'src/features/validation/utils';
+import { filterValidations, getVisibilityMask, selectValidations } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
-import type { ValidationLookupSources } from 'src/features/validation/utils';
 import type { AllowedValidationMasks } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -15,13 +14,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 export function useOnGroupCloseValidation() {
   const setNodeVisibility = NodesInternal.useSetNodeVisibility();
   const nodeValidationSelector = NodesInternal.useValidationsSelector();
-  const selector = Validation.useSelector();
   const validating = Validation.useValidating();
-
-  const findIn: ValidationLookupSources = {
-    validationState: selector,
-    nodeValidationsSelector: nodeValidationSelector,
-  };
 
   /* Ensures the callback will have the latest state */
   const callback = useEffectEvent((node: LayoutNode, rowUuid: string, masks: AllowedValidationMasks): boolean => {
@@ -30,8 +23,11 @@ export function useOnGroupCloseValidation() {
     const nodesWithErrors = node
       .flat({ onlyInRowUuid: rowUuid })
       .filter((n) => !n.isSameAs(node)) // Exclude self, only check children
-      .filter(shouldValidateNode)
-      .filter((n) => getValidationsForNode(n, findIn, mask, 'error').length > 0);
+      .filter((n) => {
+        const validations = nodeValidationSelector(n);
+        const filtered = filterValidations(selectValidations(validations, mask, 'error'), node);
+        return filtered.length > 0;
+      });
 
     if (nodesWithErrors.length > 0) {
       setNodeVisibility(nodesWithErrors, mask);

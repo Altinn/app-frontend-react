@@ -7,7 +7,7 @@ import { useAsRef } from 'src/hooks/useAsRef';
 import { getComponentDef, getNodeConstructor } from 'src/layout';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import { NodesInternal, useIsHiddenViaRules } from 'src/utils/layout/NodesContext';
+import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { NodeGeneratorDebug } from 'src/utils/layout/NodesGenerator';
 import { NodeGeneratorInternal, NodesGeneratorProvider } from 'src/utils/layout/NodesGeneratorContext';
 import { useResolvedExpression } from 'src/utils/layout/useResolvedExpression';
@@ -26,6 +26,7 @@ import type {
 import type { BasicNodeGeneratorProps, ExprResolver } from 'src/layout/LayoutComponent';
 import type { StateFactoryProps } from 'src/utils/layout/itemState';
 import type { LayoutNode, LayoutNodeProps } from 'src/utils/layout/LayoutNode';
+import type { HiddenStateNode } from 'src/utils/layout/NodesContext';
 
 /**
  * A node generator will always be rendered when a component is present in a layout, even if the component
@@ -46,10 +47,15 @@ export function DefaultNodeGenerator({ children, baseId }: PropsWithChildren<Bas
   const nodeRef = useAsRef(node);
   const pageRef = useAsRef(page);
 
-  const hiddenByParent = NodeGeneratorInternal.useIsHiddenByParent();
+  const hiddenParent = NodeGeneratorInternal.useHiddenState();
   const hiddenByExpression = useResolvedExpression(ExprVal.Boolean, node, item.hidden, false);
-  const hiddenByRule = useIsHiddenViaRules(node);
-  const hidden = hiddenByExpression || hiddenByRule || hiddenByParent;
+  const hiddenByRules = Hidden.useIsHiddenViaRules(node);
+  const hidden: HiddenStateNode = {
+    parent: hiddenParent,
+    hiddenByExpression,
+    hiddenByRules,
+    hiddenByTracks: false,
+  };
 
   const resolvedItem = useResolvedItem({ node, hidden, item });
 
@@ -77,7 +83,7 @@ export function DefaultNodeGenerator({ children, baseId }: PropsWithChildren<Bas
 
 interface NodeResolverProps<T extends CompTypes> {
   node: LayoutNode<T>;
-  hidden: boolean;
+  hidden: HiddenStateNode;
   item: CompExternal<T>;
 }
 
@@ -114,7 +120,7 @@ function useResolvedItem<T extends CompTypes = CompTypes>({ node, hidden, item }
 
   useEffect(() => {
     if (isAdded) {
-      setNodeProp(node, 'hidden', hidden ?? false);
+      setNodeProp(node, 'hidden', hidden);
     }
   }, [hidden, node, setNodeProp, isAdded]);
 

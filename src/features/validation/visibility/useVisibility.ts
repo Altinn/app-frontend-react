@@ -2,12 +2,11 @@ import { useEffect } from 'react';
 
 import { original } from 'immer';
 
-import { ValidationMask, type ValidationState } from 'src/features/validation';
-import { getInitialMaskFromNode, getValidationsForNode } from 'src/features/validation/utils';
+import { type ValidationState } from 'src/features/validation';
+import { getInitialMaskFromNode } from 'src/features/validation/utils';
 import { getVisibilityForNode, type Visibility } from 'src/features/validation/visibility/visibilityUtils';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
-import type { ValidationLookupSources } from 'src/features/validation/utils';
 
 /**
  * Manages the visibility state of validations on components
@@ -24,17 +23,14 @@ export function useVisibility(
    * Reduce the visibility mask as validations are removed
    */
   useEffect(() => {
-    const findIn: ValidationLookupSources = {
-      validationState: validations,
-      nodeValidationsSelector,
-    };
-
     setVisibility((state) => {
       for (const node of nodesRef.current.allNodes()) {
-        const currentValidationMask = getValidationsForNode(node, findIn, ValidationMask.AllIncludingBackend).reduce(
-          (mask, validation) => mask | validation.category,
-          0,
-        );
+        const currentValidationMask = 0;
+        // const currentValidationMask = getValidationsForNode(
+        //   node,
+        //   null as any,
+        //   ValidationMask.AllIncludingBackend,
+        // ).reduce((mask, validation) => mask | validation.category, 0);
 
         // Checking the current(state) is much cheaper than checking the draft, so its worth
         // potentially doing it twice to not make unnecessary updates

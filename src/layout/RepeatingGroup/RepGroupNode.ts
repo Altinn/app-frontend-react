@@ -1,5 +1,5 @@
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
-import type { IsHiddenOptions } from 'src/utils/layout/LayoutNode';
+import type { IsHiddenOptions } from 'src/utils/layout/NodesContext';
 
 export class RepGroupNode extends BaseLayoutNode<'RepeatingGroup'> {
   protected isDirectChildHidden(_directChild: BaseLayoutNode, _options: IsHiddenOptions): boolean {

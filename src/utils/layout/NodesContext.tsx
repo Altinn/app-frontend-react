@@ -11,11 +11,14 @@ import type { StoreApi } from 'zustand';
 
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { Loader } from 'src/core/loading/Loader';
+import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { shouldUpdate } from 'src/features/form/dynamics/conditionalRendering';
 import { useDynamics } from 'src/features/form/dynamics/DynamicsContext';
 import { useHiddenLayoutsExpressions } from 'src/features/form/layout/LayoutsContext';
 import { useHiddenPages, useSetHiddenPages } from 'src/features/form/layout/PageNavigationContext';
+import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
+import { useCurrentView, useIsHiddenByTracks } from 'src/hooks/useNavigatePage';
 import { getComponentDef } from 'src/layout';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
@@ -60,10 +63,26 @@ interface PageStores {
   [key: string]: PageStore;
 }
 
+export interface HiddenStatePage {
+  parent: undefined;
+  hiddenByRules: false;
+  hiddenByExpression: boolean;
+  hiddenByTracks: boolean;
+}
+
+export interface HiddenStateNode {
+  parent: HiddenState;
+  hiddenByRules: boolean;
+  hiddenByExpression: boolean;
+  hiddenByTracks: false;
+}
+
+export type HiddenState = HiddenStatePage | HiddenStateNode;
+
 export interface PageStore {
   type: 'page';
   ready: boolean;
-  hidden: boolean;
+  hidden: HiddenStatePage;
   topLevelNodes: TopLevelNodesStore;
 }
 
@@ -205,7 +224,12 @@ export function createNodesDataStore() {
 
           state.pages.pages[pageKey] = {
             type: 'page',
-            hidden: false,
+            hidden: {
+              parent: undefined,
+              hiddenByRules: false,
+              hiddenByExpression: false,
+              hiddenByTracks: false,
+            },
             ready: false,
             topLevelNodes: {},
           };
@@ -324,13 +348,86 @@ export function useNodeSelector() {
   });
 }
 
-export function useIsHiddenViaRules(node: LayoutNode) {
-  return NodesStore.useSelector((s) => s.hiddenViaRules.has(node.getId()) || s.hiddenViaRules.has(node.getBaseId()));
+export interface IsHiddenOptions {
+  /**
+   * Default = true. Set this to false to not check if DevTools have overridden hidden status.
+   */
+  respectDevTools?: boolean;
+
+  /**
+   * Default = false. Set this to true to consider pages hidden from the page order as actually hidden.
+   */
+  respectTracks?: boolean;
 }
 
-export function useIsHidden(node: LayoutNode | LayoutPage) {
-  return DataStore.useMemoSelector((s) => pickDataStorePath(s.pages, node).hidden);
+function isHidden(state: HiddenState, forcedVisibleByDevTools: boolean, options?: IsHiddenOptions) {
+  const { respectDevTools = true, respectTracks = false } = options ?? {};
+  if (forcedVisibleByDevTools && respectDevTools) {
+    return true;
+  }
+
+  const hiddenHere = state.hiddenByRules || state.hiddenByExpression || (respectTracks && state.hiddenByTracks);
+  if (hiddenHere) {
+    return true;
+  }
+
+  if (state.parent) {
+    return isHidden(state.parent, forcedVisibleByDevTools, options);
+  }
+  return false;
 }
+
+export type IsHiddenSelector = ReturnType<typeof Hidden.useIsHiddenSelector>;
+export const Hidden = {
+  useIsHidden: (node: LayoutNode | LayoutPage, options?: IsHiddenOptions) => {
+    const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
+    return DataStore.useMemoSelector((s) =>
+      isHidden(pickDataStorePath(s.pages, node).hidden, forcedVisibleByDevTools, options),
+    );
+  },
+  useIsHiddenSelector: () => {
+    const nodes = useNodes();
+    const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
+    return DataStore.useDelayedMemoSelectorFactory({
+      selector:
+        ({ node, options }: { node: string | NodeRef | LayoutNode | LayoutPage; options?: IsHiddenOptions }) =>
+        (state) =>
+          isHidden(pickDataStorePath(state.pages, getNodePath(node, nodes)).hidden, forcedVisibleByDevTools, options),
+      makeCacheKey: ({ node }) => getNodePath(node, nodes).join('/'),
+    });
+  },
+
+  /**
+   * The next ones are primarily for internal use:
+   */
+  useIsHiddenViaRules: (node: LayoutNode) =>
+    NodesStore.useSelector((s) => s.hiddenViaRules.has(node.getId()) || s.hiddenViaRules.has(node.getBaseId())),
+  useIsForcedVisibleByDevTools: () => {
+    const devToolsIsOpen = useDevToolsStore((state) => state.isOpen);
+    const devToolsHiddenComponents = useDevToolsStore((state) => state.hiddenComponents);
+
+    return devToolsIsOpen && devToolsHiddenComponents !== 'hide';
+  },
+  useIsPageHiddenViaTracks: (node: LayoutNode) => {
+    const pageKey = node.pageKey();
+    const currentView = useCurrentView();
+    const isHiddenByTracks = useIsHiddenByTracks(pageKey);
+    const layoutSettings = useLayoutSettings();
+
+    if (pageKey === currentView) {
+      // If this is the current view, then it's never hidden. This avoids settings fields as hidden when
+      // code caused this to be the current view even if it's not in the common order.
+      return false;
+    }
+
+    if (layoutSettings.pages.pdfLayoutName && pageKey === layoutSettings.pages.pdfLayoutName) {
+      // If this is the pdf layout, then it's never hidden.
+      return false;
+    }
+
+    return isHiddenByTracks;
+  },
+};
 
 function getNodePath(nodeId: string | NodeRef | LayoutNode | LayoutPage, nodes: LayoutPages) {
   const node = isNodeRef(nodeId)
@@ -344,16 +441,6 @@ function getNodePath(nodeId: string | NodeRef | LayoutNode | LayoutPage, nodes: 
   }
 
   return node instanceof LayoutPage ? [node.pageKey] : node.path;
-}
-
-export type IsHiddenSelector = ReturnType<typeof useIsHiddenSelector>;
-export function useIsHiddenSelector() {
-  const nodes = useNodes();
-  return DataStore.useDelayedMemoSelectorFactory({
-    selector: (nodeId: string | NodeRef | LayoutNode | LayoutPage) => (state) =>
-      pickDataStorePath(state.pages, getNodePath(nodeId, nodes)).hidden,
-    makeCacheKey: (nodeId) => getNodePath(nodeId, nodes).join('/'),
-  });
 }
 
 /**

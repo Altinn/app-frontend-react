@@ -10,7 +10,7 @@ import { useComponentHighlighter } from 'src/features/devtools/hooks/useComponen
 import { GridRows } from 'src/layout/common.generated';
 import { nodesFromGridRow } from 'src/layout/Grid/tools';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
-import { useNodeSelector } from 'src/utils/layout/NodesContext';
+import { Hidden, useNodeSelector } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { NodeRef } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
@@ -68,6 +68,7 @@ export const NodeHierarchyItem = ({ node, onClick, selected }: INodeHierarchyIte
   const nodeMultiPageIndex = node.getMultiPageIndex();
   const { onMouseEnter, onMouseLeave } = useComponentHighlighter(nodeId, false);
   const hasChildren = node.children().length > 0;
+  const isHidden = Hidden.useIsHidden(node, { respectDevTools: false });
 
   return (
     <>
@@ -85,7 +86,7 @@ export const NodeHierarchyItem = ({ node, onClick, selected }: INodeHierarchyIte
           {nodeMultiPageIndex !== undefined ? `${nodeMultiPageIndex}:` : ''}
           {nodeId}
         </span>
-        {node.isHidden({ respectDevTools: false }) && (
+        {isHidden && (
           <span className={classes.listIcon}>
             <EyeSlashIcon title='Denne komponenten er skjult' />
           </span>
