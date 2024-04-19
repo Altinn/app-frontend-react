@@ -53,6 +53,7 @@ const isServerAction = (action: CBTypes.CustomAction): action is CBTypes.ServerA
 
 function useHandleClientActions(): UseHandleClientActions {
   const { navigateToPage, navigateToNextPage, navigateToPreviousPage } = useNavigatePage();
+  const getDataTypeForElementId = FD.useGetDataTypeForElementId();
 
   const frontendActions: ClientActionHandlers = {
     nextPage: promisify(navigateToNextPage),
@@ -78,16 +79,31 @@ function useHandleClientActions(): UseHandleClientActions {
       }
     },
     handleDataModelUpdate: async (lockTools, result) => {
-      const { updatedDataModels, updatedValidationIssues } = result;
+      const _updatedDataModels = result.updatedDataModels;
+      const _updatedValidationIssues = result.updatedValidationIssues;
 
-      if (updatedDataModels && updatedValidationIssues) {
-        lockTools.unlock({
-          updatedDataModels,
-          updatedValidationIssues,
-        });
-      } else {
-        lockTools.unlock();
-      }
+      // The backend returns the objects in terms of dataElementId, we must therefore find and map to the corresponding dataTypes
+
+      const updatedDataModels = _updatedDataModels
+        ? Object.fromEntries(
+            Object.entries(_updatedDataModels)
+              .filter(([elementId]) => getDataTypeForElementId(elementId))
+              .map(([elementId, dataModel]) => [getDataTypeForElementId(elementId), dataModel]),
+          )
+        : undefined;
+
+      const updatedValidationIssues = _updatedValidationIssues
+        ? Object.fromEntries(
+            Object.entries(_updatedValidationIssues)
+              .filter(([elementId]) => getDataTypeForElementId(elementId))
+              .map(([elementId, validationIssues]) => [getDataTypeForElementId(elementId), validationIssues]),
+          )
+        : undefined;
+
+      lockTools.unlock({
+        updatedDataModels,
+        updatedValidationIssues,
+      });
     },
   };
 }

@@ -59,7 +59,8 @@ export interface DataModelState {
   saveUrl: string;
 
   // This identifies the specific data element in storage. This is needed for identifying the correct model when receiving updates from the server.
-  dataElementId: string;
+  // For stateless apps, this will be null.
+  dataElementId: string | null;
 
   // This is used to track whether the user has requested a manual save. When auto-saving is turned off, this is
   // the way we track when to save the data model to the server. It can also be used to trigger a manual save
@@ -133,10 +134,10 @@ export interface FDSaveResult {
 
 export interface FDActionResult {
   updatedDataModels: {
-    [dataElementId: string]: object;
+    [dataType: string]: object;
   };
   updatedValidationIssues: {
-    [dataElementId: string]: BackendValidationIssueGroups | undefined;
+    [dataType: string]: BackendValidationIssueGroups | undefined;
   };
 }
 
@@ -215,6 +216,7 @@ function makeActions(
     dataType: string,
     { newDataModel, savedData }: Pick<FDSaveFinished, 'newDataModel' | 'patch' | 'savedData'>,
   ) {
+    state.dataModels[dataType].manualSaveRequested = false;
     if (newDataModel) {
       const backendChangesPatch = createPatch({
         prev: savedData,
@@ -288,7 +290,6 @@ function makeActions(
       set((state) => {
         const { validationIssues } = props;
         state.dataModels[dataType].validationIssues = validationIssues;
-        state.dataModels[dataType].manualSaveRequested = false;
         processChanges(state, dataType, props);
       }),
     setLeafValue: ({ reference, newValue, ...rest }) =>
@@ -403,39 +404,17 @@ function makeActions(
         state.lockedBy = undefined;
         // Update form data
         if (actionResult?.updatedDataModels) {
-          for (const dataType of Object.keys(state.dataModels)) {
-            state.dataModels[dataType].manualSaveRequested = false;
-          }
-          for (const [dataElementId, newDataModel] of Object.entries(actionResult.updatedDataModels)) {
+          for (const [dataType, newDataModel] of Object.entries(actionResult.updatedDataModels)) {
             if (newDataModel) {
-              const dataModelTuple = Object.entries(state.dataModels).find(
-                ([_, dataModel]) => dataModel.dataElementId === dataElementId,
-              );
-              if (dataModelTuple) {
-                const [dataType, dataModel] = dataModelTuple;
-                processChanges(state, dataType, { newDataModel, savedData: dataModel.lastSavedData });
-              } else {
-                window.logError(
-                  `Tried to update form data for data element '${dataElementId}', but no such data element was found in the FormDataWrite context.`,
-                );
-              }
+              processChanges(state, dataType, { newDataModel, savedData: state.dataModels[dataType].lastSavedData });
             }
           }
         }
         // Update validation issues
         if (actionResult?.updatedValidationIssues) {
-          for (const [dataElementId, validationIssues] of Object.entries(actionResult.updatedValidationIssues)) {
+          for (const [dataType, validationIssues] of Object.entries(actionResult.updatedValidationIssues)) {
             if (validationIssues) {
-              const dataModel = Object.values(state.dataModels).find(
-                (dataModel) => dataModel.dataElementId === dataElementId,
-              );
-              if (dataModel) {
-                dataModel.validationIssues = validationIssues;
-              } else {
-                window.logError(
-                  `Tried to update validationIssues for data element '${dataElementId}', but no such data element was found in the FormDataWrite context.`,
-                );
-              }
+              state.dataModels[dataType].validationIssues = validationIssues;
             }
           }
         }

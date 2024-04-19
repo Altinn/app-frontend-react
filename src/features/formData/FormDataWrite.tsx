@@ -680,4 +680,16 @@ export const FD = {
    * Returns the latest validation issues from the backend, from the last time the form data was saved.
    */
   useLastSaveValidationIssues: (dataType: string) => useSelector((s) => s.dataModels[dataType].validationIssues),
+
+  useGetDataTypeForElementId: () => {
+    const map: Record<string, string | undefined> = useMemoSelector((s) =>
+      Object.fromEntries(
+        Object.entries(s.dataModels)
+          .filter(([_, dataModel]) => dataModel.dataElementId)
+          .map(([dataType, dataModel]) => [dataModel.dataElementId, dataType]),
+      ),
+    );
+
+    return useCallback((dataElementId: string) => map[dataElementId], [map]);
+  },
 };

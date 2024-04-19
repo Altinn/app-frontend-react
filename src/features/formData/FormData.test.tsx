@@ -6,6 +6,7 @@ import { act, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
+import { statelessDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { DataModelsProvider } from 'src/features/datamodel/DataModelsProvider';
 import { DynamicsProvider } from 'src/features/form/dynamics/DynamicsContext';
@@ -148,7 +149,7 @@ describe('FormData', () => {
       const {
         formData: { simpleBinding: value },
       } = useDataModelBindings({
-        simpleBinding: { property: path, dataType: 'default' },
+        simpleBinding: { property: path, dataType: statelessDataTypeMock },
       });
 
       return <div data-testid={`reader-${path}`}>{value}</div>;
@@ -160,7 +161,7 @@ describe('FormData', () => {
         formData: { simpleBinding: value },
         setValue,
       } = useDataModelBindings({
-        simpleBinding: { property: path, dataType: 'default' },
+        simpleBinding: { property: path, dataType: statelessDataTypeMock },
       });
 
       return (
@@ -256,7 +257,7 @@ describe('FormData', () => {
       await userEvent.type(screen.getByTestId('writer-obj1.prop1'), 'a');
       expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1);
       expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-        path: 'obj1.prop1',
+        reference: { property: 'obj1.prop1', dataType: statelessDataTypeMock },
         newValue: 'value1a',
       });
 
@@ -273,7 +274,7 @@ describe('FormData', () => {
       formData: { simpleBinding: value },
       setValue,
     } = useDataModelBindings({
-      simpleBinding: { property: path, dataType: 'default' },
+      simpleBinding: { property: path, dataType: statelessDataTypeMock },
     });
 
     return (
@@ -302,8 +303,8 @@ describe('FormData', () => {
               if (isLocked) {
                 // Unlock with some pretend updated form data
                 unlock({
-                  updatedDataModels: { dataElementId: { obj1: { prop1: 'new value' } } }, // TODO(Datamodels): What shold the data element id be in this case?
-                  updatedValidationIssues: { dataElementId: { obj1: [] } },
+                  updatedDataModels: { [statelessDataTypeMock]: { obj1: { prop1: 'new value' } } },
+                  updatedValidationIssues: { [statelessDataTypeMock]: { obj1: [] } },
                 });
               } else {
                 await lock();

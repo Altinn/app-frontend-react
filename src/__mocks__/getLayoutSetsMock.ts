@@ -1,12 +1,13 @@
 import type { ILayoutSets } from 'src/layout/common.generated';
 
 export const defaultDataTypeMock = 'test-data-model';
+export const statelessDataTypeMock = 'stateless';
 export function getLayoutSetsMock(): ILayoutSets {
   return {
     sets: [
       {
         id: 'stateless',
-        dataType: 'stateless',
+        dataType: statelessDataTypeMock,
         tasks: ['Task_0'],
       },
       {
