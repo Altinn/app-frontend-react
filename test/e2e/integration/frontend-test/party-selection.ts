@@ -166,22 +166,6 @@ describe('Party selection', () => {
     cy.get(appFrontend.reporteeSelection.reportee).should('have.length', 1).contains('DDG');
   });
 
-  it('Org number should not be displayed for persons', () => {
-    mockResponses({
-      allowedToInstantiate: [ExamplePerson1, ExamplePerson2],
-      partyTypesAllowed: {
-        person: true,
-        subUnit: false,
-        bankruptcyEstate: false,
-        organisation: false,
-      },
-    });
-
-    cy.startAppInstance(appFrontend.apps.frontendTest);
-
-    // TODO: Implement the rest
-  });
-
   it('Should skip party selection if you can only represent one person', () => {
     mockResponses({
       preSelectedParty: ExamplePerson1.partyId,
