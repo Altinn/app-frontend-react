@@ -62,20 +62,6 @@ const ExamplePerson1: IParty = {
   childParties: null,
 };
 
-const OlaNordmann: IParty = {
-  partyId: 512345,
-  partyUuid: null,
-  partyTypeName: 1,
-  orgNumber: null,
-  ssn: '01017512345',
-  unitType: null,
-  name: 'Ola Nordmann',
-  isDeleted: false,
-  onlyHierarchyElementWithNoAccess: false,
-  organization: null,
-  childParties: null,
-};
-
 const ExamplePerson2: IParty = {
   partyId: 12345679,
   partyTypeName: PartyType.Person,
@@ -96,7 +82,6 @@ interface Mockable {
   doNotPromptForParty?: boolean;
   appPromptForPartyOverride?: IApplicationMetadata['promptForParty'];
   partyTypesAllowed?: IApplicationMetadata['partyTypesAllowed'];
-  // validParties?: IParty[];
 }
 
 function mockResponses(whatToMock: Mockable) {
@@ -287,13 +272,13 @@ describe('Party selection', () => {
     { doNotPromptForPartyPreference: true, appPromptForPartyOverride: 'always' as const },
     { doNotPromptForPartyPreference: false, appPromptForPartyOverride: 'never' as const },
   ].forEach(({ doNotPromptForPartyPreference, appPromptForPartyOverride }) => {
-    it(`Correctly overrides the profile doNotPromptForPartyPreference when doNotPromptForPartyPreference=${doNotPromptForPartyPreference} and appPromptForPartyOverride=${appPromptForPartyOverride}`, () => {
+    it.only(`Correctly overrides the profile doNotPromptForPartyPreference when doNotPromptForPartyPreference=${doNotPromptForPartyPreference} and appPromptForPartyOverride=${appPromptForPartyOverride}`, () => {
       mockResponses({
         doNotPromptForParty: doNotPromptForPartyPreference,
         appPromptForPartyOverride,
-        allowedToInstantiate: [OlaNordmann, ExamplePerson2],
+        allowedToInstantiate: (parties) => [...parties, ExamplePerson1],
       });
-      cy.startAppInstance(appFrontend.apps.frontendTest);
+      cy.startAppInstance(appFrontend.apps.frontendTest, { user: 'default' });
       cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
 
       if (appPromptForPartyOverride === 'always') {

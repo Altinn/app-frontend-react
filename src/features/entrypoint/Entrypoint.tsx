@@ -112,6 +112,7 @@ export const Entrypoint = () => {
     if (profile?.profileSettingPreference.doNotPromptForParty) {
       return <ShowOrInstantiate show={show} />;
     }
+
     return (
       <Navigate
         to={'/party-selection/explained'}
