@@ -54,7 +54,7 @@ export function isDataModelReference(binding: unknown): binding is IDataModelRef
     'property' in binding &&
     typeof binding.property === 'string' &&
     'dataType' in binding &&
-    binding.dataType === 'string'
+    typeof binding.dataType === 'string'
   );
 }
 
