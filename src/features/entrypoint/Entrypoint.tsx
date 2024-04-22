@@ -74,10 +74,8 @@ export const Entrypoint = () => {
   const party = useCurrentParty();
   const allowAnonymous = useAllowAnonymousIs(true);
 
-  if (isStateless && allowAnonymous) {
-    if (party === undefined) {
-      return <RenderStateless />;
-    }
+  if (isStateless && allowAnonymous && !party) {
+    return <RenderStateless />;
   }
 
   if (!partyIsValid) {
