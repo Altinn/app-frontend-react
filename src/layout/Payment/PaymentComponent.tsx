@@ -8,6 +8,7 @@ import { useProcessNavigation } from 'src/features/instance/ProcessNavigationCon
 import { Lang } from 'src/features/language/Lang';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 import classes from 'src/layout/Payment/PaymentComponent.module.css';
+import { PaymentStatus } from 'src/layout/Payment/queries/types';
 import { usePaymentInformationQuery } from 'src/layout/Payment/queries/usePaymentInformationQuery';
 import { usePerformPayActionMutation } from 'src/layout/Payment/queries/usePerformPaymentMutation';
 import { SkeletonLoader } from 'src/layout/Payment/SkeletonLoader/SkeletonLoader';
@@ -66,12 +67,12 @@ export const PaymentComponent = ({ node }) => {
         />
       }
       <div className={classes.container}>
-        {paymentInfo?.paymentDetails?.status === 'Failed' && (
+        {paymentInfo?.paymentDetails?.status === PaymentStatus.Failed && (
           <Alert severity='warning'>
             <Lang id='payment.alert.failed' />
           </Alert>
         )}
-        {paymentInfo?.paymentDetails?.status === 'Paid' && (
+        {paymentInfo?.paymentDetails?.status === PaymentStatus.Paid && (
           <Alert severity={'info'}>
             <Lang id='payment.alert.paid' />
           </Alert>
@@ -79,7 +80,7 @@ export const PaymentComponent = ({ node }) => {
       </div>
       {paymentInfo?.paymentDetails && (
         <div className={classes.buttonContainer}>
-          {paymentInfo?.paymentDetails?.status !== 'Paid' ? (
+          {paymentInfo?.paymentDetails?.status !== PaymentStatus.Paid ? (
             <>
               <Button
                 variant='secondary'
