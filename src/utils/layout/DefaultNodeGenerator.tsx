@@ -10,6 +10,7 @@ import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { NodeGeneratorDebug } from 'src/utils/layout/NodesGenerator';
 import { NodeGeneratorInternal, NodesGeneratorProvider } from 'src/utils/layout/NodesGeneratorContext';
+import { NonRepeatingChildrenPlugin } from 'src/utils/layout/plugins/NonRepeatingChildrenPlugin';
 import { useResolvedExpression } from 'src/utils/layout/useResolvedExpression';
 import type { SimpleEval } from 'src/features/expressions';
 import type { ExprConfig, ExprResolved, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
@@ -41,7 +42,7 @@ export function DefaultNodeGenerator({ children, baseId }: PropsWithChildren<Bas
   const layoutMap = NodeGeneratorInternal.useLayoutMap();
   const item = useItem(layoutMap[baseId]);
   const path = usePath(item);
-  const node = useNewNode(item, path);
+  const node = useNewNode(item, path) as LayoutNode;
   const page = NodeGeneratorInternal.usePage();
   const removeNode = NodesInternal.useRemoveNode();
   const nodeRef = useAsRef(node);
@@ -70,6 +71,7 @@ export function DefaultNodeGenerator({ children, baseId }: PropsWithChildren<Bas
   return (
     <>
       {NodeGeneratorDebug && <pre style={{ fontSize: '0.8em' }}>{JSON.stringify(resolvedItem, null, 2)}</pre>}
+      <MarkChildrenAsReady node={node} />
       <NodesGeneratorProvider
         parent={node}
         hidden={hidden}
@@ -81,22 +83,40 @@ export function DefaultNodeGenerator({ children, baseId }: PropsWithChildren<Bas
   );
 }
 
+function MarkChildrenAsReady({ node }: { node: LayoutNode }) {
+  const markNodeReady = NodesInternal.useMarkNodeReady();
+  const hasChildren = node.def.hasPlugin(NonRepeatingChildrenPlugin);
+
+  useEffect(() => {
+    if (!hasChildren) {
+      markNodeReady(node, 'childrenAdded');
+    }
+  }, [hasChildren, markNodeReady, node]);
+
+  return null;
+}
+
 interface NodeResolverProps<T extends CompTypes> {
   node: LayoutNode<T>;
   hidden: HiddenStateNode;
   item: CompExternal<T>;
 }
 
-function useResolvedItem<T extends CompTypes = CompTypes>({ node, hidden, item }: NodeResolverProps<T>) {
+function useResolvedItem<T extends CompTypes = CompTypes>({
+  node,
+  hidden,
+  item,
+}: NodeResolverProps<T>): CompInternal<T> | undefined {
   const parent = NodeGeneratorInternal.useParent();
   const row = NodeGeneratorInternal.useRow();
   const resolverProps = useExpressionResolverProps(node, item);
+  const allNodesAdded = NodesInternal.useIsAllReady('allAdded');
 
   const def = useDef(item.type);
   const setNodeProp = NodesInternal.useSetNodeProp();
   const resolvedItem = useMemo(
-    () => (def as CompDef<T>).evalExpressions(resolverProps as any) as CompInternal<T>,
-    [def, resolverProps],
+    () => (allNodesAdded ? ((def as CompDef<T>).evalExpressions(resolverProps as any) as CompInternal<T>) : undefined),
+    [def, resolverProps, allNodesAdded],
   );
 
   const stateFactoryProps = useAsRef<StateFactoryProps<T>>({ item: item as any, parent, row });

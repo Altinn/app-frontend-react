@@ -36,6 +36,7 @@ import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 import type { ItemStore, StateFactoryProps } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 
 export interface BasicNodeGeneratorProps {
   baseId: string;
@@ -65,6 +66,7 @@ export interface ExprResolver<Type extends CompTypes> {
 
 export abstract class AnyComponent<Type extends CompTypes> {
   protected readonly type: Type;
+  protected plugins: { [key: string]: NodeDefPlugin<any> } = {};
 
   /**
    * Given properties from GenericComponent, render this layout component
@@ -79,6 +81,13 @@ export abstract class AnyComponent<Type extends CompTypes> {
    */
   renderNodeGenerator(props: NodeGeneratorProps<Type>): JSX.Element | null {
     return <DefaultNodeGenerator {...props} />;
+  }
+
+  /**
+   * Check if this component has a specific plugin
+   */
+  public hasPlugin(constructor: new (...args: any[]) => NodeDefPlugin<any>): boolean {
+    return Object.values(this.plugins).some((plugin: NodeDefPlugin<any>) => plugin instanceof constructor);
   }
 
   /**

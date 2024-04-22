@@ -12,7 +12,7 @@ import { Loader } from 'src/core/loading/Loader';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { shouldUpdate } from 'src/features/form/dynamics/conditionalRendering';
 import { useDynamics } from 'src/features/form/dynamics/DynamicsContext';
-import { useHiddenLayoutsExpressions } from 'src/features/form/layout/LayoutsContext';
+import { useHiddenLayoutsExpressions, useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useHiddenPages, useSetHiddenPages } from 'src/features/form/layout/PageNavigationContext';
 import { useLaxLayoutSettings, useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { UpdateExpressionValidation } from 'src/features/validation/validationContext';
@@ -81,6 +81,7 @@ export type HiddenState = HiddenStatePage | HiddenStateNode;
 export interface NodeReadyState {
   hiddenSet: boolean;
   expressionsEvaluated: boolean;
+  childrenAdded: boolean;
 }
 
 export type ReadyKeys = keyof NodeReadyState | 'all';
@@ -113,6 +114,11 @@ type ExtraHooks = AllFlat<{
 }>;
 
 export type NodesDataContext = {
+  globalReadyState: {
+    allHiddenSet: boolean;
+    allExpressionsEvaluated: boolean;
+    allAdded: boolean;
+  };
   pages: PageHierarchy;
   addNode: <N extends LayoutNode>(node: N, targetState: any) => void;
   removeNode: (node: LayoutNode) => void;
@@ -127,12 +133,20 @@ export type NodesDataContext = {
   markPageReady: (pageKey: string) => void;
   removePage: (pageKey: string) => void;
   setPageProp: <K extends keyof PageStore>(pageKey: string, prop: K, value: PageStore[K]) => void;
+
+  setNodeReadyState: (node: LayoutNode, key: keyof NodeReadyState) => void;
+  setGlobalReadyState: (key: keyof NodesDataContext['globalReadyState'], value: boolean) => void;
 } & ExtraFunctions;
 
 export type NodesDataStore = StoreApi<NodesDataContext>;
 export function createNodesDataStore() {
   return createStore<NodesDataContext>()(
     immer((set) => ({
+      globalReadyState: {
+        allAdded: false,
+        allHiddenSet: false,
+        allExpressionsEvaluated: false,
+      },
       pages: {
         type: 'pages' as const,
         pages: {},
@@ -211,6 +225,19 @@ export function createNodesDataStore() {
           const obj = state.pages.pages[pageKey];
           Object.assign(obj, { [prop]: value });
         }),
+      setNodeReadyState: (node, key) =>
+        set((state) => {
+          const obj = pickDataStorePath(state.pages, node.path);
+          if (obj.type === 'page') {
+            throw new Error('Parent node is not a node');
+          }
+          obj.ready[key] = true;
+        }),
+      setGlobalReadyState: (key, value) =>
+        set((state) => {
+          state.globalReadyState[key] = value;
+        }),
+
       ...(Object.values(DataStorePlugins)
         .map((plugin) => plugin.extraFunctions(set))
         .reduce((acc, val) => ({ ...acc, ...val }), {}) as ExtraFunctions),
@@ -260,11 +287,12 @@ function BlockUntilLoaded({ children }: PropsWithChildren) {
 }
 
 function NodesLoader() {
-  const notReady = NodesInternal.useAllNotReady('all');
+  const layouts = useLayouts();
+  const notReady = NodesInternal.useAllNotReady(Object.keys(layouts).length);
   return (
     <Loader
       reason='nodes'
-      details={`Nodes not ready:\n${notReady.join('\n')}`}
+      details={`Nodes not ready:\n${[...notReady.values()].join('\n')}`}
     />
   );
 }
@@ -456,12 +484,43 @@ export const NodesInternal = {
         return false;
       }
     }),
-  useMarkAsReady: () => DataStore.useSelector((s) => s.markPageReady),
-  useIsAllReady: (expectedPages: number, readyKey: ReadyKeys) =>
-    DataStore.useMemoSelector(
-      (s) => Object.keys(s.pages.pages).length === expectedPages && getNotReady(s.pages, readyKey).length === 0,
+  useMarkNodeReady: () => DataStore.useSelector((s) => s.setNodeReadyState),
+  useMarkPageReady: () => DataStore.useSelector((s) => s.markPageReady),
+  useIsAllReady: (key?: keyof NodesDataContext['globalReadyState']) =>
+    DataStore.useMemoSelector((s) =>
+      key
+        ? s.globalReadyState[key]
+        : Object.values(s.globalReadyState).every((b) => b) && Object.values(s.pages.pages).every((p) => p.ready),
     ),
-  useAllNotReady: (readyKey: ReadyKeys) => DataStore.useMemoSelector((s) => getNotReady(s.pages, readyKey)),
+  useAllNotReady: (expectedPages: number) => {
+    const setGlobalReadyState = DataStore.useSelector((s) => s.setGlobalReadyState);
+    const hasCorrectPages = Object.keys(
+      DataStore.useSelector((s) => Object.keys(s.pages.pages).length === expectedPages),
+    );
+    const notReadyHidden = DataStore.useMemoSelector((s) => getNotReady(s.pages, 'hiddenSet'));
+    const notReadyExpressions = DataStore.useMemoSelector((s) => getNotReady(s.pages, 'expressionsEvaluated'));
+    const notChildrenAdded = DataStore.useMemoSelector((s) => getNotReady(s.pages, 'childrenAdded'));
+
+    useEffect(() => {
+      if (hasCorrectPages && notReadyHidden.length === 0) {
+        setGlobalReadyState('allHiddenSet', true);
+      }
+    }, [hasCorrectPages, notReadyHidden, setGlobalReadyState]);
+
+    useEffect(() => {
+      if (hasCorrectPages && notReadyExpressions.length === 0) {
+        setGlobalReadyState('allExpressionsEvaluated', true);
+      }
+    }, [hasCorrectPages, notReadyExpressions, setGlobalReadyState]);
+
+    useEffect(() => {
+      if (hasCorrectPages && notChildrenAdded.length === 0) {
+        setGlobalReadyState('allAdded', true);
+      }
+    }, [hasCorrectPages, notChildrenAdded, setGlobalReadyState]);
+
+    return new Set([...notReadyHidden, ...notReadyExpressions, ...notChildrenAdded]);
+  },
   useRemovePage: () => DataStore.useSelector((s) => s.removePage),
   useAddNode: () => DataStore.useSelector((s) => s.addNode),
   useRemoveNode: () => DataStore.useSelector((s) => s.removeNode),

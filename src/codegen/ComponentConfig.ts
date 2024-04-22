@@ -338,17 +338,23 @@ export class ComponentConfig {
     const pluginInstances = this.plugins.map((plugin) => {
       const argsPlain = plugin.makeConstructorArgs();
       const args = argsPlain ? `${argsPlain} as const` : '';
-      return `protected readonly ${plugin.import} = new ${plugin.import}(${args});`;
+      const instance = `new ${plugin.import}(${args})`;
+      return `'${plugin.getKey()}': ${instance}`;
     });
+    const pluginMap = pluginInstances.length ? `protected plugins = {${pluginInstances.join(',\n')}};` : '';
+
+    function pluginRef(plugin: NodeDefPlugin<any>): string {
+      return `this.plugins['${plugin.getKey()}']`;
+    }
 
     const pluginStateFactories = this.plugins
       .filter((plugin) => plugin.stateFactory !== NodeDefPlugin.prototype.stateFactory)
-      .map((plugin) => `...this.${plugin.import}.stateFactory(props as any),`)
+      .map((plugin) => `...${pluginRef(plugin)}.stateFactory(props as any),`)
       .join('\n');
 
     const pluginEvalExpressions = this.plugins
       .filter((plugin) => plugin.evalDefaultExpressions !== NodeDefPlugin.prototype.evalDefaultExpressions)
-      .map((plugin) => `...this.${plugin.import}.evalDefaultExpressions(props as any),`)
+      .map((plugin) => `...${pluginRef(plugin)}.evalDefaultExpressions(props as any),`)
       .join(',\n');
 
     const pluginGeneratorChildren = this.plugins
@@ -406,26 +412,26 @@ export class ComponentConfig {
       const plugin = childrenPlugins[0];
       additionalMethods.push(
         `claimChildren(props: ${ChildClaimerProps}<'${this.type}'>) {
-          return this.${plugin.import}.claimChildren(props as any);
+          return ${pluginRef(plugin)}.claimChildren(props as any);
         }`,
         `pickDirectChildren(state: ${ItemStore}<'${this.type}'>, restriction?: ${ChildLookupRestriction}) {
-          return this.${plugin.import}.pickDirectChildren(state as any, restriction);
+          return ${pluginRef(plugin)}.pickDirectChildren(state as any, restriction);
         }`,
         `pickChild<C extends ${CompTypes}>(state: ItemStore<'${this.type}'>, childId: string, parentPath: string[]) {
-          return this.${plugin.import}.pickChild<C>(state as any, childId, parentPath);
+          return ${pluginRef(plugin)}.pickChild<C>(state as any, childId, parentPath);
         }`,
         `addChild(state: ${ItemStore}<'${this.type}'>, childNode: ${LayoutNode}, childStore: ${ItemStore}): void {
-          this.${plugin.import}.addChild(state as any, childNode, childStore);
+          ${pluginRef(plugin)}.addChild(state as any, childNode, childStore);
         }`,
         `removeChild(state: ${ItemStore}<'${this.type}'>, childNode: ${LayoutNode}): void {
-          this.${plugin.import}.removeChild(state as any, childNode);
+          ${pluginRef(plugin)}.removeChild(state as any, childNode);
         }`,
       );
     }
 
     return `export abstract class ${symbol}Def extends ${categorySymbol}<'${this.type}'> {
       protected readonly type = '${this.type}';
-      ${pluginInstances.join('\n')}
+      ${pluginMap}
 
       ${this.config.directRendering ? 'directRender(): boolean { return true; }' : ''}
 

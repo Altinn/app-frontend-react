@@ -79,7 +79,7 @@ function SaveFinishedNodesToStore({ pages }: { pages: LayoutPages }) {
   const layouts = useLayouts();
   const existingNodes = useNodes();
   const setNodes = NodesInternal.useSetNodes();
-  const allReady = NodesInternal.useIsAllReady(Object.keys(layouts).length, 'all');
+  const allReady = NodesInternal.useIsAllReady();
   const layoutKeys = useMemo(() => Object.keys(layouts), [layouts]);
 
   useEffect(() => {
@@ -287,7 +287,7 @@ export function NodeChildren({ childIds }: NodeChildrenProps) {
 function MarkPageReady({ name, isReady, topLevelIds }: { name: string; isReady: boolean; topLevelIds: string[] }) {
   const topLevelPaths = topLevelIds.map((id) => [name, id]);
   const wasReady = NodesInternal.useIsReady([name], ...topLevelPaths);
-  const markPageReady = NodesInternal.useMarkAsReady();
+  const markPageReady = NodesInternal.useMarkPageReady();
 
   useEffect(() => {
     if (!wasReady && isReady) {
