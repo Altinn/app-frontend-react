@@ -1,34 +1,40 @@
 import fs from 'fs';
 import glob from 'glob';
 import path from 'path';
-import rimraf from 'rimraf';
 import { promisify } from 'util';
-import yargs from 'yargs';
 
+// Use promisify to create promise-based variants of these functions
 const globPromise = promisify(glob);
-const rimrafPromise = promisify(rimraf);
 const readdirPromise = promisify(fs.readdir);
+const unlinkPromise = promisify(fs.unlink);
 
-const argv = yargs(process.argv.slice(2)).options({
-  'empty-only': { type: 'boolean', default: false },
-}).argv;
+// Parse command-line arguments to get the `empty-only` flag
+const parseArgs = (): { emptyOnly: boolean } => {
+  const args = process.argv.slice(2);
+  const emptyOnlyIndex = args.indexOf('--empty-only');
+  return { emptyOnly: emptyOnlyIndex !== -1 };
+};
+
+const { emptyOnly } = parseArgs();
 
 async function deleteGenerated(): Promise<void> {
   try {
     const files: string[] = await globPromise(`${__dirname}/../layout/**/*generated*.*`, { nodir: true });
+
     for (const file of files) {
       const dir = path.dirname(file);
-      if (argv['empty-only']) {
+
+      if (emptyOnly) {
         const filesInDir = await readdirPromise(dir);
-        // Filter out only files that do not contain '.generated' in their names
-        const nonGeneratedFiles = filesInDir.filter((f) => !f.includes('.generated'));
+        const nonGeneratedFiles = filesInDir.filter((f) => !f.includes('generated'));
+
         if (nonGeneratedFiles.length === 0) {
-          // Only files with '.generated' are present
-          await rimrafPromise(file);
+          // Only generated files in the directory
+          await unlinkPromise(file);
           console.log(`Deleted '${file}' as its directory contains only generated files.`);
         }
       } else {
-        await rimrafPromise(file);
+        await unlinkPromise(file);
         console.log(`Deleted '${file}'.`);
       }
     }
@@ -36,4 +42,5 @@ async function deleteGenerated(): Promise<void> {
     console.error('Error deleting files:', error);
   }
 }
+
 deleteGenerated();
