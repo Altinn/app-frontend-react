@@ -256,11 +256,45 @@ describe('Party selection', () => {
   [true, false].forEach((doNotPromptForParty) => {
     it(`Does not prompt for party when doNotPromptForParty = ${doNotPromptForParty}, on instantiation with only one possible party`, () => {
       mockResponses({
-        allowedToInstantiate: (parties) => [parties[0]],
         doNotPromptForParty,
       });
 
-      cy.startAppInstance(appFrontend.apps.frontendTest);
+      // Need to make sure the returned party is the same current party:
+      let correctParty: IParty | undefined = undefined;
+      cy.intercept(
+        {
+          method: 'GET',
+          url: `**/api/v1/parties?allowedtoinstantiatefilter=true`,
+          times: 1,
+        },
+        (req) => {
+          req.on('response', (res) => {
+            const parties = res.body as IParty[];
+            correctParty = parties[0]; // parties.find((party: IParty) => party.partyId == partyId);
+            if (!correctParty) {
+              throw new Error(`No parties returned from api`);
+            }
+            res.send([correctParty]);
+          });
+        },
+      );
+      cy.intercept(
+        {
+          method: 'GET',
+          url: `**/api/authorization/parties/current?returnPartyObject=true`,
+          times: 1,
+        },
+        (req) => {
+          req.on('response', (res) => {
+            if (!correctParty) {
+              throw new Error(`No parties returned from api`);
+            }
+            res.send(correctParty);
+          });
+        },
+      );
+
+      cy.startAppInstance(appFrontend.apps.frontendTest, { user: 'default' });
       cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
       cy.get('[id^="party-"]').should('not.exist');
 

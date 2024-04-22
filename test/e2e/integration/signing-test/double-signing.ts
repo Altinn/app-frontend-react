@@ -27,7 +27,7 @@ function login(user: CyUser) {
             if (!correctParty) {
               throw new Error(`Could not find party with id ${partyId}`);
             }
-            res.send({ ...res, body: [correctParty] });
+            res.send([correctParty]);
           });
         },
       );
@@ -42,7 +42,7 @@ function login(user: CyUser) {
             if (!correctParty) {
               throw new Error(`Could not find party with id ${partyId}`);
             }
-            res.send({ ...res, body: correctParty });
+            res.send(correctParty);
           });
         },
       );
