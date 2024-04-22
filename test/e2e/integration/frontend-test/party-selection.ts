@@ -272,7 +272,7 @@ describe('Party selection', () => {
     { doNotPromptForPartyPreference: true, appPromptForPartyOverride: 'always' as const },
     { doNotPromptForPartyPreference: false, appPromptForPartyOverride: 'never' as const },
   ].forEach(({ doNotPromptForPartyPreference, appPromptForPartyOverride }) => {
-    it.only(`Correctly overrides the profile doNotPromptForPartyPreference when doNotPromptForPartyPreference=${doNotPromptForPartyPreference} and appPromptForPartyOverride=${appPromptForPartyOverride}`, () => {
+    it(`Correctly overrides the profile doNotPromptForPartyPreference when doNotPromptForPartyPreference=${doNotPromptForPartyPreference} and appPromptForPartyOverride=${appPromptForPartyOverride}`, () => {
       mockResponses({
         doNotPromptForParty: doNotPromptForPartyPreference,
         appPromptForPartyOverride,
