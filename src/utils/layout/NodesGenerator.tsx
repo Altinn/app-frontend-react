@@ -79,7 +79,7 @@ function SaveFinishedNodesToStore({ pages }: { pages: LayoutPages }) {
   const layouts = useLayouts();
   const existingNodes = useNodes();
   const setNodes = NodesInternal.useSetNodes();
-  const allReady = NodesInternal.useIsAllReady(Object.keys(layouts).length);
+  const allReady = NodesInternal.useIsAllReady(Object.keys(layouts).length, 'all');
   const layoutKeys = useMemo(() => Object.keys(layouts), [layouts]);
 
   useEffect(() => {

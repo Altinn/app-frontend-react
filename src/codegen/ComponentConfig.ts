@@ -442,8 +442,8 @@ export class ComponentConfig {
           type: 'node',
           item: props.item as unknown as ${CompInternal}<'${this.type}'>,
           layout: props.item,
-          hidden: false,
-          ready: false,
+          hidden: undefined,
+          ready: undefined,
         };
 
         return { ...baseState, ${pluginStateFactories} };

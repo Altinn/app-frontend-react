@@ -113,14 +113,14 @@ function useResolvedItem<T extends CompTypes = CompTypes>({ node, hidden, item }
 
   useEffect(() => {
     if (isAdded) {
-      setNodeProp(node, 'item', resolvedItem);
+      setNodeProp(node, 'item', resolvedItem, 'expressionsEvaluated');
       node.updateCommonProps(resolvedItem as any);
     }
   }, [node, resolvedItem, setNodeProp, isAdded]);
 
   useEffect(() => {
     if (isAdded) {
-      setNodeProp(node, 'hidden', hidden);
+      setNodeProp(node, 'hidden', hidden, 'hiddenSet');
     }
   }, [hidden, node, setNodeProp, isAdded]);
 

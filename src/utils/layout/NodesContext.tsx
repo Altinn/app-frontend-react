@@ -78,6 +78,13 @@ export interface HiddenStateNode {
 
 export type HiddenState = HiddenStatePage | HiddenStateNode;
 
+export interface NodeReadyState {
+  hiddenSet: boolean;
+  expressionsEvaluated: boolean;
+}
+
+export type ReadyKeys = keyof NodeReadyState | 'all';
+
 export interface PageStore {
   type: 'page';
   ready: boolean;
@@ -113,6 +120,7 @@ export type NodesDataContext = {
     node: N,
     prop: K,
     value: ItemStoreFromNode<N>[K],
+    markReady?: keyof NodeReadyState,
   ) => void;
 
   addPage: (pageKey: string) => void;
@@ -142,6 +150,7 @@ export function createNodesDataStore() {
             parent.topLevelNodes[id] = targetState;
           } else {
             const def = getComponentDef(parent.layout.type);
+            targetState.ready = { hiddenSet: false, expressionsEvaluated: false };
             def.addChild(parent as any, node, targetState);
           }
         }),
@@ -157,13 +166,15 @@ export function createNodesDataStore() {
             def.removeChild(parent as any, node);
           }
         }),
-      setNodeProp: (node, prop, value) =>
+      setNodeProp: (node, prop, value, markReady) =>
         set((state) => {
           const obj = pickDataStorePath(state.pages, node.path);
           if (obj.type === 'page') {
             throw new Error('Parent node is not a node');
           }
-          obj.ready = true;
+          if (markReady) {
+            obj.ready[markReady] = true;
+          }
           Object.assign(obj, { [prop]: value });
         }),
       addPage: (pageKey) =>
@@ -249,7 +260,7 @@ function BlockUntilLoaded({ children }: PropsWithChildren) {
 }
 
 function NodesLoader() {
-  const notReady = NodesInternal.useAllNotReady();
+  const notReady = NodesInternal.useAllNotReady('all');
   return (
     <Loader
       reason='nodes'
@@ -431,12 +442,12 @@ export const NodesInternal = {
   useIsReady: (path: string[], ...morePaths: string[][]) =>
     DataStore.useMemoSelector((s) => {
       try {
-        const isReady = pickDataStorePath(s.pages, path).ready ?? false;
+        const isReady = Object.values(pickDataStorePath(s.pages, path).ready).every((b) => b) ?? false;
         if (!isReady) {
           return false;
         }
         for (const p of morePaths) {
-          if (!pickDataStorePath(s.pages, p).ready) {
+          if (!Object.values(pickDataStorePath(s.pages, p).ready).every((b) => b)) {
             return false;
           }
         }
@@ -446,11 +457,11 @@ export const NodesInternal = {
       }
     }),
   useMarkAsReady: () => DataStore.useSelector((s) => s.markPageReady),
-  useIsAllReady: (expectedPages: number) =>
+  useIsAllReady: (expectedPages: number, readyKey: ReadyKeys) =>
     DataStore.useMemoSelector(
-      (s) => Object.keys(s.pages.pages).length === expectedPages && getNotReady(s.pages).length === 0,
+      (s) => Object.keys(s.pages.pages).length === expectedPages && getNotReady(s.pages, readyKey).length === 0,
     ),
-  useAllNotReady: () => DataStore.useMemoSelector((s) => getNotReady(s.pages)),
+  useAllNotReady: (readyKey: ReadyKeys) => DataStore.useMemoSelector((s) => getNotReady(s.pages, readyKey)),
   useRemovePage: () => DataStore.useSelector((s) => s.removePage),
   useAddNode: () => DataStore.useSelector((s) => s.addNode),
   useRemoveNode: () => DataStore.useSelector((s) => s.removeNode),
@@ -460,7 +471,7 @@ export const NodesInternal = {
     .reduce((acc, val) => ({ ...acc, ...val }), {}) as ExtraHooks),
 };
 
-function getNotReady(pages: PageHierarchy) {
+function getNotReady(pages: PageHierarchy, readyKey: ReadyKeys) {
   const notReady: string[] = [];
   for (const key of Object.keys(pages.pages)) {
     const page = pages.pages[key];
@@ -469,17 +480,19 @@ function getNotReady(pages: PageHierarchy) {
     }
 
     for (const node of Object.values(page.topLevelNodes)) {
-      notReady.push(...getNotReadyNodes(node as ItemStore, [key]));
+      notReady.push(...getNotReadyNodes(node as ItemStore, [key], readyKey));
     }
   }
 
   return notReady;
 }
 
-function getNotReadyNodes(node: ItemStore, parentPath: string[]) {
+function getNotReadyNodes(node: ItemStore, parentPath: string[], readyKey: ReadyKeys): string[] {
   const notReady: string[] = [];
   const id = node.item?.id ?? '';
-  if (!node.ready) {
+  const ready = node.ready as NodeReadyState;
+  const isReady = readyKey === 'all' ? Object.values(ready).every((b) => b) : ready[readyKey];
+  if (!isReady) {
     notReady.push(`/${parentPath.join('/')}/${id}`);
   }
 
@@ -487,7 +500,7 @@ function getNotReadyNodes(node: ItemStore, parentPath: string[]) {
   for (const childRef of def.pickDirectChildren(node as any)) {
     const childItem = pickDataStorePath(node, [childRef.nodeRef], parentPath);
     if (childItem && childItem.type === 'node') {
-      notReady.push(...getNotReadyNodes(childItem, [...parentPath, id]));
+      notReady.push(...getNotReadyNodes(childItem, [...parentPath, id], readyKey));
     }
   }
 
