@@ -106,7 +106,7 @@ export function AltinnParty({ party, onSelectParty, showSubUnits }: IAltinnParty
   const { langAsString } = useLanguage();
 
   const [subUnitsExpanded, setSubUnitsExpanded] = React.useState<boolean>(false);
-  const isOrg: boolean = party.orgNumber != null;
+  const isOrg: boolean = !!(party.orgNumber?.length && party.orgNumber?.length > 0);
 
   function onClickParty(selectedParty: IParty, event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
     event.stopPropagation();

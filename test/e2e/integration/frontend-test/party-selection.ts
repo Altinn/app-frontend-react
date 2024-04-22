@@ -75,6 +75,21 @@ const ExamplePerson2: IParty = {
   childParties: null,
 };
 
+const InvalidParty: IParty = {
+  partyId: 50085642,
+  partyUuid: 'bb1aeb78-237e-47fb-b600-727803500985',
+  partyTypeName: 1,
+  orgNumber: '',
+  ssn: '23033600534',
+  unitType: null,
+  name: 'RISHAUG JULIUS',
+  isDeleted: false,
+  onlyHierarchyElementWithNoAccess: false,
+  person: null,
+  organization: null,
+  childParties: [],
+};
+
 interface Mockable {
   preSelectedParty?: number;
   currentParty?: IParty;
@@ -212,6 +227,32 @@ describe('Party selection', () => {
     cy.startAppInstance(appFrontend.apps.frontendTest);
     cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
     cy.get('[data-testid=StatusCode').should('exist');
+  });
+
+  it.only('List of parties should show correct icon and org nr or ssn', () => {
+    mockResponses({
+      allowedToInstantiate: (parties) => [...parties, ExamplePerson1, InvalidParty, ExampleOrgWithSubUnit],
+      doNotPromptForParty: false,
+    });
+    cy.startAppInstance(appFrontend.apps.frontendTest);
+    cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
+    cy.get('[id^="party-"]').each((element) => {
+      // Check for SVG elements with specific test IDs
+      const orgIcon = element.find('svg[data-testid="org-icon"]');
+      const personIcon = element.find('svg[data-testid="person-icon"]');
+
+      if (orgIcon.length > 0) {
+        // Validate sibling for org-icon
+        const siblingP = orgIcon.next().next();
+        cy.wrap(siblingP).should('exist').and('have.prop', 'tagName', 'P').and('contain.text', 'org.nr.');
+      }
+
+      if (personIcon.length > 0) {
+        // Validate sibling for person-icon
+        const siblingP = personIcon.next().next();
+        cy.wrap(siblingP).should('exist').and('have.prop', 'tagName', 'P').and('contain.text', 'personnr');
+      }
+    });
   });
 
   [true, false].forEach((doNotPromptForParty) => {

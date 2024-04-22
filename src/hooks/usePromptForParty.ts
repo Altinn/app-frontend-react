@@ -8,17 +8,14 @@ export function usePromptForParty(): boolean | null {
   const parties = useParties();
 
   if (!profile?.partyId || !parties) {
-    console.log('null');
     return null;
   }
 
   if (applicationMetadata.promptForParty === 'never') {
-    console.log('never');
     return false;
   }
 
   if (applicationMetadata.promptForParty === 'always') {
-    console.log('always');
     return true;
   }
 
