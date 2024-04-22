@@ -268,6 +268,7 @@ export function en() {
         quantity: 'Quantity',
         price: 'Price',
         total: 'Total',
+        vat: 'VAT',
       },
     },
     helptext: {

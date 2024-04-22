@@ -38,9 +38,9 @@ export const PaymentDetailsTable = ({ orderDetails, tableTitle, description, ...
       </Table.Row>
     </Table.Head>
     <Table.Body>
-      {orderDetails?.orderLines.map((orderLine, index) => (
+      {orderDetails?.orderLines.map((orderLine) => (
         <Table.Row
-          key={index}
+          key={orderLine.id}
           className={classes.tableRow}
         >
           <Table.Cell>{orderLine.name}</Table.Cell>
@@ -50,14 +50,18 @@ export const PaymentDetailsTable = ({ orderDetails, tableTitle, description, ...
           </Table.Cell>
         </Table.Row>
       ))}
-      <Table.Row className={classes.tableRow}>
-        <Table.Cell colSpan={2}>
-          <Label>MVA.</Label>
-        </Table.Cell>
-        <Table.Cell align='right'>
-          {orderDetails?.totalVat} {orderDetails?.currency}
-        </Table.Cell>
-      </Table.Row>
+      {!!orderDetails?.totalVat && orderDetails.totalVat > 0 && (
+        <Table.Row className={classes.tableRow}>
+          <Table.Cell colSpan={2}>
+            <Label>
+              <Lang id={'payment.component.vat'} />
+            </Label>
+          </Table.Cell>
+          <Table.Cell align='right'>
+            {orderDetails?.totalVat} {orderDetails?.currency}
+          </Table.Cell>
+        </Table.Row>
+      )}
       <Table.Row className={classes.tableRow}>
         <Table.Cell colSpan={2}>
           <Label>
