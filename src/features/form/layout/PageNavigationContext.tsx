@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { createStore } from 'zustand';
 
@@ -30,14 +30,6 @@ export type PageNavigationContext = {
    */
   summaryNodeOfOrigin?: string;
   setSummaryNodeOfOrigin: (componentOrigin?: string) => void;
-
-  /**
-   * A copy of page navigation config used for expressions. This has to be copied into the zustand store so that we
-   * can use lazy selectors to make sure expressions are not re-evaluated every time this changes (but only when that
-   * change actually affects the expression).
-   */
-  pageNavigationConfig?: PageNavigationConfig;
-  setPageNavigationConfig: (config: PageNavigationConfig) => void;
 };
 
 function initialCreateStore() {
@@ -48,17 +40,14 @@ function initialCreateStore() {
     setHiddenPages: (hidden) => set({ hidden }),
     summaryNodeOfOrigin: undefined,
     setSummaryNodeOfOrigin: (summaryNodeOfOrigin) => set({ summaryNodeOfOrigin }),
-    pageNavigationConfig: undefined,
-    setPageNavigationConfig: (pageNavigationConfig) => set({ pageNavigationConfig }),
   }));
 }
 
-const { Provider, useSelector, useLaxSelector, useLaxSelectorAsRef, useDelayedMemoSelectorFactory } =
-  createZustandContext({
-    name: 'PageNavigationContext',
-    required: true,
-    initialCreateStore,
-  });
+const { Provider, useLaxSelector, useLaxSelectorAsRef } = createZustandContext({
+  name: 'PageNavigationContext',
+  required: true,
+  initialCreateStore,
+});
 
 export function PageNavigationProvider({ children }: React.PropsWithChildren) {
   const [returnToView, setReturnToView] = useState<string>();
@@ -73,21 +62,9 @@ export function PageNavigationProvider({ children }: React.PropsWithChildren) {
         setHiddenPages: setHidden,
       }}
     >
-      <KeepPageNavigationConfigUpdated />
       {children}
     </Provider>
   );
-}
-
-function KeepPageNavigationConfigUpdated() {
-  const pageNavigationConfig = usePageNavigationConfig();
-  const setPageNavigationConfig = useSelector((state) => state.setPageNavigationConfig);
-
-  useEffect(() => {
-    setPageNavigationConfig(pageNavigationConfig);
-  }, [pageNavigationConfig, setPageNavigationConfig]);
-
-  return null;
 }
 
 export const usePageNavigationConfig = (): PageNavigationConfig => {
@@ -102,27 +79,6 @@ export const usePageNavigationConfig = (): PageNavigationConfig => {
       order,
     }),
     [currentView, hiddenExpr, order],
-  );
-};
-
-export type PageNavigationConfigSelectors = ReturnType<typeof usePageNavigationConfigSelectors>;
-export const usePageNavigationConfigSelectors = () => {
-  const selectCurrentView = useDelayedMemoSelectorFactory({
-    selector: (_nothing?: never) => (state) => state.pageNavigationConfig?.currentView,
-    makeCacheKey: () => '',
-  });
-  const selectHiddenExpr = useDelayedMemoSelectorFactory({
-    selector: (layoutKey: string) => (state) => state.pageNavigationConfig?.hiddenExpr[layoutKey],
-    makeCacheKey: (layoutKey) => layoutKey,
-  });
-  const selectOrder = useDelayedMemoSelectorFactory({
-    selector: (_nothing?: never) => (state) => state.pageNavigationConfig?.order,
-    makeCacheKey: () => '',
-  });
-
-  return useMemo(
-    () => ({ selectCurrentView, selectHiddenExpr, selectOrder }),
-    [selectCurrentView, selectHiddenExpr, selectOrder],
   );
 };
 
