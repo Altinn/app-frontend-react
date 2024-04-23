@@ -17,6 +17,7 @@ import { useFormDataWriteProxies } from 'src/features/formData/FormDataWriteProx
 import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteStateMachine';
 import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
 import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { type BackendValidationIssueGroups, BuiltInValidationIssueSources } from 'src/features/validation';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
@@ -73,6 +74,7 @@ const {
 function useFormDataSaveMutation(dataType: string) {
   const { doPatchFormData, doPostStatelessFormData } = useAppMutations();
   const dataModelUrl = useSelector((s) => s.dataModels[dataType].saveUrl);
+  const currentLanguageRef = useAsRef(useCurrentLanguage());
   const saveFinished = useSelector((s) => s.saveFinished);
   const cancelSave = useSelector((s) => s.cancelSave);
   const isStateless = useIsStatelessApp();
@@ -102,8 +104,11 @@ function useFormDataSaveMutation(dataType: string) {
         return;
       }
 
+      // Add current language as a query parameter
+      const urlWithLanguage = `${dataModelUrl}&language=${currentLanguageRef.current}`;
+
       if (isStateless) {
-        const newDataModel = await doPostStatelessFormData(dataModelUrl, next);
+        const newDataModel = await doPostStatelessFormData(urlWithLanguage, next);
         return { newDataModel, savedData: next, validationIssues: undefined };
       } else {
         const patch = createPatch({ prev, next });
@@ -111,7 +116,7 @@ function useFormDataSaveMutation(dataType: string) {
           return;
         }
 
-        const result = await doPatchFormData(dataModelUrl, {
+        const result = await doPatchFormData(urlWithLanguage, {
           patch,
           // Ignore validations that require layout parsing in the backend which will slow down requests significantly
           ignoredValidators: [BuiltInValidationIssueSources.Required, BuiltInValidationIssueSources.Expression],
