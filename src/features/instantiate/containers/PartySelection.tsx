@@ -11,7 +11,12 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { InstantiationContainer } from 'src/features/instantiate/containers/InstantiationContainer';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useCurrentParty, useParties, useSetCurrentParty } from 'src/features/party/PartiesProvider';
+import {
+  useCurrentParty,
+  useParties,
+  useSetCurrentParty,
+  useSetHasSelectedParty,
+} from 'src/features/party/PartiesProvider';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { changeBodyBackground } from 'src/utils/bodyStyling';
 import { HttpStatusCodes } from 'src/utils/network/networking';
@@ -78,6 +83,7 @@ export const PartySelection = () => {
 
   const selectParty = useSetCurrentParty();
   const selectedParty = useCurrentParty();
+  const setUserHasSelectedParty = useSetHasSelectedParty();
 
   const parties = useParties() || [];
   const appMetadata = useApplicationMetadata();
@@ -94,7 +100,8 @@ export const PartySelection = () => {
 
   const onSelectParty = async (party: IParty) => {
     await selectParty(party);
-    navigate('/?');
+    setUserHasSelectedParty(true);
+    navigate('/');
   };
 
   function renderParties() {

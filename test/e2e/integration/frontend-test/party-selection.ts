@@ -240,7 +240,7 @@ describe('Party selection', () => {
   });
 
   [false].forEach((doNotPromptForParty) => {
-    it.only(`${
+    it(`${
       doNotPromptForParty ? 'Does not prompt' : 'Prompts'
     } for party when doNotPromptForParty = ${doNotPromptForParty}, on instantiation with multiple possible parties`, () => {
       mockResponses({

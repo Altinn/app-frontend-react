@@ -9,7 +9,12 @@ import { FormProvider } from 'src/features/form/FormContext';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
-import { useCurrentParty, useCurrentPartyIsValid, useValidParties } from 'src/features/party/PartiesProvider';
+import {
+  useCurrentParty,
+  useCurrentPartyIsValid,
+  useHasSelectedParty,
+  useValidParties,
+} from 'src/features/party/PartiesProvider';
 import { useProfile } from 'src/features/profile/ProfileProvider';
 import { useAllowAnonymousIs } from 'src/features/stateless/getAllowAnonymous';
 import { PresentationType } from 'src/types';
@@ -71,6 +76,7 @@ export const Entrypoint = () => {
   const isStateless = useIsStatelessApp();
   const party = useCurrentParty();
   const allowAnonymous = useAllowAnonymousIs(true);
+  const userHasSelectedParty = useHasSelectedParty();
 
   if (isStateless && allowAnonymous && !party) {
     return <RenderStateless />;
@@ -94,6 +100,10 @@ export const Entrypoint = () => {
   }
 
   if (validParties?.length && validParties?.length > 1) {
+    if (userHasSelectedParty) {
+      return <ShowOrInstantiate show={show} />;
+    }
+
     if (applicationMetadata.promptForParty === 'always') {
       return (
         <Navigate

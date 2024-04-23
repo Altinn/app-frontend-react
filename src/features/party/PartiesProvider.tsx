@@ -73,6 +73,8 @@ interface CurrentParty {
   party: IParty | undefined;
   validParties: IParty[] | undefined;
   currentIsValid: boolean | undefined;
+  userHasSelectedParty: boolean | undefined;
+  setUserHasSelectedParty: (hasSelected: boolean) => void;
   setParty: (party: IParty) => Promise<IParty | undefined>;
 }
 
@@ -83,6 +85,10 @@ const { Provider: RealCurrentPartyProvider, useCtx: useCurrentPartyCtx } = creat
     party: undefined,
     validParties: undefined,
     currentIsValid: undefined,
+    userHasSelectedParty: undefined,
+    setUserHasSelectedParty: () => {
+      throw new Error('CurrentPartyProvider not initialized');
+    },
     setParty: () => {
       throw new Error('CurrentPartyProvider not initialized');
     },
@@ -94,7 +100,7 @@ const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
   const [sentToMutation, setSentToMutation] = useState<IParty | undefined>(undefined);
   const { mutateAsync, data: dataFromMutation, error: errorFromMutation } = useSetCurrentPartyMutation();
   const { data: partyFromQuery, isLoading, error: errorFromQuery } = useCurrentPartyQuery(true);
-
+  const [userHasSelectedParty, setUserHasSelectedParty] = useState(false);
   if (isLoading) {
     return <Loader reason={'current-party'} />;
   }
@@ -118,6 +124,8 @@ const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
         party: currentParty,
         validParties,
         currentIsValid,
+        userHasSelectedParty,
+        setUserHasSelectedParty: (hasSelected: boolean) => setUserHasSelectedParty(hasSelected),
         setParty: async (party) => {
           try {
             setSentToMutation(party);
@@ -163,3 +171,7 @@ export const useCurrentPartyIsValid = () => useCurrentPartyCtx().currentIsValid;
 export const useSetCurrentParty = () => useCurrentPartyCtx().setParty;
 
 export const useValidParties = () => useCurrentPartyCtx().validParties;
+
+export const useHasSelectedParty = () => useCurrentPartyCtx().userHasSelectedParty;
+
+export const useSetHasSelectedParty = () => useCurrentPartyCtx().setUserHasSelectedParty;
