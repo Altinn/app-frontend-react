@@ -170,18 +170,9 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
 
   addChild(state: DefPluginState<ToInternal<E>>, childNode: LayoutNode, childStore: ItemStore) {
     state[this.settings.externalProp][childNode.getId()] = childStore;
-
-    if (this.allChildrenAdded(state)) {
-      state.ready!.childrenAdded = true;
-    }
   }
 
   removeChild(state: DefPluginState<ToInternal<E>>, childNode: LayoutNode) {
     delete state[this.settings.externalProp][childNode.getId()];
-  }
-
-  protected allChildrenAdded(state: DefPluginState<ToInternal<E>>) {
-    const expectedChildren = state.layout[this.settings.externalProp];
-    return !!expectedChildren.every((id: string) => state[this.settings.externalProp][id]);
   }
 }

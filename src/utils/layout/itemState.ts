@@ -2,7 +2,7 @@ import type { CompDef } from 'src/layout';
 import type { CompExternalExact, CompInternal, CompTypes, TypeFromNode } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { HiddenStateNode, NodeReadyState } from 'src/utils/layout/NodesContext';
+import type { HiddenStateNode } from 'src/utils/layout/NodesContext';
 
 /**
  * A row (from the data model) in a repeating group, or other components using such a structure (object[]).
@@ -26,7 +26,6 @@ export interface BaseItemState<T extends CompTypes> {
   layout: CompExternalExact<T>;
   item: CompInternal<T> | undefined;
   hidden: HiddenStateNode | undefined;
-  ready: NodeReadyState | undefined;
 }
 
 export type ItemStore<Type extends CompTypes = CompTypes> = ReturnType<CompDef<Type>['stateFactory']>;

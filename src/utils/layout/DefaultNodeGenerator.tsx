@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { evalExpr } from 'src/features/expressions';
@@ -10,7 +10,7 @@ import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { NodeGeneratorDebug } from 'src/utils/layout/NodesGenerator';
 import { NodeGeneratorInternal, NodesGeneratorProvider } from 'src/utils/layout/NodesGeneratorContext';
-import { NonRepeatingChildrenPlugin } from 'src/utils/layout/plugins/NonRepeatingChildrenPlugin';
+import { NodeStages } from 'src/utils/layout/NodeStages';
 import { useResolvedExpression } from 'src/utils/layout/useResolvedExpression';
 import type { SimpleEval } from 'src/features/expressions';
 import type { ExprConfig, ExprResolved, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
@@ -60,7 +60,7 @@ export function DefaultNodeGenerator({ children, baseId }: PropsWithChildren<Bas
 
   const resolvedItem = useResolvedItem({ node, hidden, item });
 
-  useEffect(
+  NodeStages.S1AddNodes.useEffect(
     () => () => {
       pageRef.current._removeChild(nodeRef.current);
       removeNode(nodeRef.current);
@@ -71,7 +71,6 @@ export function DefaultNodeGenerator({ children, baseId }: PropsWithChildren<Bas
   return (
     <>
       {NodeGeneratorDebug && <pre style={{ fontSize: '0.8em' }}>{JSON.stringify(resolvedItem, null, 2)}</pre>}
-      <MarkChildrenAsReady node={node} />
       <NodesGeneratorProvider
         parent={node}
         hidden={hidden}
@@ -81,19 +80,6 @@ export function DefaultNodeGenerator({ children, baseId }: PropsWithChildren<Bas
       </NodesGeneratorProvider>
     </>
   );
-}
-
-function MarkChildrenAsReady({ node }: { node: LayoutNode }) {
-  const markNodeReady = NodesInternal.useMarkNodeReady();
-  const hasChildren = node.def.hasPlugin(NonRepeatingChildrenPlugin);
-
-  useEffect(() => {
-    if (!hasChildren) {
-      markNodeReady(node, 'childrenAdded');
-    }
-  }, [hasChildren, markNodeReady, node]);
-
-  return null;
 }
 
 interface NodeResolverProps<T extends CompTypes> {
@@ -110,7 +96,7 @@ function useResolvedItem<T extends CompTypes = CompTypes>({
   const parent = NodeGeneratorInternal.useParent();
   const row = NodeGeneratorInternal.useRow();
   const resolverProps = useExpressionResolverProps(node, item);
-  const allNodesAdded = NodesInternal.useIsAllReady('allAdded');
+  const allNodesAdded = NodeStages.S1AddNodes.useIsDone();
 
   const def = useDef(item.type);
   const setNodeProp = NodesInternal.useSetNodeProp();
@@ -124,25 +110,25 @@ function useResolvedItem<T extends CompTypes = CompTypes>({
   const isAdded = NodesInternal.useIsAdded(node);
   const isParentAdded = NodesInternal.useIsAdded(parent);
 
-  useEffect(() => {
+  NodeStages.S1AddNodes.useEffect(() => {
     if (isParentAdded) {
       const defaultState = node.def.stateFactory(stateFactoryProps.current as any);
       addNode(node, defaultState);
     }
   }, [addNode, node, stateFactoryProps, isParentAdded]);
 
-  useEffect(() => {
+  NodeStages.S2MarkHidden.useEffect(() => {
     if (isAdded) {
-      setNodeProp(node, 'item', resolvedItem, 'expressionsEvaluated');
+      setNodeProp(node, 'hidden', hidden);
+    }
+  }, [hidden, node, setNodeProp, isAdded]);
+
+  NodeStages.S3EvaluateExpressions.useEffect(() => {
+    if (isAdded) {
+      setNodeProp(node, 'item', resolvedItem);
       node.updateCommonProps(resolvedItem as any);
     }
   }, [node, resolvedItem, setNodeProp, isAdded]);
-
-  useEffect(() => {
-    if (isAdded) {
-      setNodeProp(node, 'hidden', hidden, 'hiddenSet');
-    }
-  }, [hidden, node, setNodeProp, isAdded]);
 
   return resolvedItem;
 }

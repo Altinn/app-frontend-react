@@ -9,6 +9,7 @@ import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import { Hidden, NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
 import { NodeGeneratorInternal, NodesGeneratorPageProvider } from 'src/utils/layout/NodesGeneratorContext';
+import { NodeStages } from 'src/utils/layout/NodeStages';
 import { useResolvedExpression } from 'src/utils/layout/useResolvedExpression';
 import type { CompExternal, CompTypes, ILayout } from 'src/layout/layout';
 import type {
@@ -79,7 +80,7 @@ function SaveFinishedNodesToStore({ pages }: { pages: LayoutPages }) {
   const layouts = useLayouts();
   const existingNodes = useNodes();
   const setNodes = NodesInternal.useSetNodes();
-  const allReady = NodesInternal.useIsAllReady();
+  const isFinished = NodeStages.useIsFinished();
   const layoutKeys = useMemo(() => Object.keys(layouts), [layouts]);
 
   useEffect(() => {
@@ -98,7 +99,7 @@ function SaveFinishedNodesToStore({ pages }: { pages: LayoutPages }) {
       return;
     }
 
-    if (allReady) {
+    if (isFinished) {
       setNodes(pages);
       console.log('debug, all ready. Nodes:');
       for (const page of Object.values(pages.all())) {
@@ -107,7 +108,7 @@ function SaveFinishedNodesToStore({ pages }: { pages: LayoutPages }) {
       }
       console.log('debug, nodes', pages);
     }
-  }, [layoutKeys, pages, allReady, setNodes, existingNodes]);
+  }, [layoutKeys, pages, isFinished, setNodes, existingNodes]);
 
   return null;
 }
@@ -176,7 +177,7 @@ function Page({ layout, name, layoutSet }: PageProps) {
   }
 
   // Removes the page from the store when is removed from the React tree
-  useEffect(
+  NodeStages.S1AddNodes.useEffect(
     () => () => {
       removePage(page.pageKey);
       page.unregisterCollection();
@@ -184,7 +185,7 @@ function Page({ layout, name, layoutSet }: PageProps) {
     [page, removePage],
   );
 
-  useEffect(() => {
+  NodeStages.S2MarkHidden.useEffect(() => {
     setPageProp(name, 'hidden', hidden);
   }, [hidden, name, setPageProp]);
 
@@ -202,7 +203,6 @@ function Page({ layout, name, layoutSet }: PageProps) {
   }, [layout]);
 
   const map = children.map;
-  const isReady = map !== undefined && children.forLayout === layout;
   const claimedChildren = new Set(map ? Object.values(map).flat() : []);
   const topLevelIds = layout.filter((component) => !claimedChildren.has(component.id)).map((component) => component.id);
 
@@ -222,22 +222,11 @@ function Page({ layout, name, layoutSet }: PageProps) {
   }
 
   if (layout.length === 0) {
-    return (
-      <MarkPageReady
-        name={name}
-        isReady={true}
-        topLevelIds={topLevelIds}
-      />
-    );
+    return null;
   }
 
   return (
     <>
-      <MarkPageReady
-        name={name}
-        isReady={isReady}
-        topLevelIds={topLevelIds}
-      />
       {map === undefined &&
         layout.map((component) => (
           <ComponentClaimChildren
@@ -282,20 +271,6 @@ export function NodeChildren({ childIds }: NodeChildrenProps) {
       ))}
     </>
   );
-}
-
-function MarkPageReady({ name, isReady, topLevelIds }: { name: string; isReady: boolean; topLevelIds: string[] }) {
-  const topLevelPaths = topLevelIds.map((id) => [name, id]);
-  const wasReady = NodesInternal.useIsReady([name], ...topLevelPaths);
-  const markPageReady = NodesInternal.useMarkPageReady();
-
-  useEffect(() => {
-    if (!wasReady && isReady) {
-      markPageReady(name);
-    }
-  }, [isReady, markPageReady, name, wasReady]);
-
-  return null;
 }
 
 function useIsHiddenPage(page: LayoutPage) {
