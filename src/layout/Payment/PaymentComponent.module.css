@@ -7,3 +7,20 @@
 .container {
   padding: var(--fds-spacing-3) 0;
 }
+
+.infoContainer {
+  display: flex;
+  gap: var(--fds-spacing-3);
+  flex-direction: row;
+  padding: var(--fds-spacing-3) 0;
+}
+
+.infoDetailsContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.infoDetailsContainer {
+  display: flex;
+  flex-direction: column;
+}

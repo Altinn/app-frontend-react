@@ -271,6 +271,7 @@ export function nb(): FixedLanguageList {
         quantity: 'Antall',
         price: 'Pris',
         total: 'Totalt',
+        vat: 'MVA',
       },
     },
     helptext: {
