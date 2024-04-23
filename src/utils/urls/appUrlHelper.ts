@@ -33,9 +33,9 @@ export const getFileTagUrl = (instanceId: string, dataGuid: string, tag: string 
 };
 
 export const getAnonymousStatelessDataModelUrl = (dataType: string, includeRowIds: boolean) =>
-  `${appPath}/v1/data/anonymous?dataType=${dataType}&includeRowId=${includeRowIds.toString()}}`;
+  `${appPath}/v1/data/anonymous?dataType=${dataType}&includeRowId=${includeRowIds.toString()}`;
 export const getStatelessDataModelUrl = (dataType: string, includeRowIds: boolean) =>
-  `${appPath}/v1/data?dataType=${dataType}&includeRowId=${includeRowIds.toString()}}`;
+  `${appPath}/v1/data?dataType=${dataType}&includeRowId=${includeRowIds.toString()}`;
 export const getDataElementUrl = (instanceId: string, dataGuid: string, language: string, includeRowIds: boolean) => {
   const queryString = getQueryStringFromObject({ language, includeRowId: includeRowIds.toString() });
   return `${appPath}/instances/${instanceId}/data/${dataGuid}${queryString}`;
