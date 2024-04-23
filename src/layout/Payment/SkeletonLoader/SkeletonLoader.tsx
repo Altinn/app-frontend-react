@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Heading, Skeleton } from '@digdir/design-system-react';
+import { Heading, Skeleton } from '@digdir/designsystemet-react';
 
 import classes from 'src/layout/Payment/SkeletonLoader/SkeletonLoader.module.css';
 

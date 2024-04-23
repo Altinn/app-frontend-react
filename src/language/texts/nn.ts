@@ -266,6 +266,7 @@ export function nn(): FixedLanguageList {
         paid: 'Du har betalt!',
         failed: 'Betalinga feilet',
       },
+      receipt_title: 'betalingskvittering',
       component: {
         description: 'Beskrivelse',
         quantity: 'Antall',

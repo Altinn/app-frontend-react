@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { Alert, Button } from '@digdir/design-system-react';
+import { Alert, Button } from '@digdir/designsystemet-react';
 
 import type { PropsFromGenericComponent } from '..';
 

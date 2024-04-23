@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ReactNode } from 'react';
 
-import { Label, Table } from '@digdir/design-system-react';
+import { Label, Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { Caption } from 'src/components/form/Caption';

@@ -263,6 +263,7 @@ export function en() {
         paid: 'You have paid!',
         failed: 'Your payment has failed',
       },
+      receipt_title: 'payment receipt',
       component: {
         description: 'Description',
         quantity: 'Quantity',
