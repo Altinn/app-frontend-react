@@ -37,21 +37,28 @@ const { Provider, useCtx } = createContext<Context>({
  */
 export function NodeStagesProvider({ children }: PropsWithChildren) {
   const [currentStage, setCurrentStage] = React.useState<Stage>(NodeStageList[0]);
+  const tickTimeout = React.useRef<number | null>(null);
   const numHooksRegistered = React.useRef(0);
   const numHooksFinished = React.useRef(0);
   const onStageDone = React.useRef<OnStageDone[]>([]);
 
   function tick() {
-    if (numHooksRegistered.current === numHooksFinished.current) {
-      onStageDone.current.forEach((cb) => cb());
-      onStageDone.current = [];
-
-      const currentIndex = NodeStageList.indexOf(currentStage);
-      const nextStage = NodeStageList[currentIndex + 1];
-      if (nextStage) {
-        setCurrentStage(nextStage);
-      }
+    if (tickTimeout.current) {
+      clearTimeout(tickTimeout.current);
     }
+    setTimeout(() => {
+      if (numHooksRegistered.current === numHooksFinished.current) {
+        onStageDone.current.forEach((cb) => cb());
+        onStageDone.current = [];
+
+        const currentIndex = NodeStageList.indexOf(currentStage);
+        const nextStage = NodeStageList[currentIndex + 1];
+        if (nextStage) {
+          console.log('debug, Advancing to next stage:', nextStage, 'as', numHooksRegistered.current, 'hooks are done');
+          setCurrentStage(nextStage);
+        }
+      }
+    }, 10);
   }
 
   return (
@@ -81,6 +88,7 @@ function makeHooks(stage: Stage) {
       if (!thisHookRanBefore.current && shouldRun) {
         numHooksRegistered.current++;
         thisHookRanBefore.current = true;
+        console.log('debug, Registered hook for stage:', stage);
       }
 
       const incrementBy = React.useRef(1);

@@ -333,8 +333,17 @@ export const Hidden = {
     return DataStore.useDelayedMemoSelectorFactory({
       selector:
         ({ node, options }: { node: string | NodeRef | LayoutNode | LayoutPage; options?: IsHiddenOptions }) =>
-        (state) =>
-          isHidden(pickDataStorePath(state.pages, getNodePath(node, nodes)).hidden, forcedVisibleByDevTools, options),
+        (state) => {
+          try {
+            const nodeState = pickDataStorePath(state.pages, getNodePath(node, nodes));
+            return isHidden(nodeState.hidden, forcedVisibleByDevTools, options);
+          } catch (e) {
+            if (e instanceof NodePathNotFound) {
+              return true;
+            }
+            throw e;
+          }
+        },
       makeCacheKey: ({ node }) => getNodePath(node, nodes).join('/'),
     });
   },
@@ -403,7 +412,10 @@ export const NodesInternal = {
         pickDataStorePath(s.pages, node);
         return true;
       } catch (e) {
-        return false;
+        if (e instanceof NodePathNotFound) {
+          return false;
+        }
+        throw e;
       }
     }),
   useNodesStore: () => NodesStore.useStore(),
@@ -412,7 +424,10 @@ export const NodesInternal = {
       try {
         return pickDataStorePath(s.pages, node);
       } catch (e) {
-        return undefined;
+        if (e instanceof NodePathNotFound) {
+          return undefined;
+        }
+        throw e;
       }
     }),
   useDataStore: () => DataStore.useStore(),
@@ -497,6 +512,8 @@ function useLegacyHiddenComponents(
   }, [dataSources, hiddenPages, hiddenExpr, resolvedNodes, rules, setHiddenPages, setHidden]);
 }
 
+class NodePathNotFound extends Error {}
+
 /**
  * Recursive function to look up a node stored in the page hierarchy. Components may store their children
  * in different ways, so this function has to call out to each component specific implementation to look up
@@ -531,7 +548,7 @@ export function pickDataStorePath(
   if (isPages(container)) {
     const page = container.pages[target];
     if (!page) {
-      throw new Error(`Page not found at path /${fullPath.join('/')}`);
+      throw new NodePathNotFound(`Page not found at path /${fullPath.join('/')}`);
     }
     return pickDataStorePath(page, remaining, fullPath);
   }
@@ -539,7 +556,7 @@ export function pickDataStorePath(
   if (isPage(container)) {
     const node = container.topLevelNodes[target];
     if (!node) {
-      throw new Error(`Top level node not found at path /${fullPath.join('/')}`);
+      throw new NodePathNotFound(`Top level node not found at path /${fullPath.join('/')}`);
     }
     return pickDataStorePath(node, remaining, fullPath);
   }

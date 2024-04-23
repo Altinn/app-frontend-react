@@ -107,7 +107,6 @@ function useResolvedItem<T extends CompTypes = CompTypes>({
 
   const stateFactoryProps = useAsRef<StateFactoryProps<T>>({ item: item as any, parent, row });
   const addNode = NodesInternal.useAddNode();
-  const isAdded = NodesInternal.useIsAdded(node);
   const isParentAdded = NodesInternal.useIsAdded(parent);
 
   NodeStages.S1AddNodes.useEffect(() => {
@@ -118,17 +117,13 @@ function useResolvedItem<T extends CompTypes = CompTypes>({
   }, [addNode, node, stateFactoryProps, isParentAdded]);
 
   NodeStages.S2MarkHidden.useEffect(() => {
-    if (isAdded) {
-      setNodeProp(node, 'hidden', hidden);
-    }
-  }, [hidden, node, setNodeProp, isAdded]);
+    setNodeProp(node, 'hidden', hidden);
+  }, [hidden, node, setNodeProp]);
 
   NodeStages.S3EvaluateExpressions.useEffect(() => {
-    if (isAdded) {
-      setNodeProp(node, 'item', resolvedItem);
-      node.updateCommonProps(resolvedItem as any);
-    }
-  }, [node, resolvedItem, setNodeProp, isAdded]);
+    setNodeProp(node, 'item', resolvedItem);
+    node.updateCommonProps(resolvedItem as any);
+  }, [node, resolvedItem, setNodeProp]);
 
   return resolvedItem;
 }
