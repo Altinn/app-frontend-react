@@ -2,7 +2,7 @@ import React from 'react';
 import { NumericFormat, PatternFormat } from 'react-number-format';
 
 import { SearchField } from '@altinn/altinn-design-system';
-import { Paragraph, Textfield } from '@digdir/design-system-react';
+import { Paragraph, Textfield } from '@digdir/designsystemet-react';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -15,22 +15,33 @@ import type { IInputFormatting } from 'src/layout/Input/config.generated';
 
 export type IInputProps = PropsFromGenericComponent<'Input'>;
 
-import type { TextfieldProps } from '@digdir/design-system-react/dist/types/components/form/Textfield/Textfield';
+import type { TextfieldProps } from '@digdir/designsystemet-react/dist/types/components/form/Textfield/Textfield';
 
 interface InputComponentProps extends TextfieldProps {
   textOnly?: boolean;
 }
 
-const TextOnly: React.FunctionComponent<TextfieldProps> = ({ className, id, value }) => (
-  <Paragraph
-    id={id}
-    size='small'
-    className={`${classes['text-padding']} ${className}`}
-    tabindex='0'
-  >
-    {value}
-  </Paragraph>
-);
+const TextOnly: React.FunctionComponent<TextfieldProps> = ({ className, id, value }) => {
+  // If the value is null or empty string, we dont render anything to prevent an empty tabbable paragraph
+  if (value === null) {
+    return null;
+  }
+
+  if (typeof value === 'string' && value.length === 0) {
+    return null;
+  }
+
+  return (
+    <Paragraph
+      id={id}
+      size='small'
+      className={`${classes['text-padding']} ${classes['focusable']}  ${className}`}
+      tabindex='0'
+    >
+      {value}
+    </Paragraph>
+  );
+};
 
 // We need to use this wrapped Textfield component because we have a conflict between the 'size' prop
 // of the TextField and the react-number-format components which also have a 'size' prop

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Heading } from '@digdir/design-system-react';
+import { Heading } from '@digdir/designsystemet-react';
 import DOMPurify from 'dompurify';
 import parseHtmlToReact, { domToReact } from 'html-react-parser';
 import { marked } from 'marked';
@@ -8,12 +8,14 @@ import { mangle } from 'marked-mangle';
 import type { DOMNode, Element, HTMLReactParserOptions } from 'html-react-parser';
 
 import { LinkToPotentialNode } from 'src/components/form/LinkToPotentialNode';
+import { LinkToPotentialPage } from 'src/components/form/LinkToPotentialPage';
 import { cachedFunction } from 'src/utils/cachedFunction';
 
 marked.use(mangle());
 
 DOMPurify.addHook('afterSanitizeAttributes', (node) => {
   if (node.tagName === 'A') {
+    node.classList.add('altinnLink');
     const url = node.getAttribute('href') || '';
     if (url.startsWith('http') && !url.match(/(local\.altinn|altinn\.no|altinn\.cloud|basefarm\.net)/)) {
       node.classList.add('target-external');
@@ -108,6 +110,13 @@ const parserOptions: HTMLReactParserOptions = {
     if (isElement(domNode) && domNode.name === 'a' && domNode.attribs['data-link-type'] === 'LinkToPotentialNode') {
       return React.createElement(
         LinkToPotentialNode,
+        { to: domNode.attribs.href, preventScrollReset: true },
+        domToReact(domNode.children as DOMNode[], parserOptions),
+      );
+    }
+    if (isElement(domNode) && domNode.name === 'a' && domNode.attribs['data-link-type'] === 'LinkToPotentialPage') {
+      return React.createElement(
+        LinkToPotentialPage,
         { to: domNode.attribs.href, preventScrollReset: true },
         domToReact(domNode.children as DOMNode[], parserOptions),
       );
