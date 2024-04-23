@@ -17,6 +17,7 @@ import { useFormDataWriteProxies } from 'src/features/formData/FormDataWriteProx
 import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteStateMachine';
 import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
 import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
+import { type BackendValidationIssueGroups, BuiltInValidationIssueSources } from 'src/features/validation';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
@@ -29,7 +30,6 @@ import type {
   FDSaveFinished,
   FormDataContext,
 } from 'src/features/formData/FormDataWriteStateMachine';
-import type { BackendValidationIssueGroups } from 'src/features/validation';
 import type { FormDataSelector } from 'src/layout';
 import type { IDataModelReference, IMapping } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
@@ -113,7 +113,8 @@ function useFormDataSaveMutation(dataType: string) {
 
         const result = await doPatchFormData(dataModelUrl, {
           patch,
-          ignoredValidators: [],
+          // Ignore validations that require layout parsing in the backend which will slow down requests significantly
+          ignoredValidators: [BuiltInValidationIssueSources.Required, BuiltInValidationIssueSources.Expression],
         });
         return { ...result, patch, savedData: next };
       }
