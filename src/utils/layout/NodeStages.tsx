@@ -48,15 +48,25 @@ export function NodeStagesProvider({ children }: PropsWithChildren) {
     }
     setTimeout(() => {
       if (numHooksRegistered.current === numHooksFinished.current) {
-        onStageDone.current.forEach((cb) => cb());
-        onStageDone.current = [];
-
-        const currentIndex = NodeStageList.indexOf(currentStage);
-        const nextStage = NodeStageList[currentIndex + 1];
-        if (nextStage) {
-          console.log('debug, Advancing to next stage:', nextStage, 'as', numHooksRegistered.current, 'hooks are done');
-          setCurrentStage(nextStage);
-        }
+        setCurrentStage((current) => {
+          const currentIndex = NodeStageList.indexOf(current);
+          const nextStage = NodeStageList[currentIndex + 1];
+          if (nextStage) {
+            console.log(
+              'debug, Advancing to next stage:',
+              nextStage,
+              'as',
+              numHooksRegistered.current,
+              'hooks are done',
+            );
+            numHooksRegistered.current = 0;
+            numHooksFinished.current = 0;
+            onStageDone.current.forEach((cb) => cb());
+            onStageDone.current = [];
+            return nextStage;
+          }
+          return current;
+        });
       }
     }, 10);
   }
@@ -88,7 +98,6 @@ function makeHooks(stage: Stage) {
       if (!thisHookRanBefore.current && shouldRun) {
         numHooksRegistered.current++;
         thisHookRanBefore.current = true;
-        console.log('debug, Registered hook for stage:', stage);
       }
 
       const incrementBy = React.useRef(1);

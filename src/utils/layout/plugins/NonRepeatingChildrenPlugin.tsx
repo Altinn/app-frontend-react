@@ -1,5 +1,6 @@
 import { CG } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
+import { NodePathNotFound } from 'src/utils/layout/NodePathNotFound';
 import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { CompCapabilities } from 'src/codegen/Config';
@@ -163,7 +164,7 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
   pickChild<C extends CompTypes>(state: DefPluginState<ToInternal<E>>, childId: string, parentPath: string[]) {
     const child = state[this.settings.externalProp][childId];
     if (!child) {
-      throw new Error(`Child with id ${childId} not found in /${parentPath.join('/')}`);
+      throw new NodePathNotFound(`Child with id ${childId} not found in /${parentPath.join('/')}`);
     }
     return child as ItemStore<C>;
   }
