@@ -88,7 +88,7 @@ export const PDFView = () => {
           level={1}
           size='large'
         >
-          {isPayment ? `${appName} - ${langAsString('payment.receipt_title')}` : appName}
+          {isPayment ? `${appName} - ${langAsString('payment.receipt.title')}` : appName}
         </Heading>
       </ConditionalWrapper>
 

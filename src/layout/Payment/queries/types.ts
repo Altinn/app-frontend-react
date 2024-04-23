@@ -16,6 +16,41 @@ export interface PaymentDetails {
   redirectUrl: string;
   receiptUrl?: string;
   status: PaymentStatus;
+  payer: Payer;
+}
+interface PhoneNumber {
+  prefix: string | null;
+  number: string | null;
+}
+
+interface Person {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phoneNumber?: PhoneNumber;
+}
+
+interface ShippingAddress {
+  name: string;
+  addressLine1: string;
+  addressLine2: string;
+  postalCode: string;
+  city: string;
+  country: string;
+}
+
+interface BillingAddress extends ShippingAddress {}
+
+interface Company {
+  organisationNumber?: string;
+  name?: string;
+}
+
+interface Payer {
+  privatePerson?: Person;
+  company?: Company;
+  shippingAddress?: ShippingAddress;
+  billingAddress?: BillingAddress;
 }
 
 export interface OrderDetails {
@@ -25,6 +60,10 @@ export interface OrderDetails {
   totalPriceExVat: number;
   totalVat: number;
   totalPriceIncVat: number;
+  receiver?: {
+    name?: string;
+    organisationNumber?: string;
+  };
 }
 
 export interface OrderLine {

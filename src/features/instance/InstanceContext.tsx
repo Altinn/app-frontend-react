@@ -32,6 +32,7 @@ export interface InstanceContext {
   // Methods/utilities
   changeData: ChangeInstanceData;
   reFetch: () => Promise<void>;
+  instanceReferenceNumber: () => string;
 }
 
 export type ChangeInstanceData = (callback: (instance: IInstance | undefined) => IInstance | undefined) => void;
@@ -144,6 +145,7 @@ const InnerInstanceProvider = ({
         partyId,
         instanceGuid,
         instanceId: `${partyId}/${instanceGuid}`,
+        instanceReferenceNumber: () => 'dings',
       }}
     >
       <ProcessProvider instance={data}>{children}</ProcessProvider>
