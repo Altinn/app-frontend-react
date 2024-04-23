@@ -2,6 +2,8 @@ import type { CompDef, NodeRef } from '..';
 
 import { CG } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
+import { NodePathNotFound } from 'src/utils/layout/NodePathNotFound';
+import { isNodeRef } from 'src/utils/layout/nodeRef';
 import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { GridRows } from 'src/layout/common.generated';
@@ -24,7 +26,9 @@ interface Config<Type extends CompTypes> {
     rows: GridRows;
   };
   extraState: {
-    rowItems: any[];
+    gridItems: {
+      [nodeId: string]: ItemStore;
+    };
   };
   extraInItem: {
     rows: GridRowsInternal;
@@ -55,13 +59,30 @@ export class GridRowsPlugin<Type extends CompTypes>
     return `'${this.component!.type}'`;
   }
 
-  claimChildren(_props: DefPluginChildClaimerProps<Config<Type>>): void {
-    throw new Error('Method not implemented: claimChildren');
+  claimChildren({ item, claimChild, getProto }: DefPluginChildClaimerProps<Config<Type>>): void {
+    for (const row of item.rows || []) {
+      for (const cell of row.cells) {
+        if (cell && 'component' in cell && cell.component) {
+          const proto = getProto(cell.component);
+          if (!proto) {
+            continue;
+          }
+          if (!proto.capabilities.renderInTable) {
+            window.logWarn(
+              `Grid-like component included a component '${cell.component}', which ` +
+                `is a '${proto.type}' and cannot be rendered in a table.`,
+            );
+            continue;
+          }
+          claimChild(cell.component);
+        }
+      }
+    }
   }
 
   stateFactory(_props: DefPluginStateFactoryProps<Config<Type>>): Config<Type>['extraState'] {
     return {
-      rowItems: [],
+      gridItems: {},
     };
   }
 
@@ -72,25 +93,38 @@ export class GridRowsPlugin<Type extends CompTypes>
   }
 
   pickDirectChildren(
-    _state: DefPluginState<Config<Type>>,
+    state: DefPluginState<Config<Type>>,
     _restriction?: ChildLookupRestriction | undefined,
   ): NodeRef[] {
-    throw new Error('Method not implemented: pickDirectChildren');
+    const refs: NodeRef[] = [];
+    for (const row of state.item?.rows || []) {
+      for (const cell of row.cells) {
+        if (isNodeRef(cell)) {
+          refs.push(cell);
+        }
+      }
+    }
+
+    return refs;
   }
 
   pickChild<C extends CompTypes>(
-    _state: DefPluginState<Config<Type>>,
-    _childId: string,
-    _parentPath: string[],
+    state: DefPluginState<Config<Type>>,
+    childId: string,
+    parentPath: string[],
   ): ReturnType<CompDef<C>['stateFactory']> {
-    throw new Error('Method not implemented: pickChild');
+    const child = state.gridItems[childId];
+    if (!child) {
+      throw new NodePathNotFound(`Child with id ${childId} not found in /${parentPath.join('/')}`);
+    }
+    return child;
   }
 
-  addChild(_state: DefPluginState<Config<Type>>, _childNode: LayoutNode, _childStore: ItemStore): void {
-    throw new Error('Method not implemented: addChild');
+  addChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode, childStore: ItemStore): void {
+    state.gridItems[childNode.getId()] = childStore;
   }
 
-  removeChild(_state: DefPluginState<Config<Type>>, _childNode: LayoutNode): void {
-    throw new Error('Method not implemented: removeChild');
+  removeChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode): void {
+    delete state.gridItems[childNode.getId()];
   }
 }
