@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { useApplicationSettings } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
-import { usePageNavigationConfig } from 'src/features/form/layout/PageNavigationContext';
+import { usePageNavigationConfigSelectors } from 'src/features/form/layout/PageNavigationContext';
 import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxInstanceDataSources } from 'src/features/instance/InstanceContext';
@@ -45,7 +45,7 @@ export function useExpressionDataSources(): HierarchyDataSources {
   const devToolsHiddenComponents = useDevToolsStore((state) => state.hiddenComponents);
   const langToolsRef = useLangToolsRef();
   const currentLanguage = useCurrentLanguage();
-  const pageNavigationConfig = usePageNavigationConfig();
+  const pageNavigationConfigSelectors = usePageNavigationConfigSelectors();
   const authContext = useMemo(() => buildAuthContext(process?.currentTask), [process?.currentTask]);
 
   return useMemo(
@@ -53,7 +53,7 @@ export function useExpressionDataSources(): HierarchyDataSources {
       formDataSelector,
       attachments: attachments || emptyObject,
       layoutSettings,
-      pageNavigationConfig,
+      pageNavigationConfigSelectors,
       process,
       options: options || emptyObject,
       applicationSettings,
@@ -68,7 +68,7 @@ export function useExpressionDataSources(): HierarchyDataSources {
       formDataSelector,
       attachments,
       layoutSettings,
-      pageNavigationConfig,
+      pageNavigationConfigSelectors,
       options,
       process,
       applicationSettings,

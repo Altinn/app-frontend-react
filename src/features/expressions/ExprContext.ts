@@ -5,6 +5,7 @@ import { prettyErrors, prettyErrorsToConsole } from 'src/features/expressions/pr
 import type { IAttachments } from 'src/features/attachments';
 import type { EvalExprOptions } from 'src/features/expressions/index';
 import type { ExprConfig, Expression, ExprPositionalArgs } from 'src/features/expressions/types';
+import type { PageNavigationConfigSelectors } from 'src/features/form/layout/PageNavigationContext';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { useAllOptionsSelector } from 'src/features/options/useAllOptions';
 import type { FormDataSelector } from 'src/layout';
@@ -17,7 +18,6 @@ import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 export type PageNavigationConfig = {
   currentView?: string;
   order?: string[];
-  isHiddenPage: (pageKey: string) => boolean;
   hiddenExpr: IHiddenLayoutsExternal;
 };
 
@@ -28,7 +28,7 @@ export interface ContextDataSources {
   formDataSelector: FormDataSelector;
   attachments: IAttachments;
   layoutSettings: ILayoutSettings;
-  pageNavigationConfig: PageNavigationConfig;
+  pageNavigationConfigSelectors: PageNavigationConfigSelectors;
   options: ReturnType<typeof useAllOptionsSelector>;
   authContext: Partial<IAuthContext> | null;
   langToolsRef: {

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { usePageNavigationConfig } from 'src/features/form/layout/PageNavigationContext';
+import { useIsHiddenPage, usePageNavigationConfig } from 'src/features/form/layout/PageNavigationContext';
 import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { usePdfFormatQuery } from 'src/features/pdf/usePdfFormatQuery';
 import { getComponentDef } from 'src/layout';
@@ -22,6 +22,7 @@ export const usePdfPage = (): LayoutPage | null => {
   const pageNavigationConfig = usePageNavigationConfig();
   const dataSources = useExpressionDataSources();
   const pdfLayoutName = useLayoutSettings().pages.pdfLayoutName;
+  const isHiddenPage = useIsHiddenPage();
 
   const customPdfPage = pdfLayoutName ? layoutPages.findLayout(pdfLayoutName) : undefined;
   const method = customPdfPage ? 'custom' : 'auto';
@@ -32,10 +33,10 @@ export const usePdfPage = (): LayoutPage | null => {
 
   const automaticPdfPage = useMemo(() => {
     if (readyForPrint && method === 'auto') {
-      return generateAutomaticPage(pdfFormat!, pageNavigationConfig!, layoutPages!, dataSources);
+      return generateAutomaticPage(pdfFormat!, pageNavigationConfig!, isHiddenPage, layoutPages!, dataSources);
     }
     return null;
-  }, [readyForPrint, method, pdfFormat, pageNavigationConfig, layoutPages, dataSources]);
+  }, [readyForPrint, method, pdfFormat, pageNavigationConfig, layoutPages, dataSources, isHiddenPage]);
 
   if (!readyForPrint) {
     return null;
@@ -51,6 +52,7 @@ export const usePdfPage = (): LayoutPage | null => {
 function generateAutomaticPage(
   pdfFormat: IPdfFormat,
   pageNavigationConfig: PageNavigationConfig,
+  isHiddenPage: (pageId: string) => boolean,
   layoutPages: LayoutPages,
   dataSources: HierarchyDataSources,
 ): LayoutPage {
@@ -74,7 +76,6 @@ function generateAutomaticPage(
 
   const excludedPages = new Set(pdfFormat?.excludedPages);
   const excludedComponents = new Set(pdfFormat?.excludedComponents);
-  const isHiddenPage = pageNavigationConfig.isHiddenPage;
   const pageOrder = pageNavigationConfig.order;
 
   // Iterate over all pages, and add all components that should be included in the automatic PDF as summary components

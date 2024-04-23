@@ -51,12 +51,15 @@ export function DefaultNodeGenerator({ children, baseId }: PropsWithChildren<Bas
   const hiddenParent = NodeGeneratorInternal.useHiddenState();
   const hiddenByExpression = useResolvedExpression(ExprVal.Boolean, node, item.hidden, false);
   const hiddenByRules = Hidden.useIsHiddenViaRules(node);
-  const hidden: HiddenStateNode = {
-    parent: hiddenParent,
-    hiddenByExpression,
-    hiddenByRules,
-    hiddenByTracks: false,
-  };
+  const hidden: HiddenStateNode = useMemo(
+    () => ({
+      parent: hiddenParent,
+      hiddenByExpression,
+      hiddenByRules,
+      hiddenByTracks: false,
+    }),
+    [hiddenByExpression, hiddenByRules, hiddenParent],
+  );
 
   const resolvedItem = useResolvedItem({ node, hidden, item });
 
