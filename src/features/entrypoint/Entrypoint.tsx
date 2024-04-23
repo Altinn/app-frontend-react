@@ -38,6 +38,12 @@ const RenderStateless = () => (
 );
 
 const ShowOrInstantiate: React.FC<{ show: ShowTypes }> = ({ show }) => {
+  const isStateless = useIsStatelessApp();
+
+  if (isStateless) {
+    return <RenderStateless />;
+  }
+
   if (show === 'select-instance') {
     return (
       <Navigate
@@ -49,14 +55,6 @@ const ShowOrInstantiate: React.FC<{ show: ShowTypes }> = ({ show }) => {
 
   if (show === 'new-instance') {
     return <InstantiateContainer />;
-  }
-
-  if (show === 'stateless') {
-    return <RenderStateless />;
-  }
-
-  if (show === 'stateless-anon') {
-    return <RenderStateless />;
   }
 
   window.logErrorOnce('Unknown applicationMetadata.onEntry type:', show);

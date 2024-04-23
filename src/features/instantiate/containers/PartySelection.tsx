@@ -94,7 +94,7 @@ export const PartySelection = () => {
 
   const onSelectParty = async (party: IParty) => {
     await selectParty(party);
-    navigate('/instance-selection');
+    navigate('/?');
   };
 
   function renderParties() {

@@ -29,7 +29,7 @@ export interface IOnEntry {
   instanceSelection?: IInstanceSelection;
 }
 
-export type ShowTypes = 'new-instance' | 'select-instance' | 'stateless' | 'stateless-anon';
+export type ShowTypes = 'new-instance' | 'select-instance' | string;
 
 export type IInstanceSelection = {
   rowsPerPageOptions: number[];

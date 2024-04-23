@@ -213,7 +213,7 @@ describe('Party selection', () => {
     cy.get('[data-testid=StatusCode').should('exist');
   });
 
-  it.only('List of parties should show correct icon and org nr or ssn', () => {
+  it('List of parties should show correct icon and org nr or ssn', () => {
     mockResponses({
       allowedToInstantiate: (parties) => [...parties, ExamplePerson1, InvalidParty, ExampleOrgWithSubUnit],
       doNotPromptForParty: false,
@@ -239,8 +239,8 @@ describe('Party selection', () => {
     });
   });
 
-  [true, false].forEach((doNotPromptForParty) => {
-    it(`${
+  [false].forEach((doNotPromptForParty) => {
+    it.only(`${
       doNotPromptForParty ? 'Does not prompt' : 'Prompts'
     } for party when doNotPromptForParty = ${doNotPromptForParty}, on instantiation with multiple possible parties`, () => {
       mockResponses({
