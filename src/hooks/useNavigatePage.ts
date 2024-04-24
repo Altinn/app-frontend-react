@@ -1,8 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { useLocation, useMatch } from 'react-router-dom';
 import type { NavigateOptions } from 'react-router-dom';
-
-import { create } from 'zustand';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import {
@@ -13,9 +10,15 @@ import {
 import { useLaxLayoutSettings, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxProcessData, useTaskType } from 'src/features/instance/ProcessContext';
+import {
+  useAllNavigationParams,
+  useNavigationParam,
+  useSetNavigationEffect,
+} from 'src/features/routing/AppRoutingContext';
 import { AppRouter } from 'src/index';
 import { ProcessTaskType } from 'src/types';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
+import type { NavigationEffectCb } from 'src/features/routing/AppRoutingContext';
 
 type NavigateToPageOptions = {
   replace?: boolean;
@@ -32,29 +35,6 @@ export enum SearchParams {
   FocusComponentId = 'focusComponentId',
 }
 
-export const useNavigationParams = () => {
-  const instanceMatch = useMatch('/instance/:partyId/:instanceGuid');
-  const taskIdMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId');
-  const pageKeyMatch = useMatch('/instance/:partyId/:instanceGuid/:taskId/:pageKey');
-  const statelessMatch = useMatch('/:pageKey');
-  const queryKeys = useLocation().search ?? '';
-
-  const partyId = pageKeyMatch?.params.partyId ?? taskIdMatch?.params.partyId ?? instanceMatch?.params.partyId;
-  const instanceGuid =
-    pageKeyMatch?.params.instanceGuid ?? taskIdMatch?.params.instanceGuid ?? instanceMatch?.params.instanceGuid;
-  const taskId = pageKeyMatch?.params.taskId ?? taskIdMatch?.params.taskId;
-  const _pageKey = pageKeyMatch?.params.pageKey ?? statelessMatch?.params.pageKey;
-  const pageKey = _pageKey === undefined ? undefined : decodeURIComponent(_pageKey);
-
-  return {
-    partyId,
-    instanceGuid,
-    taskId,
-    pageKey,
-    queryKeys,
-  };
-};
-
 const emptyArray: never[] = [];
 
 /**
@@ -63,12 +43,12 @@ const emptyArray: never[] = [];
  * Takes an optional callback
  */
 const useNavigate = () => {
-  const storeCallback = useNavigationEffectStore((state) => state.storeCallback);
+  const storeCallback = useSetNavigationEffect();
   const setReturnToView = useSetReturnToView();
   const setSummaryNodeOfOrigin = useSetSummaryNodeOfOrigin();
 
   return useCallback(
-    (path: string, options?: NavigateOptions, cb?: Callback) => {
+    (path: string, options?: NavigateOptions, cb?: NavigationEffectCb) => {
       setReturnToView?.(undefined);
       setSummaryNodeOfOrigin?.(undefined);
       if (cb) {
@@ -80,7 +60,7 @@ const useNavigate = () => {
   );
 };
 
-export const useCurrentView = () => useNavigationParams().pageKey;
+export const useCurrentView = () => useNavigationParam('pageKey');
 export const useOrder = () => {
   const maybeLayoutSettings = useLaxLayoutSettings();
   const orderWithHidden = maybeLayoutSettings === ContextNotProvided ? emptyArray : maybeLayoutSettings.pages.order;
@@ -95,7 +75,7 @@ export const useNavigatePage = () => {
   const lastTaskId = processTasks?.slice(-1)[0]?.elementId;
   const navigate = useNavigate();
 
-  const { partyId, instanceGuid, taskId, pageKey, queryKeys } = useNavigationParams();
+  const { partyId, instanceGuid, taskId, pageKey, queryKeys } = useAllNavigationParams();
   const { autoSaveBehavior } = usePageSettings();
 
   const taskType = useTaskType(taskId);
@@ -299,14 +279,3 @@ export function focusMainContent(options?: NavigateToPageOptions) {
     document.getElementById('main-content')?.focus({ preventScroll: true });
   }
 }
-
-type Callback = () => void;
-type NavigationEffectStore = {
-  callback: Callback | null;
-  storeCallback: (cb: Callback | null) => void;
-};
-
-export const useNavigationEffectStore = create<NavigationEffectStore>((set) => ({
-  callback: null,
-  storeCallback: (cb: Callback) => set({ callback: cb }),
-}));

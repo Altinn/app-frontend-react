@@ -19,7 +19,8 @@ import { PDFWrapper } from 'src/features/pdf/PDFWrapper';
 import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { Feedback } from 'src/features/processEnd/feedback/Feedback';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
-import { TaskKeys, useNavigatePage, useNavigationParams } from 'src/hooks/useNavigatePage';
+import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
+import { TaskKeys, useNavigatePage } from 'src/hooks/useNavigatePage';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 
@@ -85,7 +86,7 @@ export function ProcessWrapperWrapper() {
 
 export const ProcessWrapper = () => {
   const { isCurrentTask, isValidTaskId } = useNavigatePage();
-  const { taskId } = useNavigationParams();
+  const taskId = useNavigationParam('taskId');
   const taskType = useTaskType(taskId);
   const realTaskType = useRealTaskType();
   const layoutSets = useLayoutSets();

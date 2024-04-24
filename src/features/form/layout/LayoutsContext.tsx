@@ -11,7 +11,7 @@ import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSetId';
 import { useHasInstance } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
-import { useNavigationParams } from 'src/hooks/useNavigatePage';
+import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import type { ExprConfig } from 'src/features/expressions/types';
 import type { ILayoutCollection, ILayouts } from 'src/layout/layout';
 import type { IExpandedWidthLayouts, IHiddenLayoutsExternal } from 'src/types';
@@ -53,7 +53,7 @@ const { Provider, useCtx } = delayedContext(() =>
 export function useLayoutSetId() {
   const layoutSets = useLayoutSets();
   const currentProcessLayoutSetId = useCurrentLayoutSetId();
-  const { taskId } = useNavigationParams();
+  const taskId = useNavigationParam('taskId');
 
   const layoutSetId = taskId != null ? layoutSets?.sets.find((set) => set.tasks?.includes(taskId))?.id : undefined;
 

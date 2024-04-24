@@ -10,7 +10,8 @@ import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
-import { useNavigatePage, useNavigationParams } from 'src/hooks/useNavigatePage';
+import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
+import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { isSpecificClientAction } from 'src/layout/CustomButton/typeHelpers';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { promisify } from 'src/utils/promisify';
@@ -112,7 +113,8 @@ type UsePerformActionMutation = {
 
 function useHandleServerActionMutation(lockTools: FormDataLockTools): UsePerformActionMutation {
   const { doPerformAction } = useAppMutations();
-  const { partyId, instanceGuid } = useNavigationParams();
+  const partyId = useNavigationParam('partyId');
+  const instanceGuid = useNavigationParam('instanceGuid');
   const { handleClientActions, handleDataModelUpdate } = useHandleClientActions();
 
   const mutation = useMutation({

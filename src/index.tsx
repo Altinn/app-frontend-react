@@ -33,6 +33,7 @@ import { TextResourcesProvider } from 'src/features/language/textResources/TextR
 import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
 import { PartyProvider } from 'src/features/party/PartiesProvider';
 import { ProfileProvider } from 'src/features/profile/ProfileProvider';
+import { AppRoutingProvider } from 'src/features/routing/AppRoutingContext';
 import * as queries from 'src/queries/queries';
 
 import 'react-toastify/dist/ReactToastify.css';
@@ -44,7 +45,9 @@ export const AppRouter = createHashRouter([
     path: '*',
     element: (
       <ErrorBoundary>
-        <Root />
+        <AppRoutingProvider>
+          <Root />
+        </AppRoutingProvider>
       </ErrorBoundary>
     ),
   },
@@ -62,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <LangToolsStoreProvider>
                 <ThemeWrapper>
                   <UiConfigProvider>
-                    <RouterProvider router={router} />
+                    <RouterProvider router={AppRouter} />
                   </UiConfigProvider>
                 </ThemeWrapper>
               </LangToolsStoreProvider>
