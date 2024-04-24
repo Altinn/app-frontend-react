@@ -6,7 +6,7 @@ export enum PaymentStatus {
 
 export interface PaymentResponsePayload {
   taskId: string;
-  paymentProcessorId: string;
+  status: PaymentStatus;
   orderDetails: OrderDetails;
   paymentDetails?: PaymentDetails;
 }
@@ -15,7 +15,6 @@ export interface PaymentDetails {
   paymentId: string;
   redirectUrl: string;
   receiptUrl?: string;
-  status: PaymentStatus;
   payer: Payer;
   cardDetails?: CardDetails;
 }
@@ -61,6 +60,7 @@ interface Payer {
 }
 
 export interface OrderDetails {
+  paymentProcessorId: string;
   orderReference?: string;
   currency: string;
   orderLines: OrderLine[];

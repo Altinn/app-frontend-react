@@ -11,7 +11,7 @@ export const usePaymentInformationQuery = (partyId?: string, instanceGuid?: stri
     queryFn: async () => {
       if (partyId && instanceGuid) {
         const result = await fetchPaymentInformation(partyId, instanceGuid);
-        if (result?.paymentDetails?.status === 'Paid') {
+        if (result?.status === 'Paid') {
           next && next({ action: 'confirm', nodeId: 'next-button' });
         }
         return result;

@@ -49,44 +49,43 @@ export const PaymentComponent = ({ node }) => {
         />
       }
       <div className={classes.container}>
-        {paymentInfo?.paymentDetails?.status === PaymentStatus.Failed && (
+        {paymentInfo?.status === PaymentStatus.Failed && (
           <Alert severity='warning'>
             <Lang id='payment.alert.failed' />
           </Alert>
         )}
-        {paymentInfo?.paymentDetails?.status === PaymentStatus.Paid && (
+        {paymentInfo?.status === PaymentStatus.Paid && (
           <Alert severity={'info'}>
             <Lang id='payment.alert.paid' />
           </Alert>
         )}
       </div>
-      {paymentInfo?.paymentDetails && (
-        <div className={classes.buttonContainer}>
-          {paymentInfo?.paymentDetails?.status !== PaymentStatus.Paid ? (
-            <>
-              <Button
-                variant='secondary'
-                onClick={() => next && next({ action: 'reject', nodeId: 'reject-button' })}
-              >
-                <Lang id='general.back' />
-              </Button>
-              <Button
-                color='success'
-                onClick={() => performPayment()}
-              >
-                <Lang id='payment.pay' />
-              </Button>
-            </>
-          ) : (
+      <div className={classes.buttonContainer}>
+        {paymentInfo?.status === PaymentStatus.Created && (
+          <>
             <Button
               variant='secondary'
-              onClick={() => next && next({ action: 'confirm', nodeId: 'next-button' })}
+              onClick={() => next && next({ action: 'reject', nodeId: 'reject-button' })}
             >
-              <Lang id='general.next' />
+              <Lang id='general.back' />
             </Button>
-          )}
-        </div>
-      )}
+            <Button
+              color='success'
+              onClick={() => performPayment()}
+            >
+              <Lang id='payment.pay' />
+            </Button>
+          </>
+        )}
+        {paymentInfo?.status === PaymentStatus.Paid && (
+          <Button
+            variant='secondary'
+            onClick={() => next && next({ action: 'confirm', nodeId: 'next-button' })}
+          >
+            <Lang id='general.next' />
+          </Button>
+        )}
+      </div>
     </>
   );
 };

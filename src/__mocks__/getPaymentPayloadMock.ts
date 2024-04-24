@@ -2,9 +2,10 @@ import { PaymentStatus } from 'src/layout/Payment/queries/types';
 import type { PaymentResponsePayload } from 'src/layout/Payment/queries/types';
 
 export const paymentResponsePayload: PaymentResponsePayload = {
-  taskId: '00cd000065f03e6a75269b94dc7c38df',
-  paymentProcessorId: '00cd000065f03e6a75269b94dc7c3123',
+  taskId: 'Task_2',
+  status: PaymentStatus.Paid,
   orderDetails: {
+    paymentProcessorId: 'Nets Easy',
     currency: 'NOK',
     orderLines: [
       {
@@ -35,7 +36,6 @@ export const paymentResponsePayload: PaymentResponsePayload = {
     redirectUrl:
       'https://test.checkout.dibspayment.eu/hostedpaymentpage/?checkoutKey=fc8ce23b003e4c20bc37000506fdb4a0&pid=00cd000065f03e6a75269b94dc7c38df',
     receiptUrl: 'https://test.checkout.dibspayment.eu/receipt/?paymentId=00cd000065f03e6a75269b94dc7c38df',
-    status: PaymentStatus.Paid,
     payer: {
       privatePerson: {
         firstName: 'John',
