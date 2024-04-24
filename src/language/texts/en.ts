@@ -276,6 +276,8 @@ export function en() {
         address: 'Address',
         org_num: 'Org number',
         account_number: 'Account number',
+        card_number: 'Card number',
+        card_expiry: 'Card expiry',
         email: 'Email',
       },
       component: {

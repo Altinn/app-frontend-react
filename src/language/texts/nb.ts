@@ -279,6 +279,8 @@ export function nb(): FixedLanguageList {
         address: 'Addresse',
         org_num: 'Organisasjonsnummer',
         account_number: 'Kontonummer',
+        card_number: 'Kortnummer',
+        card_expiry: 'Utløpsdato',
         email: 'E-post',
       },
       component: {

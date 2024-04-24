@@ -20,10 +20,13 @@ export const PaymentDetailsTable = ({ orderDetails, tableTitle, description, ...
     {...rest}
     className={cn(classes.orderDetailsTable, rest.className)}
   >
-    <Caption
-      title={tableTitle}
-      description={description}
-    />
+    {tableTitle && (
+      <Caption
+        title={tableTitle}
+        description={description}
+      />
+    )}
+
     <Table.Head>
       <Table.Row>
         <Table.HeaderCell>

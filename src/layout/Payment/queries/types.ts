@@ -17,7 +17,14 @@ export interface PaymentDetails {
   receiptUrl?: string;
   status: PaymentStatus;
   payer: Payer;
+  cardDetails?: CardDetails;
 }
+
+interface CardDetails {
+  maskedPan?: string;
+  expiryDate?: string;
+}
+
 interface PhoneNumber {
   prefix: string | null;
   number: string | null;

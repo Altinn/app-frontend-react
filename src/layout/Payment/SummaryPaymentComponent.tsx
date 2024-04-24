@@ -2,8 +2,6 @@ import React from 'react';
 
 import { Alert, Paragraph } from '@digdir/designsystemet-react';
 
-import type { PropsFromGenericComponent } from '..';
-
 import { Caption } from 'src/components/form/Caption';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
@@ -11,9 +9,9 @@ import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 import { getInstanceReferenceNumber } from 'src/layout/InstanceInformation/InstanceInformationComponent';
 import classes from 'src/layout/Payment/PaymentComponent.module.css';
 import { usePaymentInformationQuery } from 'src/layout/Payment/queries/usePaymentInformationQuery';
+import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTable';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-export type IPaymentProps = PropsFromGenericComponent<'Payment'>;
 
 interface ISummaryPaymentComponentProps {
   changeText: string | null;
@@ -24,32 +22,11 @@ interface ISummaryPaymentComponentProps {
 }
 
 export const SummaryPaymentComponent = ({ targetNode }: ISummaryPaymentComponentProps) => {
-  console.log(targetNode.item.textResourceBindings);
   const textResourceBindings = targetNode.item.textResourceBindings;
-  // Render these values in the receipt PDF:
-  // From API:
-  //   - Payment ID
-  //   - Payment date
-  //   - Order date
-  //   - Masked card number, last 4 digits when card was used
-  //   - Order details / line items
-  //     - Total amount
-  //     - currency
-  // From the instance:
-  //   - Order number / reference id
-  // From configuration:
-  //   - contact details
-
   const { partyId, instanceGuid } = useInstanceIdParams();
   const { data: paymentInfo } = usePaymentInformationQuery(partyId, instanceGuid);
   const instance = useLaxInstanceData();
-
-  // const payer = paymentInfo?.paymentDetails?.payer.company ? paymentInfo?.paymentDetails?.payer.company : paymentInfo?.paymentDetails?.payer.privatePerson
-
-  // const payer = paymentInfo?.paymentDetails?.payer.company ?? paymentInfo?.paymentDetails?.payer.privatePerson;
-
   const privatePersonPayer = paymentInfo?.paymentDetails?.payer.privatePerson; //.company ?? paymentInfo?.paymentDetails?.payer.privatePerson;
-  const organisationPayer = paymentInfo?.paymentDetails?.payer.company;
 
   return (
     <>
@@ -100,21 +77,12 @@ export const SummaryPaymentComponent = ({ targetNode }: ISummaryPaymentComponent
           </Alert>
         )}
       </div>
-      {/*<PaymentDetailsTable*/}
-      {/*  orderDetails={paymentInfo?.orderDetails}*/}
-      {/*  tableTitle={*/}
-      {/*    <Heading*/}
-      {/*      level={2}*/}
-      {/*      size='medium'*/}
-      {/*    >*/}
-      {/*      <Lang id='payment.summary' />*/}
-      {/*    </Heading>*/}
-      {/*  }*/}
-      {/*  className={classes.container}*/}
-      {/*/>*/}
 
-      <div style={{ display: 'flex', width: '100%' }}>
-        <table style={{ flex: 1 }}>
+      <div
+        className={classes.senderReceiverInfoContainer}
+        style={{ display: 'flex', width: '100%', marginBottom: '' }}
+      >
+        <table style={{ width: '100%' }}>
           <Caption title={<Lang id={'payment.receipt.receiver'} />} />
 
           <tr>
@@ -161,91 +129,55 @@ export const SummaryPaymentComponent = ({ targetNode }: ISummaryPaymentComponent
         </table>
 
         {privatePersonPayer && (
-          <table style={{ flex: 1 }}>
+          <table style={{ width: '100%' }}>
             <Caption title={<Lang id={'payment.receipt.payer'} />} />
 
             {privatePersonPayer.firstName && (
               <tr>
-                <th>Navn</th>
+                <th>
+                  <Lang id={'payment.receipt.name'}></Lang>
+                </th>
                 <td>{paymentInfo?.paymentDetails?.paymentId}</td>
               </tr>
             )}
             {privatePersonPayer.phoneNumber?.number && (
               <tr>
-                <th>Telefon</th>
+                <th>
+                  <Lang id={'payment.receipt.phone'}></Lang>
+                </th>
                 <td>{privatePersonPayer.phoneNumber.number}</td>
               </tr>
             )}
 
             <tr>
-              <th>E-post</th>
+              <th>
+                <Lang id={'payment.receipt.email'}></Lang>
+              </th>
               <td>{privatePersonPayer.email}</td>
+            </tr>
+
+            <tr>
+              <th>
+                <Lang id={'payment.receipt.card_number'}></Lang>
+              </th>
+              <td>{paymentInfo?.paymentDetails?.cardDetails?.maskedPan}</td>
+            </tr>
+            <tr>
+              <th>
+                <Lang id={'payment.receipt.card_expiry'}></Lang>
+              </th>
+              <td>{paymentInfo?.paymentDetails?.cardDetails?.expiryDate}</td>
             </tr>
           </table>
         )}
       </div>
 
-      {/*<div className={classes.receipDetailsContainer}>*/}
-      {/*  <Heading*/}
-      {/*    level={3}*/}
-      {/*    size='small'*/}
-      {/*  >*/}
-      {/*    Mottaker*/}
-      {/*  </Heading>*/}
-
-      {/*  <Table></Table>*/}
-
-      {/*  <div className={classes.infoContainer}>*/}
-      {/*    <div className={classes.infoDetailsContainer}>*/}
-      {/*      <span>Navn:</span>*/}
-      {/*      <span>Telefon:</span>*/}
-      {/*      <span>Adresse:</span>*/}
-      {/*      <span>Organisasjonsnummer:</span>*/}
-      {/*      <span>Kontonumer:</span>*/}
-      {/*      <span>E-post:</span>*/}
-      {/*    </div>*/}
-      {/*    <div className={classes.infoDetailsContainer}>*/}
-      {/*      <span>{textResourceBindings?.receiptOrgName}</span>*/}
-      {/*      <span>{textResourceBindings?.receiptPhoneNumber}</span>*/}
-      {/*      <span>*/}
-      {/*        {textResourceBindings?.receiptStreetAdress} {textResourceBindings?.receiptCity}{' '}*/}
-      {/*        {textResourceBindings?.receiptCountry}*/}
-      {/*      </span>*/}
-      {/*      <span>{textResourceBindings?.receiptOrgNumber}</span>*/}
-      {/*      <span>{textResourceBindings?.receiptBankAcountNumber}</span>*/}
-      {/*      <span>{textResourceBindings?.receiptEmailAdress}</span>*/}
-      {/*    </div>*/}
-      {/*  </div>*/}
-      {/*</div>*/}
-      {/*<div>*/}
-      {/*  <Heading*/}
-      {/*    level={3}*/}
-      {/*    size='small'*/}
-      {/*  >*/}
-      {/*    Avsender*/}
-      {/*  </Heading>*/}
-      {/*  <div className={classes.infoContainer}>*/}
-      {/*    <div className={classes.infoDetailsContainer}>*/}
-      {/*      <span>Navn:</span>*/}
-      {/*      <span>Telefon:</span>*/}
-      {/*      <span>Adresse:</span>*/}
-      {/*      <span>Organisasjonsnummer:</span>*/}
-      {/*      <span>Kontonumer:</span>*/}
-      {/*      <span>E-post:</span>*/}
-      {/*    </div>*/}
-      {/*    <div className={classes.infoDetailsContainer}>*/}
-      {/*      <span>{textResourceBindings?.receiptOrgName}</span>*/}
-      {/*      <span>{textResourceBindings?.receiptPhoneNumber}</span>*/}
-      {/*      <span>*/}
-      {/*        {textResourceBindings?.receiptStreetAdress} {textResourceBindings?.receiptCity}{' '}*/}
-      {/*        {textResourceBindings?.receiptCountry}*/}
-      {/*      </span>*/}
-      {/*      <span>{textResourceBindings?.receiptOrgNumber}</span>*/}
-      {/*      <span>{textResourceBindings?.receiptBankAcountNumber}</span>*/}
-      {/*      <span>{textResourceBindings?.receiptEmailAdress}</span>*/}
-      {/*    </div>*/}
-      {/*  </div>*/}
-      {/*</div>*/}
+      <PaymentDetailsTable
+        orderDetails={paymentInfo?.orderDetails}
+        tableTitle={textResourceBindings?.title}
+        description={textResourceBindings?.description}
+        className={classes.container}
+      />
     </>
   );
 };
