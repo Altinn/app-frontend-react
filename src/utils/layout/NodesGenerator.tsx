@@ -177,7 +177,7 @@ function Page({ layout, name, layoutSet }: PageProps) {
   }
 
   // Removes the page from the store when is removed from the React tree
-  NodeStages.S1AddNodes.useEffect(
+  NodeStages.AddNodes.useEffect(
     () => () => {
       removePage(page.pageKey);
       page.unregisterCollection();
@@ -185,7 +185,7 @@ function Page({ layout, name, layoutSet }: PageProps) {
     [page, removePage],
   );
 
-  NodeStages.S2MarkHidden.useEffect(() => {
+  NodeStages.MarkHidden.useEffect(() => {
     setPageProp(name, 'hidden', hidden);
   }, [hidden, name, setPageProp]);
 

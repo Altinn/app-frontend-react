@@ -10,11 +10,11 @@ interface Props {
 
 describe('NodeStages', () => {
   function TestComponent1({ logger }: Props) {
-    NodeStages.S2MarkHidden.useEffect(() => {
+    NodeStages.MarkHidden.useEffect(() => {
       logger('useEffect in stage2');
     }, []);
 
-    NodeStages.S1AddNodes.useEffect(() => {
+    NodeStages.AddNodes.useEffect(() => {
       logger('useEffect in stage1');
     }, []);
 
@@ -34,15 +34,15 @@ describe('NodeStages', () => {
   });
 
   function TestComponentParent({ logger }: Props) {
-    NodeStages.S1AddNodes.useEffect(() => {
+    NodeStages.AddNodes.useEffect(() => {
       logger('useEffect in stage1 in parent');
     }, []);
 
-    NodeStages.S2MarkHidden.useEffect(() => {
+    NodeStages.MarkHidden.useEffect(() => {
       logger('useEffect in stage2 in parent');
     }, []);
 
-    NodeStages.S1AddNodes.useOnDone(() => {
+    NodeStages.AddNodes.useOnDone(() => {
       logger('stage1 now done');
     });
 

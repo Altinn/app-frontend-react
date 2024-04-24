@@ -63,7 +63,7 @@ export function DefaultNodeGenerator({ children, baseId }: PropsWithChildren<Bas
 
   const resolvedItem = useResolvedItem({ node, hidden, item });
 
-  NodeStages.S1AddNodes.useEffect(
+  NodeStages.AddNodes.useEffect(
     () => () => {
       pageRef.current._removeChild(nodeRef.current);
       removeNode(nodeRef.current);
@@ -99,7 +99,7 @@ function useResolvedItem<T extends CompTypes = CompTypes>({
   const parent = NodeGeneratorInternal.useParent();
   const row = NodeGeneratorInternal.useRow();
   const resolverProps = useExpressionResolverProps(node, item);
-  const allNodesAdded = NodeStages.S1AddNodes.useIsDone();
+  const allNodesAdded = NodeStages.AddNodes.useIsDone();
 
   const def = useDef(item.type);
   const setNodeProp = NodesInternal.useSetNodeProp();
@@ -112,18 +112,18 @@ function useResolvedItem<T extends CompTypes = CompTypes>({
   const addNode = NodesInternal.useAddNode();
   const isParentAdded = NodesInternal.useIsAdded(parent);
 
-  NodeStages.S1AddNodes.useEffect(() => {
+  NodeStages.AddNodes.useEffect(() => {
     if (isParentAdded) {
       const defaultState = node.def.stateFactory(stateFactoryProps.current as any);
       addNode(node, defaultState);
     }
   }, [addNode, node, stateFactoryProps, isParentAdded]);
 
-  NodeStages.S2MarkHidden.useEffect(() => {
+  NodeStages.MarkHidden.useEffect(() => {
     setNodeProp(node, 'hidden', hidden);
   }, [hidden, node, setNodeProp]);
 
-  NodeStages.S3EvaluateExpressions.useEffect(() => {
+  NodeStages.EvaluateExpressions.useEffect(() => {
     setNodeProp(node, 'item', resolvedItem);
     node.updateCommonProps(resolvedItem as any);
   }, [node, resolvedItem, setNodeProp]);

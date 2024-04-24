@@ -22,7 +22,7 @@ export function useResolvedExpression<V extends ExprVal>(
 ) {
   const allDataSources = useExpressionDataSources();
   const dataSourcesAsRef = useAsRef(allDataSources);
-  const allNodesAdded = NodeStages.S1AddNodes.useIsDone();
+  const allNodesAdded = NodeStages.AddNodes.useIsDone();
 
   return useMemo(() => {
     if (!allNodesAdded) {

@@ -15,7 +15,7 @@ export function StoreValidationsInNode() {
     TypesFromCategory<CompCategory.Form | CompCategory.Container>
   >;
   const setNodeProp = NodesInternal.useSetNodeProp();
-  const isAllAdded = NodeStages.S1AddNodes.useIsDone();
+  const isAllAdded = NodeStages.AddNodes.useIsDone();
   const isHidden = Hidden.useIsHiddenSelector();
 
   const shouldValidate = useMemo(
@@ -29,12 +29,12 @@ export function StoreValidationsInNode() {
 
   const validations = useNodeValidation(node, shouldValidate);
 
-  NodeStages.S3EvaluateExpressions.useEffect(() => {
+  NodeStages.EvaluateExpressions.useEffect(() => {
     isAllAdded && setNodeProp(node, 'validations', validations);
   }, [isAllAdded, node, setNodeProp, validations]);
 
   const initialMask = item ? getInitialMaskFromNode(item) : undefined;
-  NodeStages.S3EvaluateExpressions.useEffect(() => {
+  NodeStages.EvaluateExpressions.useEffect(() => {
     isAllAdded && initialMask !== undefined && setNodeProp(node, 'validationVisibility', initialMask);
   }, [isAllAdded, initialMask, node, setNodeProp]);
 
