@@ -149,13 +149,21 @@ export function createNodesDataStore() {
       removeNode: (node) =>
         set((s) => {
           const parentPath = node.path.slice(0, -1);
-          const parent = pickDataStorePath(s.pages, parentPath);
-          console.log(`debug, removing node /${node.path.join('/')}`);
-          if (parent.type === 'page') {
-            delete parent.topLevelNodes[node.getId()];
-          } else {
-            const def = getComponentDef(parent.layout.type);
-            def.removeChild(parent as any, node);
+          try {
+            const parent = pickDataStorePath(s.pages, parentPath);
+            console.log(`debug, removing node /${node.path.join('/')}`);
+            if (parent.type === 'page') {
+              delete parent.topLevelNodes[node.getId()];
+            } else {
+              const def = getComponentDef(parent.layout.type);
+              def.removeChild(parent as any, node);
+            }
+          } catch (e) {
+            if (e instanceof NodePathNotFound) {
+              console.log(`debug, parent for node /${node.path.join('/')} not found`);
+              return;
+            }
+            throw e;
           }
         }),
       setNodeProp: (node, prop, value) =>
