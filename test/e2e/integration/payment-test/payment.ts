@@ -17,7 +17,7 @@ describe('Payment', () => {
     cy.contains('button', 'Betalning og saksgangen vidare').click();
     cy.findByRole('button', { name: /Til betaling/ }).click();
     cy.intercept({
-      method: 'GET', // Assuming it's a GET request; adjust if otherwise
+      method: 'GET',
       url: '**/ttd/payment-test/instances/**/**/payment',
     }).as('paymentInfoRequest');
 
@@ -76,7 +76,7 @@ describe('Payment', () => {
         .click();
     });
     cy.intercept({
-      method: 'GET', // Assuming it's a GET request; adjust if otherwise
+      method: 'GET',
       url: '**/ttd/payment-test/*',
       query: {
         paymentid: '*',

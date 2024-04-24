@@ -27,7 +27,7 @@ export const SummaryPaymentComponent = ({ targetNode }: ISummaryPaymentComponent
   const { partyId, instanceGuid } = useInstanceIdParams();
   const { data: paymentInfo } = usePaymentInformationQuery(partyId, instanceGuid);
   const instance = useLaxInstanceData();
-  const privatePersonPayer = paymentInfo?.paymentDetails?.payer.privatePerson; //.company ?? paymentInfo?.paymentDetails?.payer.privatePerson;
+  const privatePersonPayer = paymentInfo?.paymentDetails?.payer.privatePerson;
 
   return (
     <>

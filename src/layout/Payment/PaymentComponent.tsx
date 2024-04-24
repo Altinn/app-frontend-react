@@ -2,8 +2,6 @@ import React, { useEffect } from 'react';
 
 import { Alert, Button } from '@digdir/designsystemet-react';
 
-import type { PropsFromGenericComponent } from '..';
-
 import { useProcessNavigation } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
@@ -14,23 +12,7 @@ import { usePerformPayActionMutation } from 'src/layout/Payment/queries/usePerfo
 import { SkeletonLoader } from 'src/layout/Payment/SkeletonLoader/SkeletonLoader';
 import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTable';
 
-export type IPaymentProps = PropsFromGenericComponent<'Payment'>;
-
 export const PaymentComponent = ({ node }) => {
-  // Render these values in the receipt PDF:
-  // From API:
-  //   - Payment ID
-  //   - Payment date
-  //   - Order date
-  //   - Masked card number, last 4 digits when card was used
-  //   - Order details / line items
-  //     - Total amount
-  //     - currency
-  // From the instance:
-  //   - Order number / reference id
-  // From configuration:
-  //   - contact details
-
   const { partyId, instanceGuid } = useInstanceIdParams();
   const { next, busy } = useProcessNavigation() || {};
   const { data: paymentInfo, isFetched: isPaymentInformationFetched } = usePaymentInformationQuery(
