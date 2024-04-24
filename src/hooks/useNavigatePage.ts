@@ -13,6 +13,7 @@ import { useLaxProcessData, useTaskType } from 'src/features/instance/ProcessCon
 import {
   useAllNavigationParams,
   useNavigationParam,
+  useQueryKeysAsString,
   useSetNavigationEffect,
 } from 'src/features/routing/AppRoutingContext';
 import { AppRouter } from 'src/index';
@@ -75,7 +76,9 @@ export const useNavigatePage = () => {
   const lastTaskId = processTasks?.slice(-1)[0]?.elementId;
   const navigate = useNavigate();
 
-  const { partyId, instanceGuid, taskId, pageKey, queryKeys } = useAllNavigationParams();
+  const { partyId, instanceGuid, taskId, pageKey } = useAllNavigationParams();
+  const queryKeys = useQueryKeysAsString();
+
   const { autoSaveBehavior } = usePageSettings();
 
   const taskType = useTaskType(taskId);

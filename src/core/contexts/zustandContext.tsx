@@ -190,7 +190,7 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
    */
   const useLaxDelayedMemoSelector = (): DelayedSelectorFunc<Type> | typeof ContextNotProvided => {
     const _store = useLaxCtx();
-    const delayedSelector = useDelayedMemoSelectorProto(_store as any);
+    const delayedSelector = useDelayedMemoSelectorProto(_store);
     return _store === ContextNotProvided ? ContextNotProvided : delayedSelector;
   };
 

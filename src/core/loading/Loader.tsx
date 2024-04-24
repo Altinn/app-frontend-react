@@ -3,6 +3,7 @@ import React from 'react';
 import { AltinnContentIconFormData } from 'src/components/atoms/AltinnContentIconFormData';
 import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoader';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
+import { LoadingProvider } from 'src/core/loading/LoadingContext';
 import { Lang } from 'src/features/language/Lang';
 import { ProcessTaskType } from 'src/types';
 
@@ -15,18 +16,23 @@ interface LoaderProps {
 export const Loader = ({ renderPresentation = true, ...rest }: LoaderProps) => {
   if (renderPresentation) {
     return (
-      <PresentationComponent
-        header={<Lang id='instantiate.starting' />}
-        type={ProcessTaskType.Unknown}
-        renderNavBar={false}
-        runNavigationEffect={false}
-      >
-        <InnerLoader {...rest} />
-      </PresentationComponent>
+      <LoadingProvider reason={rest.reason}>
+        <PresentationComponent
+          header={<Lang id='instantiate.starting' />}
+          type={ProcessTaskType.Unknown}
+          renderNavBar={false}
+        >
+          <InnerLoader {...rest} />
+        </PresentationComponent>
+      </LoadingProvider>
     );
   }
 
-  return <InnerLoader {...rest} />;
+  return (
+    <LoadingProvider reason={rest.reason}>
+      <InnerLoader {...rest} />
+    </LoadingProvider>
+  );
 };
 
 const InnerLoader = ({ reason, details }: LoaderProps) => (

@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
 
 import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
@@ -10,6 +9,7 @@ import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { ProcessProvider } from 'src/features/instance/ProcessContext';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
+import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useStateDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import { isAxiosError } from 'src/utils/isAxiosError';
@@ -58,7 +58,8 @@ function useGetInstanceDataQuery(enabled: boolean, partyId: string, instanceGuid
 }
 
 export const InstanceProvider = ({ children }: { children: React.ReactNode }) => {
-  const { partyId, instanceGuid } = useParams();
+  const partyId = useNavigationParam('partyId');
+  const instanceGuid = useNavigationParam('instanceGuid');
 
   if (!partyId || !instanceGuid) {
     return null;
