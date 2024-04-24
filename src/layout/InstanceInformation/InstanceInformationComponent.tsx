@@ -80,7 +80,7 @@ export function InstanceInformationComponent({ node }: PropsFromGenericComponent
 
   const instanceReceiver = receiver !== false ? appReceiver ?? 'Error: Receiver org not found' : undefined;
 
-  const instanceReferenceNumber = referenceNumber !== false && instance && getInstanceReferenceNumber(instance); // instance.id.split('/')[1].split('-')[4];
+  const instanceReferenceNumber = referenceNumber !== false && instance && getInstanceReferenceNumber(instance);
 
   const instanceMetaDataObject = returnInstanceMetaDataObject(
     langTools,
