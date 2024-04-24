@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { useLocation, useMatch, useNavigate as useRouterNavigate } from 'react-router-dom';
+import { useLocation, useMatch } from 'react-router-dom';
 import type { NavigateOptions } from 'react-router-dom';
 
 import { create } from 'zustand';
@@ -13,6 +13,7 @@ import {
 import { useLaxLayoutSettings, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxProcessData, useTaskType } from 'src/features/instance/ProcessContext';
+import { AppRouter } from 'src/index';
 import { ProcessTaskType } from 'src/types';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 
@@ -62,7 +63,6 @@ const emptyArray: never[] = [];
  * Takes an optional callback
  */
 const useNavigate = () => {
-  const navigate = useRouterNavigate();
   const storeCallback = useNavigationEffectStore((state) => state.storeCallback);
   const setReturnToView = useSetReturnToView();
   const setSummaryNodeOfOrigin = useSetSummaryNodeOfOrigin();
@@ -74,9 +74,9 @@ const useNavigate = () => {
       if (cb) {
         storeCallback(cb);
       }
-      navigate(path, options);
+      AppRouter.navigate(path, options);
     },
-    [navigate, setReturnToView, storeCallback, setSummaryNodeOfOrigin],
+    [setReturnToView, storeCallback, setSummaryNodeOfOrigin],
   );
 };
 
