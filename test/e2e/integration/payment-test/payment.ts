@@ -1,6 +1,7 @@
 import 'cypress-iframe';
 
 import { faker } from '@faker-js/faker';
+import path from 'path';
 
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 const appFrontend = new AppFrontend();
@@ -13,7 +14,18 @@ describe('Payment', () => {
   });
 
   it('Should fill out the form, landing on the payment page', () => {
+    cy.intercept({
+      method: 'GET',
+      url: '**/ttd/payment-test/*',
+      query: {
+        paymentid: '*',
+      },
+    }).as('paymentRequest');
     cy.findByRole('radio', { name: /Jeg fyller ut skjemaet som søker/ }).click();
+    cy.contains('button', 'Varer og tjenester').click();
+    cy.findByRole('checkbox', { name: /Jeg har lest og forstått/ }).click();
+    cy.findByRole('textbox', { name: /Klassenummer/ }).type('1');
+    cy.findByRole('textbox', { name: /Varer\/tjenester/ }).type('test');
     cy.contains('button', 'Betalning og saksgangen vidare').click();
     cy.findByRole('button', { name: /Til betaling/ }).click();
     cy.intercept({
@@ -67,7 +79,7 @@ describe('Payment', () => {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(4000);
 
-    cy.enter('#nets-checkout-iframe').then((getBody) => {
+    cy.enter('#nets-checkout-iframe').then(() => {
       cy.frameLoaded('#nets-checkout-iframe')
         .iframeCustom()
         .find('#nets-checkout-inception-iframe')
@@ -75,21 +87,19 @@ describe('Payment', () => {
         .find('#AuthenticationSuccessButton')
         .click();
     });
-    cy.intercept({
-      method: 'GET',
-      url: '**/ttd/payment-test/*',
-      query: {
-        paymentid: '*',
-      },
-    }).as('paymentRequest');
 
     cy.wait('@paymentRequest').then((interception) => {
       expect(interception?.response?.statusCode).to.eq(302);
     });
   });
 
+  // This test is dependent on the previous test runnig successfully
   it('Should fill out the form, landing on the payment page', () => {
     cy.visit(paymentUrl);
-    cy.contains('span', 'Du har betalt!').should('exist');
+    cy.findByRole('link', { name: /Betalingskvittering.pdf/ }).click();
+
+    const downloadsFolder = Cypress.config('downloadsFolder');
+    const downloadedFilename = path.join(downloadsFolder, 'Betalingskvittering.pdf');
+    cy.readFile(downloadedFilename, 'binary', { timeout: 10000 });
   });
 });
