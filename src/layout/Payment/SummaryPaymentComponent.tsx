@@ -8,6 +8,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 import { getInstanceReferenceNumber } from 'src/layout/InstanceInformation/InstanceInformationComponent';
 import classes from 'src/layout/Payment/PaymentComponent.module.css';
+import { PaymentStatus } from 'src/layout/Payment/queries/types';
 import { usePaymentInformationQuery } from 'src/layout/Payment/queries/usePaymentInformationQuery';
 import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTable';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
@@ -65,12 +66,12 @@ export const SummaryPaymentComponent = ({ targetNode }: ISummaryPaymentComponent
       </div>
 
       <div className={classes.container}>
-        {paymentInfo?.paymentDetails?.status === 'Failed' && (
+        {paymentInfo?.paymentDetails?.status === PaymentStatus.Failed && (
           <Alert severity='warning'>
             <Lang id='payment.alert.failed' />
           </Alert>
         )}
-        {paymentInfo?.paymentDetails?.status === 'Paid' && (
+        {paymentInfo?.paymentDetails?.status === PaymentStatus.Paid && (
           <Alert severity={'success'}>
             <Lang id='payment.alert.paid' />
             <span>ID: {paymentInfo.paymentDetails.paymentId}</span>
