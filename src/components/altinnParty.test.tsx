@@ -87,6 +87,7 @@ describe('altinnParty', () => {
         party: {
           ...getPartyMock(),
           orgNumber: '1000000',
+          partyTypeName: 2,
         },
       });
       expect(screen.getByTestId('org-icon')).toBeVisible();
