@@ -2,10 +2,10 @@ import { PaymentStatus } from 'src/layout/Payment/queries/types';
 import type { PaymentResponsePayload } from 'src/layout/Payment/queries/types';
 
 export const paymentResponsePayload: PaymentResponsePayload = {
-  taskId: '00cd000065f03e6a75269b94dc7c38df',
-  paymentProcessorId: '00cd000065f03e6a75269b94dc7c3123',
+  taskId: 'Task_2',
   status: PaymentStatus.Paid,
   orderDetails: {
+    paymentProcessorId: 'Nets Easy',
     currency: 'NOK',
     orderLines: [
       {

@@ -1,6 +1,7 @@
 export const orderDetailsResponsePayload = {
   orderReference: '',
   currency: 'NOK',
+  paymentProcessorId: 'Nets Easy',
   orderLines: [
     {
       id: '0',
