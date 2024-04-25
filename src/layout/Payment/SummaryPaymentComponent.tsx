@@ -66,15 +66,15 @@ export const SummaryPaymentComponent = ({ targetNode }: ISummaryPaymentComponent
       </div>
 
       <div className={classes.container}>
-        {paymentInfo?.paymentDetails?.status === PaymentStatus.Failed && (
+        {paymentInfo?.status === PaymentStatus.Failed && (
           <Alert severity='warning'>
             <Lang id='payment.alert.failed' />
           </Alert>
         )}
-        {paymentInfo?.paymentDetails?.status === PaymentStatus.Paid && (
+        {paymentInfo?.status === PaymentStatus.Paid && (
           <Alert severity={'success'}>
             <Lang id='payment.alert.paid' />
-            <span>ID: {paymentInfo.paymentDetails.paymentId}</span>
+            <span>ID: {paymentInfo?.paymentDetails?.paymentId}</span>
           </Alert>
         )}
       </div>

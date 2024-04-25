@@ -9,13 +9,13 @@ export interface PaymentResponsePayload {
   paymentProcessorId: string;
   orderDetails: OrderDetails;
   paymentDetails?: PaymentDetails;
+  status: PaymentStatus;
 }
 
 export interface PaymentDetails {
   paymentId: string;
   redirectUrl: string;
   receiptUrl?: string;
-  status: PaymentStatus;
   payer: Payer;
   cardDetails?: CardDetails;
 }
