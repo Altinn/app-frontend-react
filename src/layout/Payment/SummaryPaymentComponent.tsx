@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Alert, Paragraph } from '@digdir/designsystemet-react';
+import { Label, Paragraph } from '@digdir/designsystemet-react';
 
 import { Caption } from 'src/components/form/Caption';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
@@ -8,7 +8,6 @@ import { Lang } from 'src/features/language/Lang';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 import { getInstanceReferenceNumber } from 'src/layout/InstanceInformation/InstanceInformationComponent';
 import classes from 'src/layout/Payment/PaymentComponent.module.css';
-import { PaymentStatus } from 'src/layout/Payment/queries/types';
 import { usePaymentInformationQuery } from 'src/layout/Payment/queries/usePaymentInformationQuery';
 import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTable';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
@@ -28,9 +27,10 @@ export const SummaryPaymentComponent = ({ targetNode }: ISummaryPaymentComponent
   const { data: paymentInfo } = usePaymentInformationQuery(partyId, instanceGuid);
   const instance = useLaxInstanceData();
   const privatePersonPayer = paymentInfo?.paymentDetails?.payer.privatePerson;
+  const reciever = paymentInfo?.orderDetails?.receiver;
 
   return (
-    <>
+    <div className={classes.paymentSummaryContainer}>
       <div className={classes.infoDetailsContainer}>
         {paymentInfo?.paymentDetails?.paymentId && (
           <Paragraph
@@ -40,7 +40,6 @@ export const SummaryPaymentComponent = ({ targetNode }: ISummaryPaymentComponent
             <Lang id={'payment.receipt.payment_id'} />: <b>{paymentInfo.paymentDetails.paymentId}</b>
           </Paragraph>
         )}
-
         {instance && (
           <Paragraph
             size={'small'}
@@ -49,14 +48,12 @@ export const SummaryPaymentComponent = ({ targetNode }: ISummaryPaymentComponent
             <Lang id={'payment.receipt.altinn_ref'} />: <b>{getInstanceReferenceNumber(instance)}</b>
           </Paragraph>
         )}
-
         <Paragraph
           size={'small'}
           spacing={false}
         >
           <Lang id={'payment.receipt.payment_date'} />: <b>{new Date().getDate().toString()}</b>
         </Paragraph>
-
         <Paragraph
           size={'small'}
           spacing={false}
@@ -64,111 +61,261 @@ export const SummaryPaymentComponent = ({ targetNode }: ISummaryPaymentComponent
           <Lang id={'payment.receipt.total_amount'} />: <b>{paymentInfo?.orderDetails.totalPriceIncVat}</b>
         </Paragraph>
       </div>
-
-      <div className={classes.container}>
-        {paymentInfo?.status === PaymentStatus.Failed && (
-          <Alert severity='warning'>
-            <Lang id='payment.alert.failed' />
-          </Alert>
-        )}
-        {paymentInfo?.status === PaymentStatus.Paid && (
-          <Alert severity={'success'}>
-            <Lang id='payment.alert.paid' />
-            <span>ID: {paymentInfo?.paymentDetails?.paymentId}</span>
-          </Alert>
-        )}
-      </div>
-
-      <div
-        className={classes.senderReceiverInfoContainer}
-        style={{ display: 'flex', width: '100%', marginBottom: '' }}
-      >
-        <table style={{ width: '100%' }}>
+      <div className={classes.senderReceiverInfoContainer}>
+        <table>
           <Caption title={<Lang id={'payment.receipt.receiver'} />} />
-
-          <tr>
-            <th>
-              <Lang id='payment.receipt.name' />
-            </th>
-            <td>{paymentInfo?.orderDetails?.receiver?.name}</td>
-          </tr>
-          <tr>
-            <th>
-              <Lang id='payment.receipt.phone' />
-            </th>
-            <td>{textResourceBindings?.receiptPhoneNumber} </td>
-          </tr>
-          <tr>
-            <th>
-              <Lang id='payment.receipt.address' />
-            </th>
-            <td>
-              {textResourceBindings?.receiptStreetAdress} {textResourceBindings?.receiptCountry}{' '}
-              {textResourceBindings?.receiptZipCode}{' '}
-            </td>
-          </tr>
-          <tr>
-            <th>
-              <Lang id='payment.receipt.org_num' />
-            </th>
-            <td>
-              <td>{paymentInfo?.orderDetails?.receiver?.organisationNumber}</td>
-            </td>
-          </tr>
-          <tr>
-            <th>
-              <Lang id='payment.receipt.account_number' />
-            </th>
-            <td>{textResourceBindings?.receiptBankAcountNumber} </td>
-          </tr>
-          <tr>
-            <th>
-              <Lang id='payment.receipt.email' />
-            </th>
-            <td>{textResourceBindings?.receiptEmailAdress} </td>
-          </tr>
+          {paymentInfo?.orderDetails?.receiver?.name && (
+            <tr>
+              <th>
+                <Paragraph
+                  size={'small'}
+                  variant='short'
+                  spacing={false}
+                >
+                  <Lang id='payment.receipt.name' />
+                </Paragraph>
+              </th>
+              <td>
+                <Label
+                  size={'small'}
+                  spacing={false}
+                  asChild
+                >
+                  <span>{paymentInfo?.orderDetails?.receiver?.name}</span>
+                </Label>
+              </td>
+            </tr>
+          )}
+          {reciever?.phoneNumber && (
+            <tr>
+              <th>
+                <Paragraph
+                  size={'small'}
+                  spacing={false}
+                >
+                  <Lang id='payment.receipt.phone' />
+                </Paragraph>
+              </th>
+              <td>
+                <Label
+                  size={'small'}
+                  spacing={false}
+                  asChild
+                >
+                  <span>
+                    {reciever?.phoneNumber.prefix} {reciever.phoneNumber.number}
+                  </span>
+                </Label>
+              </td>
+            </tr>
+          )}
+          {reciever?.postalAddress && (
+            <tr>
+              <th>
+                <Paragraph
+                  size={'small'}
+                  spacing={false}
+                >
+                  <Lang id='payment.receipt.address' />
+                </Paragraph>
+              </th>
+              <td>
+                <Label
+                  size={'small'}
+                  spacing={false}
+                  asChild
+                >
+                  <span>
+                    {reciever?.postalAddress.addressLine1} {reciever?.postalAddress.postalCode}{' '}
+                    {reciever?.postalAddress.city} {reciever?.postalAddress.country}
+                    {reciever.postalAddress.addressLine2 && (
+                      <>
+                        <br />
+                        {reciever?.postalAddress.addressLine2}
+                      </>
+                    )}
+                  </span>
+                </Label>
+              </td>
+            </tr>
+          )}
+          {paymentInfo?.orderDetails?.receiver?.organisationNumber && (
+            <tr>
+              <th>
+                <Paragraph
+                  size={'small'}
+                  spacing={false}
+                >
+                  <Lang id='payment.receipt.org_num' />
+                </Paragraph>
+              </th>
+              <td>
+                <Label
+                  size={'small'}
+                  spacing={false}
+                  asChild
+                >
+                  <span>{paymentInfo?.orderDetails?.receiver?.organisationNumber}</span>
+                </Label>
+              </td>
+            </tr>
+          )}
+          {reciever?.bankAccountNumber && (
+            <tr>
+              <th>
+                <Paragraph
+                  size={'small'}
+                  spacing={false}
+                >
+                  <Lang id='payment.receipt.account_number' />
+                </Paragraph>
+              </th>
+              <td>
+                <Label
+                  size={'small'}
+                  spacing={false}
+                  asChild
+                >
+                  <span>{reciever.bankAccountNumber}</span>
+                </Label>
+              </td>
+            </tr>
+          )}
+          {reciever?.email && (
+            <tr>
+              <th>
+                <Paragraph
+                  size={'small'}
+                  spacing={false}
+                >
+                  <Lang id='payment.receipt.email' />
+                </Paragraph>
+              </th>
+              <td>
+                <Label
+                  size={'small'}
+                  spacing={false}
+                  asChild
+                >
+                  <span>{reciever.email}</span>
+                </Label>
+              </td>
+            </tr>
+          )}
         </table>
 
         {privatePersonPayer && (
-          <table style={{ width: '100%' }}>
+          <table>
             <Caption title={<Lang id={'payment.receipt.payer'} />} />
 
             {privatePersonPayer.firstName && (
               <tr>
                 <th>
-                  <Lang id={'payment.receipt.name'}></Lang>
+                  <Paragraph
+                    size={'small'}
+                    spacing={false}
+                  >
+                    <Lang id={'payment.receipt.name'}></Lang>
+                  </Paragraph>
                 </th>
-                <td>{paymentInfo?.paymentDetails?.paymentId}</td>
+                <td>
+                  <Label
+                    size={'small'}
+                    spacing={false}
+                    asChild
+                  >
+                    <span>{paymentInfo?.paymentDetails?.paymentId}</span>
+                  </Label>
+                </td>
               </tr>
             )}
             {privatePersonPayer.phoneNumber?.number && (
               <tr>
                 <th>
-                  <Lang id={'payment.receipt.phone'}></Lang>
+                  <Paragraph
+                    size={'small'}
+                    spacing={false}
+                  >
+                    <Lang id={'payment.receipt.phone'}></Lang>
+                  </Paragraph>
                 </th>
-                <td>{privatePersonPayer.phoneNumber.number}</td>
+                <td>
+                  <Label
+                    size={'small'}
+                    spacing={false}
+                    asChild
+                  >
+                    <span>
+                      {privatePersonPayer.phoneNumber.prefix} {privatePersonPayer.phoneNumber.number}
+                    </span>
+                  </Label>
+                </td>
               </tr>
             )}
 
-            <tr>
-              <th>
-                <Lang id={'payment.receipt.email'}></Lang>
-              </th>
-              <td>{privatePersonPayer.email}</td>
-            </tr>
-
-            <tr>
-              <th>
-                <Lang id={'payment.receipt.card_number'}></Lang>
-              </th>
-              <td>{paymentInfo?.paymentDetails?.cardDetails?.maskedPan}</td>
-            </tr>
-            <tr>
-              <th>
-                <Lang id={'payment.receipt.card_expiry'}></Lang>
-              </th>
-              <td>{paymentInfo?.paymentDetails?.cardDetails?.expiryDate}</td>
-            </tr>
+            {privatePersonPayer.email && (
+              <tr>
+                <th>
+                  <Paragraph
+                    size={'small'}
+                    spacing={false}
+                  >
+                    <Lang id={'payment.receipt.email'}></Lang>
+                  </Paragraph>
+                </th>
+                <td>
+                  <Label
+                    size={'small'}
+                    spacing={false}
+                    asChild
+                  >
+                    <span>{privatePersonPayer.email}</span>
+                  </Label>
+                </td>
+              </tr>
+            )}
+            {paymentInfo?.paymentDetails?.cardDetails?.maskedPan && (
+              <tr>
+                <th>
+                  <Paragraph
+                    size={'small'}
+                    spacing={false}
+                  >
+                    <Lang id={'payment.receipt.card_number'}></Lang>
+                  </Paragraph>
+                </th>
+                <td>
+                  <Label
+                    size={'small'}
+                    spacing={false}
+                    asChild
+                  >
+                    <span>{paymentInfo?.paymentDetails?.cardDetails?.maskedPan}</span>
+                  </Label>
+                </td>
+              </tr>
+            )}
+            {paymentInfo?.paymentDetails?.cardDetails?.expiryDate && (
+              <tr>
+                <th>
+                  <Paragraph
+                    size={'small'}
+                    spacing={false}
+                  >
+                    <Lang id={'payment.receipt.card_expiry'}></Lang>
+                  </Paragraph>
+                </th>
+                <td>
+                  <Label
+                    size={'small'}
+                    spacing={false}
+                    asChild
+                  >
+                    <span>{paymentInfo?.paymentDetails?.cardDetails?.expiryDate}</span>
+                  </Label>
+                </td>
+              </tr>
+            )}
           </table>
         )}
       </div>
@@ -179,6 +326,6 @@ export const SummaryPaymentComponent = ({ targetNode }: ISummaryPaymentComponent
         description={textResourceBindings?.description}
         className={classes.container}
       />
-    </>
+    </div>
   );
 };

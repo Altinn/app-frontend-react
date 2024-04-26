@@ -7,6 +7,24 @@ export const paymentResponsePayload: PaymentResponsePayload = {
   orderDetails: {
     paymentProcessorId: 'Nets Easy',
     currency: 'NOK',
+    receiver: {
+      organisationNumber: '971 526 157',
+      name: 'Patentstyret',
+      email: 'test@123.no',
+      phoneNumber: {
+        prefix: '+47',
+        number: '12345678',
+      },
+      bankAccountNumber: '123456789',
+      postalAddress: {
+        name: 'Patentstyret',
+        addressLine1: 'Postboks 4863 Nydalen',
+        addressLine2: '',
+        postalCode: 'N-0422',
+        city: 'Oslo',
+        country: 'Norway',
+      },
+    },
     orderLines: [
       {
         id: '0',
