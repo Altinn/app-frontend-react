@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 
 import { evalExpr } from 'src/features/expressions';
-import { useAsRef } from 'src/hooks/useAsRef';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { NodeStages } from 'src/utils/layout/NodeStages';
 import type { ExprConfig, ExprVal, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
@@ -21,7 +20,6 @@ export function useResolvedExpression<V extends ExprVal>(
   defaultValue: ExprValToActual<V>,
 ) {
   const allDataSources = useExpressionDataSources();
-  const dataSourcesAsRef = useAsRef(allDataSources);
   const allNodesAdded = NodeStages.AddNodes.useIsDone();
 
   return useMemo(() => {
@@ -34,6 +32,6 @@ export function useResolvedExpression<V extends ExprVal>(
       defaultValue,
     };
 
-    return evalExpr(expr, node, dataSourcesAsRef.current, { config });
-  }, [allNodesAdded, dataSourcesAsRef, defaultValue, expr, node, type]);
+    return evalExpr(expr, node, allDataSources, { config });
+  }, [allNodesAdded, allDataSources, defaultValue, expr, node, type]);
 }
