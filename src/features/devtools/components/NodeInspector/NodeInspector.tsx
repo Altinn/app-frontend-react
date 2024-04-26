@@ -10,12 +10,14 @@ import { NodeInspectorContextProvider } from 'src/features/devtools/components/N
 import { ValidationInspector } from 'src/features/devtools/components/NodeInspector/ValidationInspector';
 import { SplitView } from 'src/features/devtools/components/SplitView/SplitView';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
+import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { implementsAnyValidation } from 'src/layout';
 import { useNodes } from 'src/utils/layout/NodesContext';
 
 export const NodeInspector = () => {
   const pages = useNodes();
-  const currentPage = pages?.currentPage();
+  const pageKey = useCurrentView();
+  const currentPage = pages?.findLayout(pageKey);
   const selectedId = useDevToolsStore((state) => state.nodeInspector.selectedNodeId);
   const selectedNode = selectedId ? currentPage?.findById(selectedId) : undefined;
   const setSelected = useDevToolsStore((state) => state.actions.nodeInspectorSet);

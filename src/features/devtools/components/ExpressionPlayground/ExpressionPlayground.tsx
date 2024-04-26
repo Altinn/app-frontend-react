@@ -101,7 +101,7 @@ export const ExpressionPlayground = () => {
         throw new Error('Ugyldig uttrykk');
       }
 
-      let evalContext: LayoutPage | LayoutNode | undefined = nodes?.currentPage();
+      let evalContext: LayoutPage | LayoutNode | undefined = nodes?.findLayout(currentPageId);
       if (!evalContext) {
         throw new Error('Fant ikke nåværende side/layout');
       }
@@ -131,7 +131,7 @@ export const ExpressionPlayground = () => {
         setOutputs([{ value: e.message, isError: true }]);
       }
     }
-  }, [input, forPage, forComponentId, dataSources, nodes, showAllSteps, outputs, setOutputWithHistory]);
+  }, [input, forPage, forComponentId, dataSources, nodes, showAllSteps, outputs, setOutputWithHistory, currentPageId]);
 
   return (
     <div className={classes.container}>

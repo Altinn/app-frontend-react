@@ -392,11 +392,6 @@ describe('Hierarchical layout tools', () => {
       expectReadOnly(collection2, components.top2.id, true);
     });
 
-    it('should find the current layout', () => {
-      expect(collection1.currentPage()).toEqual(layouts['l1']);
-      expect(collection2.currentPage()).toEqual(layouts['l2']);
-    });
-
     it('should find a named layout', () => {
       expect(collection1.findLayout('l1')).toEqual(layouts['l1']);
       expect(collection1.findLayout('l2')).toEqual(layouts['l2']);

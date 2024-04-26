@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 
 import { ExprVal } from 'src/features/expressions/types';
 import { useHiddenLayoutsExpressions, useLayouts } from 'src/features/form/layout/LayoutsContext';
-import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { getComponentCapabilities, getComponentDef } from 'src/layout';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -52,7 +51,6 @@ export function NodesGenerator() {
   return (
     <div style={style}>
       <SaveFinishedNodesToStore pages={pages} />
-      <SetCurrentPage pages={pages} />
       <ExportStores />
       {NodeGeneratorDebug && <h1>Node generator</h1>}
       {layouts &&
@@ -121,15 +119,6 @@ function logNodes(nodes: LayoutNode[], prefix = '------') {
       logNodes(children, `${prefix}---`);
     }
   }
-}
-
-function SetCurrentPage({ pages }: { pages: LayoutPages }) {
-  const currentView = useCurrentView();
-  if (pages.currentPageKey() !== currentView) {
-    pages.setCurrentPage(currentView);
-  }
-
-  return null;
 }
 
 function ExportStores() {

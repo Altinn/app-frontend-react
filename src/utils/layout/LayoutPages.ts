@@ -12,9 +12,6 @@ interface Collection {
  * by ID, and if you have colliding component IDs in multiple layouts it will prefer the one in the current layout.
  */
 export class LayoutPages {
-  // TODO: Remove _currentPage? We should not rely on this being used in the future.
-  private _currentPage: string | undefined;
-
   private readonly objects: Collection = {};
 
   public constructor() {
@@ -24,37 +21,18 @@ export class LayoutPages {
     }
   }
 
-  public currentPageKey() {
-    return this._currentPage;
-  }
-
-  public setCurrentPage(currentView: string | undefined) {
-    this._currentPage = undefined;
-    if (currentView && this.objects[currentView]) {
-      this._currentPage = currentView;
-    }
-  }
-
   public findById(id: string | undefined, exceptInPage?: string): LayoutNode | undefined {
     if (!id) {
       return undefined;
     }
 
-    const current = this.currentPage();
-    if (current && this._currentPage !== exceptInPage) {
-      const inCurrent = this.currentPage()?.findById(id, false);
-      if (inCurrent) {
-        return inCurrent;
-      }
-    }
-
-    for (const otherLayoutKey of Object.keys(this.objects)) {
-      if (otherLayoutKey === this._currentPage || otherLayoutKey === exceptInPage) {
+    for (const pageKey of Object.keys(this.objects)) {
+      if (pageKey === exceptInPage) {
         continue;
       }
-      const inOther = this.objects[otherLayoutKey].findById(id, false);
-      if (inOther) {
-        return inOther;
+      const node = this.objects[pageKey].findById(id, false);
+      if (node) {
+        return node;
       }
     }
 
@@ -78,23 +56,6 @@ export class LayoutPages {
       return undefined;
     }
     return this.objects[key];
-  }
-
-  public currentPage(): LayoutPage | undefined {
-    if (!this._currentPage) {
-      return undefined;
-    }
-    const current = this.findLayout(this._currentPage);
-    if (current) {
-      return current;
-    }
-
-    const layouts = Object.keys(this.objects);
-    if (layouts.length) {
-      return this.objects[layouts[0]];
-    }
-
-    return undefined;
   }
 
   public all(): Collection {
