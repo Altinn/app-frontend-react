@@ -3,12 +3,7 @@ import { useCallback } from 'react';
 import { ValidationMask } from '..';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
-import {
-  filterValidations,
-  getVisibilityMask,
-  hasValidationErrors,
-  selectValidations,
-} from 'src/features/validation/utils';
+import { filterValidations, getVisibilityMask, selectValidations } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { NodesInternal, useNodesAsLaxRef } from 'src/utils/layout/NodesContext';
@@ -81,7 +76,7 @@ export function useOnFormSubmitValidation() {
     const hasFieldErrors =
       Object.values(state.fields).flatMap((field) => selectValidations(field, backendMask, 'error')).length > 0;
 
-    if (hasFieldErrors || hasValidationErrors(state.task)) {
+    if (hasFieldErrors) {
       setShowAllErrors(true);
       return true;
     }

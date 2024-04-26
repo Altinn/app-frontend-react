@@ -71,14 +71,6 @@ export type ValidationState = {
   fields: FieldValidations;
 };
 
-/**
- * Final validation format returned by backend validation.
- */
-export type BackendValidations = {
-  task: BaseValidation[];
-  fields: FieldValidations;
-};
-
 export type FieldValidations = {
   [field: string]: FieldValidation[];
 };

@@ -11,7 +11,12 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { InstantiationContainer } from 'src/features/instantiate/containers/InstantiationContainer';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useCurrentParty, useParties, useSetCurrentParty } from 'src/features/party/PartiesProvider';
+import {
+  useCurrentParty,
+  useParties,
+  useSetCurrentParty,
+  useSetHasSelectedParty,
+} from 'src/features/party/PartiesProvider';
 import { AppRouter } from 'src/index';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { changeBodyBackground } from 'src/utils/bodyStyling';
@@ -75,10 +80,11 @@ export const PartySelection = () => {
   changeBodyBackground(AltinnAppTheme.altinnPalette.primary.white);
   const classes = useStyles();
   const match = useMatch(`/party-selection/:errorCode`);
-  const errorCode = match?.params.errorCode as 'error' | 'explained' | undefined;
+  const errorCode = match?.params.errorCode as 'error' | 'explained' | '403' | undefined;
 
   const selectParty = useSetCurrentParty();
   const selectedParty = useCurrentParty();
+  const setUserHasSelectedParty = useSetHasSelectedParty();
 
   const parties = useParties() || [];
   const appMetadata = useApplicationMetadata();
@@ -93,7 +99,8 @@ export const PartySelection = () => {
 
   const onSelectParty = async (party: IParty) => {
     await selectParty(party);
-    AppRouter.navigate('/'); // Back to Entrypoint.tsx, where the next step will be determined
+    setUserHasSelectedParty(true);
+    AppRouter.navigate('/');
   };
 
   function renderParties() {
@@ -154,7 +161,7 @@ export const PartySelection = () => {
   }
 
   function templateErrorMessage() {
-    if (errorCode === `error`) {
+    if (errorCode === '403') {
       return (
         <Typography
           data-testid={`error-code-${HttpStatusCodes.Forbidden}`}

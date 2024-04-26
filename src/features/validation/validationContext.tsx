@@ -22,7 +22,7 @@ import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import type {
   BackendValidationIssueGroups,
-  BackendValidations,
+  BaseValidation,
   FieldValidations,
   ValidationContext,
   WaitForValidation,
@@ -36,7 +36,7 @@ interface NewStoreProps {
 interface Internals {
   isLoading: boolean;
   individualValidations: {
-    backend: BackendValidations;
+    backend: FieldValidations;
     expression: FieldValidations;
     schema: FieldValidations;
     invalidData: FieldValidations;
@@ -47,6 +47,7 @@ interface Internals {
     value: Internals['individualValidations'][K],
     issueGroups?: BackendValidationIssueGroups,
   ) => void;
+  updateTaskValidations: (validations: BaseValidation[]) => void;
   updateValidating: (validating: WaitForValidation) => void;
 }
 
@@ -70,7 +71,7 @@ function initialCreateStore({ validating }: NewStoreProps) {
       // Internal state
       isLoading: true,
       individualValidations: {
-        backend: { task: [], fields: {} },
+        backend: {},
         expression: {},
         schema: {},
         invalidData: {},
@@ -80,16 +81,19 @@ function initialCreateStore({ validating }: NewStoreProps) {
         set((state) => {
           if (key === 'backend') {
             state.isLoading = false;
-            state.state.task = (validations as BackendValidations).task;
             state.issueGroupsProcessedLast = issueGroups;
           }
           state.individualValidations[key] = validations;
           state.state.fields = mergeFieldValidations(
-            state.individualValidations.backend.fields,
+            state.individualValidations.backend,
             state.individualValidations.invalidData,
             state.individualValidations.schema,
             state.individualValidations.expression,
           );
+        }),
+      updateTaskValidations: (validations) =>
+        set((state) => {
+          state.state.task = validations;
         }),
       updateValidating: (newValidating) =>
         set((state) => {
@@ -99,15 +103,22 @@ function initialCreateStore({ validating }: NewStoreProps) {
   );
 }
 
-const { Provider, useSelector, useDelayedMemoSelector, useSelectorAsRef, useStore, useLaxSelectorAsRef } =
-  createZustandContext({
-    name: 'Validation',
-    required: true,
-    initialCreateStore,
-    onReRender: (store, { validating }) => {
-      store.getState().updateValidating(validating);
-    },
-  });
+const {
+  Provider,
+  useSelector,
+  useLaxSelector,
+  useDelayedMemoSelector,
+  useSelectorAsRef,
+  useStore,
+  useLaxSelectorAsRef,
+} = createZustandContext({
+  name: 'Validation',
+  required: true,
+  initialCreateStore,
+  onReRender: (store, { validating }) => {
+    store.getState().updateValidating(validating);
+  },
+});
 
 interface Props {
   isCustomReceipt?: boolean;
@@ -260,6 +271,7 @@ export const Validation = {
 
   useSetShowAllErrors: () => useSelector((state) => state.setShowAllErrors),
   useValidating: () => useSelector((state) => state.validating),
+  useUpdateTaskValidations: () => useLaxSelector((state) => state.updateTaskValidations),
 
   useRef: () => useSelectorAsRef((state) => state),
   useLaxRef: () => useLaxSelectorAsRef((state) => state),
