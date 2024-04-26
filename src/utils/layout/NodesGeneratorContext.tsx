@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
@@ -53,46 +53,58 @@ const emptyArray: never[] = [];
  * mutators from the parent. This way we can have a single recursive mutator that is applied to all children, no
  * matter how many levels of context providers we have.
  */
-export function NodesGeneratorProvider({ children, ...rest }: RealNodeGeneratorProps) {
+function _NodesGeneratorProvider({ children, ...rest }: RealNodeGeneratorProps) {
   const parent = useCtx();
-  const value: NodesGeneratorContext = {
-    // Inherit all values from the parent, overwrite with our own if they are passed
-    ...parent,
-    ...rest,
+  const value: NodesGeneratorContext = useMemo(
+    () => ({
+      // Inherit all values from the parent, overwrite with our own if they are passed
+      ...parent,
+      ...rest,
 
-    // Direct mutators and rows are not meant to be inherited, if none are passed to us directly we'll reset
-    directMutators: rest.directMutators ?? emptyArray,
-    row: rest.row ?? undefined,
+      // Direct mutators and rows are not meant to be inherited, if none are passed to us directly we'll reset
+      directMutators: rest.directMutators ?? emptyArray,
+      row: rest.row ?? undefined,
 
-    // If the parent is hidden, we are also hidden. The default is false, and every component inside a hidden one
-    // will be marked as hidden as well.
-    hidden: {
-      parent: parent.hidden,
-      ...rest.hidden,
-    },
+      // If the parent is hidden, we are also hidden. The default is false, and every component inside a hidden one
+      // will be marked as hidden as well.
+      hidden: {
+        parent: parent.hidden,
+        ...rest.hidden,
+      },
 
-    depth: parent.depth + 1,
-  };
+      depth: parent.depth + 1,
+    }),
+    [parent, rest],
+  );
 
   return <Provider value={value}>{children}</Provider>;
 }
+
+export const NodesGeneratorProvider = React.memo(_NodesGeneratorProvider);
+NodesGeneratorProvider.displayName = 'NodesGeneratorProvider';
 
 type RealNodeGeneratorPageProps = PropsWithChildren<PageProviderProps> & { parent: LayoutPage };
-export function NodesGeneratorPageProvider({ children, ...rest }: RealNodeGeneratorPageProps) {
-  const value: NodesGeneratorContext = {
-    page: rest.parent,
-    claimedChildren: new Set(Object.values(rest.childrenMap).flat()),
-    item: undefined,
+function _NodesGeneratorPageProvider({ children, ...rest }: RealNodeGeneratorPageProps) {
+  const value: NodesGeneratorContext = useMemo(
+    () => ({
+      page: rest.parent,
+      claimedChildren: new Set(Object.values(rest.childrenMap).flat()),
+      item: undefined,
 
-    // For a page, the depth starts at 1 because in principle the page is the top level node, at depth 0, so
-    // when a page provides a depth indicator to its children (the top level components on that page), it should be 1.
-    depth: 1,
+      // For a page, the depth starts at 1 because in principle the page is the top level node, at depth 0, so
+      // when a page provides a depth indicator to its children (the top level components on that page), it should be 1.
+      depth: 1,
 
-    ...rest,
-  };
+      ...rest,
+    }),
+    [rest],
+  );
 
   return <Provider value={value}>{children}</Provider>;
 }
+
+export const NodesGeneratorPageProvider = React.memo(_NodesGeneratorPageProvider);
+NodesGeneratorPageProvider.displayName = 'NodesGeneratorPageProvider';
 
 export const NodeGeneratorInternal = {
   useDirectMutators: () => useCtx().directMutators ?? emptyArray,

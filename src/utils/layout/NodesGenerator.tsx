@@ -154,6 +154,91 @@ interface PageProps {
 function Page({ layout, name, layoutSet }: PageProps) {
   const [children, setChildren] = useState<ChildrenState>({ forLayout: layout, map: undefined });
   const page = useMemo(() => new LayoutPage(), []);
+  const [hidden, setHidden] = useState<HiddenStatePage>({
+    hiddenByTracks: false,
+    hiddenByExpression: false,
+    hiddenByRules: false,
+    parent: undefined,
+  });
+
+  const getProto = useMemo(() => {
+    const proto: { [id: string]: ComponentProto } = {};
+
+    for (const component of layout) {
+      proto[component.id] = {
+        type: component.type,
+        capabilities: getComponentCapabilities(component.type),
+      };
+    }
+
+    return (id: string) => proto[id];
+  }, [layout]);
+
+  const map = children.map;
+  const topLevelIds = useMemo(() => {
+    const claimedChildren = new Set(map ? Object.values(map).flat() : []);
+    return layout.filter((component) => !claimedChildren.has(component.id)).map((component) => component.id);
+  }, [map, layout]);
+
+  const layoutMap = useMemo(() => {
+    const out: { [id: string]: CompExternal } = {};
+    for (const component of layout) {
+      out[component.id] = component;
+    }
+
+    return out;
+  }, [layout]);
+
+  if (children.forLayout !== layout) {
+    // Force a new first pass if the layout changes
+    setChildren({ forLayout: layout, map: undefined });
+    return null;
+  }
+
+  if (layout.length === 0) {
+    return null;
+  }
+
+  return (
+    <>
+      <MaintainPageState
+        layoutSet={layoutSet}
+        page={page}
+        name={name}
+        setHidden={setHidden}
+      />
+      {map === undefined &&
+        layout.map((component) => (
+          <ComponentClaimChildren
+            key={component.id}
+            component={component}
+            setChildren={setChildren}
+            getProto={getProto}
+          />
+        ))}
+      {NodeGeneratorDebug && <h2>Page: {name}</h2>}
+      {map !== undefined && (
+        <NodesGeneratorPageProvider
+          parent={page}
+          hidden={hidden}
+          layoutMap={layoutMap}
+          childrenMap={map}
+        >
+          <NodeChildren childIds={topLevelIds} />
+        </NodesGeneratorPageProvider>
+      )}
+    </>
+  );
+}
+
+interface MaintainPageStateProps {
+  layoutSet: LayoutPages;
+  page: LayoutPage;
+  name: string;
+  setHidden: React.Dispatch<React.SetStateAction<HiddenStatePage>>;
+}
+
+function MaintainPageState({ layoutSet, page, name, setHidden }: MaintainPageStateProps) {
   const addPage = NodesInternal.useAddPage();
   const setPageProp = NodesInternal.useSetPageProp();
   const removePage = NodesInternal.useRemovePage();
@@ -187,68 +272,10 @@ function Page({ layout, name, layoutSet }: PageProps) {
 
   NodeStages.MarkHidden.useEffect(() => {
     setPageProp(name, 'hidden', hidden);
-  }, [hidden, name, setPageProp]);
+    setHidden(hidden);
+  }, [hidden, name, setPageProp, setHidden]);
 
-  const getProto = useMemo(() => {
-    const proto: { [id: string]: ComponentProto } = {};
-
-    for (const component of layout) {
-      proto[component.id] = {
-        type: component.type,
-        capabilities: getComponentCapabilities(component.type),
-      };
-    }
-
-    return (id: string) => proto[id];
-  }, [layout]);
-
-  const map = children.map;
-  const claimedChildren = new Set(map ? Object.values(map).flat() : []);
-  const topLevelIds = layout.filter((component) => !claimedChildren.has(component.id)).map((component) => component.id);
-
-  const layoutMap = useMemo(() => {
-    const out: { [id: string]: CompExternal } = {};
-    for (const component of layout) {
-      out[component.id] = component;
-    }
-
-    return out;
-  }, [layout]);
-
-  if (children.forLayout !== layout) {
-    // Force a new first pass if the layout changes
-    setChildren({ forLayout: layout, map: undefined });
-    return null;
-  }
-
-  if (layout.length === 0) {
-    return null;
-  }
-
-  return (
-    <>
-      {map === undefined &&
-        layout.map((component) => (
-          <ComponentClaimChildren
-            key={component.id}
-            component={component}
-            setChildren={setChildren}
-            getProto={getProto}
-          />
-        ))}
-      {NodeGeneratorDebug && <h2>Page: {name}</h2>}
-      {map !== undefined && (
-        <NodesGeneratorPageProvider
-          parent={page}
-          hidden={hidden}
-          layoutMap={layoutMap}
-          childrenMap={map}
-        >
-          <NodeChildren childIds={topLevelIds} />
-        </NodesGeneratorPageProvider>
-      )}
-    </>
-  );
+  return null;
 }
 
 interface NodeChildrenProps {
