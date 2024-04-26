@@ -6,11 +6,10 @@ import cn from 'classnames';
 
 import classes from 'src/features/devtools/components/DevNavigationButtons/DevNavigationButtons.module.css';
 import { useIsInFormContext } from 'src/features/form/FormContext';
-import { useIsHiddenPage } from 'src/features/form/layout/PageNavigationContext';
 import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
-import { useNodes } from 'src/utils/layout/NodesContext';
+import { Hidden, useNodes } from 'src/utils/layout/NodesContext';
 
 export function DevNavigationButtons() {
   const isInForm = useIsInFormContext();
@@ -24,7 +23,7 @@ export function DevNavigationButtons() {
 const InnerDevNavigationButtons = () => {
   const pageKey = useNavigationParam('pageKey');
   const { navigateToPage } = useNavigatePage();
-  const isHiddenPage = useIsHiddenPage();
+  const isHiddenPage = Hidden.useIsHiddenPageSelector();
   const orderWithHidden = useLayoutSettings().pages.order;
   const ctx = useNodes();
   const order = orderWithHidden ?? [];

@@ -2,11 +2,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 import type { NavigateOptions } from 'react-router-dom';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
-import {
-  useHiddenPages,
-  useSetReturnToView,
-  useSetSummaryNodeOfOrigin,
-} from 'src/features/form/layout/PageNavigationContext';
+import { useSetReturnToView, useSetSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
 import { useLaxLayoutSettings, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useGetTaskType, useLaxProcessData, useTaskType } from 'src/features/instance/ProcessContext';
@@ -18,6 +14,7 @@ import {
 } from 'src/features/routing/AppRoutingContext';
 import { AppRouter } from 'src/index';
 import { ProcessTaskType } from 'src/types';
+import { Hidden } from 'src/utils/layout/NodesContext';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 import type { NavigationEffectCb } from 'src/features/routing/AppRoutingContext';
 
@@ -65,7 +62,7 @@ export const useCurrentView = () => useNavigationParam('pageKey');
 export const useOrder = () => {
   const maybeLayoutSettings = useLaxLayoutSettings();
   const orderWithHidden = maybeLayoutSettings === ContextNotProvided ? emptyArray : maybeLayoutSettings.pages.order;
-  const hiddenPages = useHiddenPages();
+  const hiddenPages = Hidden.useHiddenPages();
   return useMemo(() => orderWithHidden?.filter((page) => !hiddenPages.has(page)), [orderWithHidden, hiddenPages]);
 };
 

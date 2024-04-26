@@ -12,7 +12,9 @@ interface Collection {
  * by ID, and if you have colliding component IDs in multiple layouts it will prefer the one in the current layout.
  */
 export class LayoutPages {
+  // TODO: Remove _currentPage? We should not rely on this being used in the future.
   private _currentPage: string | undefined;
+
   private readonly objects: Collection = {};
 
   public constructor() {

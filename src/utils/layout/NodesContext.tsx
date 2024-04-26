@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createStore } from 'zustand';
@@ -12,8 +12,6 @@ import { Loader } from 'src/core/loading/Loader';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { shouldUpdate } from 'src/features/form/dynamics/conditionalRendering';
 import { useDynamics } from 'src/features/form/dynamics/DynamicsContext';
-import { useHiddenLayoutsExpressions } from 'src/features/form/layout/LayoutsContext';
-import { useHiddenPages, useSetHiddenPages } from 'src/features/form/layout/PageNavigationContext';
 import { useLaxLayoutSettings, useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { UpdateExpressionValidation } from 'src/features/validation/validationContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
@@ -336,6 +334,37 @@ export const Hidden = {
       isHidden(pickDataStorePath(s.pages, node).hidden, forcedVisibleByDevTools, options),
     );
   },
+  useIsHiddenPage: (pageKey: string, options?: IsHiddenOptions) => {
+    const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
+    return DataStore.useMemoSelector((s) => {
+      const page = s.pages.pages[pageKey];
+      if (!page) {
+        return true;
+      }
+      return isHidden(page.hidden, forcedVisibleByDevTools, options);
+    });
+  },
+  useIsHiddenPageSelector: () => {
+    const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
+    return DataStore.useDelayedMemoSelectorFactory({
+      selector: (pageKey: string) => (state) => {
+        const page = state.pages.pages[pageKey];
+        if (!page) {
+          return true;
+        }
+        return isHidden(page.hidden, forcedVisibleByDevTools);
+      },
+      makeCacheKey: (pageKey) => pageKey,
+    });
+  },
+  useHiddenPages: (): Set<string> => {
+    const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
+    const hiddenPages = DataStore.useLaxMemoSelector((s) => {
+      const pages = s.pages.pages;
+      return Object.keys(pages).filter((key) => isHidden(pages[key].hidden, forcedVisibleByDevTools));
+    });
+    return useMemo(() => new Set(hiddenPages === ContextNotProvided ? [] : hiddenPages), [hiddenPages]);
+  },
   useIsHiddenSelector: () => {
     const nodes = useNodes();
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
@@ -495,9 +524,6 @@ function useLegacyHiddenComponents(
 ) {
   const rules = useDynamics()?.conditionalRendering ?? null;
   const dataSources = useExpressionDataSources();
-  const hiddenExpr = useHiddenLayoutsExpressions();
-  const hiddenPages = useHiddenPages();
-  const setHiddenPages = useSetHiddenPages();
 
   useEffect(() => {
     if (!resolvedNodes) {
@@ -518,7 +544,7 @@ function useLegacyHiddenComponents(
       }
       return currentlyHidden;
     });
-  }, [dataSources, hiddenPages, hiddenExpr, resolvedNodes, rules, setHiddenPages, setHidden]);
+  }, [dataSources, resolvedNodes, rules, setHidden]);
 }
 
 /**
