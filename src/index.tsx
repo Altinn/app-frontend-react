@@ -45,9 +45,7 @@ export const AppRouter = createHashRouter([
     path: '*',
     element: (
       <ErrorBoundary>
-        <AppRoutingProvider>
-          <Root />
-        </AppRoutingProvider>
+        <Root />
       </ErrorBoundary>
     ),
   },
@@ -77,37 +75,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function Root() {
   return (
-    <InstantiationProvider>
-      <ApplicationMetadataProvider>
-        <GlobalFormDataReadersProvider>
-          <OrgsProvider>
-            <ApplicationSettingsProvider>
-              <LayoutSetsProvider>
-                <FooterLayoutProvider>
-                  <ProfileProvider>
-                    <PartyProvider>
-                      <TextResourcesProvider>
-                        <KeepAliveProvider>
-                          <WindowTitleProvider>
-                            <App />
-                            <ToastContainer
-                              position='top-center'
-                              theme='colored'
-                              transition={Slide}
-                              draggable={false}
-                            />
-                            <ScrollRestoration />
-                          </WindowTitleProvider>
-                        </KeepAliveProvider>
-                      </TextResourcesProvider>
-                    </PartyProvider>
-                  </ProfileProvider>
-                </FooterLayoutProvider>
-              </LayoutSetsProvider>
-            </ApplicationSettingsProvider>
-          </OrgsProvider>
-        </GlobalFormDataReadersProvider>
-      </ApplicationMetadataProvider>
-    </InstantiationProvider>
+    <AppRoutingProvider>
+      <InstantiationProvider>
+        <ApplicationMetadataProvider>
+          <GlobalFormDataReadersProvider>
+            <OrgsProvider>
+              <ApplicationSettingsProvider>
+                <LayoutSetsProvider>
+                  <FooterLayoutProvider>
+                    <ProfileProvider>
+                      <PartyProvider>
+                        <TextResourcesProvider>
+                          <KeepAliveProvider>
+                            <WindowTitleProvider>
+                              <App />
+                              <ToastContainer
+                                position='top-center'
+                                theme='colored'
+                                transition={Slide}
+                                draggable={false}
+                              />
+                              <ScrollRestoration />
+                            </WindowTitleProvider>
+                          </KeepAliveProvider>
+                        </TextResourcesProvider>
+                      </PartyProvider>
+                    </ProfileProvider>
+                  </FooterLayoutProvider>
+                </LayoutSetsProvider>
+              </ApplicationSettingsProvider>
+            </OrgsProvider>
+          </GlobalFormDataReadersProvider>
+        </ApplicationMetadataProvider>
+      </InstantiationProvider>
+    </AppRoutingProvider>
   );
 }

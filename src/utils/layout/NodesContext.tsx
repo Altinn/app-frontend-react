@@ -427,7 +427,15 @@ function getNodePath(nodeId: string | NodeRef | LayoutNode | LayoutPage, nodes: 
       : nodeId;
 
   if (!node) {
-    throw new Error(`Node not found: ${nodeId}`);
+    const asString = isNodeRef(nodeId)
+      ? nodeId.nodeRef
+      : typeof nodeId === 'string'
+        ? nodeId
+        : nodeId instanceof BaseLayoutNode
+          ? nodeId.getId()
+          : nodeId.pageKey;
+
+    throw new Error(`Node not found: ${asString}`);
   }
 
   return node instanceof LayoutPage ? [node.pageKey] : node.path;

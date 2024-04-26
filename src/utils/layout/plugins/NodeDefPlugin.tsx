@@ -26,7 +26,11 @@ export type DefPluginCompInternal<Config extends DefPluginConfig> = CompInternal
 export type DefPluginState<Config extends DefPluginConfig> = DefPluginBaseItemState<Config> &
   DefPluginExtraState<Config>;
 export type DefPluginStateFactoryProps<Config extends DefPluginConfig> = StateFactoryProps<DefPluginCompType<Config>>;
-export type DefPluginExprResolver<Config extends DefPluginConfig> = ExprResolver<DefPluginCompType<Config>> & {
+export type DefPluginExprResolver<Config extends DefPluginConfig> = Omit<
+  ExprResolver<DefPluginCompType<Config>>,
+  'item'
+> & {
+  item: DefPluginCompExternal<Config>;
   state: DefPluginState<Config>;
 };
 export type DefPluginCompExternal<Config extends DefPluginConfig> = Config['expectedFromExternal'];

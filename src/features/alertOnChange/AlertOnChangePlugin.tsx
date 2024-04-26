@@ -2,11 +2,15 @@ import { CG } from 'src/codegen/CG';
 import { ExprVal } from 'src/features/expressions/types';
 import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
+import type { ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { CompTypes } from 'src/layout/layout';
 import type { DefPluginExprResolver, DefPluginExtraInItem } from 'src/utils/layout/plugins/NodeDefPlugin';
 
 interface Config<PropName extends string> {
   componentType: CompTypes;
+  expectedFromExternal: {
+    [key in PropName]: ExprValToActualOrExpr<ExprVal.Boolean>;
+  };
   settings: {
     propName: PropName;
   };

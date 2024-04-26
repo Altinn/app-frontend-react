@@ -7,7 +7,7 @@ import { isNodeRef } from 'src/utils/layout/nodeRef';
 import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { GridRows } from 'src/layout/common.generated';
-import type { GridRowsInternal } from 'src/layout/Grid/types';
+import type { GridCellInternal, GridRowsInternal } from 'src/layout/Grid/types';
 import type { CompTypes } from 'src/layout/layout';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 import type { ItemStore } from 'src/utils/layout/itemState';
@@ -86,10 +86,33 @@ export class GridRowsPlugin<Type extends CompTypes>
     };
   }
 
-  evalDefaultExpressions(props: DefPluginExprResolver<Config<Type>>): Config<Type>['extraInItem'] {
-    return {
-      rows: (props.item as any).rows as GridRowsInternal,
-    };
+  extraNodeGeneratorChildren(): string {
+    const NodeChildren = new CG.import({
+      import: 'NodeChildren',
+      from: 'src/utils/layout/NodesGenerator',
+    });
+    return `<${NodeChildren} childIds={props.childIds} />`;
+  }
+
+  evalDefaultExpressions({ item }: DefPluginExprResolver<Config<Type>>): Config<Type>['extraInItem'] {
+    const rows: GridRowsInternal = [];
+    const externalRows = item?.rows || [];
+    for (const rowIdx in externalRows) {
+      rows.push({
+        cells: externalRows[rowIdx].cells.map((cell) => {
+          if (cell && 'component' in cell && cell.component) {
+            const { component, ...rest } = cell;
+            return {
+              nodeRef: component,
+              ...rest,
+            };
+          }
+          return cell;
+        }) as GridCellInternal[],
+      });
+    }
+
+    return { rows };
   }
 
   pickDirectChildren(
