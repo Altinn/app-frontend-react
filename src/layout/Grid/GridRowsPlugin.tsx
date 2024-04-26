@@ -99,6 +99,7 @@ export class GridRowsPlugin<Type extends CompTypes>
     const externalRows = item?.rows || [];
     for (const rowIdx in externalRows) {
       rows.push({
+        ...externalRows[rowIdx],
         cells: externalRows[rowIdx].cells.map((cell) => {
           if (cell && 'component' in cell && cell.component) {
             const { component, ...rest } = cell;
