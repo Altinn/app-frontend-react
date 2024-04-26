@@ -11,7 +11,7 @@ import { DevToolsTab } from 'src/features/devtools/data/types';
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { asExpression } from 'src/features/expressions/validation';
-import { useNavigatePage } from 'src/hooks/useNavigatePage';
+import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { useNodes } from 'src/utils/layout/NodesContext';
 import type { ExprConfig, Expression, ExprFunction } from 'src/features/expressions/types';
@@ -47,7 +47,7 @@ export const ExpressionPlayground = () => {
     },
   ]);
   const nodes = useNodes();
-  const { currentPageId } = useNavigatePage();
+  const currentPageId = useNavigationParam('pageKey');
 
   const dataSources = useExpressionDataSources();
   const setOutputWithHistory = useCallback(

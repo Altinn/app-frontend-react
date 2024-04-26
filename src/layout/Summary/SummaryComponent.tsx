@@ -8,9 +8,9 @@ import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
 import { useSetReturnToView, useSetSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
-import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Summary/SummaryComponent.module.css';
 import { SummaryContent } from 'src/layout/Summary/SummaryContent';
@@ -34,7 +34,7 @@ export interface ISummaryComponent {
 function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: React.Ref<HTMLDivElement>) {
   const display = overrides?.display || summaryNode.item.display;
   const { langAsString } = useLanguage();
-  const { currentPageId } = useNavigatePage();
+  const currentPageId = useNavigationParam('pageKey');
   const summaryItem = useNodeItem(summaryNode);
   const { id, grid } = summaryItem;
 
@@ -48,6 +48,7 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
   const navigateTo = useNavigateToNode();
   const setReturnToView = useSetReturnToView();
   const setNodeOfOrigin = useSetSummaryNodeOfOrigin();
+
   const onChangeClick = async () => {
     if (!targetView) {
       return;

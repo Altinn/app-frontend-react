@@ -34,7 +34,7 @@ function newStore() {
   }));
 }
 
-const { Provider, useSelector } = createZustandContext<ReturnType<typeof newStore>>({
+const { Provider, useSelector, useSelectorAsRef } = createZustandContext<ReturnType<typeof newStore>>({
   name: 'AppRouting',
   required: true,
   initialCreateStore: newStore,
@@ -50,11 +50,12 @@ export function AppRoutingProvider({ children }: PropsWithChildren) {
   );
 }
 
-export const useAllNavigationParams = () => useSelector((ctx) => ctx.params);
+export const useAllNavigationParamsAsRef = () => useSelectorAsRef((ctx) => ctx.params);
 export const useNavigationParam = (key: keyof Context['params']) => useSelector((ctx) => ctx.params[key]);
 export const useNavigationEffect = () => useSelector((ctx) => ctx.effectCallback);
 export const useSetNavigationEffect = () => useSelector((ctx) => ctx.setEffectCallback);
-export const useQueryKeysAsString = () => queryKeysToString(useSelector((ctx) => ctx.queryKeys));
+export const useQueryKeysAsString = () => useSelector((ctx) => queryKeysToString(ctx.queryKeys));
+export const useQueryKeysAsStringAsRef = () => useSelectorAsRef((ctx) => queryKeysToString(ctx.queryKeys));
 export const useQueryKey = (key: string) => useSelector((ctx) => ctx.queryKeys[key]);
 
 const useNavigationParams = (): Context['params'] => {

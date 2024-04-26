@@ -19,8 +19,8 @@ import { PDFWrapper } from 'src/features/pdf/PDFWrapper';
 import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { Feedback } from 'src/features/processEnd/feedback/Feedback';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
-import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
-import { TaskKeys, useNavigatePage } from 'src/hooks/useNavigatePage';
+import { useNavigationParam, useQueryKeysAsString } from 'src/features/routing/AppRoutingContext';
+import { TaskKeys, useIsCurrentTask, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 
@@ -62,16 +62,11 @@ export function InvalidTaskIdPage() {
 }
 
 export function ProcessWrapperWrapper() {
-  const { taskId, startUrl, queryKeys } = useNavigatePage();
+  const taskId = useNavigationParam('taskId');
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
 
   if (taskId === undefined && currentTaskId !== undefined) {
-    return (
-      <Navigate
-        to={`${startUrl}/${currentTaskId}${queryKeys}`}
-        replace
-      />
-    );
+    return <NavigateToStartUrl />;
   }
 
   return (
@@ -84,8 +79,21 @@ export function ProcessWrapperWrapper() {
   );
 }
 
+function NavigateToStartUrl() {
+  const queryKeys = useQueryKeysAsString();
+  const startUrl = useStartUrl();
+  const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
+  return (
+    <Navigate
+      to={`${startUrl}/${currentTaskId}${queryKeys}`}
+      replace
+    />
+  );
+}
+
 export const ProcessWrapper = () => {
-  const { isCurrentTask, isValidTaskId } = useNavigatePage();
+  const isCurrentTask = useIsCurrentTask();
+  const { isValidTaskId } = useNavigatePage();
   const taskId = useNavigationParam('taskId');
   const taskType = useTaskType(taskId);
   const realTaskType = useRealTaskType();

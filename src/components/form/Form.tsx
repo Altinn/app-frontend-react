@@ -14,9 +14,10 @@ import { useExpandedWidthLayouts } from 'src/features/form/layout/LayoutsContext
 import { useNavigateToNode, useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { useNavigationParam, useQueryKeysAsString } from 'src/features/routing/AppRoutingContext';
 import { FrontendValidationSource } from 'src/features/validation';
 import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
-import { SearchParams, useCurrentView, useNavigatePage } from 'src/hooks/useNavigatePage';
+import { SearchParams, useCurrentView, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
 import { GenericComponentById } from 'src/layout/GenericComponent';
 import { extractBottomButtons, hasRequiredFields } from 'src/utils/formLayout';
 import { useNodesMemoSelector, useResolvedNode } from 'src/utils/layout/NodesContext';
@@ -107,7 +108,8 @@ export function Form() {
 }
 
 export function FormFirstPage() {
-  const { startUrl, queryKeys } = useNavigatePage();
+  const startUrl = useStartUrl();
+  const queryKeys = useQueryKeysAsString();
   return (
     <Navigate
       to={startUrl + queryKeys}
@@ -122,7 +124,10 @@ export function FormFirstPage() {
  * it is no longer needed.
  */
 function useRedirectToStoredPage() {
-  const { currentPageId, partyId, instanceGuid, isValidPageId, navigateToPage } = useNavigatePage();
+  const pageKey = useNavigationParam('pageKey');
+  const partyId = useNavigationParam('partyId');
+  const instanceGuid = useNavigationParam('instanceGuid');
+  const { isValidPageId, navigateToPage } = useNavigatePage();
   const applicationMetadataId = useApplicationMetadata()?.id;
   const location = useLocation().pathname;
 
@@ -130,14 +135,14 @@ function useRedirectToStoredPage() {
   const currentViewCacheKey = instanceId || applicationMetadataId;
 
   useEffect(() => {
-    if (!currentPageId && !!currentViewCacheKey) {
+    if (!pageKey && !!currentViewCacheKey) {
       const lastVisitedPage = localStorage.getItem(currentViewCacheKey);
       if (lastVisitedPage !== null && isValidPageId(lastVisitedPage)) {
         localStorage.removeItem(currentViewCacheKey);
         navigateToPage(lastVisitedPage, { replace: true });
       }
     }
-  }, [currentPageId, currentViewCacheKey, isValidPageId, location, navigateToPage]);
+  }, [pageKey, currentViewCacheKey, isValidPageId, location, navigateToPage]);
 }
 
 /**

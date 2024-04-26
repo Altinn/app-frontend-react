@@ -8,6 +8,7 @@ import classes from 'src/features/devtools/components/DevNavigationButtons/DevNa
 import { useIsInFormContext } from 'src/features/form/FormContext';
 import { useIsHiddenPage } from 'src/features/form/layout/PageNavigationContext';
 import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { useNodes } from 'src/utils/layout/NodesContext';
 
@@ -21,7 +22,8 @@ export function DevNavigationButtons() {
 }
 
 const InnerDevNavigationButtons = () => {
-  const { navigateToPage, currentPageId } = useNavigatePage();
+  const pageKey = useNavigationParam('pageKey');
+  const { navigateToPage } = useNavigatePage();
   const isHiddenPage = useIsHiddenPage();
   const orderWithHidden = useLayoutSettings().pages.order;
   const ctx = useNodes();
@@ -82,7 +84,7 @@ const InnerDevNavigationButtons = () => {
               // TODO(DevTools): Navigate to hidden pages is not working
               disabled={isHidden(page)}
               onClick={() => handleChange(page)}
-              selected={currentPageId == page}
+              selected={pageKey == page}
             >
               {page}
             </Chip.Toggle>
@@ -91,7 +93,7 @@ const InnerDevNavigationButtons = () => {
       </div>
       <div className={cn(classes.dropdown, { [classes.responsiveDropdown]: !compactView })}>
         <LegacySelect
-          value={currentPageId}
+          value={pageKey}
           options={
             order?.map((page) => ({
               value: page,

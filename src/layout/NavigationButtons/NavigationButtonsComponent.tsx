@@ -6,7 +6,7 @@ import { Grid } from '@material-ui/core';
 import { useReturnToView, useSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
-import { useNavigatePage } from 'src/hooks/useNavigatePage';
+import { useNavigatePage, useNextPageKey, usePreviousPageKey } from 'src/hooks/useNavigatePage';
 import classes from 'src/layout/NavigationButtons/NavigationButtonsComponent.module.css';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -15,7 +15,9 @@ export type INavigationButtons = PropsFromGenericComponent<'NavigationButtons'>;
 
 export function NavigationButtonsComponent({ node }: INavigationButtons) {
   const { id, showBackButton, textResourceBindings, validateOnNext, validateOnPrevious } = useNodeItem(node);
-  const { navigateToPage, next, previous, maybeSaveOnPageChange } = useNavigatePage();
+  const { navigateToPage, maybeSaveOnPageChange } = useNavigatePage();
+  const next = useNextPageKey();
+  const previous = usePreviousPageKey();
   const returnToView = useReturnToView();
   const summaryItem = useSummaryNodeOfOrigin()?.item;
 

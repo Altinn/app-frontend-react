@@ -6,6 +6,7 @@ import cn from 'classnames';
 
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -115,7 +116,8 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
   const [showMenu, setShowMenu] = React.useState(false);
   const isMobile = useIsMobile() || compact === true;
   const { langAsString } = useLanguage();
-  const { navigateToPage, currentPageId, order, maybeSaveOnPageChange } = useNavigatePage();
+  const currentPageId = useNavigationParam('pageKey') ?? '';
+  const { navigateToPage, order, maybeSaveOnPageChange } = useNavigatePage();
   const onPageNavigationValidation = useOnPageNavigationValidation();
 
   const firstPageLink = React.useRef<HTMLButtonElement>();
