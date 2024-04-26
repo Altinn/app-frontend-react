@@ -53,6 +53,8 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
    * Gets the item state from the store.
    * Please note that this state is the current state, and getting this state will not make your component
    * re-render if this state changes. For that, useNodeItem() instead.
+   *
+   * TODO: Find usages and make them useNodeItem() instead.
    */
   public get item() {
     const node = pickDataStorePath(this.store.getState().pages, this.path);
