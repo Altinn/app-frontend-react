@@ -331,6 +331,16 @@ export const FD = {
   },
 
   /**
+   * Same as above, but for invalid data.
+   */
+  useInvalidDebouncedSelector(): FormDataSelector {
+    return useDelayedMemoSelectorFactory({
+      selector: (path: string) => (state) => dot.pick(path, state.invalidDebouncedCurrentData),
+      makeCacheKey: (path: string) => path,
+    });
+  },
+
+  /**
    * This will return the form data as a deep object, just like the server sends it to us (and the way we send it back).
    * This will always give you the debounced data, which may or may not be saved to the backend yet.
    */

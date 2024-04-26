@@ -49,18 +49,18 @@ export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): Co
  * Hook providing validation data sources
  */
 function useValidationDataSources(): ValidationDataSources {
-  const formData = FD.useDebounced();
-  const invalidData = FD.useInvalidDebounced();
+  const formDataSelector = FD.useDebouncedSelector();
+  const invalidDataSelector = FD.useInvalidDebouncedSelector();
   const attachments = useAttachments();
   const currentLanguage = useCurrentLanguage();
 
   return useMemo(
     () => ({
-      formData,
-      invalidData,
+      formDataSelector,
+      invalidDataSelector,
       attachments,
       currentLanguage,
     }),
-    [attachments, currentLanguage, formData, invalidData],
+    [attachments, currentLanguage, formDataSelector, invalidDataSelector],
   );
 }

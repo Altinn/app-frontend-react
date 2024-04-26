@@ -1,8 +1,6 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-import dot from 'dot-object';
-
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { ListDef } from 'src/layout/List/config.def.generated';
 import { ListComponent } from 'src/layout/List/ListComponent';
@@ -43,7 +41,7 @@ export class List extends ListDef {
   runEmptyFieldValidation(
     _node: LayoutNode<'List'>,
     item: CompInternal<'List'>,
-    { formData, invalidData }: ValidationDataSources,
+    { formDataSelector, invalidDataSelector }: ValidationDataSources,
   ): ComponentValidation[] {
     if (!item.required || !item.dataModelBindings) {
       return [];
@@ -55,7 +53,7 @@ export class List extends ListDef {
 
     let listHasErrors = false;
     for (const field of fields) {
-      const data = dot.pick(field, formData) ?? dot.pick(field, invalidData);
+      const data = formDataSelector(field) ?? invalidDataSelector(field);
       const dataAsString =
         typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : undefined;
 

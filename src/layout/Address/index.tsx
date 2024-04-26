@@ -1,8 +1,6 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-import dot from 'dot-object';
-
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { AddressComponent } from 'src/layout/Address/AddressComponent';
 import { AddressDef } from 'src/layout/Address/config.def.generated';
@@ -43,7 +41,7 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
   runComponentValidation(
     _node: LayoutNode<'Address'>,
     item: CompInternal<'Address'>,
-    { formData }: ValidationDataSources,
+    { formDataSelector }: ValidationDataSources,
   ): ComponentValidation[] {
     if (!item.dataModelBindings) {
       return [];
@@ -51,7 +49,7 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
     const validations: ComponentValidation[] = [];
 
     const zipCodeField = item.dataModelBindings.zipCode;
-    const zipCode = zipCodeField ? dot.pick(zipCodeField, formData) : undefined;
+    const zipCode = zipCodeField ? formDataSelector(zipCodeField) : undefined;
     const zipCodeAsString = typeof zipCode === 'string' || typeof zipCode === 'number' ? String(zipCode) : undefined;
 
     // TODO(Validation): Add better message for the special case of 0000 or add better validation for zipCodes that the API says are invalid
@@ -66,7 +64,7 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
     }
 
     const houseNumberField = item.dataModelBindings.houseNumber;
-    const houseNumber = houseNumberField ? dot.pick(houseNumberField, formData) : undefined;
+    const houseNumber = houseNumberField ? formDataSelector(houseNumberField) : undefined;
     const houseNumberAsString =
       typeof houseNumber === 'string' || typeof houseNumber === 'number' ? String(houseNumber) : undefined;
 

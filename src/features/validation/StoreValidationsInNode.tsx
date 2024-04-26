@@ -28,7 +28,6 @@ export function StoreValidationsInNode() {
   );
 
   const validations = useNodeValidation(node, shouldValidate);
-
   NodeStages.EvaluateExpressions.useEffect(() => {
     isAllAdded && setNodeProp(node, 'validations', validations);
   }, [isAllAdded, node, setNodeProp, validations]);

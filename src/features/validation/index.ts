@@ -1,6 +1,7 @@
 import type { IAttachments } from 'src/features/attachments';
 import type { Expression, ExprValToActual } from 'src/features/expressions/types';
 import type { TextReference, ValidLangParam } from 'src/features/language/useLanguage';
+import type { FormDataSelector } from 'src/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export enum FrontendValidationSource {
@@ -146,8 +147,8 @@ export type NodeValidation<Validation extends AnyValidation<any> = AnyValidation
  */
 export type ValidationDataSources = {
   currentLanguage: string;
-  formData: object;
-  invalidData: object;
+  formDataSelector: FormDataSelector;
+  invalidDataSelector: FormDataSelector;
   attachments: IAttachments;
 };
 
