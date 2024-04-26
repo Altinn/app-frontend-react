@@ -21,6 +21,7 @@ import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { type BackendValidationIssueGroups, BuiltInValidationIssueSources } from 'src/features/validation';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
+import { getUrlWithLanguage } from 'src/utils/urls/urlHelper';
 import { useIsStatelessApp } from 'src/utils/useIsStatelessApp';
 import type { SchemaLookupTool } from 'src/features/datamodel/useDataModelSchemaQuery';
 import type { IRuleConnections } from 'src/features/form/dynamics';
@@ -105,7 +106,7 @@ function useFormDataSaveMutation(dataType: string) {
       }
 
       // Add current language as a query parameter
-      const urlWithLanguage = `${dataModelUrl}&language=${currentLanguageRef.current}`;
+      const urlWithLanguage = getUrlWithLanguage(dataModelUrl, currentLanguageRef.current);
 
       if (isStateless) {
         const newDataModel = await doPostStatelessFormData(urlWithLanguage, next);

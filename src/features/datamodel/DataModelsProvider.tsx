@@ -17,11 +17,13 @@ import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useBackendValidationQuery } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { isDataModelReference } from 'src/utils/databindings';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import { HttpStatusCodes } from 'src/utils/network/networking';
+import { getUrlWithLanguage } from 'src/utils/urls/urlHelper';
 import type { SchemaLookupTool } from 'src/features/datamodel/useDataModelSchemaQuery';
 import type { BackendValidatorGroups, IExpressionValidations } from 'src/features/validation';
 
@@ -228,7 +230,7 @@ function LoadInitialData({ dataType }: LoaderProps) {
   const url = useDataModelUrl(true, dataType);
   const instance = useLaxInstanceData();
   const dataElementId = (instance && getFirstDataElementId(instance, dataType)) ?? null;
-  const { data, error } = useFormDataQuery(url);
+  const { data, error } = useFormDataQuery(getUrlWithLanguage(url, useCurrentLanguage()));
 
   useEffect(() => {
     if (data && url) {

@@ -12,7 +12,7 @@ const prodRegex = new RegExp(baseHostnameAltinnProd);
 const testRegex = new RegExp(baseHostnameAltinnTest);
 const localRegex = new RegExp(baseHostnameAltinnLocal);
 
-export const returnUrlToMessagebox = (url: string, partyId?: string | undefined): string | null => {
+export const returnUrlToMessagebox = (url: string, partyId?: number | undefined): string | null => {
   const baseUrl = returnBaseUrlToAltinn(url);
   if (!baseUrl) {
     return null;
@@ -39,7 +39,7 @@ export const returnUrlToArchive = (url: string): string | null => {
   return baseUrl + pathToArchive;
 };
 
-export const returnUrlToProfile = (url: string, partyId?: string | undefined): string | null => {
+export const returnUrlToProfile = (url: string, partyId?: number | undefined): string | null => {
   const baseUrl = returnBaseUrlToAltinn(url);
   if (!baseUrl) {
     return null;
@@ -119,4 +119,20 @@ export function getQueryStringFromObject(obj: Record<string, string | null | und
   const queryParams = new URLSearchParams(cleanObj);
   const queryString = queryParams.toString();
   return queryString ? `?${queryString}` : '';
+}
+
+export function getUrlWithLanguage<T extends string | undefined, R = T extends string ? string : undefined>(
+  url: T,
+  language: string | undefined,
+): R {
+  if (typeof url === 'undefined') {
+    return undefined as R;
+  }
+  const urlObj = new URL(url);
+  if (typeof language === 'string') {
+    urlObj.searchParams.set('language', language);
+  } else {
+    urlObj.searchParams.delete('language');
+  }
+  return urlObj.toString() as R;
 }

@@ -88,14 +88,6 @@ export type ValidationState = {
   components: ComponentValidations;
 };
 
-/**
- * Final validation format returned by backend validation.
- */
-export type BackendValidations = {
-  task: BaseValidation[];
-  dataModels: DataModelValidations;
-};
-
 export type DataModelValidations = {
   [dataType: string]: FieldValidations;
 };
