@@ -769,7 +769,12 @@ export const ExprFunctions = {
       if (path === null || propertyToSelect == null) {
         throw new ExprRuntimeError(this, `Cannot lookup dataModel null`);
       }
-      const array = this.dataSources.formDataSelector(path);
+
+      const dataType = this.dataSources.currentLayoutSet?.dataType;
+      if (dataType == null) {
+        throw new ExprRuntimeError(this, `Cannot lookup dataType undefined`);
+      }
+      const array = this.dataSources.formDataSelector({ property: path, dataType });
       if (typeof array != 'object' || !Array.isArray(array)) {
         return '';
       }
