@@ -1,3 +1,4 @@
+import { NodePathNotFound } from 'src/utils/layout/NodePathNotFound';
 import { pickDataStorePath } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { AttachmentValidation, ComponentValidation, FieldValidation } from 'src/features/validation/index';
@@ -71,16 +72,30 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
       useValidationVisibilitySelector: () =>
         store.useDelayedMemoSelectorFactory({
           selector: (node: LayoutNode) => (state) => {
-            const nodeStore = pickDataStorePath(state.pages, node) as ItemStore;
-            return 'validationVisibility' in nodeStore ? nodeStore.validationVisibility : 0;
+            try {
+              const nodeStore = pickDataStorePath(state.pages, node) as ItemStore;
+              return 'validationVisibility' in nodeStore ? nodeStore.validationVisibility : 0;
+            } catch (e) {
+              if (e instanceof NodePathNotFound) {
+                return 0;
+              }
+              throw e;
+            }
           },
           makeCacheKey: (node) => node.path.join('|'),
         }),
       useValidationsSelector: () =>
         store.useDelayedMemoSelectorFactory({
           selector: (node: LayoutNode) => (state) => {
-            const nodeStore = pickDataStorePath(state.pages, node) as ItemStore;
-            return 'validations' in nodeStore ? nodeStore.validations : emptyArray;
+            try {
+              const nodeStore = pickDataStorePath(state.pages, node) as ItemStore;
+              return 'validations' in nodeStore ? nodeStore.validations : emptyArray;
+            } catch (e) {
+              if (e instanceof NodePathNotFound) {
+                return emptyArray;
+              }
+              throw e;
+            }
           },
           makeCacheKey: (node) => node.path.join('|'),
         }),

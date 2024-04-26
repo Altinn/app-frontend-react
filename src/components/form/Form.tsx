@@ -14,7 +14,7 @@ import { useExpandedWidthLayouts } from 'src/features/form/layout/LayoutsContext
 import { useNavigateToNode, useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
-import { useNavigationParam, useQueryKeysAsString } from 'src/features/routing/AppRoutingContext';
+import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { FrontendValidationSource } from 'src/features/validation';
 import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { SearchParams, useCurrentView, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
@@ -109,10 +109,9 @@ export function Form() {
 
 export function FormFirstPage() {
   const startUrl = useStartUrl();
-  const queryKeys = useQueryKeysAsString();
   return (
     <Navigate
-      to={startUrl + queryKeys}
+      to={startUrl}
       replace
     />
   );

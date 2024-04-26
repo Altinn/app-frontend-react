@@ -19,7 +19,7 @@ import { PDFWrapper } from 'src/features/pdf/PDFWrapper';
 import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { Feedback } from 'src/features/processEnd/feedback/Feedback';
 import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
-import { useNavigationParam, useQueryKeysAsString } from 'src/features/routing/AppRoutingContext';
+import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { TaskKeys, useIsCurrentTask, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
@@ -80,12 +80,11 @@ export function ProcessWrapperWrapper() {
 }
 
 function NavigateToStartUrl() {
-  const queryKeys = useQueryKeysAsString();
-  const startUrl = useStartUrl();
   const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
+  const startUrl = useStartUrl(currentTaskId);
   return (
     <Navigate
-      to={`${startUrl}/${currentTaskId}${queryKeys}`}
+      to={startUrl}
       replace
     />
   );

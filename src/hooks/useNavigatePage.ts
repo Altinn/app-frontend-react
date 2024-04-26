@@ -9,6 +9,7 @@ import { useGetTaskType, useLaxProcessData, useTaskType } from 'src/features/ins
 import {
   useAllNavigationParamsAsRef,
   useNavigationParam,
+  useQueryKeysAsString,
   useQueryKeysAsStringAsRef,
   useSetNavigationEffect,
 } from 'src/features/routing/AppRoutingContext';
@@ -97,7 +98,8 @@ export const useNextPageKey = () => {
   return order?.[nextPageIndex];
 };
 
-export const useStartUrl = () => {
+export const useStartUrl = (forcedTaskId?: string) => {
+  const queryKeys = useQueryKeysAsString();
   const order = useOrder();
   const partyId = useNavigationParam('partyId');
   const instanceGuid = useNavigationParam('instanceGuid');
@@ -105,21 +107,24 @@ export const useStartUrl = () => {
   const taskType = useTaskType(taskId);
 
   return useMemo(() => {
+    if (typeof forcedTaskId === 'string') {
+      return `/instance/${partyId}/${instanceGuid}/${forcedTaskId}${queryKeys}`;
+    }
     if (taskType === ProcessTaskType.Archived) {
-      return `/instance/${partyId}/${instanceGuid}/${TaskKeys.ProcessEnd}`;
+      return `/instance/${partyId}/${instanceGuid}/${TaskKeys.ProcessEnd}${queryKeys}`;
     }
     if (taskType !== ProcessTaskType.Data && taskId !== undefined) {
-      return `/instance/${partyId}/${instanceGuid}/${taskId}`;
+      return `/instance/${partyId}/${instanceGuid}/${taskId}${queryKeys}`;
     }
     const firstPage = order?.[0];
     if (taskId && firstPage) {
-      return `/instance/${partyId}/${instanceGuid}/${taskId}/${firstPage}`;
+      return `/instance/${partyId}/${instanceGuid}/${taskId}/${firstPage}${queryKeys}`;
     }
     if (taskId) {
-      return `/instance/${partyId}/${instanceGuid}/${taskId}`;
+      return `/instance/${partyId}/${instanceGuid}/${taskId}${queryKeys}`;
     }
-    return `/instance/${partyId}/${instanceGuid}`;
-  }, [instanceGuid, order, partyId, taskId, taskType]);
+    return `/instance/${partyId}/${instanceGuid}${queryKeys}`;
+  }, [forcedTaskId, instanceGuid, order, partyId, queryKeys, taskId, taskType]);
 };
 
 export const useNavigatePage = () => {

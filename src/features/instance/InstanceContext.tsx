@@ -113,7 +113,10 @@ const InnerInstanceProvider = ({
   }, [changeData, instantiation.lastResult, instantiation.error]);
 
   useEffect(() => {
-    changeData((prev) => (fetchQuery.error ? undefined : fetchQuery.data ?? prev));
+    if (fetchQuery.data) {
+      changeData(() => fetchQuery.data);
+      setForceFetching(false);
+    }
   }, [changeData, fetchQuery.data, fetchQuery.error]);
 
   // Update error states
@@ -126,7 +129,7 @@ const InnerInstanceProvider = ({
     return <DisplayError error={error} />;
   }
 
-  if (!data) {
+  if (!data || forceFetching) {
     return <Loader reason='instance' />;
   }
 
