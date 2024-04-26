@@ -60,7 +60,7 @@ const useNavigate = () => {
 };
 
 export const useCurrentView = () => useNavigationParam('pageKey');
-export const useOrder = () => {
+export const usePageOrder = () => {
   const maybeLayoutSettings = useLaxLayoutSettings();
   const orderWithHidden = maybeLayoutSettings === ContextNotProvided ? emptyArray : maybeLayoutSettings.pages.order;
   const hiddenPages = Hidden.useHiddenPages();
@@ -79,7 +79,7 @@ export const useIsCurrentTask = () => {
 };
 
 export const usePreviousPageKey = () => {
-  const order = useOrder();
+  const order = usePageOrder();
 
   const currentPageId = useNavigationParam('pageKey') ?? '';
   const currentPageIndex = order?.indexOf(currentPageId) ?? -1;
@@ -89,7 +89,7 @@ export const usePreviousPageKey = () => {
 };
 
 export const useNextPageKey = () => {
-  const order = useOrder();
+  const order = usePageOrder();
 
   const currentPageId = useNavigationParam('pageKey') ?? '';
   const currentPageIndex = order?.indexOf(currentPageId) ?? -1;
@@ -100,7 +100,7 @@ export const useNextPageKey = () => {
 
 export const useStartUrl = (forcedTaskId?: string) => {
   const queryKeys = useQueryKeysAsString();
-  const order = useOrder();
+  const order = usePageOrder();
   const partyId = useNavigationParam('partyId');
   const instanceGuid = useNavigationParam('instanceGuid');
   const taskId = useNavigationParam('taskId');
@@ -138,7 +138,7 @@ export const useNavigatePage = () => {
   const getTaskType = useGetTaskType();
 
   const { autoSaveBehavior } = usePageSettings();
-  const order = useOrder();
+  const order = usePageOrder();
 
   const isValidPageId = useCallback(
     (_pageId: string) => {

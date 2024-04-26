@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { filterValidations, getVisibilityMask, selectValidations } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
-import { useOrder } from 'src/hooks/useNavigatePage';
+import { usePageOrder } from 'src/hooks/useNavigatePage';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { PageValidation } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -18,7 +18,7 @@ export function useOnPageNavigationValidation() {
   const setNodeVisibility = NodesInternal.useSetNodeVisibility();
   const getNodeValidations = NodesInternal.useValidationsSelector();
   const validating = Validation.useValidating();
-  const pageOrder = useOrder();
+  const pageOrder = usePageOrder();
 
   /* Ensures the callback will have the latest state */
   const callback = useEffectEvent((currentPage: LayoutPage, config: PageValidation): boolean => {

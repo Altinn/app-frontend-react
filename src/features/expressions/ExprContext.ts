@@ -13,11 +13,6 @@ import type { IApplicationSettings, IAuthContext, IInstanceDataSources, IProcess
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
-export type PageNavigationConfig = {
-  currentView?: string;
-  order?: string[];
-};
-
 export interface ContextDataSources {
   process?: IProcess;
   instanceDataSources: IInstanceDataSources | null;

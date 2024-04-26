@@ -1,8 +1,6 @@
 import { splitDashedKey } from 'src/utils/formLayout';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
-import type { PageNavigationConfig } from 'src/features/expressions/ExprContext';
 import type { NodeRef } from 'src/layout';
-import type { ILayoutSettings } from 'src/layout/common.generated';
 import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
@@ -154,27 +152,5 @@ export class LayoutPage implements LayoutObject {
     if (this.pageKey !== undefined && this.layoutSet) {
       this.layoutSet.removePage(this.pageKey);
     }
-  }
-
-  public isHiddenViaTracks(layoutSettings: ILayoutSettings, pageNavigationConfig: PageNavigationConfig): boolean {
-    const myKey = this.pageKey;
-    if (myKey === pageNavigationConfig.currentView) {
-      // If this is the current view, then it's never hidden. This avoids settings fields as hidden when
-      // code caused this to be the current view even if it's not in the common order.
-      return false;
-    }
-
-    if (layoutSettings.pages.pdfLayoutName && myKey === layoutSettings.pages.pdfLayoutName) {
-      // If this is the pdf layout, then it's never hidden.
-      return false;
-    }
-
-    const { order } = pageNavigationConfig;
-    if (!order) {
-      // If no pageOrderConfig is provided, then we can't determine if this is hidden or not
-      return false;
-    }
-
-    return !order.includes(myKey);
   }
 }

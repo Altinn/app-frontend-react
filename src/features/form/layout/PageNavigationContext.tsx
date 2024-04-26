@@ -1,12 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
 import { createStore } from 'zustand';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
-import { useCurrentView, useOrder } from 'src/hooks/useNavigatePage';
 import { useResolvedNode } from 'src/utils/layout/NodesContext';
-import type { PageNavigationConfig } from 'src/features/expressions/ExprContext';
 import type { CompSummaryExternal } from 'src/layout/Summary/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -54,13 +52,6 @@ export function PageNavigationProvider({ children }: React.PropsWithChildren) {
     </Provider>
   );
 }
-
-export const usePageNavigationConfig = (): PageNavigationConfig => {
-  const currentView = useCurrentView();
-  const order = useOrder();
-
-  return useMemo(() => ({ currentView, order }), [currentView, order]);
-};
 
 export const useReturnToView = () => {
   const returnToView = useLaxSelector((ctx) => ctx.returnToView);

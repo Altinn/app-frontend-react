@@ -1,13 +1,12 @@
 import { useMemo } from 'react';
 
-import { usePageNavigationConfig } from 'src/features/form/layout/PageNavigationContext';
 import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { usePdfFormatQuery } from 'src/features/pdf/usePdfFormatQuery';
+import { usePageOrder } from 'src/hooks/useNavigatePage';
 import { getComponentDef } from 'src/layout';
 import { useExpressionDataSources } from 'src/utils/layout/hierarchy';
 import { generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { Hidden, useNodes } from 'src/utils/layout/NodesContext';
-import type { PageNavigationConfig } from 'src/features/expressions/ExprContext';
 import type { IPdfFormat } from 'src/features/pdf/types';
 import type { CompInstanceInformationExternal } from 'src/layout/InstanceInformation/config.generated';
 import type { HierarchyDataSources, ILayout } from 'src/layout/layout';
@@ -19,7 +18,7 @@ const PDF_LAYOUT_NAME = '__pdf__';
 
 export const usePdfPage = (): LayoutPage | null => {
   const layoutPages = useNodes();
-  const pageNavigationConfig = usePageNavigationConfig();
+  const pageOrder = usePageOrder();
   const dataSources = useExpressionDataSources();
   const pdfLayoutName = useLayoutSettings().pages.pdfLayoutName;
   const isHiddenPage = Hidden.useIsHiddenPageSelector();
@@ -33,10 +32,10 @@ export const usePdfPage = (): LayoutPage | null => {
 
   const automaticPdfPage = useMemo(() => {
     if (readyForPrint && method === 'auto') {
-      return generateAutomaticPage(pdfFormat!, pageNavigationConfig!, isHiddenPage, layoutPages!, dataSources);
+      return generateAutomaticPage(pdfFormat!, pageOrder, isHiddenPage, layoutPages!, dataSources);
     }
     return null;
-  }, [readyForPrint, method, pdfFormat, pageNavigationConfig, layoutPages, dataSources, isHiddenPage]);
+  }, [readyForPrint, method, pdfFormat, pageOrder, layoutPages, dataSources, isHiddenPage]);
 
   if (!readyForPrint) {
     return null;
@@ -51,7 +50,7 @@ export const usePdfPage = (): LayoutPage | null => {
 
 function generateAutomaticPage(
   pdfFormat: IPdfFormat,
-  pageNavigationConfig: PageNavigationConfig,
+  pageOrder: string[],
   isHiddenPage: (pageId: string) => boolean,
   layoutPages: LayoutPages,
   dataSources: HierarchyDataSources,
@@ -76,7 +75,6 @@ function generateAutomaticPage(
 
   const excludedPages = new Set(pdfFormat?.excludedPages);
   const excludedComponents = new Set(pdfFormat?.excludedComponents);
-  const pageOrder = pageNavigationConfig.order;
 
   // Iterate over all pages, and add all components that should be included in the automatic PDF as summary components
   Object.entries(layoutPages.all())
