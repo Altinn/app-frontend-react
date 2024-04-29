@@ -11,8 +11,20 @@ import { CompCategory } from 'src/layout/common';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { GroupComponent } from 'src/layout/Group/GroupComponent';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
+import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import type { NodeRef } from 'src/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+
+const PDFComponentFromRef = ({ ref }: { ref: NodeRef }) => {
+  const node = useNode(ref);
+  return (
+    <PDFComponent
+      key={ref.nodeRef}
+      node={node}
+    />
+  );
+};
 
 const PDFComponent = ({ node }: { node: LayoutNode }) => {
   const item = useNodeItem(node);
@@ -30,10 +42,10 @@ const PDFComponent = ({ node }: { node: LayoutNode }) => {
     return (
       <GroupComponent
         groupNode={node}
-        renderLayoutNode={(child: LayoutNode) => (
-          <PDFComponent
-            key={child.getId()}
-            node={child}
+        renderLayoutNode={(ref) => (
+          <PDFComponentFromRef
+            key={ref.nodeRef}
+            ref={ref}
           />
         )}
       />

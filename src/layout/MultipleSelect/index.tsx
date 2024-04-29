@@ -3,13 +3,14 @@ import type { JSX } from 'react';
 
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
-import { useAllOptionsSelector } from 'src/features/options/useAllOptions';
+import { useNodeOptionsSelector } from 'src/features/options/useNodeOptions';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import { MultipleSelectDef } from 'src/layout/MultipleSelect/config.def.generated';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
+import type { NodeOptionsSelector } from 'src/features/options/OptionsStorePlugin';
 import type { FormDataSelector, PropsFromGenericComponent } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -25,7 +26,7 @@ export class MultipleSelect extends MultipleSelectDef {
   private getSummaryData(
     node: LayoutNode<'MultipleSelect'>,
     langTools: IUseLanguage,
-    options: ReturnType<typeof useAllOptionsSelector>,
+    optionsSelector: NodeOptionsSelector,
     formDataSelector: FormDataSelector,
   ): { [key: string]: string } {
     if (!node.item.dataModelBindings?.simpleBinding) {
@@ -33,7 +34,7 @@ export class MultipleSelect extends MultipleSelectDef {
     }
 
     const value = String(node.getFormData(formDataSelector).simpleBinding ?? '');
-    const optionList = options(node.getId());
+    const optionList = optionsSelector(node);
     return getCommaSeparatedOptionsToText(value, optionList, langTools);
   }
 
@@ -47,7 +48,7 @@ export class MultipleSelect extends MultipleSelectDef {
 
   renderSummary({ targetNode, formDataSelector }: SummaryRendererProps<'MultipleSelect'>): JSX.Element | null {
     const langTools = useLanguage();
-    const options = useAllOptionsSelector();
+    const options = useNodeOptionsSelector();
     const summaryData = this.getSummaryData(targetNode, langTools, options, formDataSelector);
     return <MultipleChoiceSummary formData={summaryData} />;
   }

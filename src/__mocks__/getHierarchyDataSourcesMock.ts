@@ -7,7 +7,7 @@ export function getHierarchyDataSourcesMock(): HierarchyDataSources {
     formDataSelector: () => null,
     attachments: {},
     layoutSettings: { pages: { order: [] } },
-    options: () => [],
+    optionsSelector: () => [],
     applicationSettings: getApplicationSettingsMock(),
     instanceDataSources: {} as any,
     authContext: null,

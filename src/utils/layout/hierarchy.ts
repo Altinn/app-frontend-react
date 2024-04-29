@@ -9,7 +9,7 @@ import { useLaxInstanceDataSources } from 'src/features/instance/InstanceContext
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useLangToolsRef } from 'src/features/language/LangToolsStore';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
-import { useAllOptionsSelector } from 'src/features/options/useAllOptions';
+import { useNodeOptionsSelector } from 'src/features/options/useNodeOptions';
 import { getComponentDef } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
@@ -37,7 +37,7 @@ export function useExpressionDataSources(): HierarchyDataSources {
   const formDataSelector = FD.useDebouncedSelector();
   const layoutSettings = useLayoutSettings();
   const attachments = useAttachments();
-  const options = useAllOptionsSelector(true);
+  const optionsSelector = useNodeOptionsSelector();
   const process = useLaxProcessData();
   const applicationSettings = useApplicationSettings();
   const devToolsIsOpen = useDevToolsStore((state) => state.isOpen);
@@ -52,7 +52,7 @@ export function useExpressionDataSources(): HierarchyDataSources {
       attachments: attachments || emptyObject,
       layoutSettings,
       process,
-      options: options || emptyObject,
+      optionsSelector,
       applicationSettings,
       instanceDataSources,
       authContext,
@@ -65,7 +65,7 @@ export function useExpressionDataSources(): HierarchyDataSources {
       formDataSelector,
       attachments,
       layoutSettings,
-      options,
+      optionsSelector,
       process,
       applicationSettings,
       instanceDataSources,

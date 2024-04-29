@@ -6,7 +6,7 @@ import type { IAttachments } from 'src/features/attachments';
 import type { EvalExprOptions } from 'src/features/expressions/index';
 import type { ExprConfig, Expression, ExprPositionalArgs } from 'src/features/expressions/types';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
-import type { useAllOptionsSelector } from 'src/features/options/useAllOptions';
+import type { NodeOptionsSelector } from 'src/features/options/OptionsStorePlugin';
 import type { FormDataSelector } from 'src/layout';
 import type { ILayoutSettings } from 'src/layout/common.generated';
 import type { IApplicationSettings, IAuthContext, IInstanceDataSources, IProcess } from 'src/types/shared';
@@ -20,7 +20,7 @@ export interface ContextDataSources {
   formDataSelector: FormDataSelector;
   attachments: IAttachments;
   layoutSettings: ILayoutSettings;
-  options: ReturnType<typeof useAllOptionsSelector>;
+  optionsSelector: NodeOptionsSelector;
   authContext: Partial<IAuthContext> | null;
   langToolsRef: {
     // We pass langTools as a ref, because it itself re-renders a lot, and we don't want to

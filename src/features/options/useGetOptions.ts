@@ -18,7 +18,7 @@ import type {
 } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-type ValueType = 'single' | 'multi';
+export type OptionsValueType = 'single' | 'multi';
 
 const getLabelsForActiveOptions = (selectedOptions: string[], allOptions: IOptionInternal[]): string[] =>
   allOptions.filter((option) => selectedOptions.includes(option.value)).map((option) => option.label);
@@ -35,7 +35,7 @@ const useHasChanged = (val: any) => {
   return prevVal !== val;
 };
 
-interface Props<T extends ValueType> {
+interface Props<T extends OptionsValueType> {
   valueType: T;
 
   // Generic props
@@ -58,13 +58,13 @@ interface Props<T extends ValueType> {
   sortOrder?: SortOrder;
 }
 
-type CurrentValue<T extends ValueType> = T extends 'single' ? IOptionInternal | undefined : IOptionInternal[];
-type CurrentValueAsString<T extends ValueType> = T extends 'single' ? string : string[];
-type ValueSetter<T extends ValueType> = T extends 'single'
+type CurrentValue<T extends OptionsValueType> = T extends 'single' ? IOptionInternal | undefined : IOptionInternal[];
+type CurrentValueAsString<T extends OptionsValueType> = T extends 'single' ? string : string[];
+type ValueSetter<T extends OptionsValueType> = T extends 'single'
   ? (value: string | IOptionInternal) => void
   : (value: string[] | IOptionInternal[]) => void;
 
-export interface OptionsResult<T extends ValueType> {
+export interface OptionsResult<T extends OptionsValueType> {
   // The current value, as an option (for single-option components) or an array of options (for multi-option components)
   // It is recommended to use this, and you can also compare this (object) value to the options (array of objects),
   // as the object references themselves are guaranteed to be the same.
@@ -92,7 +92,7 @@ export interface OptionsResult<T extends ValueType> {
   isError: boolean;
 }
 
-interface EffectProps<T extends ValueType> {
+interface EffectProps<T extends OptionsValueType> {
   options: IOptionInternal[] | undefined;
   disable: boolean;
   valueType: T;
@@ -114,7 +114,7 @@ const compareOptionAlphabetically =
     return sortOrder === 'asc' ? comparison : -comparison;
   };
 
-export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResult<T> {
+export function useGetOptions<T extends OptionsValueType>(props: Props<T>): OptionsResult<T> {
   const {
     node,
     options,
@@ -272,7 +272,7 @@ export function useGetOptions<T extends ValueType>(props: Props<T>): OptionsResu
  * If given the 'preselectedOptionIndex' property, we should automatically select the given option index as soon
  * as options are ready. The code is complex to guard against overwriting data that has been set by the user.
  */
-function usePreselectedOptionIndex<T extends ValueType>(props: EffectProps<T>) {
+function usePreselectedOptionIndex<T extends OptionsValueType>(props: EffectProps<T>) {
   const { disable, preselectedOption } = props;
   const hasSelectedInitial = useRef(false);
   const hasValue = isSingle(props) ? !!props.currentValue : isMulti(props) ? props.currentValue.length > 0 : false;
@@ -296,7 +296,7 @@ function usePreselectedOptionIndex<T extends ValueType>(props: EffectProps<T>) {
  * from a repeating group. If the options changed and the selected option (or selected row in a repeating group)
  * is gone, we should not save stale/invalid data, so we clear it.
  */
-function useRemoveStaleValues<T extends ValueType>(props: EffectProps<T>) {
+function useRemoveStaleValues<T extends OptionsValueType>(props: EffectProps<T>) {
   const { options, disable } = props;
   useEffect(() => {
     if (disable) {
@@ -318,10 +318,10 @@ function useRemoveStaleValues<T extends ValueType>(props: EffectProps<T>) {
   }, [disable, options, props]);
 }
 
-function isSingle(props: EffectProps<ValueType>): props is EffectProps<'single'> {
+function isSingle(props: EffectProps<OptionsValueType>): props is EffectProps<'single'> {
   return props.valueType === 'single';
 }
 
-function isMulti(props: EffectProps<ValueType>): props is EffectProps<'multi'> {
+function isMulti(props: EffectProps<OptionsValueType>): props is EffectProps<'multi'> {
   return props.valueType === 'multi';
 }

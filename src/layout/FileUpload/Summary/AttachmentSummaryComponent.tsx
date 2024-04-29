@@ -3,7 +3,7 @@ import React from 'react';
 import { isAttachmentUploaded } from 'src/features/attachments';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useAllOptions } from 'src/features/options/useAllOptions';
+import { useNodeOptions } from 'src/features/options/useNodeOptions';
 import classes from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent.module.css';
 import { useUploaderSummaryData } from 'src/layout/FileUpload/Summary/summary';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -17,9 +17,10 @@ export function AttachmentSummaryComponent({ targetNode }: IAttachmentSummaryCom
   const attachments = useUploaderSummaryData(targetNode);
   const { langAsString } = useLanguage();
   const component = useNodeItem(targetNode);
-  const allOptions = useAllOptions();
   const hasTag = component.type === 'FileUploadWithTag';
-  const options = hasTag ? allOptions[component.id] : undefined;
+
+  const allOptions = useNodeOptions(targetNode as LayoutNode<'FileUploadWithTag'>);
+  const options = hasTag ? allOptions : undefined;
 
   const tryToGetTextResource = (tag: string) => {
     const label = options?.find((option) => option.value === tag)?.label;

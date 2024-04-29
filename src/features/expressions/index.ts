@@ -462,7 +462,7 @@ export const ExprFunctions = {
 
       return (def as DisplayData<any>).getDisplayData(targetNode, node.item, {
         attachments: this.dataSources.attachments,
-        optionsSelector: this.dataSources.options,
+        optionsSelector: this.dataSources.optionsSelector,
         langTools: this.dataSources.langToolsRef.current,
         currentLanguage: this.dataSources.currentLanguage,
         formDataSelector: this.dataSources.formDataSelector,

@@ -1,4 +1,5 @@
 import React from 'react';
+import type { JSX } from 'react';
 
 import { Heading } from '@digdir/designsystemet-react';
 import cn from 'classnames';
@@ -9,7 +10,9 @@ import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/Group/GroupComponent.module.css';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { Hidden } from 'src/utils/layout/NodesContext';
+import { useNodeDirectChildren, useNodeItem } from 'src/utils/layout/useNodeItem';
+import type { NodeRef } from 'src/layout';
 import type { HeadingLevel } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -19,7 +22,7 @@ export interface IGroupComponent {
   id?: string;
   onlyInRowUuid?: string;
   isSummary?: boolean;
-  renderLayoutNode: (node: LayoutNode) => JSX.Element | null;
+  renderLayoutNode: (nodeRef: NodeRef) => JSX.Element | null;
 }
 
 const headingSizes: { [k in HeadingLevel]: Parameters<typeof Heading>[0]['size'] } = {
@@ -40,8 +43,12 @@ export function GroupComponent({
 }: IGroupComponent) {
   const container = useNodeItem(groupNode);
   const { title, summaryTitle, description } = container.textResourceBindings ?? {};
+  const isHidden = Hidden.useIsHidden(groupNode);
 
-  if (groupNode.isHidden()) {
+  const restriction = typeof onlyInRowUuid === 'string' ? { onlyInRowUuid } : undefined;
+  const children = useNodeDirectChildren(groupNode, restriction);
+
+  if (isHidden) {
     return null;
   }
 
@@ -52,7 +59,6 @@ export function GroupComponent({
     container.headingLevel ?? (Math.min(Math.max(groupNode.parents().length + 1, 2), 6) as HeadingLevel);
   const headingSize = headingSizes[headingLevel];
   const legend = isSummary ? summaryTitle ?? title : title;
-  const restriction = typeof onlyInRowUuid === 'string' ? { onlyInRowUuid } : undefined;
 
   return (
     <ConditionalWrapper
@@ -80,7 +86,7 @@ export function GroupComponent({
           data-testid='display-group-container'
           className={cn({ [classes.groupingIndicator]: isIndented && !isNested }, classes.groupContainer)}
         >
-          {groupNode.children(undefined, restriction).map((n) => renderLayoutNode(n))}
+          {children.map((n) => renderLayoutNode(n))}
         </div>
       </Fieldset>
     </ConditionalWrapper>

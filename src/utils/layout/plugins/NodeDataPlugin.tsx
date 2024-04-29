@@ -3,8 +3,8 @@ import type { Draft } from 'immer';
 import type { NodesDataContext, NodesDataStoreFull } from 'src/utils/layout/NodesContext';
 
 export interface NodeDataPluginConfig {
-  extraFunctions: Record<string, (...args: any[]) => any>;
-  extraHooks: Record<string, (...args: any[]) => any>;
+  extraFunctions?: Record<string, (...args: any[]) => any>;
+  extraHooks?: Record<string, (...args: any[]) => any>;
 }
 
 export type NodeDataPluginSetState<T> = (fn: (state: Draft<T>) => void) => void;

@@ -40,7 +40,7 @@ export class LikertItem extends LikertItemDef {
     }
 
     const value = String(node.getFormData(formDataSelector).simpleBinding ?? '');
-    const optionList = optionsSelector(node.getId());
+    const optionList = optionsSelector(node);
     return getSelectedValueToText(value, langTools, optionList) || '';
   }
 

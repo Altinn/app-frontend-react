@@ -25,7 +25,7 @@ export class RadioButtons extends RadioButtonsDef {
     { langTools, optionsSelector, formDataSelector }: DisplayDataProps,
   ): string {
     const value = String(node.getFormData(formDataSelector).simpleBinding ?? '');
-    const optionList = optionsSelector(node.getId());
+    const optionList = optionsSelector(node);
     return getSelectedValueToText(value, langTools, optionList) || '';
   }
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import cn from 'classnames';
 
@@ -13,7 +13,9 @@ import { GroupComponent } from 'src/layout/Group/GroupComponent';
 import classes from 'src/layout/Group/SummaryGroupComponent.module.css';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
+import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import type { NodeRef } from 'src/layout';
 import type { ITextResourceBindings } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
@@ -41,8 +43,11 @@ export function SummaryGroupComponent({
   const { langAsString } = useLanguage();
   const formDataSelector = FD.useDebouncedSelector();
 
-  const inExcludedChildren = (n: LayoutNode) =>
-    excludedChildren && (excludedChildren.includes(n.getId()) || excludedChildren.includes(n.getBaseId()));
+  const inExcludedChildren = useCallback(
+    (n: LayoutNode) =>
+      excludedChildren ? excludedChildren.includes(n.getId()) || excludedChildren.includes(n.getBaseId()) : false,
+    [excludedChildren],
+  );
 
   const groupValidations = useDeepValidationsForNode(targetNode);
   const groupHasErrors = hasValidationErrors(groupValidations);
@@ -63,24 +68,14 @@ export function SummaryGroupComponent({
             id={`summary-${targetNode.getId()}`}
             groupNode={targetNode}
             isSummary={true}
-            renderLayoutNode={(n) => {
-              if (inExcludedChildren(n) || n.isHidden()) {
-                return null;
-              }
-
-              return (
-                <SummaryComponent
-                  key={n.getId()}
-                  summaryNode={summaryNode}
-                  overrides={{
-                    ...overrides,
-                    targetNode: n,
-                    grid: {},
-                    largeGroup: true,
-                  }}
-                />
-              );
-            }}
+            renderLayoutNode={(ref) => (
+              <SummaryComponentFromRef
+                ref={ref}
+                summaryNode={summaryNode}
+                overrides={overrides}
+                inExcludedChildren={inExcludedChildren}
+              />
+            )}
           />
         }
       </>
@@ -153,5 +148,32 @@ export function SummaryGroupComponent({
         </div>
       )}
     </>
+  );
+}
+
+interface SummaryComponentFromRefProps {
+  ref: NodeRef;
+  summaryNode: LayoutNode<'Summary'>;
+  inExcludedChildren: (node: LayoutNode) => boolean;
+  overrides?: ISummaryComponent['overrides'];
+}
+
+function SummaryComponentFromRef({ ref, inExcludedChildren, summaryNode, overrides }: SummaryComponentFromRefProps) {
+  const targetNode = useNode(ref);
+  const isHidden = Hidden.useIsHidden(targetNode);
+  if (inExcludedChildren(targetNode) || isHidden) {
+    return null;
+  }
+
+  return (
+    <SummaryComponent
+      summaryNode={summaryNode}
+      overrides={{
+        ...overrides,
+        targetNode,
+        grid: {},
+        largeGroup: true,
+      }}
+    />
   );
 }

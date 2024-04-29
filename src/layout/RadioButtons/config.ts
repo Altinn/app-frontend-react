@@ -1,6 +1,7 @@
 import { CG } from 'src/codegen/CG';
 import { LabelRendering } from 'src/codegen/Config';
 import { AlertOnChangePlugin } from 'src/features/alertOnChange/AlertOnChangePlugin';
+import { OptionsPlugin } from 'src/features/options/OptionsPlugin';
 import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
@@ -17,8 +18,8 @@ export const Config = new CG.component({
   },
 })
   .addDataModelBinding(CG.common('IDataModelBindingsOptionsSimple'))
-  .makeSelectionComponent()
   .addProperty(new CG.prop('layout', CG.common('LayoutStyle').optional()))
+  .addPlugin(new OptionsPlugin({ supportsPreselection: true, type: 'single' }))
   .addPlugin(
     new AlertOnChangePlugin({
       propName: 'alertOnChange',

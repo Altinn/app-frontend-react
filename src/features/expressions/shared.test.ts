@@ -16,7 +16,7 @@ import { _private } from 'src/utils/layout/hierarchy';
 import { generateEntireHierarchy, generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { FunctionTest, SharedTestContext, SharedTestContextList } from 'src/features/expressions/shared';
 import type { Expression } from 'src/features/expressions/types';
-import type { AllOptionsMap } from 'src/features/options/useAllOptions';
+import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { HierarchyDataSources } from 'src/layout/layout';
 import type { IApplicationSettings } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -84,7 +84,7 @@ describe('Expressions shared function tests', () => {
           return;
         }
 
-        const options: AllOptionsMap = {};
+        const options: { [nodeId: string]: IOptionInternal[] | undefined } = {};
         const dataSources: HierarchyDataSources = {
           ...getHierarchyDataSourcesMock(),
           formDataSelector: (path) => dot.pick(path, dataModel ?? {}),
@@ -99,7 +99,7 @@ describe('Expressions shared function tests', () => {
           },
           process,
           currentLanguage: profileSettings?.language || 'nb',
-          options: (nodeId) => options[nodeId] || [],
+          optionsSelector: (node) => options[node.getId()] || [],
         };
 
         const _layouts = convertLayouts(layouts);

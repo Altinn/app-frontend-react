@@ -14,7 +14,6 @@ import { InitialFormDataProvider } from 'src/features/formData/InitialFormData';
 import { useHasProcessProvider } from 'src/features/instance/ProcessContext';
 import { ProcessNavigationProvider } from 'src/features/instance/ProcessNavigationContext';
 import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
-import { AllOptionsProvider, AllOptionsStoreProvider } from 'src/features/options/useAllOptions';
 import { ValidationProvider } from 'src/features/validation/validationContext';
 import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { NodesProvider } from 'src/utils/layout/NodesContext';
@@ -45,25 +44,21 @@ export function FormProvider({ children }: React.PropsWithChildren) {
                 <DataModelSchemaProvider>
                   <InitialFormDataProvider>
                     <AttachmentsStoreProvider>
-                      <AllOptionsStoreProvider>
-                        <ValidationProvider isCustomReceipt={isCustomReceipt}>
-                          <NodesProvider>
-                            <NavigateToNodeProvider>
-                              <AttachmentsProvider>
-                                <AllOptionsProvider>
-                                  {hasProcess ? (
-                                    <ProcessNavigationProvider>
-                                      <Provider value={undefined}>{children}</Provider>
-                                    </ProcessNavigationProvider>
-                                  ) : (
-                                    <Provider value={undefined}>{children}</Provider>
-                                  )}
-                                </AllOptionsProvider>
-                              </AttachmentsProvider>
-                            </NavigateToNodeProvider>
-                          </NodesProvider>
-                        </ValidationProvider>
-                      </AllOptionsStoreProvider>
+                      <ValidationProvider isCustomReceipt={isCustomReceipt}>
+                        <NodesProvider>
+                          <NavigateToNodeProvider>
+                            <AttachmentsProvider>
+                              {hasProcess ? (
+                                <ProcessNavigationProvider>
+                                  <Provider value={undefined}>{children}</Provider>
+                                </ProcessNavigationProvider>
+                              ) : (
+                                <Provider value={undefined}>{children}</Provider>
+                              )}
+                            </AttachmentsProvider>
+                          </NavigateToNodeProvider>
+                        </NodesProvider>
+                      </ValidationProvider>
                     </AttachmentsStoreProvider>
                   </InitialFormDataProvider>
                 </DataModelSchemaProvider>

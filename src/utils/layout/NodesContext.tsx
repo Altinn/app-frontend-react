@@ -13,6 +13,7 @@ import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { shouldUpdate } from 'src/features/form/dynamics/conditionalRendering';
 import { useDynamics } from 'src/features/form/dynamics/DynamicsContext';
 import { useLaxLayoutSettings, useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { OptionsStorePlugin } from 'src/features/options/OptionsStorePlugin';
 import { UpdateExpressionValidation } from 'src/features/validation/validationContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
@@ -25,6 +26,7 @@ import { NodePathNotFound } from 'src/utils/layout/NodePathNotFound';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
 import { NodesGenerator } from 'src/utils/layout/NodesGenerator';
 import { NodeStagesProvider } from 'src/utils/layout/NodeStages';
+import type { OptionsStorePluginConfig } from 'src/features/options/OptionsStorePlugin';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
 import type { NodeRef } from 'src/layout';
 import type { CompTypes, LayoutNodeFromObj } from 'src/layout/layout';
@@ -90,13 +92,15 @@ export interface TopLevelNodesStore<Types extends CompTypes = CompTypes> {
 
 export type NodeDataStorePlugins = {
   validation: ValidationStorePluginConfig;
+  options: OptionsStorePluginConfig;
 };
 
 const DataStorePlugins: { [K in keyof NodeDataStorePlugins]: NodeDataPlugin<NodeDataStorePlugins[K]> } = {
   validation: new ValidationStorePlugin(),
+  options: new OptionsStorePlugin(),
 };
 
-type AllFlat<T> = UnionToIntersection<T extends Record<string, infer U> ? U : never>;
+type AllFlat<T> = UnionToIntersection<T extends Record<string, infer U> ? (U extends undefined ? never : U) : never>;
 type ExtraFunctions = AllFlat<{
   [K in keyof NodeDataStorePlugins]: NodeDataStorePlugins[K]['extraFunctions'];
 }>;
@@ -445,6 +449,11 @@ function getNodePath(nodeId: string | NodeRef | LayoutNode | LayoutPage, nodes: 
  * A set of tools, selectors and functions to use internally in node generator components.
  */
 export const NodesInternal = {
+  useNodeStateMemoSelector: <N extends LayoutNode | undefined, Out>(
+    node: N,
+    selector: (state: ItemStoreFromNode<N>) => Out,
+  ) => DataStore.useMemoSelector((s) => (node ? selector(pickDataStorePath(s.pages, node)) : undefined)) as any,
+
   useNodeStateSelector<N extends LayoutNode | undefined, Out>(
     node: N,
     selector: (state: ItemStoreFromNode<N>) => Out,

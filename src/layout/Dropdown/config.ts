@@ -1,5 +1,6 @@
 import { CG } from 'src/codegen/CG';
 import { LabelRendering } from 'src/codegen/Config';
+import { OptionsPlugin } from 'src/features/options/OptionsPlugin';
 import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
@@ -15,5 +16,5 @@ export const Config = new CG.component({
     customExpressions: false,
   },
 })
-  .makeSelectionComponent()
+  .addPlugin(new OptionsPlugin({ supportsPreselection: true, type: 'single' }))
   .addDataModelBinding(CG.common('IDataModelBindingsOptionsSimple'));

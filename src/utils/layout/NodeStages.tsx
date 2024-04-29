@@ -6,9 +6,16 @@ import { createContext } from 'src/core/contexts/context';
 export const StageAddNodes = Symbol('AddNodes');
 export const StageMarkHidden = Symbol('MarkHidden');
 export const StageEvaluateExpressions = Symbol('EvaluateExpressions');
+export const StageOptionsFetched = Symbol('OptionsFetched');
 export const StageFinished = Symbol('Finished');
 
-export const NodeStageList = [StageAddNodes, StageMarkHidden, StageEvaluateExpressions, StageFinished] as const;
+export const NodeStageList = [
+  StageAddNodes,
+  StageMarkHidden,
+  StageEvaluateExpressions,
+  StageOptionsFetched,
+  StageFinished,
+] as const;
 const SecondToLast = NodeStageList[NodeStageList.length - 2];
 
 export type NodeStages = typeof NodeStageList;
@@ -97,6 +104,7 @@ export const NodeStages = {
   AddNodes: makeHooks(StageAddNodes),
   MarkHidden: makeHooks(StageMarkHidden),
   EvaluateExpressions: makeHooks(StageEvaluateExpressions),
+  OptionsFetched: makeHooks(StageOptionsFetched),
   Finished: makeHooks(StageFinished),
   useIsFinished() {
     return NodeStages[SecondToLast.description!].useIsDone();

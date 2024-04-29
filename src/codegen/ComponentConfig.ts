@@ -133,13 +133,6 @@ export class ComponentConfig {
     return this;
   }
 
-  public makeSelectionComponent(full = true): this {
-    this.inner.extends(full ? CG.common('ISelectionComponentFull') : CG.common('ISelectionComponent'));
-    this.behaviors.canHaveOptions = true;
-
-    return this;
-  }
-
   public isFormLike(): boolean {
     return this.config.category === CompCategory.Form || this.config.category === CompCategory.Container;
   }
