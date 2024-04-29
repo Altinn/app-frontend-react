@@ -12,6 +12,7 @@ import type { ILayoutSettings } from 'src/layout/common.generated';
 import type { IApplicationSettings, IAuthContext, IInstanceDataSources, IProcess } from 'src/types/shared';
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { Hidden } from 'src/utils/layout/NodesContext';
 
 export interface ContextDataSources {
   process?: IProcess;
@@ -28,6 +29,7 @@ export interface ContextDataSources {
     current: IUseLanguage;
   };
   currentLanguage: string;
+  isHiddenSelector: ReturnType<typeof Hidden.useIsHiddenSelector>;
 }
 
 export interface PrettyErrorsOptions {

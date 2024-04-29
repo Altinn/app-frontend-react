@@ -9,6 +9,7 @@ import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
 import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { GenericComponentById } from 'src/layout/GenericComponent';
+import { Hidden } from 'src/utils/layout/NodesContext';
 import type { NodeValidation } from 'src/features/validation';
 
 export interface IErrorReportProps {
@@ -24,6 +25,7 @@ export const ErrorReport = ({ renderIds }: IErrorReportProps) => {
   const { formErrors, taskErrors } = useTaskErrors();
   const hasErrors = Boolean(formErrors.length) || Boolean(taskErrors.length);
   const navigateTo = useNavigateToNode();
+  const isHidden = Hidden.useIsHiddenSelector();
 
   if (!hasErrors) {
     return null;
@@ -35,7 +37,7 @@ export const ErrorReport = ({ renderIds }: IErrorReportProps) => {
       return;
     }
     ev.preventDefault();
-    if (node.isHidden()) {
+    if (isHidden({ node })) {
       // No point in trying to focus on a hidden component
       return;
     }

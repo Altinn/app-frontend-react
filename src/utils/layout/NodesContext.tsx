@@ -332,11 +332,14 @@ function isHidden(state: HiddenState | undefined, forcedVisibleByDevTools: boole
 
 export type IsHiddenSelector = ReturnType<typeof Hidden.useIsHiddenSelector>;
 export const Hidden = {
-  useIsHidden: (node: LayoutNode | LayoutPage, options?: IsHiddenOptions) => {
+  useIsHidden: (node: LayoutNode | LayoutPage | undefined, options?: IsHiddenOptions) => {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
-    return DataStore.useMemoSelector((s) =>
-      isHidden(pickDataStorePath(s.pages, node).hidden, forcedVisibleByDevTools, options),
-    );
+    return DataStore.useMemoSelector((s) => {
+      if (!node) {
+        return true;
+      }
+      return isHidden(pickDataStorePath(s.pages, node).hidden, forcedVisibleByDevTools, options);
+    });
   },
   useIsHiddenPage: (pageKey: string, options?: IsHiddenOptions) => {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();

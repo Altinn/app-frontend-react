@@ -15,5 +15,6 @@ export function getHierarchyDataSourcesMock(): HierarchyDataSources {
     devToolsHiddenComponents: 'hide',
     langToolsRef: { current: staticUseLanguageForTests() },
     currentLanguage: 'nb',
+    isHiddenSelector: () => false,
   };
 }

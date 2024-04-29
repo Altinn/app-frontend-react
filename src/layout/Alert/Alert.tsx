@@ -3,6 +3,7 @@ import React from 'react';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { AlertBaseComponent } from 'src/layout/Alert/AlertBaseComponent';
+import { Hidden } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -12,7 +13,8 @@ export const Alert = ({ node }: AlertProps) => {
   const { severity, textResourceBindings } = useNodeItem(node);
   const { langAsString } = useLanguage();
 
-  const shouldAlertScreenReaders = !node.isHidden();
+  const isHidden = Hidden.useIsHidden(node);
+  const shouldAlertScreenReaders = !isHidden;
 
   return (
     <AlertBaseComponent

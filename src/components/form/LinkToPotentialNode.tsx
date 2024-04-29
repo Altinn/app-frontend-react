@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import type { LinkProps } from 'react-router-dom';
 
 import { SearchParams } from 'src/hooks/useNavigatePage';
-import { useResolvedNode } from 'src/utils/layout/NodesContext';
+import { Hidden, useResolvedNode } from 'src/utils/layout/NodesContext';
 
 type Props = LinkProps & { children?: React.ReactNode };
 
@@ -22,7 +22,7 @@ export const LinkToPotentialNode = (props: Props) => {
   const resolvedNode = useResolvedNode(componentId);
 
   const nodeExists = resolvedNode != null;
-  const isNodeHidden = resolvedNode?.isHidden();
+  const isNodeHidden = Hidden.useIsHidden(resolvedNode);
   const shouldShowLink = nodeExists && !isNodeHidden;
 
   if (shouldShowLink) {

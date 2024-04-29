@@ -390,14 +390,14 @@ export const ExprFunctions = {
       }
 
       const node = this.failWithoutNode();
-      const closestComponent = node.closest((c) => c.id === id || c.baseComponentId === id);
+      const closestComponent = node.closest((c) => c.id === id || c.baseComponentId === id) as LayoutNode | undefined;
       const component = closestComponent ?? (node instanceof LayoutPage ? node.findById(id) : node.page.findById(id));
       const dataModelBindings =
         component && 'dataModelBindings' in component.item ? component.item.dataModelBindings : undefined;
       const simpleBinding =
         dataModelBindings && 'simpleBinding' in dataModelBindings ? dataModelBindings.simpleBinding : undefined;
       if (component && simpleBinding) {
-        if (component.isHidden()) {
+        if (this.dataSources.isHiddenSelector({ node: component })) {
           return null;
         }
 
@@ -456,7 +456,7 @@ export const ExprFunctions = {
         throw new ExprRuntimeError(this, `Component with identifier ${id} does not have a displayValue`);
       }
 
-      if (targetNode.isHidden()) {
+      if (this.dataSources.isHiddenSelector({ node: targetNode })) {
         return null;
       }
 

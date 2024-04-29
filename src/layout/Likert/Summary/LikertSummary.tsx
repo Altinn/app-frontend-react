@@ -13,6 +13,7 @@ import { LargeLikertSummaryContainer } from 'src/layout/Likert/Summary/LargeLike
 import classes from 'src/layout/Likert/Summary/LikertSummary.module.css';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
+import { Hidden } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ITextResourceBindings } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
@@ -33,6 +34,7 @@ export function LikertSummary({ onChangeClick, changeText, summaryNode, targetNo
   const display = overrides?.display || summaryItem.display;
   const { lang, langAsString } = useLanguage();
   const formDataSelector = FD.useDebouncedSelector();
+  const isHidden = Hidden.useIsHiddenSelector();
 
   const inExcludedChildren = (n: LayoutNode) =>
     excludedChildren && (excludedChildren.includes(n.getId()) || excludedChildren.includes(n.getBaseId()));
@@ -62,7 +64,7 @@ export function LikertSummary({ onChangeClick, changeText, summaryNode, targetNo
             groupNode={targetNode}
             onlyInRowUuid={row.uuid}
             renderLayoutNode={(n) => {
-              if (inExcludedChildren(n) || n.isHidden()) {
+              if (inExcludedChildren(n) || isHidden({ node: n })) {
                 return null;
               }
 

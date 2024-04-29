@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
+import { Hidden } from 'src/utils/layout/NodesContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type NavigationHandler = (node: LayoutNode) => boolean;
@@ -56,11 +57,12 @@ export function NavigateToNodeProvider({ children }: PropsWithChildren) {
   const request = useRef<NavigationRequest | undefined>();
   const navigationHandlers = useRef<HandlerRegistry<NavigationHandler>>(new Set());
   const finishHandlers = useRef<HandlerRegistry<FinishNavigationHandler>>(new Set());
+  const isHidden = Hidden.useIsHiddenSelector();
 
   const navigateTo = useCallback(
     async (node: LayoutNode, shouldFocus = true) =>
       new Promise<NavigationResult>((resolve) => {
-        if (node.isHidden()) {
+        if (isHidden({ node })) {
           resolve(NavigationResult.NodeIsHidden);
           return;
         }
@@ -118,7 +120,7 @@ export function NavigateToNodeProvider({ children }: PropsWithChildren) {
           }, 500);
         })();
       }),
-    [],
+    [isHidden],
   );
 
   const registerNavigationHandler = useCallback((handler: NavigationHandler) => {

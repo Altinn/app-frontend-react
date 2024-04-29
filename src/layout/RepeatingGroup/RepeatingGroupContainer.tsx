@@ -17,6 +17,7 @@ import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/Repeat
 import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/RepeatingGroupsEditContainer';
 import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/RepeatingGroupTable';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { Hidden } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 
 export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HTMLDivElement>): JSX.Element | null => {
@@ -32,8 +33,9 @@ export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HT
   const numRows = visibleRows.length;
   const lastIndex = visibleRows[numRows - 1];
   const validations = useUnifiedValidationsForNode(node);
+  const isHidden = Hidden.useIsHidden(node);
 
-  if (node.isHidden() || type !== 'RepeatingGroup') {
+  if (isHidden || type !== 'RepeatingGroup') {
     return null;
   }
 

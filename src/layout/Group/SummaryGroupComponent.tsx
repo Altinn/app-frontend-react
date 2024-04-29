@@ -42,6 +42,7 @@ export function SummaryGroupComponent({
   const display = overrides?.display || summaryItem.display;
   const { langAsString } = useLanguage();
   const formDataSelector = FD.useDebouncedSelector();
+  const isHidden = Hidden.useIsHiddenSelector();
 
   const inExcludedChildren = useCallback(
     (n: LayoutNode) =>
@@ -86,7 +87,7 @@ export function SummaryGroupComponent({
     .children(undefined, undefined)
     .filter((n) => !inExcludedChildren(n))
     .map((child) => {
-      if (child.isHidden() || !child.isCategory(CompCategory.Form)) {
+      if (!child.isCategory(CompCategory.Form) || isHidden({ node: child })) {
         return;
       }
       const RenderCompactSummary = child.def.renderCompactSummary.bind(child.def) as React.FC<

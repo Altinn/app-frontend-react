@@ -13,6 +13,7 @@ import { LargeGroupSummaryContainer } from 'src/layout/RepeatingGroup/Summary/La
 import classes from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup.module.css';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
+import { Hidden } from 'src/utils/layout/NodesContext';
 import type { ITextResourceBindings } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { RepGroupRow } from 'src/layout/RepeatingGroup/types';
@@ -38,6 +39,7 @@ export function SummaryRepeatingGroup({
   const display = overrides?.display || summaryNode.item.display;
   const { langAsString } = useLanguage(targetNode);
   const formDataSelector = FD.useDebouncedSelector();
+  const isHidden = Hidden.useIsHiddenSelector();
 
   const inExcludedChildren = (n: LayoutNode) =>
     excludedChildren && (excludedChildren.includes(n.getId()) || excludedChildren.includes(n.getBaseId()));
@@ -70,7 +72,7 @@ export function SummaryRepeatingGroup({
             groupNode={targetNode}
             onlyInRowUuid={row.uuid}
             renderLayoutNode={(n) => {
-              if (inExcludedChildren(n) || n.isHidden()) {
+              if (inExcludedChildren(n) || isHidden({ node: n })) {
                 return null;
               }
 
@@ -125,14 +127,14 @@ export function SummaryRepeatingGroup({
           ) : (
             rows
               .filter((row) =>
-                targetNode.children(undefined, { onlyInRowUuid: row.uuid }).some((child) => !child.isHidden()),
+                targetNode.children(undefined, { onlyInRowUuid: row.uuid }).some((child) => !isHidden({ node: child })),
               )
               .map((row) => {
                 const childSummaryComponents = targetNode
                   .children(undefined, { onlyInRowUuid: row.uuid })
                   .filter((n) => !inExcludedChildren(n))
                   .map((child) => {
-                    if (child.isHidden() || !child.isCategory(CompCategory.Form)) {
+                    if (isHidden({ node: child }) || !child.isCategory(CompCategory.Form)) {
                       return;
                     }
                     const RenderCompactSummary = child.def.renderCompactSummary.bind(child.def) as React.FC<

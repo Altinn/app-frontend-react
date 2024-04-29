@@ -15,7 +15,7 @@ import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Summary/SummaryComponent.module.css';
 import { SummaryContent } from 'src/layout/Summary/SummaryContent';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
-import { useResolvedNode } from 'src/utils/layout/NodesContext';
+import { Hidden, useResolvedNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IGrid } from 'src/layout/common.generated';
 import type { SummaryDisplayProperties } from 'src/layout/Summary/config.generated';
@@ -41,6 +41,7 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
   const targetNode = useResolvedNode(overrides?.targetNode || summaryItem.componentRef || id);
   const targetItem = targetNode?.item;
   const targetView = targetNode?.page.pageKey;
+  const targetIsHidden = Hidden.useIsHidden(targetNode);
 
   const validations = useUnifiedValidationsForNode(targetNode);
   const errors = validationsOfSeverity(validations, 'error');
@@ -59,7 +60,7 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
     setNodeOfOrigin?.(id);
   };
 
-  if (!targetNode || !targetItem || targetNode.isHidden() || targetItem.type === 'Summary') {
+  if (!targetNode || !targetItem || targetIsHidden || targetItem.type === 'Summary') {
     // TODO: Show info to developers if target node is not found?
     return null;
   }

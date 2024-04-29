@@ -114,6 +114,7 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
   /**
    * Looks for a matching component upwards in the hierarchy, returning the first one (or undefined if
    * none can be found).
+   * @deprecated TODO: Remove this, use hooks/selector instead
    */
   public closest(matching: (item: CompInternal) => boolean): this | LayoutNode | undefined {
     if (matching(this.item as CompInternal)) {
@@ -138,6 +139,7 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
 
   /**
    * Like children(), but will only match upwards along the tree towards the top (LayoutPage)
+   * @deprecated TODO: Remove this, use hooks/selector instead
    */
   public parents(matching?: (item: ParentNode) => boolean): ParentNode[] {
     const parents: ParentNode[] = [];
@@ -159,6 +161,7 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
    * Looks for a matching component inside the (direct) children of this node (only makes sense for a group node).
    * Beware that matching inside a repeating group with multiple rows, you should provide a second argument to specify
    * the row number, otherwise you'll most likely just find a component on the first row.
+   * @deprecated useNodeDirectChildren
    */
   public children(): LayoutNode[];
   public children(
@@ -187,6 +190,7 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
    *
    * @param restriction If set, it will only include children with the given row UUID or row index. It will still
    *        include all children of nested groups regardless of row-id or index.
+   * @deprecated TODO: Remove this and use hooks instead
    */
   public flat(restriction?: ChildLookupRestriction): LayoutNode[] {
     const out: LayoutNode[] = [];
@@ -199,30 +203,6 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
 
     recurse(this as unknown as LayoutNode, restriction);
     return out as LayoutNode[];
-  }
-
-  /**
-   * Checks if this field should be hidden. This also takes into account the group this component is in, so the
-   * methods returns true if the component is inside a hidden group.
-   * @deprecated
-   */
-  public isHidden(): boolean {
-    // TODO: Enable this again, but calculate it all in the hierarchy generator component instead of here.
-    return false;
-    //   const { respectLegacy = true, respectDevTools = true, respectTracks = false } = options;
-    //
-    //   const isHidden = respectLegacy ? this.dataSources.isHidden : () => false;
-    //   if (respectDevTools && this.dataSources.devToolsIsOpen && this.dataSources.devToolsHiddenComponents !== 'hide') {
-    //     return false;
-    //   }
-    //
-    //   if (
-    //     respectTracks &&
-    //     this.parent instanceof LayoutPage &&
-    //     this.parent.isHiddenViaTracks(this.dataSources.layoutSettings, this.dataSources.pageNavigationConfig)
-    //   ) {
-    //     return true;
-    //   }
   }
 
   private firstDataModelBinding() {
@@ -271,6 +251,7 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
 
   /**
    * Gets the current form data for this component
+   * @deprecated TODO: Remove this
    */
   public getFormData(formDataSelector: FormDataSelector): IComponentFormData<Type> {
     const item = this.item;

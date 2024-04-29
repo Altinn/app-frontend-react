@@ -197,8 +197,10 @@ function CellWithComponent({
   isHeader = false,
   rowReadOnly,
 }: CellWithComponentProps) {
+  const isHidden = Hidden.useIsHidden(node);
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
-  if (node && !node.isHidden()) {
+
+  if (node && !isHidden) {
     const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
     return (
       <CellComponent
@@ -295,6 +297,7 @@ function MobileGrid({ node }: PropsFromGenericComponent<'Grid'>) {
   const { textResourceBindings, id, labelSettings } = useNodeItem(node);
   const { title, description, help } = textResourceBindings ?? {};
   const nodes = useNodesFromGrid(node);
+  const isHidden = Hidden.useIsHiddenSelector();
 
   return (
     <Fieldset
@@ -306,7 +309,7 @@ function MobileGrid({ node }: PropsFromGenericComponent<'Grid'>) {
       className={css.mobileFieldset}
     >
       {nodes
-        .filter((child) => !child.isHidden())
+        .filter((child) => !isHidden({ node: child }))
         .map((child) => (
           <GenericComponent
             key={child.getId()}

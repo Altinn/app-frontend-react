@@ -5,6 +5,7 @@ import { Heading } from '@digdir/designsystemet-react';
 import { Fieldset } from 'src/components/form/Fieldset';
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/Likert/Summary/LikertSummary.module.css';
+import { Hidden } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { HeadingLevel } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -34,8 +35,9 @@ export function LargeLikertSummaryContainer({
 }: IDisplayLikertContainer) {
   const container = useNodeItem(groupNode);
   const { title, summaryTitle } = container.textResourceBindings ?? {};
+  const isHidden = Hidden.useIsHidden(groupNode);
 
-  if (groupNode.isHidden()) {
+  if (isHidden) {
     return null;
   }
 
