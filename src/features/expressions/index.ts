@@ -936,6 +936,13 @@ export const ExprConfigForComponent: ExprObjConfig<CompExternal> = {
     defaultValue: false,
     resolvePerRow: false,
   },
+  queryParameters: {
+    [CONFIG_FOR_ALL_VALUES_IN_OBJ]: {
+      returnType: ExprVal.String,
+      defaultValue: '',
+      resolvePerRow: false,
+    },
+  },
 };
 
 export const ExprConfigForGroup:
