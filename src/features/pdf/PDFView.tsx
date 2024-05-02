@@ -7,6 +7,7 @@ import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { OrganisationLogo } from 'src/components/presentation/OrganisationLogo/OrganisationLogo';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/features/pdf/PDFView.module.css';
@@ -63,6 +64,7 @@ export const PDFView = () => {
   const { langAsString } = useLanguage();
 
   const isPayment = processData?.currentTask?.altinnTaskType === 'payment';
+  const enableOrgLogo = Boolean(useApplicationMetadata().logo);
 
   if (!pdfPage) {
     return null;
@@ -76,7 +78,7 @@ export const PDFView = () => {
       {appOwner && <span role='doc-subtitle'>{appOwner}</span>}
 
       <ConditionalWrapper
-        condition={isPayment}
+        condition={isPayment && enableOrgLogo}
         wrapper={(children) => (
           <div className={classes.paymentTitleContainer}>
             {children} <OrganisationLogo></OrganisationLogo>

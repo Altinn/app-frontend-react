@@ -25,6 +25,15 @@ interface CardDetails {
   expiryDate?: string;
 }
 
+interface Reciever {
+  organisationNumber: string;
+  name: string;
+  email: string;
+  phoneNumber: PhoneNumber;
+  bankAccountNumber: string;
+  postalAddress: Address;
+}
+
 interface PhoneNumber {
   prefix: string | null;
   number: string | null;
@@ -37,7 +46,7 @@ interface Person {
   phoneNumber?: PhoneNumber;
 }
 
-interface ShippingAddress {
+interface Address {
   name: string;
   addressLine1: string;
   addressLine2: string;
@@ -45,8 +54,6 @@ interface ShippingAddress {
   city: string;
   country: string;
 }
-
-interface BillingAddress extends ShippingAddress {}
 
 interface Company {
   organisationNumber?: string;
@@ -56,8 +63,8 @@ interface Company {
 interface Payer {
   privatePerson?: Person;
   company?: Company;
-  shippingAddress?: ShippingAddress;
-  billingAddress?: BillingAddress;
+  shippingAddress?: Address;
+  billingAddress?: Address;
 }
 
 export interface OrderDetails {
@@ -68,10 +75,7 @@ export interface OrderDetails {
   totalPriceExVat: number;
   totalVat: number;
   totalPriceIncVat: number;
-  receiver?: {
-    name?: string;
-    organisationNumber?: string;
-  };
+  receiver?: Reciever;
 }
 
 export interface OrderLine {

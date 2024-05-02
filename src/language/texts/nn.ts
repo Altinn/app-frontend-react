@@ -267,7 +267,7 @@ export function nn(): FixedLanguageList {
         failed: 'Betalinga feilet',
       },
       receipt: {
-        title: 'betalingskvittering',
+        title: 'Betalingskvittering',
         payment_id: 'Betalings ID',
         altinn_ref: 'Altinn referanse',
         payment_date: 'Dato for kjøp',
