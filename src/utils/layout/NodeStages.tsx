@@ -86,7 +86,6 @@ export function NodeStagesProvider({ children }: PropsWithChildren) {
         const currentIndex = NodeStageList.indexOf(stage);
         const nextStage = NodeStageList[currentIndex + 1];
         if (nextStage) {
-          console.log('debug, Advancing to next stage:', nextStage, 'as', finished, 'hooks are done');
           hooks.current[stage].onDone.forEach((cb) => cb());
           hooks.current[stage].onDone = [];
           hooks.current[stage].finished = true;

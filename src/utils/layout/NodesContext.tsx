@@ -135,7 +135,6 @@ export function createNodesDataStore() {
         set((s) => {
           const parentPath = node.path.slice(0, -1);
           const parent = pickDataStorePath(s.pages, parentPath);
-          console.log(`debug, adding node /${node.path.join('/')}`);
           if (parent.type === 'page') {
             const id = node.getId();
             if (parent.topLevelNodes[id]) {
@@ -152,7 +151,6 @@ export function createNodesDataStore() {
           const parentPath = node.path.slice(0, -1);
           try {
             const parent = pickDataStorePath(s.pages, parentPath);
-            console.log(`debug, removing node /${node.path.join('/')}`);
             if (parent.type === 'page') {
               delete parent.topLevelNodes[node.getId()];
             } else {
@@ -161,7 +159,6 @@ export function createNodesDataStore() {
             }
           } catch (e) {
             if (e instanceof NodePathNotFound) {
-              console.log(`debug, parent for node /${node.path.join('/')} not found`);
               return;
             }
             throw e;
