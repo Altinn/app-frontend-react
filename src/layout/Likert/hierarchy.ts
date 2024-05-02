@@ -82,7 +82,7 @@ export class LikertHierarchyGenerator extends ComponentHierarchyGenerator<'Liker
           ...itemProps,
           type: 'LikertItem',
           dataModelBindings: {
-            simpleBinding: item?.dataModelBindings?.answer,
+            simpleBinding: structuredClone(item?.dataModelBindings?.answer),
           },
         } as unknown as CompLikertItemInternal;
 
