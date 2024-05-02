@@ -19,7 +19,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
   const next = useNextPageKey();
   const previous = usePreviousPageKey();
   const returnToView = useReturnToView();
-  const summaryItem = useSummaryNodeOfOrigin()?.item;
+  const summaryItem = useNodeItem(useSummaryNodeOfOrigin());
 
   const parentIsPage = node.parent instanceof LayoutPage;
 

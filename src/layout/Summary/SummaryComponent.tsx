@@ -32,15 +32,16 @@ export interface ISummaryComponent {
 }
 
 function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: React.Ref<HTMLDivElement>) {
-  const display = overrides?.display || summaryNode.item.display;
-  const { langAsString } = useLanguage();
-  const currentPageId = useNavigationParam('pageKey');
   const summaryItem = useNodeItem(summaryNode);
+  const display = overrides?.display || summaryItem.display;
   const { id, grid } = summaryItem;
 
+  const { langAsString } = useLanguage();
+  const currentPageId = useNavigationParam('pageKey');
+
   const targetNode = useResolvedNode(overrides?.targetNode || summaryItem.componentRef || id);
-  const targetItem = targetNode?.item;
-  const targetView = targetNode?.page.pageKey;
+  const targetItem = useNodeItem(targetNode);
+  const targetView = targetNode?.pageKey();
   const targetIsHidden = Hidden.useIsHidden(targetNode);
 
   const validations = useUnifiedValidationsForNode(targetNode);
@@ -51,7 +52,7 @@ function _SummaryComponent({ summaryNode, overrides }: ISummaryComponent, ref: R
   const setNodeOfOrigin = useSetSummaryNodeOfOrigin();
 
   const onChangeClick = async () => {
-    if (!targetView) {
+    if (!targetView || !targetNode) {
       return;
     }
 

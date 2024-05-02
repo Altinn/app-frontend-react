@@ -30,11 +30,12 @@ export class MultipleSelect extends MultipleSelectDef {
     optionsSelector: NodeOptionsSelector,
     nodeDataSelector: NodeDataSelector,
   ): { [key: string]: string } {
-    if (!node.item.dataModelBindings?.simpleBinding) {
+    const data = nodeDataSelector(node);
+    if (!data.simpleBinding) {
       return {};
     }
 
-    const value = String(nodeDataSelector(node).simpleBinding ?? '');
+    const value = String(data.simpleBinding ?? '');
     const optionList = optionsSelector(node);
     return getCommaSeparatedOptionsToText(value, optionList, langTools);
   }

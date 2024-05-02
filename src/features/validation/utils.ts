@@ -1,7 +1,7 @@
 import { ValidationMask } from 'src/features/validation';
 import { implementsValidationFilter } from 'src/layout';
 import type { BaseValidation, FieldValidations, ValidationMaskKeys, ValidationSeverity } from 'src/features/validation';
-import type { CompInternal } from 'src/layout/layout';
+import type { AllowedValidationMasks } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function mergeFieldValidations(...X: FieldValidations[]): FieldValidations {
@@ -89,12 +89,12 @@ export function selectValidations<T extends BaseValidation>(
  * Gets the initial validation mask for a component using its showValidations property
  * If the value is not set, it will default to all validations except required
  */
-export function getInitialMaskFromNode(item: CompInternal): number {
+export function getInitialMaskFromNode(showValidations: AllowedValidationMasks | null | undefined): number {
   // If not set, null, or undefined, default to all validations except required
-  if (!('showValidations' in item) || item.showValidations == null) {
+  if (!showValidations) {
     return ValidationMask.AllExceptRequired;
   }
-  return getVisibilityMask(item.showValidations);
+  return getVisibilityMask(showValidations);
 }
 
 export function getVisibilityMask(maskKeys?: ValidationMaskKeys[]): number {

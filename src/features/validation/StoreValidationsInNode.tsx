@@ -32,7 +32,10 @@ export function StoreValidationsInNode() {
     isAllAdded && setNodeProp(node, 'validations', validations);
   }, [isAllAdded, node, setNodeProp, validations]);
 
-  const initialMask = item ? getInitialMaskFromNode(item) : undefined;
+  const initialMask = item
+    ? getInitialMaskFromNode('showValidations' in item ? item.showValidations : undefined)
+    : undefined;
+
   NodeStages.EvaluateExpressions.useEffect(() => {
     isAllAdded && initialMask !== undefined && setNodeProp(node, 'validationVisibility', initialMask);
   }, [isAllAdded, initialMask, node, setNodeProp]);

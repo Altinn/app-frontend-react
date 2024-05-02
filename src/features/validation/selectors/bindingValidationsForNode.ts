@@ -5,6 +5,7 @@ import type { ComponentValidation, FieldValidation, NodeValidation } from '..';
 import { filterValidations, selectValidations } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CompTypes, IDataModelBindings } from 'src/layout/layout';
 import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -21,14 +22,15 @@ export function useBindingValidationsForNode<
   const fieldSelector = Validation.useFieldSelector();
   const mask = NodesInternal.useValidationVisibility(node);
   const component = NodesInternal.useValidations(node);
+  const dataModelBindings = useNodeItem(node).dataModelBindings;
 
   return useMemo(() => {
-    if (!node.item.dataModelBindings) {
+    if (!dataModelBindings) {
       return undefined;
     }
 
     const bindingValidations: { [bindingKey: string]: OutValues } = {};
-    for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings)) {
+    for (const [bindingKey, field] of Object.entries(dataModelBindings)) {
       bindingValidations[bindingKey] = [];
 
       const fieldValidation = fieldSelector(field, (fields) => fields[field]);
@@ -45,5 +47,5 @@ export function useBindingValidationsForNode<
     return bindingValidations as {
       [binding in keyof NonNullable<IDataModelBindings<T>>]: OutValues;
     };
-  }, [component, fieldSelector, mask, node]);
+  }, [component, fieldSelector, mask, node, dataModelBindings]);
 }

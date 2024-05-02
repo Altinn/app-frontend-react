@@ -18,6 +18,7 @@ const EXPR_CONFIG: ExprConfig<ExprVal.Boolean> = {
 
 const __default__ = {};
 
+// TODO: Move expression validation to the Node generator and remove this hook
 export function useExpressionValidation(): FieldValidations {
   const formData = FD.useDebounced();
   const customValidationConfig = useCustomValidationConfig();

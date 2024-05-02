@@ -12,6 +12,7 @@ import { Validation } from 'src/features/validation/validationContext';
 import { getResolvedVisibilityForAttachment } from 'src/features/validation/visibility/visibilityUtils';
 import { implementsAnyValidation, implementsValidationFilter } from 'src/layout';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { AttachmentValidation, NodeValidation, ValidationSeverity } from 'src/features/validation';
 import type { ValidationFilterFunction } from 'src/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -31,16 +32,16 @@ const categories = [
 
 export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
   const fieldSelector = Validation.useFieldSelector();
-
   const validations = NodesInternal.useValidations(node);
   const nodeVisibility = NodesInternal.useValidationVisibility(node);
+  const { id, dataModelBindings, type } = useNodeItem(node);
 
   const attachments = useAttachments();
 
   if (!implementsAnyValidation(node.def)) {
     return (
       <div style={{ padding: 4 }}>
-        <b>{node.item.type}</b> implementerer ikke validering.
+        <b>{type}</b> implementerer ikke validering.
       </div>
     );
   }
@@ -60,7 +61,7 @@ export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
     const attachmentValidation = 'attachmentId' in val ? val : undefined;
     if (attachmentValidation) {
       const attachmentId = attachmentValidation.attachmentId;
-      const attachment = attachments[node.item.id]?.find((a) => isAttachmentUploaded(a) && a.data.id === attachmentId);
+      const attachment = attachments[id]?.find((a) => isAttachmentUploaded(a) && a.data.id === attachmentId);
       const key = `Vedlegg ${attachment?.data.filename ?? attachmentId}`;
       if (!obj[key]) {
         const attachmentVisibility = getResolvedVisibilityForAttachment(
@@ -76,7 +77,7 @@ export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
 
   // Validations for data model bindings
   const bindingValidations: { [key: string]: NodeValidation[] } = {};
-  for (const [bindingKey, field] of Object.entries(node.item.dataModelBindings ?? {})) {
+  for (const [bindingKey, field] of Object.entries(dataModelBindings ?? {})) {
     const key = `Datamodell ${bindingKey}`;
     bindingValidations[key] = [];
 

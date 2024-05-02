@@ -5,26 +5,13 @@ import { getComponentDef } from 'src/layout';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { Layouts } from 'src/features/expressions/shared';
 
+// TODO: Remove this function when no longer in use
 function evalAllExpressions(layouts: Layouts) {
   const dataSources = getHierarchyDataSourcesMock();
   const nodes = generateEntireHierarchy(convertLayouts(layouts), Object.keys(layouts)[0], dataSources, getComponentDef);
   for (const page of Object.values(nodes.all())) {
-    for (const node of page.flat()) {
-      const input = { ...node.item };
-      delete input['children'];
-      delete input['rows'];
-      delete input['childComponents'];
-
-      // TODO: Re-implement this
-      // evalExprInObj({
-      //   input,
-      //   node,
-      //   config: {
-      //     ...ExprConfigForComponent,
-      //     ...ExprConfigForGroup,
-      //   },
-      //   dataSources,
-      // });
+    for (const _node of page.flat()) {
+      // ... Here we used to evaluate expressions in the node
     }
   }
 }

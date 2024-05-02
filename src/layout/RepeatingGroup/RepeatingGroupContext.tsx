@@ -232,7 +232,10 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
   const removeFromList = FD.useRemoveFromListCallback();
   const onBeforeRowDeletion = useAttachmentDeletionInRepGroups(node);
   const onGroupCloseValidation = useOnGroupCloseValidation();
+
+  // TODO: This does not work at all. The node is always the same, so the state is never updated.
   const waitForNode = useWaitForState<undefined, LayoutNode<'RepeatingGroup'>>(nodeRef);
+
   const nodeState = produceStateFromNode(node);
   const nodeStateRef = useAsRef(nodeState);
   const [isFirstRender, setIsFirstRender] = useState(true);

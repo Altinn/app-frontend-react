@@ -173,6 +173,10 @@ export abstract class AnyComponent<Type extends CompTypes> {
     return false;
   }
 
+  /**
+   * TODO: Remove this, and replace it with something that can useNodeItem() instead of getting the state snapshot
+   * from the node directly.
+   */
   shouldRenderInAutomaticPDF(node: LayoutNode<Type>): boolean {
     if (!('renderAsSummary' in node.item)) {
       return true;
