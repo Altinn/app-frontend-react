@@ -25,13 +25,13 @@ export class Input extends InputDef {
   getDisplayData(
     node: LayoutNode<'Input'>,
     item: CompInternal<'Input'>,
-    { currentLanguage, formDataSelector }: DisplayDataProps,
+    { currentLanguage, nodeDataSelector }: DisplayDataProps,
   ): string {
     if (!item.dataModelBindings?.simpleBinding) {
       return '';
     }
 
-    const text = node.getFormData(formDataSelector).simpleBinding || '';
+    const text = nodeDataSelector(node).simpleBinding || '';
     const numberFormatting = getMapToReactNumberConfig(
       item.formatting as IInputFormatting | undefined,
       text,

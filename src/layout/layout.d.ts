@@ -16,7 +16,7 @@ import type {
 } from 'src/layout/LayoutComponent';
 import type { CompLikertExternal } from 'src/layout/Likert/config.generated';
 import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 export interface ILayouts {
@@ -102,7 +102,7 @@ export type TypeFromConfig<T extends CompInternal | CompExternal> = T extends { 
     : CompTypes
   : CompTypes;
 
-export type TypeFromNode<N extends LayoutNode> = N extends LayoutNode<infer Type> ? Type : CompTypes;
+export type TypeFromNode<N extends LayoutNode> = N extends BaseLayoutNode<infer Type> ? Type : CompTypes;
 
 export interface HierarchyDataSources extends ContextDataSources {
   devToolsIsOpen: boolean;

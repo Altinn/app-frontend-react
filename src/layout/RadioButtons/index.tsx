@@ -22,9 +22,9 @@ export class RadioButtons extends RadioButtonsDef {
   getDisplayData(
     node: LayoutNode<'RadioButtons'>,
     _item: CompInternal<'RadioButtons'>,
-    { langTools, optionsSelector, formDataSelector }: DisplayDataProps,
+    { langTools, optionsSelector, nodeDataSelector }: DisplayDataProps,
   ): string {
-    const value = String(node.getFormData(formDataSelector).simpleBinding ?? '');
+    const value = String(nodeDataSelector(node).simpleBinding ?? '');
     const optionList = optionsSelector(node);
     return getSelectedValueToText(value, langTools, optionList) || '';
   }

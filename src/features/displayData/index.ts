@@ -4,6 +4,7 @@ import type { NodeOptionsSelector } from 'src/features/options/OptionsStorePlugi
 import type { FormDataSelector } from 'src/layout';
 import type { CompInternal, CompTypes } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { NodeDataSelector } from 'src/utils/layout/useNodeItem';
 
 export interface DisplayDataProps {
   attachments: IAttachments;
@@ -11,6 +12,7 @@ export interface DisplayDataProps {
   langTools: IUseLanguage;
   currentLanguage: string;
   formDataSelector: FormDataSelector;
+  nodeDataSelector: NodeDataSelector;
 }
 
 export interface DisplayData<Type extends CompTypes> {

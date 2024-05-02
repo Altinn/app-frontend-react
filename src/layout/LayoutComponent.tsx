@@ -36,6 +36,7 @@ import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator
 import type { BaseRow, ItemStore, StateFactoryProps } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
+import type { NodeDataSelector } from 'src/utils/layout/useNodeItem';
 
 export interface BasicNodeGeneratorProps {
   baseId: string;
@@ -220,6 +221,7 @@ export interface SummaryRendererProps<Type extends CompTypes> {
   summaryNode: LayoutNode<'Summary'>;
   targetNode: LayoutNode<Type>;
   formDataSelector: FormDataSelector;
+  nodeDataSelector: NodeDataSelector;
   onChangeClick: () => void;
   changeText: string | null;
   overrides?: ISummaryComponent['overrides'];

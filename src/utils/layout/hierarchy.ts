@@ -14,6 +14,7 @@ import { getComponentDef } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { Hidden } from 'src/utils/layout/NodesContext';
+import { useNodeDataSelector } from 'src/utils/layout/useNodeItem';
 import type { HierarchyDataSources, ILayouts } from 'src/layout/layout';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 /**
@@ -47,6 +48,7 @@ export function useExpressionDataSources(): HierarchyDataSources {
   const currentLanguage = useCurrentLanguage();
   const authContext = useMemo(() => buildAuthContext(process?.currentTask), [process?.currentTask]);
   const isHiddenSelector = Hidden.useIsHiddenSelector();
+  const nodeDataSelector = useNodeDataSelector();
 
   return useMemo(
     () => ({
@@ -63,6 +65,7 @@ export function useExpressionDataSources(): HierarchyDataSources {
       langToolsRef,
       currentLanguage,
       isHiddenSelector,
+      nodeDataSelector,
     }),
     [
       formDataSelector,
@@ -78,6 +81,7 @@ export function useExpressionDataSources(): HierarchyDataSources {
       langToolsRef,
       currentLanguage,
       isHiddenSelector,
+      nodeDataSelector,
     ],
   );
 }

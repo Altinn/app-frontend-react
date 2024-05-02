@@ -3,11 +3,10 @@ import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
 import { pickDataStorePath } from 'src/utils/layout/NodesContext';
-import type { CompClassMap, CompDef, FormDataSelector, NodeRef } from 'src/layout';
+import type { CompClassMap, CompDef, NodeRef } from 'src/layout';
 import type { CompCategory } from 'src/layout/common';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated';
 import type { CompExternalExact, CompInternal, CompTypes, LayoutNodeFromCategory, ParentNode } from 'src/layout/layout';
-import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 import type { BaseRow } from 'src/utils/layout/itemState';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
@@ -247,33 +246,6 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
       rowIndex,
       currentLocationIsRepGroup,
     });
-  }
-
-  /**
-   * Gets the current form data for this component
-   * @deprecated TODO: Remove this
-   */
-  public getFormData(formDataSelector: FormDataSelector): IComponentFormData<Type> {
-    const item = this.item;
-    if (!('dataModelBindings' in item) || !item.dataModelBindings) {
-      return {} as IComponentFormData<Type>;
-    }
-
-    const formDataObj: { [key: string]: any } = {};
-    for (const key of Object.keys(item.dataModelBindings)) {
-      const binding = item.dataModelBindings[key];
-      const data = formDataSelector(binding);
-
-      if (key === 'list') {
-        formDataObj[key] = data ?? [];
-      } else if (key === 'simpleBinding') {
-        formDataObj[key] = data != null ? String(data) : '';
-      } else {
-        formDataObj[key] = data;
-      }
-    }
-
-    return formDataObj as IComponentFormData<Type>;
   }
 }
 

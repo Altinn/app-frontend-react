@@ -23,9 +23,9 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
   getDisplayData(
     node: LayoutNode<'Address'>,
     _item: CompInternal<'Address'>,
-    { formDataSelector }: DisplayDataProps,
+    { nodeDataSelector }: DisplayDataProps,
   ): string {
-    const data = node.getFormData(formDataSelector);
+    const data = nodeDataSelector(node);
     return Object.values(data).join(' ');
   }
 

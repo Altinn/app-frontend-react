@@ -9,11 +9,11 @@ import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import classes from 'src/layout/Summary/SummaryContent.module.css';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useNodeDataSelector, useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CompTypes } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 
-interface SummaryContentProps extends Omit<SummaryRendererProps<CompTypes>, 'formDataSelector'> {
+interface SummaryContentProps extends Omit<SummaryRendererProps<CompTypes>, 'formDataSelector' | 'nodeDataSelector'> {
   RenderSummary: React.ElementType<SummaryRendererProps<CompTypes>>;
 }
 
@@ -45,6 +45,7 @@ export function SummaryContent({
     textBindings && 'summaryTitle' in textBindings ? (textBindings.summaryTitle as string) : undefined;
   const titleTrb = textBindings && 'title' in textBindings ? textBindings.title : undefined;
   const formDataSelector = FD.useDebouncedSelector();
+  const nodeDataSelector = useNodeDataSelector();
 
   return (
     <div className={classes.container}>
@@ -69,6 +70,7 @@ export function SummaryContent({
           targetNode={targetNode}
           overrides={overrides}
           formDataSelector={formDataSelector}
+          nodeDataSelector={nodeDataSelector}
         />
       </span>
       {displaySummaryBoilerPlate && shouldShowChangeButton && (

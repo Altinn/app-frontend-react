@@ -14,6 +14,7 @@ import classes from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup.mod
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { Hidden } from 'src/utils/layout/NodesContext';
+import { useNodeDataSelector } from 'src/utils/layout/useNodeItem';
 import type { ITextResourceBindings } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { RepGroupRow } from 'src/layout/RepeatingGroup/types';
@@ -39,6 +40,7 @@ export function SummaryRepeatingGroup({
   const display = overrides?.display || summaryNode.item.display;
   const { langAsString } = useLanguage(targetNode);
   const formDataSelector = FD.useDebouncedSelector();
+  const nodeDataSelector = useNodeDataSelector();
   const isHidden = Hidden.useIsHiddenSelector();
 
   const inExcludedChildren = (n: LayoutNode) =>
@@ -149,6 +151,7 @@ export function SummaryRepeatingGroup({
                         summaryNode={summaryNode}
                         overrides={{}}
                         formDataSelector={formDataSelector}
+                        nodeDataSelector={nodeDataSelector}
                       />
                     );
                   });

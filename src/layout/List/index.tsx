@@ -21,8 +21,8 @@ export class List extends ListDef {
     },
   );
 
-  getDisplayData(node: LayoutNode<'List'>, item: CompInternal<'List'>, { formDataSelector }: DisplayDataProps): string {
-    const formData = node.getFormData(formDataSelector);
+  getDisplayData(node: LayoutNode<'List'>, item: CompInternal<'List'>, { nodeDataSelector }: DisplayDataProps): string {
+    const formData = nodeDataSelector(node);
     const dmBindings = item.dataModelBindings;
     for (const [key, binding] of Object.entries(dmBindings || {})) {
       if (binding == item.bindingToShowInSummary) {

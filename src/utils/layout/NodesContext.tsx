@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
+import dot from 'dot-object';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import type { UnionToIntersection } from 'utility-types';
@@ -444,21 +445,35 @@ function getNodePath(nodeId: string | NodeRef | LayoutNode | LayoutPage, nodes: 
   return node instanceof LayoutPage ? [node.pageKey] : node.path;
 }
 
+type NodeStateSelectorProp<N extends LayoutNode | undefined> = {
+  node: N;
+  path: string;
+};
+
 /**
  * A set of tools, selectors and functions to use internally in node generator components.
  */
 export const NodesInternal = {
-  useNodeStateMemoSelector: <N extends LayoutNode | undefined, Out>(
+  useNodeStateMemo<N extends LayoutNode | undefined, Out>(
     node: N,
     selector: (state: ItemStoreFromNode<N>) => Out,
-  ) => DataStore.useMemoSelector((s) => (node ? selector(pickDataStorePath(s.pages, node)) : undefined)) as any,
-
-  useNodeStateSelector<N extends LayoutNode | undefined, Out>(
+  ): N extends undefined ? Out | undefined : Out {
+    return DataStore.useMemoSelector((s) => (node ? selector(pickDataStorePath(s.pages, node)) : undefined)) as any;
+  },
+  useNodeState<N extends LayoutNode | undefined, Out>(
     node: N,
     selector: (state: ItemStoreFromNode<N>) => Out,
   ): N extends undefined ? Out | undefined : Out {
     return DataStore.useSelector((s) => (node ? selector(pickDataStorePath(s.pages, node)) : undefined)) as any;
   },
+  useNodeStateMemoSelector: () =>
+    DataStore.useDelayedMemoSelectorFactory({
+      selector:
+        <N extends LayoutNode | undefined>({ node, path }: NodeStateSelectorProp<N>) =>
+        (state) =>
+          node ? dot.pick(path, pickDataStorePath(state.pages.pages, node)) : undefined,
+      makeCacheKey: ({ node, path }) => (node ? `${node.getId()}/${path}` : ''),
+    }),
 
   useIsAdded: (node: LayoutNode | LayoutPage) =>
     DataStore.useSelector((s) => {

@@ -11,10 +11,11 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { NodeOptionsSelector } from 'src/features/options/OptionsStorePlugin';
-import type { FormDataSelector, PropsFromGenericComponent } from 'src/layout';
+import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { NodeDataSelector } from 'src/utils/layout/useNodeItem';
 
 export class MultipleSelect extends MultipleSelectDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'MultipleSelect'>>(
@@ -27,13 +28,13 @@ export class MultipleSelect extends MultipleSelectDef {
     node: LayoutNode<'MultipleSelect'>,
     langTools: IUseLanguage,
     optionsSelector: NodeOptionsSelector,
-    formDataSelector: FormDataSelector,
+    nodeDataSelector: NodeDataSelector,
   ): { [key: string]: string } {
     if (!node.item.dataModelBindings?.simpleBinding) {
       return {};
     }
 
-    const value = String(node.getFormData(formDataSelector).simpleBinding ?? '');
+    const value = String(nodeDataSelector(node).simpleBinding ?? '');
     const optionList = optionsSelector(node);
     return getCommaSeparatedOptionsToText(value, optionList, langTools);
   }
@@ -41,15 +42,15 @@ export class MultipleSelect extends MultipleSelectDef {
   getDisplayData(
     node: LayoutNode<'MultipleSelect'>,
     _item: CompInternal<'MultipleSelect'>,
-    { langTools, optionsSelector, formDataSelector }: DisplayDataProps,
+    { langTools, optionsSelector, nodeDataSelector }: DisplayDataProps,
   ): string {
-    return Object.values(this.getSummaryData(node, langTools, optionsSelector, formDataSelector)).join(', ');
+    return Object.values(this.getSummaryData(node, langTools, optionsSelector, nodeDataSelector)).join(', ');
   }
 
-  renderSummary({ targetNode, formDataSelector }: SummaryRendererProps<'MultipleSelect'>): JSX.Element | null {
+  renderSummary({ targetNode, nodeDataSelector }: SummaryRendererProps<'MultipleSelect'>): JSX.Element | null {
     const langTools = useLanguage();
     const options = useNodeOptionsSelector();
-    const summaryData = this.getSummaryData(targetNode, langTools, options, formDataSelector);
+    const summaryData = this.getSummaryData(targetNode, langTools, options, nodeDataSelector);
     return <MultipleChoiceSummary formData={summaryData} />;
   }
 

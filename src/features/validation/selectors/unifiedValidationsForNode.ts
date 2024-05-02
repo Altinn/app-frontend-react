@@ -15,7 +15,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 const emptyArray = [];
 export function useUnifiedValidationsForNode(node: LayoutNode | undefined): NodeValidation[] {
   const nodeValidations = NodesInternal.useValidations(node);
-  const visibility = NodesInternal.useNodeStateSelector(node, (state: ItemStore) =>
+  const visibility = NodesInternal.useNodeState(node, (state: ItemStore) =>
     'validationVisibility' in state ? state.validationVisibility : 0,
   );
 

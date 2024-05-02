@@ -18,12 +18,12 @@ export class Map extends MapDef {
     },
   );
 
-  getDisplayData(node: LayoutNode<'Map'>, item: CompInternal<'Map'>, { formDataSelector }: DisplayDataProps): string {
+  getDisplayData(node: LayoutNode<'Map'>, item: CompInternal<'Map'>, { nodeDataSelector }: DisplayDataProps): string {
     if (!item.dataModelBindings?.simpleBinding) {
       return '';
     }
 
-    return node.getFormData(formDataSelector).simpleBinding ?? '';
+    return nodeDataSelector(node).simpleBinding ?? '';
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'Map'>): JSX.Element | null {

@@ -24,7 +24,7 @@ export function StoreOptionsInNode({ valueType }: { valueType: OptionsValueType 
   });
 
   NodeStages.OptionsFetched.useEffect(() => {
-    isAllAdded && !isFetching && setNodeProp(node, 'options', options);
+    isAllAdded && !isFetching && setNodeProp(node, 'options' as any, options);
   }, [isAllAdded, node, setNodeProp, options]);
 
   return null;
