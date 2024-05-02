@@ -5,11 +5,13 @@ import { Label, Paragraph } from '@digdir/designsystemet-react';
 import { Caption } from 'src/components/form/Caption';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 import { getInstanceReferenceNumber } from 'src/layout/InstanceInformation/InstanceInformationComponent';
 import classes from 'src/layout/Payment/PaymentComponent.module.css';
 import { usePaymentInformationQuery } from 'src/layout/Payment/queries/usePaymentInformationQuery';
 import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTable';
+import { formatDateLocale } from 'src/utils/formatDateLocale';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -24,6 +26,7 @@ interface ISummaryPaymentComponentProps {
 export const SummaryPaymentComponent = ({ targetNode }: ISummaryPaymentComponentProps) => {
   const textResourceBindings = targetNode.item.textResourceBindings;
   const { partyId, instanceGuid } = useInstanceIdParams();
+  const selectedLanguage = useCurrentLanguage();
   const { data: paymentInfo } = usePaymentInformationQuery(partyId, instanceGuid);
   const instance = useLaxInstanceData();
   const privatePersonPayer = paymentInfo?.paymentDetails?.payer.privatePerson;
@@ -48,17 +51,23 @@ export const SummaryPaymentComponent = ({ targetNode }: ISummaryPaymentComponent
             <Lang id={'payment.receipt.altinn_ref'} />: <b>{getInstanceReferenceNumber(instance)}</b>
           </Paragraph>
         )}
+        {paymentInfo?.paymentDetails?.chargedDate && (
+          <Paragraph
+            size={'small'}
+            spacing={false}
+          >
+            <Lang id={'payment.receipt.payment_date'} />:{' '}
+            <b>{formatDateLocale(selectedLanguage, new Date(paymentInfo?.paymentDetails?.chargedDate))}</b>
+          </Paragraph>
+        )}
         <Paragraph
           size={'small'}
           spacing={false}
         >
-          <Lang id={'payment.receipt.payment_date'} />: <b>{new Date().getDate().toString()}</b>
-        </Paragraph>
-        <Paragraph
-          size={'small'}
-          spacing={false}
-        >
-          <Lang id={'payment.receipt.total_amount'} />: <b>{paymentInfo?.orderDetails.totalPriceIncVat}</b>
+          <Lang id={'payment.receipt.total_amount'} />:{' '}
+          <b>
+            {paymentInfo?.orderDetails.totalPriceIncVat} {paymentInfo?.orderDetails?.currency}
+          </b>
         </Paragraph>
       </div>
       <div className={classes.senderReceiverInfoContainer}>
