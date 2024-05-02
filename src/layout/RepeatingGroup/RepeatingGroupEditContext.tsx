@@ -6,6 +6,7 @@ import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/Navig
 import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface RepeatingGroupEditRowContext {
@@ -26,15 +27,16 @@ function useRepeatingGroupEditRowState(
   node: LayoutNode<'RepeatingGroup'>,
   editId: string,
 ): RepeatingGroupEditRowContext & { setMultiPageIndex: (index: number) => void } {
-  const multiPageEnabled = node.item.edit?.multiPage ?? false;
+  const { edit, rows } = useNodeItem(node);
+  const multiPageEnabled = edit?.multiPage ?? false;
   const lastPage = useMemo(() => {
-    const row = node.item.rows.find((r) => r.uuid === editId);
+    const row = rows.find((r) => r.uuid === editId);
     let lastPage = 0;
     for (const childNode of row?.items ?? []) {
       lastPage = Math.max(lastPage, childNode.multiPageIndex ?? 0);
     }
     return lastPage;
-  }, [editId, node.item.rows]);
+  }, [editId, rows]);
 
   const [multiPageIndex, setMultiPageIndex] = useState(0);
 

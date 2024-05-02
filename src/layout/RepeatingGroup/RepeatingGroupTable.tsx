@@ -25,15 +25,23 @@ import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator
 export function RepeatingGroupTable(): React.JSX.Element | null {
   const mobileView = useIsMobileOrTablet();
   const { node, isEditing, visibleRows } = useRepeatingGroup();
-  const { textResourceBindings, labelSettings, id, edit, minCount, stickyHeader } = node.item;
+  const {
+    textResourceBindings,
+    labelSettings,
+    id,
+    edit,
+    minCount,
+    stickyHeader,
+    tableHeaders,
+    tableColumns,
+    rows,
+    baseComponentId,
+  } = useNodeItem(node);
   const required = !!minCount && minCount > 0;
 
-  const columnSettings = node.item.tableColumns
-    ? structuredClone(node.item.tableColumns)
-    : ({} as ITableColumnFormatting);
+  const columnSettings = tableColumns ? structuredClone(tableColumns) : ({} as ITableColumnFormatting);
 
   const getTableNodes = (restriction: ChildLookupRestriction) => {
-    const tableHeaders = node.item?.tableHeaders;
     const nodes = node.children(undefined, restriction).filter((child) => {
       if (tableHeaders) {
         const { id, baseComponentId } = child.item;
@@ -63,7 +71,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
 
   const showDeleteButtonColumns = new Set<boolean>();
   const showEditButtonColumns = new Set<boolean>();
-  for (const row of node.item.rows) {
+  for (const row of rows) {
     if (visibleRows.some((r) => r.uuid === row.uuid)) {
       showDeleteButtonColumns.add(row.groupExpressions.edit?.deleteButton !== false);
       showEditButtonColumns.add(row.groupExpressions.edit?.editButton !== false);
@@ -75,7 +83,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
     displayEditColumn = false;
   }
 
-  const isNested = typeof node.item?.baseComponentId === 'string';
+  const isNested = typeof baseComponentId === 'string';
 
   if (!tableNodes) {
     return null;

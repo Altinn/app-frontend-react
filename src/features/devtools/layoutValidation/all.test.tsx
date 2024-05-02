@@ -7,10 +7,7 @@ import type { JSONSchema7 } from 'json-schema';
 import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { isStatelessApp } from 'src/features/applicationMetadata/appMetadataUtils';
-import {
-  LayoutValidationProvider,
-  useLayoutValidation,
-} from 'src/features/devtools/layoutValidation/useLayoutValidation';
+import { useLayoutValidation } from 'src/features/devtools/layoutValidation/useLayoutValidation';
 import { ensureAppsDirIsSet, getAllLayoutSets } from 'src/test/allApps';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { ShowTypes } from 'src/features/applicationMetadata';
@@ -53,11 +50,9 @@ function DummyValidateApp() {
     throw new Error('Should be considered a stateless app - check the mocks if this is not working');
   }
 
-  return (
-    <LayoutValidationProvider>
-      <InnerDummy />
-    </LayoutValidationProvider>
-  );
+  // TODO: Run the full FormProvider here, and look for Error nodes
+
+  return <InnerDummy />;
 }
 
 function InnerDummy() {

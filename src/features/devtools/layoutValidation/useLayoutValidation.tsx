@@ -66,6 +66,13 @@ function useDataModelBindingsValidation(props: LayoutValidationProps) {
   const dataType = useCurrentDataModelType();
   const nodes = useNodes();
 
+  // TODO: Making a flat map of nodes at this point does not work well, as nodes will come and go when group rows
+  // are added/removed (and this will not be re-rendered then). We'll need to find another way to do this.
+  // One suggestion is to wrap each GenericComponent in an error-handler that will enable Layout Validation
+  // if triggered, causing us to fetch the layout schema and validate the component config. That way one component
+  // can fail without affecting the rest of the layout, and we can render out errors even if the component would
+  // otherwise crash.
+
   return useMemo(() => {
     const failures: LayoutValidationErrors = {
       [layoutSetId]: {},

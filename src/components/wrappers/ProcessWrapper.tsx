@@ -9,7 +9,6 @@ import { Form, FormFirstPage } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import classes from 'src/components/wrappers/ProcessWrapper.module.css';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
-import { LayoutValidationProvider } from 'src/features/devtools/layoutValidation/useLayoutValidation';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useLaxProcessData, useRealTaskType, useTaskType } from 'src/features/instance/ProcessContext';
@@ -158,24 +157,22 @@ export const ProcessWrapper = () => {
   if (taskType === ProcessTaskType.Data) {
     return (
       <FormProvider>
-        <LayoutValidationProvider>
-          <Routes>
-            <Route
-              path=':pageKey'
-              element={
-                <PDFWrapper>
-                  <PresentationComponent type={realTaskType}>
-                    <Form />
-                  </PresentationComponent>
-                </PDFWrapper>
-              }
-            />
-            <Route
-              path='*'
-              element={<FormFirstPage />}
-            />
-          </Routes>
-        </LayoutValidationProvider>
+        <Routes>
+          <Route
+            path=':pageKey'
+            element={
+              <PDFWrapper>
+                <PresentationComponent type={realTaskType}>
+                  <Form />
+                </PresentationComponent>
+              </PDFWrapper>
+            }
+          />
+          <Route
+            path='*'
+            element={<FormFirstPage />}
+          />
+        </Routes>
       </FormProvider>
     );
   }
