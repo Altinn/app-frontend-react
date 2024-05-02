@@ -144,7 +144,6 @@ export function createNodesDataStore() {
             parent.topLevelNodes[id] = targetState;
           } else {
             const def = getComponentDef(parent.layout.type);
-            targetState.ready = { hiddenSet: false, expressionsEvaluated: false };
             def.addChild(parent as any, node, targetState);
           }
         }),

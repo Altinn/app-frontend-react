@@ -2,6 +2,7 @@ import { CG } from 'src/codegen/CG';
 import { LabelRendering } from 'src/codegen/Config';
 import { ExprVal } from 'src/features/expressions/types';
 import { CompCategory } from 'src/layout/common';
+import { RepeatingChildrenPlugin } from 'src/utils/layout/plugins/RepeatingChildrenPlugin';
 
 export const Config = new CG.component({
   category: CompCategory.Container,
@@ -23,13 +24,10 @@ export const Config = new CG.component({
       from: 'src/layout/RepeatingGroup/RepGroupNode',
     }),
   )
-  .addProperty(
-    new CG.prop(
-      'children',
-      new CG.arr(new CG.str())
-        .setTitle('Children')
-        .setDescription('Array of component IDs that should be displayed in the repeating group'),
-    ),
+  .addPlugin(
+    new RepeatingChildrenPlugin({
+      multiPageSupport: 'edit.multiPage',
+    }),
   )
   .addTextResource(
     new CG.trb({

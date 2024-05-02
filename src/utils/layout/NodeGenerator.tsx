@@ -38,15 +38,12 @@ import type { HiddenStateNode } from 'src/utils/layout/NodesContext';
  * can always be up-to-date, and so that we can implement effects for components that run even when the
  * component is not visible/rendered.
  */
-export function DefaultNodeGenerator({ children, baseId }: PropsWithChildren<BasicNodeGeneratorProps>) {
+export function NodeGenerator({ children, baseId }: PropsWithChildren<BasicNodeGeneratorProps>) {
   const layoutMap = NodeGeneratorInternal.useLayoutMap();
   const item = useItem(layoutMap[baseId]);
   const path = usePath(item);
   const node = useNewNode(item, path) as LayoutNode;
-  const page = NodeGeneratorInternal.usePage();
-  const removeNode = NodesInternal.useRemoveNode();
-  const nodeRef = useAsRef(node);
-  const pageRef = useAsRef(page);
+  useAddRemoveNode(node, item);
 
   const hiddenParent = NodeGeneratorInternal.useHiddenState();
   const hiddenByExpression = useResolvedExpression(ExprVal.Boolean, node, item.hidden, false);
@@ -63,14 +60,6 @@ export function DefaultNodeGenerator({ children, baseId }: PropsWithChildren<Bas
 
   const resolvedItem = useResolvedItem({ node, hidden, item });
 
-  NodeStages.AddNodes.useEffect(
-    () => () => {
-      pageRef.current._removeChild(nodeRef.current);
-      removeNode(nodeRef.current);
-    },
-    [nodeRef, pageRef, removeNode],
-  );
-
   return (
     <>
       {NodeGeneratorDebug && <pre style={{ fontSize: '0.8em' }}>{JSON.stringify(resolvedItem, null, 2)}</pre>}
@@ -85,6 +74,34 @@ export function DefaultNodeGenerator({ children, baseId }: PropsWithChildren<Bas
   );
 }
 
+function useAddRemoveNode(node: LayoutNode, item: CompExternal) {
+  const parent = NodeGeneratorInternal.useParent();
+  const row = NodeGeneratorInternal.useRow();
+  const stateFactoryPropsRef = useAsRef<StateFactoryProps<any>>({ item, parent, row });
+  const addNode = NodesInternal.useAddNode();
+  const isParentAdded = NodesInternal.useIsAdded(parent);
+
+  const page = NodeGeneratorInternal.usePage();
+  const removeNode = NodesInternal.useRemoveNode();
+  const nodeRef = useAsRef(node);
+  const pageRef = useAsRef(page);
+
+  NodeStages.AddNodes.useEffect(() => {
+    if (isParentAdded) {
+      const defaultState = nodeRef.current.def.stateFactory(stateFactoryPropsRef.current as any);
+      addNode(nodeRef.current, defaultState);
+    }
+  }, [addNode, isParentAdded, nodeRef, stateFactoryPropsRef]);
+
+  NodeStages.AddNodes.useEffect(
+    () => () => {
+      pageRef.current._removeChild(nodeRef.current);
+      removeNode(nodeRef.current);
+    },
+    [nodeRef, pageRef, removeNode],
+  );
+}
+
 interface NodeResolverProps<T extends CompTypes> {
   node: LayoutNode<T>;
   hidden: HiddenStateNode;
@@ -96,8 +113,6 @@ function useResolvedItem<T extends CompTypes = CompTypes>({
   hidden,
   item,
 }: NodeResolverProps<T>): CompInternal<T> | undefined {
-  const parent = NodeGeneratorInternal.useParent();
-  const row = NodeGeneratorInternal.useRow();
   const resolverProps = useExpressionResolverProps(node, item);
   const allNodesAdded = NodeStages.AddNodes.useIsDone();
 
@@ -107,17 +122,6 @@ function useResolvedItem<T extends CompTypes = CompTypes>({
     () => (allNodesAdded ? ((def as CompDef<T>).evalExpressions(resolverProps as any) as CompInternal<T>) : undefined),
     [def, resolverProps, allNodesAdded],
   );
-
-  const stateFactoryProps = useAsRef<StateFactoryProps<T>>({ item: item as any, parent, row });
-  const addNode = NodesInternal.useAddNode();
-  const isParentAdded = NodesInternal.useIsAdded(parent);
-
-  NodeStages.AddNodes.useEffect(() => {
-    if (isParentAdded) {
-      const defaultState = node.def.stateFactory(stateFactoryProps.current as any);
-      addNode(node, defaultState);
-    }
-  }, [addNode, node, stateFactoryProps, isParentAdded]);
 
   NodeStages.MarkHidden.useEffect(() => {
     setNodeProp(node, 'hidden', hidden);

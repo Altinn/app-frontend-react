@@ -1,14 +1,7 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-import { getComponentDef } from '..';
-import type {
-  NodeRef,
-  PropsFromGenericComponent,
-  ValidateComponent,
-  ValidationFilter,
-  ValidationFilterFunction,
-} from '..';
+import type { PropsFromGenericComponent, ValidateComponent, ValidationFilter, ValidationFilterFunction } from '..';
 
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
@@ -20,11 +13,9 @@ import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/Summary
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { BaseValidation, ComponentValidation } from 'src/features/validation';
 import type { GridRowsInternal } from 'src/layout/Grid/types';
-import type { CompInternal, CompTypes } from 'src/layout/layout';
-import type { ChildClaimerProps, ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { CompInternal } from 'src/layout/layout';
+import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { RepGroupInternal, RepGroupRows } from 'src/layout/RepeatingGroup/types';
-import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
-import type { ItemStore } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent<'RepeatingGroup'>, ValidationFilter {
@@ -39,20 +30,6 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
       );
     },
   );
-
-  claimChildren(props: ChildClaimerProps<'RepeatingGroup'>): void {
-    const { claimChild, item } = props;
-    for (const id of item.children) {
-      const [, childId] = item.edit?.multiPage ? id.split(':', 2) : [undefined, id];
-      claimChild(childId);
-    }
-
-    for (const rows of [item.rowsBefore, item.rowsAfter]) {
-      if (rows) {
-        getComponentDef('Grid').claimChildrenForRows(rows, props);
-      }
-    }
-  }
 
   evalExpressions(props: ExprResolver<'RepeatingGroup'>): RepGroupInternal {
     const { item, evalBool, formDataSelector } = props;
@@ -90,23 +67,6 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
       rowsAfter: item.rowsAfter as GridRowsInternal | undefined,
     };
   }
-
-  pickDirectChildren(_state: ItemStore<'RepeatingGroup'>, _restriction?: ChildLookupRestriction): NodeRef[] {
-    // TODO: Implement
-    return [];
-  }
-
-  pickChild<C extends CompTypes>(
-    _state: ItemStore<'RepeatingGroup'>,
-    _childId: string,
-    _parentPath: string[],
-  ): ItemStore<C> {
-    return {} as any;
-  }
-
-  addChild(_state: ItemStore<'RepeatingGroup'>, _childNode: LayoutNode, _childStore: ItemStore) {}
-
-  removeChild(_state: ItemStore<'RepeatingGroup'>, _childNode: LayoutNode) {}
 
   renderSummary({
     onChangeClick,

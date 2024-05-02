@@ -106,9 +106,7 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
     component.addProperty(
       new CG.prop(
         this.settings.externalProp,
-        new CG.arr(new CG.str())
-          .setTitle(this.settings.title ?? 'Children')
-          .setDescription(this.settings.description ?? 'List of child component IDs to show inside'),
+        new CG.arr(new CG.str()).setTitle(this.settings.title).setDescription(this.settings.description),
       ),
     );
   }

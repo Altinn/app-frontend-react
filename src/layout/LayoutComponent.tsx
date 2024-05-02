@@ -12,7 +12,7 @@ import { CompCategory } from 'src/layout/common';
 import { getComponentCapabilities } from 'src/layout/index';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
-import { DefaultNodeGenerator } from 'src/utils/layout/DefaultNodeGenerator';
+import { NodeGenerator } from 'src/utils/layout/NodeGenerator';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CompCapabilities } from 'src/codegen/Config';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
@@ -33,7 +33,7 @@ import type {
 } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
-import type { ItemStore, StateFactoryProps } from 'src/utils/layout/itemState';
+import type { BaseRow, ItemStore, StateFactoryProps } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 
@@ -79,7 +79,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
    * the default node generator with additional functionality.
    */
   renderNodeGenerator(props: NodeGeneratorProps<Type>): JSX.Element | null {
-    return <DefaultNodeGenerator {...props} />;
+    return <NodeGenerator {...props} />;
   }
 
   /**
@@ -121,7 +121,12 @@ export abstract class AnyComponent<Type extends CompTypes> {
   /**
    * Adds a child node to the parent node. This must be implemented for every component type that can adopt children.
    */
-  public addChild(_state: ItemStore<Type>, _childNode: LayoutNode, _childStore: ItemStore): void {
+  public addChild(
+    _state: ItemStore<Type>,
+    _childNode: LayoutNode,
+    _childStore: ItemStore,
+    _row: BaseRow | undefined,
+  ): void {
     throw new Error(
       `addChild() is not implemented yet for '${this.type}'. ` +
         `You have to implement this if the component type supports children.`,
@@ -132,7 +137,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
    * Removes a child node from the parent node. This must be implemented for every component
    * type that can adopt children.
    */
-  public removeChild(_state: ItemStore<Type>, _childNode: LayoutNode): void {
+  public removeChild(_state: ItemStore<Type>, _childNode: LayoutNode, _row: BaseRow | undefined): void {
     throw new Error(
       `removeChild() is not implemented yet for '${this.type}'. ` +
         `You have to implement this if the component type supports children.`,
@@ -434,9 +439,14 @@ export abstract class ContainerComponent<Type extends CompTypes> extends _FormCo
 
   abstract pickDirectChildren(state: ItemStore<Type>, restriction?: ChildLookupRestriction): NodeRef[];
 
-  abstract addChild(state: ItemStore<Type>, childNode: LayoutNode, childStore: ItemStore): void;
+  abstract addChild(
+    state: ItemStore<Type>,
+    childNode: LayoutNode,
+    childStore: ItemStore,
+    row: BaseRow | undefined,
+  ): void;
 
-  abstract removeChild(state: ItemStore<Type>, childNode: LayoutNode): void;
+  abstract removeChild(state: ItemStore<Type>, childNode: LayoutNode, row: BaseRow | undefined): void;
 }
 
 export type LayoutComponent<Type extends CompTypes = CompTypes> =

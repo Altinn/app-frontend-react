@@ -14,6 +14,7 @@ import { useRuleConnections } from 'src/features/form/dynamics/DynamicsContext';
 import { useFormDataWriteProxies } from 'src/features/formData/FormDataWriteProxies';
 import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteStateMachine';
 import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
+import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
@@ -27,6 +28,7 @@ import type { BackendValidationIssueGroups } from 'src/features/validation';
 import type { FormDataSelector } from 'src/layout';
 import type { IMapping } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
+import type { BaseRow } from 'src/utils/layout/itemState';
 
 export type FDLeafValue = string | number | boolean | null | undefined | string[];
 export type FDValue = FDLeafValue | object | FDValue[];
@@ -321,6 +323,7 @@ const useWaitForSave = () => {
 };
 
 const emptyObject: any = {};
+const emptyArray: never[] = [];
 
 export const FD = {
   /**
@@ -548,6 +551,24 @@ export const FD = {
 
     return { lock, unlock, isLocked, lockedBy, isLockedByMe };
   },
+
+  /**
+   * Returns a list of rows, given a binding/path that points to a repeating-group-like structure (i.e. an array of
+   * objects). This will always be 'fresh', meaning it will update immediately when a new row is added/removed.
+   */
+  useFreshRows: (binding: string | undefined): BaseRow[] =>
+    useMemoSelector((s) => {
+      if (!binding) {
+        return emptyArray;
+      }
+
+      const rawRows = dot.pick(binding, s.currentData);
+      if (!Array.isArray(rawRows)) {
+        return emptyArray;
+      }
+
+      return rawRows.map((row: any, index: number) => ({ uuid: row[ALTINN_ROW_ID], index }));
+    }),
 
   /**
    * Returns a function you can use to debounce saved form data

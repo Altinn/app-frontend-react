@@ -131,6 +131,7 @@ function makeHooks(stage: Stage) {
         );
       }
 
+      // Register and unregister the hook
       React.useEffect(() => {
         if (shouldRun) {
           const registry = hooks.current[stage];
@@ -144,6 +145,7 @@ function makeHooks(stage: Stage) {
         }
       }, [uniqueId, hooks, shouldRun, tick]);
 
+      // Run the actual hook
       React.useEffect(() => {
         if (shouldRun) {
           const returnValue = effect();

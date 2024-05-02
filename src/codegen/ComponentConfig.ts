@@ -305,9 +305,9 @@ export class ComponentConfig {
       from: 'react',
     });
 
-    const DefaultNodeGenerator = new CG.import({
-      import: 'DefaultNodeGenerator',
-      from: 'src/utils/layout/DefaultNodeGenerator',
+    const NodeGenerator = new CG.import({
+      import: 'NodeGenerator',
+      from: 'src/utils/layout/NodeGenerator',
     });
 
     const isFormComponent = this.config.category === CompCategory.Form;
@@ -430,9 +430,9 @@ export class ComponentConfig {
 
       renderNodeGenerator(props: ${NodeGeneratorProps}<'${this.type}'>): ${ReactJSX}.Element | null {
         return (
-          <${DefaultNodeGenerator} {...props}>
+          <${NodeGenerator} {...props}>
             ${pluginGeneratorChildren}
-          </${DefaultNodeGenerator}>
+          </${NodeGenerator}>
         );
       }
 

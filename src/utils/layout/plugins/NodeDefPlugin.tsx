@@ -31,7 +31,6 @@ export type DefPluginExprResolver<Config extends DefPluginConfig> = Omit<
   'item'
 > & {
   item: DefPluginCompExternal<Config>;
-  state: DefPluginState<Config>;
 };
 export type DefPluginCompExternal<Config extends DefPluginConfig> = Config['expectedFromExternal'];
 export type DefPluginChildClaimerProps<Config extends DefPluginConfig> = ChildClaimerProps<

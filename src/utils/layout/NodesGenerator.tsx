@@ -17,7 +17,6 @@ import type {
   ComponentProto,
   ContainerGeneratorProps,
 } from 'src/layout/LayoutComponent';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { HiddenStatePage } from 'src/utils/layout/NodesContext';
 import type { ChildrenMap } from 'src/utils/layout/NodesGeneratorContext';
 
@@ -99,26 +98,10 @@ function SaveFinishedNodesToStore({ pages }: { pages: LayoutPages }) {
 
     if (isFinished) {
       setNodes(pages);
-      console.log('debug, all ready. Nodes:');
-      for (const page of Object.values(pages.all())) {
-        console.log(`debug, --- page:`, page.pageKey);
-        logNodes(page.children());
-      }
-      console.log('debug, nodes', pages);
     }
   }, [layoutKeys, pages, isFinished, setNodes, existingNodes]);
 
   return null;
-}
-
-function logNodes(nodes: LayoutNode[], prefix = '------') {
-  for (const node of nodes) {
-    console.log(`debug, ${prefix} node:`, node.getId());
-    const children = node.children();
-    if (children.length > 0) {
-      logNodes(children, `${prefix}---`);
-    }
-  }
 }
 
 function ExportStores() {
@@ -370,15 +353,17 @@ function Component({ baseId, type, childIds }: ComponentProps) {
       return out;
     }
 
-    const out: BasicNodeGeneratorProps = {
-      baseId,
-    };
-
+    const out: BasicNodeGeneratorProps = { baseId };
     return out;
   }, [childIds, baseId, def]);
 
   return (
-    <>
+    <div
+      style={{
+        borderLeft: `5px solid blue`,
+        paddingLeft: '5px',
+      }}
+    >
       {NodeGeneratorDebug && (
         <h3>
           {baseId} ({type})
@@ -386,6 +371,6 @@ function Component({ baseId, type, childIds }: ComponentProps) {
       )}
       {NodeGeneratorDebug && <span>{childIds ? `Children: ${childIds.join(', ')}` : 'No children'}</span>}
       <Generator {...(props as any)} />
-    </>
+    </div>
   );
 }
