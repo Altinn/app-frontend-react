@@ -5,6 +5,7 @@ import type { ComponentValidations, ValidationDataSources } from '..';
 import { useAttachments } from 'src/features/attachments/AttachmentsContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { Validation } from 'src/features/validation/validationContext';
+import { useAsRef } from 'src/hooks/useAsRef';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { implementsAnyValidation, implementsValidateComponent, implementsValidateEmptyField } from 'src/layout';
 import { useNodes } from 'src/utils/layout/NodesContext';
@@ -30,14 +31,17 @@ export function NodeValidation() {
   );
 }
 
-function SpecificNodeValidation<Type extends CompTypes>({ node }: { node: LayoutNode<Type> }) {
+function SpecificNodeValidation<Type extends CompTypes>({ node: _node }: { node: LayoutNode<Type> }) {
   const updateComponentValidations = Validation.useUpdateComponentValidations();
   const removeComponentValidations = Validation.useRemoveComponentValidations();
-  const nodeId = node.item.id;
+  const nodeId = _node.item.id;
+  const validationDataSources = useValidationDataSourcesForNode(_node);
 
-  const validationDataSources = useValidationDataSourcesForNode(node);
+  const nodeRef = useAsRef(_node);
 
   useEffect(() => {
+    const node = nodeRef.current;
+
     const validations: ComponentValidations[string] = {
       component: [],
       bindingKeys: node.item.dataModelBindings
@@ -72,7 +76,7 @@ function SpecificNodeValidation<Type extends CompTypes>({ node }: { node: Layout
     }
 
     updateComponentValidations(nodeId, validations);
-  }, [node, nodeId, updateComponentValidations, validationDataSources]);
+  }, [nodeId, nodeRef, updateComponentValidations, validationDataSources]);
 
   // Cleanup on unmount
   useEffect(() => () => removeComponentValidations(nodeId), [nodeId, removeComponentValidations]);
@@ -92,13 +96,17 @@ function useValidationDataSourcesForNode<T extends CompTypes>(node: LayoutNode<T
   const _attachments = useAttachments()[node.item.id];
   const attachments = useMemoDeepEqual(() => _attachments, [_attachments]);
 
+  // Added to make sure validation reruns if the item changes
+  const _nodeItem = useMemoDeepEqual(() => node.item, [node.item]);
+
   return useMemo(
     () => ({
       currentLanguage,
       formData,
       invalidData,
       attachments,
+      _nodeItem,
     }),
-    [attachments, currentLanguage, formData, invalidData],
+    [attachments, currentLanguage, formData, invalidData, _nodeItem],
   );
 }
