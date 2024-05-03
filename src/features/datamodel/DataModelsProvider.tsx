@@ -7,12 +7,14 @@ import type { JSONSchema7 } from 'json-schema';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { getFirstDataElementId } from 'src/features/applicationMetadata/appMetadataUtils';
 import { useCustomValidationConfigQuery } from 'src/features/customValidation/useCustomValidationQuery';
 import { useCurrentDataModelName, useDataModelUrl } from 'src/features/datamodel/useBindingSchema';
 import { useDataModelSchemaQuery } from 'src/features/datamodel/useDataModelSchemaQuery';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { FormDataWriteProvider } from 'src/features/formData/FormDataWrite';
+import { InvalidDataTypeException } from 'src/features/formData/InvalidDataTypeException';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
@@ -139,7 +141,9 @@ export function DataModelsProvider({ children }: PropsWithChildren) {
 }
 
 function DataModelsLoader() {
+  const applicationMetadata = useApplicationMetadata();
   const setDataTypes = useSelector((state) => state.setDataTypes);
+  const setError = useSelector((state) => state.setError);
   const dataTypes = useSelector((state) => state.dataTypes);
   const layouts = useLayouts();
   const defaultDataType = useCurrentDataModelName();
@@ -164,8 +168,18 @@ function DataModelsLoader() {
       }
     }
 
+    // Verify that referenced data types are defined in application metadata, and have a classRef
+    for (const dataType of dataTypes) {
+      if (!applicationMetadata.dataTypes.find((dt) => dt.id === dataType && dt.appLogic?.classRef)) {
+        const error = new InvalidDataTypeException(dataType);
+        window.logErrorOnce(error.message);
+        setError(error);
+        return;
+      }
+    }
+
     setDataTypes([...dataTypes], defaultDataType);
-  }, [defaultDataType, layouts, setDataTypes]);
+  }, [applicationMetadata.dataTypes, defaultDataType, layouts, setDataTypes, setError]);
 
   return (
     <>
