@@ -9,7 +9,6 @@ export interface PaymentResponsePayload {
   status: PaymentStatus;
   orderDetails: OrderDetails;
   paymentDetails?: PaymentDetails;
-  status: PaymentStatus;
 }
 
 export interface PaymentDetails {
