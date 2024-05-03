@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { Link } from '@digdir/designsystemet-react';
 import { FileCsvIcon, FileExcelIcon, FileIcon, FilePdfIcon, FileWordIcon } from '@navikt/aksel-icons';
 
 import { isAttachmentUploaded } from 'src/features/attachments';
@@ -16,7 +17,7 @@ export const AttachmentFileName = ({ attachment, mobileView }: { attachment: IAt
   const instanceId = useLaxInstanceData()?.id;
   const url =
     isAttachmentUploaded(attachment) && instanceId
-      ? makeUrlRelativeIfSameDomain(getDataElementUrl(instanceId, attachment.data.id, language, false))
+      ? makeUrlRelativeIfSameDomain(getDataElementUrl(instanceId, attachment.data.id, language))
       : undefined;
 
   const fileName = (
@@ -36,13 +37,13 @@ export const AttachmentFileName = ({ attachment, mobileView }: { attachment: IAt
       )}
       <div className={classes.truncate}>
         {attachment.uploaded && url ? (
-          <a
+          <Link
             href={url}
-            className={`${classes.download} ${classes.primaryColor}`}
+            className={classes.download}
             data-testid={`attachment-download`}
           >
             {fileName}
-          </a>
+          </Link>
         ) : (
           <span className={classes.download}>{fileName}</span>
         )}

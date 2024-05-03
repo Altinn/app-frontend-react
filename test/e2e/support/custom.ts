@@ -134,12 +134,6 @@ const knownWcagViolations: KnownViolation[] = [
   },
   {
     spec: 'frontend-test/group.ts',
-    test: 'Validation on group',
-    id: 'list',
-    nodeLength: 1,
-  },
-  {
-    spec: 'frontend-test/group.ts',
     test: 'Opens delete warning popup when alertOnDelete is true and deletes on confirm',
     id: 'aria-dialog-name',
     nodeLength: 1,
@@ -374,6 +368,14 @@ Cypress.Commands.add('reloadAndWait', () => {
   cy.get('#readyForPrint').should('exist');
   cy.findByRole('progressbar').should('not.exist');
   cy.injectAxe();
+});
+
+Cypress.Commands.add('waitForLoad', () => {
+  cy.get('#readyForPrint').should('exist');
+  cy.findByRole('progressbar').should('not.exist');
+  // An initialOption can cause a save to occur immediately after loading is finished, wait for this to finish as well
+  cy.waitUntilSaved();
+  cy.log('App finished loading');
 });
 
 Cypress.Commands.add(
