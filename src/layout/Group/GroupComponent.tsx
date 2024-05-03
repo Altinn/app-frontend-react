@@ -53,6 +53,9 @@ export function GroupComponent({
   const legend = isSummary ? summaryTitle ?? title : title;
   const restriction = typeof onlyInRowUuid === 'string' ? { onlyInRowUuid } : undefined;
 
+  console.log('child');
+  console.log(groupNode.children());
+
   return (
     <ConditionalWrapper
       condition={isPanel && !isSummary}
