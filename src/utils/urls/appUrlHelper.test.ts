@@ -320,7 +320,7 @@ describe('Frontend urlHelper.ts', () => {
     it('should return correct url when formData/dataMapping is provided', () => {
       const result = getDataListsUrl({
         dataListId: 'country',
-        mappedData: {
+        queryParameters: {
           selectedCountry: 'Norway',
         },
       });
@@ -331,7 +331,7 @@ describe('Frontend urlHelper.ts', () => {
     it('should render correct url when formData/Mapping, language, pagination and sorting paramters are provided', () => {
       const result = getDataListsUrl({
         dataListId: 'country',
-        mappedData: {
+        queryParameters: {
           selectedCountry: 'Norway',
         },
         pageSize: '10',

@@ -166,7 +166,7 @@ export const getOptionsUrl = ({ optionsId, queryParameters, language, secure, in
 };
 export interface IGetDataListsUrlParams {
   dataListId: string;
-  mappedData?: Record<string, any>;
+  queryParameters?: Record<string, any>;
   language?: string;
   secure?: boolean;
   instanceId?: string;
@@ -178,7 +178,7 @@ export interface IGetDataListsUrlParams {
 
 export const getDataListsUrl = ({
   dataListId,
-  mappedData,
+  queryParameters,
   language,
   pageSize,
   pageNumber,
@@ -215,10 +215,10 @@ export const getDataListsUrl = ({
     params.sortDirection = sortDirection;
   }
 
-  if (mappedData) {
+  if (queryParameters) {
     params = {
       ...params,
-      ...mappedData,
+      ...queryParameters,
     };
   }
 

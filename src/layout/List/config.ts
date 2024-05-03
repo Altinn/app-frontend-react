@@ -83,6 +83,7 @@ export const Config = new CG.component({
     ),
   )
   .addProperty(new CG.prop('mapping', CG.common('IMapping').optional()))
+  .addProperty(new CG.prop('queryParameters', CG.common('IQueryParameters').optional()))
   .addProperty(
     new CG.prop(
       'summaryBinding',
