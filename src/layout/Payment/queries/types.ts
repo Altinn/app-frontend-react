@@ -17,6 +17,8 @@ export interface PaymentDetails {
   receiptUrl?: string;
   payer: Payer;
   cardDetails?: CardDetails;
+  chargedDate?: string;
+  createdDate?: string;
 }
 
 interface CardDetails {
