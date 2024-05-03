@@ -30,6 +30,11 @@ export interface NodeRef {
   nodeRef: string;
 }
 
+export interface NodeRefInRow extends NodeRef {
+  baseId: string;
+  multiPageIndex?: number;
+}
+
 export interface IComponentProps {
   containerDivRef: MutableRefObject<HTMLDivElement | null>;
   isValid?: boolean;

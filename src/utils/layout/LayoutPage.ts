@@ -1,5 +1,5 @@
-import { splitDashedKey } from 'src/utils/formLayout';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
+import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { NodeRef } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';

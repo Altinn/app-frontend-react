@@ -143,6 +143,7 @@ export function useExpressionResolverProps<T extends CompTypes>(
   node: LayoutNode<T>,
   item: CompExternalExact<T>,
 ): ExprResolver<T> {
+  const stateSelector = NodesInternal.useExactNodeStateMemoSelector(node);
   const allDataSources = useExpressionDataSources();
   const allDataSourcesAsRef = useAsRef(allDataSources);
 
@@ -239,6 +240,7 @@ export function useExpressionResolverProps<T extends CompTypes>(
 
   return {
     item,
+    stateSelector,
     evalBool,
     evalNum,
     evalStr,

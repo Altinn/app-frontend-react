@@ -1,10 +1,9 @@
 import type { ExprResolved } from 'src/features/expressions/types';
-import type { NodeRef } from 'src/layout';
 import type { GridRowsInternal } from 'src/layout/Grid/types';
-import type { CompExternal } from 'src/layout/layout';
-import type { BaseRow } from 'src/utils/layout/itemState';
+import type { RepeatingGroupDef } from 'src/layout/RepeatingGroup/config.def.generated';
+import type { RepChildrenRow } from 'src/utils/layout/plugins/RepeatingChildrenPlugin';
 
-type Comp = CompExternal<'RepeatingGroup'>;
+type Comp = ReturnType<RepeatingGroupDef['evalDefaultExpressions']>;
 type RepGroupTrb = Exclude<Comp['textResourceBindings'], undefined>;
 type RepGroupEdit = Exclude<Comp['edit'], undefined>;
 
@@ -26,20 +25,13 @@ export type RepGroupInternal = ExprResolved<
   Omit<Comp, PerRowProps | 'textResourceBindings' | 'edit' | 'rowsAfter' | 'rowsBefore'> & {
     textResourceBindings?: Omit<RepGroupTrb, PerRowTrb>;
     edit?: Omit<RepGroupEdit, PerRowEdit>;
-    rows: RepGroupRows;
     rowsBefore?: GridRowsInternal;
     rowsAfter?: GridRowsInternal;
   }
 >;
 
-export interface NodeRefInRow extends NodeRef {
-  baseId: string;
-  multiPageIndex: number;
-}
-
-export interface RepGroupRow extends BaseRow {
+export interface RepGroupRowExtras {
   groupExpressions: GroupExpressions;
-  items: NodeRefInRow[];
 }
 
-export type RepGroupRows = RepGroupRow[];
+export type RepGroupRow = RepChildrenRow & RepGroupRowExtras;

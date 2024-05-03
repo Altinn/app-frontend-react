@@ -3,7 +3,6 @@ import type { JSX } from 'react';
 
 import type { PropsFromGenericComponent, ValidateComponent, ValidationFilter, ValidationFilterFunction } from '..';
 
-import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { RepeatingGroupDef } from 'src/layout/RepeatingGroup/config.def.generated';
 import { RepeatingGroupContainer } from 'src/layout/RepeatingGroup/RepeatingGroupContainer';
@@ -15,7 +14,8 @@ import type { BaseValidation, ComponentValidation } from 'src/features/validatio
 import type { GridRowsInternal } from 'src/layout/Grid/types';
 import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { RepGroupInternal, RepGroupRows } from 'src/layout/RepeatingGroup/types';
+import type { RepGroupInternal, RepGroupRowExtras } from 'src/layout/RepeatingGroup/types';
+import type { BaseRow } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent<'RepeatingGroup'>, ValidationFilter {
@@ -32,25 +32,7 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
   );
 
   evalExpressions(props: ExprResolver<'RepeatingGroup'>): RepGroupInternal {
-    const { item, evalBool, formDataSelector } = props;
-
-    // Only fetch the row ID (and by extension the number of rows) so that we only re-evaluate expressions
-    // when the number of rows change.
-    const formData = item.dataModelBindings?.group
-      ? (formDataSelector(item.dataModelBindings.group, (rows) =>
-          Array.isArray(rows) ? rows.map((row, index) => ({ [ALTINN_ROW_ID]: row[ALTINN_ROW_ID], index })) : [],
-        ) as { altinnRowId: string; index: number }[])
-      : undefined;
-
-    const rows: RepGroupRows =
-      (formData?.map((row) => ({
-        uuid: row[ALTINN_ROW_ID],
-        index: row.index,
-        groupExpressions: {
-          hiddenRow: evalBool(item.hiddenRow, false), // TODO: Implement support for row-eval
-          // TODO: Implement the rest
-        },
-      })) as RepGroupRows) ?? [];
+    const { item, evalBool } = props;
 
     return {
       ...this.evalDefaultExpressions(props),
@@ -60,12 +42,35 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
             addButton: evalBool(item.edit.addButton, true),
           }
         : undefined,
-      rows,
 
       // TODO: Call the code in Grid to evaluate the rowsBefore and rowsAfter
       rowsBefore: item.rowsBefore as GridRowsInternal | undefined,
       rowsAfter: item.rowsAfter as GridRowsInternal | undefined,
     };
+  }
+
+  evalExpressionsForRow(_props: ExprResolver<'RepeatingGroup'>, _row: BaseRow) {
+    // const { evalBool, formDataSelector, item } = props;
+    //
+    // // Only fetch the row ID (and by extension the number of rows) so that we only re-evaluate expressions
+    // // when the number of rows change.
+    // const formData = item.dataModelBindings?.group
+    //   ? (formDataSelector(item.dataModelBindings.group, (rows) =>
+    //       Array.isArray(rows) ? rows.map((row, index) => ({ [ALTINN_ROW_ID]: row[ALTINN_ROW_ID], index })) : [],
+    //     ) as { altinnRowId: string; index: number }[])
+    //   : undefined;
+
+    // const _rows: RepGroupRows =
+    //   (formData?.map((row) => ({
+    //     uuid: row[ALTINN_ROW_ID],
+    //     index: row.index,
+    //     groupExpressions: {
+    //       hiddenRow: evalBool(item.hiddenRow, false), // TODO: Implement support for row-eval
+    //       // TODO: Implement the rest
+    //     },
+    //   })) as RepGroupRows) ?? [];
+
+    return {} as RepGroupRowExtras;
   }
 
   renderSummary({

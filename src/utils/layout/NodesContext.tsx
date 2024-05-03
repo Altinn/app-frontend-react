@@ -450,6 +450,9 @@ type NodeStateSelectorProp<N extends LayoutNode | undefined> = {
   path: string;
 };
 
+export type NodeStateSelector = ReturnType<typeof NodesInternal.useNodeStateMemoSelector>;
+export type ExactNodeStateSelector = ReturnType<typeof NodesInternal.useExactNodeStateMemoSelector>;
+
 /**
  * A set of tools, selectors and functions to use internally in node generator components.
  */
@@ -473,6 +476,11 @@ export const NodesInternal = {
         (state) =>
           node ? dot.pick(path, pickDataStorePath(state.pages.pages, node)) : undefined,
       makeCacheKey: ({ node, path }) => (node ? `${node.getId()}/${path}` : ''),
+    }),
+  useExactNodeStateMemoSelector: (node: LayoutNode) =>
+    DataStore.useDelayedMemoSelectorFactory({
+      selector: (path: string) => (state) => dot.pick(path, pickDataStorePath(state.pages.pages, node)),
+      makeCacheKey: (path) => path,
     }),
 
   useIsAdded: (node: LayoutNode | LayoutPage) =>

@@ -27,6 +27,10 @@ export const Config = new CG.component({
   .addPlugin(
     new RepeatingChildrenPlugin({
       multiPageSupport: 'edit.multiPage',
+      extraRowState: new CG.import({
+        import: 'RepGroupRowExtras',
+        from: 'src/layout/RepeatingGroup/types',
+      }),
     }),
   )
   .addTextResource(

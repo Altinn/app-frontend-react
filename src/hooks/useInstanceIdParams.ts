@@ -2,6 +2,7 @@ import { useLocation } from 'react-router-dom';
 
 import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
 
+// TODO: Use location params instead
 export function useInstanceIdParams() {
   const { pathname } = useLocation();
   const instanceIdRegExpr = getInstanceIdRegExp({ prefix: 'instance' });

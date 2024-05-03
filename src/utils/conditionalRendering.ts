@@ -1,4 +1,4 @@
-import { splitDashedKey } from 'src/utils/formLayout';
+import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { IConditionalRenderingRule, IConditionalRenderingRules } from 'src/features/form/dynamics';
 import type { FormDataSelector } from 'src/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';

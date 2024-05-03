@@ -1,5 +1,6 @@
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
+import type { SerializableSetting } from 'src/codegen/SerializableSetting';
 import type { NodeRef } from 'src/layout';
 import type { CompInternal, CompTypes } from 'src/layout/layout';
 import type { ChildClaimerProps, ExprResolver } from 'src/layout/LayoutComponent';
@@ -85,11 +86,70 @@ export abstract class NodeDefPlugin<Config extends DefPluginConfig> {
    * Makes constructor arguments (must be a string, most often JSON). This is used to add custom constructor arguments
    * when instantiating this plugin in code generation.
    */
-  makeConstructorArgs(): string {
+  makeConstructorArgs(asGenericArgs = false): string {
     if (this.settings) {
-      return JSON.stringify(this.settings);
+      return this.serializeSettings(this.settings, asGenericArgs);
     }
     return '';
+  }
+
+  /**
+   * Useful tool when you have the concept of 'default' settings in your plugin. This will make the constructor
+   * arguments, but omits any settings that are the same as the default settings.
+   */
+  protected makeConstructorArgsWithoutDefaultSettings(defaults: unknown, asGenericArgs: boolean): string {
+    const settings = this.settings;
+    if (settings && typeof settings === 'object' && defaults && typeof defaults === 'object') {
+      const nonDefaultSettings: any = Object.keys(settings)
+        .filter((key) => settings[key] !== defaults[key])
+        .reduce((acc, key) => {
+          acc[key] = settings[key];
+          return acc;
+        }, {});
+
+      return this.serializeSettings(nonDefaultSettings, asGenericArgs);
+    }
+
+    throw new Error('Settings must be an object');
+  }
+
+  protected serializeSettings(settings: unknown, asGenericArgs: boolean) {
+    if (!settings || typeof settings !== 'object') {
+      throw new Error('Settings must be an object');
+    }
+
+    const lines: string[] = [];
+    for (const _key of Object.keys(settings)) {
+      const value = settings[_key];
+      const key = asGenericArgs ? _key : JSON.stringify(_key);
+
+      // If value is a class object, check if it has the 'serializeSetting' method, i.e. that it implements the
+      // SerializableSetting interface
+      if (
+        value &&
+        typeof value === 'object' &&
+        typeof (value as any).serializeToTypeDefinition === 'function' &&
+        typeof (value as any).serializeToTypeScript === 'function'
+      ) {
+        const valueAsInstance = value as SerializableSetting;
+        const result = asGenericArgs
+          ? valueAsInstance.serializeToTypeDefinition()
+          : valueAsInstance.serializeToTypeScript();
+        lines.push(`${key}: ${result}`);
+        continue;
+      }
+
+      // All other non-primitives are prohibited
+      if (value && typeof value === 'object') {
+        throw new Error(`Settings object contains non-serializable value: ${_key}`);
+      }
+
+      const valueJson = JSON.stringify(value);
+      const constValue = asGenericArgs ? valueJson : `${valueJson} as const`;
+      lines.push(`${key}: ${constValue}`);
+    }
+
+    return `{${lines.join(',')}}`;
   }
 
   /**
@@ -97,7 +157,7 @@ export abstract class NodeDefPlugin<Config extends DefPluginConfig> {
    * configurations for components.
    */
   makeGenericArgs(): string {
-    return this.makeConstructorArgs();
+    return this.makeConstructorArgs(true);
   }
 
   /**
@@ -124,6 +184,14 @@ export abstract class NodeDefPlugin<Config extends DefPluginConfig> {
    */
   extraNodeGeneratorChildren(): string {
     return '';
+  }
+
+  /**
+   * Outputs any extra method definitions the component Def class needs to have. This can be used to add custom
+   * methods to the component, or force the component to implement certain methods (by making them abstract).
+   */
+  extraMethodsInDef(): string[] {
+    return [];
   }
 }
 

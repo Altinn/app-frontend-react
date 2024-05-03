@@ -82,20 +82,13 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
     return [this.constructor.name, this.settings.externalProp].join('/');
   }
 
-  makeConstructorArgs(): string {
+  makeConstructorArgs(asGenericArgs = false): string {
     if (!this.component) {
       throw new Error('Component not set, cannot make constructor args for plugin not attached to a component');
     }
 
-    const nonDefaultSettings: any = Object.keys(this.settings)
-      .filter((key) => this.settings[key] !== defaultConfig[key])
-      .reduce((acc, key) => {
-        acc[key] = this.settings[key];
-        return acc;
-      }, {});
-
-    nonDefaultSettings.componentType = this.component.type;
-    return JSON.stringify(nonDefaultSettings);
+    this.settings.componentType = this.component.type as any;
+    return this.makeConstructorArgsWithoutDefaultSettings(defaultConfig, asGenericArgs);
   }
 
   addToComponent(component: ComponentConfig): void {

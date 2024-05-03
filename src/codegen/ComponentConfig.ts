@@ -329,8 +329,7 @@ export class ComponentConfig {
     }
 
     const pluginInstances = this.plugins.map((plugin) => {
-      const argsPlain = plugin.makeConstructorArgs();
-      const args = argsPlain ? `${argsPlain} as const` : '';
+      const args = plugin.makeConstructorArgs();
       const instance = `new ${plugin.import}(${args})`;
       return `'${plugin.getKey()}': ${instance}`;
     });
@@ -380,6 +379,11 @@ export class ComponentConfig {
         `// This component could have, but does not have any data model bindings defined
         getDisplayData() { return ''; }`,
       );
+    }
+
+    for (const plugin of this.plugins) {
+      const extraMethodsFromPlugin = plugin.extraMethodsInDef();
+      additionalMethods.push(...extraMethodsFromPlugin);
     }
 
     const childrenPlugins = this.plugins.filter((plugin) =>

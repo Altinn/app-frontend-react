@@ -35,6 +35,7 @@ import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 import type { BaseRow, ItemStore, StateFactoryProps } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { ExactNodeStateSelector } from 'src/utils/layout/NodesContext';
 import type { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { NodeDataSelector } from 'src/utils/layout/useNodeItem';
 
@@ -50,6 +51,7 @@ export type NodeGeneratorProps<Type extends CompTypes> =
   IsContainerComp<Type> extends true ? ContainerGeneratorProps : BasicNodeGeneratorProps;
 
 export interface ExprResolver<Type extends CompTypes> {
+  stateSelector: ExactNodeStateSelector;
   item: CompExternalExact<Type>;
   formDataSelector: FormDataSelector;
   evalBase: () => ExprResolved<Omit<ComponentBase, 'hidden'>>;
@@ -157,6 +159,14 @@ export abstract class AnyComponent<Type extends CompTypes> {
    * expressions), or must be implemented manually.
    */
   abstract evalExpressions(props: ExprResolver<Type>): unknown;
+
+  /**
+   * This needs to be implemented for components that supports repeating rows
+   * @see RepeatingChildrenPlugin
+   */
+  evalExpressionsForRow(_props: ExprResolver<Type>, _row: BaseRow): unknown {
+    throw new Error('Component does not support evalExpressionsForRow');
+  }
 
   /**
    * Given a node, a list of the node's data, for display in the devtools node inspector
