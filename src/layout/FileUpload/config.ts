@@ -13,6 +13,8 @@ export const Config = asUploaderComponent(
       renderInAccordion: false,
       renderInAccordionGroup: false,
       renderInCardGroup: false,
+      renderInCards: false,
+      renderInCardsMedia: false,
     },
   }),
 );

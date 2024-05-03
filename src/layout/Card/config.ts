@@ -10,6 +10,8 @@ export const Config = new CG.component({
     renderInAccordion: true,
     renderInAccordionGroup: false,
     renderInCardGroup: true,
+    renderInCards: false,
+    renderInCardsMedia: false,
   },
 })
   .addTextResource(
@@ -33,13 +35,6 @@ export const Config = new CG.component({
       description: 'The footer of the Card',
     }),
   )
-  .addTextResource(
-    new CG.trb({
-      name: 'altText',
-      title: 'Alt text',
-      description: 'Alternative text for the image (for screen readers).',
-    }),
-  )
   .addProperty(
     new CG.prop(
       'image',
@@ -57,42 +52,37 @@ export const Config = new CG.component({
               nn: 'https://example.com/bilete.png',
               en: 'https://example.com/image.png',
             })
-            .exportAs('IImageSrc'),
+            .exportAs('CardSrcImage'),
         ),
-        new CG.prop('width', new CG.str().setTitle('Image width').addExample('100%')),
+        new CG.prop('width', new CG.str().setTitle('Image width').addExample('100%').optional({ default: '100%' })),
         new CG.prop(
-          'align',
-          new CG.enum('flex-start', 'center', 'flex-end', 'space-between', 'space-around', 'space-evenly')
-            .setTitle('Justification/alignment')
-            .setDescription('Justification/alignment of the image')
-            .exportAs('GridJustification'),
+          'altText',
+          new CG.str().setTitle('Alt text').setDescription('Alternative text for the image (for screen readers)'),
         ),
       )
         .optional()
-        .exportAs('IImage'),
+        .exportAs('CardImage'),
     ),
   )
   .addProperty(
     new CG.prop(
-      'edit',
-      new CG.obj(
-        new CG.prop(
-          'position',
-          new CG.enum('top', 'bottom')
-            .setTitle('ImagePosition')
-            .setDescription('Positon of the image')
-            .exportAs('Position'),
-        ),
-        new CG.prop(
-          'minMediaHeight',
-          new CG.str()
-            .setTitle('minMediaHeight')
-            .setDescription('Fixed minimun height of media (optional)')
-            .exportAs('MinMediaHeight')
-            .optional()
-            .addExample('100px', '100%', '100rem'),
-        ),
-      ),
+      'position',
+      new CG.enum('top', 'bottom')
+        .optional({ default: 'top' })
+        .setTitle('ImagePosition')
+        .setDescription('Position of the image/video/audio in the card')
+        .exportAs('CardMediaPosition'),
+    ),
+  )
+  .addProperty(
+    new CG.prop(
+      'minMediaHeight',
+      new CG.str()
+        .setTitle('minMediaHeight')
+        .setDescription('Fixed minimum height of media')
+        .exportAs('MinMediaHeight')
+        .optional()
+        .addExample('100px', '100%', '100rem'),
     ),
   )
   .addProperty(
@@ -112,11 +102,11 @@ export const Config = new CG.component({
               nn: 'https://example.com/video.mp4',
               en: 'https://example.com/video.mp4',
             })
-            .exportAs('IVideoSrc'),
+            .exportAs('CardVideoSrc'),
         ),
       )
         .optional()
-        .exportAs('IVideo'),
+        .exportAs('CardVideo'),
     ),
   )
   .addProperty(
@@ -136,11 +126,11 @@ export const Config = new CG.component({
               nn: 'https://example.com/audio.mp3',
               en: 'https://example.com/audio.mp3',
             })
-            .exportAs('IAudioSrc'),
+            .exportAs('CardAudioSrc'),
         ),
       )
         .optional()
-        .exportAs('IAudio'),
+        .exportAs('CardAudio'),
     ),
   )
   .addProperty(

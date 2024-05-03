@@ -10,6 +10,8 @@ export const Config = new CG.component({
     renderInAccordion: false,
     renderInAccordionGroup: false,
     renderInCardGroup: false,
+    renderInCards: true,
+    renderInCardsMedia: false,
   },
 })
   .addDataModelBinding(CG.common('IDataModelBindingsSimple'))
