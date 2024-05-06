@@ -14,8 +14,7 @@ import type { BaseValidation, ComponentValidation } from 'src/features/validatio
 import type { GridRowsInternal } from 'src/layout/Grid/types';
 import type { CompInternal } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { RepGroupInternal, RepGroupRowExtras } from 'src/layout/RepeatingGroup/types';
-import type { BaseRow } from 'src/utils/layout/itemState';
+import type { GroupExpressions, RepGroupInternal, RepGroupRowExtras } from 'src/layout/RepeatingGroup/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent<'RepeatingGroup'>, ValidationFilter {
@@ -49,28 +48,31 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     };
   }
 
-  evalExpressionsForRow(_props: ExprResolver<'RepeatingGroup'>, _row: BaseRow) {
-    // const { evalBool, formDataSelector, item } = props;
-    //
-    // // Only fetch the row ID (and by extension the number of rows) so that we only re-evaluate expressions
-    // // when the number of rows change.
-    // const formData = item.dataModelBindings?.group
-    //   ? (formDataSelector(item.dataModelBindings.group, (rows) =>
-    //       Array.isArray(rows) ? rows.map((row, index) => ({ [ALTINN_ROW_ID]: row[ALTINN_ROW_ID], index })) : [],
-    //     ) as { altinnRowId: string; index: number }[])
-    //   : undefined;
+  evalExpressionsForRow(props: ExprResolver<'RepeatingGroup'>) {
+    const { evalBool, item, evalTrb } = props;
 
-    // const _rows: RepGroupRows =
-    //   (formData?.map((row) => ({
-    //     uuid: row[ALTINN_ROW_ID],
-    //     index: row.index,
-    //     groupExpressions: {
-    //       hiddenRow: evalBool(item.hiddenRow, false), // TODO: Implement support for row-eval
-    //       // TODO: Implement the rest
-    //     },
-    //   })) as RepGroupRows) ?? [];
+    const evaluatedTrb = evalTrb();
+    const textResourceBindings: GroupExpressions['textResourceBindings'] = {
+      edit_button_close: evaluatedTrb?.textResourceBindings?.edit_button_close,
+      edit_button_open: evaluatedTrb?.textResourceBindings?.edit_button_open,
+      save_and_next_button: evaluatedTrb?.textResourceBindings?.save_and_next_button,
+      save_button: evaluatedTrb?.textResourceBindings?.save_button,
+    };
+    const edit: GroupExpressions['edit'] = {
+      alertOnDelete: evalBool(item.edit?.alertOnDelete, false),
+      editButton: evalBool(item.edit?.editButton, true),
+      deleteButton: evalBool(item.edit?.deleteButton, true),
+      saveAndNextButton: evalBool(item.edit?.saveAndNextButton, false),
+      saveButton: evalBool(item.edit?.saveButton, true),
+    };
 
-    return {} as RepGroupRowExtras;
+    const groupExpressions: GroupExpressions = {
+      hiddenRow: evalBool(item.hiddenRow, false),
+      textResourceBindings: item.textResourceBindings ? textResourceBindings : undefined,
+      edit: item.edit ? edit : undefined,
+    };
+
+    return { groupExpressions } as RepGroupRowExtras;
   }
 
   renderSummary({

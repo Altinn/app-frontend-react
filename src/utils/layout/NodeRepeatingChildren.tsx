@@ -3,9 +3,16 @@ import React, { useMemo } from 'react';
 import dot from 'dot-object';
 
 import { FD } from 'src/features/formData/FormDataWrite';
+import { useDef, useExpressionResolverProps } from 'src/utils/layout/NodeGenerator';
+import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import { NodeChildren } from 'src/utils/layout/NodesGenerator';
 import { NodeGeneratorInternal, NodesGeneratorRowProvider } from 'src/utils/layout/NodesGeneratorContext';
+import { NodeStages } from 'src/utils/layout/NodeStages';
+import { useNodeDirectChildren } from 'src/utils/layout/useNodeItem';
+import type { CompDef } from 'src/layout';
+import type { CompExternal } from 'src/layout/layout';
 import type { BaseRow } from 'src/utils/layout/itemState';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ChildMutator } from 'src/utils/layout/NodesGeneratorContext';
 
 interface Props {
@@ -16,7 +23,7 @@ interface Props {
   multiPageSupport: false | string;
 }
 
-export function NodeRepeatingChildren({ childIds, binding, multiPageSupport, externalProp }: Props) {
+export function NodeRepeatingChildren({ childIds, binding, multiPageSupport, externalProp, internalProp }: Props) {
   const item = NodeGeneratorInternal.useExternalItem();
   const rows = FD.useFreshRows(item?.dataModelBindings?.[binding]);
   const multiPage = multiPageSupport !== false && dot.pick(multiPageSupport, item) === true;
@@ -32,6 +39,7 @@ export function NodeRepeatingChildren({ childIds, binding, multiPageSupport, ext
           groupBinding={groupBinding}
           childIds={childIds}
           multiPageMapping={multiPageMapping}
+          internalProp={internalProp}
         />
       ))}
     </>
@@ -43,9 +51,10 @@ interface GenerateRowProps {
   childIds: string[];
   groupBinding: string | undefined;
   multiPageMapping: MultiPageMapping | undefined;
+  internalProp: string;
 }
 
-function GenerateRow({ row, childIds, groupBinding, multiPageMapping }: GenerateRowProps) {
+function GenerateRow({ row, childIds, groupBinding, multiPageMapping, internalProp }: GenerateRowProps) {
   const depth = NodeGeneratorInternal.useDepth();
   const directMutators = useMemo(
     () => [mutateComponentId(row), mutateMultiPageIndex(multiPageMapping)],
@@ -63,9 +72,40 @@ function GenerateRow({ row, childIds, groupBinding, multiPageMapping }: Generate
       directMutators={directMutators}
       recursiveMutators={recursiveMutators}
     >
+      <ResolveRowExpressions internalProp={internalProp} />
       <NodeChildren childIds={childIds} />
     </NodesGeneratorRowProvider>
   );
+}
+
+interface ResolveRowProps {
+  internalProp: string;
+}
+
+function ResolveRowExpressions({ internalProp }: ResolveRowProps) {
+  const parent = NodeGeneratorInternal.useParent() as LayoutNode;
+  const row = NodeGeneratorInternal.useRow() as BaseRow;
+  const nodeChildren = useNodeDirectChildren(parent as LayoutNode, { onlyInRowUuid: row!.uuid });
+  const firstChild = useNode(nodeChildren?.[0]);
+
+  const item = NodeGeneratorInternal.useExternalItem();
+  const props = useExpressionResolverProps(firstChild, item as CompExternal, row);
+  const allNodesAdded = NodeStages.AddNodes.useIsDone();
+
+  const setExtra = NodesInternal.useSetRowExtras();
+  const def = useDef(item!.type);
+  const resolvedRowExtras = useMemo(
+    () => (allNodesAdded ? (def as CompDef).evalExpressionsForRow(props as any) : undefined),
+    [def, props, allNodesAdded],
+  );
+
+  NodeStages.EvaluateExpressions.useEffect(() => {
+    if (resolvedRowExtras) {
+      setExtra(parent, row, internalProp, resolvedRowExtras);
+    }
+  }, [resolvedRowExtras, setExtra, parent, row, internalProp]);
+
+  return null;
 }
 
 interface MultiPageMapping {

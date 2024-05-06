@@ -27,6 +27,7 @@ import { NodePathNotFound } from 'src/utils/layout/NodePathNotFound';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
 import { NodesGenerator } from 'src/utils/layout/NodesGenerator';
 import { NodeStagesProvider } from 'src/utils/layout/NodeStages';
+import { RepeatingChildrenStorePlugin } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
 import type { OptionsStorePluginConfig } from 'src/features/options/OptionsStorePlugin';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
 import type { NodeRef } from 'src/layout';
@@ -35,6 +36,7 @@ import type { ItemStore, ItemStoreFromNode } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
+import type { RepeatingChildrenStorePluginConfig } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
 
 export interface NodesContext {
   nodes: LayoutPages | undefined;
@@ -94,11 +96,13 @@ export interface TopLevelNodesStore<Types extends CompTypes = CompTypes> {
 export type NodeDataStorePlugins = {
   validation: ValidationStorePluginConfig;
   options: OptionsStorePluginConfig;
+  repeatingChildren: RepeatingChildrenStorePluginConfig;
 };
 
 const DataStorePlugins: { [K in keyof NodeDataStorePlugins]: NodeDataPlugin<NodeDataStorePlugins[K]> } = {
   validation: new ValidationStorePlugin(),
   options: new OptionsStorePlugin(),
+  repeatingChildren: new RepeatingChildrenStorePlugin(),
 };
 
 type AllFlat<T> = UnionToIntersection<T extends Record<string, infer U> ? (U extends undefined ? never : U) : never>;
@@ -461,25 +465,60 @@ export const NodesInternal = {
     node: N,
     selector: (state: ItemStoreFromNode<N>) => Out,
   ): N extends undefined ? Out | undefined : Out {
-    return DataStore.useMemoSelector((s) => (node ? selector(pickDataStorePath(s.pages, node)) : undefined)) as any;
+    return DataStore.useMemoSelector((s) => {
+      try {
+        return node ? selector(pickDataStorePath(s.pages, node)) : undefined;
+      } catch (e) {
+        if (e instanceof NodePathNotFound) {
+          return undefined;
+        }
+        throw e;
+      }
+    }) as any;
   },
   useNodeState<N extends LayoutNode | undefined, Out>(
     node: N,
     selector: (state: ItemStoreFromNode<N>) => Out,
   ): N extends undefined ? Out | undefined : Out {
-    return DataStore.useSelector((s) => (node ? selector(pickDataStorePath(s.pages, node)) : undefined)) as any;
+    return DataStore.useSelector((s) => {
+      try {
+        return node ? selector(pickDataStorePath(s.pages, node)) : undefined;
+      } catch (e) {
+        if (e instanceof NodePathNotFound) {
+          return undefined;
+        }
+        throw e;
+      }
+    }) as any;
   },
   useNodeStateMemoSelector: () =>
     DataStore.useDelayedMemoSelectorFactory({
       selector:
         <N extends LayoutNode | undefined>({ node, path }: NodeStateSelectorProp<N>) =>
-        (state) =>
-          node ? dot.pick(path, pickDataStorePath(state.pages.pages, node)) : undefined,
+        (state) => {
+          try {
+            return node ? dot.pick(path, pickDataStorePath(state.pages, node)) : undefined;
+          } catch (e) {
+            if (e instanceof NodePathNotFound) {
+              return undefined;
+            }
+            throw e;
+          }
+        },
       makeCacheKey: ({ node, path }) => (node ? `${node.getId()}/${path}` : ''),
     }),
-  useExactNodeStateMemoSelector: (node: LayoutNode) =>
+  useExactNodeStateMemoSelector: (node: LayoutNode | undefined) =>
     DataStore.useDelayedMemoSelectorFactory({
-      selector: (path: string) => (state) => dot.pick(path, pickDataStorePath(state.pages.pages, node)),
+      selector: (path: string) => (state) => {
+        try {
+          return !node ? undefined : dot.pick(path, pickDataStorePath(state.pages, node));
+        } catch (e) {
+          if (e instanceof NodePathNotFound) {
+            return undefined;
+          }
+          throw e;
+        }
+      },
       makeCacheKey: (path) => path,
     }),
 

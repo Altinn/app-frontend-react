@@ -53,6 +53,7 @@ export type NodeGeneratorProps<Type extends CompTypes> =
 export interface ExprResolver<Type extends CompTypes> {
   stateSelector: ExactNodeStateSelector;
   item: CompExternalExact<Type>;
+  row?: BaseRow;
   formDataSelector: FormDataSelector;
   evalBase: () => ExprResolved<Omit<ComponentBase, 'hidden'>>;
   evalFormProps: () => ExprResolved<FormComponentProps>;
@@ -164,7 +165,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
    * This needs to be implemented for components that supports repeating rows
    * @see RepeatingChildrenPlugin
    */
-  evalExpressionsForRow(_props: ExprResolver<Type>, _row: BaseRow): unknown {
+  evalExpressionsForRow(_props: ExprResolver<Type>): unknown {
     throw new Error('Component does not support evalExpressionsForRow');
   }
 

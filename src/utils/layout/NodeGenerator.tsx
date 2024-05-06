@@ -25,7 +25,7 @@ import type {
   ITextResourceBindings,
 } from 'src/layout/layout';
 import type { BasicNodeGeneratorProps, ExprResolver } from 'src/layout/LayoutComponent';
-import type { StateFactoryProps } from 'src/utils/layout/itemState';
+import type { BaseRow, StateFactoryProps } from 'src/utils/layout/itemState';
 import type { LayoutNode, LayoutNodeProps } from 'src/utils/layout/LayoutNode';
 import type { HiddenStateNode } from 'src/utils/layout/NodesContext';
 
@@ -140,8 +140,9 @@ function useResolvedItem<T extends CompTypes = CompTypes>({
  * These props are passed on to your component's `evalExpressions` method.
  */
 export function useExpressionResolverProps<T extends CompTypes>(
-  node: LayoutNode<T>,
+  node: LayoutNode<T> | undefined,
   item: CompExternalExact<T>,
+  row?: BaseRow,
 ): ExprResolver<T> {
   const stateSelector = NodesInternal.useExactNodeStateMemoSelector(node);
   const allDataSources = useExpressionDataSources();
@@ -154,6 +155,10 @@ export function useExpressionResolverProps<T extends CompTypes>(
       defaultValue: ExprValToActual<T>,
       dataSources?: Partial<HierarchyDataSources>,
     ) => {
+      if (!node) {
+        return defaultValue;
+      }
+
       const config: ExprConfig = {
         returnType: type,
         defaultValue,
@@ -241,6 +246,7 @@ export function useExpressionResolverProps<T extends CompTypes>(
   return {
     item,
     stateSelector,
+    row,
     evalBool,
     evalNum,
     evalStr,
@@ -306,7 +312,7 @@ function isSummarizableItem(item: CompExternal): item is CompExternal & Summariz
   return 'renderAsSummary' in item;
 }
 
-function useDef<T extends CompTypes>(type: T) {
+export function useDef<T extends CompTypes>(type: T) {
   const def = getComponentDef<T>(type)!;
   if (!def) {
     // TODO: Log error and produce an error node instead

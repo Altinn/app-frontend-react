@@ -145,17 +145,22 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
     return { [this.settings.internalProp]: {} } as ToInternal<E>['extraState'];
   }
 
-  evalDefaultExpressions(_props: DefPluginExprResolver<ToInternal<E>>): DefPluginExtraInItem<ToInternal<E>> {
-    // const rowsFromState = state[this.settings.internalProp as Combined<E>['internalProp']];
-    // const children = item[this.settings.externalProp] as string[];
-    // const rows: Row[] = rowsFromState.map((row) => ({
-    //   ...row,
-    //   children: children.map((id) => ({ nodeRef: `${id}-${row.index}` })),
-    // }));
+  evalDefaultExpressions({ stateSelector }: DefPluginExprResolver<ToInternal<E>>): DefPluginExtraInItem<ToInternal<E>> {
+    const internalRows = stateSelector(this.settings.internalProp) as InternalRowState<E>;
+    const rows: (RepChildrenRow & FromImport<Combined<E>['extraRowState']>)[] = [];
+    for (const row of Object.values(internalRows || {})) {
+      rows.push({
+        index: row.index,
+        uuid: row.uuid,
+        items: Object.values(row.children).map((child) => ({ nodeRef: child.item.id })),
+        ...(row.extras && typeof row.extras === 'object' ? row.extras : ({} as any)),
+      });
+    }
+    rows.sort((a, b) => a.index - b.index);
 
     return {
       [this.settings.externalProp]: undefined,
-      [this.settings.internalProp]: tmpEmptyArray, // TODO: Get this array from elsewhere
+      [this.settings.internalProp]: rows,
     } as DefPluginExtraInItem<ToInternal<E>>;
   }
 
@@ -164,14 +169,10 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
       import: 'ExprResolver',
       from: 'src/layout/LayoutComponent',
     });
-    const BaseRow = new CG.import({
-      import: 'BaseRow',
-      from: 'src/utils/layout/itemState',
-    });
 
     return [
       `// You have to implement this method because the component uses the RepeatingChildrenPlugin
-      abstract evalExpressionsForRow(props: ${ExprResolver}<'${this.component!.type}'>, row: ${BaseRow}): unknown;`,
+      abstract evalExpressionsForRow(props: ${ExprResolver}<'${this.component!.type}'>): unknown;`,
     ];
   }
 

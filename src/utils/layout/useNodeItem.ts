@@ -19,8 +19,8 @@ export function useNodeItem<N extends LayoutNode | undefined>(node: N): ItemFrom
   return NodesInternal.useNodeState(node, (node) => node?.item) as ItemFromNode<N>;
 }
 
-export function useNodeDirectChildren(parent: LayoutNode, restriction?: ChildLookupRestriction): NodeRef[] {
-  return NodesInternal.useNodeStateMemo(parent, (store) => parent.def.pickDirectChildren(store, restriction));
+export function useNodeDirectChildren(parent: LayoutNode, restriction?: ChildLookupRestriction): NodeRef[] | undefined {
+  return NodesInternal.useNodeState(parent, (store) => parent.def.pickDirectChildren(store, restriction));
 }
 
 type NodeData<N extends LayoutNode | undefined> = N extends undefined
