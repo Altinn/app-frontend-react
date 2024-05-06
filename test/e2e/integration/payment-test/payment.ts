@@ -84,6 +84,10 @@ describe('Payment', () => {
         });
 
         cy.wait('@paymentRequest').then((interception) => {
+          // The reason we need this intercept is that NETS will call this URL after the payment is successful.
+          // Our backend will just return a 302 NOT FOUND, but the test will break.
+          // However, at this point we know the payment is successful, so we can then just visist that payment URL in
+          // the next line if code below.
           expect(interception?.response?.statusCode).to.eq(302);
         });
 
