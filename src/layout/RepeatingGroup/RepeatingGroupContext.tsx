@@ -23,6 +23,7 @@ interface Store {
   editingId: string | undefined;
   deletingIds: string[];
   addingIds: string[];
+  currentPage: number | undefined;
 }
 
 interface ZustandHiddenMethods {
@@ -43,6 +44,7 @@ interface ExtendedState {
   openForEditing: (uuid: string) => void;
   openNextForEditing: () => void;
   closeForEditing: (uuid: string) => void;
+  onChangePage: (page: number) => void;
 }
 
 type AddRowResult =
@@ -57,8 +59,14 @@ interface ContextMethods extends ExtendedState {
   isDeleting: (uuid: string) => boolean;
 }
 
+type PaginationState = {
+  currentPage: number | undefined;
+  totalPages: number | undefined;
+  rowsToDisplay: Row[];
+};
+
 type ZustandState = Store & ZustandHiddenMethods & Omit<ExtendedState, 'toggleEditing'>;
-type ExtendedContext = ContextMethods & Props & NodeState;
+type ExtendedContext = ContextMethods & Props & NodeState & PaginationState;
 
 const ZStore = createZustandContext({
   name: 'RepeatingGroupZ',
@@ -82,6 +90,7 @@ interface NodeState {
   hiddenRows: Row[];
   editableRows: Row[];
   deletableRows: Row[];
+  totalPages: number | undefined;
 }
 
 function produceStateFromNode(node: BaseLayoutNode<CompRepeatingGroupInternal>): NodeState {
@@ -115,12 +124,16 @@ function produceStateFromNode(node: BaseLayoutNode<CompRepeatingGroupInternal>):
     toSort.sort((a, b) => a.index - b.index);
   }
 
+  // Calculate total pages if pagination is enabled
+  const totalPages = node.item.pagination ? Math.ceil(visible.length / node.item.pagination.rowsPerPage) : undefined;
+
   return {
     numVisibleRows: visible.length,
     visibleRows: visible,
     hiddenRows: hidden,
     editableRows: editable,
     deletableRows: deletable,
+    totalPages,
   };
 }
 
@@ -137,6 +150,7 @@ function newStore({ nodeRef }: NewStoreProps) {
     editingId: undefined,
     deletingIds: [],
     addingIds: [],
+    currentPage: nodeRef.current.item.pagination ? 1 : undefined,
 
     closeForEditing: (uuid) => {
       set((state) => {
@@ -225,6 +239,8 @@ function newStore({ nodeRef }: NewStoreProps) {
         };
       });
     },
+
+    onChangePage: (page) => set(() => ({ currentPage: page })),
   }));
 }
 
@@ -254,6 +270,22 @@ function useExtendedRepeatingGroupState(node: BaseLayoutNode<CompRepeatingGroupI
       stateRef.current.closeForEditing(editingId);
     }
   }, [editingId, editingIsHidden, stateRef]);
+
+  const currentPage = state.currentPage;
+  const totalPages = nodeState.totalPages;
+  useEffect(() => {
+    if (currentPage && totalPages && currentPage > totalPages) {
+      // If rows are deleted so that the current pagination page no longer exists, go to the las page instead
+      stateRef.current.onChangePage(totalPages);
+    }
+  }, [currentPage, stateRef, totalPages]);
+
+  const rowsToDisplay = currentPage
+    ? nodeState.visibleRows.slice(
+        (currentPage - 1) * node.item.pagination!.rowsPerPage,
+        currentPage * node.item.pagination!.rowsPerPage,
+      )
+    : nodeState.visibleRows;
 
   const maybeValidateRow = useCallback(() => {
     const { editingAll, editingId, editingNone } = stateRef.current;
@@ -302,6 +334,16 @@ function useExtendedRepeatingGroupState(node: BaseLayoutNode<CompRepeatingGroupI
       } else {
         openForEditing(uuid);
       }
+    },
+    [maybeValidateRow, stateRef],
+  );
+
+  const onChangePage = useCallback(
+    async (page: number) => {
+      if (await maybeValidateRow()) {
+        return;
+      }
+      stateRef.current.onChangePage(page);
     },
     [maybeValidateRow, stateRef],
   );
@@ -393,6 +435,9 @@ function useExtendedRepeatingGroupState(node: BaseLayoutNode<CompRepeatingGroupI
     openNextForEditing,
     toggleEditing,
     isFirstRender,
+    onChangePage,
+    currentPage,
+    rowsToDisplay,
     ...nodeState,
   };
 }

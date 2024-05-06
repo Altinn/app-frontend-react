@@ -21,7 +21,7 @@ import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator
 
 export function RepeatingGroupTable(): React.JSX.Element | null {
   const mobileView = useIsMobileOrTablet();
-  const { node, isEditing, visibleRows } = useRepeatingGroup();
+  const { node, isEditing, rowsToDisplay: visibleRows } = useRepeatingGroup();
   const { textResourceBindings, labelSettings, id, edit, minCount, stickyHeader } = node.item;
   const required = !!minCount && minCount > 0;
 
