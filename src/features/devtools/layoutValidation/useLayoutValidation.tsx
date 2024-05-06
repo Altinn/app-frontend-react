@@ -21,6 +21,7 @@ import type { LayoutValidationErrors } from 'src/features/devtools/layoutValidat
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface LayoutValidationProps {
+  enabled: boolean;
   logErrors?: boolean;
 }
 
@@ -60,7 +61,7 @@ function mergeValidationErrors(a: LayoutValidationErrors, b: LayoutValidationErr
  */
 function useDataModelBindingsValidation(props: LayoutValidationProps) {
   const layoutSetId = useCurrentLayoutSetId() || 'default';
-  const { logErrors = false } = props;
+  const { logErrors = false, enabled } = props;
   const schema = useCurrentDataModelSchema();
   const dataType = useCurrentDataModelType();
   const nodes = useNodes();
@@ -69,7 +70,7 @@ function useDataModelBindingsValidation(props: LayoutValidationProps) {
     const failures: LayoutValidationErrors = {
       [layoutSetId]: {},
     };
-    if (!schema) {
+    if (!enabled || !schema) {
       return failures;
     }
     const rootElementPath = getRootElementPath(schema, dataType);
@@ -104,7 +105,7 @@ function useDataModelBindingsValidation(props: LayoutValidationProps) {
     }
 
     return failures;
-  }, [layoutSetId, schema, dataType, nodes, logErrors]);
+  }, [layoutSetId, enabled, schema, dataType, nodes, logErrors]);
 }
 
 interface Context {
@@ -171,7 +172,7 @@ export function Generator() {
   const enabled = isDev || panelOpen;
 
   const layoutSchemaValidations = useLayoutSchemaValidation(enabled);
-  const dataModelBindingsValidations = useDataModelBindingsValidation({ logErrors: true });
+  const dataModelBindingsValidations = useDataModelBindingsValidation({ enabled, logErrors: true });
 
   const update = useSelector((state) => state.update);
 
