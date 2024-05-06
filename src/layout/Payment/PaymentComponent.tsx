@@ -34,6 +34,12 @@ export const PaymentComponent = ({ node }) => {
     }
   }, [performPayment, paymentDoesNotExist]);
 
+  useEffect(() => {
+    if (paymentInfo?.status === PaymentStatus.Paid) {
+      next && next({ action: 'confirm', nodeId: 'next-button' });
+    }
+  }, [paymentInfo, next]);
+
   if (busy || !isPaymentInformationFetched || paymentDoesNotExist) {
     return <SkeletonLoader />;
   }

@@ -1,5 +1,4 @@
 import { CG } from 'src/codegen/CG';
-import { ExprVal } from 'src/features/expressions/types';
 import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
@@ -12,17 +11,7 @@ export const Config = new CG.component({
     renderInAccordionGroup: false,
   },
 })
-  .addProperty(
-    new CG.prop(
-      'renderAsSummary',
-      new CG.expr(ExprVal.Boolean)
-        .optional({ default: false })
-        .setTitle('Render as summary')
-        .setDescription(
-          'Boolean value or expression indicating if the component should be rendered as a summary. Defaults to false.',
-        ),
-    ),
-  )
+
   .addTextResource(
     new CG.trb({
       name: 'title',
@@ -36,19 +25,5 @@ export const Config = new CG.component({
       title: 'Description',
       description: 'Description, optionally shown below the title',
     }),
-  )
-  .addProperty(
-    new CG.prop(
-      'paymentSettings',
-      new CG.obj(
-        new CG.prop(
-          'autoForwardToPayment',
-          new CG.bool()
-            .setTitle('Auto Forward To Payment')
-            .setDescription('Automaticaly forward the user to the payment page after the payment has been initiated'),
-        ),
-      )
-        .setTitle('Payment Settings')
-        .setDescription('Settings for the payment component'),
-    ),
   );
+Config.inner.extends(CG.common('SummarizableComponentProps'));
