@@ -24,4 +24,5 @@ export const Config = new CG.component({
       title: 'Description',
       description: 'Description, optionally shown below the title',
     }),
-  );
+  )
+  .addProperty(new CG.prop('mapping', CG.common('IMapping').optional()));

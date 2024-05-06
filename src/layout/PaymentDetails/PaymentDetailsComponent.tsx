@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
+import deepEqual from 'fast-deep-equal';
 
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
@@ -13,15 +14,21 @@ export type IPaymentDetailsProps = PropsFromGenericComponent<'PaymentDetails'>;
 export function PaymentDetailsComponent({ node }: IPaymentDetailsProps) {
   const { partyId, instanceGuid } = useInstanceIdParams();
   const { title, description } = node.item.textResourceBindings || {};
+  const mapping = node.item.mapping;
   const hasUnsavedChanges = FD.useHasUnsavedChanges();
   const queryClient = useQueryClient();
+
+  const mappedValues = FD.useMapping(mapping);
+  const prevMappedValues = useRef<Record<string, unknown>>(mappedValues);
+
   const { data: orderDetails } = useOrderDetailsQuery(partyId, instanceGuid);
 
   useEffect(() => {
-    if (!hasUnsavedChanges) {
+    if (!hasUnsavedChanges && mapping && !deepEqual(prevMappedValues.current, mappedValues)) {
       queryClient.invalidateQueries({ queryKey: ['fetchOrderDetails'] });
+      prevMappedValues.current = mappedValues;
     }
-  }, [hasUnsavedChanges, queryClient]);
+  }, [hasUnsavedChanges, queryClient, mappedValues, mapping]);
 
   return (
     <PaymentDetailsTable
