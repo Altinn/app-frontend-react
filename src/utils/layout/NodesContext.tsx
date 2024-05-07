@@ -289,16 +289,15 @@ export function useNodesMemoSelector<U>(selector: (s: LayoutPages) => U) {
   return NodesStore.useMemoSelector((state) => selector(state.nodes!));
 }
 
-const isHiddenComponentSelector = (nodeId: string | NodeRef) => (state: NodesContext) =>
-  state.hiddenComponents.has(nodeId);
-const makeCacheKey = (nodeId: string) => nodeId;
+const isNodeSelector = (nodeId: string | NodeRef) => (state: NodesContext) =>
+  state.nodes?.findById(isNodeRef(nodeId) ? nodeId.nodeRef : nodeId);
+const makeCacheKey = (nodeId: string | NodeRef) => (isNodeRef(nodeId) ? nodeId.nodeRef : nodeId);
 
 export type NodeSelector = ReturnType<typeof useNodeSelector>;
 export function useNodeSelector() {
   return NodesStore.useDelayedMemoSelectorFactory({
-    selector: (nodeId: string | NodeRef) => (state) =>
-      state.nodes?.findById(isNodeRef(nodeId) ? nodeId.nodeRef : nodeId),
-    makeCacheKey: (nodeId) => (isNodeRef(nodeId) ? nodeId.nodeRef : nodeId),
+    selector: isNodeSelector,
+    makeCacheKey,
   });
 }
 

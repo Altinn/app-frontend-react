@@ -1,6 +1,4 @@
-import { useMemo, useRef } from 'react';
-
-import deepEqual from 'fast-deep-equal';
+import { useMemo } from 'react';
 
 import type { AnyValidation, BaseValidation, NodeValidation } from '..';
 
@@ -29,7 +27,7 @@ export function useTaskErrors(): {
   const nodeValidationsSelector = NodesInternal.useValidationsSelector();
 
   const formErrors = useMemo(() => {
-    if (!visibleNodes) {
+    if (!nodes) {
       return emptyArray;
     }
 
@@ -70,26 +68,4 @@ export function useTaskErrors(): {
   }, [selector]);
 
   return useMemo(() => ({ formErrors, taskErrors }), [formErrors, taskErrors]);
-}
-
-/**
- * Utility hook for preventing rerendering unless visible nodes actually change
- */
-function useVisibleNodes() {
-  const nodes = useNodes();
-  const visibleNodes = useMemo(() => nodes.allNodes().filter(shouldValidateNode), [nodes]);
-  const visibleNodesRef = useRef(visibleNodes);
-
-  if (
-    visibleNodes === visibleNodesRef.current ||
-    deepEqual(
-      visibleNodes.map((n) => n.item.id),
-      visibleNodesRef.current.map((n) => n.item.id),
-    )
-  ) {
-    return visibleNodesRef.current;
-  } else {
-    visibleNodesRef.current = visibleNodes;
-    return visibleNodes;
-  }
 }
