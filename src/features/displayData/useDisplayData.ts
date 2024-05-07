@@ -5,7 +5,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useNodeOptionsSelector } from 'src/features/options/useNodeOptions';
-import { useNodeDataSelector } from 'src/utils/layout/useNodeItem';
+import { useNodeFormDataSelector } from 'src/utils/layout/useNodeItem';
 import type { DisplayDataProps } from 'src/features/displayData/index';
 
 export function useDisplayDataProps(): DisplayDataProps {
@@ -14,7 +14,7 @@ export function useDisplayDataProps(): DisplayDataProps {
   const attachments = useAttachments();
   const currentLanguage = useCurrentLanguage();
   const formDataSelector = FD.useDebouncedSelector();
-  const nodeDataSelector = useNodeDataSelector();
+  const nodeDataSelector = useNodeFormDataSelector();
 
   return useMemo(
     () => ({ optionsSelector, attachments, langTools, currentLanguage, formDataSelector, nodeDataSelector }),

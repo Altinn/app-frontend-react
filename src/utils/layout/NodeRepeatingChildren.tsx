@@ -11,9 +11,9 @@ import { NodeStages } from 'src/utils/layout/NodeStages';
 import { useNodeDirectChildren } from 'src/utils/layout/useNodeItem';
 import type { CompDef } from 'src/layout';
 import type { CompExternal } from 'src/layout/layout';
-import type { BaseRow } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ChildMutator } from 'src/utils/layout/NodesGeneratorContext';
+import type { BaseRow } from 'src/utils/layout/types';
 
 interface Props {
   childIds: string[];

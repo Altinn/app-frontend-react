@@ -7,7 +7,6 @@ import type { CompCapabilities } from 'src/codegen/Config';
 import type { NodeRef } from 'src/layout';
 import type { CompTypes, TypesFromCategory } from 'src/layout/layout';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
-import type { ItemStore } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   DefPluginChildClaimerProps,
@@ -16,6 +15,7 @@ import type {
   DefPluginStateFactoryProps,
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
+import type { NodeData } from 'src/utils/layout/types';
 
 interface Config<
   Type extends TypesFromCategory<CompCategory.Container>,
@@ -28,7 +28,7 @@ interface Config<
     [key in ExternalProp]: string[];
   };
   extraState: {
-    [key in ExternalProp]: { [key: string]: ItemStore };
+    [key in ExternalProp]: { [key: string]: NodeData };
   };
   extraInItem: { [key in ExternalProp]: undefined } & { [key in InternalProp]: NodeRef[] };
 }
@@ -133,7 +133,7 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
 
   stateFactory(_props: DefPluginStateFactoryProps<ToInternal<E>>) {
     return {
-      [this.settings.externalProp as Combined<E>['externalProp']]: {} as { [key: string]: ItemStore },
+      [this.settings.externalProp as Combined<E>['externalProp']]: {} as { [key: string]: NodeData },
     };
   }
 
@@ -157,10 +157,10 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
     if (!child) {
       throw new NodePathNotFound(`Child with id ${childId} not found in /${parentPath.join('/')}`);
     }
-    return child as ItemStore<C>;
+    return child as NodeData<C>;
   }
 
-  addChild(state: DefPluginState<ToInternal<E>>, childNode: LayoutNode, childStore: ItemStore) {
+  addChild(state: DefPluginState<ToInternal<E>>, childNode: LayoutNode, childStore: NodeData) {
     state[this.settings.externalProp][childNode.getId()] = childStore;
   }
 

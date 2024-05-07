@@ -14,7 +14,7 @@ import classes from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup.mod
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { Hidden } from 'src/utils/layout/NodesContext';
-import { useNodeDataSelector, useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useNodeFormDataSelector, useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { RepGroupRow } from 'src/layout/RepeatingGroup/types';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
@@ -41,7 +41,7 @@ export function SummaryRepeatingGroup({
   const display = overrides?.display || summaryDisplay;
   const { langAsString } = useLanguage(targetNode);
   const formDataSelector = FD.useDebouncedSelector();
-  const nodeDataSelector = useNodeDataSelector();
+  const nodeDataSelector = useNodeFormDataSelector();
   const isHidden = Hidden.useIsHiddenSelector();
 
   const inExcludedChildren = (n: LayoutNode) =>

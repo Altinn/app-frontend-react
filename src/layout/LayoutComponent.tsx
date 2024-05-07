@@ -33,10 +33,10 @@ import type {
 } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
-import type { BaseRow, ItemStore, StateFactoryProps } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { ExactNodeStateSelector } from 'src/utils/layout/NodesContext';
+import type { ExactNodeDataSelector } from 'src/utils/layout/NodesContext';
 import type { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
+import type { BaseRow, NodeData, StateFactoryProps } from 'src/utils/layout/types';
 import type { NodeDataSelector } from 'src/utils/layout/useNodeItem';
 
 export interface BasicNodeGeneratorProps {
@@ -51,7 +51,7 @@ export type NodeGeneratorProps<Type extends CompTypes> =
   IsContainerComp<Type> extends true ? ContainerGeneratorProps : BasicNodeGeneratorProps;
 
 export interface ExprResolver<Type extends CompTypes> {
-  stateSelector: ExactNodeStateSelector;
+  stateSelector: ExactNodeDataSelector;
   item: CompExternalExact<Type>;
   row?: BaseRow;
   formDataSelector: FormDataSelector;
@@ -103,11 +103,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
    * Picks a (direct) child state from the nodes store, returning the item store for that child. This must be
    * implemented for every component type that can adopt children.
    */
-  public pickChild<C extends CompTypes>(
-    _state: ItemStore<Type>,
-    _childId: string,
-    _parentPath: string[],
-  ): ItemStore<C> {
+  public pickChild<C extends CompTypes>(_state: NodeData<Type>, _childId: string, _parentPath: string[]): NodeData<C> {
     throw new Error(
       `pickChild() is not implemented yet for '${this.type}'. ` +
         `You have to implement this if the component type supports children.`,
@@ -118,7 +114,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
    * Picks all direct children of a node, returning an array of item stores for each child. This must be implemented for
    * every component type that can adopt children.
    */
-  public pickDirectChildren(_state: ItemStore<Type>, _restriction?: ChildLookupRestriction): NodeRef[] {
+  public pickDirectChildren(_state: NodeData<Type>, _restriction?: ChildLookupRestriction): NodeRef[] {
     return [];
   }
 
@@ -126,9 +122,9 @@ export abstract class AnyComponent<Type extends CompTypes> {
    * Adds a child node to the parent node. This must be implemented for every component type that can adopt children.
    */
   public addChild(
-    _state: ItemStore<Type>,
+    _state: NodeData<Type>,
     _childNode: LayoutNode,
-    _childStore: ItemStore,
+    _childStore: NodeData,
     _row: BaseRow | undefined,
   ): void {
     throw new Error(
@@ -141,7 +137,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
    * Removes a child node from the parent node. This must be implemented for every component
    * type that can adopt children.
    */
-  public removeChild(_state: ItemStore<Type>, _childNode: LayoutNode, _row: BaseRow | undefined): void {
+  public removeChild(_state: NodeData<Type>, _childNode: LayoutNode, _row: BaseRow | undefined): void {
     throw new Error(
       `removeChild() is not implemented yet for '${this.type}'. ` +
         `You have to implement this if the component type supports children.`,
@@ -452,18 +448,13 @@ export abstract class ContainerComponent<Type extends CompTypes> extends _FormCo
 
   abstract claimChildren(props: ChildClaimerProps<Type>): void;
 
-  abstract pickChild<C extends CompTypes>(state: ItemStore<Type>, childId: string, parentPath: string[]): ItemStore<C>;
+  abstract pickChild<C extends CompTypes>(state: NodeData<Type>, childId: string, parentPath: string[]): NodeData<C>;
 
-  abstract pickDirectChildren(state: ItemStore<Type>, restriction?: ChildLookupRestriction): NodeRef[];
+  abstract pickDirectChildren(state: NodeData<Type>, restriction?: ChildLookupRestriction): NodeRef[];
 
-  abstract addChild(
-    state: ItemStore<Type>,
-    childNode: LayoutNode,
-    childStore: ItemStore,
-    row: BaseRow | undefined,
-  ): void;
+  abstract addChild(state: NodeData<Type>, childNode: LayoutNode, childStore: NodeData, row: BaseRow | undefined): void;
 
-  abstract removeChild(state: ItemStore<Type>, childNode: LayoutNode, row: BaseRow | undefined): void;
+  abstract removeChild(state: NodeData<Type>, childNode: LayoutNode, row: BaseRow | undefined): void;
 }
 
 export type LayoutComponent<Type extends CompTypes = CompTypes> =

@@ -21,19 +21,18 @@ import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupConte
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/RepeatingGroupFocusContext';
 import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { AlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
 import type { DisplayData } from 'src/features/displayData';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { CompInternal, ITextResourceBindings } from 'src/layout/layout';
 import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
 import type { GroupExpressions } from 'src/layout/RepeatingGroup/types';
-import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IRepeatingGroupTableRowProps {
   className?: string;
   uuid: string;
-  getTableNodes: (restriction: ChildLookupRestriction) => LayoutNode[] | undefined;
   mobileView: boolean;
   displayEditColumn: boolean;
   displayDeleteColumn: boolean;
@@ -73,7 +72,6 @@ function getEditButtonText(
 export function RepeatingGroupTableRow({
   className,
   uuid,
-  getTableNodes,
   mobileView,
   displayEditColumn,
   displayDeleteColumn,
@@ -98,7 +96,7 @@ export function RepeatingGroupTableRow({
 
   const alertOnDelete = useAlertOnChange(Boolean(editForRow?.alertOnDelete), deleteRow);
 
-  const tableNodes = getTableNodes({ onlyInRowUuid: uuid }) || [];
+  const tableNodes = useNodeTraversal(node, (traverser) => traverser.children(undefined, { onlyInRowUuid: uuid }));
   const displayDataProps = useDisplayDataProps();
   const displayData = tableNodes.map((node) => {
     const def = node.def;

@@ -25,9 +25,9 @@ import type {
   ITextResourceBindings,
 } from 'src/layout/layout';
 import type { BasicNodeGeneratorProps, ExprResolver } from 'src/layout/LayoutComponent';
-import type { BaseRow, StateFactoryProps } from 'src/utils/layout/itemState';
 import type { LayoutNode, LayoutNodeProps } from 'src/utils/layout/LayoutNode';
 import type { HiddenStateNode } from 'src/utils/layout/NodesContext';
+import type { BaseRow, StateFactoryProps } from 'src/utils/layout/types';
 
 /**
  * A node generator will always be rendered when a component is present in a layout, even if the component
@@ -144,7 +144,7 @@ export function useExpressionResolverProps<T extends CompTypes>(
   item: CompExternalExact<T>,
   row?: BaseRow,
 ): ExprResolver<T> {
-  const stateSelector = NodesInternal.useExactNodeStateMemoSelector(node);
+  const stateSelector = NodesInternal.useExactNodeDataMemoSelector(node);
   const allDataSources = useExpressionDataSources();
   const allDataSourcesAsRef = useAsRef(allDataSources);
 

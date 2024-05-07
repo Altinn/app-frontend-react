@@ -4,10 +4,10 @@ import type { PropsWithChildren } from 'react';
 import { createContext } from 'src/core/contexts/context';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import type { CompExternal, CompInternal, CompTypes } from 'src/layout/layout';
-import type { BaseRow } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { HiddenState, HiddenStateNode, HiddenStatePage } from 'src/utils/layout/NodesContext';
+import type { BaseRow } from 'src/utils/layout/types';
 
 export type ChildMutator<T extends CompTypes = CompTypes> = (item: CompExternal<T>) => void;
 

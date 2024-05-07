@@ -26,7 +26,8 @@ export interface BaseItemState<T extends CompTypes> {
   layout: CompExternalExact<T>;
   item: CompInternal<T> | undefined;
   hidden: HiddenStateNode | undefined;
+  row: BaseRow | undefined;
 }
 
-export type ItemStore<Type extends CompTypes = CompTypes> = ReturnType<CompDef<Type>['stateFactory']>;
-export type ItemStoreFromNode<N extends LayoutNode | undefined> = ItemStore<TypeFromNode<Exclude<N, undefined>>>;
+export type NodeData<Type extends CompTypes = CompTypes> = ReturnType<CompDef<Type>['stateFactory']>;
+export type NodeDataFromNode<N extends LayoutNode | undefined> = NodeData<TypeFromNode<Exclude<N, undefined>>>;

@@ -6,8 +6,8 @@ import type { FormDataSelector, NodeRef } from 'src/layout';
 import type { TypeFromNode } from 'src/layout/layout';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
-import type { ItemStore } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { NodeData } from 'src/utils/layout/types';
 
 type ItemFromNode<N extends LayoutNode | undefined> = N extends undefined
   ? undefined
@@ -16,51 +16,51 @@ type ItemFromNode<N extends LayoutNode | undefined> = N extends undefined
     : never;
 
 export function useNodeItem<N extends LayoutNode | undefined>(node: N): ItemFromNode<N> {
-  return NodesInternal.useNodeState(node, (node) => node?.item) as ItemFromNode<N>;
+  return NodesInternal.useNodeData(node, (node) => node?.item) as ItemFromNode<N>;
 }
 
 export function useNodeDirectChildren(parent: LayoutNode, restriction?: ChildLookupRestriction): NodeRef[] | undefined {
-  return NodesInternal.useNodeState(parent, (store) => parent.def.pickDirectChildren(store, restriction));
+  return NodesInternal.useNodeData(parent, (store) => parent.def.pickDirectChildren(store, restriction));
 }
 
-type NodeData<N extends LayoutNode | undefined> = N extends undefined
+type NodeFormData<N extends LayoutNode | undefined> = N extends undefined
   ? IComponentFormData<TypeFromNode<Exclude<N, undefined>>> | undefined
   : IComponentFormData<TypeFromNode<Exclude<N, undefined>>>;
 
 const emptyObject = {};
-export function useNodeData<N extends LayoutNode | undefined>(node: N): NodeData<N> {
+export function useNodeFormData<N extends LayoutNode | undefined>(node: N): NodeFormData<N> {
   const nodeItem = useNodeItem(node);
   const formDataSelector = FD.useDebouncedSelector();
   const dataModelBindings = nodeItem?.dataModelBindings;
 
   return useMemo(
-    () => (dataModelBindings ? getNodeData(dataModelBindings, formDataSelector) : emptyObject) as NodeData<N>,
+    () => (dataModelBindings ? getNodeFormData(dataModelBindings, formDataSelector) : emptyObject) as NodeFormData<N>,
     [dataModelBindings, formDataSelector],
   );
 }
 
-export type NodeDataSelector = ReturnType<typeof useNodeDataSelector>;
-export function useNodeDataSelector() {
-  const nodeSelector = NodesInternal.useNodeStateMemoSelector();
+export type NodeDataSelector = ReturnType<typeof useNodeFormDataSelector>;
+export function useNodeFormDataSelector() {
+  const nodeSelector = NodesInternal.useNodeDataMemoSelector();
   const formDataSelector = FD.useDebouncedSelector();
 
   return useCallback(
-    <N extends LayoutNode | undefined>(node: N): NodeData<N> => {
+    <N extends LayoutNode | undefined>(node: N): NodeFormData<N> => {
       const dataModelBindings = nodeSelector({ node, path: 'item.dataModelBindings' });
       return dataModelBindings
-        ? (getNodeData(dataModelBindings, formDataSelector) as NodeData<N>)
-        : (emptyObject as NodeData<N>);
+        ? (getNodeFormData(dataModelBindings, formDataSelector) as NodeFormData<N>)
+        : (emptyObject as NodeFormData<N>);
     },
     [nodeSelector, formDataSelector],
   );
 }
 
-function getNodeData<N extends LayoutNode>(
-  dataModelBindings: ItemStore<TypeFromNode<N>>['dataModelBindings'],
+function getNodeFormData<N extends LayoutNode>(
+  dataModelBindings: NodeData<TypeFromNode<N>>['dataModelBindings'],
   formDataSelector: FormDataSelector,
-): NodeData<N> {
+): NodeFormData<N> {
   if (!dataModelBindings) {
-    return emptyObject as NodeData<N>;
+    return emptyObject as NodeFormData<N>;
   }
 
   const formDataObj: { [key: string]: any } = {};
@@ -77,5 +77,5 @@ function getNodeData<N extends LayoutNode>(
     }
   }
 
-  return formDataObj as NodeData<N>;
+  return formDataObj as NodeFormData<N>;
 }

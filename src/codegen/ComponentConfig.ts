@@ -277,12 +277,12 @@ export class ComponentConfig {
 
     const StateFactoryProps = new CG.import({
       import: 'StateFactoryProps',
-      from: 'src/utils/layout/itemState',
+      from: 'src/utils/layout/types',
     });
 
     const BaseItemState = new CG.import({
       import: 'BaseItemState',
-      from: 'src/utils/layout/itemState',
+      from: 'src/utils/layout/types',
     });
 
     const CompInternal = new CG.import({
@@ -398,7 +398,7 @@ export class ComponentConfig {
       }
 
       const ChildClaimerProps = new CG.import({ import: 'ChildClaimerProps', from: 'src/layout/LayoutComponent' });
-      const ItemStore = new CG.import({ import: 'ItemStore', from: 'src/utils/layout/itemState' });
+      const NodeData = new CG.import({ import: 'NodeData', from: 'src/utils/layout/types' });
       const ChildLookupRestriction = new CG.import({
         import: 'ChildLookupRestriction',
         from: 'src/utils/layout/HierarchyGenerator',
@@ -411,16 +411,16 @@ export class ComponentConfig {
         `claimChildren(props: ${ChildClaimerProps}<'${this.type}'>) {
           return ${pluginRef(plugin)}.claimChildren(props as any);
         }`,
-        `pickDirectChildren(state: ${ItemStore}<'${this.type}'>, restriction?: ${ChildLookupRestriction}) {
+        `pickDirectChildren(state: ${NodeData}<'${this.type}'>, restriction?: ${ChildLookupRestriction}) {
           return ${pluginRef(plugin)}.pickDirectChildren(state as any, restriction);
         }`,
-        `pickChild<C extends ${CompTypes}>(state: ItemStore<'${this.type}'>, childId: string, parentPath: string[]) {
+        `pickChild<C extends ${CompTypes}>(state: ${NodeData}<'${this.type}'>, childId: string, parentPath: string[]) {
           return ${pluginRef(plugin)}.pickChild<C>(state as any, childId, parentPath);
         }`,
-        `addChild(state: ${ItemStore}<'${this.type}'>, childNode: ${LayoutNode}, childStore: ${ItemStore}): void {
+        `addChild(state: ${NodeData}<'${this.type}'>, childNode: ${LayoutNode}, childStore: ${NodeData}): void {
           ${pluginRef(plugin)}.addChild(state as any, childNode, childStore);
         }`,
-        `removeChild(state: ${ItemStore}<'${this.type}'>, childNode: ${LayoutNode}): void {
+        `removeChild(state: ${NodeData}<'${this.type}'>, childNode: ${LayoutNode}): void {
           ${pluginRef(plugin)}.removeChild(state as any, childNode);
         }`,
       );
@@ -446,6 +446,7 @@ export class ComponentConfig {
           item: props.item as unknown as ${CompInternal}<'${this.type}'>,
           layout: props.item,
           hidden: undefined,
+          row: props.row,
         };
 
         return { ...baseState, ${pluginStateFactories} };

@@ -8,9 +8,9 @@ import type { CompCategory } from 'src/layout/common';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated';
 import type { CompExternalExact, CompInternal, CompTypes, LayoutNodeFromCategory, ParentNode } from 'src/layout/layout';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
-import type { BaseRow } from 'src/utils/layout/itemState';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
 import type { NodesDataStore } from 'src/utils/layout/NodesContext';
+import type { BaseRow } from 'src/utils/layout/types';
 
 export interface LayoutNodeProps<Type extends CompTypes> {
   item: CompExternalExact<Type>;
@@ -113,7 +113,6 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
   /**
    * Looks for a matching component upwards in the hierarchy, returning the first one (or undefined if
    * none can be found).
-   * @deprecated TODO: Remove this, use hooks/selector instead
    */
   public closest(matching: (item: CompInternal) => boolean): this | LayoutNode | undefined {
     if (matching(this.item as CompInternal)) {
@@ -138,7 +137,6 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
 
   /**
    * Like children(), but will only match upwards along the tree towards the top (LayoutPage)
-   * @deprecated TODO: Remove this, use hooks/selector instead
    */
   public parents(matching?: (item: ParentNode) => boolean): ParentNode[] {
     const parents: ParentNode[] = [];
@@ -160,7 +158,6 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
    * Looks for a matching component inside the (direct) children of this node (only makes sense for a group node).
    * Beware that matching inside a repeating group with multiple rows, you should provide a second argument to specify
    * the row number, otherwise you'll most likely just find a component on the first row.
-   * @deprecated useNodeDirectChildren
    */
   public children(): LayoutNode[];
   public children(
@@ -189,7 +186,6 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> implements Layou
    *
    * @param restriction If set, it will only include children with the given row UUID or row index. It will still
    *        include all children of nested groups regardless of row-id or index.
-   * @deprecated TODO: Remove this and use hooks instead
    */
   public flat(restriction?: ChildLookupRestriction): LayoutNode[] {
     const out: LayoutNode[] = [];

@@ -184,9 +184,10 @@ export function getColumnStylesRepeatingGroups(
     return;
   }
 
-  column.alignText = column.alignText ?? getTextAlignment(tableItem);
+  const columnCopy = { ...column };
+  columnCopy.alignText = columnCopy.alignText ?? getTextAlignment(tableItem);
 
-  return getColumnStyles(column);
+  return getColumnStyles(columnCopy);
 }
 
 export function getColumnStyles(columnSettings: ITableColumnProperties) {

@@ -28,7 +28,7 @@ import type { BackendValidationIssueGroups } from 'src/features/validation';
 import type { FormDataSelector } from 'src/layout';
 import type { IMapping } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
-import type { BaseRow } from 'src/utils/layout/itemState';
+import type { BaseRow } from 'src/utils/layout/types';
 
 export type FDLeafValue = string | number | boolean | null | undefined | string[];
 export type FDValue = FDLeafValue | object | FDValue[];

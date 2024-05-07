@@ -10,7 +10,6 @@ import type { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImpor
 import type { CompDef, NodeRef, NodeRefInRow } from 'src/layout';
 import type { CompTypes } from 'src/layout/layout';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
-import type { BaseRow, ItemStore } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   DefPluginChildClaimerProps,
@@ -20,6 +19,7 @@ import type {
   DefPluginStateFactoryProps,
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
+import type { BaseRow, NodeData } from 'src/utils/layout/types';
 
 export interface RepChildrenRow extends BaseRow {
   items: NodeRefInRow[];
@@ -29,7 +29,7 @@ interface RowsState<Extras> {
   [uuid: string]: {
     extras: Extras;
     children: {
-      [baseId: string]: ItemStore;
+      [baseId: string]: NodeData;
     };
   } & BaseRow;
 }
@@ -220,14 +220,14 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
     parentPath: string[],
   ): ReturnType<CompDef<C>['stateFactory']> {
     const { baseComponentId } = splitDashedKey(childId);
-    let child: ItemStore<C> | undefined;
+    let child: NodeData<C> | undefined;
 
     // TODO: Try to include the row ID in the child ID (using new internal node IDs?) so that this lookup is more
     // effective.
     const rows = state[this.settings.internalProp] as InternalRowState<E>;
     for (const row of Object.values(rows)) {
       if (row.children[baseComponentId]) {
-        child = row.children[baseComponentId] as ItemStore<C>;
+        child = row.children[baseComponentId] as NodeData<C>;
         if (child?.item.id === childId) {
           break;
         }
@@ -241,7 +241,7 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
     return child;
   }
 
-  addChild(state: DefPluginState<ToInternal<E>>, childNode: LayoutNode, childStore: ItemStore): void {
+  addChild(state: DefPluginState<ToInternal<E>>, childNode: LayoutNode, childStore: NodeData): void {
     const row = childNode.row;
     if (!row) {
       throw new Error(`Child node of repeating component missing 'row' property`);

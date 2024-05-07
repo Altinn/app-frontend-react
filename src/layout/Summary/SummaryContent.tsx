@@ -9,7 +9,7 @@ import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import classes from 'src/layout/Summary/SummaryContent.module.css';
-import { useNodeDataSelector, useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useNodeFormDataSelector, useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CompTypes } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 
@@ -45,7 +45,7 @@ export function SummaryContent({
     textBindings && 'summaryTitle' in textBindings ? (textBindings.summaryTitle as string) : undefined;
   const titleTrb = textBindings && 'title' in textBindings ? textBindings.title : undefined;
   const formDataSelector = FD.useDebouncedSelector();
-  const nodeDataSelector = useNodeDataSelector();
+  const nodeDataSelector = useNodeFormDataSelector();
 
   return (
     <div className={classes.container}>

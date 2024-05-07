@@ -2,10 +2,10 @@ import { NodePathNotFound } from 'src/utils/layout/NodePathNotFound';
 import { pickDataStorePath } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { AttachmentValidation, ComponentValidation, FieldValidation } from 'src/features/validation/index';
-import type { ItemStore } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodesDataContext, NodesDataStoreFull } from 'src/utils/layout/NodesContext';
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
+import type { NodeData } from 'src/utils/layout/types';
 
 type Validations = ComponentValidation | AttachmentValidation | FieldValidation;
 export type ValidationVisibilitySelector = (node: LayoutNode) => number;
@@ -34,7 +34,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
       setNodeVisibility: (nodes, newVisibility, _rowIndex) => {
         set((state) => {
           for (const node of nodes) {
-            const nodeStore = pickDataStorePath(state.pages, node) as ItemStore;
+            const nodeStore = pickDataStorePath(state.pages, node) as NodeData;
             nodeStore.validationVisibility = newVisibility;
           }
         });
@@ -58,7 +58,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           if (!node) {
             return 0;
           }
-          const nodeStore = pickDataStorePath(state.pages, node) as ItemStore;
+          const nodeStore = pickDataStorePath(state.pages, node) as NodeData;
           return 'validationVisibility' in nodeStore ? nodeStore.validationVisibility : 0;
         }),
       useValidations: (node) =>
@@ -66,14 +66,14 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           if (!node) {
             return emptyArray;
           }
-          const nodeStore = pickDataStorePath(state.pages, node) as ItemStore;
+          const nodeStore = pickDataStorePath(state.pages, node) as NodeData;
           return 'validations' in nodeStore ? nodeStore.validations : emptyArray;
         }),
       useValidationVisibilitySelector: () =>
         store.useDelayedMemoSelectorFactory({
           selector: (node: LayoutNode) => (state) => {
             try {
-              const nodeStore = pickDataStorePath(state.pages, node) as ItemStore;
+              const nodeStore = pickDataStorePath(state.pages, node) as NodeData;
               return 'validationVisibility' in nodeStore ? nodeStore.validationVisibility : 0;
             } catch (e) {
               if (e instanceof NodePathNotFound) {
@@ -88,7 +88,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
         store.useDelayedMemoSelectorFactory({
           selector: (node: LayoutNode) => (state) => {
             try {
-              const nodeStore = pickDataStorePath(state.pages, node) as ItemStore;
+              const nodeStore = pickDataStorePath(state.pages, node) as NodeData;
               return 'validations' in nodeStore ? nodeStore.validations : emptyArray;
             } catch (e) {
               if (e instanceof NodePathNotFound) {

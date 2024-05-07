@@ -2,10 +2,10 @@ import deepEqual from 'fast-deep-equal';
 
 import { pickDataStorePath } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
-import type { BaseRow } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodesDataContext, NodesDataStoreFull } from 'src/utils/layout/NodesContext';
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
+import type { BaseRow } from 'src/utils/layout/types';
 
 export interface RepeatingChildrenStorePluginConfig {
   extraFunctions: {

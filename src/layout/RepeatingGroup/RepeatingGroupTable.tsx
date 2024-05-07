@@ -18,9 +18,9 @@ import { RepeatingGroupTableTitle } from 'src/layout/RepeatingGroup/RepeatingGro
 import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
 import type { GridCellInternal } from 'src/layout/Grid/types';
-import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 
 export function RepeatingGroupTable(): React.JSX.Element | null {
   const mobileView = useIsMobileOrTablet();
@@ -41,8 +41,8 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
 
   const columnSettings = tableColumns ? structuredClone(tableColumns) : ({} as ITableColumnFormatting);
 
-  const getTableNodes = (restriction: ChildLookupRestriction) => {
-    const nodes = node.children(undefined, restriction).filter((child) => {
+  const tableNodes = useNodeTraversal(node, (traverser) => {
+    const nodes = traverser.children(undefined, { onlyInRowIndex: 0 }).filter((child) => {
       if (tableHeaders) {
         const { id, baseComponentId } = child.item;
         return !!(tableHeaders.includes(id) || (baseComponentId && tableHeaders.includes(baseComponentId)));
@@ -52,7 +52,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
 
     // Sort using the order from tableHeaders
     if (tableHeaders) {
-      nodes?.sort((a, b) => {
+      nodes.sort((a, b) => {
         const aIndex = tableHeaders.indexOf(a.getBaseId());
         const bIndex = tableHeaders.indexOf(b.getBaseId());
         return aIndex - bIndex;
@@ -60,9 +60,8 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
     }
 
     return nodes;
-  };
+  });
 
-  const tableNodes = getTableNodes({ onlyInRowIndex: 0 });
   const numRows = visibleRows.length;
   const firstRowId = numRows >= 1 ? visibleRows[0].uuid : undefined;
 
@@ -174,7 +173,6 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
                     [classes.editRowOnTopOfStickyHeader]: isEditingRow && stickyHeader,
                   })}
                   uuid={row.uuid}
-                  getTableNodes={getTableNodes}
                   mobileView={mobileView}
                   displayDeleteColumn={displayDeleteColumn}
                   displayEditColumn={displayEditColumn}

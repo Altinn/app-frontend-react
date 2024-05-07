@@ -32,11 +32,11 @@ import type { OptionsStorePluginConfig } from 'src/features/options/OptionsStore
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
 import type { NodeRef } from 'src/layout';
 import type { CompTypes, LayoutNodeFromObj } from 'src/layout/layout';
-import type { ItemStore, ItemStoreFromNode } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { RepeatingChildrenStorePluginConfig } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
+import type { NodeData, NodeDataFromNode } from 'src/utils/layout/types';
 
 export interface NodesContext {
   nodes: LayoutPages | undefined;
@@ -90,7 +90,7 @@ export interface PageStore {
 }
 
 export interface TopLevelNodesStore<Types extends CompTypes = CompTypes> {
-  [key: string]: ItemStore<Types>;
+  [key: string]: NodeData<Types>;
 }
 
 export type NodeDataStorePlugins = {
@@ -117,10 +117,10 @@ export type NodesDataContext = {
   pages: PageHierarchy;
   addNode: <N extends LayoutNode>(node: N, targetState: any) => void;
   removeNode: (node: LayoutNode) => void;
-  setNodeProp: <N extends LayoutNode, K extends keyof ItemStoreFromNode<N>>(
+  setNodeProp: <N extends LayoutNode, K extends keyof NodeDataFromNode<N>>(
     node: N,
     prop: K,
-    value: ItemStoreFromNode<N>[K],
+    value: NodeDataFromNode<N>[K],
   ) => void;
 
   addPage: (pageKey: string) => void;
@@ -449,21 +449,25 @@ function getNodePath(nodeId: string | NodeRef | LayoutNode | LayoutPage, nodes: 
   return node instanceof LayoutPage ? [node.pageKey] : node.path;
 }
 
-type NodeStateSelectorProp<N extends LayoutNode | undefined> = {
+type NodeDataSelectorProp<N extends LayoutNode | undefined> = {
   node: N;
   path: string;
 };
 
-export type NodeStateSelector = ReturnType<typeof NodesInternal.useNodeStateMemoSelector>;
-export type ExactNodeStateSelector = ReturnType<typeof NodesInternal.useExactNodeStateMemoSelector>;
+export type NodeDataSelector = ReturnType<typeof NodesInternal.useNodeDataMemoSelector>;
+export type ExactNodeDataSelector = ReturnType<typeof NodesInternal.useExactNodeDataMemoSelector>;
 
 /**
  * A set of tools, selectors and functions to use internally in node generator components.
  */
 export const NodesInternal = {
-  useNodeStateMemo<N extends LayoutNode | undefined, Out>(
+  useNodeDataMemoRaw<Out>(selector: (state: PageHierarchy) => Out): Out {
+    return DataStore.useMemoSelector((state) => selector(state.pages));
+  },
+
+  useNodeDataMemo<N extends LayoutNode | LayoutPage | undefined, Out>(
     node: N,
-    selector: (state: ItemStoreFromNode<N>) => Out,
+    selector: (state: N extends LayoutPage ? PageStore : NodeDataFromNode<Exclude<N, LayoutPage>>) => Out,
   ): N extends undefined ? Out | undefined : Out {
     return DataStore.useMemoSelector((s) => {
       try {
@@ -476,9 +480,9 @@ export const NodesInternal = {
       }
     }) as any;
   },
-  useNodeState<N extends LayoutNode | undefined, Out>(
+  useNodeData<N extends LayoutNode | undefined, Out>(
     node: N,
-    selector: (state: ItemStoreFromNode<N>) => Out,
+    selector: (state: NodeDataFromNode<N>) => Out,
   ): N extends undefined ? Out | undefined : Out {
     return DataStore.useSelector((s) => {
       try {
@@ -491,10 +495,10 @@ export const NodesInternal = {
       }
     }) as any;
   },
-  useNodeStateMemoSelector: () =>
+  useNodeDataMemoSelector: () =>
     DataStore.useDelayedMemoSelectorFactory({
       selector:
-        <N extends LayoutNode | undefined>({ node, path }: NodeStateSelectorProp<N>) =>
+        <N extends LayoutNode | undefined>({ node, path }: NodeDataSelectorProp<N>) =>
         (state) => {
           try {
             return node ? dot.pick(path, pickDataStorePath(state.pages, node)) : undefined;
@@ -507,7 +511,7 @@ export const NodesInternal = {
         },
       makeCacheKey: ({ node, path }) => (node ? `${node.getId()}/${path}` : ''),
     }),
-  useExactNodeStateMemoSelector: (node: LayoutNode | undefined) =>
+  useExactNodeDataMemoSelector: (node: LayoutNode | undefined) =>
     DataStore.useDelayedMemoSelectorFactory({
       selector: (path: string) => (state) => {
         try {
@@ -631,10 +635,10 @@ function useLegacyHiddenComponents(
  * children.
  */
 export function pickDataStorePath(
-  container: PageHierarchy | PageStore | ItemStore,
+  container: PageHierarchy | PageStore | NodeData,
   _pathOrNode: string[] | LayoutNode | LayoutPage,
   parentPath: string[] = [],
-): ItemStore | PageStore {
+): NodeData | PageStore {
   const path =
     _pathOrNode instanceof LayoutPage
       ? [_pathOrNode.pageKey]
@@ -647,7 +651,7 @@ export function pickDataStorePath(
       throw new Error('Cannot pick root node');
     }
 
-    return container as ItemStore | PageStore;
+    return container as NodeData | PageStore;
   }
 
   const [target, ...remaining] = path;
@@ -677,14 +681,14 @@ export function pickDataStorePath(
     throw new Error(`Component type "${container.layout.type}" not found`);
   }
 
-  const child = def.pickChild(container as ItemStore<any>, target, fullPath);
+  const child = def.pickChild(container as NodeData<any>, target, fullPath);
   return pickDataStorePath(child, remaining, fullPath);
 }
 
-function isPages(state: PageHierarchy | PageStore | ItemStore): state is PageHierarchy {
+function isPages(state: PageHierarchy | PageStore | NodeData): state is PageHierarchy {
   return 'type' in state && state.type === 'pages';
 }
 
-function isPage(state: PageHierarchy | PageStore | ItemStore): state is PageStore {
+function isPage(state: PageHierarchy | PageStore | NodeData): state is PageStore {
   return 'type' in state && state.type === 'page';
 }

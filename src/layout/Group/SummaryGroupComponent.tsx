@@ -14,7 +14,7 @@ import classes from 'src/layout/Group/SummaryGroupComponent.module.css';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { Hidden, useNode } from 'src/utils/layout/NodesContext';
-import { useNodeDataSelector, useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useNodeFormDataSelector, useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { NodeRef } from 'src/layout';
 import type { ITextResourceBindings } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -42,7 +42,7 @@ export function SummaryGroupComponent({
   const display = overrides?.display || summaryItem.display;
   const { langAsString } = useLanguage();
   const formDataSelector = FD.useDebouncedSelector();
-  const nodeDataSelector = useNodeDataSelector();
+  const nodeDataSelector = useNodeFormDataSelector();
   const isHidden = Hidden.useIsHiddenSelector();
 
   const inExcludedChildren = useCallback(

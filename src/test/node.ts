@@ -2,9 +2,9 @@ import { getNodeConstructor } from 'src/layout';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { createNodesDataStore } from 'src/utils/layout/NodesContext';
 import type { CompExternal, CompInternal, CompTypes, ParentNode } from 'src/layout/layout';
-import type { BaseRow } from 'src/utils/layout/itemState';
 import type { LayoutNode, LayoutNodeProps } from 'src/utils/layout/LayoutNode';
 import type { NodesDataStore } from 'src/utils/layout/NodesContext';
+import type { BaseRow } from 'src/utils/layout/types';
 
 /**
  * This function creates a new LayoutNode for testing purposes. It is not meant to be used in production code, and

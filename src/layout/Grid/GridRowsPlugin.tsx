@@ -10,7 +10,6 @@ import type { GridRows } from 'src/layout/common.generated';
 import type { GridCellInternal, GridRowsInternal } from 'src/layout/Grid/types';
 import type { CompTypes } from 'src/layout/layout';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
-import type { ItemStore } from 'src/utils/layout/itemState';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   DefPluginChildClaimerProps,
@@ -19,6 +18,7 @@ import type {
   DefPluginStateFactoryProps,
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
+import type { NodeData } from 'src/utils/layout/types';
 
 interface Config<Type extends CompTypes> {
   componentType: Type;
@@ -27,7 +27,7 @@ interface Config<Type extends CompTypes> {
   };
   extraState: {
     gridItems: {
-      [nodeId: string]: ItemStore;
+      [nodeId: string]: NodeData;
     };
   };
   extraInItem: {
@@ -144,7 +144,7 @@ export class GridRowsPlugin<Type extends CompTypes>
     return child;
   }
 
-  addChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode, childStore: ItemStore): void {
+  addChild(state: DefPluginState<Config<Type>>, childNode: LayoutNode, childStore: NodeData): void {
     state.gridItems[childNode.getId()] = childStore;
   }
 
