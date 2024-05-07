@@ -117,20 +117,14 @@ function useNodesStructureMemo() {
   const nodes = useNodes();
   const nodesRef = useRef(nodes);
 
-  const allNodes = useMemo(() => nodes.allNodes(), [nodes]);
-  const allNodesRef = useRef(allNodes);
+  const allNodesIds = useMemo(() => nodes.allNodes().map((n) => n.item.id), [nodes]);
+  const allNodeIdsRef = useRef(allNodesIds);
 
-  if (
-    allNodes === allNodesRef.current ||
-    deepEqual(
-      allNodes.map((n) => n.item.id),
-      allNodesRef.current.map((n) => n.item.id),
-    )
-  ) {
+  if (allNodesIds === allNodeIdsRef.current || deepEqual(allNodesIds, allNodeIdsRef.current)) {
     return nodesRef.current;
   } else {
     nodesRef.current = nodes;
-    allNodesRef.current = allNodes;
+    allNodeIdsRef.current = allNodesIds;
     return nodes;
   }
 }
