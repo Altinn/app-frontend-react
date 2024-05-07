@@ -1,7 +1,7 @@
 import React from 'react';
 import type { CSSProperties } from 'react';
 
-import { Card } from '@digdir/design-system-react';
+import { Card } from '@digdir/designsystemet-react';
 import { Grid } from '@material-ui/core';
 
 import { Lang } from 'src/features/language/Lang';

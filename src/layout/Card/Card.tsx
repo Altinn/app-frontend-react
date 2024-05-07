@@ -1,7 +1,7 @@
 import React from 'react';
 import type { PropsWithChildren } from 'react';
 
-import { Card as DesignSystemCard } from '@digdir/design-system-react';
+import { Card as DesignSystemCard } from '@digdir/designsystemet-react';
 
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
