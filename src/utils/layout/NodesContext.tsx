@@ -289,6 +289,10 @@ export function useNodesMemoSelector<U>(selector: (s: LayoutPages) => U) {
   return NodesStore.useMemoSelector((state) => selector(state.nodes!));
 }
 
+const isHiddenComponentSelector = (nodeId: string | NodeRef) => (state: NodesContext) =>
+  state.hiddenComponents.has(nodeId);
+const makeCacheKey = (nodeId: string) => nodeId;
+
 export type NodeSelector = ReturnType<typeof useNodeSelector>;
 export function useNodeSelector() {
   return NodesStore.useDelayedMemoSelectorFactory({

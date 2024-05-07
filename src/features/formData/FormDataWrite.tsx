@@ -325,6 +325,9 @@ const useWaitForSave = () => {
 const emptyObject: any = {};
 const emptyArray: never[] = [];
 
+const debouncedSelector = (path: string) => (state: FormDataContext) => dot.pick(path, state.debouncedCurrentData);
+const makeCacheKey = (path: string) => path;
+
 export const FD = {
   /**
    * Gives you a selector function that can be used to look up paths in the data model. This is similar to
@@ -334,8 +337,8 @@ export const FD = {
    */
   useDebouncedSelector(): FormDataSelector {
     return useDelayedMemoSelectorFactory({
-      selector: (path: string) => (state) => dot.pick(path, state.debouncedCurrentData),
-      makeCacheKey: (path: string) => path,
+      selector: debouncedSelector,
+      makeCacheKey,
     });
   },
 
@@ -363,8 +366,8 @@ export const FD = {
    */
   useLaxDebouncedSelector(): FormDataSelector | typeof ContextNotProvided {
     return useLaxDelayedMemoSelectorFactory({
-      selector: (path: string) => (state) => dot.pick(path, state.debouncedCurrentData),
-      makeCacheKey: (path: string) => path,
+      selector: debouncedSelector,
+      makeCacheKey,
     });
   },
 
