@@ -20,7 +20,7 @@ type DelayedSelectorFunc<T> = <U>(selector: Selector<T, U>, postProcessor?: (dat
 type DelayedSelectorFuncWithArg<Arg, U> = (lookup: Arg, postProcessor?: (data: unknown) => U) => U;
 type SelectorFuncLax<T> = <U>(selector: Selector<T, U>) => U | typeof ContextNotProvided;
 
-type DelayedSelectorState<T> = Map<Selector<T, any>, { selector: Selector<T, any>; value: any }>;
+type DelayedSelectorState<T> = Map<Selector<T, any>, { selector: Selector<T, any>; rawValue: any; value: any }>;
 
 interface DelayedSelectorFactory<Param, RetVal, T> {
   selector: (lookup: Param) => Selector<T, RetVal>;
@@ -136,8 +136,8 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
         // did change, we'll clear the list of selectors to force a re-render.
         const selectors = selectorsCalled.current;
         let changed = false;
-        for (const { selector, value } of selectors.values()) {
-          if (!deepEqual(value, selector(state))) {
+        for (const { selector, rawValue } of selectors.values()) {
+          if (!deepEqual(rawValue, selector(state))) {
             changed = true;
             break;
           }
@@ -161,10 +161,8 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
         }
 
         const state = store.getState();
-        let value = selector(state);
-        if (postProcessor) {
-          value = postProcessor(value);
-        }
+        const rawValue = selector(state);
+        const value = postProcessor ? postProcessor(rawValue) : rawValue;
 
         // Check if this function has been called before, and if the value has not changed since the last time it
         // was called we can return the previous value and prevent re-rendering.
@@ -175,7 +173,7 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
 
         // The value has changed, or the callback is new to us. No need to re-render the component now, because
         // this is always the first render where this value is referenced, and we're always selecting from fresh state.
-        selectorsCalled.current.set(selector, { selector, value });
+        selectorsCalled.current.set(selector, { selector, rawValue, value });
         return value;
       },
       [store, renderCount],
