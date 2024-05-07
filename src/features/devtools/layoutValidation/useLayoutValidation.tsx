@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
+import deepEqual from 'fast-deep-equal';
 import { createStore } from 'zustand';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
@@ -21,7 +22,6 @@ import type { LayoutValidationErrors } from 'src/features/devtools/layoutValidat
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface LayoutValidationProps {
-  enabled: boolean;
   logErrors?: boolean;
 }
 
@@ -61,16 +61,16 @@ function mergeValidationErrors(a: LayoutValidationErrors, b: LayoutValidationErr
  */
 function useDataModelBindingsValidation(props: LayoutValidationProps) {
   const layoutSetId = useCurrentLayoutSetId() || 'default';
-  const { logErrors = false, enabled } = props;
+  const { logErrors = false } = props;
   const schema = useCurrentDataModelSchema();
   const dataType = useCurrentDataModelType();
-  const nodes = useNodes();
+  const nodes = useNodesStructureMemo();
 
   return useMemo(() => {
     const failures: LayoutValidationErrors = {
       [layoutSetId]: {},
     };
-    if (!enabled || !schema) {
+    if (!schema) {
       return failures;
     }
     const rootElementPath = getRootElementPath(schema, dataType);
@@ -105,7 +105,34 @@ function useDataModelBindingsValidation(props: LayoutValidationProps) {
     }
 
     return failures;
-  }, [layoutSetId, enabled, schema, dataType, nodes, logErrors]);
+  }, [layoutSetId, schema, dataType, nodes, logErrors]);
+}
+
+/**
+ * Utility hook for preventing revalidating bindings unless the node structure actually changes
+ * The data model binding validations only depends on the node structure and data model bindings,
+ * so it is unecessary to revalidate whenever nodes change for a different reason, and dataModelBindings are static.
+ */
+function useNodesStructureMemo() {
+  const nodes = useNodes();
+  const nodesRef = useRef(nodes);
+
+  const allNodes = useMemo(() => nodes.allNodes(), [nodes]);
+  const allNodesRef = useRef(allNodes);
+
+  if (
+    allNodes === allNodesRef.current ||
+    deepEqual(
+      allNodes.map((n) => n.item.id),
+      allNodesRef.current.map((n) => n.item.id),
+    )
+  ) {
+    return nodesRef.current;
+  } else {
+    nodesRef.current = nodes;
+    allNodesRef.current = allNodes;
+    return nodes;
+  }
 }
 
 interface Context {
@@ -172,7 +199,7 @@ export function Generator() {
   const enabled = isDev || panelOpen;
 
   const layoutSchemaValidations = useLayoutSchemaValidation(enabled);
-  const dataModelBindingsValidations = useDataModelBindingsValidation({ enabled, logErrors: true });
+  const dataModelBindingsValidations = useDataModelBindingsValidation({ logErrors: true });
 
   const update = useSelector((state) => state.update);
 
