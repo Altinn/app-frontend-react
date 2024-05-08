@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Panel, PanelVariant } from '@altinn/altinn-design-system';
 import { Grid } from '@material-ui/core';
+import { v4 as uuidv4 } from 'uuid';
 
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import classes from 'src/components/message/ErrorReport.module.css';
@@ -66,7 +67,7 @@ export const ErrorReport = ({ renderIds }: IErrorReportProps) => {
               <ul className={classes.errorList}>
                 {taskErrors.map((error) => (
                   <li
-                    key={JSON.stringify(error)}
+                    key={uuidv4()}
                     style={{ listStyleImage: listStyleImg }}
                   >
                     <Lang
@@ -77,7 +78,8 @@ export const ErrorReport = ({ renderIds }: IErrorReportProps) => {
                 ))}
                 {formErrors.map((error) => (
                   <li
-                    key={JSON.stringify(error)}
+                    // TODO(Pagination): Apparently, JSON.stringify was very slow for the keys, using a random key was faster even though react has to rerender more often?
+                    key={uuidv4()}
                     style={{ listStyleImage: listStyleImg }}
                   >
                     <button

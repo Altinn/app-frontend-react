@@ -1,15 +1,22 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 
 import { Pagination, Table, usePagination } from '@digdir/designsystemet-react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@navikt/aksel-icons';
+import deepEqual from 'fast-deep-equal';
 
 import { useLanguage } from 'src/features/language/useLanguage';
+import { getValidationsForNode, hasValidationErrors } from 'src/features/validation/utils';
+import { Validation } from 'src/features/validation/validationContext';
+import { getVisibilityForNode } from 'src/features/validation/visibility/visibilityUtils';
 import { useIsMini, useIsMobile, useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
 import classes from 'src/layout/RepeatingGroup/RepeatingGroupPagination.module.css';
+import type { CompRepeatingGroupInternal, HRepGroupRow } from 'src/layout/RepeatingGroup/config.generated';
+import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function RepeatingGroupPagination() {
   const { hasPagination, rowsPerPage, currentPage, totalPages, changePage, visibleRows, node } = useRepeatingGroup();
+  const pagesWithErrors = usePagesWithErrors(rowsPerPage, node);
   const isTablet = useIsMobileOrTablet();
   const isMobile = useIsMobile();
   const isMini = useIsMini();
@@ -67,6 +74,7 @@ export function RepeatingGroupPagination() {
             className={classes.pagination}
             currentPage={currentPage + 1}
             totalPages={totalPages}
+            pagesWithErrors={pagesWithErrors}
             onChange={onChange}
             compact={isTablet}
             hideLabels={isMobile}
@@ -84,6 +92,7 @@ type PaginationComponentProps = {
   hideLabels: boolean;
   currentPage: number;
   totalPages: number;
+  pagesWithErrors: number[];
   onChange: Parameters<typeof Pagination>[0]['onChange'];
 } & Omit<React.HTMLAttributes<HTMLElement>, 'onChange'>;
 
@@ -99,6 +108,7 @@ function PaginationComponent({
   hideLabels,
   currentPage,
   totalPages,
+  pagesWithErrors,
   onChange,
   ...rest
 }: PaginationComponentProps) {
@@ -135,24 +145,32 @@ function PaginationComponent({
             {!hideLabels && previousLabel}
           </Pagination.Previous>
         </Pagination.Item>
-        {pages.map((page, i) => (
-          <Pagination.Item key={`${page}${i}`}>
-            {page === 'ellipsis' ? (
-              <Pagination.Ellipsis />
-            ) : (
-              <Pagination.Button
-                aria-current={currentPage === page}
-                isActive={currentPage === page}
-                aria-label={langAsString('general.page_number', [page])}
-                onClick={() => {
-                  onChange(page);
-                }}
-              >
-                {page}
-              </Pagination.Button>
-            )}
-          </Pagination.Item>
-        ))}
+        {pages.map((page, i) => {
+          const hasErrors = typeof page === 'number' && pagesWithErrors.includes(page - 1);
+          const label = hasErrors
+            ? `${langAsString('general.edit_alt_error')}: ${langAsString('general.page_number', [page])}`
+            : langAsString('general.page_number', [page]);
+
+          return (
+            <Pagination.Item key={`${page}${i}`}>
+              {page === 'ellipsis' ? (
+                <Pagination.Ellipsis />
+              ) : (
+                <Pagination.Button
+                  color={hasErrors ? 'danger' : 'first'}
+                  aria-current={currentPage === page}
+                  isActive={currentPage === page}
+                  aria-label={label}
+                  onClick={() => {
+                    onChange(page);
+                  }}
+                >
+                  {page}
+                </Pagination.Button>
+              )}
+            </Pagination.Item>
+          );
+        })}
         <Pagination.Item>
           <Pagination.Next
             aria-label={nextLabel}
@@ -171,4 +189,58 @@ function PaginationComponent({
       </Pagination.Content>
     </Pagination.Root>
   );
+}
+
+// TODO(Pagination): This may not include validations for nested groups which it should
+function usePagesWithErrors(rowsPerPage: number | undefined, node: BaseLayoutNode<CompRepeatingGroupInternal>) {
+  const rows = useRowStructure(node);
+  const selector = Validation.useSelector();
+  const visibilitySelector = Validation.useVisibilitySelector();
+
+  return useMemo(() => {
+    if (typeof rowsPerPage !== 'number') {
+      return [];
+    }
+
+    const visibleRows: HRepGroupRow[] = [];
+    for (const row of rows) {
+      if (!row.groupExpressions.hidden) {
+        visibleRows.push(row);
+      }
+    }
+
+    const pagesWithErrors: number[] = [];
+
+    for (let i = 0; i < visibleRows.length; i++) {
+      const pageNumber = Math.floor(i / rowsPerPage);
+      if (pagesWithErrors.includes(pageNumber)) {
+        continue;
+      }
+
+      for (const node of visibleRows[i].items) {
+        if (
+          hasValidationErrors(getValidationsForNode(node, selector, getVisibilityForNode(node, visibilitySelector)))
+        ) {
+          pagesWithErrors.push(pageNumber);
+          break;
+        }
+      }
+    }
+
+    return pagesWithErrors;
+  }, [rows, rowsPerPage, selector, visibilitySelector]);
+}
+
+function useRowStructure(node: BaseLayoutNode<CompRepeatingGroupInternal>) {
+  const rowChildrenRef = useRef(node.item.rows);
+  const rowChildrenIds = useMemo(() => node.item.rows.map((r) => r.items.map((n) => n.item.id)), [node.item.rows]);
+  const rowChildrenIdsRef = useRef(rowChildrenIds);
+
+  if (rowChildrenIds === rowChildrenIdsRef.current || deepEqual(rowChildrenIds, rowChildrenIdsRef.current)) {
+    return rowChildrenRef.current;
+  } else {
+    rowChildrenRef.current = node.item.rows;
+    rowChildrenIdsRef.current = rowChildrenIds;
+    return node.item.rows;
+  }
 }

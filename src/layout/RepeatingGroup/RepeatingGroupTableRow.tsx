@@ -128,7 +128,7 @@ export function RepeatingGroupTableRow({
       key={`repeating-group-row-${uuid}`}
       className={cn(
         {
-          [classes.tableRowError]: rowHasErrors,
+          [classes.tableRowError]: rowHasErrors && edit.mode != 'onlyTable',
         },
         className,
       )}
