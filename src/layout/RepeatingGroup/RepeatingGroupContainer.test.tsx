@@ -349,7 +349,6 @@ describe('RepeatingGroupContainer', () => {
   });
 });
 
-// TODO(Pagination): Are any changes necessary here?
 function LeakEditIndex() {
   const editingId = useRepeatingGroupSelector((state) => state.editingId);
   const { visibleRows } = useRepeatingGroup();

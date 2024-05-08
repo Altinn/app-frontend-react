@@ -71,6 +71,7 @@ export function RepeatingGroupPagination() {
             compact={isTablet}
             hideLabels={isMobile}
             size={isMini ? 'small' : 'medium'}
+            itemLabel={(n) => langAsString('general.page_number', [n])}
             nextLabel={langAsString('general.next')}
             previousLabel={langAsString('general.back')}
           />

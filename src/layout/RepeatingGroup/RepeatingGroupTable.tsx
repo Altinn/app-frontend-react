@@ -20,7 +20,6 @@ import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
 import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 
-// TODO(Pagination): Register a node navigation handler for pagination
 export function RepeatingGroupTable(): React.JSX.Element | null {
   const mobileView = useIsMobileOrTablet();
   const { node, isEditing, rowsToDisplay } = useRepeatingGroup();
