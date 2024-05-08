@@ -10,6 +10,7 @@ interface Props {
   node: BaseLayoutNode<CompRepeatingGroupInternal>;
 }
 
+// TODO(Pagination): Are any changes necessary here?
 export function OpenByDefaultProvider({ node, children }: PropsWithChildren<Props>) {
   const groupId = node.item.id;
   const openByDefault = node.item.edit?.openByDefault;

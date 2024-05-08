@@ -18,6 +18,7 @@ import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/Repeatin
 import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/RepeatingGroupTable';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 
+// TODO(Pagination): Should showAll also support pagination?
 export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HTMLDivElement>): JSX.Element | null => {
   const { node, visibleRows } = useRepeatingGroup();
   const { editingId } = useRepeatingGroupSelector((state) => ({
