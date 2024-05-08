@@ -8,7 +8,7 @@ const appFrontend = new AppFrontend();
 
 describe('Payment', () => {
   beforeEach(() => {
-    cy.startAppInstance(appFrontend.apps.paymentTest, { authenticationLevel: '2' });
+    cy.startAppInstance(appFrontend.apps.paymentTest, { authenticationLevel: '1' });
   });
 
   it('Should fill out the form, landing on the payment page', () => {
