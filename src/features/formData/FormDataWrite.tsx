@@ -401,6 +401,12 @@ const useWaitForSave = () => {
 
 const emptyObject: any = {};
 
+const debouncedSelector = (reference: IDataModelReference) => (state: FormDataContext) =>
+  dot.pick(reference.property, state.dataModels[reference.dataType].debouncedCurrentData);
+const invalidDebouncedSelector = (reference: IDataModelReference) => (state: FormDataContext) =>
+  dot.pick(reference.property, state.dataModels[reference.dataType].invalidDebouncedCurrentData);
+const makeCacheKey = (reference: IDataModelReference) => `${reference.dataType}/${reference.property}`;
+
 export const FD = {
   /**
    * Gives you a selector function that can be used to look up paths in the data model. This is similar to
@@ -410,9 +416,8 @@ export const FD = {
    */
   useDebouncedSelector(): FormDataSelector {
     return useDelayedMemoSelectorFactory({
-      selector: (reference: IDataModelReference) => (state) =>
-        dot.pick(reference.property, state.dataModels[reference.dataType].debouncedCurrentData),
-      makeCacheKey: (reference: IDataModelReference) => `${reference.dataType}/${reference.property}`,
+      selector: debouncedSelector,
+      makeCacheKey,
     });
   },
 
@@ -430,9 +435,8 @@ export const FD = {
    */
   useLaxDebouncedSelector(): FormDataSelector | typeof ContextNotProvided {
     return useLaxDelayedMemoSelectorFactory({
-      selector: (reference: IDataModelReference) => (state) =>
-        dot.pick(reference.property, state.dataModels[reference.dataType].debouncedCurrentData),
-      makeCacheKey: (reference: IDataModelReference) => `${reference.dataType}/${reference.property}`,
+      selector: debouncedSelector,
+      makeCacheKey,
     });
   },
 
@@ -521,9 +525,8 @@ export const FD = {
    */
   useInvalidDebouncedSelector(): FormDataSelector {
     return useDelayedMemoSelectorFactory({
-      selector: (reference: IDataModelReference) => (state) =>
-        dot.pick(reference.property, state.dataModels[reference.dataType].invalidDebouncedCurrentData),
-      makeCacheKey: (reference: IDataModelReference) => `${reference.dataType}/${reference.property}`,
+      selector: invalidDebouncedSelector,
+      makeCacheKey,
     });
   },
 
