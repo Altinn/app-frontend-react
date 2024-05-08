@@ -11,3 +11,7 @@
 .row td {
   background-color: var(--fds-semantic-surface-neutral-subtle);
 }
+
+.hidden {
+  visibility: hidden;
+}

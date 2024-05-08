@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 
-import { Pagination, Table } from '@digdir/designsystemet-react';
+import { Pagination, Table, usePagination } from '@digdir/designsystemet-react';
+import { ChevronLeftIcon, ChevronRightIcon } from '@navikt/aksel-icons';
 
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMini, useIsMobile, useIsMobileOrTablet } from 'src/hooks/useIsMobile';
@@ -9,7 +10,6 @@ import classes from 'src/layout/RepeatingGroup/RepeatingGroupPagination.module.c
 
 export function RepeatingGroupPagination() {
   const { hasPagination, rowsPerPage, currentPage, totalPages, changePage, visibleRows, node } = useRepeatingGroup();
-  const { langAsString } = useLanguage();
   const isTablet = useIsMobileOrTablet();
   const isMobile = useIsMobile();
   const isMini = useIsMini();
@@ -62,7 +62,7 @@ export function RepeatingGroupPagination() {
     <Table.Body>
       <Table.Row className={!isTablet ? classes.row : undefined}>
         <Table.Cell colSpan={100}>
-          <Pagination
+          <PaginationComponent
             data-pagination-id={node.item.id}
             className={classes.pagination}
             currentPage={currentPage + 1}
@@ -71,12 +71,104 @@ export function RepeatingGroupPagination() {
             compact={isTablet}
             hideLabels={isMobile}
             size={isMini ? 'small' : 'medium'}
-            itemLabel={(n) => langAsString('general.page_number', [n])}
-            nextLabel={langAsString('general.next')}
-            previousLabel={langAsString('general.back')}
           />
         </Table.Cell>
       </Table.Row>
     </Table.Body>
+  );
+}
+
+type PaginationComponentProps = {
+  size: NonNullable<Parameters<typeof Pagination>[0]['size']>;
+  compact: boolean;
+  hideLabels: boolean;
+  currentPage: number;
+  totalPages: number;
+  onChange: Parameters<typeof Pagination>[0]['onChange'];
+} & Omit<React.HTMLAttributes<HTMLElement>, 'onChange'>;
+
+const iconSize = {
+  small: '1rem',
+  medium: '1.5rem',
+  large: '2rem',
+};
+
+function PaginationComponent({
+  size,
+  compact,
+  hideLabels,
+  currentPage,
+  totalPages,
+  onChange,
+  ...rest
+}: PaginationComponentProps) {
+  const { pages, showNextPage, showPreviousPage } = usePagination({
+    compact,
+    currentPage,
+    totalPages,
+  });
+  const { langAsString } = useLanguage();
+
+  const nextLabel = langAsString('general.next');
+  const previousLabel = langAsString('general.back');
+
+  return (
+    <Pagination.Root
+      aria-label='Pagination'
+      size={size}
+      compact={compact}
+      {...rest}
+    >
+      <Pagination.Content>
+        <Pagination.Item>
+          <Pagination.Previous
+            className={!showPreviousPage ? classes.hidden : undefined}
+            onClick={() => {
+              onChange(currentPage - 1);
+            }}
+            aria-label={previousLabel}
+          >
+            <ChevronLeftIcon
+              aria-hidden
+              fontSize={iconSize[size]}
+            />
+            {!hideLabels && previousLabel}
+          </Pagination.Previous>
+        </Pagination.Item>
+        {pages.map((page, i) => (
+          <Pagination.Item key={`${page}${i}`}>
+            {page === 'ellipsis' ? (
+              <Pagination.Ellipsis />
+            ) : (
+              <Pagination.Button
+                aria-current={currentPage === page}
+                isActive={currentPage === page}
+                aria-label={langAsString('general.page_number', [page])}
+                onClick={() => {
+                  onChange(page);
+                }}
+              >
+                {page}
+              </Pagination.Button>
+            )}
+          </Pagination.Item>
+        ))}
+        <Pagination.Item>
+          <Pagination.Next
+            aria-label={nextLabel}
+            onClick={() => {
+              onChange(currentPage + 1);
+            }}
+            className={!showNextPage ? classes.hidden : undefined}
+          >
+            {!hideLabels && nextLabel}
+            <ChevronRightIcon
+              aria-hidden
+              fontSize={iconSize[size]}
+            />
+          </Pagination.Next>
+        </Pagination.Item>
+      </Pagination.Content>
+    </Pagination.Root>
   );
 }
