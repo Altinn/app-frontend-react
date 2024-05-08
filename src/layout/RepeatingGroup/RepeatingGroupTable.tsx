@@ -12,6 +12,7 @@ import { GridRowRenderer } from 'src/layout/Grid/GridComponent';
 import { nodesFromGridRows } from 'src/layout/Grid/tools';
 import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import { useRepeatingGroup } from 'src/layout/RepeatingGroup/RepeatingGroupContext';
+import { RepeatingGroupPagination } from 'src/layout/RepeatingGroup/RepeatingGroupPagination';
 import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/RepeatingGroupsEditContainer';
 import { RepeatingGroupTableRow } from 'src/layout/RepeatingGroup/RepeatingGroupTableRow';
 import { RepeatingGroupTableTitle } from 'src/layout/RepeatingGroup/RepeatingGroupTableTitle';
@@ -199,6 +200,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
             );
           })}
         </Table.Body>
+        <RepeatingGroupPagination />
         <ExtraRows
           where={'After'}
           extraCells={extraCells}

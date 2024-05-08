@@ -44,7 +44,7 @@ interface ExtendedState {
   openForEditing: (uuid: string) => void;
   openNextForEditing: () => void;
   closeForEditing: (uuid: string) => void;
-  onChangePage: (page: number) => void;
+  changePage: (page: number) => void;
 }
 
 type AddRowResult =
@@ -57,6 +57,7 @@ interface ContextMethods extends ExtendedState {
   deleteRow: (uuid: string) => Promise<boolean>;
   isEditing: (uuid: string) => boolean;
   isDeleting: (uuid: string) => boolean;
+  changePage: (page: number) => Promise<void>;
 }
 
 type ZustandState = Store & ZustandHiddenMethods & Omit<ExtendedState, 'toggleEditing'>;
@@ -126,11 +127,21 @@ function produceStateFromNode(node: BaseLayoutNode<CompRepeatingGroupInternal>):
   };
 }
 
-interface PaginationState {
-  currentPage: number | undefined;
-  totalPages: number | undefined;
-  rowsToDisplay: Row[];
-}
+type PaginationState =
+  | {
+      hasPagination: true;
+      currentPage: number;
+      totalPages: number;
+      rowsPerPage: number;
+      rowsToDisplay: Row[];
+    }
+  | {
+      hasPagination: false;
+      currentPage: undefined;
+      totalPages: undefined;
+      rowsPerPage: undefined;
+      rowsToDisplay: Row[];
+    };
 
 /**
  * Produces the current pagination state if relevant
@@ -138,28 +149,58 @@ interface PaginationState {
 function producePaginationState(
   currentPage: number | undefined,
   node: BaseLayoutNode<CompRepeatingGroupInternal>,
-  nodeState: NodeState,
+  visibleRows: Row[],
 ): PaginationState {
   if (typeof currentPage !== 'number' || !node.item.pagination) {
     return {
+      hasPagination: false,
       currentPage: undefined,
       totalPages: undefined,
-      rowsToDisplay: nodeState.visibleRows,
+      rowsPerPage: undefined,
+      rowsToDisplay: visibleRows,
     };
   }
 
-  const totalPages = Math.ceil(nodeState.visibleRows.length / node.item.pagination.rowsPerPage);
+  const rowsPerPage = node.item.pagination.rowsPerPage;
+  const totalPages = Math.ceil(visibleRows.length / rowsPerPage);
 
-  const start = currentPage * node.item.pagination.rowsPerPage;
-  const end = (currentPage + 1) * node.item.pagination.rowsPerPage;
+  const start = currentPage * rowsPerPage;
+  const end = (currentPage + 1) * rowsPerPage;
 
-  const rowsToDisplay = nodeState.visibleRows.slice(start, end);
+  const rowsToDisplay = visibleRows.slice(start, end);
 
   return {
+    hasPagination: true,
     currentPage,
     totalPages,
+    rowsPerPage,
     rowsToDisplay,
   };
+}
+
+/**
+ * Used for navigating to the correct pagination page when opening a row for editing
+ * If the repeating group does not use pagination this will have no effect
+ */
+function gotoPageForRow(
+  rowId: string,
+  paginationState: PaginationState,
+  visibleRows: Row[],
+): { currentPage: number } | undefined {
+  if (!paginationState.hasPagination) {
+    return undefined;
+  }
+  const index = visibleRows.findIndex((row) => row.uuid == rowId);
+  if (index < 0) {
+    return undefined;
+  }
+  const newPage = Math.floor(index / paginationState.rowsPerPage);
+
+  if (newPage == paginationState.currentPage) {
+    return undefined;
+  }
+
+  return { currentPage: newPage };
 }
 
 interface NewStoreProps {
@@ -191,24 +232,25 @@ function newStore({ nodeRef }: NewStoreProps) {
         if (state.editingId === uuid || state.editingAll || state.editingNone) {
           return state;
         }
-        const { editableRows } = produceStateFromNode(nodeRef.current);
+        const { editableRows, visibleRows } = produceStateFromNode(nodeRef.current);
         if (!editableRows.some((row) => row.uuid === uuid)) {
           return state;
         }
-        return { editingId: uuid };
+        const paginationState = producePaginationState(state.currentPage, nodeRef.current, visibleRows);
+        return { editingId: uuid, ...gotoPageForRow(uuid, paginationState, visibleRows) };
       });
     },
 
-    // TODO(Pagination): Switch page if necessary
     openNextForEditing: () => {
       set((state) => {
         if (state.editingAll || state.editingNone) {
           return state;
         }
-        const { editableRows } = produceStateFromNode(nodeRef.current);
+        const { editableRows, visibleRows } = produceStateFromNode(nodeRef.current);
+        const paginationState = producePaginationState(state.currentPage, nodeRef.current, visibleRows);
         if (state.editingId === undefined) {
           const firstRow = editableRows[0];
-          return { editingId: firstRow.uuid };
+          return { editingId: firstRow.uuid, ...gotoPageForRow(firstRow.uuid, paginationState, visibleRows) };
         }
         const isLast = state.editingId === editableRows[editableRows.length - 1].uuid;
         if (isLast) {
@@ -216,7 +258,7 @@ function newStore({ nodeRef }: NewStoreProps) {
         }
         const currentIndex = editableRows.findIndex((row) => row.uuid === state.editingId);
         const nextRow = editableRows[currentIndex + 1];
-        return { editingId: nextRow.uuid };
+        return { editingId: nextRow.uuid, ...gotoPageForRow(nextRow.uuid, paginationState, visibleRows) };
       });
     },
 
@@ -266,7 +308,7 @@ function newStore({ nodeRef }: NewStoreProps) {
       });
     },
 
-    onChangePage: (page) => set(() => ({ currentPage: page })),
+    changePage: (page) => set(() => ({ currentPage: page })),
   }));
 }
 
@@ -283,7 +325,7 @@ function useExtendedRepeatingGroupState(node: BaseLayoutNode<CompRepeatingGroupI
   const waitForNode = useWaitForState<undefined, LayoutNode<'RepeatingGroup'>>(nodeRef);
   const nodeState = produceStateFromNode(node);
   const nodeStateRef = useAsRef(nodeState);
-  const paginationState = producePaginationState(state.currentPage, node, nodeState);
+  const paginationState = producePaginationState(state.currentPage, node, nodeState.visibleRows);
   const [isFirstRender, setIsFirstRender] = useState(true);
 
   useLayoutEffect(() => {
@@ -299,12 +341,12 @@ function useExtendedRepeatingGroupState(node: BaseLayoutNode<CompRepeatingGroupI
   }, [editingId, editingIsHidden, stateRef]);
 
   // If rows are deleted so that the current pagination page no longer exists, go to the last page instead
-  const { currentPage, totalPages } = paginationState;
+  const { currentPage, totalPages, hasPagination } = paginationState;
   useEffect(() => {
-    if (currentPage && totalPages && currentPage > totalPages) {
-      stateRef.current.onChangePage(totalPages - 1);
+    if (hasPagination && currentPage > totalPages) {
+      stateRef.current.changePage(totalPages - 1);
     }
-  }, [currentPage, totalPages, stateRef]);
+  }, [currentPage, totalPages, stateRef, hasPagination]);
 
   const maybeValidateRow = useCallback(() => {
     const { editingAll, editingId, editingNone } = stateRef.current;
@@ -357,12 +399,12 @@ function useExtendedRepeatingGroupState(node: BaseLayoutNode<CompRepeatingGroupI
     [maybeValidateRow, stateRef],
   );
 
-  const onChangePage = useCallback(
+  const changePage = useCallback(
     async (page: number) => {
       if (await maybeValidateRow()) {
         return;
       }
-      stateRef.current.onChangePage(page);
+      stateRef.current.changePage(page);
     },
     [maybeValidateRow, stateRef],
   );
@@ -454,7 +496,7 @@ function useExtendedRepeatingGroupState(node: BaseLayoutNode<CompRepeatingGroupI
     openNextForEditing,
     toggleEditing,
     isFirstRender,
-    onChangePage,
+    changePage,
     ...nodeState,
     ...paginationState,
   };
