@@ -6,11 +6,11 @@ import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
+import styles from 'src/layout/Audio/Audio.module.css';
 import { useParentCard } from 'src/layout/Cards/CardContext';
-import styles from 'src/layout/Video/Video.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export type IVideoProps = PropsFromGenericComponent<'Video'>;
+export type IAudioProps = PropsFromGenericComponent<'Audio'>;
 
 const useStyles = makeStyles({
   spacing: {
@@ -18,25 +18,25 @@ const useStyles = makeStyles({
   },
 });
 
-export function VideoComponent({ node }: IVideoProps) {
+export function AudioComponent({ node }: IAudioProps) {
   const { langAsString } = useLanguage();
-  const { id, video, textResourceBindings } = node.item;
+  const { id, audio, textResourceBindings } = node.item;
   const classes = useStyles();
   const languageKey = useCurrentLanguage();
-  const altText = textResourceBindings?.altTextVideo ? langAsString(textResourceBindings.altTextVideo) : undefined;
+  const altText = textResourceBindings?.altTextAudio ? langAsString(textResourceBindings.altTextAudio) : undefined;
 
-  let videoSrc = video?.src?.[languageKey] || '';
-  if (videoSrc.startsWith('wwwroot')) {
-    videoSrc = videoSrc.replace('wwwroot', `/${window.org}/${window.app}`);
+  let audioSrc = audio?.src?.[languageKey] || '';
+  if (audioSrc.startsWith('wwwroot')) {
+    audioSrc = audioSrc.replace('wwwroot', `/${window.org}/${window.app}`);
   }
   const renderedInCardMedia = useParentCard()?.renderedInMedia;
   const cardMediaHeight = useParentCard()?.minMediaHeight;
   if (renderedInCardMedia) {
     return (
-      <InnerVideo
+      <InnerAudio
         id={id}
         languageKey={languageKey}
-        videoSrc={videoSrc}
+        audioSrc={audioSrc}
         height={cardMediaHeight}
         altText={altText}
         className={styles.container}
@@ -46,16 +46,15 @@ export function VideoComponent({ node }: IVideoProps) {
 
   return (
     <Grid
-      container
-      direction='row'
       spacing={1}
+      direction='row'
     >
       <Grid item={true}>
-        <InnerVideo
+        <InnerAudio
           className={styles.container}
           id={id}
           languageKey={languageKey}
-          videoSrc={videoSrc}
+          audioSrc={audioSrc}
           altText={altText}
         />
       </Grid>
@@ -74,47 +73,30 @@ export function VideoComponent({ node }: IVideoProps) {
   );
 }
 
-interface InnerVideoProps {
+interface InnerAudioProps {
   id: string;
-  videoSrc: string;
+  audioSrc: string;
   altText: string | undefined;
   languageKey: string | undefined;
   height?: string;
   className: string;
 }
 
-function InnerVideo({ id, videoSrc, altText, languageKey, height, className }: InnerVideoProps) {
+function InnerAudio({ id, audioSrc, altText, languageKey, height, className }: InnerAudioProps) {
   return (
-    <video
+    <audio
       controls
       id={id}
       style={{ height }}
       className={className}
     >
-      <div className={styles.controls}>
-        <button
-          type='button'
-          className={(styles.play, styles.controlButton)}
-        >
-          <svg>
-            <path />
-          </svg>
-        </button>
-        <input
-          type='range'
-          min='0'
-          max='100'
-          className='timeline'
-          value='0'
-        />
-      </div>
-      <source src={videoSrc} />
+      <source src={audioSrc} />
       <track
         kind='captions'
-        src={videoSrc}
+        src={audioSrc}
         srcLang={languageKey}
         label={altText}
       />
-    </video>
+    </audio>
   );
 }
