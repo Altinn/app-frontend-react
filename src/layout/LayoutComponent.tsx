@@ -38,6 +38,8 @@ export abstract class AnyComponent<Type extends CompTypes> {
     | ReturnType<typeof React.forwardRef<HTMLElement, PropsFromGenericComponent<Type>>>
     | ((props: PropsFromGenericComponent<Type>) => JSX.Element | null);
 
+  renderSummary2?(props: SummaryRendererProps<Type>): JSX.Element | null;
+
   /**
    * Given a node, a list of the node's data, for display in the devtools node inspector
    */

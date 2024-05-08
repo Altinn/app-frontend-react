@@ -17,9 +17,11 @@ export class SummaryHierarchyGenerator extends ComponentHierarchyGenerator<'Summ
   }
 
   stage1(generator: HierarchyGenerator, item: UnprocessedItem<'Summary2'>): void {
-    for (const id of item.children) {
-      const [, childId] = [undefined, id];
-      generator.claimChild({ childId, parentId: item.id });
+    if (item.children) {
+      for (const id of item.children) {
+        const [, childId] = [undefined, id];
+        generator.claimChild({ childId, parentId: item.id });
+      }
     }
   }
 

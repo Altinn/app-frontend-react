@@ -45,6 +45,12 @@ export class Input extends InputDef {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
+  renderSummary2({ targetNode }: SummaryRendererProps<'Input'>): JSX.Element | null {
+    // const displayData = this.useDisplayData(targetNode);
+    // this.renderSummary2()
+    return <h1>Summary2!!</h1>; //<SummaryItemSimple formDataAsString={displayData} />;
+  }
+
   validateDataModelBindings(ctx: LayoutValidationCtx<'Input'>): string[] {
     return this.validateDataModelBindingsSimple(ctx);
   }

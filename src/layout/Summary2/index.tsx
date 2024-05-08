@@ -2,17 +2,15 @@ import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
 import { Summary2Def } from 'src/layout/Summary2/config.def.generated';
-import { SummaryHierarchyGenerator } from 'src/layout/Summary2/hierarchy';
 import { SummaryComponent2 } from 'src/layout/Summary2/SummaryComponent2';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 
 export class Summary2 extends Summary2Def {
-  private _hierarchyGenerator = new SummaryHierarchyGenerator();
-
-  hierarchyGenerator(): ComponentHierarchyGenerator<'Summary2'> {
-    return this._hierarchyGenerator;
-  }
+  // private _hierarchyGenerator = new SummaryHierarchyGenerator();
+  //
+  // hierarchyGenerator(): ComponentHierarchyGenerator<'Summary2'> {
+  //   return this._hierarchyGenerator;
+  // }
 
   directRender(): boolean {
     return true;

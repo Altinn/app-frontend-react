@@ -70,9 +70,10 @@ export function Form() {
       </>
     );
   }
-
+  console.log(JSON.stringify(mainIds, null, 2));
   return (
     <>
+      <pre>{JSON.stringify(mainIds, null, 2)}</pre>
       <ErrorProcessing setFormState={setFormState} />
       {hasRequired && (
         <MessageBanner
@@ -197,6 +198,8 @@ function ErrorProcessing({ setFormState }: ErrorProcessingProps) {
   );
 
   useEffect(() => {
+    console.log('setting form states');
+
     setFormState((prevState) => {
       if (
         prevState.hasRequired === hasRequired &&
