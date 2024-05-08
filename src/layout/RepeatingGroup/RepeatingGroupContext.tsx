@@ -58,6 +58,7 @@ interface ContextMethods extends ExtendedState {
   isEditing: (uuid: string) => boolean;
   isDeleting: (uuid: string) => boolean;
   changePage: (page: number) => Promise<void>;
+  changePageToRow: (uuid: string) => Promise<void>;
 }
 
 type ZustandState = Store & ZustandHiddenMethods & Omit<ExtendedState, 'toggleEditing'>;
@@ -179,14 +180,10 @@ function producePaginationState(
 }
 
 /**
- * Used for navigating to the correct pagination page when opening a row for editing
- * If the repeating group does not use pagination this will have no effect
+ * Gets the pagination page for a given row
+ * Will return undefined if pagination is not used or the row is not visible
  */
-function gotoPageForRow(
-  rowId: string,
-  paginationState: PaginationState,
-  visibleRows: Row[],
-): { currentPage: number } | undefined {
+function getPageForRow(rowId: string, paginationState: PaginationState, visibleRows: Row[]): number | undefined {
   if (!paginationState.hasPagination) {
     return undefined;
   }
@@ -196,11 +193,20 @@ function gotoPageForRow(
   }
   const newPage = Math.floor(index / paginationState.rowsPerPage);
 
-  if (newPage == paginationState.currentPage) {
-    return undefined;
-  }
+  return newPage != paginationState.currentPage ? newPage : undefined;
+}
 
-  return { currentPage: newPage };
+/**
+ * Used for navigating to the correct pagination page when opening a row for editing
+ * If the repeating group does not use pagination this will have no effect
+ */
+function gotoPageForRow(
+  rowId: string,
+  paginationState: PaginationState,
+  visibleRows: Row[],
+): { currentPage: number } | undefined {
+  const newPage = getPageForRow(rowId, paginationState, visibleRows);
+  return newPage != null ? { currentPage: newPage } : undefined;
 }
 
 interface NewStoreProps {
@@ -326,6 +332,7 @@ function useExtendedRepeatingGroupState(node: BaseLayoutNode<CompRepeatingGroupI
   const nodeState = produceStateFromNode(node);
   const nodeStateRef = useAsRef(nodeState);
   const paginationState = producePaginationState(state.currentPage, node, nodeState.visibleRows);
+  const paginationStateRef = useAsRef(paginationState);
   const [isFirstRender, setIsFirstRender] = useState(true);
 
   useLayoutEffect(() => {
@@ -407,6 +414,17 @@ function useExtendedRepeatingGroupState(node: BaseLayoutNode<CompRepeatingGroupI
       stateRef.current.changePage(page);
     },
     [maybeValidateRow, stateRef],
+  );
+
+  const changePageToRow = useCallback(
+    async (uuid: string) => {
+      if (await maybeValidateRow()) {
+        return;
+      }
+      const page = getPageForRow(uuid, paginationStateRef.current, nodeStateRef.current.visibleRows);
+      page && stateRef.current.changePage(page);
+    },
+    [maybeValidateRow, nodeStateRef, paginationStateRef, stateRef],
   );
 
   const isEditing = useCallback(
@@ -497,6 +515,7 @@ function useExtendedRepeatingGroupState(node: BaseLayoutNode<CompRepeatingGroupI
     toggleEditing,
     isFirstRender,
     changePage,
+    changePageToRow,
     ...nodeState,
     ...paginationState,
   };

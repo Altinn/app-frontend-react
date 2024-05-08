@@ -36,15 +36,25 @@ export function RepeatingGroupsFocusProvider({ children }: PropsWithChildren) {
   const elementRefs = useMemo(() => new Map<string, HTMLElement | null>(), []);
   const waitingForFocus = useRef<number | null>(null);
 
-  const { node, openForEditing } = useRepeatingGroup();
+  const { node, openForEditing, changePageToRow } = useRepeatingGroup();
   useRegisterNodeNavigationHandler((targetNode) => {
-    if (node.item.edit?.mode === 'onlyTable') {
-      // It's not possible for us to open rows for editing, so no point in doing anything here.
-      return false;
-    }
     if (node.item.edit?.mode === 'showAll') {
       // We're already showing all rows, so no point in doing anything here.
       return true;
+    }
+
+    if (node.item.edit?.mode === 'onlyTable') {
+      if (!node.item.pagination) {
+        return true;
+      }
+      // If pagination is used, navigate to the correct page
+      const row = node.item.rows.find((r) => r.items.some((i) => i.item.id === targetNode.item.id));
+      if (row) {
+        changePageToRow(row.uuid);
+        return true;
+      }
+
+      return false;
     }
 
     let targetChild: ParentNode = targetNode;
