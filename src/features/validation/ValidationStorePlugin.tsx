@@ -70,34 +70,28 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           return 'validations' in nodeStore ? nodeStore.validations : emptyArray;
         }),
       useValidationVisibilitySelector: () =>
-        store.useDelayedMemoSelectorFactory({
-          selector: (node: LayoutNode) => (state) => {
-            try {
-              const nodeStore = pickDataStorePath(state.pages, node) as NodeData;
-              return 'validationVisibility' in nodeStore ? nodeStore.validationVisibility : 0;
-            } catch (e) {
-              if (e instanceof NodePathNotFound) {
-                return 0;
-              }
-              throw e;
+        store.useDelayedMemoSelectorFactory((node: LayoutNode) => (state) => {
+          try {
+            const nodeStore = pickDataStorePath(state.pages, node) as NodeData;
+            return 'validationVisibility' in nodeStore ? nodeStore.validationVisibility : 0;
+          } catch (e) {
+            if (e instanceof NodePathNotFound) {
+              return 0;
             }
-          },
-          makeCacheKey: (node) => node.path.join('|'),
+            throw e;
+          }
         }),
       useValidationsSelector: () =>
-        store.useDelayedMemoSelectorFactory({
-          selector: (node: LayoutNode) => (state) => {
-            try {
-              const nodeStore = pickDataStorePath(state.pages, node) as NodeData;
-              return 'validations' in nodeStore ? nodeStore.validations : emptyArray;
-            } catch (e) {
-              if (e instanceof NodePathNotFound) {
-                return emptyArray;
-              }
-              throw e;
+        store.useDelayedMemoSelectorFactory((node: LayoutNode) => (state) => {
+          try {
+            const nodeStore = pickDataStorePath(state.pages, node) as NodeData;
+            return 'validations' in nodeStore ? nodeStore.validations : emptyArray;
+          } catch (e) {
+            if (e instanceof NodePathNotFound) {
+              return emptyArray;
             }
-          },
-          makeCacheKey: (node) => node.path.join('|'),
+            throw e;
+          }
         }),
     };
 

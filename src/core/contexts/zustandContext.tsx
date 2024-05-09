@@ -6,6 +6,7 @@ import { createStore, useStore } from 'zustand';
 import type { StoreApi } from 'zustand';
 
 import { ContextNotProvided, createContext } from 'src/core/contexts/context';
+import { ShallowArrayMap } from 'src/core/structures/ShallowArrayMap';
 import type { CreateContextProps } from 'src/core/contexts/context';
 
 type ExtractFromStoreApi<T> = T extends StoreApi<infer U> ? Exclude<U, void> : never;
@@ -16,16 +17,15 @@ type Selector<T, U> = (state: T) => U;
 type SelectorFunc<T> = <U>(selector: Selector<T, U>) => U;
 type SelectorRefFunc<T> = <U>(selector: Selector<T, U>) => { current: U };
 type SelectorRefFuncLax<T> = <U>(selector: Selector<T, U>) => { current: U | typeof ContextNotProvided };
-type DelayedSelectorFunc<T> = <U>(selector: Selector<T, U>, postProcessor?: (data: unknown) => U) => U;
-type DelayedSelectorFuncWithArg<Arg, U> = (lookup: Arg, postProcessor?: (data: unknown) => U) => U;
 type SelectorFuncLax<T> = <U>(selector: Selector<T, U>) => U | typeof ContextNotProvided;
 
-type DelayedSelectorState<T> = Map<Selector<T, any>, { selector: Selector<T, any>; rawValue: any; value: any }>;
-
-interface DelayedSelectorFactory<Param, RetVal, T> {
-  selector: (lookup: Param) => Selector<T, RetVal>;
-  makeCacheKey: (lookup: Param) => string;
-}
+type AnyFunc = (...args: any[]) => any;
+type DelayedSelectorFunc<T> = <U>(selector: Selector<T, U>, cacheKey: any[]) => U;
+type DelayedSelectorMap<T> = ShallowArrayMap<{ selector: Selector<T, any>; value: any }>;
+type DelayedSecondarySelector<Arg, RetVal, T> = [Arg] extends [AnyFunc]
+  ? <U>(innerSelector: Selector<T, U>, deps: any[]) => U
+  : (arg: Arg) => RetVal;
+type DelayedPrimarySelector<Arg, RetVal, T> = (arg: Arg) => Selector<T, RetVal>;
 
 export function createZustandContext<Store extends StoreApi<Type>, Type = ExtractFromStoreApi<Store>, Props = any>(
   props: CreateContextProps<Store> & {
@@ -123,7 +123,7 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
    * will not be able to be used as a cache key.
    */
   const useDelayedMemoSelectorProto = (store: Store | typeof ContextNotProvided): DelayedSelectorFunc<Type> => {
-    const selectorsCalled = useRef<DelayedSelectorState<Type>>(new Map());
+    const selectorsCalled = useRef<DelayedSelectorMap<Type>>(new ShallowArrayMap());
     const [renderCount, forceRerender] = useState(0);
 
     useEffect(() => {
@@ -134,23 +134,23 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
       return store.subscribe((state) => {
         // When the state changes, we run all the known selectors again to figure out if anything changed. If it
         // did change, we'll clear the list of selectors to force a re-render.
-        const selectors = selectorsCalled.current;
+        const selectors = selectorsCalled.current.values();
         let changed = false;
-        for (const { selector, rawValue } of selectors.values()) {
-          if (!deepEqual(rawValue, selector(state))) {
+        for (const { selector, value } of selectors) {
+          if (!deepEqual(value, selector(state))) {
             changed = true;
             break;
           }
         }
         if (changed) {
-          selectorsCalled.current = new Map();
+          selectorsCalled.current = new ShallowArrayMap();
           forceRerender((prev) => prev + 1);
         }
       });
     }, [store]);
 
     return useCallback(
-      (selector, postProcessor) => {
+      (selector, cacheKey) => {
         if (store === ContextNotProvided) {
           return undefined;
         }
@@ -160,96 +160,62 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
           throw new Error('useDelayedMemoSelector: renderCount is NaN');
         }
 
-        const state = store.getState();
-        const rawValue = selector(state);
-        const value = postProcessor ? postProcessor(rawValue) : rawValue;
-
-        // Check if this function has been called before, and if the value has not changed since the last time it
-        // was called we can return the previous value and prevent re-rendering.
-        const prev = selectorsCalled.current.get(selector);
-        if (prev && deepEqual(prev.value, value)) {
+        // Check if this function has been called before. If it has, with the same arguments, we can return the
+        // cached value instead of the new one.
+        const prev = selectorsCalled.current.get(cacheKey);
+        if (prev) {
           return prev.value;
         }
 
+        const state = store.getState();
+        const value = selector(state);
+
         // The value has changed, or the callback is new to us. No need to re-render the component now, because
         // this is always the first render where this value is referenced, and we're always selecting from fresh state.
-        selectorsCalled.current.set(selector, { selector, rawValue, value });
+        selectorsCalled.current.set(cacheKey, { selector, value });
         return value;
       },
       [store, renderCount],
     );
   };
 
-  const useDelayedMemoSelector = () => {
-    const store = useCtx();
-    return useDelayedMemoSelectorProto(store);
-  };
-
-  /**
-   * The same as useDelayedMemoSelector, but will also work if the context provider is not present.
-   * If the context provider is not present, the hook will return the ContextNotProvided value instead.
-   */
-  const useLaxDelayedMemoSelector = (): DelayedSelectorFunc<Type> | typeof ContextNotProvided => {
+  const useLaxDelayedMemoSelectorFactory = <Arg, RetVal>(
+    primarySelector: DelayedPrimarySelector<Arg, RetVal, Type>,
+    deps: any[] = [],
+  ) => {
     const _store = useLaxCtx();
-    const delayedSelector = useDelayedMemoSelectorProto(_store);
-    return _store === ContextNotProvided ? ContextNotProvided : delayedSelector;
-  };
-
-  /**
-   * Even more abstraction on top of useDelayedMemoSelector. This hook expects a callback factory that will create
-   * the selector function for you, along with a cache key.
-   */
-  const useDelayedMemoSelectorFactory = <Arg, RetVal>({
-    selector,
-    makeCacheKey,
-  }: DelayedSelectorFactory<Arg, RetVal, Type>): DelayedSelectorFuncWithArg<Arg, RetVal> => {
-    const delayedSelector = useDelayedMemoSelector();
-    const callbacks = useRef<Record<string, Selector<Type, RetVal>>>({});
+    const _delayedSelector = useDelayedMemoSelectorProto(_store);
+    const delayedSelector = _store === ContextNotProvided ? ContextNotProvided : _delayedSelector;
+    const callbacks = useRef<Map<any, Selector<Type, RetVal>>>(new Map());
 
     useEffect(() => {
-      callbacks.current = {};
+      callbacks.current = new Map();
     }, [delayedSelector]);
 
-    return useCallback(
-      (arg: Arg, postProcessor) => {
-        const cacheKey = makeCacheKey(arg);
-        if (!callbacks.current[cacheKey]) {
-          callbacks.current[cacheKey] = selector(arg);
-        }
-        return delayedSelector(callbacks.current[cacheKey], postProcessor) as RetVal;
-      },
-      [delayedSelector, selector, makeCacheKey],
-    );
-  };
-
-  const useLaxDelayedMemoSelectorFactory = <Arg, RetVal>({
-    selector,
-    makeCacheKey,
-  }: DelayedSelectorFactory<Arg, RetVal, Type>) => {
-    const delayedSelector = useLaxDelayedMemoSelector();
-    const callbacks = useRef<Record<string, Selector<Type, RetVal>>>({});
-
-    useEffect(() => {
-      callbacks.current = {};
-    }, [delayedSelector]);
-
-    const callback: DelayedSelectorFuncWithArg<Arg, RetVal> = useCallback(
-      (arg: Arg, postProcessor) => {
+    const callback = useCallback(
+      (...args: any[]) => {
         if (delayedSelector === ContextNotProvided) {
           return ContextNotProvided as RetVal;
         }
 
-        const cacheKey = makeCacheKey(arg);
-        if (!callbacks.current[cacheKey]) {
-          callbacks.current[cacheKey] = selector(arg);
+        const cacheKey = makeCacheKey(args);
+        if (!callbacks.current.has(cacheKey)) {
+          callbacks.current.set(cacheKey, primarySelector(args[0]));
         }
-        return delayedSelector(callbacks.current[cacheKey], postProcessor) as RetVal;
+        return delayedSelector(callbacks.current.get(cacheKey)!, cacheKey) as RetVal;
       },
-      [delayedSelector, selector, makeCacheKey],
-    );
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [delayedSelector, ...deps],
+    ) as DelayedSecondarySelector<Arg, RetVal, Type>;
 
     return delayedSelector === ContextNotProvided ? ContextNotProvided : callback;
   };
+
+  // The non-lax version is the exact same, but we mangle the return type to remove ContextNotProvided
+  const useDelayedMemoSelectorFactory = useLaxDelayedMemoSelectorFactory as <Arg, RetVal>(
+    primarySelector: DelayedPrimarySelector<Arg, RetVal, Type>,
+    deps?: any[],
+  ) => DelayedSecondarySelector<Arg, RetVal, Type>;
 
   /**
    * A hook much like useSelector(), but will also work if the context provider is not present. If the context provider
@@ -277,6 +243,14 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
     return <Provider value={storeRef.current}>{children}</Provider>;
   }
 
+  function makeCacheKey(args: any[]): any[] {
+    if (typeof args[0] === 'function') {
+      return [args[0].toString().trim(), ...args[1]];
+    }
+
+    return args;
+  }
+
   return {
     Provider: MyProvider,
     useSelector,
@@ -285,9 +259,7 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
     useMemoSelector,
     useLaxMemoSelector,
     useLaxSelector,
-    useDelayedMemoSelector,
     useDelayedMemoSelectorFactory,
-    useLaxDelayedMemoSelector,
     useLaxDelayedMemoSelectorFactory,
     useHasProvider,
     useStore: useCtx,

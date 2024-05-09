@@ -126,7 +126,7 @@ export interface ValidationFilter {
   getValidationFilters: (node: LayoutNode) => ValidationFilterFunction[];
 }
 
-export type FormDataSelector = (path: string, postProcessor?: (data: unknown) => unknown) => unknown;
+export type FormDataSelector = (path: string) => unknown;
 
 export function implementsValidationFilter<Def extends CompDef>(def: Def): def is Def & ValidationFilter {
   return 'getValidationFilters' in def;

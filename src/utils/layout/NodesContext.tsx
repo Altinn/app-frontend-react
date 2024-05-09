@@ -289,16 +289,12 @@ export function useNodesMemoSelector<U>(selector: (s: LayoutPages) => U) {
   return NodesStore.useMemoSelector((state) => selector(state.nodes!));
 }
 
-const isNodeSelector = (nodeId: string | NodeRef) => (state: NodesContext) =>
-  state.nodes?.findById(isNodeRef(nodeId) ? nodeId.nodeRef : nodeId);
-const makeCacheKey = (nodeId: string | NodeRef) => (isNodeRef(nodeId) ? nodeId.nodeRef : nodeId);
-
 export type NodeSelector = ReturnType<typeof useNodeSelector>;
 export function useNodeSelector() {
-  return NodesStore.useDelayedMemoSelectorFactory({
-    selector: isNodeSelector,
-    makeCacheKey,
-  });
+  return NodesStore.useDelayedMemoSelectorFactory(
+    (nodeId: string | NodeRef) => (state: NodesContext) =>
+      state.nodes?.findById(isNodeRef(nodeId) ? nodeId.nodeRef : nodeId),
+  );
 }
 
 export interface IsHiddenOptions {
@@ -357,15 +353,12 @@ export const Hidden = {
   },
   useIsHiddenPageSelector: () => {
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
-    return DataStore.useDelayedMemoSelectorFactory({
-      selector: (pageKey: string) => (state) => {
-        const page = state.pages.pages[pageKey];
-        if (!page) {
-          return true;
-        }
-        return isHidden(page.hidden, forcedVisibleByDevTools);
-      },
-      makeCacheKey: (pageKey) => pageKey,
+    return DataStore.useDelayedMemoSelectorFactory((pageKey: string) => (state) => {
+      const page = state.pages.pages[pageKey];
+      if (!page) {
+        return true;
+      }
+      return isHidden(page.hidden, forcedVisibleByDevTools);
     });
   },
   useHiddenPages: (): Set<string> => {
@@ -379,9 +372,8 @@ export const Hidden = {
   useIsHiddenSelector: () => {
     const nodes = useNodes();
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
-    return DataStore.useDelayedMemoSelectorFactory({
-      selector:
-        ({ node, options }: { node: string | NodeRef | LayoutNode | LayoutPage; options?: IsHiddenOptions }) =>
+    return DataStore.useDelayedMemoSelectorFactory(
+      ({ node, options }: { node: string | NodeRef | LayoutNode | LayoutPage; options?: IsHiddenOptions }) =>
         (state) => {
           try {
             const nodeState = pickDataStorePath(state.pages, getNodePath(node, nodes));
@@ -393,8 +385,7 @@ export const Hidden = {
             throw e;
           }
         },
-      makeCacheKey: ({ node }) => getNodePath(node, nodes).join('/'),
-    });
+    );
   },
 
   /**
@@ -499,9 +490,8 @@ export const NodesInternal = {
     }) as any;
   },
   useNodeDataMemoSelector: () =>
-    DataStore.useDelayedMemoSelectorFactory({
-      selector:
-        <N extends LayoutNode | undefined>({ node, path }: NodeDataSelectorProp<N>) =>
+    DataStore.useDelayedMemoSelectorFactory(
+      <N extends LayoutNode | undefined>({ node, path }: NodeDataSelectorProp<N>) =>
         (state) => {
           try {
             return node ? dot.pick(path, pickDataStorePath(state.pages, node)) : undefined;
@@ -512,21 +502,17 @@ export const NodesInternal = {
             throw e;
           }
         },
-      makeCacheKey: ({ node, path }) => (node ? `${node.getId()}/${path}` : ''),
-    }),
+    ),
   useExactNodeDataMemoSelector: (node: LayoutNode | undefined) =>
-    DataStore.useDelayedMemoSelectorFactory({
-      selector: (path: string) => (state) => {
-        try {
-          return !node ? undefined : dot.pick(path, pickDataStorePath(state.pages, node));
-        } catch (e) {
-          if (e instanceof NodePathNotFound) {
-            return undefined;
-          }
-          throw e;
+    DataStore.useDelayedMemoSelectorFactory((path: string) => (state) => {
+      try {
+        return !node ? undefined : dot.pick(path, pickDataStorePath(state.pages, node));
+      } catch (e) {
+        if (e instanceof NodePathNotFound) {
+          return undefined;
         }
-      },
-      makeCacheKey: (path) => path,
+        throw e;
+      }
     }),
 
   useIsAdded: (node: LayoutNode | LayoutPage) =>

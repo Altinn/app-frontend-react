@@ -107,10 +107,10 @@ const {
   Provider,
   useSelector,
   useLaxSelector,
-  useDelayedMemoSelector,
   useSelectorAsRef,
   useStore,
   useLaxSelectorAsRef,
+  useDelayedMemoSelectorFactory,
 } = createZustandContext({
   name: 'Validation',
   required: true,
@@ -236,26 +236,9 @@ function ManageShowAllErrors() {
  * This hook returns a function that lets you select one or more fields from the validation state. The hook will
  * only force a re-render if the selected fields have changed.
  */
-function useDelayedSelector<U>(
-  outerSelector: (state: ValidationContext) => U,
-): <U2>(cacheKey: string, innerSelector: (state: U) => U2) => U2 {
-  const selector = useDelayedMemoSelector();
-  const callbacks = useRef<Record<string, Parameters<typeof selector>[0]>>({});
-
-  useEffect(() => {
-    callbacks.current = {};
-  }, [selector]);
-
-  return useCallback(
-    (cacheKey, innerSelector) => {
-      if (!callbacks.current[cacheKey]) {
-        callbacks.current[cacheKey] = (state) => innerSelector(outerSelector(state));
-      }
-      return selector(callbacks.current[cacheKey]) as any;
-    },
-    // The outer selector is not expected to change, so we don't need to include it in the dependencies
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [selector],
+function useDelayedSelector<U>(outerSelector: (state: ValidationContext) => U) {
+  return useDelayedMemoSelectorFactory(
+    (innerSelector: <U2>(state: U) => U2) => (state: ValidationContext) => innerSelector(outerSelector(state)),
   );
 }
 

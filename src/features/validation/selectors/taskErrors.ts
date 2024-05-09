@@ -46,13 +46,13 @@ export function useTaskErrors(): {
   const taskErrors = useMemo(() => {
     const taskErrors: BaseValidation<'error'>[] = [];
 
-    const taskValidations = selector('taskValidations', (state) => state.state.task);
-    const allShown = selector('allFieldsIfShown', (state) => {
+    const taskValidations = selector((state) => state.state.task, []);
+    const allShown = selector((state) => {
       if (state.showAllErrors) {
         return { fields: state.state.fields };
       }
       return undefined;
-    });
+    }, []);
     if (allShown) {
       const backendMask = getVisibilityMask(['Backend', 'CustomBackend']);
       for (const field of Object.values(allShown.fields)) {

@@ -81,7 +81,7 @@ export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
     const key = `Datamodell ${bindingKey}`;
     bindingValidations[key] = [];
 
-    const fieldValidation = fieldSelector(field, (fields) => fields[field]);
+    const fieldValidation = fieldSelector((fields) => fields[field], [field]);
     if (fieldValidation) {
       bindingValidations[key].push(...fieldValidation.map((validation) => ({ ...validation, node, bindingKey })));
     }

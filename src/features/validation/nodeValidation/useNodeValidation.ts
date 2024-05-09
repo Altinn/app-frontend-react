@@ -34,7 +34,7 @@ export function useNodeValidation(node: LayoutNode, shouldValidate: boolean): Co
 
     if (item.dataModelBindings) {
       for (const [bindingKey, field] of Object.entries(item.dataModelBindings)) {
-        const fieldValidations = selector(field, (fields) => fields[field]);
+        const fieldValidations = selector((fields) => fields[field], [field]);
         if (fieldValidations) {
           validations.push(...fieldValidations.map((v) => ({ ...v, node, bindingKey })));
         }

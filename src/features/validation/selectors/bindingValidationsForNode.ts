@@ -33,7 +33,7 @@ export function useBindingValidationsForNode<
     for (const [bindingKey, field] of Object.entries(dataModelBindings)) {
       bindingValidations[bindingKey] = [];
 
-      const fieldValidation = fieldSelector(field, (fields) => fields[field]);
+      const fieldValidation = fieldSelector((fields) => fields[field], [field]);
       if (fieldValidation) {
         const validations = filterValidations(selectValidations(fieldValidation, mask), node);
         bindingValidations[bindingKey].push(...validations.map((validation) => ({ ...validation, bindingKey, node })));
