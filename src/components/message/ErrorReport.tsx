@@ -2,7 +2,6 @@ import React from 'react';
 
 import { Panel, PanelVariant } from '@altinn/altinn-design-system';
 import { Grid } from '@material-ui/core';
-import { v4 as uuidv4 } from 'uuid';
 
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import classes from 'src/components/message/ErrorReport.module.css';
@@ -11,6 +10,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { GenericComponentById } from 'src/layout/GenericComponent';
 import { useNodesAsRef } from 'src/utils/layout/NodesContext';
+import { useGetUniqueKeyFromObject } from 'src/utils/useGetKeyFromObject';
 import type { NodeValidation } from 'src/features/validation';
 
 export interface IErrorReportProps {
@@ -27,6 +27,7 @@ export const ErrorReport = ({ renderIds }: IErrorReportProps) => {
   const { formErrors, taskErrors } = useTaskErrors();
   const hasErrors = Boolean(formErrors.length) || Boolean(taskErrors.length);
   const navigateTo = useNavigateToNode();
+  const getUniqueKeyFromObject = useGetUniqueKeyFromObject();
 
   if (!hasErrors) {
     return null;
@@ -67,7 +68,7 @@ export const ErrorReport = ({ renderIds }: IErrorReportProps) => {
               <ul className={classes.errorList}>
                 {taskErrors.map((error) => (
                   <li
-                    key={uuidv4()}
+                    key={getUniqueKeyFromObject(error)}
                     style={{ listStyleImage: listStyleImg }}
                   >
                     <Lang
@@ -78,8 +79,7 @@ export const ErrorReport = ({ renderIds }: IErrorReportProps) => {
                 ))}
                 {formErrors.map((error) => (
                   <li
-                    // TODO(Pagination): Apparently, JSON.stringify was very slow for the keys, using a random key was faster even though react has to rerender more often?
-                    key={uuidv4()}
+                    key={getUniqueKeyFromObject(error)}
                     style={{ listStyleImage: listStyleImg }}
                   >
                     <button
