@@ -280,38 +280,67 @@ export function useNodeTraversal<Out>(selector: (traverser: never) => Out, node?
   }, node as any);
 }
 
+enum Strictness {
+  // If the context or nodes are not provided, throw an error upon traversal
+  throwError,
+
+  // If the context or nodes are not provided, return ContextNotProvided upon traversal
+  returnContextNotProvided,
+
+  // If the context or nodes are not provided, return undefined upon traversal (will usually work like silently
+  // never finding what you're looking for when nodes are not present)
+  returnUndefined,
+}
+
+type Traverser<Strict extends Strictness> = Strict extends Strictness.returnContextNotProvided
+  ? NodeTraversalFromRoot | typeof ContextNotProvided
+  : NodeTraversalFromRoot;
+
+type InnerSelectorReturns<Strict extends Strictness, U> = Strict extends Strictness.returnUndefined ? U | undefined : U;
+
 /**
  * Hook that returns a selector that lets you traverse the hierarchy at a later time. Will re-render your
  * component when any of the traversals you did would return a different result.
  */
-function useNodeTraversalSelectorProto(lax: boolean) {
+function useNodeTraversalSelectorProto<Strict extends Strictness>(strictness: Strict) {
   const nodesRef = useNodesAsLaxRef();
   const selectState = NodesInternal.useNodeDataMemoSelectorRaw();
 
   return useCallback(
-    <U>(innerSelector: (traverser: NodeTraversalFromRoot | typeof ContextNotProvided) => U, deps: any[]) =>
+    <U>(innerSelector: (traverser: Traverser<Strict>) => InnerSelectorReturns<Strict, U>, deps: any[]) =>
       selectState(
         (state) => {
           const nodes = nodesRef.current;
           if (!nodes || nodes === ContextNotProvided) {
-            if (lax) {
-              return innerSelector(ContextNotProvided);
+            if (strictness === Strictness.returnContextNotProvided) {
+              return (innerSelector as any)(ContextNotProvided);
             }
-            throw new Error('useNodeTraversalSelector() must be used inside a NodesProvider');
+            if (strictness === Strictness.throwError) {
+              throw new Error('useNodeTraversalSelector() must be used inside a NodesProvider');
+            }
+            return undefined;
           }
 
           return innerSelector(new NodeTraversal(state.pages, nodes, nodes));
         },
         [innerSelector.toString(), ...deps],
       ),
-    [selectState, nodesRef, lax],
+    [selectState, nodesRef, strictness],
   );
 }
 
 export function useNodeTraversalSelector() {
-  return useNodeTraversalSelectorProto(false);
+  return useNodeTraversalSelectorProto(Strictness.throwError);
 }
 
 export function useNodeTraversalSelectorLax() {
-  return useNodeTraversalSelectorProto(true);
+  return useNodeTraversalSelectorProto(Strictness.returnContextNotProvided);
 }
+
+export function useNodeTraversalSelectorSilent() {
+  return useNodeTraversalSelectorProto(Strictness.returnUndefined);
+}
+
+export type NodeTraversalSelector = ReturnType<typeof useNodeTraversalSelector>;
+export type NodeTraversalSelectorLax = ReturnType<typeof useNodeTraversalSelectorLax>;
+export type NodeTraversalSelectorSilent = ReturnType<typeof useNodeTraversalSelectorSilent>;

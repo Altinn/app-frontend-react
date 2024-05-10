@@ -390,14 +390,16 @@ export const ExprFunctions = {
       }
 
       const node = this.failWithoutNode();
-      const closestComponent = node.closest((c) => c.id === id || c.baseComponentId === id) as LayoutNode | undefined;
-      const component = closestComponent ?? (node instanceof LayoutPage ? node.findById(id) : node.page.findById(id));
+      const closest = this.dataSources.nodeTraversal(
+        (t) => t.with(node).closest((c) => c.type === 'node' && (c.item.id === id || c.item.baseComponentId === id)),
+        [node, id],
+      );
       const dataModelBindings =
-        component && 'dataModelBindings' in component.item ? component.item.dataModelBindings : undefined;
+        closest && 'dataModelBindings' in closest.item ? closest.item.dataModelBindings : undefined;
       const simpleBinding =
         dataModelBindings && 'simpleBinding' in dataModelBindings ? dataModelBindings.simpleBinding : undefined;
-      if (component && simpleBinding) {
-        if (this.dataSources.isHiddenSelector({ node: component })) {
+      if (closest && simpleBinding) {
+        if (this.dataSources.isHiddenSelector({ node: closest })) {
           return null;
         }
 
@@ -443,14 +445,15 @@ export const ExprFunctions = {
       }
 
       const node = this.failWithoutNode();
-      const closestComponent = node.closest((c) => c.id === id || c.baseComponentId === id);
-      const _targetNode = closestComponent ?? (node instanceof LayoutPage ? node.findById(id) : node.page.findById(id));
+      const targetNode = this.dataSources.nodeTraversal(
+        (t) => t.with(node).closest((c) => c.type === 'node' && (c.item.id === id || c.item.baseComponentId === id)),
+        [node, id],
+      );
 
-      if (!_targetNode) {
+      if (!targetNode) {
         throw new ExprRuntimeError(this, `Unable to find component with identifier ${id}`);
       }
 
-      const targetNode = _targetNode as LayoutNode;
       const def = targetNode.def;
       if (!implementsDisplayData(def)) {
         throw new ExprRuntimeError(this, `Component with identifier ${id} does not have a displayValue`);
