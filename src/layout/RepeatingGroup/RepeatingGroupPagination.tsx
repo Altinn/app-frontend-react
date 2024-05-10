@@ -211,7 +211,9 @@ function PaginationComponent({
   );
 }
 
-// TODO(Pagination): This may not include validations for nested groups which it should
+/**
+ * Returns a list of pagination pages containing errors
+ */
 function usePagesWithErrors(rowsPerPage: number | undefined, node: BaseLayoutNode<CompRepeatingGroupInternal>) {
   const rows = useRowStructure(node);
   const selector = Validation.useSelector();
@@ -237,7 +239,9 @@ function usePagesWithErrors(rowsPerPage: number | undefined, node: BaseLayoutNod
         continue;
       }
 
-      for (const node of visibleRows[i].items) {
+      const deepNodes = visibleRows[i].items.flatMap((node) => [node, ...node.flat(true)]);
+
+      for (const node of deepNodes) {
         if (
           hasValidationErrors(getValidationsForNode(node, selector, getVisibilityForNode(node, visibilitySelector)))
         ) {
@@ -251,16 +255,26 @@ function usePagesWithErrors(rowsPerPage: number | undefined, node: BaseLayoutNod
   }, [rows, rowsPerPage, selector, visibilitySelector]);
 }
 
+/**
+ * Utility hook that only updates whenever rows or nodes are added or removed,
+ * even nodes deep in nested structures.
+ */
 function useRowStructure(node: BaseLayoutNode<CompRepeatingGroupInternal>) {
   const rowChildrenRef = useRef(node.item.rows);
-  const rowChildrenIds = useMemo(() => node.item.rows.map((r) => r.items.map((n) => n.item.id)), [node.item.rows]);
-  const rowChildrenIdsRef = useRef(rowChildrenIds);
+  const deepRowChildrenIds = useMemo(
+    () => node.item.rows.map((r) => r.items.flatMap((n) => [n.item.id, ...n.flat(true).map((c) => c.item.id)])),
+    [node.item.rows],
+  );
+  const deepRowChildrenIdsRef = useRef(deepRowChildrenIds);
 
-  if (rowChildrenIds === rowChildrenIdsRef.current || deepEqual(rowChildrenIds, rowChildrenIdsRef.current)) {
+  if (
+    deepRowChildrenIds === deepRowChildrenIdsRef.current ||
+    deepEqual(deepRowChildrenIds, deepRowChildrenIdsRef.current)
+  ) {
     return rowChildrenRef.current;
   } else {
     rowChildrenRef.current = node.item.rows;
-    rowChildrenIdsRef.current = rowChildrenIds;
+    deepRowChildrenIdsRef.current = deepRowChildrenIds;
     return node.item.rows;
   }
 }
