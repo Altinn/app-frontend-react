@@ -350,7 +350,7 @@ function useExtendedRepeatingGroupState(node: BaseLayoutNode<CompRepeatingGroupI
   // If rows are deleted so that the current pagination page no longer exists, go to the last page instead
   const { currentPage, totalPages, hasPagination } = paginationState;
   useEffect(() => {
-    if (hasPagination && currentPage > totalPages) {
+    if (hasPagination && currentPage > totalPages - 1) {
       stateRef.current.changePage(totalPages - 1);
     }
   }, [currentPage, totalPages, stateRef, hasPagination]);
