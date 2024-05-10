@@ -41,7 +41,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
 
   const columnSettings = tableColumns ? structuredClone(tableColumns) : ({} as ITableColumnFormatting);
 
-  const tableNodes = useNodeTraversal(node, (traverser) => {
+  const tableNodes = useNodeTraversal((traverser) => {
     const nodes = traverser.children(undefined, { onlyInRowIndex: 0 }).filter((child) => {
       if (tableHeaders) {
         const { id, baseComponentId } = child.item;
@@ -60,7 +60,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
     }
 
     return nodes;
-  });
+  }, node);
 
   const numRows = visibleRows.length;
   const firstRowId = numRows >= 1 ? visibleRows[0].uuid : undefined;

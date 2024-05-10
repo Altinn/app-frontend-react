@@ -96,7 +96,7 @@ export function RepeatingGroupTableRow({
 
   const alertOnDelete = useAlertOnChange(Boolean(editForRow?.alertOnDelete), deleteRow);
 
-  const tableNodes = useNodeTraversal(node, (traverser) => traverser.children(undefined, { onlyInRowUuid: uuid }));
+  const tableNodes = useNodeTraversal((traverser) => traverser.children(undefined, { onlyInRowUuid: uuid }), node);
   const displayDataProps = useDisplayDataProps();
   const displayData = tableNodes.map((node) => {
     const def = node.def;

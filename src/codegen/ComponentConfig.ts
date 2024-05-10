@@ -401,7 +401,7 @@ export class ComponentConfig {
       const NodeData = new CG.import({ import: 'NodeData', from: 'src/utils/layout/types' });
       const ChildLookupRestriction = new CG.import({
         import: 'ChildLookupRestriction',
-        from: 'src/utils/layout/HierarchyGenerator',
+        from: 'src/utils/layout/useNodeTraversal',
       });
       const CompTypes = new CG.import({ import: 'CompTypes', from: 'src/layout/layout' });
       const LayoutNode = new CG.import({ import: 'LayoutNode', from: 'src/utils/layout/LayoutNode' });

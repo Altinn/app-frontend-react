@@ -1,10 +1,8 @@
-import { isNodeRef } from 'src/utils/layout/nodeRef';
 import { splitDashedKey } from 'src/utils/splitDashedKey';
-import type { NodeRef } from 'src/layout';
-import type { CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
+import type { TraversalTask } from 'src/utils/layout/useNodeTraversal';
 
 /**
  * The layout page is a class containing an entire page/form layout, with all components/nodes within it. It
@@ -29,58 +27,32 @@ export class LayoutPage implements LayoutObject {
     this.allChildren.delete(child.getId());
   }
 
-  public isSameAs(otherObject: LayoutObject | NodeRef): boolean {
-    if (isNodeRef(otherObject)) {
-      return false;
-    }
-
-    return otherObject instanceof LayoutPage && this.pageKey === otherObject.pageKey;
-  }
-
-  public isSame(): (otherObject: LayoutObject | NodeRef) => boolean {
-    return (otherObject) => this.isSameAs(otherObject);
-  }
-
   /**
    * Looks for a matching component upwards in the hierarchy, returning the first one (or undefined if
-   * none can be found). Implemented here for parity with LayoutNode
+   * none can be found). A BaseLayoutNode will look at its siblings and then further up in the hierarchy.
+   * When it reaches a page object like this, we'll have to look to see if any nodes in the page matches,
+   * and otherwise pass the task upwards to all pages.
    */
-  public closest(matching: (item: CompInternal) => boolean, traversePages = true): LayoutNode | undefined {
-    const out = this.children(matching);
+  public closest(task: TraversalTask, passedFrom?: LayoutPage | LayoutNode | LayoutPages): LayoutNode | undefined {
+    const out = this.firstChild(task);
     if (out) {
       return out;
     }
 
-    if (traversePages && this.layoutSet) {
-      const otherLayouts = this.layoutSet.flat(this.pageKey);
-      for (const page of otherLayouts) {
-        const found = page.closest(matching, false);
-        if (found) {
-          return found;
-        }
-      }
+    if (this.layoutSet && this.layoutSet !== passedFrom) {
+      return this.layoutSet.closest(task, this);
     }
 
     return undefined;
   }
 
-  protected get directChildren(): LayoutNode[] {
+  protected directChildren(_task: TraversalTask): LayoutNode[] {
     return [...this.allChildren.values()].filter((node) => node.parent === this);
   }
 
-  /**
-   * Returns a list of direct children, or finds the first node matching a given criteria. Implemented
-   * here for parity with LayoutNode.
-   */
-  public children(): LayoutNode[];
-  public children(matching: (item: CompInternal) => boolean): LayoutNode | undefined;
-  public children(matching?: (item: CompInternal) => boolean): any {
-    if (!matching) {
-      return this.directChildren;
-    }
-
-    for (const node of this.directChildren) {
-      if (matching(node.item)) {
+  public firstChild(task: TraversalTask): LayoutNode | undefined {
+    for (const node of this.directChildren(task)) {
+      if (task.passes(node)) {
         return node;
       }
     }
@@ -88,15 +60,26 @@ export class LayoutPage implements LayoutObject {
     return undefined;
   }
 
-  /**
-   * This returns all the child nodes (including duplicate components for repeating groups) as a flat list of
-   * LayoutNode objects.
-   */
-  public flat(): LayoutNode[] {
-    return [...this.allChildren.values()];
+  public children(task: TraversalTask): LayoutNode[] {
+    if (task.allPasses()) {
+      return this.directChildren(task);
+    }
+
+    const children: LayoutNode[] = [];
+    for (const node of this.directChildren(task)) {
+      if (task.passes(node)) {
+        children.push(node);
+      }
+    }
+
+    return children;
   }
 
-  public findById(id: string, traversePages = true): LayoutNode | undefined {
+  public flat(task: TraversalTask): LayoutNode[] {
+    return [...this.allChildren.values()].filter((n) => task.passes(n));
+  }
+
+  public findById(task: TraversalTask, id: string, traversePages = true): LayoutNode | undefined {
     if (this.allChildren.has(id)) {
       return this.allChildren.get(id);
     }
@@ -107,13 +90,13 @@ export class LayoutPage implements LayoutObject {
     }
 
     if (traversePages && this.layoutSet) {
-      return this.layoutSet.findById(id, this.pageKey);
+      return this.layoutSet.findById(task, id, this.pageKey);
     }
 
     return undefined;
   }
 
-  public findAllById(id: string, traversePages = true): LayoutNode[] {
+  public findAllById(task: TraversalTask, id: string, traversePages = true): LayoutNode[] {
     const baseId = splitDashedKey(id).baseComponentId;
     const out: LayoutNode[] = [];
     if (this.allChildren.has(id)) {
@@ -130,7 +113,7 @@ export class LayoutPage implements LayoutObject {
     }
 
     if (traversePages && this.layoutSet) {
-      for (const item of this.layoutSet.findAllById(id, this.pageKey)) {
+      for (const item of this.layoutSet.findAllById(task, id, this.pageKey)) {
         out.push(item);
       }
     }

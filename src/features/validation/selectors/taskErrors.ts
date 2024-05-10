@@ -9,7 +9,8 @@ import {
   validationsOfSeverity,
 } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
-import { NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 
 const emptyArray: [] = [];
 
@@ -23,16 +24,17 @@ export function useTaskErrors(): {
 } {
   const selector = Validation.useSelector();
   const visibilitySelector = NodesInternal.useValidationVisibilitySelector();
-  const nodes = useNodes();
   const nodeValidationsSelector = NodesInternal.useValidationsSelector();
+  const traversalSelector = useNodeTraversalSelector();
 
   const formErrors = useMemo(() => {
-    if (!nodes) {
+    if (!traversalSelector) {
       return emptyArray;
     }
 
     const formErrors: NodeValidation<AnyValidation<'error'>>[] = [];
-    for (const node of nodes.allNodes()) {
+    const allNodes = traversalSelector((t) => t.allNodes(), []);
+    for (const node of allNodes) {
       const mask = visibilitySelector(node);
       const validations = nodeValidationsSelector(node);
       const selected = selectValidations(validations, mask, 'error');
@@ -41,7 +43,7 @@ export function useTaskErrors(): {
     }
 
     return formErrors;
-  }, [nodeValidationsSelector, nodes, visibilitySelector]);
+  }, [nodeValidationsSelector, traversalSelector, visibilitySelector]);
 
   const taskErrors = useMemo(() => {
     const taskErrors: BaseValidation<'error'>[] = [];

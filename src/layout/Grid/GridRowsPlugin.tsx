@@ -9,7 +9,6 @@ import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { GridRows } from 'src/layout/common.generated';
 import type { GridCellInternal, GridRowsInternal } from 'src/layout/Grid/types';
 import type { CompTypes } from 'src/layout/layout';
-import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   DefPluginChildClaimerProps,
@@ -19,6 +18,7 @@ import type {
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { NodeData } from 'src/utils/layout/types';
+import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 interface Config<Type extends CompTypes> {
   componentType: Type;
@@ -116,10 +116,7 @@ export class GridRowsPlugin<Type extends CompTypes>
     return { rows };
   }
 
-  pickDirectChildren(
-    state: DefPluginState<Config<Type>>,
-    _restriction?: ChildLookupRestriction | undefined,
-  ): NodeRef[] {
+  pickDirectChildren(state: DefPluginState<Config<Type>>, _restriction?: TraversalRestriction | undefined): NodeRef[] {
     const refs: NodeRef[] = [];
     for (const row of state.item?.rows || []) {
       for (const cell of row.cells) {

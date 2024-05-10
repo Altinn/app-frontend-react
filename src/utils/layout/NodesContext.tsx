@@ -60,11 +60,11 @@ function createNodesStore() {
 
 export interface PageHierarchy {
   type: 'pages';
-  pages: PageStores;
+  pages: Pages;
 }
 
-interface PageStores {
-  [key: string]: PageStore;
+interface Pages {
+  [key: string]: PageData;
 }
 
 export interface HiddenStatePage {
@@ -83,8 +83,9 @@ export interface HiddenStateNode {
 
 export type HiddenState = HiddenStatePage | HiddenStateNode;
 
-export interface PageStore {
+export interface PageData {
   type: 'page';
+  pageKey: string;
   hidden: HiddenStatePage;
   topLevelNodes: TopLevelNodesStore;
 }
@@ -125,7 +126,7 @@ export type NodesDataContext = {
 
   addPage: (pageKey: string) => void;
   removePage: (pageKey: string) => void;
-  setPageProp: <K extends keyof PageStore>(pageKey: string, prop: K, value: PageStore[K]) => void;
+  setPageProp: <K extends keyof PageData>(pageKey: string, prop: K, value: PageData[K]) => void;
 } & ExtraFunctions;
 
 export type NodesDataStore = StoreApi<NodesDataContext>;
@@ -185,6 +186,7 @@ export function createNodesDataStore() {
 
           state.pages.pages[pageKey] = {
             type: 'page',
+            pageKey,
             hidden: {
               parent: undefined,
               hiddenByRules: false,
@@ -285,10 +287,6 @@ export const useNodes = () => NodesStore.useSelector((s) => s.nodes!);
 export const useNodesAsRef = () => NodesStore.useSelectorAsRef((s) => s.nodes!);
 export const useNodesAsLaxRef = () => NodesStore.useLaxSelectorAsRef((s) => s.nodes!);
 
-export function useNodesMemoSelector<U>(selector: (s: LayoutPages) => U) {
-  return NodesStore.useMemoSelector((state) => selector(state.nodes!));
-}
-
 export type NodeSelector = ReturnType<typeof useNodeSelector>;
 export function useNodeSelector() {
   return NodesStore.useDelayedMemoSelectorFactory(
@@ -373,6 +371,7 @@ export const Hidden = {
     const nodes = useNodes();
     const forcedVisibleByDevTools = Hidden.useIsForcedVisibleByDevTools();
     return DataStore.useDelayedMemoSelectorFactory(
+      // TODO: Objects as props will bust the cache, so maybe we should reduce this to one argument.
       ({ node, options }: { node: string | NodeRef | LayoutNode | LayoutPage; options?: IsHiddenOptions }) =>
         (state) => {
           try {
@@ -458,10 +457,15 @@ export const NodesInternal = {
   useNodeDataMemoRaw<Out>(selector: (state: PageHierarchy) => Out): Out {
     return DataStore.useMemoSelector((state) => selector(state.pages));
   },
+  useNodeDataMemoSelectorRaw() {
+    return DataStore.useDelayedMemoSelectorFactory(
+      (selector: <U>(state: NodesDataContext) => U) => (state) => selector(state),
+    );
+  },
 
   useNodeDataMemo<N extends LayoutNode | LayoutPage | undefined, Out>(
     node: N,
-    selector: (state: N extends LayoutPage ? PageStore : NodeDataFromNode<Exclude<N, LayoutPage>>) => Out,
+    selector: (state: N extends LayoutPage ? PageData : NodeDataFromNode<Exclude<N, LayoutPage>>) => Out,
   ): N extends undefined ? Out | undefined : Out {
     return DataStore.useMemoSelector((s) => {
       try {
@@ -491,6 +495,7 @@ export const NodesInternal = {
   },
   useNodeDataMemoSelector: () =>
     DataStore.useDelayedMemoSelectorFactory(
+      // TODO: Objects as props will bust the cache, so maybe we should reduce this to one argument.
       <N extends LayoutNode | undefined>({ node, path }: NodeDataSelectorProp<N>) =>
         (state) => {
           try {
@@ -624,10 +629,10 @@ function useLegacyHiddenComponents(
  * children.
  */
 export function pickDataStorePath(
-  container: PageHierarchy | PageStore | NodeData,
+  container: PageHierarchy | PageData | NodeData,
   _pathOrNode: string[] | LayoutNode | LayoutPage,
   parentPath: string[] = [],
-): NodeData | PageStore {
+): NodeData | PageData {
   const path =
     _pathOrNode instanceof LayoutPage
       ? [_pathOrNode.pageKey]
@@ -640,7 +645,7 @@ export function pickDataStorePath(
       throw new Error('Cannot pick root node');
     }
 
-    return container as NodeData | PageStore;
+    return container as NodeData | PageData;
   }
 
   const [target, ...remaining] = path;
@@ -674,10 +679,10 @@ export function pickDataStorePath(
   return pickDataStorePath(child, remaining, fullPath);
 }
 
-function isPages(state: PageHierarchy | PageStore | NodeData): state is PageHierarchy {
+function isPages(state: PageHierarchy | PageData | NodeData): state is PageHierarchy {
   return 'type' in state && state.type === 'pages';
 }
 
-function isPage(state: PageHierarchy | PageStore | NodeData): state is PageStore {
+function isPage(state: PageHierarchy | PageData | NodeData): state is PageData {
   return 'type' in state && state.type === 'page';
 }

@@ -6,7 +6,6 @@ import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { CompCapabilities } from 'src/codegen/Config';
 import type { NodeRef } from 'src/layout';
 import type { CompTypes, TypesFromCategory } from 'src/layout/layout';
-import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   DefPluginChildClaimerProps,
@@ -16,6 +15,7 @@ import type {
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { NodeData } from 'src/utils/layout/types';
+import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 interface Config<
   Type extends TypesFromCategory<CompCategory.Container>,
@@ -148,7 +148,7 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
     } as ToInternal<E>['extraInItem'];
   }
 
-  pickDirectChildren(state: DefPluginState<ToInternal<E>>, _restriction?: ChildLookupRestriction) {
+  pickDirectChildren(state: DefPluginState<ToInternal<E>>, _restriction?: TraversalRestriction) {
     return state.item?.[this.settings.internalProp] || [];
   }
 

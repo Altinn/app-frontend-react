@@ -1,31 +1,15 @@
-import type { NodeRef } from 'src/layout';
-import type { CompInternal } from 'src/layout/layout';
-import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { LayoutPages } from 'src/utils/layout/LayoutPages';
+import type { TraversalTask } from 'src/utils/layout/useNodeTraversal';
 
 /**
  * A layout object describes functionality implemented for both a LayoutPage (aka layout) and a
  * LayoutNode (aka an instance of a component inside a layout, or possibly inside a repeating group).
  */
-export interface LayoutObject<Item extends CompInternal = CompInternal, Child extends LayoutNode = LayoutNode> {
-  isSameAs(otherObject: LayoutObject | NodeRef): boolean;
-  isSame(): (otherObject: LayoutObject | NodeRef) => boolean;
-
-  /**
-   * Looks for a matching component upwards in the hierarchy, returning the first one (or undefined if
-   * none can be found)
-   */
-  closest(matching: (item: Item) => boolean): this | Child | undefined;
-
-  /**
-   * Returns a list of direct children, or finds the first node matching a given criteria
-   */
-  children(): Child[];
-  children(matching: (item: Item) => boolean): Child | undefined;
-
-  /**
-   * This returns all the child nodes (including duplicate components for repeating groups) as a flat list of
-   * LayoutNode objects.
-   */
-  flat(restriction?: ChildLookupRestriction): LayoutNode[];
+export interface LayoutObject<Child extends LayoutNode | LayoutPage = LayoutNode> {
+  closest(task: TraversalTask, passedFrom?: LayoutNode | LayoutPage | LayoutPages): LayoutNode | undefined;
+  firstChild(task: TraversalTask): Child | undefined;
+  children(task: TraversalTask): Child[];
+  flat(task: TraversalTask): LayoutNode[];
 }

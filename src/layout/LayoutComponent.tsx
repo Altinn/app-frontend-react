@@ -32,12 +32,12 @@ import type {
   ITextResourceBindingsExternal,
 } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ExactNodeDataSelector } from 'src/utils/layout/NodesContext';
 import type { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { BaseRow, NodeData, StateFactoryProps } from 'src/utils/layout/types';
 import type { NodeDataSelector } from 'src/utils/layout/useNodeItem';
+import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface BasicNodeGeneratorProps {
   baseId: string;
@@ -114,7 +114,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
    * Picks all direct children of a node, returning an array of item stores for each child. This must be implemented for
    * every component type that can adopt children.
    */
-  public pickDirectChildren(_state: NodeData<Type>, _restriction?: ChildLookupRestriction): NodeRef[] {
+  public pickDirectChildren(_state: NodeData<Type>, _restriction?: TraversalRestriction): NodeRef[] {
     return [];
   }
 
@@ -450,7 +450,7 @@ export abstract class ContainerComponent<Type extends CompTypes> extends _FormCo
 
   abstract pickChild<C extends CompTypes>(state: NodeData<Type>, childId: string, parentPath: string[]): NodeData<C>;
 
-  abstract pickDirectChildren(state: NodeData<Type>, restriction?: ChildLookupRestriction): NodeRef[];
+  abstract pickDirectChildren(state: NodeData<Type>, restriction?: TraversalRestriction): NodeRef[];
 
   abstract addChild(state: NodeData<Type>, childNode: LayoutNode, childStore: NodeData, row: BaseRow | undefined): void;
 

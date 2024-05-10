@@ -19,8 +19,9 @@ import { FrontendValidationSource } from 'src/features/validation';
 import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { SearchParams, useCurrentView, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
 import { GenericComponentById } from 'src/layout/GenericComponent';
-import { extractBottomButtons, hasRequiredFields } from 'src/utils/formLayout';
-import { useNodesMemoSelector, useResolvedNode } from 'src/utils/layout/NodesContext';
+import { extractBottomButtons } from 'src/utils/formLayout';
+import { useResolvedNode } from 'src/utils/layout/NodesContext';
+import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 
 interface FormState {
   hasRequired: boolean;
@@ -175,25 +176,35 @@ interface ErrorProcessingProps {
  */
 function ErrorProcessing({ setFormState }: ErrorProcessingProps) {
   const currentPageId = useCurrentView();
-  const topLevelNodeIds = useNodesMemoSelector((nodes) => {
-    const page = nodes.findLayout(currentPageId);
-    const all = page?.children() || emptyArray;
+  const page = useNodeTraversal((traverser) => traverser.findPage(currentPageId));
+
+  const topLevelNodeIds = useNodeTraversal((traverser) => {
+    if (!page) {
+      return emptyArray;
+    }
+
+    const all = traverser.with(page).children();
     return all.map((n) => n.getId());
   });
 
-  const hasRequired = useNodesMemoSelector((nodes) => {
-    const page = nodes.findLayout(currentPageId);
-    return page ? hasRequiredFields(page) : false;
+  const hasRequired = useNodeTraversal((traverser) => {
+    if (!page) {
+      return false;
+    }
+    return (
+      traverser
+        .with(page)
+        .flat((item) => item.type === 'node' && 'required' in item.item && item.item.required === true).length > 0
+    );
   });
 
   const { formErrors, taskErrors } = useTaskErrors();
   const hasErrors = Boolean(formErrors.length) || Boolean(taskErrors.length);
-  const [mainIds, errorReportIds] = useNodesMemoSelector((nodes) => {
-    const page = nodes.findLayout(currentPageId);
+  const [mainIds, errorReportIds] = useNodeTraversal((traverser) => {
     if (!hasErrors || !page) {
       return [topLevelNodeIds, []];
     }
-    return extractBottomButtons(page);
+    return extractBottomButtons(traverser.with(page).children());
   });
   const requiredFieldsMissing = formErrors.some(
     (error) => error.source === FrontendValidationSource.EmptyField && error.node.pageKey() === currentPageId,

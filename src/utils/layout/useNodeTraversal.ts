@@ -1,56 +1,45 @@
-import { getComponentDef } from 'src/layout';
+import { useCallback } from 'react';
+
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import { NodePathNotFound } from 'src/utils/layout/NodePathNotFound';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
 import { NodesInternal, pickDataStorePath, useNodes } from 'src/utils/layout/NodesContext';
-import type { CompDef, NodeRef } from 'src/layout';
+import type { NodeRef } from 'src/layout';
 import type { ParentNode } from 'src/layout/layout';
-import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutPages } from 'src/utils/layout/LayoutPages';
-import type { PageHierarchy, PageStore } from 'src/utils/layout/NodesContext';
+import type { PageData, PageHierarchy } from 'src/utils/layout/NodesContext';
 import type { NodeData } from 'src/utils/layout/types';
 
-type Level1LayoutSet = PageHierarchy;
-type Level2Page = PageStore;
-type Level3Component = NodeData;
-type Level2Or3 = Level2Page | Level3Component;
+type AnyData = PageHierarchy | PageData | NodeData;
+type Node = BaseLayoutNode | LayoutPage | LayoutPages;
 
-type StartTypes = LayoutNode | LayoutPage | undefined;
+export interface TraversalRowIndexRestriction {
+  onlyInRowIndex: number;
+}
 
-export class NodeTraversal {
-  private path: string[] = [];
+export interface TraversalRowUuidRestriction {
+  onlyInRowUuid: string;
+}
 
+export type TraversalRestriction = TraversalRowUuidRestriction | TraversalRowIndexRestriction;
+export type TraversalMatcher = (state: AnyData) => boolean;
+
+export class TraversalTask {
   constructor(
     private state: PageHierarchy,
-    private nodes: LayoutPages,
-    nodeOrPage: LayoutNode | LayoutPage,
-  ) {
-    if (!state) {
-      throw new Error('NodeTraversal must be initialized with a state');
-    }
-    this.goto(nodeOrPage);
-  }
+    private rootNode: LayoutPages,
+    private readonly matcher: TraversalMatcher | undefined,
+    private readonly restriction: TraversalRestriction | undefined,
+  ) {}
 
   /**
-   * Sets the path to the given node or page.
+   * Get the node data for a given node
    */
-  private goto(nodeOrPage: LayoutNode | LayoutPage) {
-    if (nodeOrPage instanceof BaseLayoutNode) {
-      this.path = nodeOrPage.path;
-    }
-    if (nodeOrPage instanceof LayoutPage) {
-      this.path = [nodeOrPage.pageKey];
-    }
-  }
-
-  /**
-   * Get the state for a given path.
-   */
-  private get(target: string[] | NodeRef): Level2Or3 {
+  private getData(target: NodeRef | Node): AnyData {
     if (isNodeRef(target)) {
-      const node = this.nodes.findById(target.nodeRef);
+      const node = this.rootNode.findById(this, target.nodeRef);
       if (!node) {
         throw new NodePathNotFound(`Failed to look up nodeRef '${target.nodeRef}'`);
       }
@@ -58,106 +47,115 @@ export class NodeTraversal {
       return pickDataStorePath(this.state, node);
     }
 
-    return pickDataStorePath(this.state, target);
+    if (target instanceof LayoutPages) {
+      return this.state;
+    }
+
+    return pickDataStorePath(this.state, target as LayoutNode | LayoutPage);
   }
 
   /**
-   * Get a node object, given some node state
+   * Get a node object, given some node data
    */
-  private getNode(state: Level3Component): LayoutNode {
-    return this.nodes.findById(state.item.id)!;
+  private getNode(state: AnyData): LayoutNode | LayoutPage | LayoutPages {
+    if (state.type === 'pages') {
+      return this.rootNode;
+    }
+
+    if (state.type === 'page') {
+      return this.rootNode.findLayout(this, state.pageKey)!;
+    }
+
+    return this.rootNode.findById(this, state.item.id)!;
   }
 
   /**
-   * Perform some traversal. This may change the current path temporarily, but this will be reset when
-   * traversal is done.
+   * Filter a node based on the matcher
    */
-  private traverse<Out>(perform: () => Out): Out {
-    const pathWas = [...this.path];
-    const result = perform();
-    this.path = pathWas;
-    return result;
+  public passesMatcher(node: Node): boolean {
+    return !this.matcher || this.matcher(this.getData(node));
+  }
+
+  /**
+   * Filter a node based on the restriction
+   */
+  public passesRestriction(node: Node): boolean {
+    if (this.restriction && 'onlyInRowIndex' in this.restriction && node instanceof BaseLayoutNode) {
+      return node.row?.index === this.restriction.onlyInRowIndex;
+    }
+
+    if (this.restriction && 'onlyInRowUuid' in this.restriction && node instanceof BaseLayoutNode) {
+      return node.row?.uuid === this.restriction.onlyInRowUuid;
+    }
+
+    return true;
+  }
+
+  /**
+   * Filter a node based on it passing both the matcher and restriction
+   */
+  public passes(node: Node): boolean {
+    return this.passesMatcher(node) && this.passesRestriction(node);
+  }
+
+  /**
+   * All should pass if there is no matcher or restrictions
+   */
+  public allPasses(): boolean {
+    return !this.matcher && !this.restriction;
+  }
+
+  /**
+   * Convert this task and add/overwrite a restriction
+   */
+  public addRestriction(restriction: TraversalRestriction | undefined): TraversalTask {
+    return new TraversalTask(this.state, this.rootNode, this.matcher, restriction);
+  }
+}
+
+export class NodeTraversal<T extends Node = LayoutPages> {
+  constructor(
+    private readonly state: PageHierarchy,
+    private readonly rootNode: LayoutPages,
+    private readonly target: T,
+  ) {}
+
+  /**
+   * Initialize new traversal with a specific node
+   */
+  with<N extends Node>(node: N): NodeTraversalFrom<N> {
+    return new NodeTraversal(this.state, this.rootNode, node) as any;
   }
 
   /**
    * Looks for a matching component upwards in the hierarchy, returning the first one (or undefined if
    * none can be found).
    */
-  closest(matching: (state: Level3Component) => boolean): LayoutNode | undefined {
-    return this.traverse(() => {
-      const state = this.get(this.path);
-      if (state.type !== 'node') {
-        // We've gone too far up the hierarchy, no more nodes to look at
-        return undefined;
-      }
-
-      if (state.type === 'node' && matching(this.state)) {
-        return this.getNode(state);
-      }
-
-      this.path.pop();
-      const restriction =
-        state.type === 'node' && typeof state.row !== 'undefined' ? { onlyInRowUuid: state.row.uuid } : undefined;
-      const sibling = this.firstChild(matching, restriction);
-      if (sibling) {
-        return sibling;
-      }
-
-      // Find the closest one for the parent
-      return this.closest(matching);
-    });
+  closest(matching: TraversalMatcher): LayoutNode | undefined {
+    return this.target.closest(new TraversalTask(this.state, this.rootNode, matching, undefined));
   }
 
   /**
-   * Like children(), but will only match upwards along the tree towards the top (LayoutPage)
+   * Like children(), but will only match upwards along the tree towards the top page (LayoutPage)
    */
-  parents(matching?: (state: Level2Or3) => boolean): ParentNode[] {
-    const out: ParentNode[] = [];
-    this.recurseParents((state) => {
-      if (!matching || matching(state)) {
-        out.push(this.getNode(state));
-      }
-    });
-    return out;
-  }
+  parents(matching?: TraversalMatcher): ParentsFrom<T> {
+    const target = this.target;
+    if (target instanceof LayoutPages) {
+      throw new Error('Cannot call parents() on a LayoutPages object');
+    }
+    if (target instanceof LayoutPage) {
+      throw new Error('Cannot call parents() on a LayoutPage object');
+    }
 
-  private recurseParents(callback: (state: Level2Or3) => void, path = this.path) {
-    this.traverse(() => {
-      this.path = path;
-      const state = this.get(this.path);
-      if (state.type === 'node' || state.type === 'page') {
-        callback(state);
-      }
-      this.path.pop();
-      if (state.type === 'node') {
-        this.recurseParents(callback, this.path);
-      }
-    });
+    return target.parents(new TraversalTask(this.state, this.rootNode, matching, undefined)) as any;
   }
 
   /**
    * Looks for a matching component inside the (direct) children of this node (only makes sense for
-   * a group/container node). This will only return the first match.
+   * a group/container node or a page). This will only return the first match.
    */
-  firstChild(
-    matching: (state: Level3Component) => boolean,
-    restriction?: ChildLookupRestriction,
-  ): LayoutNode | undefined {
-    return this.traverse(() => {
-      const state = this.get(this.path);
-      if (state.type !== 'node') {
-        return undefined;
-      }
-
-      const children = this.children(matching, restriction);
-      return children.length ? children[0] : undefined;
-    });
-  }
-
-  private childrenAsList(state: Level3Component, restriction?: ChildLookupRestriction): Level3Component[] {
-    const def = getComponentDef(state.item?.type ?? state.layout.type) as CompDef<any>;
-    const refs = def.pickDirectChildren(state, restriction) as NodeRef[];
-    return refs.map((ref) => this.get(ref));
+  firstChild(matching: TraversalMatcher, restriction?: TraversalRestriction): ChildFrom<T> | undefined {
+    return this.target.firstChild(new TraversalTask(this.state, this.rootNode, matching, restriction)) as any;
   }
 
   /**
@@ -167,59 +165,100 @@ export class NodeTraversal {
    * Beware that matching inside a repeating group with multiple rows, you may want to provide a second argument
    * to specify which row to look in, otherwise you will find instances of the component in all rows.
    */
-  children(matching?: (state: Level3Component) => boolean, restriction?: ChildLookupRestriction): LayoutNode[] {
-    return this.traverse(() => {
-      const children: LayoutNode[] = [];
-      const state = this.get(this.path);
-      if (state.type !== 'node') {
-        return children;
-      }
-
-      const childStates = this.childrenAsList(state, restriction);
-      for (const child of childStates) {
-        if (!matching || matching(child)) {
-          children.push(this.getNode(child));
-        }
-      }
-
-      return children;
-    });
+  children(matching?: TraversalMatcher, restriction?: TraversalRestriction): ChildFrom<T>[] {
+    return this.target.children(new TraversalTask(this.state, this.rootNode, matching, restriction)) as any;
   }
 
   /**
    * This returns all the child nodes (including duplicate components for repeating groups and children of children) as
    * a flat list of LayoutNode objects.
    */
-  flat(restriction?: ChildLookupRestriction): LayoutNode[] {
-    return this.traverse(() => {
-      const out: LayoutNode[] = [];
-      const state = this.get(this.path);
-      if (state.type !== 'node') {
-        return out;
-      }
+  flat(matching?: TraversalMatcher, restriction?: TraversalRestriction): LayoutNode[] {
+    return this.target.flat(new TraversalTask(this.state, this.rootNode, matching, restriction));
+  }
 
-      const children = this.childrenAsList(state, restriction);
-      for (const child of children) {
-        out.push(this.getNode(child));
-        this.path.push(child.item.id);
-        out.push(...this.flat(restriction));
-        this.path.pop();
-      }
+  /**
+   * Selects all nodes in the hierarchy, starting from the root node.
+   */
+  allNodes(): LayoutNode[] {
+    return this.rootNode.allNodes(new TraversalTask(this.state, this.rootNode, undefined, undefined));
+  }
 
-      return out;
-    });
+  /**
+   * Find a LayoutPage given a page key
+   */
+  findPage(pageKey: string | undefined): LayoutPage | undefined {
+    if (!pageKey) {
+      return undefined;
+    }
+
+    return this.rootNode.findLayout(new TraversalTask(this.state, this.rootNode, undefined, undefined), pageKey);
   }
 }
+
+type ParentsFrom<N extends Node> = N extends LayoutPages
+  ? never[]
+  : N extends LayoutPage
+    ? never[]
+    : N extends LayoutNode
+      ? ParentNode[]
+      : never[];
+
+type ChildFrom<N extends Node> = N extends LayoutPages
+  ? LayoutPage
+  : N extends LayoutPage
+    ? LayoutNode
+    : N extends LayoutNode
+      ? LayoutNode
+      : never;
+
+export type NodeTraversalFrom<N extends Node> = N extends LayoutPages
+  ? NodeTraversalFromRoot
+  : N extends LayoutPage
+    ? NodeTraversalFromPage
+    : N extends LayoutNode
+      ? NodeTraversalFromNode<N>
+      : never;
+
+export type NodeTraversalFromRoot = Omit<NodeTraversal, 'parents'>;
+export type NodeTraversalFromPage = Omit<NodeTraversal<LayoutPage>, 'allNodes' | 'findPage'>;
+export type NodeTraversalFromNode<N extends LayoutNode> = Omit<NodeTraversal<N>, 'allNodes' | 'findPage'>;
 
 /**
  * Hook used when you want to traverse the hierarchy of a node, starting from a specific node.
  */
-export function useNodeTraversal<N extends StartTypes, Out>(
+export function useNodeTraversal<Out>(selector: (traverser: NodeTraversalFromRoot) => Out): Out;
+export function useNodeTraversal<N extends LayoutPage, Out>(
+  selector: (traverser: NodeTraversalFromPage) => Out,
   node: N,
-  selector: (traverser: NodeTraversal) => Out,
-): N extends undefined ? undefined : Out {
+): Out;
+export function useNodeTraversal<N extends LayoutNode, Out>(
+  selector: (traverser: NodeTraversalFromNode<N>) => Out,
+  node: N,
+): Out;
+export function useNodeTraversal<Out>(selector: (traverser: never) => Out, node?: never): Out {
   const nodes = useNodes();
   return NodesInternal.useNodeDataMemoRaw((state) =>
-    node == undefined ? undefined : selector(new NodeTraversal(state, nodes, node)),
+    node == undefined
+      ? (selector as any)(new NodeTraversal(state, nodes, nodes))
+      : (selector as any)(new NodeTraversal(state, nodes, node)),
   ) as any;
+}
+
+/**
+ * Hook that returns a selector that lets you traverse the hierarchy at a later time. Will re-render your
+ * component when any of the traversals you did would return a different result.
+ */
+export function useNodeTraversalSelector() {
+  const nodes = useNodes();
+  const selectState = NodesInternal.useNodeDataMemoSelectorRaw();
+
+  return useCallback(
+    <U>(innerSelector: (traverser: NodeTraversalFromRoot) => U, deps: any[]) =>
+      selectState(
+        (state) => innerSelector(new NodeTraversal(state.pages, nodes, nodes)),
+        [innerSelector.toString(), ...deps],
+      ),
+    [selectState, nodes],
+  );
 }

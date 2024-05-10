@@ -5,9 +5,9 @@ import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { FormDataSelector, NodeRef } from 'src/layout';
 import type { TypeFromNode } from 'src/layout/layout';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
-import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeData } from 'src/utils/layout/types';
+import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 type ItemFromNode<N extends LayoutNode | undefined> = N extends undefined
   ? undefined
@@ -19,7 +19,7 @@ export function useNodeItem<N extends LayoutNode | undefined>(node: N): ItemFrom
   return NodesInternal.useNodeData(node, (node) => node?.item) as ItemFromNode<N>;
 }
 
-export function useNodeDirectChildren(parent: LayoutNode, restriction?: ChildLookupRestriction): NodeRef[] | undefined {
+export function useNodeDirectChildren(parent: LayoutNode, restriction?: TraversalRestriction): NodeRef[] | undefined {
   return NodesInternal.useNodeData(parent, (store) => parent.def.pickDirectChildren(store, restriction));
 }
 

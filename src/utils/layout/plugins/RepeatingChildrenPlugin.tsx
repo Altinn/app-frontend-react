@@ -9,7 +9,6 @@ import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import type { CompDef, NodeRef, NodeRefInRow } from 'src/layout';
 import type { CompTypes } from 'src/layout/layout';
-import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   DefPluginChildClaimerProps,
@@ -20,6 +19,7 @@ import type {
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { BaseRow, NodeData } from 'src/utils/layout/types';
+import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface RepChildrenRow extends BaseRow {
   items: NodeRefInRow[];
@@ -190,7 +190,7 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig>
     }
   }
 
-  pickDirectChildren(state: DefPluginState<ToInternal<E>>, restriction?: ChildLookupRestriction): NodeRef[] {
+  pickDirectChildren(state: DefPluginState<ToInternal<E>>, restriction?: TraversalRestriction): NodeRef[] {
     const out: NodeRef[] = [];
 
     const rows = state[this.settings.internalProp] as InternalRowState<E>;

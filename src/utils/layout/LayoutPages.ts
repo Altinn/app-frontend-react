@@ -1,7 +1,7 @@
-import type { $Values } from 'utility-types';
-
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutObject } from 'src/utils/layout/LayoutObject';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { TraversalTask } from 'src/utils/layout/useNodeTraversal';
 
 interface Collection {
   [layoutKey: string]: LayoutPage;
@@ -11,7 +11,7 @@ interface Collection {
  * A tool when you have more than one LayoutPage (i.e. a full layout set). It can help you look up components
  * by ID, and if you have colliding component IDs in multiple layouts it will prefer the one in the current layout.
  */
-export class LayoutPages {
+export class LayoutPages implements LayoutObject<LayoutPage> {
   private readonly objects: Collection = {};
 
   public constructor() {
@@ -21,7 +21,7 @@ export class LayoutPages {
     }
   }
 
-  public findById(id: string | undefined, exceptInPage?: string): LayoutNode | undefined {
+  public findById(task: TraversalTask, id: string | undefined, exceptInPage?: string): LayoutNode | undefined {
     if (!id) {
       return undefined;
     }
@@ -30,7 +30,7 @@ export class LayoutPages {
       if (pageKey === exceptInPage) {
         continue;
       }
-      const node = this.objects[pageKey].findById(id, false);
+      const node = this.objects[pageKey].findById(task, id, false);
       if (node) {
         return node;
       }
@@ -39,44 +39,54 @@ export class LayoutPages {
     return undefined;
   }
 
-  public findAllById(id: string, exceptInPage?: string): LayoutNode[] {
+  public findAllById(task: TraversalTask, id: string, exceptInPage?: string): LayoutNode[] {
     const out: LayoutNode[] = [];
 
     for (const key of Object.keys(this.objects)) {
       if (key !== exceptInPage) {
-        out.push(...this.objects[key].findAllById(id, false));
+        out.push(...this.objects[key].findAllById(task, id, false));
       }
     }
 
     return out;
   }
 
-  public findLayout(key: keyof Collection | string | undefined): LayoutPage | undefined {
+  public findLayout(_task: TraversalTask, key: keyof Collection | string | undefined): LayoutPage | undefined {
     if (!key) {
       return undefined;
     }
     return this.objects[key];
   }
 
-  public all(): Collection {
+  public all(_task: TraversalTask): Collection {
     return this.objects;
   }
 
-  public allNodes(): LayoutNode[] {
-    return Object.values(this.objects).flatMap((layout) => layout.flat());
+  public allNodes(task: TraversalTask): LayoutNode[] {
+    return Object.values(this.objects).flatMap((layout) => layout.flat(task));
   }
 
-  public allPageKeys(): string[] {
+  public allPageKeys(_task: TraversalTask): string[] {
     return Object.keys(this.objects);
   }
 
-  public flat<L extends keyof Collection>(exceptLayout?: L) {
-    return [
-      ...Object.keys(this.objects)
-        .filter((key) => key !== exceptLayout)
-        .map((key) => this.objects[key])
-        .flat(),
-    ] as $Values<Omit<Collection, L>>[];
+  public closest(task: TraversalTask, passedFrom?: LayoutPage | LayoutNode | LayoutPages): LayoutNode | undefined {
+    return this.flat(task)
+      .filter((n) => n.page !== passedFrom)
+      .find((n) => task.passes(n));
+  }
+
+  public firstChild(task: TraversalTask): LayoutPage | undefined {
+    return this.children(task).find((p) => task.passes(p));
+  }
+
+  public children(task: TraversalTask): LayoutPage[] {
+    return Object.values(this.objects).filter((p) => task.passes(p));
+  }
+
+  public flat(task: TraversalTask): LayoutNode[] {
+    const pages = Object.values(this.objects) as LayoutPage[];
+    return pages.map((p) => p.flat(task)).flat();
   }
 
   public replacePage(page: LayoutPage) {

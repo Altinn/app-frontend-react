@@ -4,9 +4,9 @@ import type { SerializableSetting } from 'src/codegen/SerializableSetting';
 import type { NodeRef } from 'src/layout';
 import type { CompInternal, CompTypes } from 'src/layout/layout';
 import type { ChildClaimerProps, ExprResolver } from 'src/layout/LayoutComponent';
-import type { ChildLookupRestriction } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { BaseItemState, NodeData, StateFactoryProps } from 'src/utils/layout/types';
+import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface DefPluginConfig {
   componentType: CompTypes;
@@ -200,7 +200,7 @@ export abstract class NodeDefPlugin<Config extends DefPluginConfig> {
  */
 export interface NodeDefChildrenPlugin<Config extends DefPluginConfig> {
   claimChildren(props: DefPluginChildClaimerProps<Config>): void;
-  pickDirectChildren(state: DefPluginState<Config>, restriction?: ChildLookupRestriction): NodeRef[];
+  pickDirectChildren(state: DefPluginState<Config>, restriction?: TraversalRestriction): NodeRef[];
   pickChild<C extends CompTypes>(state: DefPluginState<Config>, childId: string, parentPath: string[]): NodeData<C>;
   addChild(state: DefPluginState<Config>, childNode: LayoutNode, childStore: NodeData): void;
   removeChild(state: DefPluginState<Config>, childNode: LayoutNode): void;

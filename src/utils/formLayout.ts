@@ -1,7 +1,7 @@
 import { getComponentCapabilities } from 'src/layout';
 import type { ILayoutSets } from 'src/layout/common.generated';
 import type { ILikertFilter } from 'src/layout/Likert/config.generated';
-import type { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export const getLikertStartStopIndex = (lastIndex: number, filters: ILikertFilter = []) => {
   if (typeof lastIndex === 'undefined') {
@@ -23,20 +23,12 @@ export const getLikertStartStopIndex = (lastIndex: number, filters: ILikertFilte
 };
 
 /**
- * Checks if there are required fields in this layout (or fields that potentially can be marked as required if some
- * dynamic behaviour dictates it).
- */
-export function hasRequiredFields(page: LayoutPage): boolean {
-  return !!page.flat().find((n) => 'required' in n.item && n.item.required === true);
-}
-
-/**
  * Takes a layout and splits it into two return parts; the last will contain
  * all the buttons on the bottom of the input layout, while the first returned
  * value is the input layout except for these extracted components.
  */
-export function extractBottomButtons(page: LayoutPage) {
-  const all = [...page.children()];
+export function extractBottomButtons(topLevelNodes: LayoutNode[]) {
+  const all = [...topLevelNodes];
   const toMainLayout: string[] = [];
   const toErrorReport: string[] = [];
   for (const node of all.reverse()) {
