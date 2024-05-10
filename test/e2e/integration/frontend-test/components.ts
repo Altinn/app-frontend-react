@@ -65,7 +65,7 @@ describe('UI Components', () => {
       .should('not.exist');
   });
 
-  it.only('is possible to upload and delete attachments', () => {
+  it('is possible to upload and delete attachments', () => {
     cy.interceptLayout('changename', (component) => {
       if (component.id === 'newFirstName') {
         // TODO(Validation): Once it is possible to treat custom validations as required, this can be removed.
