@@ -6,7 +6,8 @@ import { ContextNotProvided } from 'src/core/contexts/context';
 import { filterValidations, getVisibilityMask, selectValidations } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
-import { NodesInternal, useNodesAsLaxRef } from 'src/utils/layout/NodesContext';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { useNodeTraversalSelectorLax } from 'src/utils/layout/useNodeTraversal';
 
 /**
  * Checks for any validation errors before submitting the form.
@@ -16,20 +17,13 @@ import { NodesInternal, useNodesAsLaxRef } from 'src/utils/layout/NodesContext';
  * If there are no backend errors, it shows any backend errors that cannot be mapped to a visible node. Including task errors.
  */
 export function useOnFormSubmitValidation() {
-  const nodes = useNodesAsLaxRef();
   const validation = Validation.useLaxRef();
   const setNodeVisibility = NodesInternal.useSetNodeVisibility();
   const nodeValidationsSelector = NodesInternal.useValidationsSelector();
+  const traversalSelector = useNodeTraversalSelectorLax();
 
   /* Ensures the callback will have the latest state */
   const callback = useEffectEvent((): boolean => {
-    const layoutPages = nodes.current;
-
-    if (layoutPages === ContextNotProvided) {
-      // If the nodes are not provided, we cannot validate them
-      return false;
-    }
-
     if (validation.current === ContextNotProvided) {
       // If the validation context is not provided, we cannot validate
       return false;
@@ -41,11 +35,25 @@ export function useOnFormSubmitValidation() {
     /*
      * First: check and show any frontend errors
      */
-    const nodesWithFrontendErrors = layoutPages.allNodes().filter((n) => {
-      const validations = nodeValidationsSelector(n);
-      const filtered = filterValidations(selectValidations(validations, ValidationMask.All, 'error'), n);
-      return filtered.length > 0;
-    });
+    const nodesWithFrontendErrors = traversalSelector(
+      (t) => {
+        if (t === ContextNotProvided) {
+          return false;
+        }
+
+        return t.allNodes().filter((n) => {
+          const validations = nodeValidationsSelector(n);
+          const filtered = filterValidations(selectValidations(validations, ValidationMask.All, 'error'), n);
+          return filtered.length > 0;
+        });
+      },
+      [nodeValidationsSelector],
+    );
+
+    if (!nodesWithFrontendErrors) {
+      // If the nodes are not provided, we cannot validate them
+      return false;
+    }
 
     if (nodesWithFrontendErrors.length > 0) {
       setNodeVisibility(nodesWithFrontendErrors, ValidationMask.All);
@@ -56,12 +64,21 @@ export function useOnFormSubmitValidation() {
      * Normally, backend errors should be in sync with frontend errors.
      * But if not, show them now.
      */
-    const nodesWithAnyError = layoutPages.allNodes().filter((n) => {
-      const validations = nodeValidationsSelector(n);
-      return (
-        filterValidations(selectValidations(validations, ValidationMask.AllIncludingBackend, 'error'), n).length > 0
-      );
-    });
+    const nodesWithAnyError = traversalSelector(
+      (t) => {
+        if (t === ContextNotProvided) {
+          throw new Error('Traversal context not provided');
+        }
+
+        return t.allNodes().filter((n) => {
+          const validations = nodeValidationsSelector(n);
+          return (
+            filterValidations(selectValidations(validations, ValidationMask.AllIncludingBackend, 'error'), n).length > 0
+          );
+        });
+      },
+      [nodeValidationsSelector],
+    );
 
     if (nodesWithAnyError.length > 0) {
       setNodeVisibility(nodesWithAnyError, ValidationMask.All);

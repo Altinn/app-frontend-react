@@ -28,6 +28,7 @@ import { isNodeRef } from 'src/utils/layout/nodeRef';
 import { NodesGenerator } from 'src/utils/layout/NodesGenerator';
 import { NodeStagesProvider } from 'src/utils/layout/NodeStages';
 import { RepeatingChildrenStorePlugin } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
+import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { OptionsStorePluginConfig } from 'src/features/options/OptionsStorePlugin';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
 import type { NodeRef } from 'src/layout';
@@ -279,13 +280,13 @@ type RetValFromNodeRef<T extends MaybeNodeRef> = T extends undefined
  * Usually, if you're looking for a specific component/node, useResolvedNode() is better.
  */
 export function useNode<T extends string | NodeRef | undefined>(idOrRef: T): RetValFromNodeRef<T> {
-  const node = NodesStore.useSelector((s) => s.nodes?.findById(isNodeRef(idOrRef) ? idOrRef.nodeRef : idOrRef));
+  const node = useNodeTraversal((traverser) => traverser.findById(idOrRef));
   return node as RetValFromNodeRef<T>;
 }
 
 export const useNodes = () => NodesStore.useSelector((s) => s.nodes!);
-export const useNodesAsRef = () => NodesStore.useSelectorAsRef((s) => s.nodes!);
-export const useNodesAsLaxRef = () => NodesStore.useLaxSelectorAsRef((s) => s.nodes!);
+export const useNodesAsRef = () => NodesStore.useSelectorAsRef((s) => s.nodes);
+export const useNodesAsLaxRef = () => NodesStore.useLaxSelectorAsRef((s) => s.nodes);
 
 export type NodeSelector = ReturnType<typeof useNodeSelector>;
 export function useNodeSelector() {

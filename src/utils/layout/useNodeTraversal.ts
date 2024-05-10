@@ -1,11 +1,12 @@
 import { useCallback } from 'react';
 
+import { ContextNotProvided } from 'src/core/contexts/context';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import { NodePathNotFound } from 'src/utils/layout/NodePathNotFound';
 import { isNodeRef } from 'src/utils/layout/nodeRef';
-import { NodesInternal, pickDataStorePath, useNodes } from 'src/utils/layout/NodesContext';
+import { NodesInternal, pickDataStorePath, useNodesAsLaxRef } from 'src/utils/layout/NodesContext';
 import type { NodeRef } from 'src/layout';
 import type { ParentNode } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -194,6 +195,14 @@ export class NodeTraversal<T extends Node = LayoutPages> {
 
     return this.rootNode.findLayout(new TraversalTask(this.state, this.rootNode, undefined, undefined), pageKey);
   }
+
+  /**
+   * Find a node (never a page) by the given ID
+   */
+  findById(idOrRef: string | NodeRef | undefined, exceptInPage?: string): LayoutNode | undefined {
+    const id = isNodeRef(idOrRef) ? idOrRef.nodeRef : idOrRef;
+    return this.rootNode.findById(new TraversalTask(this.state, this.rootNode, undefined, undefined), id, exceptInPage);
+  }
 }
 
 type ParentsFrom<N extends Node> = N extends LayoutPages
@@ -221,12 +230,37 @@ export type NodeTraversalFrom<N extends Node> = N extends LayoutPages
       : never;
 
 export type NodeTraversalFromRoot = Omit<NodeTraversal, 'parents'>;
-export type NodeTraversalFromPage = Omit<NodeTraversal<LayoutPage>, 'allNodes' | 'findPage'>;
-export type NodeTraversalFromNode<N extends LayoutNode> = Omit<NodeTraversal<N>, 'allNodes' | 'findPage'>;
+export type NodeTraversalFromPage = Omit<NodeTraversal<LayoutPage>, 'allNodes' | 'findPage' | 'findById'>;
+export type NodeTraversalFromNode<N extends LayoutNode> = Omit<NodeTraversal<N>, 'allNodes' | 'findPage' | 'findById'>;
 
 /**
  * Hook used when you want to traverse the hierarchy of a node, starting from a specific node.
  */
+export function useNodeTraversalLax<Out>(
+  selector: (traverser: NodeTraversalFromRoot | typeof ContextNotProvided) => Out,
+): Out;
+export function useNodeTraversalLax<N extends LayoutPage, Out>(
+  selector: (traverser: NodeTraversalFromPage | typeof ContextNotProvided) => Out,
+  node: N,
+): Out;
+export function useNodeTraversalLax<N extends LayoutNode, Out>(
+  selector: (traverser: NodeTraversalFromNode<N> | typeof ContextNotProvided) => Out,
+  node: N,
+): Out;
+export function useNodeTraversalLax<Out>(selector: (traverser: never) => Out, node?: never): Out {
+  const nodesRef = useNodesAsLaxRef();
+  return NodesInternal.useNodeDataMemoRaw((state) => {
+    const nodes = nodesRef.current;
+    if (!nodes || nodes === ContextNotProvided) {
+      return (selector as any)(ContextNotProvided);
+    }
+
+    return node === undefined
+      ? (selector as any)(new NodeTraversal(state, nodes, nodes))
+      : (selector as any)(new NodeTraversal(state, nodes, node));
+  }) as any;
+}
+
 export function useNodeTraversal<Out>(selector: (traverser: NodeTraversalFromRoot) => Out): Out;
 export function useNodeTraversal<N extends LayoutPage, Out>(
   selector: (traverser: NodeTraversalFromPage) => Out,
@@ -237,28 +271,47 @@ export function useNodeTraversal<N extends LayoutNode, Out>(
   node: N,
 ): Out;
 export function useNodeTraversal<Out>(selector: (traverser: never) => Out, node?: never): Out {
-  const nodes = useNodes();
-  return NodesInternal.useNodeDataMemoRaw((state) =>
-    node == undefined
-      ? (selector as any)(new NodeTraversal(state, nodes, nodes))
-      : (selector as any)(new NodeTraversal(state, nodes, node)),
-  ) as any;
+  return useNodeTraversalLax((traverser) => {
+    if (traverser === ContextNotProvided) {
+      throw new Error('useNodeTraversal() must be used inside a NodesProvider');
+    }
+
+    return (selector as any)(traverser);
+  }, node as any);
 }
 
 /**
  * Hook that returns a selector that lets you traverse the hierarchy at a later time. Will re-render your
  * component when any of the traversals you did would return a different result.
  */
-export function useNodeTraversalSelector() {
-  const nodes = useNodes();
+function useNodeTraversalSelectorProto(lax: boolean) {
+  const nodesRef = useNodesAsLaxRef();
   const selectState = NodesInternal.useNodeDataMemoSelectorRaw();
 
   return useCallback(
-    <U>(innerSelector: (traverser: NodeTraversalFromRoot) => U, deps: any[]) =>
+    <U>(innerSelector: (traverser: NodeTraversalFromRoot | typeof ContextNotProvided) => U, deps: any[]) =>
       selectState(
-        (state) => innerSelector(new NodeTraversal(state.pages, nodes, nodes)),
+        (state) => {
+          const nodes = nodesRef.current;
+          if (!nodes || nodes === ContextNotProvided) {
+            if (lax) {
+              return innerSelector(ContextNotProvided);
+            }
+            throw new Error('useNodeTraversalSelector() must be used inside a NodesProvider');
+          }
+
+          return innerSelector(new NodeTraversal(state.pages, nodes, nodes));
+        },
         [innerSelector.toString(), ...deps],
       ),
-    [selectState, nodes],
+    [selectState, nodesRef, lax],
   );
+}
+
+export function useNodeTraversalSelector() {
+  return useNodeTraversalSelectorProto(false);
+}
+
+export function useNodeTraversalSelectorLax() {
+  return useNodeTraversalSelectorProto(true);
 }

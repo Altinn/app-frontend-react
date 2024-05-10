@@ -10,7 +10,7 @@ import {
 } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
-import { useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
+import { useNodeTraversalSelectorLax } from 'src/utils/layout/useNodeTraversal';
 
 const emptyArray: [] = [];
 
@@ -25,7 +25,7 @@ export function useTaskErrors(): {
   const selector = Validation.useSelector();
   const visibilitySelector = NodesInternal.useValidationVisibilitySelector();
   const nodeValidationsSelector = NodesInternal.useValidationsSelector();
-  const traversalSelector = useNodeTraversalSelector();
+  const traversalSelector = useNodeTraversalSelectorLax();
 
   const formErrors = useMemo(() => {
     if (!traversalSelector) {
