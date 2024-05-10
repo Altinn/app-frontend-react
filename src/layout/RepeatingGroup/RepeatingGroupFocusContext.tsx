@@ -38,25 +38,8 @@ export function RepeatingGroupsFocusProvider({ children }: PropsWithChildren) {
 
   const { node, openForEditing, changePageToRow } = useRepeatingGroup();
   useRegisterNodeNavigationHandler((targetNode) => {
-    if (node.item.edit?.mode === 'showAll') {
-      // We're already showing all rows, so no point in doing anything here.
-      return true;
-    }
-
-    if (node.item.edit?.mode === 'onlyTable') {
-      if (!node.item.pagination) {
-        return true;
-      }
-      // If pagination is used, navigate to the correct page
-      const row = node.item.rows.find((r) => r.items.some((i) => i.item.id === targetNode.item.id));
-      if (row) {
-        changePageToRow(row.uuid);
-        return true;
-      }
-
-      return false;
-    }
-
+    // We are a parent of the target component, and the targetChild is the target component (or a nested group
+    // containing the target component).
     let targetChild: ParentNode = targetNode;
     for (const parent of targetNode.parents()) {
       if (parent.item.id !== node.item.id) {
@@ -64,22 +47,37 @@ export function RepeatingGroupsFocusProvider({ children }: PropsWithChildren) {
         continue;
       }
 
-      // We are a parent of the target component, and the targetChild is the target component (or a nested group
-      // containing the target component). We should most likely open the row containing targetChild for editing.
+      const row = node.item.rows.find((r) => r.items.some((i) => i.item.id === targetChild.item.id));
+
+      // If pagination is used, navigate to the correct page
+      if (node.item.pagination) {
+        if (row) {
+          changePageToRow(row.uuid);
+        } else {
+          return false;
+        }
+      }
+
+      if (node.item.edit?.mode === 'showAll' || node.item.edit?.mode === 'onlyTable') {
+        // We're already showing all nodes, so nothing further to do
+        return true;
+      }
+
+      // Check if we need to open the row containing targetChild for editing.
+      const targetChildBaseComponentId = targetChild.item.baseComponentId ?? targetChild.item.id;
       const tableColSetup =
-        (node.item.tableColumns && targetChild.item.id && node.item.tableColumns[targetChild.item.id]) || {};
+        (node.item.tableColumns && targetChildBaseComponentId && node.item.tableColumns[targetChildBaseComponentId]) ||
+        {};
 
       if (tableColSetup.editInTable || tableColSetup.showInExpandedEdit === false) {
         // No need to open rows or set editIndex for components that are rendered
         // in table (outside the edit container)
-        return false;
+        return true;
       }
 
-      for (const row of node.item.rows) {
-        if (row.items.find((item) => item.item.id === targetChild?.item.id)) {
-          openForEditing(row.uuid);
-          return true;
-        }
+      if (row) {
+        openForEditing(row.uuid);
+        return true;
       }
     }
 
