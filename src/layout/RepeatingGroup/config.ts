@@ -81,6 +81,20 @@ export const Config = new CG.component({
         'The text for the "Edit" button when the repeating group item is not in edit mode (i.e. the user can open the edit mode)',
     }),
   )
+  .addTextResource(
+    new CG.trb({
+      name: 'pagination_next_button',
+      title: 'Next button in pagination',
+      description: 'The text for the "Next" button in pagination',
+    }),
+  )
+  .addTextResource(
+    new CG.trb({
+      name: 'pagination_back_button',
+      title: 'Back button in pagination',
+      description: 'The text for the "Back" button in pagination',
+    }),
+  )
   .addDataModelBinding(
     new CG.obj(
       new CG.prop(

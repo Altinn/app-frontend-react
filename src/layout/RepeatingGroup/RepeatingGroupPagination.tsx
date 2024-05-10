@@ -4,6 +4,7 @@ import { Pagination, Table, usePagination } from '@digdir/designsystemet-react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@navikt/aksel-icons';
 import deepEqual from 'fast-deep-equal';
 
+import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getValidationsForNode, hasValidationErrors } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
@@ -18,7 +19,7 @@ interface RepeatingGroupPaginationProps {
   inTable?: boolean;
 }
 
-export function RepeatingGroupPagination({ inTable }: RepeatingGroupPaginationProps) {
+export function RepeatingGroupPagination({ inTable = true }: RepeatingGroupPaginationProps) {
   const { hasPagination, rowsPerPage, currentPage, totalPages, changePage, visibleRows, node } = useRepeatingGroup();
   const pagesWithErrors = usePagesWithErrors(rowsPerPage, node);
   const isTablet = useIsMobileOrTablet();
@@ -69,9 +70,20 @@ export function RepeatingGroupPagination({ inTable }: RepeatingGroupPaginationPr
     resetScrollPosition(prevScrollPosition);
   };
 
-  if (inTable === false) {
-    return (
+  return (
+    <ConditionalWrapper
+      condition={inTable}
+      wrapper={(children) => (
+        <Table.Body>
+          <Table.Row className={!isTablet ? classes.row : undefined}>
+            <Table.Cell colSpan={100}>{children}</Table.Cell>
+          </Table.Row>
+        </Table.Body>
+      )}
+    >
       <PaginationComponent
+        nextTextKey={node.item.textResourceBindings?.pagination_next_button ?? 'general.next'}
+        backTextKey={node.item.textResourceBindings?.pagination_back_button ?? 'general.back'}
         data-pagination-id={node.item.id}
         className={classes.pagination}
         currentPage={currentPage + 1}
@@ -82,31 +94,13 @@ export function RepeatingGroupPagination({ inTable }: RepeatingGroupPaginationPr
         hideLabels={isMobile}
         size={isMini ? 'small' : 'medium'}
       />
-    );
-  }
-
-  return (
-    <Table.Body>
-      <Table.Row className={!isTablet ? classes.row : undefined}>
-        <Table.Cell colSpan={100}>
-          <PaginationComponent
-            data-pagination-id={node.item.id}
-            className={classes.pagination}
-            currentPage={currentPage + 1}
-            totalPages={totalPages}
-            pagesWithErrors={pagesWithErrors}
-            onChange={onChange}
-            compact={isTablet}
-            hideLabels={isMobile}
-            size={isMini ? 'small' : 'medium'}
-          />
-        </Table.Cell>
-      </Table.Row>
-    </Table.Body>
+    </ConditionalWrapper>
   );
 }
 
 type PaginationComponentProps = {
+  nextTextKey: string;
+  backTextKey: string;
   size: NonNullable<Parameters<typeof Pagination>[0]['size']>;
   compact: boolean;
   hideLabels: boolean;
@@ -123,6 +117,8 @@ const iconSize = {
 };
 
 function PaginationComponent({
+  nextTextKey,
+  backTextKey,
   size,
   compact,
   hideLabels,
@@ -139,8 +135,8 @@ function PaginationComponent({
   });
   const { langAsString } = useLanguage();
 
-  const nextLabel = langAsString('general.next');
-  const previousLabel = langAsString('general.back');
+  const nextLabel = langAsString(nextTextKey);
+  const previousLabel = langAsString(backTextKey);
 
   return (
     <Pagination.Root
