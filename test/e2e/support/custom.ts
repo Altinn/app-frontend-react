@@ -1,3 +1,5 @@
+import 'cypress-wait-until';
+
 import deepEqual from 'fast-deep-equal';
 import type axe from 'axe-core';
 import type { Options as AxeOptions } from 'cypress-axe';
